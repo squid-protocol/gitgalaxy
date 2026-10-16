@@ -299,6 +299,7 @@ def _every_compiled_rule():
             yield lang_id, rule_name, pattern
 
 
+@pytest.mark.slow(reason="derives a gate for, and probes, every live rule: 12-16 s on a CI runner (#5267)")
 def test_extractor_never_raises_and_gates_are_one_sided_on_live_ruleset():
     seen = 0
     gated = 0

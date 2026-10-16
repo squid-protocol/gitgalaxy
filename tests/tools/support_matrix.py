@@ -409,6 +409,11 @@ def render_eras(e: dict[str, Any] | None) -> list[str]:
             "",
             f"{s['raised_by_copybook']} programs have a higher era than their own text shows: a copybook they COPY carries the tell.",
         ]
+    if s.get("copybook_skipped"):  # present only when a program's copybook pass was skipped (#5195)
+        L += [
+            "",
+            f"{s['copybook_skipped']} programs were tagged without their copybooks (the COPY expansion was refused): a tell in one is not counted.",
+        ]
     L += ["", "Tells used (programs): " + (", ".join(f"{k} {v}" for k, v in s["tells"].items()) or "none") + ".", ""]
     if e["mixed"]:
         L += ["Mixed programs:", ""]

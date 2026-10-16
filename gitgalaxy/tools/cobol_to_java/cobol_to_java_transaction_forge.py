@@ -280,6 +280,8 @@ public class CicsTask {
     private int retrieved;
     private boolean retrieveRefused;                        // #4270: a RETRIEVE raised ENVDEFERR (the root's)
     private boolean runChild;                               // #4270: a RUN TRANSID child task (the root's)
+    private final Map<String, Object> resources = new HashMap<>();  // #4892: resource managers joined (the root's)
+    private final List<Consumer<Boolean>> uowParticipants = new ArrayList<>();  // #4892: told as its unit of work ends
     private int children;                                   // #4270: the RUN TRANSID children it attached
     private final List<Child> kids = new ArrayList<>();     // #4950: those children, in RUN order (the root's)
     private long waited;                                    // #4950 (X18): the scheduler's clock, ms of waits (root's)
@@ -1227,6 +1229,8 @@ public class CicsTask {
             throw refused("WEB SEND of an empty container");
         } else if (k.bit) {
             throw refused("WEB SEND of a DATATYPE BIT container");
+        } else if (k.ccsid != REGION_CCSID) {
+            throw refused("WEB SEND of a container in a CCSID other than the region's");
         }
         return webSendBody(pre != null ? "" : new String(k.data, cs), mediaType, action, status, statusText, statusLength,
                 conv, false, null, 0, pre);
@@ -2243,6 +2247,33 @@ public class CicsTask {
         }
     }
 
+    /** #4892 (register W5): a resource manager the runner joins to the task -- cobolrt.mq's queue manager ("mq") --
+     *  found again by resource(name), and told as the task's unit of work ends: SYNCPOINT (false); SYNCPOINT ROLLBACK
+     *  and the backout of an abend that ends the task (true), as the stub's uow_end tells tests/equivalence/mq/ggmq.c. */
+    public CicsTask withResource(String name, Object manager, Consumer<Boolean> uowEnd) {
+        root().resources.put(name, manager);
+        if (uowEnd != null) {
+            root().uowParticipants.add(uowEnd);
+        }
+        return this;
+    }
+
+    /** #4892: the resource manager joined under `name`, or null. */
+    public Object resource(String name) {
+        return root().resources.get(name);
+    }
+
+    /** #4892: an event a resource manager records in the task's stream (an MQI call, as ggmq.c's ggcics_event). */
+    public void resourceEvent(String kind, Object... kv) {
+        event(kind, kv);
+    }
+
+    private void resourceUowEnd(boolean rollback) {
+        for (Consumer<Boolean> p : root().uowParticipants) {
+            p.accept(rollback);
+        }
+    }
+
     /** The unit of work ends (#5168): committed, or backed out. */
     private void tdUowEnd(boolean rollback) {
         CicsTask root = root();
@@ -2944,7 +2975,7 @@ public class CicsTask {
     /** #4950: a copy of a channel's containers, under `name`. */
     private static Channel copyOf(Channel from, String name) {
         Channel ch = new Channel(name);
-        from.containers.forEach((k, v) -> ch.containers.put(k, new Container(v.data.clone(), v.bit)));
+        from.containers.forEach((k, v) -> ch.containers.put(k, new Container(v.data.clone(), v.bit, v.ccsid)));
         return ch;
     }
 
@@ -3510,11 +3541,74 @@ public class CicsTask {
     private static final class Container {
         private byte[] data;
         private final boolean bit;
+        private final int ccsid;  // a CHAR container's CCSID (the first PUT's, else the region's); 0 for BIT
 
         private Container(byte[] data, boolean bit) {
+            this(data, bit, bit ? 0 : REGION_CCSID);
+        }
+
+        private Container(byte[] data, boolean bit, int ccsid) {
             this.data = data;
             this.bit = bit;
+            this.ccsid = ccsid;
         }
+    }
+
+    // #4270 (X17): the CCSIDs a CHAR container converts between -- the region's 037, 500 and 1140 (single-byte EBCDIC pages
+    // that keep a container's length) and 1208 (UTF-8) for ASCII data, one byte a character. The bytes a program holds in its
+    // storage are read as the region's page (the port's convention, #4528): an area's byte is the character the region's
+    // page gives the byte it encodes to, and a conversion is the character-to-character map between the two pages, applied
+    // to the storage's bytes (a 1208 byte is the ASCII character itself, kept in storage as the region's page decodes it). A
+    // character the target page lacks (037 / 500 <-> 1140: the currency sign and the euro) is CCSIDERR RESP2 4 ("replaced by
+    // a blank"), which IBM does not say what FLENGTH or a PUT then do with: refused, as is a 1208 byte or character beyond
+    // ASCII (a multibyte sequence changes the length).
+    private static final int REGION_CCSID = 37;
+    private int lastContainerCcsid;
+
+    private static java.nio.charset.Charset ccsidCharset(int ccsid, String what) {
+        switch (ccsid) {
+            case 37:
+                return java.nio.charset.Charset.forName("Cp037");
+            case 500:
+                return java.nio.charset.Charset.forName("Cp500");
+            case 1140:
+                return java.nio.charset.Charset.forName("Cp1140");
+            case 1208:
+                return java.nio.charset.StandardCharsets.UTF_8;
+            default:
+                throw refused(what + "(" + ccsid + "): only the CCSIDs 37, 500, 1140 and 1208 are modelled (CCSIDERR RESP2 1 / "
+                        + "2 for another)");
+        }
+    }
+
+    /** `data` (storage bytes holding CCSID `from` data) as CCSID `to` data; the same bytes when the CCSIDs are equal. */
+    static byte[] convertContainer(byte[] data, int from, int to, String what) {
+        java.nio.charset.Charset f = ccsidCharset(from, what);
+        java.nio.charset.Charset t = ccsidCharset(to, what);
+        if (from == to) {
+            return data;
+        }
+        java.nio.charset.Charset region = ccsidCharset(REGION_CCSID, what);
+        byte[] out = new byte[data.length];
+        for (int i = 0; i < data.length; i++) {
+            byte real = String.valueOf((char) (data[i] & 0xFF)).getBytes(region)[0];
+            if (from == 1208 && real < 0) {
+                throw refused(what + " code-page conversion of a CCSID 1208 byte beyond ASCII (a multibyte character)");
+            }
+            String c = new String(new byte[] {real}, f);
+            if ((to == 1208 && c.charAt(0) >= 0x80) || !t.newEncoder().canEncode(c)) {
+                throw refused(what + (to == 1208 ? " code-page conversion to CCSID 1208 of a character beyond ASCII (a multibyte "
+                        + "sequence)" : " code-page conversion of a character the target CCSID lacks (CCSIDERR RESP2 4: IBM "
+                        + "does not say what the command then stores or sets)"));
+            }
+            out[i] = (byte) new String(c.getBytes(t), region).charAt(0);
+        }
+        return out;
+    }
+
+    /** The CCSID of the container the last GET CONTAINER read (0: a BIT container): GET CONTAINER CCSID(area). */
+    public int containerCcsid() {
+        return lastContainerCcsid;
     }
 
     /** A container command's outcome: its condition and RESP2, the container's length (GET: FLENGTH's value on
@@ -3643,6 +3737,14 @@ public class CicsTask {
      *  The data replaces the container's, or with APPEND follows it. */
     public ContainerResult putContainer(String channel, String container, byte[] data, int flength, String type,
                                         boolean append) {
+        return putContainer(channel, container, data, flength, type, append, -1);
+    }
+
+    /** PUT CONTAINER ... FROMCCSID(fromCcsid) / FROMCODEPAGE (`fromCcsid` the CCSID, -1: none): the data is CHAR in that
+     *  CCSID ("DATATYPE(DFHVALUE(CHAR)) is implied"). A new container takes it as its CCSID; the data put on an existing CHAR
+     *  container is converted to the container's ("converted (if required)"). BIT with FROMCCSID is INVREQ RESP2 34. */
+    public ContainerResult putContainer(String channel, String container, byte[] data, int flength, String type,
+                                        boolean append, int fromCcsid) {
         boolean badChannel = channel != null && illegalName(channel, "channel");
         boolean badContainer = illegalName(container, "container");
         if (badChannel || badContainer) {
@@ -3669,8 +3771,22 @@ public class CicsTask {
         }
         Channel ch = channel == null ? currentChannel : scopeChannel(channel, true);
         String name = channelName(container, "container");
+        if (ch == null && fromCcsid >= 0 && type != null) {
+            throw refused("PUT CONTAINER FROMCCSID with a data type and no channel: INVREQ RESP2 1 and RESP2 2 both fit, and "
+                    + "IBM ranks neither");
+        }
         if (ch == null) {
-            return new ContainerResult("INVREQ", type == null ? 4 : 1, -1, null);
+            return new ContainerResult("INVREQ", fromCcsid >= 0 ? 2 : type == null ? 4 : 1, -1, null);
+        }
+        if (fromCcsid >= 0) {
+            ccsidCharset(fromCcsid, "PUT CONTAINER FROMCCSID");
+            if (flength < 0) {
+                throw refused("PUT CONTAINER FROMCCSID with a negative FLENGTH: which condition IBM raises first is not "
+                        + "documented");
+            }
+            if ("BIT".equals(type)) {
+                return new ContainerResult("INVREQ", 34, -1, null);
+            }
         }
         if (flength < 0) {
             return new ContainerResult("LENGERR", 1, -1, null);
@@ -3684,15 +3800,23 @@ public class CicsTask {
             throw new UnsupportedOperationException("PUT CONTAINER " + type + " on an existing container of the other "
                     + "data type: ignored or INVREQ RESP2 33 is not settled by IBM's documentation, not modelled");
         }
+        if (c != null && c.bit && fromCcsid >= 0) {
+            throw refused("PUT CONTAINER FROMCCSID onto an existing BIT container: IBM does not say");
+        }
+        boolean chars = "CHAR".equals(type) || fromCcsid >= 0;
         if (c == null) {
-            ch.containers.put(name, new Container(data.clone(), !"CHAR".equals(type)));
+            ch.containers.put(name, new Container(data.clone(), !chars, chars ? (fromCcsid >= 0 ? fromCcsid : REGION_CCSID) : 0));
             ch.shape++;
-        } else if (append) {
-            byte[] joined = Arrays.copyOf(c.data, c.data.length + data.length);
-            System.arraycopy(data, 0, joined, c.data.length, data.length);
+            return new ContainerResult("NORMAL", 0, -1, null);
+        }
+        byte[] put = c.bit ? data : convertContainer(data, fromCcsid >= 0 ? fromCcsid : REGION_CCSID, c.ccsid,
+                "PUT CONTAINER");
+        if (append) {
+            byte[] joined = Arrays.copyOf(c.data, c.data.length + put.length);
+            System.arraycopy(put, 0, joined, c.data.length, put.length);
             c.data = joined;
         } else {
-            c.data = data.clone();
+            c.data = put.clone();
         }
         return new ContainerResult("NORMAL", 0, -1, null);
     }
@@ -3708,7 +3832,16 @@ public class CicsTask {
      *  CONTAINER, a MOVE CONTAINER, the channel leaving scope or a DELETE CHANNEL. Refused: a PUT or MOVE onto the
      *  container while the pointer is held (IBM does not say what the pointer then sees). Handle 0: no block. */
     public SetBlock getContainerSet(String channel, String container) {
-        ContainerResult r = getContainer(channel, container, Integer.MAX_VALUE);
+        return getContainerSet(channel, container, -1, false);
+    }
+
+    /** GET CONTAINER SET with INTOCCSID / INTOCODEPAGE (`intoCcsid`, -1: none) or CONVERTST(NOCONVERT) (`noConvert`). */
+    public SetBlock getContainerSet(String channel, String container, int intoCcsid, boolean noConvert) {
+        ContainerResult r = getContainer(channel, container, Integer.MAX_VALUE, intoCcsid, noConvert);
+        if ("CCSIDERR".equals(r.resp())) {
+            throw refused("GET CONTAINER SET INTOCCSID on a BIT container: the data is returned unconverted, and IBM does not say "
+                    + "whether a block is then acquired");
+        }
         if (!"NORMAL".equals(r.resp())) {
             return new SetBlock(r, 0);
         }
@@ -3726,23 +3859,45 @@ public class CicsTask {
      *  CONTAINERERR RESP2 10 for a container the channel does not have. Longer data is truncated to INTO with
      *  LENGERR RESP2 11; FLENGTH "returns the length of the data in the container" (NORMAL, LENGERR). */
     public ContainerResult getContainer(String channel, String container, int maxLength) {
+        return getContainer(channel, container, maxLength, -1, false);
+    }
+
+    /** GET CONTAINER ... INTOCCSID(intoCcsid) / INTOCODEPAGE (-1: none) | CONVERTST(NOCONVERT) (`noConvert`): the data as
+     *  CCSID `intoCcsid` (else the region's; a CHAR container's own with NOCONVERT) -- "conversion applies only to character
+     *  data". A BIT container is returned as it is when INTOCCSID names a CCSID, with CCSIDERR RESP2 3 ("The data was returned
+     *  without any code page conversion"); FLENGTH is then left alone (ASSUMED: IBM does not say), and a BIT container longer than
+     *  INTO is refused (LENGERR or CCSIDERR first is not documented).
+     *  The container's CCSID (0: BIT) is containerCcsid(). */
+    public ContainerResult getContainer(String channel, String container, int maxLength, int intoCcsid,
+                                        boolean noConvert) {
         Channel ch = channel == null ? currentChannel : scopeChannel(channel, false);
         String name = channelName(container, "container");
         if (ch == null) {
-            return channel == null ? new ContainerResult("INVREQ", 4, -1, null)
+            return channel == null ? new ContainerResult("INVREQ", intoCcsid >= 0 ? 2 : 4, -1, null)
                     : new ContainerResult("CHANNELERR", 2, -1, null);
         }
         Container c = ch.containers.get(name);
         if (c == null) {
             return new ContainerResult("CONTAINERERR", 10, -1, null);
         }
+        lastContainerCcsid = c.bit ? 0 : c.ccsid;
+        if (c.bit && intoCcsid >= 0) {
+            // IBM: CCSIDERR RESP2 3, "the data was returned without any code page conversion"; FLENGTH is not stated
+            if (maxLength >= 0 && c.data.length > maxLength) {
+                throw refused("GET CONTAINER INTOCCSID on a BIT container longer than INTO: whether LENGERR or CCSIDERR wins "
+                        + "is not documented");
+            }
+            return new ContainerResult("CCSIDERR", 3, -1, maxLength < 0 ? null : c.data.clone());
+        }
+        byte[] data = c.bit || noConvert ? c.data
+                : convertContainer(c.data, c.ccsid, intoCcsid >= 0 ? intoCcsid : REGION_CCSID, "GET CONTAINER");
         if (maxLength < 0) {
-            return new ContainerResult("NORMAL", 0, c.data.length, null);
+            return new ContainerResult("NORMAL", 0, data.length, null);
         }
-        if (c.data.length > maxLength) {
-            return new ContainerResult("LENGERR", 11, c.data.length, Arrays.copyOf(c.data, maxLength));
+        if (data.length > maxLength) {
+            return new ContainerResult("LENGERR", 11, data.length, Arrays.copyOf(data, maxLength));
         }
-        return new ContainerResult("NORMAL", 0, c.data.length, c.data.clone());
+        return new ContainerResult("NORMAL", 0, data.length, data.clone());
     }
 
     /** DELETE CONTAINER(container) [CHANNEL(channel)] (IBM, EXEC CICS DELETE CONTAINER (CHANNEL)): CHANNELERR
@@ -3822,6 +3977,9 @@ public class CicsTask {
         }
         if (dst != null && dst.bit != src.bit) {
             throw refused("MOVE CONTAINER onto a container of the other data type");
+        }
+        if (dst != null && dst.ccsid != src.ccsid) {
+            throw refused("MOVE CONTAINER onto a container of another CCSID");
         }
         if (dst != null && heldSet(containerKey(to, target))) {
             throw refused("MOVE CONTAINER onto a container a GET CONTAINER SET pointer addresses: IBM does not say what the "
@@ -4586,6 +4744,37 @@ public class CicsTask {
         if (planned != null) {
             return done(planned[0], planned[1]);
         }
+        if (root().esds.containsKey(file)) {
+            return done(16, 21);  // #5092 (X22): IBM, EXEC CICS DELETE: INVREQ RESP2 21, a file that refers to a VSAM ESDS
+        }
+        return deleteRecord(file, exists, remove);
+    }
+
+    /** DELETE FILE(file) GENERIC (#5092, X22): as `delete` over every record with the generic key; a file that is not a
+     *  KSDS (an ESDS here) is INVREQ RESP2 22 (IBM: "A generic delete is issued for a file that is not a VSAM KSDS"). */
+    public int deleteGeneric(String file, boolean exists, Runnable remove) {
+        int[] planned = root().injected("DELETE", file);
+        if (planned != null) {
+            return done(planned[0], planned[1]);
+        }
+        if (root().esds.containsKey(file)) {
+            return done(16, 22);
+        }
+        return deleteRecord(file, exists, remove);
+    }
+
+    /** DELETE FILE(file) [GENERIC] KEYLENGTH(n) that IBM answers INVREQ (#5092, X22): `resp2` 25 / 42 (a GENERIC KEYLENGTH
+     *  not shorter than the key / below zero) or 26 (a KEYLENGTH without GENERIC that is not the key's length). Nothing is
+     *  deleted; a planned condition comes first, then an ESDS (21, generic 22), as the stub orders them. */
+    public int deleteInvalid(String file, boolean generic, int resp2) {
+        int[] planned = root().injected("DELETE", file);
+        if (planned != null) {
+            return done(planned[0], planned[1]);
+        }
+        return done(16, root().esds.containsKey(file) ? (generic ? 22 : 21) : resp2);
+    }
+
+    private int deleteRecord(String file, boolean exists, Runnable remove) {
         if (!exists) {
             return done(13, 80);
         }
@@ -4599,6 +4788,9 @@ public class CicsTask {
         int[] planned = root().injected("DELETE", file);
         if (planned != null) {
             return done(planned[0], planned[1]);  // #5044
+        }
+        if (root().esds.containsKey(file)) {
+            return done(16, 21);  // #5092 (X22): an ESDS
         }
         if (!root().held.remove(file)) {
             return done(16, 31);  // #5092: no RIDFLD and no READ UPDATE without a token before it
@@ -4654,6 +4846,9 @@ public class CicsTask {
         int[] planned = root().injected("DELETE", file);
         if (planned != null) {
             return done(planned[0], planned[1]);
+        }
+        if (root().esds.containsKey(file)) {
+            return done(16, 21);  // #5092 (X22): an ESDS
         }
         Object[] t = spendToken(file, token);
         if (t == null) {
@@ -5018,6 +5213,7 @@ public class CicsTask {
         root().containerBrowses.clear();  // #4951: a browse token does not survive a sync point
         root().syncpointed = true;
         tdUowEnd(false);  // #5168
+        resourceUowEnd(false);  // #4892
         event("SYNCPOINT");
     }
 
@@ -5034,6 +5230,7 @@ public class CicsTask {
         invalidateSyncSet();  // #5042: and a READ UPDATE SET's, a browse SET's pointer
         root().containerBrowses.clear();
         tdUowEnd(true);  // #5168
+        resourceUowEnd(true);  // #4892
         if (root().rollbackHook != null) {
             root().rollbackHook.run();
         }
@@ -5820,6 +6017,7 @@ public class CicsTask {
                 root().rollbackHook.run();
             }
             tdUowEnd(true);  // #5168: a LOGICAL TD queue goes back to the last SYNCPOINT, as the stub's uow_end(1)
+            resourceUowEnd(true);  // #4892: and an MQ unit of work (W5)
             return null;
         }
         at.exitActive = false;  // "the exit is deactivated when it gets control"

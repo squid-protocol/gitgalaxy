@@ -45,7 +45,8 @@ copybook under `copybooks`; a tell only a copybook shows is `via_copybook` (its 
 is null) and can raise the program's `era`, in which case `program_era` keeps the era of the program's own text. The keys
 `via_copybook`, `copybooks`, `program_era` and the summary's `raised_by_copybook` appear only when set, so an estate with
 no copybook tell is byte for byte what it was. A program whose expansion is refused (a missing copybook, macro level) keeps
-its own-text tag. On the six burned estates (CardDemo, CBSA, GenApp, zECS, DBB MortgageApplication, the async credit-card
+its own-text tag and carries `copybook_skipped` (the reason: `CopyNotFound`, `MacroLevelCics`, an exception class), counted in
+the summary; assembler members are tagged the same way under `eras.assembler` through their COPY and macro members (#5195). On the six burned estates (CardDemo, CBSA, GenApp, zECS, DBB MortgageApplication, the async credit-card
 example) the copybook tells found are `exec-sql` (Db2 DCLGEN members, CardDemo and CBSA) and `resp` (CBSA); each is also in the
 program that copies it, so no tell is `via_copybook` and no program's era moves.
 
@@ -102,7 +103,7 @@ Each feature is **supported and proven** (a program using it is at L2 or above),
 no refusal names it, no proof), **refused by name**, or **unknown / never seen** (only programs refused whole use it),
 with the conditions of "supported" (charter section 5) it does not meet yet. Per estate it also lists the refusals
 with their owners, the missing system copybooks (a configuration fix: name SCSQCOBC / SCEESAMP), the runtime APIs a
-program calls that are not modelled (MQ: translates, not provable), and what is unknown, for triage.
+program calls that are not modelled (MQ beyond the CICS MQOPEN / MQGET / MQPUT / MQPUT1 / MQCLOSE modelled since #4892, register W), and what is unknown, for triage.
 `tests/cobol_mainframe/test_support_matrix.py` fails when a refusal or hole of a committed report matches no entry of
 `refusal_map.json` (or more than one): a new one after an evidence refresh is added there with its owner.
 

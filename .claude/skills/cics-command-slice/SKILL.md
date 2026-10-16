@@ -103,6 +103,8 @@ Traps `--check` exists for:
 - **IBM macro reference** (#5153): FCT/DCT/TST macros are in the CICS TS for OS/390 R3 Resource Definition Guide
   (publibfp.dhe.ibm.com/epubs/pdf/dfha400.pdf, ch.13 macros, ch.16 macro->RDO table). PCT/PPT macros are in no
   reachable IBM doc: say so rather than guess.
+  IBM doc URLs guessed from topic names return the docs index, and IBM PDFs come back unreadable through WebFetch:
+  a search result is not an opened page, so never mark a cite verified from one (#5266).
 - **test_tool_regex_redos** (#4477) is flaky under load: rerun once before blaming your regex.
 - **The full-suite OS grid does not run on PRs** (#4518). For a path- or OS-sensitive harness change dispatch it:
   `gh workflow run full-suite-gate.yml --ref <branch>`.
@@ -122,6 +124,7 @@ Traps `--check` exists for:
 - **Failed CICS writes (INVREQ, NOTOPEN) belong in the e2e program**, not only the stub unit lists: harness bugs show only end to end (#5202).
 - **An `Outcome` with `resp2=None` (e.g. the shared `_NOTFND`) must be replaced once both runtimes record a RESP2**, or the "spec states each RESP2" tests fail (#5204).
 - **A new ggcics stub event for an INVREQ logs RIDFLD with zero bytes, not KEYLENGTH bytes**: KEYLENGTH may exceed the buffer (#5204).
+- **ASSIGN STARTCODE values are a closed list** in `gitgalaxy/standards/cics/commands/assign.py`: a DPL (LINKed) case needs `D` stated there plus the X19 summary edit (#5251).
 
 ## 3. Release flow (cics-crucible RELEASING.md, done for v0.4.0 and v0.5.0)
 

@@ -501,19 +501,43 @@ def test_read_gteq_on_a_file_named_at_run_time_takes_that_files_key():
 def test_delete_generic_deletes_every_record_with_the_generic_key():
     """#4771 zECS (ZECS003 3100-DELETE; IBM, EXEC CICS DELETE, register X22): GENERIC deletes every record whose key
     starts with RIDFLD's first KEYLENGTH bytes (CicsTask.delete: NOTFND RESP2 80 when none); on a file named at run time
-    a KEYLENGTH not shorter than that file's key is refused then. INVREQ 25 / 42 and an unknown KEYLENGTH refused."""
+    a KEYLENGTH not shorter than that file's key is INVREQ 25 then (#5092: 25 / 42 are answered, CicsTask.deleteInvalid;
+    22 for a non-KSDS and 26 for a KEYLENGTH without GENERIC likewise). Zero and an unknown KEYLENGTH are refused."""
     out = _LenCics().command("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(6) GENERIC RESP(R)", "")
     assert out[0] == "byte[] generic2 = DetCics.bytes(f_KEY);"
-    assert out[1] == "int resp1 = task.delete('KSDS'.strip(), store(F).search(generic2, 6, false).isPresent(), () -> {"
+    assert (
+        out[1]
+        == "int resp1 = task.deleteGeneric('KSDS'.strip(), store(F).search(generic2, 6, false).isPresent(), () -> {"
+    )
     assert out[3] == ("    while ((found3 = store(F).search(generic2, 6, false)).isPresent()) "
                       "store(F).remove(store(F).keyOf(found3.get()));")  # fmt: skip
     assert "OUTCOME(resp1, task.resp2());" in out
     rt = _LenCics().command("DELETE FILE(WS-FILE) RIDFLD(KEY) KEYLENGTH(8) GENERIC NOHANDLE", "")
-    assert rt[1].startswith('if (8 >= switch (WS-FILE.strip()) { case "KSDS" -> 10; default -> throw new Hole(')
-    assert "not shorter than the key of" in rt[1]
+    assert rt[1] == "int resp1;"
+    assert rt[2].startswith('if (8 >= switch (WS-FILE.strip()) { case "KSDS" -> 10; default -> throw new Hole(')
+    assert rt[2].endswith("resp1 = task.deleteInvalid(WS-FILE.strip(), true, 25);")
+    assert rt[3].startswith("else resp1 = task.deleteGeneric(WS-FILE.strip(), ")
+    for text, want in (
+        ("KEYLENGTH(10) GENERIC", "task.deleteInvalid('KSDS'.strip(), true, 25);"),  # the key is 10
+        ("KEYLENGTH(11) GENERIC", "task.deleteInvalid('KSDS'.strip(), true, 25);"),
+        ("KEYLENGTH(-1) GENERIC", "task.deleteInvalid('KSDS'.strip(), true, 42);"),
+        ("KEYLENGTH(- 5) GENERIC", "task.deleteInvalid('KSDS'.strip(), true, 42);"),
+    ):
+        got = _LenCics().command(f"DELETE FILE('KSDS') RIDFLD(KEY) {text} RESP(R)", "")
+        assert got[0].endswith(want) and "OUTCOME(" in got[1], got
+    for text, resp2 in (
+        ("KEYLENGTH(6)", 26),
+        ("KEYLENGTH(11)", 26),
+        ("KEYLENGTH(0)", 26),
+    ):  # not GENERIC, not the key's 10
+        got = _LenCics().command(f"DELETE FILE('KSDS') RIDFLD(KEY) {text} RESP(R)", "")
+        assert got[0].endswith(f"task.deleteInvalid('KSDS'.strip(), false, {resp2});"), got
+    assert (
+        "task.delete('KSDS'.strip(),"
+        in _LenCics().command("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(10) RESP(R)", "")[0]
+    )
     for bad, why in (("DELETE FILE('KSDS') RIDFLD(KEY) GENERIC", "GENERIC without KEYLENGTH"),
                      ("DELETE FILE('KSDS') KEYLENGTH(6) GENERIC", "GENERIC without RIDFLD"),
-                     ("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(10) GENERIC", "RESP2 25"),
                      ("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(0) GENERIC", "not above zero"),
                      ("DELETE FILE('KSDS') RIDFLD(KEY) KEYLENGTH(VARLEN) GENERIC", "not a known length"),
                      ("DELETE FILE('KSDS') RIDFLD(SHORTKEY) KEYLENGTH(8) GENERIC", "shorter than the 8-byte"),
@@ -1211,6 +1235,36 @@ def test_get_container_flength_is_in_out_and_nodata_reads_the_length():
     assert out[0] == "CicsTask.ContainerResult cont1 = task.deleteContainer(null, CN.strip());"
 
 
+def test_container_ccsid_options_pass_the_ccsid_to_the_task():
+    """#4270 (X17), IBM PUT CONTAINER FROMCCSID and GET CONTAINER INTOCCSID / CONVERTST / CCSID: the CCSID (a data value) is the
+    task's last argument; a command without one calls the
+    short form, so every port that names no CCSID is generated as before. CONVERTST(NOCONVERT) reads the container's own
+    CCSID; CCSID(area) is stored with FLENGTH, on NORMAL and LENGERR."""
+    out = _ChanCics().command("PUT CONTAINER(CN) FROM(REC) FROMCCSID(1140)", "")
+    assert out[1].endswith("flen2, null, false, INT(1140));")
+    out = _ChanCics().command("PUT CONTAINER(CN) FROM(REC) FROMCCSID(WS-CS) APPEND", "")
+    assert out[1].endswith("flen2, null, true, INT(WS-CS));")
+    out = _ChanCics().command("GET CONTAINER(CN) INTO(AREA) INTOCCSID(1140)", "")
+    assert out[0].endswith("DetCics.containerLimit(f_AREA, 20), INT(1140), false);")
+    out = _ChanCics().command("GET CONTAINER(CN) NODATA FLENGTH(FL) INTOCCSID(WS-CS)", "")
+    assert out[0].endswith("task.getContainer(null, CN.strip(), -1, INT(WS-CS), false);")
+    out = _ChanCics().command("GET CONTAINER(CN) INTO(AREA) CONVERTST(DFHVALUE(NOCONVERT)) CCSID(CS)", "")
+    assert out[0].endswith("DetCics.containerLimit(f_AREA, 20), -1, true);")
+    assert "if (cont1.length() >= 0) STORE(CS, BigDecimal.valueOf(task.containerCcsid()));" in out
+    assert ", -1" not in _ChanCics().command("GET CONTAINER(CN) INTO(AREA)", "")[0]
+
+
+def test_container_ccsid_options_refuse_a_region_page_other_than_037():
+    """The conversion tables read a program's bytes as CCSID 037, the port's default region page (#4528): an estate that
+    declares another EBCDIC page (cp273 ...) cannot use them."""
+    c = _ChanCics()
+    c.region = "IBM273"
+    with pytest.raises(C.CicsError, match="CCSID 037, not IBM273"):
+        c.command("GET CONTAINER(CN) INTO(AREA) INTOCCSID(1140)", "")
+    out = c.command("GET CONTAINER(CN) INTO(AREA)", "")  # no CCSID option: as before
+    assert out[0].endswith("DetCics.containerLimit(f_AREA, 20));")
+
+
 def test_move_container_is_a_rename_across_channels():
     """IBM, MOVE CONTAINER (CHANNEL): CONTAINER and AS, CHANNEL and TOCHANNEL (omitted: the current channel); the
     answer is CicsTask's, with RESP2 (INVREQ 4, CHANNELERR 2, CONTAINERERR 10), through RESP / HANDLE CONDITION."""
@@ -1889,9 +1943,11 @@ def test_inquire_urimap_direct_form_and_inquire_program_status():
 @pytest.mark.parametrize(
     ("text", "why"),
     [
-        ("GET CONTAINER(CN) INTO(AREA) INTOCCSID(1140)", "code-page conversion"),
-        ("GET CONTAINER(CN) INTO(AREA) INTOCODEPAGE('UTF-8')", "code-page conversion"),
-        ("PUT CONTAINER(CN) FROM(REC) FROMCCSID(1208) CHAR", "code-page conversion"),
+        ("GET CONTAINER(CN) INTO(AREA) INTOCODEPAGE('UTF-8')", "IANA code-page names"),
+        ("PUT CONTAINER(CN) FROM(REC) FROMCODEPAGE('ISO-8859-1')", "IANA code-page names"),
+        ("GET CONTAINER(CN) INTO(AREA) INTOCCSID(1140) CONVERTST(DFHVALUE(NOCONVERT))", "one target code page"),
+        ("GET CONTAINER(CN) INTO(AREA) CONVERTST(DFHVALUE(CONVERT))", "only DFHVALUE"),
+        ("GET CONTAINER(CN) INTO(AREA) CCSID(WS-CCSID)", "CCSID without CONVERTST"),
         ("GET CONTAINER(CN) INTO(AREA) BYTEOFFSET(4)", "partial GET"),
         ("PUT CONTAINER(CN) FROM(REC) PREPEND", "PREPEND"),
         ("GET CONTAINER(CN) FLENGTH(FL)", "one of INTO / NODATA"),

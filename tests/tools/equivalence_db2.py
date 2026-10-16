@@ -58,6 +58,10 @@ NETWORK = "gitgalaxy-db2"
 # image is pinned" in docs/language_status/oracle_assumptions.md. tests/cobol_mainframe/test_db2_image_pin.py enforces it.
 IMAGE = "icr.io/db2_community/db2@sha256:2de8151713c261843868c5c3411b57be6ae79d99d70a5b3022337836776bfda6"
 COBOL_IMAGE = "gitgalaxy-gnucobol-db2:3"
+# #5262: CI restores the pinned image from actions/cache (`docker load`), which drops the digest name (a digest cannot be a
+# local tag). tests/tools/db2_image_cache.py tags the loaded image with this alias after checking its image id against the
+# id recorded when the pinned digest was pulled; the harness then runs from the alias. Same bytes, no registry request.
+IMAGE_ALIAS = "gitgalaxy-db2-pinned:" + IMAGE.rsplit(":", 1)[1][:12]
 DATABASE0 = "GGDB"  # the container's own database: the pool's first
 DATABASE = DATABASE0  # this process's database (hold_lock picks it from the pool)
 POOL_ENV = "GITGALAXY_DB2_POOL"
@@ -293,7 +297,7 @@ class Db2ImagePullError(RuntimeError):
 def pull_image(image: str = IMAGE, attempts: int = PULL_ATTEMPTS, backoff: float = PULL_BACKOFF) -> None:
     """#5048: `docker pull` of the pinned image, retried (the registry and the network hiccup). The digest stays the
     pin: only the same bytes can come back. Nothing happens when the image is already on this host."""
-    if _docker("image", "inspect", "-f", "{{.Id}}", image, check=False).strip():
+    if run_ref(image) != image or _docker("image", "inspect", "-f", "{{.Id}}", image, check=False).strip():
         return
     last = ""
     for attempt in range(1, attempts + 1):
@@ -307,6 +311,13 @@ def pull_image(image: str = IMAGE, attempts: int = PULL_ATTEMPTS, backoff: float
     raise Db2ImagePullError(f"INFRASTRUCTURE (not a code defect): could not pull the pinned Db2 image {image} after "
                             f"{attempts} attempts: {last}. Re-run; the digest pin is deliberate, do not replace it "
                             "with a tag.")  # fmt: skip
+
+
+def run_ref(image: str = IMAGE) -> str:
+    """#5262: the name to run the pinned image by: the digest when it is on this host, else the cache-loaded alias."""
+    if image != IMAGE or _docker("image", "inspect", "-f", "{{.Id}}", image, check=False).strip():
+        return image
+    return IMAGE_ALIAS if _docker("image", "inspect", "-f", "{{.Id}}", IMAGE_ALIAS, check=False).strip() else image
 
 
 def _ensure_container() -> None:
@@ -335,7 +346,7 @@ def _ensure_container() -> None:
                     "-e", "LICENSE=accept", "-e", f"DB2INSTANCE={USER}", "-e", f"DB2INST1_PASSWORD={PASSWORD}",
                     "-e", f"DBNAME={DATABASE0}", "-e", "BLU=false", "-e", "ENABLE_ORACLE_COMPATIBILITY=false",
                     "-e", "UPDATEAVAIL=NO", "-e", "TO_CREATE_SAMPLEDB=false", "-e", "REPODB=false",
-                    "-e", "IS_OSXFS=false", "-e", "PERSISTENT_HOME=false", "-e", "HADR_ENABLED=false", IMAGE)  # fmt: skip
+                    "-e", "IS_OSXFS=false", "-e", "PERSISTENT_HOME=false", "-e", "HADR_ENABLED=false", run_ref())  # fmt: skip
     for _ in range(120):  # first start: several minutes. Ready = set up, and GGDB (the pool's reference) exists
         if "Setup has completed" in _docker("logs", CONTAINER, check=False) and "Database code set" in _db_cfg(
             DATABASE0
@@ -353,7 +364,7 @@ def pinned_by_digest(image: str = IMAGE) -> bool:
 def _check_container_image() -> None:
     """An existing container must have been made from the pinned image: one left from `:latest` of another day would
     prove against a Db2 the pin does not name. Compared by image id, when the pinned image is on this host."""
-    want = _docker("image", "inspect", "-f", "{{.Id}}", IMAGE, check=False).strip()
+    want = _docker("image", "inspect", "-f", "{{.Id}}", run_ref(), check=False).strip()
     have = _docker("inspect", "-f", "{{.Image}}", CONTAINER, check=False).strip()
     if want.startswith("sha256:") and have.startswith("sha256:") and want != have:
         raise RuntimeError(f"Db2: container {CONTAINER} was made from another image ({have[:19]}) than the pin "

@@ -61,7 +61,8 @@ MODELLED_CALLS = {
     "CEEDATE",
     "CEEISEC",
     "CEEQCEN",
-}  # tests/equivalence/le, faults/ggabend.c
+    "CBLTDLI",
+}  # tests/equivalence/le, faults/ggabend.c, ims/ggdli.c (#4893)
 BUCKETS = ("R", "S", "F", "L", "H")
 NAMES = {"R": "runtime-ready", "S": "storage", "F": "control flow", "L": "library", "H": "hole"}
 

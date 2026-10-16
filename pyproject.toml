@@ -100,6 +100,9 @@ cobol-refractor = "gitgalaxy.cobol_refractor_controller:main"
 cobol-to-java = "gitgalaxy.cobol_to_java_controller:main"
 batch-test-harness = "gitgalaxy.tools.cobol_to_java.batch_test_harness:main"
 
+# --- THE READINESS SCANNER (#4726): `gitgalaxy assess ESTATE`, offline and read only ---
+gitgalaxy = "gitgalaxy.cli:main"
+
 # --- THE SPOKES (Individual Legacy Forges) ---
 cobol-compiler-forge = "gitgalaxy.tools.cobol_to_cobol.cobol_compiler_forge:main"
 cobol-dag-architect = "gitgalaxy.tools.cobol_to_cobol.cobol_dag_architect:main"

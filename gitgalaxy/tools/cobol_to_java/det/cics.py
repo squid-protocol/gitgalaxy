@@ -29,6 +29,19 @@ from gitgalaxy.tools.cobol_to_java.det import layout as L
 COPY = Path(__file__).parent / "copy"  # DFHEIBLK, DFHAID, DFHBMSCA
 
 
+# #5126 (X64): the file control commands set EIBDS, "the symbolic identifier of the last data set referred to in a file
+# control request" (IBM, EIB fields); the stub's twin is equivalence_cics.EIBDS_VERBS
+EIBDS_VERBS = frozenset({"READ", "READNEXT", "READPREV", "RESETBR", "STARTBR", "ENDBR", "WRITE", "REWRITE", "DELETE",
+                         "UNLOCK"})  # fmt: skip
+EIBDS_WORD = re.compile(r"(?<![A-Z0-9-])EIBDS(?![A-Z0-9-])")
+
+
+def reads_eibds(statements) -> bool:
+    """#5126 (X64): does any statement text name EIBDS -- a whole word, not the front of a hyphenated user name
+    (EIBDS-X) and not a literal's text ('EIBDS: ')?"""
+    return any(EIBDS_WORD.search(re.sub(r"'[^']*'|\"[^\"]*\"", "''", t.upper())) for t in statements)
+
+
 class CicsError(Exception):
     pass
 
@@ -459,6 +472,7 @@ class Cics:
         # handler state is stacked); set by program._translate from the source before any statement is translated
         self.handle_aid = False
         self.push_handle = False
+        self.eibds_read = False  # #5126 (X64): the program reads EIBDS, so a file control command sets it
         # #4528: the region's code page (region_page), set by program._translate; `region_used`: the port declares
         # REGION (a TS command moves bytes between the program's storage and the region)
         self.region = region_page(None)
@@ -850,6 +864,17 @@ class Cics:
 
     # -- the command
     def command(self, text: str, ind: str) -> list[str]:
+        """One EXEC CICS command's Java; a file control command leads with `Cobol.move(<file>, EIBDS)` (#5126, X64),
+        set before the command runs so a failed request leaves its file named, in a program that reads EIBDS."""
+        lines = self._command(text, ind)
+        if self.eibds_read:
+            words, opts = parse_exec(text)
+            file = opts.get("FILE") or opts.get("DATASET")
+            if words[:1] and " ".join(words) in EIBDS_VERBS and file:
+                return [f"{ind}Cobol.move({self.text(file)}, {self.g.eib('EIBDS')}, CS);", *lines]
+        return lines
+
+    def _command(self, text: str, ind: str) -> list[str]:
         words, opts = parse_exec(text)
         if not words and next(iter(opts), None) == "WAIT":
             # #5079: WAIT is a bare option (RETRIEVE ... WAIT) to the parser, so a command that starts with it (WAIT EVENT,
@@ -1795,37 +1820,62 @@ class Cics:
             n = self.int_(given) if given else str(self.size(frm))
             dtype = _datatype(opts)
             ln = g.tmpname("flen")
+            from_ccsid = self.container_ccsid(opts, "FROMCCSID", "PUT CONTAINER")
             out += [f"{ind}int {ln} = {n};",
                     (f"{ind}CicsTask.ContainerResult {r} = task.putContainer({chan}, {name}, "
                      f"DetCics.containerData({f}, {ln}), {ln}, {G_jstr(dtype) if dtype else 'null'}, "
-                     f"{str('APPEND' in opts).lower()});")]  # fmt: skip
+                     f"{str('APPEND' in opts).lower()}{', ' + from_ccsid if from_ccsid else ''});")]  # fmt: skip
         elif key == "GET CONTAINER":
             into, nodata = opts.get("INTO") or "", "NODATA" in opts
             if [bool(into), nodata, "SET" in opts].count(True) != 1:
                 raise CicsError(_msg("GET CONTAINER", "one_of", "INTO"))
             flen = _option(opts, "FLENGTH")
             settable = flen is not None and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", flen.strip()) is None
+            into_ccsid = self.container_ccsid(opts, "INTOCCSID", "GET CONTAINER")
+            convert = _convertst(opts)
+            if convert and "INTOCCSID" in opts:
+                raise CicsError(_msg("GET CONTAINER", "at_most_one", "INTOCCSID", "INTOCCSID and CONVERTST"))
+            if "CCSID" in opts and convert is None:
+                raise CicsError(_msg("GET CONTAINER", "requires", "CCSID"))
+            conv = f", {into_ccsid or '-1'}, {str(bool(convert)).lower()}" if into_ccsid or convert else ""
             if "SET" in opts:  # #5042 (X58): SET(pointer) FLENGTH(data-area): a copy of the data in a new block
                 if not settable:
                     raise CicsError(_msg("GET CONTAINER", "requires", "SET"))
                 ptr = self.pointer(opts["SET"])
-                out += [f"{ind}CicsTask.SetBlock {r}s = task.getContainerSet({chan}, {name});",
+                out += [f"{ind}CicsTask.SetBlock {r}s = task.getContainerSet({chan}, {name}{conv});",
                         f"{ind}CicsTask.ContainerResult {r} = {r}s.result();",
                         f"{ind}if ({r}s.handle() != 0) DetCics.setPointer({ptr}, {r}s.handle());"]  # fmt: skip
             elif nodata:
-                out.append(f"{ind}CicsTask.ContainerResult {r} = task.getContainer({chan}, {name}, -1);")
+                out.append(f"{ind}CicsTask.ContainerResult {r} = task.getContainer({chan}, {name}, -1{conv});")
             else:
                 target = self.field(into)
                 most = self.int_(flen) if flen else str(self.size(into))
                 out += [(f"{ind}CicsTask.ContainerResult {r} = task.getContainer({chan}, {name}, "
-                         f"DetCics.containerLimit({target}, {most}));"),
+                         f"DetCics.containerLimit({target}, {most}){conv});"),
                         f"{ind}if ({r}.data() != null) DetCics.put({target}, {r}.data());"]  # fmt: skip
             if flen is not None and settable:
                 set_back = g.store_into(self.ref(flen), f"BigDecimal.valueOf({r}.length())", False)
                 out.append(f"{ind}if ({r}.length() >= 0) {set_back}")
+            if "CCSID" in opts:  # the container's own CCSID (0: BIT), set with FLENGTH: on NORMAL and LENGERR
+                set_ccsid = g.store_into(
+                    self.ref(_arg(opts["CCSID"])), "BigDecimal.valueOf(task.containerCcsid())", False
+                )
+                out.append(f"{ind}if ({r}.length() >= 0) {set_ccsid}")
         else:
             out.append(f"{ind}CicsTask.ContainerResult {r} = task.deleteContainer({chan}, {name});")
         return out + self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)
+
+    def container_ccsid(self, opts: dict, option: str, verb: str) -> str | None:
+        """#4270 (X17): PUT's FROMCCSID or GET's INTOCCSID as a Java int expression (a data value; the runtime refuses one outside
+        37 / 500 / 1140 / 1208), None when not given. The port's storage is read as the region's page (#4528), which the
+        conversion assumes is CCSID 037: another declared page refuses the option."""
+        if option not in opts:
+            return None
+        if self.region != region_page(None):
+            raise CicsError(
+                f"{verb} {option}: code-page conversion assumes the region's page is CCSID 037, not {self.region}"
+            )
+        return self.int_(_arg(opts[option]))
 
     def channel_command(self, key: str, opts: dict, ind: str) -> list[str]:
         """#5005: DELETE CHANNEL and QUERY CHANNEL (IBM CICS TS, EXEC CICS DELETE CHANNEL, QUERY CHANNEL) on CicsTask's
@@ -2909,43 +2959,53 @@ class Cics:
 
     def delete_generic(self, opts: dict, ind: str) -> list[str]:
         """#4771 (zECS ZECS003) DELETE GENERIC (IBM, EXEC CICS DELETE; register X22): every record whose key starts with
-        RIDFLD's first KEYLENGTH bytes, NOTFND RESP2 80 when none does (CicsTask.delete). KEYLENGTH a known value above
-        zero and shorter than the file's key (IBM's INVREQ RESP2 25 / 42 refused by name: here for a file the port knows,
-        at run time for one named at run time)."""
+        RIDFLD's first KEYLENGTH bytes, NOTFND RESP2 80 when none does (CicsTask.deleteGeneric). #5092 (X22), IBM INVREQ
+        RESP2: 42 a KEYLENGTH below zero, 25 one "greater than or equal to the length of a full key" (here when the file is
+        known, at run time when it is named then), 22 on a file that is not a KSDS (CicsTask, at run time); zero is
+        undocumented and refused by name."""
         for o in ("KEYLENGTH", "RIDFLD"):
             if not opts.get(o):
                 raise CicsError(_requires("DELETE", "GENERIC", o))
         arg = _arg(opts["KEYLENGTH"])
         n = self.constant_int(arg)
+        if n is None and re.fullmatch(r"-\s*\d+", arg.strip()):  # a negative literal
+            n = -int(re.sub(r"\D", "", arg))
         if n is None:
             raise CicsError(f"DELETE GENERIC KEYLENGTH({arg}): not a known length")
-        if n <= 0:
-            raise CicsError(f"DELETE GENERIC KEYLENGTH({arg}) = {n}: not above zero (INVREQ / undocumented)")
+        if n == 0:
+            raise CicsError(f"DELETE GENERIC KEYLENGTH({arg}) = {n}: not above zero (undocumented)")
+        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+        name = self.constant(opts.get("DATASET") or opts.get("FILE"))
+        g = self.g
+        r = g.tmpname("resp")
+        bad = 42 if n < 0 else None
+        if name is not None and bad is None:
+            mapped = self.gp.file(name)
+            if mapped is None:
+                raise CicsError(f"DELETE GENERIC: FILE {name!r} is no file the project stores, so not a known key")
+            if n >= self.gp.entity_key(mapped[1], mapped[2])[1]:
+                bad = 25
+        if bad is not None:  # INVREQ: nothing is read from RIDFLD nor deleted (CicsTask.deleteInvalid)
+            return [
+                f"{ind}int {r} = task.deleteInvalid({file}, true, {bad});",
+                *self.outcome(opts, r, "task.resp2()", ind),
+            ]
         rid = _arg(opts["RIDFLD"])
         if self.size(rid) < n:  # CICS would read the storage after RIDFLD, laid out unlike IBM's by GnuCOBOL (X6)
             raise CicsError(f"DELETE RIDFLD({rid}) is {self.size(rid)} bytes, shorter than the {n}-byte generic key")
         st = self.store(opts)
-        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
-        name = self.constant(opts.get("DATASET") or opts.get("FILE"))
-        g = self.g
-        r, gk, found = g.tmpname("resp"), g.tmpname("generic"), g.tmpname("found")
+        gk, found = g.tmpname("generic"), g.tmpname("found")
         out = [f"{ind}byte[] {gk} = DetCics.bytes({self.field(rid)});"]
-        if name is not None:
-            mapped = self.gp.file(name)
-            if mapped is None:
-                raise CicsError(f"DELETE GENERIC: FILE {name!r} is no file the project stores, so not a known key")
-            key = self.gp.entity_key(mapped[1], mapped[2])[1]
-            if n >= key:
-                raise CicsError(
-                    f"DELETE GENERIC KEYLENGTH({arg}) = {n}, the key is {key}: INVREQ (RESP2 25) not modelled"
-                )
-        elif self.gp.files:  # named at run time: the key of the store the name picks then
-            out.append(f'{ind}if ({n} >= {self._runtime_keylength(file)}) throw new UnsupportedOperationException('
-                       f'"DELETE GENERIC KEYLENGTH {n} not shorter than the key of " + {file} + ": not modelled");')  # fmt: skip
-        out += [f"{ind}int {r} = task.delete({file}, {st}.search({gk}, {n}, false).isPresent(), () -> {{",
+        call = [f"task.deleteGeneric({file}, {st}.search({gk}, {n}, false).isPresent(), () -> {{",
                 f"{ind}    java.util.Optional<byte[]> {found};",
                 f"{ind}    while (({found} = {st}.search({gk}, {n}, false)).isPresent()) {st}.remove({st}.keyOf({found}.get()));",
-                f"{ind}}});"]  # fmt: skip
+                f"{ind}}})"]  # fmt: skip
+        if name is None and self.gp.files:  # named at run time: the key of the store the name picks then
+            out += [f"{ind}int {r};",
+                    f"{ind}if ({n} >= {self._runtime_keylength(file)}) {r} = task.deleteInvalid({file}, true, 25);",
+                    f"{ind}else {r} = {call[0]}", *call[1:-1], f"{call[-1]};"]  # fmt: skip
+        else:
+            out += [f"{ind}int {r} = {call[0]}", *call[1:-1], f"{call[-1]};"]
         return out + self.outcome(opts, r, "task.resp2()", ind)
 
     def token_update(self, verb: str, opts: dict, ind: str) -> list[str]:
@@ -2982,7 +3042,16 @@ class Cics:
             file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
             r = self.g.tmpname("resp")
             return [f"{ind}int {r} = task.unlockHeld({file});", *self.outcome(opts, r, "task.resp2()", ind)]
-        self._keylength(verb, opts)
+        if verb == "DELETE":
+            try:
+                self._keylength(verb, opts)
+            except KeylengthInvreq as bad:  # #5092 (X22): IBM INVREQ 26, a KEYLENGTH that is not the key's length
+                file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+                r = self.g.tmpname("resp")
+                return [f"{ind}int {r} = task.deleteInvalid({file}, false, {bad.resp2});",
+                        *self.outcome(opts, r, "task.resp2()", ind)]  # fmt: skip
+        else:
+            self._keylength(verb, opts)
         st = self.store(opts)
         file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
         g = self.g
@@ -3016,6 +3085,17 @@ def _option(opts: dict, name: str) -> str | None:
     if name not in opts:
         return None
     return _arg(opts[name])
+
+
+def _convertst(opts: dict) -> bool | None:
+    """#4270 (X17): GET CONTAINER CONVERTST -- True for DFHVALUE(NOCONVERT) (734), the only value IBM documents; None when
+    not given."""
+    named = _option(opts, "CONVERTST")
+    if named is None:
+        return None
+    if re.fullmatch(r"(?is)\s*(DFHVALUE\s*\(\s*NOCONVERT\s*\)|734)\s*", named) is None:
+        raise CicsError(f"GET CONTAINER CONVERTST({named}): only DFHVALUE(NOCONVERT) is modelled")
+    return True
 
 
 def _datatype(opts: dict) -> str | None:

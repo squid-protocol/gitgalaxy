@@ -22,6 +22,11 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import golden_diff  # noqa: E402
 
+# #5248: the module-scoped `scans` fixture (seven scans, ~15 s on CI) is set up by whichever test a CI part runs first.
+pytestmark = pytest.mark.slow(
+    reason="the module-scoped seven-scan fixture is set up by whichever of its tests a CI part runs first"
+)
+
 # #4249: `x.min.js` / `x.min.y` parents must not change the `.min.` filename test.
 PARENTS = ("neutral", "tmp", "docs", "vendor", "src", "x.min.js", "x.min.y")
 

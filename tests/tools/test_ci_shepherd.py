@@ -118,7 +118,7 @@ def test_a_flake_is_rerun_once():
     gh, state = Gh(), {"queue": [1], "after": {}, "seen": {}}
     gh.pr(1, runs=[("full-suite", "failure")])
     step(gh, state, failing("flake"))
-    state["seen"]["1"]["rerun:full-suite"][-1] -= cs.RETRY_GAP
+    state["seen"]["1"]["rerun:run:99"][-1] -= cs.RETRY_GAP
     step(gh, state, failing("flake"))
     assert len([c for c in gh.calls if c[:3] == ["gh", "run", "rerun"]]) == 1
 
@@ -255,3 +255,56 @@ def test_a_pass_that_would_be_silent_logs_the_pr_state(monkeypatch):
     step(gh, state)
     did = step(gh, state)
     assert did and did[0].startswith("#1 behind main, not updated"), did
+
+
+def test_matrix_legs_of_one_run_share_one_rerun_and_one_budget():
+    gh, state = Gh(), {"queue": [1], "after": {}, "seen": {}}
+    gh.pr(1, runs=[("full-suite (1/2)", "failure"), ("full-suite (2/2)", "failure")])
+    two_legs = failing("infra")
+
+    def digest(n):
+        d = two_legs(n)
+        d["failed"] = [{**d["failed"][0], "check": f"full-suite ({i}/2)"} for i in (1, 2)]
+        return d
+
+    did = step(gh, state, digest)
+    assert [c[:4] for c in gh.calls if c[:3] == ["gh", "run", "rerun"]] == [["gh", "run", "rerun", "99"]]
+    assert any("shared run 99" in d for d in did)
+    assert len(state["seen"]["1"]["rerun:run:99"]) == 1
+
+
+def test_fixer_waits_for_a_green_box_but_the_digest_posts_at_once(monkeypatch, tmp_path):
+    gh, state, verdict, started = Gh(), {"queue": [1], "after": {}, "seen": {}}, ["RED"], []
+    gh.pr(1, runs=[("full-suite", "failure")])
+    monkeypatch.setenv("CI_SHEPHERD_FIXER", "fix-it")
+    monkeypatch.setattr(cs, "STATE", tmp_path / "shepherd.json")
+    monkeypatch.setattr(cs, "box_verdict", lambda: verdict[0])
+    monkeypatch.setattr(cs.subprocess, "Popen", lambda argv, **kw: started.append(argv))
+    did = step(gh, state, failing("real"))
+    assert any("digest posted" in d for d in did) and any("fixer deferred: box is RED" in d for d in did)
+    assert started == []
+    verdict[0] = "GREEN"
+    did = step(gh, state, failing("real"))
+    assert len(started) == 1 and started[0][:2] == ["fix-it", "1"]
+    assert not any("digest posted" in d for d in did)  # the comment is not repeated
+    step(gh, state, failing("real"))
+    assert len(started) == 1  # one fixer per head
+    assert [e["event"] for e in state["ledger"]] == ["real_failure", "fixer_deferred", "fixer_started"]
+
+
+def test_main_failures_keeps_the_last_known_verdict_while_main_tip_is_still_running():
+    ci_digest = cs.ci_digest
+
+    def run(name, conclusion=None):
+        return {"id": 1, "name": name, "status": "completed" if conclusion else "in_progress", "conclusion": conclusion}
+
+    docs = {
+        "main": {"sha": "t", "parents": [{"sha": "p"}]},
+        "t/check-runs": {"check_runs": [run("lint", "success"), run("full-suite")]},
+        "p": {"sha": "p", "parents": []},
+        "p/check-runs": {"check_runs": [run("lint", "failure"), run("full-suite", "failure")]},
+    }
+    def api(path):
+        return docs[path.split("/commits/", 1)[1].split("?")[0]]
+
+    assert ci_digest.main_failures(api) == {"full-suite"}  # lint passed on the tip: the tip's verdict wins

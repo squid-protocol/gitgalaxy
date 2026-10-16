@@ -193,13 +193,16 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
     needs: list[dict[str, Any]] = []
     waiting: list[dict[str, Any]] = []
     retrying: list[dict[str, Any]] = []
+    reran_runs: set[int] = set()
     for f in s["failed"]:
         t = f["triage"]
         if t == "main":
             waiting.append(f)
         elif t in ("infra", "flake") and f.get("run_id") is not None and f.get("attempts", 0) < INFRA_RERUNS:
-            if s["now"] - (f.get("updated_at") or 0) >= RETRY_GAP:
-                acts.append({"op": "rerun", "run_id": f["run_id"], "check": f["check"]})
+            rid = f["run_id"]
+            if rid not in reran_runs and s["now"] - (f.get("updated_at") or 0) >= RETRY_GAP:
+                acts.append({"op": "rerun", "run_id": rid, "check": f["check"]})
+                reran_runs.add(rid)
             retrying.append(f)
         else:  # real, a dirty tree, an infra failure with its reruns used up, or no run to rerun
             needs.append(f)
@@ -300,7 +303,11 @@ def head_pushed_at(api: Api, sha: str) -> str | None:
 
 
 def gather(
-    n: int, api: Api = pr_check.gh_api, event: dict[str, Any] | None = None, now: float | None = None
+    n: int,
+    api: Api = pr_check.gh_api,
+    event: dict[str, Any] | None = None,
+    now: float | None = None,
+    on_main: set[str] | None = None,
 ) -> dict[str, Any]:
     """The snapshot decide() reads for PR n. `event`: the facts of the pull_request_target payload that caused the pass
     (action, label, sender), when there was one. Reconcile passes have none.
@@ -335,10 +342,14 @@ def gather(
     checks = pr_check.classify(runs, statuses)
     digest: dict[str, Any] = {"failed": []}
     if checks["failed"]:
-        digest = ci_digest.digest(n, api)
+        digest = ci_digest.digest(n, api, on_main=on_main)
+        attempts_by_run: dict[int, tuple[int, float | None]] = {}
         for f in digest["failed"]:
             if f["triage"] in ("infra", "flake") and f.get("run_id") is not None:
-                f["attempts"], f["updated_at"] = _attempts(api, f["run_id"])
+                rid = f["run_id"]
+                if rid not in attempts_by_run:
+                    attempts_by_run[rid] = _attempts(api, rid)
+                f["attempts"], f["updated_at"] = attempts_by_run[rid]
     # who last added each request label (the timeline; no commit ids are used)
     events = pr_check.paged(api, f"repos/{REPO_SLUG}/issues/{n}/events") if labels else []
     actors: dict[str, dict[str, Any] | None] = {}
@@ -534,7 +545,14 @@ def apply(n: int, s: dict[str, Any], acts: list[dict[str, Any]], run: Run = _run
     return log
 
 
-def process(n: int, api: Api, run: Run, event: dict[str, Any] | None = None, dry_run: bool = False) -> list[str]:
+def process(
+    n: int,
+    api: Api,
+    run: Run,
+    event: dict[str, Any] | None = None,
+    dry_run: bool = False,
+    on_main: set[str] | None = None,
+) -> list[str]:
     event = event or {}
     lines: list[str] = []
     sender, head = event.get("sender"), event.get("head")
@@ -562,7 +580,7 @@ def process(n: int, api: Api, run: Run, event: dict[str, Any] | None = None, dry
             return lines  # no approval, so no auto-merge
         event = {**event, "approved": head}  # gather must not depend on reading back the comment it just posted
     try:
-        s = gather(n, api, event)
+        s = gather(n, api, event, on_main=on_main)
     except SystemExit as e:  # one PR's failed read must not stop the others
         return lines + [f"#{n} skipped: {e}"]
     acts = decide(s)
@@ -640,8 +658,10 @@ def main(argv: list[str] | None = None, api: Api = pr_check.gh_api, run: Run = _
         lines = process(number, api, run, facts, args.dry_run)
     else:
         lines = []
-        for n in prs_for_head(api, args.head_sha) if args.head_sha else open_labelled(api):
-            lines += process(n, api, run, None, args.dry_run)
+        prs = prs_for_head(api, args.head_sha) if args.head_sha else open_labelled(api)
+        on_main = ci_digest.main_failures(api) if len(prs) > 1 else None
+        for n in prs:
+            lines += process(n, api, run, None, args.dry_run, on_main=on_main)
     for line in lines:
         print(line)
     return 1 if any("FAILED" in x for x in lines) else 0

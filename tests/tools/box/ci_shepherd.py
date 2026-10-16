@@ -79,6 +79,12 @@ def comment(n: int, body: str, run: Run) -> None:
         log(f"#{n}: comment failed: {r.stderr.strip()[:200]}")
 
 
+def has_seen(state: dict[str, Any], n: int, sha: str, key: str) -> bool:
+    """True when `key` was already recorded for PR n at head `sha` (without recording it)."""
+    seen = state["seen"].get(str(n), {})
+    return seen.get("sha") == sha and key in seen
+
+
 def once(state: dict[str, Any], n: int, sha: str, key: str) -> bool:
     """True the first time `key` is seen for PR n at head `sha` (and records it)."""
     seen = state["seen"].setdefault(str(n), {})
@@ -93,6 +99,34 @@ def once(state: dict[str, Any], n: int, sha: str, key: str) -> bool:
 
 INFRA_RETRIES = 3  # an outage (Docker Hub 429/504 on 2026-10-09) outlasts one rerun
 RETRY_GAP = 15 * 60  # seconds between reruns of the same check on the same head
+# promoter affinity: at most this many drafts are marked ready (their CI started) in one pass
+MAX_IN_FLIGHT = int(os.environ.get("CI_SHEPHERD_MAX_IN_FLIGHT", "4"))
+MAX_LEDGER = 200  # epigenetic memory cap
+
+
+def record_event(state: dict[str, Any], n: int, sha: str, event: str, detail: str = "") -> None:
+    """Append a bounded epigenetic mark to state['ledger'] recording transcriptional stress/outcomes across passes."""
+    ledger = state.setdefault("ledger", [])
+    ledger.append(
+        {"ts": time.strftime("%Y-%m-%dT%H:%M:%S"), "pr": n, "sha": sha[:12], "event": event, "detail": detail}
+    )
+    if len(ledger) > MAX_LEDGER:
+        del ledger[:-MAX_LEDGER]
+
+
+def box_verdict() -> str:
+    """Global metabolic headroom signal (cAMP-CRP) from box_status: 'GREEN', 'YELLOW', or 'RED'."""
+    try:
+        try:
+            from squid_bot import box_status
+        except ImportError:
+            import box_status  # type: ignore[no-redef]
+        if not Path("/proc/meminfo").exists():
+            return "GREEN"
+        return str(box_status.snapshot(sample=0.1).get("verdict") or "GREEN")
+    except Exception as e:  # an unreadable box never blocks a fixer, but say so
+        log(f"box_verdict: unreadable ({e!r}), treating as GREEN")
+        return "GREEN"
 
 
 def now() -> float:
@@ -118,6 +152,12 @@ def reruns_used_up(state: dict[str, Any], n: int, sha: str, key: str, tries: int
     seen = state["seen"].get(str(n), {})
     done = seen.get(key) if seen.get("sha") == sha else None
     return isinstance(done, list) and len(done) >= tries
+
+
+def rerun_key(f: dict[str, Any]) -> str:
+    """The retry budget a failure draws on: its workflow run (`gh run rerun --failed` reruns every failed job of it, so
+    matrix legs of one run share one budget), else its check name."""
+    return f"rerun:run:{f['run_id']}" if f.get("run_id") else f"rerun:{f['check']}"
 
 
 def required_checks(api: pr_check.Api) -> set[str] | None:
@@ -148,6 +188,7 @@ def _pass_one(
     digest: Callable[[int], dict[str, Any]],
     settle: float,
     did: list[str],
+    in_flight: list[int] | None = None,
 ) -> None:
     """One open PR's part of a pass. Appends what it did, or why it did nothing."""
     base = state["after"].get(str(n))
@@ -156,15 +197,22 @@ def _pass_one(
         return
     sha = res["head_sha"]
     if res["ready"]:
+        if res.get("draft") and in_flight is not None and in_flight[0] >= MAX_IN_FLIGHT:
+            did.append(f"#{n} draft deferred: {in_flight[0]} PR(s) already in flight (max {MAX_IN_FLIGHT})")
+            return
         errors = pr_check.merge(res, run)
         if pr_check.draft_marked_ready(errors):
+            if in_flight is not None:
+                in_flight[0] += 1
             did.append(f"#{n} was a draft: marked ready; its CI starts, a later pass merges")
+            record_event(state, n, sha, "draft_ready")
             return
         if errors:
             did.append(f"#{n} merge failed: {'; '.join(errors)}")
             return
         state["queue"].remove(n)
         did.append(f"#{n} MERGED (head {sha[:12]})")
+        record_event(state, n, sha, "merged")
         if any(f["path"] == pr_check.PIN_FILE for f in res["files"]):
             did.append(pr_check.sync_pins(run))
         time.sleep(settle)  # GitHub recomputes the others' mergeability
@@ -175,6 +223,8 @@ def _pass_one(
         did.append(f"#{n} behind main, not updated (#5134): merge it by hand or clear branch-protection strict")
         return
     if not failed and res["mergeable_state"] != "dirty":
+        if res["checks"]["pending"] and in_flight is not None:
+            in_flight[0] += 1
         did.append(f"#{n} waiting: {len(res['checks']['pending'])} pending")
         return
     d = digest(n)
@@ -188,29 +238,43 @@ def _pass_one(
     if (d["failed"] and kinds == {"infra"} and required is not None and not res["checks"]["pending"]
             and res["mergeable_state"] not in ("dirty", "behind", "blocked")
             and all(f["check"] not in required for f in d["failed"])
-            and all(reruns_used_up(state, n, sha, f"rerun:{f['check']}", INFRA_RETRIES) for f in d["failed"])):  # fmt: skip
+            and all(reruns_used_up(state, n, sha, rerun_key(f), INFRA_RETRIES) for f in d["failed"])):  # fmt: skip
+        if res.get("draft") and in_flight is not None and in_flight[0] >= MAX_IN_FLIGHT:
+            did.append(f"#{n} draft deferred: {in_flight[0]} PR(s) already in flight (max {MAX_IN_FLIGHT})")
+            return
         errors = pr_check.merge(res, run)
         names = ", ".join(f["check"] for f in d["failed"])
         if pr_check.draft_marked_ready(errors):
+            if in_flight is not None:
+                in_flight[0] += 1
             did.append(f"#{n} was a draft: marked ready; its CI starts, a later pass decides")
+            record_event(state, n, sha, "draft_ready")
         elif errors:
             did.append(f"#{n} merge failed: {'; '.join(errors)}")
         else:
             state["queue"].remove(n)
             did.append(f"#{n} MERGED past non-required infra failure(s) after {INFRA_RETRIES} reruns: {names}")
+            record_event(state, n, sha, "merged_past_infra", names)
             comment(n, f"CI shepherd: merged with {names} failing for infrastructure reasons only (not a "
                        f"required check; rerun {INFRA_RETRIES} times, 15 min apart). Its next run on main "
                        "will report again.", run)  # fmt: skip
         return
+    reran_runs: set[int] = set()
     for f in d["failed"]:
         tries = INFRA_RETRIES if f["triage"] == "infra" else 1
         if f["triage"] not in ("infra", "flake"):
             continue
-        key = f"rerun:{f['check']}"
-        if not f.get("run_id"):
+        key = rerun_key(f)
+        rid = f.get("run_id")
+        if not rid:
             did.append(f"#{n} blocked: {f['check']} ({f['triage']}) -- no action: no run id in its URL to rerun")
+        elif rid in reran_runs:
+            did.append(f"#{n} rerun {f['check']} ({f['triage']}): ok (shared run {rid})")
         elif retry_due(state, n, sha, key, tries, now()):
-            r = run(["gh", "run", "rerun", str(f["run_id"]), "--failed", "-R", REPO_SLUG])
+            r = run(["gh", "run", "rerun", str(rid), "--failed", "-R", REPO_SLUG])
+            if not r.returncode:
+                reran_runs.add(rid)
+                record_event(state, n, sha, "rerun", f"{f['check']} ({f['triage']})")
             did.append(f"#{n} rerun {f['check']} ({f['triage']}): "
                        f"{'ok' if not r.returncode else r.stderr.strip()[:120]}")  # fmt: skip
         else:
@@ -220,25 +284,41 @@ def _pass_one(
                    "regenerate generated files with their tools (never hand-merge them; see "
                    "`.claude/agents/gitgalaxy-pr-worker.md`), then push.", run)  # fmt: skip
         did.append(f"#{n} dirty: noted")
-    if "real" in kinds and once(state, n, sha, "note:real"):
+    if "real" in kinds:
         real = {**d, "failed": [f for f in d["failed"] if f["triage"] == "real"]}
-        comment(n, "CI shepherd: real failure(s) on this head. Reproduce locally with the `repro` line; don't "
-                   "re-push to find out.\n\n```\n" + ci_digest.render(real) + "\n```", run)  # fmt: skip
-        did.append(f"#{n} real failure: digest posted")
+        if once(state, n, sha, "note:real"):
+            comment(n, "CI shepherd: real failure(s) on this head. Reproduce locally with the `repro` line; don't "
+                       "re-push to find out.\n\n```\n" + ci_digest.render(real) + "\n```", run)  # fmt: skip
+            did.append(f"#{n} real failure: digest posted")
+            record_event(state, n, sha, "real_failure", ", ".join(f["check"] for f in real["failed"]))
         fixer = os.environ.get("CI_SHEPHERD_FIXER")
-        if fixer:
-            path = STATE.parent / f"digest-{n}-{sha[:12]}.json"
-            path.write_text(json.dumps(real, indent=1), encoding="utf-8")
-            subprocess.Popen([*fixer.split(), str(n), str(path)], start_new_session=True)  # noqa: S603
-            did.append(f"#{n} fixer started: {fixer} {n} {path}")
+        if fixer and not has_seen(state, n, sha, "fixer:real"):
+            verdict = box_verdict()
+            if verdict in ("RED", "YELLOW"):
+                did.append(f"#{n} fixer deferred: box is {verdict} (catabolite repression)")
+                record_event(state, n, sha, "fixer_deferred", f"box {verdict}")
+            elif once(state, n, sha, "fixer:real"):
+                path = STATE.parent / f"digest-{n}-{sha[:12]}.json"
+                path.write_text(json.dumps(real, indent=1), encoding="utf-8")
+                subprocess.Popen([*fixer.split(), str(n), str(path)], start_new_session=True)  # noqa: S603
+                did.append(f"#{n} fixer started: {fixer} {n} {path}")
+                record_event(state, n, sha, "fixer_started", fixer)
 
 
 def step(state: dict[str, Any], api: pr_check.Api = pr_check.gh_api, run: Run = _run,
          digest: Callable[[int], dict[str, Any]] | None = None, settle: float = 30) -> list[str]:  # fmt: skip
     """One pass over the queue. Returns what it did (for the log and the tests). Every queued PR gets at least one
     line: what it did, or its state and why nothing was done (#4790: a pass logged nothing about #4837)."""
-    digest = digest or (lambda n: ci_digest.digest(n, api))
+    on_main_cache: list[set[str]] = []
+
+    def _default_digest(n: int) -> dict[str, Any]:
+        if not on_main_cache:
+            on_main_cache.append(ci_digest.main_failures(api))
+        return ci_digest.digest(n, api, on_main=on_main_cache[0])
+
+    digest_fn = digest or _default_digest
     did: list[str] = []
+    in_flight = [0]
     for n in list(state["queue"]):
         res = pr_check.check(n, api)
         if res["state"] != "open":
@@ -246,7 +326,7 @@ def step(state: dict[str, Any], api: pr_check.Api = pr_check.gh_api, run: Run = 
             did.append(f"#{n} {res['state']}: left the queue")
             continue
         before = len(did)
-        _pass_one(state, n, res, api, run, digest, settle, did)
+        _pass_one(state, n, res, api, run, digest_fn, settle, did, in_flight=in_flight)
         if len(did) == before:  # the fallback: no code path returns silently for a PR
             failed = ", ".join(res["checks"]["failed"]) or "none"
             did.append(
@@ -309,6 +389,9 @@ def main(argv: list[str] | None = None) -> int:
         save(state)
         print("queue: " + (" ".join(f"{n}" + (f"(after {state['after'][str(n)]})" if str(n) in state["after"] else "")
                                     for n in state["queue"]) or "empty"))  # fmt: skip
+        if args.cmd == "status" and state.get("ledger"):
+            recent = state["ledger"][-5:]
+            print("recent events: " + ", ".join(f"#{e['pr']} {e['event']}" for e in recent))
     return 0
 
 

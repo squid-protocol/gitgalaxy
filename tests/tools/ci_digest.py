@@ -136,18 +136,55 @@ def repro(name: str, ex: dict[str, Any], kind: str = "real") -> str | None:
     return GATES + " --fast"
 
 
-def main_failures(api: pr_check.Api) -> set[str]:
-    """The checks failing on main's newest commit (#4790): a PR failing the same check inherited it from main."""
+def _completed_names(runs: list[dict[str, Any]]) -> tuple[set[str], set[str]]:
+    """(failed_names, all_completed_names) for a commit's check runs."""
+    c = pr_check.classify(runs, [])
+    failed = {x.rsplit(" (", 1)[0] for x in c["failed"]}
+    neutral = {x.rsplit(" (", 1)[0] for x in c["neutral"]}
+    return failed, set(c["passed"]) | failed | neutral
+
+
+def main_failures(api: pr_check.Api, lookback: int = 3) -> set[str]:
+    """The checks failing on main's newest commit (#4790): a PR failing the same check inherited it from main.
+    Basal persistence: when main's tip commit just landed and its checks are still pending (or not yet registered),
+    walk up to `lookback` first-parent commits on main so checks not yet completed on tip retain their last known
+    completed main status instead of causing a false 'real' failure during the post-merge CI window."""
     try:
-        sha = api(f"repos/{REPO_SLUG}/commits/main")["sha"]
+        commit = api(f"repos/{REPO_SLUG}/commits/main")
+        sha = commit["sha"]
         runs = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
     except (SystemExit, KeyError, TypeError):
         return set()
-    return pr_check.failed_names(runs)
+    failed, decided = _completed_names(runs)
+    pending = {x.rsplit(" (", 1)[0] for x in pr_check.classify(runs, [])["pending"]}
+    parents = commit.get("parents") or []
+    steps = 0
+    while steps < lookback and parents and (pending - decided or not runs):
+        parent_sha = (parents[0] or {}).get("sha")
+        if not parent_sha:
+            break
+        try:
+            p_commit = api(f"repos/{REPO_SLUG}/commits/{parent_sha}")
+            p_runs = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{parent_sha}/check-runs", "check_runs")
+        except (SystemExit, KeyError, TypeError):
+            break
+        p_failed, p_decided = _completed_names(p_runs)
+        failed |= p_failed - decided
+        decided |= p_decided
+        if p_runs and not (pending - decided):
+            break
+        parents = p_commit.get("parents") or [] if isinstance(p_commit, dict) else []
+        steps += 1
+    return failed
 
 
-def digest(n: int, api: pr_check.Api = pr_check.gh_api, logs: Logs = job_log) -> dict[str, Any]:
-    on_main = main_failures(api)
+def digest(
+    n: int,
+    api: pr_check.Api = pr_check.gh_api,
+    logs: Logs = job_log,
+    on_main: set[str] | None = None,
+) -> dict[str, Any]:
+    on_main = main_failures(api) if on_main is None else on_main
     pr = api(f"repos/{REPO_SLUG}/pulls/{n}")
     sha = pr["head"]["sha"]
     runs = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")

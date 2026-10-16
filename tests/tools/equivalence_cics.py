@@ -672,6 +672,69 @@ def _delay(opts: dict[str, str | None], labels: list[str]) -> list[str]:
     return lines + _call("GGCDLAY", []) + _resp(opts, False, labels)
 
 
+def _post(opts: dict[str, str | None], labels: list[str]) -> list[str]:
+    """#5079 (register X63): POST INTERVAL / TIME (GG-NUM) | AFTER / AT HOURS MINUTES SECONDS (GG-HOURS / GG-MINS / GG-SECS,
+    -999999999 when not given; GG-FLAGS says which) [REQID (GG-QNAME)] [SET(ptr)] -> GGCPOST, which sets the pointer to the
+    timer-event control area (no SET: GG-PTR takes it), and returns the REQID it ran under in GG-NAME1: EIBREQID when the
+    program gave none (IBM: CICS "generates one", ASSUMED POSTnnnn). The option rules as the det translator's."""
+    key = "POST"
+    _check_spec(key, opts, ("POST",), lambda bad: [f"{key} {o}" for o in bad])
+    whens = [w for w in ("INTERVAL", "TIME", "AFTER", "AT") if w in opts]
+    if len(whens) > 1:
+        raise Unsupported(_rule(key, "at_most_one", "INTERVAL", " and ".join(whens)), ["POST " + " ".join(whens)])
+    when = whens[0] if whens else "INTERVAL"
+    hms = [o for o in ("HOURS", "MINUTES", "SECONDS") if o in opts]
+    if (when in ("AFTER", "AT")) != bool(hms):
+        raise Unsupported(_rule(key, "requires", "HOURS", when, " ".join(hms)), [f"POST {when}"])
+    if any(not opts.get(o) for o in [*hms, *(o for o in ("INTERVAL", "TIME", "SET", "REQID") if o in opts)]):
+        raise Unsupported(NEEDS_ARGUMENT, [f"POST {when}"])
+    lines = [f"MOVE '{when}' TO GG-FLAGS",
+             f"MOVE {opts['REQID']} TO GG-QNAME" if opts.get("REQID") else "MOVE SPACES TO GG-QNAME",
+             f"MOVE {opts.get(when) or 0} TO GG-NUM" if when in ("INTERVAL", "TIME") else "MOVE 0 TO GG-NUM"]  # fmt: skip
+    lines += [f"MOVE {opts.get(o) or -999999999} TO {f}"
+              for o, f in (("HOURS", "GG-HOURS"), ("MINUTES", "GG-MINS"), ("SECONDS", "GG-SECS")) if hms]  # fmt: skip
+    ptr = _pointer(key, opts["SET"]) if opts.get("SET") else "GG-PTR"
+    lines += _call("GGCPOST", [f"BY REFERENCE {ptr}"])
+    if not opts.get("REQID"):
+        lines += ["IF GG-RESP = 0", "    MOVE GG-NAME1 TO EIBREQID", "END-IF"]
+    return lines + _resp(opts, True, labels)
+
+
+def _wait_event(opts: dict[str, str | None], labels: list[str]) -> list[str]:
+    """#5079 (register X63): WAIT EVENT ECADDR(ptr) [NAME] -> GGCWEVT (the area a POST made is posted at its expiry; INVREQ
+    RESP2 2 for a null pointer; an address that is no POST's area is refused by the stub). The option rules as the translator's."""
+    key = "WAIT EVENT"
+    _check_spec(
+        key, {o: v for o, v in opts.items() if o != "EVENT"}, ("WAIT",), lambda bad: [f"{key} {o}" for o in bad]
+    )
+    if not opts.get("ECADDR"):
+        raise Unsupported(_rule(key, "required", "ECADDR"), [key])
+    return _call("GGCWEVT", [f"BY REFERENCE {_pointer(key, opts['ECADDR'])}"]) + _resp(opts, True, labels)
+
+
+def _converse(opts: dict[str, str | None], labels: list[str]) -> list[str]:
+    """#5079 (register X63): CONVERSE FROM [FROMLENGTH] INTO [TOLENGTH] [MAXLENGTH] [NOTRUNCATE] -> GGCCONV: the FROM data
+    written to the terminal (a plain SEND's event), then the terminal RECEIVE of the reply (GG-LEN the most taken, GG-FLAGS
+    NOTRUNCATE; on return the reply's length, -1 for a negative FROMLENGTH: LENGERR, nothing sent). TOLENGTH is set on NORMAL
+    / LENGERR. The option rules as the det translator's (SET and the conversation options refused by name)."""
+    key = "CONVERSE"
+    _check_spec(key, opts, (key,), lambda bad: [f"{key} {o}" for o in bad])
+    for req in ("FROM", "INTO"):
+        if not opts.get(req):
+            raise Unsupported(_rule(key, "required", req), [key])
+    sent = _one_of(key, opts, "FROMLENGTH", "FROMFLENGTH")
+    length = _one_of(key, opts, "TOLENGTH", "TOFLENGTH")
+    most = _one_of(key, opts, "MAXLENGTH", "MAXFLENGTH")
+    src, into = opts["FROM"], opts["INTO"]
+    lines = ["MOVE 'NOTRUNCATE' TO GG-FLAGS" if "NOTRUNCATE" in opts else "MOVE SPACES TO GG-FLAGS",
+             f"MOVE {most or length or f'LENGTH OF {into}'} TO GG-LEN"]  # fmt: skip
+    lines += _call("GGCCONV", [f"BY REFERENCE {src}", f"BY VALUE {sent or f'LENGTH OF {src}'}", f"BY REFERENCE {into}"])
+    settable = bool(length) and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", length.strip()) is None
+    if settable:
+        lines += ["IF GG-LEN >= 0 AND (GG-RESP = 0 OR GG-RESP = 22)", f"    MOVE GG-LEN TO {length}", "END-IF"]
+    return lines + _resp(opts, True, labels)
+
+
 def _run_transid(opts: dict[str, str | None], labels: list[str]) -> list[str]:
     """#4270 slice 2: RUN TRANSID(x) CHILD(area) -> GGCRUNT (the child is an event; the runner's scheduler runs it
     once this task has ended). CHANNEL (#4884): the child's copy of a channel, in GG-CHAN. Any option IBM's RUN TRANSID
@@ -1495,6 +1558,12 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         )  # #5079: no TOKEN, the file's hold
     if verb == "DELAY":  # #4950: the wait at which RUN children are dispatched (GGCDLAY)
         return _delay(opts, labels)
+    if verb == "POST":  # #5079 (X63): a timer-event control area
+        return _post(opts, labels)
+    if verb == "WAIT" and "EVENT" in opts and opts["EVENT"] is None:
+        return _wait_event(opts, labels)
+    if verb == "CONVERSE":
+        return _converse(opts, labels)
     if verb in ("ENQ", "DEQ"):
         # one task in the region: nothing else holds the resource (ENQ / DEQ NORMAL), and a task takes no time
         # (EIBTIME / ASKTIME stay as dispatched; oracle_assumptions.md X4)
@@ -5286,6 +5355,10 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             if "resp2" in kv:  # X60: LENGERR 1 / INVREQ 2 from the operands (a planned ENQBUSY states none)
                 e["resp2"] = int(kv["resp2"])
             out.append(e)
+        elif verb == "CANCEL":  # #5079 (X63): as CicsTask.cancel records it -- the REQID and the condition
+            kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
+            out.append({"event": "CANCEL", "reqid": kv.get("reqid", ""),
+                        "resp": RESP_NAMES.get(int(kv.get("resp", "0")), kv.get("resp", ""))})  # fmt: skip
         elif verb == "RUN":  # #4270: RUN TRANSID CHILD, as CicsTask.runTransid records it (the child is not run here)
             kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
             resp = RESP_NAMES.get(int(kv.get("resp", "0")), kv.get("resp", ""))

@@ -370,7 +370,15 @@ def build(names: list[str] | None = None, catalogue_path: Path | None = CATALOGU
         inv = _load(INVENTORY / f"{name}.json")
         rep = _load(REPORTS / name / "report.json")
         out["estates"][name] = build_estate(name, inv, rep, rmap, catalogue, register)
+    if names is None and (nb := _non_burned_eras()):  # present only when non-empty (#5117)
+        out["non_burned_eras"] = nb
     return out
+
+
+def _non_burned_eras() -> dict[str, Any]:
+    """#5117: era distributions of the non-burned estates, counts only (tests/tools/era_distribution.py)."""
+    path = TOOLS.parent / "fixtures" / "era_distribution" / "summary.json"
+    return _load(path)["estates"] if path.is_file() else {}
 
 
 def _cell(x: Any) -> str:
@@ -488,6 +496,24 @@ def render_estate(m: dict[str, Any]) -> list[str]:
     return [*L, ""]
 
 
+def render_non_burned_eras(nb: dict[str, Any]) -> list[str]:
+    """#5117: one table of the non-burned estates' era counts. Counts only: nothing per program is committed for them."""
+    L = ["## Era, non-burned estates (counts only)", ""]
+    L.append(
+        "Not burned, so no per-program data is committed (first-contact numbers stay first-contact); `census-*` labels "
+        "are opaque. A program's era is the latest era any of its tells reaches; none = no tell."
+    )
+    L += ["", "| estate | programs | 0 | 1 | 2 | 3 | 4 | none | mixed |", "|---|---|---|---|---|---|---|---|---|"]
+    for name, e in sorted(nb.items()):
+        b = e["by_era"]
+        L.append(
+            f"| {name} | {e['programs']} | "
+            + " | ".join(str(b[k]) for k in ("0", "1", "2", "3", "4", "none"))
+            + f" | {e['mixed']} |"
+        )
+    return [*L, ""]
+
+
 def render(matrix: dict[str, Any] | None = None) -> str:
     m = matrix or build()
     catalogue = (
@@ -522,6 +548,8 @@ def render(matrix: dict[str, Any] | None = None) -> str:
     ]
     for e in m["estates"].values():
         L += render_estate(e)
+    if m.get("non_burned_eras"):
+        L += render_non_burned_eras(m["non_burned_eras"])
     return "\n".join(L).rstrip() + "\n"
 
 

@@ -418,4 +418,73 @@ FREE_CHILD = Command(
     impl=Impl(translator="Cics.free_child", java="freeChild", c="GGCFREE", harness="_free_child"),
 )
 
-COMMANDS = (START, RETRIEVE, CANCEL, RUN, FETCH_ANY, FETCH_CHILD, FREE_CHILD)
+# #5079 (X63): POST and WAIT EVENT -- a timer-event control area on the stated clock. A task takes no time (X4), so the area is
+# posted only by a WAIT EVENT, which runs the clock to the expiry, or by a CANCEL of the POST.
+_POST_ENDED = RuntimeRefusal(
+    "a WAIT EVENT on an area a later POST, CANCEL, local START or DELAY of the task ended (IBM: its result is unpredictable)",
+    "X63",
+    java="a later POST, CANCEL, START or DELAY ended",
+    c="a later POST, CANCEL, START or DELAY ended",
+)
+_NOT_A_POST = RuntimeRefusal(
+    "a WAIT EVENT on an address that is no POST's timer-event control area (an ECB of another kind is not modelled)",
+    "X63",
+    java="no POST's timer-event control area",
+    c="no POST's timer-event control area",
+)
+
+POST = Command(
+    key="POST",
+    ibm=ibm("EXEC CICS POST", "summary-post"),
+    status="modelled",
+    register="X63",
+    options={
+        "INTERVAL": Arg("hhmmss"),  # none of INTERVAL / TIME / AFTER / AT: INTERVAL(0)
+        "TIME": Arg("hhmmss"),
+        "AFTER": Arg("flag"),
+        "AT": Arg("flag"),
+        "HOURS": Arg("value"),
+        "MINUTES": Arg("value"),
+        "SECONDS": Arg("value"),
+        "SET": Arg("pointer"),
+        "REQID": Arg("name", width=8),
+        **RESP_OPTIONS,
+    },
+    groups=(
+        at_most_one("INTERVAL", "TIME", "AFTER", "AT", msg="POST {}: one expiry option"),
+        requires(
+            ("HOURS", "MINUTES", "SECONDS"),
+            any_of=("AFTER", "AT"),
+            both_ways=True,
+            msg="POST {} {}: HOURS / MINUTES / SECONDS go with AFTER / AT",
+        ),
+    ),
+    outcomes=(
+        Outcome("NORMAL", 0, ""),
+        Outcome("INVREQ", 4, "hours out of range (HOURS, or INTERVAL / TIME's hh)"),
+        Outcome("INVREQ", 5, "minutes out of range (MINUTES, or mm)"),
+        Outcome("INVREQ", 6, "seconds out of range (SECONDS, or ss)"),
+        Outcome("EXPIRED", None, "the specified time has already passed when the command is issued"),
+    ),
+    state=("interval_requests", "virtual_clock", "handle_table"),
+    impl=Impl(translator="Cics.post", java="post", c="GGCPOST", harness="_post"),
+)
+
+WAIT_EVENT = Command(
+    key="WAIT EVENT",
+    ibm=ibm("EXEC CICS WAIT EVENT", "summary-wait-event"),
+    status="modelled",
+    register="X63",
+    # NAME only labels the suspended task (SUSPENDVALUE / HVALUE of INQUIRE TASK): it changes nothing here
+    options={"ECADDR": Arg("pointer"), "NAME": Arg("name", width=8), **RESP_OPTIONS},
+    groups=(required("ECADDR", msg="WAIT EVENT without ECADDR"),),
+    outcomes=(
+        Outcome("NORMAL", 0, ""),
+        Outcome("INVREQ", 2, "the ECB address is a null pointer"),
+    ),
+    runtime_refusals=(_NOT_A_POST, _POST_ENDED),
+    state=("interval_requests", "virtual_clock", "handle_table"),
+    impl=Impl(translator="Cics.wait_event", java="waitEvent", c="GGCWEVT", harness="_wait_event"),
+)
+
+COMMANDS = (START, RETRIEVE, CANCEL, RUN, FETCH_ANY, FETCH_CHILD, FREE_CHILD, POST, WAIT_EVENT)

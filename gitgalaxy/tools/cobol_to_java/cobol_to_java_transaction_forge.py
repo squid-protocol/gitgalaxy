@@ -2748,6 +2748,9 @@ public class CicsTask {
             e.put("resp2", 1);
         }
         e.put("expires", at == null ? null : at.format(ISO));
+        if ("NORMAL".equals(resp)) {
+            task.releasePost();  // #5079 (X63): IBM, POST: a local START ends the POST's timer-event control area
+        }
         add(e);
         return new StartResult(resp, at, resp2);
     }
@@ -2962,6 +2965,7 @@ public class CicsTask {
      *  of time is refused (what it means for the children's order is not modelled). */
     public void delay(long millis, String what) {
         CicsTask task = root();
+        task.releasePost();  // #5079 (X63): IBM, POST: a subsequent DELAY ends the POST's timer-event control area
         if (millis < 0) {
             if (!task.kids.isEmpty() || task.dispatched) {
                 throw new UnsupportedOperationException("DELAY in a task with RUN TRANSID children (or in a child): "
@@ -3223,9 +3227,115 @@ public class CicsTask {
         String resp = at != null && at.isAfter(now()) ? "NORMAL" : "NOTFND";
         if ("NORMAL".equals(resp)) {
             task.ownRequests.remove(reqid);
+            if (reqid.equals(task.postReqid)) {
+                task.postCancelled();  // #5079 (X63): IBM, POST: a CANCEL of the POST posts its area
+            }
         }
         event("CANCEL", "reqid", reqid, "resp", resp);
         return resp;
+    }
+
+    // ---- #5079 (register X63): POST and WAIT EVENT -- a timer-event control area, on the stated clock -------------------
+    private long postBlock;  // the live POST's area (a block of task storage), 0 when none
+    private LocalDateTime postAt;  // when it expires
+    private String postReqid;  // its REQID
+    private int postSeq;  // the REQIDs CICS generated (POST with no REQID)
+    private final java.util.Set<Long> postAreas = new java.util.HashSet<>();  // every area a POST made
+    private final java.util.Set<Long> postReleased = new java.util.HashSet<>();  // those a later command ended
+
+    /** A POST's outcome: its condition, RESP2, the handle of the new area (0: none) and the REQID it runs under. */
+    public record PostResult(String resp, int resp2, long handle, String reqid) {
+    }
+
+    /** POST INTERVAL(hhmmss) | TIME(hhmmss) | AFTER / AT HOURS MINUTES SECONDS [SET(ptr)] [REQID] (IBM CICS TS, EXEC CICS
+     *  POST): "This 4-byte control area is initialized to binary zeros" and posted ("its first byte is set to X'40' and
+     *  its third byte to X'80'") when the time expires or the POST is CANCELled. `how` INTERVAL, TIME, AFTER or AT
+     *  (the hours, minutes, seconds null when not given). INVREQ RESP2 4 / 5 / 6 for hours, minutes, seconds out of
+     *  range; EXPIRED for a TIME already past (nothing is made). A task takes no time (X4), so the area is posted only
+     *  by a WAIT EVENT, which runs the clock to the expiry, or by a CANCEL. A POST with no REQID runs under POSTnnnn
+     *  (ASSUMED: IBM "generates one"). A task has one live POST: a later POST, a local START or a DELAY ends it. */
+    public PostResult post(String how, int hhmmss, Integer hours, Integer minutes, Integer seconds, String reqid) {
+        CicsTask task = root();
+        int resp2 = 0;
+        if ("AFTER".equals(how) || "AT".equals(how)) {
+            hhmmss = hhmmss(hours, minutes, seconds);
+            if (hhmmss < 0) {
+                resp2 = -hhmmss;
+            }
+        } else if (hhmmss < 0 || hhmmss / 10000 > 99) {
+            resp2 = 4;
+        } else if (hhmmss / 100 % 100 > 59) {
+            resp2 = 5;
+        } else if (hhmmss % 100 > 59) {
+            resp2 = 6;
+        }
+        if (resp2 != 0) {
+            return new PostResult("INVREQ", resp2, 0, reqid);
+        }
+        LocalDateTime clock = now();
+        int hh = hhmmss / 10000, mm = hhmmss / 100 % 100, ss = hhmmss % 100;
+        LocalDateTime at;
+        if ("TIME".equals(how) || "AT".equals(how)) {
+            at = clock.toLocalDate().atStartOfDay().plusHours(hh).plusMinutes(mm).plusSeconds(ss);
+            if (hh <= 23 && at.isBefore(clock)) {
+                return new PostResult("EXPIRED", 0, 0, reqid);
+            }
+        } else {
+            at = clock.plusSeconds(hh * 3600L + mm * 60L + ss);
+        }
+        String id = reqid == null ? String.format(java.util.Locale.ROOT, "POST%04d", ++task.postSeq) : reqid;
+        task.releasePost();
+        task.postBlock = acquireSet(null, new byte[4]);
+        task.postAt = at;
+        task.postReqid = id;
+        task.postAreas.add(task.postBlock);
+        task.ownRequests.put(id, at);
+        return new PostResult("NORMAL", 0, task.postBlock, id);
+    }
+
+    private void releasePost() {
+        if (postBlock != 0) {
+            postReleased.add(postBlock);
+            ownRequests.remove(postReqid);
+            postBlock = 0;
+            postReqid = null;
+        }
+    }
+
+    private void postArea(long handle) {
+        byte[] b = blocks.get(handle).bytes;
+        b[0] = 0x40;
+        b[2] = (byte) 0x80;
+    }
+
+    private void postCancelled() {
+        postArea(postBlock);
+        releasePost();
+    }
+
+    /** WAIT EVENT ECADDR(ptr) (IBM CICS TS, EXEC CICS WAIT EVENT): {RESP, RESP2}. INVREQ RESP2 2 for a null pointer. An
+     *  area not yet posted is posted at its expiry: the RUN children not yet run are dispatched and the scheduler's
+     *  clock runs to the expiry (a task takes no time, X4). An area already posted returns at once (ASSUMED: IBM does
+     *  not say). Refused: an address that is no POST's area, an area a later POST, CANCEL, local START or DELAY ended
+     *  (IBM: "unpredictable"). */
+    public int[] waitEvent(long handle) {
+        CicsTask task = root();
+        if (handle == 0) {
+            return new int[] {16, 2};
+        }
+        if (!task.postAreas.contains(handle)) {
+            throw refused("WAIT EVENT on an address that is no POST's timer-event control area");
+        }
+        if (task.postReleased.contains(handle)) {
+            throw refused("WAIT EVENT on a timer-event control area a later POST, CANCEL, START or DELAY ended");
+        }
+        if (task.blocks.get(handle).bytes[0] != 0x40) {
+            task.dispatchChildren();
+            task.waited += Math.max(0L, java.time.Duration.between(now(), task.postAt).toMillis());
+            task.postArea(handle);
+            task.ownRequests.remove(task.postReqid);
+        }
+        return new int[] {0, 0};
     }
 
     /** ENQ RESOURCE(resource) (#5089, IBM EXEC CICS ENQ): one task in the region, so the resource is free (NORMAL) --
@@ -4085,10 +4195,39 @@ public class CicsTask {
         if (lim == null && limits) {
             throw refused("QUERY COUNTER MINIMUM / MAXIMUM of a counter whose limits the run does not state");
         }
-        if (v < 0 || v > 2147483647L) {
-            throw refused("QUERY COUNTER of a value beyond a fullword (IBM's LENGERR)");
+        if (lim != null && limits && (lim[0] < 0 || lim[0] > 2147483647L || lim[1] < 0 || lim[1] > 2147483647L)) {
+            throw refused("QUERY COUNTER MINIMUM / MAXIMUM of a counter whose limits are beyond a fullword");
         }
-        return new int[] {0, 0, v.intValue(), lim == null ? 0 : (int) lim[0], lim == null ? 0 : (int) lim[1]};
+        int le = fullwordLengerr(lim, v);
+        return new int[] {le == 0 ? 0 : 22, le, v.intValue(), lim == null ? 0 : (int) lim[0], lim == null ? 0 : (int) lim[1]};
+    }
+
+    /** LENGERR RESP2 of a fullword (COUNTER) command whose counter holds `v`, an unsigned doubleword (IBM CICS TS, GET COUNTER and
+     *  QUERY COUNTER; #4770, X30): 0 when v fits a signed fullword, or when the counter is at its limit (MAXIMUM + 1: "LENGERR can't
+     *  occur at counter-at-limit", the value is the maximum plus one in 32 bits). Else LENGERR for a counter DCOUNTER made too
+     *  large: RESP2 1 the value overflowed into the sign bit (no bit above the low word), 2 "too large ... by only 1 bit; the
+     *  overflow value is exactly 1" (the high word is 1), 3 greater than 1 (ASSUMED: IBM does not say how a value that is both
+     *  is numbered; the high word decides). The operation completes: VALUE is the low-order 32 bits. */
+    private static int fullwordLengerr(long[] lim, long v) {
+        if (v >= 0 && v <= 2147483647L) {
+            return 0;
+        }
+        if (lim != null && lim[1] != -1L && Long.compareUnsigned(v, lim[1]) > 0) {
+            return 0;
+        }
+        long high = v >>> 32;
+        return high == 0 ? 1 : high == 1 ? 2 : 3;
+    }
+
+    /** The result {RESP, RESP2, value} of a GET COUNTER (fullword form) as IBM's LENGERR warning has it (#4770, X30): RESP 22 with
+     *  RESP2 1 / 2 / 3 and VALUE the low-order 32 bits (a signed number) for a counter that holds more than a fullword; any other
+     *  result as it is. The counter has been advanced: "the named counter server completes the operation". */
+    public long[] fullwordGet(String pool, String name, long[] r) {
+        if (r[0] != 0) {
+            return r;
+        }
+        int le = fullwordLengerr(root().counterLimits.get(counterKey(pool, name)), r[2]);
+        return le == 0 ? r : new long[] {22, le, (int) r[2]};
     }
 
     public int[] queryCounter(String pool, String name) {
@@ -4209,6 +4348,22 @@ public class CicsTask {
         }
         event("RECEIVE", "resp", resp, "length", length, "data", data);
         return new Received(resp, length, data);
+    }
+
+    /** #5079 (X63): CONVERSE FROM FROMLENGTH INTO ... (IBM, EXEC CICS CONVERSE (default)): the data written to the terminal,
+     *  recorded as a plain SEND records it (`text`, `length` as the program gave them), then the terminal RECEIVE of the
+     *  reply (`maxLength`, `notruncate` as receive). A negative FROMLENGTH is LENGERR with nothing sent and nothing read
+     *  (ASSUMED: IBM calls the value out of range; the length it returns is -1: no TOLENGTH is set). Refused: an LUTYPE2
+     *  terminal (its reply's last byte raises EOC, which IBM does not list for CONVERSE). */
+    public Received converse(String text, int length, int maxLength, boolean notruncate) {
+        if (root().endOfChain) {
+            throw refused("CONVERSE on an LUTYPE2 terminal (the reply would raise EOC, which IBM does not list for CONVERSE)");
+        }
+        if (length < 0) {
+            return new Received("LENGERR", -1, null);
+        }
+        sendText(text, length);
+        return receive(maxLength, notruncate);
     }
 
     /** #4413: SEND CONTROL with its options (ERASE, ERASEAUP, FREEKB, ALARM, FRSET; CURSOR with `cursor`, its

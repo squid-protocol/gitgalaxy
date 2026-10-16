@@ -639,7 +639,7 @@ def test_options_honoured_without_code_say_why():
     code = src[src.index("def command_key") :]
     stated = {"NODUMP", "MAIN", "AUXILIARY", "NOSUSPEND", "EQUAL", "GTEQ", "TASK", "UOW", "MAXLIFETIME", "RESOURCE",
               "FOR", "INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS", "TS",
-              "TERMINAL", "BELOW", "EXECUTABLE"}  # (#4771 X47: GETMAIN's placement flags change no byte the program sees)  # fmt: skip
+              "TERMINAL", "BELOW", "EXECUTABLE", "NAME"}  # (#5079 X63: WAIT EVENT NAME only labels the task)  # (#4771 X47: GETMAIN's placement flags change no byte the program sees)  # fmt: skip
     flags = {*C.MAP_OPTIONS, *C.TEXT_OPTIONS, *C._FORMS}
     for key, allowed in C.OPTIONS.items():
         for opt in allowed or ():
@@ -1020,6 +1020,11 @@ _RESP_ELSEWHERE = {
     "GETMAIN": "Cics.storage ends in outcome() (test_getmain_and_freemain_work_on_task_storage_through_a_pointer)",
     "FREEMAIN": "Cics.storage ends in outcome() (test_getmain_and_freemain_work_on_task_storage_through_a_pointer)",
     "ADDRESS": "Cics.address ends in outcome(); needs the generator's pointer items, which this double lacks: test_address_5079.py::test_a_program_addressing_the_eib_and_the_commarea_translates_whole",
+    **dict.fromkeys(
+        ("POST", "WAIT EVENT", "CONVERSE"),
+        "Cics.post / wait_event / converse end in outcome() and need the generator's pointer items and fields, which this "
+        "double lacks: test_post_wait_converse_5079.py::test_post_raises_its_conditions_through_resp_and_handle_condition",
+    ),
     "SET TERMINAL": "needs the generator's int_expr, which this double lacks: test_bif_deedit_and_the_terminal_uctranst_cvdas",
 }
 
@@ -1378,13 +1383,20 @@ def test_deleteq_ts_and_inquire_association_and_the_receive_map_terminal_option(
     with pytest.raises(C.CicsError, match="without an origin option"):
         c.command("INQUIRE ASSOCIATION(EIBTASKN) RESP(R) RESP2(R)", "")
     q = c.command("QUERY COUNTER(KEY) POOL('GENAPOOL') VALUE(REC) RESP(R)", "")
-    assert q[0].startswith("int[] counter") and ".queryCounter(" in q[0] and q[1].endswith("== 0) {")
+    assert (
+        q[0].startswith("int[] counter") and ".queryCounter(" in q[0] and q[1].endswith("[0] == 22) {")
+    )  # (#4770: LENGERR writes VALUE)
     assert q[2].startswith("    STORE(REC, BigDecimal.valueOf(counter") and q[-1].startswith("OUTCOME(counter")
     assert _LenCics().command("QUERY COUNTER(KEY) VALUE(REC) NOSUSPEND", "") == _LenCics().command(
         "QUERY COUNTER(KEY) VALUE(REC)", ""
     )  # #5039, X53
     g = c.command("GET COUNTER(KEY) VALUE(REC) RESP(R) RESP2(R2)", "")  # X30: INVREQ RESP2 201, not NOTFND
-    assert g[0].startswith("long[] counter") and ".getCounter(" in g[0] and g[1].endswith("[0] == 0) {")
+    assert (
+        g[0].startswith("long[] counter")
+        and ".getCounter(" in g[0]
+        and "task.fullwordGet(" in g[1]
+        and g[2].endswith("[0] == 22) {")
+    )  # (#4770: LENGERR writes VALUE)
     assert any("OUTCOME((int) counter" in x for x in g) and not any("NOTFND" in x or " 13" in x for x in g)
     d = c.command("DEFINE COUNTER(KEY) POOL('GENAPOOL') VALUE(REC) RESP(R)", "")
     assert d[0].startswith("int[] counter") and ".defineCounter(" in d[0] and "INT(REC)" in d[0]

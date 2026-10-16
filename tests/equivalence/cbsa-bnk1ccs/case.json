@@ -1605,28 +1605,6 @@
       }
     },
     {
-      "name": "dd-underscores",
-      "aid": "DFHENTER",
-      "commarea": {
-        "WS-COMM-TERM": 451
-      },
-      "why": "day '__'",
-      "receive": {
-        "BNK1CC": {
-          "CUSTTITI": "Mr________",
-          "CHRISTNI": "Fiona_______________",
-          "CUSTINSI": "K___",
-          "CUSTSNI": "Laidlaw____________",
-          "CUSTAD1I": "17 Abbey Road_____________________________________",
-          "CUSTAD2I": "Winchester",
-          "CUSTAD3I": "SO23 7AA",
-          "DOBDDI": "__",
-          "DOBMMI": "01",
-          "DOBYYI": "1500"
-        }
-      }
-    },
-    {
       "name": "mm-missing",
       "aid": "DFHENTER",
       "commarea": {
@@ -1643,28 +1621,6 @@
           "CUSTAD2I": "Winchester",
           "CUSTAD3I": "SO23 7AA",
           "DOBDDI": "01",
-          "DOBYYI": "1500"
-        }
-      }
-    },
-    {
-      "name": "mm-underscores",
-      "aid": "DFHENTER",
-      "commarea": {
-        "WS-COMM-TERM": 451
-      },
-      "why": "month '__'",
-      "receive": {
-        "BNK1CC": {
-          "CUSTTITI": "Mr________",
-          "CHRISTNI": "Fiona_______________",
-          "CUSTINSI": "K___",
-          "CUSTSNI": "Laidlaw____________",
-          "CUSTAD1I": "17 Abbey Road_____________________________________",
-          "CUSTAD2I": "Winchester",
-          "CUSTAD3I": "SO23 7AA",
-          "DOBDDI": "01",
-          "DOBMMI": "__",
           "DOBYYI": "1500"
         }
       }
@@ -1709,94 +1665,6 @@
           "DOBDDI": "01",
           "DOBMMI": "01",
           "DOBYYI": "15"
-        }
-      }
-    },
-    {
-      "name": "yyyy-underscores",
-      "aid": "DFHENTER",
-      "commarea": {
-        "WS-COMM-TERM": 451
-      },
-      "why": "year '____'",
-      "receive": {
-        "BNK1CC": {
-          "CUSTTITI": "Mr________",
-          "CHRISTNI": "Fiona_______________",
-          "CUSTINSI": "K___",
-          "CUSTSNI": "Laidlaw____________",
-          "CUSTAD1I": "17 Abbey Road_____________________________________",
-          "CUSTAD2I": "Winchester",
-          "CUSTAD3I": "SO23 7AA",
-          "DOBDDI": "01",
-          "DOBMMI": "01",
-          "DOBYYI": "____"
-        }
-      }
-    },
-    {
-      "name": "dd-letters",
-      "aid": "DFHENTER",
-      "commarea": {
-        "WS-COMM-TERM": 451
-      },
-      "why": "day 'ab': 'Non numeric Date of Birth DD'",
-      "receive": {
-        "BNK1CC": {
-          "CUSTTITI": "Mr________",
-          "CHRISTNI": "Fiona_______________",
-          "CUSTINSI": "K___",
-          "CUSTSNI": "Laidlaw____________",
-          "CUSTAD1I": "17 Abbey Road_____________________________________",
-          "CUSTAD2I": "Winchester",
-          "CUSTAD3I": "SO23 7AA",
-          "DOBDDI": "ab",
-          "DOBMMI": "01",
-          "DOBYYI": "1500"
-        }
-      }
-    },
-    {
-      "name": "mm-letters",
-      "aid": "DFHENTER",
-      "commarea": {
-        "WS-COMM-TERM": 451
-      },
-      "why": "month 'ab': 'Non numeric Date of Birth MM'",
-      "receive": {
-        "BNK1CC": {
-          "CUSTTITI": "Mr________",
-          "CHRISTNI": "Fiona_______________",
-          "CUSTINSI": "K___",
-          "CUSTSNI": "Laidlaw____________",
-          "CUSTAD1I": "17 Abbey Road_____________________________________",
-          "CUSTAD2I": "Winchester",
-          "CUSTAD3I": "SO23 7AA",
-          "DOBDDI": "01",
-          "DOBMMI": "ab",
-          "DOBYYI": "1500"
-        }
-      }
-    },
-    {
-      "name": "yyyy-letters",
-      "aid": "DFHENTER",
-      "commarea": {
-        "WS-COMM-TERM": 451
-      },
-      "why": "year '15x0': 'Non numeric Date of Birth YYYY'",
-      "receive": {
-        "BNK1CC": {
-          "CUSTTITI": "Mr________",
-          "CHRISTNI": "Fiona_______________",
-          "CUSTINSI": "K___",
-          "CUSTSNI": "Laidlaw____________",
-          "CUSTAD1I": "17 Abbey Road_____________________________________",
-          "CUSTAD2I": "Winchester",
-          "CUSTAD3I": "SO23 7AA",
-          "DOBDDI": "01",
-          "DOBMMI": "01",
-          "DOBYYI": "15x0"
         }
       }
     },

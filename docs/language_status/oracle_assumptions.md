@@ -1461,6 +1461,10 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   (`[rows, columns]`, of a stated `"termid"`: `$GGCICS_SCREEN` / `withScreen`), `"termid"` (FACILITY) and `"startcode"`;
   `proof_blockers` drops the gap only when every scenario states it. Unstated, the option is refused at run time, not
   guessed.
+- **No burned-estate proof yet (checked 2026-10-15, #5126).** No program of the six burned estates issues ASSIGN
+  USERID / SCRNHT / SCRNWD (a word search of the pinned corpora finds only data names and the origin fact ODUSERID),
+  so no equivalence case states `"userid"` / `"screen"` and the Docker proof is the unit and crucible-runtime tests
+  only. A case that does read one states it; a non-burned program that does is out of scope.
 - **Assumed.** An ASSIGN that raises INVREQ writes none of its data areas, the other options' included (IBM does not
   say; a crucible case never reads one after INVREQ). A START that passes RTRANSID / RTERMID / QUEUE but no FROM is
   `S` (IBM's codes are worded by FROM alone).

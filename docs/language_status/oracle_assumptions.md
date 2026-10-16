@@ -2619,6 +2619,10 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   translator's shape and every refusal are tested in tests/cobol_mainframe/test_det_translate.py and test_equivalence_cics.py, and a whole program
   with the four statements translates with no hole and runs (tests/cobol_mainframe/test_pointer_lane_4771.py). No cics-crucible case or estate
   program exercises it yet, so no port moves and no ZECS program is made whole by this entry.
+- **CALL ZUIDSTCK (#4771), refused by name.** ZECS001's 4000-GET-COUNTER calls ZUIDSTCK USING THE-TOD (16 bytes) and keeps THE-TOD(1:6) as a key.
+  The module is the zECS distribution's assembler store-clock wrapper; the estate holds no source for it (only ZECS002 / ZECSNC), so which clock
+  instruction it issues and how it lays out the 16 bytes is not known, and a stated clock fact would be invented. Refused whether the name is a
+  literal or an identifier's value (det/dyncall.py `REFUSED_BY_NAME`). It lifts when the module's source is part of the estate.
 
 ### X48. Injected duplicate-key file faults: DUPKEY delivers the record, each condition only on the commands IBM lists it for — ASSUMED, REFUSED where IBM is silent (#4623)
 - **DUPKEY** (CICS TS 6.x, READ / READNEXT / READPREV "Conditions": DUPKEY, RESP2 140): "a record is retrieved through an

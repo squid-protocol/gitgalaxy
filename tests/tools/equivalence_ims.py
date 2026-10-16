@@ -315,4 +315,5 @@ def diff_db(case: dict[str, Any], corpus: Path, name: str, cobol: bytes, java: b
             continue
         d = common.diff_records(a[1], b[1], len(a[1]), layout, case.get("code_page", "cp037"), enc)
         diffs.append({"segment": k + 1, "name": a[0], "diffs": d["diffs"]})
-    return {"records": max(len(left), len(right)), "diffs": diffs}
+    records = max(len(left), len(right))
+    return {"records": records, "equal": records - len(diffs), "filler_differs": 0, "diffs": diffs}

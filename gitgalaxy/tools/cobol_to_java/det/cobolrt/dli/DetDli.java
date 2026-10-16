@@ -299,7 +299,6 @@ public final class DetDli {
     }
 
     /** The step ended: each database, in hierarchic sequence (8-byte segment name, then its data), to gitgalaxy.dli.out. */
-    // [rule RT-DLI-STATE]
     public static void leave() {
         String out = System.getProperty("gitgalaxy.dli.out");
         if (out == null) {

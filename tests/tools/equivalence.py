@@ -635,7 +635,7 @@ def compare_run(case: dict[str, Any], corpus: Path, cobol: dict[str, bytes], jav
             d = equivalence_ims.diff_db(case, corpus, name, cobol.get(f"IMS {name}", b""), java.get(f"IMS {name}", b""))
             run["outputs"][f"IMS {name}"] = d
             if d["diffs"]:
-                why.append(f"IMS {name}: {d['records'] - len(d['diffs'])}/{d['records']} segments equal")
+                why.append(f"IMS {name}: {d['equal']}/{d['records']} segments equal")
         # #4507: what Db2 answered each side's statements (not a run with planned SQL faults: those are compared as
         # fired faults)
         if (case.get("db2") or {}).get("compare_sql") and not (fault or {}).get("sql_plan"):

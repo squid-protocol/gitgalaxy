@@ -34,6 +34,15 @@
   },
   "carddemo-cobdatft": {
    "title": "CardDemo app/asm/COBDATFT.asm -- the estate's own assembler routine (no IBM manual applies; the source is the reference)"
+  },
+  "ims-apis": {
+   "title": "IBM IMS Application Programming APIs (DL/I calls, SSAs, relational operators)"
+  },
+  "ims-ap": {
+   "title": "IBM IMS Application Programming (DB PCB masks, current position in the database)"
+  },
+  "ims-codes": {
+   "title": "IBM IMS Messages and Codes, Volume 4: IMS Component Codes (DL/I status codes)"
   }
  },
  "options": {
@@ -213,6 +222,32 @@
    "done": true,
    "about": "The date / time services and COBDATFT, as the harness's C models do them.",
    "plumbing": []
+  },
+  {
+   "id": "DLI",
+   "prefix": "DLI",
+   "title": "IMS DL/I database calls",
+   "files": [
+    "dli/DetDli.java"
+   ],
+   "done": true,
+   "about": "A batch DL/I program's CALL 'CBLTDLI' through a DB PCB on a stated database: the twin of the harness's ggdli.c (register family I).",
+   "plumbing": [
+    "refuse",
+    "dir",
+    "name8",
+    "findSeg",
+    "findFld",
+    "keyCmp",
+    "keyAt",
+    "fullword",
+    "text",
+    "dbFirst",
+    "descends",
+    "descendsType",
+    "lastInSubtree",
+    "ancestorOfType"
+   ]
   },
   {
    "id": "DATA",
@@ -1870,6 +1905,22 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-FUNC-ACCEPT-DATE",
+   "family": "FUNC",
+   "title": "ACCEPT FROM DATE / DATE YYYYMMDD / DAY / DAY YYYYDDD / TIME: the run's clock as the unsigned integer item IBM describes, moved as that item",
+   "methods": [
+    "accept"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "ACCEPT statement: Format 2 (system date and time)"
+   },
+   "options": [],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-CICS-POINTER-IN-COMMAREA",
    "family": "CICS",
    "title": "A POINTER in a COMMAREA DTO: NULL as all zero bytes; an address, which names storage the port does not have, stops the run by name",
@@ -2849,6 +2900,188 @@
     "A1"
    ],
    "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-ENTRY",
+   "family": "DLI",
+   "title": "ENTRY 'DLITCBL': each DB PCB of the PSB bound to the area IMS passes, its mask filled (DBD name, level 00, blank status, PROCOPT, sensitive segments, key feedback zero)",
+   "methods": [
+    "enter"
+   ],
+   "ibm": {
+    "doc": "ims-ap",
+    "section": "Specifying the DB PCB mask"
+   },
+   "options": [],
+   "register": [
+    "I4"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-STATE",
+   "family": "DLI",
+   "title": "The stated database: DBD / PSB configuration and seed loaded in hierarchic sequence (refused when out of order), new twins placed by segment type and sequence field, each database written at the step's end",
+   "methods": [
+    "load",
+    "loadDb",
+    "linkChild",
+    "leave",
+    "dump"
+   ],
+   "ibm": {
+    "doc": "ims-ap",
+    "section": "Hierarchic sequence"
+   },
+   "options": [],
+   "register": [
+    "I1",
+    "I2",
+    "I6"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-SSA",
+   "family": "DLI",
+   "title": "SSAs: segment name, unqualified (blank) or qualified (field, relational operator, value, ')'); AC / AJ / AK as IBM answers them; command codes, boolean qualification and missing levels refused",
+   "methods": [
+    "parseSsas",
+    "chain"
+   ],
+   "ibm": {
+    "doc": "ims-apis",
+    "section": "Segment search arguments (SSAs)"
+   },
+   "options": [],
+   "register": [
+    "I1",
+    "I5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-QUALIFY",
+   "family": "DLI",
+   "title": "A qualification compares the field's stored bytes (C / X); a P field only where packed and logical comparison agree (both valid, one positive sign)",
+   "methods": [
+    "qualifies",
+    "packedSign",
+    "satisfies"
+   ],
+   "ibm": {
+    "doc": "ims-apis",
+    "section": "SSA relational operators"
+   },
+   "options": [],
+   "register": [
+    "I2"
+   ],
+   "status": "DIFFERS",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-FEEDBACK",
+   "family": "DLI",
+   "title": "The PCB mask after a call: status code, segment level, segment name, concatenated key and its length",
+   "methods": [
+    "feedback",
+    "status"
+   ],
+   "ibm": {
+    "doc": "ims-ap",
+    "section": "Specifying the DB PCB mask"
+   },
+   "options": [],
+   "register": [
+    "I4"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-GET",
+   "family": "DLI",
+   "title": "GU / GN / GNP and their holds: the first segment in hierarchic sequence satisfying the SSAs, from the database's start, from position, or under parentage; GE / GB / GP / GA / GK; position and parentage after the call",
+   "methods": [
+    "get",
+    "firstSatisfying",
+    "deepest",
+    "nextInSeq"
+   ],
+   "ibm": {
+    "doc": "ims-apis",
+    "section": "GU / GHU, GN / GHN, GNP / GHNP calls"
+   },
+   "options": [],
+   "register": [
+    "I1",
+    "I3"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-ISRT",
+   "family": "DLI",
+   "title": "ISRT: the segment under the parent its SSAs (or current position) locate, among its twins by sequence field; II for a key its twins hold, GE for a parent not found",
+   "methods": [
+    "isrt"
+   ],
+   "ibm": {
+    "doc": "ims-apis",
+    "section": "ISRT call"
+   },
+   "options": [],
+   "register": [
+    "I1",
+    "I3"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-CHANGE",
+   "family": "DLI",
+   "title": "REPL / DLET on the segment the previous get-hold call returned; DJ without one, DA when the I/O area changed the sequence field; DLET removes the segment's dependents",
+   "methods": [
+    "change"
+   ],
+   "ibm": {
+    "doc": "ims-apis",
+    "section": "REPL call; DLET call"
+   },
+   "options": [],
+   "register": [
+    "I1",
+    "I3"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-CALL",
+   "family": "DLI",
+   "title": "CALL 'CBLTDLI' USING function pcb io-area [ssa ...]: the PCB the program was passed, the function's dispatch (AD for an unknown function, AM for one PROCOPT does not allow), any other DL/I call refused",
+   "methods": [
+    "call",
+    "findPcb",
+    "allows"
+   ],
+   "ibm": {
+    "doc": "ims-codes",
+    "section": "DL/I status codes"
+   },
+   "options": [],
+   "register": [
+    "I1",
+    "I5"
+   ],
+   "status": "ASSUMED",
    "calibration": "uncalibrated"
   },
   {

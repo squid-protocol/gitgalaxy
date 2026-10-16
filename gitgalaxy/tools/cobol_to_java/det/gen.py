@@ -1984,11 +1984,10 @@ class Gen:
             return [c, *self.call(s, ind)]
         if k == "ACCEPT":
             frm = s.data["from"]
-            src = {"DATE": "Funcs.acceptDate(clock())", "DATE YYYYMMDD": "Funcs.acceptDate8(clock())",
-                   "TIME": "Funcs.acceptTime(clock())", "DAY": "Funcs.acceptDay(clock())",
-                   "DAY YYYYDDD": "Funcs.acceptDay7(clock())"}.get(frm)  # fmt: skip
-            if src is None:
+            # #4893: the run's clock (FUNCTION CURRENT-DATE's) as the unsigned integer item IBM names (Funcs.accept)
+            if frm not in ("DATE", "DATE YYYYMMDD", "TIME", "DAY", "DAY YYYYDDD"):
                 raise Untranslatable(f"ACCEPT FROM {frm}")
+            src = f"Funcs.accept({self.current_date_expr()}, {jstr(frm)})"
             return [c, f"{ind}Cobol.move({src}, {self.field_expr(s.data['target'])}, CS);"]
         if k == "STRING":
             return [c, *self.string(s, ind)]

@@ -23,6 +23,7 @@ import sys
 from collections import defaultdict
 from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
 from gitgalaxy.core import cics_macro_level as ML
 from gitgalaxy.core.estate_options import effective_options, load_estate
@@ -156,7 +157,7 @@ def fallback_parse(prog, rel_prog, inv):
 
 def extract_sql_forms(text: str) -> list[str]:
 
-    forms = []
+    forms: list[str] = []
     body = re.sub(r"(?is)^\s*EXEC\s+SQL\b", "", text)
     body = re.sub(r"(?is)\bEND-EXEC\b\s*$", "", body).strip()
     u = body.upper()
@@ -393,7 +394,7 @@ def scan_estate(
         process_program(prog, estate_dir, ir, estate_opt, inv, estate_copy_dirs)
 
     # Convert sets to sorted lists, sort dict keys
-    out = {}
+    out: dict[str, Any] = {}
     for cat in sorted(inv.keys()):
         if cat in ("unparsed_programs", "eras"):
             continue

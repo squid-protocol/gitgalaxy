@@ -241,8 +241,9 @@ def tag_program(text: str, copybooks: dict[str, str] | None = None) -> dict[str,
     found = _scan(text)
     program_era = _verdict(found)[0]
     by_tell = {t["tell"]: t for t in found}
-    for name in sorted(copybooks or {}):
-        for t in _scan(copybooks[name]):
+    books = copybooks or {}
+    for name in sorted(books):
+        for t in _scan(books[name]):
             if t["tell"] in _ASM_TELLS:
                 continue
             mine = by_tell.get(t["tell"])

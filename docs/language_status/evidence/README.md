@@ -29,11 +29,11 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [COUSR03C](carddemo-userdel.md) | carddemo-userdel | cics | proven, unapproved |  | 20 | 11/11 / 30/32 | - | 0 | - |
 | [COUSR00C](carddemo-userlist.md) | carddemo-userlist | cics | proven, unapproved |  | 32 | 16/16 / 95/100 | - | 0 | - |
 | [COUSR02C](carddemo-userupd.md) | carddemo-userupd | cics | proven, unapproved |  | 23 | 11/11 / 44/46 | - | 0 | - |
-| [INQACC](cbsa-inqacc.md) | cbsa-inqacc | cics | proven, unapproved |  | 14 | 22/25 / 13/25 | - | 0 | - |
-| [UPDACC](cbsa-updacc.md) | cbsa-updacc | cics | proven, unapproved |  | 10 | 7/7 / 5/6 | - | 0 | - |
-| [LGAPVS01](genapp-lgapvs01.md) | genapp-lgapvs01 | cics | proven, unapproved |  | 8 | 2/3 / 5/9 | - | 0 | - |
-| [LGICDB01](genapp-lgicdb01.md) | genapp-lgicdb01 | cics | proven, unapproved |  | 12 | 3/4 / 4/12 | - | 0 | - |
-| [LGUPDB01](genapp-lgupdb01.md) | genapp-lgupdb01 | cics | proven, unapproved |  | 5 | 8/9 / 17/38 | - | 0 | - |
+| [INQACC](cbsa-inqacc.md) | cbsa-inqacc | cics | proven, unapproved |  | 14 | 22/25 / 13/25 | 131/131 / 131/131 | 0 | - |
+| [UPDACC](cbsa-updacc.md) | cbsa-updacc | cics | proven, unapproved |  | 10 | 7/7 / 5/6 | 95/133 / 95/133 | 0 | - |
+| [LGAPVS01](genapp-lgapvs01.md) | genapp-lgapvs01 | cics | proven, unapproved |  | 8 | 2/3 / 5/9 | 70/121 / 70/119 | 0 | - |
+| [LGICDB01](genapp-lgicdb01.md) | genapp-lgicdb01 | cics | proven, unapproved |  | 12 | 3/4 / 4/12 | 49/130 / 49/127 | 0 | - |
+| [LGUPDB01](genapp-lgupdb01.md) | genapp-lgupdb01 | cics | proven, unapproved |  | 5 | 8/9 / 17/38 | 76/138 / 76/137 | 0 | - |
 | [CALINK](crucible-ca-link-lengths-CALINK.md) | crucible:ca-link-lengths/CALINK | crucible | proven, unapproved |  | 4 | 1/1 / 4/4 | 15/22 / 15/15 | 0 | - |
 | [CASUB](crucible-ca-link-lengths-CASUB.md) | crucible:ca-link-lengths/CASUB | crucible | proven, unapproved |  | 3 | 1/1 / 4/4 | 16/24 / 16/16 | 0 | - |
 | [CAXA](crucible-ca-xctl-versions-CAXA.md) | crucible:ca-xctl-versions/CAXA | crucible | proven, unapproved |  | 3 | 1/1 / 3/3 | 16/21 / 16/16 | 0 | - |
@@ -49,9 +49,9 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [HXEXT](crucible-hx-extended-cursor-HXEXT.md) | crucible:hx-extended-cursor/HXEXT | crucible | proven, unapproved |  | 3 | 3/3 / 6/6 | 20/23 / 20/20 | 0 | - |
 | [PCDETL](crucible-pc-aid-menu-PCDETL.md) | crucible:pc-aid-menu/PCDETL | crucible | proven, unapproved |  | 3 | 1/1 / 2/2 | 14/24 / 14/14 | 0 | - |
 | [PCMENU](crucible-pc-aid-menu-PCMENU.md) | crucible:pc-aid-menu/PCMENU | crucible | proven, unapproved |  | 4 | 4/4 / 9/9 | 14/22 / 14/15 | 0 | - |
-| [PCIMMA](crucible-pc-return-immediate-PCIMMA.md) | crucible:pc-return-immediate/PCIMMA | crucible | proven, unapproved |  | 4 | 6/6 / 4/5 | - | 0 | - |
-| [PCIMMB](crucible-pc-return-immediate-PCIMMB.md) | crucible:pc-return-immediate/PCIMMB | crucible | proven, unapproved |  | 1 | 2/2 / 2/2 | - | 0 | - |
-| [PCIMML](crucible-pc-return-immediate-PCIMML.md) | crucible:pc-return-immediate/PCIMML | crucible | proven, unapproved |  | 2 | 1/1 / 2/2 | - | 0 | - |
-| [PCIMMS](crucible-pc-return-immediate-PCIMMS.md) | crucible:pc-return-immediate/PCIMMS | crucible | proven, unapproved |  | 1 | 1/1 / 0/0 | - | 0 | - |
+| [PCIMMA](crucible-pc-return-immediate-PCIMMA.md) | crucible:pc-return-immediate/PCIMMA | crucible | proven, unapproved |  | 4 | 6/6 / 4/5 | 6/22 / 6/16 | 0 | - |
+| [PCIMMB](crucible-pc-return-immediate-PCIMMB.md) | crucible:pc-return-immediate/PCIMMB | crucible | proven, unapproved |  | 1 | 2/2 / 2/2 | 11/23 / 11/18 | 0 | - |
+| [PCIMML](crucible-pc-return-immediate-PCIMML.md) | crucible:pc-return-immediate/PCIMML | crucible | proven, unapproved |  | 2 | 1/1 / 2/2 | 9/23 / 9/19 | 0 | - |
+| [PCIMMS](crucible-pc-return-immediate-PCIMMS.md) | crucible:pc-return-immediate/PCIMMS | crucible | proven, unapproved |  | 1 | 1/1 / 0/0 | 8/24 / 8/16 | 0 | - |
 | [PCCONF](crucible-pc-wizard-PCCONF.md) | crucible:pc-wizard/PCCONF | crucible | proven, unapproved |  | 5 | 5/5 / 14/14 | 14/23 / 14/17 | 0 | - |
 | [PCWIZ](crucible-pc-wizard-PCWIZ.md) | crucible:pc-wizard/PCWIZ | crucible | proven, unapproved |  | 6 | 5/5 / 10/10 | 11/21 / 11/16 | 0 | - |

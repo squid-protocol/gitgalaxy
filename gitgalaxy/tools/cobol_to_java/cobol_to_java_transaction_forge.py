@@ -299,6 +299,7 @@ public class CicsTask {
     private TempStorage tempStorage = new TempStorage();
     private String abcode = "    ";
     private String termid;                                  // #3989: EIBTRMID (the task's root); null without one
+    private boolean termidStated;                           // #5126: withTermid was called (null = stated: no terminal)
     private long taskNumber;                                 // #4270: EIBTASKN (the task's root), a stated fact
     private boolean exactCommarea;                          // #4270 (X23): the COMMAREA is EIBCALEN bytes, no more
     private String exitLabel;                               // #3989: this level's HANDLE ABEND LABEL
@@ -607,11 +608,24 @@ public class CicsTask {
     /** ASSIGN FACILITY / SCRNHT / SCRNWD's condition: INVREQ (16) for a task with no terminal (RESP2 5, "The task is
      *  not associated with a terminal; or the task has no principal facility"), else 0. */
     public int assignTerminalResp() {
+        statedTerminal();
         return termid() == null ? 16 : 0;
+    }
+
+    /** #5126: whether the task has a terminal is a fact whoever runs the task states (withTermid; null states "none",
+     *  as the stub's empty $GGCICS_FACILITY); unstated it is refused, as the stub refuses, never guessed. */
+    private void statedTerminal() {
+        if (!root().termidStated) {
+            throw new IllegalStateException("ASSIGN FACILITY / TERMCHK: the task's terminal is not stated (withTermid)");
+        }
     }
 
     /** ASSIGN FACILITY: the principal facility, the task's terminal, 4 characters. */
     public String assignFacility() {
+        statedTerminal();
+        if (termid() == null) {
+            throw new IllegalStateException("ASSIGN FACILITY: the task has no terminal (assignTerminalResp is INVREQ)");
+        }
         return String.format(java.util.Locale.ROOT, "%-4.4s", termid());
     }
 
@@ -2554,7 +2568,13 @@ public class CicsTask {
     /** The terminal the task is attached to (#3989): EIBTRMID, or null for a task no terminal started. */
     public CicsTask withTermid(String termid) {
         this.termid = termid;
+        this.termidStated = true;
         return this;
+    }
+
+    /** #5126: withTermid for a harness that may not state a terminal (a case giving none or ""): leaves it unstated. */
+    public CicsTask withTermidIfStated(String termid) {
+        return termid == null || termid.isEmpty() ? this : withTermid(termid);
     }
 
     /** EIBTRMID (#3989): the task's terminal, the same at every LINK / XCTL level; null for a non-terminal task. */

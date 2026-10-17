@@ -4779,7 +4779,7 @@ class EquivalenceRunTest {{
                     .withStartcode(sc.get("startcode").isNull() ? null : sc.get("startcode").asText())
                     .withTerminalInput(sc.get("terminal").isNull() ? null : sc.get("terminal").asText())
                     // #4270: the task's terminal and origin data, as the stub's ($GGCICS_FACILITY, _UCTRANST, _ORIGIN)
-                    .withTermid(sc.get("termid").isNull() ? null : sc.get("termid").asText())
+                    .withTermidIfStated(sc.get("termid").isNull() ? null : sc.get("termid").asText())  // #5126: unstated is refused, as the stub
                     .withUctranst(sc.get("uctranst").isNull() ? null : sc.get("uctranst").asText())
                     .withTempStorage(tempStorage(sc))  // #4270: the TS queues the task starts with, as the stub's
                     // RECOVERY(NONE) files: their changes made outside the unit of work, so they survive a backout

@@ -259,15 +259,31 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   would now behave as on z/OS.
 
 ### C2. Arithmetic intermediates — the det runtime MATCHES the oracle (#4287); the oracle DIFFERS where GnuCOBOL departs from IBM
-- **IBM's rule.** Enterprise COBOL keeps each intermediate result to a number of decimal places (6.4 Programming
-  Guide, SC27-8714-03, Appendix A, "Fixed-point data and intermediate results"): `+ -` the larger of d1, d2; `*`
-  d1 + d2; `/` the larger of the operands' difference and dmax, the most decimal places of any operand or receiver;
-  at most 30 digits under `ARITH(COMPAT)`.
+- **IBM's rule (quoted, #4702).** Enterprise COBOL for z/OS 6.4 Programming Guide, SC27-8714-03, Appendix A,
+  "Fixed-point data and intermediate results" (p. 795), table "the precision theoretically possible": `+` or `-`
+  integer places "(i1 or i2) + 1, whichever is greater", decimal places "d1 or d2, whichever is greater"; `*` i1 + i2
+  and d1 + d2; `/` (op1 the divisor, op2 the dividend) integer places "i2 + d1", decimal places "(d2 - d1) or dmax,
+  whichever is greater". dmax is the largest of the decimal places of the final result field(s), of any operand
+  except divisors or exponents, and of any function's outer-dmax. In compatibility mode (`ARITH(COMPAT)`, the
+  default) "a maximum of 30 digits is used for fixed-point intermediate results" (31 under `ARITH(EXTEND)`), and the
+  next table fixes what is carried when i + d exceeds it: i + d over 30 and d at most dmax keeps d and gives `30-d`
+  integer places; d over dmax keeps `30-i` decimal places (i + dmax at most 30) or `30-dmax` integer and dmax decimal
+  places. "Truncated intermediate results" (p. 797): "Whenever the number of digits in an intermediate result
+  exceeds 30 in compatibility mode or 31 in extended mode, the compiler truncates to 30 (compatibility mode) or 31
+  (extended mode) digits and issues a warning. If truncation occurs at run time, a message is issued and the
+  program continues running." Read from the manual's text (fetched 2026-10-17), not run on z/OS.
+- **Options.** The rule depends on `ARITH` (the resolver's option, #4704): COMPAT 30, EXTEND 31. The det port reads it through the
+  resolver, which defaults to COMPAT. TRUNC does not enter it (a statement's final store is C1 / C4).
 - **The oracle.** `cobc -std=ibm` turns on GnuCOBOL's `arithmetic-osvs` (`ibm-strict.conf`), so cobc truncates
   intermediates (`cob_decimal_align`) with decimal places it works out at compile time from those rules. The
   reproducer of #4287 is IBM's own: `COMPUTE R = A / B * C` with A = 1, B = 3, C = 300 and R `PIC 999V99` gives
-  099.00 (A / B kept to 2 places). The 30-digit limit GnuCOBOL does not apply: ASSUMED that no proven intermediate
-  is that long. Under `ARITH(EXTEND)` (31 digits, C5) the det runtime enforces it instead: an add, subtract, multiply or
+  099.00 (A / B kept to 2 places). The 30-digit truncation is the part of the rule the oracle does not apply: the translator replays cobc's places
+  decision and `Cobol.align`, which has no 30-digit cap, and no cobc option, config key or wrapper of ours turns
+  one on (not measured: a probe with a 31+ digit intermediate is the check). So a result of 31 or more digits that
+  IBM truncates to 30 (with a warning, the run continuing) the oracle keeps: a DECLARED oracle-vs-IBM difference
+  the comparator expects, IBM's side now quoted rather than assumed. No proven intermediate is known to be that long (ASSUMED; the det sweep's emitted truncations are
+  the 2-place one under "Reached"), and a proof of a program that reached it would have to be recorded at the lower
+  level. Under `ARITH(EXTEND)` (31 digits, C5) the det runtime enforces it instead: an add, subtract, multiply or
   divide that produces more than 30 digits stops by name (`RT-NUM-ARITH-EXTEND-STOP`, #4706).
 - **The det runtime (since #4287)** makes the same truncations: the translator replays cobc's decision
   (`det/osvs.py`, from GnuCOBOL 3.1.2's `cobc/typeck.c` and `cobc/tree.c`) and emits `Cobol.align(value, places)`
@@ -301,6 +317,9 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 - **Reached.** Every COMPUTE with more than one operation, among them INTCALC's interest computation. Across the
   det sweep's ports (2026-10-07) the only truncation emitted is POSTTRAN's `ACCT-CURR-CYC-CREDIT -
   ACCT-CURR-CYC-DEBIT` to 2 places, a value of 2 places (no change); none of GnuCOBOL's departures is reached.
+- **Chosen behaviour.** MATCH THE ORACLE on places (the translator replays cobc's decision) and on the missing
+  30-digit cap under COMPAT; STOP BY NAME past 30 digits under EXTEND (C5). Neither is IBM's quoted rule exactly, so
+  both stay DIFFERS until a z/OS run (Part 2) measures a case.
 - **To settle.** A table of division, multiply-then-divide and binary-sum cases on z/OS against
   `tests/equivalence/rounding/RND.cbl` (and the departures above).
 
@@ -658,8 +677,21 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   data.
 - **Found by.** The test-strengthening loop (#4049): the model-written port treats `1!` and `!1` as invalid options,
   GnuCOBOL does not; the proofs differ on both inputs.
+- **IBM's options for this data (quoted, #4702).** Enterprise COBOL for z/OS 6.4 Programming Guide, SC27-8714-03,
+  "ZONEDATA" (p. 428): the option "tells the compiler whether the data in USAGE DISPLAY and PACKED-DECIMAL data items
+  is valid, and if not, what the behavior of the compiler should be"; default `ZONEDATA(PFD)`: "the compiler assumes
+  that all data in USAGE DISPLAY and PACKED-DECIMAL data items is valid". `ZONEDATA(MIG)` makes comparisons ignore
+  the zone bits and avoids optimizations that would differ from COBOL 4 on invalid digits, sign codes or zone bits;
+  `ZONEDATA(NOPFD)` behaves as COBOL 4 did under `NUMPROC(NOPFD | PFD)`. The manual notes ZONEDATA "is deprecated
+  but is tolerated" and "replaced by the INVDATA option" (PFD = NOINVDATA, NOPFD = INVDATA(NOFORCENUMCMP,CLEANSIGN),
+  MIG = INVDATA(FORCENUMCMP,CLEANSIGN)). Under the default no result is defined for a non-digit, so every shape
+  below is either the oracle's rule (DIFFERS, the IBM side undefined) or refused by name; none is MATCHED except the
+  same-shape MOVE (APAR PH21007, below). The options resolver honours only `ZONEDATA(PFD)` and refuses NOPFD / MIG and
+  INVDATA (`gitgalaxy/core/compiler_options.py`), and `-std=ibm` gives one behaviour per shape (the table), which is why the proofs keep non-digit inputs out of the cases or say "cobc's bytes, not
+  z/OS's". Chosen behaviour per shape: see each bullet; a z/OS run (Part 2) is the only way to turn DIFFERS into
+  MATCHED or a measured difference.
 - **Now.** Those inputs are not in the case, so the three COMEN01C survivors in the port's own digit test stay case
-  gaps. A z/OS run (#4050) settles which side is right.
+  gaps. A z/OS run (#4050, Part 2 of #4702) settles which side is right.
 - **To a binary item (#4652) -- MODELLED, the oracle's arithmetic.** GenApp LGTESTP4's add leaves CA-BROKERID PIC
   9(10) / CA-PAYMENT PIC 9(6) as spaces (INITIALIZE skips the REDEFINES that holds them), and LGAPDB01 MOVEs them to
   S9(9) COMP host variables. GnuCOBOL 3.1.2 (`cob_move_display_to_binary`) counts each byte as its character minus

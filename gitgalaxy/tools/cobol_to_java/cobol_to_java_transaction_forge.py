@@ -2317,6 +2317,13 @@ public class CicsTask {
         return "INPUT".equals(tdAttr(q, "TYPEFILE")) ? 16 : 0;
     }
 
+    /** #5168 round 5 (X66): true when SET TDQUEUE ENABLESTATUS(DISABLED) left the queue disabled ("The queue cannot be accessed by
+     *  applications"): READQ, WRITEQ and DELETEQ TD then answer DISABLED (84). A queue is ENABLED until a SET says otherwise
+     *  (ASSUMED: IBM states no default); the state outlives the task. */
+    private boolean tdDisabled(String q) {
+        return root().tempStorage.tdDisabled.contains(q);
+    }
+
     /** The queue's TYPE CVDA for INQUIRE TDQUEUE: INTRA 222, EXTRA 221, INDIRECT 122, REMOTE 4; a queue with no TYPE stated is refused. */
     private int tdTypeCvda(String q, int kind) {
         if (kind == 1) {
@@ -2380,10 +2387,16 @@ public class CicsTask {
      *  RESP2 1 "the named queue cannot be found". OPENSTATUS is OPEN 18 / CLOSED 19 for an extrapartition queue, NOTAPPLIC 1
      *  ("the queue is not extrapartition") for the others; a queue with no TYPE stated is refused for either option. */
     public int[] inquireTdQueue(String queue, boolean openStatus, boolean type) {
+        return inquireTdQueue(queue, openStatus, type, false);
+    }
+
+    /** INQUIRE TDQUEUE ... ENABLESTATUS (#5168 round 5, X66): {RESP, RESP2, OPENSTATUS CVDA, TYPE CVDA, ENABLESTATUS CVDA}; ENABLED 23
+     *  or DISABLED 24, the state SET TDQUEUE ENABLESTATUS left (ENABLED before any). An INDIRECT queue answers about itself. */
+    public int[] inquireTdQueue(String queue, boolean openStatus, boolean type, boolean enableStatus) {
         String q = queue.strip();
         int kind = tdKind(q);
         if (kind == 0) {
-            return new int[] {44, 1, 0, 0};
+            return new int[] {44, 1, 0, 0, 0};
         }
         int typeCvda = type ? tdTypeCvda(q, kind) : 0;
         int status = 0;
@@ -2395,7 +2408,38 @@ public class CicsTask {
                 status = 1;
             }
         }
-        return new int[] {0, 0, status, typeCvda};
+        return new int[] {0, 0, status, typeCvda, enableStatus ? (tdDisabled(q) ? 24 : 23) : 0};
+    }
+
+    /** SET TDQUEUE(q) ENABLESTATUS(cvda) (#5168 round 5, X66; IBM CICS TS 6.x SET TDQUEUE): ENABLED (23) lets applications access
+     *  the queue, DISABLED (24) does not (READQ / WRITEQ / DELETEQ TD then answer DISABLED). For an extrapartition queue only its
+     *  availability changes, the data set is not opened or closed. Returns {RESP, RESP2}: QIDERR (44) RESP2 1, INVREQ (16) RESP2 10
+     *  for an invalid CVDA. Setting the state a queue is in is NORMAL (ASSUMED). Refused: an invalid CVDA on a queue the CSD does
+     *  not define (IBM does not order the two), an INDIRECT / REMOTE queue (its target is what a command reaches). RESP2 30 / 31 / 35
+     *  / 40 (disable pending, in doubt, CXRF) do not arise: one task, no recovery. */
+    public int[] setTdQueueEnableStatus(String queue, long cvda) {
+        String q = queue.strip();
+        int kind = tdKind(q);
+        boolean valid = cvda == 23 || cvda == 24;
+        if (kind == 0) {
+            if (!valid) {
+                throw new UnsupportedOperationException("SET TDQUEUE ENABLESTATUS with an invalid CVDA on a queue the CSD does not define: "
+                        + "IBM does not say which condition comes first: not modelled");
+            }
+            return new int[] {44, 1};
+        }
+        if (kind == 3) {
+            throw new UnsupportedOperationException("SET TDQUEUE ENABLESTATUS of an INDIRECT or REMOTE queue: not modelled");
+        }
+        if (!valid) {
+            return new int[] {16, 10};
+        }
+        if (cvda == 24) {
+            root().tempStorage.tdDisabled.add(q);
+        } else {
+            root().tempStorage.tdDisabled.remove(q);
+        }
+        return new int[] {0, 0};
     }
 
     /** WRITEQ TD QUEUE(queue) FROM(record) (IBM CICS TS): one record on a transient-data queue -- recorded, with the
@@ -2408,7 +2452,7 @@ public class CicsTask {
         String t = tdResolve(q);
         int kind = tdKind(t);
         int[] planned = root().injected("WRITEQ-TD", q);
-        int resp = planned != null ? planned[0] : kind == 0 ? 44 : kind == 2 ? tdExtraWriteResp(t) : 0;
+        int resp = planned != null ? planned[0] : kind == 0 ? 44 : tdDisabled(t) ? 84 : kind == 2 ? tdExtraWriteResp(t) : 0;
         event("WRITEQ-TD", "queue", q, "text", resp == 0 ? record : null, "resp", resp);
         if (resp == 0 && kind == 1) {
             tdTouch(t);
@@ -2440,14 +2484,15 @@ public class CicsTask {
         }
         int state = kind == 2 ? tdExtraState(t) : 0;
         java.util.ArrayDeque<String> records = tempStorage.td.get(t);
-        String resp = kind == 0 ? "QIDERR" : state == 2 ? "NOTOPEN" : state == 1 ? "INVREQ" : maxLength < 0 ? "LENGERR"
+        String resp = kind == 0 ? "QIDERR" : tdDisabled(t) ? "DISABLED" : state == 2 ? "NOTOPEN" : state == 1 ? "INVREQ" : maxLength < 0 ? "LENGERR"
                 : records == null || records.isEmpty() ? "QZERO" : "NORMAL";
         String data = null;
         int length = -1;
-        if (kind != 0 && state == 0 && maxLength >= 0) {
+        boolean readable = kind != 0 && state == 0 && maxLength >= 0 && !resp.equals("DISABLED");
+        if (readable) {
             tdTouch(t);
         }
-        if (kind != 0 && state == 0 && maxLength >= 0 && records != null && !records.isEmpty()) {
+        if (readable && records != null && !records.isEmpty()) {
             String record = records.removeFirst();
             data = record.length() > maxLength ? record.substring(0, maxLength) : record;
             length = record.length();
@@ -2470,8 +2515,14 @@ public class CicsTask {
         if (kind == 3) {
             throw new UnsupportedOperationException("DELETEQ TD of a queue whose TYPE is not INTRA or EXTRA: not modelled");
         }
+        if (kind == 0) {
+            return 44;
+        }
+        if (tdDisabled(t)) {
+            return 84;
+        }
         if (kind != 1) {
-            return kind == 0 ? 44 : 16;
+            return 16;
         }
         tdTouch(t);
         tempStorage.td.remove(t);
@@ -4812,6 +4863,8 @@ CICS_TASK_JAVA += """\
         final Map<String, java.util.ArrayDeque<String>> td = new HashMap<>();
         /** The run-time open state SET TDQUEUE OPENSTATUS left on an extrapartition queue (#5168, X61): true open, false closed. */
         final Map<String, Boolean> tdOpen = new HashMap<>();
+        /** The queues SET TDQUEUE ENABLESTATUS(DISABLED) left disabled (#5168 round 5, X66). */
+        final java.util.Set<String> tdDisabled = new java.util.HashSet<>();
         /** The extrapartition queues a READQ TD has taken a record from (reopening an input queue would restart it). */
         final java.util.Set<String> tdRead = new java.util.HashSet<>();
 

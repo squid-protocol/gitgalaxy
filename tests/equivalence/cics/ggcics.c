@@ -1971,6 +1971,19 @@ static int td_open_override(const char *queue) {
     return strcmp(word, "OPEN") == 0 ? 1 : strcmp(word, "CLOSED") == 0 ? 0 : -1;
 }
 
+/* #5168 round 5 (X66): 1 when SET TDQUEUE ENABLESTATUS(DISABLED) left the queue disabled ("The queue cannot be accessed by
+ * applications"); the state is in a file beside the queue's directory, so it outlives the task. ENABLED until a SET says otherwise. */
+static int td_disabled(const char *queue) {
+    char dir[4096], path[4200], word[16] = "";
+    td_dir(queue, dir, sizeof dir);
+    snprintf(path, sizeof path, "%s.enable", dir);
+    FILE *f = fopen(path, "r");
+    if (!f) return 0;
+    if (fscanf(f, "%15s", word) != 1) word[0] = '\0';
+    fclose(f);
+    return strcmp(word, "DISABLED") == 0;
+}
+
 /* 1 when an extrapartition queue's data set is closed: the SET TDQUEUE state if there is one, else OPENTIME DEFERRED ("the data
  * set remains closed until you indicate that you want to open it"); INITIAL (or none stated: ASSUMED) is open. */
 static int td_extra_closed(const char *queue) {
@@ -2097,6 +2110,8 @@ int GGCWRTD(gg_cics *c, char *from) {
         c->resp2 = fresp2;
     } else if (!kind) {
         c->resp = QIDERR;
+    } else if (td_disabled(target)) {
+        c->resp = DFHRESP_DISABLED; /* #5168 round 5 (X66) */
     } else if (kind == 2) {
         /* #5168 (X61): IBM WRITEQ TD: INVREQ for an extrapartition queue opened for input, NOTOPEN for a closed one. A queue with no
          * TYPEFILE (or RDBACK) is still taken as open for output (ASSUMED), as before. */
@@ -2138,6 +2153,8 @@ int GGCRDTD(gg_cics *c, char *into, int intolen) {
     if (kind == 2) state = td_extra_state(target); /* #5168: closed NOTOPEN, open for output INVREQ; IOERR: refused, no data set */
     if (!kind) {
         c->resp = QIDERR;
+    } else if (td_disabled(target)) {
+        c->resp = DFHRESP_DISABLED; /* #5168 round 5 (X66) */
     } else if (state == 2) {
         c->resp = DFHRESP_NOTOPEN;
     } else if (state == 1) {
@@ -2180,6 +2197,7 @@ int GGCDLTD(gg_cics *c) {
     td_resolve(queue, target); /* #5168 */
     int kind = td_kind(target);
     if (!kind) { c->resp = QIDERR; return 0; }
+    if (td_disabled(target)) { c->resp = DFHRESP_DISABLED; return 0; } /* #5168 round 5 (X66) */
     if (kind == 2) { c->resp = INVREQ; return 0; }
     if (kind == 3) refuse("DELETEQ TD of a queue whose TYPE is not INTRA or EXTRA: not modelled");
     td_touch(target);
@@ -2252,6 +2270,32 @@ int GGCSTDQ(gg_cics *c) {
     return 0;
 }
 
+/* #5168 round 5 (X66): SET TDQUEUE ENABLESTATUS (IBM CICS TS 6.x, SET TDQUEUE). The queue is in GG-QNAME, the CVDA in GG-NUM:
+ * ENABLED 23, DISABLED 24. QIDERR RESP2 1; INVREQ RESP2 10 for an invalid CVDA. Setting the state a queue is in is NORMAL (ASSUMED).
+ * Refused by name: an invalid CVDA on a queue the CSD does not define (IBM does not order the two), an INDIRECT / REMOTE queue. */
+int GGCSTDE(gg_cics *c) {
+    char queue[17], dir[4096], path[4200];
+    int cvda = c->num, kind, valid = cvda == 23 || cvda == 24;
+    trim(c->qname, 16, queue);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    kind = td_kind(queue);
+    if (!kind) {
+        if (!valid) refuse("SET TDQUEUE ENABLESTATUS with an invalid CVDA on a queue the CSD does not define: IBM does not say which condition comes first");
+        c->resp = QIDERR;
+        c->resp2 = 1;
+        return 0;
+    }
+    if (kind == 3) refuse("SET TDQUEUE ENABLESTATUS of an INDIRECT or REMOTE queue");
+    if (!valid) { c->resp = INVREQ; c->resp2 = 10; return 0; }
+    td_dir(queue, dir, sizeof dir);
+    td_base();
+    snprintf(path, sizeof path, "%s.enable", dir);
+    FILE *f = fopen(path, "w");
+    if (f) { fprintf(f, "%s\n", cvda == 24 ? "DISABLED" : "ENABLED"); fclose(f); }
+    return 0;
+}
+
 int GGCITDQ(gg_cics *c) {
     char queue[17], word[32];
     int kind;
@@ -2261,6 +2305,7 @@ int GGCITDQ(gg_cics *c) {
     kind = td_kind(queue);
     if (!kind) { c->resp = QIDERR; c->resp2 = 1; return 0; }
     if (strstr(c->flags, "TYPE")) c->len = td_type_cvda(queue, kind, word, sizeof word);
+    if (strstr(c->flags, "ENABLESTATUS")) c->item = td_disabled(queue) ? 24 : 23; /* #5168 round 5 (X66): its own state */
     if (strstr(c->flags, "OPENSTATUS")) {
         if (kind == 2) c->num = td_extra_closed(queue) ? 19 : 18;
         else {

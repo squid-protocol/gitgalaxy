@@ -481,11 +481,13 @@ class Gen:
             self.cond_relations(c.cond, out)
         elif isinstance(c, E.CondName):
             if c.abbrev is not None and self.resolve_cond(c.ref) is None:
-                out.append(self._relation(c.abbrev[1], c.ref, c.abbrev[0] == "="))
+                rel = E.Rel(c.abbrev[0], c.abbrev[1], c.ref)
+                if not (self.null_relation(rel) or self.pointer_relation(rel)):
+                    out.append(self._relation(c.abbrev[1], c.ref, c.abbrev[0] == "="))
         elif isinstance(c, E.ClassCond):
             if c.kind in ("POSITIVE", "NEGATIVE", "ZERO"):
                 out.append(self._relation(c.operand, E.Fig("ZEROS")))  # cobc: x > ZERO, a constant
-        elif isinstance(c, E.Rel) and not self.null_relation(c):
+        elif isinstance(c, E.Rel) and not self.null_relation(c) and not self.pointer_relation(c):
             out.append(self._relation(c.left, c.right, c.op == "="))
 
     @staticmethod
@@ -1221,8 +1223,7 @@ class Gen:
             cn = self.resolve_cond(c.ref)
             if cn is None and c.abbrev is not None:
                 op, subject, negated = c.abbrev  # an abbreviated relation's object
-                with self.relation():
-                    t = self.rel(op, subject, c.ref)
+                t = self.cond(E.Rel(op, subject, c.ref))  # (#5042: a pointer subject takes the pointer tests)
                 return f"!({t})" if negated else t
             if cn is None:
                 raise Untranslatable(f"condition-name {c.ref.name}")
@@ -1242,6 +1243,8 @@ class Gen:
         if isinstance(c, E.Rel):
             if self.null_relation(c):
                 return self.rel_null(c)
+            if self.pointer_operand(c.left) and self.pointer_operand(c.right):
+                return self.rel_pointers(c)
             with self.relation():
                 return self.rel(c.op, c.left, c.right)
         raise Untranslatable(f"condition {type(c).__name__}")
@@ -1266,6 +1269,25 @@ class Gen:
             raise Untranslatable("NULL compared with something that is not a plain pointer item (X56)")
         return f"Cobol.compareFigurative({self.pointer_item(sides[0].name)}, Figurative.LOW_VALUES, CS) == 0"
 
+    def rel_pointers(self, c: E.Rel) -> str:
+        """#5042 (X56): `pointer = pointer` (and NOT =, which the parser wraps in Not). IBM allows only = and NOT = between
+        two pointers; they are equal when they address the same storage, which is the runtime's handle equality (two
+        handles for one block, as a record's ADDRESS OF beside the pointer it was set to, are equal). Anything else is
+        refused by name."""
+        if c.op != "=":
+            raise Untranslatable(
+                f"pointer {c.op} pointer: only = and NOT = compare a pointer (IBM Enterprise COBOL relation conditions, X56)"
+            )
+        if self.cics is None:
+            raise Untranslatable("a pointer compared with a pointer (CICS pointers)")
+        left, right = c.left, c.right
+        if not (isinstance(left, E.Ref) and isinstance(right, E.Ref)):
+            raise Untranslatable("a pointer compared with a pointer that is not a plain pointer item (X56)")
+        if any(x.subscripts or x.qualifiers or x.refmod for x in (left, right)):
+            raise Untranslatable("a pointer compared with a pointer that is not a plain pointer item (X56)")
+        a, b = self.pointer_item(left.name), self.pointer_item(right.name)
+        return f"DetCics.samePointer(task, {a}, {b})"
+
     def cmp_num(self, e) -> str:
         """A comparison operand's value: a plain numeric zoned item is read as libcob compares it (Cobol.cmpNum,
         #4662: a non-digit, and no PUT_SIGN rewrite of the sign), anything else as an arithmetic operand."""
@@ -1275,6 +1297,10 @@ class Gen:
                 return f"Cobol.cmpNum({self.field_expr(e)}, CS)"
         return self.num(e)
 
+    def pointer_relation(self, c) -> bool:
+        """A relation of two pointer items: no arithmetic plan (rel_pointers), like a NULL one."""
+        return self.pointer_operand(c.left) and self.pointer_operand(c.right)
+
     def pointer_operand(self, e) -> bool:
         try:
             return isinstance(e, E.Ref) and self.resolve(e).usage == "POINTER"
@@ -1282,8 +1308,8 @@ class Gen:
             return False
 
     def rel(self, op: str, a, b) -> str:
-        # #5197 (X56): a pointer is compared only with NULL (rel_null); against a number, another pointer or with an
-        # ordering operator it is refused by name (pointer = pointer: #5042)
+        # #5197 (X56): a pointer is compared only with NULL (rel_null) or another pointer (rel_pointers); against a
+        # number or with an ordering operator it is refused by name
         if self.pointer_operand(a) or self.pointer_operand(b):
             other = "another pointer" if self.pointer_operand(a) and self.pointer_operand(b) else "a non-pointer"
             raise Untranslatable(

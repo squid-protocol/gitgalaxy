@@ -1652,6 +1652,18 @@ public class CicsTask {
         return root().addressed.computeIfAbsent(record, r -> newBlock(r, 2));
     }
 
+    /** `ptr-a = ptr-b` (#5042, X56): two pointers are equal when they address the same storage. One block can have two
+     *  handles (a record's ADDRESS OF beside the pointer it was set to), so the handles are equal, or both name blocks
+     *  of one byte array. NULL (0) equals only NULL. */
+    public boolean samePointer(long a, long b) {
+        if (a == b) {
+            return true;
+        }
+        Block x = root().blocks.get(a);
+        Block y = root().blocks.get(b);
+        return x != null && y != null && x.bytes == y.bytes;
+    }
+
     /** SET ADDRESS OF record TO ptr: the bytes the pointer addresses, for a record of `need` bytes. A record longer than
      *  its storage reads zero bytes past it (ASSUMED, X47: IBM's are bytes that are not the program's), the storage
      *  growing once, before a second record is set to it. Refused: a null or unknown pointer, freed storage, a record's own

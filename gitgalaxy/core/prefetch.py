@@ -21,6 +21,8 @@ import threading
 from collections.abc import Callable, Iterable
 from typing import Any
 
+from gitgalaxy.core.source_text import decode_bytes
+
 logger = logging.getLogger(__name__)
 
 PREFETCH_ENV = "GITGALAXY_PREFETCH"
@@ -36,10 +38,11 @@ _POLL_S = 0.05
 def mem_available_bytes(meminfo: str = "/proc/meminfo") -> int | None:
     """MemAvailable in bytes, or None where it cannot be read."""
     try:
-        with open(meminfo, encoding="ascii", errors="replace") as fh:
-            for line in fh:
-                if line.startswith("MemAvailable:"):
-                    return int(line.split()[1]) * 1024
+        with open(meminfo, "rb") as fh:
+            text = decode_bytes(fh.read())
+        for line in text.splitlines():
+            if line.startswith("MemAvailable:"):
+                return int(line.split()[1]) * 1024
     except (OSError, ValueError, IndexError):
         pass
     return None
@@ -53,8 +56,8 @@ def is_rotational(root: str, sys_block: str = "/sys/dev/block") -> bool | None:
         # A partition has no queue/ of its own; the flag lives on the parent disk.
         for candidate in (os.path.join(base, "queue", "rotational"), os.path.join(base, "..", "queue", "rotational")):
             if os.path.isfile(candidate):
-                with open(candidate, encoding="ascii") as fh:
-                    return fh.read().strip() == "1"
+                with open(candidate, "rb") as fh:
+                    return decode_bytes(fh.read()).strip() == "1"
     except (OSError, AttributeError, ValueError):
         pass
     return None

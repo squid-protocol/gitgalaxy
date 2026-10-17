@@ -9,14 +9,15 @@
 # ==============================================================================
 """#4726: `gitgalaxy assess ESTATE` -- the readiness scanner a customer runs on their own machine.
 
-    gitgalaxy assess ESTATE [--options FILE] [--redact [--redact-key-file FILE]] [--out FILE] [--verbose]
+    gitgalaxy assess ESTATE [--options FILE] [--redact [--redact-key-file FILE]] [--no-translate] [--out FILE] [--verbose]
     python -m gitgalaxy.cli assess ...                       (the same, without the console script)
 
 Offline: the network guard (`offline.install`) is in place before anything reads the estate, in this process and in
 the scan it runs. Read-only: the estate is only read; the scan's database and the BMS copybooks go to a private
 temporary directory removed afterwards, and `--out` may not point inside the estate. The report is built by
 `schema.project` only and checked by `schema.validate` before it is written; a report that fails is not written
-(exit 3). No Docker, Db2 or JDK: the inventory parses COBOL with the det parser (the `translator` extra).
+(exit 3). No Docker, Db2 or JDK: the inventory parses COBOL with the det parser (the `translator` extra), and the translate-only
+dry run (dryrun.py) runs the det translator against a synthetic stub, keeping only whole / holes / refused and counts.
 """
 
 from __future__ import annotations
@@ -52,6 +53,11 @@ def add_arguments(p: argparse.ArgumentParser) -> None:
         help="the key for --redact (same key, same labels across runs); default: a random key, unlinkable labels",
     )
     p.add_argument("--out", type=Path, help="write the report here (default: standard output); not inside the estate")
+    p.add_argument(
+        "--no-translate",
+        action="store_true",
+        help="skip the translate-only dry run (whole / holes / refused per program); the inventory alone",
+    )
     p.add_argument("--verbose", action="store_true", help="show the scan's own console output")
 
 
@@ -69,6 +75,7 @@ def build(
     options: dict[str, Any] | None = None,
     redact_key: bytes | None = None,
     verbose: bool = False,
+    translate: bool = True,
 ) -> dict[str, Any]:
     """The report of `estate`, offline. Raises on a scan failure."""
     from gitgalaxy.tools.readiness import offline
@@ -83,8 +90,21 @@ def build(
     with tempfile.TemporaryDirectory(prefix="gitgalaxy-assess-") as tmp:
         if _inside(Path(tmp), estate):
             raise RuntimeError("the temporary directory is inside the estate: set TMPDIR elsewhere")
-        inv = scan_estate(estate.resolve(), Path(tmp), scan=scan, estate_opt=options)
-    return project(inv, redact_key=redact_key, tool_version=tool_version())
+        root = estate.resolve()
+        inv = scan_estate(root, Path(tmp), scan=scan, estate_opt=options)
+        outcomes = _translate_only(root, Path(tmp), options, inv) if translate else None
+    return project(inv, redact_key=redact_key, tool_version=tool_version(), translation=outcomes)
+
+
+def _translate_only(estate: Path, tmp: Path, options: dict[str, Any] | None, inv: dict[str, Any]):
+    """The translate-only dry run (dryrun.py) of every COBOL program the inventory parsed: no Docker, Db2 or JDK."""
+    from gitgalaxy.tools.cobol_to_java.det import cics as C
+    from gitgalaxy.tools.readiness.dryrun import dry_run
+    from gitgalaxy.tools.readiness.inventory import copy_dirs
+
+    unparsed = {u["program"] for u in inv.get("unparsed_programs", [])}
+    programs = [estate / rel for rel in sorted(inv.get("eras", {}).get("programs", {})) if rel not in unparsed]
+    return dry_run(estate, [*copy_dirs(estate), tmp / "bms", C.COPY], options, programs)
 
 
 def run(args: argparse.Namespace) -> int:
@@ -116,7 +136,7 @@ def run(args: argparse.Namespace) -> int:
 
     from gitgalaxy.tools.readiness.schema import validate as check
 
-    report = build(estate, options=options, redact_key=key, verbose=args.verbose)
+    report = build(estate, options=options, redact_key=key, verbose=args.verbose, translate=not args.no_translate)
     problems = check(report)
     if problems:
         for line in problems[:20]:

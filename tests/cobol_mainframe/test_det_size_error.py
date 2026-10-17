@@ -381,6 +381,44 @@ WANT = {
 }  # fmt: skip
 
 
+FLOAT_NAN_PROGRAM = """       IDENTIFICATION DIVISION.
+       PROGRAM-ID. PROG.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 F COMP-2 VALUE 7.
+       01 FZ COMP-2 VALUE 0.
+       01 C COMP-2 VALUE 3.
+       01 G COMP-2 VALUE 1.5.
+       PROCEDURE DIVISION.
+           COMPUTE G = F / FZ
+           COMPUTE G = (F / FZ) * C
+           COMPUTE G = C + F / FZ + C
+           COMPUTE G = C + C + C
+           STOP RUN.
+"""
+
+
+def test_a_zero_divisor_inside_a_float_expression_stays_a_named_stop(tmp_path):
+    """#4687: the oracle aligns a float expression's integer intermediates too (`G = C + C + C` is 3 on the oracle,
+    9 on z/OS), so replaying its plan around a NaN would copy an oracle artifact. The nested zero divisor therefore
+    stays refused by name (`Hfp.divideNested`); the whole-value division is still the NaN of `Hfp.divide`."""
+    pytest.importorskip("tree_sitter_language_pack")
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import test_det_programs as T
+
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "x.cbl").write_text(FLOAT_NAN_PROGRAM)
+    (tmp_path / "project").mkdir()
+    r = P.translate(tmp_path / "x.cbl", [], "public class XService {\n}\n", T.PKG, None, tmp_path / "project",
+                    typed=False, groups=False, unit=None)  # fmt: skip
+    lines = [x for x in r.java.splitlines() if "Hfp." in x and "Cobol.num(f" in x]
+    assert "Hfp.divide(" in lines[0] and "divideNested" not in lines[0]
+    assert "divideNested" in lines[1]
+    assert "divideNested" in lines[2]
+    assert "divideNested" not in lines[3]  # no division: plain HFP adds (IBM's answer, 9)
+
+
 def _java_ok() -> bool:
     import test_det_programs as T
 

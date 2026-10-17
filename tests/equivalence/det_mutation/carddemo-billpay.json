@@ -1,0 +1,576 @@
+{
+ "format": "det-mutation/1",
+ "issue": "#4628",
+ "about": "#4628: mutation testing of each det port (tests/tools/mutation.py on `det_port.py run --translate-only`'s port, fast mode, seeded sample), written only by tests/tools/det_mutation.py. An entry is trusted only while its fingerprints match the tree; stale or missing is unknown. Survivors are accounted for in det_mutation_survivors/ (reviewed).",
+ "case": "carddemo-billpay",
+ "entry": {
+  "program": "COBIL00C",
+  "commit": "b8d14915e1e512a860764ccfcc325e7b7a132103",
+  "date": "2026-10-17",
+  "mode": "fast",
+  "seed": 0,
+  "mutants": 1650,
+  "out_of_scope": 12,
+  "chosen": 150,
+  "coverage": "proven on 27 scenarios, covering 16/16 paragraphs and 46/48 branches",
+  "counts": {
+   "killed": 96,
+   "timeout": 0,
+   "survived": 51,
+   "stillborn": 3,
+   "error": 0,
+   "pending": 0
+  },
+  "killed": [
+   "026488a03e",
+   "0920c498f0",
+   "0c3795ad12",
+   "0c9d63f6f6",
+   "0cd43b8ef3",
+   "1076e243f2",
+   "12e3b2e7de",
+   "14acc58099",
+   "1561d4f107",
+   "173dd800e8",
+   "1c6bc39815",
+   "1ecdb790f6",
+   "204358e8a4",
+   "22b4bbd804",
+   "264d18e1cb",
+   "2a7d93483a",
+   "2af2606473",
+   "2ebf7b1876",
+   "3028ef60e3",
+   "32f6f4395e",
+   "405896330d",
+   "43e4e3d909",
+   "466b86f951",
+   "46f9ac968a",
+   "488b041f33",
+   "4c68ce4c9d",
+   "4d6a8397ac",
+   "4def813ef6",
+   "523fd1e48f",
+   "57583daa7b",
+   "5a1772e8eb",
+   "5b718da23c",
+   "5d227e7514",
+   "60156aa9d2",
+   "611eac2c06",
+   "65ef095a18",
+   "6701cd098a",
+   "6880e3f2f6",
+   "6a7e3a1146",
+   "6f138c3ba7",
+   "6f30e184f8",
+   "6fb557be67",
+   "7c63846472",
+   "7e3627b640",
+   "7ebfbb0c87",
+   "7f26761bd3",
+   "80ff9a7f1f",
+   "81c8e27d3c",
+   "8391116b95",
+   "8452a1657e",
+   "858d0bf2d6",
+   "875e1e86a9",
+   "8765a628f6",
+   "8d9285d5df",
+   "8ebccdb809",
+   "8fde6f651e",
+   "91023f0ff1",
+   "9260b1b18c",
+   "9438e39c9a",
+   "9dcc7dee21",
+   "a1fa6ed019",
+   "a7904c9697",
+   "a948b4881f",
+   "b025d1c156",
+   "b2f9bdc6e6",
+   "b77a1acdf4",
+   "b89e1c42eb",
+   "bd85407327",
+   "c011d8cb7c",
+   "c2773e91fe",
+   "c5cc687428",
+   "c67b261a0a",
+   "cf741dc993",
+   "d0db7bf15f",
+   "d597dcd3ba",
+   "da8367c956",
+   "dbba7ec930",
+   "e058229591",
+   "e0cd9551e3",
+   "e1e131b9f3",
+   "e380a26e23",
+   "e4f7240c21",
+   "e57c8d929a",
+   "ea33eac81a",
+   "f0b292c768",
+   "f21b7fe45f",
+   "f5250d0471",
+   "f60b382cfb",
+   "f6ece7ca22",
+   "f7fcea714c",
+   "f9d2f8db4b",
+   "fa2f8a94ce",
+   "fba69d113e",
+   "fce1f4dd43",
+   "fcf5c9c776",
+   "ffd0575d39"
+  ],
+  "stillborn": [
+   "5f2b4f4954",
+   "63c24414d6",
+   "ca60bbf08c"
+  ],
+  "survived": [
+   {
+    "id": "1f026bc925",
+    "op": "LIT",
+    "file": "service/Cobil00cService.java",
+    "line": 100,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+   },
+   {
+    "id": "79be984bf9",
+    "op": "LIT",
+    "file": "service/Cobil00cService.java",
+    "line": 103,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+   },
+   {
+    "id": "2787cd9bb5",
+    "op": "LIT",
+    "file": "service/Cobil00cService.java",
+    "line": 114,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+   },
+   {
+    "id": "6dc297c221",
+    "op": "LIT",
+    "file": "service/Cobil00cService.java",
+    "line": 135,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+   },
+   {
+    "id": "c8c6d7d294",
+    "op": "LIT",
+    "file": "service/Cobil00cService.java",
+    "line": 160,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+   },
+   {
+    "id": "a73ba4883f",
+    "op": "LIT",
+    "file": "service/Cobil00cService.java",
+    "line": 167,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+   },
+   {
+    "id": "5a657efee1",
+    "op": "CON",
+    "file": "service/Cobil00cService.java",
+    "line": 222,
+    "before": "private final Field f51_TRNNAMEL = Field.binary(s_COBIL0AI, 12, 4, 0, true, false);",
+    "after": "private final Field f51_TRNNAMEL = Field.binary(s_COBIL0AI, 12, 4, 1, true, false);"
+   },
+   {
+    "id": "e23b79d014",
+    "op": "CON",
+    "file": "service/Cobil00cService.java",
+    "line": 246,
+    "before": "private final Field f99_CONFIRML = Field.binary(s_COBIL0AI, 201, 4, 0, true, false);",
+    "after": "private final Field f99_CONFIRML = Field.binary(s_COBIL0AI, 201, 4, 1, true, false);"
+   },
+   {
+    "id": "cb3e769bda",
+    "op": "CON",
+    "file": "service/Cobil00cService.java",
+    "line": 268,
+    "before": "private final Field f144_CURTIMEC = Field.alphanumeric(s_COBIL0AI, 150, 1, false);",
+    "after": "private final Field f144_CURTIMEC = Field.alphanumeric(s_COBIL0AI, 150, 2, false);"
+   },
+   {
+    "id": "a6fa81d9b4",
+    "op": "CON",
+    "file": "service/Cobil00cService.java",
+    "line": 269,
+    "before": "private final Field f146_CURTIMEH = Field.alphanumeric(s_COBIL0AI, 152, 1, false);",
+    "after": "private final Field f146_CURTIMEH = Field.alphanumeric(s_COBIL0AI, 153, 1, false);"
+   },
+   {
+    "id": "1ac329c01a",
+    "op": "CON",
+    "file": "service/Cobil00cService.java",
+    "line": 272,
+    "before": "private final Field f152_ACTIDINH = Field.alphanumeric(s_COBIL0AI, 167, 1, false);",
+    "after": "private final Field f152_ACTIDINH = Field.alphanumeric(s_COBIL0AI, 167, 2, false);"
+   },
+   {
+    "id": "c719239134",
+    "op": "CON",
+    "file": "service/Cobil00cService.java",
+    "line": 320,
+    "before": "private final Field f254_DFHNULL = Field.alphanumeric(s_DFHAID, 0, 1, false);",
+    "after": "private final Field f254_DFHNULL = Field.alphanumeric(s_DFHAID, 0, 2, false);"
+   },
+   {
+    "id": "95f4271d24",
+    "op": "CON",
+    "file": "service/Cobil00cService.java",
+    "line": 332,
+    "before": "private final Field f266_DFHPF1 = Field.alphanumeric(s_DFHAID, 12, 1, false);",
+    "after": "private final Field f266_DFHPF1 = Field.alphanumeric(s_DFHAID, 13, 1, false);"
+   },
+   {
+    "id": "94e10b5eb0",
+    "op": "CON",
+    "file": "service/Cobil00cService.java",
+    "line": 343,
+    "before": "private final Field f277_DFHPF12 = Field.alphanumeric(s_DFHAID, 23, 1, false);",
+    "after": "private final Field f277_DFHPF12 = Field.alphanumeric(s_DFHAID, 24, 1, false);"
+   },
+   {
+    "id": "1308b518b0",
+    "op": "CON",
+    "file": "service/Cobil00cService.java",
+    "line": 367,
+    "before": "private final Field f392_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f392_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);"
+   },
+   {
+    "id": "bb428f11a0",
+    "op": "ROR",
+    "file": "service/Cobil00cService.java",
+    "line": 402,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() >= 1) {"
+   },
+   {
+    "id": "21e65f132c",
+    "op": "LIT",
+    "file": "service/Cobil00cService.java",
+    "line": 422,
+    "before": "java.util.Map.entry(\"ENDBR-TRANSACT-FILE\", 12),",
+    "after": "java.util.Map.entry(\"XNDBR-TRANSACT-FILE\", 12),"
+   },
+   {
+    "id": "da9764eca5",
+    "op": "LIT",
+    "file": "service/Cobil00cService.java",
+    "line": 424,
+    "before": "java.util.Map.entry(\"STARTBR-TRANSACT-FILE\", 10),",
+    "after": "java.util.Map.entry(\"XTARTBR-TRANSACT-FILE\", 10),"
+   },
+   {
+    "id": "3ef5b0e9c4",
+    "op": "LIT",
+    "file": "service/Cobil00cService.java",
+    "line": 426,
+    "before": "java.util.Map.entry(\"UPDATE-ACCTDAT-FILE\", 8),",
+    "after": "java.util.Map.entry(\"XPDATE-ACCTDAT-FILE\", 8),"
+   },
+   {
+    "id": "1239c0a158",
+    "op": "CON",
+    "file": "service/Cobil00cService.java",
+    "line": 434,
+    "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
+    "after": "java.util.Map.entry(\"MAIN-PARA\", 1)"
+   },
+   {
+    "id": "e8955b99f9",
+    "op": "NEG",
+    "file": "service/Cobil00cService.java",
+    "line": 439,
+    "before": "if (i == null) {",
+    "after": "if (!(i == null)) {"
+   },
+   {
+    "id": "612d55e100",
+    "op": "ROR",
+    "file": "service/Cobil00cService.java",
+    "line": 439,
+    "before": "if (i == null) {",
+    "after": "if (i != null) {"
+   },
+   {
+    "id": "908d351b88",
+    "op": "ROR",
+    "file": "service/Cobil00cService.java",
+    "line": 534,
+    "before": "if (s_DFHCOMMAREA.bytes != whole) {",
+    "after": "if (s_DFHCOMMAREA.bytes == whole) {"
+   },
+   {
+    "id": "599ad45d04",
+    "op": "DEL",
+    "file": "service/Cobil00cService.java",
+    "line": 588,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, f14_WS_CURR_BAL, CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, f14_WS_CURR_BAL, CS); */"
+   },
+   {
+    "id": "c69b761f9c",
+    "op": "DEL",
+    "file": "service/Cobil00cService.java",
+    "line": 673,
+    "before": "calen = cx(task, cb.length);",
+    "after": "/* calen = cx(task, cb.length); */"
+   },
+   {
+    "id": "44061bde1d",
+    "op": "COR",
+    "file": "service/Cobil00cService.java",
+    "line": 684,
+    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "ea24f7b9e3",
+    "op": "DEL",
+    "file": "service/Cobil00cService.java",
+    "line": 686,
+    "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
+    "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */"
+   },
+   {
+    "id": "39924b60e2",
+    "op": "ROR",
+    "file": "service/Cobil00cService.java",
+    "line": 699,
+    "before": "if (caWhole == null) {",
+    "after": "if (caWhole != null) {"
+   },
+   {
+    "id": "24dae49f6b",
+    "op": "LIT",
+    "file": "service/Cobil00cService.java",
+    "line": 721,
+    "before": "region.run(task, \"COBIL00C\", this::runTask);",
+    "after": "region.run(task, \"XOBIL00C\", this::runTask);"
+   },
+   {
+    "id": "b669bc6ad5",
+    "op": "AOR",
+    "file": "service/Cobil00cService.java",
+    "line": 815,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d >= 0; d++) {"
+   },
+   {
+    "id": "2fafca6736",
+    "op": "NEG",
+    "file": "service/Cobil00cService.java",
+    "line": 816,
+    "before": "if (performThru[d] == i) {",
+    "after": "if (!(performThru[d] == i)) {"
+   },
+   {
+    "id": "dd3bc5ebb0",
+    "op": "NEG",
+    "file": "service/Cobil00cService.java",
+    "line": 821,
+    "before": "if (next >= 16) {",
+    "after": "if (!(next >= 16)) {"
+   },
+   {
+    "id": "7791b1fc5e",
+    "op": "CON",
+    "file": "service/Cobil00cService.java",
+    "line": 958,
+    "before": "} else if ((Cobol.compare(f104_CONFIRMI, \"N\", CS) == 0) || (Cobol.compare(f104_CONFIRMI, \"n\", CS) == 0)) {",
+    "after": "} else if ((Cobol.compare(f104_CONFIRMI, \"N\", CS) == 0) || (Cobol.compare(f104_CONFIRMI, \"n\", CS) == 1)) {"
+   },
+   {
+    "id": "40a39d0f88",
+    "op": "DEL",
+    "file": "service/Cobil00cService.java",
+    "line": 1018,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 22, 10, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 22, 10, false), CS); */"
+   },
+   {
+    "id": "09e2685504",
+    "op": "DEL",
+    "file": "service/Cobil00cService.java",
+    "line": 1021,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 143, 9, 0, false, false, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 143, 9, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "172c7f6bed",
+    "op": "CON",
+    "file": "service/Cobil00cService.java",
+    "line": 1021,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 143, 9, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 144, 9, 0, false, false, false), CS);"
+   },
+   {
+    "id": "5f53c984c2",
+    "op": "AOR",
+    "file": "service/Cobil00cService.java",
+    "line": 1083,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f202_WS_TIMESTAMP.storage(), f202_WS_TIMESTAMP.offset() + 5, 2, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f202_WS_TIMESTAMP.storage(), f202_WS_TIMESTAMP.offset() - 5, 2, 0, false, false, false), CS);"
+   },
+   {
+    "id": "414a1aa4cd",
+    "op": "COR",
+    "file": "service/Cobil00cService.java",
+    "line": 1101,
+    "before": "if ((Cobol.compareFigurative(f25_CDEMO_TO_PROGRAM, Figurative.LOW_VALUES, CS) == 0 || Cobol.compareFigurative(f25_CDEMO_TO_PROGRAM, Figurative.SPACES, CS) == 0)) {",
+    "after": "if ((Cobol.compareFigurative(f25_CDEMO_TO_PROGRAM, Figurative.LOW_VALUES, CS) == 0 && Cobol.compareFigurative(f25_CDEMO_TO_PROGRAM, Figurative.SPACES, CS) == 0)) {"
+   },
+   {
+    "id": "06b34f184a",
+    "op": "NEG",
+    "file": "service/Cobil00cService.java",
+    "line": 1116,
+    "before": "if (DetCics.resp(xr4) != 0) {",
+    "after": "if (!(DetCics.resp(xr4) != 0)) {"
+   },
+   {
+    "id": "33832dccaa",
+    "op": "DEL",
+    "file": "service/Cobil00cService.java",
+    "line": 1155,
+    "before": "Cobol.store(f390_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "/* Cobol.store(f390_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
+   },
+   {
+    "id": "6d366e2e1d",
+    "op": "NEG",
+    "file": "service/Cobil00cService.java",
+    "line": 1158,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (!(to >= 0)) return GOTO | to;"
+   },
+   {
+    "id": "c0fe07e4fb",
+    "op": "ROR",
+    "file": "service/Cobil00cService.java",
+    "line": 1158,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "01fc787298",
+    "op": "DEL",
+    "file": "service/Cobil00cService.java",
+    "line": 1169,
+    "before": "java.util.Arrays.fill(f49_COBIL0AI.storage().bytes, f49_COBIL0AI.offset(), f49_COBIL0AI.offset() + f49_COBIL0AI.length(), (byte) 0);",
+    "after": "/* java.util.Arrays.fill(f49_COBIL0AI.storage().bytes, f49_COBIL0AI.offset(), f49_COBIL0AI.offset() + f49_COBIL0AI.length(), (byte) 0); */"
+   },
+   {
+    "id": "ef0fda3ace",
+    "op": "LIT",
+    "file": "service/Cobil00cService.java",
+    "line": 1172,
+    "before": "DetCics.typed(f56_TRNNAMEI, f51_TRNNAMEL, typed9.get(\"TRNNAME\"), CS);",
+    "after": "DetCics.typed(f56_TRNNAMEI, f51_TRNNAMEL, typed9.get(\"XRNNAME\"), CS);"
+   },
+   {
+    "id": "81de99d8d4",
+    "op": "DEL",
+    "file": "service/Cobil00cService.java",
+    "line": 1203,
+    "before": "Cobol.store(f390_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "/* Cobol.store(f390_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
+   },
+   {
+    "id": "8dd49e0664",
+    "op": "DEL",
+    "file": "service/Cobil00cService.java",
+    "line": 1205,
+    "before": "Cobol.store(f10_WS_REAS_CD, BigDecimal.valueOf(0), false, CS);",
+    "after": "/* Cobol.store(f10_WS_REAS_CD, BigDecimal.valueOf(0), false, CS); */"
+   },
+   {
+    "id": "fe818e96e0",
+    "op": "DEL",
+    "file": "service/Cobil00cService.java",
+    "line": 1249,
+    "before": "Cobol.store(f389_EIBRESP, BigDecimal.valueOf(read11.resp()), false, CS);",
+    "after": "/* Cobol.store(f389_EIBRESP, BigDecimal.valueOf(read11.resp()), false, CS); */"
+   },
+   {
+    "id": "49e09502a7",
+    "op": "LIT",
+    "file": "service/Cobil00cService.java",
+    "line": 1367,
+    "before": "f8_WS_ERR_FLG = \"Y\";",
+    "after": "f8_WS_ERR_FLG = \"X\";"
+   },
+   {
+    "id": "997e156351",
+    "op": "DEL",
+    "file": "service/Cobil00cService.java",
+    "line": 1426,
+    "before": "Cobol.store(f389_EIBRESP, BigDecimal.valueOf(resp19), false, CS);",
+    "after": "/* Cobol.store(f389_EIBRESP, BigDecimal.valueOf(resp19), false, CS); */"
+   },
+   {
+    "id": "864b876b08",
+    "op": "NEG",
+    "file": "service/Cobil00cService.java",
+    "line": 1430,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (!(to >= 0)) return GOTO | to;"
+   },
+   {
+    "id": "92072bc79f",
+    "op": "DEL",
+    "file": "service/Cobil00cService.java",
+    "line": 1440,
+    "before": "Cobol.store(f390_EIBRESP2, BigDecimal.valueOf(task.resp2()), false, CS);",
+    "after": "/* Cobol.store(f390_EIBRESP2, BigDecimal.valueOf(task.resp2()), false, CS); */"
+   }
+  ],
+  "inputs": {
+   "port": "68689c2ec4e3bf1de6909cb733033c96c4ae3755ad85270f8fd41ea14c3861e7",
+   "generator": "746fe385081c2077ede81b34f400013f93c7599bbc207168eff8d1623143b5ee",
+   "case": "868c594948ac82c5cc23c9d5113636d6617dd02cbe5e5534875235be81dd4f2d",
+   "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
+   "harness": "fc0a04f296ea85609daf2e933a30d160dbd726ebdfdcd079060a8f638f60cb78",
+   "oracle": "7939e0943fd432a108ed735a15e5c9c297d9fd9639c8381ce43d26176fe4f7c7"
+  },
+  "components": {
+   "generator": {
+    "generator:cobolrt/standalone/Sysout.java": "407512cfedf89455f08193fe4aed96e26fdfc9fd34e8636a662b6574a5645b4f",
+    "generator:core": "00a51b802c3abe168274cb883cebad26a30fd953da20731ffeab526e5dfb1661",
+    "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
+    "generator:det/cics": "53777d4d088757d2892d96a52197fe409893cb5471f9d3f70da21260353c471a",
+    "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
+    "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
+    "generator:det/dli": "834aba674d85c25af1299ae19d8b49288f4bd831b578889d9bf40d83b5fea342",
+    "generator:det/dyncall": "19e29320d37a470811447e91448a577f53b1910f291371fc0889999b5f9f630a",
+    "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
+    "generator:det/expr": "50f53f541efb6853fd8a97ba022a97e8a4f691d2bbde8655293f47f77f47a0af",
+    "generator:det/gen": "a3c01de91fac1bd5ea6a7be7a3ee22e40fba44ce5a34ebb45efc53c556ffba20",
+    "generator:det/hfp": "7371422d1821ad22c526f9ba0e37deaa0ffc38ed190c6ad76e7475d820df95a1",
+    "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
+    "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
+    "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
+    "generator:det/source": "8bd64a1f9b6a3f3ae66fd9f8380a206be5a1601cdb84a24209f659822ce4919f",
+    "generator:det/stmt": "c721d141835a1d80dd7aa3d6218e00a2f8e97d4336d12c1e2c1de32b6523acb5"
+   },
+   "harness": {
+    "harness:cics": "a2c2a68cf1d3fb1cb630c3143dc169906107f5c767b05ce431fc417a376cae88",
+    "harness:core": "6f13d22bab57c67e9caaf5d2714906e9c7c0149a83dcfd6650e2514e2c478318"
+   },
+   "oracle": {
+    "oracle:cics-stub": "63665f662be4f63476f900abf291151ca1e91a840cfe9a0132ae2cf3921f71d7",
+    "oracle:core": "eea2a006cc58ebd1141804b10def30c657d4d2d2a3d2a19cf5d137d9dea04359",
+    "oracle:le": "66f2875621048177f9d8c839aa5b86b7a6c4888fcf8a837c04900fe6e6fe673b"
+   }
+  }
+ }
+}

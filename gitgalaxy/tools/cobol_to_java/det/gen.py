@@ -212,6 +212,7 @@ class Gen:
         # ARITH(EXTEND) in effect (program.arith_extend): extended-precision floating point, not modelled
         self.arith_extend = False
         self.float_extents: dict[int, list] = {}  # storage root id -> [(item, first extent, full extent, tables)]
+        self.comp5_extents: dict[int, list] = {}  # the same for COMP-5 items of 2+ bytes (#4271, register C7)
         self.root_of: dict[int, int] = {}  # id(record) -> id(its storage root)
         # condition-name methods: id(88 item) -> (Java method name, the test's body); in order of first use
         self.cond_methods: dict[int, tuple[str, str, L.Item]] = {}
@@ -324,6 +325,13 @@ class Gen:
             over = self.overlaps_float(it)
             if over is not None:
                 raise Untranslatable(f"{ref.name}: its bytes hold {over.name} {over.usage} ({FLOAT_BYTES})")
+            if it.usage == "COMP-5":  # #4271 (C7): a reference modification names the bytes of a number
+                if ref.refmod is not None:
+                    raise Untranslatable(f"{ref.name}: the bytes of a COMP-5 item ({COMP5_BYTES})")
+            else:
+                over = self.overlaps_float(it, self.comp5_extents)
+                if over is not None:
+                    raise Untranslatable(f"{ref.name}: its bytes hold {over.name} COMP-5 ({COMP5_BYTES})")
         packed = self.check_lift(it)
         base = self.ids.get(id(it))
         if base is None:
@@ -351,12 +359,14 @@ class Gen:
         finally:
             self._value_use -= 1
 
-    def overlaps_float(self, it: L.Item) -> L.Item | None:
+    def overlaps_float(self, it: L.Item, extents: dict[int, list] | None = None) -> L.Item | None:
         """The float item whose bytes `it` (not a float) covers -- as a group holding it, or a REDEFINES over it -- or
-        None. Items in the same table compare one occurrence; otherwise whole tables."""
-        if not self.float_extents or it.record is None:
+        None. Items in the same table compare one occurrence; otherwise whole tables. `extents` names another set of
+        items (the COMP-5 ones, #4271 C7)."""
+        extents = self.float_extents if extents is None else extents
+        if not extents or it.record is None:
             return None
-        floats = self.float_extents.get(self.root_of.get(id(it.record), id(it.record)), [])
+        floats = extents.get(self.root_of.get(id(it.record), id(it.record)), [])
         if not floats:
             return None
         first, full, tables = _extents(it)
@@ -1533,6 +1543,8 @@ class Gen:
         self.check_lift(parent)  # an 88 on a group holding a lifted item
         if parent.category != "FLOAT" and self.overlaps_float(parent):
             raise Untranslatable(f"88 {cn.name}: its item's bytes hold a COMP-1 / COMP-2 item ({FLOAT_BYTES})")
+        if parent.usage != "COMP-5" and self.overlaps_float(parent, self.comp5_extents):
+            raise Untranslatable(f"88 {cn.name}: its item's bytes hold a COMP-5 item ({COMP5_BYTES})")
         f = self.ids.get(id(parent))
         if f is None:
             raise Untranslatable(f"88 {cn.name}: no item")
@@ -3225,6 +3237,7 @@ METHODS_TAKEN = {"initialState", "perform", "run", "runTask", "runBatch", "runPr
                  "stores", "heldKey", "caBack", "fields0", "fields1", "fields2", "fields3"}  # fmt: skip
 
 
+COMP5_BYTES = "COMP-5 is little-endian on the oracle, big-endian on z/OS: oracle_assumptions.md C7"
 FLOAT_BYTES = "IBM hexadecimal floating point on z/OS, IEEE on the oracle: oracle_assumptions.md C6"
 
 

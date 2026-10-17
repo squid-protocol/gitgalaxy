@@ -567,3 +567,27 @@ def test_fact_keywords_in_a_continued_literal_or_inline_comment_are_no_read():
     assert got["eib"] == {"EIBFN"} and got["assign_task"] == {"USERID"} and not got["assign_region"]
     # length-preserving: the line structure the command scan relies on is unchanged
     assert [len(x) for x in pb.code_only(real).splitlines()] == [len(x) for x in real.splitlines()]
+
+
+def col7(*lines: str) -> str:
+    """Lines whose first character is the indicator area (column 7)."""
+    return "\n".join(f"{i * 100:06d}{ln}" for i, ln in enumerate(lines, 1)) + "\n"
+
+
+def test_debugging_lines_are_no_read_unless_debugging_mode_is_active():
+    """#5089: a column-7 `D` line is a comment unless WITH DEBUGGING MODE is active (a commented one does not count)."""
+    empty = {"eib": set(), "assign_task": set(), "assign_region": set()}
+    dbg = (
+        "D    MOVE EIBFN TO X.",
+        "D    EXEC CICS ASSIGN USERID(U) APPLID(A) STARTCODE(S) END-EXEC.",
+        "D    MOVE 'EXEC CICS ASSIGN USERID(U)",
+        "-    'END-EXEC' TO X.",
+    )
+    assert pb.facts_needed(col7(" MOVE 1 TO Y.", *dbg)) == empty
+    mode = "     SOURCE-COMPUTER. IBM-370 WITH DEBUGGING MODE."
+    got = pb.facts_needed(col7(mode, *dbg))
+    assert got["eib"] == {"EIBFN"} and got["assign_task"] == {"USERID", "STARTCODE"}  # active: they are code
+    assert pb.facts_needed(col7("*" + mode[1:], *dbg)) == empty  # a commented mode does not activate them
+    real = col7(dbg[0], "     MOVE EIBRCODE TO Y.")
+    assert pb.facts_needed(real)["eib"] == {"EIBRCODE"}
+    assert [len(x) for x in pb.code_only(real).splitlines()] == [len(x) for x in real.splitlines()]

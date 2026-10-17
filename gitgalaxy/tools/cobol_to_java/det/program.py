@@ -246,7 +246,9 @@ def structurable(proc: S.Procedure) -> bool:
         if p.section == p.name:
             return False
         for s in S.walk(p.body):
-            if s.kind == "GOTO" or (s.kind == "EXEC" and re.search(r"(?i)\bHANDLE\b", s.text)):
+            if s.kind == "GOTO" or (
+                s.kind == "EXEC" and re.search(r"(?is)\bHANDLE\b|\bWHENEVER\b.*\bGO\s*TO\b", s.text)
+            ):
                 return False
             if s.kind == "HOLE" and re.match(r"(?i)\s*ALTER\b", s.text):
                 return False
@@ -680,6 +682,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         from gitgalaxy.tools.cobol_to_java.det.sql import Sql
 
         gen.sql = Sql(gen, prog.name, gen.java_root, "\n".join(ln.text for ln in lines))
+        gen.sql.scan_whenever([s for p in proc.paragraphs for s in S.walk(p.body) if s.kind == "EXEC"])  # #4269
     repos = stub_files(stub)
     imports = stub_imports(stub)
     # programs this one CALLs that have a service: the stub's ObjectProvider<XService> ... .handleCall(

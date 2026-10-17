@@ -94,7 +94,7 @@ def test_return_code_is_kept_around_the_stub_call():
 @pytest.mark.parametrize(
     ("proc", "why"),
     [
-        (["EXEC SQL WHENEVER SQLERROR GO TO X END-EXEC"], "WHENEVER"),
+        (["EXEC SQL WHENEVER SQLERROR STOP END-EXEC"], "WHENEVER"),
         (["EXEC SQL UPDATE T SET A = 1 WHERE CURRENT OF C1 END-EXEC"], "not a declared cursor"),
         (["EXEC SQL PREPARE S1 FROM :HV-DESC END-EXEC"], "PREPARE"),
         (["EXEC SQL INSERT INTO T VALUES (:NOT-DECLARED) END-EXEC"], "not declared"),

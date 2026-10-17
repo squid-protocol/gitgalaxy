@@ -38,6 +38,7 @@ from typing import Any
 from gitgalaxy.core.compiler_options import compiler_options, effective
 from gitgalaxy.core.data_moves import rounding_facts
 from gitgalaxy.core.ebcdic_codecs import register as register_code_pages
+from gitgalaxy.core.relation_facts import collating_sequence, condition_ranges, relation_facts
 from gitgalaxy.core.source_text import read_source
 from gitgalaxy.core.special_names import special_names
 from gitgalaxy.core.unicode_paths import on_disk
@@ -343,6 +344,38 @@ def collation_rules(culture: dict[str, Any] | None) -> list[str]:
         f"{order}, while CobolCompare compares as the mainframe did. Where the program compares a key it "
         "browsed with another (a READNEXT loop ending on a limit, a control break), the two orders can "
         "disagree: flag it in a TODO rather than switching the comparison (#3986)."
+    ]
+
+
+def collation_facts(text: str, copybooks: list[str], source_root: Path | None,
+                    declared: str | None = None) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:  # fmt: skip
+    """#4035: (the alphanumeric or unresolved relation conditions, the collation-dependent level-88 ranges, the
+    collating-sequence declarations) of the program; the copybooks give the operands their classes."""
+    if not text:
+        return [], [], []
+    books = []
+    for c in copybooks:
+        path = on_disk(source_root, c) if source_root else None
+        if path is not None and path.is_file():
+            books.append(read_source(path, declared=declared).text)
+    rows = [r for r in relation_facts(text, books) if r["kind"] != "numeric"]
+    return rows, condition_ranges(text, books), collating_sequence(text)
+
+
+def collating_sequence_rules(sequences: list[dict[str, Any]]) -> list[str]:
+    """#4035: a custom PROGRAM COLLATING SEQUENCE / ALPHABET orders alphanumeric comparisons, which
+    CobolCompare (the code page's bytes) does not follow. Said where it applies, with the line."""
+    custom = [x for x in sequences if x["custom"] and x["clause"] == "PROGRAM COLLATING SEQUENCE"]
+    if not custom:
+        return []
+    x = custom[0]
+    return [
+        (
+            f"This program declares PROGRAM COLLATING SEQUENCE IS {x['name']} (line {x['line']}; "
+            f"{x['name']} IS {x['definition'] or 'not found in this file'}): its alphanumeric comparisons follow "
+            "that alphabet, not the code page's bytes, so CobolCompare gives a different answer for them. Leave "
+            "each comparison in the 'Alphanumeric relation conditions' table as a TODO naming its line (#4035)."
+        )
     ]
 
 
@@ -672,11 +705,13 @@ def build_ticket(key: str, skeleton: dict[str, Any], java_dir: Path, package: st
     to_port = [s for s in todo if s in entry] if entry else todo
     text = read_source(on_disk(source_root, prog["file"]), declared=declared).text if readable and source_root else ""
     rounding = rounding_facts(text) if readable else []  # #3825
+    relations, ranges, sequences = collation_facts(text, prog.get("copybooks", []), source_root, declared)  # #4035
     options = compiler_options(text)  # #3828
     file_control = (skeleton.get("sections", {}).get("file_control") or {}).get("facts") or []
     rules = list(PORTING_RULES) + option_rules(options) + line_sequential_rules(file_control)  # #3833
     rules += decimal_point_rules(text, target.get("culture"))  # #3984
     rules += collation_rules(target.get("culture"))  # #3986
+    rules += collating_sequence_rules(sequences)  # #4035
     rules += multibyte_rules(target.get("data"))  # #3985
     rules += bidi_rules(target.get("data"))  # #3987
     if (target.get("culture") or {}).get("rounding") == "half_even":  # #3819: a declared deviation
@@ -711,6 +746,9 @@ def build_ticket(key: str, skeleton: dict[str, Any], java_dir: Path, package: st
         "generated": generated,
         "worklist": [{k: it[k] for k in ("id", "category", "file", "line", "text")} for it in items],
         "rounding": rounding,
+        **({"relations": relations} if relations else {}),  # #4035: only when present
+        **({"condition_ranges": ranges} if ranges else {}),
+        **({"collating_sequence": sequences} if sequences else {}),
         "compiler_options": options,
         "rules": rules,
         "deliverable": {
@@ -755,6 +793,27 @@ def ticket_markdown(t: dict[str, Any]) -> str:
         for r in t["rounding"]:
             tgts = ", ".join(f"`{x['target']}`: {x['java']} ({x['mode']})" for x in r["targets"]) or "(truncates)"
             md.append(f"| {r['line']} | {r['verb']} | {tgts} | {'yes' if r['size_error'] else ''} |")
+    if t.get("relations"):  # #4035: the comparisons whose collation the port must keep
+        md += ["", "## Alphanumeric relation conditions", "",
+               "| line | context | condition | operands | call |", "|---:|---|---|---|---|"]  # fmt: skip
+        for r in t["relations"]:
+            call = f"`{r['java']}`" if r.get("java") else "operand class unresolved: check by hand"
+            md.append(f"| {r['line']} | {r['context']} | `{r['left']} {r['op']} {r['right']}` | "
+                      f"{r['left_class']} / {r['right_class']} | {call} |")  # fmt: skip
+    if t.get("condition_ranges"):
+        md += [
+            "",
+            "## Level-88 ranges over non-numeric items",
+            "",
+            "| line | condition | item | ranges |",
+            "|---:|---|---|---|",
+        ]
+        md += [
+            f"| {c['line']} | {c['name']} | {c['parent']} ({c['parent_class']}) | "
+            + ", ".join(f"`{r['lo']} THRU {r['hi']}`" for r in c["ranges"])
+            + " |"
+            for c in t["condition_ranges"]
+        ]
     if t.get("compiler_options"):  # #3828: the program's CBL / PROCESS cards
         md += ["", "## Compiler options (CBL / PROCESS cards)", "", "| line | option | as written |", "|---:|---|---|"]
         md += [f"| {o['line']} | {o['option']}{'(' + o['value'] + ')' if o.get('value') else ''} | `{o['written']}` |"

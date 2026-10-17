@@ -1,7 +1,7 @@
 name: OS Smoke Grid
 
-# #5130: the 3 OS x 3 Python smoke grid -- cheap, OS/Python-version-sensitive checks only (package installs, CLI entry
-# points, syntax floor). It used to run in smoke-test.yml on every push to main: 9 runners per merge (3 of them macOS,
+# #5130: the 3 OS x 2 Python smoke grid -- cheap, OS/Python-version-sensitive checks only (package installs, CLI entry
+# points, syntax floor). It used to run in smoke-test.yml on every push to main: 6 runners per merge (2 of them macOS,
 # the scarcest pool) competing with PR jobs. Now post-merge.yml dispatches it on main when no PR job is waiting, at most
 # once per cadence window and only when main changed a non-docs file since its last run (#5136), plus nightly and on
 # release tags. PRs never ran it: they get ubuntu/3.12 and the --help entry-point checks through smoke-test.yml's
@@ -34,7 +34,7 @@ jobs:
       OBJC_DISABLE_INITIALIZE_FORK_SAFETY: "YES"
     strategy:
       fail-fast: false
-      # #4518/#4520: the full 9-way grid
+      # #4518/#4520: the full 6-way grid (3.10 dropped, #3322)
       matrix:
         include: ${{ fromJSON('[{"os":"ubuntu-latest","python-version":"3.11"},{"os":"ubuntu-latest","python-version":"3.12"},{"os":"windows-latest","python-version":"3.11"},{"os":"windows-latest","python-version":"3.12"},{"os":"macos-latest","python-version":"3.11"},{"os":"macos-latest","python-version":"3.12"}]') }}
 

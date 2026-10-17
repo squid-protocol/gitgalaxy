@@ -178,7 +178,20 @@ def test_preview_rehearses_any_estate_and_writes_no_ledger(started, tmp_path, ca
     )
 
 
-def test_preview_honours_declared_exclusions(started, tmp_path, capsys):
+def test_preview_honours_declared_exclusions(started, tmp_path, capsys, monkeypatch):
+    # Both calls scan the same estate: run the scan once (it is the whole cost; the declaration is what is under test).
+    import java_target_matrix as jtm
+
+    cache: dict[str, object] = {}
+    for name in ("refactor", "generate"):
+        real = getattr(jtm, name)
+
+        def once(*a, _real=real, _name=name, **kw):
+            if _name not in cache:
+                cache[_name] = _real(*a, **kw)
+            return cache[_name]
+
+        monkeypatch.setattr(jtm, name, once)
     rc = trial.main(["--ledger", str(started["ledger"]), "preview", "x", "--estate-path", str(started["estate"]),
                      "--work", str(tmp_path / "w"), "--exclude", "FIXPGM=too hard"])  # fmt: skip
     assert rc == 0

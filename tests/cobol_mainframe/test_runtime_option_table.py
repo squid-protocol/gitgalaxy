@@ -7,6 +7,7 @@ Guide, panel DSNTIPF (DATE, TIME, DEC, DECPT) and DSNTIPF CCSIDs; CICS Resource 
 from __future__ import annotations
 
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -20,7 +21,13 @@ sys.path.insert(0, str(ROOT / "tests" / "tools"))
 import equivalence_common as common  # noqa: E402
 
 from gitgalaxy.core import estate_options as eo  # noqa: E402
-from gitgalaxy.core.runtime_options import RUNTIME_OPTION_TABLE, runtime_effect, runtime_unhonoured  # noqa: E402
+from gitgalaxy.core.runtime_options import (
+    CICS_CONVENTIONS,
+    RUNTIME_OPTION_TABLE,
+    conventions_rows,
+    runtime_effect,
+    runtime_unhonoured,
+)  # noqa: E402
 
 ESTATES = sorted((ROOT / "tests" / "equivalence" / "estate_options").glob("*.json"))
 PLAIN = "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P.\n"
@@ -158,3 +165,61 @@ def test_the_runtime_values_stay_in_the_fingerprint(put_estate):
     a = eo.effective_options(put_estate("le", "runtime_options.TRAP", "ON")).fingerprint()
     b = eo.effective_options(put_estate("le", "runtime_options.TRAP", "OFF")).fingerprint()
     assert a != b
+
+
+# --- the CICS conventions table (#4707): EIB fields and abends the ports rely on ---
+
+CORPORA = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", ""))
+EIB_WORD = re.compile(r"\bEIB[A-Z0-9]+\b", re.IGNORECASE)
+# EIB names that are not fields a program reads: the EIB copybook's own, and EIBTASKN12 (a CBSA user name).
+NOT_FIELDS = {
+    "EIBLK",
+    "EIBTASKN12",
+    "EIBDATE",
+    "EIBTIME",
+}  # EIBDATE / EIBTIME: set by the harness, read by no burned program
+
+
+def _burned_eib_fields():
+    """{field: {corpus}} for the EIB names the COBOL of each burned estate names."""
+    out: dict[str, set[str]] = {}
+    for path in sorted(ESTATES):
+        corpus = CORPORA / path.stem
+        if not corpus.is_dir():
+            continue
+        for src in corpus.rglob("*"):
+            if src.suffix.lower() in (".cbl", ".cob", ".cpy") and src.is_file():
+                for word in set(EIB_WORD.findall(src.read_text(encoding="latin-1"))):
+                    out.setdefault(word.upper(), set()).add(path.stem)
+    return out
+
+
+def test_every_convention_row_is_complete_and_links_a_register_entry():
+    register = ROOT / "docs" / "language_status" / "register"
+    for key, row in CICS_CONVENTIONS.items():
+        assert all(row[k] for k in ("changes", "cobc", "det", "otherwise")), key
+        assert row["register"] or "no register entry" in row["otherwise"], key
+        for rid in row["register"]:
+            assert (register / f"{rid}.md").is_file(), (key, rid)
+
+
+def test_the_register_lists_every_convention_row():
+    text = (ROOT / "docs" / "language_status" / "register" / "C18.md").read_text(encoding="utf-8")
+    assert not [row for row in conventions_rows() if row not in text]
+
+
+def test_every_eib_field_a_burned_corpus_names_has_a_row():
+    fields = _burned_eib_fields()
+    if not fields:
+        pytest.skip("no burned corpus checked out (GITGALAXY_MAINFRAME_CORPORA)")
+    missing = {f: sorted(c) for f, c in fields.items() if f not in CICS_CONVENTIONS and f not in NOT_FIELDS}
+    assert not missing
+
+
+def test_a_rows_used_by_names_only_corpora_that_use_the_field():
+    fields = _burned_eib_fields()
+    if not fields:
+        pytest.skip("no burned corpus checked out (GITGALAXY_MAINFRAME_CORPORA)")
+    for key, row in CICS_CONVENTIONS.items():
+        if key.startswith("EIB"):
+            assert set(row["used_by"]) <= fields.get(key, set()), key

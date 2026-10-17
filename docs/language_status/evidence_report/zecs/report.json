@@ -26,7 +26,7 @@
   },
   {
    "area": "CICS",
-   "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
+   "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD / D), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
    "id": "X19",
    "status": "ASSUMED (REFUSED where the harness cannot decide)"
   },
@@ -38,7 +38,7 @@
   },
   {
    "area": "CICS",
-   "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH of zero (one not shorter than the key is INVREQ 25, below zero 42: X52), a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+   "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); DELETE INVREQ RESP2 21 (ESDS), 22 (generic on a non-KSDS), 25 / 42 (GENERIC KEYLENGTH not shorter than the key / below zero) and 26 (KEYLENGTH without GENERIC) on both runtimes (#5092, as READ's: X52); refused: a GENERIC KEYLENGTH of zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched",
    "id": "X22",
    "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
   },
@@ -267,7 +267,7 @@
    "carddemo-cardlist": [
     36,
     36,
-    146,
+    147,
     149
    ],
    "carddemo-cardupdate": [
@@ -282,11 +282,29 @@
     69,
     75
    ],
+   "carddemo-coacct01": [
+    13,
+    13,
+    4,
+    31
+   ],
    "carddemo-cobtupdt": [
     9,
     9,
     16,
     20
+   ],
+   "carddemo-cobtupdt-generated": [
+    9,
+    9,
+    16,
+    20
+   ],
+   "carddemo-codate01": [
+    13,
+    13,
+    4,
+    26
    ],
    "carddemo-copaus2c": [
     2,
@@ -336,6 +354,12 @@
     29,
     33
    ],
+   "carddemo-paudbunl": [
+    9,
+    10,
+    20,
+    22
+   ],
    "carddemo-posttran": [
     26,
     26,
@@ -375,7 +399,7 @@
    "carddemo-report": [
     10,
     10,
-    51,
+    52,
     59
    ],
    "carddemo-signon": [
@@ -449,6 +473,12 @@
     25,
     58,
     97
+   ],
+   "cbsa-bnk1cca": [
+    25,
+    25,
+    29,
+    41
    ],
    "cbsa-bnk1ccs": null,
    "cbsa-bnk1cra": [
@@ -532,6 +562,7 @@
     13,
     14
    ],
+   "cbsa-delcus": null,
    "cbsa-getcompy": [
     2,
     2,
@@ -683,6 +714,12 @@
     6
    ],
    "genapp-lgipvs01": [
+    1,
+    1,
+    4,
+    6
+   ],
+   "genapp-lgipvs01-linked": [
     1,
     1,
     4,
@@ -945,17 +982,22 @@
       "line 1098: SET-ADDRESS ADDRESS OF ZF-DATA: not a LINKAGE 01 record (not modelled)",
       "line 1104: EXEC EXEC CICS: CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
       "line 1110: SET-ADDRESS CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
+      "line 1111: MOVE SAVE-ADDRESS-X: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)",
+      "line 1115: ARITH CACHE-ADDRESS-X: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)",
       "line 1134: SET-ADDRESS CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
+      "line 1147: ARITH CACHE-ADDRESS-X: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)",
       "line 1180: EXEC EXEC CICS: SAVE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
       "line 1195: SET-ADDRESS ADDRESS OF ZF-DATA: not a LINKAGE 01 record (not modelled)",
       "line 1198: SET-ADDRESS SAVE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
-      "line 1244: CALL ZUIDSTCK: no program of that name with a CALL entry in the estate",
+      "line 1244: CALL ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the 16 bytes it returns in THE-TOD are not a stated fact (oracle_assumptions.md X47)",
+      "line 1400: MOVE SAVE-ADDRESS-X: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)",
       "line 1487: SET-ADDRESS CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
+      "line 1519: ARITH CACHE-ADDRESS-X: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)",
       "line 1850: SET-ADDRESS SAVE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)"
      ],
      "kind": "cics",
      "statements": 561,
-     "translated": 549
+     "translated": 544
     },
     "source_read": true
    },
@@ -1174,10 +1216,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2",
+   "sha": "0e39ebb9b8a46b2825e2324f4b7efd94d4699d8a",
    "translator": {
-    "files": 110,
-    "sha256": "8e4c8ad432c035de8d200675e3ebe66ca5a3ec474615ec551ec75872eaf8c8a1"
+    "files": 126,
+    "sha256": "1d02555f73276b8385a1ef2be52bdf417590a64a664139c76429fda5ac969de2"
    }
   },
   "sweeps": {}
@@ -1436,6 +1478,57 @@
     "estate_file": true,
     "found": 0,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.packages",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "none"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.CICS_TS",
+      "provenance": "found",
+      "source": "System Requirements and Considerations.md:13",
+      "value": "4.2"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "CICS"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -1791,6 +1884,57 @@
     "estate_file": true,
     "found": 0,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.packages",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "none"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.CICS_TS",
+      "provenance": "found",
+      "source": "System Requirements and Considerations.md:13",
+      "value": "4.2"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "CICS"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -2210,13 +2354,13 @@
      },
      {
       "area": "CICS",
-      "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
+      "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD / D), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
       "id": "X19",
       "status": "ASSUMED (REFUSED where the harness cannot decide)"
      },
      {
       "area": "CICS",
-      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH of zero (one not shorter than the key is INVREQ 25, below zero 42: X52), a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); DELETE INVREQ RESP2 21 (ESDS), 22 (generic on a non-KSDS), 25 / 42 (GENERIC KEYLENGTH not shorter than the key / below zero) and 26 (KEYLENGTH without GENERIC) on both runtimes (#5092, as READ's: X52); refused: a GENERIC KEYLENGTH of zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      },
@@ -2342,6 +2486,57 @@
     "estate_file": true,
     "found": 0,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.packages",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "none"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.CICS_TS",
+      "provenance": "found",
+      "source": "System Requirements and Considerations.md:13",
+      "value": "4.2"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "CICS"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -2842,7 +3037,7 @@
      },
      {
       "area": "CICS",
-      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH of zero (one not shorter than the key is INVREQ 25, below zero 42: X52), a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); DELETE INVREQ RESP2 21 (ESDS), 22 (generic on a non-KSDS), 25 / 42 (GENERIC KEYLENGTH not shorter than the key / below zero) and 26 (KEYLENGTH without GENERIC) on both runtimes (#5092, as READ's: X52); refused: a GENERIC KEYLENGTH of zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      },
@@ -2951,6 +3146,57 @@
     "estate_file": true,
     "found": 0,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.packages",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "none"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.CICS_TS",
+      "provenance": "found",
+      "source": "System Requirements and Considerations.md:13",
+      "value": "4.2"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "CICS"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -3293,7 +3539,7 @@
      },
      {
       "area": "CICS",
-      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH of zero (one not shorter than the key is INVREQ 25, below zero 42: X52), a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); DELETE INVREQ RESP2 21 (ESDS), 22 (generic on a non-KSDS), 25 / 42 (GENERIC KEYLENGTH not shorter than the key / below zero) and 26 (KEYLENGTH without GENERIC) on both runtimes (#5092, as READ's: X52); refused: a GENERIC KEYLENGTH of zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      },
@@ -3406,7 +3652,7 @@
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "translated whole (12 holes left)"
+    "translated whole (17 holes left)"
    ],
    "options": {
     "assumed": 6,
@@ -3418,6 +3664,57 @@
     "estate_file": true,
     "found": 0,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.packages",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "none"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.CICS_TS",
+      "provenance": "found",
+      "source": "System Requirements and Considerations.md:13",
+      "value": "4.2"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "CICS"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -3926,7 +4223,7 @@
      "WRITEQ TD"
     ],
     "facts_unstated": 2,
-    "holes": 12,
+    "holes": 17,
     "paragraphs_unrun": null,
     "refused": null
    },
@@ -3936,15 +4233,18 @@
    "translation": {
     "gap_classes": [
      "<name> ADDRESS OF <name>: not a LINKAGE N record",
+     "<name>: a REDEFINES overlays a POINTER with it",
      "<name>: a pointer a REDEFINES overlays",
      "EXEC CICS <name>: a pointer a REDEFINES overlays",
-     "ZUIDSTCK: no program of that name with a CALL entry in the estate"
+     "ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the N bytes it returns in <name> are not a stated fact"
     ],
-    "hole_count": 12,
+    "hole_count": 17,
     "holes": [
-     "CALL ZUIDSTCK: no program of that name with a CALL entry in the estate",
+     "ARITH CACHE-ADDRESS-X: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)",
+     "CALL ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the 16 bytes it returns in THE-TOD are not a stated fact (oracle_assumptions.md X47)",
      "EXEC EXEC CICS: CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
      "EXEC EXEC CICS: SAVE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
+     "MOVE SAVE-ADDRESS-X: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)",
      "SET-ADDRESS ADDRESS OF ZF-DATA: not a LINKAGE 01 record (not modelled)",
      "SET-ADDRESS CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
      "SET-ADDRESS SAVE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)"
@@ -3952,7 +4252,7 @@
     "refused": null,
     "source_defects": [],
     "statements": 561,
-    "translated": 549,
+    "translated": 544,
     "whole": false
    }
   },
@@ -4003,6 +4303,57 @@
     "estate_file": true,
     "found": 0,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.packages",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "none"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.CICS_TS",
+      "provenance": "found",
+      "source": "System Requirements and Considerations.md:13",
+      "value": "4.2"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "CICS"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -4124,6 +4475,57 @@
     "estate_file": true,
     "found": 0,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.packages",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "none"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.CICS_TS",
+      "provenance": "found",
+      "source": "System Requirements and Considerations.md:13",
+      "value": "4.2"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "CICS"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -4201,18 +4603,18 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2",
-   "python tests/tools/evidence_report.py zecs --baseline --sha ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2",
+   "python tests/tools/cics_census.py survey --baseline --sha 0e39ebb9b8a46b2825e2324f4b7efd94d4699d8a",
+   "python tests/tools/evidence_report.py zecs --baseline --sha 0e39ebb9b8a46b2825e2324f4b7efd94d4699d8a",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs003,zecs-zecsplt",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
   "corpus_ref": "6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02",
   "coverage_from": "det-sweep coverage ledger, freshness at build time",
-  "crucible_baseline_ref": "v0.8.0 (afc1db0f)",
+  "crucible_baseline_ref": "v0.9.0 (3ca75ae0)",
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
-   "cics": "v0.8.0",
+   "cics": "v0.9.0",
    "estate": "v0.4.0",
    "language": "v1.7.0"
   },
@@ -4223,13 +4625,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2",
+   "sha": "0e39ebb9b8a46b2825e2324f4b7efd94d4699d8a",
    "translator": {
-    "files": 110,
-    "sha256": "8e4c8ad432c035de8d200675e3ebe66ca5a3ec474615ec551ec75872eaf8c8a1"
+    "files": 126,
+    "sha256": "1d02555f73276b8385a1ef2be52bdf417590a64a664139c76429fda5ac969de2"
    }
   },
-  "translator_commit": "ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2",
+  "translator_commit": "0e39ebb9b8a46b2825e2324f4b7efd94d4699d8a",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -4259,7 +4661,7 @@
    "L4": 0,
    "L5": 0
   },
-  "holes": 12,
+  "holes": 17,
   "levels_stale": 0,
   "levels_stale_survey": 0,
   "programs": 7,
@@ -4272,6 +4674,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "8e4c8ad432c035de8d200675e3ebe66ca5a3ec474615ec551ec75872eaf8c8a1"
+  "fingerprint": "1d02555f73276b8385a1ef2be52bdf417590a64a664139c76429fda5ac969de2"
  }
 }

@@ -26,7 +26,7 @@
   },
   {
    "area": "CICS",
-   "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; bytes never converted; CCSID options, SET, BYTEOFFSET, RETURN CHANNEL refused (MOVE and the browse: X42)",
+   "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; RETURN CHANNEL, BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42)",
    "id": "X17",
    "status": "ASSUMED (REFUSED where IBM is silent)"
   },
@@ -38,7 +38,7 @@
   },
   {
    "area": "CICS",
-   "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
+   "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD / D), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
    "id": "X19",
    "status": "ASSUMED (REFUSED where the harness cannot decide)"
   },
@@ -50,7 +50,7 @@
   },
   {
    "area": "CICS",
-   "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH of zero (one not shorter than the key is INVREQ 25, below zero 42: X52), a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+   "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); DELETE INVREQ RESP2 21 (ESDS), 22 (generic on a non-KSDS), 25 / 42 (GENERIC KEYLENGTH not shorter than the key / below zero) and 26 (KEYLENGTH without GENERIC) on both runtimes (#5092, as READ's: X52); refused: a GENERIC KEYLENGTH of zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched",
    "id": "X22",
    "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
   },
@@ -249,7 +249,7 @@
    "carddemo-cardlist": [
     36,
     36,
-    146,
+    147,
     149
    ],
    "carddemo-cardupdate": [
@@ -264,11 +264,29 @@
     69,
     75
    ],
+   "carddemo-coacct01": [
+    13,
+    13,
+    4,
+    31
+   ],
    "carddemo-cobtupdt": [
     9,
     9,
     16,
     20
+   ],
+   "carddemo-cobtupdt-generated": [
+    9,
+    9,
+    16,
+    20
+   ],
+   "carddemo-codate01": [
+    13,
+    13,
+    4,
+    26
    ],
    "carddemo-copaus2c": [
     2,
@@ -318,6 +336,12 @@
     29,
     33
    ],
+   "carddemo-paudbunl": [
+    9,
+    10,
+    20,
+    22
+   ],
    "carddemo-posttran": [
     26,
     26,
@@ -357,7 +381,7 @@
    "carddemo-report": [
     10,
     10,
-    51,
+    52,
     59
    ],
    "carddemo-signon": [
@@ -431,6 +455,12 @@
     25,
     58,
     97
+   ],
+   "cbsa-bnk1cca": [
+    25,
+    25,
+    29,
+    41
    ],
    "cbsa-bnk1ccs": null,
    "cbsa-bnk1cra": [
@@ -514,6 +544,7 @@
     13,
     14
    ],
+   "cbsa-delcus": null,
    "cbsa-getcompy": [
     2,
     2,
@@ -665,6 +696,12 @@
     6
    ],
    "genapp-lgipvs01": [
+    1,
+    1,
+    4,
+    6
+   ],
+   "genapp-lgipvs01-linked": [
     1,
     1,
     4,
@@ -1764,10 +1801,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2",
+   "sha": "0e39ebb9b8a46b2825e2324f4b7efd94d4699d8a",
    "translator": {
-    "files": 110,
-    "sha256": "8e4c8ad432c035de8d200675e3ebe66ca5a3ec474615ec551ec75872eaf8c8a1"
+    "files": 126,
+    "sha256": "1d02555f73276b8385a1ef2be52bdf417590a64a664139c76429fda5ac969de2"
    }
   },
   "sweeps": {}
@@ -2088,6 +2125,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -2340,7 +2491,7 @@
     "named_by_commands": [
      {
       "area": "CICS",
-      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; bytes never converted; CCSID options, SET, BYTEOFFSET, RETURN CHANNEL refused (MOVE and the browse: X42)",
+      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; RETURN CHANNEL, BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42)",
       "id": "X17",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -2448,6 +2599,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -2891,6 +3156,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -3243,6 +3622,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -3672,7 +4165,7 @@
      },
      {
       "area": "CICS",
-      "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
+      "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD / D), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
       "id": "X19",
       "status": "ASSUMED (REFUSED where the harness cannot decide)"
      },
@@ -3786,6 +4279,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -4273,6 +4880,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -4636,6 +5357,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -5016,6 +5851,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -5396,6 +6345,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -5743,6 +6806,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -6013,7 +7190,7 @@
      },
      {
       "area": "CICS",
-      "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
+      "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD / D), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
       "id": "X19",
       "status": "ASSUMED (REFUSED where the harness cannot decide)"
      },
@@ -6025,7 +7202,7 @@
      },
      {
       "area": "CICS",
-      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH of zero (one not shorter than the key is INVREQ 25, below zero 42: X52), a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); DELETE INVREQ RESP2 21 (ESDS), 22 (generic on a non-KSDS), 25 / 42 (GENERIC KEYLENGTH not shorter than the key / below zero) and 26 (KEYLENGTH without GENERIC) on both runtimes (#5092, as READ's: X52); refused: a GENERIC KEYLENGTH of zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      },
@@ -6115,6 +7292,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -6723,6 +8014,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -7103,6 +8508,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -7372,7 +8891,7 @@
      },
      {
       "area": "CICS",
-      "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
+      "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD / D), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
       "id": "X19",
       "status": "ASSUMED (REFUSED where the harness cannot decide)"
      },
@@ -7384,7 +8903,7 @@
      },
      {
       "area": "CICS",
-      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH of zero (one not shorter than the key is INVREQ 25, below zero 42: X52), a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); DELETE INVREQ RESP2 21 (ESDS), 22 (generic on a non-KSDS), 25 / 42 (GENERIC KEYLENGTH not shorter than the key / below zero) and 26 (KEYLENGTH without GENERIC) on both runtimes (#5092, as READ's: X52); refused: a GENERIC KEYLENGTH of zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      },
@@ -7436,6 +8955,17 @@
       },
       "record": null,
       "role": "program"
+     },
+     {
+      "case": "genapp-lgipvs01-linked",
+      "case_scenarios": 4,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
      }
     ],
     "chosen": {
@@ -7468,6 +8998,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -7959,6 +9603,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -8306,6 +10064,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -8706,9 +10578,16 @@
          "kind": "option",
          "note": "CODEPAGE(285): CODEPAGE(ccsid) sets the CCSID of compile-time and runtime character conversion (literals, collating, national <-> alphanumeric); the proof runs data in the case's data_encoding",
          "option": "CODEPAGE"
+        },
+        {
+         "applied": "data in the case's data_encoding",
+         "declared": "285",
+         "kind": "option",
+         "note": "db2.ccsid.EBCDIC_CCSID=285: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding",
+         "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:cbebfbef30c2d1897d3c35db11002d797915d962d8ad8b7ff600f07456ac669e",
+       "oracle_image": "sha256:34ea4945fbb0e84ae77d75d3d58febf8f86d7e3103efa3ad58abb4026a4dd98a",
        "oracle_matches_pin": true,
        "records_compared": 18,
        "records_equal": 18,
@@ -8789,9 +10668,16 @@
         "kind": "option",
         "note": "CODEPAGE(285): CODEPAGE(ccsid) sets the CCSID of compile-time and runtime character conversion (literals, collating, national <-> alphanumeric); the proof runs data in the case's data_encoding",
         "option": "CODEPAGE"
+       },
+       {
+        "applied": "data in the case's data_encoding",
+        "declared": "285",
+        "kind": "option",
+        "note": "db2.ccsid.EBCDIC_CCSID=285: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding",
+        "option": "db2.ccsid.EBCDIC_CCSID"
        }
       ],
-      "oracle_image": "sha256:cbebfbef30c2d1897d3c35db11002d797915d962d8ad8b7ff600f07456ac669e",
+      "oracle_image": "sha256:34ea4945fbb0e84ae77d75d3d58febf8f86d7e3103efa3ad58abb4026a4dd98a",
       "oracle_matches_pin": true,
       "records_compared": 18,
       "records_equal": 18,
@@ -8828,6 +10714,126 @@
       "declared": "285",
       "note": "CODEPAGE(285): CODEPAGE(ccsid) sets the CCSID of compile-time and runtime character conversion (literals, collating, national <-> alphanumeric); the proof runs data in the case's data_encoding",
       "option": "CODEPAGE"
+     },
+     {
+      "applied": "data in the case's data_encoding",
+      "declared": "285",
+      "note": "db2.ccsid.EBCDIC_CCSID=285: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding",
+      "option": "db2.ccsid.EBCDIC_CCSID"
+     }
+    ],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
      }
     ],
     "values": [
@@ -9221,6 +11227,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -9588,6 +11708,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -9988,6 +12222,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -10341,6 +12689,13 @@
          "kind": "option",
          "note": "CODEPAGE(285): CODEPAGE(ccsid) sets the CCSID of compile-time and runtime character conversion (literals, collating, national <-> alphanumeric); the proof runs data in the case's data_encoding",
          "option": "CODEPAGE"
+        },
+        {
+         "applied": "data in the case's data_encoding",
+         "declared": "285",
+         "kind": "option",
+         "note": "db2.ccsid.EBCDIC_CCSID=285: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding",
+         "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
        "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
@@ -10440,6 +12795,13 @@
         "kind": "option",
         "note": "CODEPAGE(285): CODEPAGE(ccsid) sets the CCSID of compile-time and runtime character conversion (literals, collating, national <-> alphanumeric); the proof runs data in the case's data_encoding",
         "option": "CODEPAGE"
+       },
+       {
+        "applied": "data in the case's data_encoding",
+        "declared": "285",
+        "kind": "option",
+        "note": "db2.ccsid.EBCDIC_CCSID=285: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding",
+        "option": "db2.ccsid.EBCDIC_CCSID"
        }
       ],
       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
@@ -10479,6 +12841,126 @@
       "declared": "285",
       "note": "CODEPAGE(285): CODEPAGE(ccsid) sets the CCSID of compile-time and runtime character conversion (literals, collating, national <-> alphanumeric); the proof runs data in the case's data_encoding",
       "option": "CODEPAGE"
+     },
+     {
+      "applied": "data in the case's data_encoding",
+      "declared": "285",
+      "note": "db2.ccsid.EBCDIC_CCSID=285: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding",
+      "option": "db2.ccsid.EBCDIC_CCSID"
+     }
+    ],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
      }
     ],
     "values": [
@@ -10721,7 +13203,7 @@
     "named_by_commands": [
      {
       "area": "CICS",
-      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH of zero (one not shorter than the key is INVREQ 25, below zero 42: X52), a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); DELETE INVREQ RESP2 21 (ESDS), 22 (generic on a non-KSDS), 25 / 42 (GENERIC KEYLENGTH not shorter than the key / below zero) and 26 (KEYLENGTH without GENERIC) on both runtimes (#5092, as READ's: X52); refused: a GENERIC KEYLENGTH of zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      },
@@ -10877,6 +13359,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -11207,9 +13803,16 @@
          "kind": "option",
          "note": "CODEPAGE(285): CODEPAGE(ccsid) sets the CCSID of compile-time and runtime character conversion (literals, collating, national <-> alphanumeric); the proof runs data in the case's data_encoding",
          "option": "CODEPAGE"
+        },
+        {
+         "applied": "data in the case's data_encoding",
+         "declared": "285",
+         "kind": "option",
+         "note": "db2.ccsid.EBCDIC_CCSID=285: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding",
+         "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:cbebfbef30c2d1897d3c35db11002d797915d962d8ad8b7ff600f07456ac669e",
+       "oracle_image": "sha256:34ea4945fbb0e84ae77d75d3d58febf8f86d7e3103efa3ad58abb4026a4dd98a",
        "oracle_matches_pin": true,
        "records_compared": 24,
        "records_equal": 24,
@@ -11288,9 +13891,16 @@
         "kind": "option",
         "note": "CODEPAGE(285): CODEPAGE(ccsid) sets the CCSID of compile-time and runtime character conversion (literals, collating, national <-> alphanumeric); the proof runs data in the case's data_encoding",
         "option": "CODEPAGE"
+       },
+       {
+        "applied": "data in the case's data_encoding",
+        "declared": "285",
+        "kind": "option",
+        "note": "db2.ccsid.EBCDIC_CCSID=285: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding",
+        "option": "db2.ccsid.EBCDIC_CCSID"
        }
       ],
-      "oracle_image": "sha256:cbebfbef30c2d1897d3c35db11002d797915d962d8ad8b7ff600f07456ac669e",
+      "oracle_image": "sha256:34ea4945fbb0e84ae77d75d3d58febf8f86d7e3103efa3ad58abb4026a4dd98a",
       "oracle_matches_pin": true,
       "records_compared": 24,
       "records_equal": 24,
@@ -11327,6 +13937,126 @@
       "declared": "285",
       "note": "CODEPAGE(285): CODEPAGE(ccsid) sets the CCSID of compile-time and runtime character conversion (literals, collating, national <-> alphanumeric); the proof runs data in the case's data_encoding",
       "option": "CODEPAGE"
+     },
+     {
+      "applied": "data in the case's data_encoding",
+      "declared": "285",
+      "note": "db2.ccsid.EBCDIC_CCSID=285: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding",
+      "option": "db2.ccsid.EBCDIC_CCSID"
+     }
+    ],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
      }
     ],
     "values": [
@@ -11590,7 +14320,7 @@
      },
      {
       "area": "CICS",
-      "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
+      "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD / D), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
       "id": "X19",
       "status": "ASSUMED (REFUSED where the harness cannot decide)"
      },
@@ -11847,6 +14577,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -12377,6 +15221,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -13000,6 +15958,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -13539,6 +16611,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -14078,6 +17264,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -14617,6 +17917,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -15060,7 +18474,7 @@
      },
      {
       "area": "CICS",
-      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH of zero (one not shorter than the key is INVREQ 25, below zero 42: X52), a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); DELETE INVREQ RESP2 21 (ESDS), 22 (generic on a non-KSDS), 25 / 42 (GENERIC KEYLENGTH not shorter than the key / below zero) and 26 (KEYLENGTH without GENERIC) on both runtimes (#5092, as READ's: X52); refused: a GENERIC KEYLENGTH of zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      },
@@ -15189,6 +18603,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -15471,7 +18999,7 @@
      },
      {
       "area": "CICS",
-      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH of zero (one not shorter than the key is INVREQ 25, below zero 42: X52), a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); DELETE INVREQ RESP2 21 (ESDS), 22 (generic on a non-KSDS), 25 / 42 (GENERIC KEYLENGTH not shorter than the key / below zero) and 26 (KEYLENGTH without GENERIC) on both runtimes (#5092, as READ's: X52); refused: a GENERIC KEYLENGTH of zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched",
       "id": "X22",
       "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
      },
@@ -15625,9 +19153,16 @@
          "kind": "option",
          "note": "CODEPAGE(285): CODEPAGE(ccsid) sets the CCSID of compile-time and runtime character conversion (literals, collating, national <-> alphanumeric); the proof runs data in the case's data_encoding",
          "option": "CODEPAGE"
+        },
+        {
+         "applied": "data in the case's data_encoding",
+         "declared": "285",
+         "kind": "option",
+         "note": "db2.ccsid.EBCDIC_CCSID=285: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding",
+         "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:cbebfbef30c2d1897d3c35db11002d797915d962d8ad8b7ff600f07456ac669e",
+       "oracle_image": "sha256:34ea4945fbb0e84ae77d75d3d58febf8f86d7e3103efa3ad58abb4026a4dd98a",
        "oracle_matches_pin": true,
        "records_compared": 18,
        "records_equal": 18,
@@ -15693,6 +19228,120 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -15965,25 +19614,25 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2",
-   "python tests/tools/evidence_report.py cics-genapp --baseline --sha ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2",
+   "python tests/tools/cics_census.py survey --baseline --sha 0e39ebb9b8a46b2825e2324f4b7efd94d4699d8a",
+   "python tests/tools/evidence_report.py cics-genapp --baseline --sha 0e39ebb9b8a46b2825e2324f4b7efd94d4699d8a",
    "python tests/tools/evidence_report.py --refresh",
-   "python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb02,genapp-lgacus01,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapol01,genapp-lgapvs01,genapp-lgastat1,genapp-lgdpdb01,genapp-lgdpol01,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicus01,genapp-lgicvs01,genapp-lgipdb01,genapp-lgipol01,genapp-lgipvs01,genapp-lgsetup,genapp-lgtestc1,genapp-lgtestp1,genapp-lgtestp2,genapp-lgtestp3,genapp-lgtestp4,genapp-lgucdb01,genapp-lgucus01,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupol01,genapp-lgupvs01,genapp-lgwebst5  # Db2 cases (20) need the Db2 container",
+   "python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb02,genapp-lgacus01,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapol01,genapp-lgapvs01,genapp-lgastat1,genapp-lgdpdb01,genapp-lgdpol01,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicus01,genapp-lgicvs01,genapp-lgipdb01,genapp-lgipol01,genapp-lgipvs01,genapp-lgipvs01-linked,genapp-lgsetup,genapp-lgtestc1,genapp-lgtestp1,genapp-lgtestp2,genapp-lgtestp3,genapp-lgtestp4,genapp-lgucdb01,genapp-lgucus01,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupol01,genapp-lgupvs01,genapp-lgwebst5  # Db2 cases (20) need the Db2 container",
    "python tests/tools/evidence.py prove genapp-lgapvs01 genapp-lgicdb01 genapp-lgupdb01",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
   "corpus_ref": "f6f3f4b2580d31b7d8dcc31ce3e3676f4cceaaaa",
   "coverage_from": "det-sweep coverage ledger, freshness at build time",
-  "crucible_baseline_ref": "v0.8.0 (afc1db0f)",
+  "crucible_baseline_ref": "v0.9.0 (3ca75ae0)",
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
-   "cics": "v0.8.0",
+   "cics": "v0.9.0",
    "estate": "v0.4.0",
    "language": "v1.7.0"
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:cbebfbef30c2d1897d3c35db11002d797915d962d8ad8b7ff600f07456ac669e",
+   "sha256:34ea4945fbb0e84ae77d75d3d58febf8f86d7e3103efa3ad58abb4026a4dd98a",
    "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
@@ -15991,13 +19640,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2",
+   "sha": "0e39ebb9b8a46b2825e2324f4b7efd94d4699d8a",
    "translator": {
-    "files": 110,
-    "sha256": "8e4c8ad432c035de8d200675e3ebe66ca5a3ec474615ec551ec75872eaf8c8a1"
+    "files": 126,
+    "sha256": "1d02555f73276b8385a1ef2be52bdf417590a64a664139c76429fda5ac969de2"
    }
   },
-  "translator_commit": "ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2",
+  "translator_commit": "0e39ebb9b8a46b2825e2324f4b7efd94d4699d8a",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -16040,6 +19689,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "8e4c8ad432c035de8d200675e3ebe66ca5a3ec474615ec551ec75872eaf8c8a1"
+  "fingerprint": "1d02555f73276b8385a1ef2be52bdf417590a64a664139c76429fda5ac969de2"
  }
 }

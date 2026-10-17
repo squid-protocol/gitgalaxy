@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `0e39ebb9b8a46b2825e2324f4b7efd94d4699d8a` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `8e4c8ad432c0`).
+The translation survey matches the translator in the tree (translator fingerprint `1d02555f7327`).
 
 ## How to read this report
 
@@ -51,7 +51,7 @@ The translation survey matches the translator in the tree (translator fingerprin
 - L2+: 3 (0 awaiting re-check); L3+: 2 (0 awaiting re-check); L4+: 1 (0 awaiting re-check)
 
 - programs: 7 (with an EXEC CICS command: 5; source not read: 0)
-- translated whole: 4; refused whole: 2; holes left: 12
+- translated whole: 4; refused whole: 2; holes left: 17
 - with an equivalence case: 4; det port equal on its case: 3; with an evidence record: 0; record current at build: 0
 
 ## Options the estate compiles and runs under
@@ -87,7 +87,7 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 | Source/ECS001.cbl | L3 | 105/105 | 0 | zecs-ecs001 | equal | 22 | none | 15/15 (100.0%) | 15/18 (83.3%) | 15/18 (83.3%) | not yet measured (#4628) | 3/7 |
 | Source/ZECS000.cbl | L2 | 173/173 | 0 | zecs-zecs000 | equal | 3 | none | 9/38 (23.7%) | 8/46 (17.4%) | 8/46 (17.4%) | not yet measured (#4628) | 5/22 |
 | Source/ZECS003.cbl | L1 | 73/73 | 0 | zecs-zecs003 | not equal | 12 | none | not measured | not measured | not measured | not yet measured (#4628) | 1/12 |
-| Source/ZECS001.cbl | L0 | 549/561 | 12 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 3/27 |
+| Source/ZECS001.cbl | L0 | 544/561 | 17 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | 3/27 |
 | Source/ZECS002.asm | L0 | refused | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | — |
 | Source/ZECSNC.asm | L0 | refused | 0 | — | — | — | — | not measured | not measured | not measured | not yet measured (#4628) | — |
 
@@ -99,6 +99,7 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 - **Next level needs:** every surviving mutant of the det port accounted for: not yet measured (#4628)
 - **Translation:** 27/27 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; cics.region.CICS_TS=4.2 [no effect; found at System Requirements and Considerations.md:13]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
 - **Executed equivalence** (zecs-zecsplt, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (4 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 11/11 (100.0%), branch outcomes 6/6 (100.0%) raw, 6/6 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
@@ -123,6 +124,7 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 - **Next level needs:** branch coverage >= 100.0 net (now 83.3 raw, 83.3 net of the reviewed infeasible outcomes)
 - **Translation:** 105/105 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; cics.region.CICS_TS=4.2 [no effect; found at System Requirements and Considerations.md:13]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
 - **Executed equivalence** (zecs-ecs001, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (22 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 15/15 (100.0%), branch outcomes 15/18 (83.3%) raw, 15/18 (83.3%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
@@ -149,6 +151,7 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 - **Next level needs:** paragraph coverage >= 100.0 (now 23.7)
 - **Translation:** 173/173 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; cics.region.CICS_TS=4.2 [no effect; found at System Requirements and Considerations.md:13]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
 - **Executed equivalence** (zecs-zecs000, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (3 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 9/38 (23.7%), branch outcomes 8/46 (17.4%) raw, 8/46 (17.4%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
@@ -190,6 +193,7 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 - **Next level needs:** its det port equal on every scenario of zecs-zecs003: ledgered as differing in det_sweep_baseline.json (#5076): ZECS003 reads and deletes records of the instance's files ZC##FILE and ZC##KEY, named at run time from EIBTRNID; zECS defines them in IDCAMS jobs with install placeholders (@ECS_HLQ@ ...) in the dataset names, so no case can state their records and the generated project stores no such file: the Java side refuses the READ of ZC01FILE by name ('Hole: CICS file ZC01FILE: the program names no file the generated project stores') where GnuCOBOL answers FILENOTFOUND. The scenarios cover the COMMAREA, the document template, the WEB PARSE / OPEN / CONVERSE / CLOSE replication and the WEB SEND on the COBOL side; the expired-record browse and 3100-DELETE are not covered and not shown equal.
 - **Translation:** 73/73 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; cics.region.CICS_TS=4.2 [no effect; found at System Requirements and Considerations.md:13]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
 - **Executed equivalence** (zecs-zecs003, program, the case this report judges): det port not equal (ledgered as differing in det_sweep_baseline.json (#5076): ZECS003 reads and deletes records of the instance's files ZC##FILE and ZC##KEY, named at run time from EIBTRNID; zECS defines them in IDCAMS jobs with install placeholders (@ECS_HLQ@ ...) in the dataset names, so no case can state their records and the generated project stores no such file: the Java side refuses the READ of ZC01FILE by name ('Hole: CICS file ZC01FILE: the program names no file the generated project stores') where GnuCOBOL answers FILENOTFOUND. The scenarios cover the COMMAREA, the document template, the WEB PARSE / OPEN / CONVERSE / CLOSE replication and the WEB SEND on the COBOL side; the expired-record browse and 3100-DELETE are not covered and not shown equal.)
   - evidence record: none (12 scenarios in case.json)
 - **Coverage:** not measured
@@ -217,15 +221,18 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 
 ### Source/ZECS001.cbl -- L0
 
-- **Next level needs:** translated whole (12 holes left)
-- **Translation:** 549/561 statements, 12 holes; whole: no
-  - hole: CALL ZUIDSTCK: no program of that name with a CALL entry in the estate
+- **Next level needs:** translated whole (17 holes left)
+- **Translation:** 544/561 statements, 17 holes; whole: no
+  - hole: ARITH CACHE-ADDRESS-X: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)
+  - hole: CALL ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the 16 bytes it returns in THE-TOD are not a stated fact (oracle_assumptions.md X47)
   - hole: EXEC EXEC CICS: CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)
   - hole: EXEC EXEC CICS: SAVE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)
+  - hole: MOVE SAVE-ADDRESS-X: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)
   - hole: SET-ADDRESS ADDRESS OF ZF-DATA: not a LINKAGE 01 record (not modelled)
   - hole: SET-ADDRESS CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)
   - hole: SET-ADDRESS SAVE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)
 - **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; cics.region.CICS_TS=4.2 [no effect; found at System Requirements and Considerations.md:13]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -265,13 +272,14 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
   - runtime fact no harness states: EIB field EIBDS (both runtimes read zero; z/OS does not)
   - runtime fact no harness states: EIB field EIBRCODE (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not yet measured (#4628)
-- **Residual risk:** 12 holes; 2 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X22, X27, X30, X33, X34, X35, X36, X37, X38, X45, X46, X47, X52, X53; commands without oracle backing: ASKTIME, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, FORMATTIME, FREEMAIN, GET COUNTER, GETMAIN, INQUIRE PROGRAM, READ, REWRITE, SYNCPOINT, SYNCPOINT ROLLBACK, WEB CLOSE, WEB CONVERSE, WEB EXTRACT, WEB OPEN, WEB PARSE URL, WEB READ HTTPHEADER, WEB RECEIVE, WEB SEND, WEB WRITE HTTPHEADER, WRITE, WRITEQ TD; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 17 holes; 2 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X22, X27, X30, X33, X34, X35, X36, X37, X38, X45, X46, X47, X52, X53; commands without oracle backing: ASKTIME, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, FORMATTIME, FREEMAIN, GET COUNTER, GETMAIN, INQUIRE PROGRAM, READ, REWRITE, SYNCPOINT, SYNCPOINT ROLLBACK, WEB CLOSE, WEB CONVERSE, WEB EXTRACT, WEB OPEN, WEB PARSE URL, WEB READ HTTPHEADER, WEB RECEIVE, WEB SEND, WEB WRITE HTTPHEADER, WRITE, WRITEQ TD; assumption reach and the migration dimensions above: not measured
 
 ### Source/ZECS002.asm -- L0
 
 - **Next level needs:** translated whole (refused whole by the translator)
 - **Translation:** refused whole: refused: CICS Assembler
 - **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; cics.region.CICS_TS=4.2 [no effect; found at System Requirements and Considerations.md:13]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing:** no EXEC CICS command
@@ -284,6 +292,7 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 - **Next level needs:** translated whole (refused whole by the translator)
 - **Translation:** refused whole: refused: CICS Assembler
 - **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; cics.region.CICS_TS=4.2 [no effect; found at System Requirements and Considerations.md:13]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing:** no EXEC CICS command
@@ -301,9 +310,9 @@ From the spec entries of the commands the programs use, with the register's stat
 | X14 | CICS | ASSUMED (REFUSED where IBM is silent) | READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused |
 | X15 | CICS | ASSUMED (REFUSED where IBM is silent) | Terminal RECEIVE (INTO / SET, LENGTH, MAXLENGTH, NOTRUNCATE; LENGERR, EOC on an LUTYPE2 terminal) and SEND CONTROL |
 | X18 | CICS | ASSUMED (REFUSED where IBM is silent) | Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE, CHANNEL), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD (NOSUSPEND, TIMEOUT or waiting), FREE CHILD, and DELAY as the wait that dispatches RUN children (#4950); the child schedule, TIME RESP2 and the order of out-of-range checks assumed; ties, a child's region-resource commands, RETRIEVE SET / WAIT refused |
-| X19 | CICS | ASSUMED (REFUSED where the harness cannot decide) | ASSIGN on the det port: STARTCODE (TD / S / SD), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused |
+| X19 | CICS | ASSUMED (REFUSED where the harness cannot decide) | ASSIGN on the det port: STARTCODE (TD / S / SD / D), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused |
 | X20 | CICS | MATCHED (REFUSED where the region cannot decide) | SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused |
-| X22 | CICS | ASSUMED (REFUSED where IBM is silent or the layout decides) | READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); a GENERIC KEYLENGTH of zero (one not shorter than the key is INVREQ 25, below zero 42: X52), a non-constant KEYLENGTH and a RIDFLD shorter than the key searched refused |
+| X22 | CICS | ASSUMED (REFUSED where IBM is silent or the layout decides) | READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); DELETE INVREQ RESP2 21 (ESDS), 22 (generic on a non-KSDS), 25 / 42 (GENERIC KEYLENGTH not shorter than the key / below zero) and 26 (KEYLENGTH without GENERIC) on both runtimes (#5092, as READ's: X52); refused: a GENERIC KEYLENGTH of zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched |
 | X27 | CICS | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: "ignored if the link is local"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused |
 | X30 | CICS | ASSUMED (REFUSED where IBM is silent) | DEFINE COUNTER (COUNTER / POOL / VALUE; none: the initial value zero; a counter that exists: INVREQ RESP2 202; a pool or counter name outside IBM's characters: INVREQ RESP2 403 / 404) and DELETE COUNTER (a counter that is not there: INVREQ RESP2 201; a pool outside IBM's characters: 403); GET COUNTER and QUERY COUNTER answer INVREQ RESP2 201 for a counter that is not there (GET COUNTER answered NOTFND before: IBM lists none) and 403 / 404 for a bad pool / name; MINIMUM / MAXIMUM / NOSUSPEND / DCOUNTER, a VALUE below zero and a counter name of blanks refused |
 | X32 | CICS | ASSUMED (REFUSED where IBM is silent) | INQUIRE URIMAP's browse (START / NEXT / END with URIMAP, PATH, TRANSACTION: END RESP2 2 past the last definition, ILLOGIC RESP2 1 for a START while one is open; the installed definitions and their order are stated by whoever runs the task; a short value is padded with blanks; the areas are left alone on any condition other than NORMAL) and WRITE OPERATOR (TEXT only; recorded as a WRITE-OPERATOR event); the direct form INQUIRE URIMAP(name) (modelled since #4768, X34), every other URIMAP attribute, a NEXT / END with no browse, and a console text IBM reformats (DFHnnnn / DFHaannnn, or over 113 characters) refused |
@@ -322,9 +331,9 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2`
+- translator commit (the survey's): `0e39ebb9b8a46b2825e2324f4b7efd94d4699d8a`
 - corpus pin: `zecs` at `6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02`
-- crucible pins: cics `v0.8.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.8.0 (afc1db0f)`; crucible cases per command measured at `v0.5.0`
+- crucible pins: cics `v0.9.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.9.0 (3ca75ae0)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
 - oracle images the evidence records ran on: none
@@ -332,8 +341,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2
-python tests/tools/evidence_report.py zecs --baseline --sha ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2
+python tests/tools/cics_census.py survey --baseline --sha 0e39ebb9b8a46b2825e2324f4b7efd94d4699d8a
+python tests/tools/evidence_report.py zecs --baseline --sha 0e39ebb9b8a46b2825e2324f4b7efd94d4699d8a
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs003,zecs-zecsplt
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

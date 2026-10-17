@@ -2,7 +2,7 @@
  "assumptions_named": [
   {
    "area": "CICS",
-   "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; bytes never converted; CCSID options, SET, BYTEOFFSET, RETURN CHANNEL refused (MOVE and the browse: X42)",
+   "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; RETURN CHANNEL, BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42)",
    "id": "X17",
    "status": "ASSUMED (REFUSED where IBM is silent)"
   },
@@ -41,6 +41,12 @@
    "entry": "READ NOTFND RESP2 80 and INVREQ 25 / 26 / 42 for a KEYLENGTH (#5092), READ UPDATE TOKEN(d) returns a fullword token for the record held; REWRITE / DELETE / UNLOCK TOKEN(t) act on that record, and a token that matches none in use (never issued, spent, another file's) is INVREQ RESP2 47; a SYNCPOINT ends every token. The token's value is ASSUMED (the task's 1, 2, 3, ...). Refused: READNEXT / READPREV UPDATE [TOKEN] (RLS only), DELETE TOKEN with RIDFLD or GENERIC, REWRITE TOKEN whose FROM has another key",
    "id": "X52",
    "status": "ASSUMED (REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "Every EXEC CICS command the det translator does not model is a hole named after the command, never a guess. This entry lists them by class with the reason: BTS (40 commands), APPC / DTP conversations (13) and GDS (14), batch data interchange ISSUE (13), security (12), terminal control beyond one 3270 display (11), SOAP / WS-Addressing (9), journals (5), JES spool (5), TRANSFORM (4), DOCUMENT INSERT / SET / DELETE (3), OpenTelemetry (3), 64-bit GET64 / PUT64 CONTAINER and GETMAIN64 / FREEMAIN64 (4), partitions (2), trace and monitoring (2), and LOAD and RELEASE (engine-only: the engine derives the edge, the translator refuses them), and single commands (SUSPEND, ISSUE PASS, ROUTE, ADDRESS SET, RESETBR, INVOKE APPLICATION, BIF DIGEST, CHANGE TASK, CONVERTTIME, INQUIRE CONTAINER). Each command's own reason is its entry in gitgalaxy/standards/cics/commands/api.py (the translator's hole message); X46 (DUMP TRANSACTION), X59 and X63 keep their own entries",
+   "id": "X65",
+   "status": "REFUSED"
   }
  ],
  "bars": {
@@ -177,7 +183,7 @@
    "carddemo-cardlist": [
     36,
     36,
-    146,
+    147,
     149
    ],
    "carddemo-cardupdate": [
@@ -192,11 +198,29 @@
     69,
     75
    ],
+   "carddemo-coacct01": [
+    13,
+    13,
+    4,
+    31
+   ],
    "carddemo-cobtupdt": [
     9,
     9,
     16,
     20
+   ],
+   "carddemo-cobtupdt-generated": [
+    9,
+    9,
+    16,
+    20
+   ],
+   "carddemo-codate01": [
+    13,
+    13,
+    4,
+    26
    ],
    "carddemo-copaus2c": [
     2,
@@ -246,6 +270,12 @@
     29,
     33
    ],
+   "carddemo-paudbunl": [
+    9,
+    10,
+    20,
+    22
+   ],
    "carddemo-posttran": [
     26,
     26,
@@ -285,7 +315,7 @@
    "carddemo-report": [
     10,
     10,
-    51,
+    52,
     59
    ],
    "carddemo-signon": [
@@ -359,6 +389,12 @@
     25,
     58,
     97
+   ],
+   "cbsa-bnk1cca": [
+    25,
+    25,
+    29,
+    41
    ],
    "cbsa-bnk1ccs": null,
    "cbsa-bnk1cra": [
@@ -442,6 +478,7 @@
     13,
     14
    ],
+   "cbsa-delcus": null,
    "cbsa-getcompy": [
     2,
     2,
@@ -593,6 +630,12 @@
     6
    ],
    "genapp-lgipvs01": [
+    1,
+    1,
+    4,
+    6
+   ],
+   "genapp-lgipvs01-linked": [
     1,
     1,
     4,
@@ -913,8 +956,6 @@
     "program": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
     "row": {
      "holes": [
-      "line 210: EXEC EXEC CICS: GET CONTAINER INTOCCSID: option not modelled (INTOCCSID: code-page conversion of a CHAR container is not modelled)",
-      "line 219: EXEC EXEC CICS: PUT CONTAINER FROMCCSID: option not modelled (FROMCCSID: code-page conversion of a CHAR container is not modelled)",
       "line 244: EXEC EXEC CICS: GETMAIN without INITIMG: IBM gives acquired storage no default contents",
       "line 254: EXEC EXEC CICS: GETMAIN without INITIMG: IBM gives acquired storage no default contents",
       "line 269: CALL CALL EPSCSMRX",
@@ -928,7 +969,7 @@
      ],
      "kind": "cics",
      "statements": 59,
-     "translated": 47
+     "translated": 49
     },
     "source_read": true
    },
@@ -1166,10 +1207,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2",
+   "sha": "0e39ebb9b8a46b2825e2324f4b7efd94d4699d8a",
    "translator": {
-    "files": 110,
-    "sha256": "8e4c8ad432c035de8d200675e3ebe66ca5a3ec474615ec551ec75872eaf8c8a1"
+    "files": 126,
+    "sha256": "1d02555f73276b8385a1ef2be52bdf417590a64a664139c76429fda5ac969de2"
    }
   },
   "sweeps": {}
@@ -1413,6 +1454,92 @@
     "estate_file": true,
     "found": 0,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.packages",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "none"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.ccsid.SQLCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "zBuilder/LanguageConfiguration/application/config/epscmort.cbl.yaml:3",
+      "value": "integrated (compileParms CICS,SQL)"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "zBuilder/LanguageConfiguration/application/config/epscsmrt.cbl.yaml:3",
+      "value": "CICS"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -1606,6 +1733,92 @@
     "estate_file": true,
     "found": 0,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.packages",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "none"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.ccsid.SQLCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "zBuilder/LanguageConfiguration/application/config/epscmort.cbl.yaml:3",
+      "value": "integrated (compileParms CICS,SQL)"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "zBuilder/LanguageConfiguration/application/config/epscsmrt.cbl.yaml:3",
+      "value": "CICS"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -1963,6 +2176,92 @@
     "estate_file": true,
     "found": 0,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.packages",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "none"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.ccsid.SQLCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "zBuilder/LanguageConfiguration/application/config/epscmort.cbl.yaml:3",
+      "value": "integrated (compileParms CICS,SQL)"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "zBuilder/LanguageConfiguration/application/config/epscsmrt.cbl.yaml:3",
+      "value": "CICS"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -2400,6 +2699,92 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.packages",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "none"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.ccsid.SQLCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "zBuilder/LanguageConfiguration/application/config/epscmort.cbl.yaml:3",
+      "value": "integrated (compileParms CICS,SQL)"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "zBuilder/LanguageConfiguration/application/config/epscsmrt.cbl.yaml:3",
+      "value": "CICS"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -2479,7 +2864,7 @@
     "named_by_commands": [
      {
       "area": "CICS",
-      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; bytes never converted; CCSID options, SET, BYTEOFFSET, RETURN CHANNEL refused (MOVE and the browse: X42)",
+      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; RETURN CHANNEL, BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42)",
       "id": "X17",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -2500,6 +2885,12 @@
       "entry": "A USAGE POINTER item holds the handle of a block of task storage; GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(byte) acquires one (every byte the INITIMG value; LENGERR RESP2 1 for FLENGTH below 1 or LENGTH zero, the pointer then zero), FREEMAIN DATAPOINTER(ptr) releases it (INVREQ RESP2 1 for an address GETMAIN did not return: a null pointer, a record's address), WEB RECEIVE SET(ptr) LENGTH(area) [MAXLENGTH] puts the request body in a new block (MAXLENGTH optional: all of it; LENGERR RESP2 16 leaves the pointer as it was, RESP2 57 cuts the body and sets it), SET ADDRESS OF record TO pointer / TO ADDRESS OF record makes a LINKAGE 01 record's bytes the block's (a real alias), SET pointer TO ADDRESS OF record gives the record's handle; refused: GETMAIN without INITIMG, a literal INITIMG, SHARED, NOSUSPEND, FREEMAIN DATA, a length above 256 MiB (LENGTH above 65520), a second FREEMAIN of the same block, FREEMAIN of a WEB RECEIVE SET body, SET ADDRESS OF a null / freed pointer, ADDRESS OF a WORKING-STORAGE record or a subordinate item, SET ADDRESS OF ... TO NULL, a pointer a REDEFINES overlays (pointer arithmetic)",
       "id": "X47",
       "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "Every EXEC CICS command the det translator does not model is a hole named after the command, never a guess. This entry lists them by class with the reason: BTS (40 commands), APPC / DTP conversations (13) and GDS (14), batch data interchange ISSUE (13), security (12), terminal control beyond one 3270 display (11), SOAP / WS-Addressing (9), journals (5), JES spool (5), TRANSFORM (4), DOCUMENT INSERT / SET / DELETE (3), OpenTelemetry (3), 64-bit GET64 / PUT64 CONTAINER and GETMAIN64 / FREEMAIN64 (4), partitions (2), trace and monitoring (2), and LOAD and RELEASE (engine-only: the engine derives the edge, the translator refuses them), and single commands (SUSPEND, ISSUE PASS, ROUTE, ADDRESS SET, RESETBR, INVOKE APPLICATION, BIF DIGEST, CHANGE TASK, CONVERTTIME, INQUIRE CONTAINER). Each command's own reason is its entry in gitgalaxy/standards/cics/commands/api.py (the translator's hole message); X46 (DUMP TRANSACTION), X59 and X63 keep their own entries",
+      "id": "X65",
+      "status": "REFUSED"
      }
     ],
     "reach": "not measured",
@@ -2532,7 +2923,7 @@
     "det_port": "not yet measured (#4628)"
    },
    "next": [
-    "translated whole (12 holes left)"
+    "translated whole (10 holes left)"
    ],
    "options": {
     "assumed": 3,
@@ -2544,6 +2935,92 @@
     "estate_file": true,
     "found": 3,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.packages",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "none"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.ccsid.SQLCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "zBuilder/LanguageConfiguration/application/config/epscmort.cbl.yaml:3",
+      "value": "integrated (compileParms CICS,SQL)"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "zBuilder/LanguageConfiguration/application/config/epscsmrt.cbl.yaml:3",
+      "value": "CICS"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -2777,7 +3254,9 @@
      "command": "SOAPFAULT CREATE",
      "crucible_cases": [],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X65"
+     ],
      "spec_entry": "name-only"
     },
     {
@@ -2813,7 +3292,7 @@
      "STARTBROWSE CONTAINER"
     ],
     "facts_unstated": 0,
-    "holes": 12,
+    "holes": 10,
     "paragraphs_unrun": null,
     "refused": null
    },
@@ -2828,13 +3307,11 @@
      "CALL EPSCSMRI",
      "CALL EPSCSMRO",
      "CALL EPSCSMRX",
-     "EXEC CICS GET CONTAINER INTOCCSID",
      "EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents",
-     "EXEC CICS PUT CONTAINER FROMCCSID",
      "EXEC CICS SOAPFAULT CREATE",
      "SET TO ENTRY: procedure / function pointers are not modelled"
     ],
-    "hole_count": 12,
+    "hole_count": 10,
     "holes": [
      "CALL CALL CEEHDLR",
      "CALL CALL CEEHDLU",
@@ -2842,16 +3319,14 @@
      "CALL CALL EPSCSMRO",
      "CALL CALL EPSCSMRX",
      "EXEC EXEC CICS: EXEC CICS SOAPFAULT CREATE not modelled (web services (SOAP / WS-Addressing) are not modelled)",
-     "EXEC EXEC CICS: GET CONTAINER INTOCCSID: option not modelled (INTOCCSID: code-page conversion of a CHAR container is not modelled)",
      "EXEC EXEC CICS: GETMAIN without INITIMG: IBM gives acquired storage no default contents",
-     "EXEC EXEC CICS: PUT CONTAINER FROMCCSID: option not modelled (FROMCCSID: code-page conversion of a CHAR container is not modelled)",
      "HOLE SET TO ENTRY: procedure / function pointers are not modelled",
      "SET-POINTER ADDRESS OF ERROR-RESPONSE: not a LINKAGE 01 record (not modelled)"
     ],
     "refused": null,
     "source_defects": [],
     "statements": 59,
-    "translated": 47,
+    "translated": 49,
     "whole": false
    }
   },
@@ -2928,6 +3403,92 @@
     "estate_file": true,
     "found": 1,
     "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.packages",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "none"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.ccsid.SQLCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "zBuilder/LanguageConfiguration/application/config/epscmort.cbl.yaml:3",
+      "value": "integrated (compileParms CICS,SQL)"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "zBuilder/LanguageConfiguration/application/config/epscsmrt.cbl.yaml:3",
+      "value": "CICS"
+     }
+    ],
     "values": [
      {
       "option": "ARITH",
@@ -3009,18 +3570,18 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2",
-   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2",
+   "python tests/tools/cics_census.py survey --baseline --sha 0e39ebb9b8a46b2825e2324f4b7efd94d4699d8a",
+   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 0e39ebb9b8a46b2825e2324f4b7efd94d4699d8a",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
   "corpus_ref": "ce2c1be58eb049e000c6627bd8273263fef0c606",
   "coverage_from": "det-sweep coverage ledger, freshness at build time",
-  "crucible_baseline_ref": "v0.8.0 (afc1db0f)",
+  "crucible_baseline_ref": "v0.9.0 (3ca75ae0)",
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
-   "cics": "v0.8.0",
+   "cics": "v0.9.0",
    "estate": "v0.4.0",
    "language": "v1.7.0"
   },
@@ -3031,13 +3592,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2",
+   "sha": "0e39ebb9b8a46b2825e2324f4b7efd94d4699d8a",
    "translator": {
-    "files": 110,
-    "sha256": "8e4c8ad432c035de8d200675e3ebe66ca5a3ec474615ec551ec75872eaf8c8a1"
+    "files": 126,
+    "sha256": "1d02555f73276b8385a1ef2be52bdf417590a64a664139c76429fda5ac969de2"
    }
   },
-  "translator_commit": "ac765dc8c7319adcd0d4dc5c7ff493b9c9e5b5b2",
+  "translator_commit": "0e39ebb9b8a46b2825e2324f4b7efd94d4699d8a",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -3067,7 +3628,7 @@
    "L4": 0,
    "L5": 0
   },
-  "holes": 14,
+  "holes": 12,
   "levels_stale": 0,
   "levels_stale_survey": 0,
   "programs": 6,
@@ -3080,6 +3641,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "8e4c8ad432c035de8d200675e3ebe66ca5a3ec474615ec551ec75872eaf8c8a1"
+  "fingerprint": "1d02555f73276b8385a1ef2be52bdf417590a64a664139c76429fda5ac969de2"
  }
 }

@@ -27,6 +27,18 @@
    "removed": [
     "handleTransaction"
    ]
+  },
+  {
+   "at": "2026-10-17T19:05:43+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "b3b16bb72",
+   "generated_from": "service/Lgapvs01Service.java",
+   "added": [
+    "lastLinkBytes (field)",
+    "handleLink(Lgapvs01Dfhcommarea,byte[])",
+    "lastLinkBytes()"
+   ]
   }
  ]
 }

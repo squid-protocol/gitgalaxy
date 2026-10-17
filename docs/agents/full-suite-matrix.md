@@ -20,7 +20,8 @@ gh workflow run "Full Suite Gate (All OS x Python)" --ref <branch> -f full_matri
 gh run list --workflow full-suite-gate.yml --branch <branch> --limit 3   # find the run
 ```
 
-The trimmed grid is what a label gives you (all four Pythons on ubuntu, floor+ceiling on Windows
-and macOS); `full_matrix=true` is the untrimmed 12-way grid a `v*` tag gets. Removing and
+The trimmed grid is what a label gives you; since Python 3.10 was dropped (#3322) the supported
+Pythons are only the floor (3.11) and ceiling (3.12), so it is the same 12 legs as `full_matrix=true`,
+the untrimmed grid a `v*` tag gets. Removing and
 re-adding a label still works and is equivalent to the first form. Don't reach for `synchronize`
 as a fix — that hands back the queue cost the label-only rule bought (#3209).

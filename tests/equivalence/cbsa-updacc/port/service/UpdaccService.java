@@ -32,6 +32,27 @@ public class UpdaccService {
 
     private final AccountRepository accountRepository;
 
+    // @facade-helper: the bytes the last byte-carrying handleLink's program left in the COMMAREA
+    private byte[] lastLinkBytes;
+
+    /** #5053: handleLink with the raw bytes of the LINK's COMMAREA (passed by address: what the program
+     *  leaves there the caller sees); lastLinkBytes() then answers the bytes it left. */
+    public UpdaccDfhcommarea handleLink(UpdaccDfhcommarea request, byte[] area) {
+        log.info("Updacc: handleLink (bytes)");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("UPDACC", request, area);
+        region.run(task, "UPDACC", this::runTask);
+        byte[] left = task.linkAreaView();
+        lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;
+        return request;
+    }
+
+    /** The bytes the last byte-carrying handleLink's program left in the LINK COMMAREA (a copy; null: it took
+     *  none -- its DTO is the COMMAREA). @facade-helper */
+    public byte[] lastLinkBytes() {
+        return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);
+    }
+
     /** PROCEDURE DIVISION run as a CICS task: PREMIERE / A010, then GET-ME-OUT-OF-HERE (EXEC CICS RETURN). */
     public void runTask(CicsTask task) {
         log.info("Updacc: runTask");

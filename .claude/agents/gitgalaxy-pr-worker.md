@@ -27,9 +27,16 @@ sweep"); if it does not, build one: name the class, list its members from the au
 `gitgalaxy/standards/cics/commands/`, `docs/language_status/cics_spec_status.md` (not committed: `python tests/tools/generated_docs.py render`, or the `generated` branch), `det_survey.md`,
 `construct_correspondence.md`, the register, the language's status page), and mark each handled / partial / missing /
 out of scope with evidence.
+- **At most 5 hand-written files per PR** (source + tests + docs; owner 2026-10-17). Regenerated files don't count:
+  golden masters, baselines, ledgers, generated docs, pin/lock files. Oct 1-17 churn data: a first-pass PR merges in
+  22-40 min at any size, but the send-back rate climbs with files (1-2: 15%, 3-7: ~30%, 8+: ~55%), and each send-back
+  costs 1-2 h. If the work needs more, ship the first slice that stands on its own (green, mergeable) and list the
+  rest under **Remaining slices** in your final report (files, what, order). A fix round may touch more files only to
+  fix this PR's own failures. Exceptions (an atomic rename, one mechanical line across many files) need a one-line
+  reason in the PR body.
 - Members that share your mechanism (same handler, table or rule, and small: a few lines plus a test each) go in THIS
-  PR, each with its own test or proof case. Say so in the PR body's class table.
-- Members that need a different mechanism or would double the PR: do NOT do them, and do NOT file issues yourself.
+  PR within the 5-file limit, each with its own test or proof case. Say so in the PR body's class table.
+- Members that need a different mechanism, would double the PR or break the 5-file limit: do NOT do them, and do NOT file issues yourself.
   List them under **Sibling gaps** in your final report (member, status, why not in this PR, source/evidence). The
   orchestrator's review files them and queues them.
 - Tests cover the whole input class the fix touches (e.g. single-byte AND DBCS national text, #4854), not one example.
@@ -73,6 +80,10 @@ Main holds no rendered evidence report (#5206): read levels with `python tests/t
 - `pr_gates --fast` uses the CI ruff 0.16.10 from `~/.cache/gitgalaxy/ruff-0.16.10`; the shared venv's 0.16.0 `ruff format` rewrites ~20 unrelated files, so format only your own files with the CI ruff (#5189).
 - `ruff format` changed `.py` files only (`git diff --name-only`, never bare `ruff format .`), THEN regenerate any baseline.
 - Gates before push: `pr_gates.py --fast` and `--ratchets` ONLY, via `heavy-run.sh`, with JDK 17 from `equivalence_env --shell`; never two gate runs at once. The full suite is CI's job (owner, 2026-10-07). It warns if local ruff/mypy/python differ from CI; follow its private-venv hint. Re-read new subclasses for a missing `super().__init__()`. The `port-surface` ratchet can fail in a full `--ratchets` run and pass alone: rerun it with `--only-ratchets port-surface --vs-main` before chasing it (#5167). Lint with `pr_gates --fast`, not bare `ruff check` (#5177). Running the cached ruff binary directly also ignores the repo's per-file rules (#5287).
+- Pre-PR tests (~1 min; owner 2026-10-17: a third of churn PRs were sent back, most for tests these catch). Not the full suite, which stays CI's job. Before opening or pushing for review, run with the env above:
+  - The tree-wide guards, which fail on any new file that breaks a repo rule (~30 s): `$PY -m pytest -q tests/test_source_reads.py tests/core_engine/test_cics_spec.py tests/tools/test_generated_branch.py tests/tools/test_sweep_plan.py tests/tools/test_ci_critical_path_split.py tests/cobol_mainframe/test_proof_reach.py`, plus `tests/tools/` (~2 min) when you touched `tests/tools/` or `.github/`.
+  - Every test file you added or changed, timed: `GITGALAXY_TEST_TIMES=$TMP/times.json $PY -m pytest -q <files>` then `$PY tests/tools/time_ratchet.py check --times $TMP/times.json`. Treat its 10-15 s warning as a failure: CI runners vary +-30% and fail an unmarked test over 15 s. Make the test faster or mark it `@pytest.mark.slow(reason=...)`.
+  - A port, case or evidence input changed: `$PY -m pytest -q tests/cobol_mainframe/test_evidence.py` (~2 min, via `heavy-run.sh`). It fails on records left "port changed since the proof".
 - Taking over a stale or foreign branch: check divergence first (`git rev-list --left-right --count origin/main...HEAD`). A red caused by staleness (pins, golden masters) is fixed by the merge rule in the next bullet, not by merging just to be current.
 - Merge main ONLY for a reason (#5134, owner 2026-10-14): the PR is CONFLICTING/dirty, a required check fails because of main, or golden masters / generated files must be re-blessed after a sibling merge. Never merge main just to be current or "behind": every push to a ready PR costs a full CI run (27% of CI minutes were superseded-SHA runs), and the shepherd no longer updates a behind branch. How: `git merge origin/main`, never rebase, never force-push. Generated files: take main's, then regenerate with their tools; check baselines git may silently revert (ruff baseline: regenerate, don't hand-merge).
 - Commit only your own files (explicit `git add <file>`; never `-A`; `docs/self_scan/gitgalaxy_master.db-shm` / `-wal` show up untracked in plan-first worktrees: never add them, #5103); check `git diff origin/main --stat` has nothing unrelated. Commit messages and the PR body end with the attribution lines the launching session gave you, verbatim.
@@ -104,7 +115,7 @@ A wall of golden-crucible / tree-sitter-audit red "... is on vX but CI pins vY" 
 The shepherd or owner can merge the PR while you work. Before pushing more or PATCHing the body, check `gh api repos/squid-protocol/gitgalaxy/pulls/<n> -q .merged_at`; if set, land the rest as a follow-up PR off origin/main ("Follow-up to #<n>"). Pushes to a squash-merged branch never reach main.
 
 ## Final report (under 200 words plus the sibling gaps and the handoff)
-PR URL; the design decision in one line; the class and which members this PR covers; **Sibling gaps** (member, status, why not here, source) or "none: every member handled"; evidence actually gathered (real scan output, gate results); CI status as last observed; anything unresolved (sibling conflicts, pending checks, blocks hit, skipped tests or ratchets). End with a 3-5 line **Handoff** note for whoever continues the work (state, next step, traps).
+PR URL; the design decision in one line; the class and which members this PR covers; **Sibling gaps** (member, status, why not here, source) or "none: every member handled"; **Remaining slices** if the 5-file limit split the work; evidence actually gathered (real scan output, gate results); CI status as last observed; anything unresolved (sibling conflicts, pending checks, blocks hit, skipped tests or ratchets). End with a 3-5 line **Handoff** note for whoever continues the work (state, next step, traps).
 
 ## Lessons (your worktree is deleted; this is how the next agent learns what you learned)
 If you hit a trap that cost you real time and that no `.claude/` file or `CLAUDE.md` warns about (an env var, a tool that lies, a gate that fails falsely, a wrong doc), add a `## Lessons for agents` section to the PR body: one bullet each, imperative, naming the file/tool/flag and the symptom, e.g. "Run `sync-pins.sh` after merging main: an off-pin crucible fails golden with phantom diffs." Repeat them in your final report. No lessons -> omit the section; never pad it. Issue-specific state goes in the Handoff, not here. The orchestrator promotes durable lessons into `.claude/rules/` (see `.claude/rules/agent-memory.md`).

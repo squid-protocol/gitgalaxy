@@ -112,7 +112,7 @@ def fallback_parse(prog, rel_prog, inv):
             count_item(inv, "cics_commands", verb, rel_prog)
             for opt_k in opts:
                 count_item(inv, "cics_options", f"{verb}: {opt_k}", rel_prog)
-        except Exception:  # noqa: PERF203
+        except Exception:
             count_unknown(inv, "cics_commands", rel_prog)
             count_unknown(inv, "cics_options", rel_prog)
 

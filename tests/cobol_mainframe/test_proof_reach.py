@@ -287,7 +287,10 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     # does not call (the proof drives runTask), as in COMEN01C's.
     # The PCIMM* ports changed with the ARITH(EXTEND) stop (#4706) and were re-proved, so their recorded mutation run
     # judges older code and their 3 flagged survivors are skipped until the next run: 19 flagged, 16 unreachable.
-    assert len(flagged) == 19 and verdicts.count("unreachable") == 16 and verdicts.count("equivalent") == 3
+    # #5053 resurfaced the 14 CardDemo / CBSA / GenApp ports with the handleLink byte overload and lastLinkBytes()
+    # (a new facade body their recorded mutation run never judged), so their 14 flagged survivors are skipped too until
+    # the next run: the 5 left are the crucible ports' (3 equivalent, 2 unreachable dead helpers).
+    assert len(flagged) == 5 and verdicts.count("unreachable") == 2 and verdicts.count("equivalent") == 3
     assert not {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C", "CSUTLDTC"}
 
 

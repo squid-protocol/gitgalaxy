@@ -25,20 +25,20 @@ counted in it (their fact counts are not recorded here).
 | JCL job flow | 5 | 0 | 2 | 1,620 | 1 | 0 | 1 | 261 | 1.1% | open | 1 more clean fresh round(s), 39 more clean fresh facts |
 | CSD resources | 4 | 0 | 2 | 457 | 0 | 0 | 2 | 223 | 1.3% | open | 77 more clean fresh facts |
 | JCL resolved DSNs | 5 | 0 | 2 | 752 | 1 | 0 | 1 | 102 | 2.9% | open | 1 more clean fresh round(s), 198 more clean fresh facts |
+| dead | 5 | 0 | 3 | 150 | 0 | 7 | 3 | 41 | 7.3% | open | 259 more clean fresh facts |
 | file I/O moves | 3 | 0 | 1 | 247 | 0 | 0 | 1 | 38 | 7.9% | open | 1 more clean fresh round(s), 262 more clean fresh facts |
-| dead | 5 | 0 | 3 | 144 | 0 | 7 | 3 | 35 | 8.6% | open | 265 more clean fresh facts |
+| call targets | 8 | 0 | 5 | 168 | 1 | 1 | 2 | 26 | 11.5% | open | 274 more clean fresh facts |
 | DB2 table access | 3 | 0 | 1 | 58 | 0 | 0 | 1 | 21 | 14.3% | open | 1 more clean fresh round(s), 279 more clean fresh facts |
+| dead (non-trivial) | 5 | 0 | 3 | 34 | 0 | 0 | 3 | 16 | 18.8% | open | 284 more clean fresh facts |
 | dynamic call targets | 5 | 0 | 2 | 232 | 0 | 0 | 2 | 16 | 18.8% | open | 284 more clean fresh facts |
 | entry transactions | 4 | 0 | 2 | 53 | 0 | 0 | 2 | 15 | 20.0% | open | 285 more clean fresh facts |
-| unit extents | 8 | 0 | 1 | 2,211 | 0 | 0 | 1 | 14 | 21.4% | open | 1 more clean fresh round(s), 286 more clean fresh facts |
-| units | 8 | 0 | 5 | 2,072 | 7 | 4 | 1 | 14 | 21.4% | open | 1 more clean fresh round(s), 286 more clean fresh facts |
+| units | 8 | 0 | 5 | 2,341 | 7 | 4 | 1 | 14 | 21.4% | open | 1 more clean fresh round(s), 286 more clean fresh facts |
+| unit extents | 7 | 0 | 1 | 2,190 | 0 | 0 | 1 | 14 | 21.4% | open | 1 more clean fresh round(s), 286 more clean fresh facts |
 | inputs | 3 | 0 | 1 | 55 | 0 | 2 | 1 | 13 | 23.1% | open | 1 more clean fresh round(s), 287 more clean fresh facts |
-| program_id | 8 | 0 | 5 | 138 | 3 | 0 | 1 | 10 | 30.0% | open | 1 more clean fresh round(s), 290 more clean fresh facts |
-| dead (non-trivial) | 5 | 0 | 3 | 28 | 0 | 0 | 3 | 10 | 30.0% | open | 290 more clean fresh facts |
-| call targets | 8 | 0 | 5 | 151 | 1 | 1 | 2 | 9 | 33.3% | open | 291 more clean fresh facts |
+| program_id | 8 | 0 | 5 | 139 | 3 | 0 | 1 | 10 | 30.0% | open | 1 more clean fresh round(s), 290 more clean fresh facts |
 | copybook paths | 6 | 0 | 3 | 431 | 3 | 1 | 1 | 9 | 33.3% | open | 1 more clean fresh round(s), 291 more clean fresh facts |
 | outputs | 4 | 0 | 1 | 37 | 0 | 1 | 1 | 9 | 33.3% | open | 1 more clean fresh round(s), 291 more clean fresh facts |
-| intra-program edges | 8 | 0 | 1 | 1,951 | 0 | 0 | 1 | 6 | 50.0% | open | 1 more clean fresh round(s), 294 more clean fresh facts |
+| intra-program edges | 7 | 0 | 1 | 1,934 | 1 | 0 | 1 | 6 | 50.0% | open | 1 more clean fresh round(s), 294 more clean fresh facts |
 | VSAM defines | 3 | 0 | 1 | 30 | 0 | 0 | 1 | 4 | 75.0% | open | 1 more clean fresh round(s), 296 more clean fresh facts |
 | dynamic CALLs | 3 | 0 | 2 | 5 | 0 | 0 | 2 | 2 | - | open | 298 more clean fresh facts |
 | DL/I calls | 2 | 0 | 1 | 36 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
@@ -47,7 +47,7 @@ counted in it (their fact counts are not recorded here).
 | async children | 2 | 0 | 1 | 6 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
 | MOVE truncation | 6 | 0 | 3 | 165 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | data moves | 6 | 0 | 3 | 12,583 | 4 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
-| record fields | 6 | 0 | 3 | 5,475 | 6 | 3 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
+| record fields | 6 | 0 | 3 | 5,475 | 6 | 4 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CALL USING | 5 | 0 | 2 | 103 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CICS RIDFLD | 5 | 0 | 0 | 781 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CICS resources | 5 | 0 | 3 | 3,588 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
@@ -81,7 +81,7 @@ counted in it (their fact counts are not recorded here).
 | 4 | cics-genapp | public | 2,294 | 11 | 4 | 1 | 0 |
 | 5 | zecs | public | 1,293 | 43 | 0 | 0 | 2 |
 | 6 | dsf | public | 2,018 | 4 | 7 | 1 | 0 |
-| 7 | dbb-mortgage-application | public | 45 | 0 | 4 | 1 | 0 |
+| 7 | dbb-mortgage-application | public | 332 | 0 | 5 | 2 | 0 |
 | 8 | cics-async-api-credit-card-application-example | public | 31 | 0 | 0 | 1 | 0 |
 
 ## Defect log
@@ -139,6 +139,8 @@ counted in it (their fact counts are not recorded here).
 | D045 | 2 | engine | fact | record fields | #4457 | A section-level COPY ... REPLACING was not applied to the 01 records it copies: CBSA INQACC's `COPY INQACC REPLACING INQACC-COMMAREA BY DFHCOMMAREA` left the record named INQACC-COMMAREA, GETSCODE's SORTCODE stayed SORTCODE; on zopeneditor-sample the :TAG: template CUSTCOPY gave SAM1 / SAM1LIB / SAM2 no CUST-REC, CSTOUT-REC or WS-CUST-REC record at all (22 records). In-group REPLACING (#4265) was already right. |
 | D046 | 3 | engine | fact | record fields | #4458 | Entries continuing a COPYed record after a section-level COPY (COTRN02C: `COPY COCOM01Y.` + `05 CDEMO-CT02-INFO`) were laid out under the program's preceding 01 as well as under the copied record: record_layout gave CSUTLDTC-PARM 158 bytes, not 100. The #4279 fix covered a COPY that closes a nested group, not this shape. |
 | D047 | 8 | forge | fact | record fields | #4626 / #4643 | cobol_schema_forge reads no record fields from one-digit level numbers (`1 PROG-NAMES.` / `2 GETPOL PIC X(8) VALUE ...`): 0 of the 158 fields of the 8 programs that declare any, while the engine reads all of them. |
+| D048 | 7 | engine | fact | intra-program edges | #4244 | The engine's transfers_to records only the first target of `GO TO a b c ... DEPENDING ON x`: 184 of the GO TO edges of DBB epscsmrd.cbl's EPSCSMRI dispatch tables (COMPLETE-NUMERIC-MOVE, LOOKUP-SOURCE, ROUTE-ELEMENT, X000000C7-CA) are missed. |
+| D049 | 7 | forge | fact | record fields | #4244 | The refraction forge renders only the first program's DATA DIVISION of a multi-program source, so 193 record fields of DBB epscsmrd.cbl's sibling programs are missed (the engine and key read all programs since #4245). |
 
 Key errors (the census's findings against the answer key itself) are counted from each key's
 rulings, not logged by hand. The engine agreeing with a key is only as good as the key: a key

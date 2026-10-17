@@ -130,6 +130,7 @@ def test_env_is_read_at_call_time(tmp_path, monkeypatch):
     assert h.skipped is None and h.files == 1
 
 
+@pytest.mark.skipif(not hasattr(os, "major"), reason="os.major/os.minor do not exist on Windows (#5367)")
 def test_is_rotational_reads_the_flag(tmp_path):
     dev = os.stat(tmp_path).st_dev
     q = tmp_path / f"{os.major(dev)}:{os.minor(dev)}" / "queue"

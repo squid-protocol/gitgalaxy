@@ -147,3 +147,12 @@ def test_disk_paths_split_on_the_platform_separator(monkeypatch, tmp_path):
     monkeypatch.setattr(bs, "_statvfs", lambda p: (seen.append(p), real(p))[1])
     bs._disks()
     assert str(tmp_path) in seen and "/nonexistent-gg-path" in seen
+
+
+def test_mount_does_not_use_path_is_mount(monkeypatch, tmp_path):
+    # Path.is_mount raises NotImplementedError on Windows before Python 3.12 (#5367)
+    def boom(_self):
+        raise NotImplementedError
+
+    monkeypatch.setattr(bs.Path, "is_mount", boom)
+    assert bs._mount(tmp_path).exists()

@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -260,6 +261,59 @@ def test_fallback(synthetic):
     assert has(inv, "sql_forms", "DYNAMIC", "fallback")  # noqa: S101
     assert has(inv, "statements", "MOVE", "fallback")  # noqa: S101
     assert has(inv, "statements", "GOBACK", "fallback")  # noqa: S101
+
+
+def _seq(lines, tag="PROG0001"):
+    """Fixed-form lines with a sequence number in columns 1-6 and an identification tag in 73-80."""
+    return "\n".join(f"{i * 100 + 100:06d}" + ln.ljust(66)[:66] + tag for i, ln in enumerate(lines)) + "\n"
+
+
+def _fallback(tmp_path, text):
+    from gitgalaxy.tools.readiness.inventory import fallback_parse, inventory_template
+
+    f = tmp_path / "p.cbl"
+    f.write_text(text)
+    inv = inventory_template()
+    fallback_parse(f, "p.cbl", inv)
+    return inv
+
+
+def test_fallback_ignores_the_sequence_and_identification_areas(tmp_path):  # #5106
+    inv = _fallback(
+        tmp_path,
+        _seq(
+            [
+                "      PROCEDURE DIVISION.",
+                "          EXEC CICS RETRIEVE",
+                "              INTO(WS-X)",
+                "              LENGTH(WS-L)",
+                "          END-EXEC.",
+                "          EXEC SQL EXECUTE S1",
+                "          END-EXEC.",
+                "          MOVE FUNCTION UPPER-CASE(A) TO B.",
+                "* MOVE IN A COMMENT",
+                "          GOBACK.",
+            ]
+        ),
+    )
+    keys = [k for cat in inv.values() for k in cat]
+    assert not [k for k in keys if re.search(r"\b\d{6,8}\b", k)]  # noqa: S101
+    assert "RETRIEVE" in inv["cics_commands"]  # noqa: S101
+    assert {"RETRIEVE: INTO", "RETRIEVE: LENGTH"} <= set(inv["cics_options"])  # noqa: S101
+    assert "UPPER-CASE" in inv["intrinsic_functions"]  # noqa: S101
+    assert inv["statements"]["MOVE"]["count"] == 1  # the comment's MOVE is not counted  # noqa: S101
+
+
+def test_fallback_does_not_count_a_verb_in_the_identification_area(tmp_path):  # #5106
+    line = "      " + " " + "GOBACK.".ljust(65) + "MOVE    "  # a tag naming a verb, columns 73-80
+    inv = _fallback(tmp_path, line + "\n")
+    assert "MOVE" not in inv["statements"]  # noqa: S101
+    assert "GOBACK" in inv["statements"]  # noqa: S101
+
+
+def test_fallback_free_form_source_is_read_whole(tmp_path):  # #5106
+    inv = _fallback(tmp_path, ">>SOURCE FORMAT FREE\nMOVE 1 TO A. " + "x" * 80 + " GOBACK.\n")
+    assert {"MOVE", "GOBACK"} <= set(inv["statements"])  # noqa: S101
 
 
 TYPES = {

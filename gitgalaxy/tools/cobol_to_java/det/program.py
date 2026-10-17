@@ -1733,8 +1733,7 @@ def facades(stub: str, passes_bytes: bool = False) -> list[str]:
                     body.append("        lastAnswerBytes = task.returnedBytes();")
                 if area and meth == "handleLink":  # #5053: the bytes the program left in the COMMAREA, if it took them
                     body += ["        byte[] left = task.linkAreaView();",
-                             "        lastLinkBytes = task.linkAreaTaken() && left != null"
-                             " ? java.util.Arrays.copyOf(left, left.length) : null;"]  # fmt: skip
+                             "        lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;"]  # fmt: skip
                 if ret != "void" and meth == "handleTransaction" and passes_bytes:
                     body += (lines := answer_lines(ret, req.group(1) if req else None))
                     wide = wide or len(lines) > 1

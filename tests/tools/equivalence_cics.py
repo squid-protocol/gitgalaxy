@@ -433,10 +433,24 @@ def doctemplates(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, str] | N
     return defs
 
 
-def clock_iso(case: dict[str, Any]) -> str:
+_SCENARIO_CLOCK = re.compile(r"\d{4}/\d\d/\d\d \d\d:\d\d:\d\d\.\d\d")
+
+
+def scenario_clock(case: dict[str, Any], sc: dict[str, Any]) -> str:
+    """#4622: the task's clock ("2026/10/01 10:30:15.00", COB_CURRENT_DATE's form) -- the scenario's "clock", else the
+    case's: a program that reads FUNCTION CURRENT-DATE (CORPT00C's month wrap in December) needs a date the case's
+    one never is. Stated on both sides: the COBOL task's COB_CURRENT_DATE / $GGCICS_NOW, the Java task's withClock."""
+    clock = sc.get("clock", case["clock"])
+    if not isinstance(clock, str) or not _SCENARIO_CLOCK.fullmatch(clock):
+        raise Unsupported(f'scenario {sc.get("name")}: "clock" is "YYYY/MM/DD hh:mm:ss.cc" (got {clock!r})')
+    return clock
+
+
+def clock_iso(case: dict[str, Any], sc: dict[str, Any] | None = None) -> str:
     """#4270: the case's clock ("2026/10/01 10:30:15.00") as the stub's $GGCICS_NOW (2026-10-01T10:30:15): the
-    moment a START's expiry and a CANCEL's "not expired" count from, as CicsTask counts them from the same clock."""
-    day, _, time = case["clock"].partition(" ")
+    moment a START's expiry and a CANCEL's "not expired" count from, as CicsTask counts them from the same clock.
+    #4622: the scenario's, when it states one."""
+    day, _, time = (scenario_clock(case, sc) if sc is not None else case["clock"]).partition(" ")
     return day.replace("/", "-") + "T" + time.split(".")[0]
 
 
@@ -3115,6 +3129,25 @@ def case_file_records(case: dict[str, Any], corpus: Path, spec: dict[str, Any], 
     return data
 
 
+def scenario_datasets(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    """#4622: the datasets this scenario's task starts with that differ from the case's -- the scenario's "datasets",
+    {DD: {"input": path, "append": path}} (a path as in the case's own dataset, `@case/...` included), each DD's spec
+    the case's with those keys replaced. A file the corpus has one card per account of cannot show a page that ends
+    on the file's last record; the scenario then states a file that does. Unstated, {} (the case's files)."""
+    out: dict[str, dict[str, Any]] = {}
+    for dd, over in (sc.get("datasets") or {}).items():
+        base = (case.get("datasets") or {}).get(dd)
+        if base is None or not isinstance(over, dict) or not set(over) <= {"input", "append"}:
+            raise Unsupported(f'scenario {sc.get("name")}: "datasets" overrides a dataset of the case ({dd!r}) with '
+                              '{"input": path, "append": path}')  # fmt: skip
+        if base.get("input") == "@generate":
+            raise Unsupported(
+                f"scenario {sc.get('name')}: {dd} is generated (`@generate`), so no scenario file replaces it"
+            )
+        out[dd] = {**{k: v for k, v in base.items() if k != "append"}, **over}
+    return out
+
+
 def _file_fault_resp2(sc: dict[str, Any], f: dict[str, Any], cmd: str, resp2: int) -> int:
     """#4623 / #5044: a file command's planned condition against IBM's list for the command; the RESP2 it carries."""
     resp = f["resp"]
@@ -3343,7 +3376,6 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     ]  # #4635 (as batch, #4056)
     if db2:
         script.append(f"gcc -O2 -o ggsqlrun src/ggsqlrun.c {equivalence_db2.COBOL_LINK}")
-    date, _, time = case["clock"].partition(" ")
     programs = csd_programs(corpus, case)
     tdqueues = csd_tdqueue_types(corpus, case)
     if "'APPLID' TO GG-NAME2" in text or "'SYSID' TO GG-NAME2" in text:
@@ -3360,6 +3392,10 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         (d / "out").mkdir(parents=True, exist_ok=True)
         # each task its own copy of the files: what it writes is its own, and is compared (file updates)
         shutil.copytree(work / "files", d / "files", dirs_exist_ok=True)
+        for f in files:  # #4622: a file this scenario states its own records for
+            over = scenario_datasets(case, sc).get(f["base"])
+            if over is not None:
+                (d / "files" / f["base"]).write_bytes(case_file_records(case, corpus, over, f["reclen"], enc))
         (d / "files.cfg").write_text("".join(
             f"{f['file']} /work/scenarios/{sc['name']}/files/{f['base']} {f['reclen']} {f['key_offset']} "
             f"{f['key_length']}{_cfg_flags(case, f)}\n" for f in files
@@ -3438,6 +3474,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             (d / "faults.cfg").write_text("".join(x + "\n" for x in fault_lines(sc)), encoding="ascii")
         if sc.get("sql_plan"):  # #4173: the SQL stub's planned faults (resolved by sql_fault_plan)
             (d / "sqlfaults.cfg").write_text("".join(x + "\n" for x in sc["sql_plan"]), encoding="ascii")
+        date, _, time = scenario_clock(case, sc).partition(" ")  # #4622: the scenario's clock, else the case's
         y, mo, dd = date.split("/")
         eib_date = f"{int(y) - 1900:03d}{_day_of_year(int(y), int(mo), int(dd)):03d}"[-7:].rjust(7, "0")
         eib_time = "0" + time.replace(":", "")[:6]
@@ -3470,7 +3507,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                       + (f"GGCICS_HTTP={rel}/http.cfg " if http_peers(case, sc) is not None else "")
                       + (f"GGCICS_WEBREQ={rel}/webreq.cfg " if http_request(case, sc) is not None else "")
                       + (f"GGCICS_TCPIP={rel}/tcpip.cfg " if tcpip(case, sc) is not None else "")
-                      + f"{sqlenv}COB_CURRENT_DATE='{case['clock']}' GGCICS_NOW={clock_iso(case)} ./task > {rel}/stdout.txt 2>&1; "
+                      + f"{sqlenv}COB_CURRENT_DATE='{scenario_clock(case, sc)}' GGCICS_NOW={clock_iso(case, sc)} ./task > {rel}/stdout.txt 2>&1; "
                       f"echo $? > {rel}/rc; set -e")  # fmt: skip
         if db2:  # what the task left in each compared table
             script.append(f"mkdir -p {rel}/db2")
@@ -4529,7 +4566,9 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
     for dsn, spec in case.get("datasets", {}).items():
         if by_base[dsn].get("organization") == "ESDS":  # #4213: the region's ESDS, on the task (CicsTask.withEsds)
             f = by_base[dsn]
-            csd_java += f'            task.withEsds("{f["file"]}", {f["reclen"]}, records("{dsn}", {f["reclen"]}));\n'
+            csd_java += (
+                f'            task.withEsds("{f["file"]}", {f["reclen"]}, records(sc, "{dsn}", {f["reclen"]}));\n'
+            )
             dumps.append(f'            dump(sc.get("name").asText() + ".{dsn}.out", task.esdsRecords("{f["file"]}"));')
             continue
         ent = spec["entity"]
@@ -4537,7 +4576,7 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
         fields.append(f"    @Autowired {pkg}.repository.vsam.{ent}Repository {repo};")
         loads.append(
             f"            {repo}.deleteAll();\n"
-            f'            load("{dsn}", {by_base[dsn]["reclen"]}, {pkg}.entity.vsam.{ent}::fromRecord, {repo});'
+            f'            load(sc, "{dsn}", {by_base[dsn]["reclen"]}, {pkg}.entity.vsam.{ent}::fromRecord, {repo});'
         )
         dumps.append(f'            dump(sc.get("name").asText() + ".{dsn}.out", {repo}.findAll().stream()'
                      f'.map(row -> row.toRecord(TEXT)).toList());')  # fmt: skip
@@ -4671,7 +4710,7 @@ class EquivalenceRunTest {{
             Files.deleteIfExists(sysout);
             System.setProperty("gitgalaxy.sysout", sysout.toString());
             CicsTask task = new CicsTask("{case["transid"]}", sc.get("aid").asText(), commarea, calen, received)
-                    .withClock(java.time.LocalDateTime.parse("{ej._clock(case)}"))  // EIBTIME / ASKTIME: the case's clock
+                    .withClock(java.time.LocalDateTime.parse(sc.path("clock").asText("{ej._clock(case)}")))  // EIBTIME / ASKTIME: the scenario's clock, else the case's
                     .withRegion({region_java})  // ASSIGN APPLID / SYSID
                     .withProgram("{case["program"]}")  // the task's first program (a LINK's INVOKINGPROG)
                     .withCounters(counters(sc))  // GET COUNTER: the region's named counters
@@ -4898,8 +4937,8 @@ class EquivalenceRunTest {{
     }}
 
     /** #4213: a dataset's records, as loaded, each `reclen` bytes (an ESDS: in arrival order). */
-    List<byte[]> records(String dd, int reclen) throws IOException {{
-        byte[] data = Files.readAllBytes(in.resolve(dd + ".in"));
+    List<byte[]> records(JsonNode sc, String dd, int reclen) throws IOException {{
+        byte[] data = Files.readAllBytes(input(sc, dd));
         List<byte[]> rows = new ArrayList<>();
         for (int i = 0; i + reclen <= data.length; i += reclen) {{
             rows.add(java.util.Arrays.copyOfRange(data, i, i + reclen));
@@ -4907,9 +4946,15 @@ class EquivalenceRunTest {{
         return rows;
     }}
 
-    <E> void load(String dd, int reclen, BiFunction<byte[], Charset, E> fromRecord, JpaRepository<E, ?> repo)
+    /** #4622: the dataset as the scenario starts with it: its own file (`DD.scenario.in`) when it states one. */
+    Path input(JsonNode sc, String dd) {{
+        Path own = in.resolve(dd + "." + sc.get("name").asText() + ".in");
+        return Files.exists(own) ? own : in.resolve(dd + ".in");
+    }}
+
+    <E> void load(JsonNode sc, String dd, int reclen, BiFunction<byte[], Charset, E> fromRecord, JpaRepository<E, ?> repo)
             throws IOException {{
-        byte[] data = Files.readAllBytes(in.resolve(dd + ".in"));
+        byte[] data = Files.readAllBytes(input(sc, dd));
         List<E> rows = new ArrayList<>();
         for (int i = 0; i + reclen <= data.length; i += reclen) {{
             rows.add(fromRecord.apply(java.util.Arrays.copyOfRange(data, i, i + reclen), TEXT));
@@ -4985,6 +5030,9 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     inputs.mkdir(parents=True, exist_ok=True)
     for f in files:
         shutil.copy(cobol_work / "files" / f["base"], inputs / f"{f['base']}.in")
+    for sc in case["scenarios"]:  # #4622: a file a scenario states its own records for
+        for base in scenario_datasets(case, sc):
+            shutil.copy(cobol_work / "scenarios" / sc["name"] / "files" / base, inputs / f"{base}.{sc['name']}.in")
     ca_fields = commarea_fields(corpus, case)  # as the DTO lists them: an OCCURS group's fields once
     ca_read = commarea_fields(corpus, case, occurrences=True)  # #4765: the whole record, every occurrence
     scenarios = []
@@ -5015,6 +5063,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                           "counters": _counters(case, sc), "taskn": task_number(case, sc),
                           "startcode": task_facts(case, sc)[0], "terminal": task_facts(case, sc)[1],
                           **terminal_facts(case, sc),
+                          **({"clock": ej._clock({**case, "clock": scenario_clock(case, sc)})} if "clock" in sc else {}),
                           "ts": ts_seed(case, sc), "urimaps": urimaps(case, sc),
                           **({"td": td_seed(case, sc)} if td_seed(case, sc) else {}),
                           "doctemplates": doctemplates(case, sc), "http_peers": http_peers(case, sc),

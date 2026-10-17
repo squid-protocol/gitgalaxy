@@ -2489,8 +2489,9 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 - **Model ports (#4956).** A model-port program is LINKed with its caller's DTO object only, no bytes, so `CicsTask.link` marks
   the callee `linkedDto` and `xctl` refuses, by the same name and message, a successful XCTL whose COMMAREA is that DTO or an
   object it holds by reference (a nested group, a table or its element, a list element, a map value, the byte area). A copy
-  (a new object), a failed XCTL, level 1 and the XCTL target's own DTO are not refused. Not detectable, so not refused: a
-  String or number field passed as the COMMAREA (a value, the same as a copy).
+  (a new object), a failed XCTL, level 1 and the XCTL target's own DTO are not refused. A String or number cannot be traced by
+  reference (#5060), so a successful XCTL whose COMMAREA equals a value the DTO holds (any field, nested or primitive) is refused
+  too; an equal-valued copy is over-refused (refuse, never guess), a value the DTO does not hold is not.
 - **Aliases (#4957).** The det port marks an XCTL whose COMMAREA lies inside any LINKAGE 01 record, not only DFHCOMMAREA: a CALLed
   subprogram's USING record (`CALL 'SUB' USING DFHCOMMAREA`) is the LINK caller's storage under another name, and refuses by the
   same runtime check (only when the program was LINKed with a COMMAREA). `SET ADDRESS OF` (direct or through a pointer) is

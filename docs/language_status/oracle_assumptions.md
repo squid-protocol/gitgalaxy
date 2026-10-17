@@ -2835,6 +2835,11 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   no layout, or bytes shorter than its record, are answered as before: an `Object` facade keeps the `byte[]`, a typed one is
   refused by name (`returned(Dto.class)`; CBSA BNK1CCS, BNK1TFN, BNK1UAC, #5076); a facade with no DTO of its own (`Object
   request`) keeps the `byte[]`; a forge-generated (model-written) facade is unchanged (#4695).
+- **DTO-only answer (#4817).** A DTO holds a number it decoded, so a DTO-only answer of a RETURN (`returned(..)` of a task whose
+  `returnedBytes()` was not read: the one-arg `handleTransaction`, the REST endpoint over it) is refused by name when the DTO's
+  layout bytes (`toCommarea`) differ from a byte the RETURN passed, unless the DTO's byte is a space (FILLER, an unset field;
+  0x20 or 0x40, the page being unknown to CicsTask). The byte-carrying `handleTransaction(.., byte[])` reads `returnedBytes()` first
+  and answers as before. A DTO with no layout, or a RETURN with no bytes beside it, is unchanged. The check is a lower bound: a loss under a space byte of the DTO's layout is not seen.
 - **Status:** ASSUMED. The oracle's (GnuCOBOL) storage past the LENGTH of a copied COMMAREA is not IBM's either; no program may rely on it.
 
 ### X52. File update TOKEN: READ UPDATE TOKEN / REWRITE TOKEN / DELETE TOKEN / UNLOCK TOKEN — ASSUMED, REFUSED where IBM is silent (#5078)

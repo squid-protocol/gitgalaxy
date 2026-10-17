@@ -2416,6 +2416,15 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   sides and compares the response. The deferred send, DOCSTATUS and WEB RETRIEVE's NORMAL outcome are proven on both runtimes line for line
   (tests/cics_crucible/test_cics_runtimes.py, `_X41_CASES`). No cics-crucible case yet (its SPEC has no WEB-SEND event: a crucible SPEC change). zECS:
   ZECS003's one WEB SEND (FROM / FROMLENGTH / MEDIATYPE / ACTION IMMEDIATE / STATUSCODE / STATUSTEXT / SRVCONVERT) is modelled.
+- **cics-crucible `gt-http-inbound` (v0.9.0), checked 2026-10-17 (#4767): not servable without an owner ruling.** Its program
+  GTHECHO codes `SRVCONVERT CHARACTERSET('iso-8859-1') HOSTCODEPAGE('037')` on WEB RECEIVE and WEB SEND and `MEDIATYPE('text/plain')`
+  as a literal. Three things stand in the way, none of them a missing WEB command (no burned estate program needs one): (1) the
+  code-page refusals above are IBM-silent on the table, and a real conversion changes the bytes the program holds, so accepting them
+  as no-ops would loosen a proof; (2) MEDIATYPE is a data area in IBM's COBOL form and both translators refuse a literal there
+  (`equivalence_cics._web_send`, `DetCics` via `read_field`); (3) the runner has no HTTP driver (scenario `requests`: a SERVER URIMAP
+  match, trigger `{kind: http}`, WEB-RECEIVE / WEB-SEND events on the stub and `CicsTask`; the stub and `CicsTask` record WEB-SEND but
+  not WEB-RECEIVE). The crucible's `gt-web-*` cases (after v0.9.0) also need the WEB-OPEN / CONVERSE / CLOSE events and peer
+  host / query / headers. ZECS001 still waits on #4771.
 
 ### X38. WEB EXTRACT / EXTRACT WEB, EXTRACT TCPIP, WEB RECEIVE, WEB READ / WRITE HTTPHEADER, WEB READ FORMFIELD / QUERYPARM and the WEB browse forms (CICS web support, the server reading its request) — ASSUMED, REFUSED where IBM is silent (#4767, #4940, #4972, zECS)
 - **WEB EXTRACT** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-web-extract), server form. HOST "host component of the URL, from the

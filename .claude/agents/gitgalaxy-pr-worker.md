@@ -27,9 +27,16 @@ sweep"); if it does not, build one: name the class, list its members from the au
 `gitgalaxy/standards/cics/commands/`, `docs/language_status/cics_spec_status.md` (not committed: `python tests/tools/generated_docs.py render`, or the `generated` branch), `det_survey.md`,
 `construct_correspondence.md`, the register, the language's status page), and mark each handled / partial / missing /
 out of scope with evidence.
+- **At most 5 hand-written files per PR** (source + tests + docs; owner 2026-10-17). Regenerated files don't count:
+  golden masters, baselines, ledgers, generated docs, pin/lock files. Oct 1-17 churn data: a first-pass PR merges in
+  22-40 min at any size, but the send-back rate climbs with files (1-2: 15%, 3-7: ~30%, 8+: ~55%), and each send-back
+  costs 1-2 h. If the work needs more, ship the first slice that stands on its own (green, mergeable) and list the
+  rest under **Remaining slices** in your final report (files, what, order). A fix round may touch more files only to
+  fix this PR's own failures. Exceptions (an atomic rename, one mechanical line across many files) need a one-line
+  reason in the PR body.
 - Members that share your mechanism (same handler, table or rule, and small: a few lines plus a test each) go in THIS
-  PR, each with its own test or proof case. Say so in the PR body's class table.
-- Members that need a different mechanism or would double the PR: do NOT do them, and do NOT file issues yourself.
+  PR within the 5-file limit, each with its own test or proof case. Say so in the PR body's class table.
+- Members that need a different mechanism, would double the PR or break the 5-file limit: do NOT do them, and do NOT file issues yourself.
   List them under **Sibling gaps** in your final report (member, status, why not in this PR, source/evidence). The
   orchestrator's review files them and queues them.
 - Tests cover the whole input class the fix touches (e.g. single-byte AND DBCS national text, #4854), not one example.
@@ -108,7 +115,7 @@ A wall of golden-crucible / tree-sitter-audit red "... is on vX but CI pins vY" 
 The shepherd or owner can merge the PR while you work. Before pushing more or PATCHing the body, check `gh api repos/squid-protocol/gitgalaxy/pulls/<n> -q .merged_at`; if set, land the rest as a follow-up PR off origin/main ("Follow-up to #<n>"). Pushes to a squash-merged branch never reach main.
 
 ## Final report (under 200 words plus the sibling gaps and the handoff)
-PR URL; the design decision in one line; the class and which members this PR covers; **Sibling gaps** (member, status, why not here, source) or "none: every member handled"; evidence actually gathered (real scan output, gate results); CI status as last observed; anything unresolved (sibling conflicts, pending checks, blocks hit, skipped tests or ratchets). End with a 3-5 line **Handoff** note for whoever continues the work (state, next step, traps).
+PR URL; the design decision in one line; the class and which members this PR covers; **Sibling gaps** (member, status, why not here, source) or "none: every member handled"; **Remaining slices** if the 5-file limit split the work; evidence actually gathered (real scan output, gate results); CI status as last observed; anything unresolved (sibling conflicts, pending checks, blocks hit, skipped tests or ratchets). End with a 3-5 line **Handoff** note for whoever continues the work (state, next step, traps).
 
 ## Lessons (your worktree is deleted; this is how the next agent learns what you learned)
 If you hit a trap that cost you real time and that no `.claude/` file or `CLAUDE.md` warns about (an env var, a tool that lies, a gate that fails falsely, a wrong doc), add a `## Lessons for agents` section to the PR body: one bullet each, imperative, naming the file/tool/flag and the symptom, e.g. "Run `sync-pins.sh` after merging main: an off-pin crucible fails golden with phantom diffs." Repeat them in your final report. No lessons -> omit the section; never pad it. Issue-specific state goes in the Handoff, not here. The orchestrator promotes durable lessons into `.claude/rules/` (see `.claude/rules/agent-memory.md`).

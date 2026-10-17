@@ -823,6 +823,17 @@ public final class Cobol {
         return num(f, cs);
     }
 
+    /** The current value of a STRING / UNSTRING POINTER, an UNSTRING TALLYING IN or an INSPECT TALLYING counter (#4692,
+     *  register C11): the statement reads the item before it stores, as ADD does its receiver. A zoned item holding a
+     *  non-digit is refused by name for the same reason as {@link #receiverNum}; a digit-only one is read as ever. */
+    // [rule RT-CBL-COUNTER-NONDIGIT-REFUSED]
+    public static BigDecimal counterNum(Field f, Charset cs) {
+        if (f.kind == Field.Kind.NUMERIC_DISPLAY && Zoned.get(f, cs).dirty) {
+            throw Zoned.refuseCounter();
+        }
+        return num(f, cs);
+    }
+
     /** A numeric item's value in a comparison (#4662): a zoned item holding a non-digit as the oracle compares it. */
     // [rule RT-CBL-COMPARE-NONDIGIT]
     public static BigDecimal cmpNum(Field f, Charset cs) {
@@ -1319,7 +1330,7 @@ public final class Cobol {
     public static boolean string(Field into, Field pointer, Charset cs, StringPart... parts) {
         int off = 0;
         if (pointer != null) {
-            BigDecimal p = num(pointer, cs);
+            BigDecimal p = counterNum(pointer, cs);
             if (p.compareTo(BigDecimal.ONE) < 0 || p.compareTo(BigDecimal.valueOf(into.len)) > 0) return true;
             off = p.intValue() - 1;
         }
@@ -1403,7 +1414,7 @@ public final class Cobol {
         byte[] data = src.raw();
         int off = 0;
         if (pointer != null) {
-            BigDecimal p = num(pointer, cs);
+            BigDecimal p = counterNum(pointer, cs);
             if (p.compareTo(BigDecimal.ONE) < 0 || p.compareTo(BigDecimal.valueOf(data.length)) > 0) return true;
             off = p.intValue() - 1;
         }
@@ -1440,7 +1451,7 @@ public final class Cobol {
             filled++;
         }
         if (pointer != null) store(pointer, BigDecimal.valueOf(off + 1), false, cs);
-        if (tallying != null) store(tallying, num(tallying, cs).add(BigDecimal.valueOf(filled)), false, cs);
+        if (tallying != null) store(tallying, counterNum(tallying, cs).add(BigDecimal.valueOf(filled)), false, cs);
         return off < data.length;
     }
 
@@ -1588,7 +1599,7 @@ public final class Cobol {
         for (int ci = 0; ci < clauses.length; ci++) {
             Clause c = clauses[ci];
             if (c.counter != null) {
-                store(c.counter, num(c.counter, cs).add(BigDecimal.valueOf(counts[ci])), false, cs);
+                store(c.counter, counterNum(c.counter, cs).add(BigDecimal.valueOf(counts[ci])), false, cs);
             }
         }
     }

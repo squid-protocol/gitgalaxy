@@ -281,7 +281,7 @@ The item and storage model the other families work on.
 |---|---|---|---|---|---|---|
 | RT-DATA-BINARY-SIZE | A COMP / COMP-4 / BINARY / COMP-5 item of 1-4 digits is a halfword, 5-9 a fullword, 10-18 a doubleword | `cobol-lr` USAGE clause: BINARY | - | C16 (DIFFERS (oracle vs IBM, declared) / REFUSED (the oracle refuses such a program by name)) | MATCHED | uncalibrated |
 | RT-DATA-SUBSCRIPT | A subscript is 1-based: offset + (index - 1) * the entry's length | `cobol-lr` Subscripting | - | - | MATCHED | uncalibrated |
-| RT-DATA-REFERENCE-MODIFICATION | Reference modification (start 1-based, no length: to the end) is an alphanumeric view of the item's bytes | `cobol-lr` Reference modification | - | X8 (not run) | MATCHED | uncalibrated |
+| RT-DATA-REFERENCE-MODIFICATION | Reference modification (start 1-based, no length: to the end) is an alphanumeric view of the item's bytes | `cobol-lr` Reference modification | - | X8 (REFUSED) | MATCHED | uncalibrated |
 | RT-DATA-STORAGE-AREA | A storage area (WORKING-STORAGE, LINKAGE, an FD record, a map) is its bytes; a DFHCOMMAREA of a stated EIBCALEN holds only those bytes, so a reference past them fails | `cics-apr` EIB fields: EIBCALEN | - | X23 (ASSUMED (REFUSED past EIBCALEN)) | ASSUMED | uncalibrated |
 | RT-DATA-BYTE-TRANSPARENT | Every byte value survives the record charset (a single-byte charset made lossless); X'hh..' is exactly its bytes | `cobol-lr` Alphanumeric literals: hexadecimal notation | - | D2 (DIFFERS (oracle vs IBM, characters) / MATCHED (the bytes, the oracle = the port = IBM)) | MATCHED | uncalibrated |
 

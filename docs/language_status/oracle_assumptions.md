@@ -117,7 +117,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X5 | CICS | Options and conditions IBM leaves open are refused | REFUSED | — |
 | X6 | CICS | WRITEQ with a LENGTH past its FROM item (GenApp LGSTSQ): the task is judged up to the refused WRITEQ (owner decision on #4607); not settled on z/OS (#4050) | REFUSED (the WRITEQ) / judged up to it | yes (GenApp LGACDB01, LGACDB02, LGDPDB01, LGIPDB01, LGUCDB01 error paths) |
 | X7 | CICS | ASSIGN INVOKINGPROG / PROGRAM; LINKed programs run in one task | MATCHED | yes (GenApp LGUPDB01) |
-| X8 | compiler | A reference modification past its item (no SSRANGE): a storage overlay | not run | no |
+| X8 | compiler | A reference modification past its item (no SSRANGE): a storage overlay | REFUSED | no |
 | X9 | CICS | Named counters (GET COUNTER) | MATCHED | yes (GenApp LGACDB01) |
 | X10 | CICS | A LINK target's COMMAREA bytes past the end of the caller's record | DIFFERS | no |
 | X11 | CICS | ASKTIME ABSTIME into a field narrower than S9(15) COMP-3 (GenApp's WS-ABSTIME) | DIFFERS | yes (GenApp error paths, #4173) |
@@ -1250,16 +1250,26 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   WRITEQ-TS line, so any task that wrote TS differed. The item is read in each side's page: the stub's storage page,
   and the det port's region page (CCSID 037 by default, #4528); a port in another region page shows as a difference.
 
-### X8. A reference modification past its item — not run
+### X8. A reference modification past its item — refused by name
 - **What.** GenApp's LGAPDB01 MOVEs into `WS-VARY-CHAR(1:WS-VARY-LEN)`, the COMMAREA's length less the request's:
   with the 32500 bytes its caller LGAPOL01 passes, about 28K past WS-VARY-CHAR's 3900. Compiled without SSRANGE (IBM's
   default) that overwrites whatever follows in storage; GnuCOBOL's layout is not IBM's.
 - **Effect.** The det port stops (an index error), so such a scenario can never be proven by accident; the case leaves
-  it out and says so. A COBOL-side check (GnuCOBOL's EC-BOUND-REF-MOD) would turn it into a refusal by name.
+  it out and says so. Since #4449 the COBOL oracle is compiled with `-fec=EC-BOUND-SUBSCRIPT` and `-fec=EC-BOUND-REF-MOD` (`BOUND_FLAGS` in
+  `equivalence_common.py`), so a scenario that drives either past its item stops with a libcob bounds error and the
+  harness refuses it by name instead of comparing storage-layout luck.
 - **A subscript past its table is the same** (#4463): CardDemo COMEN01C rejects an option above 11, then still reads
   `CDEMO-MENU-OPT-USRTYPE(WS-OPTION)`; option 99 reads 4K past the record. carddemo-menu's `option-12-typed-over` sent
   99 from #4049 on, and its det port stopped there (an index error) -- the case now sends 12, inside the 12-entry
-  table. GnuCOBOL's EC-BOUND-SUBSCRIPT would make the COBOL side refuse such a scenario by name.
+  table. The same flags now refuse such a scenario by name.
+- **How a case answers it.** A CICS case must list each overrunning scenario in its `bounds_refused` (scenario ->
+  reason); it is then reported as refused, never proven. An unlisted one fails the run with every overrun named. A
+  derived scenario is refused without a listing. Batch and CALL runs fail with the same message.
+- **Found in the burned estates (#4449).** carddemo-cardlist: 16 scenarios (COCRDLIC line 518, subscript 0 of
+  `VIEW-REQUESTED-ON`); carddemo-cotrtlic: 6 (`WS-STRING-OUT` reference-modified with length 0); carddemo-menu:
+  `option-zero`, `option-blank` (subscript 0 of `CDEMO-MENU-OPT-USRTYPE`); cbsa-bnk1cac `rate-three-places` and
+  cbsa-bnk1uac `rate-four-places` (`INTRTI` reference-modified past its 7 bytes). Not covered: `cics_crucible.py`
+  compiles without the flags.
 
 ### X9. Named counters — MATCHED
 - GET COUNTER returns the counter's value and then adds one (IBM CICS TS, GET COUNTER); a counter the region does not

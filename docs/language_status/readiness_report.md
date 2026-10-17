@@ -9,50 +9,42 @@ the charter in `definition_of_done.md`. Counts only; a level is an evidence leve
 
 | level | programs at exactly this level |
 |---|---|
-| L0 inventoried | 14 |
-| L1 translated whole | 1 |
-| L2 executed equivalent | 3 |
+| L0 inventoried | 9 |
+| L1 translated whole | 3 |
+| L2 executed equivalent | 4 |
 | L3 paragraph coverage | 13 |
-| L4 branch coverage | 13 |
+| L4 branch coverage | 15 |
 | L5 mutants accounted for | 0 |
 
-- translated whole: 30 / 44 (68%); with holes: 11; refused: 3
+- translated whole: 35 / 44 (80%); with holes: 9; refused: 0
 - whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0
-- executed equivalent (L2 and above): 29 / 44
+- executed equivalent (L2 and above): 32 / 44
 - charter bars for L3 / L4: paragraphs 100.0%, branches 100.0%
-
-Refused whole, by reason:
-
-- 2 x missing copybook CMQGMOV
-- 1 x missing copybook CMQODV
 
 Era evidence (programs by latest era a tell reaches):
 
 era 0: 0, era 1: 5, era 2: 22, era 3: 15, era 4: 0, era none: 2
 
-### Rules to land (13 gap classes; top 13, the `cics_census.py blockers` order)
+### Rules to land (10 gap classes; top 10, the `cics_census.py blockers` order)
 
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
 | 1 | <name>: <name> is not defined in a record of file <name> | 2 | 0 | 2 | era 3: 2 |
-| 2 | missing copybook CMQGMOV (refuses the whole program: upper bound) | 2 | 0 | 2 | era 3: 2 |
-| 3 | DSNTIAC: Db2's message text is not modelled | 1 | 0 | 1 | era 2: 1 |
-| 4 | missing copybook CMQODV (refuses the whole program: upper bound) | 1 | 0 | 1 | era 3: 1 |
-| 5 | CALL CBLTDLI | 0 | 3 | 3 | - |
-| 6 | ENTRY DLITCBL: an alternate entry point is not modelled | 0 | 3 | 3 | - |
-| 7 | ACCEPT FROM SYSIN | 0 | 1 | 2 | - |
-| 8 | <name> SET ADDRESS OF | 0 | 1 | 1 | - |
-| 9 | ALTER not modelled | 0 | 1 | 1 | - |
-| 10 | CALL MVSWAIT | 0 | 1 | 1 | - |
-| 11 | <name>: no such item | 0 | 0 | 3 | - |
-| 12 | EXEC DLI | 0 | 0 | 3 | - |
-| 13 | EXEC CICS <class>.<property>: a property the port cannot convert | 0 | 0 | 2 | - |
+| 2 | DSNTIAC: Db2's message text is not modelled | 1 | 0 | 1 | era 2: 1 |
+| 3 | ACCEPT FROM SYSIN | 0 | 1 | 2 | - |
+| 4 | <name> SET ADDRESS OF | 0 | 1 | 1 | - |
+| 5 | ALTER not modelled | 0 | 1 | 1 | - |
+| 6 | CALL MVSWAIT | 0 | 1 | 1 | - |
+| 7 | <name>: no such item | 0 | 0 | 4 | - |
+| 8 | EXEC DLI | 0 | 0 | 4 | - |
+| 9 | EXEC CICS <class>.<property>: a property the port cannot convert | 0 | 0 | 2 | - |
+| 10 | INITIALIZE REPLACING of the table <name>, which holds ALPHANUMERIC items REPLACING does not name | 0 | 0 | 1 | - |
 
 ### Missing inputs
 
 - assumed options awaiting customer confirmation: 19
 - by estate_intake checklist section: 2: 10, 3: 3, 4: 5, 5: 1
-- missing copybooks: CMQGMOV (2), CMQODV (1)
+- missing copybooks: none
 
 ### Oracle caveats the estate's commands name (upper bound)
 
@@ -122,15 +114,15 @@ era 0: 0, era 1: 0, era 2: 0, era 3: 0, era 4: 7, era none: 3
 | level | programs at exactly this level |
 |---|---|
 | L0 inventoried | 0 |
-| L1 translated whole | 7 |
+| L1 translated whole | 6 |
 | L2 executed equivalent | 12 |
-| L3 paragraph coverage | 6 |
+| L3 paragraph coverage | 7 |
 | L4 branch coverage | 6 |
 | L5 mutants accounted for | 0 |
 
 - translated whole: 31 / 31 (100%); with holes: 0; refused: 0
 - whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0
-- executed equivalent (L2 and above): 24 / 31
+- executed equivalent (L2 and above): 25 / 31
 - charter bars for L3 / L4: paragraphs 100.0%, branches 100.0%
 
 Era evidence (programs by latest era a tell reaches):
@@ -247,7 +239,7 @@ Era evidence (programs by latest era a tell reaches):
 
 era 0: 0, era 1: 0, era 2: 2, era 3: 0, era 4: 1, era none: 3
 
-### Rules to land (13 gap classes; top 13, the `cics_census.py blockers` order)
+### Rules to land (11 gap classes; top 11, the `cics_census.py blockers` order)
 
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
@@ -259,11 +251,9 @@ era 0: 0, era 1: 0, era 2: 2, era 3: 0, era 4: 1, era none: 3
 | 6 | CALL EPSCSMRI | 0 | 0 | 1 | - |
 | 7 | CALL EPSCSMRO | 0 | 0 | 1 | - |
 | 8 | CALL EPSCSMRX | 0 | 0 | 1 | - |
-| 9 | EXEC CICS GET CONTAINER INTOCCSID | 0 | 0 | 1 | - |
-| 10 | EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents | 0 | 0 | 1 | - |
-| 11 | EXEC CICS PUT CONTAINER FROMCCSID | 0 | 0 | 1 | - |
-| 12 | EXEC CICS SOAPFAULT CREATE | 0 | 0 | 1 | - |
-| 13 | SET TO ENTRY: procedure / function pointers are not modelled | 0 | 0 | 1 | - |
+| 9 | EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents | 0 | 0 | 1 | - |
+| 10 | EXEC CICS SOAPFAULT CREATE | 0 | 0 | 1 | - |
+| 11 | SET TO ENTRY: procedure / function pointers are not modelled | 0 | 0 | 1 | - |
 
 ### Missing inputs
 
@@ -282,6 +272,7 @@ era 0: 0, era 1: 0, era 2: 2, era 3: 0, era 4: 1, era none: 3
 | X42 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 |
 | X47 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 |
 | X52 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 |
+| X65 | REFUSED | CICS | 1 |
 
 ## zecs
 
@@ -309,15 +300,16 @@ Era evidence (programs by latest era a tell reaches):
 
 era 0: 0, era 1: 0, era 2: 0, era 3: 0, era 4: 4, era none: 3
 
-### Rules to land (5 gap classes; top 5, the `cics_census.py blockers` order)
+### Rules to land (6 gap classes; top 6, the `cics_census.py blockers` order)
 
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
 | 1 | refused: CICS Assembler (refuses the whole program: upper bound) | 2 | 0 | 2 | era none: 2 |
 | 2 | <name> ADDRESS OF <name>: not a LINKAGE N record | 0 | 0 | 1 | - |
-| 3 | <name>: a pointer a REDEFINES overlays | 0 | 0 | 1 | - |
-| 4 | EXEC CICS <name>: a pointer a REDEFINES overlays | 0 | 0 | 1 | - |
-| 5 | ZUIDSTCK: no program of that name with a CALL entry in the estate | 0 | 0 | 1 | - |
+| 3 | <name>: a REDEFINES overlays a POINTER with it | 0 | 0 | 1 | - |
+| 4 | <name>: a pointer a REDEFINES overlays | 0 | 0 | 1 | - |
+| 5 | EXEC CICS <name>: a pointer a REDEFINES overlays | 0 | 0 | 1 | - |
+| 6 | ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the N bytes it returns in | 0 | 0 | 1 | - |
 
 ### Missing inputs
 

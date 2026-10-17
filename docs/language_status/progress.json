@@ -1,5 +1,5 @@
 {
- "commit": "0e39ebb9b",
+ "commit": "1cf842c42",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -119,7 +119,7 @@
   },
   "translator": {
    "of": 129,
-   "whole": 110
+   "whole": 115
   }
  },
  "eras": {
@@ -129,17 +129,17 @@
    "programs": 0
   },
   "1": {
-   "l2_plus": 4,
+   "l2_plus": 5,
    "l4_plus": 0,
    "programs": 9
   },
   "2": {
-   "l2_plus": 62,
-   "l4_plus": 20,
+   "l2_plus": 63,
+   "l4_plus": 22,
    "programs": 70
   },
   "3": {
-   "l2_plus": 9,
+   "l2_plus": 11,
    "l4_plus": 0,
    "programs": 16
   },
@@ -156,7 +156,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-17T07:07:11Z",
+  "as_of": "2026-10-17T08:27:41Z",
   "core": {
    "closed": 120,
    "open": 26,
@@ -417,21 +417,21 @@
  "ladder": {
   "estates": {
    "aws-mainframe-modernization-carddemo": {
-    "l2_plus": 29,
-    "l2_plus_pct": 65.9,
-    "l4_plus": 13,
-    "l4_plus_pct": 29.5,
+    "l2_plus": 32,
+    "l2_plus_pct": 72.7,
+    "l4_plus": 15,
+    "l4_plus_pct": 34.1,
     "l5": 0,
     "levels": {
-     "L0": 14,
-     "L1": 1,
-     "L2": 3,
+     "L0": 9,
+     "L1": 3,
+     "L2": 4,
      "L3": 13,
-     "L4": 13,
+     "L4": 15,
      "L5": 0
     },
     "programs": 44,
-    "translated_whole": 30
+    "translated_whole": 35
    },
    "cics-async-api-credit-card-application-example": {
     "l2_plus": 10,
@@ -451,16 +451,16 @@
     "translated_whole": 10
    },
    "cics-banking-sample-application-cbsa": {
-    "l2_plus": 24,
-    "l2_plus_pct": 77.4,
+    "l2_plus": 25,
+    "l2_plus_pct": 80.6,
     "l4_plus": 6,
     "l4_plus_pct": 19.4,
     "l5": 0,
     "levels": {
      "L0": 0,
-     "L1": 7,
+     "L1": 6,
      "L2": 12,
-     "L3": 6,
+     "L3": 7,
      "L4": 6,
      "L5": 0
     },
@@ -520,21 +520,21 @@
    }
   },
   "total": {
-   "l2_plus": 99,
-   "l2_plus_pct": 76.7,
-   "l4_plus": 36,
-   "l4_plus_pct": 27.9,
+   "l2_plus": 103,
+   "l2_plus_pct": 79.8,
+   "l4_plus": 38,
+   "l4_plus_pct": 29.5,
    "l5": 0,
    "levels": {
-    "L0": 19,
-    "L1": 11,
-    "L2": 30,
-    "L3": 33,
-    "L4": 36,
+    "L0": 14,
+    "L1": 12,
+    "L2": 31,
+    "L3": 34,
+    "L4": 38,
     "L5": 0
    },
    "programs": 129,
-   "translated_whole": 110
+   "translated_whole": 115
   }
  },
  "oracle": "GnuCOBOL plus IBM documentation, not z/OS",

@@ -2584,7 +2584,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   object it holds by reference (a nested group, a table or its element, a list element, a map value, the byte area). A copy
   (a new object), a failed XCTL, level 1 and the XCTL target's own DTO are not refused. A String or number cannot be traced by
   reference (#5060), so a successful XCTL whose COMMAREA equals a value the DTO holds (any field, nested or primitive) is refused
-  too; an equal-valued copy is over-refused (refuse, never guess), a value the DTO does not hold is not.
+  too; an equal-valued copy is over-refused (refuse, never guess), a value the DTO does not hold is not. Numbers match by numeric value whatever their width or scale (an int field passed as a long, 1.5 and 1.50), and an element of a primitive table (`int[]`, `char[]`) is a value the DTO holds.
 - **Aliases (#4957).** The det port marks an XCTL whose COMMAREA lies inside any LINKAGE 01 record, not only DFHCOMMAREA: a CALLed
   subprogram's USING record (`CALL 'SUB' USING DFHCOMMAREA`) is the LINK caller's storage under another name, and refuses by the
   same runtime check (only when the program was LINKed with a COMMAREA). `SET ADDRESS OF` (direct or through a pointer) is

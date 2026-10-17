@@ -95,3 +95,28 @@ def test_flaky_steps_go_through_ci_retry(name, needle, pin):
     for ln in lines:
         assert "ci_retry.sh" in ln, ln
     assert any(pin in ln for ln in lines)
+
+
+# The corpus clone: 13 workflows fetch language-crucible at the pin from tests/crucible_pins.toml.
+CLONE_WORKFLOWS = sorted(
+    p.name for p in WORKFLOWS.glob("*.yml") if "language-crucible.git" in p.read_text(encoding="utf-8")
+)
+
+
+def test_the_clone_site_list_is_not_empty():
+    assert len(CLONE_WORKFLOWS) >= 13
+
+
+@pytest.mark.parametrize("name", CLONE_WORKFLOWS)
+def test_corpus_clone_goes_through_ci_retry_and_keeps_the_pin(name):
+    lines = [
+        ln.strip()
+        for ln in (WORKFLOWS / name).read_text(encoding="utf-8").splitlines()
+        if "git clone" in ln and "language-crucible.git" in ln and not ln.lstrip().startswith("#")
+    ]
+    assert lines, f"{name}: no language-crucible clone left"
+    for ln in lines:
+        assert "tests/tools/ci_retry.sh" in ln, ln
+        # a retry starts from a clean directory (a partial clone would fail every later try) and clones the pin
+        assert ln.index("rm -rf language-crucible") < ln.index("git clone"), ln
+        assert '--branch "$1"' in ln and ln.endswith('_ "$ref"'), ln

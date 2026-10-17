@@ -97,6 +97,7 @@ ASSIGN_TASK_FACTS = {"STARTCODE": "STARTCODE", "USERID": "USERID", "FACILITY": "
 ASSIGN_REGION_FACTS = ("APPLID", "SYSID")  # stated by a case's "region"
 
 # #5077: a whole COBOL word -- not the front of a hyphenated user name (EIBRCODE-NICE) or a literal's text ('EIBFN: ')
+_DEBUGGING_MODE = re.compile(r"\bWITH\s+DEBUGGING\s+MODE\b", re.IGNORECASE)
 _EIB = re.compile(r"(?<![A-Z0-9_-])EIB[A-Z0-9]+(?![A-Z0-9_-])")
 LINKED_NOT_MEASURED = "coverage: not measured for a LINKed program"  # #4270
 _COV = re.compile(r"(\d+)/(\d+) paragraphs and (\d+)/(\d+) branches")
@@ -439,11 +440,16 @@ def crucible_runs(crucible_dir: Path = CRUCIBLE, branches: bool = False) -> dict
 def code_only(text: str) -> str:
     """The program with every non-code span blanked, length-preserving, line structure kept: string literals
     (including one continued onto the next line by a column-7 hyphen) and `*>` floating comment tails. Comment lines
-    (column 7 `*` or `/`) are left for `cc.fixed_format_text` to drop. #5089: one rule for every fact keyword."""
+    (column 7 `*` or `/`) are left for `cc.fixed_format_text` to drop. A column-7 `D` line is a comment unless the
+    source has an active `WITH DEBUGGING MODE` (IBM), so it is blanked too. #5089: one rule for every fact keyword."""
     out, quote = [], ""
-    for ln in text.splitlines():
-        if len(ln) <= 6 or ln[6] in "*/":
-            out.append(ln)
+    lines = text.splitlines()
+    debugging = any(
+        len(ln) > 6 and ln[6] not in "*/" and _DEBUGGING_MODE.search(ln[:72].split("*>")[0]) for ln in lines
+    )
+    for ln in lines:
+        if len(ln) <= 6 or ln[6] in "*/" or (ln[6] in "Dd" and not debugging):
+            out.append(ln[:7] + " " * (len(ln) - 7) if len(ln) > 7 and ln[6] in "Dd" else ln)
             quote = ""
             continue
         code = list(ln[:72])

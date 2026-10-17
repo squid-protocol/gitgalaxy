@@ -4664,6 +4664,53 @@ class EquivalenceRunTest {{
 
     @Autowired org.springframework.transaction.PlatformTransactionManager transactions;
 
+    /** #5089 (register Q3): the task's file unit of work. IBM: SYNCPOINT ROLLBACK ends it and the task's next
+     *  recoverable change starts a new one, committed when the task ends -- restart() backs the file changes out
+     *  and begins that next one. An abend or a refusal marks the CURRENT one rollback-only. */
+    static final class Uow {{
+        private final org.springframework.transaction.PlatformTransactionManager tm;
+        private org.springframework.transaction.TransactionStatus st;
+
+        Uow(org.springframework.transaction.PlatformTransactionManager tm) {{
+            this.tm = tm;
+            this.st = tm.getTransaction(new org.springframework.transaction.support.DefaultTransactionDefinition());
+        }}
+
+        void setRollbackOnly() {{
+            st.setRollbackOnly();
+        }}
+
+        void restart() {{
+            tm.rollback(st);
+            st = tm.getTransaction(new org.springframework.transaction.support.DefaultTransactionDefinition());
+        }}
+
+        void end() {{
+            if (st.isRollbackOnly()) {{
+                tm.rollback(st);
+            }} else {{
+                tm.commit(st);
+            }}
+        }}
+
+        void abort() {{
+            if (!st.isCompleted()) {{
+                tm.rollback(st);
+            }}
+        }}
+    }}
+
+    private void fileUnit(java.util.function.Consumer<Uow> body) {{
+        Uow unit = new Uow(transactions);
+        try {{
+            body.accept(unit);
+        }} catch (RuntimeException | Error e) {{
+            unit.abort();
+            throw e;
+        }}
+        unit.end();
+    }}
+
     /** #4173: a LINK to a program the case does not run ends the task there, as the COBOL side's stub does
      *  (NOPROGRAM) -- only a derived SQL-fault task reaches one; it is judged up to that LINK. */
     static final class NotRun extends RuntimeException {{
@@ -4839,8 +4886,8 @@ class EquivalenceRunTest {{
                 continue;  // not judged: recorded, never run unfaulted
             }}
             // one unit of work: a SYNCPOINT ROLLBACK, or an abend that ends the task, backs its changes out
-            {db2_begin}new org.springframework.transaction.support.TransactionTemplate(transactions).executeWithoutResult(status -> {{
-                task.onRollback(() -> {{ status.setRollbackOnly(); {db2_rollback_now}}});
+            {db2_begin}fileUnit(status -> {{
+                task.onRollback(() -> {{ status.restart(); {db2_rollback_now}}});
                 try {{
                     if (facades) {{
                         try (CicsTask.Joined joined = CicsTask.join(region)) {{

@@ -234,6 +234,14 @@ back to the DTO's bytes and was never seen. The crucible cannot yet take a deter
 runtime's ASCII page and the crucible's expected logs are EBCDIC (a `PC-STEP` of `X'31'` against `X'F1'`), so the
 crucible ports stay model-written and the byte path is proven on the equivalence side.
 
+**The crucible now has a byte-path scenario (#4965).** #5053 made the comparison page-aware, so the deterministic port
+of PCWIZ (and PCCONF, the program it LINKs/XCTLs to: 39/39 and 47/47 statements, no holes) is committed under
+`tests/cics_crucible/det-ports/pc-wizard` (not `ports/`: it is no model port, no provenance; `tests/tools/cics_crucible_det.py`
+regenerates it and lays the runtime beside it). `cics_crucible.py --cases pc-wizard --sides java-facade --ports <dir>`
+passes 6/6 on it with real `lastAnswerBytes()` (PCWIZ RETURNs TRANSID PC02/PC03 with a 30-byte COMMAREA). Deleting
+`lastAnswerBytes = task.returnedBytes();` from it fails 6/6 ("lastAnswerBytes() of PCWIZ is not the bytes its RETURN
+passes on"). Measured 2026-10-17; `test_det_port_bytes_4965.py` runs both under `EQUIVALENCE_E2E=1`.
+
 ## The test-strengthening loop (#4049)
 
 `tests/tools/strengthen.py run <case> --work DIR --mutation MDIR` gives a model the case's uncovered COBOL

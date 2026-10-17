@@ -25,8 +25,12 @@ The oracle is GnuCOBOL plus gitgalaxy's CICS / LE / Db2 models (or, for a crucib
 expected logs), not IBM z/OS: every level carries the caveats of docs/language_status/oracle_assumptions.md. Approval
 and staleness are columns, not rungs: a stale record keeps the level it was measured at, marked stale.
 
-Lines are not measured: no COBOL source is committed, so a lines roll-up needs the corpora. The weights used are
-paragraphs and branch outcomes, which every record holds. Only burned estates are reported (owner, 2026-10-09).
+Lines are the PROCEDURE DIVISION code lines of the program's own source (comments and blank lines excluded,
+copybooks not expanded), read from the pinned corpus checkout (`program_source` of the case; for a crucible port the
+cics-crucible checkout). No COBOL source is committed, so a program whose checkout is absent is "not measured" and
+left out of the line totals; the summary says how many programs were measured. Lines at a level are the lines of the
+programs at that level or above; coverage weighted by lines uses paragraph coverage x procedure lines. Only burned
+estates are reported (owner, 2026-10-09).
 """
 
 from __future__ import annotations
@@ -59,6 +63,41 @@ OPEN_SURVIVORS = ("untriaged", "case_gap", "harness_gap")
 SURVIVOR_CLASSES = ("case_gap", "harness_gap", "equivalent", "unreachable", "untriaged")
 FORBIDDEN_WORDS = ("proven", "verified", "guaranteed")  # the rendered text uses evidence levels instead
 NOT_MEASURED_LINES = "not measured (no COBOL source is committed; needs the corpora)"
+CBL_EXTS = (".cbl", ".CBL", ".cob", ".COB")
+
+
+def source_path(t: ev.Target) -> Path | None:
+    """The program's COBOL source in the pinned corpus checkout (or the cics-crucible checkout), or None."""
+    if t.kind == "crucible":
+        import cics_crucible as cc  # noqa: PLC0415 -- only a crucible row needs it
+
+        for name in (t.program, t.program.lower()):
+            for ext in CBL_EXTS:
+                found = sorted(cc.crucible_path(None).glob(f"cases/*/{t.case}/src/{name}{ext}"))
+                if found:
+                    return found[0]
+        return None
+    rel = ev._case_json(t.case).get("program_source")
+    if not rel:
+        return None
+    import mainframe_corpus as mc  # noqa: PLC0415
+
+    path = mc.cache_root() / t.corpus.get("name", "") / rel
+    return path if path.is_file() else None
+
+
+def source_lines(path: Path | None) -> dict[str, int] | None:
+    """{procedure, total} code lines of one COBOL source (comments / blanks excluded), None when it is unavailable."""
+    if path is None or not path.is_file():
+        return None
+    import cobol_coverage as cc  # noqa: PLC0415 -- imports gitgalaxy; only a lines roll-up needs it
+
+    from gitgalaxy.core.source_text import read_source  # noqa: PLC0415 -- same reason
+
+    text = read_source(path).text
+    free = bool(cc._FREE.search(text))
+    total = sum(1 for x in text.split("\n") if x.strip() and not cc._is_comment(x.rstrip("\r"), free))
+    return {"procedure": sum(1 for _, code in cc._code_lines(text) if code.strip(" .")), "total": total}
 
 
 def estate_of(t: ev.Target) -> str:
@@ -134,6 +173,7 @@ def row_of(t: ev.Target, rec: dict[str, Any] | None, st: dict[str, Any]) -> dict
                     "stale": st["sections"].get("mutation"), "commit": mut.get("commit")}  # fmt: skip
     return {
         **row,
+        **({"lines": src} if (src := source_lines(source_path(t))) else {}),
         "has_record": True,
         "executed_equivalent": proof.get("verdict") == "proven",
         "proof": {
@@ -231,7 +271,7 @@ def build(keys: list[str] | None = None, live: bool = True) -> dict[str, Any]:
         "format": FORMAT,
         "ladder": LEVEL_NAMES,
         "live": live,
-        "lines": NOT_MEASURED_LINES,
+        "lines": "see each summary: procedure code lines where the corpus checkout is present, else not measured",
         "refused_estates": refused,
         "summary": summarise(chosen),
         "estates": {e: {"summary": summarise(rs), "programs": rs} for e, rs in estates.items()},
@@ -259,6 +299,21 @@ def summarise(rows: list[dict[str, Any]]) -> dict[str, Any]:
             surv.update(m["survivors"])
             open_surv += m["open_survivors"]
     n = len(rows)
+    measured = [r for r in rows if r.get("lines")]
+    lines = {
+        "programs_measured": len(measured),
+        "procedure": sum(r["lines"]["procedure"] for r in measured),
+        "total": sum(r["lines"]["total"] for r in measured),
+        "at_or_above": {
+            lv: sum(r["lines"]["procedure"] for r in measured if r["level"] in LEVELS[LEVELS.index(lv) :])
+            for lv in LEVELS[2:]
+        },
+        "paragraph_weighted": [  # covered / live paragraphs, each program weighted by its procedure lines
+            round(sum(r["lines"]["procedure"] * r["coverage"]["paragraphs"][0] / r["coverage"]["paragraphs"][1]
+                      for r in measured if r["coverage"] and r["coverage"]["paragraphs"][1])),
+            sum(r["lines"]["procedure"] for r in measured if r["coverage"] and r["coverage"]["paragraphs"][1]),
+        ],
+    }  # fmt: skip
     return {
         "programs": n,
         "levels": {lv: levels.get(lv, 0) for lv in LEVELS},
@@ -281,7 +336,7 @@ def summarise(rows: list[dict[str, Any]]) -> dict[str, Any]:
             "survivors": {k: surv.get(k, 0) for k in SURVIVOR_CLASSES},
             "open_survivors": open_surv,
         },  # fmt: skip
-        "lines": NOT_MEASURED_LINES,
+        "lines": lines if measured else NOT_MEASURED_LINES,
     }
 
 
@@ -290,6 +345,19 @@ def summarise(rows: list[dict[str, Any]]) -> dict[str, Any]:
 
 def _pct(a: int, b: int) -> str:
     return f"{a}/{b} ({100 * a / b:.1f}%)" if b else "n/a"
+
+
+def _lines_summary(ln: Any, programs: int) -> str:
+    if isinstance(ln, str):
+        return f"- Lines: {ln}."
+    up = ln["at_or_above"]
+    return (
+        f"- Lines (PROCEDURE DIVISION code lines, copybooks not expanded; {ln['programs_measured']} of {programs} "
+        f"programs measured): {ln['procedure']} ({ln['total']} code lines in all); in programs at E2+ "
+        f"{_pct(up['E2'], ln['procedure'])}, E3+ {_pct(up['E3'], ln['procedure'])}, "
+        f"E4 {_pct(up['E4'], ln['procedure'])}; paragraph coverage weighted by lines "
+        f"{_pct(*ln['paragraph_weighted'])}."
+    )
 
 
 def _summary_lines(s: dict[str, Any]) -> list[str]:
@@ -306,7 +374,7 @@ def _summary_lines(s: dict[str, Any]) -> list[str]:
         f"- Holes (stub / ported_unproven methods): {s['holes']}. Declared differences: {s['declared_differences']}.",
         f"- Approved and current: {s['approved_current']}. Stale records: {s['stale_records']} "
         f"(stale mutation scores: {s['stale_mutation_scores']}).",
-        f"- Lines: {s['lines']}.",
+        _lines_summary(s["lines"], s["programs"]),
     ]
 
 
@@ -316,6 +384,7 @@ def _cell(r: dict[str, Any]) -> list[str]:
     return [
         r["program"],
         r["case"],
+        str(r["lines"]["procedure"]) if r.get("lines") else "-",
         r["level"] + ("" if r.get("level_current", True) else " (stale)"),
         f"{proof.get('runs', '-')} runs / {proof.get('fault_runs', '-')} fault" if proof else "-",
         r["oracle"] or "-",
@@ -336,8 +405,8 @@ def render(rep: dict[str, Any]) -> str:
     out += ["", "## All reported estates", ""] + _summary_lines(rep["summary"])
     for estate, e in rep["estates"].items():
         out += ["", f"## {estate}", ""] + _summary_lines(e["summary"])
-        out += ["", "| program | case | level | proof | oracle | coverage (para / branch) | mutation | differences | approval | "
-                "what stops the next level |", "|---|---|---|---|---|---|---|---|---|---|"]  # fmt: skip
+        out += ["", "| program | case | lines | level | proof | oracle | coverage (para / branch) | mutation | differences | approval | "
+                "what stops the next level |", "|---|---|---|---|---|---|---|---|---|---|---|"]  # fmt: skip
         out += ["| " + " | ".join(c.replace("|", "/") for c in _cell(r)) + " |" for r in e["programs"]]
     if rep["refused_estates"]:
         out += ["", "## Not reported", "",

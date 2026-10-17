@@ -1209,7 +1209,7 @@ class Cics(ContainerCommands):
                 return [f"{ind}task.handleAbendCancel();"]
             if "RESET" in opts:
                 return [f"{ind}task.handleAbendReset();"]
-            raise CicsError("HANDLE ABEND PROGRAM")
+            raise CicsError("HANDLE ABEND without LABEL, CANCEL or RESET")
         if verb == "HANDLE CONDITION":
             out = []
             self.conditions(verb, opts)

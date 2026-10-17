@@ -352,6 +352,12 @@ class _KeyCics(_RbaCics):
         return "store(F)"
 
 
+def test_handle_abend_program_is_refused_by_name_with_its_reason():
+    """#4270 (X67): PROGRAM is refused by the spec's reason, not by a bare option name."""
+    with pytest.raises(C.CicsError, match=r"HANDLE ABEND PROGRAM: option not modelled \(PROGRAM: an abend exit"):
+        _KeyCics().command("HANDLE ABEND PROGRAM('P')", "")
+
+
 @pytest.mark.parametrize(
     "text",
     [
@@ -369,6 +375,7 @@ class _KeyCics(_RbaCics):
         "WRITEQ QUEUE('Q') FROM(REC) TD",  # a TD option after the verb is not TS
         "SEND TEXT FROM(REC) CURSOR(KEY)",
         "HANDLE ABEND LABEL(X) RESP(R)",
+        "HANDLE ABEND PROGRAM('P')",
         "INQUIRE PROGRAM('P') CEDFSTATUS(REC)",  # #4768: STATUS honoured (X34), every other attribute refused
     ],
 )

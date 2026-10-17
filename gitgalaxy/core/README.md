@@ -110,6 +110,10 @@ Transforms the mathematical DAG into a deterministic 3D Cartesian coordinate map
 **Role:** Incremental Delta Scanning.
 During CI/CD pipelines, it is highly inefficient to re-parse 10,000 unchanged files for a 2-file pull request. This module extracts the previous structural state from the SQLite database and rehydrates it directly into RAM, allowing the pipeline to skip the heavy regex extraction phases for unchanged artifacts.
 
+### 7b. `prefetch.py` (The Cold-Storage Prefetch, #3189)
+**Role:** Page-cache warming for cold spinning disks.
+The extraction pool dispatches largest-first and reads concurrently, which on a cold HDD costs one seek per file (illumos-gate: 425 s in `2_Disk_IO`). A daemon thread streams the scan's files in path order (`posix_fadvise(WILLNEED)`, else plain reads) ahead of the pool, capped at 70% of `MemAvailable` and a lead window past what the pool has finished. It is skipped for small scans, in-process runs and non-rotational devices. `GITGALAXY_PREFETCH=0` disables it, `=1` forces it. It only warms the cache, so output cannot change. Phase 0's stat walk is not covered.
+
 ---
 
 ## Engineering Highlights

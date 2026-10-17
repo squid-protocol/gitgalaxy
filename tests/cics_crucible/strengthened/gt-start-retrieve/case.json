@@ -220,6 +220,19 @@
      "text": "GT01 A"
     }
    ]
+  },
+  {
+   "id": "receive-longer-than-20",
+   "summary": "RECEIVE INTO(20) of a 36-byte input: LENGERR, no RESP: the task abends AEIV before any START",
+   "path": "trap",
+   "until": 60,
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "GT01 A plus more than twenty bytes here"
+    }
+   ]
   }
  ]
 }

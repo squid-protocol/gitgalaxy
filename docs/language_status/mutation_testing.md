@@ -125,38 +125,38 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COACTVWC (carddemo-acctview) | equivalence | 150/328 | 105/129 (81%) | 105/113 (93%) | 8 / 0 / 16 / 0 / 0 |
 | CSUTLDTC (carddemo-dateutil) | equivalence | 211/211 | 145/195 (74%) | 145/145 (100%) | 0 / 0 / 10 / 40 / 0 |
 | COMEN01C (carddemo-menu) | equivalence | 150/331 | 86/136 (63%) | 86/93 (92%) | 7 / 0 / 36 / 7 / 0 |
-| CALINK (ca-link-lengths) | crucible | 24/168 | 14/22 (64%) | 14/17 (82%) | 3 / 0 / 5 / 0 / 0 |
-| CASUB (ca-link-lengths) | crucible | 24/40 | 15/24 (62%) | 15/16 (94%) | 1 / 0 / 7 / 1 / 0 |
-| CAXA (ca-xctl-versions) | crucible | 24/78 | 14/21 (67%) | 14/17 (82%) | 3 / 0 / 3 / 1 / 0 |
+| CALINK (ca-link-lengths) | crucible | 24/168 | 15/22 (68%) | 15/15 (100%) | 0 / 0 / 5 / 2 / 0 |
+| CASUB (ca-link-lengths) | crucible | 24/40 | 16/24 (67%) | 16/16 (100%) | 0 / 0 / 7 / 1 / 0 |
+| CAXA (ca-xctl-versions) | crucible | 24/78 | 16/21 (76%) | 16/16 (100%) | 0 / 0 / 3 / 2 / 0 |
 | CAXB (ca-xctl-versions) | crucible | 24/142 | 17/23 (74%) | 17/21 (81%) | 4 / 0 / 1 / 1 / 0 |
-| GTSTART (gt-start-retrieve) | crucible | 24/91 | 15/22 (68%) | 15/19 (79%) | 4 / 0 / 3 / 0 / 0 |
-| GTWORK (gt-start-retrieve) | crucible | 24/87 | 17/21 (81%) | 17/21 (81%) | 4 / 0 / 0 / 0 / 0 |
-| GTSHOW (gt-terminal-coalesce) | crucible | 24/69 | 17/23 (74%) | 17/18 (94%) | 1 / 0 / 5 / 0 / 0 |
-| GTTERM (gt-terminal-coalesce) | crucible | 24/88 | 10/21 (48%) | 10/17 (59%) | 7 / 0 / 3 / 1 / 0 |
-| HCMAIN (hc-abend-link) | crucible | 24/176 | 12/23 (52%) | 12/14 (86%) | 2 / 0 / 4 / 5 / 0 |
-| HCSUB (hc-abend-link) | crucible | 24/85 | 18/24 (75%) | 18/19 (95%) | 1 / 0 / 3 / 2 / 0 |
+| GTSTART (gt-start-retrieve) | crucible | 24/91 | 19/22 (86%) | 19/19 (100%) | 0 / 0 / 3 / 0 / 0 |
+| GTWORK (gt-start-retrieve) | crucible | 24/87 | 20/21 (95%) | 20/20 (100%) | 0 / 0 / 0 / 1 / 0 |
+| GTSHOW (gt-terminal-coalesce) | crucible | 24/69 | 17/23 (74%) | 17/17 (100%) | 0 / 0 / 5 / 1 / 0 |
+| GTTERM (gt-terminal-coalesce) | crucible | 24/88 | 17/21 (81%) | 17/17 (100%) | 0 / 0 / 3 / 1 / 0 |
+| HCMAIN (hc-abend-link) | crucible | 24/176 | 14/23 (61%) | 14/14 (100%) | 0 / 0 / 4 / 5 / 0 |
+| HCSUB (hc-abend-link) | crucible | 24/85 | 18/24 (75%) | 18/18 (100%) | 0 / 0 / 3 / 3 / 0 |
 | HCQREAD (hc-perform-range) | crucible | 24/204 | 14/21 (67%) | 14/14 (100%) | 0 / 0 / 4 / 3 / 0 |
 | HXATTR (hx-attr-bytes) | crucible | 24/143 | 17/22 (77%) | 17/17 (100%) | 0 / 0 / 5 / 0 / 0 |
-| HXEXT (hx-extended-cursor) | crucible | 24/108 | 16/23 (70%) | 16/19 (84%) | 3 / 0 / 1 / 3 / 0 |
+| HXEXT (hx-extended-cursor) | crucible | 24/108 | 20/23 (87%) | 20/20 (100%) | 0 / 0 / 1 / 2 / 0 |
 | PCDETL (pc-aid-menu) | crucible | 24/60 | 14/24 (58%) | 14/14 (100%) | 0 / 0 / 9 / 1 / 0 |
 | PCMENU (pc-aid-menu) | crucible | 24/147 | 14/22 (64%) | 14/15 (93%) | 1 / 0 / 5 / 2 / 0 |
 | PCCONF (pc-wizard) | crucible | 24/247 | 14/23 (61%) | 14/17 (82%) | 3 / 0 / 6 / 0 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/177 | 11/21 (52%) | 11/16 (69%) | 5 / 0 / 3 / 2 / 0 |
-| **all crucible** | | 408 run | **249/380 (66%)** | **249/291 (86%)** | 42 / 0 / 67 / 22 / 0 |
+| **all crucible** | | 408 run | **273/380 (72%)** | **273/286 (95%)** | 13 / 0 / 67 / 27 / 0 |
 | **all equivalence** | | 511 run | **336/460 (73%)** | **336/351 (96%)** | 15 / 0 / 62 / 47 / 0 |
-| **all estate** | | 919 run | **585/840 (70%)** | **585/642 (91%)** | 57 / 0 / 129 / 69 / 0 |
+| **all estate** | | 919 run | **609/840 (72%)** | **609/637 (96%)** | 28 / 0 / 129 / 74 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 54/65 (83%) | 54/58 (93%) |
+| AOR | 54/65 (83%) | 54/57 (95%) |
 | BDM | 1/9 (11%) | 1/2 (50%) |
-| CON | 88/162 (54%) | 88/95 (93%) |
-| COR | 28/51 (55%) | 28/39 (72%) |
-| DEL | 75/115 (65%) | 75/95 (79%) |
-| LIT | 111/140 (79%) | 111/112 (99%) |
+| CON | 92/162 (57%) | 92/95 (97%) |
+| COR | 31/51 (61%) | 31/38 (82%) |
+| DEL | 84/115 (73%) | 84/93 (90%) |
+| LIT | 111/140 (79%) | 111/111 (100%) |
 | NEG | 117/135 (87%) | 117/119 (98%) |
-| RET | 7/17 (41%) | 7/12 (58%) |
-| ROR | 104/146 (71%) | 104/110 (95%) |
+| RET | 13/17 (76%) | 13/13 (100%) |
+| ROR | 106/146 (73%) | 106/109 (97%) |
 <!-- /mutation-scores -->
 
 Run on gitgalaxy `416fb6420` (2026-10-03): CSUTLDTC all 217 mutants; COMEN01C and COACTVWC 150 each (seed 0);

@@ -198,6 +198,9 @@ class EngineUnit:
     start_line: int
     loc: int
     usage_status: int
+    # #4404: the owning program of a unit in a multi-program source (_attribute_programs); None
+    # in a one-program source.
+    program: str | None = None
 
 
 @dataclass
@@ -6976,12 +6979,15 @@ def _program_named(ef: EngineFile, name: str | None) -> str | None:
 
 
 def _attribute_programs(files: dict[str, EngineFile]) -> None:
-    """#4245: name the owning program of every data item of a multi-program source."""
+    """#4245: name the owning program of every data item, and (#4404) of every unit, of a
+    multi-program source. A unit belongs to the last program whose PROCEDURE DIVISION precedes it."""
     for ef in files.values():
         bounds = _program_bounds(ef)
         if bounds:
             for it in ef.data_items:
                 it.program = ef.program_ids[min(bisect.bisect_left(bounds, it.line), len(bounds) - 1)]
+            for unit in ef.units:
+                unit.program = ef.program_ids[max(bisect.bisect_right(bounds, unit.start_line) - 1, 0)]
 
 
 def _name_pli_programs(files: dict[str, EngineFile]) -> None:

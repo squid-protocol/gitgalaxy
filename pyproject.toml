@@ -10,7 +10,7 @@ authors = [
 ]
 description = "An AST-free, LLM-free zero-trust static analysis engine for mapping architectural risk, securing CI/CD pipelines, and modernizing legacy monoliths."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 
 keywords = [
     "static-analysis", 
@@ -146,7 +146,7 @@ exclude = [
     "tests/fixtures/*",
 ]
 line-length = 120
-target-version = "py310"
+target-version = "py311"
 
 [tool.ruff.lint]
 # Deliberately scoped, not `ALL` -- see #469 for the measured rationale behind

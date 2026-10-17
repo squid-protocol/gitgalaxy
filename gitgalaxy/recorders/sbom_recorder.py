@@ -12,7 +12,7 @@ import json
 import logging
 import os
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -171,7 +171,7 @@ class SbomRecorder:
             "serialNumber": f"urn:uuid:{uuid.uuid4()}",
             "version": 1,
             "metadata": {
-                "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "timestamp": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "tools": [
                     {
                         "vendor": "GitGalaxy",

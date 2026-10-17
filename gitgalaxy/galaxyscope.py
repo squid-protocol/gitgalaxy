@@ -24,7 +24,7 @@ import tempfile
 import time
 import zipfile
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, cast
 
@@ -37,6 +37,7 @@ from gitgalaxy.core.guidestar_lens import GuideStarLens
 from gitgalaxy.core.invocation_resolver import resolve_invocations, resolve_transactions
 from gitgalaxy.core.mainframe_boundary import extract_boundary
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS, NetworkRiskSensor
+from gitgalaxy.core.prefetch import start_prefetch
 from gitgalaxy.core.prism import Prism
 from gitgalaxy.core.rust_modules import enclosing_modules, inline_module_spans, rescope_to_file
 from gitgalaxy.core.source_text import parse_source_encoding, read_source, resolve_declared_encoding
@@ -1989,7 +1990,7 @@ class Orchestrator:
             session_meta = {
                 "engine": f"GitGalaxy Scope v{self.version} (Delta Mode)",
                 "target": self.root.name,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "duration_seconds": round(time.time() - start_time, 2),
                 "target_directory": str(self.root.resolve()),
                 "git_audit": self._get_git_audit(),
@@ -2440,7 +2441,17 @@ class Orchestrator:
                 max_workers=max_workers, initializer=_init_worker, initargs=initargs
             )
         )
-        with pool as executor:
+        # #3189: warm the page cache in path order ahead of the (largest-first) pool; cold HDD scans
+        # otherwise pay one seek per file. Cache-only: no byte it reads reaches the scan.
+        prefetcher = start_prefetch(
+            str(self.root),
+            (
+                (str(self.root / self.disk_paths.get(rel, rel)), self.file_size_map.get(rel, 0))
+                for rel in self.stem_map.values()
+                if not inline
+            ),
+        )
+        with pool as executor, prefetcher:
             # Map futures to their file paths in a tracking dictionary.
             # #3175: submit LARGEST-FIRST (LPT scheduling). A single mega-file can be
             # 10-40% of a mega-repo's extraction wall; if it is dequeued late the pool
@@ -2471,6 +2482,7 @@ class Orchestrator:
                 for future in concurrent.futures.as_completed(active_futures):
                     rel_path = active_futures.pop(future)
                     completed_count += 1
+                    prefetcher.note_done(self.file_size_map.get(rel_path, 0))
 
                     if completed_count % 50 == 0:
                         logger.debug(f"PROGRESS: Surveyed {completed_count}/{total_files} coordinates.")
@@ -3917,7 +3929,7 @@ class Orchestrator:
             session_meta = {
                 "engine": f"GitGalaxy Scope v{self.version} (Delta Mode)",
                 "target": self.root.name,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "duration_seconds": round(time.time() - start_time, 2),
                 "target_directory": str(self.root.resolve()),
                 "git_audit": self._get_git_audit(),  # Gets the NEW commit hash

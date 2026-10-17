@@ -7,7 +7,7 @@ whether to send it to anyone.
 
 ## Install
 
-Python 3.10 or later. You do not need Docker, Db2, a JDK or a compiler.
+Python 3.11 or later. You do not need Docker, Db2, a JDK or a compiler.
 
 ```sh
 python -m venv gg && . gg/bin/activate
@@ -36,6 +36,7 @@ gitgalaxy assess /path/to/estate --options estate_options.json --out report.json
   assembler members, in any layout.
 - `--options` is the estate options file (compiler, LE, Db2 and CICS options with their provenance; see
   `gitgalaxy/core/estate_options.py`). Without it, every option is IBM's default.
+- `--no-translate` skips the translate-only dry run (below); the report is then the inventory alone.
 - `--jcl` is not supported yet. The command refuses it by name and does not ignore it. Until it is supported, pass the
   options your JCL sets with `--options`.
 - `--out` may not point inside the estate. Without `--out`, the report goes to standard output.
@@ -52,7 +53,20 @@ gitgalaxy assess /path/to/estate --options estate_options.json --out report.json
 | `features` | per category (`statements`, `data_types`, `cics_commands`, `cics_options`, `sql_forms`, `intrinsic_functions`, `compile_options`, `refusal_families`): each feature name, how often it occurs, and which programs use it |
 | `other` | per category, how many features fell outside its vocabulary: their count, occurrences and programs, never their text |
 | `copybook_gaps` | each copybook a program COPYs that the estate does not hold, and the programs that need it |
-| `programs` | each program: name, `cobol` / `assembler`, status (`parsed`, `unparsed`, `refused by family`), a reason (`missing copybook`, a parser error's class name, or the refusal family), and its era tags |
+| `programs` | each program: name, `cobol` / `assembler`, status (`parsed`, `unparsed`, `refused by family`), a reason (`missing copybook`, a parser error's class name, or the refusal family), its era tags, and for a parsed program its translate-only result (below) |
+| `totals.translation` | parsed programs per translate-only result: `whole`, `holes`, `refused` |
+
+### Translate-only dry run
+
+For each parsed program the command runs the deterministic translator (no model, no Docker, Db2 or JDK) and keeps only
+the outcome: `translation` (`whole`, `holes` or `refused`), `statements`, `translated_statements`, `holes` (a count),
+and for a refusal the exception's class name (`refusal`; `Timeout` after 60 s). A hole's text is never written, because
+it can quote your program.
+
+Read it as a lower bound. The dry run translates each program alone, against a placeholder service and no generated
+project, so a CICS program's COMMAREA contract and the services of the programs it CALLs or LINKs to are not resolved,
+and a callee's holes are not credited to its caller. It is a translation status, not a proof level: nothing here says a
+program behaves as it does on z/OS.
 
 A feature name is printed only if it is in a closed vocabulary:
 

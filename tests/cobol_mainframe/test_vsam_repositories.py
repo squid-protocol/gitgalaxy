@@ -667,3 +667,79 @@ def test_a_callee_run_by_two_jobs_keeps_both_bindings(tmp_path):
     # one DD on two datasets: the repository stays refused by design
     (v,) = [x for x in ir.vsam_files() if x["program"].endswith("/LEAF.cbl")]
     assert v["datasets"] == ["APP.LEAF.KSDS", "APP.OTHER.KSDS"]
+
+
+# ---- #5072: a DD binding belongs to its own step, not the whole job ------------------------------------------------
+_TWO_STEPS = (
+    "//RUN JOB\n//S1 EXEC PGM={a}\n//LEAFDD DD DSN=APP.LEAF.KSDS,DISP=SHR\n"
+    "//S2 EXEC PGM={b}\n//LEAFDD DD DSN=APP.OTHER.KSDS,DISP=SHR\n"
+)
+_FILE_PROG = _prog("OTH", "           OPEN INPUT LEAF-FILE.\n           CLOSE LEAF-FILE.\n", "LEAF")
+
+
+def test_each_step_binds_only_its_own_dd(tmp_path):
+    ir = _call_estate(
+        tmp_path,
+        {"DEF": _DEFINE, "RUN": _TWO_STEPS.format(a="LEAF", b="OTH")},
+        {"LEAF": _LEAF, "OTH": _FILE_PROG},
+    )
+    assert _lineage(ir, "LEAF") == [("RUN.jcl", "LEAFDD", "APP.LEAF.KSDS")]
+    assert _lineage(ir, "OTH") == [("RUN.jcl", "LEAFDD", "APP.OTHER.KSDS")]
+    (v,) = [x for x in ir.vsam_files() if x["program"].endswith("/LEAF.cbl")]
+    assert v["datasets"] == ["APP.LEAF.KSDS"]  # one DSN: no longer refused
+
+
+def test_a_callee_takes_only_its_callers_step(tmp_path):
+    ir = _call_estate(
+        tmp_path,
+        {"DEF": _DEFINE, "RUN": _TWO_STEPS.format(a="TOP", b="OTH")},
+        {
+            "TOP": _prog("TOP", "           CALL 'MID'.\n"),
+            "MID": _prog("MID", "           CALL 'LEAF'.\n"),
+            "LEAF": _LEAF,
+            "OTH": _FILE_PROG,
+        },
+    )
+    assert _lineage(ir, "LEAF") == [("RUN.jcl", "LEAFDD", "APP.LEAF.KSDS")]  # two CALLs down, step S1 only
+
+
+def test_a_callee_reached_from_two_steps_takes_both(tmp_path):
+    ir = _call_estate(
+        tmp_path,
+        {"DEF": _DEFINE, "RUN": _TWO_STEPS.format(a="TOPA", b="TOPB")},
+        {
+            "TOPA": _prog("TOPA", "           CALL 'LEAF'.\n"),
+            "TOPB": _prog("TOPB", "           CALL 'LEAF'.\n"),
+            "LEAF": _LEAF,
+        },
+    )
+    assert _lineage(ir, "LEAF") == [("RUN.jcl", "LEAFDD", "APP.LEAF.KSDS"), ("RUN.jcl", "LEAFDD", "APP.OTHER.KSDS")]
+
+
+def test_one_program_run_by_two_steps_keeps_both_bindings(tmp_path):
+    ir = _call_estate(
+        tmp_path,
+        {"DEF": _DEFINE, "RUN": _TWO_STEPS.format(a="LEAF", b="LEAF")},
+        {"LEAF": _LEAF},
+    )
+    assert _lineage(ir, "LEAF") == [("RUN.jcl", "LEAFDD", "APP.LEAF.KSDS"), ("RUN.jcl", "LEAFDD", "APP.OTHER.KSDS")]
+
+
+def test_a_call_cycle_across_steps_scopes_each_step(tmp_path):
+    ir = _call_estate(
+        tmp_path,
+        {"DEF": _DEFINE, "RUN": _TWO_STEPS.format(a="TOP", b="OTH")},
+        {
+            "TOP": _prog("TOP", "           CALL 'LEAF'.\n"),
+            "LEAF": _prog("LEAF", "           OPEN INPUT LEAF-FILE.\n           CALL 'TOP'.\n", "LEAF"),
+            "OTH": _FILE_PROG,
+        },
+    )
+    assert _lineage(ir, "LEAF") == [("RUN.jcl", "LEAFDD", "APP.LEAF.KSDS")]
+
+
+def test_a_step_that_is_not_found_keeps_the_whole_job(tmp_path):
+    # a DD bound outside any named step of the job (a PROC step) is not scoped away
+    jcl = "//RUN JOB\n//S1 EXEC PGM=LEAF\n//LEAFDD DD DSN=APP.LEAF.KSDS,DISP=SHR\n"
+    ir = _call_estate(tmp_path, {"DEF": _DEFINE, "RUN": jcl}, {"LEAF": _LEAF})
+    assert _lineage(ir, "LEAF") == [("RUN.jcl", "LEAFDD", "APP.LEAF.KSDS")]

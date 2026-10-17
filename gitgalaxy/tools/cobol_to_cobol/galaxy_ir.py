@@ -1027,12 +1027,24 @@ class GalaxyIR:
                 if ds.is_binding:
                     bindings.setdefault((f.file_path, ds.step_name, ds.dd_name), []).append(ds)
 
-        # program path -> the (job, step) pairs that EXEC PGM= it.
+        # #5072: the step an EXEC PGM= sits in. The call row has no step name, but its line is the STEP row's line.
+        # Only a top-level step counts: a PROC step (`in_proc`) keeps the whole job (step None).
+        step_at: dict[tuple[str, int], str] = {}
+        job_steps: dict[str, set] = {}
+        for f in self.files.values():
+            for r in f.job_flow:
+                if r.kind == "STEP" and not r.in_proc and r.step_name:
+                    step_at[(f.file_path, r.line)] = r.step_name
+                    job_steps.setdefault(f.file_path, set()).add(r.step_name)
+
+        # program path -> the (job, step) pairs that EXEC PGM= it (step None: not known, so the whole job).
         runners: dict[str, list] = {}
         for f in self.files.values():
             for call in f.calls:
                 if call.verb == "EXEC PGM" and call.resolves_to:
-                    runners.setdefault(call.resolves_to, []).append((f.file_path, None))
+                    runners.setdefault(call.resolves_to, []).append(
+                        (f.file_path, step_at.get((f.file_path, call.line)))
+                    )
         # #5034: a statically CALLed subprogram runs in its caller's step, under that step's DDs (CardDemo CBSTM03B,
         # called by CBSTM03A): every job that runs a program also runs what it CALLs, however deep. A CALL through a
         # data item (no `resolves_to`) is not followed.
@@ -1059,9 +1071,13 @@ class GalaxyIR:
                 if ds.is_binding:
                     continue
                 matched = False
-                for job_path, _ in runners.get(f.file_path, []):
+                for job_path, run_step in runners.get(f.file_path, []):
                     for (bj, bstep, bdd), bound in bindings.items():
                         if bj != job_path or bdd != ds.dd_name:
+                            continue
+                        # #5072: IBM gives a step only its own DDs; a binding of another top-level step of the job
+                        # is not this run unit's. A binding in a PROC step or override is kept (not scoped here).
+                        if run_step and bstep != run_step and bstep in job_steps.get(bj, ()):
                             continue
                         for b in bound:
                             matched = True

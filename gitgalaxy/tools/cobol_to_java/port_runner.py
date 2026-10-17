@@ -246,7 +246,7 @@ def extract_java(answer: str) -> tuple[str | None, str]:
 
 # ---- the log -------------------------------------------------------------------------
 def _now() -> str:
-    return _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds")
+    return _dt.datetime.now(_dt.UTC).isoformat(timespec="seconds")
 
 
 def log_event(project: Path, event: dict[str, Any]) -> None:

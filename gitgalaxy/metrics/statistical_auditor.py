@@ -399,7 +399,7 @@ class StatisticalAuditor:
                     # drag the baseline toward zero; one with signal still belongs to it.
                     if not self._is_highly_blended(artifact) and not (artifact.get("rehydrated") and not signal_hits):
                         rhos.append(artifact["_rho"])
-                except Exception as e:  # noqa: PERF203 -- per-iteration isolation: one artifact's failure shouldn't drop the group's stats
+                except Exception as e:
                     self.logger.warning(
                         f"Failed to calculate signal density for '{artifact.get('name', 'unknown')}': {e}"
                     )

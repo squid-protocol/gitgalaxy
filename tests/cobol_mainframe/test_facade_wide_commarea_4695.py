@@ -5,6 +5,7 @@ answer that byte[] (CardDemo COCRDLIC, COCRDSLC, COCRDUPC, COACTVWC, COACTUPC: R
 a deployed caller. Now the service's wideAnswer reads the bytes through the DTO's layout (fromCommarea, #4449) in the port's
 page; the task keeps the bytes (EIBCALEN, the next task's COMMAREA), and lastAnswerBytes() is unchanged. Only a program that
 passes bytes (cx.passes_bytes) carries it, so no other port moves: the helper lives in the service, not in DetCics.
+#5291: an XCTL with no COMMAREA also sets it (the target's RETURN may be wide): CardDemo COMEN01C and COADM01C.
 
 Two layers: the generated source (every facade shape: typed, Object, Object with no own DTO, the byte-carrying overload,
 void, handleLink, a program that passes no bytes) and the Java of wideAnswer itself (every answer class: text, spaces,
@@ -167,3 +168,78 @@ def test_commarea_as_reads_the_bytes_through_the_layout(tmp_path):
     out = dict(line.split("=", 1) for line in res.stdout.splitlines() if "=" in line)
     assert len(out) == 6, res.stdout
     assert all(v == "true" for v in out.values()), out
+
+
+# ---- #5291: an XCTL with no COMMAREA (CardDemo COMEN01C, COADM01C) ------------------------------------------------------
+XCTL_DTO = """\
+package com.x.dto.contract;
+
+/** COBOL record DFHCOMMAREA (XCT.cbl), 5 bytes. */
+public class XctDfhcommarea {
+
+    // CA-HEAD: PIC X(3), offset 0, 3 bytes (xca.cpy)
+    private String caHead;
+
+    // CA-N: PIC 9(2), offset 3, 2 bytes (xca.cpy)
+    private Integer caN;
+}
+"""
+XCTL_STUB = (
+    "package com.x.service;\nimport com.x.cics.CicsTask;\nimport com.x.dto.contract.XctDfhcommarea;\n"
+    "public class XctService {\n"
+    "    public {ret} handleTransaction(String transid, XctDfhcommarea request) {\n"
+    '        region.run(task, "XCT", this::runTask);\n        return task.returned({ret}.class);\n    }\n'
+    "    public XctDfhcommarea xctlNext(XctDfhcommarea request) { return request; }\n"
+    "    public void runTask(CicsTask task) {}\n}\n"
+)
+
+
+def _xct_facade(tmp_path, command: str, ret: str) -> str:
+    """The facade section of the port det translates for a program whose only transfer of control is `command`."""
+    pytest.importorskip("tree_sitter_language_pack")
+    (tmp_path / "XCT.cbl").write_text(
+        "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. XCT.\n       DATA DIVISION.\n"
+        "       WORKING-STORAGE SECTION.\n       01 WS-CA.\n          COPY XCA.\n"
+        "       LINKAGE SECTION.\n       01 DFHCOMMAREA.\n          COPY XCA.\n"
+        "       PROCEDURE DIVISION USING DFHCOMMAREA.\n"
+        f"           {command}\n           EXEC CICS RETURN END-EXEC.\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "xca.cpy").write_text(
+        "          03 CA-HEAD                 PIC X(3).\n          03 CA-N                    PIC 9(2).\n",
+        encoding="utf-8",
+    )
+    contract = tmp_path / "proj/src/main/java/com/x/dto/contract"
+    contract.mkdir(parents=True)
+    (contract / "XctDfhcommarea.java").write_text(XCTL_DTO, encoding="utf-8")
+    vsam = tmp_path / "proj/src/main/java/com/x/entity/vsam"
+    vsam.mkdir(parents=True)
+    (vsam / "CobolRecords.java").write_text("package com.x.entity.vsam; public class CobolRecords {}\n")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    stub = XCTL_STUB.replace("{ret}", ret)
+    r = P.translate(tmp_path / "XCT.cbl", [tmp_path], stub, "com.x", {}, tmp_path / "proj")
+    assert r.stats["holes"] == [], r.stats
+    return r.java
+
+
+@pytest.mark.parametrize("ret", ["Object", "XctDfhcommarea"])
+def test_an_xctl_with_no_commarea_reads_a_wide_answer_in_both_facade_shapes(tmp_path, ret):
+    """The target is dynamic or unnamed by a COMMAREA, so its RETURN can pass wide bytes the facade must read."""
+    java = _xct_facade(tmp_path, "EXEC CICS XCTL PROGRAM('OTHER') END-EXEC", ret)
+    assert "wideAnswer(wide, XctDfhcommarea.class)" in java and "private static <T> T wideAnswer(" in java
+    assert next(ln for ln in java.splitlines() if "task.xctl(" in ln).rstrip().endswith(", null);")
+
+
+@pytest.mark.parametrize("ret", ["Object", "XctDfhcommarea"])
+@pytest.mark.parametrize(
+    "command",
+    [
+        "EXEC CICS XCTL PROGRAM('OTHER') COMMAREA(WS-CA) END-EXEC",  # a COMMAREA within its DTO
+        "EXEC CICS LINK PROGRAM('OTHER') COMMAREA(WS-CA) END-EXEC",
+        "CONTINUE",  # no transfer at all
+    ],
+)
+def test_other_transfers_leave_the_facade_as_it_was(tmp_path, ret, command):
+    java = _xct_facade(tmp_path, command, ret)
+    assert "wideAnswer" not in java

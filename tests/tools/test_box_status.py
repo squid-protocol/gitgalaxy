@@ -1,6 +1,8 @@
 """box_status.decide (box-capacity skill): the verdict an orchestrator acts on before launching an agent or heavy run."""
 
+import os
 import sys
+from collections import namedtuple
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / "box"))
@@ -124,3 +126,24 @@ def test_disks_reads_one_row_per_device():
     rows = bs._disks()
     assert rows and len({r["mount"] for r in rows}) == len(rows)
     assert all(r["free_gb"] <= r["size_gb"] for r in rows)
+
+
+_Usage = namedtuple("_Usage", "total used free")
+
+
+def test_disks_without_statvfs_falls_back_to_disk_usage(monkeypatch):
+    # Windows has no os.statvfs; the AttributeError used to escape and fail the Windows legs of the full-suite gate (#5352)
+    monkeypatch.delattr(os, "statvfs", raising=False)
+    # shutil.disk_usage calls os.statvfs on POSIX, so stand in for the Windows implementation too
+    monkeypatch.setattr(bs.shutil, "disk_usage", lambda _p: _Usage(1000, 400, 600))
+    rows = bs._disks()
+    assert rows and all(r["inodes_free_pct"] is None and r["free_gb"] <= r["size_gb"] for r in rows)
+
+
+def test_disk_paths_split_on_the_platform_separator(monkeypatch, tmp_path):
+    monkeypatch.setenv("GG_DISK_PATHS", os.pathsep.join([str(tmp_path), "/nonexistent-gg-path"]))
+    seen = []
+    real = bs._statvfs
+    monkeypatch.setattr(bs, "_statvfs", lambda p: (seen.append(p), real(p))[1])
+    bs._disks()
+    assert str(tmp_path) in seen and "/nonexistent-gg-path" in seen

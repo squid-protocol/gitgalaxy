@@ -502,7 +502,7 @@ class Chronometer:
                     full_path = Path(root) / name
                     rel_path = nfc(full_path.relative_to(self.root).as_posix())  # #3815: stored form
                     self.mtime_map[rel_path] = os.path.getmtime(full_path)
-                except (OSError, ValueError):  # noqa: PERF203 -- per-iteration isolation: skip an unreadable file, continue the os.walk scan
+                except (OSError, ValueError):
                     continue
 
     def get_file_history_metrics(self, rel_path: str) -> dict[str, Any]:

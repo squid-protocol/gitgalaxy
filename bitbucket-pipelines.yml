@@ -26,7 +26,7 @@ pipelines:
           - |
             if [ "$GG_VERSION" = "local" ]; then
               echo "Dogfooding local GitGalaxy source..."
-              pip install -e ".[yaml]"
+              pip install --no-build-isolation -e ".[yaml]"
             elif [ "$GG_VERSION" = "latest" ]; then
               echo "Installing the hash-pinned GitGalaxy release (templates/requirements)."
               pip install --require-hashes -r templates/requirements/yaml.txt
@@ -76,7 +76,7 @@ pipelines:
             - python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
             - |
               if [ "$GG_VERSION" = "local" ]; then
-                pip install -e ".[yaml]"
+                pip install --no-build-isolation -e ".[yaml]"
               elif [ "$GG_VERSION" = "latest" ]; then
                 pip install --require-hashes -r templates/requirements/yaml.txt
               else

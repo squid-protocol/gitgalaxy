@@ -58,7 +58,9 @@ REPRO: list[tuple[str, str]] = [
     (r"^plan$", "python tests/tools/det_sweep_plan.py --base origin/main"),
     (r"^(compile \(.+\)|committed ports compile)$", RATCHET + " ports"),
     (r"^crosscheck$", RATCHET + " fact-crosscheck"),
-    (r"^ground-truth$", RATCHET + " ground-truth"),
+    # the parts run pytest over tests/cobol_mainframe/ (mainframe-ground-truth.yml); --fast runs none of it
+    (r"^ground-truth part \d+/\d+$", "python -m pytest -q {tests}"),
+    (r"^ground-truth$", RATCHET + " ground-truth   (when a ground-truth part failed too, run that part's repro)"),
     (
         r"^crucible$",
         "tests/tools/box/heavy-run.sh python -m pytest -q tests/cics_crucible && tests/tools/box/heavy-run.sh "
@@ -178,7 +180,8 @@ def repro(name: str, ex: dict[str, Any], kind: str = "real", stale: bool = False
         return None
     for pat, cmd in REPRO:
         if re.search(pat, name):
-            return cmd.format(tests=" ".join(ex["tests"]) or "tests", cases=",".join(ex["cases"]) or "<case>")
+            whole = "tests/cobol_mainframe/" if name.startswith("ground-truth part") else "tests"
+            return cmd.format(tests=" ".join(ex["tests"]) or whole, cases=",".join(ex["cases"]) or "<case>")
     return GATES + " --fast"
 
 

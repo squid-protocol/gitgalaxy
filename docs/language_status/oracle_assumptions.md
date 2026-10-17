@@ -451,6 +451,15 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   Measured on GnuCOBOL 3.1.2 (2026-10-06): `COMPUTE L2 = (L1 - N3) / N4` gives 0, `COMPUTE L2 = L1 / N4 + S1 * 2`
   drops the second term, and `IF S1 + 1 > 2` is false for S1 = 6.25 -- a float expression with a multiplication,
   a parenthesised division or in a comparison is not decided by the oracle at all.
+  - **Three more oracle differences, decided for IBM (#4688, seen by the #4675 fuzz; GnuCOBOL 3.1.2).** The port keeps
+    its answer in each; the vectors are in `test_det_hfp.py`. (1) `MOVE G TO E`, G COMP-1 = 1.875, E `-(5)9.99`: the
+    port gives 1.88 (IBM rounds a float moved to a fixed-point or edited item in the low-order position, "Conversions
+    and precision"), cobc 1.87. (2) `COMPUTE R1 = ((FA / 2) * (0.5 + F4))`, FA COMP-1 5, F4 COMP-2 4, R1 `S9(7)V99`: the
+    port gives 11.25 (long HFP, 2.5 * 4.5, exact), cobc 0.00 (the decimal evaluation above). (3) `ADD FZ2 TO R4`, R4
+    `S9(7)V99 COMP-3` = 0.68, FZ2 a COMP-2 zero: the port gives 0.67. IBM runs any statement with a floating-point
+    operand in floating point (even a zero one), 0.68 is 0.67AE147AE147AE x 16**0 in long HFP (just below 0.68), and
+    the store truncates (ASSUMED, below; pending z/OS calibration, #4702 part 2); cobc keeps 0.68. None of the three
+    shapes is in a burned estate's program (EPSMPMT's float use is the `**` hole above).
 - **The det runtime (since #4271 slice 1)** models HFP: `cobolrt/Hfp.java`, the translator's own model
   `det/hfp.py`.
   - Storage: `Field.hfp`, the bytes as z/OS holds them; a VALUE is encoded at translation (`layout._put_value`).

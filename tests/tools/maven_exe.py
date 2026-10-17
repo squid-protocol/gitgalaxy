@@ -33,6 +33,19 @@ def maven_utf8_env(env: Mapping[str, str] | None = None) -> dict[str, str]:
     return out
 
 
+# #5174: Gradle starts two JVMs, the client (`GRADLE_OPTS`) and the daemon (`org.gradle.jvmargs`, which replaces the
+# daemon's default 512m heap, so the heap is restated).
+GRADLE_DAEMON_ARG = f"-Dorg.gradle.jvmargs=-Xmx512m {JVM_UTF8_FLAGS}"
+
+
+def gradle_utf8_env(env: Mapping[str, str] | None = None) -> dict[str, str]:
+    """A copy of `env` (default: the process's) whose `GRADLE_OPTS` makes Gradle's client JVM write UTF-8; pair it with
+    `GRADLE_DAEMON_ARG` in the argv (the daemon JVM) and `encoding="utf-8"` / `run_decoded` on the call."""
+    out = dict(os.environ if env is None else env)
+    out["GRADLE_OPTS"] = f"{out.get('GRADLE_OPTS', '')} {JVM_UTF8_FLAGS}".strip()
+    return out
+
+
 def decode_output(data: bytes | str | None) -> str:
     """Text for a captured subprocess stream (bytes, or the str a text-mode caller already has), decoded through
     `gitgalaxy.core.source_text` so no byte is lost to an `errors=` handler (#3813)."""

@@ -133,10 +133,27 @@ def _is_maven_launcher(node: ast.expr) -> bool:
     return isinstance(node, ast.Name) and node.id in ("mvn", "mvn_bin")
 
 
+def _is_gradle_launcher(node: ast.expr) -> bool:
+    """#5174: argv[0] is Gradle: `launcher_executable("gradle", ...)`, a literal "gradle"/"gradle.bat"/"gradlew", or `gradle`."""
+    if isinstance(node, ast.Call):
+        func = node.func
+        name = func.id if isinstance(func, ast.Name) else func.attr if isinstance(func, ast.Attribute) else ""
+        if name in ("launcher_executable", "which") and node.args:
+            return _is_gradle_launcher(node.args[0])
+        return False
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        return node.value.replace("\\", "/").rsplit("/", 1)[-1] in ("gradle", "gradle.bat", "gradlew", "gradlew.bat")
+    return isinstance(node, ast.Name) and node.id in ("gradle", "gradle_bin")
+
+
+def _is_jvm_build_launcher(node: ast.expr) -> bool:
+    return _is_maven_launcher(node) or _is_gradle_launcher(node)
+
+
 def _maven_calls(source: str) -> list[ast.Call]:
     """Every `subprocess.run/Popen/...` whose argv is a list starting with Maven (the `[mvn, *flags]` form too).
     Byte-capturing wrappers (`dp.run`) and file-redirecting callers are not matched: they never decode with the locale."""
-    if "subprocess" not in source or "mvn" not in source:
+    if "subprocess" not in source or ("mvn" not in source and "gradle" not in source):
         return []
     found = []
     for node in ast.walk(ast.parse(source)):
@@ -151,18 +168,57 @@ def _maven_calls(source: str) -> list[ast.Call]:
         ):
             continue
         argv = node.args[0]
-        if isinstance(argv, (ast.List, ast.Tuple)) and argv.elts and _is_maven_launcher(argv.elts[0]):
+        # `[argv[0], "-o", *argv[1:]]`: the launcher is a slot of a list the same function built from a launcher
+        if (
+            isinstance(argv, (ast.List, ast.Tuple))
+            and argv.elts
+            and (_is_jvm_build_launcher(argv.elts[0]) or _is_argv_slot(argv.elts[0]))
+        ):
             found.append(node)
     return found
+
+
+def _is_argv_slot(node: ast.expr) -> bool:
+    """#5174: `argv[0]`, the form that hid det_survey's `text=True` mvn call from the guard."""
+    return (
+        isinstance(node, ast.Subscript)
+        and isinstance(node.value, ast.Name)
+        and node.value.id == "argv"
+        and isinstance(node.slice, ast.Constant)
+        and node.slice.value == 0
+    )
+
+
+def _env_helper_names(source: str) -> set[str]:
+    """Names assigned from `maven_utf8_env(...)` / `gradle_utf8_env(...)` anywhere in the file."""
+    names = set()
+    for node in ast.walk(ast.parse(source)):
+        if isinstance(node, ast.Assign) and isinstance(node.value, ast.Call):
+            func = node.value.func
+            if isinstance(func, ast.Name) and func.id in ("maven_utf8_env", "gradle_utf8_env"):
+                names |= {t.id for t in node.targets if isinstance(t, ast.Name)}
+    return names
 
 
 def _maven_violations(source: str, label: str) -> list[str]:
     """A Maven subprocess that captures text must name its charset (`encoding=`), and a `-DargLine=` literal must carry
     the JVM's UTF-8 flags (a non-literal argLine is checked where the variable is built)."""
     bad = []
+    env_names = _env_helper_names(source) if _maven_calls(source) else set()
     for node in _maven_calls(source):
         where = f"{label}:{node.lineno}"
         kw = {k.arg: k.value for k in node.keywords if k.arg}
+        env = kw.get("env")
+        env_ok = (
+            isinstance(env, ast.Call) and getattr(env.func, "id", "") in ("maven_utf8_env", "gradle_utf8_env")
+        ) or (isinstance(env, ast.Name) and env.id in env_names)
+        if not env_ok:
+            bad.append(f"{where}: mvn/gradle JVM started without env=maven_utf8_env(...)/gradle_utf8_env(...)")
+        argv_names = {n.id for n in ast.walk(node.args[0]) if isinstance(n, ast.Name)}
+        if "GRADLE_DAEMON_ARG" in argv_names:
+            pass
+        elif any(_is_gradle_launcher(e) for e in getattr(node.args[0], "elts", [])[:1]):
+            bad.append(f"{where}: gradle without GRADLE_DAEMON_ARG (the daemon JVM keeps the locale charset)")
         text = kw.get("text")
         if text is not None and "encoding" not in kw and not (isinstance(text, ast.Constant) and text.value is False):
             bad.append(f"{where}: mvn uses text= without encoding='utf-8'")
@@ -240,6 +296,30 @@ def test_maven_guard_is_not_blind(rel_path: str):
     assert _maven_calls((REPO_ROOT / rel_path).read_text(encoding="utf-8")), f"{rel_path}: no mvn call found"
 
 
+@pytest.mark.parametrize(
+    "rel_path", ["tests/tools/det_survey.py", "tests/tools/ibm_wca4z_port.py", "tests/tools/java_target_matrix.py"]
+)
+def test_file_redirecting_and_gradle_wrappers_start_utf8_jvms(rel_path: str):
+    """#5174: the callers the subprocess-shape guard cannot see (file redirect, `run_decoded`, a command variable)."""
+    source = (REPO_ROOT / rel_path).read_text(encoding="utf-8")
+    assert "maven_utf8_env(" in source or "gradle_utf8_env(" in source
+    if rel_path.endswith("java_target_matrix.py"):
+        assert "GRADLE_DAEMON_ARG," in source
+        assert "env = gradle_utf8_env(env)" in source
+    if rel_path.endswith("ibm_wca4z_port.py"):
+        assert "<argLine>-Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8</argLine>" in source
+
+
+def test_gradle_daemon_arg_carries_the_utf8_flags_and_keeps_the_heap():
+    sys.path.insert(0, str(REPO_ROOT / "tests" / "tools"))
+    import maven_exe
+
+    assert all(f in maven_exe.GRADLE_DAEMON_ARG for f in MVN_UTF8_FLAGS)
+    assert "-Xmx512m" in maven_exe.GRADLE_DAEMON_ARG
+    out = maven_exe.gradle_utf8_env({"GRADLE_OPTS": "-Dx=1"})
+    assert out["GRADLE_OPTS"] == f"-Dx=1 {maven_exe.JVM_UTF8_FLAGS}"
+
+
 def test_run_maven_argline_carries_the_utf8_flags():
     """The argLine `run_maven` builds is a variable, so the guard cannot see it: pin it at the source."""
     source = (REPO_ROOT / "tests/tools/equivalence_java.py").read_text(encoding="utf-8")
@@ -255,6 +335,11 @@ def test_run_maven_argline_carries_the_utf8_flags():
         'subprocess.run([shutil.which("mvn"), "-q"], text=True)',
         'subprocess.run(["mvn", "-q"], text=True)',
         'subprocess.run([mvn, "test", "-DargLine=-Dx=1"], capture_output=True)',
+        'subprocess.run([mvn_executable(), "-q"], stdout=fh)',  # #5174: file redirect, no env
+        'subprocess.run([mvn_executable(), "-q"], env=dict(os.environ))',
+        'argv = [mvn_executable(), "-q"]\nsubprocess.run([argv[0], "-o", *argv[1:]], capture_output=True, text=True, env=maven_utf8_env())',
+        'subprocess.run([launcher_executable("gradle"), "-q"], env=gradle_utf8_env())',
+        'subprocess.run([launcher_executable("gradle"), "-q", GRADLE_DAEMON_ARG])',
     ],
 )
 def test_maven_guard_flags_locale_decoding(source: str):
@@ -264,9 +349,11 @@ def test_maven_guard_flags_locale_decoding(source: str):
 @pytest.mark.parametrize(
     "source",
     [
-        'subprocess.run([mvn_executable(), "-q"], capture_output=True, text=True, encoding="utf-8")',
-        'subprocess.run([mvn_executable(), "-q"], capture_output=True)',
-        'subprocess.run([mvn, "test", "-DargLine=-Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8 -Dx=1"])',
+        'subprocess.run([mvn_executable(), "-q"], capture_output=True, text=True, encoding="utf-8", env=maven_utf8_env())',
+        'subprocess.run([mvn_executable(), "-q"], capture_output=True, env=maven_utf8_env(e))',
+        'env = maven_utf8_env(e)\nsubprocess.run([mvn_executable(env), "-q"], stdout=fh, env=env)',
+        'subprocess.run([mvn, "test", "-DargLine=-Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8 -Dx=1"], env=maven_utf8_env())',
+        'subprocess.run([launcher_executable("gradle"), "-q", GRADLE_DAEMON_ARG], env=gradle_utf8_env())',
         'subprocess.run(["git", "log"], text=True)',
     ],
 )

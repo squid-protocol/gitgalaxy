@@ -1096,6 +1096,16 @@ class EquivalenceRunTest {
             }
 
             @Override
+            public CicsTask linked(String program, Object commarea, byte[] bytes) {
+                CicsTask t = linked(program, commarea);
+                if (t.linkAreaView() != bytes) {  // #5053: the LINK's own area, by address
+                    throw new IllegalStateException("a facade handed the region a COMMAREA's bytes of " + program
+                            + " that are not the ones the LINK / XCTL made");
+                }
+                return t;
+            }
+
+            @Override
             public void run(CicsTask task, String program, Consumer<CicsTask> self) {
                 if (task == scenarioTask && firstHop == null && top == null) {
                     if (!program.equals(scenarioProgram)) {
@@ -1181,7 +1191,7 @@ class EquivalenceRunTest {
                     self.accept(task);
                     return;
                 }
-                Method m = method(service, "handleLink", 1);
+                Method m = facade(service, "handleLink", 1, false);
                 if (m == null) {
                     entry(p, "runTask");
                     invoke(method(service, "runTask", 1), service, task);
@@ -1192,17 +1202,65 @@ class EquivalenceRunTest {
                     throw new IllegalStateException("handleLink of " + p + " takes a " + m.getParameterTypes()[0]
                             .getName() + ", the LINK / XCTL passed a " + ca.getClass().getName());
                 }
+                // #5053: by the byte-carrying overload when the service has one and the LINK / XCTL passed bytes: the
+                // COMMAREA's bytes in (by address), the bytes the program left in them out (lastLinkBytes())
+                Method mb = facade(service, "handleLink", 2, true);
+                byte[] view = task.linkAreaView();
+                boolean bytes = viaBytes && mb != null && view != null && ca != null
+                        && mb.getParameterTypes()[0].isInstance(ca);
                 CicsTask outer = linked;
                 String outerProgram = linkedProgram;
                 linked = task;
                 linkedProgram = p;
                 entry(p, "handleLink");
-                invoke(m, service, ca);
+                if (bytes) {
+                    usedBytes = true;  // even when it throws: the run is the byte overload's, and is compared
+                    invoke(mb, service, ca, view);
+                } else {
+                    invoke(m, service, ca);
+                }
                 if (linked == task) {
                     throw new IllegalStateException("handleLink of " + p + " did not run its task in the region");
                 }
                 linked = outer;
                 linkedProgram = outerProgram;
+                if (bytes) {
+                    linkBytes(p, task, service, view);
+                }
+            }
+
+            /** #5053: lastLinkBytes() answers the bytes the program left in the LINK's COMMAREA when it took them (null
+             *  when it did not: its DTO is the COMMAREA) -- a facade that stopped assigning them is not proven by the
+             *  DTO's bytes the comparison falls back to. What the caller sees back (the RETURN's caller_commarea) is
+             *  then compared by them: only for the program the LINK reached, whose area is the caller's own (an XCTL
+             *  target's is a copy of the bytes XCTL passed). */
+            void linkBytes(String p, CicsTask task, Object service, byte[] view) {
+                Method a0 = null;
+                for (Method m : service.getClass().getMethods()) {
+                    if (m.getName().equals("lastLinkBytes") && m.getParameterCount() == 0) {
+                        a0 = m;
+                    }
+                }
+                if (a0 == null) {
+                    throw new IllegalStateException("handleLink (bytes) of " + p + " has no lastLinkBytes()");
+                }
+                byte[] left = (byte[]) invoke(a0, service);
+                if (!java.util.Arrays.equals(left, task.linkAreaTaken() ? view : null)) {
+                    throw new IllegalStateException("lastLinkBytes() of " + p
+                            + " is not the bytes its task left in the LINK COMMAREA");
+                }
+                if (left == null || !task.linkAreaOfCaller()) {
+                    return;
+                }
+                List<Map<String, Object>> evs = scenarioTask.events();
+                for (int i = evs.size() - 1; i >= 0; i--) {
+                    Map<String, Object> e = evs.get(i);
+                    if ("RETURN".equals(e.get("event")) && Integer.valueOf(task.level()).equals(e.get("level"))
+                            && !e.containsKey("area_bytes")) {
+                        e.put("area_bytes", java.util.Base64.getEncoder().encodeToString(left));
+                        return;
+                    }
+                }
             }
 
             void entry(String program, String method) {
@@ -1579,6 +1637,8 @@ def _with_answered_bytes(area: Any, answer: str | None, page: str = RUNTIME_PAGE
     if answer is None or not isinstance(area, cc.FieldArea):
         return area
     data = cc.to_ebcdic(cc.RawArea(base64.b64decode(answer), page), layout)
+    if isinstance(area.length, int) and not isinstance(area.length, bool):
+        data = data[: area.length]  # #5053: a LINK's area is its caller's whole storage; the LINK's LENGTH bounds it
     return dataclasses.replace(area, data=data, known=len(data))
 
 
@@ -1654,8 +1714,10 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
                 )
             elif kind == "RETURN" and (e.get("level") or 1) > 1:  # #4004: back to the linking program
                 # #3989: the caller sees the LINK's LENGTH bytes of it (CicsTask records that LENGTH here)
-                ev.update(level=e["level"], caller_commarea=_java_area(e.get("caller_commarea"), src, shapes,
-                                                                       e.get("length")))  # fmt: skip
+                # #5053: and, when the program took the LINK's COMMAREA bytes, the bytes lastLinkBytes() answered
+                ev.update(level=e["level"], caller_commarea=_with_answered_bytes(
+                    _java_area(e.get("caller_commarea"), src, shapes, e.get("length")), e.get("area_bytes"),
+                    RUNTIME_PAGE, _answered_layout(e.get("caller_commarea"), shapes)))  # fmt: skip
             elif kind == "RETURN":
                 ev.update(level=1, transid=e.get("transid"),
                           commarea=_with_answered_bytes(_java_area(e.get("commarea"), src, shapes, e.get("length")),

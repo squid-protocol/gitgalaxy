@@ -3237,7 +3237,7 @@ JAVA_RESERVED = {"abstract", "assert", "boolean", "break", "byte", "case", "catc
                  "switch", "synchronized", "this", "throw", "throws", "transient", "try", "void", "volatile", "while",
                  "true", "false", "null", "var", "record", "yield"}  # fmt: skip
 # the service's own members a paragraph method must not shadow
-METHODS_TAKEN = {"initialState", "perform", "run", "runTask", "runBatch", "runProgram", "handleCall", "handleTransaction", "handleLink",
+METHODS_TAKEN = {"initialState", "perform", "run", "runTask", "runBatch", "runProgram", "handleCall", "handleTransaction", "handleLink", "lastLinkBytes",
                  "store", "condition", "paragraph", "dd", "cx", "task", "files", "datasets", "clock", "handlers",
                  "stores", "heldKey", "caBack", "fields0", "fields1", "fields2", "fields3"}  # fmt: skip
 

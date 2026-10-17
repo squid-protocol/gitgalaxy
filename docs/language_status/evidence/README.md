@@ -9,7 +9,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [COACTVWC](carddemo-acctview.md) | carddemo-acctview | cics | proven, unapproved |  | 20 | 31/32 / 58/69 | 105/129 / 105/113 | 0 | - |
 | [COADM01C](carddemo-adminmenu.md) | carddemo-adminmenu | cics | proven, unapproved |  | 19 | 8/8 / 20/26 | - | 0 | - |
 | [COBIL00C](carddemo-billpay.md) | carddemo-billpay | cics | proven, unapproved |  | 28 | 16/16 / 46/48 | - | 0 | - |
-| [COCRDLIC](carddemo-cardlist.md) | carddemo-cardlist | cics | proven, unapproved |  | 45 | 36/36 / 146/149 | - | 0 | - |
+| [COCRDLIC](carddemo-cardlist.md) | carddemo-cardlist | cics | proven, unapproved |  | 46 | 36/36 / 147/149 | - | 0 | - |
 | [COCRDSLC](carddemo-cardview.md) | carddemo-cardview | cics | proven, unapproved |  | 23 | 30/30 / 69/75 | - | 0 | - |
 | [CBTRN01C](carddemo-dailyval.md) | carddemo-dailyval | batch | proven, unapproved |  | 21 | 18/18 / 65/66 | - | 0 | - |
 | [CSUTLDTC](carddemo-dateutil.md) | carddemo-dateutil | call | proven, unapproved |  | 1 | 2/2 / 4/10 | 145/195 / 145/145 | 0 | - |
@@ -19,7 +19,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [CBACT02C](carddemo-readcard.md) | carddemo-readcard | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | - | 0 | - |
 | [CBCUS01C](carddemo-readcust.md) | carddemo-readcust | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | - | 0 | - |
 | [CBACT03C](carddemo-readxref.md) | carddemo-readxref | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | - | 0 | - |
-| [CORPT00C](carddemo-report.md) | carddemo-report | cics | proven, unapproved |  | 25 | 10/10 / 51/59 | - | 0 | - |
+| [CORPT00C](carddemo-report.md) | carddemo-report | cics | proven, unapproved |  | 26 | 10/10 / 52/59 | - | 0 | - |
 | [COSGN00C](carddemo-signon.md) | carddemo-signon | cics | proven, unapproved |  | 12 | 6/6 / 17/17 | - | 0 | - |
 | [COTRN02C](carddemo-tranadd.md) | carddemo-tranadd | cics | proven, unapproved |  | 49 | 18/18 / 72/75 | - | 0 | - |
 | [COTRN00C](carddemo-tranlist.md) | carddemo-tranlist | cics | proven, unapproved |  | 32 | 16/16 / 96/101 | - | 0 | - |

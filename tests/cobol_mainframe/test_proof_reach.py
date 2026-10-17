@@ -268,7 +268,7 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
                 if p["case"].startswith("crucible:")}  # fmt: skip
     stale = {prog for c, prog in crucible if not _mutated_port_is_current(c, prog)}
     # only the ports not yet re-run are stale: their survivors are skipped until the next run judges them again
-    assert crucible and stale == {"PCCONF", "PCWIZ", "PCMENU", "PCDETL"}
+    assert crucible and stale == {"PCCONF", "PCWIZ", "PCMENU", "PCDETL", "PCIMMA", "PCIMMB", "PCIMML", "PCIMMS"}
     # #4870 re-ran the same 13 after the byte-carrying handleTransaction overload joined every region facade (seed 0, 24
     # mutants each; the added code moved the sample): 7 flagged survivors, all unreachable -- 4 in that overload
     # (CALINK, CAXA x2, GTSTART: the crucible entered by handleTransaction(String, T) only), HCQREAD's overload name
@@ -285,7 +285,9 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     # #4047 scored six CardDemo CICS ports (signon, tranview, userlist, useradd, userdel, adminmenu): 8 more flagged
     # survivors, all unreachable: the program name literal in the facade's region.run / region.linked, which the proof
     # does not call (the proof drives runTask), as in COMEN01C's.
-    assert len(flagged) == 22 and verdicts.count("unreachable") == 19 and verdicts.count("equivalent") == 3
+    # The PCIMM* ports changed with the ARITH(EXTEND) stop (#4706) and were re-proved, so their recorded mutation run
+    # judges older code and their 3 flagged survivors are skipped until the next run: 19 flagged, 16 unreachable.
+    assert len(flagged) == 19 and verdicts.count("unreachable") == 16 and verdicts.count("equivalent") == 3
     assert not {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C", "CSUTLDTC"}
 
 

@@ -153,6 +153,7 @@ PINNED = {
 }  # fmt: skip
 
 
+@pytest.mark.slow(reason="scans a whole pinned corpus (15.4s on a CI runner); the scan cannot be shared across corpora")
 @pytest.mark.parametrize("corpus", mc.load_manifest(), ids=lambda c: c["name"])
 def test_pinned_corpus_completeness(corpus):
     """Local only: skipped unless the corpus is fetched at its pin."""

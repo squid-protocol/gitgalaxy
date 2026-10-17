@@ -963,11 +963,12 @@ public final class Cobol {
      *  nonnumeric one (alphanumeric, alphabetic, edited) is its digits as characters (IBM Enterprise COBOL 6.4
      *  Language Reference, "Comparison of numeric and alphanumeric operands": as if moved to an alphanumeric item of
      *  as many characters as its digits; GnuCOBOL likewise): a zoned item's bytes, its overpunched sign digit
-     *  unpunched; a packed or binary item's value in its PICTURE's digits, unsigned. A sign-separate or P-scaled item
-     *  the generator refuses (register C13). Anything else (a group): its bytes. */
+     *  unpunched; a packed or binary item's value in its PICTURE's digits, unsigned. A group is such a nonnumeric
+     *  comparand too (#4671; measured: GnuCOBOL compares a numeric item against a group as its digits, sign dropped,
+     *  as IBM's unsigned integer). A sign-separate or P-scaled item the generator refuses (register C13). */
     // [rule RT-CBL-COMPARE-NUMERIC-WITH-NONNUMERIC]
     private static byte[] operand(Field f, Field other, Charset cs) {
-        if (cat(f) != NUMERIC || cat(other) == NUMERIC || cat(other) == GROUP || f.kind == Field.Kind.NUMERIC_FLOAT) {
+        if (cat(f) != NUMERIC || cat(other) == NUMERIC || f.kind == Field.Kind.NUMERIC_FLOAT) {
             return f.raw();
         }
         return digitsText(f, cs);

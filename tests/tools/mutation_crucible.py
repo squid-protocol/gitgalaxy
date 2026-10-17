@@ -50,6 +50,10 @@ from _cics_crucible_pin import PINNED_REF  # noqa: E402
 PORTS = REPO / "tests" / "cics_crucible" / "ports"
 RUNNER = HERE / "cics_crucible.py"
 NOT_COMPILED = "ported project does not compile"
+# A port that ships the det translator's runtime (PCIMMA: cobolrt/*.java, 6000 mutants) is judged on its own service
+# code: the runtime is shared by every det port and proven by the det-port cells, so its mutants would fill the
+# sample with code this program's scenarios never call.
+SHARED_RUNTIME = "cobolrt/"
 
 
 def ports(only: list[str] | None) -> list[tuple[str, str, Path]]:
@@ -104,7 +108,7 @@ def run_port(case: str, prog: str, overlay: Path, work: Path, args) -> dict:
     v, _, base_s = prove(case, prog, overlay, pw / "baseline", 900)
     if v != "survived":
         raise SystemExit(f"{case}/{prog}: the committed port is not proven ({pw / 'baseline'}); nothing to measure")
-    every = mu.all_mutants(overlay, args.ops)
+    every = [m for m in mu.all_mutants(overlay, args.ops) if not m.file.startswith(SHARED_RUNTIME)]
     chosen = mu.sample(every, args.sample, args.seed)
     if args.case_gaps:  # #4049: only the case-gap survivors of the committed results
         import strengthen

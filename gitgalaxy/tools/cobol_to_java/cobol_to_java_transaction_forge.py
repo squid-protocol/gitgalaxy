@@ -315,6 +315,7 @@ public class CicsTask {
     private Runnable rollbackHook;                                          // how a rollback undoes (the root's)
     private final Map<String, Integer> faultSeen = new HashMap<>();
     private Object returnedArea;                                             // #4343: the level-1 RETURN's COMMAREA
+    private boolean bytesTaken;                                              // #4817: returnedBytes() was read
     private byte[] returnedBytes;                                            // #4817: its raw bytes
     private Integer returnedLength;                                          // #4449: its LENGTH (null: the whole record)
 
@@ -5059,7 +5060,39 @@ CICS_TASK_JAVA += """\
      *  (#4695: `returned(Object.class)`, so a facade's handleTransaction answers that byte[] by design: the Object
      *  answer is the COMMAREA as the next task is given it, and `returned(Dto.class)` refuses it by name). */
     public byte[] returnedBytes() {
+        root().bytesTaken = true;
         return returnedBytes == null ? null : java.util.Arrays.copyOf(returnedBytes, returnedBytes.length);
+    }
+
+    /** #4817: a DTO-only answer must not change what the RETURN passed. IBM hands the next task the COMMAREA's bytes
+     *  as they were; the DTO holds a number it decoded (a numeric DISPLAY field of spaces and digits, invalid content),
+     *  and answering it would put digits where the task left something else. When the task's bytes were not taken
+     *  (returnedBytes(): the byte-carrying handleTransaction does), the DTO's layout bytes (toCommarea) must hold
+     *  every byte the RETURN passed: a byte toCommarea writes that is not a space (FILLER and an unset field are
+     *  spaces, in either page) and differs from the passed one is refused by name. A DTO with no layout, or a RETURN
+     *  that passed no bytes beside it, is as it was. */
+    private void lossless(Object area) {
+        byte[] passed = root().returnedBytes;
+        if (passed == null) {
+            return;
+        }
+        byte[] laid;
+        try {
+            java.lang.reflect.Method to = area.getClass().getMethod("toCommarea");
+            if (to.getReturnType() != byte[].class) {
+                return;
+            }
+            laid = (byte[]) to.invoke(area);
+        } catch (NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException e) {
+            return;
+        }
+        for (int i = 0; i < Math.min(laid.length, passed.length); i++) {
+            if (laid[i] != passed[i] && laid[i] != 0x20 && laid[i] != 0x40) {
+                throw new IllegalStateException("the task RETURNed a COMMAREA whose byte " + i + " the " + area.getClass().getName()
+                        + " DTO cannot hold as it was (a number it decoded): answer it through the byte-carrying"
+                        + " handleTransaction(.., byte[]) and lastAnswerBytes() (#4817)");
+            }
+        }
     }
 
     /** The COMMAREA the task's level-1 RETURN passed on (#4343: what handleTransaction answers), as `type`; null when
@@ -5070,6 +5103,9 @@ CICS_TASK_JAVA += """\
      *  fewer bytes than `type`'s record (never passed). */
     public <T> T returned(Class<T> type) {
         Object area = root().returnedArea;
+        if (area != null && !root().bytesTaken) {
+            lossless(area);
+        }
         if (area == null || type.isInstance(area)) {
             return type.cast(area);
         }

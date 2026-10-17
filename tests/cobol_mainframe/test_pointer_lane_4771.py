@@ -116,6 +116,57 @@ def test_what_the_lane_cannot_model_is_refused_by_name(tmp_path, edit, why):
     assert any(why in h for h in r.stats["holes"]), (why, r.stats["holes"])
 
 
+_OVERLAY_HEAD = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. PTRLN.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  LINKAGE-ADDRESSES.
+           02  CACHE-ADDRESS      USAGE POINTER.
+           02  CACHE-ADDRESS-X    REDEFINES CACHE-ADDRESS
+                                  PIC S9(08) COMP.
+           02  SAVE-ADDRESS       USAGE POINTER.
+           02  SAVE-ADDRESS-X     REDEFINES SAVE-ADDRESS.
+               03  SAVE-HIGH      PIC S9(04) COMP.
+               03  SAVE-LOW       PIC S9(04) COMP.
+       01  ZF-LENGTH              PIC S9(08) COMP VALUE 5.
+       01  OUT-NUMBER             PIC S9(08) COMP VALUE 0.
+       PROCEDURE DIVISION.
+"""
+
+
+@pytest.mark.parametrize(
+    "statement",
+    [
+        "ADD ZF-LENGTH TO CACHE-ADDRESS-X.",  # ZECS001: advance the address
+        "SUBTRACT ZF-LENGTH FROM CACHE-ADDRESS-X.",
+        "MOVE CACHE-ADDRESS-X TO SAVE-ADDRESS-X.",  # ZECS001: copy it through the overlay (both operands are views)
+        "MOVE CACHE-ADDRESS-X TO OUT-NUMBER.",
+        "MOVE ZF-LENGTH TO CACHE-ADDRESS-X.",
+        "COMPUTE OUT-NUMBER = CACHE-ADDRESS-X + 1.",
+        "IF CACHE-ADDRESS-X EQUAL ZEROES MOVE 1 TO OUT-NUMBER END-IF.",
+        "MOVE SAVE-LOW TO OUT-NUMBER.",  # a field under the overlay is the pointer's bytes too
+        "MOVE ZERO TO SAVE-HIGH.",
+    ],
+)
+def test_a_numeric_view_of_a_pointer_is_a_hole_not_arithmetic_on_a_handle(tmp_path, statement):
+    """A pointer holds a handle of a block, not an address: ADD n TO / MOVE / COMPUTE / IF on an item that REDEFINES a
+    POINTER (ZECS001's CACHE-ADDRESS-X) would compute on handle bytes, so the statement is refused by name -- even
+    when no pointer-lane statement uses the pointer, where the pointer's own refusal never fires."""
+    source = _OVERLAY_HEAD + "           " + statement + "\n           EXEC CICS RETURN END-EXEC.\n"
+    r = _translate(tmp_path, source)
+    assert any("REDEFINES overlays a POINTER" in h for h in r.stats["holes"]), r.stats["holes"]
+    assert r.stats["translated"] < r.stats["statements"]
+
+
+def test_the_whole_group_holding_a_pointer_still_moves_as_bytes(tmp_path):
+    """A MOVE or INITIALIZE of the group that holds the pointer and its overlay copies / clears the handle bytes, which
+    is what IBM's group move does: only a statement that names the numeric view is refused."""
+    source = _OVERLAY_HEAD + "           INITIALIZE LINKAGE-ADDRESSES.\n           EXEC CICS RETURN END-EXEC.\n"
+    r = _translate(tmp_path, source)
+    assert not any("REDEFINES overlays a POINTER" in h for h in r.stats["holes"]), r.stats["holes"]
+
+
 def _javac() -> Path | None:
     home = os.environ.get("JDK_17") or os.environ.get("JAVA_HOME")
     return Path(home) / "bin" if home and (Path(home) / "bin/javac").is_file() else None

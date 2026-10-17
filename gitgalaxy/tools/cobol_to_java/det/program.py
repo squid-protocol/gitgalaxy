@@ -279,6 +279,19 @@ def overlaid_pointers(records: list) -> set[str]:
     return out
 
 
+def pointer_views(records: list) -> set[str]:
+    """#4771 (X47): the items that REDEFINE a POINTER item (and what sits under them) -- a numeric or byte view of an
+    address (ZECS001's CACHE-ADDRESS-X, `ADD n TO` it). A pointer here holds a handle of a block, not a number, so a
+    statement reading or changing one of these items would compute on handle bytes: such a statement is a hole."""
+    items = [x for r in records for x in r.walk()]
+    pointers = {x.name.upper() for x in items if x.usage == "POINTER"}
+    out: set[str] = set()
+    for x in items:
+        if x.usage != "POINTER" and x.redefines and x.redefines.upper() in pointers:
+            out.update(y.name.upper() for y in x.walk())
+    return out
+
+
 def write_only_pointers(records: list, proc) -> set[str]:
     """The POINTER items no statement reads (GenApp's SET WS-ADDR-DFHCOMMAREA TO ADDRESS OF DFHCOMMAREA, never used):
     named only as a SET ... TO ADDRESS OF target, and inside groups named only by INITIALIZE, with no REDEFINES over
@@ -621,6 +634,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     gen = G.Gen(prog, structured)
     gen.write_only_pointers = write_only_pointers(records, proc)
     gen.overlaid_pointers = overlaid_pointers(records)
+    gen.pointer_views = pointer_views(records)
     # #4270: a floating-point expression under ARITH(EXTEND) is extended-precision HFP, refused (Gen.fnum)
     gen.arith_extend = arith_extend(program, options, engine.page(program) if engine is not None else None)
     # #4271: every COMP-1 / COMP-2 item's bytes, by storage, for the refusal of byte uses that overlap one

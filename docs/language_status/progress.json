@@ -1,5 +1,5 @@
 {
- "commit": "473a1f48b",
+ "commit": "a3c0f370a",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -156,7 +156,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-17T16:34:56Z",
+  "as_of": "2026-10-17T16:57:51Z",
   "core": {
    "closed": 122,
    "open": 24,
@@ -194,8 +194,8 @@
    "total": 43
   },
   "infra": {
-   "closed": 176,
-   "open": 48,
+   "closed": 177,
+   "open": 47,
    "total": 224
   },
   "measured": true,
@@ -264,9 +264,9 @@
     "total": 206
    },
    {
-    "closed": 34,
+    "closed": 35,
     "number": 12,
-    "open": 8,
+    "open": 7,
     "title": "Yes, but can it go faster...?",
     "total": 42
    },

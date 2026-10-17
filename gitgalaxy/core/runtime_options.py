@@ -123,3 +123,57 @@ def runtime_effect(path: str, value: Any, code_page: str | None = None) -> str:
         return "no effect"
     hit = runtime_unhonoured({path.split(".", 1)[0]: {path.split(".", 1)[1]: value}}, None, code_page)
     return "honoured" if not hit else ("declared" if hit[0]["policy"] == "declare" else "refused")
+
+
+# #4707: the CICS conventions a result depends on that no options file records: the EIB fields a program reads and
+# the abend conventions. Same four answers as the option rows. `register`: the entries that state it (an empty list
+# is a gap, named in `note`). `used_by`: the burned corpora whose COBOL names the field (a test greps them).
+CICS_CONVENTIONS: dict[str, dict[str, Any]] = {
+    "EIBCALEN": {"changes": "yes: the length of the COMMAREA the task started with; programs branch on 0", "cobc": "the stub's WS-LEN",
+        "det": "the runner-stated COMMAREA length", "otherwise": "a reference past EIBCALEN is refused by name",
+        "register": ["X23", "X10"], "used_by": ["aws-mainframe-modernization-carddemo", "cics-banking-sample-application-cbsa", "cics-genapp", "dbb-mortgage-application"]},
+    "EIBAID": {"changes": "yes: the key pressed selects the screen path", "cobc": "the case's AID name, moved by the stub",
+        "det": "the case's AID name; HANDLE AID reads it", "otherwise": "a task started without a terminal has none (IBM is silent): not read",
+        "register": ["X16", "X27"], "used_by": ["aws-mainframe-modernization-carddemo", "cics-banking-sample-application-cbsa", "dbb-mortgage-application"]},
+    "EIBRESP": {"changes": "yes: the numeric condition of the last command", "cobc": "the stub's GG-RESP",
+        "det": "the runtime's response code", "otherwise": "a command or condition IBM leaves open is refused by name",
+        "register": ["X28", "X21"], "used_by": ["aws-mainframe-modernization-carddemo", "cics-banking-sample-application-cbsa", "zecs"]},
+    "EIBRESP2": {"changes": "yes: the reason code of the last command", "cobc": "the stub's GG-RESP2",
+        "det": "the runtime's reason code", "otherwise": "a reason code IBM does not document is refused by name",
+        "register": ["X28", "X21"], "used_by": ["cics-banking-sample-application-cbsa", "cics-genapp", "zecs"]},
+    "EIBTASKN": {"changes": "yes when a program stores or compares it", "cobc": "the stub's $GGCICS_TASKN",
+        "det": "the runner-stated task number", "otherwise": "DIFFERS from z/OS in value, both sides agree (declared)",
+        "register": ["X21"], "used_by": ["cics-banking-sample-application-cbsa", "cics-genapp", "zecs"]},
+    "EIBTRNID": {"changes": "yes: the transaction id a program routes on", "cobc": "the case's transid, moved by the stub",
+        "det": "task.transid()", "otherwise": "ASSUMED: no register entry states it",
+        "register": [], "used_by": ["cics-banking-sample-application-cbsa", "cics-genapp", "zecs"]},
+    "EIBTRMID": {"changes": "yes when a program starts a task at its own terminal", "cobc": "the case's termid, moved by the stub",
+        "det": "task.termid(), blanks for a task with none", "otherwise": "ASSUMED",
+        "register": ["X18"], "used_by": ["cics-banking-sample-application-cbsa", "cics-genapp"]},
+    "EIBDS": {"changes": "yes when a program reads the last data set referred to", "cobc": "set before a file control command",
+        "det": "set before a file control command, only in a program that reads it", "otherwise": "ASSUMED",
+        "register": ["X64"], "used_by": ["zecs"]},
+    "EIBRCODE": {"changes": "yes: the six-byte response code", "cobc": "none", "det": "none",
+        "otherwise": "unmodelled: a program that reads it is refused by name", "register": ["X64"],
+        "used_by": ["cics-banking-sample-application-cbsa", "zecs"]},
+    "EIBFN": {"changes": "yes: the code of the last command", "cobc": "none", "det": "none",
+        "otherwise": "unmodelled: a program that reads it is refused by name", "register": ["X64"], "used_by": ["zecs"]},
+    "ABEND.ABCODE": {"changes": "yes: the four-character abend code is compared", "cobc": "the stub's abend code",
+        "det": "the runtime's abend code", "otherwise": "a code IBM does not state (an unknown mapset: ABM0) is ASSUMED",
+        "register": ["X31", "X5"], "used_by": []},
+    "ABEND.HANDLE_ABEND": {"changes": "yes: a handled abend continues in the program's routine", "cobc": "modelled by the stub",
+        "det": "modelled by the runtime", "otherwise": "forms IBM leaves open are refused by name",
+        "register": ["X16", "X5"], "used_by": []},
+    "ABEND.UNHANDLED": {"changes": "yes: the task ends with the abend", "cobc": "the harness compares the abend",
+        "det": "the harness compares the abend", "otherwise": "ABTERMENC(RETCODE) is refused by name (le.runtime_options.ABTERMENC)",
+        "register": ["C18"], "used_by": []},
+}  # fmt: skip
+
+
+def conventions_rows() -> list[str]:
+    """The CICS_CONVENTIONS rows as the markdown table lines register C18 holds (tests pin the page to them)."""
+    return [
+        f"| `cics.convention.{key}` | {r['changes']} | {r['cobc']} | {r['det']} | {r['otherwise']} | "
+        f"{', '.join(r['register']) or 'none (gap)'} |"
+        for key, r in CICS_CONVENTIONS.items()
+    ]

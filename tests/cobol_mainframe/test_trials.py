@@ -157,6 +157,7 @@ def test_start_refuses_a_development_estate_and_a_late_exclusion(started, tmp_pa
     assert any("eligibility changed after start" in e for e in trial.validate(ledger))
 
 
+@pytest.mark.slow(reason="rehearses a whole estate trial (10.5s on a CI runner, limit 15s)")
 def test_preview_rehearses_any_estate_and_writes_no_ledger(started, tmp_path, capsys):
     ledger_path = started["ledger"]
     before = ledger_path.read_bytes()

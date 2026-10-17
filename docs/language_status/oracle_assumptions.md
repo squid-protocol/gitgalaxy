@@ -3581,6 +3581,13 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 - **Broadened by #4952.** CardDemo's `'YYYYMMDD  '` (picture and date padded with blanks to 10) used to be refused as a
   picture inside a longer field; it is modelled now (the span is read, the blank tail ignored), which is the assumption
   above and nothing wider. The test table is `tests/cobol_mainframe/test_det_ceedays.py`.
+- **Swept across the burned estates (#5003).** The LE date/time callers there are CardDemo CSUTLDTC (CEEDAYS), CBSA CRECUST
+  (CEEDAYS) and CBSA BANKDATA (CEEGMT, CEEDATM). CRECUST is the only vstring whose declared length passes its text (10
+  over `PIC X(8)`); CSUTLDTC sets the length from `LENGTH OF` the format item and BANKDATA's CEEDATM picture is 14 over 14.
+  `test_only_cbsa_crecust_declares_a_vstring_length_past_its_text` pins that. IBM reads the declared length, so the 2
+  bytes are the slack after the `01` item, whose content IBM does not specify: the overrun stays REFUSED by name, for
+  that reason, until the owner rules the slack blank (the same assumption as the blank tail above, but for storage the
+  program never wrote). The feedback token `FC` is 12 bytes (L4), so nothing overruns there.
 - COACTUPC's cursor placement after its date fields is unreached until z/OS settles the month-range case.
 
 ### L2. CEE3ABD — MATCHED
@@ -3697,6 +3704,10 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   CEEDYWK, CEESCEN, CEEFMDA / CEEFMDT / CEEFMDV (a call is refused by name by the translator, as before), and the
   country-default pictures.
 - **IBM references.** The pages above; CEELOCT's example (L5) and the symbolic feedback codes (L4).
+- **Not modelled, no burned program needs them (#5003).** CEEUTCO / CEEGMTO (needs a time-zone decision: the det runtime
+  pins +0000), CEESECI, CEEDYWK, CEESCEN, CEEFMDA / CEEFMDT / CEEFMDV, null (default) pictures and CEE2526 / CEE2527
+  truncation. A sweep of the burned estates finds no call to any of them (CRECUST and CSUTLDTC call CEEDAYS, BANKDATA CEEGMT and
+  CEEDATM with a 14-byte picture and an 80-byte output), so there is nothing to prove; they stay refused by name.
 
 ## Assembler routines
 

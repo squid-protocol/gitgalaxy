@@ -123,8 +123,14 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | port | harness | mutants run / all | raw score | without equivalent + unreachable | survivors: case gap / harness gap / equivalent / unreachable / untriaged |
 |---|---|---|---|---|---|
 | COACTVWC (carddemo-acctview) | equivalence | 150/328 | 105/129 (81%) | 105/113 (93%) | 8 / 0 / 16 / 0 / 0 |
+| COADM01C (carddemo-adminmenu) | equivalence | 100/334 | 53/95 (56%) | 53/69 (77%) | 16 / 0 / 26 / 0 / 0 |
 | CSUTLDTC (carddemo-dateutil) | equivalence | 211/211 | 145/195 (74%) | 145/145 (100%) | 0 / 0 / 10 / 40 / 0 |
 | COMEN01C (carddemo-menu) | equivalence | 150/331 | 86/136 (63%) | 86/93 (92%) | 7 / 0 / 36 / 7 / 0 |
+| COSGN00C (carddemo-signon) | equivalence | 100/196 | 67/99 (68%) | 67/72 (93%) | 5 / 0 / 25 / 2 / 0 |
+| COTRN01C (carddemo-tranview) | equivalence | 100/308 | 63/100 (63%) | 63/68 (93%) | 5 / 0 / 29 / 3 / 0 |
+| COUSR01C (carddemo-useradd) | equivalence | 100/266 | 64/97 (66%) | 64/72 (89%) | 8 / 0 / 23 / 2 / 0 |
+| COUSR03C (carddemo-userdel) | equivalence | 100/334 | 62/86 (72%) | 62/70 (89%) | 8 / 0 / 15 / 1 / 0 |
+| COUSR00C (carddemo-userlist) | equivalence | 100/493 | 69/100 (69%) | 69/92 (75%) | 23 / 0 / 8 / 0 / 0 |
 | INQACC (cbsa-inqacc) | equivalence | 150/464 | 131/131 (100%) | 131/131 (100%) | 0 / 0 / 0 / 0 / 0 |
 | UPDACC (cbsa-updacc) | equivalence | 133/133 | 95/133 (71%) | 95/133 (71%) | 38 / 0 / 0 / 0 / 0 |
 | LGAPVS01 (genapp-lgapvs01) | equivalence | 150/178 | 70/121 (58%) | 70/119 (59%) | 49 / 0 / 0 / 2 / 0 |
@@ -152,25 +158,32 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/247 | 14/23 (61%) | 14/17 (82%) | 3 / 0 / 6 / 0 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/177 | 11/21 (52%) | 11/16 (69%) | 5 / 0 / 3 / 2 / 0 |
 | **all crucible** | | 504 run | **307/472 (65%)** | **307/355 (86%)** | 48 / 0 / 87 / 30 / 0 |
-| **all equivalence** | | 1244 run | **757/1113 (68%)** | **757/998 (76%)** | 241 / 0 / 62 / 53 / 0 |
-| **all estate** | | 1748 run | **1064/1585 (67%)** | **1064/1353 (79%)** | 289 / 0 / 149 / 83 / 0 |
+| **all equivalence** | | 1844 run | **1135/1690 (67%)** | **1135/1441 (79%)** | 306 / 0 / 188 / 61 / 0 |
+| **all estate** | | 2348 run | **1442/2162 (67%)** | **1442/1796 (80%)** | 354 / 0 / 275 / 91 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 88/116 (76%) | 88/98 (90%) |
+| AOR | 108/140 (77%) | 108/121 (89%) |
 | BDM | 3/14 (21%) | 3/7 (43%) |
-| CON | 187/326 (57%) | 187/256 (73%) |
-| COR | 39/72 (54%) | 39/59 (66%) |
-| DEL | 147/230 (64%) | 147/204 (72%) |
-| LIT | 204/287 (71%) | 204/247 (83%) |
-| NEG | 184/226 (81%) | 184/209 (88%) |
-| RET | 33/57 (58%) | 33/53 (62%) |
-| ROR | 179/257 (70%) | 179/220 (81%) |
+| CON | 205/439 (47%) | 205/280 (73%) |
+| COR | 62/108 (57%) | 62/94 (66%) |
+| DEL | 220/342 (64%) | 220/290 (76%) |
+| LIT | 294/401 (73%) | 294/346 (85%) |
+| NEG | 267/315 (85%) | 267/298 (90%) |
+| RET | 37/61 (61%) | 37/57 (65%) |
+| ROR | 246/342 (72%) | 246/303 (81%) |
 <!-- /mutation-scores -->
 
 Run on gitgalaxy `416fb6420` (2026-10-03): CSUTLDTC all 217 mutants; COMEN01C and COACTVWC 150 each (seed 0);
 the 17 crucible ports 24 each (seed 0, cics-crucible v0.2.0). The three batch cases (CBACT04C, CBTRN02C,
 CBTRN03C) were not re-run here; their seed-1 raw scores are in the table above this section.
+
+#4047 added six CardDemo CICS ports (signon, tranview, userlist, useradd, userdel, adminmenu; 100 mutants each, seed 0,
+`--jobs 3`). Their 73 case gaps repeat across the six: no scenario sets EIBCALEN (`task.eibcalen()` is null), sends a
+short COMMAREA, abends the program, answers a failed XCTL, or sends a blank to-program; userlist also lacks a short
+last page after a full one. 8 more survivors are unreachable (the program name in `region.run` / `region.linked`).
+The 126 equivalent verdicts rest on one assumption not yet independently checked: the COMMAREA/screen DTO codec pads
+and truncates each field to its declared width, so a width off by one, or NUL for space, changes no compared byte.
 
 What the triage found:
 

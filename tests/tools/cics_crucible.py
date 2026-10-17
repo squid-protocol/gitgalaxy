@@ -1809,6 +1809,47 @@ def run_java(case: cc.Case, project: Path, work: Path, offline: bool, facades: b
     return result
 
 
+# ---- the async scheduler and channel hand-off (#4950, X18) --------------------------------------
+_EXEC_CICS = re.compile(r"\bEXEC\s+CICS\b(.*?)\bEND-EXEC\b", re.I | re.S)
+
+
+def async_refusals(source: str) -> list[str]:
+    """The async-CICS members of one program the runner does not model, by name (X18; empty when it uses none).
+
+    The runner runs a RUN TRANSID child as SPEC section 4 says (after its parent has ended) and has no CHILD or channel
+    event in the log (section 6.2), so a program whose result turns on the region's scheduler or on a channel handed
+    to a started or run task cannot be compared. A parent that never waits and RUNs a child is not listed."""
+    text = "\n".join(ln for ln in source.splitlines() if not (len(ln) > 6 and ln[6] in "*/"))
+    cmds = [" ".join(m.group(1).upper().split()) for m in _EXEC_CICS.finditer(text)]
+    out: list[str] = []
+
+    def has(cmd: str, *words: str) -> bool:
+        return any(c.split(" ")[0] == cmd and all(re.search(rf"\b{w}\b", c) for w in words) for c in cmds)
+
+    for verb in ("START", "RUN"):
+        if has(verb, "CHANNEL"):
+            out.append(f"scheduler: {verb} CHANNEL (the channel copy handed to the task is not modelled, X18)")
+    if has("FETCH"):
+        waits = any(c.startswith("FETCH ") and not re.search(r"\bNOSUSPEND\b", c) for c in cmds)
+        out.append("scheduler: " + ("a waiting FETCH (child dispatch at a wait" if waits else "FETCH NOSUSPEND (no child schedule")
+                   + " is not modelled, X18)")  # fmt: skip
+    if has("FREE", "CHILD"):
+        out.append("scheduler: FREE CHILD (no child schedule is modelled, X18)")
+    if has("RUN") and (has("DELAY") or any(c.startswith("FETCH ") for c in cmds)):
+        out.append(
+            "scheduler: a parent that waits (DELAY or FETCH) with a RUN child (dispatch at the wait is not modelled, X18)"
+        )
+    return list(dict.fromkeys(out))
+
+
+def case_async_refusals(case: cc.Case) -> list[str]:
+    """async_refusals over every COBOL source of the case."""
+    out: list[str] = []
+    for rel in case.data["sources"]["cobol"]:
+        out.extend(async_refusals((case.dir / rel).read_text(encoding="utf-8")))
+    return list(dict.fromkeys(out))
+
+
 # ---- the COBOL side ------------------------------------------------------------------------------
 def translate_programs(case: cc.Case) -> dict[str, Any]:
     """{program: (translated source, takes a COMMAREA) or the Unsupported the translator raised}."""
@@ -2544,6 +2585,12 @@ def measure_case(case: cc.Case, sides: set[str], work: Path, offline: bool,
             for sc in case.scenarios:
                 put(sc["id"], side, cc.not_run(why, []))
         return cells
+    async_why = case_async_refusals(case)
+    if async_why:  # #4950 (X18): the SPEC section 4 schedule is the only one the runner has; named, never compared
+        for side in sorted(sides - {"engine-facts", "forge-compile"}):
+            for sc in case.scenarios:
+                put(sc["id"], side, cc.not_run(async_why, []))
+        sides = sides & {"engine-facts", "forge-compile"}
     ctx = case_context(case)
     if "engine-facts" in sides:
         put("*", "engine-facts", engine_facts(case, work / "facts"))

@@ -3532,6 +3532,15 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         # scenario reaches behaviour the oracle cannot judge -- refused by name, never reported as a difference
         rc = work / "scenarios" / sc["name"] / "rc"
         said = work / "scenarios" / sc["name"] / "stdout.txt"
+        if said.is_file() and (overrun := common.bound_violation(said.read_bytes())):  # #4449 (X8)
+            why = f"drives an item past its bounds ({overrun}); register X8"
+            if sc.get("derived") or sc["name"] in case.get("bounds_refused", {}):
+                # a case names each scenario it knowingly leaves unjudged here, with the reason (X8): refused by
+                # name, reported as refused, never proven
+                refused[sc["name"]] = why
+                continue
+            raise Unsupported(f"scenario {sc['name']}: {why}; if the program does it on purpose, name the scenario "
+                              'in the case\'s "bounds_refused" with the reason', ["BOUNDS"])  # fmt: skip
         if rc.is_file() and rc.read_text().strip() == "98" and said.is_file():
             x6 = judged_refusal(said.read_text(encoding="latin-1"))
             if x6:  # owner decision on #4607 (X6): judged up to the refused WRITEQ, derived or not -- what ran before

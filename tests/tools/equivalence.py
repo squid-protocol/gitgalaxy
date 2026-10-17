@@ -103,10 +103,12 @@ import equivalence_ims
 import equivalence_oracle
 import equivalence_sql
 from equivalence_common import (
+    BOUND_FLAGS,  # noqa: F401 -- kept (#4449)
     CASES,
     IMAGE,
     _fixed,
     _input_path,
+    bound_violation,
     compare_sysout,
     comp5_layout_guard,
     compile_options,
@@ -357,6 +359,10 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
     if missing:
         raise RuntimeError(f"the program CALLs {missing.group(1).decode()!r}, which no model provides "
                            "(GnuCOBOL: module not found) -- not runnable faithfully")  # fmt: skip
+    overrun = bound_violation(outs["SYSOUT"])  # #4449 (X8): a subscript / ref-mod past its item stops the oracle
+    if overrun:
+        raise RuntimeError(f"the run drives an item past its bounds ({overrun}) -- not runnable faithfully "
+                           "(register X8: IBM's default has no SSRANGE, so the overlay is storage-layout luck)")  # fmt: skip
     abend = work / "ABEND"
     if abend.is_file():
         outs["ABEND"] = abend.read_bytes().strip()

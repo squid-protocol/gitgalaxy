@@ -45,7 +45,6 @@ final class Codec {
     }
 
     /** The named stop of a value past a binary receiver's PICTURE under TRUNC(OPT) (register C5, #4706). */
-    // [rule RT-NUM-TRUNC-OPT-STOP]
     static UnsupportedOperationException truncOptUnpredictable(Field f, BigInteger magnitude, boolean neg) {
         return new UnsupportedOperationException("TRUNC(OPT): value exceeds PICTURE; IBM result unpredictable ("
                 + (neg && f.signed ? "-" : "") + new BigDecimal(magnitude, f.scale).toPlainString() + " into a "
@@ -68,7 +67,6 @@ final class Codec {
     static volatile boolean numprocPfd = false;
 
     /** The refusal of a non-preferred sign under NUMPROC(PFD) (register C5). */
-    // [rule RT-NUM-NUMPROC-PFD-SIGN]
     static UnsupportedOperationException nonPreferredSign(Field f) {
         return new UnsupportedOperationException("NUMPROC(PFD): a " + (f.signed ? "signed " : "unsigned ")
                 + (f.kind == Field.Kind.NUMERIC_PACKED ? "packed" : "zoned")
@@ -129,7 +127,6 @@ final class Codec {
     }
 
     /** digit value and sign of a zoned byte: {digit, 1 if overpunched negative, 1 if overpunched positive}. */
-    // [rule RT-NUM-ZONED-OVERPUNCH]
     private static int[] zonedDigit(byte b, Charset cs, boolean overpunch) {
         char c = ch(b, cs);
         if (c >= '0' && c <= '9') return new int[] {c - '0', 0, 0};
@@ -147,7 +144,6 @@ final class Codec {
         return readAny(f, cs);
     }
 
-    // [rule RT-NUM-BINARY-BYTE-ORDER] [rule RT-NUM-PACKED-SIGN]
     private static Num readAny(Field f, Charset cs) {
         byte[] d = f.st.bytes;
         switch (f.kind) {
@@ -195,7 +191,6 @@ final class Codec {
     }
 
     /** The unscaled magnitude `m` (already at the field's scale) with sign `neg`, stored truncated to the digits. */
-    // [rule RT-NUM-TRUNC-BINARY]
     static void write(Field f, BigInteger m, boolean neg, Charset cs) {
         byte[] d = f.st.bytes;
         BigInteger limit = BigInteger.TEN.pow(f.digits);
@@ -252,7 +247,6 @@ final class Codec {
     }
 
     /** Whether `magnitude` (at the field's scale) fits the field without losing high-order digits. */
-    // [rule RT-NUM-FITS]
     static boolean fits(Field f, BigInteger magnitude, boolean neg) {
         if (f.kind == Field.Kind.NUMERIC_BINARY && (f.nativeBin || !truncBinary)) {
             int bits = f.len * 8;

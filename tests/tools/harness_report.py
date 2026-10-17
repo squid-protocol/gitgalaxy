@@ -63,6 +63,11 @@ def program_status(gaps: list[str]) -> str:
     return next(s for s in (DIFFERS, COULDNT_RUN, NOT_ATTEMPTED, COVERAGE_OPEN) if s in found)
 
 
+def clip(text: str, n: int = 160) -> str:
+    text = " ".join(text.split())
+    return text if len(text) <= n else text[: n - 3] + "..."
+
+
 def fix_for(gap: str, programs: list[str], cases: list[str], details: list[str]) -> str:
     """The gap stated as the action that unblocks it."""
     who = ", ".join(programs)
@@ -73,7 +78,7 @@ def fix_for(gap: str, programs: list[str], cases: list[str], details: list[str])
     if gap.startswith("no det port"):
         return f"Commit a det port for {noun} (their crucible case runs only the COBOL): {who}."
     if gap.startswith("known unproven"):
-        why = "; ".join(sorted(set(details))) or gap
+        why = clip("; ".join(sorted(set(details))) or gap)
         return f"Fix {gap.split(':', 1)[1].strip()} ({why}) to prove {noun}: {who} (cases: {', '.join(cases)})."
     if gap.startswith("scenario differs"):
         return f"Fix the difference `{gap.split(':', 1)[1].strip()}` between the COBOL and the Java in {noun}: {who} (cases: {', '.join(cases)})."  # fmt: skip
@@ -227,7 +232,7 @@ def markdown(rep: dict[str, Any]) -> str:
         out.append(f"{i}. {b['fix']} Unlocks {b['tests_unlocked']} tests across {b['programs_unlocked']} programs"
                    f" ({len(b['programs'])} listed here).")  # fmt: skip
         for prog, rest in b["then_needs"].items():
-            out.append(f"   `{prog}` also needs: {'; '.join(rest)}.")
+            out.append(f"   `{prog}` also needs: {clip('; '.join(rest))}")
         if b["programs_also_blocked"]:
             out.append(f"   Also blocks, under another blocker: {', '.join(b['programs_also_blocked'])}.")
     out += ["", "## Run status per program", "", "| program | case | status | why |", "|---|---|---|---|"]

@@ -159,10 +159,10 @@ def test_strictness_is_contrasted_only_inside_repos_that_hold_several_rows():
         r["gaps"] = 0 if i % 2 else 3
     mixed = op.analyze_rows(rows, rounds=30)
     assert mixed["strictness_polyglot_repos"] == ["r"]
-    assert mixed["strictness_ge3_gaps_vs_le1"]["mh_rate_ratio"] is not None
+    assert mixed["strictness_gaps_ge3_vs_le1"]["mh_rate_ratio"] is not None
     solo = op.analyze_rows(_synthetic(1.0, n=100), rounds=30)  # one row everywhere: no contrast to draw
     assert solo["strictness_polyglot_repos"] == []
-    assert solo["strictness_ge3_gaps_vs_le1"]["mh_rate_ratio"] is None
+    assert solo["strictness_gaps_ge3_vs_le1"]["mh_rate_ratio"] is None
 
 
 def test_strata_hold_evidence_equal():

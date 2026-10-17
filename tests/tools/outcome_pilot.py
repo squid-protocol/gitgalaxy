@@ -56,8 +56,8 @@ SEED = 2720
 DEFAULT_WINDOW_DAYS = 730
 SAMPLE_PER_REPO = 40
 BOOTSTRAP_ROUNDS = 400
-LOC_BINS = 3
-EVIDENCE_BINS = 3
+LOC_BINS = 10
+EVIDENCE_BINS = 4
 
 # name -> (url, pin, note). Pins are the PROVENANCE.json commits; carddemo's provenance copy lives inside the
 # che4z LSP repo, so the burned estate's own upstream is used and its pin is chosen by `--pin-fraction` of history.
@@ -427,6 +427,22 @@ def _estimate(rows: Sequence[dict[str, Any]], exposed: Any, rounds: int) -> dict
     }
 
 
+# (name, highest gap count of the lower-strictness group, lowest gap count of the higher group)
+STRICTNESS_CONTRASTS = (
+    ("gaps_ge3_vs_le1", 1, 3),
+    ("gaps_ge3_vs_le2", 2, 3),
+    ("gaps_ge2_vs_le1", 1, 2),
+)
+
+
+def contributing_repos(rows: Sequence[dict[str, Any]], exposed: Any) -> list[str]:
+    """Repos with at least one stratum holding both groups: the only ones that carry the estimate."""
+    seen: dict[Any, set[bool]] = defaultdict(set)
+    for r in rows:
+        seen[r["stratum"]].add(bool(exposed(r)))
+    return sorted({k[0] for k, v in seen.items() if len(v) == 2})
+
+
 def analyze_rows(rows: list[dict[str, Any]], rounds: int = BOOTSTRAP_ROUNDS) -> dict[str, Any]:
     """The pilot's questions on a list of per-file rows (repo, gaps, loc, evidence, dynamism, fixes)."""
     rows = [dict(r) for r in rows]
@@ -436,19 +452,26 @@ def analyze_rows(rows: list[dict[str, Any]], rounds: int = BOOTSTRAP_ROUNDS) -> 
         mixed[r["repo"]].add(r["gaps"])
     polyglot_repos = {k for k, v in mixed.items() if len(v) > 1}
     strict_rows = [r for r in rows if r["repo"] in polyglot_repos]
-    return {
+    result: dict[str, Any] = {
         "files": len(rows),
         "repos": sorted({r["repo"] for r in rows}),
         "files_with_fix": sum(1 for r in rows if r["fixes"] > 0),
         "total_fixes": sum(r["fixes"] for r in rows),
         "dynamism_any_vs_none": _estimate(rows, lambda r: r["dynamism"] > 0, rounds),
-        "strictness_ge3_gaps_vs_le1": _estimate(
-            [r for r in strict_rows if r["gaps"] <= 1 or r["gaps"] >= 3],
-            lambda r: r["gaps"] >= 3,
-            rounds,
-        ),
+        "dynamism_contributing_repos": contributing_repos(rows, lambda r: r["dynamism"] > 0),
         "strictness_polyglot_repos": sorted(polyglot_repos),
     }
+    for name, lo_max, hi_min in STRICTNESS_CONTRASTS:
+        sub = [r for r in strict_rows if r["gaps"] <= lo_max or r["gaps"] >= hi_min]
+
+        def high(r: dict[str, Any], hi_min: int = hi_min) -> bool:
+            return bool(r["gaps"] >= hi_min)
+
+        result[f"strictness_{name}"] = {
+            **_estimate(sub, high, rounds),
+            "contributing_repos": contributing_repos(sub, high),
+        }
+    return result
 
 
 def cmd_analyze(work: Path, rounds: int) -> dict[str, Any]:

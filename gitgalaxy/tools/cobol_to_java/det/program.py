@@ -1302,8 +1302,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             f"import {pkg}.cobolrt.Funcs;\n", f"import {pkg}.cobolrt.Funcs;\nimport {pkg}.cobolrt.Hfp;\n", 1
         )
     if (
-        "Accept.from(" in java
-    ):  # #4893: ACCEPT FROM DATE / DAY / TIME, imported only where it is used (no other port changes)
+        "Accept.from(" in java or "Accept.sysin(" in java
+    ):  # #4893: ACCEPT FROM DATE / DAY / TIME (#5106: SYSIN), imported only where it is used (no other port changes)
         java = java.replace(
             f"import {pkg}.cobolrt.Funcs;\n", f"import {pkg}.cobolrt.Accept;\nimport {pkg}.cobolrt.Funcs;\n", 1
         )

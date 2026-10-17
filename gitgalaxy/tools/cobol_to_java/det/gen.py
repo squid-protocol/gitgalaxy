@@ -2058,6 +2058,8 @@ class Gen:
             return [c, *self.call(s, ind)]
         if k == "ACCEPT":
             frm = s.data["from"]
+            if frm == "SYSIN":  # #5106: the batch input stream, one record per ACCEPT
+                return [c, f"{ind}Accept.sysin({self.field_expr(s.data['target'])}, CS);"]
             # #4893: the run's clock (FUNCTION CURRENT-DATE's) as the unsigned integer item IBM names (Accept.from)
             if frm not in ("DATE", "DATE YYYYMMDD", "TIME", "DAY", "DAY YYYYDDD"):
                 raise Untranslatable(f"ACCEPT FROM {frm}")

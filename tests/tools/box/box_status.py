@@ -25,11 +25,13 @@ import argparse
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
 import time
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 LOCK_DIR = Path(os.environ.get("GG_LOCK_DIR", "/tmp/gitgalaxy-scratch/locks"))  # noqa: S108 (heavy-run.sh's lock dir)
@@ -283,9 +285,15 @@ def _mount(path: Path) -> Path:
     return path
 
 
-def _statvfs(path: str) -> tuple[int, os.statvfs_result | None]:
+def _statvfs(path: str) -> tuple[Any, Any]:
+    """(device key, usage) for a path; usage has f_blocks/f_frsize/f_bavail/f_favail/f_files. Windows has no os.statvfs
+    (an AttributeError, not an OSError): fall back to shutil.disk_usage, keyed by drive, with no inode counts."""
     try:
-        return os.stat(path).st_dev, os.statvfs(path)
+        if hasattr(os, "statvfs"):
+            return os.stat(path).st_dev, os.statvfs(path)
+        du = shutil.disk_usage(path)
+        st = SimpleNamespace(f_blocks=du.total, f_frsize=1, f_bavail=du.free, f_favail=0, f_files=0)
+        return os.path.splitdrive(os.path.abspath(path))[0].lower(), st
     except OSError:
         return -1, None
 
@@ -294,7 +302,7 @@ def _disks() -> list[dict[str, Any]]:
     """Free space and inodes per filesystem the fleet writes to: /, the temp dir, this repo's disk (its worktrees sit
     beside it), and GG_DISK_PATHS. One row per device."""
     paths = ["/", tempfile.gettempdir(), str(Path(__file__).resolve().parent)]
-    paths += [x for x in os.environ.get("GG_DISK_PATHS", "").split(":") if x]
+    paths += [x for x in os.environ.get("GG_DISK_PATHS", "").split(os.pathsep) if x]
     seen, out = set(), []
     for p in paths:
         dev, st = _statvfs(p)

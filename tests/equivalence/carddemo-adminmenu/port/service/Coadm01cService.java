@@ -200,6 +200,9 @@ public class Coadm01cService {
                     pgmiderrErrPara(task, s);
                     return true;
                 }
+                if (!"NORMAL".equals(resp) && !"PGMIDERR".equals(resp)) {
+                    task.abendOnCondition(resp);   // only PGMIDERR is handled: any other condition abends (NOTAUTH: AEY7) (#4648)
+                }
                 if (task.ended()) {
                     return true;
                 }
@@ -221,6 +224,9 @@ public class Coadm01cService {
         if ("PGMIDERR".equals(resp)) {
             pgmiderrErrPara(task, s);
             return true;
+        }
+        if (!"NORMAL".equals(resp) && !"PGMIDERR".equals(resp)) {
+            task.abendOnCondition(resp);   // only PGMIDERR is handled: any other condition abends (#4648)
         }
         return task.ended();
     }

@@ -10,6 +10,7 @@ one-shot measurement at a named, frozen system.
     python tests/tools/trial.py start <estate-id> --estate-path P --model M --backend B --work W
                                      [--ref R] [--repo-url U] [--kind public|private --label L]
                                      [--model-version V] [--exclude PROG=reason ...] [--shipped-data PROG ...]
+    python tests/tools/trial.py preview <estate-id> --estate-path P --work W [--json F]   # rehearsal, no ledger
     python tests/tools/trial.py sync  <trial-id> --project W/java_h2     # (alias: attempt) import port_log.jsonl
     python tests/tools/trial.py close <trial-id> [--cause PROG=cause ...]
     python tests/tools/trial.py report [--write]                         # the page + the SVG chart
@@ -62,6 +63,7 @@ BINS = ("@1", "@2", "@3", "@4+")
 # The frozen system's harness: the files the proof runs through (tests/tools/equivalence*.py and its image).
 HARNESS_PATHS = ("tests/tools/equivalence.py", "tests/tools/equivalence_common.py", "tests/tools/equivalence_java.py",
                  "tests/tools/equivalence_inputs.py", "tests/tools/equivalence_cics.py",
+                 "tests/tools/equivalence_cics_containers.py",  # #5274: the CICS harness's containers family
                  "tests/tools/cobol_coverage.py",  # #4023: every COBOL run is traced through it
                  "tests/equivalence/faults/ggfault.c", "tests/equivalence/faults/ggabend.c",  # fault runs, CEE3ABD
                  "tests/equivalence/faults/ggdisplay.c",  # #4056: DISPLAY as IBM writes it
@@ -365,6 +367,47 @@ def _estate_git(path: Path, *args: str) -> str | None:
     return proc.stdout.strip() or None if proc.returncode == 0 else None
 
 
+def scan_and_declare(
+    path: Path, work: Path, excludes: dict[str, str], shipped: set[str]
+) -> tuple[Path, list[str], dict[str, str]]:
+    """Scan, refract and convert an estate (the harness's path, target h2), then declare eligibility.
+
+    Returns (the generated project, eligible programs, {program: out-of-scope reason})."""
+    import java_target_matrix as jtm  # the path the equivalence harness builds its project with
+
+    work = work.resolve()
+    work.mkdir(parents=True, exist_ok=True)
+    clean = jtm.refactor(path, work, scan=True)
+    project = jtm.generate(clean, "h2", jtm.MATRIX["h2"], work)
+    eligible, out = declare(clean, project, path, excludes, shipped)
+    return project, eligible, out
+
+
+def cmd_preview(opts: argparse.Namespace) -> int:
+    """A rehearsal of the declaration step: reads nothing from, and writes nothing to, the ledger.
+
+    Any estate is accepted (a development estate included): nothing here counts as first-try, and the
+    estate's status does not change. Prints the up-front declaration a `start` would record."""
+    excludes = _parse_pairs(opts.exclude, "--exclude")
+    _project, eligible, out = scan_and_declare(
+        opts.estate_path.resolve(), opts.work, excludes, set(opts.shipped_data or [])
+    )
+    reasons: dict[str, int] = {}
+    for why in out.values():
+        reasons[why] = reasons.get(why, 0) + 1
+    print(f"preview of {opts.estate} (rehearsal: no ledger entry, never first-try)")
+    print(f"  eligible: {len(eligible)}  out of scope: {len(out)}  programs: {len(eligible) + len(out)}")
+    for why, n in sorted(reasons.items(), key=lambda kv: (-kv[1], kv[0])):
+        print(f"  out of scope x{n}: {why}")
+    if opts.json:
+        opts.json.write_text(
+            json.dumps({"estate": opts.estate, "eligible": eligible, "out_of_scope": out}, indent=1, sort_keys=True)
+            + "\n",
+            encoding="utf-8",
+        )
+    return 0
+
+
 def cmd_start(opts: argparse.Namespace) -> int:
     ledger = load(opts.ledger)
     estate = _estate(ledger, opts.estate)
@@ -390,13 +433,7 @@ def cmd_start(opts: argparse.Namespace) -> int:
     excludes = _parse_pairs(opts.exclude, "--exclude")
     system = frozen_system(opts.repo, opts.model, opts.backend, opts.model_version)
 
-    import java_target_matrix as jtm  # the path the equivalence harness builds its project with
-
-    work = opts.work.resolve()
-    work.mkdir(parents=True, exist_ok=True)
-    clean = jtm.refactor(path, work, scan=True)
-    project = jtm.generate(clean, "h2", jtm.MATRIX["h2"], work)
-    eligible, out = declare(clean, project, path, excludes, set(opts.shipped_data or []))
+    project, eligible, out = scan_and_declare(path, opts.work, excludes, set(opts.shipped_data or []))
     trial_id = f"trial-{len(ledger['trials']) + 1:03d}"
     ledger["trials"].append({
         "id": trial_id,
@@ -793,6 +830,13 @@ def main(argv: list[str] | None = None) -> int:
     st.add_argument("--label", help="a private estate's anonymised label")
     st.add_argument("--exclude", action="append", help="PROGRAM=reason: a declared exclusion (at start only)")
     st.add_argument("--shipped-data", action="append", help="PROGRAM whose input data the estate ships")
+    pv = sub.add_parser("preview", help="rehearse the declaration on any estate (burned included); writes no ledger")
+    pv.add_argument("estate")
+    pv.add_argument("--estate-path", type=Path, required=True)
+    pv.add_argument("--work", type=Path, required=True)
+    pv.add_argument("--exclude", action="append", help="PROGRAM=reason")
+    pv.add_argument("--shipped-data", action="append", help="PROGRAM whose input data the estate ships")
+    pv.add_argument("--json", type=Path, help="also write the declaration here")
     sy = sub.add_parser("sync", aliases=["attempt"], help="import the porting loop's log as attempts")
     sy.add_argument("trial")
     sy.add_argument("--project", type=Path, required=True, help="the trial's generated project (port_log.jsonl)")
@@ -805,6 +849,8 @@ def main(argv: list[str] | None = None) -> int:
     opts = ap.parse_args(argv)
     if opts.cmd == "start":
         return cmd_start(opts)
+    if opts.cmd == "preview":
+        return cmd_preview(opts)
     if opts.cmd in ("sync", "attempt"):
         return cmd_sync(opts)
     if opts.cmd == "close":

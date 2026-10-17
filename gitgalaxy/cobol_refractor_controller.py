@@ -347,7 +347,13 @@ def process_payload(
             ir["analysis"]["base_intent"]["program_id"] = engine_file.program_ids[0]
         ir["analysis"]["copy_dependencies"] = list(engine_file.copy_deps)
         ir["analysis"]["engine_units"] = [
-            {"name": u.name, "start_line": u.start_line, "loc": u.loc, "usage_status": u.usage_status}
+            {
+                "name": u.name,
+                "start_line": u.start_line,
+                "loc": u.loc,
+                "usage_status": u.usage_status,
+                **({"program": u.program} if u.program else {}),
+            }
             for u in engine_file.units
         ]
 

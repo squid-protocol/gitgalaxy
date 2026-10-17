@@ -1,0 +1,163 @@
+{
+ "format": "cics-crucible/expected/1",
+ "case": "hx-extended-cursor",
+ "scenario": "six-non-numeric-account",
+ "derived": {
+  "from": "cobol-stub",
+  "issue": "#4049",
+  "note": "the COBOL program's own run on the stub runtime (tests/equivalence/cics/ggcics.c), written by cics_crucible.py --derive-expected; never edited by hand",
+  "faults_fired": []
+ },
+ "tasks": [
+  {
+   "seq": 1,
+   "transid": "HX02",
+   "program": "HXEXT",
+   "termid": "T001",
+   "at": "2026-03-02T10:00:00",
+   "trigger": {
+    "kind": "terminal",
+    "step": 0
+   },
+   "eibaid": "ENTER",
+   "eibcalen": 0,
+   "commarea": null,
+   "events": [
+    {
+     "event": "SEND-MAP",
+     "program": "HXEXT",
+     "map": "HXM2",
+     "mapset": "HXSET2",
+     "options": [
+      "ERASE"
+     ],
+     "fields": {
+      "ACCT": {
+       "attr": "40",
+       "attr_from": "map",
+       "data": null,
+       "data_from": "none",
+       "color": "F4",
+       "color_from": "map",
+       "hilight": "F4",
+       "hilight_from": "map"
+      },
+      "AMOUNT": {
+       "attr": "50",
+       "attr_from": "map",
+       "data": null,
+       "data_from": "none",
+       "color": "F4",
+       "color_from": "map",
+       "hilight": null,
+       "hilight_from": "none"
+      },
+      "MSG": {
+       "attr": "F0",
+       "attr_from": "map",
+       "data": "ENTER ACCOUNT AND AMOUNT",
+       "data_from": "program",
+       "color": "F6",
+       "color_from": "map",
+       "hilight": null,
+       "hilight_from": "none"
+      }
+     },
+     "cursor": "ACCT"
+    },
+    {
+     "event": "RETURN",
+     "program": "HXEXT",
+     "level": 1,
+     "transid": "HX02",
+     "commarea": {
+      "length": 1,
+      "text": "E"
+     }
+    }
+   ],
+   "end": "normal"
+  },
+  {
+   "seq": 2,
+   "transid": "HX02",
+   "program": "HXEXT",
+   "termid": "T001",
+   "at": "2026-03-02T10:00:20",
+   "trigger": {
+    "kind": "terminal",
+    "step": 1
+   },
+   "eibaid": "ENTER",
+   "eibcalen": 1,
+   "commarea": {
+    "length": 1,
+    "text": "E"
+   },
+   "events": [
+    {
+     "event": "RECEIVE-MAP",
+     "program": "HXEXT",
+     "map": "HXM2",
+     "mapset": "HXSET2",
+     "resp": "NORMAL"
+    },
+    {
+     "event": "SEND-MAP",
+     "program": "HXEXT",
+     "map": "HXM2",
+     "mapset": "HXSET2",
+     "options": [
+      "DATAONLY",
+      "CURSOR",
+      "ALARM"
+     ],
+     "fields": {
+      "ACCT": {
+       "attr": "C9",
+       "attr_from": "program",
+       "data": "ABCDEF",
+       "data_from": "program",
+       "color": "F2",
+       "color_from": "program",
+       "hilight": "F1",
+       "hilight_from": "program"
+      },
+      "AMOUNT": {
+       "attr": null,
+       "attr_from": "none",
+       "data": "0000125",
+       "data_from": "program",
+       "color": null,
+       "color_from": "none",
+       "hilight": null,
+       "hilight_from": "none"
+      },
+      "MSG": {
+       "attr": null,
+       "attr_from": "none",
+       "data": "ACCOUNT MUST BE 6 DIGITS",
+       "data_from": "program",
+       "color": null,
+       "color_from": "none",
+       "hilight": null,
+       "hilight_from": "none"
+      }
+     },
+     "cursor": "ACCT"
+    },
+    {
+     "event": "RETURN",
+     "program": "HXEXT",
+     "level": 1,
+     "transid": "HX02",
+     "commarea": {
+      "length": 1,
+      "text": "E"
+     }
+    }
+   ],
+   "end": "normal"
+  }
+ ]
+}

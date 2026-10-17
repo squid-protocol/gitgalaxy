@@ -49,7 +49,8 @@ runs:
         if [ "$GALAXY_ACT_FULL_PRECISION" = "true" ]; then SET=full; else SET=yaml; fi
         if [ "$GALAXY_ACT_VERSION" = "local" ]; then
           echo "Dogfooding local GitGalaxy source..."
-          pip install -e ".[yaml]"
+          pip install --require-hashes -r "${GITHUB_ACTION_PATH}/ci/requirements/bootstrap.txt"
+          pip install --no-build-isolation -e ".[yaml]"
         elif [ "$GALAXY_ACT_VERSION" = "latest" ]; then
           echo "Installing the hash-pinned GitGalaxy release (--require-hashes)..."
           pip install --require-hashes -r "${REQS}/${SET}.txt"

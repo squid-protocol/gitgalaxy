@@ -14,7 +14,7 @@ from unittest.mock import patch
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
-from maven_exe import maven_utf8_env, run_decoded
+from maven_exe import maven_utf8_env, mvn_executable, run_decoded
 
 import gitgalaxy.cobol_refractor_controller as refractor
 import gitgalaxy.cobol_to_java_controller as java_controller
@@ -190,9 +190,7 @@ JDK17 = Path(os.environ.get("JDK_17") or "/usr/lib/jvm/java-17-openjdk-amd64")
 @pytest.mark.skipif(not shutil.which("mvn") or not (JDK17 / "bin" / "javac").is_file(), reason="no Maven + JDK 17")
 def test_the_generated_project_compiles(generated):
     env = {**os.environ, "JAVA_HOME": str(JDK17)}
-    proc = run_decoded(
-        [shutil.which("mvn"), "-q", "-o", "compile"], cwd=generated, env=maven_utf8_env(env), timeout=600
-    )
+    proc = run_decoded([mvn_executable(), "-q", "-o", "compile"], cwd=generated, env=maven_utf8_env(env), timeout=600)
     out = proc.stdout + proc.stderr
     if proc.returncode and "COMPILATION ERROR" not in out and re.search(r"offline|resolve|Could not", out):
         pytest.skip("Maven cannot resolve the Spring Boot build offline here")

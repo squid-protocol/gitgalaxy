@@ -246,7 +246,9 @@ def structurable(proc: S.Procedure) -> bool:
         if p.section == p.name:
             return False
         for s in S.walk(p.body):
-            if s.kind == "GOTO" or (s.kind == "EXEC" and re.search(r"(?i)\bHANDLE\b", s.text)):
+            if s.kind == "GOTO" or (
+                s.kind == "EXEC" and re.search(r"(?is)\bHANDLE\b|\bWHENEVER\b.*\bGO\s*TO\b", s.text)
+            ):
                 return False
             if s.kind == "HOLE" and re.match(r"(?i)\s*ALTER\b", s.text):
                 return False
@@ -276,6 +278,21 @@ def overlaid_pointers(records: list) -> set[str]:
             p = p.parent
         if {c.name.upper() for c in chain} & redefined or any(c.redefines for c in chain):
             out.add(x.name.upper())
+    return out
+
+
+def pointer_views(records: list) -> set[str]:
+    """#4771 (X47): the numeric items that REDEFINE a POINTER item (and what sits under them) -- a numeric view of an
+    address (ZECS001's CACHE-ADDRESS-X, `ADD n TO` it). A pointer here holds a handle of a block, not a number, so a
+    statement reading or changing one of these items would compute on handle bytes: such a statement is a hole."""
+    items = [x for r in records for x in r.walk()]
+    pointers = {x.name.upper() for x in items if x.usage == "POINTER"}
+    out: set[str] = set()
+    for x in items:
+        if x.usage != "POINTER" and x.redefines and x.redefines.upper() in pointers:
+            view = list(x.walk())
+            if any(y.category == "NUMERIC" for y in view):  # a byte (PIC X) view stays bytes
+                out.update(y.name.upper() for y in view)
     return out
 
 
@@ -424,11 +441,12 @@ def drop_unused_fields(java: str) -> str:
         java = out
 
 
-def with_trunc(java: str, trunc: bool | str, pfd: bool = False) -> str:
+def with_trunc(java: str, trunc: bool | str, pfd: bool = False, extend: bool = False) -> str:
     """Each entry (runTask / runBatch / handleCall) run with this program's TRUNC (Cobol.swapTruncBinary) and NUMPROC
     (Cobol.swapNumprocPfd, #4271), the caller's restored after it -- a LINK or CALL into a program compiled otherwise
     leaves the caller's as it was. `trunc`: "STD" / "BIN" / "OPT" (True / False: STD / BIN). TRUNC(OPT) (#4706) runs
-    as STD with Cobol.swapTruncOpt on: a value that would not fit a binary receiver's PICTURE stops by name."""
+    as STD with Cobol.swapTruncOpt on: a value that would not fit a binary receiver's PICTURE stops by name.
+    ARITH(EXTEND) (`extend`, #4706) runs with Cobol.swapArithExtend on: an intermediate result past 30 digits stops."""
     mode = ("STD" if trunc else "BIN") if isinstance(trunc, bool) else trunc.upper()
     std = mode != "BIN"
     opt_on = (
@@ -437,6 +455,12 @@ def with_trunc(java: str, trunc: bool | str, pfd: bool = False) -> str:
         else ""
     )
     opt_off = "            Cobol.swapTruncOpt(optBefore);\n" if mode == "OPT" else ""
+    ext_on = (
+        "\n        boolean extBefore = Cobol.swapArithExtend(true);  // ARITH(EXTEND): an intermediate past 30 digits stops"
+        if extend
+        else ""
+    )
+    ext_off = "            Cobol.swapArithExtend(extBefore);\n" if extend else ""
     out, at = [], 0
     for m in _ENTRIES.finditer(java):
         end = _method_end(java, m.end())
@@ -447,13 +471,13 @@ def with_trunc(java: str, trunc: bool | str, pfd: bool = False) -> str:
         out.append(
             f"\n        boolean truncBefore = Cobol.swapTruncBinary({'true' if std else 'false'});  // TRUNC"
             f"({'STD' if mode == 'STD' else 'BIN' if mode == 'BIN' else 'OPT'})"
-            f"{opt_on}"
+            f"{opt_on}{ext_on}"
             f"\n        boolean pfdBefore = Cobol.swapNumprocPfd({'true' if pfd else 'false'});  // NUMPROC"
             f"({'PFD' if pfd else 'NOPFD'})\n        try {{"
         )
         out.append("\n".join(("    " + ln) if ln.strip() else ln for ln in body.split("\n")))
         out.append(
-            f"    }} finally {{\n{opt_off}            Cobol.swapTruncBinary(truncBefore);\n"
+            f"    }} finally {{\n{opt_off}{ext_off}            Cobol.swapTruncBinary(truncBefore);\n"
             "            Cobol.swapNumprocPfd(pfdBefore);\n        }\n    "
         )
         at = end
@@ -621,6 +645,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     gen = G.Gen(prog, structured)
     gen.write_only_pointers = write_only_pointers(records, proc)
     gen.overlaid_pointers = overlaid_pointers(records)
+    gen.pointer_views = pointer_views(records)
     # #4270: a floating-point expression under ARITH(EXTEND) is extended-precision HFP, refused (Gen.fnum)
     gen.arith_extend = arith_extend(program, options, engine.page(program) if engine is not None else None)
     # #4271: every COMP-1 / COMP-2 item's bytes, by storage, for the refusal of byte uses that overlap one
@@ -629,6 +654,10 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         for it in rec.walk():
             if it.category == "FLOAT":
                 gen.float_extents.setdefault(id(roots[id(rec)]), []).append((it, *G._extents(it)))
+            elif it.usage == "COMP-5" and it.size > 1 and rec.name.upper() != "SQLCA":
+                # #4271 (C7): its bytes are the oracle's order, not z/OS's. Not the SQLCA: the SQL lane hands the whole
+                # group to DetSql, which sets its fields as numbers (a program that MOVEs it as bytes: sibling gap)
+                gen.comp5_extents.setdefault(id(roots[id(rec)]), []).append((it, *G._extents(it)))
     if typed:
         gen.sync_groups = groups
         gen.lifted = liftable(records, excluded | {"GG-SORT-RETURN"}, rc)
@@ -660,6 +689,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         from gitgalaxy.tools.cobol_to_java.det.sql import Sql
 
         gen.sql = Sql(gen, prog.name, gen.java_root, "\n".join(ln.text for ln in lines))
+        gen.sql.scan_whenever([s for p in proc.paragraphs for s in S.walk(p.body) if s.kind == "EXEC"])  # #4269
     repos = stub_files(stub)
     imports = stub_imports(stub)
     # programs this one CALLs that have a service: the stub's ObjectProvider<XService> ... .handleCall(
@@ -1279,8 +1309,13 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         )
     java = drop_unused_fields(java)
     page = engine.page(program) if engine is not None else None  # #4462: the card read in the declared code page
-    return Result(with_trunc(java, trunc_mode(program, options, page), numproc_pfd(program, options, page)), service,
-                  stats)  # fmt: skip
+    java = with_trunc(
+        java,
+        trunc_mode(program, options, page),
+        numproc_pfd(program, options, page),
+        arith_extend(program, options, page),
+    )
+    return Result(java, service, stats)
 
 
 def _record_io(proc: S.Procedure, fd: G.FileDef, records: list) -> bool:
@@ -1618,10 +1653,53 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         "    }",
         "",
     ]
-    return members + ca_whole, entry + facades(stub)
+    return members + ca_whole, entry + facades(stub, cx.passes_bytes)
 
 
-def facades(stub: str) -> list[str]:
+def answer_lines(ret: str, own: str | None) -> list[str]:
+    """#4695: the lines that answer handleTransaction of a program whose RETURN or XCTL can pass its COMMAREA as bytes
+    (a LENGTH past the DTO, #4679: DetCics.commareaOut). The answer is then the program's own DTO read from them
+    (wideAnswer: the layout of #4449, through the region page), the task keeping the bytes for the next one. Bytes no
+    layout reads (wideAnswer: null) are answered as before: an Object answer (the flows present several records) keeps
+    them, a typed one is refused by name by task.returned. An Object answer with no DTO of its own (`own` is None or
+    Object) has nothing to read them through."""
+    if ret == "Object" and own in (None, "Object"):
+        return ["        return task.returned(Object.class);"]
+    dto = own if ret == "Object" else ret
+    read = f"wideAnswer(wide, {dto}.class)"
+    if ret == "Object":
+        return ["        Object answer = task.returned(Object.class);",
+                "        if (answer instanceof byte[] wide) {",
+                f"            Object read = {read};",
+                "            return read != null ? read : answer;",
+                "        }",
+                "        return answer;"]  # fmt: skip
+    return ["        if (task.returned(Object.class) instanceof byte[] wide) {",
+            f"            {ret} read = {read};",
+            "            if (read != null) {",
+            "                return read;",
+            "            }",
+            "        }",
+            f"        return task.returned({ret}.class);"]  # fmt: skip
+
+
+WIDE_ANSWER = [
+    "    // @facade-helper: a handleTransaction answer read from the COMMAREA bytes a RETURN passed (#4695)",
+    "    /** #4695: the COMMAREA bytes a RETURN passed with a LENGTH past the DTO (the region's EBCDIC), read through",
+    "     *  `type`'s layout (fromCommarea, #4449) in this port's page; null when `type` has no layout or the bytes are",
+    "     *  shorter than its record. @facade-helper */",
+    "    private static <T> T wideAnswer(byte[] ebcdic, Class<T> type) {",
+    "        try {",
+    '            return type.cast(type.getMethod("fromCommarea", byte[].class).invoke(null, (Object) DetCics.commareaIn(ebcdic, CS)));',
+    "        } catch (ReflectiveOperationException e) {",
+    "            return null;",
+    "        }",
+    "    }",
+    "",
+]
+
+
+def facades(stub: str, passes_bytes: bool = False) -> list[str]:
     """The stub's handleTransaction / handleLink, kept for their callers (#4465): each runs the program -- one task of
     it in the region, as the generator's own facades do (#4343: CicsTask.region(), region.transaction / region.linked,
     region.run(task, NAME, this::runTask)) -- and returns what the generated signature says: the COMMAREA its RETURN
@@ -1631,6 +1709,7 @@ def facades(stub: str) -> list[str]:
     entry stops by name rather than return as if the program had run (#4342: no generated entry that does nothing)."""
     name = re.search(r'region\.run\(task, ("(?:[^"\\]|\\.)*"), this::runTask\)', stub)
     out: list[str] = []
+    wide = False
     for meth in ("handleTransaction", "handleLink"):
         # #4870: handleTransaction has two overloads -- the DTO's, and the one carrying the COMMAREA's bytes in (and,
         # through lastAnswerBytes(), out) -- each rebuilt on its own
@@ -1650,10 +1729,15 @@ def facades(stub: str) -> list[str]:
                         f"        region.run(task, {name.group(1)}, this::runTask);"]  # fmt: skip
                 if area and meth == "handleTransaction":
                     body.append("        lastAnswerBytes = task.returnedBytes();")
-                if ret != "void":
+                if ret != "void" and meth == "handleTransaction" and passes_bytes:
+                    body += (lines := answer_lines(ret, req.group(1) if req else None))
+                    wide = wide or len(lines) > 1
+                elif ret != "void":
                     body.append("        return request;" if meth == "handleLink" and req and ret == req.group(1)
                                 else f"        return task.returned({ret}.class);")  # fmt: skip
             out += [f"    public {ret} {meth}({params}) {{", *body, "    }", ""]
+    if wide:
+        out += WIDE_ANSWER
     # The bytes the byte-carrying overload answers: a field and its accessor, tagged for port_surface (#4870)
     if re.search(r"public byte\[\] lastAnswerBytes\(\)", stub):
         out += ["    // @facade-helper: the bytes the last byte-carrying handleTransaction answered",

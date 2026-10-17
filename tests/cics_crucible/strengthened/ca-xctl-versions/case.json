@@ -1,0 +1,54 @@
+{
+ "format": "gitgalaxy/crucible-strengthened/1",
+ "case": "ca-xctl-versions",
+ "scenarios": [
+  {
+   "id": "receive-longer-than-20",
+   "summary": "RECEIVE INTO(20) of a 36-byte input: LENGERR, no RESP: the task abends AEIV and CAXA never XCTLs",
+   "path": "trap",
+   "until": 60,
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "CA02 S plus more than twenty bytes here"
+    }
+   ]
+  },
+  {
+   "id": "xctl-notauth",
+   "summary": "XCTL to CAXB fails NOTAUTH: CAXA keeps control and reports the response",
+   "faults": [
+    {
+     "task": "CA02",
+     "cmd": "XCTL",
+     "program": "CAXB",
+     "nth": 1,
+     "resp": "NOTAUTH"
+    }
+   ],
+   "path": "trap",
+   "until": 60,
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "CA02 S"
+    }
+   ]
+  },
+  {
+   "id": "input-shorter-than-6",
+   "summary": "the operator types only the transid: the mode byte is a blank, so the OTHER branch runs",
+   "path": "trap",
+   "until": 60,
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "CA02"
+    }
+   ]
+  }
+ ]
+}

@@ -2320,6 +2320,9 @@ def test_the_stub_assign_startcode_userid_and_the_terminal_facts(tmp_path):
         "0/0/SD______/-1",
         "16/5/________/-1",
     ]
+    # #5126: a terminal nobody states is refused (the port refuses too), not taken as "none"
+    unterminal = run({"GGCICS_STARTCODE": "SD"}, "TERMCHK")
+    assert unterminal.returncode == 98 and "ASSIGN TERMCHK: not stated" in unterminal.stdout
     unstated = run({}, "STARTCOD")
     assert unstated.returncode == 98 and "ASSIGN STARTCOD: not stated" in unstated.stdout
     child = run({"GGCICS_STARTCODE": "S", "GGCICS_RUNCHILD": "1"}, "STARTCOD")
@@ -2336,8 +2339,21 @@ def test_cics_task_assign_startcode_userid_and_the_terminal_facts(tmp_path):
                 .withUserid("CICSUSER").withScreen(24, 80);
         System.out.println("[" + t.assignStartcode() + "][" + t.assignUserid() + "][" + t.assignFacility() + "] "
                 + t.assignTerminalResp() + " " + t.assignScreen(false) + "x" + t.assignScreen(true));
-        CicsTask s = new CicsTask("GT32", null, null, null).withStartcode("S");
+        CicsTask s = new CicsTask("GT32", null, null, null).withTermid(null).withStartcode("S");
         System.out.println("[" + s.assignStartcode() + "] " + s.assignTerminalResp());
+        for (CicsTask u : new CicsTask[] {new CicsTask("GT33", null, null, null),
+                new CicsTask("GT34", null, null, null).withTermidIfStated("")}) {
+            try {
+                u.assignTerminalResp();
+            } catch (IllegalStateException e) {
+                System.out.println("unstated terminal");
+            }
+        }
+        try {
+            s.assignFacility();
+        } catch (IllegalStateException e) {
+            System.out.println("no facility");
+        }
         try {
             s.assignUserid();
         } catch (IllegalStateException e) {
@@ -2349,7 +2365,8 @@ def test_cics_task_assign_startcode_userid_and_the_terminal_facts(tmp_path):
             System.out.println("refused");
         }""",
     )
-    assert out.splitlines() == ["[TD][CICSUSER][T001] 0 24x80", "[S ] 16", "unstated", "refused"]
+    assert out.splitlines() == ["[TD][CICSUSER][T001] 0 24x80", "[S ] 16", "unstated terminal", "unstated terminal",
+                              "no facility", "unstated", "refused"]
 
 
 _DEED_MAIN = r"""
@@ -6051,7 +6068,7 @@ def test_the_stub_holds_file_offsets_records_and_timestamps_in_64_bits():
     """`long` is 32 bits on Windows (LLP64): record counts, file offsets (RBA), and interval control
     timestamps can exceed 2^31. The stub runtime must hold them in 64-bit types (long long / unsigned long long)
     so 32-bit truncation or sign wrapping does not occur on Windows (#5012, #5055)."""
-    text = STUB.read_text(encoding="utf-8")
+    text = "".join(p.read_text(encoding="utf-8") for p in sorted(STUB.parent.glob("ggcics*.c")))  # #5274: its families
     # RBA browse and offset handling
     assert re.search(r"unsigned long long\s+rstart,\s*rlast;", text)
     assert re.search(r"static unsigned long long\s+rba_get\(", text)

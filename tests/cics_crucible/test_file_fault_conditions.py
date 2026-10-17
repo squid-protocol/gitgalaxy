@@ -119,6 +119,20 @@ def test_dupkey_on_delete_stays_refused_and_rewrite_has_no_notopen_or_disabled()
             ec.fault_lines(_plan("REWRITE", resp))
 
 
+@pytest.mark.parametrize("cond", ("DUPKEY", "DUPREC"))
+def test_the_spec_states_each_duplicate_key_outcome_with_ibms_resp2(cond):
+    """#4623: the spec's outcomes carry DUPKEY / DUPREC on exactly the commands IBM lists, with IBM's RESP2."""
+    from gitgalaxy.standards.cics.commands import files
+
+    for cmd in FILE_COMMANDS:
+        got = [o for o in getattr(files, cmd).outcomes if o.condition == cond]
+        want = IBM[cond].get(cmd)
+        assert [o.resp2 for o in got] == (list(want) if want else []), (cmd, cond)
+        if cond == "DUPKEY" and got:  # the record is delivered: DUPKEY writes what NORMAL writes
+            (normal,) = [o for o in getattr(files, cmd).outcomes if o.condition == "NORMAL"]
+            assert got[0].writes == normal.writes
+
+
 def test_a_non_file_command_is_not_read_by_the_file_rule():
     assert ec.fault_lines({"name": "s", "faults": [{"cmd": "WRITEQ-TS", "queue": "Q", "resp": "NOSPACE"}]}) == [
         "WRITEQ-TS Q 1 18 0"

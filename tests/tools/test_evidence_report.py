@@ -796,3 +796,20 @@ def test_a_survey_run_stores_the_translator_fingerprint(tmp_path, monkeypatch):
     rep = json.loads((out / "zecs" / "report.json").read_text("utf-8"))
     assert rep["measured"]["survey"]["translator"] == {"sha256": "STORED", "files": 3}
     assert rep["survey_translator"] == {"fingerprint": "STORED", "current": True}
+
+
+def test_options_list_the_runtime_values_with_the_tables_verdict(tmp_path, monkeypatch):
+    demo_estate(
+        tmp_path, monkeypatch
+    )  # its LE STORAGE is "NONE": not the table's full default, so a declared difference
+    o = er.program_options(None, "demo", "P.cbl", [])
+    (row,) = o["runtime"]
+    assert (row["option"], row["value"], row["effect"], row["provenance"]) == (
+        "le.runtime_options.STORAGE",
+        "NONE",
+        "declared",
+        "assumed",
+    )
+    assert "le.runtime_options.STORAGE=NONE [declared; assumed" in "\n".join(er.options_lines(o))
+    # a corpus with no estate file has no runtime values, and the key is absent (older reports stay valid)
+    assert "runtime" not in er.program_options(None, "nofile", "P.cbl", [])

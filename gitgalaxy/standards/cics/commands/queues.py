@@ -44,6 +44,7 @@ WRITEQ_TD = Command(
         Outcome("NORMAL", 0, ""),
         Outcome("QIDERR", None, "the CSD does not define the queue"),
         Outcome("NOTOPEN", None, "an extrapartition queue is closed"),  # #5168 (X61)
+        Outcome("DISABLED", None, "SET TDQUEUE ENABLESTATUS(DISABLED) left the queue disabled"),  # #5168 round 5 (X66)
         Outcome("INVREQ", None, "an extrapartition queue is open for input"),
     ),
     state=("handle_table",),
@@ -163,6 +164,7 @@ READQ_TD = Command(
         Outcome("QZERO", None, "the queue is empty"),
         Outcome("QIDERR", None, "the CSD does not define the queue"),
         Outcome("NOTOPEN", None, "an extrapartition queue is closed"),
+        Outcome("DISABLED", None, "SET TDQUEUE ENABLESTATUS(DISABLED) left the queue disabled"),  # #5168 round 5 (X66)
         Outcome("INVREQ", None, "an extrapartition queue is open for output"),
         Outcome(
             "LENGERR",
@@ -176,7 +178,7 @@ READQ_TD = Command(
 )
 
 # #5079, register X57. IBM (EXEC CICS DELETEQ TD): all the data of an intrapartition queue; INVREQ (16) for an
-# extrapartition queue, QIDERR (44) for one CICS cannot find. LOCKED / DISABLED / NOTAUTH / ISCINVREQ / SYSIDERR do not arise here.
+# extrapartition queue, QIDERR (44) for one CICS cannot find. LOCKED / NOTAUTH / ISCINVREQ / SYSIDERR do not arise here.
 DELETEQ_TD = Command(
     key="DELETEQ TD",
     ibm=ibm("EXEC CICS DELETEQ TD", "summary-deleteq-td"),
@@ -188,6 +190,7 @@ DELETEQ_TD = Command(
     outcomes=(
         Outcome("NORMAL", 0, ""),
         Outcome("QIDERR", None, "the CSD does not define the queue"),
+        Outcome("DISABLED", None, "SET TDQUEUE ENABLESTATUS(DISABLED) left the queue disabled"),  # #5168 round 5 (X66)
         Outcome("INVREQ", None, "the queue is extrapartition"),
     ),
     state=("handle_table",),
@@ -196,26 +199,45 @@ DELETEQ_TD = Command(
 
 # #5168 round 3, register X61. IBM (CICS TS 6.x, SET TDQUEUE): OPENSTATUS (extrapartition queues only) says whether the data set "is
 # to be opened" (OPEN) or "closed" (CLOSED); QIDERR RESP2 1, INVREQ RESP2 8 (an invalid CVDA), 9 (OPENSTATUS for an intrapartition
-# queue), 16 (the JCL DDNAME not found: taken as found). ENABLESTATUS, ATIFACILITY, TRIGGERLEVEL and the rest are not modelled.
-_TDQUEUE_REST = Refusal("only an extrapartition queue's open state is modelled", "X61")
+# queue), 16 (the JCL DDNAME not found: taken as found). Round 5 (X66): ENABLESTATUS (ENABLED / DISABLED) makes READQ, WRITEQ and
+# DELETEQ TD answer DISABLED (84); INVREQ RESP2 10 is an invalid CVDA. ATIFACILITY, TRIGGERLEVEL and the rest are not modelled.
+_TDQUEUE_REST = Refusal("only an extrapartition queue's open state and a queue's availability are modelled", "X66")
 SET_TDQUEUE = Command(
     key="SET TDQUEUE",
     ibm=ibm("CICS SPI command SET TDQUEUE", "commands-set-tdqueue"),
     status="modelled",
-    register="X61",
-    options={"TDQUEUE": Arg("name", width=4), "OPENSTATUS": Arg("cvda"), **RESP_OPTIONS},
+    register="X66",
+    options={"TDQUEUE": Arg("name", width=4), "OPENSTATUS": Arg("cvda"), "ENABLESTATUS": Arg("cvda"), **RESP_OPTIONS},
     default_refusal=_TDQUEUE_REST,
     groups=(
         required("TDQUEUE", msg="SET TDQUEUE without TDQUEUE"),
-        requires(("TDQUEUE",), any_of=("OPENSTATUS",), msg="SET TDQUEUE without OPENSTATUS"),
+        requires(
+            ("TDQUEUE",), any_of=("OPENSTATUS", "ENABLESTATUS"), msg="SET TDQUEUE without OPENSTATUS or ENABLESTATUS"
+        ),
+        at_most_one(
+            "OPENSTATUS", "ENABLESTATUS", msg="SET TDQUEUE: OPENSTATUS and ENABLESTATUS together are not modelled"
+        ),
     ),
     outcomes=(
         Outcome("NORMAL", 0, ""),
         Outcome("QIDERR", 1, "The queue cannot be found"),
         Outcome("INVREQ", 8, "OPENSTATUS has an invalid CVDA value", raised_by=("OPENSTATUS",)),
         Outcome("INVREQ", 9, "OPENSTATUS was specified for an intrapartition queue", raised_by=("OPENSTATUS",)),
+        Outcome("INVREQ", 10, "ENABLESTATUS has an invalid CVDA value", raised_by=("ENABLESTATUS",)),
     ),
     runtime_refusals=(
+        RuntimeRefusal(
+            "an invalid ENABLESTATUS CVDA on a queue the CSD does not define: IBM does not order QIDERR and INVREQ RESP2 10",
+            "X66",
+            java="SET TDQUEUE ENABLESTATUS with an invalid CVDA on a queue the CSD does not define",
+            c="SET TDQUEUE ENABLESTATUS with an invalid CVDA on a queue the CSD does not define",
+        ),
+        RuntimeRefusal(
+            "SET ENABLESTATUS of an INDIRECT or REMOTE queue: a command reaches the target",
+            "X66",
+            java="SET TDQUEUE ENABLESTATUS of an INDIRECT or REMOTE queue",
+            c="SET TDQUEUE ENABLESTATUS of an INDIRECT or REMOTE queue",
+        ),
         RuntimeRefusal(
             "SET OPENSTATUS of an INDIRECT or REMOTE queue: IBM names only intrapartition",
             "X61",
@@ -250,20 +272,25 @@ INQUIRE_TDQUEUE = Command(
     key="INQUIRE TDQUEUE",
     ibm=ibm("CICS SPI command INQUIRE TDQUEUE", "commands-inquire-tdqueue"),
     status="modelled",
-    register="X61",
+    register="X66",
     options={
         "TDQUEUE": Arg("name", width=4),
         "OPENSTATUS": Arg("area_out", width=4, binary=True),
         "TYPE": Arg("area_out", width=4, binary=True),
+        "ENABLESTATUS": Arg("area_out", width=4, binary=True),
         **RESP_OPTIONS,
     },
     default_refusal=_TDQUEUE_REST,
     groups=(
         required("TDQUEUE", msg="INQUIRE TDQUEUE without TDQUEUE"),
-        requires(("TDQUEUE",), any_of=("OPENSTATUS", "TYPE"), msg="INQUIRE TDQUEUE without OPENSTATUS or TYPE"),
+        requires(
+            ("TDQUEUE",),
+            any_of=("OPENSTATUS", "TYPE", "ENABLESTATUS"),
+            msg="INQUIRE TDQUEUE without OPENSTATUS, TYPE or ENABLESTATUS",
+        ),
     ),
     outcomes=(
-        Outcome("NORMAL", 0, "", writes=("OPENSTATUS", "TYPE")),
+        Outcome("NORMAL", 0, "", writes=("OPENSTATUS", "TYPE", "ENABLESTATUS")),
         Outcome("QIDERR", 1, "The named queue cannot be found"),
     ),
     runtime_refusals=(

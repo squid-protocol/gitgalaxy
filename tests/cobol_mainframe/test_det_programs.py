@@ -1092,6 +1092,66 @@ PROGRAMS = {
             "IF AX4 = 0.12 DISPLAY 'AC EQ' ELSE DISPLAY 'AC NE' END-IF",
         ],
     ),
+    # #4671: a group is an alphanumeric operand: a numeric item or literal compared with it is compared as its digits,
+    # sign dropped (IBM: an unsigned integer; GnuCOBOL likewise, measured) -- a signed zoned, a packed and a binary
+    # item as well as an unsigned one, either way round, ordering and equality, EVALUATE; held as digits and as spaces
+    "GRPCMP": program(
+        "GRPCMP",
+        [
+            "01  G.",
+            "    05 GA PIC X(2).",
+            "    05 GB PIC X(2).",
+            "01  N4 PIC 9(4).",
+            "01  N2 PIC 9(2).",
+            "01  NS PIC S9(4).",
+            "01  NP PIC S9(4) COMP-3.",
+            "01  NB PIC S9(4) COMP.",
+            "01  NU PIC 9(4) COMP-3.",
+            "01  NV PIC 9(2)V99.",
+        ],
+        [
+            "MOVE '0012' TO G",
+            "MOVE 12 TO N4 N2 NV NU NB NP",
+            "MOVE -12 TO NS",
+            "IF G = 12 DISPLAY 'A EQ' ELSE DISPLAY 'A NE' END-IF",
+            "IF G = 0012 DISPLAY 'B EQ' ELSE DISPLAY 'B NE' END-IF",
+            "IF G > 12 DISPLAY 'C GT' ELSE DISPLAY 'C LE' END-IF",
+            "IF G < 13 DISPLAY 'D LT' ELSE DISPLAY 'D GE' END-IF",
+            "IF G = 12.0 DISPLAY 'E EQ' ELSE DISPLAY 'E NE' END-IF",
+            "IF G = 0.12 DISPLAY 'F EQ' ELSE DISPLAY 'F NE' END-IF",
+            "IF G = ZERO DISPLAY 'G EQ' ELSE DISPLAY 'G NE' END-IF",
+            "IF G = N4 DISPLAY 'H EQ' ELSE DISPLAY 'H NE' END-IF",
+            "IF G = N2 DISPLAY 'I EQ' ELSE DISPLAY 'I NE' END-IF",
+            "IF N4 = G DISPLAY 'J EQ' ELSE DISPLAY 'J NE' END-IF",
+            "IF G = NS DISPLAY 'K EQ' ELSE DISPLAY 'K NE' END-IF",
+            "IF G = NP DISPLAY 'L EQ' ELSE DISPLAY 'L NE' END-IF",
+            "IF G = NB DISPLAY 'M EQ' ELSE DISPLAY 'M NE' END-IF",
+            "IF G = NU DISPLAY 'N EQ' ELSE DISPLAY 'N NE' END-IF",
+            "IF G = NV DISPLAY 'O EQ' ELSE DISPLAY 'O NE' END-IF",
+            "IF G > NS DISPLAY 'P GT' ELSE DISPLAY 'P LE' END-IF",
+            "IF G > NB DISPLAY 'Q GT' ELSE DISPLAY 'Q LE' END-IF",
+            "IF NP < G DISPLAY 'R LT' ELSE DISPLAY 'R GE' END-IF",
+            "EVALUATE G",
+            "  WHEN 12 DISPLAY 'S 12'",
+            "  WHEN N4 DISPLAY 'S N4'",
+            "  WHEN OTHER DISPLAY 'S OTHER'",
+            "END-EVALUATE",
+            "EVALUATE NP",
+            "  WHEN G DISPLAY 'T G'",
+            "  WHEN OTHER DISPLAY 'T OTHER'",
+            "END-EVALUATE",
+            "MOVE '  12' TO G",
+            "MOVE -12 TO NP NB",
+            "IF G = 12 DISPLAY 'U EQ' ELSE DISPLAY 'U NE' END-IF",
+            "IF G = N4 DISPLAY 'V EQ' ELSE DISPLAY 'V NE' END-IF",
+            "IF G = NS DISPLAY 'W EQ' ELSE DISPLAY 'W NE' END-IF",
+            "IF G = NP DISPLAY 'X EQ' ELSE DISPLAY 'X NE' END-IF",
+            "IF G = NB DISPLAY 'Y EQ' ELSE DISPLAY 'Y NE' END-IF",
+            "MOVE '0012' TO G",
+            "IF G = NP DISPLAY 'Z EQ' ELSE DISPLAY 'Z NE' END-IF",
+            "IF G = NB DISPLAY 'AA EQ' ELSE DISPLAY 'AA NE' END-IF",
+        ],
+    ),
 }
 
 
@@ -1435,9 +1495,7 @@ def _runtime_classes(batch: bool = False, charset: str = "ISO-8859-1") -> Path:
     jdk = _java()
     classes = base / "classes"
     files = [str(f) for f in srcdir.rglob("*.java")]
-    subprocess.run(
-        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(classes), *files], check=True
-    )  # noqa: S603
+    subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(classes), *files], check=True)  # noqa: S603
     return classes
 
 
@@ -1451,9 +1509,11 @@ def _java_run(
     raw: bool = False,
     trunc_std: bool = False,
     trunc_opt: bool = False,
+    arith_extend: bool = False,
 ) -> str:
     """The det port's output; `trunc_std` runs it under TRUNC(STD) (Cobol.setTruncBinary, #4684), `trunc_opt` under
-    TRUNC(OPT) (STD with Cobol.setTruncOpt's stop, #4706), else TRUNC(BIN) as `cobc -std=ibm` alone."""
+    TRUNC(OPT) (STD with Cobol.setTruncOpt's stop, #4706), else TRUNC(BIN) as `cobc -std=ibm` alone; `arith_extend`
+    under ARITH(EXTEND) (Cobol.swapArithExtend's stop on a 30-digit intermediate, #4706)."""
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
     (work / f"{name}.cbl").write_text(src)
@@ -1471,13 +1531,25 @@ def _java_run(
     svc.write_text(java)
     trunc = f"{PKG}.cobolrt.Cobol.setTruncBinary(true); " if trunc_std or trunc_opt else ""
     trunc += f"{PKG}.cobolrt.Cobol.setTruncOpt(true); " if trunc_opt else ""
+    trunc += f"{PKG}.cobolrt.Cobol.swapArithExtend(true); " if arith_extend else ""
     main_java = srcdir / "Main.java"
     main_java.write_text(f"public class Main {{ public static void main(String[] a) {{ {trunc}"
                          f"new {PKG}.service.{r.service}().runProgram(); }} }}\n")  # fmt: skip
     jdk = _java()
     classes = work / "classes"
     subprocess.run(
-        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-cp", str(rt_classes), "-d", str(classes), str(svc), str(main_java)],
+        [
+            str(jdk / "javac"),
+            "-encoding",
+            "UTF-8",
+            "-nowarn",
+            "-cp",
+            str(rt_classes),
+            "-d",
+            str(classes),
+            str(svc),
+            str(main_java),
+        ],
         check=True,
     )  # noqa: S603
     cp = os.pathsep.join([str(classes), str(rt_classes)])
@@ -1524,7 +1596,18 @@ def _java_run_batch(
     jdk = _java()
     classes = work / "classes"
     subprocess.run(
-        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-cp", str(rt_classes), "-d", str(classes), str(svc), str(main_java)],
+        [
+            str(jdk / "javac"),
+            "-encoding",
+            "UTF-8",
+            "-nowarn",
+            "-cp",
+            str(rt_classes),
+            "-d",
+            str(classes),
+            str(svc),
+            str(main_java),
+        ],
         check=True,
     )  # noqa: S603
     cp = os.pathsep.join([str(classes), str(rt_classes)])
@@ -1617,6 +1700,41 @@ def test_p_scaled_items_the_oracle_cannot_answer_are_refused_by_name(data, proc,
     pytest.importorskip("tree_sitter_language_pack")
     holes = _pcs_holes(tmp_path, program("PCSX", data, proc))
     assert any(why in h for h in holes), holes
+
+
+@pytest.mark.parametrize(
+    ("data", "proc"),
+    [
+        # #4271 (register C7): a COMP-5 item's bytes are the oracle's (little-endian), not z/OS's (big-endian)
+        (["01 G.", "   05 A PIC S9(4) COMP-5 VALUE 1.", "   05 B PIC X(2)."], ["MOVE G TO T"]),
+        (["01 A PIC S9(9) COMP-5 VALUE 1.", "01 X REDEFINES A PIC X(4)."], ["MOVE X TO T"]),
+        (["01 A PIC S9(18) COMP-5 VALUE 1.", "01 X REDEFINES A PIC X(8)."], ["MOVE X TO T"]),
+        (["01 A PIC S9(9) COMP-5 VALUE 1."], ["MOVE A(1:2) TO T"]),
+        (["01 G.", "   05 A PIC S9(4) COMP-5 OCCURS 3.", "01 X REDEFINES G PIC X(6)."], ["MOVE X TO T"]),
+        (["01 A PIC S9(4) COMP-5 VALUE 1.", "01 X REDEFINES A PIC S9(4) COMP."], ["MOVE X TO N"]),
+    ],
+)
+def test_comp5_bytes_are_refused_by_name_where_the_oracle_and_zos_differ(data, proc, tmp_path):
+    """#4271 (C7): a group MOVE, REDEFINES or reference modification that observes a COMP-5 item's bytes is refused."""
+    pytest.importorskip("tree_sitter_language_pack")
+    holes = _pcs_holes(tmp_path, program("COMP5B", [*data, "01 T PIC X(8).", "01 N PIC S9(4)."], proc))
+    assert any("oracle_assumptions.md C7" in h for h in holes), holes
+
+
+@pytest.mark.parametrize(
+    ("data", "proc"),
+    [
+        (["01 A PIC S9(9) COMP-5 VALUE 1.", "01 N PIC S9(9)."], ["MOVE A TO N", "ADD 1 TO A"]),
+        (["01 A PIC S9(4) COMP-5 VALUE 1.", "01 B PIC S9(4) COMP-5.", "01 A1 REDEFINES A PIC S9(4) COMP-5."],
+         ["MOVE A TO B", "MOVE A1 TO B"]),
+        (["01 A PIC S9(4) COMP-5 VALUE 1.", "01 X PIC X(2) VALUE 'AB'."], ["MOVE X TO T", "MOVE 5 TO A"]),
+    ],
+)  # fmt: skip
+def test_comp5_read_as_a_number_is_not_refused(data, proc, tmp_path):
+    """#4271 (C7): numeric uses of COMP-5 stay translated."""
+    pytest.importorskip("tree_sitter_language_pack")
+    holes = _pcs_holes(tmp_path, program("COMP5N", [*data, "01 T PIC X(8)."], proc))
+    assert not any("oracle_assumptions.md C7" in h for h in holes), holes
 
 
 def test_p_scaled_items_store_their_nines_scaled():
@@ -1924,6 +2042,15 @@ def test_pcs_refuses_what_ibm_and_gnucobol_order_differently(tmp_path):
         (["01  E PIC ZZ9."], "E = 12.5", "the numeric literal 12.5 compared for equality with the numeric-edited E"),
         (["01  E PIC Z99V9."], "E NOT = 11.25", "the numeric literal 11.25 compared for equality with the numeric"),
         (["01  E PIC ZZ9.", "    88  E-H VALUE 1.5."], "E-H", "the numeric literal 1.5 compared for equality"),
+        # #4671: the same differences against a group (an alphanumeric operand)
+        (["01  G.", "    05 GA PIC X(4)."], "G = +12", "the signed numeric literal +12 compared with a nonnumeric operand"),
+        (["01  G.", "    05 GA PIC X(4)."], "G < -1", "the signed numeric literal -1 compared with a nonnumeric operand"),
+        (["01  G.", "    05 GA PIC X(4).", "01  N PIC S9(4) SIGN LEADING SEPARATE."], "G = N",
+         "N (SIGN SEPARATE) compared with the nonnumeric G"),
+        (["01  G.", "    05 GA PIC X(4).", "01  N PIC S9(4) SIGN TRAILING SEPARATE."], "N > G",
+         "N (SIGN SEPARATE) compared with the nonnumeric G"),
+        (["01  G.", "    05 GA PIC X(4).", "01  N PIC 99PP."], "G = N", "N (P-scaled) compared with the nonnumeric G"),
+        (["01  G.", "    05 GA PIC X(4)."], "G = 10 + 2", "the nonnumeric G compared with an arithmetic expression"),
     ],
 )  # fmt: skip
 def test_a_numeric_operand_compared_as_text_refuses_by_name_what_ibm_and_gnucobol_differ_on(data, cond, why, tmp_path):

@@ -1,0 +1,57 @@
+"""#5116: census of BMS OCCURS / GRPNAME fields in the burned estates (register X54, "Not modelled").
+
+RECEIVE MAP does not justify per occurrence (OCCURS) or inherit a group's ATTRB (GRPNAME). That gap only matters if a
+burned program's map has such a field the user can key into. This pins that none does, so a corpus bump that adds one
+fails here and the gap gets a ticket, instead of staying unseen.
+"""
+
+import os
+import re
+import sys
+from pathlib import Path
+
+import pytest
+
+pytest.importorskip("tree_sitter_language_pack")
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+import estate4_draw  # noqa: E402
+
+from gitgalaxy.core.bms_screen_fields import bms_screen_fields  # noqa: E402
+from gitgalaxy.core.source_text import read_source  # noqa: E402
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_screen_forge import _attrs  # noqa: E402
+
+GRPNAME = re.compile(r"\bGRPNAME\s*=", re.I)
+
+
+def _burned_maps():
+    root = os.environ.get("GITGALAXY_MAINFRAME_CORPORA")
+    if not root or not Path(root).is_dir():
+        pytest.skip("GITGALAXY_MAINFRAME_CORPORA not available")
+    found = [
+        p
+        for d in sorted(Path(root).iterdir())
+        if d.name.lower() in estate4_draw.BURNED_NAMES
+        for p in sorted(d.rglob("*.bms"))
+        if ".git" not in p.parts
+    ]
+    if not found:
+        pytest.skip("no burned-estate BMS source on disk")
+    return found
+
+
+def test_no_burned_map_uses_grpname():
+    hits = [p.name for p in _burned_maps() if GRPNAME.search(read_source(p).text)]
+    assert hits == [], f"GRPNAME in a burned map, X54 needs the group's ATTRB inheritance: {hits}"
+
+
+def test_every_burned_occurs_field_is_output_only():
+    occurs = {}
+    for p in _burned_maps():
+        for r in bms_screen_fields(read_source(p).text):
+            if r["kind"] == "field" and (r.get("occurs") or 1) > 1:
+                occurs[(p.name, (r["name"] or "").upper())] = _attrs(r)
+    for key, attrs in occurs.items():
+        assert attrs & {"ASKIP", "PROT"}, f"{key} is OCCURS and typable: per-occurrence JUSTIFY is reachable"
+    # the one known: CBSA BNK1ACC's account list (a SEND-only row of 10)
+    assert ("BNK1ACC.bms", "ACCOUNT") in occurs

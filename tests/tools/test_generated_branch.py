@@ -123,6 +123,7 @@ MOVED = {
         "docs/language_status/readiness_report.md",  # #4725
         "docs/language_status/progress.md",  # #5280
         "docs/language_status/progress.json",  # #5280
+        "docs/language_status/progress.svg",  # #5286
     ],
 }
 

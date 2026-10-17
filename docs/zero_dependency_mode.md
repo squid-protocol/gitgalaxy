@@ -75,6 +75,13 @@ Inference needs all three, so a missing one disables it. Each is still detected 
 
 The DB columns follow whether inference actually **ran**, not the mode flag (#3028). So they are also NULL on a full-precision install when the model file is absent or inference fails, and they keep real values when a scan is zero-dependency only because another package (say `pyyaml`) is missing.
 
+#### ML layer boundary for validation scans (#2986)
+
+- **No model ships, so there is no full-deps leg.** The XGBoost model file (`gitgalaxy_malware_xgb_multiclass.json`) is not in this repository. A scan with numpy, pandas and xgboost installed but no model still skips inference, so `ml_inference_ran` is false in every public scan, including both golden-master legs. The ML layer is **unexercised, not exonerated**, in all of them.
+- **Not a CVE detector.** The model classifies malware and supply-chain shapes (Botnet / DDoS, Stealer / Trojan, Dropper / Webshell, Native Infector). It is not expected to fire on CVE-class vulnerabilities, so a CVE ground truth such as temporal-crucible's curl snapshots is the wrong yardstick for it even when a model is present.
+- **How to read a snapshot.** `ai_threat_score IS NULL` means the layer did not run. Only a non-NULL score means it ran. Filter on `repo_data.is_zero_dependency_mode` and `ai_threat_score IS NOT NULL` before counting threats.
+- **Older snapshots.** Scans recorded before #3028 (the temporal-crucible snapshots among them) store `'Safe'` / `0.0` / `0` and `binary_anomaly` / `obfuscation_flag` as zero. Those are placeholders for "did not run", not a clean verdict.
+
 Rule-based threat detection is unaffected: hardcoded secrets, `--fail-on-secrets`, and the `threat_*` signal columns are regex signals.
 
 ### `pyyaml`: YAML configuration

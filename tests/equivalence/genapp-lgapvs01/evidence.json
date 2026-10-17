@@ -304,7 +304,44 @@
   "generated_compared": true,
   "port_sha256": "1113c4e2f3bef8ffb8e63d6fe8d0b28afc6c2f1e348f96721b0cc960a1cbadfd"
  },
- "mutation": null,
+ "mutation": {
+  "commit": "ed188d3cb406da57b753e56b98ae9e75b6d2d2b0",
+  "rejudged": null,
+  "seed": 0,
+  "mode": null,
+  "mutants": 178,
+  "chosen": 150,
+  "killed": 70,
+  "survived": 51,
+  "stillborn": 29,
+  "survivors": {
+   "case_gap": 49,
+   "harness_gap": 0,
+   "equivalent": 0,
+   "unreachable": 2,
+   "untriaged": 0
+  },
+  "score_raw": "70/121",
+  "score_adjusted": "70/119",
+  "source": "docs/language_status/mutation_scores.json#genapp-lgapvs01/LGAPVS01",
+  "inputs": {
+   "port": {
+    "sha256": "1113c4e2f3bef8ffb8e63d6fe8d0b28afc6c2f1e348f96721b0cc960a1cbadfd"
+   },
+   "case": {
+    "sha256": "43ffec29fa8c2a0550158fe549d117033843e9741c072eae52f4d08209b5d2a0"
+   },
+   "corpus": {
+    "sha256": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6"
+   },
+   "harness": {
+    "sha256": "b496d7986682b0ebb12223e56a569b6ae71b02ace811812ec4ec25f7a0d745d8"
+   },
+   "oracle": {
+    "sha256": "7939e0943fd432a108ed735a15e5c9c297d9fd9639c8381ce43d26176fe4f7c7"
+   }
+  }
+ },
  "differences": [
   {
    "kind": "option",

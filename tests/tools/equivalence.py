@@ -23,11 +23,12 @@ program opens I-O) is unloaded to fixed-length records. Compiled `-std=ibm
 -fsign=EBCDIC`: the corpus data is EBCDIC-style zoned (`{` = +0) in ASCII text.
 #3828: the program's CBL / PROCESS cards, and a case's `"compiler_options": ["TRUNC(BIN)"]`
 (the compile step's PARM; the cards override it), become cobc flags where GnuCOBOL has one
-(TRUNC(BIN) -> -fnotrunc); one it cannot honour -- INTDATE(LILIAN), ARITH(EXTEND),
+(TRUNC(BIN) -> -fnotrunc); one it cannot honour -- INTDATE(LILIAN),
 NUMPROC(MIG) under a compiler before Enterprise COBOL 5 -- stops the run
 (equivalence_common.compile_options); NUMPROC(PFD) runs only with a det port (#4271); TRUNC(OPT)
 runs the oracle as STD, and a port without the det runtime's stop on a value past its PICTURE is
-proven as STD, a declared difference in its evidence record (#4706, option_differences). A case's
+proven as STD, a declared difference in its evidence record (#4706, option_differences); ARITH(EXTEND)
+likewise runs the oracle as COMPAT, stopped by name past a 30-digit intermediate in a det port. A case's
 `"culture"` (e.g. {"db2_date_format": "eur"}) is the Java side's target config.
 
 Java side -- the generated project (the refractor + cobol-to-java pipeline, target
@@ -103,10 +104,12 @@ import equivalence_ims
 import equivalence_oracle
 import equivalence_sql
 from equivalence_common import (
+    BOUND_FLAGS,  # noqa: F401 -- kept (#4449)
     CASES,
     IMAGE,
     _fixed,
     _input_path,
+    bound_violation,
     compare_sysout,
     comp5_layout_guard,
     compile_options,
@@ -357,6 +360,10 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
     if missing:
         raise RuntimeError(f"the program CALLs {missing.group(1).decode()!r}, which no model provides "
                            "(GnuCOBOL: module not found) -- not runnable faithfully")  # fmt: skip
+    overrun = bound_violation(outs["SYSOUT"])  # #4449 (X8): a subscript / ref-mod past its item stops the oracle
+    if overrun:
+        raise RuntimeError(f"the run drives an item past its bounds ({overrun}) -- not runnable faithfully "
+                           "(register X8: IBM's default has no SSRANGE, so the overlay is storage-layout luck)")  # fmt: skip
     abend = work / "ABEND"
     if abend.is_file():
         outs["ABEND"] = abend.read_bytes().strip()

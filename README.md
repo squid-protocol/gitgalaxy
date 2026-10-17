@@ -195,6 +195,8 @@ own always-current self-scan brief is at
 
 ## CICS to Java: ported, then proven
 
+[![CICS to Java: where we stand](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/language_status/progress.svg)](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md)
+
 For mainframe estates the structural graph is the start of a migration. `cobol-to-java`
 turns a CICS estate (its online transactions, plus the batch COBOL and JCL around them) into
 a compiling Spring Boot project, and an equivalence harness proves each ported program

@@ -27,6 +27,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from gitgalaxy.tools.cobol_to_java.cics_task_containers import CONTAINERS_JAVA
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import (
     ClassNames,
     TraceLog,
@@ -298,6 +299,7 @@ public class CicsTask {
     private TempStorage tempStorage = new TempStorage();
     private String abcode = "    ";
     private String termid;                                  // #3989: EIBTRMID (the task's root); null without one
+    private boolean termidStated;                           // #5126: withTermid was called (null = stated: no terminal)
     private long taskNumber;                                 // #4270: EIBTASKN (the task's root), a stated fact
     private boolean exactCommarea;                          // #4270 (X23): the COMMAREA is EIBCALEN bytes, no more
     private String exitLabel;                               // #3989: this level's HANDLE ABEND LABEL
@@ -314,6 +316,7 @@ public class CicsTask {
     private Runnable rollbackHook;                                          // how a rollback undoes (the root's)
     private final Map<String, Integer> faultSeen = new HashMap<>();
     private Object returnedArea;                                             // #4343: the level-1 RETURN's COMMAREA
+    private boolean bytesTaken;                                              // #4817: returnedBytes() was read
     private byte[] returnedBytes;                                            // #4817: its raw bytes
     private Integer returnedLength;                                          // #4449: its LENGTH (null: the whole record)
 
@@ -605,11 +608,24 @@ public class CicsTask {
     /** ASSIGN FACILITY / SCRNHT / SCRNWD's condition: INVREQ (16) for a task with no terminal (RESP2 5, "The task is
      *  not associated with a terminal; or the task has no principal facility"), else 0. */
     public int assignTerminalResp() {
+        statedTerminal();
         return termid() == null ? 16 : 0;
+    }
+
+    /** #5126: whether the task has a terminal is a fact whoever runs the task states (withTermid; null states "none",
+     *  as the stub's empty $GGCICS_FACILITY); unstated it is refused, as the stub refuses, never guessed. */
+    private void statedTerminal() {
+        if (!root().termidStated) {
+            throw new IllegalStateException("ASSIGN FACILITY / TERMCHK: the task's terminal is not stated (withTermid)");
+        }
     }
 
     /** ASSIGN FACILITY: the principal facility, the task's terminal, 4 characters. */
     public String assignFacility() {
+        statedTerminal();
+        if (termid() == null) {
+            throw new IllegalStateException("ASSIGN FACILITY: the task has no terminal (assignTerminalResp is INVREQ)");
+        }
         return String.format(java.util.Locale.ROOT, "%-4.4s", termid());
     }
 
@@ -1651,6 +1667,18 @@ public class CicsTask {
         return root().addressed.computeIfAbsent(record, r -> newBlock(r, 2));
     }
 
+    /** `ptr-a = ptr-b` (#5042, X56): two pointers are equal when they address the same storage. One block can have two
+     *  handles (a record's ADDRESS OF beside the pointer it was set to), so the handles are equal, or both name blocks
+     *  of one byte array. NULL (0) equals only NULL. */
+    public boolean samePointer(long a, long b) {
+        if (a == b) {
+            return true;
+        }
+        Block x = root().blocks.get(a);
+        Block y = root().blocks.get(b);
+        return x != null && y != null && x.bytes == y.bytes;
+    }
+
     /** SET ADDRESS OF record TO ptr: the bytes the pointer addresses, for a record of `need` bytes. A record longer than
      *  its storage reads zero bytes past it (ASSUMED, X47: IBM's are bytes that are not the program's), the storage
      *  growing once, before a second record is set to it. Refused: a null or unknown pointer, freed storage, a record's own
@@ -2303,6 +2331,13 @@ public class CicsTask {
         return "INPUT".equals(tdAttr(q, "TYPEFILE")) ? 16 : 0;
     }
 
+    /** #5168 round 5 (X66): true when SET TDQUEUE ENABLESTATUS(DISABLED) left the queue disabled ("The queue cannot be accessed by
+     *  applications"): READQ, WRITEQ and DELETEQ TD then answer DISABLED (84). A queue is ENABLED until a SET says otherwise
+     *  (ASSUMED: IBM states no default); the state outlives the task. */
+    private boolean tdDisabled(String q) {
+        return root().tempStorage.tdDisabled.contains(q);
+    }
+
     /** The queue's TYPE CVDA for INQUIRE TDQUEUE: INTRA 222, EXTRA 221, INDIRECT 122, REMOTE 4; a queue with no TYPE stated is refused. */
     private int tdTypeCvda(String q, int kind) {
         if (kind == 1) {
@@ -2366,10 +2401,16 @@ public class CicsTask {
      *  RESP2 1 "the named queue cannot be found". OPENSTATUS is OPEN 18 / CLOSED 19 for an extrapartition queue, NOTAPPLIC 1
      *  ("the queue is not extrapartition") for the others; a queue with no TYPE stated is refused for either option. */
     public int[] inquireTdQueue(String queue, boolean openStatus, boolean type) {
+        return inquireTdQueue(queue, openStatus, type, false);
+    }
+
+    /** INQUIRE TDQUEUE ... ENABLESTATUS (#5168 round 5, X66): {RESP, RESP2, OPENSTATUS CVDA, TYPE CVDA, ENABLESTATUS CVDA}; ENABLED 23
+     *  or DISABLED 24, the state SET TDQUEUE ENABLESTATUS left (ENABLED before any). An INDIRECT queue answers about itself. */
+    public int[] inquireTdQueue(String queue, boolean openStatus, boolean type, boolean enableStatus) {
         String q = queue.strip();
         int kind = tdKind(q);
         if (kind == 0) {
-            return new int[] {44, 1, 0, 0};
+            return new int[] {44, 1, 0, 0, 0};
         }
         int typeCvda = type ? tdTypeCvda(q, kind) : 0;
         int status = 0;
@@ -2381,7 +2422,38 @@ public class CicsTask {
                 status = 1;
             }
         }
-        return new int[] {0, 0, status, typeCvda};
+        return new int[] {0, 0, status, typeCvda, enableStatus ? (tdDisabled(q) ? 24 : 23) : 0};
+    }
+
+    /** SET TDQUEUE(q) ENABLESTATUS(cvda) (#5168 round 5, X66; IBM CICS TS 6.x SET TDQUEUE): ENABLED (23) lets applications access
+     *  the queue, DISABLED (24) does not (READQ / WRITEQ / DELETEQ TD then answer DISABLED). For an extrapartition queue only its
+     *  availability changes, the data set is not opened or closed. Returns {RESP, RESP2}: QIDERR (44) RESP2 1, INVREQ (16) RESP2 10
+     *  for an invalid CVDA. Setting the state a queue is in is NORMAL (ASSUMED). Refused: an invalid CVDA on a queue the CSD does
+     *  not define (IBM does not order the two), an INDIRECT / REMOTE queue (its target is what a command reaches). RESP2 30 / 31 / 35
+     *  / 40 (disable pending, in doubt, CXRF) do not arise: one task, no recovery. */
+    public int[] setTdQueueEnableStatus(String queue, long cvda) {
+        String q = queue.strip();
+        int kind = tdKind(q);
+        boolean valid = cvda == 23 || cvda == 24;
+        if (kind == 0) {
+            if (!valid) {
+                throw new UnsupportedOperationException("SET TDQUEUE ENABLESTATUS with an invalid CVDA on a queue the CSD does not define: "
+                        + "IBM does not say which condition comes first: not modelled");
+            }
+            return new int[] {44, 1};
+        }
+        if (kind == 3) {
+            throw new UnsupportedOperationException("SET TDQUEUE ENABLESTATUS of an INDIRECT or REMOTE queue: not modelled");
+        }
+        if (!valid) {
+            return new int[] {16, 10};
+        }
+        if (cvda == 24) {
+            root().tempStorage.tdDisabled.add(q);
+        } else {
+            root().tempStorage.tdDisabled.remove(q);
+        }
+        return new int[] {0, 0};
     }
 
     /** WRITEQ TD QUEUE(queue) FROM(record) (IBM CICS TS): one record on a transient-data queue -- recorded, with the
@@ -2394,7 +2466,7 @@ public class CicsTask {
         String t = tdResolve(q);
         int kind = tdKind(t);
         int[] planned = root().injected("WRITEQ-TD", q);
-        int resp = planned != null ? planned[0] : kind == 0 ? 44 : kind == 2 ? tdExtraWriteResp(t) : 0;
+        int resp = planned != null ? planned[0] : kind == 0 ? 44 : tdDisabled(t) ? 84 : kind == 2 ? tdExtraWriteResp(t) : 0;
         event("WRITEQ-TD", "queue", q, "text", resp == 0 ? record : null, "resp", resp);
         if (resp == 0 && kind == 1) {
             tdTouch(t);
@@ -2426,14 +2498,15 @@ public class CicsTask {
         }
         int state = kind == 2 ? tdExtraState(t) : 0;
         java.util.ArrayDeque<String> records = tempStorage.td.get(t);
-        String resp = kind == 0 ? "QIDERR" : state == 2 ? "NOTOPEN" : state == 1 ? "INVREQ" : maxLength < 0 ? "LENGERR"
+        String resp = kind == 0 ? "QIDERR" : tdDisabled(t) ? "DISABLED" : state == 2 ? "NOTOPEN" : state == 1 ? "INVREQ" : maxLength < 0 ? "LENGERR"
                 : records == null || records.isEmpty() ? "QZERO" : "NORMAL";
         String data = null;
         int length = -1;
-        if (kind != 0 && state == 0 && maxLength >= 0) {
+        boolean readable = kind != 0 && state == 0 && maxLength >= 0 && !resp.equals("DISABLED");
+        if (readable) {
             tdTouch(t);
         }
-        if (kind != 0 && state == 0 && maxLength >= 0 && records != null && !records.isEmpty()) {
+        if (readable && records != null && !records.isEmpty()) {
             String record = records.removeFirst();
             data = record.length() > maxLength ? record.substring(0, maxLength) : record;
             length = record.length();
@@ -2456,8 +2529,14 @@ public class CicsTask {
         if (kind == 3) {
             throw new UnsupportedOperationException("DELETEQ TD of a queue whose TYPE is not INTRA or EXTRA: not modelled");
         }
+        if (kind == 0) {
+            return 44;
+        }
+        if (tdDisabled(t)) {
+            return 84;
+        }
         if (kind != 1) {
-            return kind == 0 ? 44 : 16;
+            return 16;
         }
         tdTouch(t);
         tempStorage.td.remove(t);
@@ -2540,7 +2619,13 @@ public class CicsTask {
     /** The terminal the task is attached to (#3989): EIBTRMID, or null for a task no terminal started. */
     public CicsTask withTermid(String termid) {
         this.termid = termid;
+        this.termidStated = true;
         return this;
+    }
+
+    /** #5126: withTermid for a harness that may not state a terminal (a case giving none or ""): leaves it unstated. */
+    public CicsTask withTermidIfStated(String termid) {
+        return termid == null || termid.isEmpty() ? this : withTermid(termid);
     }
 
     /** EIBTRMID (#3989): the task's terminal, the same at every LINK / XCTL level; null for a non-terminal task. */
@@ -3502,652 +3587,10 @@ public class CicsTask {
         return link(program, null, 0);
     }
 
-    // ---- #4270: channels and containers (IBM CICS TS: PUT / GET / DELETE CONTAINER (CHANNEL), LINK / XCTL CHANNEL,
-    // ASSIGN CHANNEL, "Scope of a channel"). A container holds bytes, exactly as the program put them: a BIT container
-    // is never converted, and a CHAR one put and got with no FROMCCSID / INTOCCSID is in the region's CCSID both ways
-    // (GET CONTAINER: "If INTOCCSID and INTOCODEPAGE are not specified, the value for conversion defaults to the CCSID
-    // of the region"), so it is not converted either. The CCSID options are refused by the translator.
-
-    /** A channel: its name and its containers, in creation order. */
-    public static final class Channel {
-        private final String name;
-        private final Map<String, Container> containers = new LinkedHashMap<>();
-        private int shape;  // #4951: counts the containers added and removed, so a browse can tell the channel changed
-
-        public Channel(String name) {
-            this.name = name;
-        }
-
-        public String name() {
-            return name;
-        }
-
-        /** #4270 (X24): a container this channel holds before any program runs -- what the parent of a RUN TRANSID
-         *  CHANNEL, or a LINK CHANNEL caller outside the region, put there (BIT or CHAR, as its PUT gave it). */
-        public Channel with(String container, byte[] data, boolean bit) {
-            containers.put(channelName(container, "container"), new Container(data.clone(), bit));
-            shape++;
-            return this;
-        }
-
-        /** The containers, by name (a copy). */
-        public Map<String, byte[]> containers() {
-            Map<String, byte[]> out = new LinkedHashMap<>();
-            containers.forEach((k, v) -> out.put(k, v.data.clone()));
-            return out;
-        }
-    }
-
-    private static final class Container {
-        private byte[] data;
-        private final boolean bit;
-        private final int ccsid;  // a CHAR container's CCSID (the first PUT's, else the region's); 0 for BIT
-
-        private Container(byte[] data, boolean bit) {
-            this(data, bit, bit ? 0 : REGION_CCSID);
-        }
-
-        private Container(byte[] data, boolean bit, int ccsid) {
-            this.data = data;
-            this.bit = bit;
-            this.ccsid = ccsid;
-        }
-    }
-
-    // #4270 (X17): the CCSIDs a CHAR container converts between -- the region's 037, 500 and 1140 (single-byte EBCDIC pages
-    // that keep a container's length) and 1208 (UTF-8) for ASCII data, one byte a character. The bytes a program holds in its
-    // storage are read as the region's page (the port's convention, #4528): an area's byte is the character the region's
-    // page gives the byte it encodes to, and a conversion is the character-to-character map between the two pages, applied
-    // to the storage's bytes (a 1208 byte is the ASCII character itself, kept in storage as the region's page decodes it). A
-    // character the target page lacks (037 / 500 <-> 1140: the currency sign and the euro) is CCSIDERR RESP2 4 ("replaced by
-    // a blank"), which IBM does not say what FLENGTH or a PUT then do with: refused, as is a 1208 byte or character beyond
-    // ASCII (a multibyte sequence changes the length).
-    private static final int REGION_CCSID = 37;
-    private int lastContainerCcsid;
-
-    private static java.nio.charset.Charset ccsidCharset(int ccsid, String what) {
-        switch (ccsid) {
-            case 37:
-                return java.nio.charset.Charset.forName("Cp037");
-            case 500:
-                return java.nio.charset.Charset.forName("Cp500");
-            case 1140:
-                return java.nio.charset.Charset.forName("Cp1140");
-            case 1208:
-                return java.nio.charset.StandardCharsets.UTF_8;
-            default:
-                throw refused(what + "(" + ccsid + "): only the CCSIDs 37, 500, 1140 and 1208 are modelled (CCSIDERR RESP2 1 / "
-                        + "2 for another)");
-        }
-    }
-
-    /** `data` (storage bytes holding CCSID `from` data) as CCSID `to` data; the same bytes when the CCSIDs are equal. */
-    static byte[] convertContainer(byte[] data, int from, int to, String what) {
-        java.nio.charset.Charset f = ccsidCharset(from, what);
-        java.nio.charset.Charset t = ccsidCharset(to, what);
-        if (from == to) {
-            return data;
-        }
-        java.nio.charset.Charset region = ccsidCharset(REGION_CCSID, what);
-        byte[] out = new byte[data.length];
-        for (int i = 0; i < data.length; i++) {
-            byte real = String.valueOf((char) (data[i] & 0xFF)).getBytes(region)[0];
-            if (from == 1208 && real < 0) {
-                throw refused(what + " code-page conversion of a CCSID 1208 byte beyond ASCII (a multibyte character)");
-            }
-            String c = new String(new byte[] {real}, f);
-            if ((to == 1208 && c.charAt(0) >= 0x80) || !t.newEncoder().canEncode(c)) {
-                throw refused(what + (to == 1208 ? " code-page conversion to CCSID 1208 of a character beyond ASCII (a multibyte "
-                        + "sequence)" : " code-page conversion of a character the target CCSID lacks (CCSIDERR RESP2 4: IBM "
-                        + "does not say what the command then stores or sets)"));
-            }
-            out[i] = (byte) new String(c.getBytes(t), region).charAt(0);
-        }
-        return out;
-    }
-
-    /** The CCSID of the container the last GET CONTAINER read (0: a BIT container): GET CONTAINER CCSID(area). */
-    public int containerCcsid() {
-        return lastContainerCcsid;
-    }
-
-    /** A container command's outcome: its condition and RESP2, the container's length (GET: FLENGTH's value on
-     *  NORMAL / LENGERR, else -1) and the bytes it moves INTO (GET, else null). #4951: STARTBROWSE's token comes
-     *  back as the length, GETNEXT's container name as `name`. */
-    public record ContainerResult(String resp, int resp2, int length, byte[] data, String name) {
-        public ContainerResult(String resp, int resp2, int length, byte[] data) {
-            this(resp, resp2, length, data, null);
-        }
-
-        public boolean normal() {
-            return "NORMAL".equals(resp);
-        }
-    }
-
-    // #4950: the characters IBM's PUT CONTAINER page allows in a CONTAINER / CHANNEL name ("The acceptable characters are
-    // A-Z a-z 0-9 $ @ # / % ? ! : | " = , ; > . - and _. Leading and embedded blank characters are not permitted").
-    // RUN TRANSID's page (CHANNEL_CHARS) lists three more -- & < and the not sign -- which this one omits: a name
-    // holding one is refused (the two pages disagree), never accepted or called illegal
-    private static final String NAME_CHARS =
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789$@#/%?!:|\\"=,;>.-_";
-    private static final String NAME_CHARS_RUN_ONLY = "&<\\u00ac";
-
-    /** A channel or container name as CICS compares it: the 16-character value without its trailing blanks. One
-     *  with nothing else, or longer than 16, or holding & < or the not sign, is refused; one with a character outside
-     *  IBM's set (a leading or embedded blank included) is refused here too, except by PUT CONTAINER (illegalName),
-     *  the one command whose page says what it does (CHANNELERR RESP2 1 / CONTAINERERR RESP2 18). */
-    private static String channelName(String name, String what) {
-        String n = trimmedName(name, what);
-        if (illegalName(name, what)) {
-            throw new UnsupportedOperationException(what + " name '" + name + "': not modelled");
-        }
-        return n;
-    }
-
-    private static String trimmedName(String name, String what) {
-        String n = name == null ? "" : name;
-        int end = n.length();
-        while (end > 0 && (n.charAt(end - 1) == ' ' || n.charAt(end - 1) == 0)) {
-            end--;
-        }
-        n = n.substring(0, end);
-        if (n.isEmpty() || n.length() > 16) {
-            throw new UnsupportedOperationException(what + " name '" + name + "': not modelled");
-        }
-        return n;
-    }
-
-    /** True when the name holds a character outside IBM's set; refuses one that holds only IBM's set and & < or the
-     *  not sign (the PUT CONTAINER and RUN TRANSID pages disagree). */
-    private static boolean illegalName(String name, String what) {
-        String n = trimmedName(name, what);
-        boolean disputed = false;
-        for (int i = 0; i < n.length(); i++) {
-            char ch = n.charAt(i);
-            if (NAME_CHARS.indexOf(ch) >= 0) {
-                continue;
-            }
-            if (NAME_CHARS_RUN_ONLY.indexOf(ch) >= 0) {
-                disputed = true;
-                continue;
-            }
-            return true;
-        }
-        if (disputed) {
-            throw new UnsupportedOperationException(what + " name '" + name + "' holds & < or a not sign: IBM's RUN "
-                    + "TRANSID page allows them, its PUT CONTAINER page does not");
-        }
-        return false;
-    }
-
-    private java.util.Set<String> inScope() {
-        java.util.Set<String> all = new java.util.HashSet<>(channels.keySet());
-        all.addAll(droppedChannels);
-        return all;
-    }
-
-    /** This program's channel: `passed` (LINK / XCTL CHANNEL), the only one in its scope; `before` the names in
-     *  the XCTLing program's scope, which an XCTL leaves behind. IBM shows a channel passed on XCTL in the scope of
-     *  both programs ("Scope of a channel") but says nothing of the others: naming one is refused, never guessed. */
-    private void passChannel(Channel passed, java.util.Set<String> before) {
-        currentChannel = passed;
-        channels = new HashMap<>();
-        if (passed != null) {
-            channels.put(passed.name, passed);
-        }
-        java.util.Set<String> dropped = new java.util.HashSet<>(before);
-        if (passed != null) {
-            dropped.remove(passed.name);
-        }
-        droppedChannels = dropped;
-    }
-
-    /** The channel `name` names in this program's scope; `create`: a new, empty one when there is none (PUT
-     *  CONTAINER: "If the channel does not exist, it is created"; LINK / XCTL CHANNEL: "a new empty channel is
-     *  created"); else null. */
-    private Channel scopeChannel(String name, boolean create) {
-        return scopeNamed(channelName(name, "channel"), create);
-    }
-
-    /** A channel RUN / START CHANNEL named, already checked against RUN TRANSID's character set (handedChannel): one
-     *  with & < or the not sign is a channel here, though the container commands refuse it (scopeChannel). */
-    private Channel scopeHanded(String handed, boolean create) {
-        return scopeNamed(handed, create);
-    }
-
-    private Channel scopeNamed(String n, boolean create) {
-        if (droppedChannels.contains(n)) {
-            throw new UnsupportedOperationException("channel " + n + " after an XCTL that did not pass it: its scope "
-                    + "is not documented, not modelled");
-        }
-        Channel ch = channels.get(n);
-        if (ch == null && create) {
-            ch = new Channel(n);
-            channels.put(n, ch);
-        }
-        return ch;
-    }
-
-    /** PUT CONTAINER(container) [CHANNEL(channel)] FROM FLENGTH [BIT | CHAR | no data type] [APPEND] (IBM, EXEC
-     *  CICS PUT CONTAINER (CHANNEL)). `channel` null: the current channel, INVREQ RESP2 4 without one (1 when a data
-     *  type was named). FLENGTH below zero: LENGERR RESP2 1. A new container takes the data type given, else BIT
-     *  ("the default value, unless FROMCCSID or FROMCODEPAGE option is specified"); an existing one keeps its own.
-     *  Naming the other type for an existing container is refused: IBM says both that DATATYPE "applies only to new
-     *  containers" and that "an attempt ... to change the data-type of an existing container" is INVREQ RESP2 33.
-     *  The data replaces the container's, or with APPEND follows it. */
-    public ContainerResult putContainer(String channel, String container, byte[] data, int flength, String type,
-                                        boolean append) {
-        return putContainer(channel, container, data, flength, type, append, -1);
-    }
-
-    /** PUT CONTAINER ... FROMCCSID(fromCcsid) / FROMCODEPAGE (`fromCcsid` the CCSID, -1: none): the data is CHAR in that
-     *  CCSID ("DATATYPE(DFHVALUE(CHAR)) is implied"). A new container takes it as its CCSID; the data put on an existing CHAR
-     *  container is converted to the container's ("converted (if required)"). BIT with FROMCCSID is INVREQ RESP2 34. */
-    public ContainerResult putContainer(String channel, String container, byte[] data, int flength, String type,
-                                        boolean append, int fromCcsid) {
-        return putContainer(channel, container, data, flength, type, append, fromCcsid, false);
-    }
-
-    /** #5005 (X17): PUT CONTAINER ... PREPEND (`prepend`; IBM "6.2 and later"): "the data passed to the container is prepended
-     *  to the existing data in the container". On a new container it is the data alone. BIT containers only: IBM counts a CHAR
-     *  container's data in its code page, so PREPEND with CHAR, FROMCCSID or onto a CHAR container is refused. */
-    public ContainerResult putContainer(String channel, String container, byte[] data, int flength, String type,
-                                        boolean append, int fromCcsid, boolean prepend) {
-        boolean badChannel = channel != null && illegalName(channel, "channel");
-        boolean badContainer = illegalName(container, "container");
-        if (badChannel || badContainer) {
-            // IBM: CHANNELERR RESP2 1 (CHANNEL), CONTAINERERR RESP2 18 (CONTAINER) "contains an illegal character or
-            // combination of characters"; what it raises first of two of them, or of one and another condition, is
-            // not documented
-            if (badChannel && badContainer) {
-                throw new UnsupportedOperationException("PUT CONTAINER with an illegal CONTAINER and CHANNEL name: "
-                        + "which condition IBM raises first is not documented, not modelled");
-            }
-            if (flength < 0) {
-                throw new UnsupportedOperationException("PUT CONTAINER with an illegal name and a negative FLENGTH: "
-                        + "which condition IBM raises first is not documented, not modelled");
-            }
-            if (badChannel) {
-                return new ContainerResult("CHANNELERR", 1, -1, null);
-            }
-            if (channel == null ? currentChannel == null : scopeChannel(channel, false) == null) {
-                throw new UnsupportedOperationException("PUT CONTAINER with an illegal CONTAINER name and "
-                        + (channel == null ? "no channel" : "a channel not in scope")
-                        + ": which condition IBM raises first is not documented, not modelled");
-            }
-            return new ContainerResult("CONTAINERERR", 18, -1, null);
-        }
-        Channel ch = channel == null ? currentChannel : scopeChannel(channel, true);
-        String name = channelName(container, "container");
-        if (ch == null && fromCcsid >= 0 && type != null) {
-            throw refused("PUT CONTAINER FROMCCSID with a data type and no channel: INVREQ RESP2 1 and RESP2 2 both fit, and "
-                    + "IBM ranks neither");
-        }
-        if (ch == null) {
-            return new ContainerResult("INVREQ", fromCcsid >= 0 ? 2 : type == null ? 4 : 1, -1, null);
-        }
-        if (fromCcsid >= 0) {
-            ccsidCharset(fromCcsid, "PUT CONTAINER FROMCCSID");
-            if (flength < 0) {
-                throw refused("PUT CONTAINER FROMCCSID with a negative FLENGTH: which condition IBM raises first is not "
-                        + "documented");
-            }
-            if ("BIT".equals(type)) {
-                return new ContainerResult("INVREQ", 34, -1, null);
-            }
-        }
-        if (flength < 0) {
-            return new ContainerResult("LENGERR", 1, -1, null);
-        }
-        Container c = ch.containers.get(name);
-        if (c != null && heldSet(containerKey(ch, name))) {
-            throw refused("PUT CONTAINER onto a container a GET CONTAINER SET pointer addresses: IBM does not say what the "
-                    + "pointer then sees");
-        }
-        if (c != null && type != null && c.bit != "BIT".equals(type)) {
-            throw new UnsupportedOperationException("PUT CONTAINER " + type + " on an existing container of the other "
-                    + "data type: ignored or INVREQ RESP2 33 is not settled by IBM's documentation, not modelled");
-        }
-        if (c != null && c.bit && fromCcsid >= 0) {
-            throw refused("PUT CONTAINER FROMCCSID onto an existing BIT container: IBM does not say");
-        }
-        boolean chars = "CHAR".equals(type) || fromCcsid >= 0;
-        if (prepend && (chars || (c != null && !c.bit))) {
-            throw refused("PUT CONTAINER PREPEND on a CHAR container: IBM counts a CHAR container's data in its code page");
-        }
-        if (c == null) {
-            ch.containers.put(name, new Container(data.clone(), !chars, chars ? (fromCcsid >= 0 ? fromCcsid : REGION_CCSID) : 0));
-            ch.shape++;
-            return new ContainerResult("NORMAL", 0, -1, null);
-        }
-        byte[] put = c.bit ? data : convertContainer(data, fromCcsid >= 0 ? fromCcsid : REGION_CCSID, c.ccsid,
-                "PUT CONTAINER");
-        if (prepend) {
-            byte[] joined = Arrays.copyOf(put, put.length + c.data.length);
-            System.arraycopy(c.data, 0, joined, put.length, c.data.length);
-            c.data = joined;
-        } else if (append) {
-            byte[] joined = Arrays.copyOf(c.data, c.data.length + put.length);
-            System.arraycopy(put, 0, joined, c.data.length, put.length);
-            c.data = joined;
-        } else {
-            c.data = put.clone();
-        }
-        return new ContainerResult("NORMAL", 0, -1, null);
-    }
-
-    private static String containerKey(Channel ch, String name) {
-        return "CONTAINER " + ch.name + " " + name;
-    }
-
-    /** #5042 (X58): GET CONTAINER(container) [CHANNEL(channel)] SET(ptr) FLENGTH(area) (IBM, EXEC CICS GET CONTAINER
-     *  (CHANNEL)): the same conditions as getContainer without INTO (no LENGERR: nothing to truncate); on NORMAL the
-     *  handle of a new block holding a copy of the container's data and the result's length FLENGTH takes. IBM: "CICS
-     *  maintains the data area until" the next GET CONTAINER SET of the same container in the same channel, a DELETE
-     *  CONTAINER, a MOVE CONTAINER, the channel leaving scope or a DELETE CHANNEL. Refused: a PUT or MOVE onto the
-     *  container while the pointer is held (IBM does not say what the pointer then sees). Handle 0: no block. */
-    public SetBlock getContainerSet(String channel, String container) {
-        return getContainerSet(channel, container, -1, false);
-    }
-
-    /** GET CONTAINER SET with INTOCCSID / INTOCODEPAGE (`intoCcsid`, -1: none) or CONVERTST(NOCONVERT) (`noConvert`). */
-    public SetBlock getContainerSet(String channel, String container, int intoCcsid, boolean noConvert) {
-        ContainerResult r = getContainer(channel, container, Integer.MAX_VALUE, intoCcsid, noConvert);
-        if ("CCSIDERR".equals(r.resp())) {
-            throw refused("GET CONTAINER SET INTOCCSID on a BIT container: the data is returned unconverted, and IBM does not say "
-                    + "whether a block is then acquired");
-        }
-        if (!"NORMAL".equals(r.resp())) {
-            return new SetBlock(r, 0);
-        }
-        Channel ch = channel == null ? currentChannel : scopeChannel(channel, false);
-        return new SetBlock(r, acquireSet(containerKey(ch, channelName(container, "container")), r.data()));
-    }
-
-    /** A GET CONTAINER SET's outcome: the container result and the block's handle (0 when none was acquired). */
-    public record SetBlock(ContainerResult result, long handle) {
-    }
-
-    /** GET CONTAINER(container) [CHANNEL(channel)] INTO FLENGTH | NODATA FLENGTH (IBM, EXEC CICS GET CONTAINER
-     *  (CHANNEL)). `maxLength` is the most INTO takes -- FLENGTH's value, else INTO's length -- or -1 for NODATA.
-     *  CHANNELERR RESP2 2 for a channel not in scope, INVREQ RESP2 4 with no CHANNEL and no current channel,
-     *  CONTAINERERR RESP2 10 for a container the channel does not have. Longer data is truncated to INTO with
-     *  LENGERR RESP2 11; FLENGTH "returns the length of the data in the container" (NORMAL, LENGERR). */
-    public ContainerResult getContainer(String channel, String container, int maxLength) {
-        return getContainer(channel, container, maxLength, -1, false);
-    }
-
-    /** GET CONTAINER ... INTOCCSID(intoCcsid) / INTOCODEPAGE (-1: none) | CONVERTST(NOCONVERT) (`noConvert`): the data as
-     *  CCSID `intoCcsid` (else the region's; a CHAR container's own with NOCONVERT) -- "conversion applies only to character
-     *  data". A BIT container is returned as it is when INTOCCSID names a CCSID, with CCSIDERR RESP2 3 ("The data was returned
-     *  without any code page conversion"); FLENGTH is then left alone (ASSUMED: IBM does not say), and a BIT container longer than
-     *  INTO is refused (LENGERR or CCSIDERR first is not documented).
-     *  The container's CCSID (0: BIT) is containerCcsid(). */
-    public ContainerResult getContainer(String channel, String container, int maxLength, int intoCcsid,
-                                        boolean noConvert) {
-        Channel ch = channel == null ? currentChannel : scopeChannel(channel, false);
-        String name = channelName(container, "container");
-        if (ch == null) {
-            return channel == null ? new ContainerResult("INVREQ", intoCcsid >= 0 ? 2 : 4, -1, null)
-                    : new ContainerResult("CHANNELERR", 2, -1, null);
-        }
-        Container c = ch.containers.get(name);
-        if (c == null) {
-            return new ContainerResult("CONTAINERERR", 10, -1, null);
-        }
-        lastContainerCcsid = c.bit ? 0 : c.ccsid;
-        if (c.bit && intoCcsid >= 0) {
-            // IBM: CCSIDERR RESP2 3, "the data was returned without any code page conversion"; FLENGTH is not stated
-            if (maxLength >= 0 && c.data.length > maxLength) {
-                throw refused("GET CONTAINER INTOCCSID on a BIT container longer than INTO: whether LENGERR or CCSIDERR wins "
-                        + "is not documented");
-            }
-            return new ContainerResult("CCSIDERR", 3, -1, maxLength < 0 ? null : c.data.clone());
-        }
-        byte[] data = c.bit || noConvert ? c.data
-                : convertContainer(c.data, c.ccsid, intoCcsid >= 0 ? intoCcsid : REGION_CCSID, "GET CONTAINER");
-        if (maxLength < 0) {
-            return new ContainerResult("NORMAL", 0, data.length, null);
-        }
-        if (data.length > maxLength) {
-            return new ContainerResult("LENGERR", 11, data.length, Arrays.copyOf(data, maxLength));
-        }
-        return new ContainerResult("NORMAL", 0, data.length, data.clone());
-    }
-
-    /** #5005 (X17): GET CONTAINER ... INTO FLENGTH BYTEOFFSET(offset) (IBM, EXEC CICS GET CONTAINER (CHANNEL)): "The data
-     *  returned begins at the offset"; "If the value specified is less than zero, zero is assumed"; "The maximum length returned is
-     *  equal to the length of the data in the container minus the BYTEOFFSET value", and FLENGTH is set to "the length of the data
-     *  returned". An offset "greater than, or equal to, the length of the container" is LENGERR RESP2 12 (FLENGTH and INTO left
-     *  alone: ASSUMED, IBM states FLENGTH per option, not per condition). Refused: a CHAR container (IBM counts the offset in the
-     *  requested code page) and an FLENGTH below the data left (LENGERR RESP2 11, and whether FLENGTH then holds the length
-     *  returned or the container's is not said). On NORMAL the result's length is the length returned. */
-    public ContainerResult getContainerAt(String channel, String container, int maxLength, int byteOffset) {
-        Channel ch = channel == null ? currentChannel : scopeChannel(channel, false);
-        String name = channelName(container, "container");
-        if (ch == null) {
-            return channel == null ? new ContainerResult("INVREQ", 4, -1, null)
-                    : new ContainerResult("CHANNELERR", 2, -1, null);
-        }
-        Container c = ch.containers.get(name);
-        if (c == null) {
-            return new ContainerResult("CONTAINERERR", 10, -1, null);
-        }
-        lastContainerCcsid = c.bit ? 0 : c.ccsid;
-        if (!c.bit) {
-            throw refused("GET CONTAINER BYTEOFFSET on a CHAR container: IBM counts the offset in the requested code page");
-        }
-        int at = Math.max(byteOffset, 0);
-        if (at >= c.data.length) {
-            return new ContainerResult("LENGERR", 12, -1, null);
-        }
-        int left = c.data.length - at;
-        if (left > maxLength) {
-            throw refused("GET CONTAINER BYTEOFFSET with an FLENGTH below the data left: whether FLENGTH then holds the length "
-                    + "returned or the container's is not documented");
-        }
-        return new ContainerResult("NORMAL", 0, left, Arrays.copyOfRange(c.data, at, c.data.length));
-    }
-
-    /** DELETE CONTAINER(container) [CHANNEL(channel)] (IBM, EXEC CICS DELETE CONTAINER (CHANNEL)): CHANNELERR
-     *  RESP2 2, INVREQ RESP2 4 ("issued outside the scope of a currently-active channel"), CONTAINERERR RESP2 10. */
-    public ContainerResult deleteContainer(String channel, String container) {
-        Channel ch = channel == null ? currentChannel : scopeChannel(channel, false);
-        String name = channelName(container, "container");
-        if (ch == null) {
-            return channel == null ? new ContainerResult("INVREQ", 4, -1, null)
-                    : new ContainerResult("CHANNELERR", 2, -1, null);
-        }
-        if (ch.containers.remove(name) == null) {
-            return new ContainerResult("CONTAINERERR", 10, -1, null);
-        }
-        invalidateSet(containerKey(ch, name));  // IBM: GET CONTAINER SET's data area is kept until "deleted by a DELETE CONTAINER"
-        ch.shape++;
-        return new ContainerResult("NORMAL", 0, -1, null);
-    }
-
-    /** DELETE CHANNEL(channel) (IBM, EXEC CICS DELETE CHANNEL): the channel and every container it holds go; a later
-     *  command naming it finds no channel (CHANNELERR RESP2 2), a PUT CONTAINER makes a new empty one. CHANNELERR
-     *  RESP2 2: not in the program's scope. IBM's other RESP2 values name the current channel (4), the transaction
-     *  channel (5), a channel not owned by the calling program (6) and a read-only channel (3); a channel the program
-     *  is passed is the current one, and is also not its own, so IBM's order among 4 / 5 / 6 decides and it gives none:
-     *  the current channel is refused (ASSUMED: no read-only channel exists). A browse of the deleted channel is
-     *  refused at its next GETNEXT, as for any change to the channel (X42). */
-    public ContainerResult deleteChannel(String channel) {
-        Channel ch = scopeChannel(channel, false);
-        if (ch == null) {
-            return new ContainerResult("CHANNELERR", 2, -1, null);
-        }
-        if (ch == currentChannel) {
-            throw refused("DELETE CHANNEL of the current channel");
-        }
-        invalidateSetPrefix("CONTAINER " + ch.name + " ");  // IBM: until "deleted by a DELETE CHANNEL command"
-        ch.containers.clear();
-        ch.shape++;
-        channels.remove(ch.name);
-        return new ContainerResult("NORMAL", 0, -1, null);
-    }
-
-    /** QUERY CHANNEL(channel) CONTAINERCNT(count) (IBM, EXEC CICS QUERY CHANNEL): the number of containers the channel
-     *  holds, as the result's length. CHANNELERR RESP2 2: not in the program's scope (the count is then not set). */
-    public ContainerResult queryChannel(String channel) {
-        Channel ch = scopeChannel(channel, false);
-        if (ch == null) {
-            return new ContainerResult("CHANNELERR", 2, -1, null);
-        }
-        return new ContainerResult("NORMAL", 0, ch.containers.size(), null);
-    }
-
-    /** MOVE CONTAINER(container) AS(as) [CHANNEL(channel)] [TOCHANNEL(toChannel)] (IBM, EXEC CICS MOVE CONTAINER
-     *  (CHANNEL)): the container leaves its channel and is `as` in the target channel; "If it already exists, its
-     *  contents are overwritten"; the target channel, when absent, "CICS creates". No CHANNEL / TOCHANNEL: the
-     *  current channel. Conditions, in this order (IBM gives none): INVREQ RESP2 4 (CHANNEL or TOCHANNEL omitted and
-     *  no current channel), CHANNELERR RESP2 2 (CHANNEL not in scope), CONTAINERERR RESP2 10 (no such container). A
-     *  move that raises a condition changes nothing, and creates no channel (ASSUMED). The container keeps its data
-     *  type; one moved onto an existing container of the other type, or onto itself, is refused. */
-    public ContainerResult moveContainer(String channel, String container, String as, String toChannel) {
-        String name = channelName(container, "container");
-        String target = channelName(as, "container");
-        Channel from = channel == null ? currentChannel : scopeChannel(channel, false);
-        Channel to = toChannel == null ? currentChannel : scopeChannel(toChannel, false);
-        if ((channel == null || toChannel == null) && currentChannel == null) {
-            return new ContainerResult("INVREQ", 4, -1, null);
-        }
-        if (from == null) {
-            return new ContainerResult("CHANNELERR", 2, -1, null);
-        }
-        Container src = from.containers.get(name);
-        if (src == null) {
-            return new ContainerResult("CONTAINERERR", 10, -1, null);
-        }
-        Container dst = to == null ? null : to.containers.get(target);
-        if (to == from && name.equals(target)) {
-            throw refused("MOVE CONTAINER onto itself");
-        }
-        if (dst != null && dst.bit != src.bit) {
-            throw refused("MOVE CONTAINER onto a container of the other data type");
-        }
-        if (dst != null && dst.ccsid != src.ccsid) {
-            throw refused("MOVE CONTAINER onto a container of another CCSID");
-        }
-        if (dst != null && heldSet(containerKey(to, target))) {
-            throw refused("MOVE CONTAINER onto a container a GET CONTAINER SET pointer addresses: IBM does not say what the "
-                    + "pointer then sees");
-        }
-        if (to == null) {
-            to = scopeChannel(toChannel, true);
-        }
-        invalidateSet(containerKey(from, name));  // IBM: until "moved by a MOVE CONTAINER command"
-        if (dst == null) {
-            to.containers.put(target, src);
-            to.shape++;
-        } else {
-            dst.data = src.data;
-        }
-        from.containers.remove(name);
-        from.shape++;
-        return new ContainerResult("NORMAL", 0, -1, null);
-    }
-
-    /** STARTBROWSE CONTAINER [CHANNEL(channel)] BROWSETOKEN (IBM, EXEC CICS STARTBROWSE CONTAINER (CHANNEL)): the
-     *  token comes back as the result's length. CHANNELERR RESP2 2 for a channel not in scope. IBM: "The order of
-     *  returned containers is undefined": they come in the order they were created (ASSUMED). With no CHANNEL and no
-     *  current channel IBM treats it as the BTS form: refused. Tokens are 1, 2, 3 ... per task (ASSUMED: IBM calls
-     *  the value a token), valid for this program until its ENDBROWSE or the task's next SYNCPOINT. */
-    public ContainerResult startBrowseContainer(String channel) {
-        Channel ch = channel == null ? currentChannel : scopeChannel(channel, false);
-        if (ch == null) {
-            if (channel == null) {
-                throw refused("STARTBROWSE CONTAINER with no channel (IBM treats it as the BTS form)");
-            }
-            return new ContainerResult("CHANNELERR", 2, -1, null);
-        }
-        CicsTask r = root();
-        int token = ++r.browseTokens;
-        r.containerBrowses.put(token, new ContainerBrowse(this, ch));
-        return new ContainerResult("NORMAL", 0, token, null);
-    }
-
-    /** GETNEXT CONTAINER(name) BROWSETOKEN(token): the next container's name, as the 16-character area IBM
-     *  describes. END RESP2 2 past the last (and again on a later GETNEXT: the token stays valid until ENDBROWSE);
-     *  TOKENERR RESP2 3 for a token that is not a current one of this program's (never started, ended, or taken by
-     *  a SYNCPOINT). A container added to or removed from the browsed channel since the start is refused: IBM does
-     *  not say what the browse then returns. */
-    public ContainerResult getNextContainer(int token) {
-        ContainerBrowse b = root().containerBrowses.get(token);
-        if (b == null || b.owner != this) {
-            return new ContainerResult("TOKENERR", 3, -1, null);
-        }
-        if (b.channel.shape != b.shape) {
-            throw refused("GETNEXT CONTAINER: the browsed channel changed during the browse");
-        }
-        if (b.next >= b.names.size()) {
-            return new ContainerResult("END", 2, -1, null);
-        }
-        String n = b.names.get(b.next++);
-        return new ContainerResult("NORMAL", 0, -1, null, String.format(java.util.Locale.ROOT, "%-16s", n));
-    }
-
-    /** ENDBROWSE CONTAINER BROWSETOKEN(token): TOKENERR RESP2 3 for a token that is not a current one of this
-     *  program's. */
-    public ContainerResult endBrowseContainer(int token) {
-        ContainerBrowse b = root().containerBrowses.get(token);
-        if (b == null || b.owner != this) {
-            return new ContainerResult("TOKENERR", 3, -1, null);
-        }
-        root().containerBrowses.remove(token);
-        return new ContainerResult("NORMAL", 0, -1, null);
-    }
-
-    /** One container browse: who started it, the channel, the names then (in creation order) and how far it is. */
-    private static final class ContainerBrowse {
-        private final CicsTask owner;
-        private final Channel channel;
-        private final int shape;
-        private final List<String> names;
-        private int next;
-
-        private ContainerBrowse(CicsTask owner, Channel channel) {
-            this.owner = owner;
-            this.channel = channel;
-            this.shape = channel.shape;
-            this.names = new ArrayList<>(channel.containers.keySet());
-        }
-    }
-
-    private final Map<Integer, ContainerBrowse> containerBrowses = new HashMap<>();  // #4951 (the root's)
-    private int browseTokens;
-
-    /** ASSIGN CHANNEL: "the 16-character name of the current channel of the program, if one exists; otherwise,
-     *  blanks". */
-    public String assignChannel() {
-        return String.format(java.util.Locale.ROOT, "%-16s", currentChannel == null ? "" : currentChannel.name);
-    }
-
-    /** The current channel (null: none), for a caller that drives the task (#4270). */
-    public Channel currentChannel() {
-        return currentChannel;
-    }
-
-    /** Starts this level with `channel` as its current channel: what a program LINKed with a channel from outside
-     *  the region, or started with one, receives (#4270). */
-    public CicsTask withChannel(Channel channel) {
-        passChannel(channel, java.util.Set.of());
-        return this;
-    }
-
-    /** LINK PROGRAM(program) CHANNEL(channel) (IBM, EXEC CICS LINK: "the name ... of a channel that is to be made
-     *  available to the called program"; one that does not exist is created empty): the callee's current channel,
-     *  and the only one in its scope; what it puts there, the caller sees. EIBCALEN 0. */
-    public String linkChannel(String program, String channel) {
-        return link(program, null, 0, null, scopeChannel(channel, true));
-    }
-
-    /** XCTL PROGRAM(program) CHANNEL(channel): as LINK CHANNEL, at the same level. */
-    public String xctlChannel(String program, String channel) {
-        return xctl(program, null, null, scopeChannel(channel, true));
-    }
-
+"""
+# #5274: the channels / containers family's methods live in their own module (cics_task_containers.py).
+CICS_TASK_JAVA += CONTAINERS_JAVA
+CICS_TASK_JAVA += """\
     /** The bytes of the COMMAREA this program was LINKed with, when its caller passed them (by reference: what it
      *  writes there its caller sees); null otherwise. */
     public byte[] linkArea() {
@@ -5440,6 +4883,8 @@ public class CicsTask {
         final Map<String, java.util.ArrayDeque<String>> td = new HashMap<>();
         /** The run-time open state SET TDQUEUE OPENSTATUS left on an extrapartition queue (#5168, X61): true open, false closed. */
         final Map<String, Boolean> tdOpen = new HashMap<>();
+        /** The queues SET TDQUEUE ENABLESTATUS(DISABLED) left disabled (#5168 round 5, X66). */
+        final java.util.Set<String> tdDisabled = new java.util.HashSet<>();
         /** The extrapartition queues a READQ TD has taken a record from (reopening an input queue would restart it). */
         final java.util.Set<String> tdRead = new java.util.HashSet<>();
 
@@ -5688,7 +5133,39 @@ public class CicsTask {
      *  (#4695: `returned(Object.class)`, so a facade's handleTransaction answers that byte[] by design: the Object
      *  answer is the COMMAREA as the next task is given it, and `returned(Dto.class)` refuses it by name). */
     public byte[] returnedBytes() {
+        root().bytesTaken = true;
         return returnedBytes == null ? null : java.util.Arrays.copyOf(returnedBytes, returnedBytes.length);
+    }
+
+    /** #4817: a DTO-only answer must not change what the RETURN passed. IBM hands the next task the COMMAREA's bytes
+     *  as they were; the DTO holds a number it decoded (a numeric DISPLAY field of spaces and digits, invalid content),
+     *  and answering it would put digits where the task left something else. When the task's bytes were not taken
+     *  (returnedBytes(): the byte-carrying handleTransaction does), the DTO's layout bytes (toCommarea) must hold
+     *  every byte the RETURN passed: a byte toCommarea writes that is not a space (FILLER and an unset field are
+     *  spaces, in either page) and differs from the passed one is refused by name. A DTO with no layout, or a RETURN
+     *  that passed no bytes beside it, is as it was. */
+    private void lossless(Object area) {
+        byte[] passed = root().returnedBytes;
+        if (passed == null) {
+            return;
+        }
+        byte[] laid;
+        try {
+            java.lang.reflect.Method to = area.getClass().getMethod("toCommarea");
+            if (to.getReturnType() != byte[].class) {
+                return;
+            }
+            laid = (byte[]) to.invoke(area);
+        } catch (NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException e) {
+            return;
+        }
+        for (int i = 0; i < Math.min(laid.length, passed.length); i++) {
+            if (laid[i] != passed[i] && laid[i] != 0x20 && laid[i] != 0x40) {
+                throw new IllegalStateException("the task RETURNed a COMMAREA whose byte " + i + " the " + area.getClass().getName()
+                        + " DTO cannot hold as it was (a number it decoded): answer it through the byte-carrying"
+                        + " handleTransaction(.., byte[]) and lastAnswerBytes() (#4817)");
+            }
+        }
     }
 
     /** The COMMAREA the task's level-1 RETURN passed on (#4343: what handleTransaction answers), as `type`; null when
@@ -5699,6 +5176,9 @@ public class CicsTask {
      *  fewer bytes than `type`'s record (never passed). */
     public <T> T returned(Class<T> type) {
         Object area = root().returnedArea;
+        if (area != null && !root().bytesTaken) {
+            lossless(area);
+        }
         if (area == null || type.isInstance(area)) {
             return type.cast(area);
         }
@@ -5876,13 +5356,19 @@ public class CicsTask {
                 || o instanceof Double || o instanceof Float);
     }
 
-    /** #4956: whether `part` is `whole` or an object `whole` holds (a nested group, a table, an element, a byte
+    /** #5060: a String or number `part` cannot be traced by reference, so it counts when it equals a value `whole`
+     *  holds (an equal-valued copy is refused too: refuse, never guess).
+     *  #4956: whether `part` is `whole` or an object `whole` holds (a nested group, a table, an element, a byte
      *  area), by reference -- what an XCTL of a LINKed program's DTO, or of a part of it, passes. */
     private static boolean within(Object whole, Object part, java.util.IdentityHashMap<Object, Boolean> seen) {
         if (whole == part) {
             return true;
         }
-        if (!aliasable(whole) || seen.put(whole, Boolean.TRUE) != null) {
+        boolean byValue = part != null && !aliasable(part);  // #5060: a value is traced by equality, not identity
+        if (!aliasable(whole)) {
+            return byValue && part.equals(whole);
+        }
+        if (seen.put(whole, Boolean.TRUE) != null) {
             return false;
         }
         Class<?> type = whole.getClass();
@@ -5901,7 +5387,7 @@ public class CicsTask {
         } else if (!type.getName().startsWith("java.")) {
             for (Class<?> k = type; k != null && k != Object.class; k = k.getSuperclass()) {
                 for (java.lang.reflect.Field f : k.getDeclaredFields()) {
-                    if (java.lang.reflect.Modifier.isStatic(f.getModifiers()) || f.getType().isPrimitive()) {
+                    if (java.lang.reflect.Modifier.isStatic(f.getModifiers()) || (f.getType().isPrimitive() && !byValue)) {
                         continue;
                     }
                     try {
@@ -5950,7 +5436,7 @@ public class CicsTask {
                 snapshot.apply(commarea), "resp", resp, "resp2", resp2);
         boolean ofLinkage = xctlOfLinkage;
         xctlOfLinkage = false;
-        boolean ofDto = linkedDto && aliasable(commarea) && within(this.commarea, commarea, new java.util.IdentityHashMap<>());
+        boolean ofDto = linkedDto && commarea != null && within(this.commarea, commarea, new java.util.IdentityHashMap<>());
         if ("NORMAL".equals(resp) && (ofLinkage && callerArea || ofDto)) {
             throw new UnsupportedOperationException("XCTL passing the COMMAREA its LINK caller passed: IBM does not say "
                     + "whether the target addresses the caller's storage or a copy, not modelled");

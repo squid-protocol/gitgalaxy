@@ -81,6 +81,15 @@ public final class Cobol {
         Codec.truncOpt = on;
     }
 
+    /** ARITH(EXTEND) for a program's run (#4706): an intermediate result past 30 digits stops by name (Codec.
+     *  arithExtend). The setting before is returned (the caller restores it). */
+    // [rule RT-CBL-ARITH-PER-PROGRAM]
+    public static boolean swapArithExtend(boolean on) {
+        boolean before = Codec.arithExtend;
+        Codec.arithExtend = on;
+        return before;
+    }
+
     /** NUMPROC for a program's run (#4271): `pfd` true for NUMPROC(PFD) -- a zoned or packed value read with a sign
      *  that is not preferred is refused by name (Codec.numprocPfd) --, false for IBM's default NUMPROC(NOPFD) (and
      *  NUMPROC(MIG), which Enterprise COBOL 5 and later compile as the default). The setting before is returned. */
@@ -128,17 +137,17 @@ public final class Cobol {
     /** cob_decimal_add of two intermediates where either may be libcob's NaN (#4655): NaN in, NaN out. */
     // [rule RT-CBL-ZERO-DIVISOR-NAN]
     public static BigDecimal add(BigDecimal a, BigDecimal b) {
-        return isNan(a) ? a : isNan(b) ? nan(a) : a.add(b);
+        return isNan(a) ? a : isNan(b) ? nan(a) : Codec.arithExtendWide(a.add(b));
     }
 
     /** cob_decimal_sub, as {@link #add(BigDecimal, BigDecimal)}. */
     public static BigDecimal subtract(BigDecimal a, BigDecimal b) {
-        return isNan(a) ? a : isNan(b) ? nan(a) : a.subtract(b);
+        return isNan(a) ? a : isNan(b) ? nan(a) : Codec.arithExtendWide(a.subtract(b));
     }
 
     /** cob_decimal_mul, as {@link #add(BigDecimal, BigDecimal)}. */
     public static BigDecimal multiply(BigDecimal a, BigDecimal b) {
-        return isNan(a) ? a : isNan(b) ? nan(a) : a.multiply(b);
+        return isNan(a) ? a : isNan(b) ? nan(a) : Codec.arithExtendWide(a.multiply(b));
     }
 
     /** Unary minus where the operand may be NaN: cobc's 0 - x, so a NaN's value is 0. */
@@ -166,7 +175,8 @@ public final class Cobol {
         if (a.signum() == 0) {
             return BigDecimal.ZERO;
         }
-        return a.divide(b, 38 + Math.max(a.scale() - b.scale(), 0), java.math.RoundingMode.DOWN);
+        BigDecimal q = a.divide(b, 38 + Math.max(a.scale() - b.scale(), 0), java.math.RoundingMode.DOWN);
+        return Codec.arithExtendCheck(q, Math.max(q.precision() - q.scale(), 0));
     }
 
     /** DIVIDE ... REMAINDER (cob_div_quotient, cob_div_remainder): the dividend less the divisor times the quotient
@@ -823,6 +833,17 @@ public final class Cobol {
         return num(f, cs);
     }
 
+    /** The current value of a STRING / UNSTRING POINTER, an UNSTRING TALLYING IN or an INSPECT TALLYING counter (#4692,
+     *  register C11): the statement reads the item before it stores, as ADD does its receiver. A zoned item holding a
+     *  non-digit is refused by name for the same reason as {@link #receiverNum}; a digit-only one is read as ever. */
+    // [rule RT-CBL-COUNTER-NONDIGIT-REFUSED]
+    public static BigDecimal counterNum(Field f, Charset cs) {
+        if (f.kind == Field.Kind.NUMERIC_DISPLAY && Zoned.get(f, cs).dirty) {
+            throw Zoned.refuseCounter();
+        }
+        return num(f, cs);
+    }
+
     /** A numeric item's value in a comparison (#4662): a zoned item holding a non-digit as the oracle compares it. */
     // [rule RT-CBL-COMPARE-NONDIGIT]
     public static BigDecimal cmpNum(Field f, Charset cs) {
@@ -952,11 +973,12 @@ public final class Cobol {
      *  nonnumeric one (alphanumeric, alphabetic, edited) is its digits as characters (IBM Enterprise COBOL 6.4
      *  Language Reference, "Comparison of numeric and alphanumeric operands": as if moved to an alphanumeric item of
      *  as many characters as its digits; GnuCOBOL likewise): a zoned item's bytes, its overpunched sign digit
-     *  unpunched; a packed or binary item's value in its PICTURE's digits, unsigned. A sign-separate or P-scaled item
-     *  the generator refuses (register C13). Anything else (a group): its bytes. */
+     *  unpunched; a packed or binary item's value in its PICTURE's digits, unsigned. A group is such a nonnumeric
+     *  comparand too (#4671; measured: GnuCOBOL compares a numeric item against a group as its digits, sign dropped,
+     *  as IBM's unsigned integer). A sign-separate or P-scaled item the generator refuses (register C13). */
     // [rule RT-CBL-COMPARE-NUMERIC-WITH-NONNUMERIC]
     private static byte[] operand(Field f, Field other, Charset cs) {
-        if (cat(f) != NUMERIC || cat(other) == NUMERIC || cat(other) == GROUP || f.kind == Field.Kind.NUMERIC_FLOAT) {
+        if (cat(f) != NUMERIC || cat(other) == NUMERIC || f.kind == Field.Kind.NUMERIC_FLOAT) {
             return f.raw();
         }
         return digitsText(f, cs);
@@ -1319,7 +1341,7 @@ public final class Cobol {
     public static boolean string(Field into, Field pointer, Charset cs, StringPart... parts) {
         int off = 0;
         if (pointer != null) {
-            BigDecimal p = num(pointer, cs);
+            BigDecimal p = counterNum(pointer, cs);
             if (p.compareTo(BigDecimal.ONE) < 0 || p.compareTo(BigDecimal.valueOf(into.len)) > 0) return true;
             off = p.intValue() - 1;
         }
@@ -1403,7 +1425,7 @@ public final class Cobol {
         byte[] data = src.raw();
         int off = 0;
         if (pointer != null) {
-            BigDecimal p = num(pointer, cs);
+            BigDecimal p = counterNum(pointer, cs);
             if (p.compareTo(BigDecimal.ONE) < 0 || p.compareTo(BigDecimal.valueOf(data.length)) > 0) return true;
             off = p.intValue() - 1;
         }
@@ -1440,7 +1462,7 @@ public final class Cobol {
             filled++;
         }
         if (pointer != null) store(pointer, BigDecimal.valueOf(off + 1), false, cs);
-        if (tallying != null) store(tallying, num(tallying, cs).add(BigDecimal.valueOf(filled)), false, cs);
+        if (tallying != null) store(tallying, counterNum(tallying, cs).add(BigDecimal.valueOf(filled)), false, cs);
         return off < data.length;
     }
 
@@ -1588,7 +1610,7 @@ public final class Cobol {
         for (int ci = 0; ci < clauses.length; ci++) {
             Clause c = clauses[ci];
             if (c.counter != null) {
-                store(c.counter, num(c.counter, cs).add(BigDecimal.valueOf(counts[ci])), false, cs);
+                store(c.counter, counterNum(c.counter, cs).add(BigDecimal.valueOf(counts[ci])), false, cs);
             }
         }
     }

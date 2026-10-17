@@ -727,6 +727,11 @@ public final class DetCics {
         setPointer(ptr, task.addressOf(record.storage().bytes));
     }
 
+    /** `IF ptr-a = ptr-b` (#5042, X56): the two pointers address the same storage (CicsTask.samePointer). */
+    public static boolean samePointer(CicsTask task, Field a, Field b) {
+        return task.samePointer(pointerValue(a), pointerValue(b));
+    }
+
     /** ADDRESS COMMAREA(ptr) (X59): the handle of the DFHCOMMAREA record's bytes; a task with no COMMAREA (EIBCALEN 0) is
      *  refused (IBM sets X'FF000000', not the COBOL NULL a handle can hold). */
     // [rule RT-CICS-ADDRESS]

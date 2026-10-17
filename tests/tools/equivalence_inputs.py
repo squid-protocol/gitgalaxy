@@ -39,6 +39,7 @@ same layouts -- a typed account id that is on file, is not, or is not a number a
 
 from __future__ import annotations
 
+import functools
 import random
 import re
 from decimal import Decimal
@@ -247,6 +248,7 @@ def _order(datasets: dict[str, dict[str, Any]]) -> list[str]:
     """Generated datasets, each after the ones its `from` rules draw on."""
     deps = {
         dd: {r["from"].rsplit(".", 1)[0] for r in spec["generate"].get("fields", {}).values() if "from" in r}
+        & set(datasets)  # (#4507: a `from` naming a generated Db2 column is no dataset to wait for)
         for dd, spec in datasets.items()
     }
     out: list[str] = []
@@ -266,7 +268,10 @@ def generate_inputs(case: dict[str, Any], corpus: Path) -> dict[str, bytes]:
 def generate_all(case: dict[str, Any], corpus: Path) -> tuple[dict[str, bytes], dict[str, list[Any]]]:
     """(generate_inputs, {DD.FIELD: the values it holds}) -- the values a scenario's keys are drawn from."""
     todo = {dd: spec for dd, spec in case["datasets"].items() if spec.get("input") == "@generate"}
-    pools: dict[str, list[Any]] = {}
+    import equivalence_db2
+
+    # #4507: a dataset's `from` may name a generated Db2 column (SCHEMA.TABLE.COLUMN): a batch input that keys the table
+    pools: dict[str, list[Any]] = dict(equivalence_db2.generated_pools(case, corpus)) if todo else {}
     out: dict[str, bytes] = {}
     for dd in _order(todo):
         spec = todo[dd]
@@ -306,6 +311,90 @@ def _typed(rng: random.Random, rule: dict[str, Any], width: int, pool: list[Any]
     return f"{int(v):0{width}d}" if isinstance(v, Decimal) else str(v)
 
 
+_PICTURE_RUN = re.compile(r"([9X])(?:\((\d+)\))?")
+
+
+def _picture(picin: str | None) -> tuple[int, bool] | None:
+    """(width, digits only) of a DFHMDF PICIN such as `9(5)`, `999` or `X(10)`; None for no PICIN or one this does not
+    read (V, S, Z, ... a picture the symbolic map's field then takes as plain text)."""
+    text = (picin or "").strip().strip("'").upper()
+    runs = list(_PICTURE_RUN.finditer(text))
+    if not runs or "".join(r.group(0) for r in runs) != text:
+        return None
+    width = sum(int(r.group(2) or 1) for r in runs)
+    return width, all(r.group(1) == "9" for r in runs)
+
+
+@functools.lru_cache(maxsize=64)
+def bms_input_fields(corpus: Path, map_name: str) -> dict[str, dict[str, Any]]:
+    """#4506: {symbolic input field (<name>I): {"length", "numeric", "picture"}} of the fields a user can type into on a
+    BMS map, read from the corpus's BMS source (the engine's own reading, gitgalaxy.core.bms_screen_fields). Typable:
+    named, not protected, and not repeated. A field with no ATTRB is ASKIP (the forge's `_attrs`, IBM DFHMDF), so is
+    never typed; ASKIP and PROT fields cannot be keyed into; an OCCURS field is not typed (`map_input` refuses it by
+    name, "BMS OCCURS input"). A NUM field takes digits, and so does a PICIN of 9s (`_picture`), its length the
+    narrower of the two."""
+    from gitgalaxy.core.bms_screen_fields import bms_screen_fields
+    from gitgalaxy.core.source_text import read_source
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_screen_forge import _attrs
+
+    out: dict[str, dict[str, Any]] = {}
+    for p in sorted(corpus.rglob("*.bms")):
+        if ".git" in p.parts:
+            continue
+        rows = bms_screen_fields(read_source(p).text)
+        maps = {r["ordinal"] for r in rows if r["kind"] == "map" and (r["name"] or "").upper() == map_name.upper()}
+        for r in rows:
+            if r["kind"] != "field" or r["parent_ordinal"] not in maps or not r["name"]:
+                continue
+            attrs = _attrs(r)
+            if attrs & {"ASKIP", "PROT"} or (r.get("occurs") or 1) > 1 or not r.get("length"):
+                continue
+            pic = _picture(r.get("picin"))
+            length = min(r["length"], pic[0]) if pic else r["length"]
+            out[r["name"].upper() + "I"] = {"length": length, "numeric": "NUM" in attrs or bool(pic and pic[1]),
+                                            "picture": r.get("picin")}  # fmt: skip
+    if not out:
+        raise ValueError(f"{map_name}: no typable field in the BMS sources under {corpus}")
+    return out
+
+
+def _bms_value(rng: random.Random, f: dict[str, Any], i: int, bad: float) -> str:
+    """One typed value for a BMS field (`bms_input_fields`): full width, short, or a random length in turn; digits for a
+    NUM / 9-picture field, letters and digits otherwise; with share `bad`, text that is not a number."""
+    width = f["length"]
+    if rng.random() < bad:
+        return _BAD_TEXT[(i + int(rng.random() * 1000)) % len(_BAD_TEXT)][:width]
+    n = (width, max(1, width // 2), rng.randint(1, width))[i % 3]
+    return "".join(rng.choice("0123456789" if f["numeric"] else _TEXT) for _ in range(n))
+
+
+def _bms_receive(rng: random.Random, name: str, spec: Any, layout: dict[str, dict[str, Any]], bms: dict[str, dict],
+                 pools: dict[str, list[Any]], i: int) -> dict[str, str]:  # fmt: skip
+    """#4506: the map input of `"MAP": "@bms"` / `"MAP": {"@bms": {"bad": .., "empty": ..}, "FIELDI": rule}`: every typable
+    BMS field gets a value, except an `empty` share of the scenarios (the user left it alone: no data, length 0);
+    a field rule beside `@bms` (or None, never typed) replaces the generated one, as any `receive` rule does."""
+    opts = (spec.get("@bms") or {}) if isinstance(spec, dict) else {}
+    explicit = {k: v for k, v in spec.items() if k != "@bms"} if isinstance(spec, dict) else {}
+    out: dict[str, str] = {}
+    for fname, f in bms.items():
+        if fname not in layout:  # the generated symbolic map does not hold it
+            continue
+        f = {**f, "length": min(f["length"], layout[fname]["bytes"])}
+        if fname in explicit:
+            continue
+        value = _bms_value(rng, f, i, opts.get("bad", 0))
+        if rng.random() >= opts.get("empty", 0):
+            out[fname] = value
+    for fname, rule in explicit.items():
+        if fname not in layout:
+            raise ValueError(f"{name}: map has no input field {fname}")
+        if rule is None:
+            continue
+        rule = rule if isinstance(rule, dict) else {"values": [rule]}
+        out[fname] = _typed(rng, rule, layout[fname]["bytes"], pools.get(rule.get("from", ""), []), i)
+    return out
+
+
 def _missing(rng: random.Random, pool: list[Any], field: dict[str, Any] | None) -> Any:
     """#4507: a value like the pool's (digits when they are all digits; the field's width) that it does not hold."""
     held = {str(v).strip() for v in pool}
@@ -329,6 +418,8 @@ def prepare_cics_case(case: dict[str, Any], corpus: Path, files: list[dict[str, 
             "commarea": {"CDEMO-FROM-TRANID": "CAVW", "CDEMO-PGM-CONTEXT": 1},
             "receive": {"CACTVWA": {"ACCTSIDI": {"from": "AWS.ACCTDATA.ACCT-ID", "miss": 0.2, "bad": 0.25}}}}
 
+    `"receive": {"MAP": "@bms"}` (#4506) types into every unprotected field the map's BMS source defines, by its length, NUM
+    and PICIN (`{"@bms": {"bad": 0.2, "empty": 0.3}, "FIELDI": rule}` steers it; a rule beside it wins).
     A map field's rule gives what the user typed: a value `from` the generated file's field, one it does not hold
     (`miss`), or not a number (`bad`: letters, blanks, signs, a decimal point ...) -- as a share of the scenarios;
     or `values`, in turn. A COMMAREA field's rule is `values` / `edge` (the PICTURE's edge values, in turn) / `from` (it is a typed record: the port's DTO
@@ -391,6 +482,9 @@ def prepare_cics_case(case: dict[str, Any], corpus: Path, files: list[dict[str, 
         receive: dict[str, dict[str, str]] = {}
         for m, typed in (gen.get("receive") or {}).items():
             layout = {f["name"]: f for f in cx.screen_fields(corpus, case, m, "input")}
+            if typed == "@bms" or (isinstance(typed, dict) and "@bms" in typed):  # #4506: from the BMS source
+                receive[m] = _bms_receive(rng, f"{name} map {m}", typed, layout, bms_input_fields(corpus, m), pools, i)
+                continue
             receive[m] = {}
             for fname, rule in typed.items():
                 if fname not in layout:

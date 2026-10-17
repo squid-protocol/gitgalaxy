@@ -317,6 +317,16 @@ PLANTED = {
 }
 
 
+def _without_translation(report: dict) -> dict:
+    """The report as the inventory alone projects it: the dry run's fields (#4726) removed."""
+    out = json.loads(json.dumps(report))
+    out["totals"].pop("translation", None)
+    for row in out["programs"]:
+        for k in ("translation", "refusal", "statements", "translated_statements", "holes"):
+            row.pop(k, None)
+    return out
+
+
 def _snapshot(root: Path) -> dict[str, tuple[int, int, str]]:
     return {
         str(p.relative_to(root)): (p.stat().st_size, p.stat().st_mtime_ns, hashlib.sha256(p.read_bytes()).hexdigest())
@@ -488,5 +498,6 @@ def test_assess_every_burned_estate(estate, tmp_path):
     assert _snapshot(estate_dir) == before
     assert SC.validate(report) == []
     inv = _inventory(estate)
-    assert report == SC.project(inv, tool_version=report["tool_version"])
+    assert _without_translation(report) == SC.project(inv, tool_version=report["tool_version"])
+    assert report["totals"]["translation"]["whole"] > 0 or estate != "zecs"
     assert_no_source_text(report, estate_dir, _program_names(inv))

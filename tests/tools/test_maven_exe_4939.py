@@ -105,6 +105,78 @@ def test_no_bare_launcher_argv_in_tests_tools():
     assert found == []
 
 
+def _first_word(node: ast.expr) -> str | None:
+    """The leading text of a str literal or f-string (`f"mvn -q {x}"` -> "mvn"), else None."""
+    if isinstance(node, ast.JoinedStr) and node.values:
+        node = node.values[0]
+    if isinstance(node, ast.Constant) and isinstance(node.value, str) and node.value.split():
+        return node.value.split()[0]
+    return None
+
+
+def _bare_launcher_forms(source: str) -> list[int]:
+    """#4939 blind spots of `_bare_launcher`: `mvn = "mvn"` style bindings of a shim name to a variable, and a
+    `subprocess.*(...)` / `run_decoded(...)` whose command is a bare list, str or f-string starting with a shim."""
+    out = set()
+    for n in ast.walk(ast.parse(source)):
+        if isinstance(n, ast.Assign) and isinstance(n.value, ast.Constant) and n.value.value in SHIM_ARGV:
+            if all(isinstance(t, ast.Name) for t in n.targets):
+                out.add(n.lineno)
+        if isinstance(n, ast.Call) and n.args:
+            f = n.func
+            name = f.attr if isinstance(f, ast.Attribute) else f.id if isinstance(f, ast.Name) else ""
+            if name not in ("run", "Popen", "call", "check_call", "check_output", "run_decoded"):
+                continue
+            if name != "run_decoded" and not (
+                isinstance(f, ast.Attribute) and getattr(f.value, "id", "") == "subprocess"
+            ):
+                continue
+            a = n.args[0]
+            word = _first_word(a.elts[0]) if isinstance(a, (ast.List, ast.Tuple)) and a.elts else _first_word(a)
+            if word in SHIM_ARGV:
+                out.add(n.lineno)
+    return sorted(out)
+
+
+def test_no_bare_launcher_binding_or_command_string_in_tests():
+    """#4939: the list-literal guard misses `mvn = "mvn"`, `subprocess.run("mvn -q")` and anything outside tests/tools."""
+    root = TOOLS.parent
+    found = [
+        f"{p.relative_to(root)}:{n}"
+        for p in sorted(root.rglob("*.py"))
+        if p.name != Path(__file__).name and ".venv" not in p.parts
+        for n in _bare_launcher_forms(p.read_text(encoding="utf-8"))
+    ]
+    assert found == []
+
+
+def test_the_form_guard_catches_bindings_and_command_strings():
+    assert _bare_launcher_forms('mvn = "mvn"\nx = "other"\n') == [1]
+    assert _bare_launcher_forms('import subprocess\nsubprocess.run("mvn -q")\n') == [2]
+    assert _bare_launcher_forms('import subprocess\nsubprocess.check_output(f"npm {a}")\n') == [2]
+    assert _bare_launcher_forms('run_decoded(["mvn.cmd", "-q"])\n') == [1]
+    assert _bare_launcher_forms('run_decoded([mvn_executable(), "-q"])\nd["npm"] = 1\nshutil.which("mvn")\n') == []
+
+
+def test_strengthen_ask_formats_after_splitting(monkeypatch, tmp_path):
+    """#4939: a work dir with a space or a backslash (a Windows path) stays one argument, backslashes intact."""
+    import subprocess
+
+    import strengthen
+
+    seen = {}
+
+    def fake_run(argv, **kw):
+        seen["argv"] = argv
+        return subprocess.CompletedProcess(argv, 0, "out", "")
+
+    monkeypatch.setattr(strengthen.subprocess, "run", fake_run)
+    work = tmp_path / "a b\\c"
+    out, _ = strengthen.ask("p", work, "m", "tool --in {prompt_file} --dir {prompt_dir}")
+    assert out == "out"
+    assert seen["argv"] == ["tool", "--in", str(work / "prompt.md"), "--dir", str(work)]
+
+
 def test_the_guard_catches_a_bare_launcher():
     src = 'subprocess.run(["mvn", "-q"])\nx = ("mvn", "a")\ny = [mvn_executable(), "-q"]\n'
     assert _bare_launcher(src) == [1, 2]

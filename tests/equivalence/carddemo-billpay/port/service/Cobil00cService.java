@@ -547,9 +547,8 @@ public class Cobil00cService {
             return date + " " + time + "." + "000000";
         }
 
-        // RETURN-TO-PREV-SCREEN: true when the XCTL took (the task has ended)
+        // RETURN-TO-PREV-SCREEN: the XCTL took (the task has ended) or CICS abended the task (#4648)
         boolean returnToPrevScreen() {
-            // Defect kept: never true (the program always moves a target first); fix: drop the test.
             if (spacesOrLow(ca.getCdemoToProgram())) {
                 ca.setCdemoToProgram("COSGN00C");
             }
@@ -557,7 +556,10 @@ public class Cobil00cService {
             ca.setCdemoFromProgram(fit(WS_PGMNAME, 8));
             ca.setCdemoPgmContext(0);
             String r = dispatchCdemoToProgramL281(task, ca.getCdemoToProgram(), copyCommarea(ca));   // line 281
-            return "NORMAL".equals(r);
+            if (!"NORMAL".equals(r)) {
+                task.abendOnCondition(r);   // no RESP, no HANDLE CONDITION: CICS abends the task (#4648)
+            }
+            return true;
         }
 
         // SEND-BILLPAY-SCREEN (with POPULATE-HEADER-INFO)

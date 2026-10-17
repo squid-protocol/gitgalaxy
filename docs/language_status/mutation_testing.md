@@ -123,45 +123,67 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | port | harness | mutants run / all | raw score | without equivalent + unreachable | survivors: case gap / harness gap / equivalent / unreachable / untriaged |
 |---|---|---|---|---|---|
 | COACTVWC (carddemo-acctview) | equivalence | 150/328 | 105/129 (81%) | 105/113 (93%) | 8 / 0 / 16 / 0 / 0 |
+| COADM01C (carddemo-adminmenu) | equivalence | 100/334 | 53/95 (56%) | 53/69 (77%) | 16 / 0 / 26 / 0 / 0 |
 | CSUTLDTC (carddemo-dateutil) | equivalence | 211/211 | 145/195 (74%) | 145/145 (100%) | 0 / 0 / 10 / 40 / 0 |
 | COMEN01C (carddemo-menu) | equivalence | 150/331 | 86/136 (63%) | 86/93 (92%) | 7 / 0 / 36 / 7 / 0 |
-| CALINK (ca-link-lengths) | crucible | 24/168 | 14/22 (64%) | 14/17 (82%) | 3 / 0 / 5 / 0 / 0 |
-| CASUB (ca-link-lengths) | crucible | 24/40 | 15/24 (62%) | 15/16 (94%) | 1 / 0 / 7 / 1 / 0 |
-| CAXA (ca-xctl-versions) | crucible | 24/78 | 14/21 (67%) | 14/17 (82%) | 3 / 0 / 3 / 1 / 0 |
+| COSGN00C (carddemo-signon) | equivalence | 100/196 | 67/99 (68%) | 67/72 (93%) | 5 / 0 / 25 / 2 / 0 |
+| COTRN01C (carddemo-tranview) | equivalence | 100/308 | 63/100 (63%) | 63/68 (93%) | 5 / 0 / 29 / 3 / 0 |
+| COUSR01C (carddemo-useradd) | equivalence | 100/266 | 64/97 (66%) | 64/72 (89%) | 8 / 0 / 23 / 2 / 0 |
+| COUSR03C (carddemo-userdel) | equivalence | 100/334 | 62/86 (72%) | 62/70 (89%) | 8 / 0 / 15 / 1 / 0 |
+| COUSR00C (carddemo-userlist) | equivalence | 100/493 | 69/100 (69%) | 69/92 (75%) | 23 / 0 / 8 / 0 / 0 |
+| INQACC (cbsa-inqacc) | equivalence | 150/464 | 131/131 (100%) | 131/131 (100%) | 0 / 0 / 0 / 0 / 0 |
+| UPDACC (cbsa-updacc) | equivalence | 133/133 | 95/133 (71%) | 95/133 (71%) | 38 / 0 / 0 / 0 / 0 |
+| LGAPVS01 (genapp-lgapvs01) | equivalence | 150/178 | 70/121 (58%) | 70/119 (59%) | 49 / 0 / 0 / 2 / 0 |
+| LGICDB01 (genapp-lgicdb01) | equivalence | 150/195 | 49/130 (38%) | 49/127 (39%) | 78 / 0 / 0 / 3 / 0 |
+| LGUPDB01 (genapp-lgupdb01) | equivalence | 150/397 | 76/138 (55%) | 76/137 (55%) | 61 / 0 / 0 / 1 / 0 |
+| CALINK (ca-link-lengths) | crucible | 24/168 | 15/22 (68%) | 15/15 (100%) | 0 / 0 / 5 / 2 / 0 |
+| CASUB (ca-link-lengths) | crucible | 24/40 | 16/24 (67%) | 16/16 (100%) | 0 / 0 / 7 / 1 / 0 |
+| CAXA (ca-xctl-versions) | crucible | 24/78 | 16/21 (76%) | 16/16 (100%) | 0 / 0 / 3 / 2 / 0 |
 | CAXB (ca-xctl-versions) | crucible | 24/142 | 17/23 (74%) | 17/21 (81%) | 4 / 0 / 1 / 1 / 0 |
-| GTSTART (gt-start-retrieve) | crucible | 24/91 | 15/22 (68%) | 15/19 (79%) | 4 / 0 / 3 / 0 / 0 |
-| GTWORK (gt-start-retrieve) | crucible | 24/87 | 17/21 (81%) | 17/21 (81%) | 4 / 0 / 0 / 0 / 0 |
-| GTSHOW (gt-terminal-coalesce) | crucible | 24/69 | 17/23 (74%) | 17/18 (94%) | 1 / 0 / 5 / 0 / 0 |
-| GTTERM (gt-terminal-coalesce) | crucible | 24/88 | 10/21 (48%) | 10/17 (59%) | 7 / 0 / 3 / 1 / 0 |
-| HCMAIN (hc-abend-link) | crucible | 24/176 | 12/23 (52%) | 12/14 (86%) | 2 / 0 / 4 / 5 / 0 |
-| HCSUB (hc-abend-link) | crucible | 24/85 | 18/24 (75%) | 18/19 (95%) | 1 / 0 / 3 / 2 / 0 |
+| GTSTART (gt-start-retrieve) | crucible | 24/91 | 19/22 (86%) | 19/19 (100%) | 0 / 0 / 3 / 0 / 0 |
+| GTWORK (gt-start-retrieve) | crucible | 24/87 | 20/21 (95%) | 20/20 (100%) | 0 / 0 / 0 / 1 / 0 |
+| GTSHOW (gt-terminal-coalesce) | crucible | 24/69 | 17/23 (74%) | 17/17 (100%) | 0 / 0 / 5 / 1 / 0 |
+| GTTERM (gt-terminal-coalesce) | crucible | 24/88 | 17/21 (81%) | 17/17 (100%) | 0 / 0 / 3 / 1 / 0 |
+| HCMAIN (hc-abend-link) | crucible | 24/176 | 14/23 (61%) | 14/14 (100%) | 0 / 0 / 4 / 5 / 0 |
+| HCSUB (hc-abend-link) | crucible | 24/85 | 18/24 (75%) | 18/18 (100%) | 0 / 0 / 3 / 3 / 0 |
 | HCQREAD (hc-perform-range) | crucible | 24/204 | 14/21 (67%) | 14/14 (100%) | 0 / 0 / 4 / 3 / 0 |
 | HXATTR (hx-attr-bytes) | crucible | 24/143 | 17/22 (77%) | 17/17 (100%) | 0 / 0 / 5 / 0 / 0 |
-| HXEXT (hx-extended-cursor) | crucible | 24/108 | 16/23 (70%) | 16/19 (84%) | 3 / 0 / 1 / 3 / 0 |
+| HXEXT (hx-extended-cursor) | crucible | 24/108 | 20/23 (87%) | 20/20 (100%) | 0 / 0 / 1 / 2 / 0 |
 | PCDETL (pc-aid-menu) | crucible | 24/60 | 14/24 (58%) | 14/14 (100%) | 0 / 0 / 9 / 1 / 0 |
 | PCMENU (pc-aid-menu) | crucible | 24/147 | 14/22 (64%) | 14/15 (93%) | 1 / 0 / 5 / 2 / 0 |
+| PCIMMA (pc-return-immediate) | crucible | 24/394 | 6/22 (27%) | 6/16 (38%) | 10 / 0 / 5 / 1 / 0 |
+| PCIMMB (pc-return-immediate) | crucible | 24/283 | 11/23 (48%) | 11/18 (61%) | 7 / 0 / 5 / 0 / 0 |
+| PCIMML (pc-return-immediate) | crucible | 24/282 | 9/23 (39%) | 9/19 (47%) | 10 / 0 / 3 / 1 / 0 |
+| PCIMMS (pc-return-immediate) | crucible | 24/198 | 8/24 (33%) | 8/16 (50%) | 8 / 0 / 7 / 1 / 0 |
 | PCCONF (pc-wizard) | crucible | 24/247 | 14/23 (61%) | 14/17 (82%) | 3 / 0 / 6 / 0 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/177 | 11/21 (52%) | 11/16 (69%) | 5 / 0 / 3 / 2 / 0 |
-| **all crucible** | | 408 run | **249/380 (66%)** | **249/291 (86%)** | 42 / 0 / 67 / 22 / 0 |
-| **all equivalence** | | 511 run | **336/460 (73%)** | **336/351 (96%)** | 15 / 0 / 62 / 47 / 0 |
-| **all estate** | | 919 run | **585/840 (70%)** | **585/642 (91%)** | 57 / 0 / 129 / 69 / 0 |
+| **all crucible** | | 504 run | **307/472 (65%)** | **307/355 (86%)** | 48 / 0 / 87 / 30 / 0 |
+| **all equivalence** | | 1844 run | **1135/1690 (67%)** | **1135/1441 (79%)** | 306 / 0 / 188 / 61 / 0 |
+| **all estate** | | 2348 run | **1442/2162 (67%)** | **1442/1796 (80%)** | 354 / 0 / 275 / 91 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 54/65 (83%) | 54/58 (93%) |
-| BDM | 1/9 (11%) | 1/2 (50%) |
-| CON | 88/162 (54%) | 88/95 (93%) |
-| COR | 28/51 (55%) | 28/39 (72%) |
-| DEL | 75/115 (65%) | 75/95 (79%) |
-| LIT | 111/140 (79%) | 111/112 (99%) |
-| NEG | 117/135 (87%) | 117/119 (98%) |
-| RET | 7/17 (41%) | 7/12 (58%) |
-| ROR | 104/146 (71%) | 104/110 (95%) |
+| AOR | 108/140 (77%) | 108/121 (89%) |
+| BDM | 3/14 (21%) | 3/7 (43%) |
+| CON | 205/439 (47%) | 205/280 (73%) |
+| COR | 62/108 (57%) | 62/94 (66%) |
+| DEL | 220/342 (64%) | 220/290 (76%) |
+| LIT | 294/401 (73%) | 294/346 (85%) |
+| NEG | 267/315 (85%) | 267/298 (90%) |
+| RET | 37/61 (61%) | 37/57 (65%) |
+| ROR | 246/342 (72%) | 246/303 (81%) |
 <!-- /mutation-scores -->
 
 Run on gitgalaxy `416fb6420` (2026-10-03): CSUTLDTC all 217 mutants; COMEN01C and COACTVWC 150 each (seed 0);
 the 17 crucible ports 24 each (seed 0, cics-crucible v0.2.0). The three batch cases (CBACT04C, CBTRN02C,
 CBTRN03C) were not re-run here; their seed-1 raw scores are in the table above this section.
+
+#4047 added six CardDemo CICS ports (signon, tranview, userlist, useradd, userdel, adminmenu; 100 mutants each, seed 0,
+`--jobs 3`). Their 73 case gaps repeat across the six: no scenario sets EIBCALEN (`task.eibcalen()` is null), sends a
+short COMMAREA, abends the program, answers a failed XCTL, or sends a blank to-program; userlist also lacks a short
+last page after a full one. 8 more survivors are unreachable (the program name in `region.run` / `region.linked`).
+The 126 equivalent verdicts rest on one assumption not yet independently checked: the COMMAREA/screen DTO codec pads
+and truncates each field to its declared width, so a width off by one, or NUL for space, changes no compared byte.
 
 What the triage found:
 
@@ -224,6 +246,14 @@ are the bytes the task's RETURN passed on (`Arrays.equals(answered, task.returne
 back to the DTO's bytes and was never seen. The crucible cannot yet take a deterministic port's bytes: they are in the
 runtime's ASCII page and the crucible's expected logs are EBCDIC (a `PC-STEP` of `X'31'` against `X'F1'`), so the
 crucible ports stay model-written and the byte path is proven on the equivalence side.
+
+**The crucible now has a byte-path scenario (#4965).** #5053 made the comparison page-aware, so the deterministic port
+of PCWIZ (and PCCONF, the program it LINKs/XCTLs to: 39/39 and 47/47 statements, no holes) is committed under
+`tests/cics_crucible/det-ports/pc-wizard` (not `ports/`: it is no model port, no provenance; `tests/tools/cics_crucible_det.py`
+regenerates it and lays the runtime beside it). `cics_crucible.py --cases pc-wizard --sides java-facade --ports <dir>`
+passes 6/6 on it with real `lastAnswerBytes()` (PCWIZ RETURNs TRANSID PC02/PC03 with a 30-byte COMMAREA). Deleting
+`lastAnswerBytes = task.returnedBytes();` from it fails 6/6 ("lastAnswerBytes() of PCWIZ is not the bytes its RETURN
+passes on"). Measured 2026-10-17; `test_det_port_bytes_4965.py` runs both under `EQUIVALENCE_E2E=1`.
 
 ## The test-strengthening loop (#4049)
 

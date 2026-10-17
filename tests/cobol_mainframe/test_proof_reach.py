@@ -268,7 +268,7 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
                 if p["case"].startswith("crucible:")}  # fmt: skip
     stale = {prog for c, prog in crucible if not _mutated_port_is_current(c, prog)}
     # only the ports not yet re-run are stale: their survivors are skipped until the next run judges them again
-    assert crucible and stale == {"PCCONF", "PCWIZ", "PCMENU", "PCDETL"}
+    assert crucible and stale == {"PCCONF", "PCWIZ", "PCMENU", "PCDETL", "PCIMMA", "PCIMMB", "PCIMML", "PCIMMS"}
     # #4870 re-ran the same 13 after the byte-carrying handleTransaction overload joined every region facade (seed 0, 24
     # mutants each; the added code moved the sample): 7 flagged survivors, all unreachable -- 4 in that overload
     # (CALINK, CAXA x2, GTSTART: the crucible entered by handleTransaction(String, T) only), HCQREAD's overload name
@@ -278,7 +278,16 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     # literal (HCQREAD) and CAXA's accessor mutant died, 5 flagged survivors remain. The dead helpers stay unreachable;
     # the 3 `lastAnswerBytes = task.returnedBytes()` deletions (CALINK, CAXA, GTSTART) are re-triaged equivalent, not
     # unreachable: their programs RETURN TRANSID with no COMMAREA, so the bytes they answer are null either way.
-    assert len(flagged) == 5 and verdicts.count("unreachable") == 2 and verdicts.count("equivalent") == 3
+    # #4048 judged the PCIMM* crucible ports (on their own service code, not the shared cobolrt runtime), CBSA INQACC /
+    # UPDACC and GenApp LGAPVS01 / LGICDB01 / LGUPDB01: 9 more flagged survivors, all unreachable. PCIMMA / PCIMML /
+    # PCIMMS mutated runProgram and the byte-carrying handleTransaction overloads (the crucible does not enter by
+    # them), LGAPVS01 the writeKsdspoly guard; LGICDB01 / LGUPDB01 sit in methods proof_reach lists as unproven.
+    # #4047 scored six CardDemo CICS ports (signon, tranview, userlist, useradd, userdel, adminmenu): 8 more flagged
+    # survivors, all unreachable: the program name literal in the facade's region.run / region.linked, which the proof
+    # does not call (the proof drives runTask), as in COMEN01C's.
+    # The PCIMM* ports changed with the ARITH(EXTEND) stop (#4706) and were re-proved, so their recorded mutation run
+    # judges older code and their 3 flagged survivors are skipped until the next run: 19 flagged, 16 unreachable.
+    assert len(flagged) == 19 and verdicts.count("unreachable") == 16 and verdicts.count("equivalent") == 3
     assert not {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C", "CSUTLDTC"}
 
 
@@ -287,27 +296,27 @@ def test_the_re_run_crucible_ports_keep_their_measured_floor():
     a port's mutants shows up as a stale record here, not as a silent change. Killed / survived per port, and the
     harness gaps (none: the facade bodies are proven on the java-facade side too)."""
     expected = {
-        "CALINK": (14, 8),
-        "CASUB": (15, 9),
-        "CAXA": (14, 7),
+        "CALINK": (15, 7),
+        "CASUB": (16, 8),
+        "CAXA": (16, 5),
         "CAXB": (17, 6),
-        "GTSTART": (15, 7),
-        "GTWORK": (17, 4),
+        "GTSTART": (19, 3),
+        "GTWORK": (20, 1),
         "GTSHOW": (17, 6),
-        "GTTERM": (10, 11),
-        "HCMAIN": (12, 11),
+        "GTTERM": (17, 4),
+        "HCMAIN": (14, 9),
         "HCSUB": (18, 6),
         "HCQREAD": (14, 7),
         "HXATTR": (17, 5),
-        "HXEXT": (16, 7),
-    }  # fmt: skip  (#4870 re-ran after the byte-carrying facade overload, #4965 re-ran CALINK, CAXA, GTSTART, HCQREAD: measured)
+        "HXEXT": (20, 3),
+    }  # fmt: skip  (#4870 re-ran after the byte-carrying facade overload, #4965 re-ran CALINK, CAXA, GTSTART, HCQREAD, #4443 re-ran all 13 with the strengthened scenarios: measured)
     ports = {p["program"]: p for p in json.loads(SCORES.read_text(encoding="utf-8"))["ports"]}
     for prog, (killed, survived) in expected.items():
         t = ports[prog]["total"]
         assert (t["killed"], t["survived"]) == (killed, survived), prog
         assert t["untriaged"] == 0 and _mutated_port_is_current(ports[prog]["case"], prog), prog
     assert sum(ports[p]["total"]["harness_gap"] for p in expected) == 0
-    assert sum(k for k, _ in expected.values()) == 196 and sum(s for _, s in expected.values()) == 94
+    assert sum(k for k, _ in expected.values()) == 220 and sum(s for _, s in expected.values()) == 70
 
 
 @pytest.mark.parametrize("case,program", sorted(FACADES))

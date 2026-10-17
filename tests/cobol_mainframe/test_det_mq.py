@@ -809,3 +809,102 @@ def test_a_resp_number_keeps_the_sequence_area_in_columns_73_to_80():
     out = ec._numbered(line)
     assert out[72:] == "01450012" and len(out) == 80 and out[:72].rstrip().endswith("=  0")
     assert ec._numbered("           IF X = DFHRESP(NOTFND)") == "           IF X = 13"  # no sequence area: as before
+
+
+# ---- #5278: the burned estates ---------------------------------------------------------------------------------------
+BURNED_CORPORA = (
+    "aws-mainframe-modernization-carddemo",
+    "cics-banking-sample-application-cbsa",
+    "cics-genapp",
+    "zecs",
+    "dbb-mortgage-application",
+    "cics-async-api-credit-card-application-example",
+)
+MQ_CALL = re.compile(r"\bCALL\s+['\"](MQ[A-Z0-9]+)['\"]", re.IGNORECASE)
+
+
+def _burned_mq_calls() -> dict[str, set[str]]:
+    corpora = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", ROOT / ".mainframe_corpora"))
+    found: dict[str, set[str]] = {}
+    for name in BURNED_CORPORA:
+        for p in (corpora / name).rglob("*") if (corpora / name).is_dir() else ():
+            if p.suffix.lower() not in (".cbl", ".cob", ".cobol") or not p.is_file():
+                continue
+            for line in p.read_text(encoding="latin-1").splitlines():
+                if len(line) > 6 and line[6] not in "*/":  # a comment line names no call
+                    for m in MQ_CALL.finditer(line[6:72]):
+                        found.setdefault(p.stem.upper(), set()).add(m.group(1).upper())
+    return found
+
+
+def test_no_burned_program_calls_an_mq_routine_the_models_lack():
+    """The MQI calls the burned estates make are all modelled (MQINQ / MQSET, used by none, stay refused: #4892)."""
+    calls = _burned_mq_calls()
+    if not calls:
+        pytest.skip("needs the burned mainframe corpora (GITGALAXY_MAINFRAME_CORPORA)")
+    assert {"CODATE01", "COACCT01", "COPAUA0C"} <= set(calls)
+    used = set().union(*calls.values())
+    assert used <= set(SPEC.CALLS), sorted(used - set(SPEC.CALLS))
+    assert not used & set(SPEC.UNMODELLED)
+    assert not used & {"MQINQ", "MQSET"}
+    assert calls["COPAUA0C"] == {"MQOPEN", "MQGET", "MQPUT1", "MQCLOSE"}
+
+
+def _c_masks(*names: str) -> dict[str, int]:
+    """The `#define NAME expr` integer masks of ggmq.c (an expression of numbers and earlier defines)."""
+    defs: dict[str, int] = {}
+    for m in re.finditer(r"^#define\s+(\w+)\s+(\(?[\w |()]+\)?)\s*(?:/\*.*)?$", MQ_C.read_text(), re.MULTILINE):
+        try:
+            defs[m.group(1)] = eval(m.group(2), {"__builtins__": {}}, dict(defs))  # noqa: S307 -- numbers, | and names
+        except NameError:
+            continue
+    return {n: defs[n] for n in names}
+
+
+def test_copaua0c_options_sit_inside_what_the_oracle_models():
+    """#5278: the option words CardDemo COPAUA0C builds (MQOPEN, MQGET, MQPUT1, MQCLOSE) are all inside the modelled
+    sets, so the oracle would not stop its run by name; the values are CMQV's, the masks ggmq.c's own."""
+    v = {n: int(val) for n, _, val in _copybook("CMQV") if val is not None and val.lstrip("-").isdigit()}
+    masks = _c_masks("OO_MODELLED", "GMO_MODELLED", "PMO_MODELLED")
+    get = v["MQGMO-NO-SYNCPOINT"] | v["MQGMO-WAIT"] | v["MQGMO-CONVERT"] | v["MQGMO-FAIL-IF-QUIESCING"]
+    put1 = v["MQPMO-NO-SYNCPOINT"] | v["MQPMO-DEFAULT-CONTEXT"]
+    assert v["MQOO-INPUT-SHARED"] & ~masks["OO_MODELLED"] == 0
+    assert get & ~masks["GMO_MODELLED"] == 0
+    assert put1 & ~masks["PMO_MODELLED"] == 0
+    assert v["MQCO-NONE"] == 0  # the only MQCLOSE option modelled (W6)
+
+
+def test_copaua0c_includes_only_copybooks_the_models_ship():
+    """#5278: every CMQ* member COPAUA0C COPYs is a GitGalaxy stand-in, so no MQ copybook gap is left to refuse it."""
+    calls = _burned_mq_calls()
+    if not calls:
+        pytest.skip("needs the burned mainframe corpora (GITGALAXY_MAINFRAME_CORPORA)")
+    corpora = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", ROOT / ".mainframe_corpora"))
+    src = corpora / "aws-mainframe-modernization-carddemo/app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl"
+    used = {m.upper() for m in re.findall(r"^\s{7}\s*COPY\s+(CMQ\w*)", src.read_text(encoding="latin-1"), re.M)}
+    assert used and used <= set(SPEC.STAND_INS), sorted(used - set(SPEC.STAND_INS))
+    assert all((COPY / f"{n}.cpy").is_file() for n in used)
+
+
+def test_copaua0c_translates_with_no_mq_hole(tmp_path):
+    """#5278: no hole of CardDemo COPAUA0C is an MQ one -- its MQOPEN / MQGET / MQPUT1 / MQCLOSE and the CMQ* layouts
+    translate under CICS; what holds the program is EXEC DLI (I5), and the other holes are not MQ's (they are named
+    here so a change that moves them is seen)."""
+    pytest.importorskip("tree_sitter_language_pack")
+    corpora = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", ROOT / ".mainframe_corpora"))
+    corpus = corpora / "aws-mainframe-modernization-carddemo"
+    src = corpus / "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl"
+    if not src.is_file():
+        pytest.skip("needs the burned mainframe corpora (GITGALAXY_MAINFRAME_CORPORA)")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    stub = "public class COPAUA0C { void f() { runTask(CicsTask t); } }"  # the marker that makes it a CICS port
+    res = P.translate(
+        src, [corpus / "app/cpy", corpus / "app/app-authorization-ims-db2-mq/cpy"], stub, "pkg", None, tmp_path
+    )
+    holes = [str(h) for h in res.stats["holes"]]
+    assert holes
+    assert not [h for h in holes if re.search(r"\bMQ|CMQ|batch MQ|copybook", h, re.IGNORECASE)], holes
+    assert any("EXEC DLI" in h for h in holes)
+    assert not [h for h in holes if "EXEC DLI" not in h and "DIBSTAT" not in h and "KEYLENGTH" not in h
+                and "INITIALIZE REPLACING" not in h], holes  # fmt: skip

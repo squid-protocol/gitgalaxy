@@ -149,6 +149,12 @@ final class Zoned {
         return refuse("arithmetic whose receiver is");
     }
 
+    /** The refusal of a non-digit in a POINTER / TALLYING item a STRING, UNSTRING or INSPECT reads before it stores
+     *  (#4692). */
+    static UnsupportedOperationException refuseCounter() {
+        return refuse("a STRING / UNSTRING pointer or tallying counter that is");
+    }
+
     private static BigDecimal scaled(BigInteger v, boolean neg, int scale) {
         return new BigDecimal(neg ? v.negate() : v, scale);
     }

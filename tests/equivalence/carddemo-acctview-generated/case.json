@@ -107,6 +107,10 @@
   },
   "receive": {
    "CACTVWA": {
+    "@bms": {
+     "bad": 0.1,
+     "empty": 0.3
+    },
     "ACCTSIDI": {
      "from": "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS.ACCT-ID",
      "miss": 0.2,
@@ -115,5 +119,5 @@
    }
   }
  },
- "notes": "CardDemo's account view (CAVW) on GENERATED inputs (#3804), proving the carddemo-acctview port on data it was not written against: accounts, customers and card cross-references built from their record layouts (a cross-reference to an account only some of the time, a fifth pointing at a customer that is not on file), and 24 generated re-entries whose typed account id is one on file, one that is not, or not a number (letters, blanks, signs, a decimal point). The cross-reference's card number is generated from its layout alone, letters and blanks included: the COBOL's MOVE of that PIC X(16) into a PIC 9(16) does not validate, and the port gives its result (#4491, found by this case's first run). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+ "notes": "CardDemo's account view (CAVW) on GENERATED inputs (#3804), proving the carddemo-acctview port on data it was not written against: accounts, customers and card cross-references built from their record layouts (a cross-reference to an account only some of the time, a fifth pointing at a customer that is not on file), and 24 generated re-entries whose typed account id is one on file, one that is not, or not a number (letters, blanks, signs, a decimal point). #4506: every other unprotected field of the CACTVWA map is typed too, generated from the BMS source (COACTVW.bms: its lengths and NUM/PICIN), some of the time left alone, some of the time not a number. The cross-reference's card number is generated from its layout alone, letters and blanks included: the COBOL's MOVE of that PIC X(16) into a PIC 9(16) does not validate, and the port gives its result (#4491, found by this case's first run). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
 }

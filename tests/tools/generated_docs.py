@@ -67,6 +67,12 @@ def _progress_json() -> str:
     return progress_report.render_json_page()
 
 
+def _progress_svg() -> str:
+    import progress_slide  # tests/tools/progress_slide.py (#5286)
+
+    return progress_slide.render_page()
+
+
 # repo-relative path -> its renderer. A page added here must also be git-ignored and published by generated-docs.yml
 # (test_generated_docs.py checks both).
 PAGES: dict[str, Callable[[], str]] = {
@@ -76,6 +82,7 @@ PAGES: dict[str, Callable[[], str]] = {
     "docs/language_status/readiness_report.md": _readiness_report,
     "docs/language_status/progress.md": _progress_md,
     "docs/language_status/progress.json": _progress_json,
+    "docs/language_status/progress.svg": _progress_svg,
 }
 
 

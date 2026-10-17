@@ -358,3 +358,103 @@ def test_accept_from_date_day_and_time_read_the_runs_clock(tmp_path):
     out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp",  # noqa: S603
                           str(tmp_path / "classes"), "Main"], capture_output=True, check=True).stdout.decode("utf-8").split()  # fmt: skip
     assert out == ["240315", "20240315", "24075", "2024075", "14302512"]
+
+
+# ---- EXEC DLI under CICS: SCHD PSB, TERM and DIBSTAT (#5278, register I5) ---------------------------------------------
+CICS_STUB = "public class DlitService { void f() { runTask(CicsTask t); } }"
+
+
+def _cics_program(proc: list[str]) -> str:
+    lines = ["IDENTIFICATION DIVISION.", "PROGRAM-ID. DLIT.", "DATA DIVISION.", "WORKING-STORAGE SECTION.",
+             "01  PSB-NAME PIC X(8) VALUE 'PSBX'.", "01  PSB-NUM PIC S9(4) COMP VALUE 1.", "01  IMS-RC PIC XX.",
+             "01  IOA PIC X(20).", "PROCEDURE DIVISION.", "MAIN-PARA.", *proc, "    GOBACK."]  # fmt: skip
+    return "\n".join(" " * 7 + ln for ln in lines) + "\n"
+
+
+def _translate_cics(tmp_path: Path, src: str):
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "DLIT.cbl").write_text(src)
+    return P.translate(tmp_path / "DLIT.cbl", [], CICS_STUB, PKG, None, tmp_path / "project")
+
+
+@pytest.mark.parametrize(
+    "stmt, call",
+    [
+        ("EXEC DLI SCHD PSB((PSB-NAME)) NODHABEND END-EXEC", r"schedule\(\w+, true\)"),
+        ("EXEC DLI SCHD PSB((PSB-NAME)) END-EXEC", r"schedule\(\w+, false\)"),
+        ("EXEC DLI SCHD PSB(PSBPAUTB) NODHABEND END-EXEC", r'schedule\("PSBPAUTB", true\)'),
+        ("EXEC DLI SCHD PSB('psbpautb') END-EXEC", r'schedule\("PSBPAUTB", false\)'),
+        ("EXEC DLI TERM END-EXEC", r"terminate\(\)"),
+    ],
+)  # fmt: skip
+def test_exec_dli_schd_and_term_answer_dibstat_through_the_runtime(tmp_path, stmt, call):
+    """SCHD PSB (a name, a literal or a data area, with or without NODHABEND) and TERM are DetDli calls whose answer
+    lands in DIBSTAT, the DIB item the translator supplies; every form is a whole translation."""
+    r = _translate_cics(tmp_path, _cics_program([f"    {stmt}", "    MOVE DIBSTAT TO IMS-RC"]))
+    assert not r.stats["holes"], r.stats["holes"]
+    assert re.search(rf"Cobol\.move\(\w+\.cobolrt\.dli\.DetDli\.{call}, \w+_DIBSTAT, CS\);", r.java), r.java
+
+
+@pytest.mark.parametrize(
+    "stmt, why",
+    [
+        ("EXEC DLI GU USING PCB(PSB-NUM) SEGMENT(S1) INTO(IOA) END-EXEC", "EXEC DLI GU: the segment commands"),
+        ("EXEC DLI GN USING PCB(PSB-NUM) INTO (IOA) END-EXEC", "EXEC DLI GN: the segment commands"),
+        ("EXEC DLI REPL USING PCB(1) SEGMENT(S1) FROM(IOA) END-EXEC", "EXEC DLI REPL: the segment commands"),
+        ("EXEC DLI ISRT USING PCB(1) SEGMENT(S1) FROM(IOA) END-EXEC", "EXEC DLI ISRT: the segment commands"),
+        ("EXEC DLI DLET USING PCB(1) SEGMENT(S1) FROM(IOA) END-EXEC", "EXEC DLI DLET: the segment commands"),
+        ("EXEC DLI SCHD PSB((PSB-NAME)) NODHABEND SYSSERVE END-EXEC", "EXEC DLI SCHD: only PSB"),
+        ("EXEC DLI SCHD END-EXEC", "EXEC DLI SCHD: only PSB"),
+        ("EXEC DLI TERM PSB END-EXEC", "EXEC DLI TERM: no option"),
+        ("EXEC DLI SCHD PSB((PSB-NUM)) END-EXEC", "not a DISPLAY item"),
+    ],
+)  # fmt: skip
+def test_the_exec_dli_forms_not_modelled_are_holes_by_name(tmp_path, stmt, why):
+    r = _translate_cics(tmp_path, _cics_program([f"    {stmt}"]))
+    assert len(r.stats["holes"]) == 1 and why in r.stats["holes"][0], r.stats["holes"]
+
+
+def test_exec_dli_in_a_batch_program_is_a_hole_and_other_dib_fields_are_no_such_item(tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    r = _translate(tmp_path, _program(["    EXEC DLI TERM END-EXEC"], entry="    ENTRY 'DLITCBL' USING PCB1 PCB2."))
+    assert len(r.stats["holes"]) == 1 and "EXEC DLI outside CICS" in r.stats["holes"][0], r.stats["holes"]
+    r = _translate_cics(tmp_path, _cics_program(["    MOVE DIBSEGM TO IOA"]))
+    assert any("DIBSEGM" in h for h in r.stats["holes"]), r.stats["holes"]  # only DIBSTAT is supplied
+
+
+@pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_detdli_schedule_and_terminate_answer_the_status_ibm_gives(tmp_path):
+    """SCHD: blank, the PCBs at their start; a second SCHD of the scheduled PSB is TC (with NODHABEND; without it the
+    task would abend: refused); TERM: blank, then SCHD is blank again; a TERM with nothing scheduled is refused."""
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    _stage(tmp_path / "dli")
+    src = tmp_path / "src"
+    for rel, text in P.runtime_files("t", batch=False).items():
+        if not rel.startswith(("cobolrt/cics/", "cobolrt/sql/")):
+            (src / "t" / rel).parent.mkdir(parents=True, exist_ok=True)
+            (src / "t" / rel).write_text(text)
+    d = "t.cobolrt.dli.DetDli"
+    body = (f'System.out.println("[" + {d}.schedule("PSBX", true) + "]"); '
+            f'System.out.println("[" + {d}.schedule("PSBX", true) + "]"); '
+            f'try {{ {d}.schedule("PSBX", false); }} catch (UnsupportedOperationException e) {{ '
+            'System.out.println(e.getMessage()); } '
+            f'System.out.println("[" + {d}.terminate() + "]"); '
+            f'System.out.println("[" + {d}.schedule("PSBX", false) + "]"); {d}.terminate(); '
+            f'try {{ {d}.terminate(); }} catch (UnsupportedOperationException e) {{ System.out.println(e.getMessage()); }}')  # fmt: skip
+    (src / "Main.java").write_text(f"public class Main {{ public static void main(String[] a) {{ {body} }} }}\n")
+    jdk = _jdk()
+    subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                    *map(str, src.rglob("*.java"))], check=True)  # fmt: skip
+    out = subprocess.run([str(jdk / "java"), f"-Dgitgalaxy.dli.dir={tmp_path / 'dli'}", "-cp", str(tmp_path / "classes"),  # noqa: S603
+                          "Main"], capture_output=True, check=True).stdout.decode("utf-8").splitlines()  # fmt: skip
+    assert out == [
+        "[  ]",
+        "[TC]",
+        "CBLTDLI: a SCHD of a PSB already scheduled, without NODHABEND (the task would abend) is not modelled",
+        "[  ]",
+        "[  ]",
+        "CBLTDLI: a TERM with no PSB scheduled is not modelled",
+    ]

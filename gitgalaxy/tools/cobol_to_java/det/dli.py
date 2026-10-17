@@ -6,10 +6,16 @@ Register family I states the model; what it does not model is refused here by na
     DetDli.enter(pcb-1, ..., pcb-n)                     the program's entry (runBatch): binds the PSB's DB PCBs
     DetDli.call(function, pcb, io, ssa ...)             each CALL 'CBLTDLI'; RETURN-CODE 0 after it (register I1)
     DetDli.leave()                                      the step ended: the databases written for the comparison
+
+and, under CICS (#5278, register I5), the EXEC DLI commands SCHD PSB and TERM, each answering DIBSTAT:
+
+    DIBSTAT = DetDli.schedule(psb, nodhabend)           EXEC DLI SCHD PSB(name | (area)) [NODHABEND]
+    DIBSTAT = DetDli.terminate()                        EXEC DLI TERM
 """
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from gitgalaxy.tools.cobol_to_java.det import expr as E
@@ -57,3 +63,62 @@ def call(gen: Any, s: S.Stmt, ind: str) -> list[str]:
     fields = ", ".join(gen.field_expr(r) for r in refs)
     rc = gen.field_expr(E.Ref("RETURN-CODE"))
     return [f"{ind}DetDli.call({fields});", f"{ind}Cobol.store({rc}, BigDecimal.ZERO, false, CS);"]
+
+
+# ---- EXEC DLI under CICS (#5278): SCHD PSB and TERM; the segment commands (GU REPL ISRT ...) stay holes by name -------
+_EXEC_DLI = re.compile(r"(?is)\s*EXEC\s+DLI\s+(.*?)\s*(?:END-EXEC\s*\.?)?\s*$")
+_SCHD = re.compile(
+    r"(?is)SCHD\s+PSB\s*\(\s*(?:\(\s*(?P<area>[A-Z0-9-]+)\s*\)|'(?P<lit>[^'\s]{1,8})'|(?P<name>[A-Z0-9-]{1,8}))\s*\)"
+    r"(?P<nodh>\s+NODHABEND)?"
+)
+
+
+def uses_exec(texts: Any) -> bool:
+    """Whether any of the EXEC statements' texts is EXEC DLI (the program then has the DIB, IBM's DLI interface block)."""
+    return any(re.match(r"(?is)\s*EXEC\s+DLI\b", t) for t in texts)
+
+
+def dib_records() -> list:
+    """The DIB a CICS program with EXEC DLI sees: only DIBSTAT (the two bytes after the version halfword) is supplied,
+    since it is the only DIB field the runtime sets; any other DIB field stays `no such item`, a hole by name."""
+    from gitgalaxy.tools.cobol_to_java.det import layout as L
+    from gitgalaxy.tools.cobol_to_java.det.source import logical_lines
+
+    raw = ["       IDENTIFICATION DIVISION.", "       PROGRAM-ID. GGDIB.", "       DATA DIVISION.",
+           "       WORKING-STORAGE SECTION.", "       01  DIB.", "           05 FILLER   PIC XX.",
+           "           05 DIBSTAT  PIC XX."]  # fmt: skip
+    return L.parse(logical_lines(raw, "DIB"))
+
+
+def command(gen: Any, text: str, ind: str) -> list[str]:
+    """One EXEC DLI command of a CICS program: SCHD PSB(...) [NODHABEND] and TERM, DIBSTAT answered."""
+    from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable, jstr
+
+    if gen.cics is None:
+        raise Untranslatable("EXEC DLI outside CICS: a batch program calls CBLTDLI (register I5)")
+    m = _EXEC_DLI.match(text)
+    body = m.group(1) if m else ""
+    verb = (body.split() or [""])[0].upper()
+    dibstat = gen.field_expr(E.Ref("DIBSTAT"))
+    runtime = "__PACKAGE__.cobolrt.dli.DetDli"
+    if verb == "SCHD":
+        s = _SCHD.fullmatch(body.strip())
+        if s is None:
+            raise Untranslatable("EXEC DLI SCHD: only PSB(name), PSB('name') or PSB((area)) with NODHABEND is modelled "
+                                 "(register I5)")  # fmt: skip
+        if s["area"]:
+            it = gen.resolve(E.Ref(s["area"]))
+            if it.usage not in (None, "", "DISPLAY") or it.size is None:
+                raise Untranslatable(f"EXEC DLI SCHD: the PSB name area {s['area']} is not a DISPLAY item")
+            name = gen.field_expr(E.Ref(s["area"]))
+        else:
+            name = jstr((s["lit"] or s["name"]).upper())
+        call = f"{runtime}.schedule({name}, {'true' if s['nodh'] else 'false'})"
+    elif verb == "TERM":
+        if body.split()[1:]:
+            raise Untranslatable("EXEC DLI TERM: no option is modelled (register I5)")
+        call = f"{runtime}.terminate()"
+    else:
+        raise Untranslatable(f"EXEC DLI {verb}: the segment commands (GU, GN, REPL, ISRT, DLET ...) are not modelled "
+                             "(register I5)")  # fmt: skip
+    return [f"{ind}Cobol.move({call}, {dibstat}, CS);"]

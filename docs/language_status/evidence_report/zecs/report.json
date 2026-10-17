@@ -131,6 +131,12 @@
    "entry": "A scenario can plan ENQBUSY (RESP 55) for an ENQ by the RESOURCE operand as the program writes it; RESP2 is 0 because IBM states none for ENQBUSY. The ENQ must say NOSUSPEND: without it IBM suspends the task and the runtimes refuse. ENQ's other conditions come from the program's own operands, never from a plan: LENGTH outside 1 through 255 is LENGERR RESP2 1 and a MAXLIFETIME that is neither UOW nor TASK is INVREQ RESP2 2 (both modelled, as IBM states them). Refused: ENQBUSY planned for any other command, any other condition planned for ENQ, a RESP2 on an ENQBUSY plan, a planned-busy ENQ without NOSUSPEND, a resource that is no data-name of 1 to 16 characters, both bad operands at once (IBM names no order)",
    "id": "X60",
    "status": "ASSUMED (REFUSED where IBM is silent)"
+  },
+  {
+   "area": "CICS",
+   "entry": "EXEC CICS HANDLE ABEND PROGRAM(name) names a program that gets control when the task abends. The det translator honours LABEL, CANCEL and RESET and refuses PROGRAM by name with this entry; the cobol-stub refuses it too (equivalence_cics.Unsupported), so the two sides agree",
+   "id": "X67",
+   "status": "REFUSED"
   }
  ],
  "bars": {
@@ -267,7 +273,7 @@
    "carddemo-cardlist": [
     36,
     36,
-    147,
+    135,
     149
    ],
    "carddemo-cardupdate": [
@@ -313,9 +319,9 @@
     6
    ],
    "carddemo-cotrtlic": [
-    56,
+    50,
     59,
-    165,
+    145,
     230
    ],
    "carddemo-cotrtupc": [
@@ -471,7 +477,7 @@
    "cbsa-bnk1cac": [
     25,
     25,
-    58,
+    56,
     97
    ],
    "cbsa-bnk1cca": [
@@ -562,7 +568,12 @@
     13,
     14
    ],
-   "cbsa-delcus": null,
+   "cbsa-delcus": [
+    22,
+    22,
+    13,
+    16
+   ],
    "cbsa-getcompy": [
     2,
     2,
@@ -636,9 +647,9 @@
     8
    ],
    "genapp-lgacvs01": [
-    2,
     3,
-    0,
+    3,
+    3,
     4
    ],
    "genapp-lgapdb01": [
@@ -678,7 +689,7 @@
     12
    ],
    "genapp-lgdpvs01": [
-    2,
+    3,
     3,
     0,
     4
@@ -696,6 +707,12 @@
     8
    ],
    "genapp-lgicvs01": [
+    1,
+    1,
+    7,
+    12
+   ],
+   "genapp-lgicvs01-linked": [
     1,
     1,
     7,
@@ -774,9 +791,9 @@
     8
    ],
    "genapp-lgucvs01": [
-    2,
     3,
-    0,
+    3,
+    3,
     4
    ],
    "genapp-lgupdb01": [
@@ -1216,10 +1233,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "0e39ebb9b8a46b2825e2324f4b7efd94d4699d8a",
+   "sha": "f484174367c47b2fddf9cb5ef05cc5febdce81ac",
    "translator": {
     "files": 126,
-    "sha256": "1d02555f73276b8385a1ef2be52bdf417590a64a664139c76429fda5ac969de2"
+    "sha256": "64ae8fa02fcf1e8598ad82f360bd42c3e293b5d6a375f75af9ea0e7145e89df0"
    }
   },
   "sweeps": {}
@@ -2411,6 +2428,12 @@
       "entry": "A scenario can plan ENQBUSY (RESP 55) for an ENQ by the RESOURCE operand as the program writes it; RESP2 is 0 because IBM states none for ENQBUSY. The ENQ must say NOSUSPEND: without it IBM suspends the task and the runtimes refuse. ENQ's other conditions come from the program's own operands, never from a plan: LENGTH outside 1 through 255 is LENGERR RESP2 1 and a MAXLIFETIME that is neither UOW nor TASK is INVREQ RESP2 2 (both modelled, as IBM states them). Refused: ENQBUSY planned for any other command, any other condition planned for ENQ, a RESP2 on an ENQBUSY plan, a planned-busy ENQ without NOSUSPEND, a resource that is no data-name of 1 to 16 characters, both bad operands at once (IBM names no order)",
       "id": "X60",
       "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "EXEC CICS HANDLE ABEND PROGRAM(name) names a program that gets control when the task abends. The det translator honours LABEL, CANCEL and RESET and refuses PROGRAM by name with this entry; the cobol-stub refuses it too (equivalence_cics.Unsupported), so the two sides agree",
+      "id": "X67",
+      "status": "REFUSED"
      }
     ],
     "reach": "not measured",
@@ -2695,7 +2718,9 @@
       }
      ],
      "facts_stated": [],
-     "registers": [],
+     "registers": [
+      "X67"
+     ],
      "spec_entry": "full"
     },
     {
@@ -4603,8 +4628,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 0e39ebb9b8a46b2825e2324f4b7efd94d4699d8a",
-   "python tests/tools/evidence_report.py zecs --baseline --sha 0e39ebb9b8a46b2825e2324f4b7efd94d4699d8a",
+   "python tests/tools/cics_census.py survey --baseline --sha f484174367c47b2fddf9cb5ef05cc5febdce81ac",
+   "python tests/tools/evidence_report.py zecs --baseline --sha f484174367c47b2fddf9cb5ef05cc5febdce81ac",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs003,zecs-zecsplt",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -4625,13 +4650,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "0e39ebb9b8a46b2825e2324f4b7efd94d4699d8a",
+   "sha": "f484174367c47b2fddf9cb5ef05cc5febdce81ac",
    "translator": {
     "files": 126,
-    "sha256": "1d02555f73276b8385a1ef2be52bdf417590a64a664139c76429fda5ac969de2"
+    "sha256": "64ae8fa02fcf1e8598ad82f360bd42c3e293b5d6a375f75af9ea0e7145e89df0"
    }
   },
-  "translator_commit": "0e39ebb9b8a46b2825e2324f4b7efd94d4699d8a",
+  "translator_commit": "f484174367c47b2fddf9cb5ef05cc5febdce81ac",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -4674,6 +4699,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "1d02555f73276b8385a1ef2be52bdf417590a64a664139c76429fda5ac969de2"
+  "fingerprint": "64ae8fa02fcf1e8598ad82f360bd42c3e293b5d6a375f75af9ea0e7145e89df0"
  }
 }

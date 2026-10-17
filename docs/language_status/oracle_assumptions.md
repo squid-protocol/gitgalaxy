@@ -89,7 +89,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C4 | compiler | An unsigned binary taken below zero by ADD/SUBTRACT: IBM keeps the absolute value, and so does the det runtime; cobc's native arithmetic wraps (#4684) | MATCHED (det runtime = IBM) / DIFFERS (oracle vs IBM, declared; no cobc option turns it off) | no |
 | C5 | compiler | `NUMPROC(MIG)` as Enterprise COBOL 5+ compiles it (NOPFD), `NUMPROC(PFD)` with preferred signs (#4271); `TRUNC(OPT)` with conforming binary values (#4706); `INTDATE(LILIAN)`, `ARITH(EXTEND)` | MATCHED (NUMPROC) / MODELLED (TRUNC(OPT), det ports; a stop by name past the PICTURE) / REFUSED (the rest) | NUMPROC: no; TRUNC(OPT): CBSA (det ports) |
 | C6 | compiler | COMP-1 / COMP-2: IBM hexadecimal floating point, and float-mode evaluation of the whole expression | MODELLED in the det runtime (HFP, #4271 slice 1); the oracle DIFFERS (IEEE, decimal evaluation): proven by IBM-cited vectors and on exact values; what the oracle cannot decide REFUSED by name | no (DBB EPSMPMT: its float `**` is a hole) |
-| C7 | compiler | COMP-5 byte order: little-endian vs z/OS big-endian | DIFFERS | read as numbers only (a VALUE beyond the PICTURE: fixed, #4501) |
+| C7 | compiler | COMP-5 byte order: little-endian vs z/OS big-endian | DIFFERS; byte uses REFUSED by name in the det translator (#4271) | read as numbers only (a VALUE beyond the PICTURE: fixed, #4501) |
 | C8 | compiler | DISPLAY of signed zoned, binary and packed items | MATCHED | yes |
 | C9 | compiler | POINTER is 8 bytes in GnuCOBOL (x86-64), 4 on z/OS | DIFFERS (declared: each side's fields read by its own layout, compared by name; a POINTER only as NULL or not) | only NULL (CBSA, data after one included) |
 | C10 | compiler | INITIALIZE / VALUE ZERO zoned items: unsigned F zone (GnuCOBOL) vs preferred C sign (z/OS) | DIFFERS (tolerated where a case declares it) | yes (CardDemo READACCT ARRYFILE) |
@@ -541,7 +541,7 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   `ARITH(EXTEND)` and `INTDATE(LILIAN)` (detected from CBL / PROCESS cards and refused, C5), COMP-5's
   z/OS byte order where bytes are observable (C7).
 
-### C7. COMP-5 byte order — DIFFERS
+### C7. COMP-5 byte order — DIFFERS; byte uses refused by name
 - **What.** GnuCOBOL stores COMP-5 in the machine's order, little-endian on x86; z/OS is big-endian. COMP, COMP-4
   and BINARY are big-endian on both.
 - **Visible only** when a COMP-5 item's bytes are read as bytes: a REDEFINES, a group MOVE, or a record written to a
@@ -553,6 +553,18 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   reads COMP-5 little-endian: `S9(4) COMP-5 VALUE 32767` read back as -12534 (cics-crucible `ca-xctl-versions`,
   XCTL LENGTH). The image now holds the whole value in the runtime's (GnuCOBOL's) order; pinned by
   `test_det_programs.py` COMP5 against GnuCOBOL.
+- **Refused by name (#4271).** The det translator no longer proves a program on the oracle's byte order: a COMP-5 item
+  of 2 or more bytes whose bytes are observed -- a group holding it used as a whole (MOVE, compare, 88), a REDEFINES
+  over it by a non-COMP-5 item, a reference modification of it -- is a Hole ("COMP-5 is little-endian on the oracle,
+  big-endian on z/OS: oracle_assumptions.md C7"), through the guard COMP-1 / COMP-2 use (`Gen.overlaps_float`,
+  `comp5_extents`). Read as a number it is translated as before. Pinned by `test_det_programs.py`
+  `test_comp5_bytes_are_refused_by_name_where_the_oracle_and_zos_differ`. `det_port.py check`: no committed port moved
+  (119 of 119 unchanged), so no burned program observes COMP-5 bytes.
+  - **Not covered (sibling gaps):** the SQLCA record (the SQL lane hands the whole group to the runtime, which sets
+    its COMP-5 fields as numbers; a program that MOVEs the SQLCA as bytes is not refused); a COMP-5 item in a CALL
+    argument, COMMAREA or record write not reached through those uses (the record layouts are the oracle's order);
+    INITIALIZE and group VALUE images, which write numbers. Burned estates reading COMP-5 as numbers only: CardDemo
+    `IMSFUNCS.cpy`, cics-async `SEQPNT` / `ASYNCPNT`, DBB `EPSCSMRD`.
 - **Its size** for 1 or 2 digits differs too: C16.
 
 ### C8. DISPLAY text — MATCHED

@@ -2802,6 +2802,15 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   ADDRESS OF a subordinate item (ZECS001's ZF-DATA, `SET ADDRESS OF CACHE-MESSAGE TO ADDRESS OF ZF-DATA`): it is an offset into its record.
   ZECS001 stays not whole whatever is lifted, because CALL ZUIDSTCK is refused (above).
 
+- **GETMAIN without INITIMG: the burned-estate census (#4270, 2026-10-17).** Over the burned corpora (baseline `cf0bcb927a5e`: 98 of 106 CICS
+  programs translate whole) one program issues it, DBB MortgageApplication `epscsmrd.cbl` (ALLOCATE-DFH-BODY-WORK-AREA and
+  ALLOCATE-DFH-DATA-WORK-AREA: `GETMAIN SET FLENGTH`, then `SET ADDRESS OF` the block). It stays REFUSED, and lifting it would move nothing: the
+  program also issues `SOAPFAULT CREATE` (web services, out of scope of #4270, X65) and calls `EPSCSMRI` / `EPSCSMRO` / `EPSCSMRX`, which the
+  estate holds no source for, so it can neither translate whole nor be given a case. IBM leaves the contents undefined, so a lift would need the
+  run to STATE a fill byte on both runtimes (`CicsTask.withGetmainFill`, `$GGCICS_GETMAIN_FILL`, refused when unstated) and a burned program that
+  reads the block before writing it. Reopen when a burned program has this as its only gap. No other burned program issues a GETMAIN, LOAD or
+  RELEASE; every other CICS verb a burned program uses has a full spec entry.
+
 ### X48. Injected duplicate-key file faults: DUPKEY delivers the record, each condition only on the commands IBM lists it for — ASSUMED, REFUSED where IBM is silent (#4623)
 - **DUPKEY** (CICS TS 6.x, READ / READNEXT / READPREV "Conditions": DUPKEY, RESP2 140): "a record is retrieved through an
   alternate index that has the NONUNIQUEKEY attribute, and another alternate index record with the same key follows". The

@@ -280,7 +280,7 @@ def overlaid_pointers(records: list) -> set[str]:
 
 
 def pointer_views(records: list) -> set[str]:
-    """#4771 (X47): the items that REDEFINE a POINTER item (and what sits under them) -- a numeric or byte view of an
+    """#4771 (X47): the numeric items that REDEFINE a POINTER item (and what sits under them) -- a numeric view of an
     address (ZECS001's CACHE-ADDRESS-X, `ADD n TO` it). A pointer here holds a handle of a block, not a number, so a
     statement reading or changing one of these items would compute on handle bytes: such a statement is a hole."""
     items = [x for r in records for x in r.walk()]
@@ -288,7 +288,9 @@ def pointer_views(records: list) -> set[str]:
     out: set[str] = set()
     for x in items:
         if x.usage != "POINTER" and x.redefines and x.redefines.upper() in pointers:
-            out.update(y.name.upper() for y in x.walk())
+            view = list(x.walk())
+            if any(y.category == "NUMERIC" for y in view):  # a byte (PIC X) view stays bytes
+                out.update(y.name.upper() for y in view)
     return out
 
 

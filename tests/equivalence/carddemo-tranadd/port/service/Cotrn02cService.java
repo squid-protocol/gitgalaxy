@@ -684,9 +684,12 @@ public class Cotrn02cService {
             ca.setCdemoFromTranid(WS_TRANID);
             ca.setCdemoFromProgram(WS_PGMNAME);
             ca.setCdemoPgmContext(0);
-            dispatchCdemoToProgramL508(task, pad(ca.getCdemoToProgram(), 8), ca);   // line 508
+            String resp = dispatchCdemoToProgramL508(task, pad(ca.getCdemoToProgram(), 8), ca);   // line 508
+            if (!"NORMAL".equals(resp)) {
+                task.abendOnCondition(resp);   // RESP is not tested: CICS abends the task (#4648)
+            }
             if (task.ended()) {
-                done = true;   // on PGMIDERR / LENGERR the program goes on (RESP not tested)
+                done = true;
             }
         }
 

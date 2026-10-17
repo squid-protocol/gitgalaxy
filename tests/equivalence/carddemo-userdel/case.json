@@ -365,6 +365,58 @@
     }
    },
    "why": "#4628 (det-port mutants 318f1d6a28, ffcbfc6e5e, 904e059616, 55d4e166c9, 875ca1c43d, 42080d7b06, 6b7b7505fa, 26c2031747, 6484fa0acc, c0b13e7ec9): every COMMAREA field set, COUSR03C's CU03 part too; an invalid key re-sends the screen and the RETURN carries the COMMAREA back"
+  },
+  {
+   "name": "pf3-xctl-fails",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "USER0004"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COADM01C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4648: PGMIDERR RESP2 3, the program could not be loaded (IBM CICS TS, XCTL conditions): the XCTL fails and, with no RESP, CICS abends the task (the model port used to RETURN)"
+  },
+  {
+   "name": "pf3-xctl-not-authorised",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "USER0004"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COADM01C",
+     "nth": 1,
+     "resp": "NOTAUTH",
+     "resp2": 101
+    }
+   ],
+   "why": "#4648: NOTAUTH RESP2 101, the user may not use the program (IBM CICS TS, XCTL conditions): not handled, CICS abends the task (AEY7)"
   }
  ],
  "notes": "CardDemo's delete-user screen (transaction CU03, program COUSR03C): entered from the user list with a selected user it reads the user FOR UPDATE and shows it; ENTER looks a user up, PF5 reads it FOR UPDATE and DELETEs it -- even when the read found nothing, so the DELETE then has no record held (INVREQ, 'Unable to Update User...'); PF3 / PF12 return, PF4 clears. Each scenario's USRSEC file is compared after the task. usrsec.txt is CardDemo's own DUSRSECJ in-stream data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

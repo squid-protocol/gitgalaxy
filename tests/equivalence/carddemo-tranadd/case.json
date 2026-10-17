@@ -1694,6 +1694,82 @@
     }
    },
    "why": "#4628 (det-port mutant 08fdfdf1a4): sign and digits in place but a comma where TRNAMTI(10:1) must be '.'; only that sub-check fails"
+  },
+  {
+   "name": "pf3-xctl-fails",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COMEN01C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4648: PGMIDERR RESP2 3, the program could not be loaded (IBM CICS TS, XCTL conditions): the XCTL fails and, with no RESP, CICS abends the task (the model port used to RETURN)"
+  },
+  {
+   "name": "pf3-xctl-not-authorised",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COMEN01C",
+     "nth": 1,
+     "resp": "NOTAUTH",
+     "resp2": 101
+    }
+   ],
+   "why": "#4648: NOTAUTH RESP2 101, the user may not use the program (IBM CICS TS, XCTL conditions): not handled, CICS abends the task (AEY7)"
   }
  ],
  "notes": "CardDemo's add-transaction screen (transaction CT02, program COTRN02C): the account (through the CXACAIX alternate index) or the card (CCXREF) is looked up in the card cross-reference, every field is validated -- the dates through CALL 'CSUTLDTC' (CEEDAYS; the COBOL side links CardDemo's CSUTLDTC and tests/equivalence/le/ceedays.c, the Java side its proven port from carddemo-dateutil) -- and on confirmation the new transaction id is the last id + 1, found by a HIGH-VALUES STARTBR and a READPREV, and WRITEn. PF5 copies the last transaction's data. Each scenario's TRANSACT file is compared after the task; it is loaded from CardDemo's own dailytran.txt (the same 350-byte layout). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

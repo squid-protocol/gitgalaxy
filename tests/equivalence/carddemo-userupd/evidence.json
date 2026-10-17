@@ -26,7 +26,7 @@
     "tests/equivalence/carddemo-userupd/**"
    ],
    "files": 2,
-   "sha256": "b51a9a720e53306ca00415c8d7fcb73e90905802747798437af1979577693d25"
+   "sha256": "9aca3342bc47ce07a0de24fd6d24528944f095af9f3d2975758b421fd8613632"
   },
   "harness": {
    "paths": [
@@ -76,12 +76,12 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 93,
-   "sha256": "e0d8ed202dd1af9bb4b2c1268eeeb50374935e4279a919935fa62065baa2bff3",
+   "sha256": "97ca535f6fa2ba2f1cde697fd14d8769b4656c5681447e2f954f0393abf8a92c",
    "components": {
     "generator:cobolrt/standalone/Sysout.java": "407512cfedf89455f08193fe4aed96e26fdfc9fd34e8636a662b6574a5645b4f",
-    "generator:core": "c59e42618e3d5bf1c0593ffc4f8843d6f27af59f1dbbbdfd5e30ec2c6a1a3add",
+    "generator:core": "eee2cc261cc81397b43e7870ec82c20b77466288928029b9e26295879dde2c55",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "31ed8476f3b91595139af03de36c1635a68d0dca4aecf55856709785f46d4a9f",
+    "generator:det/cics": "3e7813d48450125bdf9be439ee6c5a2273f082b25ca0bee915e1373a683f84fc",
     "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
     "generator:det/dli": "834aba674d85c25af1299ae19d8b49288f4bd831b578889d9bf40d83b5fea342",
@@ -177,13 +177,13 @@
     }
    }
   },
-  "digest": "46202a3bcd8a341907fe6886607cba0452c7e4616a83bf0d34e6f650bd755377"
+  "digest": "80a843d0817f72518ebc7dcec9ddd92c4e1d8d10a423ede134d19a24cf377908"
  },
  "proof": {
-  "at": "2026-10-17T21:46:17Z",
+  "at": "2026-10-17T19:38:50Z",
   "verdict": "proven",
-  "runs": 27,
-  "fault_runs": 3,
+  "runs": 23,
+  "fault_runs": 2,
   "environments": null,
   "outputs": {
    "first-entry": {
@@ -277,22 +277,6 @@
    "rewrite-io-error": {
     "equal": 4,
     "records": 4
-   },
-   "pf5-updates-first-name-only": {
-    "equal": 4,
-    "records": 4
-   },
-   "pf5-nothing-changed-fset-sent-back": {
-    "equal": 4,
-    "records": 4
-   },
-   "full-commarea-carried": {
-    "equal": 3,
-    "records": 3
-   },
-   "pf12-xctl-fails": {
-    "equal": 3,
-    "records": 3
    }
   },
   "return_code_equal": null,
@@ -301,16 +285,16 @@
   "java_failed": false,
   "facade": {
    "verdict": "proven",
-   "runs": 27,
-   "passed": 27,
+   "runs": 23,
+   "passed": 23,
    "entry_points": [
     "handleTransaction"
    ],
    "failed": [],
    "error": null
   },
-  "harness_commit": "3f9bf30178b9ecc98e6f3651d3f7e0de0aa02639+uncommitted",
-  "inputs_digest": "46202a3bcd8a341907fe6886607cba0452c7e4616a83bf0d34e6f650bd755377"
+  "harness_commit": "bd0f4dcd751827e1fb7f062e057b0e9952b1f501+uncommitted",
+  "inputs_digest": "80a843d0817f72518ebc7dcec9ddd92c4e1d8d10a423ede134d19a24cf377908"
  },
  "coverage": {
   "paragraphs": {
@@ -340,7 +324,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "46202a3bcd8a341907fe6886607cba0452c7e4616a83bf0d34e6f650bd755377"
+  "inputs_digest": "80a843d0817f72518ebc7dcec9ddd92c4e1d8d10a423ede134d19a24cf377908"
  },
  "reach": {
   "entry_points": [

@@ -87,7 +87,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C2 | compiler | Arithmetic intermediates: the oracle truncates them (ARITHMETIC-OSVS), the det runtime the same way (#4287); where GnuCOBOL departs from IBM's decimal places | MATCHED (det runtime = oracle) / DIFFERS (oracle, GnuCOBOL's departures) | yes (INTCALC, POSTTRAN …); a departure: not known to be |
 | C3 | compiler | An integer literal truncated to zero keeps no sign | DIFFERS | no |
 | C4 | compiler | An unsigned binary taken below zero by ADD/SUBTRACT: IBM keeps the absolute value, and so does the det runtime; cobc's native arithmetic wraps (#4684) | MATCHED (det runtime = IBM) / DIFFERS (oracle vs IBM, declared; no cobc option turns it off) | no |
-| C5 | compiler | `NUMPROC(MIG)` as Enterprise COBOL 5+ compiles it (NOPFD), `NUMPROC(PFD)` with preferred signs (#4271); `TRUNC(OPT)` with conforming binary values (#4706); `INTDATE(LILIAN)`, `ARITH(EXTEND)` | MATCHED (NUMPROC) / MODELLED (TRUNC(OPT), det ports; a stop by name past the PICTURE) / REFUSED (the rest) | NUMPROC: no; TRUNC(OPT): CBSA (det ports) |
+| C5 | compiler | `NUMPROC(MIG)` as Enterprise COBOL 5+ compiles it (NOPFD), `NUMPROC(PFD)` with preferred signs (#4271); `TRUNC(OPT)` with conforming binary values, `ARITH(EXTEND)` with intermediates within 30 digits (#4706); `INTDATE(LILIAN)` | MATCHED (NUMPROC) / MODELLED (TRUNC(OPT) and ARITH(EXTEND), det ports; a stop by name) / REFUSED (the rest) | NUMPROC: no; TRUNC(OPT): CBSA (det ports); ARITH(EXTEND): DBB EPSCSMRD (det ports) |
 | C6 | compiler | COMP-1 / COMP-2: IBM hexadecimal floating point, and float-mode evaluation of the whole expression | MODELLED in the det runtime (HFP, #4271 slice 1); the oracle DIFFERS (IEEE, decimal evaluation): proven by IBM-cited vectors and on exact values; what the oracle cannot decide REFUSED by name | no (DBB EPSMPMT: its float `**` is a hole) |
 | C7 | compiler | COMP-5 byte order: little-endian vs z/OS big-endian | DIFFERS; byte uses REFUSED by name in the det translator (#4271) | read as numbers only (a VALUE beyond the PICTURE: fixed, #4501) |
 | C8 | compiler | DISPLAY of signed zoned, binary and packed items | MATCHED | yes |
@@ -95,7 +95,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C10 | compiler | INITIALIZE / VALUE ZERO zoned items: unsigned F zone (GnuCOBOL) vs preferred C sign (z/OS) | DIFFERS (tolerated where a case declares it) | yes (CardDemo READACCT ARRYFILE) |
 | C11 | compiler | A non-digit in a numeric DISPLAY item: MOVEd from an alphanumeric item (#4049); MOVEd to a binary item (#4652); read as a MOVE sender, an operand, a comparand, and the sign rewrite of a signed sender (#4662) | DIFFERS (#4049: inputs kept out of the cases) / MODELLED, the oracle's rules (#4652, #4662) | yes (COMEN01C option `1!`; GenApp LGTESTP4's add) |
 | C12 | compiler | FUNCTION RANDOM: the oracle's generator (glibc via GnuCOBOL), not IBM's unpublished one; a seed IBM does not allow refused | DIFFERS (the numbers) / ASSUMED (the interface) | yes (CBSA CRDTAGY1-5, INQCUST: cbsa-crdtagy1..5, cbsa-inqcust, seeds 0 and a stated `"taskn"`); translated, no proof yet (GenApp LGICVS01) |
-| C13 | compiler | A numeric operand compared with a nonnumeric one (an alphanumeric, alphabetic or numeric-edited item): compared as its characters, not by value (#4665) | MATCHED (unsigned integer literals as written; zoned, packed and binary items as their digits, sign dropped; non-integer ones as the oracle's digits) / REFUSED (a signed literal, a SIGN SEPARATE or P-scaled item, an arithmetic expression, an equality with a literal of more decimal places than an edited item) | yes: CardDemo COTRTLIC (proven; an alphanumeric item against `0`); no proven program compares an edited item with a number |
+| C13 | compiler | A numeric operand compared with a nonnumeric one (an alphanumeric, alphabetic or numeric-edited item): compared as its characters, not by value (#4665) | MATCHED (unsigned integer literals as written; zoned, packed and binary items as their digits, sign dropped; non-integer ones as the oracle's digits) / REFUSED (a signed literal, a SIGN SEPARATE or P-scaled item, an arithmetic expression, an equality with a literal of more decimal places than an edited item) | yes: CardDemo COTRTLIC (proven; an alphanumeric item against `0`); no proven program compares an edited item or a group with a number |
 | C14 | compiler | Size errors without ON SIZE ERROR: a zero divisor leaves the receivers unchanged in the oracle (libcob's NaN), the det runtime the same (#4655); z/OS's result is undefined (a decimal-divide exception); 0 ** a negative is 0 in the oracle, a size error on z/OS | MATCHED (det runtime = oracle) / DIFFERS (oracle vs z/OS) | not known to be: no proven scenario divides by zero |
 | C15 | compiler | `CALL identifier`: the port dispatches over the program names the item can hold, found from the source (VALUE, VALUE table, MOVEs of literals); uppercase names of up to 8 characters; any other value, write or name refused by name (#4736) | MODELLED where the names are known, REFUSED where they are not | yes (end-to-end test against cobc; DBB EPSCSMRT translates whole, its callee EPSMPMT is refused) |
 | C16 | compiler | A 1- or 2-digit COMP-5 item: one byte in GnuCOBOL, a halfword on z/OS (and in the det layout), so offsets, record lengths and a value past the byte differ; no cobc option changes it (#4751) | DIFFERS (oracle vs IBM, declared) / REFUSED (the oracle refuses such a program by name) | no: no corpus or case declares one |
@@ -265,7 +265,8 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   intermediates (`cob_decimal_align`) with decimal places it works out at compile time from those rules. The
   reproducer of #4287 is IBM's own: `COMPUTE R = A / B * C` with A = 1, B = 3, C = 300 and R `PIC 999V99` gives
   099.00 (A / B kept to 2 places). The 30-digit limit GnuCOBOL does not apply: ASSUMED that no proven intermediate
-  is that long.
+  is that long. Under `ARITH(EXTEND)` (31 digits, C5) the det runtime enforces it instead: an add, subtract, multiply or
+  divide that produces more than 30 digits stops by name (`RT-NUM-ARITH-EXTEND-STOP`, #4706).
 - **The det runtime (since #4287)** makes the same truncations: the translator replays cobc's decision
   (`det/osvs.py`, from GnuCOBOL 3.1.2's `cobc/typeck.c` and `cobc/tree.c`) and emits `Cobol.align(value, places)`
   where cobc emits `cob_decimal_align`; a literal on the right of an operation is libcob's decimal constant
@@ -357,7 +358,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   truncation, and stores 2.344; IBM and the det runtime store 9.000. COMP-5 and TRUNC(BIN) are not affected.
 - **Reached.** No case reaches either. `test_det_programs.py` keeps its unsigned item above zero.
 
-### C5. Compiler options: NUMPROC MATCHED where IBM pins it (#4271); TRUNC(OPT) MODELLED (#4706); INTDATE(LILIAN), ARITH(EXTEND) REFUSED
+### C5. Compiler options: NUMPROC MATCHED where IBM pins it (#4271); TRUNC(OPT) and ARITH(EXTEND) MODELLED (#4706); INTDATE(LILIAN) REFUSED
 - **NUMPROC(MIG): MATCHED for Enterprise COBOL 5 and later.** "Enterprise COBOL 5 and 6 does not support the
   NUMPROC(MIG) option. If NUMPROC(MIG) is specified, Enterprise COBOL 5 or 6 issues a warning message and the
   compilation will get the default setting for NUMPROC. This is either the user-customized default or the IBM default,
@@ -394,11 +395,16 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   (`option_differences`), never as OPT. CBSA's build JCL passes `TRUNC(OPT)` (`etc/install/base/buildjcl/CICS.jcl:7`):
   most of its programs override it with a `TRUNC(STD)` PROCESS card (C1); CUSTCTRL, DELACC and INQACC have none and
   now run under OPT (the estate options file honours the PARM; #4704 slice 1 had applied it as STD, a deviation).
-- **REFUSED:** `INTDATE(LILIAN)` and `ARITH(EXTEND)`, from a CBL/PROCESS card or a case's `compiler_options`, stop the
-  run (`UnsupportedOption`).
-  - `ARITH(EXTEND)` changes only intermediates past 30 digits (31 instead) and float-mode precision (extended instead
-    of long). GnuCOBOL caps neither (C2), so the oracle would compute COMPAT and EXTEND the same; a model needs a
-    guard on both sides that stops an intermediate past 30 digits.
+- **ARITH(EXTEND): MODELLED (#4706), as C2 describes.** EXTEND differs from COMPAT only for an intermediate result past
+  30 digits (31 instead) and for float-mode precision (extended instead of long). The oracle compiles it as COMPAT
+  (GnuCOBOL caps neither, C2); the det runtime computes COMPAT and stops by name (`Cobol.swapArithExtend(true)`,
+  rule `RT-NUM-ARITH-EXTEND-STOP`: "ARITH(EXTEND): an intermediate result of N digits (past 30) is not modelled")
+  wherever an add, subtract, multiply or divide would produce more than 30 digits, so a scenario either stays where
+  COMPAT and EXTEND agree or is not judged. A floating-point expression under EXTEND is still refused at translation
+  (`Untranslatable`). A port without the stop (model, generated) is proven as COMPAT, a declared difference in its
+  evidence record (`option_differences`). Among the burned estates only DBB's EPSCSMRD carries `PROCESS ARITH(EXTEND)`.
+- **REFUSED:** `INTDATE(LILIAN)`, from a CBL/PROCESS card or a case's `compiler_options`, stops the run
+  (`UnsupportedOption`).
   - `INTDATE(LILIAN)` is pinned by IBM (day 1 is 15 October 1582 instead of 1 January 1601), and could be modelled
     by the documented offset of the integer-date functions. Dates before 1601 cannot run on GnuCOBOL and would be
     refused. No case needs it yet.
@@ -413,7 +419,7 @@ instrument). The rows below are rendered by one table in code (`compiler_options
 | `TRUNC(STD)` (IBM default) | yes: a binary receiver keeps its PICTURE's digits | `-fbinary-truncate` | `Cobol.swapTruncBinary(true)` | -- | C1 |
 | `TRUNC(BIN)` | yes: a binary receiver keeps its bytes | `-fnotrunc` | `Cobol.swapTruncBinary(false)` | -- | C1 |
 | `TRUNC(OPT)` | only for a binary value past its PICTURE, where IBM's result is unpredictable; conforming values compute as STD | `-fbinary-truncate` (STD: equal for conforming values) | STD, plus `Cobol.swapTruncOpt(true)`: a value past a COMP / COMP-4 / BINARY receiver's PICTURE stops by name ("TRUNC(OPT): value exceeds PICTURE; IBM result unpredictable") | a port without the stop (model, generated) is proven as STD: a declared difference (`option_differences`) | C1, C5 |
-| `ARITH(COMPAT)` / `ARITH(EXTEND)` | yes: EXTEND widens intermediates to 31 digits | none for EXTEND | none | `ARITH(EXTEND)` refused by name (`COBC_OPTIONS`) | C5 |
+| `ARITH(COMPAT)` / `ARITH(EXTEND)` | yes: EXTEND widens intermediates to 31 digits and floats to extended precision | COMPAT flags (no cap on either side, C2) | COMPAT, plus `Cobol.swapArithExtend(true)`: an intermediate past 30 digits stops by name ("ARITH(EXTEND): an intermediate result of N digits"); a float is refused | a port without the stop is proven as COMPAT: a declared difference (`option_differences`) | C2, C5 |
 | `INTDATE(ANSI)` / `INTDATE(LILIAN)` | yes: day 1 of INTEGER-OF-DATE moves from 1601-01-01 to 1582-10-15 | none for LILIAN | none | `INTDATE(LILIAN)` refused by name (`COBC_OPTIONS`) | C5 |
 | `NUMPROC(NOPFD\|PFD\|MIG)` | only for a sign that is not preferred | none needed | PFD refuses a non-preferred sign (`Codec.numprocPfd`) | MIG compiles as NOPFD from Enterprise COBOL 5 (`numproc_mig`) | C5 |
 | `ZONEDATA(PFD)` (IBM default) | no for valid zone bits (an invalid one is refused by C11) | none needed | refuses a non-digit zoned operand | -- | C11 |
@@ -547,7 +553,7 @@ instrument). The rows below are rendered by one table in code (`compiler_options
 - **What would settle it.** A z/OS run of EPSMPMT's scenarios (#4050): the exponentiation, and the ASSUMED
   conversions above, checked where the oracle cannot.
 - **Later slices of #4271** (left as they are): `NUMPROC(PFD)` with non-preferred signs (refused by name, C5),
-  `ARITH(EXTEND)` and `INTDATE(LILIAN)` (detected from CBL / PROCESS cards and refused, C5), COMP-5's
+  `INTDATE(LILIAN)` (detected from CBL / PROCESS cards and refused, C5); ARITH(EXTEND)'s extended-precision floats (refused; its 30-digit intermediates stop by name, C5), COMP-5's
   z/OS byte order where bytes are observable (C7).
 
 ### C7. COMP-5 byte order — DIFFERS; byte uses refused by name
@@ -839,6 +845,11 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   its PICTURE's digits (`S9(4) COMP-3` 12 is `0012`); the sign is dropped (-1234 equals `1234`). ZERO against an
   edited item is a run of `0` characters. EVALUATE subjects, THRU ranges and an 88 on an edited item compare the
   same way.
+- **A group** (#4671; `GRPCMP`, measured 2026-10-17): GnuCOBOL compares a group holding `0012` with a number as text,
+  as an alphanumeric item: `= 12` is false, `= 0012` true, `> 12` false; with `N4` 12 (`0012`) true, with a `9(2)` 12
+  false, with `S9(4)` -12, `S9(4) COMP-3`, `S9(4) COMP`, unsigned `COMP-3` 12 and `9(2)V99` 12 (`1200`: false) as their
+  digits, sign dropped. That is IBM's rule (the numeric operand as an unsigned integer, ZWB), so no new difference:
+  the five differing shapes below hold for a group as well and are refused by name.
 - **Where they differ.** A signed literal: the oracle compares its sign character (`+1234` equals `+1234`, not
   `1234`), IBM moves no sign. A SIGN SEPARATE item: the oracle compares its sign character (`-1234`), IBM drops it.
   A P-scaled item: the oracle compares its stored digits (`99PP` holding 1200 is `12`), IBM drops the sign and its characters are not
@@ -853,8 +864,11 @@ instrument). The rows below are rendered by one table in code (`compiler_options
 - **The det port.** The generator passes a numeric literal against a nonnumeric item as its written characters
   (`expr.NumLit` keeps the spelling; `Gen.literal_text`), the runtime (`Cobol.compare(Field, Field)`) compares a
   numeric item against an elementary nonnumeric one as its digits; the five differing shapes are holes by name
-  ("... (C13)"). A group against a numeric item is unchanged (its bytes; not measured here).
-- **Pinned** by `tests/cobol_mainframe/test_det_programs.py` (`EDCMP` against GnuCOBOL; the refusals by name).
+  ("... (C13)"). A group is a nonnumeric comparand too (#4671, measured 2026-10-17): `Cobol.operand` compares a
+  numeric item against a group as its digits, as against an elementary one (before, as its raw bytes: a signed
+  zoned item's overpunch, a packed or binary item's bytes, so `G = NP` with `G` `0012` and `NP` 12 was false in
+  the port, true in the oracle). A group against a numeric literal was already its written characters.
+- **Pinned** by `tests/cobol_mainframe/test_det_programs.py` (`EDCMP` and `GRPCMP` against GnuCOBOL; the refusals by name, group shapes too).
 - **To settle.** IBM's packed, binary and expression operands are rejected, while the port still compares a packed
   or binary item against a nonnumeric one as its digits (the oracle does); a program IBM rejects never reaches that.
   A z/OS run of `EDCMP` (and of a signed-literal variant) would confirm the characters; `calibration` stays

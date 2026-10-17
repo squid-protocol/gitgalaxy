@@ -8,8 +8,8 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 
 | family | files | rules | catalogued |
 |---|---|---|---|
-| CBL: statements and data movement | `Cobol.java` | 44 | yes |
-| NUM: numeric storage codecs | `Codec.java`, `Zoned.java` | 12 | yes |
+| CBL: statements and data movement | `Cobol.java` | 45 | yes |
+| NUM: numeric storage codecs | `Codec.java`, `Zoned.java` | 13 | yes |
 | HFP: COMP-1 / COMP-2 as hexadecimal floating point | `Hfp.java` | 12 | yes |
 | EDIT: numeric editing | `Editing.java` | 5 | yes |
 | FUNC: intrinsic functions | `Funcs.java`, `Accept.java` | 11 | yes |
@@ -23,7 +23,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | FILE: batch files | `batch/DetFiles.java` | 3 | yes |
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 
-166 rules: 81 MATCHED, 23 DIFFERS, 12 REFUSED, 50 ASSUMED; 0 measured on z/OS (#4702).
+168 rules: 82 MATCHED, 23 DIFFERS, 13 REFUSED, 50 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -60,8 +60,9 @@ MOVE, arithmetic stores and intermediates, comparisons, class tests, DISPLAY, ST
 
 | id | rule | IBM | options | register (its status) | status | calibration |
 |---|---|---|---|---|---|---|
-| RT-CBL-TRUNC-PER-PROGRAM | TRUNC(STD / BIN / OPT) set for one program's run and restored after it (a program LINKed or CALLed keeps its own) | `cobol-pg` Compiler options: TRUNC | TRUNC | C1 (MATCHED / MODELLED (OPT)); C5 (MATCHED (NUMPROC) / MODELLED (TRUNC(OPT), det ports; a stop by name past the PICTURE) / REFUSED (the rest)) | MATCHED | uncalibrated |
-| RT-CBL-NUMPROC-PER-PROGRAM | NUMPROC(PFD / NOPFD) set for one program's run and restored after it (NUMPROC(MIG) compiles as NOPFD) | `cobol-pg` Compiler options: NUMPROC | NUMPROC | C5 (MATCHED (NUMPROC) / MODELLED (TRUNC(OPT), det ports; a stop by name past the PICTURE) / REFUSED (the rest)) | MATCHED | uncalibrated |
+| RT-CBL-TRUNC-PER-PROGRAM | TRUNC(STD / BIN / OPT) set for one program's run and restored after it (a program LINKed or CALLed keeps its own) | `cobol-pg` Compiler options: TRUNC | TRUNC | C1 (MATCHED / MODELLED (OPT)); C5 (MATCHED (NUMPROC) / MODELLED (TRUNC(OPT) and ARITH(EXTEND), det ports; a stop by name) / REFUSED (the rest)) | MATCHED | uncalibrated |
+| RT-CBL-ARITH-PER-PROGRAM | ARITH(EXTEND) set for one program's run and restored after it | `cobol-pg` Compiler options: ARITH | ARITH | C5 (MATCHED (NUMPROC) / MODELLED (TRUNC(OPT) and ARITH(EXTEND), det ports; a stop by name) / REFUSED (the rest)) | MATCHED | uncalibrated |
+| RT-CBL-NUMPROC-PER-PROGRAM | NUMPROC(PFD / NOPFD) set for one program's run and restored after it (NUMPROC(MIG) compiles as NOPFD) | `cobol-pg` Compiler options: NUMPROC | NUMPROC | C5 (MATCHED (NUMPROC) / MODELLED (TRUNC(OPT) and ARITH(EXTEND), det ports; a stop by name) / REFUSED (the rest)) | MATCHED | uncalibrated |
 | RT-CBL-ZERO-DIVISOR-NAN | A zero divisor raises the size error and makes the intermediate libcob's NaN: NaN in, NaN out through + - * and unary minus, and a store of NaN leaves the receiver unchanged | `cobol-lr` SIZE ERROR phrases | - | C14 (MATCHED (det runtime = oracle) / DIFFERS (oracle vs z/OS)) | DIFFERS | uncalibrated |
 | RT-CBL-DIVIDE-INTERMEDIATE | An intermediate quotient as cob_decimal_div forms it: scale a.scale - b.scale, the dividend shifted 38 digits more, truncated (38 + max(scale, 0) decimal places) | `cobol-pg` Intermediate results and arithmetic precision | ARITH | C2 (MATCHED (det runtime = oracle) / DIFFERS (oracle, GnuCOBOL's departures)) | DIFFERS | uncalibrated |
 | RT-CBL-DIVIDE-REMAINDER | DIVIDE ... REMAINDER: dividend less divisor times the quotient truncated to the first GIVING receiver's scale (not to its high-order digits); a NaN quotient leaves the remainder receiver unchanged | `cobol-lr` DIVIDE statement (REMAINDER phrase) | - | C14 (MATCHED (det runtime = oracle) / DIFFERS (oracle vs z/OS)) | ASSUMED | uncalibrated |
@@ -97,7 +98,7 @@ MOVE, arithmetic stores and intermediates, comparisons, class tests, DISPLAY, ST
 | RT-CBL-COMPARE-FLOAT | A comparison with a floating-point comparand is made in floating point: a fixed-point item converted to long HFP | `cobol-lr` Comparison of numeric operands | - | C6 (MODELLED in the det runtime (HFP, #4271 slice 1); the oracle DIFFERS (IEEE, decimal evaluation): proven by IBM-cited vectors and on exact values; what the oracle cannot decide REFUSED by name) | MATCHED | uncalibrated |
 | RT-CBL-COMPARE-ALL-LITERAL | An item against an ALL literal: the literal repeated or cut to the item's length, then compared byte by byte | `cobol-lr` Figurative constants: ALL literal | PROGRAM-COLLATING-SEQUENCE | - | MATCHED | uncalibrated |
 | RT-CBL-COMPARE-FIGURATIVE | An item against a figurative constant: the constant's character repeated to the item's length (ZERO against a numeric item: by value) | `cobol-lr` Figurative constants | PROGRAM-COLLATING-SEQUENCE | - | MATCHED | uncalibrated |
-| RT-CBL-CLASS-NUMERIC | IS NUMERIC: zoned digits with a valid overpunch at the sign position, packed digit nibbles with a valid sign nibble, alphanumeric all digits; under NUMPROC(PFD) a signed item with an F sign is refused | `cobol-lr` Class condition | NUMPROC | C5 (MATCHED (NUMPROC) / MODELLED (TRUNC(OPT), det ports; a stop by name past the PICTURE) / REFUSED (the rest)) | MATCHED | uncalibrated |
+| RT-CBL-CLASS-NUMERIC | IS NUMERIC: zoned digits with a valid overpunch at the sign position, packed digit nibbles with a valid sign nibble, alphanumeric all digits; under NUMPROC(PFD) a signed item with an F sign is refused | `cobol-lr` Class condition | NUMPROC | C5 (MATCHED (NUMPROC) / MODELLED (TRUNC(OPT) and ARITH(EXTEND), det ports; a stop by name) / REFUSED (the rest)) | MATCHED | uncalibrated |
 | RT-CBL-CLASS-ALPHABETIC | IS ALPHABETIC / ALPHABETIC-UPPER / ALPHABETIC-LOWER: letters and spaces only | `cobol-lr` Class condition | - | - | MATCHED | uncalibrated |
 | RT-CBL-DISPLAY-OPERAND | DISPLAY of an operand: a signed zoned item as its bytes, a binary or packed item as zoned digits of its PICTURE (signed: the last digit overpunched), any other item as its bytes | `cobol-lr` DISPLAY statement | - | C8 (MATCHED) | MATCHED | uncalibrated |
 | RT-CBL-STRING | STRING ... DELIMITED BY ... INTO ... [WITH POINTER]: bytes transferred in order, the receiver not padded; OVERFLOW when the pointer is outside the receiver or the data does not fit | `cobol-lr` STRING statement | - | - | MATCHED | uncalibrated |
@@ -112,8 +113,9 @@ Zoned, packed and binary encodings, TRUNC and NUMPROC at the byte level, and the
 | id | rule | IBM | options | register (its status) | status | calibration |
 |---|---|---|---|---|---|---|
 | RT-NUM-TRUNC-BINARY | A COMP / COMP-4 / BINARY item under TRUNC(STD) holds at most its PICTURE's digits (high-order ones lost); under TRUNC(BIN), and a COMP-5 item always, whatever its 2 / 4 / 8 bytes hold | `cobol-pg` Compiler options: TRUNC | TRUNC | C1 (MATCHED / MODELLED (OPT)) | MATCHED | uncalibrated |
-| RT-NUM-TRUNC-OPT-STOP | TRUNC(OPT): results as TRUNC(STD), and a value stored past a binary receiver's PICTURE stops by name (IBM: the result is unpredictable) | `cobol-pg` Compiler options: TRUNC | TRUNC | C5 (MATCHED (NUMPROC) / MODELLED (TRUNC(OPT), det ports; a stop by name past the PICTURE) / REFUSED (the rest)) | REFUSED | uncalibrated |
-| RT-NUM-NUMPROC-PFD-SIGN | NUMPROC(PFD): a zoned or packed value read with a sign that is not preferred (C / D signed, F unsigned) is refused by name | `cobol-pg` Sign representation of zoned and packed-decimal data | NUMPROC | C5 (MATCHED (NUMPROC) / MODELLED (TRUNC(OPT), det ports; a stop by name past the PICTURE) / REFUSED (the rest)) | REFUSED | uncalibrated |
+| RT-NUM-TRUNC-OPT-STOP | TRUNC(OPT): results as TRUNC(STD), and a value stored past a binary receiver's PICTURE stops by name (IBM: the result is unpredictable) | `cobol-pg` Compiler options: TRUNC | TRUNC | C5 (MATCHED (NUMPROC) / MODELLED (TRUNC(OPT) and ARITH(EXTEND), det ports; a stop by name) / REFUSED (the rest)) | REFUSED | uncalibrated |
+| RT-NUM-ARITH-EXTEND-STOP | ARITH(EXTEND): an intermediate result past 30 digits stops by name (GnuCOBOL caps none; IBM's EXTEND range is not modelled) | `cobol-pg` Intermediate results and arithmetic precision | ARITH | C5 (MATCHED (NUMPROC) / MODELLED (TRUNC(OPT) and ARITH(EXTEND), det ports; a stop by name) / REFUSED (the rest)) | REFUSED | uncalibrated |
+| RT-NUM-NUMPROC-PFD-SIGN | NUMPROC(PFD): a zoned or packed value read with a sign that is not preferred (C / D signed, F unsigned) is refused by name | `cobol-pg` Sign representation of zoned and packed-decimal data | NUMPROC | C5 (MATCHED (NUMPROC) / MODELLED (TRUNC(OPT) and ARITH(EXTEND), det ports; a stop by name) / REFUSED (the rest)) | REFUSED | uncalibrated |
 | RT-NUM-ZONED-OVERPUNCH | A zoned item's sign overpunched on its last (or first) digit: + as { A-I, - as } J-R (the ASCII form of the C / D zones); written with the preferred sign; SIGN SEPARATE as + / - | `cobol-pg` Sign representation of zoned and packed-decimal data | - | D3 (MATCHED); C10 (DIFFERS (tolerated where a case declares it)) | MATCHED | uncalibrated |
 | RT-NUM-PACKED-SIGN | A packed item: two digits a byte, the last nibble the sign (D and B negative), written C / D signed and F unsigned | `cobol-pg` Sign representation of zoned and packed-decimal data | - | - | MATCHED | uncalibrated |
 | RT-NUM-BINARY-BYTE-ORDER | A COMP / COMP-4 / BINARY item is big-endian two's complement; a COMP-5 item is in the oracle's native (little-endian) order, z/OS's being big-endian | `cobol-lr` USAGE clause: COMPUTATIONAL-5 | - | C7 (DIFFERS; byte uses REFUSED by name in the det translator (#4271)) | DIFFERS | uncalibrated |
@@ -170,7 +172,7 @@ The intrinsic functions the translator calls.
 | RT-FUNC-TEST-NUMVAL | FUNCTION TEST-NUMVAL / TEST-NUMVAL-C: 0 when valid, else the position of the first character that makes it invalid (the length + 1 when it ends early), as the oracle | `cobol-lr` Intrinsic functions: TEST-NUMVAL, TEST-NUMVAL-C | - | - | ASSUMED | uncalibrated |
 | RT-FUNC-CURRENT-DATE | FUNCTION CURRENT-DATE where the project has no clock bean: YYYYMMDDHHMMSShh and the UTC offset of the run's clock | `cobol-lr` Intrinsic functions: CURRENT-DATE | - | X4 (ASSUMED) | ASSUMED | uncalibrated |
 | RT-FUNC-RANDOM | FUNCTION RANDOM: one run unit's sequence (glibc random_r TYPE_3, as the oracle); the numbers differ from z/OS's, the interface as IBM documents it | `cobol-lr` Intrinsic functions: RANDOM | - | C12 (DIFFERS (the numbers) / ASSUMED (the interface)) | DIFFERS | uncalibrated |
-| RT-FUNC-DATE-INTEGER | FUNCTION INTEGER-OF-DATE / DATE-OF-INTEGER: day 1 is 1 January 1601 (INTDATE(ANSI)) | `cobol-lr` Intrinsic functions: INTEGER-OF-DATE, DATE-OF-INTEGER | INTDATE | C5 (MATCHED (NUMPROC) / MODELLED (TRUNC(OPT), det ports; a stop by name past the PICTURE) / REFUSED (the rest)) | MATCHED | uncalibrated |
+| RT-FUNC-DATE-INTEGER | FUNCTION INTEGER-OF-DATE / DATE-OF-INTEGER: day 1 is 1 January 1601 (INTDATE(ANSI)) | `cobol-lr` Intrinsic functions: INTEGER-OF-DATE, DATE-OF-INTEGER | INTDATE | C5 (MATCHED (NUMPROC) / MODELLED (TRUNC(OPT) and ARITH(EXTEND), det ports; a stop by name) / REFUSED (the rest)) | MATCHED | uncalibrated |
 | RT-FUNC-ACCEPT-DATE | ACCEPT FROM DATE / DATE YYYYMMDD / DAY / DAY YYYYDDD / TIME: the run's clock as the unsigned integer item IBM describes, moved as that item | `cobol-lr` ACCEPT statement: Format 2 (system date and time) | - | - | MATCHED | uncalibrated |
 
 ## CICS: EXEC CICS data movement

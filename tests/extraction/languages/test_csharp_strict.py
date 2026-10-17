@@ -855,6 +855,25 @@ def test_csharp_func_start_nested_generic_chain_redos_3320():
     assert _csharp_func_names("    public List<Foo<Bar<Baz>>> Deep(int x) { }\n") == ["Deep"]
 
 
+def test_csharp_func_start_nested_generic_types_mix_redos_3321():
+    """runtime's NestedGenericTypesMix.cs (alternating `MyStructN<int>.MyClassN+1<int>` chains up to 500 levels,
+    34 KB) once hung func_start on both streams (#3321). #3320's one-owner-per-`<` fix cleared it; this pins the
+    shapes: one long chain line, many short chain lines, and deep non-chained nesting."""
+    func_start = LANGUAGE_DEFINITIONS["csharp"]["rules"]["func_start"]
+
+    def chain(levels):
+        return "".join(f"{'MyStruct' if i % 2 == 0 else 'MyClass'}{i}<int>." for i in range(levels))
+
+    method = "public class A\n{\n    static int M(int x) { }\n}\n"
+    payloads = [f"      {chain(levels)}Run();\n\n      Console.WriteLine(1);\n" for levels in (60, 260, 500)]
+    payloads.append("".join(f"      {chain(30)}Q\n" for _ in range(40)))
+    payloads.append("    public " + "A<" * 40 + "int" + ">" * 40 + " y;\n")
+    payloads.append("    public " + "A<B<C<" * 20 + "int" + ">>" * 20 + " y;\n")
+    for payload in payloads:
+        assert_redos_immune(func_start, payload, timeout_sec=1.0)
+        assert "M" in _csharp_func_names(method + payload)
+
+
 def test_csharp_mode_b_slicer_compound_assignment_file_shape_3320():
     """The same synthetic file through the real Mode B slicer (`_slice_by_braces`), not just the regex:
     both methods come back with bounded bodies in seconds. Profiling 135 of roslyn's / runtime's largest

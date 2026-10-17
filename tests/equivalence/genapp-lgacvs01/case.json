@@ -68,7 +68,71 @@
     "CA-REQUEST-SPECIFIC": "                                                                        000"
    },
    "why": "the key alone: the record is the key and 215 blanks (the INITIALIZE'd COMMAREA)"
+  },
+  {
+   "name": "add-duplicate-key",
+   "commarea": {
+    "CA-REQUEST-ID": "01ACUS",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "Ada       Lovelace            1815-12-10Ockham Park         12  KT246HP 00007700 900123        01483 222111        ada@analytical.example"
+   },
+   "why": "the key 0000000001 is on file: WRITE is DUPREC (RESP2 150): CA-RETURN-CODE '80', WRITE-ERROR-MESSAGE (ASKTIME, FORMATTIME, LINK LGSTSQ with ERROR-MSG, then with the 99-byte CA-ERROR-MSG since EIBCALEN >= 91: the IF EIBCALEN > 0 and the >= 91 arm, X6), ABEND LGV0"
+  },
+  {
+   "name": "add-nospace",
+   "commarea": {
+    "CA-REQUEST-ID": "01ACUS",
+    "CA-CUSTOMER-NUM": 11,
+    "CA-REQUEST-SPECIFIC": "Ada       Lovelace            1815-12-10Ockham Park         12  KT246HP 00007700 900123        01483 222111        ada@analytical.example"
+   },
+   "why": "WRITE fails NOSPACE (RESP2 100): CA-RETURN-CODE '80', WRITE-ERROR-MESSAGE (ASKTIME, FORMATTIME, LINK LGSTSQ with ERROR-MSG, then with the 99-byte CA-ERROR-MSG since EIBCALEN >= 91: the IF EIBCALEN > 0 and the >= 91 arm, X6), ABEND LGV0",
+   "faults": [
+    {
+     "cmd": "WRITE",
+     "file": "KSDSCUST",
+     "resp": "NOSPACE",
+     "why": "the data set is full (IBM: WRITE NOSPACE, RESP2 100)"
+    }
+   ]
+  },
+  {
+   "name": "add-io-error",
+   "commarea": {
+    "CA-REQUEST-ID": "01ACUS",
+    "CA-CUSTOMER-NUM": 12,
+    "CA-REQUEST-SPECIFIC": "Ada       Lovelace            1815-12-10Ockham Park         12  KT246HP 00007700 900123        01483 222111        ada@analytical.example"
+   },
+   "why": "WRITE fails IOERR (RESP2 120): CA-RETURN-CODE '80', WRITE-ERROR-MESSAGE (ASKTIME, FORMATTIME, LINK LGSTSQ with ERROR-MSG, then with the 99-byte CA-ERROR-MSG since EIBCALEN >= 91: the IF EIBCALEN > 0 and the >= 91 arm, X6), ABEND LGV0",
+   "faults": [
+    {
+     "cmd": "WRITE",
+     "file": "KSDSCUST",
+     "resp": "IOERR",
+     "why": "an I/O error on the data set (IBM: WRITE IOERR)"
+    }
+   ]
+  },
+  {
+   "name": "add-duplicate-short-commarea",
+   "commarea": {
+    "CA-REQUEST-ID": "01ACUS",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "Ada       Lovelace            1815-12-10Ockham Park         12  KT246HP 00007700 900123        01483 222111        ada@analytical.example"
+   },
+   "why": "the key 0000000001 is on file (DUPREC) and the caller passed 90 bytes: WRITE-ERROR-MESSAGE's IF EIBCALEN > 0 true and IF EIBCALEN < 91 true: MOVE DFHCOMMAREA(1:EIBCALEN) TO CA-DATA, then the LINK with CA-ERROR-MSG",
+   "commarea_length": 90
   }
  ],
- "notes": "GenApp's VSAM 'add customer' (LGACVS01, LINKed by LGACDB01 with the 32500-byte LGCMAREA COMMAREA): EXEC CICS WRITE FILE('KSDSCUST') FROM(CA-CUSTOMER-NUM) LENGTH(225) RIDFLD(CA-CUSTOMER-NUM) KEYLENGTH(10); on NORMAL the program GOBACKs (no RETURN command, CA-RETURN-CODE untouched). Each scenario's KSDSCUST is compared after the task. Every non-NORMAL RESP in this program goes to WRITE-ERROR-MESSAGE, whose first act is EXEC CICS LINK PROGRAM('LGSTSQ') (GenApp's TS/TD error logger, defined in the CSD); the equivalence harness runs one program and has no port of LGSTSQ, so a scenario that reaches it is refused (Unsupported: LINK PROGRAM(LGSTSQ)). The error paths -- DUPREC on an existing customer, NOSPACE / NOTOPEN / IOERR, CA-RETURN-CODE '80' and ABEND LGV0 -- are therefore NOT exercised here; they need LGSTSQ modelled (or ported) first. Keys: CA-CUSTOMER-NUM is PIC 9(10) in the COMMAREA, so a key mixing letters and digits cannot be passed; no browse, so no key order is exercised (the comparison sorts each side's records by key bytes). Data: ksdscust.txt is GenApp's own ten sample customers (base/cntl/db2cre.jcl's customer INSERTs), laid out as LGACVS01 writes them (CA-CUSTOMER-NUM + CA-CUSTOMER-REQUEST's first 215 bytes); CA-NUM-POLICIES is the count of that customer's rows in db2cre.jcl's policy INSERTs. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+ "notes": "GenApp's VSAM 'add customer' (LGACVS01, LINKed by LGACDB01 with the 32500-byte LGCMAREA COMMAREA): EXEC CICS WRITE FILE('KSDSCUST') FROM(CA-CUSTOMER-NUM) LENGTH(225) RIDFLD(CA-CUSTOMER-NUM) KEYLENGTH(10); on NORMAL the program GOBACKs (no RETURN command, CA-RETURN-CODE untouched). Each scenario's KSDSCUST is compared after the task. Every non-NORMAL RESP in this program goes to WRITE-ERROR-MESSAGE, whose first act is EXEC CICS LINK PROGRAM('LGSTSQ') (GenApp's TS/TD error logger). The harness runs one program, but the case's programs list adds LGSTSQ to the same task (X6, #4607), so the error paths run: DUPREC on an existing key, NOSPACE and IOERR on the WRITE (CA-RETURN-CODE '80', ABEND LGV0). A task that reaches WRITE-ERROR-MESSAGE is judged only up to LGSTSQ's second LINK (the 99-byte CA-ERROR-MSG), where LGSTSQ writes 104 bytes from a 95-byte WRITE-MSG and the oracle refuses that WRITEQ TD by name (X6); the RESP, the file and the first logged message are compared before it. The faults list injects the file RESPs a healthy data set cannot give (IOERR, NOSPACE); the region ASSIGN SYSID is a deployment fact the corpus does not name. A call with no COMMAREA is not covered: the program reads LINKAGE past EIBCALEN 0 (X23-class), which the two sides do not agree on. NOTOPEN is not injected. Keys: CA-CUSTOMER-NUM is PIC 9(10) in the COMMAREA, so a key mixing letters and digits cannot be passed; no browse, so no key order is exercised (the comparison sorts each side's records by key bytes). Data: ksdscust.txt is GenApp's own ten sample customers (base/cntl/db2cre.jcl's customer INSERTs), laid out as LGACVS01 writes them (CA-CUSTOMER-NUM + CA-CUSTOMER-REQUEST's first 215 bytes); CA-NUM-POLICIES is the count of that customer's rows in db2cre.jcl's policy INSERTs. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived.",
+ "programs": [
+  {
+   "program": "LGSTSQ",
+   "program_source": "base/src/lgstsq.cbl"
+  }
+ ],
+ "region": {
+  "applid": "GENAPP",
+  "sysid": "CICA",
+  "why": "a deployment fact: LGSTSQ (the error logger every non-NORMAL RESP LINKs) ASSIGNs SYSID into the message it writes; GenApp names no region in the corpus"
+ }
 }

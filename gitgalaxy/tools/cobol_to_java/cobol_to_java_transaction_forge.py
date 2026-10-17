@@ -5373,6 +5373,22 @@ CICS_TASK_JAVA += """\
                 || o instanceof Double || o instanceof Float);
     }
 
+    /** #5060: two values are the same when equal, numbers by numeric value whatever their width or scale (an int
+     *  field passed as a long, 1.0 and 1.00): refuse, never guess. */
+    private static boolean sameValue(Object a, Object b) {
+        if (a.equals(b)) {
+            return true;
+        }
+        if (a instanceof Number && b instanceof Number) {
+            try {
+                return new java.math.BigDecimal(a.toString()).compareTo(new java.math.BigDecimal(b.toString())) == 0;
+            } catch (NumberFormatException e) {
+                return false;  // NaN, infinity: equals above decided
+            }
+        }
+        return false;
+    }
+
     /** #5060: a String or number `part` cannot be traced by reference, so it counts when it equals a value `whole`
      *  holds (an equal-valued copy is refused too: refuse, never guess).
      *  #4956: whether `part` is `whole` or an object `whole` holds (a nested group, a table, an element, a byte
@@ -5383,7 +5399,7 @@ CICS_TASK_JAVA += """\
         }
         boolean byValue = part != null && !aliasable(part);  // #5060: a value is traced by equality, not identity
         if (!aliasable(whole)) {
-            return byValue && part.equals(whole);
+            return byValue && sameValue(part, whole);
         }
         if (seen.put(whole, Boolean.TRUE) != null) {
             return false;
@@ -5392,6 +5408,13 @@ CICS_TASK_JAVA += """\
         java.util.List<Object> held = new ArrayList<>();
         if (type.isArray()) {
             if (type.getComponentType().isPrimitive()) {
+                if (byValue) {  // #5060: a numeric table's element is a value of the DTO too
+                    for (int i = 0; i < java.lang.reflect.Array.getLength(whole); i++) {
+                        if (sameValue(part, java.lang.reflect.Array.get(whole, i))) {
+                            return true;
+                        }
+                    }
+                }
                 return false;
             }
             held.addAll(Arrays.asList((Object[]) whole));

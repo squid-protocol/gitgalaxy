@@ -900,8 +900,15 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   a division that is the statement's whole value (`Hfp.divide` returns the NaN and raises the size error; the float
   statements now take ON SIZE ERROR phrases, an HFP exponent overflow is still refused by name). A zero divisor
   inside a larger float expression is NOT modelled: the oracle's `cob_decimal_align` meets the NaN there
-  (`(F / FZ) * 3` is unchanged but `(F / FZ) * C`, `FM * (F / FZ)` store 0, `2 - (F / FZ)` stores 2) and the HFP model
-  does not replay it, so `Hfp.divideNested` stops the run with an ArithmeticException, a named stop rather than a guess.
+  (`(F / FZ) * 3` is unchanged but `(F / FZ) * C`, `FM * (F / FZ)` store 0, `2 - (F / FZ)` stores 2), so
+  `Hfp.divideNested` stops the run with an ArithmeticException, a named stop rather than a guess. Replaying that
+  plan was tried and rejected (#4687, measured 2026-10-17): the oracle runs the OSVS alignment on EVERY intermediate
+  of a float expression with two or more operations, a float receiver counting as one with places, so it truncates
+  integers too (`G = C + C + C` is 3 and `G = F * C * C` is 0 with C = 3, F = 7, where the det port and z/OS give 9
+  and 63; `C + F / FZ + C` is 3, `C + C + F / FZ` is 0). A replay confined to the NaN would match some shapes and
+  differ on others, and one that copied the plan would reproduce an oracle artifact IBM does not have, so the stop stays.
+  The same truncation makes any float expression of 3 or more operands a case where
+  the oracle and z/OS differ even without a zero divisor.
   z/OS leaves the result of a floating-point zero divide undefined (a floating-point exception or a program-defined
   result), so the oracle's "unchanged" is the same kind of choice as for decimal items.
 - **Phrase scope (#4676).** A conditional phrase belongs to the innermost unterminated statement that can take it,

@@ -269,7 +269,44 @@
   "generated_compared": true,
   "port_sha256": "7a3744c96582b9fc47ca11bbd02c3e2ec722bda65fee4f1b256c11bef64cd25f"
  },
- "mutation": null,
+ "mutation": {
+  "commit": "ed188d3cb406da57b753e56b98ae9e75b6d2d2b0",
+  "rejudged": null,
+  "seed": 0,
+  "mode": null,
+  "mutants": 394,
+  "chosen": 24,
+  "killed": 6,
+  "survived": 16,
+  "stillborn": 2,
+  "survivors": {
+   "case_gap": 10,
+   "harness_gap": 0,
+   "equivalent": 5,
+   "unreachable": 1,
+   "untriaged": 0
+  },
+  "score_raw": "6/22",
+  "score_adjusted": "6/16",
+  "source": "docs/language_status/mutation_scores.json#crucible:pc-return-immediate/PCIMMA",
+  "inputs": {
+   "port": {
+    "sha256": "ce12b81c9ee2cab0dba31128b9e3ab70a11e2a33b6770159bc7cd28d09966930"
+   },
+   "case": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   },
+   "corpus": {
+    "sha256": "2d2c6a6c72db53a016dbb16582625e3938ac8267202988ac0aa7a1f47ead0d0e"
+   },
+   "harness": {
+    "sha256": "e231b7a43db007f0377c8561e89bb98e4272374480f59ef4831e9b1a3e4b6716"
+   },
+   "oracle": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   }
+  }
+ },
  "differences": [],
  "oracle": {
   "kind": "crucible-expected-logs",

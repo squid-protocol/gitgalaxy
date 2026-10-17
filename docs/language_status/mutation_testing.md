@@ -149,29 +149,29 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | HCQREAD (hc-perform-range) | crucible | 24/204 | 14/21 (67%) | 14/14 (100%) | 0 / 0 / 4 / 3 / 0 |
 | HXATTR (hx-attr-bytes) | crucible | 24/143 | 17/22 (77%) | 17/17 (100%) | 0 / 0 / 5 / 0 / 0 |
 | HXEXT (hx-extended-cursor) | crucible | 24/108 | 20/23 (87%) | 20/20 (100%) | 0 / 0 / 1 / 2 / 0 |
-| PCDETL (pc-aid-menu) | crucible | 24/60 | 14/24 (58%) | 14/14 (100%) | 0 / 0 / 9 / 1 / 0 |
-| PCMENU (pc-aid-menu) | crucible | 24/147 | 14/22 (64%) | 14/15 (93%) | 1 / 0 / 5 / 2 / 0 |
+| PCDETL (pc-aid-menu) | crucible | 24/63 | 15/24 (62%) | 15/15 (100%) | 0 / 0 / 9 / 0 / 0 |
+| PCMENU (pc-aid-menu) | crucible | 24/137 | 16/24 (67%) | 16/16 (100%) | 0 / 0 / 6 / 2 / 0 |
 | PCIMMA (pc-return-immediate) | crucible | 24/394 | 6/22 (27%) | 6/16 (38%) | 10 / 0 / 5 / 1 / 0 |
 | PCIMMB (pc-return-immediate) | crucible | 24/283 | 11/23 (48%) | 11/18 (61%) | 7 / 0 / 5 / 0 / 0 |
 | PCIMML (pc-return-immediate) | crucible | 24/282 | 9/23 (39%) | 9/19 (47%) | 10 / 0 / 3 / 1 / 0 |
 | PCIMMS (pc-return-immediate) | crucible | 24/198 | 8/24 (33%) | 8/16 (50%) | 8 / 0 / 7 / 1 / 0 |
-| PCCONF (pc-wizard) | crucible | 24/247 | 14/23 (61%) | 14/17 (82%) | 3 / 0 / 6 / 0 / 0 |
-| PCWIZ (pc-wizard) | crucible | 24/177 | 11/21 (52%) | 11/16 (69%) | 5 / 0 / 3 / 2 / 0 |
-| **all crucible** | | 504 run | **307/472 (65%)** | **307/355 (86%)** | 48 / 0 / 87 / 30 / 0 |
+| PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
+| PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
+| **all crucible** | | 504 run | **316/476 (66%)** | **316/355 (89%)** | 39 / 0 / 87 / 34 / 0 |
 | **all equivalence** | | 1844 run | **1135/1690 (67%)** | **1135/1441 (79%)** | 306 / 0 / 188 / 61 / 0 |
-| **all estate** | | 2348 run | **1442/2162 (67%)** | **1442/1796 (80%)** | 354 / 0 / 275 / 91 / 0 |
+| **all estate** | | 2348 run | **1451/2166 (67%)** | **1451/1796 (81%)** | 345 / 0 / 275 / 95 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 108/140 (77%) | 108/121 (89%) |
-| BDM | 3/14 (21%) | 3/7 (43%) |
-| CON | 205/439 (47%) | 205/280 (73%) |
-| COR | 62/108 (57%) | 62/94 (66%) |
-| DEL | 220/342 (64%) | 220/290 (76%) |
-| LIT | 294/401 (73%) | 294/346 (85%) |
-| NEG | 267/315 (85%) | 267/298 (90%) |
-| RET | 37/61 (61%) | 37/57 (65%) |
-| ROR | 246/342 (72%) | 246/303 (81%) |
+| AOR | 111/142 (78%) | 111/123 (90%) |
+| BDM | 5/13 (38%) | 5/9 (56%) |
+| CON | 200/440 (45%) | 200/274 (73%) |
+| COR | 64/108 (59%) | 64/93 (69%) |
+| DEL | 222/343 (65%) | 222/291 (76%) |
+| LIT | 296/401 (74%) | 296/348 (85%) |
+| NEG | 270/317 (85%) | 270/301 (90%) |
+| RET | 36/59 (61%) | 36/56 (64%) |
+| ROR | 247/343 (72%) | 247/301 (82%) |
 <!-- /mutation-scores -->
 
 Run on gitgalaxy `416fb6420` (2026-10-03): CSUTLDTC all 217 mutants; COMEN01C and COACTVWC 150 each (seed 0);
@@ -211,13 +211,18 @@ What the triage found:
   field, a rounding mode on a value already at scale 2, or an initial value that is overwritten before it is read.
 
 Re-run 2026-10-05 on gitgalaxy `d69a63419` (after #4343 regenerated the crucible ports' facades): the 13 crucible ports
-other than PCCONF, PCWIZ, PCMENU and PCDETL (#4427 is changing those; they are re-run after it merges), 24 mutants each,
-seed 0, cics-crucible v0.2.0. The table rows above are these runs; the four PC* rows still hold the 2026-10-03 run and
-their evidence records mark it stale. 205 caught of 291 judged (70%); 86 survivors: 34 case gaps (19 fault-reachable,
+other than PCCONF, PCWIZ, PCMENU and PCDETL (#4427 changed those; #4443 re-ran them, below), 24 mutants each,
+seed 0, cics-crucible v0.2.0. The table rows above are these runs. 205 caught of 291 judged (70%); 86 survivors: 34 case gaps (19 fault-reachable,
 which need the fault plan the crucible lacks), 0 harness gaps, 35 equivalent, 17 unreachable, none untriaged.
 `mutation_crucible.py` now proves each mutant on the java-ported and the java-facade side: the first run used
 java-ported alone, which never runs a facade body (`handleTransaction`, `handleLink`), and four mutants inside one
 (CASUB, CAXB, GTSTART, GTWORK) survived for that reason; the java-facade side kills them.
+
+Re-run 2026-10-17 (#4443): the four PC* ports (seed 0, 24 mutants each, strengthened scenarios on). 62 caught of 94
+judged: PCDETL 15/9, PCMENU 16/8, PCCONF 15/8, PCWIZ 16/7 (killed/survived; PCCONF and PCWIZ one stillborn each). The 36
+first-run survivors included 6 case gaps; four new scenarios (`enter-sends-no-data`, `amount-not-numeric`, `name-erased`, `amount-erased`)
+killed 4 of the 6 case gaps; the other two were re-triaged (PCCONF's `to >= 0` is equivalent, its commarea-length
+mutant unreachable). 0 case gaps and 0 harness gaps remain: 23 equivalent, 9 unreachable.
 
 A score is quoted with its case and seed, never alone. Every survivor is triaged as a case gap, a
 harness gap, an equivalent mutant (with the reason) or dead code.

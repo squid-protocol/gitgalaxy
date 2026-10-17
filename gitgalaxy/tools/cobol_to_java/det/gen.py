@@ -2081,6 +2081,11 @@ class Gen:
                     return [c, *self.sql.command(s.text, s.line, ind)]
                 except (self.sql.Error, E.ExprError, KeyError) as e:
                     raise Untranslatable(f"EXEC SQL: {e}") from e
+            if len(words) > 1 and words[1].upper() == "DLI":  # #5278: SCHD / TERM under CICS (det/dli.py)
+                try:
+                    return [c, *dli.command(self, s.text, ind)]
+                except (E.ExprError, KeyError) as e:
+                    raise Untranslatable(f"EXEC DLI: {e}") from e
             if self.cics is None or len(words) < 2 or words[1].upper() != "CICS":
                 raise Untranslatable("EXEC " + (words[1] if len(words) > 1 else ""))
             from gitgalaxy.tools.cobol_to_java.det.cics import CicsError

@@ -529,7 +529,7 @@ def liftable(records: list, excluded: set[str], rc: L.Item) -> dict[int, str]:
     out: dict[int, str] = {}
     images: dict[int, bytes] = {}
     for rec in records:
-        if rec is rc or rec.section != "WORKING-STORAGE" or rec.name in ("DFHAID", "DFHBMSCA", "DFHEIBLK"):
+        if rec is rc or rec.section != "WORKING-STORAGE" or rec.name in ("DFHAID", "DFHBMSCA", "DFHEIBLK", "DIB"):
             continue
         if rec.redefines or any(r.redefines == rec.name for r in records):
             continue  # a whole record shared with another
@@ -611,6 +611,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             L.layout(idx)
             records.append(idx)
     proc = S.parse(lines)
+    if is_cics and DLI.uses_exec(x.text for q in proc.paragraphs for x in S.walk(q.body) if x.kind == "EXEC"):
+        records += DLI.dib_records()  # #5278: EXEC DLI answers DIBSTAT (det/dli.py)
     # SORT-RETURN: the special register, S9(4) BINARY (IBM: 0 after a successful SORT / MERGE) -- only in a program
     # that sorts or names it, so no other port's storage changes
     sorts = any(s.kind in ("SORT", "MERGE") for p in proc.paragraphs for s in S.walk(p.body))

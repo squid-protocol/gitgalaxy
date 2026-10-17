@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -368,7 +369,7 @@ def test_our_own_pipelines_are_clean(path):
 
 
 OPEN_SYSTEM_PACKAGE_INSTALLS = {
-    ".github/workflows/full-suite-gate.yml": {(173, "brew")},
+    ".github/workflows/full-suite-gate.yml": {(164, "brew")},
     ".github/workflows/os-smoke-grid.yml": {(58, "brew")},
     ".github/workflows/tri-comparison-audit.yml": {(90, "apt")},
     ".github/workflows/tri-comparison-history.yml": {(96, "apt")},
@@ -413,3 +414,16 @@ def test_reaches_sarif_end_to_end(tmp_path):
     )
     assert where == [(".gitlab-ci.yml", 2), ("Dockerfile", 2), ("ci.sh", 3), ("ci.yml", 7), ("ci.yml", 8)], hits
     assert {r["id"] for r in sarif["runs"][0]["tool"]["driver"]["rules"]} >= {"GG-SAST-UNPINNED_INSTALL"}
+
+
+def test_no_workflow_pins_a_python_below_requires_python():
+    """#3322: a workflow leg on a Python under `requires-python` cannot install the package."""
+    floor_text = re.search(r'^requires-python\s*=\s*">=(\d+\.\d+)"', (ROOT / "pyproject.toml").read_text(), re.M)
+    assert floor_text, "pyproject.toml has no requires-python >=X.Y"
+    floor = tuple(int(p) for p in floor_text.group(1).split("."))
+    offenders = []
+    for path in sorted((ROOT / ".github" / "workflows").glob("*.yml")):
+        for m in re.finditer(r"python-version\"?\s*[:=]\s*\"?'?(\d+\.\d+)", path.read_text()):
+            if tuple(int(p) for p in m.group(1).split(".")) < floor:
+                offenders.append(f"{path.name}: {m.group(0)}")
+    assert not offenders, offenders

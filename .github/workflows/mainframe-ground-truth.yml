@@ -67,12 +67,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: python tests/tools/skip_tested_tree.py mainframe-ground-truth.yml
 
-  # #5133: the job was one serial ~16 min runner (ledger gate ~3 min, then ~11-15 min of pytest, of which one test,
-  # test_evidence_components.py::test_the_components_partition_each_input, is ~1.7-5.7 min by itself). It runs as 2 parts
-  # on 2 runners. Part 2 takes the two corpus-free files that are ~half the directory's test seconds (--durations=0 on
-  # the first split: test_det_nondigit_zoned.py 1480 s over 436 javac tests, test_evidence_components.py 257 s of 3476 s
-  # total); part 1 the ledger gate (which warms the corpus scans) + every other test. `ground-truth` below
-  # stays the required check (the ruleset names it), exactly as `full-suite` aggregates the suite's parts.
+  # #5133: the job was one serial ~16 min runner (ledger gate ~3 min, then ~11-15 min of pytest). It runs as 2 parts on 2
+  # runners, and pytest-split cuts tests/cobol_mainframe/ between them (--splits 2, least_duration, over the committed
+  # .test_durations: one file, so both parts cut the same split). The first cut was two hand-listed files (the ~1480 s
+  # test_det_nondigit_zoned.py and test_evidence_components.py) against everything else; a list goes stale as tests move,
+  # and a new file always landed in part 1. The ledger gate (and the history it appends) runs on part 2, which the
+  # recorded seconds leave level with part 1 (test_ci_critical_path_split replays the split). `ground-truth`
+  # below stays the required check (the ruleset names it), exactly as `full-suite` aggregates the suite's parts.
   # #5164: `ground-truth` is required, so it cannot take a path filter (a filtered-out required check never reports).
   # Like det-sweep's plan job (#4825), `plan` reads the diff: a pull request that changes no ground-truth input (docs,
   # .claude/, churn tooling, workflows and tests the job does not read: tests/tools/ground_truth_plan.py) proves nothing
@@ -129,11 +130,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - group: 1
-            tests: "tests/cobol_mainframe/ --ignore=tests/cobol_mainframe/test_evidence_components.py --ignore=tests/cobol_mainframe/test_det_nondigit_zoned.py"
-          - group: 2
-            tests: "tests/cobol_mainframe/test_evidence_components.py tests/cobol_mainframe/test_det_nondigit_zoned.py"
+        group: [1, 2]
     timeout-minutes: 35  # #5137: 5 of 5 sampled re-runs were the 20 min cap hit at 99% of pytest on a slow runner (passing runs take 11-15 min, slow ones 20+)
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
@@ -193,18 +190,20 @@ jobs:
       # #4963: the history is appended to, so it starts from the published series (a push / nightly run only, which is
       # also the only run that appends: the `--history` flag below).
       - name: Restore the published history from the generated branch
-        if: matrix.group == 1 && (github.event_name == 'push' || github.event_name == 'schedule')
+        if: matrix.group == 2 && (github.event_name == 'push' || github.event_name == 'schedule')
         run: |
           cd gitgalaxy
           python tests/tools/generated_branch.py fetch docs/self_scan/ground_truth_history.jsonl
 
+      # #5133: runs on both parts so the corpus scans are warm before the timed tests; a cold scan landing inside one
+      # test fails the per-test time ratchet (part 1 paid 333 s in test_full_corpus_no_new_unexplained[dsf]). Only
+      # part 2 writes the summary and the history.
       - name: Gate against the ground-truth ledger
-        if: matrix.group == 1
         run: |
           cd gitgalaxy
           PYTHONPATH="$PWD" python tests/tools/ground_truth_ledger.py check \
-            --summary "$GITHUB_STEP_SUMMARY" \
-            ${{ (github.event_name == 'push' || github.event_name == 'schedule') && '--history' || '' }}
+            ${{ matrix.group == 2 && '--summary "$GITHUB_STEP_SUMMARY"' || '' }} \
+            ${{ matrix.group == 2 && (github.event_name == 'push' || github.event_name == 'schedule') && '--history' || '' }}
 
       - name: Full-corpus differential and answer-key tests
         env:
@@ -214,9 +213,11 @@ jobs:
           GITGALAXY_TEST_TIMES: ${{ runner.temp }}/times-ground-truth-part-${{ matrix.group }}.json  # #5166: tests/conftest.py writes each test's seconds
         run: |
           cd gitgalaxy
-          # #4825: in parallel (~9 -> ~3 min); scans are warm from the ledger step (part 1) and mainframe_corpus.scan locks
-          # #5133: this part's share of tests/cobol_mainframe/ (matrix.tests; the two parts together are the whole directory)
-          PYTHONPATH="$PWD" python -m pytest -q -n auto --durations=25 ${{ matrix.tests }}
+          # #4825: in parallel (~9 -> ~3 min); mainframe_corpus.scan locks
+          # #5133: this part's share of tests/cobol_mainframe/ (the two groups together are the whole directory); the scans are
+          # warm here only on part 2 (the ledger step); part 1 makes its own
+          PYTHONPATH="$PWD" python -m pytest -q -n auto --durations=25 tests/cobol_mainframe/ \
+            --splits 2 --splitting-algorithm least_duration --group ${{ matrix.group }}
 
       # #5166 part B: the per-test time gate, as in smoke-test.yml (a test over 15 s needs a slow marker or a baseline entry;
       # a baselined one fails over its recorded time x 2.5). smoke-test ignores tests/cobol_mainframe on a PR, so this is the
@@ -236,7 +237,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Keep the history for the publish job
-        if: matrix.group == 1 && (github.event_name == 'push' || github.event_name == 'schedule')
+        if: matrix.group == 2 && (github.event_name == 'push' || github.event_name == 'schedule')
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ground-truth-history
@@ -245,7 +246,7 @@ jobs:
 
   # #4963: output goes to the `generated` branch, never to main (no PR, no auto-merge). Main's code only: a push or the
   # nightly run on main, never a pull_request, which is why it is a job of its own with the write token.
-  # #5176: only when part 1 ran and uploaded the history; a tested-tree skip leaves the parts skipped and no artifact.
+  # #5176: only when the ledger part ran and uploaded the history; a tested-tree skip leaves the parts skipped and no artifact.
   publish-history:
     needs: [ground-truth, ground-truth-part]
     if: ${{ !cancelled() && needs.ground-truth.result == 'success' && needs.ground-truth-part.result == 'success' && (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main' }}

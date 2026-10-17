@@ -27,3 +27,16 @@ def test_x65_is_the_default_and_the_exceptions_are_the_named_ones():
     other = {k: c.register for k, c in COMMANDS.items() if c.status != "modelled" and c.register != "X65"}
     assert set(other.values()) <= {"X46", "X59", "X63"}
     assert other["DUMP TRANSACTION"] == "X46"
+
+
+def test_every_refused_option_with_a_register_entry_names_an_existing_one():
+    unknown = sorted(
+        {
+            f"{k} {o}: {r.register}"
+            for k, c in COMMANDS.items()
+            for o, r in c.refused.items()
+            if r.register and not (REGISTER / f"{r.register}.md").exists()
+        }
+    )
+    assert unknown == []
+    assert COMMANDS["HANDLE ABEND"].refused["PROGRAM"].register == "X67"

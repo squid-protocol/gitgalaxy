@@ -2930,6 +2930,13 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   the field's one JUSTIFY, but a screen's OCCURS field is not received at all by `Cics.receive_map` (its values are keyed `NAME.n`,
   which `screen_fields` does not list) and the oracle refuses a symbolic map with OCCURS by name ("BMS OCCURS"); OCCURS and GRPNAME
   are mutually exclusive in IBM, so the two never combine.
+- **Generated map input (#4506).** The harness types into a map from its BMS source: a `scenario_generate` receive entry `"MAP": "@bms"`
+  (`tests/tools/equivalence_inputs.py` `bms_input_fields` / `_bms_receive`) gives every typable DFHMDF field a value. Typable: named, not
+  ASKIP or PROT, not OCCURS; a field with no ATTRB is ASKIP (the forge's `_attrs`; `cics_bms.attr_byte` agrees), and an OCCURS field is left
+  untyped because `map_input` refuses it by name. A NUM field and a PICIN of 9s get digits, the rest letters and digits, at the BMS LENGTH (the
+  narrower of LENGTH and the PICIN width); `bad` types text that is not a number into a NUM field (CICS does not check it; a real 3270 keyboard
+  would refuse it) and `empty` leaves a field alone (no data, `<f>L` 0). Not modelled: the MDT bit (a field the user did not change is simply
+  not sent here) and the null / `X'00'` erase-input convention (assumption 4).
 
 ### X55. Macro-level CICS and CICS Assembler programs: refused by name, not translated (#5121)
 - **IBM.** The macro-level interface is the pre-command-level CICS API (the "era 0" of #5121: DFHxx macro calls, no

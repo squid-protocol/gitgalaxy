@@ -42,14 +42,21 @@ def test_the_stub_translates_set_and_inquire():
 @pytest.mark.parametrize(
     ("text", "why"),
     [
-        ("SET TDQUEUE(WS-Q) ENABLESTATUS(DFHVALUE(ENABLED))", "only an extrapartition queue's open state is modelled"),
-        ("SET TDQUEUE(WS-Q) OPENSTATUS(DFHVALUE(OPEN)) TRIGGERLEVEL(3)", "only an extrapartition queue's open state"),
-        ("SET TDQUEUE(WS-Q) ATIFACILITY(DFHVALUE(TERMINAL))", "only an extrapartition queue's open state"),
-        ("INQUIRE TDQUEUE(WS-Q) ENABLESTATUS(WS-E)", "only an extrapartition queue's open state is modelled"),
-        ("INQUIRE TDQUEUE(WS-Q) TRIGGERLEVEL(WS-L) OPENSTATUS(WS-O)", "only an extrapartition queue's open state"),
-        ("INQUIRE TDQUEUE START", "only an extrapartition queue's open state"),
-        ("SET TDQUEUE(WS-Q)", "SET TDQUEUE without OPENSTATUS"),
-        ("INQUIRE TDQUEUE(WS-Q) RESP(R)", "INQUIRE TDQUEUE without OPENSTATUS or TYPE"),
+        (
+            "SET TDQUEUE(WS-Q) OPENSTATUS(DFHVALUE(OPEN)) TRIGGERLEVEL(3)",
+            "only an extrapartition queue's open state and a queue's availability",
+        ),
+        (
+            "SET TDQUEUE(WS-Q) ATIFACILITY(DFHVALUE(TERMINAL))",
+            "only an extrapartition queue's open state and a queue's availability",
+        ),
+        (
+            "INQUIRE TDQUEUE(WS-Q) TRIGGERLEVEL(WS-L) OPENSTATUS(WS-O)",
+            "only an extrapartition queue's open state and a queue's availability",
+        ),
+        ("INQUIRE TDQUEUE START", "only an extrapartition queue's open state and a queue's availability"),
+        ("SET TDQUEUE(WS-Q)", "SET TDQUEUE without OPENSTATUS or ENABLESTATUS"),
+        ("INQUIRE TDQUEUE(WS-Q) RESP(R)", "INQUIRE TDQUEUE without OPENSTATUS, TYPE or ENABLESTATUS"),
     ],
 )
 def test_every_other_form_is_refused_by_name_on_both_translators(text, why):

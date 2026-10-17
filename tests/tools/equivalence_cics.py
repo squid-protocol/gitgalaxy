@@ -1877,14 +1877,20 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
             raise Unsupported(_rule(key, "required", "TDQUEUE"), [key])
         queue = name(opts["TDQUEUE"], "GG-QNAME")
         if verb == "SET":
-            if not opts.get("OPENSTATUS"):
+            if not opts.get("OPENSTATUS") and not opts.get("ENABLESTATUS"):
                 raise Unsupported(_rule(key, "requires", "TDQUEUE"), [key])
+            if opts.get("OPENSTATUS") and opts.get("ENABLESTATUS"):  # #5168 round 5 (X66): one state per command
+                raise Unsupported("SET TDQUEUE with OPENSTATUS and ENABLESTATUS together", [key])
+            if opts.get("ENABLESTATUS"):
+                return ([queue, f"MOVE {opts['ENABLESTATUS']} TO GG-NUM"] + _call("GGCSTDE", [])
+                        + _resp(opts, True, labels))  # fmt: skip
             return [queue, f"MOVE {opts['OPENSTATUS']} TO GG-NUM"] + _call("GGCSTDQ", []) + _resp(opts, True, labels)
-        wanted = [o for o in ("OPENSTATUS", "TYPE") if opts.get(o)]
+        wanted = [o for o in ("OPENSTATUS", "TYPE", "ENABLESTATUS") if opts.get(o)]
         if not wanted:
             raise Unsupported(_rule(key, "requires", "TDQUEUE"), [key])
+        field = {"OPENSTATUS": "GG-NUM", "TYPE": "GG-LEN", "ENABLESTATUS": "GG-ITEM"}
         return ([queue, f"MOVE '{' '.join(wanted)}' TO GG-FLAGS"] + _call("GGCITDQ", []) + ["IF GG-RESP = 0"]
-                + [f"    MOVE {'GG-NUM' if o == 'OPENSTATUS' else 'GG-LEN'} TO {opts[o]}" for o in wanted]
+                + [f"    MOVE {field[o]} TO {opts[o]}" for o in wanted]
                 + ["END-IF"] + _resp(opts, True, labels))  # fmt: skip
     if verb in ("INQUIRE", "SET") and "TERMINAL" in opts:  # #4415 slice 1 (X26): the terminal's UCTRANST CVDA
         key = f"{verb} TERMINAL"

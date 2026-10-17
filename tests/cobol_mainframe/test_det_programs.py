@@ -1435,9 +1435,7 @@ def _runtime_classes(batch: bool = False, charset: str = "ISO-8859-1") -> Path:
     jdk = _java()
     classes = base / "classes"
     files = [str(f) for f in srcdir.rglob("*.java")]
-    subprocess.run(
-        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(classes), *files], check=True
-    )  # noqa: S603
+    subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(classes), *files], check=True)  # noqa: S603
     return classes
 
 
@@ -1477,7 +1475,18 @@ def _java_run(
     jdk = _java()
     classes = work / "classes"
     subprocess.run(
-        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-cp", str(rt_classes), "-d", str(classes), str(svc), str(main_java)],
+        [
+            str(jdk / "javac"),
+            "-encoding",
+            "UTF-8",
+            "-nowarn",
+            "-cp",
+            str(rt_classes),
+            "-d",
+            str(classes),
+            str(svc),
+            str(main_java),
+        ],
         check=True,
     )  # noqa: S603
     cp = os.pathsep.join([str(classes), str(rt_classes)])
@@ -1524,7 +1533,18 @@ def _java_run_batch(
     jdk = _java()
     classes = work / "classes"
     subprocess.run(
-        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-cp", str(rt_classes), "-d", str(classes), str(svc), str(main_java)],
+        [
+            str(jdk / "javac"),
+            "-encoding",
+            "UTF-8",
+            "-nowarn",
+            "-cp",
+            str(rt_classes),
+            "-d",
+            str(classes),
+            str(svc),
+            str(main_java),
+        ],
         check=True,
     )  # noqa: S603
     cp = os.pathsep.join([str(classes), str(rt_classes)])
@@ -1617,6 +1637,41 @@ def test_p_scaled_items_the_oracle_cannot_answer_are_refused_by_name(data, proc,
     pytest.importorskip("tree_sitter_language_pack")
     holes = _pcs_holes(tmp_path, program("PCSX", data, proc))
     assert any(why in h for h in holes), holes
+
+
+@pytest.mark.parametrize(
+    ("data", "proc"),
+    [
+        # #4271 (register C7): a COMP-5 item's bytes are the oracle's (little-endian), not z/OS's (big-endian)
+        (["01 G.", "   05 A PIC S9(4) COMP-5 VALUE 1.", "   05 B PIC X(2)."], ["MOVE G TO T"]),
+        (["01 A PIC S9(9) COMP-5 VALUE 1.", "01 X REDEFINES A PIC X(4)."], ["MOVE X TO T"]),
+        (["01 A PIC S9(18) COMP-5 VALUE 1.", "01 X REDEFINES A PIC X(8)."], ["MOVE X TO T"]),
+        (["01 A PIC S9(9) COMP-5 VALUE 1."], ["MOVE A(1:2) TO T"]),
+        (["01 G.", "   05 A PIC S9(4) COMP-5 OCCURS 3.", "01 X REDEFINES G PIC X(6)."], ["MOVE X TO T"]),
+        (["01 A PIC S9(4) COMP-5 VALUE 1.", "01 X REDEFINES A PIC S9(4) COMP."], ["MOVE X TO N"]),
+    ],
+)
+def test_comp5_bytes_are_refused_by_name_where_the_oracle_and_zos_differ(data, proc, tmp_path):
+    """#4271 (C7): a group MOVE, REDEFINES or reference modification that observes a COMP-5 item's bytes is refused."""
+    pytest.importorskip("tree_sitter_language_pack")
+    holes = _pcs_holes(tmp_path, program("COMP5B", [*data, "01 T PIC X(8).", "01 N PIC S9(4)."], proc))
+    assert any("oracle_assumptions.md C7" in h for h in holes), holes
+
+
+@pytest.mark.parametrize(
+    ("data", "proc"),
+    [
+        (["01 A PIC S9(9) COMP-5 VALUE 1.", "01 N PIC S9(9)."], ["MOVE A TO N", "ADD 1 TO A"]),
+        (["01 A PIC S9(4) COMP-5 VALUE 1.", "01 B PIC S9(4) COMP-5.", "01 A1 REDEFINES A PIC S9(4) COMP-5."],
+         ["MOVE A TO B", "MOVE A1 TO B"]),
+        (["01 A PIC S9(4) COMP-5 VALUE 1.", "01 X PIC X(2) VALUE 'AB'."], ["MOVE X TO T", "MOVE 5 TO A"]),
+    ],
+)  # fmt: skip
+def test_comp5_read_as_a_number_is_not_refused(data, proc, tmp_path):
+    """#4271 (C7): numeric uses of COMP-5 stay translated."""
+    pytest.importorskip("tree_sitter_language_pack")
+    holes = _pcs_holes(tmp_path, program("COMP5N", [*data, "01 T PIC X(8)."], proc))
+    assert not any("oracle_assumptions.md C7" in h for h in holes), holes
 
 
 def test_p_scaled_items_store_their_nines_scaled():

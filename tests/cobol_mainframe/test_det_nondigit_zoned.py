@@ -45,8 +45,8 @@ DATA = [
     "01 DLS PIC S9(7) SIGN LEADING SEPARATE.", "01 DLSX REDEFINES DLS PIC X(8).",
     "01 DTS PIC S9(7) SIGN TRAILING SEPARATE.", "01 DTSX REDEFINES DTS PIC X(8).",
     "01 DV PIC 9(5)V99.", "01 DVX REDEFINES DV PIC X(7).",
-    "01 PK PIC S9(7) COMP-3.", "01 PKN REDEFINES PK PIC 9(9) COMP-5.",
-    "01 UPK PIC 9(6) COMP-3.", "01 UPKN REDEFINES UPK PIC 9(9) COMP-5.",
+    "01 PK PIC S9(7) COMP-3.", "01 PKN REDEFINES PK PIC 9(9) COMP.",
+    "01 UPK PIC 9(6) COMP-3.", "01 UPKN REDEFINES UPK PIC 9(9) COMP.",
     "01 BN PIC S9(9) COMP.", "01 BU PIC 9(9) COMP.", "01 EW PIC -9(12).",
     "01 E1 PIC Z(6)9.", "01 E2 PIC -9(6).", "01 E3 PIC 9(4).99.", "01 E4 PIC +9(6).",
 ]  # fmt: skip
@@ -74,7 +74,8 @@ OPS = [
 # a receiver of the sender's own shape: cobc moves it with a memcpy, nothing converted (COCRDUPC's CVV)
 OPS.append(["MOVE @ TO OWN", "DISPLAY '#>OWN ' OWNX"])
 # the operations that print the sender's bytes as they are (a byte >= X'80' in a digit position stays out of them)
-RAW = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, len(OPS) - 1}  # the zoned and edited receivers; packed ones as a COMP-5 number
+# the zoned and edited receivers; packed ones as a COMP number (COMP-5 bytes are refused, C7)
+RAW = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, len(OPS) - 1}
 
 
 def _program(kind: str) -> str:

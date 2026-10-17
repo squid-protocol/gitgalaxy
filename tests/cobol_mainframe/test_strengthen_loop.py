@@ -176,3 +176,60 @@ def test_the_account_view_case_carries_fields_and_a_low_values_caller():
     assert low["aid"] == "DFHPF3"
     assert set(low["commarea"]["CDEMO-FROM-TRANID"]) == set(low["commarea"]["CDEMO-FROM-PROGRAM"]) == {"\x00"}
     assert all(s["why"].startswith("#4049") for s in (scs["carried-account-status"], low))
+
+
+def _gap_scenarios(case):
+    return {n: s for n, s in _scenarios(case).items() if s.get("why", "").startswith("#4049")}
+
+
+def test_the_menu_family_cases_take_the_blank_and_low_values_program_scenarios():
+    for case, field, names in (
+        ("carddemo-adminmenu", "CDEMO-TO-PROGRAM", ("pf3-blank-to-program", "pf3-low-values-to-program")),
+        ("carddemo-useradd", "CDEMO-TO-PROGRAM", ("pf3-blank-to-program", "pf3-low-values-to-program")),
+        ("carddemo-userdel", "CDEMO-TO-PROGRAM", ("pf3-blank-to-program",)),
+        # COTRN01C's PF3 reads the caller (FROM-PROGRAM) and overwrites TO-PROGRAM
+        ("carddemo-tranview", "CDEMO-FROM-PROGRAM", ("pf3-blank-from-program", "pf3-low-values-from-program")),
+    ):
+        scs = _gap_scenarios(case)
+        assert all("expected" not in s for s in scs.values())
+        for name in names:
+            assert scs[name]["aid"] == "DFHPF3"
+            value = scs[name]["commarea"][field]
+            assert value.strip("\x00") == "" and (value == "" or "low" in name)
+
+
+def test_the_admin_menu_case_picks_two_digit_and_non_digit_options():
+    scs = _gap_scenarios("carddemo-adminmenu")
+    opts = {
+        n: s["receive"]["COADM1A"]["OPTIONI"]
+        for n, s in scs.items()
+        if "receive" in s and "OPTIONI" in s["receive"].get("COADM1A", {})
+    }
+    assert {opts["option-10"], opts["option-12"], opts["option-colon"], opts["option-less-than"]} == {
+        "10",
+        "12",
+        ":",
+        "<",
+    }
+    carried = scs["carried-commarea-fields"]["commarea"]
+    assert all(
+        str(carried[f]).strip()
+        for f in ("CDEMO-TO-TRANID", "CDEMO-TO-PROGRAM", "CDEMO-CUST-LNAME", "CDEMO-ACCT-STATUS")
+    )
+
+
+def test_the_user_cases_carry_fields_the_screens_never_show():
+    add = _gap_scenarios("carddemo-useradd")
+    assert add["input-screen-with-errmsg"]["receive"]["COUSR1A"]["ERRMSGI"].strip()
+    assert all(
+        add["carried-status-and-last-map"]["commarea"][f].strip() for f in ("CDEMO-ACCT-STATUS", "CDEMO-LAST-MAP")
+    )
+    dele = _gap_scenarios("carddemo-userdel")
+    assert dele["no-commarea-enter"]["commarea"] is None
+    assert set(dele["low-values-selected-user"]["commarea"]["CDEMO-CU03-USR-SELECTED"]) == {"\x00"}
+    assert dele["input-lname-echoed"]["receive"]["COUSR3A"]["LNAMEI"].strip()
+
+
+def test_the_transaction_view_case_fails_the_pf3_xctl():
+    s = _gap_scenarios("carddemo-tranview")["pf3-xctl-fails"]
+    assert s["aid"] == "DFHPF3" and s["faults"][0]["cmd"] == "XCTL" and s["faults"][0]["resp"] == "PGMIDERR"

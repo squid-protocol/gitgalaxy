@@ -1,0 +1,55 @@
+{
+ "format": "cics-crucible/expected/1",
+ "case": "hc-abend-link",
+ "scenario": "mode-queue-missing",
+ "derived": {
+  "from": "cobol-stub",
+  "issue": "#4049",
+  "note": "the COBOL program's own run on the stub runtime (tests/equivalence/cics/ggcics.c), written by cics_crucible.py --derive-expected; never edited by hand",
+  "faults_fired": []
+ },
+ "tasks": [
+  {
+   "seq": 1,
+   "transid": "HC02",
+   "program": "HCMAIN",
+   "termid": "T001",
+   "at": "2026-03-02T10:00:00",
+   "trigger": {
+    "kind": "terminal",
+    "step": 0
+   },
+   "eibaid": "ENTER",
+   "eibcalen": 0,
+   "commarea": null,
+   "events": [
+    {
+     "event": "READQ-TS",
+     "program": "HCMAIN",
+     "queue": "HCMODE",
+     "item": 1,
+     "resp": "QIDERR",
+     "length": null,
+     "data": null
+    },
+    {
+     "event": "SEND-TEXT",
+     "program": "HCMAIN",
+     "text": "q",
+     "length": 40,
+     "options": [
+      "ERASE"
+     ]
+    },
+    {
+     "event": "RETURN",
+     "program": "HCMAIN",
+     "level": 1,
+     "transid": null,
+     "commarea": null
+    }
+   ],
+   "end": "normal"
+  }
+ ]
+}

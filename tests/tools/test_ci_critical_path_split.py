@@ -49,14 +49,17 @@ def test_the_parts_partition_tests_cobol_mainframe():
     assert "--splits 2 --splitting-algorithm least_duration --group ${{ matrix.group }}" in pytest_line
 
 
-def test_ledger_gate_and_history_stay_in_one_part_only():
+def test_history_stays_in_one_part_and_the_gate_runs_on_both():
     steps = _steps(_jobs("mainframe-ground-truth.yml")["ground-truth-part"])
     for name in (
-        "Gate against the ground-truth ledger",
         "Restore the published history from the generated branch",
         "Keep the history for the publish job",
     ):
         assert f"matrix.group == {LEDGER_GROUP}" in steps[name]["if"], name
+    # #5133: the gate runs on both parts so the corpus scans are warm; only the ledger part writes summary and history
+    gate = steps["Gate against the ground-truth ledger"]
+    assert "if" not in gate
+    assert f"matrix.group == {LEDGER_GROUP}" in gate["run"]
 
 
 def test_the_ledger_part_is_not_the_heavier_one():

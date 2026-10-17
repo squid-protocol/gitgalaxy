@@ -448,7 +448,7 @@ def test_detdli_schedule_and_terminate_answer_the_status_ibm_gives(tmp_path):
     jdk = _jdk()
     subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
                     *map(str, src.rglob("*.java"))], check=True)  # fmt: skip
-    out = subprocess.run([str(jdk / "java"), f"-Dgitgalaxy.dli.dir={tmp_path / 'dli'}", "-cp", str(tmp_path / "classes"),  # noqa: S603
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", f"-Dgitgalaxy.dli.dir={tmp_path / 'dli'}", "-cp", str(tmp_path / "classes"),  # noqa: S603
                           "Main"], capture_output=True, check=True).stdout.decode("utf-8").splitlines()  # fmt: skip
     assert out == [
         "[  ]",

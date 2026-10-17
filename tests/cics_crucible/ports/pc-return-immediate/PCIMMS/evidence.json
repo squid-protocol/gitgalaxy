@@ -235,14 +235,14 @@
   "survived": 16,
   "stillborn": 0,
   "survivors": {
-   "case_gap": 9,
+   "case_gap": 8,
    "harness_gap": 0,
    "equivalent": 7,
-   "unreachable": 0,
+   "unreachable": 1,
    "untriaged": 0
   },
   "score_raw": "8/24",
-  "score_adjusted": "8/17",
+  "score_adjusted": "8/16",
   "source": "docs/language_status/mutation_scores.json#crucible:pc-return-immediate/PCIMMS",
   "inputs": {
    "port": {

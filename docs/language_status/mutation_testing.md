@@ -127,9 +127,9 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COMEN01C (carddemo-menu) | equivalence | 150/331 | 86/136 (63%) | 86/93 (92%) | 7 / 0 / 36 / 7 / 0 |
 | INQACC (cbsa-inqacc) | equivalence | 150/464 | 131/131 (100%) | 131/131 (100%) | 0 / 0 / 0 / 0 / 0 |
 | UPDACC (cbsa-updacc) | equivalence | 133/133 | 95/133 (71%) | 95/133 (71%) | 38 / 0 / 0 / 0 / 0 |
-| LGAPVS01 (genapp-lgapvs01) | equivalence | 150/178 | 70/121 (58%) | 70/121 (58%) | 51 / 0 / 0 / 0 / 0 |
-| LGICDB01 (genapp-lgicdb01) | equivalence | 150/195 | 49/130 (38%) | 49/130 (38%) | 81 / 0 / 0 / 0 / 0 |
-| LGUPDB01 (genapp-lgupdb01) | equivalence | 150/397 | 76/138 (55%) | 76/138 (55%) | 62 / 0 / 0 / 0 / 0 |
+| LGAPVS01 (genapp-lgapvs01) | equivalence | 150/178 | 70/121 (58%) | 70/119 (59%) | 49 / 0 / 0 / 2 / 0 |
+| LGICDB01 (genapp-lgicdb01) | equivalence | 150/195 | 49/130 (38%) | 49/127 (39%) | 78 / 0 / 0 / 3 / 0 |
+| LGUPDB01 (genapp-lgupdb01) | equivalence | 150/397 | 76/138 (55%) | 76/137 (55%) | 61 / 0 / 0 / 1 / 0 |
 | CALINK (ca-link-lengths) | crucible | 24/168 | 15/22 (68%) | 15/15 (100%) | 0 / 0 / 5 / 2 / 0 |
 | CASUB (ca-link-lengths) | crucible | 24/40 | 16/24 (67%) | 16/16 (100%) | 0 / 0 / 7 / 1 / 0 |
 | CAXA (ca-xctl-versions) | crucible | 24/78 | 16/21 (76%) | 16/16 (100%) | 0 / 0 / 3 / 2 / 0 |
@@ -145,25 +145,25 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | HXEXT (hx-extended-cursor) | crucible | 24/108 | 20/23 (87%) | 20/20 (100%) | 0 / 0 / 1 / 2 / 0 |
 | PCDETL (pc-aid-menu) | crucible | 24/60 | 14/24 (58%) | 14/14 (100%) | 0 / 0 / 9 / 1 / 0 |
 | PCMENU (pc-aid-menu) | crucible | 24/147 | 14/22 (64%) | 14/15 (93%) | 1 / 0 / 5 / 2 / 0 |
-| PCIMMA (pc-return-immediate) | crucible | 24/394 | 6/22 (27%) | 6/17 (35%) | 11 / 0 / 5 / 0 / 0 |
+| PCIMMA (pc-return-immediate) | crucible | 24/394 | 6/22 (27%) | 6/16 (38%) | 10 / 0 / 5 / 1 / 0 |
 | PCIMMB (pc-return-immediate) | crucible | 24/283 | 11/23 (48%) | 11/18 (61%) | 7 / 0 / 5 / 0 / 0 |
-| PCIMML (pc-return-immediate) | crucible | 24/282 | 9/23 (39%) | 9/20 (45%) | 11 / 0 / 3 / 0 / 0 |
-| PCIMMS (pc-return-immediate) | crucible | 24/198 | 8/24 (33%) | 8/17 (47%) | 9 / 0 / 7 / 0 / 0 |
+| PCIMML (pc-return-immediate) | crucible | 24/282 | 9/23 (39%) | 9/19 (47%) | 10 / 0 / 3 / 1 / 0 |
+| PCIMMS (pc-return-immediate) | crucible | 24/198 | 8/24 (33%) | 8/16 (50%) | 8 / 0 / 7 / 1 / 0 |
 | PCCONF (pc-wizard) | crucible | 24/247 | 14/23 (61%) | 14/17 (82%) | 3 / 0 / 6 / 0 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/177 | 11/21 (52%) | 11/16 (69%) | 5 / 0 / 3 / 2 / 0 |
-| **all crucible** | | 504 run | **307/472 (65%)** | **307/358 (86%)** | 51 / 0 / 87 / 27 / 0 |
-| **all equivalence** | | 1244 run | **757/1113 (68%)** | **757/1004 (75%)** | 247 / 0 / 62 / 47 / 0 |
-| **all estate** | | 1748 run | **1064/1585 (67%)** | **1064/1362 (78%)** | 298 / 0 / 149 / 74 / 0 |
+| **all crucible** | | 504 run | **307/472 (65%)** | **307/355 (86%)** | 48 / 0 / 87 / 30 / 0 |
+| **all equivalence** | | 1244 run | **757/1113 (68%)** | **757/998 (76%)** | 241 / 0 / 62 / 53 / 0 |
+| **all estate** | | 1748 run | **1064/1585 (67%)** | **1064/1353 (79%)** | 289 / 0 / 149 / 83 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
 | AOR | 88/116 (76%) | 88/98 (90%) |
 | BDM | 3/14 (21%) | 3/7 (43%) |
-| CON | 187/326 (57%) | 187/257 (73%) |
+| CON | 187/326 (57%) | 187/256 (73%) |
 | COR | 39/72 (54%) | 39/59 (66%) |
-| DEL | 147/230 (64%) | 147/205 (72%) |
-| LIT | 204/287 (71%) | 204/253 (81%) |
-| NEG | 184/226 (81%) | 184/210 (88%) |
+| DEL | 147/230 (64%) | 147/204 (72%) |
+| LIT | 204/287 (71%) | 204/247 (83%) |
+| NEG | 184/226 (81%) | 184/209 (88%) |
 | RET | 33/57 (58%) | 33/53 (62%) |
 | ROR | 179/257 (70%) | 179/220 (81%) |
 <!-- /mutation-scores -->

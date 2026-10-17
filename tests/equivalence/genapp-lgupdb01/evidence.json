@@ -453,14 +453,14 @@
   "survived": 62,
   "stillborn": 12,
   "survivors": {
-   "case_gap": 62,
+   "case_gap": 61,
    "harness_gap": 0,
    "equivalent": 0,
-   "unreachable": 0,
+   "unreachable": 1,
    "untriaged": 0
   },
   "score_raw": "76/138",
-  "score_adjusted": "76/138",
+  "score_adjusted": "76/137",
   "source": "docs/language_status/mutation_scores.json#genapp-lgupdb01/LGUPDB01",
   "inputs": {
    "port": {

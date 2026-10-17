@@ -278,7 +278,11 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     # literal (HCQREAD) and CAXA's accessor mutant died, 5 flagged survivors remain. The dead helpers stay unreachable;
     # the 3 `lastAnswerBytes = task.returnedBytes()` deletions (CALINK, CAXA, GTSTART) are re-triaged equivalent, not
     # unreachable: their programs RETURN TRANSID with no COMMAREA, so the bytes they answer are null either way.
-    assert len(flagged) == 5 and verdicts.count("unreachable") == 2 and verdicts.count("equivalent") == 3
+    # #4048 judged the PCIMM* crucible ports (on their own service code, not the shared cobolrt runtime), CBSA INQACC /
+    # UPDACC and GenApp LGAPVS01 / LGICDB01 / LGUPDB01: 9 more flagged survivors, all unreachable. PCIMMA / PCIMML /
+    # PCIMMS mutated runProgram and the byte-carrying handleTransaction overloads (the crucible does not enter by
+    # them), LGAPVS01 the writeKsdspoly guard; LGICDB01 / LGUPDB01 sit in methods proof_reach lists as unproven.
+    assert len(flagged) == 14 and verdicts.count("unreachable") == 11 and verdicts.count("equivalent") == 3
     assert not {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C", "CSUTLDTC"}
 
 

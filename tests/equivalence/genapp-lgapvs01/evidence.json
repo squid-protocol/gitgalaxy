@@ -315,14 +315,14 @@
   "survived": 51,
   "stillborn": 29,
   "survivors": {
-   "case_gap": 51,
+   "case_gap": 49,
    "harness_gap": 0,
    "equivalent": 0,
-   "unreachable": 0,
+   "unreachable": 2,
    "untriaged": 0
   },
   "score_raw": "70/121",
-  "score_adjusted": "70/121",
+  "score_adjusted": "70/119",
   "source": "docs/language_status/mutation_scores.json#genapp-lgapvs01/LGAPVS01",
   "inputs": {
    "port": {

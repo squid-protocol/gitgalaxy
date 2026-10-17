@@ -358,14 +358,14 @@
   "survived": 81,
   "stillborn": 20,
   "survivors": {
-   "case_gap": 81,
+   "case_gap": 78,
    "harness_gap": 0,
    "equivalent": 0,
-   "unreachable": 0,
+   "unreachable": 3,
    "untriaged": 0
   },
   "score_raw": "49/130",
-  "score_adjusted": "49/130",
+  "score_adjusted": "49/127",
   "source": "docs/language_status/mutation_scores.json#genapp-lgicdb01/LGICDB01",
   "inputs": {
    "port": {

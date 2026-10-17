@@ -232,6 +232,92 @@ def test_the_updacc_port_holds_on_generated_db2_rows(tmp_path):
     assert {x["sqlcode"] for q in sql for x in q["cobol"]} >= {0, 100}
 
 
+_BATCH_CBL = """\
+       FD TR-RECORD RECORDING MODE F.
+       01 WS-INPUT-VARS.
+          05 INPUT-TYPE                            PIC X(1).
+          05 INPUT-TR-NUMBER                       PIC X(2).
+          05 INPUT-TR-DESC                         PIC X(50).
+"""
+
+
+def _batch_case(tmp_path, miss, records=60):
+    """A batch case (COBTUPDT's shape) whose input records draw their key from a generated Db2 column."""
+    corpus = tmp_path / "corpus"
+    corpus.mkdir(exist_ok=True)
+    (corpus / "t.ddl").write_text(CARDDEMO.split("CREATE TABLE CARDDEMO.TRANSACTION_TYPE\n")[1].join(
+        ["CREATE TABLE CARDDEMO.TRANSACTION_TYPE\n", ""]))  # fmt: skip
+    (corpus / "p.cbl").write_text(_BATCH_CBL)
+    case = {
+        "datasets": {"INPFILE": {
+            "input": "@generate", "organization": "sequential", "reclen": 53,
+            "generate": {"copybook": "p.cbl", "record": "WS-INPUT-VARS", "records": records, "seed": 1,
+                         "fields": {"INPUT-TYPE": {"values": ["A", "U", "D", "*", "X"]},
+                                    "INPUT-TR-NUMBER": {"from": "CARDDEMO.TRANSACTION_TYPE.TR_TYPE",
+                                                        "miss": miss}}}}},
+        "db2": {"ddl": ["t.ddl"], "seed": "@generate", "compare": ["CARDDEMO.TRANSACTION_TYPE"],
+                "generate": {"seed": 1, "tables": {"CARDDEMO.TRANSACTION_TYPE": {"rows": 12}}}},
+    }  # fmt: skip
+    return case, corpus
+
+
+def _batch_records(case, corpus):
+    import equivalence_inputs as ei
+
+    data = ei.generate_inputs(case, corpus)["INPFILE"]
+    recs = [data[i : i + 53] for i in range(0, len(data), 53)]
+    return [(r[:1].decode(), r[1:3].decode()) for r in recs], len(data)
+
+
+def test_a_batch_input_draws_its_keys_from_the_generated_db2_rows(tmp_path):
+    """#4507: a batch dataset's `from` may name a generated Db2 column (COBTUPDT's INPFILE): with no `miss` every
+    record's key is a row the table holds (a duplicate add: -803; an update or delete finds its row)."""
+    case, corpus = _batch_case(tmp_path, miss=0)
+    held = {str(k) for k in db2.generated_pools(case, corpus)["CARDDEMO.TRANSACTION_TYPE.TR_TYPE"]}
+    recs, size = _batch_records(case, corpus)
+    assert size == 60 * 53
+    assert {t for t, _ in recs} == {"A", "U", "D", "*", "X"}  # every record type reaches the program
+    assert {k.rstrip() for _, k in recs} <= {h.rstrip() for h in held}
+
+
+def test_a_batch_input_misses_the_generated_rows_when_asked_and_is_deterministic(tmp_path):
+    case, corpus = _batch_case(tmp_path, miss=0.5, records=80)
+    held = {str(k).rstrip() for k in db2.generated_pools(case, corpus)["CARDDEMO.TRANSACTION_TYPE.TR_TYPE"]}
+    recs, _ = _batch_records(case, corpus)
+    missed = [k for _, k in recs if k.rstrip() not in held]
+    assert 10 <= len(missed) <= 70  # some keys the table does not hold (+100 / a new row), some it does (-803)
+    assert recs == _batch_records(case, corpus)[0]  # the same seed, the same records
+
+
+def test_a_batch_dataset_without_db2_generation_is_unchanged(tmp_path):
+    """A case with no generated Db2 seed has no Db2 pools: a dataset `from` another dataset still orders as before."""
+    import equivalence_inputs as ei
+
+    spec = {"generate": {"fields": {"A": {"from": "OTHER.X"}, "B": {"from": "CARDDEMO.T.C"}}}}
+    assert ei._order({"OTHER": {"generate": {}}, "MAIN": spec}) == ["OTHER", "MAIN"]
+
+
+def test_the_cobtupdt_port_holds_on_generated_db2_rows(tmp_path):
+    """CardDemo's COBTUPDT (batch, Db2) on 14 generated TRANSACTION_TYPE rows and 40 generated INPFILE records, the det
+    port proven with every statement answered alike on both sides (EQUIVALENCE_E2E=1: Docker, Db2, a JDK 17)."""
+    if os.environ.get("EQUIVALENCE_E2E") != "1":
+        pytest.skip("EQUIVALENCE_E2E=1 runs the Docker proof")
+    pytest.importorskip("tree_sitter_language_pack")
+    import json
+    import subprocess
+
+    tool = Path(__file__).resolve().parents[1] / "tools" / "det_port.py"
+    proc = subprocess.run([sys.executable, str(tool), "run", "carddemo-cobtupdt-generated", "--work", str(tmp_path)],  # noqa: S603
+                          capture_output=True, text=True, check=False)  # fmt: skip
+    assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
+    summary = json.loads((tmp_path / "summary.json").read_text())
+    assert summary[0]["proved"] is True and summary[0]["holes"] == []
+    report = json.loads((tmp_path / "carddemo-cobtupdt-generated" / "proof" / "report.json").read_text())
+    sql = report["outputs"]["SQL"]
+    assert report["proven"] is True and sql["statements"] > 0 and sql["equal"] == sql["statements"]
+    assert {x["sqlcode"] for x in sql["cobol"]} >= {0, 100}  # adds land, updates and deletes of absent keys miss
+
+
 def _fake_run(returncode: int, stdout: str):
     def run(cmd, **kw):  # noqa: ANN001, ANN202
         run.cmd = cmd

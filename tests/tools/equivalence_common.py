@@ -439,7 +439,7 @@ def option_differences(case: dict[str, Any], source: str, port_dir: Path | None)
     opts = effective_options(case)
     out = [
         {"kind": "option", "option": u["option"], "declared": u["declared"], "applied": u["applied"], "note": u["note"]}
-        for u in opts.unhonoured(source, data_ccsid(case))
+        for u in [*opts.unhonoured(source, data_ccsid(case)), *opts.unhonoured_runtime(data_ccsid(case))]  # #4707
         if u["policy"] == "declare"
     ]
     trunc = str(effective_with_defaults(opts.layers, source).get("TRUNC") or "").upper()
@@ -473,7 +473,9 @@ def compile_options(case: dict[str, Any], source: str) -> tuple[str, list[str]]:
             raise UnsupportedOption(f"{option}({value}): GnuCOBOL 3.1 has no equivalent, so the case cannot be proven")
         if flag:
             flags.append(flag)
-    for u in effective_options(case).unhonoured(source, data_ccsid(case)):  # #4706: the other result-changing options
+    opts = effective_options(case)
+    # #4706: the other result-changing compiler options; #4707: the LE / Db2 / CICS options
+    for u in [*opts.unhonoured(source, data_ccsid(case)), *opts.unhonoured_runtime(data_ccsid(case))]:
         if u["policy"] == "refuse":
             raise UnsupportedOption(f"{u['note']}, so the case cannot be proven")
     flags.extend(BOUND_FLAGS)

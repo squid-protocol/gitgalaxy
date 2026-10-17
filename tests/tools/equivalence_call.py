@@ -193,6 +193,9 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path) -> bytes:
     proc = common.run_cobol_step(work)
     if proc.returncode != 0:
         out = decode_bytes((work / "stdout.txt").read_bytes()) if (work / "stdout.txt").is_file() else ""
+        stopped = common.bound_violation(out)
+        if stopped:  # #4449 (X8): a call that drives a subscript / reference modification past its item has no oracle
+            raise RuntimeError(f"the run drives an item past its bounds ({stopped}) -- not runnable faithfully (X8)")
         raise RuntimeError(f"COBOL side failed:\n{proc.stdout}\n{proc.stderr}\n{out}")
     return (work / "CALLS.out").read_bytes()
 

@@ -260,16 +260,16 @@ PLAIN = "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P.\n"
 def test_the_harness_default_is_ibms():
     """#4102: no option named is IBM's defaults -- TRUNC(STD) is GnuCOBOL's -fbinary-truncate (`-std=ibm` alone keeps a
     binary item's bytes, TRUNC(BIN)); the other defaults are GnuCOBOL's own behaviour."""
-    assert common.compile_options({}, PLAIN) == (PLAIN, ["-fbinary-truncate"])
+    assert common.compile_options({}, PLAIN) == (PLAIN, ["-fbinary-truncate", *common.BOUND_FLAGS])
 
 
 def test_the_harness_maps_what_gnucobol_can_honour():
     text, flags = common.compile_options({"compiler_options": ["TRUNC(BIN)"]}, PLAIN)
-    assert text == PLAIN and flags == ["-fnotrunc"]
+    assert text == PLAIN and flags == ["-fnotrunc", *common.BOUND_FLAGS]
     # the program's own cards are blanked (GnuCOBOL rejects CBL) and override the case's PARM
     src = "       CBL TRUNC(STD),APOST,CICS('SP,EDF')\n" + PLAIN
     text, flags = common.compile_options({"compiler_options": ["TRUNC(BIN)"]}, src)
-    assert text == "\n" + PLAIN and flags == ["-fbinary-truncate"]
+    assert text == "\n" + PLAIN and flags == ["-fbinary-truncate", *common.BOUND_FLAGS]
 
 
 @pytest.mark.parametrize("option", ["INTDATE(LILIAN)", "ARITH(EXTEND)"])  # TRUNC(OPT): test_trunc_opt.py (#4706)
@@ -301,7 +301,7 @@ PROBE = """       CBL TRUNC(BIN)
 def test_gnucobol_runs_the_cards_as_flags(tmp_path):
     """GnuCOBOL's INTEGER-OF-DATE is ANSI (the rule's count), and TRUNC(BIN) reaches it as -fnotrunc."""
     text, flags = common.compile_options({}, PROBE)
-    assert flags == ["-fnotrunc"]
+    assert flags == ["-fnotrunc", *common.BOUND_FLAGS]
     (tmp_path / "PROBE.cbl").write_text(text, encoding="ascii")
     out = subprocess.run(["docker", "run", "--rm", "-v", f"{tmp_path}:/w", "-w", "/w", common.IMAGE,  # noqa: S603, S607
                           "sh", "-c", f"cobc -x -std=ibm {' '.join(flags)} -o probe PROBE.cbl && ./probe"],

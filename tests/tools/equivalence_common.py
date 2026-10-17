@@ -230,6 +230,20 @@ COBC_OPTIONS = {
 }  # fmt: skip
 
 
+# #4449 (X8): the COBOL side runs with GnuCOBOL's subscript and reference-modification checks, so a scenario that
+# drives one past its item stops by name ("libcob: ... subscript of 'E' out of bounds") and is refused, instead of
+# reading or overwriting whatever GnuCOBOL's layout (not IBM's) puts next to the item. IBM's default has no SSRANGE.
+BOUND_FLAGS = ["-fec=EC-BOUND-SUBSCRIPT", "-fec=EC-BOUND-REF-MOD"]
+_BOUND_VIOLATION = re.compile(rb"libcob: [^\n]*?(subscript|offset|length) of '([^']+)' out of bounds[^\n]*")
+
+
+def bound_violation(said: bytes | str) -> str | None:
+    """#4449: the libcob line of a subscript / reference modification past its item in a run's output, else None."""
+    data = said.encode("utf-8", "replace") if isinstance(said, str) else said
+    hit = _BOUND_VIOLATION.search(data)
+    return hit.group(0).decode("latin-1").strip() if hit else None
+
+
 def bms_dir(corpus: Path) -> Path:
     """The symbolic-map copybooks of the corpus's BMS sources (det.source.bms_copybooks, the generator the det
     translator's own copybook path uses), generated once next to the corpus clone: a build artefact most estates do
@@ -464,6 +478,7 @@ def compile_options(case: dict[str, Any], source: str) -> tuple[str, list[str]]:
     for u in [*opts.unhonoured(source, data_ccsid(case)), *opts.unhonoured_runtime(data_ccsid(case))]:
         if u["policy"] == "refuse":
             raise UnsupportedOption(f"{u['note']}, so the case cannot be proven")
+    flags.extend(BOUND_FLAGS)
     blank = {n for n, _ in cards(source)}
     lines = ibm_assumed_periods(source).split("\n")
     return "\n".join("" if n in blank else ln for n, ln in enumerate(lines, 1)), flags

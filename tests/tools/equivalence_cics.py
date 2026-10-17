@@ -3518,6 +3518,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             if db2 else common.run_cobol_step(work))  # fmt: skip
     if proc.returncode != 0:
         raise RuntimeError(f"COBOL side failed:\n{proc.stdout}\n{proc.stderr}")
+    overruns: list[str] = []  # #4449 (X8)
     refused: dict[str, str] = {}  # #4173: a derived SQL-fault task that reaches what is not modelled: that task only
     for sc in case["scenarios"]:  # a LINK reached: the program it names is not run here (no port of it)
         log = work / "scenarios" / sc["name"] / "out" / "events.txt"
@@ -3532,6 +3533,15 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         # scenario reaches behaviour the oracle cannot judge -- refused by name, never reported as a difference
         rc = work / "scenarios" / sc["name"] / "rc"
         said = work / "scenarios" / sc["name"] / "stdout.txt"
+        if said.is_file() and (overrun := common.bound_violation(said.read_bytes())):  # #4449 (X8)
+            why = f"drives an item past its bounds ({overrun}); register X8"
+            if sc.get("derived") or sc["name"] in case.get("bounds_refused", {}):
+                # a case names each scenario it knowingly leaves unjudged here, with the reason (X8): refused by
+                # name, reported as refused, never proven
+                refused[sc["name"]] = why
+                continue
+            overruns.append(f"scenario {sc['name']}: {why}")
+            continue
         if rc.is_file() and rc.read_text().strip() == "98" and said.is_file():
             x6 = judged_refusal(said.read_text(encoding="latin-1"))
             if x6:  # owner decision on #4607 (X6): judged up to the refused WRITEQ, derived or not -- what ran before
@@ -3543,6 +3553,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                 continue
             if why:
                 raise Unsupported(f"scenario {sc['name']}: {why.strip()}", ["MODEL"])
+    if overruns:  # every one at once, so a case is fixed in one pass
+        raise Unsupported("; ".join(overruns) + '; if the program does it on purpose, name each scenario in the '
+                          'case\'s "bounds_refused" with the reason', ["BOUNDS"])  # fmt: skip
     (work / "refused.json").write_text(json.dumps(refused, indent=1) + "\n", encoding="utf-8")
     kept = [sc for sc in case["scenarios"] if sc["name"] not in refused]
 

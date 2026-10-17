@@ -27,7 +27,7 @@
  "ticket_sha256": "e42b66036432cef4fa3364da11ed9f1881c5dd9b7041d87b2264d95d0951ff3c",
  "prompt_tokens": 68882,
  "proof": "tests/tools/equivalence.py run cbsa-inqacc",
- "edited_after": "none: the files are the model's answer as the loop stored it",
+ "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer",
  "licence": "EPL-2.0",
  "proven_after": "#4188: the loop's own verdicts were 'not proven' because a port's proof ran the LINKed program as its stub; with #4188 the stored attempt proves unedited (re-proven with --faults all)",
  "stale": {
@@ -35,5 +35,19 @@
   "at": "2026-10-05T15:00:50+00:00",
   "reason": "re-proof through the deployed entry points failed: java-facade 13/14 scenarios pass (null-statement-date); runTask 14/14 pass",
   "needs": "#4465: the LINK target ABNDPROC (a det port) has a stub handleLink that throws UnsupportedOperationException instead of running its level; then evidence.py prove cbsa-inqacc"
- }
+ },
+ "history": [
+  {
+   "at": "2026-10-17T19:05:43+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "b3b16bb72",
+   "generated_from": "service/InqaccService.java",
+   "added": [
+    "lastLinkBytes (field)",
+    "handleLink(InqaccDfhcommarea,byte[])",
+    "lastLinkBytes()"
+   ]
+  }
+ ]
 }

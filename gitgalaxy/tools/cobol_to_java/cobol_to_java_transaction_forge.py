@@ -3613,6 +3613,18 @@ CICS_TASK_JAVA += """\
         return linkAreaTaken;
     }
 
+    /** #5053: the LINK COMMAREA's bytes as they are now, without counting as the program taking them (linkArea does):
+     *  what a harness hands a byte-carrying handleLink, and reads back after it. Null: the caller passed none. */
+    public byte[] linkAreaView() {
+        return linkArea;
+    }
+
+    /** #5053: whether linkArea is the LINK caller's own storage (the first program a LINK ran: by address), not a copy
+     *  (an XCTL target's: IBM gives it a copy of LENGTH bytes). */
+    public boolean linkAreaOfCaller() {
+        return callerArea;
+    }
+
     private java.util.Map<String, Long> counters = new java.util.HashMap<>();  // the region's named counters (root's)
     /** #4770 (X45): the {minimum, maximum} (unsigned doublewords) of a counter DEFINE DCOUNTER made; a counter with no entry
      *  (DEFINE COUNTER's, or one a scenario states) has limits the run does not state. */
@@ -5230,6 +5242,11 @@ CICS_TASK_JAVA += """\
         /** The program level `program` runs at when another program LINKs (or XCTLs) to it with `commarea` (null:
          *  none) -- the whole record, passed by reference: what the program changes in it, the caller sees. */
         CicsTask linked(String program, Object commarea);
+        /** #5053: same, with the raw bytes of the LINK's COMMAREA: its program's DFHCOMMAREA, passed by address (what it
+         *  leaves there the caller sees), every byte -- the ones the contract DTO does not name too. */
+        default CicsTask linked(String program, Object commarea, byte[] bytes) {
+            return linked(program, commarea).withLinkArea(bytes);
+        }
 
         /** Runs `program` on `task`: `self` is the program's own runTask; a LINK / XCTL reaches the region's others. */
         void run(CicsTask task, String program, Consumer<CicsTask> self);
@@ -6444,6 +6461,30 @@ class CicsForge:
             "}", "",
         ])  # fmt: skip
 
+    @staticmethod
+    def link_bytes_overload(prog: CicsProgram, name: str, req: str, resp: str | None) -> list[str]:
+        """#5053: handleLink with the raw bytes of the LINK's COMMAREA, and the lastLinkBytes() accessor beside it."""
+        return [
+            "    /** #5053: handleLink with the raw bytes of the LINK's COMMAREA (passed by address: what the program",
+            "     *  leaves there the caller sees); lastLinkBytes() then answers the bytes it left. */",
+            f"    public {req if resp == req else 'void'} handleLink({req} request, byte[] area) {{",
+            f'        log.info("{prog.cls}: handleLink (bytes)");',
+            "        CicsTask.Region region = CicsTask.region();",
+            f"        CicsTask task = region.linked({name}, request, area);",
+            f"        region.run(task, {name}, this::runTask);",
+            "        byte[] left = task.linkAreaView();",
+            "        lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+            *(["        return request;"] if resp == req else []),
+            "    }\n",
+            "    // @facade-helper: the bytes the last byte-carrying handleLink's program left in the COMMAREA",
+            "    private byte[] lastLinkBytes;\n",
+            "    /** The bytes the last byte-carrying handleLink's program left in the LINK COMMAREA (a copy; null: it took",
+            "     *  none -- its DTO is the COMMAREA). @facade-helper */",
+            "    public byte[] lastLinkBytes() {",
+            "        return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
+            "    }\n",
+        ]  # fmt: skip
+
     def service_extras(self, prog: CicsProgram) -> dict:
         """The imports and methods the program's @Service gains: the handlers its endpoints call."""
         req, resp = self.link_types(prog)
@@ -6549,6 +6590,10 @@ class CicsForge:
                 f"        region.run(task, {name}, this::runTask);",
                 *(["        return request;"] if resp == req and req else []),
                 "    }\n",
+                # #5053: the same entry with the bytes of the LINK's COMMAREA (a LINK with none has no bytes to carry:
+                # `handleLink(byte[])` would only collide with the DTO form's arity), and the bytes the program left
+                # there (lastLinkBytes()): the signature above is unchanged (the equivalence harness reads it).
+                *(self.link_bytes_overload(prog, name, req, resp) if req else []),
             ]  # fmt: skip
         elif self.has_link_handler(prog):
             handler("handleLink", None, req, resp, "Another program LINKed / XCTLed to this one.")

@@ -67,6 +67,18 @@
    "event": "edited",
    "by": "churn worker for #4648 (Claude Opus 5.5)",
    "what": "returnToPrevScreen abends the task on a failed XCTL (RESP not tested, no HANDLE CONDITION) as the COBOL does, where the port went on to RETURN"
+  },
+  {
+   "at": "2026-10-17T19:05:39+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "b3b16bb72",
+   "generated_from": "service/Cotrn02cService.java",
+   "added": [
+    "lastLinkBytes (field)",
+    "handleLink(Cotrn02cCarddemoCommarea,byte[])",
+    "lastLinkBytes()"
+   ]
   }
  ]
 }

@@ -1722,13 +1722,18 @@ def facades(stub: str, passes_bytes: bool = False) -> list[str]:
                 body = [(f'        throw new UnsupportedOperationException("{meth}: the program has no task facade (a '
                          'channel program); it runs as runTask");')]  # fmt: skip
             else:
+                # #5053: a LINK's byte overload hands the region the COMMAREA's bytes too (region.linked(.., area))
                 task = (f"region.transaction(transid, {arg}{', ' + area.group(1) if area else ''})"
-                        if meth == "handleTransaction" else f"region.linked({name.group(1)}, {arg})")  # fmt: skip
+                        if meth == "handleTransaction"
+                        else f"region.linked({name.group(1)}, {arg}{', ' + area.group(1) if area else ''})")  # fmt: skip
                 body = ["        CicsTask.Region region = CicsTask.region();",
                         f"        CicsTask task = {task};",
                         f"        region.run(task, {name.group(1)}, this::runTask);"]  # fmt: skip
                 if area and meth == "handleTransaction":
                     body.append("        lastAnswerBytes = task.returnedBytes();")
+                if area and meth == "handleLink":  # #5053: the bytes the program left in the COMMAREA, if it took them
+                    body += ["        byte[] left = task.linkAreaView();",
+                             "        lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;"]  # fmt: skip
                 if ret != "void" and meth == "handleTransaction" and passes_bytes:
                     body += (lines := answer_lines(ret, req.group(1) if req else None))
                     wide = wide or len(lines) > 1
@@ -1747,6 +1752,16 @@ def facades(stub: str, passes_bytes: bool = False) -> list[str]:
                 "     *  @facade-helper */",
                 "    public byte[] lastAnswerBytes() {",
                 "        return lastAnswerBytes == null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);",
+                "    }",
+                ""]  # fmt: skip
+    if re.search(r"public byte\[\] lastLinkBytes\(\)", stub):  # #5053: the LINK's, as lastAnswerBytes is the RETURN's
+        out += ["    // @facade-helper: the bytes the last byte-carrying handleLink's program left in the COMMAREA",
+                "    private byte[] lastLinkBytes;",
+                "",
+                "    /** The bytes the last byte-carrying handleLink's program left in the LINK COMMAREA (a copy; null: it",
+                "     *  took none -- its DTO is the COMMAREA). @facade-helper */",
+                "    public byte[] lastLinkBytes() {",
+                "        return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
                 "    }",
                 ""]  # fmt: skip
     # A program with a COMMAREA AND a channel (GenApp's LGASTAT1) also has a channel entry, handleChannel, which its

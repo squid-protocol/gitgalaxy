@@ -52,3 +52,13 @@ out; hash stability per salt; the manifest equals the emitted fields.
 
 Ingestion into the #5051 ledger (`estate: customer:<hash>`), matching a signature to an issue, the minimal-repro
 generator, and a leak test on the cics-crucible and a run with the readiness scanner (#4725).
+
+## The harness report (#4493)
+
+`python tests/tools/harness_report.py PROOF_BLOCKERS.json --out DIR` (or `--survey DIR`) writes `harness_report.{md,json}`
+for the burned estates: coverage (programs, with a case, proven, paragraphs and branches exercised), run status per program
+(`proven`, `differs`, `couldn't run`, `not attempted`, `ran, coverage open`), the input generation per case (generated from a
+layout, shipped data, skipped), and the blockers stated as fixes. Each non-proven program is under exactly one blocker (its
+highest-ranked gap). `tests_unlocked` counts the scenarios of the cases of programs for which the blocker is the only gap
+left; `then_needs` lists what a program still needs after it. Non-burned programs are counted, never named. The page is
+generated output and is not committed.

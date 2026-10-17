@@ -3518,6 +3518,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             if db2 else common.run_cobol_step(work))  # fmt: skip
     if proc.returncode != 0:
         raise RuntimeError(f"COBOL side failed:\n{proc.stdout}\n{proc.stderr}")
+    overruns: list[str] = []  # #4449 (X8)
     refused: dict[str, str] = {}  # #4173: a derived SQL-fault task that reaches what is not modelled: that task only
     for sc in case["scenarios"]:  # a LINK reached: the program it names is not run here (no port of it)
         log = work / "scenarios" / sc["name"] / "out" / "events.txt"
@@ -3539,8 +3540,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                 # name, reported as refused, never proven
                 refused[sc["name"]] = why
                 continue
-            raise Unsupported(f"scenario {sc['name']}: {why}; if the program does it on purpose, name the scenario "
-                              'in the case\'s "bounds_refused" with the reason', ["BOUNDS"])  # fmt: skip
+            overruns.append(f"scenario {sc['name']}: {why}")
+            continue
         if rc.is_file() and rc.read_text().strip() == "98" and said.is_file():
             x6 = judged_refusal(said.read_text(encoding="latin-1"))
             if x6:  # owner decision on #4607 (X6): judged up to the refused WRITEQ, derived or not -- what ran before
@@ -3552,6 +3553,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                 continue
             if why:
                 raise Unsupported(f"scenario {sc['name']}: {why.strip()}", ["MODEL"])
+    if overruns:  # every one at once, so a case is fixed in one pass
+        raise Unsupported("; ".join(overruns) + '; if the program does it on purpose, name each scenario in the '
+                          'case\'s "bounds_refused" with the reason', ["BOUNDS"])  # fmt: skip
     (work / "refused.json").write_text(json.dumps(refused, indent=1) + "\n", encoding="utf-8")
     kept = [sc for sc in case["scenarios"] if sc["name"] not in refused]
 

@@ -1287,5 +1287,23 @@
    },
    "why": "#4602: WS-CA-LAST-PAGE-DISPLAYED 5, neither CA-LAST-PAGE-SHOWN (0) nor CA-LAST-PAGE-NOT-SHOWN (9): PF8 with no next page relists the last page and 1400-SETUP-MESSAGE takes the PF8 / no-next-page arm with IF CA-LAST-PAGE-NOT-SHOWN (line 913) false"
   }
- ]
+ ],
+ "bounds_refused": {
+  "first-entry-from-menu": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "no-commarea": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "enter-no-filters": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "enter-on-page-3-relists-page-3": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "account-filter": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "account-filter-matches-no-card": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "account-filter-from-page-3-misses-earlier-cards": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "card-filter": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "enter-after-clearing-the-card-filter": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "both-filters": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "both-filters-disagree": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "back-from-card-view": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "pf5-acts-as-enter": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "startbr-not-open": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "readnext-io-error-mid-page": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "enter-with-page-number-zero": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it"
+ }
 }

@@ -89,3 +89,17 @@ def test_oracle_stops_past_the_item(tmp_path, n, length, hit):
 def test_oracle_runs_in_range(tmp_path):
     said = _oracle(tmp_path, 3, 5)
     assert common.bound_violation(said) is None and b"done" in said
+
+
+BOUNDS_CASES = ["carddemo-cardlist", "carddemo-cotrtlic", "carddemo-menu", "cbsa-bnk1cac", "cbsa-bnk1uac"]
+
+
+@pytest.mark.parametrize("name", BOUNDS_CASES)
+def test_bounds_refused_names_real_scenarios_with_a_reason(name):
+    import json
+
+    case = json.loads((Path(__file__).resolve().parents[1] / "equivalence" / name / "case.json").read_text())
+    scenarios = {sc["name"] for sc in case["scenarios"]}
+    refused = case["bounds_refused"]
+    assert refused and set(refused) <= scenarios
+    assert all(len(why) > 20 for why in refused.values())

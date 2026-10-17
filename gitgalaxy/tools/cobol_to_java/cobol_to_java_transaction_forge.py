@@ -5283,13 +5283,19 @@ CICS_TASK_JAVA += """\
                 || o instanceof Double || o instanceof Float);
     }
 
-    /** #4956: whether `part` is `whole` or an object `whole` holds (a nested group, a table, an element, a byte
+    /** #5060: a String or number `part` cannot be traced by reference, so it counts when it equals a value `whole`
+     *  holds (an equal-valued copy is refused too: refuse, never guess).
+     *  #4956: whether `part` is `whole` or an object `whole` holds (a nested group, a table, an element, a byte
      *  area), by reference -- what an XCTL of a LINKed program's DTO, or of a part of it, passes. */
     private static boolean within(Object whole, Object part, java.util.IdentityHashMap<Object, Boolean> seen) {
         if (whole == part) {
             return true;
         }
-        if (!aliasable(whole) || seen.put(whole, Boolean.TRUE) != null) {
+        boolean byValue = part != null && !aliasable(part);  // #5060: a value is traced by equality, not identity
+        if (!aliasable(whole)) {
+            return byValue && part.equals(whole);
+        }
+        if (seen.put(whole, Boolean.TRUE) != null) {
             return false;
         }
         Class<?> type = whole.getClass();
@@ -5308,7 +5314,7 @@ CICS_TASK_JAVA += """\
         } else if (!type.getName().startsWith("java.")) {
             for (Class<?> k = type; k != null && k != Object.class; k = k.getSuperclass()) {
                 for (java.lang.reflect.Field f : k.getDeclaredFields()) {
-                    if (java.lang.reflect.Modifier.isStatic(f.getModifiers()) || f.getType().isPrimitive()) {
+                    if (java.lang.reflect.Modifier.isStatic(f.getModifiers()) || (f.getType().isPrimitive() && !byValue)) {
                         continue;
                     }
                     try {
@@ -5357,7 +5363,7 @@ CICS_TASK_JAVA += """\
                 snapshot.apply(commarea), "resp", resp, "resp2", resp2);
         boolean ofLinkage = xctlOfLinkage;
         xctlOfLinkage = false;
-        boolean ofDto = linkedDto && aliasable(commarea) && within(this.commarea, commarea, new java.util.IdentityHashMap<>());
+        boolean ofDto = linkedDto && commarea != null && within(this.commarea, commarea, new java.util.IdentityHashMap<>());
         if ("NORMAL".equals(resp) && (ofLinkage && callerArea || ofDto)) {
             throw new UnsupportedOperationException("XCTL passing the COMMAREA its LINK caller passed: IBM does not say "
                     + "whether the target addresses the caller's storage or a copy, not modelled");

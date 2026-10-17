@@ -6,7 +6,8 @@ XCTL's COMMAREA is the program's own DTO, or an object that DTO holds (a nested 
 area). IBM (EXEC CICS XCTL, COMMAREA: "the contents of the data-area are passed") does not say whether the target then
 addresses the caller's storage or a copy. A copy (a new object), a failed XCTL, an XCTL at level 1 or of a task's own
 start COMMAREA, and the target of an XCTL passing its own DTO again (a copy of a copy) are not refused. A String or
-number field is a value, not an object the caller holds: it cannot be told from a copy and is passed as it is.
+number cannot be traced by reference (#5060): one equal to a value the DTO holds is refused too, an equal-valued copy
+included (refuse, never guess); a value the DTO does not hold is passed as it is.
 """
 
 from __future__ import annotations
@@ -62,6 +63,12 @@ public class Main {
                         case "mapped" -> d.byKey.get("k");
                         case "bytes" -> d.raw;
                         case "name" -> d.name;
+                        case "number" -> d.num;
+                        case "nested" -> d.grp.text;
+                        case "tabled" -> d.table[1].text;
+                        case "keyed" -> d.byKey.get("k").text;
+                        case "fresh" -> "zzz";
+                        case "none" -> null;
                         case "copy", "hop" -> new Dto();
                         default -> d;
                     };
@@ -96,7 +103,10 @@ public class Main {
         for (String s : new String[] {"whole", "group", "table", "element", "listed", "mapped", "bytes"}) {
             System.out.println(s + " " + run(s, false, true));
         }
-        for (String s : new String[] {"name", "copy", "failed", "hop"}) {
+        for (String s : new String[] {"name", "number", "nested", "tabled", "keyed"}) {
+            System.out.println(s + " " + run(s, false, true));
+        }
+        for (String s : new String[] {"copy", "fresh", "none", "failed", "hop"}) {
             System.out.println(s + " " + run(s, false, true));
         }
         System.out.println("level1 " + run("whole", true, true));
@@ -114,7 +124,8 @@ def _jdk() -> Path | None:
 @pytest.mark.skipif(_jdk() is None, reason="no JDK (JDK_17 / JAVA_HOME)")
 def test_cictask_refuses_an_xctl_of_the_dto_its_program_was_linked_with(tmp_path):
     """The whole DTO and every object it holds (group, table, element, list element, map value, byte area) are the
-    caller's storage: refused. A copy, a failed XCTL (the program goes on), a String field (a value), a copy-of-a-copy
+    caller's storage: refused; so is a String or number equal to a value the DTO holds (#5060: a value cannot be traced,
+    so an equal-valued copy is refused too). A copy, a distinct value, no COMMAREA, a failed XCTL (the program goes on), a copy-of-a-copy
     hop, a level-1 task and a LINK that passed no DTO are not; the DTO holding itself does not loop."""
     from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA, CICS_TASK_JAVA
 
@@ -138,8 +149,14 @@ def test_cictask_refuses_an_xctl_of_the_dto_its_program_was_linked_with(tmp_path
         "listed REFUSED true",
         "mapped REFUSED true",
         "bytes REFUSED true",
-        "name NORMAL>EE",
+        "name REFUSED true",
+        "number REFUSED true",
+        "nested REFUSED true",
+        "tabled REFUSED true",
+        "keyed REFUSED true",
         "copy NORMAL>EE",
+        "fresh NORMAL>EE",
+        "none NORMAL>EE",
         "failed PGMIDERR",
         "hop NORMAL>EE",
         "level1 NORMAL>EE",

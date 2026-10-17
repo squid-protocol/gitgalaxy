@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `1cf842c42` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `460af273e` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -28,7 +28,7 @@ mutants caught (`definition_of_done.md`).
 | Translator | 115 programs translated whole | 129 burned programs | docs/language_status/evidence_report/<estate>/report.json (evidence_report.py, generated branch) |
 | CICS commands | 60 modelled on both runtimes | 68 commands a burned program uses (7 unlisted or unparsed forms, counted as not modelled) | docs/language_status/cics_spec_status.json (cics_spec_status.py) |
 | COBOL runtime rules | 81 MATCHED, 23 DIFFERS, 50 ASSUMED, 11 REFUSED; 0 measured on z/OS | 165 rules | docs/language_status/cobolrt_rules.json |
-| Mutation | 585 killed = 91.1% adjusted (69.6% raw) | 642 adjusted, 840 raw mutants over 20 ports | docs/language_status/mutation_scores.json |
+| Mutation | 609 killed = 95.6% adjusted (72.5% raw) | 637 adjusted, 840 raw mutants over 20 ports | docs/language_status/mutation_scores.json |
 | CICS crucible | 57 programs, 159 scenarios | pinned at `v0.9.0 (3ca75ae0)` | tests/cics_crucible/coverage.json |
 | Estate crucible | 60 of 60 horrors pass | pinned at `v0.4.0` | tests/estate_crucible/baseline.json |
 
@@ -51,12 +51,12 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-17T08:27:41Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-17T08:34:43Z.
 
-- `scope:core`: 26 open, 120 closed.
-- Milestone 28: 14 open, 77 closed.
-- Last 7 days: 22 opened, 32 closed, net +10 closed.
-- ETA (open / net closure rate): **18 days**.
+- `scope:core`: 25 open, 121 closed.
+- Milestone 28: 13 open, 78 closed.
+- Last 7 days: 22 opened, 33 closed, net +11 closed.
+- ETA (open / net closure rate): **16 days**.
 
 ## 5. Gap Atlas
 

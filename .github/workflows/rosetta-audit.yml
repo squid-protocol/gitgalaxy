@@ -98,14 +98,14 @@ jobs:
         run: |
           python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
           pip install --require-hashes -r gitgalaxy/ci/requirements/engines.txt
-          pip install -e ./gitgalaxy
+          pip install --no-build-isolation -e ./gitgalaxy
 
       - name: Install GitGalaxy baseline build (full precision, separate venv)
         run: |
           python -m venv baseline-venv
           baseline-venv/bin/pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
           baseline-venv/bin/pip install --require-hashes -r gitgalaxy/ci/requirements/engines.txt
-          baseline-venv/bin/pip install ./gitgalaxy-baseline
+          baseline-venv/bin/pip install --no-build-isolation ./gitgalaxy-baseline
 
       - name: Run all language gates, classify against the baseline
         env:

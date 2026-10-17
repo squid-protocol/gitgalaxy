@@ -120,7 +120,7 @@ scripts separately: it bundles all three plus the format check. Baseline keys ar
 `docs/agents/baseline-audits.md`.
 
 Don't write module-level optional-import fallbacks (`try: import yaml` / `except ImportError: yaml
-= None`): a local mypy with `types-PyYAML` passes, but CI's mypy env (`tests/requirements-mypy.txt`)
+= None`): a local mypy with `types-PyYAML` passes, but CI's mypy env (`ci/requirements/mypy.txt`)
 has no stubs and fails. Import lazily inside the function.
 
 ## Mainframe / COBOL

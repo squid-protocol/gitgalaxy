@@ -38,7 +38,8 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 PY = sys.executable
-MYPY_REQUIREMENTS = "tests/requirements-mypy.txt"
+MYPY_REQUIREMENTS = "ci/requirements/mypy.txt"
+BOOTSTRAP_REQUIREMENTS = "ci/requirements/bootstrap.txt"
 MYPY_CACHE = Path(os.environ.get("GITGALAXY_MYPY_CACHE", Path.home() / ".cache" / "gitgalaxy"))
 
 
@@ -329,10 +330,16 @@ def pinned_mypy_audit(root: Path, env: dict[str, str]) -> list[list[str]]:
         shutil.rmtree(venv, ignore_errors=True)
         venv.parent.mkdir(parents=True, exist_ok=True)
         subprocess.run([PY, "-m", "venv", str(venv)], check=True)  # noqa: S603
-        subprocess.run([str(vpy), "-m", "pip", "install", "-q", "-r", str(root / MYPY_REQUIREMENTS)], check=True)  # noqa: S603
+        for reqs in (
+            BOOTSTRAP_REQUIREMENTS,
+            MYPY_REQUIREMENTS,
+        ):  # bootstrap carries the build backend for --no-build-isolation
+            subprocess.run(
+                [str(vpy), "-m", "pip", "install", "-q", "--require-hashes", "-r", str(root / reqs)], check=True
+            )  # noqa: S603
         (venv / ".ready").write_text(want)
     if not marker.exists() or marker.read_text() != str(root):
-        subprocess.run([str(vpy), "-m", "pip", "install", "-q", "-e", str(root)], check=True)  # noqa: S603
+        subprocess.run([str(vpy), "-m", "pip", "install", "-q", "--no-build-isolation", "-e", str(root)], check=True)  # noqa: S603
         marker.write_text(str(root))
     _announce("mypy", venv / "bin" / "mypy", venv / "bin")
     return [[*clean_prefix(venv / "bin", root), str(vpy), "tests/mypy_audit.py", "--ci"]]

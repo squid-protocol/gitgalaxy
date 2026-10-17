@@ -21,7 +21,8 @@ USAGE
                                          # what CI runs.
 
 IMPORTANT: regenerate the baseline in the SAME environment mypy-audit.yml
-uses -- `pip install -r tests/requirements-mypy.txt && pip install -e .`, nothing else
+uses -- `pip install --require-hashes -r ci/requirements/bootstrap.txt -r ci/requirements/mypy.txt`
+then `pip install --no-build-isolation -e .`, nothing else
 (pr_gates.py builds exactly that in ~/.cache/gitgalaxy/mypy-<version>).
 Confirmed the hard way (PR #436): regenerating it in a "full-precision"
 env (networkx/tiktoken/pandas/xgboost also installed) silently changed

@@ -12,12 +12,12 @@ import pr_gates
 def test_ci_pins_reads_workflows():
     pins = pr_gates.ci_pins()
     assert pins["python"] and pins["ruff"]  # ruff is pinned in ci/requirements/lint.in
-    assert pins["mypy"]  # mypy is pinned in tests/requirements-mypy.txt
+    assert pins["mypy"]  # mypy is pinned in ci/requirements/mypy.in
 
 
 def test_mypy_workflow_installs_from_the_pin_file():
     yml = (pr_gates.REPO / ".github" / "workflows" / "mypy-audit.yml").read_text(encoding="utf-8")
-    assert "pip install -r tests/requirements-mypy.txt" in yml
+    assert "pip install --require-hashes -r ci/requirements/mypy.txt" in yml
 
 
 def test_version_warnings_flag_drift_and_print_private_venv():

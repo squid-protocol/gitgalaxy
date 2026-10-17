@@ -84,7 +84,7 @@ jobs:
             echo "Deliberately skipping tiktoken/pandas/xgboost -- Zero-Dependency Mode leg."
             pip install --require-hashes -r ci/requirements/yaml.txt
           fi
-          pip install -e .
+          pip install --no-build-isolation -e .
           pip install --require-hashes -r ci/requirements/pytest.txt
 
       - name: Fetch Golden Test Repo (Language Crucible)

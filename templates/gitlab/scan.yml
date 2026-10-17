@@ -53,7 +53,8 @@ gitgalaxy_scan:
       if [ "$GG_FULL_PRECISION" = "true" ]; then GG_REQS=full; else GG_REQS=yaml; fi
       if [ "$GG_VERSION" = "local" ]; then
         echo "Dogfooding local GitGalaxy source..."
-        pip install -e ".[yaml]"
+        pip install --require-hashes -r ci/requirements/bootstrap.txt
+        pip install --no-build-isolation -e ".[yaml]"
       elif [ "$GG_VERSION" = "latest" ]; then
         echo "Installing the hash-pinned GitGalaxy release..."
         # Marker lines are stamped by tests/tools/stamp_template_pins.py (one per set).

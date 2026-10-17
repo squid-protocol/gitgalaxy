@@ -12,8 +12,8 @@ the charter in `definition_of_done.md`. Counts only; a level is an evidence leve
 | L0 inventoried | 9 |
 | L1 translated whole | 3 |
 | L2 executed equivalent | 4 |
-| L3 paragraph coverage | 13 |
-| L4 branch coverage | 15 |
+| L3 paragraph coverage | 14 |
+| L4 branch coverage | 14 |
 | L5 mutants accounted for | 0 |
 
 - translated whole: 35 / 44 (80%); with holes: 9; refused: 0
@@ -57,6 +57,7 @@ era 0: 0, era 1: 5, era 2: 22, era 3: 15, era 4: 0, era none: 2
 | X3 | MATCHED | CICS | 9 |
 | X20 | MATCHED (REFUSED where the region cannot decide) | CICS | 8 |
 | X52 | ASSUMED (REFUSED where IBM is silent) | CICS | 8 |
+| X67 | REFUSED | CICS | 5 |
 | X46 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 |
 | X18 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 |
 | X16 | MATCHED (REFUSED where IBM is silent) | CICS | 1 |
@@ -114,15 +115,15 @@ era 0: 0, era 1: 0, era 2: 0, era 3: 0, era 4: 7, era none: 3
 | level | programs at exactly this level |
 |---|---|
 | L0 inventoried | 0 |
-| L1 translated whole | 6 |
+| L1 translated whole | 5 |
 | L2 executed equivalent | 12 |
-| L3 paragraph coverage | 7 |
+| L3 paragraph coverage | 8 |
 | L4 branch coverage | 6 |
 | L5 mutants accounted for | 0 |
 
 - translated whole: 31 / 31 (100%); with holes: 0; refused: 0
 - whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0
-- executed equivalent (L2 and above): 25 / 31
+- executed equivalent (L2 and above): 26 / 31
 - charter bars for L3 / L4: paragraphs 100.0%, branches 100.0%
 
 Era evidence (programs by latest era a tell reaches):
@@ -151,6 +152,7 @@ era 0: 0, era 1: 0, era 2: 22, era 3: 1, era 4: 6, era none: 2
 | X20 | MATCHED (REFUSED where the region cannot decide) | CICS | 9 |
 | X31 | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | CICS | 9 |
 | X15 | ASSUMED (REFUSED where IBM is silent) | CICS | 8 |
+| X67 | REFUSED | CICS | 7 |
 | X17 | ASSUMED (REFUSED where IBM is silent) | CICS | 6 |
 | X26 | ASSUMED (REFUSED where IBM is silent) | CICS | 6 |
 | X14 | ASSUMED (REFUSED where IBM is silent) | CICS | 5 |
@@ -168,8 +170,8 @@ era 0: 0, era 1: 0, era 2: 22, era 3: 1, era 4: 6, era none: 2
 |---|---|
 | L0 inventoried | 0 |
 | L1 translated whole | 0 |
-| L2 executed equivalent | 13 |
-| L3 paragraph coverage | 13 |
+| L2 executed equivalent | 10 |
+| L3 paragraph coverage | 16 |
 | L4 branch coverage | 5 |
 | L5 mutants accounted for | 0 |
 
@@ -343,3 +345,4 @@ era 0: 0, era 1: 0, era 2: 0, era 3: 0, era 4: 4, era none: 3
 | X47 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 |
 | X53 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 |
 | X60 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 |
+| X67 | REFUSED | CICS | 1 |

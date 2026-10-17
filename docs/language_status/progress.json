@@ -1,5 +1,5 @@
 {
- "commit": "f9399b0b8",
+ "commit": "ac35b4fab",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -66,7 +66,7 @@
     },
     "LE": {
      "ASSUMED": 4,
-     "MATCHED": 9
+     "MATCHED": 10
     },
     "MQ": {
      "ASSUMED": 6,
@@ -90,11 +90,11 @@
     }
    },
    "measured_on_zos": 0,
-   "rules": 169,
+   "rules": 170,
    "status": {
     "ASSUMED": 50,
     "DIFFERS": 23,
-    "MATCHED": 82,
+    "MATCHED": 83,
     "REFUSED": 14
    }
   },
@@ -135,8 +135,8 @@
    "programs": 9
   },
   "2": {
-   "l2_plus": 63,
-   "l4_plus": 22,
+   "l2_plus": 64,
+   "l4_plus": 21,
    "programs": 70
   },
   "3": {
@@ -157,7 +157,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-17T22:14:25Z",
+  "as_of": "2026-10-17T22:16:58Z",
   "core": {
    "closed": 122,
    "open": 24,
@@ -420,15 +420,15 @@
    "aws-mainframe-modernization-carddemo": {
     "l2_plus": 32,
     "l2_plus_pct": 72.7,
-    "l4_plus": 15,
-    "l4_plus_pct": 34.1,
+    "l4_plus": 14,
+    "l4_plus_pct": 31.8,
     "l5": 0,
     "levels": {
      "L0": 9,
      "L1": 3,
      "L2": 4,
-     "L3": 13,
-     "L4": 15,
+     "L3": 14,
+     "L4": 14,
      "L5": 0
     },
     "programs": 44,
@@ -452,16 +452,16 @@
     "translated_whole": 10
    },
    "cics-banking-sample-application-cbsa": {
-    "l2_plus": 25,
-    "l2_plus_pct": 80.6,
+    "l2_plus": 26,
+    "l2_plus_pct": 83.9,
     "l4_plus": 6,
     "l4_plus_pct": 19.4,
     "l5": 0,
     "levels": {
      "L0": 0,
-     "L1": 6,
+     "L1": 5,
      "L2": 12,
-     "L3": 7,
+     "L3": 8,
      "L4": 6,
      "L5": 0
     },
@@ -477,8 +477,8 @@
     "levels": {
      "L0": 0,
      "L1": 0,
-     "L2": 13,
-     "L3": 13,
+     "L2": 10,
+     "L3": 16,
      "L4": 5,
      "L5": 0
     },
@@ -521,17 +521,17 @@
    }
   },
   "total": {
-   "l2_plus": 103,
-   "l2_plus_pct": 79.8,
-   "l4_plus": 38,
-   "l4_plus_pct": 29.5,
+   "l2_plus": 104,
+   "l2_plus_pct": 80.6,
+   "l4_plus": 37,
+   "l4_plus_pct": 28.7,
    "l5": 0,
    "levels": {
     "L0": 14,
-    "L1": 12,
-    "L2": 31,
-    "L3": 34,
-    "L4": 38,
+    "L1": 11,
+    "L2": 28,
+    "L3": 39,
+    "L4": 37,
     "L5": 0
    },
    "programs": 129,

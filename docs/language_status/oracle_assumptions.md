@@ -409,7 +409,8 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   (`UnsupportedOption`).
   - `INTDATE(LILIAN)` is pinned by IBM (day 1 is 15 October 1582 instead of 1 January 1601), and could be modelled
     by the documented offset of the integer-date functions. Dates before 1601 cannot run on GnuCOBOL and would be
-    refused. No case needs it yet.
+    refused. No case needs it yet: no burned estate's program carries `INTDATE(LILIAN)` on a CBL/PROCESS card
+    (#4271 status check), so it stays refused by name rather than modelled.
 
 ### Compile options: the table (#4706)
 One row per option that can change a result: (1) does it change results; (2) can cobc honour it; (3) what the det
@@ -552,6 +553,14 @@ instrument). The rows below are rendered by one table in code (`compiler_options
     baseline (KNOWN_UNPROVEN). It would also round where GnuCOBOL truncates.
   - CBSA's CRECUST, BANKDATA, BNK1CAC, BNK1CRA, BNK1TFN and BNK1UAC are not cases. Since #4270's NUMVAL slice
     BNK1CAC, BNK1TFN and BNK1UAC translate whole (BNK1CRA still has EXEC CICS INQUIRE).
+- **Exponentiation is refused in every shape, on purpose (#4271).** IBM documents no result for `**` in a
+  floating-point expression, so the translator makes it a Hole whatever the base (COMP-1, COMP-2, parenthesised, a
+  fixed-point base with a float exponent), the exponent (integer literal or item, negative, with decimal places, a
+  float), the verb (COMPUTE, IF) or the nesting, and whatever the receiver; pinned by `test_det_hfp.py`
+  `test_a_floating_point_exponentiation_is_a_named_hole_in_every_shape`. A fixed-point `**` is not affected (the
+  oracle's decimal rule, C2; `test_a_fixed_point_exponentiation_is_not_refused`). Modelling it as an ASSUMED routine
+  would not move `mortgage-mpmt` out of KNOWN_UNPROVEN: the oracle cannot run HFP, so the proof waits on z/OS captures
+  (#4050) either way. Among the burned estates only EPSMPMT (line 125) reaches it.
 - **What would settle it.** A z/OS run of EPSMPMT's scenarios (#4050): the exponentiation, and the ASSUMED
   conversions above, checked where the oracle cannot.
 - **Later slices of #4271** (left as they are): `NUMPROC(PFD)` with non-preferred signs (refused by name, C5),
@@ -3762,6 +3771,10 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   bytes against a 1-byte literal and whatever the literal pool holds after it. The error path: an `MVC` of 38 bytes
   from a 13-byte literal. What both do depends on the load module, not the source, so no proof rests on them.
   CBACT01C never takes either.
+- **MVSWAIT (#5106).** CardDemo's `app/asm/MVSWAIT.asm` (CALLed by COBSWAIT) is modelled the same way
+  (`tests/equivalence/le/mvswait.c`, `Mvswait.java`): it loads its fullword argument, starts an interval timer and
+  returns with R15 = 0, writing nothing to the caller. The wait is not observable in a compared output, so it is not
+  slept; an argument shorter than the fullword is refused on the Java side.
 
 ## Db2 (`equivalence_sql.py`, `ggsql.c`, `DetSql`)
 

@@ -15,7 +15,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | FUNC: intrinsic functions | `Funcs.java`, `Accept.java` | 12 | yes |
 | CICS: EXEC CICS data movement | `cics/DetCics.java`, `cics/DetJustify.java` | 27 | yes |
 | SQL: embedded SQL | `sql/DetSql.java` | 10 | yes |
-| LE: Language Environment callable services | `le/Ceedate.java`, `le/Ceedatm.java`, `le/Ceedays.java`, `le/Ceegmt.java`, `le/Ceeisec.java`, `le/Ceeloct.java`, `le/Ceeqcen.java`, `le/Ceesecs.java`, `le/Ceeutc.java`, `le/Cobdatft.java`, `le/LeTime.java` | 13 | yes |
+| LE: Language Environment callable services | `le/Ceedate.java`, `le/Ceedatm.java`, `le/Ceedays.java`, `le/Ceegmt.java`, `le/Ceeisec.java`, `le/Ceeloct.java`, `le/Ceeqcen.java`, `le/Ceesecs.java`, `le/Ceeutc.java`, `le/Cobdatft.java`, `le/LeTime.java`, `le/Mvswait.java` | 14 | yes |
 | DLI: IMS DL/I database calls | `dli/DetDli.java` | 9 | yes |
 | MQ: IBM MQ (MQI from CICS) | `mq/QueueManager.java`, `cics/DetMq.java` | 7 | yes |
 | DATA: items and storage | `Field.java`, `Storage.java`, `Lossless.java`, `Figurative.java`, `Hole.java` | 5 | yes |
@@ -23,7 +23,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | FILE: batch files | `batch/DetFiles.java` | 3 | yes |
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 
-169 rules: 82 MATCHED, 23 DIFFERS, 14 REFUSED, 50 ASSUMED; 0 measured on z/OS (#4702).
+170 rules: 83 MATCHED, 23 DIFFERS, 14 REFUSED, 50 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -35,6 +35,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 - `db2-codes`: IBM Db2 for z/OS Codes
 - `db2-app`: IBM Db2 for z/OS Application Programming and SQL Guide
 - `le-pr`: IBM z/OS Language Environment Programming Reference
+- `carddemo-mvswait`: CardDemo app/asm/MVSWAIT.asm -- the estate's own assembler routine (no IBM manual applies; the source is the reference)
 - `carddemo-cobdatft`: CardDemo app/asm/COBDATFT.asm -- the estate's own assembler routine (no IBM manual applies; the source is the reference)
 - `ims-apis`: IBM IMS Application Programming APIs (DL/I calls, SSAs, relational operators)
 - `ims-ap`: IBM IMS Application Programming (DB PCB masks, current position in the database)
@@ -229,7 +230,7 @@ Host variables, the SQLCA, cursors and the unit of work around each EXEC SQL sta
 
 ## LE: Language Environment callable services
 
-The date / time services and COBDATFT, as the harness's C models do them.
+The date / time services, COBDATFT and MVSWAIT, as the harness's C models do them.
 
 | id | rule | IBM | options | register (its status) | status | calibration |
 |---|---|---|---|---|---|---|
@@ -246,6 +247,7 @@ The date / time services and COBDATFT, as the harness's C models do them.
 | RT-LE-CEEDAYS | CEEDAYS: a character date by a picture string to a Lilian day, the documented conditions; the rest refused | `le-pr` CEEDAYS: convert date to Lilian format | - | L1 (MATCHED / ASSUMED / REFUSED) | MATCHED | uncalibrated |
 | RT-LE-CEELOCT | CEELOCT: the run's pinned clock as local time: Lilian day, Lilian seconds and the 17-character Gregorian form | `le-pr` CEELOCT: get current local date or time | - | L5 (ASSUMED) | ASSUMED | uncalibrated |
 | RT-LE-COBDATFT | COBDATFT (CardDemo's assembler date routine): input type '2' to output type '2' modelled byte for byte; type '1' and the error path depend on the load module's literal pool: refused | `carddemo-cobdatft` COBDATFT.asm | - | A1 (MATCHED / REFUSED) | MATCHED | uncalibrated |
+| RT-LE-MVSWAIT | MVSWAIT (CardDemo's assembler wait routine): returns at once with RETURN-CODE 0, caller storage untouched (the timer wait is not observable); an argument shorter than the fullword it loads: refused | `carddemo-mvswait` MVSWAIT.asm | - | A1 (MATCHED / REFUSED) | MATCHED | uncalibrated |
 
 ## DLI: IMS DL/I database calls
 

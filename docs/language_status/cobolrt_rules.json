@@ -2394,6 +2394,7 @@
     "setAddress",
     "setAddressOfRecord",
     "setPointerToRecord",
+    "samePointer",
     "wholeRecord"
    ],
    "site": "getmain",

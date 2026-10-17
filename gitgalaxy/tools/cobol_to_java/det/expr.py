@@ -394,11 +394,11 @@ class Parser:
             if last is not None:
                 if self._rel_start():
                     op, neg = self._rel_op()
-                    obj = self.arith()
+                    obj = self._null_operand() or self.arith()  # (#5042: `PTR = A OR NOT = NULL`)
                     r = Rel(op, last.left, obj)
                     return Not(r) if neg else r
                 # the object only: the subject and the relation (its NOT included) of the last one
-                obj = self.arith()
+                obj = self._null_operand() or self.arith()  # (#5042: `PTR = A OR NULL`)
                 r = Rel(last.op, last.left, obj)
                 return Not(r) if negated else r
         left = self._null_operand() or self.arith()
@@ -455,7 +455,12 @@ class Parser:
             j += 1
         # a bare data name could be a condition-name: only an operand that is a literal / figurative is an object
         first = self.t[self.i]
-        return first[:1] in "'\"" or _is_number(first) or first.upper() in FIGURATIVES or first.upper() == "ALL"
+        return (
+            first[:1] in "'\""
+            or _is_number(first)
+            or first.upper() in FIGURATIVES
+            or first.upper() in ("ALL", "NULL", "NULLS")
+        )
 
     def _rel_start(self) -> bool:
         u = self.up()

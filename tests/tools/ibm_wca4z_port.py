@@ -36,7 +36,7 @@ TOOLS = Path(__file__).resolve().parent
 REPO_ROOT = TOOLS.parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 from gitgalaxy.core.source_text import read_source  # noqa: E402
-from maven_exe import mvn_executable  # noqa: E402
+from maven_exe import maven_utf8_env, mvn_executable  # noqa: E402
 
 ADAPTER = TOOLS / "ibm_wca4z"
 
@@ -82,11 +82,11 @@ ADAPTER_BODY = """\
         return {NEXT};"""
 
 
-def run(argv: list[str], cwd: Path = REPO_ROOT, log: Path | None = None) -> int:
+def run(argv: list[str], cwd: Path = REPO_ROOT, log: Path | None = None, env: dict[str, str] | None = None) -> int:
     if log is None:
-        return subprocess.run(argv, cwd=cwd, check=False).returncode  # noqa: S603
+        return subprocess.run(argv, cwd=cwd, env=env, check=False).returncode  # noqa: S603
     with log.open("wb") as fh:
-        return subprocess.run(argv, cwd=cwd, check=False, stdout=fh, stderr=subprocess.STDOUT).returncode  # noqa: S603
+        return subprocess.run(argv, cwd=cwd, env=env, check=False, stdout=fh, stderr=subprocess.STDOUT).returncode  # noqa: S603
 
 
 def fetch(work: Path) -> Path:
@@ -176,7 +176,8 @@ JUNIT_POM = """<?xml version="1.0" encoding="UTF-8"?>
     <plugins>
       <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-compiler-plugin</artifactId><version>3.11.0</version></plugin>
       <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-surefire-plugin</artifactId><version>3.2.5</version>
-        <configuration><includes><include>**/*Tests.java</include></includes></configuration></plugin>
+        <configuration><argLine>-Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8</argLine>
+          <includes><include>**/*Tests.java</include></includes></configuration></plugin>
     </plugins>
   </build>
 </project>
@@ -194,7 +195,7 @@ def junit(work: Path, src: Path) -> dict[str, object]:
     shutil.copytree(src / "generated_code" / "test", project / "src/test/java")
     (project / "pom.xml").write_text(JUNIT_POM, encoding="utf-8")
     log = work / "ibm-junit.log"
-    rc = run([mvn_executable(), "-q", "-B", "test"], cwd=project, log=log)
+    rc = run([mvn_executable(), "-q", "-B", "test"], cwd=project, log=log, env=maven_utf8_env())
     text = read_source(log).text
     errors = [ln.strip() for ln in text.splitlines() if "ERROR" in ln and ".java" in ln][:10]
     return {"rc": rc, "compile_errors": errors, "log": str(log)}

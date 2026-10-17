@@ -176,6 +176,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X64 | CICS | EIBDS is the FILE / DATASET of the last file control request on both runtimes (before the request runs); EIBFN, EIBRCODE, EIBCPOSN, EIBREQID, EIBRSRCE, EIBERR and EIBERRCD are INITIALIZEd on both sides and stay `fact:` gaps in proof_blockers | ASSUMED (EIBDS) / REFUSED (the other EIB resource and response fields) | EIBDS: only ZECS001 reads it (a program with holes, no case yet); the others: ZECS001's EIBRCODE (the same program) |
 | X65 | CICS | Every EXEC CICS command the det translator does not model is a hole named after the command, never a guess. This entry lists them by class with the reason: BTS (40 commands), APPC / DTP conversations (13) and GDS (14), batch data interchange ISSUE (13), security (12), terminal control beyond one 3270 display (11), SOAP / WS-Addressing (9), journals (5), JES spool (5), TRANSFORM (4), DOCUMENT INSERT / SET / DELETE (3), OpenTelemetry (3), 64-bit GET64 / PUT64 CONTAINER and GETMAIN64 / FREEMAIN64 (4), partitions (2), trace and monitoring (2), and LOAD and RELEASE (engine-only: the engine derives the edge, the translator refuses them), and single commands (SUSPEND, ISSUE PASS, ROUTE, ADDRESS SET, RESETBR, INVOKE APPLICATION, BIF DIGEST, CHANGE TASK, CONVERTTIME, INQUIRE CONTAINER). Each command's own reason is its entry in gitgalaxy/standards/cics/commands/api.py (the translator's hole message); X46 (DUMP TRANSACTION), X59 and X63 keep their own entries | REFUSED | no burned estate (CardDemo, CBSA, GenApp, zECS, DBB MortgageApplication, async credit-card) uses any of them except SOAPFAULT CREATE in zECS (web services, out of scope for #4270); tests/cobol_mainframe/test_cics_refusals_registered_4270.py pins that every refused command names a register entry that exists |
 | X66 | CICS | SET TDQUEUE(q) ENABLESTATUS(ENABLED | DISABLED) makes a queue available or unavailable at run time, and INQUIRE TDQUEUE(q) ENABLESTATUS reads it back (ENABLED 23, DISABLED 24). A disabled queue answers DISABLED (84) to READQ TD, WRITEQ TD and DELETEQ TD, whatever its type or open state, and the command does nothing (a WRITEQ records no text). The state is kept across tasks and is not part of a unit of work (a SYNCPOINT ROLLBACK keeps it); a queue is ENABLED until a SET says otherwise. QIDERR RESP2 1 for a queue the CSD does not define, INVREQ RESP2 10 for an invalid CVDA. Refused by name: SET with OPENSTATUS and ENABLESTATUS together, SET ENABLESTATUS of an INDIRECT or REMOTE queue, an invalid CVDA on a queue the CSD does not define. Still refused (unchanged from X61): ATIFACILITY, ATITERMID, TRIGGERLEVEL, the INQUIRE browse, SYSID / REMOTE, IOERR, QBUSY | ASSUMED (REFUSED where IBM is silent) | no corpus program issues these forms; proven on both runtimes with hand-traced operation lists (tests/cics_crucible/test_td_queue_5168.py, the round 5 scenarios), the translators' shapes and refusals (tests/cobol_mainframe/test_td_enablestatus_translate_5168.py) and end to end against GnuCOBOL (tests/cobol_mainframe/test_td_enablestatus_e2e_5168.py) |
+| X67 | CICS | EXEC CICS HANDLE ABEND PROGRAM(name) names a program that gets control when the task abends. The det translator honours LABEL, CANCEL and RESET and refuses PROGRAM by name with this entry; the cobol-stub refuses it too (equivalence_cics.Unsupported), so the two sides agree | REFUSED | no burned estate (CardDemo, CBSA, GenApp, zECS, DBB MortgageApplication, async credit-card) issues HANDLE ABEND PROGRAM: they use LABEL (6), CANCEL (1) and LABEL with NOHANDLE (1); non-burned census programs are counted by tools only |
 | L1 | LE | CEEDAYS: numeric date pictures (YYYY MM DD in any order, YYYY DDD) read as their span; date characters past the span ignored (documented), an all-blank picture tail ignored (assumed), a non-blank tail refused; open conditions refused by name | MATCHED / ASSUMED / REFUSED | yes (CardDemo carddemo-dateutil; CBSA cbsa-crecust is refused by name, #4952) |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
@@ -1282,7 +1283,7 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
 
 ### X5. What IBM leaves open — REFUSED
 Refused by name (`equivalence_cics.Unsupported`):
-- HANDLE ABEND PROGRAM;
+- HANDLE ABEND PROGRAM (X67);
 - START with interval options;
 - READQ TS with SET or SYSID;
 - an option the stub does not know.
@@ -3572,6 +3573,16 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   INVREQ RESP2 10).
 - **Not modelled, no burned program needs it.** The burned estates' only TD command is WRITEQ TD (CSSL, JOBS, STDQ-NAME); none reads or deletes a TD queue or
   issues SET / INQUIRE TDQUEUE. DISABLED therefore has no consumer yet: this round is the same mechanism as X61 round 3, kept to what both runtimes can answer.
+
+### X67. HANDLE ABEND PROGRAM refused by name: an abend exit program is not modelled (#4270)
+- **What is refused.** `HANDLE ABEND PROGRAM(name)` (IBM, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-handle-abend):
+  the named program gets control when the task abends, in place of a paragraph of the issuing program. Modelling it needs the
+  abend to transfer control to another program at the issuing level (as an XCTL does) with the abend code available to it,
+  in both runtimes (`CicsTask` / `DetCics` and `ggcics.c`), and a hand-traced crucible case; none of that can be proven on a
+  burned program, because none uses it.
+- **Refused, never assumed.** The translator's hole names the option and this entry; the program is not translated whole.
+  `HANDLE ABEND LABEL`, `CANCEL`, `RESET` are unchanged (X31 for the abend path).
+- **Status:** REFUSED. It moves to its own modelled entry when a burned program needs it.
 
 ## Language Environment
 

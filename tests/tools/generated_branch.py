@@ -24,6 +24,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -46,11 +47,24 @@ def _git(root: Path, *args: str, env: dict[str, str] | None = None, check: bool 
     return p.stdout.strip() if p.returncode == 0 else ""
 
 
+RETRY_DELAYS = (1.0, 3.0)  # #5312: seconds before each retry of a network git call; a test sets it to ()
+
+
+def _git_net(root: Path, *args: str) -> str:
+    """`_git` for a call that crosses the network: one transient failure (a runner's dropped connection) is retried."""
+    for delay in RETRY_DELAYS:
+        try:
+            return _git(root, *args)
+        except RuntimeError:
+            time.sleep(delay)
+    return _git(root, *args)
+
+
 def fetch_tip(root: Path = REPO_ROOT, remote: str = "origin") -> str | None:
     """Fetch generated's tip and return its sha, or None when the branch does not exist (yet)."""
-    if not _git(root, "ls-remote", remote, f"refs/heads/{BRANCH}"):
+    if not _git_net(root, "ls-remote", remote, f"refs/heads/{BRANCH}"):
         return None
-    _git(root, "fetch", "--quiet", "--depth", "1", remote, BRANCH)
+    _git_net(root, "fetch", "--quiet", "--depth", "1", remote, BRANCH)
     return _git(root, "rev-parse", "FETCH_HEAD")
 
 

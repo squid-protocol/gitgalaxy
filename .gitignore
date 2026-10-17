@@ -181,6 +181,7 @@ docs/language_status/evidence_report/*
 !tests/equivalence/det_mutation_survivors/*.json
 !tests/cics_crucible/ports/*/*/evidence.json
 !tests/cics_crucible/fixture/**/*.json
+!tests/cics_crucible/strengthened/**/*.json
 *_llm.md
 venvs/
 

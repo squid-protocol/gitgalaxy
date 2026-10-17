@@ -19,7 +19,7 @@ The COBOL `SORT` / `MERGE` verbs are translated. JCL **utility steps** (SORT, ID
 - IDMS DML (refused by name, support is #4532); IMS / DL/I (`EXEC DLI`, `ENTRY 'DLITCBL'`) and MQ ([det_port_design.md](det_port_design.md): "out of scope for this translator").
 - `EXEC CICS WEB` family (#4767) and `DOCUMENT` (#4769): open, not modelled.
 - National / DBCS data (`USAGE NATIONAL`, `PIC N`, DBCS literals): #4272, open. Refused by name.
-- `COMP-1` / `COMP-2` are modelled as IBM hexadecimal floating point (register C6) but what the oracle cannot decide is refused; `INTDATE(LILIAN)` and `ARITH(EXTEND)` are refused (C5).
+- `COMP-1` / `COMP-2` are modelled as IBM hexadecimal floating point (register C6) but what the oracle cannot decide is refused; `INTDATE(LILIAN)` is refused and `ARITH(EXTEND)` stops by name past a 30-digit intermediate (C5).
 - Not measured at all by the evidence report: data migration, JCL streams, interfaces, performance, security, cutover (#4514). "Done" in this charter is about **program behaviour**, not the whole migration.
 
 ## 2. Per program: the acceptable outcomes

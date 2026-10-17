@@ -58,3 +58,12 @@ def test_the_committed_table_is_the_committed_results():
         return
     results = json.loads(ms.RESULTS.read_text(encoding="utf-8"))
     assert ms.table(results) in ms.DOC.read_text(encoding="utf-8")
+
+
+def test_a_crucible_port_is_mutated_in_its_own_files_not_the_shared_runtime():
+    overlay = REPO / "tests" / "cics_crucible" / "ports" / "pc-return-immediate" / "PCIMMA" / "overlay"
+    assert (overlay / "cobolrt").is_dir()  # this port ships the runtime
+    every = mc.mu.all_mutants(overlay, set(mc.mu.OPERATORS))
+    own = [m for m in every if not m.file.startswith(mc.SHARED_RUNTIME)]
+    assert own and len(own) < len(every)
+    assert {m.file for m in own} == {"service/PcimmaService.java"}

@@ -39,8 +39,11 @@ CBSA = "cics-banking-sample-application-cbsa"
 # ---- the oracle and the estate --------------------------------------------------------------------------------------
 def test_trunc_opt_runs_the_oracle_as_trunc_std():
     text, flags = common.compile_options({}, "       PROCESS TRUNC(OPT)\n" + PLAIN)
-    assert text == "\n" + PLAIN and flags == ["-fbinary-truncate"]
-    assert common.compile_options({"compiler_options": ["TRUNC(OPT)"]}, PLAIN)[1] == ["-fbinary-truncate"]
+    assert text == "\n" + PLAIN and flags == ["-fbinary-truncate", *common.BOUND_FLAGS]
+    assert common.compile_options({"compiler_options": ["TRUNC(OPT)"]}, PLAIN)[1] == [
+        "-fbinary-truncate",
+        *common.BOUND_FLAGS,
+    ]
 
 
 def _service(root: Path, text: str) -> Path:

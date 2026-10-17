@@ -2625,3 +2625,54 @@ def test_the_td_queue_types_a_csd_defines_are_read_with_their_names(tmp_path):
     assert ec.csd_tdqueue_types(tmp_path, case) == {"JOBS": "EXTRA", "AUDQ": "INTRA", "NONE": ""}
     assert ec.csd_tdqueues(tmp_path, case) == ["AUDQ", "JOBS", "NONE"]
     assert ec.csd_tdqueue_types(tmp_path, {}) is None and ec.csd_tdqueues(tmp_path, {}) is None
+
+
+def test_a_scenario_states_its_own_clock_else_the_cases():
+    """#4622: `scenario_clock` is the scenario's "clock", else the case's; `clock_iso` follows it (a December task's
+    $GGCICS_NOW), and the one-argument form is the case's as before."""
+    case = {"clock": "2022/07/18 10:30:15.00"}
+    assert ec.scenario_clock(case, {"name": "a"}) == "2022/07/18 10:30:15.00"
+    assert ec.scenario_clock(case, {"name": "b", "clock": "2022/12/18 10:30:15.00"}) == "2022/12/18 10:30:15.00"
+    assert ec.clock_iso(case) == "2022-07-18T10:30:15"
+    assert ec.clock_iso(case, {"name": "a"}) == "2022-07-18T10:30:15"
+    assert ec.clock_iso(case, {"name": "b", "clock": "2022/12/18 10:30:15.00"}) == "2022-12-18T10:30:15"
+    for bad in ("2022-12-18T10:30:15", "2022/12/18 10:30:15", 5):
+        with pytest.raises(ec.Unsupported):
+            ec.scenario_clock(case, {"name": "c", "clock": bad})
+
+
+def test_a_scenario_states_its_own_records_for_a_dataset_of_the_case():
+    """#4622: `scenario_datasets` is each overridden DD's spec with the scenario's `input` / `append`, the case
+    untouched; no override is {}; a DD the case lacks, a stray key or a generated dataset is refused."""
+    spec = {"input": "a.txt", "append": "x.txt", "entity": "E", "copybook": "c.cpy", "record": "R"}
+    case = {"datasets": {"DD1": spec, "GEN": {"input": "@generate"}}}
+    before = repr(case)
+    assert ec.scenario_datasets(case, {"name": "a"}) == {}
+    assert ec.scenario_datasets(case, {"name": "a", "datasets": {}}) == {}
+    got = ec.scenario_datasets(case, {"name": "b", "datasets": {"DD1": {"input": "@case/seed/b.txt"}}})
+    assert got == {"DD1": {"input": "@case/seed/b.txt", "entity": "E", "copybook": "c.cpy", "record": "R"}}
+    got = ec.scenario_datasets(case, {"name": "b", "datasets": {"DD1": {"append": "y.txt"}}})
+    assert got["DD1"]["input"] == "a.txt" and got["DD1"]["append"] == "y.txt"
+    assert repr(case) == before
+    for bad in ({"NOPE": {"input": "z"}}, {"DD1": {"entity": "F"}}, {"GEN": {"input": "z"}}, {"DD1": "z"}):
+        with pytest.raises(ec.Unsupported):
+            ec.scenario_datasets(case, {"name": "c", "datasets": bad})
+
+
+def test_a_syncpoint_rollback_restarts_the_file_unit_of_work_instead_of_ending_it_5089(tmp_path):
+    """IBM: SYNCPOINT ROLLBACK ends the unit of work and the next recoverable change starts a new one (register Q3).
+    The rollback hook restarts the file transaction (cbsa-delcus's DELETE after INQACCCU's rollback is kept); an
+    abend, a refusal or a failed run still marks the CURRENT unit rollback-only, with or without a Db2 database."""
+    import equivalence_java as ej
+
+    svc = tmp_path / "service" / f"{ej._service_class('PROG')}.java"
+    svc.parent.mkdir(parents=True)
+    svc.write_text("public void handleTransaction(String transid, ProgCa request) {}", encoding="utf-8")
+    case = {**_facade_case(), "clock": "2026/10/01 10:30:15.00", "screens": {}}
+    java = ec.cics_equivalence_test(case, tmp_path, [])
+    assert "task.onRollback(() -> { status.restart(); });" in java
+    assert "task.onRollback(() -> { status.setRollbackOnly();" not in java
+    assert "fileUnit(status -> {" in java
+    assert java.count("status.setRollbackOnly();") >= 2  # the refused and failed-run paths: the current unit
+    restart = java[java.index("void restart()") :].split("void end()")[0]
+    assert "tm.rollback(st);" in restart and "tm.getTransaction(" in restart

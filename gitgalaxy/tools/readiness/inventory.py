@@ -83,8 +83,27 @@ def _copy_not_found(e: Exception) -> str:
     return m.group(0) if m else str(e).split(" found in")[0][-80:]
 
 
+_FREE_FORMAT = re.compile(r"(?im)^\s*>>\s*SOURCE\s+(?:FORMAT\s+)?(?:IS\s+)?FREE\b")
+
+
+def program_text(text: str) -> str:
+    """#5106: fixed-form source as program words only. Columns 1-6 (sequence numbers) and 73+ (identification tag) are
+    blanked and a comment line (column 7 `*` or `/`) emptied, so a regex over a multi-line `EXEC` block never reads a
+    sequence number as a word (`RETRIEVE 01327507`). Line count and columns 8-72 are kept; free-form source (a
+    `>>SOURCE FORMAT FREE` directive) is returned as it is."""
+    if _FREE_FORMAT.search(text):
+        return text
+    out = []
+    for ln in text.splitlines():
+        if len(ln) > 6 and ln[6] in "*/":
+            out.append("")
+        else:
+            out.append(" " * min(len(ln), 6) + ln[6:72])
+    return "\n".join(out)
+
+
 def fallback_parse(prog, rel_prog, inv):
-    text = read_source(prog).text
+    text = program_text(read_source(prog).text)
     cics_blocks = re.findall(r"(?i)\bEXEC\s+CICS\s+(.*?)\bEND-EXEC\b", text, re.S)
     for block in cics_blocks:
         try:

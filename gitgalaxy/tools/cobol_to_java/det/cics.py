@@ -1188,6 +1188,9 @@ class Cics(ContainerCommands):
                 else:  # always the bytes past the DTO (#4501 LENGTH, #4765 a table's every occurrence)
                     call = f"task.xctl({prog}, {dto}, {length})" if length != "null" else f"task.xctl({prog}, {dto})"
             else:
+                # #5291: no COMMAREA: the target may RETURN a wide COMMAREA as bytes (#4695), which this program's
+                # facade then reads through its own DTO (bytes no layout reads are answered as before)
+                self.passes_bytes = True
                 call = f"task.xctl({prog}, null)"
             r = g.tmpname("xr")
             return ([*pre, f"{ind}String {r} = {call};", f"{ind}if (\"NORMAL\".equals({r})) throw new Goback();",
@@ -1299,23 +1302,33 @@ class Cics(ContainerCommands):
                     f"{ind}if ({r}[0] == 0) "
                     + g.store_into(self.ref(_arg(opts["UCTRANST"])), f"BigDecimal.valueOf({r}[2])", False),
                     *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
-        if key in ("INQUIRE TDQUEUE", "SET TDQUEUE"):  # #5168 round 3 (X61): an extrapartition queue's open state
-            for o in ("TDQUEUE", "OPENSTATUS") if key == "SET TDQUEUE" else ("TDQUEUE",):
-                if not opts.get(o):
-                    raise CicsError(
-                        _msg(key, "required", "TDQUEUE") if o == "TDQUEUE" else _requires(key, "TDQUEUE", o)
-                    )
+        if key in (
+            "INQUIRE TDQUEUE",
+            "SET TDQUEUE",
+        ):  # #5168 rounds 3, 5 (X61, X66): an extrapartition queue's open state, a queue's availability
+            if not opts.get("TDQUEUE"):
+                raise CicsError(_msg(key, "required", "TDQUEUE"))
             r = g.tmpname("tdq")
             queue = self.name(_arg(opts["TDQUEUE"]))
             if key == "SET TDQUEUE":
-                return [f"{ind}int[] {r} = task.setTdQueueOpenStatus({queue}, {self.int_(_arg(opts['OPENSTATUS']))});",
+                if opts.get("OPENSTATUS") and opts.get("ENABLESTATUS"):
+                    raise CicsError("SET TDQUEUE with OPENSTATUS and ENABLESTATUS together: not modelled")
+                o = "ENABLESTATUS" if opts.get("ENABLESTATUS") else "OPENSTATUS"
+                if not opts.get(o):
+                    raise CicsError(_requires(key, "TDQUEUE", "OPENSTATUS"))
+                call = "setTdQueueEnableStatus" if o == "ENABLESTATUS" else "setTdQueueOpenStatus"
+                return [f"{ind}int[] {r} = task.{call}({queue}, {self.int_(_arg(opts[o]))});",
                         *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
-            wanted = [o for o in ("OPENSTATUS", "TYPE") if opts.get(o)]
+            wanted = [o for o in ("OPENSTATUS", "TYPE", "ENABLESTATUS") if opts.get(o)]
             if not wanted:
                 raise CicsError(_requires(key, "TDQUEUE", "OPENSTATUS"))
-            wants = ", ".join(str(o in wanted).lower() for o in ("OPENSTATUS", "TYPE"))
+            # the 3-argument call (the round 3 shape) unless ENABLESTATUS is asked for
+            wants = ", ".join(
+                str(o in wanted).lower()
+                for o in ("OPENSTATUS", "TYPE", "ENABLESTATUS")[: 3 if "ENABLESTATUS" in wanted else 2]
+            )
             lines = [f"{ind}int[] {r} = task.inquireTdQueue({queue}, {wants});", f"{ind}if ({r}[0] == 0) {{"]
-            for o, i in (("OPENSTATUS", 2), ("TYPE", 3)):
+            for o, i in (("OPENSTATUS", 2), ("TYPE", 3), ("ENABLESTATUS", 4)):
                 if o in wanted:
                     lines.append(
                         ind + "    " + g.store_into(self.ref(_arg(opts[o])), f"BigDecimal.valueOf({r}[{i}])", False)

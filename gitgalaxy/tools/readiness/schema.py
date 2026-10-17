@@ -101,8 +101,15 @@ ROW_KEYS = frozenset(
         "program_era",
         "copybook_skipped",
         "tells",
+        "translation",
+        "refusal",
+        "statements",
+        "translated_statements",
+        "holes",
     }
 )
+TRANSLATIONS = ("whole", "holes", "refused")  # dryrun.TRANSLATIONS
+TRANSLATION_INTS = ("statements", "translated_statements", "holes")
 _OPTION_VALUE = re.compile(r"^-?[A-Z0-9]{1,10}$")
 _MEMBER = re.compile(r"^[A-Za-z0-9@#$_-]{1,30}$")
 _EXC_CLASS = re.compile(r"^[A-Za-z][A-Za-z0-9_]{0,60}$")
@@ -203,8 +210,25 @@ def _tag(tag: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
-def project(inv: dict[str, Any], redact_key: bytes | None = None, tool_version: str = "unknown") -> dict[str, Any]:
-    """The assess report of one raw inventory: the only function that builds one."""
+def _translation(t: dict[str, Any]) -> dict[str, Any]:
+    """The dry run's outcome of one program, reduced to its closed fields: a status, three counts, a refusal's class."""
+    out: dict[str, Any] = {"translation": t.get("translation")}
+    for k in TRANSLATION_INTS:
+        if isinstance(t.get(k), int):
+            out[k] = t[k]
+    if t.get("translation") == "refused" and _EXC_CLASS.match(str(t.get("refusal"))):
+        out["refusal"] = t["refusal"]
+    return out
+
+
+def project(
+    inv: dict[str, Any],
+    redact_key: bytes | None = None,
+    tool_version: str = "unknown",
+    translation: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """The assess report of one raw inventory: the only function that builds one. `translation` (dryrun.dry_run):
+    each program's translate-only outcome; only a parsed program's is kept, and none is written when it is None."""
     names = Namer(redact_key)
     features: dict[str, dict[str, Any]] = {}
     other: dict[str, dict[str, int]] = {}
@@ -253,6 +277,8 @@ def project(inv: dict[str, Any], redact_key: bytes | None = None, tool_version: 
                 row["copybook"] = names.member(member)
         else:
             row["status"] = PARSED
+            if translation is not None and p in translation:
+                row.update(_translation(translation[p]))
         if p in tags:
             row.update(_tag(tags[p]))
         elif p in asm_tags:
@@ -268,6 +294,9 @@ def project(inv: dict[str, Any], redact_key: bytes | None = None, tool_version: 
         "refused_by_family": sum(r["status"] == REFUSED for r in programs),
         "assembler_members": len(programs) - len(cobol),
     }
+    if translation is not None:
+        kinds = [r["translation"] for r in cobol if "translation" in r]
+        totals["translation"] = {t: kinds.count(t) for t in TRANSLATIONS}
     summary = inv.get("eras", {}).get("summary", {})
     eras = {
         k: summary[k] for k in ("programs", "by_era", "mixed", "raised_by_copybook", "copybook_skipped") if k in summary
@@ -365,6 +394,18 @@ def validate(report: dict[str, Any]) -> list[str]:
             p.append(f"program {r.get('name')!r}: reason {reason!r}")
         if r.get("status") == PARSED and reason is not None:
             p.append(f"program {r.get('name')!r}: a parsed program has no reason")
+        if "translation" in r:
+            if r["translation"] not in TRANSLATIONS or r.get("status") != PARSED:
+                p.append(f"program {r.get('name')!r}: translation {r['translation']!r}")
+            if "refusal" in r and not (r["translation"] == "refused" and _EXC_CLASS.match(str(r["refusal"]))):
+                p.append(f"program {r.get('name')!r}: refusal")
+            p.extend(
+                f"program {r.get('name')!r}: {k}"
+                for k in TRANSLATION_INTS
+                if k in r and not (isinstance(r[k], int) and not isinstance(r[k], bool) and r[k] >= 0)
+            )
+        elif {"refusal", *TRANSLATION_INTS} & set(r):
+            p.append(f"program {r.get('name')!r}: translation fields without a status")
         if "copybook" in r and not name_ok(r["copybook"], "C-"):
             p.append(f"program {r.get('name')!r}: copybook {r['copybook']!r}")
         extra = set(r) - ROW_KEYS

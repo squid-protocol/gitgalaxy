@@ -1,0 +1,195 @@
+{
+ "format": "gitgalaxy/crucible-strengthened/1",
+ "case": "gt-terminal-coalesce",
+ "scenarios": [
+  {
+   "id": "receive-longer-than-20",
+   "path": "trap",
+   "summary": "RECEIVE INTO(20) of a 33-byte input: LENGERR, no RESP, so the default action abends the task",
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "GT11 3 and more than twenty bytes"
+    }
+   ],
+   "until": 60
+  },
+  {
+   "id": "start-3-first-fails",
+   "path": "trap",
+   "summary": "mode 3, the first START fails (INVREQ): no RESP, the task abends and nothing is queued",
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "GT11 3"
+    }
+   ],
+   "until": 60,
+   "faults": [
+    {
+     "task": "GT11",
+     "cmd": "START",
+     "transid": "GT12",
+     "nth": 1,
+     "resp": "INVREQ"
+    }
+   ]
+  },
+  {
+   "id": "start-3-second-fails",
+   "path": "trap",
+   "summary": "mode 3, the second START fails (INVREQ): the task abends after one queued START",
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "GT11 3"
+    }
+   ],
+   "until": 60,
+   "faults": [
+    {
+     "task": "GT11",
+     "cmd": "START",
+     "transid": "GT12",
+     "nth": 2,
+     "resp": "INVREQ"
+    }
+   ]
+  },
+  {
+   "id": "start-3-third-fails",
+   "path": "trap",
+   "summary": "mode 3, the third START fails (INVREQ): the task abends after two queued STARTs",
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "GT11 3"
+    }
+   ],
+   "until": 60,
+   "faults": [
+    {
+     "task": "GT11",
+     "cmd": "START",
+     "transid": "GT12",
+     "nth": 3,
+     "resp": "INVREQ"
+    }
+   ]
+  },
+  {
+   "id": "start-s-first-fails",
+   "path": "trap",
+   "summary": "mode S, the first START fails (INVREQ)",
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "GT11 S"
+    }
+   ],
+   "until": 60,
+   "faults": [
+    {
+     "task": "GT11",
+     "cmd": "START",
+     "transid": "GT12",
+     "nth": 1,
+     "resp": "INVREQ"
+    }
+   ]
+  },
+  {
+   "id": "start-s-second-fails",
+   "path": "trap",
+   "summary": "mode S, the second START fails (INVREQ): the first one still expires and runs",
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "GT11 S"
+    }
+   ],
+   "until": 60,
+   "faults": [
+    {
+     "task": "GT11",
+     "cmd": "START",
+     "transid": "GT12",
+     "nth": 2,
+     "resp": "INVREQ"
+    }
+   ]
+  },
+  {
+   "id": "start-c-fails",
+   "path": "trap",
+   "summary": "mode C, the START with REQID fails (INVREQ)",
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "GT11 C"
+    }
+   ],
+   "until": 60,
+   "faults": [
+    {
+     "task": "GT11",
+     "cmd": "START",
+     "transid": "GT12",
+     "nth": 1,
+     "resp": "INVREQ"
+    }
+   ]
+  },
+  {
+   "id": "cancel-sysiderr",
+   "path": "trap",
+   "summary": "CANCEL REQID answers SYSIDERR (RESP 53): the screen shows it",
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "GT11 K"
+    }
+   ],
+   "until": 60,
+   "faults": [
+    {
+     "task": "GT11",
+     "cmd": "CANCEL",
+     "reqid": "GTREQ001",
+     "nth": 1,
+     "resp": "SYSIDERR"
+    }
+   ]
+  },
+  {
+   "id": "cancel-notauth",
+   "path": "trap",
+   "summary": "CANCEL REQID answers NOTAUTH (RESP 70)",
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "GT11 K"
+    }
+   ],
+   "until": 60,
+   "faults": [
+    {
+     "task": "GT11",
+     "cmd": "CANCEL",
+     "reqid": "GTREQ001",
+     "nth": 1,
+     "resp": "NOTAUTH"
+    }
+   ]
+  }
+ ]
+}

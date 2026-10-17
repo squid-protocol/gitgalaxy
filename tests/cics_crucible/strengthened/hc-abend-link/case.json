@@ -1,0 +1,42 @@
+{
+ "format": "gitgalaxy/crucible-strengthened/1",
+ "case": "hc-abend-link",
+ "scenarios": [
+  {
+   "id": "mode-queue-missing",
+   "summary": "READQ TS HCMODE finds no queue (QIDERR): HCMAIN takes its QIDERR handler and sends the q trail",
+   "initial": {
+    "ts_queues": {}
+   },
+   "path": "trap",
+   "until": 60,
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "HC02"
+    }
+   ]
+  },
+  {
+   "id": "mode-item-empty",
+   "summary": "HCMODE holds one empty item: READQ TS returns zero bytes and HCMAIN reads no mode byte",
+   "initial": {
+    "ts_queues": {
+     "HCMODE": [
+      ""
+     ]
+    }
+   },
+   "path": "trap",
+   "until": 60,
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "HC02"
+    }
+   ]
+  }
+ ]
+}

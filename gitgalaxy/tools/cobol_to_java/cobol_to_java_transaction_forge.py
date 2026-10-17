@@ -299,6 +299,7 @@ public class CicsTask {
     private TempStorage tempStorage = new TempStorage();
     private String abcode = "    ";
     private String termid;                                  // #3989: EIBTRMID (the task's root); null without one
+    private boolean termidStated;                           // #5126: withTermid was called (null = stated: no terminal)
     private long taskNumber;                                 // #4270: EIBTASKN (the task's root), a stated fact
     private boolean exactCommarea;                          // #4270 (X23): the COMMAREA is EIBCALEN bytes, no more
     private String exitLabel;                               // #3989: this level's HANDLE ABEND LABEL
@@ -315,6 +316,7 @@ public class CicsTask {
     private Runnable rollbackHook;                                          // how a rollback undoes (the root's)
     private final Map<String, Integer> faultSeen = new HashMap<>();
     private Object returnedArea;                                             // #4343: the level-1 RETURN's COMMAREA
+    private boolean bytesTaken;                                              // #4817: returnedBytes() was read
     private byte[] returnedBytes;                                            // #4817: its raw bytes
     private Integer returnedLength;                                          // #4449: its LENGTH (null: the whole record)
 
@@ -606,11 +608,24 @@ public class CicsTask {
     /** ASSIGN FACILITY / SCRNHT / SCRNWD's condition: INVREQ (16) for a task with no terminal (RESP2 5, "The task is
      *  not associated with a terminal; or the task has no principal facility"), else 0. */
     public int assignTerminalResp() {
+        statedTerminal();
         return termid() == null ? 16 : 0;
+    }
+
+    /** #5126: whether the task has a terminal is a fact whoever runs the task states (withTermid; null states "none",
+     *  as the stub's empty $GGCICS_FACILITY); unstated it is refused, as the stub refuses, never guessed. */
+    private void statedTerminal() {
+        if (!root().termidStated) {
+            throw new IllegalStateException("ASSIGN FACILITY / TERMCHK: the task's terminal is not stated (withTermid)");
+        }
     }
 
     /** ASSIGN FACILITY: the principal facility, the task's terminal, 4 characters. */
     public String assignFacility() {
+        statedTerminal();
+        if (termid() == null) {
+            throw new IllegalStateException("ASSIGN FACILITY: the task has no terminal (assignTerminalResp is INVREQ)");
+        }
         return String.format(java.util.Locale.ROOT, "%-4.4s", termid());
     }
 
@@ -1652,6 +1667,18 @@ public class CicsTask {
         return root().addressed.computeIfAbsent(record, r -> newBlock(r, 2));
     }
 
+    /** `ptr-a = ptr-b` (#5042, X56): two pointers are equal when they address the same storage. One block can have two
+     *  handles (a record's ADDRESS OF beside the pointer it was set to), so the handles are equal, or both name blocks
+     *  of one byte array. NULL (0) equals only NULL. */
+    public boolean samePointer(long a, long b) {
+        if (a == b) {
+            return true;
+        }
+        Block x = root().blocks.get(a);
+        Block y = root().blocks.get(b);
+        return x != null && y != null && x.bytes == y.bytes;
+    }
+
     /** SET ADDRESS OF record TO ptr: the bytes the pointer addresses, for a record of `need` bytes. A record longer than
      *  its storage reads zero bytes past it (ASSUMED, X47: IBM's are bytes that are not the program's), the storage
      *  growing once, before a second record is set to it. Refused: a null or unknown pointer, freed storage, a record's own
@@ -2304,6 +2331,13 @@ public class CicsTask {
         return "INPUT".equals(tdAttr(q, "TYPEFILE")) ? 16 : 0;
     }
 
+    /** #5168 round 5 (X66): true when SET TDQUEUE ENABLESTATUS(DISABLED) left the queue disabled ("The queue cannot be accessed by
+     *  applications"): READQ, WRITEQ and DELETEQ TD then answer DISABLED (84). A queue is ENABLED until a SET says otherwise
+     *  (ASSUMED: IBM states no default); the state outlives the task. */
+    private boolean tdDisabled(String q) {
+        return root().tempStorage.tdDisabled.contains(q);
+    }
+
     /** The queue's TYPE CVDA for INQUIRE TDQUEUE: INTRA 222, EXTRA 221, INDIRECT 122, REMOTE 4; a queue with no TYPE stated is refused. */
     private int tdTypeCvda(String q, int kind) {
         if (kind == 1) {
@@ -2367,10 +2401,16 @@ public class CicsTask {
      *  RESP2 1 "the named queue cannot be found". OPENSTATUS is OPEN 18 / CLOSED 19 for an extrapartition queue, NOTAPPLIC 1
      *  ("the queue is not extrapartition") for the others; a queue with no TYPE stated is refused for either option. */
     public int[] inquireTdQueue(String queue, boolean openStatus, boolean type) {
+        return inquireTdQueue(queue, openStatus, type, false);
+    }
+
+    /** INQUIRE TDQUEUE ... ENABLESTATUS (#5168 round 5, X66): {RESP, RESP2, OPENSTATUS CVDA, TYPE CVDA, ENABLESTATUS CVDA}; ENABLED 23
+     *  or DISABLED 24, the state SET TDQUEUE ENABLESTATUS left (ENABLED before any). An INDIRECT queue answers about itself. */
+    public int[] inquireTdQueue(String queue, boolean openStatus, boolean type, boolean enableStatus) {
         String q = queue.strip();
         int kind = tdKind(q);
         if (kind == 0) {
-            return new int[] {44, 1, 0, 0};
+            return new int[] {44, 1, 0, 0, 0};
         }
         int typeCvda = type ? tdTypeCvda(q, kind) : 0;
         int status = 0;
@@ -2382,7 +2422,38 @@ public class CicsTask {
                 status = 1;
             }
         }
-        return new int[] {0, 0, status, typeCvda};
+        return new int[] {0, 0, status, typeCvda, enableStatus ? (tdDisabled(q) ? 24 : 23) : 0};
+    }
+
+    /** SET TDQUEUE(q) ENABLESTATUS(cvda) (#5168 round 5, X66; IBM CICS TS 6.x SET TDQUEUE): ENABLED (23) lets applications access
+     *  the queue, DISABLED (24) does not (READQ / WRITEQ / DELETEQ TD then answer DISABLED). For an extrapartition queue only its
+     *  availability changes, the data set is not opened or closed. Returns {RESP, RESP2}: QIDERR (44) RESP2 1, INVREQ (16) RESP2 10
+     *  for an invalid CVDA. Setting the state a queue is in is NORMAL (ASSUMED). Refused: an invalid CVDA on a queue the CSD does
+     *  not define (IBM does not order the two), an INDIRECT / REMOTE queue (its target is what a command reaches). RESP2 30 / 31 / 35
+     *  / 40 (disable pending, in doubt, CXRF) do not arise: one task, no recovery. */
+    public int[] setTdQueueEnableStatus(String queue, long cvda) {
+        String q = queue.strip();
+        int kind = tdKind(q);
+        boolean valid = cvda == 23 || cvda == 24;
+        if (kind == 0) {
+            if (!valid) {
+                throw new UnsupportedOperationException("SET TDQUEUE ENABLESTATUS with an invalid CVDA on a queue the CSD does not define: "
+                        + "IBM does not say which condition comes first: not modelled");
+            }
+            return new int[] {44, 1};
+        }
+        if (kind == 3) {
+            throw new UnsupportedOperationException("SET TDQUEUE ENABLESTATUS of an INDIRECT or REMOTE queue: not modelled");
+        }
+        if (!valid) {
+            return new int[] {16, 10};
+        }
+        if (cvda == 24) {
+            root().tempStorage.tdDisabled.add(q);
+        } else {
+            root().tempStorage.tdDisabled.remove(q);
+        }
+        return new int[] {0, 0};
     }
 
     /** WRITEQ TD QUEUE(queue) FROM(record) (IBM CICS TS): one record on a transient-data queue -- recorded, with the
@@ -2395,7 +2466,7 @@ public class CicsTask {
         String t = tdResolve(q);
         int kind = tdKind(t);
         int[] planned = root().injected("WRITEQ-TD", q);
-        int resp = planned != null ? planned[0] : kind == 0 ? 44 : kind == 2 ? tdExtraWriteResp(t) : 0;
+        int resp = planned != null ? planned[0] : kind == 0 ? 44 : tdDisabled(t) ? 84 : kind == 2 ? tdExtraWriteResp(t) : 0;
         event("WRITEQ-TD", "queue", q, "text", resp == 0 ? record : null, "resp", resp);
         if (resp == 0 && kind == 1) {
             tdTouch(t);
@@ -2427,14 +2498,15 @@ public class CicsTask {
         }
         int state = kind == 2 ? tdExtraState(t) : 0;
         java.util.ArrayDeque<String> records = tempStorage.td.get(t);
-        String resp = kind == 0 ? "QIDERR" : state == 2 ? "NOTOPEN" : state == 1 ? "INVREQ" : maxLength < 0 ? "LENGERR"
+        String resp = kind == 0 ? "QIDERR" : tdDisabled(t) ? "DISABLED" : state == 2 ? "NOTOPEN" : state == 1 ? "INVREQ" : maxLength < 0 ? "LENGERR"
                 : records == null || records.isEmpty() ? "QZERO" : "NORMAL";
         String data = null;
         int length = -1;
-        if (kind != 0 && state == 0 && maxLength >= 0) {
+        boolean readable = kind != 0 && state == 0 && maxLength >= 0 && !resp.equals("DISABLED");
+        if (readable) {
             tdTouch(t);
         }
-        if (kind != 0 && state == 0 && maxLength >= 0 && records != null && !records.isEmpty()) {
+        if (readable && records != null && !records.isEmpty()) {
             String record = records.removeFirst();
             data = record.length() > maxLength ? record.substring(0, maxLength) : record;
             length = record.length();
@@ -2457,8 +2529,14 @@ public class CicsTask {
         if (kind == 3) {
             throw new UnsupportedOperationException("DELETEQ TD of a queue whose TYPE is not INTRA or EXTRA: not modelled");
         }
+        if (kind == 0) {
+            return 44;
+        }
+        if (tdDisabled(t)) {
+            return 84;
+        }
         if (kind != 1) {
-            return kind == 0 ? 44 : 16;
+            return 16;
         }
         tdTouch(t);
         tempStorage.td.remove(t);
@@ -2541,7 +2619,13 @@ public class CicsTask {
     /** The terminal the task is attached to (#3989): EIBTRMID, or null for a task no terminal started. */
     public CicsTask withTermid(String termid) {
         this.termid = termid;
+        this.termidStated = true;
         return this;
+    }
+
+    /** #5126: withTermid for a harness that may not state a terminal (a case giving none or ""): leaves it unstated. */
+    public CicsTask withTermidIfStated(String termid) {
+        return termid == null || termid.isEmpty() ? this : withTermid(termid);
     }
 
     /** EIBTRMID (#3989): the task's terminal, the same at every LINK / XCTL level; null for a non-terminal task. */
@@ -4799,6 +4883,8 @@ CICS_TASK_JAVA += """\
         final Map<String, java.util.ArrayDeque<String>> td = new HashMap<>();
         /** The run-time open state SET TDQUEUE OPENSTATUS left on an extrapartition queue (#5168, X61): true open, false closed. */
         final Map<String, Boolean> tdOpen = new HashMap<>();
+        /** The queues SET TDQUEUE ENABLESTATUS(DISABLED) left disabled (#5168 round 5, X66). */
+        final java.util.Set<String> tdDisabled = new java.util.HashSet<>();
         /** The extrapartition queues a READQ TD has taken a record from (reopening an input queue would restart it). */
         final java.util.Set<String> tdRead = new java.util.HashSet<>();
 
@@ -5047,7 +5133,39 @@ CICS_TASK_JAVA += """\
      *  (#4695: `returned(Object.class)`, so a facade's handleTransaction answers that byte[] by design: the Object
      *  answer is the COMMAREA as the next task is given it, and `returned(Dto.class)` refuses it by name). */
     public byte[] returnedBytes() {
+        root().bytesTaken = true;
         return returnedBytes == null ? null : java.util.Arrays.copyOf(returnedBytes, returnedBytes.length);
+    }
+
+    /** #4817: a DTO-only answer must not change what the RETURN passed. IBM hands the next task the COMMAREA's bytes
+     *  as they were; the DTO holds a number it decoded (a numeric DISPLAY field of spaces and digits, invalid content),
+     *  and answering it would put digits where the task left something else. When the task's bytes were not taken
+     *  (returnedBytes(): the byte-carrying handleTransaction does), the DTO's layout bytes (toCommarea) must hold
+     *  every byte the RETURN passed: a byte toCommarea writes that is not a space (FILLER and an unset field are
+     *  spaces, in either page) and differs from the passed one is refused by name. A DTO with no layout, or a RETURN
+     *  that passed no bytes beside it, is as it was. */
+    private void lossless(Object area) {
+        byte[] passed = root().returnedBytes;
+        if (passed == null) {
+            return;
+        }
+        byte[] laid;
+        try {
+            java.lang.reflect.Method to = area.getClass().getMethod("toCommarea");
+            if (to.getReturnType() != byte[].class) {
+                return;
+            }
+            laid = (byte[]) to.invoke(area);
+        } catch (NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException e) {
+            return;
+        }
+        for (int i = 0; i < Math.min(laid.length, passed.length); i++) {
+            if (laid[i] != passed[i] && laid[i] != 0x20 && laid[i] != 0x40) {
+                throw new IllegalStateException("the task RETURNed a COMMAREA whose byte " + i + " the " + area.getClass().getName()
+                        + " DTO cannot hold as it was (a number it decoded): answer it through the byte-carrying"
+                        + " handleTransaction(.., byte[]) and lastAnswerBytes() (#4817)");
+            }
+        }
     }
 
     /** The COMMAREA the task's level-1 RETURN passed on (#4343: what handleTransaction answers), as `type`; null when
@@ -5058,6 +5176,9 @@ CICS_TASK_JAVA += """\
      *  fewer bytes than `type`'s record (never passed). */
     public <T> T returned(Class<T> type) {
         Object area = root().returnedArea;
+        if (area != null && !root().bytesTaken) {
+            lossless(area);
+        }
         if (area == null || type.isInstance(area)) {
             return type.cast(area);
         }
@@ -5235,13 +5356,19 @@ CICS_TASK_JAVA += """\
                 || o instanceof Double || o instanceof Float);
     }
 
-    /** #4956: whether `part` is `whole` or an object `whole` holds (a nested group, a table, an element, a byte
+    /** #5060: a String or number `part` cannot be traced by reference, so it counts when it equals a value `whole`
+     *  holds (an equal-valued copy is refused too: refuse, never guess).
+     *  #4956: whether `part` is `whole` or an object `whole` holds (a nested group, a table, an element, a byte
      *  area), by reference -- what an XCTL of a LINKed program's DTO, or of a part of it, passes. */
     private static boolean within(Object whole, Object part, java.util.IdentityHashMap<Object, Boolean> seen) {
         if (whole == part) {
             return true;
         }
-        if (!aliasable(whole) || seen.put(whole, Boolean.TRUE) != null) {
+        boolean byValue = part != null && !aliasable(part);  // #5060: a value is traced by equality, not identity
+        if (!aliasable(whole)) {
+            return byValue && part.equals(whole);
+        }
+        if (seen.put(whole, Boolean.TRUE) != null) {
             return false;
         }
         Class<?> type = whole.getClass();
@@ -5260,7 +5387,7 @@ CICS_TASK_JAVA += """\
         } else if (!type.getName().startsWith("java.")) {
             for (Class<?> k = type; k != null && k != Object.class; k = k.getSuperclass()) {
                 for (java.lang.reflect.Field f : k.getDeclaredFields()) {
-                    if (java.lang.reflect.Modifier.isStatic(f.getModifiers()) || f.getType().isPrimitive()) {
+                    if (java.lang.reflect.Modifier.isStatic(f.getModifiers()) || (f.getType().isPrimitive() && !byValue)) {
                         continue;
                     }
                     try {
@@ -5309,7 +5436,7 @@ CICS_TASK_JAVA += """\
                 snapshot.apply(commarea), "resp", resp, "resp2", resp2);
         boolean ofLinkage = xctlOfLinkage;
         xctlOfLinkage = false;
-        boolean ofDto = linkedDto && aliasable(commarea) && within(this.commarea, commarea, new java.util.IdentityHashMap<>());
+        boolean ofDto = linkedDto && commarea != null && within(this.commarea, commarea, new java.util.IdentityHashMap<>());
         if ("NORMAL".equals(resp) && (ofLinkage && callerArea || ofDto)) {
             throw new UnsupportedOperationException("XCTL passing the COMMAREA its LINK caller passed: IBM does not say "
                     + "whether the target addresses the caller's storage or a copy, not modelled");

@@ -22,8 +22,13 @@ committed with the task), ROLLBACK is refused -- Db2 for z/OS answers it -926 in
 SAVEPOINT, ROLLBACK TO SAVEPOINT and RELEASE SAVEPOINT run as written on the batch unit of work's connection
 (DetSql.savepoint), Db2 answering them; in a CICS program they are refused.
 
-Not modelled (a Hole naming it): WHENEVER (the program tests SQLCODE itself or the port would guess its branches),
-dynamic SQL, host variable arrays, a statement the generator has no method for."""
+#4269 -- WHENEVER {SQLERROR | NOT FOUND | SQLWARNING} {CONTINUE | GOTO label} (IBM Db2 for z/OS SQL Reference): in force
+for the executable SQL statements after it in the program's text, until the next WHENEVER for the same condition. After
+each such statement the port tests the SQLCA in IBM's order -- SQLCODE < 0, SQLCODE = +100, SQLWARN0 = 'W' or another
+positive SQLCODE -- and goes to the label (the paragraph dispatcher's GOTO; a program with a WHENEVER GOTO is not
+"structured"). CONTINUE, and a condition with no WHENEVER, test nothing.
+
+Not modelled (a Hole naming it): dynamic SQL, host variable arrays, a statement the generator has no method for."""
 
 from __future__ import annotations
 
@@ -104,6 +109,8 @@ def _set_parts(sql: str) -> tuple[list[str], list[str]]:
 
 
 # #4269: the savepoint statements (Db2 for z/OS SQL Reference: SAVEPOINT, ROLLBACK ... TO SAVEPOINT, RELEASE SAVEPOINT)
+_WHENEVER = re.compile(r"WHENEVER\s+(SQLERROR|NOT\s+FOUND|SQLWARNING)\s+(?:(CONTINUE)|GO\s*TO\s+:?([A-Z0-9_-]+))", re.I)
+_WHENEVER_ORDER = ("SQLERROR", "NOT FOUND", "SQLWARNING")
 _SAVEPOINT = re.compile(r"SAVEPOINT\s.*|ROLLBACK(?:\s+WORK)?\s+TO\s+SAVEPOINT(?:\s+[A-Z0-9_]+)?|RELEASE(?:\s+TO)?\s+SAVEPOINT\s+"
                         r"[A-Z0-9_]+", re.S)  # fmt: skip
 _HOLD = re.compile(r"\bDECLARE\s+([A-Z0-9_-]+)\s+(?:[A-Z]+\s+){0,2}?CURSOR\s+WITH\s+HOLD\b", re.I)
@@ -123,6 +130,33 @@ class Sql:
         self.repos: dict[str, str] = {}  # repository class -> its field
         # #4269: the cursors declared WITH HOLD (the program's text, its copybooks included): a COMMIT keeps them open
         self.hold = {m.group(1).upper() for m in _HOLD.finditer(source)}
+        # #4269: (line, normalised text) of an executable statement -> its WHENEVER actions {condition: label}; None
+        # when two statements share the key with different actions (a copybook line number that collides)
+        self.whenever: dict[tuple[int, str], dict[str, str] | None] = {}
+
+    def scan_whenever(self, stmts) -> None:
+        """#4269: walk the program's EXEC statements in source order, WHENEVER scoping each executable EXEC SQL."""
+        state: dict[str, str] = {}
+        for s in stmts:
+            m = re.match(r"(?is)\s*EXEC\s+SQL\b(.*?)\bEND-EXEC\b", s.text)
+            if not m:
+                continue
+            sql = _norm(m.group(1))
+            verb = sql.upper().split()[0] if sql else ""
+            if verb == "WHENEVER":
+                w = _WHENEVER.fullmatch(sql)
+                if w:
+                    cond = re.sub(r"\s+", " ", w.group(1).upper())
+                    if w.group(2):
+                        state.pop(cond, None)
+                    else:
+                        state[cond] = w.group(3).upper()
+            elif verb not in ("INCLUDE", "DECLARE"):
+                key = (s.line, sql.upper())
+                if key in self.whenever and self.whenever[key] != state:
+                    self.whenever[key] = None
+                else:
+                    self.whenever[key] = dict(state)
 
     # -- host variables ------------------------------------------------------------------------------------
     def _ref(self, name: str) -> E.Ref:
@@ -216,7 +250,40 @@ class Sql:
     # -- statements --------------------------------------------------------------------------------------
     def command(self, text: str, line: int, ind: str) -> list[str]:
         ca = self.g.field_expr(E.Ref("SQLCA"))
-        return [ln.replace("SQLCA_AREA", ca) for ln in self._command(text, line, ind)]
+        out = self._command(text, line, ind)
+        if out:
+            out += self._whenever_tests(text, line, ind)
+        return [ln.replace("SQLCA_AREA", ca) for ln in out]
+
+    def _whenever_tests(self, text: str, line: int, ind: str) -> list[str]:
+        """#4269: the SQLCA tests of the WHENEVER actions in force at this statement, in IBM's order."""
+        body = re.match(r"(?is)\s*EXEC\s+SQL\b(.*?)\bEND-EXEC\b", text)
+        key = (line, _norm(body.group(1)).upper() if body else "")
+        if key not in self.whenever:
+            return []
+        acts = self.whenever[key]
+        if acts is None:
+            raise SqlError("WHENEVER: the statement's line number is shared with a statement under another WHENEVER")
+        # (inline, not a DetSql method: a runtime edit would move every Db2 port. SQLCODE is COMP-5, native little-
+        # endian, at offset 12 of the SQLCA; SQLWARN0 is the byte at 120, written in the program's charset)
+        code = "java.nio.ByteBuffer.wrap(SQLCA_AREA.storage().bytes, SQLCA_AREA.offset() + 12, 4).order(java.nio.ByteOrder.LITTLE_ENDIAN).getInt()"  # fmt: skip
+        warn0 = 'SQLCA_AREA.storage().bytes[SQLCA_AREA.offset() + 120] == "W".getBytes(CS)[0]'
+        tests = {
+            "SQLERROR": f"{code} < 0",
+            "NOT FOUND": f"{code} == 100",
+            "SQLWARNING": f"{warn0} || ({code} > 0 && {code} != 100)",
+        }
+        out, first = [], True
+        for cond in _WHENEVER_ORDER:
+            label = acts.get(cond)
+            if label is None:
+                continue
+            idx = self.g.para_index.get(label)
+            if idx is None:
+                raise SqlError(f"WHENEVER {cond} GO TO {label}: no such paragraph")
+            out.append(f"{ind}{'' if first else 'else '}if ({tests[cond]}) {self.g.jump(str(idx))}")
+            first = False
+        return out
 
     def _command(self, text: str, line: int, ind: str) -> list[str]:
         body = re.match(r"(?is)\s*EXEC\s+SQL\b(.*?)\bEND-EXEC\b", text)
@@ -228,7 +295,11 @@ class Sql:
         if verb in ("INCLUDE", "DECLARE"):
             return []
         assigns = verb == "SET" and re.match(r"SET\s*\(?\s*:", sql, re.I)  # SET :H = expr (not SET CURRENT ...)
-        if verb in ("WHENEVER", "PREPARE", "EXECUTE", "DESCRIBE", "CONNECT", "SET", "CALL") and not assigns:
+        if verb == "WHENEVER":
+            if not _WHENEVER.fullmatch(sql):
+                raise SqlError(f"EXEC SQL {u[:50]}")  # WHENEVER with a form not modelled
+            return []
+        if verb in ("PREPARE", "EXECUTE", "DESCRIBE", "CONNECT", "SET", "CALL") and not assigns:
             raise SqlError(f"EXEC SQL {verb}")
         if _SAVEPOINT.fullmatch(u):
             return self._savepoint(sql, u, line, ind)

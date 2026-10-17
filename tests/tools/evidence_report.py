@@ -98,6 +98,7 @@ import proof_blockers as pb  # noqa: E402
 from gitgalaxy.core.compiler_options import SEMANTIC_OPTIONS, compiler_options, parse_options  # noqa: E402
 from gitgalaxy.core.estate_options import counts as estate_counts  # noqa: E402
 from gitgalaxy.core.estate_options import effective_options, load_estate  # noqa: E402
+from gitgalaxy.core.runtime_options import runtime_effect  # noqa: E402
 
 FORMAT = "gitgalaxy-evidence-report/1"
 DOCS_OUT = REPO / "docs" / "language_status" / "evidence_report"
@@ -626,10 +627,18 @@ def program_options(case: dict[str, Any] | None, estate: str, program: str, card
             origin, source = "IBM default", "assumed: IBM default"
         rows.append({"option": option, "value": values.get(option), "origin": origin, "source": source,
                      "provenance": _provenance(source)})  # fmt: skip
+    # #4707: the LE / Db2 / CICS values and how the runtime option table judges each (only when the estate has a file)
+    runtime = [
+        {"option": f"{section}.{key}", "value": value, "effect": runtime_effect(f"{section}.{key}", value),
+         "source": eff.runtime_sources.get(f"{section}.{key}"),
+         "provenance": _provenance(eff.runtime_sources.get(f"{section}.{key}"))}
+        for section, items in eff.runtime.items() for key, value in items.items()
+    ]  # fmt: skip
     return {
         "estate_file": eff.estate is not None,
         "compiler": {k: v for k, v in eff.compiler.items()},
         "values": rows,
+        **({"runtime": runtime} if runtime else {}),
         "found": sum(r["provenance"] == "found" for r in rows),
         "assumed": sum(r["provenance"] == "assumed" for r in rows),
         "deviations": [
@@ -1152,6 +1161,11 @@ def options_lines(o: dict[str, Any]) -> list[str]:
         + f"; {o['found']} found, {o['assumed']} assumed): "
         + ("; ".join(f"{option_text(r)} [{option_marker(r)}]" for r in o["values"]) or "none")
     ]
+    if o.get("runtime"):
+        out.append(
+            "  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** "
+            + "; ".join(f"{r['option']}={r['value']} [{r['effect']}; {option_marker(r)}]" for r in o["runtime"])
+        )
     for d in o["deviations"]:
         out.append(
             f"  - **Declared option difference:** {d['option']} is {d['declared']} in the estate, applied as "

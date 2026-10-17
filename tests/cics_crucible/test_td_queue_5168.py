@@ -11,9 +11,13 @@ CicsTask over one operation list per scenario (IBM, CICS TS 6.x, READQ TD / TDQU
 * round 3: SET TDQUEUE OPENSTATUS(OPEN 18 / CLOSED 19) and INQUIRE TDQUEUE OPENSTATUS / TYPE (IBM, CICS TS 6.x): the run-time state
   replaces OPENTIME; QIDERR RESP2 1, INVREQ RESP2 8 (invalid CVDA) and 9 (intrapartition); INDIRECT / REMOTE, an invalid CVDA on a
   queue that is not extrapartition, OPEN with no TYPEFILE, OPEN of an input queue already read, and a queue with no TYPE: refused.
+* round 5: SET TDQUEUE ENABLESTATUS(ENABLED 23 / DISABLED 24) and INQUIRE TDQUEUE ENABLESTATUS: a disabled queue answers DISABLED
+  (84) to READQ, WRITEQ and DELETEQ TD, whatever its type or open state; INVREQ RESP2 10 (invalid CVDA), QIDERR RESP2 1; INDIRECT /
+  REMOTE and an invalid CVDA on an undefined queue: refused. The state is not a unit-of-work resource (a rollback keeps it).
 
 Operations: W:queue:text writes, R:queue:n reads INTO an 8-byte area with LENGTH(n), P:queue reads SET, D:queue deletes, S is a
-SYNCPOINT, B a SYNCPOINT ROLLBACK, O:queue:cvda SET TDQUEUE OPENSTATUS, Q:queue INQUIRE TDQUEUE OPENSTATUS and TYPE."""
+SYNCPOINT, B a SYNCPOINT ROLLBACK, O:queue:cvda SET TDQUEUE OPENSTATUS, Q:queue INQUIRE TDQUEUE OPENSTATUS and TYPE,
+E:queue:cvda SET TDQUEUE ENABLESTATUS, F:queue INQUIRE TDQUEUE ENABLESTATUS."""
 
 import subprocess
 import sys
@@ -175,6 +179,46 @@ _SCENARIOS: dict[str, tuple[dict[str, str] | None, dict[str, list[str]], list[st
         ["O:OOOO:19 resp=0 resp2=0", "W:LLLL:a resp=0", "B", "Q:OOOO resp=0 resp2=0 open=19 type=221", "S",
          "Q:OOOO resp=0 resp2=0 open=19 type=221"],
     ),
+    # round 5 (X66): SET / INQUIRE TDQUEUE ENABLESTATUS (ENABLED 23, DISABLED 24); a disabled queue answers DISABLED (84)
+    "disable and enable an intrapartition queue": (
+        {"AAAA": "INTRA"}, {},
+        ["F:AAAA", "W:AAAA:a", "E:AAAA:24", "F:AAAA", "W:AAAA:b", "R:AAAA:8", "D:AAAA", "E:AAAA:23", "F:AAAA", "R:AAAA:8",
+         "W:AAAA:c", "R:AAAA:8"],
+        ["F:AAAA resp=0 resp2=0 enable=23", "W:AAAA:a resp=0", "E:AAAA:24 resp=0 resp2=0", "F:AAAA resp=0 resp2=0 enable=24",
+         "W:AAAA:b resp=84", f"R:AAAA:8 resp=84 len=-1 {R8}", "D:AAAA resp=84", "E:AAAA:23 resp=0 resp2=0",
+         "F:AAAA resp=0 resp2=0 enable=23", "R:AAAA:8 resp=0 len=1 into=a.......", "W:AAAA:c resp=0",
+         "R:AAAA:8 resp=0 len=1 into=c......."],
+    ),
+    "disable an extrapartition queue": (
+        {"OOOO": "EXTRA TYPEFILE=OUTPUT OPENTIME=INITIAL", "IIII": "EXTRA TYPEFILE=INPUT OPENTIME=INITIAL"}, {"IIII": ["x"]},
+        ["E:OOOO:24", "W:OOOO:a", "D:OOOO", "Q:OOOO", "E:OOOO:23", "W:OOOO:b", "E:IIII:24", "R:IIII:8", "E:IIII:23", "R:IIII:8"],
+        ["E:OOOO:24 resp=0 resp2=0", "W:OOOO:a resp=84", "D:OOOO resp=84", "Q:OOOO resp=0 resp2=0 open=18 type=221",
+         "E:OOOO:23 resp=0 resp2=0", "W:OOOO:b resp=0", "E:IIII:24 resp=0 resp2=0", f"R:IIII:8 resp=84 len=-1 {R8}",
+         "E:IIII:23 resp=0 resp2=0", "R:IIII:8 resp=0 len=1 into=x......."],
+    ),
+    "enablestatus with an invalid cvda": (
+        {"AAAA": "INTRA", "XXXX": "EXTRA TYPEFILE=OUTPUT"}, {},
+        ["E:AAAA:7", "E:AAAA:18", "E:XXXX:0", "F:AAAA", "E:ZZZZ:24", "E:ZZZZ:23", "F:ZZZZ"],
+        ["E:AAAA:7 resp=16 resp2=10", "E:AAAA:18 resp=16 resp2=10", "E:XXXX:0 resp=16 resp2=10", "F:AAAA resp=0 resp2=0 enable=23",
+         "E:ZZZZ:24 resp=44 resp2=1", "E:ZZZZ:23 resp=44 resp2=1", "F:ZZZZ resp=44 resp2=1 enable=0"],
+    ),
+    "enablestatus with no csd": (
+        None, {}, ["F:ANYQ", "E:ANYQ:24", "W:ANYQ:a", "F:ANYQ"],
+        ["F:ANYQ resp=0 resp2=0 enable=23", "E:ANYQ:24 resp=0 resp2=0", "W:ANYQ:a resp=84", "F:ANYQ resp=0 resp2=0 enable=24"],
+    ),
+    "enablestatus survives a rollback": (
+        {"LLLL": _L}, {}, ["W:LLLL:a", "E:LLLL:24", "B", "F:LLLL", "S", "F:LLLL"],
+        ["W:LLLL:a resp=0", "E:LLLL:24 resp=0 resp2=0", "B", "F:LLLL resp=0 resp2=0 enable=24", "S",
+         "F:LLLL resp=0 resp2=0 enable=24"],
+    ),
+    "enablestatus of an indirect queue": (
+        {"AAAA": "INTRA", "IIII": "INDIRECT INDIRECTNAME=AAAA"}, {}, ["E:IIII:24"], ["REFUSED"]
+    ),
+    "enablestatus of a remote queue": ({"RRRR": "REMOTE"}, {}, ["E:RRRR:23"], ["REFUSED"]),
+    "invalid enablestatus on an unknown queue": ({"AAAA": "INTRA"}, {}, ["E:ZZZZ:7"], ["REFUSED"]),
+    "inquire enablestatus of an indirect queue": (
+        {"AAAA": "INTRA", "IIII": "INDIRECT INDIRECTNAME=AAAA"}, {}, ["F:IIII"], ["F:IIII resp=0 resp2=0 enable=23"]
+    ),
 }  # fmt: skip
 
 _MAIN = r"""
@@ -187,6 +231,7 @@ int GGCRDTD(gg_cics *c, char *into, int intolen);
 int GGCRDTS(gg_cics *c, void **slot);
 int GGCDLTD(gg_cics *c);
 int GGCSTDQ(gg_cics *c);
+int GGCSTDE(gg_cics *c);
 int GGCITDQ(gg_cics *c);
 int GGCSYNC(gg_cics *c);
 int GGCABND(gg_cics *c);
@@ -220,6 +265,14 @@ int main(int argc, char **argv) {
             c.num = atoi(a + 7);
             GGCSTDQ(&c);
             printf("%s resp=%d resp2=%d\n", a, c.resp, c.resp2);
+        } else if (a[0] == 'E') {
+            c.num = atoi(a + 7);
+            GGCSTDE(&c);
+            printf("%s resp=%d resp2=%d\n", a, c.resp, c.resp2);
+        } else if (a[0] == 'F') {
+            strcpy(c.flags, "ENABLESTATUS");
+            GGCITDQ(&c);
+            printf("%s resp=%d resp2=%d enable=%d\n", a, c.resp, c.resp2, c.item);
         } else if (a[0] == 'Q') {
             strcpy(c.flags, "OPENSTATUS TYPE");
             GGCITDQ(&c);
@@ -315,6 +368,12 @@ def _java_scenario(name: str, queues, seed, ops) -> str:
                     }} else if (p[0].equals("O")) {{
                         int[] r = t.setTdQueueOpenStatus(p[1], Long.parseLong(p[2]));
                         System.out.println(op + " resp=" + r[0] + " resp2=" + r[1]);
+                    }} else if (p[0].equals("E")) {{
+                        int[] r = t.setTdQueueEnableStatus(p[1], Long.parseLong(p[2]));
+                        System.out.println(op + " resp=" + r[0] + " resp2=" + r[1]);
+                    }} else if (p[0].equals("F")) {{
+                        int[] r = t.inquireTdQueue(p[1], false, false, true);
+                        System.out.println(op + " resp=" + r[0] + " resp2=" + r[1] + " enable=" + r[4]);
                     }} else if (p[0].equals("Q")) {{
                         int[] r = t.inquireTdQueue(p[1], true, true);
                         System.out.println(op + " resp=" + r[0] + " resp2=" + r[1] + " open=" + r[2] + " type=" + r[3]);

@@ -152,3 +152,27 @@ def test_the_prompt_names_the_survivors_to_kill_by_id():
     hints = [{"id": "abc123", "file": "S.java", "line": 9, "before": "a > 0", "after": "a >= 0"}]
     text = st.prompt(CALL, src, [], hints, [], "")
     assert "`abc123` S.java:9" in text and "targets" in text
+
+
+def _scenarios(case):
+    import json
+
+    path = Path(__file__).resolve().parents[1] / "equivalence" / case / "case.json"
+    return {s["name"]: s for s in json.loads(path.read_text(encoding="utf-8"))["scenarios"]}
+
+
+def test_the_menu_case_carries_every_commarea_field_the_program_copies_through():
+    sc = _scenarios("carddemo-menu")["carried-commarea-fields"]
+    carried = {"CDEMO-TO-TRANID", "CDEMO-TO-PROGRAM", "CDEMO-CUST-LNAME", "CDEMO-ACCT-STATUS"}
+    assert carried <= set(sc["commarea"]) and all(sc["commarea"][f].strip() for f in carried)
+    assert sc["why"].startswith("#4049") and "expected" not in sc
+
+
+def test_the_account_view_case_carries_fields_and_a_low_values_caller():
+    scs = _scenarios("carddemo-acctview")
+    carried = scs["carried-account-status"]["commarea"]
+    assert all(carried[f].strip() for f in ("CDEMO-ACCT-STATUS", "CDEMO-TO-TRANID", "CDEMO-TO-PROGRAM"))
+    low = scs["pf3-low-values-caller"]
+    assert low["aid"] == "DFHPF3"
+    assert set(low["commarea"]["CDEMO-FROM-TRANID"]) == set(low["commarea"]["CDEMO-FROM-PROGRAM"]) == {"\x00"}
+    assert all(s["why"].startswith("#4049") for s in (scs["carried-account-status"], low))

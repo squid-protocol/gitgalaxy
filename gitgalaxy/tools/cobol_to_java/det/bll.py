@@ -59,6 +59,8 @@ _EQ = r"(?:IS\s+)?(NOT\s+)?(?:=|EQUALS?(?:\s+TO)?)"
 _NIL = r"(?:ZEROS|ZEROES|ZERO|NULLS|NULL)(?![A-Z0-9-])"
 # #5197: a cell tested for no address, in either operand order (IBM's conversion makes the cell a POINTER: `= NULL`)
 _COMPARE = re.compile(rf"\b({_NAME})\s+{_EQ}\s+{_NIL}|\b{_NIL}\s+{_EQ}\s+({_NAME})(?![A-Z0-9-])", re.I)
+# #5042: one cell compared with another (two pointers after the lowering: IBM allows = / NOT = between pointers)
+_COMPARE_CELLS = re.compile(rf"\b({_NAME})\s+{_EQ}\s+({_NAME})(?![A-Z0-9-])", re.I)
 _ADD = re.compile(rf"\bADD\s+4096\s*,?\s+({_NAME})\s+GIVING\s+({_NAME})", re.I)
 _OPTION = re.compile(rf"\b({_NAME})\s*\(\s*({_NAME})\s*\)", re.I)
 _PARAGRAPH = re.compile(rf"^ {{0,3}}({_NAME})(\s+SECTION)?\s*\.", re.I)
@@ -290,6 +292,14 @@ def plan(lines: list[Line], records: list, own: str, oracle: bool = False) -> Pl
                 raise Refused(f"{cell} (line {lines[line_of(m.start())].line}): a secondary cell of a long record "
                               "compared (only its base cell holds an address)")  # fmt: skip
             found.append((m.start(), m.end(), f"{cell} {'NOT ' if neg else ''}= NULL", ("none",)))
+        for m in _COMPARE_CELLS.finditer(text):
+            left, neg, right = m.group(1), m.group(2), m.group(3)
+            if in_exec(m.start()) or left.upper() not in cellset or right.upper() not in cellset:
+                continue
+            if cells.of.get(left.upper(), ("", 0))[1] or cells.of.get(right.upper(), ("", 0))[1]:
+                raise Refused(f"{left} (line {lines[line_of(m.start())].line}): a secondary cell of a long record "
+                              "compared (only its base cell holds an address)")  # fmt: skip
+            found.append((m.start(), m.end(), f"{left} {'NOT ' if neg else ''}= {right}", ("none",)))
         for a, b in execs:
             for o in _OPTION.finditer(text, a, b):
                 if o.group(2) not in cellset:

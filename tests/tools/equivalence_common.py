@@ -209,7 +209,7 @@ def _input_path(case: dict[str, Any], corpus: Path, rel: str) -> Path:
 # #3828: the compiler options that change results, as GnuCOBOL 3.1 flags under `-std=ibm` ("" = its own
 # behaviour already). #4102: `-std=ibm` alone keeps a binary item's bytes (TRUNC(BIN)); -fbinary-truncate gives IBM's
 # default TRUNC(STD) -- MOVE 99999 to S9(4) COMP stores 9999, ADD past 9999 is a size error (measured 2026-10-02). GnuCOBOL has no INTDATE (INTEGER-OF-DATE is always ANSI), no ARITH(EXTEND)
-# and no TRUNC(OPT) (#4706: OPT is TRUNC(STD) wherever every binary value fits its PICTURE, and the det runtime stops
+# (see its row below) and no TRUNC(OPT) (#4706: OPT is TRUNC(STD) wherever every binary value fits its PICTURE, and the det runtime stops
 # by name where one would not -- so the oracle runs -fbinary-truncate; see option_differences): a case needing one it
 # cannot honour cannot be proven here, and says so rather than run unfaithfully. NUMPROC: see numproc_mig and
 # numproc_guard (#4271).
@@ -221,6 +221,11 @@ COBC_OPTIONS = {
     # stored (Codec.truncOpt), so a scenario that reaches one is never judged; a port without that stop is proven as
     # TRUNC(STD), a declared difference (option_differences).
     ("TRUNC", "OPT"): "-fbinary-truncate",
+    # #4706: ARITH(EXTEND) differs from COMPAT only for an intermediate past 30 digits and for floating point (register
+    # C5); cobc caps neither, so the oracle computes both alike. The det runtime stops by name on an intermediate past 30
+    # digits (Codec.arithExtend) and the translator refuses a float expression; a port without that stop is proven as
+    # ARITH(COMPAT), a declared difference (option_differences).
+    ("ARITH", "EXTEND"): "",
     ("NUMPROC", "NOPFD"): "",
     # #4271: with preferred signs NUMPROC(PFD) computes as NOPFD (Programming Guide SC27-8714-03, "Sign representation
     # of zoned and packed-decimal data"); what it does with any other sign IBM leaves to the generated code, and the
@@ -228,6 +233,20 @@ COBC_OPTIONS = {
     # (numproc_guard): GnuCOBOL accepts every sign.
     ("NUMPROC", "PFD"): "",
 }  # fmt: skip
+
+
+# #4449 (X8): the COBOL side runs with GnuCOBOL's subscript and reference-modification checks, so a scenario that
+# drives one past its item stops by name ("libcob: ... subscript of 'E' out of bounds") and is refused, instead of
+# reading or overwriting whatever GnuCOBOL's layout (not IBM's) puts next to the item. IBM's default has no SSRANGE.
+BOUND_FLAGS = ["-fec=EC-BOUND-SUBSCRIPT", "-fec=EC-BOUND-REF-MOD"]
+_BOUND_VIOLATION = re.compile(rb"libcob: [^\n]*?(subscript|offset|length) of '([^']+)' out of bounds[^\n]*")
+
+
+def bound_violation(said: bytes | str) -> str | None:
+    """#4449: the libcob line of a subscript / reference modification past its item in a run's output, else None."""
+    data = said.encode("utf-8", "replace") if isinstance(said, str) else said
+    hit = _BOUND_VIOLATION.search(data)
+    return hit.group(0).decode("latin-1").strip() if hit else None
 
 
 def bms_dir(corpus: Path) -> Path:
@@ -405,6 +424,7 @@ def comp5_layout_guard(src: Path) -> None:
                 )
 
 
+ARITH_EXTEND_STOP = "Cobol.swapArithExtend(true)"  # det/program.with_trunc: a det port run under ARITH(EXTEND)'s stop
 TRUNC_OPT_STOP = "Cobol.swapTruncOpt(true)"  # det/program.with_trunc: a det port run under TRUNC(OPT)'s stop
 
 
@@ -425,7 +445,7 @@ def option_differences(case: dict[str, Any], source: str, port_dir: Path | None)
     opts = effective_options(case)
     out = [
         {"kind": "option", "option": u["option"], "declared": u["declared"], "applied": u["applied"], "note": u["note"]}
-        for u in opts.unhonoured(source, data_ccsid(case))
+        for u in [*opts.unhonoured(source, data_ccsid(case)), *opts.unhonoured_runtime(data_ccsid(case))]  # #4707
         if u["policy"] == "declare"
     ]
     trunc = str(effective_with_defaults(opts.layers, source).get("TRUNC") or "").upper()
@@ -435,6 +455,13 @@ def option_differences(case: dict[str, Any], source: str, port_dir: Path | None)
                        "note": "TRUNC(OPT): this port has no stop on a value past a binary item's PICTURE (only a det "
                                "port's runtime has one, oracle_assumptions.md C5), so it is proven as TRUNC(STD) -- "
                                "IBM's OPT result only while every binary value fits its PICTURE (#4706)"})  # fmt: skip
+    arith = str(effective_with_defaults(opts.layers, source).get("ARITH") or "").upper()
+    if arith == "EXTEND" and not any(ARITH_EXTEND_STOP in read_source(p).text for p in services):
+        out.insert(0, {"kind": "option", "option": "ARITH", "declared": "EXTEND", "applied": "COMPAT",
+                       "note": "ARITH(EXTEND): this port has no stop on an intermediate result past 30 digits (only a "
+                               "det port's runtime has one, oracle_assumptions.md C5), so it is proven as ARITH(COMPAT) "
+                               "-- IBM's EXTEND result only while every intermediate fits 30 digits and no "
+                               "floating-point expression is computed (#4706)"})  # fmt: skip
     return out
 
 
@@ -459,9 +486,12 @@ def compile_options(case: dict[str, Any], source: str) -> tuple[str, list[str]]:
             raise UnsupportedOption(f"{option}({value}): GnuCOBOL 3.1 has no equivalent, so the case cannot be proven")
         if flag:
             flags.append(flag)
-    for u in effective_options(case).unhonoured(source, data_ccsid(case)):  # #4706: the other result-changing options
+    opts = effective_options(case)
+    # #4706: the other result-changing compiler options; #4707: the LE / Db2 / CICS options
+    for u in [*opts.unhonoured(source, data_ccsid(case)), *opts.unhonoured_runtime(data_ccsid(case))]:
         if u["policy"] == "refuse":
             raise UnsupportedOption(f"{u['note']}, so the case cannot be proven")
+    flags.extend(BOUND_FLAGS)
     blank = {n for n, _ in cards(source)}
     lines = ibm_assumed_periods(source).split("\n")
     return "\n".join("" if n in blank else ln for n, ln in enumerate(lines, 1)), flags

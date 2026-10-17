@@ -372,6 +372,26 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-CBL-ARITH-PER-PROGRAM",
+   "family": "CBL",
+   "title": "ARITH(EXTEND) set for one program's run and restored after it",
+   "methods": [
+    "swapArithExtend"
+   ],
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "Compiler options: ARITH"
+   },
+   "options": [
+    "ARITH"
+   ],
+   "register": [
+    "C5"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-CBL-NUMPROC-PER-PROGRAM",
    "family": "CBL",
    "title": "NUMPROC(PFD / NOPFD) set for one program's run and restored after it (NUMPROC(MIG) compiles as NOPFD)",
@@ -526,7 +546,7 @@
    "site": "power@2",
    "ibm": {
     "doc": "cobol-lr",
-    "section": "Arithmetic expressions: exponentiation"
+    "section": "SIZE ERROR phrases (Table 32: exponentiation size errors)"
    },
    "options": [],
    "register": [
@@ -813,6 +833,24 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-CBL-COUNTER-NONDIGIT-REFUSED",
+   "family": "CBL",
+   "title": "A STRING / UNSTRING POINTER, an UNSTRING TALLYING IN item and an INSPECT TALLYING counter are read before they store: a zoned one holding a non-digit is refused by name",
+   "methods": [
+    "counterNum"
+   ],
+   "ibm": null,
+   "ibm_note": "IBM documents no result (ZONEDATA(PFD) assumes valid zone bits); the same ground as the receiver of ADD",
+   "options": [
+    "ZONEDATA"
+   ],
+   "register": [
+    "C11"
+   ],
+   "status": "REFUSED",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-CBL-COMPARE-NONDIGIT",
    "family": "CBL",
    "title": "A numeric item's value in a comparison: a zoned item holding a non-digit as the oracle compares it (Zoned.compareValue)",
@@ -880,7 +918,7 @@
    ],
    "ibm": {
     "doc": "cobol-lr",
-    "section": "USAGE clause: BINARY"
+    "section": "MOVE statement: elementary moves; SIZE ERROR phrases"
    },
    "options": [
     "TRUNC"
@@ -964,7 +1002,7 @@
    ],
    "ibm": {
     "doc": "cobol-lr",
-    "section": "Comparison of numeric and alphanumeric operands"
+    "section": "General relation conditions: Alphanumeric comparisons"
    },
    "options": [],
    "register": [
@@ -1232,6 +1270,27 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-NUM-ARITH-EXTEND-STOP",
+   "family": "NUM",
+   "title": "ARITH(EXTEND): an intermediate result past 30 digits stops by name (GnuCOBOL caps none; IBM's EXTEND range is not modelled)",
+   "methods": [
+    "arithExtendCheck",
+    "arithExtendWide"
+   ],
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "Intermediate results and arithmetic precision"
+   },
+   "options": [
+    "ARITH"
+   ],
+   "register": [
+    "C5"
+   ],
+   "status": "REFUSED",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-NUM-NUMPROC-PFD-SIGN",
    "family": "NUM",
    "title": "NUMPROC(PFD): a zoned or packed value read with a sign that is not preferred (C / D signed, F unsigned) is refused by name",
@@ -1415,7 +1474,8 @@
     "refuse",
     "pScaled",
     "refuseP",
-    "refuseReceiver"
+    "refuseReceiver",
+    "refuseCounter"
    ],
    "site": "refuse",
    "ibm": null,
@@ -2394,6 +2454,7 @@
     "setAddress",
     "setAddressOfRecord",
     "setPointerToRecord",
+    "samePointer",
     "wholeRecord"
    ],
    "site": "getmain",

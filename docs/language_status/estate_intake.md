@@ -51,6 +51,7 @@ Request: the CEEOPTS (SYSIN / DD) members, CEEUOPT (user-linked options), CEEDOP
 
 - **Why:** STORAGE decides what WORKING-STORAGE without VALUE holds (register L3); TRAP and ABTERMENC decide how an abend ends.
 - **If missing:** `assumed: IBM default`: for example STORAGE(NONE,NONE,NONE,0K), TRAP(ON,SPIE), ABTERMENC(ABEND). No burned corpus supplied a CEEOPTS.
+- **What the harness does with a value:** register C18 (#4707) judges each LE, Db2 and CICS option: refused by name (TRAP(OFF), DATE(USA), DEC(31) ...), a declared difference (STORAGE init, a non-default EBCDIC CCSID), or no effect on a proof.
 
 ## 4. Db2 precompile and bind
 

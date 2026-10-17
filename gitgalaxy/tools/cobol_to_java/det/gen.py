@@ -162,6 +162,7 @@ class Gen:
     def __init__(self, prog: Program, structured: bool = False):
         self.write_only_pointers: set[str] = set()  # program.write_only_pointers
         self.overlaid_pointers: set[str] = set()  # program.overlaid_pointers (#4771)
+        self.pointer_views: set[str] = set()  # program.pointer_views (#4771)
         self.p = prog
         # structured: a program with no GO TO / HANDLE -- paragraphs are void methods called in order, no dispatcher
         self.structured = structured
@@ -211,6 +212,7 @@ class Gen:
         # ARITH(EXTEND) in effect (program.arith_extend): extended-precision floating point, not modelled
         self.arith_extend = False
         self.float_extents: dict[int, list] = {}  # storage root id -> [(item, first extent, full extent, tables)]
+        self.comp5_extents: dict[int, list] = {}  # the same for COMP-5 items of 2+ bytes (#4271, register C7)
         self.root_of: dict[int, int] = {}  # id(record) -> id(its storage root)
         # condition-name methods: id(88 item) -> (Java method name, the test's body); in order of first use
         self.cond_methods: dict[int, tuple[str, str, L.Item]] = {}
@@ -316,9 +318,20 @@ class Gen:
             if not self._value_use or ref.refmod is not None:
                 raise Untranslatable(f"{ref.name}: the bytes of a {it.usage} item ({FLOAT_BYTES})")
         elif not self._init_bytes:
+            if it.name.upper() in self.pointer_views:
+                raise Untranslatable(
+                    f"{ref.name}: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)"
+                )
             over = self.overlaps_float(it)
             if over is not None:
                 raise Untranslatable(f"{ref.name}: its bytes hold {over.name} {over.usage} ({FLOAT_BYTES})")
+            if it.usage == "COMP-5":  # #4271 (C7): a reference modification names the bytes of a number
+                if ref.refmod is not None:
+                    raise Untranslatable(f"{ref.name}: the bytes of a COMP-5 item ({COMP5_BYTES})")
+            else:
+                over = self.overlaps_float(it, self.comp5_extents)
+                if over is not None:
+                    raise Untranslatable(f"{ref.name}: its bytes hold {over.name} COMP-5 ({COMP5_BYTES})")
         packed = self.check_lift(it)
         base = self.ids.get(id(it))
         if base is None:
@@ -346,12 +359,14 @@ class Gen:
         finally:
             self._value_use -= 1
 
-    def overlaps_float(self, it: L.Item) -> L.Item | None:
+    def overlaps_float(self, it: L.Item, extents: dict[int, list] | None = None) -> L.Item | None:
         """The float item whose bytes `it` (not a float) covers -- as a group holding it, or a REDEFINES over it -- or
-        None. Items in the same table compare one occurrence; otherwise whole tables."""
-        if not self.float_extents or it.record is None:
+        None. Items in the same table compare one occurrence; otherwise whole tables. `extents` names another set of
+        items (the COMP-5 ones, #4271 C7)."""
+        extents = self.float_extents if extents is None else extents
+        if not extents or it.record is None:
             return None
-        floats = self.float_extents.get(self.root_of.get(id(it.record), id(it.record)), [])
+        floats = extents.get(self.root_of.get(id(it.record), id(it.record)), [])
         if not floats:
             return None
         first, full, tables = _extents(it)
@@ -481,11 +496,13 @@ class Gen:
             self.cond_relations(c.cond, out)
         elif isinstance(c, E.CondName):
             if c.abbrev is not None and self.resolve_cond(c.ref) is None:
-                out.append(self._relation(c.abbrev[1], c.ref, c.abbrev[0] == "="))
+                rel = E.Rel(c.abbrev[0], c.abbrev[1], c.ref)
+                if not (self.null_relation(rel) or self.pointer_relation(rel)):
+                    out.append(self._relation(c.abbrev[1], c.ref, c.abbrev[0] == "="))
         elif isinstance(c, E.ClassCond):
             if c.kind in ("POSITIVE", "NEGATIVE", "ZERO"):
                 out.append(self._relation(c.operand, E.Fig("ZEROS")))  # cobc: x > ZERO, a constant
-        elif isinstance(c, E.Rel) and not self.null_relation(c):
+        elif isinstance(c, E.Rel) and not self.null_relation(c) and not self.pointer_relation(c):
             out.append(self._relation(c.left, c.right, c.op == "="))
 
     @staticmethod
@@ -1069,6 +1086,10 @@ class Gen:
             return O.Num.of(Decimal(self.osvs_length(e)))
         return None
 
+    def wide_op(self, fn: str, a: str, b: str) -> str:
+        """`a fn b` on BigDecimals; under ARITH(EXTEND) through Cobol, whose result past 30 digits stops by name (#4706)."""
+        return f"Cobol.{fn}({a}, {b})" if self.arith_extend else f"{a}.{fn}({b})"
+
     def num_op(self, e) -> str:
         # an operand that may be libcob's NaN (a zero divisor, #4655): the operation through Cobol, NaN in, NaN out
         nan = not self.intr and self.fmode is None
@@ -1084,7 +1105,8 @@ class Gen:
             if nan:
                 return f"Cobol.negate({self.num(e.operand)})"
             return f"{self.num(e.operand)}.negate()"
-        nan = nan and (_may_nan(e.left) or _may_nan(e.right))
+        # ARITH(EXTEND): every + - * through Cobol, whose result stops by name past 30 digits (#4706)
+        nan = nan and (_may_nan(e.left) or _may_nan(e.right) or self.arith_extend)
         lit = self.dc_literal(e.right)
         if lit is not None:
             a = self.num(e.left)
@@ -1221,8 +1243,7 @@ class Gen:
             cn = self.resolve_cond(c.ref)
             if cn is None and c.abbrev is not None:
                 op, subject, negated = c.abbrev  # an abbreviated relation's object
-                with self.relation():
-                    t = self.rel(op, subject, c.ref)
+                t = self.cond(E.Rel(op, subject, c.ref))  # (#5042: a pointer subject takes the pointer tests)
                 return f"!({t})" if negated else t
             if cn is None:
                 raise Untranslatable(f"condition-name {c.ref.name}")
@@ -1242,6 +1263,8 @@ class Gen:
         if isinstance(c, E.Rel):
             if self.null_relation(c):
                 return self.rel_null(c)
+            if self.pointer_operand(c.left) and self.pointer_operand(c.right):
+                return self.rel_pointers(c)
             with self.relation():
                 return self.rel(c.op, c.left, c.right)
         raise Untranslatable(f"condition {type(c).__name__}")
@@ -1266,6 +1289,25 @@ class Gen:
             raise Untranslatable("NULL compared with something that is not a plain pointer item (X56)")
         return f"Cobol.compareFigurative({self.pointer_item(sides[0].name)}, Figurative.LOW_VALUES, CS) == 0"
 
+    def rel_pointers(self, c: E.Rel) -> str:
+        """#5042 (X56): `pointer = pointer` (and NOT =, which the parser wraps in Not). IBM allows only = and NOT = between
+        two pointers; they are equal when they address the same storage, which is the runtime's handle equality (two
+        handles for one block, as a record's ADDRESS OF beside the pointer it was set to, are equal). Anything else is
+        refused by name."""
+        if c.op != "=":
+            raise Untranslatable(
+                f"pointer {c.op} pointer: only = and NOT = compare a pointer (IBM Enterprise COBOL relation conditions, X56)"
+            )
+        if self.cics is None:
+            raise Untranslatable("a pointer compared with a pointer (CICS pointers)")
+        left, right = c.left, c.right
+        if not (isinstance(left, E.Ref) and isinstance(right, E.Ref)):
+            raise Untranslatable("a pointer compared with a pointer that is not a plain pointer item (X56)")
+        if any(x.subscripts or x.qualifiers or x.refmod for x in (left, right)):
+            raise Untranslatable("a pointer compared with a pointer that is not a plain pointer item (X56)")
+        a, b = self.pointer_item(left.name), self.pointer_item(right.name)
+        return f"DetCics.samePointer(task, {a}, {b})"
+
     def cmp_num(self, e) -> str:
         """A comparison operand's value: a plain numeric zoned item is read as libcob compares it (Cobol.cmpNum,
         #4662: a non-digit, and no PUT_SIGN rewrite of the sign), anything else as an arithmetic operand."""
@@ -1275,6 +1317,10 @@ class Gen:
                 return f"Cobol.cmpNum({self.field_expr(e)}, CS)"
         return self.num(e)
 
+    def pointer_relation(self, c) -> bool:
+        """A relation of two pointer items: no arithmetic plan (rel_pointers), like a NULL one."""
+        return self.pointer_operand(c.left) and self.pointer_operand(c.right)
+
     def pointer_operand(self, e) -> bool:
         try:
             return isinstance(e, E.Ref) and self.resolve(e).usage == "POINTER"
@@ -1282,8 +1328,8 @@ class Gen:
             return False
 
     def rel(self, op: str, a, b) -> str:
-        # #5197 (X56): a pointer is compared only with NULL (rel_null); against a number, another pointer or with an
-        # ordering operator it is refused by name (pointer = pointer: #5042)
+        # #5197 (X56): a pointer is compared only with NULL (rel_null) or another pointer (rel_pointers); against a
+        # number or with an ordering operator it is refused by name
         if self.pointer_operand(a) or self.pointer_operand(b):
             other = "another pointer" if self.pointer_operand(a) and self.pointer_operand(b) else "a non-pointer"
             raise Untranslatable(
@@ -1428,7 +1474,7 @@ class Gen:
         return spelling.replace(".", "").replace(",", "")
 
     def digits_as_text(self, a: E.Ref, b: E.Ref) -> None:
-        """Refuse a numeric item compared as its characters with an elementary nonnumeric one (`a` against `b`, either
+        """Refuse a numeric item compared as its characters with a nonnumeric one, a group too (#4671; `a` against `b`, either
         way round) where the oracle's characters are not IBM's (C13): a SIGN SEPARATE item (GnuCOBOL compares its
         sign character) and a P-scaled one (GnuCOBOL its stored digits)."""
         for num, other in ((a, b), (b, a)):
@@ -1437,7 +1483,7 @@ class Gen:
             except Untranslatable:
                 continue
             text = other.refmod is not None or ot.category in ("ALPHANUMERIC", "ALPHABETIC", "NUMERIC-EDITED",
-                                                               "ALPHANUMERIC-EDITED")  # fmt: skip
+                                                               "ALPHANUMERIC-EDITED", "GROUP")  # fmt: skip
             if num.refmod is not None or it.category != "NUMERIC" or not text:
                 continue
             if it.sign_separate and it.signed:
@@ -1502,6 +1548,8 @@ class Gen:
         self.check_lift(parent)  # an 88 on a group holding a lifted item
         if parent.category != "FLOAT" and self.overlaps_float(parent):
             raise Untranslatable(f"88 {cn.name}: its item's bytes hold a COMP-1 / COMP-2 item ({FLOAT_BYTES})")
+        if parent.usage != "COMP-5" and self.overlaps_float(parent, self.comp5_extents):
+            raise Untranslatable(f"88 {cn.name}: its item's bytes hold a COMP-5 item ({COMP5_BYTES})")
         f = self.ids.get(id(parent))
         if f is None:
             raise Untranslatable(f"88 {cn.name}: no item")
@@ -2386,14 +2434,14 @@ class Gen:
                     out.append(f"{ind}BigDecimal {qv} = Cobol.divide({cur}, {tsum});")
                     out.append(f"{ind}if (!Cobol.isNan({qv})) {self.store_into(tgt, qv, rounded)}")
                     continue
-                val = {"+=": f"{cur}.add({tsum})", "-=": f"{cur}.subtract({tsum})",
-                       "*=": f"{tsum}.multiply({cur})"}[op]  # fmt: skip
+                val = {"+=": self.wide_op("add", cur, tsum), "-=": self.wide_op("subtract", cur, tsum),
+                       "*=": self.wide_op("multiply", tsum, cur)}[op]  # fmt: skip
                 out.append(ind + self.store_into(tgt, val, rounded))
                 continue
             f = self.field_expr(tgt)
             cur = f"Cobol.receiverNum({f}, CS)"  # #4692: a receiver holding a non-digit is refused (register C11)
-            val = {"+=": f"{cur}.add({tsum})", "-=": f"{cur}.subtract({tsum})", "*=": f"{tsum}.multiply({cur})",
-                   "/=": f"Cobol.divide({cur}, {tsum})"}[op]  # fmt: skip
+            val = {"+=": self.wide_op("add", cur, tsum), "-=": self.wide_op("subtract", cur, tsum),
+                   "*=": self.wide_op("multiply", tsum, cur), "/=": f"Cobol.divide({cur}, {tsum})"}[op]  # fmt: skip
             if checked:
                 out.append(f"{ind}{err} |= Cobol.storeChecked({f}, {val}, {_b(rounded)}, CS);")
             else:
@@ -3194,6 +3242,7 @@ METHODS_TAKEN = {"initialState", "perform", "run", "runTask", "runBatch", "runPr
                  "stores", "heldKey", "caBack", "fields0", "fields1", "fields2", "fields3"}  # fmt: skip
 
 
+COMP5_BYTES = "COMP-5 is little-endian on the oracle, big-endian on z/OS: oracle_assumptions.md C7"
 FLOAT_BYTES = "IBM hexadecimal floating point on z/OS, IEEE on the oracle: oracle_assumptions.md C6"
 
 

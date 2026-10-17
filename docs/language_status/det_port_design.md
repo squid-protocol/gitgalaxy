@@ -751,8 +751,11 @@ NULL is distinct.
   - SQLCODE, SQLSTATE, the warnings and SQLERRD(3) come from Db2 itself;
   - `SET :hv = expr` runs as a one-row `VALUES` into the host variables; a positioned UPDATE / DELETE (`WHERE
     CURRENT OF`) runs as written, ggsql.c naming each cursor at its OPEN;
-  - forms it does not model are refused by name: WHENEVER, dynamic SQL (PREPARE / EXECUTE / DESCRIBE), CONNECT,
-    CALL, ALLOCATE / ASSOCIATE, SCROLL cursors and host-variable arrays.
+  - `WHENEVER {SQLERROR | NOT FOUND | SQLWARNING} {CONTINUE | GO TO label}` (#4269) is scoped by source order: after
+    each executable statement the port tests the SQLCA (`DetSql.sqlcode` / `warned`) and takes the dispatcher's GOTO
+    (a program with a WHENEVER GO TO is not "structured");
+  - forms it does not model are refused by name: dynamic SQL (PREPARE / EXECUTE / DESCRIBE), CONNECT,
+    CALL, ALLOCATE / ASSOCIATE, scroll FETCH (PRIOR / ABSOLUTE / RELATIVE) and host-variable arrays.
 - **Java side (the det port).** Each statement calls the generated Db2 repository's method for it. The generator writes
   one method per statement, with the SQL as written and its Javadoc naming the source line and each parameter's host
   variable, so the boundary is again the generator's. `cobolrt/sql/DetSql` turns host-variable bytes into JDBC values

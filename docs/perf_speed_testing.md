@@ -63,3 +63,15 @@ cProfile with byte-identical output, which is ~0.2% of Optical_Detector wall on 
 dev box — below that box's noise floor, but a proportionally larger win on a core-constrained
 host. The change was shipped and framed on exactly those terms, not sold as a headline wall
 number.
+
+## Combined-alternation scan for `coding_analysis` (#3073): measured, stays deferred
+
+A reassessment datapoint (2026-10-17, after #3072 and #3182 closed), not a full A/B. Scan of
+`gitgalaxy/standards` (113 files, mostly Python, `--splicing-speed`, min-of-1, quiet box): the
+cumulative regex table is led by one rule, `python::Cartography_Mode_C_Indentation` at 0.894s;
+the next fourteen rules sum to about 0.77s (largest: `state_mutation` 0.119s, `fragile_debt` 0.106s), and
+none of them exceeds 0.12s. The fleet data in the #3073 comment says the same at scale
+(`B_Braces` 53% of rule CPU, top 5 of 662 rules 50%). The remaining cost is a few hot
+single rules, which a merged alternation does not touch, so the issue's parity hazards (100-group
+limit, scoped flags, per-rule Match objects, alternation-order span drift) still buy too little.
+Reopen only with a fleet-scale `phase_ab.py` run showing the many-small-rules residual is large.

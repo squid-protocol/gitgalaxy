@@ -37,7 +37,10 @@ V6 = {"product": "Enterprise COBOL", "version": "6.1", "evidence": "IGY.V6R1M0.S
 def test_numproc_mig_compiles_as_the_default_under_enterprise_cobol_5_and_later():
     src = "   CBL NUMPROC(MIG),FLAG(I,W),RENT\n" + PLAIN  # IBM DBB EPSMPMT's card, from column 4
     text, flags = common.compile_options({"compiler": V6}, src)
-    assert text == "\n" + PLAIN and flags == ["-fbinary-truncate"]  # NOPFD: GnuCOBOL's own sign processing
+    assert text == "\n" + PLAIN and flags == [
+        "-fbinary-truncate",
+        *common.BOUND_FLAGS,
+    ]  # NOPFD: GnuCOBOL's own sign processing
     assert common.numproc({"compiler": V6}, src) == "NOPFD"
     assert common.numproc({"compiler": {**V6, "version": "5.2"}}, src) == "NOPFD"
 
@@ -55,7 +58,7 @@ def test_numproc_mig_is_refused_without_a_later_compiler(compiler):
 
 def test_numproc_pfd_compiles_and_needs_a_det_port(tmp_path):
     src = "       PROCESS NUMPROC(PFD)\n" + PLAIN
-    assert common.compile_options({}, src) == ("\n" + PLAIN, ["-fbinary-truncate"])
+    assert common.compile_options({}, src) == ("\n" + PLAIN, ["-fbinary-truncate", *common.BOUND_FLAGS])
     model = tmp_path / "model" / "service"
     model.mkdir(parents=True)
     (model / "PService.java").write_text("package x;\npublic class PService {}\n", encoding="utf-8")

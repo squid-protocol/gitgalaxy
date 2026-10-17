@@ -157,6 +157,50 @@ def test_start_refuses_a_development_estate_and_a_late_exclusion(started, tmp_pa
     assert any("eligibility changed after start" in e for e in trial.validate(ledger))
 
 
+def test_preview_rehearses_any_estate_and_writes_no_ledger(started, tmp_path, capsys):
+    ledger_path = started["ledger"]
+    before = ledger_path.read_bytes()
+    out_json = tmp_path / "decl.json"
+    # a burned estate id and an already trialled one are both accepted: a rehearsal is never first-try
+    for estate in ("aws-mainframe-modernization-carddemo", "tiny-estate"):
+        rc = trial.main(["--ledger", str(ledger_path), "preview", estate, "--estate-path", str(started["estate"]),
+                         "--work", str(tmp_path / f"w-{estate}"), "--json", str(out_json)])  # fmt: skip
+        assert rc == 0
+    text = capsys.readouterr().out
+    assert "eligible: 2  out of scope: 1" in text and "online (EXEC CICS)" in text
+    decl = json.loads(out_json.read_text(encoding="utf-8"))
+    assert decl["eligible"] == ["FIXPGM", "GOODPGM"] and list(decl["out_of_scope"]) == ["ONLINE1"]
+    assert ledger_path.read_bytes() == before  # no trial, no status change
+    ledger = trial.load(ledger_path)
+    assert (
+        next(e for e in ledger["estates"] if e["id"] == "aws-mainframe-modernization-carddemo")["status"]
+        == "development"
+    )
+
+
+def test_preview_honours_declared_exclusions(started, tmp_path, capsys, monkeypatch):
+    # Both calls scan the same estate: run the scan once (it is the whole cost; the declaration is what is under test).
+    import java_target_matrix as jtm
+
+    cache: dict[str, object] = {}
+    for name in ("refactor", "generate"):
+        real = getattr(jtm, name)
+
+        def once(*a, _real=real, _name=name, **kw):
+            if _name not in cache:
+                cache[_name] = _real(*a, **kw)
+            return cache[_name]
+
+        monkeypatch.setattr(jtm, name, once)
+    rc = trial.main(["--ledger", str(started["ledger"]), "preview", "x", "--estate-path", str(started["estate"]),
+                     "--work", str(tmp_path / "w"), "--exclude", "FIXPGM=too hard"])  # fmt: skip
+    assert rc == 0
+    assert "declared: too hard" in capsys.readouterr().out
+    with pytest.raises(SystemExit, match="did not find"):
+        trial.main(["--ledger", str(started["ledger"]), "preview", "x", "--estate-path", str(started["estate"]),
+                    "--work", str(tmp_path / "w2"), "--exclude", "NOPE=why"])  # fmt: skip
+
+
 def _backend(tmp_path: Path) -> str:
     """A stand-in model: GOODPGM right at once; FIXPGM right only once the engine repo has a FIXED marker."""
     script = tmp_path / "backend.py"

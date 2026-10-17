@@ -433,10 +433,24 @@ def doctemplates(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, str] | N
     return defs
 
 
-def clock_iso(case: dict[str, Any]) -> str:
+_SCENARIO_CLOCK = re.compile(r"\d{4}/\d\d/\d\d \d\d:\d\d:\d\d\.\d\d")
+
+
+def scenario_clock(case: dict[str, Any], sc: dict[str, Any]) -> str:
+    """#4622: the task's clock ("2026/10/01 10:30:15.00", COB_CURRENT_DATE's form) -- the scenario's "clock", else the
+    case's: a program that reads FUNCTION CURRENT-DATE (CORPT00C's month wrap in December) needs a date the case's
+    one never is. Stated on both sides: the COBOL task's COB_CURRENT_DATE / $GGCICS_NOW, the Java task's withClock."""
+    clock = sc.get("clock", case["clock"])
+    if not isinstance(clock, str) or not _SCENARIO_CLOCK.fullmatch(clock):
+        raise Unsupported(f'scenario {sc.get("name")}: "clock" is "YYYY/MM/DD hh:mm:ss.cc" (got {clock!r})')
+    return clock
+
+
+def clock_iso(case: dict[str, Any], sc: dict[str, Any] | None = None) -> str:
     """#4270: the case's clock ("2026/10/01 10:30:15.00") as the stub's $GGCICS_NOW (2026-10-01T10:30:15): the
-    moment a START's expiry and a CANCEL's "not expired" count from, as CicsTask counts them from the same clock."""
-    day, _, time = case["clock"].partition(" ")
+    moment a START's expiry and a CANCEL's "not expired" count from, as CicsTask counts them from the same clock.
+    #4622: the scenario's, when it states one."""
+    day, _, time = (scenario_clock(case, sc) if sc is not None else case["clock"]).partition(" ")
     return day.replace("/", "-") + "T" + time.split(".")[0]
 
 
@@ -1863,14 +1877,20 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
             raise Unsupported(_rule(key, "required", "TDQUEUE"), [key])
         queue = name(opts["TDQUEUE"], "GG-QNAME")
         if verb == "SET":
-            if not opts.get("OPENSTATUS"):
+            if not opts.get("OPENSTATUS") and not opts.get("ENABLESTATUS"):
                 raise Unsupported(_rule(key, "requires", "TDQUEUE"), [key])
+            if opts.get("OPENSTATUS") and opts.get("ENABLESTATUS"):  # #5168 round 5 (X66): one state per command
+                raise Unsupported("SET TDQUEUE with OPENSTATUS and ENABLESTATUS together", [key])
+            if opts.get("ENABLESTATUS"):
+                return ([queue, f"MOVE {opts['ENABLESTATUS']} TO GG-NUM"] + _call("GGCSTDE", [])
+                        + _resp(opts, True, labels))  # fmt: skip
             return [queue, f"MOVE {opts['OPENSTATUS']} TO GG-NUM"] + _call("GGCSTDQ", []) + _resp(opts, True, labels)
-        wanted = [o for o in ("OPENSTATUS", "TYPE") if opts.get(o)]
+        wanted = [o for o in ("OPENSTATUS", "TYPE", "ENABLESTATUS") if opts.get(o)]
         if not wanted:
             raise Unsupported(_rule(key, "requires", "TDQUEUE"), [key])
+        field = {"OPENSTATUS": "GG-NUM", "TYPE": "GG-LEN", "ENABLESTATUS": "GG-ITEM"}
         return ([queue, f"MOVE '{' '.join(wanted)}' TO GG-FLAGS"] + _call("GGCITDQ", []) + ["IF GG-RESP = 0"]
-                + [f"    MOVE {'GG-NUM' if o == 'OPENSTATUS' else 'GG-LEN'} TO {opts[o]}" for o in wanted]
+                + [f"    MOVE {field[o]} TO {opts[o]}" for o in wanted]
                 + ["END-IF"] + _resp(opts, True, labels))  # fmt: skip
     if verb in ("INQUIRE", "SET") and "TERMINAL" in opts:  # #4415 slice 1 (X26): the terminal's UCTRANST CVDA
         key = f"{verb} TERMINAL"
@@ -3115,6 +3135,25 @@ def case_file_records(case: dict[str, Any], corpus: Path, spec: dict[str, Any], 
     return data
 
 
+def scenario_datasets(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    """#4622: the datasets this scenario's task starts with that differ from the case's -- the scenario's "datasets",
+    {DD: {"input": path, "append": path}} (a path as in the case's own dataset, `@case/...` included), each DD's spec
+    the case's with those keys replaced. A file the corpus has one card per account of cannot show a page that ends
+    on the file's last record; the scenario then states a file that does. Unstated, {} (the case's files)."""
+    out: dict[str, dict[str, Any]] = {}
+    for dd, over in (sc.get("datasets") or {}).items():
+        base = (case.get("datasets") or {}).get(dd)
+        if base is None or not isinstance(over, dict) or not set(over) <= {"input", "append"}:
+            raise Unsupported(f'scenario {sc.get("name")}: "datasets" overrides a dataset of the case ({dd!r}) with '
+                              '{"input": path, "append": path}')  # fmt: skip
+        if base.get("input") == "@generate":
+            raise Unsupported(
+                f"scenario {sc.get('name')}: {dd} is generated (`@generate`), so no scenario file replaces it"
+            )
+        out[dd] = {**{k: v for k, v in base.items() if k != "append"}, **over}
+    return out
+
+
 def _file_fault_resp2(sc: dict[str, Any], f: dict[str, Any], cmd: str, resp2: int) -> int:
     """#4623 / #5044: a file command's planned condition against IBM's list for the command; the RESP2 it carries."""
     resp = f["resp"]
@@ -3343,7 +3382,6 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     ]  # #4635 (as batch, #4056)
     if db2:
         script.append(f"gcc -O2 -o ggsqlrun src/ggsqlrun.c {equivalence_db2.COBOL_LINK}")
-    date, _, time = case["clock"].partition(" ")
     programs = csd_programs(corpus, case)
     tdqueues = csd_tdqueue_types(corpus, case)
     if "'APPLID' TO GG-NAME2" in text or "'SYSID' TO GG-NAME2" in text:
@@ -3360,6 +3398,10 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         (d / "out").mkdir(parents=True, exist_ok=True)
         # each task its own copy of the files: what it writes is its own, and is compared (file updates)
         shutil.copytree(work / "files", d / "files", dirs_exist_ok=True)
+        for f in files:  # #4622: a file this scenario states its own records for
+            over = scenario_datasets(case, sc).get(f["base"])
+            if over is not None:
+                (d / "files" / f["base"]).write_bytes(case_file_records(case, corpus, over, f["reclen"], enc))
         (d / "files.cfg").write_text("".join(
             f"{f['file']} /work/scenarios/{sc['name']}/files/{f['base']} {f['reclen']} {f['key_offset']} "
             f"{f['key_length']}{_cfg_flags(case, f)}\n" for f in files
@@ -3438,6 +3480,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             (d / "faults.cfg").write_text("".join(x + "\n" for x in fault_lines(sc)), encoding="ascii")
         if sc.get("sql_plan"):  # #4173: the SQL stub's planned faults (resolved by sql_fault_plan)
             (d / "sqlfaults.cfg").write_text("".join(x + "\n" for x in sc["sql_plan"]), encoding="ascii")
+        date, _, time = scenario_clock(case, sc).partition(" ")  # #4622: the scenario's clock, else the case's
         y, mo, dd = date.split("/")
         eib_date = f"{int(y) - 1900:03d}{_day_of_year(int(y), int(mo), int(dd)):03d}"[-7:].rjust(7, "0")
         eib_time = "0" + time.replace(":", "")[:6]
@@ -3470,7 +3513,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                       + (f"GGCICS_HTTP={rel}/http.cfg " if http_peers(case, sc) is not None else "")
                       + (f"GGCICS_WEBREQ={rel}/webreq.cfg " if http_request(case, sc) is not None else "")
                       + (f"GGCICS_TCPIP={rel}/tcpip.cfg " if tcpip(case, sc) is not None else "")
-                      + f"{sqlenv}COB_CURRENT_DATE='{case['clock']}' GGCICS_NOW={clock_iso(case)} ./task > {rel}/stdout.txt 2>&1; "
+                      + f"{sqlenv}COB_CURRENT_DATE='{scenario_clock(case, sc)}' GGCICS_NOW={clock_iso(case, sc)} ./task > {rel}/stdout.txt 2>&1; "
                       f"echo $? > {rel}/rc; set -e")  # fmt: skip
         if db2:  # what the task left in each compared table
             script.append(f"mkdir -p {rel}/db2")
@@ -3481,6 +3524,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             if db2 else common.run_cobol_step(work))  # fmt: skip
     if proc.returncode != 0:
         raise RuntimeError(f"COBOL side failed:\n{proc.stdout}\n{proc.stderr}")
+    overruns: list[str] = []  # #4449 (X8)
     refused: dict[str, str] = {}  # #4173: a derived SQL-fault task that reaches what is not modelled: that task only
     for sc in case["scenarios"]:  # a LINK reached: the program it names is not run here (no port of it)
         log = work / "scenarios" / sc["name"] / "out" / "events.txt"
@@ -3495,6 +3539,15 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         # scenario reaches behaviour the oracle cannot judge -- refused by name, never reported as a difference
         rc = work / "scenarios" / sc["name"] / "rc"
         said = work / "scenarios" / sc["name"] / "stdout.txt"
+        if said.is_file() and (overrun := common.bound_violation(said.read_bytes())):  # #4449 (X8)
+            why = f"drives an item past its bounds ({overrun}); register X8"
+            if sc.get("derived") or sc["name"] in case.get("bounds_refused", {}):
+                # a case names each scenario it knowingly leaves unjudged here, with the reason (X8): refused by
+                # name, reported as refused, never proven
+                refused[sc["name"]] = why
+                continue
+            overruns.append(f"scenario {sc['name']}: {why}")
+            continue
         if rc.is_file() and rc.read_text().strip() == "98" and said.is_file():
             x6 = judged_refusal(said.read_text(encoding="latin-1"))
             if x6:  # owner decision on #4607 (X6): judged up to the refused WRITEQ, derived or not -- what ran before
@@ -3506,6 +3559,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                 continue
             if why:
                 raise Unsupported(f"scenario {sc['name']}: {why.strip()}", ["MODEL"])
+    if overruns:  # every one at once, so a case is fixed in one pass
+        raise Unsupported("; ".join(overruns) + '; if the program does it on purpose, name each scenario in the '
+                          'case\'s "bounds_refused" with the reason', ["BOUNDS"])  # fmt: skip
     (work / "refused.json").write_text(json.dumps(refused, indent=1) + "\n", encoding="utf-8")
     kept = [sc for sc in case["scenarios"] if sc["name"] not in refused]
 
@@ -4529,7 +4585,9 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
     for dsn, spec in case.get("datasets", {}).items():
         if by_base[dsn].get("organization") == "ESDS":  # #4213: the region's ESDS, on the task (CicsTask.withEsds)
             f = by_base[dsn]
-            csd_java += f'            task.withEsds("{f["file"]}", {f["reclen"]}, records("{dsn}", {f["reclen"]}));\n'
+            csd_java += (
+                f'            task.withEsds("{f["file"]}", {f["reclen"]}, records(sc, "{dsn}", {f["reclen"]}));\n'
+            )
             dumps.append(f'            dump(sc.get("name").asText() + ".{dsn}.out", task.esdsRecords("{f["file"]}"));')
             continue
         ent = spec["entity"]
@@ -4537,7 +4595,7 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
         fields.append(f"    @Autowired {pkg}.repository.vsam.{ent}Repository {repo};")
         loads.append(
             f"            {repo}.deleteAll();\n"
-            f'            load("{dsn}", {by_base[dsn]["reclen"]}, {pkg}.entity.vsam.{ent}::fromRecord, {repo});'
+            f'            load(sc, "{dsn}", {by_base[dsn]["reclen"]}, {pkg}.entity.vsam.{ent}::fromRecord, {repo});'
         )
         dumps.append(f'            dump(sc.get("name").asText() + ".{dsn}.out", {repo}.findAll().stream()'
                      f'.map(row -> row.toRecord(TEXT)).toList());')  # fmt: skip
@@ -4612,6 +4670,53 @@ class EquivalenceRunTest {{
 
     @Autowired org.springframework.transaction.PlatformTransactionManager transactions;
 
+    /** #5089 (register Q3): the task's file unit of work. IBM: SYNCPOINT ROLLBACK ends it and the task's next
+     *  recoverable change starts a new one, committed when the task ends -- restart() backs the file changes out
+     *  and begins that next one. An abend or a refusal marks the CURRENT one rollback-only. */
+    static final class Uow {{
+        private final org.springframework.transaction.PlatformTransactionManager tm;
+        private org.springframework.transaction.TransactionStatus st;
+
+        Uow(org.springframework.transaction.PlatformTransactionManager tm) {{
+            this.tm = tm;
+            this.st = tm.getTransaction(new org.springframework.transaction.support.DefaultTransactionDefinition());
+        }}
+
+        void setRollbackOnly() {{
+            st.setRollbackOnly();
+        }}
+
+        void restart() {{
+            tm.rollback(st);
+            st = tm.getTransaction(new org.springframework.transaction.support.DefaultTransactionDefinition());
+        }}
+
+        void end() {{
+            if (st.isRollbackOnly()) {{
+                tm.rollback(st);
+            }} else {{
+                tm.commit(st);
+            }}
+        }}
+
+        void abort() {{
+            if (!st.isCompleted()) {{
+                tm.rollback(st);
+            }}
+        }}
+    }}
+
+    private void fileUnit(java.util.function.Consumer<Uow> body) {{
+        Uow unit = new Uow(transactions);
+        try {{
+            body.accept(unit);
+        }} catch (RuntimeException | Error e) {{
+            unit.abort();
+            throw e;
+        }}
+        unit.end();
+    }}
+
     /** #4173: a LINK to a program the case does not run ends the task there, as the COBOL side's stub does
      *  (NOPROGRAM) -- only a derived SQL-fault task reaches one; it is judged up to that LINK. */
     static final class NotRun extends RuntimeException {{
@@ -4671,7 +4776,7 @@ class EquivalenceRunTest {{
             Files.deleteIfExists(sysout);
             System.setProperty("gitgalaxy.sysout", sysout.toString());
             CicsTask task = new CicsTask("{case["transid"]}", sc.get("aid").asText(), commarea, calen, received)
-                    .withClock(java.time.LocalDateTime.parse("{ej._clock(case)}"))  // EIBTIME / ASKTIME: the case's clock
+                    .withClock(java.time.LocalDateTime.parse(sc.path("clock").asText("{ej._clock(case)}")))  // EIBTIME / ASKTIME: the scenario's clock, else the case's
                     .withRegion({region_java})  // ASSIGN APPLID / SYSID
                     .withProgram("{case["program"]}")  // the task's first program (a LINK's INVOKINGPROG)
                     .withCounters(counters(sc))  // GET COUNTER: the region's named counters
@@ -4680,7 +4785,7 @@ class EquivalenceRunTest {{
                     .withStartcode(sc.get("startcode").isNull() ? null : sc.get("startcode").asText())
                     .withTerminalInput(sc.get("terminal").isNull() ? null : sc.get("terminal").asText())
                     // #4270: the task's terminal and origin data, as the stub's ($GGCICS_FACILITY, _UCTRANST, _ORIGIN)
-                    .withTermid(sc.get("termid").isNull() ? null : sc.get("termid").asText())
+                    .withTermidIfStated(sc.get("termid").isNull() ? null : sc.get("termid").asText())  // #5126: unstated is refused, as the stub
                     .withUctranst(sc.get("uctranst").isNull() ? null : sc.get("uctranst").asText())
                     .withTempStorage(tempStorage(sc))  // #4270: the TS queues the task starts with, as the stub's
                     // RECOVERY(NONE) files: their changes made outside the unit of work, so they survive a backout
@@ -4787,8 +4892,8 @@ class EquivalenceRunTest {{
                 continue;  // not judged: recorded, never run unfaulted
             }}
             // one unit of work: a SYNCPOINT ROLLBACK, or an abend that ends the task, backs its changes out
-            {db2_begin}new org.springframework.transaction.support.TransactionTemplate(transactions).executeWithoutResult(status -> {{
-                task.onRollback(() -> {{ status.setRollbackOnly(); {db2_rollback_now}}});
+            {db2_begin}fileUnit(status -> {{
+                task.onRollback(() -> {{ status.restart(); {db2_rollback_now}}});
                 try {{
                     if (facades) {{
                         try (CicsTask.Joined joined = CicsTask.join(region)) {{
@@ -4898,8 +5003,8 @@ class EquivalenceRunTest {{
     }}
 
     /** #4213: a dataset's records, as loaded, each `reclen` bytes (an ESDS: in arrival order). */
-    List<byte[]> records(String dd, int reclen) throws IOException {{
-        byte[] data = Files.readAllBytes(in.resolve(dd + ".in"));
+    List<byte[]> records(JsonNode sc, String dd, int reclen) throws IOException {{
+        byte[] data = Files.readAllBytes(input(sc, dd));
         List<byte[]> rows = new ArrayList<>();
         for (int i = 0; i + reclen <= data.length; i += reclen) {{
             rows.add(java.util.Arrays.copyOfRange(data, i, i + reclen));
@@ -4907,9 +5012,15 @@ class EquivalenceRunTest {{
         return rows;
     }}
 
-    <E> void load(String dd, int reclen, BiFunction<byte[], Charset, E> fromRecord, JpaRepository<E, ?> repo)
+    /** #4622: the dataset as the scenario starts with it: its own file (`DD.scenario.in`) when it states one. */
+    Path input(JsonNode sc, String dd) {{
+        Path own = in.resolve(dd + "." + sc.get("name").asText() + ".in");
+        return Files.exists(own) ? own : in.resolve(dd + ".in");
+    }}
+
+    <E> void load(JsonNode sc, String dd, int reclen, BiFunction<byte[], Charset, E> fromRecord, JpaRepository<E, ?> repo)
             throws IOException {{
-        byte[] data = Files.readAllBytes(in.resolve(dd + ".in"));
+        byte[] data = Files.readAllBytes(input(sc, dd));
         List<E> rows = new ArrayList<>();
         for (int i = 0; i + reclen <= data.length; i += reclen) {{
             rows.add(fromRecord.apply(java.util.Arrays.copyOfRange(data, i, i + reclen), TEXT));
@@ -4985,6 +5096,9 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     inputs.mkdir(parents=True, exist_ok=True)
     for f in files:
         shutil.copy(cobol_work / "files" / f["base"], inputs / f"{f['base']}.in")
+    for sc in case["scenarios"]:  # #4622: a file a scenario states its own records for
+        for base in scenario_datasets(case, sc):
+            shutil.copy(cobol_work / "scenarios" / sc["name"] / "files" / base, inputs / f"{base}.{sc['name']}.in")
     ca_fields = commarea_fields(corpus, case)  # as the DTO lists them: an OCCURS group's fields once
     ca_read = commarea_fields(corpus, case, occurrences=True)  # #4765: the whole record, every occurrence
     scenarios = []
@@ -5015,6 +5129,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                           "counters": _counters(case, sc), "taskn": task_number(case, sc),
                           "startcode": task_facts(case, sc)[0], "terminal": task_facts(case, sc)[1],
                           **terminal_facts(case, sc),
+                          **({"clock": ej._clock({**case, "clock": scenario_clock(case, sc)})} if "clock" in sc else {}),
                           "ts": ts_seed(case, sc), "urimaps": urimaps(case, sc),
                           **({"td": td_seed(case, sc)} if td_seed(case, sc) else {}),
                           "doctemplates": doctemplates(case, sc), "http_peers": http_peers(case, sc),

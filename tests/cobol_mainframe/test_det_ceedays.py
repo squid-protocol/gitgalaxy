@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import datetime as dt
 import os
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -308,3 +309,47 @@ def test_the_runtime_is_the_oracle_model_byte_for_byte(c_driver, tmp_path):
 def test_every_outcome_is_in_the_table():
     wants = {v[4].split("|")[0] for v in VECTORS}
     assert {"0", "2507", "2508", "2513", "2520", REFUSED} <= wants
+
+
+# #5003: the sweep of the burned estates for a vstring declared longer than its text (register L1). The LE date/time
+# services read the declared length, so a length VALUE past the PIC X(n) text beside it reads the storage after the item.
+BURNED = (
+    "aws-mainframe-modernization-carddemo",
+    "cics-async-api-credit-card-application-example",
+    "cics-banking-sample-application-cbsa",
+    "cics-genapp",
+    "dbb-mortgage-application",
+    "zecs",
+)
+LE_DATE_CALL = re.compile(r"CALL\s+['\"](CEE(?:DAYS|DATM|SECS|DATE))['\"]", re.IGNORECASE)
+# a halfword length item with a VALUE, then the PIC X(n) text item that follows it
+VSTRING_DECL = re.compile(
+    r"PIC\s+S9\(4\)\s+(?:BINARY|COMP(?:-4|-5)?)\s+VALUE\s+(\d+)\s*\.\s*\n\s*\d+\s+\S+\s+PIC\s+X\((\d+)\)", re.IGNORECASE
+)
+
+
+def _burned_sources():
+    base = os.environ.get("GITGALAXY_MAINFRAME_CORPORA")
+    if not base or not Path(base).is_dir():
+        pytest.skip("needs the mainframe corpora (GITGALAXY_MAINFRAME_CORPORA)")
+    for estate in BURNED:
+        for f in sorted((Path(base) / estate).rglob("*")):
+            if f.suffix.lower() in {".cbl", ".cob", ".cobol"} and f.is_file():
+                yield estate, f, f.read_text(encoding="latin-1")
+
+
+def test_only_cbsa_crecust_declares_a_vstring_length_past_its_text():
+    callers, overruns = set(), set()
+    for estate, f, text in _burned_sources():
+        for m in LE_DATE_CALL.finditer(text):
+            callers.add((f.name, m.group(1).upper()))
+        if LE_DATE_CALL.search(text):
+            for m in VSTRING_DECL.finditer(text):
+                if int(m.group(1)) > int(m.group(2)):
+                    overruns.add((estate, f.name, int(m.group(1)), int(m.group(2))))
+    assert callers >= {("CSUTLDTC.cbl", "CEEDAYS"), ("CRECUST.cbl", "CEEDAYS"), ("BANKDATA.cbl", "CEEDATM")}
+    # CRECUST's picture ('YYYYMMDD', length 10 over 8) is the one overrun: refused by name (register L1); CardDemo builds
+    # its length from LENGTH OF the format item and BANKDATA's CEEDATM picture is exactly 14 over 14
+    crecust = {o for o in overruns if o[1] == "CRECUST.cbl"}
+    assert ("cics-banking-sample-application-cbsa", "CRECUST.cbl", 10, 8) in crecust
+    assert {o[1] for o in overruns} == {"CRECUST.cbl"}

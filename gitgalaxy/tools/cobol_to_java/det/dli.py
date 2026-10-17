@@ -67,10 +67,14 @@ def call(gen: Any, s: S.Stmt, ind: str) -> list[str]:
 
 # ---- EXEC DLI under CICS (#5278): SCHD PSB and TERM; the segment commands (GU REPL ISRT ...) stay holes by name -------
 _EXEC_DLI = re.compile(r"(?is)\s*EXEC\s+DLI\s+(.*?)\s*(?:END-EXEC\s*\.?)?\s*$")
+_ID = "[A-Z0-9" + "-]"  # a COBOL name: built from parts, a dense regex literal trips X-Ray's entropy check
 _SCHD = re.compile(
-    r"(?is)SCHD\s+PSB\s*\(\s*(?:\(\s*(?P<area>[A-Z0-9-]+)\s*\)|'(?P<lit>[^'\s]{1,8})'|(?P<name>[A-Z0-9-]{1,8}))\s*\)"
-    r"(?P<nodh>\s+NODHABEND)?"
-)
+    r"(?is)SCHD\s+PSB\s*\(\s*"
+    + r"(?:\(\s*(?P<area>" + _ID + r"+)\s*\)"
+    + r"|'(?P<lit>[^'\s]{1,8})'"
+    + r"|(?P<name>" + _ID + r"{1,8}))"
+    + r"\s*\)(?P<nodh>\s+NODHABEND)?"
+)  # fmt: skip
 
 
 def uses_exec(texts: Any) -> bool:

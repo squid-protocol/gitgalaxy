@@ -7,7 +7,7 @@ whether to send it to anyone.
 
 ## Install
 
-Python 3.10 or later. You do not need Docker, Db2, a JDK or a compiler.
+Python 3.11 or later. You do not need Docker, Db2, a JDK or a compiler.
 
 ```sh
 python -m venv gg && . gg/bin/activate

@@ -155,9 +155,9 @@ a wasted CI round-trip.
   broke `test_chronometer`). Use a save/restore context manager.
 - A `tests/tools` script inserts REPO_ROOT on `sys.path` BEFORE any `from gitgalaxy` import
   (`# noqa: E402`); otherwise a shared venv's editable install of another checkout runs silently.
-- Python 3.10 is the floor (`requires-python = ">=3.10"`, ruff `target-version = "py310"`, the CI
-  matrix). A local 3.12 hides newer syntax (an f-string reusing its quote inside `{}`, `except*`,
-  `tomllib`): `ruff check <changed files>` before pushing.
+- Python 3.11 is the floor (`requires-python = ">=3.11"`, ruff `target-version = "py311"`, the CI
+  matrix). A local 3.12 hides newer syntax (an f-string reusing its quote inside `{}`):
+  `ruff check <changed files>` before pushing.
 - Evidence-report tests assert only the case under test, never counts from committed reports. Use
   `db2_fixture(..., isolate=True)` (`tests/tools/test_evidence_report.py`) for single-route Db2 tests.
 

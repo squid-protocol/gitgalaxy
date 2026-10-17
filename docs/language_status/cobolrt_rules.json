@@ -2007,6 +2007,20 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-FUNC-ACCEPT-SYSIN",
+   "family": "FUNC",
+   "title": "ACCEPT identifier FROM SYSIN: the next line of standard input moved to the target as an alphanumeric MOVE; no record left stops the run by name",
+   "methods": [
+    "sysin"
+   ],
+   "ibm": null,
+   "ibm_note": "IBM leaves the target undefined when the input stream is exhausted; the port refuses by name instead of blanking it",
+   "options": [],
+   "register": [],
+   "status": "REFUSED",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-CICS-POINTER-IN-COMMAREA",
    "family": "CICS",
    "title": "A POINTER in a COMMAREA DTO: NULL as all zero bytes; an address, which names storage the port does not have, stops the run by name",

@@ -217,7 +217,7 @@
       "features": [
         "statements: ACCEPT"
       ],
-      "note": "ACCEPT FROM SYSIN (a batch input stream): no model.",
+      "note": "ACCEPT FROM SYSIN (a batch input stream): modelled by the det runtime (Accept.sysin, one stdin record per ACCEPT, no record left refused by name); the oracle side has no SYSIN feed yet, so no program is proven on it. COBSWAIT still waits on CALL MVSWAIT (site-routine).",
       "issue": 5106
     },
     {

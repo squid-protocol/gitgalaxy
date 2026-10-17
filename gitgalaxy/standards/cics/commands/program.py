@@ -117,6 +117,7 @@ LOAD = Command(
     key="LOAD",
     ibm=ibm("EXEC CICS LOAD", "summary-load"),
     status="engine-only",
+    register="X65",
     why=_LOAD_WHY,
     options={
         "PROGRAM": _PROGRAM,
@@ -138,6 +139,7 @@ RELEASE = Command(
     key="RELEASE",
     ibm=ibm("EXEC CICS RELEASE", "summary-release"),
     status="engine-only",
+    register="X65",
     why="releasing a LOADed program or table: " + _LOAD_WHY,
     options={"PROGRAM": _PROGRAM, **RESP_OPTIONS},
     outcomes=(

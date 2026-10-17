@@ -46,6 +46,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from gitgalaxy.core.source_text import decode_bytes  # noqa: E402
 from gitgalaxy.standards.analysis_lens import (  # noqa: E402
     LANGUAGE_STRICTNESS,
     resolve_language_family,
@@ -121,8 +122,8 @@ def is_fix_subject(subject: str) -> bool:
 
 # --- git history --------------------------------------------------------------------------------------------------
 def _git(repo: Path, *args: str) -> str:
-    out = subprocess.run(["git", "-C", str(repo), *args], capture_output=True, text=True, check=True, errors="replace")
-    return out.stdout
+    out = subprocess.run(["git", "-C", str(repo), *args], capture_output=True, check=True)
+    return decode_bytes(out.stdout)
 
 
 def pin_date(repo: Path, pin: str) -> datetime:

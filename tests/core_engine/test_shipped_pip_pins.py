@@ -72,7 +72,10 @@ def test_template_fetches_lockfile_from_immutable_source(path):
     """A template runs in a customer repo (or a remote component): it must not read the workspace."""
     lines = path.read_text().splitlines()
     assert "-r templates/requirements" not in path.read_text(), "installs from a path the customer does not have"
-    installs = [i for i, s in _install_lines(path) if "--require-hashes" in s]
+    # the `version: local` dogfood branch runs in THIS repo's workspace, so it reads the bootstrap set from it
+    installs = [
+        i for i, s in _install_lines(path) if "--require-hashes" in s and "ci/requirements/bootstrap.txt" not in s
+    ]
     assert installs, path.name
     for i in installs:
         assert f"-r {FETCHED}" in lines[i], lines[i]

@@ -287,27 +287,27 @@ def test_the_re_run_crucible_ports_keep_their_measured_floor():
     a port's mutants shows up as a stale record here, not as a silent change. Killed / survived per port, and the
     harness gaps (none: the facade bodies are proven on the java-facade side too)."""
     expected = {
-        "CALINK": (14, 8),
-        "CASUB": (15, 9),
-        "CAXA": (14, 7),
+        "CALINK": (15, 7),
+        "CASUB": (16, 8),
+        "CAXA": (16, 5),
         "CAXB": (17, 6),
-        "GTSTART": (15, 7),
-        "GTWORK": (17, 4),
+        "GTSTART": (19, 3),
+        "GTWORK": (20, 1),
         "GTSHOW": (17, 6),
-        "GTTERM": (10, 11),
-        "HCMAIN": (12, 11),
+        "GTTERM": (17, 4),
+        "HCMAIN": (14, 9),
         "HCSUB": (18, 6),
         "HCQREAD": (14, 7),
         "HXATTR": (17, 5),
-        "HXEXT": (16, 7),
-    }  # fmt: skip  (#4870 re-ran after the byte-carrying facade overload, #4965 re-ran CALINK, CAXA, GTSTART, HCQREAD: measured)
+        "HXEXT": (20, 3),
+    }  # fmt: skip  (#4870 re-ran after the byte-carrying facade overload, #4965 re-ran CALINK, CAXA, GTSTART, HCQREAD, #4443 re-ran all 13 with the strengthened scenarios: measured)
     ports = {p["program"]: p for p in json.loads(SCORES.read_text(encoding="utf-8"))["ports"]}
     for prog, (killed, survived) in expected.items():
         t = ports[prog]["total"]
         assert (t["killed"], t["survived"]) == (killed, survived), prog
         assert t["untriaged"] == 0 and _mutated_port_is_current(ports[prog]["case"], prog), prog
     assert sum(ports[p]["total"]["harness_gap"] for p in expected) == 0
-    assert sum(k for k, _ in expected.values()) == 196 and sum(s for _, s in expected.values()) == 94
+    assert sum(k for k, _ in expected.values()) == 220 and sum(s for _, s in expected.values()) == 70
 
 
 @pytest.mark.parametrize("case,program", sorted(FACADES))

@@ -94,6 +94,13 @@ def test_repro_table():
     assert cd.repro("some-new-check", ex).endswith("--fast")
 
 
+def test_a_ground_truth_part_repro_runs_its_tests_not_fast():
+    ex = {"tests": ["tests/cobol_mainframe/test_proof_reach.py::test_x"], "cases": []}
+    assert cd.repro("ground-truth part 1/2", ex) == "python -m pytest -q " + ex["tests"][0]
+    assert cd.repro("ground-truth part 2/2", {"tests": [], "cases": []}) == "python -m pytest -q tests/cobol_mainframe/"
+    assert "--only-ratchets ground-truth" in cd.repro("ground-truth", {"tests": [], "cases": []})
+
+
 def test_render_and_a_green_pr():
     assert "no failed checks" in cd.render(cd.digest(7, fake_api([run(5, "ruff-audit", "success")]), lambda i: ""))
     text = cd.render(cd.digest(7, fake_api([run(6, "ruff-audit", "failure")]), lambda i: "##[error]E501 x.py:3"))

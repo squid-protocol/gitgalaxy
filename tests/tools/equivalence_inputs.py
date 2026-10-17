@@ -247,6 +247,7 @@ def _order(datasets: dict[str, dict[str, Any]]) -> list[str]:
     """Generated datasets, each after the ones its `from` rules draw on."""
     deps = {
         dd: {r["from"].rsplit(".", 1)[0] for r in spec["generate"].get("fields", {}).values() if "from" in r}
+        & set(datasets)  # (#4507: a `from` naming a generated Db2 column is no dataset to wait for)
         for dd, spec in datasets.items()
     }
     out: list[str] = []
@@ -266,7 +267,10 @@ def generate_inputs(case: dict[str, Any], corpus: Path) -> dict[str, bytes]:
 def generate_all(case: dict[str, Any], corpus: Path) -> tuple[dict[str, bytes], dict[str, list[Any]]]:
     """(generate_inputs, {DD.FIELD: the values it holds}) -- the values a scenario's keys are drawn from."""
     todo = {dd: spec for dd, spec in case["datasets"].items() if spec.get("input") == "@generate"}
-    pools: dict[str, list[Any]] = {}
+    import equivalence_db2
+
+    # #4507: a dataset's `from` may name a generated Db2 column (SCHEMA.TABLE.COLUMN): a batch input that keys the table
+    pools: dict[str, list[Any]] = dict(equivalence_db2.generated_pools(case, corpus)) if todo else {}
     out: dict[str, bytes] = {}
     for dd in _order(todo):
         spec = todo[dd]

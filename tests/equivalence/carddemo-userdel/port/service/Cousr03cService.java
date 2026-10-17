@@ -341,7 +341,10 @@ public class Cousr03cService {
             cc.setCdemoFromTranid(fit(WS_TRANID, 4));
             cc.setCdemoFromProgram(fit(WS_PGMNAME, 8));
             cc.setCdemoPgmContext(0);
-            dispatchCdemoToProgramL205(task, cc.getCdemoToProgram(), cc);   // XCTL PROGRAM(CDEMO-TO-PROGRAM) COMMAREA, line 205
+            String resp = dispatchCdemoToProgramL205(task, cc.getCdemoToProgram(), cc);   // XCTL PROGRAM(CDEMO-TO-PROGRAM) COMMAREA, line 205
+            if (!"NORMAL".equals(resp)) {
+                task.abendOnCondition(resp);      // no RESP, no HANDLE CONDITION: CICS abends the task (#4648)
+            }
         }
 
         // SEND-USRDEL-SCREEN

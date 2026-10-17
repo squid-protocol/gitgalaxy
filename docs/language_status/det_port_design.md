@@ -882,7 +882,7 @@ The combined method runs in the porting loop like any other backend, and every e
   Db2 programs are blocked by C9 (INQACCCU, DELCUS, CREACC), by its
   output file and CEEGMT / CEEDATM calls (BANKDATA; its FUNCTION RANDOM translates since C12) or by having only a
   Java caller (ACCTCTRL). CRECUST translates whole since #4884 (CEEIGZCT stand-in L4, CEELOCT L5, FETCH / RUN CHANNEL
-  X18) but is not proven: no case.
+  X18) but is not proven: its case `cbsa-crecust` (Db2 seed, five RUN children, #4952) is refused by name on L1 (a 10-byte CEEDAYS picture over 8 bytes) and its child schedule is X18-assumed.
 - #5053: a COMMAREA no generated DTO types -- a DFHCOMMAREA that is no record (`PIC X(30)`), so the stub says `Object request` --
   is no DTO class. It read as a missing `dto/contract/Object`, which made PCCONF's two `RETURN TRANSID COMMAREA(WS-STATE)` holes;
   it is now untyped (`det/cics.py` `_typed`) and the record's own DTO carries it, bytes beside it. A program entered with

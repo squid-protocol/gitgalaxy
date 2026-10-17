@@ -34,6 +34,9 @@ _READ_ONLY = {"DISPLAY", "GOTO", "CONTINUE", "EXIT", "GOBACK", "STOP", "NEXT-SEN
 REFUSED_BY_NAME = {
     "DSNTIAC": "DSNTIAC: Db2's message text is not modelled (oracle_assumptions.md Q5)",
     "DSNTIAR": "DSNTIAR: Db2's message text is not modelled (oracle_assumptions.md Q5)",
+    # #4771: zECS's store-clock wrapper (ZECS001 4000-GET-COUNTER); the estate holds no source for it (an assembler module)
+    "ZUIDSTCK": "ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the 16 bytes it "
+    "returns in THE-TOD are not a stated fact (oracle_assumptions.md X47)",
 }
 
 

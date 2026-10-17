@@ -72,6 +72,10 @@ _INVREQ_TOKEN = Outcome(
 )
 _NORMAL = Outcome("NORMAL", 0, "")
 _NOTFND = Outcome("NOTFND", None, "the record is not found")
+# #4623 (X48), IBM, READ / READNEXT / READPREV "Conditions": DUPKEY RESP2 140 -- a record retrieved through a NONUNIQUEKEY alternate
+# index with another of the same key following. The record IS delivered, so DUPKEY writes what NORMAL writes.
+_DUPKEY_TEXT = "a record is retrieved through a non-unique alternate index and another with the same key follows"
+_DUPREC_TEXT = "a record with the same key is already in the file"
 _INVREQ_NO_BROWSE = Outcome("INVREQ", None, "no browse of the file was started")
 
 
@@ -120,6 +124,7 @@ READ = _file(
     ),
     outcomes=(
         Outcome("NORMAL", 0, "", writes=("INTO", "SET", "LENGTH", "TOKEN")),
+        Outcome("DUPKEY", 140, _DUPKEY_TEXT, writes=("INTO", "SET", "LENGTH", "TOKEN")),
         # #5092 (X52), IBM, EXEC CICS READ: NOTFND RESP2 80 for every READ form (plain, UPDATE, TOKEN, GTEQ, GENERIC); a READ
         # UPDATE that finds nothing holds nothing. NOTFND 81 (RBA / XRBA) and the other option-gated values are refused by name
         Outcome(
@@ -185,6 +190,7 @@ READNEXT = _file(
     groups=(one_of("INTO", "SET", msg="{} needs one of INTO / SET"),),
     outcomes=(
         Outcome("NORMAL", 0, "", writes=("INTO", "SET", "RIDFLD")),
+        Outcome("DUPKEY", 140, _DUPKEY_TEXT, writes=("INTO", "SET", "RIDFLD")),
         Outcome("ENDFILE", None, "the end of the file is reached"),
         _INVREQ_NO_BROWSE,
     ),
@@ -200,6 +206,7 @@ READPREV = _file(
     groups=READNEXT.groups,
     outcomes=(
         Outcome("NORMAL", 0, "", writes=("INTO", "SET", "RIDFLD")),
+        Outcome("DUPKEY", 140, _DUPKEY_TEXT, writes=("INTO", "SET", "RIDFLD")),
         Outcome("ENDFILE", None, "the start of the file is reached"),
         _INVREQ_NO_BROWSE,
     ),
@@ -243,7 +250,7 @@ WRITE = _file(
         **RESP_OPTIONS,
     },
     refused=_REMOTE,
-    outcomes=(_NORMAL, Outcome("DUPREC", None, "a record with the same key is already in the file")),
+    outcomes=(_NORMAL, Outcome("DUPREC", 150, _DUPREC_TEXT)),
 )
 
 REWRITE = _file(
@@ -254,6 +261,7 @@ REWRITE = _file(
     refused=_REMOTE,
     outcomes=(
         _NORMAL,
+        Outcome("DUPREC", 150, _DUPREC_TEXT),
         Outcome("INVREQ", 30, "no READ UPDATE without a token holds a record of the file"),
         _INVREQ_TOKEN,
     ),

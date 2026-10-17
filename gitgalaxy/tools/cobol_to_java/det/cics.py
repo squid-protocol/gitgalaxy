@@ -1188,6 +1188,9 @@ class Cics(ContainerCommands):
                 else:  # always the bytes past the DTO (#4501 LENGTH, #4765 a table's every occurrence)
                     call = f"task.xctl({prog}, {dto}, {length})" if length != "null" else f"task.xctl({prog}, {dto})"
             else:
+                # #5291: no COMMAREA: the target may RETURN a wide COMMAREA as bytes (#4695), which this program's
+                # facade then reads through its own DTO (bytes no layout reads are answered as before)
+                self.passes_bytes = True
                 call = f"task.xctl({prog}, null)"
             r = g.tmpname("xr")
             return ([*pre, f"{ind}String {r} = {call};", f"{ind}if (\"NORMAL\".equals({r})) throw new Goback();",

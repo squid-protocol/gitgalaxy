@@ -645,6 +645,10 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         for it in rec.walk():
             if it.category == "FLOAT":
                 gen.float_extents.setdefault(id(roots[id(rec)]), []).append((it, *G._extents(it)))
+            elif it.usage == "COMP-5" and it.size > 1 and rec.name.upper() != "SQLCA":
+                # #4271 (C7): its bytes are the oracle's order, not z/OS's. Not the SQLCA: the SQL lane hands the whole
+                # group to DetSql, which sets its fields as numbers (a program that MOVEs it as bytes: sibling gap)
+                gen.comp5_extents.setdefault(id(roots[id(rec)]), []).append((it, *G._extents(it)))
     if typed:
         gen.sync_groups = groups
         gen.lifted = liftable(records, excluded | {"GG-SORT-RETURN"}, rc)

@@ -459,3 +459,55 @@ def test_a_numval_compute_is_a_float_statement_with_checked_stores(tmp_path):
     assert r.stats["holes"] == [], r.stats["holes"]
     assert r.java.count("Hfp.fixedStore(") == 2, r.java
     assert "Hfp.multiply(Hfp.numval(" in r.java
+
+
+# ---- #4688: where GnuCOBOL's decimal evaluation differs from IBM's, the port follows IBM ------------------------
+
+
+@pytest.mark.parametrize(
+    "value, short, scale, want",
+    [
+        ("1.875", True, 2, "1.88"),  # #4688 (1): COMP-1 to -(5)9.99; exact in both formats, IBM rounds (cobc: 1.87)
+        ("-1.875", True, 2, "-1.88"),  # half away from zero
+        ("1.875", False, 2, "1.88"),  # COMP-2
+        ("0.625", False, 2, "0.63"),  # exact binary half
+        ("0.375", True, 2, "0.38"),
+    ],
+)
+def test_a_float_moved_to_an_edited_or_fixed_receiver_rounds_where_the_oracle_truncates(value, short, scale, want):
+    v = H.for_item(F(Decimal(value)), short)
+    assert str(H.to_fixed(v, scale, 9 if short else 18)) == want
+
+
+def test_a_compound_float_compute_is_computed_in_long_hfp_where_the_oracle_gives_zero():
+    # #4688 (2): COMPUTE R1 = ((FA / 2) * (0.5 + F4)), FA COMP-1 5, F4 COMP-2 4: 2.5 * 4.5, exact in HFP (cobc: 0.00)
+    fa, f4 = H.for_item(F(5), True), H.for_item(F(4), False)
+    r = H.mul(H.div(fa, F(2), True), H.add(F(1, 2), f4, True), True)
+    assert r == F(45, 4) and str(H.to_fixed(r, 2, 18)) == "11.25"
+
+
+def test_a_packed_value_added_to_a_float_zero_is_converted_to_long_hfp_and_truncated():
+    # #4688 (3): ADD FZ2 TO R4, R4 S9(7)V99 COMP-3 = 0.68, FZ2 COMP-2 zero. IBM runs the statement in long floating
+    # point: 0.68 is 0.67AE147AE147AE x 16**0 (below 0.68), and the store truncates (ASSUMED, register C6): 0.67.
+    # cobc keeps 0.68 (decimal).
+    x = H.add(H.for_item(F(Decimal("0.68")), False), F(0), True)
+    assert H.encode(x, False).hex() == "40ae147ae147ae14" and x < F(68, 100)
+    assert int(x * 100) == 67
+
+
+@pytest.mark.parametrize("stmt", ["ADD FZ2 TO R4", "COMPUTE R1 = ((FA / 2) * (0.5 + F4))", "MOVE G TO E"])
+def test_the_4688_statements_translate_in_float_mode(stmt, tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    body = ("       IDENTIFICATION DIVISION.\n       PROGRAM-ID. F4688.\n       DATA DIVISION.\n"
+            "       WORKING-STORAGE SECTION.\n       01 G COMP-1 VALUE 1.875.\n       01 E PIC -(5)9.99.\n"
+            "       01 FA COMP-1 VALUE 5.\n       01 F4 COMP-2 VALUE 4.\n       01 FZ2 COMP-2 VALUE 0.\n"
+            "       01 R1 PIC S9(7)V99.\n       01 R4 PIC S9(7)V99 COMP-3 VALUE 0.68.\n"
+            f"       PROCEDURE DIVISION.\n           {stmt}\n           GOBACK.\n")  # fmt: skip
+    (tmp_path / "project").mkdir()
+    cbl = tmp_path / "F4688.cbl"
+    cbl.write_text(body, encoding="ascii")
+    r = P.translate(cbl, [], "public class F4688Service {\n}\n", "p", None, tmp_path / "project")
+    assert r.stats["holes"] == [], r.stats["holes"]
+    assert "Hfp." in r.java or stmt.startswith("MOVE"), r.java

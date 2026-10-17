@@ -1086,6 +1086,10 @@ class Gen:
             return O.Num.of(Decimal(self.osvs_length(e)))
         return None
 
+    def wide_op(self, fn: str, a: str, b: str) -> str:
+        """`a fn b` on BigDecimals; under ARITH(EXTEND) through Cobol, whose result past 30 digits stops by name (#4706)."""
+        return f"Cobol.{fn}({a}, {b})" if self.arith_extend else f"{a}.{fn}({b})"
+
     def num_op(self, e) -> str:
         # an operand that may be libcob's NaN (a zero divisor, #4655): the operation through Cobol, NaN in, NaN out
         nan = not self.intr and self.fmode is None
@@ -1101,7 +1105,8 @@ class Gen:
             if nan:
                 return f"Cobol.negate({self.num(e.operand)})"
             return f"{self.num(e.operand)}.negate()"
-        nan = nan and (_may_nan(e.left) or _may_nan(e.right))
+        # ARITH(EXTEND): every + - * through Cobol, whose result stops by name past 30 digits (#4706)
+        nan = nan and (_may_nan(e.left) or _may_nan(e.right) or self.arith_extend)
         lit = self.dc_literal(e.right)
         if lit is not None:
             a = self.num(e.left)
@@ -2429,14 +2434,14 @@ class Gen:
                     out.append(f"{ind}BigDecimal {qv} = Cobol.divide({cur}, {tsum});")
                     out.append(f"{ind}if (!Cobol.isNan({qv})) {self.store_into(tgt, qv, rounded)}")
                     continue
-                val = {"+=": f"{cur}.add({tsum})", "-=": f"{cur}.subtract({tsum})",
-                       "*=": f"{tsum}.multiply({cur})"}[op]  # fmt: skip
+                val = {"+=": self.wide_op("add", cur, tsum), "-=": self.wide_op("subtract", cur, tsum),
+                       "*=": self.wide_op("multiply", tsum, cur)}[op]  # fmt: skip
                 out.append(ind + self.store_into(tgt, val, rounded))
                 continue
             f = self.field_expr(tgt)
             cur = f"Cobol.receiverNum({f}, CS)"  # #4692: a receiver holding a non-digit is refused (register C11)
-            val = {"+=": f"{cur}.add({tsum})", "-=": f"{cur}.subtract({tsum})", "*=": f"{tsum}.multiply({cur})",
-                   "/=": f"Cobol.divide({cur}, {tsum})"}[op]  # fmt: skip
+            val = {"+=": self.wide_op("add", cur, tsum), "-=": self.wide_op("subtract", cur, tsum),
+                   "*=": self.wide_op("multiply", tsum, cur), "/=": f"Cobol.divide({cur}, {tsum})"}[op]  # fmt: skip
             if checked:
                 out.append(f"{ind}{err} |= Cobol.storeChecked({f}, {val}, {_b(rounded)}, CS);")
             else:

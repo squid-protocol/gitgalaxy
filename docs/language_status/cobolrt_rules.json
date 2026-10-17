@@ -372,6 +372,26 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-CBL-ARITH-PER-PROGRAM",
+   "family": "CBL",
+   "title": "ARITH(EXTEND) set for one program's run and restored after it",
+   "methods": [
+    "swapArithExtend"
+   ],
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "Compiler options: ARITH"
+   },
+   "options": [
+    "ARITH"
+   ],
+   "register": [
+    "C5"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-CBL-NUMPROC-PER-PROGRAM",
    "family": "CBL",
    "title": "NUMPROC(PFD / NOPFD) set for one program's run and restored after it (NUMPROC(MIG) compiles as NOPFD)",
@@ -1242,6 +1262,27 @@
    },
    "options": [
     "TRUNC"
+   ],
+   "register": [
+    "C5"
+   ],
+   "status": "REFUSED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-NUM-ARITH-EXTEND-STOP",
+   "family": "NUM",
+   "title": "ARITH(EXTEND): an intermediate result past 30 digits stops by name (GnuCOBOL caps none; IBM's EXTEND range is not modelled)",
+   "methods": [
+    "arithExtendCheck",
+    "arithExtendWide"
+   ],
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "Intermediate results and arithmetic precision"
+   },
+   "options": [
+    "ARITH"
    ],
    "register": [
     "C5"

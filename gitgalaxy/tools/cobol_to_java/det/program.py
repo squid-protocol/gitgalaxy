@@ -439,11 +439,12 @@ def drop_unused_fields(java: str) -> str:
         java = out
 
 
-def with_trunc(java: str, trunc: bool | str, pfd: bool = False) -> str:
+def with_trunc(java: str, trunc: bool | str, pfd: bool = False, extend: bool = False) -> str:
     """Each entry (runTask / runBatch / handleCall) run with this program's TRUNC (Cobol.swapTruncBinary) and NUMPROC
     (Cobol.swapNumprocPfd, #4271), the caller's restored after it -- a LINK or CALL into a program compiled otherwise
     leaves the caller's as it was. `trunc`: "STD" / "BIN" / "OPT" (True / False: STD / BIN). TRUNC(OPT) (#4706) runs
-    as STD with Cobol.swapTruncOpt on: a value that would not fit a binary receiver's PICTURE stops by name."""
+    as STD with Cobol.swapTruncOpt on: a value that would not fit a binary receiver's PICTURE stops by name.
+    ARITH(EXTEND) (`extend`, #4706) runs with Cobol.swapArithExtend on: an intermediate result past 30 digits stops."""
     mode = ("STD" if trunc else "BIN") if isinstance(trunc, bool) else trunc.upper()
     std = mode != "BIN"
     opt_on = (
@@ -452,6 +453,12 @@ def with_trunc(java: str, trunc: bool | str, pfd: bool = False) -> str:
         else ""
     )
     opt_off = "            Cobol.swapTruncOpt(optBefore);\n" if mode == "OPT" else ""
+    ext_on = (
+        "\n        boolean extBefore = Cobol.swapArithExtend(true);  // ARITH(EXTEND): an intermediate past 30 digits stops"
+        if extend
+        else ""
+    )
+    ext_off = "            Cobol.swapArithExtend(extBefore);\n" if extend else ""
     out, at = [], 0
     for m in _ENTRIES.finditer(java):
         end = _method_end(java, m.end())
@@ -462,13 +469,13 @@ def with_trunc(java: str, trunc: bool | str, pfd: bool = False) -> str:
         out.append(
             f"\n        boolean truncBefore = Cobol.swapTruncBinary({'true' if std else 'false'});  // TRUNC"
             f"({'STD' if mode == 'STD' else 'BIN' if mode == 'BIN' else 'OPT'})"
-            f"{opt_on}"
+            f"{opt_on}{ext_on}"
             f"\n        boolean pfdBefore = Cobol.swapNumprocPfd({'true' if pfd else 'false'});  // NUMPROC"
             f"({'PFD' if pfd else 'NOPFD'})\n        try {{"
         )
         out.append("\n".join(("    " + ln) if ln.strip() else ln for ln in body.split("\n")))
         out.append(
-            f"    }} finally {{\n{opt_off}            Cobol.swapTruncBinary(truncBefore);\n"
+            f"    }} finally {{\n{opt_off}{ext_off}            Cobol.swapTruncBinary(truncBefore);\n"
             "            Cobol.swapNumprocPfd(pfdBefore);\n        }\n    "
         )
         at = end
@@ -1299,8 +1306,13 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         )
     java = drop_unused_fields(java)
     page = engine.page(program) if engine is not None else None  # #4462: the card read in the declared code page
-    return Result(with_trunc(java, trunc_mode(program, options, page), numproc_pfd(program, options, page)), service,
-                  stats)  # fmt: skip
+    java = with_trunc(
+        java,
+        trunc_mode(program, options, page),
+        numproc_pfd(program, options, page),
+        arith_extend(program, options, page),
+    )
+    return Result(java, service, stats)
 
 
 def _record_io(proc: S.Procedure, fd: G.FileDef, records: list) -> bool:

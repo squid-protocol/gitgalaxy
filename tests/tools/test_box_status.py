@@ -91,3 +91,36 @@ def test_is_stray_scan_covers_the_whole_filesystem_scanners_only():
     assert not bs.is_stray_scan(["find", "/srv/storage_16tb/projects/gitgalaxy-worktrees/x", "-name", "*.py"], 60)
     assert not bs.is_stray_scan(["find", "/tmp", "/var/tmp", "-type", "f"], 400)  # chkrootkit's daily walk: not a root scan
     assert not bs.is_stray_scan(["python", "/", "x"], 60)
+
+
+# --- free disk space and inodes ---------------------------------------------------------------------------------------
+
+def disk(mount="/", size=1900.0, free=500.0, inodes=60.0):
+    return {"mount": mount, "size_gb": size, "free_gb": free, "inodes_free_pct": inodes}
+
+
+def test_a_filling_disk_is_yellow_then_red():
+    # 2026-10-17: / at 89% (205 GB free of 1.9 TB) after one job left 155 GB of scratch; nothing judged it
+    assert bs.decide(snap(disks=[disk(free=205.0)]))["verdict"] == "GREEN"
+    d = bs.decide(snap(disks=[disk(free=80.0)]))
+    assert d["verdict"] == "YELLOW" and any(r.startswith("disk filling, /: 80 GB free") for r in d["reasons"])
+    d = bs.decide(snap(disks=[disk(free=20.0)]))
+    assert d["verdict"] == "RED" and d["free_slots"] == 0 and any("disk almost full" in r for r in d["reasons"])
+
+
+def test_a_big_disk_is_judged_by_gigabytes_and_a_small_one_by_percent():
+    assert bs.decide(snap(disks=[disk("/srv", size=16000.0, free=1200.0)]))["verdict"] == "GREEN"  # 7.5% but 1.2 TB
+    assert bs.decide(snap(disks=[disk("/small", size=200.0, free=15.0)]))["verdict"] == "YELLOW"  # 7.5% of 200 GB
+    assert bs.decide(snap(disks=[disk("/small", size=200.0, free=8.0)]))["verdict"] == "RED"
+
+
+def test_running_out_of_inodes_is_judged():
+    assert bs.decide(snap(disks=[disk(inodes=8.0)]))["verdict"] == "YELLOW"
+    assert bs.decide(snap(disks=[disk(inodes=3.0)]))["verdict"] == "RED"
+    assert bs.decide(snap(disks=[disk(inodes=None)]))["verdict"] == "GREEN"
+
+
+def test_disks_reads_one_row_per_device():
+    rows = bs._disks()
+    assert rows and len({r["mount"] for r in rows}) == len(rows)
+    assert all(r["free_gb"] <= r["size_gb"] for r in rows)

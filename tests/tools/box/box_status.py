@@ -13,7 +13,7 @@ Verdict (decide(), pure):
   GREEN   may launch; heavy work only into a FREE heavy-run.sh slot (`free_slots`)
 Thresholds: load1 and CPU pressure (PSI "some" avg60) against the cores; disk I/O pressure; memory available; memory
 pressure (paging now -- swap merely in use is not judged alone, it can be old pages from a spike long gone); free heavy
-slots. Linux counts tasks blocked on disk (D state) in the load average, so load with no CPU or I/O pressure behind it
+slots; free disk space and inodes on the disks the fleet writes to (/, the temp dir, the repo's disk). Linux counts tasks blocked on disk (D state) in the load average, so load with no CPU or I/O pressure behind it
 (tasks stuck on a dead mount) is reported, not judged (#4930). Whatever holds the box is named: the busiest CPU and disk
 users, the processes blocked on disk, and probable strays (a whole-filesystem scan running 15+ minutes).
 Linux only (/proc); elsewhere it says so and exits 0 with verdict UNKNOWN.
@@ -27,12 +27,16 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 from typing import Any
 
 LOCK_DIR = Path(os.environ.get("GG_LOCK_DIR", "/tmp/gitgalaxy-scratch/locks"))  # noqa: S108 (heavy-run.sh's lock dir)
 WORKTREE_MARK = "gitgalaxy-worktrees"  # $PRIMARY/../gitgalaxy-worktrees/<slug> (parallel-pr-agents)
+# Free space: YELLOW below min(10% of the disk, 100 GB), RED below min(5%, 25 GB) -- a percentage alone would hold a 15 TB
+# disk YELLOW with 1.4 TB free. Inodes: YELLOW below 10% free, RED below 5%. Extra paths: GG_DISK_PATHS (colon-separated).
+DISK_YELLOW, DISK_RED = (0.10, 100.0), (0.05, 25.0)
 
 
 def decide(s: dict[str, Any]) -> dict[str, Any]:
@@ -83,6 +87,21 @@ def decide(s: dict[str, Any]) -> dict[str, Any]:
     elif mpsi is not None and mpsi >= 5:
         yellow = True
         reasons.append(f"memory pressure {mpsi:.0f}% (swap {s.get('swap_used_gb', 0):.1f} GB)")
+    for d in s.get("disks", []):
+        free, size, inodes = d["free_gb"], max(d["size_gb"], 1e-9), d.get("inodes_free_pct")
+        where = f"{d['mount']}: {free:.0f} GB free of {size:.0f} GB ({100 * free / size:.0f}%)"
+        if free < min(DISK_RED[0] * size, DISK_RED[1]):
+            red = True
+            reasons.append(f"disk almost full, {where}")
+        elif free < min(DISK_YELLOW[0] * size, DISK_YELLOW[1]):
+            yellow = True
+            reasons.append(f"disk filling, {where}")
+        if inodes is not None and inodes < 5:
+            red = True
+            reasons.append(f"inodes almost gone on {d['mount']}: {inodes:.1f}% free")
+        elif inodes is not None and inodes < 10:
+            yellow = True
+            reasons.append(f"inodes low on {d['mount']}: {inodes:.1f}% free")
     free_slots = max(s["slots"] - s["slots_held"], 0)
     if free_slots == 0:
         yellow = True
@@ -257,6 +276,37 @@ def _containers() -> list[str]:
     return [x for x in r.stdout.splitlines() if x.strip()]
 
 
+def _mount(path: Path) -> Path:
+    path = path.resolve()
+    while not path.is_mount() and path != path.parent:
+        path = path.parent
+    return path
+
+
+def _statvfs(path: str) -> tuple[int, os.statvfs_result | None]:
+    try:
+        return os.stat(path).st_dev, os.statvfs(path)
+    except OSError:
+        return -1, None
+
+
+def _disks() -> list[dict[str, Any]]:
+    """Free space and inodes per filesystem the fleet writes to: /, the temp dir, this repo's disk (its worktrees sit
+    beside it), and GG_DISK_PATHS. One row per device."""
+    paths = ["/", tempfile.gettempdir(), str(Path(__file__).resolve().parent)]
+    paths += [x for x in os.environ.get("GG_DISK_PATHS", "").split(":") if x]
+    seen, out = set(), []
+    for p in paths:
+        dev, st = _statvfs(p)
+        if st is None or dev in seen:
+            continue
+        seen.add(dev)
+        out.append({"mount": str(_mount(Path(p))), "size_gb": round(st.f_blocks * st.f_frsize / 1e9, 1),
+                    "free_gb": round(st.f_bavail * st.f_frsize / 1e9, 1),
+                    "inodes_free_pct": round(100 * st.f_favail / st.f_files, 1) if st.f_files else None})  # fmt: skip
+    return out
+
+
 def snapshot(sample: float = 1.0) -> dict[str, Any]:
     cores = os.cpu_count() or 1
     mem = _meminfo()
@@ -309,6 +359,7 @@ def snapshot(sample: float = 1.0) -> dict[str, Any]:
             ({"who": k, "cores": round(v, 2)} for k, v in groups.items() if v >= 0.05), key=lambda x: -x["cores"]
         )[:12],
         "containers": _containers(),
+        "disks": _disks(),
     }
     s.update(decide(s))
     return s
@@ -328,6 +379,8 @@ def render(s: dict[str, Any]) -> str:
     iop = s.get("io_psi")
     out.append(f"disk: io-pressure {iop if iop is not None else '-'}% (full {s.get('io_full_psi', '-')}%)  "
                f"tasks blocked on disk {s.get('blocked', 0)}")  # fmt: skip
+    out += [f"  {d['mount']}: {d['free_gb']:.0f} GB free of {d['size_gb']:.0f} GB, inodes {d['inodes_free_pct']}% free"
+            for d in s.get("disks", [])]  # fmt: skip
     out += [f"  {d['mb_s']:7.1f} MB/s  {d['who']} pid {d['pid']}  {d['cmd'][:80]}" for d in s.get("disk_top", [])]
     out += [f"  blocked: {b['threads']} thread(s)  {b['who']} pid {b['pid']} ({b['age_min']} min)  {b['cmd'][:80]}"
             for b in s.get("blocked_procs", [])]  # fmt: skip

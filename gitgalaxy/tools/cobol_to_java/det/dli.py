@@ -110,14 +110,14 @@ def command(gen: Any, text: str, ind: str) -> list[str]:
         if s is None:
             raise Untranslatable("EXEC DLI SCHD: only PSB(name), PSB('name') or PSB((area)) with NODHABEND is modelled "
                                  "(register I5)")  # fmt: skip
-        if s["area"]:
-            it = gen.resolve(E.Ref(s["area"]))
+        if s.group("area"):
+            it = gen.resolve(E.Ref(s.group("area")))
             if it.usage not in (None, "", "DISPLAY") or it.size is None:
-                raise Untranslatable(f"EXEC DLI SCHD: the PSB name area {s['area']} is not a DISPLAY item")
-            name = gen.field_expr(E.Ref(s["area"]))
+                raise Untranslatable(f"EXEC DLI SCHD: the PSB name area {s.group('area')} is not a DISPLAY item")
+            name = gen.field_expr(E.Ref(s.group("area")))
         else:
-            name = jstr((s["lit"] or s["name"]).upper())
-        call = f"{runtime}.schedule({name}, {'true' if s['nodh'] else 'false'})"
+            name = jstr((s.group("lit") or s.group("name")).upper())
+        call = f"{runtime}.schedule({name}, {'true' if s.group('nodh') else 'false'})"
     elif verb == "TERM":
         if body.split()[1:]:
             raise Untranslatable("EXEC DLI TERM: no option is modelled (register I5)")

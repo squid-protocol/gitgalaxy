@@ -4041,8 +4041,11 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 
 ### I5. DL/I beyond the modelled calls — REFUSED
 - **Refused by the det translator.**
-  - EXEC DLI stays a hole by name. It is what holds CardDemo COPAUA0C (SCHD / GU / REPL / ISRT / TERM under CICS; its
-    MQ calls are modelled, W6), also CBPAUP0C, COPAUS0C and COPAUS1C.
+  - EXEC DLI SCHD PSB and TERM under CICS are translated (#5278): `DetDli.schedule` / `terminate` answer DIBSTAT
+    (blank; TC for a PSB already scheduled, given NODHABEND). The harness has no EXEC DLI yet, so no case runs them.
+  - Every other EXEC DLI command (GU, GN, REPL, ISRT, DLET ...) stays a hole by name, as does EXEC DLI outside CICS.
+    It is what holds CardDemo COPAUA0C (GU / REPL / ISRT under CICS; its MQ calls are modelled, W6), also CBPAUP0C,
+    COPAUS0C and COPAUS1C.
   - CALL 'CBLTDLI' is refused in a program IMS does not enter at ENTRY 'DLITCBL' (a BMP, MPP or CICS program).
   - Also refused: the parameter-count form (a binary count first), a PCB the entry was not passed, any ON EXCEPTION
     phrase, and CALL 'AIBTDLI' or 'CEETDLI'.

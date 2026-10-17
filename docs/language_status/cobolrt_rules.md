@@ -16,14 +16,14 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | CICS: EXEC CICS data movement | `cics/DetCics.java`, `cics/DetJustify.java` | 27 | yes |
 | SQL: embedded SQL | `sql/DetSql.java` | 10 | yes |
 | LE: Language Environment callable services | `le/Ceedate.java`, `le/Ceedatm.java`, `le/Ceedays.java`, `le/Ceegmt.java`, `le/Ceeisec.java`, `le/Ceeloct.java`, `le/Ceeqcen.java`, `le/Ceesecs.java`, `le/Ceeutc.java`, `le/Cobdatft.java`, `le/LeTime.java`, `le/Mvswait.java` | 14 | yes |
-| DLI: IMS DL/I database calls | `dli/DetDli.java` | 9 | yes |
+| DLI: IMS DL/I database calls | `dli/DetDli.java` | 11 | yes |
 | MQ: IBM MQ (MQI from CICS) | `mq/QueueManager.java`, `cics/DetMq.java` | 7 | yes |
 | DATA: items and storage | `Field.java`, `Storage.java`, `Lossless.java`, `Figurative.java`, `Hole.java` | 5 | yes |
 | SORT: SORT / MERGE and collating sequences | `Sort.java` | 6 | yes |
 | FILE: batch files | `batch/DetFiles.java` | 3 | yes |
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 
-170 rules: 83 MATCHED, 23 DIFFERS, 14 REFUSED, 50 ASSUMED; 0 measured on z/OS (#4702).
+172 rules: 83 MATCHED, 23 DIFFERS, 14 REFUSED, 52 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -264,6 +264,8 @@ A batch DL/I program's CALL 'CBLTDLI' through a DB PCB on a stated database: the
 | RT-DLI-ISRT | ISRT: the segment under the parent its SSAs (or current position) locate, among its twins by sequence field; II for a key its twins hold, GE for a parent not found | `ims-apis` ISRT call | - | I1 (ASSUMED); I3 (ASSUMED) | ASSUMED | uncalibrated |
 | RT-DLI-CHANGE | REPL / DLET on the segment the previous get-hold call returned; DJ without one, DA when the I/O area changed the sequence field; DLET removes the segment's dependents | `ims-apis` REPL call; DLET call | - | I1 (ASSUMED); I3 (ASSUMED) | ASSUMED | uncalibrated |
 | RT-DLI-CALL | CALL 'CBLTDLI' USING function pcb io-area [ssa ...]: the PCB the program was passed, the function's dispatch (AD for an unknown function, AM for one PROCOPT does not allow), any other DL/I call refused | `ims-codes` DL/I status codes | - | I1 (ASSUMED); I5 (REFUSED) | ASSUMED | uncalibrated |
+| RT-DLI-SCHD | EXEC DLI SCHD PSB under CICS: the databases load at the first SCHD, the PSB's PCBs start with no position, DIBSTAT blank; a PSB already scheduled is TC (with NODHABEND), else refused | `ims-apis` EXEC DLI SCHD / TERM | - | I5 (REFUSED) | ASSUMED | uncalibrated |
+| RT-DLI-TERM | EXEC DLI TERM: the scheduled PSB is released (the databases keep what was written), DIBSTAT blank; a TERM with no PSB scheduled is refused | `ims-apis` EXEC DLI SCHD / TERM | - | I5 (REFUSED) | ASSUMED | uncalibrated |
 
 ## MQ: IBM MQ (MQI from CICS)
 

@@ -15,7 +15,7 @@ name: Full Suite Gate (All OS x Python)
 #     the matrix -- #3207's Windows fix merged that way. Re-run it on a PR's
 #     current head with:
 #       gh workflow run "Full Suite Gate (All OS x Python)" --ref <branch>
-#     Add `-f full_matrix=true` for the untrimmed 9-way grid. Keeping this
+#     Add `-f full_matrix=true` for the untrimmed grid. Keeping this
 #     manual preserves the queue saving the label-only rule bought; triggering
 #     on `synchronize` would hand it back.
 #
@@ -30,7 +30,7 @@ name: Full Suite Gate (All OS x Python)
 # matrix exists to catch -- a version-specific syntax/stdlib break that the
 # every-push ubuntu/3.12 full-suite cannot see -- while cutting macOS from
 # three jobs to two.
-# On a `v*` tag, a push to main or the nightly run: the untrimmed 9-way matrix.
+# On a `v*` tag, a push to main or the nightly run: the untrimmed matrix.
 # On a manual run: the trimmed grid, or the untrimmed one with
 # `-f full_matrix=true`.
 on:
@@ -49,7 +49,7 @@ on:
   workflow_dispatch:
     inputs:
       full_matrix:
-        description: "Run the untrimmed 9-way grid instead of the trimmed PR grid"
+        description: "Run the untrimmed grid instead of the trimmed PR grid"
         type: boolean
         default: false
 
@@ -76,7 +76,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Emits the matrix for this checkpoint. A tag push gets the full 9-way
+  # Emits the matrix for this checkpoint. A tag push gets the full
   # grid; a PR label gets the trimmed grid described in the header comment.
   matrix:
     runs-on: ubuntu-latest
@@ -92,43 +92,34 @@ jobs:
             # Release tag, or a manual run that asked for it: every supported
             # environment, untrimmed.
             include='[
-              {"os":"ubuntu-latest","python-version":"3.10","part":1,"splits":2,"timeout":20},
-              {"os":"ubuntu-latest","python-version":"3.10","part":2,"splits":2,"timeout":20},
               {"os":"ubuntu-latest","python-version":"3.11","part":1,"splits":2,"timeout":20},
               {"os":"ubuntu-latest","python-version":"3.11","part":2,"splits":2,"timeout":20},
               {"os":"ubuntu-latest","python-version":"3.12","part":1,"splits":2,"timeout":20},
               {"os":"ubuntu-latest","python-version":"3.12","part":2,"splits":2,"timeout":20},
-              {"os":"windows-latest","python-version":"3.10","part":1,"splits":3,"even":true,"timeout":25},
-              {"os":"windows-latest","python-version":"3.10","part":2,"splits":3,"even":true,"timeout":25},
-              {"os":"windows-latest","python-version":"3.10","part":3,"splits":3,"even":true,"timeout":25},
               {"os":"windows-latest","python-version":"3.11","part":1,"splits":2,"even":true,"timeout":25},
               {"os":"windows-latest","python-version":"3.11","part":2,"splits":2,"even":true,"timeout":25},
               {"os":"windows-latest","python-version":"3.12","part":1,"splits":2,"even":true,"timeout":25},
               {"os":"windows-latest","python-version":"3.12","part":2,"splits":2,"even":true,"timeout":25},
-              {"os":"macos-latest","python-version":"3.10","part":1,"splits":2,"timeout":22},
-              {"os":"macos-latest","python-version":"3.10","part":2,"splits":2,"timeout":22},
               {"os":"macos-latest","python-version":"3.11","part":1,"splits":2,"timeout":22},
               {"os":"macos-latest","python-version":"3.11","part":2,"splits":2,"timeout":22},
               {"os":"macos-latest","python-version":"3.12","part":1,"splits":2,"timeout":22},
               {"os":"macos-latest","python-version":"3.12","part":2,"splits":2,"timeout":22}
             ]'
           else
-            # plain manual re-run: full Python coverage on
-            # ubuntu, floor+ceiling elsewhere.
+            # plain manual re-run: since 3.10 was dropped (#3322) the supported
+            # Pythons are just floor (3.11) + ceiling (3.12), so this equals the
+            # untrimmed grid above.
             include='[
-              {"os":"ubuntu-latest","python-version":"3.10","part":1,"splits":2,"timeout":20},
-              {"os":"ubuntu-latest","python-version":"3.10","part":2,"splits":2,"timeout":20},
               {"os":"ubuntu-latest","python-version":"3.11","part":1,"splits":2,"timeout":20},
               {"os":"ubuntu-latest","python-version":"3.11","part":2,"splits":2,"timeout":20},
               {"os":"ubuntu-latest","python-version":"3.12","part":1,"splits":2,"timeout":20},
               {"os":"ubuntu-latest","python-version":"3.12","part":2,"splits":2,"timeout":20},
-              {"os":"windows-latest","python-version":"3.10","part":1,"splits":3,"even":true,"timeout":25},
-              {"os":"windows-latest","python-version":"3.10","part":2,"splits":3,"even":true,"timeout":25},
-              {"os":"windows-latest","python-version":"3.10","part":3,"splits":3,"even":true,"timeout":25},
+              {"os":"windows-latest","python-version":"3.11","part":1,"splits":2,"even":true,"timeout":25},
+              {"os":"windows-latest","python-version":"3.11","part":2,"splits":2,"even":true,"timeout":25},
               {"os":"windows-latest","python-version":"3.12","part":1,"splits":2,"even":true,"timeout":25},
               {"os":"windows-latest","python-version":"3.12","part":2,"splits":2,"even":true,"timeout":25},
-              {"os":"macos-latest","python-version":"3.10","part":1,"splits":2,"timeout":22},
-              {"os":"macos-latest","python-version":"3.10","part":2,"splits":2,"timeout":22},
+              {"os":"macos-latest","python-version":"3.11","part":1,"splits":2,"timeout":22},
+              {"os":"macos-latest","python-version":"3.11","part":2,"splits":2,"timeout":22},
               {"os":"macos-latest","python-version":"3.12","part":1,"splits":2,"timeout":22},
               {"os":"macos-latest","python-version":"3.12","part":2,"splits":2,"timeout":22}
             ]'
@@ -195,9 +186,8 @@ jobs:
             tree-sitter-${{ runner.os }}-
 
       # Sharding (pytest-split over the committed .test_durations, like smoke-test.yml's full-suite parts, #4836): a leg
-      # with "part"/"splits" runs one duration-balanced group. Windows 3.10 is 3 even parts (#4903: 29-41 min as one leg vs 13-25
-      # for the other Pythons, the critical path of the gate), macOS 3.10 is 2 parts (~25 min as one leg). macOS 3.11/3.12
-      # are one leg again: the 3-way split (2026-10-10) was for the #4862 hang, since fixed.
+      # with "part"/"splits" runs one duration-balanced group. Windows and macOS are 2 parts each (#4903: Windows was
+      # 29-41 min as one leg). The Python 3.10 legs are gone (#3322).
       - name: Full Suite (${{ matrix.os }}, Python ${{ matrix.python-version }})
         shell: bash
         env:
@@ -207,7 +197,7 @@ jobs:
         run: |
           split=()
           if [ -n "$PART" ]; then split=(--splits "$SPLITS" --group "$PART"); fi
-          # "even": ignore the committed .test_durations (measured on Linux; on windows 3.10 they put the slow tests in one
+          # "even": ignore the committed .test_durations (measured on Linux; on windows they put the slow tests in one
           # part: 9 min vs a 30-min timeout, #4906). With no durations every test weighs the same and least_duration
           # deals them out round-robin, so the slow ones spread evenly across the parts.
           if [ -n "$EVEN" ]; then split+=(--splitting-algorithm least_duration --durations-path /nonexistent-durations.json); fi

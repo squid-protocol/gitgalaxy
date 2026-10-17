@@ -70,6 +70,7 @@ class LiftViolation(Exception):
 LIBRARY = {
     "CEEDAYS": ("__PACKAGE__.cobolrt.le.Ceedays.call", 4),
     "COBDATFT": ("__PACKAGE__.cobolrt.le.Cobdatft.call", 1),
+    "MVSWAIT": ("__PACKAGE__.cobolrt.le.Mvswait.call", 1),  # #5106: CardDemo's assembler wait (COBSWAIT)
     "CEELOCT": ("__PACKAGE__.cobolrt.le.Ceeloct.call", 4),  # #4884: also takes the clock first and the charset last
     # #4949: the LE date/time services (register L6); each is the twin of tests/equivalence/le/le_time.c
     "CEEGMT": ("__PACKAGE__.cobolrt.le.Ceegmt.call", 3),

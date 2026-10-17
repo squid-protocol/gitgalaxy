@@ -32,6 +32,9 @@
   "le-pr": {
    "title": "IBM z/OS Language Environment Programming Reference"
   },
+  "carddemo-mvswait": {
+   "title": "CardDemo app/asm/MVSWAIT.asm -- the estate's own assembler routine (no IBM manual applies; the source is the reference)"
+  },
   "carddemo-cobdatft": {
    "title": "CardDemo app/asm/COBDATFT.asm -- the estate's own assembler routine (no IBM manual applies; the source is the reference)"
   },
@@ -218,10 +221,11 @@
     "le/Ceesecs.java",
     "le/Ceeutc.java",
     "le/Cobdatft.java",
-    "le/LeTime.java"
+    "le/LeTime.java",
+    "le/Mvswait.java"
    ],
    "done": true,
-   "about": "The date / time services and COBDATFT, as the harness's C models do them.",
+   "about": "The date / time services, COBDATFT and MVSWAIT, as the harness's C models do them.",
    "plumbing": []
   },
   {
@@ -2995,6 +2999,25 @@
    "ibm": {
     "doc": "carddemo-cobdatft",
     "section": "COBDATFT.asm"
+   },
+   "options": [],
+   "register": [
+    "A1"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-LE-MVSWAIT",
+   "family": "LE",
+   "title": "MVSWAIT (CardDemo's assembler wait routine): returns at once with RETURN-CODE 0, caller storage untouched (the timer wait is not observable); an argument shorter than the fullword it loads: refused",
+   "methods": [
+    "le/Mvswait.java:call"
+   ],
+   "site": "le/Mvswait.java:call",
+   "ibm": {
+    "doc": "carddemo-mvswait",
+    "section": "MVSWAIT.asm"
    },
    "options": [],
    "register": [

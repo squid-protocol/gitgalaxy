@@ -312,9 +312,13 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   loosened.
 - **IBM.** An unsigned receiver takes the absolute value: "If the receiving item is unsigned, no operational sign is
   generated for the receiving item and the absolute value of the sending item is used in the move" (Enterprise
-  COBOL for z/OS 6.4 Language Reference, SC27-8713-03, MOVE statement, "Elementary moves", p. 404). That an
-  arithmetic statement's store follows the same rule is not stated there in so many words: confirm (#4702). Under
-  TRUNC(BIN), and for COMP-5 whatever TRUNC says, a binary receiver is "truncated only at halfword, fullword, or
+  COBOL for z/OS 6.4 Language Reference, SC27-8713-03, MOVE statement, "Elementary moves", p. 404). The
+  size-error rule for arithmetic statements reads: "If the ON SIZE ERROR phrase is not specified and a size
+  error condition occurs, truncation rules apply and the value of the affected resultant identifier is computed"
+  (same manual, "SIZE ERROR phrases", p. 297), and the largest value a binary result can hold is its PICTURE's
+  "regardless of the TRUNC compiler option". Neither text says the sign is dropped for an unsigned arithmetic
+  receiver, so that an arithmetic store follows MOVE's absolute-value rule is still inferred, not quoted (#4702;
+  settled only by a z/OS run, Part 2). Under TRUNC(BIN), and for COMP-5 whatever TRUNC says, a binary receiver is "truncated only at halfword, fullword, or
   doubleword boundaries"; under TRUNC(STD) to "the number of digits in the PICTURE clause" (6.4 Programming Guide,
   SC27-8714-03, "TRUNC", pp. 419-420). So 1 - 3 into an unsigned `PIC 9(4) COMP` is 2 under either TRUNC. Not
   measured on z/OS here (#4702 Part 2). TRUNC(OPT) leaves an out-of-range value undefined: the det runtime stops on
@@ -779,13 +783,23 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   a model, since the generator is unpublished.
 
 ### C13. A numeric operand compared with a nonnumeric one — MATCHED where IBM and the oracle agree, REFUSED where they do not (#4665)
-- **IBM** (Enterprise COBOL 6.4 Language Reference, relation conditions, "Comparison of numeric and alphanumeric
-  operands"; the IBM page could not be re-read when this entry was written, so the rule is ASSUMED from it): a
-  numeric-edited item belongs to the alphanumeric class, so a numeric-edited item compared with a number is a
-  nonnumeric comparison, as an alphanumeric or alphabetic item is. The numeric operand is compared as though it were
-  moved to an alphanumeric item of as many characters as its digits -- a MOVE that keeps no sign -- then character
-  by character, the shorter operand padded with spaces. The numeric operand must be an integer; IBM rejects a
-  non-integer literal or item there.
+- **IBM** (Enterprise COBOL for z/OS 6.4 Language Reference, SC27-8713-03, "General relation conditions", the
+  comparison-by-operand-class table and "Alphanumeric comparisons", p. 276; re-read 2026-10-17, #4702): the
+  comparisons defined include "Two operands where one is a numeric integer and the other is class alphanumeric or
+  national". The table gives "Alph (Int)" for a numeric literal or a zoned decimal item against an alphanumeric
+  character item (alphanumeric, alphanumeric-edited, numeric-edited with usage DISPLAY) and no entry for a native
+  numeric item (packed, binary, floating point) there, so IBM rejects those. "A zoned decimal integer operand is
+  treated as though it were moved to a temporary elementary data item of category alphanumeric with a length the same
+  as the total number of digits in the number, according to the rules of the MOVE statement. When the ZWB compiler
+  option is in effect, the unsigned value of the integer operand is moved to the temporary data item. When the NOZWB
+  compiler option is specified, the signed value is moved." The comparison is then character by character, the
+  shorter operand extended on the right with spaces. ZWB is the default (6.4 Programming Guide, SC27-8714-03,
+  "ZWB", pp. 430-431): it removes the sign of a signed zoned DISPLAY field before the comparison, P-scaled items
+  always lose it, and NOZWB exists for testing numeric fields for SPACES. The entry is no longer ASSUMED; what is
+  still unmeasured on z/OS is below.
+- **Compile options.** The det port assumes ZWB, IBM's default, but does not check it: `ZWB` is in neither
+  `compiler_options.OPTION_TABLE` nor C5, so an estate built NOZWB (a signed zoned item and a signed literal compared
+  with their sign) would be proven against the wrong rule. That is a sibling gap, listed in the PR for #4702.
 - **The oracle** (GnuCOBOL 3.1.2 `-std=ibm`, measured 2026-10-07 with `test_det_programs` probes): `E PIC
   ZZZ,ZZ9.99` holding 1500 (`  1,500.00`) is neither greater than `1499.99` nor `1499` -- text, not value. A literal
   is its characters as written: `0012` is `0012`, `12` is `12` (`  12` = `12` is false), `1499.99` is `149999`,
@@ -795,9 +809,9 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   same way.
 - **Where they differ.** A signed literal: the oracle compares its sign character (`+1234` equals `+1234`, not
   `1234`), IBM moves no sign. A SIGN SEPARATE item: the oracle compares its sign character (`-1234`), IBM drops it.
-  A P-scaled item: the oracle compares its stored digits (`99PP` holding 1200 is `12`), IBM's characters are not
-  settled. An arithmetic expression against a nonnumeric item: the oracle compares its result as text of its own
-  making (`  12` is not `10 + 2`, `1234` is `1000 + 234`), IBM documents no such comparison. A non-integer literal or
+  A P-scaled item: the oracle compares its stored digits (`99PP` holding 1200 is `12`), IBM drops the sign and its characters are not
+  documented. An arithmetic expression against a nonnumeric item: the oracle compares its result as text of its own
+  making (`  12` is not `10 + 2`, `1234` is `1000 + 234`), IBM rejects it (no table entry). A non-integer literal or
   item: IBM rejects the program; the oracle's digits (point dropped) are modelled, since a program IBM compiles
   never reaches them -- except an equality (`=`, `NOT =`, an EVALUATE WHEN, an 88 VALUE) of a numeric-edited item
   with a literal of more decimal places than the item's: cobc decides it when it compiles (`ZZ9` holding 125 is not
@@ -809,18 +823,28 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   numeric item against an elementary nonnumeric one as its digits; the five differing shapes are holes by name
   ("... (C13)"). A group against a numeric item is unchanged (its bytes; not measured here).
 - **Pinned** by `tests/cobol_mainframe/test_det_programs.py` (`EDCMP` against GnuCOBOL; the refusals by name).
-- **To settle.** A z/OS run of `EDCMP` (and of a signed-literal variant) would confirm IBM's characters.
+- **To settle.** IBM's packed, binary and expression operands are rejected, while the port still compares a packed
+  or binary item against a nonnumeric one as its digits (the oracle does); a program IBM rejects never reaches that.
+  A z/OS run of `EDCMP` (and of a signed-literal variant) would confirm the characters; `calibration` stays
+  "uncalibrated" until then (#4702 Part 2).
 
 ### C14. Size errors (a zero divisor, an exponent, overflow) — the det runtime MATCHES the oracle (#4655); the oracle DIFFERS from z/OS where IBM leaves the result undefined
-- **IBM** (Enterprise COBOL for z/OS Language Reference, "SIZE ERROR phrases"; the wording below is paraphrased
-  from the 6.x manual and not re-fetched for this entry -- confirm it against
-  https://www.ibm.com/docs/en/cobol-zos/6.4.0?topic=statements-size-error-phrases before quoting it): a size error
-  condition is a result whose absolute value, after decimal-point alignment, exceeds the receiver; a division by
-  zero; and, in an exponentiation, zero raised to the zero power, zero raised to a negative power, or a negative
-  number raised to a fractional power. It applies to final results only. With ON SIZE ERROR the receivers keep
-  their values and the imperative statement runs. Without it, an overflow is truncated (the receiver's high-order
-  digits are lost) and the result of the other cases is undefined; on z/OS a packed-decimal divide by zero is a
-  decimal-divide exception (S0CB abend) unless the compiler checks first.
+- **IBM** (Enterprise COBOL for z/OS 6.4 Language Reference, SC27-8713-03, "SIZE ERROR phrases", pp. 296-297,
+  Table 32; re-read 2026-10-17, #4702): a size error is "when the absolute value of the result of an arithmetic
+  evaluation, after decimal point alignment, exceeds the largest value that can be contained in the result field",
+  "when division by zero occurs", or an exponentiation case. Table 32 (SIZE ERROR present / absent): zero raised to
+  zero -- the imperative runs / "the value returned is 1, and a message is issued"; zero raised to a negative number
+  -- the imperative runs / "the program is terminated abnormally"; a negative number raised to a fractional power --
+  the imperative runs / "the absolute value of the base is used, and a message is issued". It applies to final
+  results only. A binary receiver's limit is its PICTURE's, whatever TRUNC says. Rounding is done before the check.
+  With ON SIZE ERROR "the value of the resultant identifier affected by the size error is not altered", the phrase
+  runs and NOT ON SIZE ERROR is ignored. Without it "truncation rules apply and the value of the affected resultant
+  identifier is computed". The manual states no result for a zero divisor without the phrase (no abend, no value); the
+  S0CB abend on z/OS is not in the text and stays unverified.
+- **Where the oracle differs from that text** (no cobc option changes either): `0 ** -n` without the phrase ends the
+  program on IBM and stores 0 in the oracle (with the phrase both raise it); a negative base to a fractional power
+  without the phrase uses the absolute base on IBM and leaves the receiver unchanged in the oracle. The port follows
+  the oracle for both, so a scenario reaching them is outside the proofs; none does (see Reached).
 - **The oracle** (GnuCOBOL 3.1.2 `-std=ibm`, measured 2026-10-07): a zero divisor makes libcob's NaN intermediate
   (`cob_decimal_div` sets scale COB_DECIMAL_NAN and EC-SIZE-ZERO-DIVIDE); an operation with a NaN operand gives NaN;
   storing a NaN (`cob_decimal_get_field`) leaves the receiver unchanged. So, with or without ON SIZE ERROR:
@@ -866,9 +890,11 @@ instrument). The rows below are rendered by one table in code (`compiler_options
 - **So a proof says:** for a scenario that divides by zero without ON SIZE ERROR, the port does what the oracle
   does (receivers unchanged), which z/OS does not promise: IBM leaves the result undefined and a z/OS run may
   abend. With ON SIZE ERROR both sides agree with IBM (receivers unchanged, the phrase runs), except `0 ** -n`,
-  which IBM calls a size error and the oracle (and so the port) computes as 0.
+  which IBM calls a size error and the oracle (and so the port) computes as 0, and a negative base to a fractional
+  power, where IBM uses the absolute base.
 - **Reached.** Not known to be: no proven scenario divides by zero or raises a size error from an exponent.
-- **To settle.** A z/OS run of the shapes in `test_det_size_error.py` without ON SIZE ERROR.
+- **To settle.** A z/OS run of the shapes in `test_det_size_error.py` without ON SIZE ERROR, above all the zero
+  divisor, which the manual leaves unstated.
 
 ### C15. CALL identifier — the program is the item's content: MODELLED over the names the source fixes, REFUSED otherwise (#4736)
 - **IBM** (Enterprise COBOL for z/OS 6.4 Language Reference, CALL statement,

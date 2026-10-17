@@ -120,3 +120,41 @@ def test_materialize_keeps_what_is_on_disk_when_the_branch_is_unreachable(clone,
 def test_materialize_leaves_a_foreign_out_directory_alone(clone, tmp_path, monkeypatch):
     monkeypatch.setattr(er, "OUT", tmp_path)
     assert er.materialize(clone) == 0
+
+
+def _flaky_git(monkeypatch, failures):
+    """gb._git failing `failures` times on the network calls, then delegating; returns the call log."""
+    real, calls = gb._git, []
+
+    def flaky(root, *args, **kw):
+        if args[0] in ("ls-remote", "fetch"):
+            calls.append(args[0])
+            if calls.count(args[0]) <= failures:
+                raise RuntimeError("git " + args[0] + " failed (128): connection reset")
+        return real(root, *args, **kw)
+
+    monkeypatch.setattr(gb, "_git", flaky)
+    monkeypatch.setattr(gb, "RETRY_DELAYS", (0, 0))
+    return calls
+
+
+def test_fetch_tip_retries_a_transient_network_failure(clone, monkeypatch):
+    """#5312: one dropped connection on a runner must not read as 'no evidence report'."""
+    (clone / REPORT).write_text("{}")
+    gb.publish([REPORT], "m", root=clone)
+    calls = _flaky_git(monkeypatch, 2)
+    assert gb.fetch_tip(clone)
+    assert calls.count("ls-remote") == 3 and calls.count("fetch") == 3
+
+
+def test_fetch_tip_gives_up_after_the_retries(clone, monkeypatch):
+    calls = _flaky_git(monkeypatch, 99)
+    with pytest.raises(RuntimeError, match="connection reset"):
+        gb.fetch_tip(clone)
+    assert calls == ["ls-remote"] * 3
+
+
+def test_fetch_tip_does_not_retry_a_missing_branch(clone, monkeypatch):
+    calls = _flaky_git(monkeypatch, 0)
+    assert gb.fetch_tip(clone) is None
+    assert calls == ["ls-remote"]

@@ -12,7 +12,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | NUM: numeric storage codecs | `Codec.java`, `Zoned.java` | 13 | yes |
 | HFP: COMP-1 / COMP-2 as hexadecimal floating point | `Hfp.java` | 12 | yes |
 | EDIT: numeric editing | `Editing.java` | 5 | yes |
-| FUNC: intrinsic functions | `Funcs.java`, `Accept.java` | 11 | yes |
+| FUNC: intrinsic functions | `Funcs.java`, `Accept.java` | 12 | yes |
 | CICS: EXEC CICS data movement | `cics/DetCics.java`, `cics/DetJustify.java` | 27 | yes |
 | SQL: embedded SQL | `sql/DetSql.java` | 10 | yes |
 | LE: Language Environment callable services | `le/Ceedate.java`, `le/Ceedatm.java`, `le/Ceedays.java`, `le/Ceegmt.java`, `le/Ceeisec.java`, `le/Ceeloct.java`, `le/Ceeqcen.java`, `le/Ceesecs.java`, `le/Ceeutc.java`, `le/Cobdatft.java`, `le/LeTime.java` | 13 | yes |
@@ -23,7 +23,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | FILE: batch files | `batch/DetFiles.java` | 3 | yes |
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 
-168 rules: 82 MATCHED, 23 DIFFERS, 13 REFUSED, 50 ASSUMED; 0 measured on z/OS (#4702).
+169 rules: 82 MATCHED, 23 DIFFERS, 14 REFUSED, 50 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -174,6 +174,7 @@ The intrinsic functions the translator calls.
 | RT-FUNC-RANDOM | FUNCTION RANDOM: one run unit's sequence (glibc random_r TYPE_3, as the oracle); the numbers differ from z/OS's, the interface as IBM documents it | `cobol-lr` Intrinsic functions: RANDOM | - | C12 (DIFFERS (the numbers) / ASSUMED (the interface)) | DIFFERS | uncalibrated |
 | RT-FUNC-DATE-INTEGER | FUNCTION INTEGER-OF-DATE / DATE-OF-INTEGER: day 1 is 1 January 1601 (INTDATE(ANSI)) | `cobol-lr` Intrinsic functions: INTEGER-OF-DATE, DATE-OF-INTEGER | INTDATE | C5 (MATCHED (NUMPROC) / MODELLED (TRUNC(OPT) and ARITH(EXTEND), det ports; a stop by name) / REFUSED (the rest)) | MATCHED | uncalibrated |
 | RT-FUNC-ACCEPT-DATE | ACCEPT FROM DATE / DATE YYYYMMDD / DAY / DAY YYYYDDD / TIME: the run's clock as the unsigned integer item IBM describes, moved as that item | `cobol-lr` ACCEPT statement: Format 2 (system date and time) | - | - | MATCHED | uncalibrated |
+| RT-FUNC-ACCEPT-SYSIN | ACCEPT identifier FROM SYSIN: the next line of standard input moved to the target as an alphanumeric MOVE; no record left stops the run by name | none: IBM leaves the target undefined when the input stream is exhausted; the port refuses by name instead of blanking it | - | - | REFUSED | uncalibrated |
 
 ## CICS: EXEC CICS data movement
 

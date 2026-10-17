@@ -272,7 +272,7 @@ def test_the_harness_maps_what_gnucobol_can_honour():
     assert text == "\n" + PLAIN and flags == ["-fbinary-truncate", *common.BOUND_FLAGS]
 
 
-@pytest.mark.parametrize("option", ["INTDATE(LILIAN)", "ARITH(EXTEND)"])  # TRUNC(OPT): test_trunc_opt.py (#4706)
+@pytest.mark.parametrize("option", ["INTDATE(LILIAN)"])  # TRUNC(OPT), ARITH(EXTEND): test_trunc_opt.py, test_arith_extend.py (#4706)
 def test_the_harness_refuses_what_gnucobol_cannot_honour(option):
     with pytest.raises(common.UnsupportedOption, match="GnuCOBOL 3.1 has no equivalent"):
         common.compile_options({"compiler_options": [option]}, PLAIN)

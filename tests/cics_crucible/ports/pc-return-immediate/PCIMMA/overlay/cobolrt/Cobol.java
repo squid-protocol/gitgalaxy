@@ -80,6 +80,15 @@ public final class Cobol {
         Codec.truncOpt = on;
     }
 
+    /** ARITH(EXTEND) for a program's run (#4706): an intermediate result past 30 digits stops by name (Codec.
+     *  arithExtend). The setting before is returned (the caller restores it). */
+    // [rule RT-CBL-ARITH-PER-PROGRAM]
+    public static boolean swapArithExtend(boolean on) {
+        boolean before = Codec.arithExtend;
+        Codec.arithExtend = on;
+        return before;
+    }
+
     /** NUMPROC for a program's run (#4271): `pfd` true for NUMPROC(PFD) -- a zoned or packed value read with a sign
      *  that is not preferred is refused by name (Codec.numprocPfd) --, false for IBM's default NUMPROC(NOPFD) (and
      *  NUMPROC(MIG), which Enterprise COBOL 5 and later compile as the default). The setting before is returned. */
@@ -125,17 +134,17 @@ public final class Cobol {
 
     /** cob_decimal_add of two intermediates where either may be libcob's NaN (#4655): NaN in, NaN out. */
     public static BigDecimal add(BigDecimal a, BigDecimal b) {
-        return isNan(a) ? a : isNan(b) ? nan(a) : a.add(b);
+        return isNan(a) ? a : isNan(b) ? nan(a) : Codec.arithExtendWide(a.add(b));
     }
 
     /** cob_decimal_sub, as {@link #add(BigDecimal, BigDecimal)}. */
     public static BigDecimal subtract(BigDecimal a, BigDecimal b) {
-        return isNan(a) ? a : isNan(b) ? nan(a) : a.subtract(b);
+        return isNan(a) ? a : isNan(b) ? nan(a) : Codec.arithExtendWide(a.subtract(b));
     }
 
     /** cob_decimal_mul, as {@link #add(BigDecimal, BigDecimal)}. */
     public static BigDecimal multiply(BigDecimal a, BigDecimal b) {
-        return isNan(a) ? a : isNan(b) ? nan(a) : a.multiply(b);
+        return isNan(a) ? a : isNan(b) ? nan(a) : Codec.arithExtendWide(a.multiply(b));
     }
 
     /** Unary minus where the operand may be NaN: cobc's 0 - x, so a NaN's value is 0. */
@@ -162,7 +171,8 @@ public final class Cobol {
         if (a.signum() == 0) {
             return BigDecimal.ZERO;
         }
-        return a.divide(b, 38 + Math.max(a.scale() - b.scale(), 0), java.math.RoundingMode.DOWN);
+        BigDecimal q = a.divide(b, 38 + Math.max(a.scale() - b.scale(), 0), java.math.RoundingMode.DOWN);
+        return Codec.arithExtendCheck(q, Math.max(q.precision() - q.scale(), 0));
     }
 
     /** DIVIDE ... REMAINDER (cob_div_quotient, cob_div_remainder): the dividend less the divisor times the quotient

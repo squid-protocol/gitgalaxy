@@ -1469,7 +1469,7 @@ class Gen:
         return spelling.replace(".", "").replace(",", "")
 
     def digits_as_text(self, a: E.Ref, b: E.Ref) -> None:
-        """Refuse a numeric item compared as its characters with an elementary nonnumeric one (`a` against `b`, either
+        """Refuse a numeric item compared as its characters with a nonnumeric one, a group too (#4671; `a` against `b`, either
         way round) where the oracle's characters are not IBM's (C13): a SIGN SEPARATE item (GnuCOBOL compares its
         sign character) and a P-scaled one (GnuCOBOL its stored digits)."""
         for num, other in ((a, b), (b, a)):
@@ -1478,7 +1478,7 @@ class Gen:
             except Untranslatable:
                 continue
             text = other.refmod is not None or ot.category in ("ALPHANUMERIC", "ALPHABETIC", "NUMERIC-EDITED",
-                                                               "ALPHANUMERIC-EDITED")  # fmt: skip
+                                                               "ALPHANUMERIC-EDITED", "GROUP")  # fmt: skip
             if num.refmod is not None or it.category != "NUMERIC" or not text:
                 continue
             if it.sign_separate and it.signed:

@@ -235,10 +235,12 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("CONVERTTIME", None, "converting a date and time string to ABSTIME (CONVERTTIME) is not modelled"),
 )
 
-# #5079 (X59): the old-style commands refused by name with a register entry citing IBM's page for each
+# #4270 (X65): every other name-only command is refused with its class reason, listed in X65. #5079 (X59, X63): the
+# old-style commands refused by name with a register entry citing IBM's page for each
 _REGISTER = {
     "SEND PAGE": "X59",
     "PURGE MESSAGE": "X59",
+    "DUMP TRANSACTION": "X46",
     "WAIT EXTERNAL": "X63",
     "WAITCICS": "X63",
 }
@@ -249,7 +251,7 @@ COMMANDS = tuple(
         ibm=ibm(f"EXEC CICS {name}", "summary-" + (topic or name.lower().replace(" ", "-"))),
         status="refused",
         why=why,
-        register=_REGISTER.get(name),
+        register=_REGISTER.get(name, "X65"),
     )
     for name, topic, why in _NAME_ONLY
 )

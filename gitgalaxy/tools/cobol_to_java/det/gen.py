@@ -162,6 +162,7 @@ class Gen:
     def __init__(self, prog: Program, structured: bool = False):
         self.write_only_pointers: set[str] = set()  # program.write_only_pointers
         self.overlaid_pointers: set[str] = set()  # program.overlaid_pointers (#4771)
+        self.pointer_views: set[str] = set()  # program.pointer_views (#4771)
         self.p = prog
         # structured: a program with no GO TO / HANDLE -- paragraphs are void methods called in order, no dispatcher
         self.structured = structured
@@ -316,6 +317,10 @@ class Gen:
             if not self._value_use or ref.refmod is not None:
                 raise Untranslatable(f"{ref.name}: the bytes of a {it.usage} item ({FLOAT_BYTES})")
         elif not self._init_bytes:
+            if it.name.upper() in self.pointer_views:
+                raise Untranslatable(
+                    f"{ref.name}: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)"
+                )
             over = self.overlaps_float(it)
             if over is not None:
                 raise Untranslatable(f"{ref.name}: its bytes hold {over.name} {over.usage} ({FLOAT_BYTES})")

@@ -92,7 +92,9 @@ def source_lines(path: Path | None) -> dict[str, int] | None:
         return None
     import cobol_coverage as cc  # noqa: PLC0415 -- imports gitgalaxy; only a lines roll-up needs it
 
-    text = path.read_text(encoding="utf-8", errors="replace")
+    from gitgalaxy.core.source_text import read_source  # noqa: PLC0415 -- same reason
+
+    text = read_source(path).text
     free = bool(cc._FREE.search(text))
     total = sum(1 for x in text.split("\n") if x.strip() and not cc._is_comment(x.rstrip("\r"), free))
     return {"procedure": sum(1 for _, code in cc._code_lines(text) if code.strip(" .")), "total": total}

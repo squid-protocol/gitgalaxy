@@ -526,7 +526,7 @@
    "site": "power@2",
    "ibm": {
     "doc": "cobol-lr",
-    "section": "Arithmetic expressions: exponentiation"
+    "section": "SIZE ERROR phrases (Table 32: exponentiation size errors)"
    },
    "options": [],
    "register": [
@@ -880,7 +880,7 @@
    ],
    "ibm": {
     "doc": "cobol-lr",
-    "section": "USAGE clause: BINARY"
+    "section": "MOVE statement: elementary moves; SIZE ERROR phrases"
    },
    "options": [
     "TRUNC"
@@ -964,7 +964,7 @@
    ],
    "ibm": {
     "doc": "cobol-lr",
-    "section": "Comparison of numeric and alphanumeric operands"
+    "section": "General relation conditions: Alphanumeric comparisons"
    },
    "options": [],
    "register": [

@@ -38,6 +38,11 @@ public class Main {
         List<Group> list = new ArrayList<>(List.of(new Group()));
         Map<String, Group> byKey = Map.of("k", new Group());
         byte[] raw = new byte[4];
+        int[] nums = {7, 8};
+        char[] chars = {'x', 'y'};
+        long wide = 5L;
+        java.math.BigDecimal amt = new java.math.BigDecimal("1.50");
+        boolean flag = true;
         Dto self;
     }
 
@@ -67,6 +72,14 @@ public class Main {
                         case "nested" -> d.grp.text;
                         case "tabled" -> d.table[1].text;
                         case "keyed" -> d.byKey.get("k").text;
+                        case "tablenum" -> d.nums[1];
+                        case "tablechar" -> d.chars[0];
+                        case "widened" -> (long) d.num;
+                        case "narrowed" -> (int) d.wide;
+                        case "scaled" -> new java.math.BigDecimal("1.5");
+                        case "flag" -> d.flag;
+                        case "otherchar" -> 'q';
+                        case "othernum" -> 99L;
                         case "fresh" -> "zzz";
                         case "none" -> null;
                         case "copy", "hop" -> new Dto();
@@ -104,6 +117,9 @@ public class Main {
             System.out.println(s + " " + run(s, false, true));
         }
         for (String s : new String[] {"name", "number", "nested", "tabled", "keyed"}) {
+            System.out.println(s + " " + run(s, false, true));
+        }
+        for (String s : new String[] {"tablenum", "tablechar", "widened", "narrowed", "scaled", "flag", "otherchar", "othernum"}) {
             System.out.println(s + " " + run(s, false, true));
         }
         for (String s : new String[] {"copy", "fresh", "none", "failed", "hop"}) {
@@ -154,6 +170,14 @@ def test_cictask_refuses_an_xctl_of_the_dto_its_program_was_linked_with(tmp_path
         "nested REFUSED true",
         "tabled REFUSED true",
         "keyed REFUSED true",
+        "tablenum REFUSED true",
+        "tablechar REFUSED true",
+        "widened REFUSED true",
+        "narrowed REFUSED true",
+        "scaled REFUSED true",
+        "flag REFUSED true",
+        "otherchar NORMAL>EE",
+        "othernum NORMAL>EE",
         "copy NORMAL>EE",
         "fresh NORMAL>EE",
         "none NORMAL>EE",

@@ -825,7 +825,10 @@
    "methods": [
     "receiverNum"
    ],
-   "ibm": null,
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "ZONEDATA (replaced by INVDATA in 6.4)"
+   },
    "ibm_note": "IBM documents no result (ZONEDATA(PFD) assumes valid zone bits; ZONEDATA(NOPFD|MIG) corrects them on an addition)",
    "options": [
     "ZONEDATA"
@@ -843,7 +846,10 @@
    "methods": [
     "counterNum"
    ],
-   "ibm": null,
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "ZONEDATA (replaced by INVDATA in 6.4)"
+   },
    "ibm_note": "IBM documents no result (ZONEDATA(PFD) assumes valid zone bits); the same ground as the receiver of ADD",
    "options": [
     "ZONEDATA"

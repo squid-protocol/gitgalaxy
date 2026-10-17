@@ -3215,6 +3215,43 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-DLI-SCHD",
+   "family": "DLI",
+   "title": "EXEC DLI SCHD PSB under CICS: the databases load at the first SCHD, the PSB's PCBs start with no position, DIBSTAT blank; a PSB already scheduled is TC (with NODHABEND), else refused",
+   "methods": [
+    "schedule",
+    "buildPcbs"
+   ],
+   "ibm": {
+    "doc": "ims-apis",
+    "section": "EXEC DLI SCHD / TERM"
+   },
+   "options": [],
+   "register": [
+    "I5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-TERM",
+   "family": "DLI",
+   "title": "EXEC DLI TERM: the scheduled PSB is released (the databases keep what was written), DIBSTAT blank; a TERM with no PSB scheduled is refused",
+   "methods": [
+    "terminate"
+   ],
+   "ibm": {
+    "doc": "ims-apis",
+    "section": "EXEC DLI SCHD / TERM"
+   },
+   "options": [],
+   "register": [
+    "I5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-DATA-BINARY-SIZE",
    "family": "DATA",
    "title": "A COMP / COMP-4 / BINARY / COMP-5 item of 1-4 digits is a halfword, 5-9 a fullword, 10-18 a doubleword",

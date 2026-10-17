@@ -98,14 +98,19 @@ HANDLE_ABEND = Command(
     key="HANDLE ABEND",
     ibm=ibm("EXEC CICS HANDLE ABEND", "summary-handle-abend"),
     status="modelled",
-    # PROGRAM is accepted here and refused by Cics.command ("HANDLE ABEND PROGRAM"); NOHANDLE where the translation
-    # raises no condition anyway (no RESP: its area would not be written)
+    register="X67",
+    # NOHANDLE where the translation raises no condition anyway (no RESP: its area would not be written)
     options={
         "LABEL": Arg("label"),
         "CANCEL": Arg("flag"),
         "RESET": Arg("flag"),
-        "PROGRAM": _PROGRAM,
         "NOHANDLE": Arg("flag"),
+    },
+    refused={
+        "PROGRAM": Refusal(
+            "an abend exit program (control passes to it as to an XCTL, no corpus program names one) is not modelled",
+            "X67",
+        ),
     },
     outcomes=(Outcome("NORMAL", 0, ""),),
 )

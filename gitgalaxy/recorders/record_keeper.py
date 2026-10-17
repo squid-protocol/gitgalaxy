@@ -96,7 +96,7 @@ def _ensure_columns(cursor: sqlite3.Cursor, table: str, col_defs: list[str]) -> 
     for col_def in col_defs:
         try:
             cursor.execute(f"ALTER TABLE {table} ADD COLUMN {col_def}")
-        except sqlite3.OperationalError as exc:  # noqa: PERF203 -- per-column isolation: one already-present column shouldn't abort healing the rest
+        except sqlite3.OperationalError as exc:
             if "duplicate column name" in str(exc).lower():
                 logging.getLogger("record_keeper").debug(
                     f"Schema migration skipped: '{table}.{col_def}' already exists."

@@ -16,7 +16,7 @@
 import argparse
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -220,7 +220,7 @@ def main():
     if args.out:
         out_dir = Path(args.out).resolve()
     else:
-        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
         if target_path.is_dir():
             out_dir = target_path.parent / f"{target_path.name}_generated_{timestamp}"
         else:

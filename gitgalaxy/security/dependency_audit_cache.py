@@ -18,7 +18,7 @@
 import hashlib
 import logging
 import sqlite3
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 
@@ -98,7 +98,7 @@ class DependencyAuditCache:
             UPDATE dependency_audit_cache SET last_seen_at = ?
             WHERE ecosystem = ? AND package_name = ? AND file_relpath = ? AND content_hash = ?
             """,
-            (datetime.now(timezone.utc).isoformat(), ecosystem, package_name, file_relpath, content_hash),
+            (datetime.now(UTC).isoformat(), ecosystem, package_name, file_relpath, content_hash),
         )
         return {"trust_status": row[0], "anomaly_notes": row[1] or ""}
 
@@ -112,7 +112,7 @@ class DependencyAuditCache:
         anomaly_notes: str,
     ) -> None:
         """Stores a fresh verdict. Idempotent on the unique key."""
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         self._conn.execute(
             """
             INSERT INTO dependency_audit_cache

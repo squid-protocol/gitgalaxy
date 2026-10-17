@@ -83,8 +83,8 @@ def _validate_offline_key(license_key: str) -> str:
             # compare against a UTC-aware now(), so expiry is a single global instant
             # (not the server's local midnight) and the two datetimes are both aware
             # (a naive-vs-aware comparison would raise TypeError).
-            exp_date = datetime.datetime.strptime(exp_date_str, "%Y%m%d").replace(tzinfo=datetime.timezone.utc)
-            if datetime.datetime.now(datetime.timezone.utc) > exp_date:
+            exp_date = datetime.datetime.strptime(exp_date_str, "%Y%m%d").replace(tzinfo=datetime.UTC)
+            if datetime.datetime.now(datetime.UTC) > exp_date:
                 return "EXPIRED"
         except ValueError:
             # Signature checks out but the date field itself doesn't parse.

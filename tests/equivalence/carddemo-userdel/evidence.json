@@ -45,10 +45,10 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 13,
-   "sha256": "fc0a04f296ea85609daf2e933a30d160dbd726ebdfdcd079060a8f638f60cb78",
+   "sha256": "ec56493357e9521de08ddf79cb86cb07de6d3b45422e53e2ad1b85eb9829d13c",
    "components": {
-    "harness:cics": "a2c2a68cf1d3fb1cb630c3143dc169906107f5c767b05ce431fc417a376cae88",
-    "harness:core": "6f13d22bab57c67e9caaf5d2714906e9c7c0149a83dcfd6650e2514e2c478318"
+    "harness:cics": "f72ef4ef60fffd31e64192aa7e8a60b170656b42c97efb924a06519ac9cc8bdd",
+    "harness:core": "85bb3ae28c9b3172ef7bd0180edd2d126f7b7c52e91b06a753aaa6b5860d351a"
    }
   },
   "oracle": {
@@ -76,19 +76,19 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 93,
-   "sha256": "746fe385081c2077ede81b34f400013f93c7599bbc207168eff8d1623143b5ee",
+   "sha256": "330fa38d5d1fe5c255d04e870b3f29d632983291fd149737bc903cb7a236af1f",
    "components": {
     "generator:cobolrt/standalone/Sysout.java": "407512cfedf89455f08193fe4aed96e26fdfc9fd34e8636a662b6574a5645b4f",
-    "generator:core": "00a51b802c3abe168274cb883cebad26a30fd953da20731ffeab526e5dfb1661",
+    "generator:core": "9f0f6c5957c86ec75a0a8c5891a4d0065e1d2901559a5e69055eef414c16483c",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/cics": "53777d4d088757d2892d96a52197fe409893cb5471f9d3f70da21260353c471a",
     "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
     "generator:det/dli": "834aba674d85c25af1299ae19d8b49288f4bd831b578889d9bf40d83b5fea342",
-    "generator:det/dyncall": "19e29320d37a470811447e91448a577f53b1910f291371fc0889999b5f9f630a",
+    "generator:det/dyncall": "bd15eb2918020d644135fd7f2565937f836b05a223de5ca05af33f0ec7fb0a4f",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
-    "generator:det/expr": "50f53f541efb6853fd8a97ba022a97e8a4f691d2bbde8655293f47f77f47a0af",
-    "generator:det/gen": "a3c01de91fac1bd5ea6a7be7a3ee22e40fba44ce5a34ebb45efc53c556ffba20",
+    "generator:det/expr": "fbb3c70683ccd2e64382901efe4846b8d908a8c3c7c9bfa9641c6ff6d48a9c4d",
+    "generator:det/gen": "ec4a1fcb425fd4779c57f7dbf121bc9816dec561775d48f476933d719d803bf3",
     "generator:det/hfp": "7371422d1821ad22c526f9ba0e37deaa0ffc38ed190c6ad76e7475d820df95a1",
     "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
     "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
@@ -177,10 +177,10 @@
     }
    }
   },
-  "digest": "4a6b3673b44a25c72702d62bc5c021b263f60dada352cc0a463e92a4b9cd3c94"
+  "digest": "02ffa99ca2d09d39094b95184157fcd906d204c862f5fc6d00469fb06f93f4b0"
  },
  "proof": {
-  "at": "2026-10-16T22:39:03Z",
+  "at": "2026-10-17T07:57:51Z",
   "verdict": "proven",
   "runs": 20,
   "fault_runs": 4,
@@ -281,8 +281,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "cf0bcb927a5e2ecb03515be08f0710b3829b24e9+uncommitted",
-  "inputs_digest": "4a6b3673b44a25c72702d62bc5c021b263f60dada352cc0a463e92a4b9cd3c94"
+  "harness_commit": "0e39ebb9b8a46b2825e2324f4b7efd94d4699d8a+uncommitted",
+  "inputs_digest": "02ffa99ca2d09d39094b95184157fcd906d204c862f5fc6d00469fb06f93f4b0"
  },
  "coverage": {
   "paragraphs": {
@@ -312,7 +312,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "4a6b3673b44a25c72702d62bc5c021b263f60dada352cc0a463e92a4b9cd3c94"
+  "inputs_digest": "02ffa99ca2d09d39094b95184157fcd906d204c862f5fc6d00469fb06f93f4b0"
  },
  "reach": {
   "entry_points": [
@@ -352,7 +352,7 @@
   "compiler_options": null,
   "image": {
    "name": "gitgalaxy-gnucobol:3",
-   "id": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
+   "id": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []

@@ -282,7 +282,10 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     # UPDACC and GenApp LGAPVS01 / LGICDB01 / LGUPDB01: 9 more flagged survivors, all unreachable. PCIMMA / PCIMML /
     # PCIMMS mutated runProgram and the byte-carrying handleTransaction overloads (the crucible does not enter by
     # them), LGAPVS01 the writeKsdspoly guard; LGICDB01 / LGUPDB01 sit in methods proof_reach lists as unproven.
-    assert len(flagged) == 14 and verdicts.count("unreachable") == 11 and verdicts.count("equivalent") == 3
+    # #4047 scored six CardDemo CICS ports (signon, tranview, userlist, useradd, userdel, adminmenu): 8 more flagged
+    # survivors, all unreachable: the program name literal in the facade's region.run / region.linked, which the proof
+    # does not call (the proof drives runTask), as in COMEN01C's.
+    assert len(flagged) == 22 and verdicts.count("unreachable") == 19 and verdicts.count("equivalent") == 3
     assert not {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C", "CSUTLDTC"}
 
 

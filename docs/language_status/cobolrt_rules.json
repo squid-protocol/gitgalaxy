@@ -813,6 +813,24 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-CBL-COUNTER-NONDIGIT-REFUSED",
+   "family": "CBL",
+   "title": "A STRING / UNSTRING POINTER, an UNSTRING TALLYING IN item and an INSPECT TALLYING counter are read before they store: a zoned one holding a non-digit is refused by name",
+   "methods": [
+    "counterNum"
+   ],
+   "ibm": null,
+   "ibm_note": "IBM documents no result (ZONEDATA(PFD) assumes valid zone bits); the same ground as the receiver of ADD",
+   "options": [
+    "ZONEDATA"
+   ],
+   "register": [
+    "C11"
+   ],
+   "status": "REFUSED",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-CBL-COMPARE-NONDIGIT",
    "family": "CBL",
    "title": "A numeric item's value in a comparison: a zoned item holding a non-digit as the oracle compares it (Zoned.compareValue)",
@@ -1415,7 +1433,8 @@
     "refuse",
     "pScaled",
     "refuseP",
-    "refuseReceiver"
+    "refuseReceiver",
+    "refuseCounter"
    ],
    "site": "refuse",
    "ibm": null,

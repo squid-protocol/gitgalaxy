@@ -3005,6 +3005,12 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   the field's one JUSTIFY, but a screen's OCCURS field is not received at all by `Cics.receive_map` (its values are keyed `NAME.n`,
   which `screen_fields` does not list) and the oracle refuses a symbolic map with OCCURS by name ("BMS OCCURS"); OCCURS and GRPNAME
   are mutually exclusive in IBM, so the two never combine.
+  Census (#5116, `test_bms_occurs_grpname_census_5116.py`): of the burned estates' BMS maps no field uses GRPNAME, and the
+  only OCCURS is CBSA `BNK1ACC` `ACCOUNT` (`OCCURS=10`, `ATTRB=(NORM,PROT,FSET,ASKIP)`, output only), so no burned program
+  RECEIVEs into one: per-occurrence JUSTIFY and GRPNAME ATTRB inheritance stay unmodelled, frontier only. The test fails
+  when a burned map gains either.
+- **Open (#5116): what `<f>L` holds after justification.** IBM is silent (assumption 3); settling it needs real z/OS
+  calibration, not a doc reading.
 - **Generated map input (#4506).** The harness types into a map from its BMS source: a `scenario_generate` receive entry `"MAP": "@bms"`
   (`tests/tools/equivalence_inputs.py` `bms_input_fields` / `_bms_receive`) gives every typable DFHMDF field a value. Typable: named, not
   ASKIP or PROT, not OCCURS; a field with no ATTRB is ASKIP (the forge's `_attrs`; `cics_bms.attr_byte` agrees), and an OCCURS field is left

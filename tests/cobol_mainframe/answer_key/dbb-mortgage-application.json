@@ -23849,9 +23849,15 @@
         "notes": [
           "Draft, forge and engine agree on units (269 / 269), dead code (6 / 6, the EPSCSMRI section headers), PROGRAM-IDs, copybooks, calls and files; every dead verdict checked against the source (each section name appears only on its own header line)."
         ],
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-sonnet-5.5 (churn #4244)",
-        "at": "2026-10-17"
+        "at": "2026-10-17",
+        "cross_by": "claude-sonnet-5.5 (blind census, dbb-mortgage-application, epscsmrd; same model family as the author)",
+        "cross_at": "2026-10-17",
+        "census": {
+          "by": "claude-sonnet-5.5 (blind census, dbb-mortgage-application, epscsmrd; same model family as the author)",
+          "at": "2026-10-17"
+        }
       },
       "extents_validated": false,
       "commareas_validated": false
@@ -30258,6 +30264,37 @@
         "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
         "zBuilder/MortgageApplication/cobol/epsmpmt.cbl",
         "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl"
+      ]
+    },
+    {
+      "by": "claude-sonnet-5.5 (blind census, dbb-mortgage-application, epscsmrd; same model family as the author)",
+      "at": "2026-10-17",
+      "mode": "census",
+      "tasks": {
+        "A": {
+          "agree": 269,
+          "asked": 269
+        },
+        "B": {
+          "agree": 1,
+          "asked": 1
+        },
+        "C": {
+          "agree": 0,
+          "asked": 0
+        },
+        "D": {
+          "agree": 17,
+          "asked": 17
+        },
+        "E": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {},
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
       ]
     }
   ],

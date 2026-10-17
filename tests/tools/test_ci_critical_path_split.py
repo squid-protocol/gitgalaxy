@@ -33,32 +33,46 @@ def test_ground_truth_is_the_aggregate_of_its_parts():
     assert "name" not in jobs["ground-truth"]  # the check is named by its key: `ground-truth`
 
 
+LEDGER_GROUP = 2  # the part that also runs the ledger gate (~3 min) and the history append
+
+
 def test_the_parts_partition_tests_cobol_mainframe():
+    """#5133: pytest-split cuts the directory; no hand-listed files, so a new test is placed by its recorded seconds."""
     part = _jobs("mainframe-ground-truth.yml")["ground-truth-part"]
-    include = part["strategy"]["matrix"]["include"]
-    assert [i["group"] for i in include] == [1, 2]
+    assert part["strategy"]["matrix"]["group"] == [1, 2]
+    assert "include" not in part["strategy"]["matrix"]
     assert part["strategy"]["fail-fast"] is False
-    carved = [
-        "tests/cobol_mainframe/test_evidence_components.py",
-        "tests/cobol_mainframe/test_det_nondigit_zoned.py",
-    ]
-    assert all((ROOT / f).is_file() for f in carved)
-    rest, only = (i["tests"].split() for i in include)
-    assert rest == ["tests/cobol_mainframe/", *(f"--ignore={f}" for f in carved)]
-    assert only == carved
     run = _steps(part)["Full-corpus differential and answer-key tests"]["run"]
-    pytest_line = next(ln for ln in run.splitlines() if "-m pytest" in ln)
-    assert "${{ matrix.tests }}" in pytest_line and "tests/cobol_mainframe" not in pytest_line
+    pytest_line = " ".join(run[run.index("-m pytest") :].split("\\\n"))
+    pytest_line = " ".join(pytest_line.split())
+    assert "tests/cobol_mainframe/ " in pytest_line and "--ignore" not in pytest_line
+    assert "--splits 2 --splitting-algorithm least_duration --group ${{ matrix.group }}" in pytest_line
 
 
-def test_ledger_gate_and_history_stay_in_part_1_only():
+def test_history_stays_in_one_part_and_the_gate_runs_on_both():
     steps = _steps(_jobs("mainframe-ground-truth.yml")["ground-truth-part"])
     for name in (
-        "Gate against the ground-truth ledger",
         "Restore the published history from the generated branch",
         "Keep the history for the publish job",
     ):
-        assert "matrix.group == 1" in steps[name]["if"], name
+        assert f"matrix.group == {LEDGER_GROUP}" in steps[name]["if"], name
+    # #5133: the gate runs on both parts so the corpus scans are warm; only the ledger part writes summary and history
+    gate = steps["Gate against the ground-truth ledger"]
+    assert "if" not in gate
+    assert f"matrix.group == {LEDGER_GROUP}" in gate["run"]
+
+
+def test_the_ledger_part_is_not_the_heavier_one():
+    """Replays pytest-split's least_duration (heaviest first, into the lightest group) over the committed durations."""
+    import json
+
+    durations = json.loads((ROOT / ".test_durations").read_text(encoding="utf-8"))
+    seconds = sorted((v for k, v in durations.items() if k.startswith("tests/cobol_mainframe/")), reverse=True)
+    assert seconds, "no recorded tests/cobol_mainframe/ durations"
+    totals = [0.0, 0.0]
+    for s in seconds:
+        totals[totals.index(min(totals))] += s
+    assert totals[LEDGER_GROUP - 1] <= totals[2 - LEDGER_GROUP] * 1.01, totals  # the ledger step is extra work on top
 
 
 def test_evidence_deltas_is_advisory_and_off_the_required_check():

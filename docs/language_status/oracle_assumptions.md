@@ -100,6 +100,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C15 | compiler | `CALL identifier`: the port dispatches over the program names the item can hold, found from the source (VALUE, VALUE table, MOVEs of literals); uppercase names of up to 8 characters; any other value, write or name refused by name (#4736) | MODELLED where the names are known, REFUSED where they are not | yes (end-to-end test against cobc; DBB EPSCSMRT translates whole, its callee EPSMPMT is refused) |
 | C16 | compiler | A 1- or 2-digit COMP-5 item: one byte in GnuCOBOL, a halfword on z/OS (and in the det layout), so offsets, record lengths and a value past the byte differ; no cobc option changes it (#4751) | DIFFERS (oracle vs IBM, declared) / REFUSED (the oracle refuses such a program by name) | no: no corpus or case declares one |
 | C17 | compiler | INITIALIZE REPLACING of a table holding an item of a category REPLACING does not name: GnuCOBOL gives that item the first occurrence's value, IBM leaves it as it is; refused by name | DIFFERS (oracle vs IBM) / REFUSED (the translator refuses such a statement by name) | no: CardDemo CODATE01's two INITIALIZE REPLACING statements name groups with no table |
+| C18 | compiler | STORAGE, TRAP, ABTERMENC; Db2 DATE / TIME / DEC / DECPT / CCSID / bind options; CICS region and program-definition options: refuse, declare or no effect | DECLARED / REFUSED by name (LE, Db2 and CICS runtime options) | yes: every burned estate's recorded value resolves (STORAGE default via L3; GenApp EBCDIC CCSID 285 is declared) |
 | D1 | data | Text order is ASCII (Latin-1), not EBCDIC | DIFFERS | keys: no; comparisons: not audited |
 | D2 | data | Hex literals that name EBCDIC characters (`X'40'`); a hex literal is its raw bytes under every record charset, the SYSOUT record separator a plain LF (#4698) | DIFFERS (oracle vs IBM, characters) / MATCHED (the bytes, the oracle = the port = IBM) | yes (batch Sysout byte test, 4 record charsets) |
 | D3 | data | Zoned signs in ASCII data (`{`, `}`, A–R overpunch) | MATCHED | yes |
@@ -959,6 +960,52 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   of a category the statement does not name (a named hole, `det/gen.py` `initialize`), so no proof rests on the
   oracle's copy. When every item of the table is of a named category, setting each one and copying the first agree,
   and the statement translates (test_det_initialize_replacing.py, and INITREPL proves it against GnuCOBOL).
+
+### C18. LE, Db2 and CICS runtime options: each judged by one table, refused by name or a declared difference (#4707)
+- **What.** The estate options file (`tests/equivalence/estate_options/<corpus>.json`, #4704) records the Language
+  Environment, Db2 and CICS options an estate runs under, each with provenance, and the evidence fingerprint hashes
+  them. Until #4707 nothing acted on them: a customer whose Db2 uses `DATE(USA)` or `TRAP(OFF)` would have been proven
+  under ISO dates and trapped exceptions with the file saying otherwise. `runtime_options.RUNTIME_OPTION_TABLE` now
+  holds one row per option; `EffectiveOptions.unhonoured_runtime` resolves the estate's values against it, and the
+  oracle (`equivalence_common.compile_options` / `option_differences`) refuses or declares exactly as it does for the
+  compile options (C5). An option the table has no row for is refused by name, and the options-file schema check
+  fails on one, so a new estate file cannot record an option nothing has judged.
+- **Provisional policies (owner to confirm).** Like C5's, these are choices from the documentation, not measurements:
+  `TRAP` and `ABTERMENC` refused outside the default, Db2 `DATE` / `TIME` / `DEC` / `DECPT` refused outside the values
+  the Db2 cases run with, `STORAGE` and the EBCDIC / local CCSIDs declared. All twelve cells the burned estates
+  record resolve (none refuses); STORAGE is assumed in every one of them (no CEEOPTS / CEEUOPT in any burned corpus).
+- **Calibration (#4702).** A z/OS probe corpus must run under the same effective options, so a measured IBM result is
+  tied to the options it held under.
+
+### Runtime options: the table (#4707)
+One row per option, the same four answers as C5's table. Rendered from `RUNTIME_OPTION_TABLE`; the keys are the options
+file's paths.
+
+| option | (1) changes results? | (2) cobc | (3) det port | (4) otherwise | register |
+|---|---|---|---|---|---|
+| `le.runtime_options.STORAGE` (IBM default `NONE,NONE,NONE,0K`) | yes: STORAGE(heap-init, stack-init, ...) decides what WORKING-STORAGE with no VALUE clause holds; a run that reads none is IBM's, and one that does is register L3's assumption | GnuCOBOL's own initial storage | same | NONE,NONE,NONE,0K honoured; any other is a declared difference (applied: GnuCOBOL's initial storage (spaces; zeros in a numeric DISPLAY item)) | C18 |
+| `le.runtime_options.TRAP` (IBM default `ON,SPIE`) | yes: TRAP(OFF) leaves a program exception untrapped (the run continues past it, undefined); the oracle and the det port both end the run on one | none | none | any value but ON,SPIE, ON,NOSPIE, ON refused by name | C18 |
+| `le.runtime_options.ABTERMENC` (IBM default `ABEND`) | yes: ABTERMENC(RETCODE) ends an unhandled condition with a return code instead of an abend; the harness compares the abend | none | none | any value but ABEND refused by name | C18 |
+| `db2.format.DATE` (IBM default `ISO`) | yes: DATE(USA|EUR|JIS|LOCAL) changes the string of every date a program fetches or compares; the Db2 cases run in ISO | none | none | any value but ISO refused by name | C18 |
+| `db2.format.TIME` (IBM default `ISO`) | yes: TIME(USA|EUR|JIS|LOCAL) changes the string of every time a program fetches or compares; the Db2 cases run in ISO | none | none | any value but ISO refused by name | C18 |
+| `db2.format.DEC` (IBM default `15`) | yes: DEC(31) widens the precision of decimal arithmetic in SQL; the Db2 cases run in DEC(15) | none | none | any value but 15 refused by name | C18 |
+| `db2.format.DECPT` (IBM default `.`) | yes: DECPT(,) makes the decimal point of SQL literals a comma; the Db2 cases run with a period | none | none | any value but . refused by name | C18 |
+| `db2.ccsid.EBCDIC_CCSID` (IBM default `37`) | yes: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding | none: the oracle runs the case's data in its data_encoding | same | 37, 1140 honoured; any other is a declared difference (applied: data in the case's data_encoding) | C18 |
+| `db2.ccsid.SQLCCSID` (IBM default `NO`) | yes: SQLCCSID(YES) passes SQL host text in the CCSID of the program's source; the harness does not model the conversion | none | none | any value but NO refused by name | C18 |
+| `db2.bind.ISOLATION` (IBM default `CS`) | no: isolation only matters between concurrent units of work; a proof runs one | none needed | -- | recorded only | C18 |
+| `db2.bind.CURRENTDATA` (IBM default `NO`) | no: CURRENTDATA only decides lock avoidance between concurrent units of work | none needed | -- | recorded only | C18 |
+| `db2.bind.DYNAMICRULES` (IBM default `RUN`) | no: DYNAMICRULES decides authorization and the qualifier of dynamic SQL, not a computed value | none needed | -- | recorded only | C18 |
+| `db2.bind.VALIDATE` (IBM default `RUN`) | no: VALIDATE only decides when a missing object is reported | none needed | -- | recorded only | C18 |
+| `db2.bind.ACTION` (IBM default `REPLACE`) | no: ACTION is a bind administration choice | none needed | -- | recorded only | C18 |
+| `db2.bind.packages` (IBM default `none`) | no: the package list names where a bound program lives, not what it computes | none needed | -- | recorded only | C18 |
+| `db2.precompile.PARM` (IBM default ``) | no: the precompiler PARM (HOST, APOST, XREF ...) is read from the source it was given; the corpus pin fixes that source | none needed | -- | recorded only | C18 |
+| `db2.precompile.coprocessor` (IBM default ``) | no: how SQL reaches the compiler (precompiler or integrated coprocessor) is a build route; the det translator reads the SQL statements themselves | none needed | -- | recorded only | C18 |
+| `cics.region.LOCALCCSID` (IBM default `37`) | yes: LOCALCCSID is the region's code page for EBCDIC <-> client conversion; the proof runs the case's data in its data_encoding | none: the oracle runs the case's data in its data_encoding | same | 37, 1140 honoured; any other is a declared difference (applied: data in the case's data_encoding) | C18 |
+| `cics.region.CICS_TS` (IBM default ``) | no: the CICS release is recorded for provenance; the command spec (X-series) states what is modelled | none needed | -- | recorded only | C18 |
+| `cics.region.DB2CONN` (IBM default ``) | no: whether the region connects to Db2 is a deployment fact; the Db2 cases name their own tables | none needed | -- | recorded only | C18 |
+| `cics.translator.options` (IBM default ``) | no: translator options (CICS, SP, EDF ...) are read from the source it was given; EXEC CICS commands are refused or modelled by the CICS spec | none needed | -- | recorded only | C18 |
+| `cics.program_definition.CONCURRENCY` (IBM default `QUASIRENT`) | no: THREADSAFE only matters between concurrent tasks; a proof runs one | none needed | -- | recorded only | C18 |
+| `cics.program_definition.EXECKEY` (IBM default `USER`) | no: EXECKEY decides storage protection, not a computed value | none needed | -- | recorded only | C18 |
 
 ## Data and encoding
 

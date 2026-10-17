@@ -1,5 +1,5 @@
 {
- "commit": "5d5a2fc85",
+ "commit": "7ecb0e2a7",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -29,7 +29,7 @@
      "ASSUMED": 3,
      "DIFFERS": 13,
      "MATCHED": 25,
-     "REFUSED": 2
+     "REFUSED": 3
     },
     "CICS": {
      "ASSUMED": 18,
@@ -89,12 +89,12 @@
     }
    },
    "measured_on_zos": 0,
-   "rules": 165,
+   "rules": 166,
    "status": {
     "ASSUMED": 50,
     "DIFFERS": 23,
     "MATCHED": 81,
-    "REFUSED": 11
+    "REFUSED": 12
    }
   },
   "crucibles": {
@@ -156,7 +156,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-17T11:43:41Z",
+  "as_of": "2026-10-17T12:07:42Z",
   "core": {
    "closed": 122,
    "open": 24,
@@ -229,9 +229,9 @@
     "total": 12
    },
    {
-    "closed": 34,
+    "closed": 35,
     "number": 6,
-    "open": 19,
+    "open": 18,
     "title": "Side Quests \ud83d\uddfa\ufe0f",
     "total": 53
    },
@@ -398,8 +398,8 @@
    }
   ],
   "sweep": {
-   "closed": 69,
-   "open": 19,
+   "closed": 70,
+   "open": 18,
    "total": 88
   },
   "title_counts": {

@@ -8,7 +8,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 
 | family | files | rules | catalogued |
 |---|---|---|---|
-| CBL: statements and data movement | `Cobol.java` | 43 | yes |
+| CBL: statements and data movement | `Cobol.java` | 44 | yes |
 | NUM: numeric storage codecs | `Codec.java`, `Zoned.java` | 12 | yes |
 | HFP: COMP-1 / COMP-2 as hexadecimal floating point | `Hfp.java` | 12 | yes |
 | EDIT: numeric editing | `Editing.java` | 5 | yes |
@@ -23,7 +23,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | FILE: batch files | `batch/DetFiles.java` | 3 | yes |
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 
-165 rules: 81 MATCHED, 23 DIFFERS, 11 REFUSED, 50 ASSUMED; 0 measured on z/OS (#4702).
+166 rules: 81 MATCHED, 23 DIFFERS, 12 REFUSED, 50 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -84,6 +84,7 @@ MOVE, arithmetic stores and intermediates, comparisons, class tests, DISPLAY, ST
 | RT-CBL-OPERAND-VALUE | A numeric item's value as an operand (numeric-edited: de-edited; a zoned item through Zoned's reading) | `cobol-lr` Arithmetic expressions | - | - | MATCHED | uncalibrated |
 | RT-CBL-ADD-INT-OPERAND | The operand of ADD / SUBTRACT that cobc compiles as cob_add_int(y, cob_get_int(x)): a zoned x of at most 9 digits read as an int, a non-digit as its byte minus '0' | none: IBM documents no result for non-digit data in a numeric item; the oracle's (GnuCOBOL 3.1.2) rule is modelled | TRUNC | C11 (DIFFERS (#4049: inputs kept out of the cases) / MODELLED, the oracle's rules (#4652, #4662)) | DIFFERS | uncalibrated |
 | RT-CBL-RECEIVER-NONDIGIT-REFUSED | The receiver of ADD / SUBTRACT / MULTIPLY / DIVIDE is read before it stores: a zoned receiver holding a non-digit is refused by name | none: IBM documents no result (ZONEDATA(PFD) assumes valid zone bits; ZONEDATA(NOPFD\|MIG) corrects them on an addition) | ZONEDATA | C11 (DIFFERS (#4049: inputs kept out of the cases) / MODELLED, the oracle's rules (#4652, #4662)) | REFUSED | uncalibrated |
+| RT-CBL-COUNTER-NONDIGIT-REFUSED | A STRING / UNSTRING POINTER, an UNSTRING TALLYING IN item and an INSPECT TALLYING counter are read before they store: a zoned one holding a non-digit is refused by name | none: IBM documents no result (ZONEDATA(PFD) assumes valid zone bits); the same ground as the receiver of ADD | ZONEDATA | C11 (DIFFERS (#4049: inputs kept out of the cases) / MODELLED, the oracle's rules (#4652, #4662)) | REFUSED | uncalibrated |
 | RT-CBL-COMPARE-NONDIGIT | A numeric item's value in a comparison: a zoned item holding a non-digit as the oracle compares it (Zoned.compareValue) | none: IBM documents no result for non-digit data in a numeric item; the oracle's (GnuCOBOL 3.1.2) rule is modelled | - | C11 (DIFFERS (#4049: inputs kept out of the cases) / MODELLED, the oracle's rules (#4652, #4662)) | DIFFERS | uncalibrated |
 | RT-CBL-ALPHANUMERIC-TEXT | An alphanumeric item's text: its bytes; a value moved into it truncated on the right or padded with spaces | `cobol-lr` MOVE statement: elementary moves | - | - | MATCHED | uncalibrated |
 | RT-CBL-STORE-RESULT | An arithmetic result stored: low-order digits past the scale dropped or ROUNDED (half away from zero), high-order digits past the PICTURE (or the bytes, TRUNC(BIN) / COMP-5) lost; the typed-layer readers return exactly what the store leaves | `cobol-lr` ROUNDED phrase | TRUNC | - | MATCHED | uncalibrated |

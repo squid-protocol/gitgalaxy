@@ -107,6 +107,16 @@ ground-truth tests' seconds in `.test_durations` from the `test-times-ground-tru
 (`continue-on-error`, not in `full-suite`'s needs). The smoke full-suite parts balance by the newest nightly's durations cache (#4847), falling back to the committed
 `.test_durations`, which the ground-truth parts and the OS-matrix gate always read.
 
+**Measured after #5264 (main push run 39108505757, 2026-10-18).** `ground-truth part 1/2` 11.0 min, `part 2/2` 11.3 min (the
+aggregate `ground-truth` check green about 1 min later), against one job of about 14-16.5 min before the split: the parts are
+within 3% of each other and time-to-green on this check fell by 3-5 min. `.test_durations` had no seconds for 696 of the
+5782 `tests/cobol_mainframe/` tests the parts ran and a stale value for 86 more; it is now refreshed from that run's
+`test-times-ground-truth-part-N` artifacts (the two files hold disjoint halves, so `merge_test_durations.py` merged them with
+no conflict), and a replay of `least_duration` over it gives two parts of 1354 s each. The full-suite after-numbers need a
+completed main smoke run after #5264: run 39108505787 was superseded (part 2 cancelled), so they are not recorded here.
+`test_the_ground_truth_seconds_are_recorded_and_the_parts_balanced` pins both facts. The 8 warnings `time_ratchet.py check`
+now prints (10-11.4 s tests under `-n auto` contention in the ground-truth job) fail nothing: the limit is 15 s.
+
 `ground-truth` also has a `plan` job (#5164, `tests/tools/ground_truth_plan.py`, as `det` has `det_sweep_plan.py`): a PR whose every changed file is a provable non-input (docs outside `docs/language_status/`, `.claude/`, churn / shepherd tooling, workflows and test directories the job does not read) skips both parts and passes in about a minute. The list is an allow-list of what the job does not read: an unlisted file is an input, and push, nightly and manual runs are always full.
 
 ## Heavy jobs on the PR and again on the push (tested-tree, #4935)

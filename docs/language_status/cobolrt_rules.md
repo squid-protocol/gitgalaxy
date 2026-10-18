@@ -15,7 +15,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | FUNC: intrinsic functions | `Funcs.java`, `Accept.java` | 12 | yes |
 | CICS: EXEC CICS data movement | `cics/DetCics.java`, `cics/DetJustify.java` | 27 | yes |
 | SQL: embedded SQL | `sql/DetSql.java` | 10 | yes |
-| LE: Language Environment callable services | `le/Ceedate.java`, `le/Ceedatm.java`, `le/Ceedays.java`, `le/Ceegmt.java`, `le/Ceeisec.java`, `le/Ceeloct.java`, `le/Ceeqcen.java`, `le/Ceesecs.java`, `le/Ceeutc.java`, `le/Cobdatft.java`, `le/LeTime.java`, `le/Mvswait.java` | 14 | yes |
+| LE: Language Environment callable services | `le/Ceedate.java`, `le/Ceedatm.java`, `le/Ceedays.java`, `le/Ceegmt.java`, `le/Ceegmto.java`, `le/Ceeisec.java`, `le/Ceeloct.java`, `le/Ceeqcen.java`, `le/Ceesecs.java`, `le/Ceeutc.java`, `le/Cobdatft.java`, `le/LeTime.java`, `le/Mvswait.java` | 15 | yes |
 | DLI: IMS DL/I database calls | `dli/DetDli.java` | 11 | yes |
 | MQ: IBM MQ (MQI from CICS) | `mq/QueueManager.java`, `cics/DetMq.java` | 7 | yes |
 | DATA: items and storage | `Field.java`, `Storage.java`, `Lossless.java`, `Figurative.java`, `Hole.java` | 5 | yes |
@@ -23,7 +23,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | FILE: batch files | `batch/DetFiles.java` | 3 | yes |
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 
-172 rules: 83 MATCHED, 23 DIFFERS, 14 REFUSED, 52 ASSUMED; 0 measured on z/OS (#4702).
+173 rules: 83 MATCHED, 23 DIFFERS, 14 REFUSED, 53 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -239,6 +239,7 @@ The date / time services, COBDATFT and MVSWAIT, as the harness's C models do the
 | RT-LE-PICTURE-STRING | Picture strings: the date / time terms LE documents, formatted and parsed; any other term refused by name | `le-pr` Picture character terms and picture strings | - | L6 (MATCHED / ASSUMED / REFUSED) | MATCHED | uncalibrated |
 | RT-LE-VSTRING | A VSTRING result: halfword length then the text, the rest of the item untouched | `le-pr` Data type definitions: VSTRING | - | L6 (MATCHED / ASSUMED / REFUSED) | ASSUMED | uncalibrated |
 | RT-LE-CEEGMT | CEEGMT / CEEUTC: the run's clock is GMT; Lilian day and seconds | `le-pr` CEEGMT: get current Greenwich Mean Time | - | L6 (MATCHED / ASSUMED / REFUSED); X4 (ASSUMED) | ASSUMED | uncalibrated |
+| RT-LE-CEEGMTO | CEEGMTO / CEEUTCO: the offset from GMT is zero on the GMT clock | `le-pr` CEEGMTO: get offset from Greenwich Mean Time to local time | - | L6 (MATCHED / ASSUMED / REFUSED) | ASSUMED | uncalibrated |
 | RT-LE-CEEQCEN | CEEQCEN: the century window's start (80: the run's default) | `le-pr` CEEQCEN: query the century window | - | L6 (MATCHED / ASSUMED / REFUSED) | ASSUMED | uncalibrated |
 | RT-LE-CEEDATE | CEEDATE: a Lilian day as a character date by a picture string | `le-pr` CEEDATE: convert Lilian date to character format | - | L6 (MATCHED / ASSUMED / REFUSED) | MATCHED | uncalibrated |
 | RT-LE-CEEDATM | CEEDATM: Lilian seconds as a character timestamp by a picture string | `le-pr` CEEDATM: convert seconds to character timestamp | - | L6 (MATCHED / ASSUMED / REFUSED) | MATCHED | uncalibrated |

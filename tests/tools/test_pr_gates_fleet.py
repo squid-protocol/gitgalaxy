@@ -96,3 +96,26 @@ def test_audits_always_run_under_env_i_and_print_the_tool_used(monkeypatch, caps
     assert cmd[:2] == ["env", "-i"]
     out = capsys.readouterr().out
     assert "mypy used:" in out and "ruff used:" in out
+
+
+def test_matching_tool_off_the_interpreter_bin_dir_is_on_the_clean_path(monkeypatch, tmp_path):
+    """churn's precheck runs under /usr/bin/python3 with the pinned ruff on ~/.local/bin: the gate's `env -i` PATH must
+    name the dir the matched ruff/mypy is in, not the interpreter's (it failed lint in 0 s with 'ruff' not found)."""
+    tools = tmp_path / "local-bin"
+    tools.mkdir()
+    for name in ("ruff", "mypy"):
+        (tools / name).write_text("#!/bin/sh\n")
+        (tools / name).chmod(0o755)
+    monkeypatch.setattr(
+        pr_gates,
+        "local_versions",
+        lambda env=None: {"mypy": pr_gates.ci_pins()["mypy"], "ruff": pr_gates.ci_pins()["ruff"]},
+    )
+    sysbin = tmp_path / "sysbin"  # the interpreter's bin dir, with no ruff/mypy in it (like /usr/bin)
+    sysbin.mkdir()
+    monkeypatch.setattr(pr_gates, "PY", str(sysbin / "python3"))
+    env = {"PATH": f"{sysbin}:{tools}"}
+    [cmd] = pr_gates.pinned_mypy_audit(pr_gates.REPO, env)
+    assert f"PATH={tools.resolve()}:/usr/bin:/bin" in cmd
+    [cmd], _ = pr_gates.pinned_ruff_lint(env)
+    assert f"PATH={tools.resolve()}:/usr/bin:/bin" in cmd

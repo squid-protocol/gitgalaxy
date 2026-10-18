@@ -310,6 +310,14 @@ def _announce(tool: str, exe: Path, bin_dir: Path) -> None:
     print(f"NOTE  {tool} used: {ver} ({found})", flush=True)
 
 
+def _tool_bin_dir(tool: str, env: dict[str, str]) -> Path:
+    """Where the caller's `tool` lives (the one local_versions just matched against CI's pin), so the `env -i` PATH
+    reaches it. Not always the interpreter's bin dir: churn's precheck runs pr_gates under /usr/bin/python3 with ruff
+    on ~/.local/bin, and `PATH=/usr/bin:...` then found no ruff and failed lint in 0 s."""
+    found = shutil.which(tool, path=env.get("PATH", os.environ.get("PATH")))
+    return Path(found).resolve().parent if found else Path(PY).parent
+
+
 def pinned_mypy_audit(root: Path, env: dict[str, str]) -> list[list[str]]:
     """The mypy gate command, run with exactly CI's mypy (#4537) and ALWAYS in a clean environment (#4551).
 
@@ -320,7 +328,7 @@ def pinned_mypy_audit(root: Path, env: dict[str, str]) -> list[list[str]]:
     """
     want = ci_pins(root).get("mypy")
     if not want or local_versions(env).get("mypy") == want:
-        bin_dir = Path(PY).parent
+        bin_dir = _tool_bin_dir("mypy", env)
         _announce("mypy", Path("mypy"), bin_dir)
         return [[*clean_prefix(bin_dir, root), PY, "tests/mypy_audit.py", "--ci"]]
     venv = MYPY_CACHE / f"mypy-{want}"
@@ -342,7 +350,7 @@ def pinned_ruff_lint(env: dict[str, str]) -> tuple[list[list[str]], dict[str, st
     """The lint gate command + env, ALWAYS under `env -i` (#4551); ruff at CI's pin (private venv if local differs)."""
     want = ci_pins().get("ruff")
     if not want or local_versions(env).get("ruff") == want:
-        bin_dir = Path(PY).parent
+        bin_dir = _tool_bin_dir("ruff", env)
         _announce("ruff", Path("ruff"), bin_dir)
         return [[*clean_prefix(bin_dir, REPO), PY, "tests/ruff_audit.py", "--ci"]], env
     venv = MYPY_CACHE / f"ruff-{want}"

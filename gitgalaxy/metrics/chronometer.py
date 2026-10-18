@@ -251,10 +251,7 @@ class Chronometer:
                 if not d.startswith(".")
                 and d not in ignored_dirs
                 and not (d.lower() in VIRTUALENV_CANDIDATE_NAMES and looks_like_virtualenv(Path(root) / d))
-                and not (
-                    VendorDirectoryDetector.is_candidate_name(d)
-                    and vendor_dirs.is_vendored((Path(root) / d).relative_to(self.root).as_posix())
-                )
+                and not vendor_dirs.is_vendored((Path(root) / d).relative_to(self.root).as_posix())
             ]
             for f in files:
                 try:

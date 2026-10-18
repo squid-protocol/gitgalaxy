@@ -25,3 +25,19 @@ Pythons are only the floor (3.11) and ceiling (3.12), so it is the same 12 legs 
 the untrimmed grid a `v*` tag gets. Removing and
 re-adding a label still works and is equivalent to the first form. Don't reach for `synchronize`
 as a fix — that hands back the queue cost the label-only rule bought (#3209).
+
+## Cap headroom (#5156)
+
+Each `full-suite-gate.yml` leg's `timeout` is ~1.5x its expected part time. Re-measure when a leg passes ~80% of its cap
+(`gh run view <id> --json jobs`, job `completedAt - startedAt`) and add a part rather than raise the cap.
+Measured 2026-10-18 on two scheduled main runs (minutes, worst part / cap):
+
+| OS | worst / cap | action |
+|---|---|---|
+| ubuntu | 15 / 20 | none |
+| macOS | 17 / 22 | none |
+| windows (2 parts) | 22 / 25 | now 3 parts, cap 25 |
+
+Not yet surveyed (fixed caps in other workflows): cics-crucible 45, blocker-baseline 60, evidence-refresh 90,
+java-compile 40, ports-compile 40, the 30-min audits (tri-comparison, tree-sitter, call-graph, unicode-gauntlet).
+The 40-240 s evidence tests that drive the growth need marking or trimming, not caps.

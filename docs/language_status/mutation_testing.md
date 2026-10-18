@@ -124,13 +124,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 |---|---|---|---|---|---|
 | COACTVWC (carddemo-acctview) | equivalence | 150/328 | 105/129 (81%) | 105/113 (93%) | 8 / 0 / 16 / 0 / 0 |
 | COADM01C (carddemo-adminmenu) | equivalence | 100/334 | 53/95 (56%) | 53/69 (77%) | 16 / 0 / 26 / 0 / 0 |
+| COBIL00C (carddemo-billpay) | equivalence | 100/529 | 64/86 (74%) | 64/86 (74%) | 22 / 0 / 0 / 0 / 0 |
+| COCRDLIC (carddemo-cardlist) | equivalence | 100/1034 | 75/94 (80%) | 75/94 (80%) | 19 / 0 / 0 / 0 / 0 |
+| COCRDSLC (carddemo-cardview) | equivalence | 100/503 | 60/91 (66%) | 60/91 (66%) | 31 / 0 / 0 / 0 / 0 |
 | CSUTLDTC (carddemo-dateutil) | equivalence | 211/211 | 145/195 (74%) | 145/145 (100%) | 0 / 0 / 10 / 40 / 0 |
 | COMEN01C (carddemo-menu) | equivalence | 150/331 | 86/136 (63%) | 86/93 (92%) | 7 / 0 / 36 / 7 / 0 |
+| CBACT02C (carddemo-readcard) | equivalence | 91/91 | 69/83 (83%) | 69/83 (83%) | 14 / 0 / 0 / 0 / 0 |
 | COSGN00C (carddemo-signon) | equivalence | 100/196 | 67/99 (68%) | 67/72 (93%) | 5 / 0 / 25 / 2 / 0 |
+| COTRN02C (carddemo-tranadd) | equivalence | 100/770 | 61/91 (67%) | 61/91 (67%) | 30 / 0 / 0 / 0 / 0 |
+| COTRN00C (carddemo-tranlist) | equivalence | 100/697 | 60/91 (66%) | 60/91 (66%) | 31 / 0 / 0 / 0 / 0 |
 | COTRN01C (carddemo-tranview) | equivalence | 100/308 | 63/100 (63%) | 63/68 (93%) | 5 / 0 / 29 / 3 / 0 |
 | COUSR01C (carddemo-useradd) | equivalence | 100/266 | 64/97 (66%) | 64/72 (89%) | 8 / 0 / 23 / 2 / 0 |
 | COUSR03C (carddemo-userdel) | equivalence | 100/334 | 62/86 (72%) | 62/70 (89%) | 8 / 0 / 15 / 1 / 0 |
 | COUSR00C (carddemo-userlist) | equivalence | 100/493 | 69/100 (69%) | 69/92 (75%) | 23 / 0 / 8 / 0 / 0 |
+| COUSR02C (carddemo-userupd) | equivalence | 100/481 | 47/82 (57%) | 47/82 (57%) | 35 / 0 / 0 / 0 / 0 |
 | INQACC (cbsa-inqacc) | equivalence | 150/464 | 131/131 (100%) | 131/131 (100%) | 0 / 0 / 0 / 0 / 0 |
 | UPDACC (cbsa-updacc) | equivalence | 133/133 | 95/133 (71%) | 95/133 (71%) | 38 / 0 / 0 / 0 / 0 |
 | LGAPVS01 (genapp-lgapvs01) | equivalence | 150/178 | 70/121 (58%) | 70/119 (59%) | 49 / 0 / 0 / 2 / 0 |
@@ -158,20 +165,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **316/476 (66%)** | **316/355 (89%)** | 39 / 0 / 87 / 34 / 0 |
-| **all equivalence** | | 1844 run | **1135/1690 (67%)** | **1135/1441 (79%)** | 306 / 0 / 188 / 61 / 0 |
-| **all estate** | | 2348 run | **1451/2166 (67%)** | **1451/1796 (81%)** | 345 / 0 / 275 / 95 / 0 |
+| **all equivalence** | | 2535 run | **1571/2308 (68%)** | **1571/2059 (76%)** | 488 / 0 / 188 / 61 / 0 |
+| **all estate** | | 3039 run | **1887/2784 (68%)** | **1887/2414 (78%)** | 527 / 0 / 275 / 95 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 111/142 (78%) | 111/123 (90%) |
-| BDM | 5/13 (38%) | 5/9 (56%) |
-| CON | 200/440 (45%) | 200/274 (73%) |
-| COR | 64/108 (59%) | 64/93 (69%) |
-| DEL | 222/343 (65%) | 222/291 (76%) |
-| LIT | 296/401 (74%) | 296/348 (85%) |
-| NEG | 270/317 (85%) | 270/301 (90%) |
-| RET | 36/59 (61%) | 36/56 (64%) |
-| ROR | 247/343 (72%) | 247/301 (82%) |
+| AOR | 140/177 (79%) | 140/158 (89%) |
+| BDM | 9/23 (39%) | 9/19 (47%) |
+| CON | 244/545 (45%) | 244/379 (64%) |
+| COR | 110/181 (61%) | 110/166 (66%) |
+| DEL | 276/434 (64%) | 276/382 (72%) |
+| LIT | 386/508 (76%) | 386/455 (85%) |
+| NEG | 353/404 (87%) | 353/388 (91%) |
+| RET | 52/82 (63%) | 52/79 (66%) |
+| ROR | 317/430 (74%) | 317/388 (82%) |
 <!-- /mutation-scores -->
 
 Run on gitgalaxy `416fb6420` (2026-10-03): CSUTLDTC all 217 mutants; COMEN01C and COACTVWC 150 each (seed 0);

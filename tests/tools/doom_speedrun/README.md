@@ -14,6 +14,17 @@ python tests/tools/doom_speedrun/doom_speedrun.py run --only linuxdoom,gore   # 
 python tests/tools/doom_speedrun/doom_speedrun.py score --oracle              # re-score existing scans
 ```
 
+Compare two runs, or a run against round 2 (`diff BEFORE AFTER`; each ref is a `clean_check.csv`, a results dir, an
+engine SHA under `<work>/results`, or `round2` for the study's CSV, overridable with `DOOM_ROUND2_CSV`):
+
+```bash
+python tests/tools/doom_speedrun/doom_speedrun.py diff round2 41777e5f4 --fail-on-regression
+```
+
+It prints the PERFECT counts, each port whose scored columns moved, and the regressions (a port that gained a failed
+check or vanished); `--fail-on-regression` exits 1 on any. Round 2's CSV has no tree-sitter columns, so only columns
+both files carry are compared. A diff against round 2 is expected to move (the engine changed): read it, don't gate on it.
+
 Steps (`fetch`, `scan`, `score`, `report`) can be run singly and are resumable. Scans go through
 `tests/tools/box/heavy-run.sh` when present. Results land in `<work>/results/<engine-sha>/`: `clean_check.csv`,
 `clean_check.md` (table) and `details.json` (the offending files and rules).

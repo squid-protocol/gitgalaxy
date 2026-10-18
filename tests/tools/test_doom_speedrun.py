@@ -151,3 +151,62 @@ def test_compile_commands_flags_are_keyed_by_real_path_without_compiler_or_outpu
 def test_clang_port_not_in_the_run_is_an_error(tmp_path):
     with pytest.raises(SystemExit, match="not in this run"):
         doom_speedrun.main(["score", "--only", "linuxdoom", "--clang", "gore", "--work", str(tmp_path)])
+
+
+def _csv(path, rows):
+    cols = ["variant", "fails", "gg_functions", "verdict"]
+    path.write_text(
+        ",".join(cols) + "\n" + "".join(",".join(r.get(c, "") for c in cols) + "\n" for r in rows), encoding="utf-8"
+    )
+    return path
+
+
+def test_diff_reports_moves_and_regressions(tmp_path):
+    import doom_diff
+
+    old = _csv(
+        tmp_path / "a.csv",
+        [
+            {"variant": "x", "fails": "coverage", "gg_functions": "10", "verdict": "5/6"},
+            {"variant": "y", "fails": "", "gg_functions": "7", "verdict": "PERFECT"},
+            {"variant": "gone", "fails": "", "gg_functions": "1", "verdict": "PERFECT"},
+        ],
+    )
+    new = _csv(
+        tmp_path / "b.csv",
+        [
+            {"variant": "x", "fails": "", "gg_functions": "12", "verdict": "PERFECT"},
+            {"variant": "y", "fails": "health", "gg_functions": "7", "verdict": "5/6"},
+            {"variant": "fresh", "fails": "", "gg_functions": "3", "verdict": "PERFECT"},
+        ],
+    )
+    changes, added, removed = doom_diff.diff_rows(doom_diff.load(old), doom_diff.load(new))
+    assert changes == {"x": {"fails": ("coverage", ""), "gg_functions": ("10", "12")}, "y": {"fails": ("", "health")}}
+    assert (added, removed) == (["fresh"], ["gone"])
+    assert doom_diff.regressions(doom_diff.load(old), doom_diff.load(new)) == [
+        "y: new fail health",
+        "gone: missing from the newer file",
+    ]
+    assert doom_diff.run(str(old), str(new), tmp_path, fail_on_regression=True) == 1
+    assert doom_diff.run(str(old), str(old), tmp_path, fail_on_regression=True) == 0
+
+
+def test_diff_resolves_dir_sha_and_round2(tmp_path, monkeypatch):
+    import doom_diff
+
+    (tmp_path / "results" / "abc123def").mkdir(parents=True)
+    csv_path = _csv(tmp_path / "results" / "abc123def" / "clean_check.csv", [{"variant": "x"}])
+    assert doom_diff.resolve_csv("abc123def", tmp_path) == csv_path
+    assert doom_diff.resolve_csv(str(csv_path.parent), tmp_path) == csv_path
+    monkeypatch.setattr(doom_diff, "ROUND2_CSV", csv_path)
+    assert doom_diff.resolve_csv("round2", tmp_path) == csv_path
+    with pytest.raises(SystemExit, match="nope"):
+        doom_diff.resolve_csv("nope", tmp_path)
+
+
+def test_diff_compares_only_columns_both_files_have(tmp_path):
+    import doom_diff
+
+    old = {"x": {"variant": "x", "fails": "", "gg_functions": "1"}}  # a round-2 style file: no treesitter columns
+    new = {"x": {"variant": "x", "fails": "", "gg_functions": "1", "treesitter_functions": "9"}}
+    assert doom_diff.diff_rows(old, new)[0] == {}

@@ -36,7 +36,7 @@ Measured 2026-10-18 on two scheduled main runs (minutes, worst part / cap):
 |---|---|---|
 | ubuntu | 15 / 20 | none |
 | macOS | 17 / 22 | none |
-| windows (2 parts) | 22 / 25 | now 3 parts, cap 25 |
+| windows (2 parts) | 22 / 25 | owner: 3 parts, cap 25 (workflow edit, #5156) |
 
 Not yet surveyed (fixed caps in other workflows): cics-crucible 45, blocker-baseline 60, evidence-refresh 90,
 java-compile 40, ports-compile 40, the 30-min audits (tri-comparison, tree-sitter, call-graph, unicode-gauntlet).

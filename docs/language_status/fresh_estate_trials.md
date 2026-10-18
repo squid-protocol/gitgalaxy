@@ -15,7 +15,6 @@ first attempt has a verdict (and every program of a closed trial).
 
 - Public code may be in a model's training data; only private estates escape that.
 - Eligibility is declared up front, at trial start, so 'out of scope' cannot hide a failure.
-- A program is eligible when it writes a file or DISPLAYs: SYSOUT is a proved channel (#4056), so a DISPLAY-only batch program is no longer out of scope as "writes no file" (#3806). Preview on CardDemo: still 2 of 44 eligible, since the rest are CICS, IMS, Db2 or layout-less inputs.
 
 ![attempts to proof](fresh_estate_trials.svg)
 

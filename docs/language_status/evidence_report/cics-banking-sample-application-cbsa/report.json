@@ -2354,7 +2354,7 @@
   "record_status": {
    "carddemo-acctview": {
     "stale": [],
-    "status": "not-shown equal"
+    "status": "shown equal, unapproved"
    },
    "carddemo-adminmenu": {
     "stale": [],
@@ -2468,7 +2468,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "4c72683d8ffd742188e1b3fbcee693e62548cf69",
+   "sha": "21cbcb3f0ad0b2e8cc2269ebe21b0eafe6969f31",
    "translator": {
     "files": 128,
     "sha256": "9155812fd2290f369e1c7c9bbc0e2fb681322268dca6953b5a49b2126957ec9e"
@@ -2933,7 +2933,7 @@
          "option": "TRUNC"
         }
        ],
-       "oracle_image": "sha256:030aba371f66864376b9ba503aeb9ffe89c136d2f430e6b773a9a1517f2f9e62",
+       "oracle_image": "sha256:9f4b277696080342e269e7fa60eaa2e0fcb65fda16e305e42fd1622576891c6a",
        "oracle_matches_pin": true,
        "records_compared": 29,
        "records_equal": 29,
@@ -4566,7 +4566,7 @@
        "fault_runs": 0,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:030aba371f66864376b9ba503aeb9ffe89c136d2f430e6b773a9a1517f2f9e62",
+       "oracle_image": "sha256:9f4b277696080342e269e7fa60eaa2e0fcb65fda16e305e42fd1622576891c6a",
        "oracle_matches_pin": true,
        "records_compared": 20,
        "records_equal": 20,
@@ -4621,7 +4621,7 @@
       "fault_runs": 0,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:030aba371f66864376b9ba503aeb9ffe89c136d2f430e6b773a9a1517f2f9e62",
+      "oracle_image": "sha256:9f4b277696080342e269e7fa60eaa2e0fcb65fda16e305e42fd1622576891c6a",
       "oracle_matches_pin": true,
       "records_compared": 20,
       "records_equal": 20,
@@ -15151,7 +15151,7 @@
          "option": "TRUNC"
         }
        ],
-       "oracle_image": "sha256:030aba371f66864376b9ba503aeb9ffe89c136d2f430e6b773a9a1517f2f9e62",
+       "oracle_image": "sha256:9f4b277696080342e269e7fa60eaa2e0fcb65fda16e305e42fd1622576891c6a",
        "oracle_matches_pin": true,
        "records_compared": 29,
        "records_equal": 29,
@@ -15225,7 +15225,7 @@
         "option": "TRUNC"
        }
       ],
-      "oracle_image": "sha256:030aba371f66864376b9ba503aeb9ffe89c136d2f430e6b773a9a1517f2f9e62",
+      "oracle_image": "sha256:9f4b277696080342e269e7fa60eaa2e0fcb65fda16e305e42fd1622576891c6a",
       "oracle_matches_pin": true,
       "records_compared": 29,
       "records_equal": 29,
@@ -20460,8 +20460,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 4c72683d8ffd742188e1b3fbcee693e62548cf69",
-   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 4c72683d8ffd742188e1b3fbcee693e62548cf69",
+   "python tests/tools/cics_census.py survey --baseline --sha 21cbcb3f0ad0b2e8cc2269ebe21b0eafe6969f31",
+   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 21cbcb3f0ad0b2e8cc2269ebe21b0eafe6969f31",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-bnk1cac,cbsa-bnk1cca,cbsa-bnk1ccs,cbsa-bnk1cra,cbsa-bnk1dac,cbsa-bnk1dcs,cbsa-bnk1tfn,cbsa-bnk1uac,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-crecust,cbsa-custctrl,cbsa-dbcrfun,cbsa-delacc,cbsa-delcus,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacc-generated,cbsa-inqacccu,cbsa-inqcust,cbsa-updacc,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun  # Db2 cases (20) need the Db2 container",
    "python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc",
@@ -20478,20 +20478,20 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:030aba371f66864376b9ba503aeb9ffe89c136d2f430e6b773a9a1517f2f9e62"
+   "sha256:9f4b277696080342e269e7fa60eaa2e0fcb65fda16e305e42fd1622576891c6a"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "4c72683d8ffd742188e1b3fbcee693e62548cf69",
+   "sha": "21cbcb3f0ad0b2e8cc2269ebe21b0eafe6969f31",
    "translator": {
     "files": 128,
     "sha256": "9155812fd2290f369e1c7c9bbc0e2fb681322268dca6953b5a49b2126957ec9e"
    }
   },
-  "translator_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69",
+  "translator_commit": "21cbcb3f0ad0b2e8cc2269ebe21b0eafe6969f31",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

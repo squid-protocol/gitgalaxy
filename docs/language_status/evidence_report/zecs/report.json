@@ -1131,7 +1131,7 @@
   "record_status": {
    "carddemo-acctview": {
     "stale": [],
-    "status": "not-shown equal"
+    "status": "shown equal, unapproved"
    },
    "carddemo-adminmenu": {
     "stale": [],
@@ -1245,7 +1245,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "4c72683d8ffd742188e1b3fbcee693e62548cf69",
+   "sha": "21cbcb3f0ad0b2e8cc2269ebe21b0eafe6969f31",
    "translator": {
     "files": 128,
     "sha256": "9155812fd2290f369e1c7c9bbc0e2fb681322268dca6953b5a49b2126957ec9e"
@@ -4640,8 +4640,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 4c72683d8ffd742188e1b3fbcee693e62548cf69",
-   "python tests/tools/evidence_report.py zecs --baseline --sha 4c72683d8ffd742188e1b3fbcee693e62548cf69",
+   "python tests/tools/cics_census.py survey --baseline --sha 21cbcb3f0ad0b2e8cc2269ebe21b0eafe6969f31",
+   "python tests/tools/evidence_report.py zecs --baseline --sha 21cbcb3f0ad0b2e8cc2269ebe21b0eafe6969f31",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs003,zecs-zecsplt",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -4662,13 +4662,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "4c72683d8ffd742188e1b3fbcee693e62548cf69",
+   "sha": "21cbcb3f0ad0b2e8cc2269ebe21b0eafe6969f31",
    "translator": {
     "files": 128,
     "sha256": "9155812fd2290f369e1c7c9bbc0e2fb681322268dca6953b5a49b2126957ec9e"
    }
   },
-  "translator_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69",
+  "translator_commit": "21cbcb3f0ad0b2e8cc2269ebe21b0eafe6969f31",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

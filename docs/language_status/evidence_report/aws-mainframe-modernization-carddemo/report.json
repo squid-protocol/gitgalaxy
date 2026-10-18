@@ -1822,7 +1822,7 @@
   "record_status": {
    "carddemo-acctview": {
     "stale": [],
-    "status": "not-shown equal"
+    "status": "shown equal, unapproved"
    },
    "carddemo-adminmenu": {
     "stale": [],
@@ -1936,7 +1936,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "4c72683d8ffd742188e1b3fbcee693e62548cf69",
+   "sha": "21cbcb3f0ad0b2e8cc2269ebe21b0eafe6969f31",
    "translator": {
     "files": 128,
     "sha256": "9155812fd2290f369e1c7c9bbc0e2fb681322268dca6953b5a49b2126957ec9e"
@@ -17494,22 +17494,22 @@
        },
        "db2": false,
        "facade": {
-        "passed": 21,
+        "passed": 22,
         "runs": 22
        },
        "fault_runs": 6,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
+       "oracle_image": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
        "oracle_matches_pin": true,
        "records_compared": 53,
-       "records_equal": 52,
+       "records_equal": 53,
        "runs": 22,
        "scenarios": 22,
-       "scenarios_equal": 21,
+       "scenarios_equal": 22,
        "stale_inputs": [],
-       "status_at_build": "not-shown equal",
-       "verdict": "not equal"
+       "status_at_build": "shown equal, unapproved",
+       "verdict": "all equal"
       },
       "role": "program"
      },
@@ -17559,22 +17559,22 @@
       },
       "db2": false,
       "facade": {
-       "passed": 21,
+       "passed": 22,
        "runs": 22
       },
       "fault_runs": 6,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
+      "oracle_image": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
       "oracle_matches_pin": true,
       "records_compared": 53,
-      "records_equal": 52,
+      "records_equal": 53,
       "runs": 22,
       "scenarios": 22,
-      "scenarios_equal": 21,
+      "scenarios_equal": 22,
       "stale_inputs": [],
-      "status_at_build": "not-shown equal",
-      "verdict": "not equal"
+      "status_at_build": "shown equal, unapproved",
+      "verdict": "all equal"
      },
      "role": "program"
     }
@@ -21789,8 +21789,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 4c72683d8ffd742188e1b3fbcee693e62548cf69",
-   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 4c72683d8ffd742188e1b3fbcee693e62548cf69",
+   "python tests/tools/cics_census.py survey --baseline --sha 21cbcb3f0ad0b2e8cc2269ebe21b0eafe6969f31",
+   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 21cbcb3f0ad0b2e8cc2269ebe21b0eafe6969f31",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-billpay,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-coacct01,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaus2c,carddemo-cotrtlic,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcust,carddemo-readxref,carddemo-report,carddemo-signon,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-userdel,carddemo-userlist,carddemo-userupd  # Db2 cases (5) need the Db2 container",
    "python tests/tools/evidence.py prove carddemo-acctview carddemo-adminmenu carddemo-billpay carddemo-cardlist carddemo-cardview carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd",
@@ -21815,13 +21815,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "4c72683d8ffd742188e1b3fbcee693e62548cf69",
+   "sha": "21cbcb3f0ad0b2e8cc2269ebe21b0eafe6969f31",
    "translator": {
     "files": 128,
     "sha256": "9155812fd2290f369e1c7c9bbc0e2fb681322268dca6953b5a49b2126957ec9e"
    }
   },
-  "translator_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69",
+  "translator_commit": "21cbcb3f0ad0b2e8cc2269ebe21b0eafe6969f31",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

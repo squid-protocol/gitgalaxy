@@ -471,6 +471,59 @@
     }
    },
    "why": "#4049 (proposed for the mutation survivors): non-blank carried commarea fields reach the XCTL commarea"
+  },
+  {
+   "name": "pf3-commarea-without-to-program",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "why": "#4049 slice 2 (mutation survivors): PF3 with a COMMAREA that never names a to-program: the unset field takes the return-to-signon default"
+  },
+  {
+   "name": "carried-account-and-card-fields",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CUST-FNAME": "Ada",
+    "CDEMO-CUST-MNAME": "Byron",
+    "CDEMO-CUST-ID": 7,
+    "CDEMO-ACCT-ID": 10000000007,
+    "CDEMO-CARD-NUM": 4111111111111111,
+    "CDEMO-LAST-MAP": "COADM1A",
+    "CDEMO-LAST-MAPSET": "COADM01"
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "1"
+    }
+   },
+   "why": "#4049 slice 2 (mutation survivors): every COMMAREA field the program copies is non-blank, so a skipped or inverted copy shows in the XCTL COMMAREA"
+  },
+  {
+   "name": "first-entry-carried-account-and-card-fields",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-CUST-MNAME": "Byron",
+    "CDEMO-ACCT-ID": 10000000007,
+    "CDEMO-CARD-NUM": 4111111111111111,
+    "CDEMO-LAST-MAP": "COADM1A",
+    "CDEMO-LAST-MAPSET": "COADM01"
+   },
+   "why": "#4049 slice 2 (mutation survivors): first entry (context 0) with the account, card and last-map fields set: the menu is sent and the COMMAREA returned"
   }
  ],
  "notes": "CardDemo's admin menu (transaction CA00, program COADM01C): it lists the six options of COADM02Y and XCTLs to the chosen program; an option outside 1-6 or zero is refused (OPTION is a NUM field, which a 3270 cannot key letters into, so no scenario types a non-numeric option, #5116). Options 5 and 6 (COTRTLIC, COTRTUPC) belong to CardDemo's optional DB2 module, which the base CSD (app/csd/CARDDEMO.CSD, named by the case) does not define, so their XCTL raises PGMIDERR and the program's HANDLE CONDITION label answers 'This option is not installed ...'. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

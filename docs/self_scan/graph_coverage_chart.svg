@@ -458,7 +458,7 @@
 <text class="n" x="324" y="767">n=859 imports</text>
 <text class="n" x="324" y="779">repos 1 · files 460</text>
 </g>
-<g><title>typescript callee names: precision 99.6% of 6,202, recall 97.2% of 6,356 (raw 99.6% / 97.2%; 12 shapes without a verdict)</title>
+<g><title>typescript callee names: precision 99.6% of 6,202, recall 97.2% of 6,356 (raw 99.6% / 97.2%; 17 shapes without a verdict)</title>
 <text class="pr" x="426" y="766.5">Precision</text>
 <rect class="track" x="472" y="759" width="110" height="8" rx="2"/>
 <rect x="472" y="759" width="109.6" height="8" rx="2" fill="#4a3aa7"/>

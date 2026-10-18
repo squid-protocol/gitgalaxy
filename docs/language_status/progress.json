@@ -1,5 +1,5 @@
 {
- "commit": "5143cc12c",
+ "commit": "bd8470896",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -111,12 +111,12 @@
    }
   },
   "mutation": {
-   "adjusted_kill_pct": 80.8,
-   "adjusted_total": 1796,
-   "killed": 1451,
-   "ports": 35,
-   "raw_kill_pct": 67.0,
-   "raw_total": 2166
+   "adjusted_kill_pct": 81.6,
+   "adjusted_total": 2296,
+   "killed": 1873,
+   "ports": 42,
+   "raw_kill_pct": 67.2,
+   "raw_total": 2788
   },
   "translator": {
    "of": 129,
@@ -157,22 +157,22 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-18T01:00:50Z",
+  "as_of": "2026-10-18T02:21:03Z",
   "core": {
    "closed": 122,
-   "open": 24,
-   "total": 146
+   "open": 25,
+   "total": 147
   },
   "core_last_window": {
    "closed": 33,
-   "net_closed": 11,
-   "opened": 22
+   "net_closed": 10,
+   "opened": 23
   },
   "core_milestone": {
    "closed": 78,
    "number": 28,
-   "open": 13,
-   "total": 91
+   "open": 14,
+   "total": 92
   },
   "epics": {
    "4890": "open",
@@ -181,7 +181,7 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "15 days",
+  "eta": "18 days",
   "frontier": {
    "closed": 100,
    "found_last_window": 21,
@@ -196,8 +196,8 @@
   },
   "infra": {
    "closed": 179,
-   "open": 45,
-   "total": 224
+   "open": 47,
+   "total": 226
   },
   "measured": true,
   "milestones": [
@@ -379,9 +379,9 @@
    {
     "closed": 239,
     "number": 28,
-    "open": 14,
+    "open": 15,
     "title": "Training Montage \ud83c\udfcb\ufe0f \u2014 Prepping to one-shot our 4th CICS to Java translation attempt",
-    "total": 253
+    "total": 254
    },
    {
     "closed": 0,
@@ -406,7 +406,7 @@
   "title_counts": {
    "cics": {
     "closed": 79,
-    "total": 98
+    "total": 99
    },
    "cobol": {
     "closed": 124,

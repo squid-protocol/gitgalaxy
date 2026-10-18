@@ -356,10 +356,7 @@ DEFINITION: dict[str, Any] = {
             # This caps the permutation tree instantly.
             r"(?:[ \t\n]*(?![ \t]*#):[^{;]{0,2000}|(?:[ \t\n]+(?![ \t]*#)[" + ID_START + r"][^(){};]{0,100};){1,20})?"
             # 10. THE IGNITION (The opening brace confirming it is a definition, not a declaration)
-            r"[ \t\n]*\{"
-            + "|"
-            + C_MACRO_FUNC_START_SOURCE
-            + ")",
+            r"[ \t\n]*\{" + "|" + C_MACRO_FUNC_START_SOURCE + ")",
             re.M,
         ),
         # 5. class_start (Object / Entity Declarations)

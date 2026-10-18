@@ -196,9 +196,7 @@ DEFINITION: dict[str, Any] = {
             # [IRON WALL FIX]: Forces instant failure if it encounters BEGIN or control flow.
             r"(?:\s+(?!(?:BEGIN|if|for|while|switch|return)\b)[" + ID_START + r"][^;{]{0,150};){0,15}"
             # 9. The Ignition (Includes the MS-DOS 'BEGIN' macro)
-            r"\s*(?:\{|BEGIN\b)"
-            + "|"
-            + C_MACRO_FUNC_START_SOURCE,
+            r"\s*(?:\{|BEGIN\b)" + "|" + C_MACRO_FUNC_START_SOURCE,
             re.M,
         ),
         # 5. class_start (Object / Entity Declarations)

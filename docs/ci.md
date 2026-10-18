@@ -217,3 +217,4 @@ PR CI is limited by queueing (a pool of about 20 concurrent jobs), so every job 
 | tests / docs / `.claude` only | 7 (docs-only: none of the path-ignored ones) | 1 | Muninn about 7.6 min, CodeQL about 4.9 min, 2 golden legs about 7 min, 2 pre-gate runners |
 
 The critical path (time-to-green) is unchanged on an engine PR: it is `full-suite` and `ground-truth`, set by #5133 / #5151. Runner-minutes are from one recent run of each workflow, not a controlled measurement. The nightly durations cache is still recorded under `-n auto` contention (see #5162 above); a wall-calibrated weight is not done.
+- **Network fetches in a workflow step** (apt, npm, `docker pull`, the corpus clone, hash-pinned `pip install`) go through `tests/tools/ci_retry.sh 4 10 --` so a hiccup is retried and a final failure prints the `INFRASTRUCTURE` marker the shepherd reruns (#5048). `test_ci_retry.py` pins the wrapped sites and caps the workflows still unwrapped.

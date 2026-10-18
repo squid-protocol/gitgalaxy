@@ -302,6 +302,18 @@ def test_the_inqacccu_det_port_holds_on_generated_db2_rows(tmp_path):
     assert sql and all(q["statements"] and q["equal"] == q["statements"] for q in sql)
 
 
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_dbcrfun_det_port_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's DBCRFUN (CICS, SELECT + UPDATE + PROCTRAN INSERT) on 30 generated ACCOUNT rows: statements answered alike
+    on both sides (+0 and +100), ACCOUNT and PROCTRAN alike after every task."""
+    report = _det_port_generated("cbsa-dbcrfun-generated", tmp_path)
+    assert report["proven"] is True and report["db2_generated"] == {"IBMUSER.ACCOUNT": 30}
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    assert len(sql) == 40 and all(q["statements"] and q["equal"] == q["statements"] for q in sql)
+    assert {x["sqlcode"] for q in sql for x in q["cobol"]} >= {0, 100}
+    assert any(x["verb"] == "INSERT" for q in sql for x in q["cobol"])
+
+
 _BATCH_CBL = """\
        FD TR-RECORD RECORDING MODE F.
        01 WS-INPUT-VARS.

@@ -299,7 +299,10 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     # #4047 then scored seven more CardDemo CICS ports (billpay, cardlist, cardview, report, tranadd, tranlist, userupd):
     # 12 more flagged survivors, all unreachable: the facade's byte-carrying handleLink overload, lastLinkBytes() and the
     # program-name literal in region.run / region.linked, which no proof calls.
-    assert len(flagged) == 18 and verdicts.count("unreachable") == 15 and verdicts.count("equivalent") == 3
+    # #4049 re-recorded the four menu-family ports (adminmenu, useradd, userdel, tranview; seed 0, 100 mutants each) after
+    # #5387's scenarios and the port regeneration (mutants moved, so their stale-record skip ended): 19 more flagged
+    # survivors, all unreachable: the facade's lastLinkBytes() and the program-name literal in region.run / region.linked.
+    assert len(flagged) == 37 and verdicts.count("unreachable") == 34 and verdicts.count("equivalent") == 3
     assert not {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C", "CSUTLDTC"}
 
 

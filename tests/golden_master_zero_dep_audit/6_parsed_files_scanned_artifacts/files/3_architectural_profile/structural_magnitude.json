@@ -3268,7 +3268,8 @@
       "rust/tokio/maybe_done.rs": 39.1,
       "rust/tokio/tests.rs": 172.8,
       "rust/tokio/tokio_mpsc_bounded.rs": 232.64,
-      "rust/tokio/tokio_named_pipe.rs": 363.94
+      "rust/tokio/tokio_named_pipe.rs": 363.94,
+      "rust/tokio/tokio_udp.rs": 353.12
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": 28.76
@@ -3397,6 +3398,7 @@
       "shell/freebsd-src/dd2_test.sh": 65.58,
       "shell/freebsd-src/dtest.sh": 124.56,
       "shell/freebsd-src/echo_test.sh": 8.04,
+      "shell/freebsd-src/ed_test.sh": 135.22,
       "shell/freebsd-src/format_string_test.sh": 42.94,
       "shell/freebsd-src/functional_test.sh": 22.42,
       "shell/freebsd-src/hostname_test.sh": 19.74,
@@ -3434,6 +3436,7 @@
       "shell/haiku/default_deskbar_items.sh": 3.66,
       "shell/haiku/gen-bepo.sh": 4.64,
       "shell/haiku/generate_CountryFlags.sh": 20.28,
+      "shell/haiku/generate_ids_from_drivers.sh": 86.18,
       "shell/haiku/install-wifi-firmwares.sh": 99.0,
       "shell/haiku/install.sh": 21.88,
       "shell/haiku/leak_analyser.sh": 77.84,
@@ -3859,7 +3862,8 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 15.94,
       "typescript/assemblyscript/ast.ts": 1030.82,
-      "typescript/assemblyscript/compiler.ts": 8183.14,
+      "typescript/assemblyscript/builtins.ts": 6975.3,
+      "typescript/assemblyscript/compiler.ts": 8186.14,
       "typescript/assemblyscript/package.json": 2.3,
       "typescript/assemblyscript/parser.ts": 3317.08
     },
@@ -3904,7 +3908,10 @@
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 1.12,
       "typescript/typescript_compiler/binder.ts": 2955.32,
-      "typescript/typescript_compiler/package.json": 2.36
+      "typescript/typescript_compiler/checker.ts": 55485.54,
+      "typescript/typescript_compiler/emitter.ts": 5144.58,
+      "typescript/typescript_compiler/package.json": 2.36,
+      "typescript/typescript_compiler/parser.ts": 7711.44
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 1.0,
@@ -4091,6 +4098,7 @@
       "zig/zls/analysis.zig": 2970.68,
       "zig/zls/ast.zig": 856.42,
       "zig/zls/config_gen.zig": 531.28,
+      "zig/zls/langref.html.in": 194.78,
       "zig/zls/print_ast.zig": 215.04
     }
   },

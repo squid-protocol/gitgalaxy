@@ -3268,7 +3268,8 @@
       "rust/tokio/maybe_done.rs": "Generic / Templated Code Files",
       "rust/tokio/tests.rs": "Large Core Modules (3)",
       "rust/tokio/tokio_mpsc_bounded.rs": "Generic / Templated Code Files",
-      "rust/tokio/tokio_named_pipe.rs": "Generic / Templated Code Files"
+      "rust/tokio/tokio_named_pipe.rs": "Generic / Templated Code Files",
+      "rust/tokio/tokio_udp.rs": "Large Core Modules (3)"
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": "Encapsulated Accessors Files"
@@ -3397,6 +3398,7 @@
       "shell/freebsd-src/dd2_test.sh": "Large Core Modules",
       "shell/freebsd-src/dtest.sh": "Large Core Modules",
       "shell/freebsd-src/echo_test.sh": "Large Core Modules",
+      "shell/freebsd-src/ed_test.sh": "Large Core Modules",
       "shell/freebsd-src/format_string_test.sh": "Many-Argument Workhorses Files",
       "shell/freebsd-src/functional_test.sh": "Compute Cores Files",
       "shell/freebsd-src/hostname_test.sh": "Large Core Modules",
@@ -3434,6 +3436,7 @@
       "shell/haiku/default_deskbar_items.sh": "Declarative / Non-Code",
       "shell/haiku/gen-bepo.sh": "Data / Markup / Trivial",
       "shell/haiku/generate_CountryFlags.sh": "Declarative / Non-Code",
+      "shell/haiku/generate_ids_from_drivers.sh": "Parameter Forwarders Files",
       "shell/haiku/install-wifi-firmwares.sh": "Large Core Modules",
       "shell/haiku/install.sh": "Declarative / Non-Code",
       "shell/haiku/leak_analyser.sh": "Compute Cores Files",
@@ -3859,6 +3862,7 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": "Data / Markup / Trivial",
       "typescript/assemblyscript/ast.ts": "Large Core Modules (3)",
+      "typescript/assemblyscript/builtins.ts": "Parameter Forwarders Files",
       "typescript/assemblyscript/compiler.ts": "Large Core Modules (3)",
       "typescript/assemblyscript/package.json": "Data / Markup / Trivial",
       "typescript/assemblyscript/parser.ts": "Compute Cores Files"
@@ -3904,7 +3908,10 @@
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": "Data / Markup / Trivial",
       "typescript/typescript_compiler/binder.ts": "Large Core Modules (3)",
-      "typescript/typescript_compiler/package.json": "Data / Markup / Trivial"
+      "typescript/typescript_compiler/checker.ts": "Large Core Modules (3)",
+      "typescript/typescript_compiler/emitter.ts": "State Mutators Files",
+      "typescript/typescript_compiler/package.json": "Data / Markup / Trivial",
+      "typescript/typescript_compiler/parser.ts": "Large Core Modules (3)"
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": "Data / Markup / Trivial",
@@ -4091,6 +4098,7 @@
       "zig/zls/analysis.zig": "Large Core Modules (2)",
       "zig/zls/ast.zig": "Large Core Modules (3)",
       "zig/zls/config_gen.zig": "Large Core Modules (2)",
+      "zig/zls/langref.html.in": "Data / Markup / Trivial",
       "zig/zls/print_ast.zig": "Large Core Modules (2)"
     }
   },

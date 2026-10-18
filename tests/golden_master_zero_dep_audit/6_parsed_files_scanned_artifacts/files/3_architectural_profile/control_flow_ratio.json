@@ -4076,6 +4076,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": "15.3%",
       "zig/zig/InternPool.zig": "8.4%",
+      "zig/zig/Sema.zig": "15.8%",
       "zig/zig/Type.zig": "16.0%",
       "zig/zig/Zcu.zig": "13.1%",
       "zig/zig/main.zig": "26.8%"

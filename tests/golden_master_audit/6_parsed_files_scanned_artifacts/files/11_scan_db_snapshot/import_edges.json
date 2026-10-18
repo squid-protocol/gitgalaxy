@@ -4622,6 +4622,7 @@
       "zig/zig/Compilation.zig": [
         "import:shell/serenity/builtin.sh",
         "import:zig/zig/InternPool.zig",
+        "import:zig/zig/Sema.zig",
         "import:zig/zig/Type.zig",
         "import:zig/zig/Zcu.zig",
         "import:zig/zig/main.zig"
@@ -4630,15 +4631,23 @@
         "import:shell/serenity/builtin.sh",
         "import:zig/zig/Zcu.zig"
       ],
+      "zig/zig/Sema.zig": [
+        "import:zig/zig/Compilation.zig",
+        "import:zig/zig/InternPool.zig",
+        "import:zig/zig/Type.zig",
+        "import:zig/zig/Zcu.zig"
+      ],
       "zig/zig/Type.zig": [
         "import:shell/serenity/builtin.sh",
         "import:zig/zig/InternPool.zig",
+        "import:zig/zig/Sema.zig",
         "import:zig/zig/Zcu.zig"
       ],
       "zig/zig/Zcu.zig": [
         "import:shell/serenity/builtin.sh",
         "import:zig/zig/Compilation.zig",
         "import:zig/zig/InternPool.zig",
+        "import:zig/zig/Sema.zig",
         "import:zig/zig/Type.zig"
       ],
       "zig/zig/main.zig": [

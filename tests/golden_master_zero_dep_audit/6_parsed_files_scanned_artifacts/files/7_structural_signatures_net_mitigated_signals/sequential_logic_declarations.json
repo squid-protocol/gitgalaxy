@@ -4076,6 +4076,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": 793,
       "zig/zig/InternPool.zig": 1154,
+      "zig/zig/Sema.zig": 4630,
       "zig/zig/Type.zig": 719,
       "zig/zig/Zcu.zig": 509,
       "zig/zig/main.zig": 694

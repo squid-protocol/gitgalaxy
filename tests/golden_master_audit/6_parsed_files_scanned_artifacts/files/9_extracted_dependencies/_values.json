@@ -17255,6 +17255,27 @@
         "builtin",
         "std"
       ],
+      "zig/zig/Sema.zig": [
+        "Air.zig",
+        "Compilation.zig",
+        "InternPool.zig",
+        "Package.zig",
+        "RangeSet.zig",
+        "Sema/LowerZon.zig",
+        "Sema/arith.zig",
+        "Sema/bitcast.zig",
+        "Sema/comptime_ptr_access.zig",
+        "Type.zig",
+        "Value.zig",
+        "Zcu.zig",
+        "build_options",
+        "crash_report.zig",
+        "mutable_value.zig",
+        "print_value.zig",
+        "std",
+        "target.zig",
+        "tracy.zig"
+      ],
       "zig/zig/Type.zig": [
         "InternPool.zig",
         "Sema.zig",

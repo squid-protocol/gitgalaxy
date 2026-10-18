@@ -12130,6 +12130,16 @@
         "State Mutators": 23,
         "Type Conversions": 82
       },
+      "zig/zig/Sema.zig": {
+        "Compute Cores": 15,
+        "Defensive Guards": 345,
+        "Generic / Templated Code": 15,
+        "I/O & Config Routines": 2,
+        "Many-Argument Workhorses": 246,
+        "Parameter Forwarders": 42,
+        "State Mutators": 23,
+        "Type Conversions": 11
+      },
       "zig/zig/Type.zig": {
         "Compute Cores": 31,
         "Defensive Guards": 74,

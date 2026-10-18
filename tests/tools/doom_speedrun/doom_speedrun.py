@@ -3,6 +3,7 @@
 
     python tests/tools/doom_speedrun/doom_speedrun.py run [--only a,b] [--oracle] [--legacy-vendor] [--work DIR]
     python tests/tools/doom_speedrun/doom_speedrun.py fetch|scan|score|report  (the same steps, one at a time)
+    python tests/tools/doom_speedrun/doom_speedrun.py diff BEFORE AFTER [--fail-on-regression]  (CSV, dir, SHA or round2)
 
 Every step is resumable: a port already cloned at its SHA, or already scanned at this engine SHA, is skipped.
 Clones go to ``<work>/repos`` (never inside this repo), scans to ``<work>/scans/<engine-sha>/<port>``, and the
@@ -25,6 +26,7 @@ REPO_ROOT = HERE.parents[2]
 sys.path.insert(0, str(REPO_ROOT))  # before any gitgalaxy import: a shared venv may editable-install another checkout
 sys.path.insert(0, str(HERE))
 
+import doom_diff  # noqa: E402
 import doom_scorer  # noqa: E402
 
 MANIFEST = HERE / "manifest.csv"
@@ -123,7 +125,13 @@ def write_results(rows, details, dest, sha, oracle):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("step", choices=["run", "fetch", "scan", "score", "report"])
+    ap.add_argument("step", choices=["run", "fetch", "scan", "score", "report", "diff"])
+    ap.add_argument(
+        "refs", nargs="*", help="diff only: BEFORE AFTER (a clean_check.csv, results dir, engine SHA or round2)"
+    )
+    ap.add_argument(
+        "--fail-on-regression", action="store_true", help="diff only: exit 1 if a port gained a failed check"
+    )
     ap.add_argument("--only", help="comma-separated port names (default: the whole manifest)")
     ap.add_argument(
         "--work", type=Path, default=DEFAULT_WORK, help=f"scratch dir outside the repo (default {DEFAULT_WORK})"
@@ -137,6 +145,10 @@ def main(argv=None):
     work = args.work.resolve()
     if work == REPO_ROOT or REPO_ROOT in work.parents:
         raise SystemExit("doom_speedrun: --work must be outside the repo tree (third-party clones would poison scans)")
+    if args.step == "diff":
+        if len(args.refs) != 2:
+            raise SystemExit("doom_speedrun: diff takes exactly two refs: BEFORE AFTER")
+        return doom_diff.run(*args.refs, work, args.fail_on_regression)
     rows = read_manifest(args.manifest, args.only.split(",") if args.only else None)
     sha = engine_sha()
     repos, scans, results = work / "repos", work / "scans" / sha, work / "results" / sha

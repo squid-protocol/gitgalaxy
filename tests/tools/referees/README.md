@@ -93,6 +93,14 @@ python tests/tools/referees/score.py --facts $FACTS --md scorecard.md --json sco
     --disagreements disagreements.json
 ```
 
+With two or more referees the scorecard also has an "Engine vs the referee majority" table (#4438): per
+channel, the files with a majority, the majority scored against the key, the engine's agreement with the
+majority, and the engine-only / majority-only values split by whether the key has them. A value is in the
+majority when MORE than half of the voting referees report it (2 of 3; with 2 voters both). A voter is a
+referee that produces the channel and parsed the file; a file with fewer than 2 voters is skipped. The
+same pairs are sampled under `referee-majority` in `disagreements.json`. Scorecards that name other tools
+are not published until the owner's review clears it (see #4438).
+
 `disagreements.json` groups every engine / referee difference by pattern
 (`engine-only, in key`, `<referee>-only, not in key`, ...) with a seeded sample of each, for
 adjudication against the source: engine wrong, referee wrong, definitional, or key wrong.

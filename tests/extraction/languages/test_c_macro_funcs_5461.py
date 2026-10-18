@@ -42,6 +42,28 @@ def test_macro_defined_function_is_named_by_its_identifier_argument(lang, src, e
 
 @pytest.mark.parametrize("lang", LANGS)
 @pytest.mark.parametrize(
+    ("src", "expected"),
+    [
+        # The identifier is the FIRST argument (the second is a type, a value or a class).
+        ("DEFINE_PROPERTY(accuracy, I, Actor)\n{\n}\n", ["accuracy"]),
+        ("DEFINE_PROPERTY(skip_super, 0, Actor) {\n}\n", ["skip_super"]),
+        ("DEFINE_CLASS_PROPERTY(ammogive, I, Weapon)\n{\n}\n", ["ammogive"]),
+        ("DEFINE_INFO_PROPERTY(game, S, Actor) {\n}\n", ["game"]),
+        ("DEFINE_MAP_OPTION(aircontrol, true)\n{\n}\n", ["aircontrol"]),
+        ("DEFINE_MAP_OPTION(brightfog, false) { }\n", ["brightfog"]),
+        # A prefix form is `prefix, name, Type, Class`: the general rule (the second) is already right.
+        ("DEFINE_CLASS_PROPERTY_PREFIX(armor, maxbonus, I, BasicArmorBonus)\n{\n}\n", ["maxbonus"]),
+        # Neighbours of the first-argument names keep the general rule.
+        ("DEFINE_ACTION_FUNCTION_NATIVE(_CVar, SaveConfig, SaveConfig) {\n}\n", ["SaveConfig"]),
+        ("DEFINE_PROPERTYKEY(SDL_KEY, 0X3F8A, 0X7C5, 10);\n", []),
+    ],
+)
+def test_macros_that_name_their_first_argument(lang, src, expected):
+    assert _names(lang, src) == expected
+
+
+@pytest.mark.parametrize("lang", LANGS)
+@pytest.mark.parametrize(
     "src",
     [
         "IF(x) {\n}\n",

@@ -446,19 +446,19 @@ def test_a_p_scaled_display_initialize_and_string_are_refused_by_name(pic, data,
 @pytest.mark.parametrize("data", [b"12", b"1A"])
 @pytest.mark.parametrize("target", ["X", "XB"])
 def test_a_noninteger_p_scaled_item_moved_to_alphanumeric_is_refused_by_name(pic, data, target, tmp_path):
-    """Enterprise COBOL 6.4 Language Reference Table 51: a numeric noninteger sending item to an alphanumeric or
+    """Enterprise COBOL 6.4 Language Reference Table 47: a numeric noninteger sending item to an alphanumeric or
     alphanumeric-edited receiver is an invalid MOVE (a left-P item has only decimal places); cobc warns and moves."""
     pytest.importorskip("tree_sitter_language_pack")
     src = _pprogram(pic, f"MOVE S TO {target}", data).replace(
         "       01 N PIC 9(4).", "       01 N PIC 9(4).\n       01 XB PIC XXBXX."
     )
     holes = _holes(src, tmp_path)
-    assert len(holes) == 1 and "a noninteger numeric item" in holes[0] and "Table 51" in holes[0], holes
+    assert len(holes) == 1 and "a noninteger numeric item" in holes[0] and "Table 47" in holes[0], holes
 
 
 @pytest.mark.parametrize("op", ["MOVE V TO X", "STRING V DELIMITED BY SIZE INTO X"])
 def test_a_noninteger_numeric_to_alphanumeric_or_string_is_refused_by_name_without_p_too(op, tmp_path):
-    """The same two rules without a P (Table 51; STRING needs an integer): `PIC 9V99` is no sender of either."""
+    """The same two rules without a P (Table 47; STRING needs an integer): `PIC 9V99` is no sender of either."""
     pytest.importorskip("tree_sitter_language_pack")
     src = _pprogram("PIC 99PP", op, b"12").replace(
         "01 S REDEFINES R PIC 99PP.", "01 S REDEFINES R PIC 99PP.\n       01 V PIC 9V99."
@@ -571,7 +571,7 @@ def _sprogram(decls: str, op: str, data: bytes = b"12") -> str:
 @pytest.mark.parametrize("receiver", ["PIC N(4)", "PIC G(4)", "PIC X(4) USAGE NATIONAL", "PIC N(4) USAGE NATIONAL",
                                       "PIC X(4) USAGE DISPLAY-1", "PIC N(2)BN(2)"])  # fmt: skip
 def test_a_move_to_a_national_receiver_is_refused_by_name_whatever_the_sender(pic, receiver, tmp_path):
-    """Table 51 makes a noninteger numeric to NATIONAL invalid; the translator refuses every national item at the
+    """Table 47 makes a noninteger numeric to NATIONAL invalid; the translator refuses every national item at the
     source (#4462 / #4664), so no sender shape reaches a national receiver (the integer ones included)."""
     pytest.importorskip("tree_sitter_language_pack")
     from gitgalaxy.tools.cobol_to_java.det import program as P
@@ -616,12 +616,13 @@ def test_an_unstring_numeric_operand_that_ibm_rejects_is_refused_by_name(decls, 
 @pytest.mark.parametrize(("decls", "op", "ibm"), [
     ("01 V PIC 99PP.", "UNSTRING R DELIMITED BY ',' INTO V", True),
     ("01 V PIC 9V99.", "UNSTRING R DELIMITED BY ',' INTO V", False),
-    ("01 V PIC 9(4).", "UNSTRING V DELIMITED BY ',' INTO X", False),
+    ("01 V PIC 9(4).", "UNSTRING V DELIMITED BY ',' INTO X", True),
     ("01 V PIC 9V9.", "UNSTRING R DELIMITED BY ',' INTO X WITH POINTER V", True),
 ])  # fmt: skip
 def test_an_unstring_refusal_names_whose_rule_it_is(decls, op, ibm, tmp_path):
-    """A P in an INTO item and a non-integer COUNT / POINTER / TALLYING item are IBM's rules; a decimal INTO item and
-    a numeric sender are the port's conservative choice and must not be called an IBM compile error."""
+    """A P in an INTO item, a non-integer COUNT / POINTER / TALLYING item and a numeric sender are IBM's rules (the
+    Language Reference, UNSTRING, p. 465-466); a decimal INTO item is the port's conservative choice and must not be
+    called an IBM compile error."""
     pytest.importorskip("tree_sitter_language_pack")
     (hole,) = _holes(_sprogram(decls, op), tmp_path)
     assert ("compile error in Enterprise COBOL" in hole) == ibm, hole

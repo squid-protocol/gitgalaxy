@@ -24,7 +24,7 @@ from gitgalaxy.core import estate_options as eo  # noqa: E402
 
 PLAIN = "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P.\n"
 REFUSED = {"ZONEDATA(NOPFD)": "ZONEDATA", "ZONEDATA(MIG)": "ZONEDATA", "INVDATA": "INVDATA", "INVD(FNC,CS)": "INVDATA",
-           "NSYMBOL(DBCS)": "NSYMBOL", "DISPSIGN(SEP)": "DISPSIGN", "DS(S)": "DISPSIGN", "FLOAT(NATIVE)": "FLOAT"}  # fmt: skip
+           "NSYMBOL(DBCS)": "NSYMBOL", "DISPSIGN(SEP)": "DISPSIGN", "DS(S)": "DISPSIGN", "FLOAT(NATIVE)": "FLOAT", "NOZWB": "NOZWB"}  # fmt: skip
 DECLARED = {
     "SSRANGE": "NOSSRANGE",
     "SSR(ZLEN,ABD)": "NOSSRANGE",
@@ -33,7 +33,7 @@ DECLARED = {
 }
 HONOURED = ["ZONEDATA(PFD)", "NOINVDATA", "CODEPAGE(1140)", "CP(37)", "NSYMBOL(NATIONAL)", "NS(NAT)", "DISPSIGN(COMPAT)",
             "FLOAT(HEX)", "AFP(VOLATILE)", "AFP(NOVOLATILE)", "NOSSRANGE", "NOSSR", "NONUMCHECK", "NONC", "INITCHECK",
-            "IC(STRICT)", "NOINITCHECK", "OPTIMIZE(0)", "OPT(2)", "OPTIMIZE(FULL)", "OPT"]  # fmt: skip
+            "IC(STRICT)", "NOINITCHECK", "ZWB", "OPTIMIZE(0)", "OPT(2)", "OPTIMIZE(FULL)", "OPT"]  # fmt: skip
 
 
 def _case(*options: str, **extra):
@@ -120,4 +120,12 @@ def test_the_register_table_lists_every_option():
     text = (ROOT / "docs/language_status/register/C5.md").read_text(encoding="utf-8")
     table = text.split("### Compile options: the table (#4706)")[1]
     rows = {m.group(1) for m in re.finditer(r"^\| `(?:NO)?([A-Z]+)", table, re.M)}
-    assert set(co.OPTION_TABLE) | set(co.COBC_DECIDED_OPTIONS) <= rows
+    assert {o.removeprefix("NO") for o in co.OPTION_TABLE} | set(co.COBC_DECIDED_OPTIONS) <= rows
+
+
+def test_a_later_zwb_cancels_nozwb_and_the_reverse_refuses():
+    src = "       CBL ZWB\n" + PLAIN
+    common.compile_options(_case("NOZWB"), src)  # the card cancels the PARM
+    assert common.option_differences(_case("NOZWB"), src, None) == []
+    with pytest.raises(common.UnsupportedOption, match="NOZWB"):
+        common.compile_options(_case("ZWB"), "       PROCESS NOZWB\n" + PLAIN)

@@ -213,6 +213,10 @@ OPTION_TABLE: dict[str, dict[str, Any]] = {
                            "computes as NONUMCHECK"},
     "INITCHECK": {"kind": "flag", "default": "NOINITCHECK", "honoured": None, "policy": None,
                   "reason": "INITCHECK only warns at compile time about uninitialised items: no run result changes"},
+    "NOZWB": {"kind": "flag", "default": "ZWB", "honoured": (), "policy": "refuse",
+              "reason": "NOZWB moves the signed value of a zoned DISPLAY operand into the temporary item of a numeric-vs-"
+                        "nonnumeric comparison, where ZWB (IBM's default) moves the unsigned value (Language Reference, "
+                        "General relation conditions; Programming Guide, ZWB); the det port and the oracle compare unsigned"},
     "OPTIMIZE": {"kind": "value", "default": "0", "honoured": None, "policy": None,
                  "reason": "OPTIMIZE(0|1|2|STD|FULL) changes run time and storage, not a defined result"},
 }  # fmt: skip

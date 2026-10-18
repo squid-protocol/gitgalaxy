@@ -60,9 +60,18 @@ Both workflows check out `main` only and never run pull-request code. They use t
 
 To create or refresh the label set (idempotent), run the reconcile workflow by hand with `ensure_labels: true`.
 
+## Learned flakes
+
+A check that `flake_history.py` learned is flaky (passed on a rerun at least 3 times, 80% of its reruns, last 14 days)
+gets one automatic rerun for its first failure instead of going to a fixer as `real`. `shepherd_gh.py reconcile --flake-cache FILE`
+(or `$SHEPHERD_FLAKE_CACHE`) reads `flake_history.json`; it never scans. No cache means no learned flakes, never a wait.
+Keeping that file across workflow runs (Actions cache restore, `flake_history.py --refresh-only` when it is over 6 hours
+old, save) is a `shepherd-reconcile.yml` change still to be made by the owner (#5398).
+
 ## Fallback
 
-The local shepherd still works from a maintainer's checkout:
+The box shepherd (`tests/tools/box/ci_shepherd.py`) is retired as the live shepherd (#5398) but still works from a
+maintainer's checkout:
 `python tests/tools/box/ci_shepherd.py add N` (see its docstring). Use it if the workflows are down.
 
 ## Changing the shepherd or label workflows

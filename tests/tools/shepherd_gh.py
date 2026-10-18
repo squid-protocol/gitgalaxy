@@ -37,6 +37,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -49,6 +50,7 @@ from urllib.parse import quote
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import ci_digest  # noqa: E402
+import flake_history  # noqa: E402
 import pr_check  # noqa: E402
 
 REPO_SLUG = pr_check.REPO_SLUG
@@ -86,12 +88,24 @@ LABELS: dict[str, tuple[str, str]] = {
     REAPPROVE: ("e99695", f"Bot: new commits dropped shepherd:merge; re-add it to merge this head. Guide: {DOCS}"),
 }
 
+FLAKE_CACHE_ENV = "SHEPHERD_FLAKE_CACHE"  # where the workflow restores flake_history.json (#5398)
+
 Api = Callable[[str], Any]
 Run = Callable[[list[str]], subprocess.CompletedProcess[str]]
 
 
 def _run(argv: list[str]) -> subprocess.CompletedProcess[str]:
     return subprocess.run(argv, capture_output=True, text=True, check=False)  # noqa: S603
+
+
+def learned_flakes(path: Path | None = None) -> set[str]:
+    """The checks flake_history learned are flaky (#5398), read from its cache and never refreshed here: the workflow
+    refreshes the cache (at most every 6 h) and keeps it across runs. No cache, no flakes: a pass never waits on a scan.
+    The default is resolved here, not at definition time."""
+    if path is None:
+        env = os.environ.get(FLAKE_CACHE_ENV)
+        path = Path(env) if env else flake_history.default_cache()
+    return flake_history.learned(flake_history.load(path))
 
 
 def _to_epoch(stamp: str | None) -> float | None:
@@ -308,6 +322,7 @@ def gather(
     event: dict[str, Any] | None = None,
     now: float | None = None,
     on_main: set[str] | None = None,
+    flaky: set[str] | None = None,
 ) -> dict[str, Any]:
     """The snapshot decide() reads for PR n. `event`: the facts of the pull_request_target payload that caused the pass
     (action, label, sender), when there was one. Reconcile passes have none.
@@ -342,7 +357,7 @@ def gather(
     checks = pr_check.classify(runs, statuses)
     digest: dict[str, Any] = {"failed": []}
     if checks["failed"]:
-        digest = ci_digest.digest(n, api, on_main=on_main)
+        digest = ci_digest.digest(n, api, on_main=on_main, flaky=flaky)
         attempts_by_run: dict[int, tuple[int, float | None]] = {}
         for f in digest["failed"]:
             if f["triage"] in ("infra", "flake") and f.get("run_id") is not None:
@@ -552,6 +567,7 @@ def process(
     event: dict[str, Any] | None = None,
     dry_run: bool = False,
     on_main: set[str] | None = None,
+    flaky: set[str] | None = None,
 ) -> list[str]:
     event = event or {}
     lines: list[str] = []
@@ -580,7 +596,7 @@ def process(
             return lines  # no approval, so no auto-merge
         event = {**event, "approved": head}  # gather must not depend on reading back the comment it just posted
     try:
-        s = gather(n, api, event, on_main=on_main)
+        s = gather(n, api, event, on_main=on_main, flaky=flaky)
     except SystemExit as e:  # one PR's failed read must not stop the others
         return lines + [f"#{n} skipped: {e}"]
     acts = decide(s)
@@ -650,18 +666,21 @@ def main(argv: list[str] | None = None, api: Api = pr_check.gh_api, run: Run = _
     r.add_argument("--dry-run", action="store_true")
     r.add_argument("--head-sha", help="only the PRs whose head is this commit (a workflow_run's head_sha)")
     sub.add_parser("ensure-labels")
+    for cmd in (e, r):
+        cmd.add_argument("--flake-cache", type=Path, help=f"flake_history.json (default: ${FLAKE_CACHE_ENV})")
     args = ap.parse_args(argv)
     if args.cmd == "ensure-labels":
         lines = ensure_labels(run)
     elif args.cmd == "event":
         number, facts = event_facts(args.event_path)
-        lines = process(number, api, run, facts, args.dry_run)
+        lines = process(number, api, run, facts, args.dry_run, flaky=learned_flakes(args.flake_cache))
     else:
         lines = []
+        flaky = learned_flakes(args.flake_cache)  # once per pass
         prs = prs_for_head(api, args.head_sha) if args.head_sha else open_labelled(api)
         on_main = ci_digest.main_failures(api) if len(prs) > 1 else None
         for n in prs:
-            lines += process(n, api, run, None, args.dry_run, on_main=on_main)
+            lines += process(n, api, run, None, args.dry_run, on_main=on_main, flaky=flaky)
     for line in lines:
         print(line)
     return 1 if any("FAILED" in x for x in lines) else 0

@@ -1,0 +1,522 @@
+# ==============================================================================
+# GitGalaxy Core: fact-channel registry (#3383)
+#
+# PURPOSE:
+# A per-file fact channel (a child table that rides on each file's own payload
+# list) is declared ONCE here: its table, payload key, insert columns and row
+# builder, and its delta-scan restore query and payload mapper. The two shared
+# seams -- record_keeper (insert) and state_rehydrator (restore) -- iterate
+# CHANNELS, so a new channel PR adds one entry here instead of editing both.
+# See gitgalaxy/core/how_to_add_a_fact_channel.md.
+#
+# SCOPE AND NON-SCOPE:
+#   - Persist + restore only. The CREATE TABLE / _ensure_columns DDL still lives
+#     in record_keeper; the differential, answer key, IR reader and recorder
+#     sections are not registry-driven yet (#3383 remaining slices).
+#   - Channels with a custom insert or restore (call_site_data, transaction_data,
+#     sql_statement_data and the later per-file channels) are not migrated yet.
+#   - Order of CHANNELS is the insert order; each table is independent, so it
+#     does not change any row.
+#   - Data only: no import of the recorder or the rehydrator (they import this).
+# ==============================================================================
+import json
+import sqlite3
+from collections.abc import Callable
+from dataclasses import dataclass
+from typing import Any
+
+
+@dataclass(frozen=True)
+class FactChannel:
+    """One per-file fact channel.
+
+    `columns` names the table columns AFTER the three standard ones (repo_name,
+    commit_hash, file_id); `to_row(item)` builds them from one payload item.
+    `restore_select` is the baseline query (aliasing the file path AS `_fp` and
+    every other column to the extractor's payload key), or a callable
+    `(cursor, has_table, has_column) -> str` when it depends on which columns
+    the baseline DB has. `to_payload(row)` maps a restored row back to the item.
+    """
+
+    name: str
+    table: str
+    payload_key: str
+    columns: tuple
+    to_row: Callable[[Any], tuple]
+    restore_select: "str | Callable[[sqlite3.Cursor, Callable, Callable], str]"
+    to_payload: Callable[[Any], dict]
+
+    def select_sql(self, cursor: sqlite3.Cursor, has_table: Callable, has_column: Callable) -> str:
+        if callable(self.restore_select):
+            return self.restore_select(cursor, has_table, has_column)
+        return self.restore_select
+
+
+def _dataset_select(cursor, has_table, has_column):
+    # #3345: the resolved-DSN pair is per-file (one JCL file determines
+    # it), so it is restored like the raw DSN. A baseline written
+    # before #3345 lacks the columns; its rows come back without the
+    # keys, exactly the shape the extractor gives a COBOL row.
+    resolved_cols = (
+        "ds.dsn_resolved, ds.dsn_resolution"
+        if has_table(cursor, "dataset_data") and has_column(cursor, "dataset_data", "dsn_resolution")
+        else "NULL AS dsn_resolved, NULL AS dsn_resolution"
+    )
+    # #3348: a COBOL row's OPEN sites; absent on a baseline written before them.
+    if has_table(cursor, "dataset_data") and has_column(cursor, "dataset_data", "open_sites"):
+        resolved_cols += ", ds.open_sites"
+    else:
+        resolved_cols += ", NULL AS open_sites"
+    return (
+        "SELECT fd.file_path AS _fp, ds.step_name, ds.internal_name, ds.assign_name, "  # noqa: S608 -- resolved_cols is one of two literals; values are bound
+        "ds.dd_name, ds.access_modes AS modes, ds.dsn, ds.line_number AS line, "
+        f"{resolved_cols} "
+        "FROM dataset_data ds JOIN file_data fd ON ds.file_id = fd.id "
+        "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ds.id"
+    )
+
+
+def _record_select(cursor, has_table, has_column):
+    # Aliased to the extractor's own payload key names (level_number ->
+    # level, item_name -> name, value_literal -> value). `attributes`
+    # (#3250, PL/I) is NULL on a baseline written before it existed.
+    attributes_col = (
+        "rd.attributes"
+        if has_table(cursor, "record_data") and has_column(cursor, "record_data", "attributes")
+        else "NULL"
+    )
+    # #3355: `copy_members` is per-file (the entry's own window); NULL on
+    # a baseline written before it existed, and then left off the payload
+    # exactly as the extractor leaves it off an entry no COPY follows.
+    copy_col = (
+        "rd.copy_members"
+        if has_table(cursor, "record_data") and has_column(cursor, "record_data", "copy_members")
+        else "NULL"
+    )
+    # #3694: `sign_separate` likewise -- NULL before the column existed, and
+    # left off the payload exactly as the extractor leaves it off.
+    sign_col = (
+        "rd.sign_separate"
+        if has_table(cursor, "record_data") and has_column(cursor, "record_data", "sign_separate")
+        else "NULL"
+    )
+    # #4265: `copy_libraries` likewise.
+    lib_col = (
+        "rd.copy_libraries"
+        if has_table(cursor, "record_data") and has_column(cursor, "record_data", "copy_libraries")
+        else "NULL"
+    )
+    repl_col = (
+        "rd.copy_replacing"
+        if has_table(cursor, "record_data") and has_column(cursor, "record_data", "copy_replacing")
+        else "NULL"
+    )
+    # #4266: SYNC / JUSTIFIED / BLANK WHEN ZERO / RENAMES likewise.
+    layout_cols = ", ".join(
+        f"rd.{c} AS {c}"
+        if has_table(cursor, "record_data") and has_column(cursor, "record_data", c)
+        else f"NULL AS {c}"
+        for c in ("sync", "justified", "blank_when_zero", "renames")
+    )
+    return (
+        "SELECT fd.file_path AS _fp, rd.section, rd.fd_name, rd.ordinal, rd.parent_ordinal, "  # noqa: S608 -- attributes_col is one of two literals; values are bound
+        "rd.level_number AS level, rd.item_name AS name, rd.pic, rd.usage, rd.occurs_min, "
+        "rd.occurs_max, rd.occurs_depending_on, rd.redefines, rd.value_literal AS value, "
+        f"rd.line_number AS line, {attributes_col} AS attributes, {copy_col} AS copy_members, "
+        f"{sign_col} AS sign_separate, {lib_col} AS copy_libraries, {repl_col} AS copy_replacing, "
+        f"{layout_cols} "
+        "FROM record_data rd JOIN file_data fd ON rd.file_id = fd.id "
+        "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY rd.file_id, rd.ordinal"
+    )
+
+
+def _csd_resource_select(cursor, _has_table, has_column):
+    return (
+        "SELECT fd.file_path AS _fp, cr.resource_type, cr.resource_name AS name, "
+        'cr.group_name AS "group", cr.dsname, cr.ddname, cr.record_format, cr.key_length, '
+        "cr.record_size, cr.queue_type, cr.plan, cr.db2_entry, cr.transid, cr.program, "
+        "cr.attributes, cr.line_number AS line, "
+        # #5120: a pre-#5120 baseline has no provenance columns; its rows are CSD.
+        + (
+            "cr.source, cr.macro_table "
+            if has_column(cursor, "csd_resource_data", "source")
+            else "NULL AS source, NULL AS macro_table "
+        )
+        + "FROM csd_resource_data cr JOIN file_data fd ON cr.file_id = fd.id "
+        "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY cr.id"
+    )
+
+
+CHANNELS = (
+    # #3201: the dataset bindings -- a per-file fact channel (no cross-file
+    # resolution, unlike call_site_data above).
+    FactChannel(
+        name="dataset",
+        table="dataset_data",
+        payload_key="dataset_bindings",
+        columns=(
+            "step_name",
+            "internal_name",
+            "assign_name",
+            "dd_name",
+            "access_modes",
+            "dsn",
+            "line_number",
+            "dsn_resolved",
+            "dsn_resolution",
+            "open_sites",
+        ),
+        to_row=lambda b: (
+            b.get("step_name"),
+            b.get("internal_name"),
+            b.get("assign_name"),
+            b.get("dd_name"),
+            ",".join(b.get("modes") or []) or None,
+            b.get("dsn"),
+            int(b.get("line", 0) or 0),
+            b.get("dsn_resolved"),  # #3345
+            b.get("dsn_resolution"),
+            json.dumps(b["open_sites"]) if b.get("open_sites") is not None else None,  # #3348
+        ),
+        restore_select=_dataset_select,
+        to_payload=lambda r: {
+            "step_name": r["step_name"],
+            "internal_name": r["internal_name"],
+            "assign_name": r["assign_name"],
+            "dd_name": r["dd_name"],
+            "modes": (r["modes"] or "").split(",") if r["modes"] else [],
+            "dsn": r["dsn"],
+            "line": int(r["line"] or 0),
+            **(
+                {"dsn_resolved": r["dsn_resolved"], "dsn_resolution": r["dsn_resolution"]}
+                if r["dsn_resolution"]
+                else {}
+            ),
+            **({"open_sites": json.loads(r["open_sites"])} if r["open_sites"] is not None else {}),
+        },
+    ),
+    # #3246: the DATA DIVISION item tree + FD record layouts -- the same
+    # per-file fact-channel shape as the dataset bindings above.
+    FactChannel(
+        name="record",
+        table="record_data",
+        payload_key="record_layouts",
+        columns=(
+            "section",
+            "fd_name",
+            "ordinal",
+            "parent_ordinal",
+            "level_number",
+            "item_name",
+            "pic",
+            "usage",
+            "occurs_min",
+            "occurs_max",
+            "occurs_depending_on",
+            "redefines",
+            "value_literal",
+            "line_number",
+            "attributes",
+            "copy_members",
+            "sign_separate",
+            "copy_libraries",
+            "copy_replacing",
+            "sync",
+            "justified",
+            "blank_when_zero",
+            "renames",
+        ),
+        to_row=lambda it: (
+            it.get("section"),
+            it.get("fd_name"),
+            int(it.get("ordinal", 0) or 0),
+            it.get("parent_ordinal"),
+            int(it.get("level", 0) or 0),
+            it.get("name"),
+            it.get("pic"),
+            it.get("usage"),
+            it.get("occurs_min"),
+            it.get("occurs_max"),
+            it.get("occurs_depending_on"),
+            it.get("redefines"),
+            it.get("value"),
+            int(it.get("line", 0) or 0),
+            it.get("attributes"),
+            it.get("copy_members"),  # #3355
+            int(it["sign_separate"]) if it.get("sign_separate") else None,  # #3694: 1 trailing, 2 leading
+            it.get("copy_libraries"),  # #4265
+            it.get("copy_replacing"),  # #4265
+            it.get("sync"),  # #4266
+            1 if it.get("justified") else None,  # #4266
+            1 if it.get("blank_when_zero") else None,  # #4266
+            it.get("renames"),  # #4266
+        ),
+        restore_select=_record_select,
+        to_payload=lambda r: {
+            "section": r["section"],
+            "fd_name": r["fd_name"],
+            "ordinal": int(r["ordinal"] or 0),
+            "parent_ordinal": r["parent_ordinal"],
+            "level": int(r["level"] or 0),
+            "name": r["name"],
+            "pic": r["pic"],
+            "usage": r["usage"],
+            "occurs_min": r["occurs_min"],
+            "occurs_max": r["occurs_max"],
+            "occurs_depending_on": r["occurs_depending_on"],
+            "redefines": r["redefines"],
+            "value": r["value"],
+            "line": int(r["line"] or 0),
+            "attributes": r["attributes"],
+            **({"copy_members": r["copy_members"]} if r["copy_members"] else {}),
+            **({"sign_separate": int(r["sign_separate"])} if r["sign_separate"] else {}),
+            **({"copy_libraries": r["copy_libraries"]} if r["copy_libraries"] else {}),
+            **({"copy_replacing": r["copy_replacing"]} if r["copy_replacing"] else {}),
+            **({"sync": r["sync"]} if r["sync"] else {}),
+            **({"justified": True} if r["justified"] else {}),
+            **({"blank_when_zero": True} if r["blank_when_zero"] else {}),
+            **({"renames": r["renames"]} if r["renames"] else {}),
+        },
+    ),
+    # #3344: DB2 DECLARE TABLE / DCLGEN columns -- per-file, like record_data.
+    # #3344: DB2 DECLARE TABLE / DCLGEN columns, aliased back to the
+    # extractor's payload keys (table_name -> table, column_name ->
+    # name). A pre-#3344 baseline has no table and restores nothing.
+    FactChannel(
+        name="sql_table",
+        table="sql_table_data",
+        payload_key="sql_tables",
+        columns=(
+            "table_name",
+            "table_line",
+            "colno",
+            "column_name",
+            "sql_type",
+            "length",
+            "scale",
+            "nullable",
+            "attributes",
+            "line_number",
+        ),
+        to_row=lambda c: (
+            c.get("table"),
+            int(c.get("table_line", 0) or 0),
+            int(c.get("colno", 0) or 0),
+            c.get("name"),
+            c.get("sql_type"),
+            c.get("length"),
+            c.get("scale"),
+            1 if c.get("nullable", True) else 0,
+            c.get("attributes"),
+            int(c.get("line", 0) or 0),
+        ),
+        restore_select=(
+            'SELECT fd.file_path AS _fp, st.table_name AS "table", st.table_line, st.colno, st.column_name AS name, '
+            "st.sql_type, st.length, st.scale, st.nullable, st.attributes, st.line_number AS line "
+            "FROM sql_table_data st JOIN file_data fd ON st.file_id = fd.id "
+            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY st.id"
+        ),
+        to_payload=lambda r: {
+            "table": r["table"],
+            "table_line": int(r["table_line"] or 0),
+            "colno": int(r["colno"] or 0),
+            "name": r["name"],
+            "sql_type": r["sql_type"],
+            "length": r["length"],
+            "scale": r["scale"],
+            "nullable": bool(r["nullable"]),
+            "attributes": r["attributes"],
+            "line": int(r["line"] or 0),
+        },
+    ),
+    # #3356: CSD resource definitions -- per-file, like sql_table_data.
+    # #3356: CSD resource definitions, aliased back to the extractor's
+    # payload keys (resource_name -> name, group_name -> group). A
+    # pre-#3356 baseline has no table and restores nothing.
+    FactChannel(
+        name="csd_resource",
+        table="csd_resource_data",
+        payload_key="csd_resources",
+        columns=(
+            "resource_type",
+            "resource_name",
+            "group_name",
+            "dsname",
+            "ddname",
+            "record_format",
+            "key_length",
+            "record_size",
+            "queue_type",
+            "plan",
+            "db2_entry",
+            "transid",
+            "program",
+            "attributes",
+            "line_number",
+            "source",
+            "macro_table",
+        ),
+        to_row=lambda r: (
+            r.get("resource_type"),
+            r.get("name"),
+            r.get("group"),
+            r.get("dsname"),
+            r.get("ddname"),
+            r.get("record_format"),
+            r.get("key_length"),
+            r.get("record_size"),
+            r.get("queue_type"),
+            r.get("plan"),
+            r.get("db2_entry"),
+            r.get("transid"),
+            r.get("program"),
+            r.get("attributes"),
+            int(r.get("line", 0) or 0),
+            r.get("source") or "CSD",
+            r.get("macro_table"),
+        ),
+        restore_select=_csd_resource_select,
+        to_payload=lambda r: {
+            "resource_type": r["resource_type"],
+            "name": r["name"],
+            "group": r["group"],
+            "dsname": r["dsname"],
+            "ddname": r["ddname"],
+            "record_format": r["record_format"],
+            "key_length": r["key_length"],
+            "record_size": r["record_size"],
+            "queue_type": r["queue_type"],
+            "plan": r["plan"],
+            "db2_entry": r["db2_entry"],
+            "transid": r["transid"],
+            "program": r["program"],
+            "attributes": r["attributes"],
+            "line": int(r["line"] or 0),
+            **({"source": r["source"], "macro_table": r["macro_table"]} if r["source"] == "MACRO" else {}),
+        },
+    ),
+    # #3347: BMS screen-field layouts -- the same per-file shape.
+    # #3347: BMS screen-field layouts, aliased to the extractor's payload
+    # keys (field_name -> name, initial_value -> initial).
+    FactChannel(
+        name="screen_field",
+        table="screen_field_data",
+        payload_key="screen_fields",
+        columns=(
+            "kind",
+            "ordinal",
+            "parent_ordinal",
+            "field_name",
+            "pos_line",
+            "pos_column",
+            "length",
+            "attrb",
+            "picin",
+            "picout",
+            "initial_value",
+            "occurs",
+            "attributes",
+            "line_number",
+        ),
+        to_row=lambda sf: (
+            sf.get("kind"),
+            int(sf.get("ordinal", 0) or 0),
+            sf.get("parent_ordinal"),
+            sf.get("name"),
+            sf.get("pos_line"),
+            sf.get("pos_column"),
+            sf.get("length"),
+            sf.get("attrb"),
+            sf.get("picin"),
+            sf.get("picout"),
+            sf.get("initial"),
+            sf.get("occurs"),
+            sf.get("attributes"),
+            int(sf.get("line", 0) or 0),
+        ),
+        restore_select=(
+            "SELECT fd.file_path AS _fp, sf.kind, sf.ordinal, sf.parent_ordinal, "
+            "sf.field_name AS name, sf.pos_line, sf.pos_column, sf.length, sf.attrb, sf.picin, "
+            "sf.picout, sf.initial_value AS initial, sf.occurs, sf.attributes, sf.line_number AS line "
+            "FROM screen_field_data sf JOIN file_data fd ON sf.file_id = fd.id "
+            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY sf.file_id, sf.ordinal"
+        ),
+        to_payload=lambda r: {
+            "kind": r["kind"],
+            "ordinal": int(r["ordinal"] or 0),
+            "parent_ordinal": r["parent_ordinal"],
+            "name": r["name"],
+            "pos_line": r["pos_line"],
+            "pos_column": r["pos_column"],
+            "length": r["length"],
+            "attrb": r["attrb"],
+            "picin": r["picin"],
+            "picout": r["picout"],
+            "initial": r["initial"],
+            "occurs": r["occurs"],
+            "attributes": r["attributes"],
+            "line": int(r["line"] or 0),
+        },
+    ),
+    # #3351-#3354: CICS resource operations -- the same per-file shape.
+    # #3351-#3354: CICS resource operations, aliased back to the
+    # extractor's payload keys. A pre-channel baseline restores nothing.
+    FactChannel(
+        name="cics_resource",
+        table="cics_resource_data",
+        payload_key="cics_resources",
+        columns=(
+            "verb",
+            "resource_kind",
+            "access",
+            "name_operand",
+            "resource_name",
+            "name_resolution",
+            "name_candidates",
+            "qualifier_operand",
+            "qualifier",
+            "record_clause",
+            "record_name",
+            "attributes",
+            "line_number",
+        ),
+        to_row=lambda op: (
+            op.get("verb"),
+            op.get("kind"),
+            op.get("access"),
+            op.get("operand"),
+            op.get("name"),
+            op.get("resolution"),
+            op.get("candidates"),
+            op.get("qualifier_operand"),
+            op.get("qualifier"),
+            op.get("record_clause"),
+            op.get("record"),
+            op.get("attributes"),
+            int(op.get("line", 0) or 0),
+        ),
+        restore_select=(
+            "SELECT fd.file_path AS _fp, cr.verb, cr.resource_kind AS kind, cr.access, "
+            "cr.name_operand AS operand, cr.resource_name AS name, cr.name_resolution AS resolution, "
+            "cr.name_candidates AS candidates, cr.qualifier_operand, cr.qualifier, cr.record_clause, "
+            "cr.record_name AS record, cr.attributes, cr.line_number AS line "
+            "FROM cics_resource_data cr JOIN file_data fd ON cr.file_id = fd.id "
+            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY cr.id"
+        ),
+        to_payload=lambda r: {
+            "verb": r["verb"],
+            "kind": r["kind"],
+            "access": r["access"],
+            "operand": r["operand"],
+            "name": r["name"],
+            "resolution": r["resolution"],
+            "candidates": r["candidates"],
+            "qualifier_operand": r["qualifier_operand"],
+            "qualifier": r["qualifier"],
+            "record_clause": r["record_clause"],
+            "record": r["record"],
+            "attributes": r["attributes"],
+            "line": int(r["line"] or 0),
+        },
+    ),
+)

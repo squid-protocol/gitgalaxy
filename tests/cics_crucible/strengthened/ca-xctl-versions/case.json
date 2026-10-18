@@ -49,6 +49,63 @@
      "text": "CA02"
     }
    ]
+  },
+  {
+   "id": "visits-past-nine",
+   "summary": "the 80-byte area travels through ten CA03 turns until V2-VISITS reads 0010: a multi-digit counter in the caller's COMMAREA (the digit-by-digit accumulation of overlayVisits)",
+   "path": "trap",
+   "until": 300,
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "CA02 S"
+    },
+    {
+     "at": 20,
+     "aid": "ENTER"
+    },
+    {
+     "at": 40,
+     "aid": "ENTER"
+    },
+    {
+     "at": 60,
+     "aid": "ENTER"
+    },
+    {
+     "at": 80,
+     "aid": "ENTER"
+    },
+    {
+     "at": 100,
+     "aid": "ENTER"
+    },
+    {
+     "at": 120,
+     "aid": "ENTER"
+    },
+    {
+     "at": 140,
+     "aid": "ENTER"
+    },
+    {
+     "at": 160,
+     "aid": "ENTER"
+    },
+    {
+     "at": 180,
+     "aid": "ENTER"
+    },
+    {
+     "at": 200,
+     "aid": "ENTER"
+    },
+    {
+     "at": 220,
+     "aid": "PF3"
+    }
+   ]
   }
  ]
 }

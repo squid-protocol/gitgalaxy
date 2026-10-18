@@ -84,7 +84,7 @@ jobs:
         run: |
           cd gitgalaxy
           python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
-          pip install -e .
+          pip install --no-build-isolation -e .
           pip install --require-hashes -r ci/requirements/treesitter.txt
 
       # Same hard preflight as tri-comparison-audit.yml, for the same PR #2111 reason -- this

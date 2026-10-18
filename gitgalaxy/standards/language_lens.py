@@ -305,6 +305,27 @@ class LanguageDetector:
             if anchor not in self.anchor_map:
                 self.anchor_map[anchor] = "markdown" if anchor == "README" else "plaintext"
 
+    _PROSE_NOTE_STEMS = frozenset({"README", "READ.ME", "NOTES", "CHANGES", "TODO", "INSTALL", "CHANGELOG", "HISTORY"})
+    _PROSE_NOTE_LINES = 6
+    _PROSE_CHARS_PER_SPACE = 12
+
+    def _is_prose_note(self, upper_stem: str, ext: str, content_sample: str) -> bool:
+        """#5466: a conventional doc-file stem (README, NOTES, ...) with a code extension whose opening lines read as prose."""
+        if upper_stem not in self._PROSE_NOTE_STEMS:
+            return False
+        if upper_stem not in self.PROSE_ANCHORS and upper_stem != "READ.ME":
+            return False
+        opening = [ln for ln in content_sample[:4096].splitlines() if ln.strip()][: self._PROSE_NOTE_LINES]
+        if len(opening) < 3 or opening[0].startswith("#!"):
+            return False
+        for ln in opening:
+            # Code lines are indented, directive/comment-led, or dense in punctuation; prose starts at the margin with words.
+            if ln[0] in " \t.#;/*@%<{}" or not ln[0].isalnum():
+                return False
+            if ln.count(" ") * self._PROSE_CHARS_PER_SPACE < len(ln):
+                return False
+        return True
+
     def focus(self, file_path: str | Path, content_sample: str = "", **kwargs) -> tuple[str, float, str | None]:
         """Legacy Support Gateway for systems expecting the older Tuple return format."""
         result = self.inspect(file_path, content_sample, **kwargs)
@@ -442,6 +463,17 @@ class LanguageDetector:
         }
 
         is_prose = False
+        if is_known_code_ext and self._is_prose_note(upper_stem, ext, content_sample):
+            # #5466: `README.asm` is a prose note that quotes code; the shield above is for a
+            # README that IS code, so only an opening that reads as prose lifts it.
+            return self._forge_result(
+                "markdown" if "README" in upper_stem or upper_stem == "READ.ME" else "plaintext",
+                self.thresholds.get("PROSE_CONFIDENCE", 0.95),
+                1,
+                f"Prose Note ({name})",
+                result,
+                content_sample,
+            )
         if not is_known_code_ext:
             is_prose = upper_stem in self.PROSE_ANCHORS
 

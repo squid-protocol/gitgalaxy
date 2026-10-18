@@ -509,8 +509,9 @@ def test_main_computes_the_learned_set_once_per_pass(monkeypatch, tmp_path):
     got = []
     monkeypatch.setattr(sg, "open_labelled", lambda api: [7, 8])
     monkeypatch.setattr(sg.ci_digest, "main_failures", lambda api: set())
+    monkeypatch.setattr(sg.ci_digest, "main_green", lambda api: ("", set()))
     monkeypatch.setattr(
-        sg, "process", lambda n, api, run, event, dry, on_main=None, flaky=None: got.append(flaky) or []
+        sg, "process", lambda n, api, run, event, dry, on_main=None, flaky=None, main=None: got.append(flaky) or []
     )
     calls = []
     monkeypatch.setattr(sg, "learned_flakes", lambda path=None: calls.append(path) or {"x"})
@@ -966,3 +967,157 @@ def test_the_event_workflow_only_restores_the_flake_cache():
     # short job, no concurrency group: overlapping saves/refreshes would collide, reconcile owns the cache
     _, steps = _workflow("shepherd-event.yml")
     assert not [s for s in steps if "cache/save" in s.get("uses", "") or "--refresh-only" in s.get("run", "")]
+
+
+# --- #5484: main turned green under a PR that was waiting on it ------------------------------------------------------
+
+MAIN = "9" * 40
+
+
+def waiting(**kw):
+    """A PR waiting on main whose `det` failure now triages real, main being green on det and the head lacking main."""
+    base = {"labels": [sg.MERGE, sg.WAITING], "failed": [{"check": "det", "triage": "real"}], "main_sha": MAIN,
+            "main_green": ["det", "full-suite"], "contains_main": False, "main_merged": False}  # fmt: skip
+    base.update(kw)
+    return snap(**base)
+
+
+def test_main_still_red_waits_without_an_update():  # (a)
+    acts = sg.decide(waiting(failed=[{"check": "det", "triage": "main"}], main_green=[]))
+    assert "update_main" not in kinds(acts) and "comment" not in kinds(acts)
+    assert "labels" not in kinds(acts)  # waiting-on-main already there
+
+
+def test_main_green_and_head_predates_the_fix_merges_main_and_keeps_waiting():  # (b)
+    acts = sg.decide(waiting())
+    assert by_op(acts, "update_main") == [{"op": "update_main", "sha": SHA, "main": MAIN}]
+    assert "comment" not in kinds(acts) and "labels" not in kinds(acts)
+
+
+def test_matrix_suffix_of_a_check_name_still_matches_main_green():
+    acts = sg.decide(waiting(failed=[{"check": "full-suite (ubuntu, 3.11)", "triage": "real"}]))
+    assert by_op(acts, "update_main")
+
+
+def test_after_the_update_the_same_check_failing_is_needs_fix():  # (c)
+    acts = sg.decide(waiting(contains_main=True, main_merged=True, digest_text="det failed"))
+    assert "update_main" not in kinds(acts)
+    assert by_op(acts, "labels")[0] == {"op": "labels", "add": [sg.NEEDS], "remove": [sg.WAITING]}
+    assert len(by_op(acts, "comment")) == 1
+
+
+def test_a_conflicting_waiting_pr_gets_no_update_and_needs_fix():  # (d)
+    acts = sg.decide(waiting(mergeable_state="dirty"))
+    assert "update_main" not in kinds(acts)
+    assert sg.NEEDS in by_op(acts, "labels")[0]["add"]
+
+
+def test_a_pr_only_behind_main_with_no_main_failure_is_not_updated():  # (e)
+    for extra in ({}, {"labels": [sg.MERGE, sg.WAITING]}, {"failed": [failure("real")]}):
+        acts = sg.decide(
+            snap(mergeable_state="behind", main_sha=MAIN, main_green=["det"], contains_main=False, **extra)
+        )
+        assert "update_main" not in kinds(acts), extra
+
+
+def test_a_real_failure_on_a_pr_that_was_not_waiting_is_not_reinterpreted():
+    acts = sg.decide(waiting(labels=[sg.MERGE]))
+    assert "update_main" not in kinds(acts)
+    assert sg.NEEDS in by_op(acts, "labels")[0]["add"]
+
+
+def test_a_check_not_green_on_main_stays_real():
+    acts = sg.decide(waiting(main_green=["full-suite"]))
+    assert "update_main" not in kinds(acts)
+    assert sg.NEEDS in by_op(acts, "labels")[0]["add"]
+
+
+def test_no_update_for_hold_fork_or_a_main_already_merged_once():
+    for extra in ({"labels": [sg.MERGE, sg.WAITING, sg.HOLD]}, {"head_fork": True}, {"main_merged": True}):
+        assert "update_main" not in kinds(sg.decide(waiting(**extra))), extra
+
+
+def test_a_pass_without_a_main_snapshot_never_updates():
+    s = waiting()
+    for k in ("main_sha", "main_green", "contains_main", "main_merged"):
+        del s[k]
+    assert "update_main" not in kinds(sg.decide(s))
+
+
+def test_waiting_is_kept_while_the_head_with_the_fix_is_still_being_tested():
+    for extra in ({"pending": 3}, {"no_checks": True}):
+        acts = sg.decide(waiting(failed=[], contains_main=True, main_merged=True, **extra))
+        assert "labels" not in kinds(acts), extra
+    acts = sg.decide(waiting(failed=[], contains_main=True, main_merged=True))  # its run finished green
+    assert by_op(acts, "labels")[0] == {"op": "labels", "add": [], "remove": [sg.WAITING]}
+
+
+def test_apply_merges_main_with_a_marker_pair_and_one_log_line():
+    gh = Gh()
+    log = sg.apply(7, snap(), [{"op": "update_main", "sha": SHA, "main": MAIN}], run=gh.run)
+    assert [c for c in gh.cmds if "PUT" in c][0][-2:] == ["-f", f"expected_head_sha={SHA}"]
+    bodies = [c[-1] for c in gh.cmds if c[-1].startswith("body=")]
+    assert f"<!-- shepherd-main-merge main={MAIN} -->" in bodies[0] and f"from={SHA} -->" in bodies[0]
+    assert bodies[1] == f"body=<!-- shepherd-update from={SHA} to={'d' * 40} -->"
+    assert log == [f"#7 merged main {MAIN[:12]} into {SHA[:12]} -> {'d' * 12}"]
+
+
+def test_apply_failed_update_closes_the_marker_pair_and_reports():
+    gh = Gh()
+    run = lambda argv: (  # noqa: E731
+        subprocess.CompletedProcess(argv, 1, "", "conflict") if "PUT" in argv else gh.run(argv)
+    )
+    log = sg.apply(7, snap(), [{"op": "update_main", "sha": SHA, "main": MAIN}], run=run)
+    assert "FAILED" in log[0] and "conflict" in log[0]
+    assert gh.cmds[-1][-1] == f"body=<!-- shepherd-update from={SHA} to={SHA} -->"
+
+
+def _waiting_gh(gh, compare_status):
+    gh.pr["labels"] = [{"name": sg.MERGE}, {"name": sg.WAITING}]
+    gh.compare[(MAIN, SHA)] = {"status": compare_status}
+
+
+def test_gather_reads_whether_the_head_has_main_and_whether_it_was_merged_once():
+    gh = Gh()
+    _waiting_gh(gh, "diverged")
+    s = sg.gather(7, gh.api, main=(MAIN, {"det"}))
+    assert (s["main_sha"], s["main_green"], s["contains_main"], s["main_merged"]) == (MAIN, ["det"], False, False)
+    gh.comments.append(bot_comment(f"<!-- shepherd-main-merge main={MAIN} -->"))
+    assert sg.gather(7, gh.api, main=(MAIN, {"det"}))["main_merged"] is True
+    gh.compare[(MAIN, SHA)] = {"status": "ahead"}
+    assert sg.gather(7, gh.api, main=(MAIN, {"det"}))["contains_main"] is True
+    assert "main_sha" not in sg.gather(7, gh.api)  # an event pass has no main snapshot
+
+
+def test_the_bot_main_merge_keeps_the_merge_label_approval():
+    gh = Gh()
+    _waiting_gh(gh, "behind")
+    new = "d" * 40
+    gh.parents[new] = [SHA, MAIN]
+    gh.pr["head"]["sha"] = new
+    gh.comments.append(bot_comment(f"<!-- shepherd-update from={SHA} to={new} -->"))
+    s = sg.gather(7, gh.api, main=(MAIN, {"det"}))
+    assert s["carried"] and s["approved"]
+    assert not any(a["op"] == "unlabel" and a["label"] == sg.MERGE for a in sg.decide(s))
+
+
+def test_main_green_lists_the_checks_green_on_main_s_tip(monkeypatch):
+    import ci_digest
+
+    def check(name, conclusion):
+        return {
+            "id": 1,
+            "name": name,
+            "status": "completed",
+            "conclusion": conclusion,
+            "app": {"slug": "github-actions"},
+        }
+
+    def api(path):
+        if path.endswith("/commits/main"):
+            return {"sha": MAIN}
+        return {"check_runs": [check("det", "success"), check("ruff-audit", "failure"), check("mypy-audit", None)]}
+
+    sha, green = ci_digest.main_green(api)
+    assert sha == MAIN and "det" in green and "ruff-audit" not in green
+    assert ci_digest.main_green(lambda p: (_ for _ in ()).throw(SystemExit("x"))) == ("", set())

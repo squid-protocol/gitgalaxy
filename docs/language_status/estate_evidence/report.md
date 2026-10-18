@@ -30,7 +30,7 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 
 | program | case | lines | level | proof | oracle | coverage (para / branch) | mutation | differences | approval | what stops the next level |
 |---|---|---|---|---|---|---|---|---|---|---|
-| COACTVWC | carddemo-acctview | 485 | E1 | 22 runs / 6 fault | gnucobol-models | 31/32 / 58/69 | 105/129, open 8 | 0 | - | the proof did not compare equal on every scenario |
+| COACTVWC | carddemo-acctview | 485 | E1 | 22 runs / 6 fault | gnucobol-models | 31/32 / 58/69 | 105/129, open 8 | 0 | - | 1 hole(s) in the port itself (stub or ported_unproven method) |
 | COADM01C | carddemo-adminmenu | 153 | E1 | 26 runs / 4 fault | gnucobol-models | 8/8 / 20/26 | 53/95, open 16 | 0 | - | 1 hole(s) in the port itself (stub or ported_unproven method) |
 | COBIL00C | carddemo-billpay | 363 | E2 | 28 runs / 13 fault | gnucobol-models | 16/16 / 46/48 | 64/86, open 7 | 0 | - | coverage short: 16/16 paragraphs, 46/48 branch outcomes |
 | COCRDLIC | carddemo-cardlist | 849 | E2 | 30 runs / 3 fault | gnucobol-models | 36/36 / 135/149 | 75/94, open 7 | 0 | - | coverage short: 36/36 paragraphs, 135/149 branch outcomes |

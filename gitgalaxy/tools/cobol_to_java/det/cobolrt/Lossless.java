@@ -14,7 +14,8 @@ import java.nio.charset.StandardCharsets;
  * through the record charset. A single-byte charset can leave a byte unmapped (windows-1252 has no X'81', X'8D',
  * X'8F', X'90', X'9D'): Java then decodes U+FFFD and encodes '?', and the byte is lost. Here a byte the charset leaves
  * unmapped is its latin-1 character (U+0081 ...), and that character encodes back to that one byte, so
- * bytes -> text -> bytes is the identity for all 256 values. The name is the charset's own. A charset of more than
+ * bytes -> text -> bytes is the identity for all 256 values; so is a byte whose character a lower byte already has
+ * (IBM037 decodes both X'15' and X'25' to U+000A), which reads as a private-use character (U+E025). The name is the charset's own. A charset of more than
  * one byte per character (UTF-8) is returned as it is.
  */
 public final class Lossless extends Charset {
@@ -25,9 +26,13 @@ public final class Lossless extends Charset {
     private Lossless(Charset base) {
         super(base.name(), null);
         this.base = base;
+        java.util.Set<Character> claimed = new java.util.HashSet<>();
         for (int b = 0; b < 256; b++) {
             String s = new String(new byte[] {(byte) b}, base);
             char c = s.length() == 1 && s.charAt(0) != '�' ? s.charAt(0) : (char) b;
+            if (!claimed.add(c)) { // two bytes, one character (IBM037: X'15' and X'25' are both U+000A): a private-use one
+                c = (char) (0xE000 + b);
+            }
             decode[b] = c;
         }
         for (int b = 255; b >= 0; b--) {
@@ -87,8 +92,16 @@ public final class Lossless extends Charset {
     }
 
     /** A hexadecimal literal X'hh..': exactly those bytes (IBM: no code-page translation), as the text that
-     *  encodes back to them. {@code latin1} holds one character per byte. */
+     *  encodes back to them. {@code latin1} holds one character per byte. A charset of more than one byte per
+     *  character (UTF-8) cannot hold a byte sequence it does not decode (X'E9' alone): refused by name, never
+     *  written as other bytes (register D2). */
     static String hex(String latin1, Charset cs) {
-        return new String(latin1.getBytes(StandardCharsets.ISO_8859_1), cs);
+        byte[] bytes = latin1.getBytes(StandardCharsets.ISO_8859_1);
+        String text = new String(bytes, cs);
+        if (!java.util.Arrays.equals(text.getBytes(cs), bytes)) {
+            throw new UnsupportedOperationException("hexadecimal literal X'" + java.util.HexFormat.of().withUpperCase()
+                    .formatHex(bytes) + "' is not valid text in the record charset " + cs.name() + " (register D2)");
+        }
+        return text;
     }
 }

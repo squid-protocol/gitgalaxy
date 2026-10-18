@@ -270,6 +270,9 @@
       "typescript/playwright/dispatcher.ts": 63,
       "typescript/playwright/frames.ts": 552
     },
+    "typescript/typescript_compiler": {
+      "typescript/typescript_compiler/checker.ts": 35
+    },
     "typescript/vscode": {
       "typescript/vscode/async.ts": 668,
       "typescript/vscode/codeEditorWidget.ts": 10,

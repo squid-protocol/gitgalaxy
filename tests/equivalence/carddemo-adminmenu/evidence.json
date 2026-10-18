@@ -408,31 +408,31 @@
   "port_sha256": "f081dfb00503dc8df16fef236ed92c3aeace68e0f7bd399292c67cc708cdf559"
  },
  "mutation": {
-  "commit": "9e1dd63fea721528c3ccaa44943979b97c1b606d",
+  "commit": "0e217727763ec7be197132e37434c9e6fdf91b7c",
   "rejudged": null,
   "seed": 0,
   "mode": null,
   "mutants": 340,
   "chosen": 100,
-  "killed": 52,
-  "survived": 43,
+  "killed": 60,
+  "survived": 35,
   "stillborn": 5,
   "survivors": {
-   "case_gap": 15,
+   "case_gap": 7,
    "harness_gap": 0,
    "equivalent": 25,
    "unreachable": 3,
    "untriaged": 0
   },
-  "score_raw": "52/95",
-  "score_adjusted": "52/67",
+  "score_raw": "60/95",
+  "score_adjusted": "60/67",
   "source": "docs/language_status/mutation_scores.json#carddemo-adminmenu/COADM01C",
   "inputs": {
    "port": {
     "sha256": "f081dfb00503dc8df16fef236ed92c3aeace68e0f7bd399292c67cc708cdf559"
    },
    "case": {
-    "sha256": "b8069a9fb3d202511544b210829852a5168572525412bb5fd22166ac9a11b407"
+    "sha256": "23c96b9a5bc7fbcc97965edf0fd51bbcb56d2ff6fe0dd7c5d27239cb1cad1a08"
    },
    "corpus": {
     "sha256": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919"

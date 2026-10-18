@@ -118,3 +118,58 @@ def test_empty_estate_and_write(tmp_path):
     paths = hr.write_report(proof(cases, *rest), tmp_path / "out", "est", cases)
     assert json.loads(paths["json"].read_text())["schema_version"] == hr.SCHEMA_VERSION
     assert "## Blockers (highest value first)" in paths["md"].read_text()
+
+
+def layout_case(tmp_path, copybooks):
+    """A case whose generated datasets read `copybooks` ({name: text}) from a fixture corpus."""
+    corpora = tmp_path / "corpora"
+    ds = {}
+    for name, text in copybooks.items():
+        tpb.write(corpora / "estate" / f"{name}.cpy", text)
+        ds[name.upper()] = {"input": "@generate", "reclen": 20,
+                            "generate": {"copybook": f"{name}.cpy", "record": "REC", "records": 3}}  # fmt: skip
+    return corpora, {"corpus": "estate", "datasets": ds}
+
+
+def cpy(*lines):
+    return "\n".join(f"       {ln}" for ln in lines) + "\n"
+
+
+def test_record_layout_limits_each_land_under_one_cause(tmp_path):
+    corpora, case = layout_case(tmp_path, {
+        "ok": cpy("01 REC.", "   05 A PIC X(5)."),
+        "redef": cpy("01 REC.", "   05 A PIC X(5).", "   05 B REDEFINES A PIC 9(5)."),
+        "ren": cpy("01 REC.", "   05 A PIC X(5).", "   05 C PIC X(2).", "   66 AC RENAMES A THRU C."),
+        "syn": cpy("01 REC.", "   05 A PIC S9(4) COMP SYNC."),
+        "cop": cpy("01 REC.", "   COPY NOWHERE.", "   05 A PIC X."),
+    })  # fmt: skip
+    got = {dd: hr.record_cause([corpora], case, dd) for dd in case["datasets"]}
+    assert got == {"OK": "", "REDEF": "redefines", "REN": "renames", "SYN": "sync", "COP": "unresolved copy"}
+    assert hr.record_cause([], case, "OK") == "not read"  # no corpus: stated, not an error
+
+
+def test_input_blockers_are_stated_as_fixes_and_sorted(tmp_path):
+    cases, *rest = fixture(tmp_path)
+    corpora, lc = layout_case(tmp_path / "l", {"ren": cpy("01 REC.", "   05 A PIC X.", "   66 R RENAMES A.")})
+    lc["mq"] = {}
+    lc["datasets"]["REN"]["record_format"] = "VB"
+    f = cases / "c-known" / "case.json"
+    f.write_text(json.dumps(json.loads(f.read_text()) | lc))
+    rep = hr.build(proof(cases, *rest), "x", cases, [corpora])
+    kinds = {b["cause"]: b for b in rep["input_blockers"]}
+    assert set(kinds) == {"renames", "mq", "recfm v", "db2"}  # (c-db2 of the fixture is a Db2 case)
+    assert kinds["renames"]["cases"] == ["c-known"] and kinds["renames"]["tests_held"] == 4
+    assert "RENAMES" in kinds["renames"]["fix"] and "(#4266)" in kinds["renames"]["fix"]
+    assert [b["tests_held"] for b in rep["input_blockers"]] == sorted(
+        (b["tests_held"] for b in rep["input_blockers"]), reverse=True
+    )
+    assert rep["inputs"]["c-known"]["records"][0]["cause"] == "renames"
+    assert "### Input-generation blockers" in hr.markdown(rep)
+
+
+def test_input_keys_only_when_something_limits_an_input(tmp_path):
+    cases, *rest = fixture(tmp_path)
+    rep = hr.build(proof(cases, *rest), "x", cases)
+    assert [b["cause"] for b in rep["input_blockers"]] == ["db2"]  # the fixture's only limited input
+    assert all("records" not in i for i in rep["inputs"].values())
+    assert hr.build({"programs": [], "gaps": []}, "none", tmp_path).get("input_blockers") is None

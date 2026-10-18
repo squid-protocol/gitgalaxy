@@ -922,3 +922,47 @@ def test_failed_matrix_legs_of_one_run_get_one_rerun():
     legs = [failure("infra", check="muninn (1/2)"), failure("infra", check="muninn (2/2)")]
     acts = sg.decide(snap(failed=legs, pending=0))
     assert by_op(acts, "rerun") == [{"op": "rerun", "run_id": 55, "check": "muninn (1/2)"}]
+
+
+# --- #5398: the learned-flake cache in the workflows ------------------------------------------------------------------
+
+CACHE_FILE = "flake-cache/flake_history.json"
+
+
+def _workflow(name):
+    yaml = pytest.importorskip("yaml")
+    doc = yaml.safe_load((REPO / ".github" / "workflows" / name).read_text(encoding="utf-8"))
+    return doc, list(_steps(doc))
+
+
+@pytest.mark.parametrize("name", ["shepherd-event.yml", "shepherd-reconcile.yml"])
+def test_the_shepherd_workflows_restore_the_flake_cache_and_pass_it(name):
+    doc, steps = _workflow(name)
+    restore = [s for s in steps if s.get("uses", "").startswith("actions/cache/restore@")]
+    assert len(restore) == 1
+    w = restore[0]["with"]
+    assert w["key"] == "flake-history-${{ github.run_id }}" and w["restore-keys"].strip() == "flake-history-"
+    assert w["path"] == "flake-cache"
+    shepherd = [s for s in steps if "shepherd_gh.py" in s.get("run", "") and "ensure-labels" not in s["run"]]
+    assert len(shepherd) == 1 and f"--flake-cache {CACHE_FILE}" in shepherd[0]["run"]
+    assert steps.index(restore[0]) < steps.index(shepherd[0])
+
+
+def test_reconcile_refreshes_a_stale_flake_cache_and_always_saves_it():
+    doc, steps = _workflow("shepherd-reconcile.yml")
+    refresh = [s for s in steps if "--refresh-only" in s.get("run", "")]
+    assert len(refresh) == 1
+    r = refresh[0]
+    assert r["continue-on-error"] is True and r["timeout-minutes"] <= 12
+    assert f"--cache {CACHE_FILE}" in r["run"] and "6 * 3600" in r["run"]
+    save = [s for s in steps if s.get("uses", "").startswith("actions/cache/save@")]
+    assert len(save) == 1 and save[0]["if"] == "always()"
+    assert save[0]["with"]["key"] == "flake-history-${{ github.run_id }}" and save[0]["with"]["path"] == "flake-cache"
+    job = next(iter(doc["jobs"].values()))
+    assert job["timeout-minutes"] > r["timeout-minutes"] + 10  # the refresh must leave room for the pass itself
+
+
+def test_the_event_workflow_only_restores_the_flake_cache():
+    # short job, no concurrency group: overlapping saves/refreshes would collide, reconcile owns the cache
+    _, steps = _workflow("shepherd-event.yml")
+    assert not [s for s in steps if "cache/save" in s.get("uses", "") or "--refresh-only" in s.get("run", "")]

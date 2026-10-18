@@ -6,6 +6,7 @@ name: CI shepherd (label events)
 # pull_request_target runs with the base repository's secrets, so this job NEVER checks out or runs the pull
 # request's code: it checks out main, and the module reads the PR's metadata, check runs and labels through the API.
 # The event payload is read from $GITHUB_EVENT_PATH as data; no ${{ github.event.* }} text reaches a run: script.
+# The flake cache is only restored here (reconcile refreshes and saves it): this job is short and unserialised.
 # A label added by someone without write access is removed by the module (the labeler check is in decide()).
 # New commits: shepherd:merge approves a head only if a writer added it AFTER that head was pushed (or the bot
 # carried it through its own update), so an unreviewed head never merges by label (#4854: decided from state).
@@ -33,7 +34,19 @@ jobs:
           ref: main
           persist-credentials: false
 
+      # #5398: the learned-flake list (flake_history.py's 14-day cache); a cold scan takes over 10 minutes, so it is kept
+      # across runs. The key is never an exact hit: restore-keys takes the newest saved one.
+      - name: Restore the flake-history cache
+        id: flake
+        continue-on-error: true
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: flake-cache
+          key: flake-history-${{ github.run_id }}
+          restore-keys: |
+            flake-history-
+
       - name: Apply the label rules to this pull request
         env:
           GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
-        run: python3 tests/tools/shepherd_gh.py event --event-path "$GITHUB_EVENT_PATH"
+        run: python3 tests/tools/shepherd_gh.py event --event-path "$GITHUB_EVENT_PATH" --flake-cache flake-cache/flake_history.json

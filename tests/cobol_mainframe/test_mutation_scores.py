@@ -149,3 +149,26 @@ def test_the_operator_matrix_gives_each_port_its_caught_over_judged_per_operator
         .splitlines()[2]
         .endswith("| - | - | 1/1 |")
     )
+
+
+# #4047: ports whose survivors still carry the default placeholder verdict instead of a read triage. This set only
+# shrinks: triage a port (`mutation_scores.py retriage`) and delete its line.
+UNREAD_PLACEHOLDERS = {"genapp-lgapvs01/LGAPVS01", "genapp-lgicdb01/LGICDB01", "genapp-lgupdb01/LGUPDB01"}
+
+
+def test_placeholder_verdicts_only_shrink_and_every_triaged_survivor_has_a_reason():
+    results = json.loads(ms.RESULTS.read_text(encoding="utf-8"))
+    assert set(ms.placeholders(results)) <= UNREAD_PLACEHOLDERS
+    for port in results["ports"]:
+        for s in port["survivors"]:
+            assert s["verdict"] != "untriaged" and s["reason"].strip()
+
+
+def test_retriage_replaces_a_verdict_and_recounts_the_totals_and_operators():
+    p = ms.port_entry(_run(), {"x-case/PROG:c": {"verdict": "case_gap", "reason": ms.PLACEHOLDER}}, "abc")
+    assert ms.placeholders({"ports": [p]}) == {"x-case/PROG": 1}
+    n = ms.retriage_port(p, {"x-case/PROG:c": {"verdict": "equivalent", "reason": "never reached"}})
+    assert n == 1 and ms.placeholders({"ports": [p]}) == {}
+    assert p["total"]["equivalent"] == 1 and p["total"]["case_gap"] == 0
+    assert p["ops"]["ROR"].get("equivalent") == 1 and "case_gap" not in p["ops"]["ROR"]
+    assert ms.scores(p["total"]) == (2, 5, 4)

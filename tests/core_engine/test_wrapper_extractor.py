@@ -187,3 +187,25 @@ def test_pattern_compiles_do_not_grow_with_the_function_count(monkeypatch):
     run(50)  # warm: the detector's own lazy patterns
     base = len(compiles)
     assert run(1050) - base < 100
+
+
+def test_no_core_function_builds_a_per_name_unicode_class_pattern():
+    """A pattern built per call from `re.escape(name)` plus the huge ID_CONTINUE / ID_START class overflows re's
+    512-entry cache; compile once at module level and match with `str.find` (#5531)."""
+    import ast
+    from pathlib import Path
+
+    core = Path(__file__).resolve().parents[2] / "gitgalaxy" / "core"
+    offenders = []
+    for path in sorted(core.glob("*.py")):
+        for func in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+            if not isinstance(func, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            names = {n.id for n in ast.walk(func) if isinstance(n, ast.Name)}
+            escapes = any(
+                isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and n.func.attr == "escape"
+                for n in ast.walk(func)
+            )
+            if escapes and names & {"ID_CONTINUE", "ID_START"}:
+                offenders.append(f"{path.name}:{func.name}")
+    assert not offenders, offenders

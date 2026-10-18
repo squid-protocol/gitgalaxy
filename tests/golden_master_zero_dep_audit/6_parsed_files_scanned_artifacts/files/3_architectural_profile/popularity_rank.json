@@ -1333,7 +1333,7 @@
       "embedded_python/meow_turtle/app.py": 1,
       "embedded_python/meow_turtle/bldc_driver.py": 1,
       "embedded_python/meow_turtle/boot.py": 0,
-      "embedded_python/meow_turtle/diagnostics.py": 5,
+      "embedded_python/meow_turtle/diagnostics.py": 4,
       "embedded_python/meow_turtle/logging.py": 6,
       "embedded_python/meow_turtle/meowprotocol.py": 1,
       "embedded_python/meow_turtle/mpu6050.py": 0,
@@ -2860,7 +2860,7 @@
       "python/fastapi/fastapi/staticfiles.py": 0,
       "python/fastapi/fastapi/templating.py": 0,
       "python/fastapi/fastapi/testclient.py": 183,
-      "python/fastapi/fastapi/types.py": 18,
+      "python/fastapi/fastapi/types.py": 17,
       "python/fastapi/fastapi/utils.py": 3,
       "python/fastapi/fastapi/websockets.py": 2
     },
@@ -3264,12 +3264,11 @@
       "rust/tokio/config.rs": 0,
       "rust/tokio/fuzz.rs": 1,
       "rust/tokio/interval.rs": 0,
-      "rust/tokio/lib.rs": 11,
+      "rust/tokio/lib.rs": 10,
       "rust/tokio/maybe_done.rs": 0,
       "rust/tokio/tests.rs": 1,
       "rust/tokio/tokio_mpsc_bounded.rs": 0,
-      "rust/tokio/tokio_named_pipe.rs": 0,
-      "rust/tokio/tokio_udp.rs": 0
+      "rust/tokio/tokio_named_pipe.rs": 0
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": 0
@@ -3398,7 +3397,6 @@
       "shell/freebsd-src/dd2_test.sh": 0,
       "shell/freebsd-src/dtest.sh": 0,
       "shell/freebsd-src/echo_test.sh": 0,
-      "shell/freebsd-src/ed_test.sh": 0,
       "shell/freebsd-src/format_string_test.sh": 0,
       "shell/freebsd-src/functional_test.sh": 0,
       "shell/freebsd-src/hostname_test.sh": 0,
@@ -3436,7 +3434,6 @@
       "shell/haiku/default_deskbar_items.sh": 0,
       "shell/haiku/gen-bepo.sh": 0,
       "shell/haiku/generate_CountryFlags.sh": 0,
-      "shell/haiku/generate_ids_from_drivers.sh": 0,
       "shell/haiku/install-wifi-firmwares.sh": 0,
       "shell/haiku/install.sh": 0,
       "shell/haiku/leak_analyser.sh": 0,
@@ -3502,7 +3499,7 @@
       "shell/kubernetes/testcerts__gencerts.sh": 0,
       "shell/kubernetes/testdata__generate.sh": 0,
       "shell/kubernetes/update-codegen.sh": 0,
-      "shell/kubernetes/util.sh": 6
+      "shell/kubernetes/util.sh": 5
     },
     "shell/linux": {
       "shell/linux/COPYING": 0,
@@ -3861,9 +3858,8 @@
     },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 0,
-      "typescript/assemblyscript/ast.ts": 3,
-      "typescript/assemblyscript/builtins.ts": 1,
-      "typescript/assemblyscript/compiler.ts": 1,
+      "typescript/assemblyscript/ast.ts": 2,
+      "typescript/assemblyscript/compiler.ts": 0,
       "typescript/assemblyscript/package.json": 0,
       "typescript/assemblyscript/parser.ts": 0
     },
@@ -3908,9 +3904,7 @@
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 0,
       "typescript/typescript_compiler/binder.ts": 0,
-      "typescript/typescript_compiler/emitter.ts": 0,
-      "typescript/typescript_compiler/package.json": 0,
-      "typescript/typescript_compiler/parser.ts": 0
+      "typescript/typescript_compiler/package.json": 0
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0,
@@ -4061,7 +4055,7 @@
       "zig/mach/collision.zig": 0,
       "zig/mach/graph.zig": 1,
       "zig/mach/main.zig": 4,
-      "zig/mach/module.zig": 3,
+      "zig/mach/module.zig": 2,
       "zig/mach/testing.zig": 25,
       "zig/mach/win32.zig": 0
     },
@@ -4080,10 +4074,11 @@
       "zig/tigerbeetle/state_machine.zig": 0
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": 2,
-      "zig/zig/InternPool.zig": 4,
-      "zig/zig/Type.zig": 2,
-      "zig/zig/Zcu.zig": 4,
+      "zig/zig/Compilation.zig": 3,
+      "zig/zig/InternPool.zig": 5,
+      "zig/zig/Sema.zig": 3,
+      "zig/zig/Type.zig": 3,
+      "zig/zig/Zcu.zig": 5,
       "zig/zig/main.zig": 1
     },
     "zig/zig_std_linux_mips": {
@@ -4096,7 +4091,6 @@
       "zig/zls/analysis.zig": 2,
       "zig/zls/ast.zig": 2,
       "zig/zls/config_gen.zig": 0,
-      "zig/zls/langref.html.in": 0,
       "zig/zls/print_ast.zig": 0
     }
   },

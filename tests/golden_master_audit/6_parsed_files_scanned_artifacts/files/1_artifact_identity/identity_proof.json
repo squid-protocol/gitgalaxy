@@ -3268,8 +3268,7 @@
       "rust/tokio/maybe_done.rs": "Single Indicator (Ext: .rs)",
       "rust/tokio/tests.rs": "Single Indicator (Ext: .rs)",
       "rust/tokio/tokio_mpsc_bounded.rs": "Single Indicator (Ext: .rs)",
-      "rust/tokio/tokio_named_pipe.rs": "Single Indicator (Ext: .rs)",
-      "rust/tokio/tokio_udp.rs": "Single Indicator (Ext: .rs)"
+      "rust/tokio/tokio_named_pipe.rs": "Single Indicator (Ext: .rs)"
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": "Single Indicator (Ext: .rs)"
@@ -3398,7 +3397,6 @@
       "shell/freebsd-src/dd2_test.sh": "Single Indicator (Ext: .sh)",
       "shell/freebsd-src/dtest.sh": "Absolute Consensus (Ext + Shebang)",
       "shell/freebsd-src/echo_test.sh": "Single Indicator (Ext: .sh)",
-      "shell/freebsd-src/ed_test.sh": "Single Indicator (Ext: .sh)",
       "shell/freebsd-src/format_string_test.sh": "Single Indicator (Ext: .sh)",
       "shell/freebsd-src/functional_test.sh": "Single Indicator (Ext: .sh)",
       "shell/freebsd-src/hostname_test.sh": "Single Indicator (Ext: .sh)",
@@ -3436,7 +3434,6 @@
       "shell/haiku/default_deskbar_items.sh": "Absolute Consensus (Ext + Shebang)",
       "shell/haiku/gen-bepo.sh": "Absolute Consensus (Ext + Shebang)",
       "shell/haiku/generate_CountryFlags.sh": "Absolute Consensus (Ext + Shebang)",
-      "shell/haiku/generate_ids_from_drivers.sh": "Absolute Consensus (Ext + Shebang)",
       "shell/haiku/install-wifi-firmwares.sh": "Absolute Consensus (Ext + Shebang)",
       "shell/haiku/install.sh": "Absolute Consensus (Ext + Shebang)",
       "shell/haiku/leak_analyser.sh": "Absolute Consensus (Ext + Shebang)",
@@ -3862,7 +3859,6 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": "Single Indicator (Ext: .json)",
       "typescript/assemblyscript/ast.ts": "Single Indicator (Ext: .ts)",
-      "typescript/assemblyscript/builtins.ts": "Single Indicator (Ext: .ts)",
       "typescript/assemblyscript/compiler.ts": "Single Indicator (Ext: .ts)",
       "typescript/assemblyscript/package.json": "Single Indicator (Exact Match)",
       "typescript/assemblyscript/parser.ts": "Single Indicator (Ext: .ts)"
@@ -3908,9 +3904,7 @@
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": "Prose Extension (.txt)",
       "typescript/typescript_compiler/binder.ts": "Single Indicator (Ext: .ts)",
-      "typescript/typescript_compiler/emitter.ts": "Single Indicator (Ext: .ts)",
-      "typescript/typescript_compiler/package.json": "Single Indicator (Exact Match)",
-      "typescript/typescript_compiler/parser.ts": "Single Indicator (Ext: .ts)"
+      "typescript/typescript_compiler/package.json": "Single Indicator (Exact Match)"
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": "Prose Extension (.txt)",
@@ -4082,6 +4076,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": "Single Indicator (Ext: .zig)",
       "zig/zig/InternPool.zig": "Single Indicator (Ext: .zig)",
+      "zig/zig/Sema.zig": "Single Indicator (Ext: .zig)",
       "zig/zig/Type.zig": "Single Indicator (Ext: .zig)",
       "zig/zig/Zcu.zig": "Single Indicator (Ext: .zig)",
       "zig/zig/main.zig": "Single Indicator (Ext: .zig)"
@@ -4096,7 +4091,6 @@
       "zig/zls/analysis.zig": "Single Indicator (Ext: .zig)",
       "zig/zls/ast.zig": "Single Indicator (Ext: .zig)",
       "zig/zls/config_gen.zig": "Single Indicator (Ext: .zig)",
-      "zig/zls/langref.html.in": "Single Indicator (Ext: .html)",
       "zig/zls/print_ast.zig": "Single Indicator (Ext: .zig)"
     }
   },

@@ -3257,19 +3257,18 @@
       "rust/syn/derive.rs": -197.11
     },
     "rust/tokio": {
-      "rust/tokio/addr_of.rs": -3.44,
-      "rust/tokio/block_on.rs": 101.63,
-      "rust/tokio/blocking.rs": 12.13,
-      "rust/tokio/builder.rs": 40.16,
-      "rust/tokio/config.rs": 94.48,
-      "rust/tokio/fuzz.rs": 74.17,
-      "rust/tokio/interval.rs": -58.81,
-      "rust/tokio/lib.rs": 78.54,
-      "rust/tokio/maybe_done.rs": 94.47,
-      "rust/tokio/tests.rs": 130.58,
-      "rust/tokio/tokio_mpsc_bounded.rs": 57.47,
-      "rust/tokio/tokio_named_pipe.rs": 46.76,
-      "rust/tokio/tokio_udp.rs": 80.36
+      "rust/tokio/addr_of.rs": 122.31,
+      "rust/tokio/block_on.rs": 50.4,
+      "rust/tokio/blocking.rs": 77.53,
+      "rust/tokio/builder.rs": 98.53,
+      "rust/tokio/config.rs": -34.42,
+      "rust/tokio/fuzz.rs": 19.82,
+      "rust/tokio/interval.rs": 51.08,
+      "rust/tokio/lib.rs": -16.68,
+      "rust/tokio/maybe_done.rs": 120.2,
+      "rust/tokio/tests.rs": 62.0,
+      "rust/tokio/tokio_mpsc_bounded.rs": 55.19,
+      "rust/tokio/tokio_named_pipe.rs": 46.76
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": 112.13
@@ -3389,35 +3388,34 @@
       "shell/darwin-xnu/xcrun_cache.sh": 219.68
     },
     "shell/freebsd-src": {
-      "shell/freebsd-src/COPYRIGHT": -45.29,
-      "shell/freebsd-src/chflags_test.sh": 210.81,
-      "shell/freebsd-src/chmod_test.sh": 92.06,
-      "shell/freebsd-src/ckscripts.sh": 133.03,
+      "shell/freebsd-src/COPYRIGHT": 288.79,
+      "shell/freebsd-src/chflags_test.sh": -31.96,
+      "shell/freebsd-src/chmod_test.sh": 191.1,
+      "shell/freebsd-src/ckscripts.sh": 69.06,
       "shell/freebsd-src/cp_test.sh": 101.44,
-      "shell/freebsd-src/ctfconvert_test.sh": -145.91,
-      "shell/freebsd-src/dd2_test.sh": 37.69,
-      "shell/freebsd-src/dtest.sh": -17.17,
-      "shell/freebsd-src/echo_test.sh": 140.2,
-      "shell/freebsd-src/ed_test.sh": 142.02,
-      "shell/freebsd-src/format_string_test.sh": 212.17,
-      "shell/freebsd-src/functional_test.sh": -118.57,
-      "shell/freebsd-src/hostname_test.sh": 253.92,
-      "shell/freebsd-src/legacy_test.sh": -101.1,
-      "shell/freebsd-src/ln_test.sh": 33.79,
+      "shell/freebsd-src/ctfconvert_test.sh": 209.29,
+      "shell/freebsd-src/dd2_test.sh": -6.94,
+      "shell/freebsd-src/dtest.sh": 122.66,
+      "shell/freebsd-src/echo_test.sh": 194.87,
+      "shell/freebsd-src/format_string_test.sh": 79.31,
+      "shell/freebsd-src/functional_test.sh": 144.98,
+      "shell/freebsd-src/hostname_test.sh": -76.01,
+      "shell/freebsd-src/legacy_test.sh": 189.41,
+      "shell/freebsd-src/ln_test.sh": 218.66,
       "shell/freebsd-src/ls_tests.sh": 99.32,
-      "shell/freebsd-src/mkdir_test.sh": 37.98,
-      "shell/freebsd-src/mkerrno.sh": 231.01,
-      "shell/freebsd-src/mv_test.sh": 133.84,
-      "shell/freebsd-src/pgrep-_f_test.sh": 116.17,
-      "shell/freebsd-src/pkg-install.sh": 8.42,
-      "shell/freebsd-src/pkg_config_test.sh": -41.81,
+      "shell/freebsd-src/mkdir_test.sh": 47.07,
+      "shell/freebsd-src/mkerrno.sh": -136.05,
+      "shell/freebsd-src/mv_test.sh": 134.3,
+      "shell/freebsd-src/pgrep-_f_test.sh": -43.4,
+      "shell/freebsd-src/pkg-install.sh": 229.43,
+      "shell/freebsd-src/pkg_config_test.sh": 209.95,
       "shell/freebsd-src/pwait_test.sh": -9.32,
-      "shell/freebsd-src/pwd_test.sh": 191.15,
-      "shell/freebsd-src/rm_test.sh": -67.82,
-      "shell/freebsd-src/rmdir_test.sh": 180.45,
-      "shell/freebsd-src/runulp.sh": 199.48,
-      "shell/freebsd-src/timeout_test.sh": 148.94,
-      "shell/freebsd-src/ztest.sh": -60.97
+      "shell/freebsd-src/pwd_test.sh": -74.95,
+      "shell/freebsd-src/rm_test.sh": 140.2,
+      "shell/freebsd-src/rmdir_test.sh": -101.02,
+      "shell/freebsd-src/runulp.sh": -19.9,
+      "shell/freebsd-src/timeout_test.sh": -93.04,
+      "shell/freebsd-src/ztest.sh": 45.37
     },
     "shell/freebsd_sysbuild": {
       "shell/freebsd_sysbuild/COPYRIGHT": -200.87,
@@ -3425,28 +3423,27 @@
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": -197.73,
-      "shell/haiku/License.md": -259.75,
-      "shell/haiku/ValidatePeopleEmails.sh": -233.99,
-      "shell/haiku/bootstrap.sh": -222.95,
-      "shell/haiku/build-toolchain.sh": -245.42,
-      "shell/haiku/catmerge.sh": -184.83,
-      "shell/haiku/colorgrep.sh": -157.51,
-      "shell/haiku/convert.sh": -248.44,
-      "shell/haiku/create_project_file.sh": -242.42,
-      "shell/haiku/default_deskbar_items.sh": -246.04,
-      "shell/haiku/gen-bepo.sh": -283.42,
-      "shell/haiku/generate_CountryFlags.sh": -218.87,
-      "shell/haiku/generate_ids_from_drivers.sh": -273.78,
+      "shell/haiku/License.md": -187.71,
+      "shell/haiku/ValidatePeopleEmails.sh": -274.45,
+      "shell/haiku/bootstrap.sh": -171.56,
+      "shell/haiku/build-toolchain.sh": -209.24,
+      "shell/haiku/catmerge.sh": -227.3,
+      "shell/haiku/colorgrep.sh": -223.38,
+      "shell/haiku/convert.sh": -310.93,
+      "shell/haiku/create_project_file.sh": -281.16,
+      "shell/haiku/default_deskbar_items.sh": -220.17,
+      "shell/haiku/gen-bepo.sh": -218.15,
+      "shell/haiku/generate_CountryFlags.sh": -217.7,
       "shell/haiku/install-wifi-firmwares.sh": -258.17,
-      "shell/haiku/install.sh": -303.97,
-      "shell/haiku/leak_analyser.sh": -268.52,
-      "shell/haiku/makezip.sh": -260.0,
-      "shell/haiku/mk_floppy_prg_atari.sh": -275.74,
-      "shell/haiku/mksysroot.sh": -255.32,
-      "shell/haiku/mktable.sh": -174.05,
-      "shell/haiku/sysprep-gce.sh": -241.16,
-      "shell/haiku/usb__install.sh": -232.23,
-      "shell/haiku/usb_vision__install.sh": -255.71
+      "shell/haiku/install.sh": -250.1,
+      "shell/haiku/leak_analyser.sh": -281.14,
+      "shell/haiku/makezip.sh": -233.97,
+      "shell/haiku/mk_floppy_prg_atari.sh": -250.16,
+      "shell/haiku/mksysroot.sh": -215.68,
+      "shell/haiku/mktable.sh": -235.62,
+      "shell/haiku/sysprep-gce.sh": -275.93,
+      "shell/haiku/usb__install.sh": -224.46,
+      "shell/haiku/usb_vision__install.sh": -268.51
     },
     "shell/illumos-gate": {
       "shell/illumos-gate/Run.sh": 11.42,
@@ -3860,12 +3857,11 @@
       "typescript/angular_zonejs_mocha/mocha.ts": 171.27
     },
     "typescript/assemblyscript": {
-      "typescript/assemblyscript/asconfig.json": 240.25,
-      "typescript/assemblyscript/ast.ts": 242.48,
-      "typescript/assemblyscript/builtins.ts": 174.33,
+      "typescript/assemblyscript/asconfig.json": 236.51,
+      "typescript/assemblyscript/ast.ts": 296.27,
       "typescript/assemblyscript/compiler.ts": 202.09,
-      "typescript/assemblyscript/package.json": 278.92,
-      "typescript/assemblyscript/parser.ts": 293.54
+      "typescript/assemblyscript/package.json": 228.75,
+      "typescript/assemblyscript/parser.ts": 223.28
     },
     "typescript/effect_ai_anthropic": {
       "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": -190.9
@@ -3906,11 +3902,9 @@
       "typescript/playwright/protocol.ts": -306.74
     },
     "typescript/typescript_compiler": {
-      "typescript/typescript_compiler/LICENSE.txt": 144.42,
-      "typescript/typescript_compiler/binder.ts": 219.74,
-      "typescript/typescript_compiler/emitter.ts": 93.46,
-      "typescript/typescript_compiler/package.json": 26.98,
-      "typescript/typescript_compiler/parser.ts": 127.78
+      "typescript/typescript_compiler/LICENSE.txt": 150.68,
+      "typescript/typescript_compiler/binder.ts": 141.84,
+      "typescript/typescript_compiler/package.json": 95.83
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 105.4,
@@ -4080,11 +4074,12 @@
       "zig/tigerbeetle/state_machine.zig": 130.94
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": -178.07,
-      "zig/zig/InternPool.zig": -101.89,
-      "zig/zig/Type.zig": 21.26,
-      "zig/zig/Zcu.zig": -144.89,
-      "zig/zig/main.zig": -78.94
+      "zig/zig/Compilation.zig": 1.36,
+      "zig/zig/InternPool.zig": -158.66,
+      "zig/zig/Sema.zig": -41.41,
+      "zig/zig/Type.zig": -197.71,
+      "zig/zig/Zcu.zig": -5.89,
+      "zig/zig/main.zig": -87.9
     },
     "zig/zig_std_linux_mips": {
       "zig/zig_std_linux_mips/mips.zig": -145.94
@@ -4096,7 +4091,6 @@
       "zig/zls/analysis.zig": -190.97,
       "zig/zls/ast.zig": -143.47,
       "zig/zls/config_gen.zig": -145.8,
-      "zig/zls/langref.html.in": -201.86,
       "zig/zls/print_ast.zig": -146.97
     }
   },

@@ -225,9 +225,6 @@
       "typescript/playwright/dispatcher.ts": "EventEmitter implements channels, Dispatcher",
       "typescript/playwright/frames.ts": "Error, SdkObject"
     },
-    "typescript/typescript_compiler": {
-      "typescript/typescript_compiler/parser.ts": "NodeArray"
-    },
     "typescript/vscode": {
       "typescript/vscode/async.ts": "Promise, IDisposable, Barrier",
       "typescript/vscode/codeEditorWidget.ts": "Disposable implements editorBrowser, Disposable, Emitter",

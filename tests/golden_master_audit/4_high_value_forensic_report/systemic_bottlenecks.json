@@ -38,66 +38,66 @@
     ],
     "fragile_dependency_chain": [
       {
-        "close": 0.0562,
+        "close": 0.0563,
         "err": 66.2775,
         "path": "python/fastapi/fastapi/applications.py",
-        "score": 3.726
+        "score": 3.733
       },
       {
-        "close": 0.0592,
+        "close": 0.0593,
         "err": 60.143,
         "path": "python/fastapi/fastapi/__init__.py",
-        "score": 3.558
+        "score": 3.564
       },
       {
         "close": 0.0331,
         "err": 91.4708,
         "path": "python/fastapi/fastapi/exceptions.py",
-        "score": 3.024
+        "score": 3.029
       },
       {
-        "close": 0.0311,
+        "close": 0.0312,
         "err": 90.4651,
         "path": "python/fastapi/fastapi/datastructures.py",
-        "score": 2.815
+        "score": 2.82
       },
       {
-        "close": 0.0324,
+        "close": 0.0325,
         "err": 84.3093,
         "path": "python/fastapi/fastapi/routing.py",
-        "score": 2.733
+        "score": 2.738
       }
     ],
     "undocumented_critical_path": [
       {
         "doc": 100.0,
         "path": "jcl/cics-banking-sample-application-cbsa/CRELIBS.jcl",
-        "pr": 13.007,
-        "score": 1300.7
+        "pr": 13.028,
+        "score": 1302.8
       },
       {
         "doc": 96.9697,
         "path": "python/fastapi/fastapi/applications.py",
-        "pr": 10.205,
-        "score": 989.576
-      },
-      {
-        "doc": 100.0,
-        "path": "rust/tokio/lib.rs",
-        "pr": 6.56,
-        "score": 656.0
+        "pr": 10.223,
+        "score": 991.321
       },
       {
         "doc": 100.0,
         "path": "python/fastapi/fastapi/exceptions.py",
-        "pr": 6.142,
-        "score": 614.2
+        "pr": 6.152,
+        "score": 615.2
+      },
+      {
+        "doc": 100.0,
+        "path": "rust/tokio/lib.rs",
+        "pr": 5.984,
+        "score": 598.4
       },
       {
         "doc": 100.0,
         "path": "python/fastapi/fastapi/param_functions.py",
-        "pr": 5.799,
-        "score": 579.9
+        "pr": 5.809,
+        "score": 580.9
       }
     ]
   }

@@ -4288,9 +4288,6 @@
       ],
       "rust/tokio/tokio_named_pipe.rs": [
         "import:rust/tokio/lib.rs"
-      ],
-      "rust/tokio/tokio_udp.rs": [
-        "import:rust/tokio/lib.rs"
       ]
     },
     "scala/kafka": {
@@ -4476,20 +4473,11 @@
         "import:shell/kubernetes/util.sh",
         "import:zig/mach/module.zig"
       ],
-      "typescript/assemblyscript/builtins.ts": [
-        "import:embedded_python/meow_turtle/diagnostics.py",
-        "import:python/fastapi/fastapi/types.py",
-        "import:shell/kubernetes/util.sh",
-        "import:typescript/assemblyscript/ast.ts",
-        "import:typescript/assemblyscript/compiler.ts",
-        "import:zig/mach/module.zig"
-      ],
       "typescript/assemblyscript/compiler.ts": [
         "import:embedded_python/meow_turtle/diagnostics.py",
         "import:python/fastapi/fastapi/types.py",
         "import:shell/kubernetes/util.sh",
         "import:typescript/assemblyscript/ast.ts",
-        "import:typescript/assemblyscript/builtins.ts",
         "import:zig/mach/module.zig"
       ],
       "typescript/assemblyscript/parser.ts": [
@@ -4634,6 +4622,7 @@
       "zig/zig/Compilation.zig": [
         "import:shell/serenity/builtin.sh",
         "import:zig/zig/InternPool.zig",
+        "import:zig/zig/Sema.zig",
         "import:zig/zig/Type.zig",
         "import:zig/zig/Zcu.zig",
         "import:zig/zig/main.zig"
@@ -4642,15 +4631,23 @@
         "import:shell/serenity/builtin.sh",
         "import:zig/zig/Zcu.zig"
       ],
+      "zig/zig/Sema.zig": [
+        "import:zig/zig/Compilation.zig",
+        "import:zig/zig/InternPool.zig",
+        "import:zig/zig/Type.zig",
+        "import:zig/zig/Zcu.zig"
+      ],
       "zig/zig/Type.zig": [
         "import:shell/serenity/builtin.sh",
         "import:zig/zig/InternPool.zig",
+        "import:zig/zig/Sema.zig",
         "import:zig/zig/Zcu.zig"
       ],
       "zig/zig/Zcu.zig": [
         "import:shell/serenity/builtin.sh",
         "import:zig/zig/Compilation.zig",
         "import:zig/zig/InternPool.zig",
+        "import:zig/zig/Sema.zig",
         "import:zig/zig/Type.zig"
       ],
       "zig/zig/main.zig": [

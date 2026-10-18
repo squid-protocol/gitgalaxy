@@ -2189,8 +2189,7 @@
       "rust/tokio/config.rs": "None Detected",
       "rust/tokio/fuzz.rs": "None Detected",
       "rust/tokio/interval.rs": "None Detected",
-      "rust/tokio/lib.rs": "None Detected",
-      "rust/tokio/tokio_udp.rs": "None Detected"
+      "rust/tokio/lib.rs": "None Detected"
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": "None Detected"
@@ -2255,7 +2254,6 @@
       "shell/freebsd-src/cp_test.sh": "None Detected",
       "shell/freebsd-src/ctfconvert_test.sh": "None Detected",
       "shell/freebsd-src/echo_test.sh": "None Detected",
-      "shell/freebsd-src/ed_test.sh": "None Detected",
       "shell/freebsd-src/format_string_test.sh": "None Detected",
       "shell/freebsd-src/hostname_test.sh": "None Detected",
       "shell/freebsd-src/ln_test.sh": "None Detected",
@@ -2274,7 +2272,6 @@
       "shell/haiku/convert.sh": "None Detected",
       "shell/haiku/default_deskbar_items.sh": "None Detected",
       "shell/haiku/gen-bepo.sh": "None Detected",
-      "shell/haiku/generate_ids_from_drivers.sh": "None Detected",
       "shell/haiku/makezip.sh": "None Detected"
     },
     "shell/illumos-gate": {
@@ -2715,9 +2712,6 @@
     },
     "zig/zig_std_linux_mips": {
       "zig/zig_std_linux_mips/mips.zig": "None Detected"
-    },
-    "zig/zls": {
-      "zig/zls/langref.html.in": "None Detected"
     }
   },
   "path": [

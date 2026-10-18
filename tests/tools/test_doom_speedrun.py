@@ -5,6 +5,7 @@ modules are imported as bare names (tests/ has no __init__.py).
 """
 
 import re
+import stat
 import subprocess
 import sys
 from pathlib import Path
@@ -110,6 +111,18 @@ def test_fetch_port_checks_out_exactly_the_pinned_sha(tmp_path):
     assert (repos / "p" / "a.c").read_text() == "int a(void){return 1;}\n"
     assert doom_speedrun.fetch_port(row, repos) is None  # resumable: already at the SHA
     assert doom_speedrun.fetch_port({**row, "sha": "0" * 40}, repos) is not None
+
+
+def test_rmtree_removes_read_only_files_and_a_missing_dir(tmp_path):
+    """A git checkout's objects are read-only; Windows refused to delete them and fetch_port then hit FileExistsError."""
+    tree = tmp_path / "p" / ".git" / "objects"
+    tree.mkdir(parents=True)
+    ro = tree / "pack.idx"
+    ro.write_text("x")
+    ro.chmod(stat.S_IREAD)
+    doom_speedrun._rmtree(tmp_path / "p")
+    assert not (tmp_path / "p").exists()
+    doom_speedrun._rmtree(tmp_path / "p")  # already gone: no error
 
 
 def test_work_dir_inside_repo_is_refused():

@@ -2,8 +2,11 @@
 
 import subprocess
 import sys
+
 from pathlib import Path
 from types import SimpleNamespace
+
+import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import pr_gates
@@ -98,6 +101,7 @@ def test_audits_always_run_under_env_i_and_print_the_tool_used(monkeypatch, caps
     assert "mypy used:" in out and "ruff used:" in out
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="the gate runs under POSIX `env -i` with a /usr/bin:/bin PATH")
 def test_matching_tool_off_the_interpreter_bin_dir_is_on_the_clean_path(monkeypatch, tmp_path):
     """churn's precheck runs under /usr/bin/python3 with the pinned ruff on ~/.local/bin: the gate's `env -i` PATH must
     name the dir the matched ruff/mypy is in, not the interpreter's (it failed lint in 0 s with 'ruff' not found)."""

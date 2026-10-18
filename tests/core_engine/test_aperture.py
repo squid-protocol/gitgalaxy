@@ -370,7 +370,7 @@ def test_aperture_binary_and_monolith_shields(filter_engine, tmp_path):
 
     # 2. Monolith Amalgamation Shield
     mono_file = tmp_path / "sqlite3.c"
-    mono_content = "int main() {\n" + "    return 0;\n" * 30005 + "}"
+    mono_content = "int main() {\n" + "    return 0;\n" * 150005 + "}"
     mono_file.write_text(mono_content, encoding="utf-8")
 
     result = filter_engine.is_in_scope(mono_file, content=mono_content)
@@ -740,7 +740,7 @@ def test_the_header_lifts_no_other_gate(port_engine, tmp_path):
         "Saturation": PORT_HEADER + _port_body(long_line=6000),  # past DECLARED_PORT_MAX_LINE_LENGTH
         "Binary Format": PORT_HEADER + "\x00" * 400 + _port_body(),
         "Embedded Hex Payload": PORT_HEADER + "int[] a = {" + "0x00, " * 3000 + "};\n" + _port_body(),
-        "Monolithic Amalgamation": PORT_HEADER + "int a;\n" * 30001,
+        "Monolithic Amalgamation": PORT_HEADER + "int a;\n" * 150001,
     }
     for reason, content in cases.items():
         f.write_text(content, encoding="utf-8")

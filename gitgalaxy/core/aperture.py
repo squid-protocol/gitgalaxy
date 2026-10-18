@@ -672,14 +672,17 @@ class ApertureFilter:
             return report
 
         # --- Gate 3.2: Monolith Amalgamation Shield ---
-        # DEFENSIVE DESIGN: 30,000+ lines in a single file is usually an amalgamation (e.g. sqlite3.c).
-        # Standard Structural Signature extractors suffer from Catastrophic Backtracking on files of this magnitude.
-        if loc > 30000:
+        # DEFENSIVE DESIGN: a file past MAX_FILE_LOC is an amalgamation (sqlite3.c is ~250k lines).
+        # #5459: the cut was 30,000, which dropped whole single-file engines (gore doom.go, 43,874 lines;
+        # PureDOOM.h, 48,604). Both extract in under 10 s; the regex backtracking risk is bounded by the
+        # per-file ReDoS fuse (galaxyscope SIGALRM), not by a line count, so the cut is only a backstop.
+        max_loc = self.config.get("MAX_FILE_LOC", 150000)
+        if loc > max_loc:
             report.update(
                 {
                     "valid": False,
                     "classification": "oversized_minified",
-                    "reason": f"Blocked (Monolithic Amalgamation: {loc} LOC exceeds safe regex boundaries)",
+                    "reason": f"Blocked (Monolithic Amalgamation: {loc} LOC exceeds the {max_loc} LOC backstop)",
                 }
             )
             return report

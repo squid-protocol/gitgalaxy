@@ -215,6 +215,7 @@
     "le/Ceedatm.java",
     "le/Ceedays.java",
     "le/Ceegmt.java",
+    "le/Ceegmto.java",
     "le/Ceeisec.java",
     "le/Ceeloct.java",
     "le/Ceeqcen.java",
@@ -2847,6 +2848,24 @@
    "register": [
     "L6",
     "X4"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-LE-CEEGMTO",
+   "family": "LE",
+   "title": "CEEGMTO / CEEUTCO: the offset from GMT is zero on the GMT clock",
+   "methods": [
+    "le/Ceegmto.java:call"
+   ],
+   "ibm": {
+    "doc": "le-pr",
+    "section": "CEEGMTO: get offset from Greenwich Mean Time to local time"
+   },
+   "options": [],
+   "register": [
+    "L6"
    ],
    "status": "ASSUMED",
    "calibration": "uncalibrated"

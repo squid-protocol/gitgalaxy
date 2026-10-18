@@ -1,5 +1,5 @@
 {
- "commit": "0a081f595",
+ "commit": "74db5d35e",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -26,9 +26,9 @@
   "cobolrt_rules": {
    "families": {
     "CBL": {
-     "ASSUMED": 3,
+     "ASSUMED": 2,
      "DIFFERS": 13,
-     "MATCHED": 26,
+     "MATCHED": 27,
      "REFUSED": 3
     },
     "CICS": {
@@ -92,9 +92,9 @@
    "measured_on_zos": 0,
    "rules": 174,
    "status": {
-    "ASSUMED": 54,
+    "ASSUMED": 53,
     "DIFFERS": 23,
-    "MATCHED": 83,
+    "MATCHED": 84,
     "REFUSED": 14
    }
   },
@@ -157,7 +157,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-18T15:49:51Z",
+  "as_of": "2026-10-18T16:15:54Z",
   "core": {
    "closed": 123,
    "open": 34,
@@ -232,9 +232,9 @@
    {
     "closed": 40,
     "number": 6,
-    "open": 13,
+    "open": 14,
     "title": "Side Quests \ud83d\uddfa\ufe0f",
-    "total": 53
+    "total": 54
    },
    {
     "closed": 170,
@@ -407,13 +407,13 @@
   ],
   "sweep": {
    "closed": 75,
-   "open": 13,
-   "total": 88
+   "open": 14,
+   "total": 89
   },
   "title_counts": {
    "cics": {
     "closed": 79,
-    "total": 99
+    "total": 100
    },
    "cobol": {
     "closed": 124,

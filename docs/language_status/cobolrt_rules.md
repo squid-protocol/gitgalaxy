@@ -23,7 +23,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | FILE: batch files | `batch/DetFiles.java` | 3 | yes |
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 
-174 rules: 83 MATCHED, 23 DIFFERS, 14 REFUSED, 54 ASSUMED; 0 measured on z/OS (#4702).
+174 rules: 84 MATCHED, 23 DIFFERS, 14 REFUSED, 53 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -80,7 +80,7 @@ MOVE, arithmetic stores and intermediates, comparisons, class tests, DISPLAY, ST
 | RT-CBL-HEX-LITERAL-BYTES | X'hh..' is exactly those bytes, with no code-page translation; the record charset keeps every byte value | `cobol-lr` Alphanumeric literals: hexadecimal notation | - | D2 (DIFFERS (oracle vs IBM, characters) / MATCHED (the bytes, the oracle = the port = IBM)) | MATCHED | uncalibrated |
 | RT-CBL-MOVE-FIGURATIVE | MOVE of a figurative constant: ZERO stored as the value zero (numeric, edited), SPACE / LOW-VALUE / HIGH-VALUE / QUOTE as their byte repeated; a figurative other than ZERO into a COMP-1 / COMP-2 item refused | `cobol-lr` Figurative constants | QUOTE | C6 (MODELLED in the det runtime (HFP, #4271 slice 1); the oracle DIFFERS (IEEE, decimal evaluation): proven by IBM-cited vectors and on exact values; what the oracle cannot decide REFUSED by name) | MATCHED | uncalibrated |
 | RT-CBL-MOVE-ALL-LITERAL | MOVE ALL literal: the literal repeated to the receiver's size | `cobol-lr` Figurative constants: ALL literal | - | - | MATCHED | uncalibrated |
-| RT-CBL-MOVE-NUMERIC-TO-ALPHANUMERIC | A numeric sender MOVEd to an alphanumeric receiver as its unsigned digits (the overpunched sign removed); a right-P item's P positions as zeros | `cobol-lr` MOVE statement: elementary moves | - | - | ASSUMED | uncalibrated |
+| RT-CBL-MOVE-NUMERIC-TO-ALPHANUMERIC | A numeric sender MOVEd to an alphanumeric receiver as its unsigned digits (the overpunched sign removed); a right-P item's P positions as zeros | `cobol-lr` MOVE statement: elementary moves | - | - | MATCHED | uncalibrated |
 | RT-CBL-MOVE-DEEDIT | A numeric-edited sender MOVEd to a numeric receiver is de-edited: its digits, negative when it shows -, CR or DB | `cobol-lr` MOVE statement: de-editing | DECIMAL-POINT-COMMA | - | MATCHED | uncalibrated |
 | RT-CBL-MOVE-ALPHANUMERIC-TO-NUMERIC | An alphanumeric sender MOVEd to a numeric receiver read as libcob does: into a zoned item byte for byte (leading spaces and one sign skipped, a stray character makes it zero), into a packed or binary item the whole text | `cobol-lr` MOVE statement: elementary moves | DECIMAL-POINT-COMMA | - | ASSUMED | uncalibrated |
 | RT-CBL-OPERAND-VALUE | A numeric item's value as an operand (numeric-edited: de-edited; a zoned item through Zoned's reading) | `cobol-lr` Arithmetic expressions | - | - | MATCHED | uncalibrated |

@@ -15,7 +15,7 @@
       "Generic / Templated Code Files": 73,
       "Interface Declarations Files": 429,
       "Large Core Modules": 335,
-      "Large Core Modules (2)": 247,
+      "Large Core Modules (2)": 248,
       "Large Core Modules (3)": 297,
       "Many-Argument Workhorses Files": 78,
       "Parameter Forwarders Files": 175,
@@ -25,8 +25,8 @@
     "repo_composition_archetype": "Unvalidated",
     "repo_composition_z": 0.0,
     "total_files": 3737,
-    "total_loc": 929632,
-    "verified_files": 3354,
+    "total_loc": 961621,
+    "verified_files": 3355,
     "volatility_index": 0.0
   }
 }

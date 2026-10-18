@@ -4076,6 +4076,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": "Unknown Architect",
       "zig/zig/InternPool.zig": "Unknown Architect",
+      "zig/zig/Sema.zig": "Unknown Architect",
       "zig/zig/Type.zig": "Unknown Architect",
       "zig/zig/Zcu.zig": "Unknown Architect",
       "zig/zig/main.zig": "Unknown Architect"

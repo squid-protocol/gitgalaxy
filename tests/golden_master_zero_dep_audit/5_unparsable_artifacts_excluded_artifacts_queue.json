@@ -220,7 +220,7 @@
       "Size": "13804 bytes"
     },
     {
-      "Diagnostic Reason": "Blocked (Monolithic Amalgamation: 36288 LOC exceeds safe regex boundaries)",
+      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 36288 LOC)",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
       "Identity Confidence": "0.0%",
@@ -2780,7 +2780,7 @@
       "Size": "11601 bytes"
     },
     {
-      "Diagnostic Reason": "Blocked (Monolithic Amalgamation: 54435 LOC exceeds safe regex boundaries)",
+      "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 54435 LOC)",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
       "Identity Confidence": "0.0%",
@@ -2970,14 +2970,6 @@
       "Identity Confidence": "0.0%",
       "Path": "zig/zig/LICENSE",
       "Size": "1080 bytes"
-    },
-    {
-      "Diagnostic Reason": "Blocked (Monolithic Amalgamation: 37746 LOC exceeds safe regex boundaries)",
-      "Discovery Proof": "Radar Scan",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
-      "Path": "zig/zig/Sema.zig",
-      "Size": "1610629 bytes"
     },
     {
       "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 8582 LOC)",

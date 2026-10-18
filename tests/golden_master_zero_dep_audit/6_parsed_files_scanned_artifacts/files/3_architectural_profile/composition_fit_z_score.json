@@ -579,7 +579,7 @@
       "cobol/aws-mainframe-modernization-carddemo/CSSTRPFY.cpy": 3.404,
       "cobol/aws-mainframe-modernization-carddemo/CSUSR01Y.cpy": 0.0,
       "cobol/aws-mainframe-modernization-carddemo/CSUTLDPY.cpy": 3.375,
-      "cobol/aws-mainframe-modernization-carddemo/CSUTLDTC.cbl": 3.307,
+      "cobol/aws-mainframe-modernization-carddemo/CSUTLDTC.cbl": 3.291,
       "cobol/aws-mainframe-modernization-carddemo/CSUTLDWY.cpy": -0.3,
       "cobol/aws-mainframe-modernization-carddemo/CUSTREC.cpy": -0.455,
       "cobol/aws-mainframe-modernization-carddemo/CVACT01Y.cpy": 0.0,
@@ -2566,7 +2566,7 @@
       "php/laravel_core/Container.php": 0.592,
       "php/laravel_core/Facade.php": 0.145,
       "php/laravel_core/LICENSE.md": 0.0,
-      "php/laravel_core/Model.php": 0.541,
+      "php/laravel_core/Model.php": 0.521,
       "php/laravel_core/Router.php": 0.82
     },
     "php/laravel_validation_rules": {
@@ -4074,10 +4074,11 @@
       "zig/tigerbeetle/state_machine.zig": -0.051
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": 0.01,
+      "zig/zig/Compilation.zig": 0.078,
       "zig/zig/InternPool.zig": 0.175,
-      "zig/zig/Type.zig": 0.319,
-      "zig/zig/Zcu.zig": 0.854,
+      "zig/zig/Sema.zig": 0.171,
+      "zig/zig/Type.zig": 0.383,
+      "zig/zig/Zcu.zig": 0.885,
       "zig/zig/main.zig": 0.297
     },
     "zig/zig_std_linux_mips": {

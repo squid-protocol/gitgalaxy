@@ -4076,6 +4076,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": "Single Indicator (Ext: .zig)",
       "zig/zig/InternPool.zig": "Single Indicator (Ext: .zig)",
+      "zig/zig/Sema.zig": "Single Indicator (Ext: .zig)",
       "zig/zig/Type.zig": "Single Indicator (Ext: .zig)",
       "zig/zig/Zcu.zig": "Single Indicator (Ext: .zig)",
       "zig/zig/main.zig": "Single Indicator (Ext: .zig)"

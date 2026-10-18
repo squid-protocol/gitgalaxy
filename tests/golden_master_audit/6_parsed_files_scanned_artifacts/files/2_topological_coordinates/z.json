@@ -92,14 +92,14 @@
       "apex/SOURCES.md": 12340.53
     },
     "apex/apex-recipes": {
-      "apex/apex-recipes/AuraEnabledRecipes_Tests.cls": 11044.49,
-      "apex/apex-recipes/LICENSE.md": 9979.75,
-      "apex/apex-recipes/QueueableRecipes.cls": 10189.47,
-      "apex/apex-recipes/SOQLRecipes.cls": 10930.14,
-      "apex/apex-recipes/SOQLRecipes.cls-meta.xml": 10498.61,
-      "apex/apex-recipes/SOQLRecipes_Tests.cls": 10563.11,
-      "apex/apex-recipes/project-scratch-def.json": 10528.12,
-      "apex/apex-recipes/sfdx-project.json": 10775.3
+      "apex/apex-recipes/AuraEnabledRecipes_Tests.cls": -4224.26,
+      "apex/apex-recipes/LICENSE.md": -5289.0,
+      "apex/apex-recipes/QueueableRecipes.cls": -5079.29,
+      "apex/apex-recipes/SOQLRecipes.cls": -4338.62,
+      "apex/apex-recipes/SOQLRecipes.cls-meta.xml": -4770.14,
+      "apex/apex-recipes/SOQLRecipes_Tests.cls": -4705.64,
+      "apex/apex-recipes/project-scratch-def.json": -4740.63,
+      "apex/apex-recipes/sfdx-project.json": -4493.46
     },
     "assembly": {
       "assembly/SOURCES.md": -2913.38
@@ -1005,13 +1005,13 @@
       "cobol/cobol-check/src_main_cobol_copy_EXR001.CBL": -4206.83
     },
     "cobol/cobol-programming-course": {
-      "cobol/cobol-programming-course/CBL0106.cbl": 4868.25,
-      "cobol/cobol-programming-course/CBL0106C.cbl": 4117.26,
-      "cobol/cobol-programming-course/CBLDB21.cbl": 4219.27,
-      "cobol/cobol-programming-course/CBLDB22.cbl": 4231.22,
-      "cobol/cobol-programming-course/CBLDB23.cbl": 4658.57,
-      "cobol/cobol-programming-course/DEPTPAY.CBL": 4731.22,
-      "cobol/cobol-programming-course/EMPPAY.CBL": 4128.98
+      "cobol/cobol-programming-course/CBL0106.cbl": -8818.8,
+      "cobol/cobol-programming-course/CBL0106C.cbl": -9569.79,
+      "cobol/cobol-programming-course/CBLDB21.cbl": -9467.78,
+      "cobol/cobol-programming-course/CBLDB22.cbl": -9455.83,
+      "cobol/cobol-programming-course/CBLDB23.cbl": -9028.48,
+      "cobol/cobol-programming-course/DEPTPAY.CBL": -8955.83,
+      "cobol/cobol-programming-course/EMPPAY.CBL": -9558.07
     },
     "cobol/cobrix": {
       "cobol/cobrix/companies_copybook.cpy": 3835.28,
@@ -1085,7 +1085,7 @@
       "cobol/zopeneditor-sample/TRANREC.cpy": -8806.33
     },
     "cpp": {
-      "cpp/SOURCES.md": -10673.86
+      "cpp/SOURCES.md": -10675.0
     },
     "cpp/NVDA": {
       "cpp/NVDA/CODE_OF_CONDUCT.md": 7522.37,
@@ -1129,17 +1129,17 @@
       "cpp/mlir/tf_tfl_translate.cc": 9625.94
     },
     "cpp/powertoys": {
-      "cpp/powertoys/FancyZones.cpp": -4894.66,
-      "cpp/powertoys/FancyZones.h": -5195.81,
-      "cpp/powertoys/ImageResizerExt.cpp": -5180.96,
-      "cpp/powertoys/centralized_kb_hook.cpp": -5634.58,
-      "cpp/powertoys/logger.cpp": -4834.35,
-      "cpp/powertoys/main.cpp": -4935.09,
-      "cpp/powertoys/powertoy_module.h": -4398.74
+      "cpp/powertoys/FancyZones.cpp": -8633.78,
+      "cpp/powertoys/FancyZones.h": -8934.94,
+      "cpp/powertoys/ImageResizerExt.cpp": -8920.09,
+      "cpp/powertoys/centralized_kb_hook.cpp": -9373.7,
+      "cpp/powertoys/logger.cpp": -8573.47,
+      "cpp/powertoys/main.cpp": -8674.22,
+      "cpp/powertoys/powertoy_module.h": -8137.86
     },
     "cpp/serenity_ak_siphash_cpu": {
-      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": 8519.48,
-      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": 8483.19
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": 8527.72,
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": 8491.43
     },
     "csd": {
       "csd/SOURCES.md": 6547.65
@@ -1157,8 +1157,8 @@
       "csd/cbsa/PROVENANCE.md": 10040.34
     },
     "csd/z_sms_gateway": {
-      "csd/z_sms_gateway/PROVENANCE.md": 7803.09,
-      "csd/z_sms_gateway/ZSMSCSD.csd": 7418.13
+      "csd/z_sms_gateway/PROVENANCE.md": 7807.23,
+      "csd/z_sms_gateway/ZSMSCSD.csd": 7422.27
     },
     "csharp": {
       "csharp/SOURCES.md": 11044.26
@@ -1181,9 +1181,9 @@
       "css/bootstrap_dist/bootstrap.rtl.css": 1725.69
     },
     "css/cytoscape_docs": {
-      "css/cytoscape_docs/reset.css": 6763.51,
-      "css/cytoscape_docs/solarized_dark.css": 7395.33,
-      "css/cytoscape_docs/style.css": 7066.03
+      "css/cytoscape_docs/reset.css": 6775.21,
+      "css/cytoscape_docs/solarized_dark.css": 7407.03,
+      "css/cytoscape_docs/style.css": 7077.73
     },
     "css/element": {
       "css/element/common.css": -9445.37,
@@ -1216,15 +1216,15 @@
       "css/tailwindcss_atrules/utilities.css": -5274.8
     },
     "css/threejs_app_ui": {
-      "css/threejs_app_ui/editor_main.css": -8604.88,
-      "css/threejs_app_ui/examples_main.css": -8879.34,
-      "css/threejs_app_ui/threejs-lessons.css": -8351.59
+      "css/threejs_app_ui/editor_main.css": -8606.3,
+      "css/threejs_app_ui/examples_main.css": -8880.77,
+      "css/threejs_app_ui/threejs-lessons.css": -8353.01
     },
     "css/wordpress": {
       "css/wordpress/LICENSE.txt": -9722.39
     },
     "dart": {
-      "dart/SOURCES.md": -9814.64
+      "dart/SOURCES.md": -9818.81
     },
     "dart/flutter": {
       "dart/flutter/editable_text.dart": 8938.58,
@@ -1236,7 +1236,7 @@
       "dart/flutter/theme_data.dart": 9176.35
     },
     "db2_sql": {
-      "db2_sql/SOURCES.md": 7423.42
+      "db2_sql/SOURCES.md": 7428.15
     },
     "db2_sql/db2unit": {
       "db2_sql/db2unit/00-Prereqs.sql": -5994.08,
@@ -1251,7 +1251,7 @@
       "db2_sql/db2unit/PROVENANCE.md": -5261.47
     },
     "dockerfile": {
-      "dockerfile/SOURCES.md": 8667.74
+      "dockerfile/SOURCES.md": 8670.49
     },
     "dockerfile/moby/builder/dockerfile": {
       "dockerfile/moby/builder/dockerfile/buildargs.go": 3742.0,
@@ -1300,8 +1300,8 @@
       "dockerfile/moby/builder/remotecontext/utils_test.go": -1810.03
     },
     "dockerfile/moby/builder/remotecontext/git": {
-      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 4964.5,
-      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 5424.51
+      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 4964.95,
+      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 5424.96
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": -9783.45,
@@ -1316,8 +1316,8 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": -9080.77
     },
     "dockerfile/moby/builder/remotecontext/urlutil": {
-      "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": -10110.77,
-      "dockerfile/moby/builder/remotecontext/urlutil/urlutil_test.go": -10183.44
+      "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": -10111.69,
+      "dockerfile/moby/builder/remotecontext/urlutil/urlutil_test.go": -10184.37
     },
     "dockerfile/moby/test_targets": {
       "dockerfile/moby/test_targets/daemon.Dockerfile": 7598.12,
@@ -1326,7 +1326,7 @@
       "dockerfile/moby/test_targets/windows.Dockerfile": 8027.4
     },
     "embedded_python": {
-      "embedded_python/SOURCES.md": -7450.79
+      "embedded_python/SOURCES.md": -7458.3
     },
     "embedded_python/meow_turtle": {
       "embedded_python/meow_turtle/actuators.py": -7019.23,
@@ -1365,7 +1365,7 @@
       "fortran/wrf/wrf_timeseries.F": -8259.43
     },
     "go": {
-      "go/SOURCES.md": 8899.52
+      "go/SOURCES.md": 8900.68
     },
     "go/core": {
       "go/core/PATENTS": 6589.92,
@@ -1381,19 +1381,19 @@
       "go/go_runtime_rand/rand.go": 11086.19
     },
     "go/kubernetes": {
-      "go/kubernetes/csi_plugin.go": -9180.93,
-      "go/kubernetes/generic.go": -9237.98,
-      "go/kubernetes/kubelet.go": -9877.65,
-      "go/kubernetes/options.go": -9010.67,
-      "go/kubernetes/proxier.go": -9414.76,
-      "go/kubernetes/replica_set.go": -10053.37,
-      "go/kubernetes/scheduler.go": -9687.02
+      "go/kubernetes/csi_plugin.go": 5386.59,
+      "go/kubernetes/generic.go": 5329.54,
+      "go/kubernetes/kubelet.go": 4689.87,
+      "go/kubernetes/options.go": 5556.84,
+      "go/kubernetes/proxier.go": 5152.76,
+      "go/kubernetes/replica_set.go": 4514.14,
+      "go/kubernetes/scheduler.go": 4880.5
     },
     "go/kubernetes_kubectl_tls": {
       "go/kubernetes_kubectl_tls/create_secret_tls_test.go": -10315.45
     },
     "groovy": {
-      "groovy/SOURCES.md": 7325.2
+      "groovy/SOURCES.md": 7336.42
     },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": -976.83,
@@ -1746,7 +1746,7 @@
       "groovy/spring_boot_gradle/integration-test_spring-boot-server-integration-tests_build.gradle": 4760.29
     },
     "haskell": {
-      "haskell/SOURCES.md": -9119.49
+      "haskell/SOURCES.md": -9120.91
     },
     "haskell/pandoc": {
       "haskell/pandoc/AUTHORS.md": 3057.51,
@@ -1762,8 +1762,8 @@
       "haskell/pandoc/Shared.hs": 3500.24
     },
     "hlasm": {
-      "hlasm/PROVENANCE.md": -9987.81,
-      "hlasm/SOURCES.md": -9866.85
+      "hlasm/PROVENANCE.md": -9996.03,
+      "hlasm/SOURCES.md": -9875.07
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": 3575.4,
@@ -1793,7 +1793,7 @@
       "hlasm/zopeneditor_sample/REGISTRS.asm": -3096.42
     },
     "hlo": {
-      "hlo/SOURCES.md": -6092.38
+      "hlo/SOURCES.md": -6094.26
     },
     "hlo/xla/gpu_emitters": {
       "hlo/xla/gpu_emitters/f4e2m1fn_intrinsics.hlo": -6537.45,
@@ -1801,7 +1801,7 @@
       "hlo/xla/gpu_emitters/side_output.hlo": -6215.3
     },
     "html": {
-      "html/SOURCES.md": 8985.06
+      "html/SOURCES.md": 8993.28
     },
     "html/angular_adev_templates": {
       "html/angular_adev_templates/api-reference-list.component.html": 5323.99,
@@ -1858,8 +1858,8 @@
       "html/playwright_dom_fixtures/window-stop.html": -3761.13
     },
     "html/polyglot_emscripten": {
-      "html/polyglot_emscripten/LICENSE.txt": 6588.76,
-      "html/polyglot_emscripten/pyrepl_index.html": 6798.77
+      "html/polyglot_emscripten/LICENSE.txt": 6597.72,
+      "html/polyglot_emscripten/pyrepl_index.html": 6807.74
     },
     "html/polyglot_odoo": {
       "html/polyglot_odoo/LICENSE.txt": 4715.63,
@@ -1898,7 +1898,7 @@
       "html/wordpress_blocks/search.html": -1472.55
     },
     "java": {
-      "java/SOURCES.md": 5203.38
+      "java/SOURCES.md": 5203.81
     },
     "java/flutter_android_editing_tests": {
       "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": -10196.25
@@ -1922,7 +1922,7 @@
       "java/springboot/WebMvcAutoConfiguration.java": 1695.64
     },
     "javascript": {
-      "javascript/SOURCES.md": -10131.1
+      "javascript/SOURCES.md": -10140.98
     },
     "javascript/cesium_particle_emitters": {
       "javascript/cesium_particle_emitters/CircleEmitter.js": 2786.84,
@@ -1942,21 +1942,21 @@
       "javascript/jquery/tokenize.js": -2231.76
     },
     "javascript/node_tls_security_tests": {
-      "javascript/node_tls_security_tests/regexp-unicode-sets.js": -5235.1,
-      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": -4901.3,
-      "javascript/node_tls_security_tests/test-fs-lchown.js": -5461.29,
-      "javascript/node_tls_security_tests/test-https-host-headers.js": -5674.86,
-      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": -5116.22,
-      "javascript/node_tls_security_tests/test-tls-psk-server.js": -5320.97,
-      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": -4817.87
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 8094.9,
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": 8428.7,
+      "javascript/node_tls_security_tests/test-fs-lchown.js": 7868.7,
+      "javascript/node_tls_security_tests/test-https-host-headers.js": 7655.13,
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": 8213.77,
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": 8009.02,
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": 8512.12
     },
     "javascript/react": {
-      "javascript/react/BabelPlugin.ts": 7759.24,
-      "javascript/react/ReactFiberBeginWork.js": 7549.9,
-      "javascript/react/ReactFiberWorkLoop.js": 8111.28,
-      "javascript/react/ReactFlightServer.js": 7824.96,
-      "javascript/react/ReactSymbols.js": 7480.7,
-      "javascript/react/build.js": 8248.74
+      "javascript/react/BabelPlugin.ts": -5236.49,
+      "javascript/react/ReactFiberBeginWork.js": -5445.83,
+      "javascript/react/ReactFiberWorkLoop.js": -4884.45,
+      "javascript/react/ReactFlightServer.js": -5170.78,
+      "javascript/react/ReactSymbols.js": -5515.03,
+      "javascript/react/build.js": -4746.99
     },
     "javascript/react_error_codes": {
       "javascript/react_error_codes/extract-errors.js": 11194.96
@@ -1974,9 +1974,9 @@
       "jcl/SOURCES.md": -4512.6
     },
     "jcl/cash-account-cobol": {
-      "jcl/cash-account-cobol/DB2BIND.jcl": 8578.99,
-      "jcl/cash-account-cobol/DB2DDL.jcl": 8345.73,
-      "jcl/cash-account-cobol/DEFKSDS.jcl": 7922.41
+      "jcl/cash-account-cobol/DB2BIND.jcl": 8581.84,
+      "jcl/cash-account-cobol/DB2DDL.jcl": 8348.58,
+      "jcl/cash-account-cobol/DEFKSDS.jcl": 7925.26
     },
     "jcl/cics-banking-sample-application-cbsa": {
       "jcl/cics-banking-sample-application-cbsa/ABNDPROC.jcl": -2610.97,
@@ -2186,13 +2186,13 @@
       "kotlin/SOURCES.md": 3858.0
     },
     "kotlin/okhttp": {
-      "kotlin/okhttp/Call.kt": 6041.91,
-      "kotlin/okhttp/Dispatcher.kt": 6191.95,
-      "kotlin/okhttp/LICENSE.txt": 6780.76,
-      "kotlin/okhttp/OkHttp.android.kt": 5911.81,
-      "kotlin/okhttp/OkHttp.jvm.kt": 6769.58,
-      "kotlin/okhttp/OkHttp.kt": 6303.28,
-      "kotlin/okhttp/build.gradle.kts": 6679.99
+      "kotlin/okhttp/Call.kt": -8705.07,
+      "kotlin/okhttp/Dispatcher.kt": -8555.02,
+      "kotlin/okhttp/LICENSE.txt": -7966.21,
+      "kotlin/okhttp/OkHttp.android.kt": -8835.16,
+      "kotlin/okhttp/OkHttp.jvm.kt": -7977.39,
+      "kotlin/okhttp/OkHttp.kt": -8443.69,
+      "kotlin/okhttp/build.gradle.kts": -8066.98
     },
     "livecode": {
       "livecode/SOURCES.md": -9558.05
@@ -2346,13 +2346,13 @@
       "lua/cosmopolitan/tracegc.lua": 6798.21
     },
     "lua/darwin-xnu": {
-      "lua/darwin-xnu/benchmark.lua": -5855.83,
-      "lua/darwin-xnu/bridgetime.lua": -6322.25,
-      "lua/darwin-xnu/fault_throughput.lua": -6162.47,
-      "lua/darwin-xnu/kqtrace.lua": -5936.5,
-      "lua/darwin-xnu/ktruss.lua": -5533.8,
-      "lua/darwin-xnu/perf_madvise.lua": -6178.41,
-      "lua/darwin-xnu/wqtrace.lua": -6221.67
+      "lua/darwin-xnu/benchmark.lua": 8316.44,
+      "lua/darwin-xnu/bridgetime.lua": 7850.02,
+      "lua/darwin-xnu/fault_throughput.lua": 8009.81,
+      "lua/darwin-xnu/kqtrace.lua": 8235.77,
+      "lua/darwin-xnu/ktruss.lua": 8638.47,
+      "lua/darwin-xnu/perf_madvise.lua": 7993.86,
+      "lua/darwin-xnu/wqtrace.lua": 7950.6
     },
     "lua/freebsd-src": {
       "lua/freebsd-src/COPYRIGHT": -4218.35,
@@ -2430,8 +2430,8 @@
       "m4/SOURCES.md": 10984.32
     },
     "m4/curl": {
-      "m4/curl/COPYING": -5784.72,
-      "m4/curl/configure.ac": -6203.19
+      "m4/curl/COPYING": -5786.69,
+      "m4/curl/configure.ac": -6205.17
     },
     "m4/curl/m4": {
       "m4/curl/m4/curl-confopts.m4": -9842.18,
@@ -2441,22 +2441,22 @@
       "m4/curl/m4/zz40-xc-ovr.m4": -10182.35
     },
     "m4/gnucobol": {
-      "m4/gnucobol/COPYING": -9397.95,
-      "m4/gnucobol/configure.ac": -9821.73
+      "m4/gnucobol/COPYING": -9407.91,
+      "m4/gnucobol/configure.ac": -9831.69
     },
     "makefile": {
       "makefile/SOURCES.md": 2127.63
     },
     "makefile/freebsd": {
-      "makefile/freebsd/COPYRIGHT": 8940.98,
-      "makefile/freebsd/Makefile": 8850.23
+      "makefile/freebsd/COPYRIGHT": 8941.96,
+      "makefile/freebsd/Makefile": 8851.21
     },
     "markdown": {
       "markdown/SOURCES.md": -10528.2
     },
     "markdown/airflow_job_lifecycle": {
-      "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": -9252.07,
-      "markdown/airflow_job_lifecycle/NOTICE": -8862.95
+      "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": -9253.28,
+      "markdown/airflow_job_lifecycle/NOTICE": -8864.17
     },
     "markdown/kubernetes_client_go": {
       "markdown/kubernetes_client_go/ARCHITECTURE.md": -3543.67
@@ -2501,12 +2501,12 @@
       "objective-c/SOURCES.md": -10730.14
     },
     "objective-c/worldwideweb": {
-      "objective-c/worldwideweb/Anchor.m": -8125.45,
-      "objective-c/worldwideweb/HText.c": -8146.46,
-      "objective-c/worldwideweb/HyperManager.m": -8663.19,
-      "objective-c/worldwideweb/HyperText.h": -8539.94,
-      "objective-c/worldwideweb/HyperText.m": -8529.42,
-      "objective-c/worldwideweb/TcpAccess.m": -8519.45
+      "objective-c/worldwideweb/Anchor.m": -5039.25,
+      "objective-c/worldwideweb/HText.c": -5060.27,
+      "objective-c/worldwideweb/HyperManager.m": -5576.99,
+      "objective-c/worldwideweb/HyperText.h": -5453.74,
+      "objective-c/worldwideweb/HyperText.m": -5443.22,
+      "objective-c/worldwideweb/TcpAccess.m": -5433.25
     },
     "perl": {
       "perl/SOURCES.md": 845.6
@@ -2551,13 +2551,13 @@
       "php/SOURCES.md": 11673.4
     },
     "php/guzzle": {
-      "php/guzzle/Client.php": 4493.23,
-      "php/guzzle/CurlFactory.php": 4951.49,
-      "php/guzzle/CurlMultiHandler.php": 5236.67,
-      "php/guzzle/Middleware.php": 4672.58,
-      "php/guzzle/Pool.php": 5681.75,
-      "php/guzzle/RequestException.php": 5001.46,
-      "php/guzzle/StreamHandler.php": 5258.95
+      "php/guzzle/Client.php": 7420.64,
+      "php/guzzle/CurlFactory.php": 7878.91,
+      "php/guzzle/CurlMultiHandler.php": 8164.08,
+      "php/guzzle/Middleware.php": 7599.99,
+      "php/guzzle/Pool.php": 8609.16,
+      "php/guzzle/RequestException.php": 7928.88,
+      "php/guzzle/StreamHandler.php": 8186.37
     },
     "php/laravel_core": {
       "php/laravel_core/Application.php": 3226.16,
@@ -2609,14 +2609,14 @@
       "plaintext/SOURCES.md": -1543.19
     },
     "plaintext/ansible": {
-      "plaintext/ansible/COPYING": 8046.98,
-      "plaintext/ansible/requirements.txt": 8191.12
+      "plaintext/ansible/COPYING": 8049.25,
+      "plaintext/ansible/requirements.txt": 8193.39
     },
     "plaintext/cpython/Lib/test/tokenizedata": {
       "plaintext/cpython/Lib/test/tokenizedata/tokenize_tests-utf8-coding-cookie-and-no-utf8-bom-sig.txt": 4900.24
     },
     "plaintext/cpython/Tools/unittestgui": {
-      "plaintext/cpython/Tools/unittestgui/README.txt": -10445.81
+      "plaintext/cpython/Tools/unittestgui/README.txt": -10453.91
     },
     "plaintext/opencv/data": {
       "plaintext/opencv/data/CMakeLists.txt": -3832.33
@@ -2835,9 +2835,9 @@
       "python/django_db_tests/test_utils.py": -10133.28
     },
     "python/fastapi": {
-      "python/fastapi/CONTRIBUTING.md": -9617.47,
-      "python/fastapi/README.md": -9642.17,
-      "python/fastapi/SECURITY.md": -9945.49
+      "python/fastapi/CONTRIBUTING.md": -9621.78,
+      "python/fastapi/README.md": -9646.48,
+      "python/fastapi/SECURITY.md": -9949.79
     },
     "python/fastapi/fastapi": {
       "python/fastapi/fastapi/__init__.py": -2676.6,
@@ -3160,13 +3160,13 @@
       "rexx/hercules_390_hyperion/sample.rexx": 566.43
     },
     "rexx/hercules_hyperion": {
-      "rexx/hercules_hyperion/COPYRIGHT": 7154.7,
-      "rexx/hercules_hyperion/cmpsc.rexx": 6851.03,
-      "rexx/hercules_hyperion/hbasic1.rexx": 6995.48,
-      "rexx/hercules_hyperion/hcommand.rexx": 7061.22,
-      "rexx/hercules_hyperion/hexecio.rexx": 6621.87,
-      "rexx/hercules_hyperion/hlinein.rexx": 6777.21,
-      "rexx/hercules_hyperion/hrecurs.rexx": 6413.36
+      "rexx/hercules_hyperion/COPYRIGHT": 7902.13,
+      "rexx/hercules_hyperion/cmpsc.rexx": 7598.46,
+      "rexx/hercules_hyperion/hbasic1.rexx": 7742.91,
+      "rexx/hercules_hyperion/hcommand.rexx": 7808.65,
+      "rexx/hercules_hyperion/hexecio.rexx": 7369.3,
+      "rexx/hercules_hyperion/hlinein.rexx": 7524.65,
+      "rexx/hercules_hyperion/hrecurs.rexx": 7160.8
     },
     "rexx/ibm_z_zos": {
       "rexx/ibm_z_zos/LICENSE.md": -3626.95,
@@ -3227,13 +3227,13 @@
       "rust/bevy_asset_examples/rotation.rs": 4208.88
     },
     "rust/holylang": {
-      "rust/holylang/ast.rs": -8476.81,
-      "rust/holylang/compile.rs": -8928.02,
-      "rust/holylang/error.rs": -9013.43,
-      "rust/holylang/main.rs": -8319.01,
-      "rust/holylang/parser.rs": -8450.32,
-      "rust/holylang/semantic.rs": -8955.67,
-      "rust/holylang/transpiler.rs": -9125.36
+      "rust/holylang/ast.rs": 7103.4,
+      "rust/holylang/compile.rs": 6652.19,
+      "rust/holylang/error.rs": 6566.77,
+      "rust/holylang/main.rs": 7261.2,
+      "rust/holylang/parser.rs": 7129.89,
+      "rust/holylang/semantic.rs": 6624.53,
+      "rust/holylang/transpiler.rs": 6454.85
     },
     "rust/serde": {
       "rust/serde/LICENSE-APACHE": 5343.44,
@@ -3418,8 +3418,8 @@
       "shell/freebsd-src/ztest.sh": 2874.71
     },
     "shell/freebsd_sysbuild": {
-      "shell/freebsd_sysbuild/COPYRIGHT": 8391.03,
-      "shell/freebsd_sysbuild/sysbuild.sh": 8433.26
+      "shell/freebsd_sysbuild/COPYRIGHT": 8392.19,
+      "shell/freebsd_sysbuild/sysbuild.sh": 8434.42
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": 8174.08,
@@ -3607,13 +3607,13 @@
       "solidity/SOURCES.md": 6340.33
     },
     "solidity/openzeppelin": {
-      "solidity/openzeppelin/AccessControl.sol": -7150.13,
-      "solidity/openzeppelin/CrosschainRemoteExecutor.sol": -6483.88,
-      "solidity/openzeppelin/ERC2771Forwarder.sol": -6526.06,
-      "solidity/openzeppelin/Governor.sol": -6975.88,
-      "solidity/openzeppelin/Proxy.sol": -6247.65,
-      "solidity/openzeppelin/ReentrancyGuard.sol": -7048.19,
-      "solidity/openzeppelin/StorageSlot.sol": -6844.65
+      "solidity/openzeppelin/AccessControl.sol": -6369.26,
+      "solidity/openzeppelin/CrosschainRemoteExecutor.sol": -5703.01,
+      "solidity/openzeppelin/ERC2771Forwarder.sol": -5745.19,
+      "solidity/openzeppelin/Governor.sol": -6195.01,
+      "solidity/openzeppelin/Proxy.sol": -5466.78,
+      "solidity/openzeppelin/ReentrancyGuard.sol": -6267.32,
+      "solidity/openzeppelin/StorageSlot.sol": -6063.78
     },
     "sql": {
       "sql/SOURCES.md": 9259.87
@@ -3630,8 +3630,8 @@
       "sql/mediawiki_postgresql/tables.sql": 11146.88
     },
     "sql/spamassassin_mysql": {
-      "sql/spamassassin_mysql/NOTICE": -5263.3,
-      "sql/spamassassin_mysql/neural_mysql.sql": -5524.43
+      "sql/spamassassin_mysql/NOTICE": -5264.83,
+      "sql/spamassassin_mysql/neural_mysql.sql": -5525.97
     },
     "sql/sqlite": {
       "sql/sqlite/000-mandelbrot.sql": -8660.82,
@@ -3650,9 +3650,9 @@
       "sqlite/dancer2_sqlite/users.sql": 9131.64
     },
     "sqlite/flask_tutorial_sqlite": {
-      "sqlite/flask_tutorial_sqlite/LICENSE.txt": -7411.7,
-      "sqlite/flask_tutorial_sqlite/data.sql": -6755.39,
-      "sqlite/flask_tutorial_sqlite/schema.sql": -7102.84
+      "sqlite/flask_tutorial_sqlite/LICENSE.txt": -7419.16,
+      "sqlite/flask_tutorial_sqlite/data.sql": -6762.85,
+      "sqlite/flask_tutorial_sqlite/schema.sql": -7110.3
     },
     "sqlite/mediawiki_sqlite_alterpatches": {
       "sqlite/mediawiki_sqlite_alterpatches/COPYING": 5510.07,
@@ -3734,37 +3734,37 @@
       "sqlite/sqlite_cli_scripts/wasm_001-sudoku.sql": -8235.41
     },
     "sqlite/yii2_sqlite_schema": {
-      "sqlite/yii2_sqlite_schema/LICENSE.md": 8483.92,
-      "sqlite/yii2_sqlite_schema/framework_caching_schema-sqlite.sql": 8215.09,
-      "sqlite/yii2_sqlite_schema/framework_i18n_schema-sqlite.sql": 7692.2,
-      "sqlite/yii2_sqlite_schema/framework_log_schema-sqlite.sql": 8631.73,
-      "sqlite/yii2_sqlite_schema/framework_rbac_schema-sqlite.sql": 8202.08,
-      "sqlite/yii2_sqlite_schema/framework_web_schema-sqlite.sql": 7846.33,
-      "sqlite/yii2_sqlite_schema/tests_data_sqlite.sql": 8020.06
+      "sqlite/yii2_sqlite_schema/LICENSE.md": 6708.26,
+      "sqlite/yii2_sqlite_schema/framework_caching_schema-sqlite.sql": 6439.43,
+      "sqlite/yii2_sqlite_schema/framework_i18n_schema-sqlite.sql": 5916.54,
+      "sqlite/yii2_sqlite_schema/framework_log_schema-sqlite.sql": 6856.06,
+      "sqlite/yii2_sqlite_schema/framework_rbac_schema-sqlite.sql": 6426.42,
+      "sqlite/yii2_sqlite_schema/framework_web_schema-sqlite.sql": 6070.67,
+      "sqlite/yii2_sqlite_schema/tests_data_sqlite.sql": 6244.39
     },
     "swift": {
       "swift/SOURCES.md": -9466.57
     },
     "swift/alamofire": {
-      "swift/alamofire/AFError.swift": -4577.83,
-      "swift/alamofire/Alamofire.podspec": -5040.5,
-      "swift/alamofire/Package.swift": -4208.15,
-      "swift/alamofire/ParameterEncoder.swift": -4166.75,
-      "swift/alamofire/Request.swift": -4302.63,
-      "swift/alamofire/Response.swift": -5056.56,
-      "swift/alamofire/Session.swift": -4791.48
+      "swift/alamofire/AFError.swift": -9483.37,
+      "swift/alamofire/Alamofire.podspec": -9946.04,
+      "swift/alamofire/Package.swift": -9113.69,
+      "swift/alamofire/ParameterEncoder.swift": -9072.29,
+      "swift/alamofire/Request.swift": -9208.16,
+      "swift/alamofire/Response.swift": -9962.1,
+      "swift/alamofire/Session.swift": -9697.02
     },
     "tabular": {
-      "tabular/SOURCES.md": 8025.58
+      "tabular/SOURCES.md": 8029.72
     },
     "tabular/baseline": {
       "tabular/baseline/control_standard.csv": -7778.19,
       "tabular/baseline/control_standard.tsv": -7658.58
     },
     "tabular/csv_erp": {
-      "tabular/csv_erp/LICENSE.txt": -10466.23,
-      "tabular/csv_erp/ir.model.access.csv": -10052.29,
-      "tabular/csv_erp/test.translation.import.model1-translated.csv": -10680.23
+      "tabular/csv_erp/LICENSE.txt": -10467.41,
+      "tabular/csv_erp/ir.model.access.csv": -10053.46,
+      "tabular/csv_erp/test.translation.import.model1-translated.csv": -10681.4
     },
     "tabular/devsecops_payloads": {
       "tabular/devsecops_payloads/weaponized_export.csv": -9203.12
@@ -3773,7 +3773,7 @@
       "tabular/tsv_genomics/B.cell_eQTL.tsv": 6412.1
     },
     "tcl": {
-      "tcl/SOURCES.md": 8210.76
+      "tcl/SOURCES.md": 8212.95
     },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/fetch_common.tcl": -7581.43,
@@ -3808,12 +3808,12 @@
       "tcl/macports_registry/registry_util.tcl": 7056.11
     },
     "tcl/sqlite": {
-      "tcl/sqlite/LICENSE.md": 7096.64,
-      "tcl/sqlite/README.md": 7428.78,
-      "tcl/sqlite/malloc_common.tcl": 6945.22,
-      "tcl/sqlite/speedtest.tcl": 7958.24,
-      "tcl/sqlite/tester.tcl": 7439.76,
-      "tcl/sqlite/testrunner.tcl": 7817.43
+      "tcl/sqlite/LICENSE.md": -7263.39,
+      "tcl/sqlite/README.md": -6931.25,
+      "tcl/sqlite/malloc_common.tcl": -7414.82,
+      "tcl/sqlite/speedtest.tcl": -6401.79,
+      "tcl/sqlite/tester.tcl": -6920.27,
+      "tcl/sqlite/testrunner.tcl": -6542.61
     },
     "tcl/sqlite_core_dml": {
       "tcl/sqlite_core_dml/LICENSE.md": 2495.96
@@ -3851,17 +3851,17 @@
       "text/baseline/control-readme.md": -4908.4
     },
     "typescript": {
-      "typescript/SOURCES.md": 9437.47
+      "typescript/SOURCES.md": 9438.44
     },
     "typescript/angular_zonejs_mocha": {
       "typescript/angular_zonejs_mocha/mocha.ts": -338.5
     },
     "typescript/assemblyscript": {
-      "typescript/assemblyscript/asconfig.json": 8311.67,
-      "typescript/assemblyscript/ast.ts": 7459.91,
-      "typescript/assemblyscript/compiler.ts": 7853.94,
-      "typescript/assemblyscript/package.json": 7879.49,
-      "typescript/assemblyscript/parser.ts": 8389.6
+      "typescript/assemblyscript/asconfig.json": 4665.94,
+      "typescript/assemblyscript/ast.ts": 3814.19,
+      "typescript/assemblyscript/compiler.ts": 4208.21,
+      "typescript/assemblyscript/package.json": 4233.77,
+      "typescript/assemblyscript/parser.ts": 4743.87
     },
     "typescript/effect_ai_anthropic": {
       "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": -10696.67
@@ -3924,7 +3924,7 @@
       "typescript/zod/tsconfig.json": 9027.9
     },
     "xml": {
-      "xml/SOURCES.md": 6794.99
+      "xml/SOURCES.md": 6803.51
     },
     "xml/apex": {
       "xml/apex/CanTheUser_Tests.cls": 9179.41,
@@ -3945,9 +3945,9 @@
       "xml/odoo/__manifest__.py": -6338.93
     },
     "xml/odoo/views": {
-      "xml/odoo/views/menu.xml": 6951.85,
-      "xml/odoo/views/test_orm_views.xml": 6882.3,
-      "xml/odoo/views/views.xml": 6516.52
+      "xml/odoo/views/menu.xml": 6956.53,
+      "xml/odoo/views/test_orm_views.xml": 6886.98,
+      "xml/odoo/views/views.xml": 6521.2
     },
     "xml/powertoys": {
       "xml/powertoys/App.xaml.cs": -2904.54,
@@ -3966,7 +3966,7 @@
       "xml/springboot/resources/pom.xml": 8159.1
     },
     "yacc": {
-      "yacc/SOURCES.md": -9583.64
+      "yacc/SOURCES.md": -9584.84
     },
     "yacc/freebsd": {
       "yacc/freebsd/COPYRIGHT": 515.38,
@@ -3974,25 +3974,25 @@
       "yacc/freebsd/jailparse.y": 1222.98
     },
     "yaml": {
-      "yaml/SOURCES.md": -5540.08
+      "yaml/SOURCES.md": -5541.54
     },
     "yaml/ansible": {
       "yaml/ansible/COPYING": 8758.71
     },
     "yaml/ansible/blocks": {
-      "yaml/ansible/blocks/block_fail_tasks.yml": -5056.79,
-      "yaml/ansible/blocks/block_in_rescue.yml": -5405.28
+      "yaml/ansible/blocks/block_fail_tasks.yml": -5060.9,
+      "yaml/ansible/blocks/block_in_rescue.yml": -5409.39
     },
     "yaml/ansible/include_import_tasks/tasks": {
-      "yaml/ansible/include_import_tasks/tasks/test_include_dupe_loop.yml": -9364.98,
-      "yaml/ansible/include_import_tasks/tasks/test_recursion.yml": -9117.55
+      "yaml/ansible/include_import_tasks/tasks/test_include_dupe_loop.yml": -9368.25,
+      "yaml/ansible/include_import_tasks/tasks/test_recursion.yml": -9120.82
     },
     "yaml/ansible/yaml_parsing": {
       "yaml/ansible/yaml_parsing/playbook.yml": 8298.11
     },
     "yaml/ansible/yaml_parsing/tasks": {
-      "yaml/ansible/yaml_parsing/tasks/main.yml": 11378.86,
-      "yaml/ansible/yaml_parsing/tasks/unsafe.yml": 11431.26
+      "yaml/ansible/yaml_parsing/tasks/main.yml": 11379.93,
+      "yaml/ansible/yaml_parsing/tasks/unsafe.yml": 11432.33
     },
     "yaml/black_action": {
       "yaml/black_action/action.yml": 5352.91
@@ -4074,11 +4074,12 @@
       "zig/tigerbeetle/state_machine.zig": 870.28
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": -9686.93,
-      "zig/zig/InternPool.zig": -9002.42,
-      "zig/zig/Type.zig": -8787.9,
-      "zig/zig/Zcu.zig": -9322.19,
-      "zig/zig/main.zig": -9497.19
+      "zig/zig/Compilation.zig": 11157.5,
+      "zig/zig/InternPool.zig": 10131.88,
+      "zig/zig/Sema.zig": 10596.67,
+      "zig/zig/Type.zig": 10632.97,
+      "zig/zig/Zcu.zig": 10370.6,
+      "zig/zig/main.zig": 10736.17
     },
     "zig/zig_std_linux_mips": {
       "zig/zig_std_linux_mips/mips.zig": 1232.39

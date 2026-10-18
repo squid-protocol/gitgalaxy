@@ -4076,6 +4076,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": "Spaces",
       "zig/zig/InternPool.zig": "Spaces",
+      "zig/zig/Sema.zig": "Spaces",
       "zig/zig/Type.zig": "Spaces",
       "zig/zig/Zcu.zig": "Spaces",
       "zig/zig/main.zig": "Spaces"

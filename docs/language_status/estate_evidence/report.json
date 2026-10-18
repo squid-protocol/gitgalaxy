@@ -1,0 +1,3582 @@
+{
+ "estates": {
+  "aws-mainframe-modernization-carddemo": {
+   "programs": [
+    {
+     "approval": null,
+     "callees": [],
+     "case": "carddemo-acctview",
+     "coverage": {
+      "branches": [
+       58,
+       69
+      ],
+      "paragraphs": [
+       31,
+       32
+      ],
+      "uncovered_branches": 11
+     },
+     "differences": 0,
+     "estate": "aws-mainframe-modernization-carddemo",
+     "executed_equivalent": false,
+     "has_record": true,
+     "holes": 1,
+     "key": "carddemo-acctview",
+     "kind": "cics",
+     "level": "E1",
+     "level_current": true,
+     "lines": {
+      "procedure": 485,
+      "total": 703
+     },
+     "mutation": {
+      "adjusted_judged": 113,
+      "commit": "9c21df6c3",
+      "judged": 129,
+      "killed": 105,
+      "open_survivors": 8,
+      "stale": "stale: port, case, harness, oracle changed since it was judged (9c21df6c3)",
+      "stillborn": 21,
+      "survivors": {
+       "case_gap": 8,
+       "equivalent": 16,
+       "harness_gap": 0,
+       "unreachable": 0,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "COACTVWC",
+     "proof": {
+      "at": "2026-10-18T08:17:26Z",
+      "fault_runs": 6,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69",
+      "runs": 22
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 5,
+      "ported_unproven": 0,
+      "stub": 1
+     },
+     "reasons": [
+      "the proof failed through its deployed entry points (java-facade: 21/22 scenarios pass)"
+     ],
+     "record": "tests/equivalence/carddemo-acctview/evidence.json",
+     "stale": [],
+     "status": "not-proven",
+     "why": [
+      "the proof did not compare equal on every scenario"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "carddemo-adminmenu",
+     "coverage": {
+      "branches": [
+       20,
+       26
+      ],
+      "paragraphs": [
+       8,
+       8
+      ],
+      "uncovered_branches": 6
+     },
+     "differences": 0,
+     "estate": "aws-mainframe-modernization-carddemo",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 1,
+     "key": "carddemo-adminmenu",
+     "kind": "cics",
+     "level": "E1",
+     "level_current": true,
+     "lines": {
+      "procedure": 153,
+      "total": 189
+     },
+     "mutation": {
+      "adjusted_judged": 69,
+      "commit": "bcb4f6f82",
+      "judged": 95,
+      "killed": 53,
+      "open_survivors": 16,
+      "stale": "stale: port, case, harness, oracle changed since it was judged (bcb4f6f82)",
+      "stillborn": 5,
+      "survivors": {
+       "case_gap": 16,
+       "equivalent": 26,
+       "harness_gap": 0,
+       "unreachable": 0,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "COADM01C",
+     "proof": {
+      "at": "2026-10-18T08:20:22Z",
+      "fault_runs": 4,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69",
+      "runs": 26
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 4,
+      "ported_unproven": 0,
+      "stub": 1
+     },
+     "reasons": [],
+     "record": "tests/equivalence/carddemo-adminmenu/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "1 hole(s) in the port itself (stub or ported_unproven method)"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "carddemo-billpay",
+     "coverage": {
+      "branches": [
+       46,
+       48
+      ],
+      "paragraphs": [
+       16,
+       16
+      ],
+      "uncovered_branches": 2
+     },
+     "differences": 0,
+     "estate": "aws-mainframe-modernization-carddemo",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "carddemo-billpay",
+     "kind": "cics",
+     "level": "E2",
+     "level_current": true,
+     "lines": {
+      "procedure": 363,
+      "total": 420
+     },
+     "mutation": {
+      "adjusted_judged": 71,
+      "commit": "7470befa4",
+      "judged": 86,
+      "killed": 64,
+      "open_survivors": 7,
+      "stale": "stale: harness, oracle changed since it was judged (7470befa4)",
+      "stillborn": 14,
+      "survivors": {
+       "case_gap": 7,
+       "equivalent": 12,
+       "harness_gap": 0,
+       "unreachable": 3,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "COBIL00C",
+     "proof": {
+      "at": "2026-10-18T08:11:46Z",
+      "fault_runs": 13,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69",
+      "runs": 28
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 6,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/equivalence/carddemo-billpay/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "coverage short: 16/16 paragraphs, 46/48 branch outcomes"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "carddemo-cardlist",
+     "coverage": {
+      "branches": [
+       135,
+       149
+      ],
+      "paragraphs": [
+       36,
+       36
+      ],
+      "uncovered_branches": 14
+     },
+     "differences": 0,
+     "estate": "aws-mainframe-modernization-carddemo",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "carddemo-cardlist",
+     "kind": "cics",
+     "level": "E2",
+     "level_current": true,
+     "lines": {
+      "procedure": 849,
+      "total": 1093
+     },
+     "mutation": {
+      "adjusted_judged": 82,
+      "commit": "7470befa4",
+      "judged": 94,
+      "killed": 75,
+      "open_survivors": 7,
+      "stale": "stale: harness, oracle changed since it was judged (7470befa4)",
+      "stillborn": 6,
+      "survivors": {
+       "case_gap": 7,
+       "equivalent": 12,
+       "harness_gap": 0,
+       "unreachable": 0,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "COCRDLIC",
+     "proof": {
+      "at": "2026-10-18T08:15:42Z",
+      "fault_runs": 3,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69",
+      "runs": 30
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 6,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/equivalence/carddemo-cardlist/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "coverage short: 36/36 paragraphs, 135/149 branch outcomes"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "carddemo-cardview",
+     "coverage": {
+      "branches": [
+       69,
+       75
+      ],
+      "paragraphs": [
+       30,
+       30
+      ],
+      "uncovered_branches": 6
+     },
+     "differences": 0,
+     "estate": "aws-mainframe-modernization-carddemo",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "carddemo-cardview",
+     "kind": "cics",
+     "level": "E2",
+     "level_current": true,
+     "lines": {
+      "procedure": 442,
+      "total": 642
+     },
+     "mutation": {
+      "adjusted_judged": 66,
+      "commit": "7470befa4",
+      "judged": 91,
+      "killed": 60,
+      "open_survivors": 6,
+      "stale": "stale: harness, oracle changed since it was judged (7470befa4)",
+      "stillborn": 9,
+      "survivors": {
+       "case_gap": 5,
+       "equivalent": 22,
+       "harness_gap": 1,
+       "unreachable": 3,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "COCRDSLC",
+     "proof": {
+      "at": "2026-10-18T08:12:44Z",
+      "fault_runs": 3,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69",
+      "runs": 23
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 6,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/equivalence/carddemo-cardview/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "coverage short: 30/30 paragraphs, 69/75 branch outcomes"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "carddemo-dailyval",
+     "coverage": {
+      "branches": [
+       65,
+       66
+      ],
+      "paragraphs": [
+       18,
+       18
+      ],
+      "uncovered_branches": 1
+     },
+     "differences": 0,
+     "estate": "aws-mainframe-modernization-carddemo",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "carddemo-dailyval",
+     "kind": "batch",
+     "level": "E2",
+     "level_current": true,
+     "lines": {
+      "procedure": 309,
+      "total": 415
+     },
+     "mutation": {
+      "adjusted_judged": 71,
+      "commit": "bd84708964b285f9101fcec387f64a84c9514cd7",
+      "judged": 96,
+      "killed": 63,
+      "open_survivors": 8,
+      "stale": "stale: harness, oracle changed since it was judged (bd84708964b285f9101fcec387f64a84c9514cd7)",
+      "stillborn": 4,
+      "survivors": {
+       "case_gap": 8,
+       "equivalent": 10,
+       "harness_gap": 0,
+       "unreachable": 15,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "CBTRN01C",
+     "proof": {
+      "at": "2026-10-18T08:15:53Z",
+      "fault_runs": 20,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69",
+      "runs": 21
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 0,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/equivalence/carddemo-dailyval/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "coverage short: 18/18 paragraphs, 65/66 branch outcomes"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "carddemo-dateutil",
+     "coverage": {
+      "branches": [
+       4,
+       10
+      ],
+      "paragraphs": [
+       2,
+       2
+      ],
+      "uncovered_branches": 6
+     },
+     "differences": 0,
+     "estate": "aws-mainframe-modernization-carddemo",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "carddemo-dateutil",
+     "kind": "call",
+     "level": "E2",
+     "level_current": true,
+     "lines": {
+      "procedure": 51,
+      "total": 114
+     },
+     "mutation": {
+      "adjusted_judged": 145,
+      "commit": "9c21df6c3",
+      "judged": 195,
+      "killed": 145,
+      "open_survivors": 0,
+      "stale": "stale: harness, oracle changed since it was judged (9c21df6c3)",
+      "stillborn": 16,
+      "survivors": {
+       "case_gap": 0,
+       "equivalent": 10,
+       "harness_gap": 0,
+       "unreachable": 40,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "CSUTLDTC",
+     "proof": {
+      "at": "2026-10-18T08:17:50Z",
+      "fault_runs": 0,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 1
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 0,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/equivalence/carddemo-dateutil/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "coverage short: 2/2 paragraphs, 4/10 branch outcomes"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "carddemo-intcalc",
+     "coverage": {
+      "branches": [
+       85,
+       86
+      ],
+      "paragraphs": [
+       22,
+       22
+      ],
+      "uncovered_branches": 1
+     },
+     "differences": 0,
+     "estate": "aws-mainframe-modernization-carddemo",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "carddemo-intcalc",
+     "kind": "batch",
+     "level": "E2",
+     "level_current": true,
+     "lines": {
+      "procedure": 417,
+      "total": 552
+     },
+     "mutation": {
+      "adjusted_judged": 77,
+      "commit": "bd84708964b285f9101fcec387f64a84c9514cd7",
+      "judged": 86,
+      "killed": 70,
+      "open_survivors": 7,
+      "stale": "stale: harness, oracle changed since it was judged (bd84708964b285f9101fcec387f64a84c9514cd7)",
+      "stillborn": 14,
+      "survivors": {
+       "case_gap": 6,
+       "equivalent": 9,
+       "harness_gap": 1,
+       "unreachable": 0,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "CBACT04C",
+     "proof": {
+      "at": "2026-10-18T08:22:29Z",
+      "fault_runs": 19,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 20
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 4,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/equivalence/carddemo-intcalc/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "coverage short: 22/22 paragraphs, 85/86 branch outcomes"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "carddemo-menu",
+     "coverage": {
+      "branches": [
+       29,
+       33
+      ],
+      "paragraphs": [
+       7,
+       7
+      ],
+      "uncovered_branches": 4
+     },
+     "differences": 0,
+     "estate": "aws-mainframe-modernization-carddemo",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "carddemo-menu",
+     "kind": "cics",
+     "level": "E2",
+     "level_current": true,
+     "lines": {
+      "procedure": 178,
+      "total": 213
+     },
+     "mutation": {
+      "adjusted_judged": 93,
+      "commit": "9c21df6c3",
+      "judged": 136,
+      "killed": 86,
+      "open_survivors": 7,
+      "stale": "stale: port, case, harness, oracle changed since it was judged (9c21df6c3)",
+      "stillborn": 14,
+      "survivors": {
+       "case_gap": 7,
+       "equivalent": 36,
+       "harness_gap": 0,
+       "unreachable": 7,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "COMEN01C",
+     "proof": {
+      "at": "2026-10-18T08:12:21Z",
+      "fault_runs": 2,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 15
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 4,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/equivalence/carddemo-menu/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "coverage short: 7/7 paragraphs, 29/33 branch outcomes"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "carddemo-posttran",
+     "coverage": {
+      "branches": [
+       95,
+       96
+      ],
+      "paragraphs": [
+       26,
+       26
+      ],
+      "uncovered_branches": 1
+     },
+     "differences": 0,
+     "estate": "aws-mainframe-modernization-carddemo",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "carddemo-posttran",
+     "kind": "batch",
+     "level": "E2",
+     "level_current": true,
+     "lines": {
+      "procedure": 478,
+      "total": 619
+     },
+     "mutation": {
+      "adjusted_judged": 80,
+      "commit": "bd84708964b285f9101fcec387f64a84c9514cd7",
+      "judged": 85,
+      "killed": 76,
+      "open_survivors": 4,
+      "stale": "stale: harness, oracle changed since it was judged (bd84708964b285f9101fcec387f64a84c9514cd7)",
+      "stillborn": 15,
+      "survivors": {
+       "case_gap": 3,
+       "equivalent": 5,
+       "harness_gap": 1,
+       "unreachable": 0,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "CBTRN02C",
+     "proof": {
+      "at": "2026-10-18T08:19:00Z",
+      "fault_runs": 28,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 29
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 0,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/equivalence/carddemo-posttran/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "coverage short: 26/26 paragraphs, 95/96 branch outcomes"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "carddemo-readcard",
+     "coverage": {
+      "branches": [
+       21,
+       22
+      ],
+      "paragraphs": [
+       5,
+       5
+      ],
+      "uncovered_branches": 1
+     },
+     "differences": 0,
+     "estate": "aws-mainframe-modernization-carddemo",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "carddemo-readcard",
+     "kind": "batch",
+     "level": "E2",
+     "level_current": true,
+     "lines": {
+      "procedure": 90,
+      "total": 129
+     },
+     "mutation": {
+      "adjusted_judged": 83,
+      "commit": "7470befa414a0c8dfd36f30e310267030a49af89",
+      "judged": 83,
+      "killed": 69,
+      "open_survivors": 14,
+      "stale": "stale: harness, oracle changed since it was judged (7470befa414a0c8dfd36f30e310267030a49af89)",
+      "stillborn": 8,
+      "survivors": {
+       "case_gap": 14,
+       "equivalent": 0,
+       "harness_gap": 0,
+       "unreachable": 0,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "CBACT02C",
+     "proof": {
+      "at": "2026-10-18T08:13:54Z",
+      "fault_runs": 6,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 7
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 0,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/equivalence/carddemo-readcard/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "coverage short: 5/5 paragraphs, 21/22 branch outcomes"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "carddemo-readcust",
+     "coverage": {
+      "branches": [
+       21,
+       22
+      ],
+      "paragraphs": [
+       5,
+       5
+      ],
+      "uncovered_branches": 1
+     },
+     "differences": 0,
+     "estate": "aws-mainframe-modernization-carddemo",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "carddemo-readcust",
+     "kind": "batch",
+     "level": "E2",
+     "level_current": true,
+     "lines": {
+      "procedure": 91,
+      "total": 130
+     },
+     "mutation": {
+      "adjusted_judged": 70,
+      "commit": "bd84708964b285f9101fcec387f64a84c9514cd7",
+      "judged": 74,
+      "killed": 63,
+      "open_survivors": 7,
+      "stale": "stale: harness, oracle changed since it was judged (bd84708964b285f9101fcec387f64a84c9514cd7)",
+      "stillborn": 9,
+      "survivors": {
+       "case_gap": 7,
+       "equivalent": 4,
+       "harness_gap": 0,
+       "unreachable": 0,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "CBCUS01C",
+     "proof": {
+      "at": "2026-10-18T08:17:03Z",
+      "fault_runs": 6,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 7
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 0,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/equivalence/carddemo-readcust/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "coverage short: 5/5 paragraphs, 21/22 branch outcomes"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "carddemo-readxref",
+     "coverage": {
+      "branches": [
+       21,
+       22
+      ],
+      "paragraphs": [
+       5,
+       5
+      ],
+      "uncovered_branches": 1
+     },
+     "differences": 0,
+     "estate": "aws-mainframe-modernization-carddemo",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "carddemo-readxref",
+     "kind": "batch",
+     "level": "E2",
+     "level_current": true,
+     "lines": {
+      "procedure": 91,
+      "total": 130
+     },
+     "mutation": {
+      "adjusted_judged": 77,
+      "commit": "bd84708964b285f9101fcec387f64a84c9514cd7",
+      "judged": 83,
+      "killed": 69,
+      "open_survivors": 8,
+      "stale": "stale: harness, oracle changed since it was judged (bd84708964b285f9101fcec387f64a84c9514cd7)",
+      "stillborn": 7,
+      "survivors": {
+       "case_gap": 8,
+       "equivalent": 6,
+       "harness_gap": 0,
+       "unreachable": 0,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "CBACT03C",
+     "proof": {
+      "at": "2026-10-18T08:19:00Z",
+      "fault_runs": 6,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 7
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 0,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/equivalence/carddemo-readxref/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "coverage short: 5/5 paragraphs, 21/22 branch outcomes"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "carddemo-report",
+     "coverage": {
+      "branches": [
+       52,
+       59
+      ],
+      "paragraphs": [
+       10,
+       10
+      ],
+      "uncovered_branches": 7
+     },
+     "differences": 0,
+     "estate": "aws-mainframe-modernization-carddemo",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 1,
+     "key": "carddemo-report",
+     "kind": "cics",
+     "level": "E1",
+     "level_current": true,
+     "lines": {
+      "procedure": 383,
+      "total": 498
+     },
+     "mutation": {
+      "adjusted_judged": 63,
+      "commit": "7470befa4",
+      "judged": 87,
+      "killed": 55,
+      "open_survivors": 8,
+      "stale": "stale: harness, oracle changed since it was judged (7470befa4)",
+      "stillborn": 13,
+      "survivors": {
+       "case_gap": 8,
+       "equivalent": 16,
+       "harness_gap": 0,
+       "unreachable": 8,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "CORPT00C",
+     "proof": {
+      "at": "2026-10-18T08:22:53Z",
+      "fault_runs": 1,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 26
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 5,
+      "ported_unproven": 0,
+      "stub": 1
+     },
+     "reasons": [],
+     "record": "tests/equivalence/carddemo-report/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "1 hole(s) in the port itself (stub or ported_unproven method)"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "carddemo-signon",
+     "coverage": {
+      "branches": [
+       17,
+       17
+      ],
+      "paragraphs": [
+       6,
+       6
+      ],
+      "uncovered_branches": 0
+     },
+     "differences": 0,
+     "estate": "aws-mainframe-modernization-carddemo",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "carddemo-signon",
+     "kind": "cics",
+     "level": "E3",
+     "level_current": true,
+     "lines": {
+      "procedure": 140,
+      "total": 172
+     },
+     "mutation": {
+      "adjusted_judged": 72,
+      "commit": "bcb4f6f82",
+      "judged": 99,
+      "killed": 67,
+      "open_survivors": 5,
+      "stale": "stale: port, harness, oracle changed since it was judged (bcb4f6f82)",
+      "stillborn": 1,
+      "survivors": {
+       "case_gap": 5,
+       "equivalent": 25,
+       "harness_gap": 0,
+       "unreachable": 2,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "COSGN00C",
+     "proof": {
+      "at": "2026-10-18T08:12:57Z",
+      "fault_runs": 1,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 12
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 6,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/equivalence/carddemo-signon/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "mutation score stale: port, harness, oracle changed since it was judged (bcb4f6f82)"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "carddemo-tranadd",
+     "coverage": {
+      "branches": [
+       72,
+       75
+      ],
+      "paragraphs": [
+       18,
+       18
+      ],
+      "uncovered_branches": 3
+     },
+     "differences": 0,
+     "estate": "aws-mainframe-modernization-carddemo",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "carddemo-tranadd",
+     "kind": "cics",
+     "level": "E2",
+     "level_current": true,
+     "lines": {
+      "procedure": 550,
+      "total": 614
+     },
+     "mutation": {
+      "adjusted_judged": 74,
+      "commit": "7470befa4",
+      "judged": 91,
+      "killed": 61,
+      "open_survivors": 13,
+      "stale": "stale: harness, oracle changed since it was judged (7470befa4)",
+      "stillborn": 9,
+      "survivors": {
+       "case_gap": 13,
+       "equivalent": 10,
+       "harness_gap": 0,
+       "unreachable": 7,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "COTRN02C",
+     "proof": {
+      "at": "2026-10-18T08:19:29Z",
+      "fault_runs": 11,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 49
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 6,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/equivalence/carddemo-tranadd/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "coverage short: 18/18 paragraphs, 72/75 branch outcomes"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "carddemo-tranlist",
+     "coverage": {
+      "branches": [
+       96,
+       101
+      ],
+      "paragraphs": [
+       16,
+       16
+      ],
+      "uncovered_branches": 5
+     },
+     "differences": 0,
+     "estate": "aws-mainframe-modernization-carddemo",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "carddemo-tranlist",
+     "kind": "cics",
+     "level": "E2",
+     "level_current": true,
+     "lines": {
+      "procedure": 479,
+      "total": 529
+     },
+     "mutation": {
+      "adjusted_judged": 80,
+      "commit": "7470befa4",
+      "judged": 91,
+      "killed": 60,
+      "open_survivors": 20,
+      "stale": "stale: harness, oracle changed since it was judged (7470befa4)",
+      "stillborn": 9,
+      "survivors": {
+       "case_gap": 20,
+       "equivalent": 5,
+       "harness_gap": 0,
+       "unreachable": 6,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "COTRN00C",
+     "proof": {
+      "at": "2026-10-18T08:14:37Z",
+      "fault_runs": 4,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 32
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 6,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/equivalence/carddemo-tranlist/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "coverage short: 16/16 paragraphs, 96/101 branch outcomes"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "carddemo-tranview",
+     "coverage": {
+      "branches": [
+       23,
+       24
+      ],
+      "paragraphs": [
+       9,
+       9
+      ],
+      "uncovered_branches": 1
+     },
+     "differences": 0,
+     "estate": "aws-mainframe-modernization-carddemo",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "carddemo-tranview",
+     "kind": "cics",
+     "level": "E2",
+     "level_current": true,
+     "lines": {
+      "procedure": 187,
+      "total": 231
+     },
+     "mutation": {
+      "adjusted_judged": 68,
+      "commit": "bcb4f6f82",
+      "judged": 100,
+      "killed": 63,
+      "open_survivors": 5,
+      "stale": "stale: port, case, harness, oracle changed since it was judged (bcb4f6f82)",
+      "stillborn": 0,
+      "survivors": {
+       "case_gap": 5,
+       "equivalent": 29,
+       "harness_gap": 0,
+       "unreachable": 3,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "COTRN01C",
+     "proof": {
+      "at": "2026-10-18T08:17:55Z",
+      "fault_runs": 2,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 18
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 4,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/equivalence/carddemo-tranview/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "coverage short: 9/9 paragraphs, 23/24 branch outcomes"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "carddemo-trnrpt",
+     "coverage": {
+      "branches": [
+       81,
+       82
+      ],
+      "paragraphs": [
+       26,
+       26
+      ],
+      "uncovered_branches": 1
+     },
+     "differences": 0,
+     "estate": "aws-mainframe-modernization-carddemo",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "carddemo-trnrpt",
+     "kind": "batch",
+     "level": "E2",
+     "level_current": true,
+     "lines": {
+      "procedure": 433,
+      "total": 545
+     },
+     "mutation": {
+      "adjusted_judged": 79,
+      "commit": "bd84708964b285f9101fcec387f64a84c9514cd7",
+      "judged": 86,
+      "killed": 68,
+      "open_survivors": 11,
+      "stale": "stale: harness, oracle changed since it was judged (bd84708964b285f9101fcec387f64a84c9514cd7)",
+      "stillborn": 14,
+      "survivors": {
+       "case_gap": 8,
+       "equivalent": 7,
+       "harness_gap": 3,
+       "unreachable": 0,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "CBTRN03C",
+     "proof": {
+      "at": "2026-10-18T08:22:41Z",
+      "fault_runs": 24,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 25
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 0,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/equivalence/carddemo-trnrpt/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "coverage short: 26/26 paragraphs, 81/82 branch outcomes"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "carddemo-useradd",
+     "coverage": {
+      "branches": [
+       20,
+       21
+      ],
+      "paragraphs": [
+       9,
+       9
+      ],
+      "uncovered_branches": 1
+     },
+     "differences": 0,
+     "estate": "aws-mainframe-modernization-carddemo",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "carddemo-useradd",
+     "kind": "cics",
+     "level": "E2",
+     "level_current": true,
+     "lines": {
+      "procedure": 168,
+      "total": 198
+     },
+     "mutation": {
+      "adjusted_judged": 72,
+      "commit": "bcb4f6f82",
+      "judged": 97,
+      "killed": 64,
+      "open_survivors": 8,
+      "stale": "stale: port, case, harness, oracle changed since it was judged (bcb4f6f82)",
+      "stillborn": 3,
+      "survivors": {
+       "case_gap": 8,
+       "equivalent": 23,
+       "harness_gap": 0,
+       "unreachable": 2,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "COUSR01C",
+     "proof": {
+      "at": "2026-10-18T08:23:15Z",
+      "fault_runs": 1,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 17
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 4,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/equivalence/carddemo-useradd/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "coverage short: 9/9 paragraphs, 20/21 branch outcomes"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "carddemo-userdel",
+     "coverage": {
+      "branches": [
+       30,
+       32
+      ],
+      "paragraphs": [
+       11,
+       11
+      ],
+      "uncovered_branches": 2
+     },
+     "differences": 0,
+     "estate": "aws-mainframe-modernization-carddemo",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "carddemo-userdel",
+     "kind": "cics",
+     "level": "E2",
+     "level_current": true,
+     "lines": {
+      "procedure": 209,
+      "total": 251
+     },
+     "mutation": {
+      "adjusted_judged": 70,
+      "commit": "bcb4f6f82",
+      "judged": 86,
+      "killed": 62,
+      "open_survivors": 8,
+      "stale": "stale: port, case, harness, oracle changed since it was judged (bcb4f6f82)",
+      "stillborn": 14,
+      "survivors": {
+       "case_gap": 8,
+       "equivalent": 15,
+       "harness_gap": 0,
+       "unreachable": 1,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "COUSR03C",
+     "proof": {
+      "at": "2026-10-18T08:13:34Z",
+      "fault_runs": 4,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 25
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 4,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/equivalence/carddemo-userdel/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "coverage short: 11/11 paragraphs, 30/32 branch outcomes"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "carddemo-userlist",
+     "coverage": {
+      "branches": [
+       95,
+       100
+      ],
+      "paragraphs": [
+       16,
+       16
+      ],
+      "uncovered_branches": 5
+     },
+     "differences": 0,
+     "estate": "aws-mainframe-modernization-carddemo",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "carddemo-userlist",
+     "kind": "cics",
+     "level": "E2",
+     "level_current": true,
+     "lines": {
+      "procedure": 474,
+      "total": 531
+     },
+     "mutation": {
+      "adjusted_judged": 92,
+      "commit": "bcb4f6f82",
+      "judged": 100,
+      "killed": 69,
+      "open_survivors": 23,
+      "stale": "stale: port, harness, oracle changed since it was judged (bcb4f6f82)",
+      "stillborn": 0,
+      "survivors": {
+       "case_gap": 23,
+       "equivalent": 8,
+       "harness_gap": 0,
+       "unreachable": 0,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "COUSR00C",
+     "proof": {
+      "at": "2026-10-18T08:19:54Z",
+      "fault_runs": 4,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 32
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 6,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/equivalence/carddemo-userlist/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "coverage short: 16/16 paragraphs, 95/100 branch outcomes"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "carddemo-userupd",
+     "coverage": {
+      "branches": [
+       44,
+       46
+      ],
+      "paragraphs": [
+       11,
+       11
+      ],
+      "uncovered_branches": 2
+     },
+     "differences": 0,
+     "estate": "aws-mainframe-modernization-carddemo",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "carddemo-userupd",
+     "kind": "cics",
+     "level": "E2",
+     "level_current": true,
+     "lines": {
+      "procedure": 261,
+      "total": 303
+     },
+     "mutation": {
+      "adjusted_judged": 64,
+      "commit": "7470befa4",
+      "judged": 82,
+      "killed": 47,
+      "open_survivors": 17,
+      "stale": "stale: harness, oracle changed since it was judged (7470befa4)",
+      "stillborn": 18,
+      "survivors": {
+       "case_gap": 17,
+       "equivalent": 14,
+       "harness_gap": 0,
+       "unreachable": 4,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "COUSR02C",
+     "proof": {
+      "at": "2026-10-18T08:15:13Z",
+      "fault_runs": 2,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 23
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 4,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/equivalence/carddemo-userupd/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "coverage short: 11/11 paragraphs, 44/46 branch outcomes"
+     ]
+    }
+   ],
+   "summary": {
+    "approved_current": 0,
+    "at_or_above_e2": 20,
+    "branches": [
+     1199,
+     1281
+    ],
+    "declared_differences": 0,
+    "holes": 3,
+    "levels": {
+     "E0": 0,
+     "E1": 3,
+     "E2": 19,
+     "E3": 1,
+     "E4": 0
+    },
+    "lines": {
+     "at_or_above": {
+      "E2": 6260,
+      "E3": 140,
+      "E4": 0
+     },
+     "paragraph_weighted": [
+      7266,
+      7281
+     ],
+     "procedure": 7281,
+     "programs_measured": 23,
+     "total": 9221
+    },
+    "mutation": {
+     "adjusted_judged": 1831,
+     "judged": 2252,
+     "killed": 1614,
+     "open_survivors": 217,
+     "programs_measured": 23,
+     "stillborn": 223,
+     "survivors": {
+      "case_gap": 211,
+      "equivalent": 320,
+      "harness_gap": 6,
+      "unreachable": 101,
+      "untriaged": 0
+     }
+    },
+    "paragraphs": [
+     343,
+     344
+    ],
+    "programs": 23,
+    "stale_mutation_scores": 23,
+    "stale_records": 0
+   }
+  },
+  "cics-banking-sample-application-cbsa": {
+   "programs": [
+    {
+     "approval": null,
+     "callees": [
+      "program:ABNDPROC"
+     ],
+     "case": "cbsa-inqacc",
+     "coverage": {
+      "branches": [
+       13,
+       25
+      ],
+      "paragraphs": [
+       22,
+       25
+      ],
+      "uncovered_branches": 12
+     },
+     "differences": 1,
+     "estate": "cics-banking-sample-application-cbsa",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 1,
+     "key": "cbsa-inqacc",
+     "kind": "cics",
+     "level": "E1",
+     "level_current": true,
+     "lines": {
+      "procedure": 524,
+      "total": 664
+     },
+     "mutation": {
+      "adjusted_judged": 131,
+      "commit": "ed188d3cb406da57b753e56b98ae9e75b6d2d2b0",
+      "judged": 131,
+      "killed": 131,
+      "open_survivors": 0,
+      "stale": "stale: port, harness, oracle changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)",
+      "stillborn": 19,
+      "survivors": {
+       "case_gap": 0,
+       "equivalent": 0,
+       "harness_gap": 0,
+       "unreachable": 0,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "INQACC",
+     "proof": {
+      "at": "2026-10-18T08:14:17Z",
+      "fault_runs": 0,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69",
+      "runs": 14
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 8,
+      "ported_unproven": 0,
+      "stub": 1
+     },
+     "reasons": [],
+     "record": "tests/equivalence/cbsa-inqacc/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "1 hole(s) in the port itself (stub or ported_unproven method)"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "cbsa-updacc",
+     "coverage": {
+      "branches": [
+       5,
+       6
+      ],
+      "paragraphs": [
+       7,
+       7
+      ],
+      "uncovered_branches": 1
+     },
+     "differences": 0,
+     "estate": "cics-banking-sample-application-cbsa",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "cbsa-updacc",
+     "kind": "cics",
+     "level": "E2",
+     "level_current": true,
+     "lines": {
+      "procedure": 118,
+      "total": 208
+     },
+     "mutation": {
+      "adjusted_judged": 133,
+      "commit": "ed188d3cb406da57b753e56b98ae9e75b6d2d2b0",
+      "judged": 133,
+      "killed": 95,
+      "open_survivors": 38,
+      "stale": "stale: port, harness, oracle changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)",
+      "stillborn": 0,
+      "survivors": {
+       "case_gap": 38,
+       "equivalent": 0,
+       "harness_gap": 0,
+       "unreachable": 0,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "UPDACC",
+     "proof": {
+      "at": "2026-10-18T08:15:02Z",
+      "fault_runs": 0,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 10
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 1,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/equivalence/cbsa-updacc/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "coverage short: 7/7 paragraphs, 5/6 branch outcomes"
+     ]
+    }
+   ],
+   "summary": {
+    "approved_current": 0,
+    "at_or_above_e2": 1,
+    "branches": [
+     18,
+     31
+    ],
+    "declared_differences": 1,
+    "holes": 1,
+    "levels": {
+     "E0": 0,
+     "E1": 1,
+     "E2": 1,
+     "E3": 0,
+     "E4": 0
+    },
+    "lines": {
+     "at_or_above": {
+      "E2": 118,
+      "E3": 0,
+      "E4": 0
+     },
+     "paragraph_weighted": [
+      579,
+      642
+     ],
+     "procedure": 642,
+     "programs_measured": 2,
+     "total": 872
+    },
+    "mutation": {
+     "adjusted_judged": 264,
+     "judged": 264,
+     "killed": 226,
+     "open_survivors": 38,
+     "programs_measured": 2,
+     "stillborn": 19,
+     "survivors": {
+      "case_gap": 38,
+      "equivalent": 0,
+      "harness_gap": 0,
+      "unreachable": 0,
+      "untriaged": 0
+     }
+    },
+    "paragraphs": [
+     29,
+     32
+    ],
+    "programs": 2,
+    "stale_mutation_scores": 2,
+    "stale_records": 0
+   }
+  },
+  "cics-crucible": {
+   "programs": [
+    {
+     "approval": null,
+     "callees": [
+      "crucible:ca-link-lengths/CASUB"
+     ],
+     "case": "ca-link-lengths",
+     "coverage": {
+      "branches": [
+       4,
+       4
+      ],
+      "paragraphs": [
+       1,
+       1
+      ],
+      "uncovered_branches": 0
+     },
+     "differences": 0,
+     "estate": "cics-crucible",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "crucible:ca-link-lengths/CALINK",
+     "kind": "crucible",
+     "level": "E3",
+     "level_current": true,
+     "lines": {
+      "procedure": 35,
+      "total": 55
+     },
+     "mutation": {
+      "adjusted_judged": 15,
+      "commit": "0e2e05254",
+      "judged": 22,
+      "killed": 15,
+      "open_survivors": 0,
+      "stale": "stale: harness changed since it was judged (0e2e05254)",
+      "stillborn": 2,
+      "survivors": {
+       "case_gap": 0,
+       "equivalent": 5,
+       "harness_gap": 0,
+       "unreachable": 2,
+       "untriaged": 0
+      }
+     },
+     "oracle": "crucible-expected-logs",
+     "program": "CALINK",
+     "proof": {
+      "at": "2026-10-18T08:23:11Z",
+      "fault_runs": 0,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 4
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 2,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/cics_crucible/ports/ca-link-lengths/CALINK/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "mutation score stale: harness changed since it was judged (0e2e05254)"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [
+      "crucible:ca-link-lengths/CALINK"
+     ],
+     "case": "ca-link-lengths",
+     "coverage": {
+      "branches": [
+       4,
+       4
+      ],
+      "paragraphs": [
+       1,
+       1
+      ],
+      "uncovered_branches": 0
+     },
+     "differences": 0,
+     "estate": "cics-crucible",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "crucible:ca-link-lengths/CASUB",
+     "kind": "crucible",
+     "level": "E3",
+     "level_current": true,
+     "lines": {
+      "procedure": 17,
+      "total": 30
+     },
+     "mutation": {
+      "adjusted_judged": 16,
+      "commit": "0e2e05254",
+      "judged": 24,
+      "killed": 16,
+      "open_survivors": 0,
+      "stale": "stale: harness changed since it was judged (0e2e05254)",
+      "stillborn": 0,
+      "survivors": {
+       "case_gap": 0,
+       "equivalent": 7,
+       "harness_gap": 0,
+       "unreachable": 1,
+       "untriaged": 0
+      }
+     },
+     "oracle": "crucible-expected-logs",
+     "program": "CASUB",
+     "proof": {
+      "at": "2026-10-18T08:23:35Z",
+      "fault_runs": 0,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 3
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 1,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/cics_crucible/ports/ca-link-lengths/CASUB/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "mutation score stale: harness changed since it was judged (0e2e05254)"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [
+      "crucible:ca-xctl-versions/CAXB"
+     ],
+     "case": "ca-xctl-versions",
+     "coverage": {
+      "branches": [
+       3,
+       3
+      ],
+      "paragraphs": [
+       1,
+       1
+      ],
+      "uncovered_branches": 0
+     },
+     "differences": 0,
+     "estate": "cics-crucible",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "crucible:ca-xctl-versions/CAXA",
+     "kind": "crucible",
+     "level": "E3",
+     "level_current": true,
+     "lines": {
+      "procedure": 26,
+      "total": 52
+     },
+     "mutation": {
+      "adjusted_judged": 16,
+      "commit": "0e2e05254",
+      "judged": 21,
+      "killed": 16,
+      "open_survivors": 0,
+      "stale": "stale: harness changed since it was judged (0e2e05254)",
+      "stillborn": 3,
+      "survivors": {
+       "case_gap": 0,
+       "equivalent": 3,
+       "harness_gap": 0,
+       "unreachable": 2,
+       "untriaged": 0
+      }
+     },
+     "oracle": "crucible-expected-logs",
+     "program": "CAXA",
+     "proof": {
+      "at": "2026-10-18T08:14:04Z",
+      "fault_runs": 0,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 3
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 2,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/cics_crucible/ports/ca-xctl-versions/CAXA/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "mutation score stale: harness changed since it was judged (0e2e05254)"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [
+      "crucible:ca-xctl-versions/CAXA"
+     ],
+     "case": "ca-xctl-versions",
+     "coverage": {
+      "branches": [
+       6,
+       6
+      ],
+      "paragraphs": [
+       1,
+       1
+      ],
+      "uncovered_branches": 0
+     },
+     "differences": 0,
+     "estate": "cics-crucible",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "crucible:ca-xctl-versions/CAXB",
+     "kind": "crucible",
+     "level": "E3",
+     "level_current": true,
+     "lines": {
+      "procedure": 32,
+      "total": 47
+     },
+     "mutation": {
+      "adjusted_judged": 21,
+      "commit": "0e2e05254",
+      "judged": 23,
+      "killed": 17,
+      "open_survivors": 4,
+      "stale": "stale: harness changed since it was judged (0e2e05254)",
+      "stillborn": 1,
+      "survivors": {
+       "case_gap": 4,
+       "equivalent": 1,
+       "harness_gap": 0,
+       "unreachable": 1,
+       "untriaged": 0
+      }
+     },
+     "oracle": "crucible-expected-logs",
+     "program": "CAXB",
+     "proof": {
+      "at": "2026-10-18T08:20:15Z",
+      "fault_runs": 0,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 3
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 1,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/cics_crucible/ports/ca-xctl-versions/CAXB/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "mutation score stale: harness changed since it was judged (0e2e05254)"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [
+      "crucible:gt-start-retrieve/GTWORK"
+     ],
+     "case": "gt-start-retrieve",
+     "coverage": {
+      "branches": [
+       6,
+       6
+      ],
+      "paragraphs": [
+       1,
+       1
+      ],
+      "uncovered_branches": 0
+     },
+     "differences": 0,
+     "estate": "cics-crucible",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "crucible:gt-start-retrieve/GTSTART",
+     "kind": "crucible",
+     "level": "E3",
+     "level_current": true,
+     "lines": {
+      "procedure": 35,
+      "total": 50
+     },
+     "mutation": {
+      "adjusted_judged": 19,
+      "commit": "0e2e05254",
+      "judged": 22,
+      "killed": 19,
+      "open_survivors": 0,
+      "stale": "stale: case, harness changed since it was judged (0e2e05254)",
+      "stillborn": 2,
+      "survivors": {
+       "case_gap": 0,
+       "equivalent": 3,
+       "harness_gap": 0,
+       "unreachable": 0,
+       "untriaged": 0
+      }
+     },
+     "oracle": "crucible-expected-logs",
+     "program": "GTSTART",
+     "proof": {
+      "at": "2026-10-18T08:15:44Z",
+      "fault_runs": 0,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 6
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 2,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/cics_crucible/ports/gt-start-retrieve/GTSTART/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "mutation score stale: case, harness changed since it was judged (0e2e05254)"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [
+      "crucible:gt-start-retrieve/GTSTART"
+     ],
+     "case": "gt-start-retrieve",
+     "coverage": {
+      "branches": [
+       2,
+       2
+      ],
+      "paragraphs": [
+       1,
+       1
+      ],
+      "uncovered_branches": 0
+     },
+     "differences": 0,
+     "estate": "cics-crucible",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "crucible:gt-start-retrieve/GTWORK",
+     "kind": "crucible",
+     "level": "E3",
+     "level_current": true,
+     "lines": {
+      "procedure": 22,
+      "total": 38
+     },
+     "mutation": {
+      "adjusted_judged": 20,
+      "commit": "0e2e05254",
+      "judged": 21,
+      "killed": 20,
+      "open_survivors": 0,
+      "stale": "stale: case, harness changed since it was judged (0e2e05254)",
+      "stillborn": 3,
+      "survivors": {
+       "case_gap": 0,
+       "equivalent": 0,
+       "harness_gap": 0,
+       "unreachable": 1,
+       "untriaged": 0
+      }
+     },
+     "oracle": "crucible-expected-logs",
+     "program": "GTWORK",
+     "proof": {
+      "at": "2026-10-18T08:19:25Z",
+      "fault_runs": 0,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 5
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 2,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/cics_crucible/ports/gt-start-retrieve/GTWORK/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "mutation score stale: case, harness changed since it was judged (0e2e05254)"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [
+      "crucible:gt-terminal-coalesce/GTTERM"
+     ],
+     "case": "gt-terminal-coalesce",
+     "coverage": {
+      "branches": [
+       2,
+       2
+      ],
+      "paragraphs": [
+       1,
+       1
+      ],
+      "uncovered_branches": 0
+     },
+     "differences": 0,
+     "estate": "cics-crucible",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "crucible:gt-terminal-coalesce/GTSHOW",
+     "kind": "crucible",
+     "level": "E3",
+     "level_current": true,
+     "lines": {
+      "procedure": 21,
+      "total": 32
+     },
+     "mutation": {
+      "adjusted_judged": 17,
+      "commit": "0e2e05254",
+      "judged": 23,
+      "killed": 17,
+      "open_survivors": 0,
+      "stale": "stale: harness changed since it was judged (0e2e05254)",
+      "stillborn": 1,
+      "survivors": {
+       "case_gap": 0,
+       "equivalent": 5,
+       "harness_gap": 0,
+       "unreachable": 1,
+       "untriaged": 0
+      }
+     },
+     "oracle": "crucible-expected-logs",
+     "program": "GTSHOW",
+     "proof": {
+      "at": "2026-10-18T08:23:41Z",
+      "fault_runs": 0,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 3
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 1,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/cics_crucible/ports/gt-terminal-coalesce/GTSHOW/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "mutation score stale: harness changed since it was judged (0e2e05254)"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [
+      "crucible:gt-terminal-coalesce/GTSHOW"
+     ],
+     "case": "gt-terminal-coalesce",
+     "coverage": {
+      "branches": [
+       4,
+       4
+      ],
+      "paragraphs": [
+       1,
+       1
+      ],
+      "uncovered_branches": 0
+     },
+     "differences": 0,
+     "estate": "cics-crucible",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "crucible:gt-terminal-coalesce/GTTERM",
+     "kind": "crucible",
+     "level": "E3",
+     "level_current": true,
+     "lines": {
+      "procedure": 41,
+      "total": 56
+     },
+     "mutation": {
+      "adjusted_judged": 17,
+      "commit": "0e2e05254",
+      "judged": 21,
+      "killed": 17,
+      "open_survivors": 0,
+      "stale": "stale: harness changed since it was judged (0e2e05254)",
+      "stillborn": 3,
+      "survivors": {
+       "case_gap": 0,
+       "equivalent": 3,
+       "harness_gap": 0,
+       "unreachable": 1,
+       "untriaged": 0
+      }
+     },
+     "oracle": "crucible-expected-logs",
+     "program": "GTTERM",
+     "proof": {
+      "at": "2026-10-18T08:23:55Z",
+      "fault_runs": 0,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 4
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 1,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/cics_crucible/ports/gt-terminal-coalesce/GTTERM/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "mutation score stale: harness changed since it was judged (0e2e05254)"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [
+      "crucible:hc-abend-link/HCSUB"
+     ],
+     "case": "hc-abend-link",
+     "coverage": {
+      "branches": [
+       4,
+       4
+      ],
+      "paragraphs": [
+       4,
+       4
+      ],
+      "uncovered_branches": 0
+     },
+     "differences": 0,
+     "estate": "cics-crucible",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "crucible:hc-abend-link/HCMAIN",
+     "kind": "crucible",
+     "level": "E3",
+     "level_current": true,
+     "lines": {
+      "procedure": 47,
+      "total": 61
+     },
+     "mutation": {
+      "adjusted_judged": 14,
+      "commit": "0e2e05254",
+      "judged": 23,
+      "killed": 14,
+      "open_survivors": 0,
+      "stale": "stale: case, harness changed since it was judged (0e2e05254)",
+      "stillborn": 1,
+      "survivors": {
+       "case_gap": 0,
+       "equivalent": 4,
+       "harness_gap": 0,
+       "unreachable": 5,
+       "untriaged": 0
+      }
+     },
+     "oracle": "crucible-expected-logs",
+     "program": "HCMAIN",
+     "proof": {
+      "at": "2026-10-18T08:14:34Z",
+      "fault_runs": 0,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 5
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 5,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/cics_crucible/ports/hc-abend-link/HCMAIN/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "mutation score stale: case, harness changed since it was judged (0e2e05254)"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [
+      "crucible:hc-abend-link/HCMAIN"
+     ],
+     "case": "hc-abend-link",
+     "coverage": {
+      "branches": [
+       3,
+       3
+      ],
+      "paragraphs": [
+       2,
+       2
+      ],
+      "uncovered_branches": 0
+     },
+     "differences": 0,
+     "estate": "cics-crucible",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "crucible:hc-abend-link/HCSUB",
+     "kind": "crucible",
+     "level": "E3",
+     "level_current": true,
+     "lines": {
+      "procedure": 29,
+      "total": 41
+     },
+     "mutation": {
+      "adjusted_judged": 18,
+      "commit": "0e2e05254",
+      "judged": 24,
+      "killed": 18,
+      "open_survivors": 0,
+      "stale": "stale: case, harness changed since it was judged (0e2e05254)",
+      "stillborn": 0,
+      "survivors": {
+       "case_gap": 0,
+       "equivalent": 3,
+       "harness_gap": 0,
+       "unreachable": 3,
+       "untriaged": 0
+      }
+     },
+     "oracle": "crucible-expected-logs",
+     "program": "HCSUB",
+     "proof": {
+      "at": "2026-10-18T08:20:35Z",
+      "fault_runs": 0,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 3
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 3,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/cics_crucible/ports/hc-abend-link/HCSUB/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "mutation score stale: case, harness changed since it was judged (0e2e05254)"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "hc-perform-range",
+     "coverage": {
+      "branches": [
+       0,
+       0
+      ],
+      "paragraphs": [
+       8,
+       8
+      ],
+      "uncovered_branches": 0
+     },
+     "differences": 0,
+     "estate": "cics-crucible",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "crucible:hc-perform-range/HCQREAD",
+     "kind": "crucible",
+     "level": "E3",
+     "level_current": true,
+     "lines": {
+      "procedure": 64,
+      "total": 77
+     },
+     "mutation": {
+      "adjusted_judged": 14,
+      "commit": "0e2e05254",
+      "judged": 21,
+      "killed": 14,
+      "open_survivors": 0,
+      "stale": "stale: harness changed since it was judged (0e2e05254)",
+      "stillborn": 3,
+      "survivors": {
+       "case_gap": 0,
+       "equivalent": 4,
+       "harness_gap": 0,
+       "unreachable": 3,
+       "untriaged": 0
+      }
+     },
+     "oracle": "crucible-expected-logs",
+     "program": "HCQREAD",
+     "proof": {
+      "at": "2026-10-18T08:16:13Z",
+      "fault_runs": 0,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 4
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 6,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/cics_crucible/ports/hc-perform-range/HCQREAD/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "mutation score stale: harness changed since it was judged (0e2e05254)"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "hx-attr-bytes",
+     "coverage": {
+      "branches": [
+       6,
+       6
+      ],
+      "paragraphs": [
+       4,
+       4
+      ],
+      "uncovered_branches": 0
+     },
+     "differences": 0,
+     "estate": "cics-crucible",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "crucible:hx-attr-bytes/HXATTR",
+     "kind": "crucible",
+     "level": "E3",
+     "level_current": true,
+     "lines": {
+      "procedure": 56,
+      "total": 73
+     },
+     "mutation": {
+      "adjusted_judged": 17,
+      "commit": "0e2e05254",
+      "judged": 22,
+      "killed": 17,
+      "open_survivors": 0,
+      "stale": "stale: harness changed since it was judged (0e2e05254)",
+      "stillborn": 2,
+      "survivors": {
+       "case_gap": 0,
+       "equivalent": 5,
+       "harness_gap": 0,
+       "unreachable": 0,
+       "untriaged": 0
+      }
+     },
+     "oracle": "crucible-expected-logs",
+     "program": "HXATTR",
+     "proof": {
+      "at": "2026-10-18T08:19:54Z",
+      "fault_runs": 0,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 4
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 1,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/cics_crucible/ports/hx-attr-bytes/HXATTR/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "mutation score stale: harness changed since it was judged (0e2e05254)"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "hx-extended-cursor",
+     "coverage": {
+      "branches": [
+       6,
+       6
+      ],
+      "paragraphs": [
+       3,
+       3
+      ],
+      "uncovered_branches": 0
+     },
+     "differences": 0,
+     "estate": "cics-crucible",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "crucible:hx-extended-cursor/HXEXT",
+     "kind": "crucible",
+     "level": "E3",
+     "level_current": true,
+     "lines": {
+      "procedure": 47,
+      "total": 59
+     },
+     "mutation": {
+      "adjusted_judged": 20,
+      "commit": "0e2e05254",
+      "judged": 23,
+      "killed": 20,
+      "open_survivors": 0,
+      "stale": "stale: harness changed since it was judged (0e2e05254)",
+      "stillborn": 1,
+      "survivors": {
+       "case_gap": 0,
+       "equivalent": 1,
+       "harness_gap": 0,
+       "unreachable": 2,
+       "untriaged": 0
+      }
+     },
+     "oracle": "crucible-expected-logs",
+     "program": "HXEXT",
+     "proof": {
+      "at": "2026-10-18T08:24:09Z",
+      "fault_runs": 0,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 3
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 1,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/cics_crucible/ports/hx-extended-cursor/HXEXT/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "mutation score stale: harness changed since it was judged (0e2e05254)"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [
+      "crucible:pc-aid-menu/PCMENU"
+     ],
+     "case": "pc-aid-menu",
+     "coverage": {
+      "branches": [
+       2,
+       2
+      ],
+      "paragraphs": [
+       1,
+       1
+      ],
+      "uncovered_branches": 0
+     },
+     "differences": 0,
+     "estate": "cics-crucible",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "crucible:pc-aid-menu/PCDETL",
+     "kind": "crucible",
+     "level": "E3",
+     "level_current": true,
+     "lines": {
+      "procedure": 15,
+      "total": 27
+     },
+     "mutation": {
+      "adjusted_judged": 15,
+      "commit": "9743bfb17",
+      "judged": 24,
+      "killed": 15,
+      "open_survivors": 0,
+      "stale": "stale: case, harness changed since it was judged (9743bfb17)",
+      "stillborn": 0,
+      "survivors": {
+       "case_gap": 0,
+       "equivalent": 9,
+       "harness_gap": 0,
+       "unreachable": 0,
+       "untriaged": 0
+      }
+     },
+     "oracle": "crucible-expected-logs",
+     "program": "PCDETL",
+     "proof": {
+      "at": "2026-10-18T08:24:14Z",
+      "fault_runs": 0,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 3
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 1,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/cics_crucible/ports/pc-aid-menu/PCDETL/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "mutation score stale: case, harness changed since it was judged (9743bfb17)"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [
+      "crucible:pc-aid-menu/PCDETL"
+     ],
+     "case": "pc-aid-menu",
+     "coverage": {
+      "branches": [
+       9,
+       9
+      ],
+      "paragraphs": [
+       4,
+       4
+      ],
+      "uncovered_branches": 0
+     },
+     "differences": 0,
+     "estate": "cics-crucible",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "crucible:pc-aid-menu/PCMENU",
+     "kind": "crucible",
+     "level": "E3",
+     "level_current": true,
+     "lines": {
+      "procedure": 52,
+      "total": 66
+     },
+     "mutation": {
+      "adjusted_judged": 16,
+      "commit": "9743bfb17",
+      "judged": 24,
+      "killed": 16,
+      "open_survivors": 0,
+      "stale": "stale: case, harness changed since it was judged (9743bfb17)",
+      "stillborn": 0,
+      "survivors": {
+       "case_gap": 0,
+       "equivalent": 6,
+       "harness_gap": 0,
+       "unreachable": 2,
+       "untriaged": 0
+      }
+     },
+     "oracle": "crucible-expected-logs",
+     "program": "PCMENU",
+     "proof": {
+      "at": "2026-10-18T08:15:05Z",
+      "fault_runs": 0,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 4
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 2,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/cics_crucible/ports/pc-aid-menu/PCMENU/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "mutation score stale: case, harness changed since it was judged (9743bfb17)"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [
+      "crucible:pc-return-immediate/PCIMMB",
+      "crucible:pc-return-immediate/PCIMML",
+      "crucible:pc-return-immediate/PCIMMS"
+     ],
+     "case": "pc-return-immediate",
+     "coverage": {
+      "branches": [
+       4,
+       5
+      ],
+      "paragraphs": [
+       6,
+       6
+      ],
+      "uncovered_branches": 0
+     },
+     "differences": 0,
+     "estate": "cics-crucible",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "crucible:pc-return-immediate/PCIMMA",
+     "kind": "crucible",
+     "level": "E2",
+     "level_current": true,
+     "lines": {
+      "procedure": 58,
+      "total": 77
+     },
+     "mutation": {
+      "adjusted_judged": 16,
+      "commit": "ed188d3cb406da57b753e56b98ae9e75b6d2d2b0",
+      "judged": 22,
+      "killed": 6,
+      "open_survivors": 10,
+      "stale": "stale: port, harness changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)",
+      "stillborn": 2,
+      "survivors": {
+       "case_gap": 10,
+       "equivalent": 5,
+       "harness_gap": 0,
+       "unreachable": 1,
+       "untriaged": 0
+      }
+     },
+     "oracle": "crucible-expected-logs",
+     "program": "PCIMMA",
+     "proof": {
+      "at": "2026-10-18T08:20:55Z",
+      "fault_runs": 0,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 4
+     },
+     "reach": {
+      "det_helper": 2,
+      "left_as_generated": 1,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/cics_crucible/ports/pc-return-immediate/PCIMMA/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "coverage short: 6/6 paragraphs, 4/5 branch outcomes"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [
+      "crucible:pc-return-immediate/PCIMMA",
+      "crucible:pc-return-immediate/PCIMML",
+      "crucible:pc-return-immediate/PCIMMS"
+     ],
+     "case": "pc-return-immediate",
+     "coverage": {
+      "branches": [
+       2,
+       2
+      ],
+      "paragraphs": [
+       2,
+       2
+      ],
+      "uncovered_branches": 0
+     },
+     "differences": 0,
+     "estate": "cics-crucible",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "crucible:pc-return-immediate/PCIMMB",
+     "kind": "crucible",
+     "level": "E3",
+     "level_current": true,
+     "lines": {
+      "procedure": 20,
+      "total": 35
+     },
+     "mutation": {
+      "adjusted_judged": 18,
+      "commit": "ed188d3cb406da57b753e56b98ae9e75b6d2d2b0",
+      "judged": 23,
+      "killed": 11,
+      "open_survivors": 7,
+      "stale": "stale: port, harness changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)",
+      "stillborn": 1,
+      "survivors": {
+       "case_gap": 7,
+       "equivalent": 5,
+       "harness_gap": 0,
+       "unreachable": 0,
+       "untriaged": 0
+      }
+     },
+     "oracle": "crucible-expected-logs",
+     "program": "PCIMMB",
+     "proof": {
+      "at": "2026-10-18T08:16:43Z",
+      "fault_runs": 0,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 1
+     },
+     "reach": {
+      "det_helper": 1,
+      "left_as_generated": 1,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/cics_crucible/ports/pc-return-immediate/PCIMMB/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "mutation score stale: port, harness changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [
+      "crucible:pc-return-immediate/PCIMMA",
+      "crucible:pc-return-immediate/PCIMMB",
+      "crucible:pc-return-immediate/PCIMMS"
+     ],
+     "case": "pc-return-immediate",
+     "coverage": {
+      "branches": [
+       2,
+       2
+      ],
+      "paragraphs": [
+       1,
+       1
+      ],
+      "uncovered_branches": 0
+     },
+     "differences": 0,
+     "estate": "cics-crucible",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "crucible:pc-return-immediate/PCIMML",
+     "kind": "crucible",
+     "level": "E3",
+     "level_current": true,
+     "lines": {
+      "procedure": 14,
+      "total": 32
+     },
+     "mutation": {
+      "adjusted_judged": 19,
+      "commit": "ed188d3cb406da57b753e56b98ae9e75b6d2d2b0",
+      "judged": 23,
+      "killed": 9,
+      "open_survivors": 10,
+      "stale": "stale: port, harness changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)",
+      "stillborn": 1,
+      "survivors": {
+       "case_gap": 10,
+       "equivalent": 3,
+       "harness_gap": 0,
+       "unreachable": 1,
+       "untriaged": 0
+      }
+     },
+     "oracle": "crucible-expected-logs",
+     "program": "PCIMML",
+     "proof": {
+      "at": "2026-10-18T08:20:25Z",
+      "fault_runs": 0,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 2
+     },
+     "reach": {
+      "det_helper": 2,
+      "left_as_generated": 0,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/cics_crucible/ports/pc-return-immediate/PCIMML/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "mutation score stale: port, harness changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [
+      "crucible:pc-return-immediate/PCIMMA",
+      "crucible:pc-return-immediate/PCIMMB",
+      "crucible:pc-return-immediate/PCIMML"
+     ],
+     "case": "pc-return-immediate",
+     "coverage": {
+      "branches": [
+       0,
+       0
+      ],
+      "paragraphs": [
+       1,
+       1
+      ],
+      "uncovered_branches": 0
+     },
+     "differences": 0,
+     "estate": "cics-crucible",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "crucible:pc-return-immediate/PCIMMS",
+     "kind": "crucible",
+     "level": "E3",
+     "level_current": true,
+     "lines": {
+      "procedure": 10,
+      "total": 23
+     },
+     "mutation": {
+      "adjusted_judged": 16,
+      "commit": "ed188d3cb406da57b753e56b98ae9e75b6d2d2b0",
+      "judged": 24,
+      "killed": 8,
+      "open_survivors": 8,
+      "stale": "stale: port, harness changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)",
+      "stillborn": 0,
+      "survivors": {
+       "case_gap": 8,
+       "equivalent": 7,
+       "harness_gap": 0,
+       "unreachable": 1,
+       "untriaged": 0
+      }
+     },
+     "oracle": "crucible-expected-logs",
+     "program": "PCIMMS",
+     "proof": {
+      "at": "2026-10-18T08:24:39Z",
+      "fault_runs": 0,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 1
+     },
+     "reach": {
+      "det_helper": 1,
+      "left_as_generated": 1,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/cics_crucible/ports/pc-return-immediate/PCIMMS/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "mutation score stale: port, harness changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [
+      "crucible:pc-wizard/PCWIZ"
+     ],
+     "case": "pc-wizard",
+     "coverage": {
+      "branches": [
+       14,
+       14
+      ],
+      "paragraphs": [
+       5,
+       5
+      ],
+      "uncovered_branches": 0
+     },
+     "differences": 0,
+     "estate": "cics-crucible",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "crucible:pc-wizard/PCCONF",
+     "kind": "crucible",
+     "level": "E3",
+     "level_current": true,
+     "lines": {
+      "procedure": 79,
+      "total": 103
+     },
+     "mutation": {
+      "adjusted_judged": 15,
+      "commit": "9743bfb17",
+      "judged": 23,
+      "killed": 15,
+      "open_survivors": 0,
+      "stale": "stale: case, harness changed since it was judged (9743bfb17)",
+      "stillborn": 1,
+      "survivors": {
+       "case_gap": 0,
+       "equivalent": 4,
+       "harness_gap": 0,
+       "unreachable": 4,
+       "untriaged": 0
+      }
+     },
+     "oracle": "crucible-expected-logs",
+     "program": "PCCONF",
+     "proof": {
+      "at": "2026-10-18T08:24:35Z",
+      "fault_runs": 0,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 5
+     },
+     "reach": {
+      "det_helper": 2,
+      "left_as_generated": 1,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/cics_crucible/ports/pc-wizard/PCCONF/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "mutation score stale: case, harness changed since it was judged (9743bfb17)"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [
+      "crucible:pc-wizard/PCCONF"
+     ],
+     "case": "pc-wizard",
+     "coverage": {
+      "branches": [
+       10,
+       10
+      ],
+      "paragraphs": [
+       5,
+       5
+      ],
+      "uncovered_branches": 0
+     },
+     "differences": 0,
+     "estate": "cics-crucible",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "crucible:pc-wizard/PCWIZ",
+     "kind": "crucible",
+     "level": "E3",
+     "level_current": true,
+     "lines": {
+      "procedure": 60,
+      "total": 75
+     },
+     "mutation": {
+      "adjusted_judged": 16,
+      "commit": "9743bfb17",
+      "judged": 23,
+      "killed": 16,
+      "open_survivors": 0,
+      "stale": "stale: case, harness changed since it was judged (9743bfb17)",
+      "stillborn": 1,
+      "survivors": {
+       "case_gap": 0,
+       "equivalent": 4,
+       "harness_gap": 0,
+       "unreachable": 3,
+       "untriaged": 0
+      }
+     },
+     "oracle": "crucible-expected-logs",
+     "program": "PCWIZ",
+     "proof": {
+      "at": "2026-10-18T08:15:38Z",
+      "fault_runs": 0,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 6
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 1,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/cics_crucible/ports/pc-wizard/PCWIZ/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "mutation score stale: case, harness changed since it was judged (9743bfb17)"
+     ]
+    }
+   ],
+   "summary": {
+    "approved_current": 0,
+    "at_or_above_e2": 21,
+    "branches": [
+     93,
+     94
+    ],
+    "declared_differences": 0,
+    "holes": 0,
+    "levels": {
+     "E0": 0,
+     "E1": 0,
+     "E2": 1,
+     "E3": 20,
+     "E4": 0
+    },
+    "lines": {
+     "at_or_above": {
+      "E2": 780,
+      "E3": 722,
+      "E4": 0
+     },
+     "paragraph_weighted": [
+      780,
+      780
+     ],
+     "procedure": 780,
+     "programs_measured": 21,
+     "total": 1109
+    },
+    "mutation": {
+     "adjusted_judged": 355,
+     "judged": 476,
+     "killed": 316,
+     "open_survivors": 39,
+     "programs_measured": 21,
+     "stillborn": 28,
+     "survivors": {
+      "case_gap": 39,
+      "equivalent": 87,
+      "harness_gap": 0,
+      "unreachable": 34,
+      "untriaged": 0
+     }
+    },
+    "paragraphs": [
+     54,
+     54
+    ],
+    "programs": 21,
+    "stale_mutation_scores": 21,
+    "stale_records": 0
+   }
+  },
+  "cics-genapp": {
+   "programs": [
+    {
+     "approval": null,
+     "callees": [
+      "program:LGSTSQ"
+     ],
+     "case": "genapp-lgapvs01",
+     "coverage": {
+      "branches": [
+       5,
+       9
+      ],
+      "paragraphs": [
+       3,
+       3
+      ],
+      "uncovered_branches": 4
+     },
+     "differences": 2,
+     "estate": "cics-genapp",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "genapp-lgapvs01",
+     "kind": "cics",
+     "level": "E1",
+     "level_current": true,
+     "lines": {
+      "procedure": 79,
+      "total": 146
+     },
+     "mutation": {
+      "adjusted_judged": 119,
+      "commit": "ed188d3cb406da57b753e56b98ae9e75b6d2d2b0",
+      "judged": 121,
+      "killed": 70,
+      "open_survivors": 49,
+      "stale": "stale: port, case, harness, oracle changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)",
+      "stillborn": 29,
+      "survivors": {
+       "case_gap": 49,
+       "equivalent": 0,
+       "harness_gap": 0,
+       "unreachable": 2,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "LGAPVS01",
+     "proof": {
+      "at": "2026-10-18T08:18:56Z",
+      "fault_runs": 2,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 11
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 3,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/equivalence/genapp-lgapvs01/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "a program it LINKs or CALLs has holes or no executed-equivalent record: program:LGSTSQ"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [],
+     "case": "genapp-lgicdb01",
+     "coverage": {
+      "branches": [
+       4,
+       12
+      ],
+      "paragraphs": [
+       3,
+       4
+      ],
+      "uncovered_branches": 8
+     },
+     "differences": 2,
+     "estate": "cics-genapp",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "genapp-lgicdb01",
+     "kind": "cics",
+     "level": "E2",
+     "level_current": true,
+     "lines": {
+      "procedure": 93,
+      "total": 141
+     },
+     "mutation": {
+      "adjusted_judged": 127,
+      "commit": "ed188d3cb406da57b753e56b98ae9e75b6d2d2b0",
+      "judged": 130,
+      "killed": 49,
+      "open_survivors": 78,
+      "stale": "stale: port, harness, oracle changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)",
+      "stillborn": 20,
+      "survivors": {
+       "case_gap": 78,
+       "equivalent": 0,
+       "harness_gap": 0,
+       "unreachable": 3,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "LGICDB01",
+     "proof": {
+      "at": "2026-10-18T08:16:17Z",
+      "fault_runs": 0,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 12
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 3,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/equivalence/genapp-lgicdb01/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "coverage short: 3/4 paragraphs, 4/12 branch outcomes"
+     ]
+    },
+    {
+     "approval": null,
+     "callees": [
+      "program:LGUPVS01"
+     ],
+     "case": "genapp-lgupdb01",
+     "coverage": {
+      "branches": [
+       17,
+       38
+      ],
+      "paragraphs": [
+       8,
+       9
+      ],
+      "uncovered_branches": 21
+     },
+     "differences": 2,
+     "estate": "cics-genapp",
+     "executed_equivalent": true,
+     "has_record": true,
+     "holes": 0,
+     "key": "genapp-lgupdb01",
+     "kind": "cics",
+     "level": "E1",
+     "level_current": true,
+     "lines": {
+      "procedure": 237,
+      "total": 324
+     },
+     "mutation": {
+      "adjusted_judged": 137,
+      "commit": "ed188d3cb406da57b753e56b98ae9e75b6d2d2b0",
+      "judged": 138,
+      "killed": 76,
+      "open_survivors": 61,
+      "stale": "stale: port, harness, oracle changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)",
+      "stillborn": 12,
+      "survivors": {
+       "case_gap": 61,
+       "equivalent": 0,
+       "harness_gap": 0,
+       "unreachable": 1,
+       "untriaged": 0
+      }
+     },
+     "oracle": "gnucobol-models",
+     "program": "LGUPDB01",
+     "proof": {
+      "at": "2026-10-18T08:17:08Z",
+      "fault_runs": 0,
+      "harness_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69+uncommitted",
+      "runs": 5
+     },
+     "reach": {
+      "det_helper": 0,
+      "left_as_generated": 5,
+      "ported_unproven": 0,
+      "stub": 0
+     },
+     "reasons": [],
+     "record": "tests/equivalence/genapp-lgupdb01/evidence.json",
+     "stale": [],
+     "status": "proven, unapproved",
+     "why": [
+      "a program it LINKs or CALLs has holes or no executed-equivalent record: program:LGUPVS01"
+     ]
+    }
+   ],
+   "summary": {
+    "approved_current": 0,
+    "at_or_above_e2": 1,
+    "branches": [
+     26,
+     59
+    ],
+    "declared_differences": 6,
+    "holes": 0,
+    "levels": {
+     "E0": 0,
+     "E1": 2,
+     "E2": 1,
+     "E3": 0,
+     "E4": 0
+    },
+    "lines": {
+     "at_or_above": {
+      "E2": 93,
+      "E3": 0,
+      "E4": 0
+     },
+     "paragraph_weighted": [
+      359,
+      409
+     ],
+     "procedure": 409,
+     "programs_measured": 3,
+     "total": 611
+    },
+    "mutation": {
+     "adjusted_judged": 383,
+     "judged": 389,
+     "killed": 195,
+     "open_survivors": 188,
+     "programs_measured": 3,
+     "stillborn": 61,
+     "survivors": {
+      "case_gap": 188,
+      "equivalent": 0,
+      "harness_gap": 0,
+      "unreachable": 6,
+      "untriaged": 0
+     }
+    },
+    "paragraphs": [
+     14,
+     16
+    ],
+    "programs": 3,
+    "stale_mutation_scores": 3,
+    "stale_records": 0
+   }
+  }
+ },
+ "format": "gitgalaxy-estate-evidence/1",
+ "ladder": {
+  "E0": "no record",
+  "E1": "recorded, not executed-equivalent or holes",
+  "E2": "executed equivalent",
+  "E3": "executed equivalent, full coverage",
+  "E4": "executed equivalent, full coverage, mutants accounted for"
+ },
+ "lines": "see each summary: procedure code lines where the corpus checkout is present, else not measured",
+ "live": true,
+ "refused_estates": [],
+ "summary": {
+  "approved_current": 0,
+  "at_or_above_e2": 43,
+  "branches": [
+   1336,
+   1465
+  ],
+  "declared_differences": 7,
+  "holes": 4,
+  "levels": {
+   "E0": 0,
+   "E1": 6,
+   "E2": 22,
+   "E3": 21,
+   "E4": 0
+  },
+  "lines": {
+   "at_or_above": {
+    "E2": 7251,
+    "E3": 862,
+    "E4": 0
+   },
+   "paragraph_weighted": [
+    8984,
+    9112
+   ],
+   "procedure": 9112,
+   "programs_measured": 49,
+   "total": 11813
+  },
+  "mutation": {
+   "adjusted_judged": 2833,
+   "judged": 3381,
+   "killed": 2351,
+   "open_survivors": 482,
+   "programs_measured": 49,
+   "stillborn": 331,
+   "survivors": {
+    "case_gap": 476,
+    "equivalent": 407,
+    "harness_gap": 6,
+    "unreachable": 141,
+    "untriaged": 0
+   }
+  },
+  "paragraphs": [
+   440,
+   446
+  ],
+  "programs": 49,
+  "stale_mutation_scores": 49,
+  "stale_records": 0
+ }
+}

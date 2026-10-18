@@ -743,3 +743,82 @@ def test_a_step_that_is_not_found_keeps_the_whole_job(tmp_path):
     jcl = "//RUN JOB\n//S1 EXEC PGM=LEAF\n//LEAFDD DD DSN=APP.LEAF.KSDS,DISP=SHR\n"
     ir = _call_estate(tmp_path, {"DEF": _DEFINE, "RUN": jcl}, {"LEAF": _LEAF})
     assert _lineage(ir, "LEAF") == [("RUN.jcl", "LEAFDD", "APP.LEAF.KSDS")]
+
+
+# ---- #5072: a CALL through a data item is followed only where the item has one provable value ----------------------
+_RUN = "//RUN JOB\n//ST EXEC PGM=TOP\n//LEAFDD DD DSN=APP.LEAF.KSDS,DISP=SHR\n"
+_BOUND = [("RUN.jcl", "LEAFDD", "APP.LEAF.KSDS")]
+_UNBOUND = [(None, "LEAFDD", None)]
+
+
+def _dyn_top(ws, body):
+    return _prog("TOP", body).replace("       01  WS-TARGET PIC X(8).\n", ws)
+
+
+@pytest.mark.parametrize(
+    "ws, body, expected",
+    [
+        pytest.param(
+            "       01  WS-TARGET PIC X(8).\n", "           MOVE 'LEAF' TO WS-TARGET.\n", _BOUND, id="one-move"
+        ),
+        pytest.param("       01  WS-TARGET PIC X(8) VALUE 'LEAF'.\n", "", _BOUND, id="value"),
+        pytest.param(
+            "       01  WS-TARGET PIC X(8) VALUE 'LEAF'.\n", "           MOVE 'LEAF' TO WS-TARGET.\n", _BOUND, id="same"
+        ),
+        pytest.param(
+            "       01  WS-TARGET PIC X(8) VALUE 'LEAF'.\n",
+            "           MOVE 'OTHER' TO WS-TARGET.\n",
+            _UNBOUND,
+            id="two",
+        ),
+        pytest.param(
+            "       01  WS-TARGET PIC X(8).\n       01  WS-IN PIC X(8).\n",
+            "           MOVE 'LEAF' TO WS-TARGET.\n           MOVE WS-IN TO WS-TARGET.\n",
+            _UNBOUND,
+            id="unknown-source",
+        ),
+        pytest.param(
+            "       01  WS-TARGET PIC X(8).\n",
+            "           MOVE 'LEAF' TO WS-TARGET.\n           MOVE 'LEAF2' TO WS-TARGET.\n",
+            _UNBOUND,
+            id="two-moves",
+        ),
+        pytest.param(
+            "       01  WS-TARGET PIC X(8).\n",
+            "           MOVE 'NOSUCH' TO WS-TARGET.\n",
+            _UNBOUND,
+            id="not-in-repo",
+        ),
+    ],
+)
+def test_a_dynamic_call_is_followed_only_for_one_provable_value(tmp_path, ws, body, expected):
+    ir = _call_estate(
+        tmp_path,
+        {"DEF": _DEFINE, "RUN": _RUN},
+        {"TOP": _dyn_top(ws, body + "           CALL WS-TARGET.\n"), "LEAF": _LEAF},
+    )
+    assert _lineage(ir, "LEAF") == expected
+
+
+def test_a_dynamic_call_takes_only_its_callers_step(tmp_path):
+    ir = _call_estate(
+        tmp_path,
+        {"DEF": _DEFINE, "RUN": _TWO_STEPS.format(a="TOP", b="OTH")},
+        {
+            "TOP": _dyn_top(
+                "       01  WS-TARGET PIC X(8).\n", "           MOVE 'LEAF' TO WS-TARGET.\n           CALL WS-TARGET.\n"
+            ),
+            "LEAF": _LEAF,
+            "OTH": _FILE_PROG,
+        },
+    )
+    assert _lineage(ir, "LEAF") == _BOUND  # step S1 only
+
+
+def test_a_dynamic_call_cycle_terminates(tmp_path):
+    top = _dyn_top(
+        "       01  WS-TARGET PIC X(8).\n", "           MOVE 'LEAF' TO WS-TARGET.\n           CALL WS-TARGET.\n"
+    )
+    leaf = _prog("LEAF", "           OPEN INPUT LEAF-FILE.\n           CALL 'TOP'.\n", "LEAF")
+    ir = _call_estate(tmp_path, {"DEF": _DEFINE, "RUN": _RUN}, {"TOP": top, "LEAF": leaf})
+    assert _lineage(ir, "LEAF") == _BOUND

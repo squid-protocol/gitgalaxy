@@ -1047,12 +1047,23 @@ class GalaxyIR:
                     )
         # #5034: a statically CALLed subprogram runs in its caller's step, under that step's DDs (CardDemo CBSTM03B,
         # called by CBSTM03A): every job that runs a program also runs what it CALLs, however deep. A CALL through a
-        # data item (no `resolves_to`) is not followed.
+        # data item is followed only on one provable value (below).
         callees: dict[str, set] = {}
         for f in self.files.values():
             for call in f.calls:
-                if call.verb == "CALL" and call.resolves_to:
+                # a CALL through a data item the resolver bound through its VALUE is judged below (#5072): a MOVE of
+                # another value into it makes the target a run-time choice
+                if call.verb == "CALL" and call.resolves_to and call.form != "identifier":
                     callees.setdefault(f.file_path, set()).add(call.resolves_to)
+        # #5072: a CALL through a data item is followed only where the item has ONE provable value: a single
+        # candidate (VALUE, one MOVE literal) and no MOVE from an item whose content is unknown. Several values, a
+        # table or an unknown source stay unfollowed (the target is chosen at run time). Costly (data_flows over the
+        # whole IR), so only when some job runs a program at all.
+        if runners:
+            for d in self.dynamic_call_targets():
+                cands = d["candidates"]
+                if d["verb"] == "CALL" and len(cands) == 1 and not d["other_sources"] and cands[0]["resolves_to"]:
+                    callees.setdefault(d["file"], set()).add(cands[0]["resolves_to"])
         for prog, runs in list(runners.items()):
             seen, todo = {prog}, [prog]
             while todo:

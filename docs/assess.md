@@ -15,9 +15,14 @@ pip install "gitgalaxy[translator] @ git+https://github.com/squid-protocol/gitga
 gitgalaxy assess --help
 ```
 
-The `translator` extra installs the COBOL grammar (`tree-sitter-language-pack`), which is what reads the programs. There is no
-published package or tested clean-machine install yet; both are follow-ups of #4726. On an offline site, build the
-wheels on a connected machine (`pip wheel "gitgalaxy[translator]" -w wheels/`), copy them across, and install with
+A plain `pip install gitgalaxy` (no extras) runs the inventory: counts, feature names and statuses of every program. The
+`translator` extra installs the COBOL grammar (`tree-sitter-language-pack`), which the translate-only dry run needs.
+Without it the command prints `translate-only dry run skipped: pip install gitgalaxy[translator]` on standard error
+and writes the report without the `translation` fields (the same as `--no-translate`). A test builds the wheel, installs
+it into a fresh virtual environment with no extras and runs the installed command
+(`tests/cobol_mainframe/test_assess_clean_install.py`). The package is not published to PyPI for this yet; a post-publish
+install check is a follow-up of #4726. On an offline site, build the wheels on a connected machine
+(`pip wheel "gitgalaxy[translator]" -w wheels/`), copy them across, and install with
 `pip install --no-index --find-links wheels/ "gitgalaxy[translator]"`.
 
 GitGalaxy is licensed under PolyForm Noncommercial 1.0.0. For commercial use, set the `GITGALAXY_LICENSE_KEY` your
@@ -111,8 +116,7 @@ Counts are the same as in the plain report.
 
 ## Follow-ups (#4726)
 
-- A published package, and a CI job that installs it on a clean machine.
-- The translate-only dry run per program (whole / with holes / refused) with no JDK.
+- A post-publish check that installs the PyPI package on a clean runner.
 - `--jcl`.
 - The readiness report's ranked rules once #5228 lands.
 - The network block on spawn-start platforms (macOS and Windows).

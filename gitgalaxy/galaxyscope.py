@@ -32,8 +32,8 @@ from gitgalaxy.core.aperture import DENIED_EXTENSION, ApertureFilter, Inaccessib
 from gitgalaxy.core.call_resolver import confident_file_pairs, resolve_calls
 from gitgalaxy.core.copy_libraries import load_copy_libraries
 from gitgalaxy.core.detector import HAS_TIKTOKEN, _compiled_rules
-from gitgalaxy.core.generated_fastlane import clean_directive_table_scan
 from gitgalaxy.core.function_graph import attach_function_metrics, function_metrics
+from gitgalaxy.core.generated_fastlane import clean_directive_table_scan
 from gitgalaxy.core.guidestar_lens import GuideStarLens
 from gitgalaxy.core.invocation_resolver import resolve_invocations, resolve_transactions
 from gitgalaxy.core.mainframe_boundary import extract_boundary

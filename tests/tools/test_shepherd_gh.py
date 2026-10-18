@@ -437,6 +437,99 @@ def test_reconcile_drops_a_label_added_by_a_non_writer_in_the_timeline():
     assert any("unlabel" in x for x in lines) and not merged_by(gh)
 
 
+# --- the learned-flake set (#5398) ----------------------------------------------------------------------------------
+
+
+def _cache(tmp_path, rescues=3, failed=0):
+    path = tmp_path / "flake_history.json"
+    path.write_text(json.dumps({"repo": sg.REPO_SLUG, "days": {"2026-10-17": {"det-db2 (1)": [rescues, failed, {}]}}}))
+    return path
+
+
+def test_learned_flakes_reads_the_cache_and_never_scans(tmp_path):
+    assert sg.learned_flakes(_cache(tmp_path)) == {"det-db2 (1)"}
+    assert sg.learned_flakes(_cache(tmp_path, rescues=1)) == set()  # too few rescues to learn
+    assert sg.learned_flakes(tmp_path / "missing.json") == set()  # no cache, no flakes
+    (tmp_path / "bad.json").write_text("{not json")
+    assert sg.learned_flakes(tmp_path / "bad.json") == set()
+
+
+def test_learned_flakes_default_comes_from_the_environment(tmp_path, monkeypatch):
+    monkeypatch.setenv(sg.FLAKE_CACHE_ENV, str(_cache(tmp_path)))
+    assert sg.learned_flakes() == {"det-db2 (1)"}
+
+
+def _failing_api(gh, attempt):
+    """gh's API with one failed, github-actions check `det-db2 (1)` (run 500, job 600) on run attempt `attempt`."""
+    url = f"https://github.com/{sg.REPO_SLUG}/actions/runs/500/job/600"
+    run = {"id": 1, "name": "det-db2 (1)", "status": "completed", "conclusion": "failure", "html_url": url,
+           "details_url": url, "app": {"slug": "github-actions"}}  # fmt: skip
+
+    def api(path):
+        if "/check-runs" in path:
+            return {"check_runs": [run]}
+        if bare_is(path, "/actions/jobs/600"):
+            return {"run_attempt": attempt}
+        if bare_is(path, "/actions/runs/500"):
+            return {"run_attempt": attempt, "updated_at": "2026-10-10T19:00:00Z"}
+        return gh.api(path)
+
+    return api
+
+
+def bare_is(path, tail):
+    return path.split("?")[0].endswith(tail)
+
+
+@pytest.mark.parametrize(
+    ("attempt", "flaky", "triage"),
+    [
+        (1, {"det-db2 (1)"}, "flake"),  # a learned flake's first failure gets its rerun
+        (2, {"det-db2 (1)"}, "real"),  # failed again on the rerun: a fixer's
+        (1, {"other"}, "real"),  # not learned
+        (1, None, "real"),  # no cache
+    ],
+)
+def test_a_learned_flaky_checks_first_failure_is_triaged_flake_in_the_reconcile_path(
+    monkeypatch, attempt, flaky, triage
+):
+    real = sg.ci_digest.digest  # the real triage, with the log fetch and main's failures stubbed out
+    monkeypatch.setattr(
+        sg.ci_digest, "digest",
+        lambda n, api, on_main=None, flaky=None: real(n, api, logs=lambda _id: "Error: boom\n", on_main=set(), flaky=flaky),
+    )  # fmt: skip
+    gh = Gh()
+    gh.dep_state = "closed"
+    s = sg.gather(7, _failing_api(gh, attempt), None, now=NOW, flaky=flaky)
+    assert [f["triage"] for f in s["failed"]] == [triage]
+
+
+def test_main_computes_the_learned_set_once_per_pass(monkeypatch, tmp_path):
+    gh = Gh()
+    got = []
+    monkeypatch.setattr(sg, "open_labelled", lambda api: [7, 8])
+    monkeypatch.setattr(sg.ci_digest, "main_failures", lambda api: set())
+    monkeypatch.setattr(
+        sg, "process", lambda n, api, run, event, dry, on_main=None, flaky=None: got.append(flaky) or []
+    )
+    calls = []
+    monkeypatch.setattr(sg, "learned_flakes", lambda path=None: calls.append(path) or {"x"})
+    sg.main(["reconcile", "--flake-cache", str(tmp_path / "c.json")], api=gh.api, run=gh.run)
+    assert calls == [tmp_path / "c.json"] and got == [{"x"}, {"x"}]
+
+
+def test_reconcile_workflow_restores_refreshes_and_saves_the_flake_cache():
+    yaml = pytest.importorskip("yaml")
+    doc = yaml.safe_load((REPO / ".github/workflows/shepherd-reconcile.yml").read_text(encoding="utf-8"))
+    steps = list(_steps(doc))
+    uses = [x.get("uses", "").split("@")[0] for x in steps]
+    assert uses.index("actions/cache/restore") < uses.index("actions/cache/save")
+    assert next(x for x in steps if x.get("uses", "").startswith("actions/cache/save"))["if"] == "always()"
+    refresh = next(x for x in steps if "--refresh-only" in x.get("run", ""))
+    assert refresh["continue-on-error"] is True and "-mmin -360" in refresh["run"]
+    assert "--flake-cache" in steps[-1]["run"]
+
+
 def test_prs_for_head_selects_the_open_labelled_pr_of_that_commit():
     gh = Gh()
     assert sg.prs_for_head(gh.api, "e" * 40) == [7]

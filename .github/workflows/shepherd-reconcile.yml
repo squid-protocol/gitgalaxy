@@ -61,8 +61,36 @@ jobs:
           GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
         run: python3 tests/tools/shepherd_gh.py ensure-labels
 
+      # #5398: ci_digest triages the first failure of a learned-flaky check as `flake` (one rerun). The learned set is
+      # flake_history's 14-day cache; a cold scan takes over 10 minutes, so it is kept across runs and refreshed at most
+      # every 6 hours. A failed or cut-off refresh costs nothing: the pass runs with whatever the cache holds.
+      - name: Restore the learned-flake cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: flake-cache
+          key: flake-history-${{ github.run_id }}
+          restore-keys: flake-history-
+
+      - name: Refresh the learned-flake cache when it is older than 6 hours
+        timeout-minutes: 12
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+        run: |
+          mkdir -p flake-cache
+          if [ -z "$(find flake-cache/flake_history.json -mmin -360 2>/dev/null)" ]; then
+            python3 tests/tools/flake_history.py --refresh-only --cache flake-cache/flake_history.json
+          fi
+
+      - name: Save the learned-flake cache
+        if: always()
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: flake-cache
+          key: flake-history-${{ github.run_id }}
+
       - name: Reconcile every labelled open pull request
         # #4935: every pass covers all of them (not only the run's head), so a cancelled pending pass loses nothing
         env:
           GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
-        run: python3 tests/tools/shepherd_gh.py reconcile
+        run: python3 tests/tools/shepherd_gh.py reconcile --flake-cache flake-cache/flake_history.json

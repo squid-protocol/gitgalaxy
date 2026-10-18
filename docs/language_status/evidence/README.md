@@ -11,20 +11,20 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [COBIL00C](carddemo-billpay.md) | carddemo-billpay | cics | proven, unapproved |  | 28 | 16/16 / 46/48 | 64/86 / 64/71 | 0 | - |
 | [COCRDLIC](carddemo-cardlist.md) | carddemo-cardlist | cics | proven, unapproved |  | 30 | 36/36 / 135/149 | 75/94 / 75/82 | 0 | - |
 | [COCRDSLC](carddemo-cardview.md) | carddemo-cardview | cics | proven, unapproved |  | 23 | 30/30 / 69/75 | 60/91 / 60/66 | 0 | - |
-| [CBTRN01C](carddemo-dailyval.md) | carddemo-dailyval | batch | proven, unapproved |  | 21 | 18/18 / 65/66 | - | 0 | - |
+| [CBTRN01C](carddemo-dailyval.md) | carddemo-dailyval | batch | proven, unapproved |  | 21 | 18/18 / 65/66 | 63/96 / 63/71 | 0 | - |
 | [CSUTLDTC](carddemo-dateutil.md) | carddemo-dateutil | call | proven, unapproved |  | 1 | 2/2 / 4/10 | 145/195 / 145/145 | 0 | - |
-| [CBACT04C](carddemo-intcalc.md) | carddemo-intcalc | batch | proven, unapproved |  | 20 | 22/22 / 85/86 | - | 0 | - |
+| [CBACT04C](carddemo-intcalc.md) | carddemo-intcalc | batch | proven, unapproved |  | 20 | 22/22 / 85/86 | 70/86 / 70/77 | 0 | - |
 | [COMEN01C](carddemo-menu.md) | carddemo-menu | cics | proven, unapproved |  | 15 | 7/7 / 29/33 | 86/136 / 86/93 | 0 | - |
-| [CBTRN02C](carddemo-posttran.md) | carddemo-posttran | batch | proven, unapproved |  | 29 | 26/26 / 95/96 | - | 0 | - |
+| [CBTRN02C](carddemo-posttran.md) | carddemo-posttran | batch | proven, unapproved |  | 29 | 26/26 / 95/96 | 76/85 / 76/80 | 0 | - |
 | [CBACT02C](carddemo-readcard.md) | carddemo-readcard | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | 69/83 / 69/83 | 0 | - |
-| [CBCUS01C](carddemo-readcust.md) | carddemo-readcust | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | - | 0 | - |
-| [CBACT03C](carddemo-readxref.md) | carddemo-readxref | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | - | 0 | - |
+| [CBCUS01C](carddemo-readcust.md) | carddemo-readcust | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | 63/74 / 63/70 | 0 | - |
+| [CBACT03C](carddemo-readxref.md) | carddemo-readxref | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | 69/83 / 69/77 | 0 | - |
 | [CORPT00C](carddemo-report.md) | carddemo-report | cics | proven, unapproved |  | 26 | 10/10 / 52/59 | 55/87 / 55/63 | 0 | - |
 | [COSGN00C](carddemo-signon.md) | carddemo-signon | cics | proven, unapproved |  | 12 | 6/6 / 17/17 | 67/99 / 67/72 | 0 | - |
 | [COTRN02C](carddemo-tranadd.md) | carddemo-tranadd | cics | proven, unapproved |  | 49 | 18/18 / 72/75 | 61/91 / 61/74 | 0 | - |
 | [COTRN00C](carddemo-tranlist.md) | carddemo-tranlist | cics | proven, unapproved |  | 32 | 16/16 / 96/101 | 60/91 / 60/80 | 0 | - |
 | [COTRN01C](carddemo-tranview.md) | carddemo-tranview | cics | proven, unapproved |  | 18 | 9/9 / 23/24 | 63/100 / 63/68 | 0 | - |
-| [CBTRN03C](carddemo-trnrpt.md) | carddemo-trnrpt | batch | proven, unapproved |  | 25 | 26/26 / 81/82 | - | 0 | - |
+| [CBTRN03C](carddemo-trnrpt.md) | carddemo-trnrpt | batch | proven, unapproved |  | 25 | 26/26 / 81/82 | 68/86 / 68/79 | 0 | - |
 | [COUSR01C](carddemo-useradd.md) | carddemo-useradd | cics | proven, unapproved |  | 17 | 9/9 / 20/21 | 64/97 / 64/72 | 0 | - |
 | [COUSR03C](carddemo-userdel.md) | carddemo-userdel | cics | proven, unapproved |  | 25 | 11/11 / 30/32 | 62/86 / 62/70 | 0 | - |
 | [COUSR00C](carddemo-userlist.md) | carddemo-userlist | cics | proven, unapproved |  | 32 | 16/16 / 95/100 | 69/100 / 69/92 | 0 | - |

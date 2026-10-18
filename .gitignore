@@ -121,6 +121,9 @@ museum_2/
 !docs/research/*.json
 # #4047: the committed mutation scores of the proven ports (tests/tools/mutation_scores.py)
 !docs/language_status/mutation_scores.json
+# #4628: the det-port mutation ledgers and the reviewed survivor lists (tests/tools/det_mutation.py), one file per case
+!tests/equivalence/det_mutation/*.json
+!tests/equivalence/det_mutation_survivors/*.json
 # #4270: the measured census use / crucible cases the CICS spec status page renders (cics_spec_status.py)
 !docs/language_status/cics_spec_status.json
 # #4711: the cobolrt rule catalogue (tests/tools/cobolrt_rules.py renders docs/language_status/cobolrt_rules.md from it)
@@ -250,6 +253,8 @@ docs/language_status/readiness_report.md
 docs/language_status/progress.md
 docs/language_status/progress.json
 docs/language_status/progress.svg
+# #4963: the architecture brief is published to the generated branch by gitgalaxy.yml, never committed
+docs/gitgalaxy_architecture_brief.md
 docs/language_status/progress_issues_cache.json
 
 # #4980: fetched by equivalence_db2.fetch_odbc_cli() into the Docker build context; never committed

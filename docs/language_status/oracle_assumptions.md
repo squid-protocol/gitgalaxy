@@ -3171,6 +3171,9 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   only OCCURS is CBSA `BNK1ACC` `ACCOUNT` (`OCCURS=10`, `ATTRB=(NORM,PROT,FSET,ASKIP)`, output only), so no burned program
   RECEIVEs into one: per-occurrence JUSTIFY and GRPNAME ATTRB inheritance stay unmodelled, frontier only. The test fails
   when a burned map gains either.
+  The harness side is the same: `Unsupported("BMS OCCURS input")` (`equivalence_cics.py`, RECEIVE MAP typing into `NAME(n)`) stays by
+  design, since no burned map has a typable OCCURS field and `bms_input_fields` never offers one (pinned by
+  `test_no_burned_occurs_field_is_generated_as_map_input`, #4506).
 - **Not modelled: input over initialized data (#5116).** The DFHMDF page adds: "If a field is initialized by an output map or
   contains data from any other source, data that is typed as input overwrites only the equivalent length of the existing data;
   surplus existing data remains in the field". The harness gives the program the typed text placed per JUSTIFY, never merged over

@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `0c45dc645` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `ff7a01e61` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -10,13 +10,13 @@ Fixed denominator: the 129 programs of the 6 burned estates. Source: docs/langua
 
 | Estate | Programs | L0 | L1 | L2 | L3 | L4 | L5 | L2+ | L4+ | L5 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| `aws-mainframe-modernization-carddemo` | 44 | 9 | 3 | 4 | 14 | 14 | 0 | 32 (72.7%) | 14 (31.8%) | 0 |
+| `aws-mainframe-modernization-carddemo` | 44 | 8 | 4 | 4 | 14 | 14 | 0 | 32 (72.7%) | 14 (31.8%) | 0 |
 | `cics-async-api-credit-card-application-example` | 10 | 0 | 0 | 0 | 0 | 10 | 0 | 10 (100.0%) | 10 (100.0%) | 0 |
 | `cics-banking-sample-application-cbsa` | 31 | 0 | 5 | 12 | 8 | 6 | 0 | 26 (83.9%) | 6 (19.4%) | 0 |
-| `cics-genapp` | 31 | 0 | 0 | 10 | 16 | 5 | 0 | 31 (100.0%) | 5 (16.1%) | 0 |
+| `cics-genapp` | 31 | 0 | 0 | 8 | 18 | 5 | 0 | 31 (100.0%) | 5 (16.1%) | 0 |
 | `dbb-mortgage-application` | 6 | 2 | 2 | 1 | 0 | 1 | 0 | 2 (33.3%) | 1 (16.7%) | 0 |
 | `zecs` | 7 | 3 | 1 | 1 | 1 | 1 | 0 | 3 (42.9%) | 1 (14.3%) | 0 |
-| **Total** | 129 | 14 | 11 | 28 | 39 | 37 | 0 | 104 (80.6%) | 37 (28.7%) | 0 |
+| **Total** | 129 | 13 | 12 | 26 | 41 | 37 | 0 | 104 (80.6%) | 37 (28.7%) | 0 |
 
 L0 inventoried, L1 translated whole, L2 executed equal, L3 every paragraph, L4 every net branch, L5 translator
 mutants caught (`definition_of_done.md`).
@@ -25,7 +25,7 @@ mutants caught (`definition_of_done.md`).
 
 | Component | Measure | Denominator | Source |
 |---|---|---|---|
-| Translator | 115 programs translated whole | 129 burned programs | docs/language_status/evidence_report/<estate>/report.json (evidence_report.py, generated branch) |
+| Translator | 116 programs translated whole | 129 burned programs | docs/language_status/evidence_report/<estate>/report.json (evidence_report.py, generated branch) |
 | CICS commands | 60 modelled on both runtimes | 68 commands a burned program uses (7 unlisted or unparsed forms, counted as not modelled) | docs/language_status/cics_spec_status.json (cics_spec_status.py) |
 | COBOL runtime rules | 83 MATCHED, 23 DIFFERS, 53 ASSUMED, 14 REFUSED; 0 measured on z/OS | 173 rules | docs/language_status/cobolrt_rules.json |
 | Mutation | 2351 killed = 83.0% adjusted (69.5% raw) | 2833 adjusted, 3381 raw mutants over 49 ports | docs/language_status/mutation_scores.json |
@@ -51,7 +51,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-18T08:28:30Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-18T08:43:08Z.
 
 - `scope:core`: 25 open, 122 closed.
 - Milestone 28: 14 open, 78 closed.

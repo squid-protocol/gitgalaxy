@@ -9,14 +9,14 @@ the charter in `definition_of_done.md`. Counts only; a level is an evidence leve
 
 | level | programs at exactly this level |
 |---|---|
-| L0 inventoried | 9 |
-| L1 translated whole | 3 |
+| L0 inventoried | 8 |
+| L1 translated whole | 4 |
 | L2 executed equivalent | 4 |
 | L3 paragraph coverage | 14 |
 | L4 branch coverage | 14 |
 | L5 mutants accounted for | 0 |
 
-- translated whole: 35 / 44 (80%); with holes: 9; refused: 0
+- translated whole: 36 / 44 (82%); with holes: 8; refused: 0
 - whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0
 - executed equivalent (L2 and above): 32 / 44
 - charter bars for L3 / L4: paragraphs 100.0%, branches 100.0%
@@ -25,20 +25,30 @@ Era evidence (programs by latest era a tell reaches):
 
 era 0: 0, era 1: 5, era 2: 22, era 3: 15, era 4: 0, era none: 2
 
-### Rules to land (10 gap classes; top 10, the `cics_census.py blockers` order)
+### Rules to land (12 gap classes; top 12, the `cics_census.py blockers` order)
 
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
 | 1 | <name>: <name> is not defined in a record of file <name> | 2 | 0 | 2 | era 3: 2 |
 | 2 | DSNTIAC: Db2's message text is not modelled | 1 | 0 | 1 | era 2: 1 |
-| 3 | ACCEPT FROM SYSIN | 0 | 1 | 2 | - |
-| 4 | <name> SET ADDRESS OF | 0 | 1 | 1 | - |
+| 3 | <name> SET ADDRESS OF | 0 | 1 | 1 | - |
+| 4 | <name>: no such item | 0 | 1 | 1 | - |
 | 5 | ALTER not modelled | 0 | 1 | 1 | - |
-| 6 | CALL MVSWAIT | 0 | 1 | 1 | - |
-| 7 | <name>: no such item | 0 | 0 | 4 | - |
-| 8 | EXEC DLI | 0 | 0 | 4 | - |
-| 9 | EXEC CICS <class>.<property>: a property the port cannot convert | 0 | 0 | 2 | - |
-| 10 | INITIALIZE REPLACING of the table <name>, which holds ALPHANUMERIC items REPLACING does not name | 0 | 0 | 1 | - |
+| 6 | EXEC DLI outside CICS: a batch program calls CBLTDLI | 0 | 1 | 1 | - |
+| 7 | EXEC DLI GU: the segment commands (…) are not modelled | 0 | 0 | 3 | - |
+| 8 | EXEC CICS <class>.<property>: a property the port cannot convert | 0 | 0 | 2 | - |
+| 9 | EXEC DLI GNP: the segment commands (…) are not modelled | 0 | 0 | 2 | - |
+| 10 | EXEC DLI REPL: the segment commands (…) are not modelled | 0 | 0 | 2 | - |
+| 11 | EXEC DLI ISRT: the segment commands (…) are not modelled | 0 | 0 | 1 | - |
+| 12 | INITIALIZE REPLACING of the table <name>, which holds ALPHANUMERIC items REPLACING does not name | 0 | 0 | 1 | - |
+
+### Proof blockers (36 programs translated whole, 14 with no proof gap; top 3 of 3 classes, `proof_blockers.py` statistics)
+
+| rank | what stops the proof | alone | one gap away | touched |
+|---|---|---|---|---|
+| 1 | coverage: branch outcomes below the bar | 14 | 0 | 14 |
+| 2 | coverage: paragraphs below the bar | 4 | 0 | 4 |
+| 3 | no case | 4 | 0 | 4 |
 
 ### Missing inputs
 
@@ -91,6 +101,11 @@ era 0: 0, era 1: 0, era 2: 0, era 3: 0, era 4: 7, era none: 3
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
 
+### Proof blockers (10 programs translated whole, 10 with no proof gap; top 0 of 0 classes, `proof_blockers.py` statistics)
+
+| rank | what stops the proof | alone | one gap away | touched |
+|---|---|---|---|---|
+
 ### Missing inputs
 
 - assumed options awaiting customer confirmation: 23
@@ -135,6 +150,15 @@ era 0: 0, era 1: 0, era 2: 22, era 3: 1, era 4: 6, era none: 2
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
 
+### Proof blockers (31 programs translated whole, 6 with no proof gap; top 4 of 4 classes, `proof_blockers.py` statistics)
+
+| rank | what stops the proof | alone | one gap away | touched |
+|---|---|---|---|---|
+| 1 | coverage: paragraphs below the bar | 12 | 0 | 12 |
+| 2 | coverage: branch outcomes below the bar | 8 | 0 | 8 |
+| 3 | known unproven: det sweep baseline | 4 | 0 | 4 |
+| 4 | no case | 1 | 0 | 1 |
+
 ### Missing inputs
 
 - assumed options awaiting customer confirmation: 19
@@ -170,8 +194,8 @@ era 0: 0, era 1: 0, era 2: 22, era 3: 1, era 4: 6, era none: 2
 |---|---|
 | L0 inventoried | 0 |
 | L1 translated whole | 0 |
-| L2 executed equivalent | 10 |
-| L3 paragraph coverage | 16 |
+| L2 executed equivalent | 8 |
+| L3 paragraph coverage | 18 |
 | L4 branch coverage | 5 |
 | L5 mutants accounted for | 0 |
 
@@ -188,6 +212,14 @@ era 0: 0, era 1: 4, era 2: 24, era 3: 0, era 4: 3, era none: 0
 
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
+
+### Proof blockers (31 programs translated whole, 5 with no proof gap; top 3 of 3 classes, `proof_blockers.py` statistics)
+
+| rank | what stops the proof | alone | one gap away | touched |
+|---|---|---|---|---|
+| 1 | coverage: branch outcomes below the bar | 18 | 0 | 18 |
+| 2 | coverage: paragraphs below the bar | 7 | 0 | 7 |
+| 3 | coverage: not measured | 1 | 0 | 1 |
 
 ### Missing inputs
 
@@ -257,6 +289,13 @@ era 0: 0, era 1: 0, era 2: 2, era 3: 0, era 4: 1, era none: 3
 | 10 | EXEC CICS SOAPFAULT CREATE | 0 | 0 | 1 | - |
 | 11 | SET TO ENTRY: procedure / function pointers are not modelled | 0 | 0 | 1 | - |
 
+### Proof blockers (4 programs translated whole, 1 with no proof gap; top 2 of 2 classes, `proof_blockers.py` statistics)
+
+| rank | what stops the proof | alone | one gap away | touched |
+|---|---|---|---|---|
+| 1 | callee has holes | 2 | 0 | 2 |
+| 2 | coverage: paragraphs below the bar | 1 | 0 | 1 |
+
 ### Missing inputs
 
 - assumed options awaiting customer confirmation: 20
@@ -307,11 +346,19 @@ era 0: 0, era 1: 0, era 2: 0, era 3: 0, era 4: 4, era none: 3
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
 | 1 | refused: CICS Assembler (refuses the whole program: upper bound) | 2 | 0 | 2 | era none: 2 |
-| 2 | <name> ADDRESS OF <name>: not a LINKAGE N record | 0 | 0 | 1 | - |
+| 2 | <name> ADDRESS OF <name>: a subordinate item is an offset into its record, not a LINKAGE N record | 0 | 0 | 1 | - |
 | 3 | <name>: a REDEFINES overlays a POINTER with it | 0 | 0 | 1 | - |
 | 4 | <name>: a pointer a REDEFINES overlays | 0 | 0 | 1 | - |
 | 5 | EXEC CICS <name>: a pointer a REDEFINES overlays | 0 | 0 | 1 | - |
 | 6 | ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the N bytes it returns in | 0 | 0 | 1 | - |
+
+### Proof blockers (4 programs translated whole, 1 with no proof gap; top 3 of 3 classes, `proof_blockers.py` statistics)
+
+| rank | what stops the proof | alone | one gap away | touched |
+|---|---|---|---|---|
+| 1 | coverage: branch outcomes below the bar | 1 | 0 | 1 |
+| 2 | coverage: paragraphs below the bar | 1 | 0 | 1 |
+| 3 | known unproven: det sweep baseline | 1 | 0 | 1 |
 
 ### Missing inputs
 

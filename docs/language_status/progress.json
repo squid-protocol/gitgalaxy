@@ -1,5 +1,5 @@
 {
- "commit": "0c45dc645",
+ "commit": "ff7a01e61",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -120,7 +120,7 @@
   },
   "translator": {
    "of": 129,
-   "whole": 115
+   "whole": 116
   }
  },
  "eras": {
@@ -157,7 +157,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-18T08:28:30Z",
+  "as_of": "2026-10-18T08:43:08Z",
   "core": {
    "closed": 122,
    "open": 25,
@@ -424,15 +424,15 @@
     "l4_plus_pct": 31.8,
     "l5": 0,
     "levels": {
-     "L0": 9,
-     "L1": 3,
+     "L0": 8,
+     "L1": 4,
      "L2": 4,
      "L3": 14,
      "L4": 14,
      "L5": 0
     },
     "programs": 44,
-    "translated_whole": 35
+    "translated_whole": 36
    },
    "cics-async-api-credit-card-application-example": {
     "l2_plus": 10,
@@ -477,8 +477,8 @@
     "levels": {
      "L0": 0,
      "L1": 0,
-     "L2": 10,
-     "L3": 16,
+     "L2": 8,
+     "L3": 18,
      "L4": 5,
      "L5": 0
     },
@@ -527,15 +527,15 @@
    "l4_plus_pct": 28.7,
    "l5": 0,
    "levels": {
-    "L0": 14,
-    "L1": 11,
-    "L2": 28,
-    "L3": 39,
+    "L0": 13,
+    "L1": 12,
+    "L2": 26,
+    "L3": 41,
     "L4": 37,
     "L5": 0
    },
    "programs": 129,
-   "translated_whole": 115
+   "translated_whole": 116
   }
  },
  "oracle": "GnuCOBOL plus IBM documentation, not z/OS",

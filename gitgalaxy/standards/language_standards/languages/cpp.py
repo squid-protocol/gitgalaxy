@@ -158,7 +158,9 @@ DEFINITION: dict[str, Any] = {
             + ID_START
             + r"]["
             + ID_CONTINUE
-            + r"]*" + _TPL_QUAL + r"::)*(?:["
+            + r"]*"
+            + _TPL_QUAL
+            + r"::)*(?:["
             + ID_START
             + r"]["
             + ID_CONTINUE
@@ -299,19 +301,27 @@ DEFINITION: dict[str, Any] = {
             + ID_START
             + r"]["
             + ID_CONTINUE
-            + r"]*" + _TPL_QUAL + r"::)*operator[ \t]*[^a-zA-Z_\s(]+|(?:["
+            + r"]*"
+            + _TPL_QUAL
+            + r"::)*operator[ \t]*[^a-zA-Z_\s(]+|(?:["
             + ID_START
             + r"]["
             + ID_CONTINUE
-            + r"]*" + _TPL_QUAL + r"::)*operator[ \t]*\(\)|(?:["
+            + r"]*"
+            + _TPL_QUAL
+            + r"::)*operator[ \t]*\(\)|(?:["
             + ID_START
             + r"]["
             + ID_CONTINUE
-            + r"]*" + _TPL_QUAL + r"::)*operator[ \t]+(?:new|delete)(?:\[\])?|(?:["
+            + r"]*"
+            + _TPL_QUAL
+            + r"::)*operator[ \t]+(?:new|delete)(?:\[\])?|(?:["
             + ID_START
             + r"]["
             + ID_CONTINUE
-            + r"]*" + _TPL_QUAL + r"::)*operator[ \t]+(?:(?:const|volatile)[ \t]+){0,2}(?:::)?["
+            + r"]*"
+            + _TPL_QUAL
+            + r"::)*operator[ \t]+(?:(?:const|volatile)[ \t]+){0,2}(?:::)?["
             + ID_START
             + r"]["
             + ID_CONTINUE
@@ -323,7 +333,9 @@ DEFINITION: dict[str, Any] = {
             + ID_START
             + r"]["
             + ID_CONTINUE
-            + r"]*" + _TPL_QUAL + r"::)*[~"
+            + r"]*"
+            + _TPL_QUAL
+            + r"::)*[~"
             + ID_START
             + r"]["
             + ID_CONTINUE

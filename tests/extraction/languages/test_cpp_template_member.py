@@ -14,7 +14,10 @@ from _extraction_harness import assert_redos_immune  # noqa: E402 # type: ignore
 RULES = LANGUAGE_DEFINITIONS["cpp"]["rules"]
 
 CASES = [
-    ("template<uint8_t W, uint8_t H>\nvoid Adafruit_SSD1306<W, H>::drawPixel(int16_t x) {", "Adafruit_SSD1306<W, H>::drawPixel"),
+    (
+        "template<uint8_t W, uint8_t H>\nvoid Adafruit_SSD1306<W, H>::drawPixel(int16_t x) {",
+        "Adafruit_SSD1306<W, H>::drawPixel",
+    ),
     ("void idList<type>::Append(const type &a) {", "idList<type>::Append"),
     ("Type &idHashTable<Type>::Get(const char *key) {", "idHashTable<Type>::Get"),
     ("void Foo<A, B>::m() {", "Foo<A, B>::m"),

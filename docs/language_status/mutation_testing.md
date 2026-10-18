@@ -276,7 +276,11 @@ cases also need `"maps"` in case.json. 31 survivors are unreachable (the facade'
 lastLinkBytes() and the program name in `region.run` / `region.linked`). cardlist's 16 of 46 scenarios are refused by
 the oracle (register X8), so its score rests on the other 30. One harness gap, closed in #5401: cardview (0173a35c74) changes SEND TEXT
 options, and the harness compared SEND TEXT by text only; it now compares the forwarded options (ERASE, FREEKB, ALARM,
-WAIT, LAST). The score is not re-run.
+WAIT, LAST). The score is not re-run. #5401 added `commarea_length` scenarios (EIBCALEN stated, X23): userupd 185 and 186, report 146 and 153, tranlist
+`enter-short-commarea` (160 of 218). Lengths that cut a numeric field, or leave one blank, are not used: a blank
+PIC 9 is IBM-undefined and the oracle and the port read it differently (pf7/pf8 at 160 on tranlist, userupd at 160 to
+184, report below 146). Still open: COTRN00C 3c413ab7f0 (needs non-numeric page data), the EIBCALEN 0 with a COMMAREA
+present survivors (COBIL00C, COTRN02C, COCRDSLC, COUSR02C d0e975d5b4: IBM leaves DFHCOMMAREA unaddressable) and cardlist.
 
 #4047 then scored six CardDemo batch ports (readxref, readcust, dailyval, intcalc, posttran, trnrpt; seed 0, up to 100
 mutants each, `--jobs 3`, fast mode). These rows are seed 0 and differ from the older seed-1 CBACT04C, CBTRN02C and

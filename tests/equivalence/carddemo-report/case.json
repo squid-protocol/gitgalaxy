@@ -550,6 +550,60 @@
     }
    },
    "why": "1500-01-01 .. 1500-12-31: CEEDAYS answers 2513 (outside its supported range) for both dates, which lines 399 / 419 let through, so the job is submitted"
+  },
+  {
+   "name": "short-commarea-146",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-TO-TRANID": "CT01",
+    "CDEMO-TO-PROGRAM": "COTRN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "FIRSTNAME",
+    "CDEMO-CUST-MNAME": "MIDNAME",
+    "CDEMO-CUST-LNAME": "LASTNAME",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 1234567890123456,
+    "CDEMO-LAST-MAP": "LASTMAP",
+    "CDEMO-LAST-MAPSET": "LASTSET"
+   },
+   "receive": {
+    "CORPT0A": {}
+   },
+   "commarea_length": 146,
+   "why": "#5401 (EIBCALEN, mutation survivors): the caller passed 146 of the COMMAREA's 160 bytes, every field non-blank: only the bytes inside EIBCALEN are moved"
+  },
+  {
+   "name": "short-commarea-153",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-TO-TRANID": "CT01",
+    "CDEMO-TO-PROGRAM": "COTRN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "FIRSTNAME",
+    "CDEMO-CUST-MNAME": "MIDNAME",
+    "CDEMO-CUST-LNAME": "LASTNAME",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 1234567890123456,
+    "CDEMO-LAST-MAP": "LASTMAP",
+    "CDEMO-LAST-MAPSET": "LASTSET"
+   },
+   "receive": {
+    "CORPT0A": {}
+   },
+   "commarea_length": 153,
+   "why": "#5401 (EIBCALEN, mutation survivors): the caller passed 153 of the COMMAREA's 160 bytes, every field non-blank: only the bytes inside EIBCALEN are moved"
   }
  ],
  "notes": "CardDemo's report request (transaction CR00, program CORPT00C): a monthly (the clock's month; the scenario that states its own clock, `monthly-in-december`, runs the December wrap), yearly or custom date range is validated -- the custom dates through CALL 'CSUTLDTC' (CEEDAYS; the COBOL side links CardDemo's CSUTLDTC and tests/equivalence/le/ceedays.c, the Java side its proven port from carddemo-dateutil) -- and, once confirmed, the program submits its in-line JCL with the dates filled in, one WRITEQ TD to the JOBS queue per line, each line compared. A month above 12 is flagged by the program but still passed to CSUTLDTC, where the CEEDAYS model refuses it (IBM leaves open which condition a month outside 1-12 raises), so no scenario uses one -- nor a non-numeric month, which NUMVAL-C turns into 00. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

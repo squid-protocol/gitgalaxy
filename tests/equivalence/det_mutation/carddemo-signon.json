@@ -5,18 +5,18 @@
  "case": "carddemo-signon",
  "entry": {
   "program": "COSGN00C",
-  "commit": "6d63b74ebcc5bd3f33ebea4f34214172090ee812+uncommitted",
+  "commit": "5a45ca020ab2401cfc02b408463f1bee7b6ede0b",
   "date": "2026-10-18",
   "mode": "fast",
   "seed": 0,
   "mutants": 1140,
   "out_of_scope": 12,
   "chosen": 150,
-  "coverage": "proven on 13 scenarios, covering 6/6 paragraphs and 17/17 branches",
+  "coverage": "proven on 16 scenarios, covering 6/6 paragraphs and 17/17 branches",
   "counts": {
-   "killed": 64,
+   "killed": 70,
    "timeout": 0,
-   "survived": 81,
+   "survived": 75,
    "stillborn": 5,
    "error": 0,
    "pending": 0
@@ -35,6 +35,7 @@
    "23d89ee6e8",
    "2725896c02",
    "2773b2af47",
+   "2a193f7f94",
    "36bacc2081",
    "3e4129b878",
    "46f3b840bb",
@@ -44,6 +45,7 @@
    "5bc5221f6c",
    "5bd64abda7",
    "6b9bcfd8f2",
+   "6d8c525391",
    "6e3b0cd9d4",
    "7065d01a6c",
    "77e8f6e163",
@@ -64,6 +66,7 @@
    "aaffa02eef",
    "af0bf2a816",
    "afde0fb68b",
+   "b05d1b55fc",
    "b1b5b44a6a",
    "b2ba10f8b7",
    "b3b31f8dbe",
@@ -71,8 +74,11 @@
    "bcb5720113",
    "be951a9514",
    "bfb97c8781",
+   "c3daddd8fc",
    "c47c016982",
+   "c85337886f",
    "c8e1d87124",
+   "cefaf70032",
    "cf4b7292f6",
    "d63e4c2211",
    "dac1162d10",
@@ -320,30 +326,6 @@
     "after": "if (i != null) {"
    },
    {
-    "id": "c85337886f",
-    "op": "ROR",
-    "file": "service/Cosgn00cService.java",
-    "line": 410,
-    "before": "if (error != null) {",
-    "after": "if (error == null) {"
-   },
-   {
-    "id": "c3daddd8fc",
-    "op": "NEG",
-    "file": "service/Cosgn00cService.java",
-    "line": 414,
-    "before": "if (label == null) {",
-    "after": "if (!(label == null)) {"
-   },
-   {
-    "id": "6d8c525391",
-    "op": "ROR",
-    "file": "service/Cosgn00cService.java",
-    "line": 414,
-    "before": "if (label == null) {",
-    "after": "if (label != null) {"
-   },
-   {
     "id": "9e1ab46b83",
     "op": "NEG",
     "file": "service/Cosgn00cService.java",
@@ -446,14 +428,6 @@
     "line": 461,
     "before": "d.setCdemoLastMap(Cobol.text(Field.alphanumeric(s, base + 146, 7, false), CS));",
     "after": "/* d.setCdemoLastMap(Cobol.text(Field.alphanumeric(s, base + 146, 7, false), CS)); */"
-   },
-   {
-    "id": "2a193f7f94",
-    "op": "NEG",
-    "file": "service/Cosgn00cService.java",
-    "line": 473,
-    "before": "if (s_DFHCOMMAREA.bytes != whole) {",
-    "after": "if (!(s_DFHCOMMAREA.bytes != whole)) {"
    },
    {
     "id": "200f1f3b56",
@@ -704,28 +678,12 @@
     "after": "Cobol.store(f359_EIBRESP2, BigDecimal.valueOf(1), false, CS);"
    },
    {
-    "id": "cefaf70032",
-    "op": "ROR",
-    "file": "service/Cosgn00cService.java",
-    "line": 1050,
-    "before": "if (DetCics.resp(xr10) != 0) {",
-    "after": "if (DetCics.resp(xr10) == 0) {"
-   },
-   {
     "id": "7e77c26f96",
     "op": "NEG",
     "file": "service/Cosgn00cService.java",
     "line": 1052,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (!(to >= 0)) return GOTO | to;"
-   },
-   {
-    "id": "b05d1b55fc",
-    "op": "ROR",
-    "file": "service/Cosgn00cService.java",
-    "line": 1060,
-    "before": "if (DetCics.resp(xr11) != 0) {",
-    "after": "if (DetCics.resp(xr11) == 0) {"
    },
    {
     "id": "2a91a1aa99",
@@ -747,7 +705,7 @@
   "inputs": {
    "port": "b3585b0ad9ff70d8d2af88d7cab6001b9fbe21e820640f43367ee37c676e256b",
    "generator": "3aed55885fb603466720caa623558909667470f5c054f7c0f4caadd8cd2e2cae",
-   "case": "ab0bc1b6402b7ea9100930fe4431c137bcb3bdd05fbf78f8b9b1ebdb35f5f4fc",
+   "case": "e0db70383f5e1f8adf2f36823faed75fc19aa418d93b7028c142f775bbba2ddb",
    "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
    "harness": "bd9b4364d5fdcb68f2512f077586d7f71cb727139ce02c2f9bda98e8cc18372e",
    "oracle": "78abad3ef2da17f34959fee0e54309421ecc8dce147b4cd13fe6d93f195b358a"

@@ -281,6 +281,15 @@
    "reason": "in_CarddemoCommarea's null guard: runTask calls it only inside `ca instanceof CarddemoCommarea x`, which is never null."
   },
   {
+   "id": "c58749fa42",
+   "op": "ROR",
+   "line": 429,
+   "before": "Cobol.move(d.getCdemoFromProgram() == null ? \"\" : d.getCdemoFromProgram(), Field.alphanumeric(s, base + 4, 8, false), CS);",
+   "after": "Cobol.move(d.getCdemoFromProgram() != null ? \"\" : d.getCdemoFromProgram(), Field.alphanumeric(s, base + 4, 8, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in_CarddemoCommarea copies a DTO field into DFHCOMMAREA, which COSGN00C never references (only EIBCALEN); the bytes only go back through fill_ into the task's COMMAREA object, not observable for a terminal task (linked_result dropped)"
+  },
+  {
    "id": "9c6501ac57",
    "op": "ROR",
    "line": 430,
@@ -324,6 +333,15 @@
    "after": "Cobol.move(d.getCdemoAcctId() != null ? BigDecimal.ZERO : new BigDecimal(d.getCdemoAcctId().toString()), Field.zoned(s, base + 118, 11, 0, false, false, false), CS);",
    "verdict": "equivalent",
    "reason": "in_CarddemoCommarea writes the task's COMMAREA object into DFHCOMMAREA; COSGN00C's PROCEDURE DIVISION never references DFHCOMMAREA (it reads only EIBCALEN); the area's bytes are read only by fill_CarddemoCommarea through caBack, into the task's COMMAREA object, which for a terminal task (CC00, never LINKed) is not observable: CICS discards it at RETURN, and equivalence_cics.linked_result drops it"
+  },
+  {
+   "id": "ab53e43fce",
+   "op": "ROR",
+   "line": 441,
+   "before": "Cobol.move(d.getCdemoCardNum() == null ? BigDecimal.ZERO : new BigDecimal(d.getCdemoCardNum().toString()), Field.zoned(s, base + 130, 16, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getCdemoCardNum() != null ? BigDecimal.ZERO : new BigDecimal(d.getCdemoCardNum().toString()), Field.zoned(s, base + 130, 16, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in_CarddemoCommarea copies a DTO field into DFHCOMMAREA, which COSGN00C never references (only EIBCALEN); the bytes only go back through fill_ into the task's COMMAREA object, not observable for a terminal task (linked_result dropped)"
   },
   {
    "id": "de3f9e5e77",
@@ -425,6 +443,15 @@
    "reason": "a PF2 key no longer sets EIBAID, which keeps its initial byte (DFHEIBLK's image: a space); COSGN00C tests EIBAID only against DFHENTER and DFHPF3, so a space takes WHEN OTHER exactly as PF2 does"
   },
   {
+   "id": "c2d79cf89f",
+   "op": "LIT",
+   "line": 571,
+   "before": "case \"PF4\" -> Cobol.move(f238_DFHPF4, f338_EIBAID, CS);",
+   "after": "case \"XF4\" -> Cobol.move(f238_DFHPF4, f338_EIBAID, CS);",
+   "verdict": "equivalent",
+   "reason": "a PF4 key no longer sets EIBAID, which keeps its initial byte (a space); COSGN00C tests EIBAID only against DFHENTER and DFHPF3, so a space takes WHEN OTHER exactly as PF4 does (pf4-invalid-key pins that outcome)"
+  },
+  {
    "id": "e3324f9c07",
    "op": "DEL",
    "line": 601,
@@ -459,6 +486,15 @@
    "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond == null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
    "verdict": "case-gap",
    "reason": "The link-area branch (task.linkArea() non-null) runs only for a LINKed task and this case is not linked; with `beyond` null the inverted test throws NullPointerException at RETURN. A sibling case with \"linked\": true (any ENTER scenario) would run the write-back and kill it."
+  },
+  {
+   "id": "0e692fa1c5",
+   "op": "ROR",
+   "line": 619,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "equivalent",
+   "reason": "at calen == the area's length the cut to EIBCALEN keeps every byte, so the branch's restore is a no-op; calen < length (user-signs-on-short-commarea) is the only case it changes anything"
   },
   {
    "id": "a90dc32b23",
@@ -506,6 +542,15 @@
    "reason": "the restore of the TRUNC mode in runTask's finally matters only to code that runs after the task in the same JVM; every det-port entry point sets the mode itself (runTask: swapTruncBinary(true)) before it runs a program, and the harness code between tasks reads no COMP field."
   },
   {
+   "id": "f188a94f58",
+   "op": "COR",
+   "line": 680,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "verdict": "unreachable",
+   "reason": "handleLink is the LINKed-program facade; carddemo-signon is a terminal task (no `linked`), so the facade is never called"
+  },
+  {
    "id": "da5a9a9e95",
    "op": "DEL",
    "line": 708,
@@ -542,6 +587,15 @@
    "reason": "perform() reaches this only after a paragraph that is not its range's last returns; COSGN00C's PERFORMs each name one paragraph (from == thru) and MAIN-PARA (runTask's 0-5) always ends in EXEC CICS RETURN / XCTL / an abend, a Goback, so the scan over outer PERFORMs never iterates (only runTask's range spans several paragraphs, at depth 0 where the scan is empty)"
   },
   {
+   "id": "689518c203",
+   "op": "ROR",
+   "line": 769,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (performThru[d] != i) {",
+   "verdict": "unreachable",
+   "reason": "perform() reaches the outer-PERFORM scan only after a paragraph that is not its range's last returns; COSGN00C's PERFORMs each name one paragraph (from == thru) and MAIN-PARA always ends in RETURN / XCTL / an abend, so performThru is never matched"
+  },
+  {
    "id": "acc4784388",
    "op": "NEG",
    "line": 780,
@@ -569,6 +623,24 @@
    "reason": "MAIN-PARA's `return 1` follows `if (true) throw new Goback()` (its EXEC CICS RETURN), which is thrown first; the statement never runs."
   },
   {
+   "id": "19f3fb0c69",
+   "op": "LIT",
+   "line": 850,
+   "before": "DetCics.typed(f40_TRNNAMEI, f35_TRNNAMEL, typed2.get(\"TRNNAME\"), CS);",
+   "after": "DetCics.typed(f40_TRNNAMEI, f35_TRNNAMEL, typed2.get(\"XRNNAME\"), CS);",
+   "verdict": "case-gap",
+   "reason": "the RECEIVE MAP value of the protected TRNNAME field is never typed by a scenario; a scenario that types TRNNAME would kill it"
+  },
+  {
+   "id": "1619b4cef9",
+   "op": "LIT",
+   "line": 942,
+   "before": "DetCics.subfields(sub5, \"CURTIME\", f65_CURTIMEL, f68_CURTIMEA, f134_CURTIMEC, f136_CURTIMEH, CS);",
+   "after": "DetCics.subfields(sub5, \"XURTIME\", f65_CURTIMEL, f68_CURTIMEA, f134_CURTIMEC, f136_CURTIMEH, CS);",
+   "verdict": "harness-gap",
+   "reason": "DetCics.subfields (attribute / cursor sub-fields of the sent CURTIME field) is not compared by the harness; COSGN00C never sets CURTIMEA/C/H"
+  },
+  {
    "id": "0fdf4eaca4",
    "op": "NEG",
    "line": 959,
@@ -594,6 +666,15 @@
    "after": "if (!(to >= 0)) return GOTO | to;",
    "verdict": "unreachable",
    "reason": "inside `if (0 != 0)`: SEND MAP has no RESP and the translator writes its response as the constant 0, so the block never runs."
+  },
+  {
+   "id": "2a91a1aa99",
+   "op": "ROR",
+   "line": 1062,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to < 0) return GOTO | to;",
+   "verdict": "unreachable",
+   "reason": "inside `if (0 != 0)`-style dead branch: the paragraph's GO-TO result is only taken from a block the translator guards with the constant response 0 (SEND MAP has no RESP), so it never runs"
   },
   {
    "id": "af37b2a794",

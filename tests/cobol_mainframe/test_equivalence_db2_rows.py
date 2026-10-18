@@ -292,6 +292,16 @@ def test_the_delacc_det_port_holds_on_generated_db2_rows(tmp_path):
     assert any(e.get("abcode") == "HRAC" for o in report["outputs"].values() for e in o["cobol"])
 
 
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_inqacccu_det_port_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's INQACCCU (CICS, ACC-CURSOR by customer, LINK INQCUST) on 30 generated ACCOUNT rows: statements answered
+    alike on both sides and ACCOUNT alike after every task."""
+    report = _det_port_generated("cbsa-inqacccu-generated", tmp_path)
+    assert report["proven"] is True and report["db2_generated"] == {"IBMUSER.ACCOUNT": 30}
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    assert sql and all(q["statements"] and q["equal"] == q["statements"] for q in sql)
+
+
 _BATCH_CBL = """\
        FD TR-RECORD RECORDING MODE F.
        01 WS-INPUT-VARS.

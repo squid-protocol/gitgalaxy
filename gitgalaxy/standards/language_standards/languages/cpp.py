@@ -14,6 +14,8 @@ from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: comp
 from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
 
 from .._shared_patterns import (
+    C_MACRO_FUNC_START_GUARD,
+    C_MACRO_FUNC_START_SOURCE,
     CALLS_OUT_C_STYLE_GENERIC,
     COMMENTED_STATEMENT_C_FAMILY,
     GLOBAL_FRAGILE_DEBT,
@@ -176,6 +178,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(namespace|using|class|struct|enum|union|template|typename|concept|requires|auto|return|void|inline|virtual|explicit|friend|module|export|import|typedef|goto)\b"
         ),
         "func_start": re.compile(
+            "(?:(?!" + C_MACRO_FUNC_START_GUARD + ")"
             # =====================================================================
             # [ CONTEXT: C++ FUNCTION AST EXTRACTOR & REDOS SHIELD]
             # PURPOSE: Anchors executable logic blocks (methods/functions) in C++.
@@ -353,7 +356,10 @@ DEFINITION: dict[str, Any] = {
             # This caps the permutation tree instantly.
             r"(?:[ \t\n]*(?![ \t]*#):[^{;]{0,2000}|(?:[ \t\n]+(?![ \t]*#)[" + ID_START + r"][^(){};]{0,100};){1,20})?"
             # 10. THE IGNITION (The opening brace confirming it is a definition, not a declaration)
-            r"[ \t\n]*\{",
+            r"[ \t\n]*\{"
+            + "|"
+            + C_MACRO_FUNC_START_SOURCE
+            + ")",
             re.M,
         ),
         # 5. class_start (Object / Entity Declarations)

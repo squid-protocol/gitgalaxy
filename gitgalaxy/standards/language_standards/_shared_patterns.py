@@ -444,3 +444,29 @@ COMMENTED_STATEMENT = (
     r")[ \t]*;"
 )
 COMMENTED_STATEMENT_C_FAMILY = r"(?<![/*])(?://|/\*)[ \t]*" + COMMENTED_STATEMENT  # (not a `///` doc line)
+
+
+# ------------------------------------------------------------------------------
+# #5461: C/C++ function-defining macros (`CCMD(map) {`, `DEFINE_ACTION_FUNCTION(AActor, A_Look) {`,
+# `TEST(Suite, Name) {`, odamex `FUNC(LS_Door_Open) {`). Pattern SOURCE (an alternative of `func_start`; the macro's name lands in group 2 and the detector's `lastindex` read
+# picks it up). Name rule: the only argument; of several, the second (`Class, name` /
+# `Type, name` / `Suite, Name`). Anchors: an ALL-CAPS macro of 3+ chars at line start whose
+# argument list holds plain identifiers (no nested call, no operators) and is followed by `{`.
+# Excluded: control-flow shouts, `BEGIN`/`END`, and class-like macros (`DE_PIMPL`, `*NAMESPACE*`).
+# The `#define` expansion lookup (odamex FUNC) is not used: the invocation form alone is enough.
+# ------------------------------------------------------------------------------
+def _c_macro_func_start(name_open: str) -> str:
+    return (
+        r"^[ \t]*(?![A-Z0-9_]{0,40}(?:PIMPL|NAMESPACE|CLASS|STRUCT|ENUM|TEMPLATE|UNION)|"
+        r"(?:IF|FOR|WHILE|SWITCH|ELSE|DO|BEGIN|END|ASSERT|CASE|RETURN)\b)"
+        r"[A-Z][A-Z0-9_]{2,}[ \t]*\([ \t]*"
+        rf"(?:[{ID_START}][{ID_CONTINUE}]{{0,60}}[ \t]*,[ \t]*)?"
+        rf"{name_open}[{ID_START}][{ID_CONTINUE}]{{0,100}})[ \t]*"
+        r"(?:,[^()\n;{}]{0,200})?\)[ \t\n]{0,200}\{"
+    )
+
+
+# The capturing form is the SECOND alternative of `func_start` (so the generic branch keeps group 1); `_GUARD` is
+# the same shape without a group, for a rule whose generic branch would otherwise name the macro itself (C++).
+C_MACRO_FUNC_START_SOURCE = _c_macro_func_start("(")
+C_MACRO_FUNC_START_GUARD = _c_macro_func_start("(?:")

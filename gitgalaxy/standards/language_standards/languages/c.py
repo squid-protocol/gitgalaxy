@@ -13,7 +13,13 @@ from typing import Any
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
 
-from .._shared_patterns import CALLS_OUT_C_STYLE, COMMENTED_STATEMENT_C_FAMILY, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import (
+    C_MACRO_FUNC_START_SOURCE,
+    CALLS_OUT_C_STYLE,
+    COMMENTED_STATEMENT_C_FAMILY,
+    GLOBAL_FRAGILE_DEBT,
+    GLOBAL_PLANNED_DEBT,
+)
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -190,7 +196,9 @@ DEFINITION: dict[str, Any] = {
             # [IRON WALL FIX]: Forces instant failure if it encounters BEGIN or control flow.
             r"(?:\s+(?!(?:BEGIN|if|for|while|switch|return)\b)[" + ID_START + r"][^;{]{0,150};){0,15}"
             # 9. The Ignition (Includes the MS-DOS 'BEGIN' macro)
-            r"\s*(?:\{|BEGIN\b)",
+            r"\s*(?:\{|BEGIN\b)"
+            + "|"
+            + C_MACRO_FUNC_START_SOURCE,
             re.M,
         ),
         # 5. class_start (Object / Entity Declarations)

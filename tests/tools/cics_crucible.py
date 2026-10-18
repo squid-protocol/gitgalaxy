@@ -2751,6 +2751,89 @@ def measure(crucible: Path, only: set[str] | None, sides: set[str], work: Path, 
             "coverage": dict(sorted(coverage.items()))}  # fmt: skip
 
 
+# ---- shards (#5498) -----------------------------------------------------------------------------------
+# Seconds per case on a hosted runner (run 39142662150, 2026-10-18: 1215 s over 43 cases). Only the balance depends on
+# it: a case missing here weighs the median, so a new case never goes unmeasured, it may just skew a shard.
+CASE_SECONDS = {
+    "ca-address-commarea": 21, "ca-address-eib-commarea": 20, "ca-address-twa-tctua": 19, "ca-channel-containers": 22,
+    "ca-container-byteoffset": 21, "ca-container-ccsid": 20, "ca-get-container-set": 21, "ca-getmain-pointer": 21,
+    "ca-link-lengths": 50, "ca-receive-retrieve-set": 20, "ca-xctl-versions": 50, "gt-assign-startcode": 21,
+    "gt-http-inbound": 19, "gt-send-text-terminal": 21, "gt-start-options": 22, "gt-start-retrieve": 51,
+    "gt-terminal-coalesce": 49, "gt-urimap-browse": 21, "gt-web-parse-url": 21, "hc-abend-link": 49,
+    "hc-counter-increment-wrap": 21, "hc-counter-shared-namespace": 21, "hc-dcounters": 21, "hc-deedit-uctranst": 21,
+    "hc-eoc-error": 21, "hc-file-read-set": 20, "hc-file-unlock": 21, "hc-handle-aid": 21, "hc-ignore-error": 22,
+    "hc-inquire-deleteq": 22, "hc-map-not-in-mapset": 21, "hc-named-counters": 22, "hc-perform-range": 48,
+    "hc-readq-td": 21, "hc-resp-options": 21, "hc-terminal-eoc": 20, "hc-terminal-receive": 20, "hx-attr-bytes": 48,
+    "hx-extended-cursor": 49, "pc-aid-menu": 51, "pc-return-channel": 20, "pc-return-immediate": 51, "pc-wizard": 53,
+}  # fmt: skip
+DEFAULT_CASE_SECONDS = 21
+
+
+def parse_shard(text: str) -> tuple[int, int]:
+    """'i/N' -> (i, N), 1-based."""
+    try:
+        i, n = (int(x) for x in text.split("/"))
+    except ValueError:
+        raise SystemExit(f"--shard {text!r}: expected i/N, e.g. 2/4") from None
+    if not 1 <= i <= n:
+        raise SystemExit(f"--shard {text!r}: need 1 <= i <= N")
+    return i, n
+
+
+def shard_plan(case_ids: list[str], n: int) -> list[list[str]]:
+    """Partition the case ids into n shards, deterministically and balanced by CASE_SECONDS (heaviest first into the
+    lightest shard). Every id lands in exactly one shard; the plan depends only on the ids and the weights."""
+    bins: list[tuple[int, list[str]]] = [(0, []) for _ in range(n)]
+    for cid in sorted(case_ids, key=lambda c: (-CASE_SECONDS.get(c, DEFAULT_CASE_SECONDS), c)):
+        k = min(range(n), key=lambda j: (bins[j][0], len(bins[j][1]), j))
+        bins[k] = (bins[k][0] + CASE_SECONDS.get(cid, DEFAULT_CASE_SECONDS), bins[k][1] + [cid])
+    return [sorted(b[1]) for b in bins]
+
+
+def restrict(baseline: dict[str, Any], coverage: dict[str, Any], cases: set[str]) -> tuple[dict, dict]:
+    """The two ledgers cut to one shard's cases (cell ids are case/scenario/side, coverage keys case/program)."""
+    base = {**baseline, "cells": {k: v for k, v in baseline.get("cells", {}).items() if k.split("/")[0] in cases}}
+    cov = {**coverage, "programs": {k: v for k, v in coverage.get("programs", {}).items() if k.split("/")[0] in cases}}
+    return base, cov
+
+
+def merge_shards(parts: list[dict[str, Any]], all_cases: list[str]) -> tuple[dict[str, Any], list[str]]:
+    """(results, errors): the shards' results.json merged into one run. Errors: a shard missing or repeated, shards cut
+    for different N, a case in two shards, a case in none, a case a shard claims but did not measure."""
+    errors: list[str] = []
+    totals = {p["shard"]["total"] for p in parts if "shard" in p}
+    if len(totals) != 1 or any("shard" not in p for p in parts):
+        return {}, [f"SHARDS: results are not all from one sharded run (totals {sorted(totals)})"]
+    total = totals.pop()
+    seen = sorted(p["shard"]["index"] for p in parts)
+    if seen != list(range(1, total + 1)):
+        errors.append(f"SHARDS: have shards {seen}, need 1..{total}")
+    owner: dict[str, int] = {}
+    cells: dict[str, Any] = {}
+    coverage: dict[str, Any] = {}
+    for p in parts:
+        i = p["shard"]["index"]
+        measured = {cid.split("/")[0] for cid in p["cells"]}
+        for case in p["shard"]["cases"]:
+            if case in owner:
+                errors.append(f"SHARDS: case {case} is in shard {owner[case]} and shard {i}")
+            owner[case] = i
+            if case not in measured:
+                errors.append(f"SHARDS: case {case} is in shard {i} but has no cells in its results")
+        for case in sorted(measured - set(p["shard"]["cases"])):
+            errors.append(f"SHARDS: shard {i} measured {case}, which is not in its plan")
+        cells.update(p["cells"])
+        coverage.update(p.get("coverage", {}))
+    for case in sorted(set(all_cases) - set(owner)):
+        errors.append(f"SHARDS: case {case} is in no shard")
+    for case in sorted(set(owner) - set(all_cases)):
+        errors.append(f"SHARDS: shard plan names {case}, which is not under the crucible")
+    first = parts[0]
+    merged = {"crucible_ref": first.get("crucible_ref"), "oracle": first.get("oracle"),
+              "cells": dict(sorted(cells.items())), "coverage": dict(sorted(coverage.items()))}  # fmt: skip
+    return merged, errors
+
+
 # ---- the ratchet ------------------------------------------------------------------------------------
 def read_baseline(path: Path = BASELINE) -> dict[str, Any]:
     if not path.is_file():
@@ -3167,6 +3250,45 @@ def write_proof(report_dir: Path, case: cc.Case, results: dict[str, Any], opts: 
 
 
 # ---- CLI ------------------------------------------------------------------------------------------------
+def hold_ratchets(
+    results: dict[str, Any], sides: set[str], custom: bool, complete: bool, cases: set[str] | None = None
+) -> int:
+    """--ci: print the ratchet errors, return the exit status. `cases` cuts both ledgers to one shard's cases."""
+    baseline, ledger = read_baseline(), read_coverage()
+    if cases is not None:
+        baseline, ledger = restrict(baseline, ledger, cases)
+    errors, notes = ratchet(results, baseline, complete)
+    if "cobol-stub" in sides and not custom:
+        errors += coverage_ratchet(results, ledger, complete)
+    for line in notes:
+        print(f"note: {line}")
+    for line in errors:
+        print(line)
+    if errors:
+        print(f"\n{len(errors)} ratchet error(s). If intended, run with --update-baseline and commit "
+              "tests/cics_crucible/baseline.json, tests/cics_crucible/coverage.json and "
+              "docs/language_status/cics_crucible.md.")  # fmt: skip
+    return 1 if errors else 0
+
+
+def merge_main(args: argparse.Namespace, crucible: Path) -> int:
+    """#5498: one run from its shards' --out dirs: the completeness check, the whole 710-cell report, the full ratchet."""
+    parts = [json.loads((d / "results.json").read_text(encoding="utf-8")) for d in args.merge]
+    results, errors = merge_shards(parts, [d.name for d in cc.discover(crucible)])
+    for line in errors:
+        print(line)
+    if errors:
+        return 1
+    n = Counter(c["status"] for c in results["cells"].values())
+    print(f"CICS crucible: {n['pass']} pass, {n['fail']} fail, {n['unsupported']} unsupported "
+          f"({len(results['cells'])} cells, {len(parts)} shards)")  # fmt: skip
+    if args.out:
+        args.out.mkdir(parents=True, exist_ok=True)
+        (args.out / "results.json").write_text(json.dumps(results, indent=1) + "\n", encoding="utf-8")
+        (args.out / "report.md").write_text(report_md(results), encoding="utf-8")
+    return hold_ratchets(results, set(cc.SIDES), False, True) if args.ci else 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument(
@@ -3181,6 +3303,10 @@ def main(argv: list[str] | None = None) -> int:
         "--ci", action="store_true", help="fail on a cell the baseline does not list, or a listed one that passes"
     )
     ap.add_argument("--update-baseline", action="store_true", help="write the baseline and the report from this run")
+    ap.add_argument("--shard", metavar="i/N", help="#5498: run only shard i of N (a balanced partition of the cases); "
+                    "--ci then holds the ledgers cut to those cases. Merge the shards' --out dirs with --merge")  # fmt: skip
+    ap.add_argument("--merge", type=Path, nargs="+", metavar="DIR", help="#5498: merge the --out dirs of every shard of "
+                    "one run, check each case ran in exactly one, and hold the whole ratchet (with --ci)")  # fmt: skip
     ap.add_argument("--ports", type=Path, help="java-ported: a directory of <KEY>/overlay port trees (port_runner's "
                     "ai_agent_jobs/ports) instead of the committed tests/cics_crucible/ports/<case>")  # fmt: skip
     ap.add_argument("--overlay", type=Path, action="append", default=[],
@@ -3201,6 +3327,8 @@ def main(argv: list[str] | None = None) -> int:
     if problem:
         print(problem, file=sys.stderr)
         return 2
+    if args.merge:
+        return merge_main(args, crucible)
     if args.derive_expected:
         work = (args.keep or Path(tempfile.mkdtemp(prefix="cics_crucible_derive_"))).resolve()
         for d in cc.discover(crucible, set(args.cases) if args.cases else None):
@@ -3224,9 +3352,22 @@ def main(argv: list[str] | None = None) -> int:
             "--ports / --overlay / --program / --report-dir prove one case's ports: give one --cases", file=sys.stderr
         )
         return 2
+    shard: dict[str, Any] | None = None
+    if args.shard:
+        if args.cases or args.update_baseline or custom or args.strengthened:
+            print("--shard cuts a whole run: not with --cases / --update-baseline / --ports / --overlay / --program "
+                  "/ --strengthened", file=sys.stderr)  # fmt: skip
+            return 2
+        index, total = parse_shard(args.shard)
+        plan = shard_plan([d.name for d in cc.discover(crucible)], total)
+        shard = {"index": index, "total": total, "cases": plan[index - 1]}
+        print(f"shard {index}/{total}: {len(shard['cases'])} cases: {' '.join(shard['cases'])}", flush=True)
+        args.cases = shard["cases"]
     work = args.keep or Path(tempfile.mkdtemp(prefix="cics_crucible_"))
     results = measure(crucible, set(args.cases) if args.cases else None, set(args.sides), work.resolve(), args.offline,
                       ported, args.strengthened)  # fmt: skip
+    if shard:
+        results["shard"] = shard
     n = Counter(c["status"] for c in results["cells"].values())
     print(f"CICS crucible: {n['pass']} pass, {n['fail']} fail, {n['unsupported']} unsupported "
           f"({len(results['cells'])} cells)")  # fmt: skip
@@ -3249,18 +3390,7 @@ def main(argv: list[str] | None = None) -> int:
               f"{len(coverage_of(results)['programs'])} programs; report: {REPORT.relative_to(REPO_ROOT)}")  # fmt: skip
         return 0
     if args.ci:
-        errors, notes = ratchet(results, read_baseline(), complete)
-        if "cobol-stub" in args.sides and not custom:
-            errors += coverage_ratchet(results, read_coverage(), complete)
-        for line in notes:
-            print(f"note: {line}")
-        for line in errors:
-            print(line)
-        if errors:
-            print(f"\n{len(errors)} ratchet error(s). If intended, run with --update-baseline and commit "
-                  "tests/cics_crucible/baseline.json, tests/cics_crucible/coverage.json and "
-                  "docs/language_status/cics_crucible.md.")  # fmt: skip
-        return 1 if errors else 0
+        return hold_ratchets(results, set(args.sides), custom, complete, set(shard["cases"]) if shard else None)
     return 0
 
 

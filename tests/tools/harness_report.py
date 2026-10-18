@@ -171,7 +171,9 @@ def record_cause(roots: list[Path], case: dict[str, Any], dataset: str) -> str:
         common.layout_fields(base, cpy, record)
     except common.LayoutError as e:
         return "no layout" if "no record" in str(e) else "unresolved copy"
-    text = _record_text((base / cpy).read_text(encoding="utf-8", errors="replace"), record or "")
+    from gitgalaxy.core.source_text import read_source
+
+    text = _record_text(read_source(base / cpy).text, record or "")
     if _LEVEL66.search(text):
         return "renames"
     if _SYNC.search(text):

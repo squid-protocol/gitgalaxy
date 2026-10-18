@@ -48,7 +48,11 @@ def validate(ledger: dict[str, Any], registry: dict[str, Any], burned: set[str])
     top = max(rounds.values(), default=0)
     seen: set[str] = set()
     first_of_class: dict[str, str] = {}
-    for b in ledger["blockers"]:
+    # new_class is "first of its class" in discovery order (round, then id), not file order
+    for b in sorted(
+        ledger["blockers"],
+        key=lambda x: (x.get("after_round") if isinstance(x.get("after_round"), int) else 0, str(x.get("id", ""))),
+    ):
         where = b.get("id", "?")
         if where in seen:
             errors.append(f"{where}: duplicate blocker id")

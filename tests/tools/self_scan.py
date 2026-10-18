@@ -11,8 +11,8 @@ an Explore subagent -- both of which cost real tokens for what is, in this
 codebase's own terms, a Structural Signature the engine already knows how to
 extract about itself. Querying the self-scan DB directly with `sqlite3` is
 near-zero-token for exactly that class of question. It does NOT replace
-reading actual file content -- the DB has no line numbers and doesn't parse
-the internals of a dict literal (e.g. it can't tell you where the "scala" key
+reading actual file content -- function_data has start_line/loc but nothing
+for non-function symbols, and it doesn't parse the internals of a dict literal (e.g. it can't tell you where the "scala" key
 starts inside language_standards.py's LANGUAGE_DEFINITIONS dict) -- it's for
 orientation and prioritization, not symbol lookup.
 

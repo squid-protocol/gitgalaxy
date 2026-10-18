@@ -1735,7 +1735,7 @@ class Gen:
 
     def noninteger_to_text(self, src: E.Ref, target: E.Ref) -> None:
         """Refuse a MOVE of a noninteger numeric item to an alphanumeric one (#4996): Enterprise COBOL 6.4 Language
-        Reference, MOVE, "Valid and invalid elementary moves" (Table 51), numeric noninteger sending item to an
+        Reference, MOVE, "Valid and invalid elementary moves" (Table 47), numeric noninteger sending item to an
         alphabetic / alphanumeric / alphanumeric-edited receiver: NO, a compile error on z/OS (an integer one,
         a right-P item too, is valid: each P counts as a zero). GnuCOBOL accepts it with a warning (register C11)."""
         if src.refmod is not None:
@@ -1748,7 +1748,7 @@ class Gen:
                                                                          "ALPHANUMERIC-EDITED"):  # fmt: skip
             raise Untranslatable(
                 f"MOVE {src.name} (PIC {it.pic}, a noninteger numeric item) to the {tt.category.lower()} "
-                f"{target.name}: an invalid MOVE in Enterprise COBOL (Language Reference, Table 51; C11)"
+                f"{target.name}: an invalid MOVE in Enterprise COBOL (Language Reference, Table 47; C11)"
             )
 
     def _move_from(self, src, ft: str, target: E.Ref) -> str:
@@ -2865,11 +2865,11 @@ class Gen:
 
     def unstring_operands(self, d: dict) -> None:
         """Refuse the numeric UNSTRING operands the port does not model (#5032, sibling of string_sender), each by name.
-        What Enterprise COBOL 6.4 (Language Reference, UNSTRING) rejects: a numeric INTO item with the symbol 'P', and
-        a COUNT IN / POINTER / TALLYING IN item that is not an integer without a P. The port's own CONSERVATIVE choice,
-        not an IBM compile error (REFUSED / ASSUMED, register C11): a numeric sending or DELIMITED BY item, and a
-        decimal (no P) INTO item, whose bytes GnuCOBOL moves and the port does not model. Reference-modified items are
-        alphanumeric."""
+        What Enterprise COBOL 6.4 (Language Reference SC27-8713-03, UNSTRING, pp. 465-466) rejects: a numeric sending
+        item or DELIMITED BY / DELIMITER IN item (identifier-1, -2, -3, -5 are never category numeric), a numeric INTO
+        item with the symbol 'P', and a COUNT IN / POINTER / TALLYING IN item that is not an integer without a P.
+        The port's own CONSERVATIVE choice, not an IBM compile error (REFUSED, register C11): a decimal (no P) INTO
+        item, which IBM allows and moves as an unsigned integer. Reference-modified items are alphanumeric."""
         roles = [("sending item", d["src"], "not_numeric")]
         roles += [("DELIMITED BY item", op, "not_numeric") for op, _every in d["delims"]]
         for tgt, dl, cnt in d["intos"]:
@@ -2906,8 +2906,8 @@ class Gen:
                 )
             if rule == "not_numeric":
                 raise Untranslatable(
-                    what + "a numeric item here is not modelled (the port's conservative choice, not an IBM rule "
-                    "verified against the Language Reference; C11)"
+                    what + "a numeric item here is a compile error in Enterprise COBOL (Language Reference, UNSTRING: "
+                    "the sending, DELIMITED BY and DELIMITER IN items are never category numeric; C11)"
                 )
 
     def string_sender(self, e) -> None:

@@ -5,6 +5,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness_report as hr
 import proof_blockers as pb
@@ -173,3 +175,52 @@ def test_input_keys_only_when_something_limits_an_input(tmp_path):
     assert [b["cause"] for b in rep["input_blockers"]] == ["db2"]  # the fixture's only limited input
     assert all("records" not in i for i in rep["inputs"].values())
     assert hr.build({"programs": [], "gaps": []}, "none", tmp_path).get("input_blockers") is None
+
+
+# ---- #4493 issue classes 1 and 3: unclassified because no burned program needs them ------------------------------
+EQUIVALENCE = Path(__file__).resolve().parents[1] / "equivalence"
+STATED_RULES = {"values", "every", "from", "miss", "digits", "date"}
+
+
+def generated_datasets():
+    for f in sorted(EQUIVALENCE.glob("*/case.json")):
+        case = json.loads(f.read_text(encoding="utf-8"))
+        for dd, spec in (case.get("datasets") or {}).items():
+            if spec.get("input") == "@generate":
+                yield f.parent.name, case, dd, spec
+
+
+def test_burned_generated_rules_are_stated_single_field_joins():
+    """Class 3: no case needs a rule across records (a sum, a transition); `from` joins one field of one dataset."""
+    seen = 0
+    for name, _case, dd, spec in generated_datasets():
+        for field, rule in ((spec.get("generate") or {}).get("fields") or {}).items():
+            seen += 1
+            assert set(rule) <= STATED_RULES, f"{name}/{dd}.{field}: a rule beyond the stated ones: {sorted(rule)}"
+            if "from" in rule:
+                assert isinstance(rule["from"], str) and rule["from"].count(".") >= 1, (name, dd, field)
+    assert seen  # the committed cases do state rules
+
+
+def test_burned_generated_inputs_need_no_class_1_or_3_cause():
+    """Class 1: no burned generated record repeats a field name (a qualified name would be needed to tell them apart).
+    Needs the corpora checkout; without it there is nothing to read."""
+    import os
+
+    import equivalence_common as common
+
+    roots = [Path(p) for p in os.environ.get("GITGALAXY_MAINFRAME_CORPORA", "").split(os.pathsep) if p]
+    checked = 0
+    for name, case, dd, spec in generated_datasets():
+        base = next((r / case.get("corpus", "") for r in roots if (r / case.get("corpus", "")).is_dir()), None)
+        gen = spec.get("generate") or {}
+        cpy = gen.get("copybook") or spec.get("copybook", "")
+        if base is None or not (base / cpy).is_file():
+            continue
+        fields = common.layout_fields(base, cpy, gen.get("record") or spec.get("record") or None)
+        names = [f["name"] for f in fields if not f["name"].startswith("FILLER")]
+        dup = sorted({n for n in names if names.count(n) > 1})
+        assert not dup, f"{name}/{dd}: qualified names needed for {dup}: add a cause to record_cause / FIX_LAYOUT"
+        checked += 1
+    if not checked:
+        pytest.skip("no burned corpus checkout")

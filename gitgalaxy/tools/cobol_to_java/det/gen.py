@@ -80,6 +80,9 @@ LIBRARY = {
     "CEEDATE": ("__PACKAGE__.cobolrt.le.Ceedate.call", 4),
     "CEEISEC": ("__PACKAGE__.cobolrt.le.Ceeisec.call", 9),
     "CEEQCEN": ("__PACKAGE__.cobolrt.le.Ceeqcen.call", 2),
+    # #5003: the offset from GMT (zero: the run's clock is GMT); CEEUTCO is the same service as CEEGMTO
+    "CEEGMTO": ("__PACKAGE__.cobolrt.le.Ceegmto.call", 4),
+    "CEEUTCO": ("__PACKAGE__.cobolrt.le.Ceegmto.call", 4),
 }
 LIBRARY_CLOCK = {
     "CEELOCT",
@@ -91,7 +94,16 @@ LIBRARY_CLOCK = {
 # #5119 (X56): the CALLs det/bll.py lowers OS/VS COBOL's chained storage areas to (`MOVE cell TO fullword`, `MOVE fullword TO
 # cell`, a record re-addressed at a paragraph name); the oracle's stub (ggcics.c) has the first two, and sees SET ADDRESS OF
 BLL_CALLS = ("GGCBLLP", "GGCBLLG", "GGCBLLR")
-LIBRARY_FLOATS = {"CEELOCT": {1}, "CEEGMT": {1}, "CEEUTC": {1}, "CEEDATM": {0}, "CEESECS": {2}, "CEEISEC": {7}}
+LIBRARY_FLOATS = {
+    "CEELOCT": {1},
+    "CEEGMT": {1},
+    "CEEUTC": {1},
+    "CEEDATM": {0},
+    "CEESECS": {2},
+    "CEEISEC": {7},
+    "CEEGMTO": {2},
+    "CEEUTCO": {2},
+}
 LIBRARY_CHARSET = {*LIBRARY_CLOCK, *LIBRARY_FLOATS, "CEEDATE", "CEEQCEN"}
 
 

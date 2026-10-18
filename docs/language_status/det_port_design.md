@@ -1,9 +1,13 @@
 ---
-description: "**Status (2026-10-02): 48 programs are translated with no model and proven.** That is 27 from CardDemo, 8 from"
+description: "**Snapshot (2026-10-02): 48 programs are translated with no model and proven.** That is 27 from CardDemo, 8 from"
 ---
 # Deterministic port (det-port): design and the runtime contract
 
-**Status (2026-10-02): 48 programs are translated with no model and proven.** That is 27 from CardDemo, 8 from
+> **Dated historical snapshot (2026-10-02).** The program, case and proof counts in this design page are the ones of that date. The numbers below were measured once and are not updated. For current counts (translated whole, level per program, per estate) read the generated
+> [progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md)
+> (#5280, #5282).
+
+**Snapshot (2026-10-02): 48 programs are translated with no model and proven.** That is 27 from CardDemo, 8 from
 CBSA and 13 from GenApp, over 50 equivalence cases; 17 of those cases run embedded SQL on a real Db2. Two cases are
 not proven on purpose, each with its reason (`KNOWN_UNPROVEN` in `tests/tools/proof_sweep.py`): COCRDUPC writes
 blanks into a `PIC 9(3)` field a typed DTO cannot hold (#4085), and `carddemo-intcalc-generated` depends on

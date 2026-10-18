@@ -3,6 +3,10 @@ description: "*2026-10-03. A fourth public COBOL/CICS estate, from a different I
 ---
 # Estate 4: IBM DBB MortgageApplication
 
+> **Dated historical snapshot (2026-10-03).** This is the onboarding record of the estate. The numbers below were measured once and are not updated. For current counts (translated whole, level per program, per estate) read the generated
+> [progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md)
+> (#5280, #5282).
+
 *2026-10-03. A fourth public COBOL/CICS estate, from a different IBM team than CBSA and GenApp, onboarded to test how
 far the deterministic translator and the equivalence harness generalise.*
 

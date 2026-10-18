@@ -26,8 +26,8 @@
    "paths": [
     "tests/cics_crucible/strengthened/ca-xctl-versions/**"
    ],
-   "files": 5,
-   "sha256": "14842f5090d1583137be0327e1622908f5b8103b92801b969598b989023fd809"
+   "files": 8,
+   "sha256": "9eed18cb0b0c650f713c284f811322ebd0cbf5e5f5f0f20a979fd3bbecd1b273"
   },
   "harness": {
    "paths": [
@@ -49,12 +49,12 @@
     "tests/tools/cics_crucible_compare.py"
    ],
    "files": 16,
-   "sha256": "7c2b579d9a5bf261613b81c958df0aad5c4749efabf2fdebaf07575f2b976952",
+   "sha256": "cfa1f856a8f2a8634c748304a73b12ae982a930726081ae939e3cf6ba04e705b",
    "components": {
     "harness:call": "74c6c349861eb08f26d7b25f83b523f91dd883cfdd9c378075b3ce379a040b33",
     "harness:cics": "9935a904deb7e43e225fc5d9925cef0d4fbca5a899a53da4a9b39ceda5746304",
     "harness:core": "7ec6b3c997b627e3ef61fca5ba1d01c6889ec048154e1e44b43b4c1fdd06ef4b",
-    "harness:crucible": "7020a0320711601b96d54259a1e350f82c982126a8be96dea66061acdeab457e",
+    "harness:crucible": "906920f94979091d8b0644e0f8f5f136fb5b2cee555392c5c8cf43d32660caf2",
     "harness:db2": "e5278abdc64341d0e53d9bd81423cf2362cc2d2a791254e1e67aff17a0565fb4",
     "harness:ims": "71164b208ceea480df6a1520645834ad1e7ff0a487416112cd22cec38d3fdfbe"
    }
@@ -70,7 +70,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 96,
-   "sha256": "b2a2df2b6b920db4b00c4ff59a5e61d7653212b1a5ecd49201033901d81d1dd3",
+   "sha256": "746615d3f4e43c50ea8bbdc99a8aec9cac48d2945bb8e035212887068585349f",
    "components": {
     "generator:cobolrt/Accept.java": "4bc260fc6386c11e4654cc76eb67a87ca1fad76647373d1e75484ed61b6a0cf3",
     "generator:cobolrt/Cobol.java": "55a0b6c94968838ea85bf8d476d29b2be52bd7ee5b79f86831e60a93b3209083",
@@ -117,7 +117,7 @@
     "generator:det/dyncall": "bd15eb2918020d644135fd7f2565937f836b05a223de5ca05af33f0ec7fb0a4f",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
     "generator:det/expr": "fbb3c70683ccd2e64382901efe4846b8d908a8c3c7c9bfa9641c6ff6d48a9c4d",
-    "generator:det/gen": "b3f9161377dfd3bfead83009d012afe7eb6ce9b3a68df462e93bdf2ad4d3d213",
+    "generator:det/gen": "a69fcc2092f6a1aa0406aae9fdbc58c400bf599820190281b28fc61f719679a2",
     "generator:det/hfp": "7371422d1821ad22c526f9ba0e37deaa0ffc38ed190c6ad76e7475d820df95a1",
     "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
     "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
@@ -163,10 +163,10 @@
     }
    }
   },
-  "digest": "94d13f61a91db33ddc10ae7073f1002849126eb6685af6b90f4a88f6ec34600a"
+  "digest": "8660f1cd20a53bdd7e9c4aa8225e482f35a269bb554e38ac5e39f473cf9bf4b1"
  },
  "proof": {
-  "at": "2026-10-18T15:49:08Z",
+  "at": "2026-10-18T17:05:06Z",
   "verdict": "proven",
   "runs": 3,
   "fault_runs": 0,
@@ -193,8 +193,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "f440dedbf581953d9772ea07e59f5567eac7ddc5+uncommitted",
-  "inputs_digest": "94d13f61a91db33ddc10ae7073f1002849126eb6685af6b90f4a88f6ec34600a"
+  "harness_commit": "56d7360c29258f1e5d317fe71b7b169755a27b84+uncommitted",
+  "inputs_digest": "8660f1cd20a53bdd7e9c4aa8225e482f35a269bb554e38ac5e39f473cf9bf4b1"
  },
  "coverage": {
   "paragraphs": {
@@ -209,7 +209,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/ca-xctl-versions/CAXB",
   "ledger_sha256": "14fb4eee40f3c102720586999186172a1e57ed5764e2798ce1fc36d88fbd4de7",
-  "inputs_digest": "94d13f61a91db33ddc10ae7073f1002849126eb6685af6b90f4a88f6ec34600a"
+  "inputs_digest": "8660f1cd20a53bdd7e9c4aa8225e482f35a269bb554e38ac5e39f473cf9bf4b1"
  },
  "reach": {
   "entry_points": [
@@ -237,40 +237,40 @@
  "mutation": {
   "commit": "0e2e05254",
   "rejudged": {
-   "commit": "f440dedbf",
-   "issue": "#4443",
+   "commit": "56d7360c2",
+   "issue": "#4049",
    "mutants": 4,
-   "killed": 1
+   "killed": 3
   },
   "seed": 0,
   "mode": null,
   "mutants": 142,
   "chosen": 24,
-  "killed": 18,
-  "survived": 5,
+  "killed": 20,
+  "survived": 3,
   "stillborn": 1,
   "survivors": {
-   "case_gap": 3,
+   "case_gap": 0,
    "harness_gap": 0,
-   "equivalent": 1,
+   "equivalent": 2,
    "unreachable": 1,
    "untriaged": 0
   },
-  "score_raw": "18/23",
-  "score_adjusted": "18/21",
+  "score_raw": "20/23",
+  "score_adjusted": "20/20",
   "source": "docs/language_status/mutation_scores.json#crucible:ca-xctl-versions/CAXB",
   "inputs": {
    "port": {
     "sha256": "fb89a8082edd083b5298fd6aea7ee920717580d0365f670f0e931d058198b0cb"
    },
    "case": {
-    "sha256": "e133e41fce014de30d97cd15ea95ec1edd5f148e76b1552f232c6d567c1b035b"
+    "sha256": "9eed18cb0b0c650f713c284f811322ebd0cbf5e5f5f0f20a979fd3bbecd1b273"
    },
    "corpus": {
     "sha256": "2d2c6a6c72db53a016dbb16582625e3938ac8267202988ac0aa7a1f47ead0d0e"
    },
    "harness": {
-    "sha256": "7c2b579d9a5bf261613b81c958df0aad5c4749efabf2fdebaf07575f2b976952"
+    "sha256": "cfa1f856a8f2a8634c748304a73b12ae982a930726081ae939e3cf6ba04e705b"
    },
    "oracle": {
     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"

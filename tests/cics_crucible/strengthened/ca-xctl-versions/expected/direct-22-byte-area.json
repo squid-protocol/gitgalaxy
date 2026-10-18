@@ -1,0 +1,66 @@
+{
+ "format": "cics-crucible/expected/1",
+ "case": "ca-xctl-versions",
+ "scenario": "direct-22-byte-area",
+ "derived": {
+  "from": "cobol-stub",
+  "issue": "#4049",
+  "note": "the COBOL program's own run on the stub runtime (tests/equivalence/cics/ggcics.c), written by cics_crucible.py --derive-expected; never edited by hand",
+  "faults_fired": []
+ },
+ "tasks": [
+  {
+   "seq": 1,
+   "transid": "CA03",
+   "program": "CAXB",
+   "termid": "T001",
+   "at": "2026-03-02T10:00:00",
+   "trigger": {
+    "kind": "terminal",
+    "step": 0
+   },
+   "eibaid": "ENTER",
+   "eibcalen": 22,
+   "commarea": {
+    "length": 22,
+    "layout": "V2",
+    "fields": {
+     "V2-VERSION": "2",
+     "V2-CUSTID": "C0001",
+     "V2-VISITS": "7",
+     "V2-TIER": "GOLD"
+    }
+   },
+   "events": [
+    {
+     "event": "SEND-TEXT",
+     "program": "CAXB",
+     "text": "V=2 C=C0001 N=0008 T=GOLD       B=+0012000.00 L=0022 UPGRADED FROM V1",
+     "length": 80,
+     "options": [
+      "ERASE"
+     ]
+    },
+    {
+     "event": "RETURN",
+     "program": "CAXB",
+     "level": 1,
+     "transid": "CA03",
+     "commarea": {
+      "length": 80,
+      "layout": "V2",
+      "fields": {
+       "V2-VERSION": "2",
+       "V2-CUSTID": "C0001",
+       "V2-VISITS": "8",
+       "V2-TIER": "GOLD",
+       "V2-BALANCE": "12000.00",
+       "V2-NOTE": "UPGRADED FROM V1"
+      }
+     }
+    }
+   ],
+   "end": "normal"
+  }
+ ]
+}

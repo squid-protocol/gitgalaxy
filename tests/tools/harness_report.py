@@ -161,31 +161,80 @@ def _record_text(text: str, record: str) -> str:
     return "\n".join(lines[start:end])
 
 
-def record_cause(roots: list[Path], case: dict[str, Any], dataset: str) -> str:
-    """Why one generated record's layout is limited: a key of FIX_LAYOUT, or "" when nothing applies."""
+_SELECTOR_NAME = re.compile(r"(?:^|-)(?:TYPE|CODE|ID|REQUEST|FLAG|IND|KIND|STATUS|SW|SWITCH)(?:-|$)")
+
+
+def redefines_choices(items: list[dict[str, Any]], record: str = "") -> list[str]:
+    """REDEFINES alternatives that another field selects, one line each: `TARGET -> ALT1/ALT2 (selector SEL)`.
+
+    Chosen means a group alternative (a different layout over the target's bytes) or 2+ items over one target; a
+    same-bytes elementary re-view (X(8) read as 9(8)) and a FILLER are not: the first alternative the generator fills
+    already holds them. The selector is the nearest preceding sibling that owns 88-level values, else one whose name
+    says it is a code (`(selector not found)` when none)."""
+    roots = [i for i in items if i["parent"] is None and i["level"] not in (66, 88)]
+    root = next((r for r in roots if r["name"] == record), None) if record else None
+    root = root or next((r for r in roots if not r.get("redefines")), None)
+    if root is None:
+        return []
+    later = [r["line"] for r in roots if r["line"] > root["line"]]
+    inside = [i for i in items if root["line"] <= i["line"] < (min(later) if later else 1 << 30)]
+    has88 = {i["parent"] for i in inside if i["level"] == 88}
+    has_kids = {i["parent"] for i in inside if i["level"] not in (66, 88)}
+    by_target: dict[str, list[dict[str, Any]]] = {}
+    for i in inside:
+        if i.get("redefines") and i["level"] not in (66, 88) and i["name"] != "FILLER":
+            by_target.setdefault(i["redefines"], []).append(i)
+    out = []
+    for target, alts in sorted(by_target.items()):
+        if len(alts) < 2 and not any(a["ordinal"] in has_kids and not a.get("pic") for a in alts):
+            continue
+        t = next((i for i in inside if i["name"] == target and not i.get("redefines")), None)
+        sibs = [i for i in inside if t and i["parent"] == t["parent"] and i["line"] < t["line"] and i["level"] != 88]
+        sibs = [i for i in sibs if not i.get("redefines") and i["ordinal"] not in has_kids]
+        pick = next((i for i in reversed(sibs) if i["ordinal"] in has88), None) or next(
+            (i for i in reversed(sibs) if _SELECTOR_NAME.search(i["name"])), None
+        )
+        sel = f"selector {pick['name']}" if pick else "selector not found"
+        out.append(f"{target} -> {'/'.join(a['name'] for a in alts)} ({sel})")
+    return out
+
+
+def record_limit(roots: list[Path], case: dict[str, Any], dataset: str) -> tuple[str, str]:
+    """(cause, symbols) of one generated record's layout limit: a key of FIX_LAYOUT or "", and the names involved."""
     gen = case["datasets"][dataset].get("generate") or {}
     corpus = case.get("corpus", "")
     base = next((r / corpus for r in roots if (r / corpus).is_dir()), None)
     cpy = gen.get("copybook") or case["datasets"][dataset].get("copybook", "")
     if base is None or not (base / cpy).is_file():
-        return "not read"
+        return "not read", ""
     import equivalence_common as common
 
     record = gen.get("record") or case["datasets"][dataset].get("record") or None
     try:
         common.layout_fields(base, cpy, record)
     except common.LayoutError as e:
-        return "no layout" if "no record" in str(e) else "unresolved copy"
+        return ("no layout" if "no record" in str(e) else "unresolved copy"), ""
     from gitgalaxy.core.source_text import read_source
 
     text = _record_text(read_source(base / cpy).text, record or "")
     if _LEVEL66.search(text):
-        return "renames"
+        return "renames", ""
     if _SYNC.search(text):
-        return "sync"
+        return "sync", ""
     if _REDEF.search(text) and not gen.get("fields"):  # a case that states field rules has chosen what to fill
-        return "redefines"
-    return ""
+        import cobol_answer_key as ak
+
+        path = base / cpy
+        lines = common._expanded_lines(path, [path.parent, base], [])
+        items = [it for it in ak._data_items(ak.Source(path, list(enumerate(lines, 1))))]
+        if chosen := redefines_choices(items, record or ""):
+            return "redefines", "; ".join(chosen)
+    return "", ""
+
+
+def record_cause(roots: list[Path], case: dict[str, Any], dataset: str) -> str:
+    """Why one generated record's layout is limited: a key of FIX_LAYOUT, or "" when nothing applies."""
+    return record_limit(roots, case, dataset)[0]
 
 
 def non_vsam_kinds(case: dict[str, Any]) -> list[str]:
@@ -206,7 +255,12 @@ def input_blockers(
     by: dict[str, dict[str, Any]] = {}
     for c, i in inputs.items():
         found = [
-            (r["cause"], f"{r['dataset']} ({r['record'] or r['copybook']})") for r in i.get("records", []) if r["cause"]
+            (
+                r["cause"],
+                f"{r['dataset']} ({r['record'] or r['copybook']})" + (f": {r['symbols']}" if r.get("symbols") else ""),
+            )
+            for r in i.get("records", [])
+            if r["cause"]
         ]
         found += [(k, "case input") for k in i.get("non_vsam", [])]
         for cause, what in found:
@@ -304,7 +358,10 @@ def build(
     inputs = {c: input_generation(cases[c]) | {"tests": tests[c]} for c in case_names}
     for c, i in inputs.items():  # only when non-empty: an always-present empty key breaks exact-equality tests
         if i["generated"]:
-            i["records"] = [g | {"cause": record_cause(roots or [], cases[c], g["dataset"])} for g in i["generated"]]
+            i["records"] = []
+            for g in i["generated"]:
+                cause, symbols = record_limit(roots or [], cases[c], g["dataset"])
+                i["records"].append(g | {"cause": cause} | ({"symbols": symbols} if symbols else {}))
         if kinds := non_vsam_kinds(cases[c]):
             i["non_vsam"] = kinds
     rep = {

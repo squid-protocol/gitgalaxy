@@ -126,11 +126,13 @@ dialect that predates the channel is not a missing-key error. It then propagates
   file_data(id) ON DELETE CASCADE)` next to `dataset_data`, plus `idx_<name>_file_id` and
   `idx_<name>_snapshot`. The FK cascade is load-bearing: the idempotent per-snapshot wipe deletes
   `file_data` rows and your children go with them — no explicit DELETE needed.
-- Insert with the shared helper `_insert_per_file_child(cursor, parsed_files, path_to_file_id,
-  repo_name, commit_hash, table, columns, payload_key, to_row)`. Pass the columns *after* the
-  standard `(repo_name, commit_hash, file_id)` and a `to_row(item)` mapping each payload dict to
-  those columns. (This is for **per-file** facts. The call graph is different — see "Per-file vs
-  global" below.)
+- **Insert: add one `FactChannel` entry to `CHANNELS` in `gitgalaxy/core/fact_channels.py` (#3383).**
+  It names the `table`, the `payload_key`, the `columns` *after* the standard
+  `(repo_name, commit_hash, file_id)`, and a `to_row(item)` mapping each payload dict to those
+  columns; `record_keeper` loops over the registry and calls `_insert_per_file_child`. The
+  `CREATE TABLE` stays in `record_keeper` for now. (This is for **per-file** facts. The call graph is
+  different — see "Per-file vs global" below. A channel needing a custom insert is still hand-wired
+  in `record_keeper` until the registry grows a hook for it.)
 
 ### 4b. Report it in the two output surfaces (both optional/presence-keyed)
 
@@ -149,13 +151,17 @@ each rendering **nothing** for a file that has none (so a non-mainframe scan is 
 ### 5. Restore on delta scans (`state_rehydrator.py`) — NOT optional
 
 An unchanged file is never re-parsed, so without this an incremental scan drops every fact for
-unchanged files and the DB ends up describing only what changed last commit. Use the shared helper
-`_restore_child_table(cursor, repo_name, baseline_hash, table, select_sql, to_payload)` and assign
-`node["<payload_key>"]` in the `ram_state` loop. The `select_sql` aliases the file path `AS _fp`,
+unchanged files and the DB ends up describing only what changed last commit. The same `FactChannel`
+entry carries the restore: `restore_select` (a string, or a `(cursor, has_table, has_column)`
+callable when the query depends on which columns the baseline has) and `to_payload(row)`.
+`state_rehydrator` runs `_restore_child_table` per registry entry and assigns
+`node[channel.payload_key]` in the `ram_state` loop. The select aliases the file path `AS _fp`,
 aliases every other column to the extractor's payload key names, and takes `(repo, hash)`. Do
 **not** restore any repo-wide *resolution* column (see #3200: a `CALL`'s resolved target is redone
 every scan). Prove it: a full scan and an incremental scan must produce byte-identical rows
 (excluding the autoincrement `id`, which legitimately drifts on delete+reinsert).
+`tests/core_engine/test_fact_channels.py` checks every registry entry's columns and restore query
+against the real schema.
 
 ### 6. Expose it in the IR reader (`tools/cobol_to_cobol/galaxy_ir.py`)
 
@@ -242,8 +248,8 @@ seams — this doc's channel table, `galaxy_ir.py`'s SCOPE comment and accessors
 `audit_recorder.py`/`llm_recorder.py`, and both golden masters — and conflicted with every sibling
 PR on exactly those seams (tracked as the shared-seam problem in #3383, the golden-master/ruff-
 baseline layout problem in #3384). That cost roughly 8 rebase cycles of 15–40 minutes each in that
-round, and one answer-key merge had to be redone by hand. Until #3383's channel registry removes
-the shared seams, rebase like this:
+round, and one answer-key merge had to be redone by hand. The #3383 registry now removes the
+persist and restore seams (steps 4-5); the rest are still shared, so rebase like this:
 
 1. `git fetch origin` and rebase onto `origin/main` — take **main's side** of any golden-master or
    ruff-baseline conflict wholesale, never hand-merge JSON/baseline entries.

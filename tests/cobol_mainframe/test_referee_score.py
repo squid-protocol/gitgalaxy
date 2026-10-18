@@ -91,7 +91,10 @@ def test_norm_value(raw: str, norm: str) -> None:
 
 
 def test_depending_on_qualifier_is_dropped() -> None:
-    assert F.item_values(4, 5, "V", occurs_min=0, occurs_max=9, depending_on="LEN OF GRP")["occurs"] == "L4 V 0..9 DEPENDING ON LEN"
+    assert (
+        F.item_values(4, 5, "V", occurs_min=0, occurs_max=9, depending_on="LEN OF GRP")["occurs"]
+        == "L4 V 0..9 DEPENDING ON LEN"
+    )
 
 
 def test_call_value_strips_cics_padding() -> None:
@@ -114,7 +117,9 @@ def test_score_channel_counts_and_failed_files() -> None:
     sc = S.score_channel(key, ref, "units")
     assert sc == {"tp": 1, "reported": 2, "true": 3, "true_parsed": 3, "files": 2, "files_parsed": 1}
     # B.cbl has no units, so its failure costs nothing; program_ids shows the cost of a failed file
-    pid = S.score_channel(key, _doc("ref", {"A.cbl": ("ok", {"program_ids": ["PROGA"]}), "B.cbl": ("fail", {})}), "program_ids")
+    pid = S.score_channel(
+        key, _doc("ref", {"A.cbl": ("ok", {"program_ids": ["PROGA"]}), "B.cbl": ("fail", {})}), "program_ids"
+    )
     assert (pid["tp"], pid["true"], pid["true_parsed"]) == (1, 3, 2)
 
 
@@ -158,7 +163,94 @@ def test_cobrix_layout_units_skip_overlays_and_fillers() -> None:
         {"root": "R", "name": "A", "level": 5, "group": False, "offset": 0, "size": 4, "pic": "X(4)"},
         {"root": "R", "name": "B", "level": 5, "group": True, "offset": 0, "size": 4, "redefines": "A"},
         {"root": "R", "name": "B1", "level": 10, "group": False, "offset": 0, "size": 4, "pic": "9(4)"},
-        {"root": "R", "name": "FILLER", "level": 5, "group": False, "offset": 4, "size": 2, "pic": "X(2)", "filler": True},
+        {
+            "root": "R",
+            "name": "FILLER",
+            "level": 5,
+            "group": False,
+            "offset": 4,
+            "size": 2,
+            "pic": "X(2)",
+            "filler": True,
+        },
         {"root": "R", "name": "C", "level": 5, "group": False, "offset": 6, "size": 4, "pic": "X(2)"},
     ]
     assert cobrix_adapter.layout_units(fields) == {"R/A @0+4", "R/C @6+4"}
+
+
+def _panel(a: dict, b: dict, c: dict | None = None, channels=F.CHANNELS) -> list[dict]:
+    docs = [_doc("ra", a, channels), _doc("rb", b, channels)]
+    return docs + ([_doc("rc", c, channels)] if c is not None else [])
+
+
+def test_majority_needs_more_than_half_of_the_voters() -> None:
+    three = _panel(
+        {"A.cbl": ("ok", {"units": ["P1", "P2", "X"]})},
+        {"A.cbl": ("ok", {"units": ["P1", "P2"]})},
+        {"A.cbl": ("ok", {"units": ["P1", "Y"]})},
+    )  # fmt: skip
+    assert S.majority_values(three, "A.cbl", "units") == {"P1", "P2"}  # 2 of 3 in, 1 of 3 out
+    two = three[:2]
+    assert S.majority_values(two, "A.cbl", "units") == {"P1", "P2"}  # with 2 voters both must report it
+    assert S.majority_values(three[:1], "A.cbl", "units") is None  # one referee is not a majority
+
+
+def test_majority_voters_are_referees_that_produce_the_channel_and_parsed_the_file() -> None:
+    refs = _panel(
+        {"A.cbl": ("ok", {"units": ["P1"]})},
+        {"A.cbl": ("fail", {})},
+        {"A.cbl": ("ok", {"units": ["P1"]})},
+    )  # fmt: skip
+    assert S.majority_values(refs, "A.cbl", "units") == {"P1"}  # the failed file is no voter: 2 voters, both agree
+    refs[2] = _doc("rc", {"A.cbl": ("ok", {"units": ["P1"]})}, channels=["calls"])
+    assert S.majority_values(refs, "A.cbl", "units") is None  # rc does not produce units: 1 voter left
+    assert (
+        S.majority_score(_key(), _panel({}, {}, channels=["units"]), "layouts") is None
+    )  # no referee produces it at all
+
+
+def test_majority_score_agreement_and_disagreements_against_the_key() -> None:
+    key = _key()
+    eng = _doc("engine", {"A.cbl": ("ok", {"units": ["P1", "P2", "ENG"]}), "B.cbl": ("ok", {})})
+    refs = _panel(
+        {"A.cbl": ("ok", {"units": ["P1", "BOGUS"]}), "B.cbl": ("ok", {})},
+        {"A.cbl": ("ok", {"units": ["P1", "BOGUS", "PROGB:MAINLINE"]}), "B.cbl": ("ok", {})},
+        {"A.cbl": ("ok", {"units": ["P1"]}), "B.cbl": ("fail", {})},
+    )  # fmt: skip
+    # A.cbl majority = {P1, BOGUS}; B.cbl has 2 voters and an empty majority
+    sc = S.majority_score(key, refs, "units")
+    assert sc == {"tp": 1, "reported": 2, "true": 3, "files": 2}
+    assert S.majority_agreement(key, eng, refs, "units") == {"both": 1, "union": 4}
+    dis = S.majority_disagreements(key, eng, refs, "units")
+    assert {(d["value"], d["only"], d["in_key"]) for d in dis} == {
+        ("P2", "engine", True),
+        ("ENG", "engine", False),
+        ("BOGUS", "majority", False),
+    }
+
+
+def test_majority_cics_commands_scored_over_key_verbs() -> None:
+    refs = _panel(
+        {"A.cbl": ("ok", {"cics_commands": ["L20 READ", "L23 ASKTIME"]})},
+        {"A.cbl": ("ok", {"cics_commands": ["L20 READ", "L23 ASKTIME"]})},
+    )  # fmt: skip
+    sc = S.majority_score(_key(), refs, "cics_commands")
+    assert (sc["tp"], sc["reported"]) == (1, 1)  # ASKTIME is not a censused verb
+
+
+def test_scorecard_majority_table_only_with_two_referees() -> None:
+    key = _key()
+    eng = _doc("engine", {"A.cbl": ("ok", {"units": ["P1", "P2"]}), "B.cbl": ("ok", {})})
+    r1 = _doc("r1", {"A.cbl": ("ok", {"units": ["P1", "P2"]}), "B.cbl": ("ok", {})}, channels=["units"])
+    r2 = _doc("r2", {"A.cbl": ("ok", {"units": ["P1", "ZZ"]}), "B.cbl": ("ok", {})}, channels=["units"])
+    one = {"toy": {"key": key, "sources": {"engine": eng, "r1": r1}}}
+    md, data, dis = S.scorecard(one)
+    assert "referee majority" not in md and "majority" not in data and "referee-majority" not in dis
+    two = {"toy": {"key": key, "sources": {"engine": eng, "r1": r1, "r2": r2}}}
+    md, data, dis = S.scorecard(two)
+    assert "### Engine vs the referee majority" in md
+    # majority = {P1} (r2 alone reports ZZ, r1 alone P2): engine-only P2 is in the key
+    assert "| units | 2 | P 100.0% · R 33.3% | 50.0% | 1 / 0 | 0 / 0 |" in md
+    assert data["majority"]["units"]["only"] == {"engine": [1, 0], "majority": [0, 0]}
+    assert dis["referee-majority"]["units"]["engine-only, in key"]["count"] == 1
+    assert "layouts" not in data["majority"]  # a channel no referee produces adds no row

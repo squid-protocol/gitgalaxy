@@ -199,6 +199,19 @@ last page after a full one. 8 more survivors are unreachable (the program name i
 The 126 equivalent verdicts rest on one assumption not yet independently checked: the COMMAREA/screen DTO codec pads
 and truncates each field to its declared width, so a width off by one, or NUL for space, changes no compared byte.
 
+#4049 re-ran adminmenu, useradd, userdel and tranview (100 mutants each, seed 0) against the scenarios #5387 added, to
+re-judge their 37 case gaps. The committed scores above are NOT updated: the four ports were regenerated since
+`bcb4f6f82`, so the mutant set moved (COADM01C 334 -> 340 mutants, COTRN01C 308 -> 314, COUSR01C 266 -> 272, COUSR03C
+334 -> 340) and the committed survivor ids and triage no longer map; the rows stay with their ports' older code (the
+evidence records' mutation port digest marks them stale). Matching the old survivors by file, operator and mutated text:
+of the 37 case gaps, 12 are now killed (adminmenu 6, tranview 3, userdel 2, useradd 1), 15 still survive (adminmenu 7,
+useradd 5, userdel 3: COADM01C's service lines 241, 344, 368, 373 and 374, COUSR01C's 136, 228, 245 and 259, COUSR03C's
+200, 206 and 469) and 10 are gone with the code they sat in. The fresh run
+killed 52/66/60/62 and left 43/34/38/25 survivors (5/0/2/13 stillborn); about 71 of those survivors have no triage
+(widths on `fld` / `pad` / `fit`, deleted field moves, the `lastLinkBytes` and `region.linked` program-name mutants the
+facade-reach check already treats as unreachable). Writing the new triage and the scenarios for the 15 surviving
+case gaps is the next slice; the run data is kept with the handoff note.
+
 #4047 then added seven more CardDemo CICS ports (billpay, cardlist, cardview, report, tranadd, tranlist, userupd; 100
 mutants each, seed 0). Their case gaps repeat the six ports': no EIBCALEN, a short or blank COMMAREA, non-blank
 COMMAREA fields, a failed XCTL, bad-format amount and date inputs, and rounding with fractional amounts; tranlist's

@@ -133,7 +133,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CBACT04C (carddemo-intcalc) | equivalence | 100/170 | 70/86 (81%) | 70/77 (91%) | 6 / 1 / 9 / 0 / 0 |
 | COMEN01C (carddemo-menu) | equivalence | 150/331 | 86/136 (63%) | 86/93 (92%) | 7 / 0 / 36 / 7 / 0 |
 | CBTRN02C (carddemo-posttran) | equivalence | 100/263 | 76/85 (89%) | 76/80 (95%) | 3 / 1 / 5 / 0 / 0 |
-| CBACT02C (carddemo-readcard) | equivalence | 91/91 | 69/83 (83%) | 69/83 (83%) | 14 / 0 / 0 / 0 / 0 |
+| CBACT02C (carddemo-readcard) | equivalence | 91/91 | 69/83 (83%) | 69/73 (95%) | 4 / 0 / 10 / 0 / 0 |
 | CBCUS01C (carddemo-readcust) | equivalence | 83/83 | 63/74 (85%) | 63/70 (90%) | 7 / 0 / 4 / 0 / 0 |
 | CBACT03C (carddemo-readxref) | equivalence | 90/90 | 69/83 (83%) | 69/77 (90%) | 8 / 0 / 6 / 0 / 0 |
 | CORPT00C (carddemo-report) | equivalence | 100/642 | 55/87 (63%) | 55/63 (87%) | 8 / 0 / 16 / 8 / 0 |
@@ -148,7 +148,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COUSR00C (carddemo-userlist) | equivalence | 100/493 | 69/100 (69%) | 69/92 (75%) | 23 / 0 / 8 / 0 / 0 |
 | COUSR02C (carddemo-userupd) | equivalence | 100/481 | 47/82 (57%) | 47/64 (73%) | 17 / 0 / 14 / 4 / 0 |
 | INQACC (cbsa-inqacc) | equivalence | 150/464 | 131/131 (100%) | 131/131 (100%) | 0 / 0 / 0 / 0 / 0 |
-| UPDACC (cbsa-updacc) | equivalence | 133/133 | 95/133 (71%) | 95/133 (71%) | 38 / 0 / 0 / 0 / 0 |
+| UPDACC (cbsa-updacc) | equivalence | 133/133 | 95/133 (71%) | 95/110 (86%) | 15 / 0 / 17 / 6 / 0 |
 | LGAPVS01 (genapp-lgapvs01) | equivalence | 150/178 | 70/121 (58%) | 70/119 (59%) | 49 / 0 / 0 / 2 / 0 |
 | LGICDB01 (genapp-lgicdb01) | equivalence | 150/195 | 49/130 (38%) | 49/127 (39%) | 78 / 0 / 0 / 3 / 0 |
 | LGUPDB01 (genapp-lgupdb01) | equivalence | 150/397 | 76/138 (55%) | 76/137 (55%) | 61 / 0 / 0 / 1 / 0 |
@@ -174,17 +174,17 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 3308 run | **2091/3007 (70%)** | **2091/2539 (82%)** | 442 / 6 / 339 / 129 / 0 |
-| **all estate** | | 3812 run | **2410/3483 (69%)** | **2410/2893 (83%)** | 477 / 6 / 427 / 163 / 0 |
+| **all equivalence** | | 3308 run | **2091/3007 (70%)** | **2091/2506 (83%)** | 409 / 6 / 366 / 135 / 0 |
+| **all estate** | | 3812 run | **2410/3483 (69%)** | **2410/2860 (84%)** | 444 / 6 / 454 / 169 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
 | AOR | 160/199 (80%) | 160/175 (91%) |
-| BDM | 25/45 (56%) | 25/31 (81%) |
-| CON | 320/676 (47%) | 320/421 (76%) |
+| BDM | 25/45 (56%) | 25/28 (89%) |
+| CON | 320/676 (47%) | 320/404 (79%) |
 | COR | 132/234 (56%) | 132/195 (68%) |
-| DEL | 365/545 (67%) | 365/462 (79%) |
-| LIT | 509/659 (77%) | 509/579 (88%) |
+| DEL | 365/545 (67%) | 365/452 (81%) |
+| LIT | 509/659 (77%) | 509/576 (88%) |
 | NEG | 450/507 (89%) | 450/485 (93%) |
 | RET | 56/89 (63%) | 56/79 (71%) |
 | ROR | 393/529 (74%) | 393/466 (84%) |

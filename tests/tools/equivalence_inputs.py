@@ -418,6 +418,7 @@ def prepare_cics_case(case: dict[str, Any], corpus: Path, files: list[dict[str, 
             "commarea": {"CDEMO-FROM-TRANID": "CAVW", "CDEMO-PGM-CONTEXT": 1},
             "receive": {"CACTVWA": {"ACCTSIDI": {"from": "AWS.ACCTDATA.ACCT-ID", "miss": 0.2, "bad": 0.25}}}}
 
+    `"aid"` may be a list of keys, used in turn (#4506: PF3 / PF4 / an unassigned key reach the program's other branches).
     `"receive": {"MAP": "@bms"}` (#4506) types into every unprotected field the map's BMS source defines, by its length, NUM
     and PICIN (`{"@bms": {"bad": 0.2, "empty": 0.3}, "FIELDI": rule}` steers it; a rule beside it wins).
     A map field's rule gives what the user typed: a value `from` the generated file's field, one it does not hold
@@ -452,7 +453,12 @@ def prepare_cics_case(case: dict[str, Any], corpus: Path, files: list[dict[str, 
     for i in range(gen.get("count", 12)):
         name = f"{gen.get('prefix', 'generated')}-{i + 1:02d}"
         rng = random.Random(f"{gen.get('seed', 0)}:{name}")
-        sc: dict[str, Any] = {"name": name, "aid": gen.get("aid", "DFHENTER"), "generated": True}
+        aid = gen.get("aid", "DFHENTER")
+        sc: dict[str, Any] = {
+            "name": name,
+            "aid": aid[i % len(aid)] if isinstance(aid, list) else aid,
+            "generated": True,
+        }
         if gen.get("commarea") is not None:
             commarea: dict[str, Any] = {}
             for fname, v in gen["commarea"].items():

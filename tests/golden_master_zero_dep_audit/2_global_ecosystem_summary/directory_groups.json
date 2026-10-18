@@ -6373,20 +6373,20 @@
       "avg_exposures": {
         "api_exposure": 4.46,
         "churn": 0.0,
-        "cognitive_load": 29.27,
+        "cognitive_load": 29.25,
         "concurrency": 4.11,
         "dead_code": 4.03,
-        "documentation": 60.31,
+        "documentation": 60.32,
         "safety_score": 49.23,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 33.33,
         "state_flux": 63.24,
-        "tech_debt": 14.07,
+        "tech_debt": 14.04,
         "verification": 53.33
       },
       "file_count": 6,
-      "total_mass": 71300.36
+      "total_mass": 71102.36
     },
     "typescript/vscode": {
       "avg_exposures": {

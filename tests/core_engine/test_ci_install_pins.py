@@ -172,11 +172,6 @@ def test_no_unpinned_pip_install(path):
     assert not bad, "\n".join(f"{c}  <-- {r}" for c, r in bad)
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="#4918: workflows still build with isolation; the edit is a workflow change that needs the owner "
-    "(patch in the churn handoffs dir, 4918-workflows-owner.patch). Remove this marker once applied.",
-)
 def test_workflows_build_without_isolation():
     bad = []
     for path in sorted((ROOT / ".github" / "workflows").glob("*.yml")):

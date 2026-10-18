@@ -157,7 +157,7 @@ jobs:
           # #4911: the full extra too -- test_feature_inventory_cli_check (feature_inventory.py --all-burned --check) exits 1 in
           # Zero-Dependency Mode and tells the user to install gitgalaxy[full]
           tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/test.txt
-          pip install -e ".[full]"
+          pip install --no-build-isolation -e ".[full]"
           # #4834: the det translator's parser, so the det tests that need the corpora run here (they are skipped
           # in full-suite, which has no corpora); same pin as smoke-test.yml
           tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/treesitter.txt

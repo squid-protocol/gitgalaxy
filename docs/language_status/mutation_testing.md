@@ -334,6 +334,13 @@ python tests/tools/det_mutation.py refresh --work DIR        # the generator mov
   `det_mutation.status(case, program)` is the evidence report's hook (#4603); `describe(status)` its one line.
 - A sample is a sample: L5 says every survivor **of the 150 judged** is accounted for, at that seed.
 
+**First ledgers (#4628 slice 2, 2026-10-18).** Neither program reaches L5 yet: the `unaccounted` survivors are `case-gap` / `harness-gap`, never loosened to equivalent.
+
+| program (case) | mutants run / in scope | killed | survived | stillborn | stated equivalent / unreachable | unaccounted | raw score | L5 |
+|---|---|---|---|---|---|---|---|---|
+| COSGN00C (carddemo-signon) | 150/1140 (seed 0) | 70 | 75 | 5 | 70 | 5 | 70/145 (48%) | no |
+| UPDCUST (cbsa-updcust) | 150/716 (seed 0) | 68 | 73 | 9 | 41 | 32 | 68/141 (48%) | no |
+
 **The crucible now has a byte-path scenario (#4965).** #5053 made the comparison page-aware, so the deterministic port
 of PCWIZ (and PCCONF, the program it LINKs/XCTLs to: 39/39 and 47/47 statements, no holes) is committed under
 `tests/cics_crucible/det-ports/pc-wizard` (not `ports/`: it is no model port, no provenance; `tests/tools/cics_crucible_det.py`

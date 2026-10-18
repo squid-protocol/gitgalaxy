@@ -58,7 +58,7 @@ jobs:
         run: |
           cd gitgalaxy
           python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
-          pip install -e .
+          pip install --no-build-isolation -e .
 
       - name: Fetch Language Crucible corpus (pinned in tests/crucible_pins.toml)
         run: |

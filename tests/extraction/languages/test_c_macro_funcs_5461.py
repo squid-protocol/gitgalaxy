@@ -33,7 +33,7 @@ def _names(lang: str, src: str) -> list[str]:
         ("CUSTOM_CVAR(Int, sv_x, 0, CVAR_ARCHIVE | CVAR_NOSET) { }\n", ["sv_x"]),
         ("TEST(Suite, Name) { }\nTEST_F(Fixture, Case) { }\n", ["Name", "Case"]),
         ("FUNC(LS_Door_Open)\n{\n}\n", ["LS_Door_Open"]),
-        ("    BEGIN_COMMAND(kill)\n    {\n    }\n", ["kill"]),
+        ("BEGIN_COMMAND(kill)\n{\n}\n", ["kill"]),
     ],
 )
 def test_macro_defined_function_is_named_by_its_identifier_argument(lang, src, expected):
@@ -78,3 +78,11 @@ def test_macro_branch_is_redos_immune(lang):
 def test_module_binder_macro_does_not_name_its_variable(lang):
     # `NB_MODULE(name, m) {`: `m` is the module variable, not the function's name.
     assert "m" not in _names(lang, "NB_MODULE(stablehlo_extension, m) { f(m); }\n")
+
+
+@pytest.mark.parametrize("lang", LANGS)
+def test_indented_statement_macro_inside_a_body_is_not_a_function(lang):
+    # godot gdscript_vm.cpp: `OPCODE(m_op)` expands to `case m_op:`, `OPCODE_WHILE(m_test)` to `while`.
+    src = "void run() {\n\tOPCODE_WHILE(true) {\n\t\tOPCODE(OPCODE_JUMP) {\n\t\t}\n\t}\n}\n"
+    names = _names(lang, src)
+    assert "true" not in names and "OPCODE_JUMP" not in names

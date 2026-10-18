@@ -3417,10 +3417,8 @@
         "Type Conversions": 1
       },
       "cpp/godot/gdscript_vm.cpp": {
-        "Compute Cores": 31,
-        "I/O & Config Routines": 27,
-        "Many-Argument Workhorses": 4,
-        "State Mutators": 39
+        "Compute Cores": 5,
+        "Many-Argument Workhorses": 3
       },
       "cpp/godot/main.cpp": {
         "Compute Cores": 4,

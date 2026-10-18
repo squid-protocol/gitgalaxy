@@ -1107,7 +1107,7 @@
       "cpp/godot/LICENSE.txt": 1.0,
       "cpp/godot/editor_node.cpp": 5994.8,
       "cpp/godot/editor_node.h": 105.02,
-      "cpp/godot/gdscript_vm.cpp": 3541.56,
+      "cpp/godot/gdscript_vm.cpp": 2214.86,
       "cpp/godot/main.cpp": 4858.94,
       "cpp/godot/main.h": 17.22,
       "cpp/godot/node.cpp": 2979.78,

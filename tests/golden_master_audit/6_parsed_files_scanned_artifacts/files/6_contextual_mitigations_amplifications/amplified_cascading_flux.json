@@ -437,7 +437,7 @@
     "cpp/godot": {
       "cpp/godot/editor_node.cpp": "573 instances",
       "cpp/godot/editor_node.h": "1 instances",
-      "cpp/godot/gdscript_vm.cpp": "386 instances",
+      "cpp/godot/gdscript_vm.cpp": "389 instances",
       "cpp/godot/main.cpp": "715 instances",
       "cpp/godot/node.cpp": "382 instances",
       "cpp/godot/node.h": "6 instances",

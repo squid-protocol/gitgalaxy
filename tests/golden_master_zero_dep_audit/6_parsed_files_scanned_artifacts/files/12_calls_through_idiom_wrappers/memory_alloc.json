@@ -17,12 +17,6 @@
         "Literal Sites": 1,
         "Wrapped Sites": 7
       }
-    },
-    "cpp/godot": {
-      "cpp/godot/gdscript_vm.cpp": {
-        "Literal Sites": 2,
-        "Wrapped Sites": 1
-      }
     }
   },
   "path": [

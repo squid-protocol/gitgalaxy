@@ -164,3 +164,22 @@ A translator fix is never a hand edit of a port.
 - **A relation involving NULL must skip `cond_relations` / `self.relation()`**, or the OSVS plan list goes out of step (#5203).
 - **`docker save <name>@sha256:...` + `docker load` drops the digest name** (a digest cannot be a local tag): a
   cache-restored digest-pinned image needs a local alias; check `docker image inspect <digest-ref>` after a load (#5265).
+- **Use a fresh `--work` dir for `det_port.py check`**: a reused scratch dir holds stale output that looks conclusive
+  (#4884). It removes its `base-tree`; to compare against main again, re-run the base from a fresh worktree (#5290).
+- **No equivalence case yet?** `det_survey.py --corpus <name> --program <path> --no-compile --work <scratch>`
+  translates one program in seconds. Design-doc blocker prose can outlive the fix: confirm with a translation run
+  before treating a program as blocked (#4949).
+- **A facade-only runtime helper goes in the generated service, gated on a translator flag, not in `det/cobolrt/**`**:
+  a `DetCics.java` edit moves ~every det port in `det_port.py check` (#5290). `FACADE_JAVA` in
+  `tests/tools/equivalence_cics.py` is a plain string spliced into an f-string: use a `__PKG__` placeholder replaced at
+  the call site, not `{pkg}` or doubled braces (#5290).
+- **`equivalence.py run --record` writes evidence.json even when the proof fails**: check the status line says
+  "proven" before committing (#5322). It prints "0/N events equal" for fault scenarios (java-facade mode, not a
+  failure): `det_port.py run` is the real proof (#5324).
+- **An unnamed option like `!1` aborts the whole CICS case run with an X8 bounds error**: name it in
+  `bounds_refused` or leave the scenario out (#5322).
+- **`proof_sweep.py --record-ledger` needs `--aggregate`**; otherwise `det_coverage_ledger.py update SWEEP_DIR`, rerun
+  after any case.json edit (#5324).
+- **A crucible port's overlay can contain the shared translator runtime**: sample only the port's own files or
+  mutation scores measure nothing (#5326). PROVENANCE `files` counts the crucible sample (4-30 files), not the
+  upstream tree (#5357).

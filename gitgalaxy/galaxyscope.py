@@ -33,6 +33,7 @@ from gitgalaxy.core.call_resolver import confident_file_pairs, resolve_calls
 from gitgalaxy.core.copy_libraries import load_copy_libraries
 from gitgalaxy.core.detector import HAS_TIKTOKEN, _compiled_rules
 from gitgalaxy.core.function_graph import attach_function_metrics, function_metrics
+from gitgalaxy.core.generated_fastlane import clean_directive_table_scan
 from gitgalaxy.core.guidestar_lens import GuideStarLens
 from gitgalaxy.core.invocation_resolver import resolve_invocations, resolve_transactions
 from gitgalaxy.core.mainframe_boundary import extract_boundary
@@ -224,6 +225,7 @@ def _init_worker(
     log_level: int,
     git_tracked: set[str],
     census: set[str],
+    offline: bool = False,
 ):
     """
     Initializes the CPU-bound optical modules within the worker process's isolated memory.
@@ -237,6 +239,10 @@ def _init_worker(
     """
     from gitgalaxy.core.detector import StructuralExtractor as OpticalDetector
 
+    if offline:  # #5235: a spawn-start worker is a fresh interpreter; the assess guard does not reach it by inheritance
+        from gitgalaxy.tools.readiness.offline import install as install_offline_guard
+
+        install_offline_guard()
     logging.getLogger().setLevel(log_level)
     worker_logger = logging.getLogger("GalaxyScope.Worker")
 
@@ -794,6 +800,15 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             if re.search(r"\.min\.[a-z]+$", rel_path, re.I) or any(v in safe_path for v in vendor_paths):
                 is_minified = True
 
+            # #3188: a large, repetitive preprocessor table skips only the Security Lens (the gate runs that lens
+            # over one line per distinct shape first); the detector still runs, so its signals are unchanged.
+            fast_scan = (
+                None
+                if is_minified
+                else clean_directive_table_scan(cast(str, content_buffer), lang_id, size_bytes, security)
+            )
+            fast_lane = fast_scan is not None
+
             # #3313 step 3: the file's idiom-wrapper facts; stays None for a
             # minified/vendor file, which skips the detector entirely.
             wrapper_facts = None
@@ -896,10 +911,14 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                 # #4548: the behaviour signals read the comment-blanked code stream, and are
                 # skipped on prose files (no executable surface); the raw text still feeds the
                 # comment-aware ones (dead_code, secrets, hidden unicode, entropy).
-                sec_results = security.scan_content(
-                    content_buffer,
-                    code_stream=refraction.get("code_stream"),
-                    prose=lang_id in ("plaintext", "markdown", "csv"),
+                sec_results = (
+                    fast_scan
+                    if fast_scan is not None
+                    else security.scan_content(
+                        content_buffer,
+                        code_stream=refraction.get("code_stream"),
+                        prose=lang_id in ("plaintext", "markdown", "csv"),
+                    )
                 )
 
                 # Additive, not an overwrite (#344): detector.py's own coding_analysis()
@@ -1218,6 +1237,7 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             "stem": Path(rel_path).stem.lower(),
             "lang_id": lang_id,
             "is_minified": is_minified,
+            **({"fast_lane": "directive_table"} if fast_lane else {}),
             "lock_tier": detection_result.get("lock_tier", 4),
             "intensity": detection_result.get("intensity", 0.0),
             "source_proof": detection_result.get("source_proof", "Discovery"),
@@ -2427,6 +2447,7 @@ class Orchestrator:
             worker_log_level,
             self.git_tracked_files,
             self.census,
+            os.environ.get("GITGALAXY_ASSESS_OFFLINE") == "1",
         )
         # #3913: never more workers than files, and none at all for a small scan (or a pinned
         # single worker) -- the files are extracted in this process, by the same worker code.

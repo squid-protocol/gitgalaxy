@@ -157,6 +157,7 @@ def test_start_refuses_a_development_estate_and_a_late_exclusion(started, tmp_pa
     assert any("eligibility changed after start" in e for e in trial.validate(ledger))
 
 
+@pytest.mark.slow(reason="rehearses a whole estate trial (10.5s on a CI runner, limit 15s)")
 def test_preview_rehearses_any_estate_and_writes_no_ledger(started, tmp_path, capsys):
     ledger_path = started["ledger"]
     before = ledger_path.read_bytes()
@@ -283,3 +284,27 @@ def test_a_retry_with_no_fix_is_the_models_and_a_recorded_attempt_is_never_rewri
     t = {"id": "t", "programs": {"P": {"attempts": [{**got[0], "outcome": "no-port"}], "final": "open"}}}
     with pytest.raises(SystemExit, match="never rewritten"):
         trial.sync(t, ev, [])
+
+
+def _proc(body: str, data: str = "") -> str:
+    return (
+        "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P1.\n       DATA DIVISION.\n"
+        f"       WORKING-STORAGE SECTION.\n{data}       PROCEDURE DIVISION.\n{body}"
+    )
+
+
+def test_display_is_an_output_channel_but_only_as_a_statement():
+    """#3806: SYSOUT is compared (#4056), so a program that only DISPLAYs is eligible; a USAGE DISPLAY clause,
+    a DISPLAY-... name, a comment or a data-division mention is not a statement."""
+    sk = {"program": {"language": "cobol"}}
+    shows = _proc("           DISPLAY 'HELLO'\n           GOBACK.\n")
+    assert trial.out_of_scope_reason(sk, shows, False) is None
+    for text in (
+        _proc("           GOBACK.\n", "       01  WS-A PIC 9 USAGE DISPLAY.\n"),
+        _proc("           MOVE 1 TO DISPLAY-COUNT\n           GOBACK.\n"),
+        _proc("      * DISPLAY 'NOT A STATEMENT'\n           GOBACK.\n"),
+        _proc("           MOVE 1 TO X *> DISPLAY 'x'\n           GOBACK.\n"),
+    ):
+        assert "DISPLAYs nothing" in trial.out_of_scope_reason(sk, text, False)
+    writes = {"sections": {"datasets": {"facts": [{"internal_name": "O", "modes": ["OUTPUT"]}]}}, **sk}
+    assert trial.out_of_scope_reason(writes, _proc("           GOBACK.\n"), False) is None

@@ -508,6 +508,12 @@ def test_a_linked_program_never_inherits_the_cases_coverage_and_its_ledger_verdi
     """LGSTSQ is only LINKed by the GenApp Db2 cases (here only DB2_CASE has a ledger entry): equal by the ledger is L2 (no coverage of its own, #4270),
     stale with the entry it rests on."""
     stale = {"coverage": DB2_COV, "stale_inputs": ["oracle"], "stale_since": "abc1234def5678"}
+    # the VSAM front ends (lgapvs01, lgupvs01) LINK LGSTSQ too, and CI's ratchet proves them current (#5252): keep only
+    # the Db2 case, which is the one this test is about
+    real = er.pb.equivalence_runs
+    monkeypatch.setattr(
+        er.pb, "equivalence_runs", lambda: {k: [r for r in v if r.case == DB2_CASE] for k, v in real().items()}
+    )
     db2_fixture(tmp_path, monkeypatch, stale, isolate=True)
     rep = json.loads((tmp_path / GENAPP / "report.json").read_text("utf-8"))
     p = next(p for p in rep["programs"] if p["program"].endswith("lgstsq.cbl"))

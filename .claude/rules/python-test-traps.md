@@ -25,3 +25,20 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
   must stay stdlib-only (#5265).
 * **A trailing `# comment` on a `.gitignore` pattern line becomes part of the pattern** (`git check-ignore` fails and
   `test_no_page_is_committed_and_each_is_ignored` goes red): put comments on their own line (#5287).
+* **X-Ray reads only a file's first 8 KB:** splitting a family into a small new module can pull a long literal (IBM's
+  channel-name charset) into that window and trip it (#5289).
+* **ruff S608 flags `x + """..."""`** when the string holds SQL-like words; build it with `+=` statements (#5289).
+* **`fact_channels.py` must not import the recorder or rehydrator** (import cycle): restore selects get
+  `has_table` / `has_column` injected (#5410).
+* **`test_java_matrix_gate.py` needs `tests/tools` on `PYTHONPATH`** when run alone (#5382). Raising the Python
+  floor drops the old CI matrix legs in the same PR (#5370).
+
+## CI and workflow traps
+* On a path-filtered workflow, key caches by `hashFiles` of the inputs, not the sha: the sha only has an entry for
+  commits that triggered the workflow (#5184).
+* A step that runs `git diff origin/main...HEAD` needs `fetch-depth: 0`; the shallow default has no merge base, so a
+  planner silently falls back to "full" (#5191).
+* A rerun that "passes on the same SHA" may be main moving under a stale PR: check the failed test against main's
+  recent commits before calling it a flake (#5184).
+* A cics-crucible `case.json` can list a `sources.copy` directory that is not on disk (git carries no empty dir):
+  guard `iterdir()` on case dirs (#5192).

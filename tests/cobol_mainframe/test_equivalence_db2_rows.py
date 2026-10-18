@@ -232,6 +232,29 @@ def test_the_updacc_port_holds_on_generated_db2_rows(tmp_path):
     assert {x["sqlcode"] for q in sql for x in q["cobol"]} >= {0, 100}
 
 
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_inqacc_port_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's INQACC (CICS, Db2 cursor) proves on 30 generated ACCOUNT rows and 41 LINKs: statements answered alike,
+    the table alike after every task, and a generated NULL last-statement date reaches FETCH -305 and the ABNDPROC
+    LINK + HRAC abend on both sides (the harness folds -304 / -305 into the fetched row: the abend is the proof)."""
+    import json
+    import shutil
+    import subprocess
+
+    if not shutil.which("docker"):
+        pytest.skip("no docker")
+    tool = Path(__file__).resolve().parents[1] / "tools" / "equivalence.py"
+    proc = subprocess.run([sys.executable, str(tool), "run", "cbsa-inqacc-generated", "--keep", str(tmp_path)],  # noqa: S603
+                          capture_output=True, text=True, check=False)  # fmt: skip
+    assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
+    report = json.loads((tmp_path / "report.json").read_text())
+    assert report["proven"] is True and report["db2_generated"] == {"IBMUSER.ACCOUNT": 30}
+    outs = list(report["outputs"].values())
+    assert len(outs) == 41 and all(o["sql"]["statements"] and o["sql"]["equal"] == o["sql"]["statements"] for o in outs)
+    assert {x["sqlcode"] for o in outs for x in o["sql"]["cobol"]} >= {0, 100}
+    assert any(e.get("abcode") == "HRAC" for o in outs for e in o["cobol"])
+
+
 _BATCH_CBL = """\
        FD TR-RECORD RECORDING MODE F.
        01 WS-INPUT-VARS.

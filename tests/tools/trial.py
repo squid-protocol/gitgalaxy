@@ -170,7 +170,7 @@ def out_of_scope_reason(skeleton: dict[str, Any], text: str, shipped: bool) -> s
     """Why the equivalence harness cannot run a program (None: eligible). The batch harness runs a COBOL
     program under GnuCOBOL with a driver, loads its input files (generated from their copybook layouts,
     #3804, or shipped) and compares its output files record by record -- so the program must be batch COBOL
-    with no database, IMS or MQ side, write at least one file, and have a record layout for every input."""
+    with no database, IMS or MQ side, write at least one file or DISPLAY (SYSOUT is compared, #4056), and have a record layout for every input."""
     for rule, reason in ELIGIBILITY_RULES:
         if rule(skeleton, text, shipped):
             return reason
@@ -181,8 +181,27 @@ def _not_cobol(sk: dict[str, Any], _t: str, _s: bool) -> bool:
     return (sk.get("program", {}).get("language") or "").lower() != "cobol"
 
 
-def _no_output(sk: dict[str, Any], _t: str, _s: bool) -> bool:
-    return not any(_WRITES & set(d.get("modes") or []) for d in _sections(sk, "datasets"))
+_PROCEDURE = re.compile(r"\bPROCEDURE[ \t\n]{1,20}DIVISION\b", re.I)
+_DISPLAY_STMT = re.compile(r"(?<![\w-])DISPLAY(?![\w-])", re.I)
+
+
+def _displays(text: str) -> bool:
+    """Whether the PROCEDURE DIVISION holds a DISPLAY statement (SYSOUT is a proved channel, #4056). The data
+    division's USAGE DISPLAY clause, comment lines and DISPLAY-... names are not statements."""
+    code = []
+    for line in text.splitlines():
+        if line[6:7] in ("*", "/") or line.lstrip().startswith("*>"):
+            continue
+        code.append(line.split("*>", 1)[0])
+    body = "\n".join(code)
+    m = _PROCEDURE.search(body)
+    return bool(m and _DISPLAY_STMT.search(body, m.end()))
+
+
+def _no_output(sk: dict[str, Any], t: str, _s: bool) -> bool:
+    if any(_WRITES & set(d.get("modes") or []) for d in _sections(sk, "datasets")):
+        return False
+    return not _displays(t)
 
 
 def _input_without_layout(sk: dict[str, Any], _t: str, shipped: bool) -> bool:
@@ -198,7 +217,7 @@ ELIGIBILITY_RULES = (
     (lambda _k, t, _s: bool(_SQL.search(t)), "DB2 (EXEC SQL): the harness has no database side"),
     (lambda _k, t, _s: bool(_IMS.search(t)), "IMS (DL/I): the harness has no IMS side"),
     (lambda _k, t, _s: bool(_MQ.search(t)), "MQ calls: the harness has no queue manager"),
-    (_no_output, "writes no file: the harness has no output records to compare"),
+    (_no_output, "writes no file and DISPLAYs nothing: the harness has no output to compare"),
     (_input_without_layout, "an input file with no copybook record layout: its records cannot be generated (#3804)"),
 )
 

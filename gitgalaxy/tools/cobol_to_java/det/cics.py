@@ -1319,20 +1319,23 @@ class Cics(ContainerCommands):
                 call = "setTdQueueEnableStatus" if o == "ENABLESTATUS" else "setTdQueueOpenStatus"
                 return [f"{ind}int[] {r} = task.{call}({queue}, {self.int_(_arg(opts[o]))});",
                         *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
-            wanted = [o for o in ("OPENSTATUS", "TYPE", "ENABLESTATUS") if opts.get(o)]
+            order = ("OPENSTATUS", "TYPE", "ENABLESTATUS", "TRIGGERLEVEL", "RECOVSTATUS", "TRANSID")
+            wanted = [o for o in order if opts.get(o)]
             if not wanted:
                 raise CicsError(_requires(key, "TDQUEUE", "OPENSTATUS"))
-            # the 3-argument call (the round 3 shape) unless ENABLESTATUS is asked for
-            wants = ", ".join(
-                str(o in wanted).lower()
-                for o in ("OPENSTATUS", "TYPE", "ENABLESTATUS")[: 3 if "ENABLESTATUS" in wanted else 2]
+            # the 3-argument call (the round 3 shape) unless ENABLESTATUS is asked for; the 6-argument one (round 6) for the ATI options
+            width = (
+                6 if {"TRIGGERLEVEL", "RECOVSTATUS", "TRANSID"} & set(wanted) else 3 if "ENABLESTATUS" in wanted else 2
             )
+            wants = ", ".join(str(o in wanted).lower() for o in order[:width])
             lines = [f"{ind}int[] {r} = task.inquireTdQueue({queue}, {wants});", f"{ind}if ({r}[0] == 0) {{"]
-            for o, i in (("OPENSTATUS", 2), ("TYPE", 3), ("ENABLESTATUS", 4)):
+            for o, i in (("OPENSTATUS", 2), ("TYPE", 3), ("ENABLESTATUS", 4), ("TRIGGERLEVEL", 5), ("RECOVSTATUS", 6)):
                 if o in wanted:
                     lines.append(
                         ind + "    " + g.store_into(self.ref(_arg(opts[o])), f"BigDecimal.valueOf({r}[{i}])", False)
                     )
+            if "TRANSID" in wanted:
+                lines.append(f"{ind}    Cobol.move(task.tdTransid({queue}), {self.field(_arg(opts['TRANSID']))}, CS);")
             return [*lines, f"{ind}}}", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
         if verb == "INQUIRE" and "PROGRAM" in opts:
             r = g.tmpname("resp")

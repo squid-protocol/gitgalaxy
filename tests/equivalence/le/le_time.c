@@ -11,6 +11,7 @@
  *   CALL "CEEDATE" USING input_Lilian_date, picture_string, output_char_date, fc
  *   CALL "CEEISEC" USING year, month, day, hours, minutes, seconds, milliseconds, output_seconds, fc
  *   CALL "CEEQCEN" USING century_start, fc
+ *   CALL "CEEGMTO" USING offset_hours, offset_minutes, offset_seconds, fc      (CEEUTCO: the same)
  * (IBM z/OS Language Environment Programming Reference; the message list per service is the one IBM publishes for the
  * ILE CEE APIs, the same service definitions: register L6.) Lilian day 1 is 15 October 1582; Lilian second 86400 is
  * 00:00:00 on that day. Lilian dates are fullword binary, seconds a native IEEE double here (COMP-2; the Java side
@@ -226,6 +227,24 @@ int CEEGMT(unsigned char *lilian, unsigned char *seconds, unsigned char *fc) {
 
 int CEEUTC(unsigned char *lilian, unsigned char *seconds, unsigned char *fc) {
     return gmt(lilian, seconds, fc);
+}
+
+/* CEEGMTO / CEEUTCO: the offset from GMT to local time. The pinned clock is GMT (+0000), so hours, minutes and seconds
+ * are zero (register L6, assumption 1). */
+static int gmto(unsigned char *hours, unsigned char *minutes, unsigned char *seconds, unsigned char *fc) {
+    put_int(hours, 0);
+    put_int(minutes, 0);
+    put_double(seconds, 0.0);
+    put_fc(fc, 0);
+    return 0;
+}
+
+int CEEGMTO(unsigned char *hours, unsigned char *minutes, unsigned char *seconds, unsigned char *fc) {
+    return gmto(hours, minutes, seconds, fc);
+}
+
+int CEEUTCO(unsigned char *hours, unsigned char *minutes, unsigned char *seconds, unsigned char *fc) {
+    return gmto(hours, minutes, seconds, fc);
 }
 
 int CEEQCEN(unsigned char *century, unsigned char *fc) {

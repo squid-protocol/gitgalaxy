@@ -1885,10 +1885,14 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
                 return ([queue, f"MOVE {opts['ENABLESTATUS']} TO GG-NUM"] + _call("GGCSTDE", [])
                         + _resp(opts, True, labels))  # fmt: skip
             return [queue, f"MOVE {opts['OPENSTATUS']} TO GG-NUM"] + _call("GGCSTDQ", []) + _resp(opts, True, labels)
-        wanted = [o for o in ("OPENSTATUS", "TYPE", "ENABLESTATUS") if opts.get(o)]
+        wanted = [
+            o for o in ("OPENSTATUS", "TYPE", "ENABLESTATUS", "TRIGGERLEVEL", "RECOVSTATUS", "TRANSID") if opts.get(o)
+        ]
         if not wanted:
             raise Unsupported(_rule(key, "requires", "TDQUEUE"), [key])
-        field = {"OPENSTATUS": "GG-NUM", "TYPE": "GG-LEN", "ENABLESTATUS": "GG-ITEM"}
+        # #5168 round 6 (X66): TRIGGERLEVEL, RECOVSTATUS and TRANSID come back in the otherwise unused GG-HOURS, GG-MINS, GG-RTRAN
+        field = {"OPENSTATUS": "GG-NUM", "TYPE": "GG-LEN", "ENABLESTATUS": "GG-ITEM", "TRIGGERLEVEL": "GG-HOURS",
+                 "RECOVSTATUS": "GG-MINS", "TRANSID": "GG-RTRAN"}  # fmt: skip
         return ([queue, f"MOVE '{' '.join(wanted)}' TO GG-FLAGS"] + _call("GGCITDQ", []) + ["IF GG-RESP = 0"]
                 + [f"    MOVE {field[o]} TO {opts[o]}" for o in wanted]
                 + ["END-IF"] + _resp(opts, True, labels))  # fmt: skip
@@ -3848,6 +3852,16 @@ def channel_copy(path: Path) -> dict[str, Any]:
             "containers": {w[0]: "" if w[2] == "-" else w[2].upper() for w in (ln.split() for ln in lines[1:])}}  # fmt: skip
 
 
+# the SEND TEXT options the COBOL translation passes to the stub (GG-FLAGS holds 40 characters); the Java side records
+# every TEXT_OPTIONS flag, so it is compared on these only (PRINT, INVITE, DEFRESP, STRFIELD are not forwarded)
+TEXT_OPTIONS_FORWARDED = ("ERASE", "FREEKB", "ALARM", "WAIT", "LAST")
+
+
+def _text_options(args: str) -> list[str]:
+    """#5401: a SEND-TEXT line's options, sorted, without the stub's TEXT / DATA kind marker."""
+    return sorted(o for o in args.partition("opts=")[2].split() if o not in ("TEXT", "DATA"))
+
+
 def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[str, Any]]) -> dict[str, Any]:
     """A task's outputs from the stub's log: `events` (every command, in order), `screens`
     ([{map, fields}] per SEND MAP, data fields only: <name>O -> <name>), `text` (SEND TEXT),
@@ -3885,6 +3899,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
         elif verb == "SEND-TEXT":
             text = common._decode_text(data, enc)  # #3815: not text in the page -> the bytes shown, never dropped
             res["text"].append(f"<undecodable {data!r} in {enc}>" if text is None else text.rstrip(" \x00"))
+            res.setdefault("text_options", []).append(_text_options(args))
         # the task's own (a LINK level's: no); a RETURN IMMEDIATE that failed (it has a resp, #4270) went on in the program
         elif verb in ("RETURN", "XCTL") and int(kv.get("level", "1")) <= 1 and not (verb == "RETURN" and "resp" in kv):
             key = "transid" if verb == "RETURN" else "program"
@@ -5450,6 +5465,7 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     """The COBOL task's outputs as the event list CicsTask records."""
     out: list[dict[str, Any]] = []
     screens, texts, records = iter(res["screens"]), iter(res["text"]), iter(res.get("td", []))
+    text_options = iter(res.get("text_options", []))
     queued = iter(res.get("ts", []))
     operator = iter(res.get("operator", []))
     reads = iter(res.get("reads", []))  # #4270: READQ TS / terminal RECEIVE
@@ -5466,8 +5482,8 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             s = next(screens)
             out.append({"event": "SEND-MAP", "map": s["map"], "screen": s["fields"], "subfields": s["subfields"],
                         "options": s["options"], "cursor": s["cursor"]})  # fmt: skip
-        elif verb == "SEND-TEXT":
-            out.append({"event": "SEND-TEXT", "text": next(texts)})
+        elif verb == "SEND-TEXT":  # #5401: its options too, as CicsTask.sendText records them
+            out.append({"event": "SEND-TEXT", "text": next(texts), "options": next(text_options, [])})
         elif verb == "SEND-CONTROL":  # #4270: CicsTask.sendControl records it -- its options and CURSOR's offset
             cur = int((re.search(r"\bcursor=(-?\d+)", args) or [None, "-1"])[1])
             out.append({"event": "SEND-CONTROL", "options": args.partition("opts=")[2].split(),
@@ -5662,6 +5678,10 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
                     continue
                 if not same(cv[name], jv.get(name)):
                     bad.append({"field": f"{part}.{name}", "cobol": cv[name], "java": jv.get(name)})
+        if c["event"] == "SEND-TEXT" and "options" in c:  # #5401: the options the translation forwards, both ways
+            java_options = sorted(o for o in j.get("options") or [] if o in TEXT_OPTIONS_FORWARDED)
+            if c["options"] != java_options:
+                bad.append({"field": "options", "cobol": c["options"], "java": java_options})
         if c["event"] == "SEND-CONTROL":  # #4270: ERASE / FREEKB / ALARM ... and the cursor, as the crucible compares
             if sorted(c.get("options") or []) != sorted(j.get("options") or []):
                 bad.append({"field": "options", "cobol": c.get("options"), "java": j.get("options")})

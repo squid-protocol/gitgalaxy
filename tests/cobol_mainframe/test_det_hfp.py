@@ -511,3 +511,55 @@ def test_the_4688_statements_translate_in_float_mode(stmt, tmp_path):
     r = P.translate(cbl, [], "public class F4688Service {\n}\n", "p", None, tmp_path / "project")
     assert r.stats["holes"] == [], r.stats["holes"]
     assert "Hfp." in r.java or stmt.startswith("MOVE"), r.java
+
+
+# ---- floating-point exponentiation: the whole shape class is refused by name (#4271, EPSMPMT) -------------------
+
+EXPO_DATA = """       01 S1 COMP-1 VALUE 1.5.
+       01 L1 COMP-2 VALUE 2.
+       01 N  PIC 9(3)V99 VALUE 2.5.
+       01 R  PIC 9(5)V99.
+       01 K  PIC 9(3) VALUE 3.
+"""
+
+
+def _translate_expo(stmt, tmp_path):
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    cbl = tmp_path / "EXPO.cbl"
+    cbl.write_text("       IDENTIFICATION DIVISION.\n       PROGRAM-ID. EXPO.\n       DATA DIVISION.\n"
+                   "       WORKING-STORAGE SECTION.\n" + EXPO_DATA + "       PROCEDURE DIVISION.\n"
+                   f"           {stmt}\n           GOBACK.\n", encoding="ascii")  # fmt: skip
+    (tmp_path / "project").mkdir()
+    return P.translate(cbl, [], "public class ExpoService {\n}\n", "p", None, tmp_path / "project")
+
+
+@pytest.mark.parametrize(
+    "stmt",
+    [
+        "COMPUTE L1 = S1 ** 2",  # a COMP-1 base, integer literal exponent
+        "COMPUTE L1 = L1 ** 2",  # a COMP-2 base
+        "COMPUTE L1 = L1 ** N",  # an exponent with decimal places
+        "COMPUTE L1 = L1 ** K",  # an integer item as the exponent
+        "COMPUTE L1 = L1 ** -2",  # a negative exponent
+        "COMPUTE L1 = 2 ** S1",  # a float exponent
+        "COMPUTE L1 = (1 + S1) ** N",  # EPSMPMT's shape: a parenthesised base, decimal exponent
+        "COMPUTE L1 = 1 + (S1 ** 2) * 3",  # nested in a larger float expression
+        "COMPUTE R = L1 ** 2",  # a fixed-point receiver with a float operand
+        "COMPUTE R = N ** S1",  # a fixed-point base, float exponent
+        "IF L1 ** 2 > 3 DISPLAY 'Y' END-IF",  # in a comparison
+    ],
+)
+def test_a_floating_point_exponentiation_is_a_named_hole_in_every_shape(stmt, tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    r = _translate_expo(stmt, tmp_path)
+    holes = r.stats["holes"]
+    assert len(holes) == 1 and "exponentiation in a floating-point expression" in holes[0], holes
+    assert "C6" in holes[0]
+
+
+@pytest.mark.parametrize("stmt", ["COMPUTE R = N ** 2", "COMPUTE R = K ** K", "COMPUTE R = (N + 1) ** 2 + K"])
+def test_a_fixed_point_exponentiation_is_not_refused(stmt, tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    r = _translate_expo(stmt, tmp_path)
+    assert r.stats["holes"] == [], r.stats["holes"]

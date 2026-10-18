@@ -70,6 +70,7 @@ class LiftViolation(Exception):
 LIBRARY = {
     "CEEDAYS": ("__PACKAGE__.cobolrt.le.Ceedays.call", 4),
     "COBDATFT": ("__PACKAGE__.cobolrt.le.Cobdatft.call", 1),
+    "MVSWAIT": ("__PACKAGE__.cobolrt.le.Mvswait.call", 1),  # #5106: CardDemo's assembler wait (COBSWAIT)
     "CEELOCT": ("__PACKAGE__.cobolrt.le.Ceeloct.call", 4),  # #4884: also takes the clock first and the charset last
     # #4949: the LE date/time services (register L6); each is the twin of tests/equivalence/le/le_time.c
     "CEEGMT": ("__PACKAGE__.cobolrt.le.Ceegmt.call", 3),
@@ -79,6 +80,9 @@ LIBRARY = {
     "CEEDATE": ("__PACKAGE__.cobolrt.le.Ceedate.call", 4),
     "CEEISEC": ("__PACKAGE__.cobolrt.le.Ceeisec.call", 9),
     "CEEQCEN": ("__PACKAGE__.cobolrt.le.Ceeqcen.call", 2),
+    # #5003: the offset from GMT (zero: the run's clock is GMT); CEEUTCO is the same service as CEEGMTO
+    "CEEGMTO": ("__PACKAGE__.cobolrt.le.Ceegmto.call", 4),
+    "CEEUTCO": ("__PACKAGE__.cobolrt.le.Ceegmto.call", 4),
 }
 LIBRARY_CLOCK = {
     "CEELOCT",
@@ -90,7 +94,16 @@ LIBRARY_CLOCK = {
 # #5119 (X56): the CALLs det/bll.py lowers OS/VS COBOL's chained storage areas to (`MOVE cell TO fullword`, `MOVE fullword TO
 # cell`, a record re-addressed at a paragraph name); the oracle's stub (ggcics.c) has the first two, and sees SET ADDRESS OF
 BLL_CALLS = ("GGCBLLP", "GGCBLLG", "GGCBLLR")
-LIBRARY_FLOATS = {"CEELOCT": {1}, "CEEGMT": {1}, "CEEUTC": {1}, "CEEDATM": {0}, "CEESECS": {2}, "CEEISEC": {7}}
+LIBRARY_FLOATS = {
+    "CEELOCT": {1},
+    "CEEGMT": {1},
+    "CEEUTC": {1},
+    "CEEDATM": {0},
+    "CEESECS": {2},
+    "CEEISEC": {7},
+    "CEEGMTO": {2},
+    "CEEUTCO": {2},
+}
 LIBRARY_CHARSET = {*LIBRARY_CLOCK, *LIBRARY_FLOATS, "CEEDATE", "CEEQCEN"}
 
 
@@ -308,6 +321,14 @@ class Gen:
     def address_record(self, name: str) -> str:
         """#4771 (X47): the Field of a LINKAGE 01 record whose storage a pointer can address (it has storage of its own)."""
         it = self.resolve(E.Ref(name.upper()))
+        if getattr(it, "level", None) not in (
+            None,
+            1,
+        ):  # ZECS001's ZF-DATA: an offset into its record, no storage of its own
+            raise Untranslatable(
+                f"ADDRESS OF {name}: a subordinate item is an offset into its record, not a LINKAGE 01 record "
+                "(needs a Storage window; not modelled)"
+            )
         if getattr(it, "section", None) != "LINKAGE" or getattr(it, "level", None) != 1:
             raise Untranslatable(f"ADDRESS OF {name}: not a LINKAGE 01 record (not modelled)")
         return self.field_expr(E.Ref(name.upper()))
@@ -2052,7 +2073,9 @@ class Gen:
             for t in s.data["targets"]:
                 f = self.field_expr(t)
                 op = "add" if s.data["up"] else "subtract"
-                out.append(f"{ind}Cobol.store({f}, Cobol.num({f}, CS).{op}({self.num(s.data['by'])}), false, CS);")
+                out.append(
+                    f"{ind}Cobol.store({f}, Cobol.receiverNum({f}, CS).{op}({self.num(s.data['by'])}), false, CS);"
+                )  # #4692
             return out
         if k == "CALL":
             return [c, *self.call(s, ind)]
@@ -2080,6 +2103,11 @@ class Gen:
                     return [c, *self.sql.command(s.text, s.line, ind)]
                 except (self.sql.Error, E.ExprError, KeyError) as e:
                     raise Untranslatable(f"EXEC SQL: {e}") from e
+            if len(words) > 1 and words[1].upper() == "DLI":  # #5278: SCHD / TERM under CICS (det/dli.py)
+                try:
+                    return [c, *dli.command(self, s.text, ind)]
+                except (E.ExprError, KeyError) as e:
+                    raise Untranslatable(f"EXEC DLI: {e}") from e
             if self.cics is None or len(words) < 2 or words[1].upper() != "CICS":
                 raise Untranslatable("EXEC " + (words[1] if len(words) > 1 else ""))
             from gitgalaxy.tools.cobol_to_java.det.cics import CicsError
@@ -2648,7 +2676,7 @@ class Gen:
                 if not isinstance(frm, (E.Bin, E.Neg))
                 else f"Cobol.store({f}, {self.num(frm)}, false, CS);"
             )
-            step = f"Cobol.store({f}, Cobol.num({f}, CS).add({self.num(by)}), false, CS);"
+            step = f"Cobol.store({f}, Cobol.receiverNum({f}, CS).add({self.num(by)}), false, CS);"  # #4692: read before stored
             self.leak = leak_before
             until_code = self.cond_top(until)
             self.leak = leak_after

@@ -208,7 +208,7 @@
     {
       "id": "site-routine",
       "match": "^CALL CALL MVSWAIT\\b",
-      "note": "A site routine no estate holds (CardDemo COBSWAIT): no program, no model.",
+      "note": "CALL MVSWAIT (CardDemo COBSWAIT): modelled since #5106 (det LIBRARY entry, Mvswait.java, tests/equivalence/le/mvswait.c; returns at once, RETURN-CODE 0, storage untouched; register A1). The report lines move once the program is translated; COBSWAIT is not proven until the oracle has a SYSIN feed (accept-sysin).",
       "issue": 5106
     },
     {

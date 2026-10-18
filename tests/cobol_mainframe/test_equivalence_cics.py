@@ -591,6 +591,34 @@ def test_send_control_is_an_event_both_sides_compare_by_options_and_cursor():
     assert ec.compare_events(cobol, java[1:])["equal"] == 0
 
 
+def test_send_text_options_are_compared_both_sides():
+    """#5401 (COCRDSLC mutant 0173a35c74): SEND TEXT compared by text only let an options-changing mutant read as
+    proven. The stub's opts line (kind marker dropped) is compared with CicsTask's, on the options the stub gets."""
+    res = {"events": ["SEND-TEXT len=5 opts=TEXT FREEKB ERASE", "SEND-TEXT len=2 opts=DATA", "SEND-TEXT len=1",
+                      "RETURN pgm=P level=1 transid= len=0"],
+           "screens": [], "text": ["HELLO", "HI", "X"], "text_options": [ec._text_options(a) for a in
+                                                                         ("opts=TEXT FREEKB ERASE", "opts=DATA", "")],
+           "return": {"transid": "", "commarea": None}}  # fmt: skip
+    cobol = ec.cobol_events(res)
+    assert [c["options"] for c in cobol[:3]] == [["ERASE", "FREEKB"], [], []]
+    ret = {"event": "RETURN", "transid": None, "commarea": None}
+
+    def java(*opts):
+        return [{"event": "SEND-TEXT", "text": t, "options": o} for t, o in zip(("HELLO", "HI", "X"), opts)] + [ret]
+
+    same = java(["ERASE", "FREEKB"], [], [])
+    assert ec.compare_events(cobol, same)["equal"] == 4
+    assert ec.compare_events(cobol, java(["FREEKB", "ERASE"], [], []))["equal"] == 4  # order
+    assert ec.compare_events(cobol, java(["ERASE", "FREEKB", "PRINT"], [], []))["equal"] == 4  # not forwarded
+    for wrong in (["ERASE"], ["ERASE", "FREEKB", "ALARM"], ["ERASE", "WAIT"], []):  # missing, extra, other
+        got = ec.compare_events(cobol, java(wrong, [], []))
+        assert got["equal"] == 3 and got["diffs"][0]["fields"][0]["field"] == "options"
+    assert ec.compare_events(cobol, java(["ERASE", "FREEKB"], ["ERASE"], []))["equal"] == 3
+    assert ec.compare_events(cobol, java(["ERASE", "FREEKB"], [], ["LAST"]))["equal"] == 3
+    other_text = [{**same[0], "text": "BYE"}, *same[1:]]
+    assert ec.compare_events(cobol, other_text)["equal"] == 3
+
+
 def test_a_tasks_terminal_and_origin_are_stated_facts_or_none():
     """#4270: "termid" / "uctranst" / "origin" -- the scenario's, else the case's; unstated None (the commands that
     read them are then refused by both runtimes); a malformed one refused by name."""
@@ -2676,3 +2704,19 @@ def test_a_syncpoint_rollback_restarts_the_file_unit_of_work_instead_of_ending_i
     assert java.count("status.setRollbackOnly();") >= 2  # the refused and failed-run paths: the current unit
     restart = java[java.index("void restart()") :].split("void end()")[0]
     assert "tm.rollback(st);" in restart and "tm.getTransaction(" in restart
+
+
+@pytest.mark.parametrize("case", ["carddemo-acctview", "carddemo-cardview", "carddemo-signon"])
+def test_a_carddemo_hand_ports_send_text_carries_the_erase_freekb_its_cobol_passes(case):
+    """#5440: every CardDemo SEND TEXT ends ERASE FREEKB; #5412 compares the options, so a port that drops them fails."""
+    import re
+
+    sent = []
+    for src in sorted((Path(__file__).resolve().parents[1] / "equivalence" / case / "port").rglob("*.java")):
+        for call in re.findall(r"\.sendText\((.*?)\);", src.read_text(encoding="utf-8"), re.S):
+            # the one SEND FROM(ABEND-DATA) in COCRDSLC is a plain SEND, not SEND TEXT: it has no options
+            if "abendCode" not in call and "data, 134" not in call:
+                sent.append(call)
+    assert sent, "the port sends no text: the scan found nothing to check"
+    for call in sent:
+        assert '"ERASE"' in call and '"FREEKB"' in call, call

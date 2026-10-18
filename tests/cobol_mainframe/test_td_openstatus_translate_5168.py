@@ -51,12 +51,15 @@ def test_the_stub_translates_set_and_inquire():
             "only an extrapartition queue's open state and a queue's availability",
         ),
         (
-            "INQUIRE TDQUEUE(WS-Q) TRIGGERLEVEL(WS-L) OPENSTATUS(WS-O)",
+            "INQUIRE TDQUEUE(WS-Q) ATIFACILITY(WS-L) OPENSTATUS(WS-O)",
             "only an extrapartition queue's open state and a queue's availability",
         ),
         ("INQUIRE TDQUEUE START", "only an extrapartition queue's open state and a queue's availability"),
         ("SET TDQUEUE(WS-Q)", "SET TDQUEUE without OPENSTATUS or ENABLESTATUS"),
-        ("INQUIRE TDQUEUE(WS-Q) RESP(R)", "INQUIRE TDQUEUE without OPENSTATUS, TYPE or ENABLESTATUS"),
+        (
+            "INQUIRE TDQUEUE(WS-Q) RESP(R)",
+            "INQUIRE TDQUEUE without OPENSTATUS, TYPE, ENABLESTATUS, TRIGGERLEVEL, RECOVSTATUS or TRANSID",
+        ),
     ],
 )
 def test_every_other_form_is_refused_by_name_on_both_translators(text, why):

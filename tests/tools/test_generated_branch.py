@@ -190,6 +190,21 @@ def test_the_evidence_report_is_published_not_committed_by_the_refresh_bot():
     assert 'EVIDENCE_REPORT_WRITE_INDEX: "1"' in code  # #5206: the index is written in the refresh job only
 
 
+def test_the_estate_rollup_is_published_not_committed_and_never_blocks_the_report():
+    """#4054: estate_evidence.py writes outside the repo (--out), the roll-up is published on its own path and stamp,
+    and a failure of either step leaves the L0-L5 report's publish alone."""
+    code = _code("evidence-refresh.yml")
+    add_paths = code.split("add-paths: |", 1)[1].split("- name:", 1)[0]
+    assert "estate_evidence" not in add_paths
+    build = code.split("id: estate", 1)[1].split("- name:", 1)[0]
+    assert "continue-on-error: true" in build
+    assert 'estate_evidence.py --out "$RUNNER_TEMP/' in build
+    publish = code.split("publish-report:", 1)[1].split("\n  publish-blockers:", 1)[0]
+    assert "docs/language_status/estate_evidence" in publish
+    assert "--stamp estate-evidence" in publish and "--stamp evidence-report" in publish
+    assert "docs/language_status/evidence_report/estate" not in code
+
+
 def test_the_ground_truth_pr_job_holds_no_write_token():
     """The job that runs PR code only reads; the publish to generated is a separate, main-only job."""
     code = _code("mainframe-ground-truth.yml")

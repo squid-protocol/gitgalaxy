@@ -32,6 +32,9 @@
   "le-pr": {
    "title": "IBM z/OS Language Environment Programming Reference"
   },
+  "carddemo-mvswait": {
+   "title": "CardDemo app/asm/MVSWAIT.asm -- the estate's own assembler routine (no IBM manual applies; the source is the reference)"
+  },
   "carddemo-cobdatft": {
    "title": "CardDemo app/asm/COBDATFT.asm -- the estate's own assembler routine (no IBM manual applies; the source is the reference)"
   },
@@ -212,16 +215,18 @@
     "le/Ceedatm.java",
     "le/Ceedays.java",
     "le/Ceegmt.java",
+    "le/Ceegmto.java",
     "le/Ceeisec.java",
     "le/Ceeloct.java",
     "le/Ceeqcen.java",
     "le/Ceesecs.java",
     "le/Ceeutc.java",
     "le/Cobdatft.java",
-    "le/LeTime.java"
+    "le/LeTime.java",
+    "le/Mvswait.java"
    ],
    "done": true,
-   "about": "The date / time services and COBDATFT, as the harness's C models do them.",
+   "about": "The date / time services, COBDATFT and MVSWAIT, as the harness's C models do them.",
    "plumbing": []
   },
   {
@@ -817,11 +822,14 @@
   {
    "id": "RT-CBL-RECEIVER-NONDIGIT-REFUSED",
    "family": "CBL",
-   "title": "The receiver of ADD / SUBTRACT / MULTIPLY / DIVIDE is read before it stores: a zoned receiver holding a non-digit is refused by name",
+   "title": "The receiver of ADD / SUBTRACT / MULTIPLY / DIVIDE, the PERFORM VARYING variable and the SET UP / DOWN BY target are read before it stores: a zoned receiver holding a non-digit is refused by name",
    "methods": [
     "receiverNum"
    ],
-   "ibm": null,
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "ZONEDATA (replaced by INVDATA in 6.4)"
+   },
    "ibm_note": "IBM documents no result (ZONEDATA(PFD) assumes valid zone bits; ZONEDATA(NOPFD|MIG) corrects them on an addition)",
    "options": [
     "ZONEDATA"
@@ -839,7 +847,10 @@
    "methods": [
     "counterNum"
    ],
-   "ibm": null,
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "ZONEDATA (replaced by INVDATA in 6.4)"
+   },
    "ibm_note": "IBM documents no result (ZONEDATA(PFD) assumes valid zone bits); the same ground as the receiver of ADD",
    "options": [
     "ZONEDATA"
@@ -1972,10 +1983,12 @@
   {
    "id": "RT-FUNC-DATE-INTEGER",
    "family": "FUNC",
-   "title": "FUNCTION INTEGER-OF-DATE / DATE-OF-INTEGER: day 1 is 1 January 1601 (INTDATE(ANSI))",
+   "title": "FUNCTION INTEGER-OF-DATE / DATE-OF-INTEGER: day 1 is 1 January 1601 (INTDATE(ANSI)) or 15 October 1582 (INTDATE(LILIAN))",
    "methods": [
     "integerOfDate",
-    "dateOfInteger"
+    "dateOfInteger",
+    "integerOfDateLilian",
+    "dateOfIntegerLilian"
    ],
    "ibm": {
     "doc": "cobol-lr",
@@ -2840,6 +2853,24 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-LE-CEEGMTO",
+   "family": "LE",
+   "title": "CEEGMTO / CEEUTCO: the offset from GMT is zero on the GMT clock",
+   "methods": [
+    "le/Ceegmto.java:call"
+   ],
+   "ibm": {
+    "doc": "le-pr",
+    "section": "CEEGMTO: get offset from Greenwich Mean Time to local time"
+   },
+   "options": [],
+   "register": [
+    "L6"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-LE-CEEQCEN",
    "family": "LE",
    "title": "CEEQCEN: the century window's start (80: the run's default)",
@@ -2995,6 +3026,25 @@
    "ibm": {
     "doc": "carddemo-cobdatft",
     "section": "COBDATFT.asm"
+   },
+   "options": [],
+   "register": [
+    "A1"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-LE-MVSWAIT",
+   "family": "LE",
+   "title": "MVSWAIT (CardDemo's assembler wait routine): returns at once with RETURN-CODE 0, caller storage untouched (the timer wait is not observable); an argument shorter than the fullword it loads: refused",
+   "methods": [
+    "le/Mvswait.java:call"
+   ],
+   "site": "le/Mvswait.java:call",
+   "ibm": {
+    "doc": "carddemo-mvswait",
+    "section": "MVSWAIT.asm"
    },
    "options": [],
    "register": [
@@ -3180,6 +3230,43 @@
    "options": [],
    "register": [
     "I1",
+    "I5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-SCHD",
+   "family": "DLI",
+   "title": "EXEC DLI SCHD PSB under CICS: the databases load at the first SCHD, the PSB's PCBs start with no position, DIBSTAT blank; a PSB already scheduled is TC (with NODHABEND), else refused",
+   "methods": [
+    "schedule",
+    "buildPcbs"
+   ],
+   "ibm": {
+    "doc": "ims-apis",
+    "section": "EXEC DLI SCHD / TERM"
+   },
+   "options": [],
+   "register": [
+    "I5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-TERM",
+   "family": "DLI",
+   "title": "EXEC DLI TERM: the scheduled PSB is released (the databases keep what was written), DIBSTAT blank; a TERM with no PSB scheduled is refused",
+   "methods": [
+    "terminate"
+   ],
+   "ibm": {
+    "doc": "ims-apis",
+    "section": "EXEC DLI SCHD / TERM"
+   },
+   "options": [],
+   "register": [
     "I5"
    ],
    "status": "ASSUMED",
@@ -3488,7 +3575,8 @@
    },
    "options": [],
    "register": [
-    "C8"
+    "C8",
+    "D2"
    ],
    "status": "MATCHED",
    "calibration": "uncalibrated"

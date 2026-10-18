@@ -281,6 +281,18 @@ class Precompiler:
             else:
                 self.whenever[cond] = w.group(3)
             return None
+        if verb == "EXECUTE" and re.match(r"EXECUTE\s+IMMEDIATE\b", u):
+            # #4269: EXECUTE IMMEDIATE 'INSERT ... VALUES ...' runs as written (the det port's DetSql.savepoint path)
+            lit = re.fullmatch(r"EXECUTE\s+IMMEDIATE\s+'((?:[^']|'')*)'", text, re.I)
+            if not lit:
+                raise Unsupported(f"EXEC SQL {u[:60]}: only a string literal as the statement text is modelled")
+            inner = lit.group(1).replace("''", "'").strip()
+            if (not re.fullmatch(r"INSERT\s+INTO\s[^?]*\bVALUES\b[^?]*", inner, re.I | re.S)
+                    or re.search(r"\bSELECT\b", inner, re.I)):  # fmt: skip
+                raise Unsupported(f"EXEC SQL EXECUTE IMMEDIATE '{inner[:40]}': only INSERT ... VALUES is modelled")
+            st = Statement(sid, "EXEC", _norm(inner))
+            self.statements.append(st)
+            return st, args
         if verb in ("PREPARE", "EXECUTE", "DESCRIBE", "CONNECT", "SET", "CALL", "ALLOCATE", "ASSOCIATE"):
             raise Unsupported(f"EXEC SQL {verb}")
         pos = re.search(r"\bWHERE\s+CURRENT\s+OF\s+([A-Z0-9_-]+)", u)

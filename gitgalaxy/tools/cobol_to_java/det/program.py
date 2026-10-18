@@ -402,6 +402,24 @@ def arith_extend(program: Path, options: list[str] | None = None, declared: str 
     return str(eff.get("ARITH") or "").upper() == "EXTEND"
 
 
+def intdate_lilian(program: Path, options: list[str] | None = None, declared: str | None = None) -> bool:
+    """Whether the program is compiled with INTDATE(LILIAN) (#4706): its CBL / PROCESS cards over `options` (the compile
+    step's PARM), else IBM's default, ANSI -- the same resolver as TRUNC and ARITH (#4704)."""
+    from gitgalaxy.core.compiler_options import effective_with_defaults
+    from gitgalaxy.core.source_text import read_source
+
+    eff = effective_with_defaults(options, read_source(program, declared=declared).text)
+    return str(eff.get("INTDATE") or "").upper() == "LILIAN"
+
+
+def with_intdate_lilian(java: str) -> str:
+    """INTDATE(LILIAN) (#4706): the integer-date functions count from 1582-10-15, `Funcs.*Lilian`. Fixed at translation
+    (no run-time switch): the option is the program's own, so a LINK or CALL into another program leaves it alone."""
+    return java.replace("Funcs.integerOfDate(", "Funcs.integerOfDateLilian(").replace(
+        "Funcs.dateOfInteger(", "Funcs.dateOfIntegerLilian("
+    )
+
+
 def numproc_pfd(program: Path, options: list[str] | None = None, declared: str | None = None) -> bool:
     """Whether the program runs under NUMPROC(PFD) (#4271): the NUMPROC option in effect -- its CBL / PROCESS cards over
     `options` (the compile step's PARM), else IBM's default, NOPFD. NUMPROC(MIG) is NOPFD: Enterprise COBOL 5 and 6 no
@@ -529,7 +547,7 @@ def liftable(records: list, excluded: set[str], rc: L.Item) -> dict[int, str]:
     out: dict[int, str] = {}
     images: dict[int, bytes] = {}
     for rec in records:
-        if rec is rc or rec.section != "WORKING-STORAGE" or rec.name in ("DFHAID", "DFHBMSCA", "DFHEIBLK"):
+        if rec is rc or rec.section != "WORKING-STORAGE" or rec.name in ("DFHAID", "DFHBMSCA", "DFHEIBLK", "DIB"):
             continue
         if rec.redefines or any(r.redefines == rec.name for r in records):
             continue  # a whole record shared with another
@@ -611,6 +629,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             L.layout(idx)
             records.append(idx)
     proc = S.parse(lines)
+    if is_cics and DLI.uses_exec(x.text for q in proc.paragraphs for x in S.walk(q.body) if x.kind == "EXEC"):
+        records += DLI.dib_records()  # #5278: EXEC DLI answers DIBSTAT (det/dli.py)
     # SORT-RETURN: the special register, S9(4) BINARY (IBM: 0 after a successful SORT / MERGE) -- only in a program
     # that sorts or names it, so no other port's storage changes
     sorts = any(s.kind in ("SORT", "MERGE") for p in proc.paragraphs for s in S.walk(p.body))
@@ -1315,6 +1335,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         numproc_pfd(program, options, page),
         arith_extend(program, options, page),
     )
+    if intdate_lilian(program, options, page):
+        java = with_intdate_lilian(java)
     return Result(java, service, stats)
 
 
@@ -1722,11 +1744,20 @@ def facades(stub: str, passes_bytes: bool = False) -> list[str]:
                 body = [(f'        throw new UnsupportedOperationException("{meth}: the program has no task facade (a '
                          'channel program); it runs as runTask");')]  # fmt: skip
             else:
+                pre = []
+                if area and req and req.group(1) == "Object":
+                    # #5053: an Object request can be the byte[] a wide RETURN answered (the region's EBCDIC, #4695); the
+                    # bytes beside it are in the port's page (lastAnswerBytes / lastLinkBytes): both at once is one
+                    # COMMAREA in two charsets, so it stops by name rather than take either
+                    pre = ["        if (request instanceof byte[] && " + area.group(1) + " != null) {",
+                           '            throw new IllegalArgumentException("' + meth + ': the request is the COMMAREA as bytes '
+                           '(the region\'s EBCDIC) and the bytes beside it are in the port\'s page: pass one");',
+                           "        }"]  # fmt: skip
                 # #5053: a LINK's byte overload hands the region the COMMAREA's bytes too (region.linked(.., area))
                 task = (f"region.transaction(transid, {arg}{', ' + area.group(1) if area else ''})"
                         if meth == "handleTransaction"
                         else f"region.linked({name.group(1)}, {arg}{', ' + area.group(1) if area else ''})")  # fmt: skip
-                body = ["        CicsTask.Region region = CicsTask.region();",
+                body = [*pre, "        CicsTask.Region region = CicsTask.region();",
                         f"        CicsTask task = {task};",
                         f"        region.run(task, {name.group(1)}, this::runTask);"]  # fmt: skip
                 if area and meth == "handleTransaction":

@@ -52,7 +52,13 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "4bd87e7bf6cde10756a83590bfd65b0450a7541e4a2b0cac5088d4e10617f355"
+      "sha256": "4bd87e7bf6cde10756a83590bfd65b0450a7541e4a2b0cac5088d4e10617f355",
+      "string_fields": [
+        "blankMsg",
+        "endOfTransMsg",
+        "ibmreqd",
+        "wCallProgram"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/dto/EpscsmrtDfhcommareaDto.java": {
       "calls": [],
@@ -67,7 +73,11 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "b58d6dc6fe7e5520e1304d90b42dfd2079fbd3cacbac9040bbd200f6daa4ac71"
+      "sha256": "b58d6dc6fe7e5520e1304d90b42dfd2079fbd3cacbac9040bbd200f6daa4ac71",
+      "string_fields": [
+        "calledProgramName",
+        "wsCalledProgram"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/dto/EpsmlistDfhcommareaDto.java": {
       "calls": [],
@@ -94,7 +104,17 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "db24bac10893240ee7b7b5e4fba1acb7aabbc34712671c8a8dc74000cc0d38a2"
+      "sha256": "db24bac10893240ee7b7b5e4fba1acb7aabbc34712671c8a8dc74000cc0d38a2",
+      "string_fields": [
+        "closeFile",
+        "endOfFile",
+        "outmapCompany",
+        "outmapLoan",
+        "outmapPhoneNum",
+        "outmapRate",
+        "outmapYears",
+        "wCallProgram"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/entity/EpsmpmtWsWorkAmounts.java": {
       "calls": [],
@@ -117,7 +137,10 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "5075d954751605b9d0c692a16f43fc7fe3327d0c962f8eaa4388c2988db1f301"
+      "sha256": "5075d954751605b9d0c692a16f43fc7fe3327d0c962f8eaa4388c2988db1f301",
+      "string_fields": [
+        "errorText"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/entity/EpsnbrvlWsWorkAmounts.java": {
       "calls": [],
@@ -141,7 +164,10 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "1ad7e7a3f0563c2b16a6ad09beef89d8a381ceadd505a7436a276ee77a0cfa11"
+      "sha256": "1ad7e7a3f0563c2b16a6ad09beef89d8a381ceadd505a7436a276ee77a0cfa11",
+      "string_fields": [
+        "errorText"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/service/EpscmortService.java": {
       "calls": [],

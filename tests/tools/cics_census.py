@@ -86,6 +86,7 @@ sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO))
 
 import generated_branch  # noqa: E402
+from gitgalaxy.core.cobol_source_format import line_formats  # noqa: E402
 
 CENSUS_ENV = "CICS_CENSUS_CORPORA"
 PROGRAM_EXTS = {".cbl", ".cob", ".cobol"}  # det_survey.EXTS
@@ -113,13 +114,27 @@ def is_burned(corpus: str, burned: set[str] | None = None) -> bool:
 
 
 # ---- reading EXEC CICS commands (names only) --------------------------------------------------------------------
+def source_lines(text: str) -> list[tuple[str, str]]:
+    """(format, line) per line: each line's reference format (fixed / free / variable, `>>SOURCE FORMAT` switches
+    followed, #4264) beside the line itself. #5089: the one place a fact scan learns the columns."""
+    lines = text.replace("\r", "").split("\n")
+    if lines and lines[-1] == "":  # the newline ending the file starts no line
+        lines.pop()
+    return list(zip(line_formats("\n".join(lines)), lines))
+
+
 def fixed_format_text(text: str) -> str:
-    """The program's code area (columns 8-72 joined; comment lines dropped), upper-cased."""
+    """The program's code area, upper-cased and joined: columns 8-72 of a fixed line (to the end of a variable one),
+    the whole of a free line; comment lines (column-7 `*` or `/`, free `*>`) dropped. #5089: format-aware."""
     out = []
-    for ln in text.splitlines():
+    for fmt, ln in source_lines(text):
+        if fmt == "free":
+            if not ln.lstrip().startswith("*>"):
+                out.append(ln)
+            continue
         if len(ln) > 6 and ln[6] in "*/":
             continue
-        out.append(ln[6:72] if len(ln) > 6 else "")
+        out.append(ln[6:] if fmt == "variable" else ln[6:72] if len(ln) > 6 else "")
     return " ".join(out).upper()
 
 

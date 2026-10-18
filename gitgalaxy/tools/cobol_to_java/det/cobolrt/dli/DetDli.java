@@ -247,6 +247,74 @@ public final class DetDli {
         System.arraycopy(t, 0, b, o, Math.min(t.length, len));
     }
 
+    /** The PSB's DB PCBs, in order, each at its start (no position, status blank), from psb.cfg. */
+    private static void buildPcbs() throws IOException {
+        PCBS.clear();
+        for (String line : Files.readAllLines(dir().resolve("psb.cfg"), StandardCharsets.ISO_8859_1)) {
+            String[] w = line.trim().split("\\s+");
+            if (!w[0].equals("PCB")) {
+                continue;
+            }
+            Pcb p = new Pcb();
+            p.db = DBS.indexOf(w[1]);
+            p.procopt = w[2].length() > 4 ? w[2].substring(0, 4) : w[2];
+            p.keylen = Integer.parseInt(w[3]);
+            for (Segm s : SEGS) {
+                if (s.db == p.db) {
+                    p.sensegs++;
+                }
+            }
+            PCBS.add(p);
+        }
+    }
+
+    private static boolean loaded;
+    private static boolean scheduled;
+
+    /**
+     * EXEC DLI SCHD PSB(name) under CICS (register I5): the stated databases are loaded at the first SCHD (they outlive
+     * a TERM), the PSB's PCBs start with no position, and DIBSTAT is blank. A PSB already scheduled in the task is
+     * DIBSTAT TC (IBM, IMS Application Programming, EXEC DLI SCHD) -- with NODHABEND, else the task would abend, which
+     * is not modelled. The PSB is the one stated (psb.cfg), whatever name the program gives.
+     */
+    // [rule RT-DLI-SCHD]
+    public static String schedule(String psb, boolean nodhabend) {
+        if (scheduled) {
+            if (!nodhabend) {
+                throw refuse("a SCHD of a PSB already scheduled, without NODHABEND (the task would abend)");
+            }
+            return "TC";
+        }
+        try {
+            if (!loaded) {
+                load();
+                loaded = true;
+            }
+            buildPcbs();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        scheduled = true;
+        return "  ";
+    }
+
+    /** SCHD PSB((area)): the PSB name is the area's bytes (the name the program built there). */
+    public static String schedule(Field psb, boolean nodhabend) {
+        return schedule(new String(psb.storage().bytes, psb.offset(), psb.length(), StandardCharsets.ISO_8859_1).trim(),
+            nodhabend);
+    }
+
+    /** EXEC DLI TERM: the PSB is released (the databases keep what was written); DIBSTAT blank. */
+    // [rule RT-DLI-TERM]
+    public static String terminate() {
+        if (!scheduled) {
+            throw refuse("a TERM with no PSB scheduled");
+        }
+        scheduled = false;
+        PCBS.clear();
+        return "  ";
+    }
+
     /**
      * The batch entry (ENTRY 'DLITCBL' USING pcb ...): the stated databases loaded, each DB PCB of the PSB (in order)
      * bound to the area passed, its mask filled -- DBD name, level '00', status blank, PROCOPT, the number of
@@ -256,22 +324,9 @@ public final class DetDli {
     public static void enter(Field... areas) {
         try {
             load();
-            for (String line : Files.readAllLines(dir().resolve("psb.cfg"), StandardCharsets.ISO_8859_1)) {
-                String[] w = line.trim().split("\\s+");
-                if (!w[0].equals("PCB")) {
-                    continue;
-                }
-                Pcb p = new Pcb();
-                p.db = DBS.indexOf(w[1]);
-                p.procopt = w[2].length() > 4 ? w[2].substring(0, 4) : w[2];
-                p.keylen = Integer.parseInt(w[3]);
-                for (Segm s : SEGS) {
-                    if (s.db == p.db) {
-                        p.sensegs++;
-                    }
-                }
-                PCBS.add(p);
-            }
+            loaded = true;
+            scheduled = false;
+            buildPcbs();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

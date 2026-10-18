@@ -4,12 +4,14 @@ No XGBoost model ships, so a scan reports its AI threat columns as NULL, never a
 clean 'Safe'. The boundary is documented in docs/zero_dependency_mode.md.
 """
 
+import json
 import sqlite3
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 
+from gitgalaxy.recorders.audit_recorder import AuditRecorder
 from gitgalaxy.recorders.record_keeper import RecordKeeper
 from gitgalaxy.security.security_auditor import SecurityAuditor
 
@@ -61,6 +63,11 @@ def test_no_model_scan_reads_unexercised_not_safe(tmp_path):
     assert auditor.inference_ran is False
     assert "is_ml_threat" not in audited[0]
     assert _recorded_columns(tmp_path, audited, auditor.inference_ran) == (None, None, None, None)
+    # The audit JSON must not read 0 infected files as a clean verdict either.
+    out = tmp_path / "audit.json"
+    AuditRecorder().generate_report(audited, [], {}, {}, {"ml_inference_ran": auditor.inference_ran}, str(out))
+    ml = json.loads(out.read_text(encoding="utf-8"))["3. Forensic Security & Vulnerability Audit"]
+    assert ml["ML Threat Intelligence (XGBoost)"]["Inference Ran"] is False
 
 
 def test_scored_run_records_real_values(tmp_path):

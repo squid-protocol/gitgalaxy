@@ -6,7 +6,7 @@
     "Invisible Unicode Payload Smuggling": "no real public file carries a variation-selector/tag-character payload; the crucible's Unicode examples are negative controls (#4135) and do not trigger. Needs a planted case in keyword-rosetta, not real code. Interim guard: tests/core_engine/test_zero_coverage_signals_4108.py scans planted files end to end",
     "Non-Standard Unicode / Homoglyphs": "its only crucible hits were typosquat-radar false positives (10 files: PL/I and JCL dataset/include members, a Gradle same-package class) that #4982 removed; the security_lens import-line rule (Cyrillic/Greek/math-alphanumeric in import/from/require) never fired on real code here. Needs a planted case in keyword-rosetta. Interim guard: tests/core_engine/test_zero_coverage_signals_4108.py scans planted files end to end",
     "Prompt Injection":"placeholder: detector removed in #1020; key kept for SIGNAL_SCHEMA positions",
-    "Sec Extension Mismatch": "no inert-extension file (.txt/.md/.json) parsed as an executable language; real public repos do not ship these, so this needs a planted case in keyword-rosetta",
+    "Sec Extension Mismatch": "the #4126 sensor works (offset-0 executable magic under an inert extension such as .png/.pdf) but no real public repo ships a disguised executable, and a binary cannot be a text corpus file; needs a planted case in keyword-rosetta. Interim guards: tests/core_engine/test_zero_coverage_signals_4108.py (audit label) and tests/security_auditing/test_disguised_executable_4126.py (db column)",
     "Sec Tainted Injection": "placeholder: computation removed in #3101; key kept for SIGNAL_SCHEMA positions"
   }
 }

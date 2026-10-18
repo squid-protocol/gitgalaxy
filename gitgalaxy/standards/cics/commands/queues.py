@@ -278,6 +278,9 @@ INQUIRE_TDQUEUE = Command(
         "OPENSTATUS": Arg("area_out", width=4, binary=True),
         "TYPE": Arg("area_out", width=4, binary=True),
         "ENABLESTATUS": Arg("area_out", width=4, binary=True),
+        "TRIGGERLEVEL": Arg("area_out", width=4, binary=True),  # #5168 round 6 (X66)
+        "RECOVSTATUS": Arg("area_out", width=4, binary=True),
+        "TRANSID": Arg("area_out", width=4),
         **RESP_OPTIONS,
     },
     default_refusal=_TDQUEUE_REST,
@@ -285,12 +288,14 @@ INQUIRE_TDQUEUE = Command(
         required("TDQUEUE", msg="INQUIRE TDQUEUE without TDQUEUE"),
         requires(
             ("TDQUEUE",),
-            any_of=("OPENSTATUS", "TYPE", "ENABLESTATUS"),
-            msg="INQUIRE TDQUEUE without OPENSTATUS, TYPE or ENABLESTATUS",
+            any_of=("OPENSTATUS", "TYPE", "ENABLESTATUS", "TRIGGERLEVEL", "RECOVSTATUS", "TRANSID"),
+            msg="INQUIRE TDQUEUE without OPENSTATUS, TYPE, ENABLESTATUS, TRIGGERLEVEL, RECOVSTATUS or TRANSID",
         ),
     ),
     outcomes=(
-        Outcome("NORMAL", 0, "", writes=("OPENSTATUS", "TYPE", "ENABLESTATUS")),
+        Outcome(
+            "NORMAL", 0, "", writes=("OPENSTATUS", "TYPE", "ENABLESTATUS", "TRIGGERLEVEL", "RECOVSTATUS", "TRANSID")
+        ),
         Outcome("QIDERR", 1, "The named queue cannot be found"),
     ),
     runtime_refusals=(
@@ -299,6 +304,12 @@ INQUIRE_TDQUEUE = Command(
             "X61",
             java="INQUIRE TDQUEUE of a queue with no TYPE stated",
             c="INQUIRE TDQUEUE of a queue with no TYPE stated",
+        ),
+        RuntimeRefusal(
+            "TRIGGERLEVEL / TRANSID of a queue that is not intrapartition: IBM names no value",
+            "X66",
+            java="INQUIRE TDQUEUE TRIGGERLEVEL / TRANSID of a queue that is not intrapartition",
+            c="INQUIRE TDQUEUE TRIGGERLEVEL / TRANSID of a queue that is not intrapartition",
         ),
     ),
     state=("handle_table",),

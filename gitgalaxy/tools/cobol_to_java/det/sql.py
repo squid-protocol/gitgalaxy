@@ -113,6 +113,9 @@ _WHENEVER = re.compile(r"WHENEVER\s+(SQLERROR|NOT\s+FOUND|SQLWARNING)\s+(?:(CONT
 _WHENEVER_ORDER = ("SQLERROR", "NOT FOUND", "SQLWARNING")
 _SAVEPOINT = re.compile(r"SAVEPOINT\s.*|ROLLBACK(?:\s+WORK)?\s+TO\s+SAVEPOINT(?:\s+[A-Z0-9_]+)?|RELEASE(?:\s+TO)?\s+SAVEPOINT\s+"
                         r"[A-Z0-9_]+", re.S)  # fmt: skip
+# #4269: EXECUTE IMMEDIATE 'statement text' (a string literal fixed in the source); an embedded quote is doubled
+_IMMEDIATE = re.compile(r"EXECUTE\s+IMMEDIATE\s+'((?:[^']|'')*)'", re.I)
+_IMMEDIATE_INSERT = re.compile(r"INSERT\s+INTO\s[^?]*\bVALUES\b[^?]*", re.I | re.S)
 _HOLD = re.compile(r"\bDECLARE\s+([A-Z0-9_-]+)\s+(?:[A-Z]+\s+){0,2}?CURSOR\s+WITH\s+HOLD\b", re.I)
 
 
@@ -299,6 +302,8 @@ class Sql:
             if not _WHENEVER.fullmatch(sql):
                 raise SqlError(f"EXEC SQL {u[:50]}")  # WHENEVER with a form not modelled
             return []
+        if verb == "EXECUTE" and re.match(r"EXECUTE\s+IMMEDIATE\b", u):
+            return self._execute_immediate(sql, line, ind)
         if verb in ("PREPARE", "EXECUTE", "DESCRIBE", "CONNECT", "SET", "CALL") and not assigns:
             raise SqlError(f"EXEC SQL {verb}")
         if _SAVEPOINT.fullmatch(u):
@@ -369,6 +374,24 @@ class Sql:
             return [f"{ind}DetSql.reset(SQLCA_AREA, CS);  // the task's unit of work commits with the task"]
         at = self.g_str(f"{self.program}:{line}")
         return [f"{ind}DetSql.{verb.lower()}(SQLCA_AREA, {at}, CS);"]
+
+    def _execute_immediate(self, sql: str, line: int, ind: str) -> list[str]:
+        """#4269: EXECUTE IMMEDIATE 'INSERT ... VALUES ...' (IBM Db2 for z/OS SQL Reference, EXECUTE IMMEDIATE): the
+        literal's text runs as written on the unit of work's connection, Db2 answering (DetSql.savepoint's path). Only
+        what that path answers faithfully is taken: an INSERT of VALUES. A searched UPDATE / DELETE / MERGE that changes
+        no row is +100 and an INSERT ... SELECT of no row too, which needs the row count the connection does not give
+        back (a later slice), so those are refused with the rest."""
+        m = _IMMEDIATE.fullmatch(sql)
+        if not m:
+            raise SqlError(f"EXEC SQL {sql[:50]}: only a string literal as the statement text is modelled")
+        text = m.group(1).replace("''", "'")
+        if self.g.cics is not None:
+            raise SqlError("EXEC SQL EXECUTE IMMEDIATE in a CICS program: the task's unit of work is not modelled "
+                           "for it (a later slice)")  # fmt: skip
+        if not _IMMEDIATE_INSERT.fullmatch(text.strip()) or re.search(r"\bSELECT\b", text, re.I):
+            raise SqlError("EXEC SQL EXECUTE IMMEDIATE: only INSERT ... VALUES (no parameter marker) is modelled")
+        at = self.g_str(f"{self.program}:{line}")
+        return [f"{ind}DetSql.savepoint(SQLCA_AREA, {at}, {self.g_str(text.strip())}, CS);"]
 
     def _savepoint(self, sql: str, u: str, line: int, ind: str) -> list[str]:
         """#4269: SAVEPOINT, ROLLBACK [WORK] TO SAVEPOINT, RELEASE SAVEPOINT (IBM Db2 for z/OS SQL Reference): run as

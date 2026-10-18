@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `f484174367c47b2fddf9cb5ef05cc5febdce81ac` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `4c72683d8ffd742188e1b3fbcee693e62548cf69` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `64ae8fa02fcf`).
+The translation survey matches the translator in the tree (translator fingerprint `9155812fd229`).
 
 ## How to read this report
 
@@ -228,7 +228,7 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
   - hole: EXEC EXEC CICS: CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)
   - hole: EXEC EXEC CICS: SAVE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)
   - hole: MOVE SAVE-ADDRESS-X: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)
-  - hole: SET-ADDRESS ADDRESS OF ZF-DATA: not a LINKAGE 01 record (not modelled)
+  - hole: SET-ADDRESS ADDRESS OF ZF-DATA: a subordinate item is an offset into its record, not a LINKAGE 01 record (needs a Storage window; not modelled)
   - hole: SET-ADDRESS CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)
   - hole: SET-ADDRESS SAVE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)
 - **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
@@ -332,7 +332,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `f484174367c47b2fddf9cb5ef05cc5febdce81ac`
+- translator commit (the survey's): `4c72683d8ffd742188e1b3fbcee693e62548cf69`
 - corpus pin: `zecs` at `6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02`
 - crucible pins: cics `v0.9.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.9.0 (3ca75ae0)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -342,8 +342,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha f484174367c47b2fddf9cb5ef05cc5febdce81ac
-python tests/tools/evidence_report.py zecs --baseline --sha f484174367c47b2fddf9cb5ef05cc5febdce81ac
+python tests/tools/cics_census.py survey --baseline --sha 4c72683d8ffd742188e1b3fbcee693e62548cf69
+python tests/tools/evidence_report.py zecs --baseline --sha 4c72683d8ffd742188e1b3fbcee693e62548cf69
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs003,zecs-zecsplt
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

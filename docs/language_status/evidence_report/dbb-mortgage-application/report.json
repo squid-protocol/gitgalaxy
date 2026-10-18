@@ -342,6 +342,12 @@
     23,
     24
    ],
+   "carddemo-tranview-generated": [
+    9,
+    9,
+    20,
+    24
+   ],
    "carddemo-trnrpt": [
     26,
     26,
@@ -502,6 +508,12 @@
     15,
     25
    ],
+   "cbsa-inqacc-generated": [
+    22,
+    25,
+    15,
+    25
+   ],
    "cbsa-inqacccu": [
     16,
     22,
@@ -575,7 +587,7 @@
     8
    ],
    "genapp-lgapvs01": [
-    2,
+    3,
     3,
     5,
     9
@@ -719,7 +731,7 @@
     16
    ],
    "genapp-lgupvs01": [
-    2,
+    3,
     3,
     5,
     9
@@ -1104,7 +1116,7 @@
   "record_status": {
    "carddemo-acctview": {
     "stale": [],
-    "status": "shown equal, unapproved"
+    "status": "not-shown equal"
    },
    "carddemo-adminmenu": {
     "stale": [],
@@ -1218,10 +1230,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "f484174367c47b2fddf9cb5ef05cc5febdce81ac",
+   "sha": "4c72683d8ffd742188e1b3fbcee693e62548cf69",
    "translator": {
-    "files": 126,
-    "sha256": "64ae8fa02fcf1e8598ad82f360bd42c3e293b5d6a375f75af9ea0e7145e89df0"
+    "files": 128,
+    "sha256": "9155812fd2290f369e1c7c9bbc0e2fb681322268dca6953b5a49b2126957ec9e"
    }
   },
   "sweeps": {}
@@ -3581,8 +3593,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha f484174367c47b2fddf9cb5ef05cc5febdce81ac",
-   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha f484174367c47b2fddf9cb5ef05cc5febdce81ac",
+   "python tests/tools/cics_census.py survey --baseline --sha 4c72683d8ffd742188e1b3fbcee693e62548cf69",
+   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 4c72683d8ffd742188e1b3fbcee693e62548cf69",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -3603,13 +3615,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "f484174367c47b2fddf9cb5ef05cc5febdce81ac",
+   "sha": "4c72683d8ffd742188e1b3fbcee693e62548cf69",
    "translator": {
-    "files": 126,
-    "sha256": "64ae8fa02fcf1e8598ad82f360bd42c3e293b5d6a375f75af9ea0e7145e89df0"
+    "files": 128,
+    "sha256": "9155812fd2290f369e1c7c9bbc0e2fb681322268dca6953b5a49b2126957ec9e"
    }
   },
-  "translator_commit": "f484174367c47b2fddf9cb5ef05cc5febdce81ac",
+  "translator_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -3652,6 +3664,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "64ae8fa02fcf1e8598ad82f360bd42c3e293b5d6a375f75af9ea0e7145e89df0"
+  "fingerprint": "9155812fd2290f369e1c7c9bbc0e2fb681322268dca6953b5a49b2126957ec9e"
  }
 }

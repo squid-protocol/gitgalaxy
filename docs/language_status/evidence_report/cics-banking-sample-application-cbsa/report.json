@@ -390,6 +390,12 @@
     23,
     24
    ],
+   "carddemo-tranview-generated": [
+    9,
+    9,
+    20,
+    24
+   ],
    "carddemo-trnrpt": [
     26,
     26,
@@ -550,6 +556,12 @@
     15,
     25
    ],
+   "cbsa-inqacc-generated": [
+    22,
+    25,
+    15,
+    25
+   ],
    "cbsa-inqacccu": [
     16,
     22,
@@ -623,7 +635,7 @@
     8
    ],
    "genapp-lgapvs01": [
-    2,
+    3,
     3,
     5,
     9
@@ -767,7 +779,7 @@
     16
    ],
    "genapp-lgupvs01": [
-    2,
+    3,
     3,
     5,
     9
@@ -2342,7 +2354,7 @@
   "record_status": {
    "carddemo-acctview": {
     "stale": [],
-    "status": "shown equal, unapproved"
+    "status": "not-shown equal"
    },
    "carddemo-adminmenu": {
     "stale": [],
@@ -2456,10 +2468,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "f484174367c47b2fddf9cb5ef05cc5febdce81ac",
+   "sha": "4c72683d8ffd742188e1b3fbcee693e62548cf69",
    "translator": {
-    "files": 126,
-    "sha256": "64ae8fa02fcf1e8598ad82f360bd42c3e293b5d6a375f75af9ea0e7145e89df0"
+    "files": 128,
+    "sha256": "9155812fd2290f369e1c7c9bbc0e2fb681322268dca6953b5a49b2126957ec9e"
    }
   },
   "sweeps": {}
@@ -2921,7 +2933,7 @@
          "option": "TRUNC"
         }
        ],
-       "oracle_image": "sha256:e765ddef6a2922cd016460cedabe87b04c08a73665f03234fee7e12835751951",
+       "oracle_image": "sha256:030aba371f66864376b9ba503aeb9ffe89c136d2f430e6b773a9a1517f2f9e62",
        "oracle_matches_pin": true,
        "records_compared": 29,
        "records_equal": 29,
@@ -2932,6 +2944,17 @@
        "status_at_build": "shown equal, unapproved",
        "verdict": "all equal"
       },
+      "role": "linked"
+     },
+     {
+      "case": "cbsa-inqacc-generated",
+      "case_scenarios": 1,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
       "role": "linked"
      },
      {
@@ -4543,7 +4566,7 @@
        "fault_runs": 0,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:e765ddef6a2922cd016460cedabe87b04c08a73665f03234fee7e12835751951",
+       "oracle_image": "sha256:030aba371f66864376b9ba503aeb9ffe89c136d2f430e6b773a9a1517f2f9e62",
        "oracle_matches_pin": true,
        "records_compared": 20,
        "records_equal": 20,
@@ -4598,7 +4621,7 @@
       "fault_runs": 0,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:e765ddef6a2922cd016460cedabe87b04c08a73665f03234fee7e12835751951",
+      "oracle_image": "sha256:030aba371f66864376b9ba503aeb9ffe89c136d2f430e6b773a9a1517f2f9e62",
       "oracle_matches_pin": true,
       "records_compared": 20,
       "records_equal": 20,
@@ -15128,7 +15151,7 @@
          "option": "TRUNC"
         }
        ],
-       "oracle_image": "sha256:e765ddef6a2922cd016460cedabe87b04c08a73665f03234fee7e12835751951",
+       "oracle_image": "sha256:030aba371f66864376b9ba503aeb9ffe89c136d2f430e6b773a9a1517f2f9e62",
        "oracle_matches_pin": true,
        "records_compared": 29,
        "records_equal": 29,
@@ -15139,6 +15162,17 @@
        "status_at_build": "shown equal, unapproved",
        "verdict": "all equal"
       },
+      "role": "program"
+     },
+     {
+      "case": "cbsa-inqacc-generated",
+      "case_scenarios": 1,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
       "role": "program"
      }
     ],
@@ -15191,7 +15225,7 @@
         "option": "TRUNC"
        }
       ],
-      "oracle_image": "sha256:e765ddef6a2922cd016460cedabe87b04c08a73665f03234fee7e12835751951",
+      "oracle_image": "sha256:030aba371f66864376b9ba503aeb9ffe89c136d2f430e6b773a9a1517f2f9e62",
       "oracle_matches_pin": true,
       "records_compared": 29,
       "records_equal": 29,
@@ -20426,10 +20460,10 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha f484174367c47b2fddf9cb5ef05cc5febdce81ac",
-   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha f484174367c47b2fddf9cb5ef05cc5febdce81ac",
+   "python tests/tools/cics_census.py survey --baseline --sha 4c72683d8ffd742188e1b3fbcee693e62548cf69",
+   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 4c72683d8ffd742188e1b3fbcee693e62548cf69",
    "python tests/tools/evidence_report.py --refresh",
-   "python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-bnk1cac,cbsa-bnk1cca,cbsa-bnk1ccs,cbsa-bnk1cra,cbsa-bnk1dac,cbsa-bnk1dcs,cbsa-bnk1tfn,cbsa-bnk1uac,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-crecust,cbsa-custctrl,cbsa-dbcrfun,cbsa-delacc,cbsa-delcus,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacccu,cbsa-inqcust,cbsa-updacc,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun  # Db2 cases (19) need the Db2 container",
+   "python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-bnk1cac,cbsa-bnk1cca,cbsa-bnk1ccs,cbsa-bnk1cra,cbsa-bnk1dac,cbsa-bnk1dcs,cbsa-bnk1tfn,cbsa-bnk1uac,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-crecust,cbsa-custctrl,cbsa-dbcrfun,cbsa-delacc,cbsa-delcus,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacc-generated,cbsa-inqacccu,cbsa-inqcust,cbsa-updacc,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun  # Db2 cases (20) need the Db2 container",
    "python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
@@ -20444,20 +20478,20 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:e765ddef6a2922cd016460cedabe87b04c08a73665f03234fee7e12835751951"
+   "sha256:030aba371f66864376b9ba503aeb9ffe89c136d2f430e6b773a9a1517f2f9e62"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "f484174367c47b2fddf9cb5ef05cc5febdce81ac",
+   "sha": "4c72683d8ffd742188e1b3fbcee693e62548cf69",
    "translator": {
-    "files": 126,
-    "sha256": "64ae8fa02fcf1e8598ad82f360bd42c3e293b5d6a375f75af9ea0e7145e89df0"
+    "files": 128,
+    "sha256": "9155812fd2290f369e1c7c9bbc0e2fb681322268dca6953b5a49b2126957ec9e"
    }
   },
-  "translator_commit": "f484174367c47b2fddf9cb5ef05cc5febdce81ac",
+  "translator_commit": "4c72683d8ffd742188e1b3fbcee693e62548cf69",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -20500,6 +20534,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "64ae8fa02fcf1e8598ad82f360bd42c3e293b5d6a375f75af9ea0e7145e89df0"
+  "fingerprint": "9155812fd2290f369e1c7c9bbc0e2fb681322268dca6953b5a49b2126957ec9e"
  }
 }

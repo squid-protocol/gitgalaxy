@@ -1,0 +1,115 @@
+{
+ "format": "cics-crucible/expected/1",
+ "case": "pc-aid-menu",
+ "scenario": "enter-sends-no-data",
+ "derived": {
+  "from": "cobol-stub",
+  "issue": "#4049",
+  "note": "the COBOL program's own run on the stub runtime (tests/equivalence/cics/ggcics.c), written by cics_crucible.py --derive-expected; never edited by hand",
+  "faults_fired": []
+ },
+ "tasks": [
+  {
+   "seq": 1,
+   "transid": "PC11",
+   "program": "PCMENU",
+   "termid": "T001",
+   "at": "2026-03-02T10:00:00",
+   "trigger": {
+    "kind": "terminal",
+    "step": 0
+   },
+   "eibaid": "ENTER",
+   "eibcalen": 0,
+   "commarea": null,
+   "events": [
+    {
+     "event": "SEND-MAP",
+     "program": "PCMENU",
+     "map": "PCMN",
+     "mapset": "PCSET2",
+     "options": [
+      "ERASE"
+     ],
+     "fields": {
+      "OPT": {
+       "attr": "C1",
+       "attr_from": "map",
+       "data": null,
+       "data_from": "none"
+      },
+      "VISITS": {
+       "attr": "F0",
+       "attr_from": "map",
+       "data": "0001",
+       "data_from": "program"
+      },
+      "MSG": {
+       "attr": "F0",
+       "attr_from": "map",
+       "data": "WELCOME",
+       "data_from": "program"
+      }
+     },
+     "cursor": "OPT"
+    },
+    {
+     "event": "RETURN",
+     "program": "PCMENU",
+     "level": 1,
+     "transid": "PC11",
+     "commarea": {
+      "length": 10,
+      "layout": "MENUCA",
+      "fields": {
+       "MN-VISITS": "1",
+       "MN-LAST": "",
+       "MN-FLAG": ""
+      }
+     }
+    }
+   ],
+   "end": "normal"
+  },
+  {
+   "seq": 2,
+   "transid": "PC11",
+   "program": "PCMENU",
+   "termid": "T001",
+   "at": "2026-03-02T10:00:10",
+   "trigger": {
+    "kind": "terminal",
+    "step": 1
+   },
+   "eibaid": "ENTER",
+   "eibcalen": 10,
+   "commarea": {
+    "length": 10,
+    "layout": "MENUCA",
+    "fields": {
+     "MN-VISITS": "1",
+     "MN-LAST": "",
+     "MN-FLAG": ""
+    }
+   },
+   "events": [
+    {
+     "event": "RECEIVE-MAP",
+     "program": "PCMENU",
+     "map": "PCMN",
+     "mapset": "PCSET2",
+     "resp": "MAPFAIL"
+    },
+    {
+     "event": "ABEND",
+     "program": "PCMENU",
+     "abcode": "AEI9",
+     "cause": "condition",
+     "outcome": "terminated",
+     "condition": "MAPFAIL"
+    }
+   ],
+   "end": "abend"
+  }
+ ]
+}

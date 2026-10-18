@@ -11,7 +11,8 @@ Six checks per port, on first-party code only (ported from the round-2 study's c
   6 health      rc=0 and no ERROR / CLASSIFICATION REFUTATION / Traceback log lines
 
 Second oracle: tree-sitter definition counts (``--oracle``), reported beside ctags, never scored: ctags misses
-macro-defined functions (#5461), so "matches ctags" alone is not the claim. Blind spots: see README.md.
+macro-defined functions (#5461), so "matches ctags" alone is not the claim. Third, on a subset: libclang (``--clang``,
+doom_clang.py), which preprocesses first. Blind spots: see README.md.
 """
 
 import collections
@@ -108,11 +109,11 @@ def ctags_counts(repo, files_by_lang, scratch):
 
 
 def treesitter_counts(repo, files_by_lang):
-    """{relpath: function definitions} from tree-sitter; {} when tree_sitter_language_pack is not installed."""
+    """{relpath: function definitions} from tree-sitter; empty when tree_sitter_language_pack is not installed."""
     try:
         import tree_sitter_language_pack
     except ImportError:
-        return {}
+        return collections.Counter()
     out = collections.Counter()
     for lang, files in files_by_lang.items():
         kinds = TS_FUNC_NODES.get(lang)
@@ -183,7 +184,29 @@ def _engine_vendor_test(repo):
     return vendored
 
 
-def score_port(name, repo, scan, scratch, oracle=False, legacy_vendor=False):
+def _clang_oracle(row, det, repo, by_lang, nfunc):
+    """libclang definition counts over the C/C++ files only (the engine's count is taken over the same files)."""
+    import doom_clang
+
+    c_files = [p for lang in ("c", "cpp") for p in by_lang.get(lang, [])]
+    res = doom_clang.clang_counts(repo, c_files)
+    if res is None:
+        det["clang"] = "libclang not available"
+        return
+    counts, with_errors, from_db = res
+    gg_c = sum(nfunc[p] for p in counts)
+    cl_tot = sum(counts.values())
+    row.update(
+        clang_files=len(counts), clang_files_with_errors=with_errors, clang_compile_commands_files=from_db,
+        clang_functions=cl_tot, clang_gg_functions=gg_c,
+        clang_delta_pct=round(100 * (gg_c - cl_tot) / cl_tot, 1) if cl_tot else "",
+    )  # fmt: skip
+    det["clang_mismatch_worst"] = sorted(
+        ((p, nfunc[p], n) for p, n in counts.items() if nfunc[p] != n), key=lambda t: -abs(t[1] - t[2])
+    )[:12]
+
+
+def score_port(name, repo, scan, scratch, oracle=False, legacy_vendor=False, clang=False):
     """Score one scanned port. Returns (row, details); ``row['verdict']`` is 'NO SCAN' when the scan DB is missing."""
     repo, scan = Path(repo), Path(scan)
     dbp = scan / f"{name}_galaxy_master.db"
@@ -267,6 +290,8 @@ def score_port(name, repo, scan, scratch, oracle=False, legacy_vendor=False):
         ts_tot = sum(ts[p] for p in files_ct)
         row["treesitter_functions"] = ts_tot if ts else ""
         row["ts_delta_pct"] = round(100 * (gg_tot - ts_tot) / ts_tot, 1) if ts_tot else ""
+    if clang:
+        _clang_oracle(row, det, repo, by_lang, nfunc)
 
     # 4 typosquat
     typos = re.findall(r"TYPOSQUATTING DETECTED: (.*)", log)

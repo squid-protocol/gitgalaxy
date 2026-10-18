@@ -1,6 +1,6 @@
 ---
 name: self-scan-query
-description: Query GitGalaxy's own self-scan SQLite DB (docs/self_scan/gitgalaxy_master.db) for per-file/function complexity, LOC, call graphs, and blast-radius ranking -- near-zero-token compared to grep or an Explore subagent for these questions. Use before touching a file to gauge how big/complex/depended-on it is, before a large refactor to find the real blast-radius ranking, or to answer "what does function X call" / "which functions in this file are heaviest" / "which directory has the most code". Do NOT use for finding string literals, dict/list-literal keys, exact line numbers, or any non-function symbol -- the DB has no line numbers and doesn't parse literal internals; grep or Read for those.
+description: Query GitGalaxy's own self-scan SQLite DB (docs/self_scan/gitgalaxy_master.db) for per-file/function complexity, LOC, call graphs, and blast-radius ranking -- near-zero-token compared to grep or an Explore subagent for these questions. Use before touching a file to gauge how big/complex/depended-on it is, before a large refactor to find the real blast-radius ranking, or to answer "what does function X call" / "which functions in this file are heaviest" / "which directory has the most code". Do NOT use for finding string literals, dict/list-literal keys, or any non-function symbol -- function_data has start_line/loc (use context_pack.py for an issue's path:start-end pointers) but the DB doesn't parse literal internals; grep or Read for those.
 ---
 
 Source of truth for the DB's purpose and schema notes is the docstring at the top of
@@ -92,8 +92,8 @@ blast-radius rankings from a NULL column.
 
 - Finding a string literal, comment, config key, or anything inside a dict/list literal (the DB
   explicitly can't see inside e.g. `language_standards.py`'s `LANGUAGE_DEFINITIONS` dict).
-- Getting an exact line number -- the DB doesn't store one; once you know *which file* from a DB
-  query, grep or Read that file for the actual location.
+- Getting the line of a non-function symbol: only `function_data.start_line` exists. For a function,
+  `start_line` + `loc` is its range; for anything else grep or Read the file.
 - Any symbol that isn't a function or class (variables, constants, types, imports by name).
 - A file too new/uncommitted to be in the DB at all, or one excluded by `.galaxyscope.yaml`
   (check `excluded_artifacts` table if a file you expect is missing).

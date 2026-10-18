@@ -198,9 +198,15 @@ def test_every_convention_row_is_complete_and_links_a_register_entry():
     register = ROOT / "docs" / "language_status" / "register"
     for key, row in CICS_CONVENTIONS.items():
         assert all(row[k] for k in ("changes", "cobc", "det", "otherwise")), key
-        assert row["register"] or "no register entry" in row["otherwise"], key
+        assert row["register"], key  # #4707: every convention is stated by a register entry
         for rid in row["register"]:
             assert (register / f"{rid}.md").is_file(), (key, rid)
+
+
+def test_eibtrnid_is_stated_by_its_register_entry():
+    entry = (ROOT / "docs" / "language_status" / "register" / "X68.md").read_text(encoding="utf-8")
+    assert CICS_CONVENTIONS["EIBTRNID"]["register"] == ["X68"]
+    assert "EIBTRNID" in entry and "not validated" in entry.lower()
 
 
 def test_the_register_lists_every_convention_row():

@@ -72,3 +72,32 @@ def test_burned_maps_with_a_typable_initial_field():
         "ssmap.bms",
     }  # fmt: skip
     assert maps == known, f"typable INITIAL fields changed: +{sorted(maps - known)} -{sorted(known - maps)}"
+
+
+def test_no_burned_occurs_field_is_generated_as_map_input():
+    """#4506: `Unsupported("BMS OCCURS input")` (RECEIVE MAP typing into NAME(n)) stays because no burned map has a typable
+    OCCURS field; `bms_input_fields` must never offer one, so no generated case can reach the refusal."""
+    import equivalence_inputs as ei
+
+    checked = 0
+    for p in _burned_maps():
+        rows = bms_screen_fields(read_source(p).text)
+        for m in (r for r in rows if r["kind"] == "map" and r["name"]):
+            repeated = {
+                r["name"].upper() + "I"
+                for r in rows
+                if r["kind"] == "field"
+                and r["parent_ordinal"] == m["ordinal"]
+                and r["name"]
+                and (r.get("occurs") or 1) > 1
+            }
+            if not repeated:
+                continue
+            ei.bms_input_fields.cache_clear()
+            try:
+                got = ei.bms_input_fields(p.parent, m["name"])
+            except ValueError:  # the map holds no typable field at all
+                got = {}
+            assert not repeated & set(got), f"{p.name}: an OCCURS field is offered as input: {repeated & set(got)}"
+            checked += 1
+    assert checked >= 1  # BNK1ACC

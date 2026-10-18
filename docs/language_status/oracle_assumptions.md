@@ -3668,6 +3668,10 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
     CONVERTTIME (a date-time string to ABSTIME).
 - **Status:** REFUSED. Reached by no burned-estate program except zECS's SOAPFAULT CREATE; non-burned census programs are counted by tools
   only. A command here moves to its own X entry when a slice models it, and its `register` changes with it.
+- **The modelled side (#4270 acceptance 3).** `tests/cobol_mainframe/test_cics_command_evidence_4270.py` pins that every modelled
+  command has a register entry, a cics-crucible case in the committed status file, or a named unit-proof test that issues it
+  (its `UNIT_PROOF` list, which only shrinks). A census of the burned estates (2026-10-18) finds none using a command or ASSIGN /
+  INQUIRE option listed here as refused, so no new verb was modelled in that slice.
 
 ### X66. Transient-data queues: SET / INQUIRE TDQUEUE ENABLESTATUS and the DISABLED condition on READQ / WRITEQ / DELETEQ TD — ASSUMED, REFUSED where IBM is silent (#5168 round 5)
 - **SET / INQUIRE TDQUEUE ENABLESTATUS** (CICS TS 6.x, https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-set-tdqueue,

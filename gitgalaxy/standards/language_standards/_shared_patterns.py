@@ -115,7 +115,9 @@ GLOBAL_FRAGILE_DEBT = re.compile(f"{_HYPHEN_IDENT_PRE}{_SPACED_FRAGILE}{_HYPHEN_
 #   after `import` must BE the package, optionally followed by a submodule
 #   (`from openai.types import X`). Anchored at a statement start (line start or
 #   `;`), so `from airflow.providers import openai` and `from . import openai`
-#   are not package imports. Pieces are adjacent-disjoint (`[\w.]+` / `[ \t]` /
+#   are not package imports. The anchor also excludes a doctest
+#   `>>> import openai` / `... import openai` line: decided NOT to count it (#4250), as for
+#   the general python `import` rule (#2875 C5); pinned by test_doctest_import_policy_4250. Pieces are adjacent-disjoint (`[\w.]+` / `[ \t]` /
 #   `,`) and the item list is bounded, so there is no Rule-14 split ambiguity.
 # * JS/TS (`_js_package_import`): the module SPECIFIER (the quoted string after
 #   `from` / `import` / `require(` / `import(`) must name the package. A relative

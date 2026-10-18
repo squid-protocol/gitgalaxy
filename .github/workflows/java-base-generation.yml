@@ -129,7 +129,8 @@ jobs:
             "$GITGALAXY_MAINFRAME_CORPORA/$CORPUS" \
             --same-as "$GITHUB_WORKSPACE/gitgalaxy" \
             --base-cache "$RUNNER_TEMP/java_base_cache" \
-            --work "$RUNNER_TEMP/java_keep"
+            --work "$RUNNER_TEMP/java_keep" \
+            "${ONLY[@]}"
 
       - name: Save the generation under this content (main)
         if: steps.kept.outputs.cache-hit != 'true' && steps.keep-gen.outcome == 'success'

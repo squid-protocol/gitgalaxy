@@ -165,6 +165,12 @@ def test_the_seeding_workflow_is_never_cancelled_or_gated_and_never_runs_on_a_pu
     assert "pull_request" not in text.split("jobs:")[0].split("on:")[1], "a PR's cache scope is its own ref"
 
 
+def test_the_seeding_run_passes_the_only_configs_it_builds():
+    text = (WORKFLOWS / "java-base-generation.yml").read_text(encoding="utf-8")
+    assert "ONLY=(--only $CONFIGS)" in text
+    assert '"${ONLY[@]}"' in text, "ONLY is built but never passed to java_target_matrix.py"
+
+
 def test_every_java_compile_cache_save_skips_pull_requests():
     bad = [
         wf

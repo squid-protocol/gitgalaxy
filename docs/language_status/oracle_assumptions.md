@@ -187,7 +187,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | Q1 | Db2 | Db2 for Linux runs the SQL, not Db2 for z/OS | ASSUMED | yes |
 | Q2 | Db2 | EXEC SQL keeps RETURN-CODE | ASSUMED | yes |
 | Q3 | Db2 | The unit of work: one per CICS task; one per batch step, ended by EXEC SQL COMMIT / ROLLBACK (cursors closed as Db2 for z/OS closes them), backed out by an abend, with SAVEPOINT / ROLLBACK TO SAVEPOINT / RELEASE SAVEPOINT run by Db2; a CICS program's ROLLBACK refused (-926) | MATCHED | CICS: yes (CBSA XFRFUN); batch: yes (synthetic UOWDEMO, `tests/equivalence/db2/uow`, #4269) |
-| Q4 | Db2 | dynamic SQL, CONNECT, CALL, scroll FETCH, host-variable arrays; a savepoint statement in a CICS program | REFUSED | — |
+| Q4 | Db2 | dynamic SQL beyond a literal INSERT, CONNECT, CALL, scroll FETCH, host-variable arrays; a savepoint statement in a CICS program | REFUSED | — |
 | Q5 | Db2 | DSNTIAC / DSNTIAR message formatting | REFUSED | no |
 | Q6 | Db2 | Date and time text in ISO form; DDL adapted from z/OS jobs | ASSUMED | yes (CBSA, GenApp) |
 | Q7 | Db2 | `CCSID EBCDIC` tables hold Unicode text: string order differs | DIFFERS | no |
@@ -3948,7 +3948,15 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   order, tested against the SQLCA after each executable statement (SQLERROR, then NOT FOUND, then SQLWARNING, as IBM).
   `WHENEVER ... PERFORM` / `STOP` and a label that is not a paragraph are refused by name. A scroll cursor's
   `DECLARE` and its plain `FETCH` (GenApp LGIPDB01) run; no burned estate uses the forms below.
-- **Refused.** Dynamic SQL (PREPARE / EXECUTE / DESCRIBE), CONNECT, CALL, ALLOCATE / ASSOCIATE, scroll
+- **Modelled (#4269).** `EXECUTE IMMEDIATE 'INSERT ... VALUES ...'`: the string literal (an embedded quote doubled) is
+  the statement text, run as written on the unit of work's connection, Db2 answering (-803, -204, ... land in the
+  SQLCA; WHENEVER tests them). Proven on Db2 by the synthetic estate `tests/equivalence/db2/dynsql` (DYNDEMO; no
+  burned estate issues dynamic SQL). **Assumption:** the connection returns no row count, so SQLERRD(3) is not set
+  by the port while Db2 sets it to 1: a program that reads it after such a statement shows as a differing scenario,
+  never as a silent pass. Refused by name: a host variable as the text, a parameter marker, a searched UPDATE / DELETE /
+  MERGE and an INSERT ... SELECT (+100 when no row changes, which needs the count), DDL, COMMIT / ROLLBACK, a SELECT,
+  and EXECUTE IMMEDIATE in a CICS program.
+- **Refused.** The rest of dynamic SQL (PREPARE / EXECUTE [USING] / DESCRIBE), CONNECT, CALL, ALLOCATE / ASSOCIATE, scroll
   FETCH (PRIOR / ABSOLUTE / RELATIVE), host-variable arrays and a host variable in a savepoint statement (Q3) stop the precompiler and the det
   translator by name (and a savepoint statement in a CICS program the det translator), as does an undeclared host
   variable or a `WHERE CURRENT OF` a cursor the program does not declare. A positioned UPDATE / DELETE on a declared

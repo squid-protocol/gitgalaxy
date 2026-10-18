@@ -314,6 +314,26 @@ def test_the_dbcrfun_det_port_holds_on_generated_db2_rows(tmp_path):
     assert any(x["verb"] == "INSERT" for q in sql for x in q["cobol"])
 
 
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_xfrfun_det_port_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's XFRFUN (CICS, two SELECT + UPDATE pairs + PROCTRAN INSERT, SYNCPOINT ROLLBACK) on 30 generated ACCOUNT
+    rows: statements answered alike on both sides, including the UPDATE Db2 rejects with -180 (SQLSTATE 22007) when a
+    NULL-date read left the host date unset -- the JDBC driver refuses those bytes on the client, and the harness
+    logs the statement as Db2's answer."""
+    report = _det_port_generated("cbsa-xfrfun-generated", tmp_path)
+    assert report["proven"] is True and report["db2_generated"] == {"IBMUSER.ACCOUNT": 30}
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    assert len(sql) == 40 and all(q["equal"] == q["statements"] for q in sql)  # (amount <= 0 and FROM = TO: no SQL)
+    assert sum(1 for q in sql if q["statements"]) >= 20
+    assert {x["sqlcode"] for q in sql for x in q["cobol"]} >= {0, 100, -180}
+    assert any(x["verb"] == "INSERT" for q in sql for x in q["cobol"])
+
+
+def test_the_harness_logs_a_statement_the_driver_refuses_on_the_client_as_db2s_minus_180():
+    """The Java outcome log (EquivalenceDb2Config) names the -4220 bind refusal and answers it -180 / 22007."""
+    assert "getErrorCode() == -4220" in db2.CONFIG and 'o.state = "22007"' in db2.CONFIG
+
+
 _BATCH_CBL = """\
        FD TR-RECORD RECORDING MODE F.
        01 WS-INPUT-VARS.

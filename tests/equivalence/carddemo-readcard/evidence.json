@@ -241,14 +241,14 @@
   "survived": 14,
   "stillborn": 8,
   "survivors": {
-   "case_gap": 14,
+   "case_gap": 4,
    "harness_gap": 0,
-   "equivalent": 0,
+   "equivalent": 10,
    "unreachable": 0,
    "untriaged": 0
   },
   "score_raw": "69/83",
-  "score_adjusted": "69/83",
+  "score_adjusted": "69/73",
   "source": "docs/language_status/mutation_scores.json#carddemo-readcard/CBACT02C",
   "inputs": {
    "port": {

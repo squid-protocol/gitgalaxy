@@ -233,3 +233,18 @@ def test_the_user_cases_carry_fields_the_screens_never_show():
 def test_the_transaction_view_case_fails_the_pf3_xctl():
     s = _gap_scenarios("carddemo-tranview")["pf3-xctl-fails"]
     assert s["aid"] == "DFHPF3" and s["faults"][0]["cmd"] == "XCTL" and s["faults"][0]["resp"] == "PGMIDERR"
+
+
+def test_the_eibcalen_scenarios_state_a_length_inside_the_commarea():
+    # #5401: a short COMMAREA only on field boundaries whose unset numerics are not read (a blank numeric is IBM-undefined)
+    for case, names, whole in (
+        ("carddemo-userupd", ("short-commarea-185", "short-commarea-186"), 194),
+        ("carddemo-report", ("short-commarea-146", "short-commarea-153"), 160),
+        ("carddemo-tranlist", ("enter-short-commarea",), 218),
+    ):
+        scs = _scenarios(case)
+        for name in names:
+            s = scs[name]
+            assert s["commarea"] is not None
+            assert 1 <= s["commarea_length"] < whole
+            assert s["why"].startswith("#5401")

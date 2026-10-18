@@ -319,14 +319,14 @@
   "survived": 38,
   "stillborn": 0,
   "survivors": {
-   "case_gap": 38,
+   "case_gap": 15,
    "harness_gap": 0,
-   "equivalent": 0,
-   "unreachable": 0,
+   "equivalent": 17,
+   "unreachable": 6,
    "untriaged": 0
   },
   "score_raw": "95/133",
-  "score_adjusted": "95/133",
+  "score_adjusted": "95/110",
   "source": "docs/language_status/mutation_scores.json#cbsa-updacc/UPDACC",
   "inputs": {
    "port": {

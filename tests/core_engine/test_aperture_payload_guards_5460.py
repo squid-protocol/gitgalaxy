@@ -42,7 +42,7 @@ def _wide_row_table() -> str:
 
 
 def _flat_table() -> str:
-    return "static const int tab[] = {\n" + "".join("    %d,\n" % i for i in range(2500)) + "};\n"
+    return "static const int tab[] = {\n" + "".join(f"    {i},\n" for i in range(2500)) + "};\n"
 
 
 def _scan(engine, tmp_path, content, name="t.c"):
@@ -61,7 +61,7 @@ def test_a_pure_table_is_still_excluded(engine, tmp_path, table):
     assert _scan(engine, tmp_path, table()) is False
 
 
-def test_table_rows_and_statements_are_not_definitions(engine):
+def test_table_rows_and_statements_are_not_definitions():
     lines = ["    FOO(1, 2),", "    {", "if (x) {", "    while (y)", "    {", "static int t[] = {", "}"]
     assert ApertureFilter._has_definitions(lines) is False
 

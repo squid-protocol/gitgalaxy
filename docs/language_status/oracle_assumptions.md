@@ -102,7 +102,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C17 | compiler | INITIALIZE REPLACING of a table holding an item of a category REPLACING does not name: GnuCOBOL gives that item the first occurrence's value, IBM leaves it as it is; refused by name | DIFFERS (oracle vs IBM) / REFUSED (the translator refuses such a statement by name) | no: CardDemo CODATE01's two INITIALIZE REPLACING statements name groups with no table |
 | C18 | compiler | STORAGE, TRAP, ABTERMENC; Db2 DATE / TIME / DEC / DECPT / CCSID / bind options; CICS region and program-definition options: refuse, declare or no effect | DECLARED / REFUSED by name (LE, Db2 and CICS runtime options) | yes: every burned estate's recorded value resolves (STORAGE default via L3; GenApp EBCDIC CCSID 285 is declared) |
 | D1 | data | Text order is ASCII (Latin-1), not EBCDIC | DIFFERS | keys: no; comparisons: not audited |
-| D2 | data | Hex literals that name EBCDIC characters (`X'40'`); a hex literal is its raw bytes under every record charset, the SYSOUT record separator a plain LF (#4698) | DIFFERS (oracle vs IBM, characters) / MATCHED (the bytes, the oracle = the port = IBM) | yes (batch Sysout byte test, 4 record charsets) |
+| D2 | data | Hex literals that name EBCDIC characters (`X'40'`); a hex literal is its raw bytes under every single-byte record charset (refused by name in a multi-byte one where it is not text), the SYSOUT record separator a plain LF (#4698) | DIFFERS (oracle vs IBM, characters) / MATCHED (the bytes, the oracle = the port = IBM) | yes (batch Sysout byte test, 4 record charsets) |
 | D3 | data | Zoned signs in ASCII data (`{`, `}`, A–R overpunch) | MATCHED | yes |
 | D4 | data | An alphanumeric literal holding a character no single-byte code page holds (a UTF-8 em dash): the statement is a hole by name, the program translates; in a VALUE, a national / DBCS literal or a name the program stays refused (#4272) | REFUSED (the statement) | no |
 | F1 | files | Natural FILE STATUS values come from GnuCOBOL's BDB files | ASSUMED | yes (00, 10, 23, 22) |
@@ -1216,7 +1216,15 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
   the literal's bytes, an ordinary literal is encoded by the charset as before, and a field's bytes (EBCDIC data a
   program read or moved) are shown as the bytes they are. The runtime's record charset keeps all 256 byte values
   (`cobolrt/Lossless`): a byte a single-byte charset leaves unmapped, such as X'81' in windows-1252, is its latin-1
-  character and encodes back to that byte. GnuCOBOL writes the same raw bytes.
+  character and encodes back to that byte. A byte whose character a lower byte already has (IBM037 and its
+  siblings decode both X'15' and X'25' to U+000A; the round trip used to write X'25' as X'15') reads as a private-use
+  character (U+E000 + the byte) and encodes back to its own byte (#4702). GnuCOBOL writes the same raw bytes.
+- **A multi-byte record charset refuses (#4702).** UTF-8 cannot hold X'80'..X'FF' alone as text (they are not a
+  sequence it decodes), so `Cobol.hex` refuses such a literal by name (`UnsupportedOperationException`, "is not valid text
+  in the record charset") instead of writing U+FFFD's three bytes; a sequence it does decode (X'C3A9') is kept. No
+  burned estate runs a multi-byte record charset, so no port moves. Pinned: `test_det_sysout_bytes_4702.py` (all 256
+  values under ISO-8859-1, IBM037, IBM1047, windows-1252 and UTF-8; the LF after a DISPLAY and none after WITH NO
+  ADVANCING, in the batch and the standalone Sysout).
 - **The line separator is framing, not data (#4698).** IBM: without WITH NO ADVANCING, "after the last operand has been
   transferred to the output device, the positioning of the output device will be reset to the leftmost position of the
   next line" (Language Reference, DISPLAY statement). That is a record boundary on z/OS, not a byte in the record: a

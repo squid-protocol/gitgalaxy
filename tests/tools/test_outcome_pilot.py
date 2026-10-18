@@ -183,6 +183,58 @@ def test_strictness_gaps_follow_the_registry_and_skip_unrowed_languages():
     assert op.strictness_gaps("no_such_language") is None
 
 
-def test_the_pilot_list_is_ten_repos_and_only_carddemo_is_mainframe():
-    assert len(op.PILOT_REPOS) == 10
-    assert [n for n, e in op.PILOT_REPOS.items() if e["burned"]] == ["carddemo"]
+def test_the_pilot_list_is_the_ten_repos_plus_the_burned_mainframe_estates():
+    assert len(op.PILOT_REPOS) == 15
+    burned = [n for n, e in op.PILOT_REPOS.items() if e["burned"]]
+    assert burned == ["carddemo", "cbsa", "genapp", "zecs", "dbb-mortgage", "async-credit-card"]
+
+
+def test_every_burned_entry_names_a_burned_upstream():
+    estate4_draw = pytest.importorskip("estate4_draw")
+    burned_urls = {
+        "aws-mainframe-modernization-carddemo",
+        "cics-banking-sample-application-cbsa",
+        "cics-genapp",
+        "zecs",
+        "dbb",
+        "cics-async-api-credit-card-application-example",
+    }
+    assert burned_urls <= estate4_draw.BURNED_NAMES | {"dbb"}
+    for name, entry in op.PILOT_REPOS.items():
+        if entry["burned"]:
+            tail = entry["url"].rstrip("/").split("/")[-1].lower()
+            assert tail in burned_urls, name
+            # mid-history pin (None) or an explicit commit; there is no PROVENANCE copy for these
+            assert entry["pin"] is None or name in ("dbb-mortgage", "zecs")
+
+
+def test_the_dbb_entry_is_limited_to_the_mortgage_application_subtree():
+    assert op._subdir_args(op.PILOT_REPOS["dbb-mortgage"]) == ["zBuilder/MortgageApplication"]
+    assert op._subdir_args(op.PILOT_REPOS["cbsa"]) == []
+
+
+def test_history_limited_to_a_subdir_ignores_other_paths(tmp_path):
+    repo = tmp_path / "r"
+    repo.mkdir()
+    _git(repo, "init", "-q", "-b", "main")
+    body = "".join(f"line {i}\n" for i in range(40))
+    _commit(repo, "initial", "2024-01-01T00:00:00", {"app/p.cbl": body, "tools/t.py": body, "app/c.cpy": body})
+    pin = subprocess.run(
+        ["git", "-C", str(repo), "rev-parse", "HEAD"], capture_output=True, text=True, check=True
+    ).stdout.strip()
+    _commit(repo, "fix crash in tool", "2024-02-01T00:00:00", {"tools/t.py": body + "x\n"})
+    _commit(repo, "fix bug in program", "2024-02-02T00:00:00", {"app/p.cbl": body + "y\n"})
+    _commit(repo, "add copybook field", "2024-02-03T00:00:00", {"app/c.cpy": body + "z\n"})
+    commits = op.history_after_pin(repo, pin, 365, "app")
+    fixes, touches, _ = op.later_fix_counts(commits, ["app/p.cbl", "app/c.cpy", "tools/t.py"])
+    assert fixes == {"app/p.cbl": 1}
+    assert touches == {"app/p.cbl": 1, "app/c.cpy": 1}
+    everything = op.history_after_pin(repo, pin, 365)
+    assert op.later_fix_counts(everything, ["tools/t.py"])[0] == {"tools/t.py": 1}
+
+
+def test_mainframe_file_kinds_have_a_strictness_row_or_are_skipped():
+    for lang in ("cobol", "jcl"):
+        gaps = op.strictness_gaps(lang)
+        assert gaps is None or isinstance(gaps, int)
+    assert op.strictness_gaps("no_such_language") is None

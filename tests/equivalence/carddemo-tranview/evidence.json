@@ -351,14 +351,14 @@
   "survived": 34,
   "stillborn": 0,
   "survivors": {
-   "case_gap": 0,
+   "case_gap": 1,
    "harness_gap": 0,
-   "equivalent": 9,
+   "equivalent": 25,
    "unreachable": 8,
-   "untriaged": 17
+   "untriaged": 0
   },
   "score_raw": "66/100",
-  "score_adjusted": "66/83",
+  "score_adjusted": "66/67",
   "source": "docs/language_status/mutation_scores.json#carddemo-tranview/COTRN01C",
   "inputs": {
    "port": {

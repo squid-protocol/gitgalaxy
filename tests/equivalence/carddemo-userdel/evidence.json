@@ -385,14 +385,14 @@
   "survived": 25,
   "stillborn": 13,
   "survivors": {
-   "case_gap": 3,
+   "case_gap": 9,
    "harness_gap": 0,
-   "equivalent": 9,
+   "equivalent": 13,
    "unreachable": 3,
-   "untriaged": 10
+   "untriaged": 0
   },
   "score_raw": "62/87",
-  "score_adjusted": "62/75",
+  "score_adjusted": "62/71",
   "source": "docs/language_status/mutation_scores.json#carddemo-userdel/COUSR03C",
   "inputs": {
    "port": {

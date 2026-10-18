@@ -1,5 +1,5 @@
 {
- "commit": "f3e72d1f0",
+ "commit": "b56a7e4c5",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -111,12 +111,12 @@
    }
   },
   "mutation": {
-   "adjusted_kill_pct": 83.0,
-   "adjusted_total": 2833,
-   "killed": 2352,
-   "ports": 49,
-   "raw_kill_pct": 69.6,
-   "raw_total": 3381
+   "adjusted_kill_pct": 83.1,
+   "adjusted_total": 2900,
+   "killed": 2410,
+   "ports": 50,
+   "raw_kill_pct": 69.2,
+   "raw_total": 3481
   },
   "translator": {
    "of": 129,
@@ -157,7 +157,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-18T16:40:22Z",
+  "as_of": "2026-10-18T16:47:37Z",
   "core": {
    "closed": 123,
    "open": 34,
@@ -196,8 +196,8 @@
   },
   "infra": {
    "closed": 185,
-   "open": 43,
-   "total": 228
+   "open": 47,
+   "total": 232
   },
   "measured": true,
   "milestones": [
@@ -267,9 +267,9 @@
    {
     "closed": 37,
     "number": 12,
-    "open": 5,
+    "open": 9,
     "title": "Yes, but can it go faster...?",
-    "total": 42
+    "total": 46
    },
    {
     "closed": 57,
@@ -413,7 +413,7 @@
   "title_counts": {
    "cics": {
     "closed": 79,
-    "total": 100
+    "total": 101
    },
    "cobol": {
     "closed": 124,

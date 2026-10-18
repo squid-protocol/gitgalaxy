@@ -35,7 +35,7 @@ A label added by someone without write access is removed too, on any pass (the t
 | Label | Meaning | What you do |
 |---|---|---|
 | `shepherd:needs-fix` | A real failure, a merge conflict or a red matrix on this head. One digest comment says what failed and the local command that reproduces it. | Fix it, push. |
-| `shepherd:waiting-on-main` | The failing check fails on `main` too. | Nothing on this PR; main's owner fixes it. |
+| `shepherd:waiting-on-main` | The failing check fails on `main` too, or did until `main` went green and this head has not been re-tested with the fix. | Nothing on this PR: main's owner fixes it, then the reconcile pass merges `main` in once (#5484) and the label stays until a run on that head finishes. |
 | `shepherd:retrying` | An infra or flake failure is being rerun (up to 3 times, 15 minutes apart). | Nothing; wait. |
 | `shepherd:reapprove` | New commits dropped `shepherd:merge` (an approval is bound to its head). | Review the new head, re-add `shepherd:merge`. |
 
@@ -44,7 +44,7 @@ Status labels are cleared when no request label is left, except `shepherd:reappr
 ## Other rules
 
 - **Depends on #N.** A PR whose body says `Depends on #N` does not auto-merge until #N is merged.
-- **Behind main.** Nothing updates a branch just because it is behind (#5134, owner decision 2026-10-14): every push to a ready PR costs one full CI run (superseded-SHA runs were 27% of CI minutes). Workers merge main only when the PR is CONFLICTING/dirty, a required check fails because of main, or golden masters / generated files must be re-blessed after a sibling merge. Main Watch (`ci-red-main`) is the backstop for a bad combination. The classic branch-protection `strict: true` is cleared by the owner by hand; while it is set, GitHub reports a green PR as `behind` and `pr_check` refuses it. Merge-main commits per PR are measured for 3 days after this merged.
+- **Behind main.** Nothing updates a branch just because it is behind (#5134, owner decision 2026-10-14): every push to a ready PR costs one full CI run (superseded-SHA runs were 27% of CI minutes). Workers merge main only when the PR is CONFLICTING/dirty, a required check fails because of main, or golden masters / generated files must be re-blessed after a sibling merge. The one exception (#5484, reconcile passes only): a `shepherd:waiting-on-main` PR whose failing check is now green on main's newest commit gets `main` merged in once per main head (`PUT pulls/N/update-branch` with `AUTOMATION_PAT`, a plain merge, so `shepherd:merge` carries over through the bot's marker pair). Not done for a fork, `shepherd:hold`, a conflicting PR (churn fixes those) or a PR that is merely behind. A failure that survives a head containing main's fix is `real`. Main Watch (`ci-red-main`) is the backstop for a bad combination. The classic branch-protection `strict: true` is cleared by the owner by hand; while it is set, GitHub reports a green PR as `behind` and `pr_check` refuses it. Merge-main commits per PR are measured for 3 days after this merged.
 - **Infra reruns.** Only a failed job of an infra or flake kind is rerun, and only three times per run.
 - **Permissions.** The request labels are honoured only from collaborators with `write`, `maintain` or `admin`.
 

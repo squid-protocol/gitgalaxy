@@ -36,6 +36,7 @@ INPUTS = (
     "docs/language_status/*",  # the register, the rule catalogue, the generated records the tests compare
     "docs/self_scan/ground_truth_history.jsonl",
     ".github/workflows/mainframe-ground-truth.yml",
+    "tests/tools/ci_retry.sh",  # the workflow wraps its pip installs in it (#5048)
     # workflows a test reads (test_db2_odbc_pin); the other workflows are only named in comments
     ".github/workflows/det-sweep.yml",
     ".github/workflows/evidence-refresh.yml",
@@ -56,7 +57,6 @@ NON_INPUTS = (
     "tests/tools/box/*",
     "tests/tools/shepherd_gh.py",
     "tests/tools/ci_rerun_stats.py",
-    "tests/tools/ci_retry.sh",
     "tests/tools/ci_job_summary.py",
     "tests/tools/contract_pr_check.py",
     "tests/tools/pin_ci_requirements.sh",

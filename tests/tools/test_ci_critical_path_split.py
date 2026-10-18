@@ -65,8 +65,19 @@ def test_history_stays_in_one_part_and_the_gate_runs_on_both():
 def _ground_truth_totals():
     """Replays pytest-split's least_duration (heaviest first, into the lightest group) over the committed durations."""
     import json
+    import subprocess
 
-    durations = json.loads((ROOT / ".test_durations").read_text(encoding="utf-8"))
+    # The full-suite parts overwrite the working-tree .test_durations with the restored cache (smoke-test.yml, "Balance
+    # by the restored durations"), which has no ground-truth seconds: read the committed blob, the file the fallback uses.
+    shown = subprocess.run(
+        ["git", "show", "HEAD:.test_durations"],  # noqa: S607
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    text = shown.stdout if shown.returncode == 0 and shown.stdout else (ROOT / ".test_durations").read_text("utf-8")
+    durations = json.loads(text)
     seconds = sorted((v for k, v in durations.items() if k.startswith("tests/cobol_mainframe/")), reverse=True)
     assert seconds, "no recorded tests/cobol_mainframe/ durations"
     totals = [0.0, 0.0]

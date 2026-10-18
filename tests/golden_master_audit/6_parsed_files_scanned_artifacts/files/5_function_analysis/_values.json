@@ -555697,6 +555697,19 @@
           "Structural Impact": 34.3
         },
         {
+          "Control Flow Branches": 15,
+          "Control Flow Ratio": "68.2%",
+          "End Line": 47026,
+          "Function Name": "areTypeParametersIdentical",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 45,
+          "Reflection Hits": 0,
+          "Start Line": 46982,
+          "Structural Impact": 34.2
+        },
+        {
           "Control Flow Branches": 18,
           "Control Flow Ratio": "75.0%",
           "End Line": 26675,
@@ -561363,19 +561376,6 @@
           "Reflection Hits": 0,
           "Start Line": 41388,
           "Structural Impact": 15.2
-        },
-        {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 22004,
-          "Function Name": "compareSignaturesRelated",
-          "Input Parameters": 8,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 22003,
-          "Structural Impact": 15.1
         },
         {
           "Control Flow Branches": 9,
@@ -569583,19 +569583,6 @@
         {
           "Control Flow Branches": 3,
           "Control Flow Ratio": "75.0%",
-          "End Line": 33404,
-          "Function Name": "getUnionType",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 33401,
-          "Structural Impact": 7.1
-        },
-        {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "75.0%",
           "End Line": 34883,
           "Function Name": "isThisPropertyAccessInConstructor",
           "Input Parameters": 2,
@@ -569685,19 +569672,6 @@
           "Structural Impact": 7.0
         },
         {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "60.0%",
-          "End Line": 30102,
-          "Function Name": "mapType",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 30101,
-          "Structural Impact": 7.0
-        },
-        {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "40.0%",
           "End Line": 36255,
@@ -569761,19 +569735,6 @@
           "Reflection Hits": 0,
           "Start Line": 53529,
           "Structural Impact": 6.9
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 23089,
-          "Function Name": "someTypeRelatedToType",
-          "Input Parameters": 4,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 23088,
-          "Structural Impact": 6.8
         },
         {
           "Control Flow Branches": 2,
@@ -572663,19 +572624,6 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 28389,
-          "Function Name": "getTypeOfDestructuredProperty",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 28388,
-          "Structural Impact": 5.3
-        },
-        {
-          "Control Flow Branches": 2,
           "Control Flow Ratio": "25.0%",
           "End Line": 28635,
           "Function Name": "createFlowType",
@@ -573777,19 +573725,6 @@
           "Lines of Code (LOC)": 8,
           "Reflection Hits": 0,
           "Start Line": 38708,
-          "Structural Impact": 4.6
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 41376,
-          "Function Name": "checkExpressionWithContextualType",
-          "Input Parameters": 4,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 41375,
           "Structural Impact": 4.6
         },
         {
@@ -575860,19 +575795,6 @@
           "Structural Impact": 4.3
         },
         {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 19213,
-          "Function Name": "getPropertyNameFromType",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 19212,
-          "Structural Impact": 4.3
-        },
-        {
           "Control Flow Branches": 1,
           "Control Flow Ratio": "33.3%",
           "End Line": 26520,
@@ -575922,19 +575844,6 @@
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 2533,
-          "Structural Impact": 4.2
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 4218,
-          "Function Name": "getExternalModuleMember",
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 4216,
           "Structural Impact": 4.2
         },
         {
@@ -576169,19 +576078,6 @@
           "Lines of Code (LOC)": 12,
           "Reflection Hits": 0,
           "Start Line": 17240,
-          "Structural Impact": 4.1
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "25.0%",
-          "End Line": 18115,
-          "Function Name": "addTypesToUnion",
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 18114,
           "Structural Impact": 4.1
         },
         {
@@ -577044,19 +576940,6 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 4091,
-          "Function Name": "combineValueAndTypeSymbols",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 4090,
-          "Structural Impact": 3.6
-        },
-        {
-          "Control Flow Branches": 1,
           "Control Flow Ratio": "50.0%",
           "End Line": 5634,
           "Function Name": "containedBy",
@@ -577079,19 +576962,6 @@
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 5638,
-          "Structural Impact": 3.6
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 9179,
-          "Function Name": "typePredicateToTypePredicateNodeHelper",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 9178,
           "Structural Impact": 3.6
         },
         {
@@ -577144,19 +577014,6 @@
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 16052,
-          "Structural Impact": 3.6
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 16445,
-          "Function Name": "createTypePredicateFromTypePredicateNode",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 16444,
           "Structural Impact": 3.6
         },
         {
@@ -577383,32 +577240,6 @@
         {
           "Control Flow Branches": 1,
           "Control Flow Ratio": "50.0%",
-          "End Line": 26494,
-          "Function Name": "sameMap",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 26493,
-          "Structural Impact": 3.6
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 28044,
-          "Function Name": "forEach",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 28043,
-          "Structural Impact": 3.6
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
           "End Line": 28076,
           "Function Name": "isOrContainsMatchingReference",
           "Input Parameters": 2,
@@ -577482,58 +577313,6 @@
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 28522,
-          "Structural Impact": 3.6
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 29812,
-          "Function Name": "narrowTypeByTypeName",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 29811,
-          "Structural Impact": 3.6
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "25.0%",
-          "End Line": 30459,
-          "Function Name": "some",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 30458,
-          "Structural Impact": 3.6
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "25.0%",
-          "End Line": 30465,
-          "Function Name": "some",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 30464,
-          "Structural Impact": 3.6
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "25.0%",
-          "End Line": 32741,
-          "Function Name": "filterType",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 32740,
           "Structural Impact": 3.6
         },
         {
@@ -577625,19 +577404,6 @@
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 45530,
-          "Structural Impact": 3.6
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 50375,
-          "Function Name": "getExternalModuleMember",
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 50373,
           "Structural Impact": 3.6
         },
         {
@@ -578210,19 +577976,6 @@
           "Lines of Code (LOC)": 8,
           "Reflection Hits": 0,
           "Start Line": 14499,
-          "Structural Impact": 3.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 14678,
-          "Function Name": "createSignature",
-          "Input Parameters": 8,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 14675,
           "Structural Impact": 3.2
         },
         {
@@ -581373,19 +581126,6 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 12628,
-          "Function Name": "getWidenedTypeForAssignmentDeclaration",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 12627,
-          "Structural Impact": 2.9
-        },
-        {
-          "Control Flow Branches": 1,
           "Control Flow Ratio": "33.3%",
           "End Line": 17531,
           "Function Name": "getGlobalImportMetaExpressionType",
@@ -581434,32 +581174,6 @@
           "Lines of Code (LOC)": 13,
           "Reflection Hits": 0,
           "Start Line": 26267,
-          "Structural Impact": 2.9
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 31954,
-          "Function Name": "getWidenedLiteralType",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 31953,
-          "Structural Impact": 2.9
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 40924,
-          "Function Name": "getUnionType",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 40923,
           "Structural Impact": 2.9
         },
         {
@@ -581803,19 +581517,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 13569,
-          "Function Name": "getUnionType",
-          "Input Parameters": 4,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 13568,
-          "Structural Impact": 2.3
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 14693,
           "Function Name": "replaceIndexedAccess",
           "Input Parameters": 3,
@@ -581855,45 +581556,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 21006,
-          "Function Name": "mapTypeWithAlias",
-          "Input Parameters": 4,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 21005,
-          "Structural Impact": 2.3
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 21087,
-          "Function Name": "getIntersectionType",
-          "Input Parameters": 4,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 21086,
-          "Structural Impact": 2.3
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 22862,
-          "Function Name": "unionOrIntersectionRelatedTo",
-          "Input Parameters": 4,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 22861,
-          "Structural Impact": 2.3
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 23542,
           "Function Name": "getApparentMappedTypeKeys",
           "Input Parameters": 2,
@@ -581902,32 +581564,6 @@
           "Lines of Code (LOC)": 11,
           "Reflection Hits": 0,
           "Start Line": 23532,
-          "Structural Impact": 2.3
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 25172,
-          "Function Name": "getGenericTypeReferenceRelationKey",
-          "Input Parameters": 4,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 25171,
-          "Structural Impact": 2.3
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 26375,
-          "Function Name": "createInferenceContextWorker",
-          "Input Parameters": 4,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 26374,
           "Structural Impact": 2.3
         },
         {
@@ -581954,19 +581590,6 @@
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 27013,
-          "Structural Impact": 2.3
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 28599,
-          "Function Name": "getUnionType",
-          "Input Parameters": 4,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 28598,
           "Structural Impact": 2.3
         },
         {
@@ -582006,19 +581629,6 @@
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 38829,
-          "Structural Impact": 2.3
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 43588,
-          "Function Name": "getAwaitedType",
-          "Input Parameters": 4,
-          "Is Documented": 1,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 43587,
           "Structural Impact": 2.3
         },
         {
@@ -582284,45 +581894,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 9966,
-          "Function Name": "serializePropertySymbolForClass",
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 9965,
-          "Structural Impact": 2.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 9979,
-          "Function Name": "serializePropertySymbolForClass",
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 9978,
-          "Structural Impact": 2.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 13559,
-          "Function Name": "getEnumLiteralType",
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 13557,
-          "Structural Impact": 2.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 14166,
           "Function Name": "createUnionSignature",
           "Input Parameters": 2,
@@ -582375,19 +581946,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 25454,
-          "Function Name": "compareTypePredicatesIdentical",
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 25453,
-          "Structural Impact": 2.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 25942,
           "Function Name": "createWideningContext",
           "Input Parameters": 3,
@@ -582396,71 +581954,6 @@
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 25940,
-          "Structural Impact": 2.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 26684,
-          "Function Name": "inferFromLiteralPartsToTemplateLiteral",
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 26683,
-          "Structural Impact": 2.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 29706,
-          "Function Name": "narrowType",
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 29705,
-          "Structural Impact": 2.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 30239,
-          "Function Name": "checkPropertyAccessExpression",
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 30237,
-          "Structural Impact": 2.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 32183,
-          "Function Name": "getIndexedAccessType",
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 32182,
-          "Structural Impact": 2.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 33591,
-          "Function Name": "createSymbol",
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 33590,
           "Structural Impact": 2.1
         },
         {
@@ -583428,19 +582921,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 28666,
-          "Function Name": "getUnionType",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 28664,
-          "Structural Impact": 1.9
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 33999,
           "Function Name": "checkJsxAttributes",
           "Input Parameters": 2,
@@ -583501,19 +582981,6 @@
           "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 35330,
-          "Structural Impact": 1.9
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 36334,
-          "Function Name": "getLegacyDecoratorArgumentCount",
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 36332,
           "Structural Impact": 1.9
         },
         {
@@ -583844,45 +583311,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 7399,
-          "Function Name": "countWhere",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 7398,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 8367,
-          "Function Name": "setEmitFlags",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 8366,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 11799,
-          "Function Name": "mapType",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 11798,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 14157,
           "Function Name": "cloneSignature",
           "Input Parameters": 1,
@@ -583974,58 +583402,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 17947,
-          "Function Name": "mapType",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 17946,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 18160,
-          "Function Name": "find",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 18159,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 18236,
-          "Function Name": "isTypeMatchedByTemplateLiteralType",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 18235,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 19045,
-          "Function Name": "mapType",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 19044,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 20558,
           "Function Name": "instantiateTypes",
           "Input Parameters": 2,
@@ -584047,19 +583423,6 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 20559,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 20761,
-          "Function Name": "filter",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 20760,
           "Structural Impact": 1.8
         },
         {
@@ -584104,32 +583467,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 25088,
-          "Function Name": "getTypeAliasInstantiation",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 25087,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 25811,
-          "Function Name": "getTypeAliasInstantiation",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 25810,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 26304,
           "Function Name": "makeNonFixingMapperForContext",
           "Input Parameters": 1,
@@ -584138,71 +583475,6 @@
           "Lines of Code (LOC)": 8,
           "Reflection Hits": 0,
           "Start Line": 26297,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 26336,
-          "Function Name": "getContextualTypeForObjectLiteralMethod",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 26335,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 27604,
-          "Function Name": "getUnionType",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 27603,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 28337,
-          "Function Name": "getTypeWithDefault",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 28336,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 28391,
-          "Function Name": "getTypeOfDestructuredArrayElement",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 28390,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 30477,
-          "Function Name": "getContextualType",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 30476,
           "Structural Impact": 1.8
         },
         {
@@ -584312,110 +583584,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 31963,
-          "Function Name": "getRestTypeAtPosition",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 31962,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 32698,
-          "Function Name": "getContextualTypeForObjectLiteralMethod",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 32697,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 34951,
-          "Function Name": "getApplicableIndexInfoForName",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 34951,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 39667,
-          "Function Name": "instantiateSignature",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 39667,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 40123,
-          "Function Name": "every",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 40122,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 40335,
-          "Function Name": "mapType",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 40334,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 40934,
-          "Function Name": "getUnionType",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 40933,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 40944,
-          "Function Name": "getUnionType",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 40943,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 45465,
           "Function Name": "checkDoStatement",
           "Input Parameters": 1,
@@ -584437,45 +583605,6 @@
           "Lines of Code (LOC)": 7,
           "Reflection Hits": 0,
           "Start Line": 45467,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 46031,
-          "Function Name": "getAsyncFromSyncIterationTypes",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 46030,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 50767,
-          "Function Name": "isAliasResolvedToValue",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 50766,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 52274,
-          "Function Name": "findFirstModifierExcept",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 52273,
           "Structural Impact": 1.8
         },
         {
@@ -585482,19 +584611,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 29143,
-          "Function Name": "getInitialType",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 29140,
-          "Structural Impact": 1.6
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 30275,
           "Function Name": "isSymbolAssigned",
           "Input Parameters": 1,
@@ -586301,84 +585417,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 8410,
-          "Function Name": "cloneBindingName",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 8410,
-          "Structural Impact": 1.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 8412,
-          "Function Name": "symbolName",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 8411,
-          "Structural Impact": 1.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 12947,
-          "Function Name": "getWriteTypeOfInstantiatedSymbol",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 12946,
-          "Structural Impact": 1.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 15105,
-          "Function Name": "getPropertiesOfUnionOrIntersectionType",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 15104,
-          "Structural Impact": 1.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 16257,
-          "Function Name": "getDeclaredTypeOfClassOrInterface",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 16256,
-          "Structural Impact": 1.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 19216,
-          "Function Name": "getPropertyNameForPropertyNameNode",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 19215,
-          "Structural Impact": 1.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 24681,
           "Function Name": "constructSignatureToString",
           "Input Parameters": 1,
@@ -586392,136 +585430,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 25495,
-          "Function Name": "getUnionType",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 25494,
-          "Structural Impact": 1.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 28305,
-          "Function Name": "getUnionType",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 28304,
-          "Structural Impact": 1.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 28325,
-          "Function Name": "getUnionType",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 28324,
-          "Structural Impact": 1.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 28419,
-          "Function Name": "getInitialTypeOfVariableDeclaration",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 28418,
-          "Structural Impact": 1.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 28452,
-          "Function Name": "getReferenceRoot",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 28452,
-          "Structural Impact": 1.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 29089,
-          "Function Name": "getTypeAtFlowBranchLabel",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 29088,
-          "Structural Impact": 1.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 29710,
-          "Function Name": "getUnionType",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 29709,
-          "Structural Impact": 1.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 32217,
-          "Function Name": "getTypeOfExpression",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 32217,
-          "Structural Impact": 1.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 33565,
-          "Function Name": "checkComputedPropertyName",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 33565,
-          "Structural Impact": 1.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 35870,
-          "Function Name": "getOrCreateTypeFromSignature",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 35869,
-          "Structural Impact": 1.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 38406,
           "Function Name": "getTupleElementLabel",
           "Input Parameters": 1,
@@ -586530,45 +585438,6 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 38406,
-          "Structural Impact": 1.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 38964,
-          "Function Name": "getTypeOfSymbol",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 38963,
-          "Structural Impact": 1.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 38997,
-          "Function Name": "getTypeOfSymbol",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 38996,
-          "Structural Impact": 1.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 41329,
-          "Function Name": "getRegularTypeOfLiteralType",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 41329,
           "Structural Impact": 1.5
         },
         {
@@ -586856,19 +585725,6 @@
           "Reflection Hits": 0,
           "Start Line": 49760,
           "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 1214,
-          "Function Name": "getGlobalBuiltinIteratorTypes",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 1214,
-          "Structural Impact": 1.1
         },
         {
           "Control Flow Branches": 0,
@@ -587245,19 +586101,6 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 42060,
-          "Structural Impact": 1.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 46982,
-          "Function Name": "areTypeParametersIdentical",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 46982,
           "Structural Impact": 1.1
         },
         {
@@ -587677,6 +586520,19 @@
           "Reflection Hits": 0,
           "Start Line": 516,
           "Structural Impact": 26.9
+        },
+        {
+          "Control Flow Branches": 9,
+          "Control Flow Ratio": "69.2%",
+          "End Line": 665,
+          "Function Name": "getCommonSourceDirectory",
+          "Input Parameters": 5,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 30,
+          "Reflection Hits": 0,
+          "Start Line": 636,
+          "Structural Impact": 26.0
         },
         {
           "Control Flow Branches": 10,
@@ -590593,6 +589449,19 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 570,
+          "Function Name": "getOutputDeclarationFileName",
+          "Input Parameters": 4,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 563,
+          "Structural Impact": 2.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 1346,
           "Function Name": "writeNode",
           "Input Parameters": 4,
@@ -590918,19 +589787,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 559,
-          "Function Name": "resolvePath",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 5,
-          "Reflection Hits": 0,
-          "Start Line": 555,
-          "Structural Impact": 2.0
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 3144,
           "Function Name": "emitForInStatement",
           "Input Parameters": 1,
@@ -591109,32 +589965,6 @@
           "Reflection Hits": 0,
           "Start Line": 6317,
           "Structural Impact": 1.9
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 495,
-          "Function Name": "resolvePath",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 495,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 497,
-          "Function Name": "combinePaths",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 496,
-          "Structural Impact": 1.8
         },
         {
           "Control Flow Branches": 0,
@@ -592803,19 +591633,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 5690,
-          "Function Name": "makeIdentifierFromModuleName",
-          "Input Parameters": 1,
-          "Is Documented": 1,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 5690,
-          "Structural Impact": 1.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 6352,
           "Function Name": "select",
           "Input Parameters": 1,
@@ -592842,19 +591659,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 567,
-          "Function Name": "inputFileName",
-          "Input Parameters": 0,
-          "Is Documented": 1,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 564,
-          "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 1393,
           "Function Name": "endPrint",
           "Input Parameters": 0,
@@ -592864,32 +591668,6 @@
           "Reflection Hits": 0,
           "Start Line": 1389,
           "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 563,
-          "Function Name": "getOutputDeclarationFileName",
-          "Input Parameters": 0,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 563,
-          "Structural Impact": 1.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 637,
-          "Function Name": "getCommonSourceDirectory",
-          "Input Parameters": 0,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 636,
-          "Structural Impact": 1.1
         },
         {
           "Control Flow Branches": 0,
@@ -598537,19 +597315,6 @@
           "Structural Impact": 3.6
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 4142,
-          "Function Name": "parseDelimitedList",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 4141,
-          "Structural Impact": 3.6
-        },
-        {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "66.7%",
           "End Line": 4389,
@@ -599054,19 +597819,6 @@
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 4453,
-          "Structural Impact": 3.1
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 9658,
-          "Function Name": "getNodePos",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 9657,
           "Structural Impact": 3.1
         },
         {
@@ -599748,32 +598500,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 6480,
-          "Function Name": "parseTaggedTemplateRest",
-          "Input Parameters": 4,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 6479,
-          "Structural Impact": 2.3
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 6541,
-          "Function Name": "factoryCreateCallChain",
-          "Input Parameters": 4,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 6540,
-          "Structural Impact": 2.3
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 7732,
           "Function Name": "parseVariableStatement",
           "Input Parameters": 3,
@@ -599782,19 +598508,6 @@
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 7727,
-          "Structural Impact": 2.3
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 8228,
-          "Function Name": "parseBracketedList",
-          "Input Parameters": 4,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 8228,
           "Structural Impact": 2.3
         },
         {
@@ -600149,32 +598862,6 @@
           "Structural Impact": 2.1
         },
         {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 6420,
-          "Function Name": "factoryCreatePropertyAccessChain",
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 6419,
-          "Structural Impact": 2.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 6449,
-          "Function Name": "factoryCreateElementAccessChain",
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 6448,
-          "Structural Impact": 2.1
-        },
-        {
           "Control Flow Branches": 1,
           "Control Flow Ratio": "50.0%",
           "End Line": 6503,
@@ -600523,19 +599210,6 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 4119,
-          "Structural Impact": 1.8
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 5229,
-          "Function Name": "parseParenthesizedArrowFunctionExpression",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 5228,
           "Structural Impact": 1.8
         },
         {
@@ -601100,19 +599774,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 487,
-          "Function Name": "walkTreeForImportMeta",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 486,
-          "Structural Impact": 1.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 1463,
           "Function Name": "createBaseSourceFileNode",
           "Input Parameters": 1,
@@ -601277,19 +599938,6 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 4034,
-          "Structural Impact": 1.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 4046,
-          "Function Name": "doInAwaitContext",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 4045,
           "Structural Impact": 1.5
         },
         {
@@ -602252,19 +600900,6 @@
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 4359,
-          "Structural Impact": 1.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 4535,
-          "Function Name": "parseTokenNode",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 4534,
           "Structural Impact": 1.1
         },
         {

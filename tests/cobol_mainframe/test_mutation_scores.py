@@ -137,3 +137,15 @@ def test_crucible_run_record_chains_per_port_and_refuses_case_gaps(tmp_path, mon
     with pytest.raises(SystemExit):
         mc.main(["run", "--work", str(work), "--record", "--case-gaps"])
     assert mc.main(["run", "--work", str(work)]) == 0 and len(seen) == 2
+
+
+def test_the_operator_matrix_gives_each_port_its_caught_over_judged_per_operator():
+    p = ms.port_entry(_run(), {}, "abc")
+    lines = ms.operator_matrix({"ports": [p]}).splitlines()
+    assert lines[0] == "| port | DEL | LIT | ROR |"
+    assert lines[2] == "| PROG (x-case) | 0/1 | 0/1 | 2/3 |"  # stillborn DEL counts for nothing, timeout is caught
+    assert (
+        ms.operator_matrix({"ports": [{**p, "ops": {"ROR": {"killed": 1}}}, p]})
+        .splitlines()[2]
+        .endswith("| - | - | 1/1 |")
+    )

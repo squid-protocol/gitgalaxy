@@ -241,6 +241,8 @@ def test_the_eibcalen_scenarios_state_a_length_inside_the_commarea():
         ("carddemo-userupd", ("short-commarea-185", "short-commarea-186"), 194),
         ("carddemo-report", ("short-commarea-146", "short-commarea-153"), 160),
         ("carddemo-tranlist", ("enter-short-commarea",), 218),
+        ("carddemo-billpay", ("short-commarea-200", "short-commarea-201"), 218),
+        ("carddemo-tranadd", ("short-commarea-200", "short-commarea-201"), 218),
     ):
         scs = _scenarios(case)
         for name in names:

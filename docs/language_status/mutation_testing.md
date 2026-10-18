@@ -124,7 +124,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | port | harness | mutants run / all | raw score | without equivalent + unreachable | survivors: case gap / harness gap / equivalent / unreachable / untriaged |
 |---|---|---|---|---|---|
 | COACTVWC (carddemo-acctview) | equivalence | 150/328 | 105/129 (81%) | 105/113 (93%) | 8 / 0 / 16 / 0 / 0 |
-| COADM01C (carddemo-adminmenu) | equivalence | 100/340 | 52/95 (55%) | 52/67 (78%) | 15 / 0 / 25 / 3 / 0 |
+| COADM01C (carddemo-adminmenu) | equivalence | 100/340 | 60/95 (63%) | 60/67 (90%) | 7 / 0 / 25 / 3 / 0 |
 | COBIL00C (carddemo-billpay) | equivalence | 100/529 | 64/86 (74%) | 64/71 (90%) | 7 / 0 / 12 / 3 / 0 |
 | COCRDLIC (carddemo-cardlist) | equivalence | 100/1034 | 75/94 (80%) | 75/82 (91%) | 7 / 0 / 12 / 0 / 0 |
 | COCRDSLC (carddemo-cardview) | equivalence | 100/503 | 60/91 (66%) | 60/66 (91%) | 5 / 1 / 22 / 3 / 0 |
@@ -143,8 +143,8 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COTRN01C (carddemo-tranview) | equivalence | 100/314 | 66/100 (66%) | 66/67 (99%) | 1 / 0 / 25 / 8 / 0 |
 | COTRN01C (carddemo-tranview-generated) | equivalence | 100/314 | 58/100 (58%) | 58/67 (87%) | 9 / 0 / 25 / 8 / 0 |
 | CBTRN03C (carddemo-trnrpt) | equivalence | 100/408 | 68/86 (79%) | 68/79 (86%) | 8 / 3 / 7 / 0 / 0 |
-| COUSR01C (carddemo-useradd) | equivalence | 100/272 | 60/98 (61%) | 60/68 (88%) | 8 / 0 / 24 / 6 / 0 |
-| COUSR03C (carddemo-userdel) | equivalence | 100/340 | 62/87 (71%) | 62/71 (87%) | 9 / 0 / 13 / 3 / 0 |
+| COUSR01C (carddemo-useradd) | equivalence | 100/272 | 62/98 (63%) | 62/68 (91%) | 6 / 0 / 24 / 6 / 0 |
+| COUSR03C (carddemo-userdel) | equivalence | 100/340 | 67/87 (77%) | 67/71 (94%) | 4 / 0 / 13 / 3 / 0 |
 | COUSR00C (carddemo-userlist) | equivalence | 100/493 | 69/100 (69%) | 69/92 (75%) | 23 / 0 / 8 / 0 / 0 |
 | COUSR02C (carddemo-userupd) | equivalence | 100/481 | 47/82 (57%) | 47/64 (73%) | 17 / 0 / 14 / 4 / 0 |
 | INQACC (cbsa-inqacc) | equivalence | 150/464 | 131/131 (100%) | 131/131 (100%) | 0 / 0 / 0 / 0 / 0 |
@@ -174,25 +174,25 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 3308 run | **2091/3007 (70%)** | **2091/2506 (83%)** | 409 / 6 / 366 / 135 / 0 |
-| **all estate** | | 3812 run | **2410/3483 (69%)** | **2410/2860 (84%)** | 444 / 6 / 454 / 169 / 0 |
+| **all equivalence** | | 3308 run | **2106/3007 (70%)** | **2106/2506 (84%)** | 394 / 6 / 366 / 135 / 0 |
+| **all estate** | | 3812 run | **2425/3483 (70%)** | **2425/2860 (85%)** | 429 / 6 / 454 / 169 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
 | AOR | 160/199 (80%) | 160/175 (91%) |
 | BDM | 25/45 (56%) | 25/28 (89%) |
-| CON | 320/676 (47%) | 320/404 (79%) |
+| CON | 321/676 (47%) | 321/404 (79%) |
 | COR | 132/234 (56%) | 132/195 (68%) |
-| DEL | 365/545 (67%) | 365/452 (81%) |
-| LIT | 509/659 (77%) | 509/576 (88%) |
-| NEG | 450/507 (89%) | 450/485 (93%) |
+| DEL | 369/545 (68%) | 369/452 (82%) |
+| LIT | 511/659 (78%) | 511/576 (89%) |
+| NEG | 455/507 (90%) | 455/485 (94%) |
 | RET | 56/89 (63%) | 56/79 (71%) |
-| ROR | 393/529 (74%) | 393/466 (84%) |
+| ROR | 396/529 (75%) | 396/466 (85%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|
 | COACTVWC (carddemo-acctview) | 3/3 | 0/1 | 11/24 | 8/9 | 19/23 | 20/23 | 22/23 | - | 22/23 |
-| COADM01C (carddemo-adminmenu) | 8/8 | - | 1/14 | 6/8 | 6/16 | 7/15 | 10/15 | 4/4 | 10/15 |
+| COADM01C (carddemo-adminmenu) | 8/8 | - | 1/14 | 6/8 | 6/16 | 7/15 | 15/15 | 4/4 | 13/15 |
 | COBIL00C (carddemo-billpay) | 4/5 | 1/3 | 5/13 | 9/12 | 8/12 | 12/13 | 12/13 | 2/2 | 11/13 |
 | COCRDLIC (carddemo-cardlist) | 8/8 | - | 8/13 | 10/13 | 7/13 | 12/13 | 13/13 | 6/9 | 11/12 |
 | COCRDSLC (carddemo-cardview) | 4/5 | - | 3/14 | 10/14 | 6/14 | 9/14 | 13/14 | 2/2 | 13/14 |
@@ -211,8 +211,8 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COTRN01C (carddemo-tranview) | 1/1 | - | 2/24 | 2/3 | 20/24 | 19/24 | 17/17 | - | 5/7 |
 | COTRN01C (carddemo-tranview-generated) | 1/1 | - | 1/24 | 2/3 | 19/24 | 13/24 | 17/17 | - | 5/7 |
 | CBTRN03C (carddemo-trnrpt) | 2/2 | 5/7 | 9/14 | 1/7 | 14/14 | 13/14 | 12/14 | - | 12/14 |
-| COUSR01C (carddemo-useradd) | 1/1 | - | 1/21 | 3/6 | 15/20 | 15/20 | 10/10 | - | 15/20 |
-| COUSR03C (carddemo-userdel) | 0/1 | - | 5/17 | 2/4 | 11/17 | 13/16 | 16/16 | - | 15/16 |
+| COUSR01C (carddemo-useradd) | 1/1 | - | 1/21 | 3/6 | 16/20 | 16/20 | 10/10 | - | 15/20 |
+| COUSR03C (carddemo-userdel) | 0/1 | - | 6/17 | 2/4 | 14/17 | 14/16 | 16/16 | - | 15/16 |
 | COUSR00C (carddemo-userlist) | 9/11 | - | 5/15 | 8/15 | 10/15 | 13/15 | 14/15 | - | 10/14 |
 | COUSR02C (carddemo-userupd) | 1/1 | - | 2/16 | 3/5 | 8/16 | 14/16 | 11/13 | - | 8/15 |
 | INQACC (cbsa-inqacc) | 3/3 | 2/2 | 22/22 | 4/4 | 22/22 | 22/22 | 21/21 | 16/16 | 19/19 |
@@ -265,9 +265,12 @@ COUSR01C 10, COUSR03C 10) were then triaged by reading the port: widths on `fld`
 the SEND MAP and dropped NUL/space fields are equivalent; one is unreachable (COADM01C's "not installed" branch); the rest
 are new case gaps (commarea fields no scenario populates, the one-digit option, the NOTFND branch of COUSR03C). Of the 37 case gaps the scenarios targeted, 12 are killed (adminmenu
 6, tranview 3, userdel 2, useradd 1), 15 still survive (COADM01C's service lines 241, 344, 368, 373 and 374, COUSR01C's
-136, 228, 245 and 259, COUSR03C's 200, 206 and 469) and 10 are gone with the code they sat in. Left: write scenarios for the 15 surviving case gaps and the new ones
-triaged above. Stop rule for the strengthening loop: stop at the target
-score (owner decision pending) or when a round of proposals kills no survivor, and record the reason here.
+136, 228, 245 and 259, COUSR03C's 200, 206 and 469) and 10 are gone with the code they sat in. Slice 2 (#4049) added 10 scenarios to the four cases (adminmenu 3, useradd 3, userdel 3, tranview 1) and re-judged:
+raw score before -> after COADM01C 55% -> 63% (15 -> 7 case gaps), COUSR01C 61% -> 63% (8 -> 6), COUSR03C 71% -> 77%
+(9 -> 4), COTRN01C 66% -> 66% (1 -> 1, the round killed nothing, so tranview stops here). 15 more mutants are killed and
+18 case gaps remain, with no verdict reasoned yet; the owner's target score is still pending. Stop rule for the
+strengthening loop: stop at the target score (owner decision pending) or when a round of proposals kills no survivor,
+and record the reason here.
 
 #4047 then added seven more CardDemo CICS ports (billpay, cardlist, cardview, report, tranadd, tranlist, userupd; 100
 mutants each, seed 0). Their case gaps repeat the six ports': no EIBCALEN, a short or blank COMMAREA, non-blank
@@ -277,10 +280,10 @@ lastLinkBytes() and the program name in `region.run` / `region.linked`). cardlis
 the oracle (register X8), so its score rests on the other 30. One harness gap, closed in #5401: cardview (0173a35c74) changes SEND TEXT
 options, and the harness compared SEND TEXT by text only; it now compares the forwarded options (ERASE, FREEKB, ALARM,
 WAIT, LAST). The score is not re-run. #5401 added `commarea_length` scenarios (EIBCALEN stated, X23): userupd 185 and 186, report 146 and 153, tranlist
-`enter-short-commarea` (160 of 218). Lengths that cut a numeric field, or leave one blank, are not used: a blank
+`enter-short-commarea` (160 of 218), billpay and tranadd 200 and 201 (of 218, both past the numeric page number). Lengths that cut a numeric field, or leave one blank, are not used: a blank
 PIC 9 is IBM-undefined and the oracle and the port read it differently (pf7/pf8 at 160 on tranlist, userupd at 160 to
 184, report below 146). Still open: COTRN00C 3c413ab7f0 (needs non-numeric page data), the EIBCALEN 0 with a COMMAREA
-present survivors (COBIL00C, COTRN02C, COCRDSLC, COUSR02C d0e975d5b4: IBM leaves DFHCOMMAREA unaddressable) and cardlist.
+present survivors (COBIL00C, COTRN02C, COCRDSLC, COUSR02C d0e975d5b4: IBM leaves DFHCOMMAREA unaddressable), cardview (COCRDSLC moves `DFHCOMMAREA` past the shared 160 bytes, so the oracle refuses any short length, X23) and cardlist.
 
 #4047 then scored six CardDemo batch ports (readxref, readcust, dailyval, intcalc, posttran, trnrpt; seed 0, up to 100
 mutants each, `--jobs 3`, fast mode). These rows are seed 0 and differ from the older seed-1 CBACT04C, CBTRN02C and

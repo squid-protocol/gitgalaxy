@@ -136,6 +136,7 @@ from .languages import xml as _xml
 from .languages import yacc as _yacc
 from .languages import yaml as _yaml
 from .languages import zig as _zig
+from .languages import zscript as _zscript
 
 __all__ = [
     "COMPILED_HANDSHAKE_REGISTRY",
@@ -215,4 +216,5 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
     "rexx": _rexx.DEFINITION,
     "csd": _csd.DEFINITION,
     "easytrieve": _easytrieve.DEFINITION,
+    "zscript": _zscript.DEFINITION,
 }

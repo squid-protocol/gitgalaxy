@@ -47,11 +47,11 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [HCQREAD](crucible-hc-perform-range-HCQREAD.md) | crucible:hc-perform-range/HCQREAD | crucible | proven, unapproved |  | 4 | 8/8 / 0/0 | 14/21 / 14/14 | 0 | - |
 | [HXATTR](crucible-hx-attr-bytes-HXATTR.md) | crucible:hx-attr-bytes/HXATTR | crucible | proven, unapproved |  | 4 | 4/4 / 6/6 | 17/22 / 17/17 | 0 | - |
 | [HXEXT](crucible-hx-extended-cursor-HXEXT.md) | crucible:hx-extended-cursor/HXEXT | crucible | proven, unapproved |  | 3 | 3/3 / 6/6 | 20/23 / 20/20 | 0 | - |
-| [PCDETL](crucible-pc-aid-menu-PCDETL.md) | crucible:pc-aid-menu/PCDETL | crucible | proven, unapproved |  | 3 | 1/1 / 2/2 | 14/24 / 14/14 | 0 | - |
-| [PCMENU](crucible-pc-aid-menu-PCMENU.md) | crucible:pc-aid-menu/PCMENU | crucible | proven, unapproved |  | 4 | 4/4 / 9/9 | 14/22 / 14/15 | 0 | - |
+| [PCDETL](crucible-pc-aid-menu-PCDETL.md) | crucible:pc-aid-menu/PCDETL | crucible | proven, unapproved |  | 3 | 1/1 / 2/2 | 15/24 / 15/15 | 0 | - |
+| [PCMENU](crucible-pc-aid-menu-PCMENU.md) | crucible:pc-aid-menu/PCMENU | crucible | proven, unapproved |  | 4 | 4/4 / 9/9 | 16/24 / 16/16 | 0 | - |
 | [PCIMMA](crucible-pc-return-immediate-PCIMMA.md) | crucible:pc-return-immediate/PCIMMA | crucible | proven, unapproved |  | 4 | 6/6 / 4/5 | 6/22 / 6/16 | 0 | - |
 | [PCIMMB](crucible-pc-return-immediate-PCIMMB.md) | crucible:pc-return-immediate/PCIMMB | crucible | proven, unapproved |  | 1 | 2/2 / 2/2 | 11/23 / 11/18 | 0 | - |
 | [PCIMML](crucible-pc-return-immediate-PCIMML.md) | crucible:pc-return-immediate/PCIMML | crucible | proven, unapproved |  | 2 | 1/1 / 2/2 | 9/23 / 9/19 | 0 | - |
 | [PCIMMS](crucible-pc-return-immediate-PCIMMS.md) | crucible:pc-return-immediate/PCIMMS | crucible | proven, unapproved |  | 1 | 1/1 / 0/0 | 8/24 / 8/16 | 0 | - |
-| [PCCONF](crucible-pc-wizard-PCCONF.md) | crucible:pc-wizard/PCCONF | crucible | proven, unapproved |  | 5 | 5/5 / 14/14 | 14/23 / 14/17 | 0 | - |
-| [PCWIZ](crucible-pc-wizard-PCWIZ.md) | crucible:pc-wizard/PCWIZ | crucible | proven, unapproved |  | 6 | 5/5 / 10/10 | 11/21 / 11/16 | 0 | - |
+| [PCCONF](crucible-pc-wizard-PCCONF.md) | crucible:pc-wizard/PCCONF | crucible | proven, unapproved |  | 5 | 5/5 / 14/14 | 15/23 / 15/15 | 0 | - |
+| [PCWIZ](crucible-pc-wizard-PCWIZ.md) | crucible:pc-wizard/PCWIZ | crucible | proven, unapproved |  | 6 | 5/5 / 10/10 | 16/23 / 16/16 | 0 | - |

@@ -716,8 +716,13 @@ class ApertureFilter:
         # --- Gate 3.4: Embedded Matrix Shield ---
         # DEFENSIVE DESIGN: Massive comma-separated arrays or hex blobs (like embedded images
         # inside C++ headers) contain 0 executable payload, but will completely stall a structural parser.
+        # #5460: ... unless the file also holds function definitions (`tables.c`, `aes_prng.c`:
+        # hand-written code beside a constant table); a pure table has none and is still blocked.
         if loc > 500:
             hex_count = content.count("0x") + content.count("0X")
+            comma_count = content.count(",")
+            if (hex_count > loc or comma_count > (loc * 3)) and self._has_definitions(content.splitlines()):
+                hex_count = comma_count = 0
             if hex_count > loc:
                 report.update(
                     {
@@ -728,7 +733,6 @@ class ApertureFilter:
                 )
                 return report
 
-            comma_count = content.count(",")
             if comma_count > (loc * 3):
                 report.update(
                     {
@@ -768,6 +772,9 @@ class ApertureFilter:
                     for i in long_lines
                     if not (i in comment and len(head[i]) <= max_comment and self._reads_as_prose(head[i]))
                 ]
+        # #5460: a long line beside real definitions is a data row (`sound.h`), not minifier output.
+        if long_lines and self._has_definitions(lines_list):
+            long_lines = []
         if long_lines:
             report.update(
                 {
@@ -846,7 +853,8 @@ class ApertureFilter:
                     indent_counts[indent] = indent_counts.get(indent, 0) + 1
 
                 max_indent_freq = max(indent_counts.values())
-                if (max_indent_freq / len(meaningful_lines)) > 0.85:
+                # #5460: two definitions, not one: a single function around an unrolled loop is still generated.
+                if (max_indent_freq / len(meaningful_lines)) > 0.85 and not self._has_definitions(lines_list, need=2):
                     report.update(
                         {
                             "valid": False,
@@ -857,6 +865,65 @@ class ApertureFilter:
                     return report
 
         return report
+
+    # #5460: a definition is a body-opening `{` (`...) {` or a lone `{`) whose argument list closes
+    # just before it and whose head -- `[type] name(` within _DEF_SPAN lines above -- reads as a
+    # declaration. Every quantifier is bounded and a line over _DEF_LINE_MAX is skipped, so the
+    # check is linear and cannot backtrack on minified or packed input.
+    _DEF_LINE_MAX = 200
+    _DEF_SPAN = 8
+    _DEF_HEAD = re.compile(r"^[ \t]{0,8}([A-Za-z_~][\w:<>~*&]{0,60})(?:[ \t*&]+[\w:<>~*&]{1,60}){0,5}[ \t]{0,4}\(")
+    _DEF_NAME_ONLY = re.compile(r"^[A-Za-z_][\w:~]{0,60}[ \t]{0,4}$")
+    _DEF_NOT = frozenset({"if", "for", "while", "switch", "return", "else", "do", "sizeof", "typedef", "case", "goto"})
+
+    @classmethod
+    def _has_definitions(cls, lines: list[str], need: int = 1) -> bool:
+        """#5460: True when the file carries `need` function definitions outside any data table.
+
+        The payload guards (3.4 hex and array, 4.1 saturation, 5.1 monotony) read counts that a
+        hand-written file with a large constant table next to its functions also trips; a file
+        with a definition is source and is scanned, a pure table has none and is still excluded.
+        """
+        n = len(lines)
+        found = 0
+        prev = -1  # index of the last non-blank line before i
+        for i, raw in enumerate(lines):
+            if len(raw) > cls._DEF_LINE_MAX:
+                prev = i
+                continue
+            text = raw.strip()
+            if not text:
+                continue
+            # GNU / id style: the name alone at column 0, its argument list on the next line.
+            if (
+                i + 1 < n
+                and cls._DEF_NAME_ONLY.match(raw)
+                and lines[i + 1].lstrip().startswith("(")
+                and text not in cls._DEF_NOT
+            ):
+                found += 1
+                if found >= need:
+                    return True
+            close = -1
+            if text == "{" and prev >= 0 and lines[prev].rstrip().endswith(")"):
+                close = prev
+            elif text.endswith("{") and ")" in text:
+                close = i
+            prev = i
+            if close < 0:
+                continue
+            for j in range(close, max(close - cls._DEF_SPAN, 0) - 1, -1):
+                line = lines[j]
+                if len(line) > cls._DEF_LINE_MAX or ";" in line or "=" in line.split("(", 1)[0]:
+                    break
+                m = cls._DEF_HEAD.match(line)
+                if m:
+                    if m.group(1) not in cls._DEF_NOT:
+                        found += 1
+                        if found >= need:
+                            return True
+                    break
+        return False
 
     # #4351: the most NULs (and, separately, other C0 control characters) a member may carry and
     # still be text damaged in transfer rather than a binary.

@@ -1185,11 +1185,31 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
   program read or moved) are shown as the bytes they are. The runtime's record charset keeps all 256 byte values
   (`cobolrt/Lossless`): a byte a single-byte charset leaves unmapped, such as X'81' in windows-1252, is its latin-1
   character and encodes back to that byte. GnuCOBOL writes the same raw bytes.
-- **The line separator is framing, not data (#4698).** A DISPLAY to SYSOUT on z/OS writes a record of the item's
-  bytes; there is no newline byte. Our SYSOUT capture needs a separator, so the Sysout (batch and standalone) writes a
+- **The line separator is framing, not data (#4698).** IBM: without WITH NO ADVANCING, "after the last operand has been
+  transferred to the output device, the positioning of the output device will be reset to the leftmost position of the
+  next line" (Language Reference, DISPLAY statement). That is a record boundary on z/OS, not a byte in the record: a
+  DISPLAY to SYSOUT writes a record of the item's bytes; there is no newline byte. Our SYSOUT capture needs a separator, so the Sysout (batch and standalone) writes a
   plain LF (0x0A, as cobc does) after each DISPLAY in every record charset, not the charset's encoding of `"\n"`
   (0x15 / 0x25 on EBCDIC). The harness compares records: it splits both captures on the LF byte, then decodes each
   record (`equivalence_common.sysout_lines` / `compare_sysout`).
+
+- **Audit against IBM (#4702).** The IBM side is quoted, not assumed.
+  - **Hex literal.** "Two hexadecimal digits represent one character in a single-byte character set (EBCDIC or
+    ASCII)"; "The DBCS compiler option has no effect on the processing of hexadecimal notation of alphanumeric
+    literals" (Language Reference, "Hexadecimal notation for alphanumeric literals"). So `X'40'` is the byte 0x40 and
+    nothing translates it: MATCHED, the oracle (cobc writes the raw byte), the port and IBM agree.
+  - **Ordinary literal.** "Basic alphanumeric literals can contain any character in a single-byte EBCDIC character
+    set" (same chapter): its bytes depend on the compiler's CODEPAGE (C5). The port encodes it by the record charset;
+    that is the characters DIFFERS above, not a new difference.
+  - **Declared oracle-vs-IBM difference: the separator.** IBM ends a DISPLAY record at the device; cobc writes LF. The
+    port writes LF so the capture can be split; the comparator splits on it and compares records, so the difference
+    never reaches a verdict. The LF is not IBM's, and nothing in a program can read it.
+  - **Not modelled, ASSUMED (no burned program reads it).** The Language Reference gives the system output device a
+    default logical record size of 120 characters, padded with spaces ("the remaining rightmost positions are padded
+    with spaces"), and a maximum of 255. Neither side pads or splits a DISPLAY to that size, so a record longer or
+    shorter than the device's is not compared as IBM would write it. Pending z/OS calibration (#4702 part 2).
+  - Rules: `RT-CBL-HEX-LITERAL-BYTES`, `RT-DATA-BYTE-TRANSPARENT`, `RT-SYS-DISPLAY-SYSOUT`
+    (`docs/language_status/cobolrt_rules.json`), all `uncalibrated`.
 
 ### D3. Zoned signs in ASCII data — MATCHED
 - `-fsign=EBCDIC` reads the corpora's ASCII data with EBCDIC-style overpunch (`{` = +0, A–I positive, `}` J–R
@@ -1221,8 +1241,16 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
 
 ### F1. FILE STATUS from GnuCOBOL's indexed files — ASSUMED
 - **What.** The statuses a run meets naturally (00, 02, 10, 22, 23, 35 …) come from GnuCOBOL's Berkeley DB files.
-- **Assumed** to match VSAM for these common codes.
+- **IBM's table (#4702).** Language Reference, "File status key", Table 34: 00 successful; 02 duplicate alternate key
+  (indexed); 10 at end (sequential READ, nothing next); 22 duplicate prime or alternate key on WRITE / REWRITE without
+  DUPLICATES; 23 "randomly access a record that does not exist"; 35 is in the permanent-error row (OPEN INPUT, I-O or
+  EXTEND on a nonoptional file that is unavailable). The runtime's meaning for each code is IBM's text.
+- **Assumed** (the part IBM does not tabulate): that GnuCOBOL's Berkeley DB file raises each code in the same *situation*
+  as VSAM does, and the ORDER of the checks when two apply (e.g. a duplicate key on a record that also sits out of
+  sequence, 21 vs 22). A case that reaches such a pair is out of scope until z/OS calibrates it (#4702 part 2).
 - **Not modelled.** VSAM's OPEN-time checks: 39 (attributes conflict), 04 (record length) and 97 (verified open).
+  IBM defines 39 (the fixed file attributes against the program's) and 04 (a READ whose length is outside the FD's
+  minimum or maximum; 00 under VLR(COMPAT)) in Table 34; 97 is VSAM's own, not in that table.
 
 ### F2. Injected faults — MATCHED
 - Fault runs (`ggfault.c`, CICS `faults.cfg`) give a statement the same status or RESP on both sides, and say which
@@ -1244,9 +1272,22 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
   a 39-byte record per account, `RECORD VARYING DEPENDING ON`). Records are compared by content and length, framed
   as GnuCOBOL writes a variable sequential file: a 2-byte big-endian length, two zero bytes, then the data
   (`equivalence_common.split_varseq`). Unlike a z/OS RDW, that length does not count the 4-byte header.
+  IBM (Programming Guide, "Layout of format-V records"): each logical record is preceded by `cc`, 4 bytes: `ll`, 2 bytes
+  "designating the logical record length (including the cc field)", and `bb`, 2 bytes reserved; the program never
+  sees them.
 - **Assumed.** That a record's content and length are what z/OS would write; block descriptors (BDW) and spanned
   records are not modelled. The det translator writes the same framing (`DetFiles`); before this it wrote VB records
   padded to the maximum length, which no case had exercised.
+
+- **Audit against IBM (#4702).** The comparator needs no IBM framing: it compares the content and length of each
+  record, so the 2-byte-length-plus-2-zero-bytes frame is a declared oracle-vs-IBM difference in the bytes at rest only.
+  - IBM's `ll` counts its own 4 bytes (a record of 12 data bytes has `ll` = 16); `split_varseq` reads GnuCOBOL's length
+    as the data length (12). Both give the same record, and nobody compares the header bytes.
+  - IBM also frames each block (`CC`: `LL` + `BB`, "the first 4 bytes of each block") and, for spanned records
+    (format S), each segment (a segment descriptor). None is written: the capture is a sequential file, not a QSAM block
+    stream. Still ASSUMED: that a program, which cannot see these fields (the Guide: "not available for you to use"),
+    cannot tell. Reached by CardDemo READACCT only.
+  - Pending z/OS calibration (#4702 part 2): a VB file written on z/OS, compared record for record.
 
 ### F4. JCL utility steps — out of scope
 - A batch case runs one program step.

@@ -322,5 +322,5 @@ DISPLAY and abends of a standalone (batch) port.
 
 | id | rule | IBM | options | register (its status) | status | calibration |
 |---|---|---|---|---|---|---|
-| RT-SYS-DISPLAY-SYSOUT | DISPLAY [WITH NO ADVANCING] to SYSOUT: the operands joined, in the record charset (a byte the charset leaves unmapped as its latin-1 byte), a record per DISPLAY | `cobol-lr` DISPLAY statement | - | C8 (MATCHED) | MATCHED | uncalibrated |
+| RT-SYS-DISPLAY-SYSOUT | DISPLAY [WITH NO ADVANCING] to SYSOUT: the operands joined, in the record charset (a byte the charset leaves unmapped as its latin-1 byte), a record per DISPLAY | `cobol-lr` DISPLAY statement | - | C8 (MATCHED); D2 (DIFFERS (oracle vs IBM, characters) / MATCHED (the bytes, the oracle = the port = IBM)) | MATCHED | uncalibrated |
 | RT-SYS-USER-ABEND | A user abend (CEE3ABD) carries its code, U followed by four digits | `le-pr` CEE3ABD: terminate enclave with an abend | - | L2 (MATCHED) | MATCHED | uncalibrated |

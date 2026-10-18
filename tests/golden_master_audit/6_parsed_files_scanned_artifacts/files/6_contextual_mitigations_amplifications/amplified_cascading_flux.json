@@ -1558,6 +1558,7 @@
     },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/ast.ts": "27 instances",
+      "typescript/assemblyscript/builtins.ts": "403 instances",
       "typescript/assemblyscript/compiler.ts": "983 instances",
       "typescript/assemblyscript/parser.ts": "367 instances"
     },
@@ -1583,7 +1584,9 @@
       "typescript/playwright/frames.ts": "90 instances"
     },
     "typescript/typescript_compiler": {
-      "typescript/typescript_compiler/binder.ts": "213 instances"
+      "typescript/typescript_compiler/binder.ts": "213 instances",
+      "typescript/typescript_compiler/emitter.ts": "160 instances",
+      "typescript/typescript_compiler/parser.ts": "401 instances"
     },
     "typescript/vscode": {
       "typescript/vscode/async.ts": "116 instances",

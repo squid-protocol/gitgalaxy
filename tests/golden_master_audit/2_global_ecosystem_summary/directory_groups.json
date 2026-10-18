@@ -2165,7 +2165,7 @@
         "stability": 50.0,
         "state_flux": 74.9,
         "tech_debt": 58.11,
-        "verification": 60.6
+        "verification": 60.61
       },
       "file_count": 4,
       "total_mass": 767.32
@@ -4984,22 +4984,22 @@
     },
     "rust/tokio": {
       "avg_exposures": {
-        "api_exposure": 12.4,
+        "api_exposure": 12.26,
         "churn": 0.0,
-        "cognitive_load": 14.13,
-        "concurrency": 50.45,
-        "dead_code": 31.58,
-        "documentation": 40.78,
-        "safety_score": 21.89,
+        "cognitive_load": 13.53,
+        "concurrency": 53.46,
+        "dead_code": 36.65,
+        "documentation": 38.26,
+        "safety_score": 20.54,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 15.64,
-        "tech_debt": 44.52,
-        "verification": 21.57
+        "state_flux": 15.16,
+        "tech_debt": 48.74,
+        "verification": 26.06
       },
-      "file_count": 12,
-      "total_mass": 1341.4
+      "file_count": 13,
+      "total_mass": 1694.52
     },
     "rust/tokio_util_rand": {
       "avg_exposures": {
@@ -5212,22 +5212,22 @@
     },
     "shell/freebsd-src": {
       "avg_exposures": {
-        "api_exposure": 0.8,
+        "api_exposure": 1.02,
         "churn": 0.0,
-        "cognitive_load": 23.44,
-        "concurrency": 14.21,
-        "dead_code": 0.56,
-        "documentation": 82.14,
-        "safety_score": 68.79,
+        "cognitive_load": 22.8,
+        "concurrency": 13.72,
+        "dead_code": 0.54,
+        "documentation": 82.76,
+        "safety_score": 68.28,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 48.21,
-        "state_flux": 53.05,
-        "tech_debt": 69.23,
-        "verification": 3.39
+        "stability": 48.28,
+        "state_flux": 51.22,
+        "tech_debt": 68.05,
+        "verification": 3.27
       },
-      "file_count": 28,
-      "total_mass": 1566.3
+      "file_count": 29,
+      "total_mass": 1701.52
     },
     "shell/freebsd_sysbuild": {
       "avg_exposures": {
@@ -5252,20 +5252,20 @@
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 30.47,
-        "concurrency": 7.97,
-        "dead_code": 2.73,
-        "documentation": 13.21,
-        "safety_score": 80.14,
+        "cognitive_load": 29.15,
+        "concurrency": 7.62,
+        "dead_code": 2.61,
+        "documentation": 15.79,
+        "safety_score": 81.0,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 47.73,
-        "state_flux": 74.05,
-        "tech_debt": 7.26,
-        "verification": 9.35
+        "stability": 47.83,
+        "state_flux": 75.18,
+        "tech_debt": 6.94,
+        "verification": 9.05
       },
-      "file_count": 22,
-      "total_mass": 643.54
+      "file_count": 23,
+      "total_mass": 729.72
     },
     "shell/illumos-gate": {
       "avg_exposures": {
@@ -6219,22 +6219,22 @@
     },
     "typescript/assemblyscript": {
       "avg_exposures": {
-        "api_exposure": 18.33,
+        "api_exposure": 30.21,
         "churn": 0.0,
-        "cognitive_load": 22.06,
+        "cognitive_load": 30.11,
         "concurrency": 0.0,
-        "dead_code": 2.31,
-        "documentation": 35.12,
-        "safety_score": 44.11,
+        "dead_code": 2.72,
+        "documentation": 44.87,
+        "safety_score": 50.84,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 40.0,
-        "state_flux": 48.37,
-        "tech_debt": 11.43,
-        "verification": 48.46
+        "stability": 41.67,
+        "state_flux": 56.98,
+        "tech_debt": 10.32,
+        "verification": 53.72
       },
-      "file_count": 5,
-      "total_mass": 12549.28
+      "file_count": 6,
+      "total_mass": 19527.58
     },
     "typescript/effect_ai_anthropic": {
       "avg_exposures": {
@@ -6371,22 +6371,22 @@
     },
     "typescript/typescript_compiler": {
       "avg_exposures": {
-        "api_exposure": 1.93,
+        "api_exposure": 4.07,
         "churn": 0.0,
-        "cognitive_load": 17.41,
-        "concurrency": 0.0,
-        "dead_code": 2.1,
-        "documentation": 30.22,
-        "safety_score": 27.99,
+        "cognitive_load": 25.12,
+        "concurrency": 2.42,
+        "dead_code": 3.52,
+        "documentation": 54.18,
+        "safety_score": 44.15,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 16.67,
-        "state_flux": 33.3,
-        "tech_debt": 2.78,
-        "verification": 26.67
+        "stability": 30.0,
+        "state_flux": 56.09,
+        "tech_debt": 14.66,
+        "verification": 48.0
       },
-      "file_count": 3,
-      "total_mass": 2958.8
+      "file_count": 5,
+      "total_mass": 15814.82
     },
     "typescript/vscode": {
       "avg_exposures": {
@@ -6998,22 +6998,22 @@
     },
     "zig/zls": {
       "avg_exposures": {
-        "api_exposure": 39.85,
+        "api_exposure": 35.55,
         "churn": 0.0,
-        "cognitive_load": 17.28,
-        "concurrency": 10.15,
-        "dead_code": 3.07,
-        "documentation": 80.23,
-        "safety_score": 24.19,
+        "cognitive_load": 15.73,
+        "concurrency": 10.69,
+        "dead_code": 2.69,
+        "documentation": 82.7,
+        "safety_score": 27.38,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 61.08,
-        "tech_debt": 12.74,
-        "verification": 24.58
+        "state_flux": 53.44,
+        "tech_debt": 12.19,
+        "verification": 21.79
       },
-      "file_count": 7,
-      "total_mass": 6252.2
+      "file_count": 8,
+      "total_mass": 6446.98
     }
   }
 }

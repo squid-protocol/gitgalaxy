@@ -1558,6 +1558,7 @@
     },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/ast.ts": 91,
+      "typescript/assemblyscript/builtins.ts": 2677,
       "typescript/assemblyscript/compiler.ts": 3131,
       "typescript/assemblyscript/parser.ts": 1120
     },
@@ -1583,7 +1584,9 @@
       "typescript/playwright/frames.ts": 314
     },
     "typescript/typescript_compiler": {
-      "typescript/typescript_compiler/binder.ts": 743
+      "typescript/typescript_compiler/binder.ts": 743,
+      "typescript/typescript_compiler/emitter.ts": 528,
+      "typescript/typescript_compiler/parser.ts": 1302
     },
     "typescript/vscode": {
       "typescript/vscode/async.ts": 430,

@@ -1,5 +1,5 @@
 {
- "commit": "1ebb52a41",
+ "commit": "4d94f3dad",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -157,7 +157,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-18T11:12:24Z",
+  "as_of": "2026-10-18T11:24:04Z",
   "core": {
    "closed": 122,
    "open": 25,
@@ -191,12 +191,12 @@
   "frontier_milestone": {
    "closed": 0,
    "number": 30,
-   "open": 43,
-   "total": 43
+   "open": 42,
+   "total": 42
   },
   "infra": {
-   "closed": 181,
-   "open": 45,
+   "closed": 182,
+   "open": 44,
    "total": 226
   },
   "measured": true,
@@ -335,9 +335,9 @@
     "total": 8
    },
    {
-    "closed": 57,
+    "closed": 58,
     "number": 22,
-    "open": 10,
+    "open": 9,
     "title": "Does It Actually Crit? \ud83c\udfb2 \u2014 Metrics That Earn Their Place",
     "total": 67
    },
@@ -393,9 +393,16 @@
    {
     "closed": 0,
     "number": 30,
-    "open": 43,
+    "open": 42,
     "title": "Gap Atlas \ud83d\uddfa\ufe0f \u2014 mapped, not yet built",
-    "total": 43
+    "total": 42
+   },
+   {
+    "closed": 0,
+    "number": 31,
+    "open": 13,
+    "title": "DOOM Port Speedrun",
+    "total": 13
    }
   ],
   "sweep": {

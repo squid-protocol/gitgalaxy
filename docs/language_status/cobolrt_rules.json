@@ -821,7 +821,7 @@
   {
    "id": "RT-CBL-RECEIVER-NONDIGIT-REFUSED",
    "family": "CBL",
-   "title": "The receiver of ADD / SUBTRACT / MULTIPLY / DIVIDE is read before it stores: a zoned receiver holding a non-digit is refused by name",
+   "title": "The receiver of ADD / SUBTRACT / MULTIPLY / DIVIDE, the PERFORM VARYING variable and the SET UP / DOWN BY target are read before it stores: a zoned receiver holding a non-digit is refused by name",
    "methods": [
     "receiverNum"
    ],

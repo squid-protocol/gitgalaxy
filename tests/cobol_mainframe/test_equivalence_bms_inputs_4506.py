@@ -139,3 +139,25 @@ def test_prepare_cics_case_expands_bms_for_every_scenario(corpus, monkeypatch):
     typed = [s["receive"]["TESTMAP"] for s in out]
     assert all(set(t) <= set(TYPABLE) and t for t in typed) and len({tuple(sorted(t.items())) for t in typed}) > 4
     assert out == ei.prepare_cics_case(case, corpus, [])["scenarios"]
+
+
+@pytest.mark.parametrize(("aid", "want"), [("DFHPF3", ["DFHPF3"] * 5), (["DFHENTER", "DFHPF3", "DFHPF9"], ["DFHENTER", "DFHPF3", "DFHPF9", "DFHENTER", "DFHPF3"]), (None, ["DFHENTER"] * 5)])  # fmt: skip
+def test_aid_is_one_key_or_a_list_in_turn(corpus, aid, want):
+    gen = {"seed": 1, "count": 5} | ({"aid": aid} if aid else {})
+    assert [s["aid"] for s in ei.prepare_cics_case({"scenario_generate": gen}, corpus, [])["scenarios"]] == want
+
+
+def test_the_generated_tranview_case_turns_through_keys_and_types_its_one_field():
+    """The committed COTRN01 case (#4506): the BMS source has one unprotected field (TRNIDIN), and the aid list reaches
+    PF3 / PF4 / PF5 and a key the screen does not assign, beside a run with no COMMAREA."""
+    import json
+
+    case = json.loads(
+        (Path(__file__).resolve().parents[1] / "equivalence" / "carddemo-tranview-generated" / "case.json").read_text(
+            "utf-8"
+        )
+    )
+    gen = case["scenario_generate"]
+    assert set(gen["aid"]) == {"DFHENTER", "DFHPF3", "DFHPF4", "DFHPF5", "DFHPF9"}
+    assert gen["receive"] == {"COTRN1A": {"@bms": {"bad": 0.1, "empty": 0.3}}}
+    assert [s["name"] for s in case["scenarios"]] == ["no-commarea"] and case["scenarios"][0]["commarea"] is None

@@ -819,7 +819,8 @@ public final class Cobol {
     }
 
     /** The current value of the receiver of `ADD x TO y` / `SUBTRACT x FROM y` / `MULTIPLY x BY y` / `DIVIDE x INTO y`
-     *  (#4692, register C11): the statement reads y before it stores. A zoned y holding a non-digit -- spaces,
+     *  and the step of a PERFORM VARYING variable and of SET x UP / DOWN BY (#4692, register C11): the statement reads
+     *  y before it stores. A zoned y holding a non-digit -- spaces,
      *  letters, low-values, a sign byte that is no sign -- is refused by name: IBM documents no result (ZONEDATA(PFD),
      *  the default, assumes valid zone bits; ZONEDATA(NOPFD|MIG) makes an addition correct invalid zone bits, APAR
      *  PI57769, but no source states what a non-digit digit position adds up to), and GnuCOBOL 3.1.2's answer

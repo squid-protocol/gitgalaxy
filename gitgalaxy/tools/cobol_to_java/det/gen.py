@@ -2061,7 +2061,9 @@ class Gen:
             for t in s.data["targets"]:
                 f = self.field_expr(t)
                 op = "add" if s.data["up"] else "subtract"
-                out.append(f"{ind}Cobol.store({f}, Cobol.num({f}, CS).{op}({self.num(s.data['by'])}), false, CS);")
+                out.append(
+                    f"{ind}Cobol.store({f}, Cobol.receiverNum({f}, CS).{op}({self.num(s.data['by'])}), false, CS);"
+                )  # #4692
             return out
         if k == "CALL":
             return [c, *self.call(s, ind)]
@@ -2662,7 +2664,7 @@ class Gen:
                 if not isinstance(frm, (E.Bin, E.Neg))
                 else f"Cobol.store({f}, {self.num(frm)}, false, CS);"
             )
-            step = f"Cobol.store({f}, Cobol.num({f}, CS).add({self.num(by)}), false, CS);"
+            step = f"Cobol.store({f}, Cobol.receiverNum({f}, CS).add({self.num(by)}), false, CS);"  # #4692: read before stored
             self.leak = leak_before
             until_code = self.cond_top(until)
             self.leak = leak_after

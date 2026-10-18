@@ -19,6 +19,12 @@ Scoring rules (pinned by tests/cobol_mainframe/test_referee_score.py):
 - `cics_commands` is scored over the verbs the key censuses in that corpus (file control, BMS
   SEND/RECEIVE MAP, queues, LINK / XCTL, task control): a referee's ASKTIME is not a false positive.
 - Agreement between two sources is |A & B| / |A | B| over the files both parsed.
+- The referee majority (#4438) for a file and channel is the set of values reported by MORE than half of
+  the voting referees. A voter is a referee that produces the channel and did not fail the file. A file
+  with fewer than 2 voters has no majority and is skipped: one referee's word is not a majority. With 3
+  voters a value needs 2 of 3, with 2 voters it needs both. The engine is then compared to that majority
+  (agreement, engine-only / majority-only values with the key's verdict), and the majority is itself
+  scored against the key.
 """
 
 from __future__ import annotations
@@ -114,6 +120,73 @@ def disagreements(key: dict[str, Any], a: dict[str, Any], b: dict[str, Any], cha
         truth = file_values(key, rel, channel) or set()
         for v in sorted(va ^ vb):
             out.append({"file": rel, "value": v, "only": a["source"] if v in va else b["source"], "in_key": v in truth})
+    return out
+
+
+def majority_values(
+    refs: list[dict[str, Any]], rel: str, channel: str, verbs: set[str] | None = None
+) -> set[str] | None:
+    """Values more than half of the voting referees report for one file; None when fewer than 2 vote."""
+    voters = [v for r in refs if channel in r["channels"] and (v := file_values(r, rel, channel, verbs)) is not None]
+    if len(voters) < 2:
+        return None
+    counts: dict[str, int] = {}
+    for vals in voters:
+        for v in vals:
+            counts[v] = counts.get(v, 0) + 1
+    return {v for v, n in counts.items() if 2 * n > len(voters)}
+
+
+def majority_score(key: dict[str, Any], refs: list[dict[str, Any]], channel: str) -> dict[str, int] | None:
+    """The referee majority scored against the key, over the files that have a majority."""
+    if not any(channel in r["channels"] for r in refs):
+        return None
+    verbs = key_verbs(key) if channel == "cics_commands" else None
+    out = {"tp": 0, "reported": 0, "true": 0, "files": 0}
+    for rel in universe(key, channel):
+        maj = majority_values(refs, rel, channel, verbs)
+        if maj is None:
+            continue
+        truth = file_values(key, rel, channel) or set()
+        out["files"] += 1
+        out["true"] += len(truth)
+        out["reported"] += len(maj)
+        out["tp"] += len(truth & maj)
+    return out
+
+
+def majority_agreement(
+    key: dict[str, Any], eng: dict[str, Any], refs: list[dict[str, Any]], channel: str
+) -> dict[str, int] | None:
+    """Engine vs the referee majority: |E & M| / |E | M| over files the engine parsed and a majority exists for."""
+    if channel not in eng["channels"] or not any(channel in r["channels"] for r in refs):
+        return None
+    verbs = key_verbs(key) if channel == "cics_commands" else None
+    both = union = 0
+    for rel in universe(key, channel):
+        ve, vm = file_values(eng, rel, channel, verbs), majority_values(refs, rel, channel, verbs)
+        if ve is None or vm is None:
+            continue
+        both += len(ve & vm)
+        union += len(ve | vm)
+    return {"both": both, "union": union}
+
+
+def majority_disagreements(
+    key: dict[str, Any], eng: dict[str, Any], refs: list[dict[str, Any]], channel: str
+) -> list[dict[str, Any]]:
+    """Every value exactly one of the engine / the referee majority reports, with the key's verdict."""
+    if channel not in eng["channels"] or not any(channel in r["channels"] for r in refs):
+        return []
+    verbs = key_verbs(key) if channel == "cics_commands" else None
+    out = []
+    for rel in universe(key, channel):
+        ve, vm = file_values(eng, rel, channel, verbs), majority_values(refs, rel, channel, verbs)
+        if ve is None or vm is None:
+            continue
+        truth = file_values(key, rel, channel) or set()
+        for v in sorted(ve ^ vm):
+            out.append({"file": rel, "value": v, "only": "engine" if v in ve else "majority", "in_key": v in truth})
     return out
 
 
@@ -252,6 +325,37 @@ def scorecard(corpora: dict[str, dict[str, Any]], seed: int = 4377) -> tuple[str
                 data["agreement"].setdefault(ch, {})[r] = tot
                 row.append("n/a" if tot is None else _pct(tot["both"], tot["union"]))
             md.append(f"| {ch} | " + " | ".join(row) + " |")
+    refs = [s for s in sources if s != "engine"]
+    if "engine" in sources and len(refs) >= 2:
+        rows_md = []
+        for ch in F.CHANNELS:
+            score = agree = None
+            split = {"engine": [0, 0], "majority": [0, 0]}  # [in key, not in key]
+            for c in corpora.values():
+                if "engine" not in c["sources"]:
+                    continue
+                docs = [c["sources"][r] for r in refs if r in c["sources"]]
+                score = _sum(score, majority_score(c["key"], docs, ch))
+                agree = _sum(agree, majority_agreement(c["key"], c["sources"]["engine"], docs, ch))
+                for d in majority_disagreements(c["key"], c["sources"]["engine"], docs, ch):
+                    split[d["only"]][0 if d["in_key"] else 1] += 1
+            if score is None or score["files"] == 0:
+                continue
+            data.setdefault("majority", {})[ch] = {"vs_key": score, "agreement": agree, "only": split}
+            rows_md.append(
+                f"| {ch} | {score['files']} | P {_pct(score['tp'], score['reported'])} · R {_pct(score['tp'], score['true'])}"
+                f" | {_pct(agree['both'], agree['union']) if agree else 'n/a'}"
+                f" | {split['engine'][0]} / {split['engine'][1]} | {split['majority'][0]} / {split['majority'][1]} |"
+            )
+        if rows_md:
+            md.append("")
+            md.append("### Engine vs the referee majority (more than half of the voting referees)")
+            md.append("")
+            md.append("| channel | files with a majority | majority vs key | engine vs majority | engine-only (in key / not) | majority-only (in key / not) |")  # fmt: skip
+            md.append("|---|---|---|---|---|---|")
+            md.extend(rows_md)
+            md.append("")
+            md.append("A voter is a referee that produces the channel and parsed the file; a file needs 2 voters.")
     dis: dict[str, Any] = {}
     if "engine" in sources:
         rng = random.Random(seed)
@@ -267,6 +371,19 @@ def scorecard(corpora: dict[str, dict[str, Any]], seed: int = 4377) -> tuple[str
                         by.setdefault(f"{d['only']}-only, {'in key' if d['in_key'] else 'not in key'}", []).append(d)
                     dis.setdefault(r, {})[ch] = {pat: {"count": len(v), "sample": rng.sample(v, min(8, len(v)))}
                                                  for pat, v in sorted(by.items())}  # fmt: skip
+        if len(refs) >= 2:
+            for ch in F.CHANNELS:
+                rows = []
+                for name, c in corpora.items():
+                    if "engine" in c["sources"]:
+                        docs = [c["sources"][r] for r in refs if r in c["sources"]]
+                        rows += [{"corpus": name, **d} for d in majority_disagreements(c["key"], c["sources"]["engine"], docs, ch)]  # fmt: skip
+                if rows:
+                    by = {}
+                    for d in rows:
+                        by.setdefault(f"{d['only']}-only, {'in key' if d['in_key'] else 'not in key'}", []).append(d)
+                    dis.setdefault("referee-majority", {})[ch] = {pat: {"count": len(v), "sample": rng.sample(v, min(8, len(v)))}
+                                                                  for pat, v in sorted(by.items())}  # fmt: skip
     return "\n".join(md) + "\n", data, dis
 
 

@@ -269,6 +269,9 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
                 script.append(f"INFILE=/work/{dd}.in {dd}=/work/{dd}.idx ./ld{dd}")
         elif "input" in spec:
             script.append(f"cp /work/{dd}.in /work/{dd}.idx")
+    if case.get("sysin") is not None:  # #5106: the step's SYSIN stream (ACCEPT FROM SYSIN), one record per line
+        sysin = case["sysin"]
+        (work / "SYSIN.in").write_bytes((sysin if sysin.endswith("\n") else sysin + "\n").encode(enc))
     ims = case.get("ims")
     if ims:  # #4893: a DL/I program -- IMS enters it at DLITCBL with its PCBs -- on the stated databases (ggdli.c)
         try:
@@ -318,7 +321,7 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
             (work / "sqlfaults.cfg").write_text("".join(x + "\n" for x in fault["sql_plan"]), encoding="ascii")
             sqlenv += "GGSQL_FAULTS=/work/sqlfaults.cfg "
     script.append(f"set +e; {cov.trace_env('/work/' + cov.TRACE_NAME)}GG_ABEND=/work/ABEND COB_VARSEQ_FORMAT=0 {inject}{tz}{clock}{env} "
-                  f"{sqlenv}./program > /work/stdout.txt 2>&1; echo $? > /work/RETURN-CODE; set -e")  # fmt: skip
+                  f"{sqlenv}./program {'< /work/SYSIN.in ' if case.get('sysin') is not None else ''}> /work/stdout.txt 2>&1; echo $? > /work/RETURN-CODE; set -e")  # fmt: skip
     # after an abend (or an OPEN a fault refused) an output may not exist: unloaded if it does
     for dd, spec in case["datasets"].items():
         if spec.get("compare") and spec.get("organization") == "indexed":

@@ -252,7 +252,10 @@
     "descends",
     "descendsType",
     "lastInSubtree",
-    "ancestorOfType"
+    "ancestorOfType",
+    "initMask",
+    "area",
+    "ssa"
    ]
   },
   {
@@ -3172,6 +3175,23 @@
    "register": [
     "I1",
     "I3"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-EXEC-GET",
+   "family": "DLI",
+   "title": "EXEC DLI GU / GN / GNP USING PCB(n) [SEGMENT WHERE] INTO under CICS: the CBLTDLI get of the same SSAs against PCB n of the scheduled PSB, a hold where PROCOPT allows an update; DIBSTAT the PCB's status",
+   "methods": [
+    "get"
+   ],
+   "site": "get@1",
+   "ibm": null,
+   "ibm_note": "EXEC DLI has no HOLD option; the hold on an updating PROCOPT is assumed (register I5)",
+   "options": [],
+   "register": [
+    "I5"
    ],
    "status": "ASSUMED",
    "calibration": "uncalibrated"

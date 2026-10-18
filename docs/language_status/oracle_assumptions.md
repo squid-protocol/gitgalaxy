@@ -177,6 +177,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X65 | CICS | Every EXEC CICS command the det translator does not model is a hole named after the command, never a guess. This entry lists them by class with the reason: BTS (40 commands), APPC / DTP conversations (13) and GDS (14), batch data interchange ISSUE (13), security (12), terminal control beyond one 3270 display (11), SOAP / WS-Addressing (9), journals (5), JES spool (5), TRANSFORM (4), DOCUMENT INSERT / SET / DELETE (3), OpenTelemetry (3), 64-bit GET64 / PUT64 CONTAINER and GETMAIN64 / FREEMAIN64 (4), partitions (2), trace and monitoring (2), and LOAD and RELEASE (engine-only: the engine derives the edge, the translator refuses them), and single commands (SUSPEND, ISSUE PASS, ROUTE, ADDRESS SET, RESETBR, INVOKE APPLICATION, BIF DIGEST, CHANGE TASK, CONVERTTIME, INQUIRE CONTAINER). Each command's own reason is its entry in gitgalaxy/standards/cics/commands/api.py (the translator's hole message); X46 (DUMP TRANSACTION), X59 and X63 keep their own entries | REFUSED | no burned estate (CardDemo, CBSA, GenApp, zECS, DBB MortgageApplication, async credit-card) uses any of them except SOAPFAULT CREATE in zECS (web services, out of scope for #4270); tests/cobol_mainframe/test_cics_refusals_registered_4270.py pins that every refused command names a register entry that exists |
 | X66 | CICS | SET TDQUEUE(q) ENABLESTATUS(ENABLED | DISABLED) makes a queue available or unavailable at run time, and INQUIRE TDQUEUE(q) ENABLESTATUS reads it back (ENABLED 23, DISABLED 24). A disabled queue answers DISABLED (84) to READQ TD, WRITEQ TD and DELETEQ TD, whatever its type or open state, and the command does nothing (a WRITEQ records no text). The state is kept across tasks and is not part of a unit of work (a SYNCPOINT ROLLBACK keeps it); a queue is ENABLED until a SET says otherwise. QIDERR RESP2 1 for a queue the CSD does not define, INVREQ RESP2 10 for an invalid CVDA. Refused by name: SET with OPENSTATUS and ENABLESTATUS together, SET ENABLESTATUS of an INDIRECT or REMOTE queue, an invalid CVDA on a queue the CSD does not define. Still refused (unchanged from X61): ATIFACILITY, ATITERMID, TRIGGERLEVEL, the INQUIRE browse, SYSID / REMOTE, IOERR, QBUSY | ASSUMED (REFUSED where IBM is silent) | no corpus program issues these forms; proven on both runtimes with hand-traced operation lists (tests/cics_crucible/test_td_queue_5168.py, the round 5 scenarios), the translators' shapes and refusals (tests/cobol_mainframe/test_td_enablestatus_translate_5168.py) and end to end against GnuCOBOL (tests/cobol_mainframe/test_td_enablestatus_e2e_5168.py) |
 | X67 | CICS | EXEC CICS HANDLE ABEND PROGRAM(name) names a program that gets control when the task abends. The det translator honours LABEL, CANCEL and RESET and refuses PROGRAM by name with this entry; the cobol-stub refuses it too (equivalence_cics.Unsupported), so the two sides agree | REFUSED | no burned estate (CardDemo, CBSA, GenApp, zECS, DBB MortgageApplication, async credit-card) issues HANDLE ABEND PROGRAM: they use LABEL (6), CANCEL (1) and LABEL with NOHANDLE (1); non-burned census programs are counted by tools only |
+| X68 | CICS | EIBTRNID: the transaction id the task runs under is the case's `"transid"`, moved into EIBTRNID (PIC X(4)) on both sides; nothing validates it against a CSD or checks its length | ASSUMED (the value is the case's) / MATCHED (both sides) | yes (every CICS task; GenApp's LG* programs and CBSA's CRDTAGY1 / XFRFUN move it into a transaction-name field, zECS names it) |
 | L1 | LE | CEEDAYS: numeric date pictures (YYYY MM DD in any order, YYYY DDD) read as their span; date characters past the span ignored (documented), an all-blank picture tail ignored (assumed), a non-blank tail refused; open conditions refused by name | MATCHED / ASSUMED / REFUSED | yes (CardDemo carddemo-dateutil; CBSA cbsa-crecust is refused by name, #4952) |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
@@ -1117,7 +1118,7 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
 | `cics.convention.EIBRESP` | yes: the numeric condition of the last command | the stub's GG-RESP | the runtime's response code | a command or condition IBM leaves open is refused by name | X28, X21 |
 | `cics.convention.EIBRESP2` | yes: the reason code of the last command | the stub's GG-RESP2 | the runtime's reason code | a reason code IBM does not document is refused by name | X28, X21 |
 | `cics.convention.EIBTASKN` | yes when a program stores or compares it | the stub's $GGCICS_TASKN | the runner-stated task number | DIFFERS from z/OS in value, both sides agree (declared) | X21 |
-| `cics.convention.EIBTRNID` | yes: the transaction id a program routes on | the case's transid, moved by the stub | task.transid() | ASSUMED: no register entry states it | none (gap) |
+| `cics.convention.EIBTRNID` | yes: the transaction id a program routes on | the case's transid, moved by the stub | task.transid() | the case's transid, ASSUMED to be the region's; not validated (X68) | X68 |
 | `cics.convention.EIBTRMID` | yes when a program starts a task at its own terminal | the case's termid, moved by the stub | task.termid(), blanks for a task with none | ASSUMED | X18 |
 | `cics.convention.EIBDS` | yes when a program reads the last data set referred to | set before a file control command | set before a file control command, only in a program that reads it | ASSUMED | X64 |
 | `cics.convention.EIBRCODE` | yes: the six-byte response code | none | none | unmodelled: a program that reads it is refused by name | X64 |
@@ -3692,6 +3693,27 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 - **Refused, never assumed.** The translator's hole names the option and this entry; the program is not translated whole.
   `HANDLE ABEND LABEL`, `CANCEL`, `RESET` are unchanged (X31 for the abend path).
 - **Status:** REFUSED. It moves to its own modelled entry when a burned program needs it.
+
+### X68. EIBTRNID, a stated fact of the run — the case's transaction id, not the region's CSD (#4707)
+- **What IBM documents** (CICS TS 6.x, EIB fields, https://www.ibm.com/docs/en/cics-ts/6.x?topic=reference-eib-fields):
+  EIBTRNID "Contains the symbolic identifier of the transaction currently being executed. COBOL: PIC X(4)." Which id a
+  task runs under is set by the region (the TRANSACTION resource definition that attached it, or the START / RETURN
+  TRANSID that named it), so no program-level model derives it.
+- **The harness's fact.** The id is stated by whoever runs the task, as EIBTASKN is (X21) and the clock is (M4). The
+  equivalence harness gives each case's `"transid"` to both sides: the stub driver reads it from `eib.in`
+  (`{transid:<4}`, first field) and does `MOVE IN-TRNID TO EIBTRNID`; the det port's task is built with it
+  (`new CicsTask(transid, ...)`) and its `runTask` does `Cobol.move(task.transid(), EIBTRNID)`. Both are a MOVE into a
+  PIC X(4), so a shorter id is space padded.
+- **So a proof says:** given the transaction id the case states, the port does what the COBOL does with it (GenApp's
+  programs copy it into the error message header; CBSA's abend records carry it as ABND-TRANID). It does NOT say the id
+  is the region's: the case's transid is the CSD name of the burned corpus's transaction for that program, chosen by the
+  case author, not read from a CSD at run time.
+- **Not validated (a gap, not a refusal).** The harness does not check that a transid is 1 to 4 characters or free of
+  spaces. A longer one would be cut by the MOVE in the det port and would shift the stub's `eib.in` fields. Every
+  burned case states a four-character id with no space (checked at the time of writing), so no burned proof depends on
+  it. A case that states anything else is outside the proven set.
+- **Reached.** Every CICS task of every equivalence case. A program that never reads EIBTRNID is unaffected; the row is
+  `cics.convention.EIBTRNID` in register C18.
 
 ## Language Environment
 

@@ -371,6 +371,17 @@ def _cics_program(proc: list[str]) -> str:
     return "\n".join(" " * 7 + ln for ln in lines) + "\n"
 
 
+def _wrap(stmt: str) -> list[str]:
+    """The statement as lines inside fixed-form columns 8-72."""
+    lines, cur = [], ""
+    for w in stmt.split():
+        if len(cur) + len(w) > 50:
+            lines.append("    " + cur)
+            cur = ""
+        cur = f"{cur} {w}".strip()
+    return [*lines, "    " + cur]
+
+
 def _translate_cics(tmp_path: Path, src: str):
     pytest.importorskip("tree_sitter_language_pack")
     from gitgalaxy.tools.cobol_to_java.det import program as P
@@ -397,11 +408,49 @@ def test_exec_dli_schd_and_term_answer_dibstat_through_the_runtime(tmp_path, stm
     assert re.search(rf"Cobol\.move\(\w+\.cobolrt\.dli\.DetDli\.{call}, \w+_DIBSTAT, CS\);", r.java), r.java
 
 
+@pytest.mark.parametrize("verb", ["GU", "GN", "GNP"])
+@pytest.mark.parametrize("pcb, pcb_java", [("1", "1"), ("PSB-NUM", r"Cobol\.num\(\w+, CS\)\.intValue\(\)")])
+@pytest.mark.parametrize(
+    "segs, ssas",
+    [
+        ("", r""),
+        ("SEGMENT(DEPT)", r', \w+\.cobolrt\.dli\.DetDli\.ssa\("DEPT"\)'),
+        ("SEGMENT (DEPT) WHERE (DEPTNO = IOA) SEGMENT(EMP)",
+         r', \w+\.cobolrt\.dli\.DetDli\.ssa\("DEPT", "DEPTNO", "EQ", \w+\), \w+\.cobolrt\.dli\.DetDli\.ssa\("EMP"\)'),
+        ("SEGMENT(S1) WHERE(F1 >= IOA)", r', \w+\.cobolrt\.dli\.DetDli\.ssa\("S1", "F1", "GE", \w+\)'),
+        ("SEGMENT(S1) WHERE(F1 NE IOA)", r', \w+\.cobolrt\.dli\.DetDli\.ssa\("S1", "F1", "NE", \w+\)'),
+        ("SEGMENT(S1) WHERE(F1 <= IOA)", r', \w+\.cobolrt\.dli\.DetDli\.ssa\("S1", "F1", "LE", \w+\)'),
+        ("SEGMENT(S1) WHERE(F1>IOA)", r', \w+\.cobolrt\.dli\.DetDli\.ssa\("S1", "F1", "GT", \w+\)'),
+    ],
+)  # fmt: skip
+def test_exec_dli_gets_are_detdli_get_with_their_ssas_and_answer_dibstat(tmp_path, verb, pcb, pcb_java, segs, ssas):
+    """GU / GN / GNP, the PCB a literal or a data item, no SEGMENT, a SEGMENT, a WHERE with each operator spelling and
+    more than one level: one DetDli.get whose answer lands in DIBSTAT; a whole translation."""
+    stmt = f"EXEC DLI {verb} USING PCB({pcb}) {segs} INTO(IOA) END-EXEC"
+    r = _translate_cics(tmp_path, _cics_program([*_wrap(stmt), "    MOVE DIBSTAT TO IMS-RC"]))
+    assert not r.stats["holes"], r.stats["holes"]
+    rx = rf'Cobol\.move\(\w+\.cobolrt\.dli\.DetDli\.get\("{verb}", {pcb_java}, \w+{ssas}\), \w+_DIBSTAT, CS\);'
+    assert re.search(rx, r.java), r.java
+
+
+def test_exec_dli_get_without_using_is_the_same_command(tmp_path):
+    r = _translate_cics(tmp_path, _cics_program(["    EXEC DLI GU PCB(1) SEGMENT(S1) INTO(IOA) END-EXEC"]))
+    assert not r.stats["holes"], r.stats["holes"]
+    assert 'DetDli.get("GU", 1, ' in r.java
+
+
 @pytest.mark.parametrize(
     "stmt, why",
     [
-        ("EXEC DLI GU USING PCB(PSB-NUM) SEGMENT(S1) INTO(IOA) END-EXEC", "EXEC DLI GU: the segment commands"),
-        ("EXEC DLI GN USING PCB(PSB-NUM) INTO (IOA) END-EXEC", "EXEC DLI GN: the segment commands"),
+        ("EXEC DLI GHU USING PCB(1) SEGMENT(S1) INTO(IOA) END-EXEC", "EXEC DLI GHU: the segment commands"),
+        ("EXEC DLI GU USING PCB(1) SEGMENT(S1) END-EXEC", "one PCB(n) first and one INTO(area)"),
+        ("EXEC DLI GU SEGMENT(S1) PCB(1) INTO(IOA) END-EXEC", "one PCB(n) first and one INTO(area)"),
+        ("EXEC DLI GU USING PCB(1) SEGMENT(S1) INTO(IOA) FIELDLENGTH(4) END-EXEC", "FIELDLENGTH: only PCB"),
+        ("EXEC DLI GU USING PCB(1) SEGMENT(S1) INTO(IOA) KEYS(IOA) END-EXEC", "KEYS: only PCB"),
+        ("EXEC DLI GU USING PCB(1) SEGMENT(S1) WHERE(F1 = IOA AND F2 = IOA) INTO(IOA) END-EXEC", "only field op value"),
+        ("EXEC DLI GU USING PCB(1) WHERE(F1 = IOA) INTO(IOA) END-EXEC", "WHERE must follow its SEGMENT"),
+        ("EXEC DLI GU USING PCB(1) SEGMENT(S1) WHERE(F1 = 5) INTO(IOA) END-EXEC", "not a data area"),
+        ("EXEC DLI GU USING PCB(1) SEGMENT(S1 S2) INTO(IOA) END-EXEC", "is not a segment name"),
         ("EXEC DLI REPL USING PCB(1) SEGMENT(S1) FROM(IOA) END-EXEC", "EXEC DLI REPL: the segment commands"),
         ("EXEC DLI ISRT USING PCB(1) SEGMENT(S1) FROM(IOA) END-EXEC", "EXEC DLI ISRT: the segment commands"),
         ("EXEC DLI DLET USING PCB(1) SEGMENT(S1) FROM(IOA) END-EXEC", "EXEC DLI DLET: the segment commands"),
@@ -412,7 +461,7 @@ def test_exec_dli_schd_and_term_answer_dibstat_through_the_runtime(tmp_path, stm
     ],
 )  # fmt: skip
 def test_the_exec_dli_forms_not_modelled_are_holes_by_name(tmp_path, stmt, why):
-    r = _translate_cics(tmp_path, _cics_program([f"    {stmt}"]))
+    r = _translate_cics(tmp_path, _cics_program(_wrap(stmt)))
     assert len(r.stats["holes"]) == 1 and why in r.stats["holes"][0], r.stats["holes"]
 
 
@@ -422,6 +471,54 @@ def test_exec_dli_in_a_batch_program_is_a_hole_and_other_dib_fields_are_no_such_
     assert len(r.stats["holes"]) == 1 and "EXEC DLI outside CICS" in r.stats["holes"][0], r.stats["holes"]
     r = _translate_cics(tmp_path, _cics_program(["    MOVE DIBSEGM TO IOA"]))
     assert any("DIBSEGM" in h for h in r.stats["holes"]), r.stats["holes"]  # only DIBSTAT is supplied
+
+
+@pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_detdli_get_answers_the_status_ibm_gives_through_the_pcb_by_number(tmp_path):
+    """GU with and without WHERE, GN walking on, a miss (GE), an unknown segment (AC) and field (AK), PCB 2 (PROCOPT G,
+    no hold); a get before SCHD, after TERM or through a PCB the PSB lacks is refused by name."""
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    _stage(tmp_path / "dli")
+    src = tmp_path / "src"
+    for rel, text in P.runtime_files("t", batch=False).items():
+        if not rel.startswith(("cobolrt/cics/", "cobolrt/sql/")):
+            (src / "t" / rel).parent.mkdir(parents=True, exist_ok=True)
+            (src / "t" / rel).write_text(text)
+    d = "t.cobolrt.dli.DetDli"
+    key = f'{d}.ssa("DEPT", "DEPTNO", "EQ", v)'
+    steps = [
+        f'try {{ {d}.get("GU", 1, into); }} catch (UnsupportedOperationException e) {{ p(e.getMessage()); }}',
+        f'{d}.schedule("LVLPSB", true); v.storage().bytes = "D200".getBytes();',
+        f'p({d}.get("GU", 1, into, {key}) + new String(st.bytes, 0, 20));',
+        f'p({d}.get("GN", 2, into, {d}.ssa("EMP")));',
+        f'p({d}.get("GU", 2, into, {key}, {d}.ssa("EMP")) + new String(st.bytes, 0, 14));',
+        f'p({d}.get("GN", 2, into, {d}.ssa("EMP")));',
+        'v.storage().bytes = "D999".getBytes();',
+        f'p({d}.get("GU", 1, into, {key}));',
+        f'p({d}.get("GU", 1, into, {d}.ssa("DEPT", "NOFIELD", "EQ", v)));',
+        f'p({d}.get("GU", 1, into, {d}.ssa("NOSEG")));',
+        f'try {{ {d}.get("GU", 3, into); }} catch (UnsupportedOperationException e) {{ p(e.getMessage()); }}',
+        f'try {{ {d}.get("GU", 0, into); }} catch (UnsupportedOperationException e) {{ p(e.getMessage()); }}',
+        f'{d}.terminate();',
+        f'try {{ {d}.get("GU", 1, into); }} catch (UnsupportedOperationException e) {{ p(e.getMessage()); }}',
+    ]  # fmt: skip
+    setup = ("t.cobolrt.Storage st = new t.cobolrt.Storage(64); t.cobolrt.Field into = t.cobolrt.Field.group(st, 0, 20); "
+             "t.cobolrt.Storage vs = new t.cobolrt.Storage(4); "
+             "t.cobolrt.Field v = t.cobolrt.Field.alphanumeric(vs, 0, 4, false); ")  # fmt: skip
+    (src / "Main.java").write_text(
+        'public class Main { static void p(String s) { System.out.println("[" + s + "]"); } '
+        f"public static void main(String[] a) {{ {setup}{' '.join(steps)} }} }}\n"
+    )
+    jdk = _jdk()
+    subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                    *map(str, src.rglob("*.java"))], check=True)  # fmt: skip
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", f"-Dgitgalaxy.dli.dir={tmp_path / 'dli'}", "-cp", str(tmp_path / "classes"),  # noqa: S603
+                          "Main"], capture_output=True, check=True).stdout.decode("utf-8").splitlines()  # fmt: skip
+    no_pcb = "CBLTDLI: a PCB number the scheduled PSB does not have is not modelled"
+    no_psb = "CBLTDLI: an EXEC DLI command with no PSB scheduled is not modelled"
+    assert out == [f"[{no_psb}]", "[  D200OPS             ]", "[  ]", "[  E003CAROL     ]", "[GB]", "[GE]", "[AK]", "[AC]",
+                   f"[{no_pcb}]", f"[{no_pcb}]", f"[{no_psb}]"]  # fmt: skip
 
 
 @pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")

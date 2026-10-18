@@ -7,10 +7,12 @@ Register family I states the model; what it does not model is refused here by na
     DetDli.call(function, pcb, io, ssa ...)             each CALL 'CBLTDLI'; RETURN-CODE 0 after it (register I1)
     DetDli.leave()                                      the step ended: the databases written for the comparison
 
-and, under CICS (#5278, register I5), the EXEC DLI commands SCHD PSB and TERM, each answering DIBSTAT:
+and, under CICS (#5278, register I5), the EXEC DLI commands SCHD PSB, TERM and the gets, each answering DIBSTAT:
 
     DIBSTAT = DetDli.schedule(psb, nodhabend)           EXEC DLI SCHD PSB(name | (area)) [NODHABEND]
     DIBSTAT = DetDli.terminate()                        EXEC DLI TERM
+    DIBSTAT = DetDli.get(verb, pcb, into, ssa ...)      EXEC DLI GU | GN | GNP USING PCB(n) [SEGMENT(s) [WHERE(f op v)]
+                                                        ...] INTO(area); ssa = DetDli.ssa(seg [, fld, op, value])
 """
 
 from __future__ import annotations
@@ -65,7 +67,7 @@ def call(gen: Any, s: S.Stmt, ind: str) -> list[str]:
     return [f"{ind}DetDli.call({fields});", f"{ind}Cobol.store({rc}, BigDecimal.ZERO, false, CS);"]
 
 
-# ---- EXEC DLI under CICS (#5278): SCHD PSB and TERM; the segment commands (GU REPL ISRT ...) stay holes by name -------
+# ---- EXEC DLI under CICS (#5278): SCHD PSB, TERM and the gets; REPL ISRT DLET stay holes by name ------------------
 _EXEC_DLI = re.compile(r"(?is)\s*EXEC\s+DLI\s+(.*?)\s*(?:END-EXEC\s*\.?)?\s*$")
 _ID = "[A-Z0-9" + "-]"  # a COBOL name: built from parts, a dense regex literal trips X-Ray's entropy check
 _SCHD = re.compile(
@@ -75,6 +77,85 @@ _SCHD = re.compile(
     + r"|(?P<name>" + _ID + r"{1,8}))"
     + r"\s*\)(?P<nodh>\s+NODHABEND)?"
 )  # fmt: skip
+
+
+_GETS = ("GU", "GN", "GNP")
+_NOT = chr(0xAC)  # the EBCDIC "not" sign
+_OPS = {"=": "EQ", ">": "GT", "<": "LT", ">=": "GE", "<=": "LE", _NOT + "=": "NE", "=" + _NOT: "NE"}
+_OPS.update({w: w for w in ("EQ", "GT", "LT", "GE", "LE", "NE")})
+_WHERE = re.compile(
+    r"(?is)\s*(?P<f>" + _ID + r"{1,8})\s*(?P<op>[<>=" + _NOT + r"]{1,2}|[EGLN][QTEA]|[EGLN]E)\s*(?P<v>\S+)\s*"
+)
+
+
+def _clauses(body: str) -> list[tuple[str, str]]:
+    """`KEYWORD(text)` clauses of an EXEC DLI command's options, parentheses balanced (a LENGTH OF inside one is text)."""
+    from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
+
+    out: list[tuple[str, str]] = []
+    i, n = 0, len(body)
+    while i < n:
+        if body[i].isspace():
+            i += 1
+            continue
+        m = re.compile(r"[A-Za-z][A-Za-z0-9-]*").match(body, i)
+        if m is None:
+            raise Untranslatable(f"EXEC DLI: cannot read {body[i : i + 20]!r} (register I5)")
+        i = m.end()
+        while i < n and body[i].isspace():
+            i += 1
+        if i >= n or body[i] != "(":
+            out.append((m.group(0).upper(), ""))
+            continue
+        depth, j = 0, i
+        while j < n:
+            depth += (body[j] == "(") - (body[j] == ")")
+            j += 1
+            if depth == 0:
+                break
+        if depth:
+            raise Untranslatable("EXEC DLI: unbalanced parentheses (register I5)")
+        out.append((m.group(0).upper(), body[i + 1 : j - 1].strip()))
+        i = j
+    return out
+
+
+def _get(gen: Any, verb: str, rest: str, ind: str) -> list[str]:
+    """GU / GN / GNP USING PCB(n) [SEGMENT(s) [WHERE(f op v)] ...] INTO(area): DetDli.get, DIBSTAT answered."""
+    from gitgalaxy.tools.cobol_to_java.det.cics import CicsError
+    from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable, jstr
+
+    cl = _clauses(re.sub(r"(?is)^\s*USING\b", "", rest))
+    names = [k for k, _ in cl]
+    for k in names:
+        if k not in ("PCB", "SEGMENT", "INTO", "WHERE"):
+            raise Untranslatable(f"EXEC DLI {verb} {k}: only PCB, SEGMENT, WHERE and INTO are modelled (register I5)")
+    if names.count("PCB") != 1 or names.count("INTO") != 1 or names[0] != "PCB":
+        raise Untranslatable(f"EXEC DLI {verb}: one PCB(n) first and one INTO(area) expected (register I5)")
+    cics = gen.cics
+    try:
+        pcb = cics.int_(dict(cl)["PCB"])
+        into = gen.field_expr(cics.ref(dict(cl)["INTO"]))
+        ssas: list[str] = []
+        for k, v in cl:
+            if k == "SEGMENT":
+                if not re.fullmatch(_ID + r"{1,8}", v, re.I):
+                    raise Untranslatable(f"EXEC DLI {verb}: SEGMENT({v}) is not a segment name")
+                ssas.append(jstr(v.upper()))
+            elif k == "WHERE":
+                w = _WHERE.fullmatch(v)
+                if not ssas or ssas[-1].startswith("("):
+                    raise Untranslatable(f"EXEC DLI {verb}: WHERE must follow its SEGMENT, once (register I5)")
+                if w is None or w.group("op").upper() not in _OPS:
+                    raise Untranslatable(f"EXEC DLI {verb}: WHERE({v}): only field op value is modelled (register I5)")
+                val = gen.field_expr(cics.ref(w.group("v")))
+                ssas[-1] = f"({ssas[-1]}, {jstr(w.group('f').upper())}, {jstr(_OPS[w.group('op').upper()])}, {val})"
+    except CicsError as e:
+        raise Untranslatable(f"EXEC DLI {verb}: {e}") from e
+    runtime = "__PACKAGE__.cobolrt.dli.DetDli"
+    args = [f"{runtime}.ssa{a}" if a.startswith("(") else f"{runtime}.ssa({a})" for a in ssas]
+    call = f"{runtime}.get({jstr(verb)}, {pcb}, {', '.join([into, *args])})"
+    return [f"{ind}Cobol.move({call}, {gen.field_expr(E.Ref('DIBSTAT'))}, CS);"]
 
 
 def uses_exec(texts: Any) -> bool:
@@ -118,11 +199,13 @@ def command(gen: Any, text: str, ind: str) -> list[str]:
         else:
             name = jstr((s.group("lit") or s.group("name")).upper())
         call = f"{runtime}.schedule({name}, {'true' if s.group('nodh') else 'false'})"
+    elif verb in _GETS:
+        return _get(gen, verb, body[len(verb) :], ind)
     elif verb == "TERM":
         if body.split()[1:]:
             raise Untranslatable("EXEC DLI TERM: no option is modelled (register I5)")
         call = f"{runtime}.terminate()"
     else:
-        raise Untranslatable(f"EXEC DLI {verb}: the segment commands (GU, GN, REPL, ISRT, DLET ...) are not modelled "
+        raise Untranslatable(f"EXEC DLI {verb}: the segment commands (REPL, ISRT, DLET ...) are not modelled "
                              "(register I5)")  # fmt: skip
     return [f"{ind}Cobol.move({call}, {dibstat}, CS);"]

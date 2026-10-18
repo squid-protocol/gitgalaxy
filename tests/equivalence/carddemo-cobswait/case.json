@@ -1,0 +1,13 @@
+{
+  "corpus": "aws-mainframe-modernization-carddemo",
+  "program": "COBSWAIT",
+  "program_source": "app/cbl/COBSWAIT.cbl",
+  "copy_dirs": [],
+  "job": "WAITSTEP",
+  "step": "WAIT",
+  "parm": null,
+  "clock": "2022/07/18 10:30:15.00",
+  "sysin": "00003600      VALUE IN CENTISECONDS",
+  "datasets": {},
+  "notes": "CardDemo's wait step (COBSWAIT, run by WAITSTEP): ACCEPT PARM-VALUE FROM SYSIN reads the job's own SYSIN card (00003600, 36 seconds in centiseconds), MOVE puts it in a PIC 9(8) COMP, CALL 'MVSWAIT' USING it. Both sides are fed the card as the step's SYSIN stream (the case's sysin key, #5106). MVSWAIT is a site routine: both sides model it as returning at once with RETURN-CODE 0 (register A1), so the run compares RETURN-CODE and the (empty) SYSOUT."
+}

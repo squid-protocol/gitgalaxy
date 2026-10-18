@@ -1737,6 +1737,54 @@ def test_comp5_read_as_a_number_is_not_refused(data, proc, tmp_path):
     assert not any("oracle_assumptions.md C7" in h for h in holes), holes
 
 
+def _record_io_holes(tmp_path, record: list[str], proc: list[str], *, sort: bool = False) -> list[str]:
+    fd = "SD" if sort else "FD"
+    select = "SELECT F ASSIGN TO FFILE."
+    src = fprogram("RECIO", [], [select], [f"{fd} F.", "01 REC.", *record], ["01 N PIC S9(4)."],
+                   ["MAIN.", *[f"    {x}" for x in proc], "    GOBACK."])  # fmt: skip
+    return _pcs_holes(tmp_path, src)
+
+
+@pytest.mark.parametrize(
+    ("record", "proc", "register"),
+    [
+        # #4271 (C6 / C7): a record is named by its FD, so a file READ / WRITE / REWRITE (no INTO / FROM) and a SORT
+        # RETURN never went through field_expr: the oracle's bytes of a COMP-5 / COMP-1 / COMP-2 item reached the file
+        (["05 A PIC S9(9) COMP-5.", "05 B PIC X(4)."], ["OPEN OUTPUT F", "WRITE REC", "CLOSE F"], "C7"),
+        (["05 A PIC S9(4) COMP-5.", "05 B PIC X(4)."], ["OPEN I-O F", "REWRITE REC", "CLOSE F"], "C7"),
+        (["05 A PIC S9(18) COMP-5."], ["OPEN INPUT F", "READ F", "CLOSE F"], "C7"),
+        (["05 G.", "   10 A PIC S9(9) COMP-5 OCCURS 2.", "05 B PIC X(4)."], ["OPEN INPUT F", "READ F", "CLOSE F"], "C7"),
+        (["05 A COMP-1.", "05 B PIC X(4)."], ["OPEN OUTPUT F", "WRITE REC", "CLOSE F"], "C6"),
+        (["05 A COMP-2."], ["OPEN INPUT F", "READ F", "CLOSE F"], "C6"),
+    ],
+)  # fmt: skip
+def test_record_io_refuses_comp5_and_float_bytes_by_name(record, proc, register, tmp_path):
+    """#4271: a file record holding a COMP-5 / COMP-1 / COMP-2 item is refused on READ / WRITE / REWRITE."""
+    pytest.importorskip("tree_sitter_language_pack")
+    holes = _record_io_holes(tmp_path, record, proc)
+    assert any(f"oracle_assumptions.md {register}" in h for h in holes), holes
+
+
+def test_record_io_refuses_comp5_in_a_sort_record_on_return(tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    holes = _record_io_holes(tmp_path, ["05 A PIC S9(9) COMP-5.", "05 B PIC X(4)."], ["RETURN F AT END MOVE 1 TO N"],
+                             sort=True)  # fmt: skip
+    assert any("oracle_assumptions.md C7" in h for h in holes), holes
+
+
+@pytest.mark.parametrize(
+    "record",
+    [
+        ["05 A PIC X(4).", "05 B PIC S9(7) COMP-3.", "05 C PIC S9(9) COMP."],  # no COMP-5 / float
+        ["05 A PIC S9(4) COMP.", "05 B PIC X(4)."],  # COMP is big-endian on both sides
+    ],
+)
+def test_record_io_without_comp5_or_float_bytes_is_not_refused(record, tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    holes = _record_io_holes(tmp_path, record, ["OPEN INPUT F", "READ F", "CLOSE F"])
+    assert not any("oracle_assumptions.md C6" in h or "oracle_assumptions.md C7" in h for h in holes), holes
+
+
 def test_p_scaled_items_store_their_nines_scaled():
     """#4669 / #4670: a P is a scaling position, never stored -- digits are the 9s, the scale counts the Ps."""
     pytest.importorskip("tree_sitter_language_pack")

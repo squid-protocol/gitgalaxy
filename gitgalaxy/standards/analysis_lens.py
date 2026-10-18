@@ -229,6 +229,7 @@ LANGUAGE_STRICTNESS: dict[str, tuple[bool, bool, bool, bool] | None] = {
     "yacc": (False, False, False, False),  # untyped $$/$N; actions are C; yylval/yytext are global
     "yaml": None,
     "zig": (True, True, False, True),  # error unions must be handled; manual memory
+    "zscript": (True, False, True, True),  # typed, garbage-collected; no exceptions
 }
 
 # Dialects: resolved before the strictness and fidelity lookups so a family member
@@ -1038,6 +1039,7 @@ LANGUAGE_SECURITY_PROFILES = {
             "lua",
             "apex",
             "swift",
+            "zscript",
         },
     },
     # Baseline multipliers applied when the file MATCHES its neighborhood's dominant ecosystem

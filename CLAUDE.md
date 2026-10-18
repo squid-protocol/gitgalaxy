@@ -72,7 +72,7 @@ discovery), prefix it `scratch_` so `.gitignore` catches it, and delete it befor
 Data flows through `gitgalaxy/core/` in a fixed pipeline, each stage handing off to the next
 (see `gitgalaxy/core/README.md` for the full writeup):
 
-1. **`aperture.py`** — zero-trust ingestion filter (rejects binaries/huge files before any I/O).
+1. **`aperture.py`** — zero-trust ingestion filter (rejects binaries/huge files pre-I/O).
 2. **`guidestar_lens.py`** — parses manifests (`package.json`, `Cargo.toml`, etc.) for an
    "Intent Lock" baseline, avoiding expensive heuristic guessing downstream.
 3. **`prism.py`** — splits raw source into the executable payload vs. the comment/doc surface,
@@ -91,8 +91,7 @@ Downstream of core: `gitgalaxy/metrics/` (risk scoring math, false-positive supp
 detection), `gitgalaxy/recorders/` (output formatting: SARIF, SBOM, LLM-optimized summaries,
 SQLite), `gitgalaxy/standards/` (the per-language rule registry + `gitgalaxy_config.py` global
 config), `gitgalaxy/tools/` (standalone DevSecOps/legacy-migration CLIs built on top of core).
-Each of those directories has its own `README.md` — read the relevant one before working deep
-inside it rather than re-deriving the architecture from source.
+Each has its own `README.md`: read it before working deep inside rather than re-deriving the architecture.
 
 The archetype brains (`analysis_lens.GENERAL_FUNCTION_INFERENCE_MODEL`, the file model and
 `gitgalaxy/standards/archetype_brains/*.json`) are not golden-neutral at any level: the golden
@@ -112,7 +111,7 @@ These are regression gates, not zero-tolerance floors: each has a committed base
 This lets CI enforce "no new problems" without demanding the pre-existing backlog be fixed
 first. If you fix backlog findings, regenerate the baseline with `--write-baseline`
 (`python tests/ruff_audit.py --write-baseline`, same for `mypy_audit.py`). `ruff format
---check` is the one zero-tolerance exception (whole repo was reformatted once at adoption, so there's no backlog to carry).
+--check` is the one zero-tolerance exception (no backlog to carry).
 
 Use `python tests/tools/audit_check.py` (add `--regenerate`) instead of running the three `--ci`
 scripts separately: it bundles all three plus the format check. Baseline keys are content-based
@@ -171,8 +170,8 @@ verified against `tests/golden_master_audit/` / `tests/golden_master_zero_dep_au
 explain *why* output changed in the PR description. Call `update_golden_master.py` directly only from inside one
 mode's venv: from your default shell it silently updates just one fixture (#2547).
 
-- **Never reuse a shared/personal venv across worktrees** (a venv's editable install points at one checkout, so it
-  silently scans another's code: false "zero diff" locally, real drift in CI, #579/#723). Use `crucible_check.py`.
+- **Never reuse a shared/personal venv across worktrees** (its editable install points at one checkout: false "zero
+  diff" locally, real drift in CI, #579/#723). Use `crucible_check.py`.
 - `crucible_check.py` output is capped (~28 of N differences shown): scoping a bless needs your own regenerate and
   diff, with `GITGALAXY_DISABLE_GIT_HISTORY=1` (NOT optional, #2985). Recipe: `docs/agents/differential-scan.md`.
 - Rebasing a parser/channel PR after a sibling merges: `python tests/tools/rebase_rebless.py` (dry run by default;
@@ -210,8 +209,8 @@ recommendations, never merges/closes/pushes on its own authority). Invoke via th
 
 ## Model tiering
 
-Sonnet by default; Opus manually for architecture-level planning. Subagents pin models in frontmatter (Haiku for
-mechanical triage; new subagents default to Haiku). Details: `docs/agents/model-tiering.md`.
+Sonnet by default; Opus manually for architecture planning. Subagents pin models in frontmatter (new ones default to
+Haiku). Details: `docs/agents/model-tiering.md`.
 
 ## Licensing
 

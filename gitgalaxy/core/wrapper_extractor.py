@@ -80,9 +80,30 @@ _CALLED = re.compile(r"\b(?<![" + ID_CONTINUE + r"])([" + ID_START + r"][" + ID_
 # lookbehind uses the same class so a match cannot start after a combining mark mid-name.
 _UNQUALIFIED_CALL = re.compile(r"(?<![" + ID_CONTINUE + r"$.:>])([" + ID_START + r"$][" + ID_CONTINUE + r"$]*)\s*\(")
 _IDENT = re.compile(r"[" + ID_START + r"$][" + ID_CONTINUE + r"$]*")
-# a name standing alone: not part of a longer (Unicode) name
-_NOT_NAME_BEFORE = r"(?<![" + ID_CONTINUE + r"$])"
-_NOT_NAME_AFTER = r"(?![" + ID_CONTINUE + r"$])"
+# a name character: a name stands alone when neither neighbour is one
+_NAME_CHAR = re.compile(r"[" + ID_CONTINUE + r"$]")
+
+
+def _standalone_spans(text: str, name: str) -> list[tuple[int, int]]:
+    """Spans of `name` standing alone in `text` (no name character on either side).
+
+    The same matches as `finditer` of `(?<![ID_CONTINUE$])name(?![ID_CONTINUE$])`, found with
+    `str.find` and the one compiled `_NAME_CHAR`. A per-name pattern over the huge ID_CONTINUE class cost ~3 ms to
+    compile and overflowed `re`'s 512-entry cache, so a 3,900-function file spent 15 s here (#5531).
+    """
+    spans: list[tuple[int, int]] = []
+    n = len(name)
+    i = text.find(name)
+    while i != -1:
+        j = i + n
+        if (i == 0 or not _NAME_CHAR.match(text[i - 1])) and (j >= len(text) or not _NAME_CHAR.match(text[j])):
+            spans.append((i, j))
+            i = text.find(name, j)  # finditer resumes after a match
+        else:
+            i = text.find(name, i + 1)
+    return spans
+
+
 # Callees kept per candidate / macro. The closure only needs to know whether ONE
 # callee is a wrapper; a cap keeps a generated file's payload bounded.
 _MAX_CALLEES = 24
@@ -162,7 +183,7 @@ def extract_wrapper_facts(
         loc = func.get("loc") or 0
         if loc > CANDIDATE_MAX_LOC:
             continue
-        own = [m.span() for m in re.finditer(_NOT_NAME_BEFORE + re.escape(name) + _NOT_NAME_AFTER, body)]
+        own = _standalone_spans(body, name)
         hits = sorted(
             rule
             for rule, pattern in patterns.items()
@@ -179,7 +200,7 @@ def extract_wrapper_facts(
                 # The engine's span names the function within its first 3 lines
                 # (C puts the return type on its own line). When it does not,
                 # the span is not the function's and its hits are other code's.
-                "aligned": bool(re.search(_NOT_NAME_BEFORE + re.escape(name) + _NOT_NAME_AFTER, "\n".join(lines[:3]))),
+                "aligned": bool(_standalone_spans("\n".join(lines[:3]), name)),
                 "method": is_method_definition(lang_id, lines[0], name),
                 "hits": hits,
                 "callees": callees[:_MAX_CALLEES],

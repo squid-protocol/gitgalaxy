@@ -88,6 +88,10 @@ every task of the TRANSID a fault names in `task` -- a terminal step's task or a
 commands; the stub (faults.cfg) and CicsTask.withFaults read the same plan, and the planned command does nothing
 but return the condition. A derived log records the faults that fired; one that never fired refuses the log.
 
+A typed-transid step's `commarea` (#4443) is `{"hex": <the record, in the runtime page>, "length": n}`: the task is
+entered directly with the first n bytes (EIBCALEN n), for a program only a RETURN TRANSID otherwise reaches with a
+short or odd area. The java plan carries the record decoded through the DTO the facade takes (seeded_step).
+
 Needs: the crucible checkout (CICS_CRUCIBLE_PATH, else ../cics-crucible beside the main gitgalaxy
 checkout) at the pin; for cobol-stub, Docker and the GnuCOBOL image (tests/equivalence/
 gnucobol.Dockerfile); for forge-compile / java, a JDK 17 and Maven (`--offline` for mvn -o).
@@ -855,6 +859,11 @@ class EquivalenceRunTest {
                         transid = text.split("\\s+")[0];
                         commarea = null;
                         calen = null;
+                        if (step.hasNonNull("commarea")) {  // #4443: a direct entry with a COMMAREA of its own
+                            JsonNode seed = step.get("commarea");
+                            commarea = seedArea(transid, seed.get("dto"));
+                            calen = seed.get("length").asInt();
+                        }
                     }
                     Map<String, Object> trigger = new LinkedHashMap<>();
                     trigger.put("kind", "terminal");
@@ -879,6 +888,27 @@ class EquivalenceRunTest {
             log.put("ts_queues", queues);
             log.put("entries", entries);
             return log;
+        }
+
+        /** #4443: the DTO a seeded step enters its program with: the plan's JSON as the type of the facade's
+         *  handleTransaction(String, T) the program's service declares. */
+        Object seedArea(String transid, JsonNode dto) {
+            String program = plan.path("transactions").path(transid).asText(null);
+            Object service = program == null ? null : service(plan, program);
+            if (service == null) {
+                throw new IllegalStateException("no generated service for the seeded COMMAREA of " + transid);
+            }
+            for (Method m : service.getClass().getMethods()) {
+                if (m.getName().equals("handleTransaction") && m.getParameterCount() >= 2
+                        && m.getParameterTypes()[1] != byte[].class) {
+                    try {
+                        return json.treeToValue(dto, m.getParameterTypes()[1]);
+                    } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+                        throw new IllegalStateException(e);
+                    }
+                }
+            }
+            throw new IllegalStateException("handleTransaction of " + program + " takes no COMMAREA to seed");
         }
 
         Map<String, Object> frame(String termid, Map<String, Object> trigger, String aid) {
@@ -1473,6 +1503,29 @@ class EquivalenceRunTest {
 """
 
 
+def seeded_step(case: cc.Case, src: Path, step: dict[str, Any]) -> dict[str, Any]:
+    """#4443: a step with a `commarea` (see step_commarea) as the Java plan carries it: the record's fields decoded
+    through the layout of the DTO the typed transaction's facade takes, as that DTO's JSON, and the length."""
+    import equivalence_cics as ec
+    import equivalence_java as ej
+
+    spec = step.get("commarea")
+    if spec is None:
+        return step
+    words = (step.get("text") or "").split()
+    program = case.csd["transactions"][words[0]]
+    service = next(src.rglob(f"{ej._service_class(program)}.java"))
+    found = re.search(r"handleTransaction\(String \w+, (\w+) \w+\)", service.read_text(encoding="utf-8"))
+    if found is None:
+        raise LookupError(f"{service.name} has no handleTransaction(String, DTO) to seed")
+    layout = dto_layout(src, found.group(1))
+    if layout is None:
+        raise LookupError(f"{found.group(1)} has no record layout to seed")
+    values = ec.decode_record(bytes.fromhex(spec["hex"]), layout, RUNTIME_PAGE)
+    dto = ec.to_java(values, ec.dto_shape(src, found.group(1)))
+    return {**step, "commarea": {"dto": dto, "length": spec.get("length", len(bytes.fromhex(spec["hex"])))}}
+
+
 def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
     """plan.json for the generated test: transid -> program (the case's CSD), program -> service
     class, map -> screen class (found in the generated sources), and each scenario's steps."""
@@ -1490,7 +1543,7 @@ def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
             cls = ec._generated_class(src, 'String MAP = "' + re.escape(m) + '";')
             screens[m] = f"{ej.PKG}.dto.screen.{cls}"
     # #4002: seeds as EBCDIC hex (SPEC 2: the region's page); #4006: `until` for the scheduler
-    scenarios = [{"id": sc["id"], "steps": sc["steps"], "until": sc.get("until"), "fault_plans": fault_plans(sc),
+    scenarios = [{"id": sc["id"], "steps": [seeded_step(case, src, st) for st in sc["steps"]], "until": sc.get("until"), "fault_plans": fault_plans(sc),
                   "ts_queues": {q: [cc.expected_bytes(i).hex() for i in items]
                                 for q, items in ((sc.get("initial") or {}).get("ts_queues") or {}).items()}}
                  for sc in case.scenarios]  # fmt: skip
@@ -2229,6 +2282,17 @@ def _record(r: dict[str, Any]) -> dict[str, Any] | None:
     return rec if any(v is not None for v in rec.values()) else None
 
 
+def step_commarea(step: dict[str, Any]) -> bytes | None:
+    """#4443: the COMMAREA a typed-transid step enters with (a direct entry into a program that is otherwise only
+    reached through a RETURN TRANSID): `commarea: {"hex": ..., "length": n}` is the first n bytes of the hex record,
+    so a short EIBCALEN needs no neighbour program passing one. None: the task starts with no COMMAREA."""
+    spec = step.get("commarea")
+    if spec is None:
+        return None
+    data = bytes.fromhex(spec["hex"])
+    return data[: spec.get("length", len(data))]
+
+
 def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[list[dict[str, Any]], str | None]:
     """The scheduler of SPEC section 4, for either side: (tasks in dispatch order, why it stopped early).
 
@@ -2332,7 +2396,7 @@ def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[lis
                 words = (step.get("text") or "").split()
                 if not words:
                     return tasks, f"step {n}: no pending RETURN TRANSID and no transaction id typed"
-                transid, commarea = words[0], None
+                transid, commarea = words[0], step_commarea(step)
             run(task_frame(case, n, step), transid, commarea, step, [], now)
             continue
         if nxt is not None and until is not None and nxt < until:

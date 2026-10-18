@@ -250,6 +250,8 @@ docs/language_status/readiness_report.md
 docs/language_status/progress.md
 docs/language_status/progress.json
 docs/language_status/progress.svg
+# #4963: the architecture brief is published to the generated branch by gitgalaxy.yml, never committed
+docs/gitgalaxy_architecture_brief.md
 docs/language_status/progress_issues_cache.json
 
 # #4980: fetched by equivalence_db2.fetch_odbc_cli() into the Docker build context; never committed

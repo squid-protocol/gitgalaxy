@@ -55,3 +55,20 @@ def test_every_burned_occurs_field_is_output_only():
         assert attrs & {"ASKIP", "PROT"}, f"{key} is OCCURS and typable: per-occurrence JUSTIFY is reachable"
     # the one known: CBSA BNK1ACC's account list (a SEND-only row of 10)
     assert ("BNK1ACC.bms", "ACCOUNT") in occurs
+
+
+def test_burned_maps_with_a_typable_initial_field():
+    """IBM's DFHMDF note: input typed into a field BMS initialized overwrites only the equivalent length of the existing
+    data. X54 does not model that; this pins which burned maps could reach it, so a bump that adds one is seen."""
+    maps = set()
+    for p in _burned_maps():
+        for r in bms_screen_fields(read_source(p).text):
+            if r["kind"] == "field" and r["name"] and (r.get("initial") or "") != "":
+                if not _attrs(r) & {"ASKIP", "PROT"}:
+                    maps.add(p.name)
+    known = {
+        "BNK1B2M.bms", "BNK1CAM.bms", "BNK1CDM.bms", "BNK1MAI.bms", "BNK1TFM.bms", "COACTUP.bms", "COPAU00.bms",
+        "CORPT00.bms", "COSGN00.bms", "COTRN00.bms", "COTRN01.bms", "COTRN02.bms", "COUSR00.bms", "epsmort.bms",
+        "ssmap.bms",
+    }  # fmt: skip
+    assert maps == known, f"typable INITIAL fields changed: +{sorted(maps - known)} -{sorted(known - maps)}"

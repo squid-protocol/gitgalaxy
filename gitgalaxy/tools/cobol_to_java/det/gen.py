@@ -380,6 +380,18 @@ class Gen:
         finally:
             self._value_use -= 1
 
+    def check_record_bytes(self, record: L.Item | None, what: str) -> None:
+        """A file or sort record read or written as bytes (#4271, C6 / C7): a COMP-1 / COMP-2 or COMP-5 item in it has
+        the oracle's bytes in the file, not z/OS's. Never reached through field_expr (the record is named by its FD)."""
+        if record is None:
+            return
+        over = self.overlaps_float(record)
+        if over is not None:
+            raise Untranslatable(f"{what}: the record holds {over.name} {over.usage} ({FLOAT_BYTES})")
+        over = self.overlaps_float(record, self.comp5_extents)
+        if over is not None:
+            raise Untranslatable(f"{what}: the record holds {over.name} COMP-5 ({COMP5_BYTES})")
+
     def overlaps_float(self, it: L.Item, extents: dict[int, list] | None = None) -> L.Item | None:
         """The float item whose bytes `it` (not a float) covers -- as a group holding it, or a REDEFINES over it -- or
         None. Items in the same table compare one occurrence; otherwise whole tables. `extents` names another set of
@@ -2983,6 +2995,7 @@ class Gen:
             fd = self.p.files.get(s.data["file"])
             if fd is None:
                 raise Untranslatable(f"READ {s.data['file']}: no SELECT")
+            self.check_record_bytes(fd.record, f"READ {fd.select}")
             if fd.handle is None:
                 raise Untranslatable(f"{fd.select}: {fd.why}")
             if fd.varying is not None:
@@ -3010,6 +3023,7 @@ class Gen:
             fd = next((f for f in self.p.files.values() if f.record is not None and rec_item.fd == f.fd), None)
             if fd is None:
                 raise Untranslatable(f"{k} {s.data['record'].name}: no file")
+            self.check_record_bytes(rec_item, f"{k} {fd.select}")
             if fd.handle is None:
                 raise Untranslatable(f"{fd.select}: {fd.why}")
             v = jname(fd.select)
@@ -3169,6 +3183,7 @@ class Gen:
             raise Untranslatable(f"{name}: {fd.why}")
         if fd.varying is not None or fd.record is None or fd.record.size != sd.sort_length:
             raise Untranslatable(f"{verb} USING / GIVING {name}: records not the sort file's length: not modelled")
+        self.check_record_bytes(fd.record, f"{verb} USING / GIVING {name}")
         return fd, fd.record
 
     def using_file(self, verb: str, var: str, sd: FileDef, name: str, ind: str) -> list[str]:
@@ -3211,6 +3226,7 @@ class Gen:
             what = jstr(f"RELEASE {it.name} outside an input procedure")
             return [*out, f"{ind}Sort.active({var}, {what}).release({self.field_expr(s.data['record'])});"]
         sd = self.sort_file(s.data["file"])
+        self.check_record_bytes(sd.record, f"RETURN {sd.select}")
         var, rec, st = f"sort_{jname(sd.select)}", self.ids[id(sd.record)], self.tmpname("st")
         what = jstr(f"RETURN {s.data['file']} outside an output procedure")
         out = [f'{ind}String {st} = Sort.active({var}, {what}).returnInto({rec}) ? "00" : "10";']

@@ -186,6 +186,89 @@
    }
   },
   {
+   "name": "pf4-invalid-key",
+   "aid": "DFHPF4",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "USER0001",
+     "PASSWDI": "PASSWORD"
+    }
+   },
+   "why": "PF4 is not ENTER or PF3: WHEN OTHER (invalid key), the neighbour of PF3 in the AID table (#4628: kills a DFHPF3 constant read one byte on)"
+  },
+  {
+   "name": "admin-xctl-not-authorised",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "ADMIN001",
+     "PASSWDI": "PASSWORD"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COADM01C",
+     "nth": 1,
+     "resp": "NOTAUTH",
+     "resp2": 101
+    }
+   ],
+   "why": "#4628: NOTAUTH on the admin sign-on's XCTL to COADM01C; COSGN00C has no HANDLE CONDITION / ERROR, so CICS abends the task (AEY7): kills the condition() / XCTL RESP tests of the port"
+  },
+  {
+   "name": "user-xctl-not-authorised",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "USER0003",
+     "PASSWDI": "PASSWORD"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COMEN01C",
+     "nth": 1,
+     "resp": "NOTAUTH",
+     "resp2": 101
+    }
+   ],
+   "why": "#4628: NOTAUTH on the regular user's XCTL to COMEN01C: the same abend on the other XCTL"
+  },
+  {
+   "name": "user-signs-on-short-commarea",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "USER0003",
+     "PASSWDI": "PASSWORD"
+    }
+   },
+   "commarea_length": 100,
+   "why": "#4628: the caller passed 100 of the COMMAREA's 160 bytes (EIBCALEN 100, X23): the port cuts DFHCOMMAREA to EIBCALEN and restores the record before writing the task's object back; COSGN00C never references DFHCOMMAREA"
+  },
+  {
    "name": "user-file-io-error",
    "aid": "DFHENTER",
    "commarea": {

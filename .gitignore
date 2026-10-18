@@ -121,6 +121,9 @@ museum_2/
 !docs/research/*.json
 # #4047: the committed mutation scores of the proven ports (tests/tools/mutation_scores.py)
 !docs/language_status/mutation_scores.json
+# #4628: the det-port mutation ledgers and the reviewed survivor lists (tests/tools/det_mutation.py), one file per case
+!tests/equivalence/det_mutation/*.json
+!tests/equivalence/det_mutation_survivors/*.json
 # #4270: the measured census use / crucible cases the CICS spec status page renders (cics_spec_status.py)
 !docs/language_status/cics_spec_status.json
 # #4711: the cobolrt rule catalogue (tests/tools/cobolrt_rules.py renders docs/language_status/cobolrt_rules.md from it)

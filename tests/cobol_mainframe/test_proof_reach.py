@@ -293,7 +293,10 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     # #4443 re-ran PCCONF, PCWIZ, PCMENU and PCDETL (seed 0, 24 mutants each) with their new strengthened scenarios:
     # one more flagged survivor, none a case gap: PCCONF's `d.getPcBack()` null-arm literal, in code the proof does not
     # run (unreachable).
-    assert len(flagged) == 6 and verdicts.count("unreachable") == 3 and verdicts.count("equivalent") == 3
+    # #4047 then scored seven more CardDemo CICS ports (billpay, cardlist, cardview, report, tranadd, tranlist, userupd):
+    # 12 more flagged survivors, all unreachable: the facade's byte-carrying handleLink overload, lastLinkBytes() and the
+    # program-name literal in region.run / region.linked, which no proof calls.
+    assert len(flagged) == 18 and verdicts.count("unreachable") == 15 and verdicts.count("equivalent") == 3
     assert not {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C", "CSUTLDTC"}
 
 

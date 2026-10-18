@@ -401,7 +401,44 @@
   "generated_compared": true,
   "port_sha256": "9122743f8acd4ec26151ed233b1ddb3cdcd00ecde9af4ea3d8454f109bcccc0e"
  },
- "mutation": null,
+ "mutation": {
+  "commit": "7470befa4",
+  "rejudged": null,
+  "seed": 0,
+  "mode": null,
+  "mutants": 503,
+  "chosen": 100,
+  "killed": 60,
+  "survived": 31,
+  "stillborn": 9,
+  "survivors": {
+   "case_gap": 5,
+   "harness_gap": 1,
+   "equivalent": 22,
+   "unreachable": 3,
+   "untriaged": 0
+  },
+  "score_raw": "60/91",
+  "score_adjusted": "60/66",
+  "source": "docs/language_status/mutation_scores.json#carddemo-cardview/COCRDSLC",
+  "inputs": {
+   "port": {
+    "sha256": "9122743f8acd4ec26151ed233b1ddb3cdcd00ecde9af4ea3d8454f109bcccc0e"
+   },
+   "case": {
+    "sha256": "b37f0899733d7de92a4017cf0106742dd43c347fd3c0c632fa098cf5b96e5ebc"
+   },
+   "corpus": {
+    "sha256": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919"
+   },
+   "harness": {
+    "sha256": "6f6e8b308a1e087561982b3157c427f7a9595772b16f50bf58cd5411558c2449"
+   },
+   "oracle": {
+    "sha256": "db4ce1a1215ccfb5ed86d706f91ab5afa29d583d2fe8c84bb34f6852598f7032"
+   }
+  }
+ },
  "differences": [],
  "oracle": {
   "kind": "gnucobol-models",

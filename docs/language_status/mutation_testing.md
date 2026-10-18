@@ -123,7 +123,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | port | harness | mutants run / all | raw score | without equivalent + unreachable | survivors: case gap / harness gap / equivalent / unreachable / untriaged |
 |---|---|---|---|---|---|
 | COACTVWC (carddemo-acctview) | equivalence | 150/328 | 105/129 (81%) | 105/113 (93%) | 8 / 0 / 16 / 0 / 0 |
-| COADM01C (carddemo-adminmenu) | equivalence | 100/334 | 53/95 (56%) | 53/69 (77%) | 16 / 0 / 26 / 0 / 0 |
+| COADM01C (carddemo-adminmenu) | equivalence | 100/340 | 52/95 (55%) | 52/82 (63%) | 7 / 0 / 11 / 2 / 23 |
 | COBIL00C (carddemo-billpay) | equivalence | 100/529 | 64/86 (74%) | 64/71 (90%) | 7 / 0 / 12 / 3 / 0 |
 | COCRDLIC (carddemo-cardlist) | equivalence | 100/1034 | 75/94 (80%) | 75/82 (91%) | 7 / 0 / 12 / 0 / 0 |
 | COCRDSLC (carddemo-cardview) | equivalence | 100/503 | 60/91 (66%) | 60/66 (91%) | 5 / 1 / 22 / 3 / 0 |
@@ -139,11 +139,11 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COSGN00C (carddemo-signon) | equivalence | 100/196 | 67/99 (68%) | 67/72 (93%) | 5 / 0 / 25 / 2 / 0 |
 | COTRN02C (carddemo-tranadd) | equivalence | 100/770 | 61/91 (67%) | 61/74 (82%) | 13 / 0 / 10 / 7 / 0 |
 | COTRN00C (carddemo-tranlist) | equivalence | 100/697 | 60/91 (66%) | 60/80 (75%) | 20 / 0 / 5 / 6 / 0 |
-| COTRN01C (carddemo-tranview) | equivalence | 100/308 | 63/100 (63%) | 63/68 (93%) | 5 / 0 / 29 / 3 / 0 |
+| COTRN01C (carddemo-tranview) | equivalence | 100/314 | 66/100 (66%) | 66/83 (80%) | 0 / 0 / 9 / 8 / 17 |
 | COTRN01C (carddemo-tranview-generated) | equivalence | 100/314 | 58/100 (58%) | 58/67 (87%) | 9 / 0 / 25 / 8 / 0 |
 | CBTRN03C (carddemo-trnrpt) | equivalence | 100/408 | 68/86 (79%) | 68/79 (86%) | 8 / 3 / 7 / 0 / 0 |
-| COUSR01C (carddemo-useradd) | equivalence | 100/266 | 64/97 (66%) | 64/72 (89%) | 8 / 0 / 23 / 2 / 0 |
-| COUSR03C (carddemo-userdel) | equivalence | 100/334 | 62/86 (72%) | 62/70 (89%) | 8 / 0 / 15 / 1 / 0 |
+| COUSR01C (carddemo-useradd) | equivalence | 100/272 | 60/98 (61%) | 60/75 (80%) | 5 / 0 / 17 / 6 / 10 |
+| COUSR03C (carddemo-userdel) | equivalence | 100/340 | 62/87 (71%) | 62/75 (83%) | 3 / 0 / 9 / 3 / 10 |
 | COUSR00C (carddemo-userlist) | equivalence | 100/493 | 69/100 (69%) | 69/92 (75%) | 23 / 0 / 8 / 0 / 0 |
 | COUSR02C (carddemo-userupd) | equivalence | 100/481 | 47/82 (57%) | 47/64 (73%) | 17 / 0 / 14 / 4 / 0 |
 | INQACC (cbsa-inqacc) | equivalence | 150/464 | 131/131 (100%) | 131/131 (100%) | 0 / 0 / 0 / 0 / 0 |
@@ -173,20 +173,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 3308 run | **2093/3005 (70%)** | **2093/2545 (82%)** | 446 / 6 / 345 / 115 / 0 |
-| **all estate** | | 3812 run | **2412/3481 (69%)** | **2412/2899 (83%)** | 481 / 6 / 433 / 149 / 0 |
+| **all equivalence** | | 3308 run | **2091/3007 (70%)** | **2091/2581 (81%)** | 424 / 6 / 298 / 128 / 60 |
+| **all estate** | | 3812 run | **2410/3483 (69%)** | **2410/2935 (82%)** | 459 / 6 / 386 / 162 / 60 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 159/199 (80%) | 159/175 (91%) |
+| AOR | 160/199 (80%) | 160/175 (91%) |
 | BDM | 25/45 (56%) | 25/31 (81%) |
-| CON | 321/678 (47%) | 321/420 (76%) |
-| COR | 131/230 (57%) | 131/195 (67%) |
-| DEL | 364/545 (67%) | 364/461 (79%) |
-| LIT | 514/663 (78%) | 514/586 (88%) |
-| NEG | 451/507 (89%) | 451/485 (93%) |
+| CON | 320/676 (47%) | 320/445 (72%) |
+| COR | 132/234 (56%) | 132/195 (68%) |
+| DEL | 365/545 (67%) | 365/475 (77%) |
+| LIT | 509/659 (77%) | 509/584 (87%) |
+| NEG | 450/507 (89%) | 450/485 (93%) |
 | RET | 56/89 (63%) | 56/79 (71%) |
-| ROR | 391/525 (74%) | 391/467 (84%) |
+| ROR | 393/529 (74%) | 393/466 (84%) |
 <!-- /mutation-scores -->
 
 Run on gitgalaxy `416fb6420` (2026-10-03): CSUTLDTC all 217 mutants; COMEN01C and COACTVWC 150 each (seed 0);
@@ -200,18 +200,19 @@ last page after a full one. 8 more survivors are unreachable (the program name i
 The 126 equivalent verdicts rest on one assumption not yet independently checked: the COMMAREA/screen DTO codec pads
 and truncates each field to its declared width, so a width off by one, or NUL for space, changes no compared byte.
 
-#4049 re-ran adminmenu, useradd, userdel and tranview (100 mutants each, seed 0) against the scenarios #5387 added, to
-re-judge their 37 case gaps. The committed scores above are NOT updated: the four ports were regenerated since
-`bcb4f6f82`, so the mutant set moved (COADM01C 334 -> 340 mutants, COTRN01C 308 -> 314, COUSR01C 266 -> 272, COUSR03C
-334 -> 340) and the committed survivor ids and triage no longer map; the rows stay with their ports' older code (the
-evidence records' mutation port digest marks them stale). Matching the old survivors by file, operator and mutated text:
-of the 37 case gaps, 12 are now killed (adminmenu 6, tranview 3, userdel 2, useradd 1), 15 still survive (adminmenu 7,
-useradd 5, userdel 3: COADM01C's service lines 241, 344, 368, 373 and 374, COUSR01C's 136, 228, 245 and 259, COUSR03C's
-200, 206 and 469) and 10 are gone with the code they sat in. The fresh run
-killed 52/66/60/62 and left 43/34/38/25 survivors (5/0/2/13 stillborn); about 71 of those survivors have no triage
-(widths on `fld` / `pad` / `fit`, deleted field moves, the `lastLinkBytes` and `region.linked` program-name mutants the
-facade-reach check already treats as unreachable). Writing the new triage and the scenarios for the 15 surviving
-case gaps is the next slice; the run data is kept with the handoff note.
+#4049 re-ran adminmenu, useradd, userdel and tranview (100 mutants each, seed 0, `mutation.py run --record`) against the
+scenarios #5387 added, and the rows above are now these runs. The four ports were regenerated since `bcb4f6f82`, so the
+mutant set moved (COADM01C 334 -> 340 mutants, COTRN01C 308 -> 314, COUSR01C 266 -> 272, COUSR03C 334 -> 340); the old
+verdicts were carried to a new survivor only where its operator, file and mutated text matched exactly one old survivor
+(60 carried), plus 19 facade `lastLinkBytes` / `region.run` / `region.linked` mutants triaged unreachable as in the other
+CardDemo ports. Score before -> after (raw / adjusted): COADM01C 56% / 77% -> 55% / 63%, COTRN01C 63% / 93% -> 66% / 80%,
+COUSR01C 66% / 89% -> 61% / 80%, COUSR03C 72% / 89% -> 71% / 83%. The adjusted scores fell because 60 new survivors
+have no verdict yet (COADM01C 23, COTRN01C 17, COUSR01C 10, COUSR03C 10: widths on `fld` / `pad` / `fit`, deleted field moves)
+and an untriaged survivor counts against the score. Of the 37 case gaps the scenarios targeted, 12 are killed (adminmenu
+6, tranview 3, userdel 2, useradd 1), 15 still survive (COADM01C's service lines 241, 344, 368, 373 and 374, COUSR01C's
+136, 228, 245 and 259, COUSR03C's 200, 206 and 469) and 10 are gone with the code they sat in. Left: triage the 60 new
+survivors and write scenarios for the 15 surviving case gaps. Stop rule for the strengthening loop: stop at the target
+score (owner decision pending) or when a round of proposals kills no survivor, and record the reason here.
 
 #4047 then added seven more CardDemo CICS ports (billpay, cardlist, cardview, report, tranadd, tranlist, userupd; 100
 mutants each, seed 0). Their case gaps repeat the six ports': no EIBCALEN, a short or blank COMMAREA, non-blank

@@ -396,11 +396,15 @@ def record(case: str, run_dir: Path, port: Path) -> int:
     every = mu.all_mutants(port, set(mu.OPERATORS), FILES)
     in_scope = scope_filter(case_kind(case), port)(every)
     entry = entry_from_run(case, run, port, len(every) - len(in_scope))
-    import fcntl  # (POSIX; two runs recording at once must not lose an entry)
     import tempfile
 
+    try:
+        import fcntl  # (POSIX; two runs recording at once must not lose an entry)
+    except ImportError:  # Windows: no concurrent runs there, write unlocked
+        fcntl = None
     with (Path(tempfile.gettempdir()) / "gitgalaxy-det-mutation.lock").open("w") as lock:
-        fcntl.flock(lock, fcntl.LOCK_EX)
+        if fcntl is not None:
+            fcntl.flock(lock, fcntl.LOCK_EX)
         write(case, entry)
     s = summary(case, entry)
     print(_row(s))

@@ -37,7 +37,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [CALINK](crucible-ca-link-lengths-CALINK.md) | crucible:ca-link-lengths/CALINK | crucible | proven, unapproved |  | 4 | 1/1 / 4/4 | 15/22 / 15/15 | 0 | - |
 | [CASUB](crucible-ca-link-lengths-CASUB.md) | crucible:ca-link-lengths/CASUB | crucible | proven, unapproved |  | 3 | 1/1 / 4/4 | 16/24 / 16/16 | 0 | - |
 | [CAXA](crucible-ca-xctl-versions-CAXA.md) | crucible:ca-xctl-versions/CAXA | crucible | proven, unapproved |  | 3 | 1/1 / 3/3 | 16/21 / 16/16 | 0 | - |
-| [CAXB](crucible-ca-xctl-versions-CAXB.md) | crucible:ca-xctl-versions/CAXB | crucible | proven, unapproved |  | 3 | 1/1 / 6/6 | 17/23 / 17/21 | 0 | - |
+| [CAXB](crucible-ca-xctl-versions-CAXB.md) | crucible:ca-xctl-versions/CAXB | crucible | proven, unapproved |  | 3 | 1/1 / 6/6 | 18/23 / 18/21 | 0 | - |
 | [GTSTART](crucible-gt-start-retrieve-GTSTART.md) | crucible:gt-start-retrieve/GTSTART | crucible | proven, unapproved |  | 6 | 1/1 / 6/6 | 19/22 / 19/19 | 0 | - |
 | [GTWORK](crucible-gt-start-retrieve-GTWORK.md) | crucible:gt-start-retrieve/GTWORK | crucible | proven, unapproved |  | 5 | 1/1 / 2/2 | 20/21 / 20/20 | 0 | - |
 | [GTSHOW](crucible-gt-terminal-coalesce-GTSHOW.md) | crucible:gt-terminal-coalesce/GTSHOW | crucible | proven, unapproved |  | 3 | 1/1 / 2/2 | 17/23 / 17/17 | 0 | - |

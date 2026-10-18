@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import atexit
 import functools
-import os
 import shutil
 import subprocess
 import sys
@@ -20,7 +19,7 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from test_det_programs import PKG, _batch_package, _java  # noqa: E402
+from test_det_programs import PKG, _batch_package, _java
 
 pytestmark = pytest.mark.skipif(_java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
 

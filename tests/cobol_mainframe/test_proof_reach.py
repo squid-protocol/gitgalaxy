@@ -308,7 +308,7 @@ def test_the_re_run_crucible_ports_keep_their_measured_floor():
         "CALINK": (15, 7),
         "CASUB": (16, 8),
         "CAXA": (16, 5),
-        "CAXB": (17, 6),
+        "CAXB": (18, 5),
         "GTSTART": (19, 3),
         "GTWORK": (20, 1),
         "GTSHOW": (17, 6),
@@ -318,14 +318,14 @@ def test_the_re_run_crucible_ports_keep_their_measured_floor():
         "HCQREAD": (14, 7),
         "HXATTR": (17, 5),
         "HXEXT": (20, 3),
-    }  # fmt: skip  (#4870 re-ran after the byte-carrying facade overload, #4965 re-ran CALINK, CAXA, GTSTART, HCQREAD, #4443 re-ran all 13 with the strengthened scenarios: measured)
+    }  # fmt: skip  (#4870 re-ran after the byte-carrying facade overload, #4965 re-ran CALINK, CAXA, GTSTART, HCQREAD, #4443 re-ran all 13 with the strengthened scenarios, then CAXB's `visits-past-nine`: measured)
     ports = {p["program"]: p for p in json.loads(SCORES.read_text(encoding="utf-8"))["ports"]}
     for prog, (killed, survived) in expected.items():
         t = ports[prog]["total"]
         assert (t["killed"], t["survived"]) == (killed, survived), prog
         assert t["untriaged"] == 0 and _mutated_port_is_current(ports[prog]["case"], prog), prog
     assert sum(ports[p]["total"]["harness_gap"] for p in expected) == 0
-    assert sum(k for k, _ in expected.values()) == 220 and sum(s for _, s in expected.values()) == 70
+    assert sum(k for k, _ in expected.values()) == 221 and sum(s for _, s in expected.values()) == 69
 
 
 def test_the_pc_ports_re_run_in_4443_keep_their_measured_floor():

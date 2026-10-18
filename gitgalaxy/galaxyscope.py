@@ -918,6 +918,7 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                         content_buffer,
                         code_stream=refraction.get("code_stream"),
                         prose=lang_id in ("plaintext", "markdown", "csv"),
+                        language=lang_id,
                     )
                 )
 

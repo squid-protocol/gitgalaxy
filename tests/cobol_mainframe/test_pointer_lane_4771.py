@@ -275,7 +275,10 @@ public class Main {
 
 
 def test_every_pointer_hole_left_in_zecs001_is_refused_by_name(tmp_path):
-    """#4771: the estate's own ZECS001 (not a model of it) holds only the named pointer refusals, never an unnamed one."""
+    """#4771: the estate's own ZECS001 (not a model of it) holds only the named pointer refusals, never an unnamed one.
+
+    The stub has a `runTask(CicsTask)`, as the forge's has: without it the CICS lane is off and every pointer statement is
+    the generic "SET ADDRESS OF (pointers)" hole, which would hide the reason this test exists to pin."""
     root = os.environ.get("GITGALAXY_MAINFRAME_CORPORA")
     src = Path(root) / "zecs/Source/ZECS001.cbl" if root else None
     if src is None or not src.is_file():
@@ -283,17 +286,28 @@ def test_every_pointer_hole_left_in_zecs001_is_refused_by_name(tmp_path):
     pytest.importorskip("tree_sitter_language_pack")
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
-    stub = "package com.x.service;\npublic class Zecs001Service {\n}\n"
+    vsam = tmp_path / "proj/src/main/java/com/x/entity/vsam"
+    vsam.mkdir(parents=True)
+    (vsam / "CobolRecords.java").write_text("package com.x.entity.vsam; public class CobolRecords {}\n")
+    stub = "package com.x.service;\nimport com.x.cics.CicsTask;\npublic class Zecs001Service {\n" \
+           "    public void runTask(CicsTask task) {}\n}\n"  # fmt: skip
     r = P.translate(src, [], stub, "com.x", {}, tmp_path / "proj")
+    # (case-insensitive: "SET-ADDRESS CACHE-ADDRESS: a pointer a REDEFINES overlays" names no upper-case POINTER)
     pointer = [
-        h for h in r.stats["holes"] if any(k in h for k in ("POINTER", "ADDRESS OF", "ZUIDSTCK", "GETMAIN", "FREEMAIN"))
+        h
+        for h in r.stats["holes"]
+        if any(k in h.upper() for k in ("POINTER", "ADDRESS", "ZUIDSTCK", "GETMAIN", "FREEMAIN"))
     ]
-    assert pointer, "ZECS001 is expected to still hold the pointer refusals"
-    named = (
-        "REDEFINES overlays a POINTER",
-        "a subordinate item is an offset",
-        "not a LINKAGE 01",
-        "ZUIDSTCK:",
-        "SET ADDRESS OF (pointers)",
-    )
+    assert not any("SET ADDRESS OF (pointers)" in h for h in r.stats["holes"]), "the CICS lane must be on"
+    by_reason = {
+        "ADDRESS OF a subordinate item": ("a subordinate item is an offset into its record", {1098, 1195}),
+        # (also the EXEC CICS GETMAIN / WEB RECEIVE / FREEMAIN statements that name an overlaid pointer: a superset below)
+        "a pointer a REDEFINES overlays": ("a pointer a REDEFINES overlays", {1110, 1134, 1198, 1487, 1850}),
+        "numeric view of a pointer": ("a REDEFINES overlays a POINTER with it", {1111, 1115, 1147, 1400, 1519}),
+        "CALL ZUIDSTCK": ("CALL ZUIDSTCK:", {1244}),
+    }
+    for reason, (phrase, lines) in by_reason.items():
+        got = {int(h.split(":")[0].split()[1]) for h in pointer if phrase in h}
+        assert lines <= got if phrase.startswith("a pointer") else got == lines, (reason, got)
+    named = [p for p, _ in by_reason.values()]
     assert all(any(n in h for n in named) for h in pointer), pointer

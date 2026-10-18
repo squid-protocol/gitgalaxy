@@ -3490,7 +3490,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   chain that loops; READQ TD INTO with SET; SET without a LENGTH data area (IBM's SET page for the TS form says LENGTH "must be specified"; the TD
   page states no more than the record's length goes there), or with a literal LENGTH. IOERR on a write is not modelled (no data set to fail); a write to an open output queue records the event and
   writes nothing.
-- **Refused by name, round 3** ("not modelled"; ENABLESTATUS has since moved to X66, #5168 round 5). SET TDQUEUE with any option but OPENSTATUS (ENABLESTATUS, ATIFACILITY, ATITERMID, TRIGGERLEVEL ...) and
+- **Refused by name, round 3** ("not modelled"; ENABLESTATUS has since moved to X66, #5168 round 5; INQUIRE TRIGGERLEVEL, RECOVSTATUS and TRANSID in round 6). SET TDQUEUE with any option but OPENSTATUS (ENABLESTATUS, ATIFACILITY, ATITERMID, TRIGGERLEVEL ...) and
   INQUIRE TDQUEUE with any option but OPENSTATUS / TYPE (the browse START / NEXT / END included); SET OPENSTATUS of an INDIRECT or REMOTE queue (IBM names
   only the intrapartition case); an invalid CVDA on a queue that is not extrapartition (IBM does not order RESP2 8, RESP2 9 and QIDERR); OPENSTATUS(OPEN)
   of an extrapartition queue with no TYPEFILE INPUT / OUTPUT; OPENSTATUS(OPEN) of an input queue a READQ TD has read from (reopening restarts the data
@@ -3683,6 +3683,21 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   INVREQ RESP2 10).
 - **Not modelled, no burned program needs it.** The burned estates' only TD command is WRITEQ TD (CSSL, JOBS, STDQ-NAME); none reads or deletes a TD queue or
   issues SET / INQUIRE TDQUEUE. DISABLED therefore has no consumer yet: this round is the same mechanism as X61 round 3, kept to what both runtimes can answer.
+
+## Round 6: INQUIRE TDQUEUE TRIGGERLEVEL, RECOVSTATUS and TRANSID (#5168)
+
+- **INQUIRE TDQUEUE TRIGGERLEVEL / RECOVSTATUS / TRANSID** (CICS TS 6.x, https://www.ibm.com/docs/en/cics-ts/6.x?topic=commands-inquire-tdqueue).
+  TRIGGERLEVEL: a fullword, the number of records that starts the ATI transaction (default 1, 0 disables ATI), intrapartition only. TRANSID: the
+  4-character transaction started at the trigger level, intrapartition only. RECOVSTATUS: PHYSICAL (215), LOGICAL (216), NOTRECOVABLE (30), or
+  NOTAPPLIC (1) when the queue has no recovery attribute.
+- **Assumed, round 6.** (1) TRIGGERLEVEL is the CSD's value, else 1. (2) TRANSID is the CSD's, else blanks. (3) RECOVSTATUS of an intrapartition queue is
+  LOGICAL / PHYSICAL as defined, NOTRECOVABLE when the CSD states none; any other queue type answers NOTAPPLIC. (4) The options are read-only: nothing
+  changes state, no ATI is fired. (5) The answers are about the named queue (an INDIRECT queue is not followed), as OPENSTATUS and TYPE.
+- **Refused by name.** INQUIRE TDQUEUE TRIGGERLEVEL or TRANSID of a queue that is not intrapartition (IBM names no value): "INQUIRE TDQUEUE TRIGGERLEVEL /
+  TRANSID of a queue that is not intrapartition: not modelled", on both runtimes. SET TDQUEUE TRIGGERLEVEL, ATIFACILITY, ATITERMID stay refused.
+- **Output slots.** The stub reads TRIGGERLEVEL, RECOVSTATUS and TRANSID back in GG-HOURS, GG-MINS and GG-RTRAN (spare fields, no copybook change); the det port
+  reads them from `CicsTask.inquireTdQueue`'s 6-boolean overload (`[5]`, `[6]`) and `tdTransid`.
+- **Not modelled, no burned program needs it.** Same as above: the burned TD users only issue plain WRITEQ TD.
 
 ### X67. HANDLE ABEND PROGRAM refused by name: an abend exit program is not modelled (#4270)
 - **What is refused.** `HANDLE ABEND PROGRAM(name)` (IBM, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-handle-abend):

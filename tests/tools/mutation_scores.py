@@ -83,6 +83,20 @@ def _pct(a: int, b: int) -> str:
     return f"{a}/{b} ({100 * a / b:.0f}%)" if b else "-"
 
 
+def operator_matrix(results: dict) -> str:
+    """Per port, per operator: caught / judged (raw). `-` where the port has no judged mutant of that operator."""
+    ops = sorted({op for p in results["ports"] for op in p["ops"]})
+    rows = ["| port | " + " | ".join(ops) + " |", "|---|" + "---|" * len(ops)]
+    for p in results["ports"]:
+        cells = []
+        for op in ops:
+            c = p["ops"].get(op, {})
+            judged = c.get("killed", 0) + c.get("survived", 0)
+            cells.append(f"{c.get('killed', 0)}/{judged}" if judged else "-")
+        rows.append(f"| {p['program']} ({p['case'].removeprefix('crucible:')}) | " + " | ".join(cells) + " |")
+    return "\n".join(rows)
+
+
 def table(results: dict) -> str:
     header = (
         "| port | harness | mutants run / all | raw score | without equivalent + unreachable "
@@ -119,6 +133,7 @@ def table(results: dict) -> str:
     for op, t in sorted(ops.items()):
         caught, raw, adj = scores(t)
         rows.append(f"| {op} | {_pct(caught, raw)} | {_pct(caught, adj)} |")
+    rows += ["", operator_matrix(results)]
     return "\n".join(rows)
 
 

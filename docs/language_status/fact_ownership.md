@@ -13,11 +13,11 @@ Cross-check** workflow (`.github/workflows/fact-crosscheck.yml`) against
 
 ## What was compared
 
-- **Universe:** the 7 keyed mainframe corpora (`tests/cobol_mainframe/corpora.json`: CardDemo, CBSA,
-  GenApp, zECS, DSF, zopeneditor-sample, IBM DBB mortgage), 128 sources with hand-verified answer
-  keys; the 54 programs the det-port equivalence cases translate (each with its case's own copy
-  directories; all 54 are also keyed); the 112 keyed copybooks (`layouts`); and estate-crucible at
-  its pin (v0.4.0, 40 COBOL programs, a generated key whose planted "horrors" cite IBM).
+- **Universe:** the keyed mainframe corpora (`tests/cobol_mainframe/corpora.json`: CardDemo, CBSA,
+  GenApp, zECS, DSF, zopeneditor-sample, IBM DBB mortgage) with hand-verified answer
+  keys; the programs the det-port equivalence cases translate (each with its case's own copy
+  directories, all also keyed); the keyed copybooks (`layouts`); and estate-crucible at
+  its pin (v0.4.0, COBOL programs, a generated key whose planted "horrors" cite IBM).
 - **Engine side:** `tests/tools/referees/engine_adapter.py` (the referee panel's, #4377) plus
   `offsets`, `moves` and `copy_resolution`.
 - **Translator side:** `tests/tools/referees/translator_adapter.py`. Every value comes from the

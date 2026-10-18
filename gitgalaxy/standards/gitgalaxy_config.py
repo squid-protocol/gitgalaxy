@@ -483,16 +483,6 @@ GUIDESTAR_CONFIG: dict[str, Any] = {
         "libexec",
         "hooks",
     },
-    "EXEC_PREFIX_MAP": {
-        "python3": "python",
-        "python": "python",
-        "node": "javascript",
-        "npm": "javascript",
-        "sh": "shell",
-        "bash": "shell",
-        "cargo": "rust",
-        "go": "go",
-    },
 }
 
 

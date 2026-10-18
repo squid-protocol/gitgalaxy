@@ -75,3 +75,40 @@ none of them exceeds 0.12s. The fleet data in the #3073 comment says the same at
 single rules, which a merged alternation does not touch, so the issue's parity hazards (100-group
 limit, scoped flags, per-rule Match objects, alternation-order span drift) still buy too little.
 Reopen only with a fleet-scale `phase_ab.py` run showing the many-small-rules residual is large.
+
+## Cold-storage prefetch A/B and warm no-regression (#3189)
+
+`phase_ab.py --evict` drops the target tree from the page cache (`posix_fadvise(DONTNEED)`, no root) before every
+scan, and `--env LEG:KEY=VAL` sets an environment variable for one leg only, so one checkout can be both legs:
+`--engine off=$PWD --engine on=$PWD --env off:GITGALAXY_PREFETCH=0 --env on:GITGALAXY_PREFETCH=1`. Eviction is best
+effort (dirty or mapped pages stay), and the A-vs-A `--control` leg runs under the baseline's env.
+
+Measured 2026-10-18, zero-dependency scan, shared box under other load, 3 rounds alternating, `--evict --control`.
+Target `all_language_repo` (8,071 files) on `/srv/storage_16tb` (sda, rotational):
+
+| leg | wall | 2_Disk_IO |
+|---|---|---|
+| off (`GITGALAXY_PREFETCH=0`) | 49.43 s | 3.82 s |
+| off#ctl (A-vs-A) | 45.45 s | 3.22 s |
+| on (`GITGALAXY_PREFETCH=1`) | 45.19 s | 0.77 s |
+
+- `2_Disk_IO` falls about 3.0 s (-80%; every "on" round 0.58-0.89 s, every "off" round 3.5-4.4 s). The wall delta
+  is inside the noise floor (control -8.1%, one off round was 58.9 s under load): do not read it as a wall win.
+- `*_galaxy_audit.json` (volatile keys stripped) and `*_galaxy_sarif.json` are IDENTICAL, off vs on and off vs control.
+- Warm and small (`gitgalaxy/standards`, 113 files, no `--evict`, 5 rounds): wall 1.62 s off, 1.56 s control, 1.59 s on;
+  `2_Disk_IO` 0.00 s on every leg; artifacts IDENTICAL. No regression.
+- Limits: this 3 s of disk time is far from illumos's 425 s (a mega-repo, not available here), and an evicted page cache
+  is warmer than a spun-down HDD. It proves the prefetch removes the Phase-2 read wait and changes nothing in the
+  output; the mega-repo figure still needs a real cold run.
+
+### The #3073 parity precondition is now met (harness only, engine unchanged)
+
+`tests/tools/combined_alternation_parity.py` builds the issue's one prototype shape, a first-pass
+candidate finder: one combined regex of every rule's required literals, swept once per segment,
+yielding the candidate rules. It scans with a zero-width lookahead over literals reduced to those
+with no other literal as a substring, so a leftmost alternative cannot consume the text a second
+one needs; case-insensitive gates use a second regex over `fold_haystack(text)`. Contract: every
+rule whose `finditer` matches is a candidate. Run over language-crucible (55 languages, 2,995
+files) and keyword-rosetta (raw and code-stream surfaces): zero missed candidates. It is a
+superset of today's per-rule gate (it widens, never narrows), so it only pays if a fleet-scale
+`phase_ab.py` run shows the many-small-rules residual is large; the issue stays deferred.

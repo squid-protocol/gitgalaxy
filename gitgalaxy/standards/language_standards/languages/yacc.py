@@ -185,5 +185,10 @@ DEFINITION: dict[str, Any] = {
         "encapsulation": re.compile(r"^[ \t]*static\b", re.M),
         "listeners": None,
         "test_skip": None,
+        # #3171 (of #3072): measured winner -- corpus 2.5x faster, all-surviving dense case 0.8x (within the 35% bound) vs
+        # ungated (line_gate_bench.py). Sweep only lines carrying a required literal;
+        # eligibility is re-proven at cache build, so a breaking edit demotes it, never
+        # miscounts.
+        "_line_gates": ("state_mutation",),
     },
 }

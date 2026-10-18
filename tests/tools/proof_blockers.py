@@ -439,23 +439,41 @@ def crucible_runs(crucible_dir: Path = CRUCIBLE, branches: bool = False) -> dict
 # ---- runtime facts ----------------------------------------------------------------------------------------------
 def code_only(text: str) -> str:
     """The program with every non-code span blanked, length-preserving, line structure kept: string literals
-    (including one continued onto the next line by a column-7 hyphen) and `*>` floating comment tails. Comment lines
-    (column 7 `*` or `/`) are left for `cc.fixed_format_text` to drop. A column-7 `D` line is a comment unless the
-    source has an active `WITH DEBUGGING MODE` (IBM), so it is blanked too. #5089: one rule for every fact keyword."""
-    out, quote = [], ""
-    lines = text.splitlines()
+    (including one continued onto the next line: a column-7 hyphen in fixed format, a next line opening with the
+    quote in free format) and `*>` floating comment tails. Comment lines (column 7 `*` or `/`; free `*>`) are left
+    for `cc.fixed_format_text` to drop. A column-7 `D` line (free: `>>D`) is a comment unless the source has an
+    active `WITH DEBUGGING MODE` (IBM), so it is blanked too. #5089: one rule for every fact keyword, per line
+    format (`cc.source_lines`: fixed, variable, free, `>>SOURCE FORMAT` switches followed)."""
+    srcs = cc.source_lines(text)
+
+    def is_comment(fmt: str, ln: str) -> bool:
+        if fmt == "free":
+            return ln.lstrip().startswith("*>")
+        return len(ln) <= 6 or ln[6] in "*/"
+
+    def is_debug(fmt: str, ln: str) -> bool:
+        if fmt == "free":
+            return ln.lstrip()[:3].upper() == ">>D"
+        return len(ln) > 6 and ln[6] in "Dd"
+
     debugging = any(
-        len(ln) > 6 and ln[6] not in "*/" and _DEBUGGING_MODE.search(ln[:72].split("*>")[0]) for ln in lines
+        not is_comment(f, ln)
+        and not is_debug(f, ln)
+        and _DEBUGGING_MODE.search((ln if f != "fixed" else ln[:72]).split("*>")[0])
+        for f, ln in srcs
     )
-    for ln in lines:
-        if len(ln) <= 6 or ln[6] in "*/" or (ln[6] in "Dd" and not debugging):
-            out.append(ln[:7] + " " * (len(ln) - 7) if len(ln) > 7 and ln[6] in "Dd" else ln)
+    out, quote = [], ""
+    for fmt, ln in srcs:
+        if is_comment(fmt, ln) or (is_debug(fmt, ln) and not debugging):
+            blank = is_debug(fmt, ln) and not is_comment(fmt, ln)
+            out.append(" " * len(ln) if blank and fmt == "free" else ln[:7] + " " * (len(ln) - 7) if blank else ln)
             quote = ""
             continue
-        code = list(ln[:72])
-        i = 7
+        free = fmt == "free"
+        code = list(ln if fmt != "fixed" else ln[:72])
+        i = 0 if free else 7
         if quote:
-            if ln[6] != "-":
+            if not free and ln[6] != "-":
                 quote = ""
             else:  # the continuation's first quote reopens the literal; the blanks before it are padding
                 while i < len(code) and code[i] == " ":
@@ -478,7 +496,7 @@ def code_only(text: str) -> str:
                 code[i:] = " " * (len(code) - i)
                 break
             i += 1
-        out.append("".join(code) + ln[72:])
+        out.append("".join(code) + (ln[72:] if fmt == "fixed" else ""))
     return "\n".join(out)
 
 

@@ -235,3 +235,28 @@ def test_cics_crucible_has_image_cache():
     assert "Cache the GnuCOBOL oracle image" in content
     assert "gnucobol-image.tar" in content
     assert "gnucobol-image-${{ hashFiles('gitgalaxy/tests/equivalence/gnucobol.Dockerfile') }}" in content
+
+
+# --------------------------------------------------------------------------------------------------
+# (5) #5156: full-suite-gate shards are complete, and both grids agree
+# --------------------------------------------------------------------------------------------------
+def _full_suite_grids() -> list[list[dict]]:
+    import json
+    import re
+
+    text = (REPO_ROOT / ".github/workflows/full-suite-gate.yml").read_text(encoding="utf-8")
+    return [json.loads(m) for m in re.findall(r"include='(\[.*?\])'", text, re.DOTALL)]
+
+
+def test_full_suite_gate_parts_are_complete_and_grids_agree():
+    """Each (os, python) leg lists parts 1..splits exactly once, and the tag and manual grids are equal."""
+    grids = _full_suite_grids()
+    assert len(grids) == 2
+    assert grids[0] == grids[1]
+    legs: dict[tuple, list[int]] = {}
+    for entry in grids[0]:
+        assert entry["part"] <= entry["splits"]
+        legs.setdefault((entry["os"], entry["python-version"], entry["splits"]), []).append(entry["part"])
+    assert legs
+    for key, parts in legs.items():
+        assert sorted(parts) == list(range(1, key[2] + 1)), key

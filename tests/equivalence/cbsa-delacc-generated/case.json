@@ -1,0 +1,125 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "DELACC",
+ "program_source": "src/base/cobol_src/DELACC.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "ODAC",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "db2": {
+  "ddl": [
+   "etc/install/base/db2jcl/CRETB01.jcl",
+   "etc/install/base/db2jcl/CREI101.jcl",
+   "etc/install/base/db2jcl/CRETB02.jcl"
+  ],
+  "seed": "@generate",
+  "compare": [
+   "IBMUSER.ACCOUNT",
+   "IBMUSER.PROCTRAN"
+  ],
+  "qualifier": "IBMUSER",
+  "compare_sql": true,
+  "generate": {
+   "seed": 4507,
+   "tables": {
+    "IBMUSER.ACCOUNT": {
+     "rows": 30,
+     "columns": {
+      "ACCOUNT_SORTCODE": {
+       "values": [
+        "987654",
+        "987654",
+        "987654",
+        "123456"
+       ]
+      },
+      "ACCOUNT_NUMBER": {
+       "digits": true
+      }
+     }
+    }
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/BNK1DAC.cbl",
+    "record": "PARMS-SUBPGM"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "delete-max-values-leap-days",
+   "commarea": {
+    "PARMS-SUBPGM-ACCNO": "6"
+   },
+   "why": "rate 9999.99, overdraft 99999999, available 9999999999.99 and actual -9999999999.99 (PROCTRAN_AMOUNT at the DECIMAL(12,2) limit); opened, last and next statement on 29 February"
+  },
+  {
+   "name": "overdraft-past-picture",
+   "commarea": {
+    "PARMS-SUBPGM-ACCNO": "11"
+   },
+   "why": "INTEGER overdraft 123456789 through S9(9) COMP into 9(8): the high-order digit is lost; statement dates across a year end; amount 0.01"
+  },
+  {
+   "name": "account-zero",
+   "commarea": {
+    "PARMS-SUBPGM-ACCNO": "0"
+   },
+   "why": "boundary: account number 00000000 is read and deleted"
+  },
+  {
+   "name": "account-99999999",
+   "commarea": {
+    "PARMS-SUBPGM-ACCNO": "99999999"
+   },
+   "why": "boundary: the largest DELACC-ACCNO; DELACC has no sentinel (INQACC's 99999999), the account is deleted"
+  },
+  {
+   "name": "not-found",
+   "commarea": {
+    "PARMS-SUBPGM-ACCNO": "12"
+   },
+   "why": "SELECT INTO no row: SQLCODE +100, 'N' '1', no DELETE, no PROCTRAN row; the rest of the COMMAREA untouched"
+  },
+  {
+   "name": "other-sort-code-not-found",
+   "commarea": {
+    "PARMS-SUBPGM-ACCNO": "10"
+   },
+   "why": "account 00000010 exists only under sort code 123456; the program reads by its own SORTCODE (987654): +100, 'N' '1', the 123456 row not deleted"
+  },
+  {
+   "name": "null-statement-date",
+   "commarea": {
+    "PARMS-SUBPGM-ACCNO": "4"
+   },
+   "why": "ACCOUNT_LAST_STATEMENT NULL with no indicator: SELECT -305, ABNDINFO filled (no LINK), ABEND HRAC; no DELETE, no PROCTRAN"
+  }
+ ],
+ "notes": "CBSA's delete-account service (DELACC) on GENERATED Db2 rows (#4507): 30 IBMUSER.ACCOUNT rows built from CRETB01's CREATE TABLE and CREI101's unique index (every column at its boundaries, a NULL in every nullable column, then values between; a quarter under another sort code); PROCTRAN starts empty and is compared with ACCOUNT after every task (no foreign key joins them in CRETB02). 30 generated LINKs from BNK1DAC's PARMS-SUBPGM: the account number each row's in turn (a fifth of the time one the table does not hold: SELECT +100, 'N' '1'), each DELETE and its 'ODA' PROCTRAN row compared; a generated NULL date reaches SELECT -305 and the ABEND HRAC. The hand scenarios of cbsa-delacc that pin one value each (boundaries, the other sort code) stay. Every task's statements are compared with what Db2 answered (compare_sql). Burned estate (CBSA).",
+ "port_from": "cbsa-delacc",
+ "scenario_generate": {
+  "seed": 4507,
+  "count": 30,
+  "prefix": "generated",
+  "commarea": {
+   "PARMS-SUBPGM-ACCNO": {
+    "from": "IBMUSER.ACCOUNT.ACCOUNT_NUMBER",
+    "miss": 0.2,
+    "turn": true
+   }
+  }
+ }
+}

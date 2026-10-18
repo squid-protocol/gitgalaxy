@@ -297,7 +297,6 @@ class RecordKeeper:
             "regex_execution": "arch_regex",
             "time_date_logic": "arch_time",
             "system_config_mutation": "arch_sys_config",
-            "feature_flags": "arch_feature_flags",
             "inline_asm": "arch_inline_asm",
             "safety": "def_safety",
             "immutability_locks": "def_freeze_hits",

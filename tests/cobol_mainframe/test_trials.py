@@ -305,6 +305,27 @@ def test_display_is_an_output_channel_but_only_as_a_statement():
         _proc("      * DISPLAY 'NOT A STATEMENT'\n           GOBACK.\n"),
         _proc("           MOVE 1 TO X *> DISPLAY 'x'\n           GOBACK.\n"),
     ):
-        assert "DISPLAYs nothing" in trial.out_of_scope_reason(sk, text, False)
+        assert "sets no RETURN-CODE" in trial.out_of_scope_reason(sk, text, False)
     writes = {"sections": {"datasets": {"facts": [{"internal_name": "O", "modes": ["OUTPUT"]}]}}, **sk}
     assert trial.out_of_scope_reason(writes, _proc("           GOBACK.\n"), False) is None
+
+
+def test_return_code_is_an_output_channel_but_only_when_set():
+    """#3806: the harness compares the step's RETURN-CODE, so a program that sets it is eligible; a read, a
+    comment, a longer name or a data-division mention is not a set."""
+    sk = {"program": {"language": "cobol"}}
+    for body in (
+        "           MOVE 4 TO RETURN-CODE\n           GOBACK.\n",
+        "           ADD 1 TO RETURN-CODE\n           GOBACK.\n",
+        "           COMPUTE RETURN-CODE = WS-A + 1\n           GOBACK.\n",
+        "           ADD 1 TO WS-A GIVING RETURN-CODE\n           GOBACK.\n",
+    ):
+        assert trial.out_of_scope_reason(sk, _proc(body), False) is None, body
+    for text in (
+        _proc("           MOVE RETURN-CODE TO WS-A\n           GOBACK.\n"),
+        _proc("      * MOVE 4 TO RETURN-CODE\n           GOBACK.\n"),
+        _proc("           MOVE 4 TO WS-RETURN-CODE\n           GOBACK.\n"),
+        _proc("           MOVE 4 TO RETURN-CODE-X\n           GOBACK.\n"),
+        _proc("           GOBACK.\n", "       01  WS-A PIC 9.\n           MOVE 4 TO RETURN-CODE.\n"),
+    ):
+        assert "sets no RETURN-CODE" in trial.out_of_scope_reason(sk, text, False), text

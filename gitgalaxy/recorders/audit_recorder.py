@@ -1072,6 +1072,11 @@ class AuditRecorder:
             "Raw Threat Signature Hits (Total Repository Occurrences)": raw_threat_hits,
         }
 
+        # #2986: 0 infected files is a verdict only if the model ran. Added only when it
+        # did not (default True keeps callers that predate the key).
+        if not session_meta.get("ml_inference_ran", True):
+            security_audit["ML Threat Intelligence (XGBoost)"]["Inference Ran"] = False
+
         # ==========================================================
         # 5. Final Mission Archive Packaging
         # ==========================================================

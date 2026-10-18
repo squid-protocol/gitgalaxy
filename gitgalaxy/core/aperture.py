@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any, TypedDict
 
 from gitgalaxy.core.model_magic import MODEL_EXTENSIONS, sniff_model_format
-from gitgalaxy.core.source_text import open_source
+from gitgalaxy.core.source_text import decode_bytes, open_source
 from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
 
 # ==============================================================================
@@ -405,7 +405,8 @@ class ApertureFilter:
 
         # --- STATE CACHE & DYNAMIC STATE ---
         self._intent_cache: set[str] = set()
-        self.dynamic_ignore_dirs: set[str] = set()
+        self._generated_docs_dir_cache: dict[str, bool] = {}
+        self._source_dir_cache: dict[str, bool] = {}
 
         self.logger.debug(f"Initializing Aperture Filter for project: '{self.root.name}'...")
 
@@ -780,12 +781,9 @@ class ApertureFilter:
         head_sample = "\n".join(lines_list[:100])
 
         # --- Gate 4.2: Auto-Generated Documentation Shield ---
+        # #5458: this blocks the one file only. Whether its directory is generated output is a
+        # separate, order-independent verdict from the directory's own listing (_is_generated_docs_dir).
         if low_path.endswith((".html", ".htm", ".xml")) and self.doc_generator_pattern.search(head_sample):
-            parent_dir = str(Path(rel_path).parent)
-            if parent_dir != ".":
-                self.dynamic_ignore_dirs.add(parent_dir)
-                self.logger.debug(f"Dynamic Ignore: Directory '{parent_dir}' flagged as Auto-Generated Docs.")
-
             report.update(
                 {
                     "valid": False,
@@ -1006,6 +1004,61 @@ class ApertureFilter:
             return False
         return line.count(" ") * _PROSE_CHARS_PER_SPACE >= len(line)
 
+    # #5458: assets a Doxygen/Sphinx/JSDoc output directory holds besides its HTML.
+    _DOC_ASSET_EXTENSIONS = frozenset(
+        {".html", ".htm", ".xml", ".css", ".js", ".json", ".md", ".txt", ".map", ".php", ".hhc", ".hhk", ".hhp"}
+    )
+    _DOC_PROBE_BYTES = 8192
+    _DOC_PROBE_MAX_FILES = 64
+
+    def _list_dir_files(self, rel_dir: str) -> list[str]:
+        """Sorted file names directly inside rel_dir ([] when unreadable)."""
+        try:
+            with os.scandir(self.root.joinpath(*rel_dir.split("/"))) as it:
+                return sorted(e.name for e in it if e.is_file())
+        except OSError:
+            return []
+
+    def _holds_source_files(self, rel_dir: str) -> bool:
+        """True when rel_dir directly holds source or build files (not doc assets)."""
+        cached = self._source_dir_cache.get(rel_dir)
+        if cached is None:
+            cached = False
+            for name in self._list_dir_files(rel_dir):
+                ext = os.path.splitext(name)[1].lower()
+                if name in self.exact_match_files or (
+                    ext in self.whitelisted_extensions and ext not in self._DOC_ASSET_EXTENSIONS
+                ):
+                    cached = True
+                    break
+            self._source_dir_cache[rel_dir] = cached
+        return cached
+
+    def _is_generated_docs_dir(self, rel_dir: str) -> bool:
+        """Order-independent verdict: most of the directory's own markup files carry a doc-generator
+        signature and the directory holds no source/build files (#5458)."""
+        cached = self._generated_docs_dir_cache.get(rel_dir)
+        if cached is not None:
+            return cached
+        verdict = False
+        markup = [n for n in self._list_dir_files(rel_dir) if n.lower().endswith((".html", ".htm", ".xml"))]
+        if markup and not self._holds_source_files(rel_dir):
+            sample = markup[: self._DOC_PROBE_MAX_FILES]
+            hits = 0
+            for name in sample:
+                try:
+                    with open(self.root.joinpath(*rel_dir.split("/"), name), "rb") as fh:
+                        head = decode_bytes(fh.read(self._DOC_PROBE_BYTES))
+                except OSError:
+                    continue
+                if self.doc_generator_pattern.search("\n".join(head.splitlines()[:100])):
+                    hits += 1
+            verdict = hits * 2 > len(sample)
+        if verdict:
+            self.logger.debug(f"Directory '{rel_dir}' flagged as Auto-Generated Docs.")
+        self._generated_docs_dir_cache[rel_dir] = verdict
+        return verdict
+
     def _check_ignore_rules(self, rel_path: str, has_intent: bool = False) -> bool:
         """
         Determines if the path is in a blocked, ignored, or dynamically
@@ -1038,10 +1091,16 @@ class ApertureFilter:
 
         # 2. Dynamic Documentation Debris Shield
         path_obj = Path(rel_path)
+        # #5458: a directory is generated docs on evidence about the directory, never one file.
+        # A flagged ancestor covers descendants only while they hold no source/build files.
+        flagged_ancestor = False
         for parent in path_obj.parents:
-            if str(parent) in self.dynamic_ignore_dirs:
-                self.logger.debug(f"Dynamic Deflection: Asset '{rel_path}' blocked in auto-generated directory.")
-                return False
+            if str(parent) != "." and self._is_generated_docs_dir(str(parent)):
+                flagged_ancestor = True
+                break
+        if flagged_ancestor and not self._holds_source_files(str(path_obj.parent)):
+            self.logger.debug(f"Dynamic Deflection: Asset '{rel_path}' blocked in auto-generated directory.")
+            return False
 
         # 3. (removed, #3278) The "Semantic Infrastructure & Test Target Shield" dropped
         # any path containing a word like lib/spec/test/build/out/docs/scripts. Since

@@ -157,36 +157,47 @@ def test_aperture_ci_config_trees_pass_the_hidden_gate(filter_engine):
 # TEST 3: THE AUTO-GEN SHIELD & DYNAMIC INFECTION
 # ==============================================================================
 def test_aperture_auto_gen_shield(filter_engine, tmp_path):
-    """
-    Proves the engine detects machine-generated signatures and dynamically
-    infects the parent directory to save future I/O reads.
-    """
+    """A directory of generated HTML is dropped as a whole, from its own listing (#5458)."""
     doc_dir = tmp_path / "public_web" / "html"
     doc_dir.mkdir(parents=True)
+    gen = '<html>\n<head>\n<meta name="generator" content="Doxygen 1.9.1">\n</head>\n</html>'
+    (doc_dir / "index.html").write_text(gen, encoding="utf-8")
+    (doc_dir / "classfoo.html").write_text(gen, encoding="utf-8")
+    (doc_dir / "clean.html").write_text("<html>Clean file</html>", encoding="utf-8")
+    (doc_dir / "search").mkdir()
+    (doc_dir / "search" / "all_0.html").write_text("<html>x</html>", encoding="utf-8")
 
-    # 1. Evaluate the first auto-generated file
-    doc_file_1 = doc_dir / "index.html"
-    doc_file_1.write_text(
-        '<html>\n<head>\n<meta name="generator" content="Doxygen 1.9.1">\n</head>\n</html>',
-        encoding="utf-8",
-    )
-
-    result1 = filter_engine.is_in_scope(doc_file_1, content=doc_file_1.read_text())
+    result1 = filter_engine.is_in_scope(doc_dir / "index.html", content=(doc_dir / "index.html").read_text())
     assert result1["is_in_scope"] is False
     assert result1["classification"] == "generated_noise"
 
-    # Prove the directory was dynamically infected!
-    rel_parent = str(doc_dir.relative_to(tmp_path))
-    assert rel_parent in filter_engine.dynamic_ignore_dirs
+    for rel in ("public_web/html/clean.html", "public_web/html/search/all_0.html"):
+        is_valid, _, reason = filter_engine.evaluate_path_integrity(tmp_path / rel)
+        assert is_valid is False, rel
+        assert "Dynamic Ignored Dir" in reason
 
-    # 2. Evaluate a second, clean file in the same infected directory
-    doc_file_2 = doc_dir / "clean.html"
-    doc_file_2.write_text("<html>Clean file</html>", encoding="utf-8")
 
-    # It should fail at the path gate before ever reading the content
-    is_valid, _, reason = filter_engine.evaluate_path_integrity(doc_file_2)
-    assert is_valid is False
-    assert "Dynamic Ignored Dir" in reason
+def test_aperture_doc_template_does_not_block_source_tree(filter_engine, tmp_path):
+    """A Doxygen header template beside source keeps every source file, in any walk order (#5458)."""
+    root = tmp_path / "doomsday"
+    (root / "libs" / "core").mkdir(parents=True)
+    (root / "CMakeLists.txt").write_text("project(x)\n", encoding="utf-8")
+    (root / "doxygen_header.html").write_text(
+        '<!-- HTML header -->\n<meta name="generator" content="Doxygen $doxygenversion"/>\n', encoding="utf-8"
+    )
+    (root / "main.c").write_text("int main(void){return 0;}\n", encoding="utf-8")
+    (root / "libs" / "core" / "a.c").write_text("int a;\n", encoding="utf-8")
+
+    template = root / "doxygen_header.html"
+    for order in (
+        [template, root / "main.c", root / "libs" / "core" / "a.c"],
+        [root / "libs" / "core" / "a.c", root / "main.c", template],
+    ):
+        engine = ApertureFilter(tmp_path, MOCK_REGISTRY, MOCK_CONFIG)
+        results = {p.name: engine.evaluate_path_integrity(p)[0] for p in order}
+        assert results["main.c"] is True
+        assert results["a.c"] is True
+        assert engine.is_in_scope(template, content=template.read_text())["is_in_scope"] is False
 
 
 # ==============================================================================

@@ -89,7 +89,7 @@ jobs:
         run: |
           cd gitgalaxy
           tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
-          pip install -e .
+          pip install --no-build-isolation -e .
 
       - name: Cache the pinned corpora
         id: corpora

@@ -1,5 +1,5 @@
 {
- "commit": "553eaf354",
+ "commit": "4f54e51ba",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -157,16 +157,16 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-18T12:04:33Z",
+  "as_of": "2026-10-18T12:33:53Z",
   "core": {
    "closed": 122,
-   "open": 25,
-   "total": 147
+   "open": 35,
+   "total": 157
   },
   "core_last_window": {
    "closed": 31,
-   "net_closed": 11,
-   "opened": 20
+   "net_closed": 1,
+   "opened": 30
   },
   "core_milestone": {
    "closed": 78,
@@ -181,10 +181,10 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "16 days",
+  "eta": "245 days",
   "frontier": {
    "closed": 100,
-   "found_last_window": 21,
+   "found_last_window": 16,
    "open": 84,
    "total": 184
   },
@@ -195,9 +195,9 @@
    "total": 42
   },
   "infra": {
-   "closed": 183,
+   "closed": 184,
    "open": 43,
-   "total": 226
+   "total": 227
   },
   "measured": true,
   "milestones": [
@@ -335,9 +335,9 @@
     "total": 8
    },
    {
-    "closed": 59,
+    "closed": 60,
     "number": 22,
-    "open": 8,
+    "open": 7,
     "title": "Does It Actually Crit? \ud83c\udfb2 \u2014 Metrics That Earn Their Place",
     "total": 67
    },

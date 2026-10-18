@@ -402,6 +402,24 @@ def arith_extend(program: Path, options: list[str] | None = None, declared: str 
     return str(eff.get("ARITH") or "").upper() == "EXTEND"
 
 
+def intdate_lilian(program: Path, options: list[str] | None = None, declared: str | None = None) -> bool:
+    """Whether the program is compiled with INTDATE(LILIAN) (#4706): its CBL / PROCESS cards over `options` (the compile
+    step's PARM), else IBM's default, ANSI -- the same resolver as TRUNC and ARITH (#4704)."""
+    from gitgalaxy.core.compiler_options import effective_with_defaults
+    from gitgalaxy.core.source_text import read_source
+
+    eff = effective_with_defaults(options, read_source(program, declared=declared).text)
+    return str(eff.get("INTDATE") or "").upper() == "LILIAN"
+
+
+def with_intdate_lilian(java: str) -> str:
+    """INTDATE(LILIAN) (#4706): the integer-date functions count from 1582-10-15, `Funcs.*Lilian`. Fixed at translation
+    (no run-time switch): the option is the program's own, so a LINK or CALL into another program leaves it alone."""
+    return java.replace("Funcs.integerOfDate(", "Funcs.integerOfDateLilian(").replace(
+        "Funcs.dateOfInteger(", "Funcs.dateOfIntegerLilian("
+    )
+
+
 def numproc_pfd(program: Path, options: list[str] | None = None, declared: str | None = None) -> bool:
     """Whether the program runs under NUMPROC(PFD) (#4271): the NUMPROC option in effect -- its CBL / PROCESS cards over
     `options` (the compile step's PARM), else IBM's default, NOPFD. NUMPROC(MIG) is NOPFD: Enterprise COBOL 5 and 6 no
@@ -1317,6 +1335,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         numproc_pfd(program, options, page),
         arith_extend(program, options, page),
     )
+    if intdate_lilian(program, options, page):
+        java = with_intdate_lilian(java)
     return Result(java, service, stats)
 
 

@@ -1982,10 +1982,12 @@
   {
    "id": "RT-FUNC-DATE-INTEGER",
    "family": "FUNC",
-   "title": "FUNCTION INTEGER-OF-DATE / DATE-OF-INTEGER: day 1 is 1 January 1601 (INTDATE(ANSI))",
+   "title": "FUNCTION INTEGER-OF-DATE / DATE-OF-INTEGER: day 1 is 1 January 1601 (INTDATE(ANSI)) or 15 October 1582 (INTDATE(LILIAN))",
    "methods": [
     "integerOfDate",
-    "dateOfInteger"
+    "dateOfInteger",
+    "integerOfDateLilian",
+    "dateOfIntegerLilian"
    ],
    "ibm": {
     "doc": "cobol-lr",

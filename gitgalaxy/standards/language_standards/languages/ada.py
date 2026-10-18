@@ -447,5 +447,10 @@ DEFINITION: dict[str, Any] = {
         # infrastructure -- any tunable write is bespoke I/O this contract
         # excludes.
         "system_config_mutation": None,
+        # #3171 (of #3072): measured winner -- corpus 1.1x faster, all-surviving dense case 1.4x faster vs
+        # ungated (line_gate_bench.py). Sweep only lines carrying a required literal;
+        # eligibility is re-proven at cache build, so a breaking edit demotes it, never
+        # miscounts.
+        "_line_gates": ("state_mutation",),
     },
 }

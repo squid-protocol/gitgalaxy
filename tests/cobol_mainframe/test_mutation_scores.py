@@ -153,7 +153,7 @@ def test_the_operator_matrix_gives_each_port_its_caught_over_judged_per_operator
 
 # #4047: ports whose survivors still carry the default placeholder verdict instead of a read triage. This set only
 # shrinks: triage a port (`mutation_scores.py retriage`) and delete its line.
-UNREAD_PLACEHOLDERS = {"genapp-lgapvs01/LGAPVS01", "genapp-lgicdb01/LGICDB01", "genapp-lgupdb01/LGUPDB01"}
+UNREAD_PLACEHOLDERS: set[str] = set()  # the three GenApp ports were read and triaged (#4047)
 
 
 def test_placeholder_verdicts_only_shrink_and_every_triaged_survivor_has_a_reason():

@@ -16,7 +16,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [CBACT04C](carddemo-intcalc.md) | carddemo-intcalc | batch | proven, unapproved |  | 20 | 22/22 / 85/86 | 70/86 / 70/77 | 0 | - |
 | [COMEN01C](carddemo-menu.md) | carddemo-menu | cics | proven, unapproved |  | 15 | 7/7 / 29/33 | 86/136 / 86/93 | 0 | - |
 | [CBTRN02C](carddemo-posttran.md) | carddemo-posttran | batch | proven, unapproved |  | 29 | 26/26 / 95/96 | 76/85 / 76/80 | 0 | - |
-| [CBACT02C](carddemo-readcard.md) | carddemo-readcard | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | 69/83 / 69/83 | 0 | - |
+| [CBACT02C](carddemo-readcard.md) | carddemo-readcard | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | 69/83 / 69/73 | 0 | - |
 | [CBCUS01C](carddemo-readcust.md) | carddemo-readcust | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | 63/74 / 63/70 | 0 | - |
 | [CBACT03C](carddemo-readxref.md) | carddemo-readxref | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | 69/83 / 69/77 | 0 | - |
 | [CORPT00C](carddemo-report.md) | carddemo-report | cics | proven, unapproved |  | 28 | 10/10 / 52/59 | 55/87 / 55/63 | 0 | - |
@@ -30,7 +30,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [COUSR00C](carddemo-userlist.md) | carddemo-userlist | cics | proven, unapproved |  | 32 | 16/16 / 95/100 | 69/100 / 69/92 | 0 | - |
 | [COUSR02C](carddemo-userupd.md) | carddemo-userupd | cics | proven, unapproved |  | 25 | 11/11 / 44/46 | 47/82 / 47/64 | 0 | - |
 | [INQACC](cbsa-inqacc.md) | cbsa-inqacc | cics | proven, unapproved |  | 14 | 22/25 / 13/25 | 131/131 / 131/131 | 0 | - |
-| [UPDACC](cbsa-updacc.md) | cbsa-updacc | cics | proven, unapproved |  | 10 | 7/7 / 5/6 | 95/133 / 95/133 | 0 | - |
+| [UPDACC](cbsa-updacc.md) | cbsa-updacc | cics | proven, unapproved |  | 10 | 7/7 / 5/6 | 95/133 / 95/110 | 0 | - |
 | [LGAPVS01](genapp-lgapvs01.md) | genapp-lgapvs01 | cics | proven, unapproved |  | 11 | 3/3 / 5/9 | 70/121 / 70/119 | 0 | - |
 | [LGICDB01](genapp-lgicdb01.md) | genapp-lgicdb01 | cics | proven, unapproved |  | 12 | 3/4 / 4/12 | 49/130 / 49/127 | 0 | - |
 | [LGUPDB01](genapp-lgupdb01.md) | genapp-lgupdb01 | cics | proven, unapproved |  | 5 | 8/9 / 17/38 | 76/138 / 76/137 | 0 | - |

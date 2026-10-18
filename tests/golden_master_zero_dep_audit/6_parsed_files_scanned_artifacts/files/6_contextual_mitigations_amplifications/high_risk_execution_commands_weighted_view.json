@@ -248,6 +248,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": 0,
       "zig/zig/InternPool.zig": 2,
+      "zig/zig/Sema.zig": 0,
       "zig/zig/main.zig": 0
     }
   },

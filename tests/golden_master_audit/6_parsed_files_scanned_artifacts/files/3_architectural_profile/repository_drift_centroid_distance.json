@@ -4074,10 +4074,11 @@
       "zig/tigerbeetle/state_machine.zig": 7.1
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": 9.015,
+      "zig/zig/Compilation.zig": 9.014,
       "zig/zig/InternPool.zig": 10.738,
-      "zig/zig/Type.zig": 8.194,
-      "zig/zig/Zcu.zig": 8.575,
+      "zig/zig/Sema.zig": 10.408,
+      "zig/zig/Type.zig": 8.192,
+      "zig/zig/Zcu.zig": 8.574,
       "zig/zig/main.zig": 7.304
     },
     "zig/zig_std_linux_mips": {

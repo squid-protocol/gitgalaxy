@@ -4076,6 +4076,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": "file_cluster_4",
       "zig/zig/InternPool.zig": "file_cluster_12",
+      "zig/zig/Sema.zig": "file_cluster_4",
       "zig/zig/Type.zig": "file_cluster_12",
       "zig/zig/Zcu.zig": "file_cluster_12",
       "zig/zig/main.zig": "file_cluster_6"

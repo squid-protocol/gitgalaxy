@@ -1645,6 +1645,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": "126 instances",
       "zig/zig/InternPool.zig": "178 instances",
+      "zig/zig/Sema.zig": "630 instances",
       "zig/zig/Type.zig": "31 instances",
       "zig/zig/Zcu.zig": "59 instances",
       "zig/zig/main.zig": "561 instances"

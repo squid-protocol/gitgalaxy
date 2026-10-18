@@ -3580,7 +3580,7 @@
       "shell/serenity/SDLPoP__package.sh": 0,
       "shell/serenity/SDL_mixer__package.sh": 0,
       "shell/serenity/analyze-qemu-coverage.sh": 0,
-      "shell/serenity/builtin.sh": 47,
+      "shell/serenity/builtin.sh": 48,
       "shell/serenity/embedmap.sh": 0,
       "shell/serenity/generate_manpages.sh": 0,
       "shell/serenity/install.sh": 0,
@@ -4074,11 +4074,12 @@
       "zig/tigerbeetle/state_machine.zig": 0
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": 32,
-      "zig/zig/InternPool.zig": 32,
-      "zig/zig/Type.zig": 32,
-      "zig/zig/Zcu.zig": 32,
-      "zig/zig/main.zig": 32
+      "zig/zig/Compilation.zig": 33,
+      "zig/zig/InternPool.zig": 33,
+      "zig/zig/Sema.zig": 33,
+      "zig/zig/Type.zig": 33,
+      "zig/zig/Zcu.zig": 33,
+      "zig/zig/main.zig": 33
     },
     "zig/zig_std_linux_mips": {
       "zig/zig_std_linux_mips/mips.zig": 0

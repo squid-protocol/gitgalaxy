@@ -4076,6 +4076,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": "Large Core Modules (2)",
       "zig/zig/InternPool.zig": "Large Core Modules (3)",
+      "zig/zig/Sema.zig": "Large Core Modules (2)",
       "zig/zig/Type.zig": "Large Core Modules (2)",
       "zig/zig/Zcu.zig": "Large Core Modules (2)",
       "zig/zig/main.zig": "Large Core Modules (2)"

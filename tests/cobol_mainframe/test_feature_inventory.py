@@ -382,6 +382,24 @@ def test_schema_over_fixtures():
         check_schema({"statements": "not an object"}, schema, schema)
 
 
+def test_no_committed_inventory_key_is_a_sequence_number():  # #5235 (item 1 of the #5106 class)
+    """A key carrying a 6-8 digit run is a card's sequence area leaking into a feature name (`ASKTIME 03430012`):
+    every committed estate fixture, not one, is free of it."""
+    import re
+
+    fixtures = sorted((TOOLS.parent / "fixtures" / "feature_inventory").glob("*.json"))
+    assert fixtures  # noqa: S101
+    leaks = [
+        f"{f.name}: {section}: {key}"
+        for f in fixtures
+        for section, entries in json.loads(f.read_text()).items()
+        if isinstance(entries, dict)
+        for key in entries
+        if re.search(r"\b\d{6,8}\b", key)
+    ]
+    assert not leaks, leaks[:10]  # noqa: S101
+
+
 @pytest.mark.nightly
 @pytest.mark.skipif(
     not os.environ.get("GITGALAXY_NIGHTLY"), reason="nightly (~170 s, all estates): set GITGALAXY_NIGHTLY=1"

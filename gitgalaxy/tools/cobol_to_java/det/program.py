@@ -1744,11 +1744,20 @@ def facades(stub: str, passes_bytes: bool = False) -> list[str]:
                 body = [(f'        throw new UnsupportedOperationException("{meth}: the program has no task facade (a '
                          'channel program); it runs as runTask");')]  # fmt: skip
             else:
+                pre = []
+                if area and req and req.group(1) == "Object":
+                    # #5053: an Object request can be the byte[] a wide RETURN answered (the region's EBCDIC, #4695); the
+                    # bytes beside it are in the port's page (lastAnswerBytes / lastLinkBytes): both at once is one
+                    # COMMAREA in two charsets, so it stops by name rather than take either
+                    pre = ["        if (request instanceof byte[] && " + area.group(1) + " != null) {",
+                           '            throw new IllegalArgumentException("' + meth + ': the request is the COMMAREA as bytes '
+                           '(the region\'s EBCDIC) and the bytes beside it are in the port\'s page: pass one");',
+                           "        }"]  # fmt: skip
                 # #5053: a LINK's byte overload hands the region the COMMAREA's bytes too (region.linked(.., area))
                 task = (f"region.transaction(transid, {arg}{', ' + area.group(1) if area else ''})"
                         if meth == "handleTransaction"
                         else f"region.linked({name.group(1)}, {arg}{', ' + area.group(1) if area else ''})")  # fmt: skip
-                body = ["        CicsTask.Region region = CicsTask.region();",
+                body = [*pre, "        CicsTask.Region region = CicsTask.region();",
                         f"        CicsTask task = {task};",
                         f"        region.run(task, {name.group(1)}, this::runTask);"]  # fmt: skip
                 if area and meth == "handleTransaction":

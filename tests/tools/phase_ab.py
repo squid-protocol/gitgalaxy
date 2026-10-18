@@ -39,6 +39,17 @@ USAGE
         --engine main=/path/to/worktree-main \\
         --engine mine=/path/to/v6
 
+COLD-STORAGE A/B (#3189): `--evict` drops the target tree from the page cache before EVERY
+scan (`posix_fadvise(DONTNEED)`, no root needed), so each leg reads from the disk; `--env
+LEG:KEY=VAL` sets one environment variable for one leg only. Two legs may share an engine path:
+
+    python tests/tools/phase_ab.py --repo /path/to/cold-repo --rounds 3 --evict \\
+        --engine off=/path/to/worktree --engine on=/path/to/worktree \\
+        --env off:GITGALAXY_PREFETCH=0 --env on:GITGALAXY_PREFETCH=1 --phase 2_Disk_IO
+
+Eviction is best effort (dirty or mapped pages stay); the run prints how many files it
+evicted. Without --evict the legs measure the warm cache.
+
 Engines are `name=path`; the FIRST is the baseline every delta is measured
 against. Default phases are the two dominant ones; pass `--phase` to add more
 (substring match against the chart label, e.g. `--phase Cartography_Mode_B`).
@@ -76,7 +87,48 @@ _DRIVER = (
 )
 
 
-def _run(engine_path: Path, repo: Path, out_dir: Path) -> tuple[str, dict]:
+def evict_tree(root: Path) -> int:
+    """Ask the kernel to drop every regular file under `root` from the page cache (POSIX_FADV_DONTNEED).
+    Returns the number of files advised; 0 where `os.posix_fadvise` is missing (Windows, macOS)."""
+    advise = getattr(os, "posix_fadvise", None)
+    dontneed = getattr(os, "POSIX_FADV_DONTNEED", None)
+    if advise is None or dontneed is None:
+        return 0
+    count = 0
+    for dirpath, _dirs, names in os.walk(root):
+        for name in names:
+            path = os.path.join(dirpath, name)
+            if os.path.islink(path):
+                continue
+            try:
+                fd = os.open(path, os.O_RDONLY)
+            except OSError:
+                continue
+            try:
+                advise(fd, 0, 0, dontneed)
+                count += 1
+            except OSError:
+                pass
+            finally:
+                os.close(fd)
+    return count
+
+
+def parse_env_specs(specs: list[str], legs: list[str]) -> dict[str, dict[str, str]]:
+    """`LEG:KEY=VAL` -> {leg: {KEY: VAL}}. A leg must be one of `legs`; a malformed spec raises ValueError."""
+    out: dict[str, dict[str, str]] = {}
+    for spec in specs:
+        leg, colon, rest = spec.partition(":")
+        key, eq, val = rest.partition("=")
+        if not (colon and eq and key):
+            raise ValueError(f"--env must be LEG:KEY=VAL, got {spec!r}")
+        if leg not in legs:
+            raise ValueError(f"--env names unknown leg {leg!r} (legs: {legs})")
+        out.setdefault(leg, {})[key] = val
+    return out
+
+
+def _run(engine_path: Path, repo: Path, out_dir: Path, extra_env: dict[str, str] | None = None) -> tuple[str, dict]:
     """One scan. Returns (raw_stdout, {'wall': float|None, 'process': float, 'files': int|None,
     'phases': {label: seconds}}). `wall` is the engine's own PIPELINE_SUCCESS duration, timed
     inside the scan; `process` is the whole command, the import included (#3929: an engine that
@@ -88,6 +140,7 @@ def _run(engine_path: Path, repo: Path, out_dir: Path) -> tuple[str, dict]:
         **os.environ,
         "PYTHONPATH": str(engine_path),
         "GITGALAXY_LICENSE_KEY": os.environ.get("GITGALAXY_LICENSE_KEY", "COMMUNITY_FREE_TIER"),
+        **(extra_env or {}),
     }
     # Args are all internal: our own interpreter, a fixed driver string, and
     # operator-supplied engine/repo paths -- no untrusted network/user input.
@@ -180,6 +233,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument(
         "--control", action="store_true", help="also run the baseline under a 2nd label (A-vs-A noise floor)"
     )
+    ap.add_argument("--evict", action="store_true", help="drop the target tree from the page cache before every scan")
+    ap.add_argument("--env", action="append", default=[], metavar="LEG:KEY=VAL", help="env var for one leg; repeatable")
     ap.add_argument("--json", type=Path, help="write full results")
     args = ap.parse_args(argv)
 
@@ -191,6 +246,12 @@ def main(argv: list[str] | None = None) -> int:
         engines.append((name, Path(path).resolve()))
     if args.control:
         engines.insert(1, (f"{engines[0][0]}#ctl", engines[0][1]))
+    try:
+        leg_env = parse_env_specs(args.env, [n for n, _ in engines if "#ctl" not in n])
+    except ValueError as exc:
+        ap.error(str(exc))
+    if args.control and engines[0][0] in leg_env:  # the A-vs-A control runs under the baseline's env
+        leg_env[engines[1][0]] = leg_env[engines[0][0]]
     phases = list(DEFAULT_PHASES) + [p for p in args.phase if p not in DEFAULT_PHASES]
 
     args.repo = args.repo.resolve()  # scans run with cwd=<engine>, so relative paths would drift
@@ -203,7 +264,9 @@ def main(argv: list[str] | None = None) -> int:
     for rnd in range(1, args.rounds + 1):
         for name, epath in engines:
             out_dir = work / f"{name.replace('#', '_')}_{rnd}"
-            _text, parsed = _run(epath, args.repo, out_dir)
+            if args.evict:
+                print(f"  evicted {evict_tree(args.repo)} files from the page cache")
+            _text, parsed = _run(epath, args.repo, out_dir, leg_env.get(name))
             last_dir[name] = out_dir
             samples[name]["wall"].append(parsed["wall"])
             samples[name]["process"].append(parsed["process"])

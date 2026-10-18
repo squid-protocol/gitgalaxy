@@ -108,3 +108,16 @@ def test_the_report_counts_per_estate_and_is_deterministic():
     assert "| 1 | zecs | 2 | 2 | 1 | 1 | 2 | 1.00 | 0 |" in text
     assert "| 2 | cics-genapp | 1 | 3 | 1 | 0 | 1 | 1.00 | 0 |" in text
     assert "unburned" not in text
+
+
+def test_new_class_follows_discovery_order_not_file_order():
+    late = _blocker(1, estate="cics-genapp", after_round=2, new_class=False)
+    early = _blocker(2, estate="zecs", after_round=1)
+    assert _errors(late, early) == []
+    assert any("new_class must be" in e for e in _errors(_blocker(1, estate="cics-genapp", after_round=2), early))
+
+
+def test_the_real_ledger_cites_each_issue_once():
+    real, _ = pb.load()
+    issues = [b["issue"] for b in real["blockers"] if b.get("issue")]
+    assert len(issues) == len(set(issues))

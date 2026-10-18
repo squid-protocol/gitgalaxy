@@ -224,6 +224,7 @@ def _init_worker(
     log_level: int,
     git_tracked: set[str],
     census: set[str],
+    offline: bool = False,
 ):
     """
     Initializes the CPU-bound optical modules within the worker process's isolated memory.
@@ -237,6 +238,10 @@ def _init_worker(
     """
     from gitgalaxy.core.detector import StructuralExtractor as OpticalDetector
 
+    if offline:  # #5235: a spawn-start worker is a fresh interpreter; the assess guard does not reach it by inheritance
+        from gitgalaxy.tools.readiness.offline import install as install_offline_guard
+
+        install_offline_guard()
     logging.getLogger().setLevel(log_level)
     worker_logger = logging.getLogger("GalaxyScope.Worker")
 
@@ -2427,6 +2432,7 @@ class Orchestrator:
             worker_log_level,
             self.git_tracked_files,
             self.census,
+            os.environ.get("GITGALAXY_ASSESS_OFFLINE") == "1",
         )
         # #3913: never more workers than files, and none at all for a small scan (or a pinned
         # single worker) -- the files are extracted in this process, by the same worker code.

@@ -17,7 +17,9 @@ CicsTask over one operation list per scenario (IBM, CICS TS 6.x, READQ TD / TDQU
 
 Operations: W:queue:text writes, R:queue:n reads INTO an 8-byte area with LENGTH(n), P:queue reads SET, D:queue deletes, S is a
 SYNCPOINT, B a SYNCPOINT ROLLBACK, O:queue:cvda SET TDQUEUE OPENSTATUS, Q:queue INQUIRE TDQUEUE OPENSTATUS and TYPE,
-E:queue:cvda SET TDQUEUE ENABLESTATUS, F:queue INQUIRE TDQUEUE ENABLESTATUS."""
+E:queue:cvda SET TDQUEUE ENABLESTATUS, F:queue INQUIRE TDQUEUE ENABLESTATUS, I:queue INQUIRE TDQUEUE TRIGGERLEVEL RECOVSTATUS
+TRANSID, G:queue INQUIRE TDQUEUE RECOVSTATUS (round 6: an intrapartition queue answers by its definition, RECOVSTATUS is NOTAPPLIC 1
+for the others, TRIGGERLEVEL / TRANSID of the others are refused)."""
 
 import subprocess
 import sys
@@ -219,13 +221,33 @@ _SCENARIOS: dict[str, tuple[dict[str, str] | None, dict[str, list[str]], list[st
     "inquire enablestatus of an indirect queue": (
         {"AAAA": "INTRA", "IIII": "INDIRECT INDIRECTNAME=AAAA"}, {}, ["F:IIII"], ["F:IIII resp=0 resp2=0 enable=23"]
     ),
+    # round 6 (X66): INQUIRE TDQUEUE TRIGGERLEVEL / RECOVSTATUS / TRANSID. I: all three; G: RECOVSTATUS alone
+    "inquire ati options": (
+        {"AAAA": "INTRA TRIGGERLEVEL=3 TRANSID=TRN1 RECOVSTATUS=LOGICAL", "BBBB": "INTRA", "CCCC": "INTRA RECOVSTATUS=PHYSICAL",
+         "DDDD": "INTRA RECOVSTATUS=NO TRIGGERLEVEL=0"}, {},
+        ["I:AAAA", "I:BBBB", "G:CCCC", "I:DDDD", "I:ZZZZ", "G:ZZZZ"],
+        ["I:AAAA resp=0 resp2=0 trigger=3 recov=216 transid=[TRN1]", "I:BBBB resp=0 resp2=0 trigger=1 recov=30 transid=[    ]",
+         "G:CCCC resp=0 resp2=0 recov=215", "I:DDDD resp=0 resp2=0 trigger=0 recov=30 transid=[    ]",
+         "I:ZZZZ resp=44 resp2=1 trigger=0 recov=0 transid=[]", "G:ZZZZ resp=44 resp2=1 recov=0"],
+    ),
+    "inquire recovstatus of other queues": (
+        {"XXXX": _E, "IIII": "INDIRECT INDIRECTNAME=XXXX", "RRRR": "REMOTE"}, {},
+        ["G:XXXX", "G:IIII", "G:RRRR"],
+        ["G:XXXX resp=0 resp2=0 recov=1", "G:IIII resp=0 resp2=0 recov=1", "G:RRRR resp=0 resp2=0 recov=1"],
+    ),
+    "inquire trigger level of an extrapartition queue": ({"XXXX": _E}, {}, ["I:XXXX"], ["REFUSED"]),
+    "inquire trigger level of an indirect queue": (
+        {"AAAA": "INTRA", "IIII": "INDIRECT INDIRECTNAME=AAAA"}, {}, ["I:IIII"], ["REFUSED"]
+    ),
+    "inquire trigger level of a remote queue": ({"RRRR": "REMOTE"}, {}, ["I:RRRR"], ["REFUSED"]),
 }  # fmt: skip
 
 _MAIN = r"""
 #include <stdio.h>
 #include <string.h>
 typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
-                 char qname[16]; int item; int num; int go_to; } gg_cics;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
 int GGCWRTD(gg_cics *c, char *from);
 int GGCRDTD(gg_cics *c, char *into, int intolen);
 int GGCRDTS(gg_cics *c, void **slot);
@@ -273,6 +295,11 @@ int main(int argc, char **argv) {
             strcpy(c.flags, "ENABLESTATUS");
             GGCITDQ(&c);
             printf("%s resp=%d resp2=%d enable=%d\n", a, c.resp, c.resp2, c.item);
+        } else if (a[0] == 'I' || a[0] == 'G') {
+            strcpy(c.flags, a[0] == 'I' ? "TRIGGERLEVEL RECOVSTATUS TRANSID" : "RECOVSTATUS");
+            GGCITDQ(&c);
+            if (a[0] == 'I') printf("%s resp=%d resp2=%d trigger=%d recov=%d transid=[%.4s]\n", a, c.resp, c.resp2, c.hours, c.mins, c.resp == 0 ? c.rtran : "");
+            else printf("%s resp=%d resp2=%d recov=%d\n", a, c.resp, c.resp2, c.mins);
         } else if (a[0] == 'Q') {
             strcpy(c.flags, "OPENSTATUS TYPE");
             GGCITDQ(&c);
@@ -374,6 +401,13 @@ def _java_scenario(name: str, queues, seed, ops) -> str:
                     }} else if (p[0].equals("F")) {{
                         int[] r = t.inquireTdQueue(p[1], false, false, true);
                         System.out.println(op + " resp=" + r[0] + " resp2=" + r[1] + " enable=" + r[4]);
+                    }} else if (p[0].equals("I")) {{
+                        int[] r = t.inquireTdQueue(p[1], false, false, false, true, true, true);
+                        System.out.println(op + " resp=" + r[0] + " resp2=" + r[1] + " trigger=" + r[5] + " recov=" + r[6]
+                                + " transid=[" + (r[0] == 0 ? String.format("%-4s", t.tdTransid(p[1])) : "") + "]");
+                    }} else if (p[0].equals("G")) {{
+                        int[] r = t.inquireTdQueue(p[1], false, false, false, false, true, false);
+                        System.out.println(op + " resp=" + r[0] + " resp2=" + r[1] + " recov=" + r[6]);
                     }} else if (p[0].equals("Q")) {{
                         int[] r = t.inquireTdQueue(p[1], true, true);
                         System.out.println(op + " resp=" + r[0] + " resp2=" + r[1] + " open=" + r[2] + " type=" + r[3]);

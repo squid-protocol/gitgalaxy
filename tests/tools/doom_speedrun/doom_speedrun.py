@@ -32,9 +32,11 @@ import doom_scorer  # noqa: E402
 MANIFEST = HERE / "manifest.csv"
 DEFAULT_WORK = Path(os.environ.get("DOOM_SPEEDRUN_WORK", "/tmp/gitgalaxy-scratch/doom-speedrun"))
 HEAVY_RUN = REPO_ROOT / "tests" / "tools" / "box" / "heavy-run.sh"
+ORACLE_COLUMNS = ("treesitter_functions", "ts_delta_pct")
 COLUMNS = [
     "variant", "rc", "first_party_src", "missed_src", "data_files_excluded", "vendor_files_mapped", "wrong_language",
-    "gg_functions", "ctags_functions", "func_delta_pct", "treesitter_functions", "ts_delta_pct", "files_func_mismatch",
+    "gg_functions", "ctags_functions", "func_delta_pct", "treesitter_functions", "ts_delta_pct", "clang_files", "clang_files_with_errors",
+    "clang_compile_commands_files", "clang_functions", "clang_gg_functions", "clang_delta_pct", "files_func_mismatch",
     "files_ctags_checked", "typosquat", "sarif_total", "sarif_errors", "credential_files", "log_problems", "fails",
     "verdict",
 ]  # fmt: skip
@@ -102,9 +104,9 @@ def scan_port(row, repos, scans):
     (out / "rc.txt").write_text(f"{rc}\n")
 
 
-def write_results(rows, details, dest, sha, oracle):
+def write_results(rows, details, dest, sha, oracle, clang=False):
     dest.mkdir(parents=True, exist_ok=True)
-    cols = [c for c in COLUMNS if oracle or c not in ("treesitter_functions", "ts_delta_pct")]
+    cols = [c for c in COLUMNS if (oracle or c not in ORACLE_COLUMNS) and (clang or not c.startswith("clang_"))]
     with open(dest / "clean_check.csv", "w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=cols, extrasaction="ignore", lineterminator="\n")
         w.writeheader()
@@ -139,6 +141,12 @@ def main(argv=None):
     ap.add_argument(
         "--oracle", action="store_true", help="add tree-sitter definition counts beside ctags (reported, not scored)"
     )
+    ap.add_argument(
+        "--clang",
+        metavar="PORTS",
+        help="libclang definition counts for these comma-separated ports ('all' for every port); needs the "
+        "`libclang` PyPI wheel; reported beside ctags, not scored",
+    )
     ap.add_argument("--legacy-vendor", action="store_true", help="also skip the round-2 study's hand-kept vendor names")
     ap.add_argument("--manifest", type=Path, help="alternate manifest CSV")
     args = ap.parse_args(argv)
@@ -150,6 +158,9 @@ def main(argv=None):
             raise SystemExit("doom_speedrun: diff takes exactly two refs: BEFORE AFTER")
         return doom_diff.run(*args.refs, work, args.fail_on_regression)
     rows = read_manifest(args.manifest, args.only.split(",") if args.only else None)
+    clang_ports = {r["name"] for r in rows} if args.clang == "all" else set((args.clang or "").split(",")) - {""}
+    if unknown := clang_ports - {r["name"] for r in rows}:
+        raise SystemExit(f"doom_speedrun: --clang names ports not in this run: {', '.join(sorted(unknown))}")
     sha = engine_sha()
     repos, scans, results = work / "repos", work / "scans" / sha, work / "results" / sha
     repos.mkdir(parents=True, exist_ok=True)
@@ -168,12 +179,18 @@ def main(argv=None):
         out_rows, details = [], {}
         for row in rows:
             r, d = doom_scorer.score_port(
-                row["name"], repos / row["name"], scans / row["name"], work, args.oracle, args.legacy_vendor
+                row["name"],
+                repos / row["name"],
+                scans / row["name"],
+                work,
+                args.oracle,
+                args.legacy_vendor,
+                row["name"] in clang_ports,
             )
             out_rows.append(r)
             details[row["name"]] = d
             print(f"{row['name']:16} {r.get('verdict', ''):8} {r.get('fails', '')}")
-        write_results(out_rows, details, results, sha, args.oracle)
+        write_results(out_rows, details, results, sha, args.oracle, bool(clang_ports))
         print(f"wrote {results}")
     return 1 if failed else 0
 

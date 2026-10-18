@@ -47,7 +47,32 @@ hand-kept vendor-name list, for comparing against round 2's table.
 
 `treesitter_functions` / `ts_delta_pct`: tree-sitter function-definition node counts over the same files, reported
 beside ctags and never scored. ctags misses macro-defined functions (#5461), so agreeing with ctags alone is not the
-claim. libclang on a subset with `compile_commands` is not wired up (a remaining slice).
+claim.
+
+## libclang subset oracle (`--clang PORTS`)
+
+```bash
+pip install libclang          # the wheel bundles the shared library; import is lazy, so it is optional
+python tests/tools/doom_speedrun/doom_speedrun.py score --clang linuxdoom,doomretro   # or --clang all
+```
+
+`doom_clang.py` parses each mapped C/C++ file with libclang, which runs the preprocessor first, and counts function
+definitions (functions, methods, constructors, destructors, templates) located in that file itself (a definition in an
+included header counts for the header). Flags come from the repo's `compile_commands.json` (or `build/`) when it
+lists the file; otherwise `-I` for the file's directory, the repo root and every header directory (capped at 300).
+Columns, only when `--clang` is given: `clang_files`, `clang_files_with_errors`, `clang_compile_commands_files`,
+`clang_functions`, `clang_gg_functions` (the engine's count over the same files), `clang_delta_pct`. Without the
+wheel the columns stay empty and `details.json` says so.
+
+Blind spots of this oracle:
+- **Only the active preprocessor configuration is counted.** Code behind an `#ifdef` that the guessed flags leave off
+  (Windows-only files, SDL back ends) counts 0, so the engine looks like it over-counts there. First scan at
+  `41777e5f4`: linuxdoom 0.3%, doomgeneric 2.9%, chocolate-doom 4.2%, doomretro 4.2%, all positive, the files behind
+  the gap being platform code.
+- **Missing headers.** Most ports have no build here, so `clang_files_with_errors` is high (89/129 on linuxdoom);
+  macros that depend on a missing header may expand differently. A real `compile_commands.json` is the fix, and
+  none of the 39 pinned repos ships one at its SHA.
+- Like the others it measures counts, not which functions: read the disputed files before claiming either tool right.
 
 ## Known blind spots
 

@@ -369,6 +369,7 @@ def test_exactly_the_declared_languages_carry_a_lexicon():
         "livecode",
         "batch",
         "easytrieve",
+        "zscript",
     }
     assert {lang for lang in declared if _lexicon(lang)[1]} == {"cobol", "batch", "easytrieve"}
 

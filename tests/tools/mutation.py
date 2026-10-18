@@ -544,6 +544,9 @@ def main(argv: list[str] | None = None) -> int:
                    "service/*.java, the translated program without the cobolrt runtime)")  # fmt: skip
     r.add_argument("--full", action="store_true", help="prove each mutant from scratch (the COBOL side, the whole "
                    "estate regenerated, every run): slow, the reference the default fast mode must agree with")  # fmt: skip
+    r.add_argument("--record", action="store_true", help="#4048: the run becomes the port's committed score "
+                   "(mutation_scores.json, its survivors' triage kept) and its evidence record's `mutation`")  # fmt: skip
+    r.add_argument("--triage", type=Path, nargs="*", default=[], help="with --record: triage files for new survivors")
     ls = sub.add_parser("list")
     ls.add_argument("case")
     ls.add_argument("--ops", default=",".join(OPERATORS))
@@ -574,6 +577,9 @@ def main(argv: list[str] | None = None) -> int:
             counts[m.op] = counts.get(m.op, 0) + 1
         print(f"{len(ms)} mutants: " + ", ".join(f"{k} {v}" for k, v in sorted(counts.items())))
         return 0
+    if args.record and (args.case_file or args.only or args.port or args.files != "**/*.java"):
+        raise SystemExit("--record scores the committed port on the committed case: drop --case-file / --only / "
+                         "--port / --files")  # fmt: skip
     s = run(
         args.case,
         args.work,
@@ -590,6 +596,10 @@ def main(argv: list[str] | None = None) -> int:
         args.files,
     )
     print(mutation_md(s))
+    if args.record:
+        import mutation_scores
+
+        mutation_scores.record_run(args.work, args.triage)
     return 0
 
 

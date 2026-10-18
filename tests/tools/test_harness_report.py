@@ -140,14 +140,50 @@ def cpy(*lines):
 def test_record_layout_limits_each_land_under_one_cause(tmp_path):
     corpora, case = layout_case(tmp_path, {
         "ok": cpy("01 REC.", "   05 A PIC X(5)."),
-        "redef": cpy("01 REC.", "   05 A PIC X(5).", "   05 B REDEFINES A PIC 9(5)."),
+        "redef": cpy("01 REC.", "   05 T PIC X.", "      88 T-A VALUE 'A'.", "   05 A.", "      10 X1 PIC X(4).",
+                     "   05 B REDEFINES A.", "      10 N1 PIC 9(4)."),
         "ren": cpy("01 REC.", "   05 A PIC X(5).", "   05 C PIC X(2).", "   66 AC RENAMES A THRU C."),
         "syn": cpy("01 REC.", "   05 A PIC S9(4) COMP SYNC."),
         "cop": cpy("01 REC.", "   COPY NOWHERE.", "   05 A PIC X."),
     })  # fmt: skip
     got = {dd: hr.record_cause([corpora], case, dd) for dd in case["datasets"]}
     assert got == {"OK": "", "REDEF": "redefines", "REN": "renames", "SYN": "sync", "COP": "unresolved copy"}
+    assert hr.record_limit([corpora], case, "REDEF") == ("redefines", "A -> B (selector T)")
     assert hr.record_cause([], case, "OK") == "not read"  # no corpus: stated, not an error
+
+
+def test_redefines_only_when_another_field_chooses(tmp_path):
+    corpora, case = layout_case(tmp_path, {
+        "view": cpy("01 REC.", "   05 A PIC X(8).", "   05 B REDEFINES A PIC 9(8)."),
+        "filler": cpy("01 REC.", "   05 A PIC X(8).", "   05 FILLER REDEFINES A PIC X(8)."),
+        "two": cpy("01 REC.", "   05 KIND PIC X(2).", "   05 A PIC X(4).", "   05 B REDEFINES A PIC 9(4).",
+                   "   05 C REDEFINES A PIC S9(4) COMP."),
+        "code": cpy("01 REC.", "   05 REC-CODE PIC X(2).", "   05 A.", "      10 X1 PIC X(4).",
+                    "   05 B REDEFINES A.", "      10 N1 PIC 9(4)."),
+        "none": cpy("01 REC.", "   05 A.", "      10 X1 PIC X(4).", "   05 B REDEFINES A.", "      10 N1 PIC 9(4)."),
+    })  # fmt: skip
+    got = {dd: hr.record_limit([corpora], case, dd) for dd in case["datasets"]}
+    assert got["VIEW"] == got["FILLER"] == ("", "")  # the first alternative already holds a same-bytes view
+    assert got["TWO"] == ("redefines", "A -> B/C (selector KIND)")
+    assert got["CODE"] == ("redefines", "A -> B (selector REC-CODE)")
+    assert got["NONE"] == ("redefines", "A -> B (selector not found)")
+    ruled = {"corpus": "estate", "datasets": {"CODE": {"input": "@generate", "generate": {
+        "copybook": "code.cpy", "record": "REC", "records": 1, "fields": {"REC-CODE": {"values": ["AA"]}}}}}}  # fmt: skip
+    assert hr.record_cause([corpora], ruled, "CODE") == ""  # stated rules have chosen what to fill
+
+
+def test_redefines_symbols_reach_the_page(tmp_path):
+    cases, *rest = fixture(tmp_path)
+    corpora, lc = layout_case(tmp_path / "l", {"r": cpy("01 REC.", "   05 T PIC X.", "   88 T-A VALUE 'A'.",
+                                                        "   05 A.", "      10 X1 PIC X.", "   05 B REDEFINES A.",
+                                                        "      10 N1 PIC 9.")})  # fmt: skip
+    f = cases / "c-known" / "case.json"
+    f.write_text(json.dumps(json.loads(f.read_text()) | lc))
+    rep = hr.build(proof(cases, *rest), "x", cases, [corpora])
+    assert rep["inputs"]["c-known"]["records"][0]["symbols"] == "A -> B (selector T)"
+    blocker = next(b for b in rep["input_blockers"] if b["cause"] == "redefines")
+    assert "A -> B (selector T)" in blocker["items"][0]
+    assert "A -> B (selector T)" in hr.markdown(rep)
 
 
 def test_input_blockers_are_stated_as_fixes_and_sorted(tmp_path):
@@ -221,6 +257,23 @@ def test_burned_generated_inputs_need_no_class_1_or_3_cause():
         names = [f["name"] for f in fields if not f["name"].startswith("FILLER")]
         dup = sorted({n for n in names if names.count(n) > 1})
         assert not dup, f"{name}/{dd}: qualified names needed for {dup}: add a cause to record_cause / FIX_LAYOUT"
+        checked += 1
+    if not checked:
+        pytest.skip("no burned corpus checkout")
+
+
+def test_burned_generated_records_have_no_redefines_chosen_by_a_field():
+    """No burned `@generate` record carries a chosen REDEFINES (checked 2026-10-18); when one does, state its `fields`
+    rules or accept the "redefines" blocker. Needs the corpora checkout."""
+    import os
+
+    roots = [Path(p) for p in os.environ.get("GITGALAXY_MAINFRAME_CORPORA", "").split(os.pathsep) if p]
+    checked = 0
+    for name, case, dd, _spec in generated_datasets():
+        cause, symbols = hr.record_limit(roots, case, dd)
+        if cause == "not read":
+            continue
+        assert cause != "redefines", f"{name}/{dd}: {symbols}"
         checked += 1
     if not checked:
         pytest.skip("no burned corpus checkout")

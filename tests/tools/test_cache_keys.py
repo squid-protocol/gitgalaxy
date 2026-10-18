@@ -129,16 +129,46 @@ def test_a_sha_in_a_cache_key_is_only_the_same_base_generation():
     assert not bad, f"only java-same-base-* may be keyed on a commit: {bad}"
 
 
-def test_same_base_cache_is_restore_only_on_pull_requests():
-    """A PR's cache scope is its own ref, so a PR that saves leaves one unreadable copy per PR."""
-    steps = [(k, s) for wf, k, s in _cache_steps() if wf == "java-compile.yml" and "java-same-base-" in _key(s)]
-    assert sorted(k for k, _ in steps) == ["restore", "save"], steps
-    restore = next(s for k, s in steps if k == "restore")
-    save = next(s for k, s in steps if k == "save")
-    # #5142: content-keyed (the generation inputs of the PR's base checkout / main's own), not the base commit's sha
+def _hashed_inputs(key):
+    """The hashFiles(...) argument list of a cache key, with the checkout prefix (`base/` or `gitgalaxy/`) stripped."""
+    return [re.sub(r"^(base|gitgalaxy)/", "", a) for a in re.findall(r"'([^']+)'", key) if "/" in a]
+
+
+def test_same_base_cache_is_restored_by_java_compile_and_seeded_by_its_own_workflow():
+    """A PR's cache scope is its own ref, so java-compile only restores. #5142: the save lives in
+    java-base-generation.yml, because java-compile's push run is cancelled (#4825) or tested-tree-skipped before it saves."""
+    steps = [(wf, k, s) for wf, k, s in _cache_steps() if "java-same-base-" in _key(s)]
+    assert sorted((wf, k) for wf, k, _ in steps) == [
+        ("java-base-generation.yml", "restore"),
+        ("java-base-generation.yml", "save"),
+        ("java-compile.yml", "restore"),
+    ], steps
+    restore = next(s for wf, k, s in steps if wf == "java-compile.yml")
+    lookup = next(s for wf, k, s in steps if wf == "java-base-generation.yml" and k == "restore")
+    save = next(s for wf, k, s in steps if wf == "java-base-generation.yml" and k == "save")
+    # content-keyed (the generation inputs of the PR's base checkout / main's own), not the base commit's sha
     assert "base/gitgalaxy/" in _key(restore) and "gitgalaxy/gitgalaxy/" in _key(restore)
     assert "gitgalaxy/gitgalaxy/" in _key(save) and "base/" not in _key(save), "the save key hashes main's own checkout"
-    assert "github.event_name != 'pull_request'" in save, "the same-base save must not run on a pull request"
+    assert _hashed_inputs(_key(save)) == _hashed_inputs(_key(lookup))
+    # on a push the restore hashes main's own checkout: the same inputs the seeding workflow hashes
+    on_push = _key(restore).split("||")[-1]
+    assert _hashed_inputs(on_push) == _hashed_inputs(_key(save)), "restore and seeding key hash different inputs"
+    pr_side = _key(restore).split("||")[0]
+    assert _hashed_inputs(pr_side) == _hashed_inputs(_key(save)), "a PR would look up a key nothing writes"
+    assert "lookup-only: true" in lookup, "a push whose content key exists must not regenerate"
+
+
+def test_the_seeding_workflow_is_never_cancelled_or_gated_and_never_runs_on_a_pull_request():
+    text = (WORKFLOWS / "java-base-generation.yml").read_text(encoding="utf-8")
+    assert "cancel-in-progress: false" in text and "github.sha" in text.split("concurrency:")[1].split("jobs:")[0]
+    assert not re.search(r"^\s+needs:", text, re.M), "a gate job could skip the seeding"
+    assert "pull_request" not in text.split("jobs:")[0].split("on:")[1], "a PR's cache scope is its own ref"
+
+
+def test_the_seeding_run_passes_the_only_configs_it_builds():
+    text = (WORKFLOWS / "java-base-generation.yml").read_text(encoding="utf-8")
+    assert "ONLY=(--only $CONFIGS)" in text
+    assert '"${ONLY[@]}"' in text, "ONLY is built but never passed to java_target_matrix.py"
 
 
 def test_every_java_compile_cache_save_skips_pull_requests():

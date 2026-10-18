@@ -126,7 +126,7 @@ KNOWN_LIBRARY_NAMES = frozenset(
         "expat",
         "lz4",
         "zstd",
-    }  # fmt: skip
+    }
 )
 _VERSION_SUFFIX = re.compile(r"[-_ ]v?\d[\w.]*$", re.I)
 _LICENSE_FILE = re.compile(r"^(?:licen[cs]e|copying|unlicense)(?:[-_.][\w.-]*)?$", re.I)

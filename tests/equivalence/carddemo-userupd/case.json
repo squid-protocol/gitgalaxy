@@ -445,6 +445,76 @@
      "why": "17 on the REWRITE (IBM lists no NOTOPEN for REWRITE, #5044) -> WHEN OTHER: 'Unable to Update User...'; the file is unchanged"
     }
    ]
+  },
+  {
+   "name": "short-commarea-185",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-TO-TRANID": "CT01",
+    "CDEMO-TO-PROGRAM": "COTRN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "FIRSTNAME",
+    "CDEMO-CUST-MNAME": "MIDNAME",
+    "CDEMO-CUST-LNAME": "LASTNAME",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 1234567890123456,
+    "CDEMO-LAST-MAP": "LASTMAP",
+    "CDEMO-LAST-MAPSET": "LASTSET",
+    "CDEMO-CU02-USRID-FIRST": "USERAAAA",
+    "CDEMO-CU02-USRID-LAST": "USERZZZZ",
+    "CDEMO-CU02-PAGE-NUM": 7,
+    "CDEMO-CU02-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CU02-USR-SEL-FLG": "S",
+    "CDEMO-CU02-USR-SELECTED": "USER0002"
+   },
+   "receive": {
+    "COUSR2A": {
+     "USRIDINI": "USER0003"
+    }
+   },
+   "commarea_length": 185,
+   "why": "#5401 (EIBCALEN, mutation survivors): the caller passed 185 of the COMMAREA's 194 bytes, every CU02 field non-blank: which of them the program receives; invalid key, so the screen and the COMMAREA are sent back"
+  },
+  {
+   "name": "short-commarea-186",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-TO-TRANID": "CT01",
+    "CDEMO-TO-PROGRAM": "COTRN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "FIRSTNAME",
+    "CDEMO-CUST-MNAME": "MIDNAME",
+    "CDEMO-CUST-LNAME": "LASTNAME",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 1234567890123456,
+    "CDEMO-LAST-MAP": "LASTMAP",
+    "CDEMO-LAST-MAPSET": "LASTSET",
+    "CDEMO-CU02-USRID-FIRST": "USERAAAA",
+    "CDEMO-CU02-USRID-LAST": "USERZZZZ",
+    "CDEMO-CU02-PAGE-NUM": 7,
+    "CDEMO-CU02-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CU02-USR-SEL-FLG": "S",
+    "CDEMO-CU02-USR-SELECTED": "USER0002"
+   },
+   "receive": {
+    "COUSR2A": {
+     "USRIDINI": "USER0003"
+    }
+   },
+   "commarea_length": 186,
+   "why": "#5401 (EIBCALEN, mutation survivors): the caller passed 186 of the COMMAREA's 194 bytes, every CU02 field non-blank: which of them the program receives; invalid key, so the screen and the COMMAREA are sent back"
   }
  ],
  "notes": "CardDemo's update-user screen (transaction CU02, program COUSR02C): entered from the user list with a selected user it reads the user FOR UPDATE and shows it; ENTER looks a user up, PF5 validates the five fields and REWRITEs the record when one changed ('Please modify to update ...' otherwise), PF3 saves and returns, PF4 clears, PF12 returns to the admin menu. Each scenario's USRSEC file is compared after the task. usrsec.txt is CardDemo's own DUSRSECJ in-stream data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

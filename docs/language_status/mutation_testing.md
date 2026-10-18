@@ -127,14 +127,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COBIL00C (carddemo-billpay) | equivalence | 100/529 | 64/86 (74%) | 64/71 (90%) | 7 / 0 / 12 / 3 / 0 |
 | COCRDLIC (carddemo-cardlist) | equivalence | 100/1034 | 75/94 (80%) | 75/82 (91%) | 7 / 0 / 12 / 0 / 0 |
 | COCRDSLC (carddemo-cardview) | equivalence | 100/503 | 60/91 (66%) | 60/66 (91%) | 5 / 1 / 22 / 3 / 0 |
+| CBTRN01C (carddemo-dailyval) | equivalence | 100/241 | 63/96 (66%) | 63/71 (89%) | 8 / 0 / 10 / 15 / 0 |
 | CSUTLDTC (carddemo-dateutil) | equivalence | 211/211 | 145/195 (74%) | 145/145 (100%) | 0 / 0 / 10 / 40 / 0 |
+| CBACT04C (carddemo-intcalc) | equivalence | 100/170 | 70/86 (81%) | 70/77 (91%) | 6 / 1 / 9 / 0 / 0 |
 | COMEN01C (carddemo-menu) | equivalence | 150/331 | 86/136 (63%) | 86/93 (92%) | 7 / 0 / 36 / 7 / 0 |
+| CBTRN02C (carddemo-posttran) | equivalence | 100/263 | 76/85 (89%) | 76/80 (95%) | 3 / 1 / 5 / 0 / 0 |
 | CBACT02C (carddemo-readcard) | equivalence | 91/91 | 69/83 (83%) | 69/83 (83%) | 14 / 0 / 0 / 0 / 0 |
+| CBCUS01C (carddemo-readcust) | equivalence | 83/83 | 63/74 (85%) | 63/70 (90%) | 7 / 0 / 4 / 0 / 0 |
+| CBACT03C (carddemo-readxref) | equivalence | 90/90 | 69/83 (83%) | 69/77 (90%) | 8 / 0 / 6 / 0 / 0 |
 | CORPT00C (carddemo-report) | equivalence | 100/642 | 55/87 (63%) | 55/63 (87%) | 8 / 0 / 16 / 8 / 0 |
 | COSGN00C (carddemo-signon) | equivalence | 100/196 | 67/99 (68%) | 67/72 (93%) | 5 / 0 / 25 / 2 / 0 |
 | COTRN02C (carddemo-tranadd) | equivalence | 100/770 | 61/91 (67%) | 61/74 (82%) | 13 / 0 / 10 / 7 / 0 |
 | COTRN00C (carddemo-tranlist) | equivalence | 100/697 | 60/91 (66%) | 60/80 (75%) | 20 / 0 / 5 / 6 / 0 |
 | COTRN01C (carddemo-tranview) | equivalence | 100/308 | 63/100 (63%) | 63/68 (93%) | 5 / 0 / 29 / 3 / 0 |
+| CBTRN03C (carddemo-trnrpt) | equivalence | 100/408 | 68/86 (79%) | 68/79 (86%) | 8 / 3 / 7 / 0 / 0 |
 | COUSR01C (carddemo-useradd) | equivalence | 100/266 | 64/97 (66%) | 64/72 (89%) | 8 / 0 / 23 / 2 / 0 |
 | COUSR03C (carddemo-userdel) | equivalence | 100/334 | 62/86 (72%) | 62/70 (89%) | 8 / 0 / 15 / 1 / 0 |
 | COUSR00C (carddemo-userlist) | equivalence | 100/493 | 69/100 (69%) | 69/92 (75%) | 23 / 0 / 8 / 0 / 0 |
@@ -166,20 +172,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **316/476 (66%)** | **316/355 (89%)** | 39 / 0 / 87 / 34 / 0 |
-| **all equivalence** | | 2635 run | **1626/2395 (68%)** | **1626/2024 (80%)** | 397 / 1 / 279 / 92 / 0 |
-| **all estate** | | 3139 run | **1942/2871 (68%)** | **1942/2379 (82%)** | 436 / 1 / 366 / 126 / 0 |
+| **all equivalence** | | 3208 run | **2035/2905 (70%)** | **2035/2478 (82%)** | 437 / 6 / 320 / 107 / 0 |
+| **all estate** | | 3712 run | **2351/3381 (70%)** | **2351/2833 (83%)** | 476 / 6 / 407 / 141 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 143/180 (79%) | 143/160 (89%) |
-| BDM | 9/24 (38%) | 9/16 (56%) |
-| CON | 245/556 (44%) | 245/339 (72%) |
-| COR | 120/194 (62%) | 120/165 (73%) |
-| DEL | 282/447 (63%) | 282/371 (76%) |
-| LIT | 398/521 (76%) | 398/457 (87%) |
-| NEG | 366/417 (88%) | 366/399 (92%) |
+| AOR | 157/198 (79%) | 157/175 (90%) |
+| BDM | 24/45 (53%) | 24/31 (77%) |
+| CON | 320/654 (49%) | 320/418 (77%) |
+| COR | 129/227 (57%) | 129/193 (67%) |
+| DEL | 345/521 (66%) | 345/440 (78%) |
+| LIT | 501/639 (78%) | 501/567 (88%) |
+| NEG | 433/490 (88%) | 433/468 (93%) |
 | RET | 56/89 (63%) | 56/79 (71%) |
-| ROR | 323/443 (73%) | 323/393 (82%) |
+| ROR | 386/518 (75%) | 386/462 (84%) |
 <!-- /mutation-scores -->
 
 Run on gitgalaxy `416fb6420` (2026-10-03): CSUTLDTC all 217 mutants; COMEN01C and COACTVWC 150 each (seed 0);
@@ -200,6 +206,15 @@ cases also need `"maps"` in case.json. 31 survivors are unreachable (the facade'
 lastLinkBytes() and the program name in `region.run` / `region.linked`). cardlist's 16 of 46 scenarios are refused by
 the oracle (register X8), so its score rests on the other 30. One harness gap: cardview (0173a35c74) changes SEND TEXT
 options, and the equivalence harness compares SEND TEXT by text only.
+
+#4047 then scored six CardDemo batch ports (readxref, readcust, dailyval, intcalc, posttran, trnrpt; seed 0, up to 100
+mutants each, `--jobs 3`, fast mode). These rows are seed 0 and differ from the older seed-1 CBACT04C, CBTRN02C and
+CBTRN03C figures above. The case gaps repeat across the six: `displayIoStatus` takes a numeric test on both status bytes,
+and the fault plans only run 35, 30, 10, 97 and 9A, so a status such as `3A` or `39` is never shown; the boundary values
+(a credit limit equal to the cycle balance, a DATEPARM byte 22) and a balance of ten integer digits are also missing.
+dailyval's 15 unreachable survivors sit in the dataset-file fallback and in repository discovery, which the generated
+project never needs. Five harness gaps (intcalc 1, posttran 1, trnrpt 3): the harness hands the port an output directory that
+already exists, so creating it or truncating the report is not compared. readcard (CBACT02C) is scored in #5402.
 
 What the triage found:
 

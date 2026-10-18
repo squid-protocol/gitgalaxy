@@ -16,7 +16,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [CBACT04C](carddemo-intcalc.md) | carddemo-intcalc | batch | proven, unapproved |  | 20 | 22/22 / 85/86 | - | 0 | - |
 | [COMEN01C](carddemo-menu.md) | carddemo-menu | cics | proven, unapproved |  | 15 | 7/7 / 29/33 | 86/136 / 86/93 | 0 | - |
 | [CBTRN02C](carddemo-posttran.md) | carddemo-posttran | batch | proven, unapproved |  | 29 | 26/26 / 95/96 | - | 0 | - |
-| [CBACT02C](carddemo-readcard.md) | carddemo-readcard | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | - | 0 | - |
+| [CBACT02C](carddemo-readcard.md) | carddemo-readcard | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | 69/83 / 69/83 | 0 | - |
 | [CBCUS01C](carddemo-readcust.md) | carddemo-readcust | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | - | 0 | - |
 | [CBACT03C](carddemo-readxref.md) | carddemo-readxref | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | - | 0 | - |
 | [CORPT00C](carddemo-report.md) | carddemo-report | cics | proven, unapproved |  | 26 | 10/10 / 52/59 | 55/87 / 55/63 | 0 | - |

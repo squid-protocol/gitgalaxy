@@ -75,3 +75,15 @@ none of them exceeds 0.12s. The fleet data in the #3073 comment says the same at
 single rules, which a merged alternation does not touch, so the issue's parity hazards (100-group
 limit, scoped flags, per-rule Match objects, alternation-order span drift) still buy too little.
 Reopen only with a fleet-scale `phase_ab.py` run showing the many-small-rules residual is large.
+
+### The #3073 parity precondition is now met (harness only, engine unchanged)
+
+`tests/tools/combined_alternation_parity.py` builds the issue's one prototype shape, a first-pass
+candidate finder: one combined regex of every rule's required literals, swept once per segment,
+yielding the candidate rules. It scans with a zero-width lookahead over literals reduced to those
+with no other literal as a substring, so a leftmost alternative cannot consume the text a second
+one needs; case-insensitive gates use a second regex over `fold_haystack(text)`. Contract: every
+rule whose `finditer` matches is a candidate. Run over language-crucible (55 languages, 2,995
+files) and keyword-rosetta (raw and code-stream surfaces): zero missed candidates. It is a
+superset of today's per-rule gate (it widens, never narrows), so it only pays if a fleet-scale
+`phase_ab.py` run shows the many-small-rules residual is large; the issue stays deferred.

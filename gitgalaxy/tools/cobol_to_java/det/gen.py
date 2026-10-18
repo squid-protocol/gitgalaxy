@@ -309,6 +309,14 @@ class Gen:
     def address_record(self, name: str) -> str:
         """#4771 (X47): the Field of a LINKAGE 01 record whose storage a pointer can address (it has storage of its own)."""
         it = self.resolve(E.Ref(name.upper()))
+        if getattr(it, "level", None) not in (
+            None,
+            1,
+        ):  # ZECS001's ZF-DATA: an offset into its record, no storage of its own
+            raise Untranslatable(
+                f"ADDRESS OF {name}: a subordinate item is an offset into its record, not a LINKAGE 01 record "
+                "(needs a Storage window; not modelled)"
+            )
         if getattr(it, "section", None) != "LINKAGE" or getattr(it, "level", None) != 1:
             raise Untranslatable(f"ADDRESS OF {name}: not a LINKAGE 01 record (not modelled)")
         return self.field_expr(E.Ref(name.upper()))

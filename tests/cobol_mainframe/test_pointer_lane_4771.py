@@ -30,7 +30,8 @@ PROGRAM = """\
        01  BINARY-ZEROES          PIC  X(01) VALUE LOW-VALUES.
        01  WEBRESP                PIC S9(08) COMP VALUE 0.
        LINKAGE SECTION.
-       01  CACHE-MESSAGE          PIC  X(32).
+       01  CACHE-MESSAGE.
+           02  CACHE-SUB          PIC  X(32).
        01  OTHER-MESSAGE          PIC  X(32).
        PROCEDURE DIVISION.
            EXEC CICS WEB RECEIVE SET(CACHE-ADDRESS)
@@ -97,6 +98,21 @@ def test_a_program_with_the_four_pointer_statements_translates_whole(tmp_path):
                 "SET ADDRESS OF OTHER-MESSAGE TO ADDRESS OF GETMAIN-LENGTH.",
             ),
             "not a LINKAGE 01",
+        ),
+        # ADDRESS OF a subordinate item (ZECS001's ZF-DATA): an offset into its record, both statement forms
+        (
+            (
+                "SET ADDRESS OF OTHER-MESSAGE TO ADDRESS OF CACHE-MESSAGE.",
+                "SET ADDRESS OF OTHER-MESSAGE TO ADDRESS OF CACHE-SUB.",
+            ),
+            "a subordinate item is an offset",
+        ),
+        (
+            (
+                "SET CACHE-ADDRESS TO ADDRESS OF OTHER-MESSAGE.",
+                "SET CACHE-ADDRESS TO ADDRESS OF CACHE-SUB.",
+            ),
+            "a subordinate item is an offset",
         ),
         (
             ("SET ADDRESS OF OTHER-MESSAGE TO ADDRESS OF CACHE-MESSAGE.", "SET ADDRESS OF OTHER-MESSAGE TO NULL."),
@@ -256,3 +272,28 @@ public class Main {
         "SET ADDRESS OF a null or unknown pointer: not modelled",
         "SET ADDRESS OF an item that is not a whole 01 record: not modelled",
     ]
+
+
+def test_every_pointer_hole_left_in_zecs001_is_refused_by_name(tmp_path):
+    """#4771: the estate's own ZECS001 (not a model of it) holds only the named pointer refusals, never an unnamed one."""
+    root = os.environ.get("GITGALAXY_MAINFRAME_CORPORA")
+    src = Path(root) / "zecs/Source/ZECS001.cbl" if root else None
+    if src is None or not src.is_file():
+        pytest.skip("needs the zecs corpus (GITGALAXY_MAINFRAME_CORPORA)")
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    stub = "package com.x.service;\npublic class Zecs001Service {\n}\n"
+    r = P.translate(src, [], stub, "com.x", {}, tmp_path / "proj")
+    pointer = [
+        h for h in r.stats["holes"] if any(k in h for k in ("POINTER", "ADDRESS OF", "ZUIDSTCK", "GETMAIN", "FREEMAIN"))
+    ]
+    assert pointer, "ZECS001 is expected to still hold the pointer refusals"
+    named = (
+        "REDEFINES overlays a POINTER",
+        "a subordinate item is an offset",
+        "not a LINKAGE 01",
+        "ZUIDSTCK:",
+        "SET ADDRESS OF (pointers)",
+    )
+    assert all(any(n in h for n in named) for h in pointer), pointer

@@ -443,3 +443,37 @@ def test_auditor_still_relegates_imports_on_packed_lines(auditor):
     }
     verified, unparsable = auditor.audit([packed])
     assert not verified and "Packed Payload Guard" in unparsable[0]["reason"]
+
+
+def test_anchored_config_and_sibling_header_are_not_refuted_for_zero_density():
+    """#5467: `.clang-format` is YAML by Tier-1 anchor and a data-only `.h` is C by its
+    sibling `.c`; neither carries logic signals, so the Zero-Density floor must not
+    refute them. The same shape without a Tier 0/1 anchor, or under another
+    language, is still relegated."""
+    defs = {"yaml": {"rules": {"branch": 1}}, "c": {"rules": {"branch": 1}}}
+    auditor = StatisticalAuditor(lang_defs=defs)
+
+    def artifact(path, lang, tier, proof):
+        return {
+            "path": path,
+            "name": path,
+            "lang_id": lang,
+            "coding_loc": 147,
+            "equations": {"branch": 0},
+            "telemetry": {"identity_lock_tier": tier, "identity_source_proof": proof},
+        }
+
+    for path, lang, proof in (
+        (".clang-format", "yaml", "Metadata Anchor (.clang-format)"),
+        ("tables.h", "c", "Sibling Anchor (.c)"),
+    ):
+        verified, unparsable = auditor.audit([artifact(path, lang, 1, proof)])
+        assert [f["path"] for f in verified] == [path] and unparsable == [], path
+
+    for path, lang, tier, proof in (
+        ("weak.yaml", "yaml", 3, "Extension"),
+        ("data.h", "c", 3, "Extension"),
+    ):
+        verified, unparsable = auditor.audit([artifact(path, lang, tier, proof)])
+        assert verified == [], path
+        assert "Zero-Density Threshold" in unparsable[0]["reason"]

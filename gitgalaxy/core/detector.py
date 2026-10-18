@@ -3958,6 +3958,9 @@ class StructuralExtractor:
             if rule_name.startswith("_") or rule_name == "calls_out" or not pattern:
                 continue
             mapped_key = self.CORE_MAPPING.get(rule_name, rule_name)
+            if mapped_key == "hardcoded_secrets":
+                # #5467: not a base-schema signal; the security lens owns it (sec_hardcoded_secrets).
+                continue
             if mapped_key not in valid_keys:
                 self.logger.warning(
                     f"[DIAGNOSTIC] Unregistered rule '{mapped_key}' found in '{seg_lang}'. Ignoring to preserve schema."

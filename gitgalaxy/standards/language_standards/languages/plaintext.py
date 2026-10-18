@@ -24,6 +24,8 @@ DEFINITION: dict[str, Any] = {
     "extensions": [
         ".txt",
         ".text",
+        # #5465: CMake modules carry build logic, not code; routed like CMakeLists.txt (plaintext).
+        ".cmake",
         ".log",
         ".out",
         ".err",

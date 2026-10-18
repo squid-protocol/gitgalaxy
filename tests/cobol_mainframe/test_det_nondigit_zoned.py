@@ -684,3 +684,48 @@ if __name__ == "__main__":  # rewrite nondigit_zoned_expected.txt (and the recei
         with tempfile.TemporaryDirectory() as d:
             parts += [f"== {_pkey(c)}", *_esc(_pcobc(c, Path(d))), "== end"]
     P_EXPECTED.write_text("\n".join(parts) + "\n")
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# #4692: the PERFORM VARYING variable and the SET x UP / DOWN BY target are read before they store, as the receiver of
+# ADD is: a zoned one holding a non-digit is refused by name (Cobol.receiverNum, register C11); a digit-only one steps.
+# ---------------------------------------------------------------------------------------------------------------
+VARYING_OP = "PERFORM VARYING V FROM 1 BY 1 UNTIL V > 2\n               CONTINUE END-PERFORM"
+
+
+def _step_program(op: str, start: bytes) -> str:
+    return "\n".join(["       IDENTIFICATION DIVISION.", "       PROGRAM-ID. NDB.", "       DATA DIVISION.",
+                      "       WORKING-STORAGE SECTION.", "       01 R PIC X(4).", "       01 V REDEFINES R PIC 9(4).",
+                      "       PROCEDURE DIVISION.", f"           MOVE X'{start.hex().upper()}' TO R", f"           {op}",
+                      "           DISPLAY 'R=' R", "           GOBACK.", ""])  # fmt: skip
+
+
+@pytest.mark.skipif(_java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_a_non_digit_varying_variable_is_only_read_after_the_from_overwrites_it(tmp_path):
+    """FROM stores before the first step reads, so spaces before the loop never reach the step: translated, 0003."""
+    pytest.importorskip("tree_sitter_language_pack")
+    run = _det(_step_program(VARYING_OP, b"    "), tmp_path, "STD")
+    assert run.returncode == 0, run.stderr
+    assert "R=0003" in run.stdout.replace("\r", ""), run.stdout
+
+
+@pytest.mark.skipif(_java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_a_varying_step_that_meets_a_non_digit_is_refused_by_name(tmp_path):
+    """The loop body blanks the variable, so the next step reads spaces."""
+    pytest.importorskip("tree_sitter_language_pack")
+    op = "PERFORM VARYING V FROM 1 BY 1 UNTIL V > 2\n               MOVE SPACES TO R END-PERFORM"
+    run = _det(_step_program(op, b"0000"), tmp_path, "STD")
+    assert run.returncode != 0 and "register C11" in run.stderr, run.stderr
+    assert "receiver is a zoned item holding a non-digit is not modelled" in run.stderr, run.stderr
+
+
+@pytest.mark.skipif(_java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_a_digit_only_varying_step_counts_as_ever(tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    run = _det(
+        _step_program("PERFORM VARYING V FROM 1 BY 2 UNTIL V > 4\n               CONTINUE END-PERFORM", b"0000"),
+        tmp_path,
+        "STD",
+    )
+    assert run.returncode == 0, run.stderr
+    assert "R=0005" in run.stdout.replace("\r", ""), run.stdout

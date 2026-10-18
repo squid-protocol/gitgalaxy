@@ -475,10 +475,7 @@ class GuideStarLens:
                 for d in dirs
                 if d.lower() not in ignored_directories_lower
                 and not (d.lower() in VIRTUALENV_CANDIDATE_NAMES and looks_like_virtualenv(Path(root_dir) / d))
-                and not (
-                    VendorDirectoryDetector.is_candidate_name(d)
-                    and vendor_dirs.is_vendored((Path(root_dir) / d).relative_to(self.root).as_posix())
-                )
+                and not vendor_dirs.is_vendored((Path(root_dir) / d).relative_to(self.root).as_posix())
             ]
 
             dir_path = Path(root_dir)

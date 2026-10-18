@@ -122,3 +122,63 @@ def test_scan_root_is_never_a_candidate(tmp_path):
     _write(root / "third/LICENSE", MIT)
     assert _admitted(root, "src/SDL.c")
     assert not VendorDirectoryDetector(root).is_vendored("")
+
+
+# --- #5464: vendored trees under any name --------------------------------------
+@pytest.mark.parametrize(
+    "name", ["third_party_libs", "third-party-libs", "thirdparty_src", "3rdparty-code", "3rd_party_lib"]
+)
+def test_third_party_prefix_spellings_are_excluded_without_a_license(repo, name):
+    # psydoom: third_party_libs/libsdl/sdl2 (367k lines)
+    assert not _admitted(repo, f"{name}/libsdl/sdl2/src/SDL.c")
+
+
+def test_third_party_lookalikes_stay_scanned(repo):
+    for rel in ("src/third_person/cam.c", "src/thirdparty.c", "src/party_hall/a.c", "src/third_partyish/a.c"):
+        assert _admitted(repo, rel), rel
+
+
+def test_libs_suffix_container_follows_the_container_rule(repo):
+    _write(repo / "ext_libs/png/LICENSE", ZLIB)
+    _write(repo / "ext_libs/zlib/zlib.c")
+    assert not _admitted(repo, "ext_libs/png/png.c")
+    assert not _admitted(repo, "ext_libs/zlib/zlib.c")
+    # no license evidence: a first-party `*_libs` stays scanned
+    _write(repo / "game_libs/net/net.c")
+    assert _admitted(repo, "game_libs/net/net.c")
+
+
+@pytest.mark.parametrize(
+    "rel", ["libpng/png.c", "src/yyjson/yyjson.c", "game-music-emu/gme.cpp", "src/deep/miniz/miniz.c"]
+)
+def test_any_directory_with_a_foreign_license_is_excluded(repo, rel):
+    top = rel.rsplit("/", 1)[0]
+    _write(repo / top / "LICENSE", MIT)
+    assert not _admitted(repo, rel)
+
+
+def test_directory_with_the_roots_license_or_none_stays_scanned(repo):
+    # srb2 `src/sdl/`, odamex `client/sdl/`: first-party backends
+    _write(repo / "src/sdl/i_video.c")
+    _write(repo / "client/sdl/mixer.cpp")
+    _write(repo / "src/own/LICENSE", GPL)
+    assert _admitted(repo, "src/sdl/i_video.c")
+    assert _admitted(repo, "client/sdl/mixer.cpp")
+    assert _admitted(repo, "src/own/a.c")
+
+
+def test_foreign_license_is_no_evidence_without_a_root_license(tmp_path):
+    _write(tmp_path / "libpng/LICENSE", ZLIB)
+    assert _admitted(tmp_path, "libpng/png.c")
+
+
+def test_detector_flags_the_directory_not_its_siblings(repo):
+    _write(repo / "lzma/LICENSE", MIT)
+    assert VendorDirectoryDetector(repo).is_vendored("lzma")
+    assert not VendorDirectoryDetector(repo).is_vendored("src")
+
+
+def test_same_license_with_another_copyright_or_address_is_not_foreign(repo):
+    # fastdoom: FASTDOOM/LICENSE is the root's GPL-2 with a different FSF address and copyright line
+    _write(repo / "game/LICENSE", GPL + "Copyright (C) 1989 Someone\n675 Mass Ave, Cambridge, MA 02139, USA\n")
+    assert _admitted(repo, "game/main.c")

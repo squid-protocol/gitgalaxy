@@ -86,11 +86,30 @@ def looks_like_virtualenv(directory: Path) -> bool:
 #   - a versioned directory (`SDL2-2.32.10/`, `SDL2_mixer-2.8.2/`) carrying one itself. id's own
 #     `linuxdoom-1.10/` is versioned too but has no license of its own: it stays scanned.
 # The scan root itself is never a candidate: only the directories under it are tested.
+# #5464: the name is no longer a precondition. Two more shapes:
+#   - a `third_party_*` / `3rdparty-*` prefix is excluded by name, like `third_party/` itself
+#     (psydoom's `third_party_libs/`: 367k lines of SDL2);
+#   - a container spelled `*_libs` / `*-libraries` / `*_deps` follows the container rule above;
+#   - ANY other directory carrying a license of its own that differs from the root's is a separate
+#     project (eternity's `libpng/`, zandronum's `game-music-emu/`, doomretro's `src/yyjson/`).
+# A first-party backend directory (srb2 `src/sdl/`) has no license of its own and stays scanned.
 VENDOR_CONTAINER_NAMES = frozenset({"libraries", "libs", "deps", "extern", "external", "externals"})
-_VERSIONED_DIR = re.compile(r"^[A-Za-z][\w+.-]*?-v?\d+(?:\.\d+)+[a-z]?$")
+_THIRD_PARTY_PREFIX = re.compile(r"^(?:third|3rd)[_-]?party[_-]", re.I)
+_CONTAINER_SUFFIX = re.compile(r"[_-](?:libs|libraries|deps|extern|external|externals)$", re.I)
 _LICENSE_FILE = re.compile(r"^(?:licen[cs]e|copying|unlicense)(?:[-_.][\w.-]*)?$", re.I)
 _LICENSE_DIRS = frozenset({"licenses", "licences"})
 _LICENSE_READ_BYTES = 262144
+_LICENSE_FAMILY_CHARS = 40
+
+
+def _license_family(text: str) -> str:
+    """#5464: a license's identity -- the head of its text with copyright lines dropped.
+
+    The same license differs byte for byte by copyright holder and by the FSF's address revision (fastdoom's
+    `FASTDOOM/LICENSE` is the root's GPL-2 with another address), which is no evidence of a separate project.
+    """
+    body = "\n".join(ln for ln in text.splitlines() if not ln.lstrip(" *#/;-").lower().startswith("copyright"))
+    return " ".join(body.split()).lower()[:_LICENSE_FAMILY_CHARS]
 
 
 class VendorDirectoryDetector:
@@ -102,10 +121,9 @@ class VendorDirectoryDetector:
         self._root_licenses: frozenset[str] | None = None
 
     @staticmethod
-    def is_candidate_name(name: str) -> bool:
-        """Cheap name test; only candidate names are probed on disk."""
+    def is_container_name(name: str) -> bool:
         low = name.lower()
-        return low.endswith(".framework") or low in VENDOR_CONTAINER_NAMES or bool(_VERSIONED_DIR.match(name))
+        return low in VENDOR_CONTAINER_NAMES or bool(_CONTAINER_SUFFIX.search(low))
 
     def is_vendored(self, rel_dir: str) -> bool:
         """`rel_dir` is a POSIX path relative to the root (never empty: the root is not a candidate)."""
@@ -116,8 +134,10 @@ class VendorDirectoryDetector:
 
     def _probe(self, rel_dir: str) -> bool:
         name = rel_dir.rsplit("/", 1)[-1]
-        if not rel_dir or not self.is_candidate_name(name):
+        if not rel_dir or name.startswith("."):
             return False
+        if _THIRD_PARTY_PREFIX.match(name):
+            return True
         directory = self.root.joinpath(*rel_dir.split("/"))
         try:
             if not directory.is_dir():
@@ -125,7 +145,7 @@ class VendorDirectoryDetector:
             low = name.lower()
             if low.endswith(".framework"):
                 return True
-            if low in VENDOR_CONTAINER_NAMES:
+            if self.is_container_name(name):
                 children = [
                     c for c in directory.iterdir() if c.is_dir() and not c.name.startswith(".") and any(c.iterdir())
                 ]
@@ -149,7 +169,7 @@ class VendorDirectoryDetector:
                         raw = fh.read(_LICENSE_READ_BYTES)
                 except OSError:
                     continue
-                texts.add(" ".join(raw.decode("utf-8", "ignore").split()).lower())
+                texts.add(_license_family(raw.decode("utf-8", "ignore")))
         return texts, has_dir
 
     def _has_foreign_license(self, directory: Path) -> bool:
@@ -1145,9 +1165,8 @@ class ApertureFilter:
                 return False
             if low_part in VIRTUALENV_CANDIDATE_NAMES and self._is_virtualenv("/".join(parts[: i + 1])):
                 return False
-            if VendorDirectoryDetector.is_candidate_name(part) and self._vendor_dirs.is_vendored(
-                "/".join(parts[: i + 1])
-            ):
+            # the last part is the file itself: only directories are probed (no stat per file)
+            if i < len(parts) - 1 and self._vendor_dirs.is_vendored("/".join(parts[: i + 1])):
                 return False
 
             if (

@@ -107,7 +107,7 @@ def _run(charset: str) -> dict[str, str]:
     assert jdk is not None
     proc = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8",  # noqa: S603
                            f"-Dgitgalaxy.data.charset={charset}", "-cp", str(_classes()), "Main"],
-                          capture_output=True, text=True, check=True)  # fmt: skip
+                          capture_output=True, text=True, encoding="utf-8", check=True)  # fmt: skip
     return {line.split(" ", 1)[0]: line.split(" ", 1)[1] for line in proc.stdout.splitlines()}
 
 

@@ -20,7 +20,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [CBCUS01C](carddemo-readcust.md) | carddemo-readcust | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | 63/74 / 63/70 | 0 | - |
 | [CBACT03C](carddemo-readxref.md) | carddemo-readxref | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | 69/83 / 69/77 | 0 | - |
 | [CORPT00C](carddemo-report.md) | carddemo-report | cics | proven, unapproved |  | 26 | 10/10 / 52/59 | 55/87 / 55/63 | 0 | - |
-| [COSGN00C](carddemo-signon.md) | carddemo-signon | cics | proven, unapproved |  | 12 | 6/6 / 17/17 | 67/99 / 67/72 | 0 | - |
+| [COSGN00C](carddemo-signon.md) | carddemo-signon | cics | proven, unapproved |  | 16 | 6/6 / 17/17 | 67/99 / 67/72 | 0 | - |
 | [COTRN02C](carddemo-tranadd.md) | carddemo-tranadd | cics | proven, unapproved |  | 49 | 18/18 / 72/75 | 61/91 / 61/74 | 0 | - |
 | [COTRN00C](carddemo-tranlist.md) | carddemo-tranlist | cics | proven, unapproved |  | 32 | 16/16 / 96/101 | 60/91 / 60/80 | 0 | - |
 | [COTRN01C](carddemo-tranview.md) | carddemo-tranview | cics | proven, unapproved |  | 18 | 9/9 / 23/24 | 63/100 / 63/68 | 0 | - |

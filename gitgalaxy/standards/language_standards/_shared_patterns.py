@@ -450,19 +450,27 @@ COMMENTED_STATEMENT_C_FAMILY = r"(?<![/*])(?://|/\*)[ \t]*" + COMMENTED_STATEMEN
 # #5461: C/C++ function-defining macros (`CCMD(map) {`, `DEFINE_ACTION_FUNCTION(AActor, A_Look) {`,
 # `TEST(Suite, Name) {`, odamex `FUNC(LS_Door_Open) {`). Pattern SOURCE (an alternative of `func_start`; the macro's name lands in group 2 and the detector's `lastindex` read
 # picks it up). Name rule: the only argument; of several, the second (`Class, name` /
-# `Type, name` / `Suite, Name`). Anchors: an ALL-CAPS macro of 3+ chars at column 0 whose
+# `Type, name` / `Suite, Name`), except the `C_MACRO_FIRST_ARG_NAMES` macros, which name the first. Anchors: an ALL-CAPS macro of 3+ chars at column 0 whose
 # argument list holds plain identifiers (no nested call, no operators) and is followed by `{`.
 # Column 0, not "after indentation": an indented `MACRO(x) {` sits inside a body, where it is a
 # statement macro (godot `OPCODE(OPCODE_JUMP) {` = `case`, `OPCODE_WHILE(true) {` = `while`).
 # Excluded: control-flow shouts, `BEGIN`/`END`, and class-like macros (`DE_PIMPL`, `*NAMESPACE*`) and `*MODULE` binders (`NB_MODULE(name, m)`: `m` is a variable).
-# The `#define` expansion lookup (odamex FUNC) is not used: the invocation form alone is enough.
+# The `#define` lookup (odamex FUNC) lives in `detector._slice_by_braces`: a macro whose in-file define is not a signature is dropped.
 # ------------------------------------------------------------------------------
+# The identifier is not always the second argument. These macros name the FIRST (`DEFINE_PROPERTY(name, Type, Class)`,
+# `DEFINE_MAP_OPTION(name, true)`): the exact names only, so `DEFINE_CLASS_PROPERTY_PREFIX(prefix, name, Type, Class)`
+# and `DEFINE_PROPERTYKEY` keep the general rule (`;`-terminated, so the latter never reaches the `{`).
+# `DEFINE_CLASS_PROPERTY*` is exempt from the class-like exclusion below: it defines a property, not a class.
+C_MACRO_FIRST_ARG_NAMES = r"DEFINE_(?:(?:CLASS|INFO)_)?PROPERTY|DEFINE_MAP_OPTION"
+
+
 def _c_macro_func_start(name_open: str) -> str:
     return (
-        r"^(?![A-Z0-9_]{0,40}(?:PIMPL|NAMESPACE|CLASS|STRUCT|ENUM|TEMPLATE|UNION|MODULE)|"
+        r"^(?!(?!DEFINE_CLASS_PROPERTY)[A-Z0-9_]{0,40}(?:PIMPL|NAMESPACE|CLASS|STRUCT|ENUM|TEMPLATE|UNION|MODULE)|"
         r"(?:IF|FOR|WHILE|SWITCH|ELSE|DO|BEGIN|END|ASSERT|CASE|RETURN)\b)"
-        r"[A-Z][A-Z0-9_]{2,}[ \t]*\([ \t]*"
-        rf"(?:[{ID_START}][{ID_CONTINUE}]{{0,60}}[ \t]*,[ \t]*)?"
+        rf"(?:(?:{C_MACRO_FIRST_ARG_NAMES})[ \t]*\([ \t]*"
+        rf"|(?!(?:{C_MACRO_FIRST_ARG_NAMES})[ \t]*\()[A-Z][A-Z0-9_]{{2,}}[ \t]*\([ \t]*"
+        rf"(?:[{ID_START}][{ID_CONTINUE}]{{0,60}}[ \t]*,[ \t]*)?)"
         rf"{name_open}[{ID_START}][{ID_CONTINUE}]{{0,100}})[ \t]*"
         r"(?:,[^()\n;{}]{0,200})?\)[ \t\n]{0,200}\{"
     )

@@ -194,6 +194,7 @@ jobs:
           PART: ${{ matrix.part }}
           SPLITS: ${{ matrix.splits }}
           EVEN: ${{ matrix.even }}
+          GITGALAXY_TEST_TIMES: ${{ runner.temp }}/times-gate-${{ matrix.os }}-${{ matrix.python-version }}-${{ matrix.part }}.json  # #5257: tests/conftest.py writes each test's seconds
         run: |
           split=()
           if [ -n "$PART" ]; then split=(--splits "$SPLITS" --group "$PART"); fi
@@ -204,3 +205,18 @@ jobs:
           # --timeout: a hung test fails by name after 10 min (the slowest real test is ~60 s) instead of eating the
           # job's time limit as a "cancelled" leg (#4840: the macOS box-tools hang, #4862)
           pytest tests/ -n auto -q -ra --durations=25 --timeout=600 "${split[@]}"
+
+      # #5257 (sibling of #5166): the per-test time gate, on the Linux legs only. The baseline's seconds are Linux CI times, so
+      # Windows and macOS (slower, different) cannot be held to them.
+      - name: Per-test time ratchet (#5257)
+        if: runner.os == 'Linux'
+        run: python tests/tools/time_ratchet.py check --times "$RUNNER_TEMP/times-gate-${{ matrix.os }}-${{ matrix.python-version }}-${{ matrix.part }}.json"
+
+      # the name stays out of smoke-test's test-times-part-* glob, which the nightly suite budget merges
+      - name: Upload this leg's test times (#5257)
+        if: always() && runner.os == 'Linux'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-times-gate-${{ matrix.os }}-${{ matrix.python-version }}-${{ matrix.part }}
+          path: ${{ runner.temp }}/times-gate-${{ matrix.os }}-${{ matrix.python-version }}-${{ matrix.part }}.json
+          retention-days: 7

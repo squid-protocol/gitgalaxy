@@ -86,3 +86,57 @@ def test_indented_statement_macro_inside_a_body_is_not_a_function(lang):
     src = "void run() {\n\tOPCODE_WHILE(true) {\n\t\tOPCODE(OPCODE_JUMP) {\n\t\t}\n\t}\n}\n"
     names = _names(lang, src)
     assert "true" not in names and "OPCODE_JUMP" not in names
+
+
+def _sliced_names(lang: str, code: str) -> list[str]:
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    detector = StructuralExtractor(lang_id=lang, language_definitions=LANGUAGE_DEFINITIONS)
+    rules = LANGUAGE_DEFINITIONS[lang]["rules"]
+    satellites, _ = detector._slice_by_braces(code=code, lang_id=lang, rules=rules, offset=0, spatial_map={})
+    return [s["name"] if isinstance(s, dict) else s.name for s in satellites]
+
+
+@pytest.mark.parametrize("lang", LANGS)
+@pytest.mark.parametrize(
+    "define",
+    [
+        "#define FUNC(a) static bool a(line_t *ln, int arg0)",  # odamex
+        "#define FUNC(a) \\\n\tstatic bool a(line_t *ln, \\\n\t\tint arg0)",  # continued lines
+        "#define FUNC(a) bool Handler_##a(int x)",  # token-pasted name
+    ],
+)
+def test_define_that_expands_to_a_signature_makes_the_invocation_a_function(lang, define):
+    code = define + "\n\nFUNC(LS_Door_Open)\n{\n\tint x = 1;\n}\n"
+    assert any(n.endswith("LS_Door_Open") for n in _sliced_names(lang, code))
+
+
+@pytest.mark.parametrize("lang", LANGS)
+@pytest.mark.parametrize(
+    "define",
+    [
+        "#define FUNC(a) do { a; } while (0)",
+        "#define FUNC(a) case a:",
+        "#define FUNC(a) while (a)",
+        "#define FUNC(a) ((a) > 0)",
+        "#define FUNC(a) \\\n\tdo { \\\n\t\ta; \\\n\t} while (0)",
+    ],
+)
+def test_define_that_expands_to_a_statement_or_expression_is_not_a_function(lang, define):
+    code = define + "\n\nFUNC(LS_Door_Open)\n{\n\tint x = 1;\n}\n"
+    assert not any("LS_Door_Open" in n for n in _sliced_names(lang, code))
+
+
+@pytest.mark.parametrize("lang", LANGS)
+def test_macro_without_an_in_tree_define_keeps_the_invocation_rule(lang):
+    code = "CCMD(map)\n{\n\tint x = 1;\n}\n"
+    assert any("map" in n for n in _sliced_names(lang, code))
+
+
+@pytest.mark.parametrize("lang", LANGS)
+def test_one_signature_variant_among_several_defines_keeps_the_function(lang):
+    code = (
+        "#if USE_STMT\n#define FUNC(a) do { a; } while (0)\n#else\n#define FUNC(a) static bool a(int x)\n#endif\n"
+        "FUNC(LS_Door_Open)\n{\n\tint x = 1;\n}\n"
+    )
+    assert any("LS_Door_Open" in n for n in _sliced_names(lang, code))

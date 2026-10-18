@@ -48,6 +48,7 @@ from gitgalaxy.standards.language_standards import (
     _lazy_re,
 )
 from gitgalaxy.standards.language_standards._shared_patterns import (
+    C_MACRO_FUNC_START_GUARD,
     QUALIFIED_CALLS_OUT_PATTERNS,
 )
 from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START, WIDE_HYPHENS
@@ -1102,6 +1103,71 @@ def _call_arity(text: str, pos: int) -> int | None:
             empty = False
         j += 1
     return None
+
+
+_C_DEFINE_WITH_PARAMS: Any = None  # compiled on first use (#5461)
+_C_MACRO_BRANCH: Any = None
+_C_STATEMENT_WORDS = frozenset(
+    [
+        "do",
+        "if",
+        "for",
+        "while",
+        "switch",
+        "else",
+        "case",
+        "default",
+        "return",
+        "goto",
+        "break",
+        "continue",
+        "sizeof",
+        "typeof",
+    ]
+)
+
+
+def _c_function_like_defines(code: str) -> dict[str, list[bool]]:
+    """#5461: each `#define NAME(params) body` in `code` -> whether the body expands to a function signature.
+
+    A signature body reads `<type words> <name-ish>(`: the text before its first `(` holds two or more words,
+    does not open with a statement word (`do`, `while`, `case`, `return`...), and names a macro parameter or
+    pastes one (`##`). `do { } while (0)`, `case m:`, `while (x)` and `((a) > (b))` are statements/expressions.
+    A name defined more than once (an `#if` ladder) lists every variant.
+    """
+    global _C_DEFINE_WITH_PARAMS
+    if _C_DEFINE_WITH_PARAMS is None:
+        ident = "[" + ID_START + "][" + ID_CONTINUE + "]*"
+        _C_DEFINE_WITH_PARAMS = re.compile(
+            r"^[ \t]*#[ \t]*define[ \t]+(" + ident + r")\(([^()\n]*)\)((?:[^\n\\]|\\\r?\n|\\(?!\r?\n)){0,2000})",
+            re.M,
+        )
+    out: dict[str, list[bool]] = {}
+    for m in _C_DEFINE_WITH_PARAMS.finditer(code):
+        params = {p.strip() for p in m.group(2).split(",") if p.strip() and p.strip() != "..."}
+        body = re.sub(r"\\\r?\n", " ", m.group(3)).strip()
+        head = body.split("(", 1)[0] if "(" in body else ""
+        words = re.findall(r"[A-Za-z_][A-Za-z0-9_]*", head)
+        is_signature = (
+            len(words) >= 2
+            and words[0] not in _C_STATEMENT_WORDS
+            and not any(c in head for c in "{};")
+            and ("##" in head or any(w in params for w in words))
+        )
+        out.setdefault(m.group(1), []).append(is_signature)
+    return out
+
+
+def _c_macro_branch_match(safe_code: str, match: Any) -> str | None:
+    """#5461: the macro's name when `match` came from the C/C++ function-macro branch of `func_start`, else None."""
+    global _C_MACRO_BRANCH
+    if _C_MACRO_BRANCH is None:
+        _C_MACRO_BRANCH = re.compile(C_MACRO_FUNC_START_GUARD, re.M)
+    guard = _C_MACRO_BRANCH.match(safe_code, match.start())
+    if guard is None or guard.end() != match.end():
+        return None
+    name = re.match(r"[A-Z][A-Z0-9_]*", match.group(0))
+    return name.group(0) if name else None
 
 
 def _declaration_headers(func_start: Any, text: str) -> tuple[dict[int, str], dict[int, int]]:
@@ -5873,7 +5939,9 @@ class StructuralExtractor:
         # stray braces inside a macro body that would otherwise corrupt the brace-depth
         # counter downstream), so `safe_code` has nothing left here to match against.
         known_macro_positions: dict[str, int] = {}
+        macro_expansions: dict[str, list[bool]] = {}
         if lang_id in ("c", "cpp"):
+            macro_expansions = _c_function_like_defines(code)
             for m in re.finditer(
                 r"^[ \t]*#[ \t]*define[ \t]+([" + ID_START + r"][" + ID_CONTINUE + r"]*)\(", code, re.M
             ):
@@ -7148,6 +7216,14 @@ class StructuralExtractor:
 
             if name in known_macro_positions and known_macro_positions[name] < start_idx:
                 continue
+
+            # #5461 (owner ruling 2026-10-18): `MACRO(args) {` whose `#define` is in this file is a function only
+            # when some variant of the define expands to a signature (odamex FUNC); a statement/expression define
+            # (`do { } while (0)`) is not. No define in the file: the invocation form alone decides.
+            if macro_expansions:
+                macro_name = _c_macro_branch_match(safe_code, match)
+                if macro_name is not None and macro_name in macro_expansions and not any(macro_expansions[macro_name]):
+                    continue
 
             block_nl = block.count("\n")  # #3174: scan the (often large) body once, not twice
             sat, mag = self._calculate_block_metrics(

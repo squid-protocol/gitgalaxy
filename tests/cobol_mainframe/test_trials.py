@@ -329,3 +329,22 @@ def test_return_code_is_an_output_channel_but_only_when_set():
         _proc("           GOBACK.\n", "       01  WS-A PIC 9.\n           MOVE 4 TO RETURN-CODE.\n"),
     ):
         assert "sets no RETURN-CODE" in trial.out_of_scope_reason(sk, text, False), text
+
+
+def test_abend_is_an_output_channel_but_only_as_a_call_to_the_stub():
+    """#3806: the harness records a CEE3ABD abend and a proof needs the same abend on both sides, so a program
+    that calls the stub is eligible; a comment, a data-division mention, a variable target or ILBOABN0 (no stub)
+    is not."""
+    sk = {"program": {"language": "cobol"}}
+    for body in (
+        "           CALL 'CEE3ABD' USING WS-CODE WS-TIMING\n           GOBACK.\n",
+        '           CALL "CEE3ABD" USING WS-CODE WS-TIMING\n           GOBACK.\n',
+    ):
+        assert trial.out_of_scope_reason(sk, _proc(body), False) is None, body
+    for text in (
+        _proc("      * CALL 'CEE3ABD' USING X\n           GOBACK.\n"),
+        _proc("           CALL WS-CEE3ABD USING X\n           GOBACK.\n"),
+        _proc("           CALL 'ILBOABN0' USING X\n           GOBACK.\n"),
+        _proc("           GOBACK.\n", "       01  WS-A PIC X VALUE 'CEE3ABD'.\n           CALL 'CEE3ABD'.\n"),
+    ):
+        assert "does not abend" in trial.out_of_scope_reason(sk, text, False), text

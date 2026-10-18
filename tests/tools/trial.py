@@ -171,7 +171,7 @@ def out_of_scope_reason(skeleton: dict[str, Any], text: str, shipped: bool) -> s
     """Why the equivalence harness cannot run a program (None: eligible). The batch harness runs a COBOL
     program under GnuCOBOL with a driver, loads its input files (generated from their copybook layouts,
     #3804, or shipped) and compares its output files record by record -- so the program must be batch COBOL
-    with no database, IMS or MQ side, write at least one file, DISPLAY (SYSOUT is compared, #4056) or set RETURN-CODE, and have a record layout for every input."""
+    with no database, IMS or MQ side, write at least one file, DISPLAY (SYSOUT is compared, #4056), set RETURN-CODE or abend (CEE3ABD), and have a record layout for every input."""
     for rule, reason in ELIGIBILITY_RULES:
         if rule(skeleton, text, shipped):
             return reason
@@ -214,10 +214,20 @@ def _sets_return_code(text: str) -> bool:
     return bool(_RETURN_CODE_SET.search(_procedure_body(text)))
 
 
+_ABEND_CALL = re.compile(r"(?<![\w-])CALL[ \t\n]{1,20}['\"]CEE3ABD['\"]", re.I)
+
+
+def _abends(text: str) -> bool:
+    """Whether the PROCEDURE DIVISION CALLs the CEE3ABD abend stub: the harness records the abend (ABEND Unnnn)
+    and a proof needs the same abend on both sides (equivalence.py), so it is an output channel. A comment, a
+    data-division mention, a variable CALL target or another abend routine (no stub) is not."""
+    return bool(_ABEND_CALL.search(_procedure_body(text)))
+
+
 def _no_output(sk: dict[str, Any], t: str, _s: bool) -> bool:
     if any(_WRITES & set(d.get("modes") or []) for d in _sections(sk, "datasets")):
         return False
-    return not (_displays(t) or _sets_return_code(t))
+    return not (_displays(t) or _sets_return_code(t) or _abends(t))
 
 
 def _input_without_layout(sk: dict[str, Any], _t: str, shipped: bool) -> bool:
@@ -233,7 +243,10 @@ ELIGIBILITY_RULES = (
     (lambda _k, t, _s: bool(_SQL.search(t)), "DB2 (EXEC SQL): the harness has no database side"),
     (lambda _k, t, _s: bool(_IMS.search(t)), "IMS (DL/I): the harness has no IMS side"),
     (lambda _k, t, _s: bool(_MQ.search(t)), "MQ calls: the harness has no queue manager"),
-    (_no_output, "writes no file, DISPLAYs nothing and sets no RETURN-CODE: the harness has no output to compare"),
+    (
+        _no_output,
+        "writes no file, DISPLAYs nothing, sets no RETURN-CODE and does not abend: the harness has no output to compare",
+    ),
     (_input_without_layout, "an input file with no copybook record layout: its records cannot be generated (#3804)"),
 )
 

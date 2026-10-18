@@ -124,13 +124,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 |---|---|---|---|---|---|
 | COACTVWC (carddemo-acctview) | equivalence | 150/328 | 105/129 (81%) | 105/113 (93%) | 8 / 0 / 16 / 0 / 0 |
 | COADM01C (carddemo-adminmenu) | equivalence | 100/334 | 53/95 (56%) | 53/69 (77%) | 16 / 0 / 26 / 0 / 0 |
+| COBIL00C (carddemo-billpay) | equivalence | 100/529 | 64/86 (74%) | 64/71 (90%) | 7 / 0 / 12 / 3 / 0 |
+| COCRDLIC (carddemo-cardlist) | equivalence | 100/1034 | 75/94 (80%) | 75/82 (91%) | 7 / 0 / 12 / 0 / 0 |
+| COCRDSLC (carddemo-cardview) | equivalence | 100/503 | 60/91 (66%) | 60/66 (91%) | 5 / 1 / 22 / 3 / 0 |
 | CSUTLDTC (carddemo-dateutil) | equivalence | 211/211 | 145/195 (74%) | 145/145 (100%) | 0 / 0 / 10 / 40 / 0 |
 | COMEN01C (carddemo-menu) | equivalence | 150/331 | 86/136 (63%) | 86/93 (92%) | 7 / 0 / 36 / 7 / 0 |
+| CORPT00C (carddemo-report) | equivalence | 100/642 | 55/87 (63%) | 55/63 (87%) | 8 / 0 / 16 / 8 / 0 |
 | COSGN00C (carddemo-signon) | equivalence | 100/196 | 67/99 (68%) | 67/72 (93%) | 5 / 0 / 25 / 2 / 0 |
+| COTRN02C (carddemo-tranadd) | equivalence | 100/770 | 61/91 (67%) | 61/74 (82%) | 13 / 0 / 10 / 7 / 0 |
+| COTRN00C (carddemo-tranlist) | equivalence | 100/697 | 60/91 (66%) | 60/80 (75%) | 20 / 0 / 5 / 6 / 0 |
 | COTRN01C (carddemo-tranview) | equivalence | 100/308 | 63/100 (63%) | 63/68 (93%) | 5 / 0 / 29 / 3 / 0 |
 | COUSR01C (carddemo-useradd) | equivalence | 100/266 | 64/97 (66%) | 64/72 (89%) | 8 / 0 / 23 / 2 / 0 |
 | COUSR03C (carddemo-userdel) | equivalence | 100/334 | 62/86 (72%) | 62/70 (89%) | 8 / 0 / 15 / 1 / 0 |
 | COUSR00C (carddemo-userlist) | equivalence | 100/493 | 69/100 (69%) | 69/92 (75%) | 23 / 0 / 8 / 0 / 0 |
+| COUSR02C (carddemo-userupd) | equivalence | 100/481 | 47/82 (57%) | 47/64 (73%) | 17 / 0 / 14 / 4 / 0 |
 | INQACC (cbsa-inqacc) | equivalence | 150/464 | 131/131 (100%) | 131/131 (100%) | 0 / 0 / 0 / 0 / 0 |
 | UPDACC (cbsa-updacc) | equivalence | 133/133 | 95/133 (71%) | 95/133 (71%) | 38 / 0 / 0 / 0 / 0 |
 | LGAPVS01 (genapp-lgapvs01) | equivalence | 150/178 | 70/121 (58%) | 70/119 (59%) | 49 / 0 / 0 / 2 / 0 |
@@ -149,29 +156,29 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | HCQREAD (hc-perform-range) | crucible | 24/204 | 14/21 (67%) | 14/14 (100%) | 0 / 0 / 4 / 3 / 0 |
 | HXATTR (hx-attr-bytes) | crucible | 24/143 | 17/22 (77%) | 17/17 (100%) | 0 / 0 / 5 / 0 / 0 |
 | HXEXT (hx-extended-cursor) | crucible | 24/108 | 20/23 (87%) | 20/20 (100%) | 0 / 0 / 1 / 2 / 0 |
-| PCDETL (pc-aid-menu) | crucible | 24/60 | 14/24 (58%) | 14/14 (100%) | 0 / 0 / 9 / 1 / 0 |
-| PCMENU (pc-aid-menu) | crucible | 24/147 | 14/22 (64%) | 14/15 (93%) | 1 / 0 / 5 / 2 / 0 |
+| PCDETL (pc-aid-menu) | crucible | 24/63 | 15/24 (62%) | 15/15 (100%) | 0 / 0 / 9 / 0 / 0 |
+| PCMENU (pc-aid-menu) | crucible | 24/137 | 16/24 (67%) | 16/16 (100%) | 0 / 0 / 6 / 2 / 0 |
 | PCIMMA (pc-return-immediate) | crucible | 24/394 | 6/22 (27%) | 6/16 (38%) | 10 / 0 / 5 / 1 / 0 |
 | PCIMMB (pc-return-immediate) | crucible | 24/283 | 11/23 (48%) | 11/18 (61%) | 7 / 0 / 5 / 0 / 0 |
 | PCIMML (pc-return-immediate) | crucible | 24/282 | 9/23 (39%) | 9/19 (47%) | 10 / 0 / 3 / 1 / 0 |
 | PCIMMS (pc-return-immediate) | crucible | 24/198 | 8/24 (33%) | 8/16 (50%) | 8 / 0 / 7 / 1 / 0 |
-| PCCONF (pc-wizard) | crucible | 24/247 | 14/23 (61%) | 14/17 (82%) | 3 / 0 / 6 / 0 / 0 |
-| PCWIZ (pc-wizard) | crucible | 24/177 | 11/21 (52%) | 11/16 (69%) | 5 / 0 / 3 / 2 / 0 |
-| **all crucible** | | 504 run | **307/472 (65%)** | **307/355 (86%)** | 48 / 0 / 87 / 30 / 0 |
-| **all equivalence** | | 1844 run | **1135/1690 (67%)** | **1135/1441 (79%)** | 306 / 0 / 188 / 61 / 0 |
-| **all estate** | | 2348 run | **1442/2162 (67%)** | **1442/1796 (80%)** | 354 / 0 / 275 / 91 / 0 |
+| PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
+| PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
+| **all crucible** | | 504 run | **316/476 (66%)** | **316/355 (89%)** | 39 / 0 / 87 / 34 / 0 |
+| **all equivalence** | | 2544 run | **1557/2312 (67%)** | **1557/1941 (80%)** | 383 / 1 / 279 / 92 / 0 |
+| **all estate** | | 3048 run | **1873/2788 (67%)** | **1873/2296 (82%)** | 422 / 1 / 366 / 126 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 108/140 (77%) | 108/121 (89%) |
-| BDM | 3/14 (21%) | 3/7 (43%) |
-| CON | 205/439 (47%) | 205/280 (73%) |
-| COR | 62/108 (57%) | 62/94 (66%) |
-| DEL | 220/342 (64%) | 220/290 (76%) |
-| LIT | 294/401 (73%) | 294/346 (85%) |
-| NEG | 267/315 (85%) | 267/298 (90%) |
-| RET | 37/61 (61%) | 37/57 (65%) |
-| ROR | 246/342 (72%) | 246/303 (81%) |
+| AOR | 143/180 (79%) | 143/160 (89%) |
+| BDM | 9/24 (38%) | 9/16 (56%) |
+| CON | 228/533 (43%) | 228/316 (72%) |
+| COR | 119/191 (62%) | 119/162 (73%) |
+| DEL | 273/436 (63%) | 273/360 (76%) |
+| LIT | 376/496 (76%) | 376/432 (87%) |
+| NEG | 354/405 (87%) | 354/387 (91%) |
+| RET | 56/89 (63%) | 56/79 (71%) |
+| ROR | 315/434 (73%) | 315/384 (82%) |
 <!-- /mutation-scores -->
 
 Run on gitgalaxy `416fb6420` (2026-10-03): CSUTLDTC all 217 mutants; COMEN01C and COACTVWC 150 each (seed 0);
@@ -185,9 +192,17 @@ last page after a full one. 8 more survivors are unreachable (the program name i
 The 126 equivalent verdicts rest on one assumption not yet independently checked: the COMMAREA/screen DTO codec pads
 and truncates each field to its declared width, so a width off by one, or NUL for space, changes no compared byte.
 
+#4047 then added seven more CardDemo CICS ports (billpay, cardlist, cardview, report, tranadd, tranlist, userupd; 100
+mutants each, seed 0). Their case gaps repeat the six ports': no EIBCALEN, a short or blank COMMAREA, non-blank
+COMMAREA fields, a failed XCTL, bad-format amount and date inputs, and rounding with fractional amounts; tranlist's
+cases also need `"maps"` in case.json. 31 survivors are unreachable (the facade's byte-carrying handleLink,
+lastLinkBytes() and the program name in `region.run` / `region.linked`). cardlist's 16 of 46 scenarios are refused by
+the oracle (register X8), so its score rests on the other 30. One harness gap: cardview (0173a35c74) changes SEND TEXT
+options, and the equivalence harness compares SEND TEXT by text only.
+
 What the triage found:
 
-- **No harness gap.** No survivor changes an output that the proof runs but does not compare. The two found
+- **One harness gap (SEND TEXT options, COCRDSLC).** Otherwise no survivor changes an output that the proof runs but does not compare. The two found
   earlier (#4053 screen attributes, #4056 SYSOUT) are closed, and the crucible's event log records attributes,
   colour, highlight and cursor.
 - **Case gaps (91)** are inputs the cases lack, and they are the test-strengthening loop's (#4049) work list:
@@ -211,13 +226,18 @@ What the triage found:
   field, a rounding mode on a value already at scale 2, or an initial value that is overwritten before it is read.
 
 Re-run 2026-10-05 on gitgalaxy `d69a63419` (after #4343 regenerated the crucible ports' facades): the 13 crucible ports
-other than PCCONF, PCWIZ, PCMENU and PCDETL (#4427 is changing those; they are re-run after it merges), 24 mutants each,
-seed 0, cics-crucible v0.2.0. The table rows above are these runs; the four PC* rows still hold the 2026-10-03 run and
-their evidence records mark it stale. 205 caught of 291 judged (70%); 86 survivors: 34 case gaps (19 fault-reachable,
+other than PCCONF, PCWIZ, PCMENU and PCDETL (#4427 changed those; #4443 re-ran them, below), 24 mutants each,
+seed 0, cics-crucible v0.2.0. The table rows above are these runs. 205 caught of 291 judged (70%); 86 survivors: 34 case gaps (19 fault-reachable,
 which need the fault plan the crucible lacks), 0 harness gaps, 35 equivalent, 17 unreachable, none untriaged.
 `mutation_crucible.py` now proves each mutant on the java-ported and the java-facade side: the first run used
 java-ported alone, which never runs a facade body (`handleTransaction`, `handleLink`), and four mutants inside one
 (CASUB, CAXB, GTSTART, GTWORK) survived for that reason; the java-facade side kills them.
+
+Re-run 2026-10-17 (#4443): the four PC* ports (seed 0, 24 mutants each, strengthened scenarios on). 62 caught of 94
+judged: PCDETL 15/9, PCMENU 16/8, PCCONF 15/8, PCWIZ 16/7 (killed/survived; PCCONF and PCWIZ one stillborn each). The 36
+first-run survivors included 6 case gaps; four new scenarios (`enter-sends-no-data`, `amount-not-numeric`, `name-erased`, `amount-erased`)
+killed 4 of the 6 case gaps; the other two were re-triaged (PCCONF's `to >= 0` is equivalent, its commarea-length
+mutant unreachable). 0 case gaps and 0 harness gaps remain: 23 equivalent, 9 unreachable.
 
 A score is quoted with its case and seed, never alone. Every survivor is triaged as a case gap, a
 harness gap, an equivalent mutant (with the reason) or dead code.

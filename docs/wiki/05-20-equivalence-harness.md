@@ -84,7 +84,7 @@ Layout-driven input generation reads a COBOL copybook. For the other mainframe l
 |---|---|---|
 | COBOL (batch, CICS, CALL, Db2 embedded) | Supported | this page |
 | BMS maps | Not yet | [#4506](https://github.com/squid-protocol/gitgalaxy/issues/4506) |
-| DB2 SQL | Partly: generated rows and per-statement SQLCODE compare for UPDACC and COBTUPDT | [#4507](https://github.com/squid-protocol/gitgalaxy/issues/4507) |
+| DB2 SQL | Partly: generated rows and per-statement SQLCODE compare for UPDACC, INQACC and COBTUPDT | [#4507](https://github.com/squid-protocol/gitgalaxy/issues/4507) |
 | JCL job streams | Not yet | [#4508](https://github.com/squid-protocol/gitgalaxy/issues/4508) |
 | PL/I | Not yet | [#4509](https://github.com/squid-protocol/gitgalaxy/issues/4509) |
 | HLASM (assembler) | Not yet | [#4510](https://github.com/squid-protocol/gitgalaxy/issues/4510) |

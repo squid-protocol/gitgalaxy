@@ -1001,6 +1001,24 @@ jobs:
           path: gitgalaxy/docs/language_status/evidence_report
           retention-days: 1
 
+      # #4054: the estate roll-up (E0-E4 from the evidence records, lines from the corpora checked out above). It is written
+      # outside the repository and published on its own path: evidence_report.py treats any extra file under evidence_report/
+      # as stray. A failure here never blocks the L0-L5 report above.
+      - name: Roll up the estate evidence (#4054)
+        id: estate
+        continue-on-error: true
+        run: |
+          cd gitgalaxy
+          PYTHONPATH="$PWD" python tests/tools/estate_evidence.py --out "$RUNNER_TEMP/estate-evidence"
+
+      - name: Keep the estate roll-up for the publish job
+        if: always() && steps.estate.outcome == 'success'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: estate-evidence
+          path: ${{ runner.temp }}/estate-evidence
+          retention-days: 1
+
       - name: Summary
         if: always()
         run: |
@@ -1122,6 +1140,25 @@ jobs:
           python tests/tools/generated_branch.py publish --stamp evidence-report \
             --message "evidence report as of main $SHA" \
             docs/language_status/evidence_report
+
+      # #4054: the estate roll-up, when the refresh job built one (a missing artifact skips, never fails, the report above).
+      - name: Download the estate roll-up
+        id: estate
+        continue-on-error: true
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: estate-evidence
+          path: main/docs/language_status/estate_evidence
+
+      - name: Publish the estate roll-up to the generated branch
+        if: steps.estate.outcome == 'success'
+        env:
+          SHA: ${{ needs.refresh.outputs.sha }}
+        run: |
+          cd main
+          python tests/tools/generated_branch.py publish --stamp estate-evidence \
+            --message "estate evidence roll-up as of main $SHA" \
+            docs/language_status/estate_evidence
 
   publish-blockers:
     needs: [refresh]

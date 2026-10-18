@@ -36,6 +36,7 @@ def _measure_catching(pattern, flags, method, attempts=3):
     return verdict
 
 
+@pytest.mark.slow(reason="times a regex against a growing payload (13.0s on a CI runner, limit 15s)")
 def test_catches_the_3205_pattern():
     """The pre-fix cobol_jcl_forge.py pattern the sweep exists to catch."""
     verdict = _measure_catching(r"EXEC\s+CICS.*?END-EXEC\.", re.IGNORECASE, "findall")

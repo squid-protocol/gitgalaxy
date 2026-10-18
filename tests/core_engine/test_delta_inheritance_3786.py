@@ -58,6 +58,7 @@ def _edges(db):
         con.close()
 
 
+@pytest.mark.slow(reason="two galaxyscope subprocess scans (full, then delta) of a git repo (#5388)")
 def test_delta_scan_keeps_inherited_method_call_edge(tmp_path):
     if shutil.which("git") is None:
         pytest.skip("git is required")

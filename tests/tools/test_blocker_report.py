@@ -14,6 +14,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import blocker_report as br
 from gitgalaxy.core.source_text import read_source
 
+BOILERPLATE = set(
+    "IDENTIFICATION DIVISION PROGRAM-ID REPRO1 DATA WORKING-STORAGE SECTION COPY PROCEDURE GOBACK MOVE TO WS-OUT PIC X 8 01 END-EXEC".split()
+)  # fmt: skip
 SALT = bytes.fromhex("aa" * 32)
 OTHER = bytes.fromhex("bb" * 32)
 
@@ -139,10 +142,12 @@ def test_salt_file_created_once_and_never_written_to_reports(tmp_path):
 
 
 def test_redact_more():
-    anon = br.anon_report(result(GAPS), SALT, "e", ("subclass", "counts"))
+    anon = br.anon_report(result(GAPS), SALT, "e", ("subclass", "counts", "repro"))
     for b in anon["blockers"]:
         assert set(b) == {"id", "category", "signature"}
-    assert anon["redactions"] == ["subclass", "counts"]
+    assert anon["redactions"] == ["subclass", "counts", "repro"]
+    kept = br.anon_report(result(GAPS), SALT, "e", ("subclass", "counts"))
+    assert any("repro" in b for b in kept["blockers"])
     with pytest.raises(ValueError):
         br.anon_report(result(GAPS), SALT, "e", ("names",))
 
@@ -153,6 +158,29 @@ def test_manifest_lists_exactly_the_emitted_fields():
     for b in anon["blockers"]:
         assert set(b) <= set(br.ANON_BLOCKER_FIELDS)
     assert anon["schema_version"] == br.SCHEMA_VERSION
+
+
+def test_repro_only_for_rebuildable_constructs_and_has_no_identifier():
+    anon = br.anon_report(result(GAPS), SALT, "ACMEPAY")
+    with_repro = {b["category"] for b in anon["blockers"] if "repro" in b}
+    assert with_repro == {"unresolved-link", "cics-command", "runtime-fact"}
+    vocab = br.vocabulary()
+    for b in anon["blockers"]:
+        text = b.get("repro", "")
+        for secret in SECRETS:
+            assert secret not in text, secret
+        # every word of the snippet is COBOL boilerplate, CICS vocabulary or a salted hash
+        for word in re.findall(r"[A-Za-z0-9-]+", text):
+            assert word.upper() in vocab or re.fullmatch(r"[A-Z]{3}-[0-9A-F]{6}", word) or word in BOILERPLATE, word
+
+
+def test_repro_is_stable_per_salt_and_differs_for_another():
+    a = br.anon_report(result(GAPS), SALT, "e")
+    assert a == br.anon_report(result(GAPS), SALT, "e")
+    other = br.anon_report(result(GAPS), OTHER, "e")
+    assert {b["repro"] for b in a["blockers"] if "repro" in b} != {
+        b["repro"] for b in other["blockers"] if "repro" in b
+    }
 
 
 def test_empty_result():
@@ -174,21 +202,22 @@ def test_cli(tmp_path, capsys):
 # ---- the real names of the burned estates (CardDemo, GenApp, CBSA, zECS, ...) ---------------------------------------
 CORPORA = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", ""))
 ESTATES = ["aws-mainframe-modernization-carddemo", "cics-genapp", "cics-banking-sample-application-cbsa", "zecs"]
+CRUCIBLE = Path(os.environ.get("CICS_CRUCIBLE_PATH") or Path(__file__).resolve().parents[2].parent / "cics-crucible")
 _NAME = re.compile(r"\b[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+\b|\b[A-Z]{3,8}\d{2,}[A-Z0-9]*\b")
 
 
-@pytest.mark.parametrize("estate", ESTATES)
+@pytest.mark.parametrize("estate", [*ESTATES, "cics-crucible"])
 def test_leak_free_on_burned_estate_names(estate):
-    root = CORPORA / estate
+    root = CRUCIBLE / "cases" if estate == "cics-crucible" else CORPORA / estate
     if not root.is_dir():
-        pytest.skip(f"{estate} not checked out under GITGALAXY_MAINFRAME_CORPORA")
+        pytest.skip(f"{estate} not checked out (GITGALAXY_MAINFRAME_CORPORA / CICS_CRUCIBLE_PATH)")
     names: set[str] = set()
     for f in sorted(root.rglob("*"))[:4000]:
         if f.suffix.lower() in {".cbl", ".cob", ".cpy"} and f.stat().st_size < 400_000:
             names.update(_NAME.findall(read_source(f).text))
             names.add(f.stem.upper())
     vocab = br.vocabulary()
-    names = {n for n in names if n not in vocab and len(n) >= 4}
+    names = {n for n in names if n not in vocab and n not in BOILERPLATE and len(n) >= 4}
     assert names
     gaps = {}
     for i, n in enumerate(sorted(names)[:600]):
@@ -199,3 +228,5 @@ def test_leak_free_on_burned_estate_names(estate):
     leaked = [n for n in names if n in text]
     assert not leaked, leaked[:10]
     assert estate not in text
+    for b in br.anon_report(res, SALT, estate)["blockers"]:
+        assert not [n for n in names if n in b.get("repro", "")]

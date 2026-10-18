@@ -9,12 +9,12 @@
 
 The input is `proof_blockers.py DIR --json` (#4270). `blocker_report.py --manifest` prints the field list below.
 
-## Anonymized JSON, schema version 1.0
+## Anonymized JSON, schema version 1.1 (1.1 adds the optional `repro`; rule catalogue 2)
 
 Report fields: `schema_version`, `kind` (`anonymized`), `engine_version`, `rule_catalogue`, `estate` (salted hash),
 `totals` (`whole`, `proven`), `blockers`, `redactions`, `manifest`.
 
-Blocker fields: `id` (salted hash of the signature), `category`, `subclass`, `signature`, `programs_blocked`,
+Blocker fields: `id` (salted hash of the signature), `category`, `subclass`, `signature`, `repro` (optional), `programs_blocked`,
 `programs_only_gap`, `programs_one_away`.
 
 Categories: `unresolved-link`, `refusal`, `cics-command`, `runtime-fact`, `no-case`, `known-unproven`,
@@ -38,20 +38,28 @@ It is never written to either report. The same salt gives the same hashes on eve
 across releases; a different salt gives different hashes, so nothing matches across customers, and the hash cannot
 be reversed without the salt. Six hex digits keep reports short; a customer wanting fewer collisions can ask for more.
 
+## Minimal repro
+
+`repro` is a synthetic COBOL snippet rebuilt from the signature alone, so we can reproduce the blocker without the
+customer's code. Present for `cics-command` (an `EXEC CICS ... END-EXEC` with the signature's verb and options),
+`runtime-fact` (a `MOVE` of the EIB field) and `unresolved-link` (a `COPY` of the missing copybook); absent for every
+other category. Fixed boilerplate (`PROGRAM-ID. REPRO1`, `WS-OUT`), CICS vocabulary, and names as `KIND-XXXXXX` hashes
+(upper-cased, `_` as `-`, a legal COBOL name) are the only words it holds.
+
 ## `--redact-more`
 
-`--redact-more subclass counts` drops those fields from every blocker.
+`--redact-more subclass counts repro` drops those fields from every blocker.
 
 ## Checks
 
 `tests/tools/test_blocker_report.py`: parity of categories and counts with the full report; the leak test over every
-identifier of a synthetic estate and the real names in the burned estates (CardDemo, GenApp, CBSA, zECS) when checked
-out; hash stability per salt; the manifest equals the emitted fields.
+identifier of a synthetic estate and the real names in the burned estates (CardDemo, GenApp, CBSA, zECS, cics-crucible; `CICS_CRUCIBLE_PATH`, else `../cics-crucible`) when checked
+out, over the repro text too; the repro holds only vocabulary, boilerplate and hashes; hash stability per salt; the manifest equals the emitted fields.
 
 ## Not yet (Part of #5054)
 
-Ingestion into the #5051 ledger (`estate: customer:<hash>`), matching a signature to an issue, the minimal-repro
-generator, and a leak test on the cics-crucible and a run with the readiness scanner (#4725).
+Ingestion into the #5051 ledger (`estate: customer:<hash>`; the ledger does not exist yet) and matching a signature to
+an issue, feeding `cics_census` blockers into the report, and a run with the readiness scanner (#4725).
 
 ## The harness report (#4493)
 

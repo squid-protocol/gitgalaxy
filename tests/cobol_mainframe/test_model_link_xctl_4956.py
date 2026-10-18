@@ -7,7 +7,8 @@ area). IBM (EXEC CICS XCTL, COMMAREA: "the contents of the data-area are passed"
 addresses the caller's storage or a copy. A copy (a new object), a failed XCTL, an XCTL at level 1 or of a task's own
 start COMMAREA, and the target of an XCTL passing its own DTO again (a copy of a copy) are not refused. A String or
 number cannot be traced by reference (#5060): one equal to a value the DTO holds is refused too, an equal-valued copy
-included (refuse, never guess); a value the DTO does not hold is passed as it is.
+included (refuse, never guess); a value the DTO does not hold is passed as it is, a value derived from a field (a suffixed String, a sum) included:
+it cannot be traced, so it is a sibling gap, not a refusal.
 """
 
 from __future__ import annotations
@@ -43,6 +44,7 @@ public class Main {
         long wide = 5L;
         java.math.BigDecimal amt = new java.math.BigDecimal("1.50");
         boolean flag = true;
+        String[] tags = {"t1", "t2"};
         Dto self;
     }
 
@@ -81,6 +83,10 @@ public class Main {
                         case "otherchar" -> 'q';
                         case "othernum" -> 99L;
                         case "fresh" -> "zzz";
+                        case "tag" -> d.tags[1];
+                        case "derived" -> d.name + "x";
+                        case "sum" -> d.num + 1;
+                        case "unset" -> d.grp.inner;
                         case "none" -> null;
                         case "copy", "hop" -> new Dto();
                         default -> d;
@@ -120,6 +126,9 @@ public class Main {
             System.out.println(s + " " + run(s, false, true));
         }
         for (String s : new String[] {"tablenum", "tablechar", "widened", "narrowed", "scaled", "flag", "otherchar", "othernum"}) {
+            System.out.println(s + " " + run(s, false, true));
+        }
+        for (String s : new String[] {"tag", "derived", "sum", "unset"}) {
             System.out.println(s + " " + run(s, false, true));
         }
         for (String s : new String[] {"copy", "fresh", "none", "failed", "hop"}) {
@@ -178,6 +187,10 @@ def test_cictask_refuses_an_xctl_of_the_dto_its_program_was_linked_with(tmp_path
         "flag REFUSED true",
         "otherchar NORMAL>EE",
         "othernum NORMAL>EE",
+        "tag REFUSED true",
+        "derived NORMAL>EE",
+        "sum NORMAL>EE",
+        "unset NORMAL>EE",
         "copy NORMAL>EE",
         "fresh NORMAL>EE",
         "none NORMAL>EE",

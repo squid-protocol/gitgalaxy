@@ -367,7 +367,7 @@
   "port_sha256": "97185b0b1f1245b0909f50175c11864eef990eed20324893df2889e53d4b96da"
  },
  "mutation": {
-  "commit": "7470befa414a0c8dfd36f30e310267030a49af89",
+  "commit": "7470befa4",
   "rejudged": null,
   "seed": 0,
   "mode": null,
@@ -377,14 +377,14 @@
   "survived": 35,
   "stillborn": 18,
   "survivors": {
-   "case_gap": 35,
+   "case_gap": 17,
    "harness_gap": 0,
-   "equivalent": 0,
-   "unreachable": 0,
+   "equivalent": 14,
+   "unreachable": 4,
    "untriaged": 0
   },
   "score_raw": "47/82",
-  "score_adjusted": "47/82",
+  "score_adjusted": "47/64",
   "source": "docs/language_status/mutation_scores.json#carddemo-userupd/COUSR02C",
   "inputs": {
    "port": {

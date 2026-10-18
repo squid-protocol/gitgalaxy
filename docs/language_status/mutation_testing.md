@@ -124,20 +124,21 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 |---|---|---|---|---|---|
 | COACTVWC (carddemo-acctview) | equivalence | 150/328 | 105/129 (81%) | 105/113 (93%) | 8 / 0 / 16 / 0 / 0 |
 | COADM01C (carddemo-adminmenu) | equivalence | 100/334 | 53/95 (56%) | 53/69 (77%) | 16 / 0 / 26 / 0 / 0 |
-| COBIL00C (carddemo-billpay) | equivalence | 100/529 | 64/86 (74%) | 64/86 (74%) | 22 / 0 / 0 / 0 / 0 |
-| COCRDLIC (carddemo-cardlist) | equivalence | 100/1034 | 75/94 (80%) | 75/94 (80%) | 19 / 0 / 0 / 0 / 0 |
-| COCRDSLC (carddemo-cardview) | equivalence | 100/503 | 60/91 (66%) | 60/91 (66%) | 31 / 0 / 0 / 0 / 0 |
+| COBIL00C (carddemo-billpay) | equivalence | 100/529 | 64/86 (74%) | 64/71 (90%) | 7 / 0 / 12 / 3 / 0 |
+| COCRDLIC (carddemo-cardlist) | equivalence | 100/1034 | 75/94 (80%) | 75/82 (91%) | 7 / 0 / 12 / 0 / 0 |
+| COCRDSLC (carddemo-cardview) | equivalence | 100/503 | 60/91 (66%) | 60/66 (91%) | 5 / 1 / 22 / 3 / 0 |
 | CSUTLDTC (carddemo-dateutil) | equivalence | 211/211 | 145/195 (74%) | 145/145 (100%) | 0 / 0 / 10 / 40 / 0 |
 | COMEN01C (carddemo-menu) | equivalence | 150/331 | 86/136 (63%) | 86/93 (92%) | 7 / 0 / 36 / 7 / 0 |
 | CBACT02C (carddemo-readcard) | equivalence | 91/91 | 69/83 (83%) | 69/83 (83%) | 14 / 0 / 0 / 0 / 0 |
+| CORPT00C (carddemo-report) | equivalence | 100/642 | 55/87 (63%) | 55/63 (87%) | 8 / 0 / 16 / 8 / 0 |
 | COSGN00C (carddemo-signon) | equivalence | 100/196 | 67/99 (68%) | 67/72 (93%) | 5 / 0 / 25 / 2 / 0 |
-| COTRN02C (carddemo-tranadd) | equivalence | 100/770 | 61/91 (67%) | 61/91 (67%) | 30 / 0 / 0 / 0 / 0 |
-| COTRN00C (carddemo-tranlist) | equivalence | 100/697 | 60/91 (66%) | 60/91 (66%) | 31 / 0 / 0 / 0 / 0 |
+| COTRN02C (carddemo-tranadd) | equivalence | 100/770 | 61/91 (67%) | 61/74 (82%) | 13 / 0 / 10 / 7 / 0 |
+| COTRN00C (carddemo-tranlist) | equivalence | 100/697 | 60/91 (66%) | 60/80 (75%) | 20 / 0 / 5 / 6 / 0 |
 | COTRN01C (carddemo-tranview) | equivalence | 100/308 | 63/100 (63%) | 63/68 (93%) | 5 / 0 / 29 / 3 / 0 |
 | COUSR01C (carddemo-useradd) | equivalence | 100/266 | 64/97 (66%) | 64/72 (89%) | 8 / 0 / 23 / 2 / 0 |
 | COUSR03C (carddemo-userdel) | equivalence | 100/334 | 62/86 (72%) | 62/70 (89%) | 8 / 0 / 15 / 1 / 0 |
 | COUSR00C (carddemo-userlist) | equivalence | 100/493 | 69/100 (69%) | 69/92 (75%) | 23 / 0 / 8 / 0 / 0 |
-| COUSR02C (carddemo-userupd) | equivalence | 100/481 | 47/82 (57%) | 47/82 (57%) | 35 / 0 / 0 / 0 / 0 |
+| COUSR02C (carddemo-userupd) | equivalence | 100/481 | 47/82 (57%) | 47/64 (73%) | 17 / 0 / 14 / 4 / 0 |
 | INQACC (cbsa-inqacc) | equivalence | 150/464 | 131/131 (100%) | 131/131 (100%) | 0 / 0 / 0 / 0 / 0 |
 | UPDACC (cbsa-updacc) | equivalence | 133/133 | 95/133 (71%) | 95/133 (71%) | 38 / 0 / 0 / 0 / 0 |
 | LGAPVS01 (genapp-lgapvs01) | equivalence | 150/178 | 70/121 (58%) | 70/119 (59%) | 49 / 0 / 0 / 2 / 0 |
@@ -165,20 +166,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **316/476 (66%)** | **316/355 (89%)** | 39 / 0 / 87 / 34 / 0 |
-| **all equivalence** | | 2535 run | **1571/2308 (68%)** | **1571/2059 (76%)** | 488 / 0 / 188 / 61 / 0 |
-| **all estate** | | 3039 run | **1887/2784 (68%)** | **1887/2414 (78%)** | 527 / 0 / 275 / 95 / 0 |
+| **all equivalence** | | 2635 run | **1626/2395 (68%)** | **1626/2024 (80%)** | 397 / 1 / 279 / 92 / 0 |
+| **all estate** | | 3139 run | **1942/2871 (68%)** | **1942/2379 (82%)** | 436 / 1 / 366 / 126 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 140/177 (79%) | 140/158 (89%) |
-| BDM | 9/23 (39%) | 9/19 (47%) |
-| CON | 244/545 (45%) | 244/379 (64%) |
-| COR | 110/181 (61%) | 110/166 (66%) |
-| DEL | 276/434 (64%) | 276/382 (72%) |
-| LIT | 386/508 (76%) | 386/455 (85%) |
-| NEG | 353/404 (87%) | 353/388 (91%) |
-| RET | 52/82 (63%) | 52/79 (66%) |
-| ROR | 317/430 (74%) | 317/388 (82%) |
+| AOR | 143/180 (79%) | 143/160 (89%) |
+| BDM | 9/24 (38%) | 9/16 (56%) |
+| CON | 245/556 (44%) | 245/339 (72%) |
+| COR | 120/194 (62%) | 120/165 (73%) |
+| DEL | 282/447 (63%) | 282/371 (76%) |
+| LIT | 398/521 (76%) | 398/457 (87%) |
+| NEG | 366/417 (88%) | 366/399 (92%) |
+| RET | 56/89 (63%) | 56/79 (71%) |
+| ROR | 323/443 (73%) | 323/393 (82%) |
 <!-- /mutation-scores -->
 
 Run on gitgalaxy `416fb6420` (2026-10-03): CSUTLDTC all 217 mutants; COMEN01C and COACTVWC 150 each (seed 0);
@@ -192,9 +193,17 @@ last page after a full one. 8 more survivors are unreachable (the program name i
 The 126 equivalent verdicts rest on one assumption not yet independently checked: the COMMAREA/screen DTO codec pads
 and truncates each field to its declared width, so a width off by one, or NUL for space, changes no compared byte.
 
+#4047 then added seven more CardDemo CICS ports (billpay, cardlist, cardview, report, tranadd, tranlist, userupd; 100
+mutants each, seed 0). Their case gaps repeat the six ports': no EIBCALEN, a short or blank COMMAREA, non-blank
+COMMAREA fields, a failed XCTL, bad-format amount and date inputs, and rounding with fractional amounts; tranlist's
+cases also need `"maps"` in case.json. 31 survivors are unreachable (the facade's byte-carrying handleLink,
+lastLinkBytes() and the program name in `region.run` / `region.linked`). cardlist's 16 of 46 scenarios are refused by
+the oracle (register X8), so its score rests on the other 30. One harness gap: cardview (0173a35c74) changes SEND TEXT
+options, and the equivalence harness compares SEND TEXT by text only.
+
 What the triage found:
 
-- **No harness gap.** No survivor changes an output that the proof runs but does not compare. The two found
+- **One harness gap (SEND TEXT options, COCRDSLC).** Otherwise no survivor changes an output that the proof runs but does not compare. The two found
   earlier (#4053 screen attributes, #4056 SYSOUT) are closed, and the crucible's event log records attributes,
   colour, highlight and cursor.
 - **Case gaps (91)** are inputs the cases lack, and they are the test-strengthening loop's (#4049) work list:

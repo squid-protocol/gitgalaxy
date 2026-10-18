@@ -399,7 +399,7 @@
   "port_sha256": "d9e74691b324c0214f0004dcfb8f178cef0eae57b109a553afe4479b570e74bc"
  },
  "mutation": {
-  "commit": "7470befa414a0c8dfd36f30e310267030a49af89",
+  "commit": "7470befa4",
   "rejudged": null,
   "seed": 0,
   "mode": null,
@@ -409,14 +409,14 @@
   "survived": 22,
   "stillborn": 14,
   "survivors": {
-   "case_gap": 22,
+   "case_gap": 7,
    "harness_gap": 0,
-   "equivalent": 0,
-   "unreachable": 0,
+   "equivalent": 12,
+   "unreachable": 3,
    "untriaged": 0
   },
   "score_raw": "64/86",
-  "score_adjusted": "64/86",
+  "score_adjusted": "64/71",
   "source": "docs/language_status/mutation_scores.json#carddemo-billpay/COBIL00C",
   "inputs": {
    "port": {

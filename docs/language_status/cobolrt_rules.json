@@ -3554,7 +3554,8 @@
    },
    "options": [],
    "register": [
-    "C8"
+    "C8",
+    "D2"
    ],
    "status": "MATCHED",
    "calibration": "uncalibrated"

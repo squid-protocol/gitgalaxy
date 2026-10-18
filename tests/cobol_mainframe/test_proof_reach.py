@@ -236,7 +236,10 @@ def _flagged_survivors() -> list[tuple[str, dict]]:
     for p in json.loads(SCORES.read_text(encoding="utf-8"))["ports"]:
         if not _mutated_port_is_current(p["case"], p["program"]):
             continue
-        report = R.analyse([_port_dir(p["case"], p["program"])])
+        port = _port_dir(p["case"], p["program"])
+        if not port.is_dir():  # a generated port (port_from) is written at proof time, none is committed
+            continue
+        report = R.analyse([port])
         spans = [(Path(r["files"][0]).name, m) for r in report.values() for m in r["unproven"]]
         for s in p["survivors"]:
             file, line = s["at"].rsplit(":", 1)

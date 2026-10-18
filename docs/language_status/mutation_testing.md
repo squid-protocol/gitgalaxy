@@ -140,6 +140,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COTRN02C (carddemo-tranadd) | equivalence | 100/770 | 61/91 (67%) | 61/74 (82%) | 13 / 0 / 10 / 7 / 0 |
 | COTRN00C (carddemo-tranlist) | equivalence | 100/697 | 60/91 (66%) | 60/80 (75%) | 20 / 0 / 5 / 6 / 0 |
 | COTRN01C (carddemo-tranview) | equivalence | 100/308 | 63/100 (63%) | 63/68 (93%) | 5 / 0 / 29 / 3 / 0 |
+| COTRN01C (carddemo-tranview-generated) | equivalence | 100/314 | 58/100 (58%) | 58/67 (87%) | 9 / 0 / 25 / 8 / 0 |
 | CBTRN03C (carddemo-trnrpt) | equivalence | 100/408 | 68/86 (79%) | 68/79 (86%) | 8 / 3 / 7 / 0 / 0 |
 | COUSR01C (carddemo-useradd) | equivalence | 100/266 | 64/97 (66%) | 64/72 (89%) | 8 / 0 / 23 / 2 / 0 |
 | COUSR03C (carddemo-userdel) | equivalence | 100/334 | 62/86 (72%) | 62/70 (89%) | 8 / 0 / 15 / 1 / 0 |
@@ -172,20 +173,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **317/476 (67%)** | **317/355 (89%)** | 38 / 0 / 87 / 34 / 0 |
-| **all equivalence** | | 3208 run | **2035/2905 (70%)** | **2035/2478 (82%)** | 437 / 6 / 320 / 107 / 0 |
-| **all estate** | | 3712 run | **2352/3381 (70%)** | **2352/2833 (83%)** | 475 / 6 / 407 / 141 / 0 |
+| **all equivalence** | | 3308 run | **2093/3005 (70%)** | **2093/2545 (82%)** | 446 / 6 / 345 / 115 / 0 |
+| **all estate** | | 3812 run | **2410/3481 (69%)** | **2410/2900 (83%)** | 484 / 6 / 432 / 149 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 158/198 (80%) | 158/175 (90%) |
+| AOR | 159/199 (80%) | 159/176 (90%) |
 | BDM | 24/45 (53%) | 24/31 (77%) |
-| CON | 320/654 (49%) | 320/418 (77%) |
-| COR | 129/227 (57%) | 129/193 (67%) |
-| DEL | 345/521 (66%) | 345/440 (78%) |
-| LIT | 501/639 (78%) | 501/567 (88%) |
-| NEG | 433/490 (88%) | 433/468 (93%) |
+| CON | 321/678 (47%) | 321/420 (76%) |
+| COR | 131/230 (57%) | 131/195 (67%) |
+| DEL | 364/545 (67%) | 364/461 (79%) |
+| LIT | 514/663 (78%) | 514/586 (88%) |
+| NEG | 450/507 (89%) | 450/485 (93%) |
 | RET | 56/89 (63%) | 56/79 (71%) |
-| ROR | 386/518 (75%) | 386/462 (84%) |
+| ROR | 391/525 (74%) | 391/467 (84%) |
 <!-- /mutation-scores -->
 
 Run on gitgalaxy `416fb6420` (2026-10-03): CSUTLDTC all 217 mutants; COMEN01C and COACTVWC 150 each (seed 0);

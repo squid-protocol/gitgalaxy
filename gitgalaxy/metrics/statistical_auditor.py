@@ -51,6 +51,8 @@ class StatisticalAuditor:
     the same fix; see the note in `audit()`.
     """
 
+    _ANCHORED_CONFIG_LANGS = frozenset({"yaml", "json", "toml", "ini"})
+
     def __init__(
         self,
         parent_logger: logging.Logger | None = None,
@@ -484,8 +486,15 @@ class StatisticalAuditor:
                     include_langs.get(lid) and artifact.get("telemetry", {}).get("popularity", 0) > 0
                 )
 
+                # #5467: a Tier 0/1 anchor on a config format (`.clang-format`, `.eslintrc`) or a
+                # header claimed by its sibling source file is right about the file, and
+                # such files carry no logic signals by design. Only the "too sparse" test is waived.
+                anchored_data = lock_tier <= 1 and (
+                    lid in self._ANCHORED_CONFIG_LANGS or str(source_proof).startswith("Sibling Anchor")
+                )
+
                 # ZERO-DENSITY THRESHOLD: Hard Floor check for data dumps disguised as code
-                if included_member and rho <= 3.0:
+                if (included_member or anchored_data) and rho <= 3.0:
                     pass
                 elif loc > 50 and rho == 0 and not is_minified:
                     is_outlier = True

@@ -125,6 +125,11 @@ def input_generation(case: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
+# Issue classes 1 (qualified names, formats a PICTURE cannot say) and 3 (cross-record business rules) are left
+# unclassified on purpose: the burned `@generate` records hold no duplicate field name and every case states its
+# rules (`digits`, `date`, `values`, single-field `from`), so no burned program needs a cause for them (checked
+# 2026-10-18; test_burned_generated_inputs_need_no_class_1_or_3_cause). When one does, add its cause to
+# record_cause / FIX_LAYOUT and that test's guard moves with it.
 # ---- what stops an input being generated (#4493 blocker classes 1 and 2) --------------------------------------------
 FIX_LAYOUT = {
     "redefines": "State a hand rule for the field that selects the REDEFINES alternative (the generator fills the first)",

@@ -65,8 +65,9 @@ To create or refresh the label set (idempotent), run the reconcile workflow by h
 A check that `flake_history.py` learned is flaky (passed on a rerun at least 3 times, 80% of its reruns, last 14 days)
 gets one automatic rerun for its first failure instead of going to a fixer as `real`. `shepherd_gh.py reconcile --flake-cache FILE`
 (or `$SHEPHERD_FLAKE_CACHE`) reads `flake_history.json`; it never scans. No cache means no learned flakes, never a wait.
-Keeping that file across workflow runs (Actions cache restore, `flake_history.py --refresh-only` when it is over 6 hours
-old, save) is a `shepherd-reconcile.yml` change still to be made by the owner (#5398).
+Both shepherd workflows restore the file from the Actions cache (`flake-history-*`, newest wins) and pass `--flake-cache`;
+`shepherd-reconcile.yml` also runs `flake_history.py --refresh-only` when it is over 6 hours old (best effort, 12 minute cap)
+and saves the cache even when the pass failed (#5398).
 
 ## Fallback
 

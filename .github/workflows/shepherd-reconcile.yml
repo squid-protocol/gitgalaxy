@@ -45,7 +45,7 @@ jobs:
       github.event_name != 'workflow_run' || github.event.workflow_run.event == 'pull_request'
       || github.event.workflow_run.event == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     permissions:
       contents: read
     steps:
@@ -54,6 +54,38 @@ jobs:
         with:
           ref: main
           persist-credentials: false
+
+      # #5398: the learned-flake list (flake_history.py's 14-day cache); a cold scan takes over 10 minutes, so it is kept
+      # across runs. The key is never an exact hit: restore-keys takes the newest saved one.
+      - name: Restore the flake-history cache
+        id: flake
+        continue-on-error: true
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: flake-cache
+          key: flake-history-${{ github.run_id }}
+          restore-keys: |
+            flake-history-
+
+      - name: Refresh the flake-history cache when it is over 6 hours old
+        # A failure keeps the old file (or none: no learned flakes, never a wait); the next pass tries again
+        continue-on-error: true
+        timeout-minutes: 12
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+        run: |
+          mkdir -p flake-cache
+          if python3 - <<'PY'
+          import json, sys, time
+          try:
+              updated = json.load(open("flake-cache/flake_history.json")).get("updated", 0)
+          except (OSError, ValueError, AttributeError):
+              updated = 0
+          sys.exit(0 if time.time() - float(updated) > 6 * 3600 else 1)
+          PY
+          then
+            python3 tests/tools/flake_history.py --refresh-only --cache flake-cache/flake_history.json
+          fi
 
       - name: Create or refresh the shepherd:* labels
         if: github.event.inputs.ensure_labels == 'true'
@@ -65,4 +97,13 @@ jobs:
         # #4935: every pass covers all of them (not only the run's head), so a cancelled pending pass loses nothing
         env:
           GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
-        run: python3 tests/tools/shepherd_gh.py reconcile
+        run: python3 tests/tools/shepherd_gh.py reconcile --flake-cache flake-cache/flake_history.json
+
+      # the refresh is the only writer (passes are serialised by the `shepherd` group); save even when a pass failed
+      - name: Save the flake-history cache
+        if: always()
+        continue-on-error: true
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: flake-cache
+          key: flake-history-${{ github.run_id }}

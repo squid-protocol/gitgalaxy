@@ -204,8 +204,9 @@ mutants each, seed 0). Their case gaps repeat the six ports': no EIBCALEN, a sho
 COMMAREA fields, a failed XCTL, bad-format amount and date inputs, and rounding with fractional amounts; tranlist's
 cases also need `"maps"` in case.json. 31 survivors are unreachable (the facade's byte-carrying handleLink,
 lastLinkBytes() and the program name in `region.run` / `region.linked`). cardlist's 16 of 46 scenarios are refused by
-the oracle (register X8), so its score rests on the other 30. One harness gap: cardview (0173a35c74) changes SEND TEXT
-options, and the equivalence harness compares SEND TEXT by text only.
+the oracle (register X8), so its score rests on the other 30. One harness gap, closed in #5401: cardview (0173a35c74) changes SEND TEXT
+options, and the harness compared SEND TEXT by text only; it now compares the forwarded options (ERASE, FREEKB, ALARM,
+WAIT, LAST). The score is not re-run.
 
 #4047 then scored six CardDemo batch ports (readxref, readcust, dailyval, intcalc, posttran, trnrpt; seed 0, up to 100
 mutants each, `--jobs 3`, fast mode). These rows are seed 0 and differ from the older seed-1 CBACT04C, CBTRN02C and

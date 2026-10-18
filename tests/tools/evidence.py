@@ -911,7 +911,14 @@ def record_equivalence_run(case: str, work: Path) -> dict[str, Any]:
 def refresh_mutation(keys: list[str] | None = None) -> list[str]:
     """Re-read every record's `mutation` from mutation_scores.json (mutation_scores.py build calls this)."""
     done = []
-    for t in targets():
+    # a port_from case (e.g. carddemo-tranview-generated) has a record but no port/ of its own: not in targets()
+    own = targets()
+    shared = [
+        equivalence_target(p.parent.name)
+        for p in sorted(CASES.glob("*/case.json"))
+        if "port_from" in _case_json(p.parent.name) and (p.parent / RECORD_NAME).is_file()
+    ]
+    for t in [*own, *(s for s in shared if s.key not in {o.key for o in own})]:
         if keys and t.key not in keys:
             continue
         rec = load(t)

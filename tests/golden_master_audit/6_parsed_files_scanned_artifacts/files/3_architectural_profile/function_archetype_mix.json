@@ -10213,13 +10213,6 @@
         "Many-Argument Workhorses": 2,
         "Parameter Forwarders": 20,
         "State Mutators": 7
-      },
-      "rust/tokio/tokio_udp.rs": {
-        "Annotated & Test Methods": 2,
-        "Defensive Guards": 4,
-        "Generic / Templated Code": 29,
-        "Parameter Forwarders": 12,
-        "State Mutators": 25
       }
     },
     "rust/tokio_util_rand": {
@@ -10591,10 +10584,6 @@
       "shell/freebsd-src/echo_test.sh": {
         "I/O & Config Routines": 5
       },
-      "shell/freebsd-src/ed_test.sh": {
-        "I/O & Config Routines": 35,
-        "State Mutators": 1
-      },
       "shell/freebsd-src/format_string_test.sh": {
         "I/O & Config Routines": 2,
         "Many-Argument Workhorses": 4
@@ -10685,10 +10674,6 @@
       "shell/haiku/default_deskbar_items.sh": {},
       "shell/haiku/gen-bepo.sh": {},
       "shell/haiku/generate_CountryFlags.sh": {},
-      "shell/haiku/generate_ids_from_drivers.sh": {
-        "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 2
-      },
       "shell/haiku/install-wifi-firmwares.sh": {
         "Compute Cores": 2,
         "I/O & Config Routines": 12,
@@ -11499,12 +11484,6 @@
         "Stateful Encapsulated Methods": 1,
         "Type Conversions": 1
       },
-      "typescript/assemblyscript/builtins.ts": {
-        "Compute Cores": 157,
-        "Many-Argument Workhorses": 4,
-        "Parameter Forwarders": 454,
-        "State Mutators": 1
-      },
       "typescript/assemblyscript/compiler.ts": {
         "Compute Cores": 45,
         "Encapsulated Accessors": 10,
@@ -11667,46 +11646,7 @@
         "State Mutators": 39,
         "Type Conversions": 22
       },
-      "typescript/typescript_compiler/checker.ts": {
-        "Callbacks & Closures": 116,
-        "Compute Cores": 1110,
-        "Defensive Guards": 163,
-        "Encapsulated Accessors": 2,
-        "Generic / Templated Code": 50,
-        "I/O & Config Routines": 24,
-        "Interface Declarations": 19,
-        "Many-Argument Workhorses": 239,
-        "Parameter Forwarders": 506,
-        "State Mutators": 150,
-        "Stateful Encapsulated Methods": 1,
-        "Type Conversions": 339
-      },
-      "typescript/typescript_compiler/emitter.ts": {
-        "Callbacks & Closures": 4,
-        "Compute Cores": 78,
-        "Defensive Guards": 16,
-        "Generic / Templated Code": 30,
-        "I/O & Config Routines": 7,
-        "Interface Declarations": 9,
-        "Many-Argument Workhorses": 30,
-        "Parameter Forwarders": 64,
-        "State Mutators": 189,
-        "Type Conversions": 7
-      },
-      "typescript/typescript_compiler/package.json": {},
-      "typescript/typescript_compiler/parser.ts": {
-        "Callbacks & Closures": 9,
-        "Compute Cores": 127,
-        "Defensive Guards": 4,
-        "Generic / Templated Code": 209,
-        "I/O & Config Routines": 61,
-        "Interface Declarations": 145,
-        "Many-Argument Workhorses": 49,
-        "Parameter Forwarders": 60,
-        "State Mutators": 25,
-        "Stateful Encapsulated Methods": 1,
-        "Type Conversions": 36
-      }
+      "typescript/typescript_compiler/package.json": {}
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": {},
@@ -12281,9 +12221,6 @@
         "Many-Argument Workhorses": 2,
         "Parameter Forwarders": 4,
         "State Mutators": 4
-      },
-      "zig/zls/langref.html.in": {
-        "I/O & Config Routines": 2
       },
       "zig/zls/print_ast.zig": {
         "Defensive Guards": 18,

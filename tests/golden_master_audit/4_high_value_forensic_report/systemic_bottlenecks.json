@@ -38,66 +38,66 @@
     ],
     "fragile_dependency_chain": [
       {
-        "close": 0.0562,
+        "close": 0.0563,
         "err": 66.2775,
         "path": "python/fastapi/fastapi/applications.py",
-        "score": 3.724
+        "score": 3.733
       },
       {
-        "close": 0.0591,
+        "close": 0.0593,
         "err": 60.143,
         "path": "python/fastapi/fastapi/__init__.py",
-        "score": 3.556
+        "score": 3.564
       },
       {
-        "close": 0.033,
+        "close": 0.0331,
         "err": 91.4708,
         "path": "python/fastapi/fastapi/exceptions.py",
-        "score": 3.022
+        "score": 3.029
       },
       {
-        "close": 0.0311,
+        "close": 0.0312,
         "err": 90.4651,
         "path": "python/fastapi/fastapi/datastructures.py",
-        "score": 2.814
+        "score": 2.82
       },
       {
-        "close": 0.0324,
+        "close": 0.0325,
         "err": 84.3093,
         "path": "python/fastapi/fastapi/routing.py",
-        "score": 2.732
+        "score": 2.738
       }
     ],
     "undocumented_critical_path": [
       {
         "doc": 100.0,
         "path": "jcl/cics-banking-sample-application-cbsa/CRELIBS.jcl",
-        "pr": 12.991,
-        "score": 1299.1
+        "pr": 13.028,
+        "score": 1302.8
       },
       {
         "doc": 96.9697,
         "path": "python/fastapi/fastapi/applications.py",
-        "pr": 10.192,
-        "score": 988.315
-      },
-      {
-        "doc": 100.0,
-        "path": "rust/tokio/lib.rs",
-        "pr": 6.552,
-        "score": 655.2
+        "pr": 10.223,
+        "score": 991.321
       },
       {
         "doc": 100.0,
         "path": "python/fastapi/fastapi/exceptions.py",
-        "pr": 6.134,
-        "score": 613.4
+        "pr": 6.152,
+        "score": 615.2
+      },
+      {
+        "doc": 100.0,
+        "path": "rust/tokio/lib.rs",
+        "pr": 5.984,
+        "score": 598.4
       },
       {
         "doc": 100.0,
         "path": "python/fastapi/fastapi/param_functions.py",
-        "pr": 5.792,
-        "score": 579.2
+        "pr": 5.809,
+        "score": 580.9
       }
     ]
   }

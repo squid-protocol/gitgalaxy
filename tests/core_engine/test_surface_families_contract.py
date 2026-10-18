@@ -212,8 +212,11 @@ def test_family_count_and_member_totals_match_the_reconciled_design():
     over api + that sink rather than a raw sensor count.
 
     97 -> 98 / 63 -> 64 (#3084): system_config_mutation joined SIGNAL_SCHEMA
-    as a raw domain sensor and the mutation family."""
-    assert len(SIGNAL_SCHEMA) == 98, f"SIGNAL_SCHEMA grew/shrank ({len(SIGNAL_SCHEMA)}); re-reconcile the tier map"
+    as a raw domain sensor and the mutation family.
+
+    98 -> 97 / 64 -> 63 (#4111): feature_flags (no detector in any language)
+    left SIGNAL_SCHEMA and the debt family."""
+    assert len(SIGNAL_SCHEMA) == 97, f"SIGNAL_SCHEMA grew/shrank ({len(SIGNAL_SCHEMA)}); re-reconcile the tier map"
     assert len(SURFACE_FAMILIES) == 22
-    assert len(_all_family_members()) == 64
+    assert len(_all_family_members()) == 63
     assert len(SURFACE_FAMILY_EXEMPT) == 34

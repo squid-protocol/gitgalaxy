@@ -153,7 +153,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CALINK (ca-link-lengths) | crucible | 24/168 | 15/22 (68%) | 15/15 (100%) | 0 / 0 / 5 / 2 / 0 |
 | CASUB (ca-link-lengths) | crucible | 24/40 | 16/24 (67%) | 16/16 (100%) | 0 / 0 / 7 / 1 / 0 |
 | CAXA (ca-xctl-versions) | crucible | 24/78 | 16/21 (76%) | 16/16 (100%) | 0 / 0 / 3 / 2 / 0 |
-| CAXB (ca-xctl-versions) | crucible | 24/142 | 17/23 (74%) | 17/21 (81%) | 4 / 0 / 1 / 1 / 0 |
+| CAXB (ca-xctl-versions) | crucible | 24/142 | 18/23 (78%) | 18/21 (86%) | 3 / 0 / 1 / 1 / 0 |
 | GTSTART (gt-start-retrieve) | crucible | 24/91 | 19/22 (86%) | 19/19 (100%) | 0 / 0 / 3 / 0 / 0 |
 | GTWORK (gt-start-retrieve) | crucible | 24/87 | 20/21 (95%) | 20/20 (100%) | 0 / 0 / 0 / 1 / 0 |
 | GTSHOW (gt-terminal-coalesce) | crucible | 24/69 | 17/23 (74%) | 17/17 (100%) | 0 / 0 / 5 / 1 / 0 |
@@ -171,13 +171,13 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCIMMS (pc-return-immediate) | crucible | 24/198 | 8/24 (33%) | 8/16 (50%) | 8 / 0 / 7 / 1 / 0 |
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
-| **all crucible** | | 504 run | **316/476 (66%)** | **316/355 (89%)** | 39 / 0 / 87 / 34 / 0 |
+| **all crucible** | | 504 run | **317/476 (67%)** | **317/355 (89%)** | 38 / 0 / 87 / 34 / 0 |
 | **all equivalence** | | 3208 run | **2035/2905 (70%)** | **2035/2478 (82%)** | 437 / 6 / 320 / 107 / 0 |
-| **all estate** | | 3712 run | **2351/3381 (70%)** | **2351/2833 (83%)** | 476 / 6 / 407 / 141 / 0 |
+| **all estate** | | 3712 run | **2352/3381 (70%)** | **2352/2833 (83%)** | 475 / 6 / 407 / 141 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 157/198 (79%) | 157/175 (90%) |
+| AOR | 158/198 (80%) | 158/175 (90%) |
 | BDM | 24/45 (53%) | 24/31 (77%) |
 | CON | 320/654 (49%) | 320/418 (77%) |
 | COR | 129/227 (57%) | 129/193 (67%) |
@@ -268,6 +268,12 @@ judged: PCDETL 15/9, PCMENU 16/8, PCCONF 15/8, PCWIZ 16/7 (killed/survived; PCCO
 first-run survivors included 6 case gaps; four new scenarios (`enter-sends-no-data`, `amount-not-numeric`, `name-erased`, `amount-erased`)
 killed 4 of the 6 case gaps; the other two were re-triaged (PCCONF's `to >= 0` is equivalent, its commarea-length
 mutant unreachable). 0 case gaps and 0 harness gaps remain: 23 equivalent, 9 unreachable.
+
+Re-run 2026-10-18 (#4443): CAXB's four case gaps against the new strengthened scenario `visits-past-nine` (ten CA03 turns,
+so the 80-byte area carries V2-VISITS 0010): 1 of 4 killed (the digit accumulation in `overlayVisits`), CAXB is now 18/5.
+Three case gaps remain and no scenario of this case can reach them: they need a COMMAREA of 7-14 or 21-24 bytes, or a
+negative balance, and CAXA XCTLs only 10, 80 and 32767 bytes with a fixed +12345.67 neighbour. They need a cics-crucible
+CAXA mode (a release and a pin bump).
 
 A score is quoted with its case and seed, never alone. Every survivor is triaged as a case gap, a
 harness gap, an equivalent mutant (with the reason) or dead code.

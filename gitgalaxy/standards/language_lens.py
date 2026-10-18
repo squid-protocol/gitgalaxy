@@ -309,7 +309,7 @@ class LanguageDetector:
     _PROSE_NOTE_LINES = 6
     _PROSE_CHARS_PER_SPACE = 12
 
-    def _is_prose_note(self, upper_stem: str, ext: str, content_sample: str) -> bool:
+    def _is_prose_note(self, upper_stem: str, content_sample: str) -> bool:
         """#5466: a conventional doc-file stem (README, NOTES, ...) with a code extension whose opening lines read as prose."""
         if upper_stem not in self._PROSE_NOTE_STEMS:
             return False
@@ -463,7 +463,7 @@ class LanguageDetector:
         }
 
         is_prose = False
-        if is_known_code_ext and self._is_prose_note(upper_stem, ext, content_sample):
+        if is_known_code_ext and self._is_prose_note(upper_stem, content_sample):
             # #5466: `README.asm` is a prose note that quotes code; the shield above is for a
             # README that IS code, so only an opening that reads as prose lifts it.
             return self._forge_result(

@@ -280,9 +280,14 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   reproducer of #4287 is IBM's own: `COMPUTE R = A / B * C` with A = 1, B = 3, C = 300 and R `PIC 999V99` gives
   099.00 (A / B kept to 2 places). The 30-digit truncation is the part of the rule the oracle does not apply: the translator replays cobc's places
   decision and `Cobol.align`, which has no 30-digit cap, and no cobc option, config key or wrapper of ours turns
-  one on (not measured: a probe with a 31+ digit intermediate is the check). So a result of 31 or more digits that
-  IBM truncates to 30 (with a warning, the run continuing) the oracle keeps: a DECLARED oracle-vs-IBM difference
-  the comparator expects, IBM's side now quoted rather than assumed. No proven intermediate is known to be that long (ASSUMED; the det sweep's emitted truncations are
+  one on. **Measured 2026-10-18 (#4702)** on the pinned image (`gitgalaxy-gnucobol:3`, GnuCOBOL 3.1.2,
+  `cobc -x -std=ibm`) with A and B `PIC 9(18)` both 999999999999999999, so A * B is 36 digits: `COMPUTE R = A * B / A`
+  gives `R1=999999999999999999`; `COMPUTE S = A * B / (A * B) * 7` (S `PIC 9(2)`) gives `S1=07`;
+  `A * B / A * T / T` (T = 10) gives `R2=999999999999999999`; `(A + B) * T / (T * 2)` gives `R3=999999999999999999`.
+  Every result is the exact one, no cap and no warning. IBM under ARITH(COMPAT) truncates the 36-digit product to 30
+  digits, so it would not give these. Pinned by `tests/cobol_mainframe/test_oracle_intermediate_cap.py`. So a result
+  of 31 or more digits that IBM truncates to 30 (with a warning, the run continuing) the oracle keeps: a DECLARED
+  oracle-vs-IBM difference (measured, not matched) the comparator expects, IBM's side quoted. No proven intermediate is known to be that long (ASSUMED; the det sweep's emitted truncations are
   the 2-place one under "Reached"), and a proof of a program that reached it would have to be recorded at the lower
   level. Under `ARITH(EXTEND)` (31 digits, C5) the det runtime enforces it instead: an add, subtract, multiply or
   divide that produces more than 30 digits stops by name (`RT-NUM-ARITH-EXTEND-STOP`, #4706).
@@ -321,7 +326,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 - **Chosen behaviour.** MATCH THE ORACLE on places (the translator replays cobc's decision) and on the missing
   30-digit cap under COMPAT; STOP BY NAME past 30 digits under EXTEND (C5). Neither is IBM's quoted rule exactly, so
   both stay DIFFERS until a z/OS run (Part 2) measures a case.
-- **To settle.** A table of division, multiply-then-divide and binary-sum cases on z/OS against
+- **To settle.** The oracle side of the 30-digit cap is measured (above); only the IBM side is open: a table of division, multiply-then-divide and binary-sum cases on z/OS against
   `tests/equivalence/rounding/RND.cbl` (and the departures above).
 
 ### C3. An integer literal truncated to zero — DIFFERS

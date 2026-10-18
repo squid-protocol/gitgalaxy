@@ -208,7 +208,7 @@
     {
       "id": "site-routine",
       "match": "^CALL CALL MVSWAIT\\b",
-      "note": "CALL MVSWAIT (CardDemo COBSWAIT): modelled since #5106 (det LIBRARY entry, Mvswait.java, tests/equivalence/le/mvswait.c; returns at once, RETURN-CODE 0, storage untouched; register A1). The report lines move once the program is translated; COBSWAIT is not proven until the oracle has a SYSIN feed (accept-sysin).",
+      "note": "CALL MVSWAIT (CardDemo COBSWAIT): modelled since #5106 (det LIBRARY entry, Mvswait.java, tests/equivalence/le/mvswait.c; returns at once, RETURN-CODE 0, storage untouched; register A1). The report lines move once the program is translated; COBSWAIT is proven on the det port with the job's own SYSIN card since #5106 (case carddemo-cobswait; the oracle feeds both sides the case's sysin; the proof shows the run completes with RETURN-CODE 0 and no output, the MOVE of the card into the COMP item is not observed).",
       "issue": 5106
     },
     {
@@ -217,7 +217,7 @@
       "features": [
         "statements: ACCEPT"
       ],
-      "note": "ACCEPT FROM SYSIN (a batch input stream): modelled by the det runtime (Accept.sysin, one stdin record per ACCEPT, no record left refused by name); the oracle side has no SYSIN feed yet, so no program is proven on it. COBSWAIT still waits on CALL MVSWAIT (site-routine).",
+      "note": "ACCEPT FROM SYSIN (a batch input stream): modelled by the det runtime (Accept.sysin, one stdin record per ACCEPT, no record left refused by name); the oracle feeds both sides the case's `sysin` stream (equivalence.py, equivalence_java.py), so COBSWAIT is provable (carddemo-cobswait). The oracle is GnuCOBOL: IBM leaves the target undefined with no record left, and the runtime refuses by name.",
       "issue": 5106
     },
     {

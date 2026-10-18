@@ -107,3 +107,67 @@ def test_no_record_left_is_refused_by_name(tmp_path):
     run = _run(tmp_path, b"ONE\n", accepts=2)
     assert run.returncode != 0
     assert "ACCEPT FROM SYSIN: no record left" in run.stderr.decode()
+
+
+# --- the oracle's SYSIN feed: the case's `sysin` key reaches both sides as the same bytes ---
+
+TOOLS = ROOT / "tests" / "tools"
+
+
+def _case(**extra):
+    return {"name": "sysin-case", "corpus": "synthetic", "program": "SYSINT", "program_source": "SYSINT.cbl",
+            "copy_dirs": [], "clock": "2022/07/18 10:30:15.00", "datasets": {}, **extra}  # fmt: skip
+
+
+def _cobol_run_script(tmp_path: Path, monkeypatch, case: dict) -> tuple[str, Path]:
+    """The run.sh run_cobol writes for `case` over a one-program corpus (the Docker step itself is not run)."""
+    monkeypatch.syspath_prepend(str(TOOLS))
+    import equivalence
+
+    corpus, work = tmp_path / "corpus", tmp_path / "work"
+    corpus.mkdir()
+    (corpus / "SYSINT.cbl").write_text(_program("ACCEPT PARM-VALUE FROM SYSIN."))
+
+    def fake_step(w, *a, **k):  # what the container would leave behind
+        (w / "RETURN-CODE").write_text("0\n")
+        return subprocess.CompletedProcess([], 0, "", "")
+
+    monkeypatch.setattr(equivalence, "run_cobol_step", fake_step)
+    equivalence.run_cobol(case, corpus, work)
+    return (work / "run.sh").read_text(), work
+
+
+@pytest.mark.parametrize(
+    "sysin, want",
+    [("00003600      VALUE IN CENTISECONDS", b"00003600      VALUE IN CENTISECONDS\n"),  # no line end: one is added
+     ("AAAA\nBBBB\n", b"AAAA\nBBBB\n"),  # two records, kept as written
+     ("", b"\n")],  # an empty card is one blank record, not an empty stream
+)  # fmt: skip
+def test_the_cobol_side_reads_the_case_sysin_as_stdin(tmp_path, monkeypatch, sysin, want):
+    script, work = _cobol_run_script(tmp_path, monkeypatch, _case(sysin=sysin))
+    assert (work / "SYSIN.in").read_bytes() == want
+    assert "./program < /work/SYSIN.in > /work/stdout.txt" in script
+
+
+def test_a_case_without_sysin_reads_none(tmp_path, monkeypatch):
+    script, work = _cobol_run_script(tmp_path, monkeypatch, _case())
+    assert not (work / "SYSIN.in").exists()
+    assert "SYSIN.in" not in script
+
+
+def test_the_java_side_is_given_the_same_file_by_property(tmp_path, monkeypatch):
+    monkeypatch.syspath_prepend(str(TOOLS))
+    import equivalence_java
+
+    src = equivalence_java.equivalence_test({**_case(sysin="X"), "job": "J", "step": "S"})
+    assert 'System.getProperty("equivalence.sysin")' in src and "System.setIn(" in src
+    run_area = Path(equivalence_java.__file__).read_text(encoding="utf-8")
+    assert "-Dequivalence.sysin={inputs / 'SYSIN.in'}" in run_area  # the file run_cobol wrote for the COBOL side
+
+
+def test_the_committed_cobswait_case_feeds_the_jobs_own_card():
+    import json
+
+    case = json.loads((ROOT / "tests/equivalence/carddemo-cobswait/case.json").read_text(encoding="utf-8"))
+    assert case["program"] == "COBSWAIT" and case["sysin"].startswith("00003600")
+    assert case["datasets"] == {}

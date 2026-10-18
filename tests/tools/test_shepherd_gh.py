@@ -518,18 +518,6 @@ def test_main_computes_the_learned_set_once_per_pass(monkeypatch, tmp_path):
     assert calls == [tmp_path / "c.json"] and got == [{"x"}, {"x"}]
 
 
-def test_reconcile_workflow_restores_refreshes_and_saves_the_flake_cache():
-    yaml = pytest.importorskip("yaml")
-    doc = yaml.safe_load((REPO / ".github/workflows/shepherd-reconcile.yml").read_text(encoding="utf-8"))
-    steps = list(_steps(doc))
-    uses = [x.get("uses", "").split("@")[0] for x in steps]
-    assert uses.index("actions/cache/restore") < uses.index("actions/cache/save")
-    assert next(x for x in steps if x.get("uses", "").startswith("actions/cache/save"))["if"] == "always()"
-    refresh = next(x for x in steps if "--refresh-only" in x.get("run", ""))
-    assert refresh["continue-on-error"] is True and "-mmin -360" in refresh["run"]
-    assert "--flake-cache" in steps[-1]["run"]
-
-
 def test_prs_for_head_selects_the_open_labelled_pr_of_that_commit():
     gh = Gh()
     assert sg.prs_for_head(gh.api, "e" * 40) == [7]

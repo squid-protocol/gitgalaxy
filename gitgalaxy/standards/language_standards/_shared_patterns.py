@@ -452,12 +452,12 @@ COMMENTED_STATEMENT_C_FAMILY = r"(?<![/*])(?://|/\*)[ \t]*" + COMMENTED_STATEMEN
 # picks it up). Name rule: the only argument; of several, the second (`Class, name` /
 # `Type, name` / `Suite, Name`). Anchors: an ALL-CAPS macro of 3+ chars at line start whose
 # argument list holds plain identifiers (no nested call, no operators) and is followed by `{`.
-# Excluded: control-flow shouts, `BEGIN`/`END`, and class-like macros (`DE_PIMPL`, `*NAMESPACE*`).
+# Excluded: control-flow shouts, `BEGIN`/`END`, and class-like macros (`DE_PIMPL`, `*NAMESPACE*`) and `*MODULE` binders (`NB_MODULE(name, m)`: `m` is a variable).
 # The `#define` expansion lookup (odamex FUNC) is not used: the invocation form alone is enough.
 # ------------------------------------------------------------------------------
 def _c_macro_func_start(name_open: str) -> str:
     return (
-        r"^[ \t]*(?![A-Z0-9_]{0,40}(?:PIMPL|NAMESPACE|CLASS|STRUCT|ENUM|TEMPLATE|UNION)|"
+        r"^[ \t]*(?![A-Z0-9_]{0,40}(?:PIMPL|NAMESPACE|CLASS|STRUCT|ENUM|TEMPLATE|UNION|MODULE)|"
         r"(?:IF|FOR|WHILE|SWITCH|ELSE|DO|BEGIN|END|ASSERT|CASE|RETURN)\b)"
         r"[A-Z][A-Z0-9_]{2,}[ \t]*\([ \t]*"
         rf"(?:[{ID_START}][{ID_CONTINUE}]{{0,60}}[ \t]*,[ \t]*)?"

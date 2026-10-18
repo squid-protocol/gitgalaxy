@@ -2567,7 +2567,7 @@
     "cpp/godot": {
       "Average Risk Exposures": {
         "API Exposure": "14.03%",
-        "Cognitive Load Exposure": "37.93%",
+        "Cognitive Load Exposure": "37.9%",
         "Commented Logic Exposure": "2.49%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "37.06%",
@@ -2580,16 +2580,15 @@
         "Testing Exposure": "55.29%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 21791.12,
+      "Directory Group Magnitude": 23117.82,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "18.8%",
         "file_cluster_11": "6.2%",
         "file_cluster_15": "18.8%",
         "file_cluster_17": "6.2%",
-        "file_cluster_4": "31.2%",
+        "file_cluster_4": "37.5%",
         "file_cluster_5": "6.2%",
-        "file_cluster_6": "6.2%",
-        "file_cluster_8": "6.2%"
+        "file_cluster_6": "6.2%"
       },
       "File Count": 16,
       "Files": [

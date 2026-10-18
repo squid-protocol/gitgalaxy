@@ -437,7 +437,7 @@
     "cpp/godot": {
       "cpp/godot/editor_node.cpp": 1907,
       "cpp/godot/editor_node.h": 7,
-      "cpp/godot/gdscript_vm.cpp": 1282,
+      "cpp/godot/gdscript_vm.cpp": 1276,
       "cpp/godot/main.cpp": 2317,
       "cpp/godot/node.cpp": 1209,
       "cpp/godot/node.h": 33,

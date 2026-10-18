@@ -8,7 +8,7 @@
     "dominant_language": "c",
     "file_composition_distribution": {
       "Callbacks & Closures Files": 63,
-      "Compute Cores Files": 73,
+      "Compute Cores Files": 72,
       "Data / Markup / Trivial": 690,
       "Declarative / Non-Code": 743,
       "Encapsulated Accessors Files": 61,
@@ -16,7 +16,7 @@
       "Interface Declarations Files": 429,
       "Large Core Modules": 335,
       "Large Core Modules (2)": 247,
-      "Large Core Modules (3)": 297,
+      "Large Core Modules (3)": 298,
       "Many-Argument Workhorses Files": 78,
       "Parameter Forwarders Files": 175,
       "State Mutators Files": 77,

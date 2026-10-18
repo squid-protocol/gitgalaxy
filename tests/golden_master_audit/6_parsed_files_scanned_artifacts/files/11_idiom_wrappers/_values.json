@@ -110,6 +110,18 @@
         }
       ]
     },
+    "cpp/godot": {
+      "cpp/godot/gdscript_vm.cpp": [
+        {
+          "Call Sites": 1,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "_profile_count_as_native",
+          "Rule": "memory_alloc",
+          "Via": "primitive"
+        }
+      ]
+    },
     "fortran/wrf": {
       "fortran/wrf/module_domain.F": [
         {

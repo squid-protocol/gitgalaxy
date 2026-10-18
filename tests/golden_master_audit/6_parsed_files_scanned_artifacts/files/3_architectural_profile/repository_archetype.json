@@ -1107,7 +1107,7 @@
       "cpp/godot/LICENSE.txt": "Static: Literature & Documentation",
       "cpp/godot/editor_node.cpp": "file_cluster_4",
       "cpp/godot/editor_node.h": "file_cluster_11",
-      "cpp/godot/gdscript_vm.cpp": "file_cluster_8",
+      "cpp/godot/gdscript_vm.cpp": "file_cluster_4",
       "cpp/godot/main.cpp": "file_cluster_6",
       "cpp/godot/main.h": "file_cluster_17",
       "cpp/godot/node.cpp": "file_cluster_4",

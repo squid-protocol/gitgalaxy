@@ -72,3 +72,9 @@ def test_macro_branch_is_redos_immune(lang):
     assert_redos_immune(rule, "MACRO(" + "a, " * 5000 + "\n", timeout_sec=3.0)
     assert_redos_immune(rule, "MACRO(" + "a" * 20000, timeout_sec=3.0)
     assert_redos_immune(rule, "FOO(a)" + " \n" * 20000, timeout_sec=3.0)
+
+
+@pytest.mark.parametrize("lang", LANGS)
+def test_module_binder_macro_does_not_name_its_variable(lang):
+    # `NB_MODULE(name, m) {`: `m` is the module variable, not the function's name.
+    assert "m" not in _names(lang, "NB_MODULE(stablehlo_extension, m) { f(m); }\n")

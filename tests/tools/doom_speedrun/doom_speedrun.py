@@ -17,6 +17,7 @@ import csv
 import json
 import os
 import shutil
+import stat
 import subprocess
 import sys
 from pathlib import Path
@@ -66,18 +67,38 @@ def _git(repo, *args, timeout=900):
     )
 
 
+def _writable_retry(func, path, *_exc):
+    """rmtree error hook: git's pack and object files are read-only, which Windows refuses to delete."""
+    try:
+        os.chmod(path, stat.S_IWRITE)
+        func(path)
+    except OSError:
+        pass
+
+
+def _rmtree(path):
+    """Remove a directory tree, including a git checkout's read-only objects on Windows (a plain
+    ``ignore_errors=True`` left them behind, so the next mkdir raised FileExistsError)."""
+    if not Path(path).exists():
+        return
+    if sys.version_info >= (3, 12):
+        shutil.rmtree(path, onexc=_writable_retry)
+    else:
+        shutil.rmtree(path, onerror=_writable_retry)
+
+
 def fetch_port(row, repos):
     """Shallow-fetch exactly the pinned SHA. Returns None on success or a failure message."""
     dest = repos / row["name"]
     if dest.is_dir() and _git(dest, "rev-parse", "HEAD").stdout.strip() == row["sha"]:
         return None
-    shutil.rmtree(dest, ignore_errors=True)
+    _rmtree(dest)
     dest.mkdir(parents=True)
     for args in (["init", "-q"], ["remote", "add", "origin", row["upstream"]],
                  ["fetch", "-q", "--depth", "1", "origin", row["sha"]], ["checkout", "-q", "FETCH_HEAD"]):  # fmt: skip
         r = _git(dest, *args)
         if r.returncode:
-            shutil.rmtree(dest, ignore_errors=True)
+            _rmtree(dest)
             return f"git {args[0]}: {r.stderr.strip()[:200]}"
     return None
 
@@ -87,7 +108,7 @@ def scan_port(row, repos, scans):
     out = scans / row["name"]
     if (out / "rc.txt").exists():
         return
-    shutil.rmtree(out, ignore_errors=True)
+    _rmtree(out)
     out.mkdir(parents=True)
     env = dict(
         os.environ,

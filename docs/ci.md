@@ -113,8 +113,7 @@ ground-truth tests' seconds in `.test_durations` from the `test-times-ground-tru
 
 `mainframe-ground-truth.yml`, `smoke-test.yml` (its `full-suite` parts) and `java-compile.yml` run on the PR and again
 when it merges, because the push run does something a later dispatch cannot: ground truth appends and publishes its history
-per push, the full suite is the per-merge regression net, and java-compile's push run seeds the
-`java-same-base-<corpus>-<sha>` cache that PRs based on that commit restore. Their `tested-tree` job
+per push, the full suite is the per-merge regression net, and java-compile's push run builds main's tree. Their `tested-tree` job
 (`tests/tools/skip_tested_tree.py`, rule and tests in `tests/tools/test_skip_tested_tree.py`) skips the push run when
 the merged commit's tree SHA equals the PR head's tree SHA, the commit's parent is in the head (so the PR run's test
 merge was that same tree), and the newest `pull_request` run of the same workflow on the head succeeded. Red, cancelled,
@@ -134,7 +133,11 @@ filter matched on main: a missing run is never a proof. The PR must also have ta
 `tests/tools/test_tested_tree_workflows.py` pins each workflow's wiring and its PR/push filter pair, so a filter edit is a
 reviewed decision, and fails when a workflow on both a PR and a main push has no gate (or a gate has no push to skip).
 `java-compile`'s PR run may skip its build when the generated Java equals the base's (`--same-as`); the skipped push is
-then the same tree as a base whose own push built it.
+then the same tree as a base whose own push built it. The base's generation comes from the `java-same-base-<corpus>-<content hash>`
+cache, which `java-base-generation.yml` seeds on every main push that touches the generation inputs (#5142): not in
+java-compile's push run, which is cancelled by the next push (#4825) or skipped by tested-tree and so saved nothing, leaving
+most PRs to regenerate the base's two paths (dsf: 420-520 s). Its per-sha concurrency group never cancels, and a lookup-only
+restore makes a push whose content key exists cost seconds.
 
 Main Watch still gets a verdict: the workflow concludes `success` or `failure`, and a skip is a true green, because that
 exact tree passed the same workflow on the PR. Main Watch ignores only workflow runs that conclude `skipped` or

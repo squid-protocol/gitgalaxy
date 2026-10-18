@@ -11668,18 +11668,18 @@
         "Type Conversions": 22
       },
       "typescript/typescript_compiler/checker.ts": {
-        "Callbacks & Closures": 116,
-        "Compute Cores": 1110,
+        "Callbacks & Closures": 115,
+        "Compute Cores": 1104,
         "Defensive Guards": 163,
         "Encapsulated Accessors": 2,
-        "Generic / Templated Code": 50,
+        "Generic / Templated Code": 48,
         "I/O & Config Routines": 24,
         "Interface Declarations": 19,
-        "Many-Argument Workhorses": 239,
-        "Parameter Forwarders": 506,
-        "State Mutators": 150,
+        "Many-Argument Workhorses": 243,
+        "Parameter Forwarders": 488,
+        "State Mutators": 106,
         "Stateful Encapsulated Methods": 1,
-        "Type Conversions": 339
+        "Type Conversions": 317
       },
       "typescript/typescript_compiler/emitter.ts": {
         "Callbacks & Closures": 4,
@@ -11687,25 +11687,25 @@
         "Defensive Guards": 16,
         "Generic / Templated Code": 30,
         "I/O & Config Routines": 7,
-        "Interface Declarations": 9,
-        "Many-Argument Workhorses": 30,
+        "Interface Declarations": 8,
+        "Many-Argument Workhorses": 31,
         "Parameter Forwarders": 64,
-        "State Mutators": 189,
+        "State Mutators": 184,
         "Type Conversions": 7
       },
       "typescript/typescript_compiler/package.json": {},
       "typescript/typescript_compiler/parser.ts": {
-        "Callbacks & Closures": 9,
-        "Compute Cores": 127,
-        "Defensive Guards": 4,
-        "Generic / Templated Code": 209,
+        "Callbacks & Closures": 7,
+        "Compute Cores": 128,
+        "Defensive Guards": 3,
+        "Generic / Templated Code": 208,
         "I/O & Config Routines": 61,
         "Interface Declarations": 145,
         "Many-Argument Workhorses": 49,
         "Parameter Forwarders": 60,
-        "State Mutators": 25,
+        "State Mutators": 20,
         "Stateful Encapsulated Methods": 1,
-        "Type Conversions": 36
+        "Type Conversions": 33
       }
     },
     "typescript/vscode": {

@@ -3909,7 +3909,7 @@
       "typescript/typescript_compiler/LICENSE.txt": -5015.48,
       "typescript/typescript_compiler/binder.ts": -4271.38,
       "typescript/typescript_compiler/checker.ts": -4783.45,
-      "typescript/typescript_compiler/emitter.ts": -5330.73,
+      "typescript/typescript_compiler/emitter.ts": -5330.8,
       "typescript/typescript_compiler/package.json": -4782.41,
       "typescript/typescript_compiler/parser.ts": -4270.17
     },

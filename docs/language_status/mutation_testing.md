@@ -110,6 +110,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 - **Equivalence cases** run with `mutation.py` (fast mode). **Crucible ports** run with
   `tests/tools/mutation_crucible.py`: the same mutants and seeded sample, each proven by the crucible runner's
   java-ported side against the hand-written expected event logs (#4024), `--jobs` at a time.
+- The last table (generated with the others) gives each port's caught / judged per operator; `-` means the port had no judged mutant of that operator.
 - **Raw score** = caught / (caught + survived). **Without equivalent + unreachable** drops the survivors that
   no input can make observable. Case gaps and harness gaps stay in the denominator: they are real weaknesses of
   the proof. Stillborn mutants (javac refused them) count for nothing; a timeout counts as caught.
@@ -187,6 +188,59 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | NEG | 450/507 (89%) | 450/485 (93%) |
 | RET | 56/89 (63%) | 56/79 (71%) |
 | ROR | 393/529 (74%) | 393/466 (84%) |
+
+| port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
+|---|---|---|---|---|---|---|---|---|---|
+| COACTVWC (carddemo-acctview) | 3/3 | 0/1 | 11/24 | 8/9 | 19/23 | 20/23 | 22/23 | - | 22/23 |
+| COADM01C (carddemo-adminmenu) | 8/8 | - | 1/14 | 6/8 | 6/16 | 7/15 | 10/15 | 4/4 | 10/15 |
+| COBIL00C (carddemo-billpay) | 4/5 | 1/3 | 5/13 | 9/12 | 8/12 | 12/13 | 12/13 | 2/2 | 11/13 |
+| COCRDLIC (carddemo-cardlist) | 8/8 | - | 8/13 | 10/13 | 7/13 | 12/13 | 13/13 | 6/9 | 11/12 |
+| COCRDSLC (carddemo-cardview) | 4/5 | - | 3/14 | 10/14 | 6/14 | 9/14 | 13/14 | 2/2 | 13/14 |
+| CBTRN01C (carddemo-dailyval) | 3/6 | - | 11/16 | 3/12 | 9/15 | 12/16 | 12/16 | - | 13/15 |
+| CSUTLDTC (carddemo-dateutil) | 13/15 | - | 28/51 | 4/8 | 9/10 | 27/35 | 31/32 | - | 33/44 |
+| CBACT04C (carddemo-intcalc) | 3/4 | 4/6 | 13/21 | 1/2 | 13/17 | 20/20 | 10/10 | - | 6/6 |
+| COMEN01C (carddemo-menu) | 13/14 | - | 7/20 | 6/9 | 14/22 | 15/24 | 16/23 | - | 15/24 |
+| CBTRN02C (carddemo-posttran) | 6/6 | 6/8 | 14/15 | 2/4 | 10/11 | 13/14 | 13/13 | - | 12/14 |
+| CBACT02C (carddemo-readcard) | - | - | 17/23 | 1/3 | 9/11 | 22/25 | 12/12 | - | 8/9 |
+| CBCUS01C (carddemo-readcust) | - | - | 12/13 | 1/4 | 8/8 | 23/27 | 10/10 | - | 9/12 |
+| CBACT03C (carddemo-readxref) | - | - | 16/19 | 1/4 | 9/9 | 22/27 | 10/10 | - | 11/14 |
+| CORPT00C (carddemo-report) | 3/3 | 0/1 | 1/11 | 10/13 | 6/13 | 12/13 | 13/13 | 4/7 | 6/13 |
+| COSGN00C (carddemo-signon) | 2/2 | - | 3/20 | 3/4 | 12/20 | 18/20 | 15/16 | - | 14/17 |
+| COTRN02C (carddemo-tranadd) | 7/7 | 3/7 | 1/12 | 5/12 | 8/12 | 11/12 | 11/11 | 4/7 | 11/11 |
+| COTRN00C (carddemo-tranlist) | 5/9 | - | 8/14 | 8/14 | 8/13 | 10/14 | 11/11 | 2/3 | 8/13 |
+| COTRN01C (carddemo-tranview) | 1/1 | - | 2/24 | 2/3 | 20/24 | 19/24 | 17/17 | - | 5/7 |
+| COTRN01C (carddemo-tranview-generated) | 1/1 | - | 1/24 | 2/3 | 19/24 | 13/24 | 17/17 | - | 5/7 |
+| CBTRN03C (carddemo-trnrpt) | 2/2 | 5/7 | 9/14 | 1/7 | 14/14 | 13/14 | 12/14 | - | 12/14 |
+| COUSR01C (carddemo-useradd) | 1/1 | - | 1/21 | 3/6 | 15/20 | 15/20 | 10/10 | - | 15/20 |
+| COUSR03C (carddemo-userdel) | 0/1 | - | 5/17 | 2/4 | 11/17 | 13/16 | 16/16 | - | 15/16 |
+| COUSR00C (carddemo-userlist) | 9/11 | - | 5/15 | 8/15 | 10/15 | 13/15 | 14/15 | - | 10/14 |
+| COUSR02C (carddemo-userupd) | 1/1 | - | 2/16 | 3/5 | 8/16 | 14/16 | 11/13 | - | 8/15 |
+| INQACC (cbsa-inqacc) | 3/3 | 2/2 | 22/22 | 4/4 | 22/22 | 22/22 | 21/21 | 16/16 | 19/19 |
+| UPDACC (cbsa-updacc) | 4/4 | 0/3 | 17/30 | 3/10 | 16/27 | 28/32 | 8/8 | - | 19/19 |
+| LGAPVS01 (genapp-lgapvs01) | 14/15 | - | 26/44 | - | 6/10 | 9/26 | 6/9 | - | 9/17 |
+| LGICDB01 (genapp-lgicdb01) | 2/5 | - | 9/30 | 1/4 | 5/19 | 13/29 | 9/16 | 1/7 | 9/20 |
+| LGUPDB01 (genapp-lgupdb01) | 10/11 | - | 11/22 | 0/1 | 9/21 | 14/22 | 15/22 | 3/17 | 14/22 |
+| CALINK (ca-link-lengths) | 2/2 | - | 1/4 | 0/1 | 2/4 | 3/3 | 3/3 | 2/2 | 2/3 |
+| CASUB (ca-link-lengths) | - | - | 2/5 | - | 3/5 | 4/5 | 4/5 | - | 3/4 |
+| CAXA (ca-xctl-versions) | 1/1 | - | 3/4 | - | 3/4 | 2/4 | 4/4 | - | 3/4 |
+| CAXB (ca-xctl-versions) | 2/3 | 1/3 | 4/4 | 1/1 | 3/3 | 3/3 | 3/3 | - | 3/3 |
+| GTSTART (gt-start-retrieve) | 1/1 | - | 3/4 | 1/1 | 3/4 | 2/2 | 4/4 | 2/2 | 3/4 |
+| GTWORK (gt-start-retrieve) | 1/1 | - | 4/4 | 1/1 | 3/3 | 3/3 | 3/3 | 3/3 | 2/3 |
+| GTSHOW (gt-terminal-coalesce) | 3/4 | - | 3/4 | 0/1 | 3/3 | 3/4 | 3/4 | - | 2/3 |
+| GTTERM (gt-terminal-coalesce) | 1/1 | - | 3/4 | - | 4/4 | 3/4 | 3/3 | 2/2 | 1/3 |
+| HCMAIN (hc-abend-link) | 1/3 | - | 2/4 | 2/4 | 2/3 | 3/3 | 2/3 | - | 2/3 |
+| HCSUB (hc-abend-link) | 3/3 | - | 3/5 | - | 3/4 | 3/4 | 3/4 | - | 3/4 |
+| HCQREAD (hc-perform-range) | 1/1 | - | 0/3 | 1/2 | 3/3 | 2/3 | 3/3 | 1/3 | 3/3 |
+| HXATTR (hx-attr-bytes) | 2/2 | - | 4/4 | 1/1 | 0/4 | 4/4 | 4/4 | - | 2/3 |
+| HXEXT (hx-extended-cursor) | 2/2 | - | 3/3 | 2/3 | 2/3 | 3/3 | 3/3 | 2/3 | 3/3 |
+| PCDETL (pc-aid-menu) | 1/1 | - | 4/5 | 1/2 | 2/4 | 4/4 | 2/4 | - | 1/4 |
+| PCMENU (pc-aid-menu) | 4/4 | - | 0/4 | 1/3 | 3/4 | 3/3 | 2/3 | - | 3/3 |
+| PCIMMA (pc-return-immediate) | 0/3 | - | 0/4 | - | 1/4 | 3/4 | 2/3 | - | 0/4 |
+| PCIMMB (pc-return-immediate) | 1/3 | - | 4/4 | 0/1 | 1/4 | 2/4 | 2/4 | - | 1/3 |
+| PCIMML (pc-return-immediate) | 0/3 | - | 3/4 | 0/1 | 3/4 | 1/4 | 2/4 | - | 0/3 |
+| PCIMMS (pc-return-immediate) | 0/4 | - | 3/4 | - | 0/4 | 1/4 | 2/4 | - | 2/4 |
+| PCCONF (pc-wizard) | 2/3 | 2/2 | 0/3 | 2/3 | 2/3 | 3/3 | 3/3 | - | 1/3 |
+| PCWIZ (pc-wizard) | 2/3 | 1/2 | 2/4 | 2/2 | 3/3 | 3/3 | 3/3 | - | 0/3 |
 <!-- /mutation-scores -->
 
 Run on gitgalaxy `416fb6420` (2026-10-03): CSUTLDTC all 217 mutants; COMEN01C and COACTVWC 150 each (seed 0);

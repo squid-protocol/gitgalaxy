@@ -183179,8 +183179,7 @@
           "addTypeToIntersection",
           "getRegularTypeOfLiteralType"
         ],
-        "addTypesToUnion@18106": [],
-        "addTypesToUnion@18114": [
+        "addTypesToUnion@18106": [
           "isNamedUnionType",
           "addTypeToUnion"
         ],
@@ -183197,7 +183196,10 @@
           "getNodeLinks",
           "appendIfUnique"
         ],
-        "allTypesAssignableToKind@40120": [],
+        "allTypesAssignableToKind@40120": [
+          "every",
+          "isTypeAssignableToKind"
+        ],
         "allowBlockDeclarations@53281": [],
         "appendContextualPropertyTypeConstituent@32430": [
           "append"
@@ -183283,7 +183285,16 @@
           "hasQuestionToken",
           "getSelectedEffectiveModifierFlags"
         ],
-        "areTypeParametersIdentical@46982": [],
+        "areTypeParametersIdentical@46982": [
+          "length",
+          "getMinTypeArgumentCount",
+          "getTypeParameterDeclarations",
+          "getEffectiveConstraintOfTypeParameter",
+          "getTypeFromTypeNode",
+          "getConstraintOfTypeParameter",
+          "isTypeIdenticalTo",
+          "getDefaultFromTypeParameter"
+        ],
         "areTypesComparable@21334": [
           "isTypeComparableTo"
         ],
@@ -183707,7 +183718,10 @@
           "popContextualType",
           "createTupleType",
           "createArrayLiteralType",
-          "createArrayType"
+          "createArrayType",
+          "getUnionType",
+          "sameMap",
+          "getIndexedAccessTypeOrUndefined"
         ],
         "checkArrayLiteralAssignment@40286": [
           "checkExternalEmitHelpers",
@@ -183725,7 +183739,10 @@
           "checkDestructuringAssignment",
           "error",
           "checkGrammarForDisallowedTrailingComma",
-          "everyType"
+          "everyType",
+          "mapType",
+          "sliceTupleType",
+          "createArrayType"
         ],
         "checkArrayType@42874": [
           "checkSourceElement"
@@ -183836,7 +183853,10 @@
           "addRelatedInfo",
           "isInParameterInitializerBeforeContainingFunction"
         ],
-        "checkAwaitedType@43585": [],
+        "checkAwaitedType@43585": [
+          "getAwaitedType",
+          "getAwaitedTypeNoAlias"
+        ],
         "checkBaseTypeAccessibility@47443": [
           "getSignaturesOfType",
           "hasEffectiveModifier",
@@ -183883,6 +183903,11 @@
           "checkInstanceOfExpression",
           "checkInExpression",
           "hasTypeFacts",
+          "getUnionType",
+          "extractDefinitelyFalsyTypes",
+          "getBaseTypeOfLiteralType",
+          "getNonNullableType",
+          "removeDefinitelyFalsyTypes",
           "isBinaryExpression",
           "getAssignmentDeclarationKind",
           "checkAssignmentDeclaration",
@@ -184112,7 +184137,6 @@
           "isTypeAssignableTo",
           "error"
         ],
-        "checkComputedPropertyName@33565": [],
         "checkConditionalExpression@41268": [
           "checkTruthinessExpression",
           "checkTestingKnownTruthyCallableOrAwaitableOrEnumMemberType",
@@ -184175,6 +184199,8 @@
           "tryGetJSDocSatisfiesTypeNode",
           "checkSatisfiesExpressionWorker",
           "getQuickTypeOfExpression",
+          "checkExpressionWithContextualType",
+          "checkExpressionCached",
           "isParameter",
           "isBindingElement",
           "walkUpBindingElementsAndPatterns",
@@ -184446,11 +184472,9 @@
           "maybeTypeOfKind",
           "isLiteralOfContextualType",
           "instantiateContextualType",
+          "getRegularTypeOfLiteralType",
           "popInferenceContext",
           "popContextualType"
-        ],
-        "checkExpressionWithContextualType@41375": [
-          "checkExpressionCached"
         ],
         "checkExpressionWithTypeArguments@38172": [
           "checkGrammarExpressionWithTypeArguments",
@@ -185946,6 +185970,8 @@
           "getTypeFromTypeNode",
           "getObjectFlags",
           "isTypeUsableAsPropertyName",
+          "createSymbol",
+          "getPropertyNameFromType",
           "hasDefaultValue",
           "getPropertyOfType",
           "getIndexInfoOfType",
@@ -186096,9 +186122,6 @@
           "checkPropertyAccessExpressionOrQualifiedName",
           "checkNonNullType"
         ],
-        "checkPropertyAccessExpression@30237": [
-          "getTypeOfExpression"
-        ],
         "checkPropertyAccessExpression@34740": [
           "checkPropertyAccessChain",
           "checkPropertyAccessExpressionOrQualifiedName",
@@ -186130,6 +186153,7 @@
           "isConstEnumObjectType",
           "isGenericObjectType",
           "isThisTypeParameter",
+          "getApplicableIndexInfoForName",
           "isUncheckedJSSuggestion",
           "isJSLiteralType",
           "has",
@@ -187150,7 +187174,6 @@
           "clear"
         ],
         "clearCachedInferences@26306": [],
-        "cloneBindingName@8410": [],
         "cloneBindingName@8414": [
           "elideInitializerAndSetEmitFlags"
         ],
@@ -187162,7 +187185,9 @@
           "slice"
         ],
         "cloneInferredPartOfContext@26371": [
-          "filter"
+          "filter",
+          "createInferenceContextWorker",
+          "map"
         ],
         "cloneNodeBuilderContext@9021": [],
         "cloneSignature@14150": [
@@ -187275,7 +187300,6 @@
           "concatenate",
           "Map"
         ],
-        "combineValueAndTypeSymbols@4090": [],
         "compareElementLabels@54136": [
           "compareComparableValues"
         ],
@@ -187302,7 +187326,9 @@
           "getThisTypeOfSignature",
           "getParameterCount",
           "getTypeAtPosition",
-          "getTypePredicateOfSignature"
+          "getTypePredicateOfSignature",
+          "compareTypePredicatesIdentical",
+          "getReturnTypeOfSignature"
         ],
         "compareSignaturesRelated@21924": [
           "isTopSignature",
@@ -187337,9 +187363,6 @@
           "signatureToString",
           "incompatibleErrorReporter"
         ],
-        "compareSignaturesRelated@22003": [
-          "compareTypes"
-        ],
         "compareSymbols@53821": [
           "length",
           "compareNodes",
@@ -187372,10 +187395,6 @@
         "compareTypePredicateRelatedTo@22061": [
           "typePredicateToString",
           "compareTypes"
-        ],
-        "compareTypePredicatesIdentical@25453": [
-          "compareTypes",
-          "getReturnTypeOfSignature"
         ],
         "compareTypePredicatesIdentical@25459": [
           "typePredicateKindsMatch",
@@ -187582,9 +187601,6 @@
           "reduceLeft"
         ],
         "countTypes@28561": [],
-        "countWhere@7398": [
-          "length"
-        ],
         "createAccessFromSymbolChain@8754": [
           "lookupTypeParameterNodes",
           "getNameOfSymbolAsWritten",
@@ -187819,7 +187835,8 @@
           "createElementAccessExpression"
         ],
         "createFinalArrayType@28659": [
-          "createArrayType"
+          "createArrayType",
+          "getUnionType"
         ],
         "createFlowType@28633": [],
         "createFunctionType@44075": [
@@ -187859,9 +187876,6 @@
         "createInferenceContextWorker@26267": [
           "makeFixingMapperForContext",
           "makeNonFixingMapperForContext"
-        ],
-        "createInferenceContextWorker@26374": [
-          "map"
         ],
         "createInferenceInfo@26345": [],
         "createInstantiatedSymbolTable@13721": [
@@ -188024,6 +188038,10 @@
           "makeUnaryTypeMapper",
           "getDeclaredTypeOfSymbol",
           "isErrorType",
+          "getTypeAliasInstantiation",
+          "instantiateTypes",
+          "getSymbolLinks",
+          "createTypeReference",
           "add",
           "getTypeId"
         ],
@@ -188105,6 +188123,8 @@
           "findIndex",
           "checkCrossProductUnion",
           "map",
+          "mapType",
+          "replaceElement",
           "addElement",
           "isGenericMappedType",
           "isTupleType",
@@ -188200,6 +188220,7 @@
           "getElementTypes",
           "every",
           "getMappedTypeModifiers",
+          "sameMap",
           "createTupleType",
           "createObjectType"
         ],
@@ -188210,7 +188231,6 @@
         "createSignature@14124": [
           "Signature"
         ],
-        "createSignature@14675": [],
         "createSignatureForJSXIntrinsic@37490": [
           "getJsxNamespaceAt",
           "getExportsOfSymbol",
@@ -188239,9 +188259,6 @@
         "createSymbol@2633": [
           "Symbol",
           "SymbolLinks"
-        ],
-        "createSymbol@33590": [
-          "getPropertyNameFromType"
         ],
         "createSymbolWithType@25891": [
           "createSymbol",
@@ -188360,6 +188377,8 @@
           "filter",
           "some",
           "map",
+          "countWhere",
+          "length",
           "push",
           "getResolvedTypeWithoutAbstractConstructSignatures",
           "typeToTypeNodeHelper",
@@ -188401,7 +188420,6 @@
           "createTypeWithSymbol"
         ],
         "createTypePredicate@16121": [],
-        "createTypePredicateFromTypePredicateNode@16444": [],
         "createTypePredicateFromTypePredicateNode@16461": [
           "getTypeFromTypeNode",
           "createTypePredicate",
@@ -188855,10 +188873,6 @@
           "isBlockScopedNameDeclaredBeforeUse",
           "getEnumMemberValue"
         ],
-        "every@40122": [
-          "allTypesAssignableToKind",
-          "isTypeAssignableToKind"
-        ],
         "everyContainedType@28522": [
           "every",
           "f"
@@ -188930,10 +188944,6 @@
           "instantiateType",
           "createTypeMapper"
         ],
-        "filter@20760": [
-          "some",
-          "isTypeParameterPossiblyReferenced"
-        ],
         "filterPrimitivesIfContainsNonPrimitive@53730": [
           "maybeTypeOfKind",
           "filterType"
@@ -188944,7 +188954,6 @@
           "createOriginUnionOrIntersectionType",
           "getUnionTypeFromSortedList"
         ],
-        "filterType@32740": [],
         "finalizeBoundary@8137": [
           "forEach",
           "fn",
@@ -188953,11 +188962,6 @@
         "finalizeEvolvingArrayType@28674": [
           "getObjectFlags",
           "getFinalArrayType"
-        ],
-        "find@18159": [
-          "getPropertiesOfType",
-          "isUnitType",
-          "getTypeOfSymbol"
         ],
         "findActiveMapper@32928": [],
         "findApplicableIndexInfo@15985": [
@@ -188993,9 +188997,6 @@
           "assertNever"
         ],
         "findFirstModifierExcept@52226": [
-          "find"
-        ],
-        "findFirstModifierExcept@52273": [
           "find"
         ],
         "findFirstSuperCall@31377": [
@@ -189070,11 +189071,6 @@
         ],
         "foldState@40581": [
           "setLastResult"
-        ],
-        "forEach@28043": [
-          "getPropertiesOfType",
-          "isUnitType",
-          "getTypeOfSymbol"
         ],
         "forEachEnclosingClass@49897": [
           "getContainingClass",
@@ -189331,6 +189327,8 @@
         ],
         "getApparentTypeOfContextualType@32695": [
           "isObjectLiteralMethod",
+          "getContextualTypeForObjectLiteralMethod",
+          "getContextualType",
           "instantiateContextualType",
           "mapType",
           "getObjectFlags",
@@ -189358,7 +189356,6 @@
           "getStringLiteralType",
           "unescapeLeadingUnderscores"
         ],
-        "getApplicableIndexInfoForName@34951": [],
         "getApplicableIndexInfos@16044": [
           "getIndexInfosOfType",
           "filter",
@@ -189442,7 +189439,10 @@
           "indexOf"
         ],
         "getAssignedTypeOfBinaryExpression@28332": [
-          "isDestructuringAssignmentTarget"
+          "isDestructuringAssignmentTarget",
+          "getTypeWithDefault",
+          "getAssignedType",
+          "getTypeOfExpression"
         ],
         "getAssignedTypeOfPropertyAssignment@28353": [
           "getTypeOfDestructuredProperty",
@@ -189490,7 +189490,6 @@
           "createIterationTypes",
           "getAwaitedType"
         ],
-        "getAsyncFromSyncIterationTypes@46030": [],
         "getAugmentedPropertiesOfType@50547": [
           "getApparentType",
           "createSymbolTable",
@@ -189502,9 +189501,6 @@
           "getNamedMembers"
         ],
         "getAwaitedType@1673": [],
-        "getAwaitedType@43587": [
-          "getAwaitedTypeNoAlias"
-        ],
         "getAwaitedType@43690": [
           "getAwaitedTypeNoAlias",
           "createAwaitedTypeIfNeeded"
@@ -189647,6 +189643,8 @@
           "mapType",
           "getBaseConstraintOrType",
           "everyType",
+          "sliceTupleType",
+          "createArrayType",
           "isArrayLikeType",
           "getNumberLiteralType",
           "getIndexedAccessTypeOrUndefined",
@@ -189797,6 +189795,8 @@
           "sameMap",
           "filterType",
           "literalTypesWithSameBaseType",
+          "getUnionType",
+          "getSingleCommonSupertype",
           "getNullableType",
           "getCombinedTypeFlags"
         ],
@@ -189845,6 +189845,9 @@
           "get",
           "createTypeMapper",
           "getReducedType",
+          "mapTypeWithAlias",
+          "getConditionalType",
+          "prependTypeMapping",
           "set"
         ],
         "getConstantValue@1784": [
@@ -190050,7 +190053,6 @@
           "getParseTreeNode",
           "runWithInferenceBlockedFromSourceNode"
         ],
-        "getContextualType@30476": [],
         "getContextualType@32781": [
           "findContextualNode",
           "getContextualTypeForInitializerExpression",
@@ -190096,7 +190098,11 @@
           "getResolvedSignature",
           "isJsxOpeningLikeElement",
           "getEffectiveFirstArgumentForJsxSignature",
-          "signatureHasRestParameter"
+          "signatureHasRestParameter",
+          "getIndexedAccessType",
+          "getTypeOfSymbol",
+          "getNumberLiteralType",
+          "getTypeAtPosition"
         ],
         "getContextualTypeForAssignmentDeclaration@32259": [
           "getAssignmentDeclarationKind",
@@ -190129,7 +190135,8 @@
         "getContextualTypeForBinaryOperand@32199": [
           "getContextualTypeForAssignmentDeclaration",
           "getContextualType",
-          "isDefaultedExpandoInitializer"
+          "isDefaultedExpandoInitializer",
+          "getTypeOfExpression"
         ],
         "getContextualTypeForBindingElement@31985": [
           "getContextualTypeForVariableLikeDeclaration",
@@ -190220,16 +190227,10 @@
           "findApplicableIndexInfo",
           "getIndexInfosOfStructuredType"
         ],
-        "getContextualTypeForObjectLiteralMethod@26335": [
-          "getContextualType"
-        ],
         "getContextualTypeForObjectLiteralMethod@32471": [
           "assert",
           "isObjectLiteralMethod",
           "getContextualTypeForObjectLiteralElement"
-        ],
-        "getContextualTypeForObjectLiteralMethod@32697": [
-          "getContextualType"
         ],
         "getContextualTypeForReturnExpression@32031": [
           "getContainingFunction",
@@ -190289,9 +190290,13 @@
           "indexOf",
           "getSpreadArgumentType",
           "getNodeLinks",
+          "getWidenedLiteralType",
+          "checkExpression",
           "getContextualSignature",
           "getThisParameter",
-          "lastOrUndefined"
+          "lastOrUndefined",
+          "getRestTypeAtPosition",
+          "tryGetTypeAtPosition"
         ],
         "getContravariantInference@27583": [
           "getIntersectionType",
@@ -190308,6 +190313,8 @@
           "isConstTypeVariable",
           "isTypeParameterAtTopLevelInReturnType",
           "sameMap",
+          "getUnionType",
+          "getCommonSupertype",
           "getWidenedType"
         ],
         "getCrossProductIntersections@18812": [
@@ -190378,9 +190385,6 @@
           "getTypeListId",
           "createTypeParameter"
         ],
-        "getDeclaredTypeOfClassOrInterface@16256": [
-          "getMergedSymbol"
-        ],
         "getDeclaredTypeOfEnum@13544": [
           "getSymbolLinks",
           "of",
@@ -190388,8 +190392,12 @@
           "getSymbolOfDeclaration",
           "getEnumMemberValue",
           "getFreshTypeOfLiteralType",
+          "getEnumLiteralType",
+          "getSymbolId",
+          "createComputedEnumType",
           "push",
-          "getRegularTypeOfLiteralType"
+          "getRegularTypeOfLiteralType",
+          "getUnionType"
         ],
         "getDeclaredTypeOfEnumMember@13589": [
           "getSymbolLinks",
@@ -190428,7 +190436,12 @@
           "getThisContainer",
           "isJSConstructor"
         ],
-        "getDecoratorArgumentCount@36330": [],
+        "getDecoratorArgumentCount@36330": [
+          "getLegacyDecoratorArgumentCount",
+          "min",
+          "max",
+          "getParameterCount"
+        ],
         "getDecoratorCallSignature@39128": [
           "getLegacyDecoratorCallSignature",
           "getESDecoratorCallSignature"
@@ -190520,6 +190533,7 @@
           "getSignatureFromDeclaration",
           "getTypeOfNode",
           "hasStaticModifier",
+          "getDeclaredTypeOfClassOrInterface",
           "isGetAccessorDeclaration",
           "createGetterFunctionType",
           "isSetAccessorDeclaration",
@@ -190696,10 +190710,6 @@
         "getEntityNameForExtendingInterface@3449": [
           "isEntityNameExpression"
         ],
-        "getEnumLiteralType@13557": [
-          "getSymbolId",
-          "createComputedEnumType"
-        ],
         "getEnumLiteralType@20324": [
           "get",
           "set",
@@ -190793,6 +190803,7 @@
         ],
         "getExportSpecifierLocalTargetSymbol@50369": [
           "isExportSpecifier",
+          "getExternalModuleMember",
           "resolveEntityName"
         ],
         "getExportSymbolOfSymbol@1711": [
@@ -190861,15 +190872,10 @@
           "isOnlyImportableAsDefault",
           "canHaveSyntheticDefault",
           "resolveExternalModuleSymbol",
+          "combineValueAndTypeSymbols",
           "isImportOrExportSpecifier",
           "error",
           "errorNoModuleMemberSymbol"
-        ],
-        "getExternalModuleMember@4216": [
-          "resolveEntityName"
-        ],
-        "getExternalModuleMember@50373": [
-          "resolveEntityName"
         ],
         "getExtractStringType@18997": [
           "getGlobalExtractSymbol",
@@ -191029,7 +191035,6 @@
         "getGenericTypeReferenceRelationKey@25124": [
           "getTypeReferenceId"
         ],
-        "getGenericTypeReferenceRelationKey@25171": [],
         "getGlobalAsyncDisposableType@17635": [
           "getGlobalType"
         ],
@@ -191057,7 +191062,6 @@
         "getGlobalBuiltinAsyncIteratorTypes@17581": [
           "getGlobalBuiltinTypes"
         ],
-        "getGlobalBuiltinIteratorTypes@1214": [],
         "getGlobalBuiltinIteratorTypes@17610": [
           "getGlobalBuiltinTypes"
         ],
@@ -191149,7 +191153,9 @@
           "getGlobalValueSymbol"
         ],
         "getGlobalNonNullableTypeInstantiation@25805": [
-          "getGlobalSymbol"
+          "getGlobalSymbol",
+          "getTypeAliasInstantiation",
+          "getIntersectionType"
         ],
         "getGlobalOmitSymbol@17650": [
           "getGlobalTypeAliasSymbol"
@@ -191379,11 +191385,6 @@
         "getIndexedAccessType@19637": [
           "getIndexedAccessTypeOrUndefined"
         ],
-        "getIndexedAccessType@32182": [
-          "getTypeOfSymbol",
-          "getNumberLiteralType",
-          "getTypeAtPosition"
-        ],
         "getIndexedAccessTypeOrUndefined@19654": [
           "getReducedType",
           "isStringIndexSignatureOnlyType",
@@ -191470,22 +191471,25 @@
           "getInferredType"
         ],
         "getInitialOrAssignedType@29136": [
-          "getNarrowableTypeForReference"
-        ],
-        "getInitialType@28416": [],
-        "getInitialType@29140": [
+          "getNarrowableTypeForReference",
+          "getInitialType",
           "getAssignedType"
+        ],
+        "getInitialType@28416": [
+          "getInitialTypeOfVariableDeclaration",
+          "getInitialTypeOfBindingElement"
         ],
         "getInitialTypeOfBindingElement@28384": [
           "getInitialType",
+          "getTypeOfDestructuredProperty",
+          "getTypeOfDestructuredArrayElement",
+          "indexOf",
+          "getTypeOfDestructuredSpreadExpression",
           "getTypeWithDefault"
         ],
         "getInitialTypeOfVariableDeclaration@28403": [
           "getTypeOfInitializer",
           "checkRightHandSideOfForOf"
-        ],
-        "getInitialTypeOfVariableDeclaration@28418": [
-          "getInitialTypeOfBindingElement"
         ],
         "getInitializerTypeFromAssignmentDeclaration@12208": [
           "isCallExpression",
@@ -191634,9 +191638,6 @@
           "createOriginUnionOrIntersectionType",
           "createIntersectionType",
           "set"
-        ],
-        "getIntersectionType@21086": [
-          "getUnionType"
         ],
         "getIntersectionTypeFacts@28243": [
           "maybeTypeOfKind",
@@ -192034,6 +192035,9 @@
           "getObjectFlags",
           "countWhere",
           "forEach",
+          "getPropertiesOfType",
+          "isUnitType",
+          "getTypeOfSymbol",
           "mapTypesByKeyProperty"
         ],
         "getKnownKeysOfTupleType@18035": [
@@ -192053,11 +192057,6 @@
         ],
         "getLeftSideOfImportEqualsOrExportAssignment@49925": [],
         "getLeftType@40593": [],
-        "getLegacyDecoratorArgumentCount@36332": [
-          "min",
-          "max",
-          "getParameterCount"
-        ],
         "getLegacyDecoratorArgumentCount@36340": [
           "hasAccessorModifier",
           "fail"
@@ -192387,6 +192386,9 @@
           "getConstituentTypeForKeyType",
           "isTypeStrictSubtypeOf",
           "isTypeSubtypeOf",
+          "maybeTypeOfKind",
+          "isRelated",
+          "getBaseConstraintOfType",
           "getIntersectionType",
           "isTypeAssignableTo"
         ],
@@ -192506,7 +192508,9 @@
           "isJSConstructor",
           "getTypeParametersFromDeclaration",
           "addRange",
+          "filter",
           "some",
+          "isTypeParameterPossiblyReferenced",
           "combineTypeMappers",
           "map",
           "getMappedType",
@@ -192543,9 +192547,6 @@
         ],
         "getOrCreateTypeFromSignature@16652": [
           "createObjectType"
-        ],
-        "getOrCreateTypeFromSignature@35869": [
-          "getSignatureInstantiationWithoutFillingInTypeArguments"
         ],
         "getOrSetCacheKey@29028": [
           "getFlowCacheKey"
@@ -192696,7 +192697,9 @@
           "resolveStructuredTypeMembers"
         ],
         "getPropertiesOfType@15101": [
-          "getReducedApparentType"
+          "getReducedApparentType",
+          "getPropertiesOfUnionOrIntersectionType",
+          "getPropertiesOfObjectType"
         ],
         "getPropertiesOfUnionOrIntersectionType@15078": [
           "createSymbolTable",
@@ -192707,9 +192710,6 @@
           "getIndexInfosOfType",
           "getNamedMembers"
         ],
-        "getPropertiesOfUnionOrIntersectionType@15104": [
-          "getPropertiesOfObjectType"
-        ],
         "getPropertyNameForKnownSymbolName@46132": [
           "getGlobalESSymbolConstructorSymbol",
           "getTypeOfPropertyOfType",
@@ -192718,17 +192718,16 @@
           "isTypeUsableAsPropertyName",
           "getPropertyNameFromType"
         ],
-        "getPropertyNameForPropertyNameNode@19215": [],
         "getPropertyNameFromBindingElement@41415": [
           "getLiteralTypeFromPropertyName",
           "isTypeUsableAsPropertyName",
           "getPropertyNameFromType"
         ],
         "getPropertyNameFromIndex@19210": [
-          "isTypeUsableAsPropertyName"
-        ],
-        "getPropertyNameFromType@19212": [
-          "isPropertyName"
+          "isTypeUsableAsPropertyName",
+          "getPropertyNameFromType",
+          "isPropertyName",
+          "getPropertyNameForPropertyNameNode"
         ],
         "getPropertyNameNodeForSymbol@8985": [
           "getClonedHashPrivateName",
@@ -192885,7 +192884,6 @@
         ],
         "getReferenceCandidate@28429": [],
         "getReferenceRoot@28447": [],
-        "getReferenceRoot@28452": [],
         "getReferencedDeclarationWithCollidingName@50719": [
           "isGeneratedIdentifier",
           "getParseTreeNode",
@@ -192942,7 +192940,6 @@
         "getRegularTypeOfLiteralType@20295": [
           "mapType"
         ],
-        "getRegularTypeOfLiteralType@41329": [],
         "getRegularTypeOfObjectLiteral@25922": [
           "isObjectLiteralType",
           "getObjectFlags",
@@ -192951,7 +192948,8 @@
         ],
         "getRelationCacheSizes@1616": [],
         "getRelationKey@25163": [
-          "isTypeReferenceWithGenericArguments"
+          "isTypeReferenceWithGenericArguments",
+          "getGenericTypeReferenceRelationKey"
         ],
         "getRequiresScopeChangeCache@3206": [
           "getNodeLinks"
@@ -193055,9 +193053,6 @@
           "getSpreadSymbol",
           "createAnonymousType",
           "getIndexInfosOfType"
-        ],
-        "getRestTypeAtPosition@31962": [
-          "tryGetTypeAtPosition"
         ],
         "getRestTypeAtPosition@38522": [
           "getParameterCount",
@@ -193232,6 +193227,8 @@
           "isJSDocSignature",
           "getEffectiveJSDocHost",
           "isConstructorDeclaration",
+          "getDeclaredTypeOfClassOrInterface",
+          "getMergedSymbol",
           "getTypeParametersFromDeclaration",
           "hasRestParameter",
           "maybeAddJsSyntheticRestParameter",
@@ -193905,6 +193902,8 @@
           "getModuleSpecifierForImportOrExport",
           "resolveExternalModuleName",
           "getTargetofModuleDefault",
+          "getExternalModuleMember",
+          "resolveEntityName",
           "markSymbolOfAliasDeclarationIfTypeOnly"
         ],
         "getTargetOfImportClause@3850": [
@@ -193992,6 +193991,8 @@
         "getTemplateLiteralType@19040": [
           "findIndex",
           "checkCrossProductUnion",
+          "mapType",
+          "replaceElement",
           "contains",
           "addSpans",
           "getStringLiteralType",
@@ -194139,14 +194140,6 @@
           "getMinTypeArgumentCount",
           "isInJSFile"
         ],
-        "getTypeAliasInstantiation@25087": [
-          "instantiateTypes",
-          "getSymbolLinks",
-          "createTypeReference"
-        ],
-        "getTypeAliasInstantiation@25810": [
-          "getIntersectionType"
-        ],
         "getTypeArgumentArityError@36497": [
           "getMinTypeArgumentCount",
           "length",
@@ -194242,9 +194235,6 @@
           "getNonNullableTypeIfNeeded",
           "finalizeEvolvingArrayType"
         ],
-        "getTypeAtFlowBranchLabel@29088": [
-          "getTypeAtFlowLoopLabel"
-        ],
         "getTypeAtFlowBranchLabel@29319": [
           "getTypeAtFlowNode",
           "getTypeFromFlowType",
@@ -194298,6 +194288,8 @@
           "getTypeAtFlowCall",
           "getTypeAtFlowCondition",
           "getTypeAtSwitchClause",
+          "getTypeAtFlowBranchLabel",
+          "getTypeAtFlowLoopLabel",
           "getTypeAtFlowArrayMutation",
           "convertAutoToAny"
         ],
@@ -194789,10 +194781,6 @@
           "includeUndefinedInIndexSignature",
           "checkIteratedTypeOrElementType"
         ],
-        "getTypeOfDestructuredArrayElement@28390": [
-          "indexOf",
-          "getTypeOfDestructuredSpreadExpression"
-        ],
         "getTypeOfDestructuredProperty@28308": [
           "getLiteralTypeFromPropertyName",
           "isTypeUsableAsPropertyName",
@@ -194801,7 +194789,6 @@
           "includeUndefinedInIndexSignature",
           "getApplicableIndexInfoForName"
         ],
-        "getTypeOfDestructuredProperty@28388": [],
         "getTypeOfDestructuredSpreadExpression@28328": [
           "createArrayType",
           "checkIteratedTypeOrElementType"
@@ -194820,7 +194807,6 @@
           "getSymbolLinks",
           "getDeclaredTypeOfEnumMember"
         ],
-        "getTypeOfExpression@32217": [],
         "getTypeOfExpression@41683": [
           "getQuickTypeOfExpression",
           "getNodeId",
@@ -194980,14 +194966,6 @@
           "getTypeOfAccessors",
           "getTypeOfAlias"
         ],
-        "getTypeOfSymbol@38963": [
-          "getSymbolOfDeclaration",
-          "getDeclaredTypeOfClassOrInterface"
-        ],
-        "getTypeOfSymbol@38996": [
-          "getSymbolOfDeclaration",
-          "getDeclaredTypeOfClassOrInterface"
-        ],
         "getTypeOfSymbolAtLocation@1631": [
           "getParseTreeNode"
         ],
@@ -194998,6 +194976,8 @@
           "isAssignmentTarget",
           "isWriteAccess",
           "removeOptionalTypeMarker",
+          "checkPropertyAccessExpression",
+          "getTypeOfExpression",
           "getNodeLinks",
           "isDeclarationName",
           "isSetAccessor",
@@ -195146,6 +195126,7 @@
           "getEffectiveReturnTypeNode",
           "getSignatureOfTypeTag",
           "isTypePredicateNode",
+          "createTypePredicateFromTypePredicateNode",
           "isFunctionLikeDeclaration",
           "getParameterCount",
           "getTypePredicateFromBody",
@@ -195195,9 +195176,9 @@
           "resolveTypeReferenceName",
           "getTypeOfSymbol"
         ],
-        "getTypeWithDefault@28302": [],
-        "getTypeWithDefault@28336": [
-          "getAssignedType",
+        "getTypeWithDefault@28302": [
+          "getUnionType",
+          "getNonUndefinedType",
           "getTypeOfExpression"
         ],
         "getTypeWithFacts@28261": [
@@ -195319,48 +195300,11 @@
           "map",
           "combineSignaturesOfUnionMembers"
         ],
-        "getUnionType@13568": [
-          "createComputedEnumType"
-        ],
         "getUnionType@18313": [
           "getAliasId",
           "get",
           "getUnionTypeWorker",
           "set"
-        ],
-        "getUnionType@25494": [
-          "getSingleCommonSupertype"
-        ],
-        "getUnionType@27603": [
-          "getCommonSupertype"
-        ],
-        "getUnionType@28304": [
-          "getNonUndefinedType",
-          "getTypeOfExpression"
-        ],
-        "getUnionType@28324": [],
-        "getUnionType@28598": [
-          "map",
-          "mapType"
-        ],
-        "getUnionType@28664": [],
-        "getUnionType@29709": [
-          "narrowType"
-        ],
-        "getUnionType@33401": [
-          "sameMap",
-          "getIndexedAccessTypeOrUndefined"
-        ],
-        "getUnionType@40923": [
-          "extractDefinitelyFalsyTypes",
-          "getBaseTypeOfLiteralType"
-        ],
-        "getUnionType@40933": [
-          "getNonNullableType",
-          "removeDefinitelyFalsyTypes"
-        ],
-        "getUnionType@40943": [
-          "getNonNullableType"
         ],
         "getUnionTypeFromSortedList@18432": [
           "getTypeListId",
@@ -195485,9 +195429,6 @@
           "getBaseTypeOfEnumLikeType",
           "mapType"
         ],
-        "getWidenedLiteralType@31953": [
-          "checkExpression"
-        ],
         "getWidenedLiteralTypeForInitializer@41455": [
           "getCombinedNodeFlagsCached",
           "isDeclarationReadonly",
@@ -195532,9 +195473,6 @@
           "addOptionality",
           "filterType",
           "reportImplicitAny"
-        ],
-        "getWidenedTypeForAssignmentDeclaration@12627": [
-          "tryGetTypeFromEffectiveTypeNode"
         ],
         "getWidenedTypeForVariableLikeDeclaration@12451": [
           "widenTypeForVariableLikeDeclaration",
@@ -195602,15 +195540,14 @@
           "instantiateType",
           "getWriteTypeOfSymbol"
         ],
-        "getWriteTypeOfInstantiatedSymbol@12946": [
-          "getWriteTypeOfAccessors"
-        ],
         "getWriteTypeOfSymbol@12933": [
           "getCheckFlags",
           "getWriteTypeOfSymbolWithDeferredType",
           "getTypeOfSymbolWithDeferredType",
           "removeMissingType",
-          "getTypeOfSymbol"
+          "getTypeOfSymbol",
+          "getWriteTypeOfInstantiatedSymbol",
+          "getWriteTypeOfAccessors"
         ],
         "getWriteTypeOfSymbolWithDeferredType@12918": [
           "getSymbolLinks",
@@ -195680,6 +195617,7 @@
           "isElementAccessExpression",
           "isJsxOpeningElement",
           "isJsxSelfClosingElement",
+          "getContextualType",
           "isGenericType"
         ],
         "hasCorrectArity@35672": [
@@ -195906,7 +195844,9 @@
           "set",
           "getSymbolId"
         ],
-        "includeUndefinedInIndexSignature@28321": [],
+        "includeUndefinedInIndexSignature@28321": [
+          "getUnionType"
+        ],
         "indexInfoRelatedTo@24807": [
           "isRelatedTo",
           "reportError",
@@ -196007,9 +195947,10 @@
           "getApplicableIndexInfo"
         ],
         "inferFromIntraExpressionSites@26331": [
+          "getContextualTypeForObjectLiteralMethod",
+          "getContextualType",
           "inferTypes"
         ],
-        "inferFromLiteralPartsToTemplateLiteral@26683": [],
         "inferFromLiteralPartsToTemplateLiteral@26715": [
           "startsWith",
           "endsWith",
@@ -196214,6 +196155,8 @@
           "cloneInferenceContext",
           "instantiateType",
           "getSingleCallSignature",
+          "getOrCreateTypeFromSignature",
+          "getSignatureInstantiationWithoutFillingInTypeArguments",
           "inferTypes",
           "createInferenceContext",
           "createOuterReturnMapper",
@@ -196341,7 +196284,8 @@
           "getInferenceContext",
           "some",
           "instantiateInstantiableTypes",
-          "containsType"
+          "containsType",
+          "filterType"
         ],
         "instantiateIndexInfo@21174": [
           "createIndexInfo",
@@ -196416,7 +196360,6 @@
           "instantiateSymbol",
           "instantiateList"
         ],
-        "instantiateSignature@39667": [],
         "instantiateSignatureInContextOf@35789": [
           "createInferenceContext",
           "getTypeParametersForMapper",
@@ -196490,6 +196433,7 @@
           "instantiateReverseMappedType",
           "getObjectTypeInstantiation",
           "getIntersectionType",
+          "getUnionType",
           "getIndexType",
           "instantiateType",
           "getTemplateLiteralType",
@@ -196564,9 +196508,6 @@
           "getMergedSymbol",
           "some",
           "canQualifySymbol"
-        ],
-        "isAliasResolvedToValue@50766": [
-          "getSymbolOfDeclaration"
         ],
         "isAliasResolvedToValue@50783": [
           "getSourceFileOfNode",
@@ -197121,8 +197062,15 @@
           "maybeTypeOfKind",
           "getBaseConstraintOfType"
         ],
-        "isGenericTypeWithUnionConstraint@30456": [],
-        "isGenericTypeWithoutNullableConstraint@30462": [],
+        "isGenericTypeWithUnionConstraint@30456": [
+          "some",
+          "getBaseConstraintOrType"
+        ],
+        "isGenericTypeWithoutNullableConstraint@30462": [
+          "some",
+          "maybeTypeOfKind",
+          "getBaseConstraintOrType"
+        ],
         "isGlobalNaN@41171": [
           "isIdentifier",
           "getGlobalNaNSymbol",
@@ -197740,7 +197688,8 @@
           "typeToString",
           "getSignaturesOfType",
           "getReturnTypeOfSignature",
-          "reportError"
+          "reportError",
+          "unionOrIntersectionRelatedTo"
         ],
         "isRelatedToWorker@22749": [
           "isRelatedTo"
@@ -198078,8 +198027,8 @@
           "isTypeAssignableTo",
           "getTypeOfNode"
         ],
-        "isTypeMatchedByTemplateLiteralOrStringMapping@18233": [],
-        "isTypeMatchedByTemplateLiteralType@18235": [
+        "isTypeMatchedByTemplateLiteralOrStringMapping@18233": [
+          "isTypeMatchedByTemplateLiteralType",
           "isMemberOfStringMapping"
         ],
         "isTypeMatchedByTemplateLiteralType@26687": [
@@ -198463,18 +198412,6 @@
           "typesAreSameReference",
           "restoreFlags"
         ],
-        "mapType@11798": [
-          "sliceTupleType",
-          "createArrayType"
-        ],
-        "mapType@17946": [
-          "createNormalizedTupleType",
-          "replaceElement"
-        ],
-        "mapType@19044": [
-          "getTemplateLiteralType",
-          "replaceElement"
-        ],
         "mapType@28568": [],
         "mapType@28569": [],
         "mapType@28570": [
@@ -198482,21 +198419,11 @@
           "push",
           "getUnionType"
         ],
-        "mapType@30101": [
-          "maybeTypeOfKind",
-          "isRelated",
-          "getBaseConstraintOfType",
-          "getIntersectionType"
+        "mapTypeWithAlias@28596": [
+          "getUnionType",
+          "map",
+          "mapType"
         ],
-        "mapType@40334": [
-          "sliceTupleType",
-          "createArrayType"
-        ],
-        "mapTypeWithAlias@21005": [
-          "getConditionalType",
-          "prependTypeMapping"
-        ],
-        "mapTypeWithAlias@28596": [],
         "mapTypesByKeyProperty@28000": [
           "Map",
           "getTypeOfPropertyOfType",
@@ -198880,9 +198807,6 @@
           "makeCompositeTypeMapper"
         ],
         "modifiersLength@10957": [],
-        "narrowType@29705": [
-          "getUnionType"
-        ],
         "narrowType@30164": [
           "isExpressionOfOptionalChainRoot",
           "isBinaryExpression",
@@ -198927,7 +198851,8 @@
           "getAccessedPropertyName",
           "getPropertyNameFromType",
           "getTypeWithFacts",
-          "narrowTypeByInKeyword"
+          "narrowTypeByInKeyword",
+          "getUnionType"
         ],
         "narrowTypeByBooleanComparison@29618": [
           "narrowType"
@@ -199018,7 +198943,11 @@
           "isTypeAny",
           "isEmptyAnonymousObjectType"
         ],
-        "narrowTypeByLiteralExpression@29809": [],
+        "narrowTypeByLiteralExpression@29809": [
+          "narrowTypeByTypeName",
+          "getAdjustedTypeWithFacts",
+          "get"
+        ],
         "narrowTypeByOptionalChainContainment@29733": [
           "getTypeOfExpression",
           "everyType",
@@ -199105,10 +199034,6 @@
           "hasTypeFacts",
           "isTypeSubtypeOf",
           "getIntersectionType"
-        ],
-        "narrowTypeByTypeName@29811": [
-          "getAdjustedTypeWithFacts",
-          "get"
         ],
         "narrowTypeByTypeName@29862": [
           "narrowTypeByTypeFacts",
@@ -199283,7 +199208,9 @@
         ],
         "parameterToParameterDeclarationName@8406": [
           "setEmitFlags",
-          "cloneNode"
+          "cloneNode",
+          "cloneBindingName",
+          "symbolName"
         ],
         "parseBigIntLiteralType@26625": [
           "getBigIntLiteralType",
@@ -199520,6 +199447,8 @@
           "getUnionType",
           "map",
           "orderedRemoveItemAt",
+          "find",
+          "getPropertiesOfType",
           "isUnitType",
           "getTypeOfSymbol",
           "getRegularTypeOfLiteralType",
@@ -199946,6 +199875,7 @@
           "slice",
           "mapDefined",
           "isJSConstructor",
+          "createSignature",
           "getDefaultConstructSignatures"
         ],
         "resolveBaseTypesOfClass@13317": [
@@ -200497,7 +200427,6 @@
           "getSymbolOfDeclaration",
           "fn"
         ],
-        "sameMap@26493": [],
         "sanitizeJSDocImplements@10262": [
           "mapDefined",
           "isEntityNameExpression",
@@ -200696,7 +200625,10 @@
           "indexInfoToIndexSignatureDeclarationHelper"
         ],
         "serializeInferredReturnTypeForSignature@9173": [
-          "getTypePredicateOfSignature"
+          "getTypePredicateOfSignature",
+          "typePredicateToTypePredicateNodeHelper",
+          "instantiateTypePredicate",
+          "typeToTypeNodeHelper"
         ],
         "serializeInferredTypeForDeclaration@9080": [
           "some",
@@ -200828,12 +200760,6 @@
           "isPrototypePropertyAssignment",
           "fail"
         ],
-        "serializePropertySymbolForClass@9965": [
-          "serializePropertySymbolForInterface"
-        ],
-        "serializePropertySymbolForClass@9978": [
-          "serializePropertySymbolForInterface"
-        ],
         "serializePropertySymbolForInterface@10978": [
           "serializePropertySymbolForInterfaceWorker"
         ],
@@ -200843,6 +200769,8 @@
           "checkTruncationLengthIfExpanding",
           "createTruncationProperty",
           "push",
+          "serializePropertySymbolForClass",
+          "serializePropertySymbolForInterface",
           "isArray"
         ],
         "serializeReturnTypeForSignature@6347": [
@@ -201026,10 +200954,6 @@
         "setCommentRange@7888": [
           "getSourceFileOfNode",
           "setCommentRangeWorker"
-        ],
-        "setEmitFlags@8366": [
-          "createIdentifier",
-          "createThisTypeNode"
         ],
         "setLastResult@40605": [],
         "setLeftType@40597": [],
@@ -201231,13 +201155,6 @@
         "slicesCompareString@54058": [
           "compareComparableValues"
         ],
-        "some@30458": [
-          "getBaseConstraintOrType"
-        ],
-        "some@30464": [
-          "maybeTypeOfKind",
-          "getBaseConstraintOrType"
-        ],
         "someSignature@37206": [
           "isArray",
           "some",
@@ -201246,9 +201163,6 @@
         "someType@28514": [
           "some",
           "f"
-        ],
-        "someTypeRelatedToType@23088": [
-          "eachTypeRelatedToType"
         ],
         "someTypeRelatedToType@23197": [
           "containsType",
@@ -201383,7 +201297,6 @@
         "symbolIsValue@5510": [
           "getSymbolFlags"
         ],
-        "symbolName@8411": [],
         "symbolTableToDeclarationStatements@6493": [
           "withContext"
         ],
@@ -201894,12 +201807,11 @@
         ],
         "typePredicateToTypePredicateNodeHelper@8361": [
           "createToken",
+          "setEmitFlags",
+          "createIdentifier",
+          "createThisTypeNode",
           "typeToTypeNodeHelper",
           "createTypePredicateNode"
-        ],
-        "typePredicateToTypePredicateNodeHelper@9178": [
-          "instantiateTypePredicate",
-          "typeToTypeNodeHelper"
         ],
         "typeReferenceToTypeNode@7420": [
           "getTypeArguments",
@@ -202107,12 +202019,10 @@
           "concatenate",
           "isObjectOrArrayLiteralType"
         ],
-        "unionOrIntersectionRelatedTo@22861": [
-          "recursiveTypeRelatedTo"
-        ],
         "unionOrIntersectionRelatedTo@23066": [
           "contains",
           "someTypeRelatedToType",
+          "eachTypeRelatedToType",
           "typeRelatedToSomeType",
           "getRegularTypeOfObjectLiteral",
           "typeRelatedToEachType",
@@ -202260,9 +202170,6 @@
           "isExportAssignment",
           "isExportSpecifier",
           "forEachChild"
-        ],
-        "combinePaths@496": [
-          "getBaseFileName"
         ],
         "commentWillEmitNewLine@3219": [],
         "createAddOutput@597": [],
@@ -203804,6 +203711,7 @@
         "generateNameForImportOrExportDeclaration@5687": [
           "getExternalModuleName",
           "isStringLiteral",
+          "makeIdentifierFromModuleName",
           "makeUniqueName"
         ],
         "generateNameForMethodOrAccessor@5708": [
@@ -203867,7 +203775,13 @@
           "rangeEndPositionsAreOnSameLine",
           "synthesizedNodeStartsOnNewLine"
         ],
-        "getCommonSourceDirectory@636": [],
+        "getCommonSourceDirectory@636": [
+          "getNormalizedAbsolutePath",
+          "getDirectoryPath",
+          "normalizeSlashes",
+          "computeCommonSourceDirectoryOfFilenames",
+          "emittedFiles"
+        ],
         "getCommonSourceDirectoryOfConfig@685": [
           "getCommonSourceDirectory",
           "filter",
@@ -203936,7 +203850,10 @@
           "getPipelinePhase"
         ],
         "getOpeningBracket@6336": [],
-        "getOutputDeclarationFileName@563": [],
+        "getOutputDeclarationFileName@563": [
+          "getCommonSourceDirectoryOfConfig",
+          "getOutputDeclarationFileNameWorker"
+        ],
         "getOutputDeclarationFileNameWorker@573": [
           "changeExtension",
           "getOutputPathWithoutChangingExt",
@@ -203967,7 +203884,11 @@
           "getOutputPathWithoutChangingExt",
           "getOutputExtension"
         ],
-        "getOutputPathWithoutChangingExt@548": [],
+        "getOutputPathWithoutChangingExt@548": [
+          "resolvePath",
+          "getRelativePathFromDirectory",
+          "getCommonSourceDirectory"
+        ],
         "getOutputPathsFor@516": [
           "getCompilerOptions",
           "getOutputPathsForBundle",
@@ -204073,7 +203994,11 @@
         ],
         "getTsBuildInfoEmitOutputFilePath@481": [
           "canEmitTsBuildInfo",
-          "removeFileExtension"
+          "removeFileExtension",
+          "resolvePath",
+          "getRelativePathFromDirectory",
+          "combinePaths",
+          "getBaseFileName"
         ],
         "hasCommentsAtPosition@3955": [
           "hasTrailingCommentsAtPosition",
@@ -204089,9 +204014,6 @@
           "forEachTrailingCommentRange"
         ],
         "increaseIndent@4925": [],
-        "inputFileName@564": [
-          "getCommonSourceDirectoryOfConfig"
-        ],
         "isBuildInfoFile@431": [
           "fileExtensionIs"
         ],
@@ -204125,7 +204047,6 @@
         "makeFileLevelOptimisticUniqueName@5671": [
           "makeUniqueName"
         ],
-        "makeIdentifierFromModuleName@5690": [],
         "makeName@5768": [
           "formatGeneratedNamePart",
           "makeTempVariableName",
@@ -204524,13 +204445,6 @@
           "setWriter"
         ],
         "resetSourceMapSource@6317": [],
-        "resolvePath@495": [
-          "getRelativePathFromDirectory"
-        ],
-        "resolvePath@555": [
-          "getRelativePathFromDirectory",
-          "getCommonSourceDirectory"
-        ],
         "select@1278": [],
         "select@6352": [],
         "setSourceFile@1403": [
@@ -204920,10 +204834,6 @@
         "doInAwaitContext@2109": [
           "doInsideOfContext"
         ],
-        "doInAwaitContext@4045": [
-          "parseModifiers",
-          "doOutsideOfAwaitContext"
-        ],
         "doInDecoratorContext@2105": [
           "doInsideOfContext"
         ],
@@ -204992,15 +204902,6 @@
           "getNamedArgRegEx",
           "push",
           "addPragmaForMatch"
-        ],
-        "factoryCreateCallChain@6540": [
-          "factoryCreateCallExpression"
-        ],
-        "factoryCreateElementAccessChain@6448": [
-          "factoryCreateElementAccessExpression"
-        ],
-        "factoryCreatePropertyAccessChain@6419": [
-          "factoryCreatePropertyAccessExpression"
         ],
         "findHighestListElementThatStartsAtPosition@10495": [
           "forEachChild"
@@ -205527,7 +205428,9 @@
           "substring"
         ],
         "getExpectedCommaDiagnostic@3561": [],
-        "getImportMetaIfNecessary@484": [],
+        "getImportMetaIfNecessary@484": [
+          "walkTreeForImportMeta"
+        ],
         "getLastDescendant@10355": [
           "getLastChild"
         ],
@@ -205551,7 +205454,6 @@
         "getNodePos@2180": [
           "getTokenFullStart"
         ],
-        "getNodePos@9657": [],
         "getSpaceSuggestion@2444": [
           "startsWith"
         ],
@@ -206273,7 +206175,6 @@
           "parseDelimitedList",
           "createMissingList"
         ],
-        "parseBracketedList@8228": [],
         "parseBreakOrContinueStatement@6977": [
           "getNodePos",
           "hasPrecedingJSDocComment",
@@ -206295,6 +206196,8 @@
           "token",
           "parseArgumentList",
           "tryReparseOptionalChain",
+          "factoryCreateCallChain",
+          "factoryCreateCallExpression",
           "finishNode",
           "createMissingNode",
           "factoryCreatePropertyAccessChain"
@@ -206537,10 +206440,6 @@
           "abortParsingListOrMoveToNextToken",
           "createNodeArray"
         ],
-        "parseDelimitedList@4141": [
-          "parseParameter",
-          "parseParameterForSpeculation"
-        ],
         "parseDoStatement@6897": [
           "getNodePos",
           "hasPrecedingJSDocComment",
@@ -206562,6 +206461,8 @@
           "internIdentifier",
           "parseExpected",
           "tryReparseOptionalChain",
+          "factoryCreateElementAccessChain",
+          "factoryCreateElementAccessExpression",
           "finishNode"
         ],
         "parseEmptyStatement@6877": [
@@ -207490,6 +207391,7 @@
           "getNodePos",
           "nextToken",
           "token",
+          "parseLiteralLikeNode",
           "finishNode",
           "createPrefixUnaryExpression",
           "createLiteralTypeNode"
@@ -207530,6 +207432,7 @@
           "inDecoratorContext",
           "parseElementAccessExpressionRest",
           "isTemplateStartOfTaggedTemplate",
+          "parseTaggedTemplateRest",
           "hasPrecedingLineBreak",
           "nextToken",
           "finishNode",
@@ -207824,6 +207727,9 @@
         "parseParameterWorker@4036": [
           "getNodePos",
           "hasPrecedingJSDocComment",
+          "doInAwaitContext",
+          "parseModifiers",
+          "doOutsideOfAwaitContext",
           "token",
           "createParameterDeclaration",
           "createIdentifier",
@@ -207848,11 +207754,10 @@
           "inYieldContext",
           "inAwaitContext",
           "setYieldContext",
-          "setAwaitContext"
-        ],
-        "parseParenthesizedArrowFunctionExpression@5228": [
-          "tryParse",
-          "parsePossibleParenthesizedArrowFunctionExpression"
+          "setAwaitContext",
+          "parseDelimitedList",
+          "parseParameter",
+          "parseParameterForSpeculation"
         ],
         "parseParenthesizedArrowFunctionExpression@5430": [
           "getNodePos",
@@ -207957,6 +207862,8 @@
         "parsePropertyAccessExpressionRest@6415": [
           "parseRightSideOfDot",
           "tryReparseOptionalChain",
+          "factoryCreatePropertyAccessChain",
+          "factoryCreatePropertyAccessExpression",
           "isPrivateIdentifier",
           "parseErrorAtRange",
           "isExpressionWithTypeArguments",
@@ -208254,7 +208161,6 @@
           "trimEnd",
           "createNodeArray"
         ],
-        "parseTaggedTemplateRest@6479": [],
         "parseTaggedTemplateRest@6505": [
           "createTaggedTemplateExpression",
           "token",
@@ -208391,10 +208297,6 @@
           "nextToken",
           "finishNode",
           "factoryCreateToken"
-        ],
-        "parseTokenNode@4534": [
-          "parseLiteralLikeNode",
-          "token"
         ],
         "parseTokenNodeJSDoc@2560": [
           "getNodePos",
@@ -208621,6 +208523,7 @@
           "append",
           "createJSDocTypeLiteral",
           "finishNode",
+          "getNodePos",
           "parseTrailingTagComments",
           "createJSDocTypedefTag"
         ],
@@ -208957,7 +208860,10 @@
           "factoryCreateToken"
         ],
         "tryParseParenthesizedArrowFunctionExpression@5216": [
-          "isParenthesizedArrowFunctionExpression"
+          "isParenthesizedArrowFunctionExpression",
+          "parseParenthesizedArrowFunctionExpression",
+          "tryParse",
+          "parsePossibleParenthesizedArrowFunctionExpression"
         ],
         "tryParseSemicolon@2577": [
           "canParseSemicolon",
@@ -208965,7 +208871,8 @@
           "nextToken"
         ],
         "tryParseTypeArguments@8226": [
-          "token"
+          "token",
+          "parseBracketedList"
         ],
         "tryParseTypeExpression@9380": [
           "skipWhitespaceOrAsterisk",
@@ -209056,7 +208963,6 @@
           "cbNodes",
           "cbNode"
         ],
-        "walkTreeForImportMeta@486": [],
         "walkTreeForImportMeta@490": [
           "isImportMeta",
           "forEachChild"

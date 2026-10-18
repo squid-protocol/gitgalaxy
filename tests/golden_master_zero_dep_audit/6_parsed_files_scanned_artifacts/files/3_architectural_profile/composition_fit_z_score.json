@@ -3908,10 +3908,10 @@
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 0.0,
       "typescript/typescript_compiler/binder.ts": -0.28,
-      "typescript/typescript_compiler/checker.ts": -0.554,
-      "typescript/typescript_compiler/emitter.ts": 0.696,
+      "typescript/typescript_compiler/checker.ts": -0.483,
+      "typescript/typescript_compiler/emitter.ts": 0.748,
       "typescript/typescript_compiler/package.json": 0.0,
-      "typescript/typescript_compiler/parser.ts": -0.632
+      "typescript/typescript_compiler/parser.ts": -0.588
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0.0,

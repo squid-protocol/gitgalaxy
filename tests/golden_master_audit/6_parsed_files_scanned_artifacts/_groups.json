@@ -11925,20 +11925,20 @@
     "typescript/typescript_compiler": {
       "Average Risk Exposures": {
         "API Exposure": "4.46%",
-        "Cognitive Load Exposure": "29.27%",
+        "Cognitive Load Exposure": "29.25%",
         "Commented Logic Exposure": "4.03%",
         "Concurrency Exposure": "4.11%",
-        "Documentation Exposure": "60.31%",
+        "Documentation Exposure": "60.32%",
         "Error & Exception Exposure": "49.23%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "33.33%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "63.24%",
-        "Tech Debt Exposure": "14.07%",
+        "Tech Debt Exposure": "14.04%",
         "Testing Exposure": "53.33%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 71300.36,
+      "Directory Group Magnitude": 71102.36,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "33.3%",
         "file_cluster_4": "50.0%",

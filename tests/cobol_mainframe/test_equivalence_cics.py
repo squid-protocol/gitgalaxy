@@ -2704,3 +2704,19 @@ def test_a_syncpoint_rollback_restarts_the_file_unit_of_work_instead_of_ending_i
     assert java.count("status.setRollbackOnly();") >= 2  # the refused and failed-run paths: the current unit
     restart = java[java.index("void restart()") :].split("void end()")[0]
     assert "tm.rollback(st);" in restart and "tm.getTransaction(" in restart
+
+
+@pytest.mark.parametrize("case", ["carddemo-acctview", "carddemo-cardview", "carddemo-signon"])
+def test_a_carddemo_hand_ports_send_text_carries_the_erase_freekb_its_cobol_passes(case):
+    """#5440: every CardDemo SEND TEXT ends ERASE FREEKB; #5412 compares the options, so a port that drops them fails."""
+    import re
+
+    sent = []
+    for src in sorted((Path(__file__).resolve().parents[1] / "equivalence" / case / "port").rglob("*.java")):
+        for call in re.findall(r"\.sendText\((.*?)\);", src.read_text(encoding="utf-8"), re.S):
+            # the one SEND FROM(ABEND-DATA) in COCRDSLC is a plain SEND, not SEND TEXT: it has no options
+            if "abendCode" not in call and "data, 134" not in call:
+                sent.append(call)
+    assert sent, "the port sends no text: the scan found nothing to check"
+    for call in sent:
+        assert '"ERASE"' in call and '"FREEKB"' in call, call

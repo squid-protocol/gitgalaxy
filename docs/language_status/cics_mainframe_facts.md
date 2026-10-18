@@ -1,5 +1,7 @@
 ---
-description: "Snapshot 2026-09-25, against `main` at the close of epics"
+description: "> **Dated historical snapshot (2026-09-25).** Read current counts on the generated [progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md) (#5282).
+
+Snapshot 2026-09-25, against `main` at the close of epics"
 ---
 # CICS / mainframe system facts — what GitGalaxy extracts, and how sure we are
 

@@ -1,9 +1,11 @@
 ---
-description: "**Status (2026-10-02): 48 programs are translated with no model and proven.** That is 27 from CardDemo, 8 from"
+description: "Dated snapshot (2026-10-02) of the deterministic translator design and its proof results; current counts are on the generated progress page."
 ---
 # Deterministic port (det-port): design and the runtime contract
 
-**Status (2026-10-02): 48 programs are translated with no model and proven.** That is 27 from CardDemo, 8 from
+> **Dated historical snapshot (2026-10-02).** The counts on this page were measured once and are not updated. For current counts (level per program, per estate) read the generated [progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md) (#5280, #5282).
+
+**Status at the 2026-10-02 snapshot: 48 programs were translated with no model and proven (equality on the case's runs).** That was 27 from CardDemo, 8 from
 CBSA and 13 from GenApp, over 50 equivalence cases; 17 of those cases run embedded SQL on a real Db2. Two cases are
 not proven on purpose, each with its reason (`KNOWN_UNPROVEN` in `tests/tools/proof_sweep.py`): COCRDUPC writes
 blanks into a `PIC 9(3)` field a typed DTO cannot hold (#4085), and `carddemo-intcalc-generated` depends on
@@ -881,7 +883,7 @@ The combined method runs in the porting loop like any other backend, and every e
   CREACC) is compared field by field, each side read by its own layout, and the POINTER only as NULL or not; **D1**, proofs compare text in ASCII order, z/OS in EBCDIC: indexed
   keys that mix letters and digits browse differently, and no audit has yet counted the in-program comparisons whose
   result could change.
-- **Breadth outside CardDemo** is 21 programs in two estates (CBSA 8, GenApp 13), 14 of them on Db2. CBSA's other
+- **Breadth outside CardDemo** (2026-10-02) was 21 programs in two estates (CBSA 8, GenApp 13), 14 of them on Db2. CBSA's other
   Db2 programs are blocked by C9 (INQACCCU, DELCUS, CREACC), by its
   output file and CEEGMT / CEEDATM calls (BANKDATA; its FUNCTION RANDOM translates since C12) or by having only a
   Java caller (ACCTCTRL). CRECUST translates whole since #4884 (CEEIGZCT stand-in L4, CEELOCT L5, FETCH / RUN CHANNEL

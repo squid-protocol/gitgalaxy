@@ -119,7 +119,8 @@ Everything runs locally and offline. `gitgalaxy assess` ([`gitgalaxy/tools/readi
      changes behaviour (on CardDemo's `COACTUPC`, every method rewrite was kept only because the proof still passed).
    - **A person or a model the customer chooses** ([the porting loop](../../../docs/language_status/porting_loop.md)):
      checked by [`cobol_to_java_guardrail.py`](cobol_to_java_guardrail.py) against the generated
-     project's inventory so it cannot invent endpoints, repositories, or unverified record fields.
+     project's inventory so it cannot invent endpoints, repositories, or unverified record fields,
+     or compare a String field with `compareTo` / `equals` instead of `CobolCompare` (`collation`, #4035).
 4. **Prove (`port_runner prove`).** Runs the equivalence harness
    ([`tests/tools/equivalence.py`](../../../tests/tools/equivalence.py)): the COBOL under GnuCOBOL
    and the port on the JVM, with identical inputs. What must match byte for byte, per case kind:

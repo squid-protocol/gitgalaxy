@@ -23,6 +23,7 @@ dry run (dryrun.py) runs the det translator against a synthetic stub, keeping on
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import os
 import sys
@@ -136,7 +137,12 @@ def run(args: argparse.Namespace) -> int:
 
     from gitgalaxy.tools.readiness.schema import validate as check
 
-    report = build(estate, options=options, redact_key=key, verbose=args.verbose, translate=not args.no_translate)
+    translate = not args.no_translate
+    if translate and importlib.util.find_spec("tree_sitter_language_pack") is None:
+        # a clean `pip install gitgalaxy` has no COBOL parser: say so, rather than report every program as refused
+        print("gitgalaxy assess: translate-only dry run skipped: pip install gitgalaxy[translator]", file=sys.stderr)
+        translate = False
+    report = build(estate, options=options, redact_key=key, verbose=args.verbose, translate=translate)
     problems = check(report)
     if problems:
         for line in problems[:20]:

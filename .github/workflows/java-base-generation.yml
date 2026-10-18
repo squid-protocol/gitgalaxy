@@ -88,7 +88,7 @@ jobs:
         if: steps.kept.outputs.cache-hit != 'true'
         run: |
           cd gitgalaxy
-          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
+          tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
           pip install -e .
 
       - name: Cache the pinned corpora

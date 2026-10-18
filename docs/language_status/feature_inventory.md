@@ -112,12 +112,14 @@ program calls that are not modelled (MQ beyond the CICS MQOPEN / MQGET / MQPUT /
 (the evidence report and the inventory's era tags): the evidence ladder with counts (L0-L5, translated whole, with
 holes, refused by reason; a whole-translated program whose CALL / LINK target has holes is counted apart and stays below
 L2), the era mix, the **rules to land** ranked by `cics_census.blockers()` (the `cics_census.py blockers` order, each
-rule with the era mix of the programs it alone blocks), the missing inputs of `estate_intake.py`, the register entries
+rule with the era mix of the programs it alone blocks), the **proof blockers** (#5229: what stops a whole-translated
+program being proven, ranked with `proof_blockers.rank()` over the classes of each program's `next` entries in the
+report; not a `proof_blockers.py` run, which needs a survey and the corpora), the missing inputs of `estate_intake.py`, the register entries
 the commands name, and the charter bars. It is rendered to `docs/language_status/readiness_report.md` by
 `generated_docs.py` and published to `generated`, not committed.
 ```bash
 python tests/tools/readiness_report.py [ESTATE ...] [--json] [--previous EARLIER.json] [--top N] [--out FILE]
 ```
 Output is deterministic (no date, path or host); `--json` output fed back as `--previous` adds a "Since the previous
-run" section (ladder counts and rule rank moves). Levels are evidence levels, never a bare "proven"; the oracle is
+run" section (ladder counts, rule and proof-gap rank moves). Levels are evidence levels, never a bare "proven"; the oracle is
 GnuCOBOL plus our stub, not z/OS.

@@ -111,3 +111,74 @@ def test_main_json_round_trips(tmp_path):
     out = tmp_path / "r.json"
     assert rr.main(["--json", "--out", str(out)]) == 0
     assert json.loads(out.read_text(encoding="utf-8")) == json.loads(json.dumps(rr.build(), sort_keys=True))
+
+
+def test_every_next_entry_of_a_whole_program_is_classified():
+    """#5229: a new evidence-report wording must be added to PROOF_CLASSES, not fall through to the raw-text fallback."""
+    seen = 0
+    for name in rr.estates():
+        report = json.loads((FIXTURE_REPORTS / name / "report.json").read_text(encoding="utf-8"))
+        for p in report["programs"]:
+            if not p["translation"]["whole"]:
+                continue
+            for n in p["next"]:
+                got = rr.proof_class(n)
+                seen += 1
+                assert got is None or got in rr.PROOF_CLASS_NAMES, n
+    assert seen
+
+
+def test_proof_classes_strip_numbers_and_ids():
+    a = rr.proof_class("paragraph coverage >= 100.0 (now 57.1)")
+    assert a == rr.proof_class("paragraph coverage >= 100.0 (now 98.4)") == "coverage: paragraphs below the bar"
+    assert rr.proof_class("branch coverage >= 100.0 net (now 50.0 raw, 50.0 net of the reviewed)") == (
+        "coverage: branch outcomes below the bar"
+    )
+    assert rr.proof_class("every surviving mutant of the det port accounted for: not yet measured (#4628)") is None
+    assert rr.proof_class(
+        "its det port equal on every scenario of x: ledgered as differing (#4803): A CALLs B, which has holes"
+    ) == ("callee has holes")
+    assert rr.proof_class("a brand new wording 12") == "a brand new wording N"  # kept, never dropped
+
+
+def test_proofs_rank_counts_only_whole_programs_and_leaves_out_l5():
+    l5 = "every surviving mutant of the det port accounted for: not yet measured (#4628)"
+    progs = [
+        prog("A", "L3", nxt=[l5]),  # no proof gap but the L5 hook: proven
+        prog("B", "L1", nxt=["an equivalence case that runs it", l5]),
+        prog("C", "L2", nxt=["paragraph coverage >= 100.0 (now 50.0)", "an equivalence case that runs it"]),
+        prog("D", "L0", gaps=["g"], nxt=["translated whole (3 holes left)"]),  # not whole: out of the proof ranking
+    ]
+    r = rr.proofs_to_land(progs)
+    assert (r["whole"], r["proven"]) == (3, 1)
+    by = {g["gap"]: g for g in r["ranked"]}
+    assert by["no case"]["only"] == 1 and by["no case"]["touched"] == 2
+    assert by["coverage: paragraphs below the bar"]["only"] == 0
+    assert by["coverage: paragraphs below the bar"]["touched"] == 1
+    assert r["ranked"][0]["gap"] == "no case"
+
+
+def test_proofs_ranking_equals_proof_blockers_rank_on_the_fixtures():
+    import proof_blockers as pb
+
+    for name in rr.estates():
+        report = json.loads((FIXTURE_REPORTS / name / "report.json").read_text(encoding="utf-8"))
+        progs = {
+            ("", p["program"]): (True, {c for n in p["next"] if (c := rr.proof_class(n))})
+            for p in report["programs"]
+            if p["translation"]["whole"]
+        }
+        want = [(g["gap"], g["only"], g["one_away"], g["touched"]) for g in pb.rank(progs)["gaps"]]
+        got = rr.proofs_to_land(report["programs"], top=0)["ranked"]
+        assert [(g["gap"], g["only"], g["one_away"], g["touched"]) for g in got] == want
+
+
+def test_proof_section_is_rendered_and_in_the_delta():
+    old = rr.build()
+    new = json.loads(json.dumps(old))
+    name = next(iter(new["estates"]))
+    pr = new["estates"][name]["proofs_to_land"]["ranked"]
+    assert "### Proof blockers" in rr.render(new)
+    if pr:
+        pr[0]["only"] += 3
+        assert rr.delta(old, new)[name]["proofs"][pr[0]["gap"]]["only"][1] == pr[0]["only"]

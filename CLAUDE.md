@@ -100,7 +100,7 @@ brain, or changing `SIGNAL_SCHEMA`, means a golden re-bless with the drift attri
 
 ## Orientation, debugging, signatures (pointers; details are on demand)
 
-- **Before editing a file, even when the task names exact lines**, check its risk standing (brief Sections 7, 8, 11 in `docs/gitgalaxy_architecture_brief.md`, or the self-scan DB) rather than guess how conservative to be. Query recipes, DB regen, and dependency caveats: `docs/agents/self-scan-orientation.md`.
+- **Before editing a file, even when the task names exact lines**, check its risk standing (brief Sections 7, 8, 11: `python tests/tools/generated_branch.py show docs/gitgalaxy_architecture_brief.md`, published daily to the `generated` branch and not in the checkout, or the self-scan DB) rather than guess how conservative to be. Query recipes, DB regen, and dependency caveats: `docs/agents/self-scan-orientation.md`.
 - Signal looks wrong for a file: check the engine's actual extraction first (`galaxyscope <path> --db-only --debug --output <scratch>`, grep `[WORKER-TRACE]`). Details, including the registry-declaration trap (a string value inside a language's `rules` is compiled to a regex; helper keys go at the TOP LEVEL of the definition) and scan non-determinism (`GALAXYSCOPE_MAX_WORKERS=1`): `docs/agents/detector-debugging.md`.
 - Adding or hardening a language: read `gitgalaxy/standards/how_to_add_a_language.md` directly (never paraphrase it); use the `harden-language-extraction` skill. Layout of strict/gauntlet tests: `docs/agents/language-signatures.md`.
 

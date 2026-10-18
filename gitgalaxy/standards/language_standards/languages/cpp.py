@@ -50,6 +50,9 @@ DEFINITION: dict[str, Any] = {
         ".cp",
         ".C",
         ".H",
+        # #5465: Arduino / Processing-style sketches are C++ (doom-nano's entry file is a .ino).
+        ".ino",
+        ".pde",
     ],
     # ABSOLUTE IDENTITY & EXACT FILENAMES: Extensionless build/config scripts and tooling configs that are secretly pure code.
     "exact_matches": [],

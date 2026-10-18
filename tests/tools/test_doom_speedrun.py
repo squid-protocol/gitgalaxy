@@ -13,6 +13,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / "doom_speedrun"))
 
+import doom_clang  # noqa: E402
 import doom_scorer  # noqa: E402
 import doom_speedrun  # noqa: E402
 
@@ -114,3 +115,39 @@ def test_fetch_port_checks_out_exactly_the_pinned_sha(tmp_path):
 def test_work_dir_inside_repo_is_refused():
     with pytest.raises(SystemExit, match="outside the repo"):
         doom_speedrun.main(["fetch", "--only", "linuxdoom", "--work", str(doom_speedrun.REPO_ROOT / "scratch_doom")])
+
+
+def test_clang_counts_macro_defined_function_and_skips_included_definitions(tmp_path):
+    pytest.importorskip("clang.cindex")
+    (tmp_path / "inc.h").write_text("static int from_header(void){return 0;}\n")
+    (tmp_path / "x.c").write_text(
+        '#define DEF(n) int n(void){return 1;}\nDEF(a)\nint b(void){return 2;}\nint proto(void);\n#include "inc.h"\n'
+    )
+    (tmp_path / "y.cpp").write_text(
+        "struct S { int m() { return 1; } S() {} };\nnamespace n { int f() { return 2; } }\n"
+    )
+    res = doom_clang.clang_counts(tmp_path, ["x.c", "y.cpp", "notes.txt"])
+    if res is None:
+        pytest.skip("libclang shared library not loadable")
+    counts, with_errors, from_db = res
+    assert counts == {"x.c": 2, "y.cpp": 3}  # DEF(a) counted, the prototype and the header's function are not
+    assert (with_errors, from_db) == (0, 0)
+
+
+def test_clang_counts_without_libclang_is_none(tmp_path, monkeypatch):
+    monkeypatch.setattr(doom_clang, "_index", lambda: (None, None))
+    assert doom_clang.clang_counts(tmp_path, ["x.c"]) is None
+
+
+def test_compile_commands_flags_are_keyed_by_real_path_without_compiler_or_output(tmp_path):
+    (tmp_path / "a.c").write_text("")
+    (tmp_path / "compile_commands.json").write_text(
+        '[{"directory": "%s", "file": "a.c", "command": "cc -DX=1 -Iinc -c a.c -o a.o"}]' % tmp_path
+    )
+    assert doom_clang.compile_commands(tmp_path) == {str((tmp_path / "a.c").resolve()): ["-DX=1", "-Iinc"]}
+    assert doom_clang.compile_commands(tmp_path / "nowhere") == {}
+
+
+def test_clang_port_not_in_the_run_is_an_error(tmp_path):
+    with pytest.raises(SystemExit, match="not in this run"):
+        doom_speedrun.main(["score", "--only", "linuxdoom", "--clang", "gore", "--work", str(tmp_path)])

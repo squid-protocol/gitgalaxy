@@ -3008,6 +3008,11 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   layout bytes (`toCommarea`) differ from a byte the RETURN passed, unless the DTO's byte is a space (FILLER, an unset field;
   0x20 or 0x40, the page being unknown to CicsTask). The byte-carrying `handleTransaction(.., byte[])` reads `returnedBytes()` first
   and answers as before. A DTO with no layout, or a RETURN with no bytes beside it, is unchanged. The check is a lower bound: a loss under a space byte of the DTO's layout is not seen.
+- **Round trip (#5053).** A kept `byte[]` answer is the region's EBCDIC, while the bytes beside a request (the byte-carrying
+  `handleTransaction` / `handleLink` `area`, `lastAnswerBytes()`, `lastLinkBytes()`) are in the port's page. An `Object` request
+  that is itself a `byte[]` together with an `area` is one COMMAREA in two charsets: that facade overload stops by name
+  (`IllegalArgumentException`) rather than take either. A typed request cannot be a `byte[]`; no committed port changes
+  (`det_port.py check`: 122/122 unchanged).
 - **Status:** ASSUMED. The oracle's (GnuCOBOL) storage past the LENGTH of a copied COMMAREA is not IBM's either; no program may rely on it.
 
 ### X52. File update TOKEN: READ UPDATE TOKEN / REWRITE TOKEN / DELETE TOKEN / UNLOCK TOKEN — ASSUMED, REFUSED where IBM is silent (#5078)

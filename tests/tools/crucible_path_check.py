@@ -30,6 +30,7 @@ the new corpus (it is the same corpus the golden-crucible check scans).
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import os
 import shutil
 import subprocess
@@ -99,8 +100,12 @@ def main(argv: list[str] | None = None) -> int:
         neutral_dir = stage_corpus(args.corpus, work.joinpath(*NEUTRAL_PARENT))
         special_dir = stage_corpus(args.corpus, work.joinpath(*SPECIAL_PARENT))
         print(f"neutral : {neutral_dir}\nspecial : {special_dir}", flush=True)
-        neutral, neutral_error = scan(neutral_dir, work / "out-neutral")
-        special, special_error = scan(special_dir, work / "out-special")
+        # #5500: the two scans share nothing (own staged copy, own output dir), and one scan leaves
+        # cores idle outside its extraction pool, so run them together.
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+            neutral_future = pool.submit(scan, neutral_dir, work / "out-neutral")
+            special_future = pool.submit(scan, special_dir, work / "out-special")
+            (neutral, neutral_error), (special, special_error) = neutral_future.result(), special_future.result()
     finally:
         if not args.keep:
             shutil.rmtree(work, ignore_errors=True)

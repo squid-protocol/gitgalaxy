@@ -255,6 +255,43 @@ def test_the_inqacc_port_holds_on_generated_db2_rows(tmp_path):
     assert any(e.get("abcode") == "HRAC" for o in outs for e in o["cobol"])
 
 
+def _det_port_generated(case, work):
+    """#4507: det-port the case (no hand port exists for these CBSA programs), prove it, return the report."""
+    import json
+    import shutil
+    import subprocess
+
+    if not shutil.which("docker"):
+        pytest.skip("no docker")
+    tool = Path(__file__).resolve().parents[1] / "tools" / "det_port.py"
+    proc = subprocess.run([sys.executable, str(tool), "run", case, "--work", str(work)],  # noqa: S603
+                          capture_output=True, text=True, check=False)  # fmt: skip
+    assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
+    return json.loads((work / case / "proof" / "report.json").read_text())
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_acctctrl_det_port_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's ACCTCTRL (CICS, SELECT COUNT(*)) on 30 generated ACCOUNT rows: the count answered alike on both sides."""
+    report = _det_port_generated("cbsa-acctctrl-generated", tmp_path)
+    assert report["proven"] is True and report["db2_generated"] == {"IBMUSER.ACCOUNT": 30}
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    assert len(sql) == 6 and all(q["statements"] and q["equal"] == q["statements"] for q in sql)
+    assert report["coverage"]["branches"]["covered"] == report["coverage"]["branches"]["total"]
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_delacc_det_port_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's DELACC (CICS, SELECT + DELETE + PROCTRAN INSERT) on 30 generated ACCOUNT rows: statements answered alike
+    (+0 and +100), ACCOUNT and PROCTRAN alike after every task, and a generated NULL date abends HRAC on both sides."""
+    report = _det_port_generated("cbsa-delacc-generated", tmp_path)
+    assert report["proven"] is True and report["db2_generated"] == {"IBMUSER.ACCOUNT": 30}
+    sql = [o["sql"] for o in report["outputs"].values() if "sql" in o]
+    assert sql and all(q["statements"] and q["equal"] == q["statements"] for q in sql)
+    assert {x["sqlcode"] for q in sql for x in q["cobol"]} >= {0, 100}
+    assert any(e.get("abcode") == "HRAC" for o in report["outputs"].values() for e in o["cobol"])
+
+
 _BATCH_CBL = """\
        FD TR-RECORD RECORDING MODE F.
        01 WS-INPUT-VARS.

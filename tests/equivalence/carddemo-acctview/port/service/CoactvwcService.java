@@ -180,7 +180,7 @@ public class CoactvwcService {
             sendMap(task, ca, w);
         } else {
             // WHEN OTHER: SEND-PLAIN-TEXT, which ends the task with a plain RETURN.
-            task.sendText(fit("UNEXPECTED DATA SCENARIO", 75));
+            task.sendText(fit("UNEXPECTED DATA SCENARIO", 75), 75, "ERASE", "FREEKB");
             task.returnTransid(null, null);
             return;
         }

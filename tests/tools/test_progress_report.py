@@ -294,3 +294,32 @@ def test_det_survey_is_a_dated_snapshot_with_no_current_proof_count():
     text = (REPO / "docs/language_status/det_survey.md").read_text(encoding="utf-8")
     assert "Dated historical snapshot" in text and PAGE in text
     assert "programs are proven" not in text
+
+
+# ---- docs/language_status pages that quote a status count are dated snapshots (#5282) ---------------------------------
+
+SNAPSHOT_PAGES = (
+    "det_survey.md",
+    "det_port_design.md",
+    "cics_mainframe_facts.md",
+    "construct_correspondence.md",
+)
+
+
+@pytest.mark.parametrize("name", SNAPSHOT_PAGES)
+def test_a_status_page_with_counts_is_a_dated_snapshot_pointing_at_the_progress_page(name):
+    text = (REPO / "docs/language_status" / name).read_text(encoding="utf-8")
+    assert re.search(r"Dated historical snapshot \(\d{4}-\d{2}-\d{2}\)", text), name
+    assert PAGE in text, name
+
+
+def test_no_status_page_states_a_current_proof_count_undated():
+    text = (REPO / "docs/language_status/det_port_design.md").read_text(encoding="utf-8")
+    assert "**Status (2026-10-02): 48 programs" not in text
+    assert "Breadth outside CardDemo** is" not in text
+
+
+def test_fact_ownership_quotes_no_corpus_size():
+    text = (REPO / "docs/language_status/fact_ownership.md").read_text(encoding="utf-8")
+    universe = _section(text, "- **Universe:**", "- **Engine side:**")
+    assert not re.search(r"\b\d+\s+(?:sources|programs|copybooks|COBOL programs)\b", universe), universe

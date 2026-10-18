@@ -131,7 +131,7 @@ _EXPECTED_NONE_KEYS = {"ui_framework", "closures", "ssr_boundaries", "dependency
 def test_ada_schema_completeness():
     missing = set(_BASELINE_KEYS) - set(ADA_RULES.keys())
     assert not missing, f"ada rules dict is missing baseline keys entirely (not even None): {missing}"
-    extra = set(ADA_RULES.keys()) - set(_BASELINE_KEYS)
+    extra = set(ADA_RULES.keys()) - set(_BASELINE_KEYS) - {"_line_gates"}
     assert not extra, f"ada rules dict has unexpected keys not in the baseline schema: {extra}"
 
 

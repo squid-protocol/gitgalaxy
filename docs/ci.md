@@ -65,8 +65,9 @@ To create or refresh the label set (idempotent), run the reconcile workflow by h
 A check that `flake_history.py` learned is flaky (passed on a rerun at least 3 times, 80% of its reruns, last 14 days)
 gets one automatic rerun for its first failure instead of going to a fixer as `real`. `shepherd_gh.py reconcile --flake-cache FILE`
 (or `$SHEPHERD_FLAKE_CACHE`) reads `flake_history.json`; it never scans. No cache means no learned flakes, never a wait.
-Keeping that file across workflow runs (Actions cache restore, `flake_history.py --refresh-only` when it is over 6 hours
-old, save) is a `shepherd-reconcile.yml` change still to be made by the owner (#5398).
+Both shepherd workflows restore the file from the Actions cache (`flake-history-*`, newest wins) and pass `--flake-cache`;
+`shepherd-reconcile.yml` also runs `flake_history.py --refresh-only` when it is over 6 hours old (best effort, 12 minute cap)
+and saves the cache even when the pass failed (#5398).
 
 ## Fallback
 
@@ -107,14 +108,23 @@ ground-truth tests' seconds in `.test_durations` from the `test-times-ground-tru
 (`continue-on-error`, not in `full-suite`'s needs). The smoke full-suite parts balance by the newest nightly's durations cache (#4847), falling back to the committed
 `.test_durations`, which the ground-truth parts and the OS-matrix gate always read.
 
+**Measured after #5264 (main push run 39108505757, 2026-10-18).** `ground-truth part 1/2` 11.0 min, `part 2/2` 11.3 min (the
+aggregate `ground-truth` check green about 1 min later), against one job of about 14-16.5 min before the split: the parts are
+within 3% of each other and time-to-green on this check fell by 3-5 min. `.test_durations` had no seconds for 696 of the
+5782 `tests/cobol_mainframe/` tests the parts ran and a stale value for 86 more; it is now refreshed from that run's
+`test-times-ground-truth-part-N` artifacts (the two files hold disjoint halves, so `merge_test_durations.py` merged them with
+no conflict), and a replay of `least_duration` over it gives two parts of 1354 s each. The full-suite after-numbers need a
+completed main smoke run after #5264: run 39108505787 was superseded (part 2 cancelled), so they are not recorded here.
+`test_the_ground_truth_seconds_are_recorded_and_the_parts_balanced` pins both facts. The 8 warnings `time_ratchet.py check`
+now prints (10-11.4 s tests under `-n auto` contention in the ground-truth job) fail nothing: the limit is 15 s.
+
 `ground-truth` also has a `plan` job (#5164, `tests/tools/ground_truth_plan.py`, as `det` has `det_sweep_plan.py`): a PR whose every changed file is a provable non-input (docs outside `docs/language_status/`, `.claude/`, churn / shepherd tooling, workflows and test directories the job does not read) skips both parts and passes in about a minute. The list is an allow-list of what the job does not read: an unlisted file is an input, and push, nightly and manual runs are always full.
 
 ## Heavy jobs on the PR and again on the push (tested-tree, #4935)
 
 `mainframe-ground-truth.yml`, `smoke-test.yml` (its `full-suite` parts) and `java-compile.yml` run on the PR and again
 when it merges, because the push run does something a later dispatch cannot: ground truth appends and publishes its history
-per push, the full suite is the per-merge regression net, and java-compile's push run seeds the
-`java-same-base-<corpus>-<sha>` cache that PRs based on that commit restore. Their `tested-tree` job
+per push, the full suite is the per-merge regression net, and java-compile's push run builds main's tree. Their `tested-tree` job
 (`tests/tools/skip_tested_tree.py`, rule and tests in `tests/tools/test_skip_tested_tree.py`) skips the push run when
 the merged commit's tree SHA equals the PR head's tree SHA, the commit's parent is in the head (so the PR run's test
 merge was that same tree), and the newest `pull_request` run of the same workflow on the head succeeded. Red, cancelled,
@@ -134,7 +144,11 @@ filter matched on main: a missing run is never a proof. The PR must also have ta
 `tests/tools/test_tested_tree_workflows.py` pins each workflow's wiring and its PR/push filter pair, so a filter edit is a
 reviewed decision, and fails when a workflow on both a PR and a main push has no gate (or a gate has no push to skip).
 `java-compile`'s PR run may skip its build when the generated Java equals the base's (`--same-as`); the skipped push is
-then the same tree as a base whose own push built it.
+then the same tree as a base whose own push built it. The base's generation comes from the `java-same-base-<corpus>-<content hash>`
+cache, which `java-base-generation.yml` seeds on every main push that touches the generation inputs (#5142): not in
+java-compile's push run, which is cancelled by the next push (#4825) or skipped by tested-tree and so saved nothing, leaving
+most PRs to regenerate the base's two paths (dsf: 420-520 s). Its per-sha concurrency group never cancels, and a lookup-only
+restore makes a push whose content key exists cost seconds.
 
 Main Watch still gets a verdict: the workflow concludes `success` or `failure`, and a skip is a true green, because that
 exact tree passed the same workflow on the PR. Main Watch ignores only workflow runs that conclude `skipped` or

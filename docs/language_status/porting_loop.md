@@ -3,6 +3,10 @@ description: "The porting loop (#3753, `gitgalaxy.tools.cobol_to_java.port_runne
 ---
 # The porting loop on CardDemo: what an unattended model proves, and what it taught us
 
+> **Dated historical snapshot (2026-10-04).** These are the measurements of the loop on CardDemo. The numbers below were measured once and are not updated. For current counts (translated whole, level per program, per estate) read the generated
+> [progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md)
+> (#5280, #5282).
+
 The porting loop (#3753, `gitgalaxy.tools.cobol_to_java.port_runner`) gives a model one program's porting ticket.
 The model writes the Java, and the equivalence harness (#3624) proves the Java against the original COBOL: every
 output record, every CICS event or CALL result, and every injected fault (#4023 follow-up). A failed proof's findings

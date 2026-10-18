@@ -115,7 +115,9 @@ GLOBAL_FRAGILE_DEBT = re.compile(f"{_HYPHEN_IDENT_PRE}{_SPACED_FRAGILE}{_HYPHEN_
 #   after `import` must BE the package, optionally followed by a submodule
 #   (`from openai.types import X`). Anchored at a statement start (line start or
 #   `;`), so `from airflow.providers import openai` and `from . import openai`
-#   are not package imports. Pieces are adjacent-disjoint (`[\w.]+` / `[ \t]` /
+#   are not package imports. The anchor also excludes a doctest
+#   `>>> import openai` / `... import openai` line: decided NOT to count it (#4250), as for
+#   the general python `import` rule (#2875 C5); pinned by test_doctest_import_policy_4250. Pieces are adjacent-disjoint (`[\w.]+` / `[ \t]` /
 #   `,`) and the item list is bounded, so there is no Rule-14 split ambiguity.
 # * JS/TS (`_js_package_import`): the module SPECIFIER (the quoted string after
 #   `from` / `import` / `require(` / `import(`) must name the package. A relative
@@ -158,15 +160,27 @@ JS_LLM_ORCHESTRATOR = _js_package_import(r"langchain|llamaindex|@(?:langchain|ll
 # llm_vector_store (#4150): Chroma and Pinecone (npm: `@pinecone-database/*`).
 PY_LLM_VECTOR_STORE = _py_package_import(r"chromadb|pinecone")
 JS_LLM_VECTOR_STORE = _js_package_import(r"chromadb|@pinecone-database/[\w.-]+")
-# ml_traditional (#4150): scikit-learn. There is no js/ts scikit-learn; the
-# anchored name is kept so a literal `require('sklearn')` still counts.
-PY_ML_TRADITIONAL = _py_package_import(r"sklearn")
-JS_ML_TRADITIONAL = _js_package_import(r"sklearn")
-# dl_frameworks (#4150): TensorFlow, PyTorch, Keras. On npm TensorFlow.js ships
-# as the `@tensorflow/*` and `@tensorflow-models/*` scopes; the bare names are
-# kept so a literal `from 'tensorflow'` still counts.
-PY_DL_FRAMEWORKS = _py_package_import(r"tensorflow|torch|keras")
-JS_DL_FRAMEWORKS = _js_package_import(r"tensorflow|torch|keras|@tensorflow(?:-models)?/[\w.-]+")
+# ml_traditional (#4150, #4252): scikit-learn and the gradient-boosting
+# libraries (`xgboost`, `lightgbm`, `catboost`). There is no js/ts equivalent, so
+# the javascript/typescript rule is the stated absence (None, #4251): a pattern
+# for the literal specifier `'sklearn'` matched nothing real on npm.
+PY_ML_TRADITIONAL = _py_package_import(r"sklearn|xgboost|lightgbm|catboost")
+# dl_frameworks (#4150, #4252): TensorFlow, PyTorch, Keras and their companion
+# distributions (`torchvision`, `torchaudio`, `torchtext`, `tensorflow_hub`,
+# `tensorflow_datasets`, `tensorflow_text`), plus Hugging Face `transformers`.
+# Each is a top-level package of its own: the `(?!\w)` anchor means `torch` never
+# matches `torchvision`, so every companion is named. Generic names (`datasets`,
+# `accelerate`, `peft`) are left out: they appear in non-ML code. On npm
+# TensorFlow.js ships as the `@tensorflow/*` and `@tensorflow-models/*` scopes and
+# Transformers.js as `@huggingface/transformers` / `@xenova/transformers`; the bare
+# names are kept so a literal `from 'tensorflow'` still counts.
+PY_DL_FRAMEWORKS = _py_package_import(
+    r"tensorflow|torch|keras|transformers|torchvision|torchaudio|torchtext"
+    r"|tensorflow_hub|tensorflow_datasets|tensorflow_text"
+)
+JS_DL_FRAMEWORKS = _js_package_import(
+    r"tensorflow|torch|keras|transformers|@tensorflow(?:-models)?/[\w.-]+|@(?:huggingface|xenova)/transformers"
+)
 
 # hardware_bridge / cryptography (#4238): the last two import-anchored rules had the
 # same `\b(?:import|require|from)\b.*?(?:names)\b` shape (library name ANYWHERE on

@@ -3,6 +3,8 @@ description: "Generated with `tests/tools/construct_map.py` (scan, then analyze)
 ---
 # Construct correspondence: what each COBOL construct becomes in Java
 
+> **Dated historical snapshot (2026-10-02).** The counts on this page were measured once and are not updated. For current counts (level per program, per estate) read the generated [progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md) (#5280, #5282).
+
 Generated with `tests/tools/construct_map.py` (scan, then analyze) on 2026-10-02. It covers 49 converted programs
 across CardDemo, CBSA and GenApp, in three forms:
 

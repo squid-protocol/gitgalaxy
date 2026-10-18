@@ -36,6 +36,7 @@ from collections.abc import Iterator
 import cobol_coverage as cov  # #4023
 import equivalence_common as common
 import equivalence_cics_containers as cics_containers  # #5274: the channels / containers family
+import equivalence_cics_filecontrol as cics_filecontrol  # #5274: the file control family
 import equivalence_db2
 import equivalence_inputs  # #3804
 import equivalence_mq  # #4892
@@ -1447,165 +1448,10 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
     def name(operand: str | None, into: str) -> str:
         return f"MOVE {operand} TO {into}" if operand else f"MOVE SPACES TO {into}"
 
-    if verb == "READ":
-        _check_spec("READ", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
-        for bad in ("RBA", "XRBA", "RRN"):
-            if bad in opts:
-                raise _stub_only(f"READ {bad}")
-        file, into, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("INTO"), opts.get("RIDFLD")
-        setp = opts.get("SET")  # #5042 (X58): SET(pointer) -> GGCRDST, the record as a new block
-        if "SET" in opts and into:
-            raise Unsupported(_rule("READ", "one_of", "INTO"), ["READ"])
-        if not (file and (into or setp) and ridfld):
-            raise Unsupported("READ without FILE / INTO / RIDFLD")
-        keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
-        # #4270 GTEQ / GENERIC (X22): a search, the generic key KEYLENGTH long; the option rules as the translator's
-        if "GTEQ" in opts and "EQUAL" in opts:
-            raise Unsupported(_rule("READ", "at_most_one", "EQUAL", "EQUAL", "GTEQ"), ["READ GTEQ"])
-        if "GENERIC" in opts and "KEYLENGTH" not in opts:
-            raise Unsupported(_rule("READ", "requires", "GENERIC"), ["READ GENERIC"])
-        # UPDATE holds the record; TOKEN (#5078, X52) implies it and holds it under a token of its own, GG-NUM out
-        words = [w for w in ("UPDATE", "TOKEN", "GTEQ", "GENERIC") if w in opts or (w == "UPDATE" and "TOKEN" in opts)]
-        if (
-            "KEYLENGTH" in opts and "GENERIC" not in opts
-        ):  # #5092 (X52): given, so INVREQ 26 unless it is the key's length
-            words.append("KEYLENGTH")
-        if "TOKEN" in opts and not opts["TOKEN"]:
-            raise Unsupported("READ TOKEN needs a data area", ["READ TOKEN"])
-        update = f"MOVE '{' '.join(words)}' TO GG-FLAGS" if words else "MOVE SPACES TO GG-FLAGS"
-        # #4436: LENGTH is in-out (IBM, EXEC CICS READ): in, the most INTO takes (a longer record is truncated, with
-        # LENGERR); out, the record's length, on NORMAL and LENGERR. Without it, LENGTH OF INTO (as the translator
-        # supplies it). A literal / LENGTH OF is set in a temporary no one reads.
-        length = opts.get("LENGTH")
-        settable = bool(length) and re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()) is None
-        after = ["IF GG-RESP = 0 OR GG-RESP = 22", f"    MOVE GG-LEN TO {length}", "END-IF"] if settable else []
-        if "TOKEN" in opts:
-            after += ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['TOKEN']}", "END-IF"]
-        if setp:  # (LENGTH(data-area) is set to the record's length, on NORMAL and DUPKEY, as the translator's)
-            if length and not settable:
-                raise Unsupported("READ SET with a literal LENGTH: only a data area is modelled", ["READ SET"])
-            after = ["IF GG-RESP = 0 OR GG-RESP = 15", f"    MOVE GG-LEN TO {length}", "END-IF"] if length else []
-            if "TOKEN" in opts:
-                after += ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['TOKEN']}", "END-IF"]
-            return ([name(file, "GG-NAME1"), update, "MOVE 0 TO GG-LEN"]
-                    + _call("GGCRDST", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {_pointer('READ', setp)}"])
-                    + after + _resp(opts, True, labels))  # fmt: skip
-        return ([name(file, "GG-NAME1"), update, f"MOVE {length or f'LENGTH OF {into}'} TO GG-LEN"]
-                + _call("GGCREAD", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {into}",
-                                    f"BY VALUE LENGTH OF {into}"])
-                + after + _resp(opts, True, labels))  # fmt: skip
-    if verb == "WRITE" and {"FILE", "DATASET"} & set(opts):
-        _check_spec("WRITE", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
-        for bad in ("RBA", "XRBA", "RRN"):
-            if bad in opts:
-                raise _stub_only(f"WRITE {bad}")
-        file, frm, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("FROM"), opts.get("RIDFLD")
-        if not (file and frm and ridfld):
-            raise Unsupported("WRITE without FILE / FROM / RIDFLD")
-        keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
-        return ([name(file, "GG-NAME1")]
-                + _call("GGCWRIT", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {frm}",
-                                    f"BY VALUE {opts.get('LENGTH') or f'LENGTH OF {frm}'}"])
-                + _resp(opts, True, labels))  # fmt: skip
-    if verb == "REWRITE" and ({"FILE", "DATASET"} & set(opts)):
-        _check_spec("REWRITE", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
-        file, frm = opts.get("FILE") or opts.get("DATASET"), opts.get("FROM")
-        if not (file and frm):
-            raise Unsupported("REWRITE without FILE / FROM")
-        length = opts.get("LENGTH") or f"LENGTH OF {frm}"  # LENGTH bytes from FROM's first, as CICS reads them
-        if "TOKEN" in opts:  # #5078 (X52): the record the READ UPDATE TOKEN holds (GG-NUM in)
-            if not opts["TOKEN"]:
-                raise Unsupported("REWRITE TOKEN needs a value", ["REWRITE TOKEN"])
-            return ([name(file, "GG-NAME1"), "MOVE 'TOKEN' TO GG-FLAGS", f"MOVE {opts['TOKEN']} TO GG-NUM"]
-                    + _call("GGCREWR", [f"BY REFERENCE {frm}", f"BY VALUE {length}"]) + _resp(opts, True, labels))  # fmt: skip
-        return ([name(file, "GG-NAME1"), "MOVE SPACES TO GG-FLAGS"] + _call("GGCREWR", [f"BY REFERENCE {frm}", f"BY VALUE {length}"])
-                + _resp(opts, True, labels))  # fmt: skip
-    if verb == "STARTBR":  # browse (CardDemo's lists): one browse per file, full keys -- or an ESDS's RBAs (#4213)
-        rba = "RBA" in opts
-        _check_spec("STARTBR", opts, (verb,), lambda bad: [f"STARTBR {'RBA ' if rba else ''}{bad[0]}"])
-        for bad in ("RRN", "XRBA") + (("GTEQ", "KEYLENGTH") if rba else ()):
-            if bad in opts:
-                raise _stub_only(f"STARTBR {'RBA ' if rba else ''}{bad}")
-        file, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("RIDFLD")
-        if not (file and ridfld):
-            raise Unsupported("STARTBR without FILE / RIDFLD")
-        keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
-        # GTEQ is a keyed browse's default; EQUAL "is the default for a direct ESDS browse" (IBM, STARTBR), and GTEQ
-        # "is not valid for directly browsing an ESDS"
-        mode = ("MOVE 'EQUAL RBA' TO GG-FLAGS" if rba else
-                "MOVE 'EQUAL' TO GG-FLAGS" if "EQUAL" in opts else "MOVE SPACES TO GG-FLAGS")  # fmt: skip
-        return ([name(file, "GG-NAME1"), mode] + _call("GGCSTBR", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}"])
-                + _resp(opts, True, labels))  # fmt: skip
-    if verb in ("READNEXT", "READPREV"):
-        rba = "RBA" in opts  # #4213: every READNEXT / READPREV of an RBA browse says RBA too
-        _check_spec(verb, opts, (verb,), lambda bad: [f"{verb} {'RBA ' if rba else ''}{bad[0]}"])
-        for bad in ("RRN", "XRBA") + (("KEYLENGTH",) if rba else ()):
-            if bad in opts:
-                raise _stub_only(f"{verb} {'RBA ' if rba else ''}{bad}")
-        file, into, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("INTO"), opts.get("RIDFLD")
-        setp = opts.get("SET")  # #5042 (X58): SET(pointer) -> GGCRDNS / GGCRDPS, the record as a new block
-        if "SET" in opts and (into or rba or opts.get("LENGTH")):
-            raise Unsupported(f"{verb} SET with INTO, RBA or LENGTH: not modelled", [f"{verb} SET"])
-        if not (file and (into or setp) and ridfld):
-            raise Unsupported(f"{verb} without FILE / INTO / RIDFLD")
-        keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
-        if setp:
-            stub = "GGCRDNS" if verb == "READNEXT" else "GGCRDPS"
-            return ([name(file, "GG-NAME1"), "MOVE SPACES TO GG-FLAGS"]
-                    + _call(stub, [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {_pointer(verb, setp)}"])
-                    + _resp(opts, True, labels))  # fmt: skip
-        stub = "GGCRDNX" if verb == "READNEXT" else "GGCRDPV"
-        return ([name(file, "GG-NAME1"), "MOVE 'RBA' TO GG-FLAGS" if rba else "MOVE SPACES TO GG-FLAGS"]
-                + _call(stub, [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {into}",
-                               f"BY VALUE LENGTH OF {into}"])
-                + _resp(opts, True, labels))  # fmt: skip
-    if verb == "ENDBR":
-        _check_spec("ENDBR", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
-        file = opts.get("FILE") or opts.get("DATASET")
-        if not file:
-            raise Unsupported("ENDBR without FILE")
-        return [name(file, "GG-NAME1")] + _call("GGCENBR", []) + _resp(opts, True, labels)
-    if verb == "DELETE" and ({"FILE", "DATASET"} & set(opts)):
-        _check_spec("DELETE", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
-        for bad in ("RBA", "XRBA", "RRN"):
-            if bad in opts:
-                raise _stub_only(f"DELETE {bad}")
-        file, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("RIDFLD")
-        if "TOKEN" in opts and "GENERIC" in opts:  # #5078 (X52)
-            raise Unsupported(_rule("DELETE", "at_most_one", "GENERIC", "GENERIC", "TOKEN"), ["DELETE TOKEN"])
-        if "GENERIC" in opts:  # #4771 (X22): every record with the generic key, KEYLENGTH long
-            for o in ("KEYLENGTH", "RIDFLD"):
-                if not opts.get(o):
-                    raise Unsupported(next(g.msg for g in SPEC["DELETE"].groups if o in g.any_of), ["DELETE GENERIC"])
-            args = [f"BY REFERENCE {ridfld}", f"BY VALUE {opts['KEYLENGTH']}"]
-            return ([name(file, "GG-NAME1"), "MOVE 'GENERIC' TO GG-FLAGS"] + _call("GGCDELT", args)
-                    + _resp(opts, True, labels))  # fmt: skip
-        if "TOKEN" in opts:  # #5078 (X52): the record the READ UPDATE TOKEN holds, no RIDFLD
-            if ridfld:
-                raise Unsupported(_rule("DELETE", "at_most_one", "RIDFLD", "RIDFLD", "TOKEN"), ["DELETE TOKEN"])
-            if not opts["TOKEN"]:
-                raise Unsupported("DELETE TOKEN needs a value", ["DELETE TOKEN"])
-            return ([name(file, "GG-NAME1"), "MOVE 'TOKEN' TO GG-FLAGS", f"MOVE {opts['TOKEN']} TO GG-NUM"]
-                    + _call("GGCDELT", ["BY REFERENCE GG-FLAGS", "BY VALUE 0"]) + _resp(opts, True, labels))  # fmt: skip
-        if ridfld:  # the record with that key
-            keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
-            args = [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}"]
-            # #5092 (X22): a given KEYLENGTH is INVREQ 26 unless it is the key's length, as READ's (GG-FLAGS KEYLENGTH)
-            mode = "MOVE 'KEYLENGTH' TO GG-FLAGS" if opts.get("KEYLENGTH") else "MOVE SPACES TO GG-FLAGS"
-        else:  # the record a READ UPDATE holds
-            args, mode = ["BY REFERENCE GG-FLAGS", "BY VALUE 0"], "MOVE 'HELD' TO GG-FLAGS"
-        return [name(file, "GG-NAME1"), mode] + _call("GGCDELT", args) + _resp(opts, True, labels)
-    if verb == "UNLOCK" and ({"FILE", "DATASET"} & set(opts)):  # #5078 (X52): UNLOCK TOKEN -> GGCUNLK (GG-NUM in)
-        _check_spec("UNLOCK", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
-        file = opts.get("FILE") or opts.get("DATASET")
-        token = (
-            [f"MOVE {opts['TOKEN']} TO GG-NUM", "MOVE 'TOKEN' TO GG-FLAGS"]
-            if opts.get("TOKEN")
-            else ["MOVE SPACES TO GG-FLAGS"]
-        )
-        return (
-            [name(file, "GG-NAME1"), *token] + _call("GGCUNLK", []) + _resp(opts, True, labels)
-        )  # #5079: no TOKEN, the file's hold
+    if verb in cics_filecontrol.FILE_VERBS:  # #5274: the file control family
+        lines = cics_filecontrol.file_command(verb, opts, labels)
+        if lines is not None:
+            return lines
     if verb == "DELAY":  # #4950: the wait at which RUN children are dispatched (GGCDLAY)
         return _delay(opts, labels)
     if verb == "POST":  # #5079 (X63): a timer-event control area

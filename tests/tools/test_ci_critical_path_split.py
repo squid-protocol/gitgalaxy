@@ -62,17 +62,43 @@ def test_history_stays_in_one_part_and_the_gate_runs_on_both():
     assert f"matrix.group == {LEDGER_GROUP}" in gate["run"]
 
 
-def test_the_ledger_part_is_not_the_heavier_one():
+def _ground_truth_totals():
     """Replays pytest-split's least_duration (heaviest first, into the lightest group) over the committed durations."""
     import json
+    import subprocess
 
-    durations = json.loads((ROOT / ".test_durations").read_text(encoding="utf-8"))
+    # The full-suite parts overwrite the working-tree .test_durations with the restored cache (smoke-test.yml, "Balance
+    # by the restored durations"), which has no ground-truth seconds: read the committed blob, the file the fallback uses.
+    shown = subprocess.run(
+        ["git", "show", "HEAD:.test_durations"],  # noqa: S607
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    text = shown.stdout if shown.returncode == 0 and shown.stdout else (ROOT / ".test_durations").read_text("utf-8")
+    durations = json.loads(text)
     seconds = sorted((v for k, v in durations.items() if k.startswith("tests/cobol_mainframe/")), reverse=True)
     assert seconds, "no recorded tests/cobol_mainframe/ durations"
     totals = [0.0, 0.0]
     for s in seconds:
         totals[totals.index(min(totals))] += s
+    return seconds, totals
+
+
+def test_the_ledger_part_is_not_the_heavier_one():
+    _, totals = _ground_truth_totals()
     assert totals[LEDGER_GROUP - 1] <= totals[2 - LEDGER_GROUP] * 1.01, totals  # the ledger step is extra work on top
+
+
+def test_the_ground_truth_seconds_are_recorded_and_the_parts_balanced():
+    """#5133: the ground-truth tests were absent from .test_durations (the smoke runs have no corpora), so pytest-split
+    cut them by a default weight. Refresh from the test-times-ground-truth-part-N artifacts of a main run; the replay
+    of the two parts must then be within 20% (#5133 acceptance)."""
+    seconds, totals = _ground_truth_totals()
+    assert len(seconds) > 5500, f"only {len(seconds)} tests/cobol_mainframe/ durations recorded: refresh them"
+    assert max(totals) <= min(totals) * 1.2, totals
+    assert seconds[0] < sum(totals) / 4, "one test is a quarter of the ground-truth job: no split can balance it"
 
 
 def test_evidence_deltas_is_advisory_and_off_the_required_check():

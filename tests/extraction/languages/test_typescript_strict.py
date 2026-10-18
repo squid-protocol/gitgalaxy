@@ -94,7 +94,6 @@ _TYPESCRIPT_SIMPLE_CASES = [
     ("llm_api", "import OpenAI from 'openai';", "const x = 1;"),
     ("llm_orchestrator", "import { Chain } from 'langchain';", "const x = 1;"),
     ("llm_vector_store", "import { Client } from 'chromadb';", "const x = 1;"),
-    ("ml_traditional", "import x from 'sklearn';", "const x = 1;"),
     ("dl_frameworks", "import * as tf from 'tensorflow';", "const x = 1;"),
     # --- ADVERSARIAL CASES FOR HIGH-AMBIGUITY SIGNATURES ---
     ("branch", "const result = (a ?? b) || c && d ? e : f;", None),

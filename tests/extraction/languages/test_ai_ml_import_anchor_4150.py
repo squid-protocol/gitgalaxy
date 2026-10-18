@@ -36,6 +36,8 @@ from _extraction_harness import assert_redos_immune  # noqa: E402 # type: ignore
 
 _RULES = ("llm_orchestrator", "llm_vector_store", "ml_traditional", "dl_frameworks")
 _LANGS = ("python", "javascript", "typescript")
+# #4251: no js/ts scikit-learn, so javascript and typescript record the stated absence (None).
+_JS_ABSENT = ("ml_traditional",)
 
 
 def _rule(lang: str, key: str):
@@ -48,6 +50,9 @@ def _rule(lang: str, key: str):
 @pytest.mark.parametrize("key", _RULES)
 def test_only_python_js_ts_carry_the_rule_and_js_ts_share_one_pattern(key):
     langs = sorted(k for k, d in LANGUAGE_DEFINITIONS.items() if d.get("rules", {}).get(key) is not None)
+    if key in _JS_ABSENT:
+        assert langs == ["python"]
+        return
     assert langs == sorted(_LANGS)
     assert _rule("javascript", key) is _rule("typescript", key)
     assert _rule("python", key) is not _rule("javascript", key)
@@ -142,7 +147,6 @@ _JS_FIRES = [
 
 _JS_SILENT = [
     # the #4150 report
-    ("ml_traditional", "const x = require('../sklearn')"),
     ("dl_frameworks", "import { load } from './keras/loader'"),
     # local / relative / aliased paths named after a library
     ("llm_orchestrator", "import { chain } from './langchain/chain';"),
@@ -161,6 +165,23 @@ _JS_SILENT = [
     ("dl_frameworks", "const backend = 'tensorflow';"),
     ("llm_orchestrator", "import axios from 'axios';"),
 ]
+
+
+_JS_SKLEARN_SPELLINGS = [
+    "import x from 'sklearn';",
+    'import x from "sklearn/linear_model";',
+    "const x = require('sklearn');",
+    "const x = await import('sklearn');",
+    "const x = require('../sklearn')",
+    "import x from './sklearn/loader';",
+]
+
+
+@pytest.mark.parametrize("line", _JS_SKLEARN_SPELLINGS)
+@pytest.mark.parametrize("lang", ["javascript", "typescript"])
+def test_js_ts_ml_traditional_is_a_stated_absence(lang, line):
+    assert _rule(lang, "ml_traditional") is None
+    assert _count(lang, "ml_traditional", line) == 0
 
 
 @pytest.mark.parametrize("key,line", _JS_FIRES)
@@ -235,4 +256,6 @@ def test_js_ts_counts_only_package_specifiers_through_splice(lang):
 )
 @pytest.mark.parametrize("key", _RULES)
 def test_ai_ml_import_patterns_are_redos_immune(lang, key, payload):
+    if lang != "python" and key in _JS_ABSENT:
+        pytest.skip("stated absence (#4251)")
     assert_redos_immune(_rule(lang, key), payload)

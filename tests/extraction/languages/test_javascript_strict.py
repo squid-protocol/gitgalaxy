@@ -93,7 +93,6 @@ _JS_SIMPLE_CASES = [
     ("llm_api", "import OpenAI from 'openai';", "import axios from 'axios';"),
     ("llm_orchestrator", "import { LLMChain } from 'langchain';", "import express from 'express';"),
     ("llm_vector_store", "import { ChromaClient } from 'chromadb';", "import mongoose from 'mongoose';"),
-    ("ml_traditional", "import x from 'sklearn';", "import * as tf from 'tensorflow';"),
     ("rce_funnel", "child_process.exec('bash deploy.sh')", "child_process.exec('./cleanup.sh')"),
     ("structural_boundaries", "export class Widget {}", "function widget() {}"),
     ("test", "describe('widget', () => { expect(true).toBe(true); })", "myRegex.test('x')"),

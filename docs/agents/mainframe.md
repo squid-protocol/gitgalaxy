@@ -41,6 +41,12 @@ is invalid or the report is stale. A new corpus is a new round; a new channel ne
 with its honest `development_rounds`; key errors are counted automatically. Quote coverage only
 from that report. The full protocol is in the `mainframe-ground-truth` skill ("Field testing").
 
+**Port-side blockers (det port, transaction forge, facade, harness, runtime) are logged the same way, in
+`tests/cobol_mainframe/port_blockers.json`** (#5051), in the PR that finds or fixes them: the burned estate that
+exposed it (or `estate` null with `found_by`), side, class, programs, issue / fixing PR, and whether the fix is a named
+refusal. `tests/tools/port_blockers.py report --write` renders `docs/language_status/port_blockers.md`; the
+`test_port_blockers.py` test fails on an invalid ledger or a stale page. Burned estates only; `new_class` is derived.
+
 ### The porting loop (automated COBOL -> Java)
 
 `tests/tools/porting_loop.py` runs port_runner end to end on one equivalence case. A model ports the program from

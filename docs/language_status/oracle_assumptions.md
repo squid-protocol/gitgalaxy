@@ -87,7 +87,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C2 | compiler | Arithmetic intermediates: the oracle truncates them (ARITHMETIC-OSVS), the det runtime the same way (#4287); where GnuCOBOL departs from IBM's decimal places | MATCHED (det runtime = oracle) / DIFFERS (oracle, GnuCOBOL's departures) | yes (INTCALC, POSTTRAN …); a departure: not known to be |
 | C3 | compiler | An integer literal truncated to zero keeps no sign | DIFFERS | no |
 | C4 | compiler | An unsigned binary taken below zero by ADD/SUBTRACT: IBM keeps the absolute value, and so does the det runtime; cobc's native arithmetic wraps (#4684) | MATCHED (det runtime = IBM) / DIFFERS (oracle vs IBM, declared; no cobc option turns it off) | no |
-| C5 | compiler | `NUMPROC(MIG)` as Enterprise COBOL 5+ compiles it (NOPFD), `NUMPROC(PFD)` with preferred signs (#4271); `TRUNC(OPT)` with conforming binary values, `ARITH(EXTEND)` with intermediates within 30 digits (#4706); `INTDATE(LILIAN)` | MATCHED (NUMPROC) / MODELLED (TRUNC(OPT) and ARITH(EXTEND), det ports; a stop by name) / REFUSED (the rest) | NUMPROC: no; TRUNC(OPT): CBSA (det ports); ARITH(EXTEND): DBB EPSCSMRD (det ports) |
+| C5 | compiler | `NUMPROC(MIG)` as Enterprise COBOL 5+ compiles it (NOPFD), `NUMPROC(PFD)` with preferred signs (#4271); `TRUNC(OPT)` with conforming binary values, `ARITH(EXTEND)` with intermediates within 30 digits (#4706); `INTDATE(LILIAN)` | MATCHED (NUMPROC) / MODELLED (TRUNC(OPT) and ARITH(EXTEND), det ports, a stop by name; INTDATE(LILIAN), det port, no oracle) / REFUSED (the rest) | NUMPROC: no; TRUNC(OPT): CBSA (det ports); ARITH(EXTEND): DBB EPSCSMRD (det ports) |
 | C6 | compiler | COMP-1 / COMP-2: IBM hexadecimal floating point, and float-mode evaluation of the whole expression | MODELLED in the det runtime (HFP, #4271 slice 1); the oracle DIFFERS (IEEE, decimal evaluation): proven by IBM-cited vectors and on exact values; what the oracle cannot decide REFUSED by name | no (DBB EPSMPMT: its float `**` is a hole) |
 | C7 | compiler | COMP-5 byte order: little-endian vs z/OS big-endian | DIFFERS; byte uses REFUSED by name in the det translator (#4271) | read as numbers only (a VALUE beyond the PICTURE: fixed, #4501) |
 | C8 | compiler | DISPLAY of signed zoned, binary and packed items | MATCHED | yes |
@@ -379,7 +379,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   truncation, and stores 2.344; IBM and the det runtime store 9.000. COMP-5 and TRUNC(BIN) are not affected.
 - **Reached.** No case reaches either. `test_det_programs.py` keeps its unsigned item above zero.
 
-### C5. Compiler options: NUMPROC MATCHED where IBM pins it (#4271); TRUNC(OPT) and ARITH(EXTEND) MODELLED (#4706); INTDATE(LILIAN) REFUSED
+### C5. Compiler options: NUMPROC MATCHED where IBM pins it (#4271); TRUNC(OPT) and ARITH(EXTEND) MODELLED (#4706); INTDATE(LILIAN) MODELLED in the det port, refused by the oracle
 - **NUMPROC(MIG): MATCHED for Enterprise COBOL 5 and later.** "Enterprise COBOL 5 and 6 does not support the
   NUMPROC(MIG) option. If NUMPROC(MIG) is specified, Enterprise COBOL 5 or 6 issues a warning message and the
   compilation will get the default setting for NUMPROC. This is either the user-customized default or the IBM default,
@@ -424,12 +424,15 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   COMPAT and EXTEND agree or is not judged. A floating-point expression under EXTEND is still refused at translation
   (`Untranslatable`). A port without the stop (model, generated) is proven as COMPAT, a declared difference in its
   evidence record (`option_differences`). Among the burned estates only DBB's EPSCSMRD carries `PROCESS ARITH(EXTEND)`.
-- **REFUSED:** `INTDATE(LILIAN)`, from a CBL/PROCESS card or a case's `compiler_options`, stops the run
-  (`UnsupportedOption`).
-  - `INTDATE(LILIAN)` is pinned by IBM (day 1 is 15 October 1582 instead of 1 January 1601), and could be modelled
-    by the documented offset of the integer-date functions. Dates before 1601 cannot run on GnuCOBOL and would be
-    refused. No case needs it yet: no burned estate's program carries `INTDATE(LILIAN)` on a CBL/PROCESS card
-    (#4271 status check), so it stays refused by name rather than modelled.
+- **INTDATE(LILIAN): MODELLED in the det port (#4706), REFUSED by the oracle.** IBM pins it (day 1 is 15 October 1582
+  instead of 1 January 1601: the same date is 6653 higher). The translator reads the option through the one resolver
+  (`program.intdate_lilian`: CBL / PROCESS cards over the compile step's PARM over the default, ANSI) and emits
+  `Funcs.integerOfDateLilian` / `dateOfIntegerLilian` for INTEGER-OF-DATE / DATE-OF-INTEGER (rule
+  `RT-FUNC-DATE-INTEGER`); it is fixed at translation, with no run-time switch. GnuCOBOL has no INTDATE, so
+  `COBC_OPTIONS` still refuses it (`UnsupportedOption`): a LILIAN program is not compared with cobc, and the port is
+  checked against IBM's documented day numbers (`test_intdate_lilian.py`), residual risk stated. Dates before day 1 of
+  the count are not defined by IBM and are not judged. No burned estate's program carries `INTDATE(LILIAN)` (#4271
+  status check, re-confirmed by #4706's slice 2), so no estate port changed.
 
 ### Compile options: the table (#4706)
 One row per option that can change a result: (1) does it change results; (2) can cobc honour it; (3) what the det
@@ -442,7 +445,7 @@ instrument). The rows below are rendered by one table in code (`compiler_options
 | `TRUNC(BIN)` | yes: a binary receiver keeps its bytes | `-fnotrunc` | `Cobol.swapTruncBinary(false)` | -- | C1 |
 | `TRUNC(OPT)` | only for a binary value past its PICTURE, where IBM's result is unpredictable; conforming values compute as STD | `-fbinary-truncate` (STD: equal for conforming values) | STD, plus `Cobol.swapTruncOpt(true)`: a value past a COMP / COMP-4 / BINARY receiver's PICTURE stops by name ("TRUNC(OPT): value exceeds PICTURE; IBM result unpredictable") | a port without the stop (model, generated) is proven as STD: a declared difference (`option_differences`) | C1, C5 |
 | `ARITH(COMPAT)` / `ARITH(EXTEND)` | yes: EXTEND widens intermediates to 31 digits and floats to extended precision | COMPAT flags (no cap on either side, C2) | COMPAT, plus `Cobol.swapArithExtend(true)`: an intermediate past 30 digits stops by name ("ARITH(EXTEND): an intermediate result of N digits"); a float is refused | a port without the stop is proven as COMPAT: a declared difference (`option_differences`) | C2, C5 |
-| `INTDATE(ANSI)` / `INTDATE(LILIAN)` | yes: day 1 of INTEGER-OF-DATE moves from 1601-01-01 to 1582-10-15 | none for LILIAN | none | `INTDATE(LILIAN)` refused by name (`COBC_OPTIONS`) | C5 |
+| `INTDATE(ANSI)` / `INTDATE(LILIAN)` | yes: day 1 of INTEGER-OF-DATE moves from 1601-01-01 to 1582-10-15 | none for LILIAN | `Funcs.integerOfDateLilian` / `dateOfIntegerLilian`, picked at translation | the oracle refuses `INTDATE(LILIAN)` by name (`COBC_OPTIONS`); the port is checked against IBM's day numbers, not cobc | C5 |
 | `NUMPROC(NOPFD\|PFD\|MIG)` | only for a sign that is not preferred | none needed | PFD refuses a non-preferred sign (`Codec.numprocPfd`) | MIG compiles as NOPFD from Enterprise COBOL 5 (`numproc_mig`) | C5 |
 | `ZONEDATA(PFD)` (IBM default) | no for valid zone bits (an invalid one is refused by C11) | none needed | refuses a non-digit zoned operand | -- | C11 |
 | `ZONEDATA(NOPFD\|MIG)` | yes: defines what invalid zone bits / digits do in MOVE, compare and arithmetic (APAR PI57769) | none | none | refused by name | C5 |

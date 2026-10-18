@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `51cc1be80` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `e40fe0c5f` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -28,7 +28,7 @@ mutants caught (`definition_of_done.md`).
 | Translator | 116 programs translated whole | 129 burned programs | docs/language_status/evidence_report/<estate>/report.json (evidence_report.py, generated branch) |
 | CICS commands | 60 modelled on both runtimes | 68 commands a burned program uses (7 unlisted or unparsed forms, counted as not modelled) | docs/language_status/cics_spec_status.json (cics_spec_status.py) |
 | COBOL runtime rules | 84 MATCHED, 23 DIFFERS, 53 ASSUMED, 14 REFUSED; 0 measured on z/OS | 174 rules | docs/language_status/cobolrt_rules.json |
-| Mutation | 2410 killed = 83.1% adjusted (69.2% raw) | 2900 adjusted, 3481 raw mutants over 50 ports | docs/language_status/mutation_scores.json |
+| Mutation | 2412 killed = 83.2% adjusted (69.3% raw) | 2899 adjusted, 3481 raw mutants over 50 ports | docs/language_status/mutation_scores.json |
 | CICS crucible | 57 programs, 159 scenarios | pinned at `v0.9.0 (3ca75ae0)` | tests/cics_crucible/coverage.json |
 | Estate crucible | 60 of 60 horrors pass | pinned at `v0.4.0` | tests/estate_crucible/baseline.json |
 
@@ -51,7 +51,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-18T17:17:41Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-18T17:20:51Z.
 
 - `scope:core`: 34 open, 123 closed.
 - Milestone 28: 14 open, 78 closed.

@@ -30,6 +30,7 @@ def test_evict_tree_survives_unreadable_and_failing_files(tmp_path, monkeypatch)
         raise OSError("nope")
 
     monkeypatch.setattr(os, "posix_fadvise", boom, raising=False)
+    monkeypatch.setattr(os, "POSIX_FADV_DONTNEED", 4, raising=False)  # absent on macOS and Windows
     assert phase_ab.evict_tree(tmp_path) == 0
 
 

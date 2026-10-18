@@ -91,7 +91,8 @@ def evict_tree(root: Path) -> int:
     """Ask the kernel to drop every regular file under `root` from the page cache (POSIX_FADV_DONTNEED).
     Returns the number of files advised; 0 where `os.posix_fadvise` is missing (Windows, macOS)."""
     advise = getattr(os, "posix_fadvise", None)
-    if advise is None:
+    dontneed = getattr(os, "POSIX_FADV_DONTNEED", None)
+    if advise is None or dontneed is None:
         return 0
     count = 0
     for dirpath, _dirs, names in os.walk(root):
@@ -104,7 +105,7 @@ def evict_tree(root: Path) -> int:
             except OSError:
                 continue
             try:
-                advise(fd, 0, 0, os.POSIX_FADV_DONTNEED)
+                advise(fd, 0, 0, dontneed)
                 count += 1
             except OSError:
                 pass

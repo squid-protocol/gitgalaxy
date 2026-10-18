@@ -1885,10 +1885,14 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
                 return ([queue, f"MOVE {opts['ENABLESTATUS']} TO GG-NUM"] + _call("GGCSTDE", [])
                         + _resp(opts, True, labels))  # fmt: skip
             return [queue, f"MOVE {opts['OPENSTATUS']} TO GG-NUM"] + _call("GGCSTDQ", []) + _resp(opts, True, labels)
-        wanted = [o for o in ("OPENSTATUS", "TYPE", "ENABLESTATUS") if opts.get(o)]
+        wanted = [
+            o for o in ("OPENSTATUS", "TYPE", "ENABLESTATUS", "TRIGGERLEVEL", "RECOVSTATUS", "TRANSID") if opts.get(o)
+        ]
         if not wanted:
             raise Unsupported(_rule(key, "requires", "TDQUEUE"), [key])
-        field = {"OPENSTATUS": "GG-NUM", "TYPE": "GG-LEN", "ENABLESTATUS": "GG-ITEM"}
+        # #5168 round 6 (X66): TRIGGERLEVEL, RECOVSTATUS and TRANSID come back in the otherwise unused GG-HOURS, GG-MINS, GG-RTRAN
+        field = {"OPENSTATUS": "GG-NUM", "TYPE": "GG-LEN", "ENABLESTATUS": "GG-ITEM", "TRIGGERLEVEL": "GG-HOURS",
+                 "RECOVSTATUS": "GG-MINS", "TRANSID": "GG-RTRAN"}  # fmt: skip
         return ([queue, f"MOVE '{' '.join(wanted)}' TO GG-FLAGS"] + _call("GGCITDQ", []) + ["IF GG-RESP = 0"]
                 + [f"    MOVE {field[o]} TO {opts[o]}" for o in wanted]
                 + ["END-IF"] + _resp(opts, True, labels))  # fmt: skip

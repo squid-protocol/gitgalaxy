@@ -2304,6 +2304,27 @@ int GGCITDQ(gg_cics *c) {
     c->resp2 = 0;
     kind = td_kind(queue);
     if (!kind) { c->resp = QIDERR; c->resp2 = 1; return 0; }
+    /* #5168 round 6 (X66): TRIGGERLEVEL (hours), RECOVSTATUS (mins) and TRANSID (rtran). An intrapartition queue answers by its
+     * definition: TRIGGERLEVEL (1 when none stated: IBM's default), TRANSID (blanks when none: ASSUMED), RECOVSTATUS LOGICAL 216 /
+     * PHYSICAL 215 / NOTRECOVABLE 30 (none stated: X61 assumption 2); the others answer RECOVSTATUS NOTAPPLIC 1 ("the queue is not
+     * intrapartition") and refuse TRIGGERLEVEL / TRANSID (IBM names no value). */
+    if (strstr(c->flags, "TRIGGERLEVEL") || strstr(c->flags, "TRANSID") || strstr(c->flags, "RECOVSTATUS")) {
+        char stated[40];
+        if (kind != 1 && (strstr(c->flags, "TRIGGERLEVEL") || strstr(c->flags, "TRANSID"))) {
+            td_type_cvda(queue, kind, word, sizeof word);
+            refuse("INQUIRE TDQUEUE TRIGGERLEVEL / TRANSID of a queue that is not intrapartition");
+        }
+        if (kind != 1) td_type_cvda(queue, kind, word, sizeof word);
+        if (strstr(c->flags, "TRIGGERLEVEL")) c->hours = td_attr(queue, "TRIGGERLEVEL", stated, sizeof stated) ? atoi(stated) : 1;
+        if (strstr(c->flags, "RECOVSTATUS")) {
+            int got = kind == 1 && td_attr(queue, "RECOVSTATUS", stated, sizeof stated);
+            c->mins = kind != 1 ? 1 : got && strcmp(stated, "LOGICAL") == 0 ? 216 : got && strcmp(stated, "PHYSICAL") == 0 ? 215 : 30;
+        }
+        if (strstr(c->flags, "TRANSID")) {
+            memset(c->rtran, ' ', sizeof c->rtran);
+            if (td_attr(queue, "TRANSID", stated, sizeof stated)) memcpy(c->rtran, stated, strlen(stated) < 4 ? strlen(stated) : 4);
+        }
+    }
     if (strstr(c->flags, "TYPE")) c->len = td_type_cvda(queue, kind, word, sizeof word);
     if (strstr(c->flags, "ENABLESTATUS")) c->item = td_disabled(queue) ? 24 : 23; /* #5168 round 5 (X66): its own state */
     if (strstr(c->flags, "OPENSTATUS")) {

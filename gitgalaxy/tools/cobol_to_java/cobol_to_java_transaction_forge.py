@@ -2407,10 +2407,37 @@ public class CicsTask {
     /** INQUIRE TDQUEUE ... ENABLESTATUS (#5168 round 5, X66): {RESP, RESP2, OPENSTATUS CVDA, TYPE CVDA, ENABLESTATUS CVDA}; ENABLED 23
      *  or DISABLED 24, the state SET TDQUEUE ENABLESTATUS left (ENABLED before any). An INDIRECT queue answers about itself. */
     public int[] inquireTdQueue(String queue, boolean openStatus, boolean type, boolean enableStatus) {
+        return inquireTdQueue(queue, openStatus, type, enableStatus, false, false, false);
+    }
+
+    /** INQUIRE TDQUEUE ... TRIGGERLEVEL / RECOVSTATUS / TRANSID (#5168 round 6, X66): {RESP, RESP2, OPENSTATUS, TYPE, ENABLESTATUS,
+     *  TRIGGERLEVEL, RECOVSTATUS}; the TRANSID text is tdTransid(queue). The queue's definition: RECOVSTATUS is LOGICAL 216,
+     *  PHYSICAL 215 or NOTRECOVABLE 30 for an intrapartition queue (NOTRECOVABLE when none stated: X61 assumption 2), NOTAPPLIC 1
+     *  "the queue is not intrapartition" for the others; TRIGGERLEVEL (1 when none stated: IBM's default) and TRANSID (blanks when
+     *  none stated: ASSUMED) are those of an intrapartition queue, and are refused for any other (IBM names no value). */
+    public int[] inquireTdQueue(String queue, boolean openStatus, boolean type, boolean enableStatus, boolean trigger,
+            boolean recov, boolean transid) {
         String q = queue.strip();
         int kind = tdKind(q);
         if (kind == 0) {
-            return new int[] {44, 1, 0, 0, 0};
+            return new int[] {44, 1, 0, 0, 0, 0, 0};
+        }
+        if ((trigger || transid) && kind != 1) {
+            tdTypeCvda(q, kind);
+            throw new UnsupportedOperationException("INQUIRE TDQUEUE TRIGGERLEVEL / TRANSID of a queue that is not intrapartition: not modelled");
+        }
+        int level = 0;
+        if (trigger) {
+            String stated = tdAttr(q, "TRIGGERLEVEL");
+            level = stated == null ? 1 : Integer.parseInt(stated.strip());
+        }
+        int recovCvda = 0;
+        if (recov) {
+            String stated = kind == 1 ? tdAttr(q, "RECOVSTATUS") : null;
+            if (kind != 1) {
+                tdTypeCvda(q, kind);
+            }
+            recovCvda = kind != 1 ? 1 : "LOGICAL".equals(stated) ? 216 : "PHYSICAL".equals(stated) ? 215 : 30;
         }
         int typeCvda = type ? tdTypeCvda(q, kind) : 0;
         int status = 0;
@@ -2422,7 +2449,13 @@ public class CicsTask {
                 status = 1;
             }
         }
-        return new int[] {0, 0, status, typeCvda, enableStatus ? (tdDisabled(q) ? 24 : 23) : 0};
+        return new int[] {0, 0, status, typeCvda, enableStatus ? (tdDisabled(q) ? 24 : 23) : 0, level, recovCvda};
+    }
+
+    /** The TRANSID a queue's definition states (blanks when none): the text INQUIRE TDQUEUE TRANSID stores (#5168 round 6, X66). */
+    public String tdTransid(String queue) {
+        String stated = tdAttr(queue.strip(), "TRANSID");
+        return stated == null ? "" : stated;
     }
 
     /** SET TDQUEUE(q) ENABLESTATUS(cvda) (#5168 round 5, X66; IBM CICS TS 6.x SET TDQUEUE): ENABLED (23) lets applications access

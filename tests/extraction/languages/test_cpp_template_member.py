@@ -6,10 +6,10 @@ import sys
 import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS  # noqa: E402
+from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from _extraction_harness import assert_redos_immune  # noqa: E402 # type: ignore
+from _extraction_harness import assert_redos_immune  # type: ignore
 
 RULES = LANGUAGE_DEFINITIONS["cpp"]["rules"]
 

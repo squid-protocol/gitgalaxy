@@ -563,7 +563,8 @@ instrument). The rows below are rendered by one table in code (`compiler_options
     / sign conditions, SET TO TRUE, PERFORM VARYING, INITIALIZE of a group holding a float.
 - **REFUSED by name** (a Hole: "... IBM hexadecimal floating point on z/OS, IEEE on the oracle:
   oracle_assumptions.md C6"): a float's bytes or those of an item over it (a group MOVE, a REDEFINES, a reference
-  modification, STRING, a CALL argument, a record written, a COMMAREA); a float MOVEd to or from a nonnumeric item;
+  modification, STRING, a CALL argument, a record read or written -- a file or sort record named by its FD through
+  `Gen.check_record_bytes`, #4271 -- a COMMAREA); a float MOVEd to or from a nonnumeric item;
   a comparison with a nonnumeric operand; exponentiation in a floating-point expression (a run-time routine IBM does
   not document bit for bit); an intrinsic function in one but NUMVAL / NUMVAL-C (IBM's floating-point functions);
   any floating-point expression under ARITH(EXTEND); ON SIZE ERROR and ROUNDED into a float, DIVIDE ... REMAINDER
@@ -609,10 +610,14 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   `comp5_extents`). Read as a number it is translated as before. Pinned by `test_det_programs.py`
   `test_comp5_bytes_are_refused_by_name_where_the_oracle_and_zos_differ`. `det_port.py check`: no committed port moved
   (119 of 119 unchanged), so no burned program observes COMP-5 bytes.
+  - **File and sort records (#4271).** A record is named by its FD, so READ, WRITE, REWRITE, SORT USING / GIVING and
+    RETURN reached its bytes without `field_expr`'s guard. `Gen.check_record_bytes` now refuses a record holding a
+    COMP-5 item of 2 or more bytes (and, for C6, a COMP-1 / COMP-2 item) by name; pinned by `test_det_programs.py`
+    `test_record_io_*`.
   - **Not covered (sibling gaps):** the SQLCA record (the SQL lane hands the whole group to the runtime, which sets
-    its COMP-5 fields as numbers; a program that MOVEs the SQLCA as bytes is not refused); a COMP-5 item in a CALL
-    argument, COMMAREA or record write not reached through those uses (the record layouts are the oracle's order);
-    INITIALIZE and group VALUE images, which write numbers. Burned estates reading COMP-5 as numbers only: CardDemo
+    its COMP-5 fields as numbers; a program that MOVEs the SQLCA as bytes is not refused); an elementary COMP-5 item
+    passed BY REFERENCE to a CALLed program or in a COMMAREA (the callee reads the oracle's order); INITIALIZE and
+    group VALUE images, which write numbers. Burned estates reading COMP-5 as numbers only: CardDemo
     `IMSFUNCS.cpy`, cics-async `SEQPNT` / `ASYNCPNT`, DBB `EPSCSMRD`.
 - **Its size** for 1 or 2 digits differs too: C16.
 
@@ -1767,7 +1772,7 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   CEEDAYS picture and date strings overrun their 8 bytes by 2) and this entry's ASSUMED schedule (L4 is settled: `FC` is
   the 12-byte token). BNK1CCS, which LINKs CRECUST, is not proven while they stand.
 - **#4950: case-file channel names.** The harness (`scenario_channel`) refuses a channel or container name outside IBM's PUT CONTAINER set (A-Z a-z 0-9 $ @ # / % ? ! : | " = , ; > . - _; 1-16 characters, no blank) before either runtime sees it; `&`, `<` and the not sign, which RUN TRANSID's page allows and PUT CONTAINER's does not, are refused too (the pages disagree), as `ggcics.c` and the forge's `NAME_CHARS` do.
-- **#4950: the cics-crucible runner does not model the child schedule.** `tests/tools/cics_crucible.py` still schedules a RUN TRANSID child as SPEC section 4 says (a request attached at once, run as a task of its own once its parent has ended), not at the parent's next wait as this entry assumes. Neither side of that runner is given `child_programs` (`childprogs.cfg` for the stub, `CicsTask.Programs.program` for the Java side), so a parent that waits (a DELAY, or a FETCH without NOSUSPEND) with a RUN child is refused by name on both sides ("its program is not one the case runs") and never compared. A parent that never waits runs its children after it ends, which is the same on both runtimes. Wiring the in-process schedule in needs a SPEC change first (a CHILD event is not in section 6.2's log, and the expected logs are IBM-recorded in the language-crucible repo), so it stays open until a case needs it; no crucible case does today. Pinned by `tests/cics_crucible/test_cics_crucible_runner.py` (`async_refusals`): a case whose source has START or RUN with CHANNEL, a FETCH (waiting, or NOSUSPEND), FREE CHILD, or a RUN beside a DELAY or FETCH is refused by name on every run side (`unsupported`, never compared), as the disabled-program case is; a parent that never waits and RUNs a child is not.
+- **#4950: the cics-crucible runner does not model the child schedule.** `tests/tools/cics_crucible.py` still schedules a RUN TRANSID child as SPEC section 4 says (a request attached at once, run as a task of its own once its parent has ended), not at the parent's next wait as this entry assumes. Neither side of that runner is given `child_programs` (`childprogs.cfg` for the stub, `CicsTask.Programs.program` for the Java side), so a parent that waits (a DELAY, or a FETCH without NOSUSPEND) with a RUN child is refused by name on both sides ("its program is not one the case runs") and never compared. A parent that never waits runs its children after it ends, which is the same on both runtimes. Wiring the in-process schedule in needs a SPEC change first (a CHILD event is not in section 6.2's log, and the expected logs are IBM-recorded in the language-crucible repo), so it stays open until a case needs it; no crucible case does today. No burned program needs it either, and none needs R1 (a RUN child's ENQ / DEQ / counter / SQL): the only burned RUN children are asynccc's seven services and CBSA's CRDTAGY1-5 (a DELAY each), and the only burned parents are ASYNCPNT, CSSTATS2 and CRECUST; `tests/cobol_mainframe/test_x18_child_scope_4950.py` fails if that changes. Pinned by `tests/cics_crucible/test_cics_crucible_runner.py` (`async_refusals`): a case whose source has START or RUN with CHANNEL, a FETCH (waiting, or NOSUSPEND), FREE CHILD, or a RUN beside a DELAY or FETCH is refused by name on every run side (`unsupported`, never compared), as the disabled-program case is; a parent that never waits and RUNs a child is not.
 
 ### X19. ASSIGN: STARTCODE / USERID / FACILITY / SCRNHT / SCRNWD — ASSUMED, REFUSED where the harness cannot decide (#4270 slice 3)
 - **What IBM documents** (CICS TS 6.x, EXEC CICS ASSIGN, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-assign).
@@ -2630,6 +2635,11 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   (a new object), a failed XCTL, level 1 and the XCTL target's own DTO are not refused. A String or number cannot be traced by
   reference (#5060), so a successful XCTL whose COMMAREA equals a value the DTO holds (any field, nested or primitive) is refused
   too; an equal-valued copy is over-refused (refuse, never guess), a value the DTO does not hold is not. Numbers match by numeric value whatever their width or scale (an int field passed as a long, 1.5 and 1.50), and an element of a primitive table (`int[]`, `char[]`) is a value the DTO holds.
+- **Reach on the burned estates (#5060).** No burned program is both LINKed and an XCTL issuer: CardDemo's XCTL programs are
+  started by transaction, `ZECS001` XCTLs but LINKs out to `ZECS002`, which does not XCTL, and CardDemo's one LINK
+  (`COPAUS1C`) targets a program that is not in the corpus. The value forms are therefore refused by equality tracing and
+  unreached. A value derived from a field (a suffixed String, a sum) cannot be traced and passes as a new value (pinned in
+  `test_model_link_xctl_4956.py`).
 - **Aliases (#4957).** The det port marks an XCTL whose COMMAREA lies inside any LINKAGE 01 record, not only DFHCOMMAREA: a CALLed
   subprogram's USING record (`CALL 'SUB' USING DFHCOMMAREA`) is the LINK caller's storage under another name, and refuses by the
   same runtime check (only when the program was LINKed with a COMMAREA). `SET ADDRESS OF` (direct or through a pointer) is
@@ -3105,8 +3115,8 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   right-adjusted." "BLANK specifies that blanks are to be inserted in any unfilled positions in an input field." "ZERO specifies that
   zeros are to be inserted in any unfilled positions in an input field." "If JUSTIFY is omitted, but the NUM attribute is specified,
   RIGHT and ZERO are assumed." "If JUSTIFY is omitted, but attributes other than NUM are specified, LEFT and BLANK are assumed."
-  (The earlier wording of this entry paraphrased those sentences as quotes; the text above is the page's, as returned by the fetch
-  tool's reader, which summarises -- re-check against the page in a browser before quoting it outside the register.)
+  (Re-read 2026-10-18 (#5116): every JUSTIFY sentence quoted above, and the two "If JUSTIFY is omitted" sentences, matches the
+  live page's text word for word.)
   GRPNAME: "The ATTRB operand specified on the first field of the group applies to all of the fields within the group." "OCCURS and
   GRPNAME are mutually exclusive". PICIN: "the validity of the input data is not checked by BMS or the high-level language when the map
   is used"; PICOUT: "is like PICIN, except that a picture to be applied to an output field in the OUT or INOUT map is generated."
@@ -3143,6 +3153,13 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   only OCCURS is CBSA `BNK1ACC` `ACCOUNT` (`OCCURS=10`, `ATTRB=(NORM,PROT,FSET,ASKIP)`, output only), so no burned program
   RECEIVEs into one: per-occurrence JUSTIFY and GRPNAME ATTRB inheritance stay unmodelled, frontier only. The test fails
   when a burned map gains either.
+- **Not modelled: input over initialized data (#5116).** The DFHMDF page adds: "If a field is initialized by an output map or
+  contains data from any other source, data that is typed as input overwrites only the equivalent length of the existing data;
+  surplus existing data remains in the field". The harness gives the program the typed text placed per JUSTIFY, never merged over
+  an earlier value. Reachable: typable (not ASKIP/PROT) fields with an INITIAL exist in 15 burned maps (CBSA BNK1B2M/CAM/CDM/
+  MAI/TFM, CardDemo COACTUP/COPAU00/CORPT00/COSGN00/COTRN00-02/COUSR00, mortgage epsmort, GenApp ssmap), pinned by
+  `test_burned_maps_with_a_typable_initial_field`. Whether a 3270 buffer or the program's map area is what the note means is
+  unsaid; settling it needs the same z/OS calibration as `<f>L`. No model change until then.
 - **Open (#5116): what `<f>L` holds after justification.** IBM is silent (assumption 3); settling it needs real z/OS
   calibration, not a doc reading. Blocked on that calibration; the model keeps the typed length until a z/OS run says otherwise.
   Only one burned program depends on it, cbsa-bnk1cac (it reads `<f>I(1:<f>L)` of NUM fields), and it sidesteps the question by

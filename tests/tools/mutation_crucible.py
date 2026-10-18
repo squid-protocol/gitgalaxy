@@ -153,6 +153,9 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--strengthened", action="store_true", help="#4049: prove against the strengthened scenarios too")
     r.add_argument("--case-gaps", type=Path, nargs="?", const=REPO / "docs" / "language_status" / "mutation_scores.json",
                    metavar="RESULTS", help="#4049: run only the survivors RESULTS triaged as case gaps")  # fmt: skip
+    r.add_argument("--record", action="store_true", help="#4048: each port's run becomes its committed score "
+                   "(mutation_scores.json, its survivors' triage kept) and its evidence record's `mutation`")  # fmt: skip
+    r.add_argument("--triage", type=Path, nargs="*", default=[], help="with --record: triage files for new survivors")
     rep = sub.add_parser("report")
     rep.add_argument("work", type=Path)
     args = ap.parse_args(argv)
@@ -160,6 +163,9 @@ def main(argv: list[str] | None = None) -> int:
         for mj in sorted(args.work.glob("*/*/mutation.json")):
             mj.with_suffix(".md").write_text(mu.mutation_md(json.loads(mj.read_text(encoding="utf-8"))), "utf-8")
         return 0
+    if args.record and args.case_gaps:
+        raise SystemExit("--record scores the whole sample: --case-gaps re-judges some mutants (mutation_scores.py "
+                         "build --rejudged)")  # fmt: skip
     if not os.environ.get("CICS_CRUCIBLE_PATH"):
         raise SystemExit("set CICS_CRUCIBLE_PATH to a cics-crucible checkout at the pin (tests/_cics_crucible_pin.py)")
     args.ops = {o.strip().upper() for o in args.ops.split(",") if o.strip()}
@@ -171,6 +177,10 @@ def main(argv: list[str] | None = None) -> int:
         caught = sum(r["verdict"] in ("killed", "timeout") for r in res["results"])
         judged = caught + sum(r["verdict"] == "survived" for r in res["results"])
         print(f"{case}/{prog}: {caught}/{judged} caught in {res['seconds']} s", flush=True)
+        if args.record:
+            import mutation_scores
+
+            mutation_scores.record_run(args.work / case / prog, args.triage)
     return 0
 
 

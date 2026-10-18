@@ -18,6 +18,9 @@ Ownership decisions recorded here (see _shared_patterns.py):
 * js/ts scoped packages: `@langchain/*`, `@llamaindex/*` (+ `llamaindex`) ->
   orchestrator; `@pinecone-database/*` -> vector store; `@tensorflow/*`,
   `@tensorflow-models/*` (+ bare `tensorflow`/`torch`/`keras`) -> dl_frameworks.
+* #4252: python `transformers` and the `torch*` / `tensorflow_*` companion packages ->
+  dl_frameworks; `xgboost`, `lightgbm`, `catboost` -> ml_traditional (python only); js/ts
+  `@huggingface/transformers`, `@xenova/transformers` -> dl_frameworks.
 """
 
 import sys
@@ -84,6 +87,23 @@ _PY_FIRES = [
     ("dl_frameworks", "from keras.layers import Dense"),
     ("dl_frameworks", "    import torch  # lazy import inside a function"),
     ("dl_frameworks", "x = 1; import keras"),
+    # #4252: companion distributions and sibling packs
+    ("ml_traditional", "import xgboost as xgb"),
+    ("ml_traditional", "from xgboost import XGBClassifier"),
+    ("ml_traditional", "import lightgbm as lgb"),
+    ("ml_traditional", "from lightgbm.sklearn import LGBMClassifier"),
+    ("ml_traditional", "import numpy as np, catboost"),
+    ("dl_frameworks", "from transformers import AutoModel"),
+    ("dl_frameworks", "from transformers.models.bert import modeling_tf_bert as tensorflow"),
+    ("dl_frameworks", "import transformers"),
+    ("dl_frameworks", "import torchvision"),
+    ("dl_frameworks", "from torchvision.models import resnet50"),
+    ("dl_frameworks", "from torchaudio import load"),
+    ("dl_frameworks", "import torchtext.data"),
+    ("dl_frameworks", "import tensorflow_hub as hub"),
+    ("dl_frameworks", "import tensorflow_datasets as tfds"),
+    ("dl_frameworks", "from tensorflow_text import normalize_utf8"),
+    ("dl_frameworks", "import os, transformers as tr"),
 ]
 
 _PY_SILENT = [
@@ -95,17 +115,24 @@ _PY_SILENT = [
     # internal / relative modules named after a library
     ("llm_orchestrator", "from airflow.providers import langchain"),
     ("llm_orchestrator", "from . import llama_index"),
+    ("ml_traditional", "from .xgboost import f"),
+    ("ml_traditional", "from mlflow.xgboost import log_model"),
+    ("ml_traditional", "import mlflow.lightgbm"),
+    ("dl_frameworks", "from myproj.transformers import T"),
+    ("dl_frameworks", "from ray.train.huggingface.transformers import prepare"),
+    ("dl_frameworks", "import mlflow.transformers"),
     ("llm_vector_store", "import airflow.providers.pinecone.hooks.pinecone as hook"),
     ("ml_traditional", "from ..sklearn import compat"),
     ("ml_traditional", "from mlflow.sklearn import log_model"),
     ("ml_traditional", "import mlflow.sklearn"),
-    ("dl_frameworks", "from transformers.models.bert import modeling_tf_bert as tensorflow"),
     ("dl_frameworks", "from ray.train.torch import TorchTrainer"),
     ("dl_frameworks", "import mlflow.pytorch, mlflow.keras"),
     # a package name that is only a prefix of another package
-    ("dl_frameworks", "import torchvision"),
-    ("dl_frameworks", "from torchaudio import load"),
-    ("dl_frameworks", "import tensorflow_hub as hub"),
+    ("dl_frameworks", "import torchvision_utils"),
+    ("dl_frameworks", "from tensorflow_hub_fake import x"),
+    ("dl_frameworks", "import transformers_extra"),
+    ("ml_traditional", "import xgboost_ray"),
+    ("ml_traditional", "from lightgbm_tools import x"),
     ("llm_vector_store", "import pinecone_text"),
     ("ml_traditional", "import sklearn_crfsuite"),
     ("llm_orchestrator", "import langchainhub"),
@@ -143,6 +170,10 @@ _JS_FIRES = [
     ("dl_frameworks", "const tf = require('@tensorflow/tfjs-node');"),
     ("dl_frameworks", "import * as cocoSsd from '@tensorflow-models/coco-ssd';"),
     ("dl_frameworks", "const tf = await import('@tensorflow/tfjs');"),
+    ("dl_frameworks", "import { pipeline } from '@huggingface/transformers';"),
+    ("dl_frameworks", "import { pipeline } from '@xenova/transformers';"),
+    ("dl_frameworks", "const { env } = require('@xenova/transformers');"),
+    ("dl_frameworks", "import { AutoModel } from 'transformers';"),
 ]
 
 _JS_SILENT = [
@@ -161,6 +192,9 @@ _JS_SILENT = [
     ("llm_orchestrator", "import x from 'langchain-community-helpers';"),
     ("dl_frameworks", "import x from 'keras-js';"),
     ("dl_frameworks", "import { y } from '@acme/tensorflow-utils';"),
+    ("dl_frameworks", "import { T } from './transformers/base';"),
+    ("dl_frameworks", "import { T } from '@acme/transformers';"),
+    ("dl_frameworks", "import x from 'transformers-helpers';"),
     # non-import mentions
     ("dl_frameworks", "const backend = 'tensorflow';"),
     ("llm_orchestrator", "import axios from 'axios';"),

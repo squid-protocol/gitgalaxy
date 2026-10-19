@@ -26,7 +26,7 @@
     "tests/equivalence/carddemo-tranview/**"
    ],
    "files": 1,
-   "sha256": "fd10e52521563ef606842a9db4c68128700014aee0edf536dc4c15e0654527fd"
+   "sha256": "1653587407f0de68b75027cf8a5b081dfa1484e83e387fd8d17816d37e8e926a"
   },
   "harness": {
    "paths": [
@@ -178,12 +178,12 @@
     }
    }
   },
-  "digest": "7162e95e130d2ef6d3b97f3eaa6d90abf0b75347589e999f68362d4c3d694773"
+  "digest": "744208b63af00773502d2e2733b00074eb0d5563163fce0c0c6d9805789fc05c"
  },
  "proof": {
-  "at": "2026-10-18T22:58:53Z",
+  "at": "2026-10-19T00:10:56Z",
   "verdict": "proven",
-  "runs": 19,
+  "runs": 20,
   "fault_runs": 2,
   "environments": null,
   "outputs": {
@@ -262,6 +262,10 @@
    "enter-with-process-date-on-screen": {
     "equal": 3,
     "records": 3
+   },
+   "enter-empty-transaction-id-with-process-date": {
+    "equal": 3,
+    "records": 3
    }
   },
   "return_code_equal": null,
@@ -270,16 +274,16 @@
   "java_failed": false,
   "facade": {
    "verdict": "proven",
-   "runs": 19,
-   "passed": 19,
+   "runs": 20,
+   "passed": 20,
    "entry_points": [
     "handleTransaction"
    ],
    "failed": [],
    "error": null
   },
-  "harness_commit": "b9ba72ca247d4181f7bc8bcff0d84847408f230b+uncommitted",
-  "inputs_digest": "7162e95e130d2ef6d3b97f3eaa6d90abf0b75347589e999f68362d4c3d694773"
+  "harness_commit": "2721b9fc4fcec5dba0ab9277037ede4d07a84860+uncommitted",
+  "inputs_digest": "744208b63af00773502d2e2733b00074eb0d5563163fce0c0c6d9805789fc05c"
  },
  "coverage": {
   "paragraphs": {
@@ -303,7 +307,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "7162e95e130d2ef6d3b97f3eaa6d90abf0b75347589e999f68362d4c3d694773"
+  "inputs_digest": "744208b63af00773502d2e2733b00074eb0d5563163fce0c0c6d9805789fc05c"
  },
  "reach": {
   "entry_points": [
@@ -346,24 +350,24 @@
   "port_sha256": "7c119ebfaf8a7ddc04e217a6831b11c9497440434458a0098b7cb393e3a9cee3"
  },
  "mutation": {
-  "commit": "0e217727763ec7be197132e37434c9e6fdf91b7c",
+  "commit": "2721b9fc4fcec5dba0ab9277037ede4d07a84860",
   "rejudged": null,
   "seed": 0,
   "mode": null,
   "mutants": 314,
   "chosen": 100,
-  "killed": 66,
-  "survived": 34,
+  "killed": 67,
+  "survived": 33,
   "stillborn": 0,
   "survivors": {
-   "case_gap": 1,
+   "case_gap": 0,
    "harness_gap": 0,
    "equivalent": 25,
    "unreachable": 8,
    "untriaged": 0
   },
-  "score_raw": "66/100",
-  "score_adjusted": "66/67",
+  "score_raw": "67/100",
+  "score_adjusted": "67/67",
   "source": "docs/language_status/mutation_scores.json#carddemo-tranview/COTRN01C",
   "inputs": {
    "port": {
@@ -376,7 +380,7 @@
     "sha256": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919"
    },
    "harness": {
-    "sha256": "f41b2e95b50f168ede9c430558250b48e3599be94cf743cec23cf1e28b6e3053"
+    "sha256": "747bdfc81e535de3668e7f81a5b1b0ad45a685f1c7021d7d27eeb72a88e84493"
    },
    "oracle": {
     "sha256": "78abad3ef2da17f34959fee0e54309421ecc8dce147b4cd13fe6d93f195b358a"

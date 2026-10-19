@@ -259,3 +259,21 @@ def test_cardview_and_cardlist_state_only_the_whole_commarea():
         assert s["commarea"] is not None
         assert s["commarea_length"] == whole
         assert s["why"].startswith("#5401")
+
+
+def test_the_menu_family_cases_pin_the_slice_3_inputs():
+    # #4049 slice 3: the stated EIBCALEN, the mapset the SEND MAP must name, a blank COMMAREA that reaches the output
+    # (no COMMAREA plus a failing XCTL), and an empty id with a process date the found record cannot overwrite
+    scs = _scenarios("carddemo-useradd")
+    for name in ("short-commarea-147", "short-commarea-150"):
+        assert scs[name]["commarea"] is not None and 1 <= scs[name]["commarea_length"] < 160
+        assert scs[name]["why"].startswith("#4049 slice 3")
+    import json
+
+    path = Path(__file__).resolve().parents[1] / "equivalence" / "carddemo-useradd" / "case.json"
+    case = json.loads(path.read_text(encoding="utf-8"))
+    assert case["maps"] == {"COUSR1A": {"mapset": "COUSR01"}}
+    s = _scenarios("carddemo-adminmenu")["no-commarea-xctl-fails"]
+    assert s["commarea"] is None and s["faults"][0]["cmd"] == "XCTL" and s["faults"][0]["resp"] == "PGMIDERR"
+    s = _scenarios("carddemo-tranview")["enter-empty-transaction-id-with-process-date"]
+    assert s["receive"]["COTRN1A"]["TPROCDTI"].strip()

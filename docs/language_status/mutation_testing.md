@@ -391,6 +391,7 @@ an area of its own and an EIBCALEN of 8, 22 or 80. Three scenarios (`direct-8-by
 `direct-negative-balance`), their logs derived from the COBOL, killed two of the three (the packed-balance partial overlay and
 the negative balance); the third, `* 10000` for `% 10000` on the destination of `overlayVisits`, is equivalent
 (WS-V2's V2-VISITS is zero after INITIALIZE, so the destination digits are always 0000). CAXB is now 20/3 with 0 case gaps.
+This landed in #5505, so the "needs a cics-crucible CAXA mode" wording in #5490 and #5491 is superseded: no release or pin bump was needed.
 
 A score is quoted with its case and seed, never alone. Every survivor is triaged as a case gap, a
 harness gap, an equivalent mutant (with the reason) or dead code.

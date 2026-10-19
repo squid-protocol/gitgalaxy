@@ -383,7 +383,7 @@ def killers(report: dict[str, Any]) -> list[str]:
 def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str], timeout: float | None,
         keep: bool, full: bool = False, only: Path | None = None, case_file: Path | None = None,
         port: Path | None = None, files: str = "**/*.java",
-        select: Callable[[list[Mutant]], list[Mutant]] | None = None) -> dict[str, Any]:  # fmt: skip
+        select: Callable[[list[Mutant]], list[Mutant]] | None = None, one_jvm: bool = False) -> dict[str, Any]:  # fmt: skip
     """`port`: a port outside the case (#4628: the det port, `det_port.py run --translate-only`) instead of the
     committed one -- the baseline proves it too; `files`: the port's files to mutate; `select`: drops the mutants
     out of scope (det_mutation.py: entry points the case's kind never calls) before sampling."""
@@ -400,7 +400,11 @@ def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str
     classpath = baseline_classpath(work / "baseline", work)
     # fast (the default): each mutant reuses the baseline's COBOL side and generated project, compiles only the
     # port, and stops at the first run that differs -- the same verdict as --full, which re-proves from scratch
-    fast = case_arg + (() if full else ("--reuse", str(work / "baseline"), "--first-difference"))
+    # (--one-jvm: and all the runs of a proof in one JVM, each on a fresh Spring context; judged against --full by
+    # `compare` before it is trusted, hence its own mode name)
+    fast = case_arg + (() if full else ("--reuse", str(work / "baseline"), "--first-difference")
+                       + (("--one-jvm",) if one_jvm else ()))  # fmt: skip
+    mode = "full" if full else "fast+one-jvm" if one_jvm else "fast"
     every = all_mutants(port, ops, files)
     if select is not None:
         every = select(every)
@@ -442,8 +446,8 @@ def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str
             done += 1
             print(f"  [{done}/{len(live)}] {m.op} {m.file}:{m.line} {res['verdict']} "
                   f"{','.join(res.get('killed_by', []))[:60]}", flush=True)  # fmt: skip
-            _save(work, case, base, every, chosen, results, started, seed, "full" if full else "fast")
-    return _save(work, case, base, every, chosen, results, started, seed, "full" if full else "fast")
+            _save(work, case, base, every, chosen, results, started, seed, mode)
+    return _save(work, case, base, every, chosen, results, started, seed, mode)
 
 
 def _save(work: Path, case: str, base: dict[str, Any], every: list[Mutant], chosen: list[Mutant],
@@ -544,6 +548,8 @@ def main(argv: list[str] | None = None) -> int:
                    "service/*.java, the translated program without the cobolrt runtime)")  # fmt: skip
     r.add_argument("--full", action="store_true", help="prove each mutant from scratch (the COBOL side, the whole "
                    "estate regenerated, every run): slow, the reference the default fast mode must agree with")  # fmt: skip
+    r.add_argument("--one-jvm", action="store_true", help="fast mode with all the runs of one proof in one JVM "
+                   "(equivalence.py --one-jvm): check it with `compare` against a --full run before trusting it")  # fmt: skip
     r.add_argument("--record", action="store_true", help="#4048: the run becomes the port's committed score "
                    "(mutation_scores.json, its survivors' triage kept) and its evidence record's `mutation`")  # fmt: skip
     r.add_argument("--triage", type=Path, nargs="*", default=[], help="with --record: triage files for new survivors")
@@ -577,8 +583,10 @@ def main(argv: list[str] | None = None) -> int:
             counts[m.op] = counts.get(m.op, 0) + 1
         print(f"{len(ms)} mutants: " + ", ".join(f"{k} {v}" for k, v in sorted(counts.items())))
         return 0
-    if args.record and (args.case_file or args.only or args.port or args.files != "**/*.java"):
-        raise SystemExit("--record scores the committed port on the committed case: drop --case-file / --only / "
+    if args.one_jvm and args.full:
+        raise SystemExit("--one-jvm is a fast-mode option: drop --full")
+    if args.record and (args.one_jvm or args.case_file or args.only or args.port or args.files != "**/*.java"):
+        raise SystemExit("--record scores the committed port on the committed case: drop --one-jvm / --case-file / --only / "
                          "--port / --files")  # fmt: skip
     s = run(
         args.case,
@@ -594,6 +602,7 @@ def main(argv: list[str] | None = None) -> int:
         args.case_file,
         args.port,
         args.files,
+        one_jvm=args.one_jvm,
     )
     print(mutation_md(s))
     if args.record:

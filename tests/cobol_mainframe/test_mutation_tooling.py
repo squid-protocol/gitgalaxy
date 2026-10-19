@@ -231,3 +231,113 @@ def test_runs_after_the_first_maven_run_take_the_direct_path_with_mavens_classpa
     assert java[-3:] == ["-cp", os.pathsep.join([surefire_cp, str(launcher), str(runner)]), "EquivalenceMain"]
     assert java_kw["cwd"] == mvn_kw["cwd"] == project  # the same working directory
     assert java_kw["timeout"] == ej.JAVA_DIRECT_TIMEOUT
+
+
+# ---- --one-jvm: all the runs of one proof in one JVM -----------------------------------------------------------------
+FAKE_JVM = f"""import sys, time
+for line in sys.stdin:
+    line = line.rstrip("\\n")
+    if line == "quit":
+        break
+    if "die" in line:
+        sys.exit(3)
+    if "hang" in line:
+        time.sleep(60)
+    print("props=" + repr(line.split("\\t")), flush=True)
+    print("{ej.RUN_DONE} " + ("1" if "fail=1" in line else "0"), flush=True)
+"""
+
+
+@pytest.fixture
+def fake_session(tmp_path):
+    script = tmp_path / "fake_jvm.py"
+    script.write_text(FAKE_JVM, encoding="utf-8")
+    made = []
+
+    def start():
+        s = ej.JvmSession([sys.executable, str(script)], tmp_path, dict(os.environ))
+        made.append(s)
+        return s
+
+    yield start
+    for s in made:
+        s.close()
+
+
+def test_a_session_jvm_runs_one_proof_run_per_line_with_that_runs_properties(fake_session):
+    s = fake_session()
+    a = s.run("-Dequivalence.out=/o/1 -Dgitgalaxy.faults.plan=/p", 20)
+    b = s.run("-Dequivalence.out=/o/2 -Dfail=1", 20)
+    assert (a.returncode, b.returncode) == (0, 1)  # the run's own verdict, not the JVM's
+    assert a.stdout.strip() == "props=['equivalence.out=/o/1', 'gitgalaxy.faults.plan=/p']"
+    assert "/o/1" not in b.stdout and "equivalence.out=/o/2" in b.stdout  # each run's output is its own
+
+
+def test_a_session_run_that_hangs_or_kills_the_jvm_is_a_failed_run_not_a_hang(fake_session):
+    s = fake_session()
+    hung = s.run("-Dx=hang", 1)
+    assert hung.returncode == 124 and "timed out" in hung.stderr
+    died = fake_session().run("-Dx=die", 20)  # the JVM exits before RUN_DONE
+    assert died.returncode == 3 and "ended before the run finished" in died.stderr
+
+
+def _env_run(monkeypatch, tmp_path, case, envs, one_jvm=True, stop=None):
+    sessions, seen = [], []
+
+    class Fake:
+        closed = False
+
+        def close(self):
+            self.closed = True
+
+    monkeypatch.setattr(ej, "prepare_project", lambda *a, **k: tmp_path)
+    monkeypatch.setattr(ej, "equivalence_test", lambda c: "")
+    monkeypatch.setattr(ej, "start_session", lambda project, env: sessions.append(Fake()) or sessions[-1])
+
+    def area(case_, project, area_, inputs, env, props="", session=None):
+        seen.append((env["name"], props.split()[0] if props else "", session))
+        return {"RETURN-CODE": b"0"}
+
+    monkeypatch.setattr(ej, "_run_area", area)
+    runs = ej.run_java_environments(
+        case,
+        tmp_path,
+        tmp_path,
+        tmp_path,
+        envs,
+        faults=(("f1", "plan"), ("f2", "plan")),
+        entries=("E1",),
+        one_jvm=one_jvm,
+        stop=stop,
+    )
+    return runs, sessions, seen
+
+
+def test_one_jvm_carries_the_first_environments_runs_and_the_other_environments_get_a_jvm_each(monkeypatch, tmp_path):
+    envs = [ej.environment("default"), ej.environment("turkish")]
+    runs, sessions, seen = _env_run(monkeypatch, tmp_path, {"datasets": {}}, envs)
+    assert list(runs) == ["default", "turkish", "fault:f1", "fault:f2", "entry:E1"]
+    assert len(sessions) == 1 and sessions[0].closed  # one JVM, closed when the proof ends
+    by_run = {(n, p): s for n, p, s in seen}
+    assert by_run[("default", "")] is sessions[0] and by_run[("turkish", "")] is None
+    assert all(s is sessions[0] for n, p, s in seen if p)  # every fault and entry run is in it
+
+
+def test_one_jvm_is_off_by_default_and_for_db2_and_ims_cases(monkeypatch, tmp_path):
+    envs = [ej.environment("default")]
+    for case, one_jvm in (({"datasets": {}}, False), ({"datasets": {}, "db2": {"tables": []}}, True),
+                          ({"datasets": {}, "ims": {"compare": []}}, True)):  # fmt: skip
+        _, sessions, seen = _env_run(monkeypatch, tmp_path, case, envs, one_jvm)
+        assert not sessions and all(s is None for _n, _p, s in seen)
+
+
+def test_first_difference_ends_a_one_jvm_proof_where_it_ends_a_jvm_per_run_proof(monkeypatch, tmp_path):
+    envs = [ej.environment("default")]
+    runs, sessions, _ = _env_run(monkeypatch, tmp_path, {"datasets": {}}, envs, stop=lambda n, _o: n == "fault:f1")
+    assert list(runs) == ["default", "fault:f1"] and sessions[0].closed
+
+
+def test_the_session_runner_and_the_test_it_runs_are_made_for_repeated_runs():
+    assert "--session" in ej.RUNNER and ej.RUN_DONE in ej.RUNNER and "System.clearProperty" in ej.RUNNER
+    case = {"program": "X", "name": "x", "datasets": {}, "clock": "2024/01/02 03:04:05.00"}
+    assert "@DirtiesContext" in ej.equivalence_test(case)  # a second run in the JVM never meets the first's context

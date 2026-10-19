@@ -2032,8 +2032,8 @@ class GalaxyIR:
         done: set = set()
         groups: list = []  # (statement line, the replaced entries, root first)
         for st in sorted(ef.copy_statements, key=lambda c: c.line):
-            if not st.replacing:
-                continue  # #5618: a plain COPY row (no REPLACING) records the statement; it expands nothing here
+            if not st.replacing or st.section == "PROCEDURE":
+                continue  # #5618: a plain or procedure-division COPY row records the statement; it expands no data here
             cb, roots = self._copy_roots(st.member, ef, ef, 0, st.library)
             roots = roots or (cb.template_records if cb is not None else [])
             if cb is None or not roots:

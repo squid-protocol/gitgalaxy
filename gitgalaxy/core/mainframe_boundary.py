@@ -595,7 +595,7 @@ _NUMERIC_BAREWORD = re.compile(r"[+-]?[0-9]{0,31}")
 # COPY does (carddemo COTRTLIC.cbl:304 `EXEC SQL INCLUDE CSDB2RWY END-EXEC`, GenApp
 # `01 DFHCOMMAREA.` + `EXEC SQL INCLUDE LGCMAREA END-EXEC.`), so it is recorded the
 # same way.
-# #5618: a quoted GnuCOBOL file literal may carry the copybook's extension (`COPY "sprstate.cpy".`): the
+# #5618: a quoted GnuCOBOL file literal may carry the copybook's extension (`COPY "ws-state.cpy".`): the
 # `.ext` is swallowed only when a closing quote follows it, so the member stays the stem and the
 # `IN|OF` / `REPLACING` phrase after the quote still parses.
 _COPY_IN_ENTRY = re.compile(
@@ -1388,6 +1388,25 @@ def _cobol_records(
                         else None,
                     }
                 )
+        # #5618: a COPY in a PROCEDURE DIVISION (paragraph text, `COPY "pd-level.cpy".`) is outside every
+        # data window; recorded with section PROCEDURE so the statement and its copybook edge are not lost.
+        proc_starts = [pm.start() for pm in _PROCEDURE_DIVISION.finditer(code_stream)]
+        for m in _COPY_IN_ENTRY.finditer(code_stream):
+            if _window_end(m.start()) is not None or not bisect.bisect_right(proc_starts, m.start()):
+                continue
+            replacing = _copy_replacing(code_stream, m.end())
+            lib = _COPY_LIBRARY.match(code_stream, m.end())
+            section_copies.append(
+                {
+                    "member": m.group(1).upper(),
+                    "library": lib.group(1).upper() if lib else "",
+                    "replacing": json.dumps(replacing) if replacing else "",
+                    "line": _line_of(m.start()),
+                    "section": "PROCEDURE",
+                    "fd_name": None,
+                    "after_ordinal": None,
+                }
+            )
     return records
 
 

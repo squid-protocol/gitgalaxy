@@ -229,7 +229,8 @@ def parse_exec(text: str) -> tuple[list[str], dict[str, str | None]]:
 
 
 # ---- the generated DTOs ----------------------------------------------------------------------------------------
-_PROP = re.compile(r"//\s*(.+?)\n\s*private\s+([\w.<>]+)\s+(\w+);")
+_PROP = re.compile(r"//\s*(.+?)\n(?:\s*//\s*OCCURS\s+(\d+)\s+TIMES\n)?\s*private\s+([\w.<>]+)\s+(\w+);")
+_LIST = re.compile(r"List<(\w+)>")
 _LEAF = re.compile(r"([A-Z0-9-]+):\s*PIC\s+(\S+?)(?:\s+(COMP-3|COMP-5|COMP-4|COMP|BINARY|PACKED-DECIMAL|DISPLAY))?,"
                    r"\s*offset\s+(\d+),\s*(\d+)\s+bytes(?:\s*\(([^)]+)\))?")  # fmt: skip
 _PART = re.compile(r"offset\s+(\d+),\s*(\d+)\s+bytes\s*->\s*([A-Z0-9-]+)")
@@ -247,8 +248,9 @@ class Leaf:
     pic: str
     usage: str
     offset: int
-    size: int
+    size: int  # one occurrence's bytes
     source: str | None = None  # the copybook the generator read the field from
+    occurs: int = 1  # #5565: a List<T> property: `occurs` consecutive `size`-byte items
 
 
 @dataclass
@@ -278,7 +280,7 @@ class Dto:
     @property
     def extent(self) -> int:
         """Where the DTO's last property ends, in storage bytes: what its object carries."""
-        n = max((self.at(x.offset) + (POINTER_BYTES if x.usage == "POINTER" else x.size) for x in self.leaves),
+        n = max((self.at(x.offset) + (POINTER_BYTES if x.usage == "POINTER" else x.size * x.occurs) for x in self.leaves),
                 default=0)  # fmt: skip
         return max([n] + [self.at(off) + p.size for _, p, off in self.parts])
 
@@ -404,7 +406,7 @@ class Generated:
         head = _DTO_RECORD.search(text)
         d.record = int(head.group(1)) if head else None
         d.occurs = "Fields inside an OCCURS group appear once" in text
-        for comment, jtype, var in _PROP.findall(text):
+        for comment, table, jtype, var in _PROP.findall(text):
             part = _PART.search(comment)
             if part:
                 d.parts.append((var, self.dto(jtype), int(part.group(1))))
@@ -418,10 +420,17 @@ class Generated:
                                      ptr.group(4)))  # fmt: skip
                 continue
             leaf = _LEAF.search(comment)
-            if not leaf or jtype not in ("String", "Integer", "Long", "Short", "BigDecimal", "java.math.BigDecimal"):
+            n, elem = int(table or 1), _LIST.fullmatch(jtype) if table else None
+            if elem:  # #5565: `OCCURS n` on an elementary item is a List of its occurrences (CardDemo's PAUKEY-PREV-PG)
+                jtype = elem.group(1)
+            if not leaf or jtype not in ("String", "Integer", "Long", "Short", "BigDecimal", "java.math.BigDecimal") \
+                    or bool(table) != bool(elem):  # fmt: skip
                 raise CicsError(f"{cls}.{var}: a property the port cannot convert ({jtype})")
+            width = int(leaf.group(5))
+            if width % n:
+                raise CicsError(f"{cls}.{var}: an OCCURS {n} table whose {width} bytes are not {n} equal items")
             d.leaves.append(Leaf(var, jtype, leaf.group(1), leaf.group(2), (leaf.group(3) or "DISPLAY").upper(),
-                                 int(leaf.group(4)), int(leaf.group(5)), leaf.group(6)))  # fmt: skip
+                                 int(leaf.group(4)), width // n, leaf.group(6), n))  # fmt: skip
         self.dtos[cls] = d
         return d
 
@@ -705,8 +714,12 @@ class Cics(ContainerCommands):
             if it.size != leaf.size:
                 # the comment does not carry everything (SIGN LEADING SEPARATE): the item as its copybook declares it
                 it = self.declared(leaf)
-            f = self.g.factory(it, "s", f"base + {at}")
             cap = leaf.var[0].upper() + leaf.var[1:]
+            if leaf.occurs > 1:
+                lines_in.append(self.table_in(leaf, it, cap, at))
+                lines_out.append(self.table_out(leaf, it, cap, at))
+                continue
+            f = self.g.factory(it, "s", f"base + {at}")
             if leaf.jtype == "String":
                 lines_in.append(f'        Cobol.move(d.get{cap}() == null ? "" : d.get{cap}(), {f}, CS);')
                 lines_out.append(f"        d.set{cap}(Cobol.text({f}, CS));")
@@ -724,6 +737,26 @@ class Cics(ContainerCommands):
                             f"    private {cls} out_{cls}(Storage s, int base) {{", f"        {cls} d = new {cls}();",
                             f"        fill_{cls}(d, s, base);", "        return d;", "    }", ""]  # fmt: skip
         return cls
+
+    def table_in(self, leaf: Leaf, it: L.Item, cap: str, at: int) -> str:
+        """#5565: a List property into storage -- occurrence i at `at + i * size`; an absent or short list leaves the
+        rest as an unset scalar does (spaces / zero)."""
+        f = self.g.factory(it, "s", f"base + {at} + i * {leaf.size}")
+        got = f"d.get{cap}() == null || d.get{cap}().size() <= i"
+        if leaf.jtype == "String":
+            move = f'Cobol.move({got} ? "" : d.get{cap}().get(i), {f}, CS);'
+        else:
+            move = f"Cobol.move({got} ? BigDecimal.ZERO : new BigDecimal(d.get{cap}().get(i).toString()), {f}, CS);"
+        return f"        for (int i = 0; i < {leaf.occurs}; i++) {{ {move} }}"
+
+    def table_out(self, leaf: Leaf, it: L.Item, cap: str, at: int) -> str:
+        """#5565: every occurrence out of storage, as a List of exactly `occurs` items."""
+        f = self.g.factory(it, "s", f"base + {at} + i * {leaf.size}")
+        conv = {"Integer": ".intValue()", "Long": ".longValue()", "Short": ".shortValue()"}.get(leaf.jtype, "")
+        item = f"Cobol.text({f}, CS)" if leaf.jtype == "String" else f"Cobol.num({f}, CS){conv}"
+        jtype = "java.math.BigDecimal" if leaf.jtype == "BigDecimal" else leaf.jtype
+        return (f"        {{ java.util.List<{jtype}> t = new java.util.ArrayList<>(); "
+                f"for (int i = 0; i < {leaf.occurs}; i++) {{ t.add({item}); }} d.set{cap}(t); }}")  # fmt: skip
 
     def pointer_outside_occurs(self, cls: str, leaf: Leaf) -> None:
         """#4270 (C9): a DTO's POINTER, as its copybook declares it, is under no OCCURS -- else each occurrence would

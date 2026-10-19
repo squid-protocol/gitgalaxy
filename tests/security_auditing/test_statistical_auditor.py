@@ -514,3 +514,20 @@ def test_auditor_functions_on_packed_lines_are_still_a_payload(auditor):
     """Obfuscated bundles also name functions, but on very long lines."""
     verified, unparsable = auditor.audit([_table_with_functions([{"name": "a"}], 900)])
     assert not verified and "Packed Payload Guard" in unparsable[0]["reason"]
+
+
+@pytest.mark.parametrize(
+    ("proof", "tier", "avg_line", "kept"),
+    [
+        ("Sibling Anchor (C++)", 0, 40, True),  # a page of prototypes (#5467)
+        ("Sibling Anchor (C++)", 0, 900, False),  # packed lines are still a payload
+        ("Extension", 0, 40, False),  # no sibling anchor
+    ],
+)
+def test_sibling_anchored_header_is_not_a_packed_payload(auditor, proof, tier, avg_line, kept):
+    art = _table_with_functions([], avg_line)
+    art["path"] = art["name"] = "rad_act.h"
+    art["telemetry"] = {"identity_lock_tier": tier, "identity_source_proof": proof}
+    verified, unparsable = auditor.audit([art])
+    assert bool(verified) is kept
+    assert kept or "Packed Payload Guard" in unparsable[0]["reason"]

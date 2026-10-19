@@ -71,6 +71,7 @@ from ._overrides import PROJECT_OVERRIDES
 from ._prism_config import PRISM_CONFIG, PrismConfigSchema
 from ._shared_patterns import HTML_NONEXECUTABLE_SCRIPT_TAG
 from .languages import abap as _abap
+from .languages import acs as _acs
 from .languages import ada as _ada
 from .languages import agc_assembly as _agc_assembly
 from .languages import apex as _apex
@@ -217,4 +218,5 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
     "csd": _csd.DEFINITION,
     "easytrieve": _easytrieve.DEFINITION,
     "zscript": _zscript.DEFINITION,
+    "acs": _acs.DEFINITION,
 }

@@ -340,17 +340,33 @@ class Gen:
     def address_record(self, name: str) -> str:
         """#4771 (X47): the Field of a LINKAGE 01 record whose storage a pointer can address (it has storage of its own)."""
         it = self.resolve(E.Ref(name.upper()))
-        if getattr(it, "level", None) not in (
-            None,
-            1,
-        ):  # ZECS001's ZF-DATA: an offset into its record, no storage of its own
+        if getattr(it, "level", None) not in (None, 1):
             raise Untranslatable(
                 f"ADDRESS OF {name}: a subordinate item is an offset into its record, not a LINKAGE 01 record "
-                "(needs a Storage window; not modelled)"
+                "(address it with SET ADDRESS OF / SET pointer TO ADDRESS OF)"
             )
         if getattr(it, "section", None) != "LINKAGE" or getattr(it, "level", None) != 1:
             raise Untranslatable(f"ADDRESS OF {name}: not a LINKAGE 01 record (not modelled)")
         return self.field_expr(E.Ref(name.upper()))
+
+    def address_item(self, name: str) -> tuple[str, bool]:
+        """#4771 (X47): `ADDRESS OF name` as a source of SET: (the Field, whether it is a windowed item). A LINKAGE 01
+        record is its own storage (address_record); any other single item of WORKING-STORAGE or LINKAGE (ZECS001's
+        ZF-DATA, or a WORKING-STORAGE record) is an offset into its section's or record's storage, which a record set
+        onto it views through a Storage window (Storage.base). Refused: a table element, another section's item."""
+        it = self.resolve(E.Ref(name.upper()))
+        if getattr(it, "section", None) == "LINKAGE" and getattr(it, "level", None) == 1:
+            return self.address_record(name), False
+        if getattr(it, "section", None) not in ("WORKING-STORAGE", "LINKAGE"):
+            raise Untranslatable(f"ADDRESS OF {name}: not an item of WORKING-STORAGE or LINKAGE (not modelled)")
+        in_table = it.occurs > 1
+        walker = it.parent
+        while walker is not None and not in_table:
+            in_table = walker.occurs > 1
+            walker = walker.parent
+        if in_table:
+            raise Untranslatable(f"ADDRESS OF {name}: a table element (not modelled)")
+        return self.field_expr(E.Ref(name.upper())), True
 
     def field_expr(self, ref: E.Ref) -> str:
         it = self.resolve(ref)
@@ -2125,15 +2141,17 @@ class Gen:
                 return [c, f"{ind}// the pointer is never read (write_only_pointers): no effect any output can show"]
             if self.cics is None:
                 raise Untranslatable("SET ADDRESS OF (pointers)")
-            call = f"DetCics.setPointerToRecord(task, {self.pointer_item(s.data['target'])}, {self.address_record(s.data['of'])});"
-            return [c, ind + call]
+            ptr = self.pointer_item(s.data["target"])
+            of, windowed = self.address_item(s.data["of"])
+            return [c, f"{ind}DetCics.{'setPointerToItem' if windowed else 'setPointerToRecord'}(task, {ptr}, {of});"]
         if k == "SET-ADDRESS":  # #4771 (X47): the record's storage becomes the pointer's / another record's
             if self.cics is None:
                 raise Untranslatable("SET ADDRESS OF (pointers)")
             rec = self.address_record(s.data["record"])
             if s.data["pointer"]:
                 return [c, f"{ind}DetCics.setAddress(task, {rec}, {self.pointer_item(s.data['pointer'])});"]
-            return [c, f"{ind}DetCics.setAddressOfRecord(task, {rec}, {self.address_record(s.data['of'])});"]
+            of, windowed = self.address_item(s.data["of"])
+            return [c, f"{ind}DetCics.{'setAddressOfItem' if windowed else 'setAddressOfRecord'}(task, {rec}, {of});"]
         if k == "INITIALIZE":
             out = [c]
             for r in s.data["refs"]:

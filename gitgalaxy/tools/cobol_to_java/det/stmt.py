@@ -902,6 +902,21 @@ def _goto(p: E.Parser, text: str, line: int) -> Stmt:
     return Stmt("GOTO", line, text, {"targets": targets, "depending": dep})
 
 
+def _alter(p: E.Parser, text: str, line: int) -> Stmt:
+    """ALTER p TO [PROCEED TO] q [p TO [PROCEED TO] q]... (#5560, IBM Enterprise COBOL Language Reference, ALTER)."""
+    pairs = []
+    while not p.done():
+        para = p.take().upper()
+        if not p.accept("TO"):
+            raise E.ExprError("ALTER without TO")
+        if p.accept("PROCEED") and not p.accept("TO"):
+            raise E.ExprError("ALTER PROCEED without TO")
+        pairs.append((para, p.take().upper()))
+    if not pairs:
+        raise E.ExprError("ALTER without a paragraph")
+    return Stmt("ALTER", line, text, {"pairs": pairs})
+
+
 def _call(p: E.Parser, text: str, line: int) -> Stmt:
     dynamic = None
     if (p.peek() or " ")[:1] in "'\"":
@@ -1473,7 +1488,7 @@ _PARSERS = {
     "RELEASE": _release, "RETURN": _return,
     "MOVE": _move, "DISPLAY": _display, "COMPUTE": _compute, "ADD": _add, "SUBTRACT": _subtract,
     "MULTIPLY": _multiply, "DIVIDE": _divide, "INITIALIZE": _initialize, "SET": _set, "PERFORM": _perform,
-    "GO": _goto, "CALL": _call, "EXIT": _simple("EXIT"), "GOBACK": _simple("GOBACK"), "STOP": _simple("STOP"),
+    "GO": _goto, "ALTER": _alter, "CALL": _call, "EXIT": _simple("EXIT"), "GOBACK": _simple("GOBACK"), "STOP": _simple("STOP"),
     "CONTINUE": _simple("CONTINUE"), "NEXT": _simple("NEXT-SENTENCE"), "OPEN": _open, "CLOSE": _close,
     "READ": _read, "WRITE": _write, "REWRITE": _rewrite, "START": _start, "ACCEPT": _accept, "STRING": _string, "UNSTRING": _unstring,
     "INSPECT": _inspect,

@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `f60dfb0c3` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `e7c3bf66b` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -28,7 +28,7 @@ mutants caught (`definition_of_done.md`).
 | Translator | 116 programs translated whole | 129 burned programs | docs/language_status/evidence_report/<estate>/report.json (evidence_report.py, generated branch) |
 | CICS commands | 60 modelled on both runtimes | 68 commands a burned program uses (7 unlisted or unparsed forms, counted as not modelled) | docs/language_status/cics_spec_status.json (cics_spec_status.py) |
 | COBOL runtime rules | 84 MATCHED, 23 DIFFERS, 53 ASSUMED, 14 REFUSED; 0 measured on z/OS | 174 rules | docs/language_status/cobolrt_rules.json |
-| Mutation | 2425 killed = 84.8% adjusted (69.6% raw) | 2860 adjusted, 3483 raw mutants over 50 ports | docs/language_status/mutation_scores.json |
+| Mutation | 2420 killed = 85.9% adjusted (69.4% raw) | 2817 adjusted, 3489 raw mutants over 50 ports | docs/language_status/mutation_scores.json |
 | CICS crucible | 57 programs, 159 scenarios | pinned at `v0.9.0 (3ca75ae0)` | tests/cics_crucible/coverage.json |
 | Estate crucible | 60 of 60 horrors pass | pinned at `v0.4.0` | tests/estate_crucible/baseline.json |
 
@@ -51,12 +51,12 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-19T00:33:29Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-19T01:04:19Z.
 
-- `scope:core`: 31 open, 126 closed.
+- `scope:core`: 32 open, 126 closed.
 - Milestone 28: 14 open, 78 closed.
-- Last 7 days: 29 opened, 35 closed, net +6 closed.
-- ETA (open / net closure rate): **36 days**.
+- Last 7 days: 30 opened, 35 closed, net +5 closed.
+- ETA (open / net closure rate): **45 days**.
 
 ## 5. Gap Atlas
 

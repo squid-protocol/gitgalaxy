@@ -272,6 +272,8 @@ class Gen:
         self.clock = "clock.currentDate()"  # FUNCTION CURRENT-DATE outside CICS
         self.uses_random = False  # FUNCTION RANDOM: the program keeps a run unit's sequence (Funcs.Random)
         self.callees: dict[str, str] = {}  # CALLed program -> the ObjectProvider field of its service
+        self.entry_tested = False  # #5106: a condition read the `present` flags
+        self.entry_items: dict[str, int] = {}  # #5106: a sibling's USING item -> its position (ADDRESS OF = NULL)
         self.siblings: set[str] = set()  # #5106: the other programs of this program's source (no service of their own)
         # CALLed program -> its handleCall parameter types (CobolRef<String>, or a contract DTO for a group item)
         self.callee_types: dict[str, list[str]] = {}
@@ -1346,6 +1348,8 @@ class Gen:
                 t = f"Cobol.{fn}({self.field_expr(c.operand)}, CS)"
             return f"!({t})" if c.negated else t
         if isinstance(c, E.Rel):
+            if isinstance(c.left, E.AddrOf):
+                return self.rel_address_null(c)
             if self.null_relation(c):
                 return self.rel_null(c)
             if self.pointer_operand(c.left) and self.pointer_operand(c.right):
@@ -1353,6 +1357,17 @@ class Gen:
             with self.relation():
                 return self.rel(c.op, c.left, c.right)
         raise Untranslatable(f"condition {type(c).__name__}")
+
+    def rel_address_null(self, c: E.Rel) -> str:
+        """#5106: `ADDRESS OF item = NULL` / `NOT =`, on a USING item of a sibling's CALL entry: IBM sets the address of an
+        OMITTED item to NULL, so the test is whether the caller passed a reference (`present`, set at the entry).
+        Any other ADDRESS OF relation stays refused by name."""
+        r = c.left.ref
+        k = self.entry_items.get(r.name.upper())
+        if c.op not in ("=", "<>") or k is None or r.subscripts or r.qualifiers or r.refmod:
+            raise Untranslatable("condition: ADDRESS OF")
+        self.entry_tested = True
+        return f"present[{k}]" if c.op == "<>" else f"!present[{k}]"
 
     @staticmethod
     def null_relation(c: E.Rel) -> bool:

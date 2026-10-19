@@ -624,6 +624,57 @@ class _Contract:
     returns: bool
 
 
+def _null_test(tok: list[str], i: int) -> tuple[int, bool] | None:
+    """#5106: the `ADDRESS OF item [IS] [NOT] EQUAL [TO] / = / <> NULL` at token `i`: (the index after it, whether it is the
+    not-null form), or None where the tokens are not that relation."""
+    if tok[i : i + 2] != ["ADDRESS", "OF"] or i + 2 >= len(tok):
+        return None
+    j = i + 3
+    if tok[j : j + 1] == ["IS"]:
+        j += 1
+    neg = tok[j : j + 1] == ["NOT"]
+    j += neg
+    if tok[j : j + 1] in (["="], ["EQUAL"], ["EQUALS"], ["<>"]):
+        neg ^= tok[j] == "<>"
+        j += 1
+        j += tok[j : j + 1] == ["TO"]
+        if tok[j : j + 1] in (["NULL"], ["NULLS"]):
+            return j + 1, neg
+    return None
+
+
+def _names_item(body: str, name: str) -> bool:
+    """#5106: whether a sibling's body names the item other than as a test of its address: the only references an OMITTED
+    item allows are `ADDRESS OF item NOT = NULL` and what sits inside the branch such an IF guards (an ELSE, a period
+    or an unrelated IF is not guarded). IBM leaves any other reference to an OMITTED item undefined."""
+    tok = re.findall(r"[A-Za-z0-9_-]+|[^\sA-Za-z0-9_-]+", re.sub(r"'[^']*'|\"[^\"]*\"", " ", body).upper())
+    frames: list[bool] = []  # one per open IF: whether its THEN branch is guarded by this item's not-null test
+    i = 0
+    while i < len(tok):
+        t = tok[i]
+        if t == "ADDRESS":
+            hit = _null_test(tok, i)
+            if hit is not None and tok[i + 2] == name:
+                i = hit[0]
+                continue
+        elif t == "IF":
+            guard = False
+            hit = _null_test(tok, i + 1)
+            if hit is not None and hit[1] and tok[i + 3] == name and tok[hit[0] : hit[0] + 1] not in (["AND"], ["OR"]):
+                guard, i = True, hit[0] - 1
+            frames.append(guard)
+        elif t == "ELSE" and frames:
+            frames[-1] = False
+        elif t == "END-IF" and frames:
+            frames.pop()
+        elif t == ".":
+            frames.clear()
+        elif t == name and not any(frames):
+            return True
+        i += 1
+    return False
+
+
 def _sibling_service(sib: str, source_lines: list, program: Path, copy_dirs: list[Path], package: str,
                      estate: dict[str, str] | None, project: Path | None, style: str, typed: bool, groups: bool,
                      options: list[str] | None, strict_copy: bool, own: str) -> _Contract | None:  # fmt: skip
@@ -657,7 +708,7 @@ def _sibling_service(sib: str, source_lines: list, program: Path, copy_dirs: lis
                            or set(ret.picture()) - set("9S") or ret.picture().count("9") > 9):  # fmt: skip
         return None
     body = text[header.end() :]
-    named = [re.search(rf"(?<![\w-]){re.escape(i.name)}(?![\w-])", body, re.I) is not None for i in items if i]
+    named = [_names_item(body, i.name.upper()) for i in items if i]
     cls = java_class_base(sib) + "Service"
     stub = (f"public class {cls} {{\n    public int handleCall("
             + ", ".join(f"CobolRef<byte[]> a{k}" for k in range(len(items))) + ") {\n        return 0;\n    }\n}\n")  # fmt: skip
@@ -775,6 +826,14 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     structured = style == "structured" and structurable(proc)
     gen = G.Gen(prog, structured)
     gen.siblings = siblings
+    hc0 = re.search(r"public int handleCall\(([^)]*)\)", stub)
+    if hc0:  # #5106: a sibling's byte items, whose ADDRESS OF is NULL when the caller passed OMITTED
+        kinds = [p.strip().rsplit(" ", 1)[0] for p in hc0.group(1).split(",") if p.strip()]
+        gen.entry_items = {
+            u: k
+            for k, u in enumerate(x for x in proc.using if x != "BY")
+            if k < len(kinds) and kinds[k] == "CobolRef<byte[]>"
+        }
     gen.write_only_pointers = write_only_pointers(records, proc)
     gen.overlaid_pointers = overlaid_pointers(records)
     gen.pointer_views = pointer_views(records)
@@ -1150,12 +1209,14 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
                 "",
             ]
         else:
-            call_entry = ["    private byte[][] callAreas;  // #4778: the next handleCall's items as bytes (withCallAreas)", "",
+            present = [f"        present = new boolean[] {{{', '.join(f'arg{k + 1} != null' for k in range(len(params)))}}};"] if gen.entry_tested else []  # fmt: skip
+            call_entry = ["    private boolean[] present = new boolean[0];  // #5106: which USING items the caller passed (not OMITTED)", ""] if gen.entry_tested else []  # fmt: skip
+            call_entry += ["    private byte[][] callAreas;  // #4778: the next handleCall's items as bytes (withCallAreas)", "",
                           "    /** #4778: the next handleCall's USING items as their caller's bytes too, one array per item, BY",
                           "     *  REFERENCE: the program runs over them -- every byte, those no DTO property names too -- and leaves",
                           "     *  its result there as well as in the objects. */",
                           "    public void withCallAreas(byte[]... areas) {", "        this.callAreas = areas;", "    }", "",
-                          f"    public int handleCall({signature}) {{", *body_in,
+                          f"    public int handleCall({signature}) {{", *present, *body_in,
                           "        try {", f"            {'runAll()' if gen.structured else f'perform(0, {len(proc.paragraphs) - 1})'};",
                           "        } catch (Goback g) {", "            // GOBACK", "        }", *body_out,
                           f"        return Cobol.num({gen.ids[id(ret_item or rc)]}, CS).intValue();", "    }", ""]  # fmt: skip

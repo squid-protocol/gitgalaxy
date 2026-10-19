@@ -382,7 +382,7 @@
   "port_sha256": "c558567a88da55b739b23894a6b5c66574e476eafbef28d6ba17eafc90061dcc"
  },
  "mutation": {
-  "commit": "0e217727763ec7be197132e37434c9e6fdf91b7c",
+  "commit": "2721b9fc4fcec5dba0ab9277037ede4d07a84860",
   "rejudged": null,
   "seed": 0,
   "mode": null,
@@ -392,14 +392,14 @@
   "survived": 20,
   "stillborn": 13,
   "survivors": {
-   "case_gap": 4,
+   "case_gap": 0,
    "harness_gap": 0,
-   "equivalent": 13,
+   "equivalent": 17,
    "unreachable": 3,
    "untriaged": 0
   },
   "score_raw": "67/87",
-  "score_adjusted": "67/71",
+  "score_adjusted": "67/67",
   "source": "docs/language_status/mutation_scores.json#carddemo-userdel/COUSR03C",
   "inputs": {
    "port": {
@@ -412,7 +412,7 @@
     "sha256": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919"
    },
    "harness": {
-    "sha256": "f41b2e95b50f168ede9c430558250b48e3599be94cf743cec23cf1e28b6e3053"
+    "sha256": "747bdfc81e535de3668e7f81a5b1b0ad45a685f1c7021d7d27eeb72a88e84493"
    },
    "oracle": {
     "sha256": "78abad3ef2da17f34959fee0e54309421ecc8dce147b4cd13fe6d93f195b358a"

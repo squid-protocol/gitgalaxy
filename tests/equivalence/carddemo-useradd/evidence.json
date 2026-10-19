@@ -26,7 +26,7 @@
     "tests/equivalence/carddemo-useradd/**"
    ],
    "files": 2,
-   "sha256": "517e5a99039643590bc16a5873db225cb56afa33ad69812a788026a0c171a149"
+   "sha256": "a00859ff267f317f1bf61b7e01683c125d5ceb3909809821e7ad2d00d0955272"
   },
   "harness": {
    "paths": [
@@ -177,12 +177,12 @@
     }
    }
   },
-  "digest": "025dcda6f974361eee89e0c2d0a96e3078b63c9fdaa88271664930acca0eed9c"
+  "digest": "f9ae1297d1dbe6b800eb6d78cbdbb7fc22823496595edf33270ba4127d4efd67"
  },
  "proof": {
-  "at": "2026-10-18T22:59:13Z",
+  "at": "2026-10-19T00:10:24Z",
   "verdict": "proven",
-  "runs": 20,
+  "runs": 22,
   "fault_runs": 1,
   "environments": null,
   "outputs": {
@@ -265,6 +265,14 @@
    "pf3-carried-customer-name": {
     "equal": 2,
     "records": 2
+   },
+   "short-commarea-147": {
+    "equal": 3,
+    "records": 3
+   },
+   "short-commarea-150": {
+    "equal": 3,
+    "records": 3
    }
   },
   "return_code_equal": null,
@@ -273,16 +281,16 @@
   "java_failed": false,
   "facade": {
    "verdict": "proven",
-   "runs": 20,
-   "passed": 20,
+   "runs": 22,
+   "passed": 22,
    "entry_points": [
     "handleTransaction"
    ],
    "failed": [],
    "error": null
   },
-  "harness_commit": "b9ba72ca247d4181f7bc8bcff0d84847408f230b+uncommitted",
-  "inputs_digest": "025dcda6f974361eee89e0c2d0a96e3078b63c9fdaa88271664930acca0eed9c"
+  "harness_commit": "2721b9fc4fcec5dba0ab9277037ede4d07a84860+uncommitted",
+  "inputs_digest": "f9ae1297d1dbe6b800eb6d78cbdbb7fc22823496595edf33270ba4127d4efd67"
  },
  "coverage": {
   "paragraphs": {
@@ -306,7 +314,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "025dcda6f974361eee89e0c2d0a96e3078b63c9fdaa88271664930acca0eed9c"
+  "inputs_digest": "f9ae1297d1dbe6b800eb6d78cbdbb7fc22823496595edf33270ba4127d4efd67"
  },
  "reach": {
   "entry_points": [
@@ -349,24 +357,24 @@
   "port_sha256": "f3aad12ed58e75d370dca00fbde139d3ad8c0507a6e34119e5a6dc9ab64eb385"
  },
  "mutation": {
-  "commit": "0e217727763ec7be197132e37434c9e6fdf91b7c",
+  "commit": "2721b9fc4fcec5dba0ab9277037ede4d07a84860",
   "rejudged": null,
   "seed": 0,
   "mode": null,
   "mutants": 272,
   "chosen": 100,
-  "killed": 62,
-  "survived": 36,
+  "killed": 63,
+  "survived": 35,
   "stillborn": 2,
   "survivors": {
-   "case_gap": 6,
-   "harness_gap": 0,
-   "equivalent": 24,
-   "unreachable": 6,
+   "case_gap": 0,
+   "harness_gap": 1,
+   "equivalent": 27,
+   "unreachable": 7,
    "untriaged": 0
   },
-  "score_raw": "62/98",
-  "score_adjusted": "62/68",
+  "score_raw": "63/98",
+  "score_adjusted": "63/64",
   "source": "docs/language_status/mutation_scores.json#carddemo-useradd/COUSR01C",
   "inputs": {
    "port": {
@@ -379,7 +387,7 @@
     "sha256": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919"
    },
    "harness": {
-    "sha256": "f41b2e95b50f168ede9c430558250b48e3599be94cf743cec23cf1e28b6e3053"
+    "sha256": "747bdfc81e535de3668e7f81a5b1b0ad45a685f1c7021d7d27eeb72a88e84493"
    },
    "oracle": {
     "sha256": "78abad3ef2da17f34959fee0e54309421ecc8dce147b4cd13fe6d93f195b358a"

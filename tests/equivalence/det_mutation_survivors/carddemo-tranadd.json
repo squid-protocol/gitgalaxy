@@ -20,6 +20,33 @@
    "reason": "IMAGE of DFHCOMMAREA (a later chunk): COTRN02C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 218 bytes of its COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
   },
   {
+   "id": "2d5edcc867",
+   "op": "DEL",
+   "line": 105,
+   "before": "System.arraycopy(IMAGE_s_FEEDBACK_CODE, 0, s_FEEDBACK_CODE.bytes, 0, IMAGE_s_FEEDBACK_CODE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_FEEDBACK_CODE, 0, s_FEEDBACK_CODE.bytes, 0, IMAGE_s_FEEDBACK_CODE.length); */",
+   "verdict": "equivalent",
+   "reason": "CSUTLDTC's it VALUE image: every call writes the item before CSUTLDTC reads it (or never reads it)"
+  },
+  {
+   "id": "b74b73e66c",
+   "op": "DEL",
+   "line": 106,
+   "before": "System.arraycopy(IMAGE_s_LS_DATE, 0, s_LS_DATE.bytes, 0, IMAGE_s_LS_DATE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_LS_DATE, 0, s_LS_DATE.bytes, 0, IMAGE_s_LS_DATE.length); */",
+   "verdict": "equivalent",
+   "reason": "CSUTLDTC's it VALUE image: every call writes the item before CSUTLDTC reads it (or never reads it)"
+  },
+  {
+   "id": "2a277d897a",
+   "op": "DEL",
+   "line": 109,
+   "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
+   "verdict": "equivalent",
+   "reason": "CSUTLDTC's it VALUE image: every call writes the item before CSUTLDTC reads it (or never reads it)"
+  },
+  {
    "id": "c7a84e59fa",
    "op": "LIT",
    "line": 129,
@@ -47,6 +74,15 @@
    "reason": "IMAGE of DFHCOMMAREA (a later chunk): COTRN02C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 218 bytes of its COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
   },
   {
+   "id": "5023dc2954",
+   "op": "CON",
+   "line": 206,
+   "before": "private int[] performThru = new int[64];",
+   "after": "private int[] performThru = new int[65];",
+   "verdict": "unreachable",
+   "reason": "performThru grows only at a PERFORM nesting depth of 64; COTRN02C nests far less (a handful of paragraphs deep)"
+  },
+  {
    "id": "453bc1b8db",
    "op": "NEG",
    "line": 492,
@@ -56,6 +92,60 @@
    "reason": "abended() runs caBack only for a LINKed task (level > 1); COTRN02C runs as a terminal task (level 1), whose COMMAREA object is not observable (CICS discards it; linked_result drops it)"
   },
   {
+   "id": "e1f72b004d",
+   "op": "DEL",
+   "line": 663,
+   "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
+   "after": "/* System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length); */",
+   "verdict": "equivalent",
+   "reason": "without initialState's copy of DFHCOMMAREA's image the area keeps what the last task left; COTRN02C reads only DFHCOMMAREA(1:EIBCALEN), which in_ writes from the caller's COMMAREA first, and for a terminal task the area's final contents are not observable"
+  },
+  {
+   "id": "1cb37d4933",
+   "op": "DEL",
+   "line": 724,
+   "before": "handlers.clear();",
+   "after": "/* handlers.clear(); */",
+   "verdict": "equivalent",
+   "reason": "handlers holds HANDLE CONDITION labels; COTRN02C issues no HANDLE, so the map is empty at every task start and clearing it changes nothing"
+  },
+  {
+   "id": "1fe9456663",
+   "op": "ROR",
+   "line": 792,
+   "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+   "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+   "verdict": "unreachable",
+   "reason": "the raw-area copy runs only when task.linkArea() is set, i.e. a det-port program LINKed COTRN02C with its COMMAREA's bytes; no CardDemo program LINKs COTRN02C (a terminal transaction entered by XCTL)"
+  },
+  {
+   "id": "8bebacb3a6",
+   "op": "AOR",
+   "line": 794,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
+   "verdict": "unreachable",
+   "reason": "the raw-area copy runs only when task.linkArea() is set, i.e. a det-port program LINKed COTRN02C with its COMMAREA's bytes; no CardDemo program LINKs COTRN02C (a terminal transaction entered by XCTL)"
+  },
+  {
+   "id": "9d8495fb8d",
+   "op": "ROR",
+   "line": 794,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond == null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "verdict": "unreachable",
+   "reason": "the raw-area copy runs only when task.linkArea() is set, i.e. a det-port program LINKed COTRN02C with its COMMAREA's bytes; no CardDemo program LINKs COTRN02C (a terminal transaction entered by XCTL)"
+  },
+  {
+   "id": "2d83ed4340",
+   "op": "COR",
+   "line": 858,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "verdict": "unreachable",
+   "reason": "lastLinkBytes records the COMMAREA a LINKed program returned; no CardDemo program LINKs COTRN02C, so linkArea() is never taken"
+  },
+  {
    "id": "d40d5d11f2",
    "op": "AOR",
    "line": 946,
@@ -63,6 +153,15 @@
    "after": "for (int d = mine + 1; d >= 0; d--) {",
    "verdict": "unreachable",
    "reason": "perform() reaches this only after a paragraph that is not its range's last returns; COTRN02C's PERFORMs each name one paragraph (from == thru) and MAIN-PARA (runTask's 0-17) always ends in RETURN / XCTL / an abend, so the scan over outer PERFORMs never runs"
+  },
+  {
+   "id": "adf547b215",
+   "op": "NEG",
+   "line": 947,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (!(performThru[d] == i)) {",
+   "verdict": "unreachable",
+   "reason": "perform() reaches this only after a paragraph that is not its range's last returns; COTRN02C's PERFORMs each name one paragraph (from == thru) and MAIN-PARA (runTask's range) always ends in RETURN / XCTL / an abend, so the scan over outer PERFORMs never iterates"
   },
   {
    "id": "7696e19f3f",
@@ -117,6 +216,24 @@
    "after": "if (to > 0) return GOTO | to;",
    "verdict": "unreachable",
    "reason": "condition() returns a value only for a handled, ignored or ERROR-handled condition; COTRN02C sets no handler and an XCTL raises none ignored by default, so condition() throws (the abend) and `to` is never tested"
+  },
+  {
+   "id": "315cdb5b19",
+   "op": "DEL",
+   "line": 1692,
+   "before": "Cobol.store(f530_EIBRESP, BigDecimal.valueOf(resp21), false, CS);",
+   "after": "/* Cobol.store(f530_EIBRESP, BigDecimal.valueOf(resp21), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "COTRN02C never reads EIBRESP2 (or EIBRESP), so its value cannot show"
+  },
+  {
+   "id": "0b1ed4391a",
+   "op": "NEG",
+   "line": 1884,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (!(to >= 0)) return GOTO | to;",
+   "verdict": "unreachable",
+   "reason": "inside `if (0 != 0)`: the command has no RESP and the translator writes its response as the constant 0, so the block never runs"
   }
  ]
 }

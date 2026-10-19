@@ -209,6 +209,15 @@
    "reason": "WS-CURDATE-MM-DD-YY as a 9-byte group is only moved to CURDATEO, 8 bytes, which keeps the same first 8"
   },
   {
+   "id": "e8e0e4f0fa",
+   "op": "CON",
+   "line": 369,
+   "before": "private final Field f373_DFHPF3 = Field.alphanumeric(s_DFHAID, 14, 1, false);",
+   "after": "private final Field f373_DFHPF3 = Field.alphanumeric(s_DFHAID, 15, 1, false);",
+   "verdict": "case-gap",
+   "reason": "moving DFHPF3 one byte makes it alias DFHPF4's byte; only a PF4 (or other non-PF3 key) scenario would tell them apart, and none is run"
+  },
+  {
    "id": "fe33c40e7c",
    "op": "CON",
    "line": 383,
@@ -236,6 +245,42 @@
    "reason": "EIBAID one byte on (27): runTask moves the AID into the same Field the EVALUATE reads, and nothing else reads or writes byte 26 or 27 (EIBRCODE)"
   },
   {
+   "id": "4accffdc4f",
+   "op": "NEG",
+   "line": 462,
+   "before": "if (i == null) {",
+   "after": "if (!(i == null)) {",
+   "verdict": "unreachable",
+   "reason": "paragraph() is reached only through condition(label) with a HANDLE CONDITION label, and every label COADM01C names is in PARAGRAPHS, so the lookup never misses"
+  },
+  {
+   "id": "65ac20eb55",
+   "op": "ROR",
+   "line": 462,
+   "before": "if (i == null) {",
+   "after": "if (i != null) {",
+   "verdict": "unreachable",
+   "reason": "paragraph() is reached only through condition(label) with a HANDLE CONDITION label, and every label COADM01C names is in PARAGRAPHS, so the lookup never misses"
+  },
+  {
+   "id": "e107c65cb5",
+   "op": "AOR",
+   "line": 500,
+   "before": "Cobol.move(d.getCdemoFromTranid() == null ? \"\" : d.getCdemoFromTranid(), Field.alphanumeric(s, base + 0, 4, false), CS);",
+   "after": "Cobol.move(d.getCdemoFromTranid() == null ? \"\" : d.getCdemoFromTranid(), Field.alphanumeric(s, base - 0, 4, false), CS);",
+   "verdict": "equivalent",
+   "reason": "base + 0 and base - 0 are the same offset"
+  },
+  {
+   "id": "15af7ded9c",
+   "op": "CON",
+   "line": 546,
+   "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
+   "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 1, whole, 0, s_DFHCOMMAREA.bytes.length);",
+   "verdict": "case-gap",
+   "reason": "COADM01C's DFHCOMMAREA is a short, exactCommarea area only when a caller passes fewer bytes than the 01 level (calen < its length); no scenario passes a short COMMAREA to COADM01C: a scenario with an XCTL / RETURN COMMAREA shorter than the record would kill it"
+  },
+  {
    "id": "5b2dc3285b",
    "op": "DEL",
    "line": 571,
@@ -243,6 +288,33 @@
    "after": "/* System.arraycopy(IMAGE_s_SEC_USER_DATA, 0, s_SEC_USER_DATA.bytes, 0, IMAGE_s_SEC_USER_DATA.length); */",
    "verdict": "equivalent",
    "reason": "COADM01C never reads SEC-USER-DATA (it COPYs CSUSR01Y but names none of its fields), so its initial image cannot show"
+  },
+  {
+   "id": "eae269c288",
+   "op": "DEL",
+   "line": 574,
+   "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
+   "after": "/* System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length); */",
+   "verdict": "equivalent",
+   "reason": "without initialState's copy of DFHCOMMAREA's image the area keeps what the last task left; COADM01C reads only DFHCOMMAREA(1:EIBCALEN), which in_ writes from the caller's COMMAREA first, and for a terminal task the area's final contents are not observable"
+  },
+  {
+   "id": "e06a1186a2",
+   "op": "DEL",
+   "line": 581,
+   "before": "f7_WS_RESP_CD = 0L;",
+   "after": "/* f7_WS_RESP_CD = 0L; */",
+   "verdict": "equivalent",
+   "reason": "WS-RESP-CD is VALUE ZEROS, written by RECEIVE's RESP before any read, and never read by COADM01C"
+  },
+  {
+   "id": "e8d4948f05",
+   "op": "DEL",
+   "line": 627,
+   "before": "Cobol.move(task.transid(), f468_EIBTRNID, CS);",
+   "after": "/* Cobol.move(task.transid(), f468_EIBTRNID, CS); */",
+   "verdict": "equivalent",
+   "reason": "COADM01C never reads EIBTRNID, so the transaction id move cannot show"
   },
   {
    "id": "02ea8abe59",
@@ -308,6 +380,114 @@
    "reason": "a PF4 key no longer sets EIBAID, which keeps its initial byte (a space); COADM01C tests EIBAID only against DFHENTER and DFHPF3, so a space takes WHEN OTHER exactly as PF4 does"
   },
   {
+   "id": "9951443e5b",
+   "op": "DEL",
+   "line": 676,
+   "before": "caBack = () -> fill_CarddemoCommarea(x, s_DFHCOMMAREA, 0);",
+   "after": "/* caBack = () -> fill_CarddemoCommarea(x, s_DFHCOMMAREA, 0); */",
+   "verdict": "equivalent",
+   "reason": "without caBack = fill_ the task's COMMAREA object is not written back; for a terminal task that object is not observable (CICS discards it; linked_result drops it), and the RETURN / XCTL COMMAREA is built by out_ from CARDDEMO-COMMAREA"
+  },
+  {
+   "id": "353c6b39f1",
+   "op": "NEG",
+   "line": 683,
+   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
+   "verdict": "unreachable",
+   "reason": "a byte[] COMMAREA longer than DFHCOMMAREA's record is passed by no scenario (the det port is entered with a typed CarddemoCommarea object); only a caller with an over-long raw COMMAREA reaches it"
+  },
+  {
+   "id": "a99590e384",
+   "op": "DEL",
+   "line": 684,
+   "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
+   "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
+   "verdict": "unreachable",
+   "reason": "a byte[] COMMAREA longer than DFHCOMMAREA's record is passed by no scenario (the det port is entered with a typed CarddemoCommarea object); only a caller with an over-long raw COMMAREA reaches it"
+  },
+  {
+   "id": "b14cd4cd9a",
+   "op": "AOR",
+   "line": 694,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
+   "verdict": "unreachable",
+   "reason": "the raw-area copy runs only when task.linkArea() is set, i.e. a det-port program LINKed COADM01C with its COMMAREA's bytes; no CardDemo program LINKs COADM01C (a terminal transaction entered by XCTL)"
+  },
+  {
+   "id": "ba63e9f45c",
+   "op": "NEG",
+   "line": 694,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (!(s_DFHCOMMAREA.beyond != null)) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "verdict": "unreachable",
+   "reason": "the raw-area copy runs only when task.linkArea() is set, i.e. a det-port program LINKed COADM01C with its COMMAREA's bytes; no CardDemo program LINKs COADM01C (a terminal transaction entered by XCTL)"
+  },
+  {
+   "id": "3d9ba811d6",
+   "op": "NEG",
+   "line": 697,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {",
+   "verdict": "case-gap",
+   "reason": "COADM01C's DFHCOMMAREA is a short, exactCommarea area only when a caller passes fewer bytes than the 01 level (calen < its length); no scenario passes a short COMMAREA to COADM01C: a scenario with an XCTL / RETURN COMMAREA shorter than the record would kill it"
+  },
+  {
+   "id": "41c02c5377",
+   "op": "ROR",
+   "line": 697,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "case-gap",
+   "reason": "COADM01C's DFHCOMMAREA is a short, exactCommarea area only when a caller passes fewer bytes than the 01 level (calen < its length); no scenario passes a short COMMAREA to COADM01C: a scenario with an XCTL / RETURN COMMAREA shorter than the record would kill it"
+  },
+  {
+   "id": "bce318f64b",
+   "op": "ROR",
+   "line": 697,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "case-gap",
+   "reason": "COADM01C's DFHCOMMAREA is a short, exactCommarea area only when a caller passes fewer bytes than the 01 level (calen < its length); no scenario passes a short COMMAREA to COADM01C: a scenario with an XCTL / RETURN COMMAREA shorter than the record would kill it"
+  },
+  {
+   "id": "f576ab72fd",
+   "op": "COR",
+   "line": 697,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "case-gap",
+   "reason": "COADM01C's DFHCOMMAREA is a short, exactCommarea area only when a caller passes fewer bytes than the 01 level (calen < its length); no scenario passes a short COMMAREA to COADM01C: a scenario with an XCTL / RETURN COMMAREA shorter than the record would kill it"
+  },
+  {
+   "id": "06e5042d3c",
+   "op": "DEL",
+   "line": 699,
+   "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
+   "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */",
+   "verdict": "case-gap",
+   "reason": "COADM01C's DFHCOMMAREA is a short, exactCommarea area only when a caller passes fewer bytes than the 01 level (calen < its length); no scenario passes a short COMMAREA to COADM01C: a scenario with an XCTL / RETURN COMMAREA shorter than the record would kill it"
+  },
+  {
+   "id": "a7f20928d1",
+   "op": "ROR",
+   "line": 738,
+   "before": "return read != null ? read : answer;",
+   "after": "return read == null ? read : answer;",
+   "verdict": "unreachable",
+   "reason": "wideAnswer is reached only for a byte[] answer of a LINKed call; no CardDemo program LINKs COADM01C"
+  },
+  {
+   "id": "9430a5836c",
+   "op": "COR",
+   "line": 768,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "verdict": "unreachable",
+   "reason": "lastLinkBytes records the COMMAREA a LINKed program returned; no CardDemo program LINKs COADM01C, so linkArea() is never taken"
+  },
+  {
    "id": "d9b1594f29",
    "op": "DEL",
    "line": 844,
@@ -315,6 +495,15 @@
    "after": "/* super(null, null, false, false); */",
    "verdict": "equivalent",
    "reason": "Goback's constructor without super(null, null, false, false): the default constructor only also records a stack trace; nothing reads the exception but its type"
+  },
+  {
+   "id": "5228a89f66",
+   "op": "AOR",
+   "line": 868,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "perform() reaches this only after a paragraph that is not its range's last returns; COADM01C's PERFORMs each name one paragraph (from == thru) and MAIN-PARA (runTask's range) always ends in RETURN / XCTL / an abend, so the scan over outer PERFORMs never iterates"
   },
   {
    "id": "c24b5858b9",
@@ -344,6 +533,24 @@
    "reason": "inside `if (0 != 0)`: SEND MAP has no RESP and the translator writes its response as the constant 0, so the block never runs"
   },
   {
+   "id": "f8e9980a0e",
+   "op": "CON",
+   "line": 1089,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to >= 1) return GOTO | to;",
+   "verdict": "unreachable",
+   "reason": "inside `if (0 != 0)`: the command has no RESP and the translator writes its response as the constant 0, so the block never runs"
+  },
+  {
+   "id": "e4179498e8",
+   "op": "ROR",
+   "line": 1229,
+   "before": "} else if ((Cobol.num(f11_WS_IDX, CS).compareTo(D7) == 0)) {",
+   "after": "} else if ((Cobol.num(f11_WS_IDX, CS).compareTo(D7) != 0)) {",
+   "verdict": "unreachable",
+   "reason": "BUILD-MENU-OPTIONS loops WS-IDX 1..CDEMO-ADMIN-OPT-COUNT (6), so each EVALUATE reaches WHEN 7 only for idx > 6, which the loop never runs"
+  },
+  {
    "id": "fb93c5f8ae",
    "op": "NEG",
    "line": 1229,
@@ -351,6 +558,15 @@
    "after": "} else if (!((Cobol.num(f11_WS_IDX, CS).compareTo(D7) == 0))) {",
    "verdict": "unreachable",
    "reason": "EVALUATE WS-IDX's WHEN 7 is tested only when WS-IDX is not 1-6, and BUILD-MENU-OPTIONS' loop runs WS-IDX 1 to CDEMO-ADMIN-OPT-COUNT, the constant 6 (infeasible_outcomes.json, carddemo-adminmenu 241:WHEN@254)"
+  },
+  {
+   "id": "0d48546052",
+   "op": "NEG",
+   "line": 1235,
+   "before": "} else if ((Cobol.num(f11_WS_IDX, CS).compareTo(D9) == 0)) {",
+   "after": "} else if (!((Cobol.num(f11_WS_IDX, CS).compareTo(D9) == 0))) {",
+   "verdict": "unreachable",
+   "reason": "BUILD-MENU-OPTIONS loops WS-IDX 1..CDEMO-ADMIN-OPT-COUNT (6); WHEN 9 is tested only after WHEN 1..8 failed, i.e. for idx > 8, which never runs"
   }
  ]
 }

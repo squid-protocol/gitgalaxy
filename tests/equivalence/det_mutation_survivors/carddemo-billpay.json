@@ -218,6 +218,15 @@
    "reason": "in_ moves '' instead of the caller's CDEMO-CB00-TRN-SEL-FLG, which the RETURN COMMAREA carries. Killed by scenario full-commarea-carried (added in this PR: every COMMAREA field set, the CB00 part too)"
   },
   {
+   "id": "599ad45d04",
+   "op": "DEL",
+   "line": 588,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, f14_WS_CURR_BAL, CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.ZEROS, f14_WS_CURR_BAL, CS); */",
+   "verdict": "equivalent",
+   "reason": "WS-CURR-BAL is moved from ACCT-CURR-BAL (line 193) before MOVE WS-CURR-BAL TO CURBALI reads it"
+  },
+  {
    "id": "24dae49f6b",
    "op": "LIT",
    "line": 721,
@@ -225,6 +234,60 @@
    "after": "region.run(task, \"XOBIL00C\", this::runTask);",
    "verdict": "unreachable",
    "reason": "handleLink is the entry point for a LINK to COBIL00C; no CardDemo program LINKs it (a terminal transaction, CB00), and the proof enters it by handleTransaction"
+  },
+  {
+   "id": "13fe60d4a9",
+   "op": "COR",
+   "line": 745,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "verdict": "unreachable",
+   "reason": "lastLinkBytes records the COMMAREA a LINKed program returned; no CardDemo program LINKs COBIL00C, so linkArea() is never taken"
+  },
+  {
+   "id": "b031f303a9",
+   "op": "ROR",
+   "line": 764,
+   "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
+   "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
+   "verdict": "unreachable",
+   "reason": "lastLinkBytes records the COMMAREA a LINKed program returned; no CardDemo program LINKs COBIL00C, so it is never read"
+  },
+  {
+   "id": "ade9e1417e",
+   "op": "DEL",
+   "line": 820,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
+   "verdict": "unreachable",
+   "reason": "performThru grows only at a PERFORM nesting depth of 64; COBIL00C nests far less (a handful of paragraphs deep)"
+  },
+  {
+   "id": "4aa7ddf858",
+   "op": "AOR",
+   "line": 833,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 0; d++) {",
+   "verdict": "unreachable",
+   "reason": "perform() reaches this only after a paragraph that is not its range's last returns; COBIL00C's PERFORMs each name one paragraph (from == thru) and MAIN-PARA (runTask's range) always ends in RETURN / XCTL / an abend, so the scan over outer PERFORMs never iterates"
+  },
+  {
+   "id": "1c382e2d39",
+   "op": "NEG",
+   "line": 834,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (!(performThru[d] == i)) {",
+   "verdict": "unreachable",
+   "reason": "perform() reaches this only after a paragraph that is not its range's last returns; COBIL00C's PERFORMs each name one paragraph (from == thru) and MAIN-PARA (runTask's range) always ends in RETURN / XCTL / an abend, so the scan over outer PERFORMs never iterates"
+  },
+  {
+   "id": "aa2304b713",
+   "op": "NEG",
+   "line": 839,
+   "before": "if (next >= 16) {",
+   "after": "if (!(next >= 16)) {",
+   "verdict": "unreachable",
+   "reason": "perform() reaches this only after a paragraph that is not its range's last returns; COBIL00C's PERFORMs each name one paragraph (from == thru) and MAIN-PARA (runTask's range) always ends in RETURN / XCTL / an abend, so the scan over outer PERFORMs never iterates"
   },
   {
    "id": "30dade9823",
@@ -236,6 +299,33 @@
    "reason": "perform() reaches this only after a paragraph that is not its range's last returns; COBIL00C's PERFORMs each name one paragraph (from == thru) and MAIN-PARA (runTask's 0-15) always ends in RETURN / XCTL / an abend, so no PerformExit is ever thrown, and this catch never runs"
   },
   {
+   "id": "c756609e5a",
+   "op": "DEL",
+   "line": 1035,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 18, 4, 0, false, false, false), CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 18, 4, 0, false, false, false), CS); */",
+   "verdict": "equivalent",
+   "reason": "INITIALIZE TRAN-RECORD: every field it initializes is moved to right after (TRAN-ID, TYPE-CD, CAT-CD, SOURCE, DESC, AMT, CARD-NUM, MERCHANT-ID / NAME / CITY / ZIP, ORIG-TS, PROC-TS) before the WRITE; this one is TRAN-CAT-CD's, which MOVE 2 TO TRAN-CAT-CD rewrites"
+  },
+  {
+   "id": "15b21cb3c2",
+   "op": "DEL",
+   "line": 1038,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 132, 11, 2, true, false, false), CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 132, 11, 2, true, false, false), CS); */",
+   "verdict": "equivalent",
+   "reason": "INITIALIZE TRAN-RECORD: every field it initializes is moved to right after (TRAN-ID, TYPE-CD, CAT-CD, SOURCE, DESC, AMT, CARD-NUM, MERCHANT-ID / NAME / CITY / ZIP, ORIG-TS, PROC-TS) before the WRITE; this one is TRAN-AMT's, which MOVE TRAN-AMT rewrites whole"
+  },
+  {
+   "id": "97159ff3d1",
+   "op": "CON",
+   "line": 1039,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 143, 9, 0, false, false, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 144, 9, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "INITIALIZE TRAN-RECORD: every field it initializes is moved to right after (TRAN-ID, TYPE-CD, CAT-CD, SOURCE, DESC, AMT, CARD-NUM, MERCHANT-ID / NAME / CITY / ZIP, ORIG-TS, PROC-TS) before the WRITE; as offset 144 the initializing spills into TRAN-MERCHANT-NAME's first byte, which the next statements rewrite, and leaves MERCHANT-ID's first byte for MOVE 999999999 to rewrite"
+  },
+  {
    "id": "b865e7bf73",
    "op": "COR",
    "line": 1119,
@@ -245,6 +335,15 @@
    "reason": "`CDEMO-TO-PROGRAM = LOW-VALUES AND = SPACES` for OR: every caller of RETURN-TO-PREV-SCREEN moves a program name into CDEMO-TO-PROGRAM first ('COSGN00C', CDEMO-FROM-PROGRAM when it is not blank, else 'COMEN01C'), so it is neither, and both conditions are false"
   },
   {
+   "id": "9ed2ea38b5",
+   "op": "DEL",
+   "line": 1172,
+   "before": "Cobol.store(f389_EIBRESP, BigDecimal.valueOf(0), false, CS);",
+   "after": "/* Cobol.store(f389_EIBRESP, BigDecimal.valueOf(0), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "COBIL00C never reads EIBRESP2 (or EIBRESP), so its value cannot show"
+  },
+  {
    "id": "8036bbf372",
    "op": "DEL",
    "line": 1173,
@@ -252,6 +351,15 @@
    "after": "/* Cobol.store(f390_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
    "verdict": "equivalent",
    "reason": "COBIL00C never reads EIBRESP2, so its value cannot show"
+  },
+  {
+   "id": "7d64efbfdb",
+   "op": "DEL",
+   "line": 1220,
+   "before": "Cobol.store(f389_EIBRESP, BigDecimal.valueOf(resp10), false, CS);",
+   "after": "/* Cobol.store(f389_EIBRESP, BigDecimal.valueOf(resp10), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "COBIL00C never reads EIBRESP2 (or EIBRESP), so its value cannot show"
   },
   {
    "id": "e41675085d",
@@ -288,6 +396,15 @@
    "after": "if (!(to >= 0)) return GOTO | to;",
    "verdict": "unreachable",
    "reason": "condition() returns a value only for a handled, ignored or ERROR-handled condition; COBIL00C sets no handler and an XCTL raises none ignored by default, so condition() throws (the abend) and `to` is never tested"
+  },
+  {
+   "id": "83754794b1",
+   "op": "DEL",
+   "line": 1458,
+   "before": "Cobol.store(f390_EIBRESP2, BigDecimal.valueOf(task.resp2()), false, CS);",
+   "after": "/* Cobol.store(f390_EIBRESP2, BigDecimal.valueOf(task.resp2()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "COBIL00C never reads EIBRESP2 (or EIBRESP), so its value cannot show"
   }
  ]
 }

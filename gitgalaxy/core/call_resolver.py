@@ -1132,6 +1132,9 @@ def _resolve_one(
 
     ownerless = caller.lang in _OWNERLESS_METHOD_LANGS
 
+    if qualifier is not None and qualifier.startswith("!"):
+        return "none", None  # #5634: a macro invocation `name!(..)` is never a call of a function `name`
+
     if qualifier == "" and bucket.defs and _leaf(bucket.defs[0].name)[0] in _BARE_BUILTINS.get(caller.lang, ()):
         return "none", None  # the built-in (#3401), external like any library call
     if qualifier is None or qualifier == "":

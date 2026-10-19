@@ -7,12 +7,15 @@ Register family I states the model; what it does not model is refused here by na
     DetDli.call(function, pcb, io, ssa ...)             each CALL 'CBLTDLI'; RETURN-CODE 0 after it (register I1)
     DetDli.leave()                                      the step ended: the databases written for the comparison
 
-and, under CICS (#5278, register I5), the EXEC DLI commands SCHD PSB, TERM and the gets, each answering DIBSTAT:
+and, under CICS (#5278, register I5), the EXEC DLI commands SCHD PSB, TERM, the gets and ISRT / REPL / DLET, each answering DIBSTAT:
 
     DIBSTAT = DetDli.schedule(psb, nodhabend)           EXEC DLI SCHD PSB(name | (area)) [NODHABEND]
     DIBSTAT = DetDli.terminate()                        EXEC DLI TERM
     DIBSTAT = DetDli.get(verb, pcb, into, ssa ...)      EXEC DLI GU | GN | GNP USING PCB(n) [SEGMENT(s) [WHERE(f op v)]
                                                         ...] INTO(area); ssa = DetDli.ssa(seg [, fld, op, value])
+    DIBSTAT = DetDli.execIsrt(pcb, from, seglength | -1, ssa ...)    EXEC DLI ISRT USING PCB(n) SEGMENT(s) [WHERE ...] ...
+                                                        SEGMENT(t) FROM(area) [SEGLENGTH(n)]
+    DIBSTAT = DetDli.execChange("REPL" | "DLET", pcb, from, seg)   EXEC DLI REPL | DLET USING PCB(n) SEGMENT(s) FROM(area)
 """
 
 from __future__ import annotations
@@ -67,7 +70,7 @@ def call(gen: Any, s: S.Stmt, ind: str) -> list[str]:
     return [f"{ind}DetDli.call({fields});", f"{ind}Cobol.store({rc}, BigDecimal.ZERO, false, CS);"]
 
 
-# ---- EXEC DLI under CICS (#5278): SCHD PSB, TERM and the gets; REPL ISRT DLET stay holes by name ------------------
+# ---- EXEC DLI under CICS (#5278): SCHD PSB, TERM, the gets and the writes; the other commands stay holes by name ------------------
 _EXEC_DLI = re.compile(r"(?is)\s*EXEC\s+DLI\s+(.*?)\s*(?:END-EXEC\s*\.?)?\s*$")
 _ID = "[A-Z0-9" + "-]"  # a COBOL name: built from parts, a dense regex literal trips X-Ray's entropy check
 _SCHD = re.compile(
@@ -80,6 +83,7 @@ _SCHD = re.compile(
 
 
 _GETS = ("GU", "GN", "GNP")
+_PUTS = ("ISRT", "REPL", "DLET")
 _NOT = chr(0xAC)  # the EBCDIC "not" sign
 _OPS = {"=": "EQ", ">": "GT", "<": "LT", ">=": "GE", "<=": "LE", _NOT + "=": "NE", "=" + _NOT: "NE"}
 _OPS.update({w: w for w in ("EQ", "GT", "LT", "GE", "LE", "NE")})
@@ -136,25 +140,66 @@ def _get(gen: Any, verb: str, rest: str, ind: str) -> list[str]:
     try:
         pcb = cics.int_(dict(cl)["PCB"])
         into = gen.field_expr(cics.ref(dict(cl)["INTO"]))
-        ssas: list[str] = []
-        for k, v in cl:
-            if k == "SEGMENT":
-                if not re.fullmatch(_ID + r"{1,8}", v, re.I):
-                    raise Untranslatable(f"EXEC DLI {verb}: SEGMENT({v}) is not a segment name")
-                ssas.append(jstr(v.upper()))
-            elif k == "WHERE":
-                w = _WHERE.fullmatch(v)
-                if not ssas or ssas[-1].startswith("("):
-                    raise Untranslatable(f"EXEC DLI {verb}: WHERE must follow its SEGMENT, once (register I5)")
-                if w is None or w.group("op").upper() not in _OPS:
-                    raise Untranslatable(f"EXEC DLI {verb}: WHERE({v}): only field op value is modelled (register I5)")
-                val = gen.field_expr(cics.ref(w.group("v")))
-                ssas[-1] = f"({ssas[-1]}, {jstr(w.group('f').upper())}, {jstr(_OPS[w.group('op').upper()])}, {val})"
+        ssas = _ssas(gen, verb, cl)
     except CicsError as e:
         raise Untranslatable(f"EXEC DLI {verb}: {e}") from e
     runtime = "__PACKAGE__.cobolrt.dli.DetDli"
-    args = [f"{runtime}.ssa{a}" if a.startswith("(") else f"{runtime}.ssa({a})" for a in ssas]
-    call = f"{runtime}.get({jstr(verb)}, {pcb}, {', '.join([into, *args])})"
+    call = f"{runtime}.get({jstr(verb)}, {pcb}, {', '.join([into, *ssas])})"
+    return [f"{ind}Cobol.move({call}, {gen.field_expr(E.Ref('DIBSTAT'))}, CS);"]
+
+
+def _ssas(gen: Any, verb: str, cl: list[tuple[str, str]]) -> list[str]:
+    """The DetDli.ssa(...) expressions of a command's SEGMENT / WHERE clauses, in order (a WHERE follows its SEGMENT)."""
+    from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable, jstr
+
+    cics = gen.cics
+    ssas: list[str] = []
+    for k, v in cl:
+        if k == "SEGMENT":
+            if not re.fullmatch(_ID + r"{1,8}", v, re.I):
+                raise Untranslatable(f"EXEC DLI {verb}: SEGMENT({v}) is not a segment name")
+            ssas.append(jstr(v.upper()))
+        elif k == "WHERE":
+            w = _WHERE.fullmatch(v)
+            if not ssas or ssas[-1].startswith("("):
+                raise Untranslatable(f"EXEC DLI {verb}: WHERE must follow its SEGMENT, once (register I5)")
+            if w is None or w.group("op").upper() not in _OPS:
+                raise Untranslatable(f"EXEC DLI {verb}: WHERE({v}): only field op value is modelled (register I5)")
+            val = gen.field_expr(cics.ref(w.group("v")))
+            ssas[-1] = f"({ssas[-1]}, {jstr(w.group('f').upper())}, {jstr(_OPS[w.group('op').upper()])}, {val})"
+    runtime = "__PACKAGE__.cobolrt.dli.DetDli"
+    return [f"{runtime}.ssa{a}" if a.startswith("(") else f"{runtime}.ssa({a})" for a in ssas]
+
+
+def _put(gen: Any, verb: str, rest: str, ind: str) -> list[str]:
+    """ISRT / REPL / DLET USING PCB(n) SEGMENT(s) [WHERE ...] ... FROM(area) [SEGLENGTH(n), ISRT only]: DetDli.execIsrt /
+    DetDli.execChange, DIBSTAT answered. REPL and DLET name the one segment they act on (the one the last get held)."""
+    from gitgalaxy.tools.cobol_to_java.det.cics import CicsError
+    from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable, jstr
+
+    cl = _clauses(re.sub(r"(?is)^\s*USING\b", "", rest))
+    names = [k for k, _ in cl]
+    allowed = ("PCB", "SEGMENT", "WHERE", "FROM", "SEGLENGTH") if verb == "ISRT" else ("PCB", "SEGMENT", "FROM")
+    for k in names:
+        if k not in allowed:
+            raise Untranslatable(f"EXEC DLI {verb} {k}: only {', '.join(allowed)} are modelled (register I5)")
+    if names.count("PCB") != 1 or names.count("FROM") != 1 or names[0] != "PCB" or names.count("SEGLENGTH") > 1:
+        raise Untranslatable(f"EXEC DLI {verb}: one PCB(n) first and one FROM(area) expected (register I5)")
+    if "SEGMENT" not in names or (verb != "ISRT" and names.count("SEGMENT") != 1):
+        raise Untranslatable(f"EXEC DLI {verb}: SEGMENT(s) expected, once for REPL and DLET (register I5)")
+    cics = gen.cics
+    try:
+        pcb = cics.int_(dict(cl)["PCB"])
+        src = cics.read_field(dict(cl)["FROM"])
+        runtime = "__PACKAGE__.cobolrt.dli.DetDli"
+        if verb == "ISRT":
+            seglen = cics.int_(dict(cl)["SEGLENGTH"]) if "SEGLENGTH" in names else "-1"
+            call = f"{runtime}.execIsrt({', '.join([pcb, src, seglen, *_ssas(gen, verb, cl)])})"
+        else:
+            call = f"{runtime}.execChange({jstr(verb)}, {pcb}, {src}, {jstr(dict(cl)['SEGMENT'].upper())})"
+            _ssas(gen, verb, cl)  # the SEGMENT is a segment name
+    except CicsError as e:
+        raise Untranslatable(f"EXEC DLI {verb}: {e}") from e
     return [f"{ind}Cobol.move({call}, {gen.field_expr(E.Ref('DIBSTAT'))}, CS);"]
 
 
@@ -201,6 +246,8 @@ def command(gen: Any, text: str, ind: str) -> list[str]:
         call = f"{runtime}.schedule({name}, {'true' if s.group('nodh') else 'false'})"
     elif verb in _GETS:
         return _get(gen, verb, body[len(verb) :], ind)
+    elif verb in _PUTS:
+        return _put(gen, verb, body[len(verb) :], ind)
     elif verb == "TERM":
         if body.split()[1:]:
             raise Untranslatable("EXEC DLI TERM: no option is modelled (register I5)")

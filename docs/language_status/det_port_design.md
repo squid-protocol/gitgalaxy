@@ -853,7 +853,11 @@ NULL is distinct.
   children) through GN / GNP into two files. It is proven on 5 runs (the step and four file faults), covering 9/10
   paragraphs and 20/22 branches. The same work made ACCEPT FROM DATE / DAY / TIME translate (`cobolrt/Accept.java`): the
   translator had emitted a call to a method the runtime did not have.
-- **Refused (register I5).** EXEC DLI; BMP / MPP / CICS DL/I programs and the I/O PCB (IMS TM); GSAM; DL/I calls
+- **EXEC DLI under CICS (#5278, register I5).** SCHD PSB, TERM, GU / GN / GNP, and ISRT / REPL / DLET (`DetDli.execIsrt` / `execChange`,
+  rules `RT-DLI-EXEC-ISRT` / `-CHANGE`) are DetDli calls answering DIBSTAT. ASSUMED: a get is a get-hold where the PCB's PROCOPT allows an
+  update, so a REPL / DLET acts on the segment the previous get held; segments are fixed length, a SEGLENGTH other than the DBD's stops the
+  run by name. Still holes: other EXEC DLI commands and options, and the oracle side (`ggdli.c`).
+- **Refused (register I5).** Other EXEC DLI; BMP / MPP / CICS DL/I programs and the I/O PCB (IMS TM); GSAM; DL/I calls
   other than the nine; command codes and boolean SSAs; AIBTDLI / CEETDLI; HDAM order; secondary indexes; logical
   relationships; load mode. CardDemo's other DL/I programs stop at one of these: PAUDBLOD (CMPAT=YES, an I/O PCB),
   DBUNLDGS (GSAM PCBs), and CBPAUP0C, COPAUA0C, COPAUS0C, COPAUS1C (EXEC DLI).

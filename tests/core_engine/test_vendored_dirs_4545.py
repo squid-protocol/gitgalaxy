@@ -205,3 +205,60 @@ def test_known_library_name_with_the_roots_own_license_stays_scanned(repo):
 
 def test_versioned_known_library_name_is_excluded(repo):
     assert not _admitted(repo, "zlib-1.2.11/adler32.c")
+
+
+# --- #5525: a title line above the same license text is not a different license ---
+APACHE = "Apache License\nVersion 2.0, January 2004\nhttp://www.apache.org/licenses/\n\nTERMS AND CONDITIONS\n"
+TITLES = ["Google Gson\n\n", "My Module\n=========\n\n", "Project Foo\nSub-module bar\n\n", "# Core\n"]
+
+
+@pytest.mark.parametrize("title", TITLES)
+@pytest.mark.parametrize("base", [APACHE, GPL, MIT])
+def test_titled_module_license_is_not_foreign(tmp_path, base, title):
+    _write(tmp_path / "LICENSE", base)
+    _write(tmp_path / "gson/LICENSE", title + base)
+    _write(tmp_path / "gson/a.c")
+    assert not VendorDirectoryDetector(tmp_path).is_vendored("gson")
+    assert _admitted(tmp_path, "gson/a.c")
+
+
+@pytest.mark.parametrize("title", TITLES)
+def test_titled_root_license_with_bare_module_copy_is_not_foreign(tmp_path, title):
+    _write(tmp_path / "LICENSE", title + APACHE)
+    _write(tmp_path / "mod/LICENSE", APACHE)
+    assert not VendorDirectoryDetector(tmp_path).is_vendored("mod")
+
+
+def test_titled_copy_with_copyright_and_address_changes_is_not_foreign(tmp_path):
+    _write(tmp_path / "LICENSE", GPL)
+    _write(tmp_path / "m/LICENSE", "Game Title\nCopyright (C) 1989 Someone\n" + GPL + "675 Mass Ave\n")
+    assert not VendorDirectoryDetector(tmp_path).is_vendored("m")
+
+
+def test_titled_different_license_is_still_foreign(tmp_path):
+    _write(tmp_path / "LICENSE", APACHE)
+    _write(tmp_path / "libfoo/LICENSE", "libfoo\n\n" + MIT)
+    assert VendorDirectoryDetector(tmp_path).is_vendored("libfoo")
+
+
+def test_licenses_dir_and_empty_license_are_still_foreign(tmp_path):
+    _write(tmp_path / "LICENSE", APACHE)
+    _write(tmp_path / "a/licenses/x.txt", MIT)
+    _write(tmp_path / "b/LICENSE", "")
+    detector = VendorDirectoryDetector(tmp_path)
+    assert detector.is_vendored("a")
+    assert detector.is_vendored("b")
+
+
+def test_container_of_titled_root_license_modules_stays_scanned(tmp_path):
+    _write(tmp_path / "LICENSE", APACHE)
+    for m in ("one", "two"):
+        _write(tmp_path / "libs" / m / "LICENSE", f"Module {m}\n\n" + APACHE)
+        _write(tmp_path / "libs" / m / "a.c")
+    assert not VendorDirectoryDetector(tmp_path).is_vendored("libs")
+
+
+def test_known_library_name_with_titled_root_license_stays_scanned(tmp_path):
+    _write(tmp_path / "LICENSE", APACHE)
+    _write(tmp_path / "zlib/LICENSE", "Zlib wrapper\n" + APACHE)
+    assert not VendorDirectoryDetector(tmp_path).is_vendored("zlib")

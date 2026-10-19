@@ -18,6 +18,7 @@ sys.path.insert(0, str(ROOT))
 
 from gitgalaxy.tools.cobol_to_java.det import cics as C  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_containers as CC  # noqa: E402
+from gitgalaxy.tools.cobol_to_java.det import cics_filecontrol as CF  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import expr as E  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import stmt as S  # noqa: E402
 
@@ -668,7 +669,9 @@ def test_options_honoured_without_code_say_why():
     """An OPTIONS entry is read by the translator (its name appears in det/cics.py's code) or is one of the options
     whose having no effect the table states."""
     src = Path(C.__file__).read_text(encoding="utf-8")
-    code = src[src.index("def command_key") :] + Path(CC.__file__).read_text(encoding="utf-8")  # #5274: its families
+    code = src[src.index("def command_key") :]
+    for family in (CC, CF):  # #5274: the command families split out of det/cics.py
+        code += Path(family.__file__).read_text(encoding="utf-8")
     stated = {"NODUMP", "MAIN", "AUXILIARY", "NOSUSPEND", "EQUAL", "GTEQ", "TASK", "UOW", "MAXLIFETIME", "RESOURCE",
               "FOR", "INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS", "TS",
               "TERMINAL", "BELOW", "EXECUTABLE", "NAME"}  # (#5079 X63: WAIT EVENT NAME only labels the task)  # (#4771 X47: GETMAIN's placement flags change no byte the program sees)  # fmt: skip

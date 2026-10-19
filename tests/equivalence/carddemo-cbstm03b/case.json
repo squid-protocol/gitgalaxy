@@ -1,0 +1,304 @@
+{
+ "kind": "call",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "CBSTM03B",
+ "program_source": "app/cbl/CBSTM03B.CBL",
+ "copy_dirs": [
+  "app/cpy"
+ ],
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {
+  "TRNXFILE": {
+   "input": "@case/trnx.txt",
+   "organization": "indexed",
+   "reclen": 350,
+   "keys": [
+    {
+     "offset": 0,
+     "length": 32
+    }
+   ],
+   "entity": "FdTrnxfileRec"
+  },
+  "XREFFILE": {
+   "input": "app/data/ASCII/cardxref.txt",
+   "organization": "indexed",
+   "reclen": 50,
+   "keys": [
+    {
+     "offset": 0,
+     "length": 16
+    }
+   ],
+   "entity": "CardXrefRecord"
+  },
+  "CUSTFILE": {
+   "input": "app/data/ASCII/custdata.txt",
+   "organization": "indexed",
+   "reclen": 500,
+   "keys": [
+    {
+     "offset": 0,
+     "length": 9
+    }
+   ],
+   "entity": "CustomerRecord"
+  },
+  "ACCTFILE": {
+   "input": "app/data/ASCII/acctdata.txt",
+   "organization": "indexed",
+   "reclen": 300,
+   "keys": [
+    {
+     "offset": 0,
+     "length": 11
+    }
+   ],
+   "entity": "AccountRecord"
+  }
+ },
+ "using": [
+  {
+   "name": "LK-M03B-AREA",
+   "size": 1040,
+   "record": {
+    "copybook": "app/cbl/CBSTM03B.CBL",
+    "name": "LK-M03B-AREA"
+   }
+  }
+ ],
+ "calls": [
+  {
+   "name": "trnx-read-unopened",
+   "args": [
+    "TRNXFILER                           000{"
+   ],
+   "why": "READ before OPEN: file status 47 (IBM Language Reference, file status key values)"
+  },
+  {
+   "name": "trnx-open",
+   "args": [
+    "TRNXFILEO                           000{"
+   ],
+   "why": "OPEN INPUT: status 00"
+  },
+  {
+   "name": "trnx-open-again",
+   "args": [
+    "TRNXFILEO                           000{"
+   ],
+   "why": "OPEN of a file already open: status 41"
+  },
+  {
+   "name": "trnx-read-1",
+   "args": [
+    "TRNXFILER                           000{"
+   ],
+   "why": "READ NEXT, record 1: status 00, the record in LK-M03B-FLDT"
+  },
+  {
+   "name": "trnx-read-2",
+   "args": [
+    "TRNXFILER                           000{"
+   ],
+   "why": "READ NEXT, record 2: status 00, the record in LK-M03B-FLDT"
+  },
+  {
+   "name": "trnx-read-3",
+   "args": [
+    "TRNXFILER                           000{"
+   ],
+   "why": "READ NEXT, record 3: status 00, the record in LK-M03B-FLDT"
+  },
+  {
+   "name": "trnx-read-eof",
+   "args": [
+    "TRNXFILER                           000{"
+   ],
+   "why": "READ past the last record: status 10 (end of file), FLDT unchanged"
+  },
+  {
+   "name": "trnx-read-after-eof",
+   "args": [
+    "TRNXFILER                           000{"
+   ],
+   "why": "READ again after the end of file: status 46"
+  },
+  {
+   "name": "trnx-key-op",
+   "args": [
+    "TRNXFILEK                           000{"
+   ],
+   "why": "a keyed READ on the sequential branch is no operation the DD handles: RC is the file's status unchanged"
+  },
+  {
+   "name": "trnx-close",
+   "args": [
+    "TRNXFILEC                           000{"
+   ],
+   "why": "CLOSE: status 00"
+  },
+  {
+   "name": "trnx-close-again",
+   "args": [
+    "TRNXFILEC                           000{"
+   ],
+   "why": "CLOSE of a file not open: status 42"
+  },
+  {
+   "name": "trnx-read-closed",
+   "args": [
+    "TRNXFILER                           000{"
+   ],
+   "why": "READ after CLOSE: status 47"
+  },
+  {
+   "name": "xref-open",
+   "args": [
+    "XREFFILEO                           000{"
+   ],
+   "why": "OPEN INPUT: status 00"
+  },
+  {
+   "name": "xref-read-1",
+   "args": [
+    "XREFFILER                           000{"
+   ],
+   "why": "READ NEXT, record 1 in key order: status 00"
+  },
+  {
+   "name": "xref-read-2",
+   "args": [
+    "XREFFILER                           000{"
+   ],
+   "why": "READ NEXT, record 2 in key order: status 00"
+  },
+  {
+   "name": "xref-read-3",
+   "args": [
+    "XREFFILER                           000{"
+   ],
+   "why": "READ NEXT, record 3 in key order: status 00"
+  },
+  {
+   "name": "xref-write-op",
+   "args": [
+    "XREFFILEW                           000{"
+   ],
+   "why": "WRITE is not an operation the DD handles (the file is opened INPUT): RC is the file's status unchanged"
+  },
+  {
+   "name": "xref-close",
+   "args": [
+    "XREFFILEC                           000{"
+   ],
+   "why": "CLOSE: status 00"
+  },
+  {
+   "name": "cust-read-unopened",
+   "args": [
+    "CUSTFILEK  000000001                000I"
+   ],
+   "why": "keyed READ before OPEN: status 47"
+  },
+  {
+   "name": "cust-open",
+   "args": [
+    "CUSTFILEO                           000{"
+   ],
+   "why": "OPEN INPUT: status 00"
+  },
+  {
+   "name": "cust-read-first",
+   "args": [
+    "CUSTFILEK  000000001                000I"
+   ],
+   "why": "keyed READ of the first customer: status 00"
+  },
+  {
+   "name": "cust-read-last",
+   "args": [
+    "CUSTFILEK  000000050                000I"
+   ],
+   "why": "keyed READ of the last customer: status 00"
+  },
+  {
+   "name": "cust-read-missing",
+   "args": [
+    "CUSTFILEK  000000099                000I"
+   ],
+   "why": "keyed READ of a key no record has: status 23 (record not found), FLDT unchanged"
+  },
+  {
+   "name": "cust-read-short-key",
+   "args": [
+    "CUSTFILEK  000000001                000E"
+   ],
+   "why": "KEY-LN 5: the key moved to FD-CUST-ID is its first 5 bytes padded with spaces -- no such record, status 23"
+  },
+  {
+   "name": "cust-seq-op",
+   "args": [
+    "CUSTFILER                           000{"
+   ],
+   "why": "a sequential READ on a random-access file: no branch takes it, so RC is the file's last status"
+  },
+  {
+   "name": "cust-close",
+   "args": [
+    "CUSTFILEC                           000{"
+   ],
+   "why": "CLOSE: status 00"
+  },
+  {
+   "name": "acct-open",
+   "args": [
+    "ACCTFILEO                           000{"
+   ],
+   "why": "OPEN INPUT: status 00"
+  },
+  {
+   "name": "acct-read-first",
+   "args": [
+    "ACCTFILEK  00000000001              001A"
+   ],
+   "why": "keyed READ of account 1: status 00"
+  },
+  {
+   "name": "acct-read-last",
+   "args": [
+    "ACCTFILEK  00000000050              001A"
+   ],
+   "why": "keyed READ of account 50: status 00"
+  },
+  {
+   "name": "acct-read-missing",
+   "args": [
+    "ACCTFILEK  00000000099              001A"
+   ],
+   "why": "keyed READ of an account no record has: status 23"
+  },
+  {
+   "name": "acct-seq-op",
+   "args": [
+    "ACCTFILER                           000{"
+   ],
+   "why": "a sequential READ on the random-access DD is no operation it handles: RC is the file's status unchanged"
+  },
+  {
+   "name": "acct-close",
+   "args": [
+    "ACCTFILEC                           000{"
+   ],
+   "why": "CLOSE: status 00"
+  },
+  {
+   "name": "unknown-dd",
+   "args": [
+    "NOSUCHDDRZZ                         000{"
+   ],
+   "why": "a DD the program does not own: WHEN OTHER -> GOBACK, the area untouched"
+  }
+ ],
+ "notes": "CardDemo CBSTM03B, the file-I/O subprogram CBSTM03A CALLs (CBSTM03A is not a case: it needs the report writer's files). One request block, LK-M03B-AREA (DD X(8), OPER X(1), RC X(2), KEY X(25), KEY-LN S9(4), FLDT X(1000)); KEY-LN is spelled as the corpus spells a positive zoned number ('{' = +0, 'I' = +9, as in its data files): GnuCOBOL rewrites an unsigned digit it reads as a length to that form in place, which IBM would not; the item is compared whole -- the file status the program returns in RC and the record it READs INTO FLDT. Each file is driven through OPEN, READ (TRNXFILE / XREFFILE, sequential access) or keyed READ (CUSTFILE / ACCTFILE, random access) and CLOSE; the end of file (10, then 46), a missing record (23), and the file-state errors (READ before OPEN 47, a second OPEN 41, CLOSE of a closed file 42) are calls of their own. TRNXFILE is the first three records of the corpus's dailytran.txt (trnx.txt here) so its end of file is three READs away; the other three files are the corpus's own data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+}

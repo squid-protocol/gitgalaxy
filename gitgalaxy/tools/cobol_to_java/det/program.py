@@ -1374,6 +1374,9 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         ),
         # a CALLed program's WORKING-STORAGE is set once and keeps its values from call to call
         *(["        initialState();"] if hc else []),
+        # #5561: a CALLed program's files are its own for the life of the service (OPEN in one call, READ in the next):
+        # the handles are built once here, no JCL DD list behind them (a sequential file has no DD to resolve yet)
+        *(["        List<Dd> dds = List.of();", *file_inits] if hc and batch and file_inits else []),
         "    }",
         "",
     ]

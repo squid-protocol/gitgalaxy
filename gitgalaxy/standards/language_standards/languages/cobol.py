@@ -921,7 +921,11 @@ DEFINITION: dict[str, Any] = {
             # #5637: the count may be subscripted / reference-modified (`WS-N(WS-I) TIMES`,
             # one nested paren level) or qualified (`WS-N OF WS-REC(2) TIMES`): still a count.
             + r"(?:\s*\([^()]*(?:\([^()]*\)[^()]*)*\))?"
-            + r"(?:\s+(?:OF|IN)\s+[A-Za-z0-9_-]+(?:\s*\([^()]*(?:\([^()]*\)[^()]*)*\))?)*"
+            + r"(?:\s+(?:OF|IN)\s+[A-Z"
+            + NATIONAL
+            + WIDE_DIGITS
+            + WIDE_HYPHENS
+            + r"a-z0-9_-]+(?:\s*\([^()]*(?:\([^()]*\)[^()]*)*\))?)*"
             + r"\s+TIMES(?![\w-]))['\"]?)"
         ),
         # #3393: in `CALL 'SUBPROG'` the literal IS the callee (as JCL's PGM=

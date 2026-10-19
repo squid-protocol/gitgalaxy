@@ -93,6 +93,7 @@ def looks_like_virtualenv(directory: Path) -> bool:
 #   - ANY other directory carrying a license of its own that differs from the root's is a separate
 #     project (eternity's `libpng/`, zandronum's `game-music-emu/`, doomretro's `src/yyjson/`).
 # A first-party backend directory (srb2 `src/sdl/`) has no license of its own and stays scanned.
+# #5525: "differs" ignores a title line above the same text (gson's `gson/LICENSE` = `Google Gson` + the root's Apache-2.0).
 VENDOR_CONTAINER_NAMES = frozenset({"libraries", "libs", "deps", "extern", "external", "externals"})
 _THIRD_PARTY_PREFIX = re.compile(r"^(?:third|3rd)[_-]?party[_-]", re.I)
 _CONTAINER_SUFFIX = re.compile(r"[_-](?:libs|libraries|deps|extern|external|externals)$", re.I)
@@ -133,6 +134,7 @@ _LICENSE_FILE = re.compile(r"^(?:licen[cs]e|copying|unlicense)(?:[-_.][\w.-]*)?$
 _LICENSE_DIRS = frozenset({"licenses", "licences"})
 _LICENSE_READ_BYTES = 262144
 _LICENSE_FAMILY_CHARS = 40
+_LICENSE_WINDOW_CHARS = 240
 
 
 def _license_family(text: str) -> str:
@@ -142,7 +144,19 @@ def _license_family(text: str) -> str:
     `FASTDOOM/LICENSE` is the root's GPL-2 with another address), which is no evidence of a separate project.
     """
     body = "\n".join(ln for ln in text.splitlines() if not ln.lstrip(" *#/;-").lower().startswith("copyright"))
-    return " ".join(body.split()).lower()[:_LICENSE_FAMILY_CHARS]
+    return " ".join(body.split()).lower()[:_LICENSE_WINDOW_CHARS]
+
+
+def _same_license(a: str, b: str) -> bool:
+    """#5525: two family windows name one license when the head of one sits anywhere in the other.
+
+    A module copy often carries a title line (`Google Gson`) above the root's text, or the root does; a fixed-width
+    prefix compare then calls the first-party module foreign. An empty family (empty file, `licenses/` marker) only
+    matches another empty one.
+    """
+    if not a or not b:
+        return a == b
+    return a[:_LICENSE_FAMILY_CHARS] in b or b[:_LICENSE_FAMILY_CHARS] in a
 
 
 class VendorDirectoryDetector:
@@ -219,14 +233,15 @@ class VendorDirectoryDetector:
 
     def _has_root_license(self, directory: Path) -> bool:
         texts, _ = self._license_texts(directory)
-        return bool(texts & self._root_license_set())
+        roots = self._root_license_set()
+        return any(_same_license(t, r) for t in texts for r in roots)
 
     def _has_foreign_license(self, directory: Path) -> bool:
         root_licenses = self._root_license_set()
         if not root_licenses:
             return False
         texts, has_dir = self._license_texts(directory)
-        return has_dir or any(t not in root_licenses for t in texts)
+        return has_dir or any(not any(_same_license(t, r) for r in root_licenses) for t in texts)
 
 
 # --- COMMENT LINES IN THE SATURATION GATE (#4543) ---

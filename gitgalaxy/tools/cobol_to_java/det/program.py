@@ -11,7 +11,7 @@ import base64
 import contextlib
 import re
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -42,6 +42,7 @@ class Result:
     java: str
     service: str  # the class name
     stats: dict
+    extra: list[Result] = field(default_factory=list)  # #5106: the sibling programs' services this one CALLs
 
 
 IMAGE_PIECE = 400  # base64 characters per line of a storage image
@@ -599,6 +600,61 @@ def _pcs_figuratives(records: list[L.Item], gen: G.Gen) -> None:
                         raise L.LayoutError(f"line {it.line}: {it.name} VALUE {e}") from e
 
 
+_SIBLING_CHAIN: list[str] = []  # the sibling units being translated, outermost first (a CALL cycle is refused)
+
+
+def _targets(gen: G.Gen, call: S.Stmt) -> set[str]:
+    """The programs a CALL can reach: its literal, or the names its identifier can hold (det.dyncall)."""
+    if call.data.get("dynamic") is None:
+        return {call.data["program"]} if call.data["program"] else set()
+    with contextlib.suppress(dyncall.Unknown, G.Untranslatable):
+        return {n for n in dyncall.values(gen, call) if n}
+    return set()
+
+
+def _sibling_service(sib: str, source_lines: list, program: Path, copy_dirs: list[Path], package: str,
+                     estate: dict[str, str] | None, project: Path | None, style: str, typed: bool, groups: bool,
+                     options: list[str] | None, strict_copy: bool, own: str) -> tuple[Result, list[str]] | None:  # fmt: skip
+    """#5106: the service of a sibling program (a PROGRAM-ID of the same source), or None where the CALL stays refused
+    by name. The forge makes no stub for it (D049), so the stub is made here: `<Name>Service` with the CALL entry
+    `handleCall(CobolRef<String> ...)`, one parameter per USING item. Only items every IBM convention agrees on are
+    taken: BY REFERENCE (the default), an elementary PIC X item with no OCCURS; BY VALUE / BY CONTENT, a group, a
+    number, a pointer, or a unit that CALLs back into the chain is left refused."""
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
+
+    lines = program_unit(source_lines, sib)
+    text = " ".join(ln.text for ln in lines)
+    header = re.search(r"\bPROCEDURE\s+DIVISION\b([^.]*)\.", text, re.I)
+    if header is None or re.search(r"\b(?:VALUE|CONTENT|RETURNING)\b", header.group(1), re.I) or sib in _SIBLING_CHAIN:
+        return None
+    try:
+        records = L.parse(B.lower(lines, str(program)))
+        using = S.parse(lines).using
+    except Exception:  # (the unit's own refusal surfaces when its program is translated)
+        return None
+    linkage = {r.name: r for r in records if r.section == "LINKAGE" and r.level == 1}
+    items = [linkage.get(u) for u in using]
+    if any(i is None or i.children or i.category != "ALPHANUMERIC" or i.occurs != 1 or i.redefines for i in items):
+        return None
+    cls = java_class_base(sib) + "Service"
+    stub = (f"public class {cls} {{\n    public int handleCall("
+            + ", ".join(f"CobolRef<String> a{k}" for k in range(len(items))) + ") {\n        return 0;\n    }\n}\n")  # fmt: skip
+    seeded = not _SIBLING_CHAIN
+    if seeded:
+        _SIBLING_CHAIN.append(
+            own
+        )  # (the program being translated is the chain's first: a call back into it is refused)
+    _SIBLING_CHAIN.append(sib)
+    try:
+        res = translate(program, copy_dirs, stub, package, estate, project, style, typed, groups, options, sib,
+                        strict_copy)  # fmt: skip
+    except Exception:
+        return None
+    finally:
+        del _SIBLING_CHAIN[-2 if seeded else -1 :]
+    return res, ["CobolRef<String>"] * len(items)
+
+
 def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, estate: dict[str, str] | None,
                project: Path | None, style: str, typed: bool, excluded: set[str],
                groups: bool = False, options: list[str] | None = None, unit: str | None = None,
@@ -610,7 +666,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     lines = program_unit(source_lines, unit)
     # #5106: the other programs of the same source (DBB epscsmrd's EPSCSMRI / O / X): a CALL to one has no service to reach
     units = program_units(source_lines)
-    siblings = {u.name for u in units} - {(unit or units[0].name).upper()}
+    own_name = (unit or units[0].name).upper()
+    siblings = {u.name for u in units} - {own_name}
     # #5119 (X56): OS/VS COBOL's BLL cells and SERVICE RELOAD, lowered onto the pointer lane by IBM's own conversion
     lines = B.lower(lines, str(program))
     records = L.parse(lines)
@@ -735,13 +792,11 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             providers.append((f"ObjectProvider<{m.group(1)}Service>", m.group(2)))
     # a CALLed program the stub does not wire (the CALL sits in a procedure copybook): its service in the estate,
     # when it has the CALL entry
+    calls = [s for p in proc.paragraphs for s in S.walk(p.body) if s.kind == "CALL"]
+    called = {
+        n for s in calls for n in _targets(gen, s)
+    }  # (#4736: a CALL identifier's names; else refused at the statement)
     if project is not None:
-        calls = [s for p in proc.paragraphs for s in S.walk(p.body) if s.kind == "CALL"]
-        called = {s.data["program"] for s in calls if s.data["program"]}
-        for s in calls:  # #4736: CALL identifier -- the programs the identifier can hold (det.dyncall)
-            if s.data.get("dynamic") is not None:
-                with contextlib.suppress(dyncall.Unknown, G.Untranslatable):  # (else refused at the statement, by name)
-                    called |= {n for n in dyncall.values(gen, s) if n}
         for prog_name in sorted(called - set(gen.callees)):
             from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
 
@@ -753,6 +808,24 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
                 gen.callee_types[prog_name] = callee_types(cls)
                 providers.append((f"ObjectProvider<{cls}Service>", field))
                 inferred.append(f"CALL {prog_name} -> {cls}Service.handleCall: the estate's service for it")
+    # #5106: a CALLed program of this same source: its own service, translated here from a stub the forge never made
+    siblings_out: list[Result] = []
+    if siblings and not is_cics:
+        for sib in sorted((called & siblings) - set(gen.callees)):
+            done = _sibling_service(sib, source_lines, program, copy_dirs, package, estate, project, style, typed,
+                                    groups, options, strict_copy, own_name)  # fmt: skip
+            if done is None:
+                continue  # (refused at the CALL, by name)
+            res, types = done
+            if any(len(c.data["args"]) != len(types) for c in calls if sib in _targets(gen, c)):
+                continue  # a CALL passing another number of items than the sibling's USING: refused at the CALL
+            fld = res.service[0].lower() + res.service[1:]
+            gen.callees[sib] = fld
+            gen.callee_types[sib] = types
+            providers.append((f"ObjectProvider<{res.service}>", fld))
+            siblings_out += [res, *res.extra]
+            res.extra = []
+            inferred.append(f"CALL {sib} -> {res.service}.handleCall: the sibling program of this source")
     file_decls, file_inits, ctor_repos = [], [], []
     fds = fd_entries(lines)
     for fc in file_control(lines):
@@ -1344,7 +1417,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     )
     if intdate_lilian(program, options, page):
         java = with_intdate_lilian(java)
-    return Result(java, service, stats)
+    return Result(java, service, stats, siblings_out)
 
 
 def _record_io(proc: S.Procedure, fd: G.FileDef, records: list) -> bool:

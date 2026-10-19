@@ -93,6 +93,13 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
     translated.append(r)
     (port / "service").mkdir(parents=True, exist_ok=True)
     (port / "service" / f"{r.service}.java").write_text(r.java, encoding="utf-8")
+    for x in r.extra:  # #5106: the sibling programs of the same source the program CALLs, each its own service
+        (port / "service" / f"{x.service}.java").write_text(x.java, encoding="utf-8")
+        r.stats["statements"] += x.stats["statements"]
+        r.stats["translated"] += x.stats["translated"]
+        r.stats["holes"] = [*r.stats["holes"], *x.stats["holes"]]
+        called_holes += [f"{x.stats['program']}: {h}" for h in x.stats["holes"]]  # (#4803: counted for the caller)
+        translated.append(x)
     for extra in _extra_programs(case):  # the programs the task LINKs to, and those it CALLs: translated the same way
         x_svc = ej._service_class(extra["program"])
         x_stub = (project / "src/main/java" / PKG_DIR / "service" / f"{x_svc}.java").read_text(encoding="utf-8")

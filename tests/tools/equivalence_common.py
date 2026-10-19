@@ -465,6 +465,16 @@ def option_differences(case: dict[str, Any], source: str, port_dir: Path | None)
     return out
 
 
+# #5561: words GnuCOBOL's IBM dialect reserves that Enterprise COBOL does not (CBSA's BANKDATA performs a paragraph
+# named TIMESTAMP): a program that uses one as its own name is compiled with the word un-reserved
+GNUCOBOL_ONLY_RESERVED = ("TIMESTAMP",)
+
+
+def not_reserved_flags(source: str) -> list[str]:
+    words = [w for w in GNUCOBOL_ONLY_RESERVED if re.search(rf"(?<![A-Za-z0-9-]){w}(?![A-Za-z0-9-])", source, re.I)]
+    return [f"-fnot-reserved={','.join(words)}"] if words else []
+
+
 def compile_options(case: dict[str, Any], source: str) -> tuple[str, list[str]]:
     """#3828: (the program with its CBL / PROCESS cards blanked -- GnuCOBOL rejects CBL --, the cobc
     flags for its options). The case's `compiler_options` (e.g. ["INTDATE(LILIAN)"]) stand for the
@@ -492,6 +502,7 @@ def compile_options(case: dict[str, Any], source: str) -> tuple[str, list[str]]:
         if u["policy"] == "refuse":
             raise UnsupportedOption(f"{u['note']}, so the case cannot be proven")
     flags.extend(BOUND_FLAGS)
+    flags.extend(not_reserved_flags(source))
     blank = {n for n, _ in cards(source)}
     lines = ibm_assumed_periods(source).split("\n")
     return "\n".join("" if n in blank else ln for n, ln in enumerate(lines, 1)), flags

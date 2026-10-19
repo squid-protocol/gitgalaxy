@@ -22,6 +22,8 @@
 #include <dlfcn.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <libcob.h>
 
 #define MAX_OPERANDS 32
@@ -91,4 +93,41 @@ void cob_display(const int to_device, const int newline, const int varcnt, ...) 
         fputs("GGDISPLAY-NOT-MODELLED\n", stdout);
         fflush(stdout);
     }
+}
+
+/*
+ * FUNCTION RANDOM (#5561). libcob draws it from libc's rand() (register C12), and so does libdb, the Berkeley DB under
+ * GnuCOBOL's indexed files and libdb2, the Db2 client: they call srand() with a time- or pid-derived seed (opening
+ * an indexed file reseeds the process) and rand(). Each reseed cut the program's sequence and made the oracle's numbers
+ * different on every run. z/OS shares no generator with VSAM or Db2, so a call from a libdb* library is answered from a
+ * private generator and the program's own sequence is left alone.
+ */
+static unsigned int driver_seed = 1;
+
+static int from_driver(void *ret) {
+    Dl_info info;
+    return dladdr(ret, &info) && info.dli_fname != NULL && strstr(info.dli_fname, "libdb") != NULL;
+}
+
+int rand(void) {
+    static int (*real)(void) = NULL;
+    if (from_driver(__builtin_return_address(0))) {
+        return rand_r(&driver_seed);
+    }
+    if (real == NULL) {
+        real = (int (*)(void))dlsym(RTLD_NEXT, "rand");
+    }
+    return real();
+}
+
+void srand(unsigned int seed) {
+    static void (*real)(unsigned int) = NULL;
+    if (from_driver(__builtin_return_address(0))) {
+        driver_seed = seed;
+        return;
+    }
+    if (real == NULL) {
+        real = (void (*)(unsigned int))dlsym(RTLD_NEXT, "srand");
+    }
+    real(seed);
 }

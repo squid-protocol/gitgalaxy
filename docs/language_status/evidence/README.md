@@ -31,9 +31,9 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [COUSR02C](carddemo-userupd.md) | carddemo-userupd | cics | proven, unapproved |  | 25 | 11/11 / 44/46 | 47/82 / 47/64 | 0 | - |
 | [INQACC](cbsa-inqacc.md) | cbsa-inqacc | cics | proven, unapproved |  | 14 | 22/25 / 13/25 | 131/131 / 131/131 | 0 | - |
 | [UPDACC](cbsa-updacc.md) | cbsa-updacc | cics | proven, unapproved |  | 10 | 7/7 / 5/6 | 95/133 / 95/110 | 0 | - |
-| [LGAPVS01](genapp-lgapvs01.md) | genapp-lgapvs01 | cics | proven, unapproved |  | 11 | 3/3 / 5/9 | 70/121 / 70/119 | 0 | - |
-| [LGICDB01](genapp-lgicdb01.md) | genapp-lgicdb01 | cics | proven, unapproved |  | 12 | 3/4 / 4/12 | 49/130 / 49/127 | 0 | - |
-| [LGUPDB01](genapp-lgupdb01.md) | genapp-lgupdb01 | cics | proven, unapproved |  | 5 | 8/9 / 17/38 | 76/138 / 76/137 | 0 | - |
+| [LGAPVS01](genapp-lgapvs01.md) | genapp-lgapvs01 | cics | proven, unapproved |  | 11 | 3/3 / 5/9 | 72/125 / 72/113 | 0 | - |
+| [LGICDB01](genapp-lgicdb01.md) | genapp-lgicdb01 | cics | proven, unapproved |  | 12 | 3/4 / 4/12 | 51/130 / 51/107 | 0 | - |
+| [LGUPDB01](genapp-lgupdb01.md) | genapp-lgupdb01 | cics | proven, unapproved |  | 5 | 8/9 / 17/38 | 67/140 / 67/120 | 0 | - |
 | [CALINK](crucible-ca-link-lengths-CALINK.md) | crucible:ca-link-lengths/CALINK | crucible | proven, unapproved |  | 4 | 1/1 / 4/4 | 15/22 / 15/15 | 0 | - |
 | [CASUB](crucible-ca-link-lengths-CASUB.md) | crucible:ca-link-lengths/CASUB | crucible | proven, unapproved |  | 3 | 1/1 / 4/4 | 16/24 / 16/16 | 0 | - |
 | [CAXA](crucible-ca-xctl-versions-CAXA.md) | crucible:ca-xctl-versions/CAXA | crucible | proven, unapproved |  | 3 | 1/1 / 3/3 | 16/21 / 16/16 | 0 | - |

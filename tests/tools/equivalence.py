@@ -722,7 +722,8 @@ def main() -> int:
     r.add_argument("--first-difference", action="store_true", help="stop at the first run that differs: the "
                    "verdict is the same, the report names only that run (mutation testing)")  # fmt: skip
     r.add_argument("--one-jvm", action="store_true", help="a batch proof's runs in the first environment (it, the "
-                   "faults, the entries) in one JVM, each on a fresh Spring context, instead of a JVM each; Db2 / IMS "
+                   "faults, the entries), or a call / CICS proof's runs (task, facade), in one JVM, each on a fresh "
+                   "Spring context, instead of a JVM each; Db2 / IMS "
                    "cases and a project that cannot run without Maven keep a JVM per run (mutation testing)")  # fmt: skip
     r.add_argument("--generated-only", action="store_true",
                    help="run the generated service as generated (no port): the generator's own baseline")  # fmt: skip
@@ -782,14 +783,16 @@ def main() -> int:
         import equivalence_call as ecall
 
         return _recorded(args, work, ecall.run_case(case, corpus, work, port=not args.generated_only,
-                                                    port_dir=args.port, cobol_only=args.cobol_only))  # fmt: skip
+                                                    port_dir=args.port, cobol_only=args.cobol_only,
+                                                    one_jvm=args.one_jvm))  # fmt: skip
     if case.get("kind") == "cics":  # #3754: an online program, run as tasks under the stub CICS runtime
         import equivalence_cics as ec
 
         return _recorded(args, work, ec.run_case(case, corpus, work, port=not args.generated_only,
                                                  port_dir=args.port, cobol_only=args.cobol_only,
                                                  sql_faults=args.sql_faults,
-                                                 facades=not args.no_facades))  # fmt: skip
+                                                 facades=not args.no_facades,
+                                                 one_jvm=args.one_jvm))  # fmt: skip
     faults = selected_faults(case, args.faults)
     if case.get("db2"):  # the case's tables, created from its DDL on the harness's Db2 (equivalence_db2.py)
         equivalence_db2.create(case, corpus)

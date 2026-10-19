@@ -54,7 +54,8 @@ A from-scratch proof per mutant redoes the COBOL runs and regenerates the whole 
   `@@EQUIVALENCE-RUN-DONE@@` marker). Python compares each run before sending the next, so `--first-difference`
   still stops early. The generated test class carries `@DirtiesContext`, so each run gets a fresh Spring context
   and in-memory database. Other environments (locale and time zone are fixed in a `static {}` block) and Db2 and
-  IMS cases keep a JVM per run; call and CICS runners do not use the session yet. Static state in the port or
+  IMS cases keep a JVM per run. A call proof is one run, so its session saves no JVM start (the flag only keeps the
+  runners uniform); a CICS proof shares one session between its task run and its facade run. Static state in the port or
   the det runtime that outlives a run is the risk, which is why the flag stays opt-in.
 
 **Validation (2026-09-30).** `mutation.py compare` of fast mode against `--full` on the same mutants. **386 of
@@ -76,7 +77,13 @@ the normal run kills costs ~10-15 s instead of ~280 s. A survivor must still pas
 mutants (2 stillborn, 10 proofs) in `--full`, fast and `--one-jvm`: **12 of 12 agree** in both comparisons (7
 killed, 3 survived: Cbact04cService.java:253, :273, :303). Proof time summed over mutants: full 1,039 s, fast
 249 s, fast+one-jvm 71 s (wall time of the run: 618 s, 249 s, 161 s). Not yet validated: a larger sample, a case
-with entry runs, and the call and CICS runners, so fast mode stays the default.
+with entry runs, so fast mode stays the default.
+
+**Validation of `--one-jvm` on the call and CICS runners (2026-10-18).** 12 mutants each (`--sample 12 --seed 1`),
+`mutation.py compare` against the same mutants in `--full` and in fast mode: carddemo-dateutil (CSUTLDTC, call)
+and carddemo-menu (COMEN01C, CICS with facades) **12 of 12 agree** in both comparisons. Proof seconds summed:
+dateutil full 128, fast 77, fast+one-jvm 71; menu full 460, fast 413, fast+one-jvm 390. A small sample; the
+default stays fast mode.
 
 ## Scores
 

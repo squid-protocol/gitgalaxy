@@ -2366,8 +2366,7 @@
       "sql/mediawiki_mysql/blobs.sql": "None Detected"
     },
     "sql/mediawiki_postgresql": {
-      "sql/mediawiki_postgresql/COPYING": "None Detected",
-      "sql/mediawiki_postgresql/tables.sql": "None Detected"
+      "sql/mediawiki_postgresql/COPYING": "None Detected"
     },
     "sql/spamassassin_mysql": {
       "sql/spamassassin_mysql/NOTICE": "None Detected",

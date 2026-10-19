@@ -173,6 +173,10 @@ LANGUAGE_STRICTNESS: dict[str, tuple[bool, bool, bool, bool] | None] = {
     # affinity); SQLCODE/SQLSTATE can be silently ignored unless a handler is
     # DECLAREd; variables must be DECLAREd before SET.
     "db2_sql": (True, False, True, True),
+    # #5622: same typing/handler/DECLARE discipline as db2_sql (strong column types;
+    # PL/pgSQL errors propagate unless an EXCEPTION block catches them; variables are
+    # DECLAREd).
+    "postgresql": (True, False, True, True),
     "dart": (True, False, True, True),
     "dockerfile": (False, False, True, False),  # RUN lines are shell; ARG/ENV are global
     "easytrieve": (True, False, True, False),  # files and reports are global
@@ -1027,6 +1031,7 @@ LANGUAGE_SECURITY_PROFILES = {
         # Data processing, APIs, and strict-typed object orientation.
         "backend": {
             "python",
+            "postgresql",
             "java",
             "go",
             "csharp",

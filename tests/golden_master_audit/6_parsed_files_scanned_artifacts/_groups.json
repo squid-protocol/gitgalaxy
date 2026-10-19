@@ -10586,23 +10586,23 @@
     "sql/mediawiki_postgresql": {
       "Average Risk Exposures": {
         "API Exposure": "0.0%",
-        "Cognitive Load Exposure": "0.0%",
+        "Cognitive Load Exposure": "14.25%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "0.0%",
-        "Documentation Exposure": "0.0%",
-        "Error & Exception Exposure": "31.29%",
+        "Documentation Exposure": "50.0%",
+        "Error & Exception Exposure": "33.25%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "25.0%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "0.0%",
-        "Tech Debt Exposure": "18.88%",
-        "Testing Exposure": "1.3%",
+        "Tech Debt Exposure": "13.45%",
+        "Testing Exposure": "1.27%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 34.22,
+      "Directory Group Magnitude": 35.82,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "50.0%",
-        "file_cluster_2": "50.0%"
+        "file_cluster_11": "50.0%"
       },
       "File Count": 2,
       "Files": [
@@ -10669,20 +10669,20 @@
     "sql/sqlmap_postgresql": {
       "Average Risk Exposures": {
         "API Exposure": "0.0%",
-        "Cognitive Load Exposure": "0.0%",
+        "Cognitive Load Exposure": "5.52%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "0.0%",
-        "Error & Exception Exposure": "70.21%",
+        "Error & Exception Exposure": "75.29%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "0.0%",
         "Tech Debt Exposure": "0.0%",
-        "Testing Exposure": "2.34%",
+        "Testing Exposure": "2.37%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 4.08,
+      "Directory Group Magnitude": 6.08,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_7": "100.0%"
       },

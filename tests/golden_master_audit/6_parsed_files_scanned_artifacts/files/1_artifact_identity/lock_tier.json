@@ -3630,7 +3630,7 @@
     },
     "sql/mediawiki_postgresql": {
       "sql/mediawiki_postgresql/COPYING": 1,
-      "sql/mediawiki_postgresql/tables.sql": 1.5
+      "sql/mediawiki_postgresql/tables.sql": 2
     },
     "sql/spamassassin_mysql": {
       "sql/spamassassin_mysql/NOTICE": 1,
@@ -3643,7 +3643,7 @@
       "sql/sqlite/dotcmd01.sql": 2
     },
     "sql/sqlmap_postgresql": {
-      "sql/sqlmap_postgresql/dns_request.sql": 1.5
+      "sql/sqlmap_postgresql/dns_request.sql": 2
     },
     "sqlite": {
       "sqlite/SOURCES.md": 1

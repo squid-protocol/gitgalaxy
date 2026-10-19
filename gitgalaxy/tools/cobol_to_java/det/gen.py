@@ -235,6 +235,19 @@ class Gen:
                 for c in it.conditions:
                     self.conds.setdefault(c.name, []).append(c)
         self.para_index = {p.name: i for i, p in enumerate(prog.proc.paragraphs)}
+        # #5560 ALTER: paragraph index -> its GO TO's target slot (a Java int field), for each paragraph an ALTER names
+        # whose only statement is a GO TO without DEPENDING (IBM, ALTER: a paragraph of one sentence, one GO TO)
+        self.alter_slots: dict[int, str] = {}
+        self.alter_fields: list[str] = []
+        for para in prog.proc.paragraphs:
+            for st in S.walk(para.body):
+                for name, _ in st.data.get("pairs", []) if st.kind == "ALTER" else []:
+                    i = self.para_index.get(name)
+                    if i is not None and i not in self.alter_slots and self._alterable(prog.proc.paragraphs[i]):
+                        self.alter_slots[i] = f"alt{i}"
+                        t = prog.proc.paragraphs[i].body[0].data["targets"]
+                        first = self.para_index.get(t[0], -1) if t else -1
+                        self.alter_fields.append(f"    private int alt{i} = {first};")
         self.consts: dict[str, str] = {}
         self.dcs: dict[
             tuple, tuple
@@ -749,6 +762,31 @@ class Gen:
         if self.id_methods[entity] is None:
             return ""
         return f".withFindById(rec -> {repo}.findById(id_{entity}(rec)))"
+
+    @staticmethod
+    def _alterable(p: S.Paragraph) -> bool:
+        """IBM (ALTER): the altered paragraph holds one sentence, a GO TO without DEPENDING."""
+        return (
+            p.section != p.name
+            and len(p.body) == 1
+            and p.body[0].kind == "GOTO"
+            and p.body[0].data["depending"] is None
+            and len(p.body[0].data["targets"]) <= 1
+        )
+
+    def alter(self, s: S.Stmt, ind: str) -> list[str]:
+        """ALTER p TO [PROCEED TO] q: write q into p's GO TO slot (the last ALTER of p wins)."""
+        out = []
+        for name, target in s.data["pairs"]:
+            if name not in self.para_index:
+                raise Untranslatable(f"ALTER {name}: undeclared paragraph")
+            if target not in self.para_index:
+                raise Untranslatable(f"ALTER {name} TO {target}: undeclared paragraph")
+            slot = self.alter_slots.get(self.para_index[name])
+            if slot is None:
+                raise Untranslatable(f"ALTER {name}: the paragraph is not a lone GO TO without DEPENDING (IBM, ALTER)")
+            out.append(f"{ind}{slot} = {self.para_index[target]};")
+        return out
 
     def method(self, i: int) -> str:
         """The Java method of paragraph i: p{i} (dispatcher), else the paragraph's name in camelCase."""
@@ -1954,8 +1992,17 @@ class Gen:
             return [c, *self.evaluate(s, ind)]
         if k == "PERFORM":
             return [c, *self.perform(s, ind)]
+        if k == "ALTER":
+            return [c, *self.alter(s, ind)]
         if k == "GOTO":
             t = s.data["targets"]
+            slot = self.alter_slots.get(self.cur)
+            if slot is not None and s.data["depending"] is None:  # the altered GO TO reads its slot (#5560)
+                return [
+                    c,
+                    f'{ind}if ({slot} < 0) throw new Hole("GO TO with no operand reached before any ALTER");',
+                    f"{ind}if (true) return GOTO | {slot};",
+                ]
             if s.data["depending"] is None:
                 if len(t) != 1 or t[0] not in self.para_index:
                     raise Untranslatable(f"GO TO {t}")

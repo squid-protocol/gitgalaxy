@@ -43920,6 +43920,14 @@
         "wp_get_db_schema@36": "Many-Argument Workhorses"
       }
     },
+    "sql/mediawiki_postgresql": {
+      "sql/mediawiki_postgresql/tables.sql": {
+        "ts2_page_text@32": "Compute Cores",
+        "ts2_page_text@44": "State Mutators",
+        "ts2_page_title@15": "Compute Cores",
+        "ts2_page_title@27": "State Mutators"
+      }
+    },
     "swift/alamofire": {
       "swift/alamofire/AFError.swift": {
         "asAFError@239": "Defensive Guards",

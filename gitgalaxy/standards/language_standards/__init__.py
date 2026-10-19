@@ -118,6 +118,7 @@ from .languages import perl as _perl
 from .languages import php as _php
 from .languages import plaintext as _plaintext
 from .languages import pli as _pli
+from .languages import postgresql as _postgresql
 from .languages import powershell as _powershell
 from .languages import proto as _proto
 from .languages import python as _python
@@ -212,6 +213,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
     "ada": _ada.DEFINITION,
     "pli": _pli.DEFINITION,
     "bms": _bms.DEFINITION,
+    # #5622: BEFORE db2_sql -- Tier 2 tries internal_discriminators in this order and
+    # db2_sql's `LANGUAGE SQL` alternative also matches a Postgres function.
+    "postgresql": _postgresql.DEFINITION,
     "db2_sql": _db2_sql.DEFINITION,
     "hlasm": _hlasm.DEFINITION,
     "rexx": _rexx.DEFINITION,

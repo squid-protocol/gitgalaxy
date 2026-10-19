@@ -3629,7 +3629,7 @@
       "sql/mediawiki_mysql/blobs.sql": 43.13
     },
     "sql/mediawiki_postgresql": {
-      "sql/mediawiki_postgresql/COPYING": 200.89,
+      "sql/mediawiki_postgresql/COPYING": 200.95,
       "sql/mediawiki_postgresql/tables.sql": 132.22
     },
     "sql/spamassassin_mysql": {

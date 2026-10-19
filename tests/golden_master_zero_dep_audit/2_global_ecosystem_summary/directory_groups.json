@@ -5499,20 +5499,20 @@
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 0.0,
+        "cognitive_load": 14.25,
         "concurrency": 0.0,
         "dead_code": 0.0,
-        "documentation": 0.0,
-        "safety_score": 31.29,
+        "documentation": 50.0,
+        "safety_score": 33.25,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 25.0,
         "state_flux": 0.0,
-        "tech_debt": 18.88,
-        "verification": 1.3
+        "tech_debt": 13.45,
+        "verification": 1.27
       },
       "file_count": 2,
-      "total_mass": 34.22
+      "total_mass": 35.82
     },
     "sql/spamassassin_mysql": {
       "avg_exposures": {
@@ -5556,20 +5556,20 @@
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 0.0,
+        "cognitive_load": 5.52,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 0.0,
-        "safety_score": 70.21,
+        "safety_score": 75.29,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 0.0,
         "tech_debt": 0.0,
-        "verification": 2.34
+        "verification": 2.37
       },
       "file_count": 1,
-      "total_mass": 4.08
+      "total_mass": 6.08
     },
     "sqlite": {
       "avg_exposures": {

@@ -43920,6 +43920,14 @@
         "wp_get_db_schema@36": 1.524
       }
     },
+    "sql/mediawiki_postgresql": {
+      "sql/mediawiki_postgresql/tables.sql": {
+        "ts2_page_text@32": 1.0,
+        "ts2_page_text@44": -1.0,
+        "ts2_page_title@15": 1.0,
+        "ts2_page_title@27": -1.0
+      }
+    },
     "swift/alamofire": {
       "swift/alamofire/AFError.swift": {
         "asAFError@239": 0.707,

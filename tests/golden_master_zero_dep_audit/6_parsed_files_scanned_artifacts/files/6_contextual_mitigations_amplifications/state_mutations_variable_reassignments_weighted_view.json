@@ -1511,6 +1511,9 @@
     "sql/baseline": {
       "sql/baseline/schema.php": 349
     },
+    "sql/mediawiki_postgresql": {
+      "sql/mediawiki_postgresql/tables.sql": 6
+    },
     "swift/alamofire": {
       "swift/alamofire/Alamofire.podspec": 32,
       "swift/alamofire/ParameterEncoder.swift": 18,

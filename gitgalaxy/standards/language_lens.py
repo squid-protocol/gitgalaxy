@@ -821,6 +821,15 @@ class LanguageDetector:
         # 1. GATHER CANDIDATES
         candidates = [lid for lid, data in self.languages.items() if ext in data.get("extensions", [])]
 
+        # #5622: a language that owns the extension only on proof (its internal_discriminator, tried in
+        # Tier 2) is no neighbourhood candidate: as a third `.sql` claimant it dilutes the dominance of
+        # the language the folder really is. Mirrors the Tier 3 filter (#4546).
+        proven_only = [
+            lid for lid in candidates if ext in self.languages[lid].get("extensions_needing_discriminator", ())
+        ]
+        if proven_only and len(proven_only) < len(candidates):
+            candidates = [lid for lid in candidates if lid not in proven_only]
+
         if ext == ".h" and "cpp" not in candidates and "cpp" in self.languages:
             candidates.append("cpp")
 

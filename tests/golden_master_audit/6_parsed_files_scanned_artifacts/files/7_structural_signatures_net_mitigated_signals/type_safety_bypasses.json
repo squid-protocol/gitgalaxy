@@ -3643,7 +3643,7 @@
       "sql/sqlite/dotcmd01.sql": 0
     },
     "sql/sqlmap_postgresql": {
-      "sql/sqlmap_postgresql/dns_request.sql": 2
+      "sql/sqlmap_postgresql/dns_request.sql": 1
     },
     "sqlite": {
       "sqlite/SOURCES.md": 0

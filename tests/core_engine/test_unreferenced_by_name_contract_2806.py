@@ -79,7 +79,7 @@ def _declared_model(lang: str) -> str:
 # TRANSID in a COBOL program -- a different file -- routes to it. No syntax inside
 # the deck reaches a resource by the name the extractor gives it; DEFINE records
 # install in written order. Corollary 4 answered no.
-POSITIONAL_LANGUAGES = {"jcl", "dockerfile", "html", "sqlite", "yaml", "bms", "db2_sql", "csd"}
+POSITIONAL_LANGUAGES = {"jcl", "dockerfile", "html", "sqlite", "yaml", "bms", "db2_sql", "csd", "postgresql"}
 
 
 def test_invocation_model_values_are_a_closed_set():

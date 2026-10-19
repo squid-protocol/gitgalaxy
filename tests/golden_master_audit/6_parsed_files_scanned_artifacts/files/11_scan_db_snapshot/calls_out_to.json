@@ -170077,6 +170077,14 @@
         ]
       }
     },
+    "sql/mediawiki_postgresql": {
+      "sql/mediawiki_postgresql/tables.sql": {
+        "ts2_page_text@32": [],
+        "ts2_page_text@44": [],
+        "ts2_page_title@15": [],
+        "ts2_page_title@27": []
+      }
+    },
     "swift/alamofire": {
       "swift/alamofire/AFError.swift": {
         "asAFError@239": [

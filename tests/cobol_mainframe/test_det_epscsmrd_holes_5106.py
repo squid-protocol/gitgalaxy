@@ -60,6 +60,16 @@ def test_a_condition_handler_call_is_refused_by_name(stmt, service):
     assert [e["id"] for e in sm.classify(holes[0].split(": ", 1)[1], sm.load_map())] == ["le-condition-handling"]
 
 
+@pytest.mark.parametrize("service", ["CEEMGET", "CEESGL", "CEENCOD", "CEEMRCE", "CEE3SRP"])
+@pytest.mark.parametrize("form", ["static", "dynamic"])
+def test_the_other_le_condition_services_are_refused_by_name(service, form):
+    call = f"CALL '{service}' USING FC TOKEN" if form == "static" else "CALL PGM USING FC TOKEN"
+    src = _program(call).replace("VALUE 'CEEHDLR'", f"VALUE '{service}'")
+    holes = _holes(src)
+    assert len(holes) == 1 and f"{service}:" in holes[0] and "not modelled" in holes[0], holes
+    assert [e["id"] for e in sm.classify(holes[0].split(": ", 1)[1], sm.load_map())] == ["le-condition-handling"]
+
+
 def test_set_to_entry_stays_a_named_hole():
     holes = _holes(_program("SET ROUTINE TO ENTRY 'EPSCSMRF'"))
     assert len(holes) == 1 and "SET TO ENTRY" in holes[0], holes

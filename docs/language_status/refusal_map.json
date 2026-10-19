@@ -192,9 +192,9 @@
     },
     {
       "id": "le-condition-handling",
-      "match": "^CALL (?:CALL )?CEEHDL[RU]\\b",
+      "match": "^CALL (?:CALL )?(?:CEEHDL[RU]|CEEMGET|CEESGL|CEENCOD|CEEMRCE|CEE3SRP)\\b",
       "api": {
-        "name": "LE condition handling (CEEHDLR / CEEHDLU)",
+        "name": "LE condition handling (CEEHDLR / CEEHDLU, CEEMGET, CEESGL, CEENCOD, CEEMRCE, CEE3SRP)",
         "issue": 5106
       },
       "note": "Registering (CEEHDLR) or unregistering (CEEHDLU) an LE user condition handler: refused by name in dyncall.REFUSED_BY_NAME, three pieces are missing before a registration can be proven: the procedure pointer it takes (SET TO ENTRY, `procedure-pointer`), LE's dispatch of a raised condition to the handler (CEESGL, CEENCOD, CEEMRCE, CEE3SRP) and the handler's RESUME / PERCOLATE result (#5106; DBB epscsmrd REGISTER-EXCEPTION-HANDLER, the only burned user). The old report text is `CALL CALL CEEHDLR`, the refusal reads `CALL CEEHDLR: ...`: both match.",

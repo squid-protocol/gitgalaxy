@@ -48,6 +48,16 @@ REFUSED_BY_NAME = {
     "missing, so a no-op registration would hide the handler's effect)",
     "CEEHDLU": "CEEHDLU: unregistering an LE user condition handler is not modelled (the registration "
     "(CEEHDLR) is refused, so there is nothing to undo)",
+    # #5106: the LE condition services a handler (or the program around it) calls. None is modelled: each needs a
+    # raised-condition model (the condition token's facility, severity and message number) the port does not have.
+    "CEEMGET": "CEEMGET: retrieving the message text of an LE condition token is not modelled (the condition "
+    "token comes from a raised condition, and LE's dispatch of one is missing)",
+    "CEESGL": "CEESGL: signalling an LE condition is not modelled (LE's dispatch of a raised condition to the "
+    "registered handlers and their RESUME / PERCOLATE result are missing)",
+    "CEENCOD": "CEENCOD: building an LE condition token is not modelled (the condition model "
+    "a token is raised and dispatched through is missing)",
+    "CEEMRCE": "CEEMRCE: moving the LE resume cursor is not modelled (the handler RESUME result it sets is missing)",
+    "CEE3SRP": "CEE3SRP: setting an LE resume point is not modelled (the handler RESUME result it sets is missing)",
 }
 
 

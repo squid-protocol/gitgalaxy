@@ -9,46 +9,43 @@ the charter in `definition_of_done.md`. Counts only; a level is an evidence leve
 
 | level | programs at exactly this level |
 |---|---|
-| L0 inventoried | 8 |
+| L0 inventoried | 7 |
 | L1 translated whole | 4 |
-| L2 executed equivalent | 4 |
+| L2 executed equivalent | 5 |
 | L3 paragraph coverage | 14 |
 | L4 branch coverage | 14 |
 | L5 mutants accounted for | 0 |
 
-- translated whole: 36 / 44 (82%); with holes: 8; refused: 0
+- translated whole: 37 / 44 (84%); with holes: 7; refused: 0
 - whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0
-- executed equivalent (L2 and above): 32 / 44
+- executed equivalent (L2 and above): 33 / 44
 - charter bars for L3 / L4: paragraphs 100.0%, branches 100.0%
 
 Era evidence (programs by latest era a tell reaches):
 
 era 0: 0, era 1: 5, era 2: 22, era 3: 15, era 4: 0, era none: 2
 
-### Rules to land (12 gap classes; top 12, the `cics_census.py blockers` order)
+### Rules to land (8 gap classes; top 8, the `cics_census.py blockers` order)
 
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
 | 1 | <name>: <name> is not defined in a record of file <name> | 2 | 0 | 2 | era 3: 2 |
-| 2 | DSNTIAC: Db2's message text is not modelled | 1 | 0 | 1 | era 2: 1 |
-| 3 | <name> SET ADDRESS OF | 0 | 1 | 1 | - |
-| 4 | <name>: no such item | 0 | 1 | 1 | - |
-| 5 | ALTER not modelled | 0 | 1 | 1 | - |
+| 2 | EXEC DLI REPL: the segment commands (…) are not modelled | 1 | 0 | 2 | era 1: 1 |
+| 3 | <name> SET ADDRESS OF | 1 | 0 | 1 | era 3: 1 |
+| 4 | DSNTIAC: Db2's message text is not modelled | 1 | 0 | 1 | era 2: 1 |
+| 5 | <name>: no such item | 0 | 1 | 1 | - |
 | 6 | EXEC DLI outside CICS: a batch program calls CBLTDLI | 0 | 1 | 1 | - |
-| 7 | EXEC DLI GU: the segment commands (…) are not modelled | 0 | 0 | 3 | - |
-| 8 | EXEC CICS <class>.<property>: a property the port cannot convert | 0 | 0 | 2 | - |
-| 9 | EXEC DLI GNP: the segment commands (…) are not modelled | 0 | 0 | 2 | - |
-| 10 | EXEC DLI REPL: the segment commands (…) are not modelled | 0 | 0 | 2 | - |
-| 11 | EXEC DLI ISRT: the segment commands (…) are not modelled | 0 | 0 | 1 | - |
-| 12 | INITIALIZE REPLACING of the table <name>, which holds ALPHANUMERIC items REPLACING does not name | 0 | 0 | 1 | - |
+| 7 | EXEC DLI ISRT: the segment commands (…) are not modelled | 0 | 0 | 1 | - |
+| 8 | INITIALIZE REPLACING of the table <name>, which holds ALPHANUMERIC items REPLACING does not name | 0 | 0 | 1 | - |
 
-### Proof blockers (36 programs translated whole, 14 with no proof gap; top 3 of 3 classes, `proof_blockers.py` statistics)
+### Proof blockers (37 programs translated whole, 14 with no proof gap; top 4 of 4 classes, `proof_blockers.py` statistics)
 
 | rank | what stops the proof | alone | one gap away | touched |
 |---|---|---|---|---|
 | 1 | coverage: branch outcomes below the bar | 14 | 0 | 14 |
 | 2 | coverage: paragraphs below the bar | 4 | 0 | 4 |
 | 3 | no case | 4 | 0 | 4 |
+| 4 | coverage: not measured | 1 | 0 | 1 |
 
 ### Missing inputs
 
@@ -130,15 +127,15 @@ era 0: 0, era 1: 0, era 2: 0, era 3: 0, era 4: 7, era none: 3
 | level | programs at exactly this level |
 |---|---|
 | L0 inventoried | 0 |
-| L1 translated whole | 5 |
-| L2 executed equivalent | 12 |
-| L3 paragraph coverage | 8 |
+| L1 translated whole | 0 |
+| L2 executed equivalent | 13 |
+| L3 paragraph coverage | 12 |
 | L4 branch coverage | 6 |
 | L5 mutants accounted for | 0 |
 
 - translated whole: 31 / 31 (100%); with holes: 0; refused: 0
 - whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0
-- executed equivalent (L2 and above): 26 / 31
+- executed equivalent (L2 and above): 31 / 31
 - charter bars for L3 / L4: paragraphs 100.0%, branches 100.0%
 
 Era evidence (programs by latest era a tell reaches):
@@ -150,14 +147,12 @@ era 0: 0, era 1: 0, era 2: 22, era 3: 1, era 4: 6, era none: 2
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
 
-### Proof blockers (31 programs translated whole, 6 with no proof gap; top 4 of 4 classes, `proof_blockers.py` statistics)
+### Proof blockers (31 programs translated whole, 6 with no proof gap; top 2 of 2 classes, `proof_blockers.py` statistics)
 
 | rank | what stops the proof | alone | one gap away | touched |
 |---|---|---|---|---|
-| 1 | coverage: paragraphs below the bar | 12 | 0 | 12 |
-| 2 | coverage: branch outcomes below the bar | 8 | 0 | 8 |
-| 3 | known unproven: det sweep baseline | 4 | 0 | 4 |
-| 4 | no case | 1 | 0 | 1 |
+| 1 | coverage: paragraphs below the bar | 13 | 0 | 13 |
+| 2 | coverage: branch outcomes below the bar | 12 | 0 | 12 |
 
 ### Missing inputs
 
@@ -277,14 +272,14 @@ era 0: 0, era 1: 0, era 2: 2, era 3: 0, era 4: 1, era none: 3
 
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
-| 1 | COMPUTE FUNCTION ANNUITY | 0 | 1 | 1 | - |
+| 1 | COMPUTE FUNCTION ANNUITY (IBM defines arg-N / (…) but not the bits of the power or of the floating-point resul | 0 | 1 | 1 | - |
 | 2 | COMPUTE exponentiation in a floating-point expression | 0 | 1 | 1 | - |
 | 3 | <name> ADDRESS OF <name>: not a LINKAGE N record | 0 | 0 | 1 | - |
-| 4 | CALL CEEHDLR | 0 | 0 | 1 | - |
-| 5 | CALL CEEHDLU | 0 | 0 | 1 | - |
-| 6 | CALL EPSCSMRI | 0 | 0 | 1 | - |
-| 7 | CALL EPSCSMRO | 0 | 0 | 1 | - |
-| 8 | CALL EPSCSMRX | 0 | 0 | 1 | - |
+| 4 | CEEHDLR: registering an LE user condition handler is not modelled | 0 | 0 | 1 | - |
+| 5 | CEEHDLU: unregistering an LE user condition handler is not modelled | 0 | 0 | 1 | - |
+| 6 | EPSCSMRI: a sibling program of this source | 0 | 0 | 1 | - |
+| 7 | EPSCSMRO: a sibling program of this source | 0 | 0 | 1 | - |
+| 8 | EPSCSMRX: a sibling program of this source | 0 | 0 | 1 | - |
 | 9 | EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents | 0 | 0 | 1 | - |
 | 10 | EXEC CICS SOAPFAULT CREATE | 0 | 0 | 1 | - |
 | 11 | SET TO ENTRY: procedure / function pointers are not modelled | 0 | 0 | 1 | - |

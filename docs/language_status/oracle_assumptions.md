@@ -783,8 +783,9 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   documented); a digit-only one counts as ever. Tested over the five receiver shapes x INSPECT ALL / CHARACTERS,
   UNSTRING TALLYING / POINTER, STRING POINTER, and the digit-only start of each (`test_det_nondigit_zoned.py`). A plain
   item (no REDEFINES) cleared to spaces and then ADDed to is refused too (the lifted-item path goes through the same
-  `receiverNum`). Not covered, no burned program reads one: ADD CORRESPONDING, `PERFORM VARYING` / `SET ... UP BY`
-  steps of a dirty index.
+  `receiverNum`). `PERFORM VARYING` variables and `SET ... UP / DOWN BY` targets go through `receiverNum` too (#5404). ADD /
+  SUBTRACT CORRESPONDING is not translated (a hole), so no dirty member reaches a read. ON SIZE ERROR, ROUNDED and
+  several-receiver forms are refused alike (`test_det_nondigit_zoned.py`).
 - **A zoned item with a P position holding a non-digit, as a sender (#4685, #4692) -- REFUSED by name.** Measured against
   cobc 3.1.2 (`-std=ibm -fsign=EBCDIC`, TRUNC STD and BIN): a left-P item (`PIC VPP99`) MOVEd to a binary item makes
   the program hang (the 14-operation probe never finished; `timeout` killed it), and a right-P one (`PIC 99PP`) is

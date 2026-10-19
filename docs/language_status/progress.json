@@ -1,5 +1,5 @@
 {
- "commit": "6af200ef0",
+ "commit": "50ceac444",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -120,7 +120,7 @@
   },
   "translator": {
    "of": 129,
-   "whole": 116
+   "whole": 117
   }
  },
  "eras": {
@@ -135,29 +135,29 @@
    "programs": 9
   },
   "2": {
-   "l2_plus": 64,
+   "l2_plus": 67,
    "l4_plus": 21,
    "programs": 70
   },
   "3": {
-   "l2_plus": 11,
+   "l2_plus": 12,
    "l4_plus": 0,
    "programs": 16
   },
   "4": {
-   "l2_plus": 17,
+   "l2_plus": 18,
    "l4_plus": 9,
    "programs": 21
   },
   "none": {
-   "l2_plus": 7,
+   "l2_plus": 8,
    "l4_plus": 7,
    "programs": 13
   }
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-19T09:31:31Z",
+  "as_of": "2026-10-19T10:08:24Z",
   "core": {
    "closed": 132,
    "open": 30,
@@ -184,7 +184,7 @@
   "eta": "23 days",
   "frontier": {
    "closed": 100,
-   "found_last_window": 16,
+   "found_last_window": 13,
    "open": 85,
    "total": 185
   },
@@ -230,9 +230,9 @@
     "total": 12
    },
    {
-    "closed": 40,
+    "closed": 41,
     "number": 6,
-    "open": 14,
+    "open": 13,
     "title": "Side Quests \ud83d\uddfa\ufe0f",
     "total": 54
    },
@@ -406,8 +406,8 @@
    }
   ],
   "sweep": {
-   "closed": 75,
-   "open": 14,
+   "closed": 76,
+   "open": 13,
    "total": 89
   },
   "title_counts": {
@@ -425,21 +425,21 @@
  "ladder": {
   "estates": {
    "aws-mainframe-modernization-carddemo": {
-    "l2_plus": 32,
-    "l2_plus_pct": 72.7,
+    "l2_plus": 33,
+    "l2_plus_pct": 75.0,
     "l4_plus": 14,
     "l4_plus_pct": 31.8,
     "l5": 0,
     "levels": {
-     "L0": 8,
+     "L0": 7,
      "L1": 4,
-     "L2": 4,
+     "L2": 5,
      "L3": 14,
      "L4": 14,
      "L5": 0
     },
     "programs": 44,
-    "translated_whole": 36
+    "translated_whole": 37
    },
    "cics-async-api-credit-card-application-example": {
     "l2_plus": 10,
@@ -459,16 +459,16 @@
     "translated_whole": 10
    },
    "cics-banking-sample-application-cbsa": {
-    "l2_plus": 26,
-    "l2_plus_pct": 83.9,
+    "l2_plus": 31,
+    "l2_plus_pct": 100.0,
     "l4_plus": 6,
     "l4_plus_pct": 19.4,
     "l5": 0,
     "levels": {
      "L0": 0,
-     "L1": 5,
-     "L2": 12,
-     "L3": 8,
+     "L1": 0,
+     "L2": 13,
+     "L3": 12,
      "L4": 6,
      "L5": 0
     },
@@ -528,21 +528,21 @@
    }
   },
   "total": {
-   "l2_plus": 104,
-   "l2_plus_pct": 80.6,
+   "l2_plus": 110,
+   "l2_plus_pct": 85.3,
    "l4_plus": 37,
    "l4_plus_pct": 28.7,
    "l5": 0,
    "levels": {
-    "L0": 13,
-    "L1": 12,
-    "L2": 26,
-    "L3": 41,
+    "L0": 12,
+    "L1": 7,
+    "L2": 28,
+    "L3": 45,
     "L4": 37,
     "L5": 0
    },
    "programs": 129,
-   "translated_whole": 116
+   "translated_whole": 117
   }
  },
  "oracle": "GnuCOBOL plus IBM documentation, not z/OS",

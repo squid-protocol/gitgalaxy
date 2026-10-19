@@ -1,0 +1,356 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "carddemo-adminmenu",
+ "survivors": [
+  {
+   "id": "d5b1c87d74",
+   "op": "LIT",
+   "line": 54,
+   "before": "\"Q09BRE0wMUNDQTAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBVU1JTRUMgIE4AAAAAAAAAACAgMDAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "after": "\"X09BRE0wMUNDQTAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBVU1JTRUMgIE4AAAAAAAAAACAgMDAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "verdict": "equivalent",
+   "reason": "WS-VARIABLES' first byte is WS-PGMNAME, which the port keeps as a typed Java field (initialState sets it to 'COADM01C'); the image byte is never read"
+  },
+  {
+   "id": "a8578bfb6f",
+   "op": "LIT",
+   "line": 88,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (a later chunk): COADM01C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 160 bytes of CARDDEMO-COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
+  },
+  {
+   "id": "c9aa26fc74",
+   "op": "LIT",
+   "line": 109,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (a later chunk): COADM01C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 160 bytes of CARDDEMO-COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
+  },
+  {
+   "id": "13b0971263",
+   "op": "LIT",
+   "line": 115,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (a later chunk): COADM01C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 160 bytes of CARDDEMO-COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
+  },
+  {
+   "id": "4aa892eb80",
+   "op": "LIT",
+   "line": 124,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (a later chunk): COADM01C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 160 bytes of CARDDEMO-COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
+  },
+  {
+   "id": "32b6e52454",
+   "op": "LIT",
+   "line": 125,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (a later chunk): COADM01C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 160 bytes of CARDDEMO-COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
+  },
+  {
+   "id": "143944436c",
+   "op": "LIT",
+   "line": 143,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (a later chunk): COADM01C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 160 bytes of CARDDEMO-COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
+  },
+  {
+   "id": "5b26f31b3c",
+   "op": "LIT",
+   "line": 147,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (a later chunk): COADM01C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 160 bytes of CARDDEMO-COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
+  },
+  {
+   "id": "66c1eb84cc",
+   "op": "LIT",
+   "line": 156,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (a later chunk): COADM01C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 160 bytes of CARDDEMO-COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
+  },
+  {
+   "id": "8b9214af57",
+   "op": "LIT",
+   "line": 158,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (a later chunk): COADM01C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 160 bytes of CARDDEMO-COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
+  },
+  {
+   "id": "dc444e4915",
+   "op": "LIT",
+   "line": 170,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (a later chunk): COADM01C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 160 bytes of CARDDEMO-COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
+  },
+  {
+   "id": "6dc144ca47",
+   "op": "LIT",
+   "line": 171,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (a later chunk): COADM01C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 160 bytes of CARDDEMO-COMMAREA, which in_ writes from the caller's COMMAREA first; this byte of the 32767-byte image lies past them, and for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
+  },
+  {
+   "id": "6550490c03",
+   "op": "CON",
+   "line": 222,
+   "before": "private final Field f69_TITLE01L = Field.binary(s_COADM1AI, 23, 4, 0, true, false);",
+   "after": "private final Field f69_TITLE01L = Field.binary(s_COADM1AI, 24, 4, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "every SEND MAP follows MOVE LOW-VALUES TO COADM1AO or RECEIVE MAP's clear of COADM1AI (the same storage), and COADM01C writes no length, attribute, colour or highlight byte but ERRMSGC; TITLE01L (23-24) and the byte after it (TITLE01F) are low-values either way, and SEND MAP's cursor test (L = -1) is false for both"
+  },
+  {
+   "id": "1832f2bbde",
+   "op": "CON",
+   "line": 246,
+   "before": "private final Field f117_OPTN004L = Field.binary(s_COADM1AI, 303, 4, 0, true, false);",
+   "after": "private final Field f117_OPTN004L = Field.binary(s_COADM1AI, 304, 4, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "every SEND MAP follows MOVE LOW-VALUES TO COADM1AO or RECEIVE MAP's clear of COADM1AI (the same storage), and COADM01C writes no length, attribute, colour or highlight byte but ERRMSGC; OPTN004L (303-304) and the byte after it are low-values either way, and SEND MAP's cursor test (L = -1) is false for both"
+  },
+  {
+   "id": "ea17f638a5",
+   "op": "CON",
+   "line": 247,
+   "before": "private final Field f120_OPTN004A = Field.alphanumeric(s_COADM1AI, 305, 1, false);",
+   "after": "private final Field f120_OPTN004A = Field.alphanumeric(s_COADM1AI, 305, 2, false);",
+   "verdict": "equivalent",
+   "reason": "DetCics.subfields reads only the first byte of an attribute / colour / highlight field (the offset is unchanged); COADM01C never MOVEs to OPTN004A"
+  },
+  {
+   "id": "c2d9931e93",
+   "op": "CON",
+   "line": 265,
+   "before": "private final Field f156_OPTN010A = Field.alphanumeric(s_COADM1AI, 587, 1, false);",
+   "after": "private final Field f156_OPTN010A = Field.alphanumeric(s_COADM1AI, 587, 2, false);",
+   "verdict": "equivalent",
+   "reason": "DetCics.subfields reads only the first byte of an attribute / colour / highlight field (the offset is unchanged); COADM01C never MOVEs to OPTN010A"
+  },
+  {
+   "id": "edd2e9e233",
+   "op": "CON",
+   "line": 265,
+   "before": "private final Field f156_OPTN010A = Field.alphanumeric(s_COADM1AI, 587, 1, false);",
+   "after": "private final Field f156_OPTN010A = Field.alphanumeric(s_COADM1AI, 588, 1, false);",
+   "verdict": "equivalent",
+   "reason": "every SEND MAP follows MOVE LOW-VALUES TO COADM1AO or RECEIVE MAP's clear of COADM1AI (the same storage), and COADM01C writes no length, attribute, colour or highlight byte but ERRMSGC; OPTN010A (587) and the byte after it (588) are both low-values, so subfields sends no attribute either way"
+  },
+  {
+   "id": "ea8251ce26",
+   "op": "CON",
+   "line": 268,
+   "before": "private final Field f162_OPTN011A = Field.alphanumeric(s_COADM1AI, 634, 1, false);",
+   "after": "private final Field f162_OPTN011A = Field.alphanumeric(s_COADM1AI, 634, 2, false);",
+   "verdict": "equivalent",
+   "reason": "DetCics.subfields reads only the first byte of an attribute / colour / highlight field (the offset is unchanged); COADM01C never MOVEs to OPTN011A"
+  },
+  {
+   "id": "5e3a59b977",
+   "op": "CON",
+   "line": 303,
+   "before": "private final Field f232_OPTN002O = Field.alphanumeric(s_COADM1AI, 216, 40, false);",
+   "after": "private final Field f232_OPTN002O = Field.alphanumeric(s_COADM1AI, 216, 41, false);",
+   "verdict": "equivalent",
+   "reason": "OPTN002O as 41 bytes: the MOVE of the 40-byte WS-ADMIN-OPT-TXT pads the 41st byte (OPTN003L's high byte) with a space, which SEND MAP's cursor test (OPTN003L = -1) reads as X'20..', not -1; the 41st character sent is that space, past the 40-byte screen field"
+  },
+  {
+   "id": "e7f1928a8b",
+   "op": "CON",
+   "line": 320,
+   "before": "private final Field f266_OPTN008H = Field.alphanumeric(s_COADM1AI, 496, 1, false);",
+   "after": "private final Field f266_OPTN008H = Field.alphanumeric(s_COADM1AI, 497, 1, false);",
+   "verdict": "equivalent",
+   "reason": "every SEND MAP follows MOVE LOW-VALUES TO COADM1AO or RECEIVE MAP's clear of COADM1AI (the same storage), and COADM01C writes no length, attribute, colour or highlight byte but ERRMSGC; OPTN008H read one byte on: OPTN008 is never filled (BUILD-MENU-OPTIONS fills options 1-6, CDEMO-ADMIN-OPT-COUNT VALUE 6), so both bytes are low-values and no highlight is sent either way"
+  },
+  {
+   "id": "635b3cd5f6",
+   "op": "CON",
+   "line": 324,
+   "before": "private final Field f274_OPTN009O = Field.alphanumeric(s_COADM1AI, 545, 40, false);",
+   "after": "private final Field f274_OPTN009O = Field.alphanumeric(s_COADM1AI, 545, 41, false);",
+   "verdict": "equivalent",
+   "reason": "every SEND MAP follows MOVE LOW-VALUES TO COADM1AO or RECEIVE MAP's clear of COADM1AI (the same storage), and COADM01C writes no length, attribute, colour or highlight byte but ERRMSGC; OPTN009O is never filled (6 options), so its 40 bytes and the 41st after it (OPTN010L's high byte) are low-values: the same empty field is sent"
+  },
+  {
+   "id": "a53dcd9aaa",
+   "op": "CON",
+   "line": 347,
+   "before": "private final Field f322_WS_CURDATE_MM_DD_YY = Field.group(s_WS_DATE_TIME, 16, 8);",
+   "after": "private final Field f322_WS_CURDATE_MM_DD_YY = Field.group(s_WS_DATE_TIME, 16, 9);",
+   "verdict": "equivalent",
+   "reason": "WS-CURDATE-MM-DD-YY as a 9-byte group is only moved to CURDATEO, 8 bytes, which keeps the same first 8"
+  },
+  {
+   "id": "fe33c40e7c",
+   "op": "CON",
+   "line": 383,
+   "before": "private final Field f387_DFHPF17 = Field.alphanumeric(s_DFHAID, 28, 1, false);",
+   "after": "private final Field f387_DFHPF17 = Field.alphanumeric(s_DFHAID, 29, 1, false);",
+   "verdict": "equivalent",
+   "reason": "DFHPF17 read one byte on (DFHPF18): COADM01C tests EIBAID only against DFHENTER and DFHPF3; a PF17 key now sets EIBAID to PF18's byte, which like PF17's takes WHEN OTHER"
+  },
+  {
+   "id": "b54ab23fff",
+   "op": "CON",
+   "line": 393,
+   "before": "private final Field f466_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f466_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "COADM01C never reads EIBDATE / EIBTIME (the header date and time come from FUNCTION CURRENT-DATE), so EIBTIME's offset (one byte on: it overlaps EIBDATE, also never read) cannot show"
+  },
+  {
+   "id": "dc74efb559",
+   "op": "CON",
+   "line": 399,
+   "before": "private final Field f474_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);",
+   "after": "private final Field f474_EIBAID = Field.alphanumeric(s_DFHEIBLK, 27, 1, false);",
+   "verdict": "equivalent",
+   "reason": "EIBAID one byte on (27): runTask moves the AID into the same Field the EVALUATE reads, and nothing else reads or writes byte 26 or 27 (EIBRCODE)"
+  },
+  {
+   "id": "5b2dc3285b",
+   "op": "DEL",
+   "line": 571,
+   "before": "System.arraycopy(IMAGE_s_SEC_USER_DATA, 0, s_SEC_USER_DATA.bytes, 0, IMAGE_s_SEC_USER_DATA.length);",
+   "after": "/* System.arraycopy(IMAGE_s_SEC_USER_DATA, 0, s_SEC_USER_DATA.bytes, 0, IMAGE_s_SEC_USER_DATA.length); */",
+   "verdict": "equivalent",
+   "reason": "COADM01C never reads SEC-USER-DATA (it COPYs CSUSR01Y but names none of its fields), so its initial image cannot show"
+  },
+  {
+   "id": "02ea8abe59",
+   "op": "AOR",
+   "line": 631,
+   "before": "Cobol.store(f467_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f467_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "COADM01C never reads EIBDATE / EIBTIME (the header date and time come from FUNCTION CURRENT-DATE), so EIBDATE cannot show"
+  },
+  {
+   "id": "5c26cff8d0",
+   "op": "AOR",
+   "line": 631,
+   "before": "Cobol.store(f467_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f467_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "COADM01C never reads EIBDATE / EIBTIME (the header date and time come from FUNCTION CURRENT-DATE), so EIBDATE cannot show"
+  },
+  {
+   "id": "6dba52304e",
+   "op": "AOR",
+   "line": 632,
+   "before": "Cobol.store(f466_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f466_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "COADM01C never reads EIBDATE / EIBTIME (the header date and time come from FUNCTION CURRENT-DATE), so EIBTIME cannot show"
+  },
+  {
+   "id": "87c9beb0cd",
+   "op": "AOR",
+   "line": 632,
+   "before": "Cobol.store(f466_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f466_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "COADM01C never reads EIBDATE / EIBTIME (the header date and time come from FUNCTION CURRENT-DATE), so EIBTIME cannot show"
+  },
+  {
+   "id": "817c3ef9fc",
+   "op": "LIT",
+   "line": 637,
+   "before": "case \"CLRP\" -> Cobol.move(f362_DFHCLRP, f474_EIBAID, CS);",
+   "after": "case \"XLRP\" -> Cobol.move(f362_DFHCLRP, f474_EIBAID, CS);",
+   "verdict": "equivalent",
+   "reason": "a CLRP key no longer sets EIBAID, which keeps its initial byte (DFHEIBLK's image: a space); COADM01C tests EIBAID only against DFHENTER and DFHPF3, so a space takes WHEN OTHER exactly as CLRP does"
+  },
+  {
+   "id": "ce4352e5ce",
+   "op": "LIT",
+   "line": 639,
+   "before": "case \"OPID\" -> Cobol.move(f364_DFHOPID, f474_EIBAID, CS);",
+   "after": "case \"XPID\" -> Cobol.move(f364_DFHOPID, f474_EIBAID, CS);",
+   "verdict": "equivalent",
+   "reason": "an OPID key no longer sets EIBAID, which keeps its initial byte (a space); COADM01C tests EIBAID only against DFHENTER and DFHPF3, so a space takes WHEN OTHER exactly as OPID does"
+  },
+  {
+   "id": "fe6f16b3fb",
+   "op": "LIT",
+   "line": 649,
+   "before": "case \"PF4\" -> Cobol.move(f374_DFHPF4, f474_EIBAID, CS);",
+   "after": "case \"XF4\" -> Cobol.move(f374_DFHPF4, f474_EIBAID, CS);",
+   "verdict": "equivalent",
+   "reason": "a PF4 key no longer sets EIBAID, which keeps its initial byte (a space); COADM01C tests EIBAID only against DFHENTER and DFHPF3, so a space takes WHEN OTHER exactly as PF4 does"
+  },
+  {
+   "id": "d9b1594f29",
+   "op": "DEL",
+   "line": 844,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "equivalent",
+   "reason": "Goback's constructor without super(null, null, false, false): the default constructor only also records a stack trace; nothing reads the exception but its type"
+  },
+  {
+   "id": "c24b5858b9",
+   "op": "NEG",
+   "line": 869,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (!(performThru[d] == i)) {",
+   "verdict": "unreachable",
+   "reason": "the scan over outer PERFORMs iterates only when a paragraph that is not its range's last returns inside a nested PERFORM; COADM01C's PERFORMs each name one paragraph (from == thru), MAIN-PARA (runTask's 0-7) always ends in RETURN / XCTL, and the GO TO into PGMIDERR-ERR-PARA ends in its RETURN, so the scan never iterates"
+  },
+  {
+   "id": "c833dc9177",
+   "op": "DEL",
+   "line": 909,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, f4_WS_MESSAGE, CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.SPACES, f4_WS_MESSAGE, CS); */",
+   "verdict": "equivalent",
+   "reason": "MOVE SPACES TO WS-MESSAGE at MAIN-PARA's start: every task starts from initialState, where WS-MESSAGE is already spaces (WS-VARIABLES' image), and nothing writes it before this statement"
+  },
+  {
+   "id": "3355275fd0",
+   "op": "ROR",
+   "line": 1089,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to < 0) return GOTO | to;",
+   "verdict": "unreachable",
+   "reason": "inside `if (0 != 0)`: SEND MAP has no RESP and the translator writes its response as the constant 0, so the block never runs"
+  },
+  {
+   "id": "fb93c5f8ae",
+   "op": "NEG",
+   "line": 1229,
+   "before": "} else if ((Cobol.num(f11_WS_IDX, CS).compareTo(D7) == 0)) {",
+   "after": "} else if (!((Cobol.num(f11_WS_IDX, CS).compareTo(D7) == 0))) {",
+   "verdict": "unreachable",
+   "reason": "EVALUATE WS-IDX's WHEN 7 is tested only when WS-IDX is not 1-6, and BUILD-MENU-OPTIONS' loop runs WS-IDX 1 to CDEMO-ADMIN-OPT-COUNT, the constant 6 (infeasible_outcomes.json, carddemo-adminmenu 241:WHEN@254)"
+  }
+ ]
+}

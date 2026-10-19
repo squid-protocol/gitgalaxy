@@ -46,7 +46,31 @@ jobs:
       pull-requests: write
 
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # #5499: checkov (84% of the step) walks every file in the checkout and the action has no changed-files mode. On a
+      # PR check out only the paths this workflow's own filter triggers on, at their real paths so SARIF locations and
+      # `muninn.yml` suppressions still match. Schedule and dispatch take the full tree below: the backstop.
+      # Keep the list in step with `on.pull_request.paths`; the three root config files are read by the scanners.
+      - name: Checkout (PR, filtered paths only)
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /gitgalaxy/
+            /.github/
+            /.claude/
+            /ci/
+            /templates/
+            /pyproject.toml
+            /requirements*.txt
+            /action.yml
+            /muninn.yml
+            /zizmor.yml
+
+      - name: Checkout (full tree)
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 

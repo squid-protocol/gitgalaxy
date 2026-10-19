@@ -678,7 +678,7 @@ def _sibling_service(sib: str, source_lines: list, program: Path, copy_dirs: lis
 
 
 def _fits(records: list, call: S.Stmt, c: _Contract) -> bool:
-    """#5106: whether this CALL passes what the sibling's entry takes: as many items, each BY REFERENCE to a whole data
+    """#5106: whether this CALL passes what the sibling's entry takes: as many items, each BY REFERENCE or BY CONTENT (a copy) to a whole data
     item at least as long as the sibling's (a shorter one would be read past its end; a longer one is exact, the
     sibling sees its prefix), OMITTED only where the sibling never names the item, and RETURNING a whole-number item
     exactly when the sibling returns one."""
@@ -690,7 +690,7 @@ def _fits(records: list, call: S.Stmt, c: _Contract) -> bool:
             if c.named[k]:
                 return False
             continue
-        if mode != "REFERENCE" or not isinstance(a, E.Ref) or a.subscripts or a.refmod:
+        if mode not in ("REFERENCE", "CONTENT") or not isinstance(a, E.Ref) or a.subscripts or a.refmod:
             return False
         it = next((x for r in records for x in r.walk() if x.name == a.name), None)
         if it is None or it.size * it.occurs < c.sizes[k] or it.occurs != 1 or it.redefines:

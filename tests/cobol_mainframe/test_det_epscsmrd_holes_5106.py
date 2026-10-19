@@ -291,3 +291,38 @@ def test_a_sibling_hole_is_reported_on_the_sibling_not_lost():
     r = _translated(_with_sibling("CALL 'SIB'", body="CALL 'CEEHDLR' USING ROUTINE TOKEN FC."))
     assert r.stats["holes"] == []
     assert len(r.extra[0].stats["holes"]) == 1 and "CEEHDLR" in r.extra[0].stats["holes"][0]
+
+
+def _writebacks(r) -> int:
+    """The copies a CALL writes back into the caller's item (BY REFERENCE only)."""
+    return len(re.findall(r"System\.arraycopy\(arg\d+\.get\(\)", r.java))
+
+
+@pytest.mark.parametrize("linkage", ["01 L PIC X(8).", "01 L.|   05 A PIC X(4).|   05 B PIC 9(4) COMP."])
+def test_by_content_hands_the_sibling_a_copy_that_is_never_written_back(linkage):
+    by_content = _translated(_with_sibling("CALL 'SIB' USING BY CONTENT FC", linkage, " USING L", "MOVE 'A' TO L."))
+    by_ref = _translated(_with_sibling("CALL 'SIB' USING BY REFERENCE FC", linkage, " USING L", "MOVE 'A' TO L."))
+    for r in (by_content, by_ref):
+        assert r.stats["holes"] == [] and r.extra[0].stats["holes"] == [], r.stats["holes"]
+        assert "Arrays.copyOfRange(" in r.java
+    assert _writebacks(by_ref) == 1 and _writebacks(by_content) == 0
+
+
+def test_by_content_and_by_reference_mix_and_omitted_keeps_its_rule():
+    src = _with_sibling("CALL 'SIB' USING BY CONTENT FC BY REFERENCE FC OMITTED", "01 L PIC X(8).|01 M PIC X(8).|01 N PIC X.",
+                        " USING L M N")  # fmt: skip
+    r = _translated(src)
+    assert r.stats["holes"] == [] and _writebacks(r) == 1 and "= null;" in r.java
+
+
+@pytest.mark.parametrize("arg", ["'ABCDEFGH'", "12345678", "FC(1:4)"])
+def test_by_content_of_a_literal_or_a_reference_modified_item_stays_refused(arg):
+    holes = _translated(_with_sibling(f"CALL 'SIB' USING BY CONTENT {arg}", "01 L PIC X(4).", " USING L")).stats[
+        "holes"
+    ]
+    assert len(holes) == 1 and "SIB: a sibling program of this source" in holes[0], holes
+
+
+def test_by_content_to_an_estate_program_is_still_refused():
+    holes = _translated(_program("CALL 'ELSEWHR' USING BY CONTENT FC")).stats["holes"]
+    assert len(holes) == 1 and "CALL ELSEWHR" in holes[0], holes

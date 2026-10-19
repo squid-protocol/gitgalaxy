@@ -6371,22 +6371,22 @@
     },
     "typescript/typescript_compiler": {
       "avg_exposures": {
-        "api_exposure": 4.46,
+        "api_exposure": 18.11,
         "churn": 0.0,
-        "cognitive_load": 29.25,
-        "concurrency": 4.11,
-        "dead_code": 4.03,
-        "documentation": 60.32,
-        "safety_score": 49.23,
+        "cognitive_load": 25.88,
+        "concurrency": 5.24,
+        "dead_code": 4.26,
+        "documentation": 60.24,
+        "safety_score": 48.98,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 33.33,
-        "state_flux": 63.24,
-        "tech_debt": 14.04,
-        "verification": 53.33
+        "stability": 35.71,
+        "state_flux": 54.2,
+        "tech_debt": 25.75,
+        "verification": 57.14
       },
-      "file_count": 6,
-      "total_mass": 71102.36
+      "file_count": 7,
+      "total_mass": 71323.18
     },
     "typescript/vscode": {
       "avg_exposures": {

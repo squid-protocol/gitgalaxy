@@ -3911,7 +3911,8 @@
       "typescript/typescript_compiler/checker.ts": "41.7%",
       "typescript/typescript_compiler/emitter.ts": "26.3%",
       "typescript/typescript_compiler/package.json": "0.0%",
-      "typescript/typescript_compiler/parser.ts": "31.2%"
+      "typescript/typescript_compiler/parser.ts": "31.2%",
+      "typescript/typescript_compiler/types.ts": "16.2%"
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": "0.0%",

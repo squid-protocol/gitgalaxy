@@ -1,0 +1,230 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "BNK1CCA",
+ "program_source": "src/base/cobol_src/BNK1CCA.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "OCCA",
+ "termid": "T001",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "taskn": 4242,
+ "programs": [
+  {
+   "program": "INQACCCU",
+   "program_source": "src/base/cobol_src/INQACCCU.cbl"
+  },
+  {
+   "program": "INQCUST",
+   "program_source": "src/base/cobol_src/INQCUST.cbl"
+  },
+  {
+   "program": "ABNDPROC",
+   "program_source": "src/base/cobol_src/ABNDPROC.cbl"
+  }
+ ],
+ "datasets": {
+  "CBSA.CICSBSA.ABNDFILE": {
+   "input": "@case/abndfile.bin",
+   "entity": "WsAbndArea",
+   "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+   "record": "WS-ABND-AREA",
+   "recovery": "NONE",
+   "recovery_why": "etc/install/base/installjcl/BANK.csd: DEFINE FILE(ABNDFILE) ... RECOVERY(NONE) -- the abend log a backout must not undo"
+  },
+  "CBSA.CICSBSA.CUSTOMER": {
+   "input": "@case/customer.txt",
+   "entity": "OutputData",
+   "copybook": "src/base/cobol_copy/CUSTOMER.cpy",
+   "record": "CUSTOMER-RECORD"
+  }
+ },
+ "db2": {
+  "ddl": [
+   "etc/install/base/db2jcl/CRETB01.jcl",
+   "etc/install/base/db2jcl/CREI101.jcl"
+  ],
+  "seed": "@generate",
+  "compare": [
+   "IBMUSER.ACCOUNT"
+  ],
+  "qualifier": "IBMUSER",
+  "compare_sql": true,
+  "generate": {
+   "seed": 4507,
+   "tables": {
+    "IBMUSER.ACCOUNT": {
+     "rows": 30,
+     "columns": {
+      "ACCOUNT_SORTCODE": {
+       "values": [
+        "987654",
+        "987654",
+        "987654",
+        "123456"
+       ]
+      },
+      "ACCOUNT_CUSTOMER_NUMBER": {
+       "values": [
+        "0000000001",
+        "0000000002",
+        "0000000003",
+        "0000000004",
+        "0000000005",
+        "0000000006",
+        "0000000007",
+        "9999999999"
+       ]
+      },
+      "ACCOUNT_NUMBER": {
+       "digits": true
+      }
+     }
+    }
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/BNK1CCA.cbl",
+    "record": "WS-COMM-AREA"
+   }
+  ]
+ },
+ "screens": {
+  "BNK1ACC": {
+   "copybook": "@bms/BNK1ACC.cpy",
+   "input": "BNK1ACCI",
+   "output": "BNK1ACCO"
+  }
+ },
+ "scenarios": [
+  {
+   "name": "first-entry",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "EIBCALEN 0: BNK1ACCO set to LOW-VALUES, the cursor on CUSTNO, SEND MAP ERASE; RETURN TRANSID('OCCA') with an initialised COMMAREA"
+  },
+  {
+   "name": "pa1",
+   "aid": "DFHPA1",
+   "commarea": {},
+   "why": "PA1: CONTINUE, nothing sent; RETURN TRANSID with the COMMAREA"
+  },
+  {
+   "name": "pf3",
+   "aid": "DFHPF3",
+   "commarea": {},
+   "why": "PF3: RETURN TRANSID('OMEN') IMMEDIATE: back to the main menu"
+  },
+  {
+   "name": "pf12",
+   "aid": "DFHPF12",
+   "commarea": {},
+   "why": "PF12: SEND-TERMINATION-MSG, RETURN"
+  },
+  {
+   "name": "clear",
+   "aid": "DFHCLEAR",
+   "commarea": {},
+   "why": "CLEAR: SEND CONTROL ERASE FREEKB, RETURN"
+  },
+  {
+   "name": "other-key",
+   "aid": "DFHPF5",
+   "commarea": {},
+   "why": "PF5: WHEN OTHER -- 'Invalid key pressed.', SEND MAP DATAONLY ALARM"
+  },
+  {
+   "name": "mapfail",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "why": "ENTER with no field modified: RM010 -- ABNDPROC LINKed (an ABNDFILE record) and ABEND HBNK"
+  },
+  {
+   "name": "customer-zero",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ACC": {
+     "CUSTNOI": "0000000000"
+    }
+   },
+   "why": "customer 0000000000 is not looked up by INQACCCU: CUSTOMER-FOUND 'N', 'Unable to find customer'"
+  },
+  {
+   "name": "link-inqacccu-pgmiderr",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ACC": {
+     "CUSTNOI": "0000000001"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "LINK",
+     "program": "INQACCCU",
+     "resp": "PGMIDERR",
+     "nth": 1,
+     "why": "the LINK of INQACCCU raises PGMIDERR"
+    }
+   ],
+   "why": "customer 1, but the LINK INQACCCU fails with PGMIDERR: GCD010 fills ABNDINFO from the clock and EIB, LINKs ABNDPROC (an ABNDFILE record) and abends HBNK; no account line is sent"
+  },
+  {
+   "name": "link-inqacccu-notauth",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ACC": {
+     "CUSTNOI": "0000000001"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "LINK",
+     "program": "INQACCCU",
+     "resp": "NOTAUTH",
+     "nth": 1,
+     "why": "the LINK of INQACCCU raises NOTAUTH"
+    }
+   ],
+   "why": "customer 1, but the LINK INQACCCU fails with NOTAUTH: GCD010 fills ABNDINFO from the clock and EIB, LINKs ABNDPROC (an ABNDFILE record) and abends HBNK; no account line is sent"
+  }
+ ],
+ "notes": "BNK1CCA on generated Db2 rows (#4507): the customer-account-list screen of cbsa-bnk1cca, its LINKed INQACCCU (INQCUST and ABNDPROC in the task) and the ACCOUNT table compared after every task, with ACCOUNT rows generated from the DDL (30 rows, boundary values, NULLs) whose customer numbers are the customers customer.txt holds (and 9999999999), and the typed customer number drawn from them (15% of the time one no row holds). Stated scenarios keep the non-ENTER keys, MAPFAIL, customer 0 and the INQACCCU LINK faults; the ENTERs are generated. customer.txt is SYNTHETIC (cbsa-bnk1cca's). Derived from the CICS Bank Sample Application (CBSA), EPL-2.0: LICENSE is the corpus's own.",
+ "port_from": "cbsa-bnk1cca",
+ "scenario_generate": {
+  "seed": 4507,
+  "count": 30,
+  "prefix": "generated",
+  "aid": [
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHPF3",
+   "DFHPA1"
+  ],
+  "commarea": {},
+  "receive": {
+   "BNK1ACC": {
+    "CUSTNOI": {
+     "from": "IBMUSER.ACCOUNT.ACCOUNT_CUSTOMER_NUMBER",
+     "miss": 0.15
+    }
+   }
+  }
+ }
+}

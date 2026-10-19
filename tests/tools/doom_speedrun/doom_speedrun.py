@@ -35,7 +35,8 @@ DEFAULT_WORK = Path(os.environ.get("DOOM_SPEEDRUN_WORK", "/tmp/gitgalaxy-scratch
 HEAVY_RUN = REPO_ROOT / "tests" / "tools" / "box" / "heavy-run.sh"
 ORACLE_COLUMNS = ("treesitter_functions", "ts_delta_pct")
 COLUMNS = [
-    "variant", "rc", "first_party_src", "missed_src", "data_files_excluded", "vendor_files_mapped", "wrong_language",
+    "variant", "rc", "first_party_src", "missed_src", "excluded_by_design",
+    "excluded_by_design_reasons", "data_files_excluded", "vendor_files_mapped", "wrong_language",
     "gg_functions", "ctags_functions", "func_delta_pct", "treesitter_functions", "ts_delta_pct", "clang_files", "clang_files_with_errors",
     "clang_compile_commands_files", "clang_functions", "clang_gg_functions", "clang_delta_pct", "files_func_mismatch",
     "files_ctags_checked", "typosquat", "sarif_total", "sarif_errors", "credential_files", "log_problems", "fails",
@@ -135,11 +136,11 @@ def write_results(rows, details, dest, sha, oracle, clang=False):
     (dest / "details.json").write_text(json.dumps(details, indent=1, sort_keys=True) + "\n")
     perfect = sum(r.get("verdict") == "PERFECT" for r in rows)
     lines = [f"# DOOM port clean-scan: engine `{sha}`", "", f"**{perfect} PERFECT / {len(rows)} ports**", "",
-             "| port | verdict | fails | gg fn | ctags fn | delta % | ts fn | missed | SARIF err |",
-             "|---|---|---|---|---|---|---|---|---|"]  # fmt: skip
+             "| port | verdict | fails | gg fn | ctags fn | delta % | ts fn | missed | by design | by-design reason | SARIF err |",
+             "|---|---|---|---|---|---|---|---|---|---|---|"]  # fmt: skip
     for r in rows:
         lines.append(
-            "| {variant} | {verdict} | {fails} | {gg_functions} | {ctags_functions} | {func_delta_pct} | {ts} | {missed_src} | {sarif_errors} |".format(
+            "| {variant} | {verdict} | {fails} | {gg_functions} | {ctags_functions} | {func_delta_pct} | {ts} | {missed_src} | {excluded_by_design} | {excluded_by_design_reasons} | {sarif_errors} |".format(
                 **{k: r.get(k, "") for k in COLUMNS}, ts=r.get("treesitter_functions", "")
             )
         )

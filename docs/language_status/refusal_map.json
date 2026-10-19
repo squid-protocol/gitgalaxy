@@ -94,11 +94,12 @@
     },
     {
       "id": "alter",
-      "match": "\\bALTER not modelled",
-      "charter": "cobol-unmodelled",
+      "match": "\\bALTER (not modelled|\\S+: the paragraph is not a lone GO TO)",
+      "issue": 5560,
       "features": [
         "statements: ALTER"
-      ]
+      ],
+      "note": "ALTER is modelled (#5560, register C19): the altered GO TO reads a per-paragraph slot in the paragraph dispatcher. What stays a named hole is an ALTER of a paragraph that is not a lone GO TO without DEPENDING (IBM refuses it too), an undeclared paragraph, and an independent segment. `ALTER not modelled` is the text of reports made before #5568; no burned estate carries the other forms."
     },
     {
       "id": "float-exponentiation",
@@ -191,18 +192,18 @@
     },
     {
       "id": "le-condition-handling",
-      "match": "^CALL CALL CEEHDL[RU]\\b",
+      "match": "^CALL (?:CALL )?CEEHDL[RU]\\b",
       "api": {
         "name": "LE condition handling (CEEHDLR / CEEHDLU)",
         "issue": 5106
       },
-      "note": "Registering a user condition handler: no model.",
+      "note": "Registering (CEEHDLR) or unregistering (CEEHDLU) an LE user condition handler: refused by name in dyncall.REFUSED_BY_NAME, no model raises an LE condition or runs the handler (#5106; DBB epscsmrd REGISTER-EXCEPTION-HANDLER). The old report text is `CALL CALL CEEHDLR`, the refusal reads `CALL CEEHDLR: ...`: both match.",
       "issue": 5106
     },
     {
       "id": "multi-program-call",
-      "match": "^CALL CALL EPSCSMR[A-Z]\\b",
-      "note": "A CALL to a sibling program of the same multi-program source (DBB epscsmrd.cbl's EPSCSMRI / EPSCSMRX / ...): the translator takes the first program only. Engine side: #4447, #4404.",
+      "match": "^CALL (?:CALL )?(?:EPSCSMR[A-Z]\\b|[A-Z0-9#@$-]+: a sibling program of this source)",
+      "note": "A CALL to a sibling program of the same multi-program source (DBB epscsmrd.cbl's EPSCSMRI / EPSCSMRO / EPSCSMRX): refused by name since #5106 (dyncall.sibling_refusal), static and dynamic CALL. Each program is translated on its own and no service is made for a sibling, so the CALL has nothing to reach; the shapes epscsmrd's CALLs use (OMITTED, RETURNING, a group USING item) are not yet read. The old report text is `CALL CALL EPSCSMRX`, the refusal reads `CALL EPSCSMRX: ...`: both match. Engine side: #4447, #4404.",
       "issue": 5106
     },
     {
@@ -225,6 +226,18 @@
       "match": "SET TO ENTRY: procedure / function pointers",
       "note": "Procedure / function pointers: no model (#5042 is the data-pointer lane).",
       "issue": 5106
+    },
+    {
+      "id": "address-of-record",
+      "match": "^SET-(?:POINTER|ADDRESS) ADDRESS OF \\S+: (?:not a LINKAGE 01 record|a subordinate item)",
+      "note": "SET ptr TO ADDRESS OF rec / SET ADDRESS OF rec TO ...: only a LINKAGE 01 record has storage a pointer can address (det/gen.py address_record). A WORKING-STORAGE record (DBB epscsmrd's ERROR-RESPONSE, handed to the LE handler as TOKEN) or a subordinate item (an offset into its record) is refused by name; the sole consumer in the burned estates is the CEEHDLR handler token, which is itself refused (#5106).",
+      "issue": 5106
+    },
+    {
+      "id": "getmain-initimg",
+      "match": "GETMAIN without INITIMG",
+      "note": "EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents, so a zero-filled block would be an invented fact; refused by name (storage.py, register X47). DBB epscsmrd's ALLOCATE-DFH-BODY-WORK-AREA / ALLOCATE-DFH-DATA-WORK-AREA are the only burned users (#5106).",
+      "issue": 4771
     },
     {
       "id": "bll-cells",

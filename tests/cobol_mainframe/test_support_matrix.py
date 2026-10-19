@@ -179,7 +179,7 @@ def test_feature_a_refusal_names_is_refused_with_its_owner(bare):
     assert feats["cics_commands: GETMAIN"]["refusals"] == {"getmain-freemain": ["P3.cbl"]}
     assert feats["statements: ALTER"]["status"] == sm.REFUSED
     assert "modelled" in feats["statements: ALTER"]["missing"]
-    assert bare["refusals"]["alter"]["label"] == "agreed refusal (COBOL features the det port does not model)"
+    assert bare["refusals"]["alter"]["label"] == "#5560"  # modelled since #5568; the entry keeps the pre-#5568 report text
     assert bare["refusals"]["getmain-freemain"]["label"] == "#4771"
 
 

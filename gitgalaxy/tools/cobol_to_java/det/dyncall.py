@@ -37,6 +37,13 @@ REFUSED_BY_NAME = {
     # #4771: zECS's store-clock wrapper (ZECS001 4000-GET-COUNTER); the estate holds no source for it (an assembler module)
     "ZUIDSTCK": "ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the 16 bytes it "
     "returns in THE-TOD are not a stated fact (oracle_assumptions.md X47)",
+    # #5106: IBM LE CEEHDLR / CEEHDLU register and unregister a user condition handler that LE calls when a condition
+    # is raised in the enclosing stack frame (DBB epscsmrd: REGISTER-EXCEPTION-HANDLER). No model raises an LE
+    # condition or runs the handler, so a registration cannot be proven: refused, never a silent no-op.
+    "CEEHDLR": "CEEHDLR: registering an LE user condition handler is not modelled (no LE condition is raised and "
+    "no handler runs, so a no-op registration would hide the handler's effect)",
+    "CEEHDLU": "CEEHDLU: unregistering an LE user condition handler is not modelled (the registration "
+    "(CEEHDLR) is refused, so there is nothing to undo)",
 }
 
 
@@ -273,6 +280,14 @@ def _reaching(gen, s: S.Stmt, ref: E.Ref, it: L.Item) -> set[str] | None:
     return None
 
 
+def sibling_refusal(name: str) -> str:
+    """#5106 (#4447, #4404): why a CALL to another program of the same source is refused. Each program of a multi-program
+    source is translated on its own as the service of its own class; no service is made for a sibling, so there is
+    nothing for the CALL to reach, and the CALL's shape (OMITTED, RETURNING, a group item) is not read before that."""
+    return (f"{name}: a sibling program of this source (translated on its own, no service of its own is made for it, "
+            "so a CALL cannot reach it)")  # fmt: skip
+
+
 def values(gen, s: S.Stmt) -> list[str]:
     """The program names (blanks trimmed) the CALL's identifier can hold; Unknown (its reason) when not known."""
     ref = s.data["dynamic"]
@@ -321,6 +336,8 @@ def targets(gen, s: S.Stmt) -> list[str]:
             raise Untranslatable(
                 f"{n!r}: not a program name the port matches (uppercase, 8 characters at most: PGMNAME(COMPAT))"
             )
+        if n in gen.siblings and n not in gen.callees:  # #5106
+            raise Untranslatable(sibling_refusal(n))
         if n != "CEE3ABD" and n not in gen.callees and n not in LIBRARY and n not in MQ_CALLS:  # (#4892: MQI)
             raise Untranslatable(f"{n}: no program of that name with a CALL entry in the estate")
     return names

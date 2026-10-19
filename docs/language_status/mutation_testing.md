@@ -181,7 +181,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COTRN02C (carddemo-tranadd) | equivalence | 100/770 | 61/91 (67%) | 61/73 (84%) | 12 / 0 / 10 / 8 / 0 |
 | COTRN00C (carddemo-tranlist) | equivalence | 100/697 | 64/91 (70%) | 64/79 (81%) | 15 / 0 / 5 / 7 / 0 |
 | COTRN01C (carddemo-tranview) | equivalence | 100/314 | 67/100 (67%) | 67/67 (100%) | 0 / 0 / 25 / 8 / 0 |
-| COTRN01C (carddemo-tranview-generated) | equivalence | 100/314 | 58/100 (58%) | 58/67 (87%) | 9 / 0 / 25 / 8 / 0 |
+| COTRN01C (carddemo-tranview-generated) | equivalence | 100/314 | 66/100 (66%) | 66/67 (99%) | 0 / 1 / 25 / 8 / 0 |
 | CBTRN03C (carddemo-trnrpt) | equivalence | 100/408 | 68/86 (79%) | 68/79 (86%) | 8 / 3 / 7 / 0 / 0 |
 | COUSR01C (carddemo-useradd) | equivalence | 100/272 | 63/98 (64%) | 63/64 (98%) | 0 / 1 / 27 / 7 / 0 |
 | COUSR03C (carddemo-userdel) | equivalence | 100/340 | 67/87 (77%) | 67/67 (100%) | 0 / 0 / 17 / 3 / 0 |
@@ -214,17 +214,17 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 3308 run | **2125/3013 (71%)** | **2125/2439 (87%)** | 165 / 149 / 391 / 183 / 0 |
-| **all estate** | | 3812 run | **2444/3489 (70%)** | **2444/2793 (88%)** | 200 / 149 / 479 / 217 / 0 |
+| **all equivalence** | | 3308 run | **2133/3013 (71%)** | **2133/2439 (87%)** | 156 / 150 / 391 / 183 / 0 |
+| **all estate** | | 3812 run | **2452/3489 (70%)** | **2452/2793 (88%)** | 191 / 150 / 479 / 217 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
 | AOR | 162/201 (81%) | 162/176 (92%) |
 | BDM | 25/45 (56%) | 25/28 (89%) |
-| CON | 323/671 (48%) | 323/385 (84%) |
+| CON | 324/671 (48%) | 324/385 (84%) |
 | COR | 132/237 (56%) | 132/186 (71%) |
-| DEL | 375/548 (68%) | 375/436 (86%) |
-| LIT | 513/659 (78%) | 513/568 (90%) |
+| DEL | 376/548 (69%) | 376/436 (86%) |
+| LIT | 519/659 (79%) | 519/568 (91%) |
 | NEG | 456/507 (90%) | 456/483 (94%) |
 | RET | 56/89 (63%) | 56/77 (73%) |
 | ROR | 402/532 (76%) | 402/454 (89%) |
@@ -249,7 +249,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COTRN02C (carddemo-tranadd) | 7/7 | 3/7 | 1/12 | 5/12 | 8/12 | 11/12 | 11/11 | 4/7 | 11/11 |
 | COTRN00C (carddemo-tranlist) | 6/9 | - | 9/14 | 8/14 | 10/13 | 10/14 | 11/11 | 2/3 | 8/13 |
 | COTRN01C (carddemo-tranview) | 1/1 | - | 2/24 | 2/3 | 21/24 | 19/24 | 17/17 | - | 5/7 |
-| COTRN01C (carddemo-tranview-generated) | 1/1 | - | 1/24 | 2/3 | 19/24 | 13/24 | 17/17 | - | 5/7 |
+| COTRN01C (carddemo-tranview-generated) | 1/1 | - | 2/24 | 2/3 | 20/24 | 19/24 | 17/17 | - | 5/7 |
 | CBTRN03C (carddemo-trnrpt) | 2/2 | 5/7 | 9/14 | 1/7 | 14/14 | 13/14 | 12/14 | - | 12/14 |
 | COUSR01C (carddemo-useradd) | 1/1 | - | 1/21 | 3/6 | 16/20 | 16/20 | 10/10 | - | 16/20 |
 | COUSR03C (carddemo-userdel) | 0/1 | - | 6/17 | 2/4 | 14/17 | 14/16 | 16/16 | - | 15/16 |
@@ -391,6 +391,7 @@ an area of its own and an EIBCALEN of 8, 22 or 80. Three scenarios (`direct-8-by
 `direct-negative-balance`), their logs derived from the COBOL, killed two of the three (the packed-balance partial overlay and
 the negative balance); the third, `* 10000` for `% 10000` on the destination of `overlayVisits`, is equivalent
 (WS-V2's V2-VISITS is zero after INITIALIZE, so the destination digits are always 0000). CAXB is now 20/3 with 0 case gaps.
+This landed in #5505, so the "needs a cics-crucible CAXA mode" wording in #5490 and #5491 is superseded: no release or pin bump was needed.
 
 A score is quoted with its case and seed, never alone. Every survivor is triaged as a case gap, a
 harness gap, an equivalent mutant (with the reason) or dead code.

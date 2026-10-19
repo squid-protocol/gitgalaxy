@@ -9,12 +9,10 @@ for non-digit data in a numeric DISPLAY item, so the det runtime models the orac
 
 from __future__ import annotations
 
-import atexit
-import functools
 import os
 import shutil
 import subprocess
-import tempfile
+import sys
 from pathlib import Path
 
 import pytest
@@ -22,6 +20,10 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 IMAGE = "gitgalaxy-gnucobol:3"
 PKG = "p"
+
+pytestmark = pytest.mark.slow(
+    reason="the first java test of a CI split part pays the one-time javac of the cobolrt runtime: 12-17 s on a runner (#5668)"
+)
 
 DATA = ["01 G1.", "   05 A10 PIC 9(10).", "   05 A6 PIC 9(6).", "   05 S4 PIC S9(4).", "   05 V2 PIC 9(4)V99.",
         "01 X4 PIC X(4).", "01 S5 REDEFINES X4 PIC S9(4).", "01 X5 PIC X(5).",
@@ -112,28 +114,12 @@ def _java() -> Path | None:
     return Path(home) / "bin" if home and (Path(home) / "bin/javac").is_file() else None
 
 
-@functools.cache
 def _runtime_classes() -> Path:
-    from gitgalaxy.tools.cobol_to_java.det import program as P
+    """The ISO-8859-1 non-batch runtime test_det_programs already builds: one javac per process, not two."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from test_det_programs import _runtime_classes as shared  # noqa: E402
 
-    base = Path(tempfile.mkdtemp(prefix="gitgalaxy-ndb-rt-"))
-    atexit.register(shutil.rmtree, base, True)
-    srcdir = base / "java"
-    runtime = {k: v for k, v in P.runtime_files(PKG, batch=False).items() if not k.startswith("cobolrt/cics/")}
-    for rel, text in runtime.items():
-        (srcdir / PKG / rel).parent.mkdir(parents=True, exist_ok=True)
-        (srcdir / PKG / rel).write_text(text)
-    rec = srcdir / PKG / "entity/vsam/CobolRecords.java"
-    rec.parent.mkdir(parents=True, exist_ok=True)
-    rec.write_text(f"package {PKG}.entity.vsam;\npublic final class CobolRecords {{\n    public static java.nio.charset."
-                   "Charset charset() {\n        return java.nio.charset.StandardCharsets.ISO_8859_1;\n    }\n}\n")  # fmt: skip
-    jdk = _java()
-    classes = base / "classes"
-    files = [str(f) for f in srcdir.rglob("*.java")]
-    subprocess.run(
-        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(classes), *files], check=True
-    )  # noqa: S603
-    return classes
+    return shared(False, "ISO-8859-1")
 
 
 def _det(src: str, work: Path, trunc: str) -> subprocess.CompletedProcess:
@@ -159,7 +145,18 @@ def _det(src: str, work: Path, trunc: str) -> subprocess.CompletedProcess:
     jdk = _java()
     classes = work / "classes"
     subprocess.run(
-        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-cp", str(rt_classes), "-d", str(classes), str(svc), str(main_java)],
+        [
+            str(jdk / "javac"),
+            "-encoding",
+            "UTF-8",
+            "-nowarn",
+            "-cp",
+            str(rt_classes),
+            "-d",
+            str(classes),
+            str(svc),
+            str(main_java),
+        ],
         check=True,
     )  # noqa: S603
     cp = os.pathsep.join([str(classes), str(rt_classes)])

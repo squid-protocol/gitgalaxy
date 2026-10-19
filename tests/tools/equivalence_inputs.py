@@ -327,10 +327,10 @@ def _picture(picin: str | None) -> tuple[int, bool] | None:
 
 @functools.lru_cache(maxsize=64)
 def bms_input_fields(corpus: Path, map_name: str) -> dict[str, dict[str, Any]]:
-    """#4506: {symbolic input field (<name>I): {"length", "numeric", "picture"}} of the fields a user can type into on a
+    """#4506: {symbolic input field (<name>I): {"length", "numeric", "picture", "mdt"}} of the fields a user can type into on a
     BMS map, read from the corpus's BMS source (the engine's own reading, gitgalaxy.core.bms_screen_fields). Typable:
     named, not protected, and not repeated. A field with no ATTRB is ASKIP (the forge's `_attrs`, IBM DFHMDF), so is
-    never typed; ASKIP and PROT fields cannot be keyed into; an OCCURS field is not typed (`map_input` refuses it by
+    never typed; `mdt` is FSET (the map sends the field with its modified-data tag on, so a terminal always transmits it); ASKIP and PROT fields cannot be keyed into; an OCCURS field is not typed (`map_input` refuses it by
     name, "BMS OCCURS input"). A NUM field takes digits, and so does a PICIN of 9s (`_picture`), its length the
     narrower of the two."""
     from gitgalaxy.core.bms_screen_fields import bms_screen_fields
@@ -352,7 +352,7 @@ def bms_input_fields(corpus: Path, map_name: str) -> dict[str, dict[str, Any]]:
             pic = _picture(r.get("picin"))
             length = min(r["length"], pic[0]) if pic else r["length"]
             out[r["name"].upper() + "I"] = {"length": length, "numeric": "NUM" in attrs or bool(pic and pic[1]),
-                                            "picture": r.get("picin")}  # fmt: skip
+                                            "picture": r.get("picin"), "mdt": "FSET" in attrs}  # fmt: skip
     if not out:
         raise ValueError(f"{map_name}: no typable field in the BMS sources under {corpus}")
     return out
@@ -371,7 +371,9 @@ def _bms_value(rng: random.Random, f: dict[str, Any], i: int, bad: float) -> str
 def _bms_receive(rng: random.Random, name: str, spec: Any, layout: dict[str, dict[str, Any]], bms: dict[str, dict],
                  pools: dict[str, list[Any]], i: int) -> dict[str, str]:  # fmt: skip
     """#4506: the map input of `"MAP": "@bms"` / `"MAP": {"@bms": {"bad": .., "empty": ..}, "FIELDI": rule}`: every typable
-    BMS field gets a value, except an `empty` share of the scenarios (the user left it alone: no data, length 0);
+    BMS field gets a value, except an `empty` share of the scenarios (the user left it alone: no data, length 0; an unmodified
+    field is not transmitted, so RECEIVE MAP leaves it X'00' with length 0 and flag X'00', but an FSET field's MDT is on, so
+    it is transmitted with length 0: ASSUMED, X54);
     a field rule beside `@bms` (or None, never typed) replaces the generated one, as any `receive` rule does."""
     opts = (spec.get("@bms") or {}) if isinstance(spec, dict) else {}
     explicit = {k: v for k, v in spec.items() if k != "@bms"} if isinstance(spec, dict) else {}
@@ -385,6 +387,8 @@ def _bms_receive(rng: random.Random, name: str, spec: Any, layout: dict[str, dic
         value = _bms_value(rng, f, i, opts.get("bad", 0))
         if rng.random() >= opts.get("empty", 0):
             out[fname] = value
+        elif f.get("mdt"):
+            out[fname] = ""  # MDT on (FSET): transmitted though left alone, with no data (length 0)
     for fname, rule in explicit.items():
         if fname not in layout:
             raise ValueError(f"{name}: map has no input field {fname}")

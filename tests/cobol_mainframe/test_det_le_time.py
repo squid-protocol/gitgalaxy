@@ -457,6 +457,18 @@ def test_the_offset_services_take_no_clock():
     assert G.LIBRARY["CEEGMTO"][0] == G.LIBRARY["CEEUTCO"][0]
 
 
+def test_the_zero_offset_is_the_clocks_offset():
+    """The time-zone decision (#5003, register L6 assumption 6): CEEGMTO answers zero because the det runtime's clock is
+    GMT (FUNCTION CURRENT-DATE ends in +0000). Both are read from source, so a zoned clock cannot land without the
+    offset service being revisited; the vectors above prove the zero on both sides."""
+    funcs = (RT / "Funcs.java").read_text(encoding="utf-8")
+    body = funcs.split("public static String currentDate", 1)[1].split("}", 1)[0]
+    assert re.findall(r'"([+-]\d{4})"', body) == ["+0000"]
+    ceegmto = (RT / "le" / "Ceegmto.java").read_text(encoding="utf-8")
+    assert "putInt(hours, 0)" in ceegmto and "putInt(minutes, 0)" in ceegmto and "BigDecimal.ZERO" in ceegmto
+    assert [v[2] for v in VECTORS if v[0] in ("CEEGMTO", "CEEUTCO")] == ["0|0,0,0.000"] * 2
+
+
 def test_the_clock_services_refuse_without_a_pinned_clock(c_driver):
     run = subprocess.run([str(c_driver), "CEEGMT", ""], capture_output=True, text=True, check=False, env=_bare_env())  # noqa: S603
     assert run.returncode == 98 and run.stderr.rstrip().endswith("is not modelled")

@@ -3200,7 +3200,8 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   right-adjusted." "BLANK specifies that blanks are to be inserted in any unfilled positions in an input field." "ZERO specifies that
   zeros are to be inserted in any unfilled positions in an input field." "If JUSTIFY is omitted, but the NUM attribute is specified,
   RIGHT and ZERO are assumed." "If JUSTIFY is omitted, but attributes other than NUM are specified, LEFT and BLANK are assumed."
-  (Re-read 2026-10-18 (#5116): every JUSTIFY sentence quoted above, and the two "If JUSTIFY is omitted" sentences, matches the
+  (Re-read 2026-10-19 (#5116, closing the NUM-default item): the two "If JUSTIFY is omitted" sentences still match the live page word for word.
+  Re-read 2026-10-18 (#5116): every JUSTIFY sentence quoted above, and the two "If JUSTIFY is omitted" sentences, matches the
   live page's text word for word.)
   GRPNAME: "The ATTRB operand specified on the first field of the group applies to all of the fields within the group." "OCCURS and
   GRPNAME are mutually exclusive". PICIN: "the validity of the input data is not checked by BMS or the high-level language when the map

@@ -95,6 +95,11 @@ def head(path, n=4096):
         return ""
 
 
+def posix_rel(path, repo, sep=os.sep):
+    """``path`` relative to ``repo`` with "/" separators: the scan DB keys and by_design_reason use "/", Windows gives "\\"."""
+    return os.path.relpath(path, repo).replace(sep, "/")
+
+
 def by_design_reason(rel, text):
     """(category, reason) when an unmapped file is excluded by design, else None.
 
@@ -273,7 +278,7 @@ def score_port(name, repo, scan, scratch, oracle=False, legacy_vendor=False, cla
     for root, dirs, files in os.walk(repo):
         dirs[:] = [d for d in dirs if d != ".git"]
         for fn in files:
-            rel = os.path.relpath(os.path.join(root, fn), repo)
+            rel = posix_rel(os.path.join(root, fn), repo)
             if os.path.splitext(fn)[1] not in SRC_EXT or ".gitgalaxy/" in rel or is_vendor(rel):
                 continue
             first_party += 1

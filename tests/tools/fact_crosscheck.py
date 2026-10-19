@@ -67,6 +67,8 @@ import facts as F
 import mainframe_corpus as MC
 import translator_adapter as TA
 
+from gitgalaxy.tools.cobol_to_java.det.cics import POINTER_BYTES as TRANSLATOR_POINTER_BYTES  # noqa: E402
+
 LEDGER = REPO_ROOT / "tests" / "cobol_mainframe" / "fact_crosscheck_ledger.json"
 CASES = REPO_ROOT / "tests" / "equivalence"
 SCHEMA = "fact-crosscheck-ledger/1"
@@ -153,7 +155,8 @@ def engine_extras(ir: Any, ef: Any, records: list[tuple[Any, str, int]]) -> dict
             if roots and roots[-1] is item:
                 ext = ir._copy_extension(ef, owner) or None
         try:
-            lay = ir.record_layout(owner, item, ext)
+            # #5649: at the translator's POINTER width (GnuCOBOL x86-64, register C9), so like storage meets like
+            lay = ir.record_layout(owner, item, ext, pointer_bytes=TRANSLATOR_POINTER_BYTES)
         except Exception as e:  # noqa: BLE001 -- a layout the engine cannot build is the fact
             out["offsets"].add(f"{rec.name} (record) raised {type(e).__name__}")
             continue

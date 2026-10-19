@@ -158,7 +158,7 @@ def test_engine_extras_lays_out_the_replaced_records_of_a_section_copy() -> None
         def _copy_files(self, f: object) -> list:
             return [cb] if f is ef else []
 
-        def record_layout(self, owner: object, it: NS, ext: object) -> dict:
+        def record_layout(self, owner: object, it: NS, ext: object, pointer_bytes: int | None = None) -> dict:
             laid.append(it.name)
             return {"fields": [{"pic": "X", "name": "F", "offset": 0, "bytes": 4}], "bytes": 4}
 

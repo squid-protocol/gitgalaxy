@@ -22,7 +22,7 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from test_det_nondigit_binary import FLAGS, IMAGE, _det, _java  # noqa: E402
+from test_det_nondigit_binary import FLAGS, IMAGE, PKG, _det, _java  # noqa: E402
 
 EXPECTED = Path(__file__).with_name("nondigit_zoned_expected.txt")
 
@@ -345,6 +345,41 @@ def test_a_plain_item_cleared_to_spaces_is_refused_as_a_receiver(op, tmp_path):
                      "           DISPLAY V", "           GOBACK.", ""])  # fmt: skip
     run = _det(src, tmp_path, "STD")
     assert run.returncode != 0 and "receiver is a zoned item holding a non-digit is not modelled" in run.stderr
+
+
+# #4692: the other forms of a statement that reads its receiver before it stores: ON SIZE ERROR, ROUNDED + SIZE ERROR,
+# several receivers, SUBTRACT ROUNDED. Each is refused on a dirty receiver exactly as the plain form is.
+CHECKED_OPS = ["ADD 1 TO V ON SIZE ERROR DISPLAY 'E'", "SUBTRACT 1 FROM V ROUNDED ON SIZE ERROR DISPLAY 'E'",
+               "ADD 1 TO OT V", "ADD W 1 TO V", "SUBTRACT W 1 FROM V"]  # fmt: skip
+
+
+@pytest.mark.skipif(_java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+@pytest.mark.parametrize("op", CHECKED_OPS)
+@pytest.mark.parametrize("kind", list(KINDS))
+def test_a_non_digit_receiver_is_refused_in_every_form_of_the_statement(kind, op, tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    run = _det(_rprogram(kind, [op], [RCASES[kind][1]]), tmp_path, "STD")
+    assert run.returncode != 0 and "register C11" in run.stderr, run.stderr
+    assert "receiver is a zoned item holding a non-digit is not modelled" in run.stderr, run.stderr
+
+
+@pytest.mark.skipif(_java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+@pytest.mark.parametrize("verb", ["ADD", "SUBTRACT"])
+def test_a_corresponding_receiver_is_refused_at_translation(verb, tmp_path):
+    """ADD / SUBTRACT CORRESPONDING is not translated at all, so no dirty group member can reach its read."""
+    pytest.importorskip("tree_sitter_language_pack")
+    prep = "TO" if verb == "ADD" else "FROM"
+    src = "\n".join(["       IDENTIFICATION DIVISION.", "       PROGRAM-ID. NDB.", "       DATA DIVISION.",
+                     "       WORKING-STORAGE SECTION.", "       01 G1.", "          05 A PIC 9(4).",
+                     "       01 G2.", "          05 A PIC 9(4).",
+                     "       PROCEDURE DIVISION.", "           MOVE SPACES TO G2", f"           {verb} CORRESPONDING G1 {prep} G2",
+                     "           GOBACK.", ""])  # fmt: skip
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "NDB.cbl").write_text(src)
+    (tmp_path / "project").mkdir()
+    r = P.translate(tmp_path / "NDB.cbl", [], "public class NdbService {\n}\n", PKG, None, tmp_path / "project")
+    assert any("CORRESPONDING" in h for h in r.stats["holes"]), r.stats["holes"]  # a hole, not a translation
 
 
 # ---------------------------------------------------------------------------------------------------------------

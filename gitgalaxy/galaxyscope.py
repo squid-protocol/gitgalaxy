@@ -226,6 +226,7 @@ def _init_worker(
     git_tracked: set[str],
     census: set[str],
     offline: bool = False,
+    c_macro_args: dict[str, Any] | None = None,
 ):
     """
     Initializes the CPU-bound optical modules within the worker process's isolated memory.
@@ -238,6 +239,9 @@ def _init_worker(
     compiled regex objects across the IPC (Inter-Process Communication) boundary.
     """
     from gitgalaxy.core.detector import StructuralExtractor as OpticalDetector
+    from gitgalaxy.core.detector import set_c_repo_macro_args
+
+    set_c_repo_macro_args(c_macro_args or {})  # #5563: always reset, so an in-process scan never inherits the last one
 
     if offline:  # #5235: a spawn-start worker is a fresh interpreter; the assess guard does not reach it by inheritance
         from gitgalaxy.tools.readiness.offline import install as install_offline_guard
@@ -2418,6 +2422,27 @@ class Orchestrator:
             return False
         return bool(detect_disguised_executable(head, Path(full_path).suffix.lower()))
 
+    # #5563: C/C++ header extensions whose function-defining `#define`s name macro definitions in other files.
+    _C_HEADER_EXTS = frozenset({".h", ".hh", ".hpp", ".hxx", ".h++", ".inl", ".ipp"})
+
+    def _c_repo_macro_args(self) -> dict[str, Any]:
+        """#5563: the repo-wide `#define` table (`detector.c_repo_macro_name_args`) over every C/C++ header of the
+        scan, the delta scan's cached files included. A file's own defines still win inside that file."""
+        from gitgalaxy.core.detector import c_repo_macro_name_args
+
+        rels = {*self.stem_map.values(), *self.ram_cache.keys()}
+        headers = sorted(r for r in rels if Path(r).suffix.lower() in self._C_HEADER_EXTS)
+
+        def texts():
+            for rel in headers:
+                try:
+                    with open(self.root / self.disk_paths.get(rel, rel), encoding="utf-8", errors="ignore") as fh:
+                        yield fh.read(2_000_000)
+                except OSError:
+                    continue
+
+        return c_repo_macro_name_args(texts())
+
     def _extract_features_parallel(self):
         """
         Phase 1: Parallel Extraction & Asset Filtering via Multi-Core Map-Reduce.
@@ -2449,6 +2474,7 @@ class Orchestrator:
             self.git_tracked_files,
             self.census,
             os.environ.get("GITGALAXY_ASSESS_OFFLINE") == "1",
+            self._c_repo_macro_args(),
         )
         # #3913: never more workers than files, and none at all for a small scan (or a pinned
         # single worker) -- the files are extracted in this process, by the same worker code.

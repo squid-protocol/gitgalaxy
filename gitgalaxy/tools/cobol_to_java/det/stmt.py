@@ -54,6 +54,7 @@ class Procedure:
     paragraphs: list
     execs: dict  # placeholder number -> EXEC text
     using: list  # PROCEDURE DIVISION USING items
+    returning: str | None = None  # #5106: PROCEDURE DIVISION ... RETURNING item
 
 
 PHRASES = {"at_end": "AT-END", "not_at_end": "NOT-AT-END", "invalid_key": "INVALID-KEY",
@@ -86,10 +87,17 @@ def parse(lines: list[Line]) -> Procedure:
         raise E.ExprError("no PROCEDURE DIVISION")
     header = m.group(0)
     using = []
+    returning = None
     u = re.search(r"\bUSING\b(.*)\.", header, re.I | re.S)
     if u:
-        using = [w.upper() for w in u.group(1).replace(",", " ").split()
-                 if w.upper() not in ("BY", "REFERENCE", "VALUE", "CONTENT")]  # fmt: skip
+        words = [w.upper() for w in u.group(1).replace(",", " ").split()]
+        if "RETURNING" in words:  # #5106: the item the program returns, not a USING item
+            at = words.index("RETURNING")
+            returning = words[at + 1] if at + 1 < len(words) else None
+            words = words[:at]
+        using = [w for w in words if w not in ("BY", "REFERENCE", "VALUE", "CONTENT")]
+    elif r := re.search(r"\bRETURNING\s+([\w-]+)", header, re.I):
+        returning = r.group(1).upper()
     execs: dict[int, str] = {}
 
     def ph(mm):
@@ -369,7 +377,7 @@ def parse(lines: list[Line]) -> Procedure:
         # #4893: IMS enters a DL/I program at DLITCBL even when PROCEDURE DIVISION has a USING of its own
         first.data["first"] = True
         using = [r.name for r in first.data["using"]]
-    return Procedure(paragraphs, execs, using)
+    return Procedure(paragraphs, execs, using, returning)
 
 
 # pd children that open a frame (closed by their END_x / ELSE / WHEN, or by the period)

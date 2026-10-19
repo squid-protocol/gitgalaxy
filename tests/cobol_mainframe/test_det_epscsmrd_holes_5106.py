@@ -7,6 +7,7 @@ refusal: #4447 / #4404). A handler call is never a silent no-op: it translates t
 
 from __future__ import annotations
 
+import re
 import sys
 import tempfile
 from pathlib import Path
@@ -185,7 +186,7 @@ def test_a_call_to_a_sibling_program_resolves_to_a_service_of_its_own(call, link
     assert r.stats["holes"] == [], r.stats["holes"]
     assert [x.service for x in r.extra] == ["SibService"]
     sib = r.extra[0]
-    assert f"public int handleCall({', '.join(f'CobolRef<String> arg{k + 1}' for k in range(params))})" in sib.java
+    assert f"public int handleCall({', '.join(f'CobolRef<byte[]> arg{k + 1}' for k in range(params))})" in sib.java
     assert "private final ObjectProvider<SibService> sibService" in r.java
     assert "sibService.getObject().handleCall(" in r.java
     assert r.stats["callees"] == ["SIB"]
@@ -194,15 +195,83 @@ def test_a_call_to_a_sibling_program_resolves_to_a_service_of_its_own(call, link
 @pytest.mark.parametrize(
     ("linkage", "using"),
     [
-        ("01 L.|   05 A PIC X.|   05 B PIC X.", " USING L"),  # a group: no contract type for it here
-        ("01 L PIC 9(4).", " USING L"),  # a number
         ("01 L PIC X(8).", " USING BY VALUE L"),
         ("01 L PIC X(8).", " USING BY CONTENT L"),
-        ("01 L PIC X(8).", " USING L RETURNING L"),
+        ("01 L PIC X(8).", " USING L RETURNING L"),  # RETURNING takes a number
+        ("01 L PIC X(8).|01 R PIC 9(11).", " USING L RETURNING R"),  # more than the entry's int
+        ("01 L PIC X(8).|01 R PIC 9(4)V9.", " USING L RETURNING R"),  # not a whole number
+        ("01 L.|   05 A PIC X OCCURS 4.", " USING L"),
+        ("01 L.|   05 P POINTER.", " USING L"),
+        ("01 L.|   05 A PIC X.|   05 B REDEFINES A PIC X.", " USING L"),
+        ("01 L PIC X(40).", " USING L"),  # longer than the caller's FC: it would read past FC's end
     ],
 )
-def test_a_sibling_whose_entry_is_not_a_plain_text_item_stays_refused_by_name(linkage, using):
+def test_a_sibling_whose_entry_is_not_a_plain_record_stays_refused_by_name(linkage, using):
     holes = _translated(_with_sibling("CALL 'SIB' USING FC", linkage, using)).stats["holes"]
+    assert len(holes) == 1 and "SIB: a sibling program of this source" in holes[0], holes
+
+
+@pytest.mark.parametrize(
+    ("linkage", "using", "sizes"),
+    [
+        ("01 L.|   05 A PIC X(4).|   05 B PIC 9(4) COMP.|   05 C PIC S9(5) COMP-3.", " USING L", 1),  # a group
+        ("01 L PIC 9(4) COMP.", " USING L", 1),  # a number: its bytes, never its text
+        ("01 L PIC X(12).", " USING L", 1),
+    ],
+)
+def test_a_group_or_a_number_crosses_as_its_bytes(linkage, using, sizes):
+    r = _translated(_with_sibling("CALL 'SIB' USING FC", linkage, using))
+    assert r.stats["holes"] == [] and r.extra[0].stats["holes"] == []
+    assert "CobolRef<byte[]> arg1" in r.extra[0].java and ".storage().bytes" in r.extra[0].java
+    assert "CobolRef<byte[]> " in r.java and "Arrays.copyOfRange(" in r.java and "System.arraycopy(" in r.java
+
+
+def test_an_omitted_item_the_sibling_never_names_is_a_null_reference():
+    src = _with_sibling("CALL 'SIB' USING FC OMITTED", "01 L PIC X(8).|01 M PIC X(4).", " USING L M")
+    src = src.replace("    GOBACK.\n       END PROGRAM SIB", "    MOVE 'A' TO L.\n       END PROGRAM SIB")
+    r = _translated(src)
+    assert r.stats["holes"] == [] and r.extra[0].stats["holes"] == [], (r.stats["holes"], r.extra[0].stats["holes"])
+    assert "= null;" in r.java and "if (arg2 != null)" in r.extra[0].java
+
+
+def test_an_omitted_item_the_sibling_names_stays_refused():
+    # IBM leaves a reference to an omitted parameter undefined (S0C4): it is refused, not run on invented storage
+    src = _with_sibling("CALL 'SIB' USING FC OMITTED", "01 L PIC X(8).|01 M PIC X(4).", " USING L M", "MOVE 'A' TO M.")
+    holes = _translated(src).stats["holes"]
+    assert len(holes) == 1 and "SIB: a sibling program of this source" in holes[0], holes
+
+
+def test_returning_is_the_sibling_s_item_not_return_code():
+    src = _with_sibling("CALL 'SIB' USING FC RETURNING RC9", "01 L PIC X(8).|01 R PIC S9(9) COMP.",
+                        " USING L RETURNING R", "MOVE 7 TO R.")  # fmt: skip
+    src = src.replace("01 FC PIC X(12).", "01 FC PIC X(12).\n       01 RC9 PIC S9(9) COMP.")
+    r = _translated(src)
+    assert r.stats["holes"] == [] and r.extra[0].stats["holes"] == []
+    store = re.search(r"Cobol\.store\((\w+), BigDecimal\.valueOf\(rc\d+\)", r.java)
+    plain = _translated(_with_sibling("CALL 'SIB' USING FC", "01 L PIC X(8).", " USING L"))
+    assert store and store.group(1) != re.search(r"Cobol\.store\((\w+), BigDecimal\.valueOf\(rc", plain.java).group(1)
+    assert "return Cobol.num(" in r.extra[0].java
+
+
+@pytest.mark.parametrize(
+    ("call", "using"),
+    [
+        ("CALL 'SIB' USING FC RETURNING FC", " USING L"),  # a RETURNING the sibling has none for
+        ("CALL 'SIB' USING FC", " USING L RETURNING R"),  # a sibling that returns an item, a CALL that takes none
+    ],
+)
+def test_returning_must_match_on_both_sides(call, using):
+    holes = _translated(_with_sibling(call, "01 L PIC X(8).|01 R PIC S9(9) COMP.", using)).stats["holes"]
+    assert len(holes) == 1 and "SIB: a sibling program of this source" in holes[0], holes
+
+
+def test_a_cics_caller_resolves_its_sibling_and_a_cics_sibling_does_not():
+    cics = _with_sibling("CALL 'SIB' USING FC", "01 L PIC X(8).", " USING L")
+    cics = cics.replace("    STOP RUN.", "    EXEC CICS RETURN END-EXEC.")
+    r = _translated(cics)
+    assert [x.service for x in r.extra] == ["SibService"] and "sibService.getObject().handleCall(" in r.java
+    sib = _with_sibling("CALL 'SIB' USING FC", "01 L PIC X(8).", " USING L", "EXEC CICS RETURN END-EXEC.")
+    holes = _translated(sib).stats["holes"]
     assert len(holes) == 1 and "SIB: a sibling program of this source" in holes[0], holes
 
 

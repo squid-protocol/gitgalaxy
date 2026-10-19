@@ -1693,9 +1693,9 @@ def _header_macro_span(text: str) -> int:
         elif ch == ")":
             depth = max(depth - 1, 0)
             closed = closed or depth == 0
-        elif ch == "{" and depth == 0:
-            return i
-        elif ch == ":" and depth == 0 and closed and text[i - 1 : i] != ":" and text[i + 1 : i + 2] != ":":
+        elif depth == 0 and (
+            ch == "{" or (ch == ":" and closed and text[i - 1 : i] != ":" and text[i + 1 : i + 2] != ":")
+        ):
             return i
     return 0
 

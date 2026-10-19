@@ -6461,11 +6461,36 @@ class StructuralExtractor:
                             ):
                                 term_idx, term_kind = pos, "eq"
                                 break
+                            elif ch == closer:
+                                term_idx, term_kind = pos, "none"  # #5632: enclosing body closes
+                                break
+                            elif ch == "\n":
+                                # #5632: a bodyless declaration (`fun interface` member,
+                                # interface / `abstract` / `expect` fun) ends with its
+                                # signature; the walk used to run on to a LATER unit's `{`
+                                # and borrow that body. A signature ends at a line end unless
+                                # the next token continues it (`{`, `=`, `:` return type,
+                                # `where`) or this line ended on `:` / `=` / `,`.
+                                nxt = pos + 1
+                                while nxt < search_limit and safe_code[nxt] in " \t\n":
+                                    nxt += 1
+                                prev = pos
+                                while prev - 1 > params_end_idx and safe_code[prev - 1] in " \t":
+                                    prev -= 1
+                                if nxt >= search_limit or (
+                                    safe_code[nxt] not in "{=:"
+                                    and not safe_code.startswith("where", nxt)
+                                    and safe_code[prev - 1] not in ":=,"
+                                ):
+                                    term_idx, term_kind = prev, "none"
+                                    break
                         pos += 1
                     if term_kind == "brace":
                         end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
                     elif term_kind == "eq":
                         end_idx = next_match_start
+                    elif term_kind == "none":
+                        end_idx = term_idx
                     else:
                         end_idx = (
                             params_end_idx  # neither a body nor a bodyless `;` terminator ever showed up in the window

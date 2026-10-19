@@ -7,7 +7,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | program | case | kind | status | why | runs | coverage (para / branch) | mutation (raw / adj) | ported unproven | approved |
 |---|---|---|---|---|---|---|---|---|---|
 | [COACTVWC](carddemo-acctview.md) | carddemo-acctview | cics | proven, unapproved |  | 22 | 31/32 / 58/69 | 105/129 / 105/113 | 0 | - |
-| [COADM01C](carddemo-adminmenu.md) | carddemo-adminmenu | cics | proven, unapproved |  | 29 | 8/8 / 20/26 | 60/95 / 60/67 | 0 | - |
+| [COADM01C](carddemo-adminmenu.md) | carddemo-adminmenu | cics | proven, unapproved |  | 30 | 8/8 / 20/26 | 63/95 / 63/63 | 0 | - |
 | [COBIL00C](carddemo-billpay.md) | carddemo-billpay | cics | proven, unapproved |  | 30 | 16/16 / 46/48 | 64/86 / 64/71 | 0 | - |
 | [COCRDLIC](carddemo-cardlist.md) | carddemo-cardlist | cics | proven, unapproved |  | 30 | 36/36 / 135/149 | 75/94 / 75/82 | 0 | - |
 | [COCRDSLC](carddemo-cardview.md) | carddemo-cardview | cics | proven, unapproved |  | 23 | 30/30 / 69/75 | 60/91 / 60/66 | 0 | - |
@@ -23,10 +23,10 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [COSGN00C](carddemo-signon.md) | carddemo-signon | cics | proven, unapproved |  | 16 | 6/6 / 17/17 | 67/99 / 67/72 | 0 | - |
 | [COTRN02C](carddemo-tranadd.md) | carddemo-tranadd | cics | proven, unapproved |  | 51 | 18/18 / 72/75 | 61/91 / 61/74 | 0 | - |
 | [COTRN00C](carddemo-tranlist.md) | carddemo-tranlist | cics | proven, unapproved |  | 33 | 16/16 / 96/101 | 60/91 / 60/80 | 0 | - |
-| [COTRN01C](carddemo-tranview.md) | carddemo-tranview | cics | proven, unapproved |  | 19 | 9/9 / 23/24 | 66/100 / 66/67 | 0 | - |
+| [COTRN01C](carddemo-tranview.md) | carddemo-tranview | cics | proven, unapproved |  | 20 | 9/9 / 23/24 | 67/100 / 67/67 | 0 | - |
 | [CBTRN03C](carddemo-trnrpt.md) | carddemo-trnrpt | batch | proven, unapproved |  | 25 | 26/26 / 81/82 | 68/86 / 68/79 | 0 | - |
-| [COUSR01C](carddemo-useradd.md) | carddemo-useradd | cics | proven, unapproved |  | 20 | 9/9 / 20/21 | 62/98 / 62/68 | 0 | - |
-| [COUSR03C](carddemo-userdel.md) | carddemo-userdel | cics | proven, unapproved |  | 28 | 11/11 / 31/32 | 67/87 / 67/71 | 0 | - |
+| [COUSR01C](carddemo-useradd.md) | carddemo-useradd | cics | proven, unapproved |  | 22 | 9/9 / 20/21 | 63/98 / 63/64 | 0 | - |
+| [COUSR03C](carddemo-userdel.md) | carddemo-userdel | cics | proven, unapproved |  | 28 | 11/11 / 31/32 | 67/87 / 67/67 | 0 | - |
 | [COUSR00C](carddemo-userlist.md) | carddemo-userlist | cics | proven, unapproved |  | 32 | 16/16 / 95/100 | 69/100 / 69/92 | 0 | - |
 | [COUSR02C](carddemo-userupd.md) | carddemo-userupd | cics | proven, unapproved |  | 25 | 11/11 / 44/46 | 47/82 / 47/64 | 0 | - |
 | [INQACC](cbsa-inqacc.md) | cbsa-inqacc | cics | proven, unapproved |  | 14 | 22/25 / 13/25 | 131/131 / 131/131 | 0 | - |

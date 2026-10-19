@@ -123,6 +123,7 @@ museum_2/
 !docs/language_status/mutation_scores.json
 # #4628: the det-port mutation ledgers and the reviewed survivor lists (tests/tools/det_mutation.py), one file per case
 !tests/equivalence/det_mutation/*.json
+!tests/cobol_mainframe/zos_captures/*.json
 !tests/equivalence/det_mutation_survivors/*.json
 # #4270: the measured census use / crucible cases the CICS spec status page renders (cics_spec_status.py)
 !docs/language_status/cics_spec_status.json

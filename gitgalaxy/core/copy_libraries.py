@@ -143,5 +143,7 @@ def stand_in_text(member: str) -> str | None:
     path = STAND_IN_DIR / f"{member}.cpy"
     if not path.is_file():
         return None
-    lines = path.read_text(encoding="utf-8").splitlines()
+    from gitgalaxy.core.source_text import read_source
+
+    lines = read_source(path).text.splitlines()
     return "\n".join("" if line[6:7] in ("*", "/") else line[:72] for line in lines) + "\n"

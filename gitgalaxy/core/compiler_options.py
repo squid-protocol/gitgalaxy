@@ -218,7 +218,8 @@ OPTION_TABLE: dict[str, dict[str, Any]] = {
                         "nonnumeric comparison, where ZWB (IBM's default) moves the unsigned value (Language Reference, "
                         "General relation conditions; Programming Guide, ZWB); the det port and the oracle compare unsigned"},
     "OPTIMIZE": {"kind": "value", "default": "0", "honoured": None, "policy": None,
-                 "reason": "OPTIMIZE(0|1|2|STD|FULL) changes run time and storage, not a defined result"},
+                 "reason": "OPTIMIZE(0|1|2|STD|FULL) changes run time and storage, not a defined result; a zero divisor without ON SIZE "
+                           "ERROR is undefined on IBM at every level, and the harness follows cobc there whatever the level (C14)"},
 }  # fmt: skip
 # Options of SEMANTIC_OPTIONS: the oracle's cobc flags (equivalence_common.COBC_OPTIONS) decide them, not this table.
 COBC_DECIDED_OPTIONS = ("ARITH", "INTDATE", "NUMPROC", "TRUNC")

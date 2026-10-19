@@ -129,3 +129,15 @@ def test_a_later_zwb_cancels_nozwb_and_the_reverse_refuses():
     assert common.option_differences(_case("NOZWB"), src, None) == []
     with pytest.raises(common.UnsupportedOption, match="NOZWB"):
         common.compile_options(_case("ZWB"), "       PROCESS NOZWB\n" + PLAIN)
+
+
+def test_optimize_changes_no_defined_result_and_cites_the_zero_divisor_stance():
+    """OPTIMIZE is recorded only; its row says a zero divisor is followed from cobc at any level (C14), in code and register"""
+    row = co.OPTION_TABLE["OPTIMIZE"]
+    assert row["policy"] is None and "C14" in row["reason"]
+    text = (ROOT / "docs/language_status/register/C5.md").read_text(encoding="utf-8")
+    line = next(ln for ln in text.splitlines() if ln.startswith("| `OPTIMIZE("))
+    assert "C14" in line and "follows cobc" in line
+    for level in ("0", "1", "2", "STD", "FULL"):
+        eff = co.effective_with_defaults([f"OPTIMIZE({level})"])
+        assert not [u for u in co.unhonoured(eff) if u["option"] == "OPTIMIZE"], level

@@ -11706,6 +11706,17 @@
         "State Mutators": 20,
         "Stateful Encapsulated Methods": 1,
         "Type Conversions": 33
+      },
+      "typescript/typescript_compiler/types.ts": {
+        "Callbacks & Closures": 2,
+        "Compute Cores": 152,
+        "Defensive Guards": 2,
+        "Generic / Templated Code": 110,
+        "I/O & Config Routines": 36,
+        "Interface Declarations": 11,
+        "Many-Argument Workhorses": 4,
+        "Parameter Forwarders": 147,
+        "State Mutators": 629
       }
     },
     "typescript/vscode": {

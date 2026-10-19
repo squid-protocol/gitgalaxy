@@ -3911,7 +3911,8 @@
       "typescript/typescript_compiler/checker.ts": "typescript/typescript_compiler/checker.ts",
       "typescript/typescript_compiler/emitter.ts": "typescript/typescript_compiler/emitter.ts",
       "typescript/typescript_compiler/package.json": "typescript/typescript_compiler/package.json",
-      "typescript/typescript_compiler/parser.ts": "typescript/typescript_compiler/parser.ts"
+      "typescript/typescript_compiler/parser.ts": "typescript/typescript_compiler/parser.ts",
+      "typescript/typescript_compiler/types.ts": "typescript/typescript_compiler/types.ts"
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": "typescript/vscode/LICENSE.txt",

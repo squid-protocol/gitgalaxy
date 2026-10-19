@@ -899,8 +899,14 @@ The combined method runs in the porting loop like any other backend, and every e
   no other port moves; #5116: a NUM field with no JUSTIFY is IBM's RIGHT,ZERO, so `ScreenField.justify` carries that too and a port that RECEIVEs a NUM field goes through `DetJustify.place`). proof_reach counts a det port's own helpers (`runProgram`, the `in_X` / `out_X` codecs,
   `handleLink` ...: `proof_reach.DET_HELPERS`, only in a file marked as a det port) as `det_helper`, proven by the cells that
   reach the class, not as `ported_unproven`.
-- **Out of scope for this translator:** IMS (EXEC DLI), MQ beyond the CICS MQOPEN / MQGET / MQPUT / MQPUT1 / MQCLOSE modelled since #4892 (register W), pointer arithmetic, ALTER, ENTRY, a dynamic CALL whose names the source does not fix (#4736,
+- **Out of scope for this translator:** IMS (EXEC DLI), MQ beyond the CICS MQOPEN / MQGET / MQPUT / MQPUT1 / MQCLOSE modelled since #4892 (register W), pointer arithmetic, ENTRY, a dynamic CALL whose names the source does not fix (#4736,
   oracle_assumptions.md C15). Such statements stay named holes. A POINTER only stored and passed on (GenApp's prologue) is translated.
+- **ALTER (#5560, modelled).** `ALTER p TO [PROCEED TO] q` (several pairs per statement allowed) writes q into a Java `int`
+  slot (`alt<i>`, initialised to the target p's GO TO names) that p's GO TO reads in the paragraph dispatcher; the last ALTER
+  wins, and GO TO, PERFORM and fall-through reach the altered paragraph as any other. p must hold one GO TO without DEPENDING
+  (IBM Language Reference, ALTER); anything else, and an ALTER of an undeclared paragraph, is a named hole. A bare `GO TO.`
+  with no ALTER before it throws a Hole at run time. Independent segments (reset on entry) are not modelled. Proof: `ALTER1` /
+  `ALTER2` in test_det_programs.py against GnuCOBOL `-std=ibm`; CardDemo CBSTM03A 9 -> 5 holes (the rest: SET ADDRESS OF).
 - **Re-proving everything** after a runtime, harness or oracle change: `tests/tools/proof_sweep.py --work DIR`
   re-proves every det and model port and compares the result with the cases not proven on purpose.
 

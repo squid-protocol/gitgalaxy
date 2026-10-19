@@ -3911,7 +3911,8 @@
       "typescript/typescript_compiler/checker.ts": "file_cluster_6",
       "typescript/typescript_compiler/emitter.ts": "file_cluster_4",
       "typescript/typescript_compiler/package.json": "Static: Literature & Documentation",
-      "typescript/typescript_compiler/parser.ts": "file_cluster_4"
+      "typescript/typescript_compiler/parser.ts": "file_cluster_4",
+      "typescript/typescript_compiler/types.ts": "file_cluster_0"
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": "Static: Literature & Documentation",

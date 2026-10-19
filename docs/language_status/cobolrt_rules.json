@@ -255,7 +255,9 @@
     "ancestorOfType",
     "initMask",
     "area",
-    "ssa"
+    "ssa",
+    "execPcb",
+    "execCall"
    ]
   },
   {
@@ -3189,6 +3191,38 @@
    "site": "get@1",
    "ibm": null,
    "ibm_note": "EXEC DLI has no HOLD option; the hold on an updating PROCOPT is assumed (register I5)",
+   "options": [],
+   "register": [
+    "I5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-EXEC-ISRT",
+   "family": "DLI",
+   "title": "EXEC DLI ISRT USING PCB(n) SEGMENT(s) [WHERE ...] ... SEGMENT(t) FROM(area) [SEGLENGTH(n)] under CICS: the CBLTDLI ISRT of the same SSAs against PCB n of the scheduled PSB; segments are fixed length, so a SEGLENGTH that differs from the DBD's stops the run; DIBSTAT the PCB's status",
+   "methods": [
+    "execIsrt"
+   ],
+   "ibm": null,
+   "ibm_note": "Segments are fixed length (the DBD's); a variable-length SEGLENGTH is refused by name (register I5)",
+   "options": [],
+   "register": [
+    "I5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-EXEC-CHANGE",
+   "family": "DLI",
+   "title": "EXEC DLI REPL / DLET USING PCB(n) SEGMENT(s) FROM(area) under CICS: the CBLTDLI REPL / DLET of the segment the previous get on this PCB held (DJ with none, DA for a changed key); SEGMENT must name the held segment's type; DIBSTAT the PCB's status",
+   "methods": [
+    "execChange"
+   ],
+   "ibm": null,
+   "ibm_note": "The command form has no SSA, so SEGMENT is checked against the held segment's type; the hold comes from the get-hold on an updating PROCOPT (register I5)",
    "options": [],
    "register": [
     "I5"

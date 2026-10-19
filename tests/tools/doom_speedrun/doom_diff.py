@@ -14,7 +14,7 @@ ROUND2_CSV = Path(os.environ.get("DOOM_ROUND2_CSV", "/srv/storage_16tb/projects/
 KEY = "variant"
 # Columns whose change is worth a line; ``verdict`` is derived from ``fails`` and is shown, not compared.
 COMPARED = [
-    "fails", "first_party_src", "missed_src", "data_files_excluded", "vendor_files_mapped", "wrong_language",
+    "fails", "first_party_src", "missed_src", "excluded_by_design", "data_files_excluded", "vendor_files_mapped", "wrong_language",
     "gg_functions", "ctags_functions", "func_delta_pct", "files_func_mismatch", "typosquat", "sarif_errors",
     "credential_files", "log_problems",
 ]  # fmt: skip

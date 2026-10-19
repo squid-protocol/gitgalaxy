@@ -33,7 +33,7 @@ Steps (`fetch`, `scan`, `score`, `report`) can be run singly and are resumable. 
 
 | # | check | passes when |
 |---|---|---|
-| 1 | coverage | every first-party source file is mapped; a "Machine-Generated" exclusion counts only with a generator banner in the head; a payload-blocked file with zero ctags definitions is reported as `data_files_excluded`, not a miss |
+| 1 | coverage | every first-party source file is mapped; a "Machine-Generated" exclusion counts only with a generator banner in the head; a payload-blocked file with zero ctags definitions is reported as `data_files_excluded`, not a miss; files excluded by design (a `docs/` tree, `__MACOSX/` / `._*` AppleDouble, a `third_party` / `thirdparty` directory, re2c/bison/flex-generated parser source by banner) are counted in `excluded_by_design` with a per-category reason column (`excluded_by_design_reasons`, each file in `details.json`), not as a miss |
 | 2 | language | each mapped file's language fits its extension (`.h` as objective-c needs ObjC syntax, `.m` must be objective-c, ...) |
 | 3 | functions | engine function count within 3% of Universal Ctags (definitions only, per-language kinds) over the mapped files |
 | 4 | typosquat | no `TYPOSQUATTING DETECTED` log lines |

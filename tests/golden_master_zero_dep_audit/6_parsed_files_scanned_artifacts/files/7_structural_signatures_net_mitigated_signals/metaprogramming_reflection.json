@@ -3630,7 +3630,7 @@
     },
     "sql/mediawiki_postgresql": {
       "sql/mediawiki_postgresql/COPYING": 0,
-      "sql/mediawiki_postgresql/tables.sql": 0
+      "sql/mediawiki_postgresql/tables.sql": 2
     },
     "sql/spamassassin_mysql": {
       "sql/spamassassin_mysql/NOTICE": 0,

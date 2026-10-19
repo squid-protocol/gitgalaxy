@@ -3630,7 +3630,7 @@
     },
     "sql/mediawiki_postgresql": {
       "sql/mediawiki_postgresql/COPYING": "Static: Literature & Documentation",
-      "sql/mediawiki_postgresql/tables.sql": "file_cluster_2"
+      "sql/mediawiki_postgresql/tables.sql": "file_cluster_11"
     },
     "sql/spamassassin_mysql": {
       "sql/spamassassin_mysql/NOTICE": "Static: Literature & Documentation",

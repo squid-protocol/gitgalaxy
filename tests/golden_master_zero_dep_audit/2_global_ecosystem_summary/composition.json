@@ -229,6 +229,11 @@
       "impact": 1256.1,
       "loc": 2320
     },
+    "postgresql": {
+      "files": 2,
+      "impact": 34.32,
+      "loc": 46
+    },
     "powershell": {
       "files": 126,
       "impact": 23463.679999999986,
@@ -280,9 +285,9 @@
       "loc": 881
     },
     "sqlite": {
-      "files": 80,
-      "impact": 1237.0099999999993,
-      "loc": 3242
+      "files": 78,
+      "impact": 1206.2899999999993,
+      "loc": 3196
     },
     "swift": {
       "files": 6,

@@ -63,12 +63,33 @@
         "file": "VALIDATED",
         "function": "VALIDATED"
       }
+    },
+    {
+      "agreement": {
+        "composition_file": 0.9717,
+        "composition_repo": null,
+        "file": null,
+        "function": 0.984
+      },
+      "date": "2026-10-19",
+      "engine_commit": "f8462915",
+      "state": {
+        "composition_file": "DEGRADED",
+        "composition_repo": "INVALID",
+        "file": "UNVALIDATED",
+        "function": "VALIDATED"
+      }
     }
   ],
   "levels": {
     "composition_file": {
-      "agreement": 0.9739,
+      "agreement": 0.9717,
       "eroding": {
+        "Compute Cores Files": {
+          "files": 65,
+          "mostly_to": "Large Core Modules (3)",
+          "retained": 0.9538
+        },
         "Interface Declarations Files": {
           "files": 397,
           "mostly_to": "Large Core Modules",
@@ -77,21 +98,26 @@
         "Large Core Modules": {
           "files": 304,
           "mostly_to": "Interface Declarations Files",
-          "retained": 0.9243
+          "retained": 0.9211
         },
         "Large Core Modules (3)": {
           "files": 292,
           "mostly_to": "Interface Declarations Files",
-          "retained": 0.9144
+          "retained": 0.911
         },
         "Many-Argument Workhorses Files": {
           "files": 70,
           "mostly_to": "Large Core Modules (3)",
           "retained": 0.9714
+        },
+        "State Mutators Files": {
+          "files": 46,
+          "mostly_to": "Parameter Forwarders Files",
+          "retained": 0.9565
         }
       },
       "files_compared": 2725,
-      "fit_shift": -0.097
+      "fit_shift": -0.099
     },
     "composition_repo": {
       "crucible_label": {
@@ -144,8 +170,8 @@
   "measured": {
     "corpus": "language-crucible@v1.7.0",
     "coverage": 0.9873,
-    "engine_commit": "49cba5db",
-    "measured_at": "2026-10-05"
+    "engine_commit": "f8462915",
+    "measured_at": "2026-10-19"
   },
   "retrain_issue": 4111,
   "schema": 1,

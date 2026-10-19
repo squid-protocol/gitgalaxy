@@ -43922,9 +43922,9 @@
     },
     "sql/mediawiki_postgresql": {
       "sql/mediawiki_postgresql/tables.sql": {
-        "ts2_page_text@32": 0,
+        "ts2_page_text@32": 1,
         "ts2_page_text@44": 0,
-        "ts2_page_title@15": 0,
+        "ts2_page_title@15": 1,
         "ts2_page_title@27": 0
       }
     },

@@ -4891,7 +4891,7 @@
         "_Py_GetObjects@3026": 1.1e-05,
         "_Py_INCREF_IncRefTotal@280": 1.1e-05,
         "_Py_IncRef@348": 1.1e-05,
-        "_Py_IncRefTotal@293": 8.1e-05,
+        "_Py_IncRefTotal@293": 8e-05,
         "_Py_MergeZeroLocalRefcount@436": 1.1e-05,
         "_Py_NegativeRefcount@272": 1.7e-05,
         "_Py_NewReference@2746": 1.1e-05,
@@ -5521,7 +5521,7 @@
         "compile_star_expr@2260": 1.1e-05,
         "compile_store_id@367": 5e-05,
         "compile_subscript@2681": 1.1e-05,
-        "compile_syntax_error@271": 0.000184,
+        "compile_syntax_error@271": 0.000183,
         "compile_term@2276": 1.1e-05,
         "compile_test_if_expr@2121": 1.1e-05,
         "compile_trailer_bracket@2669": 1.1e-05,
@@ -12999,7 +12999,7 @@
         "MOVE-VALUE@333": 2e-05,
         "NC138A-0001@330": 1.1e-05,
         "OPEN-FILES@211": 1.1e-05,
-        "PASS@224": 0.000171,
+        "PASS@224": 0.00017,
         "PRINT-DETAIL@228": 0.000222,
         "SECT-0002-INIT@351": 1.1e-05,
         "SECT-NC138A-0001@329": 1.1e-05,
@@ -13700,7 +13700,7 @@
         "FAIL-ROUTINE-EX@303": 4e-05,
         "FAIL-ROUTINE-WRITE@298": 4e-05,
         "FAIL-ROUTINE@289": 9e-05,
-        "FAIL@214": 0.000197,
+        "FAIL@214": 0.000196,
         "HEAD-ROUTINE@229": 1.5e-05,
         "INSPT@212": 1.1e-05,
         "OPEN-FILES@200": 1.1e-05,
@@ -13962,7 +13962,7 @@
         "TERMINATE-CCVS@211": 1.1e-05,
         "TH-09-001@317": 1.1e-05,
         "WRITE-LINE@274": 0.000217,
-        "WRT-LN@286": 0.000196
+        "WRT-LN@286": 0.000195
       },
       "cobol/che-che4z_nist_ccvs85/NC2374.2.cbl": {
         "BAIL-OUT-EX@327": 4.9e-05,
@@ -14150,7 +14150,7 @@
         "TERMINATE-CCVS@256": 1.1e-05,
         "TH-11-001@362": 1.1e-05,
         "WRITE-LINE@319": 0.000217,
-        "WRT-LN@331": 0.000196
+        "WRT-LN@331": 0.000195
       },
       "cobol/che-che4z_nist_ccvs85/NC2394.2.cbl": {
         "BAIL-OUT-EX@327": 3.6e-05,
@@ -35402,7 +35402,7 @@
         "__init__@45": 9.1e-05,
         "__str__@204": 1.1e-05,
         "_format_endpoint_context@193": 2e-05,
-        "errors@190": 0.000102
+        "errors@190": 0.000101
       },
       "python/fastapi/fastapi/param_functions.py": {
         "Body@1323": 8.3e-05,
@@ -43922,9 +43922,9 @@
     },
     "sql/mediawiki_postgresql": {
       "sql/mediawiki_postgresql/tables.sql": {
-        "ts2_page_text@32": 1.1e-05,
+        "ts2_page_text@32": 2e-05,
         "ts2_page_text@44": 1.1e-05,
-        "ts2_page_title@15": 1.1e-05,
+        "ts2_page_title@15": 2e-05,
         "ts2_page_title@27": 1.1e-05
       }
     },
@@ -48845,7 +48845,7 @@
         "resolveObjectTypeMembers@14068": 3.8e-05,
         "resolveReverseMappedTypeMembers@14712": 5e-05,
         "resolveSignature@37631": 3.1e-05,
-        "resolveStructuredTypeMembers@15022": 0.000334,
+        "resolveStructuredTypeMembers@15022": 0.000333,
         "resolveSymbol@4295": 1.1e-05,
         "resolveSymbol@4296": 1.1e-05,
         "resolveSymbol@4297": 0.000155,

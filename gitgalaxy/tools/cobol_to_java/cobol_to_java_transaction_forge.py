@@ -4849,6 +4849,9 @@ CICS_TASK_JAVA += """\
      *  numeric field holding spaces too, which the DTO reads as a number -- as a LINK's (linkArea). */
     public String xctl(String program, Object commarea, Integer length, byte[] area) {
         String resp = xctl(program, commarea, length, (Channel) null);
+        if (area != null) {  // #5053: the event carries the bytes the caller sent (base64), as a LINK's does
+            events.get(events.size() - 1).put("area", java.util.Base64.getEncoder().encodeToString(areaOf(area, length)));
+        }
         if ("NORMAL".equals(resp)) {
             xctlArea = areaOf(area, length);
         }

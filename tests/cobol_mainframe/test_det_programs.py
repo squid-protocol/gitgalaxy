@@ -24,6 +24,10 @@ sys.path.insert(0, str(ROOT))
 IMAGE = "gitgalaxy-gnucobol:3"
 PKG = "p"
 
+pytestmark = pytest.mark.slow(
+    reason="the first java test of a CI split part pays the one-time javac of the cobolrt runtime: 12-17 s on a runner (#5668)"
+)
+
 
 def program(name: str, data: list[str], proc: list[str]) -> str:
     lines = ["       IDENTIFICATION DIVISION.", f"       PROGRAM-ID. {name}.", "       DATA DIVISION.",

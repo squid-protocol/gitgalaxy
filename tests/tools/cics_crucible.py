@@ -1098,6 +1098,9 @@ class EquivalenceRunTest {
             Consumer<CicsTask> firstHop;  // the facade's own runTask, for the task's first program
             CicsTask linked;  // the level a LINK / XCTL runs, until handleLink asks for it
             String linkedProgram;
+            /** #5053: by program level, the bytes the first program of a LINK's XCTL chain left in the caller's area,
+             *  until the chain's RETURN (an XCTL target's, which is not the program that held the area) takes them. */
+            final Map<Integer, byte[]> callerLeft = new java.util.HashMap<>();
 
             FacadeRegion(int taskNo) {
                 this.taskNo = taskNo;
@@ -1240,6 +1243,10 @@ class EquivalenceRunTest {
                         && mb.getParameterTypes()[0].isInstance(ca);
                 CicsTask outer = linked;
                 String outerProgram = linkedProgram;
+                int mark = scenarioTask.events().size();  // #5053: this program's own events start here
+                if (task.linkAreaOfCaller()) {
+                    callerLeft.remove(task.level());  // a new chain: nothing is left of an earlier one's
+                }
                 linked = task;
                 linkedProgram = p;
                 entry(p, "handleLink");
@@ -1255,16 +1262,36 @@ class EquivalenceRunTest {
                 linked = outer;
                 linkedProgram = outerProgram;
                 if (bytes) {
-                    linkBytes(p, task, service, view);
+                    linkBytes(p, task, service, view, mark);
                 }
+                byte[] kept = task.linkAreaOfCaller() ? null : callerLeft.remove(task.level());
+                if (kept != null && !tagReturn(task.level(), kept, mark)) {
+                    callerLeft.put(task.level(), kept);  // it XCTLed on again: the next target's RETURN takes them
+                }
+            }
+
+            /** #5053: the bytes the caller sees back, on the RETURN of `level` that this program recorded (from event
+             *  `mark` on); false when it recorded none (it XCTLed instead) or one that already has them. */
+            boolean tagReturn(int level, byte[] bytes, int mark) {
+                List<Map<String, Object>> evs = scenarioTask.events();
+                for (int i = evs.size() - 1; i >= mark; i--) {
+                    Map<String, Object> e = evs.get(i);
+                    if ("RETURN".equals(e.get("event")) && Integer.valueOf(level).equals(e.get("level"))
+                            && !e.containsKey("area_bytes")) {
+                        e.put("area_bytes", java.util.Base64.getEncoder().encodeToString(bytes));
+                        return true;
+                    }
+                }
+                return false;
             }
 
             /** #5053: lastLinkBytes() answers the bytes the program left in the LINK's COMMAREA when it took them (null
              *  when it did not: its DTO is the COMMAREA) -- a facade that stopped assigning them is not proven by the
              *  DTO's bytes the comparison falls back to. What the caller sees back (the RETURN's caller_commarea) is
-             *  then compared by them: only for the program the LINK reached, whose area is the caller's own (an XCTL
-             *  target's is a copy of the bytes XCTL passed). */
-            void linkBytes(String p, CicsTask task, Object service, byte[] view) {
+             *  then compared by them: those of the program the LINK reached, whose area is the caller's own (an XCTL
+             *  target's is a copy of the bytes XCTL passed, so the caller sees the first program's, kept in callerLeft
+             *  for the chain's RETURN). */
+            void linkBytes(String p, CicsTask task, Object service, byte[] view, int mark) {
                 Method a0 = null;
                 for (Method m : service.getClass().getMethods()) {
                     if (m.getName().equals("lastLinkBytes") && m.getParameterCount() == 0) {
@@ -1282,14 +1309,8 @@ class EquivalenceRunTest {
                 if (left == null || !task.linkAreaOfCaller()) {
                     return;
                 }
-                List<Map<String, Object>> evs = scenarioTask.events();
-                for (int i = evs.size() - 1; i >= 0; i--) {
-                    Map<String, Object> e = evs.get(i);
-                    if ("RETURN".equals(e.get("event")) && Integer.valueOf(task.level()).equals(e.get("level"))
-                            && !e.containsKey("area_bytes")) {
-                        e.put("area_bytes", java.util.Base64.getEncoder().encodeToString(left));
-                        return;
-                    }
+                if (!tagReturn(task.level(), left, mark)) {
+                    callerLeft.put(task.level(), left);  // #5053: it XCTLed: its target's RETURN is what the caller sees
                 }
             }
 
@@ -1790,6 +1811,9 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
                 ca = _java_area(e.get("commarea"), src, shapes, length)
                 if length is None:
                     length = cc.Unmodelled("XCTL LENGTH of a whole-record COMMAREA") if ca is not None else 0
+                ca = _with_answered_bytes(
+                    ca, e.get("area"), RUNTIME_PAGE, _answered_layout(e.get("commarea"), shapes)
+                )  # #5053
                 ev.update(target=e.get("target"), commarea=ca, length=length, resp=e.get("resp"), resp2=e.get("resp2"))
             elif kind == "START":  # #4006: FROM data as base64, EBCDIC bytes; REQID only if the program named one
                 b64 = e.get("from")

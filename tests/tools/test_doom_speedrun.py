@@ -4,6 +4,7 @@ No network and no scan: the fetch test clones a throwaway local repo. Sibling to
 modules are imported as bare names (tests/ has no __init__.py).
 """
 
+import json
 import re
 import stat
 import subprocess
@@ -154,11 +155,20 @@ def test_clang_counts_without_libclang_is_none(tmp_path, monkeypatch):
 
 def test_compile_commands_flags_are_keyed_by_real_path_without_compiler_or_output(tmp_path):
     (tmp_path / "a.c").write_text("")
-    (tmp_path / "compile_commands.json").write_text(
-        '[{"directory": "%s", "file": "a.c", "command": "cc -DX=1 -Iinc -c a.c -o a.o"}]' % tmp_path
-    )
+    # json.dumps, not %-interpolation: a Windows path's backslashes are invalid JSON escapes (main red, #5546)
+    entry = {"directory": str(tmp_path), "file": "a.c", "command": "cc -DX=1 -Iinc -c a.c -o a.o"}
+    (tmp_path / "compile_commands.json").write_text(json.dumps([entry]))
     assert doom_clang.compile_commands(tmp_path) == {str((tmp_path / "a.c").resolve()): ["-DX=1", "-Iinc"]}
     assert doom_clang.compile_commands(tmp_path / "nowhere") == {}
+
+
+def test_compile_commands_arguments_form_and_malformed_file(tmp_path):
+    (tmp_path / "compile_commands.json").write_text(
+        json.dumps([{"directory": str(tmp_path), "file": "a.c", "arguments": ["cc", "-DY", "-o", "a.o", "-c", "a.c"]}])
+    )
+    assert doom_clang.compile_commands(tmp_path) == {str((tmp_path / "a.c").resolve()): ["-DY"]}
+    (tmp_path / "compile_commands.json").write_text("[{not json")
+    assert doom_clang.compile_commands(tmp_path) == {}
 
 
 def test_clang_port_not_in_the_run_is_an_error(tmp_path):

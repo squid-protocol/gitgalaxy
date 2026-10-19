@@ -96,6 +96,39 @@ def looks_like_virtualenv(directory: Path) -> bool:
 VENDOR_CONTAINER_NAMES = frozenset({"libraries", "libs", "deps", "extern", "external", "externals"})
 _THIRD_PARTY_PREFIX = re.compile(r"^(?:third|3rd)[_-]?party[_-]", re.I)
 _CONTAINER_SUFFIX = re.compile(r"[_-](?:libs|libraries|deps|extern|external|externals)$", re.I)
+# (c) a directory named after a well-known third-party library, with no license file of its own (eternity's
+# `zlib/`, doom3-bfg's `jpeg-6/`, zandronum's `lzma/` and `gdtoa/`, eternity's `nlohmann/`): the name list is the
+# decision (a header fingerprint needs a per-library corpus; the list is reviewable and cheap). A trailing version
+# (`jpeg-6`, `zlib-1.2.11`) is dropped before the lookup. A directory that carries the ROOT's own license is the
+# project's own copy of it and stays scanned.
+KNOWN_LIBRARY_NAMES = frozenset(
+    {
+        "zlib",
+        "minizip",
+        "libpng",
+        "lpng",
+        "jpeg",
+        "libjpeg",
+        "lzma",
+        "gdtoa",
+        "nlohmann",
+        "miniz",
+        "yyjson",
+        "bzip2",
+        "libbz2",
+        "freetype",
+        "sqlite3",
+        "cjson",
+        "rapidjson",
+        "tinyxml",
+        "tinyxml2",
+        "jsoncpp",
+        "expat",
+        "lz4",
+        "zstd",
+    }
+)
+_VERSION_SUFFIX = re.compile(r"[-_ ]v?\d[\w.]*$", re.I)
 _LICENSE_FILE = re.compile(r"^(?:licen[cs]e|copying|unlicense)(?:[-_.][\w.-]*)?$", re.I)
 _LICENSE_DIRS = frozenset({"licenses", "licences"})
 _LICENSE_READ_BYTES = 262144
@@ -151,7 +184,9 @@ class VendorDirectoryDetector:
                 ]
                 foreign = sum(1 for c in children if self._has_foreign_license(c))
                 return foreign > 0 and 2 * foreign >= len(children)
-            return self._has_foreign_license(directory)
+            if self._has_foreign_license(directory):
+                return True
+            return _VERSION_SUFFIX.sub("", low) in KNOWN_LIBRARY_NAMES and not self._has_root_license(directory)
         except OSError:
             return False
 
@@ -172,7 +207,7 @@ class VendorDirectoryDetector:
                 texts.add(_license_family(raw.decode("utf-8", "ignore")))
         return texts, has_dir
 
-    def _has_foreign_license(self, directory: Path) -> bool:
+    def _root_license_set(self) -> frozenset[str]:
         if self._root_licenses is None:
             try:
                 root_texts, root_dir = self._license_texts(self.root)
@@ -180,10 +215,18 @@ class VendorDirectoryDetector:
                 root_texts, root_dir = set(), False
             # a root with only a licenses/ directory still declares a license of its own
             self._root_licenses = frozenset(root_texts | ({""} if root_dir else set()))
-        if not self._root_licenses:
+        return self._root_licenses
+
+    def _has_root_license(self, directory: Path) -> bool:
+        texts, _ = self._license_texts(directory)
+        return bool(texts & self._root_license_set())
+
+    def _has_foreign_license(self, directory: Path) -> bool:
+        root_licenses = self._root_license_set()
+        if not root_licenses:
             return False
         texts, has_dir = self._license_texts(directory)
-        return has_dir or any(t not in self._root_licenses for t in texts)
+        return has_dir or any(t not in root_licenses for t in texts)
 
 
 # --- COMMENT LINES IN THE SATURATION GATE (#4543) ---

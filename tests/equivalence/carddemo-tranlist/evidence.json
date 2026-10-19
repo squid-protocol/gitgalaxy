@@ -439,39 +439,44 @@
  },
  "mutation": {
   "commit": "7470befa4",
-  "rejudged": null,
+  "rejudged": {
+   "commit": "d8e642a10",
+   "issue": "#5401",
+   "mutants": 20,
+   "killed": 4
+  },
   "seed": 0,
   "mode": null,
   "mutants": 697,
   "chosen": 100,
-  "killed": 60,
-  "survived": 31,
+  "killed": 64,
+  "survived": 27,
   "stillborn": 9,
   "survivors": {
-   "case_gap": 20,
+   "case_gap": 15,
    "harness_gap": 0,
    "equivalent": 5,
-   "unreachable": 6,
+   "unreachable": 7,
    "untriaged": 0
   },
-  "score_raw": "60/91",
-  "score_adjusted": "60/80",
+  "score_raw": "64/91",
+  "score_adjusted": "64/79",
   "source": "docs/language_status/mutation_scores.json#carddemo-tranlist/COTRN00C",
   "inputs": {
    "port": {
     "sha256": "1f1757505d68b2f7aff07d5fb28e6fb32eec27cacea2750aa6023881e9fd87a3"
    },
    "case": {
-    "sha256": "26d55c02be72d7e541fb1ba16200ddd216cfea867b1613f27014b5d9046dd269"
+    "sha256": "49a29c59c9bfb861b1e3b85db0ba8c347df3c683d459460fc982ec6a37f0d928"
    },
    "corpus": {
     "sha256": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919"
    },
    "harness": {
-    "sha256": "6f6e8b308a1e087561982b3157c427f7a9595772b16f50bf58cd5411558c2449"
+    "sha256": "e221595d3022c0d5399cd63080f7a9264ae78b5c996b6eca66c3c19b94a9d6a5"
    },
    "oracle": {
-    "sha256": "db4ce1a1215ccfb5ed86d706f91ab5afa29d583d2fe8c84bb34f6852598f7032"
+    "sha256": "a5ae4eed2090b4cb10446837bd69e02eb34f2c89a735b17c287ad082b57444ec"
    }
   }
  },

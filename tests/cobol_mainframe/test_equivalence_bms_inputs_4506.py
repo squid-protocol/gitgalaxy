@@ -202,7 +202,8 @@ def test_aid_is_one_key_or_a_list_in_turn(corpus, aid, want):
 
 def test_the_generated_tranview_case_turns_through_keys_and_types_its_one_field():
     """The committed COTRN01 case (#4506): the BMS source has one unprotected field (TRNIDIN), and the aid list reaches
-    PF3 / PF4 / PF5 and a key the screen does not assign, beside a run with no COMMAREA."""
+    PF3 / PF4 / PF5 and a key the screen does not assign, beside a run with no COMMAREA (and, since #4049, the
+    hand-written scenarios its mutation survivors point at, each with its reason)."""
     import json
 
     case = json.loads(
@@ -213,7 +214,9 @@ def test_the_generated_tranview_case_turns_through_keys_and_types_its_one_field(
     gen = case["scenario_generate"]
     assert set(gen["aid"]) == {"DFHENTER", "DFHPF3", "DFHPF4", "DFHPF5", "DFHPF9"}
     assert gen["receive"] == {"COTRN1A": {"@bms": {"bad": 0.1, "empty": 0.3}}}
-    assert [s["name"] for s in case["scenarios"]] == ["no-commarea"] and case["scenarios"][0]["commarea"] is None
+    first, *rest = case["scenarios"]
+    assert first["name"] == "no-commarea" and first["commarea"] is None
+    assert rest and all("#4049" in s["why"] for s in rest)
 
 
 def test_the_generated_tranview_screen_sends_its_fset_id_field_empty_in_some_scenarios():
@@ -233,6 +236,7 @@ def test_the_generated_tranview_screen_sends_its_fset_id_field_empty_in_some_sce
     ei.bms_input_fields.cache_clear()
     case = {**case, "datasets": {}, "scenario_generate": {**case["scenario_generate"], "commarea": None}}
     out = ei.prepare_cics_case(case, Path(root) / case["corpus"], [])["scenarios"]
-    typed = [s["receive"]["COTRN1A"].get("TRNIDINI") for s in out if "receive" in s]
+    prefix = case["scenario_generate"]["prefix"] + "-"
+    typed = [s["receive"]["COTRN1A"].get("TRNIDINI") for s in out if s["name"].startswith(prefix)]
     assert "" in typed and any(typed)
     assert None not in typed

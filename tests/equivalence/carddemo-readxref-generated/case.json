@@ -1,0 +1,39 @@
+{
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "CBACT03C",
+ "program_source": "app/cbl/CBACT03C.cbl",
+ "copy_dirs": [
+  "app/cpy"
+ ],
+ "port_from": "carddemo-readxref",
+ "job": "READXREF",
+ "step": "STEP05",
+ "parm": null,
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {
+  "XREFFILE": {
+   "input": "@generate",
+   "organization": "indexed",
+   "reclen": 50,
+   "keys": [
+    {
+     "offset": 0,
+     "length": 16
+    }
+   ],
+   "entity": "CardXrefRecord",
+   "generate": {
+    "copybook": "app/cpy/CVACT03Y.cpy",
+    "record": "CARD-XREF-RECORD",
+    "records": 30,
+    "seed": 3804,
+    "fields": {
+     "XREF-CARD-NUM": {
+      "digits": true
+     }
+    }
+   }
+  }
+ },
+ "notes": "CBACT03C on GENERATED inputs (#3804): the input file is built from the CVACT03Y record layout (edge values first, unique keys in key order) instead of CardDemo's data file, proving the carddemo-readxref port on records it was not written against. CBACT03C reads the card cross-reference and DISPLAYs each record; its FD declares the record inline (two items), so the layout is the copybook it reads INTO. The card number is generated as digits only (as a card number is), so the key order is the same on both sides (letters sort before digits in EBCDIC, after them in ASCII). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+}

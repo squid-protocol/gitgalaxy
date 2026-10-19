@@ -235,6 +235,19 @@ def test_the_transaction_view_case_fails_the_pf3_xctl():
     assert s["aid"] == "DFHPF3" and s["faults"][0]["cmd"] == "XCTL" and s["faults"][0]["resp"] == "PGMIDERR"
 
 
+def test_the_generated_transaction_view_case_takes_the_same_survivor_scenarios():
+    # #4049 slice 4: the generated variant runs the same port, so it needs the inputs its survivors point at
+    gen, hand = _gap_scenarios("carddemo-tranview-generated"), _scenarios("carddemo-tranview")
+    names = ("pf3-blank-from-program", "pf3-low-values-from-program", "pf3-xctl-fails", "lookup-io-error")
+    for name in names:
+        assert gen[name]["aid"] == hand[name]["aid"] and gen[name].get("faults") == hand[name].get("faults")
+        assert "expected" not in gen[name]
+    assert gen["pf3-xctl-fails"]["faults"][0]["resp"] == "PGMIDERR"
+    assert gen["lookup-io-error"]["faults"][0]["resp"] == "IOERR"
+    assert gen["pf3-blank-from-program"]["commarea"]["CDEMO-FROM-PROGRAM"] == ""
+    assert set(gen["pf3-low-values-from-program"]["commarea"]["CDEMO-FROM-PROGRAM"]) == {"\x00"}
+
+
 def test_the_eibcalen_scenarios_state_a_length_inside_the_commarea():
     # #5401: a short COMMAREA only on field boundaries whose unset numerics are not read (a blank numeric is IBM-undefined)
     for case, names, whole in (

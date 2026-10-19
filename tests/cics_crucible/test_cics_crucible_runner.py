@@ -167,6 +167,16 @@ def test_a_parent_that_never_waits_still_runs_its_children_after_it_ends():
     assert runner.async_refusals(src) == []
 
 
+def test_no_pinned_crucible_case_needs_the_child_schedule():
+    """#4950 (register X18): the runner's missing child schedule has no consumer. Not one case of the pinned crucible
+    is refused by `case_async_refusals`; the day one is, the SPEC 6.2 CHILD event and the runner wiring become work."""
+    env = os.environ.get(runner.PATH_ENV)
+    if not env or not Path(env, "cases").is_dir():
+        pytest.skip(f"no cics-crucible checkout ({runner.PATH_ENV})")
+    needing = {d.name: f for d in cc.discover(Path(env)) if (f := runner.case_async_refusals(cc.load_case(d)))}
+    assert needing == {}
+
+
 def test_a_case_with_an_async_member_is_refused_by_name_on_every_run_side(tmp_path):
     (tmp_path / "src").mkdir()
     (tmp_path / "src" / "P.cbl").write_text(_prog("FREE CHILD(TK)"), encoding="utf-8")

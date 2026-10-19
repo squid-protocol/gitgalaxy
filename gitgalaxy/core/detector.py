@@ -1158,6 +1158,75 @@ def _c_function_like_defines(code: str) -> dict[str, list[bool]]:
     return out
 
 
+_C_PASTE_CHAIN = re.compile(r"((?:[A-Za-z_][A-Za-z0-9_]*[ \t]*##[ \t]*)*[A-Za-z_][A-Za-z0-9_]*)[ \t]*$")
+# #5563: the repo-wide table (`c_macro_name_args` over the scan's C/C++ headers), set per scan by the worker init.
+_C_REPO_MACRO_ARGS: dict[str, tuple[int, tuple[int, ...]] | None] = {}
+
+
+def c_macro_name_args(code: str) -> dict[str, tuple[int, tuple[int, ...]] | None]:
+    """#5563: each signature-expanding `#define` in `code` -> (index of the argument naming the function, indices of
+    its qualifier arguments).
+
+    The expansion's LAST statement (after its final `;`) is the definition head the invocation's `{` completes
+    (`static void Handler_ ## name(void)`, `static int AF_##cls##_##name(VM_ARGS)`); its declarator is the
+    identifier or `##` chain before the first `(`. The last parameter in that chain names the function and the
+    earlier ones qualify it (`AF_##cls##_##name` -> `name`, qualifier `cls`). A head that is not a signature, or a
+    chain that pastes no parameter, records nothing. Variants that disagree (an `#if` ladder) record None.
+    """
+    global _C_DEFINE_WITH_PARAMS
+    if _C_DEFINE_WITH_PARAMS is None:
+        _c_function_like_defines("")
+    out: dict[str, tuple[int, tuple[int, ...]] | None] = {}
+    for m in _C_DEFINE_WITH_PARAMS.finditer(code):
+        params = [p.strip() for p in m.group(2).split(",")]
+        tail = re.sub(r"\\\r?\n", " ", m.group(3)).rsplit(";", 1)[-1].strip()
+        head = tail.split("(", 1)[0] if "(" in tail else ""
+        words = re.findall(r"[A-Za-z_][A-Za-z0-9_]*", head)
+        chain = _C_PASTE_CHAIN.search(head)
+        if len(words) < 2 or words[0] in _C_STATEMENT_WORDS or any(c in head for c in "{}") or chain is None:
+            continue
+        pasted = [params.index(p) for p in re.split(r"[ \t]*##[ \t]*", chain.group(1)) if p in params]
+        if not pasted:
+            continue
+        entry = (pasted[-1], tuple(pasted[:-1]))
+        name = m.group(1)
+        out[name] = entry if out.get(name, entry) == entry else None
+    return out
+
+
+def c_repo_macro_name_args(texts: Any) -> dict[str, tuple[int, tuple[int, ...]] | None]:
+    """#5563: `c_macro_name_args` over many header texts; a macro two headers define differently records None."""
+    table: dict[str, tuple[int, tuple[int, ...]] | None] = {}
+    for text in texts:
+        if "#" not in text or "define" not in text:
+            continue
+        for name, entry in c_macro_name_args(text).items():
+            table[name] = entry if table.get(name, entry) == entry else None
+    return table
+
+
+def set_c_repo_macro_args(table: dict[str, tuple[int, tuple[int, ...]] | None]) -> None:
+    """#5563: install the scan's repo-wide macro table in this (worker) process."""
+    global _C_REPO_MACRO_ARGS
+    _C_REPO_MACRO_ARGS = dict(table)
+
+
+def _c_macro_definition_name(invocation: str, entry: tuple[int, tuple[int, ...]]) -> str | None:
+    """#5563: the name `entry` reads from `MACRO(a, b, ...) {`: the naming argument, prefixed `Q::` by each
+    qualifier argument. None when an argument it needs is missing or not a plain identifier."""
+    open_i = invocation.find("(")
+    close_i = invocation.rfind(")")
+    if open_i < 0 or close_i < open_i:
+        return None
+    args = [a.strip() for a in invocation[open_i + 1 : close_i].split(",")]
+    parts = []
+    for i in (*entry[1], entry[0]):
+        if i >= len(args) or not re.fullmatch(r"[" + ID_START + r"][" + ID_CONTINUE + r"]*", args[i]):
+            return None
+        parts.append(args[i])
+    return "::".join(parts)
+
+
 def _c_macro_branch_match(safe_code: str, match: Any) -> str | None:
     """#5461: the macro's name when `match` came from the C/C++ function-macro branch of `func_start`, else None."""
     global _C_MACRO_BRANCH
@@ -5943,8 +6012,11 @@ class StructuralExtractor:
         # counter downstream), so `safe_code` has nothing left here to match against.
         known_macro_positions: dict[str, int] = {}
         macro_expansions: dict[str, list[bool]] = {}
+        macro_name_args: dict[str, tuple[int, tuple[int, ...]] | None] = {}
         if lang_id in ("c", "cpp"):
             macro_expansions = _c_function_like_defines(code)
+            # #5563: this file's defines win over the repo-wide (header) table.
+            macro_name_args = {**_C_REPO_MACRO_ARGS, **c_macro_name_args(code)} if "#" in code else _C_REPO_MACRO_ARGS
             for m in re.finditer(
                 r"^[ \t]*#[ \t]*define[ \t]+([" + ID_START + r"][" + ID_CONTINUE + r"]*)\(", code, re.M
             ):
@@ -7223,10 +7295,14 @@ class StructuralExtractor:
             # #5461 (owner ruling 2026-10-18): `MACRO(args) {` whose `#define` is in this file is a function only
             # when some variant of the define expands to a signature (odamex FUNC); a statement/expression define
             # (`do { } while (0)`) is not. No define in the file: the invocation form alone decides.
-            if macro_expansions:
+            if (macro_expansions or macro_name_args) and match.group(0)[:1].isupper():
                 macro_name = _c_macro_branch_match(safe_code, match)
                 if macro_name is not None and macro_name in macro_expansions and not any(macro_expansions[macro_name]):
                     continue
+                # #5563: the `#define` (this file's, else a header's) says which argument names the function.
+                entry = macro_name_args.get(macro_name) if macro_name is not None else None
+                if entry is not None:
+                    name = _c_macro_definition_name(match.group(0), entry) or name
 
             block_nl = block.count("\n")  # #3174: scan the (often large) body once, not twice
             sat, mag = self._calculate_block_metrics(

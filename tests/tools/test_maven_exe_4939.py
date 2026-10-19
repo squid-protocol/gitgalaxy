@@ -82,6 +82,21 @@ SHIMS = ("mvn", "npm", "npx", "yarn", "pnpm", "gradle", "tsc")
 SHIM_ARGV = frozenset(n + ext for n in SHIMS for ext in ("", ".cmd", ".bat"))
 
 
+def _may_name_shim(source: str) -> bool:
+    """Cheap prefilter: a hit needs a constant that is a shim name, so a file with none of the words has no hit and
+    is not worth an `ast.parse` (the tree-wide scans were the slowest tests of a CI part, #5610)."""
+    return any(n in source for n in SHIMS)
+
+
+def _shim_sources(root: Path):
+    """(path, text) of every .py under root that may name a shim, sorted."""
+    for p in sorted(root.rglob("*.py")):
+        if p.name != Path(__file__).name and ".venv" not in p.parts:
+            text = p.read_text(encoding="utf-8")
+            if _may_name_shim(text):
+                yield p, text
+
+
 def _bare_launcher(source: str) -> list[int]:
     """Lines where a list/tuple literal starts with a Windows-shim launcher name (an argv for subprocess/run helpers)."""
     return sorted(
@@ -96,12 +111,7 @@ def _bare_launcher(source: str) -> list[int]:
 
 def test_no_bare_launcher_argv_in_tests_tools():
     """#4939/#4969: resolve through launcher_exe; a literal "mvn"/"npm" argv is not found on Windows."""
-    found = [
-        f"{p.relative_to(TOOLS)}:{n}"
-        for p in sorted(TOOLS.rglob("*.py"))
-        if p.name != Path(__file__).name
-        for n in _bare_launcher(p.read_text(encoding="utf-8"))
-    ]
+    found = [f"{p.relative_to(TOOLS)}:{n}" for p, text in _shim_sources(TOOLS) for n in _bare_launcher(text)]
     assert found == []
 
 
@@ -141,13 +151,13 @@ def _bare_launcher_forms(source: str) -> list[int]:
 def test_no_bare_launcher_binding_or_command_string_in_tests():
     """#4939: the list-literal guard misses `mvn = "mvn"`, `subprocess.run("mvn -q")` and anything outside tests/tools."""
     root = TOOLS.parent
-    found = [
-        f"{p.relative_to(root)}:{n}"
-        for p in sorted(root.rglob("*.py"))
-        if p.name != Path(__file__).name and ".venv" not in p.parts
-        for n in _bare_launcher_forms(p.read_text(encoding="utf-8"))
-    ]
+    found = [f"{p.relative_to(root)}:{n}" for p, text in _shim_sources(root) for n in _bare_launcher_forms(text)]
     assert found == []
+
+
+def test_the_prefilter_keeps_every_file_the_guards_can_flag():
+    assert _may_name_shim('mvn = "mvn"') and _may_name_shim('run_decoded(["npm.cmd"])')
+    assert not _may_name_shim("x = 1\n")
 
 
 def test_the_form_guard_catches_bindings_and_command_strings():

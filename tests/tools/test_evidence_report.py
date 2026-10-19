@@ -381,12 +381,19 @@ def test_the_release_gate_fails_while_a_level_is_stale(tmp_path, monkeypatch, ca
 
 
 @pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5208)")
-def test_the_release_gate_passes_the_published_non_live_report_and_fails_drift(tmp_path, monkeypatch):
-    """#5208: the refresh publishes a non-live render; the release gate must pass it, and still fail real drift."""
-    estate = stale_fixture(tmp_path, monkeypatch, FULL)
+def test_the_release_gate_passes_the_published_non_live_report(tmp_path, monkeypatch):
+    """#5208: the refresh publishes a non-live render; the release gate must pass it."""
+    stale_fixture(tmp_path, monkeypatch, FULL)
     er.write(er.expected(False))  # what the refresh publishes
     assert er.main(["--check", "--live"]) == 0  # clean right after a refresh
     assert er.main(["--check"]) == 0
+
+
+@pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5208)")
+def test_the_release_gate_fails_an_edited_rendering_and_edited_data(tmp_path, monkeypatch):
+    """Split from one test (#5610): each test's builds stay under the per-test time limit."""
+    estate = stale_fixture(tmp_path, monkeypatch, FULL)
+    er.write(er.expected(False))
     md = tmp_path / estate / "report.md"
     clean_md = md.read_text("utf-8")
     md.write_text(clean_md.replace("| L0 |", "| L0 (edited) |", 1), "utf-8")
@@ -396,7 +403,12 @@ def test_the_release_gate_passes_the_published_non_live_report_and_fails_drift(t
     clean_js = js.read_text("utf-8")
     js.write_text(clean_js.replace("evidence.py status at build time", "edited", 1), "utf-8")
     assert er.main(["--check", "--live"]) == 1  # edited data
-    js.write_text(clean_js, "utf-8")
+
+
+@pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5208)")
+def test_the_release_gate_fails_an_extra_file_until_it_is_removed(tmp_path, monkeypatch):
+    estate = stale_fixture(tmp_path, monkeypatch, FULL)
+    er.write(er.expected(False))
     (tmp_path / estate / "stray.md").write_text("x", "utf-8")
     assert er.main(["--check", "--live"]) == 1  # an extra file
     (tmp_path / estate / "stray.md").unlink()

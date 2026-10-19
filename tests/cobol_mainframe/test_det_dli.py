@@ -451,9 +451,19 @@ def test_exec_dli_get_without_using_is_the_same_command(tmp_path):
         ("EXEC DLI GU USING PCB(1) WHERE(F1 = IOA) INTO(IOA) END-EXEC", "WHERE must follow its SEGMENT"),
         ("EXEC DLI GU USING PCB(1) SEGMENT(S1) WHERE(F1 = 5) INTO(IOA) END-EXEC", "not a data area"),
         ("EXEC DLI GU USING PCB(1) SEGMENT(S1 S2) INTO(IOA) END-EXEC", "is not a segment name"),
-        ("EXEC DLI REPL USING PCB(1) SEGMENT(S1) FROM(IOA) END-EXEC", "EXEC DLI REPL: the segment commands"),
-        ("EXEC DLI ISRT USING PCB(1) SEGMENT(S1) FROM(IOA) END-EXEC", "EXEC DLI ISRT: the segment commands"),
-        ("EXEC DLI DLET USING PCB(1) SEGMENT(S1) FROM(IOA) END-EXEC", "EXEC DLI DLET: the segment commands"),
+        ("EXEC DLI REPL USING PCB(1) SEGMENT(S1) END-EXEC", "one PCB(n) first and one FROM(area)"),
+        ("EXEC DLI REPL USING PCB(1) FROM(IOA) END-EXEC", "SEGMENT(s) expected, once"),
+        ("EXEC DLI REPL USING PCB(1) SEGMENT(S1) SEGMENT(S2) FROM(IOA) END-EXEC", "SEGMENT(s) expected, once"),
+        ("EXEC DLI REPL USING PCB(1) SEGMENT(S1) WHERE(F1 = IOA) FROM(IOA) END-EXEC", "REPL WHERE: only PCB"),
+        ("EXEC DLI REPL USING PCB(1) SEGMENT(S1) FROM(IOA) SEGLENGTH(20) END-EXEC", "REPL SEGLENGTH: only PCB"),
+        ("EXEC DLI DLET USING PCB(1) SEGMENT(S1) FROM(IOA) FIELDLENGTH(4) END-EXEC", "DLET FIELDLENGTH: only PCB"),
+        ("EXEC DLI ISRT USING PCB(1) SEGMENT(S1) FROM(IOA) FROM(IOA) END-EXEC", "one PCB(n) first and one FROM(area)"),
+        ("EXEC DLI ISRT USING PCB(1) SEGMENT(S1) FROM(IOA) KEYS(IOA) END-EXEC", "ISRT KEYS: only PCB"),
+        ("EXEC DLI ISRT USING SEGMENT(S1) PCB(1) FROM(IOA) END-EXEC", "one PCB(n) first and one FROM(area)"),
+        ("EXEC DLI ISRT USING PCB(1) FROM(IOA) END-EXEC", "SEGMENT(s) expected"),
+        ("EXEC DLI ISRT USING PCB(1) WHERE(F1 = IOA) SEGMENT(S1) FROM(IOA) END-EXEC", "WHERE must follow its SEGMENT"),
+        ("EXEC DLI ISRT USING PCB(1) SEGMENT(S1) FROM(5) END-EXEC", "not a data area"),
+        ("EXEC DLI ISRT USING PCB(1) SEGMENT(S1 S2) FROM(IOA) END-EXEC", "is not a segment name"),
         ("EXEC DLI SCHD PSB((PSB-NAME)) NODHABEND SYSSERVE END-EXEC", "EXEC DLI SCHD: only PSB"),
         ("EXEC DLI SCHD END-EXEC", "EXEC DLI SCHD: only PSB"),
         ("EXEC DLI TERM PSB END-EXEC", "EXEC DLI TERM: no option"),
@@ -463,6 +473,30 @@ def test_exec_dli_get_without_using_is_the_same_command(tmp_path):
 def test_the_exec_dli_forms_not_modelled_are_holes_by_name(tmp_path, stmt, why):
     r = _translate_cics(tmp_path, _cics_program(_wrap(stmt)))
     assert len(r.stats["holes"]) == 1 and why in r.stats["holes"][0], r.stats["holes"]
+
+
+@pytest.mark.parametrize("pcb, pcb_java", [("1", "1"), ("PSB-NUM", r"Cobol\.num\(\w+, CS\)\.intValue\(\)")])
+@pytest.mark.parametrize(
+    "stmt, call",
+    [
+        ("ISRT USING PCB({p}) SEGMENT(S1) FROM(IOA)", r'execIsrt\({p}, \w+, -1, {d}\.ssa\("S1"\)\)'),
+        ("ISRT USING PCB({p}) SEGMENT(S1) FROM(IOA) SEGLENGTH(LENGTH OF IOA)", r'execIsrt\({p}, \w+, BigDecimal\.valueOf\(20\)\.intValue\(\), {d}\.ssa\("S1"\)\)'),
+        ("ISRT USING PCB({p}) SEGMENT(S1) WHERE(F1 = IOA) SEGMENT(S2) FROM(IOA) SEGLENGTH(8)",
+         r'execIsrt\({p}, \w+, 8, {d}\.ssa\("S1", "F1", "EQ", \w+\), {d}\.ssa\("S2"\)\)'),
+        ("REPL USING PCB({p}) SEGMENT(s1) FROM(IOA)", r'execChange\("REPL", {p}, \w+, "S1"\)'),
+        ("DLET USING PCB({p}) SEGMENT(S1) FROM(IOA)", r'execChange\("DLET", {p}, \w+, "S1"\)'),
+    ],
+)  # fmt: skip
+def test_exec_dli_isrt_repl_dlet_are_detdli_calls_and_answer_dibstat(tmp_path, pcb, pcb_java, stmt, call):
+    """ISRT (a root, a child under a qualified parent, with and without SEGLENGTH), REPL and DLET, the PCB a literal or
+    a data item: one DetDli call whose answer lands in DIBSTAT; a whole translation."""
+    d = r"\w+\.cobolrt\.dli\.DetDli"
+    r = _translate_cics(
+        tmp_path, _cics_program([*_wrap(f"EXEC DLI {stmt.format(p=pcb)} END-EXEC"), "    MOVE DIBSTAT TO IMS-RC"])
+    )
+    assert not r.stats["holes"], r.stats["holes"]
+    rx = rf"Cobol\.move\({d}\.{call.format(p=pcb_java, d=d)}, \w+_DIBSTAT, CS\);"
+    assert re.search(rx, r.java), r.java
 
 
 def test_exec_dli_in_a_batch_program_is_a_hole_and_other_dib_fields_are_no_such_item(tmp_path):
@@ -555,3 +589,64 @@ def test_detdli_schedule_and_terminate_answer_the_status_ibm_gives(tmp_path):
         "[  ]",
         "CBLTDLI: a TERM with no PSB scheduled is not modelled",
     ]
+
+
+@pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_detdli_isrt_repl_dlet_answer_the_status_ibm_gives_through_the_pcb_by_number(tmp_path):
+    """ISRT of a root and of a child under a qualified parent (blank), a duplicate (II), a missing parent (GE), a
+    PROCOPT G PCB (AM); REPL after a get-hold (blank, the segment changed), with no hold (DJ), with the key changed
+    (DA); DLET (blank, then GE); a SEGLENGTH that is not the fixed length, or a SEGMENT that is not the held type, is
+    refused by name."""
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    _stage(tmp_path / "dli")
+    src = tmp_path / "src"
+    for rel, text in P.runtime_files("t", batch=False).items():
+        if not rel.startswith(("cobolrt/cics/", "cobolrt/sql/")):
+            (src / "t" / rel).parent.mkdir(parents=True, exist_ok=True)
+            (src / "t" / rel).write_text(text)
+    d = "t.cobolrt.dli.DetDli"
+    key = f'{d}.ssa("DEPT", "DEPTNO", "EQ", v)'
+    refused = "catch (UnsupportedOperationException e) { p(e.getMessage()); }"
+    steps = [
+        f'{d}.schedule("LVLPSB", true); put("D200", v);',
+        f'p({d}.get("GU", 1, into, {key}));',
+        f'put("D200RENAMED        ", into); p({d}.execChange("REPL", 1, into, "DEPT"));',
+        f'p({d}.execChange("REPL", 1, into, "DEPT"));',
+        f'p({d}.get("GU", 1, into, {key}) + new String(st.bytes, 0, 20));',
+        f'put("D999RENAMED        ", into); p({d}.execChange("REPL", 1, into, "DEPT"));',
+        f'put("D200", v); {d}.get("GU", 1, into, {key});',
+        f'try {{ {d}.execChange("REPL", 1, into, "EMP"); }} {refused}',
+        f'put("D400NEWDEPT         ", into); p({d}.execIsrt(1, into, -1, {d}.ssa("DEPT")));',
+        f'p({d}.execIsrt(1, into, 20, {d}.ssa("DEPT")));',
+        f'put("E009ZED                 ", into); p({d}.execIsrt(1, into, 20, {key}, {d}.ssa("EMP")));',
+        f'p({d}.get("GU", 1, into, {key}, {d}.ssa("EMP", "EMPNO", "EQ", ev)) + new String(st.bytes, 0, 8));',
+        f'try {{ {d}.execIsrt(1, into, 19, {key}, {d}.ssa("EMP")); }} {refused}',
+        f'put("D999", v); p({d}.execIsrt(1, into, 20, {key}, {d}.ssa("EMP")));',
+        f'p({d}.execIsrt(2, into, -1, {d}.ssa("DEPT")));',
+        f'put("D400", v); {d}.get("GU", 1, into, {key}); p({d}.execChange("DLET", 1, into, "DEPT"));',
+        f'p({d}.get("GU", 1, into, {key}));',
+        f'try {{ {d}.execIsrt(3, into, -1, {d}.ssa("DEPT")); }} {refused}',
+    ]  # fmt: skip
+    setup = ("static t.cobolrt.Storage st = new t.cobolrt.Storage(64); "
+             "static t.cobolrt.Field into = t.cobolrt.Field.group(st, 0, 20); "
+             "static t.cobolrt.Storage vs = new t.cobolrt.Storage(4); "
+             "static t.cobolrt.Field v = t.cobolrt.Field.alphanumeric(vs, 0, 4, false); "
+             "static t.cobolrt.Storage es = new t.cobolrt.Storage(4); "
+             "static t.cobolrt.Field ev = t.cobolrt.Field.alphanumeric(es, 0, 4, false); "
+             "static void put(String s, t.cobolrt.Field f) { byte[] b = s.getBytes(); "
+             "System.arraycopy(b, 0, f.storage().bytes, f.offset(), b.length); } ")  # fmt: skip
+    (src / "Main.java").write_text(
+        'public class Main { static void p(String s) { System.out.println("[" + s + "]"); } '
+        f'{setup}public static void main(String[] a) {{ put("E009", ev); {" ".join(steps)} }} }}\n'
+    )
+    jdk = _jdk()
+    subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                    *map(str, src.rglob("*.java"))], check=True)  # fmt: skip
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", f"-Dgitgalaxy.dli.dir={tmp_path / 'dli'}", "-cp", str(tmp_path / "classes"),  # noqa: S603
+                          "Main"], capture_output=True, check=True).stdout.decode("utf-8").splitlines()  # fmt: skip
+    nothing = "CBLTDLI: an ISRT whose SEGLENGTH is not the segment's fixed length is not modelled"
+    wrong = "CBLTDLI: an EXEC DLI REPL whose SEGMENT is not the held segment's type is not modelled"
+    no_pcb = "CBLTDLI: a PCB number the scheduled PSB does not have is not modelled"
+    assert out == ["[  ]", "[  ]", "[DJ]", "[  D200RENAMED         ]", "[DA]", f"[{wrong}]", "[  ]", "[II]", "[  ]",
+                   "[  E009ZED ]", f"[{nothing}]", "[GE]", "[AM]", "[  ]", "[GE]", f"[{no_pcb}]"]  # fmt: skip

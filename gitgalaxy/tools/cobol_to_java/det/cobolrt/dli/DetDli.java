@@ -427,6 +427,55 @@ public final class DetDli {
         return new String(p.mask.storage().bytes, p.mask.offset() + 10, 2, StandardCharsets.ISO_8859_1);
     }
 
+    private static Pcb execPcb(int pcbNum) {
+        if (!scheduled) {
+            throw refuse("an EXEC DLI command with no PSB scheduled");
+        }
+        if (pcbNum < 1 || pcbNum > PCBS.size()) {
+            throw refuse("a PCB number the scheduled PSB does not have");
+        }
+        return PCBS.get(pcbNum - 1);
+    }
+
+    private static String execCall(String fn, Pcb p, Field io, Field... ssas) {
+        Storage f = new Storage(4);
+        f.bytes = fn.getBytes(StandardCharsets.ISO_8859_1);
+        call(Field.group(f, 0, 4), p.mask, io, ssas);
+        return new String(p.mask.storage().bytes, p.mask.offset() + 10, 2, StandardCharsets.ISO_8859_1);
+    }
+
+    /**
+     * EXEC DLI ISRT USING PCB(n) SEGMENT(s) [WHERE(..)] ... SEGMENT(t) FROM(area) [SEGLENGTH(n)] under CICS (register
+     * I5): the CBLTDLI ISRT of the same SSAs, the last one unqualified. Segments are fixed length (the DBD's): a
+     * SEGLENGTH (seglen, -1 where absent) that differs from it stops the run by name.
+     */
+    // [rule RT-DLI-EXEC-ISRT]
+    public static String execIsrt(int pcbNum, Field from, int seglen, Field... ssas) {
+        Pcb p = execPcb(pcbNum);
+        if (seglen >= 0 && ssas.length > 0) {
+            String[] st = new String[1];
+            Ssa[] s = parseSsas(p.db, ssas, st);
+            if (st[0] == null && SEGS.get(s[s.length - 1].seg).bytes != seglen) {
+                throw refuse("an ISRT whose SEGLENGTH is not the segment's fixed length");
+            }
+        }
+        return execCall("ISRT", p, from, ssas);
+    }
+
+    /**
+     * EXEC DLI REPL / DLET USING PCB(n) SEGMENT(s) FROM(area) under CICS (register I5): the CBLTDLI REPL / DLET of the
+     * segment the previous command on this PCB held (a get is a get-hold where the PCB's PROCOPT allows an update, see
+     * {@link #get}); SEGMENT must name that segment's type -- ASSUMED, the command form has no SSA.
+     */
+    // [rule RT-DLI-EXEC-CHANGE]
+    public static String execChange(String verb, int pcbNum, Field from, String segment) {
+        Pcb p = execPcb(pcbNum);
+        if (p.hold != null && !SEGS.get(p.hold.seg).name.equals(segment)) {
+            throw refuse("an EXEC DLI " + verb + " whose SEGMENT is not the held segment's type");
+        }
+        return execCall(verb.equals("DLET") ? "DLET" : "REPL", p, from);
+    }
+
     /** The step ended: each database, in hierarchic sequence (8-byte segment name, then its data), to gitgalaxy.dli.out. */
     public static void leave() {
         String out = System.getProperty("gitgalaxy.dli.out");

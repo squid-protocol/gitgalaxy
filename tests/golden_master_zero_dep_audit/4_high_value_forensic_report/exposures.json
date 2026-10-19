@@ -12,14 +12,14 @@
           "value": 100.0
         },
         {
-          "name": "HyperText.h",
-          "path": "objective-c/worldwideweb/HyperText.h",
+          "name": "types.ts",
+          "path": "typescript/typescript_compiler/types.ts",
           "value": 100.0
         },
         {
-          "name": "ast.ts",
-          "path": "typescript/assemblyscript/ast.ts",
-          "value": 93.3837
+          "name": "HyperText.h",
+          "path": "objective-c/worldwideweb/HyperText.h",
+          "value": 100.0
         }
       ],
       "lowest": [

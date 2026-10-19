@@ -9,14 +9,14 @@
     "Callbacks & Closures": "2.7% (1432)",
     "Compute Cores": "10.5% (5522)",
     "Defensive Guards": "8.2% (4287)",
-    "Encapsulated Accessors": "4.2% (2187)",
+    "Encapsulated Accessors": "4.2% (2186)",
     "Generic / Templated Code": "5.9% (3079)",
     "I/O & Config Routines": "15.1% (7917)",
     "Interface Declarations": "16.0% (8399)",
     "Many-Argument Workhorses": "6.5% (3419)",
     "Parameter Forwarders": "13.1% (6887)",
     "State Mutators": "8.7% (4551)",
-    "Stateful Encapsulated Methods": "4.8% (2517)",
+    "Stateful Encapsulated Methods": "4.8% (2518)",
     "Type Conversions": "2.5% (1291)"
   }
 }

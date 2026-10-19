@@ -522,8 +522,23 @@ def compare(a: dict[str, Any], b: dict[str, Any]) -> dict[str, Any]:
                b.get("mode", "b"): rb[i]["verdict"]} for i in both
               if caught(ra[i]["verdict"]) != caught(rb[i]["verdict"])]  # fmt: skip
     secs = {m: sum(r.get("seconds", 0) for r in x["results"] if r["id"] in both) for m, x in (("a", a), ("b", b))}
+    survivors = [i for i in both if "survived" in (caught(ra[i]["verdict"]), caught(rb[i]["verdict"]))]
+    surv_secs = {m: sum(x[i].get("seconds", 0) for i in survivors) for m, x in (("a", ra), ("b", rb))}
+    by_op: dict[str, dict[str, int]] = {}  # per operator: judged by both / judged differently
+    for i in both:
+        o = by_op.setdefault(ra[i]["op"], {"judged": 0, "differ": 0})
+        o["judged"] += 1
+        o["differ"] += caught(ra[i]["verdict"]) != caught(rb[i]["verdict"])
+    ma, mb = a.get("mode", "a"), b.get("mode", "b")
     return {"judged_by_both": len(both), "agree": len(both) - len(differ), "differ": differ,
-            "proof_seconds": {a.get("mode", "a"): secs["a"], b.get("mode", "b"): secs["b"]}}  # fmt: skip
+            "proof_seconds": {ma: secs["a"], mb: secs["b"]},
+            "survivor_proof_seconds": {ma: surv_secs["a"], mb: surv_secs["b"]},
+            "by_operator": by_op}  # fmt: skip
+
+
+def agreement_gate(result: dict[str, Any], minimum: int | None) -> bool:
+    """`compare --require-agree N`: no gate without N; otherwise N or more judged by both, and none differ."""
+    return minimum is None or (result["judged_by_both"] >= minimum and not result["differ"])
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -561,11 +576,14 @@ def main(argv: list[str] | None = None) -> int:
     cp = sub.add_parser("compare", help="two runs of one case (fast and --full): do their verdicts agree?")
     cp.add_argument("a", type=Path)
     cp.add_argument("b", type=Path)
+    cp.add_argument("--require-agree", type=int, metavar="N", help="a gate: exit 1 unless both runs judged at least N "
+                    "mutants and none of them differ")  # fmt: skip
     args = ap.parse_args(argv)
     if args.cmd == "compare":
         loaded = [json.loads((w / "mutation.json").read_text(encoding="utf-8")) for w in (args.a, args.b)]
-        print(json.dumps(compare(*loaded), indent=2))
-        return 0
+        result = compare(*loaded)
+        print(json.dumps(result, indent=2))
+        return 0 if agreement_gate(result, args.require_agree) else 1
     if args.cmd == "report":
         s = json.loads((args.work / "mutation.json").read_text(encoding="utf-8"))
         (args.work / "mutation.md").write_text(mutation_md(s), encoding="utf-8")

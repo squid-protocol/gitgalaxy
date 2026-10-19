@@ -806,7 +806,18 @@ def main() -> int:
                 f["sql_plan"] = ec.sql_fault_plan(case, {"name": f["name"], **f}, table)
         if args.sql_faults == "auto" and args.faults != "none":
             faults = [*faults, *enumerated_batch_sql_faults(work / "cobol", table)]
-    cobol_faults = {f["name"]: run_cobol(case, corpus, work / "faults" / f["name"] / "cobol", f) for f in faults}
+    cobol_faults, unrunnable = {}, {}
+    for f in faults:
+        try:
+            cobol_faults[f["name"]] = run_cobol(case, corpus, work / "faults" / f["name"] / "cobol", f)
+        except RuntimeError as e:
+            # #5561: a derived SQL fault whose oracle run is "not runnable faithfully" (BANKDATA's failed DELETE
+            # shows SQLERRMC(1:SQLERRML), length 0 under an injected fault: X8) has no oracle: named in the report,
+            # never proven or guessed. A declared fault, or any other failure, still stops the proof.
+            if not f.get("derived") or "not runnable faithfully" not in str(e):
+                raise
+            unrunnable[f["name"]] = str(e).strip().splitlines()[0]
+    faults = [f for f in faults if f["name"] in cobol_faults]
     if args.cobol_only:
         for name, res in [("", cobol), *cobol_faults.items()]:
             for dd, data in res.items():
@@ -877,6 +888,8 @@ def main() -> int:
         work / "faults" / f["name"] / "cobol" / cov.TRACE_NAME for f in faults
     ]
     report["coverage"] = cobol_coverage(case, corpus, traces, work / "coverage.json")  # #4023, every run together
+    if unrunnable:  # only when non-empty (python-test-traps.md): a case with none keeps its report as it was
+        report["unrunnable_faults"] = unrunnable
     report["runs"] = 1 + len(faults)
     report["oracle"] = equivalence_oracle.for_case(case)  # #4309: which GnuCOBOL produced the expected outputs
     report["feedback"] = feedback_md(report) if not ok else ""

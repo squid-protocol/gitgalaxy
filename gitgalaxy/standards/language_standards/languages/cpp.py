@@ -376,7 +376,11 @@ DEFINITION: dict[str, Any] = {
             # this exact shape, and every `[[attribute]] Type param` case in the existing
             # extraction gauntlet still matches (the lookahead only excludes a single `[` NOT
             # immediately followed by a second one).
-            r"[ \t\n]{0,200}(?:ARGS\d+\s*\([^)]*\)|\((?![ \t\n]{0,20}\[(?!\[))(?:[^)(]|\([^)]*\))*\)|NOARGS)"
+            # #5462: a parameter list holds no `;` and no brace other than a flat brace-init default
+            # (`= {}`, `= {1, 2}`). A call passing a multi-line lambda AFTER its first argument
+            # (`walk(node, [&](T& x) noexcept {` ... `if (f(x)) {`) otherwise ran through the
+            # lambda's body to a later `) {` and was counted as a definition of `walk`.
+            r"[ \t\n]{0,200}(?:ARGS\d+\s*\([^)]*\)|\((?![ \t\n]{0,20}\[(?!\[))(?:[^)(;{}]|\([^);{}]*\)|\{[^(){};]*\})*\)|NOARGS)"
             # 8. POST-PARAMETER MODIFIERS & TRAILING RETURN TYPES
             # [OVERLAP PREVENTION]: Removed ambiguous \s* inside attribute matcher.
             # #5462: also `noexcept(expr)`, `throw(...)`, a specifier macro (psydoom `readBit() THROWS {`),

@@ -1,0 +1,24 @@
+{
+  "format": "gitgalaxy-hfp-captures/1",
+  "about": "Expected results for IBM hexadecimal floating point (register C6, #4271), checked against det/hfp.py by test_hfp_zos_captures.py (the Java runtime is held to the same model bit for bit by test_det_hfp.py). source ibm-publication: a value IBM or a public reference states, hand-checked. source zos-run: a result captured from a z/OS run (#4050); needs evidence (job, step, output hash; never the data) and calibrated_under (runtime_options.calibration_problems). None is captured yet. ops: encode (value, size -> hex), add / sub / mul / div (a, b hex, size -> hex), display (a hex, size -> text), fixed (a hex, size, scale -> decimal).",
+  "records": [
+    {"id": "enc-1", "source": "ibm-publication", "op": "encode", "value": "1", "size": "short", "want": "41100000"},
+    {"id": "enc-half", "source": "ibm-publication", "op": "encode", "value": "0.5", "size": "short", "want": "40800000"},
+    {"id": "enc-1-64", "source": "ibm-publication", "op": "encode", "value": "0.015625", "size": "short", "want": "3F400000"},
+    {"id": "enc-m15", "source": "ibm-publication", "op": "encode", "value": "-15", "size": "short", "want": "C1F00000"},
+    {"id": "enc-m118.625", "source": "ibm-publication", "op": "encode", "value": "-118.625", "size": "short", "want": "C276A000"},
+    {"id": "enc-0.1-short", "source": "ibm-publication", "op": "encode", "value": "0.1", "size": "short", "want": "4019999A"},
+    {"id": "enc-0.1-long", "source": "ibm-publication", "op": "encode", "value": "0.1", "size": "long", "want": "4019999999999999"},
+    {"id": "enc-1-long", "source": "ibm-publication", "op": "encode", "value": "1", "size": "long", "want": "4110000000000000"},
+    {"id": "add-1-1", "source": "ibm-publication", "op": "add", "a": "41100000", "b": "41100000", "size": "short", "want": "41200000"},
+    {"id": "add-15-1", "source": "ibm-publication", "op": "add", "a": "41F00000", "b": "41100000", "size": "short", "want": "42100000"},
+    {"id": "add-cancel", "source": "ibm-publication", "op": "add", "a": "C276A000", "b": "4276A000", "size": "short", "want": "00000000"},
+    {"id": "sub-1-1", "source": "ibm-publication", "op": "sub", "a": "41100000", "b": "41100000", "size": "short", "want": "00000000"},
+    {"id": "mul-1-half", "source": "ibm-publication", "op": "mul", "a": "41100000", "b": "40800000", "size": "short", "want": "40800000"},
+    {"id": "div-1-2", "source": "ibm-publication", "op": "div", "a": "41100000", "b": "41200000", "size": "short", "want": "40800000"},
+    {"id": "add-long-1-1", "source": "ibm-publication", "op": "add", "a": "4110000000000000", "b": "4110000000000000", "size": "long", "want": "4120000000000000"},
+    {"id": "disp-1.5", "source": "ibm-publication", "op": "display", "a": "41180000", "size": "short", "want": " .15000000E 01"},
+    {"id": "fixed-1.5", "source": "ibm-publication", "op": "fixed", "a": "41180000", "size": "short", "scale": 0, "want": "2"},
+    {"id": "fixed-m1.5", "source": "ibm-publication", "op": "fixed", "a": "C1180000", "size": "short", "scale": 0, "want": "-2"}
+  ]
+}

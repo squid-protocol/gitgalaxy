@@ -1541,6 +1541,7 @@ public class CicsTask {
      *  ADDRESS OF a pointer was set to (2), or a block FREEMAIN released (3). */
     private static final class Block {
         byte[] bytes;
+        int off;  // #4771: where the block starts in `bytes` (an item inside a larger storage)
         int kind;
         boolean bound;
         String key;  // #5042: what a later command of the same kind ends (null: valid to the task's end)
@@ -1553,6 +1554,7 @@ public class CicsTask {
 
     private final java.util.Map<Long, Block> blocks = new java.util.HashMap<>();
     private final java.util.IdentityHashMap<byte[], Long> addressed = new java.util.IdentityHashMap<>();
+    private final java.util.IdentityHashMap<byte[], java.util.Map<Integer, Long>> addressedAt = new java.util.IdentityHashMap<>();
     private long nextBlock = 1;
 
     private long newBlock(byte[] bytes, int kind) {
@@ -1668,6 +1670,24 @@ public class CicsTask {
         return root().addressed.computeIfAbsent(record, r -> newBlock(r, 2));
     }
 
+    /** SET ptr TO ADDRESS OF item (#4771): the handle of the bytes from `off` on (the same one each time); 0 is the record. */
+    public long addressOf(byte[] storage, int off) {
+        if (off == 0) {
+            return addressOf(storage);
+        }
+        return root().addressedAt.computeIfAbsent(storage, r -> new java.util.HashMap<>()).computeIfAbsent(off, o -> {
+            long h = newBlock(storage, 2);
+            root().blocks.get(h).off = o;
+            return h;
+        });
+    }
+
+    /** Where the block `handle` starts in its bytes (0 unless it is an item inside a larger storage). */
+    public int offsetAt(long handle) {
+        Block b = root().blocks.get(handle);
+        return b == null ? 0 : b.off;
+    }
+
     /** `ptr-a = ptr-b` (#5042, X56): two pointers are equal when they address the same storage. One block can have two
      *  handles (a record's ADDRESS OF beside the pointer it was set to), so the handles are equal, or both name blocks
      *  of one byte array. NULL (0) equals only NULL. */
@@ -1677,7 +1697,7 @@ public class CicsTask {
         }
         Block x = root().blocks.get(a);
         Block y = root().blocks.get(b);
-        return x != null && y != null && x.bytes == y.bytes;
+        return x != null && y != null && x.bytes == y.bytes && x.off == y.off;
     }
 
     /** SET ADDRESS OF record TO ptr: the bytes the pointer addresses, for a record of `need` bytes. A record longer than
@@ -1692,7 +1712,7 @@ public class CicsTask {
         if (b.kind == 3) {
             throw refused("SET ADDRESS OF storage already freed");
         }
-        if (b.bytes.length < need) {
+        if (b.bytes.length - b.off < need) {
             if (b.kind == 2 || b.bound) {
                 throw refused("SET ADDRESS OF a record longer than its storage");
             }

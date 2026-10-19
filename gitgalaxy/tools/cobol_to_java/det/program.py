@@ -1755,10 +1755,10 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         "    }",
         "",
     ]
-    return members + ca_whole, entry + facades(stub, cx.passes_bytes)
+    return members + ca_whole, entry + facades(stub, cx.passes_bytes, wide_shapes(cx))
 
 
-def answer_lines(ret: str, own: str | None) -> list[str]:
+def answer_lines(ret: str, own: str | None, codec: bool = False) -> list[str]:
     """#4695: the lines that answer handleTransaction of a program whose RETURN or XCTL can pass its COMMAREA as bytes
     (a LENGTH past the DTO, #4679: DetCics.commareaOut). The answer is then the program's own DTO read from them
     (wideAnswer: the layout of #4449, through the region page), the task keeping the bytes for the next one. Bytes no
@@ -1769,15 +1769,21 @@ def answer_lines(ret: str, own: str | None) -> list[str]:
         return ["        return task.returned(Object.class);"]
     dto = own if ret == "Object" else ret
     read = f"wideAnswer(wide, {dto}.class)"
+    # #5089: bytes no layout reads are read through the program's codec, where it has one -- for a typed answer, which
+    # would be refused; an Object answer keeps the bytes, lossless (a DTO cannot hold a space in a numeric field)
+    more = (["            if (read == null) {", f"                read = codecAnswer(wide, {dto}.class);", "            }"]
+            if codec and ret != "Object" else [])  # fmt: skip
     if ret == "Object":
         return ["        Object answer = task.returned(Object.class);",
                 "        if (answer instanceof byte[] wide) {",
                 f"            Object read = {read};",
+                *more,
                 "            return read != null ? read : answer;",
                 "        }",
                 "        return answer;"]  # fmt: skip
     return ["        if (task.returned(Object.class) instanceof byte[] wide) {",
             f"            {ret} read = {read};",
+            *more,
             "            if (read != null) {",
             "                return read;",
             "            }",
@@ -1801,7 +1807,69 @@ WIDE_ANSWER = [
 ]
 
 
-def facades(stub: str, passes_bytes: bool = False) -> list[str]:
+def wide_shapes(cx: C.Cics) -> dict[str, tuple[int, int]]:
+    """#5089: for each DTO with a storage codec, (the bytes its object spans in the port's storage, the bytes its
+    non-POINTER properties need): a RETURN whose LENGTH differs from the record passes that many bytes, and a DTO with
+    no layout of its own is read from them through the codec. A POINTER the bytes do not reach was never passed (IBM:
+    the next task sees EIBCALEN = LENGTH); it reads as NULL, the only pointer a COMMAREA carries (DetCics.pointerOut)."""
+    out = {}
+    for cls in cx.codecs:
+        d = cx.gp.dto(cls)
+        need = max([d.at(x.offset) + x.size * x.occurs for x in d.leaves if x.usage != "POINTER"]
+                   + [d.at(off) + p.size for _, p, off in d.parts], default=0)  # fmt: skip
+        out[cls] = (d.extent, need)
+    return out
+
+
+def codec_answer(shapes: dict[str, tuple[int, int]]) -> list[str]:
+    """#5089: the facade helpers that read, and check, an answer through the program's storage codecs."""
+    reads = []
+    same = []
+    for cls, (extent, need) in shapes.items():
+        reads += [f"        if (type == {cls}.class) {{",
+                  f"            return ebcdic.length < {need} ? null : type.cast(out_{cls}(wideStorage(ebcdic, {extent}), 0));",
+                  "        }"]  # fmt: skip
+        same += [f"        if (dto instanceof {cls} d) {{",
+                 f"            Storage s = wideStorage(ebcdic, {extent});  // bytes no property names (FILLER) stay as passed",
+                 f"            in_{cls}(d, s, 0);",
+                 "            return wideSame(s, ebcdic);",
+                 "        }"]  # fmt: skip
+    return [
+        "    // @facade-helper: a handleTransaction answer read through the storage codec (#5089)",
+        "    /** #5089: the COMMAREA bytes a RETURN passed with a LENGTH that differs from the record, read through the",
+        "     *  program's own codec: the bytes past the record are storage no one defined and are dropped, a POINTER the",
+        "     *  LENGTH stops short of reads NULL; null when the bytes stop short of the non-POINTER properties or the",
+        "     *  type has no codec. @facade-helper */",
+        "    private <T> T codecAnswer(byte[] ebcdic, Class<T> type) {",
+        *reads,
+        "        return null;",
+        "    }",
+        "",
+        "    private static Storage wideStorage(byte[] ebcdic, int extent) {",
+        "        byte[] page = DetCics.commareaIn(ebcdic, CS);",
+        "        Storage s = new Storage(extent);",
+        "        System.arraycopy(page, 0, s.bytes, 0, Math.min(page.length, extent));",
+        "        return s;",
+        "    }",
+        "",
+        "    private static boolean wideSame(Storage s, byte[] ebcdic) {",
+        "        byte[] page = DetCics.commareaIn(ebcdic, CS);",
+        "        int n = Math.min(page.length, s.bytes.length);",
+        "        return java.util.Arrays.equals(java.util.Arrays.copyOf(s.bytes, n), java.util.Arrays.copyOf(page, n));",
+        "    }",
+        "",
+        "    /** #5089: whether `dto` is the record the COMMAREA bytes a RETURN passed hold: the DTO written back through the",
+        "     *  codec over the passed bytes and compared with the bytes over the span both define (a record past LENGTH was never passed, bytes",
+        "     *  past the record are undefined). @facade-helper */",
+        "    public boolean wideSame(byte[] ebcdic, Object dto) {",
+        *same,
+        "        return false;",
+        "    }",
+        "",
+    ]
+
+
+def facades(stub: str, passes_bytes: bool = False, shapes: dict[str, tuple[int, int]] | None = None) -> list[str]:
     """The stub's handleTransaction / handleLink, kept for their callers (#4465): each runs the program -- one task of
     it in the region, as the generator's own facades do (#4343: CicsTask.region(), region.transaction / region.linked,
     region.run(task, NAME, this::runTask)) -- and returns what the generated signature says: the COMMAREA its RETURN
@@ -1812,6 +1880,7 @@ def facades(stub: str, passes_bytes: bool = False) -> list[str]:
     name = re.search(r'region\.run\(task, ("(?:[^"\\]|\\.)*"), this::runTask\)', stub)
     out: list[str] = []
     wide = False
+    typed = False  # #5089: a typed answer reads through the codec, so the helpers are emitted
     for meth in ("handleTransaction", "handleLink"):
         # #4870: handleTransaction has two overloads -- the DTO's, and the one carrying the COMMAREA's bytes in (and,
         # through lastAnswerBytes(), out) -- each rebuilt on its own
@@ -1846,14 +1915,17 @@ def facades(stub: str, passes_bytes: bool = False) -> list[str]:
                     body += ["        byte[] left = task.linkAreaView();",
                              "        lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;"]  # fmt: skip
                 if ret != "void" and meth == "handleTransaction" and passes_bytes:
-                    body += (lines := answer_lines(ret, req.group(1) if req else None))
+                    body += (lines := answer_lines(ret, req.group(1) if req else None, bool(shapes)))
                     wide = wide or len(lines) > 1
+                    typed = typed or (len(lines) > 1 and ret != "Object" and bool(shapes))
                 elif ret != "void":
                     body.append("        return request;" if meth == "handleLink" and req and ret == req.group(1)
                                 else f"        return task.returned({ret}.class);")  # fmt: skip
             out += [f"    public {ret} {meth}({params}) {{", *body, "    }", ""]
     if wide:
         out += WIDE_ANSWER
+        if typed and shapes:
+            out += codec_answer(shapes)
     # The bytes the byte-carrying overload answers: a field and its accessor, tagged for port_surface (#4870)
     if re.search(r"public byte\[\] lastAnswerBytes\(\)", stub):
         out += ["    // @facade-helper: the bytes the last byte-carrying handleTransaction answered",

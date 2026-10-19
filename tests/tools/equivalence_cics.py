@@ -4182,7 +4182,7 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
             if (top != null) {
                 throw new FacadeRefused("handleTransaction of " + program + " did not run its task in the region");
             }
-            if (used.getReturnType() != void.class && !answered(got, scenario, used.getReturnType())) {
+            if (used.getReturnType() != void.class && !answered(got, scenario, used.getReturnType(), service)) {
                 throw new FacadeRefused("handleTransaction of " + program
                         + " answered a COMMAREA other than the one its RETURN passes on");
             }
@@ -4312,10 +4312,20 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
     /** Whether a facade answered the COMMAREA its task's RETURN passed on: that very object -- or, where the facade
      *  answers its own DTO and the task RETURNed another record (#4449), those bytes read through it (task.returned):
      *  a fresh object of the facade's type, laid out as the same bytes. */
-    static boolean answered(Object got, CicsTask task, Class<?> type) {
+    static boolean answered(Object got, CicsTask task, Class<?> type, Object service) {
         Object raw = task.returned(Object.class);
         if (got == raw) {
             return true;
+        }
+        if (raw instanceof byte[] wide && got != null && service != null && !(got instanceof byte[])
+                && java.util.Arrays.stream(got.getClass().getMethods()).noneMatch(m -> m.getName().equals("fromCommarea"))) {
+            // #5089: a DTO with no layout (a POINTER, a LENGTH that differs from the record) is read through the
+            // program's own codec; written back, it must give the bytes the RETURN passed, over the span both define
+            try {
+                return (Boolean) service.getClass().getMethod("wideSame", byte[].class, Object.class).invoke(service, wide, got);
+            } catch (ReflectiveOperationException | RuntimeException e) {
+                return false;
+            }
         }
         if (raw instanceof byte[] wide && got != null && got.getClass() == type) {
             // #4695: a RETURN with a LENGTH past the DTO passes the COMMAREA as bytes (the region's EBCDIC); the facade

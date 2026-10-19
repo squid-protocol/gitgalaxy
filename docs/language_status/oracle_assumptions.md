@@ -3211,7 +3211,8 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   LEFT). (2) Text longer than the field is cut from the end the justification starts from (RIGHT keeps its last bytes). (3) The
   length is that of the text typed, before justification. IBM's DFHMDF page (re-read 2026-10-15) says nothing of what `<f>L` holds after justification. For a NUM field this
   matters (#5116): a program that reads `<f>I(1:<f>L)` sees the text's leading zeros, so cbsa-bnk1cac types its rates at the field's full width. (4) Input arriving through the CICS stub is the typed text, not a 3270
-  data stream, so a null or `X'00'` in a field (BMS's erase-input convention) is not modelled.
+  data stream, so a field erased with ERASE EOF (the cics-crucible's convention: `<f>L` 0, flag `<f>F` X'80' = DFHBMEOF) is not modelled
+  by the equivalence harness or the det port (#4506). An unmodified field is: `<f>L` 0, data and flag X'00' on both legs.
 - **NUM default (#5116).** A field with no JUSTIFY but ATTRB=NUM is right-justified and zero-filled, as IBM assumes. The forge's
   `_justify` returns the effective operand (`RIGHT,ZERO` for it), so `ScreenField.justify`, `Cics.receive_map`'s `DetJustify.place`
   and the oracle's `bms_justify` / `map_input` all take the one rule, and the cics-crucible runner (`cics_bms.received_value`)
@@ -3251,8 +3252,16 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   ASKIP or PROT, not OCCURS; a field with no ATTRB is ASKIP (the forge's `_attrs`; `cics_bms.attr_byte` agrees), and an OCCURS field is left
   untyped because `map_input` refuses it by name. A NUM field and a PICIN of 9s get digits, the rest letters and digits, at the BMS LENGTH (the
   narrower of LENGTH and the PICIN width); `bad` types text that is not a number into a NUM field (CICS does not check it; a real 3270 keyboard
-  would refuse it) and `empty` leaves a field alone (no data, `<f>L` 0). Not modelled: the MDT bit (a field the user did not change is simply
-  not sent here) and the null / `X'00'` erase-input convention (assumption 4).
+  would refuse it) and `empty` leaves a field alone (no data, `<f>L` 0).
+- **MDT and the null convention (#4506).** `bms_input_fields` reports `mdt` for a field with ATTRB FSET (the map sends it with its
+  modified-data tag on, so a 3270 transmits it whether or not the user typed). A field left alone with MDT off is not transmitted: RECEIVE MAP
+  leaves it X'00' with `<f>L` 0 and `<f>F` X'00' (oracle `map_input` and the det port's zeroed INTO area agree). A field left alone with
+  MDT on is generated as transmitted with no data (`""`: `<f>L` 0, blank data on both legs). ASSUMED: IBM is not quoted here for what an
+  MDT-on field that was never touched returns (the sent content, here none), and the IBM RECEIVE MAP page was not re-read for this slice.
+  Census: no burned program reads `<f>F` or DFHBMEOF (they only move DFHBMFSE into `<f>A`); burned programs do test emptiness
+  (`= SPACES OR LOW-VALUES`, e.g. COTRN01C on `TRNIDINI`, FSET, case carddemo-tranview-generated), which both an omitted and an
+  empty-transmitted field satisfy. Not modelled: ERASE EOF (assumption 4) and X'00' rather than blank data for a transmitted empty field
+  (differs only for a program testing `= LOW-VALUES` alone).
 
 ### X55. Macro-level CICS and CICS Assembler programs: refused by name, not translated (#5121)
 - **IBM.** The macro-level interface is the pre-command-level CICS API (the "era 0" of #5121: DFHxx macro calls, no

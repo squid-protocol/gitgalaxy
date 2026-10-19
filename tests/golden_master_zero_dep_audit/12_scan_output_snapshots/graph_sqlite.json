@@ -9105,7 +9105,7 @@
       "solidity/openzeppelin/StorageSlot.sol": "4487fe17e8c2",
       "sql/baseline/schema.php": "2d0ecf8d387c",
       "sql/mediawiki_mysql/blobs.sql": "bfe3049dfaeb",
-      "sql/mediawiki_postgresql/tables.sql": "b5b0b441387a",
+      "sql/mediawiki_postgresql/tables.sql": "d2c29b22bf55",
       "sql/spamassassin_mysql/neural_mysql.sql": "7af1c1306fbe",
       "sql/sqlite/000-mandelbrot.sql": "3edc1afa880a",
       "sql/sqlite/001-sudoku.sql": "2108c2c04a8c",

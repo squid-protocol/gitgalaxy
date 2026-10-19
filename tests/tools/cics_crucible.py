@@ -1790,6 +1790,9 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
                 ca = _java_area(e.get("commarea"), src, shapes, length)
                 if length is None:
                     length = cc.Unmodelled("XCTL LENGTH of a whole-record COMMAREA") if ca is not None else 0
+                ca = _with_answered_bytes(
+                    ca, e.get("area"), RUNTIME_PAGE, _answered_layout(e.get("commarea"), shapes)
+                )  # #5053
                 ev.update(target=e.get("target"), commarea=ca, length=length, resp=e.get("resp"), resp2=e.get("resp2"))
             elif kind == "START":  # #4006: FROM data as base64, EBCDIC bytes; REQID only if the program named one
                 b64 = e.get("from")

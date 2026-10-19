@@ -173,7 +173,7 @@
    "name": "branch coverage"
   },
   {
-   "condition": "L4, and every surviving mutant of the det port accounted for: not yet measured (#4628)",
+   "condition": "L4, and every surviving mutant of the det port's seeded mutation sample accounted for (stated equivalent / unreachable, owner-reviewed; a fresh det_mutation/ entry, #4628)",
    "level": "L5",
    "name": "mutants accounted for"
   }
@@ -293,6 +293,12 @@
     13,
     4,
     31
+   ],
+   "carddemo-cobswait": [
+    0,
+    0,
+    0,
+    0
    ],
    "carddemo-cobtupdt": [
     9,
@@ -453,7 +459,7 @@
    "carddemo-userdel": [
     11,
     11,
-    30,
+    31,
     32
    ],
    "carddemo-userlist": [
@@ -480,6 +486,18 @@
     2,
     2
    ],
+   "cbsa-acctctrl-generated": [
+    7,
+    7,
+    2,
+    2
+   ],
+   "cbsa-bankdata": [
+    24,
+    24,
+    17,
+    48
+   ],
    "cbsa-bnk1cac": [
     25,
     25,
@@ -492,11 +510,22 @@
     29,
     41
    ],
-   "cbsa-bnk1ccs": null,
+   "cbsa-bnk1ccs": [
+    33,
+    33,
+    109,
+    143
+   ],
    "cbsa-bnk1cra": [
     28,
     28,
     52,
+    67
+   ],
+   "cbsa-bnk1cra-generated": [
+    28,
+    28,
+    43,
     67
    ],
    "cbsa-bnk1dac": [
@@ -505,14 +534,36 @@
     44,
     60
    ],
+   "cbsa-bnk1dac-generated": [
+    31,
+    31,
+    41,
+    60
+   ],
    "cbsa-bnk1dcs": [
     46,
     51,
     62,
     102
    ],
-   "cbsa-bnk1tfn": null,
-   "cbsa-bnk1uac": null,
+   "cbsa-bnk1tfn": [
+    28,
+    28,
+    53,
+    72
+   ],
+   "cbsa-bnk1uac": [
+    31,
+    31,
+    75,
+    88
+   ],
+   "cbsa-bnk1uac-generated": [
+    31,
+    31,
+    68,
+    88
+   ],
    "cbsa-bnkmenu": [
     19,
     25,
@@ -556,6 +607,12 @@
     38
    ],
    "cbsa-crecust": null,
+   "cbsa-crecust-generated": [
+    13,
+    37,
+    23,
+    74
+   ],
    "cbsa-custctrl": [
     7,
     7,
@@ -568,7 +625,19 @@
     25,
     35
    ],
+   "cbsa-dbcrfun-generated": [
+    16,
+    22,
+    23,
+    35
+   ],
    "cbsa-delacc": [
+    19,
+    19,
+    13,
+    14
+   ],
+   "cbsa-delacc-generated": [
     19,
     19,
     13,
@@ -610,6 +679,12 @@
     19,
     33
    ],
+   "cbsa-inqacccu-generated": [
+    16,
+    22,
+    19,
+    33
+   ],
    "cbsa-inqcust": [
     22,
     25,
@@ -638,6 +713,12 @@
     27,
     28,
     46,
+    81
+   ],
+   "cbsa-xfrfun-generated": [
+    27,
+    28,
+    45,
     81
    ],
    "genapp-lgacdb01": [
@@ -721,13 +802,13 @@
    "genapp-lgicvs01": [
     1,
     1,
-    7,
+    10,
     12
    ],
    "genapp-lgicvs01-linked": [
     1,
     1,
-    7,
+    10,
     12
    ],
    "genapp-lgipdb01": [
@@ -1245,15 +1326,15 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "21cbcb3f0ad0b2e8cc2269ebe21b0eafe6969f31",
+   "sha": "1789aecb9a025d1534f02248db97b3d503a995a6",
    "translator": {
-    "files": 128,
-    "sha256": "9155812fd2290f369e1c7c9bbc0e2fb681322268dca6953b5a49b2126957ec9e"
+    "files": 129,
+    "sha256": "af09c699b7819dbb04c73bc1de3c196596c9d33c8fbfec2d02c16fd588dbbb70"
    }
   },
   "sweeps": {}
  },
- "mutation": "not yet measured (#4628)",
+ "mutation": "det_mutation.py (#4628): a fresh entry, every survivor of the seeded sample accounted for",
  "not_measured": [
   {
    "dimension": "data",
@@ -1492,10 +1573,13 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
-    "every surviving mutant of the det port accounted for: not yet measured (#4628)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
    ],
    "options": {
     "assumed": 6,
@@ -1898,7 +1982,10 @@
    "level": "L3",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "branch coverage >= 100.0 net (now 83.3 raw, 83.3 net of the reviewed infeasible outcomes)"
@@ -2506,7 +2593,10 @@
    "level": "L2",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "paragraph coverage >= 100.0 (now 23.7)"
@@ -3168,7 +3258,10 @@
    "level": "L1",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "its det port equal on every scenario of zecs-zecs003: ledgered as differing in det_sweep_baseline.json (#5076): ZECS003 reads and deletes records of the instance's files ZC##FILE and ZC##KEY, named at run time from EIBTRNID; zECS defines them in IDCAMS jobs with install placeholders (@ECS_HLQ@ ...) in the dataset names, so no case can state their records and the generated project stores no such file: the Java side refuses the READ of ZC01FILE by name ('Hole: CICS file ZC01FILE: the program names no file the generated project stores') where GnuCOBOL answers FILENOTFOUND. The scenarios cover the COMMAREA, the document template, the WEB PARSE / OPEN / CONVERSE / CLOSE replication and the WEB SEND on the COBOL side; the expired-record browse and 3100-DELETE are not covered and not shown equal."
@@ -3686,7 +3779,10 @@
    "level": "L0",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "translated whole (17 holes left)"
@@ -4325,7 +4421,10 @@
    "level": "L0",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "translated whole (refused whole by the translator)"
@@ -4497,7 +4596,10 @@
    "level": "L0",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "translated whole (refused whole by the translator)"
@@ -4640,8 +4742,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 21cbcb3f0ad0b2e8cc2269ebe21b0eafe6969f31",
-   "python tests/tools/evidence_report.py zecs --baseline --sha 21cbcb3f0ad0b2e8cc2269ebe21b0eafe6969f31",
+   "python tests/tools/cics_census.py survey --baseline --sha 1789aecb9a025d1534f02248db97b3d503a995a6",
+   "python tests/tools/evidence_report.py zecs --baseline --sha 1789aecb9a025d1534f02248db97b3d503a995a6",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs003,zecs-zecsplt",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -4662,13 +4764,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "21cbcb3f0ad0b2e8cc2269ebe21b0eafe6969f31",
+   "sha": "1789aecb9a025d1534f02248db97b3d503a995a6",
    "translator": {
-    "files": 128,
-    "sha256": "9155812fd2290f369e1c7c9bbc0e2fb681322268dca6953b5a49b2126957ec9e"
+    "files": 129,
+    "sha256": "af09c699b7819dbb04c73bc1de3c196596c9d33c8fbfec2d02c16fd588dbbb70"
    }
   },
-  "translator_commit": "21cbcb3f0ad0b2e8cc2269ebe21b0eafe6969f31",
+  "translator_commit": "1789aecb9a025d1534f02248db97b3d503a995a6",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -4711,6 +4813,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "9155812fd2290f369e1c7c9bbc0e2fb681322268dca6953b5a49b2126957ec9e"
+  "fingerprint": "af09c699b7819dbb04c73bc1de3c196596c9d33c8fbfec2d02c16fd588dbbb70"
  }
 }

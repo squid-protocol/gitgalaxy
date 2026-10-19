@@ -149,7 +149,7 @@
    "name": "branch coverage"
   },
   {
-   "condition": "L4, and every surviving mutant of the det port accounted for: not yet measured (#4628)",
+   "condition": "L4, and every surviving mutant of the det port's seeded mutation sample accounted for (stated equivalent / unreachable, owner-reviewed; a fresh det_mutation/ entry, #4628)",
    "level": "L5",
    "name": "mutants accounted for"
   }
@@ -269,6 +269,12 @@
     13,
     4,
     31
+   ],
+   "carddemo-cobswait": [
+    0,
+    0,
+    0,
+    0
    ],
    "carddemo-cobtupdt": [
     9,
@@ -429,7 +435,7 @@
    "carddemo-userdel": [
     11,
     11,
-    30,
+    31,
     32
    ],
    "carddemo-userlist": [
@@ -456,6 +462,18 @@
     2,
     2
    ],
+   "cbsa-acctctrl-generated": [
+    7,
+    7,
+    2,
+    2
+   ],
+   "cbsa-bankdata": [
+    24,
+    24,
+    17,
+    48
+   ],
    "cbsa-bnk1cac": [
     25,
     25,
@@ -468,11 +486,22 @@
     29,
     41
    ],
-   "cbsa-bnk1ccs": null,
+   "cbsa-bnk1ccs": [
+    33,
+    33,
+    109,
+    143
+   ],
    "cbsa-bnk1cra": [
     28,
     28,
     52,
+    67
+   ],
+   "cbsa-bnk1cra-generated": [
+    28,
+    28,
+    43,
     67
    ],
    "cbsa-bnk1dac": [
@@ -481,14 +510,36 @@
     44,
     60
    ],
+   "cbsa-bnk1dac-generated": [
+    31,
+    31,
+    41,
+    60
+   ],
    "cbsa-bnk1dcs": [
     46,
     51,
     62,
     102
    ],
-   "cbsa-bnk1tfn": null,
-   "cbsa-bnk1uac": null,
+   "cbsa-bnk1tfn": [
+    28,
+    28,
+    53,
+    72
+   ],
+   "cbsa-bnk1uac": [
+    31,
+    31,
+    75,
+    88
+   ],
+   "cbsa-bnk1uac-generated": [
+    31,
+    31,
+    68,
+    88
+   ],
    "cbsa-bnkmenu": [
     19,
     25,
@@ -532,6 +583,12 @@
     38
    ],
    "cbsa-crecust": null,
+   "cbsa-crecust-generated": [
+    13,
+    37,
+    23,
+    74
+   ],
    "cbsa-custctrl": [
     7,
     7,
@@ -544,7 +601,19 @@
     25,
     35
    ],
+   "cbsa-dbcrfun-generated": [
+    16,
+    22,
+    23,
+    35
+   ],
    "cbsa-delacc": [
+    19,
+    19,
+    13,
+    14
+   ],
+   "cbsa-delacc-generated": [
     19,
     19,
     13,
@@ -586,6 +655,12 @@
     19,
     33
    ],
+   "cbsa-inqacccu-generated": [
+    16,
+    22,
+    19,
+    33
+   ],
    "cbsa-inqcust": [
     22,
     25,
@@ -614,6 +689,12 @@
     27,
     28,
     46,
+    81
+   ],
+   "cbsa-xfrfun-generated": [
+    27,
+    28,
+    45,
     81
    ],
    "genapp-lgacdb01": [
@@ -697,13 +778,13 @@
    "genapp-lgicvs01": [
     1,
     1,
-    7,
+    10,
     12
    ],
    "genapp-lgicvs01-linked": [
     1,
     1,
-    7,
+    10,
     12
    ],
    "genapp-lgipdb01": [
@@ -1824,15 +1905,15 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "21cbcb3f0ad0b2e8cc2269ebe21b0eafe6969f31",
+   "sha": "1789aecb9a025d1534f02248db97b3d503a995a6",
    "translator": {
-    "files": 128,
-    "sha256": "9155812fd2290f369e1c7c9bbc0e2fb681322268dca6953b5a49b2126957ec9e"
+    "files": 129,
+    "sha256": "af09c699b7819dbb04c73bc1de3c196596c9d33c8fbfec2d02c16fd588dbbb70"
    }
   },
   "sweeps": {}
  },
- "mutation": "not yet measured (#4628)",
+ "mutation": "det_mutation.py (#4628): a fresh entry, every survivor of the seeded sample accounted for",
  "not_measured": [
   {
    "dimension": "data",
@@ -2133,10 +2214,13 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
-    "every surviving mutant of the det port accounted for: not yet measured (#4628)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
    ],
    "options": {
     "assumed": 5,
@@ -2607,10 +2691,13 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
-    "every surviving mutant of the det port accounted for: not yet measured (#4628)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
    ],
    "options": {
     "assumed": 5,
@@ -3164,10 +3251,13 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
-    "every surviving mutant of the det port accounted for: not yet measured (#4628)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
    ],
    "options": {
     "assumed": 5,
@@ -3630,10 +3720,13 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
-    "every surviving mutant of the det port accounted for: not yet measured (#4628)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
    ],
    "options": {
     "assumed": 5,
@@ -4287,10 +4380,13 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
-    "every surviving mutant of the det port accounted for: not yet measured (#4628)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
    ],
    "options": {
     "assumed": 5,
@@ -4888,7 +4984,10 @@
    "level": "L3",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "branch coverage >= 100.0 net (now 92.9 raw, 92.9 net of the reviewed infeasible outcomes)"
@@ -5365,7 +5464,10 @@
    "level": "L3",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "branch coverage >= 100.0 net (now 50.0 raw, 50.0 net of the reviewed infeasible outcomes)"
@@ -5846,7 +5948,10 @@
    "level": "L3",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "branch coverage >= 100.0 net (now 75.0 raw, 75.0 net of the reviewed infeasible outcomes)"
@@ -6349,7 +6454,10 @@
    "level": "L3",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "branch coverage >= 100.0 net (now 62.5 raw, 62.5 net of the reviewed infeasible outcomes)"
@@ -6963,7 +7071,10 @@
    "level": "L3",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "branch coverage >= 100.0 net (now 55.6 raw, 55.6 net of the reviewed infeasible outcomes)"
@@ -7460,7 +7571,10 @@
    "level": "L3",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "branch coverage >= 100.0 net (now 66.7 raw, 66.7 net of the reviewed infeasible outcomes)"
@@ -7980,7 +8094,10 @@
    "level": "L3",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "branch coverage >= 100.0 net (now 0.0 raw, 0.0 net of the reviewed infeasible outcomes)"
@@ -8434,7 +8551,10 @@
    "level": "L3",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "branch coverage >= 100.0 net (now 50.0 raw, 50.0 net of the reviewed infeasible outcomes)"
@@ -8866,14 +8986,14 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 58.3,
-    "branch_pct": 58.3,
+    "branch_net_pct": 83.3,
+    "branch_pct": 83.3,
     "branches": {
-     "covered": 7,
+     "covered": 10,
      "total": 12
     },
     "branches_net": {
-     "covered": 7,
+     "covered": 10,
      "total": 12
     },
     "current": true,
@@ -8895,7 +9015,7 @@
     "cases": [
      {
       "case": "genapp-lgicvs01",
-      "case_scenarios": 4,
+      "case_scenarios": 8,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -8906,7 +9026,7 @@
      },
      {
       "case": "genapp-lgicvs01-linked",
-      "case_scenarios": 4,
+      "case_scenarios": 8,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -8918,7 +9038,7 @@
     ],
     "chosen": {
      "case": "genapp-lgicvs01",
-     "case_scenarios": 4,
+     "case_scenarios": 8,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -8931,10 +9051,13 @@
    "level": "L3",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
-    "branch coverage >= 100.0 net (now 58.3 raw, 58.3 net of the reviewed infeasible outcomes)"
+    "branch coverage >= 100.0 net (now 83.3 raw, 83.3 net of the reviewed infeasible outcomes)"
    ],
    "options": {
     "assumed": 5,
@@ -9493,7 +9616,7 @@
      "X27",
      "X60"
     ],
-    "branch_outcomes_unrun": 5,
+    "branch_outcomes_unrun": 2,
     "commands": 9,
     "commands_backed": 6,
     "commands_not_backed": [
@@ -9653,7 +9776,10 @@
    "level": "L3",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "branch coverage >= 100.0 net (now 98.6 raw, 98.6 net of the reviewed infeasible outcomes)"
@@ -10147,7 +10273,10 @@
    "level": "L3",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "branch coverage >= 100.0 net (now 50.0 raw, 50.0 net of the reviewed infeasible outcomes)"
@@ -10637,7 +10766,10 @@
    "level": "L3",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "branch coverage >= 100.0 net (now 66.7 raw, 66.7 net of the reviewed infeasible outcomes)"
@@ -11242,7 +11374,10 @@
    "level": "L3",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "branch coverage >= 100.0 net (now 90.0 raw, 90.0 net of the reviewed infeasible outcomes)"
@@ -11703,7 +11838,10 @@
    "level": "L3",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "branch coverage >= 100.0 net (now 62.5 raw, 62.5 net of the reviewed infeasible outcomes)"
@@ -12202,7 +12340,10 @@
    "level": "L3",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "branch coverage >= 100.0 net (now 75.0 raw, 75.0 net of the reviewed infeasible outcomes)"
@@ -12766,7 +12907,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:9f4b277696080342e269e7fa60eaa2e0fcb65fda16e305e42fd1622576891c6a",
+       "oracle_image": "sha256:a0c1e70994308aea2dda184479e6558eb17d8adcfb62cdb1c40098239c42001b",
        "oracle_matches_pin": true,
        "records_compared": 18,
        "records_equal": 18,
@@ -12856,7 +12997,7 @@
         "option": "db2.ccsid.EBCDIC_CCSID"
        }
       ],
-      "oracle_image": "sha256:9f4b277696080342e269e7fa60eaa2e0fcb65fda16e305e42fd1622576891c6a",
+      "oracle_image": "sha256:a0c1e70994308aea2dda184479e6558eb17d8adcfb62cdb1c40098239c42001b",
       "oracle_matches_pin": true,
       "records_compared": 18,
       "records_equal": 18,
@@ -12873,7 +13014,10 @@
    "level": "L3",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "branch coverage >= 100.0 net (now 68.4 raw, 68.4 net of the reviewed infeasible outcomes)"
@@ -13391,7 +13535,10 @@
    "level": "L3",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "branch coverage >= 100.0 net (now 81.2 raw, 81.2 net of the reviewed infeasible outcomes)"
@@ -13939,7 +14086,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:9f4b277696080342e269e7fa60eaa2e0fcb65fda16e305e42fd1622576891c6a",
+       "oracle_image": "sha256:a0c1e70994308aea2dda184479e6558eb17d8adcfb62cdb1c40098239c42001b",
        "oracle_matches_pin": true,
        "records_compared": 18,
        "records_equal": 18,
@@ -13990,7 +14137,10 @@
    "level": "L3",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "branch coverage >= 100.0 net (now 55.6 raw, 55.6 net of the reviewed infeasible outcomes)"
@@ -14521,7 +14671,10 @@
    "level": "L2",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "paragraph coverage >= 100.0 (now 85.7)"
@@ -14996,7 +15149,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:9f4b277696080342e269e7fa60eaa2e0fcb65fda16e305e42fd1622576891c6a",
+       "oracle_image": "sha256:a0c1e70994308aea2dda184479e6558eb17d8adcfb62cdb1c40098239c42001b",
        "oracle_matches_pin": true,
        "records_compared": 24,
        "records_equal": 24,
@@ -15084,7 +15237,7 @@
         "option": "db2.ccsid.EBCDIC_CCSID"
        }
       ],
-      "oracle_image": "sha256:9f4b277696080342e269e7fa60eaa2e0fcb65fda16e305e42fd1622576891c6a",
+      "oracle_image": "sha256:a0c1e70994308aea2dda184479e6558eb17d8adcfb62cdb1c40098239c42001b",
       "oracle_matches_pin": true,
       "records_compared": 24,
       "records_equal": 24,
@@ -15101,7 +15254,10 @@
    "level": "L2",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "paragraph coverage >= 100.0 (now 75.0)"
@@ -15901,7 +16057,10 @@
    "level": "L2",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "paragraph coverage >= 100.0 (coverage not measured for a LINKed program: the case's coverage is its main program's)"
@@ -16558,7 +16717,10 @@
    "level": "L2",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "paragraph coverage >= 100.0 (now 90.0)"
@@ -17295,7 +17457,10 @@
    "level": "L2",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "paragraph coverage >= 100.0 (now 70.0)"
@@ -17948,7 +18113,10 @@
    "level": "L2",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "paragraph coverage >= 100.0 (now 70.0)"
@@ -18601,7 +18769,10 @@
    "level": "L2",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "paragraph coverage >= 100.0 (now 70.0)"
@@ -19254,7 +19425,10 @@
    "level": "L2",
    "level_current": true,
    "mutation": {
-    "det_port": "not yet measured (#4628)"
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
    },
    "next": [
     "paragraph coverage >= 100.0 (now 77.8)"
@@ -19816,8 +19990,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 21cbcb3f0ad0b2e8cc2269ebe21b0eafe6969f31",
-   "python tests/tools/evidence_report.py cics-genapp --baseline --sha 21cbcb3f0ad0b2e8cc2269ebe21b0eafe6969f31",
+   "python tests/tools/cics_census.py survey --baseline --sha 1789aecb9a025d1534f02248db97b3d503a995a6",
+   "python tests/tools/evidence_report.py cics-genapp --baseline --sha 1789aecb9a025d1534f02248db97b3d503a995a6",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb02,genapp-lgacus01,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapol01,genapp-lgapvs01,genapp-lgastat1,genapp-lgdpdb01,genapp-lgdpol01,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicus01,genapp-lgicvs01,genapp-lgicvs01-linked,genapp-lgipdb01,genapp-lgipol01,genapp-lgipvs01,genapp-lgipvs01-linked,genapp-lgsetup,genapp-lgtestc1,genapp-lgtestp1,genapp-lgtestp2,genapp-lgtestp3,genapp-lgtestp4,genapp-lgucdb01,genapp-lgucus01,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupol01,genapp-lgupvs01,genapp-lgwebst5  # Db2 cases (20) need the Db2 container",
    "python tests/tools/evidence.py prove genapp-lgapvs01 genapp-lgicdb01 genapp-lgupdb01",
@@ -19834,7 +20008,7 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:9f4b277696080342e269e7fa60eaa2e0fcb65fda16e305e42fd1622576891c6a",
+   "sha256:a0c1e70994308aea2dda184479e6558eb17d8adcfb62cdb1c40098239c42001b",
    "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
@@ -19842,13 +20016,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "21cbcb3f0ad0b2e8cc2269ebe21b0eafe6969f31",
+   "sha": "1789aecb9a025d1534f02248db97b3d503a995a6",
    "translator": {
-    "files": 128,
-    "sha256": "9155812fd2290f369e1c7c9bbc0e2fb681322268dca6953b5a49b2126957ec9e"
+    "files": 129,
+    "sha256": "af09c699b7819dbb04c73bc1de3c196596c9d33c8fbfec2d02c16fd588dbbb70"
    }
   },
-  "translator_commit": "21cbcb3f0ad0b2e8cc2269ebe21b0eafe6969f31",
+  "translator_commit": "1789aecb9a025d1534f02248db97b3d503a995a6",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -19891,6 +20065,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "9155812fd2290f369e1c7c9bbc0e2fb681322268dca6953b5a49b2126957ec9e"
+  "fingerprint": "af09c699b7819dbb04c73bc1de3c196596c9d33c8fbfec2d02c16fd588dbbb70"
  }
 }

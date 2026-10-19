@@ -37,7 +37,7 @@ ORACLE_COLUMNS = ("treesitter_functions", "ts_delta_pct")
 COLUMNS = [
     "variant", "rc", "first_party_src", "missed_src", "excluded_by_design",
     "excluded_by_design_reasons", "data_files_excluded", "vendor_files_mapped", "wrong_language",
-    "gg_functions", "ctags_functions", "func_delta_pct", "treesitter_functions", "ts_delta_pct", "clang_files", "clang_files_with_errors",
+    "gg_functions", "ctags_functions", "func_delta_pct", "functions_agree", "treesitter_functions", "ts_delta_pct", "clang_files", "clang_files_with_errors",
     "clang_compile_commands_files", "clang_functions", "clang_gg_functions", "clang_delta_pct", "files_func_mismatch",
     "files_ctags_checked", "typosquat", "sarif_total", "sarif_errors", "credential_files", "log_problems", "fails",
     "verdict",

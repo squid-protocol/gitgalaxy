@@ -2436,8 +2436,7 @@ class Orchestrator:
         def texts():
             for rel in headers:
                 try:
-                    with open(self.root / self.disk_paths.get(rel, rel), encoding="utf-8", errors="ignore") as fh:
-                        yield fh.read(2_000_000)
+                    yield read_source(self.root / self.disk_paths.get(rel, rel), limit=2_000_000).text
                 except OSError:
                     continue
 

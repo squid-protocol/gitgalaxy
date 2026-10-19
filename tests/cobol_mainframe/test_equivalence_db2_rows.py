@@ -341,6 +341,18 @@ def test_the_bnk1cra_screen_holds_on_generated_db2_rows(tmp_path):
     assert sum(1 for q in sql if q["statements"]) >= 10
 
 
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_bnk1dac_screen_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's display / delete screen (BNK1DAC -> INQACC, DELACC) on 30 generated ACCOUNT rows: inquiries and PF5
+    deletes of numbers the rows hold, statements answered alike on both sides, ACCOUNT and PROCTRAN alike. (The
+    screen's ACCNO2 never misses: a letters-for-digits value makes the Java NUMVAL throw where GnuCOBOL's reads 0.)"""
+    report = _det_port_generated("cbsa-bnk1dac-generated", tmp_path)
+    assert report["proven"] is True and report["db2_generated"] == {"IBMUSER.ACCOUNT": 30}
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    assert sql and all(q["equal"] == q["statements"] for q in sql)
+    assert any(x["verb"] == "DELETE" for q in sql for x in q["cobol"])
+
+
 def test_the_harness_logs_a_statement_the_driver_refuses_on_the_client_as_db2s_minus_180():
     """The Java outcome log (EquivalenceDb2Config) names the -4220 bind refusal and answers it -180 / 22007."""
     assert "getErrorCode() == -4220" in db2.CONFIG and 'o.state = "22007"' in db2.CONFIG

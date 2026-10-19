@@ -1674,6 +1674,32 @@ def _skip_blanks_back(text: str, i: int) -> int:
     return i
 
 
+_HEADER_MACRO_NAME = re.compile(r"[A-Z][A-Z0-9_]*\Z")
+_HEADER_SCAN_MAX = 4000
+
+
+def _header_macro_span(text: str) -> int:
+    """#5629: end of a C/C++ unit's header text where an ALL-CAPS `NAME(` is a macro use, never a call.
+
+    The header is everything before the body's first `{`: the defining macro of a macro-defined
+    unit (`CCMD(map) {`) and macros in the parameter list (`int n TXT_UNCAST_ARG(n)`). A C++
+    constructor's initializer list (a lone `:` after the parameter list's `)`) is real code and
+    stays out of the span. Returns 0 (nothing dropped) when no `{` opens within the bound.
+    """
+    depth, closed = 0, False
+    for i, ch in enumerate(text[:_HEADER_SCAN_MAX]):
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth = max(depth - 1, 0)
+            closed = closed or depth == 0
+        elif depth == 0 and (
+            ch == "{" or (ch == ":" and closed and text[i - 1 : i] != ":" and text[i + 1 : i + 2] != ":")
+        ):
+            return i
+    return 0
+
+
 def _declarator_type_callee(text: str, pos: int) -> tuple[str, int] | None:
     """#3644 (contract C3): is the `name(` at `pos` a C++ `Type var(args)` declaration?
 
@@ -10311,9 +10337,17 @@ class StructuralExtractor:
                 unit_parts = _UNIT_NAME_SEPARATORS.split(name)
                 own_leaf = unit_parts[-1] if len(unit_parts) > 1 else None
                 own_qualifiers = {"", "this", "self", ".".join(unit_parts[:-1]), unit_parts[-2]} if own_leaf else set()
+                header_end = (
+                    _header_macro_span(safe_block)
+                    if self.languages.get(self.primary_lang_id, {}).get("calls_out_header_macros_are_not_calls")
+                    else 0
+                )
                 for m in invocation_pattern.finditer(safe_block):
                     callee = m.group(1)
                     callee_pos = m.start(1)
+                    # #5629: a macro in the unit's header (its defining macro, a parameter-list macro).
+                    if callee_pos < header_end and _HEADER_MACRO_NAME.match(callee):
+                        continue
                     if 0 <= body_start < callee_pos:
                         declared = _declarator_type_callee(safe_block, callee_pos)
                         if declared is not None:

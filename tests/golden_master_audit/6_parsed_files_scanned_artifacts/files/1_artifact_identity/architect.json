@@ -3911,7 +3911,8 @@
       "typescript/typescript_compiler/checker.ts": "Unknown Architect",
       "typescript/typescript_compiler/emitter.ts": "Unknown Architect",
       "typescript/typescript_compiler/package.json": "Unknown Architect",
-      "typescript/typescript_compiler/parser.ts": "Unknown Architect"
+      "typescript/typescript_compiler/parser.ts": "Unknown Architect",
+      "typescript/typescript_compiler/types.ts": "Unknown Architect"
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": "Unknown Architect",

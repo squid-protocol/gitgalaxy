@@ -311,3 +311,24 @@ def test_every_pointer_hole_left_in_zecs001_is_refused_by_name(tmp_path):
         assert lines <= got if phrase.startswith("a pointer") else got == lines, (reason, got)
     named = [p for p, _ in by_reason.values()]
     assert all(any(n in h for n in named) for h in pointer), pointer
+
+
+@pytest.mark.parametrize("program", ["ZECS000", "ZECS003"])
+def test_zecs_file_name_template_programs_translate_whole_and_name_the_run_time_hole(tmp_path, program):
+    """#4771: ZECS000 / ZECS003 name their file by a data item (ZF-FCT, ZC##FILE): no translation-time hole is left, and
+    the file the project does not store is a named Hole at run time, never a silent miss."""
+    root = os.environ.get("GITGALAXY_MAINFRAME_CORPORA")
+    src = Path(root) / f"zecs/Source/{program}.cbl" if root else None
+    if src is None or not src.is_file():
+        pytest.skip("needs the zecs corpus (GITGALAXY_MAINFRAME_CORPORA)")
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    vsam = tmp_path / "proj/src/main/java/com/x/entity/vsam"
+    vsam.mkdir(parents=True)
+    (vsam / "CobolRecords.java").write_text("package com.x.entity.vsam; public class CobolRecords {}\n")
+    stub = f"package com.x.service;\nimport com.x.cics.CicsTask;\npublic class {program.title()}Service {{\n" \
+           "    public void runTask(CicsTask task) {}\n}\n"  # fmt: skip
+    r = P.translate(src, [], stub, "com.x", {}, tmp_path / "proj")
+    assert r.stats["holes"] == []
+    assert "the program names no file the generated project stores" in r.java

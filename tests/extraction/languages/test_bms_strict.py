@@ -386,3 +386,29 @@ def test_internal_discriminator_rejects_non_bms_map_content():
     assert not disc.search(_SOURCEMAP_JSON)
     linker_map = "Memory Configuration\n\nName    Origin    Length\nFLASH   0x08000000 0x00080000\n"
     assert not disc.search(linker_map)
+
+
+# #5625: both shapes of `.map` in one fixture. A real BMS map carries DFH macros and is bms; a plain-text grid
+# (icitry/FPS.cob level1.map, doom_sectors.map) carries none, so it keeps its real type instead of locking to bms
+# on the extension. The no-macro result is the intended contract, pinned here so a loosened discriminator is seen.
+_PLAIN_GRID_MAP = "##########\n#..@.....#\n#..####..#\n#......>.#\n##########\n"
+_MAP_SHAPES = {
+    "real_bms": ("maps/custset.map", _REAL_MAPSET, True),
+    "plain_grid": ("levels/level1.map", _PLAIN_GRID_MAP, False),
+    "plain_grid_numeric": ("data/doom_sectors.map", "0 0 64 64\n64 0 128 64\n0 64 64 128\n", False),
+}
+
+
+@pytest.mark.parametrize("shape", sorted(_MAP_SHAPES))
+def test_map_shapes_classify_by_macro_presence(shape):
+    path, text, is_bms = _MAP_SHAPES[shape]
+    assert bool(BMS["internal_discriminator"].search(text)) is is_bms
+    lang, _conf, _family = LanguageDetector(LANGUAGE_DEFINITIONS, {}).focus(path, text)
+    assert (lang == "bms") is is_bms, f"{shape}: classified as {lang!r}"
+
+
+def test_plain_grid_map_beside_cobol_still_not_bms():
+    # the FPS.cob shape: a .map grid in a COBOL program's directory (ecosystem gravity must not claim it).
+    detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
+    lang, _conf, _family = detector.focus("icitry/level1.map", _PLAIN_GRID_MAP)
+    assert lang != "bms"

@@ -20,6 +20,7 @@ from gitgalaxy.tools.cobol_to_java import cics_task_filecontrol as tf  # noqa: E
 from gitgalaxy.tools.cobol_to_java import cobol_to_java_transaction_forge as forge  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics as C  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_containers as CC  # noqa: E402
+from gitgalaxy.tools.cobol_to_java.det import cics_filecontrol as CF  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 STUB = ROOT / "tests" / "equivalence" / "cics"
@@ -101,3 +102,14 @@ def test_the_file_verbs_still_translate_to_their_stubs():
     for verb, stub in (("READ FILE('F') INTO(WS) RIDFLD(K)", "GGCREAD"), ("STARTBR FILE('F') RIDFLD(K)", "GGCSTBR"),
                        ("ENDBR FILE('F')", "GGCENBR"), ("UNLOCK FILE('F')", "GGCUNLK")):  # fmt: skip
         assert any(stub in ln for ln in ec.translate_command(verb)), verb
+
+
+def test_the_det_translator_holds_the_file_control_methods_in_its_mixin():
+    assert issubclass(C.Cics, CF.FileControlCommands)
+    for method in ("_rba", "rba_browse", "_keylength", "_search", "_read_length", "read", "read_set", "token_out",
+                   "read_length", "record_from", "_runtime_keylength", "delete_generic", "token_update",
+                   "file_update"):  # fmt: skip
+        assert method in vars(CF.FileControlCommands) and method not in vars(C.Cics), method
+    assert "constant_int" in vars(C.Cics)  # shared with LINK / RETURN / CONVERSE: it stays the translator's own
+    for verb in FILE_VERBS:
+        assert C.command_key([verb], {"FILE": "'F'"}).startswith(verb), verb

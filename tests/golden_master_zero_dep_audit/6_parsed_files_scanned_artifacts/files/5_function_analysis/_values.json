@@ -520845,7 +520845,60 @@
     },
     "sql/mediawiki_postgresql": {
       "sql/mediawiki_postgresql/COPYING": [],
-      "sql/mediawiki_postgresql/tables.sql": []
+      "sql/mediawiki_postgresql/tables.sql": [
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "18.2%",
+          "End Line": 25,
+          "Function Name": "ts2_page_title",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 11,
+          "Reflection Hits": 1,
+          "Start Line": 15,
+          "Structural Impact": 5.7
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "18.2%",
+          "End Line": 42,
+          "Function Name": "ts2_page_text",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 11,
+          "Reflection Hits": 1,
+          "Start Line": 32,
+          "Structural Impact": 5.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 28,
+          "Function Name": "ts2_page_title",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 27,
+          "Structural Impact": 1.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 45,
+          "Function Name": "ts2_page_text",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 44,
+          "Structural Impact": 1.8
+        }
+      ]
     },
     "sql/spamassassin_mysql": {
       "sql/spamassassin_mysql/NOTICE": [],

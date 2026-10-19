@@ -276,6 +276,7 @@ class ScopeParsingRegistry:
         "psql": "sql",
         "sqlite": "sql",
         "db2_sql": "sql",
+        "postgresql": "sql",
         "visualbasic": "vb",
         "vba": "vb",
     }
@@ -620,6 +621,9 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         # match CREATE TABLE, so the named class list would stay permanently
         # empty despite db2_sql's own regex working.
         "db2_sql",
+        # #5622: postgresql's class_start extracts CREATE TABLE / VIEW / TYPE / DOMAIN
+        # names, same shape and same tree-sitter-blind verification as db2_sql.
+        "postgresql",
         # #3211-followup: csd's class_start extracts the CICS PROGRAM a transaction
         # routes to (`DEFINE PROGRAM(BNK1CRA)` -> "BNK1CRA") and its func_start the
         # transaction (`DEFINE TRANSACTION(OCRA)` -> "OCRA") -- the deployable-module
@@ -1995,13 +1999,14 @@ _MODE_E_SYNTHETIC_NAME = re.compile(r"Declarative_Block|[A-Z0-9]+_Statement")
 # statement terminators would otherwise cut it after its first statement). Every
 # other statement stays a synthetic bucket. sqlite is deliberately absent: its
 # only routine form is CREATE TRIGGER, which nothing invokes by name.
-_MODE_E_NAMED_ROUTINE_LANGS = frozenset({"db2_sql"})
+_MODE_E_NAMED_ROUTINE_LANGS = frozenset({"db2_sql", "postgresql"})
 # SQL PL block depth inside a named routine. BEGIN and CASE open (a CASE
 # statement closes with `END CASE`, a CASE expression with a bare `END`); a bare
 # `END` / `END label` or `END CASE` closes; `END IF/WHILE/LOOP/REPEAT/FOR` close
 # statements that only ever appear inside a BEGIN block, so they don't move depth.
 _SQL_ROUTINE_DEPTH_TOKEN = re.compile(
-    r"\bEND[ \t]+(IF|WHILE|LOOP|REPEAT|FOR|CASE)\b|\b(END|BEGIN|CASE)\b", re.IGNORECASE
+    r"\bEND[ \t]+(IF|WHILE|LOOP|REPEAT|FOR|CASE)\b|\b(END|BEGIN|CASE)\b|(\$(?:[^\W\d]\w{0,30})?\$)",
+    re.IGNORECASE,
 )
 
 # #2806: the two invocation models a registry may declare through the
@@ -3046,7 +3051,7 @@ class StructuralExtractor:
                 # db2_sql (#2511) reuses the same convention with its one
                 # delimited-identifier style (double quotes only).
                 if (
-                    self.primary_lang_id in ("sqlite", "db2_sql")
+                    self.primary_lang_id in ("sqlite", "db2_sql", "postgresql")
                     and name
                     and len(name) >= 2
                     and (name[0], name[-1]) in (('"', '"'), ("`", "`"), ("[", "]"))
@@ -8301,6 +8306,7 @@ class StructuralExtractor:
         routine_start = rules.get("func_start") if lang_id in _MODE_E_NAMED_ROUTINE_LANGS else None
         in_routine = False
         routine_depth = 0
+        dollar_tag: str | None = None
 
         is_orbiting = False
         sat_start_line = offset + 1
@@ -8372,6 +8378,7 @@ class StructuralExtractor:
                         satellite_name = routine_name
                         in_routine = True
                         routine_depth = 0
+                        dollar_tag = None
 
             # Build the block using the unaltered original line
             current_satellite.append(orig_line)
@@ -8381,14 +8388,19 @@ class StructuralExtractor:
             # closes the outermost block (`END;`, `END P1;`) is at depth 0.
             terminates = bool(terminator_pattern.search(safe_line))
             if in_routine:
+                # #5622: a PostgreSQL `$$` / `$tag$` body is one quoted string, so its
+                # inner `;` and BEGIN/END never move the routine depth; the routine
+                # can end only once the opening tag has been closed again.
                 for tok in _SQL_ROUTINE_DEPTH_TOKEN.finditer(safe_line):
-                    closer = (tok.group(1) or "").upper()
-                    word = (tok.group(2) or "").upper()
-                    if closer == "CASE" or word == "END":
+                    if tok.group(3):
+                        dollar_tag = None if dollar_tag == tok.group(3) else (dollar_tag or tok.group(3))
+                    elif dollar_tag:
+                        continue
+                    elif (tok.group(1) or "").upper() == "CASE" or (tok.group(2) or "").upper() == "END":
                         routine_depth = max(0, routine_depth - 1)
-                    elif word in ("BEGIN", "CASE"):
+                    elif (tok.group(2) or "").upper() in ("BEGIN", "CASE"):
                         routine_depth += 1
-                terminates = terminates and routine_depth == 0
+                terminates = terminates and routine_depth == 0 and dollar_tag is None
 
             # The Guillotine Drop (Evaluate the safe_line for the terminator)
             if terminates:

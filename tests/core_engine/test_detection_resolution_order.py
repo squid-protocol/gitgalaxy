@@ -50,22 +50,23 @@ _EXPECTED_CLAIMANTS: dict[str, list[tuple[str, str]]] = {
     ".c": [("c", "-")],
     ".cmd": [("batch", "D"), ("rexx", "D")],
     ".cshtml": [("csharp", "-"), ("html", "-")],
-    ".ddl": [("sqlite", "-"), ("db2_sql", "D")],
-    ".dml": [("sqlite", "-"), ("db2_sql", "D")],
+    ".ddl": [("sqlite", "-"), ("postgresql", "D"), ("db2_sql", "D")],
+    ".dml": [("sqlite", "-"), ("postgresql", "D"), ("db2_sql", "D")],
     ".h": [("c", "-"), ("objective-c", "D")],
     ".inc": [("cpp", "-"), ("c", "-"), ("php", "D"), ("fortran", "D"), ("assembly", "-")],
     ".m": [("matlab", "D"), ("objective-c", "D")],
     ".mac": [("hlasm", "D"), ("easytrieve", "D")],
     ".map": [("bms", "D")],
     ".py": [("python", "D"), ("embedded_python", "D")],
-    ".sql": [("sqlite", "-"), ("db2_sql", "D")],
+    ".sql": [("sqlite", "-"), ("postgresql", "D"), ("db2_sql", "D")],
     ".y": [("c", "-"), ("yacc", "D")],
 }
 
 # The extensions where TWO claimants both carry a discriminator, i.e. where
 # registry order decides which content check runs first. Kept as its own pin
 # because this is the set that needs re-adjudicating when a language is added.
-_ORDER_CRITICAL_EXTENSIONS = {".cmd", ".inc", ".m", ".mac", ".py"}
+# #5622: postgresql precedes db2_sql on the SQL extensions (db2's `LANGUAGE SQL` also matches a Postgres function).
+_ORDER_CRITICAL_EXTENSIONS = {".cmd", ".ddl", ".dml", ".inc", ".m", ".mac", ".py", ".sql"}
 
 
 def _claimants_in_registry_order(ext: str) -> list[tuple[str, str]]:

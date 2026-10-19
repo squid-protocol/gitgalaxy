@@ -128,7 +128,7 @@
       "assembly/cosmopolitan/BUILD.mk": "Single Indicator (Ext: .mk)",
       "assembly/cosmopolitan/ape.S": "Single Indicator (Ext: .s)",
       "assembly/cosmopolitan/loader.c": "Ecosystem Consensus Lock (100% Local Dominance)",
-      "assembly/cosmopolitan/notice.inc": "Ecosystem Consensus Lock (70% Local Dominance)",
+      "assembly/cosmopolitan/notice.inc": "Ecosystem Consensus Lock (78% Local Dominance)",
       "assembly/cosmopolitan/start.S": "Single Indicator (Ext: .s)"
     },
     "assembly/cosmopolitan_runtime": {
@@ -1135,7 +1135,7 @@
       "cpp/powertoys/centralized_kb_hook.cpp": "Single Indicator (Ext: .cpp)",
       "cpp/powertoys/logger.cpp": "Single Indicator (Ext: .cpp)",
       "cpp/powertoys/main.cpp": "Single Indicator (Ext: .cpp)",
-      "cpp/powertoys/powertoy_module.h": "Ecosystem Consensus Lock (81% Local Dominance)"
+      "cpp/powertoys/powertoy_module.h": "Ecosystem Consensus Lock (89% Local Dominance)"
     },
     "cpp/serenity_ak_siphash_cpu": {
       "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": "Single Indicator (Ext: .cpp)",
@@ -3630,7 +3630,7 @@
     },
     "sql/mediawiki_postgresql": {
       "sql/mediawiki_postgresql/COPYING": "Metadata Anchor (COPYING)",
-      "sql/mediawiki_postgresql/tables.sql": "Ecosystem Consensus Lock (75% Local Dominance)"
+      "sql/mediawiki_postgresql/tables.sql": "Single Indicator (Internal Signature)"
     },
     "sql/spamassassin_mysql": {
       "sql/spamassassin_mysql/NOTICE": "Metadata Anchor (NOTICE)",
@@ -3643,7 +3643,7 @@
       "sql/sqlite/dotcmd01.sql": "Single Indicator (Shebang)"
     },
     "sql/sqlmap_postgresql": {
-      "sql/sqlmap_postgresql/dns_request.sql": "Ecosystem Consensus Lock (75% Local Dominance)"
+      "sql/sqlmap_postgresql/dns_request.sql": "Single Indicator (Internal Signature)"
     },
     "sqlite": {
       "sqlite/SOURCES.md": "Prose Extension (.md)"

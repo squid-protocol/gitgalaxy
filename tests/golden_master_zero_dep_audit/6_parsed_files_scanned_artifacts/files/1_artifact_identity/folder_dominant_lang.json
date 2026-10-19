@@ -3625,8 +3625,8 @@
       "sql/mediawiki_mysql/blobs.sql": "sqlite"
     },
     "sql/mediawiki_postgresql": {
-      "sql/mediawiki_postgresql/COPYING": "sqlite",
-      "sql/mediawiki_postgresql/tables.sql": "sqlite"
+      "sql/mediawiki_postgresql/COPYING": "postgresql",
+      "sql/mediawiki_postgresql/tables.sql": "postgresql"
     },
     "sql/spamassassin_mysql": {
       "sql/spamassassin_mysql/NOTICE": "sqlite",
@@ -3639,7 +3639,7 @@
       "sql/sqlite/dotcmd01.sql": "sqlite"
     },
     "sql/sqlmap_postgresql": {
-      "sql/sqlmap_postgresql/dns_request.sql": "sqlite"
+      "sql/sqlmap_postgresql/dns_request.sql": "postgresql"
     },
     "sqlite": {
       "sqlite/SOURCES.md": "markdown"

@@ -441,7 +441,7 @@
       "c/doom/z_zone.c": 2127.71
     },
     "c/freebsd_openpam": {
-      "c/freebsd_openpam/pam_acct_mgmt.c": 9498.46
+      "c/freebsd_openpam/pam_acct_mgmt.c": 4109.84
     },
     "c/micropython": {
       "c/micropython/compile.c": -1758.03,
@@ -2509,7 +2509,7 @@
       "objective-c/worldwideweb/TcpAccess.m": 4250.91
     },
     "perl": {
-      "perl/SOURCES.md": 848.79
+      "perl/SOURCES.md": 848.83
     },
     "perl/ack3_tests": {
       "perl/ack3_tests/LICENSE.md": 11824.39,
@@ -2548,7 +2548,7 @@
       "perl/spamassassin/SpamAssassin.pm": -4966.8
     },
     "php": {
-      "php/SOURCES.md": 11702.58
+      "php/SOURCES.md": 11703.41
     },
     "php/guzzle": {
       "php/guzzle/Client.php": -9317.31,
@@ -3156,8 +3156,8 @@
       "rexx/SOURCES.md": -3785.18
     },
     "rexx/hercules_390_hyperion": {
-      "rexx/hercules_390_hyperion/COPYRIGHT": 561.74,
-      "rexx/hercules_390_hyperion/sample.rexx": 568.61
+      "rexx/hercules_390_hyperion/COPYRIGHT": 11273.09,
+      "rexx/hercules_390_hyperion/sample.rexx": 11279.96
     },
     "rexx/hercules_hyperion": {
       "rexx/hercules_hyperion/COPYRIGHT": -5679.57,
@@ -3629,8 +3629,8 @@
       "sql/mediawiki_mysql/blobs.sql": -6728.54
     },
     "sql/mediawiki_postgresql": {
-      "sql/mediawiki_postgresql/COPYING": 11476.21,
-      "sql/mediawiki_postgresql/tables.sql": 11176.75
+      "sql/mediawiki_postgresql/COPYING": 765.55,
+      "sql/mediawiki_postgresql/tables.sql": 465.73
     },
     "sql/spamassassin_mysql": {
       "sql/spamassassin_mysql/NOTICE": -5273.94,
@@ -3643,7 +3643,7 @@
       "sql/sqlite/dotcmd01.sql": -8172.03
     },
     "sql/sqlmap_postgresql": {
-      "sql/sqlmap_postgresql/dns_request.sql": 4223.16
+      "sql/sqlmap_postgresql/dns_request.sql": -5044.15
     },
     "sqlite": {
       "sqlite/SOURCES.md": -6420.57
@@ -3851,7 +3851,7 @@
       "text/SOURCES.md": -6876.64
     },
     "text/baseline": {
-      "text/baseline/control-readme.md": -4908.82
+      "text/baseline/control-readme.md": 9746.32
     },
     "typescript": {
       "typescript/SOURCES.md": 9452.53

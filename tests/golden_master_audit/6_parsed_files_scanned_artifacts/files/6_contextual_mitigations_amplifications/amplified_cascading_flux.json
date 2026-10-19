@@ -1511,6 +1511,9 @@
     "sql/baseline": {
       "sql/baseline/schema.php": "107 instances"
     },
+    "sql/mediawiki_postgresql": {
+      "sql/mediawiki_postgresql/tables.sql": "2 instances"
+    },
     "swift/alamofire": {
       "swift/alamofire/Alamofire.podspec": "7 instances",
       "swift/alamofire/ParameterEncoder.swift": "4 instances",

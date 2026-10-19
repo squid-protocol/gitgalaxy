@@ -21,7 +21,7 @@ mochadoom, odamex, puredoom, srb2); typosquat alerts 0, credential flags 0, log 
 | port | fails | cause (from `details.json`) |
 |---|---|---|
 | linuxdoom, gbadoom, eternity, doom3-bfg | coverage (1 file each) | `tables.c`/`tables.cpp`: Lexical Monotony needs two definitions, file holds one (see `doom-corpus-rescan-5460.md`) |
-| woof, nugget-doom | coverage (6) | `third-party/` names excluded as ignored dirs (vendored; scorer counts them first-party) |
+| woof, nugget-doom | coverage (6) | `third-party/` files blocked as System/Hidden/Ignored Dir (not read at source) |
 | gzdoom | coverage (44) | 43 ignored-dir files, 1 `re2c` bison output (Machine-Generated, accepted) |
 | room4doom | coverage (10) | 9 `docs/` samples, `info.rs` with a generator banner |
 | vizdoom | coverage (5) | 4 `docs/` files, 1 generated |
@@ -48,7 +48,7 @@ delta was -0.1%. Not read at source: which functions account for the 241-functio
 
 - #5458 doomsday: missed_src 993 -> 15; first_party_src 2431 -> 2552.
 - #5459 gore: 86 -> 1025 functions (single-file engine no longer amalgamation-blocked); puredoom 777 -> 1560.
-- #5461 macro-defined functions: doom64ex 1582 -> 1895, dsda-doom 4784 -> 4937 (engine and ctags both rise, via the payload fixes).
+- Function counts rose on both engine and ctags for doom64ex (1582 -> 1895) and dsda-doom (4784 -> 4937): more files mapped, not a macro fix (#5461 is not measured here).
 - #5464 vendored trees: psydoom first_party_src 1879 -> 676, vendor_files_mapped 0 on all ports; sarif_errors 48 -> 1.
 - #5460 payload guards: see `doom-corpus-rescan-5460.md`.
 

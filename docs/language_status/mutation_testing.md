@@ -77,7 +77,13 @@ the normal run kills costs ~10-15 s instead of ~280 s. A survivor must still pas
 mutants (2 stillborn, 10 proofs) in `--full`, fast and `--one-jvm`: **12 of 12 agree** in both comparisons (7
 killed, 3 survived: Cbact04cService.java:253, :273, :303). Proof time summed over mutants: full 1,039 s, fast
 249 s, fast+one-jvm 71 s (wall time of the run: 618 s, 249 s, 161 s). Not yet validated: a larger sample, a case
-with entry runs, and the call and CICS runners, so fast mode stays the default.
+with entry runs, so fast mode stays the default.
+
+**Validation of `--one-jvm` on the call and CICS runners (2026-10-18).** 12 mutants each (`--sample 12 --seed 1`),
+`mutation.py compare` against the same mutants in `--full` and in fast mode: carddemo-dateutil (CSUTLDTC, call)
+and carddemo-menu (COMEN01C, CICS with facades) **12 of 12 agree** in both comparisons. Proof seconds summed:
+dateutil full 128, fast 77, fast+one-jvm 71; menu full 460, fast 413, fast+one-jvm 390. A small sample; the
+default stays fast mode.
 
 ## Scores
 

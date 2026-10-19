@@ -182,6 +182,15 @@
    "reason": "in_: CDEMO-USER-ID moved into 9 bytes spills one byte into CDEMO-USER-TYPE (32), which the next statement, the CDEMO-USER-TYPE move, overwrites"
   },
   {
+   "id": "6ab3793133",
+   "op": "ROR",
+   "line": 602,
+   "before": "Cobol.move(d.getCdemoCustId() == null ? BigDecimal.ZERO : new BigDecimal(d.getCdemoCustId().toString()), Field.zoned(s, base + 34, 9, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getCdemoCustId() != null ? BigDecimal.ZERO : new BigDecimal(d.getCdemoCustId().toString()), Field.zoned(s, base + 34, 9, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in_CarddemoCommarea copies a DTO field into DFHCOMMAREA, which COSGN00C never references (only EIBCALEN); the bytes only go back through fill_ into the task's COMMAREA object, not observable for a terminal task (linked_result drops it), and the DTO fields are never null (the case INITIALIZEs the whole record), so the null guard is not taken either. This case is not linked, so no link-area bytes mask the DTO path, but the program has no reader of it."
+  },
+  {
    "id": "e5644e26bc",
    "op": "ROR",
    "line": 607,
@@ -236,6 +245,69 @@
    "reason": "a PF1 key no longer sets EIBAID, which keeps its initial byte (DFHEIBLK's image: a space); YYYY-STORE-PFKEY maps it to no key, which, like PF1's PFK01, is invalid and handled as ENTER"
   },
   {
+   "id": "acb2a672c1",
+   "op": "AOR",
+   "line": 864,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
+   "verdict": "unreachable",
+   "reason": "the raw-area copy runs only when task.linkArea() is set, i.e. a det-port program LINKed COTRN02C with its COMMAREA's bytes; no CardDemo program LINKs COTRN02C (a terminal transaction entered by XCTL)"
+  },
+  {
+   "id": "1ae757b578",
+   "op": "NEG",
+   "line": 867,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {",
+   "verdict": "equivalent",
+   "reason": "Cutting s_DFHCOMMAREA to EIBCALEN bytes (X23) matters only to a reference past EIBCALEN; COSGN00C never references DFHCOMMAREA, and the plumbing's own in_ (runs before the cut) and fill_ (runs after caWhole restores the full array) see the whole array either way, so cutting or not cutting is unobservable for every EIBCALEN."
+  },
+  {
+   "id": "bbaefb8a4f",
+   "op": "COR",
+   "line": 867,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "equivalent",
+   "reason": "Cutting s_DFHCOMMAREA to EIBCALEN bytes (X23) matters only to a reference past EIBCALEN; COSGN00C never references DFHCOMMAREA, and the plumbing's own in_ (runs before the cut) and fill_ (runs after caWhole restores the full array) see the whole array either way, so cutting or not cutting is unobservable for every EIBCALEN."
+  },
+  {
+   "id": "a3baf7fa49",
+   "op": "DEL",
+   "line": 896,
+   "before": "Cobol.swapTruncBinary(truncBefore);",
+   "after": "/* Cobol.swapTruncBinary(truncBefore); */",
+   "verdict": "equivalent",
+   "reason": "the restore of the TRUNC mode in runTask's finally matters only to code that runs after the task in the same JVM; every det-port entry point sets the mode itself (runTask: swapTruncBinary(true)) before it runs a program, and the harness code between tasks reads no COMP field."
+  },
+  {
+   "id": "ceff7edead",
+   "op": "ROR",
+   "line": 908,
+   "before": "return read != null ? read : answer;",
+   "after": "return read == null ? read : answer;",
+   "verdict": "unreachable",
+   "reason": "wideAnswer is reached only for a byte[] answer of a LINKed call; no CardDemo program LINKs COADM01C"
+  },
+  {
+   "id": "ad4b90475f",
+   "op": "COR",
+   "line": 938,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "verdict": "unreachable",
+   "reason": "handleLink is the LINKed-program facade; carddemo-signon is a terminal task (no `linked`), so the facade is never called"
+  },
+  {
+   "id": "41953dd079",
+   "op": "NEG",
+   "line": 1050,
+   "before": "if (e.depth != mine) {",
+   "after": "if (!(e.depth != mine)) {",
+   "verdict": "unreachable",
+   "reason": "perform() reaches the outer-PERFORM scan only after a paragraph that is not its range's last returns; COSGN00C's PERFORMs each name one paragraph (from == thru) and MAIN-PARA (runTask's 0-5) always ends in EXEC CICS RETURN / XCTL / an abend, a Goback, so the scan never iterates and no PerformExit is thrown (this catch never runs)."
+  },
+  {
    "id": "22e7b57e23",
    "op": "COR",
    "line": 1443,
@@ -252,6 +324,15 @@
    "after": "if ((Cobol.compare(f259_CARDSIDI, \"*\", CS) == 0 && Cobol.compareFigurative(f259_CARDSIDI, Figurative.SPACES, CS) == 0)) {",
    "verdict": "case-gap",
    "reason": "`CARDSIDI = '*' AND = SPACES` for OR: '*' is then moved as the card number instead of LOW-VALUES. Killed by scenario card-filter-star (added in this PR)"
+  },
+  {
+   "id": "4afd9dc525",
+   "op": "NEG",
+   "line": 1907,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (!(to >= 0)) return GOTO | to;",
+   "verdict": "unreachable",
+   "reason": "inside `if (0 != 0)`: SEND MAP has no RESP and the translator writes its response as the constant 0, so the block never runs."
   },
   {
    "id": "09db674fdd",

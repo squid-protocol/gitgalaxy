@@ -263,6 +263,15 @@
    "reason": "without fill_'s CDEMO-CUST-LNAME setter the RETURN COMMAREA lacks the last name it carries. Killed by scenario full-commarea-carried (added in this PR: every COMMAREA field set, the CT01 part too)"
   },
   {
+   "id": "8e3adfd4ef",
+   "op": "AOR",
+   "line": 646,
+   "before": "Cobol.store(f467_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f467_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "COADM01C never reads EIBDATE / EIBTIME (the header date and time come from FUNCTION CURRENT-DATE), so EIBDATE cannot show"
+  },
+  {
    "id": "cacfda7e73",
    "op": "AOR",
    "line": 646,
@@ -270,6 +279,15 @@
    "after": "Cobol.store(f467_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
    "verdict": "equivalent",
    "reason": "COTRN01C never reads EIBDATE / EIBTIME (the header date and time come from FUNCTION CURRENT-DATE), so EIBDATE cannot show"
+  },
+  {
+   "id": "27315967ae",
+   "op": "DEL",
+   "line": 647,
+   "before": "Cobol.store(f466_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "/* Cobol.store(f466_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "COTRN01C never reads EIBTIME (no reference in the source), so the value runTask stores into it cannot show"
   },
   {
    "id": "a9c26dafed",
@@ -308,6 +326,123 @@
    "reason": "a PF17 key no longer sets EIBAID, which keeps its initial byte (a space); it takes WHEN OTHER exactly as PF17 does"
   },
   {
+   "id": "db820345bb",
+   "op": "CON",
+   "line": 691,
+   "before": "caBack = () -> fill_Cotrn01cCarddemoCommarea(x, s_DFHCOMMAREA, 0);",
+   "after": "caBack = () -> fill_Cotrn01cCarddemoCommarea(x, s_DFHCOMMAREA, 1);",
+   "verdict": "equivalent",
+   "reason": "caBack's fill_ at offset 1 for 0: caBack only writes the task's COMMAREA object back; for a terminal task that object is not observable (CICS discards it; linked_result drops it), and the RETURN carries out_'s copy of CARDDEMO-COMMAREA"
+  },
+  {
+   "id": "546e0282ee",
+   "op": "DEL",
+   "line": 694,
+   "before": "s_DFHCOMMAREA.beyond = null;",
+   "after": "/* s_DFHCOMMAREA.beyond = null; */",
+   "verdict": "unreachable",
+   "reason": "s_DFHCOMMAREA.beyond is non-null only for a COMMAREA longer than the 32767-byte DFHCOMMAREA storage (byte[] or link-area branch), which CICS cannot pass (COMMAREA is at most 32763 bytes), so the reset to null is a no-op."
+  },
+  {
+   "id": "24c56cb247",
+   "op": "NEG",
+   "line": 698,
+   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
+   "verdict": "unreachable",
+   "reason": "a byte[] COMMAREA longer than DFHCOMMAREA's record is passed by no scenario (the det port is entered with a typed CarddemoCommarea object); only a caller with an over-long raw COMMAREA reaches it"
+  },
+  {
+   "id": "0aabfa1ab3",
+   "op": "COR",
+   "line": 712,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "equivalent",
+   "reason": "Cutting s_DFHCOMMAREA to EIBCALEN bytes (X23) matters only to a reference past EIBCALEN; COSGN00C never references DFHCOMMAREA, and the plumbing's own in_ (runs before the cut) and fill_ (runs after caWhole restores the full array) see the whole array either way, so cutting or not cutting is unobservable for every EIBCALEN."
+  },
+  {
+   "id": "497ff231d7",
+   "op": "NEG",
+   "line": 712,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {",
+   "verdict": "equivalent",
+   "reason": "Cutting s_DFHCOMMAREA to EIBCALEN bytes (X23) matters only to a reference past EIBCALEN; COSGN00C never references DFHCOMMAREA, and the plumbing's own in_ (runs before the cut) and fill_ (runs after caWhole restores the full array) see the whole array either way, so cutting or not cutting is unobservable for every EIBCALEN."
+  },
+  {
+   "id": "8ac41eb15a",
+   "op": "ROR",
+   "line": 712,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "equivalent",
+   "reason": "at calen == the area's length the cut to EIBCALEN keeps every byte, so the branch's restore is a no-op; calen < length (user-signs-on-short-commarea) is the only case it changes anything"
+  },
+  {
+   "id": "5de2a088ae",
+   "op": "ROR",
+   "line": 727,
+   "before": "if (caWhole == null) {",
+   "after": "if (caWhole != null) {",
+   "verdict": "unreachable",
+   "reason": "The IndexOutOfBoundsException catch is reached only by a reference past a COMMAREA cut to EIBCALEN; COSGN00C never references DFHCOMMAREA, and in_/fill_ run on the full array, so nothing throws it."
+  },
+  {
+   "id": "f3a869248d",
+   "op": "LIT",
+   "line": 730,
+   "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+   "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");",
+   "verdict": "equivalent",
+   "reason": "the text of the PastFrom refusal's diagnostic message, never program output: the refusal itself (the exception type) is unchanged"
+  },
+  {
+   "id": "339b0c3fa9",
+   "op": "COR",
+   "line": 773,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "verdict": "unreachable",
+   "reason": "handleLink is the LINKed-program facade; carddemo-signon is a terminal task (no `linked`), so the facade is never called"
+  },
+  {
+   "id": "73041bcfaf",
+   "op": "AOR",
+   "line": 861,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "perform() reaches the outer-PERFORM scan only after a paragraph that is not its range's last returns; COSGN00C's PERFORMs each name one paragraph (from == thru) and MAIN-PARA (runTask's 0-5) always ends in EXEC CICS RETURN / XCTL / an abend, a Goback, so the scan never iterates and no PerformExit is thrown (this catch never runs)."
+  },
+  {
+   "id": "cf3a61ca65",
+   "op": "CON",
+   "line": 867,
+   "before": "if (next >= 9) {",
+   "after": "if (next >= 10) {",
+   "verdict": "unreachable",
+   "reason": "perform() reaches this only after a paragraph that is not its range's last returns; COTRN01C's PERFORMs each name one paragraph (from == thru) and MAIN-PARA (runTask's 0-8) always ends in RETURN / XCTL / an abend, so `next >= 9` is never evaluated"
+  },
+  {
+   "id": "e750342a22",
+   "op": "LIT",
+   "line": 899,
+   "before": "f6_WS_ERR_FLG = \"N\";",
+   "after": "f6_WS_ERR_FLG = \"X\";",
+   "verdict": "equivalent",
+   "reason": "WS-ERR-FLG is tested only through ERR-FLG-ON ('Y'); 'X' and 'N' are both not ON, and every path that sets the flag moves 'Y'"
+  },
+  {
+   "id": "160de7ab05",
+   "op": "LIT",
+   "line": 959,
+   "before": "f6_WS_ERR_FLG = \"Y\";",
+   "after": "f6_WS_ERR_FLG = \"X\";",
+   "verdict": "equivalent",
+   "reason": "the 'Y' written on 'User not found' is never tested in this task (ERR-FLG-ON is read before READ-USER-SEC-FILE), and the next task starts from initialState's 'N'"
+  },
+  {
    "id": "00d031ceb2",
    "op": "COR",
    "line": 1051,
@@ -315,6 +450,60 @@
    "after": "if ((Cobol.compareFigurative(f17_CDEMO_TO_PROGRAM, Figurative.LOW_VALUES, CS) == 0 && Cobol.compareFigurative(f17_CDEMO_TO_PROGRAM, Figurative.SPACES, CS) == 0)) {",
    "verdict": "equivalent",
    "reason": "`CDEMO-TO-PROGRAM = LOW-VALUES AND = SPACES` for OR: every caller of RETURN-TO-PREV-SCREEN moves a program name into CDEMO-TO-PROGRAM first ('COSGN00C', CDEMO-FROM-PROGRAM when it is not blank, else 'COMEN01C', 'COTRN00C'), so it is neither, and both conditions are false"
+  },
+  {
+   "id": "1b80d222ae",
+   "op": "ROR",
+   "line": 1068,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to > 0) return GOTO | to;",
+   "verdict": "unreachable",
+   "reason": "condition() returns a value only for a handled, ignored or ERROR-handled condition; COTRN02C sets no handler and an XCTL raises none ignored by default, so condition() throws (the abend) and `to` is never tested"
+  },
+  {
+   "id": "be52190109",
+   "op": "ROR",
+   "line": 1068,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to < 0) return GOTO | to;",
+   "verdict": "unreachable",
+   "reason": "inside `if (0 != 0)`-style dead branch: the paragraph's GO-TO result is only taken from a block the translator guards with the constant response 0 (SEND MAP has no RESP), so it never runs"
+  },
+  {
+   "id": "431133fa8d",
+   "op": "LIT",
+   "line": 1089,
+   "before": "DetCics.subfields(sub3, \"PGMNAME\", f61_PGMNAMEL, f64_PGMNAMEA, f190_PGMNAMEC, f192_PGMNAMEH, CS);",
+   "after": "DetCics.subfields(sub3, \"XGMNAME\", f61_PGMNAMEL, f64_PGMNAMEA, f190_PGMNAMEC, f192_PGMNAMEH, CS);",
+   "verdict": "equivalent",
+   "reason": "COTRN01C writes no attribute, colour or highlight byte for PGMNAME (it only MOVEs WS-PGMNAME TO PGMNAMEO) and never sets PGMNAMEL to -1, so subfields records nothing for it under either name"
+  },
+  {
+   "id": "d6cd2112c4",
+   "op": "DEL",
+   "line": 1127,
+   "before": "Cobol.store(f495_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "/* Cobol.store(f495_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "COTRN01C never reads EIBRESP2 (no reference in the source), so the zero stored after SEND MAP cannot show"
+  },
+  {
+   "id": "4dacb583e4",
+   "op": "LIT",
+   "line": 1194,
+   "before": "if (typed6.get(\"MNAME\") != null) {",
+   "after": "if (typed6.get(\"XNAME\") != null) {",
+   "verdict": "unreachable",
+   "reason": "MNAME is ATTRB=(ASKIP,NORM) without FSET (COTRN01.bms): the terminal never sends it back, so RECEIVE never has it to store"
+  },
+  {
+   "id": "ec0ce346fc",
+   "op": "DEL",
+   "line": 1254,
+   "before": "Cobol.store(f494_EIBRESP, BigDecimal.valueOf(read8.resp()), false, CS);",
+   "after": "/* Cobol.store(f494_EIBRESP, BigDecimal.valueOf(read8.resp()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "COTRN01C never reads EIBRESP (no reference in the source), so the READ's stored response code cannot show"
   }
  ]
 }

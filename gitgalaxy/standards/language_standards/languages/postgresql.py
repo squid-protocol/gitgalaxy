@@ -12,7 +12,7 @@ from typing import Any
 
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 
-from .._shared_patterns import CALLS_OUT_CALL_VERB, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 from . import db2_sql as _db2_sql
 
 # PostgreSQL ordinary identifiers start with a letter or `_` and continue with
@@ -75,7 +75,7 @@ DEFINITION: dict[str, Any] = {
     # (#2866 corollary 4; the language-addition audit enforces it for every Mode E slicer).
     "invocation_model": "positional",
     "rules": {
-        "calls_out": CALLS_OUT_CALL_VERB,
+        "calls_out": _db2_sql._SQL_CALLS_OUT,
         # branch: PL/pgSQL control (IF / ELSIF / ELSE, CASE and WHEN arms, LOOP
         # exits via EXIT WHEN, WHILE) plus SQL's row-level deciders. THEN and the
         # `END IF` / `END CASE` / `END LOOP` closers are continuation words.

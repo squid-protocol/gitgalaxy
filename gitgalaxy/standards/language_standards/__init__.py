@@ -92,6 +92,7 @@ from .languages import dockerfile as _dockerfile
 from .languages import easytrieve as _easytrieve
 from .languages import embedded_python as _embedded_python
 from .languages import fortran as _fortran
+from .languages import fsharp as _fsharp
 from .languages import glsl as _glsl
 from .languages import go as _go
 from .languages import groovy as _groovy
@@ -218,6 +219,8 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
     "postgresql": _postgresql.DEFINITION,
     "db2_sql": _db2_sql.DEFINITION,
     "hlasm": _hlasm.DEFINITION,
+    # #5623: owns ".fs" only on proof (internal_discriminator, Tier 2) -- GLSL and Forth use it too.
+    "fsharp": _fsharp.DEFINITION,
     "rexx": _rexx.DEFINITION,
     "csd": _csd.DEFINITION,
     "easytrieve": _easytrieve.DEFINITION,

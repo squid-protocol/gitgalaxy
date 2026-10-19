@@ -1172,7 +1172,9 @@ class LanguageDetector:
             proven_only = [
                 l for l in candidates if ext in self.languages[l].get("extensions_needing_discriminator", ())
             ]
-            if proven_only and len(proven_only) < len(candidates):
+            # #5623: with NO other claimant (F# on `.fs`) the proof-only language still drops out, so a
+            # GLSL / Forth `.fs` that failed Tier 2 is "undeterminable" rather than won by default.
+            if proven_only:
                 candidates = [l for l in candidates if l not in proven_only]
 
             # #4546: C++ owns a shared extension (`.h`) only on content evidence.

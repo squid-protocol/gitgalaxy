@@ -250,3 +250,12 @@ def test_the_eibcalen_scenarios_state_a_length_inside_the_commarea():
             assert s["commarea"] is not None
             assert 1 <= s["commarea_length"] < whole
             assert s["why"].startswith("#5401")
+
+
+def test_cardview_and_cardlist_state_only_the_whole_commarea():
+    # #5401: both programs move DFHCOMMAREA past 160 bytes whatever EIBCALEN is, so a shorter length is an X23 refusal
+    for case, whole in (("carddemo-cardview", 172), ("carddemo-cardlist", 414)):
+        s = _scenarios(case)["full-commarea-length"]
+        assert s["commarea"] is not None
+        assert s["commarea_length"] == whole
+        assert s["why"].startswith("#5401")

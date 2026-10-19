@@ -71,7 +71,13 @@ _SQL_BUILTINS = (
 )
 _SQL_CALLS_OUT = re.compile(
     r"(?i)(?:" + _SQL_NOT_A_CALL + r")"
-    r"|(?:\bCALL[ \t\r\n]+" + _QUAL + r"|(?<![\w#$@.])" + _QUAL + r"(?=(?!(?:" + _SQL_BUILTINS + r")\b)"
+    r"|(?:\bCALL[ \t\r\n]+"
+    + _QUAL
+    + r"|(?<![\w#$@.])"
+    + _QUAL
+    + r"(?=(?!(?:"
+    + _SQL_BUILTINS
+    + r")\b)"
     + _SQL_CALLEE
     + r"[ \t]*\())("
     + _SQL_CALLEE

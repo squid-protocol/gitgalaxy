@@ -94,11 +94,12 @@
     },
     {
       "id": "alter",
-      "match": "\\bALTER not modelled",
-      "charter": "cobol-unmodelled",
+      "match": "\\bALTER (not modelled|\\S+: the paragraph is not a lone GO TO)",
+      "issue": 5560,
       "features": [
         "statements: ALTER"
-      ]
+      ],
+      "note": "ALTER is modelled (#5560, register C19): the altered GO TO reads a per-paragraph slot in the paragraph dispatcher. What stays a named hole is an ALTER of a paragraph that is not a lone GO TO without DEPENDING (IBM refuses it too), an undeclared paragraph, and an independent segment. `ALTER not modelled` is the text of reports made before #5568; no burned estate carries the other forms."
     },
     {
       "id": "float-exponentiation",

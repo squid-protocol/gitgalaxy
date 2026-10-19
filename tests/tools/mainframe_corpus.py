@@ -142,7 +142,13 @@ def require_clone(corpus: dict[str, Any]) -> Path:
 
 
 def engine_key() -> str:
-    """This checkout's HEAD, suffixed with a hash of any uncommitted diff under gitgalaxy/."""
+    """This checkout's HEAD, suffixed with a hash of any uncommitted diff under gitgalaxy/.
+
+    MAINFRAME_ENGINE_KEY overrides it (#5543): CI keys the cached scans by a content hash of the engine, so a commit
+    that changes nothing the scan reads finds the scans of an earlier one."""
+    forced = os.environ.get("MAINFRAME_ENGINE_KEY")
+    if forced:
+        return forced
     head = _git("rev-parse", "--short=12", "HEAD", cwd=REPO_ROOT)
     diff = _git("diff", "HEAD", "--", "gitgalaxy", cwd=REPO_ROOT)
     untracked = _git("ls-files", "--others", "--exclude-standard", "--", "gitgalaxy", cwd=REPO_ROOT)

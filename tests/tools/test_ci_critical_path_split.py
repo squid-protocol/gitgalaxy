@@ -1,9 +1,10 @@
-"""#5133, #5543: the CI critical path -- the ground-truth job as one warm job and 4 parts and the advisory evidence deltas in their own job.
+"""#5133, #5543: the CI critical path -- the ground-truth job as a warm job and 4 parts (or 2 self-warming parts when CI is busy) and the advisory evidence deltas in their own job.
 
 `ground-truth` and `full-suite` are required checks (the ruleset names them), so each stays one job that aggregates its
 parts. The parts must together cover everything the single job ran, and nothing advisory may hold the required check back.
 """
 
+import sys
 from pathlib import Path
 
 import pytest
@@ -11,6 +12,9 @@ import pytest
 yaml = pytest.importorskip("yaml")
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "tests" / "tools"))
+import ci_layout as cl  # noqa: E402
+
 WORKFLOWS = ROOT / ".github" / "workflows"
 
 
@@ -31,29 +35,42 @@ def test_ground_truth_is_the_aggregate_of_its_parts():
     publish = jobs["publish-history"]
     assert "ground-truth-part" in publish["needs"]  # #5176: a tested-tree skip uploads no history artifact
     assert "needs.ground-truth-part.result == 'success'" in publish["if"]
-    assert "ground-truth-warm" in publish["needs"]  # #5543: the history is uploaded by the warm job
-    assert "needs.ground-truth-warm.result == 'success'" in publish["if"]
+    assert (
+        "ground-truth-warm" in publish["needs"]
+    )  # #5543: the history is uploaded by the warm job (or by part 1: no warm job on a cache hit)
     assert "name" not in jobs["ground-truth"]  # the check is named by its key: `ground-truth`
 
 
-PARTS = 4  # #5543: the ledger gate and the history append are in the warm job, so the parts are all pytest
+PARTS = 4  # #5543: the calm layout; the busy one is BUSY_PARTS. The ledger gate and the history are not in every part
 
 
 def test_the_parts_partition_tests_cobol_mainframe():
     """#5133: pytest-split cuts the directory; no hand-listed files, so a new test is placed by its recorded seconds."""
     part = _jobs("mainframe-ground-truth.yml")["ground-truth-part"]
-    assert part["strategy"]["matrix"]["group"] == list(range(1, PARTS + 1))
-    assert "include" not in part["strategy"]["matrix"]
+    assert "fromJSON(needs.plan.outputs.matrix" in part["strategy"]["matrix"]  # the plan job picks the layout (#5543)
     assert part["strategy"]["fail-fast"] is False
     run = _steps(part)["Full-corpus differential and answer-key tests"]["run"]
     pytest_line = " ".join(run[run.index("-m pytest") :].split("\\\n"))
     pytest_line = " ".join(pytest_line.split())
     assert "tests/cobol_mainframe/ " in pytest_line and "--ignore" not in pytest_line
-    assert f"--splits {PARTS} --splitting-algorithm least_duration --group ${{{{ matrix.group }}}}" in pytest_line
+    assert (
+        "--splits ${{ matrix.parts }} --splitting-algorithm least_duration --group ${{ matrix.group }}" in pytest_line
+    )
+    assert part["name"] == "ground-truth part ${{ matrix.shard }}"  # ci_digest.PARTS matches "ground-truth part N/M"
+
+
+def test_the_fallback_matrix_is_the_calm_layout():
+    """A failed plan leaves `matrix` empty: the workflow runs the 4 parts of the warm layout, as it did before the plan chose."""
+    import json
+    import re
+
+    expr = _jobs("mainframe-ground-truth.yml")["ground-truth-part"]["strategy"]["matrix"]
+    fallback = json.loads(re.search(r"\|\| '(.*)'\) \}\}$", expr).group(1))
+    assert fallback == cl.matrix(PARTS)
 
 
 def test_the_warm_job_runs_the_gate_once_and_the_parts_only_unpack_its_scans():
-    """#5543: the warm-up (parallel scans + the ledger gate) is paid once; no part re-runs the gate."""
+    """#5543: the warm-up (parallel scans + the ledger gate) is paid once; the gate runs in the warm job or, with none, in part 1 only."""
     jobs = _jobs("mainframe-ground-truth.yml")
     warm, part = jobs["ground-truth-warm"], jobs["ground-truth-part"]
     steps = _steps(warm)
@@ -63,13 +80,82 @@ def test_the_warm_job_runs_the_gate_once_and_the_parts_only_unpack_its_scans():
     assert "mainframe_corpus.py scan" in steps["Scan the pinned corpora in parallel"]["run"]
     assert steps["Upload the scans for the parts"]["with"]["name"] == "ground-truth-scans"
     part_steps = _steps(part)
-    assert "Gate against the ground-truth ledger" not in part_steps
+    gate = part_steps["Gate against the ground-truth ledger"]
+    assert (
+        gate["if"] == "needs.plan.outputs.warm == 'false' && matrix.group == 1"
+    )  # never beside a warm job, never twice
+    assert "needs.plan.outputs.warm != 'false'" in warm["if"]  # skipped on a cache hit and when busy
     assert part_steps["Download the scans"]["with"]["name"] == "ground-truth-scans"
+    assert part_steps["Download the scans"]["if"] == "needs.plan.outputs.warm != 'false'"
     assert "ground-truth-warm" in part["needs"]
     assert "needs.ground-truth-warm.result == 'success'" in part["if"]  # the download needs an uploader that ran
     names = list(part_steps)
-    assert names.index("Fetch the pinned corpora") < names.index("Unpack the scans")  # the fetch prunes `_scans`
-    assert names.index("Unpack the scans") < names.index("Full-corpus differential and answer-key tests")
+    for scans in ("Unpack the scans", "Restore the cached scans", "Scan the pinned corpora in parallel"):
+        assert names.index("Fetch the pinned corpora") < names.index(scans)  # the fetch prunes `_scans`
+        assert (
+            names.index(scans)
+            < names.index("Gate against the ground-truth ledger")
+            < names.index("Full-corpus differential and answer-key tests")
+        )
+
+
+def test_the_scans_cache_is_saved_on_main_only_and_every_job_names_the_scans_alike():
+    """#5543: a PR's cache scope is its own ref (#5024): restore-only on a PR; the keys and the engine key come from `plan`."""
+    jobs = _jobs("mainframe-ground-truth.yml")
+    key = "needs.plan.outputs.scans_key"
+    save = _steps(jobs["ground-truth-warm"])["Save the scans (main)"]
+    assert save["if"] == "github.event_name != 'pull_request'" and save["with"]["key"] == "${{ " + key + " }}"
+    assert save["with"]["path"] == ".mainframe_corpora/_scans" and save["uses"].startswith("actions/cache/save@")
+    restore = _steps(jobs["ground-truth-part"])["Restore the cached scans"]
+    assert restore["uses"].startswith("actions/cache/restore@") and restore["with"]["key"] == save["with"]["key"]
+    lookup = _steps(jobs["plan"])["Look up the cached scans"]
+    assert lookup["with"]["lookup-only"] is True and lookup["with"]["path"] == save["with"]["path"]
+    assert lookup["with"]["key"] == "${{ steps.key.outputs.scans }}"
+    keyed = _steps(jobs["plan"])["Key the scans by engine state"]
+    assert "corpora.json" in keyed["run"] and "gitgalaxy/**" in keyed["env"]["ENGINE"]  # content, never the commit
+    assert "github.sha" not in str(keyed)
+    for job in ("ground-truth-warm", "ground-truth-part"):
+        assert jobs[job]["env"]["MAINFRAME_ENGINE_KEY"] == "${{ needs.plan.outputs.engine_key }}"
+
+
+def test_the_aggregate_accepts_a_skipped_warm_job_only_when_the_plan_needed_none():
+    run = _steps(_jobs("mainframe-ground-truth.yml")["ground-truth"])["Every part passed"]["run"]
+    assert 'test "$PLANNED_WARM" = "false"' in run and 'ok "$PARTS"' in run
+
+
+def test_the_layout_follows_the_queue_and_the_cache():
+    """#5543: calm = warm + 4 parts (no warm on a cache hit); busy = 2 self-warming parts; only a pull request goes busy."""
+    calm = cl.choose("pull_request", "full", False, 0)
+    assert (calm["layout"], calm["warm"], calm["parts"], calm["gate_in_part"]) == ("calm", True, PARTS, False)
+    hit = cl.choose("pull_request", "full", True, cl.BUSY_ABOVE)  # at the threshold is still calm
+    assert (hit["layout"], hit["warm"], hit["parts"], hit["gate_in_part"]) == ("calm", False, PARTS, True)
+    for cached in (False, True):
+        busy = cl.choose("pull_request", "full", cached, cl.BUSY_ABOVE + 1)
+        assert (busy["layout"], busy["warm"], busy["parts"], busy["gate_in_part"]) == ("busy", False, 2, True)
+    for event in ("push", "schedule", "workflow_dispatch"):
+        assert cl.choose(event, "full", False, 999)["layout"] == "calm", event
+    assert cl.choose("pull_request", "full", False, None)["layout"] == "calm"  # an unreadable queue is calm
+    assert cl.choose("pull_request", "none", True, 999)["layout"] == "none"
+    assert [m["shard"] for m in cl.matrix(2)["include"]] == ["1/2", "2/2"]
+
+
+def test_the_layout_cli_writes_the_outputs_and_the_summary(tmp_path):
+    import subprocess
+    import sys
+
+    out, summary = tmp_path / "out", tmp_path / "summary.md"
+    cmd = [sys.executable, str(ROOT / "tests/tools/ci_layout.py"), "--event", "pull_request", "--waiting", "30"]
+    subprocess.run([*cmd, "--github-output", str(out), "--summary", str(summary)], check=True, capture_output=True)  # noqa: S603
+    lines = dict(ln.split("=", 1) for ln in out.read_text(encoding="utf-8").splitlines())
+    assert (lines["layout"], lines["warm"], lines["parts"]) == ("busy", "false", "2")
+    assert "## Ground-truth layout: busy" in summary.read_text(encoding="utf-8")
+
+
+def test_the_engine_key_can_be_named_by_ci(monkeypatch):
+    import mainframe_corpus as mc
+
+    monkeypatch.setenv("MAINFRAME_ENGINE_KEY", "abc123")
+    assert mc.engine_key() == "abc123"
 
 
 def _ground_truth_totals():

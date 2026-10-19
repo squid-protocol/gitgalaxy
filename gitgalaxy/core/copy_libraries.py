@@ -119,3 +119,31 @@ class MemberIndex:
         for d in libs.libraries.get(library.upper(), []):
             out += self._index.get((d, member.upper()), [])
         return out
+
+
+# #5649: the stand-in copybooks GitGalaxy writes for system members the estates COPY but never ship (never
+# IBM's text, owner 2026-10-11): one shared directory the translator falls back on (det/source._SHIPPED_COPY)
+# and the engine lays records out from, so both read the same bytes. Member -> its oracle-register entry.
+STAND_IN_DIR = Path(__file__).resolve().parent.parent / "tools" / "cobol_to_java" / "det" / "copy"
+
+
+def stand_in_registers() -> dict[str, str]:
+    """Each stand-in member and the register entry that records it as an assumption (W1: MQ, L4: LE)."""
+    from gitgalaxy.standards.mq import STAND_INS
+
+    return {**dict.fromkeys(STAND_INS, "W1"), "CEEIGZCT": "L4"}
+
+
+def stand_in_text(member: str) -> str | None:
+    """A stand-in member's source with its comment lines (indicator `*` or `/`) and sequence area blanked,
+    or None when `member` is no registered stand-in. Line numbers are kept."""
+    member = member.upper()
+    if member not in stand_in_registers():
+        return None
+    path = STAND_IN_DIR / f"{member}.cpy"
+    if not path.is_file():
+        return None
+    from gitgalaxy.core.source_text import read_source
+
+    lines = read_source(path).text.splitlines()
+    return "\n".join("" if line[6:7] in ("*", "/") else line[:72] for line in lines) + "\n"

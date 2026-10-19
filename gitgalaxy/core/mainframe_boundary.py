@@ -87,6 +87,7 @@ from gitgalaxy.core.call_using import blank_stream, call_using_args, entry_point
 from gitgalaxy.core.cics_macro_tables import cics_macro_table_resources
 from gitgalaxy.core.cics_resources import cobol_move_literals, extract_cics_resources
 from gitgalaxy.core.cics_tasks import extract_cics_tasks
+from gitgalaxy.core.cobol_preprocessor import copy_replacing as _copy_replacing  # #5648: shared with det/
 from gitgalaxy.core.compiler_options import compiler_options, effective
 from gitgalaxy.core.data_moves import data_moves
 from gitgalaxy.core.db2_declare_table import _blank_sequence_fields, extract_sql_tables
@@ -625,42 +626,6 @@ _COPY_LIBRARY = re.compile(
     + r"0-9@#$-]*)",
     re.I,
 )
-# #4265: `REPLACING operand BY operand ...` after a COPY's text-name (and library): each operand is
-# ==pseudo-text== or a single word / literal. Read up to the statement's separator period.
-_COPY_REPLACING_HEAD = re.compile(
-    r"['\"]?(?:[ \t\n\u3000]+(?:IN|OF)[ \t\n\u3000]+['\"]?[^\s.'\"]+['\"]?)?[ \t\n\u3000]+REPLACING(?![\w-])", re.I
-)
-_REPLACING_OPERAND = r"==(.*?)==|('[^'\n]*'|\"[^\"\n]*\"|[^\s.=]+(?:\.[^\s.=]+)*)"
-_REPLACING_PAIR = re.compile(
-    r"[ \t\n\u3000]+(?:(LEADING|TRAILING)[ \t\n\u3000]+)?(?:"
-    + _REPLACING_OPERAND
-    + r")[ \t\n\u3000]+BY[ \t\n\u3000]+(?:"
-    + _REPLACING_OPERAND
-    + r")",
-    re.I | re.S,
-)
-
-
-def _copy_replacing(window: str, at: int) -> list[list[str]] | None:
-    """#4265: the [from, to] pairs of the REPLACING phrase of the COPY whose text-name ends at `at` -- a
-    third element LEADING / TRAILING when the phrase says so (partial-word replacement)."""
-    head = _COPY_REPLACING_HEAD.match(window, at)
-    if not head:
-        return None
-    pairs: list[list[str]] = []
-    pos = head.end()
-    while len(pairs) < 50:
-        m = _REPLACING_PAIR.match(window, pos)
-        if not m:
-            break
-        mode, src = m.group(1), (m.group(2) if m.group(2) is not None else m.group(3))
-        dst = m.group(4) if m.group(4) is not None else (m.group(5) or "")
-        pair = [" ".join(src.split()), " ".join(dst.split())]
-        pairs.append([*pair, mode.upper()] if mode else pair)
-        pos = m.end()
-    return pairs or None
-
-
 # The special levels: 88 condition-names and 66 RENAMES describe the item above
 # them rather than nesting by level number, so they attach to the last real
 # item and are never pushed as a potential parent themselves.

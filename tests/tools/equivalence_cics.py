@@ -2702,16 +2702,18 @@ def commarea_length(sc: dict[str, Any], ca_fields: list[dict[str, Any]]) -> int 
     """#4270 (oracle_assumptions.md X23): a scenario's stated EIBCALEN, `"commarea_length": N` -- the caller passed
     the first N bytes of the COMMAREA record and no more (GenApp's `IF EIBCALEN < 91`, its '98' "COMMAREA too short"
     returns). Both sides give the program exactly N bytes: the stub's guard page (GGCAREA) and the det port's
-    DFHCOMMAREA (CicsTask.withExactCommarea) stop a reference past them, judged up to it. None when not stated."""
+    DFHCOMMAREA (CicsTask.withExactCommarea) stop a reference past them, judged up to it. None when not stated.
+    #4049: 0 is EIBCALEN 0 with the COMMAREA record present (a program that tests EIBCALEN first, COSGN00C, takes its
+    first-entry branch; one that touches DFHCOMMAREA is stopped at the reference, as for any shorter length)."""
     n = sc.get("commarea_length")
     if n is None:
         return None
     whole = max((f["offset"] + f["bytes"] for f in ca_fields), default=0)
     if sc.get("commarea") is None or not ca_fields:
         raise Unsupported(f"scenario {sc['name']}: a commarea_length with no COMMAREA", ["COMMAREA"])
-    if isinstance(n, bool) or not isinstance(n, int) or not 1 <= n <= whole:
+    if isinstance(n, bool) or not isinstance(n, int) or not 0 <= n <= whole:
         raise Unsupported(f"scenario {sc['name']}: commarea_length {n!r} is not a length of the {whole}-byte COMMAREA "
-                          "(1 to its length)", ["COMMAREA"])  # fmt: skip
+                          "(0 to its length)", ["COMMAREA"])  # fmt: skip
     return n
 
 

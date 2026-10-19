@@ -8,9 +8,9 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 |---|---|---|---|---|---|---|---|---|---|
 | [COACTVWC](carddemo-acctview.md) | carddemo-acctview | cics | proven, unapproved |  | 22 | 31/32 / 58/69 | 105/129 / 105/113 | 0 | - |
 | [COADM01C](carddemo-adminmenu.md) | carddemo-adminmenu | cics | proven, unapproved |  | 30 | 8/8 / 20/26 | 63/95 / 63/63 | 0 | - |
-| [COBIL00C](carddemo-billpay.md) | carddemo-billpay | cics | proven, unapproved |  | 30 | 16/16 / 46/48 | 64/86 / 64/71 | 0 | - |
+| [COBIL00C](carddemo-billpay.md) | carddemo-billpay | cics | proven, unapproved |  | 30 | 16/16 / 46/48 | 66/86 / 66/70 | 0 | - |
 | [COCRDLIC](carddemo-cardlist.md) | carddemo-cardlist | cics | proven, unapproved |  | 31 | 36/36 / 135/149 | 75/94 / 75/82 | 0 | - |
-| [COCRDSLC](carddemo-cardview.md) | carddemo-cardview | cics | proven, unapproved |  | 24 | 30/30 / 69/75 | 60/91 / 60/66 | 0 | - |
+| [COCRDSLC](carddemo-cardview.md) | carddemo-cardview | cics | proven, unapproved |  | 24 | 30/30 / 69/75 | 60/91 / 60/65 | 0 | - |
 | [CBTRN01C](carddemo-dailyval.md) | carddemo-dailyval | batch | proven, unapproved |  | 21 | 18/18 / 65/66 | 63/96 / 63/71 | 0 | - |
 | [CSUTLDTC](carddemo-dateutil.md) | carddemo-dateutil | call | proven, unapproved |  | 1 | 2/2 / 4/10 | 145/195 / 145/145 | 0 | - |
 | [CBACT04C](carddemo-intcalc.md) | carddemo-intcalc | batch | proven, unapproved |  | 20 | 22/22 / 85/86 | 70/86 / 70/77 | 0 | - |
@@ -19,16 +19,16 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [CBACT02C](carddemo-readcard.md) | carddemo-readcard | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | 69/83 / 69/73 | 0 | - |
 | [CBCUS01C](carddemo-readcust.md) | carddemo-readcust | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | 63/74 / 63/70 | 0 | - |
 | [CBACT03C](carddemo-readxref.md) | carddemo-readxref | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | 69/83 / 69/77 | 0 | - |
-| [CORPT00C](carddemo-report.md) | carddemo-report | cics | proven, unapproved |  | 28 | 10/10 / 52/59 | 55/87 / 55/63 | 0 | - |
+| [CORPT00C](carddemo-report.md) | carddemo-report | cics | proven, unapproved |  | 28 | 10/10 / 52/59 | 58/87 / 58/60 | 0 | - |
 | [COSGN00C](carddemo-signon.md) | carddemo-signon | cics | proven, unapproved |  | 16 | 6/6 / 17/17 | 67/99 / 67/72 | 0 | - |
-| [COTRN02C](carddemo-tranadd.md) | carddemo-tranadd | cics | proven, unapproved |  | 51 | 18/18 / 72/75 | 61/91 / 61/74 | 0 | - |
-| [COTRN00C](carddemo-tranlist.md) | carddemo-tranlist | cics | proven, unapproved |  | 33 | 16/16 / 96/101 | 60/91 / 60/80 | 0 | - |
+| [COTRN02C](carddemo-tranadd.md) | carddemo-tranadd | cics | proven, unapproved |  | 51 | 18/18 / 72/75 | 61/91 / 61/73 | 0 | - |
+| [COTRN00C](carddemo-tranlist.md) | carddemo-tranlist | cics | proven, unapproved |  | 33 | 16/16 / 96/101 | 64/91 / 64/79 | 0 | - |
 | [COTRN01C](carddemo-tranview.md) | carddemo-tranview | cics | proven, unapproved |  | 20 | 9/9 / 23/24 | 67/100 / 67/67 | 0 | - |
 | [CBTRN03C](carddemo-trnrpt.md) | carddemo-trnrpt | batch | proven, unapproved |  | 25 | 26/26 / 81/82 | 68/86 / 68/79 | 0 | - |
 | [COUSR01C](carddemo-useradd.md) | carddemo-useradd | cics | proven, unapproved |  | 22 | 9/9 / 20/21 | 63/98 / 63/64 | 0 | - |
 | [COUSR03C](carddemo-userdel.md) | carddemo-userdel | cics | proven, unapproved |  | 28 | 11/11 / 31/32 | 67/87 / 67/67 | 0 | - |
 | [COUSR00C](carddemo-userlist.md) | carddemo-userlist | cics | proven, unapproved |  | 32 | 16/16 / 95/100 | 69/100 / 69/92 | 0 | - |
-| [COUSR02C](carddemo-userupd.md) | carddemo-userupd | cics | proven, unapproved |  | 25 | 11/11 / 44/46 | 47/82 / 47/64 | 0 | - |
+| [COUSR02C](carddemo-userupd.md) | carddemo-userupd | cics | proven, unapproved |  | 25 | 11/11 / 44/46 | 57/82 / 57/59 | 0 | - |
 | [INQACC](cbsa-inqacc.md) | cbsa-inqacc | cics | proven, unapproved |  | 14 | 22/25 / 13/25 | 131/131 / 131/131 | 0 | - |
 | [UPDACC](cbsa-updacc.md) | cbsa-updacc | cics | proven, unapproved |  | 10 | 7/7 / 5/6 | 95/133 / 95/110 | 0 | - |
 | [LGAPVS01](genapp-lgapvs01.md) | genapp-lgapvs01 | cics | proven, unapproved |  | 11 | 3/3 / 5/9 | 72/125 / 72/113 | 0 | - |

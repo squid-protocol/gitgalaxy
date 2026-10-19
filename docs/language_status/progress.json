@@ -1,5 +1,5 @@
 {
- "commit": "8dccf160b",
+ "commit": "1448ca46c",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -157,22 +157,22 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-19T14:26:52Z",
+  "as_of": "2026-10-19T14:31:04Z",
   "core": {
-   "closed": 136,
-   "open": 45,
-   "total": 181
+   "closed": 137,
+   "open": 46,
+   "total": 183
   },
   "core_last_window": {
-   "closed": 42,
-   "net_closed": -7,
-   "opened": 49
+   "closed": 43,
+   "net_closed": -8,
+   "opened": 51
   },
   "core_milestone": {
    "closed": 80,
    "number": 28,
-   "open": 15,
-   "total": 95
+   "open": 17,
+   "total": 97
   },
   "epics": {
    "4890": "open",
@@ -379,9 +379,9 @@
    {
     "closed": 241,
     "number": 28,
-    "open": 16,
+    "open": 18,
     "title": "Training Montage \ud83c\udfcb\ufe0f \u2014 Prepping to one-shot our 4th CICS to Java translation attempt",
-    "total": 257
+    "total": 259
    },
    {
     "closed": 0,
@@ -398,9 +398,9 @@
     "total": 42
    },
    {
-    "closed": 11,
+    "closed": 12,
     "number": 31,
-    "open": 24,
+    "open": 23,
     "title": "DOOM Port Speedrun",
     "total": 35
    }
@@ -416,8 +416,8 @@
     "total": 102
    },
    "cobol": {
-    "closed": 125,
-    "total": 142
+    "closed": 126,
+    "total": 143
    }
   },
   "window_days": 7

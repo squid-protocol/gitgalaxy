@@ -16,7 +16,9 @@ from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTI
 from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 _NAME = r"([" + ID_START + r"][" + ID_CONTINUE + r"']*)"
-_MODS = r"(?:(?:rec|inline|private|internal|public|mutable)[ \t]+)*(?!(?:rec|inline|private|internal|public|mutable)[ \t])"
+_MODS = (
+    r"(?:(?:rec|inline|private|internal|public|mutable)[ \t]+)*(?!(?:rec|inline|private|internal|public|mutable)[ \t])"
+)
 _GENERIC = r"(?:<[^>\n]{0,200}>)?"
 # What opens a named, parameterised unit: `let` / `and` (module functions and local helpers; a capitalised
 # name there is a type's `and Foo(x) =`, never a function) or a `member` / `override` / `default`
@@ -188,14 +190,22 @@ DEFINITION: dict[str, Any] = {
         ),
         # api: file-level `module` / `namespace` headers, and `val` declarations of a signature file.
         "api": re.compile(
-            r"^(?:module|namespace)[ \t]+(?:rec[ \t]+)?" + _DOTTED + r"|^[ \t]*val[ \t]+(?:(?:inline|mutable|private|internal|public)[ \t]+)*"
+            r"^(?:module|namespace)[ \t]+(?:rec[ \t]+)?"
+            + _DOTTED
+            + r"|^[ \t]*val[ \t]+(?:(?:inline|mutable|private|internal|public)[ \t]+)*"
             r"[" + ID_START + r"][" + ID_CONTINUE + r"']*[ \t]*:",
             re.M,
         ),
         # state_mutation: a statement that writes into existing state: `x <- v`, `this.X <- v`, `a.[i] <- v`,
         # a ref cell's `x := v`. A `let mutable` declaration is not a write.
         "state_mutation": re.compile(
-            r"^[ \t]*[" + ID_START + r"][" + ID_CONTINUE + r"'.]*(?:\.?\[[^\]\n]{1,100}\][" + ID_CONTINUE + r"'.]*)?[ \t]*(?:<-(?![-<])|:=(?!=))"
+            r"^[ \t]*["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"'.]*(?:\.?\[[^\]\n]{1,100}\]["
+            + ID_CONTINUE
+            + r"'.]*)?[ \t]*(?:<-(?![-<])|:=(?!=))"
             r"|\b(?:incr|decr)\b",
             re.M,
         ),
@@ -224,7 +234,15 @@ DEFINITION: dict[str, Any] = {
         "decorators": re.compile(r"\[<[A-Za-z_][^\]\n]{0,200}>\]"),
         # generics: type variables (`'T`, `^T`); a character literal `'a'` is excluded by the closing quote.
         "generics": re.compile(
-            r"(?<![" + ID_CONTINUE + r"'])'[A-Za-z_][" + ID_CONTINUE + r"]*(?![" + ID_CONTINUE + r"'])|\^[A-Z][" + ID_CONTINUE + r"]*\b"
+            r"(?<!["
+            + ID_CONTINUE
+            + r"'])'[A-Za-z_]["
+            + ID_CONTINUE
+            + r"]*(?!["
+            + ID_CONTINUE
+            + r"'])|\^[A-Z]["
+            + ID_CONTINUE
+            + r"]*\b"
         ),
         "comprehensions": re.compile(
             r"\[\|?[ \t]*(?:for|yield)\b|\bseq[ \t]*\{|\b(?:List|Seq|Array)\.(?:map|collect|choose|filter)\b|\|>"
@@ -294,9 +312,7 @@ DEFINITION: dict[str, Any] = {
         "cleanup": re.compile(r"\b(?:use|using|finally|IDisposable)\b|\.(?:Dispose|Close)\b"),
         "encapsulation": re.compile(r"\b(?:private|internal)\b"),
         "listeners": re.compile(r"\b(?:AddHandler|RemoveHandler|Subscribe|SubscribeOn|ObserveOn|addEventListener)\b"),
-        "test_skip": re.compile(
-            r"\[<Ignore\b|\bSkip[ \t]*=|\b(?:ptestCase|ptestList|ptestProperty|ptestAsync)\b"
-        ),
+        "test_skip": re.compile(r"\[<Ignore\b|\bSkip[ \t]*=|\b(?:ptestCase|ptestList|ptestProperty|ptestAsync)\b"),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (F# specifics) ---
         "auth_middleware": re.compile(
             r"\b(?:requiresAuthentication|requiresRole|requiresRoleOf|mustBeAdmin|authorize|JwtBearer|UseAuthentication"

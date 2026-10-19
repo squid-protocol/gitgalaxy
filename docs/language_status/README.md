@@ -135,6 +135,7 @@ epic #813), not that no cases exist.
 | easytrieve | production | line_exclusive | 11/35 | | | not written |
 | embedded_python | production | line_exclusive | 51/52 | 64 | 107 | [embedded_python.md](embedded_python.md) |
 | **[fortran](fortran.md)** | production | positional_anchored | 45/52 | 35 | 101 | **written** |
+| **[fsharp](fsharp.md)** | production | recursive_block | 54/54 | | 16 | **written** (#5623) |
 | go | production | standard_block | 51/52 | 47 | 84 | not written |
 | **[groovy](groovy.md)** | production | standard_block | 44/48 | 53 | 91 | **written** |
 | haskell | production | recursive_block_haskell | 52/52 | 48 | 97 | not written |

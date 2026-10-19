@@ -149,9 +149,9 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COUSR02C (carddemo-userupd) | equivalence | 100/481 | 47/82 (57%) | 47/64 (73%) | 17 / 0 / 14 / 4 / 0 |
 | INQACC (cbsa-inqacc) | equivalence | 150/464 | 131/131 (100%) | 131/131 (100%) | 0 / 0 / 0 / 0 / 0 |
 | UPDACC (cbsa-updacc) | equivalence | 133/133 | 95/133 (71%) | 95/110 (86%) | 15 / 0 / 17 / 6 / 0 |
-| LGAPVS01 (genapp-lgapvs01) | equivalence | 150/178 | 70/121 (58%) | 70/119 (59%) | 49 / 0 / 0 / 2 / 0 |
-| LGICDB01 (genapp-lgicdb01) | equivalence | 150/195 | 49/130 (38%) | 49/127 (39%) | 78 / 0 / 0 / 3 / 0 |
-| LGUPDB01 (genapp-lgupdb01) | equivalence | 150/397 | 76/138 (55%) | 76/137 (55%) | 61 / 0 / 0 / 1 / 0 |
+| LGAPVS01 (genapp-lgapvs01) | equivalence | 150/184 | 72/125 (58%) | 72/113 (64%) | 0 / 41 / 1 / 11 / 0 |
+| LGICDB01 (genapp-lgicdb01) | equivalence | 150/201 | 51/130 (39%) | 51/107 (48%) | 1 / 55 / 8 / 15 / 0 |
+| LGUPDB01 (genapp-lgupdb01) | equivalence | 150/403 | 67/140 (48%) | 67/120 (56%) | 7 / 46 / 5 / 15 / 0 |
 | CALINK (ca-link-lengths) | crucible | 24/168 | 15/22 (68%) | 15/15 (100%) | 0 / 0 / 5 / 2 / 0 |
 | CASUB (ca-link-lengths) | crucible | 24/40 | 16/24 (67%) | 16/16 (100%) | 0 / 0 / 7 / 1 / 0 |
 | CAXA (ca-xctl-versions) | crucible | 24/78 | 16/21 (76%) | 16/16 (100%) | 0 / 0 / 3 / 2 / 0 |
@@ -174,20 +174,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 3308 run | **2111/3007 (70%)** | **2111/2494 (85%)** | 376 / 7 / 377 / 136 / 0 |
-| **all estate** | | 3812 run | **2430/3483 (70%)** | **2430/2848 (85%)** | 411 / 7 / 465 / 170 / 0 |
+| **all equivalence** | | 3308 run | **2106/3013 (70%)** | **2106/2451 (86%)** | 196 / 149 / 391 / 171 / 0 |
+| **all estate** | | 3812 run | **2425/3489 (70%)** | **2425/2805 (86%)** | 231 / 149 / 479 / 205 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 160/199 (80%) | 160/175 (91%) |
+| AOR | 161/201 (80%) | 161/176 (91%) |
 | BDM | 25/45 (56%) | 25/28 (89%) |
-| CON | 322/676 (48%) | 322/401 (80%) |
-| COR | 132/234 (56%) | 132/192 (69%) |
-| DEL | 372/545 (68%) | 372/450 (83%) |
-| LIT | 511/659 (78%) | 511/574 (89%) |
-| NEG | 455/507 (90%) | 455/485 (94%) |
-| RET | 56/89 (63%) | 56/79 (71%) |
-| ROR | 397/529 (75%) | 397/464 (86%) |
+| CON | 321/671 (48%) | 321/387 (83%) |
+| COR | 132/237 (56%) | 132/190 (69%) |
+| DEL | 368/548 (67%) | 368/437 (84%) |
+| LIT | 513/659 (78%) | 513/568 (90%) |
+| NEG | 454/507 (90%) | 454/483 (94%) |
+| RET | 56/89 (63%) | 56/77 (73%) |
+| ROR | 395/532 (74%) | 395/459 (86%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|
@@ -217,9 +217,9 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COUSR02C (carddemo-userupd) | 1/1 | - | 2/16 | 3/5 | 8/16 | 14/16 | 11/13 | - | 8/15 |
 | INQACC (cbsa-inqacc) | 3/3 | 2/2 | 22/22 | 4/4 | 22/22 | 22/22 | 21/21 | 16/16 | 19/19 |
 | UPDACC (cbsa-updacc) | 4/4 | 0/3 | 17/30 | 3/10 | 16/27 | 28/32 | 8/8 | - | 19/19 |
-| LGAPVS01 (genapp-lgapvs01) | 14/15 | - | 26/44 | - | 6/10 | 9/26 | 6/9 | - | 9/17 |
-| LGICDB01 (genapp-lgicdb01) | 2/5 | - | 9/30 | 1/4 | 5/19 | 13/29 | 9/16 | 1/7 | 9/20 |
-| LGUPDB01 (genapp-lgupdb01) | 10/11 | - | 11/22 | 0/1 | 9/21 | 14/22 | 15/22 | 3/17 | 14/22 |
+| LGAPVS01 (genapp-lgapvs01) | 14/16 | - | 25/41 | 0/1 | 6/11 | 12/28 | 6/9 | - | 9/19 |
+| LGICDB01 (genapp-lgicdb01) | 2/5 | - | 9/28 | 1/5 | 6/20 | 14/27 | 9/16 | 1/7 | 9/22 |
+| LGUPDB01 (genapp-lgupdb01) | 11/12 | - | 11/22 | 0/2 | 4/22 | 12/22 | 14/22 | 3/17 | 12/21 |
 | CALINK (ca-link-lengths) | 2/2 | - | 1/4 | 0/1 | 2/4 | 3/3 | 3/3 | 2/2 | 2/3 |
 | CASUB (ca-link-lengths) | - | - | 2/5 | - | 3/5 | 4/5 | 4/5 | - | 3/4 |
 | CAXA (ca-xctl-versions) | 1/1 | - | 3/4 | - | 3/4 | 2/4 | 4/4 | - | 3/4 |

@@ -302,7 +302,10 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     # #4049 re-recorded the four menu-family ports (adminmenu, useradd, userdel, tranview; seed 0, 100 mutants each) after
     # #5387's scenarios and the port regeneration (mutants moved, so their stale-record skip ended): 19 more flagged
     # survivors, all unreachable: the facade's lastLinkBytes() and the program-name literal in region.run / region.linked.
-    assert len(flagged) == 37 and verdicts.count("unreachable") == 34 and verdicts.count("equivalent") == 3
+    # #4047 re-ran the three GenApp ports (LGAPVS01, LGICDB01, LGUPDB01; seed 0, 150 mutants each), ending their #5053
+    # stale-record skip: 21 more flagged survivors, all unreachable: the facade entry (region.linked / run /
+    # lastLinkBytes), LGAPVS01's writeKsdspoly helper and the EIBCALEN = 0 branch (the case always links a COMMAREA).
+    assert len(flagged) == 58 and verdicts.count("unreachable") == 55 and verdicts.count("equivalent") == 3
     assert not {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C", "CSUTLDTC"}
 
 

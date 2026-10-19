@@ -14,10 +14,6 @@
    "issue": "#4803",
    "why": "EPSCSMRT CALLs EPSMPMT, which has holes (line 125: (1 + C) ** N floating-point exponentiation, oracle_assumptions.md C6; line 144: FUNCTION ANNUITY, dead code). The case's five validation-path scenarios run equal on both sides and never reach them, but a program is not proven while a program it CALLs has holes, whichever scenarios were written (owner decision 2026-10-11): the proof passes, the port stays unproven until EPSMPMT's holes are closed (#4271)."
   },
-  "cbsa-bnk1ccs": {
-   "issue": "#5076",
-   "why": "Two named holes (the java-facade answer of its LENGTH(248) RETURN over a 5-byte WS-COMM-AREA is read since #5089: the bytes past the record are dropped as undefined). (1) It LINKs CRECUST, whose CEEDAYS call the oracle refuses (oracle_assumptions.md L1, #4952): no scenario creates a customer (every scenario that reaches CRECUST is born in 1500, which CRECUST refuses before CEEDAYS), so the successful create is not covered. (2) CRECUST's async credit check schedule is ASSUMED (X18), and its FC is 8 bytes where LE writes 12 (L4). The runTask proof is equal on all 83 scenarios and 33 of 33 paragraphs."
-  },
   "zecs-zecs003": {
    "issue": "#5076",
    "why": "ZECS003 reads and deletes records of the instance's files ZC##FILE and ZC##KEY, named at run time from EIBTRNID; zECS defines them in IDCAMS jobs with install placeholders (@ECS_HLQ@ ...) in the dataset names, so no case can state their records and the generated project stores no such file: the Java side refuses the READ of ZC01FILE by name ('Hole: CICS file ZC01FILE: the program names no file the generated project stores') where GnuCOBOL answers FILENOTFOUND. The scenarios cover the COMMAREA, the document template, the WEB PARSE / OPEN / CONVERSE / CLOSE replication and the WEB SEND on the COBOL side; the expired-record browse and 3100-DELETE are not covered and not proven."

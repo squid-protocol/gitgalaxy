@@ -467,6 +467,9 @@ python tests/tools/det_mutation.py refresh --work DIR        # the generator mov
 | COADM01C (carddemo-adminmenu) | 150/1382 (seed 0) | 77 | 68 | 5 | 55 | 13 | 77/145 (53%) | no |
 | COBIL00C (carddemo-billpay) | 150/1656 (seed 0) | 93 | 54 | 3 | 43 | 11 | 93/147 (63%) | no |
 | COTRN02C (carddemo-tranadd) | 150/2435 (seed 0) | 90 | 58 | 2 | 23 | 35 | 90/148 (61%) | no |
+| COCRDSLC (carddemo-cardview) | 150/2184 (seed 0) | 72 | 74 | 4 | 33 | 41 | 72/146 (49%) | no |
+| COTRN01C (carddemo-tranview) | 150/1469 (seed 0) | 83 | 64 | 3 | 48 | 16 | 83/147 (56%) | no |
+| COTRN00C (carddemo-tranlist) | 150/2827 (seed 0) | 91 | 57 | 2 | 21 | 36 | 91/148 (61%) | no |
 
 **The crucible now has a byte-path scenario (#4965).** #5053 made the comparison page-aware, so the deterministic port
 of PCWIZ (and PCCONF, the program it LINKs/XCTLs to: 39/39 and 47/47 statements, no holes) is committed under

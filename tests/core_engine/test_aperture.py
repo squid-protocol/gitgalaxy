@@ -409,7 +409,7 @@ def test_aperture_machine_gen_and_monotony(filter_engine, tmp_path):
 
     # 2. Lexical Monotony Shield
     rep_file = tmp_path / "unrolled.js"
-    rep_content = "function loop() {\n" + "    var a = 1;\n" * 2500 + "}"
+    rep_content = "    var a = 1;\n" * 2500
     rep_file.write_text(rep_content, encoding="utf-8")
 
     result = filter_engine.is_in_scope(rep_file, content=rep_content)

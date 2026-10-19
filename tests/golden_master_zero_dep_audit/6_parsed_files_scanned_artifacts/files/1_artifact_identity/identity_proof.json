@@ -3911,7 +3911,8 @@
       "typescript/typescript_compiler/checker.ts": "Single Indicator (Ext: .ts)",
       "typescript/typescript_compiler/emitter.ts": "Single Indicator (Ext: .ts)",
       "typescript/typescript_compiler/package.json": "Single Indicator (Exact Match)",
-      "typescript/typescript_compiler/parser.ts": "Single Indicator (Ext: .ts)"
+      "typescript/typescript_compiler/parser.ts": "Single Indicator (Ext: .ts)",
+      "typescript/typescript_compiler/types.ts": "Single Indicator (Ext: .ts)"
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": "Prose Extension (.txt)",

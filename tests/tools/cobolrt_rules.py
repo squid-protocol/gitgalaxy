@@ -13,7 +13,8 @@ Source of truth: ``docs/language_status/cobolrt_rules.json``
               "...@N" for the Nth declaration of the name; default the first method), ibm ({doc, section}, or null with
               `ibm_note` for a rule that is not MATCHED), options, register (oracle-assumptions entries,
               docs/language_status/register/), status (MATCHED / DIFFERS / REFUSED / ASSUMED, against IBM),
-              calibration ("uncalibrated", or "z/OS-measured" with `evidence`, #4702)
+              calibration ("uncalibrated", or "z/OS-measured" with `evidence` and `calibrated_under`, the LE / Db2 / CICS
+              options the measurement held under, runtime_options.calibration_problems; #4702)
 
 Each rule's code site carries ``// [rule <ID>]`` on the line above its declaration. check() is two-way: a marker with
 no entry, an entry with no marker, a marker standing before a method that is not the rule's, a method of a catalogued
@@ -91,6 +92,12 @@ def compile_options() -> set[str]:
     from gitgalaxy.core import compiler_options as co  # noqa: PLC0415
 
     return set(co.SEMANTIC_OPTIONS) | set(co._ABBREVIATIONS.values())
+
+
+def runtime_option_problems(under: Any) -> list[str]:
+    from gitgalaxy.core.runtime_options import calibration_problems  # noqa: PLC0415
+
+    return calibration_problems(under)
 
 
 def load(path: Path = CATALOGUE) -> dict[str, Any]:
@@ -219,6 +226,8 @@ def check(cat: dict[str, Any] | None = None, rt: Path = RT, register: dict[str, 
             probs.append(f"{rid}: calibration {r.get('calibration')!r} is not one of {CALIBRATIONS}")
         elif r["calibration"] == "z/OS-measured" and not r.get("evidence"):
             probs.append(f"{rid}: z/OS-measured needs `evidence` (#4702)")
+        if r.get("calibration") == "z/OS-measured":
+            probs += [f"{rid}: {p}" for p in runtime_option_problems(r.get("calibrated_under"))]
 
     for fam in cat["families"]:
         fid = fam["id"]

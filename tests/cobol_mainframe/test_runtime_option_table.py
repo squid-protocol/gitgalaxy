@@ -24,6 +24,7 @@ from gitgalaxy.core import estate_options as eo  # noqa: E402
 from gitgalaxy.core.runtime_options import (
     CICS_CONVENTIONS,
     RUNTIME_OPTION_TABLE,
+    calibration_problems,
     conventions_rows,
     runtime_effect,
     runtime_unhonoured,
@@ -229,3 +230,39 @@ def test_a_rows_used_by_names_only_corpora_that_use_the_field():
     for key, row in CICS_CONVENTIONS.items():
         if key.startswith("EIB"):
             assert set(row["used_by"]) <= fields.get(key, set()), key
+
+
+def _stated():
+    return {k: r["default"] for k, r in RUNTIME_OPTION_TABLE.items() if r["policy"]}
+
+
+def test_a_measurement_under_the_defaults_calibrates():
+    assert calibration_problems(_stated()) == []
+
+
+@pytest.mark.parametrize(("section", "key", "value"), REFUSED)
+def test_a_measurement_under_a_refused_value_does_not_calibrate(section, key, value):
+    under = _stated()
+    under[f"{section}.{key}"] = value
+    (hit,) = calibration_problems(under)
+    assert f"{section}.{key}={value}" in hit
+
+
+def test_a_measurement_under_a_declared_value_names_the_difference():
+    under = _stated() | {"db2.ccsid.EBCDIC_CCSID": "285"}
+    (hit,) = calibration_problems(under)
+    assert "declare" in hit
+
+
+@pytest.mark.parametrize("path", [k for k, r in RUNTIME_OPTION_TABLE.items() if r["policy"]])
+def test_a_measurement_must_state_every_judged_option(path):
+    under = _stated()
+    del under[path]
+    (hit,) = calibration_problems(under)
+    assert hit.startswith(path)
+
+
+def test_a_measurement_may_state_a_no_effect_option_and_must_know_its_keys():
+    assert calibration_problems(_stated() | {"db2.bind.ISOLATION": "RR"}) == []
+    assert "no row" in calibration_problems(_stated() | {"cics.region.NEW": "x"})[0]
+    assert calibration_problems(None) and calibration_problems({})

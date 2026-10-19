@@ -84,3 +84,13 @@ def test_every_command_a_burned_estate_issues_is_modelled_with_no_refused_option
     if not seen:
         pytest.skip("no burned estate in the corpora checkout")
     assert sorted(bad) == []
+
+
+def test_soapfault_create_names_the_options_dbb_epscsmrd_issues_5235():
+    """#5235: SOAPFAULT CREATE stays refused whole (web services, X65) but the spec names IBM's options, so CLIENT /
+    FAULTSTRING / FAULTSTRLEN are known words, not unknown ones."""
+    cmd = COMMANDS["SOAPFAULT CREATE"]
+    assert cmd.status == "refused" and not cmd.options
+    assert {"CLIENT", "FAULTSTRING", "FAULTSTRLEN"} <= set(cmd.refused)
+    assert cmd.ibm.url.endswith("summary-soapfault-create")
+    assert cmd.whole_message("SOAPFAULT CREATE").startswith("EXEC CICS SOAPFAULT CREATE not modelled (")

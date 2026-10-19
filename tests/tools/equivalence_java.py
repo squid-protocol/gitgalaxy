@@ -419,6 +419,10 @@ def linked_programs(case: dict[str, Any], corpus: Path, project: Path, sources: 
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(r.java, encoding="utf-8")
         files[rel] = out
+        for x in r.extra:  # #5106: the LINKed program's sibling programs (a CALL into the same source), each a service
+            x_rel = f"service/{x.service}.java"
+            (work / "linked" / x_rel).write_text(x.java, encoding="utf-8")
+            files[x_rel] = work / "linked" / x_rel
         for rt, text in P.runtime_files(PKG, P.has_batch(project)).items():
             dest = work / "linked" / rt
             dest.parent.mkdir(parents=True, exist_ok=True)

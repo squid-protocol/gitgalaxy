@@ -1689,9 +1689,10 @@ def answer_lines(ret: str, own: str | None, codec: bool = False) -> list[str]:
         return ["        return task.returned(Object.class);"]
     dto = own if ret == "Object" else ret
     read = f"wideAnswer(wide, {dto}.class)"
-    # #5089: bytes no layout reads are read through the program's codec, where it has one
+    # #5089: bytes no layout reads are read through the program's codec, where it has one -- for a typed answer, which
+    # would be refused; an Object answer keeps the bytes, lossless (a DTO cannot hold a space in a numeric field)
     more = (["            if (read == null) {", f"                read = codecAnswer(wide, {dto}.class);", "            }"]
-            if codec else [])  # fmt: skip
+            if codec and ret != "Object" else [])  # fmt: skip
     if ret == "Object":
         return ["        Object answer = task.returned(Object.class);",
                 "        if (answer instanceof byte[] wide) {",
@@ -1749,7 +1750,7 @@ def codec_answer(shapes: dict[str, tuple[int, int]]) -> list[str]:
                   f"            return ebcdic.length < {need} ? null : type.cast(out_{cls}(wideStorage(ebcdic, {extent}), 0));",
                   "        }"]  # fmt: skip
         same += [f"        if (dto instanceof {cls} d) {{",
-                 f"            Storage s = new Storage({extent});",
+                 f"            Storage s = wideStorage(ebcdic, {extent});  // bytes no property names (FILLER) stay as passed",
                  f"            in_{cls}(d, s, 0);",
                  "            return wideSame(s, ebcdic);",
                  "        }"]  # fmt: skip
@@ -1778,7 +1779,7 @@ def codec_answer(shapes: dict[str, tuple[int, int]]) -> list[str]:
         "    }",
         "",
         "    /** #5089: whether `dto` is the record the COMMAREA bytes a RETURN passed hold: the DTO written back through the",
-        "     *  codec and compared with the bytes over the span both define (a record past LENGTH was never passed, bytes",
+        "     *  codec over the passed bytes and compared with the bytes over the span both define (a record past LENGTH was never passed, bytes",
         "     *  past the record are undefined). @facade-helper */",
         "    public boolean wideSame(byte[] ebcdic, Object dto) {",
         *same,
@@ -1799,6 +1800,7 @@ def facades(stub: str, passes_bytes: bool = False, shapes: dict[str, tuple[int, 
     name = re.search(r'region\.run\(task, ("(?:[^"\\]|\\.)*"), this::runTask\)', stub)
     out: list[str] = []
     wide = False
+    typed = False  # #5089: a typed answer reads through the codec, so the helpers are emitted
     for meth in ("handleTransaction", "handleLink"):
         # #4870: handleTransaction has two overloads -- the DTO's, and the one carrying the COMMAREA's bytes in (and,
         # through lastAnswerBytes(), out) -- each rebuilt on its own
@@ -1835,13 +1837,14 @@ def facades(stub: str, passes_bytes: bool = False, shapes: dict[str, tuple[int, 
                 if ret != "void" and meth == "handleTransaction" and passes_bytes:
                     body += (lines := answer_lines(ret, req.group(1) if req else None, bool(shapes)))
                     wide = wide or len(lines) > 1
+                    typed = typed or (len(lines) > 1 and ret != "Object" and bool(shapes))
                 elif ret != "void":
                     body.append("        return request;" if meth == "handleLink" and req and ret == req.group(1)
                                 else f"        return task.returned({ret}.class);")  # fmt: skip
             out += [f"    public {ret} {meth}({params}) {{", *body, "    }", ""]
     if wide:
         out += WIDE_ANSWER
-        if shapes:
+        if typed and shapes:
             out += codec_answer(shapes)
     # The bytes the byte-carrying overload answers: a field and its accessor, tagged for port_surface (#4870)
     if re.search(r"public byte\[\] lastAnswerBytes\(\)", stub):

@@ -4317,6 +4317,16 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
         if (got == raw) {
             return true;
         }
+        if (raw instanceof byte[] wide && got != null && service != null && !(got instanceof byte[])
+                && java.util.Arrays.stream(got.getClass().getMethods()).noneMatch(m -> m.getName().equals("fromCommarea"))) {
+            // #5089: a DTO with no layout (a POINTER, a LENGTH that differs from the record) is read through the
+            // program's own codec; written back, it must give the bytes the RETURN passed, over the span both define
+            try {
+                return (Boolean) service.getClass().getMethod("wideSame", byte[].class, Object.class).invoke(service, wide, got);
+            } catch (ReflectiveOperationException | RuntimeException e) {
+                return false;
+            }
+        }
         if (raw instanceof byte[] wide && got != null && got.getClass() == type) {
             // #4695: a RETURN with a LENGTH past the DTO passes the COMMAREA as bytes (the region's EBCDIC); the facade
             // answers its own DTO, those bytes read through its layout in the port's page -- never a different record
@@ -4324,11 +4334,6 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
                 java.nio.charset.Charset page = (java.nio.charset.Charset) Class.forName("__PKG__.entity.vsam.CobolRecords")
                         .getMethod("charset").invoke(null);
                 byte[] text = new String(wide, java.nio.charset.Charset.forName("IBM037")).getBytes(page);
-                if (service != null && !java.util.Arrays.stream(type.getMethods()).anyMatch(m -> m.getName().equals("fromCommarea"))) {
-                    // #5089: no layout (a POINTER, a LENGTH that differs from the record): the program's own codec,
-                    // written back and compared with the bytes over the span both define
-                    return (Boolean) service.getClass().getMethod("wideSame", byte[].class, Object.class).invoke(service, wide, got);
-                }
                 Method bytes = type.getMethod("toCommarea");
                 Object expected = type.getMethod("fromCommarea", byte[].class).invoke(null, (Object) text);
                 return java.util.Arrays.equals((byte[]) bytes.invoke(got), (byte[]) bytes.invoke(expected));

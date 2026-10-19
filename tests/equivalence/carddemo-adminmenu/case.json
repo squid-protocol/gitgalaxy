@@ -524,6 +524,21 @@
     "CDEMO-LAST-MAPSET": "COADM01"
    },
    "why": "#4049 slice 2 (mutation survivors): first entry (context 0) with the account, card and last-map fields set: the menu is sent and the COMMAREA returned"
+  },
+  {
+   "name": "no-commarea-xctl-fails",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COSGN00C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4049 slice 3 (mutation survivors): no COMMAREA and the sign-on XCTL answers PGMIDERR: the program's own blank COMMAREA is what it returns"
   }
  ],
  "notes": "CardDemo's admin menu (transaction CA00, program COADM01C): it lists the six options of COADM02Y and XCTLs to the chosen program; an option outside 1-6 or zero is refused (OPTION is a NUM field, which a 3270 cannot key letters into, so no scenario types a non-numeric option, #5116). Options 5 and 6 (COTRTLIC, COTRTUPC) belong to CardDemo's optional DB2 module, which the base CSD (app/csd/CARDDEMO.CSD, named by the case) does not define, so their XCTL raises PGMIDERR and the program's HANDLE CONDITION label answers 'This option is not installed ...'. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

@@ -26,6 +26,16 @@ from .._shared_patterns import (
 # definition; the template argument list nests two levels and is bounded by the `::`.
 _TPL_QUAL = r"(?:<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?"
 
+# #5462: the tail between a definition's parameter list and its body (func_start item 8).
+# A one-level-nested parenthesised group: `noexcept(sizeof(T) > 4)`, `throw(A, B)`, `decltype(a + b)`.
+_PARENS = r"\((?:[^()]|\([^()]*\))*\)"
+# A specifier macro (`THROWS`, `ASIO_NOEXCEPT`, `Q_DECL_OVERRIDE`): a bare ALL-CAPS name of two characters
+# or more, on the `)` line or indented below it. Never one with an argument list or at column 0: that is
+# the next macro statement of a chain (gzdoom `EXTERN_CVAR(Bool, x)` / `CUSTOM_CVAR(Int, y, 0, 0) {`).
+_SPEC_MACRO = r"(?:[ \t]+|[ \t]*\n[ \t]+)[A-Z][A-Z0-9_]{1,63}(?![" + ID_CONTINUE + r"]|[ \t]*\()"
+# A trailing return type token: a qualified name with template arguments (`std::map<int, int>`).
+_RET_TOKEN = r"[a-zA-Z_:" + ID_CONTINUE + r"*<>]+"
+
 DEFINITION: dict[str, Any] = {
     "_meta": {
         "target_version": "C++23 (Modules, Concepts, Coroutines, Ranges, std::print)",
@@ -281,7 +291,7 @@ DEFINITION: dict[str, Any] = {
             r"(?:[ \t]{0,20}[*&]{1,5}[ \t\n]{0,200}|[ \t\n]{1,200})){0,5}"
             # 5. THE "NOT A FUNCTION" SHIELD
             # Prevents control flow (if, while) and primitive types from being captured as function names.
-            r"(?!(?:if|for|while|switch|return|catch|else|elif|sizeof|new|delete|ARGS\d+|NOARGS|int|float|double|char|void|long|short|unsigned|signed|bool|INTEGER|LOGICAL|real|__attribute__|__declspec|__asm__)\b)"
+            r"(?!(?:if|for|while|switch|return|catch|else|elif|sizeof|alignas|new|delete|ARGS\d+|NOARGS|int|float|double|char|void|long|short|unsigned|signed|bool|INTEGER|LOGICAL|real|__attribute__|__declspec|__asm__)\b)"
             # 6. THE IDENTIFIER CAPTURE (FUNCTION IDENTIFIER - GROUP 1)
             # [IRON WALL]: Ensures the actual function/operator name isn't hijacked by a macro definition.
             # OUT-OF-LINE OPERATOR FIX (epic #813/#821): the operator alternatives had no
@@ -366,8 +376,25 @@ DEFINITION: dict[str, Any] = {
             r"[ \t\n]{0,200}(?:ARGS\d+\s*\([^)]*\)|\((?![ \t\n]{0,20}\[(?!\[))(?:[^)(]|\([^)]*\))*\)|NOARGS)"
             # 8. POST-PARAMETER MODIFIERS & TRAILING RETURN TYPES
             # [OVERLAP PREVENTION]: Removed ambiguous \s* inside attribute matcher.
-            r"(?:[ \t\n]+(?:const|volatile|noexcept|override|final|&{1,2}|__attribute__\((?:[^)(]|\([^)]*\))*\)|\[\[[^\]]*\]\])){0,10}"
-            r"(?:[ \t\n]*->[ \t]*[a-zA-Z_:" + ID_CONTINUE + r"*<>]+)?"
+            # #5462: also `noexcept(expr)`, `throw(...)`, a specifier macro (psydoom `readBit() THROWS {`),
+            # a trailing return type with cv-qualifiers, `decltype(...)`, commas or a pointer
+            # (`-> const char *`), a C++20 `requires` clause and a function-try-block (`f() try {`).
+            r"(?:[ \t\n]+(?:const|volatile|noexcept(?:[ \t]*"
+            + _PARENS
+            + r")?|throw[ \t]*"
+            + _PARENS
+            + r"|override|final|&{1,2}|__attribute__\((?:[^)(]|\([^)]*\))*\)|\[\[[^\]]*\]\])|"
+            + _SPEC_MACRO
+            + r"){0,10}"
+            r"(?:[ \t\n]*->[ \t]*(?:(?:const|volatile|typename)[ \t]+){0,3}(?:decltype[ \t]*"
+            + _PARENS
+            + r"|"
+            + _RET_TOKEN
+            + r"(?:,[ \t]*"
+            + _RET_TOKEN
+            + r"){0,10})(?:[ \t]*[*&]{1,3})?)?"
+            r"(?:[ \t\n]+requires[ \t\n(][^{};#]{0,300})?"
+            r"(?:[ \t\n]+try)?"
             # 9. THE K&R C AND C++ CONSTRUCTOR GAP (ReDoS mitigated via Strict Bounding)
             # Handles C++ initializer lists (e.g., `MyClass() : a(1) {`) and legacy K&R declarations.
             # [IRON WALL - CATASTROPHIC BACKTRACKING FIX]:

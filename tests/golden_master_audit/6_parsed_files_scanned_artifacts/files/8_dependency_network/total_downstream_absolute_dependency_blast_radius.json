@@ -2860,7 +2860,7 @@
       "python/fastapi/fastapi/staticfiles.py": 0,
       "python/fastapi/fastapi/templating.py": 0,
       "python/fastapi/fastapi/testclient.py": 0,
-      "python/fastapi/fastapi/types.py": 10,
+      "python/fastapi/fastapi/types.py": 0,
       "python/fastapi/fastapi/utils.py": 0,
       "python/fastapi/fastapi/websockets.py": 0
     },
@@ -3911,7 +3911,8 @@
       "typescript/typescript_compiler/checker.ts": 0,
       "typescript/typescript_compiler/emitter.ts": 0,
       "typescript/typescript_compiler/package.json": 0,
-      "typescript/typescript_compiler/parser.ts": 0
+      "typescript/typescript_compiler/parser.ts": 0,
+      "typescript/typescript_compiler/types.ts": 11
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0,

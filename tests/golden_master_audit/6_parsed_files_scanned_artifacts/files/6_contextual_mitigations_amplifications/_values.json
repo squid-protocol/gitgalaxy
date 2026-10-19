@@ -2587,7 +2587,8 @@
     },
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": "None Detected",
-      "typescript/typescript_compiler/package.json": "None Detected"
+      "typescript/typescript_compiler/package.json": "None Detected",
+      "typescript/typescript_compiler/types.ts": "None Detected"
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": "None Detected",

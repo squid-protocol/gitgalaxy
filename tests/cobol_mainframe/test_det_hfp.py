@@ -266,6 +266,9 @@ FLOAT_DATA = """       01 S1 COMP-1 VALUE 1.5.
         ("MOVE X4 TO S1", "MOVE of a nonnumeric operand to S1 COMP-1"),
         ("MOVE S1(1:2) TO X4", "the bytes of a COMP-1 item"),
         ("COMPUTE L1 = S1 ** 2", "exponentiation in a floating-point expression"),
+        ("COMPUTE L1 = FUNCTION ANNUITY(N N)", "not the bits of the power"),  # a float target
+        ("COMPUTE N = FUNCTION ANNUITY(N N)", "not the bits of the power"),  # a fixed-point target
+        ("COMPUTE L1 = S1 ** N", "exponentiation in a floating-point expression"),  # a fractional exponent
         ("COMPUTE L1 = FUNCTION SQRT(N)", "FUNCTION SQRT in a floating-point expression"),
         ("COMPUTE S1 ROUNDED = N / 3", "ROUNDED into S1"),
         ("IF S1 = 'AB' DISPLAY 'Y' END-IF", "compared with a nonnumeric operand"),
@@ -301,9 +304,11 @@ def test_ibm_dbb_epsmpmt_translates_but_its_float_exponentiation(tmp_path):
     (tmp_path / "project").mkdir()
     r = P.translate(src, [src.parent.parent / "copybook"], "public class EpsmpmtService {\n}\n", "p", None,
                     tmp_path / "project")  # fmt: skip
-    holes = r.stats["holes"]  # (and A300-TRY2's FUNCTION ANNUITY, dead code, as before)
-    assert [h for h in holes if "C6" in h] == [h for h in holes if "line 125:" in h], holes
+    holes = r.stats["holes"]
+    assert [h for h in holes if "C6" in h] == [h for h in holes if "line 125:" in h or "line 144:" in h], holes
     assert any("line 125: COMPUTE exponentiation in a floating-point expression" in h for h in holes), holes
+    annuity = [h for h in holes if "FUNCTION ANNUITY" in h]  # A300-TRY2, dead code: refused with its reason
+    assert len(annuity) == 1 and "not the bits of the power" in annuity[0] and "C6" in annuity[0], holes
     assert "Hfp.divide(Hfp.divide(Hfp.of(" in r.java  # (rate / 100) / 12 into the COMP-1: long HFP
 
 

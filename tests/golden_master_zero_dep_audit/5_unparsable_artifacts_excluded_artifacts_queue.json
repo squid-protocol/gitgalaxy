@@ -2748,14 +2748,6 @@
       "Size": "11601 bytes"
     },
     {
-      "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 10671 LOC)",
-      "Discovery Proof": "Radar Scan",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
-      "Path": "typescript/typescript_compiler/types.ts",
-      "Size": "487846 bytes"
-    },
-    {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",

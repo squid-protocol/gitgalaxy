@@ -16,14 +16,14 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | CICS: EXEC CICS data movement | `cics/DetCics.java`, `cics/DetJustify.java` | 27 | yes |
 | SQL: embedded SQL | `sql/DetSql.java` | 10 | yes |
 | LE: Language Environment callable services | `le/Ceedate.java`, `le/Ceedatm.java`, `le/Ceedays.java`, `le/Ceegmt.java`, `le/Ceegmto.java`, `le/Ceeisec.java`, `le/Ceeloct.java`, `le/Ceeqcen.java`, `le/Ceesecs.java`, `le/Ceeutc.java`, `le/Cobdatft.java`, `le/LeTime.java`, `le/Mvswait.java` | 15 | yes |
-| DLI: IMS DL/I database calls | `dli/DetDli.java` | 12 | yes |
+| DLI: IMS DL/I database calls | `dli/DetDli.java` | 14 | yes |
 | MQ: IBM MQ (MQI from CICS) | `mq/QueueManager.java`, `cics/DetMq.java` | 7 | yes |
 | DATA: items and storage | `Field.java`, `Storage.java`, `Lossless.java`, `Figurative.java`, `Hole.java` | 5 | yes |
 | SORT: SORT / MERGE and collating sequences | `Sort.java` | 6 | yes |
 | FILE: batch files | `batch/DetFiles.java` | 3 | yes |
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 
-174 rules: 84 MATCHED, 23 DIFFERS, 14 REFUSED, 53 ASSUMED; 0 measured on z/OS (#4702).
+176 rules: 84 MATCHED, 23 DIFFERS, 14 REFUSED, 55 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -263,6 +263,8 @@ A batch DL/I program's CALL 'CBLTDLI' through a DB PCB on a stated database: the
 | RT-DLI-FEEDBACK | The PCB mask after a call: status code, segment level, segment name, concatenated key and its length | `ims-ap` Specifying the DB PCB mask | - | I4 (ASSUMED) | ASSUMED | uncalibrated |
 | RT-DLI-GET | GU / GN / GNP and their holds: the first segment in hierarchic sequence satisfying the SSAs, from the database's start, from position, or under parentage; GE / GB / GP / GA / GK; position and parentage after the call | `ims-apis` GU / GHU, GN / GHN, GNP / GHNP calls | - | I1 (ASSUMED); I3 (ASSUMED) | ASSUMED | uncalibrated |
 | RT-DLI-EXEC-GET | EXEC DLI GU / GN / GNP USING PCB(n) [SEGMENT WHERE] INTO under CICS: the CBLTDLI get of the same SSAs against PCB n of the scheduled PSB, a hold where PROCOPT allows an update; DIBSTAT the PCB's status | none: EXEC DLI has no HOLD option; the hold on an updating PROCOPT is assumed (register I5) | - | I5 (REFUSED) | ASSUMED | uncalibrated |
+| RT-DLI-EXEC-ISRT | EXEC DLI ISRT USING PCB(n) SEGMENT(s) [WHERE ...] ... SEGMENT(t) FROM(area) [SEGLENGTH(n)] under CICS: the CBLTDLI ISRT of the same SSAs against PCB n of the scheduled PSB; segments are fixed length, so a SEGLENGTH that differs from the DBD's stops the run; DIBSTAT the PCB's status | none: Segments are fixed length (the DBD's); a variable-length SEGLENGTH is refused by name (register I5) | - | I5 (REFUSED) | ASSUMED | uncalibrated |
+| RT-DLI-EXEC-CHANGE | EXEC DLI REPL / DLET USING PCB(n) SEGMENT(s) FROM(area) under CICS: the CBLTDLI REPL / DLET of the segment the previous get on this PCB held (DJ with none, DA for a changed key); SEGMENT must name the held segment's type; DIBSTAT the PCB's status | none: The command form has no SSA, so SEGMENT is checked against the held segment's type; the hold comes from the get-hold on an updating PROCOPT (register I5) | - | I5 (REFUSED) | ASSUMED | uncalibrated |
 | RT-DLI-ISRT | ISRT: the segment under the parent its SSAs (or current position) locate, among its twins by sequence field; II for a key its twins hold, GE for a parent not found | `ims-apis` ISRT call | - | I1 (ASSUMED); I3 (ASSUMED) | ASSUMED | uncalibrated |
 | RT-DLI-CHANGE | REPL / DLET on the segment the previous get-hold call returned; DJ without one, DA when the I/O area changed the sequence field; DLET removes the segment's dependents | `ims-apis` REPL call; DLET call | - | I1 (ASSUMED); I3 (ASSUMED) | ASSUMED | uncalibrated |
 | RT-DLI-CALL | CALL 'CBLTDLI' USING function pcb io-area [ssa ...]: the PCB the program was passed, the function's dispatch (AD for an unknown function, AM for one PROCOPT does not allow), any other DL/I call refused | `ims-codes` DL/I status codes | - | I1 (ASSUMED); I5 (REFUSED) | ASSUMED | uncalibrated |

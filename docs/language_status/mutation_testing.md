@@ -181,7 +181,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COTRN02C (carddemo-tranadd) | equivalence | 100/770 | 61/91 (67%) | 61/74 (82%) | 13 / 0 / 10 / 7 / 0 |
 | COTRN00C (carddemo-tranlist) | equivalence | 100/697 | 60/91 (66%) | 60/80 (75%) | 20 / 0 / 5 / 6 / 0 |
 | COTRN01C (carddemo-tranview) | equivalence | 100/314 | 67/100 (67%) | 67/67 (100%) | 0 / 0 / 25 / 8 / 0 |
-| COTRN01C (carddemo-tranview-generated) | equivalence | 100/314 | 58/100 (58%) | 58/67 (87%) | 9 / 0 / 25 / 8 / 0 |
+| COTRN01C (carddemo-tranview-generated) | equivalence | 100/314 | 66/100 (66%) | 66/67 (99%) | 0 / 1 / 25 / 8 / 0 |
 | CBTRN03C (carddemo-trnrpt) | equivalence | 100/408 | 68/86 (79%) | 68/79 (86%) | 8 / 3 / 7 / 0 / 0 |
 | COUSR01C (carddemo-useradd) | equivalence | 100/272 | 63/98 (64%) | 63/64 (98%) | 0 / 1 / 27 / 7 / 0 |
 | COUSR03C (carddemo-userdel) | equivalence | 100/340 | 67/87 (77%) | 67/67 (100%) | 0 / 0 / 17 / 3 / 0 |
@@ -214,17 +214,17 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 3308 run | **2106/3013 (70%)** | **2106/2451 (86%)** | 196 / 149 / 391 / 171 / 0 |
-| **all estate** | | 3812 run | **2425/3489 (70%)** | **2425/2805 (86%)** | 231 / 149 / 479 / 205 / 0 |
+| **all equivalence** | | 3308 run | **2114/3013 (70%)** | **2114/2451 (86%)** | 187 / 150 / 391 / 171 / 0 |
+| **all estate** | | 3812 run | **2433/3489 (70%)** | **2433/2805 (87%)** | 222 / 150 / 479 / 205 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
 | AOR | 161/201 (80%) | 161/176 (91%) |
 | BDM | 25/45 (56%) | 25/28 (89%) |
-| CON | 321/671 (48%) | 321/387 (83%) |
+| CON | 322/671 (48%) | 322/387 (83%) |
 | COR | 132/237 (56%) | 132/190 (69%) |
-| DEL | 368/548 (67%) | 368/437 (84%) |
-| LIT | 513/659 (78%) | 513/568 (90%) |
+| DEL | 369/548 (67%) | 369/437 (84%) |
+| LIT | 519/659 (79%) | 519/568 (91%) |
 | NEG | 454/507 (90%) | 454/483 (94%) |
 | RET | 56/89 (63%) | 56/77 (73%) |
 | ROR | 395/532 (74%) | 395/459 (86%) |
@@ -249,7 +249,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COTRN02C (carddemo-tranadd) | 7/7 | 3/7 | 1/12 | 5/12 | 8/12 | 11/12 | 11/11 | 4/7 | 11/11 |
 | COTRN00C (carddemo-tranlist) | 5/9 | - | 8/14 | 8/14 | 8/13 | 10/14 | 11/11 | 2/3 | 8/13 |
 | COTRN01C (carddemo-tranview) | 1/1 | - | 2/24 | 2/3 | 21/24 | 19/24 | 17/17 | - | 5/7 |
-| COTRN01C (carddemo-tranview-generated) | 1/1 | - | 1/24 | 2/3 | 19/24 | 13/24 | 17/17 | - | 5/7 |
+| COTRN01C (carddemo-tranview-generated) | 1/1 | - | 2/24 | 2/3 | 20/24 | 19/24 | 17/17 | - | 5/7 |
 | CBTRN03C (carddemo-trnrpt) | 2/2 | 5/7 | 9/14 | 1/7 | 14/14 | 13/14 | 12/14 | - | 12/14 |
 | COUSR01C (carddemo-useradd) | 1/1 | - | 1/21 | 3/6 | 16/20 | 16/20 | 10/10 | - | 16/20 |
 | COUSR03C (carddemo-userdel) | 0/1 | - | 6/17 | 2/4 | 14/17 | 14/16 | 16/16 | - | 15/16 |
@@ -322,6 +322,14 @@ states `"maps"`, so the COBOL side abends ABM0 on a wrong mapset, but the java-f
 Java `sendMap` names, so the wrong literal still survives). Raw score COADM01C 63% -> 66%, COTRN01C 66% -> 67%, COUSR01C
 63% -> 64%, COUSR03C 77% (unchanged: its four gaps were all dead code). Stop rule met for these four ports: no case gap is
 left, and the one open survivor needs a harness change, not a proposal.
+
+Slice 4 (#4049) did the same for `carddemo-tranview-generated`, the generated-data variant of the same COTRN01C port, whose
+case lacked the inputs `carddemo-tranview` already carries. Eight scenarios were copied in (`first-entry`, empty id, PF3
+with a blank and a LOW-VALUES caller, the failed PF3 XCTL, the READ IOERR, and the process-date pair), the case re-proved,
+and the 100 mutants (seed 0) re-judged: raw 58% -> 66%, adjusted 87% -> 99%, case gaps 9 -> 0. Eight were killed by the
+new inputs (the file-name, PF3 target, XCTL abend and READ-failure branches, the blank/LOW-VALUES test, and the initial
+screen filler, which only `first-entry` exposes). One is a harness gap: `86d6cda785` (the cursor flag on the empty-id send)
+needs the proof to compare the SEND MAP cursor. Stop rule met for all five menu-family cases: no case gap is left.
 
 #4047 then added seven more CardDemo CICS ports (billpay, cardlist, cardview, report, tranadd, tranlist, userupd; 100
 mutants each, seed 0). Their case gaps repeat the six ports': no EIBCALEN, a short or blank COMMAREA, non-blank

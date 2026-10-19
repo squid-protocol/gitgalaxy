@@ -45,6 +45,153 @@
    "name": "no-commarea",
    "aid": "DFHENTER",
    "commarea": null
+  },
+  {
+   "name": "lookup-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "COTRN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN1A": {
+     "TRNIDINI": "0000000328781772"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "TRANSACT",
+     "resp": "IOERR",
+     "why": "17 on the READ -> WHEN OTHER: 'Unable to lookup Transaction...'"
+    }
+   ],
+   "why": "#4049 slice 4 (mutation survivors of the generated variant): the same input as carddemo-tranview's lookup-io-error"
+  },
+  {
+   "name": "pf3-blank-from-program",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN1A": {
+     "TRNIDINI": "0000000328781772"
+    }
+   },
+   "why": "#4049 slice 4 (mutation survivors of the generated variant): PF3 with a blank caller program: the COMEN01C default"
+  },
+  {
+   "name": "pf3-low-values-from-program",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN1A": {
+     "TRNIDINI": "0000000328781772"
+    }
+   },
+   "why": "#4049 slice 4 (mutation survivors of the generated variant): PF3 with a LOW-VALUES caller program: the COMEN01C default"
+  },
+  {
+   "name": "pf3-xctl-fails",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "COTRN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN1A": {
+     "TRNIDINI": "0000000328781772"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COTRN00C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4049 slice 4 (mutation survivors of the generated variant): PGMIDERR on the PF3 XCTL: no HANDLE CONDITION, so the task ends"
+  },
+  {
+   "name": "enter-with-process-date-on-screen",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "COTRN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN1A": {
+     "TRNIDINI": "0000000328781772",
+     "TPROCDTI": "2022-06-10"
+    }
+   },
+   "why": "#4049 slice 4 (mutation survivors of the generated variant): the received processing date is non-blank, so copying it back to the redisplayed screen shows"
+  },
+  {
+   "name": "enter-empty-transaction-id-with-process-date",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "COTRN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN1A": {
+     "TPROCDTI": "2022-06-10"
+    }
+   },
+   "why": "#4049 slice 4 (mutation survivors of the generated variant): the error screen for an empty transaction id redisplays the received processing date (a found record would overwrite it)"
+  },
+  {
+   "name": "first-entry",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "COTRN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "why": "#4049 slice 4 (mutation survivors of the generated variant): the same input as carddemo-tranview's first-entry"
+  },
+  {
+   "name": "enter-empty-transaction-id",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "COTRN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN1A": {}
+   },
+   "why": "#4049 slice 4 (mutation survivors of the generated variant): the same input as carddemo-tranview's enter-empty-transaction-id"
   }
  ],
  "scenario_generate": {

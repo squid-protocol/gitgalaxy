@@ -595,6 +595,9 @@ _NUMERIC_BAREWORD = re.compile(r"[+-]?[0-9]{0,31}")
 # COPY does (carddemo COTRTLIC.cbl:304 `EXEC SQL INCLUDE CSDB2RWY END-EXEC`, GenApp
 # `01 DFHCOMMAREA.` + `EXEC SQL INCLUDE LGCMAREA END-EXEC.`), so it is recorded the
 # same way.
+# #5618: a quoted GnuCOBOL file literal may carry the copybook's extension (`COPY "sprstate.cpy".`): the
+# `.ext` is swallowed only when a closing quote follows it, so the member stays the stem and the
+# `IN|OF` / `REPLACING` phrase after the quote still parses.
 _COPY_IN_ENTRY = re.compile(
     r"(?<![A-Z"
     + NATIONAL
@@ -607,7 +610,7 @@ _COPY_IN_ENTRY = re.compile(
     + NATIONAL
     + WIDE_DIGITS
     + WIDE_HYPHENS
-    + r"0-9@#$-]*)",
+    + r"0-9@#$-]*)(?:\.[A-Z0-9_-]+(?=['\"]))?",
     re.I,
 )
 # #4265: the `IN|OF library-name` after a COPY's text-name (closing quote allowed).
@@ -1366,9 +1369,9 @@ def _cobol_records(
             for m in _COPY_IN_ENTRY.finditer(code_stream, w_start, w_end):
                 if m.start() in captured:
                     continue
+                # #5618: a plain COPY no entry carries is recorded too, `replacing` empty (the reader applies
+                # only a REPLACING); it was dropped, so a copybook named before the first entry had no row.
                 replacing = _copy_replacing(code_stream, m.end())
-                if not replacing:
-                    continue
                 lib = _COPY_LIBRARY.match(code_stream, m.end())
                 section, fd_name = _context(m.start())
                 above = bisect.bisect_left(offsets, m.start()) - 1
@@ -1376,7 +1379,7 @@ def _cobol_records(
                     {
                         "member": m.group(1).upper(),
                         "library": lib.group(1).upper() if lib else "",
-                        "replacing": json.dumps(replacing),
+                        "replacing": json.dumps(replacing) if replacing else "",
                         "line": _line_of(m.start()),
                         "section": section,
                         "fd_name": fd_name,

@@ -168,8 +168,8 @@ def test_directory_with_the_roots_license_or_none_stays_scanned(repo):
 
 
 def test_foreign_license_is_no_evidence_without_a_root_license(tmp_path):
-    _write(tmp_path / "libpng/LICENSE", ZLIB)
-    assert _admitted(tmp_path, "libpng/png.c")
+    _write(tmp_path / "somelib/LICENSE", ZLIB)
+    assert _admitted(tmp_path, "somelib/a.c")
 
 
 def test_detector_flags_the_directory_not_its_siblings(repo):
@@ -182,3 +182,26 @@ def test_same_license_with_another_copyright_or_address_is_not_foreign(repo):
     # fastdoom: FASTDOOM/LICENSE is the root's GPL-2 with a different FSF address and copyright line
     _write(repo / "game/LICENSE", GPL + "Copyright (C) 1989 Someone\n675 Mass Ave, Cambridge, MA 02139, USA\n")
     assert _admitted(repo, "game/main.c")
+
+
+# --- #5464 (c): well-known library names with no license file ---------------------
+@pytest.mark.parametrize(
+    "rel",
+    ["zlib/inflate.c", "neo/renderer/jpeg-6/jdapimin.c", "lzma/LzmaDec.c", "gdtoa/dtoa.c", "source/nlohmann/json.hpp"],
+)
+def test_known_library_names_are_excluded_without_a_license(repo, rel):
+    assert not _admitted(repo, rel)
+
+
+def test_known_library_name_needs_the_exact_name(repo):
+    for rel in ("src/zlib_wrapper/a.c", "src/jpeg_export/a.c", "src/lzmaish/a.c", "src/zlibs/a.c"):
+        assert _admitted(repo, rel), rel
+
+
+def test_known_library_name_with_the_roots_own_license_stays_scanned(repo):
+    _write(repo / "zlib/LICENSE", GPL)
+    assert _admitted(repo, "zlib/own.c")
+
+
+def test_versioned_known_library_name_is_excluded(repo):
+    assert not _admitted(repo, "zlib-1.2.11/adler32.c")

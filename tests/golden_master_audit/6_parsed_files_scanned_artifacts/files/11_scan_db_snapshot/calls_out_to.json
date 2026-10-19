@@ -7103,7 +7103,8 @@
         "state0@88": [],
         "state1@77": [],
         "state2@69": [],
-        "state3@60": []
+        "state3@60": [],
+        "zendproc@307": []
       },
       "assembly/cpm65_6502/apps_adm3atst.asm": {
         "BIOS@19": []
@@ -7203,7 +7204,8 @@
         "drv_screen_jump_lo@41": [],
         "drv_zp_begin@21": [],
         "drv_zp_end@26": [],
-        "reserve_tpa_end@372": []
+        "reserve_tpa_end@372": [],
+        "zendproc@315": []
       },
       "assembly/cpm65_6502/apps_vt52drv.asm": {
         "BIOS@451": [],
@@ -8310,6 +8312,22 @@
         "RPi_coreCB_PTR@994": [],
         "SecondarySpin@337": [],
         "SecondarySpinLoop@343": [],
+        "Unknown_Block@117": [],
+        "Unknown_Block@150": [],
+        "Unknown_Block@159": [],
+        "Unknown_Block@171": [],
+        "Unknown_Block@179": [],
+        "Unknown_Block@186": [],
+        "Unknown_Block@193": [],
+        "Unknown_Block@199": [],
+        "Unknown_Block@240": [],
+        "Unknown_Block@249": [],
+        "Unknown_Block@263": [],
+        "Unknown_Block@301": [],
+        "Unknown_Block@33": [],
+        "Unknown_Block@40": [],
+        "Unknown_Block@60": [],
+        "Unknown_Block@786": [],
         "_isr_Table@314": [],
         "_start@31": [],
         "atags@359": [],
@@ -8412,6 +8430,21 @@
         "RPi_SmartStartVer@661": [],
         "SecondarySpin@377": [],
         "SecondarySpinLoop@383": [],
+        "Unknown_Block@102": [],
+        "Unknown_Block@159": [],
+        "Unknown_Block@192": [],
+        "Unknown_Block@201": [],
+        "Unknown_Block@213": [],
+        "Unknown_Block@221": [],
+        "Unknown_Block@228": [],
+        "Unknown_Block@235": [],
+        "Unknown_Block@241": [],
+        "Unknown_Block@282": [],
+        "Unknown_Block@291": [],
+        "Unknown_Block@305": [],
+        "Unknown_Block@343": [],
+        "Unknown_Block@75": [],
+        "Unknown_Block@82": [],
         "_isr_Table@354": [],
         "_start@73": [],
         "atags@399": [],
@@ -8536,6 +8569,21 @@
         "RPi_SmartStartVer@807": [],
         "SecondarySpin@379": [],
         "SecondarySpinLoop@385": [],
+        "Unknown_Block@105": [],
+        "Unknown_Block@162": [],
+        "Unknown_Block@195": [],
+        "Unknown_Block@204": [],
+        "Unknown_Block@216": [],
+        "Unknown_Block@224": [],
+        "Unknown_Block@231": [],
+        "Unknown_Block@238": [],
+        "Unknown_Block@244": [],
+        "Unknown_Block@282": [],
+        "Unknown_Block@291": [],
+        "Unknown_Block@305": [],
+        "Unknown_Block@343": [],
+        "Unknown_Block@78": [],
+        "Unknown_Block@85": [],
         "_isr_Table@356": [],
         "_start@76": [],
         "atags@401": [],
@@ -8709,6 +8757,22 @@
         "RPi_TimerIrqAddr@427": [],
         "SecondarySpin@345": [],
         "SecondarySpinLoop@351": [],
+        "Unknown_Block@106": [],
+        "Unknown_Block@137": [],
+        "Unknown_Block@146": [],
+        "Unknown_Block@158": [],
+        "Unknown_Block@166": [],
+        "Unknown_Block@173": [],
+        "Unknown_Block@180": [],
+        "Unknown_Block@186": [],
+        "Unknown_Block@204": [],
+        "Unknown_Block@213": [],
+        "Unknown_Block@251": [],
+        "Unknown_Block@260": [],
+        "Unknown_Block@273": [],
+        "Unknown_Block@311": [],
+        "Unknown_Block@35": [],
+        "Unknown_Block@60": [],
         "_irq_handler_stub@376": [],
         "_isr_Table@322": [],
         "_start@33": [],
@@ -8730,7 +8794,13 @@
         ".no_error@31": [],
         "APM_error@63": []
       },
+      "assembly/x86_bare_metal/bios_carriage_return.S": {
+        "BEGIN@4": []
+      },
       "assembly/x86_bare_metal/bios_detect_memory.S": {
+        "BEGIN@4": [
+          "do_e820"
+        ],
         "do_e820.e820f@66": [],
         "do_e820.e820lp@44": [],
         "do_e820.failed@70": [],
@@ -8741,34 +8811,46 @@
         "output@74": []
       },
       "assembly/x86_bare_metal/bios_disk_load.S": {
+        "BEGIN@4": [],
         "stage2@50": []
       },
       "assembly/x86_bare_metal/bios_disk_load2.S": {
+        "BEGIN@4": [],
+        "STAGE2@6": [],
         "sector3@10": []
       },
       "assembly/x86_bare_metal/bios_hello_world.S": {
+        "BEGIN@5": [],
         "halt@14": [],
         "loop@8": []
       },
       "assembly/x86_bare_metal/bios_initial_state.S": {
+        "STAGE2@55": [],
         "after_data@40": []
       },
       "assembly/x86_bare_metal/bios_keyboard_loop.S": {
         "start@5": []
       },
+      "assembly/x86_bare_metal/bios_newline.S": {
+        "BEGIN@4": []
+      },
       "assembly/x86_bare_metal/bios_pixel.S": {
+        "BEGIN@4": [],
         "end@28": [],
         "start@8": []
       },
       "assembly/x86_bare_metal/bios_pixel_line.S": {
+        "BEGIN@4": [],
         "end@18": [],
         "start@9": []
       },
       "assembly/x86_bare_metal/bios_serial.S": {
+        "BEGIN@5": [],
         "halt@23": [],
         "loop@15": []
       },
       "assembly/x86_bare_metal/bios_sleep.S": {
+        "BEGIN@4": [],
         "infinite@10": [],
         "one_sec@13": []
       },

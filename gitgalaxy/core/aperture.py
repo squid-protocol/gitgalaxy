@@ -322,6 +322,20 @@ def _is_der_public_certificate(head: bytes) -> bool:
     return inner is not None and inner < len(head) and head[inner] in (0xA0, 0x02)
 
 
+_AR_MAGIC = b"!<arch>\n"
+
+
+def _is_ar_archive(path_obj: Path) -> bool:
+    """True for a `.a` file that opens with the `ar` magic (#5624). One 8-byte read, `.a` only."""
+    if path_obj.suffix != ".a":
+        return False
+    try:
+        with open(path_obj, "rb") as fh:
+            return fh.read(len(_AR_MAGIC)) == _AR_MAGIC
+    except OSError:
+        return False
+
+
 def _is_public_key_material(path_obj: Path) -> bool:
     """True when a key/cert-named file holds only public material. The file is read in bounded chunks (8 MB
     cap, overlapped so a marker cannot straddle a boundary): armor text counts only with no PRIVATE marker
@@ -568,7 +582,11 @@ class ApertureFilter:
             return False, size_bytes, reason
 
         # --- Gate 1.3: Explicit Extension Firewall ---
-        if ext.lower() in self.ignored_extensions and ext.lower() not in self.whitelisted_extensions:
+        # #5624: `.a` is also assembly source (a language now claims it, which lifts the denial), so a
+        # static-library archive is recognised by its `ar` magic rather than by the extension alone.
+        if (
+            ext.lower() in self.ignored_extensions and ext.lower() not in self.whitelisted_extensions
+        ) or _is_ar_archive(path_obj):
             reason = ApertureReason(f"Blocked (Explicitly Denied Extension: '{ext}')", DENIED_EXTENSION)
             return False, size_bytes, reason
 

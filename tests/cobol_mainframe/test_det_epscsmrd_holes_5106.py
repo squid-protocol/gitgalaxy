@@ -83,7 +83,6 @@ def _two_programs(*stmts: str, sibling: str = "SIB", nested: bool = False) -> st
 @pytest.mark.parametrize(
     "stmt",
     [
-        "CALL 'SIB'",
         "CALL 'SIB' USING FC",
         "CALL 'SIB' USING FC OMITTED",
         "CALL 'SIB' USING FC RETURNING FC",
@@ -145,3 +144,81 @@ def test_every_new_entry_has_an_owner():
     entries = {e["id"]: e for e in sm.load_map()["entries"]}
     for key in ("address-of-record", "getmain-initimg", "le-condition-handling"):
         assert entries[key].get("issue"), key
+
+
+def _with_sibling(call: str, linkage: str = "", using: str = "", body: str = "GOBACK.") -> str:
+    """HNDL running `call`, then a batch-compiled sibling SIB with the given LINKAGE items, USING and body."""
+    own = _program(call).splitlines()
+    sib = ["IDENTIFICATION DIVISION.", "PROGRAM-ID. SIB.", "DATA DIVISION.", "WORKING-STORAGE SECTION.", "01 W PIC X."]
+    if linkage:
+        sib += ["LINKAGE SECTION.", *linkage.split("|")]
+    sib += [f"PROCEDURE DIVISION{using}.", f"    {body}", "END PROGRAM SIB."]
+    return "\n".join([*own, " " * 7 + "END PROGRAM HNDL.", *(" " * 7 + ln for ln in sib)]) + "\n"
+
+
+def _translated(src: str):
+    pytest.importorskip("tree_sitter_language_pack")
+    import test_det_programs as tdp
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    tmp = Path(tempfile.mkdtemp(prefix="t5106x"))
+    (tmp / "HNDL.cbl").write_text(src)
+    project = tmp / "project"
+    tdp._batch_package(project / "src/main/java")
+    return P.translate(tmp / "HNDL.cbl", [], "public class HndlService {\n}\n", PKG, None, project)
+
+
+@pytest.mark.parametrize(
+    ("call", "linkage", "using", "params"),
+    [
+        ("CALL 'SIB'", "", "", 0),
+        ("CALL 'SIB' USING FC", "01 L PIC X(8).", " USING L", 1),
+        ("CALL 'SIB' USING FC FC", "01 L PIC X(8).|01 M PIC X(4).", " USING L M", 2),
+        ("CALL PGM USING FC", "01 L PIC X(8).", " USING L", 1),
+    ],
+)
+def test_a_call_to_a_sibling_program_resolves_to_a_service_of_its_own(call, linkage, using, params):
+    src = _with_sibling(call, linkage, using)
+    if call.startswith("CALL PGM"):
+        src = src.replace("VALUE 'CEEHDLR'", "VALUE 'SIB'")
+    r = _translated(src)
+    assert r.stats["holes"] == [], r.stats["holes"]
+    assert [x.service for x in r.extra] == ["SibService"]
+    sib = r.extra[0]
+    assert f"public int handleCall({', '.join(f'CobolRef<String> arg{k + 1}' for k in range(params))})" in sib.java
+    assert "private final ObjectProvider<SibService> sibService" in r.java
+    assert "sibService.getObject().handleCall(" in r.java
+    assert r.stats["callees"] == ["SIB"]
+
+
+@pytest.mark.parametrize(
+    ("linkage", "using"),
+    [
+        ("01 L.|   05 A PIC X.|   05 B PIC X.", " USING L"),  # a group: no contract type for it here
+        ("01 L PIC 9(4).", " USING L"),  # a number
+        ("01 L PIC X(8).", " USING BY VALUE L"),
+        ("01 L PIC X(8).", " USING BY CONTENT L"),
+        ("01 L PIC X(8).", " USING L RETURNING L"),
+    ],
+)
+def test_a_sibling_whose_entry_is_not_a_plain_text_item_stays_refused_by_name(linkage, using):
+    holes = _translated(_with_sibling("CALL 'SIB' USING FC", linkage, using)).stats["holes"]
+    assert len(holes) == 1 and "SIB: a sibling program of this source" in holes[0], holes
+
+
+def test_a_call_passing_another_number_of_items_than_the_sibling_takes_stays_refused():
+    r = _translated(_with_sibling("CALL 'SIB' USING FC FC", "01 L PIC X(8).", " USING L"))
+    assert r.extra == [] and len(r.stats["holes"]) == 1 and "sibling program" in r.stats["holes"][0]
+
+
+def test_a_sibling_calling_back_into_the_caller_is_refused_not_looped():
+    r = _translated(_with_sibling("CALL 'SIB'", body="CALL 'HNDL'."))
+    assert [x.service for x in r.extra] == ["SibService"]  # HNDL -> SIB resolves ...
+    holes = r.extra[0].stats["holes"]
+    assert len(holes) == 1 and "HNDL: a sibling program of this source" in holes[0], holes  # ... SIB -> HNDL does not
+
+
+def test_a_sibling_hole_is_reported_on_the_sibling_not_lost():
+    r = _translated(_with_sibling("CALL 'SIB'", body="CALL 'CEEHDLR' USING ROUTINE TOKEN FC."))
+    assert r.stats["holes"] == []
+    assert len(r.extra[0].stats["holes"]) == 1 and "CEEHDLR" in r.extra[0].stats["holes"][0]

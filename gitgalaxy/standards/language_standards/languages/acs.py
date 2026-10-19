@@ -73,7 +73,7 @@ DEFINITION: dict[str, Any] = {
         # 11. state_mutation: a statement writing into existing state (a typed declaration is not a write).
         "state_mutation": re.compile(
             r"(?:^|[;{}])[ \t]*[A-Za-z_]\w*(?:\[[^\]\n]{0,80}\])*"
-            r"[ \t]*(?:[-+*/%&|^]|<<|>>)?=(?![=>])(?![^\n(]{0,300},[ \t]*$)"
+            r"[ \t]*(?:[-+*/%&|^]|<<|>>)?=(?![=>])(?![^\n(]{0,300},[ \t]*(?=\n|\Z))"
             r"|[\w)\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[A-Za-z_(]",
             re.M,
         ),

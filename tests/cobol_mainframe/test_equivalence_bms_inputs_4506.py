@@ -57,7 +57,9 @@ def test_only_fields_a_user_can_key_into_are_typable(corpus):
     for gone in ("LABELI", "PROTDI", "ASKDI", "ROWI", "OTHERFI"):  # no ATTRB = ASKIP; PROT; ASKIP; OCCURS; another map
         assert gone not in got
     assert ei.bms_input_fields(corpus, "testmap") == got  # map names are case-blind
-    assert ei.bms_input_fields(corpus, "OTHER") == {"OTHERFI": {"length": 3, "numeric": False, "picture": None}}
+    assert ei.bms_input_fields(corpus, "OTHER") == {
+        "OTHERFI": {"length": 3, "numeric": False, "picture": None, "mdt": False}
+    }
 
 
 def test_a_map_with_no_typable_field_or_not_in_the_source_is_refused(corpus):
@@ -101,7 +103,58 @@ def test_bad_gives_text_that_is_not_a_number_and_empty_leaves_a_field_alone(corp
         assert all(len(v) <= TYPABLE[k][0] for k, v in got.items())
     assert min(sizes) < max(sizes) < len(TYPABLE) + 1 and any(s < len(TYPABLE) for s in sizes)
     assert not_numbers > 0.7 * sum(sizes)  # the bad pool's few all-digit entries (a long digit run cut to width) aside
-    assert ei._bms_receive(random.Random(1), "s", {"@bms": {"empty": 1.0}}, _layout(), bms, {}, 1) == {}
+    # left alone: not transmitted (nothing typed), except an FSET field, whose MDT is on: transmitted with no data
+    assert ei._bms_receive(random.Random(1), "s", {"@bms": {"empty": 1.0}}, _layout(), bms, {}, 1) == {
+        "ACCTI": "",
+        "STATEI": "",
+    }
+
+
+def test_the_mdt_flag_is_fset_and_only_fset(corpus):
+    got = ei.bms_input_fields(corpus, "TESTMAP")
+    assert {k for k, v in got.items() if v["mdt"]} == {"ACCTI", "STATEI"}  # ATTRB=(..FSET..) and ATTRB=FSET
+
+
+def test_an_unmodified_field_reaches_the_program_as_nulls_with_length_zero_and_an_fset_one_with_length_zero(corpus):
+    """RECEIVE MAP's input area: X'00' everywhere (data, length, flag) but for the fields transmitted."""
+    import equivalence_cics as cx
+
+    fields = [{"name": n, "base": n, "offset": o, "bytes": b, "pic": p, "usage": "COMP" if n.endswith("L") else "DISPLAY"}
+              for n, o, b, p in (("NAMEL", 0, 2, "S9(4)"), ("NAMEF", 2, 1, "X"), ("NAMEI", 3, 4, "X(4)"),
+                                 ("STATEL", 7, 2, "S9(4)"), ("STATEF", 9, 1, "X"), ("STATEI", 10, 2, "X(2)"))]  # fmt: skip
+    area = cx.map_input(fields, {}, "cp037")
+    assert area == bytes(12)  # nothing typed: every byte X'00', every length 0, no flag
+    area = cx.map_input(fields, {"STATEI": ""}, "cp037")
+    # an FSET field sent empty: length 0, blank data (ASSUMED, X54); the untouched NAME field stays X'00'
+    assert area[:10] == bytes(10) and area[10:12] == "  ".encode("cp037")
+
+
+def test_every_fset_typable_field_of_every_burned_map_is_transmitted_when_left_alone():
+    """The whole class, on the burned estates' BMS: a field with FSET is never omitted, any other is."""
+    import os
+
+    root = os.environ.get("GITGALAXY_MAINFRAME_CORPORA")
+    if not root or not Path(root).is_dir():
+        pytest.skip("no mainframe corpora")
+    from gitgalaxy.core.bms_screen_fields import bms_screen_fields
+    from gitgalaxy.core.source_text import read_source
+
+    checked = 0
+    for p in sorted(Path(root).rglob("*.bms")):
+        if ".git" in p.parts or "_scans" in p.parts:
+            continue
+        maps = {r["name"] for r in bms_screen_fields(read_source(p).text) if r["kind"] == "map" and r["name"]}
+        for m in sorted(maps):
+            try:
+                ei.bms_input_fields.cache_clear()
+                bms = ei.bms_input_fields(p.parent, m)
+            except ValueError:
+                continue
+            layout = {k: {"name": k, "bytes": v["length"]} for k, v in bms.items()}
+            got = ei._bms_receive(random.Random(1), "s", {"@bms": {"empty": 1.0}}, layout, bms, {}, 0)
+            assert got == {k: "" for k, v in bms.items() if v["mdt"]}, (p.name, m)
+            checked += 1
+    assert checked > 10
 
 
 def test_the_symbolic_map_decides_what_exists_and_its_width_caps_the_field(corpus):
@@ -161,3 +214,25 @@ def test_the_generated_tranview_case_turns_through_keys_and_types_its_one_field(
     assert set(gen["aid"]) == {"DFHENTER", "DFHPF3", "DFHPF4", "DFHPF5", "DFHPF9"}
     assert gen["receive"] == {"COTRN1A": {"@bms": {"bad": 0.1, "empty": 0.3}}}
     assert [s["name"] for s in case["scenarios"]] == ["no-commarea"] and case["scenarios"][0]["commarea"] is None
+
+
+def test_the_generated_tranview_screen_sends_its_fset_id_field_empty_in_some_scenarios():
+    """COTRN01C tests `TRNIDINI = SPACES OR LOW-VALUES`; TRNIDIN is FSET, so its generated empty input is a transmitted
+    empty field (length 0), not an omitted one -- and the case still has scenarios that type it."""
+    import json
+    import os
+
+    root = os.environ.get("GITGALAXY_MAINFRAME_CORPORA")
+    if not root or not (Path(root) / "aws-mainframe-modernization-carddemo").is_dir():
+        pytest.skip("no CardDemo corpus")
+    case = json.loads(
+        (Path(__file__).resolve().parents[1] / "equivalence" / "carddemo-tranview-generated" / "case.json").read_text(
+            "utf-8"
+        )
+    )
+    ei.bms_input_fields.cache_clear()
+    case = {**case, "datasets": {}, "scenario_generate": {**case["scenario_generate"], "commarea": None}}
+    out = ei.prepare_cics_case(case, Path(root) / case["corpus"], [])["scenarios"]
+    typed = [s["receive"]["COTRN1A"].get("TRNIDINI") for s in out if "receive" in s]
+    assert "" in typed and any(typed)
+    assert None not in typed

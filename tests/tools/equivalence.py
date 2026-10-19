@@ -721,6 +721,9 @@ def main() -> int:
                    "(mutation testing: many ports of one case)")  # fmt: skip
     r.add_argument("--first-difference", action="store_true", help="stop at the first run that differs: the "
                    "verdict is the same, the report names only that run (mutation testing)")  # fmt: skip
+    r.add_argument("--one-jvm", action="store_true", help="a batch proof's runs in the first environment (it, the "
+                   "faults, the entries) in one JVM, each on a fresh Spring context, instead of a JVM each; Db2 / IMS "
+                   "cases and a project that cannot run without Maven keep a JVM per run (mutation testing)")  # fmt: skip
     r.add_argument("--generated-only", action="store_true",
                    help="run the generated service as generated (no port): the generator's own baseline")  # fmt: skip
     r.add_argument("--no-facades", action="store_true", help="#4449: a CICS case's port is proven through runTask "
@@ -740,13 +743,13 @@ def main() -> int:
         return 0
     import mainframe_corpus as mc
 
-    if args.record and (args.port or args.case_file or args.reuse or args.first_difference or args.generated_only
+    if args.record and (args.port or args.case_file or args.reuse or args.first_difference or args.one_jvm or args.generated_only
                         or args.cobol_only or args.faults not in (None, "all") or args.environments
                         or args.sql_faults != "auto" or args.source_encoding or args.data_encoding
                         or args.no_facades or args.corpus_dir):  # fmt: skip
         raise SystemExit(
             "--record proves the committed port on the committed case as it is: drop --port / "
-            "--case-file / --reuse / --first-difference / --generated-only / --cobol-only / --no-facades / --corpus-dir "
+            "--case-file / --reuse / --first-difference / --one-jvm / --generated-only / --cobol-only / --no-facades / --corpus-dir "
             "and the overrides"
         )
     case = load_case(args.case, args.case_file)
@@ -829,7 +832,7 @@ def main() -> int:
                                         faults=tuple((f["name"], fault_plan(f), "\n".join(f.get("sql_plan", [])))
                                                      for f in faults),
                                         stop=differs if args.first_difference else None,
-                                        entries=tuple(entries))  # fmt: skip
+                                        entries=tuple(entries), one_jvm=args.one_jvm)  # fmt: skip
     except RuntimeError as e:  # the port does not compile, or its run fails: the loop's feedback, not a crash
         failed = java_failure_report(case, work, str(e))
         (work / "report.json").write_text(json.dumps(failed, indent=2) + "\n", encoding="utf-8")

@@ -706,6 +706,8 @@ class Gen:
                 finally:
                     self.intr -= 1
             return f"Hfp.numval({arg}, {_b(e.name == 'NUMVAL-C')})"
+        if isinstance(e, E.Func) and e.name == "ANNUITY":
+            self._func(e)  # raises its named refusal (the formula and why no result is modelled)
         if isinstance(e, E.Func):
             raise Untranslatable(f"FUNCTION {e.name} in a floating-point expression (oracle_assumptions.md C6)")
         raise Untranslatable(f"floating-point expression {type(e).__name__}")
@@ -1246,6 +1248,14 @@ class Gen:
             # the run unit's sequence (Funcs.Random): the oracle's generator, not z/OS's (oracle_assumptions C12)
             self.uses_random = True
             return f"funcRandom.next({self.num(args[0])})" if args else "funcRandom.next()"
+        if name == "ANNUITY":
+            # IBM (6.4 Language Reference, ANNUITY): arg-1 / (1 - (1 + arg-1) ** -arg-2), or 1 / arg-2 when arg-1 is 0,
+            # a floating-point approximation; the power with a variable exponent is the run-time routine whose bits
+            # IBM does not document, so no result is modelled (the same hole as `**`, oracle_assumptions.md C6)
+            raise Untranslatable(
+                "FUNCTION ANNUITY (IBM defines arg-1 / (1 - (1 + arg-1) ** -arg-2) but not the bits of the power "
+                "or of the floating-point result; oracle_assumptions.md C6)"
+            )
         raise Untranslatable(f"FUNCTION {name}")
 
     def numval_arg(self, a) -> str:

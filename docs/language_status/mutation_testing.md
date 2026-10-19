@@ -119,6 +119,10 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
   rewritten by `populateHeaderInfo` before every SEND; COACTVWC's `dispatchCdemoToProgramL349` has no caller;
   the CEEDAYS model never returns 0x09CD, so CSUTLDTC's invalid-era branch cannot run). The verdicts are
   judgements, kept with their reasons in the results file.
+- The three GenApp ports (LGAPVS01, LGICDB01, LGUPDB01) were re-run on the current port, case and harness and each
+  survivor read (#4047): most are harness gaps (the error-message text is judged only through the refused WRITEQ,
+  X6 #4050, or the statement needs a Db2 fault the harness cannot inject); the case gaps are the absent-policy and
+  zero-row motor update scenarios and an LGUPVS01 failure.
 
 <!-- mutation-scores -->
 | port | harness | mutants run / all | raw score | without equivalent + unreachable | survivors: case gap / harness gap / equivalent / unreachable / untriaged |

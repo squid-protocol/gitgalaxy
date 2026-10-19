@@ -1,4 +1,4 @@
-"""#5133: the CI critical path -- the ground-truth job in 2 parts and the advisory evidence deltas in their own job.
+"""#5133, #5543: the CI critical path -- the ground-truth job as one warm job and 4 parts and the advisory evidence deltas in their own job.
 
 `ground-truth` and `full-suite` are required checks (the ruleset names them), so each stays one job that aggregates its
 parts. The parts must together cover everything the single job ran, and nothing advisory may hold the required check back.
@@ -24,42 +24,52 @@ def _steps(job):
 
 def test_ground_truth_is_the_aggregate_of_its_parts():
     jobs = _jobs("mainframe-ground-truth.yml")
-    assert "ground-truth" in jobs and "ground-truth-part" in jobs
+    assert "ground-truth" in jobs and "ground-truth-part" in jobs and "ground-truth-warm" in jobs
     assert "ground-truth-part" in jobs["ground-truth"]["needs"]
+    assert "ground-truth-warm" in jobs["ground-truth"]["needs"]  # #5543: a failed warm job must fail the required check
     assert "ground-truth" in jobs["publish-history"]["needs"] or jobs["publish-history"]["needs"] == "ground-truth"
     publish = jobs["publish-history"]
     assert "ground-truth-part" in publish["needs"]  # #5176: a tested-tree skip uploads no history artifact
     assert "needs.ground-truth-part.result == 'success'" in publish["if"]
+    assert "ground-truth-warm" in publish["needs"]  # #5543: the history is uploaded by the warm job
+    assert "needs.ground-truth-warm.result == 'success'" in publish["if"]
     assert "name" not in jobs["ground-truth"]  # the check is named by its key: `ground-truth`
 
 
-LEDGER_GROUP = 2  # the part that also runs the ledger gate (~3 min) and the history append
+PARTS = 4  # #5543: the ledger gate and the history append are in the warm job, so the parts are all pytest
 
 
 def test_the_parts_partition_tests_cobol_mainframe():
     """#5133: pytest-split cuts the directory; no hand-listed files, so a new test is placed by its recorded seconds."""
     part = _jobs("mainframe-ground-truth.yml")["ground-truth-part"]
-    assert part["strategy"]["matrix"]["group"] == [1, 2]
+    assert part["strategy"]["matrix"]["group"] == list(range(1, PARTS + 1))
     assert "include" not in part["strategy"]["matrix"]
     assert part["strategy"]["fail-fast"] is False
     run = _steps(part)["Full-corpus differential and answer-key tests"]["run"]
     pytest_line = " ".join(run[run.index("-m pytest") :].split("\\\n"))
     pytest_line = " ".join(pytest_line.split())
     assert "tests/cobol_mainframe/ " in pytest_line and "--ignore" not in pytest_line
-    assert "--splits 2 --splitting-algorithm least_duration --group ${{ matrix.group }}" in pytest_line
+    assert f"--splits {PARTS} --splitting-algorithm least_duration --group ${{{{ matrix.group }}}}" in pytest_line
 
 
-def test_history_stays_in_one_part_and_the_gate_runs_on_both():
-    steps = _steps(_jobs("mainframe-ground-truth.yml")["ground-truth-part"])
-    for name in (
-        "Restore the published history from the generated branch",
-        "Keep the history for the publish job",
-    ):
-        assert f"matrix.group == {LEDGER_GROUP}" in steps[name]["if"], name
-    # #5133: the gate runs on both parts so the corpus scans are warm; only the ledger part writes summary and history
-    gate = steps["Gate against the ground-truth ledger"]
-    assert "if" not in gate
-    assert f"matrix.group == {LEDGER_GROUP}" in gate["run"]
+def test_the_warm_job_runs_the_gate_once_and_the_parts_only_unpack_its_scans():
+    """#5543: the warm-up (parallel scans + the ledger gate) is paid once; no part re-runs the gate."""
+    jobs = _jobs("mainframe-ground-truth.yml")
+    warm, part = jobs["ground-truth-warm"], jobs["ground-truth-part"]
+    steps = _steps(warm)
+    for name in ("Restore the published history from the generated branch", "Keep the history for the publish job"):
+        assert "matrix" not in steps[name]["if"], name
+    assert "--summary" in steps["Gate against the ground-truth ledger"]["run"]
+    assert "mainframe_corpus.py scan" in steps["Scan the pinned corpora in parallel"]["run"]
+    assert steps["Upload the scans for the parts"]["with"]["name"] == "ground-truth-scans"
+    part_steps = _steps(part)
+    assert "Gate against the ground-truth ledger" not in part_steps
+    assert part_steps["Download the scans"]["with"]["name"] == "ground-truth-scans"
+    assert "ground-truth-warm" in part["needs"]
+    assert "needs.ground-truth-warm.result == 'success'" in part["if"]  # the download needs an uploader that ran
+    names = list(part_steps)
+    assert names.index("Fetch the pinned corpora") < names.index("Unpack the scans")  # the fetch prunes `_scans`
+    assert names.index("Unpack the scans") < names.index("Full-corpus differential and answer-key tests")
 
 
 def _ground_truth_totals():
@@ -80,21 +90,16 @@ def _ground_truth_totals():
     durations = json.loads(text)
     seconds = sorted((v for k, v in durations.items() if k.startswith("tests/cobol_mainframe/")), reverse=True)
     assert seconds, "no recorded tests/cobol_mainframe/ durations"
-    totals = [0.0, 0.0]
+    totals = [0.0] * PARTS
     for s in seconds:
         totals[totals.index(min(totals))] += s
     return seconds, totals
 
 
-def test_the_ledger_part_is_not_the_heavier_one():
-    _, totals = _ground_truth_totals()
-    assert totals[LEDGER_GROUP - 1] <= totals[2 - LEDGER_GROUP] * 1.01, totals  # the ledger step is extra work on top
-
-
 def test_the_ground_truth_seconds_are_recorded_and_the_parts_balanced():
     """#5133: the ground-truth tests were absent from .test_durations (the smoke runs have no corpora), so pytest-split
     cut them by a default weight. Refresh from the test-times-ground-truth-part-N artifacts of a main run; the replay
-    of the two parts must then be within 20% (#5133 acceptance)."""
+    of the parts must then be within 20% (#5133 acceptance)."""
     seconds, totals = _ground_truth_totals()
     assert len(seconds) > 5500, f"only {len(seconds)} tests/cobol_mainframe/ durations recorded: refresh them"
     assert max(totals) <= min(totals) * 1.2, totals

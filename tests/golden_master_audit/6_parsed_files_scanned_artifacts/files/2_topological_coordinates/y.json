@@ -2186,7 +2186,7 @@
       "kotlin/SOURCES.md": -69.95
     },
     "kotlin/okhttp": {
-      "kotlin/okhttp/Call.kt": 94.85,
+      "kotlin/okhttp/Call.kt": 94.84,
       "kotlin/okhttp/Dispatcher.kt": 89.06,
       "kotlin/okhttp/LICENSE.txt": 53.58,
       "kotlin/okhttp/OkHttp.android.kt": 39.4,

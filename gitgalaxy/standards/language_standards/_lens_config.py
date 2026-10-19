@@ -71,6 +71,7 @@ LENS_CONFIG: LensConfig = {
         ".y",
         ".m",
         ".map",
+        ".fs",
         ".sql",
         ".ddl",
         ".dml",

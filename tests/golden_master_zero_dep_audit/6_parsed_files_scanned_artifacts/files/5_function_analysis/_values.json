@@ -344345,19 +344345,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 185,
-          "Function Name": "clone",
-          "Input Parameters": 0,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 5,
-          "Reflection Hits": 0,
-          "Start Line": 181,
-          "Structural Impact": 1.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 28,
           "Function Name": "request",
           "Input Parameters": 0,
@@ -344431,6 +344418,19 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 89,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 181,
+          "Function Name": "clone",
+          "Input Parameters": 0,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 181,
           "Structural Impact": 1.1
         }
       ],

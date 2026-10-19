@@ -52,6 +52,7 @@ _EXPECTED_CLAIMANTS: dict[str, list[tuple[str, str]]] = {
     ".cshtml": [("csharp", "-"), ("html", "-")],
     ".ddl": [("sqlite", "-"), ("postgresql", "D"), ("db2_sql", "D")],
     ".dml": [("sqlite", "-"), ("postgresql", "D"), ("db2_sql", "D")],
+    ".fs": [("fsharp", "D")],
     ".h": [("c", "-"), ("objective-c", "D")],
     ".inc": [("cpp", "-"), ("c", "-"), ("php", "D"), ("fortran", "D"), ("assembly", "-")],
     ".m": [("matlab", "D"), ("objective-c", "D")],

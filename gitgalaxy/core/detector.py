@@ -5007,6 +5007,9 @@ class StructuralExtractor:
                         # right heuristic for Haskell's layout rule even though
                         # it wasn't designed with Haskell in mind.
                         "haskell",
+                        # #5623: F# is offside-rule too; a record `{ ... }` body would send Mode B
+                        # slicing the wrong span.
+                        "fsharp",
                     ):
                         mode_name = "Mode_C_Indentation"
                         sats, impact = self._slice_by_indentation(code, rules, offset, spatial_map, lang_id)

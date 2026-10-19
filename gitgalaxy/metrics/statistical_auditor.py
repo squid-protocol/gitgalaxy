@@ -146,6 +146,9 @@ class StatisticalAuditor:
         named = [u for u in artifact.get("functions", []) if not u.get("calls_only")]
         if len(named) < self.DEFINITION_MIN_FUNCTIONS:
             return False
+        return self._is_ordinary_width(artifact)
+
+    def _is_ordinary_width(self, artifact: dict[str, Any]) -> bool:
         coding = max(artifact.get("coding_loc", 0), 1)
         physical = max(artifact.get("total_loc", coding), 1)
         return artifact.get("size_bytes", 0) / physical <= self.DEFINITION_MAX_AVG_LINE
@@ -503,9 +506,8 @@ class StatisticalAuditor:
                 # #5467: a Tier 0/1 anchor on a config format (`.clang-format`, `.eslintrc`) or a
                 # header claimed by its sibling source file is right about the file, and
                 # such files carry no logic signals by design. Only the "too sparse" test is waived.
-                anchored_data = lock_tier <= 1 and (
-                    lid in self._ANCHORED_CONFIG_LANGS or str(source_proof).startswith("Sibling Anchor")
-                )
+                anchored_sibling = lock_tier <= 1 and str(source_proof).startswith("Sibling Anchor")
+                anchored_data = anchored_sibling or (lock_tier <= 1 and lid in self._ANCHORED_CONFIG_LANGS)
 
                 # ZERO-DENSITY THRESHOLD: Hard Floor check for data dumps disguised as code
                 if (included_member or anchored_data) and rho <= 3.0:
@@ -524,6 +526,9 @@ class StatisticalAuditor:
                     and not is_minified
                     and not self._is_import_manifest(artifact)
                     and not self._has_named_definitions(artifact)
+                    # #5467: a header its sibling source file claims (edge-classic `rad_act.h`, a
+                    # page of prototypes) is dense by design; only long packed lines make it a payload.
+                    and not (anchored_sibling and self._is_ordinary_width(artifact))
                 ):
                     is_outlier = True
                     relegation_reason = f"Packed Payload Guard (Impossible Density: {rho:.2f} hits/line)"

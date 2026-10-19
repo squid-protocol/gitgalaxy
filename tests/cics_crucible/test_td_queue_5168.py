@@ -449,6 +449,9 @@ def java_outputs(tmp_path_factory):
 
 
 @pytest.mark.parametrize("name", list(_SCENARIOS))
+@pytest.mark.slow(
+    reason="the module fixture compiles and runs every scenario in one javac task; the first test in a split part pays it"
+)
 @needs_javac
 def test_cics_task_runs_each_scenario_as_the_stub_does(name, java_outputs):
     assert java_outputs[name] == _SCENARIOS[name][3]

@@ -268,7 +268,7 @@ def test_by_design_reason_classes(rel, text, category):
 
 def test_posix_rel_turns_windows_separators_into_slashes(tmp_path):
     # Windows os.path.relpath gives "src\\a.c"; the DB keys and by_design_reason need "src/a.c" (#5595)
-    rel = doom_scorer.posix_rel(str(tmp_path / "docs" / "a.py"), tmp_path, sep="/")
+    rel = doom_scorer.posix_rel(str(tmp_path / "docs" / "a.py"), tmp_path)
     assert rel == "docs/a.py"
     assert doom_scorer.by_design_reason(doom_scorer.posix_rel("docs\\a.py", ".", sep="\\"), "")[0] == "docs-tree"
 

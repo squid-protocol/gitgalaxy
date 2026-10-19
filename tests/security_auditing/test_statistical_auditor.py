@@ -477,3 +477,40 @@ def test_anchored_config_and_sibling_header_are_not_refuted_for_zero_density():
         verified, unparsable = auditor.audit([artifact(path, lang, tier, proof)])
         assert verified == [], path
         assert "Zero-Density Threshold" in unparsable[0]["reason"]
+
+
+def _table_with_functions(functions, avg_line):
+    return {
+        "path": "tables.c",
+        "name": "tables.c",
+        "lang_id": "c",
+        "coding_loc": 3000,
+        "total_loc": 3000,
+        "size_bytes": 3000 * avg_line,
+        "equations": {"branch": 6000, "structural_boundaries": 6000},
+        "functions": functions,
+        "telemetry": {"identity_lock_tier": 0},
+    }
+
+
+def test_auditor_keeps_functions_beside_a_dense_table(auditor):
+    """#5460: a constant table next to real functions (rho 4) is source, not a payload."""
+    funcs = [{"name": f"f{i}"} for i in range(3)]
+    verified, unparsable = auditor.audit([_table_with_functions(funcs, 30)])
+    assert [f["path"] for f in verified] == ["tables.c"] and not unparsable
+
+
+def test_auditor_still_relegates_a_pure_dense_table(auditor):
+    verified, unparsable = auditor.audit([_table_with_functions([], 30)])
+    assert not verified and "Packed Payload Guard" in unparsable[0]["reason"]
+
+
+def test_auditor_calls_only_bucket_is_not_a_definition(auditor):
+    verified, unparsable = auditor.audit([_table_with_functions([{"name": "<module>", "calls_only": True}], 30)])
+    assert not verified and "Packed Payload Guard" in unparsable[0]["reason"]
+
+
+def test_auditor_functions_on_packed_lines_are_still_a_payload(auditor):
+    """Obfuscated bundles also name functions, but on very long lines."""
+    verified, unparsable = auditor.audit([_table_with_functions([{"name": "a"}], 900)])
+    assert not verified and "Packed Payload Guard" in unparsable[0]["reason"]

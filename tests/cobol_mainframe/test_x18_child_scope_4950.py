@@ -40,9 +40,14 @@ def _cases_with_children():
     return out
 
 
-def test_the_cases_with_children_are_the_three_known_ones():
+def test_the_cases_with_children_are_the_four_known_ones():
     """A new case with `child_programs` must be checked below by being listed here (and its children read)."""
-    assert [n for n, _ in _cases_with_children()] == ["asynccc-asyncpnt", "cbsa-bnk1ccs", "cbsa-crecust"]
+    assert [n for n, _ in _cases_with_children()] == [
+        "asynccc-asyncpnt",
+        "cbsa-bnk1ccs",
+        "cbsa-crecust",
+        "cbsa-crecust-generated",
+    ]
 
 
 def test_every_burned_child_program_holds_no_region_resource():
@@ -59,7 +64,9 @@ def test_every_burned_child_program_holds_no_region_resource():
             text = (corpus / sources[program]).read_text(encoding="latin-1")
             assert ec.child_region_resource(text) is None, f"{name}: child {program} holds a region resource (R1)"
             checked += 1
-    assert checked >= 12  # asyncpnt's seven, CRDTAGY1-5 (the bnk1ccs and crecust cases share them)
+    assert (
+        checked >= 12
+    )  # asyncpnt's seven, CRDTAGY1-5 (the bnk1ccs and crecust cases, generated one included, share them)
 
 
 def test_only_asyncpnt_csstats2_and_crecust_run_children_in_the_burned_corpora():

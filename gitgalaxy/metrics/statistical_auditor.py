@@ -136,6 +136,20 @@ class StatisticalAuditor:
         avg_line = artifact.get("size_bytes", 0) / physical
         return imports >= self.MANIFEST_IMPORT_SHARE * coding and avg_line <= self.MANIFEST_MAX_AVG_LINE
 
+    # #5460: a hand-written file with named functions beside a big constant table (Helion
+    # `EntityFlags.cs`, gzdoom `gl_load.c`) scores > 3 hits/line like a payload does. A payload
+    # is few, long lines; source with real definitions at an ordinary line width is not.
+    DEFINITION_MIN_FUNCTIONS = 1
+    DEFINITION_MAX_AVG_LINE = 120
+
+    def _has_named_definitions(self, artifact: dict[str, Any]) -> bool:
+        named = [u for u in artifact.get("functions", []) if not u.get("calls_only")]
+        if len(named) < self.DEFINITION_MIN_FUNCTIONS:
+            return False
+        coding = max(artifact.get("coding_loc", 0), 1)
+        physical = max(artifact.get("total_loc", coding), 1)
+        return artifact.get("size_bytes", 0) / physical <= self.DEFINITION_MAX_AVG_LINE
+
     def audit(self, parsed_files: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
         """Executes statistical gating to identify data-dumps and structural outliers."""
         import os  # Required for extension splitting in Consensus Engine
@@ -504,7 +518,13 @@ class StatisticalAuditor:
                 # Normal human code rarely sustains > 1.5 logic hits per physical line.
                 # If a file sustains > 3.0 across 30+ lines, it is mathematically guaranteed
                 # to be minified, obfuscated, or packed with embedded binaries.
-                elif loc > 30 and rho > 3.0 and not is_minified and not self._is_import_manifest(artifact):
+                elif (
+                    loc > 30
+                    and rho > 3.0
+                    and not is_minified
+                    and not self._is_import_manifest(artifact)
+                    and not self._has_named_definitions(artifact)
+                ):
                     is_outlier = True
                     relegation_reason = f"Packed Payload Guard (Impossible Density: {rho:.2f} hits/line)"
 

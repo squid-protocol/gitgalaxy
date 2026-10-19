@@ -1,0 +1,149 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "CRECUST",
+ "program_source": "src/base/cobol_src/CRECUST.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "OCCS",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "taskn": 4242,
+ "programs": [
+  {
+   "program": "CRDTAGY1",
+   "program_source": "src/base/cobol_src/CRDTAGY1.cbl"
+  },
+  {
+   "program": "CRDTAGY2",
+   "program_source": "src/base/cobol_src/CRDTAGY2.cbl"
+  },
+  {
+   "program": "CRDTAGY3",
+   "program_source": "src/base/cobol_src/CRDTAGY3.cbl"
+  },
+  {
+   "program": "CRDTAGY4",
+   "program_source": "src/base/cobol_src/CRDTAGY4.cbl"
+  },
+  {
+   "program": "CRDTAGY5",
+   "program_source": "src/base/cobol_src/CRDTAGY5.cbl"
+  },
+  {
+   "program": "ABNDPROC",
+   "program_source": "src/base/cobol_src/ABNDPROC.cbl"
+  }
+ ],
+ "transactions": [
+  "OCR1",
+  "OCR2",
+  "OCR3",
+  "OCR4",
+  "OCR5"
+ ],
+ "child_programs": {
+  "OCR1": "CRDTAGY1",
+  "OCR2": "CRDTAGY2",
+  "OCR3": "CRDTAGY3",
+  "OCR4": "CRDTAGY4",
+  "OCR5": "CRDTAGY5"
+ },
+ "datasets": {
+  "CBSA.CICSBSA.ABNDFILE": {
+   "input": "@case/abndfile.bin",
+   "entity": "WsAbndArea",
+   "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+   "record": "WS-ABND-AREA",
+   "recovery": "NONE",
+   "recovery_why": "etc/install/base/installjcl/BANK.csd: DEFINE FILE(ABNDFILE) ... RECOVERY(NONE) -- the abend log a backout must not undo"
+  },
+  "CBSA.CICSBSA.CUSTOMER": {
+   "input": "@case/customer.txt",
+   "entity": "OutputData",
+   "copybook": "src/base/cobol_copy/CUSTOMER.cpy",
+   "record": "CUSTOMER-RECORD"
+  }
+ },
+ "db2": {
+  "ddl": [
+   "etc/install/base/db2jcl/CRETB01.jcl",
+   "etc/install/base/db2jcl/CREI101.jcl",
+   "etc/install/base/db2jcl/CRETB02.jcl",
+   "etc/install/base/db2jcl/CRETB03.jcl",
+   "etc/install/base/db2jcl/CREI301.jcl"
+  ],
+  "seed": "@generate",
+  "compare": [
+   "IBMUSER.PROCTRAN"
+  ],
+  "qualifier": "IBMUSER",
+  "compare_sql": true,
+  "generate": {
+   "seed": 4507,
+   "tables": {
+    "IBMUSER.PROCTRAN": {
+     "rows": 12
+    }
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/BNK1CCS.cbl",
+    "record": "SUBPGM-PARMS"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [],
+ "notes": "CBSA's create-customer service (CRECUST) on GENERATED Db2 rows (#4507). CRECUST's only Db2 statement is INSERT INTO PROCTRAN: it reads no ACCOUNT, CUSTOMER or CONTROL row (CUSTOMER and its control record are VSAM, customer.txt), so there is nothing to prove on generated CONTROL or ACCOUNT rows; PROCTRAN (no key, no foreign key in CRETB02) starts with 12 generated rows (every column at its boundaries, a NULL in every nullable column) and is compared after every task with each task's statements (compare_sql). 16 generated LINKs with BNK1CCS's SUBPGM-PARMS: name and address lengths from 1 byte to the field's width, and only dates of birth BEFORE 1601, so each ends in DATE-OF-BIRTH-CHECK's refusal ('O') ahead of the CEEDAYS call after the five-child credit check. NOT PROVABLE (named holes, as cbsa-crecust): L1 (CEEDAYS picture 10 over 8 bytes; a date of birth from 1601 on reaches it and the oracle refuses the whole case, so such dates stay in cbsa-crecust) and X18 (the child schedule is ASSUMED). These scenarios run equal but reach only the credit check and the refusal, a partial reach, not a proof; no PROCTRAN row is inserted. Never --record this case while a hole stands. Burned estate (CBSA). Data: customer.txt is cbsa-custctrl's, SYNTHETIC. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived.",
+ "scenario_generate": {
+  "seed": 4507,
+  "count": 16,
+  "prefix": "generated",
+  "commarea": {
+   "SUBPGM-EYECATCHER": "CUST",
+   "SUBPGM-SORTCODE": "987654",
+   "SUBPGM-NUMBER": "0000000000",
+   "SUBPGM-NAME": {
+    "values": [
+     "Mr A",
+     "Mrs Fiona K Laidlaw",
+     "Dr Ximena Q Montgomery-Featherstonehaugh",
+     "M"
+    ]
+   },
+   "SUBPGM-ADDRESS": {
+    "values": [
+     "1 Ancient Way",
+     "17 Abbey Road, Winchester, SO23 7AA",
+     "X"
+    ]
+   },
+   "SUBPGM-DATE-OF-BIRTH": {
+    "values": [
+     "01011500",
+     "29021600",
+     "31121600",
+     "01010001",
+     "15061200",
+     "28021400",
+     "01011599",
+     "25121066"
+    ]
+   },
+   "SUBPGM-CREDIT-SCORE": "0",
+   "SUBPGM-CS-REVIEW-DATE": "0",
+   "SUBPGM-SUCCESS": " ",
+   "SUBPGM-FAIL-CODE": " "
+  }
+ },
+ "port_from": "cbsa-crecust"
+}

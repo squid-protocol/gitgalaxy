@@ -229,7 +229,7 @@ LANGUAGE_STRICTNESS: dict[str, tuple[bool, bool, bool, bool] | None] = {
     "yacc": (False, False, False, False),  # untyped $$/$N; actions are C; yylval/yytext are global
     "yaml": None,
     "zig": (True, True, False, True),  # error unions must be handled; manual memory
-    "acs": (False, False, True, True),  # int/fixed/str slots convert implicitly; no exceptions; no pointers; variables declared
+    "acs": (False, False, True, True),  # implicit int/fixed/str; no exceptions or pointers
     "zscript": (True, False, True, True),  # typed, garbage-collected; no exceptions
 }
 

@@ -348,3 +348,46 @@ def test_abend_is_an_output_channel_but_only_as_a_call_to_the_stub():
         _proc("           GOBACK.\n", "       01  WS-A PIC X VALUE 'CEE3ABD'.\n           CALL 'CEE3ABD'.\n"),
     ):
         assert "does not abend" in trial.out_of_scope_reason(sk, text, False), text
+
+
+def _fd_program(select_fd: str) -> str:
+    return (
+        "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P1.\n       ENVIRONMENT DIVISION.\n"
+        "       INPUT-OUTPUT SECTION.\n       FILE-CONTROL.\n           SELECT IN-FILE ASSIGN TO INFILE.\n"
+        f"       DATA DIVISION.\n       FILE SECTION.\n{select_fd}"
+        "       WORKING-STORAGE SECTION.\n       01  WS-A PIC X.\n       PROCEDURE DIVISION.\n"
+        "           DISPLAY 'X'\n           GOBACK.\n"
+    )
+
+
+def test_an_inline_fd_record_is_a_layout_but_only_with_an_01_and_pictures():
+    """#3806: layout_fields reads an FD record from the program itself, so an inline 01 with PICTURE items is a
+    layout; an FD with no record, no picture or only a comment is not. A COPY in the FD still is."""
+    sk = {
+        "program": {"language": "cobol"},
+        "sections": {
+            "datasets": {"facts": [{"internal_name": "IN-FILE", "modes": ["INPUT"]}]},
+            "file_control": {"facts": [{"select_name": "IN-FILE", "fd_copies": None}]},
+        },
+    }
+    inline = (
+        "       FD  IN-FILE.\n       01  IN-REC.\n           05 IN-ID  PIC 9(5).\n           05 IN-REST PIC X(10).\n"
+    )
+    assert trial.out_of_scope_reason(sk, _fd_program(inline), False) is None
+    indexed = {
+        **sk,
+        "sections": {**sk["sections"], "datasets": {"facts": [{"internal_name": "IN-FILE", "modes": ["I-O"]}]}},
+    }
+    assert trial.out_of_scope_reason(indexed, _fd_program(inline), False) is None
+    for fd in (
+        "       FD  IN-FILE.\n",
+        "       FD  IN-FILE\n           RECORD CONTAINS 80 CHARACTERS.\n       01  IN-REC.\n",
+        "      * FD  IN-FILE.\n      * 01  IN-REC.\n      *     05 IN-ID PIC 9(5).\n",
+        "       FD  OTHER-FILE.\n       01  O-REC.\n           05 O-ID PIC 9(5).\n",
+    ):
+        assert "no record layout" in trial.out_of_scope_reason(sk, _fd_program(fd), False), fd
+    # the next FD's record is not this FD's layout
+    two = "       FD  IN-FILE.\n       FD  OUT-FILE.\n       01  O-REC.\n           05 O-ID PIC 9(5).\n"
+    assert "no record layout" in trial.out_of_scope_reason(sk, _fd_program(two), False)
+    # shipped data needs no layout
+    assert trial.out_of_scope_reason(sk, _fd_program("       FD  IN-FILE.\n"), True) is None

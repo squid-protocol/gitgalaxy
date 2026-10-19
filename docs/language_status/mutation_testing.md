@@ -54,7 +54,8 @@ A from-scratch proof per mutant redoes the COBOL runs and regenerates the whole 
   `@@EQUIVALENCE-RUN-DONE@@` marker). Python compares each run before sending the next, so `--first-difference`
   still stops early. The generated test class carries `@DirtiesContext`, so each run gets a fresh Spring context
   and in-memory database. Other environments (locale and time zone are fixed in a `static {}` block) and Db2 and
-  IMS cases keep a JVM per run; call and CICS runners do not use the session yet. Static state in the port or
+  IMS cases keep a JVM per run. A call proof is one run, so its session saves no JVM start (the flag only keeps the
+  runners uniform); a CICS proof shares one session between its task run and its facade run. Static state in the port or
   the det runtime that outlives a run is the risk, which is why the flag stays opt-in.
 
 **Validation (2026-09-30).** `mutation.py compare` of fast mode against `--full` on the same mutants. **386 of

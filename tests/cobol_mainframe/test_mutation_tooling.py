@@ -341,3 +341,79 @@ def test_the_session_runner_and_the_test_it_runs_are_made_for_repeated_runs():
     assert "--session" in ej.RUNNER and ej.RUN_DONE in ej.RUNNER and "System.clearProperty" in ej.RUNNER
     case = {"program": "X", "name": "x", "datasets": {}, "clock": "2024/01/02 03:04:05.00"}
     assert "@DirtiesContext" in ej.equivalence_test(case)  # a second run in the JVM never meets the first's context
+
+
+class _FakeHolder:
+    def __init__(self):
+        self.closed, self.session = False, object()
+
+    def get(self):
+        return self.session
+
+    def close(self):
+        self.closed = True
+
+
+@pytest.mark.parametrize("case,one_jvm,expect", [({}, True, True), ({}, False, False), ({"db2": {"tables": []}}, True, False),
+                                                 ({"ims": {"compare": []}}, True, False)])  # fmt: skip
+def test_sessions_for_is_the_one_rule_of_who_gets_a_session_jvm(tmp_path, case, one_jvm, expect):
+    import equivalence_call as ecall
+
+    assert bool(ecall.sessions_for(case, tmp_path, one_jvm)) is expect
+
+
+def _recording_maven(monkeypatch):
+    seen = []
+    monkeypatch.setattr(ej, "run_maven", lambda project, work, inputs, env=None, props="", session=None:
+                        seen.append((work.name, props, session)) or work / "out")  # fmt: skip
+    return seen
+
+
+@pytest.mark.parametrize("one_jvm", [True, False])
+def test_a_call_proofs_run_goes_through_the_session_only_under_one_jvm(monkeypatch, tmp_path, one_jvm):
+    import equivalence_call as ecall
+
+    holders = []
+    monkeypatch.setattr(
+        ecall, "sessions_for", lambda *a: holders.append(_FakeHolder()) or holders[-1] if a[2] else None
+    )
+    seen = _recording_maven(monkeypatch)
+    out = ecall._run_calls(ej, {"datasets": {}}, tmp_path, tmp_path / "w", tmp_path, one_jvm)
+    assert out == tmp_path / "w" / "out" and len(seen) == 1
+    assert (seen[0][2] is holders[0].session and holders[0].closed) if one_jvm else (seen[0][2] is None)
+
+
+def test_a_cics_proofs_task_run_and_facade_run_share_one_session_that_is_closed(monkeypatch, tmp_path):
+    import equivalence_cics as ec
+
+    holder = _FakeHolder()
+    seen = _recording_maven(monkeypatch)
+    monkeypatch.setattr(ec, "_java_events", lambda *a: {})
+    facade = {}
+    ec._run_facade(ej, tmp_path, tmp_path / "w", tmp_path, "-Dp=1", holder, {"scenarios": []}, None, None, facade)
+    assert seen == [("facade", "-Dp=1 -Dequivalence.facades=true", holder.session)] and facade["events"] == {}
+
+
+def test_a_facade_run_that_fails_is_the_facades_error_not_a_crash(monkeypatch, tmp_path):
+    import equivalence_cics as ec
+
+    def boom(*a, **k):
+        raise RuntimeError("no go")
+
+    monkeypatch.setattr(ej, "run_maven", boom)
+    facade = {}
+    ec._run_facade(ej, tmp_path, tmp_path / "w", tmp_path, "", None, {"scenarios": []}, None, None, facade)
+    assert facade == {"error": "no go"}
+
+
+def test_the_call_and_cics_tests_are_made_for_a_second_run_in_the_session_jvm():
+    import equivalence_call as ecall
+    import equivalence_cics as ec
+
+    case = {"program": "X", "name": "x", "datasets": {}, "using": [], "calls": [], "clock": "2024/01/02 03:04:05.00"}
+    assert "@DirtiesContext" in ecall.java_test(case) and "@DirtiesContext" in ecall.java_test_dto(
+        case, ["CobolRef<String>"]
+    )
+    import inspect
+
+    assert "@DirtiesContext" in inspect.getsource(ec.cics_equivalence_test)

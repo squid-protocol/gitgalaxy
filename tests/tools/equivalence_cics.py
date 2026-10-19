@@ -4182,7 +4182,7 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
             if (top != null) {
                 throw new FacadeRefused("handleTransaction of " + program + " did not run its task in the region");
             }
-            if (used.getReturnType() != void.class && !answered(got, scenario, used.getReturnType())) {
+            if (used.getReturnType() != void.class && !answered(got, scenario, used.getReturnType(), service)) {
                 throw new FacadeRefused("handleTransaction of " + program
                         + " answered a COMMAREA other than the one its RETURN passes on");
             }
@@ -4312,7 +4312,7 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
     /** Whether a facade answered the COMMAREA its task's RETURN passed on: that very object -- or, where the facade
      *  answers its own DTO and the task RETURNed another record (#4449), those bytes read through it (task.returned):
      *  a fresh object of the facade's type, laid out as the same bytes. */
-    static boolean answered(Object got, CicsTask task, Class<?> type) {
+    static boolean answered(Object got, CicsTask task, Class<?> type, Object service) {
         Object raw = task.returned(Object.class);
         if (got == raw) {
             return true;
@@ -4324,6 +4324,11 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
                 java.nio.charset.Charset page = (java.nio.charset.Charset) Class.forName("__PKG__.entity.vsam.CobolRecords")
                         .getMethod("charset").invoke(null);
                 byte[] text = new String(wide, java.nio.charset.Charset.forName("IBM037")).getBytes(page);
+                if (service != null && !java.util.Arrays.stream(type.getMethods()).anyMatch(m -> m.getName().equals("fromCommarea"))) {
+                    // #5089: no layout (a POINTER, a LENGTH that differs from the record): the program's own codec,
+                    // written back and compared with the bytes over the span both define
+                    return (Boolean) service.getClass().getMethod("wideSame", byte[].class, Object.class).invoke(service, wide, got);
+                }
                 Method bytes = type.getMethod("toCommarea");
                 Object expected = type.getMethod("fromCommarea", byte[].class).invoke(null, (Object) text);
                 return java.util.Arrays.equals((byte[]) bytes.invoke(got), (byte[]) bytes.invoke(expected));

@@ -229,6 +229,7 @@ LANGUAGE_STRICTNESS: dict[str, tuple[bool, bool, bool, bool] | None] = {
     "yacc": (False, False, False, False),  # untyped $$/$N; actions are C; yylval/yytext are global
     "yaml": None,
     "zig": (True, True, False, True),  # error unions must be handled; manual memory
+    "acs": (False, False, True, True),  # implicit int/fixed/str; no exceptions or pointers
     "zscript": (True, False, True, True),  # typed, garbage-collected; no exceptions
 }
 
@@ -1040,6 +1041,7 @@ LANGUAGE_SECURITY_PROFILES = {
             "apex",
             "swift",
             "zscript",
+            "acs",
         },
     },
     # Baseline multipliers applied when the file MATCHES its neighborhood's dominant ecosystem

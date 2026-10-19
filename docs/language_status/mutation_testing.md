@@ -85,6 +85,22 @@ and carddemo-menu (COMEN01C, CICS with facades) **12 of 12 agree** in both compa
 dateutil full 128, fast 77, fast+one-jvm 71; menu full 460, fast 413, fast+one-jvm 390. A small sample; the
 default stays fast mode.
 
+**Larger validation of `--one-jvm` (2026-10-19).** `--sample N --seed 2` in `--full`, then the same mutants in fast
+mode and `--one-jvm`, judged by `mutation.py compare` (now a gate: `--require-agree N` exits 1 unless N mutants
+were judged by both and none differ; it also reports per-operator disagreements and the survivors' proof seconds):
+
+| case | mutants judged by both | agree | killed / survived / stillborn | proof s, full -> fast -> one-jvm | survivors' proof s, full -> fast -> one-jvm |
+|---|---|---|---|---|---|
+| carddemo-intcalc (CBACT04C, batch, 19 faults) | 40 | 40 | 29 / 7 / 4 | 5,353 -> 924 -> 318 | 894 -> 606 -> 113 |
+| carddemo-menu (COMEN01C, CICS with facades) | 30 | 30 | 19 / 9 / 2 | 1,001 -> 506 -> 349 | 309 -> 179 -> 116 |
+
+**70 of 70 agree** in both comparisons, every operator (intcalc: ROR, CON, LIT, NEG, COR, DEL, BDM, AOR, 0 differ).
+A survivor costs about 1/8 (intcalc) to 1/3 (menu) of its `--full` proof. Not validated, so fast mode stays the
+default: **a case with entry runs.** No committed port has an entry method (`executeX`) and no committed `case.json`
+has `entries`; a candidate `entries` case on carddemo-readcard fails to build against the committed port (no
+`executeCbact02c`), so entry runs in a session JVM are covered by unit tests only. The call runner was validated on
+12 mutants (above), not on this larger sample.
+
 ## Scores
 
 After #4056 (SYSOUT compared) and #4053 (SEND MAP attributes compared), on 2026-10-01:

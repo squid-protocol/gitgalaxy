@@ -252,6 +252,15 @@ def test_the_eibcalen_scenarios_state_a_length_inside_the_commarea():
             assert s["why"].startswith("#5401")
 
 
+def test_cardview_and_cardlist_state_only_the_whole_commarea():
+    # #5401: both programs move DFHCOMMAREA past 160 bytes whatever EIBCALEN is, so a shorter length is an X23 refusal
+    for case, whole in (("carddemo-cardview", 172), ("carddemo-cardlist", 414)):
+        s = _scenarios(case)["full-commarea-length"]
+        assert s["commarea"] is not None
+        assert s["commarea_length"] == whole
+        assert s["why"].startswith("#5401")
+
+
 def test_the_menu_family_cases_pin_the_slice_3_inputs():
     # #4049 slice 3: the stated EIBCALEN, the mapset the SEND MAP must name, a blank COMMAREA that reaches the output
     # (no COMMAREA plus a failing XCTL), and an empty id with a process date the found record cannot overwrite

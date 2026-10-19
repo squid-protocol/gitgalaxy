@@ -298,7 +298,7 @@ WAIT, LAST). The score is not re-run. #5401 added `commarea_length` scenarios (E
 `enter-short-commarea` (160 of 218), billpay and tranadd 200 and 201 (of 218, both past the numeric page number). Lengths that cut a numeric field, or leave one blank, are not used: a blank
 PIC 9 is IBM-undefined and the oracle and the port read it differently (pf7/pf8 at 160 on tranlist, userupd at 160 to
 184, report below 146). Still open: COTRN00C 3c413ab7f0 (needs non-numeric page data), the EIBCALEN 0 with a COMMAREA
-present survivors (COBIL00C, COTRN02C, COCRDSLC, COUSR02C d0e975d5b4: IBM leaves DFHCOMMAREA unaddressable), cardview (COCRDSLC moves `DFHCOMMAREA` past the shared 160 bytes, so the oracle refuses any short length, X23) and cardlist.
+present survivors (COBIL00C, COTRN02C, COCRDSLC, COUSR02C d0e975d5b4: IBM leaves DFHCOMMAREA unaddressable), cardview and cardlist: both move `DFHCOMMAREA` past the shared 160 bytes, so the oracle refuses every short length (X23: 159, 160 and 171 on cardview, 159, 160 and 413 on cardlist), and each states only its whole COMMAREA (`full-commarea-length`, 172 and 414 bytes).
 
 #4047 then scored six CardDemo batch ports (readxref, readcust, dailyval, intcalc, posttran, trnrpt; seed 0, up to 100
 mutants each, `--jobs 3`, fast mode). These rows are seed 0 and differ from the older seed-1 CBACT04C, CBTRN02C and

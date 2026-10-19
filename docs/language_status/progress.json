@@ -1,5 +1,5 @@
 {
- "commit": "29349f079",
+ "commit": "0ef19ce87",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -157,16 +157,16 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-19T12:09:40Z",
+  "as_of": "2026-10-19T13:00:55Z",
   "core": {
-   "closed": 133,
-   "open": 29,
-   "total": 162
+   "closed": 136,
+   "open": 31,
+   "total": 167
   },
   "core_last_window": {
-   "closed": 40,
-   "net_closed": 10,
-   "opened": 30
+   "closed": 43,
+   "net_closed": 8,
+   "opened": 35
   },
   "core_milestone": {
    "closed": 80,
@@ -181,12 +181,12 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "20 days",
+  "eta": "27 days",
   "frontier": {
    "closed": 100,
-   "found_last_window": 13,
-   "open": 85,
-   "total": 185
+   "found_last_window": 14,
+   "open": 86,
+   "total": 186
   },
   "frontier_milestone": {
    "closed": 0,
@@ -195,9 +195,9 @@
    "total": 42
   },
   "infra": {
-   "closed": 186,
+   "closed": 187,
    "open": 48,
-   "total": 234
+   "total": 235
   },
   "measured": true,
   "milestones": [
@@ -398,11 +398,11 @@
     "total": 42
    },
    {
-    "closed": 7,
+    "closed": 11,
     "number": 31,
-    "open": 7,
+    "open": 10,
     "title": "DOOM Port Speedrun",
-    "total": 14
+    "total": 21
    }
   ],
   "sweep": {
@@ -413,11 +413,11 @@
   "title_counts": {
    "cics": {
     "closed": 81,
-    "total": 101
+    "total": 102
    },
    "cobol": {
     "closed": 125,
-    "total": 139
+    "total": 140
    }
   },
   "window_days": 7

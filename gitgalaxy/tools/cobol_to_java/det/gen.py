@@ -1349,7 +1349,7 @@ class Gen:
             return f"!({t})" if c.negated else t
         if isinstance(c, E.Rel):
             if isinstance(c.left, E.AddrOf):
-                return self.rel_address_null(c)
+                return self.rel_address_null(c, c.left)
             if self.null_relation(c):
                 return self.rel_null(c)
             if self.pointer_operand(c.left) and self.pointer_operand(c.right):
@@ -1358,11 +1358,11 @@ class Gen:
                 return self.rel(c.op, c.left, c.right)
         raise Untranslatable(f"condition {type(c).__name__}")
 
-    def rel_address_null(self, c: E.Rel) -> str:
+    def rel_address_null(self, c: E.Rel, addr: E.AddrOf) -> str:
         """#5106: `ADDRESS OF item = NULL` / `NOT =`, on a USING item of a sibling's CALL entry: IBM sets the address of an
         OMITTED item to NULL, so the test is whether the caller passed a reference (`present`, set at the entry).
         Any other ADDRESS OF relation stays refused by name."""
-        r = c.left.ref
+        r = addr.ref
         k = self.entry_items.get(r.name.upper())
         if c.op not in ("=", "<>") or k is None or r.subscripts or r.qualifiers or r.refmod:
             raise Untranslatable("condition: ADDRESS OF")

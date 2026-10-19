@@ -469,7 +469,7 @@ instrument). The rows below are rendered by one table in code (`compiler_options
 | `NONUMCHECK` (IBM default) / `NUMCHECK` | only on invalid numeric data in a sending item (message or abend under NUMCHECK) | none | none | `NUMCHECK` is proven as NONUMCHECK: a declared difference | C5 |
 | `ZWB` (IBM default) / `NOZWB` | yes: whether a signed zoned operand of a numeric-vs-nonnumeric comparison is compared with or without its sign (C13) | none | none (compares unsigned) | `NOZWB` refused by name | C13 |
 | `NOINITCHECK` (IBM default) / `INITCHECK` | no: compile-time warnings for uninitialised items | none needed | -- | recorded only | C5 |
-| `OPTIMIZE(0\|1\|2\|STD\|FULL)` | no for defined behaviour: run time and storage | none needed | -- | recorded only (CBSA's `OPT` = `OPTIMIZE(1)`) | C5 |
+| `OPTIMIZE(0\|1\|2\|STD\|FULL)` | no for defined behaviour: run time and storage | none needed | -- | recorded only (CBSA's `OPT` = `OPTIMIZE(1)`); a zero divisor without ON SIZE ERROR is undefined on IBM at every level, so the det port follows cobc whatever the level; no proven scenario divides by zero | C5, C14 |
 
 ### C6. Floating point — MODELLED in the det runtime as HFP (#4271 slice 1); the oracle DIFFERS
 - **What z/OS does.** COMP-1 and COMP-2 are IBM hexadecimal floating point (HFP): a sign bit, a 7-bit characteristic

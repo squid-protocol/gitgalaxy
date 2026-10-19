@@ -166,6 +166,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
+from gitgalaxy.core.cobol_preprocessor import replace_text as _replace_text  # #5648: shared with det/
 from gitgalaxy.core.compiler_options import effective as effective_options
 from gitgalaxy.core.jcl_runners import systsin_programs
 from gitgalaxy.core.source_text import read_source
@@ -6933,35 +6934,6 @@ def _copy_replacings(item: EngineDataItem) -> list:
         found = []
     members = (item.copy_members or "").split(",")
     return [found[i] if i < len(found) else None for i in range(len(members))]
-
-
-def _replace_text(text: str | None, pairs: list) -> str | None:
-    """#4265: `text` after a COPY's REPLACING. A pseudo-text operand delimited by `:` or `( )` (a
-    tag: `:TAG:-ID`) replaces partial words; LEADING / TRAILING replace a word's start / end; any
-    other operand replaces whole words only. One left-to-right pass, as the compiler does: at each
-    position the first pair that matches is applied, and replaced text is never matched again."""
-    if not text:
-        return text
-    patterns: list[str] = []
-    targets: list[str] = []
-    for pair in pairs:
-        src, dst = pair[0], pair[1]
-        mode = pair[2] if len(pair) > 2 else None
-        if not src:
-            continue
-        if mode == "LEADING":
-            patterns.append(rf"(?<![\w-]){re.escape(src)}")
-        elif mode == "TRAILING":
-            patterns.append(rf"{re.escape(src)}(?![\w-])")
-        elif src[:1] in ":(" and src[-1:] in ":)":
-            patterns.append(re.escape(src))
-        else:
-            patterns.append(rf"(?<![\w-]){re.escape(src)}(?![\w-])")
-        targets.append(dst)
-    if not patterns:
-        return text
-    combined = re.compile("|".join(f"(?P<p{i}>{p})" for i, p in enumerate(patterns)), re.I)
-    return combined.sub(lambda m: targets[int((m.lastgroup or "p0")[1:])], text)
 
 
 def _replaced(item: EngineDataItem, pairs: list) -> EngineDataItem:

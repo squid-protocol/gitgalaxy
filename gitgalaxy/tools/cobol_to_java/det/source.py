@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from gitgalaxy.core.cics_macro_level import ASSEMBLER_SUFFIXES, Hit, assembler_hits, cobol_hits, refusal_text
+from gitgalaxy.core.cobol_preprocessor import COPY_ALONE, copy_replacing, copy_statements, replace_text, statement_end
 from gitgalaxy.core.cobol_source_format import ispf_screen
 from gitgalaxy.core.compiler_options import cards
 from gitgalaxy.core.source_text import read_source
@@ -646,20 +647,14 @@ def _open_literal(text: str) -> bool:
 
 
 # #4459: a COPY anywhere on its line (`01 WS-HEAD.  COPY RPTHDR.`), never inside a literal; its member may be on the
-# next line (`COPY` / `UPDCTL.`, joined by `expand`)
-# #4462: a member's name may hold national letters (estate-crucible NORD `COPY KUNDEÅ.`, read in cp277)
-_WORD = r"(?:[^\W_]|[#@$-])"
-_COPY = re.compile(rf"(?<!{_WORD})COPY\s+(['\"]?)({_WORD}+)\1(?:\s+(?:OF|IN)\s+({_WORD}+))?", re.I)
-_COPY_ALONE = re.compile(rf"(?<!{_WORD})COPY\s*$", re.I)
+# next line (`COPY` / `UPDCTL.`, joined by `expand`). #5648: the statement rule is the scanner's
+# (core.cobol_preprocessor), quoted file literals with an extension included (`COPY "ws-state.cpy".`, #5645)
 _PROGRAM_MARK = re.compile(r"^\s*(?:IDENTIFICATION|ID)\s+DIVISION\b|^\s*PROGRAM-ID\b", re.I)
 
 
 def _copy_match(text: str):
     """The COPY statement in `text` (not inside a literal), or None."""
-    for m in _COPY.finditer(text):
-        if not _open_literal(text[: m.start()]):
-            return m
-    return None
+    return next((c for c in copy_statements(text) if not _open_literal(text[: c.start])), None)
 
 
 def copy_names(lines: list[Line]) -> set[str]:
@@ -668,51 +663,30 @@ def copy_names(lines: list[Line]) -> set[str]:
     names: set[str] = set()
     for i, ln in enumerate(lines):
         text = ln.text
-        if _COPY_ALONE.search(text) and not _open_literal(text) and i + 1 < len(lines):
+        if COPY_ALONE.search(text) and not _open_literal(text) and i + 1 < len(lines):
             text = text.rstrip() + " " + lines[i + 1].text.lstrip()
-        for m in _COPY.finditer(text):
-            if not _open_literal(text[: m.start()]):
-                names.add(m.group(2).upper())
+        names |= {c.member for c in copy_statements(text) if not _open_literal(text[: c.start])}
     return names
-
-
-def _statement_end(stmt: str, start: int) -> int:
-    """Index just past the period that ends the COPY statement beginning at `start` (-1: not ended yet); a period
-    inside ==pseudo-text== or a literal does not end it."""
-    quote, pseudo, k = None, False, start
-    while k < len(stmt):
-        ch = stmt[k]
-        if pseudo:
-            if stmt.startswith("==", k):
-                pseudo, k = False, k + 1
-        elif quote:
-            quote = None if ch == quote else quote
-        elif stmt.startswith("==", k):
-            pseudo, k = True, k + 1
-        elif ch in "'\"":
-            quote = ch
-        elif ch == "." and (k + 1 == len(stmt) or stmt[k + 1].isspace()):
-            return k + 1
-        k += 1
-    return -1
 
 
 _SHIPPED_COPY = (Path(__file__).parent / "copy").resolve()  # DFHEIBLK, DFHAID, DFHBMSCA: a fallback, never a rival
 
 
-def _search_member(name: str, dirs: list[Path], chain: frozenset, where: str) -> Path | None:
+def _search_member(name: str, dirs: list[Path], chain: frozenset, where: str, file_name: str = "") -> Path | None:
     """#4461: the one file `COPY name` names in `dirs` (no engine answer). A copybook extension beats a program
     extension (CBSA keeps a program INQCUST.cbl beside its sources and the copybook INQCUST.cpy elsewhere); the
     translator's shipped system members (DFHAID ...) are consulted only where no other directory holds the member.
-    The same file reached through several directories is one candidate; several distinct files are CopyAmbiguous."""
+    The same file reached through several directories is one candidate; several distinct files are CopyAmbiguous.
+    #5645: `file_name`, a quoted literal's file as written (`COPY "ws-state.cpy".`), is looked for first."""
     for shipped in (False, True):
         for exts in (COPYBOOK_EXTS, PROGRAM_EXTS):
             found: dict[Path, Path] = {}  # resolved -> as found; one per directory (its first name/extension)
             for d in dirs:
                 if (d.resolve() == _SHIPPED_COPY) != shipped:
                     continue
-                hit = next((d / f"{nm}{ext}" for nm in dict.fromkeys((name, name.lower())) for ext in exts
-                            if (d / f"{nm}{ext}").is_file() and (d / f"{nm}{ext}").resolve() not in chain), None)  # fmt: skip
+                files = [file_name] if file_name else []
+                files += [f"{nm}{ext}" for nm in dict.fromkeys((name, name.lower())) for ext in exts]
+                hit = next((d / f for f in files if (d / f).is_file() and (d / f).resolve() not in chain), None)
                 if hit is not None:
                     found.setdefault(hit.resolve(), hit)
             if len(found) > 1:
@@ -736,7 +710,7 @@ def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset
     i = 0
     while i < len(lines):
         ln = lines[i]
-        if _COPY_ALONE.search(ln.text) and not _open_literal(ln.text) and i + 1 < len(lines):
+        if COPY_ALONE.search(ln.text) and not _open_literal(ln.text) and i + 1 < len(lines):
             # #4459: the member name on the next line
             ln = Line(ln.text.rstrip() + " " + lines[i + 1].text.lstrip(), ln.file, ln.line)
             lines = [*lines[:i], ln, *lines[i + 2 :]]
@@ -757,23 +731,23 @@ def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset
             i += 1
             continue
         stmt, j = ln.text, i
-        end = _statement_end(stmt, m.start())
+        end = statement_end(stmt, m.start)
         while end < 0 and j + 1 < len(lines):
             j += 1
             stmt += " " + lines[j].text
-            end = _statement_end(stmt, m.start())
+            end = statement_end(stmt, m.start)
         tail = stmt[end:] if end > 0 else ""
-        stmt = stmt[m.start() : end] if end > 0 else stmt[m.start() :]
-        name = m.group(2).upper()
+        stmt = stmt[m.start : end] if end > 0 else stmt[m.start :]
+        name = m.member
         # never a file being expanded already (the including program or copybook itself)
         # a copybook's extensions in every directory before a program's: CBSA keeps a program INQCUST.cbl next to
         # its sources and the copybook INQCUST.cpy elsewhere; never a file being expanded already
         where = f"{ln.file}:{ln.line}"
-        member = engine.member(ln.file, name, m.group(3) and m.group(3).upper(), where) if engine is not None else None
+        member = engine.member(ln.file, name, m.library or None, where) if engine is not None else None
         if member is not None and member.resolve() in chain:
             raise CopyNotFound(f"{where}: COPY {name} resolves to {member}, which is being expanded already")
         if member is None:
-            member = _search_member(name, dirs, chain, where)
+            member = _search_member(name, dirs, chain, where, m.file_name)
             if member is None and not unmasked("missing-copybook"):  # (a survey's what-if only: survey_unmask)
                 raise CopyNotFound(f"{where}: COPY {name} found in none of {[str(d) for d in dirs]}")
             if member is not None and engine is not None and engine.in_estate(Path(ln.file)):
@@ -789,14 +763,13 @@ def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset
                 # #4460: a program, not a copybook: splicing it in would give the includer another program's records
                 raise CopyNotFound(f"{where}: COPY {name} resolves to {member}, which is a program (IDENTIFICATION "
                                    "DIVISION / PROGRAM-ID), not a copybook")  # fmt: skip
-            pairs = _replacing(stmt)
+            pairs = copy_replacing(stmt, m.end - m.start)
             if pairs:
                 for b in body:
-                    for old, new in pairs:
-                        b.text = _replace(b.text, old, new)
+                    b.text = replace_text(b.text, pairs) or b.text
             expanded = expand(body, dirs, depth + 1, chain | {member.resolve()}, engine)
         # the text before COPY on its line (rare: `01 X. COPY Y.`) and what follows the COPY's period stay
-        head = ln.text[: m.start()]
+        head = ln.text[: m.start]
         if head.strip():
             out.append(Line(head, ln.file, ln.line))
         out += expanded
@@ -804,23 +777,6 @@ def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset
             lines = [*lines[: j + 1], Line(tail.lstrip(), ln.file, lines[j].line), *lines[j + 1 :]]
         i = j + 1
     return out
-
-
-def _replacing(stmt: str) -> list[tuple[str, str]]:
-    m = re.search(r"\bREPLACING\b(.*)$", stmt, re.I | re.S)
-    if not m:
-        return []
-    body = m.group(1).rstrip().rstrip(".")
-    pairs = re.findall(r"==(.*?)==\s+BY\s+==(.*?)==", body, re.I | re.S)
-    if pairs:
-        return [(a.strip(), b.strip()) for a, b in pairs]
-    return [(a, b) for a, b in re.findall(r"(\S+)\s+BY\s+(\S+)", body, re.I)]
-
-
-def _replace(text: str, old: str, new: str) -> str:
-    if re.fullmatch(r"[A-Z0-9-]+", old, re.I):  # a word: whole words only
-        return re.sub(rf"(?<![A-Z0-9-]){re.escape(old)}(?![A-Z0-9-])", new, text, flags=re.I)
-    return text.replace(old, new)
 
 
 def program_lines(program: Path, dirs: list[Path], engine: EngineCopies | None = None) -> list[Line]:

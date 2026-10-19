@@ -1779,8 +1779,12 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
                 if e.get("immediate"):  # #4270 (X27)
                     ev["immediate"] = True
             elif kind == "LINK":
+                # #5053: the bytes the caller handed the LINK (the event's `area`, in the runtime page) are the sent
+                # COMMAREA's bytes -- a numeric DISPLAY field holding spaces too, which the DTO cannot carry
                 ev.update(target=e.get("target"), length=e.get("length"), resp=e.get("resp"), resp2=e.get("resp2"),
-                          commarea=_java_area(e.get("commarea"), src, shapes, e.get("length")))  # fmt: skip
+                          commarea=_with_answered_bytes(_java_area(e.get("commarea"), src, shapes, e.get("length")),
+                                                        e.get("area"), RUNTIME_PAGE,
+                                                        _answered_layout(e.get("commarea"), shapes)))  # fmt: skip
             elif kind == "XCTL":  # #4008: LENGTH, RESP, RESP2 (a whole-record DTO's LENGTH is not the log's)
                 length = e.get("length")
                 ca = _java_area(e.get("commarea"), src, shapes, length)

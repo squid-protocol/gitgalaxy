@@ -1,5 +1,5 @@
 {
- "commit": "2b4204eb1",
+ "commit": "d9b42389f",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -111,11 +111,11 @@
    }
   },
   "mutation": {
-   "adjusted_kill_pct": 86.5,
-   "adjusted_total": 2805,
-   "killed": 2425,
+   "adjusted_kill_pct": 87.5,
+   "adjusted_total": 2793,
+   "killed": 2444,
    "ports": 50,
-   "raw_kill_pct": 69.5,
+   "raw_kill_pct": 70.0,
    "raw_total": 3489
   },
   "translator": {
@@ -157,15 +157,15 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-19T16:40:50Z",
+  "as_of": "2026-10-19T16:49:52Z",
   "core": {
-   "closed": 138,
-   "open": 45,
+   "closed": 139,
+   "open": 44,
    "total": 183
   },
   "core_last_window": {
-   "closed": 44,
-   "net_closed": -7,
+   "closed": 45,
+   "net_closed": -6,
    "opened": 51
   },
   "core_milestone": {
@@ -398,9 +398,9 @@
     "total": 42
    },
    {
-    "closed": 13,
+    "closed": 14,
     "number": 31,
-    "open": 22,
+    "open": 21,
     "title": "DOOM Port Speedrun",
     "total": 35
    }
@@ -412,7 +412,7 @@
   },
   "title_counts": {
    "cics": {
-    "closed": 81,
+    "closed": 82,
     "total": 102
    },
    "cobol": {

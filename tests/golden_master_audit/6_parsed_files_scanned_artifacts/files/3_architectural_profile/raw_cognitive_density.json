@@ -328,14 +328,14 @@
     "assembly/rpi_smartstart_baremetal": {
       "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": 0.054,
       "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": 0.057,
-      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": 0.046,
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": 0.047,
       "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": 0.079,
       "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": 0.045,
-      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": 0.04,
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": 0.041,
       "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": 0.058,
       "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": 0.065,
       "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": 0.058,
-      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": 0.053
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": 0.054
     },
     "assembly/x86_bare_metal": {
       "assembly/x86_bare_metal/LICENSE.adoc": 0.0,

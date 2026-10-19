@@ -537,7 +537,7 @@
     },
     "assembly/cpm65_6502": {
       "assembly/cpm65_6502/apps_adm3adrv.S": {
-        "I/O & Config Routines": 4,
+        "I/O & Config Routines": 5,
         "Interface Declarations": 3,
         "State Mutators": 1
       },
@@ -584,7 +584,7 @@
         "Interface Declarations": 1
       },
       "assembly/cpm65_6502/apps_scrvt100.S": {
-        "I/O & Config Routines": 4,
+        "I/O & Config Routines": 5,
         "State Mutators": 1
       },
       "assembly/cpm65_6502/apps_vt52drv.asm": {
@@ -993,11 +993,10 @@
     },
     "assembly/rpi_smartstart_baremetal": {
       "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": {
-        "Compute Cores": 2,
-        "I/O & Config Routines": 13,
-        "Many-Argument Workhorses": 9,
-        "Parameter Forwarders": 29,
-        "State Mutators": 2
+        "I/O & Config Routines": 14,
+        "Many-Argument Workhorses": 5,
+        "Parameter Forwarders": 44,
+        "State Mutators": 8
       },
       "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": {
         "I/O & Config Routines": 10,
@@ -1007,12 +1006,11 @@
         "State Mutators": 2
       },
       "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": {
-        "Compute Cores": 2,
-        "I/O & Config Routines": 12,
+        "I/O & Config Routines": 13,
         "Interface Declarations": 1,
-        "Many-Argument Workhorses": 4,
-        "Parameter Forwarders": 22,
-        "State Mutators": 3
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 36,
+        "State Mutators": 8
       },
       "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": {
         "I/O & Config Routines": 8,
@@ -1029,11 +1027,11 @@
         "State Mutators": 3
       },
       "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": {
-        "Compute Cores": 3,
-        "I/O & Config Routines": 12,
-        "Many-Argument Workhorses": 4,
-        "Parameter Forwarders": 29,
-        "State Mutators": 3
+        "Compute Cores": 1,
+        "I/O & Config Routines": 13,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 43,
+        "State Mutators": 8
       },
       "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": {
         "I/O & Config Routines": 9,
@@ -1058,12 +1056,11 @@
         "State Mutators": 2
       },
       "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": {
-        "Compute Cores": 1,
-        "I/O & Config Routines": 10,
+        "I/O & Config Routines": 11,
         "Interface Declarations": 2,
-        "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 27,
-        "State Mutators": 4
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 38,
+        "State Mutators": 10
       }
     },
     "assembly/x86_bare_metal": {
@@ -1074,50 +1071,58 @@
         "State Mutators": 2
       },
       "assembly/x86_bare_metal/bios_background.S": {},
-      "assembly/x86_bare_metal/bios_carriage_return.S": {},
+      "assembly/x86_bare_metal/bios_carriage_return.S": {
+        "I/O & Config Routines": 1
+      },
       "assembly/x86_bare_metal/bios_clear_screen.S": {},
       "assembly/x86_bare_metal/bios_color.S": {},
       "assembly/x86_bare_metal/bios_cursor_position.S": {},
       "assembly/x86_bare_metal/bios_detect_memory.S": {
         "I/O & Config Routines": 1,
         "Interface Declarations": 2,
-        "Parameter Forwarders": 3,
+        "Parameter Forwarders": 4,
         "State Mutators": 2
       },
       "assembly/x86_bare_metal/bios_disk_load.S": {
-        "I/O & Config Routines": 1
+        "I/O & Config Routines": 1,
+        "Many-Argument Workhorses": 1
       },
       "assembly/x86_bare_metal/bios_disk_load2.S": {
-        "Interface Declarations": 1
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 2
       },
       "assembly/x86_bare_metal/bios_hello_world.S": {
         "Compute Cores": 1,
-        "I/O & Config Routines": 1
+        "I/O & Config Routines": 1,
+        "Parameter Forwarders": 1
       },
       "assembly/x86_bare_metal/bios_initial_state.S": {
-        "Parameter Forwarders": 1
+        "Parameter Forwarders": 2
       },
       "assembly/x86_bare_metal/bios_keyboard.S": {},
       "assembly/x86_bare_metal/bios_keyboard_loop.S": {
         "Parameter Forwarders": 1
       },
-      "assembly/x86_bare_metal/bios_newline.S": {},
+      "assembly/x86_bare_metal/bios_newline.S": {
+        "I/O & Config Routines": 1
+      },
       "assembly/x86_bare_metal/bios_pixel.S": {
-        "Parameter Forwarders": 1,
+        "Parameter Forwarders": 2,
         "State Mutators": 1
       },
       "assembly/x86_bare_metal/bios_pixel_line.S": {
-        "Parameter Forwarders": 1,
+        "Parameter Forwarders": 2,
         "State Mutators": 1
       },
       "assembly/x86_bare_metal/bios_putc.S": {},
       "assembly/x86_bare_metal/bios_scroll.S": {},
       "assembly/x86_bare_metal/bios_serial.S": {
         "Compute Cores": 1,
-        "I/O & Config Routines": 1
+        "I/O & Config Routines": 1,
+        "Parameter Forwarders": 1
       },
       "assembly/x86_bare_metal/bios_sleep.S": {
-        "Parameter Forwarders": 2
+        "Parameter Forwarders": 3
       },
       "assembly/x86_bare_metal/c_hello_world_entry.S": {
         "I/O & Config Routines": 1,

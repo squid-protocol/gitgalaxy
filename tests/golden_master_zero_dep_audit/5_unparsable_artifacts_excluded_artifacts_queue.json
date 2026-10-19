@@ -1436,10 +1436,10 @@
       "Size": "9874 bytes"
     },
     {
-      "Diagnostic Reason": "Blocked (Unsupported Extension: '.i')",
+      "Diagnostic Reason": "Unsupported Format (.undeterminable)",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
+      "Identity Confidence": "10.0%",
       "Path": "python/numpy/numpy.i",
       "Size": "103122 bytes"
     },

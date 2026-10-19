@@ -329,6 +329,18 @@ def test_the_xfrfun_det_port_holds_on_generated_db2_rows(tmp_path):
     assert any(x["verb"] == "INSERT" for q in sql for x in q["cobol"])
 
 
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_bnk1cra_screen_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's credit / debit screen (BNK1CRA -> DBCRFUN) on 30 generated ACCOUNT rows: typed account numbers drawn from
+    them (some no row holds), statements answered alike on both sides, ACCOUNT and PROCTRAN alike. (BNK1TFN: its
+    RETURN LENGTH(29) passes more than its 28-byte DTO, and the deployed-entry-point check refuses that: not yet.)"""
+    report = _det_port_generated("cbsa-bnk1cra-generated", tmp_path)
+    assert report["proven"] is True and report["db2_generated"] == {"IBMUSER.ACCOUNT": 30}
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    assert sql and all(q["equal"] == q["statements"] for q in sql)
+    assert sum(1 for q in sql if q["statements"]) >= 10
+
+
 def test_the_harness_logs_a_statement_the_driver_refuses_on_the_client_as_db2s_minus_180():
     """The Java outcome log (EquivalenceDb2Config) names the -4220 bind refusal and answers it -180 / 22007."""
     assert "getErrorCode() == -4220" in db2.CONFIG and 'o.state = "22007"' in db2.CONFIG

@@ -2,6 +2,7 @@
        PROGRAM-ID. DYNDEMO.
       * #4269: dynamic SQL, a literal INSERT text run at once,
       * the statement text a string literal; Db2 answers it.
+      * a PREPARE from a literal, then the prepared name run.
        DATA DIVISION.
        WORKING-STORAGE SECTION.
            EXEC SQL INCLUDE SQLCA END-EXEC.
@@ -42,13 +43,25 @@
            END-EXEC
            MOVE SQLCODE TO WS-CODE
            DISPLAY 'D DUPLICATE ' WS-CODE
+           EXEC SQL
+               PREPARE S1 FROM
+               'INSERT INTO GGDYN.DTAB VALUES (5, ''PREP'')'
+           END-EXEC
+           MOVE SQLCODE TO WS-CODE
+           DISPLAY 'F PREPARE ' WS-CODE
+           EXEC SQL EXECUTE S1 END-EXEC
+           MOVE SQLCODE TO WS-CODE
+           DISPLAY 'G EXECUTE ' WS-CODE
+           EXEC SQL EXECUTE S1 END-EXEC
+           MOVE SQLCODE TO WS-CODE
+           DISPLAY 'H AGAIN ' WS-CODE
            EXEC SQL WHENEVER SQLERROR GO TO ERR-PARA END-EXEC
            EXEC SQL
                EXECUTE IMMEDIATE
                'INSERT INTO GGDYN.NOPE VALUES (4, ''X'')'
            END-EXEC
-           DISPLAY 'E NOT SKIPPED'.
+           DISPLAY 'I NOT SKIPPED'.
        ERR-PARA.
            MOVE SQLCODE TO WS-CODE
-           DISPLAY 'E MISSING TABLE ' WS-CODE
+           DISPLAY 'I MISSING TABLE ' WS-CODE
            STOP RUN.

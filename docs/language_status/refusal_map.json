@@ -201,8 +201,8 @@
     },
     {
       "id": "multi-program-call",
-      "match": "^CALL CALL EPSCSMR[A-Z]\\b",
-      "note": "A CALL to a sibling program of the same multi-program source (DBB epscsmrd.cbl's EPSCSMRI / EPSCSMRX / ...): the translator takes the first program only. Engine side: #4447, #4404.",
+      "match": "^CALL (?:CALL )?(?:EPSCSMR[A-Z]\\b|[A-Z0-9#@$-]+: a sibling program of this source)",
+      "note": "A CALL to a sibling program of the same multi-program source (DBB epscsmrd.cbl's EPSCSMRI / EPSCSMRO / EPSCSMRX): refused by name since #5106 (dyncall.sibling_refusal), static and dynamic CALL. Each program is translated on its own and no service is made for a sibling, so the CALL has nothing to reach; the shapes epscsmrd's CALLs use (OMITTED, RETURNING, a group USING item) are not yet read. The old report text is `CALL CALL EPSCSMRX`, the refusal reads `CALL EPSCSMRX: ...`: both match. Engine side: #4447, #4404.",
       "issue": 5106
     },
     {

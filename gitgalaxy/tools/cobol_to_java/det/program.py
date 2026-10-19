@@ -31,6 +31,7 @@ from gitgalaxy.tools.cobol_to_java.det.source import (
     engine_copies_from_ticket,
     program_lines,
     program_unit,
+    program_units,
 )
 
 RUNTIME = Path(__file__).parent / "cobolrt"
@@ -605,7 +606,11 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     # #4467: a COPY the translator resolves otherwise than the engine did refuses the program (CopyDisagrees)
     engine = engine_copies_from_ticket(project, program, strict_copy) if project is not None else None
     # #4462: one program of the source (the first, or `unit`): a nested or batch-compiled program is its own class
-    lines = program_unit(program_lines(program, [*copy_dirs, C.COPY], engine), unit)
+    source_lines = program_lines(program, [*copy_dirs, C.COPY], engine)
+    lines = program_unit(source_lines, unit)
+    # #5106: the other programs of the same source (DBB epscsmrd's EPSCSMRI / O / X): a CALL to one has no service to reach
+    units = program_units(source_lines)
+    siblings = {u.name for u in units} - {(unit or units[0].name).upper()}
     # #5119 (X56): OS/VS COBOL's BLL cells and SERVICE RELOAD, lowered onto the pointer lane by IBM's own conversion
     lines = B.lower(lines, str(program))
     records = L.parse(lines)
@@ -663,6 +668,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
 
     structured = style == "structured" and structurable(proc)
     gen = G.Gen(prog, structured)
+    gen.siblings = siblings
     gen.write_only_pointers = write_only_pointers(records, proc)
     gen.overlaid_pointers = overlaid_pointers(records)
     gen.pointer_views = pointer_views(records)

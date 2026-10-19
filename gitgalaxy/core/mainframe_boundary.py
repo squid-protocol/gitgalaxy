@@ -610,7 +610,7 @@ _COPY_IN_ENTRY = re.compile(
     + NATIONAL
     + WIDE_DIGITS
     + WIDE_HYPHENS
-    + r"0-9@#$-]*)(?:\.[A-Z0-9_-]+(?=['\"]))?",
+    + r"0-9@#$-]*)(?:\.[\w-]+(?=['\"]))?",
     re.I,
 )
 # #4265: the `IN|OF library-name` after a COPY's text-name (closing quote allowed).

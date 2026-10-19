@@ -252,6 +252,13 @@ def test_diff_compares_only_columns_both_files_have(tmp_path):
         ("src/main.c", "int main(void) { return 0; }", None),
         ("src/documents.c", "", None),  # a file name is not a docs directory
         ("src/parser.cc", "/* hand written */", None),
+        ("tools/re2c/parser.cc", "/* A Bison parser, made by GNU Bison 2.3.  */", "generated-signature"),
+        ("gameplay/src/info.rs", "//! THIS FILE IS GENERATED WITH MULTIGEN\n//! @generated\n", "generated-signature"),
+        ("src/info.rs", "// the @generated tag is mentioned in prose only\nfn f() {}", None),
+        ("doomsday/build/scripts/unify.py", "import os", "tooling-dir"),
+        ("web/site/webplayer.py", "import os", "tooling-dir"),
+        ("src/build/tools.py", "import os", None),  # build/ alone is not tooling
+        ("src/site/a.py", "import os", None),
     ],
 )
 def test_by_design_reason_classes(rel, text, category):
@@ -305,3 +312,17 @@ def test_score_port_scores_by_design_exclusions_with_a_reason(tmp_path, monkeypa
     assert "coverage" in row["fails"]
     assert all("engine:" in why for _, _, why in det["excluded_by_design"])
     assert "docs/ex.py" not in [m[0] for m in det["missed"]]
+
+
+@pytest.mark.parametrize(
+    ("gg", "ct", "ts", "who"),
+    [
+        (100, 101, None, "ctags"),
+        (100, 120, 101, "tree-sitter"),
+        (100, 120, 130, ""),
+        (100, 120, None, ""),
+        (100, 0, None, "ctags"),
+    ],
+)
+def test_functions_agreement_names_the_oracle_that_passes(gg, ct, ts, who):
+    assert doom_scorer.functions_agreement(gg, ct, ts) == who

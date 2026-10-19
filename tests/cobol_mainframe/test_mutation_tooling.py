@@ -417,3 +417,36 @@ def test_the_call_and_cics_tests_are_made_for_a_second_run_in_the_session_jvm():
     import inspect
 
     assert "@DirtiesContext" in inspect.getsource(ec.cics_equivalence_test)
+
+
+def _run(mode, verdicts):
+    return {"mode": mode, "results": [{"id": f"m{i}", "op": op, "line": i, "verdict": v, "seconds": s}
+                                      for i, (op, v, s) in enumerate(verdicts)]}  # fmt: skip
+
+
+def test_compare_counts_killed_and_timeout_as_one_and_names_every_difference_by_operator():
+    full = _run(
+        "full", [("NEG", "killed", 100), ("CMP", "survived", 90), ("CMP", "timeout", 80), ("LIT", "stillborn", 1)]
+    )
+    fast = _run(
+        "fast", [("NEG", "timeout", 10), ("CMP", "survived", 20), ("CMP", "survived", 20), ("LIT", "stillborn", 1)]
+    )
+    got = mu.compare(full, fast)
+    assert got["judged_by_both"] == 4 and got["agree"] == 3
+    assert [d["id"] for d in got["differ"]] == ["m2"]
+    assert got["by_operator"]["CMP"] == {"judged": 2, "differ": 1} and got["by_operator"]["NEG"]["differ"] == 0
+    assert got["survivor_proof_seconds"] == {"full": 170, "fast": 40}  # a survivor in either run
+
+
+def test_compare_leaves_out_a_mutant_that_is_pending_in_either_run():
+    got = mu.compare(
+        _run("a", [("NEG", "killed", 1), ("NEG", "pending", 0)]),
+        _run("b", [("NEG", "killed", 1), ("NEG", "killed", 1)]),
+    )
+    assert got["judged_by_both"] == 1 and not got["differ"]
+
+
+@pytest.mark.parametrize("judged,differ,minimum,ok", [(12, [], None, True), (12, [], 12, True), (11, [], 12, False),
+                                                      (12, [{"id": "m1"}], 12, False), (3, [{"id": "m1"}], None, True)])  # fmt: skip
+def test_the_agreement_gate_needs_enough_mutants_judged_and_no_difference(judged, differ, minimum, ok):
+    assert mu.agreement_gate({"judged_by_both": judged, "differ": differ}, minimum) is ok

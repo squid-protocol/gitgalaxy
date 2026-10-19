@@ -108,6 +108,9 @@ DEFINITION: dict[str, Any] = {
     # (`<chrono>`, `<ostream>`, `<QString>`) is a file with no extension, never a
     # same-stem `chrono.h` (fmt's own header), so the resolver matches it exactly.
     "include_names_file_literally": True,
+    # #5629: an ALL-CAPS `NAME(` before the body's `{` is a macro in the header (the defining macro of a
+    # macro-defined unit, a parameter-list macro), not a call. A top-level helper flag, not a `rules` pattern.
+    "calls_out_header_macros_are_not_calls": True,
     # #3644 (calls_out C3): `Type var(args)` in a body constructs a Type -- the callee is
     # the type, never the variable. A top-level helper flag, not a `rules` pattern (#2806).
     "calls_out_declarator_constructs": True,

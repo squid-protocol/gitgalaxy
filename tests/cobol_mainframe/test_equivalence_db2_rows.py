@@ -353,6 +353,21 @@ def test_the_bnk1dac_screen_holds_on_generated_db2_rows(tmp_path):
     assert any(x["verb"] == "DELETE" for q in sql for x in q["cobol"])
 
 
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_bnk1uac_screen_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's update screen (BNK1UAC -> INQACC, UPDACC) on 30 generated ACCOUNT rows: inquiries and PF5 updates of numbers
+    the rows hold (and some they do not), every event and statement answered alike on both sides, ACCOUNT and PROCTRAN
+    alike. Not asserted: the report's `proven`, which also needs the java-facade leg, and BNK1UAC's facade refuses (its
+    RETURN passes a LENGTH past the DTO and no layout converts the bytes, the hand-written cbsa-bnk1uac too)."""
+    report = _det_port_generated("cbsa-bnk1uac-generated", tmp_path)
+    assert report["db2_generated"] == {"IBMUSER.ACCOUNT": 30} and not report["refused"]
+    outputs = report["outputs"]
+    assert outputs and all(o["equal"] == o["records"] and not o["diffs"] for o in outputs.values())
+    sql = [o["sql"] for k, o in outputs.items() if k.startswith("generated") and "sql" in o]
+    assert sql and all(q["equal"] == q["statements"] for q in sql)
+    assert any(x["verb"] == "UPDATE" for q in sql for x in q["cobol"])
+
+
 def test_the_harness_logs_a_statement_the_driver_refuses_on_the_client_as_db2s_minus_180():
     """The Java outcome log (EquivalenceDb2Config) names the -4220 bind refusal and answers it -180 / 22007."""
     assert "getErrorCode() == -4220" in db2.CONFIG and 'o.state = "22007"' in db2.CONFIG

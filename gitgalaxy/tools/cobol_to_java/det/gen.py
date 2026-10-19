@@ -2818,15 +2818,16 @@ class Gen:
             return [f"{ind}DetCics.bllReload(task, {self.address_record(a.name)}, {self.pointer_item(b.name)});"]
         callee = self.callees.get(prog)
         if callee is not None:
-            if any(m != "REFERENCE" or not (isinstance(a, E.Ref) or (a is None and prog in self.callee_returns))
-                   for m, a in args):  # fmt: skip
+            sib = prog in self.callee_returns  # #5106: a sibling of this source (BY CONTENT hands it a copy)
+            modes = ("REFERENCE", "CONTENT") if sib else ("REFERENCE",)
+            if any(m not in modes or not (isinstance(a, E.Ref) or (a is None and sib)) for m, a in args):
                 raise Untranslatable(f"CALL {prog}: items BY REFERENCE expected")
             ret = s.data.get("returning")
             if prog in self.callee_returns and (ret is not None) != self.callee_returns[prog]:
                 raise Untranslatable(f"CALL {prog}: RETURNING does not match the sibling program's")
             refs, out, back = [], [], []
             types = self.callee_types.get(prog, [])
-            for k, (_, a) in enumerate(args):
+            for k, (mode, a) in enumerate(args):
                 v = self.tmpname("arg")
                 refs.append(v)
                 typ = types[k] if k < len(types) else "CobolRef<String>"
@@ -2839,10 +2840,11 @@ class Gen:
                         f"{ind}CobolRef<byte[]> {v} = CobolRef.of(java.util.Arrays.copyOfRange({f}.storage().bytes, "
                         f"{f}.offset(), {f}.offset() + {f}.length()));"
                     )
-                    back.append(
-                        f"{ind}System.arraycopy({v}.get(), 0, {f}.storage().bytes, {f}.offset(), "
-                        f"Math.min({v}.get().length, {f}.length()));"
-                    )
+                    if mode == "REFERENCE":  # BY CONTENT: the sibling changes its copy, never the caller's item
+                        back.append(
+                            f"{ind}System.arraycopy({v}.get(), 0, {f}.storage().bytes, {f}.offset(), "
+                            f"Math.min({v}.get().length, {f}.length()));"
+                        )
                     continue
                 if typ == "CobolRef<String>":
                     out.append(f"{ind}CobolRef<String> {v} = CobolRef.of(Cobol.text({f}, CS));")

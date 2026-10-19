@@ -299,8 +299,17 @@ def _env_run(monkeypatch, tmp_path, case, envs, one_jvm=True, stop=None):
         return {"RETURN-CODE": b"0"}
 
     monkeypatch.setattr(ej, "_run_area", area)
-    runs = ej.run_java_environments(case, tmp_path, tmp_path, tmp_path, envs, faults=(("f1", "plan"), ("f2", "plan")),
-                                    entries=("E1",), one_jvm=one_jvm, stop=stop)
+    runs = ej.run_java_environments(
+        case,
+        tmp_path,
+        tmp_path,
+        tmp_path,
+        envs,
+        faults=(("f1", "plan"), ("f2", "plan")),
+        entries=("E1",),
+        one_jvm=one_jvm,
+        stop=stop,
+    )
     return runs, sessions, seen
 
 

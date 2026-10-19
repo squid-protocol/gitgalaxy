@@ -189,7 +189,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | Q1 | Db2 | Db2 for Linux runs the SQL, not Db2 for z/OS | ASSUMED | yes |
 | Q2 | Db2 | EXEC SQL keeps RETURN-CODE | ASSUMED | yes |
 | Q3 | Db2 | The unit of work: one per CICS task; one per batch step, ended by EXEC SQL COMMIT / ROLLBACK (cursors closed as Db2 for z/OS closes them), backed out by an abend, with SAVEPOINT / ROLLBACK TO SAVEPOINT / RELEASE SAVEPOINT run by Db2; a CICS program's ROLLBACK refused (-926) | MATCHED | CICS: yes (CBSA XFRFUN); batch: yes (synthetic UOWDEMO, `tests/equivalence/db2/uow`, #4269) |
-| Q4 | Db2 | dynamic SQL beyond a literal INSERT, CONNECT, CALL, scroll FETCH, host-variable arrays; a savepoint statement in a CICS program | REFUSED | — |
+| Q4 | Db2 | dynamic SQL beyond a literal INSERT (EXECUTE IMMEDIATE, PREPARE/EXECUTE), CONNECT, CALL, scroll FETCH, host-variable arrays; a savepoint statement in a CICS program | REFUSED | — |
 | Q5 | Db2 | DSNTIAC / DSNTIAR message formatting | REFUSED | no |
 | Q6 | Db2 | Date and time text in ISO form; DDL adapted from z/OS jobs | ASSUMED | yes (CBSA, GenApp) |
 | Q7 | Db2 | `CCSID EBCDIC` tables hold Unicode text: string order differs | DIFFERS | no |
@@ -4105,7 +4105,14 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   never as a silent pass. Refused by name: a host variable as the text, a parameter marker, a searched UPDATE / DELETE /
   MERGE and an INSERT ... SELECT (+100 when no row changes, which needs the count), DDL, COMMIT / ROLLBACK, a SELECT,
   and EXECUTE IMMEDIATE in a CICS program.
-- **Refused.** The rest of dynamic SQL (PREPARE / EXECUTE [USING] / DESCRIBE), CONNECT, CALL, ALLOCATE / ASSOCIATE, scroll
+- **Modelled (#4269).** `PREPARE name FROM 'INSERT ... VALUES ...'` then `EXECUTE name` (no `USING`): the literal is kept
+  at the PREPARE and run at each EXECUTE exactly as EXECUTE IMMEDIATE runs it. The PREPARE itself leaves SQLCODE 0
+  and touches no row (the port and the oracle both run `VALUES 1`). Proven on the DYNDEMO estate (insert, then
+  -803 on the second EXECUTE). **Assumptions:** Db2's -104 for text it cannot parse lands at the EXECUTE, not the
+  PREPARE; an EXECUTE reached at run time before its PREPARE (-518) is not modelled (one placed before every PREPARE of
+  the name in the source is refused). Refused by name: a name PREPAREd from two different literals, a host variable as
+  the text, `INTO` / `ATTRIBUTES`, a parameter marker or `USING`, any text but INSERT ... VALUES, and a CICS program.
+- **Refused.** The rest of dynamic SQL (PREPARE of other text / EXECUTE USING / DESCRIBE), CONNECT, CALL, ALLOCATE / ASSOCIATE, scroll
   FETCH (PRIOR / ABSOLUTE / RELATIVE), host-variable arrays and a host variable in a savepoint statement (Q3) stop the precompiler and the det
   translator by name (and a savepoint statement in a CICS program the det translator), as does an undeclared host
   variable or a `WHERE CURRENT OF` a cursor the program does not declare. A positioned UPDATE / DELETE on a declared

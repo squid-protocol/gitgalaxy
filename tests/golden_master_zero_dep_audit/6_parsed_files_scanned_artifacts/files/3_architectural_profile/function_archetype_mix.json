@@ -3680,11 +3680,11 @@
       "csharp/roslyn/Workspace.cs": {
         "Callbacks & Closures": 6,
         "Compute Cores": 6,
-        "Encapsulated Accessors": 95,
+        "Encapsulated Accessors": 94,
         "Generic / Templated Code": 1,
         "I/O & Config Routines": 1,
         "Many-Argument Workhorses": 4,
-        "Stateful Encapsulated Methods": 33
+        "Stateful Encapsulated Methods": 34
       }
     },
     "css": {

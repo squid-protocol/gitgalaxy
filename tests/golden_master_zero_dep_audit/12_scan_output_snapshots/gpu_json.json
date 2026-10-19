@@ -5,7 +5,7 @@
   ],
   "value": {
     "Galaxy Column Digests": {
-      "a_dists": "e91be4d6c665",
+      "a_dists": "238fab459b17",
       "a_ids": "c5e83ab16330",
       "ai_threats": "702f60aa030f",
       "author_distribution": "702f60aa030f",
@@ -13,7 +13,7 @@
       "cog_raw": "51662f50e77d",
       "d_locs": "4b0f08d91fdf",
       "edges": "72d02de72e33",
-      "hits_flat": "9d5a062abbe7",
+      "hits_flat": "ef404d2b62ce",
       "imports": "9b7b52a2f36d",
       "lang_ids": "e54d9c7b38c7",
       "locs": "3c1c7f22e04f",
@@ -1062,7 +1062,7 @@
       "csharp/roslyn/LanguageParser.cs": "074ed5fcaf8d",
       "csharp/roslyn/License.txt": "c3d52f1ae830",
       "csharp/roslyn/MethodCompiler.cs": "7b435c570934",
-      "csharp/roslyn/Workspace.cs": "b7e8ea56946f",
+      "csharp/roslyn/Workspace.cs": "fa968753b405",
       "css/SOURCES.md": "6f8ff0f7ec38",
       "css/bootstrap_dist/bootstrap-grid.css": "3dcdb145027c",
       "css/bootstrap_dist/bootstrap-reboot.css": "9bfa3e74cf1f",
@@ -3401,7 +3401,7 @@
     "Galaxy Row Count": 3364,
     "Global Summary": {
       "File Composition Distribution": "8ae369174875",
-      "Function Archetype Distribution": "e2a96b574c60",
+      "Function Archetype Distribution": "9f6cc7b07b3a",
       "Global Architectural Fingerprint": "33c4eb975dfb",
       "Repository Composition Archetype": "0108c50af9ef",
       "Repository Composition Fit (Z-Score)": "8aed642bf511",

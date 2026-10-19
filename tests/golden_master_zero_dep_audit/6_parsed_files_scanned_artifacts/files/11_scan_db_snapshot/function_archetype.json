@@ -20915,7 +20915,7 @@
         "ClearDocumentData@668": "Encapsulated Accessors",
         "ClearProjectData@659": "Encapsulated Accessors",
         "ClearSolution@617": "Encapsulated Accessors",
-        "ClearSolution@625": "Encapsulated Accessors",
+        "ClearSolution@625": "Stateful Encapsulated Methods",
         "ClearSolutionData@648": "Encapsulated Accessors",
         "CreateDocumentInfoWithText@2037": "Encapsulated Accessors",
         "CreateDocumentInfoWithoutText@2040": "Stateful Encapsulated Methods",

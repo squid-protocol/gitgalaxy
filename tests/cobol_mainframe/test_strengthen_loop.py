@@ -290,3 +290,10 @@ def test_the_menu_family_cases_pin_the_slice_3_inputs():
     assert s["commarea"] is None and s["faults"][0]["cmd"] == "XCTL" and s["faults"][0]["resp"] == "PGMIDERR"
     s = _scenarios("carddemo-tranview")["enter-empty-transaction-id-with-process-date"]
     assert s["receive"]["COTRN1A"]["TPROCDTI"].strip()
+
+
+def test_the_signon_case_takes_the_eibcalen_zero_survivor_scenario():
+    # #4049: a COMMAREA of stated length 0 (EIBCALEN 0 with the area present) is an input only, never an expected result
+    z = _scenarios("carddemo-signon")["eibcalen-zero-with-commarea"]
+    assert z["commarea"] is not None and z["commarea_length"] == 0 and z["aid"] == "DFHENTER"
+    assert z["why"].startswith("#4049") and "expected" not in z

@@ -2038,12 +2038,13 @@ def test_a_commarea_in_an_event_of_a_case_with_none_is_refused(tmp_path):
 
 def test_a_scenario_states_a_commarea_shorter_than_its_record():
     """#4270 (X23): `"commarea_length": N` is EIBCALEN -- the caller passed the record's first N bytes and no more
-    (GenApp's IF EIBCALEN < 91, its '98' returns). 1 to the record's length; never on a scenario with no COMMAREA."""
+    (GenApp's IF EIBCALEN < 91, its '98' returns). 0 to the record's length; never on a scenario with no COMMAREA."""
     fields = [{"name": "CA-A", "offset": 0, "bytes": 2}, {"name": "CA-B", "offset": 2, "bytes": 98}]
     assert ec.commarea_length({"name": "s", "commarea": {}}, fields) is None
     assert ec.commarea_length({"name": "s", "commarea": {}, "commarea_length": 60}, fields) == 60
     assert ec.commarea_length({"name": "s", "commarea": {}, "commarea_length": 100}, fields) == 100
-    for bad in (0, 101, -1, "60", True, 6.0):
+    assert ec.commarea_length({"name": "s", "commarea": {}, "commarea_length": 0}, fields) == 0  # #4049: EIBCALEN 0
+    for bad in (101, -1, "60", True, 6.0):
         with pytest.raises(ec.Unsupported, match="is not a length"):
             ec.commarea_length({"name": "s", "commarea": {}, "commarea_length": bad}, fields)
     with pytest.raises(ec.Unsupported, match="with no COMMAREA"):

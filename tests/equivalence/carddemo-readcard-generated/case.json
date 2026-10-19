@@ -1,0 +1,39 @@
+{
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "CBACT02C",
+ "program_source": "app/cbl/CBACT02C.cbl",
+ "copy_dirs": [
+  "app/cpy"
+ ],
+ "port_from": "carddemo-readcard",
+ "job": "READCARD",
+ "step": "STEP05",
+ "parm": null,
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {
+  "CARDFILE": {
+   "input": "@generate",
+   "organization": "indexed",
+   "reclen": 150,
+   "keys": [
+    {
+     "offset": 0,
+     "length": 16
+    }
+   ],
+   "entity": "CardRecord",
+   "generate": {
+    "copybook": "app/cpy/CVACT02Y.cpy",
+    "record": "CARD-RECORD",
+    "records": 30,
+    "seed": 3804,
+    "fields": {
+     "CARD-NUM": {
+      "digits": true
+     }
+    }
+   }
+  }
+ },
+ "notes": "CBACT02C on GENERATED inputs (#3804): the input file is built from the CVACT02Y record layout (edge values first, unique keys in key order) instead of CardDemo's data file, proving the carddemo-readcard port on records it was not written against. CBACT02C reads the card master and DISPLAYs each record; its FD declares the record inline (two items), so the layout is the copybook it reads INTO. The card number is generated as digits only (as a card number is), so the key order is the same on both sides (letters sort before digits in EBCDIC, after them in ASCII). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+}

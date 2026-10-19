@@ -3911,7 +3911,8 @@
       "typescript/typescript_compiler/checker.ts": "utf-8",
       "typescript/typescript_compiler/emitter.ts": "utf-8",
       "typescript/typescript_compiler/package.json": "utf-8",
-      "typescript/typescript_compiler/parser.ts": "utf-8"
+      "typescript/typescript_compiler/parser.ts": "utf-8",
+      "typescript/typescript_compiler/types.ts": "utf-8"
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": "utf-8",

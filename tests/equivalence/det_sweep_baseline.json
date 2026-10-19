@@ -8,7 +8,7 @@
   },
   "mortgage-mpmt": {
    "issue": "#4271",
-   "why": "IBM DBB EPSMPMT computes its payment through a COMP-1 item in hexadecimal floating point on z/OS, truncated decimal on GnuCOBOL. The det runtime models HFP since #4271 slice 1 (its interest COMPUTE translates), but the payment's (1 + C) ** N, N with decimal places, is a floating-point exponentiation IBM does not document bit for bit: a named hole (oracle_assumptions.md C6; its CBL NUMPROC(MIG) is modelled, C5)"
+   "why": "IBM DBB EPSMPMT computes its payment through a COMP-1 item in hexadecimal floating point on z/OS, truncated decimal on GnuCOBOL. The det runtime models HFP since #4271 slice 1 (its interest COMPUTE translates), but the payment's (1 + C) ** N, N with decimal places, is a floating-point exponentiation IBM does not document bit for bit: a named hole (oracle_assumptions.md C6; its CBL NUMPROC(MIG) is modelled, C5). The dead-code FUNCTION ANNUITY (line 144) is the second: IBM defines the formula, arg-1 / (1 - (1 + arg-1) ** -arg-2), but not the bits of the power or of the result, so it is refused by name with that reason (not modelled). Two holes before and after #4271's last slice; the callers mortgage-csmrt and mortgage-cmort keep theirs"
   },
   "mortgage-csmrt": {
    "issue": "#4803",

@@ -227,7 +227,8 @@
     },
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/checker.ts": "Type, SyntacticTypeNodeBuilderContext, SymbolTracker",
-      "typescript/typescript_compiler/parser.ts": "NodeArray"
+      "typescript/typescript_compiler/parser.ts": "NodeArray",
+      "typescript/typescript_compiler/types.ts": "ReadonlyTextRange, Node, Array"
     },
     "typescript/vscode": {
       "typescript/vscode/async.ts": "Promise, IDisposable, Barrier",

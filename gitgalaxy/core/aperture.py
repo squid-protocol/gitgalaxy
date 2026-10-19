@@ -919,8 +919,9 @@ class ApertureFilter:
                     indent_counts[indent] = indent_counts.get(indent, 0) + 1
 
                 max_indent_freq = max(indent_counts.values())
-                # #5460: two definitions, not one: a single function around an unrolled loop is still generated.
-                if (max_indent_freq / len(meaningful_lines)) > 0.85 and not self._has_definitions(lines_list, need=2):
+                # #5460 (owner ruling 2026-10-19): a file with at least one named function definition
+                # is source, not generated noise (tables.c).
+                if (max_indent_freq / len(meaningful_lines)) > 0.85 and not self._has_definitions(lines_list):
                     report.update(
                         {
                             "valid": False,

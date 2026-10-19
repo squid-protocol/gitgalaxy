@@ -250,7 +250,7 @@ def structurable(proc: S.Procedure) -> bool:
                 s.kind == "EXEC" and re.search(r"(?is)\bHANDLE\b|\bWHENEVER\b.*\bGO\s*TO\b", s.text)
             ):
                 return False
-            if s.kind == "HOLE" and re.match(r"(?i)\s*ALTER\b", s.text):
+            if s.kind == "ALTER" or (s.kind == "HOLE" and re.match(r"(?i)\s*ALTER\b", s.text)):
                 return False
     return True
 
@@ -1050,6 +1050,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     consts = [f'    private static final BigDecimal {n} = new BigDecimal("{v}");' for v, n in gen.consts.items()]
     # ARITHMETIC-OSVS (#4287): libcob's decimal constants, their scale changed by use, set again at each entry
     consts += [f'    private final Cobol.Dc {n} = new Cobol.Dc("{v}");' for n, v in gen.dcs.values()]
+    consts += gen.alter_fields  # #5560: one target slot per altered paragraph
     if gen.pcs_used:  # #4539: the PROGRAM COLLATING SEQUENCE its nonnumeric relation conditions compare under
         consts.append(f"    private static final Sort.Collating COLLATING = {gen.pcs_used};")
     n_para = len(proc.paragraphs)

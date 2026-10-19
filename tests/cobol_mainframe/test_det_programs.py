@@ -465,6 +465,67 @@ PROGRAMS = {
             "",
         ]
     ),  # fmt: skip
+    # ALTER (#5560, IBM Language Reference, ALTER): several ALTERs of one paragraph (the last wins), a multi-pair ALTER,
+    # the altered GO TO reached by GO TO, by PERFORM ... THRU and by falling through from the paragraph before it
+    "ALTER1": "\n".join(
+        [
+            "       IDENTIFICATION DIVISION.",
+            "       PROGRAM-ID. ALTER1.",
+            "       PROCEDURE DIVISION.",
+            "       MAIN-PARA.",
+            "           DISPLAY 'MAIN'",
+            "           ALTER SW TO PROCEED TO T1",
+            "           ALTER SW TO PROCEED TO T2",
+            "           GO TO SW.",
+            "       T1.",
+            "           DISPLAY 'T1 WRONG'",
+            "           GO TO FIN.",
+            "       T2.",
+            "           DISPLAY 'T2 BY GO TO'",
+            "           ALTER SW TO SWX",
+            "           PERFORM SW THRU SWX",
+            "           DISPLAY 'AFTER PERFORM'",
+            "           ALTER SW TO T3 SW2 TO PROCEED TO T4",
+            "           GO TO PRE.",
+            "       PRE.",
+            "           DISPLAY 'PRE'.",
+            "       SW.",
+            "           GO TO T1.",
+            "       SWX.",
+            "           DISPLAY 'IN SWX'.",
+            "       SW2.",
+            "           GO TO T1.",
+            "       T3.",
+            "           DISPLAY 'T3 BY FALL-THROUGH'",
+            "           GO TO SW2.",
+            "       T4.",
+            "           DISPLAY 'T4'.",
+            "       FIN.",
+            "           DISPLAY 'FIN'",
+            "           GOBACK.",
+            "",
+        ]
+    ),  # fmt: skip
+    # an altered GO TO with no operand: its target comes only from the ALTER
+    "ALTER2": "\n".join(
+        [
+            "       IDENTIFICATION DIVISION.",
+            "       PROGRAM-ID. ALTER2.",
+            "       PROCEDURE DIVISION.",
+            "       MAIN-PARA.",
+            "           ALTER BARE TO PROCEED TO DONE",
+            "           PERFORM BARE THRU BARE-END",
+            "           DISPLAY 'NOT REACHED'.",
+            "       BARE.",
+            "           GO TO.",
+            "       BARE-END.",
+            "           EXIT.",
+            "       DONE.",
+            "           DISPLAY 'DONE'",
+            "           GOBACK.",
+            "",
+        ]
+    ),  # fmt: skip
     "UNSTR1": program(
         "UNSTR1",
         [
@@ -1699,6 +1760,25 @@ def test_p_scaled_items_the_oracle_cannot_answer_are_refused_by_name(data, proc,
     """#4669: refused by name, never a crash (the layout's ValueError on PIC SVPP99 COMP-3)."""
     pytest.importorskip("tree_sitter_language_pack")
     holes = _pcs_holes(tmp_path, program("PCSX", data, proc))
+    assert any(why in h for h in holes), holes
+
+
+@pytest.mark.parametrize(
+    ("proc", "why"),
+    [
+        # IBM, ALTER: the altered paragraph is one GO TO sentence; any other shape is refused by name
+        (["    ALTER P1 TO PROCEED TO P2", "    GOBACK.", "P1.", "    DISPLAY 'X'", "    GO TO P2.", "P2.", "    EXIT."], "lone GO TO"),
+        (["    ALTER P1 TO PROCEED TO P2", "    GOBACK.", "P1.", "    GO TO P2 P3 DEPENDING ON N.", "P2.", "P3.", "    EXIT."], "lone GO TO"),
+        (["    ALTER NOPE TO PROCEED TO P2", "    GOBACK.", "P1.", "    GO TO P2.", "P2.", "    EXIT."], "ALTER NOPE: undeclared paragraph"),
+    ],
+)  # fmt: skip
+def test_alter_of_a_paragraph_that_is_not_a_lone_go_to_is_refused_by_name(proc, why, tmp_path):
+    """#5560: the translated ALTERs are in ALTER1 / ALTER2; the rest is a named hole, never a wrong GO TO."""
+    pytest.importorskip("tree_sitter_language_pack")
+    head = ["IDENTIFICATION DIVISION.", "PROGRAM-ID. ALTX.", "DATA DIVISION.", "WORKING-STORAGE SECTION.",
+            "01 N PIC 9 VALUE 1.", "PROCEDURE DIVISION.", "MAIN-PARA."]  # fmt: skip
+    src = "\n".join("       " + x for x in [*head, *proc]) + "\n"
+    holes = _pcs_holes(tmp_path, src)
     assert any(why in h for h in holes), holes
 
 

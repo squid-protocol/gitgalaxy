@@ -16570,6 +16570,9 @@
         "margin",
         "margin: number",
         "tagName"
+      ],
+      "typescript/typescript_compiler/types.ts": [
+        "./_namespaces/ts.js"
       ]
     },
     "typescript/vscode": {

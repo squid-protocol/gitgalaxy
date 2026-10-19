@@ -1281,7 +1281,7 @@
       "dockerfile/moby/builder/dockerfile/internals_test.go": 0.945,
       "dockerfile/moby/builder/dockerfile/internals_windows.go": -0.02,
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": 3.076,
-      "dockerfile/moby/builder/dockerfile/metrics.go": 1.059,
+      "dockerfile/moby/builder/dockerfile/metrics.go": 1.11,
       "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 1.334,
       "dockerfile/moby/builder/dockerfile/utils_test.go": -0.461
     },
@@ -1333,7 +1333,7 @@
       "embedded_python/meow_turtle/app.py": 0.048,
       "embedded_python/meow_turtle/bldc_driver.py": 0.384,
       "embedded_python/meow_turtle/boot.py": 0.151,
-      "embedded_python/meow_turtle/diagnostics.py": -0.051,
+      "embedded_python/meow_turtle/diagnostics.py": -0.023,
       "embedded_python/meow_turtle/logging.py": -0.151,
       "embedded_python/meow_turtle/meowprotocol.py": -0.228,
       "embedded_python/meow_turtle/mpu6050.py": -0.047,
@@ -1373,7 +1373,7 @@
       "go/core/mgc.go": 2.538,
       "go/core/mutex.go": 0.191,
       "go/core/proc.go": 1.426,
-      "go/core/server.go": 0.897,
+      "go/core/server.go": 0.919,
       "go/core/syscall_linux.go": 0.621,
       "go/core/value.go": 1.355
     },
@@ -2320,7 +2320,7 @@
       "lua/cosmopolitan/db.lua": 0.714,
       "lua/cosmopolitan/errors.lua": 0.708,
       "lua/cosmopolitan/events.lua": 2.465,
-      "lua/cosmopolitan/fetch.lua": 2.24,
+      "lua/cosmopolitan/fetch.lua": 2.255,
       "lua/cosmopolitan/files.lua": 0.134,
       "lua/cosmopolitan/finger.lua": -0.291,
       "lua/cosmopolitan/gc.lua": 1.511,
@@ -2860,7 +2860,7 @@
       "python/fastapi/fastapi/staticfiles.py": 0.0,
       "python/fastapi/fastapi/templating.py": 0.0,
       "python/fastapi/fastapi/testclient.py": 0.0,
-      "python/fastapi/fastapi/types.py": 0.542,
+      "python/fastapi/fastapi/types.py": 0.509,
       "python/fastapi/fastapi/utils.py": 0.38,
       "python/fastapi/fastapi/websockets.py": 0.0
     },
@@ -3141,7 +3141,7 @@
       "python/twisted/defer.py": 0.362,
       "python/twisted/http.py": 0.625,
       "python/twisted/reflect.py": -0.265,
-      "python/twisted/transport.py": 0.331
+      "python/twisted/transport.py": 0.374
     },
     "python/wtfpython": {
       "python/wtfpython/2_tricky_strings.py": -0.357,
@@ -3483,7 +3483,7 @@
       "shell/kubernetes/cluster__common.sh": -0.109,
       "shell/kubernetes/common.sh": 0.261,
       "shell/kubernetes/config-common.sh": 1.542,
-      "shell/kubernetes/config-default.sh": 0.227,
+      "shell/kubernetes/config-default.sh": 0.261,
       "shell/kubernetes/configure-helper.sh": -0.02,
       "shell/kubernetes/e2e-cluster-size.sh": 0.042,
       "shell/kubernetes/etcd.sh": 0.474,
@@ -3862,8 +3862,8 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 0.0,
       "typescript/assemblyscript/ast.ts": 0.733,
-      "typescript/assemblyscript/builtins.ts": 1.007,
-      "typescript/assemblyscript/compiler.ts": 0.29,
+      "typescript/assemblyscript/builtins.ts": 1.026,
+      "typescript/assemblyscript/compiler.ts": 0.309,
       "typescript/assemblyscript/package.json": 0.0,
       "typescript/assemblyscript/parser.ts": 1.374
     },
@@ -3903,7 +3903,7 @@
       "typescript/playwright/crConnection.ts": -0.688,
       "typescript/playwright/dispatcher.ts": -0.954,
       "typescript/playwright/frames.ts": -0.676,
-      "typescript/playwright/protocol.ts": 0.15
+      "typescript/playwright/protocol.ts": 0.18
     },
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 0.0,
@@ -3911,7 +3911,8 @@
       "typescript/typescript_compiler/checker.ts": -0.483,
       "typescript/typescript_compiler/emitter.ts": 0.748,
       "typescript/typescript_compiler/package.json": 0.0,
-      "typescript/typescript_compiler/parser.ts": -0.588
+      "typescript/typescript_compiler/parser.ts": -0.588,
+      "typescript/typescript_compiler/types.ts": -0.048
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0.0,
@@ -4062,7 +4063,7 @@
       "zig/mach/collision.zig": 0.286,
       "zig/mach/graph.zig": 0.321,
       "zig/mach/main.zig": 1.459,
-      "zig/mach/module.zig": 0.292,
+      "zig/mach/module.zig": 0.313,
       "zig/mach/testing.zig": 0.525,
       "zig/mach/win32.zig": 1.893
     },

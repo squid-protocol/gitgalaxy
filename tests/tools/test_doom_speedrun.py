@@ -4,6 +4,7 @@ No network and no scan: the fetch test clones a throwaway local repo. Sibling to
 modules are imported as bare names (tests/ has no __init__.py).
 """
 
+import collections
 import json
 import sqlite3
 import re
@@ -258,7 +259,13 @@ def test_by_design_reason_classes(rel, text, category):
     assert (hit[0] if hit else None) == category
 
 
-def test_score_port_scores_by_design_exclusions_with_a_reason(tmp_path):
+def _stub_ctags_counts(repo, files_by_lang, scratch):
+    return collections.Counter({"src/main.c": 1, "src/lost.c": 1})
+
+
+def test_score_port_scores_by_design_exclusions_with_a_reason(tmp_path, monkeypatch):
+    # CI has no Universal Ctags: stub the oracle (one definition in each C file)
+    monkeypatch.setattr(doom_scorer, "ctags_counts", _stub_ctags_counts)
     repo, scan = tmp_path / "repo", tmp_path / "scan"
     files = {
         "src/main.c": "int main(void) { return 0; }\n",

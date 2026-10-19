@@ -564,6 +564,7 @@ def test_a_generated_msgid_and_the_default_context(c_driver, tmp_path):
     assert stored[2].split()[2] == "-"  # the empty message
 
 
+@pytest.mark.slow(reason="javac-compiles the MQ runtime, then starts one JVM and one C driver per script (18 s on CI)")
 @pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
 def test_the_runtime_is_the_oracle_model_byte_for_byte(c_driver, tmp_path):
     src = tmp_path / "src"

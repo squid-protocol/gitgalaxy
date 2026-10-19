@@ -48,7 +48,14 @@ A from-scratch proof per mutant redoes the COBOL runs and regenerates the whole 
   names only that run.
 - When the build is current (the main classes from the port, the test classes from this very test source), the
   test runs in a plain JVM through the JUnit Platform launcher surefire itself uses. Otherwise it goes to Maven.
-  Each run is still a fresh JVM: no state crosses runs.
+  By default each run is a fresh JVM: no state crosses runs.
+- `--one-jvm` (opt-in, `mutation.py run` and `equivalence.py run`): the default, fault and entry runs of a batch
+  proof share one session JVM (`EquivalenceMain --session`; one run per stdin line, the exit status in a
+  `@@EQUIVALENCE-RUN-DONE@@` marker). Python compares each run before sending the next, so `--first-difference`
+  still stops early. The generated test class carries `@DirtiesContext`, so each run gets a fresh Spring context
+  and in-memory database. Other environments (locale and time zone are fixed in a `static {}` block) and Db2 and
+  IMS cases keep a JVM per run; call and CICS runners do not use the session yet. Static state in the port or
+  the det runtime that outlives a run is the risk, which is why the flag stays opt-in.
 
 **Validation (2026-09-30).** `mutation.py compare` of fast mode against `--full` on the same mutants. **386 of
 386 agree, 0 differ** (355 proofs plus 31 stillborn):
@@ -63,7 +70,13 @@ A from-scratch proof per mutant redoes the COBOL runs and regenerates the whole 
 
 The times are summed over mutants, on a machine at load 17-21 (the fast runs were under heavier load). A mutant
 the normal run kills costs ~10-15 s instead of ~280 s. A survivor must still pass every run (TRNRPT: 25 JVMs,
-~190 s); running all of a proof's runs in one JVM is the next step, only if it still agrees with `--full`.
+~190 s); `--one-jvm` removes the per-run JVM start.
+
+**Validation of `--one-jvm` (2026-10-18).** One batch case, carddemo-intcalc (CBACT04C, 19 faults), the same 12
+mutants (2 stillborn, 10 proofs) in `--full`, fast and `--one-jvm`: **12 of 12 agree** in both comparisons (7
+killed, 3 survived: Cbact04cService.java:253, :273, :303). Proof time summed over mutants: full 1,039 s, fast
+249 s, fast+one-jvm 71 s (wall time of the run: 618 s, 249 s, 161 s). Not yet validated: a larger sample, a case
+with entry runs, and the call and CICS runners, so fast mode stays the default.
 
 ## Scores
 

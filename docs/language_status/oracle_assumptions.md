@@ -94,7 +94,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C9 | compiler | POINTER is 8 bytes in GnuCOBOL (x86-64), 4 on z/OS | DIFFERS (declared: each side's fields read by its own layout, compared by name; a POINTER only as NULL or not) | only NULL (CBSA, data after one included) |
 | C10 | compiler | INITIALIZE / VALUE ZERO zoned items: unsigned F zone (GnuCOBOL) vs preferred C sign (z/OS) | DIFFERS (tolerated where a case declares it) | yes (CardDemo READACCT ARRYFILE) |
 | C11 | compiler | A non-digit in a numeric DISPLAY item: MOVEd from an alphanumeric item (#4049); MOVEd to a binary item (#4652); read as a MOVE sender, an operand, a comparand, and the sign rewrite of a signed sender (#4662) | DIFFERS (#4049: inputs kept out of the cases) / MODELLED, the oracle's rules (#4652, #4662) | yes (COMEN01C option `1!`; GenApp LGTESTP4's add) |
-| C12 | compiler | FUNCTION RANDOM: the oracle's generator (glibc via GnuCOBOL), not IBM's unpublished one; a seed IBM does not allow refused | DIFFERS (the numbers) / ASSUMED (the interface) | yes (CBSA CRDTAGY1-5, INQCUST: cbsa-crdtagy1..5, cbsa-inqcust, seeds 0 and a stated `"taskn"`); translated, no proof yet (GenApp LGICVS01) |
+| C12 | compiler | FUNCTION RANDOM: the oracle's generator (glibc via GnuCOBOL), not IBM's unpublished one; a seed IBM does not allow refused | DIFFERS (the numbers) / ASSUMED (the interface) | yes (CBSA CRDTAGY1-5, INQCUST: cbsa-crdtagy1..5, cbsa-inqcust, seeds 0 and a stated `"taskn"`; BANKDATA: cbsa-bankdata, seed 7, with an indexed file and Db2); translated, no proof yet (GenApp LGICVS01) |
 | C13 | compiler | A numeric operand compared with a nonnumeric one (an alphanumeric, alphabetic or numeric-edited item): compared as its characters, not by value (#4665) | MATCHED (unsigned integer literals as written; zoned, packed and binary items as their digits, sign dropped; non-integer ones as the oracle's digits) / REFUSED (a signed literal, a SIGN SEPARATE or P-scaled item, an arithmetic expression, an equality with a literal of more decimal places than an edited item) | yes: CardDemo COTRTLIC (proven; an alphanumeric item against `0`); no proven program compares an edited item or a group with a number |
 | C14 | compiler | Size errors without ON SIZE ERROR: a zero divisor leaves the receivers unchanged in the oracle (libcob's NaN), the det runtime the same (#4655); z/OS's result is undefined (a decimal-divide exception); 0 ** a negative is 0 in the oracle, a size error on z/OS | MATCHED (det runtime = oracle) / DIFFERS (oracle vs z/OS) | not known to be: no proven scenario divides by zero |
 | C15 | compiler | `CALL identifier`: the port dispatches over the program names the item can hold, found from the source (VALUE, VALUE table, MOVEs of literals); uppercase names of up to 8 characters; any other value, write or name refused by name (#4736) | MODELLED where the names are known, REFUSED where they are not | yes (end-to-end test against cobc; DBB EPSCSMRT translates whole, its callee EPSMPMT is refused) |
@@ -884,13 +884,20 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   because both use the oracle's generator. That equality is a stated fact of the harness run, as the clock is (M4):
   the seed these programs use is `EIBTASKN`, which the harness states on both sides (X21: 0 unless a case or scenario
   states its `"taskn"`), so every task draws RANDOM(0)'s sequence by default, and RANDOM(n)'s for a stated n.
+- **Libraries that share the generator (#5561).** The Berkeley DB under GnuCOBOL's indexed files (`libdb-5.3.so`)
+  and the Db2 client call `srand` (a time- or pid-derived seed, at file open) and `rand` in the same process, which
+  cut the program's sequence: BANKDATA's customers differed on every oracle run. `tests/equivalence/faults/ggdisplay.c`
+  (preloaded in every oracle run) answers `rand` / `srand` calls made from a `libdb*` library from a private
+  generator and passes every other caller to libc, so the program's sequence is the one the port reproduces. z/OS
+  shares no generator between VSAM, Db2 and the program; the isolation models that.
 - **Known differences, unreached.** The oracle can return exactly 0 or 1 (`rand()` of 0 or `RAND_MAX`, about once in
   2^31 draws), IBM never does; the port follows the oracle. A LINKed program is a new run unit on z/OS (its own
   sequence from seed zero) but shares the task's process state in the oracle; the port gives each program its own
   sequence, so a task whose caller and LINK target both draw unseeded numbers would differ. A CALLed program shares
   its caller's run unit on z/OS; the port keeps the CALLed program's own sequence. No translated program reaches
   these: each one's first reference is seeded.
-- **Reached.** No proof yet: no equivalence or crucible case runs CRDTAGY1-5, INQCUST or LGICVS01. Pinned against
+- **Reached.** `cbsa-bankdata` (L2, det sweep: 3 runs, 24/24 paragraphs, 17/48 branches) draws every customer and
+  account field from seed 7's sequence and compares them (VSAM, ACCOUNT, CONTROL). No proof yet for LGICVS01. Pinned against
   GnuCOBOL by `tests/cobol_mainframe/test_det_programs.py` (`RANDOM`: an unseeded first reference, seeds 0,
   42, 1,234,567 and 2,147,483,647, CRDTAGY's and LGICVS01's COMPUTEs) and against glibc's own numbers by
   `test_det_funcs.py`.

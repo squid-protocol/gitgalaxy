@@ -55,6 +55,8 @@ def _holes(src: str) -> list[str]:
 def test_a_condition_handler_call_is_refused_by_name(stmt, service):
     holes = _holes(_program(stmt))
     assert len(holes) == 1 and f"{service}:" in holes[0] and "not modelled" in holes[0], holes
+    if service == "CEEHDLR":  # the refusal names what a registration is missing, not "no condition is raised"
+        assert all(w in holes[0] for w in ("SET TO ENTRY", "dispatch", "RESUME / PERCOLATE")), holes
     assert [e["id"] for e in sm.classify(holes[0].split(": ", 1)[1], sm.load_map())] == ["le-condition-handling"]
 
 

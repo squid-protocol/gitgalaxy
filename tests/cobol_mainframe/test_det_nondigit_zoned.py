@@ -24,6 +24,10 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from test_det_nondigit_binary import FLAGS, IMAGE, PKG, _det, _java  # noqa: E402
 
+pytestmark = pytest.mark.slow(
+    reason="the first java test of a CI split part pays the one-time javac of the cobolrt runtime: 12-17 s on a runner (#5668)"
+)
+
 EXPECTED = Path(__file__).with_name("nondigit_zoned_expected.txt")
 
 # kind: (PICTURE clause of the sender, bytes in it)

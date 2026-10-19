@@ -4002,9 +4002,11 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   (`1988-5-16`: IBM accepts it; the model has no rule), `YY` (the century window, which depends on the system date;
   CEEQCEN's 80 is the default, no CEESCEN is modelled) or `DDD` in the input, or a picture without a full date.
   CEEGMT without a pinned clock.
-- **Modelled (#5003), assumed.** CEEGMTO / CEEUTCO (the same service) return hours 0, minutes 0, seconds 0.0 and a
-  success feedback code: the pinned clock is GMT, so the offset to local time is zero. No zone table; a program that
-  reads a nonzero offset would need the time-zone decision, which this does not make.
+- **Modelled (#5003), assumed (6).** CEEGMTO / CEEUTCO (the same service) return hours 0, minutes 0, seconds 0.0 and a
+  success feedback code. The time-zone decision: the clock is GMT (CURRENT-DATE ends `+0000`), so local time is GMT and
+  the offset is zero; no zone table. `test_the_zero_offset_is_the_clocks_offset` ties the two, so a zoned clock cannot
+  land without revisiting this service. Residual risk: a program that branches on a nonzero offset sees zero; no burned
+  program calls either name.
 - **Not modelled: sibling services** of the same set: CEESECI,
   CEEDYWK, CEESCEN, CEEFMDA / CEEFMDT / CEEFMDV (a call is refused by name by the translator, as before), and the
   country-default pictures.

@@ -2707,6 +2707,9 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   (`COPAUS1C`) targets a program that is not in the corpus. The value forms are therefore refused by equality tracing and
   unreached. A value derived from a field (a suffixed String, a sum) cannot be traced and passes as a new value (pinned in
   `test_model_link_xctl_4956.py`).
+  Re-checked 2026-10-19 against the six burned corpora: XCTL issuers are CardDemo's 21 online programs and `ZECS001` only;
+  the LINK targets are CBSA, GenApp, the async credit-card example, DBB `EPSMLIST` and ZECS002 (none issues an XCTL), plus
+  CardDemo's one data-driven `WS-PGM-AUTH-FRAUD`. No program is both, so the model-port value forms are unreached there.
 - **Aliases (#4957).** The det port marks an XCTL whose COMMAREA lies inside any LINKAGE 01 record, not only DFHCOMMAREA: a CALLed
   subprogram's USING record (`CALL 'SUB' USING DFHCOMMAREA`) is the LINK caller's storage under another name, and refuses by the
   same runtime check (only when the program was LINKed with a COMMAREA). `SET ADDRESS OF` (direct or through a pointer) is

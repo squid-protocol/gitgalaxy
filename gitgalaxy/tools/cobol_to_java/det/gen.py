@@ -275,6 +275,9 @@ class Gen:
         self.siblings: set[str] = set()  # #5106: the other programs of this program's source (no service of their own)
         # CALLed program -> its handleCall parameter types (CobolRef<String>, or a contract DTO for a group item)
         self.callee_types: dict[str, list[str]] = {}
+        self.callee_returns: dict[
+            str, bool
+        ] = {}  # #5106: a sibling whose entry returns its RETURNING item (not RETURN-CODE)
         # the COMMAREA codec (det.cics.Cics) a DTO crosses storage with: the CICS one, or made on first use for a batch
         # program
         self.dto_codecs: Cics | None = None
@@ -2815,15 +2818,32 @@ class Gen:
             return [f"{ind}DetCics.bllReload(task, {self.address_record(a.name)}, {self.pointer_item(b.name)});"]
         callee = self.callees.get(prog)
         if callee is not None:
-            if any(m != "REFERENCE" or not isinstance(a, E.Ref) for m, a in args):
+            if any(m != "REFERENCE" or not (isinstance(a, E.Ref) or (a is None and prog in self.callee_returns))
+                   for m, a in args):  # fmt: skip
                 raise Untranslatable(f"CALL {prog}: items BY REFERENCE expected")
+            ret = s.data.get("returning")
+            if prog in self.callee_returns and (ret is not None) != self.callee_returns[prog]:
+                raise Untranslatable(f"CALL {prog}: RETURNING does not match the sibling program's")
             refs, out, back = [], [], []
             types = self.callee_types.get(prog, [])
             for k, (_, a) in enumerate(args):
                 v = self.tmpname("arg")
                 refs.append(v)
-                f = self.field_expr(a)
                 typ = types[k] if k < len(types) else "CobolRef<String>"
+                if a is None:  # OMITTED: no storage behind the parameter (the sibling never names it, program._fits)
+                    out.append(f"{ind}{typ} {v} = null;")
+                    continue
+                f = self.field_expr(a)
+                if typ == "CobolRef<byte[]>":  # #5106: a sibling's item: its bytes in and, BY REFERENCE, out again
+                    out.append(
+                        f"{ind}CobolRef<byte[]> {v} = CobolRef.of(java.util.Arrays.copyOfRange({f}.storage().bytes, "
+                        f"{f}.offset(), {f}.offset() + {f}.length()));"
+                    )
+                    back.append(
+                        f"{ind}System.arraycopy({v}.get(), 0, {f}.storage().bytes, {f}.offset(), "
+                        f"Math.min({v}.get().length, {f}.length()));"
+                    )
+                    continue
                 if typ == "CobolRef<String>":
                     out.append(f"{ind}CobolRef<String> {v} = CobolRef.of(Cobol.text({f}, CS));")
                     back.append(f"{ind}Cobol.move({v}.get(), {f}, CS);")
@@ -2836,9 +2856,9 @@ class Gen:
             rc = self.tmpname("rc")
             out.append(f"{ind}int {rc} = {callee}.getObject().handleCall({', '.join(refs)});")
             out += back
-            out.append(
-                f"{ind}Cobol.store({self.field_expr(E.Ref('RETURN-CODE'))}, BigDecimal.valueOf({rc}), false, CS);"
-            )
+            ret_ref = ret if (self.callee_returns.get(prog) and ret is not None) else E.Ref("RETURN-CODE")
+            target = self.field_expr(ret_ref)
+            out.append(f"{ind}Cobol.store({target}, BigDecimal.valueOf({rc}), false, CS);")
             return out
         if prog in ("CBLTDLI", *dli.REFUSED_BY_NAME):  # #4893: IMS DL/I (det/dli.py, register family I)
             if prog != "CBLTDLI":

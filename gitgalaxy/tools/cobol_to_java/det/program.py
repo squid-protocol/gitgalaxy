@@ -612,33 +612,55 @@ def _targets(gen: G.Gen, call: S.Stmt) -> set[str]:
     return set()
 
 
+@dataclass
+class _Contract:
+    """#5106: what a sibling's CALL entry takes: one `CobolRef<byte[]>` per USING item (the item's bytes, BY REFERENCE:
+    a group, a number and a text item alike), its size, whether its body names it (an OMITTED item that is named
+    is undefined behaviour on IBM), and whether it returns its RETURNING item (a number) as the entry's result."""
+
+    res: Result
+    sizes: list[int]
+    named: list[bool]
+    returns: bool
+
+
 def _sibling_service(sib: str, source_lines: list, program: Path, copy_dirs: list[Path], package: str,
                      estate: dict[str, str] | None, project: Path | None, style: str, typed: bool, groups: bool,
-                     options: list[str] | None, strict_copy: bool, own: str) -> tuple[Result, list[str]] | None:  # fmt: skip
+                     options: list[str] | None, strict_copy: bool, own: str) -> _Contract | None:  # fmt: skip
     """#5106: the service of a sibling program (a PROGRAM-ID of the same source), or None where the CALL stays refused
     by name. The forge makes no stub for it (D049), so the stub is made here: `<Name>Service` with the CALL entry
-    `handleCall(CobolRef<String> ...)`, one parameter per USING item. Only items every IBM convention agrees on are
-    taken: BY REFERENCE (the default), an elementary PIC X item with no OCCURS; BY VALUE / BY CONTENT, a group, a
-    number, a pointer, or a unit that CALLs back into the chain is left refused."""
+    `handleCall(CobolRef<byte[]> ...)`, one parameter per USING item. Only items whose bytes are the whole contract
+    are taken: BY REFERENCE (the default), a record of fixed size with no OCCURS, REDEFINES, pointer or float; BY
+    VALUE / BY CONTENT, a unit that CALLs back into the chain, or one that is itself a CICS program is left refused.
+    RETURNING takes a whole-number item of at most 9 digits (the entry's int result is that item, not RETURN-CODE)."""
     from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
 
     lines = program_unit(source_lines, sib)
     text = " ".join(ln.text for ln in lines)
     header = re.search(r"\bPROCEDURE\s+DIVISION\b([^.]*)\.", text, re.I)
-    if header is None or re.search(r"\b(?:VALUE|CONTENT|RETURNING)\b", header.group(1), re.I) or sib in _SIBLING_CHAIN:
+    if (header is None or re.search(r"\b(?:VALUE|CONTENT)\b", header.group(1), re.I) or sib in _SIBLING_CHAIN
+            or re.search(r"\bEXEC\s+CICS\b", text, re.I)):  # fmt: skip
         return None
     try:
         records = L.parse(B.lower(lines, str(program)))
-        using = S.parse(lines).using
+        proc = S.parse(lines)
     except Exception:  # (the unit's own refusal surfaces when its program is translated)
         return None
     linkage = {r.name: r for r in records if r.section == "LINKAGE" and r.level == 1}
-    items = [linkage.get(u) for u in using]
-    if any(i is None or i.children or i.category != "ALPHANUMERIC" or i.occurs != 1 or i.redefines for i in items):
+    items = [linkage.get(u) for u in proc.using]
+    for i in items:
+        if i is None or i.occurs != 1 or any(d.redefines or d.depending or d.occurs != 1 or d.usage in ("POINTER", "INDEX", "COMP-1", "COMP-2")
+                                              for d in i.walk()):  # fmt: skip
+            return None
+    ret = linkage.get(proc.returning) if proc.returning else None
+    if proc.returning and (ret is None or ret.children or ret.category != "NUMERIC" or ret.occurs != 1
+                           or set(ret.picture()) - set("9S") or ret.picture().count("9") > 9):  # fmt: skip
         return None
+    body = text[header.end() :]
+    named = [re.search(rf"(?<![\w-]){re.escape(i.name)}(?![\w-])", body, re.I) is not None for i in items if i]
     cls = java_class_base(sib) + "Service"
     stub = (f"public class {cls} {{\n    public int handleCall("
-            + ", ".join(f"CobolRef<String> a{k}" for k in range(len(items))) + ") {\n        return 0;\n    }\n}\n")  # fmt: skip
+            + ", ".join(f"CobolRef<byte[]> a{k}" for k in range(len(items))) + ") {\n        return 0;\n    }\n}\n")  # fmt: skip
     seeded = not _SIBLING_CHAIN
     if seeded:
         _SIBLING_CHAIN.append(
@@ -652,7 +674,34 @@ def _sibling_service(sib: str, source_lines: list, program: Path, copy_dirs: lis
         return None
     finally:
         del _SIBLING_CHAIN[-2 if seeded else -1 :]
-    return res, ["CobolRef<String>"] * len(items)
+    return _Contract(res, [i.size for i in items if i], named, ret is not None)
+
+
+def _fits(records: list, call: S.Stmt, c: _Contract) -> bool:
+    """#5106: whether this CALL passes what the sibling's entry takes: as many items, each BY REFERENCE to a whole data
+    item at least as long as the sibling's (a shorter one would be read past its end; a longer one is exact, the
+    sibling sees its prefix), OMITTED only where the sibling never names the item, and RETURNING a whole-number item
+    exactly when the sibling returns one."""
+    args = call.data["args"]
+    if len(args) != len(c.sizes):
+        return False
+    for k, (mode, a) in enumerate(args):
+        if a is None:
+            if c.named[k]:
+                return False
+            continue
+        if mode != "REFERENCE" or not isinstance(a, E.Ref) or a.subscripts or a.refmod:
+            return False
+        it = next((x for r in records for x in r.walk() if x.name == a.name), None)
+        if it is None or it.size * it.occurs < c.sizes[k] or it.occurs != 1 or it.redefines:
+            return False
+    ret = call.data.get("returning")
+    if (ret is not None) != c.returns:
+        return False
+    if ret is not None:
+        it = next((x for r in records for x in r.walk() if x.name == ret.name), None)
+        return it is not None and not (ret.subscripts or ret.refmod) and it.category == "NUMERIC" and not it.children
+    return True
 
 
 def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, estate: dict[str, str] | None,
@@ -810,18 +859,19 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
                 inferred.append(f"CALL {prog_name} -> {cls}Service.handleCall: the estate's service for it")
     # #5106: a CALLed program of this same source: its own service, translated here from a stub the forge never made
     siblings_out: list[Result] = []
-    if siblings and not is_cics:
+    if siblings:
         for sib in sorted((called & siblings) - set(gen.callees)):
             done = _sibling_service(sib, source_lines, program, copy_dirs, package, estate, project, style, typed,
                                     groups, options, strict_copy, own_name)  # fmt: skip
             if done is None:
                 continue  # (refused at the CALL, by name)
-            res, types = done
-            if any(len(c.data["args"]) != len(types) for c in calls if sib in _targets(gen, c)):
-                continue  # a CALL passing another number of items than the sibling's USING: refused at the CALL
+            res = done.res
+            if not all(_fits(records, c, done) for c in calls if sib in _targets(gen, c)):
+                continue  # a CALL that does not pass the sibling's contract: refused at the CALL, by name
             fld = res.service[0].lower() + res.service[1:]
             gen.callees[sib] = fld
-            gen.callee_types[sib] = types
+            gen.callee_types[sib] = ["CobolRef<byte[]>"] * len(done.sizes)
+            gen.callee_returns[sib] = done.returns
             providers.append((f"ObjectProvider<{res.service}>", fld))
             siblings_out += [res, *res.extra]
             res.extra = []
@@ -1038,6 +1088,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     call_entry: list[str] = []
     call_codecs: list[str] = []
     hc = re.search(r"public int handleCall\(([^)]*)\)", stub)
+    ret_item = next((r for r in linkage if r.name == proc.returning), None)  # #5106: the item a sibling returns
     if hc:
         params = [p.strip() for p in hc.group(1).split(",") if p.strip()]
         signature = ", ".join(f"{p.rsplit(' ', 1)[0]} arg{k + 1}" for k, p in enumerate(params))
@@ -1059,6 +1110,20 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             span = f"Math.min(areas[{k}].length, {f}.length())"
             areas_in.append(f"            System.arraycopy(areas[{k}], 0, {f}.storage().bytes, {f}.offset(), {span});")
             areas_out.append(f"            System.arraycopy({f}.storage().bytes, {f}.offset(), areas[{k}], 0, {span});")
+            if typ == "CobolRef<byte[]>":  # #5106: a sibling's item, its bytes (an OMITTED item is a null ref)
+                ins.append(f"        if ({name} != null && {name}.get() != null) {{")
+                ins.append(
+                    f"            System.arraycopy({name}.get(), 0, {f}.storage().bytes, {f}.offset(), "
+                    f"Math.min({name}.get().length, {f}.length()));"
+                )
+                ins.append("        }")
+                body_out.append(f"        if ({name} != null) {{")
+                body_out.append(
+                    f"            {name}.set(java.util.Arrays.copyOfRange({f}.storage().bytes, {f}.offset(), "
+                    f"{f}.offset() + {f}.length()));"
+                )
+                body_out.append("        }")
+                continue
             if typ == "CobolRef<String>":
                 ins.append(f'        Cobol.move({name}.get() == null ? "" : {name}.get(), {f}, CS);')
                 body_out.append(f"        {name}.set(Cobol.text({f}, CS));")
@@ -1093,7 +1158,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
                           f"    public int handleCall({signature}) {{", *body_in,
                           "        try {", f"            {'runAll()' if gen.structured else f'perform(0, {len(proc.paragraphs) - 1})'};",
                           "        } catch (Goback g) {", "            // GOBACK", "        }", *body_out,
-                          f"        return Cobol.num({gen.ids[id(rc)]}, CS).intValue();", "    }", ""]  # fmt: skip
+                          f"        return Cobol.num({gen.ids[id(ret_item or rc)]}, CS).intValue();", "    }", ""]  # fmt: skip
         if "CobolRef" in hc.group(1):
             imports.setdefault("CobolRef", f"{package}.call.CobolRef")
             extra_imports.append(imports["CobolRef"])
@@ -1107,7 +1172,10 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         ctor_repos += providers
         extra_imports.append("org.springframework.beans.factory.ObjectProvider")
         # CobolRef only where a CALL passes text: a callee taking DTOs only has no `call` package in the estate
-        if any(not ts or "CobolRef<String>" in ts for ts in (gen.callee_types.get(p, []) for p in gen.callees)):
+        if any(
+            not ts or any(t.startswith("CobolRef<") for t in ts)
+            for ts in (gen.callee_types.get(p, []) for p in gen.callees)
+        ):
             extra_imports.append(f"{package}.call.CobolRef")
     if not is_cics and any(gen.id_methods.values()):
         extra_imports.append(f"{package}.entity.vsam.*")  # an entity's composite id class, for findById

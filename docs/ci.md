@@ -97,18 +97,21 @@ enables auto-merge in a later one, and `pr_check.py --merge` marks a draft ready
 so no unreviewed code merges. `pull_request_target` (the shepherd's label events) is unchanged. `tests/core_engine/test_workflow_draft_gate.py`
 fails when a heavy PR workflow lacks the condition; its allowlist is the cheap audits.
 
-## Critical path: ground-truth in 2 parts, evidence deltas apart (#5133)
+## Critical path: ground-truth as a warm job and 4 parts, evidence deltas apart (#5133, #5543)
 
-`ground-truth` (a required check) aggregates `ground-truth-part` 1/2 and 2/2, as `full-suite` aggregates its parts. pytest-split cuts
-`tests/cobol_mainframe/` between them (`--splits 2 --splitting-algorithm least_duration`, over the committed `.test_durations`, so
-both parts cut one split; no hand-listed files, a new test is placed by its recorded seconds). Part 2 also runs the ledger gate and
-the history append; the recorded seconds are level between the parts, so it is the longer one by the ledger's ~3 min. Refresh the
+`ground-truth` (a required check) aggregates `ground-truth-warm` and `ground-truth-part` 1/4..4/4, as `full-suite` aggregates its parts.
+The warm job pays the warm-up once: it fetches the corpora, scans all of them in parallel, runs the ledger gate (summary and history
+append) and uploads the scans (`_scans`, tarred because upload-artifact skips hidden paths) as `ground-truth-scans`. Each part restores the
+clones, unpacks those scans (the engine key is this commit's HEAD, the same in every job of the run, so they count as cached) and runs its
+pytest share, so no part re-runs the gate and no test pays a cold scan. pytest-split cuts
+`tests/cobol_mainframe/` between the parts (`--splits 4 --splitting-algorithm least_duration`, over the committed
+`.test_durations`, so all parts cut one split; no hand-listed files, a new test is placed by its recorded seconds). Refresh the
 ground-truth tests' seconds in `.test_durations` from the `test-times-ground-truth-part-N` artifacts of a main run
 (`tests/tools/merge_test_durations.py`): smoke runs have no corpora, so the corpus tests are recorded as skipped. The advisory evidence level deltas are the `evidence-deltas` job of `smoke-test.yml`
 (`continue-on-error`, not in `full-suite`'s needs). The smoke full-suite parts balance by the newest nightly's durations cache (#4847), falling back to the committed
 `.test_durations`, which the ground-truth parts and the OS-matrix gate always read.
 
-**Measured after #5264 (main push run 39108505757, 2026-10-18).** `ground-truth part 1/2` 11.0 min, `part 2/2` 11.3 min (the
+**Measured after #5264 (before #5543's warm job; the 2-part layout) (main push run 39108505757, 2026-10-18).** `ground-truth part 1/2` 11.0 min, `part 2/2` 11.3 min (the
 aggregate `ground-truth` check green about 1 min later), against one job of about 14-16.5 min before the split: the parts are
 within 3% of each other and time-to-green on this check fell by 3-5 min. `.test_durations` had no seconds for 696 of the
 5782 `tests/cobol_mainframe/` tests the parts ran and a stale value for 86 more; it is now refreshed from that run's

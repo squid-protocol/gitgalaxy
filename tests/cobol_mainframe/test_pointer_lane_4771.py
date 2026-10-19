@@ -3,7 +3,7 @@
 A POINTER item holds the handle of a block of task storage (CicsTask); SET ADDRESS OF a LINKAGE 01 record to it makes the
 record's bytes the block's, so a write through either is seen by the other (a real alias, not a copy). The pieces:
 - the translator: a whole program with the four statements translates with no hole; what it cannot model (a pointer a
-  REDEFINES overlays, ADDRESS OF a subordinate item or a WORKING-STORAGE record, SET ADDRESS OF ... TO NULL) is refused
+  REDEFINES overlays, SET ADDRESS OF ... TO NULL) is refused
   by name;
 - the runtime (DetCics + CicsTask, compiled and run): aliasing, the zero padding past a block, and the refusals.
 """
@@ -28,6 +28,8 @@ PROGRAM = """\
        01  MAXIMUM-LENGTH         PIC S9(08) COMP VALUE 3200000.
        01  WEB-MEDIA-TYPE         PIC  X(56) VALUE SPACES.
        01  BINARY-ZEROES          PIC  X(01) VALUE LOW-VALUES.
+       01  ELEMENT-TABLE.
+           02  ELEMENT-ITEM       PIC  X(32) OCCURS 3 TIMES.
        01  WEBRESP                PIC S9(08) COMP VALUE 0.
        LINKAGE SECTION.
        01  CACHE-MESSAGE.
@@ -77,6 +79,25 @@ def test_a_program_with_the_four_pointer_statements_translates_whole(tmp_path):
     assert java.count("DetCics.setAddress(task, ") == 2 and "DetCics.setAddressOfRecord(task, " in java
     assert "DetCics.getmain(task, " in java and "task.freemain(DetCics.pointerValue(" in java
     assert "DetCics.setPointerToRecord(task, " in java
+    assert "setPointerToItem" not in java and "setAddressOfItem" not in java  # a LINKAGE 01 record: unchanged output
+
+
+def test_address_of_a_subordinate_or_working_storage_item_is_a_windowed_alias(tmp_path):
+    """#4771 (X47): SET ADDRESS OF record TO ADDRESS OF item and SET ptr TO ADDRESS OF item, for an item inside a record
+    (ZECS001's ZF-DATA) or a WORKING-STORAGE record, translate whole through the window calls."""
+    source = PROGRAM.replace(
+        "SET ADDRESS OF OTHER-MESSAGE TO ADDRESS OF CACHE-MESSAGE.",
+        "SET ADDRESS OF OTHER-MESSAGE TO ADDRESS OF ZF-DATA.",
+    ).replace("SET CACHE-ADDRESS TO ADDRESS OF OTHER-MESSAGE.", "SET CACHE-ADDRESS TO ADDRESS OF WEB-MEDIA-TYPE.")
+    source = source.replace(
+        "       LINKAGE SECTION.",
+        "       01  ZF-RECORD.\n           02  ZF-PREFIX      PIC  X(08).\n           02  ZF-DATA        PIC  X(32).\n"
+        "       LINKAGE SECTION.",
+        1,
+    )
+    r = _translate(tmp_path, source)
+    assert r.stats["holes"] == [], r.stats["holes"]
+    assert "DetCics.setAddressOfItem(task, " in r.java and "DetCics.setPointerToItem(task, " in r.java
 
 
 @pytest.mark.parametrize(
@@ -91,28 +112,13 @@ def test_a_program_with_the_four_pointer_statements_translates_whole(tmp_path):
             ),
             "REDEFINES overlays",
         ),
-        # ADDRESS OF a WORKING-STORAGE record: its storage is shared with the rest of the section
+        # ADDRESS OF a table element: an element of an OCCURS is not a single item
         (
             (
                 "SET ADDRESS OF OTHER-MESSAGE TO ADDRESS OF CACHE-MESSAGE.",
-                "SET ADDRESS OF OTHER-MESSAGE TO ADDRESS OF GETMAIN-LENGTH.",
+                "SET ADDRESS OF OTHER-MESSAGE TO ADDRESS OF ELEMENT-ITEM.",
             ),
-            "not a LINKAGE 01",
-        ),
-        # ADDRESS OF a subordinate item (ZECS001's ZF-DATA): an offset into its record, both statement forms
-        (
-            (
-                "SET ADDRESS OF OTHER-MESSAGE TO ADDRESS OF CACHE-MESSAGE.",
-                "SET ADDRESS OF OTHER-MESSAGE TO ADDRESS OF CACHE-SUB.",
-            ),
-            "a subordinate item is an offset",
-        ),
-        (
-            (
-                "SET CACHE-ADDRESS TO ADDRESS OF OTHER-MESSAGE.",
-                "SET CACHE-ADDRESS TO ADDRESS OF CACHE-SUB.",
-            ),
-            "a subordinate item is an offset",
+            "a table element",
         ),
         (
             ("SET ADDRESS OF OTHER-MESSAGE TO ADDRESS OF CACHE-MESSAGE.", "SET ADDRESS OF OTHER-MESSAGE TO NULL."),
@@ -274,6 +280,104 @@ public class Main {
     ]
 
 
+@pytest.mark.skipif(_javac() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_a_windowed_storage_reads_and_writes_every_field_kind_as_the_plain_one_does(tmp_path):
+    """#4771: a record set onto an item inside a larger storage views it through Storage.base. Every item kind (display
+    incl. leading separate sign, packed, binary, native binary, edited, alphanumeric, a group, a reference modification)
+    gives the same bytes there as in a plain storage, a write through the window is the storage's and the other way, and
+    pointers to the item are the same one each time and differ from the record's own."""
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA, CICS_TASK_JAVA
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    src = tmp_path / "src"
+    files = {"t/cics/CicsTask.java": CICS_TASK_JAVA.replace("__PACKAGE__", "t").replace("__ZONE__", "UTC"),
+             "t/cics/CicsSpec.java": CICS_SPEC_JAVA.replace("__PACKAGE__", "t"),
+             **{f"t/{k}": v for k, v in P.runtime_files("t", batch=False).items()}}  # fmt: skip
+    files["Main.java"] = """
+import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import t.cics.CicsTask;
+import t.cobolrt.Cobol;
+import t.cobolrt.Field;
+import t.cobolrt.Storage;
+import t.cobolrt.cics.DetCics;
+public class Main {
+    static final Charset CS = Charset.forName("ISO-8859-1");
+    static Field[] kinds(Storage s) {
+        return new Field[] {
+            Field.zoned(s, 0, 5, 2, true, false, false), Field.zoned(s, 5, 4, 0, true, true, true),
+            Field.packed(s, 10, 7, 1, true), Field.binary(s, 14, 8, 0, true, false), Field.binary(s, 18, 4, 0, false, true),
+            Field.numericEdited(s, 20, 8, "ZZZ9.99", false), Field.alphanumeric(s, 28, 4, false)};
+    }
+    static void fill(Field[] f) {
+        BigDecimal[] v = {new BigDecimal("-123.45"), new BigDecimal("-77"), new BigDecimal("12345.6"),
+            new BigDecimal("-12345678"), new BigDecimal("4321"), new BigDecimal("12.5")};
+        for (int i = 0; i < v.length; i++) Cobol.move(v[i], f[i], CS);
+        Cobol.move("ab", f[6], CS);
+        Cobol.move(f[0], f[3], CS);          // field to field: display -> binary
+        Cobol.move(f[2], f[1], CS);          // packed -> separate-sign display
+    }
+    public static void main(String[] a) {
+        CicsTask t = new CicsTask("ZC01", "ENTER", null, null);
+        Storage plain = new Storage(32);
+        fill(kinds(plain));
+        Storage big = new Storage(100);
+        Arrays.fill(big.bytes, (byte) '#');
+        Field item = Field.alphanumeric(big, 41, 32, false);
+        Field rec = Field.group(new Storage(32), 0, 32);
+        DetCics.setAddressOfItem(t, rec, item);
+        fill(kinds(rec.storage()));
+        System.out.println(Arrays.equals(plain.bytes, Arrays.copyOfRange(big.bytes, 41, 73)));
+        System.out.println(big.bytes[40] == '#' && big.bytes[73] == '#');
+        System.out.println(Arrays.equals(rec.raw(), plain.bytes) + " " + rec.offset());
+        Field ref = rec.ref(29, 4);
+        System.out.println(new String(ref.raw(), CS) + " " + ref.offset());
+        big.bytes[41 + 28] = 'Z';
+        System.out.println(new String(Field.alphanumeric(rec.storage(), 28, 4, false).raw(), CS));
+        Field p = Field.alphanumeric(new Storage(8), 0, 8, false), q = Field.alphanumeric(new Storage(8), 0, 8, false);
+        DetCics.setPointerToItem(t, p, item);
+        DetCics.setPointerToRecord(t, q, rec);
+        System.out.println(DetCics.samePointer(t, p, q) + " " + (DetCics.pointerValue(p) == DetCics.pointerValue(q)));
+        Field own = Field.alphanumeric(big, 0, 8, false), pOwn = Field.alphanumeric(new Storage(8), 0, 8, false);
+        DetCics.setPointerToItem(t, pOwn, own);
+        System.out.println(DetCics.samePointer(t, p, pOwn));
+        Field viaPtr = Field.alphanumeric(new Storage(4), 0, 4, false);
+        DetCics.setAddress(t, viaPtr, p);
+        System.out.println(viaPtr.offset() + " " + new String(viaPtr.raw(), CS).length());
+        try {
+            DetCics.setAddressOfItem(t, Field.alphanumeric(new Storage(40), 0, 40, false), Field.alphanumeric(big, 90, 5, false));
+            System.out.println("not refused");
+        } catch (UnsupportedOperationException e) { System.out.println(e.getMessage()); }
+        Field again = Field.group(new Storage(8), 0, 8);
+        DetCics.setAddressOfRecord(t, again, rec);
+        System.out.println(again.offset() + " " + (again.storage().bytes == big.bytes));
+    }
+}
+"""
+    for rel, text in files.items():
+        (src / rel).parent.mkdir(parents=True, exist_ok=True)
+        (src / rel).write_text(text, encoding="utf-8")
+    jdk = _javac()
+    built = subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
+    assert built.returncode == 0, built.stderr
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
+                         text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
+    assert out == [
+        "true",
+        "true",
+        "true 41",
+        "ab   69",
+        "Zb  ",
+        "true true",
+        "false",
+        "41 4",
+        "SET ADDRESS OF a record longer than the storage after the item: not modelled",
+        "41 true",
+    ], out
+
+
 def test_every_pointer_hole_left_in_zecs001_is_refused_by_name(tmp_path):
     """#4771: the estate's own ZECS001 (not a model of it) holds only the named pointer refusals, never an unnamed one.
 
@@ -300,7 +404,6 @@ def test_every_pointer_hole_left_in_zecs001_is_refused_by_name(tmp_path):
     ]
     assert not any("SET ADDRESS OF (pointers)" in h for h in r.stats["holes"]), "the CICS lane must be on"
     by_reason = {
-        "ADDRESS OF a subordinate item": ("a subordinate item is an offset into its record", {1098, 1195}),
         # (also the EXEC CICS GETMAIN / WEB RECEIVE / FREEMAIN statements that name an overlaid pointer: a superset below)
         "a pointer a REDEFINES overlays": ("a pointer a REDEFINES overlays", {1110, 1134, 1198, 1487, 1850}),
         "numeric view of a pointer": ("a REDEFINES overlays a POINTER with it", {1111, 1115, 1147, 1400, 1519}),

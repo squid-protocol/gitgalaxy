@@ -310,10 +310,10 @@ public final class Hfp {
     static BigDecimal read(Field f) {
         byte[] d = f.st.bytes;
         int digits = f.len == 4 ? SHORT : LONG;
-        boolean neg = (d[f.off] & 0x80) != 0;
-        int e = (d[f.off] & 0x7F) - 64;
+        boolean neg = (d[f.at()] & 0x80) != 0;
+        int e = (d[f.at()] & 0x7F) - 64;
         BigInteger frac = BigInteger.ZERO;
-        for (int i = 1; i < f.len; i++) frac = frac.shiftLeft(8).or(BigInteger.valueOf(d[f.off + i] & 0xFF));
+        for (int i = 1; i < f.len; i++) frac = frac.shiftLeft(8).or(BigInteger.valueOf(d[f.at() + i] & 0xFF));
         if (frac.signum() == 0) return BigDecimal.ZERO;
         return value(neg, frac, e - digits);
     }
@@ -324,14 +324,14 @@ public final class Hfp {
         boolean shortItem = f.len == 4;
         BigDecimal x = forItem(v, shortItem);
         byte[] d = f.st.bytes;
-        java.util.Arrays.fill(d, f.off, f.off + f.len, (byte) 0);
+        java.util.Arrays.fill(d, f.at(), f.at() + f.len, (byte) 0);
         H h = chop(x, shortItem ? SHORT : LONG);
         if (h == null) return; // true zero: all zero bytes
-        d[f.off] = (byte) ((h.neg ? 0x80 : 0) | (h.e + 64));
+        d[f.at()] = (byte) ((h.neg ? 0x80 : 0) | (h.e + 64));
         byte[] fr = h.f.toByteArray();
         for (int i = 0; i < f.len - 1; i++) {
             int from = fr.length - (f.len - 1) + i;
-            d[f.off + 1 + i] = from >= 0 ? fr[from] : 0;
+            d[f.at() + 1 + i] = from >= 0 ? fr[from] : 0;
         }
     }
 

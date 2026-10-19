@@ -314,7 +314,9 @@ DEFINITION: dict[str, Any] = {
             # language, deterministically: every `)` before the decisive one must close a
             # segment containing a `(` (the old `\([^)]*\)` arm), the final segment is free.
             # Identical match set by construction; linear per attempt.
-            r"(?!(?:if|for|foreach|while|switch|catch|using|lock|new|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|delegate|event|var|in|when|or|and|not|is|static)\b)"
+            # #5631: `base`/`this` are excluded here only: a constructor initializer on a continuation
+            # line (`Ctor(args) :\n    base(...)\n{`) is a call the signature owns, not a function.
+            r"(?!(?:if|for|foreach|while|switch|catch|using|lock|new|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|delegate|event|var|in|when|or|and|not|is|static|base|this)\b)"
             r"((?:operator[ \t\n]+(?:[+\-*/%&|^~!=<>]+|true|false|[\w_$.]+)|[@"
             + ID_START
             + r"$]["

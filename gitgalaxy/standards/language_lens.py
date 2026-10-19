@@ -1174,6 +1174,11 @@ class LanguageDetector:
             ]
             if proven_only and len(proven_only) < len(candidates):
                 candidates = [l for l in candidates if l not in proven_only]
+            elif proven_only:
+                # #5624: every claimant owns `ext` only on proof (assembly's `.a` / `.i`) and Tier 2 found
+                # none, so a lone candidate must not win on the extension: it is a static archive's or a
+                # SWIG/preprocessed-C file's, not this language's.
+                return "undeterminable", 0.0
 
             # #4546: C++ owns a shared extension (`.h`) only on content evidence.
             # A language here that does not list the extension itself is proven by

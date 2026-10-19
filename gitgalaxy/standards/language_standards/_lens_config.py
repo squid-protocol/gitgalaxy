@@ -77,6 +77,9 @@ LENS_CONFIG: LensConfig = {
         ".asm",
         ".cmd",
         ".mac",
+        # #5624: Argonaut / Devpac assembly, proven by assembly's internal_discriminator.
+        ".a",
+        ".i",
     },
     "PROSE_ANCHORS": {
         "README",

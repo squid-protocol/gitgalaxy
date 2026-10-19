@@ -326,3 +326,51 @@ def test_by_content_of_a_literal_or_a_reference_modified_item_stays_refused(arg)
 def test_by_content_to_an_estate_program_is_still_refused():
     holes = _translated(_program("CALL 'ELSEWHR' USING BY CONTENT FC")).stats["holes"]
     assert len(holes) == 1 and "CALL ELSEWHR" in holes[0], holes
+
+
+# DBB epscsmrd's EPSCSMRX: `IF ADDRESS OF item NOT EQUAL NULL` guards each write to a USING item, and the caller passes
+# OMITTED for two of them. IBM sets the address of an OMITTED item to NULL, so the test is the only reference allowed.
+_OMIT_LINKAGE = "01 L PIC X(8).|01 M PIC X(4)."
+
+
+@pytest.mark.parametrize(
+    "body, passed",
+    [
+        ("IF ADDRESS OF M NOT EQUAL NULL MOVE 'A' TO M END-IF GOBACK.", True),
+        ("IF ADDRESS OF M NOT = NULL MOVE 'A' TO M END-IF GOBACK.", True),
+        ("IF ADDRESS OF M IS NOT EQUAL TO NULL MOVE 'A' TO M END-IF GOBACK.", True),
+        ("IF ADDRESS OF M NOT = NULL IF L = 'X' MOVE 'A' TO M END-IF END-IF GOBACK.", True),
+        ("IF ADDRESS OF M NOT = NULL MOVE 'A' TO M ELSE MOVE 'B' TO L END-IF GOBACK.", True),
+        ("IF ADDRESS OF M = NULL MOVE 'B' TO L END-IF GOBACK.", True),
+        # a reference the test does not guard: still undefined on IBM, so refused
+        ("IF ADDRESS OF M NOT = NULL MOVE 'A' TO L ELSE MOVE 'A' TO M END-IF GOBACK.", False),
+        ("IF ADDRESS OF M = NULL MOVE 'A' TO M END-IF GOBACK.", False),
+        ("IF ADDRESS OF M NOT = NULL MOVE 'A' TO M END-IF MOVE 'A' TO M GOBACK.", False),
+        ("IF ADDRESS OF M NOT = NULL OR L = 'X' MOVE 'A' TO M END-IF GOBACK.", False),
+        ("IF ADDRESS OF L NOT = NULL MOVE 'A' TO M END-IF GOBACK.", False),
+        ("IF ADDRESS OF M NOT = NULL MOVE 'A' TO M. MOVE 'A' TO M. GOBACK.", False),
+    ],
+)
+def test_an_omitted_item_is_named_only_by_its_address_test_and_the_branch_it_guards(body, passed):
+    body = re.sub(r" (?=(?:IF|MOVE|ELSE|END-IF|GOBACK)\b)", "\n       ", body)  # one statement a line, as source is
+    src = _with_sibling("CALL 'SIB' USING FC OMITTED", _OMIT_LINKAGE, " USING L M", body)
+    r = _translated(src)
+    if passed:
+        assert r.stats["holes"] == [] and r.extra[0].stats["holes"] == [], (r.stats["holes"], r.extra[0].stats["holes"])
+        assert (
+            "present[1]" in r.extra[0].java
+            and "present = new boolean[] {arg1 != null, arg2 != null}" in r.extra[0].java
+        )
+    else:
+        assert len(r.stats["holes"]) == 1 and "SIB: a sibling program of this source" in r.stats["holes"][0]
+
+
+def test_a_sibling_that_tests_an_item_the_caller_passes_keeps_the_ordinary_entry():
+    # nothing tests an address: no `present` field, so a sibling without the idiom is byte-for-byte what it was
+    r = _translated(_with_sibling("CALL 'SIB' USING FC", "01 L PIC X(8).", " USING L"))
+    assert "present" not in r.extra[0].java
+
+
+def test_address_of_outside_a_sibling_s_using_items_is_still_refused_by_name():
+    holes = _translated(_program("IF ADDRESS OF FC NOT EQUAL NULL MOVE 'A' TO FC END-IF")).stats["holes"]
+    assert any("condition: ADDRESS OF" in h for h in holes), holes

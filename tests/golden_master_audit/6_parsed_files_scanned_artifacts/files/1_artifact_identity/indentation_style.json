@@ -3911,7 +3911,8 @@
       "typescript/typescript_compiler/checker.ts": "Spaces",
       "typescript/typescript_compiler/emitter.ts": "Spaces",
       "typescript/typescript_compiler/package.json": "Neutral / No Indentation",
-      "typescript/typescript_compiler/parser.ts": "Spaces"
+      "typescript/typescript_compiler/parser.ts": "Spaces",
+      "typescript/typescript_compiler/types.ts": "Spaces"
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": "Neutral / No Indentation",

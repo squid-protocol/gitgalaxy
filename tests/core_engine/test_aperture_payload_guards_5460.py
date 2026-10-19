@@ -101,6 +101,8 @@ def test_name_alone_on_its_line_is_a_definition():
     assert ApertureFilter._has_definitions(["    NAME", "    (1, 2)"]) is False
 
 
-def test_monotony_still_blocks_one_function_around_an_unrolled_loop(engine, tmp_path):
+def test_monotony_keeps_a_file_with_one_named_function(engine, tmp_path):
+    # owner ruling 2026-10-19: one named definition is enough; a file with none is still dropped.
     body = "int unrolled(void)\n{\n" + "    a += 1;\n" * 2500 + "}\n"
-    assert _scan(engine, tmp_path, body, "u.c") is False
+    assert _scan(engine, tmp_path, body, "u.c") is True
+    assert _scan(engine, tmp_path, "    a += 1;\n" * 2500, "v.c") is False

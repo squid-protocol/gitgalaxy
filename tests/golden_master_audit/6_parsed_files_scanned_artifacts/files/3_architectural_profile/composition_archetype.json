@@ -3911,7 +3911,8 @@
       "typescript/typescript_compiler/checker.ts": "Large Core Modules (3)",
       "typescript/typescript_compiler/emitter.ts": "State Mutators Files",
       "typescript/typescript_compiler/package.json": "Data / Markup / Trivial",
-      "typescript/typescript_compiler/parser.ts": "Large Core Modules (3)"
+      "typescript/typescript_compiler/parser.ts": "Large Core Modules (3)",
+      "typescript/typescript_compiler/types.ts": "State Mutators Files"
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": "Data / Markup / Trivial",

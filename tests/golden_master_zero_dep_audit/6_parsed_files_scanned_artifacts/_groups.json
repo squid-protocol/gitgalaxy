@@ -11924,34 +11924,36 @@
     },
     "typescript/typescript_compiler": {
       "Average Risk Exposures": {
-        "API Exposure": "4.46%",
-        "Cognitive Load Exposure": "29.25%",
-        "Commented Logic Exposure": "4.03%",
-        "Concurrency Exposure": "4.11%",
-        "Documentation Exposure": "60.32%",
-        "Error & Exception Exposure": "49.23%",
+        "API Exposure": "18.11%",
+        "Cognitive Load Exposure": "25.88%",
+        "Commented Logic Exposure": "4.26%",
+        "Concurrency Exposure": "5.24%",
+        "Documentation Exposure": "60.24%",
+        "Error & Exception Exposure": "48.98%",
         "Hardcoded Payload Artifacts": "0.0%",
-        "Instability Exposure": "33.33%",
+        "Instability Exposure": "35.71%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "63.24%",
-        "Tech Debt Exposure": "14.04%",
-        "Testing Exposure": "53.33%",
+        "State Flux Exposure": "54.2%",
+        "Tech Debt Exposure": "25.75%",
+        "Testing Exposure": "57.14%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 71102.36,
+      "Directory Group Magnitude": 71323.18,
       "Ecosystem Fingerprint (Archetypes)": {
-        "Static: Literature & Documentation": "33.3%",
-        "file_cluster_4": "50.0%",
-        "file_cluster_6": "16.7%"
+        "Static: Literature & Documentation": "28.6%",
+        "file_cluster_0": "14.3%",
+        "file_cluster_4": "42.9%",
+        "file_cluster_6": "14.3%"
       },
-      "File Count": 6,
+      "File Count": 7,
       "Files": [
         "typescript/typescript_compiler/LICENSE.txt",
         "typescript/typescript_compiler/binder.ts",
         "typescript/typescript_compiler/checker.ts",
         "typescript/typescript_compiler/emitter.ts",
         "typescript/typescript_compiler/package.json",
-        "typescript/typescript_compiler/parser.ts"
+        "typescript/typescript_compiler/parser.ts",
+        "typescript/typescript_compiler/types.ts"
       ]
     },
     "typescript/vscode": {

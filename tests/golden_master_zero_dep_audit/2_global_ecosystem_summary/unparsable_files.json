@@ -4,7 +4,7 @@
     "unparsable_files"
   ],
   "value": {
-    "ambig_file_count": 374,
+    "ambig_file_count": 373,
     "binary": 0,
     "composition_by_extension_and_reason": {
       ".ads": {
@@ -118,9 +118,6 @@
       },
       ".toml": {
         "Blocked (Unsupported Extension: '.toml')": 3
-      },
-      ".ts": {
-        "Blocked (Lexical Monotony: High structural repetition detected in 10671 LOC)": 1
       },
       ".tsv": {
         "Blocked (Saturation: Line 1 exceeds 500 chars)": 1

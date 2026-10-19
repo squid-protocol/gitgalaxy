@@ -10,6 +10,8 @@ from pathlib import Path
 
 import pytest
 
+from gitgalaxy.core.source_text import read_source
+
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[0] / "tools"))
 sys.path.insert(0, str(HERE))
@@ -46,7 +48,7 @@ def _readers() -> dict[str, set[str]]:
         for path in base.rglob("*"):
             if path.suffix.lower() not in SUFFIXES or not path.is_file():
                 continue
-            text = path.read_text(encoding="utf-8", errors="replace")
+            text = read_source(path).text
             if "EIB" not in text.upper():
                 continue
             names = set(pb.facts_needed(text)["eib"]) & set(UNMODELLED)

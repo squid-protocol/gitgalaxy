@@ -272,6 +272,7 @@ class Gen:
         self.clock = "clock.currentDate()"  # FUNCTION CURRENT-DATE outside CICS
         self.uses_random = False  # FUNCTION RANDOM: the program keeps a run unit's sequence (Funcs.Random)
         self.callees: dict[str, str] = {}  # CALLed program -> the ObjectProvider field of its service
+        self.siblings: set[str] = set()  # #5106: the other programs of this program's source (no service of their own)
         # CALLed program -> its handleCall parameter types (CobolRef<String>, or a contract DTO for a group item)
         self.callee_types: dict[str, list[str]] = {}
         # the COMMAREA codec (det.cics.Cics) a DTO crosses storage with: the CICS one, or made on first use for a batch
@@ -2865,6 +2866,10 @@ class Gen:
 
         if prog in REFUSED_BY_NAME:
             raise Untranslatable(REFUSED_BY_NAME[prog])
+        if prog in self.siblings:
+            from gitgalaxy.tools.cobol_to_java.det.dyncall import sibling_refusal
+
+            raise Untranslatable(sibling_refusal(prog))
         raise Untranslatable(f"CALL {prog}")
 
     def string(self, s: S.Stmt, ind: str) -> list[str]:

@@ -62,9 +62,63 @@ def test_set_to_entry_stays_a_named_hole():
     assert len(holes) == 1 and "SET TO ENTRY" in holes[0], holes
 
 
-def test_the_siblings_in_the_class_stay_refused_not_translated():
-    holes = _holes(_program("CALL 'EPSCSMRI' USING FC"))
-    assert len(holes) == 1 and "CALL EPSCSMRI" in holes[0], holes
+def _two_programs(*stmts: str, sibling: str = "SIB", nested: bool = False) -> str:
+    """HNDL CALLing `sibling`, a program of the same source (batch-compiled after it, or nested in it)."""
+    own = _program(*stmts).splitlines()
+    sib = [
+        "IDENTIFICATION DIVISION.",
+        f"PROGRAM-ID. {sibling}.",
+        "DATA DIVISION.",
+        "WORKING-STORAGE SECTION.",
+        "01 W PIC X.",
+        "PROCEDURE DIVISION.",
+        "    GOBACK.",
+        f"END PROGRAM {sibling}.",
+    ]
+    sib = [" " * 7 + ln for ln in sib]
+    tail = [" " * 7 + "END PROGRAM HNDL."]
+    return "\n".join([*own[:-1], *sib, own[-1], *tail] if nested else [*own, *tail, *sib]) + "\n"
+
+
+@pytest.mark.parametrize(
+    "stmt",
+    [
+        "CALL 'SIB'",
+        "CALL 'SIB' USING FC",
+        "CALL 'SIB' USING FC OMITTED",
+        "CALL 'SIB' USING FC RETURNING FC",
+        "CALL PGM USING FC",
+    ],
+)
+@pytest.mark.parametrize("nested", [False, True])
+def test_a_call_to_a_sibling_program_is_refused_by_name_not_as_an_unknown_program(stmt, nested):
+    src = _two_programs(stmt, nested=nested).replace("VALUE 'CEEHDLR'", "VALUE 'SIB'")
+    holes = _holes(src)
+    assert len(holes) == 1 and "SIB: a sibling program of this source" in holes[0], holes
+    assert [e["id"] for e in sm.classify(holes[0].split(": ", 1)[1], sm.load_map())] == ["multi-program-call"]
+
+
+def test_a_call_to_a_program_of_no_source_is_still_the_generic_refusal():
+    holes = _holes(_two_programs("CALL 'ELSEWHR' USING FC"))
+    assert len(holes) == 1 and "sibling" not in holes[0] and "CALL ELSEWHR" in holes[0], holes
+
+
+def test_a_one_program_source_has_no_sibling():
+    holes = _holes(_program("CALL 'SIB' USING FC"))
+    assert len(holes) == 1 and "sibling" not in holes[0], holes
+
+
+def test_the_siblings_translate_on_their_own_and_do_not_see_the_caller():
+    pytest.importorskip("tree_sitter_language_pack")
+    import test_det_programs as tdp
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    tmp = Path(tempfile.mkdtemp(prefix="t5106s"))
+    (tmp / "HNDL.cbl").write_text(_two_programs("CALL 'SIB' USING FC"))
+    project = tmp / "project"
+    tdp._batch_package(project / "src/main/java")
+    r = P.translate(tmp / "HNDL.cbl", [], "public class SibService {\n}\n", PKG, None, project, unit="SIB")
+    assert r.stats["holes"] == []  # SIB calls nothing: its own sibling set is HNDL, never a hole
 
 
 @pytest.mark.parametrize(

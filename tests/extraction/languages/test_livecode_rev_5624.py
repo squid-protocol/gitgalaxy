@@ -11,8 +11,10 @@ def _lang(path, text):
 
 
 def test_rev_is_a_registered_collision_owned_on_proof():
+    livecode = LANGUAGE_DEFINITIONS["livecode"]
     assert ".rev" in LENS_CONFIG["COLLISION_FREQUENCIES"]
-    assert ".rev" in LANGUAGE_DEFINITIONS["livecode"]["extensions_needing_discriminator"]
+    assert livecode["extensions_needing_discriminator"] == [".rev"]
+    assert livecode["internal_discriminator_extensions"] == [".rev"]
 
 
 @pytest.mark.parametrize(

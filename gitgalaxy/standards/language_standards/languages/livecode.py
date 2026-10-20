@@ -29,8 +29,10 @@ DEFINITION: dict[str, Any] = {
     "discriminators": [".lc", ".livecode", ".lcb", ".livecodescript"],
     # #5624: `.rev` is also the extension of one-line ASCII build counters (DOOM-FX `bank00.a.rev`: `116`), so
     # it is LiveCode only on content: a handler header (`on mouseUp`, `function f`, `command c`, `getProp`,
-    # `setProp`), a `script "..."` property or the `REVO` stack signature. `.lc`/`.livecode`/... stay uncontested.
+    # `setProp`), a `script "..."` property or the `REVO` stack signature. The discriminator is scoped to
+    # `.rev` (`internal_discriminator_extensions`): the other LiveCode extensions stay uncontested Tier 1.
     "extensions_needing_discriminator": [".rev"],
+    "internal_discriminator_extensions": [".rev"],
     "internal_discriminator": re.compile(
         r"^[ \t]*(?:private[ \t]+)?(?:on|function|command|getprop|setprop)[ \t]+[A-Za-z_]\w{0,63}[ \t]*"
         r"(?:\([^)\n]{0,200}\)|[\w, \t]{0,200})?[ \t]*$"

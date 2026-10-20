@@ -1131,6 +1131,10 @@ class LanguageDetector:
         if ext:
             for lang_id, data in self.languages.items():
                 if ext in data.get("extensions", []):
+                    # #5624: a discriminator scoped to some extensions (LiveCode's `.rev`) is not tried on the rest.
+                    scope = data.get("internal_discriminator_extensions")
+                    if scope and ext not in scope:
+                        continue
                     internal_disc = data.get("internal_discriminator")
                     if internal_disc and internal_disc.search(content):
                         self.logger.debug(

@@ -14,6 +14,23 @@ from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: comp
 
 from .._shared_patterns import CALLS_OUT_CALL_VERB, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
+# #5638: intrinsics and statement words that read `NAME(` but are no user routine, lowercase
+_CALLS_OUT_IGNORE_WORDS = (
+    "abs aimag aint anint acos asin atan atan2 cos cosh sin sinh tan tanh exp log log10 sqrt mod modulo "
+    "max min amax1 amin1 max0 min0 dmax1 dmin1 sign dim int nint ifix idint float real dble cmplx conjg "
+    "char ichar iachar achar len len_trim index scan verify trim adjustl adjustr repeat transfer "
+    "size shape lbound ubound allocated associated present sum product maxval minval maxloc minloc "
+    "count any all dot_product matmul transpose reshape spread pack unpack merge cshift eoshift "
+    "floor ceiling fraction exponent nearest rrspacing spacing huge tiny epsilon digits radix "
+    "range precision selected_int_kind selected_real_kind kind ishft ishftc iand ior ieor not btest "
+    "ibset ibclr ibits mvbits random_number random_seed system_clock date_and_time cpu_time "
+    "get_command_argument command_argument_count get_environment_variable null "
+    "dabs dsqrt dexp dlog dsin dcos dtan datan dsign dmod iabs isign idim amod "
+    "if elseif while do select case where forall read write print open close inquire rewind "
+    "backspace endfile return stop pause allocate deallocate nullify goto assign associate "
+    "block format wait flush type class"
+)
+
 DEFINITION: dict[str, Any] = {
     "_meta": {
         "target_version": "Fortran 2018 (Backwards compatible with Legacy Fortran 77)",
@@ -102,23 +119,7 @@ DEFINITION: dict[str, Any] = {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_CALL_VERB,
         # #5638: intrinsics and statement words that read `NAME(` but are not a user routine, lowercase
-        "_calls_out_ignore": frozenset(
-            (
-                "abs aimag aint anint acos asin atan atan2 cos cosh sin sinh tan tanh exp log log10 sqrt mod modulo "
-                "max min amax1 amin1 max0 min0 dmax1 dmin1 sign dim int nint ifix idint float real dble cmplx conjg "
-                "char ichar iachar achar len len_trim index scan verify trim adjustl adjustr repeat transfer "
-                "size shape lbound ubound allocated associated present sum product maxval minval maxloc minloc "
-                "count any all dot_product matmul transpose reshape spread pack unpack merge cshift eoshift "
-                "floor ceiling fraction exponent nearest rrspacing spacing huge tiny epsilon digits radix "
-                "range precision selected_int_kind selected_real_kind kind ishft ishftc iand ior ieor not btest "
-                "ibset ibclr ibits mvbits random_number random_seed system_clock date_and_time cpu_time "
-                "get_command_argument command_argument_count get_environment_variable null "
-                "dabs dsqrt dexp dlog dsin dcos dtan datan dsign dmod iabs isign idim amod "
-                "if elseif while do select case where forall read write print open close inquire rewind "
-                "backspace endfile return stop pause allocate deallocate nullify goto assign associate "
-                "block format wait flush type class"
-            ).split()
-        ),
+        "_calls_out_ignore": frozenset(_CALLS_OUT_IGNORE_WORDS.split()),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # Control flow that forces the CPU to make a decision or jump. High density creates jagged shapes.

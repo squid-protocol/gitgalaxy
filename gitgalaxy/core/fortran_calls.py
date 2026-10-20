@@ -43,11 +43,12 @@ _TYPE_HEAD = re.compile(
     r"(?:[ \t]*\([^)]*\))?)[ \t]*"
 )
 _DIMENSION_ATTR = re.compile(r"(?i)\b(?:dimension|allocatable)\b")
-_KEYWORDS = frozenset(
+_KEYWORD_WORDS = (
     "if elseif while do select case where forall read write print open close inquire rewind backspace "
     "endfile return stop pause allocate deallocate nullify goto assign associate block format wait flush "
-    "type class selectcase kind len".split()
+    "type class selectcase kind len"
 )
+_KEYWORDS = frozenset(_KEYWORD_WORDS.split())
 
 
 def _statements(text: str) -> list[str]:
@@ -73,7 +74,9 @@ def _balanced_end(s: str, open_idx: int) -> int:
 
 
 def _split_top(s: str) -> list[str]:
-    parts, depth, cur = [], 0, []
+    parts: list[str] = []
+    depth = 0
+    cur: list[str] = []
     for ch in s:
         if ch == "(":
             depth += 1
@@ -166,9 +169,7 @@ def fortran_call_names(block: str, ignore: frozenset[str]) -> list[str]:
             calls.append(m.group(1))
             stmt = stmt[m.end() :]
         elif _heads_assignment(stmt):
-            lead = _NAME_PAREN.match(stmt)
-            assert lead is not None
-            stmt = stmt[lead.end() - 1 :]
+            stmt = stmt[stmt.index("(") :]
             # the subscripts and the right-hand side still hold references
         calls.extend(_references(stmt, arrays, ignore))
     return calls

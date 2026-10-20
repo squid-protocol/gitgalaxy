@@ -760,3 +760,65 @@ def test_the_header_lifts_no_other_gate(port_engine, tmp_path):
     key = tmp_path / "id_rsa"
     key.write_text(PORT_HEADER, encoding="utf-8")
     assert "CRITICAL LEAK" in port_engine.evaluate_path_integrity(key)[2]
+
+
+# ==============================================================================
+# #5636: SQL FRAGMENT FILES (CTE bodies, no leading statement) ARE SOURCE
+# ==============================================================================
+@pytest.fixture
+def real_engine(tmp_path):
+    """The real registry: MOCK_REGISTRY has no `sql` entry and rejects the file at the extension gate."""
+    from gitgalaxy.standards.gitgalaxy_config import APERTURE_CONFIG
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    return ApertureFilter(root_dir=tmp_path, language_definitions=LANGUAGE_DEFINITIONS, aperture_config=APERTURE_CONFIG)
+
+
+_SQL_FRAGMENT_CTE = (
+    "-- fragment: spliced into a WITH clause by the driver\n"
+    "mo_player AS (\n"
+    "  SELECT p.id, p.x\n"
+    "  FROM players p\n"
+    "  WHERE p.alive = 1\n"
+    "),\n"
+)
+
+
+@pytest.mark.parametrize("copies", [300, 400])
+def test_sql_fragment_without_a_leading_statement_is_not_a_blob_5636(real_engine, tmp_path, copies):
+    body = "".join(_SQL_FRAGMENT_CTE.replace("mo_player", f"mo_{i}") for i in range(copies))
+    assert 1000 < body.count("\n") + 1 <= 2500
+    sql_file = tmp_path / "tic_fragment.sql"
+    sql_file.write_text(body, encoding="utf-8")
+
+    res = real_engine.is_in_scope(sql_file, content=body, has_intent=False)
+    assert res["is_in_scope"] is True, res["reason"]
+
+
+def test_sql_row_dump_is_still_a_blob_5636(real_engine, tmp_path):
+    body = "SELECT 1;\n" + "INSERT INTO t (a, b) VALUES (1, 2);\n" * 1500
+    sql_file = tmp_path / "dump.sql"
+    sql_file.write_text(body, encoding="utf-8")
+
+    res = real_engine.is_in_scope(sql_file, content=body, has_intent=False)
+    assert res["is_in_scope"] is False
+    assert "Static Asset Blob without Intent" in res["reason"]
+
+
+def test_sql_fragment_stays_capped_at_2500_lines_5636(real_engine, tmp_path):
+    body = _SQL_FRAGMENT_CTE * 600
+    sql_file = tmp_path / "huge_fragment.sql"
+    sql_file.write_text(body, encoding="utf-8")
+
+    res = real_engine.is_in_scope(sql_file, content=body, has_intent=True)
+    assert res["is_in_scope"] is False
+    assert "Massive Static Asset Blob" in res["reason"]
+
+
+def test_non_sql_blob_is_unaffected_by_sql_structure_5636(real_engine, tmp_path):
+    body = "SELECT a\nFROM b\n" * 700
+    csv_file = tmp_path / "dump.csv"
+    csv_file.write_text(body, encoding="utf-8")
+
+    res = real_engine.is_in_scope(csv_file, content=body, has_intent=False)
+    assert res["is_in_scope"] is False

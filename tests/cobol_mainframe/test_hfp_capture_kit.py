@@ -42,7 +42,17 @@ def test_every_record_is_asked_or_skipped_with_a_reason():
     ids = {r["id"] for r in recs}
     assert {r["id"] for r in K.askable(recs)} | set(K.skipped(recs)) == ids
     assert all(K.skipped(recs).values())
-    assert {r["op"] for r in K.askable(recs)} >= {"encode", "add", "sub", "mul", "div", "display", "fixed"}
+    assert {r["op"] for r in K.askable(recs)} >= {
+        "encode",
+        "add",
+        "sub",
+        "mul",
+        "div",
+        "display",
+        "fixed",
+        "round_short",
+        "compare",
+    }
     assert {(r["op"], r["size"]) for r in recs if r["id"] in K.skipped(recs)} == {
         ("from_ieee", "short"),
         ("from_ieee", "long"),
@@ -73,6 +83,10 @@ def test_each_op_becomes_the_statement_its_row_states():
     assert "COMPUTE SR = SA - SB" in "".join(K.statements({**short, "op": "sub"}))
     assert "MOVE -118.625 TO SR" in "".join(K.statements({**short, "op": "encode", "value": "-118.625"}))
     assert "MOVE LA TO E17" in "".join(K.statements({**one, "op": "fixed", "scale": 17}))
+    rounded = "".join(K.statements({**one, "op": "round_short"}))
+    assert "MOVE LA TO SR" in rounded and "HEX-OF(SR-X)" in rounded
+    cmp_ = "".join(K.statements({**short, "op": "compare"}))
+    assert all(f"IF SA {sign} SB" in cmp_ for sign in "<=>")
     with pytest.raises(ValueError):
         K.statements({**one, "op": "encode", "value": "1e5"})
 

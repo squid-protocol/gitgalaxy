@@ -369,7 +369,7 @@ def test_our_own_pipelines_are_clean(path):
 
 
 OPEN_SYSTEM_PACKAGE_INSTALLS = {
-    ".github/workflows/full-suite-gate.yml": {(164, "brew")},
+    ".github/workflows/full-suite-gate.yml": {(165, "brew")},
     ".github/workflows/os-smoke-grid.yml": {(59, "brew")},
     ".github/workflows/tri-comparison-audit.yml": {(90, "apt")},
     ".github/workflows/tri-comparison-history.yml": {(96, "apt")},
@@ -435,3 +435,22 @@ def test_os_smoke_grid_setup_steps_have_their_own_timeout():
     for step in ("Install macOS dependencies", "Install dependencies"):
         block = text.split(f"- name: {step}", 1)[1].split("\n      - name:", 1)[0]
         assert "timeout-minutes:" in block, step
+
+
+def test_every_workflow_brew_step_has_a_timeout():
+    """#5747: a hung `brew install` must fail as its own step, not as a bare job cancellation."""
+    offenders = []
+    for path in sorted((ROOT / ".github" / "workflows").glob("*.yml")):
+        text = path.read_text()
+        for step in re.split(r"\n\s*- (?=name:|uses:|run:)", text)[1:]:
+            if "brew install" in step and "timeout-minutes:" not in step:
+                offenders.append(f"{path.name}: {step.splitlines()[0]}")
+    assert not offenders, offenders
+
+
+def test_ci_retry_wraps_the_hashed_installs_of_the_two_os_grids():
+    """#5747: the smoke grid and the full-suite gate install through ci_retry.sh, so a network flake is marked INFRASTRUCTURE."""
+    for name in ("os-smoke-grid.yml", "full-suite-gate.yml"):
+        lines = (ROOT / ".github" / "workflows" / name).read_text().splitlines()
+        bare = [ln.strip() for ln in lines if "pip install --require-hashes" in ln and "ci_retry.sh" not in ln]
+        assert not bare, (name, bare)

@@ -13,7 +13,6 @@ CASES = Path(__file__).resolve().parents[1] / "equivalence"
 # name -> why it has no generated sibling
 EXEMPT = {
     "cbsa-bankdata": "batch loader: DELETEs its sortcode's rows, then writes them; it reads no seeded row",
-    "cbsa-bnk1ccs": "generated sibling is open in PR #5726; drop this entry when it merges",
 }
 
 
@@ -53,5 +52,8 @@ def test_the_exemptions_are_live():
     hand = set(_hand_seeded())
     for name in EXEMPT:
         assert name in hand, f"{name} no longer hand-seeded: drop its exemption"
-        if name != "cbsa-bnk1ccs":
-            assert not (CASES / f"{name}-generated").exists(), name
+        assert not (CASES / f"{name}-generated").exists(), name
+
+
+def test_the_only_exemption_is_the_batch_loader():
+    assert set(EXEMPT) == {"cbsa-bankdata"}

@@ -2371,20 +2371,25 @@ def stub_files(
             d = defines.get((d.related or "").upper())
             if d is None:
                 raise Unsupported(f"CICS file {e['name']}: AIX {key.name} has no base cluster define")
-        stated = ((datasets or {}).get(d.name.upper()) or {}).get("vsam") or {}
+        dname = substitute_install_symbols(d.name, symbols)  # #5733 reads .idcams: its name keeps the @SYMBOL@s
+        stated = ((datasets or {}).get(dname) or {}).get("vsam") or {}
         if key is d and (d.organization or "").upper() == "NONINDEXED":  # #4213: an ESDS: no key, browsed by RBA
             reclen = d.record_max if d.record_max is not None else stated.get("reclen")
             if reclen is None or (d.record_avg is not None and d.record_avg != reclen):
                 raise Unsupported(f"CICS file {e['name']}: ESDS {d.name} without fixed-length records (RECORDSIZE)")
-            out.append({"file": e["name"], "dsname": dsn, "base": d.name.upper(), "key_offset": 0, "key_length": 0,
+            out.append({"file": e["name"], "dsname": dsn, "base": dname, "key_offset": 0, "key_length": 0,
                         "reclen": reclen, "via": via, "organization": "ESDS"})  # fmt: skip
             continue
         koff = key.key_offset if key.key_offset is not None else stated.get("key_offset")
         klen = key.key_length if key.key_length is not None else stated.get("key_length")
         reclen = d.record_max if d.record_max is not None else stated.get("reclen")
+        if stated.get("variable") is True and isinstance(stated.get("reclen"), int):
+            reclen = stated[
+                "reclen"
+            ]  # a V file the case states: the one length the program writes, not RECORDSIZE's max
         if koff is None or klen is None or reclen is None:
             raise Unsupported(f"CICS file {e['name']}: {key.name}'s KEYS or {d.name}'s RECORDSIZE is not in the facts")
-        out.append({"file": e["name"], "dsname": dsn, "base": d.name.upper(), "key_offset": koff,
+        out.append({"file": e["name"], "dsname": dsn, "base": dname, "key_offset": koff,
                     "key_length": klen, "reclen": reclen, "via": via})  # fmt: skip
     return sorted(out, key=lambda f: f["file"])
 

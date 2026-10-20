@@ -17,9 +17,10 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "tests" / "tools"))
 
 from gitgalaxy.core.runtime_options import calibration_problems  # noqa: E402
-from gitgalaxy.tools.cobol_to_java.det import hfp as H  # noqa: E402
+from hfp_capture_kit import compute  # noqa: E402
 
 TABLE = Path(__file__).parent / "zos_captures" / "hfp.json"
 SOURCES = ("ibm-publication", "zos-run")
@@ -34,7 +35,6 @@ OPS = {
     "from_ieee": ("a",),
     "to_ieee": ("a",),
 }
-FUNC = {"add": H.add, "sub": H.sub, "mul": H.mul, "div": H.div}
 
 
 def records() -> list[dict]:
@@ -56,23 +56,6 @@ def problems(r: dict) -> list[str]:
             probs.append("a zos-run record needs `evidence` (job, step, output hash)")
         probs += calibration_problems(r.get("calibrated_under"))
     return probs
-
-
-def compute(r: dict) -> str:
-    short = r["size"] == "short"
-    if r["op"] == "encode":
-        return H.encode(H.for_item(F(r["value"]), short), short).hex().upper()
-    if r["op"] == "from_ieee":
-        return H.from_ieee(int(r["a"], 16), 4 if short else 8).hex().upper()
-    if r["op"] == "to_ieee":
-        return f"{H.to_ieee(bytes.fromhex(r['a'])):0{8 if short else 16}X}"
-    a = H.decode(bytes.fromhex(r["a"]))
-    if r["op"] == "display":
-        return H.display(a, not short)
-    if r["op"] == "fixed":
-        return str(H.to_fixed(a, r["scale"], 9 if short else 18))
-    out = FUNC[r["op"]](a, H.decode(bytes.fromhex(r["b"])), not short)
-    return H.encode(out, short).hex().upper()
 
 
 def test_every_record_is_well_formed_and_ids_are_unique():

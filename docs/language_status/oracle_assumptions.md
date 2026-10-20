@@ -608,7 +608,9 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   to even; a binary32 takes the fixed-point-to-float rule (truncated to long, rounded to short: ASSUMED, IBM documents no
   IEEE converter). NaN, infinity, subnormals and values outside either range are refused by name (`HfpRange`).
   `exact_in_both` is the register's "agrees with the oracle only for values exact in both formats" condition (1.5,
-  2.25, 100.50, 12.75 yes; 0.1, 0.7, 12.34 no). The model is not used by the runtime. **No `zos-run` capture exists, so
+  2.25, 100.50, 12.75 yes; 0.1, 0.7, 12.34 no). The runtime mirrors the conversions (`cobolrt/Hfp.java` `ieeeValue`, `fromIeee`,
+  `toIeee`, rule `RT-HFP-IEEE-CONVERSION`, ASSUMED), held to the model bit for bit by `test_det_hfp.py` over IBM's examples, the
+  range edges, the refusals and random patterns in both sizes; no COBOL statement reaches them yet. **No `zos-run` capture exists, so
   the checklist's proof against captured z/OS outputs still waits on #4050.**
 - **Later slices of #4271** (left as they are): `NUMPROC(PFD)` with non-preferred signs (refused by name, C5),
   `INTDATE(LILIAN)` (detected from CBL / PROCESS cards and refused, C5); ARITH(EXTEND)'s extended-precision floats (refused; its 30-digit intermediates stop by name, C5), COMP-5's

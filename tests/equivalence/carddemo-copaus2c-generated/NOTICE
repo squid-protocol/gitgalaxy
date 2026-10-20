@@ -1,0 +1,7 @@
+Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+This case is derived from the AWS Mainframe Modernization CardDemo application
+(https://github.com/aws-samples/aws-mainframe-modernization-carddemo), licensed under the Apache License, Version 2.0
+(LICENSE here): the table rows are generated from app/app-authorization-ims-db2-mq/ddl/AUTHFRDS.ddl and XAUTHFRD.ddl; the
+card numbers and timestamps are the sample values of app/app-authorization-ims-db2-mq's seed; the scenarios are written
+for this case, the two SQL-fault ones after those of carddemo-copaus2c.

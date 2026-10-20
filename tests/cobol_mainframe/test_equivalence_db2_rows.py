@@ -567,3 +567,37 @@ def test_the_bnk1ccs_screen_holds_on_generated_db2_rows(tmp_path):
     assert report["proven"] is True and report["db2_generated"] == {"IBMUSER.PROCTRAN": 12}
     sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
     assert sql and all(q["equal"] == q["statements"] for q in sql)
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_cotrtlic_screen_holds_on_generated_db2_rows(tmp_path):
+    """CardDemo's transaction-type list (COTRTLIC) on 14 generated TRANSACTION_TYPE and 20 generated category rows:
+    filters and D / U selections typed, PF10 DELETE / UPDATE of a generated type, every statement answered alike on
+    both sides. Six generated scenarios drive WS-STRING-OUT to length 0 (X8, named in bounds_refused); the injected
+    SQL faults reach the DSNTIAC hole, which the report names rather than compares."""
+    report = _det_port_generated("carddemo-cotrtlic-generated", tmp_path)
+    assert report["proven"] is True
+    assert report["db2_generated"] == {"CARDDEMO.TRANSACTION_TYPE": 14, "CARDDEMO.TRANSACTION_TYPE_CATEGORY": 20}
+    assert {k for k in report["refused"] if k.startswith("generated-") and "--" not in k} == {
+        f"generated-{i:02d}" for i in (3, 4, 10, 15, 21, 22)
+    }
+    sql = [o["sql"] for o in report["outputs"].values() if "sql" in o]
+    assert sql and all(q["equal"] == q["statements"] for q in sql)
+    assert {x["verb"] for q in sql for x in q["cobol"]} >= {"SELECT", "UPDATE", "DELETE"}
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_copaus2c_det_port_holds_on_generated_db2_rows(tmp_path):
+    """CardDemo's fraud-report service (COPAUS2C, LINKed) on 6 generated AUTHFRDS rows: authorizations whose key a row
+    holds (INSERT -803, then the UPDATE) and ones it does not (INSERT), and the two injected -913 faults, alike on both
+    sides with AUTHFRDS alike after every task, every paragraph and branch covered."""
+    report = _det_port_generated("carddemo-copaus2c-generated", tmp_path)
+    assert report["proven"] is True and report["db2_generated"] == {"CARDDEMO.AUTHFRDS": 6}
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    assert len(sql) == 24 and all(q["statements"] and q["equal"] == q["statements"] for q in sql)
+    assert {(x["verb"], x["sqlcode"]) for q in sql for x in q["cobol"]} >= {
+        ("INSERT", 0),
+        ("INSERT", -803),
+        ("UPDATE", 0),
+    }
+    assert report["coverage"]["branches"]["covered"] == report["coverage"]["branches"]["total"]

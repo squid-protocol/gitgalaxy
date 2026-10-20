@@ -1,0 +1,327 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "COTRTLIC",
+ "program_source": "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
+ "copy_dirs": [
+  "app/cpy",
+  "app/app-transaction-type-db2/cpy",
+  "app/app-transaction-type-db2/cpy-bms"
+ ],
+ "transid": "CTLI",
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {},
+ "db2": {
+  "ddl": [
+   "app/app-transaction-type-db2/ddl/TRNTYPE.ddl",
+   "app/app-transaction-type-db2/ddl/TRNTYCAT.ddl"
+  ],
+  "include_dirs": [
+   "app/app-transaction-type-db2/dcl"
+  ],
+  "seed": "@generate",
+  "compare": [
+   "CARDDEMO.TRANSACTION_TYPE_CATEGORY",
+   "CARDDEMO.TRANSACTION_TYPE"
+  ],
+  "compare_sql": true,
+  "generate": {
+   "seed": 4507,
+   "tables": {
+    "CARDDEMO.TRANSACTION_TYPE": {
+     "rows": 14
+    },
+    "CARDDEMO.TRANSACTION_TYPE_CATEGORY": {
+     "rows": 20
+    }
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "app/cpy/COCOM01Y.cpy",
+    "record": "CARDDEMO-COMMAREA"
+   },
+   {
+    "copybook": "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
+    "record": "WS-THIS-PROGCOMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "CTRTLIA": {
+   "copybook": "app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy",
+   "input": "CTRTLIAI",
+   "output": "CTRTLIAO"
+  }
+ },
+ "scenarios": [
+  {
+   "name": "first-entry-from-admin-menu",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "why": "option 5 of COADM01C (XCTL, context 0): not from this program, so 0000-MAIN INITIALIZEs WS-THIS-PROGCOMMAREA (page 1); no RECEIVE; 9998-PRIMING-QUERY, then WHEN OTHER: 8000-READ-FORWARD opens C-TR-TYPE-FORWARD from blanks, fetches types 01-07 and an eighth row (CA-NEXT-PAGE-EXISTS, last key 08); 2500-SETUP-MESSAGE: 'Type U to update, D to delete any record'"
+  },
+  {
+   "name": "no-commarea",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "EIBCALEN 0: the program builds its own CARDDEMO-COMMAREA (CTLI / COTRTLIC, admin, page 1) and shows page 1"
+  },
+  {
+   "name": "pf2-to-add-screen",
+   "aid": "DFHPF2",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT"
+    }
+   },
+   "why": "PF2 from this program: XCTL to COTRTUPC with CARDDEMO-COMMAREA (from CTLI / COTRTLIC, user type U, context 0)"
+  },
+  {
+   "name": "pf3-back-to-admin",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT"
+    }
+   },
+   "why": "PF3: the caller is this program itself, so CA00 / COADM01C; SYNCPOINT and XCTL (admin, context 0)"
+  },
+  {
+   "name": "invalid-key-acts-as-enter",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT"
+    }
+   },
+   "why": "PF5 is not a key of this screen: PFK-INVALID -> CCARD-AID-ENTER, page 1 again"
+  },
+  {
+   "name": "pf10-deletes-unreferenced-row",
+   "aid": "DFHPF10",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-ALL-ROWS-OUT": "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "WS-CA-FIRST-TR-CODE": "ZZ",
+    "WS-CA-LAST-TR-CODE": "  ",
+    "WS-CA-NEXT-PAGE-IND": "\u0000",
+    "WS-CA-ROW-SELECTED": 1,
+    "WS-CA-DELETE-FLAG": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "ZZ",
+     "TRTYPD1I": "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ",
+     "TRTSEL1I": "D"
+    }
+   },
+   "why": "type ZZ (the generated key at its full length) has no category row: 9300-DELETE-RECORD DELETEs it"
+  },
+  {
+   "name": "pf10-saves-update",
+   "aid": "DFHPF10",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-ALL-ROWS-OUT": "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "WS-CA-FIRST-TR-CODE": "ZZ",
+    "WS-CA-LAST-TR-CODE": "  ",
+    "WS-CA-NEXT-PAGE-IND": "\u0000",
+    "WS-CA-ROW-SELECTED": 1,
+    "WS-CA-UPDATE-FLAG": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "ZZ",
+     "TRTYPD1I": "NEW DESCRIPTION",
+     "TRTSEL1I": "U"
+    }
+   },
+   "why": "PF10 with CA-UPDATE-REQUESTED on type ZZ: 9200-UPDATE-RECORD UPDATEs the description"
+  }
+ ],
+ "bounds_refused": {
+  "generated-03": "COTRTLIC builds WS-STRING-OUT by reference modification with length 0 on this path; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout",
+  "generated-04": "COTRTLIC builds WS-STRING-OUT by reference modification with length 0 on this path; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout",
+  "generated-10": "COTRTLIC builds WS-STRING-OUT by reference modification with length 0 on this path; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout",
+  "generated-15": "COTRTLIC builds WS-STRING-OUT by reference modification with length 0 on this path; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout",
+  "generated-21": "COTRTLIC builds WS-STRING-OUT by reference modification with length 0 on this path; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout",
+  "generated-22": "COTRTLIC builds WS-STRING-OUT by reference modification with length 0 on this path; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout"
+ },
+ "scenario_generate": {
+  "seed": 4507,
+  "count": 24,
+  "prefix": "generated",
+  "aid": [
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHPF8",
+   "DFHPF7",
+   "DFHPF3",
+   "DFHPF5"
+  ],
+  "commarea": {
+   "CDEMO-FROM-TRANID": "CTLI",
+   "CDEMO-FROM-PROGRAM": "COTRTLIC",
+   "CDEMO-USER-ID": "ADMIN001",
+   "CDEMO-USER-TYPE": "A",
+   "CDEMO-PGM-CONTEXT": 0,
+   "CDEMO-LAST-MAP": "CTRTLIA",
+   "CDEMO-LAST-MAPSET": "COTRTLI",
+   "WS-CA-SCREEN-NUM": 1,
+   "WS-CA-LAST-PAGE-DISPLAYED": 9
+  },
+  "receive": {
+   "CTRTLIA": {
+    "TRTYPEI": {
+     "values": [
+      "",
+      "",
+      "76",
+      "",
+      "",
+      "76",
+      ""
+     ]
+    },
+    "TRDESCI": {
+     "values": [
+      "",
+      "",
+      "",
+      "A",
+      "E",
+      "1",
+      "Z",
+      ""
+     ]
+    },
+    "TRTSEL1I": {
+     "values": [
+      " ",
+      " ",
+      "D",
+      "U",
+      " ",
+      "S"
+     ]
+    }
+   }
+  }
+ },
+ "notes": "CardDemo's Db2 transaction-type list (transaction CTLI, program COTRTLIC, admin menu option 5) on rows generated from the corpus DDL instead of the hand-written seed of carddemo-cotrtlic: 14 CARDDEMO.TRANSACTION_TYPE rows and 20 TRANSACTION_TYPE_CATEGORY rows (equivalence_db2.generate_rows: boundary values, NULLs, unique keys, every category row naming a generated parent type), both compared after each scenario. Scenarios: five stated (the menu entry, no COMMAREA, PF2, PF3, an invalid key), two PF10 ones whose COMMAREA is the confirmation state a previous screen left (DELETE of the generated type ZZ, which no category row names; UPDATE of its description), and 24 generated ones (ENTER / PF8 / PF7 / PF3 / PF5 with a type filter, a description filter and a D / U / S selection typed, first-page COMMAREA). Six generated scenarios (generated-03, -04, -10, -15, -21, -22) reach COTRTLIC's WS-STRING-OUT reference modification with length 0 (a blank info message) and are named in bounds_refused (register X8) as in carddemo-cotrtlic: the harness refuses them rather than compare storage-layout bytes. Not covered, as in carddemo-cotrtlic: 9999-FORMAT-DB2-MESSAGE, which CALLs Db2's DSNTIAC (not modelled) -- a delete refused by the category foreign key (-532), an update or delete of a row gone meanwhile (+100), cursor errors; the stated cases of the hand-seeded case that paged through its seven-type pages and the PF7 backward cursor are not repeated here. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE here is the source's own, NOTICE names the source and what was written for this case."
+}

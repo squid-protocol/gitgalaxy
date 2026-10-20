@@ -82,3 +82,31 @@ def test_pattern_is_redos_immune():
     assert_redos_immune(pattern, "[" + " " * 20000 + "x")
     assert_redos_immune(pattern, "] " * 20000)
     assert_redos_immune(pattern, "[(" + "a" * 20000)
+
+
+def _qualifiers(body: str) -> dict[str, list[str]]:
+    code = f"@implementation Thing\n- (void)run\n{{\n{body}\n}}\n@end\n"
+    functions = StructuralExtractor("objective-c", LANGUAGE_DEFINITIONS).splice(code, "")["functions"]
+    return next(f for f in functions if f["name"] == "run")["calls_out_qualifiers"]
+
+
+@pytest.mark.parametrize(
+    "body, expected",
+    [
+        # the receiver is kept as the qualifier; a C call stays bare
+        ("    [self initialize];", {"initialize": ["self"]}),
+        ("    [super awakeFromNib];", {"awakeFromNib": ["super"]}),
+        ("    [Foo sharedInstance];", {"sharedInstance": ["Foo"]}),
+        ("    [obj.view reload];", {"reload": ["obj.view"]}),
+        ("    [self->owner ping];", {"ping": ["self.owner"]}),
+        ("    [mOwner updateParameters:p];", {"updateParameters": ["mOwner"]}),
+        ("    [(Foo *)obj bar:1];", {"bar": ["obj"]}),
+        # a receiver that is itself a send or a call has no name
+        ("    x = [[Foo alloc] init];", {"alloc": ["Foo"], "init": ["<expr>"]}),
+        ("    [Lookup(x) fetch];", {"Lookup": [""], "fetch": ["<expr>"]}),
+        ("    free(x);\n    [self done];", {"free": [""], "done": ["self"]}),
+        ("    [a go];\n    [b go];\n    [a go];", {"go": ["a", "b"]}),
+    ],
+)
+def test_message_send_receiver_qualifiers(body, expected):
+    assert _qualifiers(body) == expected

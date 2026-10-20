@@ -650,3 +650,30 @@ def test_detdli_isrt_repl_dlet_answer_the_status_ibm_gives_through_the_pcb_by_nu
     no_pcb = "CBLTDLI: a PCB number the scheduled PSB does not have is not modelled"
     assert out == ["[  ]", "[  ]", "[DJ]", "[  D200RENAMED         ]", "[DA]", f"[{wrong}]", "[  ]", "[II]", "[  ]",
                    "[  E009ZED ]", f"[{nothing}]", "[GE]", "[AM]", "[  ]", "[GE]", f"[{no_pcb}]"]  # fmt: skip
+
+
+def test_every_burned_cics_exec_dli_command_translates_and_cbpaup0c_stays_a_named_hole(tmp_path):
+    """#5278: CardDemo's EXEC DLI programs under CICS (COPAUA0C, COPAUS0C, COPAUS1C: SCHD, TERM, GU, GNP, ISRT, REPL)
+    have no EXEC DLI hole; CBPAUP0C (a batch program: GN, GNP, DLET, CHKP) keeps its by-name hole, outside CICS."""
+    pytest.importorskip("tree_sitter_language_pack")
+    corpora = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", ROOT / ".mainframe_corpora"))
+    corpus = corpora / "aws-mainframe-modernization-carddemo"
+    cbl = corpus / "app/app-authorization-ims-db2-mq/cbl"
+    if not cbl.is_dir():
+        pytest.skip("needs the burned mainframe corpora (GITGALAXY_MAINFRAME_CORPORA)")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    copies = [corpus / "app/cpy", corpus / "app/app-authorization-ims-db2-mq/cpy"]
+    copies.append(corpus / "app/app-authorization-ims-db2-mq/cpy-bms")
+    cics = "public class X { void f() { runTask(CicsTask t); } }"  # the marker that makes it a CICS port
+
+    def holes(name: str, stub: str) -> list[str]:
+        res = P.translate(cbl / f"{name}.cbl", copies, stub, "pkg", None, tmp_path / name)
+        return [str(h) for h in res.stats["holes"]]
+
+    for name in ("COPAUA0C", "COPAUS0C", "COPAUS1C"):
+        got = holes(name, cics)
+        assert not [h for h in got if "EXEC DLI" in h or "DIBSTAT" in h], (name, got)
+    batch = holes("CBPAUP0C", "public class X { }")
+    dli = [h for h in batch if "EXEC DLI" in h]
+    assert dli and all("outside CICS" in h for h in dli), batch

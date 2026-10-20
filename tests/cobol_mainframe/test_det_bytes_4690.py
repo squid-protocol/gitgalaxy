@@ -80,3 +80,28 @@ def test_batch_sysout_high_bytes_equal_gnucobols(charset, mode, tmp_path):
     got = _java_run_batch("HIBATCH", src, tmp_path, [], mode != "bytes", mode == "groups", raw=True, charset=charset)
     assert isinstance(got, bytes) and want
     assert got == want, f"{charset}: java {got[:40]!r} != cobol {want[:40]!r}"
+
+
+def low_byte_program(name: str) -> str:
+    """One MOVE X'hh' TO R and DISPLAY per byte 0x00-0x7F except 0x0A (the record separator the capture is split on)."""
+    proc: list[str] = []
+    for b in range(0x80):
+        if b != 0x0A:
+            proc += [f"MOVE X'{b:02X}' TO R", "DISPLAY R"]
+    return program(name, ["01 R PIC X."], proc)
+
+
+@E2E
+@pytest.mark.parametrize("charset", ["ISO-8859-1", "IBM037", "IBM1047", "windows-1252"])
+@pytest.mark.parametrize("mode", ["bytes", "typed", "groups"])
+def test_batch_sysout_low_bytes_equal_gnucobols(charset, mode, tmp_path):
+    """#4702 (D2): X'00'..X'7F' (X'0A' aside) are the same raw bytes as cobc writes under every record charset,
+    X'15' and X'25' included (IBM037 and its siblings decode both to U+000A; Lossless keeps them apart)."""
+    pytest.importorskip("tree_sitter_language_pack")
+    src = low_byte_program("LOBATCH")
+    cob = tmp_path / "cobol"
+    cob.mkdir()
+    want = _cobol(src, cob, raw=True)
+    got = _java_run_batch("LOBATCH", src, tmp_path, [], mode != "bytes", mode == "groups", raw=True, charset=charset)
+    assert isinstance(got, bytes) and want
+    assert got == want, f"{charset}: java {got[:40]!r} != cobol {want[:40]!r}"

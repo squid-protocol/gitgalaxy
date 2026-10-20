@@ -95,3 +95,20 @@ def test_sqlite_has_no_routines_to_record():
     # SQLite statements are not named routines: calls_out is declared unsupported on purpose.
     assert LANGUAGE_DEFINITIONS["sqlite"]["rules"]["calls_out"] is None
     assert all(not c for c in _calls("sqlite", PG_BODY).values())
+
+
+@pytest.mark.parametrize("lang", ["db2_sql", "postgresql"])
+@pytest.mark.parametrize(
+    "clause",
+    [
+        "SELECT x FROM (SELECT 1 AS x) t",
+        "SELECT * FROM (VALUES (1), (2)) AS g(k)",
+        "SELECT i FROM generate_series(1, 3) r(i)",
+        "SELECT a.x FROM t a CROSS JOIN (SELECT 2 AS y) b",
+        "SELECT ARG_MAX(a, b) FROM t",
+    ],
+)
+def test_derived_tables_aliases_and_builtins_are_not_calls(lang, clause):
+    # sqldoom shapes: `FROM (`, `JOIN (`, `AS g(k)`, `fn(...) r(i)` aliases read as calls named FROM / JOIN / g / r
+    src = f"CREATE FUNCTION f3() RETURNS int AS $$ BEGIN\n  {clause};\nEND; $$ LANGUAGE sql;\n"
+    assert _calls(lang, src) == {"f3": []}

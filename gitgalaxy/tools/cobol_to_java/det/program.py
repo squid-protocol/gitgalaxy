@@ -19,6 +19,7 @@ from typing import Any
 from gitgalaxy.core.aperture import DET_PORT_MARKER
 from gitgalaxy.tools.cobol_to_java.det import bll as B
 from gitgalaxy.tools.cobol_to_java.det import cics as C
+from gitgalaxy.tools.cobol_to_java.det import cics_filecontrol as FC
 from gitgalaxy.tools.cobol_to_java.det import dli as DLI
 from gitgalaxy.tools.cobol_to_java.det import dyncall
 from gitgalaxy.tools.cobol_to_java.det import expr as E
@@ -265,11 +266,30 @@ def _dto_size(gp, cls: str) -> int:
         return 0
 
 
-def overlaid_pointers(records: list) -> set[str]:
-    """#4771 (X47): the POINTER items a REDEFINES overlays (or that sit in a group one overlays, or redefine something):
-    their bytes can be read or changed as a number, which a handle does not model."""
+def pointer_view_of(records: list) -> dict[str, str]:
+    """#4771 (X47): the pure numeric views of a POINTER -- an elementary integer BINARY item that REDEFINES it and has nothing
+    under it (ZECS001's CACHE-ADDRESS-X, `PIC S9(08) COMP`). The only uses of one that are modelled are the address
+    idioms (`ADD|SUBTRACT n TO|FROM view`, `MOVE view TO view`: Gen.pointer_view_statement), which move the pointer along its
+    block; the view is never read as a number. {view name: pointer name}, upper case."""
     items = [x for r in records for x in r.walk()]
-    redefined = {x.redefines.upper() for x in items if x.redefines}
+    pointers = {x.name.upper() for x in items if x.usage == "POINTER" and x.occurs <= 1}
+    out: dict[str, str] = {}
+    for x in items:
+        if not (x.redefines and x.redefines.upper() in pointers):
+            continue
+        pic = x.picture()
+        if x.usage == "BINARY" and x.occurs <= 1 and not x.children and re.fullmatch(r"S?9+", pic):
+            out[x.name.upper()] = x.redefines.upper()
+    return out
+
+
+def overlaid_pointers(records: list) -> set[str]:
+    """#4771 (X47): the POINTER items a REDEFINES overlays other than by a pure numeric view (pointer_view_of), or that sit
+    in a group one overlays, or redefine something: their bytes can be read or changed as a number, which a handle does
+    not model."""
+    items = [x for r in records for x in r.walk()]
+    views = pointer_view_of(records)
+    redefined = {x.redefines.upper() for x in items if x.redefines and x.name.upper() not in views}
     out = set()
     for x in items:
         if x.usage != "POINTER":
@@ -848,6 +868,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     gen.write_only_pointers = write_only_pointers(records, proc)
     gen.overlaid_pointers = overlaid_pointers(records)
     gen.pointer_views = pointer_views(records)
+    gen.pointer_view_of = pointer_view_of(records)
     # #4270: a floating-point expression under ARITH(EXTEND) is extended-precision HFP, refused (Gen.fnum)
     gen.arith_extend = arith_extend(program, options, engine.page(program) if engine is not None else None)
     # #4271: every COMP-1 / COMP-2 item's bytes, by storage, for the refusal of byte uses that overlap one
@@ -1765,7 +1786,7 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         "    private <E> DetCics.Store<E> store(String name) {",
         *(
             [
-                "        return (DetCics.Store<E>) stores.computeIfAbsent(name, n -> switch (n) {",
+                f"        return (DetCics.Store<E>) stores.computeIfAbsent(name, n -> switch ({FC.file_key_call(cx.stores, 'n')}) {{",
                 *store_cases,
                 '            default -> throw new Hole("CICS file " + n + ": no store in the generated project");',
                 "        });",
@@ -1777,6 +1798,7 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         ),
         "    }",
         "",
+        *FC.file_key_method(cx.stores),
         "    private static final java.util.Map<String, Integer> PARAGRAPHS = java.util.Map.ofEntries(",
         # a name declared twice (COACTVWC's 0000-MAIN-EXIT) cannot be referenced unqualified: its first one
         ",\n".join(

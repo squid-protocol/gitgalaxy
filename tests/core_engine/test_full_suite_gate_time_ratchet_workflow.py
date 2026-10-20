@@ -1,3 +1,4 @@
+# ruff: noqa: S101
 """#5257: full-suite-gate.yml runs the per-test time ratchet on its Linux legs, as smoke-test.yml's parts do (#5166).
 
 Windows and macOS legs are not held to it: the baseline's seconds are Linux CI times.
@@ -53,3 +54,50 @@ def test_times_artifact_is_linux_only_and_stays_out_of_the_budget_merge():
     assert "always()" in up["if"] and "Linux" in up["if"]
     assert not fnmatch(up["with"]["name"], SMOKE_TIMES_GLOB)
     assert "matrix.part" in up["with"]["name"]
+
+
+# #5764: slowest minutes seen per (os, python) leg on the gate's runs of 2026-10-14..20; a cap needs 1.3x headroom
+SLOWEST_SEEN_MIN = {
+    ("windows-latest", "3.11"): 24,
+    ("windows-latest", "3.12"): 17,
+    ("macos-latest", "3.11"): 16,
+    ("macos-latest", "3.12"): 11,
+}
+
+
+def _legs():
+    import json
+    import re
+
+    text = (WORKFLOWS / "full-suite-gate.yml").read_text(encoding="utf-8")
+    return [json.loads(m) for m in re.findall(r"\{\"os\":[^{}]*\}", text)]
+
+
+def test_the_pytest_step_times_out_before_its_job_so_a_stall_keeps_its_log():
+    assert _step("Full Suite")["timeout-minutes"] == "${{ matrix.step_timeout }}"
+    legs = _legs()
+    assert legs
+    for leg in legs:
+        assert leg["step_timeout"] == leg["timeout"] - 3, leg
+
+
+def test_no_workflow_expression_uses_arithmetic():
+    """#5764: `${{ (matrix.timeout || 30) - 3 }}` is not valid; the workflow failed to start and no job ran."""
+    import re
+
+    for path in sorted(WORKFLOWS.glob("*.yml")):
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if line.lstrip().startswith("#"):
+                continue
+            for expr in re.findall(r"\$\{\{(.*?)\}\}", line):
+                bare = re.sub(r"'[^']*'|\"[^\"]*\"", "", expr)
+                assert not re.search(r"[\w)\]]\s+[-+*/]\s+[\w(]", bare), f"{path.name}: {line.strip()}"
+
+
+def test_every_leg_cap_has_headroom_over_the_slowest_seen_time():
+    legs = _legs()
+    assert legs
+    for leg in legs:
+        seen = SLOWEST_SEEN_MIN.get((leg["os"], leg["python-version"]))
+        if seen:
+            assert leg["timeout"] >= seen * 1.3, leg

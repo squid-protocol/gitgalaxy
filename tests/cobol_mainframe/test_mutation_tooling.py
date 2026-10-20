@@ -450,3 +450,62 @@ def test_compare_leaves_out_a_mutant_that_is_pending_in_either_run():
                                                       (12, [{"id": "m1"}], 12, False), (3, [{"id": "m1"}], None, True)])  # fmt: skip
 def test_the_agreement_gate_needs_enough_mutants_judged_and_no_difference(judged, differ, minimum, ok):
     assert mu.agreement_gate({"judged_by_both": judged, "differ": differ}, minimum) is ok
+
+
+@pytest.mark.parametrize("flags,expect", [([], True), (["--one-jvm"], True), (["--no-one-jvm"], False), (["--full"], False),
+                                          (["--record"], True)])  # fmt: skip
+def test_the_session_jvm_is_the_fast_default_and_off_for_full(monkeypatch, tmp_path, flags, expect):
+    seen = {}
+
+    def fake_run(*args, **kw):
+        seen.update(kw, full=args[8])
+        return {}
+
+    monkeypatch.setattr(mu, "run", fake_run)
+    monkeypatch.setattr(mu, "mutation_md", lambda s: "")
+    monkeypatch.setitem(sys.modules, "mutation_scores", type("S", (), {"record_run": staticmethod(lambda *a: None)}))
+    assert mu.main(["run", "carddemo-intcalc", "--work", str(tmp_path), *flags]) == 0
+    assert seen["one_jvm"] is expect and seen["full"] is ("--full" in flags)
+
+
+def test_one_jvm_with_full_is_refused(tmp_path):
+    with pytest.raises(SystemExit, match="fast-mode option"):
+        mu.main(["run", "carddemo-intcalc", "--work", str(tmp_path), "--full", "--one-jvm"])
+
+
+def test_a_reused_project_carries_the_stubs_the_earlier_overlay_replaced(tmp_path, earlier):
+    """#4047: a LINKed program is translated from its generated stub; the reused project's file is the earlier run's
+    translation, and translating that lost the program's CICS file stores (cbsa-inqacc: ABNDPROC, 9 false kills)."""
+    kept = earlier / "java" / ej.GENERATED_KEEP / "service"
+    kept.mkdir(parents=True)
+    (kept / "XService.java").write_text("// the stub\n", encoding="utf-8")
+    work = tmp_path / "now" / "java"
+    ej._reused_project(earlier / "java", work, ["service/XService.java"])
+    assert (work / ej.GENERATED_KEEP / "service" / "XService.java").read_text(encoding="utf-8") == "// the stub\n"
+
+
+@pytest.mark.parametrize("reused", [False, True])
+def test_a_linked_program_is_translated_from_the_stub_also_on_reuse(tmp_path, monkeypatch, reused):
+    P = pytest.importorskip("gitgalaxy.tools.cobol_to_java.det.program")
+    project = tmp_path / "java" / "java_h2"
+    rel = "service/AbndprocService.java"
+    (project / "src/main/java" / ej.PKG_DIR / "service").mkdir(parents=True)
+    (project / "src/main/java" / ej.PKG_DIR / rel).write_text("// translated by the earlier run\n" if reused else "// stub\n",
+                                                              encoding="utf-8")  # fmt: skip
+    if reused:
+        (project.parent / ej.GENERATED_KEEP / "service").mkdir(parents=True)
+        (project.parent / ej.GENERATED_KEEP / rel).write_text("// stub\n", encoding="utf-8")
+    seen = []
+
+    def translate(source, dirs, stub, *a, **kw):
+        seen.append(stub)
+        return type("R", (), {"java": "// out\n", "extra": []})()
+
+    monkeypatch.setattr(P, "translate", translate)
+    monkeypatch.setattr(P, "estate_files", lambda p: {})
+    monkeypatch.setattr(P, "runtime_files", lambda *a: {})
+    monkeypatch.setattr(P, "has_batch", lambda p: False)
+    monkeypatch.setattr(ej, "CASES", tmp_path / "no-cases")
+    case = {"programs": [{"program": "ABNDPROC", "program_source": "abndproc.cbl"}]}
+    files, origins = ej.linked_programs(case, tmp_path, project, {}, tmp_path / "work")
+    assert seen == ["// stub\n"] and rel in files and "det port" in origins["ABNDPROC"]

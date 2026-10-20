@@ -363,17 +363,19 @@ def test_objectivec_api_contract_2730():
     # ReDoS detonation on an unclosed method type cast.
     assert_redos_immune(api, "- (" + "a " * 40000, timeout_sec=3.0)
 
+
 def test_objectivec_calls_out():
     from gitgalaxy.standards.language_standards.languages.objectivec import DEFINITION
     from _strict_harness import assert_redos_immune
+
     pattern = DEFINITION["rules"]["calls_out"]
     ignore_set = DEFINITION["rules"]["_calls_out_ignore"]
-    
-    # #5639: group 1 is a C call, group 2 a message send's selector; the detector takes whichever matched.
-    assert pattern.groups == 2
+
+    # #5639: group 1 is a C call, group 2 a send's receiver, group 3 its selector.
+    assert pattern.groups == 3
 
     def callees(text):
-        return [next(g for g in m if g) for m in pattern.findall(text)]
+        return [m.group(1) or m.group(3) for m in pattern.finditer(text)]
 
     assert callees("[self probeBranch:argv]") == ["probeBranch"]
     assert callees("[self probeIo:argv]") == ["probeIo"]
@@ -383,10 +385,10 @@ def test_objectivec_calls_out():
     assert callees("exit(payload)") == ["exit"]
 
     assert "self" in ignore_set
-    
+
     # Negatives
     assert callees("id x = condition ? self: other;") == []  # a ternary colon is not a send
     assert callees("goto fail;") == []
-    
+
     # ReDoS check
     assert_redos_immune(pattern, "a" * 50000 + " (", timeout_sec=2.0)

@@ -20,6 +20,8 @@ What the oracle cannot decide is refused by name (each a Hole), tested at the en
 from __future__ import annotations
 
 import os
+import random
+import struct
 import subprocess
 import sys
 from decimal import Decimal
@@ -151,6 +153,28 @@ PAIRS = [("1", "3"), ("2", "3"), ("0.1", "0.2"), ("1024", "-0.000123"), ("-118.6
          ("16777217", "1"), ("99999.99", "0.3333333333"), ("1E-20", "6.02E+23"), ("1", "-1"), ("0.1", "-0.1")]  # fmt: skip
 
 
+def _ieee_patterns() -> list[tuple[int, int]]:
+    """IEEE patterns (size, bits): IBM's examples, 0.1, the range edges, NaN / infinity / subnormals, and random ones."""
+
+    def f32(x):
+        return struct.unpack(">I", struct.pack(">f", x))[0]
+
+    def f64(x):
+        return struct.unpack(">Q", struct.pack(">d", x))[0]
+
+    fixed = [(4, f32(x)) for x in (1.0, -118.625, 1.5, 100.5, 0.0, -0.0, 0.1, 3.4e38, 1.2e-38, 16777217.0)]
+    fixed += [(8, f64(x)) for x in (1.0, -118.625, 0.1, 1e75, 1e-78, 1e76, 1e-80, 1e300, 5e-324)]
+    fixed += [(4, 0x7FC00000), (4, 0x7F800000), (4, 1), (8, 0x7FF0000000000000), (8, 1), (8, 0xFFF8000000000000)]
+    rng = random.Random(4271)
+    return fixed + [(4, rng.getrandbits(32)) for _ in range(40)] + [(8, rng.getrandbits(64)) for _ in range(40)]
+
+
+IEEE_PATTERNS = _ieee_patterns()
+HFP_IMAGES = ["41100000", "C276A000", "4019999A", "7FFFFFFF", "00100000", "00000000", "7F100000", "3C100000",
+              "4110000000000000", "4019999999999999", "7FFFFFFFFFFFFFFF", "0010000000000000", "C080000000000001",
+              "7F10000000000000", "4276A00000000001", "42000001", "3FFFFFFF"]  # fmt: skip
+
+
 def _plain(v: F) -> str:
     d = H._EXACT.normalize(H._dec(v))
     return "0" if d == 0 else format(d, "f")
@@ -168,7 +192,23 @@ def _model_lines() -> list[str]:
             x, y = H.for_item(F(Decimal(a)), not long), H.for_item(F(Decimal(b)), not long)
             r = [H.add(x, y, long), H.sub(x, y, long), H.mul(x, y, long), H.div(x, y, long)]
             out.append(f"{a} {b} {long} " + " ".join(_plain(z) for z in r))
+    for size, bits in IEEE_PATTERNS:
+        out.append(f"ieee {size} {bits:x} " + _refused(lambda: _ieee_line(bits, size)))
+    for hx in HFP_IMAGES:
+        out.append(f"hfp {hx} " + _refused(lambda: f"{H.to_ieee(bytes.fromhex(hx)):x}"))
     return out
+
+
+def _ieee_line(bits: int, size: int) -> str:
+    b = H.from_ieee(bits, size)
+    return f"{b.hex()} {H.to_ieee(b):x}"
+
+
+def _refused(fn) -> str:
+    try:
+        return fn()
+    except H.HfpRange:
+        return "refused"
 
 
 PROBE = """
@@ -192,6 +232,11 @@ public class Probe {
         Cobol.move(f, z, CS);
         return Cobol.num(z, CS).toPlainString();
     }
+    static String hexBytes(byte[] d) {
+        StringBuilder b = new StringBuilder();
+        for (byte x : d) b.append(String.format("%02x", x & 0xFF));
+        return b.toString();
+    }
     static String plain(BigDecimal v) {
         return v.signum() == 0 ? "0" : v.stripTrailingZeros().toPlainString();
     }
@@ -211,6 +256,29 @@ public class Probe {
                     + plain(Hfp.multiply(x, y, lng)) + " " + plain(Hfp.divide(x, y, lng)));
             }
         }
+        long[] ieeeBits = {%IEEE_BITS%};
+        int[] ieeeSize = {%IEEE_SIZES%};
+        for (int i = 0; i < ieeeBits.length; i++) {
+            String line = "ieee " + ieeeSize[i] + " " + Long.toHexString(ieeeBits[i]) + " ";
+            try {
+                byte[] b = Hfp.fromIeee(ieeeBits[i], ieeeSize[i]);
+                line += hexBytes(b) + " " + Long.toHexString(Hfp.toIeee(b));
+            } catch (UnsupportedOperationException e) {
+                line += "refused";
+            }
+            System.out.println(line);
+        }
+        for (String hx : new String[] {%HFP_IMAGES%}) {
+            byte[] b = new byte[hx.length() / 2];
+            for (int i = 0; i < b.length; i++) b[i] = (byte) Integer.parseInt(hx.substring(2 * i, 2 * i + 2), 16);
+            String line = "hfp " + hx + " ";
+            try {
+                line += Long.toHexString(Hfp.toIeee(b));
+            } catch (UnsupportedOperationException e) {
+                line += "refused";
+            }
+            System.out.println(line);
+        }
     }
 }
 """
@@ -229,6 +297,9 @@ def test_the_runtime_is_the_model_bit_for_bit(tmp_path):
     for f in rt.glob("*.java"):
         (out / f.name).write_text(f.read_text(encoding="utf-8").replace("__PACKAGE__", "p"), encoding="utf-8")
     probe = PROBE.replace("%VALUES%", ", ".join(f'"{v}"' for v in VALUES))
+    probe = probe.replace("%IEEE_BITS%", ", ".join(f"0x{b:x}L" for _, b in IEEE_PATTERNS))
+    probe = probe.replace("%IEEE_SIZES%", ", ".join(str(z) for z, _ in IEEE_PATTERNS))
+    probe = probe.replace("%HFP_IMAGES%", ", ".join(f'"{h}"' for h in HFP_IMAGES))
     probe = probe.replace("%PAIRS%", ", ".join(f'{{"{a}", "{b}"}}' for a, b in PAIRS))
     (tmp_path / "src/Probe.java").write_text(probe)
     jdk = _jdk()
@@ -482,6 +553,46 @@ def test_a_numval_compute_is_a_float_statement_with_checked_stores(tmp_path):
 def test_a_float_moved_to_an_edited_or_fixed_receiver_rounds_where_the_oracle_truncates(value, short, scale, want):
     v = H.for_item(F(Decimal(value)), short)
     assert str(H.to_fixed(v, scale, 9 if short else 18)) == want
+
+
+@pytest.mark.parametrize(
+    "value, want_det, want_oracle",
+    [
+        # CBSA's amounts (BNK1TFN / BNK1CRA: a COMP-2 moved to a 2-decimal field, #5703). The oracle holds the IEEE
+        # double and truncates the exact decimal of it; IBM rounds in the low-order position.
+        ("12.34", "12.34", "12.33"),
+        ("9999999999.99", "9999999999.99", "9999999999.98"),
+        ("0.01", "0.01", "0.01"),
+        ("0.1", "0.10", "0.10"),
+        ("100.50", "100.50", "100.50"),  # a binary fraction: exact in both formats, the oracle agrees
+        ("12.75", "12.75", "12.75"),
+    ],
+)
+def test_a_cbsa_comp2_amount_moved_to_a_two_decimal_field_rounds_where_the_oracle_truncates(
+    value, want_det, want_oracle
+):
+    v = H.for_item(F(Decimal(value)), False)
+    assert str(H.to_fixed(v, 2, 18)) == want_det
+    oracle = Decimal(float(value)).quantize(Decimal("0.01"), rounding="ROUND_DOWN")
+    assert str(oracle) == want_oracle  # the recorded oracle answer is still what an IEEE double truncates to
+    if want_det != want_oracle:
+        assert not H.exact_in_both(F(Decimal(value)), False)  # a difference only where the value is not exact in both
+    if value in ("100.50", "12.75"):
+        assert H.exact_in_both(F(Decimal(value)), False)
+
+
+@pytest.mark.parametrize(
+    "value, want",
+    [
+        ("12.34", "12.34"),
+        ("0.01", "0.01"),
+        ("100.50", "100.50"),
+        ("9999999999.99", "9999998980.00"),  # COMP-1 keeps 9 significant digits of the HFP value, the rest zero
+    ],
+)
+def test_a_comp1_amount_moved_to_a_two_decimal_field_keeps_nine_significant_digits(value, want):
+    v = H.for_item(F(Decimal(value)), True)
+    assert str(H.to_fixed(v, 2, 9)) == want
 
 
 def test_a_compound_float_compute_is_computed_in_long_hfp_where_the_oracle_gives_zero():

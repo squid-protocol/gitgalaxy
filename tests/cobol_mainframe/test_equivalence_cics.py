@@ -73,7 +73,7 @@ def test_handle_ignore_push_pop_and_assign_become_stub_calls():
     assert ec.translate_command("PUSH HANDLE")[0] == "CALL 'GGCPUSH' USING GG-CICS"
     assert "    CALL 'GGCCOND' USING GG-CICS" in ec.translate_command("POP HANDLE")  # INVREQ with nothing pushed
     assert ec.translate_command("ASSIGN ABCODE(WS-AB)")[1:3] == ["CALL 'GGCASGN' USING GG-CICS",
-                                                                "MOVE GG-NAME1(1:4) TO WS-AB"]  # fmt: skip
+                                                                "MOVE GG-NAME1(1:4) TO WS-AB(1:4)"]  # fmt: skip
     abend = ec.translate_command("ABEND ABCODE('HCX1')", ["SUB-ABEND"])
     assert abend[:3] == ["MOVE 'HCX1' TO GG-NAME1", "MOVE SPACES TO GG-FLAGS", "CALL 'GGCABND' USING GG-CICS"]
     assert abend[3:] == ["GO TO", "    SUB-ABEND", "    DEPENDING ON GG-GOTO", "GOBACK"]
@@ -901,13 +901,25 @@ def test_a_repeat_count_with_a_nine_is_not_a_digit_position():
 
 def test_assign_applid_sysid_and_writeq_td_translate():
     got = ec.translate_command("ASSIGN APPLID(A) SYSID(S)")
-    assert got[:3] == ["MOVE 'APPLID' TO GG-NAME2", "CALL 'GGCASGN' USING GG-CICS", "MOVE GG-NAME1(1:8) TO A"]
-    assert got[3:6] == ["MOVE 'SYSID' TO GG-NAME2", "CALL 'GGCASGN' USING GG-CICS", "MOVE GG-NAME1(1:4) TO S"]
+    assert got[:3] == ["MOVE 'APPLID' TO GG-NAME2", "CALL 'GGCASGN' USING GG-CICS", "MOVE GG-NAME1(1:8) TO A(1:8)"]
+    assert got[3:6] == ["MOVE 'SYSID' TO GG-NAME2", "CALL 'GGCASGN' USING GG-CICS", "MOVE GG-NAME1(1:4) TO S(1:4)"]
     td = ec.translate_command("WRITEQ TD QUEUE('JOBS') FROM(REC) RESP(R)")
     assert td[:4] == ["MOVE 'JOBS' TO GG-QNAME", "MOVE LENGTH OF REC TO GG-LEN", "CALL 'GGCWRTD' USING GG-CICS",
                       "    BY REFERENCE REC"]  # fmt: skip
     with pytest.raises(ec.Unsupported):
         ec.translate_command("ASSIGN OPID(U)")
+
+
+@pytest.mark.parametrize("opt,width", [("APPLID", 8), ("SYSID", 4), ("ABCODE", 4), ("PROGRAM", 8), ("INVOKINGPROG", 8),
+                                       ("STARTCODE", 2), ("USERID", 8)])  # fmt: skip
+def test_assign_writes_exactly_the_option_width(opt, width):
+    """#4049: IBM ASSIGN writes `width` bytes and leaves a wider data area's tail as it was; a plain MOVE would space it
+    (CardDemo SYSIDO is 8 bytes, SYSID 4). The target is reference-modified to the width, whatever its qualification,
+    and an already reference-modified target is refused by name."""
+    for target in ("WS-X", "SYSIDO OF COSGN0AO", "WS-T(IDX)"):
+        assert f"MOVE GG-NAME1(1:{width}) TO {target}(1:{width})" in ec.translate_command(f"ASSIGN {opt}({target})")
+    with pytest.raises(ec.Unsupported, match="reference-modified"):
+        ec.translate_command(f"ASSIGN {opt}(WS-X(1:2))")
 
 
 def test_send_text_terminal_translates_as_send_text():
@@ -944,8 +956,8 @@ def test_assign_startcode_userid_and_the_terminal_facts_translate():
     """#4270 slice 3: STARTCODE / USERID through GGCASGN; FACILITY / SCRNHT / SCRNWD behind TERMCHK (INVREQ RESP2 5 for
     a task with no terminal, then no data area written), with the condition's handling."""
     got = ec.translate_command("ASSIGN STARTCODE(SC) USERID(U)")
-    assert got[:6] == ["MOVE 'STARTCOD' TO GG-NAME2", "CALL 'GGCASGN' USING GG-CICS", "MOVE GG-NAME1(1:2) TO SC",
-                       "MOVE 'USERID' TO GG-NAME2", "CALL 'GGCASGN' USING GG-CICS", "MOVE GG-NAME1(1:8) TO U"]  # fmt: skip
+    assert got[:6] == ["MOVE 'STARTCOD' TO GG-NAME2", "CALL 'GGCASGN' USING GG-CICS", "MOVE GG-NAME1(1:2) TO SC(1:2)",
+                       "MOVE 'USERID' TO GG-NAME2", "CALL 'GGCASGN' USING GG-CICS", "MOVE GG-NAME1(1:8) TO U(1:8)"]  # fmt: skip
     got = ec.translate_command("ASSIGN FACILITY(F) SCRNHT(H) RESP(R)")
     assert got[:4] == ["MOVE 'TERMCHK' TO GG-NAME2", "CALL 'GGCASGN' USING GG-CICS", "IF GG-RESP = 0",
                        "    MOVE 'FACILITY' TO GG-NAME2"]  # fmt: skip
@@ -2721,3 +2733,50 @@ def test_a_carddemo_hand_ports_send_text_carries_the_erase_freekb_its_cobol_pass
     assert sent, "the port sends no text: the scan found nothing to check"
     for call in sent:
         assert '"ERASE"' in call and '"FREEKB"' in call, call
+
+
+class _NoFilesIR:
+    """An estate whose program names no CICS file the facts carry (zECS ZECS003 builds ZC##FILE at run time)."""
+
+    files: dict = {}
+
+    @staticmethod
+    def cics_file_lineage():
+        return []
+
+
+_RUNTIME_FILE = {
+    "key_offset": 0,
+    "key_length": 16,
+    "reclen": 32700,
+    "why": "ZECSFILE.idcams: KEYS(16 0) RECORDSIZE(100 32700)",
+}
+
+
+def test_a_case_states_a_file_the_program_names_at_run_time():
+    """#4771: ZC01FILE is ZC + EIBTRNID(3:2) + FILE, so no CSD DEFINE FILE of the facts names it; the case's dataset of
+    that name states its KEYS and RECORDSIZE with a why, for the COBOL leg only (`runtime`)."""
+    got = ec.stub_files(_NoFilesIR(), "p.cbl", {"ZC01FILE": {"runtime_file": _RUNTIME_FILE}})
+    assert got == [
+        {
+            "file": "ZC01FILE",
+            "dsname": "ZC01FILE",
+            "base": "ZC01FILE",
+            "key_offset": 0,
+            "key_length": 16,
+            "reclen": 32700,
+            "via": ["the case's runtime_file"],
+            "runtime": True,
+        }  # fmt: skip
+    ]
+    assert ec.stub_files(_NoFilesIR(), "p.cbl", {}) == []
+    for wrong in (
+        {k: v for k, v in _RUNTIME_FILE.items() if k != "why"},
+        {k: v for k, v in _RUNTIME_FILE.items() if k != "reclen"},
+        {**_RUNTIME_FILE, "key_length": "16"},
+        {**_RUNTIME_FILE, "variable": True},
+    ):
+        with pytest.raises(ec.Unsupported):
+            ec.stub_files(_NoFilesIR(), "p.cbl", {"ZC01FILE": {"runtime_file": wrong}})
+    with pytest.raises(ec.Unsupported):  # a CICS file name is at most 8 upper-case characters
+        ec.stub_files(_NoFilesIR(), "p.cbl", {"zc01file": {"runtime_file": _RUNTIME_FILE}})

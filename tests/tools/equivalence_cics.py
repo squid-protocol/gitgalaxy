@@ -274,7 +274,11 @@ def _handle(pairs: list[tuple[str, str | None]], labels: list[str]) -> list[str]
             lines += ["MOVE SPACES TO GG-NAME2" if n == "ABCODE" else f"MOVE '{n[:8]}' TO GG-NAME2"] + _call(
                 "GGCASGN", []
             )
-            lines.append(f"MOVE GG-NAME1(1:{width}) TO {target}")
+            # IBM writes exactly `width` bytes and leaves the rest of a wider data area as it was (det: DetCics.put); a
+            # plain MOVE would space-pad that tail (#4049), so the target is reference-modified to the width
+            if re.search(r"\(\s*\d*\s*:", target):
+                raise Unsupported(f"ASSIGN {n}: a reference-modified target", [f"ASSIGN {n}"])
+            lines.append(f"MOVE GG-NAME1(1:{width}) TO {target}(1:{width})")
         if not any(n in TERMINAL_OPTIONS for n, _v in asked):
             return lines + _resp(opts, False)
         # INVREQ RESP2 5 for a task with no terminal, and then no data area written (register X19)
@@ -1723,10 +1727,14 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
             raise Unsupported(_rule(key, "required", "TDQUEUE"), [key])
         queue = name(opts["TDQUEUE"], "GG-QNAME")
         if verb == "SET":
-            if not opts.get("OPENSTATUS") and not opts.get("ENABLESTATUS"):
+            given = [o for o in ("OPENSTATUS", "ENABLESTATUS", "TRIGGERLEVEL") if opts.get(o)]
+            if not given:
                 raise Unsupported(_rule(key, "requires", "TDQUEUE"), [key])
-            if opts.get("OPENSTATUS") and opts.get("ENABLESTATUS"):  # #5168 round 5 (X66): one state per command
-                raise Unsupported("SET TDQUEUE with OPENSTATUS and ENABLESTATUS together", [key])
+            if len(given) > 1:  # #5168 round 5 (X66): one state per command
+                raise Unsupported(f"SET TDQUEUE with {' and '.join(given)} together", [key])
+            if opts.get("TRIGGERLEVEL"):  # #5168 round 7 (X66): the level in GG-NUM
+                return ([queue, f"MOVE {opts['TRIGGERLEVEL']} TO GG-NUM"] + _call("GGCSTDT", [])
+                        + _resp(opts, True, labels))  # fmt: skip
             if opts.get("ENABLESTATUS"):
                 return ([queue, f"MOVE {opts['ENABLESTATUS']} TO GG-NUM"] + _call("GGCSTDE", [])
                         + _resp(opts, True, labels))  # fmt: skip
@@ -1846,6 +1854,8 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         if verb == "XCTL" and not opts.get("PROGRAM"):
             raise Unsupported("XCTL without PROGRAM")
         _check_spec(verb, opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
+        if verb == "RETURN" and "CHANNEL" in opts:  # #5005: the det port carries it; no stub process outlives its task
+            raise _stub_only("RETURN CHANNEL")
         if verb == "XCTL" and opts.get("CHANNEL"):  # #4270: the target's current channel (GGCXCTL)
             if "COMMAREA" in opts or "LENGTH" in opts:
                 raise Unsupported(_rule("XCTL", "at_most_one", "CHANNEL"), ["XCTL CHANNEL"])
@@ -2246,6 +2256,32 @@ def _case_csd(file: str, datasets: dict[str, Any] | None) -> dict[str, Any] | No
             "reclen": spec["reclen"], "via": ["the case's csd"], "organization": "ESDS"}  # fmt: skip
 
 
+def case_runtime_files(datasets: dict[str, Any] | None) -> list[dict[str, Any]]:
+    """#4771: a CICS file the program names at run time (zECS: `ZC` + EIBTRNID(3:2) + `FILE` / `KEY`), so no CSD DEFINE
+    FILE of the engine's facts carries its name. The case's dataset of that file name states it with its `why`:
+    `"runtime_file": {"key_offset", "key_length", "reclen", "why"}` -- the IDCAMS job's KEYS and RECORDSIZE, as `vsam` is
+    for a named dataset. Only the COBOL leg binds it: the generated project stores no file the program does not name."""
+    out = []
+    for name, spec in sorted((datasets or {}).items()):
+        rf = (spec or {}).get("runtime_file")
+        if rf is None:
+            continue
+        if (
+            not re.fullmatch(r"[A-Z0-9]{1,8}", name)
+            or not all(isinstance(rf.get(k), int) for k in ("key_offset", "key_length", "reclen"))
+            or not rf.get("why")
+            or set(rf) - {"key_offset", "key_length", "reclen", "why"}
+        ):
+            raise Unsupported(
+                f"dataset {name}: a case's runtime_file states key_offset, key_length, reclen and why (a CICS file name "
+                f"of at most 8 upper-case characters): {rf}"
+            )
+        out.append({"file": name, "dsname": name, "base": name, "key_offset": rf["key_offset"],
+                    "key_length": rf["key_length"], "reclen": rf["reclen"],
+                    "via": ["the case's runtime_file"], "runtime": True})  # fmt: skip
+    return out
+
+
 _INSTALL_SYMBOL = re.compile(r"@([A-Za-z0-9_#$-]+)@")
 
 
@@ -2327,8 +2363,11 @@ def stub_files(
         if d is not None and d.kind == "PATH":
             via.append(f"PATH {d.name}")
             d = defines.get((d.related or "").upper())
-        if d is None and symbols and dsn != defs[0]["dsname"].upper():
-            vsam = ((datasets or {}).get(dsn) or {}).get("vsam") or {}  # #5089: stated, with the install symbols
+        stated_vsam = ((datasets or {}).get(dsn) or {}).get("vsam")
+        # #5089: a name resolved through the install symbols takes the case's stated vsam, also when the engine now
+        # reads the IDCAMS job as a define (its name keeps the placeholders, so its base would not be the dataset's)
+        if (d is None or stated_vsam) and symbols and dsn != defs[0]["dsname"].upper():
+            vsam = stated_vsam or {}
             if not all(isinstance(vsam.get(k), int) for k in ("key_offset", "key_length", "reclen")) or not vsam.get(
                 "why"
             ):
@@ -2361,21 +2400,25 @@ def stub_files(
             d = defines.get((d.related or "").upper())
             if d is None:
                 raise Unsupported(f"CICS file {e['name']}: AIX {key.name} has no base cluster define")
-        stated = ((datasets or {}).get(d.name.upper()) or {}).get("vsam") or {}
+        base = substitute_install_symbols(d.name, symbols)  # #5089: the define's name with the case's install symbols
+        stated = ((datasets or {}).get(base) or {}).get("vsam") or {}
         if key is d and (d.organization or "").upper() == "NONINDEXED":  # #4213: an ESDS: no key, browsed by RBA
             reclen = d.record_max if d.record_max is not None else stated.get("reclen")
             if reclen is None or (d.record_avg is not None and d.record_avg != reclen):
                 raise Unsupported(f"CICS file {e['name']}: ESDS {d.name} without fixed-length records (RECORDSIZE)")
-            out.append({"file": e["name"], "dsname": dsn, "base": d.name.upper(), "key_offset": 0, "key_length": 0,
+            out.append({"file": e["name"], "dsname": dsn, "base": base, "key_offset": 0, "key_length": 0,
                         "reclen": reclen, "via": via, "organization": "ESDS"})  # fmt: skip
             continue
         koff = key.key_offset if key.key_offset is not None else stated.get("key_offset")
         klen = key.key_length if key.key_length is not None else stated.get("key_length")
         reclen = d.record_max if d.record_max is not None else stated.get("reclen")
+        if (defs[0].get("record_format") or "").upper() == "V" and stated.get("variable") is True:
+            reclen = stated.get("reclen", reclen)  # #5089: a V file's records are all the one length the case states
         if koff is None or klen is None or reclen is None:
             raise Unsupported(f"CICS file {e['name']}: {key.name}'s KEYS or {d.name}'s RECORDSIZE is not in the facts")
-        out.append({"file": e["name"], "dsname": dsn, "base": d.name.upper(), "key_offset": koff,
+        out.append({"file": e["name"], "dsname": dsn, "base": base, "key_offset": koff,
                     "key_length": klen, "reclen": reclen, "via": via})  # fmt: skip
+    out += [r for r in case_runtime_files(datasets) if r["file"] not in {f["file"] for f in out}]
     return sorted(out, key=lambda f: f["file"])
 
 
@@ -3771,6 +3814,8 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             res.setdefault("websend", []).append(_cobol_web_send(kv, data, enc))
         elif verb == "WEB-HEADER":  # #4767 (X38): a response header the program wrote
             res.setdefault("webheader", []).append(_cobol_web_header(kv, enc))
+        elif verb == "WEB-RECEIVE":  # #4767 (X38): the request body the program read, as CicsTask records it
+            res.setdefault("webreceive", []).append(_cobol_web_receive(kv, data, enc))
         elif verb == "WRITEQ-TS":  # #4607: as CicsTask records it (queue, data, resp, item)
             res.setdefault("ts", []).append(_cobol_ts(kv, data, enc))
         elif verb in ("READQ-TS", "READQ-TD", "RECEIVE"):  # #4270 (GenApp LGICVS01): as CicsTask records them
@@ -4456,6 +4501,8 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
                      f"            }});")  # fmt: skip
     fields, loads, dumps = [], [], []
     for dsn, spec in case.get("datasets", {}).items():
+        if by_base[dsn].get("runtime"):  # #4771: stated for the COBOL leg; the project stores no file named at run time
+            continue
         if by_base[dsn].get("organization") == "ESDS":  # #4213: the region's ESDS, on the task (CicsTask.withEsds)
             f = by_base[dsn]
             csd_java += (
@@ -5337,6 +5384,14 @@ def _cobol_web_header(kv: dict[str, str], enc: str) -> dict[str, Any]:
             "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
 
 
+def _cobol_web_receive(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
+    """#4767 (X38): a WEB-RECEIVE line of the stub's events (the media type in hex, the bytes returned as the data) as CicsTask
+    records it; LENGERR 16 returned nothing (no body)."""
+    none = kv["resp2"] == "16"
+    return {"mediatype": None if kv["media"] == "-" else bytes.fromhex(kv["media"]).decode(enc),
+            "body": None if none else data.decode(enc), "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
+
+
 def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     """The COBOL task's outputs as the event list CicsTask records."""
     out: list[dict[str, Any]] = []
@@ -5351,6 +5406,7 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     webs = iter(res.get("web", []))  # #4767 (X35): WEB CONVERSE
     websends = iter(res.get("websend", []))  # #4767 (X37): WEB SEND
     webheaders = iter(res.get("webheader", []))  # #4767 (X38): WEB WRITE HTTPHEADER
+    webreceives = iter(res.get("webreceive", []))  # #4767 (X38): WEB RECEIVE
     children = iter(res.get("children", []))  # #4950: RUN TRANSID children
     for line in res["events"]:
         verb, _, args = line.partition(" ")
@@ -5378,6 +5434,8 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             out.append({"event": "WEB-SEND", **next(websends)})
         elif verb == "WEB-HEADER":  # #4767 (X38): CicsTask.webWriteHeader records the header written
             out.append({"event": "WEB-HEADER", **next(webheaders)})
+        elif verb == "WEB-RECEIVE":  # #4767 (X38): CicsTask.webReceive records the body read
+            out.append({"event": "WEB-RECEIVE", **next(webreceives)})
         elif verb == "WRITEQ-TS":  # #4607: CicsTask.writeqTs records it (queue, data, resp, item)
             out.append({"event": "WRITEQ-TS", **next(queued)})
         elif verb in ("READQ-TS", "READQ-TD", "RECEIVE"):  # #4270: CicsTask records them (queue, item, resp, data)
@@ -5530,6 +5588,10 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
         if c["event"] == "WEB-HEADER":  # #4767 (X38): the response header each side wrote, both ways
             for key in ("name", "value", "resp2"):
+                if (key in c or key in j) and c.get(key) != j.get(key):
+                    bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
+        if c["event"] == "WEB-RECEIVE":  # #4767 (X38): the body each side read and its media type, both ways
+            for key in ("mediatype", "body", "resp", "resp2"):
                 if (key in c or key in j) and c.get(key) != j.get(key):
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
         if c["event"] == "WEB-SEND":  # #4767 (X37): the response each side sent, both ways

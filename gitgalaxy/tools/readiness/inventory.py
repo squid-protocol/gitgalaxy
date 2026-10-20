@@ -27,6 +27,7 @@ from pathlib import Path
 from typing import Any
 
 from gitgalaxy.core import cics_macro_level as ML
+from gitgalaxy.core.cobol_preprocessor import comment_at
 from gitgalaxy.core.estate_options import effective_options, load_estate
 from gitgalaxy.core.source_text import read_source
 from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
@@ -71,6 +72,19 @@ def count_refusal_family(inv, family, prog_rel):
     an estate has one (never an empty `refusal_families`), so an estate without any keeps its fixture byte for byte."""
     inv.setdefault("refusal_families", defaultdict(lambda: {"count": 0, "programs": set()}))
     count_item(inv, "refusal_families", family, prog_rel)
+
+
+def count_stand_ins(inv, lines, prog_rel):
+    """#5565: the stand-in copybooks (CEEIGZCT, the CMQ* members; register L4 / W1) a program's COPY expansion read
+    from the engine's shipped directory because the estate has no member of that name. The category exists only once
+    an estate has one, so an estate without any keeps its fixture byte for byte."""
+    from gitgalaxy.core.copy_libraries import STAND_IN_DIR, stand_in_registers
+
+    shipped = STAND_IN_DIR.resolve()
+    members = {Path(ln.file).stem.upper() for ln in lines if Path(ln.file).resolve().parent == shipped}
+    for member in sorted(members & set(stand_in_registers())):
+        inv.setdefault("stand_in_copybooks", defaultdict(lambda: {"count": 0, "programs": set()}))
+        count_item(inv, "stand_in_copybooks", member, prog_rel)
 
 
 def count_unknown(inv, category, prog_rel):
@@ -216,7 +230,7 @@ def census_lines(lines: list[S.Line]) -> tuple[list[S.Line], bool]:
     out, seen = [], False
     for ln in lines:
         text = ln.text
-        if S._national_data(S._outside_literals(text[: S._comment_at(text)])) is not None:
+        if S._national_data(S._outside_literals(text[: comment_at(text)])) is not None:
             seen = True
             text = re.sub(
                 r"(?<![\w-])(PIC(?:TURE)?(?:\s+IS)?\s+)(?=\S*[NGng])\S+?(?=\.?(?:\s|$))", r"\1X", text, flags=re.I
@@ -304,6 +318,7 @@ def process_program(prog: Path, estate_dir: Path, ir, estate_opt, inv, estate_co
     try:
         lines = S.program_lines(prog, estate_copy_dirs, engine_copies)
         _tag_with_copybooks(prog, estate_dir, rel_prog, lines, inv)
+        count_stand_ins(inv, lines, rel_prog)
     except S.MacroLevelCics as e:  # #5121: refused by name, before COPY expansion; not parsed as COBOL with holes
         _skipped(inv, rel_prog, "MacroLevelCics")
         for m in re.finditer(r"(macro-level CICS|CICS Assembler) not supported", str(e)):

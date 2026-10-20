@@ -18,9 +18,8 @@ DEMOTED_LANGUAGES = (
 )
 
 # Languages that were already intentionally blind before Phase 3; pinned here so
-# a future re-enable is a deliberate act with a rosetta rebless, not a drive-by.
+# a future re-enable is a deliberate act with a rosetta rebless, not a drive-by (shell left in #5640).
 ALWAYS_UNSUPPORTED_LANGUAGES = (
-    "shell",
     "dockerfile",
     "sqlite",
     "html",

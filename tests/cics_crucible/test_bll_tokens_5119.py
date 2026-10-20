@@ -11,6 +11,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import test_cics_runtimes as R  # noqa: E402  (bare import: tests/ has no __init__.py, see CLAUDE.md)
 
@@ -138,6 +140,7 @@ def test_the_stub_numbers_addresses_held_in_data(tmp_path):
 
 
 @needs_javac
+@pytest.mark.slow(reason="one javac compile of the CICS runtime plus the stub run; 16.8s on a CI runner (#5119)")
 def test_cics_task_numbers_them_as_the_stub_does(tmp_path):
     """#5119 (X56): CicsTask.bllToken / bllPointer answer the same steps as the stub."""
     parts = []

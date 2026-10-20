@@ -43,7 +43,7 @@ def test_the_stub_translates_set_and_inquire():
     ("text", "why"),
     [
         (
-            "SET TDQUEUE(WS-Q) OPENSTATUS(DFHVALUE(OPEN)) TRIGGERLEVEL(3)",
+            "SET TDQUEUE(WS-Q) OPENSTATUS(DFHVALUE(OPEN)) ATITERMID(WS-T)",
             "only an extrapartition queue's open state and a queue's availability",
         ),
         (
@@ -55,7 +55,7 @@ def test_the_stub_translates_set_and_inquire():
             "only an extrapartition queue's open state and a queue's availability",
         ),
         ("INQUIRE TDQUEUE START", "only an extrapartition queue's open state and a queue's availability"),
-        ("SET TDQUEUE(WS-Q)", "SET TDQUEUE without OPENSTATUS or ENABLESTATUS"),
+        ("SET TDQUEUE(WS-Q)", "SET TDQUEUE without OPENSTATUS, ENABLESTATUS or TRIGGERLEVEL"),
         (
             "INQUIRE TDQUEUE(WS-Q) RESP(R)",
             "INQUIRE TDQUEUE without OPENSTATUS, TYPE, ENABLESTATUS, TRIGGERLEVEL, RECOVSTATUS or TRANSID",

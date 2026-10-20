@@ -37,5 +37,58 @@
     ],
     "qualifier": "IBMUSER"
   },
+  "faults": [
+    {
+      "name": "open-vsam",
+      "plan": [
+        {
+          "dd": "VSAM",
+          "op": "OPEN",
+          "nth": 1,
+          "status": "37"
+        }
+      ],
+      "why": "37: OPEN OUTPUT denied (IBM Enterprise COBOL for z/OS Language Reference, File status key values): A010 shows the status, RETURN-CODE 12, PROGRAM-DONE before any record or row is written"
+    },
+    {
+      "name": "write-first-customer",
+      "plan": [
+        {
+          "dd": "VSAM",
+          "op": "WRITE",
+          "nth": 1,
+          "status": "30"
+        }
+      ],
+      "why": "30: permanent I/O error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) writing the first customer: A010 shows the status, RETURN-CODE 12, PROGRAM-DONE"
+    },
+    {
+      "name": "write-control-record",
+      "plan": [
+        {
+          "dd": "VSAM",
+          "op": "WRITE",
+          "nth": 4,
+          "status": "30"
+        }
+      ],
+      "why": "30: permanent I/O error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) writing the control record after the 3 customers: RETURN-CODE 12, PROGRAM-DONE"
+    },
+    {
+      "name": "parm-end-before-start",
+      "parm": "5,1,1,0000000000000007",
+      "why": "PARM end customer 1 is below start customer 5 (l.397): RETURN-CODE 12 and GOBACK before the VSAM file is opened or a row is deleted, so the seeded tables are untouched"
+    },
+    {
+      "name": "parm-step-zero",
+      "parm": "1,3,0,0000000000000007",
+      "why": "PARM step 0 (l.403): RETURN-CODE 12 and GOBACK before the file is opened or a row is deleted"
+    },
+    {
+      "name": "parm-over-1000-customers",
+      "parm": "1,1002,1,0000000000000007",
+      "why": "1002 customers: COMMIT-COUNT passes 1000 (l.579) so the program commits mid-run, and with that many account open dates drawn some fall on or before the birth year, so the opened-date retry (l.912 false, l.917 false) runs; the 100-attempt arm (l.917 true) needs 100 failed draws in a row, a probability near zero"
+    }
+  ],
   "notes": "CBSA's data generator (BANKDATA, a batch step under IKJEFT01): PARM start,end,step,seed (customers 1 to 3 step 1, random seed 7; the seed is 16 digits, it is REDEFINED as numeric, and a one-line PARM literal is 65 columns at most) opens CUSTOMER-FILE (the VSAM DD) OUTPUT, writes one customer record per number plus the control record (sortcode 000000, number 9999999999), and for each customer generates 1-5 ACCOUNT rows in Db2 (DELETE of the sortcode's ACCOUNT and CONTROL rows first, COMMIT, then the 987654-ACCOUNT-LAST / -ACCOUNT-COUNT CONTROL rows). The names, addresses, dates of birth and account types are drawn from FUNCTION RANDOM, one run unit's sequence (oracle_assumptions.md C12); CEEGMT / CEEDATM are the harness's LE time models (le_time.c) under the case's fixed clock. seed.sql holds ACCOUNT and CONTROL rows of the generated sortcode (987654, replaced) and of another (111111, kept), so the DELETE is observable. Both sides run their SQL on one real Db2; the VSAM file and the two tables are compared. Derived from the CICS Bank Sample Application (CBSA), EPL-2.0: LICENSE is the corpus's own."
 }

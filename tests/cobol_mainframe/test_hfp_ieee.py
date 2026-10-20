@@ -79,7 +79,11 @@ def test_a_short_hfp_is_exact_in_binary32_inside_its_range():
 def test_the_two_formats_disagree_on_a_tenth():
     """0.1 is the C6 DIFFERS case: z/OS holds 4019999A / 3FFFFFFF-style truncation, the oracle the nearest binary."""
     z = H.for_item(F(1, 10), False)
-    assert H.encode(z, False).hex().upper() == "4019999999999999A"[:16].replace("A", "9", 0)[:16] or True
+    assert H.encode(z, False).hex().upper() == "4019999999999999"  # truncated: IBM's own 0.1
+    assert (
+        H.from_ieee(f64(0.1), 8).hex().upper() == "401999999999999A"
+    )  # the oracle's nearest binary, a different image
+    assert H.from_ieee(f32(0.1), 4).hex().upper() == "4019999A"
     ieee = H.ieee_value(f64(0.1), 8)
     assert ieee != F(1, 10) and z != F(1, 10) and z != ieee
     assert not H.exact_in_both(F(1, 10), False) and not H.exact_in_both(F(1, 10), True)

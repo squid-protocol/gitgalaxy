@@ -47,6 +47,10 @@ CANDIDATES_MD = DOCS / "estate4_candidates.md"
 REQUEST_LOG = DOCS / "estate4_candidates_requests.json"
 DEVDATA_JSON = DOCS / "estate4_devdata_repos.json"
 BURNED_JSON = DOCS / "estate4_burned_basenames.json"
+# The batch kind (#3806) has its own outputs, so the committed CICS draw stays byte-identical.
+BATCH_CANDIDATES_JSON = DOCS / "estate_batch_candidates.json"
+BATCH_REQUEST_LOG = DOCS / "estate_batch_candidates_requests.json"
+KINDS = ("cics", "batch")
 
 API = "https://api.github.com"
 DEFAULT_CACHE = Path("/tmp/estate4_build_cache.json")
@@ -216,6 +220,7 @@ MIN_COBOL_BYTES = 20_000
 MIN_PROGRAMS, MAX_PROGRAMS = 5, 300
 PROGRAM_EXT = (".cbl", ".cob", ".cobol")
 BASENAME_EXT = PROGRAM_EXT + (".cpy",)
+JCL_EXT = (".jcl", ".proc", ".prc")
 
 # ---- foreign heuristic ----------------------------------------------------
 EN_WORDS = set(
@@ -448,12 +453,30 @@ def compute_hard(paths: list[str], programs: int) -> int:
     return int(jcl) + int(pli) + int(asm) + int(db2) + int(programs >= 50)
 
 
+def jcl_evidence(paths: list[str]) -> int:
+    """Batch evidence from file names only: files ending .jcl/.proc/.prc, or files under a ``jcl`` folder."""
+    n = 0
+    for p in paths:
+        low = p.lower()
+        if low.endswith(JCL_EXT) or "jcl" in low.split("/")[:-1]:
+            n += 1
+    return n
+
+
+def kind_paths(kind: str) -> tuple[Path, Path]:
+    """(candidates json, request log) for an estate kind."""
+    if kind not in KINDS:
+        raise ValueError(f"unknown estate kind: {kind}")
+    return (BATCH_CANDIDATES_JSON, BATCH_REQUEST_LOG) if kind == "batch" else (CANDIDATES_JSON, REQUEST_LOG)
+
+
 def tree_stats(paths: list[str]) -> dict[str, Any]:
     low = [p.lower() for p in paths]
     stems = {p.rsplit("/", 1)[-1].rsplit(".", 1)[0] for p in low if p.endswith(BASENAME_EXT)}
     return {
         "bms": sum(1 for p in low if p.endswith(".bms")),
         "csd": sum(1 for p in low if p.endswith(".csd")),
+        "jcl": jcl_evidence(paths),
         "programs": sum(1 for p in low if p.endswith(PROGRAM_EXT)),
         "cobol_files": sum(1 for p in low if p.endswith(BASENAME_EXT)),
         "stems": stems,
@@ -528,7 +551,7 @@ def cmd_draw(args: argparse.Namespace) -> int:
     if hashlib.sha256(bytes.fromhex(rnd["signature"])).hexdigest() != randomness:
         print("randomness != sha256(signature)", file=sys.stderr)
         return 2
-    data = CANDIDATES_JSON.read_bytes()
+    data = kind_paths(args.kind)[0].read_bytes()
     cands = json.loads(data)["candidates"]
     seed = compute_seed(randomness, data)
     idx, total, win = select(cands, seed)
@@ -641,6 +664,12 @@ def search_all(client: ApiClient, lo: dt.date, hi: dt.date, n: int) -> list[dict
 
 
 def cmd_build(args: argparse.Namespace) -> int:
+    kind = args.kind
+    if kind == "batch" and not args.approved_by_owner:
+        # #3806: the batch draw waits on the owner's approval of the metadata-only draw (decisions a-d).
+        print("batch build refused: pass --approved-by-owner only once the owner approved the draw", file=sys.stderr)
+        return 6
+    cand_json, req_log = kind_paths(kind)
     token = subprocess.run(["gh", "auth", "token"], capture_output=True, text=True, check=True).stdout.strip()
     client = ApiClient(token, Path(args.cache))
     devdata = set(json.loads(DEVDATA_JSON.read_text())["repos"])
@@ -706,8 +735,12 @@ def cmd_build(args: argparse.Namespace) -> int:
             client.save()
     client.save()
 
-    s4 = {k: v for k, v in pool.items() if v["stats"]["bms"] + v["stats"]["csd"] >= 1}
-    counts["R4_has_bms_or_csd"] = len(s4)
+    if kind == "batch":
+        s4 = {k: v for k, v in pool.items() if v["stats"]["jcl"] >= 1}
+        counts["R4_has_jcl"] = len(s4)
+    else:
+        s4 = {k: v for k, v in pool.items() if v["stats"]["bms"] + v["stats"]["csd"] >= 1}
+        counts["R4_has_bms_or_csd"] = len(s4)
     s5 = {k: v for k, v in s4.items() if MIN_PROGRAMS <= v["stats"]["programs"] <= MAX_PROGRAMS}
     counts["R5_programs_5_to_300"] = len(s5)
     s6 = {
@@ -757,6 +790,7 @@ def cmd_build(args: argparse.Namespace) -> int:
                 "cobol_programs": v["stats"]["programs"],
                 "bms_files": v["stats"]["bms"],
                 "csd_files": v["stats"]["csd"],
+                "jcl_files": v["stats"]["jcl"],
                 "tree_truncated": v["truncated"],
                 "burned_overlap": v["burned_overlap"],
                 "foreign": foreign,
@@ -775,24 +809,29 @@ def cmd_build(args: argparse.Namespace) -> int:
     counts["eligible"] = len(out)
 
     # always write the log (shows what was requested even if we stop)
-    REQUEST_LOG.write_text(json.dumps(client.log, indent=0) + "\n")
+    req_log.write_text(json.dumps(client.log, indent=0) + "\n")
     bad = forbidden_in_log(client.log)
     if bad:
         print("FORBIDDEN requests in log:", bad[:5], file=sys.stderr)
         return 3
     if len(out) < 5:
         print("FEWER THAN 5 ELIGIBLE; stopping. Counts:", json.dumps(counts, indent=1))
-        (DOCS / "estate4_candidates_counts_partial.json").write_text(json.dumps(counts, indent=1) + "\n")
+        (DOCS / f"estate_{kind}_candidates_counts_partial.json").write_text(json.dumps(counts, indent=1) + "\n")
         return 4
     doc = {
-        "about": "Blind candidate list for the 4th CICS estate trial. Metadata only; no code or README read.",
+        "about": (
+            "Blind candidate list for the 4th CICS estate trial. Metadata only; no code or README read."
+            if kind == "cics"
+            else "Blind candidate list for the fresh batch estate trial (#3806). Metadata only; no code or README read."
+        ),
         "built_utc": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "filter_counts": counts,
         "total_weight": sum(c["weight"] for c in out),
         "candidates": out,
     }
-    CANDIDATES_JSON.write_text(json.dumps(doc, indent=1, sort_keys=True, ensure_ascii=False) + "\n")
-    write_md(doc, len(client.log))
+    cand_json.write_text(json.dumps(doc, indent=1, sort_keys=True, ensure_ascii=False) + "\n")
+    if kind == "cics":  # the batch page is written by hand from the pre-registration
+        write_md(doc, len(client.log))
     print(json.dumps(counts, indent=1))
     return 0
 
@@ -905,9 +944,12 @@ def main() -> int:
     p.set_defaults(fn=cmd_inputs)
     p = sub.add_parser("build")
     p.add_argument("--cache", default=str(DEFAULT_CACHE))
+    p.add_argument("--kind", choices=KINDS, default="cics")
+    p.add_argument("--approved-by-owner", action="store_true", help="batch kind only: the owner approved the draw")
     p.set_defaults(fn=cmd_build)
     p = sub.add_parser("draw")
     p.add_argument("--round", type=int, required=True)
+    p.add_argument("--kind", choices=KINDS, default="cics")
     p.set_defaults(fn=cmd_draw)
     args = ap.parse_args()
     return int(args.fn(args))

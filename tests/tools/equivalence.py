@@ -224,6 +224,24 @@ def fault_plan(fault: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def run_parm(case: dict[str, Any], fault: dict[str, Any] | None = None) -> str | None:
+    """#5561: the PARM a run gets: the fault run's own `parm` (a batch step's input, so END < START, step 0 or a
+    seed are runs of their own), else the case's."""
+    if fault is not None and fault.get("parm") is not None:
+        if case.get("entries"):
+            raise SystemExit(f"{case['name']}: a run's own parm cannot go with `entries` (they pass no PARM)")
+        return str(fault["parm"])
+    return case.get("parm")
+
+
+def fresh_fault_log(work: Path, fault: dict[str, Any] | None) -> None:
+    """ggfault.c / ggsql APPEND to work/FAULTS: a second pass over the same work dir (a kept baseline run again) would
+    log every fault twice, and a --reuse of it would copy the doubled log into each mutant's COBOL side (mutation
+    testing's false kills: "faults fired differ: COBOL [x2], Java [x1]"). A step that is reused keeps its earlier log."""
+    if fault is not None and not step_reused(work):
+        (work / "FAULTS").unlink(missing_ok=True)
+
+
 def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, Any] | None = None) -> dict[str, bytes]:
     """Stage, compile and run the case's program under GnuCOBOL; {dd: output bytes}, plus RETURN-CODE -- or,
     when the step abended, ABEND (Unnnn, the CEE3ABD stub's) -- and, for a `fault` run, FAULTS: the planned
@@ -283,7 +301,7 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
         shutil.rmtree(work / "dliout", ignore_errors=True)
         (work / "dliout").mkdir()
     else:
-        (src / "EQDRIVER.cbl").write_text(cobol_driver(case["program"], case.get("parm")), encoding="ascii")
+        (src / "EQDRIVER.cbl").write_text(cobol_driver(case["program"], run_parm(case, fault)), encoding="ascii")
     for stub in ("ggabend.c", "ggfault.c", "ggdisplay.c"):
         shutil.copy(FAULTS_DIR / stub, src / stub)
     models = sorted(LE_MODELS.glob("*.c"))
@@ -329,6 +347,7 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
         elif spec.get("compare"):
             script.append(f"[ ! -e /work/{dd}.idx ] || cp /work/{dd}.idx /work/{dd}.out")
     (work / "run.sh").write_text("\n".join(script) + "\n", encoding="ascii")
+    fresh_fault_log(work, fault)
     if db2 and not step_reused(work):
         equivalence_db2.reset(case, corpus)
     proc = (run_cobol_step(work, equivalence_db2.COBOL_IMAGE, tuple(equivalence_db2.cobol_docker_args(case))) if db2
@@ -600,7 +619,7 @@ def compare_run(case: dict[str, Any], corpus: Path, cobol: dict[str, bytes], jav
                  (("cobol", cobol), ("java", java))}  # fmt: skip
         fired = {side: [x for x in lines if x.strip()] for side, lines in fired.items()}
         run["fired"] = fired
-        if not fired["cobol"]:
+        if not fired["cobol"] and fault.get("plan"):  # #5561: a run with only its own parm plans no fault
             why.append("the planned fault never fired on the COBOL side: the run does not reach it")
         if fired["cobol"] != fired["java"]:
             why.append(f"faults fired differ: COBOL {fired['cobol']}, Java {fired['java']}")
@@ -843,7 +862,7 @@ def main() -> int:
     try:
         runs = ej.run_java_environments(case, corpus, work / "java", work / "cobol", envs,
                                         port=not args.generated_only, port_dir=args.port,
-                                        faults=tuple((f["name"], fault_plan(f), "\n".join(f.get("sql_plan", [])))
+                                        faults=tuple((f["name"], fault_plan(f), "\n".join(f.get("sql_plan", [])), run_parm(case, f) if f.get("parm") is not None else "")
                                                      for f in faults),
                                         stop=differs if args.first_difference else None,
                                         entries=tuple(entries), one_jvm=args.one_jvm)  # fmt: skip
@@ -875,7 +894,8 @@ def main() -> int:
     for f in faults_made:  # #4023 follow-up: each fault run, proven like the normal one
         run = compare_run(case, corpus, cobol_faults[f["name"]], runs[f"fault:{f['name']}"], fault=f)
         report.setdefault("faults", []).append({"name": f["name"], "why": f.get("why", ""), "plan": fault_plan(f)
-                                                .strip().splitlines(), **run})  # fmt: skip
+                                                .strip().splitlines() + ([f"PARM {f['parm']}"] if f.get("parm") is not None else []),
+                                                **run})  # fmt: skip
         ok &= run["ok"]
     whys = {e["method"]: e.get("why", "") for e in case.get("entries", [])}
     for e in entries_made:  # #4048 follow-up: each entry run, against the same COBOL run as the normal one

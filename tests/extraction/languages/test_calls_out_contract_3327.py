@@ -131,7 +131,7 @@ def test_blind_languages_declare_blindness():
         for lang, d in LANGUAGE_DEFINITIONS.items()
         if isinstance(d, dict) and d.get("rules", {}).get("calls_out") is None
     ]
-    assert "shell" in blind and "yaml" in blind
+    assert "dockerfile" in blind and "yaml" in blind
     for lang in blind:
         assert not hasattr(LANGUAGE_DEFINITIONS[lang]["rules"].get("calls_out"), "finditer")
 

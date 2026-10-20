@@ -224,7 +224,7 @@
     {
       "id": "procedure-pointer",
       "match": "SET TO ENTRY: procedure / function pointers",
-      "note": "Procedure / function pointers: no model (#5042 is the data-pointer lane).",
+      "note": "Procedure / function pointers: no model (#5042 is the data-pointer lane). The only burned user is DBB epscsmrd `SET ROUTINE TO ENTRY 'EPSCSMRF'`, whose pointer is only ever passed to CEEHDLR / CEEHDLU: it is proven together with `le-condition-handling` (LE dispatch, RESUME / PERCOLATE), never alone, so no pointer model is added before that one.",
       "issue": 5106
     },
     {
@@ -254,7 +254,7 @@
       "features": [
         "cics_commands: SOAPFAULT CREATE"
       ],
-      "note": "CICS web services (SOAP / WS-Addressing): no model (WEB #4767 and DOCUMENT #4769 are the HTTP side).",
+      "note": "CICS web services (SOAP / WS-Addressing): no model (WEB #4767 and DOCUMENT #4769 are the HTTP side). Refused by name, register X65, every SOAPFAULT CREATE option refused whole. The only burned user is DBB epscsmrd SEND-SOAP-FAULT (`SOAPFAULT CREATE CLIENT FAULTSTRING FAULTSTRLEN`, a web-service reply to the client); no cics-crucible event kind carries a fault, and epscsmrd stays held by the other boxes, so a model would prove no program.",
       "issue": 5106
     },
     {
@@ -266,8 +266,8 @@
     {
       "id": "unbound-file",
       "match": "no repository for this file in the generated project",
-      "note": "A file with no store in the generated project (catalogue RT-FILE-UNBOUND-FILE, REFUSED). #5034 (closed) bound a CALLed subprogram's DDs in its caller's step; these programs' files are not that case.",
-      "issue": 5106
+      "note": "A file with no store in the generated project (catalogue RT-FILE-UNBOUND-FILE, REFUSED). #5034 (closed) bound a CALLed subprogram's DDs in its caller's step; these programs' files are not that case. Refused by name, not modelled: no burned estate hits it now. The two programs that carried it in the committed evidence fixtures (CardDemo CBSTM03B: CLOSE / OPEN / READ TRNX-FILE; CBSA BANKDATA: CLOSE / OPEN / WRITE CUSTOMER-FILE, with CEEGMT / CEEDATM beside them) are, in the published evidence reports, translated whole with 0 holes (CBSTM03B 3 holes -> 0, BANKDATA 6 -> 0): each file's DD reaches a repository through its caller's step (#5068) or the estate's DD / dataset binding. A file that really has no store stays an OPEN / CLOSE-only handle (DetFiles.Unbound; a record operation on it is a hole), so a program of a non-burned estate is out of scope here (burned-only policy).",
+      "issue": 5565
     }
   ]
 }

@@ -90,6 +90,13 @@ def _clock(case: dict[str, Any]) -> str:
     return f"{date.replace('/', '-')}T{time}"
 
 
+def run_parm(parm: str) -> str:
+    """#5561: a run's own PARM, as it travels in a JVM argline: no whitespace or quote to split or end it."""
+    if not re.fullmatch(r"[^\s'\"\\]+", parm):
+        raise ValueError(f"a run's PARM {parm!r} has whitespace or a quote: it cannot travel in the JVM argline")
+    return parm
+
+
 def entry_names(case: dict[str, Any]) -> list[str]:
     """#4048 follow-up: the case's `entries` -- each a no-argument method of the service (a controller's entry,
     executeX) that runs the whole step. Each is an entry run: the step once more through that method instead of
@@ -137,6 +144,11 @@ def equivalence_test(case: dict[str, Any]) -> str:
                          "java.nio.file.StandardCopyOption.REPLACE_EXISTING);\n        }")  # fmt: skip
     dds = ", ".join(f'new Dd("{dd}", "{dd}", null, null, null)' for dd in case["datasets"])
     parm = f'"{case["parm"]}"' if case.get("parm") is not None else "null"
+    parm = (
+        f'System.getProperty("equivalence.parm", {parm})'
+        if parm != "null"
+        else 'System.getProperty("equivalence.parm")'
+    )  # #5561: a run's own PARM
     imports = "".join(
         f"import {PKG}.entity.vsam.{s['entity']};\n" for s in case["datasets"].values() if s.get("entity")
     )
@@ -412,7 +424,9 @@ def linked_programs(case: dict[str, Any], corpus: Path, project: Path, sources: 
             continue
         dirs = [corpus / d for d in case.get("copy_dirs", ["app/cpy"])]
         dirs += [corpus / d for d in (case.get("db2") or {}).get("include_dirs", [])]
-        stub = (project / "src/main/java" / PKG_DIR / rel).read_text(encoding="utf-8")
+        # #4047: on --reuse the project's file is the earlier run's translation, not the stub: translate the kept stub
+        kept = project.parent / GENERATED_KEEP / rel
+        stub = (kept if kept.is_file() else project / "src/main/java" / PKG_DIR / rel).read_text(encoding="utf-8")
         r = P.translate(corpus / extra["program_source"], dirs, stub, PKG, P.estate_files(project), project,
                         options=common.effective_options(case, program=extra["program"]).layers)  # fmt: skip
         out = work / "linked" / rel
@@ -443,6 +457,9 @@ def _reused_project(earlier: Path, work: Path, overlay: list[str]) -> Path:
         raise RuntimeError(f"--reuse: the port's files {overlay} are not the earlier run's {before}")
     project = work / poms[0].parent.name
     shutil.copytree(poms[0].parent, project, dirs_exist_ok=True, ignore=shutil.ignore_patterns("surefire-reports"))
+    kept = poms[0].parent.parent / GENERATED_KEEP  # #4047: the generated files the earlier overlay replaced (the stubs)
+    if kept.is_dir():  # a LINKed program is translated from its stub, never from the earlier run's translation
+        shutil.copytree(kept, work / GENERATED_KEEP, dirs_exist_ok=True)
     (project / PRECOMPILED).unlink(missing_ok=True)
     return project
 
@@ -841,11 +858,15 @@ def _run_all(case: dict[str, Any], project: Path, work: Path, inputs: Path, envs
         )
         if stop and stop(env["name"], runs[env["name"]]):
             return runs
-    for name, plan, *sql in faults:
+    for name, plan, *rest in faults:
+        sql = rest[:1]
         area = work / "faults" / name
         (area / "out").mkdir(parents=True, exist_ok=True)
         (area / "fault.plan").write_text(plan, encoding="ascii")
+        (area / "out" / "FAULTS").unlink(missing_ok=True)  # the log appends: a re-run of this area starts afresh
         props = f"-Dgitgalaxy.faults.plan={area / 'fault.plan'} -Dgitgalaxy.faults.log={area / 'out' / 'FAULTS'}"
+        if len(rest) > 1 and rest[1]:  # #5561: this run's own PARM (rest[1]), not the case's
+            props += f" -Dequivalence.parm={run_parm(rest[1])}"
         if sql and sql[0]:  # #4173: the run's SQL faults, to the det runtime's DetSql (the same log)
             (area / "sqlfaults.plan").write_text(sql[0] + "\n", encoding="ascii")
             props += (

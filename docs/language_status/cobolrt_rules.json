@@ -1509,7 +1509,8 @@
    "title": "COMP-1 / COMP-2 are HFP: sign bit, excess-64 characteristic (a power of 16), 6 / 14 hexadecimal fraction digits, big-endian; true zero all zero bytes; an unnormalized fraction reads as its value",
    "methods": [
     "read",
-    "store"
+    "store",
+    "image"
    ],
    "site": "read",
    "ibm": {
@@ -1632,6 +1633,27 @@
     "C6"
    ],
    "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-HFP-IEEE-CONVERSION",
+   "family": "HFP",
+   "title": "An IEEE binary32 / binary64 pattern to and from COMP-1 / COMP-2: binary64 exact in long HFP, binary32 truncated to long then rounded to short, HFP to IEEE nearest ties to even",
+   "methods": [
+    "ieeeValue",
+    "fromIeee",
+    "toIeee",
+    "ebits",
+    "fbits",
+    "cmp2"
+   ],
+   "ibm": null,
+   "ibm_note": "IBM documents no IEEE converter for COMP-1 / COMP-2; the model's choice (det/hfp.py from_ieee / to_ieee)",
+   "options": [],
+   "register": [
+    "C6"
+   ],
+   "status": "ASSUMED",
    "calibration": "uncalibrated"
   },
   {
@@ -2488,6 +2510,8 @@
     "setAddressOfItem",
     "setPointerToRecord",
     "setPointerToItem",
+    "copyPointer",
+    "advancePointer",
     "samePointer",
     "wholeRecord"
    ],

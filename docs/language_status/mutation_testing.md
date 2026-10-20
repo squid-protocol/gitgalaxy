@@ -49,7 +49,7 @@ A from-scratch proof per mutant redoes the COBOL runs and regenerates the whole 
 - When the build is current (the main classes from the port, the test classes from this very test source), the
   test runs in a plain JVM through the JUnit Platform launcher surefire itself uses. Otherwise it goes to Maven.
   By default each run is a fresh JVM: no state crosses runs.
-- `--one-jvm` (opt-in, `mutation.py run` and `equivalence.py run`): the default, fault and entry runs of a batch
+- `--one-jvm` (the default of `mutation.py run` in fast mode since 2026-10-20, `--no-one-jvm` opts out; opt-in on `equivalence.py run`): the default, fault and entry runs of a batch
   proof share one session JVM (`EquivalenceMain --session`; one run per stdin line, the exit status in a
   `@@EQUIVALENCE-RUN-DONE@@` marker). Python compares each run before sending the next, so `--first-difference`
   still stops early. The generated test class carries `@DirtiesContext`, so each run gets a fresh Spring context
@@ -100,6 +100,87 @@ default: **a case with entry runs.** No committed port has an entry method (`exe
 has `entries`; a candidate `entries` case on carddemo-readcard fails to build against the committed port (no
 `executeCbact02c`), so entry runs in a session JVM are covered by unit tests only. The call runner was validated on
 12 mutants (above), not on this larger sample.
+
+**`--one-jvm` on a call, a second batch and a second CICS port (2026-10-20, #4047).** `--sample N --seed 2` in
+`--full`, then the same mutants in fast mode and `--one-jvm`, judged by `mutation.py compare --require-agree N`:
+
+| case | judged by both | `--full` vs fast | `--full` vs `--one-jvm` | fast vs `--one-jvm` |
+|---|---|---|---|---|
+| carddemo-dateutil (CSUTLDTC, call) | 40 | 40 agree | 40 agree | 40 agree |
+| carddemo-posttran (CBTRN02C, batch, 29 runs) | 30 | 22 agree, 8 differ | 22 agree, 8 differ | 30 agree |
+| carddemo-cardlist (COCRDLIC, CICS) | 30 | 12 agree, 18 differ | not finished | not run |
+
+dateutil: proof seconds full 673, fast 386, `--one-jvm` 374 (survivors 174 -> 104 -> 93). The call runner is now
+validated on 40 mutants, every operator. **`--one-jvm` stays opt-in:** posttran and cardlist disagree with `--full`
+in plain fast mode too, so the cause is not the session JVM (fast and `--one-jvm` give the same 30 verdicts on posttran).
+The disagreements, re-run in `--full` with a 2,400 s limit (so not a timeout): 7 mutants that `--full` calls
+*survived* and fast calls *killed* (posttran 2, cardlist 5), plus 6 `--full` and 13 fast `no report (exit 1)` errors
+(infrastructure, not verdicts). posttran fast kills all 28 judged mutants, each by the fault run `open-dalytran`:
+`faults fired differ: COBOL ['DALYTRAN OPEN 1 35', 'DALYTRAN OPEN 1 35'], Java ['DALYTRAN OPEN 1 35']`. The kept
+baseline's COBOL `FAULTS` file lists a file fault twice (the fault fires at two hooks); under `--reuse` the mutant's
+Java side lists it once, where `--full` lists it twice. A CON mutant killed by an OPEN fault is a false kill: fast mode
+overstates the score on posttran. Not yet found why the reused project's Java side fires once. Until fast mode agrees with
+`--full` on posttran and cardlist, `--one-jvm` is not made the default.
+
+**Re-run after the fault-log fix, fresh sample, `--jobs` 1 vs 2 (2026-10-20, #4047, on #5748).** #5748 removes the stale
+`work/FAULTS` file before a fault step that is not reused; that was the false `faults fired differ` kill on posttran.
+`--sample 20 --seed 3` in `--full` (`--jobs 1`), then the same mutants in fast mode at `--jobs 1` and `--jobs 2`, judged by
+`mutation.py compare`:
+
+| case | judged by both | `--full` vs fast `--jobs 1` | `--full` vs fast `--jobs 2` | fast `--jobs 1` vs `--jobs 2` | killed / survived / stillborn | proof s, full -> fast 1 -> fast 2 |
+|---|---|---|---|---|---|---|
+| carddemo-cardlist (COCRDLIC, CICS) | 20 | 20 agree | 20 agree | 20 agree | 16 / 2 / 2 | 558 -> 272 -> 199 |
+| carddemo-posttran (CBTRN02C, batch) | 20 | 20 agree | 20 agree | 20 agree | 13 / 3 / 4 | 2,207 -> 405 -> 461 |
+
+No `no report` errors. **bbd92e25af** (COCRDLIC, `CocrdlicService.java:997`, RET `return false;` -> `return true;`): the
+earlier seed-2 batch killed it in fast mode (by the fault runs `readnext-io-error-on-the-look-ahead`,
+`readprev-io-error-first`, `readprev-io-error-mid-page`, events equal, "differs"), while it survives alone in fast mode and in
+`--full`. The whole seed-2 cardlist batch (30 mutants, judged against the old `--full` reference) was re-run in fast mode at
+`--jobs 2` and `--jobs 1`: **30 of 30 agree both times and bbd92e25af survives both times**. So `--jobs 2` sharing the reused
+baseline is not shown to be the cause (it is not reproduced at `--jobs 2`), and the one earlier kill is not reproduced with
+the fault-log fix; its cause is not identified, only that it has not come back in 2 re-runs. Fast mode now agrees
+with `--full` on posttran and cardlist (20 fresh mutants each, plus the 30 seed-2 cardlist mutants), at both `--jobs` values;
+dateutil agreed before. Not validated: `--one-jvm` on these two cases after the fix (fast and `--one-jvm` agreed on posttran
+before it), entry runs, and samples above 40. `--one-jvm` therefore stays opt-in until it is compared on the fixed code.
+
+**`--one-jvm` on the fixed code, and the default (2026-10-20, #4047).** The same fresh `--sample 20 --seed 3` mutants
+as above, `--one-jvm` (`--jobs 1`) judged by `mutation.py compare` against the `--full` reference and against fast
+`--jobs 1`:
+
+| case | `--full` vs `--one-jvm` | fast vs `--one-jvm` | proof s, full -> fast -> one-jvm | survivors' proof s, full -> fast -> one-jvm |
+|---|---|---|---|---|
+| carddemo-cardlist (COCRDLIC, CICS) | 20 of 20 agree | 20 of 20 agree | 558 -> 272 -> 123 | 52 -> 33 -> 14 |
+| carddemo-posttran (CBTRN02C, batch) | 20 of 20 agree | 20 of 20 agree | 2,207 -> 405 -> 118 | 421 -> 305 -> 45 |
+
+Every operator present agreed. With the earlier agreements (intcalc 40 and menu 30 and dateutil 40 of 40, and the
+12-mutant checks) `--one-jvm` has agreed with `--full` on every burned-estate case sampled, so `mutation.py run` now
+uses it in fast mode (`--full` does not; `--no-one-jvm` gives a JVM per run; `--record` uses it too). Not validated:
+a case with entry runs (no burned committed port has one; unit tests only), the 17 crucible ports run through
+`mutation_crucible.py`, samples above 40. Db2 and IMS cases still get a JVM per run. If a `compare` against
+`--full` ever disagrees on a new case, rerun with `--no-one-jvm` first.
+
+**Four more burned cases, and a fast-mode defect they found (2026-10-20, #4047).** `--sample N --seed 7` in `--full`
+(`--jobs 1`), then the same mutants in fast mode with the session JVM (the default) and, where stated, without it,
+judged by `mutation.py compare --require-agree N`:
+
+| case | judged by both | `--full` vs `--one-jvm` | fast (JVM per run) vs `--one-jvm` | killed / survived / stillborn | proof s, full -> one-jvm |
+|---|---|---|---|---|---|
+| genapp-lgicdb01 (LGICDB01, CICS + Db2) | 20 | 20 agree | 20 agree | 6 / 11 / 3 | 582 -> 455 |
+| carddemo-tranlist (COTRN00C, CICS) | 20 | 20 agree | 20 agree | 13 / 6 / 1 | 362 -> 187 |
+| carddemo-trnrpt (CBTRN03C, batch) | 12 | 12 agree | 12 agree | 8 / 2 / 2 | 1,827 -> 153 |
+| cbsa-inqacc (INQACC, CICS + Db2, LINKs ABNDPROC), before the fix | 20 | **11 agree, 9 differ** | 20 agree | 8 / 9 / 3 (`--full`) | 551 -> 394 |
+| cbsa-inqacc, after the fix | 20 | 20 agree | (fast vs `--full`: 20 agree) | 8 / 9 / 3 | 551 -> 775 (run beside another proof) |
+| genapp-lgapvs01 (LGAPVS01, LINKs LGSTSQ), after the fix | 15 | 15 agree | not run | 6 / 6 / 3 | 317 -> 105 |
+
+**The defect was fast mode, not the session JVM** (fast with a JVM per run gave the same 17 kills). Nine mutants that
+`--full` calls survived died in fast mode with `Hole: CICS file ABNDFILE: the program names no file the generated
+project stores`, thrown from the LINKed ABNDPROC. The proof translates a LINKed program (`"programs"` in `case.json`)
+from the generated stub in the project; on `--reuse` that file was already the earlier run's translation, so the new
+translation had no file stores. `--reuse` now carries the earlier run's `generated_before_overlay` (the stubs) and
+`linked_programs` translates from it. Fast mode was therefore **not** agreeing with `--full` on a case whose proof
+LINKs a det-translated program, and its score overstated the kills: the committed cbsa-inqacc score (131 killed, 0
+survived of 150) was recorded before this fix. Not re-recorded here; the same holds for every case with a det-translated
+LINKed program (the cbsa and genapp cases, mortgage-cmort, the asynccc cases: 56 of the cases in `tests/equivalence`).
 
 ## Scores
 
@@ -189,9 +270,12 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COUSR02C (carddemo-userupd) | equivalence | 100/481 | 57/82 (70%) | 57/59 (97%) | 2 / 0 / 14 / 9 / 0 |
 | INQACC (cbsa-inqacc) | equivalence | 150/464 | 131/131 (100%) | 131/131 (100%) | 0 / 0 / 0 / 0 / 0 |
 | UPDACC (cbsa-updacc) | equivalence | 133/133 | 95/133 (71%) | 95/110 (86%) | 15 / 0 / 17 / 6 / 0 |
+| LGAPDB01 (genapp-lgapdb01) | equivalence | 150/444 | 58/137 (42%) | 58/129 (45%) | 71 / 0 / 1 / 7 / 0 |
 | LGAPVS01 (genapp-lgapvs01) | equivalence | 150/184 | 72/125 (58%) | 72/113 (64%) | 0 / 41 / 1 / 11 / 0 |
 | LGICDB01 (genapp-lgicdb01) | equivalence | 150/201 | 51/130 (39%) | 51/107 (48%) | 1 / 55 / 8 / 15 / 0 |
+| LGSTSQ (genapp-lgstsq) | equivalence | 89/89 | 25/78 (32%) | 25/69 (36%) | 43 / 1 / 1 / 8 / 0 |
 | LGUPDB01 (genapp-lgupdb01) | equivalence | 150/403 | 67/140 (48%) | 67/120 (56%) | 7 / 46 / 5 / 15 / 0 |
+| LGUPVS01 (genapp-lgupvs01) | equivalence | 150/160 | 66/119 (55%) | 66/100 (66%) | 0 / 34 / 4 / 15 / 0 |
 | CALINK (ca-link-lengths) | crucible | 24/168 | 15/22 (68%) | 15/15 (100%) | 0 / 0 / 5 / 2 / 0 |
 | CASUB (ca-link-lengths) | crucible | 24/40 | 16/24 (67%) | 16/16 (100%) | 0 / 0 / 7 / 1 / 0 |
 | CAXA (ca-xctl-versions) | crucible | 24/78 | 16/21 (76%) | 16/16 (100%) | 0 / 0 / 3 / 2 / 0 |
@@ -214,20 +298,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 3308 run | **2133/3013 (71%)** | **2133/2439 (87%)** | 156 / 150 / 391 / 183 / 0 |
-| **all estate** | | 3812 run | **2452/3489 (70%)** | **2452/2793 (88%)** | 191 / 150 / 479 / 217 / 0 |
+| **all equivalence** | | 3697 run | **2282/3347 (68%)** | **2282/2737 (83%)** | 270 / 185 / 397 / 213 / 0 |
+| **all estate** | | 4201 run | **2601/3823 (68%)** | **2601/3091 (84%)** | 305 / 185 / 485 / 247 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 162/201 (81%) | 162/176 (92%) |
+| AOR | 182/233 (78%) | 182/208 (88%) |
 | BDM | 25/45 (56%) | 25/28 (89%) |
-| CON | 324/671 (48%) | 324/385 (84%) |
-| COR | 132/237 (56%) | 132/186 (71%) |
-| DEL | 376/548 (69%) | 376/436 (86%) |
-| LIT | 519/659 (79%) | 519/568 (91%) |
-| NEG | 456/507 (90%) | 456/483 (94%) |
-| RET | 56/89 (63%) | 56/77 (73%) |
-| ROR | 402/532 (76%) | 402/454 (89%) |
+| CON | 362/759 (48%) | 362/468 (77%) |
+| COR | 132/241 (55%) | 132/187 (71%) |
+| DEL | 392/590 (66%) | 392/474 (83%) |
+| LIT | 551/734 (75%) | 551/625 (88%) |
+| NEG | 481/546 (88%) | 481/522 (92%) |
+| RET | 58/99 (59%) | 58/87 (67%) |
+| ROR | 418/576 (73%) | 418/492 (85%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|
@@ -257,9 +341,12 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COUSR02C (carddemo-userupd) | 1/1 | - | 3/16 | 3/5 | 11/16 | 14/16 | 13/13 | - | 12/15 |
 | INQACC (cbsa-inqacc) | 3/3 | 2/2 | 22/22 | 4/4 | 22/22 | 22/22 | 21/21 | 16/16 | 19/19 |
 | UPDACC (cbsa-updacc) | 4/4 | 0/3 | 17/30 | 3/10 | 16/27 | 28/32 | 8/8 | - | 19/19 |
+| LGAPDB01 (genapp-lgapdb01) | 5/13 | - | 8/23 | 0/2 | 7/21 | 12/23 | 13/23 | 2/10 | 11/22 |
 | LGAPVS01 (genapp-lgapvs01) | 14/16 | - | 25/41 | 0/1 | 6/11 | 12/28 | 6/9 | - | 9/19 |
 | LGICDB01 (genapp-lgicdb01) | 2/5 | - | 9/28 | 1/5 | 6/20 | 14/27 | 9/16 | 1/7 | 9/22 |
+| LGSTSQ (genapp-lgstsq) | 1/5 | - | 1/21 | 0/1 | 5/11 | 10/21 | 5/6 | - | 3/13 |
 | LGUPDB01 (genapp-lgupdb01) | 11/12 | - | 11/22 | 0/2 | 4/22 | 12/22 | 14/22 | 3/17 | 12/21 |
+| LGUPVS01 (genapp-lgupvs01) | 14/14 | - | 29/44 | 0/1 | 4/10 | 10/31 | 7/10 | - | 2/9 |
 | CALINK (ca-link-lengths) | 2/2 | - | 1/4 | 0/1 | 2/4 | 3/3 | 3/3 | 2/2 | 2/3 |
 | CASUB (ca-link-lengths) | - | - | 2/5 | - | 3/5 | 4/5 | 4/5 | - | 3/4 |
 | CAXA (ca-xctl-versions) | 1/1 | - | 3/4 | - | 3/4 | 2/4 | 4/4 | - | 3/4 |
@@ -333,7 +420,15 @@ options, and the harness compared SEND TEXT by text only; it now compares the fo
 WAIT, LAST). The score is not re-run. #5401 added `commarea_length` scenarios (EIBCALEN stated, X23): userupd 185 and 186, report 146 and 153, tranlist
 `enter-short-commarea` (160 of 218), billpay and tranadd 200 and 201 (of 218, both past the numeric page number). Lengths that cut a numeric field, or leave one blank, are not used: a blank
 PIC 9 is IBM-undefined and the oracle and the port read it differently (pf7/pf8 at 160 on tranlist, userupd at 160 to
-184, report below 146). All 77 case-gap survivors of the seven ports were judged again against these cases (2026-10-19, `mutation.py run --only`, no re-sample): 19 more are killed (billpay 2, report 3, tranlist 4, userupd 10). The 12 EIBCALEN survivors that remain are re-triaged **unreachable**: EIBCALEN 0 with a COMMAREA present (COBIL00C 57484857ed, COTRN02C f92dd6e996, COUSR02C d0e975d5b4: `commarea_length` is 1 to the record, IBM leaves DFHCOMMAREA unaddressable), a null COMMAREA DTO (COCRDSLC 764873c268), and the lengths that leave a numeric field blank (CORPT00C below 12, 24 and 130, COUSR02C 160, 169, 176 and 184, COTRN00C 3c413ab7f0). Still open: cardview and cardlist: both move `DFHCOMMAREA` past the shared 160 bytes, so the oracle refuses every short length (X23: 159, 160 and 171 on cardview, 159, 160 and 413 on cardlist), and each states only its whole COMMAREA (`full-commarea-length`, 172 and 414 bytes).
+184, report below 146). All 77 case-gap survivors of the seven ports were judged again against these cases (2026-10-19, `mutation.py run --only`, no re-sample): 19 more are killed (billpay 2, report 3, tranlist 4, userupd 10). The 12 EIBCALEN survivors that remain are re-triaged **unreachable**: EIBCALEN 0 with a COMMAREA present (COBIL00C 57484857ed, COTRN02C f92dd6e996, COUSR02C d0e975d5b4: `commarea_length` is 1 to the record, IBM leaves DFHCOMMAREA unaddressable), a null COMMAREA DTO (COCRDSLC 764873c268), and the lengths that leave a numeric field blank (CORPT00C below 12, 24 and 130, COUSR02C 160, 169, 176 and 184, COTRN00C 3c413ab7f0). Still open: cardview and cardlist: both move `DFHCOMMAREA` past the shared 160 bytes, so the oracle refuses every short length (X23: 159, 160 and 171 on cardview, 159, 160 and 413 on cardlist), and each states only its whole COMMAREA (`full-commarea-length`, 172 and 414 bytes). The "no scenario sets EIBCALEN" item of #5401 is closed: `test_carddemo_eibcalen_scenarios_5401.py` pins that all seven cases state it.
+
+**COMMAREA field survivors** (#5401, 2026-10-20). Three case-gap survivors needed an input COMMAREA field no scenario set, and each is now killed
+(`mutation.py run --only`, no re-sample): cardview `enter-carried-to-tranid` (non-blank `CDEMO-TO-TRANID`, echoed by the RETURN COMMAREA, `6d63a520f9`),
+tranlist `select-with-carried-to-tranid` (non-blank `CDEMO-TO-TRANID` on a select, so the XCTL COMMAREA shows the ninth FROM-PROGRAM byte spilling over it,
+`bdeaa77fbe`) and tranadd `pf3-low-values-from-program` (LOW-VALUES `CDEMO-FROM-PROGRAM`, which COBOL reads as blank, `e31af14845`). GnuCOBOL and the port agree on all
+three; the scores are not re-run. `test_carddemo_commarea_fields_5401.py` pins them. Still open: billpay `d3458d6107` (`CDEMO-CB00-TRN-SELECTED` of 12 or
+more characters) and cardlist `6fef123a15` (a stale first card account id with an empty or faulting CARDDAT) and `62c41cc4a8` (a non-blank `WS-RETURN-FLAG`);
+cardlist's two wait on the X8 oracle refusals.
 
 #4047 then scored six CardDemo batch ports (readxref, readcust, dailyval, intcalc, posttran, trnrpt; seed 0, up to 100
 mutants each, `--jobs 3`, fast mode). These rows are seed 0 and differ from the older seed-1 CBACT04C, CBTRN02C and

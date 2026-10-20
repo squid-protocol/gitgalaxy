@@ -69,23 +69,27 @@ DEFINITION: dict[str, Any] = {
     # (`<chrono>`, `<ostream>`, `<QString>`) is a file with no extension, never a
     # same-stem `chrono.h` (fmt's own header), so the resolver matches it exactly.
     "include_names_file_literally": True,
+    # #5639: `calls_out` groups are (C callee, receiver chain, selector); the detector keeps the receiver as the
+    # send's qualifier (`self`, `super`, `obj.view`; a nested or call receiver is `<expr>`).
+    "calls_out_message_receivers": True,
     "rules": {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
         # decision. See branch_rule_contract.md, "Literals".
         "_scope_filters": {"branch": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        # #5639: two capture groups (the detector takes whichever matched). Group 1 is a C call
+        # #5639: three capture groups. Group 1 is a C call
         # `name(`; `@selector(` / `@synchronized(` are directives, not calls (`@` lookbehind).
-        # Group 2 is a message send's selector, by its FIRST keyword (`[obj set:a withB:b]` ->
+        # Group 3 is a message send's selector (group 2 its receiver), by its FIRST keyword (`[obj set:a withB:b]` ->
         # `set`; later keywords are arguments, not calls): the word after the receiver and
         # before `]` or `:`. The receiver is a name chain (`self`, `obj.view`, `p->q`), with an
         # optional cast before it, or a closed nested send or call (`] sel`, `) sel]`).
         # `@selector(name:)` is a reference to a selector, not a send, so it records nothing.
         "calls_out": re.compile(
             r"(?<![" + ID_CONTINUE + r"@])\b([" + ID_START + r"][" + ID_CONTINUE + r"]*)(?=\s*\()"
-            r"|(?:\[\s*(?:\([^()\[\]]{0,80}\)\s*)?[" + ID_START + r"][" + ID_CONTINUE + r"]*"
-            r"(?:\s*(?:\.|->)\s*[" + ID_START + r"][" + ID_CONTINUE + r"]*){0,8}"
+            r"|(?:\[\s*(?:\([^()\[\]]{0,80}\)\s*)?"
+            r"([" + ID_START + r"][" + ID_CONTINUE + r"]*"
+            r"(?:\s*(?:\.|->)\s*[" + ID_START + r"][" + ID_CONTINUE + r"]*){0,8})"
             r"\s+|\]\s+|\)\s+(?=[" + ID_START + r"][" + ID_CONTINUE + r"]*\s*\]))"
             r"([" + ID_START + r"][" + ID_CONTINUE + r"]*)(?=\s*[\]:])"
         ),

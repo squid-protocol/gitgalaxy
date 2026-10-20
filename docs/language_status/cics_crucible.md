@@ -285,9 +285,7 @@ Each missing feature belongs to a piece of harness work (below: the features the
 | 20 | WEB RECEIVE CHARACTERSET | 1 | 0 | 29 |
 | 21 | WEB RECEIVE HOSTCODEPAGE | 1 | 0 | 29 |
 | 22 | WEB SEND CHARACTERSET | 1 | 0 | 29 |
-| 23 | WEB SEND HOSTCODEPAGE | 1 | 0 | 29 |
-| 24 | WEB-RECEIVE event | 1 | 0 | 29 |
-| 25 | WEB-SEND event | 1 | 0 | 30 |
+| 23 | WEB SEND HOSTCODEPAGE | 1 | 0 | 30 |
 
 ### java (0 unsupported)
 
@@ -302,8 +300,6 @@ Each missing feature belongs to a piece of harness work (below: the features the
 | 7 | STARTBR event | 3 | 0 | 0 |
 | 8 | TS queues: READQ / WRITEQ TS, seeding, final state | 7 | 0 | 0 |
 | 9 | UNLOCK event | 2 | 0 | 0 |
-| 10 | WEB-RECEIVE event | 1 | 0 | 0 |
-| 11 | WEB-SEND event | 1 | 0 | 0 |
 
 ### java-ported (0 unsupported)
 
@@ -318,8 +314,6 @@ Each missing feature belongs to a piece of harness work (below: the features the
 | 7 | STARTBR event | 3 | 0 | 0 |
 | 8 | TS queues: READQ / WRITEQ TS, seeding, final state | 7 | 0 | 0 |
 | 9 | UNLOCK event | 2 | 0 | 0 |
-| 10 | WEB-RECEIVE event | 1 | 0 | 0 |
-| 11 | WEB-SEND event | 1 | 0 | 0 |
 
 ### java-facade (0 unsupported)
 
@@ -334,8 +328,6 @@ Each missing feature belongs to a piece of harness work (below: the features the
 | 7 | STARTBR event | 3 | 0 | 0 |
 | 8 | TS queues: READQ / WRITEQ TS, seeding, final state | 7 | 0 | 0 |
 | 9 | UNLOCK event | 2 | 0 | 0 |
-| 10 | WEB-RECEIVE event | 1 | 0 | 0 |
-| 11 | WEB-SEND event | 1 | 0 | 0 |
 
 ## Unsupported features, by how many cells need them
 
@@ -363,8 +355,6 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | stub: UNLOCK event | 2 | UNLOCK event |
 | translator: FREEMAIN DATA | 2 | FREEMAIN DATA |
 | stub: READPREV event | 1 | READPREV event |
-| stub: WEB-RECEIVE event | 1 | WEB-RECEIVE event |
-| stub: WEB-SEND event | 1 | WEB-SEND event |
 | translator: GETMAIN | 1 | GETMAIN |
 | translator: PUT CONTAINER DATATYPE | 1 | PUT CONTAINER DATATYPE |
 | translator: WEB RECEIVE CHARACTERSET | 1 | WEB RECEIVE CHARACTERSET |
@@ -386,8 +376,6 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | CicsTask: READNEXT event | 2 | READNEXT event |
 | CicsTask: UNLOCK event | 2 | UNLOCK event |
 | CicsTask: READPREV event | 1 | READPREV event |
-| CicsTask: WEB-RECEIVE event | 1 | WEB-RECEIVE event |
-| CicsTask: WEB-SEND event | 1 | WEB-SEND event |
 
 ### java-ported
 
@@ -403,8 +391,6 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | CicsTask: READNEXT event | 2 | READNEXT event |
 | CicsTask: UNLOCK event | 2 | UNLOCK event |
 | CicsTask: READPREV event | 1 | READPREV event |
-| CicsTask: WEB-RECEIVE event | 1 | WEB-RECEIVE event |
-| CicsTask: WEB-SEND event | 1 | WEB-SEND event |
 
 ### java-facade
 
@@ -420,8 +406,6 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | CicsTask: READNEXT event | 2 | READNEXT event |
 | CicsTask: UNLOCK event | 2 | UNLOCK event |
 | CicsTask: READPREV event | 1 | READPREV event |
-| CicsTask: WEB-RECEIVE event | 1 | WEB-RECEIVE event |
-| CicsTask: WEB-SEND event | 1 | WEB-SEND event |
 
 ## Failure reasons, grouped
 
@@ -539,7 +523,7 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `gt-assign-startcode/terminal-and-started/java-facade` | fail | no port of any of its programs |
 | `gt-assign-startcode/terminal-and-started/java-ported` | fail | no port of any of its programs |
 | `gt-http-inbound/echo/cobol-stub` | unsupported | translator: WEB RECEIVE CHARACTERSET; translator: WEB RECEIVE HOSTCODEPAGE; translator: WEB SEND CHARACTERSET; translator: WEB SEND HOSTCODEPAGE |
-| `gt-http-inbound/echo/java` | fail | task 1 (GT81): expected a task running GTHECHO, the side ran none |
+| `gt-http-inbound/echo/java` | fail | task 1 (GT81) event 1: WEB-RECEIVE expected, the side recorded no further event |
 | `gt-http-inbound/echo/java-facade` | fail | no port of any of its programs |
 | `gt-http-inbound/echo/java-ported` | fail | no port of any of its programs |
 | `gt-send-text-terminal/terminal-and-started/java` | fail | task 1 (GT41) event 1: RECEIVE expected, the side recorded no further event |

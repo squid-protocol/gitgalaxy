@@ -56,8 +56,10 @@ _RELOAD = re.compile(rf"\bSERVICE\s+RELOAD\s+({_NAME})", re.I)
 _LABEL = re.compile(r"\bSERVICE\s+LABEL\b", re.I)
 _MOVE = re.compile(rf"\bMOVE\s+({_NAME})\s+TO\s+({_NAME})", re.I)
 _EQ = r"(?:IS\s+)?(NOT\s+)?(?:=|EQUALS?(?:\s+TO)?)"
-_NIL = r"(?:ZEROS|ZEROES|ZERO|NULLS|NULL)(?![A-Z0-9-])"
-# #5197: a cell tested for no address, in either operand order (IBM's conversion makes the cell a POINTER: `= NULL`)
+_NIL = r"(?:ZEROS|ZEROES|ZERO|NULLS|NULL|LOW-VALUES|LOW-VALUE)(?![A-Z0-9-])"
+# #5197: a cell tested for no address, in either operand order (IBM's conversion makes the cell a POINTER: `= NULL`).
+# #5042: LOW-VALUE(S) is the same test: a cell is a fullword, so all-zero bytes are no address
+
 _COMPARE = re.compile(rf"\b({_NAME})\s+{_EQ}\s+{_NIL}|\b{_NIL}\s+{_EQ}\s+({_NAME})(?![A-Z0-9-])", re.I)
 # #5042: one cell compared with another (two pointers after the lowering: IBM allows = / NOT = between pointers)
 _COMPARE_CELLS = re.compile(rf"\b({_NAME})\s+{_EQ}\s+({_NAME})(?![A-Z0-9-])", re.I)

@@ -882,7 +882,7 @@ def _spread(rng: random.Random, col: dict[str, Any], digits: bool = False) -> An
         v = Decimal(whole) + (Decimal(rng.randint(0, 10**s - 1)).scaleb(-s) if s else Decimal(0))
         return -v if rng.random() < 0.3 else v
     if t in _INT_RANGE:
-        return rng.randint(-1000, 100000)
+        return min(rng.randint(-1000, 100000), _INT_RANGE[t] - 1)  # a SMALLINT holds at most 32767 (SQL0413N)
     y, mo, d = rng.randint(1990, 2030), rng.randint(1, 12), rng.randint(1, 28)
     if t == "DATE":
         return f"{y:04d}-{mo:02d}-{d:02d}"

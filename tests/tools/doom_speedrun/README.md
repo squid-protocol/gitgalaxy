@@ -160,3 +160,41 @@ Blind spots:
   to a same-named function in another scope, or through a function-pointer variable, is outside it.
 - **Code under `#if 0` counts** on both sides (neither tool preprocesses); libclang (#3784) is the planned check of
   the active configuration.
+
+## Lineage vs linuxdoom (`lineage.py`, #5620)
+
+How much of id Software's linuxdoom-1.10 survives in each port: the round-1 study's survival and landmark-function
+scripts, ported onto the harness. It reads the scans and clones `scan` leaves; licensed ports only (`LICENSED`: the
+call-graph oracle's C/C++ set plus the licensed rewrites; any other port is refused).
+
+```bash
+python tests/tools/doom_speedrun/doom_speedrun.py scan                      # once per engine SHA
+python tests/tools/doom_speedrun/lineage.py [--only chocolate-doom,crispy-doom] [--sha SHA]
+```
+
+Each engine function's body is sliced from the clone (from its first `{`, so the signature line does not count),
+C-style comments dropped, tokenised and hashed. A linuxdoom function (>= 20 body tokens, in `linuxdoom-1.10/`,
+`sndserv/`, `ipx/`, `sersrc/`) survives in a port by **name** (same name once the class qualifier, case and `_` are
+dropped), **exact** body (same hash anywhere in the port), **near** (best same-name body has difflib token
+similarity >= 0.9) or **derived** (>= 0.6). Results in `<work>/results/<sha>/lineage/`:
+
+| file | what |
+|---|---|
+| `survival.csv`, `lineage.md` | per port: the four survival percentages, LOC-weighted similarity, linuxdoom file stems kept, the stated lineage from `manifest.csv`, its `parent` (the manifest port named by the lineage text's opening words, never itself) and `exact_vs_parent` (exact-body points gained or lost against that parent; linuxdoom counts as 100) |
+| `survival_subsystem.csv` | the same per linuxdoom subsystem (file prefix: `r_` renderer, `p_` playsim, `m_` misc, ...) |
+| `survival_functions.csv` | each linuxdoom function x port: class (exact / near / derived / name-only / gone), best similarity |
+| `filename_survival.csv` | linuxdoom file stems present in the port's tracked sources |
+| `divergence_{names,bodies,core}.csv` | pairwise: Jaccard of first-party function names and body hashes; mean similarity of the linuxdoom functions both ports keep (`__n`: how many) |
+| `canonical_functions.csv` | complexity / LOC of twelve landmark functions (`P_UseSpecialLine`, `R_DrawColumn`, `G_Ticker`, ...) per port, largest first-party match, Heretic/Hexen/Strife trees skipped |
+
+Blind spots:
+- **Name matching is the lineage claim for rewrites.** A C# or Java port that renames into classes keeps
+  `PTicker` / `p_ticker` and counts by name; a body never matches across languages, so exact / near / derived are
+  meaningful for C-family ports only.
+- **Comments are stripped only for C-style languages** (`C_STYLE`); elsewhere they stay in the tokens.
+- **A body hash matches anywhere in the port** (a function moved or renamed still counts as exact); near / derived
+  compare same-name bodies only (at most 20 candidates).
+- **Vendoring is the engine's call** (`VendorDirectoryDetector`), used for divergence and the landmarks only:
+  survival looks at every function the port has.
+- **`parent` is read from free text**: a lineage naming no manifest port (`WinMBF <- MBF <- Boom`, `PrBoom`) has
+  none, and the tool does not walk chains.

@@ -155,6 +155,19 @@ def test_dockerfile_apt_retries_and_no_failure_is_swallowed(name):
                 assert "Acquire::Retries=" in m.group("opts"), ln
 
 
+def test_the_db2_image_installs_nothing_because_the_base_image_supplies_libxml2():
+    """#5048: the db2 Dockerfile dropped its `apt-get install libxml2 || true`; the driver's libxml2 comes from libcob4."""
+    root = REPO / "tests" / "equivalence"
+    db2_body = [
+        ln
+        for ln in (root / "gnucobol-db2.Dockerfile").read_text(encoding="utf-8").splitlines()
+        if not ln.lstrip().startswith("#")
+    ]
+    assert not any("apt-get" in ln for ln in db2_body), "a new apt step needs Acquire::Retries and no `|| true`"
+    base = (root / "gnucobol.Dockerfile").read_text(encoding="utf-8")
+    assert "libcob4=" in base, "libcob4 is what puts libxml2 in the base image for the Db2 driver"
+
+
 def _docker_script(monkeypatch, present: bool, failures: int, exc=None):
     """Fake `docker`: `image inspect` finds the image or not; the first `failures` pulls fail."""
     calls, sleeps = [], []

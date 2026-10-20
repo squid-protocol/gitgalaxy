@@ -292,9 +292,13 @@ class SecurityLens:
             # #4987: this half reads the comment-blanked code stream (a commented-out `atob(` or `\x41`
             # is not an obfuscated payload; dead_code reports commented-out logic). The invisible-
             # Unicode half is HIDDEN_TEXT_SIGNATURES and reads the RAW text on purpose.
+            # #4548: a RUN of escapes (adjacent, or split across string pieces / array elements) is ONE
+            # hit, and a run needs 4+ escapes (`"\x65\x76\x61\x6c"` is the shortest encoded word): a lone
+            # `\xB0` / `\x1b[0m` / `\u00e9` is a character literal. Counting each `\x5B` scored an embedded
+            # glyph table as 32,987 hits (doomretro v_data.c) and every degree sign as one (c_cmds.c).
             "reflection_metaprogramming": re.compile(
                 r"\b(?:atob|btoa|base64_decode|base64_encode|gzuncompress|str_rot13)\b|"
-                r"\\x[0-9a-fA-F]{2}|\\u[0-9a-fA-F]{4}|"
+                r"(?:\\x[0-9a-fA-F]{2}|\\u[0-9a-fA-F]{4})(?:[ \t\r\n\"',]{0,8}(?:\\x[0-9a-fA-F]{2}|\\u[0-9a-fA-F]{4})){3,}|"
                 r'(?:\w{15,}[ \t]*=[ \t]*["\'][A-Za-z0-9+/]{40,}={0,2}["\'])',
                 re.I,
             ),

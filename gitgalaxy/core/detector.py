@@ -1096,6 +1096,12 @@ def _call_qualifier(text: str, pos: int, separators: tuple[str, ...] = _QUALIFIE
     return ".".join(reversed(segments))
 
 
+def _message_receiver(chain: str | None) -> str:
+    """#5639: an Objective-C send's receiver as a qualifier: `self`, `super`, `Foo`, `obj.view` (`->`
+    reads as `.`). A receiver that is itself a send or a call (no name chain) is `<expr>`."""
+    return re.sub(r"\s*(?:\.|->)\s*", ".", chain) if chain else "<expr>"
+
+
 def _qualifier_separators(lang_id: str) -> tuple[str, ...]:
     return _QUALIFIER_SEPARATORS_NO_ARROW if lang_id in _LAMBDA_ARROW_LANGS else _QUALIFIER_SEPARATORS
 
@@ -1891,6 +1897,31 @@ def _blank_nested_units(
 
 
 _NON_NEWLINE = re.compile(r"[^\n]")
+
+
+# #5634: words in the global set above that are keywords in SOME languages but ordinary names in
+# others -- a rust `fn def(..)` or go `func Class(..)` called by its name was dropped. Per language,
+# the words that are NOT keywords there.
+_CALLS_OUT_GLOBAL_IGNORE_NOT_KEYWORDS: dict[str, frozenset[str]] = {
+    "rust": frozenset(
+        {"def", "function", "class", "using", "catch", "sizeof", "alignof", "decltype", "include", "require"}
+        | {"require_once", "include_once", "except", "finally", "switch"}
+    ),
+    "go": frozenset(
+        {"def", "function", "class", "using", "catch", "sizeof", "alignof", "decltype", "include", "require"}
+        | {"require_once", "include_once", "except", "finally", "typeof"}
+    ),
+}
+
+# #5634: a rust macro invocation `name!(..)` is not a call of a function `name`. Its qualifier carries
+# this prefix (`!`, or `!std` for `std::println!`) so the resolver never links it to a fn of that name.
+_MACRO_QUALIFIER_PREFIX = "!"
+
+
+def _mark_macro_qualifier(lang_id: str, text: str, callee_end: int, qualifier: str) -> str:
+    if lang_id == "rust" and text.startswith("!", callee_end):
+        return _MACRO_QUALIFIER_PREFIX + qualifier
+    return qualifier
 
 
 _CALLS_OUT_GLOBAL_IGNORE = frozenset(
@@ -10051,6 +10082,7 @@ class StructuralExtractor:
             for m in pattern.finditer(safe):
                 seen = kept.setdefault(m.group(1), [])
                 qualifier = _call_qualifier(safe, m.start(1), _qualifier_separators(self.primary_lang_id))
+                qualifier = _mark_macro_qualifier(self.primary_lang_id, safe, m.end(1), qualifier)
                 if qualifier not in seen:
                     seen.append(qualifier)
             sat["calls_out_to"] = [c for c in sat["calls_out_to"] if c in kept]
@@ -10449,7 +10481,8 @@ class StructuralExtractor:
         if invocation_pattern:
             # Apply literal shield to avoid capturing words inside strings
             safe_block = self._apply_literal_shield(block, self.primary_lang_id)
-            if _is_qualified_calls_out(invocation_pattern):
+            message_receivers = bool(self.languages.get(self.primary_lang_id, {}).get("calls_out_message_receivers"))
+            if message_receivers or _is_qualified_calls_out(invocation_pattern):
                 receiver_text = safe_block
                 # #3360 (C5): note which callees were captured only on a nested
                 # func_start header (`def inner(`). _function_slice drops them
@@ -10478,8 +10511,10 @@ class StructuralExtractor:
                     else 0
                 )
                 for m in invocation_pattern.finditer(safe_block):
-                    callee = m.group(1)
-                    callee_pos = m.start(1)
+                    # #5639: a message send's groups are (receiver, selector); a C call's is group 1
+                    is_send = message_receivers and m.group(3) is not None
+                    callee = m.group(3) if is_send else m.group(1)
+                    callee_pos = m.start(3) if is_send else m.start(1)
                     # #5629: a macro in the unit's header (its defining macro, a parameter-list macro).
                     if callee_pos < header_end and _HEADER_MACRO_NAME.match(callee):
                         continue
@@ -10489,7 +10524,13 @@ class StructuralExtractor:
                             if not declared[0]:
                                 continue
                             callee, callee_pos = declared
-                    qualifier = _call_qualifier(safe_block, callee_pos, _qualifier_separators(self.primary_lang_id))
+                    if is_send:
+                        qualifier = _message_receiver(m.group(2))
+                    else:
+                        qualifier = _call_qualifier(safe_block, callee_pos, _qualifier_separators(self.primary_lang_id))
+                    qualifier = _mark_macro_qualifier(
+                        self.primary_lang_id, safe_block, callee_pos + len(callee), qualifier
+                    )
                     if callee == own_leaf and qualifier in own_qualifiers:
                         # #5628: a bare `leaf(` may reach a different unit of that name;
                         # _function_slice drops it if none exists. Anything written with a
@@ -10541,6 +10582,7 @@ class StructuralExtractor:
         # `func` keyword vs a `Func()` method, rust's `let` vs an `Expr::Let(`
         # variant, C#'s `this(` chaining vs a `factory.This()` call).
         lang_ignore = rules.get("_calls_out_ignore") or frozenset()
+        global_exempt = _CALLS_OUT_GLOBAL_IGNORE_NOT_KEYWORDS.get(self.primary_lang_id, frozenset())
         _fold_ignore = (
             self.languages.get(self.primary_lang_id, {}).get("identifier_case") == IDENTIFIER_CASE_INSENSITIVE
         )
@@ -10560,7 +10602,7 @@ class StructuralExtractor:
                 for c in raw_calls
                 # #4305: a pattern alternative that only consumes text (COBOL `EXIT PERFORM`) captures ""
                 if c
-                and c not in _CALLS_OUT_GLOBAL_IGNORE
+                and (c not in _CALLS_OUT_GLOBAL_IGNORE or c in global_exempt)
                 and (c.casefold() if _fold_ignore else c) not in lang_ignore
                 and c != self_name
             )

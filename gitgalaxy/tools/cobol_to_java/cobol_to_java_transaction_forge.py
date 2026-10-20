@@ -1515,7 +1515,8 @@ public class CicsTask {
      *  CICS TS, EXEC CICS WEB RECEIVE; register X38). LENGERR 16 for a MAXLENGTH not above zero; a body longer than
      *  MAXLENGTH is cut there with LENGERR 57 (without NOTRUNCATE "the remainder was discarded"; LENGTH then holds the
      *  bytes returned). The body is in the program's characters whatever the conversion option (ASSUMED, as X37).
-     *  Refused: no request stated, a request with no body, a second receive, a MAXLENGTH past INTO. */
+     *  Recorded as WEB-RECEIVE (the request's media type and the body returned, null on LENGERR 16; RESP, RESP2) --
+     *  the crucible SPEC's event, so a runner can tell what the program read. Refused: no request stated, a request with no body, a second receive, a MAXLENGTH past INTO. */
     public WebReceived webReceive(int maxLength, int intoCap) {
         CicsTask r = statedRequest();
         HttpRequest q = r.httpRequest;
@@ -1529,11 +1530,14 @@ public class CicsTask {
             throw refused("WEB RECEIVE length beyond its area");
         }
         if (maxLength <= 0) {
+            event("WEB-RECEIVE", "mediatype", null, "body", null, "resp", 22, "resp2", 16);
             return new WebReceived(22, 16, null, null);
         }
         r.webReceived = true;
         boolean cut = q.body().length() > maxLength;
-        return new WebReceived(cut ? 22 : 0, cut ? 57 : 0, cut ? q.body().substring(0, maxLength) : q.body(), q.mediaType());
+        WebReceived got = new WebReceived(cut ? 22 : 0, cut ? 57 : 0, cut ? q.body().substring(0, maxLength) : q.body(), q.mediaType());
+        event("WEB-RECEIVE", "mediatype", got.mediaType(), "body", got.body(), "resp", got.resp(), "resp2", got.resp2());
+        return got;
     }
 
     // ---- #4771 (register X47): storage CICS acquires for the task, addressed by a pointer ----------------------------

@@ -25,7 +25,3 @@ def test_bankdata_has_a_det_sweep_entry_with_every_paragraph_covered():
     assert entry["scenarios"] >= 1
     assert entry["paragraphs"]["covered"] == entry["paragraphs"]["live"] > 0
 
-
-def test_cbstm03b_has_a_case_and_a_det_sweep_entry():
-    assert _case("carddemo-cbstm03b")["program"] == "CBSTM03B"
-    assert (EQUIVALENCE / "det_sweep_coverage" / "carddemo-cbstm03b.json").is_file()

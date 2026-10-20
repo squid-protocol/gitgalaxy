@@ -597,7 +597,9 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   - **Where a capture lands (#4271, #4050).** `tests/cobol_mainframe/zos_captures/hfp.json` is a table of expected HFP
     results (encode, add / sub / mul / div, display, float to fixed), checked against `det/hfp.py` by
     `test_hfp_zos_captures.py` (the Java runtime is held to that model bit for bit by `test_det_hfp.py`). It holds
-    only `ibm-publication` records today; NO `zos-run` record exists. A `zos-run` record needs `evidence` (job, step,
+    37 `ibm-publication` records covering every operation in both sizes (long sub / mul / div / display / fixed, the
+    guard digit kept and lost, truncation, the range ends, a float-to-fixed 9-digit clamp); `test_the_table_covers_every_op_in_both_sizes`
+    keeps that matrix whole. It holds only `ibm-publication` records today; NO `zos-run` record exists. A `zos-run` record needs `evidence` (job, step,
     output hash, never the data) and `calibrated_under` (`runtime_options.calibration_problems`, #4702). A model that
     disagrees with a captured record is a finding against the model: fix the model, never the record.
 - **Later slices of #4271** (left as they are): `NUMPROC(PFD)` with non-preferred signs (refused by name, C5),

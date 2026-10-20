@@ -2968,7 +2968,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 - **Refused by name.** At translation: GETMAIN without SET, without exactly one of FLENGTH / LENGTH, without INITIMG (IBM gives no default
   contents) or with a literal INITIMG (IBM: "In COBOL, use a data area"); SHARED (outlives the task), NOSUSPEND (NOSTG is not modelled), FREEMAIN
   DATA(area), GETMAIN64 / FREEMAIN64; a pointer that is not a plain USAGE POINTER (a table element, a subscripted or qualified name) or that a
-  REDEFINES overlays (ZECS001's CACHE-ADDRESS-X, `ADD n TO` the address: pointer arithmetic), and any statement that names an item that
+  REDEFINES overlays other than by a pure numeric view (a PIC X or group view; ZECS001's CACHE-ADDRESS-X is a pure view, see Pointer arithmetic below), and any statement but the two address idioms that names an item that
   REDEFINES a POINTER, or one under it (ADD, SUBTRACT, MOVE, COMPUTE, IF on the numeric view; a MOVE / INITIALIZE of the whole group holding
   both still copies the handle bytes), since it would compute on handle bytes; SET ADDRESS OF / ADDRESS OF a record that is not a
   LINKAGE 01 (a WORKING-STORAGE record shares its section's storage; a subordinate item such as ZECS001's ZF-DATA has no storage of its own);
@@ -2984,22 +2984,23 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   instruction it issues and how it lays out the 16 bytes is not known, and a stated clock fact would be invented. Refused whether the name is a
   literal or an identifier's value (det/dyncall.py `REFUSED_BY_NAME`). It lifts when the module's source is part of the estate.
 
-- **Why pointer arithmetic is not lifted (#4771, ZECS001).** ZECS001 advances CACHE-ADDRESS by the bytes it copied (`ADD ZF-LENGTH TO
-  CACHE-ADDRESS-X`), copies the address (`MOVE CACHE-ADDRESS-X TO SAVE-ADDRESS-X`) and sets CACHE-MESSAGE to the advanced address, so a record
-  must alias a block *from an offset*. The port cannot do that today: a `Field` is immutable and addresses its `Storage` at an offset fixed when
-  the program's fields are built, and every field of the record reads `Storage.bytes` directly (some 130 sites), so a record at block offset k
-  needs a windowed `Storage` in the shared runtime. The layout is also the oracle's: a POINTER is 8 bytes (GnuCOBOL x86-64) under a 4-byte
-  `PIC S9(8) COMP` overlay, where IBM's is 4 bytes, so the overlay is not the whole address. Both stay refused by name. ADDRESS OF a subordinate item (ZECS001's ZF-DATA) is modelled
-  since #4771 slice 1: a record addressed at an item reads through `Storage.base`, `Field.at()` = base + off.
-  ZECS001 stays not whole whatever is lifted, because CALL ZUIDSTCK is refused (above).
-  Every pointer hole left in ZECS001 is refused by name, each with its own message and test (test_pointer_lane_4771.py; the corpus test runs
-  with the forge's `runTask(CicsTask)` stub so the CICS lane is on, and fails on the generic "SET ADDRESS OF (pointers)" hole -- 2026-10-18:
-  561 statements, 543 translated, 18 holes. The overlaid-pointer refusal also reaches the EXEC CICS GETMAIN / WEB RECEIVE / FREEMAIN
-  statements that name CACHE-ADDRESS / SAVE-ADDRESS): the numeric
-  REDEFINES view (lines 1111, 1115, 1400, 1519), and CALL ZUIDSTCK (1244); ADDRESS OF the subordinate ZF-DATA (1098, 1195) translates since slice 1
-  (windowed `Storage`). What is left is the 4 versus 8 byte pointer decision and the pointer arithmetic.
-  2026-10-19 re-count at 1f942b557: ZECS001 holds 18 holes, all the named refusals above and none unnamed; ZECS000 and ZECS003 translate with
-  0 holes (their ZC##FILE name is a run-time Hole guard, pinned by the same file's corpus test), so #4771's own holes are modelled or refused by name.
+- **Pointer arithmetic (#4771, ZECS001): the two address idioms, ASSUMED.** ZECS001 advances CACHE-ADDRESS by the bytes it copied (`ADD ZF-LENGTH TO
+  CACHE-ADDRESS-X`), copies the address (`MOVE CACHE-ADDRESS-X TO SAVE-ADDRESS-X`) and sets CACHE-MESSAGE to the advanced address. *The 4- versus
+  8-byte decision:* a POINTER stays 8 bytes in the port (the oracle's width, GnuCOBOL x86-64; IBM's is 4), and its `PIC S9(8) COMP` view is **never
+  read as a number**. A pure view (an elementary BINARY integer item that REDEFINES a POINTER and has nothing under it,
+  `program.pointer_view_of`) is modelled for exactly two statements: `ADD|SUBTRACT n TO|FROM view` (one operand, one target, no ROUNDED, no ON SIZE
+  ERROR) is `DetCics.advancePointer`, which gives the pointer the handle of the same block n bytes on (`CicsTask.addressOf(bytes, offset)`, the windowed
+  `Storage` of slice 1), and `MOVE view TO view` is `DetCics.copyPointer`. Anything else that names a view (COMPUTE, IF, MOVE to or from a number or
+  a group view, ADD GIVING, several operands) is still refused by name ("a REDEFINES overlays a POINTER with it"), as is a pointer overlaid by anything
+  but pure views (a PIC X view, a group). At run time a result outside the block (below its first byte or past its last), a null or a freed pointer is
+  refused by name. **Not proven against the oracle:** GnuCOBOL's `ADD n TO view` is a big-endian read of the low half of a little-endian 8-byte address,
+  so its result is no address the program can use; this is unit-proven on the port only (test_pointer_lane_4771.py), and nothing
+  here is "executed-equivalent". A SET ADDRESS OF a record longer than the block's rest after an advance is the existing refusal ("a record longer
+  than its storage"): ZECS001's 32000-byte CACHE-MESSAGE over a short tail refuses at run time, so the estate program's behaviour past a short segment is
+  not modelled (assumption 2 above).
+  ZECS001 stays not whole because CALL ZUIDSTCK is refused (above). 2026-10-20: ZECS001 translates 559 of 561 statements with the forge's `runTask`
+  stub; the holes are CALL ZUIDSTCK (line 1244, named) and the missing COMMAREA DTO the stub does not carry, none a pointer hole (the corpus test pins this).
+  Still refused in the pointer lane: the siblings listed on #5042.
 
 - **GETMAIN without INITIMG: the burned-estate census (#4270, 2026-10-17).** Over the burned corpora (baseline `cf0bcb927a5e`: 98 of 106 CICS
   programs translate whole) one program issues it, DBB MortgageApplication `epscsmrd.cbl` (ALLOCATE-DFH-BODY-WORK-AREA and

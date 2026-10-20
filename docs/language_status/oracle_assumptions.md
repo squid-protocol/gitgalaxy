@@ -2618,8 +2618,8 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   code-page refusals above are IBM-silent on the table, and a real conversion changes the bytes the program holds, so accepting them
   as no-ops would loosen a proof; (2) MEDIATYPE is a data area in IBM's COBOL form and both translators refuse a literal there
   (`equivalence_cics._web_send`, `DetCics` via `read_field`); (3) the runner has no HTTP driver (scenario `requests`: a SERVER URIMAP
-  match, trigger `{kind: http}`, WEB-RECEIVE / WEB-SEND events on the stub and `CicsTask`; the stub and `CicsTask` record WEB-SEND but
-  not WEB-RECEIVE). The crucible's `gt-web-*` cases (after v0.9.0) also need the WEB-OPEN / CONVERSE / CLOSE events and peer
+  match, trigger `{kind: http}`; the stub and `CicsTask` both record WEB-SEND and WEB-RECEIVE: the request's media type, the bytes
+  returned (none on LENGERR 16), RESP and RESP2, #4767). The crucible's `gt-web-*` cases (after v0.9.0) also need the WEB-OPEN / CONVERSE / CLOSE events and peer
   host / query / headers. ZECS001 still waits on #4771.
 
 ### X38. WEB EXTRACT / EXTRACT WEB, EXTRACT TCPIP, WEB RECEIVE, WEB READ / WRITE HTTPHEADER, WEB READ FORMFIELD / QUERYPARM and the WEB browse forms (CICS web support, the server reading its request) — ASSUMED, REFUSED where IBM is silent (#4767, #4940, #4972, zECS)

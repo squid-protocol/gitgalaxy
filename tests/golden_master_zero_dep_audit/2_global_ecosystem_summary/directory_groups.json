@@ -3673,9 +3673,9 @@
     },
     "objective-c/worldwideweb": {
       "avg_exposures": {
-        "api_exposure": 54.49,
+        "api_exposure": 54.78,
         "churn": 0.0,
-        "cognitive_load": 59.46,
+        "cognitive_load": 59.09,
         "concurrency": 0.0,
         "dead_code": 3.45,
         "documentation": 100.0,
@@ -3684,11 +3684,11 @@
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 83.3,
-        "tech_debt": 18.73,
+        "tech_debt": 18.97,
         "verification": 67.1
       },
       "file_count": 6,
-      "total_mass": 2534.9
+      "total_mass": 2563.4
     },
     "perl": {
       "avg_exposures": {

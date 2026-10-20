@@ -10440,6 +10440,9 @@ class StructuralExtractor:
                 if isinstance(masked, re.Pattern):
                     safe_block = masked.sub(lambda m: re.sub(r"[^\n]", " ", m.group(0)), safe_block)
                 raw_calls = invocation_pattern.findall(safe_block)
+                if invocation_pattern.groups > 1:
+                    # #5639: one group per alternative (Objective-C: C call, message selector)
+                    raw_calls = [next((g for g in m if g), "") for m in raw_calls]
 
         # Per-language additions to the global ignore set (Epic #3264 Phase 3).
         # Authored lowercase in the profile. A case-insensitive language

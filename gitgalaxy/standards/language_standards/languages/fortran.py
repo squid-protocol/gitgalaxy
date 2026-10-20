@@ -95,9 +95,30 @@ DEFINITION: dict[str, Any] = {
     # language or uppercase legacy style (`USE A`) never resolves to
     # `a.f90` and the whole import chain goes invisible.
     "case_insensitive_imports": True,
+    # #5638: `x = F(a)` is a call to the function F unless the unit declares F an array
+    # (core/fortran_calls.py). TOP LEVEL, never inside `rules` (#2806).
+    "calls_out_function_refs": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_CALL_VERB,
+        # #5638: intrinsics and statement words that read `NAME(` but are not a user routine, lowercase
+        "_calls_out_ignore": frozenset(
+            (
+                "abs aimag aint anint acos asin atan atan2 cos cosh sin sinh tan tanh exp log log10 sqrt mod modulo "
+                "max min amax1 amin1 max0 min0 dmax1 dmin1 sign dim int nint ifix idint float real dble cmplx conjg "
+                "char ichar iachar achar len len_trim index scan verify trim adjustl adjustr repeat transfer "
+                "size shape lbound ubound allocated associated present sum product maxval minval maxloc minloc "
+                "count any all dot_product matmul transpose reshape spread pack unpack merge cshift eoshift "
+                "floor ceiling fraction exponent nearest rrspacing spacing huge tiny epsilon digits radix "
+                "range precision selected_int_kind selected_real_kind kind ishft ishftc iand ior ieor not btest "
+                "ibset ibclr ibits mvbits random_number random_seed system_clock date_and_time cpu_time "
+                "get_command_argument command_argument_count get_environment_variable null "
+                "dabs dsqrt dexp dlog dsin dcos dtan datan dsign dmod iabs isign idim amod "
+                "if elseif while do select case where forall read write print open close inquire rewind "
+                "backspace endfile return stop pause allocate deallocate nullify goto assign associate "
+                "block format wait flush type class"
+            ).split()
+        ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # Control flow that forces the CPU to make a decision or jump. High density creates jagged shapes.

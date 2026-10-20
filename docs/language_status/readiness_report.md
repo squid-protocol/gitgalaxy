@@ -332,15 +332,12 @@ Era evidence (programs by latest era a tell reaches):
 
 era 0: 0, era 1: 0, era 2: 0, era 3: 0, era 4: 4, era none: 3
 
-### Rules to land (5 gap classes; top 5, the `cics_census.py blockers` order)
+### Rules to land (2 gap classes; top 2, the `cics_census.py blockers` order)
 
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
 | 1 | refused: CICS Assembler (refuses the whole program: upper bound) | 2 | 0 | 2 | era none: 2 |
-| 2 | <name>: a REDEFINES overlays a POINTER with it | 0 | 0 | 1 | - |
-| 3 | <name>: a pointer a REDEFINES overlays | 0 | 0 | 1 | - |
-| 4 | EXEC CICS <name>: a pointer a REDEFINES overlays | 0 | 0 | 1 | - |
-| 5 | ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the N bytes it returns in | 0 | 0 | 1 | - |
+| 2 | ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the N bytes it returns in | 1 | 0 | 1 | era 4: 1 |
 
 ### Proof blockers (4 programs translated whole, 1 with no proof gap; top 3 of 3 classes, `proof_blockers.py` statistics)
 

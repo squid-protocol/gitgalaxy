@@ -27,6 +27,16 @@ DEFINITION: dict[str, Any] = {
     "exact_matches": [],
     # ECOSYSTEM ANCHORS & DISAMBIGUATION: Primary sibling extensions to anchor the LiveCode server/builder environment.
     "discriminators": [".lc", ".livecode", ".lcb", ".livecodescript"],
+    # #5624: `.rev` is also the extension of one-line ASCII build counters (DOOM-FX `bank00.a.rev`: `116`), so
+    # it is LiveCode only on content: a handler header (`on mouseUp`, `function f`, `command c`, `getProp`,
+    # `setProp`), a `script "..."` property or the `REVO` stack signature. `.lc`/`.livecode`/... stay uncontested.
+    "extensions_needing_discriminator": [".rev"],
+    "internal_discriminator": re.compile(
+        r"^[ \t]*(?:private[ \t]+)?(?:on|function|command|getprop|setprop)[ \t]+[A-Za-z_]\w{0,63}[ \t]*"
+        r"(?:\([^)\n]{0,200}\)|[\w, \t]{0,200})?[ \t]*$"
+        r"|^[ \t]*script[ \t]+\"|^REVO\d",
+        re.M | re.I,
+    ),
     # EXECUTION SIGNATURES: Interpreters found on Line 1 for LiveCode Server environments.
     "shebangs": ["livecode-server"],
     # UPGRADED: Maps to Family 1d (multi_style_live)

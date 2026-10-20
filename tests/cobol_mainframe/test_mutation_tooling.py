@@ -450,3 +450,24 @@ def test_compare_leaves_out_a_mutant_that_is_pending_in_either_run():
                                                       (12, [{"id": "m1"}], 12, False), (3, [{"id": "m1"}], None, True)])  # fmt: skip
 def test_the_agreement_gate_needs_enough_mutants_judged_and_no_difference(judged, differ, minimum, ok):
     assert mu.agreement_gate({"judged_by_both": judged, "differ": differ}, minimum) is ok
+
+
+@pytest.mark.parametrize("flags,expect", [([], True), (["--one-jvm"], True), (["--no-one-jvm"], False), (["--full"], False),
+                                          (["--record"], True)])  # fmt: skip
+def test_the_session_jvm_is_the_fast_default_and_off_for_full(monkeypatch, tmp_path, flags, expect):
+    seen = {}
+
+    def fake_run(*args, **kw):
+        seen.update(kw, full=args[8])
+        return {}
+
+    monkeypatch.setattr(mu, "run", fake_run)
+    monkeypatch.setattr(mu, "mutation_md", lambda s: "")
+    monkeypatch.setitem(sys.modules, "mutation_scores", type("S", (), {"record_run": staticmethod(lambda *a: None)}))
+    assert mu.main(["run", "carddemo-intcalc", "--work", str(tmp_path), *flags]) == 0
+    assert seen["one_jvm"] is expect and seen["full"] is ("--full" in flags)
+
+
+def test_one_jvm_with_full_is_refused(tmp_path):
+    with pytest.raises(SystemExit, match="fast-mode option"):
+        mu.main(["run", "carddemo-intcalc", "--work", str(tmp_path), "--full", "--one-jvm"])

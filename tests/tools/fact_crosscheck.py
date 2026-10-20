@@ -67,6 +67,7 @@ import facts as F
 import mainframe_corpus as MC
 import translator_adapter as TA
 
+from gitgalaxy.tools.cobol_to_java.det import engine_layout as EL  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det.cics import POINTER_BYTES as TRANSLATOR_POINTER_BYTES  # noqa: E402
 
 LEDGER = REPO_ROOT / "tests" / "cobol_mainframe" / "fact_crosscheck_ledger.json"
@@ -111,49 +112,18 @@ def augmented_key(key: dict[str, Any], extra: list[str]) -> dict[str, Any]:
 # ------------------------------------------------------------------------------
 # The engine's extra channels
 # ------------------------------------------------------------------------------
-def _closure(ir: Any, ef: Any) -> list[Any]:
-    seen: dict[str, Any] = {}
-    todo = [ef]
-    while todo:
-        f = todo.pop()
-        for c in ir._copy_files(f):
-            if c.file_path not in seen:
-                seen[c.file_path] = c
-                todo.append(c)
-    return list(seen.values())
-
-
 def engine_extras(ir: Any, ef: Any, records: list[tuple[Any, str, int]]) -> dict[str, set[str]]:
     """offsets (for every record the translator laid out: the engine entry at the same file / line / level,
-    through GalaxyIR.record_layout), moves and copy_resolution."""
+    through GalaxyIR.record_layout -- the match det.engine_layout gives the translator, #5649), moves and
+    copy_resolution."""
     out: dict[str, set[str]] = {"offsets": set(), "moves": set(), "copy_resolution": set()}
-    closure = _closure(ir, ef)
-    by_loc: dict[tuple[str, int, int], tuple[Any, Any]] = {}
-    for f in [ef, *closure]:
-        for it in f.data_items:
-            by_loc.setdefault((f.file_path, it.line, it.level), (f, it))
-    # #4472: a section-level COPY ... REPLACING lays out the REPLACED records GalaxyIR built (ef.copied_items,
-    # roots in ef.records), not the copybook's own item at the translator's (file, line): they sit at the COPY
-    # statement's line, under their replaced names.
-    copied = {id(it) for it in ef.copied_items}
-    replaced_roots: dict[tuple[str, int], Any] = {}
-    for r in ef.records:
-        if id(r) in copied:
-            replaced_roots.setdefault(((r.name or "").upper(), r.level), r)
+    engine = EL.EngineRecords.of(ir, ef)
     for rec, file, line in records:
-        hit = by_loc.get((file, line, rec.level))
-        root = replaced_roots.get(((rec.name or "").upper(), rec.level))
-        if root is not None:
-            hit = (ef, root)
+        hit = engine.find(rec.name, file, line, rec.level)
         if hit is None:
             out["offsets"].add(f"{rec.name} (record) not read")
             continue
-        owner, item = hit
-        ext = None
-        if owner is not ef:
-            roots = [r for r in owner.records if r.level not in (66, 88)]
-            if roots and roots[-1] is item:
-                ext = ir._copy_extension(ef, owner) or None
+        owner, item, ext = hit
         try:
             # #5649: at the translator's POINTER width (GnuCOBOL x86-64, register C9), so like storage meets like
             lay = ir.record_layout(owner, item, ext, pointer_bytes=TRANSLATOR_POINTER_BYTES)

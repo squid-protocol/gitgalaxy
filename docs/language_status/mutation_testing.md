@@ -49,7 +49,7 @@ A from-scratch proof per mutant redoes the COBOL runs and regenerates the whole 
 - When the build is current (the main classes from the port, the test classes from this very test source), the
   test runs in a plain JVM through the JUnit Platform launcher surefire itself uses. Otherwise it goes to Maven.
   By default each run is a fresh JVM: no state crosses runs.
-- `--one-jvm` (opt-in, `mutation.py run` and `equivalence.py run`): the default, fault and entry runs of a batch
+- `--one-jvm` (the default of `mutation.py run` in fast mode since 2026-10-20, `--no-one-jvm` opts out; opt-in on `equivalence.py run`): the default, fault and entry runs of a batch
   proof share one session JVM (`EquivalenceMain --session`; one run per stdin line, the exit status in a
   `@@EQUIVALENCE-RUN-DONE@@` marker). Python compares each run before sending the next, so `--first-difference`
   still stops early. The generated test class carries `@DirtiesContext`, so each run gets a fresh Spring context
@@ -142,6 +142,22 @@ the fault-log fix; its cause is not identified, only that it has not come back i
 with `--full` on posttran and cardlist (20 fresh mutants each, plus the 30 seed-2 cardlist mutants), at both `--jobs` values;
 dateutil agreed before. Not validated: `--one-jvm` on these two cases after the fix (fast and `--one-jvm` agreed on posttran
 before it), entry runs, and samples above 40. `--one-jvm` therefore stays opt-in until it is compared on the fixed code.
+
+**`--one-jvm` on the fixed code, and the default (2026-10-20, #4047).** The same fresh `--sample 20 --seed 3` mutants
+as above, `--one-jvm` (`--jobs 1`) judged by `mutation.py compare` against the `--full` reference and against fast
+`--jobs 1`:
+
+| case | `--full` vs `--one-jvm` | fast vs `--one-jvm` | proof s, full -> fast -> one-jvm | survivors' proof s, full -> fast -> one-jvm |
+|---|---|---|---|---|
+| carddemo-cardlist (COCRDLIC, CICS) | 20 of 20 agree | 20 of 20 agree | 558 -> 272 -> 123 | 52 -> 33 -> 14 |
+| carddemo-posttran (CBTRN02C, batch) | 20 of 20 agree | 20 of 20 agree | 2,207 -> 405 -> 118 | 421 -> 305 -> 45 |
+
+Every operator present agreed. With the earlier agreements (intcalc 40 and menu 30 and dateutil 40 of 40, and the
+12-mutant checks) `--one-jvm` has agreed with `--full` on every burned-estate case sampled, so `mutation.py run` now
+uses it in fast mode (`--full` does not; `--no-one-jvm` gives a JVM per run; `--record` uses it too). Not validated:
+a case with entry runs (no burned committed port has one; unit tests only), the 17 crucible ports run through
+`mutation_crucible.py`, samples above 40. Db2 and IMS cases still get a JVM per run. If a `compare` against
+`--full` ever disagrees on a new case, rerun with `--no-one-jvm` first.
 
 ## Scores
 

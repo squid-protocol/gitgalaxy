@@ -514,3 +514,17 @@ def test_clp_connect_ok_is_unchanged(monkeypatch):
     monkeypatch.setattr(db2.subprocess, "run", _fake_run(0, 'SQL0204N  "T" is an undefined name.  SQLSTATE=42704\n'))
     with pytest.raises(RuntimeError, match="SQL0204N"):
         db2._clp("SELECT * FROM T;")
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_bnk1cac_screen_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's create-account screen (BNK1CAC -> CREACC) on 30 generated ACCOUNT rows keyed to the customers customer.txt
+    holds, 12 generated PROCTRAN rows and the two generated CONTROL counter rows CREACC reads and bumps: customer
+    numbers drawn from the rows (some none holds), every statement answered alike on both sides, the three tables alike
+    after every task. Rates are ones both IEEE and HFP hold exactly (see the case's notes)."""
+    report = _det_port_generated("cbsa-bnk1cac-generated", tmp_path)
+    assert report["proven"] is True
+    assert report["db2_generated"] == {"IBMUSER.ACCOUNT": 30, "IBMUSER.PROCTRAN": 12, "IBMUSER.CONTROL": 2}
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    assert len(sql) == 40 and all(q["equal"] == q["statements"] for q in sql)
+    assert {x["verb"] for q in sql for x in q["cobol"]} >= {"SELECT", "UPDATE", "INSERT"}

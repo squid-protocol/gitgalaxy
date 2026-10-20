@@ -149,6 +149,29 @@
    }
   },
   {
+   "name": "select-with-carried-to-tranid",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CT00-TRNID-FIRST": "0000000000683580",
+    "CDEMO-CT00-TRNID-LAST": "0000000021711604",
+    "CDEMO-CT00-PAGE-NUM": 1,
+    "CDEMO-CT00-NEXT-PAGE-FLG": "Y",
+    "CDEMO-TO-TRANID": "CT01"
+   },
+   "receive": {
+    "COTRN0A": {
+     "SEL0004I": "S",
+     "TRNID04I": "0000000009101861"
+    }
+   },
+   "why": "#5401 (proposed for bdeaa77fbe): select with a non-blank CDEMO-TO-TRANID on input, so the XCTL COMMAREA shows whether the ninth FROM-PROGRAM byte spills over it"
+  },
+  {
    "name": "select-lowercase",
    "aid": "DFHENTER",
    "commarea": {

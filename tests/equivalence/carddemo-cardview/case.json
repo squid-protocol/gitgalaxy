@@ -49,6 +49,19 @@
    }
   },
   {
+   "name": "enter-carried-to-tranid",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-TO-TRANID": "CT01"
+   },
+   "why": "#5401 (proposed for 6d63a520f9): the input COMMAREA carries a non-blank CDEMO-TO-TRANID, which the RETURN COMMAREA echoes"
+  },
+  {
    "name": "no-commarea",
    "aid": "DFHENTER",
    "commarea": null

@@ -6,8 +6,7 @@
  "refused": 2,
  "histogram": {
   "0": 100,
-  "1": 4,
-  "4": 1,
+  "1": 5,
   "8": 1
  },
  "gaps": [
@@ -51,33 +50,20 @@
    "refuses_program": false
   },
   {
+   "gap": "ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the N bytes it returns in <name> are not a stated fact",
+   "only": 1,
+   "only_burned": 1,
+   "only_non_burned": 0,
+   "one_away": 0,
+   "one_away_burned": 0,
+   "one_away_non_burned": 0,
+   "touched": 1,
+   "touched_burned": 1,
+   "touched_non_burned": 0,
+   "refuses_program": false
+  },
+  {
    "gap": "<name> ADDRESS OF <name>: not an item of <name> or LINKAGE",
-   "only": 0,
-   "only_burned": 0,
-   "only_non_burned": 0,
-   "one_away": 0,
-   "one_away_burned": 0,
-   "one_away_non_burned": 0,
-   "touched": 1,
-   "touched_burned": 1,
-   "touched_non_burned": 0,
-   "refuses_program": false
-  },
-  {
-   "gap": "<name>: a REDEFINES overlays a POINTER with it",
-   "only": 0,
-   "only_burned": 0,
-   "only_non_burned": 0,
-   "one_away": 0,
-   "one_away_burned": 0,
-   "one_away_non_burned": 0,
-   "touched": 1,
-   "touched_burned": 1,
-   "touched_non_burned": 0,
-   "refuses_program": false
-  },
-  {
-   "gap": "<name>: a pointer a REDEFINES overlays",
    "only": 0,
    "only_burned": 0,
    "only_non_burned": 0,
@@ -142,19 +128,6 @@
    "refuses_program": false
   },
   {
-   "gap": "EXEC CICS <name>: a pointer a REDEFINES overlays",
-   "only": 0,
-   "only_burned": 0,
-   "only_non_burned": 0,
-   "one_away": 0,
-   "one_away_burned": 0,
-   "one_away_non_burned": 0,
-   "touched": 1,
-   "touched_burned": 1,
-   "touched_non_burned": 0,
-   "refuses_program": false
-  },
-  {
    "gap": "EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents",
    "only": 0,
    "only_burned": 0,
@@ -182,19 +155,6 @@
   },
   {
    "gap": "SET TO ENTRY: procedure / function pointers are not modelled",
-   "only": 0,
-   "only_burned": 0,
-   "only_non_burned": 0,
-   "one_away": 0,
-   "one_away_burned": 0,
-   "one_away_non_burned": 0,
-   "touched": 1,
-   "touched_burned": 1,
-   "touched_non_burned": 0,
-   "refuses_program": false
-  },
-  {
-   "gap": "ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the N bytes it returns in <name> are not a stated fact",
    "only": 0,
    "only_burned": 0,
    "only_non_burned": 0,

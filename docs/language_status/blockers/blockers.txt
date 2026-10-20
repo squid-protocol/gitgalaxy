@@ -1,20 +1,17 @@
-# blockers in baseline b38ded0f59e3 (burned + local corpora (no census)): programs with an EXEC CICS command
+# blockers in baseline c913eb62225f (burned + local corpora (no census)): programs with an EXEC CICS command
 translated whole: 100 / 106 (non-burned 0 / 0); refused whole (no statements translated): 2
-distinct gap classes per program: 0: 100, 1: 4, 4: 1, 8: 1
+distinct gap classes per program: 0: 100, 1: 5, 8: 1
 
  only gap (B/NB)  one away (B/NB)  touched  gap  (* = refuses the whole program: its count is an upper bound; `--unmask GAP` shows what it hides)
      2 ( 2/ 0)      0 ( 0/ 0)        2  *refused: CICS Assembler
      1 ( 1/ 0)      0 ( 0/ 0)        1   DSNTIAC: Db2's message text is not modelled
      1 ( 1/ 0)      0 ( 0/ 0)        1   INITIALIZE REPLACING of the table <name>, which holds ALPHANUMERIC items REPLACING does not name
+     1 ( 1/ 0)      0 ( 0/ 0)        1   ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the N bytes it returns in
      0 ( 0/ 0)      0 ( 0/ 0)        1   <name> ADDRESS OF <name>: not an item of <name> or LINKAGE
-     0 ( 0/ 0)      0 ( 0/ 0)        1   <name>: a REDEFINES overlays a POINTER with it
-     0 ( 0/ 0)      0 ( 0/ 0)        1   <name>: a pointer a REDEFINES overlays
      0 ( 0/ 0)      0 ( 0/ 0)        1   CEEHDLR: registering an LE user condition handler is not modelled
      0 ( 0/ 0)      0 ( 0/ 0)        1   CEEHDLU: unregistering an LE user condition handler is not modelled
      0 ( 0/ 0)      0 ( 0/ 0)        1   EPSCSMRI: a sibling program of this source
      0 ( 0/ 0)      0 ( 0/ 0)        1   EPSCSMRO: a sibling program of this source
-     0 ( 0/ 0)      0 ( 0/ 0)        1   EXEC CICS <name>: a pointer a REDEFINES overlays
      0 ( 0/ 0)      0 ( 0/ 0)        1   EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents
      0 ( 0/ 0)      0 ( 0/ 0)        1   EXEC CICS SOAPFAULT CREATE
      0 ( 0/ 0)      0 ( 0/ 0)        1   SET TO ENTRY: procedure / function pointers are not modelled
-     0 ( 0/ 0)      0 ( 0/ 0)        1   ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the N bytes it returns in

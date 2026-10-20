@@ -16,7 +16,7 @@ description: "| Metric | Value |"
 
 ## 2. Identification surface
 
-- **Extensions**: `.jcl`, `.prc`, `.bms`
+- **Extensions**: `.jcl`, `.prc`, `.bms`, `.idcams` (#5089: an IDCAMS SYSIN member, read for its DEFINE CLUSTER / AIX / PATH `vsam_defines`)
 - **Exact matches**: (none)
 - **Discriminators**: `.cbl`, `.cob`, `.cpy`
 - **Shebangs**: (none)

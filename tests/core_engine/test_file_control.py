@@ -221,3 +221,50 @@ def test_keys_and_recordsize_on_the_data_component():
         ("<USRHLQ>.GENAPP.KSDSCUST", "INDEXED", 10, 0, 225),
         ("A.B", "INDEXED", 8, 2, 50),  # the cluster's own KEYS / RECORDSIZE win
     ]
+
+
+# #5089: zECS ships its IDCAMS decks as bare `.idcams` members (no `//` cards), with
+# install symbols in the cluster name; the name is kept as written.
+IDCAMS_MEMBER = """\
+  DELETE @ecs_hlq@.ZC@id@FILE.@environment@ CLUSTER PURGE
+  SET MAXCC=0
+
+  DEFINE CLUSTER -
+  (NAME(@ecs_hlq@.ZC@id@FILE.@environment@) -
+  INDEXED -
+  KEYS(16 0) -
+  RECORDSIZE(100 32700)) -
+  DATA(NAME(@ecs_hlq@.ZC@id@FILE.@environment@.DATA) -
+  CONTROLINTERVALSIZE(32768))
+"""
+
+
+def _members(text):
+    return [(r["kind"], r["name"], r["key_length"], r["key_offset"], r["record_avg"], r["record_max"]) for r in
+            extract_boundary("jcl", text)["vsam_defines"]]  # fmt: skip
+
+
+def test_a_bare_idcams_member_is_read_with_its_install_symbols():
+    want = [("CLUSTER", "@ECS_HLQ@.ZC@ID@FILE.@ENVIRONMENT@", 16, 0, 100, 32700)]
+    assert _members(IDCAMS_MEMBER) == want
+    assert _members(IDCAMS_MEMBER.replace("\n", "\r\n")) == want  # CRLF
+    assert _members(IDCAMS_MEMBER.replace(" -\n", " +\n")) == want  # `+` continues like `-`
+    assert _members(IDCAMS_MEMBER.replace("DEFINE", "DEF")) == want
+    assert _members(IDCAMS_MEMBER.replace("  DEFINE", "DEFINE")) == want  # column 1
+
+
+def test_a_bare_idcams_member_reads_aix_and_path_and_nothing_without_a_define():
+    text = (
+        "DEFINE AIX (NAME(A.B.AIX) RELATE(A.B) KEYS(4 8) NONUNIQUEKEY UPGRADE) -\n"
+        "  DATA(NAME(A.B.AIX.DATA))\n"
+        "DEFINE PATH (NAME(A.B.PATH) PATHENTRY(A.B.AIX))\n"
+    )
+    assert [r[:2] for r in _members(text)] == [("AIX", "A.B.AIX"), ("PATH", "A.B.PATH")]
+    assert _members("  DELETE A.B CLUSTER PURGE\n  SET MAXCC=0\n") == []
+
+
+def test_idcams_is_a_registered_jcl_extension_and_rdo_a_csd_one():
+    from gitgalaxy.standards.language_standards.languages import csd, jcl
+
+    assert ".idcams" in jcl.DEFINITION["extensions"]
+    assert ".rdo" in csd.DEFINITION["extensions"]

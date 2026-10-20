@@ -24,7 +24,10 @@ DEFINITION: dict[str, Any] = {
     # 3270 UI surface via assembler macros (DFHMSD/DFHMDI/DFHMDF), not batch
     # orchestration, so scanning it through jcl's `//`-anchored rules read
     # every map as signal-free job control.
-    "extensions": [".jcl", ".prc"],
+    # #5089: `.idcams` is the IDCAMS SYSIN member a job runs (walmartlabs/zECS
+    # `Source/ZECSFILE.idcams`, DEFINE CLUSTER with install symbols); it reads through the
+    # jcl dialect's `vsam_defines`, which takes raw IDCAMS text without `//` cards.
+    "extensions": [".jcl", ".prc", ".idcams"],
     "exact_matches": [],
     "discriminators": [".cbl", ".cob", ".cpy"],
     "shebangs": [],

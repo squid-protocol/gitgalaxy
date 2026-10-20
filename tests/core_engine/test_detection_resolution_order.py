@@ -61,6 +61,8 @@ _EXPECTED_CLAIMANTS: dict[str, list[tuple[str, str]]] = {
     ".mac": [("hlasm", "D"), ("easytrieve", "D")],
     ".map": [("bms", "D")],
     ".py": [("python", "D"), ("embedded_python", "D")],
+    # #5624: LiveCode owns `.rev` only on content (build counters share it); sole claimant, so not order-critical.
+    ".rev": [("livecode", "D")],
     ".sql": [("sqlite", "-"), ("postgresql", "D"), ("db2_sql", "D")],
     ".y": [("c", "-"), ("yacc", "D")],
 }

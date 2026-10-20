@@ -81,6 +81,8 @@ LENS_CONFIG: LensConfig = {
         # #5624: Argonaut / Devpac assembly, proven by assembly's internal_discriminator.
         ".a",
         ".i",
+        # #5624: a `.rev` is LiveCode only on content (build counters share it).
+        ".rev",
     },
     "PROSE_ANCHORS": {
         "README",

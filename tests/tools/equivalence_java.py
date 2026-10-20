@@ -424,7 +424,9 @@ def linked_programs(case: dict[str, Any], corpus: Path, project: Path, sources: 
             continue
         dirs = [corpus / d for d in case.get("copy_dirs", ["app/cpy"])]
         dirs += [corpus / d for d in (case.get("db2") or {}).get("include_dirs", [])]
-        stub = (project / "src/main/java" / PKG_DIR / rel).read_text(encoding="utf-8")
+        # #4047: on --reuse the project's file is the earlier run's translation, not the stub: translate the kept stub
+        kept = project.parent / GENERATED_KEEP / rel
+        stub = (kept if kept.is_file() else project / "src/main/java" / PKG_DIR / rel).read_text(encoding="utf-8")
         r = P.translate(corpus / extra["program_source"], dirs, stub, PKG, P.estate_files(project), project,
                         options=common.effective_options(case, program=extra["program"]).layers)  # fmt: skip
         out = work / "linked" / rel
@@ -455,6 +457,9 @@ def _reused_project(earlier: Path, work: Path, overlay: list[str]) -> Path:
         raise RuntimeError(f"--reuse: the port's files {overlay} are not the earlier run's {before}")
     project = work / poms[0].parent.name
     shutil.copytree(poms[0].parent, project, dirs_exist_ok=True, ignore=shutil.ignore_patterns("surefire-reports"))
+    kept = poms[0].parent.parent / GENERATED_KEEP  # #4047: the generated files the earlier overlay replaced (the stubs)
+    if kept.is_dir():  # a LINKed program is translated from its stub, never from the earlier run's translation
+        shutil.copytree(kept, work / GENERATED_KEEP, dirs_exist_ok=True)
     (project / PRECOMPILED).unlink(missing_ok=True)
     return project
 

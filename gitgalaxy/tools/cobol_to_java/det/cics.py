@@ -1172,6 +1172,15 @@ class Cics(ContainerCommands, FileControlCommands):
                     f"{ind}if (task.ended()) throw abended();"]  # #4534: unwound past this level  # fmt: skip
             return out + self.outcome(opts, f"DetCics.resp({r})", "task.transferResp2()", ind)  # #4679
         if verb == "RETURN":
+            if "CHANNEL" in opts:  # #5005 (X17): the next task's current channel (CicsTask.returnChannel)
+                if not opts.get("TRANSID") or {"COMMAREA", "LENGTH", "IMMEDIATE"} & opts.keys():
+                    raise CicsError(_msg("RETURN", "at_most_one", "CHANNEL"))
+                tid, chan = self.name(_arg(opts["TRANSID"])), self.name(_arg(opts["CHANNEL"]))
+                rr = g.tmpname("rr")
+                # below the highest level it fails (INVREQ RESP2 2) and returns to the program; else the task ends
+                return [f"{ind}int[] {rr} = task.returnChannel({tid}, {chan});",
+                        f"{ind}if ({rr}[0] == 0) {{ caBack.run(); throw new Goback(); }}",
+                        *self.outcome(opts, f"{rr}[0]", f"{rr}[1]", ind)]  # fmt: skip
             if "IMMEDIATE" in opts:  # #4270 (X27): IBM, EXEC CICS RETURN IMMEDIATE -- TRANSID's task attached at once
                 if not opts.get("TRANSID"):
                     raise CicsError(

@@ -65,7 +65,9 @@ def _compiled_stub(main: str) -> Path:
     src = base / "main.c"
     src.write_text("#include <stdlib.h>\n" + main, encoding="ascii")
     exe = base / ("stub.exe" if os.name == "nt" else "stub")
-    built = subprocess.run([CC, "-o", str(exe), str(src), str(_stub_obj())], check=False, capture_output=True, text=True)  # noqa: S603
+    built = subprocess.run(
+        [CC, "-o", str(exe), str(src), str(_stub_obj())], check=False, capture_output=True, text=True
+    )  # noqa: S603
     assert built.returncode == 0, built.stderr  # the compiler's own words, on every OS
     return exe
 
@@ -1615,6 +1617,36 @@ def test_cics_task_channels_and_containers(tmp_path):
     ]
 
 
+@needs_javac
+def test_cics_task_return_channel(tmp_path):
+    """#5005 (X17), IBM EXEC CICS RETURN CHANNEL: the channel (created empty when absent) is made available to the next
+    program and the task ends; below the highest logical level the command fails, INVREQ RESP2 2, and returns."""
+    out = _cics_task(
+        tmp_path,
+        """
+        java.util.List<String> seen = new java.util.ArrayList<>();
+        CicsTask t = new CicsTask("CA05", "ENTER", null, null).withProgram("MAIN").withPrograms(new CicsTask.Programs() {
+            public boolean defined(String p) {
+                return true;
+            }
+
+            public void run(String p, CicsTask s) {
+                int[] r = s.returnChannel("NEXT", "CH1");
+                seen.add(r[0] + "/" + r[1] + " ended=" + s.ended());
+            }
+        });
+        t.putContainer("CH1", "REQ", "AB".getBytes(), 2, null, false);
+        System.out.println(t.linkChannel("SUB", "CH1") + " " + seen + " " + t.returnedChannel());
+        int[] r = t.returnChannel("NEXT", "CH1");
+        System.out.println(r[0] + "/" + r[1] + " " + t.ended() + " " + (t.returnedChannel() != null));
+        System.out.println(t.events().get(t.events().size() - 1));""",
+    )
+    lines = out.splitlines()
+    assert lines[0] == "NORMAL [16/2 ended=false] null"
+    assert lines[1] == "0/0 true true"
+    assert "transid=NEXT" in lines[2] and "channel=CH1" in lines[2] and "containers=[REQ]" in lines[2]
+
+
 # ---- #4951: MOVE CONTAINER and the container browse ------------------------------------------------------
 # One scenario, run on the stub and on CicsTask, which must print the same lines (IBM, EXEC CICS MOVE CONTAINER (CHANNEL),
 # STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (CHANNEL)); what IBM leaves open is refused (register X42).
@@ -2365,8 +2397,15 @@ def test_cics_task_assign_startcode_userid_and_the_terminal_facts(tmp_path):
             System.out.println("refused");
         }""",
     )
-    assert out.splitlines() == ["[TD][CICSUSER][T001] 0 24x80", "[S ] 16", "unstated terminal", "unstated terminal",
-                              "no facility", "unstated", "refused"]
+    assert out.splitlines() == [
+        "[TD][CICSUSER][T001] 0 24x80",
+        "[S ] 16",
+        "unstated terminal",
+        "unstated terminal",
+        "no facility",
+        "unstated",
+        "refused",
+    ]
 
 
 _DEED_MAIN = r"""

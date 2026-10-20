@@ -1850,6 +1850,8 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         if verb == "XCTL" and not opts.get("PROGRAM"):
             raise Unsupported("XCTL without PROGRAM")
         _check_spec(verb, opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
+        if verb == "RETURN" and "CHANNEL" in opts:  # #5005: the det port carries it; no stub process outlives its task
+            raise _stub_only("RETURN CHANNEL")
         if verb == "XCTL" and opts.get("CHANNEL"):  # #4270: the target's current channel (GGCXCTL)
             if "COMMAREA" in opts or "LENGTH" in opts:
                 raise Unsupported(_rule("XCTL", "at_most_one", "CHANNEL"), ["XCTL CHANNEL"])

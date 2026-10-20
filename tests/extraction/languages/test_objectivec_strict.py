@@ -369,11 +369,11 @@ def test_objectivec_calls_out():
     pattern = DEFINITION["rules"]["calls_out"]
     ignore_set = DEFINITION["rules"]["_calls_out_ignore"]
     
-    # #5639: group 1 is a C call, group 2 a message send's selector; the detector takes whichever matched.
-    assert pattern.groups == 2
+    # #5639: group 1 is a C call, group 2 a send's receiver, group 3 its selector.
+    assert pattern.groups == 3
 
     def callees(text):
-        return [next(g for g in m if g) for m in pattern.findall(text)]
+        return [m.group(1) or m.group(3) for m in pattern.finditer(text)]
 
     assert callees("[self probeBranch:argv]") == ["probeBranch"]
     assert callees("[self probeIo:argv]") == ["probeIo"]

@@ -110332,10 +110332,14 @@
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/Anchor.m": {
         "address@322": [],
-        "back@162": [],
+        "back@162": [
+          "removeLastObject",
+          "select"
+        ],
         "delete@254": [
+          "unlink",
           "makeObjectsPerform",
-          "selector"
+          "free"
         ],
         "destination@361": [],
         "equivalent@69": [
@@ -110345,10 +110349,10 @@
         "free@214": [
           "removeObject",
           "printf",
-          "makeObjectsPerform",
-          "selector"
+          "makeObjectsPerform"
         ],
         "initialize@26": [
+          "new",
           "setVersion"
         ],
         "isLastChild@200": [
@@ -110357,17 +110361,21 @@
         ],
         "linkTo@331": [],
         "moveBy@172": [
+          "lastObject",
           "indexOf",
           "objectAt",
+          "removeLastObject",
+          "follow",
           "printf"
         ],
         "new@47": [],
         "newAddress@117": [],
         "newParent@84": [
-          "tag",
+          "count",
           "objectAt",
           "equivalent",
           "printf",
+          "new",
           "addObject",
           "StrAllocCopy"
         ],
@@ -110385,7 +110393,6 @@
         "selectDiagnostic@277": [
           "printf",
           "loadAnchor",
-          "Diagnostic",
           "selectAnchor"
         ],
         "setAddress@313": [
@@ -110397,6 +110404,7 @@
         "sources@226": [],
         "unlink@234": [
           "disconnectAnchor",
+          "sources",
           "removeObject"
         ],
         "unload@246": []
@@ -110525,7 +110533,6 @@
       },
       "objective-c/worldwideweb/HyperManager.m": {
         "accessName@155": [
-          "Diagnostic",
           "newAddress",
           "selectDiagnostic"
         ],
@@ -110536,52 +110543,63 @@
           "goHome"
         ],
         "appOpenFile@260": [
-          "type",
           "WWW_nameOfFile",
           "accessName",
-          "Diagnostic",
           "free"
         ],
         "appOpenTempFile@272": [
-          "type",
           "WWW_nameOfFile",
           "accessName",
-          "Diagnostic",
           "free"
         ],
         "back@198": [],
         "closeOthers@356": [
+          "mainWindow",
+          "windowList",
+          "copy",
+          "count",
           "objectAt",
+          "contentView",
           "respondsTo",
-          "selector",
+          "isDocEdited",
           "printf",
-          "performClose"
+          "performClose",
+          "free"
         ],
         "goHome@209": [
-          "openMy",
-          "diagnostic"
+          "openMy"
         ],
         "goToBlank@227": [
-          "openMy",
-          "diagnostic"
+          "openMy"
         ],
         "help@218": [
-          "openMy",
-          "diagnostic"
+          "openMy"
         ],
         "hyperTextDidBecomeMain@411": [
+          "isIndex",
+          "window",
           "makeKeyAndOrderFront",
+          "close",
           "setStringValue",
+          "nodeAnchor",
+          "address",
           "at"
         ],
         "loadAnchor@77": [
-          "Diagnostic",
+          "node",
+          "nodeAnchor",
           "printf",
+          "address",
           "HTParse",
+          "count",
           "objectAt",
           "strcmp",
+          "name",
           "free",
+          "isIndex",
+          "window",
           "makeKeyAndOrderFront",
+          "close",
           "sprintf",
           "NXRunAlertPanel"
         ],
@@ -110609,19 +110627,31 @@
           "printPSCode"
         ],
         "registerAccess@54": [
+          "new",
           "printf",
+          "name",
           "strcmp",
           "addObject"
         ],
-        "runPagelayout@391": [],
+        "runPagelayout@391": [
+          "new",
+          "runModal"
+        ],
         "save@319": [
+          "server",
           "saveNode",
+          "window",
           "setDocEdited"
         ],
         "saveAll@330": [
+          "windowList",
+          "count",
           "objectAt",
+          "contentView",
           "respondsTo",
-          "selector",
+          "isDocEdited",
+          "docView",
+          "server",
           "saveNode",
           "setDocEdited"
         ],
@@ -110630,13 +110660,14 @@
         ],
         "searchDiagnostic@167": [
           "strcpy",
+          "nodeAnchor",
+          "address",
           "strchr",
           "strcat",
           "stringValueAt",
           "HTStrip",
           "WHITE",
-          "accessName",
-          "Diagnostic"
+          "accessName"
         ],
         "searchRTF@289": [
           "searchDiagnostic"
@@ -110648,6 +110679,7 @@
         "traceOff@42": [],
         "traceOn@41": [],
         "windowDidBecomeKey@431": [
+          "window",
           "selectTextAt"
         ]
       },
@@ -110675,16 +110707,12 @@
         "nodeAnchor@70": [],
         "paste@88": [],
         "readRichText@85": [],
-        "readSGML@34": [
-          "diagnostic"
-        ],
+        "readSGML@34": [],
         "readText@37": [],
         "readText@84": [],
         "referenceAll@74": [],
         "referenceSelected@73": [],
-        "replaceSel@53": [
-          "style"
-        ],
+        "replaceSel@53": [],
         "selectAnchor@77": [],
         "selectUnstyled@50": [],
         "selectionStyle@52": [],
@@ -110694,41 +110722,36 @@
         "unlinkSelection@72": [],
         "updateStyle@51": [],
         "windowDidBecomeMain@92": [],
-        "writeSGML@35": [
-          "relativeTo"
-        ]
+        "writeSGML@35": []
       },
       "objective-c/worldwideweb/HyperText.m": {
         "adjustWindow@194": [
+          "contentView",
           "page_width",
+          "disableFlushWindow",
           "setVertResizable",
           "setHorizResizable",
+          "calcLine",
+          "sizeToFit",
+          "isEditable",
+          "setNoWrap",
           "setCharWrap",
           "sizeTo",
-          "width",
           "getFrameSize",
-          "forContentSize",
-          "horizScroller",
-          "vertScroller",
-          "borderType",
           "setVertScrollerRequired",
           "setHorizScrollerRequired",
           "getFrame",
           "sizeWindow",
           "moveTopLeftTo",
           "getFrameRect",
-          "forContentRect",
-          "style",
           "placeWindow",
           "renewRuns",
-          "text",
-          "frame",
-          "tag"
+          "reenableFlushWindow",
+          "display"
         ],
         "anchor@379": [
           "sprintf",
           "newParent",
-          "tag",
           "textDidChange"
         ],
         "anchorSelected@394": [
@@ -110750,7 +110773,8 @@
         "appendEnd@1305": [
           "free",
           "end_output",
-          "printf"
+          "printf",
+          "adjustWindow"
         ],
         "appendEndAnchor@1386": [
           "HTStyleNew",
@@ -110773,20 +110797,21 @@
         "appendText@1367": [
           "OUTPUTS"
         ],
-        "apply@606": [],
+        "apply@606": [
+          "destination"
+        ],
         "applyStyle@813": [
-          "from",
-          "to",
           "apply",
           "printf",
           "willChange",
           "NXChunkGrow",
-          "run_match"
+          "run_match",
+          "calcLine",
+          "display"
         ],
         "applyStyle@958": [
           "printf",
-          "from",
-          "to",
+          "isEditable",
           "setDocEdited",
           "startOfParagraph",
           "endOfParagraph"
@@ -110794,18 +110819,23 @@
         "applyToSimilar@988": [
           "printf",
           "apply",
-          "mergeRun"
+          "mergeRun",
+          "calcLine",
+          "display"
         ],
-        "disconnectAnchor@682": [],
+        "disconnectAnchor@682": [
+          "display"
+        ],
         "dump@128": [
           "printf",
-          "malloc_size"
+          "malloc_size",
+          "name"
         ],
         "endOfParagraph@730": [],
         "followLink@533": [
           "printf",
           "setSel",
-          "startPos"
+          "follow"
         ],
         "format@118": [],
         "free@108": [
@@ -110818,24 +110848,33 @@
         ],
         "linkSelTo@442": [
           "HTStyleNew",
+          "isEditable",
           "setDocEdited",
+          "anchorSelected",
+          "anchor",
           "printf",
+          "select",
           "linkTo",
           "applyStyle",
           "free"
         ],
         "loadPlainText@1342": [
           "HTStyleNamed",
+          "selectAll",
           "setStyle",
           "setMonoFont",
           "setHorizResizable",
-          "readText"
+          "setNoWrap",
+          "readText",
+          "adjustWindow"
         ],
         "mergeRun@785": [
           "run_match",
           "printf"
         ],
-        "mouseDown@1407": [],
+        "mouseDown@1407": [
+          "followLink"
+        ],
         "newAnchor@83": [
           "page_width",
           "newFrame",
@@ -110847,50 +110886,48 @@
         "next_input_block@1147": [],
         "nodeAnchor@368": [],
         "page_width@62": [
-          "getMarginLeft",
-          "right",
-          "top",
-          "bottom"
+          "printInfo",
+          "paperRect",
+          "getMarginLeft"
         ],
         "paste@1568": [],
-        "readRichText@1086": [],
+        "readRichText@1086": [
+          "adjustWindow"
+        ],
         "readText@1059": [
           "setHorizResizable",
+          "setNoWrap",
           "setFont",
           "newFont",
-          "size",
           "getFrame",
           "renewRuns",
-          "text",
-          "frame",
-          "tag"
+          "adjustWindow"
         ],
         "referenceAll@490": [],
         "referenceSelected@419": [
           "HTStyleNew",
+          "anchorSelected",
+          "isEditable",
           "setDocEdited",
+          "anchor",
           "applyStyle",
           "printf",
           "textDidChange"
         ],
         "replaceSel@1037": [
-          "style",
           "apply",
-          "strlen",
-          "length",
-          "runs"
+          "strlen"
         ],
         "run_match@767": [],
         "selectAnchor@503": [
           "makeKeyAndOrderFront",
           "setSel",
-          "start",
+          "scrollSelToVisible",
           "printf"
         ],
         "selectUnstyled@589": [
           "HTStyleForParagraph",
-          "setSel",
-          "sor"
+          "setSel"
         ],
         "selectionStyle@1019": [
           "HTStyleForRun"
@@ -110900,15 +110937,7 @@
         "setupWindow@309": [
           "page_width",
           "getFrameSize",
-          "forContentSize",
-          "horizScroller",
-          "vertScroller",
-          "borderType",
           "newContent",
-          "style",
-          "backing",
-          "buttonMask",
-          "defer",
           "setDelegate",
           "makeKeyAndOrderFront",
           "setBackgroundGray",
@@ -110916,41 +110945,46 @@
           "setVertScrollerRequired",
           "setHorizScrollerRequired",
           "setContentView",
+          "free",
           "setDocView",
           "setOpaque",
           "setVertResizable",
           "setHorizResizable",
           "setMinSize",
           "setMaxSize",
-          "notifyAncestorWhenFrameChanged"
+          "notifyAncestorWhenFrameChanged",
+          "display"
         ],
         "startOfParagraph@702": [],
         "start_input@1140": [],
         "unlinkSelection@476": [
           "HTStyleNew",
+          "isEditable",
           "setDocEdited",
           "applyStyle",
           "free"
         ],
         "updateStyle@663": [
-          "apply"
+          "apply",
+          "calcLine",
+          "display"
         ],
         "willChange@640": [],
         "windowDidBecomeMain@1112": [
           "hyperTextDidBecomeMain"
         ],
         "windowWillClose@1099": [
+          "isDocEdited",
           "NXRunAlertPanel",
+          "title",
           "HTSave"
         ]
       },
       "objective-c/worldwideweb/TcpAccess.m": {
         "accessName@35": [
-          "anchor",
-          "diagnostic",
           "newAnchor",
-          "Server",
-          "setTitle",
+          "setupWindow",
+          "window",
           "setEditable",
           "HTTP_Get",
           "NXOpenFile",
@@ -110961,11 +110995,11 @@
           "close"
         ],
         "loadAnchor@92": [
-          "Diagnostic",
           "printf",
+          "node",
           "accessName",
-          "anchor",
-          "diagnostic"
+          "address",
+          "anchor"
         ],
         "name@27": []
       }

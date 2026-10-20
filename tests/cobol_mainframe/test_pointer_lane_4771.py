@@ -461,6 +461,10 @@ def test_every_pointer_hole_left_in_zecs001_is_refused_by_name(tmp_path):
     # pointer-lane hole left is the CALL ZUIDSTCK refusal, whose assembler source the estate does not hold)
     assert {int(h.split(":")[0].split()[1]) for h in pointer} == {1244}, pointer
     assert all("CALL ZUIDSTCK:" in h for h in pointer), pointer
+    # (the whole hole set, not only the pointer-looking holes: 559 of 561 statements translate, and the two left are the
+    # named CALL ZUIDSTCK and the COMMAREA DTO the stub does not carry, so a new hole of any kind cannot hide)
+    assert (r.stats["statements"], r.stats["translated"]) == (561, 559), r.stats
+    assert sorted(int(h.split(":")[0].split()[1]) for h in r.stats["holes"]) == [753, 1244], r.stats["holes"]
     for line in (1111, 1115, 1147, 1400, 1519):  # the views' ADD / MOVE statements translate
         assert not any(h.startswith(f"line {line}:") for h in r.stats["holes"])
     assert "DetCics.advancePointer(task, " in r.java and "DetCics.copyPointer(" in r.java

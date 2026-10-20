@@ -53,6 +53,8 @@ OPS = {
     "fixed": ("a", "scale"),
     "from_ieee": ("a",),
     "to_ieee": ("a",),
+    "round_short": ("a",),
+    "compare": ("a", "b"),
 }
 FUNC = {"add": H.add, "sub": H.sub, "mul": H.mul, "div": H.div}
 ARITH = {"add": "+", "sub": "-", "mul": "*", "div": "/"}
@@ -73,7 +75,12 @@ def compute(r: dict) -> str:
         return H.from_ieee(int(r["a"], 16), 4 if short else 8).hex().upper()
     if r["op"] == "to_ieee":
         return f"{H.to_ieee(bytes.fromhex(r['a'])):0{8 if short else 16}X}"
+    if r["op"] == "round_short":  # a long item MOVEd to a COMP-1: LOAD ROUNDED (a is the long hex, the result short)
+        return H.encode(H.to_short(H.decode(bytes.fromhex(r["a"]))), True).hex().upper()
     a = H.decode(bytes.fromhex(r["a"]))
+    if r["op"] == "compare":
+        b = H.decode(bytes.fromhex(r["b"]))
+        return "<" if a < b else ">" if a > b else "="
     if r["op"] == "display":
         return H.display(a, not short)
     if r["op"] == "fixed":
@@ -119,6 +126,9 @@ def statements(r: dict) -> list[str]:
     tag = f'"{r["id"]}|"'
     op = r["op"]
     out = []
+    if op == "round_short":
+        out += [f"MOVE X'{r['a']}' TO LA-X", "MOVE LA TO SR", f"DISPLAY {tag} FUNCTION HEX-OF(SR-X)"]
+        return [_line(s) for s in out]
     if op == "encode":
         out.append(f"MOVE {_cobol_literal(r['value'])} TO {p}R")
         out.append(f"DISPLAY {tag} FUNCTION HEX-OF({p}R-X)")
@@ -126,6 +136,9 @@ def statements(r: dict) -> list[str]:
     out.append(f"MOVE X'{r['a']}' TO {p}A-X")
     if op == "display":
         out.append(f"DISPLAY {tag} {p}A")
+    elif op == "compare":
+        out.append(f"MOVE X'{r['b']}' TO {p}B-X")
+        out += [f'IF {p}A {sign} {p}B DISPLAY {tag} "{sign}" END-IF' for sign in "<=>"]
     elif op == "fixed":
         out.append(f"MOVE {p}A TO E{r['scale']}")
         out.append(f"DISPLAY {tag} E{r['scale']}")

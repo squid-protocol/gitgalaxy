@@ -9732,26 +9732,25 @@
     "scheme/racket": {
       "Average Risk Exposures": {
         "API Exposure": "1.52%",
-        "Cognitive Load Exposure": "36.58%",
+        "Cognitive Load Exposure": "38.42%",
         "Commented Logic Exposure": "2.84%",
         "Concurrency Exposure": "1.95%",
         "Documentation Exposure": "85.71%",
-        "Error & Exception Exposure": "60.08%",
+        "Error & Exception Exposure": "60.06%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "42.86%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "51.66%",
-        "Tech Debt Exposure": "13.1%",
+        "State Flux Exposure": "51.6%",
+        "Tech Debt Exposure": "13.47%",
         "Testing Exposure": "68.57%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 21287.82,
+      "Directory Group Magnitude": 23887.92,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "14.3%",
-        "file_cluster_15": "14.3%",
-        "file_cluster_3": "14.3%",
+        "file_cluster_10": "14.3%",
         "file_cluster_4": "14.3%",
-        "file_cluster_6": "42.9%"
+        "file_cluster_6": "57.1%"
       },
       "File Count": 7,
       "Files": [

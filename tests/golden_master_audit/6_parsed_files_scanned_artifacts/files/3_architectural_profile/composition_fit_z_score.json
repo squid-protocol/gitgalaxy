@@ -2371,7 +2371,7 @@
       "lua/freebsd-src/loader.lua": 0.745,
       "lua/freebsd-src/menu.lua": 0.176,
       "lua/freebsd-src/password.lua": 1.854,
-      "lua/freebsd-src/screen.lua": 2.274
+      "lua/freebsd-src/screen.lua": 2.258
     },
     "lua/pandoc": {
       "lua/pandoc/COPYING.md": 0.0,
@@ -3298,10 +3298,10 @@
     },
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 0.0,
-      "scheme/racket/cpnanopass.ss": 0.948,
+      "scheme/racket/cpnanopass.ss": 1.253,
       "scheme/racket/eval.c": 0.355,
       "scheme/racket/fun.c": 0.125,
-      "scheme/racket/io.ss": 2.527,
+      "scheme/racket/io.ss": 1.912,
       "scheme/racket/schemify.rkt": 0.818,
       "scheme/racket/thread.rkt": 1.331
     },
@@ -3355,7 +3355,7 @@
       "shell/curl/ech_tests.sh": 2.366,
       "shell/curl/firefox-db2pem.sh": 1.501,
       "shell/curl/gnv_curl_configure.sh": 0.326,
-      "shell/curl/initscript.sh": 0.907,
+      "shell/curl/initscript.sh": 0.931,
       "shell/curl/make-docs.sh": 0.224,
       "shell/curl/make-include.sh": 0.007,
       "shell/curl/make-lib.sh": 0.603,
@@ -3481,7 +3481,7 @@
       "shell/kubernetes/build-image.sh": -0.234,
       "shell/kubernetes/build.sh": 0.085,
       "shell/kubernetes/cluster__common.sh": -0.109,
-      "shell/kubernetes/common.sh": 0.261,
+      "shell/kubernetes/common.sh": 0.399,
       "shell/kubernetes/config-common.sh": 1.542,
       "shell/kubernetes/config-default.sh": 0.261,
       "shell/kubernetes/configure-helper.sh": -0.02,
@@ -3496,8 +3496,8 @@
       "shell/kubernetes/node-helper.sh": 3.034,
       "shell/kubernetes/pre-existing__config-default.sh": 0.326,
       "shell/kubernetes/pre-existing__util.sh": 1.944,
-      "shell/kubernetes/release.sh": 1.918,
-      "shell/kubernetes/skeleton__util.sh": 2.974,
+      "shell/kubernetes/release.sh": 2.198,
+      "shell/kubernetes/skeleton__util.sh": 3.207,
       "shell/kubernetes/stage-upload.sh": 0.468,
       "shell/kubernetes/testcerts__gencerts.sh": -0.383,
       "shell/kubernetes/testdata__generate.sh": 0.0,

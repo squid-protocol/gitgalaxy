@@ -176,6 +176,28 @@ def test_body_oracle_counts_a_miss_by_shape_and_an_engine_only_reference(tmp_pat
     assert r["examples"]["miss:nested-argument"] == ["m.c:4 top -> other"]
 
 
+RECURSE_SRC = """int fact(int n) { return n ? n * fact(n - 1) : 1; }
+void a(void) { fact(3); }
+"""
+
+
+def test_a_self_edge_is_ignored_on_both_sides_and_in_the_consensus(tmp_path):
+    """Recursion stays dropped from calls_out_to (#3327): the oracle must not score it as a miss or an extra edge."""
+    ports = []
+    for name, fact_calls in [("p1", []), ("p2", []), ("p3", []), ("p4", []), ("rec", ["fact"])]:
+        repo, scan = make_port(
+            tmp_path, name, {"m.c": RECURSE_SRC}, [("m.c", "fact", 1, fact_calls), ("m.c", "a", 2, ["fact"])]
+        )
+        ports.append(co.Port(name, repo, co.load_port(repo, co.find_db(scan))))
+    for p in ports:  # engine records the recursion (rec) or not (the rest): neither changes the score
+        r = co.body_oracle(p)
+        assert (r["oracle_calls"], r["engine_calls"], r["agree"]) == (1, 1, 1)
+        assert (r["recall"], r["precision"], r["misses_by_shape"], r["engine_only_by_kind"]) == (1.0, 1.0, {}, {})
+        assert p.edges == {("a", "fact")}
+    c = co.consensus(ports)
+    assert (c["holes"], c["false_edge_suspects"]) == (0, 0)
+
+
 VOTE_SRC = """void a(void) { b(); }
 void b(void) {}
 """

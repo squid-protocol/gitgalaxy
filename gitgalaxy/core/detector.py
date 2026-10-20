@@ -10527,9 +10527,7 @@ class StructuralExtractor:
                     if is_send:
                         qualifier = _message_receiver(m.group(2))
                     else:
-                        qualifier = _call_qualifier(
-                            safe_block, callee_pos, _qualifier_separators(self.primary_lang_id)
-                        )
+                        qualifier = _call_qualifier(safe_block, callee_pos, _qualifier_separators(self.primary_lang_id))
                     qualifier = _mark_macro_qualifier(
                         self.primary_lang_id, safe_block, callee_pos + len(callee), qualifier
                     )

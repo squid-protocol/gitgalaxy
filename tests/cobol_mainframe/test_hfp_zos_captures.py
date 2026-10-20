@@ -34,7 +34,10 @@ OPS = {
     "fixed": ("a", "scale"),
     "from_ieee": ("a",),
     "to_ieee": ("a",),
+    "round_short": ("a",),
+    "compare": ("a", "b"),
 }
+SIZES = {"round_short": ("short",)}  # a long item MOVEd to a COMP-1: the result is always short
 
 
 def records() -> list[dict]:
@@ -83,7 +86,7 @@ def test_the_table_covers_both_sizes_and_every_op():
 
 def test_the_table_covers_every_op_in_both_sizes():
     pairs = {(r["op"], r["size"]) for r in records()}
-    assert pairs == {(op, size) for op in OPS for size in ("short", "long")}
+    assert pairs == {(op, size) for op in OPS for size in SIZES.get(op, ("short", "long"))}
 
 
 def test_a_captured_record_without_evidence_or_options_is_refused():
@@ -113,3 +116,11 @@ def test_a_disagreeing_capture_would_fail():
         "want": "41300000",
     }
     assert compute(r) != r["want"]
+
+
+def test_a_compare_record_states_one_of_three_signs_and_a_round_record_a_long_operand():
+    for r in records():
+        if r["op"] == "compare":
+            assert r["want"] in ("<", "=", ">")
+        if r["op"] == "round_short":
+            assert len(r["a"]) == 16 and len(r["want"]) == 8

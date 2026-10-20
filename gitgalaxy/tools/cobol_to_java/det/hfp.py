@@ -171,3 +171,65 @@ def decode(b: bytes) -> Fraction:
     if f == 0:
         return Fraction(0)
     return _val(bool(b[0] & 0x80), (b[0] & 0x7F) - 64, f, d)
+
+
+# IEEE-754 binary32 / binary64 <-> HFP short / long (#4271, register C6): what the oracle stores against what z/OS holds.
+_IEEE = {4: (8, 23), 8: (11, 52)}  # item bytes -> (exponent bits, fraction bits)
+
+
+def ieee_value(bits: int, size: int) -> Fraction:
+    """The exact value of an IEEE binary32 (size 4) / binary64 (size 8) bit pattern; NaN, infinity and subnormals are
+    refused by name (an HFP item has no such value)."""
+    ebits, fbits = _IEEE[size]
+    e, f = (bits >> fbits) & ((1 << ebits) - 1), bits & ((1 << fbits) - 1)
+    if e == (1 << ebits) - 1:
+        raise HfpRange("IEEE NaN or infinity has no HFP value")
+    if e == 0 and f:
+        raise HfpRange("IEEE subnormal has no modelled HFP value")
+    if e == 0:
+        return Fraction(0)
+    v = Fraction((1 << fbits) | f, 1 << fbits) * Fraction(2) ** (e - ((1 << (ebits - 1)) - 1))
+    return -v if bits >> (ebits + fbits) else v
+
+
+def from_ieee(bits: int, size: int) -> bytes:
+    """HFP bytes (4 short / 8 long) for an IEEE pattern of the same width. A binary64 fits long HFP exactly (53 bits in
+    56); a binary32 can need up to 27 bits against short's 24, so it takes the fixed-point-to-float rule (truncated to
+    long, then rounded to short: ASSUMED, IBM documents no IEEE converter)."""
+    return encode(for_item(ieee_value(bits, size), size == 4), size == 4)
+
+
+def to_ieee(b: bytes) -> int:
+    """The IEEE pattern (binary32 for 4 bytes, binary64 for 8) nearest an HFP value, ties to even. A result outside the
+    normal range of the IEEE format (a short HFP of more than about 3.4e38 or less than 1.2e-38) is refused by name."""
+    ebits, fbits = _IEEE[len(b)]
+    v = decode(b)
+    if v == 0:
+        return 0
+    a, bias = abs(v), (1 << (ebits - 1)) - 1
+    e = a.numerator.bit_length() - a.denominator.bit_length()
+    if Fraction(2) ** e > a:
+        e -= 1
+    m = a / Fraction(2) ** (e - fbits)  # 2**fbits <= m < 2**(fbits + 1)
+    q, r = divmod(m.numerator, m.denominator)
+    if 2 * r > m.denominator or (2 * r == m.denominator and q & 1):
+        q += 1
+    if q == 1 << (fbits + 1):
+        q, e = q >> 1, e + 1
+    if e + bias >= (1 << ebits) - 1:
+        raise HfpRange("HFP value too large for the IEEE format")
+    if e + bias < 1:
+        raise HfpRange("HFP value too small for a normal IEEE number")
+    return (int(v < 0) << (ebits + fbits)) | ((e + bias) << fbits) | (q & ((1 << fbits) - 1))
+
+
+def exact_in_both(v: Fraction, short: bool) -> bool:
+    """True if `v` is held exactly by the HFP item and by the oracle's IEEE float: the values on which the oracle can
+    stand in for z/OS (register C6)."""
+    v = Fraction(v)
+    try:
+        if for_item(v, short) != v:
+            return False
+        return ieee_value(to_ieee(encode(v, short)), 4 if short else 8) == v
+    except HfpRange:
+        return False

@@ -312,7 +312,10 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     # #4054 then adopted LGAPDB01's port (model-written, proven on attempt 1) and scored it (seed 0, 150 mutants): 5 more
     # flagged survivors, all unreachable: the facade's byte-carrying handleLink / lastLinkBytes() and the dead EXEC CICS
     # ABEND helpers no code calls. 58 -> 63.
-    assert len(flagged) == 63 and verdicts.count("unreachable") == 60 and verdicts.count("equivalent") == 3
+    # #4054 then adopted LGUPVS01's port (proven on attempt 1), scored it (seed 0, 150) and re-ran LGAPVS01 on the LGSTSQ
+    # port (ending its stale-record skip again): 13 more flagged survivors, all unreachable: the facade entry
+    # (handleLink / lastLinkBytes), the EIBCALEN = 0 branch and the dead ABEND helpers. 63 -> 76.
+    assert len(flagged) == 76 and verdicts.count("unreachable") == 73 and verdicts.count("equivalent") == 3
     assert not {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C", "CSUTLDTC"}
 
 

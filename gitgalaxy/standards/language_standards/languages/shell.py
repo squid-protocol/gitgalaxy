@@ -12,7 +12,7 @@ from typing import Any
 
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 
-from .._shared_patterns import CALLS_OUT_UNSUPPORTED, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -64,7 +64,74 @@ DEFINITION: dict[str, Any] = {
     "import_path_may_start_with_variable": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_UNSUPPORTED,
+        # #5640: a command word is a call. The resolver keeps only the names a script defines or
+        # sources (`echo`, `grep` resolve to nothing), so the list may name external commands.
+        # Command position = a line start, after `;` `&` `|` `{` `!`, after a reserved word that
+        # takes a command (`then do else elif if while until`), or opening `$(` / a backtick. A
+        # name followed by `=` is an assignment and by `(` a definition; a case arm `name)` is not
+        # a command, so a bare `)` ends a name only inside `$(...)` / backticks. Two alternatives
+        # each look ahead at the name, so there is one capture group.
+        "calls_out": re.compile(
+            # after a line start, `;` `&` `|` `{` `!`; a reserved word is never the name there, it is the
+            # prefix of the alternative that follows it
+            # a case arm `pattern)` opens a command (tried first: `a|b)` must not read `a` as one)
+            r"(?m)(?:^[ \t]*\(?[^\s()]+\)[ \t]*(?=[A-Za-z_][A-Za-z0-9_.:-]*(?:[ \t;&|}`\r]|$))"
+            r"|(?:^|[;&|{!])[ \t]*(?!(?:then|do|else|elif|if|while|until)\b)"
+            r"(?=[A-Za-z_][A-Za-z0-9_.:-]*(?:[ \t;&|}`\r]|$))"
+            r"|\b(?:then|do|else|elif|if|while|until)\b[ \t]*"
+            r"(?=[A-Za-z_][A-Za-z0-9_.:-]*(?:[ \t;&|}`\r]|$))"
+            r"|(?:\$\((?!\()|`)[ \t]*(?=[A-Za-z_][A-Za-z0-9_.:-]*(?:[ \t;&|)}`\r]|$)))"
+            r"([A-Za-z_][A-Za-z0-9_.:-]*)"
+        ),
+        "_calls_out_ignore": frozenset(
+            {
+                # reserved words
+                "if",
+                "then",
+                "else",
+                "elif",
+                "fi",
+                "for",
+                "while",
+                "until",
+                "do",
+                "done",
+                "case",
+                "esac",
+                "in",
+                "select",
+                "function",
+                "time",
+                "coproc",
+                # builtins no script need redefine: they resolve to nothing, so keep the list short
+                "echo",
+                "printf",
+                "cd",
+                "read",
+                "test",
+                "eval",
+                "exec",
+                "exit",
+                "return",
+                "shift",
+                "set",
+                "unset",
+                "export",
+                "local",
+                "readonly",
+                "declare",
+                "typeset",
+                "source",
+                "true",
+                "false",
+                "trap",
+                "wait",
+                "break",
+                "continue",
+                "pushd",
+                "popd",
+            }
+        ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # Decisions and logic jumps. Includes test constructs [[ ]] and [ ].

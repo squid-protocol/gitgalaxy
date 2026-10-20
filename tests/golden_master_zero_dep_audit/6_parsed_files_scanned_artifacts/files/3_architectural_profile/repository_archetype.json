@@ -3298,10 +3298,10 @@
     },
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": "Static: Literature & Documentation",
-      "scheme/racket/cpnanopass.ss": "file_cluster_3",
+      "scheme/racket/cpnanopass.ss": "file_cluster_6",
       "scheme/racket/eval.c": "file_cluster_4",
       "scheme/racket/fun.c": "file_cluster_6",
-      "scheme/racket/io.ss": "file_cluster_15",
+      "scheme/racket/io.ss": "file_cluster_10",
       "scheme/racket/schemify.rkt": "file_cluster_6",
       "scheme/racket/thread.rkt": "file_cluster_6"
     },

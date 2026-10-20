@@ -1310,10 +1310,10 @@
       "scala/kafka/SocketServer.scala": "33 instances"
     },
     "scheme/racket": {
-      "scheme/racket/cpnanopass.ss": "246 instances",
+      "scheme/racket/cpnanopass.ss": "245 instances",
       "scheme/racket/eval.c": "758 instances",
       "scheme/racket/fun.c": "1938 instances",
-      "scheme/racket/io.ss": "72 instances",
+      "scheme/racket/io.ss": "71 instances",
       "scheme/racket/schemify.rkt": "3 instances",
       "scheme/racket/thread.rkt": "4 instances"
     },

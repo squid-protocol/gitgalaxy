@@ -3298,12 +3298,12 @@
     },
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 0,
-      "scheme/racket/cpnanopass.ss": 46,
+      "scheme/racket/cpnanopass.ss": 420,
       "scheme/racket/eval.c": 113,
       "scheme/racket/fun.c": 282,
-      "scheme/racket/io.ss": 71,
+      "scheme/racket/io.ss": 177,
       "scheme/racket/schemify.rkt": 31,
-      "scheme/racket/thread.rkt": 57
+      "scheme/racket/thread.rkt": 61
     },
     "shell": {
       "shell/SOURCES.md": 0

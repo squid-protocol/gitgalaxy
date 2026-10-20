@@ -2909,6 +2909,14 @@
       "programs": []
     }
   },
+  "stand_in_copybooks": {
+    "CEEIGZCT": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    }
+  },
   "statements": {
     "ARITH": {
       "count": 30,

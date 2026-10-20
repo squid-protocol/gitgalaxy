@@ -101,6 +101,27 @@ has `entries`; a candidate `entries` case on carddemo-readcard fails to build ag
 `executeCbact02c`), so entry runs in a session JVM are covered by unit tests only. The call runner was validated on
 12 mutants (above), not on this larger sample.
 
+**`--one-jvm` on a call, a second batch and a second CICS port (2026-10-20, #4047).** `--sample N --seed 2` in
+`--full`, then the same mutants in fast mode and `--one-jvm`, judged by `mutation.py compare --require-agree N`:
+
+| case | judged by both | `--full` vs fast | `--full` vs `--one-jvm` | fast vs `--one-jvm` |
+|---|---|---|---|---|
+| carddemo-dateutil (CSUTLDTC, call) | 40 | 40 agree | 40 agree | 40 agree |
+| carddemo-posttran (CBTRN02C, batch, 29 runs) | 30 | 22 agree, 8 differ | 22 agree, 8 differ | 30 agree |
+| carddemo-cardlist (COCRDLIC, CICS) | 30 | 12 agree, 18 differ | not finished | not run |
+
+dateutil: proof seconds full 673, fast 386, `--one-jvm` 374 (survivors 174 -> 104 -> 93). The call runner is now
+validated on 40 mutants, every operator. **`--one-jvm` stays opt-in:** posttran and cardlist disagree with `--full`
+in plain fast mode too, so the cause is not the session JVM (fast and `--one-jvm` give the same 30 verdicts on posttran).
+The disagreements, re-run in `--full` with a 2,400 s limit (so not a timeout): 7 mutants that `--full` calls
+*survived* and fast calls *killed* (posttran 2, cardlist 5), plus 6 `--full` and 13 fast `no report (exit 1)` errors
+(infrastructure, not verdicts). posttran fast kills all 28 judged mutants, each by the fault run `open-dalytran`:
+`faults fired differ: COBOL ['DALYTRAN OPEN 1 35', 'DALYTRAN OPEN 1 35'], Java ['DALYTRAN OPEN 1 35']`. The kept
+baseline's COBOL `FAULTS` file lists a file fault twice (the fault fires at two hooks); under `--reuse` the mutant's
+Java side lists it once, where `--full` lists it twice. A CON mutant killed by an OPEN fault is a false kill: fast mode
+overstates the score on posttran. Not yet found why the reused project's Java side fires once. Until fast mode agrees with
+`--full` on posttran and cardlist, `--one-jvm` is not made the default.
+
 ## Scores
 
 After #4056 (SYSOUT compared) and #4053 (SEND MAP attributes compared), on 2026-10-01:
@@ -189,8 +210,10 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COUSR02C (carddemo-userupd) | equivalence | 100/481 | 57/82 (70%) | 57/59 (97%) | 2 / 0 / 14 / 9 / 0 |
 | INQACC (cbsa-inqacc) | equivalence | 150/464 | 131/131 (100%) | 131/131 (100%) | 0 / 0 / 0 / 0 / 0 |
 | UPDACC (cbsa-updacc) | equivalence | 133/133 | 95/133 (71%) | 95/110 (86%) | 15 / 0 / 17 / 6 / 0 |
+| LGAPDB01 (genapp-lgapdb01) | equivalence | 150/444 | 58/137 (42%) | 58/129 (45%) | 71 / 0 / 1 / 7 / 0 |
 | LGAPVS01 (genapp-lgapvs01) | equivalence | 150/184 | 72/125 (58%) | 72/113 (64%) | 0 / 41 / 1 / 11 / 0 |
 | LGICDB01 (genapp-lgicdb01) | equivalence | 150/201 | 51/130 (39%) | 51/107 (48%) | 1 / 55 / 8 / 15 / 0 |
+| LGSTSQ (genapp-lgstsq) | equivalence | 89/89 | 25/78 (32%) | 25/69 (36%) | 43 / 1 / 1 / 8 / 0 |
 | LGUPDB01 (genapp-lgupdb01) | equivalence | 150/403 | 67/140 (48%) | 67/120 (56%) | 7 / 46 / 5 / 15 / 0 |
 | CALINK (ca-link-lengths) | crucible | 24/168 | 15/22 (68%) | 15/15 (100%) | 0 / 0 / 5 / 2 / 0 |
 | CASUB (ca-link-lengths) | crucible | 24/40 | 16/24 (67%) | 16/16 (100%) | 0 / 0 / 7 / 1 / 0 |
@@ -214,20 +237,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 3308 run | **2133/3013 (71%)** | **2133/2439 (87%)** | 156 / 150 / 391 / 183 / 0 |
-| **all estate** | | 3812 run | **2452/3489 (70%)** | **2452/2793 (88%)** | 191 / 150 / 479 / 217 / 0 |
+| **all equivalence** | | 3547 run | **2216/3228 (69%)** | **2216/2637 (84%)** | 270 / 151 / 393 / 198 / 0 |
+| **all estate** | | 4051 run | **2535/3704 (68%)** | **2535/2991 (85%)** | 305 / 151 / 481 / 232 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 162/201 (81%) | 162/176 (92%) |
+| AOR | 168/219 (77%) | 168/194 (87%) |
 | BDM | 25/45 (56%) | 25/28 (89%) |
-| CON | 324/671 (48%) | 324/385 (84%) |
-| COR | 132/237 (56%) | 132/186 (71%) |
-| DEL | 376/548 (69%) | 376/436 (86%) |
-| LIT | 519/659 (79%) | 519/568 (91%) |
-| NEG | 456/507 (90%) | 456/483 (94%) |
-| RET | 56/89 (63%) | 56/77 (73%) |
-| ROR | 402/532 (76%) | 402/454 (89%) |
+| CON | 333/715 (47%) | 333/428 (78%) |
+| COR | 132/240 (55%) | 132/187 (71%) |
+| DEL | 388/580 (67%) | 388/467 (83%) |
+| LIT | 541/703 (77%) | 541/603 (90%) |
+| NEG | 474/536 (88%) | 474/512 (93%) |
+| RET | 58/99 (59%) | 58/87 (67%) |
+| ROR | 416/567 (73%) | 416/485 (86%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|
@@ -257,8 +280,10 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COUSR02C (carddemo-userupd) | 1/1 | - | 3/16 | 3/5 | 11/16 | 14/16 | 13/13 | - | 12/15 |
 | INQACC (cbsa-inqacc) | 3/3 | 2/2 | 22/22 | 4/4 | 22/22 | 22/22 | 21/21 | 16/16 | 19/19 |
 | UPDACC (cbsa-updacc) | 4/4 | 0/3 | 17/30 | 3/10 | 16/27 | 28/32 | 8/8 | - | 19/19 |
+| LGAPDB01 (genapp-lgapdb01) | 5/13 | - | 8/23 | 0/2 | 7/21 | 12/23 | 13/23 | 2/10 | 11/22 |
 | LGAPVS01 (genapp-lgapvs01) | 14/16 | - | 25/41 | 0/1 | 6/11 | 12/28 | 6/9 | - | 9/19 |
 | LGICDB01 (genapp-lgicdb01) | 2/5 | - | 9/28 | 1/5 | 6/20 | 14/27 | 9/16 | 1/7 | 9/22 |
+| LGSTSQ (genapp-lgstsq) | 1/5 | - | 1/21 | 0/1 | 5/11 | 10/21 | 5/6 | - | 3/13 |
 | LGUPDB01 (genapp-lgupdb01) | 11/12 | - | 11/22 | 0/2 | 4/22 | 12/22 | 14/22 | 3/17 | 12/21 |
 | CALINK (ca-link-lengths) | 2/2 | - | 1/4 | 0/1 | 2/4 | 3/3 | 3/3 | 2/2 | 2/3 |
 | CASUB (ca-link-lengths) | - | - | 2/5 | - | 3/5 | 4/5 | 4/5 | - | 3/4 |

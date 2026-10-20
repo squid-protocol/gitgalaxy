@@ -104,7 +104,7 @@
   "gt-assign-startcode/terminal-and-started/java-facade": {"status": "fail", "reason": "no port of any of its programs"},
   "gt-assign-startcode/terminal-and-started/java-ported": {"status": "fail", "reason": "no port of any of its programs"},
   "gt-http-inbound/echo/cobol-stub": {"status": "unsupported", "reason": "translator: WEB RECEIVE CHARACTERSET; translator: WEB RECEIVE HOSTCODEPAGE; translator: WEB SEND CHARACTERSET; translator: WEB SEND HOSTCODEPAGE"},
-  "gt-http-inbound/echo/java": {"status": "fail", "reason": "task 1 (GT81): expected a task running GTHECHO, the side ran none"},
+  "gt-http-inbound/echo/java": {"status": "fail", "reason": "task 1 (GT81) event 1: WEB-RECEIVE expected, the side recorded no further event"},
   "gt-http-inbound/echo/java-facade": {"status": "fail", "reason": "no port of any of its programs"},
   "gt-http-inbound/echo/java-ported": {"status": "fail", "reason": "no port of any of its programs"},
   "gt-send-text-terminal/terminal-and-started/java": {"status": "fail", "reason": "task 1 (GT41) event 1: RECEIVE expected, the side recorded no further event"},

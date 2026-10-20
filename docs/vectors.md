@@ -561,7 +561,9 @@ rather than a measurement surface in their own right (11: `branch`, `structural_
 `design_*_case`/`design_*_vars` family plus `indent_tabs`/`indent_spaces`); the single
 `ownership` signal (its own concern, not a surface); paradigm markers (3: `closures`,
 `generics`, `comprehensions`); `sec_*` lens duplicates of a signal already summed under its
-non-`sec_` counterpart's family, which would double-count if also included (7); the two
+non-`sec_` counterpart's family, which would double-count if also included (6); the language-level `reflection_metaprogramming`
+marker (C/C++ function-like macros and `goto`, not a threat; the `threat` family sums the security
+lens's `sec_reflection_metaprogramming` instead, #4548); the two
 injection-surface sensors added by #2985 (`sec_db_hooks`, a raw DB sink the `io` family's
 rules already match, and `sec_amplified_sql_injection`, a derived spatial confirmation over
 `api` + that sink rather than a raw count of its own); and two

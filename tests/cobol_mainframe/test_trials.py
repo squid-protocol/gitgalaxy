@@ -19,6 +19,7 @@ from pathlib import Path
 
 import pytest
 
+from gitgalaxy.core.source_text import read_source
 from gitgalaxy.tools.cobol_to_java import port_runner as pr
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
@@ -412,7 +413,7 @@ def test_every_inline_fd_record_of_the_unlocked_carddemo_programs_lays_out():
     dirs = [base / "app" / "cpy", base / "app" / "cbl"]
     for prog in _UNLOCKED:
         rel = f"app/cbl/{prog}.cbl"
-        found = _FD_RECORD.findall((base / rel).read_text(encoding="utf-8", errors="replace"))
+        found = _FD_RECORD.findall(read_source(base / rel).text)
         assert found, f"{prog}: no FD record found"
         for fd, record in found:
             assert common.layout_fields(base, rel, record, copy_dirs=dirs), f"{prog} {fd}: {record} has no fields"

@@ -545,6 +545,20 @@ def test_the_creacc_service_holds_on_generated_db2_rows(tmp_path):
 
 
 @pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_delcus_service_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's DELCUS (LINKed delete-customer service; LINKs INQCUST, INQACCCU and DELACC) on 30 generated ACCOUNT rows
+    and 12 generated PROCTRAN rows: customer numbers drawn from the rows (some none holds), every statement answered
+    alike on both sides, ACCOUNT and PROCTRAN alike after every task, the injected faults kept."""
+    report = _det_port_generated("cbsa-delcus-generated", tmp_path)
+    assert report["proven"] is True
+    assert report["db2_generated"] == {"IBMUSER.ACCOUNT": 30, "IBMUSER.PROCTRAN": 12}
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    assert len(sql) == 30 and all(q["equal"] == q["statements"] for q in sql)
+    assert {x["verb"] for q in sql for x in q["cobol"]} >= {"SELECT", "DELETE", "INSERT"}
+    assert report["coverage"]["paragraphs"]["covered"] == report["coverage"]["paragraphs"]["live"]
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
 def test_the_bnk1ccs_screen_holds_on_generated_db2_rows(tmp_path):
     """CBSA's create-customer screen (BNK1CCS -> CRECUST) on 12 generated PROCTRAN rows, the only table CRECUST touches:
     every title spelling and field width, dates of birth before 1601 only (L1: later ones are the oracle's refusal, so

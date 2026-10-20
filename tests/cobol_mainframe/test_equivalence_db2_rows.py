@@ -601,3 +601,37 @@ def test_copaus2c_det_port_holds_on_generated_db2_rows(tmp_path):
         ("UPDATE", 0),
     }
     assert report["coverage"]["branches"]["covered"] == report["coverage"]["branches"]["total"]
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_lgapdb01_port_holds_on_generated_multi_table_db2_rows(tmp_path):
+    """GenApp's add-policy service (LGAPDB01, LINKed with LGAPVS01) on generated CUSTOMER, POLICY and type-table rows
+    joined by foreign keys: 24 generated requests (house / motor / commercial / unknown id in turn) name a generated
+    customer, every statement answered alike on both sides and the five compared tables alike after every task. The
+    -530 miss path (clock stamp in the error log, X6) and the endowment path (X8) are not generated."""
+    import json
+    import shutil
+    import subprocess
+
+    if not shutil.which("docker"):
+        pytest.skip("no docker")
+    tool = Path(__file__).resolve().parents[1] / "tools" / "equivalence.py"
+    proc = subprocess.run([sys.executable, str(tool), "run", "genapp-lgapdb01-generated", "--keep", str(tmp_path)],  # noqa: S603
+                          capture_output=True, text=True, check=False)  # fmt: skip
+    assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
+    report = json.loads((tmp_path / "report.json").read_text())
+    assert report["proven"] is True
+    assert report["db2_generated"] == {
+        "GENASA1.CUSTOMER": 10,
+        "GENASA1.POLICY": 12,
+        "GENASA1.ENDOWMENT": 3,
+        "GENASA1.HOUSE": 4,
+        "GENASA1.MOTOR": 4,
+        "GENASA1.COMMERCIAL": 3,
+    }
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    # (the unknown-id requests RETURN before any statement)
+    assert len(sql) == 24 and all(q["equal"] == q["statements"] for q in sql)
+    assert sum(1 for q in sql if q["statements"]) == 18
+    verbs = {x["verb"] for q in sql for x in q["cobol"]}
+    assert verbs >= {"SELECT", "INSERT"} and {x["sqlcode"] for q in sql for x in q["cobol"]} == {0}

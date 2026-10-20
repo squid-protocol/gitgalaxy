@@ -50,6 +50,7 @@ def test_every_record_is_asked_or_skipped_with_a_reason():
         "div",
         "display",
         "fixed",
+        "store",
         "round_short",
         "compare",
     }
@@ -91,6 +92,17 @@ def test_each_op_becomes_the_statement_its_row_states():
         K.statements({**one, "op": "encode", "value": "1e5"})
 
 
+def test_a_store_record_becomes_a_compute_into_a_numeric_receiver_shown_through_an_edited_one():
+    r = next(x for x in K.records() if x["id"] == "asm-store-div-2-3-2-rounded")
+    text = "".join(K.statements(r))
+    assert "COMPUTE Q2 ROUNDED = LA / LB" in text and "MOVE Q2 TO E2" in text
+    plain = "".join(K.statements(next(x for x in K.records() if x["id"] == "asm-store-div-2-3-2")))
+    assert "COMPUTE Q2 = LA / LB" in plain
+    src = K.emit_program(K.records())
+    assert "01  Q2 PIC S9(16)V9(2)." in src and "01  E2 PIC" in src
+    assert "asm-store-div-2-3-2|" in src
+
+
 def test_ingest_appends_captured_records_and_leaves_every_existing_line(table):
     recs = K.records(table)
     before = table.read_text(encoding="utf-8")
@@ -102,7 +114,7 @@ def test_ingest_appends_captured_records_and_leaves_every_existing_line(table):
     assert [r["id"] for r in new] == ["zos-" + r["id"] for r in K.askable(recs)]
     assert all(r["evidence"]["job"] == "JOB01234" and len(r["evidence"]["output_sha256"]) == 64 for r in new)
     assert not [r for r in new if K.calibration_problems(r["calibrated_under"])]
-    assert all(K.compute(r) == r["want"] or r["op"] == "fixed" for r in new)
+    assert all(K.compute(r) == r["want"] or r["op"] in ("fixed", "store") for r in new)
     json.loads(after)
 
 
@@ -144,3 +156,11 @@ def test_the_cli_emits_the_program_and_the_jcl(tmp_path):
     assert K.main(["emit", str(tmp_path)]) == 0
     assert (tmp_path / "HFPCAP.cbl").read_text() == K.emit_program(K.records())
     assert "EXEC" in (tmp_path / "HFPCAP.jcl").read_text()
+
+
+def test_a_model_assumption_is_asked_and_a_disagreeing_capture_is_a_finding_against_it(table):
+    recs = K.records(table)
+    assert {"asm-store-add-0.1-0.2-2", "asm-enc-0.3-long"} <= {r["id"] for r in K.askable(recs)}
+    out = _sysout(recs, skip={"asm-store-add-0.1-0.2-2"}) + "asm-store-add-0.1-0.2-2|0.30\n"
+    res = K.ingest(out, table, "J1", "GO", _under())
+    assert len(res["findings"]) == 1 and "zos-asm-store-add-0.1-0.2-2" in res["findings"][0]

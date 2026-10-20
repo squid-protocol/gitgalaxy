@@ -76,6 +76,18 @@
     {"id": "cmp-long-last-digit", "source": "ibm-publication", "op": "compare", "a": "4110000000000001", "b": "4110000000000000", "size": "long", "want": ">"},
     {"id": "cmp-long-eq", "source": "ibm-publication", "op": "compare", "a": "4110000000000000", "b": "4110000000000000", "size": "long", "want": "="},
     {"id": "cmp-long-lt-neg", "source": "ibm-publication", "op": "compare", "a": "C110000000000000", "b": "4110000000000000", "size": "long", "want": "<"},
-    {"id": "cmp-long-eq-unnormalized", "source": "ibm-publication", "op": "compare", "a": "4201000000000000", "b": "4110000000000000", "size": "long", "want": "="}
+    {"id": "cmp-long-eq-unnormalized", "source": "ibm-publication", "op": "compare", "a": "4201000000000000", "b": "4110000000000000", "size": "long", "want": "="},
+    {"id": "asm-enc-0.3-long", "source": "model-assumption", "op": "encode", "value": "0.3", "size": "long", "want": "404CCCCCCCCCCCCC"},
+    {"id": "asm-enc-123.45-long", "source": "model-assumption", "op": "encode", "value": "123.45", "size": "long", "want": "427B733333333333"},
+    {"id": "asm-enc--0.3-long", "source": "model-assumption", "op": "encode", "value": "-0.3", "size": "long", "want": "C04CCCCCCCCCCCCC"},
+    {"id": "asm-enc-0.3-short", "source": "model-assumption", "op": "encode", "value": "0.3", "size": "short", "want": "404CCCCD"},
+    {"id": "asm-disp-long-0.1", "source": "model-assumption", "op": "display", "a": "4019999999999999", "size": "long", "want": " .99999999999999992E-01"},
+    {"id": "asm-disp-short-0.1", "source": "model-assumption", "op": "display", "a": "40199999", "size": "short", "want": " .99999964E-01"},
+    {"id": "asm-disp-short-0.7", "source": "model-assumption", "op": "display", "a": "40B33333", "size": "short", "want": " .69999999E 00"},
+    {"id": "asm-store-add-0.1-0.2-2", "source": "model-assumption", "op": "store", "a": "4019999999999999", "b": "4033333333333333", "arith": "+", "scale": 2, "size": "long", "want": "0.29"},
+    {"id": "asm-store-add-0.1-0.2-2-rounded", "source": "model-assumption", "op": "store", "a": "4019999999999999", "b": "4033333333333333", "arith": "+", "scale": 2, "size": "long", "rounded": true, "want": "0.30"},
+    {"id": "asm-store-div-2-3-2", "source": "model-assumption", "op": "store", "a": "4120000000000000", "b": "4130000000000000", "arith": "/", "scale": 2, "size": "long", "want": "0.66"},
+    {"id": "asm-store-div-2-3-2-rounded", "source": "model-assumption", "op": "store", "a": "4120000000000000", "b": "4130000000000000", "arith": "/", "scale": 2, "size": "long", "rounded": true, "want": "0.67"},
+    {"id": "asm-store-mul-0.7-3-1", "source": "model-assumption", "op": "store", "a": "40B3333333333333", "b": "4130000000000000", "arith": "*", "scale": 1, "size": "long", "want": "2.0"}
   ]
 }

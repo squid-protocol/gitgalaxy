@@ -43,11 +43,11 @@ public class Main {{
             ByteArrayOutputStream cap = new ByteArrayOutputStream();
             System.setOut(new PrintStream(cap, true));
             if (mode.equals("batch")) {{
-                {PKG}.batch.Sysout.display("AB", Cobol.hex("\\u0041\\u00C3\\u00A9", cs));
+                {PKG}.batch.Sysout.display("AB", Cobol.hex("\\u0041\\u00C3\\u00A9\\u0015\\u0025", cs));
                 {PKG}.batch.Sysout.displayNoAdvancing("C");
                 {PKG}.batch.Sysout.display("D");
             }} else {{
-                {PKG}.cobolrt.standalone.Sysout.display("AB", Cobol.hex("\\u0041\\u00C3\\u00A9", cs));
+                {PKG}.cobolrt.standalone.Sysout.display("AB", Cobol.hex("\\u0041\\u00C3\\u00A9\\u0015\\u0025", cs));
                 {PKG}.cobolrt.standalone.Sysout.displayNoAdvancing("C");
                 {PKG}.cobolrt.standalone.Sysout.display("D");
             }}
@@ -112,16 +112,16 @@ def _run(charset: str) -> dict[str, str]:
 
 
 def _record_bytes(charset: str) -> bytes:
-    """What `DISPLAY 'AB', X'41C3A9'`, `DISPLAY 'C' WITH NO ADVANCING`, `DISPLAY 'D'` write: the hex literal's three
+    """What `DISPLAY 'AB', X'41C3A9'`, `DISPLAY 'C' WITH NO ADVANCING`, `DISPLAY 'D'` write: the hex literal's five
     bytes as they are (valid UTF-8 too), one LF after the first and the last record, none after 'C'."""
-    return "AB".encode(charset) + b"\x41\xc3\xa9" + b"\n" + "C".encode(charset) + "D".encode(charset) + b"\n"
+    return "AB".encode(charset) + b"\x41\xc3\xa9\x15\x25" + b"\n" + "C".encode(charset) + "D".encode(charset) + b"\n"
 
 
 @pytest.mark.parametrize("charset", [*SINGLE_BYTE, "UTF-8"])
 @pytest.mark.parametrize("mode", ["batch", "standalone"])
 def test_display_ends_a_record_in_one_plain_lf_and_a_hex_literal_is_its_bytes(charset, mode):
     """D2: the separator is the capture's framing (0x0A) and none follows WITH NO ADVANCING, never the charset's
-    "\\n" (0x15 / 0x25 on EBCDIC); X'41C3A9' is exactly those three bytes."""
+    "\\n" (0x15 / 0x25 on EBCDIC); X'41C3A91525' is exactly those five bytes."""
     assert bytes.fromhex(_run(charset)[mode]) == _record_bytes(charset)
 
 

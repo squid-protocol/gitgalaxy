@@ -224,6 +224,14 @@ def fault_plan(fault: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def fresh_fault_log(work: Path, fault: dict[str, Any] | None) -> None:
+    """ggfault.c / ggsql APPEND to work/FAULTS: a second pass over the same work dir (a kept baseline run again) would
+    log every fault twice, and a --reuse of it would copy the doubled log into each mutant's COBOL side (mutation
+    testing's false kills: "faults fired differ: COBOL [x2], Java [x1]"). A step that is reused keeps its earlier log."""
+    if fault is not None and not step_reused(work):
+        (work / "FAULTS").unlink(missing_ok=True)
+
+
 def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, Any] | None = None) -> dict[str, bytes]:
     """Stage, compile and run the case's program under GnuCOBOL; {dd: output bytes}, plus RETURN-CODE -- or,
     when the step abended, ABEND (Unnnn, the CEE3ABD stub's) -- and, for a `fault` run, FAULTS: the planned
@@ -329,6 +337,7 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
         elif spec.get("compare"):
             script.append(f"[ ! -e /work/{dd}.idx ] || cp /work/{dd}.idx /work/{dd}.out")
     (work / "run.sh").write_text("\n".join(script) + "\n", encoding="ascii")
+    fresh_fault_log(work, fault)
     if db2 and not step_reused(work):
         equivalence_db2.reset(case, corpus)
     proc = (run_cobol_step(work, equivalence_db2.COBOL_IMAGE, tuple(equivalence_db2.cobol_docker_args(case))) if db2

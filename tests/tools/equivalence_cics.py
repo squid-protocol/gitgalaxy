@@ -2337,8 +2337,11 @@ def stub_files(
         if d is not None and d.kind == "PATH":
             via.append(f"PATH {d.name}")
             d = defines.get((d.related or "").upper())
-        if d is None and symbols and dsn != defs[0]["dsname"].upper():
-            vsam = ((datasets or {}).get(dsn) or {}).get("vsam") or {}  # #5089: stated, with the install symbols
+        stated_vsam = ((datasets or {}).get(dsn) or {}).get("vsam")
+        # #5089: a name resolved through the install symbols takes the case's stated vsam, also when the engine now
+        # reads the IDCAMS job as a define (its name keeps the placeholders, so its base would not be the dataset's)
+        if (d is None or stated_vsam) and symbols and dsn != defs[0]["dsname"].upper():
+            vsam = stated_vsam or {}
             if not all(isinstance(vsam.get(k), int) for k in ("key_offset", "key_length", "reclen")) or not vsam.get(
                 "why"
             ):

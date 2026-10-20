@@ -4504,6 +4504,15 @@ int GGCTCPN(gg_cics *c) {
     return 0;
 }
 
+/* #4767 (X38): the WEB-RECEIVE event: the request's media type (hex; "-": none) and the bytes returned as the event's data, RESP
+ * and RESP2 as the command ended (LENGERR 16: nothing returned). As CicsTask.webReceive records it. */
+static void web_receive_event(const gg_cics *c, const char *body, int n) {
+    char ev[WEB_TXT * 2 + 100], hx[WEB_TXT * 2 + 2];
+    if (c->resp2 == 16 || (int)strlen(webreq.media) >= WEB_TXT) strcpy(hx, "-"); else web_hex(webreq.media, (int)strlen(webreq.media), hx);
+    snprintf(ev, sizeof ev, "WEB-RECEIVE media=%s resp=%d resp2=%d", hx, c->resp == LENGERR ? 22 : 0, c->resp2);
+    event(ev, body, n);
+}
+
 /* GG-NUM MAXLENGTH; GG-FLAGS names MEDIA given; out: GG-LEN the bytes returned. */
 int GGCWRCV(gg_cics *c, char *into, int intocap, char *media, int mediacap) {
     char flags[41];
@@ -4517,12 +4526,13 @@ int GGCWRCV(gg_cics *c, char *into, int intocap, char *media, int mediacap) {
     if (hm && mediacap < 56) refuse("WEB RECEIVE length beyond its area");
     c->resp = NORMAL;
     c->resp2 = 0;
-    if (maxl <= 0) { c->resp = LENGERR; c->resp2 = 16; return 0; }
+    if (maxl <= 0) { c->resp = LENGERR; c->resp2 = 16; web_receive_event(c, NULL, 0); return 0; }
     web_received = 1;
     n = webreq.bodylen > maxl ? maxl : webreq.bodylen;
     if (webreq.bodylen > maxl) { c->resp = LENGERR; c->resp2 = 57; }
     memcpy(into, webreq.body, (size_t)n);
     c->len = n;
+    web_receive_event(c, webreq.body, n);
     if (hm) {
         if ((int)strlen(webreq.media) > 56) refuse("WEB RECEIVE length beyond its area");
         memset(media, ' ', 56);
@@ -4762,13 +4772,14 @@ int GGCWRCS(gg_cics *c, void **slot, char *media, int mediacap) {
     if (webreq.bodylen > 268435456) refuse("WEB RECEIVE SET body beyond the limit");
     c->resp = NORMAL;
     c->resp2 = 0;
-    if (maxl <= 0) { c->resp = LENGERR; c->resp2 = 16; return 0; }
+    if (maxl <= 0) { c->resp = LENGERR; c->resp2 = 16; web_receive_event(c, NULL, 0); return 0; }
     web_received = 1;
     n = webreq.bodylen > maxl ? maxl : webreq.bodylen;
     if (webreq.bodylen > maxl) { c->resp = LENGERR; c->resp2 = 57; }
     *slot = blk_new((size_t)n, BLK_RECEIVED);
     memcpy(*slot, webreq.body, (size_t)n);
     c->len = n;
+    web_receive_event(c, webreq.body, n);
     if (hm) {
         if ((int)strlen(webreq.media) > 56) refuse("WEB RECEIVE length beyond its area");
         memset(media, ' ', 56);

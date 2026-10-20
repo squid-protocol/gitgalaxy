@@ -25,7 +25,7 @@
         "name": "IBM MQ (MQI: MQOPEN / MQGET / MQPUT / MQCLOSE)",
         "issue": 4892
       },
-      "note": "IBM MQ copybooks not found: point the scanner at SCSQCOBC. The det translator ships GitGalaxy-written stand-ins with the MQ model behind them (register W1): MQOPEN / MQGET / MQPUT / MQPUT1 / MQCLOSE from a CICS program translate and are provable (#4892); any other MQI call, batch MQ and an MQ constant the stand-in CMQV does not declare stay refused (register W6)."
+      "note": "IBM MQ copybooks not found: point the scanner at SCSQCOBC. The det translator ships GitGalaxy-written stand-ins with the MQ model behind them (register W1): MQOPEN / MQGET / MQPUT / MQPUT1 / MQCLOSE from a CICS program translate and are provable (#4892); any other MQI call, batch MQ and an MQ constant the stand-in CMQV does not declare stay refused (register W6). The inventory's `call_targets` category (#5565) names every CALLed program, so an unmodelled API is seen without its copybook; the matrix does not yet join `call_targets` features to entries (keyed in `features` once `test_refusal_map_entries_are_well_formed` allows the category)."
     },
     {
       "id": "le-copybooks",

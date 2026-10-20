@@ -53,7 +53,7 @@ control flow and `//`, `/* */` comments. `.acs` is the only extension.
 
 ## 5. Real-corpus check
 
-gzdoom `wadsrc/static/strifehelp.acs` (419 lines, the only `.acs` in gzdoom; zandronum carries a copy): a scan routes
+gzdoom `wadsrc/static/strifehelp.acs` (419 lines, the only `.acs` in gzdoom): a scan routes
 it to `acs`; its single `script << 0 >> (int type, int tag)` is found (`func_start`, `args`, `api`), as are its
 `#include` and two `#define` lines. The file uses the pre-ZDoom `<< n >>` script-number form, which the profile
 accepts. Sample precision of `state_mutation`, `branch` and the builtin-name sensors was not hand-audited.

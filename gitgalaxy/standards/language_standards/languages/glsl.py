@@ -16,7 +16,7 @@ DEFINITION: dict[str, Any] = {
     "_meta": {"target_version": "OpenGL Shading Language", "status": "production"},
     "extensions": [".glsl", ".vert", ".frag", ".geom", ".comp", ".fp", ".vp"],
     "exact_matches": [],
-    # #5465: GZDoom/Zandronum name fragment/vertex programs `.fp` / `.vp` (all GLSL in the 39-port corpus).
+    # #5465: GZDoom names fragment/vertex programs `.fp` / `.vp` (all GLSL in the DOOM port corpus).
     "discriminators": [".glsl", ".vert", ".frag"],
     "shebangs": [],
     "lexical_family": "standard_block",

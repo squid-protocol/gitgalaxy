@@ -60,7 +60,7 @@ DEFINITION: dict[str, Any] = {
         ".cp",
         ".C",
         ".H",
-        # #5465: Arduino / Processing-style sketches are C++ (doom-nano's entry file is a .ino).
+        # #5465: Arduino / Processing-style sketches are C++ (an Arduino port's entry file is a .ino).
         ".ino",
         ".pde",
     ],
@@ -383,7 +383,7 @@ DEFINITION: dict[str, Any] = {
             r"[ \t\n]{0,200}(?:ARGS\d+\s*\([^)]*\)|\((?![ \t\n]{0,20}\[(?!\[))(?:[^)(;{}]|\([^);{}]*\)|\{[^(){};]*\})*\)|NOARGS)"
             # 8. POST-PARAMETER MODIFIERS & TRAILING RETURN TYPES
             # [OVERLAP PREVENTION]: Removed ambiguous \s* inside attribute matcher.
-            # #5462: also `noexcept(expr)`, `throw(...)`, a specifier macro (psydoom `readBit() THROWS {`),
+            # #5462: also `noexcept(expr)`, `throw(...)`, a specifier macro (`readBit() THROWS {`),
             # a trailing return type with cv-qualifiers, `decltype(...)`, commas or a pointer
             # (`-> const char *`), a C++20 `requires` clause and a function-try-block (`f() try {`).
             r"(?:[ \t\n]+(?:const|volatile|noexcept(?:[ \t]*"

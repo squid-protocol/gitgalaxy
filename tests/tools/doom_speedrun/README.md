@@ -1,15 +1,42 @@
 # DOOM Port Speedrun harness (#5468)
 
-Reproduces the DOOM port study (#5457) from the repo: 39 Doom ports pinned by SHA in `manifest.csv`, cloned shallow
+Reproduces the DOOM port study (#5457) from the repo: 44 DOOM ports pinned by SHA in `manifest.csv`, cloned shallow
 at that SHA into a scratch directory, scanned with the current engine, and scored by six clean-scan checks. Each run
-is keyed by the engine's git SHA, so before/after for one fix is a diff of two result directories.
+is keyed by the engine's git SHA, so before/after for one fix is a diff of two result directories. This corpus is
+becoming DOOM-rosetta, a golden-gated CI test (#5619).
 
-**No third-party code is committed.** The manifest holds names, URLs, SHAs, languages and lineage only; clones are
-fetched at run time under `--work` (default `/tmp/gitgalaxy-scratch/doom-speedrun`, refused inside the repo). It is
-not part of default CI: run it by hand.
+**No third-party code is committed.** The manifest holds names, URLs, SHAs, languages, class, license and lineage
+only; clones are fetched at run time under `--work` (default `/tmp/gitgalaxy-scratch/doom-speedrun`, refused inside
+the repo). It is not part of default CI yet: run it by hand.
+
+"DOOM" is used descriptively only. This project is not affiliated with or endorsed by id Software, ZeniMax Media or
+Microsoft. No WADs or other game data are fetched, committed or cached.
+
+## Licensing rule (owner, 2026-10-19)
+
+GitGalaxy is an LLC, so every use is commercial. Only **clearly licensed** ports go into this manifest, and from it
+into CI, its caches, any committed golden and any publication: an OSI license (or CC0 for content) read from the
+repo's own files, original or properly released source, no provenance concern. GitHub's detected license is often
+`NONE` when the file sits in a subdirectory (`prboom2/COPYING`, `licenses/`, `doc/LICENSE`), so read the files; the
+`license` column records what was found and where when it is not at the root.
+
+Anything questionable (no license file, code reverse-engineered from a commercial release, mixed per-file notices) is
+**internal only**: the maintainer keeps a separate manifest and license register outside this repo and runs it with
+`--manifest`. Nothing from it is committed, cached in CI, or named or quoted in public issues, PRs or docs; an engine
+bug it reveals is filed with our own fixture. Not legal advice.
+
+To add a port: read its license from the files, pin a SHA, add a row with `class` and `license`, and run
+`run --only <name>` (rc 0) before committing.
+
+## Manifest columns
+
+`name`, `upstream`, `sha` (the pinned commit), `branch` (informational), `languages`, `lineage`, `license`, and
+`class`: `engine-port` (derived from or translated from id's released engine source, in any language),
+`reimplementation` (an independent engine that plays DOOM data), `raycaster` (a DOOM-like raycaster, not the DOOM
+engine), `separate-engine` (a later id engine) or `assets` (a content project).
 
 ```bash
-python tests/tools/doom_speedrun/doom_speedrun.py run --oracle                # all 39: clone, scan, score, report
+python tests/tools/doom_speedrun/doom_speedrun.py run --oracle                # all ports: clone, scan, score, report
 python tests/tools/doom_speedrun/doom_speedrun.py run --only linuxdoom,gore   # a subset
 python tests/tools/doom_speedrun/doom_speedrun.py score --oracle              # re-score existing scans
 ```
@@ -71,7 +98,7 @@ Blind spots of this oracle:
   the gap being platform code.
 - **Missing headers.** Most ports have no build here, so `clang_files_with_errors` is high (89/129 on linuxdoom);
   macros that depend on a missing header may expand differently. A real `compile_commands.json` is the fix, and
-  none of the 39 pinned repos ships one at its SHA.
+  no pinned repo ships one at its SHA.
 - Like the others it measures counts, not which functions: read the disputed files before claiming either tool right.
 
 ## Known blind spots

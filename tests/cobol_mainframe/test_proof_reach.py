@@ -305,6 +305,10 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     # #4047 re-ran the three GenApp ports (LGAPVS01, LGICDB01, LGUPDB01; seed 0, 150 mutants each), ending their #5053
     # stale-record skip: 21 more flagged survivors, all unreachable: the facade entry (region.linked / run /
     # lastLinkBytes), LGAPVS01's writeKsdspoly helper and the EIBCALEN = 0 branch (the case always links a COMMAREA).
+    # #4054 then adopted LGSTSQ's port (it refuses a WRITEQ LENGTH past WRITE-MSG, X6) and re-proved LGAPVS01 against it:
+    # LGAPVS01's committed mutation score is now stale on its port, so its 8 flagged survivors are skipped again
+    # (#5053) until it is re-run (seed 0, 150): 58 -> 50. LGSTSQ's own first mutation run adds 8 (the facade entry
+    # handleLink / lastLinkBytes and the two dead EXEC CICS helpers), all unreachable: 50 -> 58.
     assert len(flagged) == 58 and verdicts.count("unreachable") == 55 and verdicts.count("equivalent") == 3
     assert not {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C", "CSUTLDTC"}
 

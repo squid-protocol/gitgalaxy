@@ -24,6 +24,7 @@ Needs ``tree_sitter_language_pack`` (the selfscan venv has it).
 
 import argparse
 import collections
+import functools
 import glob
 import json
 import os
@@ -87,7 +88,9 @@ TEXT_NODES = {"comment", "string_literal", "raw_string_literal", "char_literal",
 # nested function definition): comments and literals blanked, then every ``name (`` that is not a keyword.
 STRIP = re.compile(r"/\*.*?\*/|//[^\n]*|\"(?:\\.|[^\"\\\n])*\"|'(?:\\.|[^'\\\n])*'", re.S)
 TEXT_CALL = re.compile(r"\b([A-Za-z_]\w*)\s*\(")
-KEYWORDS = frozenset("if else while for do switch return sizeof alignof _Alignof defined case goto typeof decltype".split())
+KEYWORDS = frozenset(
+    "if else while for do switch return sizeof alignof _Alignof defined case goto typeof decltype".split()
+)
 
 
 def bare(name):
@@ -95,6 +98,7 @@ def bare(name):
     return name.split("::")[-1].split(".")[-1]
 
 
+@functools.cache
 def _parser(lang):
     import tree_sitter_language_pack
 
@@ -125,23 +129,30 @@ def shape(call):
     return SHAPE_OF_PARENT.get(p.type, "other")
 
 
+def decode_bytes(raw):
+    """Lossless and offset-stable (one character per undecodable byte, #3813): TextBody counts lines in the decoded
+    text, so a whole-file codec guess must not reflow it, and per-node decoding stays cheap."""
+    return raw.decode("utf-8", errors="surrogateescape")
+
+
 class Body:
     """One function body: its calls (name -> shape of the first call), other identifier references, preprocessor and
     comment/literal text."""
 
     def __init__(self, node):
         self.node = node
-        self.calls, self.refs, self.preproc, self.text_only = {}, set(), [], []
+        self.calls, self.refs, self.preproc, self.text_only, self.types = {}, set(), [], [], set()
+        self.broken = False  # an ERROR node inside: tree-sitter may have closed the body early
         callees = set()
         body = node.child_by_field_name("body") or node
         stack = [body]
         while stack:
             n = stack.pop()
             if n.type in PREPROC:
-                self.preproc.append(n.text.decode(errors="replace"))
+                self.preproc.append(decode_bytes(n.text))
                 continue
             if n.type in TEXT_NODES:
-                self.text_only.append(n.text.decode(errors="replace"))
+                self.text_only.append(decode_bytes(n.text))
                 continue
             if n.type == "function_definition":
                 if n.parent is not None and n.parent.type == "field_declaration_list":
@@ -150,28 +161,34 @@ class Body:
                 end = inner.start_byte if inner is not None else n.end_byte
                 self._text_calls(n.text[: end - n.start_byte])
             elif n.type == "ERROR":
+                self.broken = True
                 self._text_calls(n.text)
             elif n.type == "call_expression":
                 name = callee_node(n.child_by_field_name("function"))
                 if name is not None:
-                    self.calls.setdefault(name.text.decode(errors="replace"), shape(n))
+                    self.calls.setdefault(decode_bytes(name.text), shape(n))
                     callees.add(name.id)
             elif n.type == "identifier" and n.id not in callees:  # a struct field is never a function reference
-                self.refs.add(n.text.decode(errors="replace"))
+                self.refs.add(decode_bytes(n.text))
+            elif n.type == "type_identifier":  # C++ `new T(...)` / `T v(...)`: a constructor, not a named call
+                self.types.add(decode_bytes(n.text))
             stack.extend(reversed(n.children))
 
     def _text_calls(self, raw):
-        text = STRIP.sub(" ", raw.decode(errors="replace"))
+        text = STRIP.sub(" ", decode_bytes(raw))
         for m in TEXT_CALL.finditer(text):
             if m.group(1) not in KEYWORDS:
                 self.calls.setdefault(m.group(1), "unparsed")
 
     def presence(self, name):
-        """How ``name`` appears in the body: ``call:<shape>``, ``function-pointer``, ``macro``, ``comment/string`` or None."""
+        """How ``name`` appears in the body: ``call:<shape>``, ``function-pointer``, ``type`` (a C++ constructor),
+        ``macro``, ``comment/string`` or None."""
         if name in self.calls:
             return "call:" + self.calls[name]
         if name in self.refs:
             return "function-pointer"
+        if name in self.types:
+            return "type"
         if any(_word_in(name, t) for t in self.preproc):
             return "macro"
         if any(_word_in(name, t) for t in self.text_only):
@@ -182,11 +199,13 @@ class Body:
 class TextBody(Body):
     """Fallback for a function tree-sitter folds into a neighbour (a macro table above it with no semicolon): the
     brace-matched body from its start line, comments and literals blanked, preprocessor lines dropped; every call is
-    shape ``unparsed``."""
+    shape ``unparsed``. Also used when a bare macro statement (``ADD_FILE_COUNTER`` with no semicolon) makes tree-sitter
+    close the body early: ``end_line`` says whether the braces reach further."""
 
     def __init__(self, src, line):
-        self.node, self.calls, self.refs, self.preproc, self.text_only = None, {}, set(), [], []
-        lines = src.decode(errors="replace").split("\n")
+        self.node, self.calls, self.refs, self.preproc, self.text_only, self.types = None, {}, set(), [], [], set()
+        self.end_line = line
+        lines = decode_bytes(src).split("\n")
         raw = "\n".join(lines[max(0, line - 1) :])
         text = STRIP.sub(lambda m: " " * len(m.group(0)), raw)
         depth, open_at, end = 0, None, None
@@ -204,6 +223,7 @@ class TextBody(Body):
         if end is None:
             self.calls = None
             return
+        self.end_line = line + text.count("\n", 0, end)
         body = text[open_at : end + 1]
         self.preproc = re.findall(r"^[ \t]*#.*$", body, flags=re.M)
         body = re.sub(r"^[ \t]*#.*$", " ", body, flags=re.M)
@@ -298,6 +318,11 @@ class Port:
             src, nodes = trees[key]
             node = definition_at(nodes, start)
             body = Body(node) if node is not None else TextBody(src, start)
+            if node is not None and body.broken:
+                braces = TextBody(src, start)
+                # end_point[0], never .row: .row on the temporary Point read freed memory (tree-sitter 0.26, #5630)
+                if braces.calls is not None and braces.end_line > node.end_point[0] + 1:
+                    body = braces
             caller = bare(fname)
             eng = {bare(c) for c in callees} & self.defined
             eng.discard(caller)
@@ -419,8 +444,21 @@ def regressions(current, baseline, tol=TOLERANCE):
 def baseline_view(result):
     """The committed baseline: numbers only (no example lists), so it diffs cleanly."""
     ports = {
-        n: {k: r[k] for k in ("functions", "unmatched_functions", "text_fallback_functions", "oracle_calls", "engine_calls", "agree", "recall",
-                              "precision", "misses_by_shape", "engine_only_by_kind")}  # fmt: skip
+        n: {
+            k: r[k]
+            for k in (
+                "functions",
+                "unmatched_functions",
+                "text_fallback_functions",
+                "oracle_calls",
+                "engine_calls",
+                "agree",
+                "recall",
+                "precision",
+                "misses_by_shape",
+                "engine_only_by_kind",
+            )
+        }  # fmt: skip
         for n, r in result["ports"].items()
     }
     out = {"engine_sha": result["engine_sha"], "ports": ports}
@@ -485,7 +523,7 @@ def run(only, family, work, sha):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--only", help="ports for the body oracle (default: the family)")
+    ap.add_argument("--only", help="ports for the body oracle (default: the family; all: every licensed port scanned)")
     ap.add_argument("--family", help="ports that vote in the consensus (default: the vanilla-lineage family)")
     ap.add_argument("--work", type=Path, default=DEFAULT_WORK, help=f"doom_speedrun work dir (default {DEFAULT_WORK})")
     ap.add_argument("--sha", help="engine SHA of the scans to read (default: this checkout's HEAD)")
@@ -494,9 +532,12 @@ def main(argv=None):
     ap.add_argument("--tolerance", type=float, default=TOLERANCE, help="allowed recall/precision drop")
     ap.add_argument("--write-baseline", type=Path, help="write the numbers-only baseline JSON here")
     args = ap.parse_args(argv)
-    family = _names(args.family, FAMILY)
-    only = _names(args.only, family)
     work, sha = args.work.resolve(), args.sha or engine_sha()
+    family = _names(args.family, FAMILY)
+    if args.only == "all":
+        only = sorted(n for n in LICENSED if find_db(work / "scans" / sha / n) is not None)
+    else:
+        only = _names(args.only, family)
     result, skipped = run(only, family, work, sha)
     for name in skipped:
         print(f"callgraph_oracle: no scan or clone for {name} under {work} at {sha} (run doom_speedrun.py scan)")

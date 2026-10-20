@@ -221,7 +221,7 @@ class LanguageDetector:
         # tier 2 and never calls gravity), so the neighbourhood's verdict is
         # independent of which sibling triggered it -- one census per directory,
         # deterministic, and O(files) instead of O(files^2) over a folder.
-        self._sibling_vote_cache: dict[tuple[str, str], tuple[str | None, float]] = {}
+        self._sibling_vote_cache: dict[tuple[str, str, tuple[str, ...], int], tuple[str | None, float]] = {}
         # Bytes read per sibling for that vote. Internal discriminators anchor on
         # imports/headers near the top of a file, so a bounded sniff is enough
         # and keeps the extra reads cheap on mega-repos.
@@ -707,6 +707,11 @@ class LanguageDetector:
             # was locked to it with no ObjC marker), and cannot hide C++ evidence.
             if gravity_lang and ext in self.languages.get(gravity_lang, {}).get("extensions_needing_discriminator", ()):
                 gravity_lang = None
+            # #5622: a file with no evidence of its own joins the language its same-folder siblings PROVED
+            # (a Postgres function library's plain DDL); the proof-only filter keeps that language out of gravity,
+            # so the vote overrides whatever the extension-count physics picked.
+            if sib := self._proof_only_sibling_vote(file_path, ext):
+                gravity_lang, dominance = sib
             if gravity_lang and (evidenced := self._shared_extension_evidence(content_sample, ext)):
                 gravity_lang = evidenced
 
@@ -993,7 +998,7 @@ class LanguageDetector:
         return True
 
     def _resolve_by_sibling_content(
-        self, file_path: str | Path, ext: str, candidates: list[str]
+        self, file_path: str | Path, ext: str, candidates: list[str], min_votes: int = 1
     ) -> tuple[str | None, float]:
         """#3137: weigh a same-extension neighbourhood by what its siblings
         actually RESOLVED to via their own content (shebang / internal
@@ -1015,7 +1020,7 @@ class LanguageDetector:
         except Exception:
             return None, 0.0
 
-        cache_key = (str(parent_dir), ext)
+        cache_key = (str(parent_dir), ext, tuple(sorted(candidates)), min_votes)
         cached = self._sibling_vote_cache.get(cache_key)
         if cached is not None:
             return cached
@@ -1052,7 +1057,7 @@ class LanguageDetector:
             runner_up = ranked[1][1] if len(ranked) > 1 else 0
             dominance = top_count / total
             threshold = self.thresholds.get("ECOSYSTEM_DOMINANCE_MIN", 0.70)
-            if top_count > runner_up and dominance >= threshold:
+            if top_count >= min_votes and top_count > runner_up and dominance >= threshold:
                 self.logger.debug(
                     f"[{parent_dir.name}] Sibling-content consensus for '{ext}': "
                     f"{top_lang} ({dominance * 100:.0f}% of {total} resolved siblings, votes={votes})"
@@ -1061,6 +1066,20 @@ class LanguageDetector:
 
         self._sibling_vote_cache[cache_key] = result
         return result
+
+    def _proof_only_sibling_vote(self, file_path: str | Path, ext: str) -> tuple[str, float] | None:
+        """#5622: the proof-only language (``extensions_needing_discriminator``) that a strict content
+        majority of the file's same-extension siblings resolved to, else None. Every claimant votes, so a
+        folder of proven sqlite scripts is not captured by one Postgres file; a sibling with no evidence casts
+        no vote. Needs two proving siblings: one stray Postgres idiom does not relabel a folder."""
+        claimants = [lid for lid, data in self.languages.items() if ext in data.get("extensions", [])]
+        proof_only = {
+            lid for lid in claimants if ext in self.languages[lid].get("extensions_needing_discriminator", ())
+        }
+        if not proof_only:
+            return None
+        lang, dominance = self._resolve_by_sibling_content(file_path, ext, claimants, min_votes=2)
+        return (lang, dominance) if lang in proof_only else None
 
     def _is_pli_include(self, file_path: str | Path, content: str) -> bool:
         """#3867: True for a `.inc` whose folder holds a PL/I program and whose

@@ -555,6 +555,46 @@ def test_a_float_moved_to_an_edited_or_fixed_receiver_rounds_where_the_oracle_tr
     assert str(H.to_fixed(v, scale, 9 if short else 18)) == want
 
 
+@pytest.mark.parametrize(
+    "value, want_det, want_oracle",
+    [
+        # CBSA's amounts (BNK1TFN / BNK1CRA: a COMP-2 moved to a 2-decimal field, #5703). The oracle holds the IEEE
+        # double and truncates the exact decimal of it; IBM rounds in the low-order position.
+        ("12.34", "12.34", "12.33"),
+        ("9999999999.99", "9999999999.99", "9999999999.98"),
+        ("0.01", "0.01", "0.01"),
+        ("0.1", "0.10", "0.10"),
+        ("100.50", "100.50", "100.50"),  # a binary fraction: exact in both formats, the oracle agrees
+        ("12.75", "12.75", "12.75"),
+    ],
+)
+def test_a_cbsa_comp2_amount_moved_to_a_two_decimal_field_rounds_where_the_oracle_truncates(
+    value, want_det, want_oracle
+):
+    v = H.for_item(F(Decimal(value)), False)
+    assert str(H.to_fixed(v, 2, 18)) == want_det
+    oracle = Decimal(float(value)).quantize(Decimal("0.01"), rounding="ROUND_DOWN")
+    assert str(oracle) == want_oracle  # the recorded oracle answer is still what an IEEE double truncates to
+    if want_det != want_oracle:
+        assert not H.exact_in_both(F(Decimal(value)), False)  # a difference only where the value is not exact in both
+    if value in ("100.50", "12.75"):
+        assert H.exact_in_both(F(Decimal(value)), False)
+
+
+@pytest.mark.parametrize(
+    "value, want",
+    [
+        ("12.34", "12.34"),
+        ("0.01", "0.01"),
+        ("100.50", "100.50"),
+        ("9999999999.99", "9999998980.00"),  # COMP-1 keeps 9 significant digits of the HFP value, the rest zero
+    ],
+)
+def test_a_comp1_amount_moved_to_a_two_decimal_field_keeps_nine_significant_digits(value, want):
+    v = H.for_item(F(Decimal(value)), True)
+    assert str(H.to_fixed(v, 2, 9)) == want
+
+
 def test_a_compound_float_compute_is_computed_in_long_hfp_where_the_oracle_gives_zero():
     # #4688 (2): COMPUTE R1 = ((FA / 2) * (0.5 + F4)), FA COMP-1 5, F4 COMP-2 4: 2.5 * 4.5, exact in HFP (cobc: 0.00)
     fa, f4 = H.for_item(F(5), True), H.for_item(F(4), False)

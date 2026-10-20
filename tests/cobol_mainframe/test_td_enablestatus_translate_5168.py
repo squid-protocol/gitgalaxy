@@ -53,7 +53,7 @@ def test_round_6_ati_options_translate_on_both_translators():
     """#5168 round 6 (X66): INQUIRE TDQUEUE TRIGGERLEVEL / RECOVSTATUS / TRANSID are in the spec; the stub reads them back in
     GG-HOURS / GG-MINS / GG-RTRAN, the det port from the 6-boolean inquireTdQueue and tdTransid."""
     for o in ("TRIGGERLEVEL", "RECOVSTATUS", "TRANSID"):
-        assert o in SPEC["INQUIRE TDQUEUE"].options and o not in SPEC["SET TDQUEUE"].options
+        assert o in SPEC["INQUIRE TDQUEUE"].options and (o == "TRIGGERLEVEL") == (o in SPEC["SET TDQUEUE"].options)
     text = "INQUIRE TDQUEUE('AAAA') TRIGGERLEVEL(WS-T) RECOVSTATUS(WS-R) TRANSID(WS-X) RESP(R)"
     inq = ec.translate_command(text)
     assert "MOVE 'TRIGGERLEVEL RECOVSTATUS TRANSID' TO GG-FLAGS" in inq
@@ -65,8 +65,29 @@ def test_round_6_ati_options_translate_on_both_translators():
     # an older shape is unchanged: OPENSTATUS and TYPE keep the 2-boolean call
     old = _LenCics().command("INQUIRE TDQUEUE(WS-Q) OPENSTATUS(WS-O) TYPE(WS-T)", "")
     assert ", true, true);" in old[0]
-    # SET TDQUEUE TRIGGERLEVEL stays refused on both
-    with pytest.raises(ec.Unsupported):
-        ec.translate_command("SET TDQUEUE(WS-Q) TRIGGERLEVEL(2)")
-    with pytest.raises(C.CicsError):
-        _LenCics().command("SET TDQUEUE(WS-Q) TRIGGERLEVEL(2)", "")
+    # SET TDQUEUE ATIFACILITY / ATITERMID stay refused on both
+    for opt in ("ATIFACILITY(DFHVALUE(ATI))", "ATITERMID(WS-T)"):
+        with pytest.raises(ec.Unsupported):
+            ec.translate_command(f"SET TDQUEUE(WS-Q) {opt}")
+        with pytest.raises(C.CicsError):
+            _LenCics().command(f"SET TDQUEUE(WS-Q) {opt}", "")
+
+
+def test_round_7_set_triggerlevel_translates_on_both_translators():
+    """#5168 round 7 (X66): SET TDQUEUE TRIGGERLEVEL(n): the stub takes the level in GG-NUM, the det port calls setTdQueueTriggerLevel;
+    two of the three SET options together are refused by name on both, and none is refused by the spec's group."""
+    assert "TRIGGERLEVEL" in SPEC["SET TDQUEUE"].options
+    st = ec.translate_command("SET TDQUEUE(WS-Q) TRIGGERLEVEL(WS-N) RESP(R)")
+    assert st[:3] == ["MOVE WS-Q TO GG-QNAME", "MOVE WS-N TO GG-NUM", "CALL 'GGCSTDT' USING GG-CICS"]
+    lit = ec.translate_command("SET TDQUEUE('AAAA') TRIGGERLEVEL(0)")
+    assert "MOVE 0 TO GG-NUM" in lit and "CALL 'GGCSTDT' USING GG-CICS" in lit
+    det = _LenCics().command("SET TDQUEUE(WS-Q) TRIGGERLEVEL(WS-N) RESP(R)", "")
+    assert ".setTdQueueTriggerLevel(" in det[0]
+    for text, names in (
+        ("SET TDQUEUE(WS-Q) TRIGGERLEVEL(2) ENABLESTATUS(DFHVALUE(ENABLED))", "ENABLESTATUS and TRIGGERLEVEL together"),
+        ("SET TDQUEUE(WS-Q) OPENSTATUS(DFHVALUE(OPEN)) TRIGGERLEVEL(2)", "OPENSTATUS and TRIGGERLEVEL together"),
+    ):
+        with pytest.raises(ec.Unsupported, match=names):
+            ec.translate_command(text)
+        with pytest.raises(C.CicsError, match=names):
+            _LenCics().command(text, "")

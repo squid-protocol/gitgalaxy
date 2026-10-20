@@ -75,8 +75,19 @@ DEFINITION: dict[str, Any] = {
         # decision. See branch_rule_contract.md, "Literals".
         "_scope_filters": {"branch": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
+        # #5639: two capture groups (the detector takes whichever matched). Group 1 is a C call
+        # `name(`; `@selector(` / `@synchronized(` are directives, not calls (`@` lookbehind).
+        # Group 2 is a message send's selector, by its FIRST keyword (`[obj set:a withB:b]` ->
+        # `set`; later keywords are arguments, not calls): the word after the receiver and
+        # before `]` or `:`. The receiver is a name chain (`self`, `obj.view`, `p->q`), with an
+        # optional cast before it, or a closed nested send or call (`] sel`, `) sel]`).
+        # `@selector(name:)` is a reference to a selector, not a send, so it records nothing.
         "calls_out": re.compile(
-            r"\b(?<![" + ID_CONTINUE + r"])([" + ID_START + r"][" + ID_CONTINUE + r"]*)(?=\s*\(|:)"
+            r"(?<![" + ID_CONTINUE + r"@])\b([" + ID_START + r"][" + ID_CONTINUE + r"]*)(?=\s*\()"
+            r"|(?:\[\s*(?:\([^()\[\]]{0,80}\)\s*)?[" + ID_START + r"][" + ID_CONTINUE + r"]*"
+            r"(?:\s*(?:\.|->)\s*[" + ID_START + r"][" + ID_CONTINUE + r"]*){0,8}"
+            r"\s+|\]\s+|\)\s+(?=[" + ID_START + r"][" + ID_CONTINUE + r"]*\s*\]))"
+            r"([" + ID_START + r"][" + ID_CONTINUE + r"]*)(?=\s*[\]:])"
         ),
         "_calls_out_ignore": frozenset({"self", "throw"}),  # #3645: `throw` is a keyword here
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---

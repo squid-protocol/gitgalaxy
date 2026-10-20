@@ -369,19 +369,24 @@ def test_objectivec_calls_out():
     pattern = DEFINITION["rules"]["calls_out"]
     ignore_set = DEFINITION["rules"]["_calls_out_ignore"]
     
-    assert pattern.groups == 1
-    assert pattern.findall("[self probeBranch:argv]") == ["probeBranch"]
-    assert pattern.findall("[self probeIo:argv]") == ["probeIo"]
-    assert pattern.findall("[self probeRisk:argv]") == ["probeRisk"]
-    assert pattern.findall("free(x)") == ["free"]
-    assert pattern.findall("abort()") == ["abort"]
-    assert pattern.findall("exit(payload)") == ["exit"]
-    
+    # #5639: group 1 is a C call, group 2 a message send's selector; the detector takes whichever matched.
+    assert pattern.groups == 2
+
+    def callees(text):
+        return [next(g for g in m if g) for m in pattern.findall(text)]
+
+    assert callees("[self probeBranch:argv]") == ["probeBranch"]
+    assert callees("[self probeIo:argv]") == ["probeIo"]
+    assert callees("[self probeRisk:argv]") == ["probeRisk"]
+    assert callees("free(x)") == ["free"]
+    assert callees("abort()") == ["abort"]
+    assert callees("exit(payload)") == ["exit"]
+
     assert "self" in ignore_set
     
     # Negatives
-    assert pattern.findall("id x = condition ? self: other;") == ["self"] # The regex captures it without space, but it's in the ignore set
-    assert pattern.findall("goto fail;") == []
+    assert callees("id x = condition ? self: other;") == []  # a ternary colon is not a send
+    assert callees("goto fail;") == []
     
     # ReDoS check
     assert_redos_immune(pattern, "a" * 50000 + " (", timeout_sec=2.0)

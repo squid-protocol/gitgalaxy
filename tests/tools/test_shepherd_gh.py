@@ -949,7 +949,7 @@ def test_the_shepherd_workflows_restore_the_flake_cache_and_pass_it(name):
     assert steps.index(restore[0]) < steps.index(shepherd[0])
 
 
-def test_reconcile_refreshes_a_stale_flake_cache_and_always_saves_it():
+def test_reconcile_refreshes_a_stale_flake_cache_and_saves_it_after_a_refresh():
     doc, steps = _workflow("shepherd-reconcile.yml")
     refresh = [s for s in steps if "--refresh-only" in s.get("run", "")]
     assert len(refresh) == 1
@@ -957,7 +957,8 @@ def test_reconcile_refreshes_a_stale_flake_cache_and_always_saves_it():
     assert r["continue-on-error"] is True and r["timeout-minutes"] <= 12
     assert f"--cache {CACHE_FILE}" in r["run"] and "6 * 3600" in r["run"]
     save = [s for s in steps if s.get("uses", "").startswith("actions/cache/save@")]
-    assert len(save) == 1 and save[0]["if"] == "always()"
+    assert "--budget-s" in r["run"] and r["id"] == "refresh"  # 2026-10-20: a cold fetch never fit the timeout
+    assert len(save) == 1 and save[0]["if"] == "always() && steps.refresh.outputs.refreshed == 'true'"
     assert save[0]["with"]["key"] == "flake-history-${{ github.run_id }}" and save[0]["with"]["path"] == "flake-cache"
     job = next(iter(doc["jobs"].values()))
     assert job["timeout-minutes"] > r["timeout-minutes"] + 10  # the refresh must leave room for the pass itself

@@ -92,6 +92,11 @@ def test_the_table_covers_both_sizes_and_every_op():
     assert {r["size"] for r in recs} == {"short", "long"}
 
 
+def test_the_table_covers_every_op_in_both_sizes():
+    pairs = {(r["op"], r["size"]) for r in records()}
+    assert pairs == {(op, size) for op in OPS for size in ("short", "long")}
+
+
 def test_a_captured_record_without_evidence_or_options_is_refused():
     r = {"id": "x", "source": "zos-run", "op": "encode", "value": "1", "size": "short", "want": "41100000"}
     probs = problems(r)

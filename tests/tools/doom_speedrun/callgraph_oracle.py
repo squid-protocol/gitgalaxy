@@ -9,8 +9,9 @@ Reads the scans ``doom_speedrun.py scan`` leaves under ``<work>/scans/<sha>/<por
 
 1. **Body oracle** (per port): each engine function is matched to the tree-sitter ``function_definition`` at its
    start line, and every ``call_expression`` in that body whose callee is a function the port defines is an oracle
-   call. Compared with ``calls_out_to`` (restricted to defined names, self-calls dropped on both sides): recall,
-   precision, each miss classified by the shape around the call, each engine-only edge by how the callee appears.
+   call. Compared with ``calls_out_to`` (restricted to defined names; self-edges ignored on both sides, as the engine
+   drops recursion by contract, #3327): recall, precision, each miss classified by the shape around the call, each engine-only edge by how the callee
+   appears.
 2. **Family consensus** (near-identical vanilla-lineage ports): an edge a->b that >= 75% of the siblings defining both
    ends carry, missing from one port, is looked up in that port's body of ``a``: a call or reference there is an
    engine miss, otherwise a real divergence. A lone edge no sibling carries, whose callee is not in the body, is a

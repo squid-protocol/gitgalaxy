@@ -101,7 +101,8 @@ python tests/tools/doom_speedrun/callgraph_oracle.py --only eternity,odamex,gzdo
 
 1. **Body oracle**: each engine function is matched to the tree-sitter `function_definition` at its start line; every
    `call_expression` whose callee the port defines (`f(`, `f<T>(`, `obj.f(`, `ns::f(`; a declaration such as
-   `std::unique_lock<...> lock(m)` is not a call) is an oracle call. Self-calls are dropped on both sides. A miss is
+   `std::unique_lock<...> lock(m)` is not a call) is an oracle call. Self-edges are ignored on both sides (the engine
+   drops recursion by contract, #3327; owner ruling 2026-10-19, #5630), never scored as a miss. A miss is
    named by the call's parent: statement, nested-argument, condition/return, assignment-rhs, after-cast,
    after-operator, subscript, or `unparsed` (below). An engine-only edge is named by how the callee appears in the
    body: function-pointer (a bare reference), type (a C++ class named as a type: `new T`, `T x(...)`), macro (only in a

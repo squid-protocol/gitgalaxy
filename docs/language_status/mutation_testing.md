@@ -122,6 +122,27 @@ Java side lists it once, where `--full` lists it twice. A CON mutant killed by a
 overstates the score on posttran. Not yet found why the reused project's Java side fires once. Until fast mode agrees with
 `--full` on posttran and cardlist, `--one-jvm` is not made the default.
 
+**Re-run after the fault-log fix, fresh sample, `--jobs` 1 vs 2 (2026-10-20, #4047, on #5748).** #5748 removes the stale
+`work/FAULTS` file before a fault step that is not reused; that was the false `faults fired differ` kill on posttran.
+`--sample 20 --seed 3` in `--full` (`--jobs 1`), then the same mutants in fast mode at `--jobs 1` and `--jobs 2`, judged by
+`mutation.py compare`:
+
+| case | judged by both | `--full` vs fast `--jobs 1` | `--full` vs fast `--jobs 2` | fast `--jobs 1` vs `--jobs 2` | killed / survived / stillborn | proof s, full -> fast 1 -> fast 2 |
+|---|---|---|---|---|---|---|
+| carddemo-cardlist (COCRDLIC, CICS) | 20 | 20 agree | 20 agree | 20 agree | 16 / 2 / 2 | 558 -> 272 -> 199 |
+| carddemo-posttran (CBTRN02C, batch) | 20 | 20 agree | 20 agree | 20 agree | 13 / 3 / 4 | 2,207 -> 405 -> 461 |
+
+No `no report` errors. **bbd92e25af** (COCRDLIC, `CocrdlicService.java:997`, RET `return false;` -> `return true;`): the
+earlier seed-2 batch killed it in fast mode (by the fault runs `readnext-io-error-on-the-look-ahead`,
+`readprev-io-error-first`, `readprev-io-error-mid-page`, events equal, "differs"), while it survives alone in fast mode and in
+`--full`. The whole seed-2 cardlist batch (30 mutants, judged against the old `--full` reference) was re-run in fast mode at
+`--jobs 2` and `--jobs 1`: **30 of 30 agree both times and bbd92e25af survives both times**. So `--jobs 2` sharing the reused
+baseline is not shown to be the cause (it is not reproduced at `--jobs 2`), and the one earlier kill is not reproduced with
+the fault-log fix; its cause is not identified, only that it has not come back in 2 re-runs. Fast mode now agrees
+with `--full` on posttran and cardlist (20 fresh mutants each, plus the 30 seed-2 cardlist mutants), at both `--jobs` values;
+dateutil agreed before. Not validated: `--one-jvm` on these two cases after the fix (fast and `--one-jvm` agreed on posttran
+before it), entry runs, and samples above 40. `--one-jvm` therefore stays opt-in until it is compared on the fixed code.
+
 ## Scores
 
 After #4056 (SYSOUT compared) and #4053 (SEND MAP attributes compared), on 2026-10-01:

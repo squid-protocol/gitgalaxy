@@ -14,6 +14,9 @@ as `flake` (one rerun) instead of `real`; if it fails again on the rerun it is `
 GitHub keeps the evidence: a rerun run has run_attempt > 1, and `jobs?filter=all` lists every attempt's jobs. Cost:
 the run listing in 2-hour windows (a listing stops at 1,000 runs) plus one jobs call per rerun run. Finished days are
 cached and only today and yesterday are refetched, so a refresh is about a hundred calls on a 3,000-run day.
+A cold cache is 14 such days (2026-10-20: ~2 min each, 20-28 min in all), so `--budget-s` stops a refresh between days
+and every finished day is saved as it lands: a pass that runs out of time (or is killed) keeps its days and the next
+one carries on. `updated` is set only when the whole window is in, so an unfinished cache still reads as stale.
 
 In GitGalaxy, ci_rerun_stats.py (#5137, beside this file) classifies WHY each first attempt failed (timeout,
 registry_pull, db2_start, ratchet, test_failure, ...). When it is importable, every job here carries those causes:
@@ -95,22 +98,43 @@ def load(path: Path) -> dict[str, Any]:
         return {}
 
 
-def refresh(api: pr_check.Api, path: Path, today: date | None = None, days: int = DAYS) -> dict[str, Any]:
-    """Fetch the days missing from the cache at `path` (and the recent ones again), drop the rest, save it."""
-    today = today or datetime.now(timezone.utc).date()
-    cache = load(path)
-    if cache.get("repo") != REPO_SLUG:
-        cache = {"repo": REPO_SLUG, "days": {}}
-    window = [(today - timedelta(days=i)).isoformat() for i in range(days)]
-    for i, d in enumerate(window):
-        if d not in cache["days"] or i < REFRESH_DAYS:
-            cache["days"][d] = day_reruns(api, d)
-    cache["days"] = {d: v for d, v in cache["days"].items() if d in window}
-    cache["updated"] = time.time()
+def save(path: Path, cache: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(".tmp")
     tmp.write_text(json.dumps(cache, indent=1, sort_keys=True), encoding="utf-8")
     tmp.replace(path)
+
+
+def refresh(
+    api: pr_check.Api,
+    path: Path,
+    today: date | None = None,
+    days: int = DAYS,
+    budget_s: float | None = None,
+    clock: Any = time.monotonic,
+) -> dict[str, Any]:
+    """Fetch the days missing from the cache at `path` (and the recent ones again), drop the rest, save it.
+
+    Missing days first, newest first, then today and yesterday again; the cache is saved after every day. With
+    `budget_s`, no new day starts once that many seconds have passed: the days done so far are kept, `updated` is
+    left as it was (stale), and the next refresh carries on (2026-10-20: a cold 14-day fetch never fit the reconcile
+    step's 12-minute timeout, saved nothing, and every pass started over)."""
+    today = today or datetime.now(timezone.utc).date()
+    start = clock()
+    cache = load(path)
+    if cache.get("repo") != REPO_SLUG:
+        cache = {"repo": REPO_SLUG, "days": {}}
+    window = [(today - timedelta(days=i)).isoformat() for i in range(days)]
+    cache["days"] = {d: v for d, v in (cache.get("days") or {}).items() if d in window}
+    todo = [d for d in window if d not in cache["days"]]
+    todo += [d for d in window[:REFRESH_DAYS] if d not in todo]
+    for d in todo:
+        if budget_s is not None and clock() - start >= budget_s:
+            return cache  # out of time: what is saved stays, `updated` unchanged
+        cache["days"][d] = day_reruns(api, d)
+        save(path, cache)
+    cache["updated"] = time.time()
+    save(path, cache)
     return cache
 
 
@@ -173,11 +197,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--refresh-only", action="store_true")
     ap.add_argument("--no-refresh", action="store_true", help="report from the cache without calling GitHub")
+    ap.add_argument("--budget-s", type=float, help="start no new day after this many seconds (the rest next time)")
     ap.add_argument(
         "--file-issues", action="store_true", help="open one issue per learned-flaky job (writes to GitHub)"
     )
     a = ap.parse_args(argv)
-    cache = load(a.cache) if a.no_refresh else refresh(pr_check.gh_api, a.cache)
+    cache = load(a.cache) if a.no_refresh else refresh(pr_check.gh_api, a.cache, budget_s=a.budget_s)
     if a.refresh_only:
         return 0
     rows = tally(cache)

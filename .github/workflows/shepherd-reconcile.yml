@@ -68,7 +68,11 @@ jobs:
             flake-history-
 
       - name: Refresh the flake-history cache when it is over 6 hours old
-        # A failure keeps the old file (or none: no learned flakes, never a wait); the next pass tries again
+        # A failure keeps the old file (or none: no learned flakes, never a wait); the next pass tries again.
+        # 2026-10-20: a cold fetch (~14 x 2 min) never fit this step's timeout and saved nothing, so 78 of 79 passes spent
+        # 12.2 min here (913 runner-min) and every PR waited a pass. --budget-s 300 stops between days and keeps them:
+        # a cold cache fills over a few passes, a warm one (today + yesterday, ~4 min) finishes in one.
+        id: refresh
         continue-on-error: true
         timeout-minutes: 12
         env:
@@ -84,7 +88,8 @@ jobs:
           sys.exit(0 if time.time() - float(updated) > 6 * 3600 else 1)
           PY
           then
-            python3 tests/tools/flake_history.py --refresh-only --cache flake-cache/flake_history.json
+            echo "refreshed=true" >> "$GITHUB_OUTPUT"
+            python3 tests/tools/flake_history.py --refresh-only --budget-s 300 --cache flake-cache/flake_history.json
           fi
 
       - name: Create or refresh the shepherd:* labels
@@ -99,9 +104,10 @@ jobs:
           GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
         run: python3 tests/tools/shepherd_gh.py reconcile --flake-cache flake-cache/flake_history.json
 
-      # the refresh is the only writer (passes are serialised by the `shepherd` group); save even when a pass failed
+      # the refresh is the only writer (passes are serialised by the `shepherd` group); save even when a pass failed,
+      # but only after a refresh ran (a pass that only read the cache has nothing new: it was ~80 cache saves a day)
       - name: Save the flake-history cache
-        if: always()
+        if: always() && steps.refresh.outputs.refreshed == 'true'
         continue-on-error: true
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:

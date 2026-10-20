@@ -112,3 +112,51 @@ def test_no_squid_bot_reference_in_the_shepherd_tools():
         if p.name == Path(__file__).name:
             continue
         assert banned not in p.read_text(encoding="utf-8"), p.name
+
+
+def test_a_refresh_out_of_time_keeps_its_days_stays_stale_and_the_next_one_carries_on(tmp_path, monkeypatch):
+    """2026-10-20: a cold 14-day fetch never fit the reconcile step's timeout, saved nothing, and every pass restarted."""
+    fetched = []
+    monkeypatch.setattr(fh, "day_reruns", lambda api, d: fetched.append(d) or {"smoke": [1, 0, {}]})
+    clock = iter(range(0, 1000, 100)).__next__  # every clock() call is 100 s later
+    cache = tmp_path / "f.json"
+    data = fh.refresh(None, cache, today=date(2026, 10, 20), days=5, budget_s=350, clock=clock)
+    assert fetched == ["2026-10-20", "2026-10-19", "2026-10-18"]  # missing days, newest first, until the budget
+    saved = fh.load(cache)
+    assert sorted(saved["days"]) == ["2026-10-18", "2026-10-19", "2026-10-20"] and "updated" not in saved
+    assert data["days"] == saved["days"]
+    fetched.clear()
+    clock = iter(range(0, 1000, 100)).__next__
+    data = fh.refresh(None, cache, today=date(2026, 10, 20), days=5, budget_s=350, clock=clock)
+    # the two still-missing days first, then today again; yesterday is left for the next pass
+    assert fetched == ["2026-10-17", "2026-10-16", "2026-10-20"] and "updated" not in fh.load(cache)
+    fetched.clear()
+    data = fh.refresh(
+        None, cache, today=date(2026, 10, 20), days=5, budget_s=350, clock=iter(range(0, 1000, 100)).__next__
+    )
+    assert fetched == ["2026-10-20", "2026-10-19"]  # warm: only today and yesterday, inside the budget
+    assert fh.load(cache)["updated"] and len(data["days"]) == 5
+
+
+def test_a_killed_refresh_keeps_every_finished_day(tmp_path, monkeypatch):
+    def day(api, d):
+        if d == "2026-10-18":
+            raise TimeoutError("the step's timeout")
+        return {"det": [0, 1, {}]}
+
+    monkeypatch.setattr(fh, "day_reruns", day)
+    cache = tmp_path / "f.json"
+    try:
+        fh.refresh(None, cache, today=date(2026, 10, 20), days=4)
+    except TimeoutError:
+        pass
+    assert sorted(fh.load(cache)["days"]) == ["2026-10-19", "2026-10-20"]
+    assert "updated" not in fh.load(cache)
+
+
+def test_the_reconcile_workflow_budgets_the_refresh_and_saves_only_after_one():
+    from pathlib import Path
+
+    yml = (Path(__file__).resolve().parents[2] / ".github/workflows/shepherd-reconcile.yml").read_text(encoding="utf-8")
+    assert "--refresh-only --budget-s 300" in yml
+    assert "if: always() && steps.refresh.outputs.refreshed == 'true'" in yml

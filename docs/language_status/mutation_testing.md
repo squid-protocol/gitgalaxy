@@ -399,6 +399,8 @@ WAIT, LAST). The score is not re-run. #5401 added `commarea_length` scenarios (E
 PIC 9 is IBM-undefined and the oracle and the port read it differently (pf7/pf8 at 160 on tranlist, userupd at 160 to
 184, report below 146). All 77 case-gap survivors of the seven ports were judged again against these cases (2026-10-19, `mutation.py run --only`, no re-sample): 19 more are killed (billpay 2, report 3, tranlist 4, userupd 10). The 12 EIBCALEN survivors that remain are re-triaged **unreachable**: EIBCALEN 0 with a COMMAREA present (COBIL00C 57484857ed, COTRN02C f92dd6e996, COUSR02C d0e975d5b4: `commarea_length` is 1 to the record, IBM leaves DFHCOMMAREA unaddressable), a null COMMAREA DTO (COCRDSLC 764873c268), and the lengths that leave a numeric field blank (CORPT00C below 12, 24 and 130, COUSR02C 160, 169, 176 and 184, COTRN00C 3c413ab7f0). Still open: cardview and cardlist: both move `DFHCOMMAREA` past the shared 160 bytes, so the oracle refuses every short length (X23: 159, 160 and 171 on cardview, 159, 160 and 413 on cardlist), and each states only its whole COMMAREA (`full-commarea-length`, 172 and 414 bytes). The "no scenario sets EIBCALEN" item of #5401 is closed: `test_carddemo_eibcalen_scenarios_5401.py` pins that all seven cases state it.
 
+#4628 slice 3 (COADM01C, COBIL00C; the det-port ledger re-run on the same seed): new scenarios `pf4-other-key` and `invalid-key-unread-option-field` (adminmenu), `decline-lowercase-n` and `full-commarea-carried` (billpay) kill 4 mutants. COBIL00C reaches 0 open (9 triaged: 7 equivalent, 2 unreachable). COADM01C keeps 7 open: six are the short-COMMAREA conversion (`exactCommarea`, lines 546, 697, 699), which needs a `commarea_length` scenario the model port cannot take (X23: its DTO holds the whole record and cannot see the cut tail, so such a scenario fails the proof); one is the final RETURN's COMMAREA length (harness-gap: the scenario ends at the RETURN, so EIBCALEN of the next task is not observed). COTRN02C (35 open) is the remaining slice.
+
 #4047 then scored six CardDemo batch ports (readxref, readcust, dailyval, intcalc, posttran, trnrpt; seed 0, up to 100
 mutants each, `--jobs 3`, fast mode). These rows are seed 0 and differ from the older seed-1 CBACT04C, CBTRN02C and
 CBTRN03C figures above. The case gaps repeat across the six: `displayIoStatus` takes a numeric test on both status bytes,
@@ -528,8 +530,8 @@ python tests/tools/det_mutation.py refresh --work DIR        # the generator mov
 |---|---|---|---|---|---|---|---|---|
 | COSGN00C (carddemo-signon) | 150/1140 (seed 0) | 70 | 75 | 5 | 70 | 5 | 70/145 (48%) | no |
 | UPDCUST (cbsa-updcust) | 150/716 (seed 0) | 68 | 73 | 9 | 41 | 32 | 68/141 (48%) | no |
-| COADM01C (carddemo-adminmenu) | 150/1382 (seed 0) | 77 | 68 | 5 | 55 | 13 | 77/145 (53%) | no |
-| COBIL00C (carddemo-billpay) | 150/1656 (seed 0) | 93 | 54 | 3 | 43 | 11 | 93/147 (63%) | no |
+| COADM01C (carddemo-adminmenu) | 150/1382 (seed 0) | 79 | 66 | 5 | 59 | 7 | 79/145 (54%) | no |
+| COBIL00C (carddemo-billpay) | 150/1656 (seed 0) | 95 | 52 | 3 | 52 | 0 | 95/147 (65%) | yes |
 | COTRN02C (carddemo-tranadd) | 150/2435 (seed 0) | 90 | 58 | 2 | 23 | 35 | 90/148 (61%) | no |
 | COCRDSLC (carddemo-cardview) | 150/2184 (seed 0) | 72 | 74 | 4 | 33 | 41 | 72/146 (49%) | no |
 | COTRN01C (carddemo-tranview) | 150/1469 (seed 0) | 83 | 64 | 3 | 48 | 16 | 83/147 (56%) | no |

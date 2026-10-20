@@ -23,6 +23,7 @@ import time
 from typing import Any, ClassVar, TypedDict, cast
 
 from gitgalaxy.core.cobol_source_format import FIXED, line_formats
+from gitgalaxy.core.fortran_calls import fortran_call_names
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS
 from gitgalaxy.core.prism import CPP_CHAR_LITERAL_PATTERN, CPP_DIGIT_SEPARATED_NUMBER_PATTERN, CPP_LANG_IDS
 from gitgalaxy.core.rule_prefilter import (
@@ -897,7 +898,8 @@ _BRACE_LITERAL_SHIELD_LANGS = frozenset(
 )  # fmt: skip
 
 _NON_TERMINATING_KEYWORDS_BY_LANG: dict[str, frozenset[str]] = {
-    "fortran": frozenset({"EXIT"}),
+    # #5638: a Fortran `RETURN` is an early exit (inside `IF ... ENDIF`), the unit runs to its `END`
+    "fortran": frozenset({"EXIT", "RETURN"}),
     "abap": frozenset({"RETURN", "EXIT"}),
 }
 
@@ -10443,6 +10445,11 @@ class StructuralExtractor:
                 if invocation_pattern.groups > 1:
                     # #5639: one group per alternative (Objective-C: C call, message selector)
                     raw_calls = [next((g for g in m if g), "") for m in raw_calls]
+                # #5638: a Fortran function reference `x = F(a)` has no verb; the statement scan
+                # also keeps `CALL F` in source order, and the verb regex's finds stay as a floor.
+                if self.languages.get(self.primary_lang_id, {}).get("calls_out_function_refs"):
+                    scanned = fortran_call_names(safe_block, rules.get("_calls_out_ignore") or frozenset())
+                    raw_calls = scanned + [c for c in raw_calls if c not in scanned]
 
         # Per-language additions to the global ignore set (Epic #3264 Phase 3).
         # Authored lowercase in the profile. A case-insensitive language

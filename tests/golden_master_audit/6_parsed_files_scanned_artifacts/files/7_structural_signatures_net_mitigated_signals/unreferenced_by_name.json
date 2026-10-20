@@ -1354,7 +1354,7 @@
       "fortran/wrf/gen_be_wrapper.ksh": 0,
       "fortran/wrf/module_configure.F": 0,
       "fortran/wrf/module_domain.F": 0,
-      "fortran/wrf/module_initialize_real.F": 9,
+      "fortran/wrf/module_initialize_real.F": 10,
       "fortran/wrf/module_physics_init.F": 2,
       "fortran/wrf/module_sf_noahdrv.F": 0,
       "fortran/wrf/regtest.csh": 0,
@@ -1362,7 +1362,7 @@
       "fortran/wrf/regtest_nmmnest.csh": 0,
       "fortran/wrf/run_convert_e2c.ksh": 0,
       "fortran/wrf/sourcetree.py": 1,
-      "fortran/wrf/wrf_timeseries.F": 1
+      "fortran/wrf/wrf_timeseries.F": 2
     },
     "go": {
       "go/SOURCES.md": 0

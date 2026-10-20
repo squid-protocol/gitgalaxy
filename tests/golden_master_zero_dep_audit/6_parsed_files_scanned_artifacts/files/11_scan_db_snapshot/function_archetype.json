@@ -23877,7 +23877,7 @@
         "domain_destroy@1510": "Defensive Guards",
         "domain_get_advanceCount@1818": "Defensive Guards",
         "domain_get_current_time@1738": "Defensive Guards",
-        "domain_get_sim_start_time@1960": "I/O & Config Routines",
+        "domain_get_sim_start_time@1960": "Defensive Guards",
         "domain_get_start_time@1758": "Defensive Guards",
         "domain_get_stop_time@1778": "Defensive Guards",
         "domain_get_time_since_sim_start@2016": "Defensive Guards",
@@ -24010,7 +24010,7 @@
       },
       "fortran/wrf/wrf_timeseries.F": {
         "calc_p8w@1150": "Many-Argument Workhorses",
-        "calc_ts@327": "Defensive Guards",
+        "calc_ts@327": "Many-Argument Workhorses",
         "calc_ts_locations@12": "Compute Cores",
         "write_ts@640": "Many-Argument Workhorses"
       }

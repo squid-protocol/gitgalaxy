@@ -80975,6 +80975,7 @@
           "wrf_mem_copy"
         ],
         "get_config_as_buffer@277": [
+          "loc",
           "wrf_error_fatal",
           "wrf_mem_copy"
         ],
@@ -80985,11 +80986,16 @@
         ],
         "init_module_irr_diag@31": [
           "nl_get_max_dom",
+          "irr_option",
+          "irr_active",
+          "irr_diag_ndx",
+          "irr_diag_cnt",
           "wrf_error_fatal"
         ],
         "init_module_scalar_tables@10": [],
         "initial_config@84": [
-          "WRF_ERROR_FATAL"
+          "WRF_ERROR_FATAL",
+          "mp_physics"
         ],
         "model_to_grid_config_rec@312": [],
         "set_config_as_buffer@258": [
@@ -80998,16 +81004,25 @@
           "wrf_mem_copy"
         ],
         "set_config_as_buffer@295": [
+          "loc",
           "wrf_error_fatal",
           "wrf_mem_copy"
         ],
         "set_scalar_indices_from_config@616": [
           "init_module_irr_diag",
+          "irr_active",
           "nl_get_chem_opt",
+          "chm_opts_ndx",
           "wrf_error_fatal",
+          "get_funit",
           "change_to_lower_case",
+          "chm_opts_cnt",
           "wrf_debug",
-          "nl_set_irr_opt"
+          "nl_set_irr_opt",
+          "irr_diag_mozcart_num_table",
+          "irr_diag_t1_mozcart_num_table",
+          "irr_diag_mozart_mosaic_4bin_num_table",
+          "irr_diag_mozart_mosaic_4bin_aq_num_table"
         ],
         "wrf_alt_nml_obsolete@429": [
           "wrf_debug"
@@ -81051,23 +81066,32 @@
         "domain_alarm_create@2260": [
           "wrf_error_fatal",
           "domain_clock_get",
+          "WRFU_AlarmCreate",
           "WRFU_AlarmRingerOff"
         ],
         "domain_alarms_destroy@1842": [
           "WRFU_AlarmDestroy"
         ],
         "domain_clock_create@2231": [
+          "WRFU_ClockCreate",
           "wrf_error_fatal"
         ],
         "domain_clock_destroy@1869": [
           "WRFU_ClockDestroy"
         ],
         "domain_clock_get@2040": [
+          "domain_get_start_time",
           "wrf_timetoa",
+          "domain_get_time_step",
           "WRFU_TimeIntervalGet",
           "wrf_error_fatal",
           "fraction_to_string",
-          "WRFU_TimeGet"
+          "domain_get_advanceCount",
+          "domain_get_current_time",
+          "WRFU_TimeGet",
+          "domain_get_stop_time",
+          "domain_get_sim_start_time",
+          "domain_get_time_since_sim_start"
         ],
         "domain_clock_set@2336": [
           "wrf_atotime",
@@ -81088,9 +81112,13 @@
           "domain_clock_get"
         ],
         "domain_clockisstopsubtime@1924": [
-          "domain_clock_get"
+          "domain_clock_get",
+          "ESMF_TimeIntervalIsPositive",
+          "ESMF_TimeGE",
+          "ESMF_TimeLE"
         ],
         "domain_clockisstoptime@1904": [
+          "WRFU_ClockIsStopTime",
           "wrf_error_fatal"
         ],
         "domain_clockprint@2393": [
@@ -81134,18 +81162,26 @@
           "WRFU_ClockGet",
           "wrf_error_fatal"
         ],
-        "domain_get_time_since_sim_start@2016": [],
+        "domain_get_time_since_sim_start@2016": [
+          "domain_get_sim_start_time",
+          "domain_get_current_time"
+        ],
         "domain_get_time_step@1798": [
           "WRFU_ClockGet",
           "wrf_error_fatal"
         ],
-        "domain_last_time_step@1887": [],
+        "domain_last_time_step@1887": [
+          "domain_get_stop_time",
+          "domain_get_current_time",
+          "domain_get_time_step"
+        ],
         "domain_setgmtetc@2429": [
           "domain_clockprint",
           "domain_clock_get",
           "WRFU_TimeGet",
           "wrf_error_fatal",
-          "wrf_debug"
+          "wrf_debug",
+          "domain_ClockIsSimStartTime"
         ],
         "domain_time_test@2637": [
           "nl_get_self_test_domain",
@@ -81197,6 +81233,7 @@
         "init_module_domain@1726": [],
         "modify_io_masks1@1045": [
           "nl_get_iofields_filename",
+          "wrf_dm_on_monitor",
           "get_fieldstr",
           "change_to_lower_case",
           "warn_me_or_set_mask",
@@ -81267,14 +81304,15 @@
         ],
         "find_my_parent2@5312": [],
         "find_my_parent@5270": [],
-        "find_p_top@6832": [],
+        "find_p_top@6832": [
+          "skip_middle_points_t"
+        ],
         "foo@7519": [],
         "init_domain@41": [
           "set_scalar_indices_from_config",
           "init_domain_rk"
         ],
         "init_domain_rk@65": [
-          "cpu_time",
           "get_ijk_from_grid",
           "model_to_grid_config_rec",
           "wrf_message",
@@ -81282,13 +81320,22 @@
           "wrf_debug",
           "nl_get_iswater",
           "nl_get_islake",
+          "wrf_dm_max_real",
           "boundary_condition_check",
           "const_module_initialize",
+          "skip_middle_points_t",
           "blend_terrain",
           "wrf_patch_to_global_real",
           "wrf_dm_bcast_real",
           "pxft",
           "filter_topo",
+          "p_gc",
+          "t_gc",
+          "sh_gc",
+          "cl_gc",
+          "cf_gc",
+          "sm_levels_input",
+          "sm_input",
           "rh_to_mxrat1",
           "rh_to_mxrat2",
           "find_p_top",
@@ -81308,6 +81355,32 @@
           "p_dry",
           "vert_interp",
           "theta_to_t",
+          "oh_gca_jan",
+          "oh_gca_feb",
+          "oh_gca_mar",
+          "oh_gca_apr",
+          "oh_gca_may",
+          "oh_gca_jun",
+          "oh_gca_jul",
+          "oh_gca_aug",
+          "oh_gca_sep",
+          "oh_gca_oct",
+          "oh_gca_nov",
+          "oh_gca_dec",
+          "oh_gca_now",
+          "no3_gca_jan",
+          "no3_gca_feb",
+          "no3_gca_mar",
+          "no3_gca_apr",
+          "no3_gca_may",
+          "no3_gca_jun",
+          "no3_gca_jul",
+          "no3_gca_aug",
+          "no3_gca_sep",
+          "no3_gca_oct",
+          "no3_gca_nov",
+          "no3_gca_dec",
+          "no3_gca_now",
           "nl_get_mminlu",
           "process_soil_real",
           "process_percent_cat_new",
@@ -81315,13 +81388,21 @@
           "nl_get_seaice_threshold",
           "nl_get_isice",
           "adjust_for_seaice_pre",
+          "domain_ClockIsStartTime",
           "adjust_for_seaice_post",
+          "moist",
+          "scalar",
           "cal_cldfra3",
+          "make_DropletNumber",
+          "make_IceNumber",
+          "make_RainNumber",
           "Init_madwrf_clouds",
-          "Init_madwrf_tracers"
+          "Init_madwrf_tracers",
+          "wrf_dm_lor_logical"
         ],
         "init_module_initialize@9200": [],
         "integ_moist@6967": [
+          "skip_middle_points_t",
           "wrf_error_fatal"
         ],
         "lagrange_interp@6667": [],
@@ -81332,49 +81413,81 @@
           "lagrange_interp"
         ],
         "levels@7897": [
+          "alog",
           "wrf_debug",
           "wrf_error_fatal"
         ],
-        "make_DropletNumber@9119": [],
+        "make_DropletNumber@9119": [
+          "SNGL"
+        ],
         "make_IceNumber@9044": [],
-        "make_RainNumber@9163": [],
+        "make_RainNumber@9163": [
+          "SNGL"
+        ],
         "monthly_avg@8008": [],
         "monthly_interp_to_date@8029": [
-          "get_julgmt"
+          "get_julgmt",
+          "skip_middle_points_t"
         ],
         "monthly_min_max@7966": [],
-        "p_dhs@6797": [],
-        "p_dry@6710": [],
-        "p_dts@6764": [],
+        "p_dhs@6797": [
+          "skip_middle_points_t"
+        ],
+        "p_dry@6710": [
+          "skip_middle_points_t"
+        ],
+        "p_dts@6764": [
+          "skip_middle_points_t"
+        ],
         "rebalance@4982": [
           "model_to_grid_config_rec",
           "wrf_message",
           "const_module_initialize",
           "wrf_debug",
-          "wrf_error_fatal"
+          "wrf_error_fatal",
+          "moist"
         ],
         "rebalance_driver@4966": [
           "rebalance"
         ],
         "rh_to_mxrat1@7331": [
-          "wrf_debug"
+          "skip_middle_points_t",
+          "wrf_debug",
+          "alog10"
         ],
-        "rh_to_mxrat2@7163": [],
-        "sfcprs2@8449": [],
+        "rh_to_mxrat2@7163": [
+          "skip_middle_points_t"
+        ],
+        "sfcprs2@8449": [
+          "skip_middle_points_t"
+        ],
         "sfcprs3@8511": [
+          "skip_middle_points_t",
           "wrf_error_fatal"
         ],
-        "sfcprs@8139": [],
+        "sfcprs@8139": [
+          "skip_middle_points_t",
+          "wrf_error_fatal",
+          "ALOG"
+        ],
         "skip_middle_points_t@5573": [],
         "snowHires@9003": [
           "get_julgmt",
           "wrf_debug"
         ],
-        "t_to_theta@6882": [],
+        "t_to_theta@6882": [
+          "skip_middle_points_t"
+        ],
         "theta_to_t@6919": [
+          "skip_middle_points_t",
           "wrf_debug"
         ],
-        "vert_interp@5590": [],
+        "vert_interp@5590": [
+          "skip_middle_points_t",
+          "wrf_error_fatal",
+          "wrf_message",
+          "lagrange_setup"
+        ],
         "vint@5375": [
           "fillitup",
           "vert_interp"
@@ -81383,7 +81496,33 @@
         "wrf_message@5580": []
       },
       "fortran/wrf/module_physics_init.F": {
-        "ALLOCATE_CAM_ARRAYS@5183": [],
+        "ALLOCATE_CAM_ARRAYS@5183": [
+          "cnst_name",
+          "cnst_longname",
+          "cnst_cp",
+          "cnst_cv",
+          "cnst_mw",
+          "cnst_type",
+          "cnst_rgas",
+          "qmin",
+          "qmincg",
+          "cnst_fixed_ubc",
+          "apcnst",
+          "bpcnst",
+          "hadvnam",
+          "vadvnam",
+          "dcconnam",
+          "fixcnam",
+          "tendnam",
+          "ptendnam",
+          "dmetendnam",
+          "sflxnam",
+          "tottnam",
+          "cnst_name_cw",
+          "cnst_name_cw_mp",
+          "species_class",
+          "qneg3_worst_thresh_amode"
+        ],
         "CAM_INIT@5038": [
           "wrf_error_fatal",
           "esinti",
@@ -81396,6 +81535,8 @@
           "interp_vec"
         ],
         "aerosol_in_cu@5471": [
+          "get_unused_unit",
+          "wrf_dm_on_monitor",
           "wrf_error_fatal",
           "interp_vec_cu"
         ],
@@ -81415,6 +81556,7 @@
           "LSMINIT",
           "urban_param_init",
           "urban_var_init",
+          "wrf_dm_max_real",
           "wrf_error_fatal",
           "NOAHMP_INIT",
           "ruclsminit",
@@ -81469,6 +81611,7 @@
         "interp_vec_cu@5595": [],
         "landuse_init@1745": [
           "wrf_debug",
+          "wrf_dm_on_monitor",
           "wrf_error_fatal",
           "wrf_message",
           "wrf_dm_bcast_bytes",
@@ -81567,20 +81710,54 @@
         "LSMINIT@1788": [
           "wrf_message",
           "SOIL_VEG_GEN_PARM",
-          "RANDOM_SEED",
-          "RANDOM_NUMBER",
+          "MAXALB",
           "wrf_error_fatal",
+          "BB",
+          "MAXSMC",
+          "SATPSI",
           "FRH2O"
         ],
         "SOIL_VEG_GEN_PARM@1999": [
+          "wrf_dm_on_monitor",
           "wrf_error_fatal",
           "wrf_message",
+          "SHDTBL",
+          "NROTBL",
+          "RSTBL",
+          "RGLTBL",
+          "HSTBL",
+          "SNUPTBL",
+          "MAXALB",
+          "LAIMINTBL",
+          "LAIMAXTBL",
+          "EMISSMINTBL",
+          "EMISSMAXTBL",
+          "ALBEDOMINTBL",
+          "ALBEDOMAXTBL",
+          "Z0MINTBL",
+          "Z0MAXTBL",
+          "ZTOPVTBL",
+          "ZBOTVTBL",
           "wrf_dm_bcast_string",
           "wrf_dm_bcast_integer",
-          "wrf_dm_bcast_real"
+          "wrf_dm_bcast_real",
+          "BB",
+          "DRYSMC",
+          "F11",
+          "MAXSMC",
+          "REFSMC",
+          "SATPSI",
+          "SATDK",
+          "SATDW",
+          "WLTSMC",
+          "QTZ",
+          "SLOPE_DATA"
         ],
         "lsm@38": [
+          "SHDTBL",
           "cal_mon_day",
+          "REFSMC",
+          "FATAL_ERROR",
           "SFLX",
           "SFLX_GLACIAL",
           "urban",
@@ -81588,11 +81765,14 @@
           "BEP_BEM"
         ],
         "lsm_mosaic@2349": [
+          "SHDTBL",
           "cal_mon_day",
+          "REFSMC",
           "wrf_error_fatal",
           "SFLX",
           "SFLX_GLACIAL",
-          "urban"
+          "urban",
+          "ALOG"
         ],
         "lsm_mosaic_init@4948": [
           "wrf_message"
@@ -81697,11 +81877,17 @@
       },
       "fortran/wrf/wrf_timeseries.F": {
         "calc_p8w@1150": [],
-        "calc_ts@327": [],
+        "calc_ts@327": [
+          "model_to_grid_config_rec",
+          "calc_p8w",
+          "domain_clock_get",
+          "write_ts"
+        ],
         "calc_ts_locations@12": [
           "get_ijk_from_grid",
           "model_to_grid_config_rec",
           "map_init",
+          "wrf_dm_min_real",
           "map_set",
           "nl_get_simulation_start_year",
           "nl_get_simulation_start_month",
@@ -81711,10 +81897,14 @@
           "nl_get_simulation_start_second",
           "wrf_message",
           "latlon_to_ij",
+          "wrf_dm_on_monitor",
+          "get_unused_unit",
           "wrf_error_fatal"
         ],
         "write_ts@640": [
           "wrf_dm_min_reals",
+          "wrf_dm_on_monitor",
+          "get_unused_unit",
           "wrf_error_fatal"
         ]
       }

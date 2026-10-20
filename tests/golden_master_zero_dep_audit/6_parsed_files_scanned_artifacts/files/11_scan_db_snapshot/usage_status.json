@@ -23919,7 +23919,7 @@
         "filter_topo@8617": 0,
         "filter_topo_old@8754": 1,
         "find_my_parent2@5312": 1,
-        "find_my_parent@5270": 0,
+        "find_my_parent@5270": 1,
         "find_p_top@6832": 0,
         "foo@7519": 1,
         "init_domain@41": 1,
@@ -24010,7 +24010,7 @@
       },
       "fortran/wrf/wrf_timeseries.F": {
         "calc_p8w@1150": 0,
-        "calc_ts@327": 0,
+        "calc_ts@327": 1,
         "calc_ts_locations@12": 1,
         "write_ts@640": 0
       }

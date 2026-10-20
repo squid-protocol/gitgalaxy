@@ -32,8 +32,9 @@ import java.util.function.Supplier;
  *
  * #4173 -- SQL faults. Each statement's call carries its key, "PROGRAM:LINE" (the program and the line of its EXEC
  * SQL in that program's source). A fault plan -- withFaults, or the file the system property gitgalaxy.sqlfaults.plan
- * names -- has one fault per line, `PROGRAM LINE NTH|* SQLCODE SQLSTATE`: the nth execution of that statement does
- * not run; its SQLCA is reset's with that SQLCODE and SQLSTATE, and nothing else changes. Each fault that fires is
+ * names -- has one fault per line, `PROGRAM LINE NTH|* SQLCODE SQLSTATE [TOKEN [SQLERRD3]]`: the nth execution of that
+ * statement does not run; its SQLCA is reset's with that SQLCODE and SQLSTATE (and, when declared, one message token
+ * as SQLERRMC with its SQLERRML, and SQLERRD(3): #5561), and nothing else changes. Each fault that fires is
  * appended to the log (gitgalaxy.sqlfaults.log) as `SQL PROGRAM LINE N SQLCODE` -- the line the equivalence harness's
  * COBOL side (tests/equivalence/db2/ggsql.c) writes for the same fault.
  *
@@ -68,15 +69,15 @@ public final class DetSql {
         }
     }
 
-    /** The fault plan from here on (one fault per line, `PROGRAM LINE NTH|* SQLCODE SQLSTATE`), each statement's
-     *  executions counted afresh, each fault that fires appended to `log` (null: not logged). */
+    /** The fault plan from here on (one fault per line, `PROGRAM LINE NTH|* SQLCODE SQLSTATE [TOKEN [SQLERRD3]]`),
+     *  each statement's executions counted afresh, each fault that fires appended to `log` (null: not logged). */
     // [rule RT-SQL-FAULT-INJECTION]
     public static void withFaults(List<String> plan, java.nio.file.Path log) {
         FAULTS.clear();
         RUNS.clear();
         for (String line : plan) {
             String[] f = line.trim().split("\\s+");
-            if (f.length == 5) {
+            if (f.length >= 5 && f.length <= 7) {
                 FAULTS.add(f);
             }
         }
@@ -94,6 +95,12 @@ public final class DetSql {
         for (String[] f : FAULTS) {
             if (f[0].equals(program) && f[1].equals(line) && ("*".equals(f[2]) || Integer.parseInt(f[2]) == n)) {
                 code(ca, Integer.parseInt(f[3]), f[4], cs);
+                if (f.length > 5) {  // #5561: the declared message token and reason code
+                    String token = "-".equals(f[5]) ? "" : f[5].length() > 70 ? f[5].substring(0, 70) : f[5];  // `-`: none
+                    putInt(ca, SQLERRML, 2, token.length());
+                    put(ca, SQLERRMC, 70, token, cs);
+                    putInt(ca, SQLERRD + 8, 4, f.length > 6 ? Integer.parseInt(f[6]) : 0);
+                }
                 if (faultLog != null) {
                     try {
                         java.nio.file.Files.writeString(faultLog, "SQL " + program + " " + line + " " + n + " " + f[3]

@@ -139,3 +139,35 @@ def test_a_program_naming_its_copybook_by_file_literal_translates(tmp_path):
     r = P.translate(prog, [tmp_path / "copy"], stub, "com.x", {}, None)
     assert (r.stats["translated"], r.stats["holes"]) == (r.stats["statements"], [])
     assert "WS_NAME" in r.java.upper().replace("-", "_")
+
+
+# ---- #5648 slice 2: the scanner's COPY / EXEC SQL INCLUDE head scan is the shared rule ---------------------------------
+def test_the_scanner_uses_the_shared_head_and_library_rules():
+    assert MB._COPY_IN_ENTRY is PP.COPY_OR_INCLUDE_HEAD
+    assert MB._COPY_LIBRARY is PP.COPY_LIBRARY
+
+
+@pytest.mark.parametrize(
+    "text, member, library",
+    [
+        ("COPY INQCUST.", "INQCUST", ""),
+        ("copy inqcust.", "INQCUST", ""),
+        ('COPY "ws-state.cpy".', "WS-STATE", ""),
+        ("COPY 'ws-state.cpy' IN SHRCPY.", "WS-STATE", "SHRCPY"),
+        ("COPY DATEWS OF SHRCPY.", "DATEWS", "SHRCPY"),
+        ("COPY\n    DATEWS\n    IN  SHRCPY.", "DATEWS", "SHRCPY"),
+        ("EXEC SQL INCLUDE SQLCA END-EXEC.", "SQLCA", ""),
+        ("exec sql\n  include LGCMAREA end-exec.", "LGCMAREA", ""),
+        ('COPY "pd-level.cpy" REPLACING ==:T:== BY ==X==.', "PD-LEVEL", ""),
+    ],
+)
+def test_head_and_library_read_every_spelling(text, member, library):
+    m = PP.COPY_OR_INCLUDE_HEAD.search(text)
+    assert m and m.group(1).upper() == member
+    lib = PP.COPY_LIBRARY.match(text, m.end())
+    assert (lib.group(1).upper() if lib else "") == library
+
+
+@pytest.mark.parametrize("text", ["XCOPY FOO.", "MY-COPY FOO.", "EXEC SQL SELECT 1 END-EXEC.", "COPYRIGHT X."])
+def test_head_ignores_words_that_only_contain_copy(text):
+    assert PP.COPY_OR_INCLUDE_HEAD.search(text) is None

@@ -87,6 +87,7 @@ from gitgalaxy.core.call_using import blank_stream, call_using_args, entry_point
 from gitgalaxy.core.cics_macro_tables import cics_macro_table_resources
 from gitgalaxy.core.cics_resources import cobol_move_literals, extract_cics_resources
 from gitgalaxy.core.cics_tasks import extract_cics_tasks
+from gitgalaxy.core.cobol_preprocessor import COPY_LIBRARY, COPY_OR_INCLUDE_HEAD
 from gitgalaxy.core.cobol_preprocessor import copy_replacing as _copy_replacing  # #5648: shared with det/
 from gitgalaxy.core.compiler_options import compiler_options, effective
 from gitgalaxy.core.data_moves import data_moves
@@ -599,33 +600,8 @@ _NUMERIC_BAREWORD = re.compile(r"[+-]?[0-9]{0,31}")
 # #5618: a quoted GnuCOBOL file literal may carry the copybook's extension (`COPY "ws-state.cpy".`): the
 # `.ext` is swallowed only when a closing quote follows it, so the member stays the stem and the
 # `IN|OF` / `REPLACING` phrase after the quote still parses.
-_COPY_IN_ENTRY = re.compile(
-    r"(?<![A-Z"
-    + NATIONAL
-    + WIDE_DIGITS
-    + WIDE_HYPHENS
-    + r"0-9-])(?:COPY|EXEC[ \t\n\u3000]+SQL[ \t\n\u3000]+INCLUDE)[ \t\n\u3000]+['\"]?([A-Z"
-    + NATIONAL
-    + WIDE_DIGITS
-    + r"0-9@#$][A-Z"
-    + NATIONAL
-    + WIDE_DIGITS
-    + WIDE_HYPHENS
-    + r"0-9@#$-]*)(?:\.[\w-]+(?=['\"]))?",
-    re.I,
-)
-# #4265: the `IN|OF library-name` after a COPY's text-name (closing quote allowed).
-_COPY_LIBRARY = re.compile(
-    r"['\"]?[ \t\n\u3000]+(?:IN|OF)[ \t\n\u3000]+['\"]?([A-Z"
-    + NATIONAL
-    + WIDE_DIGITS
-    + r"0-9@#$][A-Z"
-    + NATIONAL
-    + WIDE_DIGITS
-    + WIDE_HYPHENS
-    + r"0-9@#$-]*)",
-    re.I,
-)
+_COPY_IN_ENTRY = COPY_OR_INCLUDE_HEAD  # #5648: the one rule, in core.cobol_preprocessor
+_COPY_LIBRARY = COPY_LIBRARY
 # The special levels: 88 condition-names and 66 RENAMES describe the item above
 # them rather than nesting by level number, so they attach to the last real
 # item and are never pushed as a potential parent themselves.

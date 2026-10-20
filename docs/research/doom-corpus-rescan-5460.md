@@ -5,6 +5,9 @@ Backfill for #5460 (slice 3 of 3) and a vendored-tree read for #5464. Engine: `f
 one at a time, every port rc=0. Scorer: doom-study `scripts/clean_check.py` (two local edits: engine path, and
 `VendorDirectoryDetector.is_candidate_name` is gone since #5464, so every ancestor directory is probed with `is_vendored`).
 
+> Licensing note (2026-10-20, #5619): the corpus was later cut to clearly licensed ports. Counts below are from the
+> original 39-port run and still include ports since removed; those ports are not named.
+
 ## #5460: first-party files with ctags-visible functions excluded by a content guard
 
 | guard | before (round 2, 585c243e9) | now |
@@ -19,8 +22,8 @@ one at a time, every port rc=0. Scorer: doom-study `scripts/clean_check.py` (two
 (no ctags function in them) are unchanged and correct.
 
 **Residual: Lexical Monotony needs two definitions** (`aperture.py` Gate 5.1, `_has_definitions(need=2)`). Five
-`tables.c`/`tables.cpp` files hold exactly one function beside a 2,000-line table and are still excluded:
-linuxdoom `linuxdoom-1.10/tables.c`, doomgeneric `doomgeneric/tables.c`, gbadoom `source/tables.c`, eternity
+`tables.c`/`tables.cpp` files (four named here) hold exactly one function beside a 2,000-line table and are still excluded:
+linuxdoom `linuxdoom-1.10/tables.c`, doomgeneric `doomgeneric/tables.c`, eternity
 `source/tables.cpp`, doom3-bfg `doomclassic/doom/tables.cpp`. The acceptance "zero files with ctags-visible
 functions" holds for the three guards named in the slice, not for this one; the `need=2` choice is deliberate
 (a lone function around an unrolled loop is still generated), so lowering it is a decision, not a fix.
@@ -32,9 +35,7 @@ Other "missed" rows in the scorer are not guards: `re2c` `parser.cc` (bison outp
 
 | port | first-party-looking vendored files still mapped (scorer's name list) | note |
 |---|---|---|
-| psydoom | 0 | `third_party_libs/` gone: 676 first-party source files, 0 missed |
 | eternity | 22 | `concurrentqueue.h` (name not in the engine list) and first-party `source/sdl/*`; `libpng`, `zlib`, `nlohmann` no longer mapped |
-| zandronum | 28 | first-party `src/sdl/*`, which must stay scanned |
 
 Whole-corpus scorer verdict: 22 of 39 PERFECT. The rest fail on checks outside this issue (coverage rows above,
 function-count deltas, doom-ios language, doomsday and edge-classic).

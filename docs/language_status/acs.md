@@ -7,7 +7,7 @@ Snapshot generated 2026-10-18 against `main` (issue #5465, slices 3-4). Source:
 `LANGUAGE_DEFINITIONS["acs"]` in `gitgalaxy/standards/language_standards/languages/acs.py` and
 `tests/extraction/languages/test_acs_strict.py`.
 
-ACS is the map-scripting language of Hexen, ZDoom, GZDoom and Zandronum (compiled by ACC / BCC / GDCC-ACC): numbered
+ACS is the map-scripting language of Hexen, ZDoom and GZDoom (compiled by ACC / BCC / GDCC-ACC): numbered
 or named `script` blocks, file-local `function`s, `#include` / `#import` / `#library` / `#define` directives, C-style
 control flow and `//`, `/* */` comments. `.acs` is the only extension.
 
@@ -53,7 +53,7 @@ control flow and `//`, `/* */` comments. `.acs` is the only extension.
 
 ## 5. Real-corpus check
 
-gzdoom `wadsrc/static/strifehelp.acs` (419 lines, the only `.acs` in gzdoom; zandronum carries a copy): a scan routes
+gzdoom `wadsrc/static/strifehelp.acs` (419 lines, the only `.acs` in gzdoom): a scan routes
 it to `acs`; its single `script << 0 >> (int type, int tag)` is found (`func_start`, `args`, `api`), as are its
 `#include` and two `#define` lines. The file uses the pre-ZDoom `<< n >>` script-number form, which the profile
 accepts. Sample precision of `state_mutation`, `branch` and the builtin-name sensors was not hand-audited.

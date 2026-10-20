@@ -4,7 +4,8 @@ lint rule, a secret-scanner hit or a golden-master drift from CI, one push at a 
 
     python tests/tools/pr_gates.py                  # all gates (~15 min)
     python tests/tools/pr_gates.py --fast           # skip the golden masters and the full suite
-                                                    # (gen-docs: the uncommitted aggregate pages render, #5057)
+                                                    # (gen-docs: the uncommitted aggregate pages render, #5057;
+                                                    # workflows: actionlint over .github/workflows)
     python tests/tools/pr_gates.py --only lint audits gauntlet
     python tests/tools/pr_gates.py --lower-baseline # also rewrite the gauntlet baseline when cells now pass
     python tests/tools/pr_gates.py --e2e            # add the equivalence proofs (Docker GnuCOBOL + JDK 17)
@@ -40,6 +41,10 @@ REPO = Path(__file__).resolve().parents[2]
 PY = sys.executable
 MYPY_REQUIREMENTS = "tests/requirements-mypy.txt"
 MYPY_CACHE = Path(os.environ.get("GITGALAXY_MYPY_CACHE", Path.home() / ".cache" / "gitgalaxy"))
+# actionlint (MIT, rhysd/actionlint) via its PyPI wrapper, which fetches the release binary at install. 2026-10-20: #5766
+# merged `${{ (matrix.timeout || 30) - 3 }}` (expressions have no arithmetic), main started no Full Suite Gate job until
+# #5768; actionlint names that line. shellcheck / pyflakes integrations off: the gate checks the workflow files only.
+ACTIONLINT_PIN = "1.7.12.25"
 
 
 def _main_checkout() -> Path:
@@ -365,6 +370,34 @@ def pinned_ruff_lint(env: dict[str, str]) -> tuple[list[list[str]], dict[str, st
     return [[*clean_prefix(venv / "bin", REPO), PY, "tests/ruff_audit.py", "--ci"]], env
 
 
+def actionlint_gate(root: Path = Path(".")) -> int:
+    """actionlint at ACTIONLINT_PIN over root/.github/workflows (private venv, built once). Exit 0 when clean.
+
+    A venv that cannot be built (offline, PyPI down) prints a NOTE and passes: churn's precheck runs --fast, and a
+    network blip must not send a worker back. A real finding fails, one line per finding."""
+    files = sorted(str(f) for f in (root / ".github" / "workflows").glob("*.y*ml"))
+    if not files:
+        return 0
+    venv = MYPY_CACHE / f"actionlint-{ACTIONLINT_PIN}"
+    exe = venv / "bin" / "actionlint"
+    if not (venv / ".ready").exists():
+        shutil.rmtree(venv, ignore_errors=True)
+        venv.parent.mkdir(parents=True, exist_ok=True)
+        built = subprocess.run([PY, "-m", "venv", str(venv)], capture_output=True, check=False).returncode == 0  # noqa: S603
+        built = built and subprocess.run(  # noqa: S603
+            [str(venv / "bin" / "python"), "-m", "pip", "install", "-q", f"actionlint-py=={ACTIONLINT_PIN}"],
+            capture_output=True, check=False,
+        ).returncode == 0  # fmt: skip
+        if not (built and exe.exists()):
+            shutil.rmtree(venv, ignore_errors=True)
+            print(f"NOTE  actionlint-py=={ACTIONLINT_PIN} could not be installed: workflows not linted", flush=True)
+            return 0
+        (venv / ".ready").write_text(ACTIONLINT_PIN)
+    _announce("actionlint", exe, venv / "bin")
+    # the files by name: actionlint's own discovery needs a git project root (a bare tree exits 3)
+    return subprocess.run([str(exe), "-shellcheck=", "-pyflakes=", "-oneline", *files], cwd=root, check=False).returncode  # noqa: S603
+
+
 def attribute_failures(
     failed: list[str], plan_for: Callable[[Path], dict[str, list[list[str]]]], env: dict[str, str]
 ) -> dict[str, str]:
@@ -417,6 +450,9 @@ def gates(args: argparse.Namespace, env: dict[str, str]) -> dict[str, list[list[
         "xray": [_tool("gitgalaxy.tools.supply_chain_security.binary_anomaly_detector")],
         # #5057: the aggregate pages are not committed; they must render, deterministically (generated-docs.yml)
         "gen-docs": [[PY, "tests/tools/generated_docs.py", "check"]],
+        # a workflow file GitHub cannot load starts no job at all (#5768); cwd-relative, like every gate here
+        "workflows": [[PY, "-c", "import sys; sys.path.insert(0, 'tests/tools'); from pr_gates import actionlint_gate; "
+                       "sys.exit(actionlint_gate())"]],
         "gauntlet": [gauntlet] + ([[*gauntlet[:2], "--update-baseline", *gauntlet[3:]]] if args.lower_baseline else []),
         "golden": [[PY, "tests/tools/crucible_check.py"]],
         "suite": [suite],

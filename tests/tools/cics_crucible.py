@@ -1877,10 +1877,10 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
             task["events"].append(ev)
         tasks.append(task)
     final = {q: [bytes.fromhex(i) for i in items] for q, items in (raw.get("ts_queues") or {}).items()}
-    sc = next((s for s in case.scenarios if s["id"] == raw.get("_scenario")), {})
+    sc = next((s for s in case.scenarios if s["id"] == raw.get("_scenario")), {}) if case is not None else {}
     tasks = http_order(tasks)
     return {"tasks": tasks, "stopped": raw.get("stopped"), "final": {"ts_queues": final},
-            **http_peer_log(case, sc, tasks)}  # fmt: skip
+            **(http_peer_log(case, sc, tasks) if case is not None else {})}  # fmt: skip
 
 
 class JavaRunError(RuntimeError):

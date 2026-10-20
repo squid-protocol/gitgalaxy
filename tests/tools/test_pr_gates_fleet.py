@@ -125,6 +125,7 @@ def test_matching_tool_off_the_interpreter_bin_dir_is_on_the_clean_path(monkeypa
     assert f"PATH={tools.resolve()}:/usr/bin:/bin" in cmd
 
 
+@pytest.mark.slow(reason="builds the pinned actionlint venv on a fresh runner (pip + release binary download)")
 def test_workflows_gate_is_in_fast_and_catches_expression_arithmetic(tmp_path, monkeypatch):
     """#5768: `${{ x - 3 }}` made full-suite-gate.yml unloadable; the --fast `workflows` gate (actionlint) names it."""
     plan = pr_gates.gates(SimpleNamespace(lower_baseline=False), {})

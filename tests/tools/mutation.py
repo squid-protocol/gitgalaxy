@@ -563,8 +563,9 @@ def main(argv: list[str] | None = None) -> int:
                    "service/*.java, the translated program without the cobolrt runtime)")  # fmt: skip
     r.add_argument("--full", action="store_true", help="prove each mutant from scratch (the COBOL side, the whole "
                    "estate regenerated, every run): slow, the reference the default fast mode must agree with")  # fmt: skip
-    r.add_argument("--one-jvm", action="store_true", help="fast mode with all the runs of one proof in one JVM "
-                   "(equivalence.py --one-jvm): check it with `compare` against a --full run before trusting it")  # fmt: skip
+    r.add_argument("--one-jvm", action=argparse.BooleanOptionalAction, default=None, help="all the runs of one proof in "
+                   "one JVM (equivalence.py --one-jvm); the default in fast mode (agrees with --full: docs/language_status/"
+                   "mutation_testing.md), --no-one-jvm for a JVM per run; Db2 / IMS cases always use one per run")  # fmt: skip
     r.add_argument("--record", action="store_true", help="#4048: the run becomes the port's committed score "
                    "(mutation_scores.json, its survivors' triage kept) and its evidence record's `mutation`")  # fmt: skip
     r.add_argument("--triage", type=Path, nargs="*", default=[], help="with --record: triage files for new survivors")
@@ -603,8 +604,10 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.one_jvm and args.full:
         raise SystemExit("--one-jvm is a fast-mode option: drop --full")
-    if args.record and (args.one_jvm or args.case_file or args.only or args.port or args.files != "**/*.java"):
-        raise SystemExit("--record scores the committed port on the committed case: drop --one-jvm / --case-file / --only / "
+    if args.one_jvm is None:  # #4047: the session JVM is the fast-mode default
+        args.one_jvm = not args.full
+    if args.record and (args.case_file or args.only or args.port or args.files != "**/*.java"):
+        raise SystemExit("--record scores the committed port on the committed case: drop --case-file / --only / "
                          "--port / --files")  # fmt: skip
     s = run(
         args.case,

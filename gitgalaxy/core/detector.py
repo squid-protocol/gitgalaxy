@@ -996,6 +996,29 @@ _QUALIFIER_MAX_IDENT = 64
 # #3913: the family is recognised by the pattern's TEXT, not by object identity. A rule reaches a
 # scan worker pickled whenever the pool spawns (Windows, macOS): the string or compiled pattern it
 # holds is then a new object, `is` never matched, and qualifier capture was silently off there.
+# #5633: `//`-comment languages with a `--` operator. The literal shield must not read `--` as a comment.
+_DECREMENT_OPERATOR_LANGS = frozenset(
+    {
+        "c",
+        "cpp",
+        "objectivec",
+        "glsl",
+        "java",
+        "groovy",
+        "kotlin",
+        "csharp",
+        "javascript",
+        "typescript",
+        "php",
+        "go",
+        "swift",
+        "dart",
+        "apex",
+        "solidity",
+        "zscript",
+    }
+)
+
 _QUALIFIED_CALLS_OUT_SOURCES = frozenset(getattr(p, "pattern", p) for p in QUALIFIED_CALLS_OUT_PATTERNS)
 
 
@@ -4470,6 +4493,11 @@ class StructuralExtractor:
         comment_markers = r"#|--|//"
         if lang_id == "matlab":
             comment_markers = r"%|#|--|//"
+        elif lang_id in _DECREMENT_OPERATOR_LANGS:
+            # #5633: `--` is the decrement operator here, never a comment. A line starting
+            # `--vars[ReadVar()];` (or `for (;; --i, x.f())`) was blanked to its end,
+            # taking every call after the `--` with it.
+            comment_markers = r"#|//"
         elif lang_id in ("shell", "bash"):
             # Shell's ONLY line-comment marker is `#`. `--` is the end-of-options
             # delimiter (`alert --stop ...`, `git checkout -- file`) and `//` has

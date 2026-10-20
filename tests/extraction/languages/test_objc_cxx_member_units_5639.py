@@ -47,10 +47,7 @@ def test_member_definition_is_a_unit_with_its_sends(header, name):
 
 
 def test_sends_after_a_class_body_are_not_swallowed_by_the_previous_unit():
-    code = (
-        "void First()\n{\n}\n\n"
-        "bool Cls::Second()\n{\n    return [m_window ping];\n}\n"
-    )
+    code = "void First()\n{\n}\n\nbool Cls::Second()\n{\n    return [m_window ping];\n}\n"
     units = _units(code)
     assert "ping" not in units["First"]
     assert units["Second"] == ["ping"]

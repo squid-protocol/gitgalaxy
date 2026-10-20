@@ -224,3 +224,36 @@ def test_join_continuation_resumes_a_literal_and_joins_a_word():
     assert PP.join_continuation("MOVE A TO   ", "      -    B.", False) == "MOVE A TO B."
     # an open literal whose continuation does not resume with a quote falls back to the word join
     assert PP.join_continuation(prev, "      -    B.", True) == prev + " B."
+
+
+# ---- the floating `*>` comment: one rule, outside a literal ----------------------------------------------------------
+@pytest.mark.parametrize(
+    "text, at",
+    [
+        ("MOVE 1 TO A *> note", 12),
+        ("MOVE '*>' TO A", 14),  # inside a literal: no comment
+        ("MOVE '*>' TO A *> '", 15),  # the literal closes, the comment after it counts
+        ('DISPLAY "it""s *> x" *> c', 21),  # a doubled quote stays inside the literal
+        ("*> whole line", 0),
+        ("MOVE 1 TO A", 11),
+    ],
+)
+def test_comment_at_ignores_a_marker_inside_a_literal(text, at):
+    assert PP.comment_at(text) == at
+
+
+def test_open_literal_and_drop_comment():
+    assert PP.open_literal("MOVE 'ABC")
+    assert not PP.open_literal("MOVE 'ABC' TO A")
+    assert not PP.open_literal('MOVE "A\'B" TO A')
+    assert PP.drop_comment("MOVE 1 TO A   *> note") == "MOVE 1 TO A"
+    assert PP.drop_comment("MOVE '*>' TO A") == "MOVE '*>' TO A"
+    assert PP.free_code("MOVE 1 TO A   *> note") == "MOVE 1 TO A   "
+    assert PP.free_code("MOVE 1 TO A") == "MOVE 1 TO A"
+
+
+def test_the_translator_has_no_comment_code_of_its_own():
+    for name in ("_comment_at", "_open_literal", "_drop_comment", "_free_code"):
+        assert not hasattr(SRC, name)
+    assert SRC.comment_at is PP.comment_at
+    assert SRC.open_literal is PP.open_literal

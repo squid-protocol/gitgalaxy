@@ -87,7 +87,7 @@ from gitgalaxy.core.call_using import blank_stream, call_using_args, entry_point
 from gitgalaxy.core.cics_macro_tables import cics_macro_table_resources
 from gitgalaxy.core.cics_resources import cobol_move_literals, extract_cics_resources
 from gitgalaxy.core.cics_tasks import extract_cics_tasks
-from gitgalaxy.core.cobol_preprocessor import COPY_LIBRARY, COPY_OR_INCLUDE_HEAD
+from gitgalaxy.core.cobol_preprocessor import COPY_LIBRARY, COPY_OR_INCLUDE_HEAD, continuation_resume
 from gitgalaxy.core.cobol_preprocessor import copy_replacing as _copy_replacing  # #5648: shared with det/
 from gitgalaxy.core.compiler_options import compiler_options, effective
 from gitgalaxy.core.data_moves import data_moves
@@ -573,9 +573,10 @@ def _continued_literal(code_stream: str, open_at: int) -> str | None:
         nxt = code_stream[pos + 1 : nxt_end if nxt_end != -1 else len(code_stream)]
         if len(nxt) < 8 or nxt[6] != "-":
             return None
-        resume = nxt.find(quote, 7)
-        if resume == -1 or resume >= 72:
+        resume = continuation_resume(nxt, quote)  # #5648: the one rule, shared with det/
+        if resume is None:
             return None
+        resume -= 1
         close = nxt.find(quote, resume + 1)
         while close != -1 and close + 1 < len(nxt) and nxt[close + 1] == quote:  # a doubled quote
             close = nxt.find(quote, close + 2)

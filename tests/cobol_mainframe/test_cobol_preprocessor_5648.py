@@ -171,3 +171,33 @@ def test_head_and_library_read_every_spelling(text, member, library):
 @pytest.mark.parametrize("text", ["XCOPY FOO.", "MY-COPY FOO.", "EXEC SQL SELECT 1 END-EXEC.", "COPYRIGHT X."])
 def test_head_ignores_words_that_only_contain_copy(text):
     assert PP.COPY_OR_INCLUDE_HEAD.search(text) is None
+
+
+# ---- continuation joining (slice 3) ----------------------------------------------------------------------------------
+@pytest.mark.parametrize("q", ["'", '"'])
+@pytest.mark.parametrize("col", [11, 12, 20])
+def test_a_continuation_resumes_after_its_first_quote(col, q):
+    line = "      -" + " " * (col - 8) + q + "REST" + q + "."
+    at = PP.continuation_resume(line, q)
+    assert at == col and line[at:] == "REST" + q + "."
+    assert PP.continuation_resume(line) == at  # no quote named: either
+
+
+def test_a_continuation_that_resumes_no_literal_is_none():
+    assert PP.continuation_resume("      -    'X'", '"') is None  # the other quote
+    assert PP.continuation_resume("      -    AND 'X'", "'") is None  # text before the quote
+    assert PP.continuation_resume("      -    ") is None
+    assert PP.continuation_resume("      -" + " " * 65 + "'X'") is None  # quote past column 72
+
+
+def test_the_scanner_and_the_translator_join_a_continued_literal_alike():
+    src = (
+        "       01 G.\n"
+        "          05 T PIC X(40) VALUE 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n"
+        "      -    'BBBBBB'.\n"
+    )
+    value = {r["name"]: r["value"] for r in MB.extract_boundary("cobol", src)["records"]}["T"]
+    joined = " ".join(ln.text for ln in SRC.logical_lines(src.splitlines(), "x.cbl")).split("VALUE ")[1]
+    first = src.splitlines()[1]
+    assert value == first[first.index("'") + 1 : 72] + "BBBBBB"
+    assert joined == "'" + value + "'."

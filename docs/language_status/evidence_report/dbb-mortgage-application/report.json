@@ -32,7 +32,7 @@
   },
   {
    "area": "CICS",
-   "entry": "A USAGE POINTER item holds the handle of a block of task storage; GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(byte) acquires one (every byte the INITIMG value; LENGERR RESP2 1 for FLENGTH below 1 or LENGTH zero, the pointer then zero), FREEMAIN DATAPOINTER(ptr) releases it (INVREQ RESP2 1 for an address GETMAIN did not return: a null pointer, a record's address), WEB RECEIVE SET(ptr) LENGTH(area) [MAXLENGTH] puts the request body in a new block (MAXLENGTH optional: all of it; LENGERR RESP2 16 leaves the pointer as it was, RESP2 57 cuts the body and sets it), SET ADDRESS OF record TO pointer / TO ADDRESS OF record makes a LINKAGE 01 record's bytes the block's (a real alias), SET pointer TO ADDRESS OF record gives the record's handle; refused: GETMAIN without INITIMG, a literal INITIMG, SHARED, NOSUSPEND, FREEMAIN DATA, a length above 256 MiB (LENGTH above 65520), a second FREEMAIN of the same block, FREEMAIN of a WEB RECEIVE SET body, SET ADDRESS OF a null / freed pointer, ADDRESS OF a WORKING-STORAGE record or a subordinate item, SET ADDRESS OF ... TO NULL, a pointer a REDEFINES overlays (pointer arithmetic)",
+   "entry": "A USAGE POINTER item holds the handle of a block of task storage; GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(byte) acquires one (every byte the INITIMG value; LENGERR RESP2 1 for FLENGTH below 1 or LENGTH zero, the pointer then zero), FREEMAIN DATAPOINTER(ptr) releases it (INVREQ RESP2 1 for an address GETMAIN did not return: a null pointer, a record's address), WEB RECEIVE SET(ptr) LENGTH(area) [MAXLENGTH] puts the request body in a new block (MAXLENGTH optional: all of it; LENGERR RESP2 16 leaves the pointer as it was, RESP2 57 cuts the body and sets it), SET ADDRESS OF record TO pointer / TO ADDRESS OF record makes a LINKAGE 01 record's bytes the block's (a real alias), SET ADDRESS OF record TO ADDRESS OF item (a subordinate item or a WORKING-STORAGE record) makes the record a window onto that item's bytes (Storage.base), SET pointer TO ADDRESS OF record / item gives its handle (block plus offset); refused: GETMAIN without INITIMG, a literal INITIMG, SHARED, NOSUSPEND, FREEMAIN DATA, a length above 256 MiB (LENGTH above 65520), a second FREEMAIN of the same block, FREEMAIN of a WEB RECEIVE SET body, SET ADDRESS OF a null / freed pointer, ADDRESS OF a table element, SET ADDRESS OF ... TO NULL, a pointer a REDEFINES overlays (pointer arithmetic)",
    "id": "X47",
    "status": "ASSUMED (REFUSED where IBM is silent)"
   },
@@ -198,6 +198,12 @@
     69,
     75
    ],
+   "carddemo-cbstm03b": [
+    14,
+    14,
+    29,
+    29
+   ],
    "carddemo-coacct01": [
     13,
     13,
@@ -306,16 +312,34 @@
     21,
     22
    ],
+   "carddemo-readcard-generated": [
+    3,
+    5,
+    13,
+    22
+   ],
    "carddemo-readcust": [
     5,
     5,
     21,
     22
    ],
+   "carddemo-readcust-generated": [
+    3,
+    5,
+    13,
+    22
+   ],
    "carddemo-readxref": [
     5,
     5,
     21,
+    22
+   ],
+   "carddemo-readxref-generated": [
+    3,
+    5,
+    13,
     22
    ],
    "carddemo-report": [
@@ -351,7 +375,7 @@
    "carddemo-tranview-generated": [
     9,
     9,
-    20,
+    23,
     24
    ],
    "carddemo-trnrpt": [
@@ -420,6 +444,12 @@
     29,
     41
    ],
+   "cbsa-bnk1cca-generated": [
+    25,
+    25,
+    31,
+    41
+   ],
    "cbsa-bnk1ccs": [
     33,
     33,
@@ -460,6 +490,12 @@
     28,
     28,
     53,
+    72
+   ],
+   "cbsa-bnk1tfn-generated": [
+    28,
+    28,
+    56,
     72
    ],
    "cbsa-bnk1uac": [
@@ -750,6 +786,12 @@
     1,
     2,
     2
+   ],
+   "genapp-lgstsq": [
+    1,
+    1,
+    3,
+    6
    ],
    "genapp-lgtestc1": [
     9,
@@ -1062,18 +1104,17 @@
      "holes": [
       "line 244: EXEC EXEC CICS: GETMAIN without INITIMG: IBM gives acquired storage no default contents",
       "line 254: EXEC EXEC CICS: GETMAIN without INITIMG: IBM gives acquired storage no default contents",
-      "line 269: CALL EPSCSMRX: a sibling program of this source (translated on its own, no service of its own is made for it, so a CALL cannot reach it)",
       "line 276: EXEC EXEC CICS: EXEC CICS SOAPFAULT CREATE not modelled (web services (SOAP / WS-Addressing) are not modelled)",
       "line 282: CALL EPSCSMRI: a sibling program of this source (translated on its own, no service of its own is made for it, so a CALL cannot reach it)",
       "line 293: CALL EPSCSMRO: a sibling program of this source (translated on its own, no service of its own is made for it, so a CALL cannot reach it)",
       "line 304: HOLE SET TO ENTRY: procedure / function pointers are not modelled",
-      "line 305: SET-POINTER ADDRESS OF ERROR-RESPONSE: not a LINKAGE 01 record (not modelled)",
-      "line 306: CALL CEEHDLR: registering an LE user condition handler is not modelled (no LE condition is raised and no handler runs, so a no-op registration would hide the handler's effect)",
+      "line 305: SET-POINTER ADDRESS OF ERROR-RESPONSE: not an item of WORKING-STORAGE or LINKAGE (not modelled)",
+      "line 306: CALL CEEHDLR: registering an LE user condition handler is not modelled (the procedure pointer it takes (SET TO ENTRY), LE's dispatch of a raised condition to the handler and its RESUME / PERCOLATE result are missing, so a no-op registration would hide the handler's effect)",
       "line 310: CALL CEEHDLU: unregistering an LE user condition handler is not modelled (the registration (CEEHDLR) is refused, so there is nothing to undo)"
      ],
      "kind": "cics",
      "statements": 59,
-     "translated": 49
+     "translated": 50
     },
     "source_read": true
    },
@@ -1311,10 +1352,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "1789aecb9a025d1534f02248db97b3d503a995a6",
+   "sha": "b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f",
    "translator": {
-    "files": 129,
-    "sha256": "af09c699b7819dbb04c73bc1de3c196596c9d33c8fbfec2d02c16fd588dbbb70"
+    "files": 132,
+    "sha256": "4e017a8f517fe994b0b8b78fa3c373ae8e7b8247748a22b60165b8a9f2e526cc"
    }
   },
   "sweeps": {}
@@ -2998,7 +3039,7 @@
      },
      {
       "area": "CICS",
-      "entry": "A USAGE POINTER item holds the handle of a block of task storage; GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(byte) acquires one (every byte the INITIMG value; LENGERR RESP2 1 for FLENGTH below 1 or LENGTH zero, the pointer then zero), FREEMAIN DATAPOINTER(ptr) releases it (INVREQ RESP2 1 for an address GETMAIN did not return: a null pointer, a record's address), WEB RECEIVE SET(ptr) LENGTH(area) [MAXLENGTH] puts the request body in a new block (MAXLENGTH optional: all of it; LENGERR RESP2 16 leaves the pointer as it was, RESP2 57 cuts the body and sets it), SET ADDRESS OF record TO pointer / TO ADDRESS OF record makes a LINKAGE 01 record's bytes the block's (a real alias), SET pointer TO ADDRESS OF record gives the record's handle; refused: GETMAIN without INITIMG, a literal INITIMG, SHARED, NOSUSPEND, FREEMAIN DATA, a length above 256 MiB (LENGTH above 65520), a second FREEMAIN of the same block, FREEMAIN of a WEB RECEIVE SET body, SET ADDRESS OF a null / freed pointer, ADDRESS OF a WORKING-STORAGE record or a subordinate item, SET ADDRESS OF ... TO NULL, a pointer a REDEFINES overlays (pointer arithmetic)",
+      "entry": "A USAGE POINTER item holds the handle of a block of task storage; GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(byte) acquires one (every byte the INITIMG value; LENGERR RESP2 1 for FLENGTH below 1 or LENGTH zero, the pointer then zero), FREEMAIN DATAPOINTER(ptr) releases it (INVREQ RESP2 1 for an address GETMAIN did not return: a null pointer, a record's address), WEB RECEIVE SET(ptr) LENGTH(area) [MAXLENGTH] puts the request body in a new block (MAXLENGTH optional: all of it; LENGERR RESP2 16 leaves the pointer as it was, RESP2 57 cuts the body and sets it), SET ADDRESS OF record TO pointer / TO ADDRESS OF record makes a LINKAGE 01 record's bytes the block's (a real alias), SET ADDRESS OF record TO ADDRESS OF item (a subordinate item or a WORKING-STORAGE record) makes the record a window onto that item's bytes (Storage.base), SET pointer TO ADDRESS OF record / item gives its handle (block plus offset); refused: GETMAIN without INITIMG, a literal INITIMG, SHARED, NOSUSPEND, FREEMAIN DATA, a length above 256 MiB (LENGTH above 65520), a second FREEMAIN of the same block, FREEMAIN of a WEB RECEIVE SET body, SET ADDRESS OF a null / freed pointer, ADDRESS OF a table element, SET ADDRESS OF ... TO NULL, a pointer a REDEFINES overlays (pointer arithmetic)",
       "id": "X47",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -3042,7 +3083,7 @@
     "score": null
    },
    "next": [
-    "translated whole (10 holes left)"
+    "translated whole (9 holes left)"
    ],
    "options": {
     "assumed": 3,
@@ -3411,7 +3452,7 @@
      "STARTBROWSE CONTAINER"
     ],
     "facts_unstated": 0,
-    "holes": 10,
+    "holes": 9,
     "paragraphs_unrun": null,
     "refused": null
    },
@@ -3420,32 +3461,30 @@
    "survey_stale": false,
    "translation": {
     "gap_classes": [
-     "<name> ADDRESS OF <name>: not a LINKAGE N record",
+     "<name> ADDRESS OF <name>: not an item of <name> or LINKAGE",
      "CEEHDLR: registering an LE user condition handler is not modelled",
      "CEEHDLU: unregistering an LE user condition handler is not modelled",
      "EPSCSMRI: a sibling program of this source",
      "EPSCSMRO: a sibling program of this source",
-     "EPSCSMRX: a sibling program of this source",
      "EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents",
      "EXEC CICS SOAPFAULT CREATE",
      "SET TO ENTRY: procedure / function pointers are not modelled"
     ],
-    "hole_count": 10,
+    "hole_count": 9,
     "holes": [
-     "CALL CEEHDLR: registering an LE user condition handler is not modelled (no LE condition is raised and no handler runs, so a no-op registration would hide the handler's effect)",
+     "CALL CEEHDLR: registering an LE user condition handler is not modelled (the procedure pointer it takes (SET TO ENTRY), LE's dispatch of a raised condition to the handler and its RESUME / PERCOLATE result are missing, so a no-op registration would hide the handler's effect)",
      "CALL CEEHDLU: unregistering an LE user condition handler is not modelled (the registration (CEEHDLR) is refused, so there is nothing to undo)",
      "CALL EPSCSMRI: a sibling program of this source (translated on its own, no service of its own is made for it, so a CALL cannot reach it)",
      "CALL EPSCSMRO: a sibling program of this source (translated on its own, no service of its own is made for it, so a CALL cannot reach it)",
-     "CALL EPSCSMRX: a sibling program of this source (translated on its own, no service of its own is made for it, so a CALL cannot reach it)",
      "EXEC EXEC CICS: EXEC CICS SOAPFAULT CREATE not modelled (web services (SOAP / WS-Addressing) are not modelled)",
      "EXEC EXEC CICS: GETMAIN without INITIMG: IBM gives acquired storage no default contents",
      "HOLE SET TO ENTRY: procedure / function pointers are not modelled",
-     "SET-POINTER ADDRESS OF ERROR-RESPONSE: not a LINKAGE 01 record (not modelled)"
+     "SET-POINTER ADDRESS OF ERROR-RESPONSE: not an item of WORKING-STORAGE or LINKAGE (not modelled)"
     ],
     "refused": null,
     "source_defects": [],
     "statements": 59,
-    "translated": 49,
+    "translated": 50,
     "whole": false
    }
   },
@@ -3692,8 +3731,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 1789aecb9a025d1534f02248db97b3d503a995a6",
-   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 1789aecb9a025d1534f02248db97b3d503a995a6",
+   "python tests/tools/cics_census.py survey --baseline --sha b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f",
+   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -3714,13 +3753,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "1789aecb9a025d1534f02248db97b3d503a995a6",
+   "sha": "b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f",
    "translator": {
-    "files": 129,
-    "sha256": "af09c699b7819dbb04c73bc1de3c196596c9d33c8fbfec2d02c16fd588dbbb70"
+    "files": 132,
+    "sha256": "4e017a8f517fe994b0b8b78fa3c373ae8e7b8247748a22b60165b8a9f2e526cc"
    }
   },
-  "translator_commit": "1789aecb9a025d1534f02248db97b3d503a995a6",
+  "translator_commit": "b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -3750,7 +3789,7 @@
    "L4": 0,
    "L5": 0
   },
-  "holes": 12,
+  "holes": 11,
   "levels_stale": 0,
   "levels_stale_survey": 0,
   "programs": 6,
@@ -3763,6 +3802,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "af09c699b7819dbb04c73bc1de3c196596c9d33c8fbfec2d02c16fd588dbbb70"
+  "fingerprint": "4e017a8f517fe994b0b8b78fa3c373ae8e7b8247748a22b60165b8a9f2e526cc"
  }
 }

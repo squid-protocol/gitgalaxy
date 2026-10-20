@@ -264,6 +264,12 @@
     69,
     75
    ],
+   "carddemo-cbstm03b": [
+    14,
+    14,
+    29,
+    29
+   ],
    "carddemo-coacct01": [
     13,
     13,
@@ -372,16 +378,34 @@
     21,
     22
    ],
+   "carddemo-readcard-generated": [
+    3,
+    5,
+    13,
+    22
+   ],
    "carddemo-readcust": [
     5,
     5,
     21,
     22
    ],
+   "carddemo-readcust-generated": [
+    3,
+    5,
+    13,
+    22
+   ],
    "carddemo-readxref": [
     5,
     5,
     21,
+    22
+   ],
+   "carddemo-readxref-generated": [
+    3,
+    5,
+    13,
     22
    ],
    "carddemo-report": [
@@ -417,7 +441,7 @@
    "carddemo-tranview-generated": [
     9,
     9,
-    20,
+    23,
     24
    ],
    "carddemo-trnrpt": [
@@ -486,6 +510,12 @@
     29,
     41
    ],
+   "cbsa-bnk1cca-generated": [
+    25,
+    25,
+    31,
+    41
+   ],
    "cbsa-bnk1ccs": [
     33,
     33,
@@ -526,6 +556,12 @@
     28,
     28,
     53,
+    72
+   ],
+   "cbsa-bnk1tfn-generated": [
+    28,
+    28,
+    56,
     72
    ],
    "cbsa-bnk1uac": [
@@ -816,6 +852,12 @@
     1,
     2,
     2
+   ],
+   "genapp-lgstsq": [
+    1,
+    1,
+    3,
+    6
    ],
    "genapp-lgtestc1": [
     9,
@@ -1905,10 +1947,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "1789aecb9a025d1534f02248db97b3d503a995a6",
+   "sha": "b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f",
    "translator": {
-    "files": 129,
-    "sha256": "af09c699b7819dbb04c73bc1de3c196596c9d33c8fbfec2d02c16fd588dbbb70"
+    "files": 132,
+    "sha256": "4e017a8f517fe994b0b8b78fa3c373ae8e7b8247748a22b60165b8a9f2e526cc"
    }
   },
   "sweeps": {}
@@ -2080,7 +2122,7 @@
   "parm_programs": [],
   "programs_assumed": 155,
   "programs_found": 31,
-  "programs_with_deviation": 4,
+  "programs_with_deviation": 3,
   "sections": {
    "cics": {
     "assumed": 1,
@@ -11276,6 +11318,938 @@
   },
   {
    "assumptions": {
+    "facts_stated": [
+     "facility",
+     "screen",
+     "startcode",
+     "userid"
+    ],
+    "facts_unstated": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "Terminal RECEIVE (INTO / SET, LENGTH, MAXLENGTH, NOTRUNCATE; LENGERR, EOC on an LUTYPE2 terminal) and SEND CONTROL",
+      "id": "X15",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD / D), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
+      "id": "X19",
+      "status": "ASSUMED (REFUSED where the harness cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
+      "id": "X20",
+      "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": 50.0,
+    "branch_pct": 50.0,
+    "branches": {
+     "covered": 3,
+     "total": 6
+    },
+    "branches_net": {
+     "covered": 3,
+     "total": 6
+    },
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 1,
+     "live": 1
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "genapp-lgacdb01",
+      "case_scenarios": 6,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgacdb02",
+      "case_scenarios": 10,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgacus01",
+      "case_scenarios": 5,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgacvs01",
+      "case_scenarios": 8,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgapol01",
+      "case_scenarios": 6,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgapvs01",
+      "case_scenarios": 11,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": {
+       "coverage": {
+        "branches": {
+         "covered": 5,
+         "total": 9
+        },
+        "paragraphs": {
+         "covered": 3,
+         "live": 3
+        },
+        "uncovered_branches": [
+         "line 173 IF true (WRITE-ERROR-MESSAGE)",
+         "line 173 IF false (WRITE-ERROR-MESSAGE)",
+         "line 174 IF true (WRITE-ERROR-MESSAGE)",
+         "line 174 IF false (WRITE-ERROR-MESSAGE)"
+        ]
+       },
+       "db2": false,
+       "facade": {
+        "passed": 11,
+        "runs": 11
+       },
+       "fault_runs": 2,
+       "java_failed": false,
+       "option_differences": [
+        {
+         "applied": "data in the case's data_encoding (no CCSID page)",
+         "declared": "285",
+         "kind": "option",
+         "note": "CODEPAGE(285): CODEPAGE(ccsid) sets the CCSID of compile-time and runtime character conversion (literals, collating, national <-> alphanumeric); the proof runs data in the case's data_encoding",
+         "option": "CODEPAGE"
+        },
+        {
+         "applied": "data in the case's data_encoding",
+         "declared": "285",
+         "kind": "option",
+         "note": "db2.ccsid.EBCDIC_CCSID=285: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding",
+         "option": "db2.ccsid.EBCDIC_CCSID"
+        }
+       ],
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
+       "oracle_matches_pin": true,
+       "records_compared": 19,
+       "records_equal": 19,
+       "runs": 11,
+       "scenarios": 11,
+       "scenarios_equal": 11,
+       "stale_inputs": [],
+       "status_at_build": "shown equal, unapproved",
+       "verdict": "all equal"
+      },
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgdpdb01",
+      "case_scenarios": 11,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgdpol01",
+      "case_scenarios": 11,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgdpvs01",
+      "case_scenarios": 8,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgicus01",
+      "case_scenarios": 5,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgipdb01",
+      "case_scenarios": 46,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgipol01",
+      "case_scenarios": 10,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgstsq",
+      "case_scenarios": 7,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     },
+     {
+      "case": "genapp-lgtestc1",
+      "case_scenarios": 14,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp1",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp2",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp3",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp4",
+      "case_scenarios": 16,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgucdb01",
+      "case_scenarios": 6,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgucus01",
+      "case_scenarios": 5,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgucvs01",
+      "case_scenarios": 10,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgupol01",
+      "case_scenarios": 10,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgupvs01",
+      "case_scenarios": 10,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     }
+    ],
+    "chosen": {
+     "case": "genapp-lgstsq",
+     "case_scenarios": 7,
+     "db2": false,
+     "det": {
+      "source": "CI det-sweep ratchet on main",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
+   },
+   "level": "L3",
+   "level_current": true,
+   "mutation": {
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
+   },
+   "next": [
+    "branch coverage >= 100.0 net (now 50.0 raw, 50.0 net of the reviewed infeasible outcomes)"
+   ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.1"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:49",
+      "value": "285"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [
+    {
+     "backed": true,
+     "command": "ASSIGN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [
+      "startcode",
+      "userid",
+      "facility",
+      "screen"
+     ],
+     "registers": [
+      "X19"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RECEIVE",
+     "crucible_cases": [
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X15"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "SEND TEXT",
+     "crucible_cases": [
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X20"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "WRITEQ TD",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "WRITEQ TS",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "base/src/lgstsq.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X15",
+     "X19",
+     "X27"
+    ],
+    "branch_outcomes_unrun": 3,
+    "commands": 6,
+    "commands_backed": 5,
+    "commands_not_backed": [
+     "WRITEQ TD"
+    ],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": 0,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 26,
+    "translated": 26,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
     "facts_stated": [],
     "facts_unstated": [
      "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
@@ -12907,7 +13881,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:a0c1e70994308aea2dda184479e6558eb17d8adcfb62cdb1c40098239c42001b",
+       "oracle_image": "sha256:2c05d56e73d8a44e11ff297ffa1efbc4685fc456d1046e2dddd0baef3ec5711e",
        "oracle_matches_pin": true,
        "records_compared": 18,
        "records_equal": 18,
@@ -12997,7 +13971,7 @@
         "option": "db2.ccsid.EBCDIC_CCSID"
        }
       ],
-      "oracle_image": "sha256:a0c1e70994308aea2dda184479e6558eb17d8adcfb62cdb1c40098239c42001b",
+      "oracle_image": "sha256:2c05d56e73d8a44e11ff297ffa1efbc4685fc456d1046e2dddd0baef3ec5711e",
       "oracle_matches_pin": true,
       "records_compared": 18,
       "records_equal": 18,
@@ -14086,7 +15060,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:a0c1e70994308aea2dda184479e6558eb17d8adcfb62cdb1c40098239c42001b",
+       "oracle_image": "sha256:2c05d56e73d8a44e11ff297ffa1efbc4685fc456d1046e2dddd0baef3ec5711e",
        "oracle_matches_pin": true,
        "records_compared": 18,
        "records_equal": 18,
@@ -15149,7 +16123,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:a0c1e70994308aea2dda184479e6558eb17d8adcfb62cdb1c40098239c42001b",
+       "oracle_image": "sha256:2c05d56e73d8a44e11ff297ffa1efbc4685fc456d1046e2dddd0baef3ec5711e",
        "oracle_matches_pin": true,
        "records_compared": 24,
        "records_equal": 24,
@@ -15237,7 +16211,7 @@
         "option": "db2.ccsid.EBCDIC_CCSID"
        }
       ],
-      "oracle_image": "sha256:a0c1e70994308aea2dda184479e6558eb17d8adcfb62cdb1c40098239c42001b",
+      "oracle_image": "sha256:2c05d56e73d8a44e11ff297ffa1efbc4685fc456d1046e2dddd0baef3ec5711e",
       "oracle_matches_pin": true,
       "records_compared": 24,
       "records_equal": 24,
@@ -15639,981 +16613,6 @@
     "source_defects": [],
     "statements": 44,
     "translated": 44,
-    "whole": true
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [
-     "facility",
-     "screen",
-     "startcode",
-     "userid"
-    ],
-    "facts_unstated": [],
-    "named_by_commands": [
-     {
-      "area": "CICS",
-      "entry": "Terminal RECEIVE (INTO / SET, LENGTH, MAXLENGTH, NOTRUNCATE; LENGERR, EOC on an LUTYPE2 terminal) and SEND CONTROL",
-      "id": "X15",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD / D), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
-      "id": "X19",
-      "status": "ASSUMED (REFUSED where the harness cannot decide)"
-     },
-     {
-      "area": "CICS",
-      "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
-      "id": "X20",
-      "status": "MATCHED (REFUSED where the region cannot decide)"
-     },
-     {
-      "area": "CICS",
-      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
-      "id": "X27",
-      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
-     }
-    ],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [
-     {
-      "case": "genapp-lgacdb01",
-      "case_scenarios": 6,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "genapp-lgacdb02",
-      "case_scenarios": 10,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "genapp-lgacus01",
-      "case_scenarios": 5,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "genapp-lgacvs01",
-      "case_scenarios": 8,
-      "db2": false,
-      "det": {
-       "source": "CI det-sweep ratchet on main",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "genapp-lgapol01",
-      "case_scenarios": 6,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "genapp-lgapvs01",
-      "case_scenarios": 11,
-      "db2": false,
-      "det": {
-       "source": "CI det-sweep ratchet on main",
-       "state": "equal"
-      },
-      "record": {
-       "coverage": {
-        "branches": {
-         "covered": 5,
-         "total": 9
-        },
-        "paragraphs": {
-         "covered": 3,
-         "live": 3
-        },
-        "uncovered_branches": [
-         "line 173 IF true (WRITE-ERROR-MESSAGE)",
-         "line 173 IF false (WRITE-ERROR-MESSAGE)",
-         "line 174 IF true (WRITE-ERROR-MESSAGE)",
-         "line 174 IF false (WRITE-ERROR-MESSAGE)"
-        ]
-       },
-       "db2": false,
-       "facade": {
-        "passed": 11,
-        "runs": 11
-       },
-       "fault_runs": 2,
-       "java_failed": false,
-       "option_differences": [
-        {
-         "applied": "data in the case's data_encoding (no CCSID page)",
-         "declared": "285",
-         "kind": "option",
-         "note": "CODEPAGE(285): CODEPAGE(ccsid) sets the CCSID of compile-time and runtime character conversion (literals, collating, national <-> alphanumeric); the proof runs data in the case's data_encoding",
-         "option": "CODEPAGE"
-        },
-        {
-         "applied": "data in the case's data_encoding",
-         "declared": "285",
-         "kind": "option",
-         "note": "db2.ccsid.EBCDIC_CCSID=285: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding",
-         "option": "db2.ccsid.EBCDIC_CCSID"
-        }
-       ],
-       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
-       "oracle_matches_pin": true,
-       "records_compared": 19,
-       "records_equal": 19,
-       "runs": 11,
-       "scenarios": 11,
-       "scenarios_equal": 11,
-       "stale_inputs": [],
-       "status_at_build": "shown equal, unapproved",
-       "verdict": "all equal"
-      },
-      "role": "linked"
-     },
-     {
-      "case": "genapp-lgdpdb01",
-      "case_scenarios": 11,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "genapp-lgdpol01",
-      "case_scenarios": 11,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "genapp-lgdpvs01",
-      "case_scenarios": 8,
-      "db2": false,
-      "det": {
-       "source": "CI det-sweep ratchet on main",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "genapp-lgicus01",
-      "case_scenarios": 5,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "genapp-lgipdb01",
-      "case_scenarios": 46,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "genapp-lgipol01",
-      "case_scenarios": 10,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "genapp-lgtestc1",
-      "case_scenarios": 14,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "genapp-lgtestp1",
-      "case_scenarios": 15,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "genapp-lgtestp2",
-      "case_scenarios": 15,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "genapp-lgtestp3",
-      "case_scenarios": 15,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "genapp-lgtestp4",
-      "case_scenarios": 16,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "genapp-lgucdb01",
-      "case_scenarios": 6,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "genapp-lgucus01",
-      "case_scenarios": 5,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "genapp-lgucvs01",
-      "case_scenarios": 10,
-      "db2": false,
-      "det": {
-       "source": "CI det-sweep ratchet on main",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "genapp-lgupol01",
-      "case_scenarios": 10,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "genapp-lgupvs01",
-      "case_scenarios": 10,
-      "db2": false,
-      "det": {
-       "source": "CI det-sweep ratchet on main",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     }
-    ],
-    "chosen": {
-     "case": "genapp-lgapvs01",
-     "case_scenarios": 11,
-     "db2": false,
-     "det": {
-      "source": "CI det-sweep ratchet on main",
-      "state": "equal"
-     },
-     "record": {
-      "coverage": {
-       "branches": {
-        "covered": 5,
-        "total": 9
-       },
-       "paragraphs": {
-        "covered": 3,
-        "live": 3
-       },
-       "uncovered_branches": [
-        "line 173 IF true (WRITE-ERROR-MESSAGE)",
-        "line 173 IF false (WRITE-ERROR-MESSAGE)",
-        "line 174 IF true (WRITE-ERROR-MESSAGE)",
-        "line 174 IF false (WRITE-ERROR-MESSAGE)"
-       ]
-      },
-      "db2": false,
-      "facade": {
-       "passed": 11,
-       "runs": 11
-      },
-      "fault_runs": 2,
-      "java_failed": false,
-      "option_differences": [
-       {
-        "applied": "data in the case's data_encoding (no CCSID page)",
-        "declared": "285",
-        "kind": "option",
-        "note": "CODEPAGE(285): CODEPAGE(ccsid) sets the CCSID of compile-time and runtime character conversion (literals, collating, national <-> alphanumeric); the proof runs data in the case's data_encoding",
-        "option": "CODEPAGE"
-       },
-       {
-        "applied": "data in the case's data_encoding",
-        "declared": "285",
-        "kind": "option",
-        "note": "db2.ccsid.EBCDIC_CCSID=285: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding",
-        "option": "db2.ccsid.EBCDIC_CCSID"
-       }
-      ],
-      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
-      "oracle_matches_pin": true,
-      "records_compared": 19,
-      "records_equal": 19,
-      "runs": 11,
-      "scenarios": 11,
-      "scenarios_equal": 11,
-      "stale_inputs": [],
-      "status_at_build": "shown equal, unapproved",
-      "verdict": "all equal"
-     },
-     "role": "linked"
-    }
-   },
-   "level": "L2",
-   "level_current": true,
-   "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
-   },
-   "next": [
-    "paragraph coverage >= 100.0 (coverage not measured for a LINKed program: the case's coverage is its main program's)"
-   ],
-   "options": {
-    "assumed": 5,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "6.1"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 1,
-    "record_differences": [
-     {
-      "applied": "data in the case's data_encoding (no CCSID page)",
-      "declared": "285",
-      "note": "CODEPAGE(285): CODEPAGE(ccsid) sets the CCSID of compile-time and runtime character conversion (literals, collating, national <-> alphanumeric); the proof runs data in the case's data_encoding",
-      "option": "CODEPAGE"
-     },
-     {
-      "applied": "data in the case's data_encoding",
-      "declared": "285",
-      "note": "db2.ccsid.EBCDIC_CCSID=285: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding",
-      "option": "db2.ccsid.EBCDIC_CCSID"
-     }
-    ],
-    "runtime": [
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.ABTERMENC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ABEND"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.STORAGE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NONE,NONE,NONE,0K"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.TRAP",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ON,SPIE"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.CURRENTDATA",
-      "provenance": "found",
-      "source": "base/cntl/db2bind.jcl:16",
-      "value": "NO"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.DYNAMICRULES",
-      "provenance": "found",
-      "source": "base/cntl/db2bind.jcl:19",
-      "value": "BIND"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.ISOLATION",
-      "provenance": "found",
-      "source": "base/cntl/db2bind.jcl:15",
-      "value": "CS"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.VALIDATE",
-      "provenance": "found",
-      "source": "base/cntl/db2bind.jcl:26",
-      "value": "BIND"
-     },
-     {
-      "effect": "declared",
-      "option": "db2.ccsid.EBCDIC_CCSID",
-      "provenance": "found",
-      "source": "base/Installation.md:92",
-      "value": "285"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DATE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DEC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "15"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DECPT",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "."
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.TIME",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.precompile.coprocessor",
-      "provenance": "found",
-      "source": "base/src/lgacdb01.cbl:1",
-      "value": "integrated (SQL via the program's PROCESS SQL card)"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.region.DB2CONN",
-      "provenance": "found",
-      "source": "base/Building.md:58",
-      "value": "YES"
-     },
-     {
-      "effect": "honoured",
-      "option": "cics.region.LOCALCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "037"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.translator.options",
-      "provenance": "found",
-      "source": "base/cntl/cobol.jcl:48",
-      "value": "CICS via the compile OPTFILE"
-     }
-    ],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "found",
-      "source": "base/cntl/cobol.jcl:49",
-      "value": "285"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [
-    {
-     "backed": true,
-     "command": "ASSIGN",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [
-      "startcode",
-      "userid",
-      "facility",
-      "screen"
-     ],
-     "registers": [
-      "X19"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RECEIVE",
-     "crucible_cases": [
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X15"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RETURN",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X27"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "SEND TEXT",
-     "crucible_cases": [
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X20"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "WRITEQ TD",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "WRITEQ TS",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    }
-   ],
-   "program": "base/src/lgstsq.cbl",
-   "residual": {
-    "assumed_or_differs_named": [
-     "X15",
-     "X19",
-     "X27"
-    ],
-    "branch_outcomes_unrun": null,
-    "commands": 6,
-    "commands_backed": 5,
-    "commands_not_backed": [
-     "WRITEQ TD"
-    ],
-    "facts_unstated": 0,
-    "holes": 0,
-    "paragraphs_unrun": null,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 26,
-    "translated": 26,
     "whole": true
    }
   },
@@ -19990,10 +19989,10 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 1789aecb9a025d1534f02248db97b3d503a995a6",
-   "python tests/tools/evidence_report.py cics-genapp --baseline --sha 1789aecb9a025d1534f02248db97b3d503a995a6",
+   "python tests/tools/cics_census.py survey --baseline --sha b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f",
+   "python tests/tools/evidence_report.py cics-genapp --baseline --sha b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f",
    "python tests/tools/evidence_report.py --refresh",
-   "python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb02,genapp-lgacus01,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapol01,genapp-lgapvs01,genapp-lgastat1,genapp-lgdpdb01,genapp-lgdpol01,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicus01,genapp-lgicvs01,genapp-lgicvs01-linked,genapp-lgipdb01,genapp-lgipol01,genapp-lgipvs01,genapp-lgipvs01-linked,genapp-lgsetup,genapp-lgtestc1,genapp-lgtestp1,genapp-lgtestp2,genapp-lgtestp3,genapp-lgtestp4,genapp-lgucdb01,genapp-lgucus01,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupol01,genapp-lgupvs01,genapp-lgwebst5  # Db2 cases (20) need the Db2 container",
+   "python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb02,genapp-lgacus01,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapol01,genapp-lgapvs01,genapp-lgastat1,genapp-lgdpdb01,genapp-lgdpol01,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicus01,genapp-lgicvs01,genapp-lgicvs01-linked,genapp-lgipdb01,genapp-lgipol01,genapp-lgipvs01,genapp-lgipvs01-linked,genapp-lgsetup,genapp-lgstsq,genapp-lgtestc1,genapp-lgtestp1,genapp-lgtestp2,genapp-lgtestp3,genapp-lgtestp4,genapp-lgucdb01,genapp-lgucus01,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupol01,genapp-lgupvs01,genapp-lgwebst5  # Db2 cases (20) need the Db2 container",
    "python tests/tools/evidence.py prove genapp-lgapvs01 genapp-lgicdb01 genapp-lgupdb01",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
@@ -20008,7 +20007,7 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:a0c1e70994308aea2dda184479e6558eb17d8adcfb62cdb1c40098239c42001b",
+   "sha256:2c05d56e73d8a44e11ff297ffa1efbc4685fc456d1046e2dddd0baef3ec5711e",
    "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
@@ -20016,13 +20015,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "1789aecb9a025d1534f02248db97b3d503a995a6",
+   "sha": "b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f",
    "translator": {
-    "files": 129,
-    "sha256": "af09c699b7819dbb04c73bc1de3c196596c9d33c8fbfec2d02c16fd588dbbb70"
+    "files": 132,
+    "sha256": "4e017a8f517fe994b0b8b78fa3c373ae8e7b8247748a22b60165b8a9f2e526cc"
    }
   },
-  "translator_commit": "1789aecb9a025d1534f02248db97b3d503a995a6",
+  "translator_commit": "b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -20031,8 +20030,8 @@
   "histogram": {
    "L0": 0,
    "L1": 0,
-   "L2": 8,
-   "L3": 18,
+   "L2": 7,
+   "L3": 19,
    "L4": 5,
    "L5": 0
   },
@@ -20056,15 +20055,15 @@
   "levels_stale": 0,
   "levels_stale_survey": 0,
   "programs": 31,
-  "records_current": 4,
+  "records_current": 3,
   "refused_whole": 0,
   "source_unread": 0,
   "translated_whole": 31,
   "with_case": 31,
-  "with_record": 4
+  "with_record": 3
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "af09c699b7819dbb04c73bc1de3c196596c9d33c8fbfec2d02c16fd588dbbb70"
+  "fingerprint": "4e017a8f517fe994b0b8b78fa3c373ae8e7b8247748a22b60165b8a9f2e526cc"
  }
 }

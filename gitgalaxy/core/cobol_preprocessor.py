@@ -169,3 +169,16 @@ def replace_text(text: str | None, pairs: list) -> str | None:
         return text
     combined = re.compile("|".join(f"(?P<p{i}>{p})" for i, p in enumerate(patterns)), re.I)
     return combined.sub(lambda m: targets[int((m.lastgroup or "p0")[1:])], text)
+
+
+def continuation_resume(line: str, quote: str | None = None) -> int | None:
+    """#5648: where a continued nonnumeric literal resumes on a continuation line (indicator `-` in column 7): the
+    offset just past the first quote in the program-text area (columns 8-72), which must be the first nonblank
+    there (Enterprise COBOL LR, "Continuation lines"). `quote` is the quote the literal opened with; None accepts
+    either. None when the line does not resume a literal (no quote, text before it, a quote at or past column 72,
+    or the other quote)."""
+    area = line[7:72]
+    body = area.lstrip(" ")
+    if not body or body[0] not in ("'", '"') or (quote is not None and body[0] != quote):
+        return None
+    return 7 + len(area) - len(body) + 1

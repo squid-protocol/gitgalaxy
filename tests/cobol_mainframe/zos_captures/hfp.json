@@ -19,6 +19,25 @@
     {"id": "add-long-1-1", "source": "ibm-publication", "op": "add", "a": "4110000000000000", "b": "4110000000000000", "size": "long", "want": "4120000000000000"},
     {"id": "disp-1.5", "source": "ibm-publication", "op": "display", "a": "41180000", "size": "short", "want": " .15000000E 01"},
     {"id": "fixed-1.5", "source": "ibm-publication", "op": "fixed", "a": "41180000", "size": "short", "scale": 0, "want": "2"},
-    {"id": "fixed-m1.5", "source": "ibm-publication", "op": "fixed", "a": "C1180000", "size": "short", "scale": 0, "want": "-2"}
+    {"id": "fixed-m1.5", "source": "ibm-publication", "op": "fixed", "a": "C1180000", "size": "short", "scale": 0, "want": "-2"},
+    {"id": "sub-long-1-1", "source": "ibm-publication", "op": "sub", "a": "4110000000000000", "b": "4110000000000000", "size": "long", "want": "0000000000000000"},
+    {"id": "sub-1-2", "source": "ibm-publication", "op": "sub", "a": "41100000", "b": "41200000", "size": "short", "want": "C1100000"},
+    {"id": "mul-long-2-3", "source": "ibm-publication", "op": "mul", "a": "4120000000000000", "b": "4130000000000000", "size": "long", "want": "4160000000000000"},
+    {"id": "div-long-1-3", "source": "ibm-publication", "op": "div", "a": "4110000000000000", "b": "4130000000000000", "size": "long", "want": "4055555555555555"},
+    {"id": "div-1-3", "source": "ibm-publication", "op": "div", "a": "41100000", "b": "41300000", "size": "short", "want": "40555555"},
+    {"id": "mul-third-times-3", "source": "ibm-publication", "op": "mul", "a": "40555555", "b": "41300000", "size": "short", "want": "40FFFFFF"},
+    {"id": "add-long-guard-kept", "source": "ibm-publication", "op": "add", "a": "4110000000000000", "b": "3410000000000000", "size": "long", "want": "4110000000000001"},
+    {"id": "add-long-guard-lost", "source": "ibm-publication", "op": "add", "a": "4110000000000000", "b": "3310000000000000", "size": "long", "want": "4110000000000000"},
+    {"id": "mul-max-one", "source": "ibm-publication", "op": "mul", "a": "7FFFFFFF", "b": "41100000", "size": "short", "want": "7FFFFFFF"},
+    {"id": "mul-min-one", "source": "ibm-publication", "op": "mul", "a": "00100000", "b": "41100000", "size": "short", "want": "00100000"},
+    {"id": "mul-long-max-one", "source": "ibm-publication", "op": "mul", "a": "7FFFFFFFFFFFFFFF", "b": "4110000000000000", "size": "long", "want": "7FFFFFFFFFFFFFFF"},
+    {"id": "mul-long-min-one", "source": "ibm-publication", "op": "mul", "a": "0010000000000000", "b": "4110000000000000", "size": "long", "want": "0010000000000000"},
+    {"id": "disp-long-1", "source": "ibm-publication", "op": "display", "a": "4110000000000000", "size": "long", "want": " .10000000000000000E 01"},
+    {"id": "disp-long-m0.5", "source": "ibm-publication", "op": "display", "a": "C080000000000000", "size": "long", "want": "-.50000000000000000E 00"},
+    {"id": "disp-256", "source": "ibm-publication", "op": "display", "a": "43100000", "size": "short", "want": " .25600000E 03"},
+    {"id": "disp-1-64", "source": "ibm-publication", "op": "display", "a": "3F400000", "size": "short", "want": " .15625000E-01"},
+    {"id": "fixed-long-0.1-2", "source": "ibm-publication", "op": "fixed", "a": "4019999999999999", "scale": 2, "size": "long", "want": "0.10"},
+    {"id": "fixed-long-0.1-17", "source": "ibm-publication", "op": "fixed", "a": "4019999999999999", "scale": 17, "size": "long", "want": "0.09999999999999999"},
+    {"id": "fixed-clamp-9", "source": "ibm-publication", "op": "fixed", "a": "44303980", "scale": 5, "size": "short", "want": "12345.5000"}
   ]
 }

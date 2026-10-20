@@ -1,5 +1,5 @@
 {
- "commit": "4cc8aacaa",
+ "commit": "ccc83d5c5",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -120,7 +120,7 @@
   },
   "translator": {
    "of": 129,
-   "whole": 117
+   "whole": 118
   }
  },
  "eras": {
@@ -150,14 +150,14 @@
    "programs": 21
   },
   "none": {
-   "l2_plus": 8,
-   "l4_plus": 7,
+   "l2_plus": 9,
+   "l4_plus": 8,
    "programs": 13
   }
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-20T09:31:47Z",
+  "as_of": "2026-10-20T10:02:01Z",
   "core": {
    "closed": 146,
    "open": 37,
@@ -425,21 +425,21 @@
  "ladder": {
   "estates": {
    "aws-mainframe-modernization-carddemo": {
-    "l2_plus": 33,
-    "l2_plus_pct": 75.0,
-    "l4_plus": 14,
-    "l4_plus_pct": 31.8,
+    "l2_plus": 34,
+    "l2_plus_pct": 77.3,
+    "l4_plus": 15,
+    "l4_plus_pct": 34.1,
     "l5": 0,
     "levels": {
-     "L0": 7,
+     "L0": 6,
      "L1": 4,
      "L2": 5,
      "L3": 14,
-     "L4": 14,
+     "L4": 15,
      "L5": 0
     },
     "programs": 44,
-    "translated_whole": 37
+    "translated_whole": 38
    },
    "cics-async-api-credit-card-application-example": {
     "l2_plus": 10,
@@ -484,8 +484,8 @@
     "levels": {
      "L0": 0,
      "L1": 0,
-     "L2": 8,
-     "L3": 18,
+     "L2": 7,
+     "L3": 19,
      "L4": 5,
      "L5": 0
     },
@@ -528,21 +528,21 @@
    }
   },
   "total": {
-   "l2_plus": 110,
-   "l2_plus_pct": 85.3,
-   "l4_plus": 37,
-   "l4_plus_pct": 28.7,
+   "l2_plus": 111,
+   "l2_plus_pct": 86.0,
+   "l4_plus": 38,
+   "l4_plus_pct": 29.5,
    "l5": 0,
    "levels": {
-    "L0": 12,
+    "L0": 11,
     "L1": 7,
-    "L2": 28,
-    "L3": 45,
-    "L4": 37,
+    "L2": 27,
+    "L3": 46,
+    "L4": 38,
     "L5": 0
    },
    "programs": 129,
-   "translated_whole": 117
+   "translated_whole": 118
   }
  },
  "oracle": "GnuCOBOL plus IBM documentation, not z/OS",

@@ -11,6 +11,7 @@ exclusion; an exclusion edited into the ledger afterwards fails validation.
 
 import json
 import os
+import re
 import shlex
 import subprocess
 import sys
@@ -391,3 +392,30 @@ def test_an_inline_fd_record_is_a_layout_but_only_with_an_01_and_pictures():
     assert "no record layout" in trial.out_of_scope_reason(sk, _fd_program(two), False)
     # shipped data needs no layout
     assert trial.out_of_scope_reason(sk, _fd_program("       FD  IN-FILE.\n"), True) is None
+
+
+_UNLOCKED = ("CBACT01C", "CBACT02C", "CBACT03C", "CBACT04C", "CBCUS01C", "CBIMPORT", "CBTRN01C", "CBTRN02C", "CBTRN03C")
+_FD_RECORD = re.compile(r"^.{6}\s*FD\s+([A-Z0-9-]+)[^\n]*\n(?:[^\n]*\n)*?.{6}\s*01\s+([A-Z0-9-]+)", re.M)
+
+
+def test_every_inline_fd_record_of_the_unlocked_carddemo_programs_lays_out():
+    """#3806: the nine CardDemo programs #5551 made eligible declare their records inline. Eligibility only says
+    a layout exists; the generator must read it. Each FD record lays out through layout_fields, using the estate's
+    copy directories. CBIMPORT's input record is built from COPY members (resolved only through app/cpy) and
+    holds a REDEFINES (CVEXPORT): the generator fills the first alternative only (harness_report's `redefines`
+    blocker), so that program's generated inputs need a hand rule. Burned estate only."""
+    import equivalence_common as common
+
+    base = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", "")) / "aws-mainframe-modernization-carddemo"
+    if not (base / "app" / "cbl").is_dir():
+        pytest.skip("CardDemo corpus not checked out")
+    dirs = [base / "app" / "cpy", base / "app" / "cbl"]
+    for prog in _UNLOCKED:
+        rel = f"app/cbl/{prog}.cbl"
+        found = _FD_RECORD.findall((base / rel).read_text(encoding="utf-8", errors="replace"))
+        assert found, f"{prog}: no FD record found"
+        for fd, record in found:
+            assert common.layout_fields(base, rel, record, copy_dirs=dirs), f"{prog} {fd}: {record} has no fields"
+    # without the estate's copy directory the COPY members do not resolve: named, not silent
+    with pytest.raises(common.LayoutError):
+        common.layout_fields(base, "app/cbl/CBIMPORT.cbl", "EXPORT-INPUT-RECORD")

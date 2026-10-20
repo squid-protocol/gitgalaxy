@@ -3781,6 +3781,8 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             res.setdefault("websend", []).append(_cobol_web_send(kv, data, enc))
         elif verb == "WEB-HEADER":  # #4767 (X38): a response header the program wrote
             res.setdefault("webheader", []).append(_cobol_web_header(kv, enc))
+        elif verb == "WEB-RECEIVE":  # #4767 (X38): the request body the program read, as CicsTask records it
+            res.setdefault("webreceive", []).append(_cobol_web_receive(kv, data, enc))
         elif verb == "WRITEQ-TS":  # #4607: as CicsTask records it (queue, data, resp, item)
             res.setdefault("ts", []).append(_cobol_ts(kv, data, enc))
         elif verb in ("READQ-TS", "READQ-TD", "RECEIVE"):  # #4270 (GenApp LGICVS01): as CicsTask records them
@@ -5347,6 +5349,14 @@ def _cobol_web_header(kv: dict[str, str], enc: str) -> dict[str, Any]:
             "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
 
 
+def _cobol_web_receive(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
+    """#4767 (X38): a WEB-RECEIVE line of the stub's events (the media type in hex, the bytes returned as the data) as CicsTask
+    records it; LENGERR 16 returned nothing (no body)."""
+    none = kv["resp2"] == "16"
+    return {"mediatype": None if kv["media"] == "-" else bytes.fromhex(kv["media"]).decode(enc),
+            "body": None if none else data.decode(enc), "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
+
+
 def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     """The COBOL task's outputs as the event list CicsTask records."""
     out: list[dict[str, Any]] = []
@@ -5361,6 +5371,7 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     webs = iter(res.get("web", []))  # #4767 (X35): WEB CONVERSE
     websends = iter(res.get("websend", []))  # #4767 (X37): WEB SEND
     webheaders = iter(res.get("webheader", []))  # #4767 (X38): WEB WRITE HTTPHEADER
+    webreceives = iter(res.get("webreceive", []))  # #4767 (X38): WEB RECEIVE
     children = iter(res.get("children", []))  # #4950: RUN TRANSID children
     for line in res["events"]:
         verb, _, args = line.partition(" ")
@@ -5388,6 +5399,8 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             out.append({"event": "WEB-SEND", **next(websends)})
         elif verb == "WEB-HEADER":  # #4767 (X38): CicsTask.webWriteHeader records the header written
             out.append({"event": "WEB-HEADER", **next(webheaders)})
+        elif verb == "WEB-RECEIVE":  # #4767 (X38): CicsTask.webReceive records the body read
+            out.append({"event": "WEB-RECEIVE", **next(webreceives)})
         elif verb == "WRITEQ-TS":  # #4607: CicsTask.writeqTs records it (queue, data, resp, item)
             out.append({"event": "WRITEQ-TS", **next(queued)})
         elif verb in ("READQ-TS", "READQ-TD", "RECEIVE"):  # #4270: CicsTask records them (queue, item, resp, data)
@@ -5540,6 +5553,10 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
         if c["event"] == "WEB-HEADER":  # #4767 (X38): the response header each side wrote, both ways
             for key in ("name", "value", "resp2"):
+                if (key in c or key in j) and c.get(key) != j.get(key):
+                    bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
+        if c["event"] == "WEB-RECEIVE":  # #4767 (X38): the body each side read and its media type, both ways
+            for key in ("mediatype", "body", "resp", "resp2"):
                 if (key in c or key in j) and c.get(key) != j.get(key):
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
         if c["event"] == "WEB-SEND":  # #4767 (X37): the response each side sent, both ways

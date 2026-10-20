@@ -6,6 +6,7 @@ each method, as det/cics_containers.py does: a module-level import would close a
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -49,7 +50,7 @@ def file_key_method(names: Any) -> list[str]:
     return out
 
 
-def _split(name: str):  # noqa: ANN202
+def _split(name: str) -> Iterator[tuple[str, bool]]:
     import re
 
     pos = 0

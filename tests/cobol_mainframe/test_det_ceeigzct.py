@@ -62,3 +62,19 @@ def test_a_literal_containing_exec_cics_is_not_an_exec_block(tmp_path):
         "IF",
         "EXEC",
     ]
+
+
+def test_the_inventory_records_stand_in_use_only_where_the_stand_in_answered(tmp_path):
+    """#5565: `stand_in_copybooks` names each stand-in member a program's COPY read from the shipped directory; an
+    estate's own member of that name is not a stand-in use, and an estate with none has no such category."""
+    from gitgalaxy.tools.readiness.inventory import scan_estate
+
+    own, bare = tmp_path / "own", tmp_path / "bare"
+    for d in (own, bare):
+        d.mkdir()
+    (bare / "FCUSER.cbl").write_text(PROGRAM)
+    (own / "FCUSER.cbl").write_text(PROGRAM)
+    (own / "CEEIGZCT.cpy").write_text("           03 CEE000 PIC X.\n")
+    inv = scan_estate(bare, tmp_path / "db1")
+    assert {k: sorted(v["programs"]) for k, v in inv["stand_in_copybooks"].items()} == {"CEEIGZCT": ["FCUSER.cbl"]}
+    assert "stand_in_copybooks" not in scan_estate(own, tmp_path / "db2")

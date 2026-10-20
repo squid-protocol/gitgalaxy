@@ -2635,6 +2635,18 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   match, trigger `{kind: http}`; the stub and `CicsTask` both record WEB-SEND and WEB-RECEIVE: the request's media type, the bytes
   returned (none on LENGERR 16), RESP and RESP2, #4767). The crucible's `gt-web-*` cases (after v0.9.0) also need the WEB-OPEN / CONVERSE / CLOSE events and peer
   host / query / headers. ZECS001 still waits on #4771.
+- **The runner's HTTP driver (#4767 `[c:8672e721]`, slice 1).** `tests/tools/cics_crucible.py` now reads a scenario's `requests` and the
+  case's `peers`: each request matches exactly one enabled `USAGE(SERVER)` URIMAP (IBM: SCHEME, HOST or `*`, PATH equal or a trailing-`*`
+  prefix) and starts that URIMAP's TRANSACTION as an `http` task at its time (trigger `{kind: http, request: i}`, no terminal, no
+  STARTCODE stated). The stub gets the request through `$GGCICS_WEBREQ` (`equivalence_cics.http_request_cfg`), `CicsTask` through
+  `withHttpRequest`; both sides' WEB-RECEIVE / WEB-SEND are mapped to SPEC 6.2 events, and the task's one response is compared with the
+  next response the client peer states (status, media type, body; a second or missing response, an unstated peer or a request matching no
+  or two URIMAPs is the `http-peer` defined failure). A side that cannot run `http` tasks is refused by name (`scheduler: http-triggered
+  tasks`). **Event order:** an ACTION(EVENTUAL) WEB SEND is recorded by both runtimes after RETURN (the response goes with the task's end);
+  SPEC's expected logs put it where the command is issued, so the runner moves it ahead of the RETURN it trails (`http_order`).
+  Proven on synthetic requests in `tests/cics_crucible/test_cics_http_driver_4767.py`. **`gt-http-inbound` is still refused** on the
+  CHARACTERSET / HOSTCODEPAGE ruling above (the stub cell stays `unsupported`); the `java` cells now run the request and fail on the
+  generated skeleton's missing events, not on "the side ran none". Left: that ruling, a pin bump, `gt-web-*` (WEB-OPEN / CONVERSE / CLOSE).
 
 ### X38. WEB EXTRACT / EXTRACT WEB, EXTRACT TCPIP, WEB RECEIVE, WEB READ / WRITE HTTPHEADER, WEB READ FORMFIELD / QUERYPARM and the WEB browse forms (CICS web support, the server reading its request) — ASSUMED, REFUSED where IBM is silent (#4767, #4940, #4972, zECS)
 - **WEB EXTRACT** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-web-extract), server form. HOST "host component of the URL, from the

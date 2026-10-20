@@ -92,36 +92,36 @@ jobs:
             # Release tag, or a manual run that asked for it: every supported
             # environment, untrimmed.
             include='[
-              {"os":"ubuntu-latest","python-version":"3.11","part":1,"splits":2,"timeout":20},
-              {"os":"ubuntu-latest","python-version":"3.11","part":2,"splits":2,"timeout":20},
-              {"os":"ubuntu-latest","python-version":"3.12","part":1,"splits":2,"timeout":20},
-              {"os":"ubuntu-latest","python-version":"3.12","part":2,"splits":2,"timeout":20},
-              {"os":"windows-latest","python-version":"3.11","part":1,"splits":2,"even":true,"timeout":33},
-              {"os":"windows-latest","python-version":"3.11","part":2,"splits":2,"even":true,"timeout":33},
-              {"os":"windows-latest","python-version":"3.12","part":1,"splits":2,"even":true,"timeout":25},
-              {"os":"windows-latest","python-version":"3.12","part":2,"splits":2,"even":true,"timeout":25},
-              {"os":"macos-latest","python-version":"3.11","part":1,"splits":2,"timeout":22},
-              {"os":"macos-latest","python-version":"3.11","part":2,"splits":2,"timeout":22},
-              {"os":"macos-latest","python-version":"3.12","part":1,"splits":2,"timeout":22},
-              {"os":"macos-latest","python-version":"3.12","part":2,"splits":2,"timeout":22}
+              {"os":"ubuntu-latest","python-version":"3.11","part":1,"splits":2,"timeout":20,"step_timeout":17},
+              {"os":"ubuntu-latest","python-version":"3.11","part":2,"splits":2,"timeout":20,"step_timeout":17},
+              {"os":"ubuntu-latest","python-version":"3.12","part":1,"splits":2,"timeout":20,"step_timeout":17},
+              {"os":"ubuntu-latest","python-version":"3.12","part":2,"splits":2,"timeout":20,"step_timeout":17},
+              {"os":"windows-latest","python-version":"3.11","part":1,"splits":2,"even":true,"timeout":33,"step_timeout":30},
+              {"os":"windows-latest","python-version":"3.11","part":2,"splits":2,"even":true,"timeout":33,"step_timeout":30},
+              {"os":"windows-latest","python-version":"3.12","part":1,"splits":2,"even":true,"timeout":25,"step_timeout":22},
+              {"os":"windows-latest","python-version":"3.12","part":2,"splits":2,"even":true,"timeout":25,"step_timeout":22},
+              {"os":"macos-latest","python-version":"3.11","part":1,"splits":2,"timeout":22,"step_timeout":19},
+              {"os":"macos-latest","python-version":"3.11","part":2,"splits":2,"timeout":22,"step_timeout":19},
+              {"os":"macos-latest","python-version":"3.12","part":1,"splits":2,"timeout":22,"step_timeout":19},
+              {"os":"macos-latest","python-version":"3.12","part":2,"splits":2,"timeout":22,"step_timeout":19}
             ]'
           else
             # plain manual re-run: since 3.10 was dropped (#3322) the supported
             # Pythons are just floor (3.11) + ceiling (3.12), so this equals the
             # untrimmed grid above.
             include='[
-              {"os":"ubuntu-latest","python-version":"3.11","part":1,"splits":2,"timeout":20},
-              {"os":"ubuntu-latest","python-version":"3.11","part":2,"splits":2,"timeout":20},
-              {"os":"ubuntu-latest","python-version":"3.12","part":1,"splits":2,"timeout":20},
-              {"os":"ubuntu-latest","python-version":"3.12","part":2,"splits":2,"timeout":20},
-              {"os":"windows-latest","python-version":"3.11","part":1,"splits":2,"even":true,"timeout":33},
-              {"os":"windows-latest","python-version":"3.11","part":2,"splits":2,"even":true,"timeout":33},
-              {"os":"windows-latest","python-version":"3.12","part":1,"splits":2,"even":true,"timeout":25},
-              {"os":"windows-latest","python-version":"3.12","part":2,"splits":2,"even":true,"timeout":25},
-              {"os":"macos-latest","python-version":"3.11","part":1,"splits":2,"timeout":22},
-              {"os":"macos-latest","python-version":"3.11","part":2,"splits":2,"timeout":22},
-              {"os":"macos-latest","python-version":"3.12","part":1,"splits":2,"timeout":22},
-              {"os":"macos-latest","python-version":"3.12","part":2,"splits":2,"timeout":22}
+              {"os":"ubuntu-latest","python-version":"3.11","part":1,"splits":2,"timeout":20,"step_timeout":17},
+              {"os":"ubuntu-latest","python-version":"3.11","part":2,"splits":2,"timeout":20,"step_timeout":17},
+              {"os":"ubuntu-latest","python-version":"3.12","part":1,"splits":2,"timeout":20,"step_timeout":17},
+              {"os":"ubuntu-latest","python-version":"3.12","part":2,"splits":2,"timeout":20,"step_timeout":17},
+              {"os":"windows-latest","python-version":"3.11","part":1,"splits":2,"even":true,"timeout":33,"step_timeout":30},
+              {"os":"windows-latest","python-version":"3.11","part":2,"splits":2,"even":true,"timeout":33,"step_timeout":30},
+              {"os":"windows-latest","python-version":"3.12","part":1,"splits":2,"even":true,"timeout":25,"step_timeout":22},
+              {"os":"windows-latest","python-version":"3.12","part":2,"splits":2,"even":true,"timeout":25,"step_timeout":22},
+              {"os":"macos-latest","python-version":"3.11","part":1,"splits":2,"timeout":22,"step_timeout":19},
+              {"os":"macos-latest","python-version":"3.11","part":2,"splits":2,"timeout":22,"step_timeout":19},
+              {"os":"macos-latest","python-version":"3.12","part":1,"splits":2,"timeout":22,"step_timeout":19},
+              {"os":"macos-latest","python-version":"3.12","part":2,"splits":2,"timeout":22,"step_timeout":19}
             ]'
           fi
           echo "include=$(echo "$include" | tr -d '\n ')" >> "$GITHUB_OUTPUT"
@@ -192,8 +192,8 @@ jobs:
       - name: Full Suite (${{ matrix.os }}, Python ${{ matrix.python-version }})
         shell: bash
         # #5764: a stall outside any test (--timeout never fires) failed as a job-level "cancelled" with its log lost; a step
-        # timeout ends the step by name, log kept, before the job cap
-        timeout-minutes: ${{ (matrix.timeout || 30) - 3 }}
+        # timeout ends the step by name, log kept, before the job cap (step_timeout = leg timeout - 3; expressions have no arithmetic)
+        timeout-minutes: ${{ matrix.step_timeout }}
         env:
           PART: ${{ matrix.part }}
           SPLITS: ${{ matrix.splits }}

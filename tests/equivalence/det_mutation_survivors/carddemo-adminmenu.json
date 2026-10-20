@@ -209,15 +209,6 @@
    "reason": "WS-CURDATE-MM-DD-YY as a 9-byte group is only moved to CURDATEO, 8 bytes, which keeps the same first 8"
   },
   {
-   "id": "e8e0e4f0fa",
-   "op": "CON",
-   "line": 369,
-   "before": "private final Field f373_DFHPF3 = Field.alphanumeric(s_DFHAID, 14, 1, false);",
-   "after": "private final Field f373_DFHPF3 = Field.alphanumeric(s_DFHAID, 15, 1, false);",
-   "verdict": "case-gap",
-   "reason": "moving DFHPF3 one byte makes it alias DFHPF4's byte; only a PF4 (or other non-PF3 key) scenario would tell them apart, and none is run"
-  },
-  {
    "id": "fe33c40e7c",
    "op": "CON",
    "line": 383,
@@ -522,6 +513,51 @@
    "after": "/* Cobol.moveFigurative(Figurative.SPACES, f4_WS_MESSAGE, CS); */",
    "verdict": "equivalent",
    "reason": "MOVE SPACES TO WS-MESSAGE at MAIN-PARA's start: every task starts from initialState, where WS-MESSAGE is already spaces (WS-VARIABLES' image), and nothing writes it before this statement"
+  },
+  {
+   "id": "4088b0e5f5",
+   "op": "DEL",
+   "line": 910,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, f304_ERRMSGO, CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.SPACES, f304_ERRMSGO, CS); */",
+   "verdict": "equivalent",
+   "reason": "MAIN-PARA's MOVE SPACES TO ERRMSGO is a dead store: every path that sends the map goes through SEND-MENU-SCREEN, whose first act (COADM01C line 180) is MOVE WS-MESSAGE TO ERRMSGO, and the other paths XCTL or RETURN without sending."
+  },
+  {
+   "id": "e51297a567",
+   "op": "CON",
+   "line": 952,
+   "before": "task.returnTransid(f3_WS_TRANID.strip(), out_CarddemoCommarea(f13_CARDDEMO_COMMAREA.storage(), f13_CARDDEMO_COMMAREA.offset()), (Integer) null, Cobol.commarea(f13_CARDDEMO_COMMAREA, 160).bytes);",
+   "after": "task.returnTransid(f3_WS_TRANID.strip(), out_CarddemoCommarea(f13_CARDDEMO_COMMAREA.storage(), f13_CARDDEMO_COMMAREA.offset()), (Integer) null, Cobol.commarea(f13_CARDDEMO_COMMAREA, 161).bytes);",
+   "verdict": "harness-gap",
+   "reason": "The final RETURN's COMMAREA length (160 vs 161) is what the next invocation would see as EIBCALEN, but the harness ends the scenario at the RETURN and compares the typed COMMAREA projection, not the length argument; observing it needs a chained next-task run."
+  },
+  {
+   "id": "09757783e7",
+   "op": "ROR",
+   "line": 961,
+   "before": "while (!((!(Cobol.compareFigurative(f176_OPTIONI.ref(Cobol.num(f11_WS_IDX, CS).intValue(), Integer.valueOf(1)), Figurative.SPACES, CS) == 0) || Cobol.num(f11_WS_IDX, CS).compareTo(D1) == 0))) {",
+   "after": "while (!((!(Cobol.compareFigurative(f176_OPTIONI.ref(Cobol.num(f11_WS_IDX, CS).intValue(), Integer.valueOf(1)), Figurative.SPACES, CS) == 0) || Cobol.num(f11_WS_IDX, CS).compareTo(D1) != 0))) {",
+   "verdict": "equivalent",
+   "reason": "The scan loop stops at WS-IDX = 1 in the original; the mutant stops at WS-IDX = 2 (the start). The next statement moves OPTIONI(1:WS-IDX) into WS-OPTION-X, a PIC X(2), which space-pads: OPTIONI(1:1) padded and OPTIONI(1:2) are the same two bytes whenever byte 2 is a space, the only case the loop body runs."
+  },
+  {
+   "id": "63b97df761",
+   "op": "BDM",
+   "line": 962,
+   "before": "Cobol.store(f11_WS_IDX, Cobol.receiverNum(f11_WS_IDX, CS).add(DM1), false, CS);",
+   "after": "Cobol.store(f11_WS_IDX, Cobol.receiverNum(f11_WS_IDX, CS).subtract(DM1), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Stepping WS-IDX up instead of down: with OPTIONI byte 2 blank the mutant reads past OPTIONI into ERRMSGL (a halfword whose high byte is low-values, not a space), so the loop stops at index 3; OPTIONI(1:3) moved into the PIC X(2) WS-OPTION-X truncates to the same two bytes the original gets."
+  },
+  {
+   "id": "f272808711",
+   "op": "CON",
+   "line": 1008,
+   "before": "perform(3, 3);",
+   "after": "perform(4, 3);",
+   "verdict": "unreachable",
+   "reason": "This PERFORM SEND-MENU-SCREEN follows an IF whose guard is CDEMO-ADMIN-OPT-PGMNAME(WS-OPTION)(1:5) NOT = 'DUMMY'; COADM02Y names no DUMMY program, so the guard is always true, the XCTL is taken and control never falls through to the message (a missing program raises PGMIDERR into PGMIDERR-ERR-PARA instead)."
   },
   {
    "id": "3355275fd0",

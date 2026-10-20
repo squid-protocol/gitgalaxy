@@ -539,6 +539,52 @@
     }
    ],
    "why": "#4049 slice 3 (mutation survivors): no COMMAREA and the sign-on XCTL answers PGMIDERR: the program's own blank COMMAREA is what it returns"
+  },
+  {
+   "name": "pf4-other-key",
+   "aid": "DFHPF4",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-TO-TRANID": "CT01",
+    "CDEMO-TO-PROGRAM": "COUSR00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "FIRSTNAME",
+    "CDEMO-CUST-MNAME": "MIDNAME",
+    "CDEMO-CUST-LNAME": "LASTNAME",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 1234567890123456,
+    "CDEMO-LAST-MAP": "LASTMAP",
+    "CDEMO-LAST-MAPSET": "LASTSET"
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "1"
+    }
+   },
+   "why": "#4628 (mutation survivors): PF4 is neither ENTER nor PF3, so it takes the invalid-key branch; a DFHPF3 constant moved onto DFHPF4's byte would read it as PF3"
+  },
+  {
+   "name": "invalid-key-unread-option-field",
+   "aid": "DFHPF9",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "1",
+     "OPTN008I": "stale option text"
+    }
+   },
+   "why": "#4628 (mutation survivors): a typed RECEIVE field the program never reads (OPTN008I) lands in the map storage that the invalid-key SEND returns as OPTN008O, so the port must receive it"
   }
  ],
  "notes": "CardDemo's admin menu (transaction CA00, program COADM01C): it lists the six options of COADM02Y and XCTLs to the chosen program; an option outside 1-6 or zero is refused (OPTION is a NUM field, which a 3270 cannot key letters into, so no scenario types a non-numeric option, #5116). Options 5 and 6 (COTRTLIC, COTRTUPC) belong to CardDemo's optional DB2 module, which the base CSD (app/csd/CARDDEMO.CSD, named by the case) does not define, so their XCTL raises PGMIDERR and the program's HANDLE CONDITION label answers 'This option is not installed ...'. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

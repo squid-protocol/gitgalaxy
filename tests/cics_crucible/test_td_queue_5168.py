@@ -14,12 +14,15 @@ CicsTask over one operation list per scenario (IBM, CICS TS 6.x, READQ TD / TDQU
 * round 5: SET TDQUEUE ENABLESTATUS(ENABLED 23 / DISABLED 24) and INQUIRE TDQUEUE ENABLESTATUS: a disabled queue answers DISABLED
   (84) to READQ, WRITEQ and DELETEQ TD, whatever its type or open state; INVREQ RESP2 10 (invalid CVDA), QIDERR RESP2 1; INDIRECT /
   REMOTE and an invalid CVDA on an undefined queue: refused. The state is not a unit-of-work resource (a rollback keeps it).
+* round 7: SET TDQUEUE TRIGGERLEVEL(n) of an intrapartition queue overrides the definition's value (0: automatic task initiation off):
+  the write that reaches the level with a TRANSID is refused, the others complete, INQUIRE reads the level back; QIDERR RESP2 1; a
+  queue that is not intrapartition, INDIRECT, REMOTE, or a level below zero: refused. A rollback keeps the level.
 
 Operations: W:queue:text writes, R:queue:n reads INTO an 8-byte area with LENGTH(n), P:queue reads SET, D:queue deletes, S is a
 SYNCPOINT, B a SYNCPOINT ROLLBACK, O:queue:cvda SET TDQUEUE OPENSTATUS, Q:queue INQUIRE TDQUEUE OPENSTATUS and TYPE,
 E:queue:cvda SET TDQUEUE ENABLESTATUS, F:queue INQUIRE TDQUEUE ENABLESTATUS, I:queue INQUIRE TDQUEUE TRIGGERLEVEL RECOVSTATUS
 TRANSID, G:queue INQUIRE TDQUEUE RECOVSTATUS (round 6: an intrapartition queue answers by its definition, RECOVSTATUS is NOTAPPLIC 1
-for the others, TRIGGERLEVEL / TRANSID of the others are refused)."""
+for the others, TRIGGERLEVEL / TRANSID of the others are refused), T:queue:n SET TDQUEUE TRIGGERLEVEL (round 7)."""
 
 import subprocess
 import sys
@@ -240,6 +243,35 @@ _SCENARIOS: dict[str, tuple[dict[str, str] | None, dict[str, list[str]], list[st
         {"AAAA": "INTRA", "IIII": "INDIRECT INDIRECTNAME=AAAA"}, {}, ["I:IIII"], ["REFUSED"]
     ),
     "inquire trigger level of a remote queue": ({"RRRR": "REMOTE"}, {}, ["I:RRRR"], ["REFUSED"]),
+    "set trigger level": (
+        {"TTTT": "INTRA TRANSID=TRN1 TRIGGERLEVEL=1", "AAAA": "INTRA", "SSSS": "INTRA TRANSID=TRN1 TRIGGERLEVEL=9"},
+        {"SSSS": ["s1", "s2"]},
+        ["T:TTTT:3", "W:TTTT:a", "W:TTTT:b", "I:TTTT", "T:AAAA:2", "W:AAAA:p", "I:AAAA", "T:SSSS:3", "W:SSSS:x"],
+        ["T:TTTT:3 resp=0 resp2=0", "W:TTTT:a resp=0", "W:TTTT:b resp=0", "I:TTTT resp=0 resp2=0 trigger=3 recov=30 transid=[TRN1]",
+         "T:AAAA:2 resp=0 resp2=0", "W:AAAA:p resp=0", "I:AAAA resp=0 resp2=0 trigger=2 recov=30 transid=[    ]",
+         "T:SSSS:3 resp=0 resp2=0", "REFUSED"],
+    ),
+    "set trigger level to zero and back": (
+        {"UUUU": "INTRA TRANSID=TRN1 TRIGGERLEVEL=1"}, {},
+        ["T:UUUU:0", "W:UUUU:a", "W:UUUU:b", "I:UUUU", "T:UUUU:1", "W:UUUU:c"],
+        ["T:UUUU:0 resp=0 resp2=0", "W:UUUU:a resp=0", "W:UUUU:b resp=0", "I:UUUU resp=0 resp2=0 trigger=0 recov=30 transid=[TRN1]",
+         "T:UUUU:1 resp=0 resp2=0", "REFUSED"],
+    ),
+    "set trigger level survives a rollback": (
+        {"LLLL": _L + " TRANSID=TRN1 TRIGGERLEVEL=1"}, {},
+        ["T:LLLL:5", "W:LLLL:a", "B", "I:LLLL", "R:LLLL:8"],
+        ["T:LLLL:5 resp=0 resp2=0", "W:LLLL:a resp=0", "B", "I:LLLL resp=0 resp2=0 trigger=5 recov=216 transid=[TRN1]",
+         f"R:LLLL:8 resp=23 len=-1 {R8}"],
+    ),
+    "set trigger level of an undefined queue": (
+        {"AAAA": "INTRA"}, {}, ["T:NOPE:1", "T:NOPE:-1"], ["T:NOPE:1 resp=44 resp2=1", "T:NOPE:-1 resp=44 resp2=1"]
+    ),
+    "set trigger level below zero": ({"AAAA": "INTRA"}, {}, ["T:AAAA:-1"], ["REFUSED"]),
+    "set trigger level of an extrapartition queue": ({"XXXX": _E}, {}, ["T:XXXX:1"], ["REFUSED"]),
+    "set trigger level of an indirect queue": (
+        {"AAAA": "INTRA", "IIII": "INDIRECT INDIRECTNAME=AAAA"}, {}, ["T:IIII:1"], ["REFUSED"]
+    ),
+    "set trigger level of a remote queue": ({"RRRR": "REMOTE"}, {}, ["T:RRRR:1"], ["REFUSED"]),
 }  # fmt: skip
 
 _MAIN = r"""
@@ -254,6 +286,7 @@ int GGCRDTS(gg_cics *c, void **slot);
 int GGCDLTD(gg_cics *c);
 int GGCSTDQ(gg_cics *c);
 int GGCSTDE(gg_cics *c);
+int GGCSTDT(gg_cics *c);
 int GGCITDQ(gg_cics *c);
 int GGCSYNC(gg_cics *c);
 int GGCABND(gg_cics *c);
@@ -290,6 +323,10 @@ int main(int argc, char **argv) {
         } else if (a[0] == 'E') {
             c.num = atoi(a + 7);
             GGCSTDE(&c);
+            printf("%s resp=%d resp2=%d\n", a, c.resp, c.resp2);
+        } else if (a[0] == 'T') {
+            c.num = atoi(a + 7);
+            GGCSTDT(&c);
             printf("%s resp=%d resp2=%d\n", a, c.resp, c.resp2);
         } else if (a[0] == 'F') {
             strcpy(c.flags, "ENABLESTATUS");
@@ -397,6 +434,9 @@ def _java_scenario(name: str, queues, seed, ops) -> str:
                         System.out.println(op + " resp=" + r[0] + " resp2=" + r[1]);
                     }} else if (p[0].equals("E")) {{
                         int[] r = t.setTdQueueEnableStatus(p[1], Long.parseLong(p[2]));
+                        System.out.println(op + " resp=" + r[0] + " resp2=" + r[1]);
+                    }} else if (p[0].equals("T")) {{
+                        int[] r = t.setTdQueueTriggerLevel(p[1], Long.parseLong(p[2]));
                         System.out.println(op + " resp=" + r[0] + " resp2=" + r[1]);
                     }} else if (p[0].equals("F")) {{
                         int[] r = t.inquireTdQueue(p[1], false, false, true);

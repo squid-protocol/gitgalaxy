@@ -1130,13 +1130,13 @@
 <text class="bar-value-label" x="726.0" y="1947">541</text>
 <text class="lang-label" x="20" y="1991.5">scheme</text>
 <rect class="bar-track" x="154" y="1971" width="88" height="34" rx="2"/>
-<rect x="154" y="1971" width="55.5" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="1979">58</text>
-<rect x="154" y="1983" width="88.0" height="10" rx="2" fill="#1baf7a"/>
+<rect x="154" y="1971" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="198.0" y="1979">217</text>
+<rect x="154" y="1983" width="37.3" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="198.0" y="1991">92</text>
 <rect class="bar-track" x="286" y="1971" width="88" height="34" rx="2"/>
 <rect x="286" y="1971" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="1979">58/58</text>
+<text class="bar-value-label" x="330.0" y="1979">217/217</text>
 <rect x="286" y="1983" width="7.7" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="330.0" y="1991">8/92</text>
 <circle cx="390.0" cy="1988.0" r="8" fill="#2a78d6"/>

@@ -127,7 +127,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X14 | CICS | READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused | ASSUMED (REFUSED where IBM is silent) | yes, NORMAL only (GenApp LGUCVS01 / LGUPVS01) |
 | X15 | CICS | Terminal RECEIVE (INTO / SET, LENGTH, MAXLENGTH, NOTRUNCATE; LENGERR, EOC on an LUTYPE2 terminal) and SEND CONTROL | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible hc-terminal-receive, hc-terminal-eoc) |
 | X16 | CICS | HANDLE AID, IGNORE CONDITION, PUSH / POP HANDLE and HANDLE CONDITION ERROR on the det port | MATCHED (REFUSED where IBM is silent) | yes (cics-crucible hc-handle-aid, hc-ignore-error, hc-eoc-error) |
-| X17 | CICS | Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; RETURN CHANNEL, BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42) | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible ca-channel-containers, unreleased) |
+| X17 | CICS | Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port only, the stub refuses it), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42) | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible ca-channel-containers, unreleased) |
 | X18 | CICS | Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE, CHANNEL), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD (NOSUSPEND, TIMEOUT or waiting), FREE CHILD, and DELAY as the wait that dispatches RUN children (#4950); the child schedule, TIME RESP2 and the order of out-of-range checks assumed; ties, a child's region-resource commands, RETRIEVE SET / WAIT refused | ASSUMED (REFUSED where IBM is silent) | yes (cics-crucible gt-start-retrieve, gt-terminal-coalesce, gt-start-options, unreleased) |
 | X19 | CICS | ASSIGN on the det port: STARTCODE (TD / S / SD / D), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused | ASSUMED (REFUSED where the harness cannot decide) | yes (cics-crucible gt-assign-startcode, unreleased) |
 | X20 | CICS | SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused | MATCHED (REFUSED where the region cannot decide) | yes (cics-crucible gt-send-text-terminal, unreleased) |
@@ -1689,6 +1689,14 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   without one. CONTAINERERR (110) and CHANNELERR (122) abend AEZJ / AEZV by default. Both sides model it: `ggcics.c`
   GGCPUTC / GGCGETC / GGCDELC / GGCASCH and GGCLINK / GGCXCTL with GG-CHAN, and CicsTask putContainer / getContainer
   / deleteContainer / linkChannel / xctlChannel / assignChannel.
+- **RETURN CHANNEL (#5005, EXEC CICS RETURN).** IBM: CHANNEL is "the name ... of a channel that is to be made available to
+  the next program" (a channel that does not exist is created empty); COMMAREA is its alternative, and a RETURN below the
+  highest logical level fails with INVREQ RESP2 2 and returns to the program. The port (`CicsTask.returnChannel`) ends the
+  task with the channel recorded as `returnedChannel` and a RETURN event naming it and its containers; the translator
+  refuses CHANNEL without TRANSID, and beside COMMAREA / LENGTH / IMMEDIATE (IBM does not say), by name. **Not carried yet:**
+  neither crucible harness hands the channel to the next task (the Java runner's `pending*` fields and the stub's
+  process-per-task state), and the stub translator refuses RETURN CHANNEL as a stub-only feature, so the
+  pc-return-channel cells do not move.
 - **Assumed.** A container holds the program's bytes. A BIT container is never converted; a CHAR one put and got
   with no CCSID option is in the region's CCSID both ways, so it is not converted either -- the port keeps the bytes
   in its storage's page and the stub in its own, as each side keeps every other area.
@@ -2161,7 +2169,7 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   the log's `eibaid` is null, and the case reads neither.
 - **Refused by name.** RETURN IMMEDIATE without TRANSID (IBM does not say what it attaches); a task with no terminal
   below level 1 (IBM lists INVREQ RESP2 1 and 2 and no precedence); an unstated terminal in the stub.
-  RETURN CHANNEL stays refused (register: no corpus program uses it). IBM does not say how an immediate task orders
+  RETURN CHANNEL with IMMEDIATE is refused (X17: IBM does not say). IBM does not say how an immediate task orders
   against an expired START request of another transaction; the runner runs it first, and a case never makes the order
   observable.
 - **LINK SYNCONRETURN** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-link): "Specifies that the server region

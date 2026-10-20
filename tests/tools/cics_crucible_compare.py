@@ -70,6 +70,9 @@ EVENT_KEYS: dict[str, tuple[str, ...]] = {
     "WRITEQ-TS": ("queue", "data", "resp", "item"),
     "WRITE-OPERATOR": ("data", "resp"),  # #4270 zECS (X32): the console message
     "READ": ("file", "ridfld", "resp"),
+    # #4767 zECS (X37, X38): an `http` task's request body and its response (SPEC 6.2; resp2 only where IBM documents it)
+    "WEB-RECEIVE": ("resp", "resp2", "length", "data"),
+    "WEB-SEND": ("status", "statustext", "mediatype", "from", "resp", "resp2"),
     "ABEND": ("abcode", "cause", "condition", "outcome", "exit"),
 }
 AREA_KEYS = frozenset({"commarea", "caller_commarea", "data", "from"})
@@ -84,7 +87,8 @@ class CaseError(Exception):
 def parse_csd(text: str) -> dict[str, Any]:
     """The DFHCSDUP input of a case: {"programs": set, "transactions": {transid: program},
     "mapsets": set, "terminals": {termid: DEVICE of its TYPETERM}, "uctran": {termid: UCTRAN of its
-    TYPETERM, when it has one}, "urimaps": [(name, TRANSACTION, PATH)] in the CSD's order, "disabled": the programs defined
+    TYPETERM, when it has one}, "urimaps": [(name, TRANSACTION, PATH)] in the CSD's order, "server_urimaps": [{name,
+    transaction, scheme, host, path, status}] of the USAGE(SERVER) ones (#4767, X37), "disabled": the programs defined
     STATUS(DISABLED) (#4768, X34: not modelled)}. Comment lines start with `*`; a
     DEFINE may continue on following lines. #4413: a TYPETERM's DEVICE (3270 when not given) says
     whether a terminal RECEIVE raises EOC (SPEC section 2: DEVICE(LUTYPE2) does)."""
@@ -96,6 +100,9 @@ def parse_csd(text: str) -> dict[str, Any]:
     uctrans: dict[str, str] = {}  # #4415: a TYPETERM's UCTRAN (YES / NO / TRANID), when the CSD says
     urimaps: list[tuple[str, str, str]] = []  # #4270 zECS (X32): (name, TRANSACTION or "", PATH), in the CSD's order
     disabled: set[str] = set()  # #4768 (X34): programs defined STATUS(DISABLED)
+    server_urimaps: list[
+        dict[str, str]
+    ] = []  # #4767 (X37): the URIMAPs that map an inbound HTTP request to a transaction
     body = " ".join(ln for ln in text.splitlines() if not ln.lstrip().startswith("*"))
     for m in re.finditer(r"\bDEFINE\s+(\w+)\s*\(\s*([^)\s]+)\s*\)(.*?)(?=\bDEFINE\b|$)", body, re.I | re.S):
         kind, name, rest = m.group(1).upper(), m.group(2).upper(), m.group(3)
@@ -110,6 +117,13 @@ def parse_csd(text: str) -> dict[str, Any]:
             tr = re.search(r"\bTRANSACTION\s*\(\s*([^)\s]+)\s*\)", rest, re.I)
             pa = re.search(r"\bPATH\s*\(\s*([^)\s]+)\s*\)", rest, re.I)
             urimaps.append((name, tr.group(1).upper() if tr else "", pa.group(1) if pa else ""))
+            if re.search(r"\bUSAGE\s*\(\s*SERVER\s*\)", rest, re.I):
+                attr = {a: re.search(rf"\b{a}\s*\(\s*([^)\s]+)\s*\)", rest, re.I) for a in ("SCHEME", "HOST", "STATUS")}
+                server_urimaps.append({"name": name, "transaction": tr.group(1).upper() if tr else "",
+                                       "path": pa.group(1) if pa else "",
+                                       "scheme": attr["SCHEME"].group(1).upper() if attr["SCHEME"] else "",
+                                       "host": attr["HOST"].group(1) if attr["HOST"] else "",
+                                       "status": attr["STATUS"].group(1).upper() if attr["STATUS"] else "ENABLED"})  # fmt: skip
         elif kind == "TRANSACTION":
             prog = re.search(r"\bPROGRAM\s*\(\s*([^)\s]+)\s*\)", rest, re.I)
             if prog:
@@ -126,8 +140,11 @@ def parse_csd(text: str) -> dict[str, Any]:
                 terminal_types[name] = tt.group(1).upper()
     terminals = {t: devices.get(tt, "3270") for t, tt in terminal_types.items()}
     uctran = {t: uctrans[tt] for t, tt in terminal_types.items() if tt in uctrans}
-    return {"programs": programs, "transactions": transactions, "mapsets": mapsets, "terminals": terminals,
-            "uctran": uctran, "urimaps": urimaps, "disabled": disabled}  # fmt: skip
+    out = {"programs": programs, "transactions": transactions, "mapsets": mapsets, "terminals": terminals,
+           "uctran": uctran, "urimaps": urimaps, "disabled": disabled}  # fmt: skip
+    if server_urimaps:  # added only when non-empty: an always-present empty key breaks exact-equality tests
+        out["server_urimaps"] = server_urimaps
+    return out
 
 
 @dataclass
@@ -315,6 +332,7 @@ class Capabilities:
     events: dict[str, frozenset[str]]
     ts_queues: bool = False  # seeds a scenario's `initial` TS queues and reports the `final` ones
     start_tasks: bool = False
+    http_tasks: bool = False  # #4767 (X37): schedules an inbound HTTP request as an `http` task
 
 
 def feature_name(layer: str, event: str | None, key: str | None = None) -> str:
@@ -346,6 +364,8 @@ def blockers(expected: dict[str, Any], caps: Capabilities, scenario: dict[str, A
     for task in expected["tasks"]:
         if task["trigger"]["kind"] in ("start", "run") and not caps.start_tasks:  # (#4270: a RUN TRANSID child)
             need(f"scheduler: START-triggered tasks ({caps.layer})")
+        if task["trigger"]["kind"] == "http" and not caps.http_tasks:  # (#4767: an inbound HTTP request)
+            need(f"scheduler: http-triggered tasks ({caps.layer})")
         for key in TASK_KEYS:
             if key not in caps.task_keys:
                 need(feature_name(caps.layer, None, key))
@@ -621,6 +641,8 @@ class _Walk:
             extra = tasks[len(exp["tasks"])]
             self.fail(f"task {len(exp['tasks']) + 1}", f"no further task expected, the side ran {extra.get('transid')}",
                       "extra task")  # fmt: skip
+        if act.get("http_peer"):  # #4767 (X37): the response is not the one the client peer states
+            self.fail("http peer", act["http_peer"], "http-peer")
         final = exp.get("final", {}).get("ts_queues")
         if final:
             if not self.caps.ts_queues:

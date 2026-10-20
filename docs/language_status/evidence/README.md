@@ -36,6 +36,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [LGICDB01](genapp-lgicdb01.md) | genapp-lgicdb01 | cics | proven, unapproved |  | 12 | 3/4 / 4/12 | 51/130 / 51/107 | 0 | - |
 | [LGSTSQ](genapp-lgstsq.md) | genapp-lgstsq | cics | proven, unapproved |  | 7 | 1/1 / 3/6 | 25/78 / 25/69 | 0 | - |
 | [LGUPDB01](genapp-lgupdb01.md) | genapp-lgupdb01 | cics | proven, unapproved |  | 5 | 8/9 / 17/38 | 67/140 / 67/120 | 0 | - |
+| [LGUPVS01](genapp-lgupvs01.md) | genapp-lgupvs01 | cics | proven, unapproved |  | 10 | 3/3 / 5/9 | 66/119 / 66/100 | 0 | - |
 | [CALINK](crucible-ca-link-lengths-CALINK.md) | crucible:ca-link-lengths/CALINK | crucible | proven, unapproved |  | 4 | 1/1 / 4/4 | 15/22 / 15/15 | 0 | - |
 | [CASUB](crucible-ca-link-lengths-CASUB.md) | crucible:ca-link-lengths/CASUB | crucible | proven, unapproved |  | 3 | 1/1 / 4/4 | 16/24 / 16/16 | 0 | - |
 | [CAXA](crucible-ca-xctl-versions-CAXA.md) | crucible:ca-xctl-versions/CAXA | crucible | proven, unapproved |  | 3 | 1/1 / 3/3 | 16/21 / 16/16 | 0 | - |

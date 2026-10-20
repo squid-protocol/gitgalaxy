@@ -748,6 +748,26 @@ public final class DetCics {
         setPointer(ptr, task.addressOf(item.storage().bytes, item.offset()));
     }
 
+    /** `MOVE view TO view` over two numeric views of pointers (#4771, X47): the address is copied, as the handle is. */
+    public static void copyPointer(Field to, Field from) {
+        setPointer(to, pointerValue(from));
+    }
+
+    /** `ADD n TO view` / `SUBTRACT n FROM view` over a numeric view of a pointer (#4771, X47): the pointer addresses the
+     *  same storage n bytes further on (or back), the handle of that offset (CicsTask.addressOf). Refused: a null or
+     *  freed pointer, and a result outside the storage (IBM: an address that is not the program's). */
+    // [rule RT-CICS-POINTER-LANE]
+    public static void advancePointer(CicsTask task, Field ptr, long n) {
+        long handle = pointerValue(ptr);
+        byte[] bytes = task.storageAt(handle, 0);
+        long at = task.offsetAt(handle) + n;
+        if (at < 0 || at > bytes.length) {
+            throw new UnsupportedOperationException(
+                "pointer arithmetic leaves the storage the pointer addresses (" + at + " of " + bytes.length + " bytes)");
+        }
+        setPointer(ptr, task.addressOf(bytes, (int) at));
+    }
+
     /** `IF ptr-a = ptr-b` (#5042, X56): the two pointers address the same storage (CicsTask.samePointer). */
     public static boolean samePointer(CicsTask task, Field a, Field b) {
         return task.samePointer(pointerValue(a), pointerValue(b));

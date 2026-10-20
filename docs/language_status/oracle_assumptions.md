@@ -467,7 +467,7 @@ instrument). The rows below are rendered by one table in code (`compiler_options
 | `AFP(VOLATILE\|NOVOLATILE)` | no: which floating-point registers the code uses | none needed | -- | recorded only | C5 |
 | `NOSSRANGE` (IBM default) / `SSRANGE` | only on an out-of-range subscript or reference modification: undefined under NOSSRANGE, an abend under SSRANGE | none (no check) | no check | `SSRANGE` is proven as NOSSRANGE: a declared difference, so a run with no violation is IBM's | C5 |
 | `NONUMCHECK` (IBM default) / `NUMCHECK` | only on invalid numeric data in a sending item (message or abend under NUMCHECK) | none | none | `NUMCHECK` is proven as NONUMCHECK: a declared difference | C5 |
-| `ZWB` (IBM default) / `NOZWB` | yes: whether a signed zoned operand of a numeric-vs-nonnumeric comparison is compared with or without its sign (C13) | none | none (compares unsigned) | `NOZWB` refused by name | C13 |
+| `ZWB` (IBM default) / `NOZWB` | yes: whether a signed zoned operand of a numeric-vs-nonnumeric comparison is compared with or without its sign (C13) | none | none (compares unsigned) | `NOZWB` refused by name; no burned estate names either option (2026-10-20) | C13 |
 | `NOINITCHECK` (IBM default) / `INITCHECK` | no: compile-time warnings for uninitialised items | none needed | -- | recorded only | C5 |
 | `OPTIMIZE(0\|1\|2\|STD\|FULL)` | no for defined behaviour: run time and storage | none needed | -- | recorded only (CBSA's `OPT` = `OPTIMIZE(1)`); a zero divisor without ON SIZE ERROR is undefined on IBM at every level, so the det port follows cobc whatever the level; no proven scenario divides by zero | C5, C14 |
 
@@ -964,7 +964,7 @@ instrument). The rows below are rendered by one table in code (`compiler_options
 - **Compile options.** The det port and the oracle compare the unsigned value, which is ZWB, IBM's default. `NOZWB`
   (PARM, installation default or a CBL / PROCESS card) is refused by name (`compiler_options.OPTION_TABLE`, C5), since
   a signed zoned item compared with its sign would be proven against the wrong rule. An explicit `ZWB` is honoured and
-  cancels an earlier `NOZWB`. No burned estate names either option, so nothing is refused that was proven (#4702).
+  cancels an earlier `NOZWB`. No burned estate names either option (a whole-word, case-insensitive search of the six burned estates -- CardDemo, CBSA, GenApp, zECS, DBB MortgageApplication, cicsdev async credit-card -- for `ZWB` found no file, 2026-10-20), so nothing is refused that was proven and there is nothing to prove for NOZWB (#4702).
 - **The oracle** (GnuCOBOL 3.1.2 `-std=ibm`, measured 2026-10-07 with `test_det_programs` probes): `E PIC
   ZZZ,ZZ9.99` holding 1500 (`  1,500.00`) is neither greater than `1499.99` nor `1499` -- text, not value. A literal
   is its characters as written: `0012` is `0012`, `12` is `12` (`  12` = `12` is false), `1499.99` is `149999`,

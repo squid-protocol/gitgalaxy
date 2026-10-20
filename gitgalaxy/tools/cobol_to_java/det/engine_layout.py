@@ -139,7 +139,7 @@ def adopt(rec: Item, lay: dict, where: str) -> None:
         if not it.children or it.pic is not None:
             return
         by_name: dict[str, Item] = {}
-        ends = []
+        ends: list[tuple[int, int]] = []
         for c in it.children:
             if c.level in (66, 88):
                 continue
@@ -209,8 +209,10 @@ class EngineLayouts:
         for rec in records:
             src = lines[rec.line - 1] if 0 < rec.line <= len(lines) else None
             rel = self.rel(src.file) if src is not None else None
-            lay = self.records.layout(rec.name, rel, src.line, rec.level, self.pointer_bytes) if rel else None
-            if lay is None:
+            lay = None
+            if src is not None and rel is not None:
+                lay = self.records.layout(rec.name, rel, src.line, rec.level, self.pointer_bytes)
+            if src is None or lay is None:
                 self.own.append(rec.name)
                 continue
             where = f"{rel}:{src.line}: {rec.level:02d} {rec.name}"

@@ -802,7 +802,7 @@ class ApertureFilter:
                     }
                 )
                 return report
-            elif not has_intent and loc > 1000:
+            elif not has_intent and loc > 1000 and not (low_path.endswith(".sql") and self._has_sql_structure(content)):
                 report.update(
                     {
                         "valid": False,
@@ -1086,6 +1086,26 @@ class ApertureFilter:
             return True
         # Content check: YAML with many run:/steps:/jobs: keys is workflow code
         return len(cls._PIPELINE_KEY_PATTERN.findall(content, 0, 200_000)) >= 3
+
+    # #5636: query structure -- a clause opening a line, or a CTE definition `name AS (`.
+    _SQL_STRUCTURE_LINE = re.compile(
+        r"^[ \t]*(?:select|from|(?:left |right |inner |outer |cross |full )?join|where|group by|order by|case"
+        r"|,?[ \t]*\w+[ \t]+as[ \t]*\()\b",
+        re.IGNORECASE | re.MULTILINE,
+    )
+    _SQL_DATA_LINE = re.compile(r"^[ \t]*(?:insert|values|\()", re.IGNORECASE | re.MULTILINE)
+
+    @classmethod
+    def _has_sql_structure(cls, content: str) -> bool:
+        """#5636: a SQL file is query source, not a data dump, when query-structure lines are a tenth of its lines
+        and outnumber its row lines (`INSERT` / `VALUES` / `(...)`). A CTE-fragment file has no leading statement, so
+        its first statement cannot be the test; a dump of rows has few structure lines, whatever its header."""
+        window = content[:400_000]
+        lines = window.count("\n") + 1
+        structure = sum(1 for _ in cls._SQL_STRUCTURE_LINE.finditer(window))
+        if structure * 10 < lines:
+            return False
+        return structure > sum(1 for _ in cls._SQL_DATA_LINE.finditer(window))
 
     # Characters that open a comment in some language (`//`, `///`, `/*`, ` *`, `#`, `--`, `;`, `%`,
     # `'`, `<!--`, `"""`) plus whitespace; stripped from the front of a line to reach its text.

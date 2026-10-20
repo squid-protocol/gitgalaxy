@@ -38,6 +38,20 @@ COPY_STATEMENT = re.compile(
     + "(?:" + _SP + "(?:OF|IN)" + _SP + "(['\"]?)(" + _NAME + r")\5)?",
     re.I,
 )  # fmt: skip
+# #3355 / #4278: the scanner's head scan -- `COPY member` or `EXEC SQL INCLUDE member` (which expands in place the same
+# way); group 1 is the member (a quoted file literal's extension, closed by its quote, left off). The library and the
+# REPLACING phrase are read from where it ends (COPY_LIBRARY, copy_replacing), so a COPY whose closing quote is
+# missing still names its member.
+COPY_OR_INCLUDE_HEAD = re.compile(
+    "(?<![" + _NAME_CHAR + "])(?:COPY|EXEC" + _SP + "SQL" + _SP + "INCLUDE)" + _SP
+    + "['\"]?(" + _NAME + r")(?:\.[\w-]+(?=['\"]))?",
+    re.I,
+)  # fmt: skip
+# #4265: the `IN|OF library-name` after a COPY's text-name (closing quote allowed), matched at the head's end.
+COPY_LIBRARY = re.compile(
+    "['\"]?" + _SP + "(?:IN|OF)" + _SP + "['\"]?(" + _NAME + ")",
+    re.I,
+)  # fmt: skip
 # #4459: a COPY ending its line, its text-name on the next
 COPY_ALONE = re.compile("(?<![" + _NAME_CHAR + r"])COPY\s*$", re.I)
 

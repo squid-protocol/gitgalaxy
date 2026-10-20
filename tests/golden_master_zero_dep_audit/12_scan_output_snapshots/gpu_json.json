@@ -5,7 +5,7 @@
   ],
   "value": {
     "Galaxy Column Digests": {
-      "a_dists": "73ac3107f311",
+      "a_dists": "be606f623eec",
       "a_ids": "c5e83ab16330",
       "ai_threats": "702f60aa030f",
       "author_distribution": "702f60aa030f",
@@ -29,7 +29,7 @@
       "tel_cfr": "22d317026281",
       "tel_lt": "a5110b875769",
       "tel_pid": "729eb627fcbc",
-      "tel_pop": "15aabbf8ff77",
+      "tel_pop": "49f9ca4e65d7",
       "tel_purp": "64d3ca5df8c8"
     },
     "Galaxy Files": {
@@ -2147,12 +2147,12 @@
       "nix/ghostty/flake.nix": "53f5e8ce8444",
       "nix/ghostty/shell.nix": "8a8748effed2",
       "objective-c/SOURCES.md": "72964823549c",
-      "objective-c/worldwideweb/Anchor.m": "be52f2b93cbe",
+      "objective-c/worldwideweb/Anchor.m": "9be2052c7bcc",
       "objective-c/worldwideweb/HText.c": "8b4c63b0c458",
       "objective-c/worldwideweb/HyperManager.m": "34a01517843c",
       "objective-c/worldwideweb/HyperText.h": "88cee2ee2e2d",
       "objective-c/worldwideweb/HyperText.m": "d3f50dc08c39",
-      "objective-c/worldwideweb/TcpAccess.m": "8c3f5b85776c",
+      "objective-c/worldwideweb/TcpAccess.m": "6af8cf29cb6b",
       "perl/SOURCES.md": "683ad3be8cc9",
       "perl/ack3_tests/LICENSE.md": "682ac5fb987d",
       "perl/ack3_tests/file-permission.t": "32810810f96b",
@@ -3412,7 +3412,7 @@
       "ecosystem_audits": "aa094343f1a1",
       "ecosystem_fingerprint": "4350181b84f3",
       "health": "c70f7fb272c0",
-      "network_macro": "a94b9a8889fb",
+      "network_macro": "ac9ae8e22fe3",
       "repo_macro_species": "2bd4f962ad9c",
       "summary": "a9637eb3a75d",
       "typosquat_hits": "5feceb66ffc8",

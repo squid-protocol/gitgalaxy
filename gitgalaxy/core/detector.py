@@ -10442,6 +10442,9 @@ class StructuralExtractor:
                 if isinstance(masked, re.Pattern):
                     safe_block = masked.sub(lambda m: re.sub(r"[^\n]", " ", m.group(0)), safe_block)
                 raw_calls = invocation_pattern.findall(safe_block)
+                if invocation_pattern.groups > 1:
+                    # #5639: one group per alternative (Objective-C: C call, message selector)
+                    raw_calls = [next((g for g in m if g), "") for m in raw_calls]
                 # #5638: a Fortran function reference `x = F(a)` has no verb; the statement scan
                 # also keeps `CALL F` in source order, and the verb regex's finds stay as a floor.
                 if self.languages.get(self.primary_lang_id, {}).get("calls_out_function_refs"):

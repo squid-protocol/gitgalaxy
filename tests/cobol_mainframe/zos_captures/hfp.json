@@ -1,6 +1,6 @@
 {
   "format": "gitgalaxy-hfp-captures/1",
-  "about": "Expected results for IBM hexadecimal floating point (register C6, #4271), checked against det/hfp.py by test_hfp_zos_captures.py (the Java runtime is held to the same model bit for bit by test_det_hfp.py). source ibm-publication: a value IBM or a public reference states, hand-checked. source zos-run: a result captured from a z/OS run (#4050); needs evidence (job, step, output hash; never the data) and calibrated_under (runtime_options.calibration_problems). None is captured yet. ops: encode (value, size -> hex), add / sub / mul / div (a, b hex, size -> hex), display (a hex, size -> text), fixed (a hex, size, scale -> decimal).",
+  "about": "Expected results for IBM hexadecimal floating point (register C6, #4271), checked against det/hfp.py by test_hfp_zos_captures.py (the Java runtime is held to the same model bit for bit by test_det_hfp.py). source ibm-publication: a value IBM or a public reference states, hand-checked. source zos-run: a result captured from a z/OS run (#4050); needs evidence (job, step, output hash; never the data) and calibrated_under (runtime_options.calibration_problems). None is captured yet. ops: encode (value, size -> hex), add / sub / mul / div (a, b hex, size -> hex), display (a hex, size -> text), fixed (a hex, size, scale -> decimal), from_ieee (a IEEE hex of the item's width, size -> HFP hex), to_ieee (a HFP hex, size -> IEEE hex, nearest, ties to even).",
   "records": [
     {"id": "enc-1", "source": "ibm-publication", "op": "encode", "value": "1", "size": "short", "want": "41100000"},
     {"id": "enc-half", "source": "ibm-publication", "op": "encode", "value": "0.5", "size": "short", "want": "40800000"},
@@ -38,6 +38,28 @@
     {"id": "disp-1-64", "source": "ibm-publication", "op": "display", "a": "3F400000", "size": "short", "want": " .15625000E-01"},
     {"id": "fixed-long-0.1-2", "source": "ibm-publication", "op": "fixed", "a": "4019999999999999", "scale": 2, "size": "long", "want": "0.10"},
     {"id": "fixed-long-0.1-17", "source": "ibm-publication", "op": "fixed", "a": "4019999999999999", "scale": 17, "size": "long", "want": "0.09999999999999999"},
-    {"id": "fixed-clamp-9", "source": "ibm-publication", "op": "fixed", "a": "44303980", "scale": 5, "size": "short", "want": "12345.5000"}
+    {"id": "fixed-clamp-9", "source": "ibm-publication", "op": "fixed", "a": "44303980", "scale": 5, "size": "short", "want": "12345.5000"},
+    {"id": "from_ieee-1-short", "source": "ibm-publication", "op": "from_ieee", "a": "3F800000", "size": "short", "want": "41100000"},
+    {"id": "to_ieee-1-short", "source": "ibm-publication", "op": "to_ieee", "a": "41100000", "size": "short", "want": "3F800000"},
+    {"id": "from_ieee-1-long", "source": "ibm-publication", "op": "from_ieee", "a": "3FF0000000000000", "size": "long", "want": "4110000000000000"},
+    {"id": "to_ieee-1-long", "source": "ibm-publication", "op": "to_ieee", "a": "4110000000000000", "size": "long", "want": "3FF0000000000000"},
+    {"id": "from_ieee-m118.625-short", "source": "ibm-publication", "op": "from_ieee", "a": "C2ED4000", "size": "short", "want": "C276A000"},
+    {"id": "to_ieee-m118.625-short", "source": "ibm-publication", "op": "to_ieee", "a": "C276A000", "size": "short", "want": "C2ED4000"},
+    {"id": "from_ieee-m118.625-long", "source": "ibm-publication", "op": "from_ieee", "a": "C05DA80000000000", "size": "long", "want": "C276A00000000000"},
+    {"id": "to_ieee-m118.625-long", "source": "ibm-publication", "op": "to_ieee", "a": "C276A00000000000", "size": "long", "want": "C05DA80000000000"},
+    {"id": "from_ieee-1.5-short", "source": "ibm-publication", "op": "from_ieee", "a": "3FC00000", "size": "short", "want": "41180000"},
+    {"id": "to_ieee-1.5-short", "source": "ibm-publication", "op": "to_ieee", "a": "41180000", "size": "short", "want": "3FC00000"},
+    {"id": "from_ieee-1.5-long", "source": "ibm-publication", "op": "from_ieee", "a": "3FF8000000000000", "size": "long", "want": "4118000000000000"},
+    {"id": "to_ieee-1.5-long", "source": "ibm-publication", "op": "to_ieee", "a": "4118000000000000", "size": "long", "want": "3FF8000000000000"},
+    {"id": "from_ieee-100.5-short", "source": "ibm-publication", "op": "from_ieee", "a": "42C90000", "size": "short", "want": "42648000"},
+    {"id": "to_ieee-100.5-short", "source": "ibm-publication", "op": "to_ieee", "a": "42648000", "size": "short", "want": "42C90000"},
+    {"id": "from_ieee-100.5-long", "source": "ibm-publication", "op": "from_ieee", "a": "4059200000000000", "size": "long", "want": "4264800000000000"},
+    {"id": "to_ieee-100.5-long", "source": "ibm-publication", "op": "to_ieee", "a": "4264800000000000", "size": "long", "want": "4059200000000000"},
+    {"id": "from_ieee-zero-short", "source": "ibm-publication", "op": "from_ieee", "a": "00000000", "size": "short", "want": "00000000"},
+    {"id": "to_ieee-zero-short", "source": "ibm-publication", "op": "to_ieee", "a": "00000000", "size": "short", "want": "00000000"},
+    {"id": "from_ieee-zero-long", "source": "ibm-publication", "op": "from_ieee", "a": "0000000000000000", "size": "long", "want": "0000000000000000"},
+    {"id": "to_ieee-zero-long", "source": "ibm-publication", "op": "to_ieee", "a": "0000000000000000", "size": "long", "want": "0000000000000000"},
+    {"id": "from_ieee-0.1-long", "source": "ibm-publication", "op": "from_ieee", "a": "3FB999999999999A", "size": "long", "want": "401999999999999A"},
+    {"id": "to_ieee-0.1-long", "source": "ibm-publication", "op": "to_ieee", "a": "401999999999999A", "size": "long", "want": "3FB999999999999A"}
   ]
 }

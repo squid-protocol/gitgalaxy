@@ -402,9 +402,9 @@ def test_out_inside_the_estate_is_refused(planted):
     assert not (estate / "report.json").exists()
 
 
-def test_jcl_is_refused_by_name(tmp_path):
-    res = _assess(str(tmp_path), "--jcl", str(tmp_path))
-    assert res.returncode == 2 and "--jcl is not supported yet" in res.stderr
+def test_jcl_and_options_together_are_refused_by_name(tmp_path):
+    res = _assess(str(tmp_path), "--jcl", str(tmp_path), "--options", str(tmp_path / "o.json"))
+    assert res.returncode == 2 and "--jcl and --options" in res.stderr
 
 
 # --- the network guard -------------------------------------------------------------------------------------------------

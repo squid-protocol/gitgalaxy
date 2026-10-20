@@ -127,6 +127,7 @@ epic #813), not that no cases exist.
 | **[c](c.md)** | production | standard_block | 50/52 | 42 | 86 | **written** |
 | **[cobol](cobol.md)** | production | positional_anchored | 48/52 | 62 | 82 | **written** |
 | **[cpp](cpp.md)** | production | standard_block | 52/52 | 46 | 76 | **written** |
+| **[crystal](crystal.md)** | production | line_exclusive | 54/54 | | 13 | **written** (#5623) |
 | **[csharp](csharp.md)** | production | standard_block | 51/52 | 61 | 106 | **written** |
 | **[css](css.md)** | production | standard_block | 30/48 | 18 | 74 | **written** |
 | dart | production | standard_block | 51/52 | 91 | 86 | not written |

@@ -31,6 +31,8 @@ OPS = {
     "div": ("a", "b"),
     "display": ("a",),
     "fixed": ("a", "scale"),
+    "from_ieee": ("a",),
+    "to_ieee": ("a",),
 }
 FUNC = {"add": H.add, "sub": H.sub, "mul": H.mul, "div": H.div}
 
@@ -60,6 +62,10 @@ def compute(r: dict) -> str:
     short = r["size"] == "short"
     if r["op"] == "encode":
         return H.encode(H.for_item(F(r["value"]), short), short).hex().upper()
+    if r["op"] == "from_ieee":
+        return H.from_ieee(int(r["a"], 16), 4 if short else 8).hex().upper()
+    if r["op"] == "to_ieee":
+        return f"{H.to_ieee(bytes.fromhex(r['a'])):0{8 if short else 16}X}"
     a = H.decode(bytes.fromhex(r["a"]))
     if r["op"] == "display":
         return H.display(a, not short)

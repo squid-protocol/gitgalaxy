@@ -255,7 +255,9 @@ def test_coverage_45_full_entries_and_the_name_only_api_commands():
     assert len(by_status["refused"]) == 155
     for key in by_status["refused"]:
         c = COMMANDS[key]
-        assert c.why and not c.options and not c.refused and not c.outcomes, key
+        assert c.why and not c.options and not c.outcomes, key
+        # #5235: a name-only entry may name its refused options (SOAPFAULT CREATE), nothing else may
+        assert not c.refused or key == "SOAPFAULT CREATE", key
 
 
 def test_a_whole_command_refusal_names_its_reason():

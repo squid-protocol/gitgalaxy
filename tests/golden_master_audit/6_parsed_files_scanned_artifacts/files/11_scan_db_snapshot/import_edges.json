@@ -2642,6 +2642,7 @@
         "import:objective-c/worldwideweb/HyperText.h"
       ],
       "objective-c/worldwideweb/TcpAccess.m": [
+        "fcall:objective-c/worldwideweb/Anchor.m",
         "fcall:objective-c/worldwideweb/HyperText.h",
         "fcall:objective-c/worldwideweb/HyperText.m"
       ]

@@ -1131,6 +1131,10 @@ class LanguageDetector:
         if ext:
             for lang_id, data in self.languages.items():
                 if ext in data.get("extensions", []):
+                    # #5624: a discriminator scoped to some extensions (LiveCode's `.rev`) is not tried on the rest.
+                    scope = data.get("internal_discriminator_extensions")
+                    if scope and ext not in scope:
+                        continue
                     internal_disc = data.get("internal_discriminator")
                     if internal_disc and internal_disc.search(content):
                         self.logger.debug(
@@ -1172,7 +1176,9 @@ class LanguageDetector:
             proven_only = [
                 l for l in candidates if ext in self.languages[l].get("extensions_needing_discriminator", ())
             ]
-            if proven_only and len(proven_only) < len(candidates):
+            # #5623: with NO other claimant (F# on `.fs`) the proof-only language still drops out, so a
+            # GLSL / Forth `.fs` that failed Tier 2 is "undeterminable" rather than won by default.
+            if proven_only:
                 candidates = [l for l in candidates if l not in proven_only]
 
             # #4546: C++ owns a shared extension (`.h`) only on content evidence.

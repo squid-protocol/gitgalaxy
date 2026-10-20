@@ -292,6 +292,23 @@
    ]
   },
   {
+   "name": "eibcalen-zero-with-commarea",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "USER0003",
+     "PASSWDI": "PASSWORD"
+    }
+   },
+   "commarea_length": 0,
+   "why": "#4049: the caller passed a COMMAREA of length 0 (EIBCALEN 0, X23) with ENTER: COSGN00C tests EIBCALEN = 0 first and shows the first-entry screen, not the AID branch (the credentials are not read); the COMMAREA is present, unlike first-entry"
+  },
+  {
    "name": "sysid-sent",
    "aid": "DFHENTER",
    "commarea": {

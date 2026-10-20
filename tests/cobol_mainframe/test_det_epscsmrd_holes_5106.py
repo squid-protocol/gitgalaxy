@@ -55,6 +55,18 @@ def _holes(src: str) -> list[str]:
 def test_a_condition_handler_call_is_refused_by_name(stmt, service):
     holes = _holes(_program(stmt))
     assert len(holes) == 1 and f"{service}:" in holes[0] and "not modelled" in holes[0], holes
+    if service == "CEEHDLR":  # the refusal names what a registration is missing, not "no condition is raised"
+        assert all(w in holes[0] for w in ("SET TO ENTRY", "dispatch", "RESUME / PERCOLATE")), holes
+    assert [e["id"] for e in sm.classify(holes[0].split(": ", 1)[1], sm.load_map())] == ["le-condition-handling"]
+
+
+@pytest.mark.parametrize("service", ["CEEMGET", "CEESGL", "CEENCOD", "CEEMRCE", "CEE3SRP"])
+@pytest.mark.parametrize("form", ["static", "dynamic"])
+def test_the_other_le_condition_services_are_refused_by_name(service, form):
+    call = f"CALL '{service}' USING FC TOKEN" if form == "static" else "CALL PGM USING FC TOKEN"
+    src = _program(call).replace("VALUE 'CEEHDLR'", f"VALUE '{service}'")
+    holes = _holes(src)
+    assert len(holes) == 1 and f"{service}:" in holes[0] and "not modelled" in holes[0], holes
     assert [e["id"] for e in sm.classify(holes[0].split(": ", 1)[1], sm.load_map())] == ["le-condition-handling"]
 
 
@@ -374,3 +386,48 @@ def test_a_sibling_that_tests_an_item_the_caller_passes_keeps_the_ordinary_entry
 def test_address_of_outside_a_sibling_s_using_items_is_still_refused_by_name():
     holes = _translated(_program("IF ADDRESS OF FC NOT EQUAL NULL MOVE 'A' TO FC END-IF")).stats["holes"]
     assert any("condition: ADDRESS OF" in h for h in holes), holes
+
+
+# DBB epscsmrd's handler program EPSCSMRF, reduced: LE calls it with the condition token, the registered TOKEN pointer,
+# a RESULT code and a NEW-CONDITION, and it reads the condition's message text with CEEMGET.
+_HANDLER_HEAD = [
+    "IDENTIFICATION DIVISION.", "PROGRAM-ID. HNDL.", "DATA DIVISION.", "WORKING-STORAGE SECTION.", "01 MSG-PART PIC X(80).",
+    "01 MSG-PTR PIC S9(9) COMP.", "01 FC PIC X(12).", "LINKAGE SECTION.", "01 TOKEN POINTER.",
+    "01 RESULT PIC S9(9) BINARY.", "   88 RESUME VALUE 10.", "01 CURRENT-CONDITION PIC X(12).", "01 NEW-CONDITION PIC X(12).",
+    "01 ERROR-RESPONSE.", "   05 ERROR-OCCURRED PIC X.", "PROCEDURE DIVISION USING CURRENT-CONDITION TOKEN RESULT NEW-CONDITION.",
+    "MAIN-PARA.",
+]  # fmt: skip
+
+
+def _handler(*stmts: str) -> str:
+    lines = [*_HANDLER_HEAD, *(f"    {s}" for s in stmts), "    GOBACK."]
+    return "\n".join(" " * 7 + ln for ln in lines) + "\n"
+
+
+def _ids(holes: list[str]) -> list[list[str]]:
+    return [[e["id"] for e in sm.classify(h.split(": ", 1)[1] if ": " in h else h, sm.load_map())] for h in holes]
+
+
+def test_the_handler_s_resume_result_translates_and_owns_no_hole():
+    assert _holes(_handler("MOVE 'Y' TO ERROR-OCCURRED", "SET RESUME TO TRUE")) == []
+
+
+def test_the_handler_program_s_holes_are_each_owned_by_one_refusal_map_entry():
+    holes = _holes(
+        _handler(
+            "SET ADDRESS OF ERROR-RESPONSE TO TOKEN",
+            "CALL 'CEEMGET' USING CURRENT-CONDITION MSG-PART MSG-PTR FC",
+            "MOVE 'Y' TO ERROR-OCCURRED",
+            "SET RESUME TO TRUE",
+        )
+    )
+    assert len(holes) == 2, holes
+    assert "SET ADDRESS OF" in holes[0] and "CEEMGET:" in holes[1] and "not modelled" in holes[1], holes
+    assert _ids(holes) == [["pointers"], ["le-condition-handling"]], holes
+
+
+@pytest.mark.parametrize("service", ["CEEMGET", "CEESGL", "CEENCOD", "CEEMRCE", "CEE3SRP"])
+def test_every_condition_service_a_handler_calls_is_a_named_refusal(service):
+    holes = _holes(_handler(f"CALL '{service}' USING CURRENT-CONDITION FC"))
+    assert len(holes) == 1 and f"{service}:" in holes[0] and "not modelled" in holes[0], holes
+    assert _ids(holes) == [["le-condition-handling"]], holes

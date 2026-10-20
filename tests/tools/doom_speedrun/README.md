@@ -86,3 +86,50 @@ Blind spots of this oracle:
 - **Check 6 reads the log text**, so a new log wording needs `log_problems` updated.
 - **Pinned SHAs are the ports' HEAD at study time** (2026-10-18); a force-pushed upstream makes `fetch` fail loudly.
 - **Round 2's CSV was produced at engine `585c243e9`**; the current engine will differ, which is the point.
+
+## C/C++ call-graph oracle (`callgraph_oracle.py`, #5630)
+
+Structural extraction has ctags, tree-sitter and libclang beside it; C/C++ call edges had no independent check (the
+Graph Accuracy Audit covers Python, TypeScript and Java). This reads the scans `scan` leaves and checks
+`calls_out_to` two ways, licensed ports only (the `LICENSED` set; any other port is refused):
+
+```bash
+python tests/tools/doom_speedrun/doom_speedrun.py scan --only <the 20 C/C++ ports in callgraph_baseline.json>
+python tests/tools/doom_speedrun/callgraph_oracle.py --only all --baseline tests/tools/doom_speedrun/callgraph_baseline.json --fail-on-regression
+python tests/tools/doom_speedrun/callgraph_oracle.py --only eternity,odamex,gzdoom --family linuxdoom,doomgeneric,doom-ascii,sdl-doom
+```
+
+1. **Body oracle**: each engine function is matched to the tree-sitter `function_definition` at its start line; every
+   `call_expression` whose callee the port defines (`f(`, `f<T>(`, `obj.f(`, `ns::f(`; a declaration such as
+   `std::unique_lock<...> lock(m)` is not a call) is an oracle call. Self-edges are ignored on both sides (the engine
+   drops recursion by contract, #3327; owner ruling 2026-10-19, #5630), never scored as a miss. A miss is
+   named by the call's parent: statement, nested-argument, condition/return, assignment-rhs, after-cast,
+   after-operator, subscript, or `unparsed` (below). An engine-only edge is named by how the callee appears in the
+   body: function-pointer (a bare reference), type (a C++ class named as a type: `new T`, `T x(...)`), macro (only in a
+   `#define` line), comment/string, or absent. `--only all` runs every licensed port that has a scan.
+2. **Family consensus** (`--family`, default the nine vanilla-lineage ports): an edge >= 75% of the siblings that
+   define both ends carry (at least 3 such siblings), missing from one port, is looked up in that port's body: a call
+   or reference there is an **engine miss**, otherwise a real divergence. A lone edge no sibling (of at least 4)
+   carries, whose callee is not in the body, is a possible false edge. Consensus catches what the body oracle cannot
+   score as a call, such as a function passed as a pointer.
+
+Output: `<work>/results/<sha>/callgraph.{json,md}` (per port and per shape, with up to 3 `path:line caller -> callee`
+examples each). `--write-baseline FILE` writes the numbers-only view; `--baseline FILE --fail-on-regression` exits 1
+when a port's recall or precision drops by more than `--tolerance` (0.001), a baseline port is missing, or the
+consensus engine-miss or false-edge count grows. That is the hook for the DOOM-rosetta nightly (#5619): run `scan`
+for the baseline's ports, then the `--only all --baseline` command; regenerate the baseline only with an explained engine change.
+
+Blind spots:
+- **Tree-sitter does not preprocess either.** An `else if` split by `#ifdef` parses as a nested function definition,
+  and a macro table with no semicolon swallows the function after it. The first is read by a text fallback over the
+  misparsed region, the second by brace matching from the engine's start line (`text_fallback_functions`); calls
+  found that way are shape `unparsed`. A function neither finds is `unmatched_functions` and is not scored. Error
+  recovery around a bare macro statement (`ADD_FILE_COUNTER` with no `;`) can also close a body early; when the body
+  holds an `ERROR` node and the braces from the start line run past it, brace matching is used instead.
+- **Tree-sitter 0.26 Python bindings:** read a node position as `node.start_point[0]`, never `.start_point.row`. The
+  attribute read on the temporary `Point` corrupted the heap and segfaulted full runs (passes under
+  `PYTHONMALLOC=debug`, so it looks like a flake).
+- **Names, not symbols.** Edges are compared by unqualified name and restricted to names the port defines, so a call
+  to a same-named function in another scope, or through a function-pointer variable, is outside it.
+- **Code under `#if 0` counts** on both sides (neither tool preprocesses); libclang (#3784) is the planned check of
+  the active configuration.

@@ -1,0 +1,136 @@
+"""#5649 slice 2: the translator lays its records out from the engine's layouts (GalaxyIR.record_layout), at its own
+POINTER width, with a check mode that refuses where the two computations differ (det.engine_layout).
+
+The toy estate scans once; each test parses the program's records with the translator and hands them to
+EngineLayouts. At the translator's width (8, GnuCOBOL x86-64, oracle register C9) the two agree; at z/OS's 4 the
+engine's numbers move every item after a POINTER, a REDEFINES overlay with its target and an OCCURS group's stride,
+and check mode names the item."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+import pytest
+
+from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import ZOS_POINTER_BYTES, load_galaxy_ir, scan_to_db
+from gitgalaxy.tools.cobol_to_java.det import layout as L
+from gitgalaxy.tools.cobol_to_java.det.cics import POINTER_BYTES
+from gitgalaxy.tools.cobol_to_java.det.engine_layout import EngineLayouts, LayoutDisagrees, adopt
+from gitgalaxy.tools.cobol_to_java.det.source import program_lines
+
+PROGRAM = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. LAYTOY.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-REC.
+           05  WS-A               PIC X(4).
+           05  WS-B               PIC S9(4) COMP.
+           05  WS-P               POINTER.
+           05  WS-C               PIC X.
+       01  WS-R.
+           05  R-P                POINTER.
+           05  R-X                PIC X(4).
+           05  R-ALT REDEFINES R-X.
+               10  R-A            PIC X(2).
+               10  R-B            PIC X(2).
+           05  R-Z                PIC X.
+       01  WS-T.
+           05  T-E OCCURS 3.
+               10  T-P            POINTER.
+               10  T-X            PIC X.
+           05  T-END              PIC X.
+           COPY LAYCPY.
+           COPY SYSREC.
+       PROCEDURE DIVISION.
+           GOBACK.
+"""
+LAYCPY = """\
+       01  CP-REC.
+           05  CP-P               POINTER.
+           05  CP-N               PIC 9(3).
+"""
+# a system member outside the estate (the way DFHAID reaches a port): the engine reads no record there
+SYSREC = """\
+       01  SYS-REC.
+           05  SYS-P              POINTER.
+           05  SYS-N              PIC X(2).
+"""
+
+
+@pytest.fixture(scope="module")
+def estate(tmp_path_factory):
+    pytest.importorskip("tree_sitter_language_pack")
+    base = tmp_path_factory.mktemp("engine_layout_5649")
+    repo, system = base / "repo", base / "system"
+    repo.mkdir()
+    system.mkdir()
+    (repo / "LAYTOY.cbl").write_text(PROGRAM, encoding="utf-8")
+    (repo / "LAYCPY.cpy").write_text(LAYCPY, encoding="utf-8")
+    (system / "SYSREC.cpy").write_text(SYSREC, encoding="utf-8")
+    ir = load_galaxy_ir(scan_to_db(repo, base / "scan"))
+    return ir, repo, system
+
+
+def _records(estate):
+    _, repo, system = estate
+    lines = program_lines(repo / "LAYTOY.cbl", [repo, system], None)
+    return L.parse(lines), lines
+
+
+def _at(recs, name):
+    it = next(x for r in recs for x in r.walk() if x.name == name)
+    return it.offset, it.size
+
+
+def test_at_the_translators_width_every_estate_record_is_the_engines_and_agrees(estate):
+    recs, lines = _records(estate)
+    own = {x.name: (x.offset, x.size) for r in recs for x in r.walk()}
+    lay = EngineLayouts.from_ir(estate[0], "LAYTOY.cbl", estate[1], mode="check")
+    assert lay.pointer_bytes == POINTER_BYTES == 8
+    lay.apply(recs, lines)
+    assert lay.consumed == ["WS-REC", "WS-R", "WS-T", "CP-REC"]  # the copied record too
+    assert lay.own == ["SYS-REC"]  # outside the estate: the translator's own layout
+    assert {x.name: (x.offset, x.size) for r in recs for x in r.walk()} == own
+
+
+def test_engine_mode_takes_the_engines_offsets_and_groups_follow(estate):
+    recs, lines = _records(estate)
+    lay = EngineLayouts.from_ir(estate[0], "LAYTOY.cbl", estate[1], "engine", ZOS_POINTER_BYTES)
+    lay.apply(recs, lines)
+    assert [_at(recs, n) for n in ("WS-P", "WS-C", "WS-REC")] == [(6, 4), (10, 1), (0, 11)]
+    # the REDEFINES overlay sits on its moved target; its items move with it
+    assert [_at(recs, n) for n in ("R-X", "R-ALT", "R-A", "R-B", "R-Z", "WS-R")] == [
+        (4, 4), (4, 4), (4, 2), (6, 2), (8, 1), (0, 9)]  # fmt: skip
+    # an OCCURS group's stride is its children's span
+    assert [_at(recs, n) for n in ("T-E", "T-X", "T-END", "WS-T")] == [(0, 5), (4, 1), (15, 1), (0, 16)]
+    assert _at(recs, "CP-N") == (4, 3)
+    assert _at(recs, "SYS-N") == (8, 2)  # (not the engine's: unchanged)
+
+
+def test_check_mode_refuses_where_the_two_differ_by_name(estate):
+    recs, lines = _records(estate)
+    lay = EngineLayouts.from_ir(estate[0], "LAYTOY.cbl", estate[1], "check", ZOS_POINTER_BYTES)
+    with pytest.raises(LayoutDisagrees, match=r"LAYTOY\.cbl:5: 01 WS-REC: .*WS-P engine @6\+4, translator @6\+8"):
+        lay.apply(recs, lines)
+
+
+def test_a_record_the_engine_cannot_size_or_pair_refuses():
+    rec = L.Item(1, "R", "WORKING-STORAGE", children=[L.Item(5, "A", "WORKING-STORAGE", pic="X(2)")])
+    L.layout(rec)
+    with pytest.raises(LayoutDisagrees, match="does not know the record's width"):
+        adopt(rec, {"bytes": None, "fields": [], "unexpanded": ["MISSING"]}, "R")
+    with pytest.raises(LayoutDisagrees, match="do not pair"):
+        adopt(rec, {"bytes": 2, "fields": [{"name": "B", "offset": 0, "bytes": 2}]}, "R")
+
+
+def test_an_unknown_mode_or_program_is_none_or_refused(estate):
+    assert EngineLayouts.from_ir(estate[0], "NOPE.cbl", estate[1]) is None
+    with pytest.raises(ValueError):
+        EngineLayouts.from_ir(estate[0], "LAYTOY.cbl", estate[1], mode="loose")
+
+
+def test_a_path_outside_the_root_is_not_the_estates(estate):
+    lay = EngineLayouts.from_ir(estate[0], "LAYTOY.cbl", estate[1])
+    assert lay.rel(str(estate[1] / "LAYCPY.cpy")) == "LAYCPY.cpy"
+    assert lay.rel(str(Path(estate[2]) / "SYSREC.cpy")) is None

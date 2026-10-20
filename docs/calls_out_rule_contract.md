@@ -28,7 +28,7 @@ length, so its `site` kind has no commensurability consequence yet.
 | question | decision | consequence |
 |---|---|---|
 | Built-ins / stdlib (`print`, `len`, `console.log`) | **They are calls.** The resolver (#3328) labels them `external` because nothing in the repo defines them. Extraction does not filter them. | Fixed by #3361 (after #3328): `_CALLS_OUT_GLOBAL_IGNORE` and the per-language `_calls_out_ignore` sets hold keywords, pragmas and syntax only. |
-| Recursion | **Dropped.** `calls_out_to` never lists the function's own name. | Matches today. A self-edge adds nothing to fan-in, and in PageRank it only inflates the node's own score. |
+| Recursion | **Dropped.** `calls_out_to` never lists the function's own name. | Matches today. A self-edge adds nothing to fan-in, and in PageRank it only inflates the node's own score. A call to a *different* unit of the same name is not recursion (#5628, owner 2026-10-19): `Scope::f` calling the free `f`, or C# `IEnumerable.GetEnumerator` calling `GetEnumerator`, keeps the edge when the file has another unit named exactly `f`; with none, or written `this->f(` / `Scope::f(`, it is recursion and dropped. |
 | Multiplicity | **Deduplicated.** Call-site counts are not recorded, and function-graph edges are unweighted. | Matches today. A call inside a loop is not more dependency than one outside it. |
 | References vs invocations (`map(f, xs)`, bare `@decorator`, `getattr`) | **Invocations only.** | See C1. |
 

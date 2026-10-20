@@ -149,42 +149,42 @@
       "assembly/cosmopolitan_runtime/mul4x4adx.S": 7586.61
     },
     "assembly/cosmopolitan_syscalls": {
-      "assembly/cosmopolitan_syscalls/calls___bsd_setegid.S": -8656.58,
-      "assembly/cosmopolitan_syscalls/calls___bsd_seteuid.S": -8944.26,
-      "assembly/cosmopolitan_syscalls/calls___sys_accept.S": -8660.48,
-      "assembly/cosmopolitan_syscalls/calls___sys_accept4.S": -8419.34,
-      "assembly/cosmopolitan_syscalls/calls_get_mempolicy.S": -9147.44,
-      "assembly/cosmopolitan_syscalls/calls_set_mempolicy.S": -8321.65,
-      "assembly/cosmopolitan_syscalls/calls_sys_acct.S": -8810.32,
-      "assembly/cosmopolitan_syscalls/calls_sys_add_key.S": -8978.37,
-      "assembly/cosmopolitan_syscalls/calls_sys_adjtime.S": -8204.62,
-      "assembly/cosmopolitan_syscalls/calls_sys_adjtimex.S": -9256.72,
-      "assembly/cosmopolitan_syscalls/calls_sys_aio_cancel.S": -8435.15,
-      "assembly/cosmopolitan_syscalls/calls_sys_aio_error.S": -8491.44,
-      "assembly/cosmopolitan_syscalls/calls_sys_aio_fsync.S": -9295.42,
-      "assembly/cosmopolitan_syscalls/calls_sys_aio_mlock.S": -8039.59
+      "assembly/cosmopolitan_syscalls/calls___bsd_setegid.S": -8659.95,
+      "assembly/cosmopolitan_syscalls/calls___bsd_seteuid.S": -8947.64,
+      "assembly/cosmopolitan_syscalls/calls___sys_accept.S": -8663.85,
+      "assembly/cosmopolitan_syscalls/calls___sys_accept4.S": -8422.72,
+      "assembly/cosmopolitan_syscalls/calls_get_mempolicy.S": -9150.81,
+      "assembly/cosmopolitan_syscalls/calls_set_mempolicy.S": -8325.02,
+      "assembly/cosmopolitan_syscalls/calls_sys_acct.S": -8813.7,
+      "assembly/cosmopolitan_syscalls/calls_sys_add_key.S": -8981.74,
+      "assembly/cosmopolitan_syscalls/calls_sys_adjtime.S": -8207.99,
+      "assembly/cosmopolitan_syscalls/calls_sys_adjtimex.S": -9260.09,
+      "assembly/cosmopolitan_syscalls/calls_sys_aio_cancel.S": -8438.52,
+      "assembly/cosmopolitan_syscalls/calls_sys_aio_error.S": -8494.81,
+      "assembly/cosmopolitan_syscalls/calls_sys_aio_fsync.S": -9298.8,
+      "assembly/cosmopolitan_syscalls/calls_sys_aio_mlock.S": -8042.97
     },
     "assembly/cpm65_6502": {
-      "assembly/cpm65_6502/apps_adm3adrv.S": -4588.03,
+      "assembly/cpm65_6502/apps_adm3adrv.S": -4478.54,
       "assembly/cpm65_6502/apps_adm3atst.asm": -3791.24,
       "assembly/cpm65_6502/apps_bedit.asm": -4581.6,
       "assembly/cpm65_6502/apps_capsdrv.asm": -5113.19,
       "assembly/cpm65_6502/apps_cls.asm": -3765.45,
       "assembly/cpm65_6502/apps_cpuinfo.asm": -4427.25,
       "assembly/cpm65_6502/apps_devices.asm": -4766.03,
-      "assembly/cpm65_6502/apps_dinfo.asm": -4509.37,
+      "assembly/cpm65_6502/apps_dinfo.asm": -4619.0,
       "assembly/cpm65_6502/apps_dump.asm": -3713.34,
       "assembly/cpm65_6502/apps_kbdtest.asm": -4945.94,
       "assembly/cpm65_6502/apps_ls.asm": -4393.82,
       "assembly/cpm65_6502/apps_more.asm": -3829.87,
       "assembly/cpm65_6502/apps_scrntest.asm": -4850.57,
-      "assembly/cpm65_6502/apps_scrvt100.S": -4191.96,
+      "assembly/cpm65_6502/apps_scrvt100.S": -4948.94,
       "assembly/cpm65_6502/apps_vt52drv.asm": -3954.19,
-      "assembly/cpm65_6502/apps_vt52test.asm": -4090.74,
+      "assembly/cpm65_6502/apps_vt52test.asm": -4176.83,
       "assembly/cpm65_6502/apps_xrecv.asm": -4304.54,
       "assembly/cpm65_6502/apps_xsend.asm": -4055.43,
       "assembly/cpm65_6502/cpmfs_hello.asm": -4443.71,
-      "assembly/cpm65_6502/lib_bdos.S": -4959.46
+      "assembly/cpm65_6502/lib_bdos.S": -4116.38
     },
     "assembly/freebsd_kernel_arch": {
       "assembly/freebsd_kernel_arch/COPYRIGHT": -5283.38,
@@ -326,41 +326,41 @@
       "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": 9824.36
     },
     "assembly/rpi_smartstart_baremetal": {
-      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": 10730.41,
-      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": 10779.59,
-      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": 11038.73,
-      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": 11318.74,
-      "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": 10516.76,
-      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": 10473.82,
-      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": 10616.27,
-      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": 11170.14,
-      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": 10169.77,
-      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": 10258.24
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": 10731.29,
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": 10249.73,
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": 10800.7,
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": 11320.54,
+      "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": 10517.19,
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": 10473.18,
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": 10616.89,
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": 11171.84,
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": 10169.74,
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": 11028.37
     },
     "assembly/x86_bare_metal": {
-      "assembly/x86_bare_metal/LICENSE.adoc": -8298.07,
-      "assembly/x86_bare_metal/apm_shutdown.S": -7546.77,
-      "assembly/x86_bare_metal/apm_shutdown2.S": -7996.1,
-      "assembly/x86_bare_metal/bios_background.S": -7834.65,
-      "assembly/x86_bare_metal/bios_carriage_return.S": -8144.13,
-      "assembly/x86_bare_metal/bios_clear_screen.S": -7818.36,
-      "assembly/x86_bare_metal/bios_color.S": -7177.16,
-      "assembly/x86_bare_metal/bios_cursor_position.S": -7984.64,
-      "assembly/x86_bare_metal/bios_detect_memory.S": -7597.05,
-      "assembly/x86_bare_metal/bios_disk_load.S": -8073.01,
-      "assembly/x86_bare_metal/bios_disk_load2.S": -6738.12,
-      "assembly/x86_bare_metal/bios_hello_world.S": -7056.49,
-      "assembly/x86_bare_metal/bios_initial_state.S": -8343.66,
-      "assembly/x86_bare_metal/bios_keyboard.S": -7751.9,
-      "assembly/x86_bare_metal/bios_keyboard_loop.S": -7650.84,
-      "assembly/x86_bare_metal/bios_newline.S": -7308.14,
-      "assembly/x86_bare_metal/bios_pixel.S": -7051.1,
-      "assembly/x86_bare_metal/bios_pixel_line.S": -7399.33,
-      "assembly/x86_bare_metal/bios_putc.S": -8150.92,
-      "assembly/x86_bare_metal/bios_scroll.S": -7370.39,
-      "assembly/x86_bare_metal/bios_serial.S": -7640.15,
-      "assembly/x86_bare_metal/bios_sleep.S": -6951.68,
-      "assembly/x86_bare_metal/c_hello_world_entry.S": -7014.85
+      "assembly/x86_bare_metal/LICENSE.adoc": -8299.99,
+      "assembly/x86_bare_metal/apm_shutdown.S": -7547.75,
+      "assembly/x86_bare_metal/apm_shutdown2.S": -7997.76,
+      "assembly/x86_bare_metal/bios_background.S": -7325.45,
+      "assembly/x86_bare_metal/bios_carriage_return.S": -8114.35,
+      "assembly/x86_bare_metal/bios_clear_screen.S": -7820.18,
+      "assembly/x86_bare_metal/bios_color.S": -7177.33,
+      "assembly/x86_bare_metal/bios_cursor_position.S": -7986.73,
+      "assembly/x86_bare_metal/bios_detect_memory.S": -7598.11,
+      "assembly/x86_bare_metal/bios_disk_load.S": -6994.08,
+      "assembly/x86_bare_metal/bios_disk_load2.S": -7004.8,
+      "assembly/x86_bare_metal/bios_hello_world.S": -6960.92,
+      "assembly/x86_bare_metal/bios_initial_state.S": -7694.79,
+      "assembly/x86_bare_metal/bios_keyboard.S": -7088.0,
+      "assembly/x86_bare_metal/bios_keyboard_loop.S": -7651.94,
+      "assembly/x86_bare_metal/bios_newline.S": -6760.39,
+      "assembly/x86_bare_metal/bios_pixel.S": -7715.72,
+      "assembly/x86_bare_metal/bios_pixel_line.S": -7851.03,
+      "assembly/x86_bare_metal/bios_putc.S": -7380.84,
+      "assembly/x86_bare_metal/bios_scroll.S": -7370.8,
+      "assembly/x86_bare_metal/bios_serial.S": -8116.91,
+      "assembly/x86_bare_metal/bios_sleep.S": -8163.86,
+      "assembly/x86_bare_metal/c_hello_world_entry.S": -8303.62
     },
     "assembly/xv6_x86_kernel": {
       "assembly/xv6_x86_kernel/bootasm.S": 9470.86,
@@ -954,8 +954,8 @@
       "cobol/cics-genapp/soavpio.cpy": 9408.61
     },
     "cobol/cics-java-jcics-samples": {
-      "cobol/cics-java-jcics-samples/EC01.cbl": -10568.94,
-      "cobol/cics-java-jcics-samples/EDUCHAN.cbl": -10358.04
+      "cobol/cics-java-jcics-samples/EC01.cbl": -10572.06,
+      "cobol/cics-java-jcics-samples/EDUCHAN.cbl": -10361.15
     },
     "cobol/cobol-check": {
       "cobol/cobol-check/TESTPRG.CBL": -7074.46,
@@ -1120,13 +1120,13 @@
       "cpp/godot/variant.h": -4741.63
     },
     "cpp/mlir": {
-      "cpp/mlir/flatbuffer_export.cc": -9602.78,
-      "cpp/mlir/glob_lit_test.bzl": -9349.51,
-      "cpp/mlir/mlir_bridge_rollout_policy.cc": -10145.46,
-      "cpp/mlir/mlir_graph_optimization_pass.cc": -9947.24,
-      "cpp/mlir/stablehlo.cc": -9757.04,
-      "cpp/mlir/tf_mlir_opt_main.cc": -9177.96,
-      "cpp/mlir/tf_tfl_translate.cc": -9589.98
+      "cpp/mlir/flatbuffer_export.cc": -9605.89,
+      "cpp/mlir/glob_lit_test.bzl": -9352.63,
+      "cpp/mlir/mlir_bridge_rollout_policy.cc": -10148.57,
+      "cpp/mlir/mlir_graph_optimization_pass.cc": -9950.35,
+      "cpp/mlir/stablehlo.cc": -9760.15,
+      "cpp/mlir/tf_mlir_opt_main.cc": -9181.07,
+      "cpp/mlir/tf_tfl_translate.cc": -9593.09
     },
     "cpp/powertoys": {
       "cpp/powertoys/FancyZones.cpp": -6766.9,
@@ -1142,7 +1142,7 @@
       "cpp/serenity_ak_siphash_cpu/SipHash.cpp": 5629.62
     },
     "csd": {
-      "csd/SOURCES.md": 11779.05
+      "csd/SOURCES.md": 11780.93
     },
     "csd/carddemo": {
       "csd/carddemo/CARDDEMO.CSD": 452.07,
@@ -1286,18 +1286,18 @@
       "dockerfile/moby/builder/dockerfile/utils_test.go": -3024.91
     },
     "dockerfile/moby/builder/remotecontext": {
-      "dockerfile/moby/builder/remotecontext/archive.go": -9316.77,
-      "dockerfile/moby/builder/remotecontext/detect.go": -8810.24,
-      "dockerfile/moby/builder/remotecontext/detect_test.go": -8395.67,
-      "dockerfile/moby/builder/remotecontext/filehash.go": -9123.4,
-      "dockerfile/moby/builder/remotecontext/git.go": -8294.62,
-      "dockerfile/moby/builder/remotecontext/lazycontext.go": -9016.79,
-      "dockerfile/moby/builder/remotecontext/mimetype.go": -8560.63,
-      "dockerfile/moby/builder/remotecontext/mimetype_test.go": -8689.07,
-      "dockerfile/moby/builder/remotecontext/remote.go": -8830.02,
-      "dockerfile/moby/builder/remotecontext/remote_test.go": -9126.98,
-      "dockerfile/moby/builder/remotecontext/tarsum_test.go": -8588.51,
-      "dockerfile/moby/builder/remotecontext/utils_test.go": -9407.74
+      "dockerfile/moby/builder/remotecontext/archive.go": -9319.19,
+      "dockerfile/moby/builder/remotecontext/detect.go": -8812.66,
+      "dockerfile/moby/builder/remotecontext/detect_test.go": -8398.08,
+      "dockerfile/moby/builder/remotecontext/filehash.go": -9125.81,
+      "dockerfile/moby/builder/remotecontext/git.go": -8297.04,
+      "dockerfile/moby/builder/remotecontext/lazycontext.go": -9019.21,
+      "dockerfile/moby/builder/remotecontext/mimetype.go": -8563.04,
+      "dockerfile/moby/builder/remotecontext/mimetype_test.go": -8691.49,
+      "dockerfile/moby/builder/remotecontext/remote.go": -8832.44,
+      "dockerfile/moby/builder/remotecontext/remote_test.go": -9129.39,
+      "dockerfile/moby/builder/remotecontext/tarsum_test.go": -8590.93,
+      "dockerfile/moby/builder/remotecontext/utils_test.go": -9410.16
     },
     "dockerfile/moby/builder/remotecontext/git": {
       "dockerfile/moby/builder/remotecontext/git/gitutils.go": -8387.0,
@@ -1352,17 +1352,17 @@
       "fortran/wrf/cleanCMake.sh": 5619.13,
       "fortran/wrf/configure_reader.py": 6921.11,
       "fortran/wrf/gen_be_wrapper.ksh": 6510.62,
-      "fortran/wrf/module_configure.F": 5575.38,
-      "fortran/wrf/module_domain.F": 6592.39,
-      "fortran/wrf/module_initialize_real.F": 6304.48,
+      "fortran/wrf/module_configure.F": 5575.22,
+      "fortran/wrf/module_domain.F": 6592.4,
+      "fortran/wrf/module_initialize_real.F": 5927.38,
       "fortran/wrf/module_physics_init.F": 6234.45,
-      "fortran/wrf/module_sf_noahdrv.F": 5970.28,
+      "fortran/wrf/module_sf_noahdrv.F": 6347.38,
       "fortran/wrf/regtest.csh": 6074.94,
       "fortran/wrf/regtest_hwrf.csh": 5704.52,
       "fortran/wrf/regtest_nmmnest.csh": 6733.22,
       "fortran/wrf/run_convert_e2c.ksh": 7026.7,
       "fortran/wrf/sourcetree.py": 6598.15,
-      "fortran/wrf/wrf_timeseries.F": 5933.81
+      "fortran/wrf/wrf_timeseries.F": 5933.29
     },
     "go": {
       "go/SOURCES.md": 7964.9
@@ -2175,18 +2175,18 @@
       "json/SOURCES.md": 4308.2
     },
     "json/baseline": {
-      "json/baseline/control-package.json": 12202.14
+      "json/baseline/control-package.json": 12204.52
     },
     "json/kafka/message": {
-      "json/kafka/message/DescribeTransactionsResponse.json": 11256.15,
-      "json/kafka/message/SaslAuthenticateRequest.json": 11503.11,
-      "json/kafka/message/VoteRequest.json": 11508.3
+      "json/kafka/message/DescribeTransactionsResponse.json": 11258.09,
+      "json/kafka/message/SaslAuthenticateRequest.json": 11505.05,
+      "json/kafka/message/VoteRequest.json": 11510.24
     },
     "kotlin": {
       "kotlin/SOURCES.md": -10181.75
     },
     "kotlin/okhttp": {
-      "kotlin/okhttp/Call.kt": 4937.51,
+      "kotlin/okhttp/Call.kt": 4937.5,
       "kotlin/okhttp/Dispatcher.kt": 4884.76,
       "kotlin/okhttp/LICENSE.txt": 4698.1,
       "kotlin/okhttp/OkHttp.android.kt": 5265.52,
@@ -2434,11 +2434,11 @@
       "m4/curl/configure.ac": 8342.82
     },
     "m4/curl/m4": {
-      "m4/curl/m4/curl-confopts.m4": 11532.45,
-      "m4/curl/m4/curl-mbedtls.m4": 11816.85,
-      "m4/curl/m4/curl-sysconfig.m4": 11290.36,
-      "m4/curl/m4/xc-am-iface.m4": 12025.71,
-      "m4/curl/m4/zz40-xc-ovr.m4": 11759.22
+      "m4/curl/m4/curl-confopts.m4": 11534.88,
+      "m4/curl/m4/curl-mbedtls.m4": 11819.28,
+      "m4/curl/m4/curl-sysconfig.m4": 11292.79,
+      "m4/curl/m4/xc-am-iface.m4": 12028.15,
+      "m4/curl/m4/zz40-xc-ovr.m4": 11761.65
     },
     "m4/gnucobol": {
       "m4/gnucobol/COPYING": -5607.98,
@@ -2484,7 +2484,7 @@
       "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt/tpu_conversions.mlir": -5958.06
     },
     "nix": {
-      "nix/SOURCES.md": -10849.78
+      "nix/SOURCES.md": -10852.84
     },
     "nix/bun": {
       "nix/bun/LICENSE.md": -10726.88,
@@ -2606,7 +2606,7 @@
       "php/wordpress/wp-settings.php": 6369.03
     },
     "plaintext": {
-      "plaintext/SOURCES.md": -10950.98
+      "plaintext/SOURCES.md": -10953.16
     },
     "plaintext/ansible": {
       "plaintext/ansible/COPYING": -7534.77,
@@ -2812,11 +2812,11 @@
       "python/airflow/scheduler_job_runner.py": 12319.41
     },
     "python/airflow_ai_providers": {
-      "python/airflow_ai_providers/NOTICE": -10328.17,
-      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": -9883.27,
-      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": -10148.46,
-      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": -9922.65,
-      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": -9649.03
+      "python/airflow_ai_providers/NOTICE": -10330.54,
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": -9885.64,
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": -10150.83,
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": -9925.02,
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": -9651.4
     },
     "python/airflow_opsgenie_tests": {
       "python/airflow_opsgenie_tests/NOTICE": -3353.42,
@@ -3082,9 +3082,9 @@
       "python/homeassistant_ble_integrations/utils.py": -7040.92
     },
     "python/langchain_agents": {
-      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": -10728.91,
-      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": -10498.55,
-      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": -10442.51
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": -10731.91,
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": -10501.55,
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": -10445.51
     },
     "python/micropython_usb_tls": {
       "python/micropython_usb_tls/ssl_verify_callback.py": -11163.17,
@@ -3190,7 +3190,7 @@
       "rexx/ibm_z_zos/wjsst92.rexx": -8990.78
     },
     "ruby": {
-      "ruby/SOURCES.md": 12411.84
+      "ruby/SOURCES.md": 12414.26
     },
     "ruby/rails": {
       "ruby/rails/MIT-LICENSE": -2827.69,
@@ -3306,7 +3306,7 @@
       "scheme/racket/thread.rkt": -7757.73
     },
     "shell": {
-      "shell/SOURCES.md": -10999.75
+      "shell/SOURCES.md": -11002.71
     },
     "shell/ansible": {
       "shell/ansible/COPYING": -3172.58,
@@ -3840,8 +3840,8 @@
       "td/SOURCES.md": -7812.6
     },
     "td/tensorflow/compiler/mlir/tfrt": {
-      "td/tensorflow/compiler/mlir/tfrt/tf_mlrt_ops.td": -10501.16,
-      "td/tensorflow/compiler/mlir/tfrt/tf_mlrt_tpu_ops.td": -10711.46
+      "td/tensorflow/compiler/mlir/tfrt/tf_mlrt_ops.td": -10503.38,
+      "td/tensorflow/compiler/mlir/tfrt/tf_mlrt_tpu_ops.td": -10713.69
     },
     "td/tensorflow/core/ir": {
       "td/tensorflow/core/ir/dialect.td": -256.67,
@@ -3857,7 +3857,7 @@
       "typescript/SOURCES.md": 7436.69
     },
     "typescript/angular_zonejs_mocha": {
-      "typescript/angular_zonejs_mocha/mocha.ts": -10483.3
+      "typescript/angular_zonejs_mocha/mocha.ts": -10486.56
     },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": -10390.56,
@@ -3879,18 +3879,18 @@
       "typescript/excalidraw_text_wrapping/textWrapping.ts": 10676.24
     },
     "typescript/fp-ts": {
-      "typescript/fp-ts/Either.ts": -10031.58,
-      "typescript/fp-ts/HKT.ts": -9474.5,
-      "typescript/fp-ts/TaskEither.ts": -9754.21,
-      "typescript/fp-ts/package.json": -10265.44,
-      "typescript/fp-ts/pipeable.ts": -9762.17
+      "typescript/fp-ts/Either.ts": -10034.87,
+      "typescript/fp-ts/HKT.ts": -9477.79,
+      "typescript/fp-ts/TaskEither.ts": -9757.5,
+      "typescript/fp-ts/package.json": -10268.74,
+      "typescript/fp-ts/pipeable.ts": -9765.46
     },
     "typescript/nx_util_ai": {
       "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": -8289.98,
       "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": -8546.82
     },
     "typescript/pixijs_examples": {
-      "typescript/pixijs_examples/events_dragging.ts": -10530.41
+      "typescript/pixijs_examples/events_dragging.ts": -10532.75
     },
     "typescript/playwright": {
       "typescript/playwright/NOTICE": 10652.79,

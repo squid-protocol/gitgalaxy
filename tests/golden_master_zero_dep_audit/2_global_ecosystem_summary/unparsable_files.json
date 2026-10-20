@@ -48,7 +48,7 @@
         "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 1
       },
       ".i": {
-        "Blocked (Unsupported Extension: '.i')": 1
+        "Unsupported Format (.undeterminable)": 1
       },
       ".jcl": {
         "Zero-Density Threshold (LOC: 57, Signals: 0)": 1

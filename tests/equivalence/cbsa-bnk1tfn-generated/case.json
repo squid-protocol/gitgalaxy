@@ -1,0 +1,339 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "BNK1TFN",
+ "program_source": "src/base/cobol_src/BNK1TFN.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "OTFN",
+ "termid": "T001",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "taskn": 4242,
+ "programs": [
+  {
+   "program": "XFRFUN",
+   "program_source": "src/base/cobol_src/XFRFUN.cbl"
+  },
+  {
+   "program": "ABNDPROC",
+   "program_source": "src/base/cobol_src/ABNDPROC.cbl"
+  }
+ ],
+ "datasets": {
+  "CBSA.CICSBSA.ABNDFILE": {
+   "input": "@case/abndfile.bin",
+   "entity": "WsAbndArea",
+   "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+   "record": "WS-ABND-AREA",
+   "recovery": "NONE",
+   "recovery_why": "etc/install/base/installjcl/BANK.csd: DEFINE FILE(ABNDFILE) ... RECOVERY(NONE) -- the abend log a backout must not undo"
+  }
+ },
+ "db2": {
+  "ddl": [
+   "etc/install/base/db2jcl/CRETB01.jcl",
+   "etc/install/base/db2jcl/CREI101.jcl",
+   "etc/install/base/db2jcl/CRETB02.jcl"
+  ],
+  "seed": "@generate",
+  "compare": [
+   "IBMUSER.ACCOUNT",
+   "IBMUSER.PROCTRAN"
+  ],
+  "qualifier": "IBMUSER",
+  "compare_sql": true,
+  "generate": {
+   "seed": 4507,
+   "tables": {
+    "IBMUSER.ACCOUNT": {
+     "rows": 30,
+     "columns": {
+      "ACCOUNT_SORTCODE": {
+       "values": [
+        "987654",
+        "987654",
+        "987654",
+        "123456"
+       ]
+      },
+      "ACCOUNT_NUMBER": {
+       "digits": true
+      }
+     }
+    }
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/BNK1TFN.cbl",
+    "record": "WS-COMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "BNK1TF": {
+   "copybook": "@bms/BNK1TFM.cpy",
+   "input": "BNK1TFI",
+   "output": "BNK1TFO"
+  }
+ },
+ "scenarios": [
+  {
+   "name": "first-entry",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "EIBCALEN 0: WS-COMM-AREA initialised, the map sent ERASE"
+  },
+  {
+   "name": "pa1",
+   "aid": "DFHPA1",
+   "commarea": {},
+   "why": "PA1: CONTINUE, nothing sent; RETURN TRANSID with the COMMAREA"
+  },
+  {
+   "name": "pf3",
+   "aid": "DFHPF3",
+   "commarea": {},
+   "why": "PF3: RETURN TRANSID('OMEN') IMMEDIATE: back to the main menu"
+  },
+  {
+   "name": "pf12",
+   "aid": "DFHPF12",
+   "commarea": {},
+   "why": "PF12: SEND-TERMINATION-MSG, RETURN"
+  },
+  {
+   "name": "clear",
+   "aid": "DFHCLEAR",
+   "commarea": {},
+   "why": "CLEAR: SEND CONTROL ERASE FREEKB, RETURN"
+  },
+  {
+   "name": "other-key",
+   "aid": "DFHPF7",
+   "commarea": {},
+   "why": "PF7: WHEN OTHER -- 'Invalid key pressed.', SEND MAP DATAONLY ALARM"
+  },
+  {
+   "name": "mapfail",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "why": "ENTER with no field modified: RECEIVE MAP MAPFAIL -- ABNDPROC LINKed (an ABNDFILE record) and ABEND HBNK"
+  },
+  {
+   "name": "same-accounts",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "why": "FROM and TO the same: 'should be different'",
+   "receive": {
+    "BNK1TF": {
+     "FACCNOI": "00000001",
+     "TACCNOI": "00000001",
+     "AMTI": "10"
+    }
+   }
+  },
+  {
+   "name": "same-after-deedit",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "why": "different as typed, the same after DEEDIT: the check is on the DEEDITed fields",
+   "receive": {
+    "BNK1TF": {
+     "FACCNOI": "00000001",
+     "TACCNOI": "0000-0001",
+     "AMTI": "10"
+    }
+   }
+  },
+  {
+   "name": "zero-from",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "why": "'Account no 00000000 is not valid'",
+   "receive": {
+    "BNK1TF": {
+     "FACCNOI": "00000000",
+     "TACCNOI": "00000002",
+     "AMTI": "10"
+    }
+   }
+  },
+  {
+   "name": "zero-to",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "why": "TO account 00000000",
+   "receive": {
+    "BNK1TF": {
+     "FACCNOI": "00000001",
+     "TACCNOI": "00000000",
+     "AMTI": "10"
+    }
+   }
+  },
+  {
+   "name": "amount-zero",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "why": "amount 0: 'Please supply a non-zero amount.'",
+   "receive": {
+    "BNK1TF": {
+     "FACCNOI": "00000001",
+     "TACCNOI": "00000002",
+     "AMTI": "0"
+    }
+   }
+  },
+  {
+   "name": "amount-zero-decimals",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "why": "amount 0.00",
+   "receive": {
+    "BNK1TF": {
+     "FACCNOI": "00000001",
+     "TACCNOI": "00000002",
+     "AMTI": "0.00"
+    }
+   }
+  },
+  {
+   "name": "amount-negative",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "why": "'Please supply a positive amount.'",
+   "receive": {
+    "BNK1TF": {
+     "FACCNOI": "00000001",
+     "TACCNOI": "00000002",
+     "AMTI": "-10"
+    }
+   }
+  },
+  {
+   "name": "amount-space",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "why": "embedded space",
+   "receive": {
+    "BNK1TF": {
+     "FACCNOI": "00000001",
+     "TACCNOI": "00000002",
+     "AMTI": "1 0"
+    }
+   }
+  },
+  {
+   "name": "amount-letters",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "why": "'Please supply a numeric amount.'",
+   "receive": {
+    "BNK1TF": {
+     "FACCNOI": "00000001",
+     "TACCNOI": "00000002",
+     "AMTI": "12a"
+    }
+   }
+  },
+  {
+   "name": "amount-two-points",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "why": "one decimal point only",
+   "receive": {
+    "BNK1TF": {
+     "FACCNOI": "00000001",
+     "TACCNOI": "00000002",
+     "AMTI": "1.2.5"
+    }
+   }
+  },
+  {
+   "name": "amount-three-places",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "why": "up to two decimal places",
+   "receive": {
+    "BNK1TF": {
+     "FACCNOI": "00000001",
+     "TACCNOI": "00000002",
+     "AMTI": "1.125"
+    }
+   }
+  },
+  {
+   "name": "amount-missing",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "why": "no amount (AMTL 0)",
+   "receive": {
+    "BNK1TF": {
+     "FACCNOI": "00000001",
+     "TACCNOI": "00000002"
+    }
+   }
+  }
+ ],
+ "notes": "BNK1TFN on generated Db2 rows (#4507): the transfer-funds screen of cbsa-bnk1tfn, its LINKed XFRFUN (and ABNDPROC) with ACCOUNT rows generated from CRETB01's CREATE TABLE (30 rows, boundary values, NULLs, a quarter under another sort code) and PROCTRAN starting empty (no foreign key joins them in CRETB02); ACCOUNT and PROCTRAN compared after every task and every SQL statement's SQLCODE compared. Stated scenarios keep the non-ENTER keys, MAPFAIL and the input checks that need no row (same account, zero account, bad amounts); the ENTERs are generated: FROM and TO account numbers drawn from the rows (10% one no row holds), amounts that a binary double holds exactly (BNK1TFN passes the typed amount through a COMP-2: 12.34 or 0.01 are not exact, and GnuCOBOL and the port move them to the 2-decimal field differently). Derived from the CICS Bank Sample Application (CBSA), EPL-2.0: LICENSE is the corpus's own.",
+ "port_from": "cbsa-bnk1tfn",
+ "scenario_generate": {
+  "seed": 4507,
+  "count": 40,
+  "prefix": "generated",
+  "aid": [
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHPF3",
+   "DFHPA1"
+  ],
+  "commarea": {},
+  "receive": {
+   "BNK1TF": {
+    "FACCNOI": {
+     "from": "IBMUSER.ACCOUNT.ACCOUNT_NUMBER",
+     "miss": 0.1
+    },
+    "TACCNOI": {
+     "from": "IBMUSER.ACCOUNT.ACCOUNT_NUMBER",
+     "miss": 0.1
+    },
+    "AMTI": {
+     "values": [
+      "100.50",
+      "0.25",
+      "2500.50",
+      "50",
+      "1234.75",
+      "0.50",
+      "1",
+      "+5",
+      " 7",
+      "0",
+      "-5",
+      "1.234",
+      "99999.5"
+     ]
+    }
+   }
+  }
+ }
+}

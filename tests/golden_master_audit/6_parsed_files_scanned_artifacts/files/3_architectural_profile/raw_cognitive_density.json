@@ -328,14 +328,14 @@
     "assembly/rpi_smartstart_baremetal": {
       "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": 0.054,
       "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": 0.057,
-      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": 0.046,
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": 0.047,
       "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": 0.079,
       "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": 0.045,
-      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": 0.04,
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": 0.041,
       "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": 0.058,
       "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": 0.065,
       "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": 0.058,
-      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": 0.053
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": 0.054
     },
     "assembly/x86_bare_metal": {
       "assembly/x86_bare_metal/LICENSE.adoc": 0.0,
@@ -1352,9 +1352,9 @@
       "fortran/wrf/cleanCMake.sh": 0.93,
       "fortran/wrf/configure_reader.py": 1.082,
       "fortran/wrf/gen_be_wrapper.ksh": 0.429,
-      "fortran/wrf/module_configure.F": 1.64,
+      "fortran/wrf/module_configure.F": 1.636,
       "fortran/wrf/module_domain.F": 0.913,
-      "fortran/wrf/module_initialize_real.F": 1.55,
+      "fortran/wrf/module_initialize_real.F": 1.549,
       "fortran/wrf/module_physics_init.F": 0.791,
       "fortran/wrf/module_sf_noahdrv.F": 0.925,
       "fortran/wrf/regtest.csh": 0.274,

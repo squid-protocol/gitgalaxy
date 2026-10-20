@@ -165,7 +165,7 @@
       "assembly/cosmopolitan_syscalls/calls_sys_aio_mlock.S": 0
     },
     "assembly/cpm65_6502": {
-      "assembly/cpm65_6502/apps_adm3adrv.S": 8,
+      "assembly/cpm65_6502/apps_adm3adrv.S": 9,
       "assembly/cpm65_6502/apps_adm3atst.asm": 1,
       "assembly/cpm65_6502/apps_bedit.asm": 9,
       "assembly/cpm65_6502/apps_capsdrv.asm": 1,
@@ -178,7 +178,7 @@
       "assembly/cpm65_6502/apps_ls.asm": 28,
       "assembly/cpm65_6502/apps_more.asm": 6,
       "assembly/cpm65_6502/apps_scrntest.asm": 8,
-      "assembly/cpm65_6502/apps_scrvt100.S": 5,
+      "assembly/cpm65_6502/apps_scrvt100.S": 6,
       "assembly/cpm65_6502/apps_vt52drv.asm": 4,
       "assembly/cpm65_6502/apps_vt52test.asm": 3,
       "assembly/cpm65_6502/apps_xrecv.asm": 24,
@@ -326,40 +326,40 @@
       "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": 0
     },
     "assembly/rpi_smartstart_baremetal": {
-      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": 55,
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": 71,
       "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": 48,
-      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": 44,
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": 59,
       "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": 35,
       "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": 36,
-      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": 51,
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": 66,
       "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": 40,
       "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": 44,
       "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": 29,
-      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": 46
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": 62
     },
     "assembly/x86_bare_metal": {
       "assembly/x86_bare_metal/LICENSE.adoc": 0,
       "assembly/x86_bare_metal/apm_shutdown.S": 0,
       "assembly/x86_bare_metal/apm_shutdown2.S": 3,
       "assembly/x86_bare_metal/bios_background.S": 0,
-      "assembly/x86_bare_metal/bios_carriage_return.S": 0,
+      "assembly/x86_bare_metal/bios_carriage_return.S": 1,
       "assembly/x86_bare_metal/bios_clear_screen.S": 0,
       "assembly/x86_bare_metal/bios_color.S": 0,
       "assembly/x86_bare_metal/bios_cursor_position.S": 0,
-      "assembly/x86_bare_metal/bios_detect_memory.S": 8,
-      "assembly/x86_bare_metal/bios_disk_load.S": 1,
-      "assembly/x86_bare_metal/bios_disk_load2.S": 1,
-      "assembly/x86_bare_metal/bios_hello_world.S": 2,
-      "assembly/x86_bare_metal/bios_initial_state.S": 1,
+      "assembly/x86_bare_metal/bios_detect_memory.S": 9,
+      "assembly/x86_bare_metal/bios_disk_load.S": 2,
+      "assembly/x86_bare_metal/bios_disk_load2.S": 3,
+      "assembly/x86_bare_metal/bios_hello_world.S": 3,
+      "assembly/x86_bare_metal/bios_initial_state.S": 2,
       "assembly/x86_bare_metal/bios_keyboard.S": 0,
       "assembly/x86_bare_metal/bios_keyboard_loop.S": 1,
-      "assembly/x86_bare_metal/bios_newline.S": 0,
-      "assembly/x86_bare_metal/bios_pixel.S": 2,
-      "assembly/x86_bare_metal/bios_pixel_line.S": 2,
+      "assembly/x86_bare_metal/bios_newline.S": 1,
+      "assembly/x86_bare_metal/bios_pixel.S": 3,
+      "assembly/x86_bare_metal/bios_pixel_line.S": 3,
       "assembly/x86_bare_metal/bios_putc.S": 0,
       "assembly/x86_bare_metal/bios_scroll.S": 0,
-      "assembly/x86_bare_metal/bios_serial.S": 2,
-      "assembly/x86_bare_metal/bios_sleep.S": 2,
+      "assembly/x86_bare_metal/bios_serial.S": 3,
+      "assembly/x86_bare_metal/bios_sleep.S": 3,
       "assembly/x86_bare_metal/c_hello_world_entry.S": 2
     },
     "assembly/xv6_x86_kernel": {
@@ -1170,7 +1170,7 @@
       "csharp/roslyn/LanguageParser.cs": 474,
       "csharp/roslyn/License.txt": 0,
       "csharp/roslyn/MethodCompiler.cs": 58,
-      "csharp/roslyn/Workspace.cs": 162
+      "csharp/roslyn/Workspace.cs": 156
     },
     "css": {
       "css/SOURCES.md": 0

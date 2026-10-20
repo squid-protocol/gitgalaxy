@@ -165,7 +165,7 @@
       "assembly/cosmopolitan_syscalls/calls_sys_aio_mlock.S": 0.0
     },
     "assembly/cpm65_6502": {
-      "assembly/cpm65_6502/apps_adm3adrv.S": 2.351,
+      "assembly/cpm65_6502/apps_adm3adrv.S": 2.157,
       "assembly/cpm65_6502/apps_adm3atst.asm": 3.033,
       "assembly/cpm65_6502/apps_bedit.asm": 2.257,
       "assembly/cpm65_6502/apps_capsdrv.asm": 0.841,
@@ -178,7 +178,7 @@
       "assembly/cpm65_6502/apps_ls.asm": 2.17,
       "assembly/cpm65_6502/apps_more.asm": 2.815,
       "assembly/cpm65_6502/apps_scrntest.asm": 2.21,
-      "assembly/cpm65_6502/apps_scrvt100.S": 2.146,
+      "assembly/cpm65_6502/apps_scrvt100.S": 2.178,
       "assembly/cpm65_6502/apps_vt52drv.asm": 2.089,
       "assembly/cpm65_6502/apps_vt52test.asm": 2.742,
       "assembly/cpm65_6502/apps_xrecv.asm": 2.022,
@@ -326,16 +326,16 @@
       "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": 0.0
     },
     "assembly/rpi_smartstart_baremetal": {
-      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": 2.282,
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": 1.766,
       "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": 0.979,
-      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": 2.37,
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": 1.816,
       "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": 1.718,
       "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": 1.602,
-      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": 1.985,
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": 1.628,
       "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": 1.302,
       "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": 1.965,
       "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": 1.298,
-      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": 1.802
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": 1.732
     },
     "assembly/x86_bare_metal": {
       "assembly/x86_bare_metal/LICENSE.adoc": 0.0,
@@ -346,20 +346,20 @@
       "assembly/x86_bare_metal/bios_clear_screen.S": -0.439,
       "assembly/x86_bare_metal/bios_color.S": 0.133,
       "assembly/x86_bare_metal/bios_cursor_position.S": -0.041,
-      "assembly/x86_bare_metal/bios_detect_memory.S": 1.121,
-      "assembly/x86_bare_metal/bios_disk_load.S": 3.801,
-      "assembly/x86_bare_metal/bios_disk_load2.S": -0.271,
-      "assembly/x86_bare_metal/bios_hello_world.S": 2.85,
+      "assembly/x86_bare_metal/bios_detect_memory.S": 1.506,
+      "assembly/x86_bare_metal/bios_disk_load.S": 2.654,
+      "assembly/x86_bare_metal/bios_disk_load2.S": 1.495,
+      "assembly/x86_bare_metal/bios_hello_world.S": 2.176,
       "assembly/x86_bare_metal/bios_initial_state.S": 0.65,
       "assembly/x86_bare_metal/bios_keyboard.S": 0.0,
       "assembly/x86_bare_metal/bios_keyboard_loop.S": 0.0,
       "assembly/x86_bare_metal/bios_newline.S": 0.0,
-      "assembly/x86_bare_metal/bios_pixel.S": 1.769,
-      "assembly/x86_bare_metal/bios_pixel_line.S": 1.619,
+      "assembly/x86_bare_metal/bios_pixel.S": 0.633,
+      "assembly/x86_bare_metal/bios_pixel_line.S": 0.467,
       "assembly/x86_bare_metal/bios_putc.S": 0.0,
       "assembly/x86_bare_metal/bios_scroll.S": 1.277,
-      "assembly/x86_bare_metal/bios_serial.S": 2.816,
-      "assembly/x86_bare_metal/bios_sleep.S": -0.51,
+      "assembly/x86_bare_metal/bios_serial.S": 2.093,
+      "assembly/x86_bare_metal/bios_sleep.S": -0.596,
       "assembly/x86_bare_metal/c_hello_world_entry.S": 2.469
     },
     "assembly/xv6_x86_kernel": {
@@ -1170,7 +1170,7 @@
       "csharp/roslyn/LanguageParser.cs": 1.033,
       "csharp/roslyn/License.txt": 0.0,
       "csharp/roslyn/MethodCompiler.cs": -0.203,
-      "csharp/roslyn/Workspace.cs": -0.593
+      "csharp/roslyn/Workspace.cs": -0.596
     },
     "css": {
       "css/SOURCES.md": 0.0
@@ -1353,7 +1353,7 @@
       "fortran/wrf/configure_reader.py": -0.257,
       "fortran/wrf/gen_be_wrapper.ksh": -0.166,
       "fortran/wrf/module_configure.F": -0.496,
-      "fortran/wrf/module_domain.F": 0.135,
+      "fortran/wrf/module_domain.F": 0.186,
       "fortran/wrf/module_initialize_real.F": 0.24,
       "fortran/wrf/module_physics_init.F": -0.727,
       "fortran/wrf/module_sf_noahdrv.F": -0.707,
@@ -1362,7 +1362,7 @@
       "fortran/wrf/regtest_nmmnest.csh": -0.575,
       "fortran/wrf/run_convert_e2c.ksh": -0.523,
       "fortran/wrf/sourcetree.py": 2.015,
-      "fortran/wrf/wrf_timeseries.F": 0.566
+      "fortran/wrf/wrf_timeseries.F": -1.03
     },
     "go": {
       "go/SOURCES.md": 0.0
@@ -2505,7 +2505,7 @@
       "objective-c/worldwideweb/HText.c": 1.092,
       "objective-c/worldwideweb/HyperManager.m": 0.694,
       "objective-c/worldwideweb/HyperText.h": 1.184,
-      "objective-c/worldwideweb/HyperText.m": 0.354,
+      "objective-c/worldwideweb/HyperText.m": 0.334,
       "objective-c/worldwideweb/TcpAccess.m": 0.466
     },
     "perl": {

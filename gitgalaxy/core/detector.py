@@ -23,6 +23,7 @@ import time
 from typing import Any, ClassVar, TypedDict, cast
 
 from gitgalaxy.core.cobol_source_format import FIXED, line_formats
+from gitgalaxy.core.fortran_calls import fortran_call_names
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS
 from gitgalaxy.core.prism import CPP_CHAR_LITERAL_PATTERN, CPP_DIGIT_SEPARATED_NUMBER_PATTERN, CPP_LANG_IDS
 from gitgalaxy.core.rule_prefilter import (
@@ -330,6 +331,35 @@ class ScopeParsingRegistry:
             # reused by index since the two lists could diverge later.
             "function_opener": r"(?<![:.])\bdef\b(?!:)",
             "class_opener": r"(?<![:.])\b(?:class|module)\b(?!:)",
+        },
+        # #5623: Crystal is ruby's `end`-delimited shape plus `struct` / `enum` / `lib` / `annotation` / `macro`
+        # scopes and `{% for %}` / `{% if %}` macro blocks (closed by `{% end %}`). An `abstract def` has no body
+        # and no `end`, so it opens nothing.
+        "crystal": {
+            "mode": "mode_d",
+            "openers": [
+                r"(?<![:.@$])(?<!abstract )\bdef\b(?!:)",
+                r"(?<![:.@$])\bmacro\b(?!:)",
+                r"(?<![:.@$])\bclass\b(?!:)",
+                r"(?<![:.@$])\bmodule\b(?!:)",
+                r"(?<![:.@$])\bstruct\b(?!:)",
+                r"(?<![:.@$])\benum\b(?!:)",
+                r"(?<![:.@$])\blib\b(?!:)",
+                r"(?<![:.@$])\bannotation\b(?!:)",
+                r"(?<![:.@$])\bif\b(?!:)",
+                r"(?<![:.@$])\bunless\b(?!:)",
+                r"(?<![:.@$])\bwhile\b(?!:)",
+                r"(?<![:.@$])\buntil\b(?!:)",
+                r"(?<![:.@$])\bfor\b(?!:)",
+                r"(?<![:.@$])\bcase\b(?!:)",
+                r"(?<![:.@$])\bdo\b(?!:)",
+                r"(?<![:.@$])\bbegin\b(?!:)",
+                r"(?<![:.@$])\bselect\b(?=[ \t]*$)",
+                r"(?m:^fun\b(?!:))",  # column-0 only: an indented `fun` in a `lib` has no body or `end`
+            ],
+            "closers": [r"(?<![:.@$])\bend\b(?!:)"],
+            "function_opener": r"(?<![:.])(?<!abstract )\b(?:def|macro)\b(?!:)|(?m:^fun\b(?!:))",
+            "class_opener": r"(?<![:.])\b(?:class|module|struct|enum|lib|annotation)\b(?!:)",
         },
         "lua": {
             "mode": "mode_d",
@@ -897,7 +927,8 @@ _BRACE_LITERAL_SHIELD_LANGS = frozenset(
 )  # fmt: skip
 
 _NON_TERMINATING_KEYWORDS_BY_LANG: dict[str, frozenset[str]] = {
-    "fortran": frozenset({"EXIT"}),
+    # #5638: a Fortran `RETURN` is an early exit (inside `IF ... ENDIF`), the unit runs to its `END`
+    "fortran": frozenset({"EXIT", "RETURN"}),
     "abap": frozenset({"RETURN", "EXIT"}),
 }
 
@@ -996,6 +1027,29 @@ _QUALIFIER_MAX_IDENT = 64
 # #3913: the family is recognised by the pattern's TEXT, not by object identity. A rule reaches a
 # scan worker pickled whenever the pool spawns (Windows, macOS): the string or compiled pattern it
 # holds is then a new object, `is` never matched, and qualifier capture was silently off there.
+# #5633: `//`-comment languages with a `--` operator. The literal shield must not read `--` as a comment.
+_DECREMENT_OPERATOR_LANGS = frozenset(
+    {
+        "c",
+        "cpp",
+        "objectivec",
+        "glsl",
+        "java",
+        "groovy",
+        "kotlin",
+        "csharp",
+        "javascript",
+        "typescript",
+        "php",
+        "go",
+        "swift",
+        "dart",
+        "apex",
+        "solidity",
+        "zscript",
+    }
+)
+
 _QUALIFIED_CALLS_OUT_SOURCES = frozenset(getattr(p, "pattern", p) for p in QUALIFIED_CALLS_OUT_PATTERNS)
 
 
@@ -1315,6 +1369,29 @@ def _drop_nested_declaration_calls(sats: list[Any], candidates: list[tuple[Any, 
         if drop:
             sat["calls_out_to"] = [c for c in sat["calls_out_to"] if c not in drop]
             sat["calls_out_qualifiers"] = {c: q for c, q in sat["calls_out_qualifiers"].items() if c not in drop}
+
+
+def _drop_own_leaf_recursion(sats: list[Any], candidates: list[tuple[Any, str, set[str]]]) -> None:
+    """#5628: keep a scoped unit's bare call to its own leaf name only if it is not recursion.
+
+    In `Scope::f` (C++) or `IEnumerable.GetEnumerator` (C#), an unqualified `f(` is the
+    recursion the contract drops (#3327) -- unless the file has a DIFFERENT unit named
+    exactly `f` (a free function, the class's own method): then the call reaches that one,
+    so the edge stays. Without one the call is dropped, as is any other candidate
+    (`Other::f` is not reachable by a bare name). A call written `this->f(` or `Scope::f(`
+    was already dropped by the detector and is not here.
+    """
+    bare = {str(s.get("name") or "") for s in sats}
+    for sat, leaf, own_qualifiers in candidates:
+        if leaf in bare:
+            continue
+        rest = [q for q in sat["calls_out_qualifiers"].get(leaf, []) if q not in own_qualifiers]
+        if rest:
+            sat["calls_out_qualifiers"][leaf] = rest
+            continue
+        sat["calls_out_to"] = [c for c in sat["calls_out_to"] if c != leaf]
+        sat["calls_out_qualifiers"].pop(leaf, None)
+        sat["calls_out_arities"].pop(leaf, None)
 
 
 _UNIT_NAME_SEPARATORS = re.compile(r"::|\.|->")
@@ -2592,6 +2669,9 @@ class StructuralExtractor:
         # #3642 (C8): (unit, its block, its rules) for each unit one segment's
         # slicing scanned for calls; _function_slice resolves them.
         self._call_scans: list[tuple[FunctionNode, str, dict[str, Any]]] | None = None
+        # #5628: (unit, leaf, own qualifiers) for each `Class::leaf` unit that calls the bare
+        # `leaf`; _function_slice keeps the call only if another unit named `leaf` exists.
+        self._own_leaf_calls: list[tuple[FunctionNode, str, set[str]]] | None = None
 
         # #2728: the names this language's own `func_start` can synthesize from a
         # closed keyword alternation rather than capture from source. Empty for
@@ -3027,6 +3107,7 @@ class StructuralExtractor:
                 "embedded_python",
                 "yaml",
                 "ruby",
+                "crystal",
             ) or lang_family in (
                 "single_line_only",
                 "multi_style_dash",
@@ -4470,6 +4551,11 @@ class StructuralExtractor:
         comment_markers = r"#|--|//"
         if lang_id == "matlab":
             comment_markers = r"%|#|--|//"
+        elif lang_id in _DECREMENT_OPERATOR_LANGS:
+            # #5633: `--` is the decrement operator here, never a comment. A line starting
+            # `--vars[ReadVar()];` (or `for (;; --i, x.f())`) was blanked to its end,
+            # taking every call after the `--` with it.
+            comment_markers = r"#|//"
         elif lang_id in ("shell", "bash"):
             # Shell's ONLY line-comment marker is `#`. `--` is the end-of-options
             # delimiter (`alert --stop ...`, `git checkout -- file`) and `//` has
@@ -4555,6 +4641,7 @@ class StructuralExtractor:
         elif lang_id not in (
             "python",
             "ruby",
+            "crystal",
             "shell",
             "bash",
             "perl",
@@ -4636,7 +4723,7 @@ class StructuralExtractor:
         t_pct = t_quotes
 
         # 2. Isolate Heredoc Logic to supported scripting languages
-        if lang_id in ["ruby", "perl", "elixir", "shell", "bash"]:
+        if lang_id in ["ruby", "crystal", "perl", "elixir", "shell", "bash"]:
             # State-Machine for Heredocs
             lines = text.split("\n")
             shielded_lines = []
@@ -4644,6 +4731,9 @@ class StructuralExtractor:
 
             # In detector.py -> _apply_literal_shield
             heredoc_opener_pattern = re.compile(r'<<[-~]?\s*[\'"]?\\?([a-zA-Z_][a-zA-Z0-9_]*)[\'"]?')
+            if lang_id == "crystal":
+                # #5623: Crystal heredocs are `<<-ID` / `<<-'ID'` only; `x << FRACBITS` is a shift/append.
+                heredoc_opener_pattern = re.compile(r'<<-[\'"]?([a-zA-Z_][a-zA-Z0-9_]*)[\'"]?')
 
             for line in lines:
                 if active_heredoc_delimiter:
@@ -4717,6 +4807,16 @@ class StructuralExtractor:
                 r"\b(?:def|class|module|defmacro|defmodule|defp)\s+"
                 r"(?:(?:[^\W\d][" + ID_CONTINUE + r"]*(?:::[^\W\d][" + ID_CONTINUE + r"]*)*\.|self\.)[ \t\n]*)?"
                 r"([^\W\d][" + ID_CONTINUE + r"]*(?:::[^\W\d][" + ID_CONTINUE + r"]*)*[?!=]?)",
+                line,
+            )
+            if m:
+                return m.group(1)
+        elif lang_key == "crystal":
+            m = re.search(
+                r"(?:\b(?:def|macro|class|struct|module|enum|lib|annotation)|^fun)[ \t]+"
+                r"(?:(?:[^\W\d][" + ID_CONTINUE + r"]*(?:::[^\W\d][" + ID_CONTINUE + r"]*)*\.|self\.)[ \t]*)?"
+                r"([^\W\d][" + ID_CONTINUE + r"]*(?:::[^\W\d][" + ID_CONTINUE + r"]*)*[?!=]?"
+                r"|\[\]=?\??|<=>|===?|!=|=~|!~|<<|>>|<=?|>=?|\*\*|[+\-*/%&|^~!])",
                 line,
             )
             if m:
@@ -4808,6 +4908,7 @@ class StructuralExtractor:
             impact = 0.0
             self._nested_decl_candidates = []
             self._call_scans = []
+            self._own_leaf_calls = []
 
             if integration_mode == "mode_d":
                 mode_name = "Mode_D_Keywords"
@@ -5007,6 +5108,9 @@ class StructuralExtractor:
                         # right heuristic for Haskell's layout rule even though
                         # it wasn't designed with Haskell in mind.
                         "haskell",
+                        # #5623: F# is offside-rule too; a record `{ ... }` body would send Mode B
+                        # slicing the wrong span.
+                        "fsharp",
                     ):
                         mode_name = "Mode_C_Indentation"
                         sats, impact = self._slice_by_indentation(code, rules, offset, spatial_map, lang_id)
@@ -5028,6 +5132,9 @@ class StructuralExtractor:
             if self._nested_decl_candidates:
                 _drop_nested_declaration_calls(sats, self._nested_decl_candidates)
             self._nested_decl_candidates = None
+            if self._own_leaf_calls:
+                _drop_own_leaf_recursion(sats, self._own_leaf_calls)
+            self._own_leaf_calls = None
 
             # --- SATELLITE-SCOPED CORRELATION (#346 phase 1, #348 phase 2) ---
             # Runs for every segment unconditionally, using THIS segment's own
@@ -6458,11 +6565,36 @@ class StructuralExtractor:
                             ):
                                 term_idx, term_kind = pos, "eq"
                                 break
+                            elif ch == closer:
+                                term_idx, term_kind = pos, "none"  # #5632: enclosing body closes
+                                break
+                            elif ch == "\n":
+                                # #5632: a bodyless declaration (`fun interface` member,
+                                # interface / `abstract` / `expect` fun) ends with its
+                                # signature; the walk used to run on to a LATER unit's `{`
+                                # and borrow that body. A signature ends at a line end unless
+                                # the next token continues it (`{`, `=`, `:` return type,
+                                # `where`) or this line ended on `:` / `=` / `,`.
+                                nxt = pos + 1
+                                while nxt < search_limit and safe_code[nxt] in " \t\n":
+                                    nxt += 1
+                                prev = pos
+                                while prev - 1 > params_end_idx and safe_code[prev - 1] in " \t":
+                                    prev -= 1
+                                if nxt >= search_limit or (
+                                    safe_code[nxt] not in "{=:"
+                                    and not safe_code.startswith("where", nxt)
+                                    and safe_code[prev - 1] not in ":=,"
+                                ):
+                                    term_idx, term_kind = prev, "none"
+                                    break
                         pos += 1
                     if term_kind == "brace":
                         end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
                     elif term_kind == "eq":
                         end_idx = next_match_start
+                    elif term_kind == "none":
+                        end_idx = term_idx
                     else:
                         end_idx = (
                             params_end_idx  # neither a body nor a bodyless `;` terminator ever showed up in the window
@@ -8024,7 +8156,7 @@ class StructuralExtractor:
                     opens -= non_cmd
 
             # The Ruby/Elixir Inline Modifier Guard
-            if lang_key in ["ruby", "elixir"] and opens > 0:
+            if lang_key in ["ruby", "crystal", "elixir"] and opens > 0:
                 # Find all valid condition keywords on the line
                 inline_mods = len(re.findall(r"(?<![:.])\b(if|unless|while|until)\b(?!:)", safe_line))
 
@@ -8185,7 +8317,7 @@ class StructuralExtractor:
                 # idiom (#1266), not a desync, and vb/livecode don't hit this.
                 recovered: list[FunctionNode] = []
                 rec_mag = 0.0
-                if lang_key in ("shell", "ruby", "lua", "elixir"):
+                if lang_key in ("shell", "ruby", "crystal", "lua", "elixir"):
                     recovered, rec_mag = self._slice_by_labels(block, rules, sat_start_line - 1, spatial_map)
 
                 if len(recovered) > 1:
@@ -10311,6 +10443,9 @@ class StructuralExtractor:
         raw_calls: list[str] = []
         header_only: set[str] = set()
         invoked: set[str] = set()
+        own_leaf: str | None = None
+        own_qualifiers: set[str] = set()
+        own_leaf_bare = False
         if invocation_pattern:
             # Apply literal shield to avoid capturing words inside strings
             safe_block = self._apply_literal_shield(block, self.primary_lang_id)
@@ -10356,7 +10491,12 @@ class StructuralExtractor:
                             callee, callee_pos = declared
                     qualifier = _call_qualifier(safe_block, callee_pos, _qualifier_separators(self.primary_lang_id))
                     if callee == own_leaf and qualifier in own_qualifiers:
-                        continue
+                        # #5628: a bare `leaf(` may reach a different unit of that name;
+                        # _function_slice drops it if none exists. Anything written with a
+                        # receiver or scope is the unit itself.
+                        if qualifier:
+                            continue
+                        own_leaf_bare = True
                     if callee_pos == m.start(1) and _is_declaration_header(decl_headers, m):
                         header_only.add(callee)
                     else:
@@ -10384,6 +10524,14 @@ class StructuralExtractor:
                 if isinstance(masked, re.Pattern):
                     safe_block = masked.sub(lambda m: re.sub(r"[^\n]", " ", m.group(0)), safe_block)
                 raw_calls = invocation_pattern.findall(safe_block)
+                if invocation_pattern.groups > 1:
+                    # #5639: one group per alternative (Objective-C: C call, message selector)
+                    raw_calls = [next((g for g in m if g), "") for m in raw_calls]
+                # #5638: a Fortran function reference `x = F(a)` has no verb; the statement scan
+                # also keeps `CALL F` in source order, and the verb regex's finds stay as a floor.
+                if self.languages.get(self.primary_lang_id, {}).get("calls_out_function_refs"):
+                    scanned = fortran_call_names(safe_block, rules.get("_calls_out_ignore") or frozenset())
+                    raw_calls = scanned + [c for c in raw_calls if c not in scanned]
 
         # Per-language additions to the global ignore set (Epic #3264 Phase 3).
         # Authored lowercase in the profile. A case-insensitive language
@@ -10486,6 +10634,8 @@ class StructuralExtractor:
         decl_only = header_only - invoked
         if decl_only and self._nested_decl_candidates is not None:
             self._nested_decl_candidates.append((sat, decl_only))
+        if own_leaf_bare and own_leaf in calls_out and self._own_leaf_calls is not None:
+            self._own_leaf_calls.append((sat, own_leaf, own_qualifiers))
         return sat, magnitude
 
     def _export_declaration_offsets(self, code_stream: str) -> set[int]:

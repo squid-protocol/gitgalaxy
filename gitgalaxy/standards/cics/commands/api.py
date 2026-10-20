@@ -24,7 +24,7 @@ child task); the named-counter commands are refused by det/cics.py with its own 
 from __future__ import annotations
 
 from gitgalaxy.standards.cics.commands.shared import ibm
-from gitgalaxy.standards.cics.model import Command
+from gitgalaxy.standards.cics.model import Command, Refusal
 
 _BTS = "business transaction services (BTS processes, activities, events, timers) are not modelled"
 _DTP = "distributed transaction processing (APPC / LUTYPE6.1 / MRO conversations) is not modelled"
@@ -199,7 +199,6 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("INVOKE SERVICE", None, _WEB_SERVICE),
     ("INVOKE WEBSERVICE", None, _WEB_SERVICE),
     ("SOAPFAULT ADD", None, _WEB_SERVICE),
-    ("SOAPFAULT CREATE", None, _WEB_SERVICE),
     ("SOAPFAULT DELETE", None, _WEB_SERVICE),
     ("WSACONTEXT BUILD", None, _WEB_SERVICE),
     ("WSACONTEXT DELETE", None, _WEB_SERVICE),
@@ -245,13 +244,46 @@ _REGISTER = {
     "WAITCICS": "X63",
 }
 
-COMMANDS = tuple(
-    Command(
-        key=name,
-        ibm=ibm(f"EXEC CICS {name}", "summary-" + (topic or name.lower().replace(" ", "-"))),
-        status="refused",
-        why=why,
-        register=_REGISTER.get(name, "X65"),
-    )
-    for name, topic, why in _NAME_ONLY
+# #5235: IBM's SOAPFAULT CREATE options (EXEC CICS SOAPFAULT CREATE), named so the spec knows every word of the command
+# DBB epscsmrd issues (CLIENT, FAULTSTRING, FAULTSTRLEN); the whole command stays refused (web services, X65)
+_SOAPFAULT_CREATE_OPTIONS = (
+    "CLIENT",
+    "SERVER",
+    "SENDER",
+    "RECEIVER",
+    "FAULTCODE",
+    "FAULTCODESTR",
+    "FAULTCODELEN",
+    "FAULTSTRING",
+    "FAULTSTRLEN",
+    "NATLANG",
+    "ROLE",
+    "ROLELENGTH",
+    "FAULTACTOR",
+    "FAULTACTLEN",
+    "DETAIL",
+    "DETAILLENGTH",
+    "FROMCCSID",
+)
+_SOAPFAULT_CREATE = Command(
+    key="SOAPFAULT CREATE",
+    ibm=ibm("EXEC CICS SOAPFAULT CREATE", "summary-soapfault-create"),
+    status="refused",
+    why=_WEB_SERVICE,
+    register="X65",
+    refused={o: Refusal(_WEB_SERVICE, "X65", whole=True) for o in _SOAPFAULT_CREATE_OPTIONS},
+)
+
+COMMANDS = (
+    _SOAPFAULT_CREATE,
+    *(
+        Command(
+            key=name,
+            ibm=ibm(f"EXEC CICS {name}", "summary-" + (topic or name.lower().replace(" ", "-"))),
+            status="refused",
+            why=why,
+            register=_REGISTER.get(name, "X65"),
+        )
+        for name, topic, why in _NAME_ONLY
+    ),
 )

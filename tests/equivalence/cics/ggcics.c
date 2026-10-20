@@ -193,7 +193,7 @@ int GGCAREA(char **area, int len) {
     char path[4096];
     struct stat st;
     snprintf(path, sizeof path, "%s/commarea.exact", dir_in());
-    if (len <= 0 || stat(path, &st) != 0) return 0;
+    if (len < 0 || stat(path, &st) != 0) return 0;
 #ifdef _WIN32
     refuse("a stated COMMAREA length on this platform");
 #else

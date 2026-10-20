@@ -306,7 +306,7 @@
         "verification": 6.21
       },
       "file_count": 20,
-      "total_mass": 529.24
+      "total_mass": 532.24
     },
     "assembly/freebsd_kernel_arch": {
       "avg_exposures": {
@@ -454,11 +454,11 @@
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 0.0,
-        "tech_debt": 55.45,
+        "tech_debt": 74.55,
         "verification": 80.0
       },
       "file_count": 10,
-      "total_mass": 1659.14
+      "total_mass": 1742.24
     },
     "assembly/x86_bare_metal": {
       "avg_exposures": {
@@ -467,17 +467,17 @@
         "cognitive_load": 2.5,
         "concurrency": 0.0,
         "dead_code": 4.26,
-        "documentation": 52.17,
+        "documentation": 60.87,
         "safety_score": 66.3,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 47.83,
         "state_flux": 10.88,
-        "tech_debt": 37.4,
-        "verification": 2.25
+        "tech_debt": 59.59,
+        "verification": 2.27
       },
       "file_count": 23,
-      "total_mass": 239.66
+      "total_mass": 238.96
     },
     "assembly/xv6_x86_kernel": {
       "avg_exposures": {
@@ -1813,7 +1813,7 @@
       "avg_exposures": {
         "api_exposure": 13.62,
         "churn": 0.0,
-        "cognitive_load": 44.35,
+        "cognitive_load": 44.34,
         "concurrency": 3.06,
         "dead_code": 9.26,
         "documentation": 76.91,
@@ -1822,11 +1822,11 @@
         "spec_match": 0.0,
         "stability": 46.67,
         "state_flux": 66.43,
-        "tech_debt": 6.02,
+        "tech_debt": 6.09,
         "verification": 59.16
       },
       "file_count": 15,
-      "total_mass": 50042.42
+      "total_mass": 51510.82
     },
     "go": {
       "avg_exposures": {
@@ -3175,7 +3175,7 @@
         "verification": 13.1
       },
       "file_count": 7,
-      "total_mass": 243.06
+      "total_mass": 242.96
     },
     "livecode": {
       "avg_exposures": {

@@ -322,6 +322,20 @@ def _is_der_public_certificate(head: bytes) -> bool:
     return inner is not None and inner < len(head) and head[inner] in (0xA0, 0x02)
 
 
+_AR_MAGIC = b"!<arch>\n"
+
+
+def _is_ar_archive(path_obj: Path) -> bool:
+    """True for a `.a` file that opens with the `ar` magic (#5624). One 8-byte read, `.a` only."""
+    if path_obj.suffix != ".a":
+        return False
+    try:
+        with open(path_obj, "rb") as fh:
+            return fh.read(len(_AR_MAGIC)) == _AR_MAGIC
+    except OSError:
+        return False
+
+
 def _is_public_key_material(path_obj: Path) -> bool:
     """True when a key/cert-named file holds only public material. The file is read in bounded chunks (8 MB
     cap, overlapped so a marker cannot straddle a boundary): armor text counts only with no PRIVATE marker
@@ -568,7 +582,11 @@ class ApertureFilter:
             return False, size_bytes, reason
 
         # --- Gate 1.3: Explicit Extension Firewall ---
-        if ext.lower() in self.ignored_extensions and ext.lower() not in self.whitelisted_extensions:
+        # #5624: `.a` is also assembly source (a language now claims it, which lifts the denial), so a
+        # static-library archive is recognised by its `ar` magic rather than by the extension alone.
+        if (
+            ext.lower() in self.ignored_extensions and ext.lower() not in self.whitelisted_extensions
+        ) or _is_ar_archive(path_obj):
             reason = ApertureReason(f"Blocked (Explicitly Denied Extension: '{ext}')", DENIED_EXTENSION)
             return False, size_bytes, reason
 
@@ -784,7 +802,7 @@ class ApertureFilter:
                     }
                 )
                 return report
-            elif not has_intent and loc > 1000:
+            elif not has_intent and loc > 1000 and not (low_path.endswith(".sql") and self._has_sql_structure(content)):
                 report.update(
                     {
                         "valid": False,
@@ -1068,6 +1086,26 @@ class ApertureFilter:
             return True
         # Content check: YAML with many run:/steps:/jobs: keys is workflow code
         return len(cls._PIPELINE_KEY_PATTERN.findall(content, 0, 200_000)) >= 3
+
+    # #5636: query structure -- a clause opening a line, or a CTE definition `name AS (`.
+    _SQL_STRUCTURE_LINE = re.compile(
+        r"^[ \t]*(?:select|from|(?:left |right |inner |outer |cross |full )?join|where|group by|order by|case"
+        r"|,?[ \t]*\w+[ \t]+as[ \t]*\()\b",
+        re.IGNORECASE | re.MULTILINE,
+    )
+    _SQL_DATA_LINE = re.compile(r"^[ \t]*(?:insert|values|\()", re.IGNORECASE | re.MULTILINE)
+
+    @classmethod
+    def _has_sql_structure(cls, content: str) -> bool:
+        """#5636: a SQL file is query source, not a data dump, when query-structure lines are a tenth of its lines
+        and outnumber its row lines (`INSERT` / `VALUES` / `(...)`). A CTE-fragment file has no leading statement, so
+        its first statement cannot be the test; a dump of rows has few structure lines, whatever its header."""
+        window = content[:400_000]
+        lines = window.count("\n") + 1
+        structure = sum(1 for _ in cls._SQL_STRUCTURE_LINE.finditer(window))
+        if structure * 10 < lines:
+            return False
+        return structure > sum(1 for _ in cls._SQL_DATA_LINE.finditer(window))
 
     # Characters that open a comment in some language (`//`, `///`, `/*`, ` *`, `#`, `--`, `;`, `%`,
     # `'`, `<!--`, `"""`) plus whitespace; stripped from the front of a line to reach its text.

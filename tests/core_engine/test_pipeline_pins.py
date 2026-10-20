@@ -370,7 +370,7 @@ def test_our_own_pipelines_are_clean(path):
 
 OPEN_SYSTEM_PACKAGE_INSTALLS = {
     ".github/workflows/full-suite-gate.yml": {(164, "brew")},
-    ".github/workflows/os-smoke-grid.yml": {(58, "brew")},
+    ".github/workflows/os-smoke-grid.yml": {(59, "brew")},
     ".github/workflows/tri-comparison-audit.yml": {(90, "apt")},
     ".github/workflows/tri-comparison-history.yml": {(96, "apt")},
 }
@@ -427,3 +427,11 @@ def test_no_workflow_pins_a_python_below_requires_python():
             if tuple(int(p) for p in m.group(1).split(".")) < floor:
                 offenders.append(f"{path.name}: {m.group(0)}")
     assert not offenders, offenders
+
+
+def test_os_smoke_grid_setup_steps_have_their_own_timeout():
+    """#5747: a hung macOS setup step must fail as that step, not as a bare job cancellation."""
+    text = (ROOT / ".github" / "workflows" / "os-smoke-grid.yml").read_text()
+    for step in ("Install macOS dependencies", "Install dependencies"):
+        block = text.split(f"- name: {step}", 1)[1].split("\n      - name:", 1)[0]
+        assert "timeout-minutes:" in block, step

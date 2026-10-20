@@ -159,6 +159,29 @@ a case with entry runs (no burned committed port has one; unit tests only), the 
 `mutation_crucible.py`, samples above 40. Db2 and IMS cases still get a JVM per run. If a `compare` against
 `--full` ever disagrees on a new case, rerun with `--no-one-jvm` first.
 
+**Four more burned cases, and a fast-mode defect they found (2026-10-20, #4047).** `--sample N --seed 7` in `--full`
+(`--jobs 1`), then the same mutants in fast mode with the session JVM (the default) and, where stated, without it,
+judged by `mutation.py compare --require-agree N`:
+
+| case | judged by both | `--full` vs `--one-jvm` | fast (JVM per run) vs `--one-jvm` | killed / survived / stillborn | proof s, full -> one-jvm |
+|---|---|---|---|---|---|
+| genapp-lgicdb01 (LGICDB01, CICS + Db2) | 20 | 20 agree | 20 agree | 6 / 11 / 3 | 582 -> 455 |
+| carddemo-tranlist (COTRN00C, CICS) | 20 | 20 agree | 20 agree | 13 / 6 / 1 | 362 -> 187 |
+| carddemo-trnrpt (CBTRN03C, batch) | 12 | 12 agree | 12 agree | 8 / 2 / 2 | 1,827 -> 153 |
+| cbsa-inqacc (INQACC, CICS + Db2, LINKs ABNDPROC), before the fix | 20 | **11 agree, 9 differ** | 20 agree | 8 / 9 / 3 (`--full`) | 551 -> 394 |
+| cbsa-inqacc, after the fix | 20 | 20 agree | (fast vs `--full`: 20 agree) | 8 / 9 / 3 | 551 -> 775 (run beside another proof) |
+| genapp-lgapvs01 (LGAPVS01, LINKs LGSTSQ), after the fix | 15 | 15 agree | not run | 6 / 6 / 3 | 317 -> 105 |
+
+**The defect was fast mode, not the session JVM** (fast with a JVM per run gave the same 17 kills). Nine mutants that
+`--full` calls survived died in fast mode with `Hole: CICS file ABNDFILE: the program names no file the generated
+project stores`, thrown from the LINKed ABNDPROC. The proof translates a LINKed program (`"programs"` in `case.json`)
+from the generated stub in the project; on `--reuse` that file was already the earlier run's translation, so the new
+translation had no file stores. `--reuse` now carries the earlier run's `generated_before_overlay` (the stubs) and
+`linked_programs` translates from it. Fast mode was therefore **not** agreeing with `--full` on a case whose proof
+LINKs a det-translated program, and its score overstated the kills: the committed cbsa-inqacc score (131 killed, 0
+survived of 150) was recorded before this fix. Not re-recorded here; the same holds for every case with a det-translated
+LINKed program (the cbsa and genapp cases, mortgage-cmort, the asynccc cases: 56 of the cases in `tests/equivalence`).
+
 ## Scores
 
 After #4056 (SYSOUT compared) and #4053 (SEND MAP attributes compared), on 2026-10-01:

@@ -127,7 +127,7 @@
 <text class="n" x="324" y="257">n=11 imports</text>
 <text class="n" x="324" y="269">repos 1 · files 35</text>
 </g>
-<g><title>go callee names: precision 99.9% of 6,580, recall 99.6% of 6,604 (raw 99.9% / 99.6%; 5 shapes without a verdict)</title>
+<g><title>go callee names: precision 99.9% of 6,580, recall 99.6% of 6,604 (raw 99.9% / 99.6%; 7 shapes without a verdict)</title>
 <text class="pr" x="426" y="256.5">Precision</text>
 <rect class="track" x="472" y="249" width="110" height="8" rx="2"/>
 <rect x="472" y="249" width="109.9" height="8" rx="2" fill="#4a3aa7"/>

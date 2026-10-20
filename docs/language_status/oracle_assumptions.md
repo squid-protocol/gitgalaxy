@@ -582,6 +582,13 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   - `mortgage-mpmt` (EPSMPMT): its interest rate is now computed in long HFP, but the payment's `(1 + C) ** N`, N
     with decimal places, is a floating-point exponentiation: the one hole, so the case stays in the det sweep's
     baseline (KNOWN_UNPROVEN). It would also round where GnuCOBOL truncates.
+  - **A non-exact COMP-2 amount into a 2-decimal field (#5703 evidence, BNK1TFN line 494).** 12.34, 9999999999.99 and 0.01
+    moved to `S9(10)V99` differ between GnuCOBOL and the port where the double is below the decimal (12.34 -> cobc 12.33,
+    9999999999.99 -> cobc 9999999999.98, port 12.34 / 9999999999.99). IBM's MOVE rounding is documented ("Conversions and
+    precision"), so this is a DECLARED difference, not an open question: the port follows IBM, the case draws only values
+    exact in both formats (100.50, 12.75), and the vectors are pinned by `test_det_hfp.py`
+    `test_a_cbsa_comp2_amount_moved_to_a_two_decimal_field_rounds_where_the_oracle_truncates` (COMP-1: nine significant
+    digits, `test_a_comp1_amount_moved_to_a_two_decimal_field_keeps_nine_significant_digits`). Still pending z/OS capture (#4050).
   - CBSA's CRECUST, BANKDATA, BNK1CAC, BNK1CRA, BNK1TFN and BNK1UAC are not cases. Since #4270's NUMVAL slice
     BNK1CAC, BNK1TFN and BNK1UAC translate whole (BNK1CRA still has EXEC CICS INQUIRE).
 - **Exponentiation is refused in every shape, on purpose (#4271).** IBM documents no result for `**` in a

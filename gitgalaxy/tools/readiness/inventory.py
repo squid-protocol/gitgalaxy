@@ -86,6 +86,19 @@ def count_stand_ins(inv, lines, prog_rel):
         count_item(inv, "stand_in_copybooks", member, prog_rel)
 
 
+def count_call_target(inv, stmt, prog_rel):
+    """#5565: the program a CALL names (a literal, upper-cased), or `(dynamic)` for a CALL through an identifier: an
+    unmodelled API is otherwise detected only through its copybook (CMQ*). The category exists only once an estate has
+    a CALL, so an estate without any keeps its fixture byte for byte."""
+    if stmt.data.get("dynamic"):
+        key = "(dynamic)"
+    else:
+        key = str(stmt.data.get("program") or "").strip("'\"").upper()
+    if key and not re.fullmatch(r"GG[A-Z]{3,4}\d{4}", key):  # the parser's own EXEC / SORT / ENTRY stand-in CALLs
+        inv.setdefault("call_targets", defaultdict(lambda: {"count": 0, "programs": set()}))
+        count_item(inv, "call_targets", key, prog_rel)
+
+
 def count_unknown(inv, category, prog_rel):
     # Just count once if we do it for a whole program failure
     count_item(inv, category, "unknown", prog_rel)
@@ -397,6 +410,8 @@ def process_program(prog: Path, estate_dir: Path, ir, estate_opt, inv, estate_co
                                     count_unknown(inv, "sql_forms", rel_prog)
                         else:
                             count_item(inv, "statements", stmt.kind, rel_prog)
+                            if stmt.kind == "CALL":
+                                count_call_target(inv, stmt, rel_prog)
 
                         # Intrinsic functions
                         funcs = re.findall(r"\bFUNCTION\s+([A-Z0-9-]+)\b", stmt.text, re.I)

@@ -1,4 +1,30 @@
 {
+  "call_targets": {
+    "CEEDATM": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/BANKDATA.cbl"
+      ]
+    },
+    "CEEDAYS": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "CEEGMT": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/BANKDATA.cbl"
+      ]
+    },
+    "CEELOCT": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    }
+  },
   "cics_commands": {
     "ABEND": {
       "count": 60,

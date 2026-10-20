@@ -176,3 +176,45 @@ def test_postgresql_is_not_a_neighbourhood_gravity_candidate_for_the_shared_exte
     assert seen
     assert "postgresql" not in seen
     assert "sqlite" in seen
+
+
+# --- sibling vote for files with no Postgres-only evidence of their own (#5622 slice 2) ---
+PLAIN_DDL = "CREATE TABLE a (id INTEGER PRIMARY KEY, name TEXT);\n"
+
+
+def _route_in_dir(folder: Path, name: str) -> str:
+    return LanguageDetector(LANGUAGE_DEFINITIONS, {}).inspect(
+        folder / name, (folder / name).read_text(), ext_tally={".sql": 9}
+    )["lang_id"]
+
+
+@pytest.mark.parametrize("ext", [".sql", ".ddl", ".dml"])
+def test_plain_script_follows_two_proving_postgres_siblings(tmp_path, ext):
+    (tmp_path / f"f1{ext}").write_text(PLPGSQL_FN)
+    (tmp_path / f"f2{ext}").write_text(SQL_FN_TAGGED)
+    (tmp_path / f"plain{ext}").write_text(PLAIN_DDL)
+    assert _route_in_dir(tmp_path, f"plain{ext}") == "postgresql"
+
+
+def test_one_proving_sibling_does_not_relabel_the_folder(tmp_path):
+    (tmp_path / "f1.sql").write_text(PLPGSQL_FN)
+    (tmp_path / "plain.sql").write_text(PLAIN_DDL)
+    assert _route_in_dir(tmp_path, "plain.sql") in {"sqlite", "db2_sql"}
+
+
+def test_postgres_siblings_do_not_capture_a_folder_of_proven_db2(tmp_path):
+    for i in range(3):
+        (tmp_path / f"d{i}.sql").write_text(DB2_PROC)
+    (tmp_path / "f1.sql").write_text(PLPGSQL_FN)
+    (tmp_path / "f2.sql").write_text(SQL_FN_TAGGED)
+    (tmp_path / "plain.sql").write_text(PLAIN_DDL)
+    assert _route_in_dir(tmp_path, "plain.sql") in {"sqlite", "db2_sql"}  # 2 of 5 proving votes < 70%
+
+
+def test_proving_siblings_in_another_folder_do_not_vote(tmp_path):
+    (tmp_path / "pg").mkdir()
+    (tmp_path / "other").mkdir()
+    (tmp_path / "pg" / "f1.sql").write_text(PLPGSQL_FN)
+    (tmp_path / "pg" / "f2.sql").write_text(SQL_FN_TAGGED)
+    (tmp_path / "other" / "plain.sql").write_text(PLAIN_DDL)
+    assert _route_in_dir(tmp_path / "other", "plain.sql") in {"sqlite", "db2_sql"}

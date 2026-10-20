@@ -315,7 +315,7 @@ DEFINITION: dict[str, Any] = {
             + r"]*)(?=[ \t\n]*(?:__attribute__\s*\([^()]*(?:\([^()]*\)[^()]*)*\)|\([^)]*\)|[A-Z_0-9])*[ \t\n]*[:\{;]|$)|"
             r"^[ \t]*(?:(?:static|inline|extern|__attribute__\s*\([^()]*(?:\([^()]*\)[^()]*)*\)|template\s*<[^>]*>)[ \t\n]+)*"
             r"(?!(?:if|for|while|switch|return|else|case|default|do|break|continue|goto|sizeof|catch)\b)"
-            r"(?:(?:\b(?<!["
+            r"(?:(?:(?:\b(?<!["
             + ID_CONTINUE
             + r"])["
             + ID_START
@@ -323,7 +323,20 @@ DEFINITION: dict[str, Any] = {
             + ID_CONTINUE
             + r"]*(?!["
             + ID_CONTINUE
-            + r"])|extern\s+\"C\")[ \t\n]*(?:\*[ \t\n]*)*)+(["
+            + r"])|extern\s+\"C\")[ \t\n]*(?:\*[ \t\n]*)*)+|(?=(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*[ \t]*::[ \t]*)+~?["
+            + ID_START
+            + r"]))"
+            # #5639: an ObjC++ out-of-line member (`bool Cls::Method()`, `Cls::Cls()`, `Cls::~Cls()`) names its
+            # last component; a qualifier needs no return type before it (constructor / destructor).
+            r"(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*[ \t]*::[ \t]*)*(~?["
             + ID_START
             + r"]["
             + ID_CONTINUE

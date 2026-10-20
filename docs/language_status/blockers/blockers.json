@@ -1,15 +1,14 @@
 {
  "programs": 106,
  "non_burned": 0,
- "whole": 99,
+ "whole": 100,
  "whole_non_burned": 0,
  "refused": 2,
  "histogram": {
-  "0": 99,
+  "0": 100,
   "1": 4,
-  "3": 1,
-  "5": 1,
-  "9": 1
+  "4": 1,
+  "8": 1
  },
  "gaps": [
   {
@@ -26,19 +25,6 @@
    "refuses_program": true
   },
   {
-   "gap": "EXEC DLI REPL: the segment commands (\u2026) are not modelled",
-   "only": 1,
-   "only_burned": 1,
-   "only_non_burned": 0,
-   "one_away": 0,
-   "one_away_burned": 0,
-   "one_away_non_burned": 0,
-   "touched": 2,
-   "touched_burned": 2,
-   "touched_non_burned": 0,
-   "refuses_program": false
-  },
-  {
    "gap": "DSNTIAC: Db2's message text is not modelled",
    "only": 1,
    "only_burned": 1,
@@ -52,9 +38,9 @@
    "refuses_program": false
   },
   {
-   "gap": "<name> ADDRESS OF <name>: a subordinate item is an offset into its record, not a LINKAGE N record",
-   "only": 0,
-   "only_burned": 0,
+   "gap": "INITIALIZE REPLACING of the table <name>, which holds ALPHANUMERIC items REPLACING does not name",
+   "only": 1,
+   "only_burned": 1,
    "only_non_burned": 0,
    "one_away": 0,
    "one_away_burned": 0,
@@ -65,7 +51,7 @@
    "refuses_program": false
   },
   {
-   "gap": "<name> ADDRESS OF <name>: not a LINKAGE N record",
+   "gap": "<name> ADDRESS OF <name>: not an item of <name> or LINKAGE",
    "only": 0,
    "only_burned": 0,
    "only_non_burned": 0,
@@ -156,19 +142,6 @@
    "refuses_program": false
   },
   {
-   "gap": "EPSCSMRX: a sibling program of this source",
-   "only": 0,
-   "only_burned": 0,
-   "only_non_burned": 0,
-   "one_away": 0,
-   "one_away_burned": 0,
-   "one_away_non_burned": 0,
-   "touched": 1,
-   "touched_burned": 1,
-   "touched_non_burned": 0,
-   "refuses_program": false
-  },
-  {
    "gap": "EXEC CICS <name>: a pointer a REDEFINES overlays",
    "only": 0,
    "only_burned": 0,
@@ -196,32 +169,6 @@
   },
   {
    "gap": "EXEC CICS SOAPFAULT CREATE",
-   "only": 0,
-   "only_burned": 0,
-   "only_non_burned": 0,
-   "one_away": 0,
-   "one_away_burned": 0,
-   "one_away_non_burned": 0,
-   "touched": 1,
-   "touched_burned": 1,
-   "touched_non_burned": 0,
-   "refuses_program": false
-  },
-  {
-   "gap": "EXEC DLI ISRT: the segment commands (\u2026) are not modelled",
-   "only": 0,
-   "only_burned": 0,
-   "only_non_burned": 0,
-   "one_away": 0,
-   "one_away_burned": 0,
-   "one_away_non_burned": 0,
-   "touched": 1,
-   "touched_burned": 1,
-   "touched_non_burned": 0,
-   "refuses_program": false
-  },
-  {
-   "gap": "INITIALIZE REPLACING of the table <name>, which holds ALPHANUMERIC items REPLACING does not name",
    "only": 0,
    "only_burned": 0,
    "only_non_burned": 0,

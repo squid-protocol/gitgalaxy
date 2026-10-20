@@ -15,6 +15,9 @@ rules live here once, zero-dependency (no tree-sitter), and both sides import th
     continuation_resume / continued_literal / join_continuation
                     a continued nonnumeric literal: where it resumes, its whole value, and one continuation
                     line joined onto the logical line before it
+    open_literal / comment_at / drop_comment / free_code
+                    a floating `*>` comment (free format, and IBM Enterprise COBOL 6 / GnuCOBOL in fixed form
+                    too) is a comment only outside a literal: where it starts and the text without it
 
 Member resolution stays in core/copy_libraries.py (the engine owns it since #4468).
 """
@@ -232,3 +235,36 @@ def join_continuation(prev_text: str, line: str, literal_open: bool) -> str:
     if resume is not None and literal_open:
         return prev_text.ljust(65) + line[resume:72]
     return prev_text.rstrip() + " " + line[7:72].lstrip()
+
+
+def open_literal(text: str) -> bool:
+    """#5648: whether `text` ends inside an unterminated literal."""
+    quote = None
+    for ch in text:
+        if quote is None and ch in "'\"":
+            quote = ch
+        elif ch == quote:
+            quote = None
+    return quote is not None
+
+
+def comment_at(text: str) -> int:
+    """#5648: where `text`'s `*>` comment starts (one outside a literal), or len(text)."""
+    at = text.find("*>")
+    while at >= 0:
+        if not open_literal(text[:at]):
+            return at
+        at = text.find("*>", at + 2)
+    return len(text)
+
+
+def free_code(line: str) -> str:
+    """#5648: a free-format line without its `*>` comment (one outside a literal)."""
+    return line[: comment_at(line)]
+
+
+def drop_comment(text: str) -> str:
+    """#4874, #5648: `text` without a floating `*>` comment (one outside a literal), trailing blanks left off; a
+    literal that holds `*>` is kept whole."""
+    at = comment_at(text)
+    return text[:at].rstrip() if at < len(text) else text

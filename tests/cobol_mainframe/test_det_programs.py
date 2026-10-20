@@ -1117,8 +1117,6 @@ PROGRAMS = {
             "IF 0012 > E2 DISPLAY 'F GT' ELSE DISPLAY 'F LE' END-IF",
             "IF E2 < N4 DISPLAY 'G LT' ELSE DISPLAY 'G GE' END-IF",
             "IF E2 = NS DISPLAY 'H EQ' ELSE DISPLAY 'H NE' END-IF",
-            "IF E2 > NP DISPLAY 'I GT' ELSE DISPLAY 'I LE' END-IF",
-            "IF NB < E2 DISPLAY 'J LT' ELSE DISPLAY 'J GE' END-IF",
             "IF E2 = NV DISPLAY 'K EQ' ELSE DISPLAY 'K NE' END-IF",
             "MOVE 12 TO E3",
             "IF E2 = E3 DISPLAY 'L EQ' ELSE DISPLAY 'L NE' END-IF",
@@ -1141,14 +1139,11 @@ PROGRAMS = {
             "IF EN < 0 DISPLAY 'S LT' ELSE DISPLAY 'S GE' END-IF",
             "MOVE 1234 TO E2 NS NP NB",
             "IF E2 = NS DISPLAY 'T EQ' ELSE DISPLAY 'T NE' END-IF",
-            "IF E2 = NP DISPLAY 'U EQ' ELSE DISPLAY 'U NE' END-IF",
-            "IF E2 = NB DISPLAY 'V EQ' ELSE DISPLAY 'V NE' END-IF",
             "MOVE '149999' TO AX6",
             "IF AX6 = 1499.99 DISPLAY 'W EQ' ELSE DISPLAY 'W NE' END-IF",
             "MOVE '0012' TO AX4",
             "MOVE 12 TO NB",
             "IF AX4 = 0012 DISPLAY 'X EQ' ELSE DISPLAY 'X NE' END-IF",
-            "IF AX4 = NB DISPLAY 'Y EQ' ELSE DISPLAY 'Y NE' END-IF",
             "IF AX4 = 0.012 DISPLAY 'Z EQ' ELSE DISPLAY 'Z NE' END-IF",
             "MOVE 112.5 TO EV",
             "IF EV = 112.5 DISPLAY 'AA EQ' ELSE DISPLAY 'AA NE' END-IF",
@@ -1158,8 +1153,8 @@ PROGRAMS = {
         ],
     ),
     # #4671: a group is an alphanumeric operand: a numeric item or literal compared with it is compared as its digits,
-    # sign dropped (IBM: an unsigned integer; GnuCOBOL likewise, measured) -- a signed zoned, a packed and a binary
-    # item as well as an unsigned one, either way round, ordering and equality, EVALUATE; held as digits and as spaces
+    # sign dropped (IBM: an unsigned integer; GnuCOBOL likewise, measured) -- a signed zoned item as well as an
+    # unsigned one (a packed or binary one is refused: IBM rejects it, C13), either way round, ordering and equality, EVALUATE; held as digits and as spaces
     "GRPCMP": program(
         "GRPCMP",
         [
@@ -1189,32 +1184,19 @@ PROGRAMS = {
             "IF G = N2 DISPLAY 'I EQ' ELSE DISPLAY 'I NE' END-IF",
             "IF N4 = G DISPLAY 'J EQ' ELSE DISPLAY 'J NE' END-IF",
             "IF G = NS DISPLAY 'K EQ' ELSE DISPLAY 'K NE' END-IF",
-            "IF G = NP DISPLAY 'L EQ' ELSE DISPLAY 'L NE' END-IF",
-            "IF G = NB DISPLAY 'M EQ' ELSE DISPLAY 'M NE' END-IF",
-            "IF G = NU DISPLAY 'N EQ' ELSE DISPLAY 'N NE' END-IF",
             "IF G = NV DISPLAY 'O EQ' ELSE DISPLAY 'O NE' END-IF",
             "IF G > NS DISPLAY 'P GT' ELSE DISPLAY 'P LE' END-IF",
-            "IF G > NB DISPLAY 'Q GT' ELSE DISPLAY 'Q LE' END-IF",
-            "IF NP < G DISPLAY 'R LT' ELSE DISPLAY 'R GE' END-IF",
             "EVALUATE G",
             "  WHEN 12 DISPLAY 'S 12'",
             "  WHEN N4 DISPLAY 'S N4'",
             "  WHEN OTHER DISPLAY 'S OTHER'",
-            "END-EVALUATE",
-            "EVALUATE NP",
-            "  WHEN G DISPLAY 'T G'",
-            "  WHEN OTHER DISPLAY 'T OTHER'",
             "END-EVALUATE",
             "MOVE '  12' TO G",
             "MOVE -12 TO NP NB",
             "IF G = 12 DISPLAY 'U EQ' ELSE DISPLAY 'U NE' END-IF",
             "IF G = N4 DISPLAY 'V EQ' ELSE DISPLAY 'V NE' END-IF",
             "IF G = NS DISPLAY 'W EQ' ELSE DISPLAY 'W NE' END-IF",
-            "IF G = NP DISPLAY 'X EQ' ELSE DISPLAY 'X NE' END-IF",
-            "IF G = NB DISPLAY 'Y EQ' ELSE DISPLAY 'Y NE' END-IF",
             "MOVE '0012' TO G",
-            "IF G = NP DISPLAY 'Z EQ' ELSE DISPLAY 'Z NE' END-IF",
-            "IF G = NB DISPLAY 'AA EQ' ELSE DISPLAY 'AA NE' END-IF",
         ],
     ),
 }
@@ -2194,6 +2176,50 @@ def test_a_numeric_operand_compared_as_text_refuses_by_name_what_ibm_and_gnucobo
     holes = P.translate(tmp_path / "EDREF.cbl", [], "public class EdrefService {\n}\n", PKG, None,
                         tmp_path / "project").stats["holes"]  # fmt: skip
     assert any(why in h and "(C13)" in h for h in holes), holes
+
+
+# IBM's table of numeric / nonnumeric comparisons has no entry for a packed or binary item (a floating-point one is
+# refused earlier, C6), so it rejects the program; GnuCOBOL compares the item's digits (register C13). Refused by name, either way round, against an
+# alphanumeric item, a numeric-edited item and a group (the whole class, #4702).
+@pytest.mark.parametrize(
+    ("decl", "use"),
+    [("S9(4) COMP-3", "PACKED"), ("9(4) COMP-3", "PACKED"), ("S9(4) COMP", "BINARY"), ("9(9) COMP", "BINARY"),
+     ("S9(4) COMP-4", "BINARY"), ("S9(4) COMP-5", "COMP-5")],
+)  # fmt: skip
+@pytest.mark.parametrize(
+    ("other", "cond"),
+    [(["01  O PIC X(4)."], "N = O"), (["01  O PIC X(4)."], "O < N"), (["01  O PIC ZZZ9."], "N = O"),
+     (["01  O PIC -ZZ9."], "O > N"), (["01  O.", "    05 OA PIC X(4)."], "N = O"), (["01  O.", "    05 OA PIC X(4)."], "O = N")],
+)  # fmt: skip
+def test_a_native_numeric_item_compared_with_a_nonnumeric_one_is_refused_by_name_ibm_rejects_it(
+    decl, use, other, cond, tmp_path
+):
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "NATREF.cbl").write_text(program("NATREF", [f"01  N PIC {decl}.", *other],
+                                                 [f"IF {cond} DISPLAY 'Y' END-IF"]))  # fmt: skip
+    (tmp_path / "project").mkdir()
+    holes = P.translate(tmp_path / "NATREF.cbl", [], "public class NatrefService {\n}\n", PKG, None,
+                        tmp_path / "project").stats["holes"]  # fmt: skip
+    assert any(
+        f"N ({use}) compared with the nonnumeric O" in h and "IBM rejects" in h and "(C13)" in h for h in holes
+    ), holes
+
+
+def test_a_native_numeric_item_still_compares_with_a_numeric_operand_and_a_zoned_one_with_text(tmp_path):
+    """The refusal is narrow: native item vs numeric (by value) and zoned item vs nonnumeric (as digits) translate."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    data = ["01  N PIC S9(4) COMP-3.", "01  M PIC S9(4) COMP.", "01  Z PIC 9(4).", "01  E PIC ZZZ9."]
+    (tmp_path / "NATOK.cbl").write_text(
+        program("NATOK", data, ["IF N = M AND Z = E AND N = 12 AND M > Z DISPLAY 'Y' END-IF"])
+    )
+    (tmp_path / "project").mkdir()
+    holes = P.translate(tmp_path / "NATOK.cbl", [], "public class NatokService {\n}\n", PKG, None,
+                        tmp_path / "project").stats["holes"]  # fmt: skip
+    assert not [h for h in holes if "(C13)" in h], holes
 
 
 # ---- #4462: a multi-program source, one program at a time; a reference modification of an intrinsic function -----

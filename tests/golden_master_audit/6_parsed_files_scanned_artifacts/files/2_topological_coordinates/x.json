@@ -1300,8 +1300,8 @@
       "dockerfile/moby/builder/remotecontext/utils_test.go": -9410.16
     },
     "dockerfile/moby/builder/remotecontext/git": {
-      "dockerfile/moby/builder/remotecontext/git/gitutils.go": -8387.0,
-      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": -8625.94
+      "dockerfile/moby/builder/remotecontext/git/gitutils.go": -8387.29,
+      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": -8626.23
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 3857.09,
@@ -1898,7 +1898,7 @@
       "html/wordpress_blocks/search.html": 10126.35
     },
     "java": {
-      "java/SOURCES.md": -8893.23
+      "java/SOURCES.md": -8893.53
     },
     "java/flutter_android_editing_tests": {
       "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": -1049.38
@@ -2501,11 +2501,11 @@
       "objective-c/SOURCES.md": 229.88
     },
     "objective-c/worldwideweb": {
-      "objective-c/worldwideweb/Anchor.m": -7604.28,
-      "objective-c/worldwideweb/HText.c": -8179.35,
-      "objective-c/worldwideweb/HyperManager.m": -7901.54,
-      "objective-c/worldwideweb/HyperText.h": -8489.31,
-      "objective-c/worldwideweb/HyperText.m": -7966.17,
+      "objective-c/worldwideweb/Anchor.m": -7603.63,
+      "objective-c/worldwideweb/HText.c": -8179.57,
+      "objective-c/worldwideweb/HyperManager.m": -7901.65,
+      "objective-c/worldwideweb/HyperText.h": -8489.57,
+      "objective-c/worldwideweb/HyperText.m": -7966.29,
       "objective-c/worldwideweb/TcpAccess.m": -7495.61
     },
     "perl": {

@@ -2501,12 +2501,12 @@
       "objective-c/SOURCES.md": -39.53
     },
     "objective-c/worldwideweb": {
-      "objective-c/worldwideweb/Anchor.m": 2.13,
-      "objective-c/worldwideweb/HText.c": -138.08,
-      "objective-c/worldwideweb/HyperManager.m": 28.59,
-      "objective-c/worldwideweb/HyperText.h": -35.9,
+      "objective-c/worldwideweb/Anchor.m": 2.1,
+      "objective-c/worldwideweb/HText.c": -138.11,
+      "objective-c/worldwideweb/HyperManager.m": 28.61,
+      "objective-c/worldwideweb/HyperText.h": -35.91,
       "objective-c/worldwideweb/HyperText.m": -16.03,
-      "objective-c/worldwideweb/TcpAccess.m": 59.92
+      "objective-c/worldwideweb/TcpAccess.m": 59.95
     },
     "perl": {
       "perl/SOURCES.md": 259.15

@@ -1,5 +1,5 @@
 {
- "commit": "076639a24",
+ "commit": "b9cfd06c4",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -111,12 +111,12 @@
    }
   },
   "mutation": {
-   "adjusted_kill_pct": 87.8,
-   "adjusted_total": 2793,
-   "killed": 2452,
-   "ports": 50,
-   "raw_kill_pct": 70.3,
-   "raw_total": 3489
+   "adjusted_kill_pct": 86.5,
+   "adjusted_total": 2862,
+   "killed": 2477,
+   "ports": 51,
+   "raw_kill_pct": 69.4,
+   "raw_total": 3567
   },
   "translator": {
    "of": 129,
@@ -157,7 +157,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-20T14:52:37Z",
+  "as_of": "2026-10-20T15:03:45Z",
   "core": {
    "closed": 149,
    "open": 34,
@@ -165,8 +165,8 @@
   },
   "core_last_window": {
    "closed": 53,
-   "net_closed": 3,
-   "opened": 50
+   "net_closed": 4,
+   "opened": 49
   },
   "core_milestone": {
    "closed": 82,
@@ -181,7 +181,7 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "79 days",
+  "eta": "60 days",
   "frontier": {
    "closed": 100,
    "found_last_window": 14,

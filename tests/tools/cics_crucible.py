@@ -170,6 +170,9 @@ _START_KEYS = frozenset(
     "transid termid interval time from reqid protect resp resp2 expires rtransid rtermid queue".split()
 )
 _RETRIEVE_KEYS = frozenset("resp length data rtransid rtermid queue".split())
+# #4767 zECS (X37, X38): an `http` task's request body and response, on both sides
+_WEB_RECEIVE_KEYS = frozenset("resp resp2 length data".split())
+_WEB_SEND_KEYS = frozenset("status statustext mediatype from resp resp2".split())
 COBOL_CAPS = cc.Capabilities(
     layer="stub",
     task_keys=frozenset(cc.TASK_KEYS) | {"end"},
@@ -191,9 +194,12 @@ COBOL_CAPS = cc.Capabilities(
         "RETRIEVE": _RETRIEVE_KEYS,
         "CANCEL": frozenset({"reqid", "resp"}),
         "RUN": frozenset({"transid", "resp", "resp2"}),  # #4270
+        "WEB-RECEIVE": _WEB_RECEIVE_KEYS,  # #4767 (X37, X38)
+        "WEB-SEND": _WEB_SEND_KEYS,
     },
     ts_queues=True,
     start_tasks=True,
+    http_tasks=True,
 )
 JAVA_CAPS = cc.Capabilities(
     layer="CicsTask",
@@ -215,9 +221,12 @@ JAVA_CAPS = cc.Capabilities(
         "RETRIEVE": _RETRIEVE_KEYS,
         "CANCEL": frozenset({"reqid", "resp"}),
         "RUN": frozenset({"transid", "resp", "resp2"}),  # #4270
+        "WEB-RECEIVE": _WEB_RECEIVE_KEYS,  # #4767 (X37, X38)
+        "WEB-SEND": _WEB_SEND_KEYS,
     },
     ts_queues=True,
     start_tasks=True,
+    http_tasks=True,
 )
 
 
@@ -784,6 +793,15 @@ class EquivalenceRunTest {
                 q.getValue().forEach(item -> items.add(HexFormat.of().parseHex(item.asText())));
                 ts.seed(q.getKey(), items);
             });
+            sc.path("http").forEach(h -> {  // #4767 (X37): an inbound HTTP request, due at its time like a START
+                Map<String, Object> r = new LinkedHashMap<>();
+                r.put("issue", h.get("index").asInt() - 100000);  // (ahead of a START due at the same time)
+                r.put("transid", h.get("transid").asText());
+                r.put("expires", clock.plusSeconds(h.get("at").asLong()));
+                r.put("kind", "http");
+                r.put("http", h);
+                requests.add(r);
+            });
         }
 
         Map<String, Object> drive() {
@@ -824,13 +842,21 @@ class EquivalenceRunTest {
                     });
                     Map<String, Object> trigger = new LinkedHashMap<>();
                     trigger.put("kind", first.getOrDefault("kind", "start"));  // #4270: "run" for a RUN TRANSID child
-                    trigger.put("task", first.get("task"));
-                    trigger.put("event", first.get("event"));
+                    JsonNode http = (JsonNode) first.get("http");  // #4767: an inbound HTTP request's task
+                    if (http != null) {
+                        trigger.put("request", http.get("index").asInt());
+                    } else {
+                        trigger.put("task", first.get("task"));
+                        trigger.put("event", first.get("event"));
+                    }
                     Map<String, Object> f = frame((String) first.get("termid"), trigger, null);
                     // #4270 slice 3: ASSIGN STARTCODE -- "S" a START that "did not pass data in the FROM option", "SD"
                     // one that did; a coalesced group that mixes the two is not stated (refused)
                     long withFrom = group.stream().filter(r -> r.get("data") != null).count();
-                    f.put("startcode", withFrom == group.size() ? "SD" : withFrom == 0 ? "S" : null);
+                    f.put("startcode", http != null ? null : withFrom == group.size() ? "SD" : withFrom == 0 ? "S" : null);
+                    if (http != null) {
+                        f.put("http_request", http.get("request"));
+                    }
                     runOne(f, (String) first.get("transid"), null, null, null, data);
                     continue;
                 }
@@ -927,6 +953,7 @@ class EquivalenceRunTest {
             answered = null;
             answeredByBytes = false;
             task.remove("startcode");
+            task.remove("http_request");
             task.put("transid", transid);
             task.put("program", program);
             task.put("commarea", describe(commarea));
@@ -995,6 +1022,15 @@ class EquivalenceRunTest {
                     t.withTerminalInput(step.get("text").asText());
                 }
                 t.withEndOfChain("LUTYPE2".equals(plan.path("terminal_device").asText()));  // #4413
+                if (frame.get("http_request") instanceof JsonNode q) {  // #4767 (X37): the request the task serves
+                    List<String[]> headers = new ArrayList<>();
+                    q.get("headers").forEach(h -> headers.add(new String[] {h.get(0).asText(), h.get(1).asText()}));
+                    t.withHttpRequest(new CicsTask.HttpRequest(q.get("scheme").asText(), q.get("host").asText(),
+                            q.get("port").asInt(), q.get("method").asText(), q.get("version").asText(),
+                            q.get("path").asText(), q.get("query").asText(), headers,
+                            q.hasNonNull("mediatype") ? q.get("mediatype").asText() : null,
+                            q.hasNonNull("body") ? q.get("body").asText() : null));
+                }
                 if (plan.has("urimaps")) {
                     // #4270 zECS (X32): INQUIRE URIMAP -- the URIMAP definitions the case CSD installs, as {name,
                     // transaction, path}, in the CSD's order
@@ -1564,7 +1600,7 @@ def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
             cls = ec._generated_class(src, 'String MAP = "' + re.escape(m) + '";')
             screens[m] = f"{ej.PKG}.dto.screen.{cls}"
     # #4002: seeds as EBCDIC hex (SPEC 2: the region's page); #4006: `until` for the scheduler
-    scenarios = [{"id": sc["id"], "steps": [seeded_step(case, src, st) for st in sc["steps"]], "until": sc.get("until"), "fault_plans": fault_plans(sc),
+    scenarios = [{"id": sc["id"], "steps": [seeded_step(case, src, st) for st in sc["steps"]], "until": sc.get("until"), "fault_plans": fault_plans(sc), "http": http_plan(case, sc)[0],
                   "ts_queues": {q: [cc.expected_bytes(i).hex() for i in items]
                                 for q, items in ((sc.get("initial") or {}).get("ts_queues") or {}).items()}}
                  for sc in case.scenarios]  # fmt: skip
@@ -1829,6 +1865,11 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
                 ev.update(reqid=e.get("reqid"), resp=e.get("resp"))
             elif kind == "RUN":  # #4270
                 ev.update({k: e[k] for k in ("transid", "resp", "resp2") if k in e})
+            elif kind == "WEB-RECEIVE":  # #4767 (X38): the body the task read; RESP2 where IBM documents it
+                ev.update(_web_receive_event(e.get("resp"), e.get("resp2"), e.get("body")))
+            elif kind == "WEB-SEND":  # #4767 (X37): the response the task sent
+                ev.update(_web_send_event(e.get("status"), e.get("statustext"), e.get("mediatype"),
+                                          str(e.get("body") or "").encode("latin-1"), e.get("resp"), e.get("resp2")))  # fmt: skip
             elif kind == "ABEND":  # #4003: cause, condition, outcome and the exit, as CicsTask records them
                 ev.update({k: e[k] for k in ("abcode", "cause", "condition", "outcome", "exit") if k in e})
             else:
@@ -1836,7 +1877,10 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
             task["events"].append(ev)
         tasks.append(task)
     final = {q: [bytes.fromhex(i) for i in items] for q, items in (raw.get("ts_queues") or {}).items()}
-    return {"tasks": tasks, "stopped": raw.get("stopped"), "final": {"ts_queues": final}}
+    sc = next((s for s in case.scenarios if s["id"] == raw.get("_scenario")), {})
+    tasks = http_order(tasks)
+    return {"tasks": tasks, "stopped": raw.get("stopped"), "final": {"ts_queues": final},
+            **http_peer_log(case, sc, tasks)}  # fmt: skip
 
 
 class JavaRunError(RuntimeError):
@@ -2129,6 +2173,18 @@ def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = N
             ev.update(_named(args, ("rtransid", "rtermid", "queue")))
         elif verb == "CANCEL":
             ev.update(reqid=arg("reqid"), resp=names.get(int(arg("resp") or 0), arg("resp")))
+        elif verb == "WEB-RECEIVE":  # #4767 (X38): LENGERR 16 returned nothing (no data)
+            ev.update(_web_receive_event(int(arg("resp") or 0), int(arg("resp2") or 0),
+                                         None if arg("resp2") == "16" else data.decode("latin-1")))  # fmt: skip
+        elif (
+            verb == "WEB-SEND"
+        ):  # #4767 (X37): the media type and status text in hex ('-': not given), the body in the blob
+
+            def hx(k: str) -> str | None:
+                return None if arg(k) in ("", "-") else bytes.fromhex(arg(k)).decode("latin-1")
+
+            ev.update(_web_send_event(int(arg("status")), hx("stext"), hx("media"), data, int(arg("resp") or 0),
+                                      int(arg("resp2") or 0)))  # fmt: skip
         elif verb == "RUN":  # #4270: RUN TRANSID; RESP2 where IBM documents it (not NORMAL)
             resp = names.get(int(arg("resp") or 0), arg("resp"))
             ev.update(
@@ -2310,6 +2366,117 @@ def _record(r: dict[str, Any]) -> dict[str, Any] | None:
     return rec if any(v is not None for v in rec.values()) else None
 
 
+# ---- #4767 zECS (X37, X38): an inbound HTTP request is a task ---------------------------------------------
+def _resp_name(code: Any) -> Any:
+    import equivalence_cics as ec
+
+    return {v: k for k, v in ec.DFHRESP.items() if k != "DSIDERR"}.get(code, code) if isinstance(code, int) else code
+
+
+def _web_receive_event(resp: Any, resp2: Any, body: str | None) -> dict[str, Any]:
+    """The WEB-RECEIVE event of SPEC 6.2 from what either side recorded: LENGTH is the bytes returned, `data` None when
+    LENGERR 16 returned nothing; RESP2 only where IBM documents it (a condition)."""
+    ev: dict[str, Any] = {"resp": _resp_name(resp), "length": None if body is None else len(body),
+                          "data": None if body is None else cc.RawArea(body.encode("latin-1"), "latin-1")}  # fmt: skip
+    if resp2:
+        ev["resp2"] = resp2
+    return ev
+
+
+def _web_send_event(status: Any, statustext: str | None, mediatype: str | None, body: bytes, resp: Any,
+                    resp2: Any) -> dict[str, Any]:  # fmt: skip
+    """The WEB-SEND event of SPEC 6.2 from what either side recorded (FROM's bytes in the stub's page)."""
+    ev: dict[str, Any] = {"status": status, "statustext": statustext, "mediatype": mediatype,
+                          "from": cc.RawArea(body, "latin-1"), "resp": _resp_name(resp)}  # fmt: skip
+    if resp2:
+        ev["resp2"] = resp2
+    return ev
+
+
+def server_urimap_matches(case: cc.Case, req: dict[str, Any]) -> list[str]:
+    """The installed `USAGE(SERVER)` URIMAPs an inbound request matches (SPEC section 2, HTTP peer; IBM, URIMAP resource
+    definitions): SCHEME the request's, HOST equal or the single `*`, PATH equal or ending in `*` as a prefix, STATUS
+    enabled. The names, in the CSD's order."""
+    out = []
+    for u in case.csd.get("server_urimaps") or []:
+        path = u["path"]
+        if (u["scheme"] == req["scheme"].upper() and u["status"] == "ENABLED" and u["host"] in ("*", req["host"])
+                and (req["path"] == path or (path.endswith("*") and req["path"].startswith(path[:-1])))):  # fmt: skip
+            out.append(u["name"])
+    return out
+
+
+def http_plan(case: cc.Case, sc: dict[str, Any]) -> tuple[list[dict[str, Any]], str | None]:
+    """The scenario's `requests` as the tasks they start: ([{index, at, transid, peer, request}] -- `request` the
+    stated request as both runtimes take it (equivalence_cics.http_request) --, why the scenario cannot run). A
+    request naming a peer the case does not state, or matching no or more than one server URIMAP, is a defined failure
+    (`http-peer`): the case is invalid."""
+    plan: list[dict[str, Any]] = []
+    peers = case.data.get("peers") or {}
+    for i, r in enumerate(sc.get("requests") or []):
+        if r.get("peer") not in peers:
+            return [], f"http-peer: request {i} names peer {r.get('peer')!r}, which the case does not state"
+        if (r.get("mediatype") is None) != (r.get("body") is None):
+            return [], f"http-peer: request {i} states a body without its media type (or the reverse)"
+        hits = server_urimap_matches(case, r)
+        if len(hits) != 1:
+            return (
+                [],
+                f"http-peer: request {i} matches {len(hits)} server URIMAPs ({', '.join(hits) or 'none'}), not one",
+            )
+        uri = next(u for u in case.csd["server_urimaps"] if u["name"] == hits[0])
+        transid = uri["transaction"]
+        if transid not in case.csd["transactions"]:
+            return [], f"http-peer: request {i}: URIMAP {hits[0]} names no installed transaction"
+        req = {"scheme": r["scheme"].upper(), "host": r["host"], "port": 80, "method": r["method"],
+               "version": "HTTP/1.1", "path": r["path"], "query": "", "headers": [],
+               "mediatype": r.get("mediatype"), "body": r.get("body")}  # fmt: skip
+        plan.append({"index": i, "at": r["at"], "transid": transid, "peer": r["peer"], "request": req})
+    return plan, None
+
+
+def http_order(tasks: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """An ACTION(EVENTUAL) WEB SEND is recorded after the task's other events (the stub and CicsTask send it as the task
+    ends); SPEC 6.2 logs the response where the command is issued, so an `http` task's WEB-SEND is moved ahead of the
+    RETURN it trails."""
+    for t in tasks:
+        evs = t["events"]
+        if (t.get("trigger") or {}).get("kind") == "http" and evs and evs[-1]["event"] == "WEB-SEND":
+            at = next((i for i, e in enumerate(evs) if e["event"] == "RETURN" and (e.get("level") or 1) == 1), None)
+            if at is not None:
+                evs.insert(at, evs.pop())
+    return tasks
+
+
+def http_peer_log(case: cc.Case, sc: dict[str, Any], tasks: list[dict[str, Any]]) -> dict[str, Any]:
+    """{"http_peer": why} when an `http` task's response is not the one its client peer states (SPEC section 2): each peer
+    states one response per request it sends, in order; the task must send exactly one `WEB-SEND`, equal to it in status,
+    media type and body. A response with no stated counterpart or a second response is the `http-peer` failure. {} when
+    every response is the peer's."""
+    peers = case.data.get("peers") or {}
+    seen: dict[str, int] = {}
+    for t in tasks:
+        trig = t.get("trigger") or {}
+        if trig.get("kind") != "http":
+            continue
+        i = trig["request"]
+        peer = sc["requests"][i]["peer"]
+        k = seen[peer] = seen.get(peer, -1) + 1
+        sent = [e for e in t["events"] if e["event"] == "WEB-SEND"]
+        where = f"request {i} (peer {peer})"
+        if len(sent) != 1:
+            return {"http_peer": f"{where}: the task sent {len(sent)} responses, SPEC allows exactly one"}
+        stated = peers[peer]["responses"]
+        if k >= len(stated):
+            return {"http_peer": f"{where}: the task answered, the peer states no response #{k + 1}"}
+        got = {"status": sent[0]["status"], "mediatype": sent[0]["mediatype"],
+               "body": sent[0]["from"].data.decode("latin-1")}  # fmt: skip
+        for key, want in stated[k].items():
+            if got.get(key) != want:
+                return {"http_peer": f"{where}: response {key} {got.get(key)!r}, the peer states {want!r}"}
+    return {}
+
+
 def step_commarea(step: dict[str, Any]) -> bytes | None:
     """#4443: the COMMAREA a typed-transid step enters with (a direct entry into a program that is otherwise only
     reached through a RETURN TRANSID): `commarea: {"hex": ..., "length": n}` is the first n bytes of the hex record,
@@ -2343,6 +2510,13 @@ def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[lis
     immediate: dict[str, Any] | None = None  # #4270 (X27): a RETURN IMMEDIATE's task, attached before anything else
     now = clock
     steps = list(enumerate(sc["steps"]))
+    plan, why = http_plan(case, sc)  # #4767 (X37): the inbound HTTP requests, due like START requests
+    if why:
+        return tasks, why
+    for h in plan:
+        requests.append({"issue": h["index"] - 100000, "transid": h["transid"], "termid": None, "reqid": None,
+                         "expires": clock + datetime.timedelta(seconds=h["at"]), "data": None, "kind": "http",
+                         "task": None, "event": None, "http": h})  # fmt: skip
 
     def ended(task: dict[str, Any], at: datetime.datetime) -> None:
         nonlocal issued, pending, pending_ca, immediate
@@ -2408,6 +2582,10 @@ def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[lis
             frame = {"termid": first["termid"], "at": now.strftime("%Y-%m-%dT%H:%M:%S"),
                      "trigger": {"kind": first.get("kind", "start"), "task": first["task"], "event": first["event"]},
                      "eibaid": None, "startcode": "SD" if with_from == len(group) else "S" if not with_from else None}  # fmt: skip
+            if first.get("kind") == "http":  # #4767: the request's task: no terminal, no STARTCODE it states
+                frame["trigger"] = {"kind": "http", "request": first["http"]["index"]}
+                frame["startcode"] = None
+                frame["http_request"] = first["http"]["request"]
             run(frame, first["transid"], None, None, [_record(r) for r in group if _record(r) is not None], now)
             continue
         nxt = min((r["expires"] for r in requests), default=None)
@@ -2447,7 +2625,8 @@ def run_scenario(case: cc.Case, sc: dict[str, Any], box: "Container", work: Path
         )
 
     tasks, stopped = drive_scenario(case, sc, run_one)
-    return {"tasks": tasks, "stopped": stopped, "final": {"ts_queues": read_ts(work / ts)}}
+    return {"tasks": tasks, "stopped": stopped, "final": {"ts_queues": read_ts(work / ts)},
+            **http_peer_log(case, sc, tasks)}  # fmt: skip
 
 
 def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, transid: str, frame: dict[str, Any],
@@ -2459,7 +2638,8 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
     unexpired requests a CANCEL searches, the virtual clock), then the stub's events as the task's."""
     program = case.csd["transactions"].get(transid)
     startcode = frame.get("startcode")  # #4270 slice 3: ASSIGN STARTCODE (the scheduler's; not a log key)
-    frame = {k: v for k, v in frame.items() if k != "startcode"}
+    http_req = frame.get("http_request")  # #4767 (X37): the request an `http` task serves (not a log key)
+    frame = {k: v for k, v in frame.items() if k not in ("startcode", "http_request")}
     task: dict[str, Any] = {"transid": transid, "program": program, **frame, "eibcalen": len(commarea or b""),
                             "commarea": cc.RawArea(commarea, "latin-1") if commarea else None,
                             "events": [], "end": "normal"}  # fmt: skip
@@ -2497,6 +2677,10 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
             )
     if commarea:
         (d / "commarea.in").write_bytes(commarea)
+    if http_req is not None:
+        import equivalence_cics as ec
+
+        (d / "webreq.cfg").write_text(ec.http_request_cfg(http_req, RUNTIME_PAGE), encoding="ascii")
     step = step or {}
     if faults:  # #4049: the conditions the scenario plans for this task's TRANSID
         (d / "faults.cfg").write_text("".join(x + "\n" for x in faults), encoding="ascii")
@@ -2515,6 +2699,7 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
            f"GGCICS_DIR=/work/{rel} GGCICS_OUT=/work/{rel}/out EIBIN=/work/{rel}/eib.in "
            f"{'GGCICS_LU2=1 ' if terminal_device(case) == 'LUTYPE2' else ''}"  # #4413: EOC on RECEIVE
            f"GGCICS_URIMAPS=/work/{rel}/urimaps.cfg "  # #4270 zECS (X32)
+           f"{f'GGCICS_WEBREQ=/work/{rel}/webreq.cfg ' if http_req is not None else ''}"  # #4767 (X37)
            f"{f'GGCICS_DOCTEMPLATES=/work/{rel}/doctemplates.cfg ' if case.data.get('doctemplates') is not None else ''}"  # #4769 (X33)
            f"{f'GGCICS_UCTRANST={terminal_uctranst(case)} ' if terminal_uctranst(case) else ''}"  # #4415
            f"{f'GGCICS_ORIGIN={origin_env(case)} ' if origin_env(case) and (frame.get('trigger') or {}).get('kind') == 'terminal' else ''}"  # #4415 slice 2
@@ -2525,6 +2710,7 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
            f"GGCICS_TS=/work/{ts} GGCICS_NOW={frame['at']} COB_CURRENT_DATE='{when.strftime('%Y/%m/%d %H:%M:%S')}.00' ./bin/task "
            f"> /work/{rel}/stdout.txt 2>&1")  # fmt: skip
     task["events"] = _cobol_events(d / "out", program, screens)
+    http_order([task])
     if any((e["event"] == "ABEND" and e.get("outcome") == "terminated") or e["event"] == "DRIVER-ERROR"
            for e in task["events"]):  # fmt: skip
         task["end"] = "abend"

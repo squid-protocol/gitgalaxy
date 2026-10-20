@@ -2256,6 +2256,32 @@ def _case_csd(file: str, datasets: dict[str, Any] | None) -> dict[str, Any] | No
             "reclen": spec["reclen"], "via": ["the case's csd"], "organization": "ESDS"}  # fmt: skip
 
 
+def case_runtime_files(datasets: dict[str, Any] | None) -> list[dict[str, Any]]:
+    """#4771: a CICS file the program names at run time (zECS: `ZC` + EIBTRNID(3:2) + `FILE` / `KEY`), so no CSD DEFINE
+    FILE of the engine's facts carries its name. The case's dataset of that file name states it with its `why`:
+    `"runtime_file": {"key_offset", "key_length", "reclen", "why"}` -- the IDCAMS job's KEYS and RECORDSIZE, as `vsam` is
+    for a named dataset. Only the COBOL leg binds it: the generated project stores no file the program does not name."""
+    out = []
+    for name, spec in sorted((datasets or {}).items()):
+        rf = (spec or {}).get("runtime_file")
+        if rf is None:
+            continue
+        if (
+            not re.fullmatch(r"[A-Z0-9]{1,8}", name)
+            or not all(isinstance(rf.get(k), int) for k in ("key_offset", "key_length", "reclen"))
+            or not rf.get("why")
+            or set(rf) - {"key_offset", "key_length", "reclen", "why"}
+        ):
+            raise Unsupported(
+                f"dataset {name}: a case's runtime_file states key_offset, key_length, reclen and why (a CICS file name "
+                f"of at most 8 upper-case characters): {rf}"
+            )
+        out.append({"file": name, "dsname": name, "base": name, "key_offset": rf["key_offset"],
+                    "key_length": rf["key_length"], "reclen": rf["reclen"],
+                    "via": ["the case's runtime_file"], "runtime": True})  # fmt: skip
+    return out
+
+
 _INSTALL_SYMBOL = re.compile(r"@([A-Za-z0-9_#$-]+)@")
 
 
@@ -2392,6 +2418,7 @@ def stub_files(
             raise Unsupported(f"CICS file {e['name']}: {key.name}'s KEYS or {d.name}'s RECORDSIZE is not in the facts")
         out.append({"file": e["name"], "dsname": dsn, "base": base, "key_offset": koff,
                     "key_length": klen, "reclen": reclen, "via": via})  # fmt: skip
+    out += [r for r in case_runtime_files(datasets) if r["file"] not in {f["file"] for f in out}]
     return sorted(out, key=lambda f: f["file"])
 
 
@@ -4474,6 +4501,8 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
                      f"            }});")  # fmt: skip
     fields, loads, dumps = [], [], []
     for dsn, spec in case.get("datasets", {}).items():
+        if by_base[dsn].get("runtime"):  # #4771: stated for the COBOL leg; the project stores no file named at run time
+            continue
         if by_base[dsn].get("organization") == "ESDS":  # #4213: the region's ESDS, on the task (CicsTask.withEsds)
             f = by_base[dsn]
             csd_java += (

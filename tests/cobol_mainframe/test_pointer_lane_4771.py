@@ -107,8 +107,7 @@ def test_address_of_a_subordinate_or_working_storage_item_is_a_windowed_alias(tm
         (
             (
                 "USAGE POINTER.\n       01  SAVE-ADDRESS",
-                "USAGE POINTER.\n       01  CACHE-ADDRESS-X REDEFINES CACHE-ADDRESS "
-                "PIC X(8).\n       01  SAVE-ADDRESS",
+                "USAGE POINTER.\n       01  CACHE-ADDRESS-X REDEFINES CACHE-ADDRESS PIC X(8).\n       01  SAVE-ADDRESS",
             ),
             "REDEFINES overlays",
         ),

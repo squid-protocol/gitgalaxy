@@ -214,6 +214,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | LGICDB01 (genapp-lgicdb01) | equivalence | 150/201 | 51/130 (39%) | 51/107 (48%) | 1 / 55 / 8 / 15 / 0 |
 | LGSTSQ (genapp-lgstsq) | equivalence | 89/89 | 25/78 (32%) | 25/69 (36%) | 43 / 1 / 1 / 8 / 0 |
 | LGUPDB01 (genapp-lgupdb01) | equivalence | 150/403 | 67/140 (48%) | 67/120 (56%) | 7 / 46 / 5 / 15 / 0 |
+| LGUPVS01 (genapp-lgupvs01) | equivalence | 150/160 | 66/119 (55%) | 66/101 (65%) | 0 / 35 / 4 / 14 / 0 |
 | CALINK (ca-link-lengths) | crucible | 24/168 | 15/22 (68%) | 15/15 (100%) | 0 / 0 / 5 / 2 / 0 |
 | CASUB (ca-link-lengths) | crucible | 24/40 | 16/24 (67%) | 16/16 (100%) | 0 / 0 / 7 / 1 / 0 |
 | CAXA (ca-xctl-versions) | crucible | 24/78 | 16/21 (76%) | 16/16 (100%) | 0 / 0 / 3 / 2 / 0 |
@@ -236,20 +237,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 3397 run | **2158/3091 (70%)** | **2158/2508 (86%)** | 199 / 151 / 392 / 191 / 0 |
-| **all estate** | | 3901 run | **2477/3567 (69%)** | **2477/2862 (87%)** | 234 / 151 / 480 / 225 / 0 |
+| **all equivalence** | | 3547 run | **2224/3210 (69%)** | **2224/2609 (85%)** | 199 / 186 / 396 / 205 / 0 |
+| **all estate** | | 4051 run | **2543/3686 (69%)** | **2543/2963 (86%)** | 234 / 186 / 484 / 239 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 163/206 (79%) | 163/181 (90%) |
+| AOR | 177/220 (80%) | 177/195 (91%) |
 | BDM | 25/45 (56%) | 25/28 (89%) |
-| CON | 325/692 (47%) | 325/405 (80%) |
-| COR | 132/238 (55%) | 132/186 (71%) |
-| DEL | 381/559 (68%) | 381/446 (85%) |
-| LIT | 529/680 (78%) | 529/585 (90%) |
-| NEG | 461/513 (90%) | 461/489 (94%) |
+| CON | 354/736 (48%) | 354/445 (80%) |
+| COR | 132/239 (55%) | 132/186 (71%) |
+| DEL | 385/569 (68%) | 385/454 (85%) |
+| LIT | 539/711 (76%) | 539/607 (89%) |
+| NEG | 468/523 (89%) | 468/499 (94%) |
 | RET | 56/89 (63%) | 56/77 (73%) |
-| ROR | 405/545 (74%) | 405/465 (87%) |
+| ROR | 407/554 (73%) | 407/472 (86%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|
@@ -283,6 +284,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | LGICDB01 (genapp-lgicdb01) | 2/5 | - | 9/28 | 1/5 | 6/20 | 14/27 | 9/16 | 1/7 | 9/22 |
 | LGSTSQ (genapp-lgstsq) | 1/5 | - | 1/21 | 0/1 | 5/11 | 10/21 | 5/6 | - | 3/13 |
 | LGUPDB01 (genapp-lgupdb01) | 11/12 | - | 11/22 | 0/2 | 4/22 | 12/22 | 14/22 | 3/17 | 12/21 |
+| LGUPVS01 (genapp-lgupvs01) | 14/14 | - | 29/44 | 0/1 | 4/10 | 10/31 | 7/10 | - | 2/9 |
 | CALINK (ca-link-lengths) | 2/2 | - | 1/4 | 0/1 | 2/4 | 3/3 | 3/3 | 2/2 | 2/3 |
 | CASUB (ca-link-lengths) | - | - | 2/5 | - | 3/5 | 4/5 | 4/5 | - | 3/4 |
 | CAXA (ca-xctl-versions) | 1/1 | - | 3/4 | - | 3/4 | 2/4 | 4/4 | - | 3/4 |

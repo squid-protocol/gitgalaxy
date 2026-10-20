@@ -51,7 +51,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-20T10:02:01Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-20T10:14:52Z.
 
 - `scope:core`: 37 open, 146 closed.
 - Milestone 28: 17 open, 80 closed.

@@ -1,5 +1,5 @@
 {
- "commit": "1c42d9c51",
+ "commit": "b6792edbd",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -157,15 +157,15 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-20T17:07:55Z",
+  "as_of": "2026-10-20T17:15:08Z",
   "core": {
-   "closed": 149,
-   "open": 34,
+   "closed": 150,
+   "open": 33,
    "total": 183
   },
   "core_last_window": {
-   "closed": 53,
-   "net_closed": 4,
+   "closed": 54,
+   "net_closed": 5,
    "opened": 49
   },
   "core_milestone": {
@@ -181,7 +181,7 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "60 days",
+  "eta": "46 days",
   "frontier": {
    "closed": 100,
    "found_last_window": 14,
@@ -307,9 +307,9 @@
     "total": 3
    },
    {
-    "closed": 42,
+    "closed": 43,
     "number": 18,
-    "open": 5,
+    "open": 4,
     "title": "Run Verified \u2705 \u2014 Pics or It Didn't Port",
     "total": 47
    },

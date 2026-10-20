@@ -25,3 +25,19 @@ def test_bankdata_has_a_det_sweep_entry_with_every_paragraph_covered():
     assert entry["scenarios"] >= 1
     assert entry["paragraphs"]["covered"] == entry["paragraphs"]["live"] > 0
 
+
+
+def test_bankdata_fault_runs_cover_every_vsam_status_check():
+    # the three `IF CUSTOMER-VSAM-STATUS NOT EQUAL '00'` arms (OPEN, a customer WRITE, the control-record WRITE)
+    faults = {f["name"]: f["plan"] for f in _case("cbsa-bankdata")["faults"]}
+    ops = {(p["dd"], p["op"], p["nth"]) for plan in faults.values() for p in plan}
+    assert ("VSAM", "OPEN", 1) in ops
+    assert ("VSAM", "WRITE", 1) in ops
+    assert any(dd == "VSAM" and op == "WRITE" and nth > 1 for dd, op, nth in ops)  # the control record: after customers
+    assert all(f.get("why") for f in _case("cbsa-bankdata")["faults"])
+
+
+def test_bankdata_coverage_entry_counts_the_fault_runs():
+    entry = json.loads((EQUIVALENCE / "det_sweep_coverage" / "cbsa-bankdata.json").read_text(encoding="utf-8"))
+    assert entry["scenarios"] > 3  # the normal run plus the SQL and VSAM fault runs
+    assert entry["branches"]["covered"] > 17

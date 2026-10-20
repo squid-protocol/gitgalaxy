@@ -90,6 +90,13 @@ def _clock(case: dict[str, Any]) -> str:
     return f"{date.replace('/', '-')}T{time}"
 
 
+def run_parm(parm: str) -> str:
+    """#5561: a run's own PARM, as it travels in a JVM argline: no whitespace or quote to split or end it."""
+    if not re.fullmatch(r"[^\s'\"\\]+", parm):
+        raise ValueError(f"a run's PARM {parm!r} has whitespace or a quote: it cannot travel in the JVM argline")
+    return parm
+
+
 def entry_names(case: dict[str, Any]) -> list[str]:
     """#4048 follow-up: the case's `entries` -- each a no-argument method of the service (a controller's entry,
     executeX) that runs the whole step. Each is an entry run: the step once more through that method instead of
@@ -137,6 +144,11 @@ def equivalence_test(case: dict[str, Any]) -> str:
                          "java.nio.file.StandardCopyOption.REPLACE_EXISTING);\n        }")  # fmt: skip
     dds = ", ".join(f'new Dd("{dd}", "{dd}", null, null, null)' for dd in case["datasets"])
     parm = f'"{case["parm"]}"' if case.get("parm") is not None else "null"
+    parm = (
+        f'System.getProperty("equivalence.parm", {parm})'
+        if parm != "null"
+        else 'System.getProperty("equivalence.parm")'
+    )  # #5561: a run's own PARM
     imports = "".join(
         f"import {PKG}.entity.vsam.{s['entity']};\n" for s in case["datasets"].values() if s.get("entity")
     )
@@ -841,12 +853,15 @@ def _run_all(case: dict[str, Any], project: Path, work: Path, inputs: Path, envs
         )
         if stop and stop(env["name"], runs[env["name"]]):
             return runs
-    for name, plan, *sql in faults:
+    for name, plan, *rest in faults:
+        sql = rest[:1]
         area = work / "faults" / name
         (area / "out").mkdir(parents=True, exist_ok=True)
         (area / "fault.plan").write_text(plan, encoding="ascii")
         (area / "out" / "FAULTS").unlink(missing_ok=True)  # the log appends: a re-run of this area starts afresh
         props = f"-Dgitgalaxy.faults.plan={area / 'fault.plan'} -Dgitgalaxy.faults.log={area / 'out' / 'FAULTS'}"
+        if len(rest) > 1 and rest[1]:  # #5561: this run's own PARM (rest[1]), not the case's
+            props += f" -Dequivalence.parm={run_parm(rest[1])}"
         if sql and sql[0]:  # #4173: the run's SQL faults, to the det runtime's DetSql (the same log)
             (area / "sqlfaults.plan").write_text(sql[0] + "\n", encoding="ascii")
             props += (

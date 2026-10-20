@@ -308,7 +308,44 @@
   "generated_compared": true,
   "port_sha256": "97752014b7abd096bd62c8f1ac0b9a25d4067cb45e5afa3bedb70d60d9516c53"
  },
- "mutation": null,
+ "mutation": {
+  "commit": "7c6a756d18e89e8fa13f32c215e240c6c44383cf",
+  "rejudged": null,
+  "seed": 0,
+  "mode": null,
+  "mutants": 89,
+  "chosen": 89,
+  "killed": 25,
+  "survived": 53,
+  "stillborn": 11,
+  "survivors": {
+   "case_gap": 43,
+   "harness_gap": 1,
+   "equivalent": 1,
+   "unreachable": 8,
+   "untriaged": 0
+  },
+  "score_raw": "25/78",
+  "score_adjusted": "25/69",
+  "source": "docs/language_status/mutation_scores.json#genapp-lgstsq/LGSTSQ",
+  "inputs": {
+   "port": {
+    "sha256": "97752014b7abd096bd62c8f1ac0b9a25d4067cb45e5afa3bedb70d60d9516c53"
+   },
+   "case": {
+    "sha256": "fe8d6e2feb1cd81340f81ce70ee040bf98f439739a2d978794699725f4ad3cf3"
+   },
+   "corpus": {
+    "sha256": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6"
+   },
+   "harness": {
+    "sha256": "5291569fddb329a4f99c0ed27f593b1c697bcdd8a85a535edaf72846bd6fd9b7"
+   },
+   "oracle": {
+    "sha256": "8866dc0c13fe411bd4b98ecce0f8fc117ecf71b99ad6141ae071651d6af2336d"
+   }
+  }
+ },
  "differences": [
   {
    "kind": "option",

@@ -79,11 +79,27 @@
         "file": "UNVALIDATED",
         "function": "VALIDATED"
       }
+    },
+    {
+      "agreement": {
+        "composition_file": 0.971,
+        "composition_repo": null,
+        "file": null,
+        "function": 0.9839
+      },
+      "date": "2026-10-20",
+      "engine_commit": "c1432265",
+      "state": {
+        "composition_file": "DEGRADED",
+        "composition_repo": "INVALID",
+        "file": "UNVALIDATED",
+        "function": "VALIDATED"
+      }
     }
   ],
   "levels": {
     "composition_file": {
-      "agreement": 0.9717,
+      "agreement": 0.971,
       "eroding": {
         "Compute Cores Files": {
           "files": 65,
@@ -107,8 +123,8 @@
         },
         "Many-Argument Workhorses Files": {
           "files": 70,
-          "mostly_to": "Large Core Modules (3)",
-          "retained": 0.9714
+          "mostly_to": "Large Core Modules",
+          "retained": 0.9429
         },
         "State Mutators Files": {
           "files": 46,
@@ -117,7 +133,7 @@
         }
       },
       "files_compared": 2725,
-      "fit_shift": -0.099
+      "fit_shift": -0.1
     },
     "composition_repo": {
       "crucible_label": {
@@ -127,7 +143,7 @@
       "inherits": "composition_file"
     },
     "file": {
-      "agreement": 0.9872,
+      "agreement": 0.9861,
       "eroding": {
         "file_cluster_13": {
           "files": 76,
@@ -153,7 +169,7 @@
       "files_compared": 2725
     },
     "function": {
-      "agreement": 0.984,
+      "agreement": 0.9839,
       "eroding": {
         "C Struct Operations": {
           "functions": 82,
@@ -161,7 +177,11 @@
         },
         "I/O & Config Routines": {
           "functions": 7440,
-          "retained": 0.9254
+          "retained": 0.9253
+        },
+        "State Mutators": {
+          "functions": 3313,
+          "retained": 0.9795
         }
       },
       "functions_compared": 43654
@@ -170,8 +190,8 @@
   "measured": {
     "corpus": "language-crucible@v1.7.0",
     "coverage": 0.9873,
-    "engine_commit": "f8462915",
-    "measured_at": "2026-10-19"
+    "engine_commit": "c1432265",
+    "measured_at": "2026-10-20"
   },
   "retrain_issue": 4111,
   "schema": 1,

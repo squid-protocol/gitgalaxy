@@ -1354,12 +1354,17 @@ class Cics(ContainerCommands, FileControlCommands):
             r = g.tmpname("tdq")
             queue = self.name(_arg(opts["TDQUEUE"]))
             if key == "SET TDQUEUE":
-                if opts.get("OPENSTATUS") and opts.get("ENABLESTATUS"):
-                    raise CicsError("SET TDQUEUE with OPENSTATUS and ENABLESTATUS together: not modelled")
-                o = "ENABLESTATUS" if opts.get("ENABLESTATUS") else "OPENSTATUS"
-                if not opts.get(o):
+                given = [o for o in ("OPENSTATUS", "ENABLESTATUS", "TRIGGERLEVEL") if opts.get(o)]
+                if len(given) > 1:
+                    raise CicsError(f"SET TDQUEUE with {' and '.join(given)} together: not modelled")
+                if not given:
                     raise CicsError(_requires(key, "TDQUEUE", "OPENSTATUS"))
-                call = "setTdQueueEnableStatus" if o == "ENABLESTATUS" else "setTdQueueOpenStatus"
+                o = given[0]
+                call = {
+                    "ENABLESTATUS": "setTdQueueEnableStatus",
+                    "OPENSTATUS": "setTdQueueOpenStatus",
+                    "TRIGGERLEVEL": "setTdQueueTriggerLevel",  # #5168 round 7 (X66)
+                }[o]
                 return [f"{ind}int[] {r} = task.{call}({queue}, {self.int_(_arg(opts[o]))});",
                         *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
             order = ("OPENSTATUS", "TYPE", "ENABLESTATUS", "TRIGGERLEVEL", "RECOVSTATUS", "TRANSID")

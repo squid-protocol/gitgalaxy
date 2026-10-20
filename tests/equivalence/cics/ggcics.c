@@ -1434,13 +1434,29 @@ static int td_extra_state(const char *queue) {
     return strcmp(file, "INPUT") == 0 ? 0 : 1;
 }
 
+/* #5168 round 7 (X66): a queue's TRIGGERLEVEL: what SET TDQUEUE TRIGGERLEVEL left (the file beside the queue's directory, so it
+ * outlives the task), else the definition's, else 1 (IBM's default). */
+static int td_trigger_level(const char *queue) {
+    char dir[4096], path[4200], stated[40];
+    int n;
+    td_dir(queue, dir, sizeof dir);
+    snprintf(path, sizeof path, "%s.trig", dir);
+    FILE *f = fopen(path, "r");
+    if (f) {
+        int got = fscanf(f, "%d", &n);
+        fclose(f);
+        if (got == 1) return n;
+    }
+    return td_attr(queue, "TRIGGERLEVEL", stated, sizeof stated) ? atoi(stated) : 1;
+}
+
 /* #5168 (X61): automatic task initiation is not modelled: a WRITEQ TD that brings a queue with a TRANSID to its TRIGGERLEVEL
  * (default 1; 0 turns ATI off) would start that task. */
 static void td_ati_check(const char *queue, int records_after) {
-    char transid[16], level[16];
-    int n = 1;
+    char transid[16];
+    int n;
     if (!td_attr(queue, "TRANSID", transid, sizeof transid)) return;
-    if (td_attr(queue, "TRIGGERLEVEL", level, sizeof level)) n = atoi(level);
+    n = td_trigger_level(queue);
     if (n > 0 && records_after >= n) refuse("WRITEQ TD to a queue that reaches its TRIGGERLEVEL: automatic task initiation is not modelled");
 }
 
@@ -1727,6 +1743,26 @@ int GGCSTDE(gg_cics *c) {
     return 0;
 }
 
+/* #5168 round 7 (X66): SET TDQUEUE TRIGGERLEVEL (IBM CICS TS 6.x, SET TDQUEUE: intrapartition queues only). The queue is in GG-QNAME,
+ * the level in GG-NUM; 0 turns automatic task initiation off. QIDERR RESP2 1. Not a unit-of-work resource: a rollback or an abend
+ * keeps it. Refused by name: a queue that is not intrapartition (IBM names no condition), a level below zero. */
+int GGCSTDT(gg_cics *c) {
+    char queue[17], dir[4096], path[4200];
+    int kind;
+    trim(c->qname, 16, queue);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    kind = td_kind(queue);
+    if (!kind) { c->resp = QIDERR; c->resp2 = 1; return 0; }
+    if (kind != 1 || c->num < 0) refuse("SET TDQUEUE TRIGGERLEVEL of a queue that is not intrapartition, or below zero");
+    td_dir(queue, dir, sizeof dir);
+    td_base();
+    snprintf(path, sizeof path, "%s.trig", dir);
+    FILE *f = fopen(path, "w");
+    if (f) { fprintf(f, "%d\n", (int)c->num); fclose(f); }
+    return 0;
+}
+
 int GGCITDQ(gg_cics *c) {
     char queue[17], word[32];
     int kind;
@@ -1746,7 +1782,7 @@ int GGCITDQ(gg_cics *c) {
             refuse("INQUIRE TDQUEUE TRIGGERLEVEL / TRANSID of a queue that is not intrapartition");
         }
         if (kind != 1) td_type_cvda(queue, kind, word, sizeof word);
-        if (strstr(c->flags, "TRIGGERLEVEL")) c->hours = td_attr(queue, "TRIGGERLEVEL", stated, sizeof stated) ? atoi(stated) : 1;
+        if (strstr(c->flags, "TRIGGERLEVEL")) c->hours = td_trigger_level(queue);
         if (strstr(c->flags, "RECOVSTATUS")) {
             int got = kind == 1 && td_attr(queue, "RECOVSTATUS", stated, sizeof stated);
             c->mins = kind != 1 ? 1 : got && strcmp(stated, "LOGICAL") == 0 ? 216 : got && strcmp(stated, "PHYSICAL") == 0 ? 215 : 30;

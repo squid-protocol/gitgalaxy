@@ -1727,10 +1727,14 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
             raise Unsupported(_rule(key, "required", "TDQUEUE"), [key])
         queue = name(opts["TDQUEUE"], "GG-QNAME")
         if verb == "SET":
-            if not opts.get("OPENSTATUS") and not opts.get("ENABLESTATUS"):
+            given = [o for o in ("OPENSTATUS", "ENABLESTATUS", "TRIGGERLEVEL") if opts.get(o)]
+            if not given:
                 raise Unsupported(_rule(key, "requires", "TDQUEUE"), [key])
-            if opts.get("OPENSTATUS") and opts.get("ENABLESTATUS"):  # #5168 round 5 (X66): one state per command
-                raise Unsupported("SET TDQUEUE with OPENSTATUS and ENABLESTATUS together", [key])
+            if len(given) > 1:  # #5168 round 5 (X66): one state per command
+                raise Unsupported(f"SET TDQUEUE with {' and '.join(given)} together", [key])
+            if opts.get("TRIGGERLEVEL"):  # #5168 round 7 (X66): the level in GG-NUM
+                return ([queue, f"MOVE {opts['TRIGGERLEVEL']} TO GG-NUM"] + _call("GGCSTDT", [])
+                        + _resp(opts, True, labels))  # fmt: skip
             if opts.get("ENABLESTATUS"):
                 return ([queue, f"MOVE {opts['ENABLESTATUS']} TO GG-NUM"] + _call("GGCSTDE", [])
                         + _resp(opts, True, labels))  # fmt: skip

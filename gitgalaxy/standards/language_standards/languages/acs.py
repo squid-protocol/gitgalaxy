@@ -21,7 +21,7 @@ _FUNC_HEAD = r"function[ \t]+[A-Za-z_]\w*[ \t]+([A-Za-z_]\w*)"
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
-        "target_version": "ACS (Action Code Script) as compiled by ACC / BCC / GDCC-ACC (Hexen, ZDoom, GZDoom, Zandronum)",
+        "target_version": "ACS (Action Code Script) as compiled by ACC / BCC / GDCC-ACC (Hexen, ZDoom, GZDoom)",
         "last_updated": "2026-10-18",
         "blueprint_version": "v5.0",
         "status": "production",

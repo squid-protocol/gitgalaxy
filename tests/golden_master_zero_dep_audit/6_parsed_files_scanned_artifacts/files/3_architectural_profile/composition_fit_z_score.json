@@ -1353,7 +1353,7 @@
       "fortran/wrf/configure_reader.py": -0.257,
       "fortran/wrf/gen_be_wrapper.ksh": -0.166,
       "fortran/wrf/module_configure.F": -0.496,
-      "fortran/wrf/module_domain.F": 0.135,
+      "fortran/wrf/module_domain.F": 0.186,
       "fortran/wrf/module_initialize_real.F": 0.24,
       "fortran/wrf/module_physics_init.F": -0.727,
       "fortran/wrf/module_sf_noahdrv.F": -0.707,
@@ -1362,7 +1362,7 @@
       "fortran/wrf/regtest_nmmnest.csh": -0.575,
       "fortran/wrf/run_convert_e2c.ksh": -0.523,
       "fortran/wrf/sourcetree.py": 2.015,
-      "fortran/wrf/wrf_timeseries.F": 0.566
+      "fortran/wrf/wrf_timeseries.F": -1.03
     },
     "go": {
       "go/SOURCES.md": 0.0

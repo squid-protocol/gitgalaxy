@@ -175,11 +175,29 @@ def fortran_call_names(block: str, ignore: frozenset[str]) -> list[str]:
     return calls
 
 
+def _split_top_colon_free(expr: str, open_idx: int) -> str:
+    """The argument text of the `(` at open_idx with nested parentheses blanked, to find a top-level `:`."""
+    end = _balanced_end(expr, open_idx)
+    inner = expr[open_idx + 1 : end - 1 if end != -1 else len(expr)]
+    out: list[str] = []
+    depth = 0
+    for ch in inner:
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+        elif depth == 0:
+            out.append(ch)
+    return "".join(out)
+
+
 def _references(expr: str, arrays: set[str], ignore: frozenset[str]) -> list[str]:
     out = []
     for m in _NAME_PAREN.finditer(expr):
         key = m.group(1).casefold()
         if key in arrays or key in _KEYWORDS or key in ignore:
+            continue
+        if ":" in _split_top_colon_free(expr, m.end() - 1):
             continue
         out.append(m.group(1))
     return out

@@ -49,7 +49,7 @@
       },
       "fortran/wrf/module_initialize_real.F": {
         "Literal Sites": 9,
-        "Wrapped Sites": 72
+        "Wrapped Sites": 74
       },
       "fortran/wrf/module_physics_init.F": {
         "Literal Sites": 6,

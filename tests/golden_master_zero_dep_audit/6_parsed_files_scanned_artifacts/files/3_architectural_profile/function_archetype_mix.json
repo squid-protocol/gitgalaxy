@@ -4296,8 +4296,7 @@
         "Type Conversions": 1
       },
       "fortran/wrf/module_domain.F": {
-        "Defensive Guards": 33,
-        "I/O & Config Routines": 1,
+        "Defensive Guards": 34,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 18
       },
@@ -4335,8 +4334,7 @@
       },
       "fortran/wrf/wrf_timeseries.F": {
         "Compute Cores": 1,
-        "Defensive Guards": 1,
-        "Many-Argument Workhorses": 2
+        "Many-Argument Workhorses": 3
       }
     },
     "go": {

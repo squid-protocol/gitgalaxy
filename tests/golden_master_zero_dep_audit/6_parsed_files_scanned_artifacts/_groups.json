@@ -3623,7 +3623,7 @@
     "fortran/wrf": {
       "Average Risk Exposures": {
         "API Exposure": "13.62%",
-        "Cognitive Load Exposure": "44.35%",
+        "Cognitive Load Exposure": "44.34%",
         "Commented Logic Exposure": "9.26%",
         "Concurrency Exposure": "3.06%",
         "Documentation Exposure": "76.91%",
@@ -3632,11 +3632,11 @@
         "Instability Exposure": "46.67%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "66.43%",
-        "Tech Debt Exposure": "6.02%",
+        "Tech Debt Exposure": "6.09%",
         "Testing Exposure": "59.16%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 50042.42,
+      "Directory Group Magnitude": 51510.82,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "6.7%",
         "file_cluster_1": "26.7%",

@@ -89,3 +89,8 @@ def test_array_declared_in_one_unit_is_a_call_in_another():
         "      SUBROUTINE B\n      X = F(1)\n      END\n"
     )
     assert _calls(src) == {"A": [], "B": ["F"]}
+
+
+def test_substring_and_section_are_not_calls():
+    src = "      SUBROUTINE S(STR)\n      CHARACTER*8 STR\n      X = STR(1:3)\n      Y = F(STR(1:3))\n      END\n"
+    assert _calls(src) == {"S": ["F"]}

@@ -73,6 +73,7 @@ CONTAINERS_JAVA = """\
     // ASCII (a multibyte sequence changes the length).
     private static final int REGION_CCSID = 37;
     private int lastContainerCcsid;
+    private Channel returnedChannel;  // #5005: the channel a RETURN CHANNEL made available (read on the root)
 
     private static java.nio.charset.Charset ccsidCharset(int ccsid, String what) {
         switch (ccsid) {
@@ -650,6 +651,28 @@ CONTAINERS_JAVA = """\
      *  and the only one in its scope; what it puts there, the caller sees. EIBCALEN 0. */
     public String linkChannel(String program, String channel) {
         return link(program, null, 0, null, scopeChannel(channel, true));
+    }
+
+    /** RETURN TRANSID(transid) CHANNEL(channel) (#5005, register X17; IBM, EXEC CICS RETURN: the channel "is to be made
+     *  available to the next program" as its current channel; one that does not exist is created empty). As {RESP,
+     *  RESP2}: {0, 0} and the task ends, `returnedChannel` holding what the program put there; INVREQ RESP2 2 below the
+     *  highest logical level -- the command then returns to the program. */
+    public int[] returnChannel(String transid, String channel) {
+        if (level > 1) {
+            event("RETURN", "level", level, "transid", transid, "channel", channelName(channel, "channel"), "resp",
+                    "INVREQ", "resp2", 2);
+            return new int[] {16, 2};
+        }
+        Channel ch = scopeChannel(channel, true);
+        event("RETURN", "transid", transid, "channel", ch.name, "containers", new java.util.TreeSet<>(ch.containers.keySet()));
+        root().returnedChannel = ch;
+        ended = true;
+        return new int[] {0, 0};
+    }
+
+    /** The channel the task's RETURN CHANNEL made available to the next task (null: it passed none). */
+    public Channel returnedChannel() {
+        return root().returnedChannel;
     }
 
     /** XCTL PROGRAM(program) CHANNEL(channel): as LINK CHANNEL, at the same level. */

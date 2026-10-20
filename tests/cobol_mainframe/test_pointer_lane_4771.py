@@ -103,12 +103,12 @@ def test_address_of_a_subordinate_or_working_storage_item_is_a_windowed_alias(tm
 @pytest.mark.parametrize(
     ("edit", "why"),
     [
-        # a REDEFINES over a pointer: ZECS001's CACHE-ADDRESS-X, which `ADD n TO` moves along the block
+        # a REDEFINES over a pointer that is not a pure numeric view (a byte view: the handle's bytes would be read)
         (
             (
                 "USAGE POINTER.\n       01  SAVE-ADDRESS",
                 "USAGE POINTER.\n       01  CACHE-ADDRESS-X REDEFINES CACHE-ADDRESS "
-                "PIC S9(8) COMP.\n       01  SAVE-ADDRESS",
+                "PIC X(8).\n       01  SAVE-ADDRESS",
             ),
             "REDEFINES overlays",
         ),
@@ -160,9 +160,13 @@ _OVERLAY_HEAD = """\
 @pytest.mark.parametrize(
     "statement",
     [
-        "ADD ZF-LENGTH TO CACHE-ADDRESS-X.",  # ZECS001: advance the address
-        "SUBTRACT ZF-LENGTH FROM CACHE-ADDRESS-X.",
-        "MOVE CACHE-ADDRESS-X TO SAVE-ADDRESS-X.",  # ZECS001: copy it through the overlay (both operands are views)
+        "MOVE CACHE-ADDRESS-X TO SAVE-ADDRESS-X.",  # (SAVE-ADDRESS-X is a group view, not a pure numeric one)
+        "ADD ZF-LENGTH TO CACHE-ADDRESS-X GIVING OUT-NUMBER.",  # the sum is a number, a handle is none
+        "ADD ZF-LENGTH 1 TO CACHE-ADDRESS-X.",
+        "ADD ZF-LENGTH TO CACHE-ADDRESS-X ROUNDED.",
+        "ADD ZF-LENGTH TO CACHE-ADDRESS-X ON SIZE ERROR MOVE 1 TO OUT-NUMBER END-ADD.",
+        "ADD CACHE-ADDRESS-X TO OUT-NUMBER.",
+        "MULTIPLY 2 BY CACHE-ADDRESS-X.",
         "MOVE CACHE-ADDRESS-X TO OUT-NUMBER.",
         "MOVE ZF-LENGTH TO CACHE-ADDRESS-X.",
         "COMPUTE OUT-NUMBER = CACHE-ADDRESS-X + 1.",
@@ -179,6 +183,57 @@ def test_a_numeric_view_of_a_pointer_is_a_hole_not_arithmetic_on_a_handle(tmp_pa
     r = _translate(tmp_path, source)
     assert any("REDEFINES overlays a POINTER" in h for h in r.stats["holes"]), r.stats["holes"]
     assert r.stats["translated"] < r.stats["statements"]
+
+
+_PURE_HEAD = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. PTRLN.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  LINKAGE-ADDRESSES.
+           02  CACHE-ADDRESS      USAGE POINTER.
+           02  CACHE-ADDRESS-X    REDEFINES CACHE-ADDRESS
+                                  PIC S9(08) COMP.
+           02  SAVE-ADDRESS       USAGE POINTER.
+           02  SAVE-ADDRESS-X     REDEFINES SAVE-ADDRESS
+                                  PIC S9(08) COMP.
+       01  ZF-LENGTH              PIC S9(08) COMP VALUE 5.
+       01  GETMAIN-LENGTH         PIC S9(08) COMP VALUE 64.
+       01  BINARY-ZEROES          PIC  X(01) VALUE LOW-VALUES.
+       LINKAGE SECTION.
+       01  CACHE-MESSAGE          PIC  X(8).
+       PROCEDURE DIVISION.
+"""
+
+
+@pytest.mark.parametrize(
+    "statement",
+    [
+        "ADD ZF-LENGTH TO CACHE-ADDRESS-X.",  # ZECS001: advance the address
+        "SUBTRACT ZF-LENGTH FROM CACHE-ADDRESS-X.",
+        "ADD 32 TO CACHE-ADDRESS-X.",
+        "MOVE CACHE-ADDRESS-X TO SAVE-ADDRESS-X.",  # ZECS001: copy the address through the two views
+    ],
+)
+def test_a_pure_numeric_view_of_a_pointer_moves_the_pointer_not_its_bytes(tmp_path, statement):
+    """#4771 (X47): `ADD|SUBTRACT n TO|FROM view` and `MOVE view TO view` over a pure `PIC S9(8) COMP` REDEFINES of a
+    POINTER (ZECS001's CACHE-ADDRESS-X) are the two address idioms: they translate whole, to the runtime's pointer calls,
+    and the pointer-lane statements that name the pointer are no longer refused for the overlay."""
+    source = (
+        _PURE_HEAD
+        + "           EXEC CICS GETMAIN SET(CACHE-ADDRESS) FLENGTH(GETMAIN-LENGTH)\n"
+        + "                INITIMG(BINARY-ZEROES) NOHANDLE\n           END-EXEC.\n"
+        + "           "
+        + statement
+        + "\n           SET ADDRESS OF CACHE-MESSAGE TO CACHE-ADDRESS.\n"
+        + "           EXEC CICS FREEMAIN DATAPOINTER(SAVE-ADDRESS) NOHANDLE\n           END-EXEC.\n"
+        + "           EXEC CICS RETURN\n           END-EXEC.\n"
+    )
+    r = _translate(tmp_path, source)
+    assert r.stats["holes"] == [], r.stats["holes"]
+    call = "copyPointer" if statement.startswith("MOVE") else "advancePointer"
+    assert f"DetCics.{call}(" in r.java
+    assert "-(" in r.java or not statement.startswith("SUBTRACT")
 
 
 def test_the_whole_group_holding_a_pointer_still_moves_as_bytes(tmp_path):
@@ -379,7 +434,7 @@ public class Main {
 
 
 def test_every_pointer_hole_left_in_zecs001_is_refused_by_name(tmp_path):
-    """#4771: the estate's own ZECS001 (not a model of it) holds only the named pointer refusals, never an unnamed one.
+    """#4771: the estate's own ZECS001 (not a model of it) holds no pointer hole but the named CALL ZUIDSTCK refusal.
 
     The stub has a `runTask(CicsTask)`, as the forge's has: without it the CICS lane is off and every pointer statement is
     the generic "SET ADDRESS OF (pointers)" hole, which would hide the reason this test exists to pin."""
@@ -403,17 +458,13 @@ def test_every_pointer_hole_left_in_zecs001_is_refused_by_name(tmp_path):
         if any(k in h.upper() for k in ("POINTER", "ADDRESS", "ZUIDSTCK", "GETMAIN", "FREEMAIN"))
     ]
     assert not any("SET ADDRESS OF (pointers)" in h for h in r.stats["holes"]), "the CICS lane must be on"
-    by_reason = {
-        # (also the EXEC CICS GETMAIN / WEB RECEIVE / FREEMAIN statements that name an overlaid pointer: a superset below)
-        "a pointer a REDEFINES overlays": ("a pointer a REDEFINES overlays", {1110, 1134, 1198, 1487, 1850}),
-        "numeric view of a pointer": ("a REDEFINES overlays a POINTER with it", {1111, 1115, 1147, 1400, 1519}),
-        "CALL ZUIDSTCK": ("CALL ZUIDSTCK:", {1244}),
-    }
-    for reason, (phrase, lines) in by_reason.items():
-        got = {int(h.split(":")[0].split()[1]) for h in pointer if phrase in h}
-        assert lines <= got if phrase.startswith("a pointer") else got == lines, (reason, got)
-    named = [p for p, _ in by_reason.values()]
-    assert all(any(n in h for n in named) for h in pointer), pointer
+    # (#4771: the pointer arithmetic is modelled -- CACHE-ADDRESS-X / SAVE-ADDRESS-X are pure numeric views -- so the one
+    # pointer-lane hole left is the CALL ZUIDSTCK refusal, whose assembler source the estate does not hold)
+    assert {int(h.split(":")[0].split()[1]) for h in pointer} == {1244}, pointer
+    assert all("CALL ZUIDSTCK:" in h for h in pointer), pointer
+    for line in (1111, 1115, 1147, 1400, 1519):  # the views' ADD / MOVE statements translate
+        assert not any(h.startswith(f"line {line}:") for h in r.stats["holes"])
+    assert "DetCics.advancePointer(task, " in r.java and "DetCics.copyPointer(" in r.java
 
 
 @pytest.mark.parametrize("program", ["ZECS000", "ZECS003"])
@@ -435,3 +486,74 @@ def test_zecs_file_name_template_programs_translate_whole_and_name_the_run_time_
     r = P.translate(src, [], stub, "com.x", {}, tmp_path / "proj")
     assert r.stats["holes"] == []
     assert "the program names no file the generated project stores" in r.java
+
+
+@pytest.mark.skipif(_javac() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_an_advanced_pointer_addresses_the_same_block_further_on(tmp_path):
+    """#4771 (X47): DetCics.advancePointer / copyPointer over a real CicsTask. A record set to the advanced pointer is a
+    window on the block from that offset (a write through either is seen by both), going back to the start gives the
+    pointer the block's first handle again, and a result outside the block, a null or a freed pointer is refused by name."""
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA, CICS_TASK_JAVA
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    src = tmp_path / "src"
+    files = {"t/cics/CicsTask.java": CICS_TASK_JAVA.replace("__PACKAGE__", "t").replace("__ZONE__", "UTC"),
+             "t/cics/CicsSpec.java": CICS_SPEC_JAVA.replace("__PACKAGE__", "t"),
+             **{f"t/{k}": v for k, v in P.runtime_files("t", batch=False).items()}}  # fmt: skip
+    files["Main.java"] = """
+import t.cics.CicsTask;
+import t.cobolrt.Field;
+import t.cobolrt.Storage;
+import t.cobolrt.cics.DetCics;
+public class Main {
+    static Field rec(int n) { return Field.alphanumeric(new Storage(n), 0, n, false); }
+    static String text(Field f) { return new String(f.storage().bytes, java.nio.charset.StandardCharsets.ISO_8859_1); }
+    static void refused(Runnable r) {
+        try { r.run(); System.out.println("not refused"); } catch (UnsupportedOperationException e) { System.out.println(e.getMessage()); }
+    }
+    public static void main(String[] a) {
+        CicsTask t = new CicsTask("ZC01", "ENTER", null, null);
+        Field ptr = rec(8), save = rec(8), init = rec(1), whole = rec(10), tail = rec(6);
+        init.storage().bytes[0] = '.';
+        DetCics.getmain(t, ptr, 10, false, init);
+        DetCics.setAddress(t, whole, ptr);
+        System.arraycopy("ABCDEFGHIJ".getBytes(), 0, whole.storage().bytes, 0, 10);
+        DetCics.copyPointer(save, ptr);
+        System.out.println(DetCics.samePointer(t, save, ptr));
+        DetCics.advancePointer(t, ptr, 4);
+        System.out.println(DetCics.samePointer(t, save, ptr));
+        DetCics.setAddress(t, tail, ptr);
+        System.out.println(text(tail).substring(tail.storage().base, tail.storage().base + 6));
+        tail.storage().bytes[tail.storage().base] = 'x';
+        System.out.println(text(whole));
+        DetCics.advancePointer(t, ptr, 6);
+        refused(() -> DetCics.advancePointer(t, ptr, 1));
+        DetCics.advancePointer(t, ptr, -10);
+        System.out.println(DetCics.samePointer(t, save, ptr));
+        refused(() -> DetCics.advancePointer(t, ptr, -1));
+        refused(() -> DetCics.advancePointer(t, rec(8), 1));
+        t.freemain(DetCics.pointerValue(save));
+        refused(() -> DetCics.advancePointer(t, save, 1));
+    }
+}
+"""
+    for rel, text in files.items():
+        (src / rel).parent.mkdir(parents=True, exist_ok=True)
+        (src / rel).write_text(text, encoding="utf-8")
+    jdk = _javac()
+    built = subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
+    assert built.returncode == 0, built.stderr
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603
+                         text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
+    assert out == [
+        "true",
+        "false",
+        "EFGHIJ",
+        "ABCDxFGHIJ",
+        "pointer arithmetic leaves the storage the pointer addresses (11 of 10 bytes)",
+        "true",
+        "pointer arithmetic leaves the storage the pointer addresses (-1 of 10 bytes)",
+        "SET ADDRESS OF a null or unknown pointer: not modelled",
+        "SET ADDRESS OF storage already freed: not modelled",
+    ]

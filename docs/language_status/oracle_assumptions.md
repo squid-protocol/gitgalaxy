@@ -2281,6 +2281,10 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   refused by the stub translator, and INCREMENT / WRAP on the fullword form COUNTER are refused. REDUCE, COMPAREMIN, COMPAREMAX and
   NOSUSPEND: X53 (#5039). Unit-proven on both runtimes line for line (tests/cics_crucible/test_cics_runtimes.py) and both translators;
   no case runs it yet (zECS ZECS001's 4000-GET-COUNTER does, after its CALL ZUIDSTCK, which the corpus does not ship).
+  Verified on main (#4770): ZECS001's `GET DCOUNTER(ZECS-COUNTER) VALUE(ZECS-VALUE) INCREMENT(ZECS-INCREMENT) WRAP NOHANDLE` (VALUE and
+  INCREMENT are `PIC 9(16) COMP`) translates in both the det port and the stub (tests/cobol_mainframe/test_dcounter_zecs_4770.py); the
+  VALUE is stored unsigned, and MINIMUM / MAXIMUM / COMPAREMIN-style options not documented for GET are refused by name. A value past the
+  receiver's PICTURE is the general binary-store rule (#4684), not this command's. Superseded in part by X45 / X50 / X53 (below).
 - **Not modelled / unobserved**: RESP2 of a command that completed is 0 (IBM states none: the case logs RESP2 only for a failed
   command); the order of 403 and 404 when both a pool and a counter name are invalid (the case never provokes both; the runtimes
   check the pool first); the value area of a failed GET / QUERY (not written).

@@ -6,10 +6,61 @@ each method, as det/cics_containers.py does: a module-level import would close a
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from gitgalaxy.tools.cobol_to_java.det import expr as E
+
+
+_TEMPLATE_WILD = r"@[^@.\s]+@|#+"
+
+
+def has_template(names: Any) -> bool:
+    """#4771: a stored CICS file named by a template (the CSD's `ZC@ID@FILE`, galaxy_ir's template join)."""
+    return any("@" in n or "#" in n for n in names)
+
+
+def file_key_call(names: Any, expr: str) -> str:
+    """The Java expression a run-time file name is switched on: `fileKey(expr)` when a stored file is a template, else
+    the name itself (a program with none keeps its text)."""
+    return f"fileKey({expr})" if has_template(names) else expr
+
+
+def file_key_method(names: Any) -> list[str]:
+    """#4771: `fileKey(n)`, which maps a run-time file name (ZC01FILE) onto the template store that names it
+    (ZC@ID@FILE): a name that is a store's own key stays, else the one template its characters fit. One shared store
+    stands behind every instance (register X22 assumption)."""
+    import re
+
+    from gitgalaxy.tools.cobol_to_java.det.cics import G_jstr
+
+    tpl = sorted(n for n in names if "@" in n or "#" in n)
+    if not tpl:
+        return []
+    out = [
+        "    private static String fileKey(String n) {",
+        "        if (n == null) return n;",
+        "        String t = n.stripTrailing();",
+    ]
+    for n in tpl:
+        rx = "".join(".+" if m else re.escape(c) for c, m in _split(n))
+        out.append(f"        if (t.matches({G_jstr(rx)})) return {G_jstr(n)};")
+    out += ["        return n;", "    }", ""]
+    return out
+
+
+def _split(name: str) -> Iterator[tuple[str, bool]]:
+    import re
+
+    pos = 0
+    for m in re.finditer(_TEMPLATE_WILD, name):
+        for c in name[pos : m.start()]:
+            yield c, False
+        yield "", True
+        pos = m.end()
+    for c in name[pos:]:
+        yield c, False
 
 
 class FileControlCommands:
@@ -361,7 +412,7 @@ class FileControlCommands:
 
         lengths = "; ".join(f"case {G_jstr(f)} -> {self.gp.entity_key(e, p)[1]}"
                             for f, (_repo, e, p) in self.gp.files.items())  # fmt: skip
-        return (f'switch ({file}) {{ {lengths}; default -> throw new Hole("CICS file " + {file} + ": no store in the '
+        return (f'switch ({file_key_call(self.gp.files, file)}) {{ {lengths}; default -> throw new Hole("CICS file " + {file} + ": no store in the '
                 f'generated project"); }}')  # fmt: skip
 
     def delete_generic(self, opts: dict, ind: str) -> list[str]:

@@ -19,6 +19,7 @@ from typing import Any
 from gitgalaxy.core.aperture import DET_PORT_MARKER
 from gitgalaxy.tools.cobol_to_java.det import bll as B
 from gitgalaxy.tools.cobol_to_java.det import cics as C
+from gitgalaxy.tools.cobol_to_java.det import cics_filecontrol as FC
 from gitgalaxy.tools.cobol_to_java.det import dli as DLI
 from gitgalaxy.tools.cobol_to_java.det import dyncall
 from gitgalaxy.tools.cobol_to_java.det import expr as E
@@ -1785,7 +1786,7 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         "    private <E> DetCics.Store<E> store(String name) {",
         *(
             [
-                "        return (DetCics.Store<E>) stores.computeIfAbsent(name, n -> switch (n) {",
+                f"        return (DetCics.Store<E>) stores.computeIfAbsent(name, n -> switch ({FC.file_key_call(cx.stores, 'n')}) {{",
                 *store_cases,
                 '            default -> throw new Hole("CICS file " + n + ": no store in the generated project");',
                 "        });",
@@ -1797,6 +1798,7 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         ),
         "    }",
         "",
+        *FC.file_key_method(cx.stores),
         "    private static final java.util.Map<String, Integer> PARAGRAPHS = java.util.Map.ofEntries(",
         # a name declared twice (COACTVWC's 0000-MAIN-EXIT) cannot be referenced unqualified: its first one
         ",\n".join(

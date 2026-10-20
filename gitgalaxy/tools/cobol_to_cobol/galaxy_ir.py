@@ -3243,6 +3243,55 @@ class GalaxyIR:
             )
         return flows
 
+    _TEMPLATE_WILD = re.compile(r"@[^@.\s]+@|#+")
+    _TEMPLATE_FIGURATIVE = frozenset({"SPACE", "SPACES", "ZERO", "ZEROS", "ZEROES", "LOW-VALUE", "LOW-VALUES", "HIGH-VALUE",
+                                      "HIGH-VALUES", "QUOTE", "QUOTES", "NULL", "NULLS"})  # fmt: skip
+
+    def _group_template(self, ef: EngineFile, operand: str | None) -> str | None:
+        """#4771: the name a group operand spells, from its elementary items' VALUEs in order (zECS's
+        `01 ZF-FCT. 02 ZF-TRANID PIC X(04) VALUE 'ZC##'. 02 FILLER PIC X(04) VALUE 'FILE'.` -> `ZC##FILE`, the `##`
+        the install's table suffix). None unless the item is a group of plain, valued, single-occurrence X items."""
+        item, qual = _operand_name(operand)
+        found = self._find_item(ef, item, qual) if item else []
+        if not found or not found[0][1].children:
+            return None
+        parts: list[str] = []
+
+        def leaves(it: EngineDataItem) -> bool:
+            for c in it.children:
+                if c.level == 88:
+                    continue
+                if c.redefines or c.occurs_max:
+                    return False
+                if c.children:
+                    if not leaves(c):
+                        return False
+                    continue
+                size = re.fullmatch(r"X\((\d+)\)|(X+)", (c.pic or "").upper().replace(" ", ""))
+                value = c.value
+                if size is None or value is None or value.upper() in self._TEMPLATE_FIGURATIVE:
+                    return False
+                width = int(size.group(1)) if size.group(1) else len(size.group(2))
+                parts.append(value[:width].ljust(width))
+            return True
+
+        if not leaves(found[0][1]):
+            return None
+        return "".join(parts).rstrip().upper() or None
+
+    def _template_names(self, ef: EngineFile, op: EngineCicsResource, defined: Sequence[str]) -> set[str]:
+        """#4771: the CSD file name(s) a FILE operand with no resolved name stands for -- its group's template
+        (`_group_template`) read against the defined names with every `#` run and `@SYMBOL@` one wildcard
+        (`ZC##FILE` ~ `ZC@ID@FILE`). Exactly one definition or none: two would be a guess."""
+        if op.name or op.candidates or op.resolution not in ("unresolved", None):
+            return set()
+        template = self._group_template(ef, op.operand)
+        if not template:
+            return set()
+        shape = self._TEMPLATE_WILD.sub("*", template)
+        hits = {d.upper() for d in defined if self._TEMPLATE_WILD.sub("*", d.upper()) == shape}
+        return hits if len(hits) == 1 else set()
+
     def _cics_ops_lineage(self, kind: str, csd_join: str, key: str) -> list:
         """Program -> CICS resource of `kind` -> the CSD join `csd_join` (#3356).
 
@@ -3260,7 +3309,8 @@ class GalaxyIR:
             for op in f.cics_resources:
                 if op.kind != kind or (kind == "QUEUE" and op.qualifier != "TD"):
                     continue
-                for name in sorted(op.names):
+                names = op.names or (self._template_names(f, op, list(by_name)) if kind == "FILE" else set())
+                for name in sorted(names):
                     entry = grouped.setdefault(
                         (f.file_path, name),
                         {"program": f.file_path, "name": name, "accesses": set(), "verbs": set(), "lines": []},
@@ -4061,9 +4111,15 @@ class GalaxyIR:
         for f in sorted(self.files.values(), key=lambda x: x.file_path):
             per: dict[str, dict] = {}
             for op in f.cics_resources:
-                if op.kind != "FILE" or not op.name:
+                if op.kind != "FILE":
                     continue
-                fname = op.name.upper()
+                if op.name:
+                    fname = op.name.upper()
+                else:  # #4771: a group operand spelling a template (ZC##FILE) is the CSD file it matches (ZC@ID@FILE)
+                    template_hit = self._template_names(f, op, list(csd_files))
+                    if not template_hit:
+                        continue
+                    (fname,) = template_hit
                 u = per.setdefault(fname, {"verbs": set(), "lines": [], "records": {}, "ridflds": {}})
                 u["verbs"].add(op.verb)
                 u["lines"].append(op.line)

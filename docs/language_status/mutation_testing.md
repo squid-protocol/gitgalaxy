@@ -101,6 +101,27 @@ has `entries`; a candidate `entries` case on carddemo-readcard fails to build ag
 `executeCbact02c`), so entry runs in a session JVM are covered by unit tests only. The call runner was validated on
 12 mutants (above), not on this larger sample.
 
+**`--one-jvm` on a call, a second batch and a second CICS port (2026-10-20, #4047).** `--sample N --seed 2` in
+`--full`, then the same mutants in fast mode and `--one-jvm`, judged by `mutation.py compare --require-agree N`:
+
+| case | judged by both | `--full` vs fast | `--full` vs `--one-jvm` | fast vs `--one-jvm` |
+|---|---|---|---|---|
+| carddemo-dateutil (CSUTLDTC, call) | 40 | 40 agree | 40 agree | 40 agree |
+| carddemo-posttran (CBTRN02C, batch, 29 runs) | 30 | 22 agree, 8 differ | 22 agree, 8 differ | 30 agree |
+| carddemo-cardlist (COCRDLIC, CICS) | 30 | 12 agree, 18 differ | not finished | not run |
+
+dateutil: proof seconds full 673, fast 386, `--one-jvm` 374 (survivors 174 -> 104 -> 93). The call runner is now
+validated on 40 mutants, every operator. **`--one-jvm` stays opt-in:** posttran and cardlist disagree with `--full`
+in plain fast mode too, so the cause is not the session JVM (fast and `--one-jvm` give the same 30 verdicts on posttran).
+The disagreements, re-run in `--full` with a 2,400 s limit (so not a timeout): 7 mutants that `--full` calls
+*survived* and fast calls *killed* (posttran 2, cardlist 5), plus 6 `--full` and 13 fast `no report (exit 1)` errors
+(infrastructure, not verdicts). posttran fast kills all 28 judged mutants, each by the fault run `open-dalytran`:
+`faults fired differ: COBOL ['DALYTRAN OPEN 1 35', 'DALYTRAN OPEN 1 35'], Java ['DALYTRAN OPEN 1 35']`. The kept
+baseline's COBOL `FAULTS` file lists a file fault twice (the fault fires at two hooks); under `--reuse` the mutant's
+Java side lists it once, where `--full` lists it twice. A CON mutant killed by an OPEN fault is a false kill: fast mode
+overstates the score on posttran. Not yet found why the reused project's Java side fires once. Until fast mode agrees with
+`--full` on posttran and cardlist, `--one-jvm` is not made the default.
+
 ## Scores
 
 After #4056 (SYSOUT compared) and #4053 (SEND MAP attributes compared), on 2026-10-01:

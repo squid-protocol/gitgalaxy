@@ -13,9 +13,9 @@ from pathlib import Path
 from gitgalaxy.core.cics_macro_level import ASSEMBLER_SUFFIXES, Hit, assembler_hits, cobol_hits, refusal_text
 from gitgalaxy.core.cobol_preprocessor import (
     COPY_ALONE,
-    continuation_resume,
     copy_replacing,
     copy_statements,
+    join_continuation,
     replace_text,
     statement_end,
 )
@@ -364,12 +364,7 @@ def logical_lines(raw: list[str], file: str) -> list[Line]:
             lost = _lost_text(line)
             if lost and not prev.lost:
                 prev.lost, prev.lost_after, prev.lost_joined = lost, cont.split()[-1] if cont.split() else "", False
-            resume = continuation_resume(line)  # #5648: the one rule, shared with the scanner
-            if resume is not None and _open_literal(prev.text):
-                # the open literal ran to column 72 (its trailing spaces are part of it)
-                prev.text = prev.text.ljust(65) + line[resume:72]
-            else:
-                prev.text = prev.text.rstrip() + " " + cont
+            prev.text = join_continuation(prev.text, line, _open_literal(prev.text))  # #5648: shared with the scanner
             prev.text = _drop_comment(prev.text)
             continue
         body = _drop_comment(body)

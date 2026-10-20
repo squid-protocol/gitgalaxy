@@ -1411,6 +1411,20 @@ def resolve_calls(
                     and not (caller_line < dst.line <= caller_end)
                 ):
                     dst = _in_scope_same_file(bucket, src_path, caller_line) or dst
+                if (
+                    kind == "call"
+                    and not used
+                    and bucket is not None
+                    and dst is not None
+                    and dst.path == src_path
+                    and dst.line == caller_line
+                    and dst.name == caller_name
+                    and bucket.free.defs
+                ):
+                    # #5628: a bare `f(` in `Scope::f` found the unit itself on the class rung; the
+                    # detector kept the call only because a DIFFERENT unit named `f` exists, so
+                    # the free function is the callee, not recursion.
+                    step, dst = _ladder(bucket.free, caller, False, cache)
                 cls = None
                 if dst is not None and dst.kind == "class":
                     # A constructor call reaches the class's constructor method.

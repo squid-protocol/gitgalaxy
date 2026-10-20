@@ -332,6 +332,35 @@ class ScopeParsingRegistry:
             "function_opener": r"(?<![:.])\bdef\b(?!:)",
             "class_opener": r"(?<![:.])\b(?:class|module)\b(?!:)",
         },
+        # #5623: Crystal is ruby's `end`-delimited shape plus `struct` / `enum` / `lib` / `annotation` / `macro`
+        # scopes and `{% for %}` / `{% if %}` macro blocks (closed by `{% end %}`). An `abstract def` has no body
+        # and no `end`, so it opens nothing.
+        "crystal": {
+            "mode": "mode_d",
+            "openers": [
+                r"(?<![:.@$])(?<!abstract )\bdef\b(?!:)",
+                r"(?<![:.@$])\bmacro\b(?!:)",
+                r"(?<![:.@$])\bclass\b(?!:)",
+                r"(?<![:.@$])\bmodule\b(?!:)",
+                r"(?<![:.@$])\bstruct\b(?!:)",
+                r"(?<![:.@$])\benum\b(?!:)",
+                r"(?<![:.@$])\blib\b(?!:)",
+                r"(?<![:.@$])\bannotation\b(?!:)",
+                r"(?<![:.@$])\bif\b(?!:)",
+                r"(?<![:.@$])\bunless\b(?!:)",
+                r"(?<![:.@$])\bwhile\b(?!:)",
+                r"(?<![:.@$])\buntil\b(?!:)",
+                r"(?<![:.@$])\bfor\b(?!:)",
+                r"(?<![:.@$])\bcase\b(?!:)",
+                r"(?<![:.@$])\bdo\b(?!:)",
+                r"(?<![:.@$])\bbegin\b(?!:)",
+                r"(?<![:.@$])\bselect\b(?=[ \t]*$)",
+                r"(?m:^fun\b(?!:))",  # column-0 only: an indented `fun` in a `lib` has no body or `end`
+            ],
+            "closers": [r"(?<![:.@$])\bend\b(?!:)"],
+            "function_opener": r"(?<![:.])(?<!abstract )\b(?:def|macro)\b(?!:)|(?m:^fun\b(?!:))",
+            "class_opener": r"(?<![:.])\b(?:class|module|struct|enum|lib|annotation)\b(?!:)",
+        },
         "lua": {
             "mode": "mode_d",
             "openers": [
@@ -3052,6 +3081,7 @@ class StructuralExtractor:
                 "embedded_python",
                 "yaml",
                 "ruby",
+                "crystal",
             ) or lang_family in (
                 "single_line_only",
                 "multi_style_dash",
@@ -4585,6 +4615,7 @@ class StructuralExtractor:
         elif lang_id not in (
             "python",
             "ruby",
+            "crystal",
             "shell",
             "bash",
             "perl",
@@ -4666,7 +4697,7 @@ class StructuralExtractor:
         t_pct = t_quotes
 
         # 2. Isolate Heredoc Logic to supported scripting languages
-        if lang_id in ["ruby", "perl", "elixir", "shell", "bash"]:
+        if lang_id in ["ruby", "crystal", "perl", "elixir", "shell", "bash"]:
             # State-Machine for Heredocs
             lines = text.split("\n")
             shielded_lines = []
@@ -4674,6 +4705,9 @@ class StructuralExtractor:
 
             # In detector.py -> _apply_literal_shield
             heredoc_opener_pattern = re.compile(r'<<[-~]?\s*[\'"]?\\?([a-zA-Z_][a-zA-Z0-9_]*)[\'"]?')
+            if lang_id == "crystal":
+                # #5623: Crystal heredocs are `<<-ID` / `<<-'ID'` only; `x << FRACBITS` is a shift/append.
+                heredoc_opener_pattern = re.compile(r'<<-[\'"]?([a-zA-Z_][a-zA-Z0-9_]*)[\'"]?')
 
             for line in lines:
                 if active_heredoc_delimiter:
@@ -4747,6 +4781,16 @@ class StructuralExtractor:
                 r"\b(?:def|class|module|defmacro|defmodule|defp)\s+"
                 r"(?:(?:[^\W\d][" + ID_CONTINUE + r"]*(?:::[^\W\d][" + ID_CONTINUE + r"]*)*\.|self\.)[ \t\n]*)?"
                 r"([^\W\d][" + ID_CONTINUE + r"]*(?:::[^\W\d][" + ID_CONTINUE + r"]*)*[?!=]?)",
+                line,
+            )
+            if m:
+                return m.group(1)
+        elif lang_key == "crystal":
+            m = re.search(
+                r"(?:\b(?:def|macro|class|struct|module|enum|lib|annotation)|^fun)[ \t]+"
+                r"(?:(?:[^\W\d][" + ID_CONTINUE + r"]*(?:::[^\W\d][" + ID_CONTINUE + r"]*)*\.|self\.)[ \t]*)?"
+                r"([^\W\d][" + ID_CONTINUE + r"]*(?:::[^\W\d][" + ID_CONTINUE + r"]*)*[?!=]?"
+                r"|\[\]=?\??|<=>|===?|!=|=~|!~|<<|>>|<=?|>=?|\*\*|[+\-*/%&|^~!])",
                 line,
             )
             if m:
@@ -8082,7 +8126,7 @@ class StructuralExtractor:
                     opens -= non_cmd
 
             # The Ruby/Elixir Inline Modifier Guard
-            if lang_key in ["ruby", "elixir"] and opens > 0:
+            if lang_key in ["ruby", "crystal", "elixir"] and opens > 0:
                 # Find all valid condition keywords on the line
                 inline_mods = len(re.findall(r"(?<![:.])\b(if|unless|while|until)\b(?!:)", safe_line))
 
@@ -8243,7 +8287,7 @@ class StructuralExtractor:
                 # idiom (#1266), not a desync, and vb/livecode don't hit this.
                 recovered: list[FunctionNode] = []
                 rec_mag = 0.0
-                if lang_key in ("shell", "ruby", "lua", "elixir"):
+                if lang_key in ("shell", "ruby", "crystal", "lua", "elixir"):
                     recovered, rec_mag = self._slice_by_labels(block, rules, sat_start_line - 1, spatial_map)
 
                 if len(recovered) > 1:

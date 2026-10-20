@@ -728,6 +728,35 @@
    }
   },
   {
+   "name": "pf3-low-values-from-program",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#5401 (proposed for e31af14845): PF3 with an all LOW-VALUES CDEMO-FROM-PROGRAM, which COBOL treats as blank, so XCTL goes to COMEN01C"
+  },
+  {
    "name": "invalid-key",
    "aid": "DFHPF9",
    "commarea": {

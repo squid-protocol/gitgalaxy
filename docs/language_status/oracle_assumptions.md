@@ -2999,7 +2999,9 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   than its storage"): ZECS001's 32000-byte CACHE-MESSAGE over a short tail refuses at run time, so the estate program's behaviour past a short segment is
   not modelled (assumption 2 above).
   ZECS001 stays not whole because CALL ZUIDSTCK is refused (above). 2026-10-20: ZECS001 translates 559 of 561 statements with the forge's `runTask`
-  stub; the holes are CALL ZUIDSTCK (line 1244, named) and the missing COMMAREA DTO the stub does not carry, none a pointer hole (the corpus test pins this).
+  stub; the holes are CALL ZUIDSTCK (line 1244, named) and the missing COMMAREA DTO the stub does not carry (line 753), none a pointer hole (the corpus
+  test pins the exact pair). Evidence level for the pointer lane on ZECS001: translated (559 of 561, pointer holes 0), unit-run on the port (windowed
+  `Storage`, `advancePointer` / `copyPointer`), not executed-equivalent against the oracle (GnuCOBOL's 8-byte view differs, see above).
   Still refused in the pointer lane: the siblings listed on #5042.
 
 - **GETMAIN without INITIMG: the burned-estate census (#4270, 2026-10-17).** Over the burned corpora (baseline `cf0bcb927a5e`: 98 of 106 CICS

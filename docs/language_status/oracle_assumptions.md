@@ -602,11 +602,11 @@ instrument). The rows below are rendered by one table in code (`compiler_options
 - **What would settle it.** A z/OS run of EPSMPMT's scenarios (#4050): the exponentiation, and the ASSUMED
   conversions above, checked where the oracle cannot.
   - **Where a capture lands (#4271, #4050).** `tests/cobol_mainframe/zos_captures/hfp.json` is a table of expected HFP
-    results (encode, add / sub / mul / div, display, float to fixed, `from_ieee` / `to_ieee`), checked against `det/hfp.py` by
+    results (encode, add / sub / mul / div, display, float to fixed, `from_ieee` / `to_ieee`, `round_short`, `compare`), checked against `det/hfp.py` by
     `test_hfp_zos_captures.py` (the Java runtime is held to that model bit for bit by `test_det_hfp.py`). It holds
-    59 `ibm-publication` records covering every operation in both sizes (the IEEE conversions: 1, -118.625, 1.5, 100.5, 0, and 0.1 in binary64, whose image differs from IBM's truncated 0.1) (long sub / mul / div / display / fixed, the
+    75 `ibm-publication` records covering every operation in both sizes (`round_short`, a long item MOVEd to a COMP-1, is short only: LOAD ROUNDED half away from zero, the carry into the exponent, a negative and a zero; `compare` is algebraic: an unnormalized image equals its normalized one, -0 equals +0, one last-digit step orders) (the IEEE conversions: 1, -118.625, 1.5, 100.5, 0, and 0.1 in binary64, whose image differs from IBM's truncated 0.1) (long sub / mul / div / display / fixed, the
     guard digit kept and lost, truncation, the range ends, a float-to-fixed 9-digit clamp); `test_the_table_covers_every_op_in_both_sizes`
-    keeps that matrix whole. It holds only `ibm-publication` records today; NO `zos-run` record exists. A `zos-run` record needs `evidence` (job, step,
+    keeps that matrix whole (`SIZES` names the one op that is short only). It holds only `ibm-publication` records today; NO `zos-run` record exists. A `zos-run` record needs `evidence` (job, step,
     output hash, never the data) and `calibrated_under` (`runtime_options.calibration_problems`, #4702). A model that
     disagrees with a captured record is a finding against the model: fix the model, never the record.
   - **The capture kit (#4271, #4050).** `tests/tools/hfp_capture_kit.py emit OUTDIR` writes `HFPCAP.cbl` / `HFPCAP.jcl` from
@@ -614,7 +614,7 @@ instrument). The rows below are rendered by one table in code (`compiler_options
     operation on z/OS and DISPLAYs `id|result`; `ingest SYSOUT --job J --step S --calibrated-under OPTIONS.json` appends
     one `zos-run` record per captured line (evidence: job, step, the output's sha256; the options through
     `calibration_problems`), never rewrites an existing record, and reports a model that disagrees as a finding (the
-    record stays, the model is fixed). 31 records are asked; 28 are SKIPPED by name: the 22 IEEE conversions (COBOL has
+    record stays, the model is fixed). 47 records are asked; 28 are SKIPPED by name: the 22 IEEE conversions (COBOL has
     no IEEE converter) and the 6 short multiply / divide rows (IBM evaluates a COMP-1 multiply or divide in long
     floating point, so a COBOL run cannot state the short arithmetic).
     Proven by `test_hfp_capture_kit.py` with model-computed output (never written to the table). **The kit is not a

@@ -424,6 +424,14 @@ PIC 9 is IBM-undefined and the oracle and the port read it differently (pf7/pf8 
 
 #4628 slice 3 (COADM01C, COBIL00C; the det-port ledger re-run on the same seed): new scenarios `pf4-other-key` and `invalid-key-unread-option-field` (adminmenu), `decline-lowercase-n` and `full-commarea-carried` (billpay) kill 4 mutants. COBIL00C reaches 0 open (9 triaged: 7 equivalent, 2 unreachable). COADM01C keeps 7 open: six are the short-COMMAREA conversion (`exactCommarea`, lines 546, 697, 699), which needs a `commarea_length` scenario the model port cannot take (X23: its DTO holds the whole record and cannot see the cut tail, so such a scenario fails the proof); one is the final RETURN's COMMAREA length (harness-gap: the scenario ends at the RETURN, so EIBCALEN of the next task is not observed). COTRN02C (35 open) is the remaining slice.
 
+**COMMAREA field survivors** (#5401, 2026-10-20). Three case-gap survivors needed an input COMMAREA field no scenario set, and each is now killed
+(`mutation.py run --only`, no re-sample): cardview `enter-carried-to-tranid` (non-blank `CDEMO-TO-TRANID`, echoed by the RETURN COMMAREA, `6d63a520f9`),
+tranlist `select-with-carried-to-tranid` (non-blank `CDEMO-TO-TRANID` on a select, so the XCTL COMMAREA shows the ninth FROM-PROGRAM byte spilling over it,
+`bdeaa77fbe`) and tranadd `pf3-low-values-from-program` (LOW-VALUES `CDEMO-FROM-PROGRAM`, which COBOL reads as blank, `e31af14845`). GnuCOBOL and the port agree on all
+three; the scores are not re-run. `test_carddemo_commarea_fields_5401.py` pins them. Still open: billpay `d3458d6107` (`CDEMO-CB00-TRN-SELECTED` of 12 or
+more characters) and cardlist `6fef123a15` (a stale first card account id with an empty or faulting CARDDAT) and `62c41cc4a8` (a non-blank `WS-RETURN-FLAG`);
+cardlist's two wait on the X8 oracle refusals.
+
 #4047 then scored six CardDemo batch ports (readxref, readcust, dailyval, intcalc, posttran, trnrpt; seed 0, up to 100
 mutants each, `--jobs 3`, fast mode). These rows are seed 0 and differ from the older seed-1 CBACT04C, CBTRN02C and
 CBTRN03C figures above. The case gaps repeat across the six: `displayIoStatus` takes a numeric test on both status bytes,

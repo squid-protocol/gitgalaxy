@@ -72,8 +72,8 @@
       {
         "doc": 100.0,
         "path": "jcl/cics-banking-sample-application-cbsa/CRELIBS.jcl",
-        "pr": 12.972,
-        "score": 1297.2
+        "pr": 12.971,
+        "score": 1297.1
       },
       {
         "doc": 96.9697,
@@ -90,8 +90,8 @@
       {
         "doc": 100.0,
         "path": "python/fastapi/fastapi/exceptions.py",
-        "pr": 6.125,
-        "score": 612.5
+        "pr": 6.124,
+        "score": 612.4
       },
       {
         "doc": 100.0,

@@ -1,0 +1,75 @@
+{
+ "format": "det-sweep-coverage/2",
+ "scenarios": 40,
+ "paragraphs": {
+  "covered": 22,
+  "live": 22
+ },
+ "branches": {
+  "covered": 13,
+  "total": 16
+ },
+ "linked": {
+  "ABNDPROC": {
+   "paragraphs": {
+    "covered": 4,
+    "live": 4
+   },
+   "branches": {
+    "covered": 1,
+    "total": 2
+   }
+  },
+  "DELACC": {
+   "paragraphs": {
+    "covered": 19,
+    "live": 19
+   },
+   "branches": {
+    "covered": 12,
+    "total": 14
+   }
+  },
+  "INQACCCU": {
+   "paragraphs": {
+    "covered": 16,
+    "live": 22
+   },
+   "branches": {
+    "covered": 17,
+    "total": 33
+   }
+  },
+  "INQCUST": {
+   "paragraphs": {
+    "covered": 19,
+    "live": 25
+   },
+   "branches": {
+    "covered": 22,
+    "total": 46
+   }
+  }
+ },
+ "inputs": {
+  "case": "af7bbcc7e7cf7b37eada2bf10e9bb475d784db32585a114d3d61c9963eac3a16",
+  "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
+  "harness": "3a371121210293d08c26bb96974eb88c3c18fa4b300fbbec72452684179d6cd2",
+  "oracle": "ffaa6dd0898bbf956479a5817450963c0550acd3f45309cae7a898a6176350ad",
+  "components": {
+   "harness": {
+    "harness:cics": "983c7fb39660937645897843299403cd0d13237f5dbf36f8ead16ecc01ab1425",
+    "harness:core": "e13043b0f7e404a5ebf32812767840664ea1f21ab0447dba3c8f501e03208b95",
+    "harness:db2": "d0ddf58437968192bfe7319d05fbbb24842243ad2e45a6d959c9a32dc3acefba"
+   },
+   "oracle": {
+    "oracle:cics-stub": "c40fe5143916f9243a167d904e063651ec7a34dee31eeadeef3d02372dbbc8ff",
+    "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
+    "oracle:db2": "78af2a018dc98ad9a37c5b4f3f864c000187b534cb5b7797f3900da3c0db3283",
+    "oracle:image-db2": "f138cc0d724e5e2bb4ff947dcd4c1cfed39aa35bfd7dcb27ff18a4e20b2c6198",
+    "oracle:le": "a7cfa660f76e6181cb060f9f945c4e298533793957991f29d93312db11e33b3f"
+   }
+  }
+ },
+ "measured_at": "ccc83d5c59e18bf3a112db68d791d58336ee8625"
+}

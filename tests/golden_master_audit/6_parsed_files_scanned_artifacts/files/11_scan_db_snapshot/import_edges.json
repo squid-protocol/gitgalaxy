@@ -1705,6 +1705,7 @@
         "import:shell/kubernetes/util.sh"
       ],
       "go/kubernetes/generic.go": [
+        "fcall:go/kubernetes/scheduler.go",
         "import:dockerfile/moby/builder/dockerfile/metrics.go"
       ],
       "go/kubernetes/kubelet.go": [

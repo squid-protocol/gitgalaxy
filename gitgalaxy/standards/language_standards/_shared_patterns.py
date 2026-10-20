@@ -372,6 +372,27 @@ CALLS_OUT_RUST = re.compile(
 _GO_CONVERSION_PREFIX = (
     r"(?<![\w)\]])\(\*{0,2}(?:\[[^\]\n]{0,64}\])?(?:[" + ID_START + r"][" + ID_CONTINUE + r"]{0,63}\.)?"
 )
+# #5634: a generic instantiation call, `F[*T](x)`, `Map[int, string](xs)`, `New[pkg.T]()`, sits between
+# the name and `(` as `[type args]`. `fns[i](x)` (an index, then a call of the element) is the same
+# shape, so the bracket must READ as type arguments: a pointer, slice, map, func or predeclared type
+# first, a `,` between two, or a qualified `pkg.T`. One level of nested `[...]`; bounded, disjoint.
+_GO_TYPE_ARG_BODY = r"[^\[\]\n]{0,64}(?:\[[^\[\]\n]{0,64}\][^\[\]\n]{0,64}){0,2}"
+_GO_PREDECLARED_TYPE = (
+    r"(?:u?int(?:8|16|32|64)?|uintptr|float(?:32|64)|complex(?:64|128)|string|bool|byte|rune|error|any|comparable)\b"
+)
+_GO_TYPE_ARGS = (
+    r"\[(?:[*]|\[\]|map(?=\[)|func\b|chan\b|"
+    + _GO_PREDECLARED_TYPE
+    + r"|[^\[\]\n,]{1,64},|["
+    + ID_START
+    + r"]["
+    + ID_CONTINUE
+    + r"]{0,63}\.["
+    + ID_START
+    + r"])"
+    + _GO_TYPE_ARG_BODY
+    + r"\]"
+)
 CALLS_OUT_GO = re.compile(
     r"(?=(?:" + _GO_CONVERSION_PREFIX + r")?(?<!\w)([" + ID_START + r"][" + ID_CONTINUE + r"]*))"
     r"(?:"
@@ -384,7 +405,9 @@ CALLS_OUT_GO = re.compile(
     + ID_START
     + r"]["
     + ID_CONTINUE
-    + r"]*(?=\s*\())"
+    + r"]*(?=(?:"
+    + _GO_TYPE_ARGS
+    + r")?\s*\())"
 )
 
 # The invocation patterns detector.py treats as the C-style family: group 1 is

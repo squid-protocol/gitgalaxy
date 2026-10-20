@@ -274,7 +274,11 @@ def _handle(pairs: list[tuple[str, str | None]], labels: list[str]) -> list[str]
             lines += ["MOVE SPACES TO GG-NAME2" if n == "ABCODE" else f"MOVE '{n[:8]}' TO GG-NAME2"] + _call(
                 "GGCASGN", []
             )
-            lines.append(f"MOVE GG-NAME1(1:{width}) TO {target}")
+            # IBM writes exactly `width` bytes and leaves the rest of a wider data area as it was (det: DetCics.put); a
+            # plain MOVE would space-pad that tail (#4049), so the target is reference-modified to the width
+            if re.search(r"\(\s*\d*\s*:", target):
+                raise Unsupported(f"ASSIGN {n}: a reference-modified target", [f"ASSIGN {n}"])
+            lines.append(f"MOVE GG-NAME1(1:{width}) TO {target}(1:{width})")
         if not any(n in TERMINAL_OPTIONS for n, _v in asked):
             return lines + _resp(opts, False)
         # INVREQ RESP2 5 for a task with no terminal, and then no data area written (register X19)

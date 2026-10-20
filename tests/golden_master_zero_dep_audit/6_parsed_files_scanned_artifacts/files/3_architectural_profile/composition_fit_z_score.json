@@ -1281,7 +1281,7 @@
       "dockerfile/moby/builder/dockerfile/internals_test.go": 0.945,
       "dockerfile/moby/builder/dockerfile/internals_windows.go": -0.02,
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": 3.076,
-      "dockerfile/moby/builder/dockerfile/metrics.go": 1.11,
+      "dockerfile/moby/builder/dockerfile/metrics.go": 1.084,
       "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 1.334,
       "dockerfile/moby/builder/dockerfile/utils_test.go": -0.461
     },
@@ -1387,7 +1387,7 @@
       "go/kubernetes/options.go": 1.292,
       "go/kubernetes/proxier.go": 1.011,
       "go/kubernetes/replica_set.go": 1.576,
-      "go/kubernetes/scheduler.go": 0.013
+      "go/kubernetes/scheduler.go": 0.089
     },
     "go/kubernetes_kubectl_tls": {
       "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 2.496

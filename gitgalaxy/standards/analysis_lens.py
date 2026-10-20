@@ -1612,7 +1612,7 @@ SURFACE_FAMILIES: dict[str, list[str]] = {
     "dead_code": ["dead_code", "unreferenced_by_name"],
     "credential": ["sec_hardcoded_secrets", "sec_entropy"],
     "threat": [
-        "reflection_metaprogramming",
+        "sec_reflection_metaprogramming",
         "sec_shadow_imports",
         "sec_homoglyphs",
         "sec_extension_mismatch",
@@ -1662,11 +1662,15 @@ SURFACE_FAMILY_EXEMPT: dict[str, str] = {
     "closures": "paradigm: functional-style marker, not a surface family",
     "generics": "paradigm: generic-programming style marker, not a surface family",
     "comprehensions": "paradigm: functional-style marker, not a surface family",
-    # --- sec_* lens duplicates (7): would double-count signals already
-    # --- summed under their non-sec_ counterpart's family ---
-    "sec_reflection_metaprogramming": (
-        "sec_* duplicate of 'reflection_metaprogramming' (threat family); would double-count"
+    # --- metaprogramming marker (1, #4548): the language-level construct count (C/C++: function-like
+    # --- #define macros and goto), not a threat. The threat family carries the security lens's own
+    # --- sec_reflection_metaprogramming (threat_obfuscated) instead, so macro-only headers
+    # --- (glext.h, _sal.h) no longer drive fam_threat ---
+    "reflection_metaprogramming": (
+        "metaprogramming marker: language-level macro/reflection count, not a threat surface (#4548)"
     ),
+    # --- sec_* lens duplicates (6): would double-count signals already
+    # --- summed under their non-sec_ counterpart's family ---
     "sec_safety_bypasses": "sec_* duplicate of 'safety_bypasses' (danger family); would double-count",
     "sec_io": "sec_* duplicate of 'io' (io family); would double-count",
     "sec_high_risk_execution": "sec_* duplicate of 'high_risk_execution' (danger family); would double-count",

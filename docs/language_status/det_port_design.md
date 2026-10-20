@@ -856,7 +856,9 @@ NULL is distinct.
 - **EXEC DLI under CICS (#5278, register I5).** SCHD PSB, TERM, GU / GN / GNP, and ISRT / REPL / DLET (`DetDli.execIsrt` / `execChange`,
   rules `RT-DLI-EXEC-ISRT` / `-CHANGE`) are DetDli calls answering DIBSTAT. ASSUMED: a get is a get-hold where the PCB's PROCOPT allows an
   update, so a REPL / DLET acts on the segment the previous get held; segments are fixed length, a SEGLENGTH other than the DBD's stops the
-  run by name. Still holes: other EXEC DLI commands and options, and the oracle side (`ggdli.c`).
+  run by name. Every EXEC DLI command of the burned CICS programs (COPAUA0C, COPAUS0C, COPAUS1C) translates
+  (pinned in `test_det_dli.py`). Still holes: other EXEC DLI commands and options (CHKP, CBPAUP0C's batch EXEC DLI: I/O PCB, #4893),
+  and the oracle side (`ggdli.c`).
 - **Refused (register I5).** Other EXEC DLI; BMP / MPP / CICS DL/I programs and the I/O PCB (IMS TM); GSAM; DL/I calls
   other than the nine; command codes and boolean SSAs; AIBTDLI / CEETDLI; HDAM order; secondary indexes; logical
   relationships; load mode. CardDemo's other DL/I programs stop at one of these: PAUDBLOD (CMPAT=YES, an I/O PCB),

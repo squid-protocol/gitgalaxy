@@ -3298,10 +3298,10 @@
     },
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 3981.97,
-      "scheme/racket/cpnanopass.ss": 3093.84,
-      "scheme/racket/eval.c": 3905.95,
+      "scheme/racket/cpnanopass.ss": 3892.32,
+      "scheme/racket/eval.c": 3104.72,
       "scheme/racket/fun.c": 3358.16,
-      "scheme/racket/io.ss": 3505.73,
+      "scheme/racket/io.ss": 3504.22,
       "scheme/racket/schemify.rkt": 4038.18,
       "scheme/racket/thread.rkt": 3326.72
     },

@@ -3298,10 +3298,10 @@
     },
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": "Data / Markup / Trivial",
-      "scheme/racket/cpnanopass.ss": "Many-Argument Workhorses Files",
+      "scheme/racket/cpnanopass.ss": "Large Core Modules",
       "scheme/racket/eval.c": "Large Core Modules (3)",
       "scheme/racket/fun.c": "Large Core Modules (3)",
-      "scheme/racket/io.ss": "Many-Argument Workhorses Files",
+      "scheme/racket/io.ss": "Large Core Modules",
       "scheme/racket/schemify.rkt": "Large Core Modules (3)",
       "scheme/racket/thread.rkt": "Large Core Modules"
     },

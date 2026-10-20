@@ -122,6 +122,27 @@ Java side lists it once, where `--full` lists it twice. A CON mutant killed by a
 overstates the score on posttran. Not yet found why the reused project's Java side fires once. Until fast mode agrees with
 `--full` on posttran and cardlist, `--one-jvm` is not made the default.
 
+**Re-run after the fault-log fix, fresh sample, `--jobs` 1 vs 2 (2026-10-20, #4047, on #5748).** #5748 removes the stale
+`work/FAULTS` file before a fault step that is not reused; that was the false `faults fired differ` kill on posttran.
+`--sample 20 --seed 3` in `--full` (`--jobs 1`), then the same mutants in fast mode at `--jobs 1` and `--jobs 2`, judged by
+`mutation.py compare`:
+
+| case | judged by both | `--full` vs fast `--jobs 1` | `--full` vs fast `--jobs 2` | fast `--jobs 1` vs `--jobs 2` | killed / survived / stillborn | proof s, full -> fast 1 -> fast 2 |
+|---|---|---|---|---|---|---|
+| carddemo-cardlist (COCRDLIC, CICS) | 20 | 20 agree | 20 agree | 20 agree | 16 / 2 / 2 | 558 -> 272 -> 199 |
+| carddemo-posttran (CBTRN02C, batch) | 20 | 20 agree | 20 agree | 20 agree | 13 / 3 / 4 | 2,207 -> 405 -> 461 |
+
+No `no report` errors. **bbd92e25af** (COCRDLIC, `CocrdlicService.java:997`, RET `return false;` -> `return true;`): the
+earlier seed-2 batch killed it in fast mode (by the fault runs `readnext-io-error-on-the-look-ahead`,
+`readprev-io-error-first`, `readprev-io-error-mid-page`, events equal, "differs"), while it survives alone in fast mode and in
+`--full`. The whole seed-2 cardlist batch (30 mutants, judged against the old `--full` reference) was re-run in fast mode at
+`--jobs 2` and `--jobs 1`: **30 of 30 agree both times and bbd92e25af survives both times**. So `--jobs 2` sharing the reused
+baseline is not shown to be the cause (it is not reproduced at `--jobs 2`), and the one earlier kill is not reproduced with
+the fault-log fix; its cause is not identified, only that it has not come back in 2 re-runs. Fast mode now agrees
+with `--full` on posttran and cardlist (20 fresh mutants each, plus the 30 seed-2 cardlist mutants), at both `--jobs` values;
+dateutil agreed before. Not validated: `--one-jvm` on these two cases after the fix (fast and `--one-jvm` agreed on posttran
+before it), entry runs, and samples above 40. `--one-jvm` therefore stays opt-in until it is compared on the fixed code.
+
 ## Scores
 
 After #4056 (SYSOUT compared) and #4053 (SEND MAP attributes compared), on 2026-10-01:
@@ -215,6 +236,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | LGICDB01 (genapp-lgicdb01) | equivalence | 150/201 | 51/130 (39%) | 51/107 (48%) | 1 / 55 / 8 / 15 / 0 |
 | LGSTSQ (genapp-lgstsq) | equivalence | 89/89 | 25/78 (32%) | 25/69 (36%) | 43 / 1 / 1 / 8 / 0 |
 | LGUPDB01 (genapp-lgupdb01) | equivalence | 150/403 | 67/140 (48%) | 67/120 (56%) | 7 / 46 / 5 / 15 / 0 |
+| LGUPVS01 (genapp-lgupvs01) | equivalence | 150/160 | 66/119 (55%) | 66/100 (66%) | 0 / 34 / 4 / 15 / 0 |
 | CALINK (ca-link-lengths) | crucible | 24/168 | 15/22 (68%) | 15/15 (100%) | 0 / 0 / 5 / 2 / 0 |
 | CASUB (ca-link-lengths) | crucible | 24/40 | 16/24 (67%) | 16/16 (100%) | 0 / 0 / 7 / 1 / 0 |
 | CAXA (ca-xctl-versions) | crucible | 24/78 | 16/21 (76%) | 16/16 (100%) | 0 / 0 / 3 / 2 / 0 |
@@ -237,20 +259,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 3547 run | **2216/3228 (69%)** | **2216/2637 (84%)** | 270 / 151 / 393 / 198 / 0 |
-| **all estate** | | 4051 run | **2535/3704 (68%)** | **2535/2991 (85%)** | 305 / 151 / 481 / 232 / 0 |
+| **all equivalence** | | 3697 run | **2282/3347 (68%)** | **2282/2737 (83%)** | 270 / 185 / 397 / 213 / 0 |
+| **all estate** | | 4201 run | **2601/3823 (68%)** | **2601/3091 (84%)** | 305 / 185 / 485 / 247 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 168/219 (77%) | 168/194 (87%) |
+| AOR | 182/233 (78%) | 182/208 (88%) |
 | BDM | 25/45 (56%) | 25/28 (89%) |
-| CON | 333/715 (47%) | 333/428 (78%) |
-| COR | 132/240 (55%) | 132/187 (71%) |
-| DEL | 388/580 (67%) | 388/467 (83%) |
-| LIT | 541/703 (77%) | 541/603 (90%) |
-| NEG | 474/536 (88%) | 474/512 (93%) |
+| CON | 362/759 (48%) | 362/468 (77%) |
+| COR | 132/241 (55%) | 132/187 (71%) |
+| DEL | 392/590 (66%) | 392/474 (83%) |
+| LIT | 551/734 (75%) | 551/625 (88%) |
+| NEG | 481/546 (88%) | 481/522 (92%) |
 | RET | 58/99 (59%) | 58/87 (67%) |
-| ROR | 416/567 (73%) | 416/485 (86%) |
+| ROR | 418/576 (73%) | 418/492 (85%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|
@@ -285,6 +307,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | LGICDB01 (genapp-lgicdb01) | 2/5 | - | 9/28 | 1/5 | 6/20 | 14/27 | 9/16 | 1/7 | 9/22 |
 | LGSTSQ (genapp-lgstsq) | 1/5 | - | 1/21 | 0/1 | 5/11 | 10/21 | 5/6 | - | 3/13 |
 | LGUPDB01 (genapp-lgupdb01) | 11/12 | - | 11/22 | 0/2 | 4/22 | 12/22 | 14/22 | 3/17 | 12/21 |
+| LGUPVS01 (genapp-lgupvs01) | 14/14 | - | 29/44 | 0/1 | 4/10 | 10/31 | 7/10 | - | 2/9 |
 | CALINK (ca-link-lengths) | 2/2 | - | 1/4 | 0/1 | 2/4 | 3/3 | 3/3 | 2/2 | 2/3 |
 | CASUB (ca-link-lengths) | - | - | 2/5 | - | 3/5 | 4/5 | 4/5 | - | 3/4 |
 | CAXA (ca-xctl-versions) | 1/1 | - | 3/4 | - | 3/4 | 2/4 | 4/4 | - | 3/4 |

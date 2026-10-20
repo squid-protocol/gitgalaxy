@@ -22,14 +22,17 @@ import doom_scorer  # noqa: E402
 import doom_speedrun  # noqa: E402
 
 
-def test_manifest_is_39_pinned_unique_ports():
+def test_manifest_is_pinned_unique_licensed_ports():
+    # #5619: only clearly licensed ports, each with the license read from its files and a class
     rows = doom_speedrun.read_manifest()
     names = [r["name"] for r in rows]
-    assert len(rows) == 39 and len(set(names)) == 39
+    assert len(rows) == 44 and len(set(names)) == len(names)
     for r in rows:
         assert re.fullmatch(r"[0-9a-f]{40}", r["sha"]), r["name"]
         assert r["upstream"].startswith("https://github.com/"), r["name"]
         assert r["lineage"].strip(), r["name"]
+        assert re.match(r"(GPL-[23]\.0|MIT|Apache-2\.0|BSD-3-Clause)\b", r["license"]), r["name"]
+        assert r["class"] in {"engine-port", "reimplementation", "raycaster", "separate-engine", "assets"}, r["name"]
 
 
 def test_manifest_unknown_port_is_an_error():

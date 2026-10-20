@@ -39,6 +39,7 @@ sweep"); if not, build one: name the class, list its members from the authoritat
 - `golden-lock.sh <cmd...>`: exclusive; golden bless/check only.
 - `sync-pins.sh [--dry-run]`: align the language/cics/estate-crucible checkouts with this branch's pins (takes golden-lock itself). Run it after a pin bump or a merge of main, before golden/ratchet runs (#5192). A wall of golden-crucible / tree-sitter-audit red "... is on vX but CI pins vY" means your pins (`tests/crucible_pins.toml`) are behind main: merge origin/main and sync; never re-bless for it.
 - `wait-pids.sh <pid...>`: wait on PIDs, never output files. `kill-by-cwd.sh <dir> [--dry-run]`: clean up your own orphans.
+- `bg-job.sh start NAME -- <cmd>`, later `bg-job.sh wait NAME`: a long job you check on later (`exit=N` + log tail; 124 = still running).
 
 ## Ratchets your PR must update in the same PR
 ONE command: `tests/tools/box/heavy-run.sh python tests/tools/pr_gates.py --ratchets` (pass/fail table with the update command per failure; "not available: <why>" is a skip, NOT a pass: say so in your report). It covers golden masters (`golden-lock.sh ... crucible_check.py --update --yes`), the ground-truth ledger (`ground_truth_ledger.py update`, then `assign` causes), `test_completeness.py` PINNED numbers (some corpora only run in CI), the estate-crucible baseline, `fact_crosscheck_ledger.json` (two-way: new AND fixed disagreements; note #4472 about `--corpus`) and Ports Compile. Also:
@@ -72,7 +73,7 @@ Evidence (#5206, #4703; detail in `blocker-slice` / `cics-command-slice`): read 
 - `gh auth setup-git`, push, open ONE draft PR to main (a `WIP:` draft early is fine) with `gh api repos/squid-protocol/gitgalaxy/pulls -F draft=true -F body=@file`, and check the body landed (an empty body was sent back, #5183). Edit it later with `gh api -X PATCH .../pulls/<n> -F body=@file`.
 
 ## Hygiene
-- A hook blocks `pgrep -f` wait loops that match their own shell (one worker spun ~1 h): wait on a PID (`wait $pid`, `kill -0`), a done-file or `wait-pids.sh`. `pkill -f` kills your own shell (exit 144): `pgrep -af`, kill by PID (#5277, #5279, #5369).
+- A hook blocks `pgrep -f` wait loops that match their own shell (one worker spun ~1 h): wait on a PID (`wait $pid`, `kill -0`), `bg-job.sh wait NAME` or `wait-pids.sh`. `pkill -f` kills your own shell (exit 144): `pgrep -af`, kill by PID (#5277, #5279, #5369).
 - Issues you file get a type label, an area label, one `priority: ...` and the current milestone (skip if denied). The GitHub API budget (5,000/hr) is shared by ALL agents: no tight loops or per-file calls.
 
 ## Never

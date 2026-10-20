@@ -135,3 +135,18 @@ def test_sync_pins_dry_run_changes_nothing():
     for name in ("language-crucible", "cics-crucible", "estate-crucible"):
         assert name in out.stdout
     assert subprocess.run([str(BOX / "sync-pins.sh"), "--bogus"], capture_output=True, check=False).returncode == 2  # noqa: S603
+
+
+def test_bg_job_start_wait_reports_the_status_and_log(tmp_path):
+    env = dict(os.environ, GG_BG_DIR=str(tmp_path))
+    run = lambda *a: subprocess.run([str(BOX / "bg-job.sh"), *a], capture_output=True, text=True, env=env, timeout=30, check=False)  # noqa: E731
+    started = run("start", "j1", "--", "bash", "-c", "echo hello; sleep 1; exit 3")
+    assert started.returncode == 0 and "j1 pid=" in started.stdout
+    assert run("status", "j1").stdout.strip() == "running"
+    still = run("wait", "j1", "0")
+    assert still.returncode == 124 and "still running" in still.stdout
+    done = run("wait", "j1", "20")  # from a later "call": nothing but the name links it to the job
+    assert done.returncode == 3 and "j1 exit=3" in done.stdout and "hello" in done.stdout
+    assert run("status", "j1").stdout.strip() == "exit=3"
+    assert run("wait", "nope").returncode == 2
+    assert run("start", "../x", "--", "true").returncode == 2

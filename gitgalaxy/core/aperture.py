@@ -88,17 +88,17 @@ def looks_like_virtualenv(directory: Path) -> bool:
 # The scan root itself is never a candidate: only the directories under it are tested.
 # #5464: the name is no longer a precondition. Two more shapes:
 #   - a `third_party_*` / `3rdparty-*` prefix is excluded by name, like `third_party/` itself
-#     (psydoom's `third_party_libs/`: 367k lines of SDL2);
+#     (a `third_party_libs/` holding 367k lines of SDL2);
 #   - a container spelled `*_libs` / `*-libraries` / `*_deps` follows the container rule above;
 #   - ANY other directory carrying a license of its own that differs from the root's is a separate
-#     project (eternity's `libpng/`, zandronum's `game-music-emu/`, doomretro's `src/yyjson/`).
+#     project (eternity's `libpng/`, doomretro's `src/yyjson/`).
 # A first-party backend directory (srb2 `src/sdl/`) has no license of its own and stays scanned.
 # #5525: "differs" ignores a title line above the same text (gson's `gson/LICENSE` = `Google Gson` + the root's Apache-2.0).
 VENDOR_CONTAINER_NAMES = frozenset({"libraries", "libs", "deps", "extern", "external", "externals"})
 _THIRD_PARTY_PREFIX = re.compile(r"^(?:third|3rd)[_-]?party[_-]", re.I)
 _CONTAINER_SUFFIX = re.compile(r"[_-](?:libs|libraries|deps|extern|external|externals)$", re.I)
 # (c) a directory named after a well-known third-party library, with no license file of its own (eternity's
-# `zlib/`, doom3-bfg's `jpeg-6/`, zandronum's `lzma/` and `gdtoa/`, eternity's `nlohmann/`): the name list is the
+# `zlib/`, doom3-bfg's `jpeg-6/`, a bundled `lzma/` or `gdtoa/`, eternity's `nlohmann/`): the name list is the
 # decision (a header fingerprint needs a per-library corpus; the list is reviewable and cheap). A trailing version
 # (`jpeg-6`, `zlib-1.2.11`) is dropped before the lookup. A directory that carries the ROOT's own license is the
 # project's own copy of it and stays scanned.

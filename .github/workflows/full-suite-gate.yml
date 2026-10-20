@@ -96,14 +96,15 @@ jobs:
               {"os":"ubuntu-latest","python-version":"3.11","part":2,"splits":2,"timeout":20,"step_timeout":17},
               {"os":"ubuntu-latest","python-version":"3.12","part":1,"splits":2,"timeout":20,"step_timeout":17},
               {"os":"ubuntu-latest","python-version":"3.12","part":2,"splits":2,"timeout":20,"step_timeout":17},
-              {"os":"windows-latest","python-version":"3.11","part":1,"splits":2,"even":true,"timeout":33,"step_timeout":30},
-              {"os":"windows-latest","python-version":"3.11","part":2,"splits":2,"even":true,"timeout":33,"step_timeout":30},
+              {"os":"windows-latest","python-version":"3.11","part":1,"splits":3,"even":true,"timeout":27,"step_timeout":24},
+              {"os":"windows-latest","python-version":"3.11","part":2,"splits":3,"even":true,"timeout":27,"step_timeout":24},
+              {"os":"windows-latest","python-version":"3.11","part":3,"splits":3,"even":true,"timeout":27,"step_timeout":24},
               {"os":"windows-latest","python-version":"3.12","part":1,"splits":2,"even":true,"timeout":25,"step_timeout":22},
               {"os":"windows-latest","python-version":"3.12","part":2,"splits":2,"even":true,"timeout":25,"step_timeout":22},
-              {"os":"macos-latest","python-version":"3.11","part":1,"splits":2,"timeout":22,"step_timeout":19},
-              {"os":"macos-latest","python-version":"3.11","part":2,"splits":2,"timeout":22,"step_timeout":19},
-              {"os":"macos-latest","python-version":"3.12","part":1,"splits":2,"timeout":22,"step_timeout":19},
-              {"os":"macos-latest","python-version":"3.12","part":2,"splits":2,"timeout":22,"step_timeout":19}
+              {"os":"macos-latest","python-version":"3.11","part":1,"splits":2,"timeout":26,"step_timeout":23},
+              {"os":"macos-latest","python-version":"3.11","part":2,"splits":2,"timeout":26,"step_timeout":23},
+              {"os":"macos-latest","python-version":"3.12","part":1,"splits":2,"timeout":26,"step_timeout":23},
+              {"os":"macos-latest","python-version":"3.12","part":2,"splits":2,"timeout":26,"step_timeout":23}
             ]'
           else
             # plain manual re-run: since 3.10 was dropped (#3322) the supported
@@ -114,14 +115,15 @@ jobs:
               {"os":"ubuntu-latest","python-version":"3.11","part":2,"splits":2,"timeout":20,"step_timeout":17},
               {"os":"ubuntu-latest","python-version":"3.12","part":1,"splits":2,"timeout":20,"step_timeout":17},
               {"os":"ubuntu-latest","python-version":"3.12","part":2,"splits":2,"timeout":20,"step_timeout":17},
-              {"os":"windows-latest","python-version":"3.11","part":1,"splits":2,"even":true,"timeout":33,"step_timeout":30},
-              {"os":"windows-latest","python-version":"3.11","part":2,"splits":2,"even":true,"timeout":33,"step_timeout":30},
+              {"os":"windows-latest","python-version":"3.11","part":1,"splits":3,"even":true,"timeout":27,"step_timeout":24},
+              {"os":"windows-latest","python-version":"3.11","part":2,"splits":3,"even":true,"timeout":27,"step_timeout":24},
+              {"os":"windows-latest","python-version":"3.11","part":3,"splits":3,"even":true,"timeout":27,"step_timeout":24},
               {"os":"windows-latest","python-version":"3.12","part":1,"splits":2,"even":true,"timeout":25,"step_timeout":22},
               {"os":"windows-latest","python-version":"3.12","part":2,"splits":2,"even":true,"timeout":25,"step_timeout":22},
-              {"os":"macos-latest","python-version":"3.11","part":1,"splits":2,"timeout":22,"step_timeout":19},
-              {"os":"macos-latest","python-version":"3.11","part":2,"splits":2,"timeout":22,"step_timeout":19},
-              {"os":"macos-latest","python-version":"3.12","part":1,"splits":2,"timeout":22,"step_timeout":19},
-              {"os":"macos-latest","python-version":"3.12","part":2,"splits":2,"timeout":22,"step_timeout":19}
+              {"os":"macos-latest","python-version":"3.11","part":1,"splits":2,"timeout":26,"step_timeout":23},
+              {"os":"macos-latest","python-version":"3.11","part":2,"splits":2,"timeout":26,"step_timeout":23},
+              {"os":"macos-latest","python-version":"3.12","part":1,"splits":2,"timeout":26,"step_timeout":23},
+              {"os":"macos-latest","python-version":"3.12","part":2,"splits":2,"timeout":26,"step_timeout":23}
             ]'
           fi
           echo "include=$(echo "$include" | tr -d '\n ')" >> "$GITHUB_OUTPUT"
@@ -131,6 +133,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     # #4903, #5152: ~1.5x each leg's measured time. Unsharded legs outgrew their caps (2026-10-14: ubuntu ~28-30 min, windows 3.12
     # 33, macOS ~29, all cancelled/killed at 30/35/28), so every leg now runs in 2 parts. A leg that sets "timeout" overrides the default.
+    # 2026-10-20: windows 3.11 parts took 22-25 min of a 33-min cap (#5764) -> 3 parts (~17-18 min each with setup, cap 27); macOS parts
+    # up to 16.7 min -> cap 26 (was 22).
     timeout-minutes: ${{ matrix.timeout || 30 }}
     env:
       PYTHONUTF8: "1"

@@ -13,8 +13,8 @@ from pathlib import Path
 from gitgalaxy.core.cics_macro_level import ASSEMBLER_SUFFIXES, Hit, assembler_hits, cobol_hits, refusal_text
 from gitgalaxy.core.cobol_preprocessor import (
     COPY_ALONE,
-    copy_replacing,
     comment_at,
+    copy_replacing,
     copy_statements,
     drop_comment,
     free_code,

@@ -369,6 +369,22 @@ def test_the_bnk1uac_screen_holds_on_generated_db2_rows(tmp_path):
 
 
 @pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_bnk1tfn_screen_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's transfer screen (BNK1TFN -> XFRFUN) on 30 generated ACCOUNT rows (PROCTRAN empty, no foreign key joins
+    them): FROM and TO numbers drawn from the rows (some none holds), every statement answered alike on both sides
+    (SELECT, UPDATE, INSERT; 0, +100 and the -180 of a NULL-date UPDATE), ACCOUNT and PROCTRAN alike after every task.
+    Amounts are ones a binary double holds exactly: BNK1TFN moves the typed amount through a COMP-2 and GnuCOBOL and
+    the port differ on 12.34 and 0.01 (see the case's notes)."""
+    report = _det_port_generated("cbsa-bnk1tfn-generated", tmp_path)
+    assert report["proven"] is True and report["db2_generated"] == {"IBMUSER.ACCOUNT": 30}
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    assert len(sql) == 40 and all(q["equal"] == q["statements"] for q in sql)
+    assert sum(1 for q in sql if q["statements"]) >= 10
+    assert {x["sqlcode"] for q in sql for x in q["cobol"]} >= {0, 100}
+    assert {x["verb"] for q in sql for x in q["cobol"]} >= {"SELECT", "UPDATE", "INSERT"}
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
 def test_the_bnk1cca_screen_holds_on_generated_db2_rows(tmp_path):
     """CBSA's customer-account list (BNK1CCA -> INQACCCU) on 30 generated ACCOUNT rows keyed to the customers the
     CUSTOMER file holds: typed customer numbers drawn from them (some no row holds), statements answered alike on

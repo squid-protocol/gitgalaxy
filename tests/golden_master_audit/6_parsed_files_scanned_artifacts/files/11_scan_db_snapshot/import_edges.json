@@ -1635,6 +1635,18 @@
       "fortran/wrf/module_sf_noahdrv.F": [
         "fcall:fortran/wrf/module_initialize_real.F"
       ],
+      "fortran/wrf/regtest.csh": [
+        "fcall:shell/curl/initscript.sh",
+        "fcall:shell/kubernetes/common.sh"
+      ],
+      "fortran/wrf/regtest_hwrf.csh": [
+        "fcall:shell/curl/initscript.sh",
+        "fcall:shell/kubernetes/common.sh"
+      ],
+      "fortran/wrf/regtest_nmmnest.csh": [
+        "fcall:shell/curl/initscript.sh",
+        "fcall:shell/kubernetes/common.sh"
+      ],
       "fortran/wrf/sourcetree.py": [
         "import:embedded_python/meow_turtle/logging.py"
       ],
@@ -4367,6 +4379,15 @@
       ]
     },
     "shell/kubernetes": {
+      "shell/kubernetes/common.sh": [
+        "fcall:shell/kubernetes/release.sh"
+      ],
+      "shell/kubernetes/e2e-cluster-size.sh": [
+        "fcall:shell/kubernetes/skeleton__util.sh"
+      ],
+      "shell/kubernetes/log-dump.sh": [
+        "fcall:shell/kubernetes/skeleton__util.sh"
+      ],
       "shell/kubernetes/util.sh": [
         "import:shell/kubernetes/config-default.sh"
       ]

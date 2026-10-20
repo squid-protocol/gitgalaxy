@@ -1310,10 +1310,10 @@
       "scala/kafka/SocketServer.scala": 119
     },
     "scheme/racket": {
-      "scheme/racket/cpnanopass.ss": 1185,
+      "scheme/racket/cpnanopass.ss": 1183,
       "scheme/racket/eval.c": 2457,
       "scheme/racket/fun.c": 6129,
-      "scheme/racket/io.ss": 289,
+      "scheme/racket/io.ss": 287,
       "scheme/racket/schemify.rkt": 11,
       "scheme/racket/thread.rkt": 19
     },

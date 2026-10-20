@@ -23815,7 +23815,7 @@
     },
     "fortran/wrf": {
       "fortran/wrf/cleanCMake.sh": {
-        "help@5": 0
+        "help@5": 1
       },
       "fortran/wrf/configure_reader.py": {
         "__init__@26": 1,
@@ -42108,19 +42108,145 @@
     },
     "scheme/racket": {
       "scheme/racket/cpnanopass.ss": {
+        "$add-move@8993": 0,
+        "Effect@10166": 5,
+        "Effect@10538": 0,
+        "Effect@8788": 0,
+        "Effect@9025": 0,
+        "Pred@8762": 8,
+        "Profile@760": 0,
+        "Ref@3301": 0,
+        "Rhs@8754": 8,
+        "Tail@10161": 7,
+        "Tail@8771": 2,
+        "Triv@3329": 13,
+        "Triv@8748": 2,
+        "add-caller-save-registers@642": 0,
+        "add-counter@2072": 3,
+        "add-final-closures@2132": 0,
+        "add-instr@6948": 0,
+        "add-label-link@6952": 0,
+        "add-original-closures@2120": 0,
+        "add-reify-cc-save@4072": 1,
+        "adjust-return-point-offset@8560": 1,
+        "alloc-helper@6785": 0,
+        "asm-data-label@8568": 1,
+        "asm-size@8537": 1,
+        "assign-frame@9166": 0,
+        "bar@3237": 0,
+        "binding-well-known@2189": 0,
+        "build-alloc@6745": 0,
         "build-attachment-get@5217": 0,
-        "build-free-ref@2260": 2,
+        "build-free-ref@2260": 3,
+        "build-mem-opnd@8530": 0,
+        "build-mv-return@4435": 1,
+        "build-nontail-call@4265": 1,
+        "build-pinfo@7589": 0,
+        "build-return-point@4274": 4,
+        "build-seq@3339": 0,
+        "build-seq@3341": 0,
+        "build-tail-call@4401": 3,
         "compatible-fv@547": 0,
         "compute-sccs@1510": 1,
+        "conflict-bit-count@8702": 2,
+        "conflict-bit-set@8688": 0,
+        "conflict-bit-set@8698": 0,
+        "conflict-bit-unset@8693": 0,
+        "conflict-fv@9189": 0,
+        "cool@9271": 0,
+        "cset-copy@8710": 2,
+        "cset-for-each@8714": 4,
+        "cset-full@8684": 0,
+        "cset-merge@8706": 0,
+        "divide-flow@7396": 1,
+        "do-call@5725": 2,
+        "do-link@7300": 0,
+        "do-live-analysis@8735": 0,
+        "extract-conflicts@8718": 1,
         "extract-trace-code@8280": 0,
+        "extract-uvar@694": 1,
+        "find-homes@9250": 0,
+        "find-matching-clause@735": 3,
+        "find-max-fv@9265": 1,
+        "find-move-related-home@9187": 2,
+        "finish-call@4123": 1,
+        "fixnum@8978": 1,
+        "flatten-clauses@3870": 1,
+        "flatten-mvclauses@3930": 1,
+        "force-live-in@8836": 0,
         "force@2597": 1,
         "fp-lvalue@3335": 0,
         "fp-lvalue@3682": 0,
+        "get-arg-regs@4047": 6,
+        "get-fv@503": 4,
+        "get-live-vars@8645": 2,
+        "get-ret-fv@544": 13,
+        "handle-do-rest@4820": 1,
+        "increment-live-counts@9015": 0,
+        "insert-procedure-check@4173": 1,
+        "insert-procedure-check@957": 2,
+        "live@8641": 3,
+        "loc@10455": 6,
+        "low-degree@10317": 0,
         "lpred@9708": 0,
+        "make-Ldomvleterr@482": 0,
+        "make-Levent-detour@490": 0,
+        "make-add-var@8649": 2,
+        "make-arg-opnd@5717": 3,
+        "make-bank@2226": 3,
+        "make-dofretuns@6087": 0,
+        "make-empty-cset@8676": 3,
+        "make-full-cset@8680": 1,
+        "make-info@5712": 3,
+        "make-op@7594": 2,
+        "make-remove-var@8660": 2,
+        "make-tmp@3291": 0,
+        "make-tmp@3503": 10,
+        "make-tmp@3676": 0,
+        "make-tmp@6736": 0,
+        "make-tmps@1005": 0,
+        "mask@8551": 1,
+        "maybe-add-counter@7540": 0,
         "maybe-add-detour-trap-check@3960": 0,
-        "maybe-drop-trap-check@3872": 0,
-        "mktmp@3293": 0,
-        "tarjan@1516": 1
+        "maybe-build-op@7602": 2,
+        "maybe-drop-trap-check@3872": 1,
+        "mktmp@3293": 1,
+        "path-compress@10697": 0,
+        "pick-victims@10315": 2,
+        "prepare-for-consumer-call@4250": 4,
+        "propagate-live@8853": 0,
+        "ptr@4597": 0,
+        "relevant@9177": 0,
+        "remove@563": 0,
+        "resolve@10708": 1,
+        "resolve@10718": 0,
+        "return@1162": 0,
+        "rhs-inline@3686": 2,
+        "same-live@8637": 0,
+        "seqs-and-profiles@754": 0,
+        "set-cp@4229": 1,
+        "set-formal-registers@4039": 0,
+        "set-home@10296": 0,
+        "set-locs@4277": 0,
+        "set-locs@4374": 6,
+        "set-offsets@1363": 0,
+        "sort-free@2223": 4,
+        "sort-spill@9168": 0,
+        "stack-align@8724": 0,
+        "stack-aligned-first-argument@8729": 0,
+        "store-cp@4260": 0,
+        "sum-link-weights@7354": 1,
+        "symref@4056": 0,
+        "tarjan@1516": 1,
+        "tree-extract@294": 3,
+        "try-reg@10283": 2,
+        "union-live@8632": 2,
+        "update-conflict@10298": 0,
+        "update-conflict@9154": 0,
+        "uvar-weight@10229": 3,
+        "weight-graph@7352": 0,
+        "wrap-tc@3042": 1,
+        "wrap-tc@3112": 0
       },
       "scheme/racket/eval.c": {
         "_scheme_apply_known_prim_closure@912": 0,
@@ -42522,29 +42648,62 @@
         "void_p@2388": 0
       },
       "scheme/racket/io.ss": {
+        "$make-ready-for-output@1236": 0,
         "$textual-port-bol@248": 0,
+        "binary-custom-port-clear-input@799": 0,
+        "binary-custom-port-clear-output@840": 0,
+        "binary-custom-port-close-port@844": 0,
+        "binary-custom-port-get-some@783": 0,
+        "binary-custom-port-get@770": 0,
+        "binary-custom-port-lookahead@747": 0,
+        "binary-custom-port-put-some@815": 0,
+        "binary-custom-port-put@803": 0,
+        "binary-custom-port-unget@759": 0,
+        "binary-file-port-flush@447": 3,
+        "binary-file-port-get@493": 3,
+        "binary-file-port-port-length@708": 4,
+        "binary-file-port-port-nonblocking@697": 0,
+        "binary-file-port-ready@453": 0,
+        "binary-file-port-set-port-length@714": 0,
+        "binary-file-port-set-port-nonblocking@703": 0,
+        "binary-file-port-set-port-position@690": 0,
+        "binary-file-port-unget@482": 3,
         "binary-port-read@728": 0,
         "bv-read@722": 0,
+        "bv-write@737": 0,
+        "bytevector-flush@438": 3,
+        "bytevector-write@432": 2,
+        "check-option@271": 0,
+        "clear-open-files@337": 1,
         "decode-oops@1432": 2,
         "eof-err@1991": 0,
+        "eol-char@215": 0,
         "err@1983": 0,
-        "extract-permission-mask@400": 0,
+        "extract-permission-mask@400": 1,
         "flush-buffer@1437": 0,
-        "make-binary-file-input-handler@1010": 0,
+        "get-some-maybe-nb@1447": 0,
+        "make-binary-file-input-handler@1010": 2,
         "make-binary-file-input/output-handler@1254": 0,
-        "make-binary-file-output-handler@1116": 0,
+        "make-binary-file-output-handler@1116": 2,
         "make-fd@173": 0,
+        "open-binary-fd-input-port@1089": 1,
+        "open-binary-fd-input/output-port@1374": 0,
+        "open-binary-fd-output-port@1190": 1,
         "open-oops@197": 0,
-        "port-oops@175": 0,
+        "port-oops@175": 4,
         "position-oops@190": 0,
         "position-warning@124": 0,
-        "read-oops@180": 0,
+        "read-oops@180": 3,
+        "register-open-file@348": 4,
+        "registered-open-file@354": 0,
         "return@1461": 0,
         "return@1526": 0,
         "return@1862": 0,
         "return@1998": 0,
-        "unget-error@212": 0,
-        "write-oops@185": 0,
+        "silent-close@364": 1,
+        "unget-error@212": 4,
+        "unregister-open-file@359": 2,
+        "write-oops@185": 4,
         "write-three-byte@1868": 0,
         "write-two-byte@1865": 0
       },
@@ -42575,15 +42734,15 @@
     },
     "shell/ansible": {
       "shell/ansible/ansible-galaxy__runme.sh": {
-        "f_ansible_galaxy_create_role_repo_post@54": 0,
-        "f_ansible_galaxy_create_role_repo_pre@36": 0,
-        "f_ansible_galaxy_status@30": 0
+        "f_ansible_galaxy_create_role_repo_post@54": 1,
+        "f_ansible_galaxy_create_role_repo_pre@36": 1,
+        "f_ansible_galaxy_status@30": 1
       },
       "shell/ansible/ansible-pull__runme.sh": {
-        "change_repo@30": 0,
-        "no_change_tests@38": 0,
-        "pass_tests@47": 0,
-        "pass_tests_multi@70": 0
+        "change_repo@30": 1,
+        "no_change_tests@38": 1,
+        "pass_tests@47": 1,
+        "pass_tests_multi@70": 1
       }
     },
     "shell/brew": {
@@ -42594,8 +42753,8 @@
         "RUN@79": 0
       },
       "shell/brew/brew": {
-        "export_homebrew_env_file@125": 0,
-        "quiet_cd@39": 0,
+        "export_homebrew_env_file@125": 2,
+        "quiet_cd@39": 1,
         "symlink_target_directory@43": 0
       },
       "shell/brew/brew.rb": {
@@ -42827,67 +42986,67 @@
     },
     "shell/curl": {
       "shell/curl/cmp-pkg-config.sh": {
-        "sort_lists@9": 0
+        "sort_lists@9": 1
       },
       "shell/curl/ech_tests.sh": {
-        "cli_test@147": 0,
-        "fileage@127": 0,
-        "get_ech_configlist@189": 0,
-        "hostport2host@131": 0,
-        "hostport2port@139": 0,
-        "whenisitagain@123": 0
+        "cli_test@147": 2,
+        "fileage@127": 1,
+        "get_ech_configlist@189": 2,
+        "hostport2host@131": 1,
+        "hostport2port@139": 1,
+        "whenisitagain@123": 1
       },
       "shell/curl/initscript.sh": {
-        "CLcommand@26": 0,
-        "action_needed@121": 0,
-        "canonicalize_path@138": 0,
-        "db2_name@241": 0,
-        "get_make_vars@281": 0,
-        "make_module@173": 0,
-        "setenv@31": 0,
-        "versioned_copy@261": 0
+        "CLcommand@26": 13,
+        "action_needed@121": 15,
+        "canonicalize_path@138": 1,
+        "db2_name@241": 4,
+        "get_make_vars@281": 4,
+        "make_module@173": 5,
+        "setenv@31": 5,
+        "versioned_copy@261": 1
       },
       "shell/curl/make-include.sh": {
-        "copy_hfile@57": 0
+        "copy_hfile@57": 1
       },
       "shell/curl/make-tests.sh": {
-        "build_all_programs@37": 0
+        "build_all_programs@37": 1
       },
       "shell/curl/test.sh": {
-        "runresults@23": 0
+        "runresults@23": 4
       }
     },
     "shell/darwin-xnu": {
       "shell/darwin-xnu/MPMMtest_run.sh": {
-        "is_64_bit_env@9": 0
+        "is_64_bit_env@9": 1
       },
       "shell/darwin-xnu/make_posix_availability.sh": {
-        "usage@25": 0
+        "usage@25": 1
       },
       "shell/darwin-xnu/make_symbol_aliasing.sh": {
-        "usage@25": 0
+        "usage@25": 1
       },
       "shell/darwin-xnu/persona_test_run_src.sh": {
-        "bail@54": 0,
-        "check_for_persona_support@36": 0,
-        "check_return@69": 0,
-        "create_persona@347": 0,
-        "destroy_persona@432": 0,
-        "expect_failure@90": 0,
+        "bail@54": 9,
+        "check_for_persona_support@36": 1,
+        "check_return@69": 4,
+        "create_persona@347": 1,
+        "destroy_persona@432": 1,
+        "expect_failure@90": 2,
         "get_created_id@334": 0,
-        "get_persona_info@140": 0,
-        "spawn_child@273": 0,
-        "test_num@109": 0,
-        "validate_child_info@217": 0
+        "get_persona_info@140": 2,
+        "spawn_child@273": 1,
+        "test_num@109": 3,
+        "validate_child_info@217": 1
       },
       "shell/darwin-xnu/remote_build.sh": {
-        "die@18": 0
+        "die@18": 4
       },
       "shell/darwin-xnu/test.sh": {
-        "record_perf_data@13": 0
+        "record_perf_data@13": 1
       },
       "shell/darwin-xnu/xcrun_cache.sh": {
-        "CreateFile@73": 0
+        "CreateFile@73": 1
       }
     },
     "shell/freebsd-src": {
@@ -42921,7 +43080,7 @@
         "basic_head@37": 0,
         "basic_symlink_body@54": 0,
         "basic_symlink_head@50": 0,
-        "check_size@28": 0,
+        "check_size@28": 2,
         "chrdev_body@70": 0,
         "chrdev_head@66": 0,
         "directory_to_symlink_body@551": 0,
@@ -42930,8 +43089,8 @@
         "dirloop_head@787": 0,
         "dstmode_body@738": 0,
         "dstmode_head@733": 0,
-        "file_is_sparse@385": 0,
-        "files_are_equal@390": 0,
+        "file_is_sparse@385": 5,
+        "files_are_equal@390": 4,
         "hardlink_body@88": 0,
         "hardlink_exists_body@102": 0,
         "hardlink_exists_force_body@117": 0,
@@ -42960,7 +43119,7 @@
         "recursive_link_Lflag_head@348": 0,
         "recursive_link_dflt_body@320": 0,
         "recursive_link_dflt_head@315": 0,
-        "recursive_link_setup@303": 0,
+        "recursive_link_setup@303": 3,
         "root_body@755": 0,
         "root_head@751": 0,
         "samefile_body@370": 0,
@@ -43024,9 +43183,9 @@
         "sigint_read_head@71": 0
       },
       "shell/freebsd-src/dtest.sh": {
-        "gettag@13": 0,
-        "runtest@23": 0,
-        "usage@3": 0
+        "gettag@13": 1,
+        "runtest@23": 1,
+        "usage@3": 1
       },
       "shell/freebsd-src/echo_test.sh": {
         "append_c_output_body@48": 0,
@@ -43043,7 +43202,7 @@
         "atf_init_test_cases@2009": 0,
         "change_body@101": 0,
         "change_head@97": 0,
-        "create_std_data@5": 0,
+        "create_std_data@5": 6,
         "delete_body@138": 0,
         "delete_head@134": 0,
         "insert_body@161": 0,
@@ -43077,12 +43236,12 @@
         "atf_init_test_cases@110": 0,
         "check@19": 0,
         "flag_r_file_test_body@34": 0,
-        "format_string_test@44": 0,
+        "format_string_test@44": 1,
         "iso8601_check@61": 0,
-        "iso8601_string_test@76": 0
+        "iso8601_string_test@76": 1
       },
       "shell/freebsd-src/functional_test.sh": {
-        "add_testcase@44": 0,
+        "add_testcase@44": 1,
         "atf_init_test_cases@66": 0,
         "check@30": 0
       },
@@ -43091,19 +43250,19 @@
         "basic_body@63": 0,
         "basic_cleanup@80": 0,
         "basic_head@57": 0,
-        "init@43": 0,
-        "recycle@50": 0
+        "init@43": 1,
+        "recycle@50": 1
       },
       "shell/freebsd-src/legacy_test.sh": {
-        "t@35": 0
+        "t@35": 1
       },
       "shell/freebsd-src/ln_test.sh": {
         "L_flag_body@46": 0,
         "L_flag_head@40": 0,
         "P_flag_body@62": 0,
         "P_flag_head@56": 0,
-        "atf_check_same_file@29": 0,
-        "atf_check_symlink_to@34": 0,
+        "atf_check_same_file@29": 4,
+        "atf_check_symlink_to@34": 8,
         "atf_init_test_cases@276": 0,
         "f_flag_body@76": 0,
         "f_flag_head@71": 0,
@@ -43172,9 +43331,9 @@
         "b_flag_head@468": 0,
         "childerr_body@486": 0,
         "childerr_head@480": 0,
-        "create_test_dir@29": 0,
-        "create_test_inputs2@82": 0,
-        "create_test_inputs@43": 0,
+        "create_test_dir@29": 14,
+        "create_test_inputs2@82": 4,
+        "create_test_inputs@43": 18,
         "d_flag_body@514": 0,
         "d_flag_head@509": 0,
         "f_flag_body@534": 0,
@@ -43199,7 +43358,7 @@
         "o_flag_head@726": 0,
         "p_flag_body@756": 0,
         "p_flag_head@751": 0,
-        "print_index@190": 0,
+        "print_index@190": 1,
         "q_flag_and_w_flag_body@781": 0,
         "q_flag_and_w_flag_head@776": 0,
         "r_flag_body@799": 0,
@@ -43267,11 +43426,11 @@
         "file_to_dir_body@139": 0,
         "file_to_dir_cleanup@153": 0,
         "file_to_dir_head@135": 0,
-        "mv_checkabsent@51": 0,
-        "mv_checkdir@45": 0,
-        "mv_checkfile@24": 0,
-        "mv_checkpipe@34": 0,
-        "mv_cleanup@13": 0,
+        "mv_checkabsent@51": 15,
+        "mv_checkdir@45": 6,
+        "mv_checkfile@24": 10,
+        "mv_checkpipe@34": 4,
+        "mv_cleanup@13": 21,
         "mv_f_body@379": 0,
         "mv_f_cleanup@393": 0,
         "mv_f_head@375": 0,
@@ -43281,13 +43440,13 @@
         "mv_i_body@426": 0,
         "mv_i_cleanup@445": 0,
         "mv_i_head@422": 0,
-        "mv_makedir@39": 0,
-        "mv_makefile@18": 0,
-        "mv_makepipe@29": 0,
+        "mv_makedir@39": 6,
+        "mv_makefile@18": 11,
+        "mv_makepipe@29": 4,
         "mv_n_body@454": 0,
         "mv_n_cleanup@464": 0,
         "mv_n_head@450": 0,
-        "mv_setup@8": 0,
+        "mv_setup@8": 21,
         "mv_v_body@473": 0,
         "mv_v_cleanup@482": 0,
         "mv_v_head@469": 0,
@@ -43305,8 +43464,8 @@
         "atf_init_test_cases@137": 0,
         "build_body@72": 0,
         "build_head@66": 0,
-        "check_version@40": 0,
-        "require_pc@34": 0,
+        "check_version@40": 1,
+        "require_pc@34": 2,
         "version_body@58": 0,
         "version_head@53": 0
       },
@@ -43355,8 +43514,8 @@
         "no_arguments_head@43": 0
       },
       "shell/freebsd-src/runulp.sh": {
-        "check@61": 0,
-        "t@22": 0
+        "check@61": 1,
+        "t@22": 2
       },
       "shell/freebsd-src/timeout_test.sh": {
         "atf_init_test_cases@205": 0,
@@ -43381,57 +43540,57 @@
       },
       "shell/freebsd-src/ztest.sh": {
         "atf_init_test_cases@32": 0,
-        "save_ztest_artifacts@37": 0,
+        "save_ztest_artifacts@37": 1,
         "ztest_body@12": 0,
         "ztest_head@5": 0
       }
     },
     "shell/freebsd_sysbuild": {
       "shell/freebsd_sysbuild/sysbuild.sh": {
-        "ports_make@179": 0,
-        "usage@134": 0
+        "ports_make@179": 2,
+        "usage@134": 3
       }
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": {
-        "check_all@323": 0,
-        "check_dmidecode@212": 0,
-        "check_haiku@249": 0,
-        "check_machine@235": 0,
-        "check_pci@89": 0,
-        "check_sender@311": 0,
-        "check_syslog@301": 0,
-        "check_usb@162": 0,
-        "check_utils@263": 0,
-        "detect_network@65": 0,
-        "do_notify@17": 0,
-        "start_fake_httpd@41": 0,
-        "try_install_packages@32": 0
+        "check_all@323": 1,
+        "check_dmidecode@212": 1,
+        "check_haiku@249": 2,
+        "check_machine@235": 2,
+        "check_pci@89": 2,
+        "check_sender@311": 2,
+        "check_syslog@301": 2,
+        "check_usb@162": 2,
+        "check_utils@263": 2,
+        "detect_network@65": 1,
+        "do_notify@17": 2,
+        "start_fake_httpd@41": 2,
+        "try_install_packages@32": 1
       },
       "shell/haiku/generate_ids_from_drivers.sh": {
-        "pciBsdEtherDriver@19": 0,
-        "pciBsdWlanDriver@29": 0,
-        "usbRalinkBsdDriver@42": 0
+        "pciBsdEtherDriver@19": 1,
+        "pciBsdWlanDriver@29": 1,
+        "usbRalinkBsdDriver@42": 1
       },
       "shell/haiku/install-wifi-firmwares.sh": {
-        "CleanTemporaryFiles@124": 0,
-        "CutAndInstallBroadcomFirmware@245": 0,
-        "DisplayAlert@42": 0,
-        "DownloadFileIfNotCached@92": 0,
-        "InstallAllFirmwares@82": 0,
-        "InstallBroadcom43xx@193": 0,
-        "InstallIprowifi2200@167": 0,
-        "InstallIpw2100@146": 0,
-        "InstallMarvell88w8335@216": 0,
-        "MakeHPKG@315": 0,
-        "PostFirmwareInstallation@138": 0,
-        "PreFirmwareInstallation@131": 0,
-        "SetFirmwarePermissions@113": 0,
-        "ViewLicenses@60": 0,
-        "makePackageInfo@277": 0
+        "CleanTemporaryFiles@124": 1,
+        "CutAndInstallBroadcomFirmware@245": 1,
+        "DisplayAlert@42": 1,
+        "DownloadFileIfNotCached@92": 4,
+        "InstallAllFirmwares@82": 1,
+        "InstallBroadcom43xx@193": 1,
+        "InstallIprowifi2200@167": 1,
+        "InstallIpw2100@146": 1,
+        "InstallMarvell88w8335@216": 1,
+        "MakeHPKG@315": 1,
+        "PostFirmwareInstallation@138": 4,
+        "PreFirmwareInstallation@131": 4,
+        "SetFirmwarePermissions@113": 1,
+        "ViewLicenses@60": 1,
+        "makePackageInfo@277": 1
       },
       "shell/haiku/leak_analyser.sh": {
-        "append_pattern@83": 0
+        "append_pattern@83": 3
       },
       "shell/haiku/mktable.sh": {
         "dump_mime@3": 0
@@ -43439,24 +43598,24 @@
     },
     "shell/illumos-gate": {
       "shell/illumos-gate/audio_clean.sh": {
-        "fail_msg@92": 0,
-        "msg@79": 0
+        "fail_msg@92": 2,
+        "msg@79": 3
       },
       "shell/illumos-gate/audit_warn.sh": {
-        "send_msg@39": 0
+        "send_msg@39": 1
       },
       "shell/illumos-gate/diff3.sh": {
-        "mktmpdir@37": 0
+        "mktmpdir@37": 1
       },
       "shell/illumos-gate/dircmp.sh": {
-        "dodiffs@48": 0
+        "dodiffs@48": 1
       },
       "shell/illumos-gate/exportfs.sh": {
-        "bad@61": 0,
-        "fixopts@41": 0
+        "bad@61": 4,
+        "fixopts@41": 1
       },
       "shell/illumos-gate/illumos_13434_chunked_heredoc.sh": {
-        "err_exit@23": 0
+        "err_exit@23": 1
       }
     },
     "shell/kubernetes": {
@@ -43469,15 +43628,15 @@
       "shell/kubernetes/cluster__common.sh": {
         "clear-kubeconfig@146": 0,
         "create-kubeconfig@68": 0,
-        "download-release-binaries@527": 0,
-        "find-release-tars@332": 0,
-        "find-tar@306": 0,
-        "gen-kube-basicauth@222": 0,
+        "download-release-binaries@527": 2,
+        "find-release-tars@332": 1,
+        "find-tar@306": 1,
+        "gen-kube-basicauth@222": 1,
         "gen-kube-bearertoken@254": 0,
         "generate-etcd-cert@389": 0,
-        "get-kubeconfig-basicauth@180": 0,
+        "get-kubeconfig-basicauth@180": 1,
         "get-kubeconfig-bearertoken@237": 0,
-        "get-kubeconfig-user-basicauth@212": 0,
+        "get-kubeconfig-user-basicauth@212": 1,
         "load-or-gen-kube-basicauth@258": 0,
         "popd@551": 0,
         "pushd@544": 0,
@@ -43487,7 +43646,7 @@
       },
       "shell/kubernetes/common.sh": {
         "__default_base_image@98": 0,
-        "kube::build::clean@330": 0,
+        "kube::build::clean@330": 3,
         "kube::build::destroy_container@310": 0,
         "kube::build::docker_available_on_osx@197": 0,
         "kube::build::docker_delete_old_containers@273": 0,
@@ -43516,20 +43675,20 @@
         "get-num-nodes@22": 0
       },
       "shell/kubernetes/configure-helper.sh": {
-        "addockeropt@1522": 0,
+        "addockeropt@1522": 2,
         "append-param-if-not-present@52": 0,
-        "append_or_replace_prefixed_line@645": 0,
+        "append_or_replace_prefixed_line@645": 1,
         "assemble-docker-flags@1565": 0,
         "compute-master-manifest-variables@2122": 0,
         "config-ip-firewall@150": 0,
         "convert-manifest-params@34": 0,
-        "copy-manifests@2598": 0,
+        "copy-manifests@2598": 1,
         "create-dirs@216": 0,
-        "create-kube-scheduler-config@1424": 0,
-        "create-kubeconfig@1319": 0,
-        "create-kubelet-kubeconfig@1352": 0,
+        "create-kube-scheduler-config@1424": 1,
+        "create-kubeconfig@1319": 9,
+        "create-kubelet-kubeconfig@1352": 1,
         "create-kubeproxy-user-kubeconfig@1402": 0,
-        "create-kubescheduler-policy-config@1433": 0,
+        "create-kubescheduler-policy-config@1433": 1,
         "create-master-audit-policy@1131": 0,
         "create-master-audit-webhook-config@1294": 0,
         "create-master-auth@820": 0,
@@ -43542,60 +43701,60 @@
         "create-node-problem-detector-kubeconfig@1441": 0,
         "detect-cgroup-config@3169": 0,
         "detect_host_info@3353": 0,
-        "disable_aufs@1539": 0,
-        "docker-installed@1512": 0,
-        "download-extra-addons@2549": 0,
-        "ensure-local-ssds-ephemeral-storage@473": 0,
+        "disable_aufs@1539": 1,
+        "docker-installed@1512": 1,
+        "download-extra-addons@2549": 1,
+        "ensure-local-ssds-ephemeral-storage@473": 1,
         "ensure-local-ssds@414": 0,
         "ensure-master-bootstrap-kubectl-auth@3219": 0,
-        "find-master-pd@591": 0,
-        "gce-metadata-fw-helper@129": 0,
-        "get-local-disk-num@227": 0,
-        "get-metadata-value@2575": 0,
-        "get-or-generate-uuid@266": 0,
+        "find-master-pd@591": 1,
+        "gce-metadata-fw-helper@129": 1,
+        "get-local-disk-num@227": 1,
+        "get-metadata-value@2575": 2,
+        "get-or-generate-uuid@266": 1,
         "gke-master-start@3099": 0,
-        "log-end@3483": 0,
+        "log-end@3483": 1,
         "log-error@3440": 0,
-        "log-init@3389": 0,
-        "log-proto@3498": 0,
-        "log-start@3470": 0,
-        "log-trap-pop@3419": 0,
-        "log-trap-push@3408": 0,
-        "log-wrap@3453": 0,
+        "log-init@3389": 1,
+        "log-proto@3498": 4,
+        "log-start@3470": 1,
+        "log-trap-pop@3419": 2,
+        "log-trap-push@3408": 2,
+        "log-wrap@3453": 2,
         "main@3531": 0,
-        "mount-ext@362": 0,
+        "mount-ext@362": 1,
         "mount-master-pd@605": 0,
         "override-kubectl@3148": 0,
         "override-pv-recycler@3174": 0,
-        "prepare-etcd-manifest@1865": 0,
-        "prepare-konnectivity-server-manifest@2023": 0,
-        "prepare-kube-proxy-manifest-variables@1761": 0,
-        "prepare-log-file@1747": 0,
+        "prepare-etcd-manifest@1865": 1,
+        "prepare-konnectivity-server-manifest@2023": 1,
+        "prepare-kube-proxy-manifest-variables@1761": 1,
+        "prepare-log-file@1747": 9,
         "prepare-mounter-rootfs@2154": 0,
         "reset-motd@3111": 0,
-        "safe-bind-mount@348": 0,
-        "safe-block-symlink@248": 0,
-        "safe-format-and-mount@301": 0,
+        "safe-bind-mount@348": 2,
+        "safe-block-symlink@248": 1,
+        "safe-format-and-mount@301": 3,
         "secure_random@98": 0,
-        "set_docker_options_non_ubuntu@1546": 0,
-        "setup-addon-custom-yaml@2861": 0,
-        "setup-addon-manifests@2540": 0,
-        "setup-cloud-pvl-admission-manifest@3048": 0,
+        "set_docker_options_non_ubuntu@1546": 1,
+        "setup-addon-custom-yaml@2861": 2,
+        "setup-addon-manifests@2540": 7,
+        "setup-cloud-pvl-admission-manifest@3048": 1,
         "setup-containerd@3228": 0,
-        "setup-coredns-manifest@2762": 0,
-        "setup-fluentd@2780": 0,
+        "setup-coredns-manifest@2762": 1,
+        "setup-fluentd@2780": 1,
         "setup-journald@527": 0,
-        "setup-konnectivity-agent-manifest@3034": 0,
-        "setup-kube-dns-manifest@2808": 0,
+        "setup-konnectivity-agent-manifest@3034": 1,
+        "setup-kube-dns-manifest@2808": 1,
         "setup-kubelet-dir@3082": 0,
         "setup-logrotate@541": 0,
-        "setup-netd-manifest@2843": 0,
-        "setup-nodelocaldns-manifest@2832": 0,
+        "setup-netd-manifest@2843": 1,
+        "setup-nodelocaldns-manifest@2832": 1,
         "setup-os-params@64": 0,
         "start-cloud-controller-manager@2320": 0,
         "start-cluster-autoscaler@2495": 0,
         "start-etcd-servers@1994": 0,
-        "start-fluentd-resource-update@2667": 0,
+        "start-fluentd-resource-update@2667": 1,
         "start-konnectivity-server@2107": 0,
         "start-kube-addons@2875": 0,
         "start-kube-controller-manager@2204": 0,
@@ -43604,19 +43763,19 @@
         "start-kubelet@1638": 0,
         "start-lb-controller@3054": 0,
         "start-node-problem-detector@1693": 0,
-        "start-volumesnapshot-crd-and-controller@2706": 0,
-        "unique-uuid-bind-mount@321": 0,
-        "update-container-runtime@2713": 0,
-        "update-daemon-set-prometheus-to-sd-parameters@2745": 0,
-        "update-event-exporter@2755": 0,
+        "start-volumesnapshot-crd-and-controller@2706": 1,
+        "unique-uuid-bind-mount@321": 1,
+        "update-container-runtime@2713": 1,
+        "update-daemon-set-prometheus-to-sd-parameters@2745": 2,
+        "update-event-exporter@2755": 1,
         "update-legacy-addon-node-labels@2167": 0,
-        "update-node-journal@2723": 0,
-        "update-node-label@2182": 0,
-        "update-prometheus-to-sd-parameters@2733": 0,
-        "wait-for-apiserver-and-update-fluentd@2620": 0,
-        "wait-for-volumesnapshot-crd-and-controller@2673": 0,
+        "update-node-journal@2723": 1,
+        "update-node-label@2182": 1,
+        "update-prometheus-to-sd-parameters@2733": 3,
+        "wait-for-apiserver-and-update-fluentd@2620": 1,
+        "wait-for-volumesnapshot-crd-and-controller@2673": 1,
         "wait-till-apiserver-ready@3213": 0,
-        "write-pki-data@658": 0
+        "write-pki-data@658": 2
       },
       "shell/kubernetes/etcd.sh": {
         "kube::etcd::clean_etcd_dir@135": 0,
@@ -43630,23 +43789,23 @@
         "kube::etcd::version@72": 0
       },
       "shell/kubernetes/log-dump.sh": {
-        "copy-logs-from-node@124": 0,
-        "detect_node_failures@655": 0,
-        "dump_masters@371": 0,
-        "dump_nodes@418": 0,
-        "dump_nodes_with_logexporter@528": 0,
-        "export-windows-docker-event-log@248": 0,
-        "export-windows-docker-images-list@267": 0,
-        "find_non_logexported_nodes@513": 0,
-        "log-dump-ssh@109": 0,
-        "main@689": 0,
-        "print-deprecation-note@74": 0,
-        "run-in-docker-container@364": 0,
-        "save-logs-windows@342": 0,
-        "save-logs@163": 0,
-        "save-windows-logs-via-diagnostics-tool@285": 0,
-        "save-windows-logs-via-ssh@309": 0,
-        "setup@84": 0
+        "copy-logs-from-node@124": 1,
+        "detect_node_failures@655": 1,
+        "dump_masters@371": 1,
+        "dump_nodes@418": 2,
+        "dump_nodes_with_logexporter@528": 1,
+        "export-windows-docker-event-log@248": 1,
+        "export-windows-docker-images-list@267": 1,
+        "find_non_logexported_nodes@513": 1,
+        "log-dump-ssh@109": 2,
+        "main@689": 1,
+        "print-deprecation-note@74": 1,
+        "run-in-docker-container@364": 1,
+        "save-logs-windows@342": 1,
+        "save-logs@163": 2,
+        "save-windows-logs-via-diagnostics-tool@285": 1,
+        "save-windows-logs-via-ssh@309": 1,
+        "setup@84": 1
       },
       "shell/kubernetes/node-helper.sh": {
         "create-windows-node-instance-template@54": 0,
@@ -43663,7 +43822,7 @@
         "kube::release::clean_cruft@36": 0,
         "kube::release::create_docker_images_for_server@288": 0,
         "kube::release::create_tarball@543": 0,
-        "kube::release::md5@250": 0,
+        "kube::release::md5@250": 1,
         "kube::release::package_client_tarballs@83": 0,
         "kube::release::package_final_tarball@497": 0,
         "kube::release::package_kube_manifests_tarball@386": 0,
@@ -43677,12 +43836,12 @@
       },
       "shell/kubernetes/skeleton__util.sh": {
         "detect-master@21": 0,
-        "detect-node-names@27": 0,
+        "detect-node-names@27": 3,
         "detect-nodes@32": 0,
         "detect-project@77": 0,
         "kube-down@54": 0,
         "kube-up@49": 0,
-        "prepare-e2e@73": 0,
+        "prepare-e2e@73": 1,
         "test-build-release@59": 0,
         "test-setup@64": 0,
         "test-teardown@69": 0,
@@ -43695,78 +43854,78 @@
     },
     "shell/linux": {
       "shell/linux/deflate_xip_data.sh": {
-        "sym_val@29": 0
+        "sym_val@29": 1
       },
       "shell/linux/kasan-offsets.sh": {
-        "print_kasan_offset@6": 0
+        "print_kasan_offset@6": 1
       },
       "shell/linux/prom_init_check.sh": {
-        "check_section@41": 0,
-        "has_renamed_memintrinsics@16": 0
+        "check_section@41": 1,
+        "has_renamed_memintrinsics@16": 1
       }
     },
     "shell/moby": {
       "shell/moby/check-config.sh": {
-        "check_command@113": 0,
-        "check_device@122": 0,
-        "check_flag@95": 0,
-        "check_flags@106": 0,
-        "check_limit_over@408": 0,
-        "check_sysctl@131": 0,
-        "color@47": 0,
-        "is_set@37": 0,
-        "is_set_as_module@43": 0,
-        "is_set_in_kernel@40": 0,
-        "wrap_bad@88": 0,
-        "wrap_color@76": 0,
-        "wrap_good@85": 0,
-        "wrap_warning@91": 0
+        "check_command@113": 1,
+        "check_device@122": 1,
+        "check_flag@95": 1,
+        "check_flags@106": 14,
+        "check_limit_over@408": 1,
+        "check_sysctl@131": 1,
+        "color@47": 1,
+        "is_set@37": 4,
+        "is_set_as_module@43": 1,
+        "is_set_in_kernel@40": 1,
+        "wrap_bad@88": 8,
+        "wrap_color@76": 4,
+        "wrap_good@85": 8,
+        "wrap_warning@91": 1
       },
       "shell/moby/dockerd-rootless-setuptool.sh": {
-        "ERROR@19": 0,
-        "INFO@11": 0,
-        "WARNING@15": 0,
-        "cli_ctx_create@407": 0,
-        "cli_ctx_exists@402": 0,
-        "cli_ctx_rm@419": 0,
-        "cli_ctx_use@414": 0,
+        "ERROR@19": 6,
+        "INFO@11": 5,
+        "WARNING@15": 2,
+        "cli_ctx_create@407": 1,
+        "cli_ctx_exists@402": 2,
+        "cli_ctx_rm@419": 1,
+        "cli_ctx_use@414": 2,
         "cmd_entrypoint_check@306": 0,
         "cmd_entrypoint_install@425": 0,
         "cmd_entrypoint_nsenter@313": 0,
         "cmd_entrypoint_uninstall@472": 0,
-        "init@44": 0,
-        "install_nonsystemd@395": 0,
-        "install_systemd@330": 0,
-        "show_systemd_error@319": 0,
-        "usage@506": 0
+        "init@44": 3,
+        "install_nonsystemd@395": 1,
+        "install_systemd@330": 1,
+        "show_systemd_error@319": 1,
+        "usage@506": 2
       },
       "shell/moby/dockerd-rootless.sh": {
-        "mount_directory@64": 0
+        "mount_directory@64": 1
       },
       "shell/moby/dockerize-disk.sh": {
         "cleanup@37": 0,
-        "usage@9": 0
+        "usage@9": 1
       },
       "shell/moby/download-frozen-image-v2.sh": {
-        "fetch_blob@64": 0,
+        "fetch_blob@64": 2,
         "get_target_arch@196": 0,
         "get_target_variant@258": 0,
-        "handle_single_manifest_v2@83": 0,
-        "usage@31": 0
+        "handle_single_manifest_v2@83": 1,
+        "usage@31": 2
       },
       "shell/moby/e2e-run.sh": {
-        "run_test_integration@13": 0,
-        "run_test_integration_legacy_suites@29": 0,
-        "run_test_integration_suites@18": 0,
-        "test_env@39": 0
+        "run_test_integration@13": 1,
+        "run_test_integration_legacy_suites@29": 1,
+        "run_test_integration_suites@18": 1,
+        "test_env@39": 2
       },
       "shell/moby/generate-swagger-api.sh": {
-        "generate_model@8": 0
+        "generate_model@8": 1
       },
       "shell/moby/support.sh": {
-        "check_ip_overlap@39": 0,
+        "check_ip_overlap@39": 1,
         "die@29": 0,
-        "echo_and_run@34": 0
+        "echo_and_run@34": 3
       }
     },
     "shell/reactos": {
@@ -43774,21 +43933,21 @@
         "changed_files@10": 0
       },
       "shell/reactos/configure.sh": {
-        "usage@13": 0
+        "usage@13": 1
       },
       "shell/reactos/do_code_format.sh": {
-        "usage@9": 0,
-        "version@4": 0
+        "usage@9": 1,
+        "version@4": 1
       },
       "shell/reactos/remaster.sh": {
-        "choice@59": 0,
-        "exit_script@40": 0
+        "choice@59": 1,
+        "exit_script@40": 5
       }
     },
     "shell/serenity": {
       "shell/serenity/BuildFuzzers.sh": {
-        "die@10": 0,
-        "pick_clang@15": 0
+        "die@10": 1,
+        "pick_clang@15": 1
       },
       "shell/serenity/ClassiCube__package.sh": {
         "install@24": 0
@@ -43836,17 +43995,17 @@
         "install@26": 0
       },
       "shell/serenity/builtin.sh": {
-        "__complete_job_spec@22": 0,
+        "__complete_job_spec@22": 1,
         "_complete_cd@82": 0,
         "_complete_kill@74": 0,
         "_complete_unalias@3": 0
       },
       "shell/serenity/generate_manpages.sh": {
         "Anonymous_Block_[Truncated]@23": 0,
-        "exit_for_error@11": 0
+        "exit_for_error@11": 2
       },
       "shell/serenity/install.sh": {
-        "install_llvm_key@22": 0
+        "install_llvm_key@22": 1
       },
       "shell/serenity/package.sh": {
         "configure@15": 0,
@@ -43855,9 +44014,9 @@
     },
     "shell/sqlite": {
       "shell/sqlite/mkdist.sh": {
-        "die@25": 0,
-        "fcp@162": 0,
-        "scc@167": 0
+        "die@25": 6,
+        "fcp@162": 3,
+        "scc@167": 2
       }
     },
     "solidity/openzeppelin": {
@@ -54796,7 +54955,7 @@
         "upper@56": 0
       },
       "zig/tigerbeetle/download.sh": {
-        "checksum_valid@51": 0
+        "checksum_valid@51": 1
       },
       "zig/tigerbeetle/download.win.ps1": {
         "checksum_valid@30": 0

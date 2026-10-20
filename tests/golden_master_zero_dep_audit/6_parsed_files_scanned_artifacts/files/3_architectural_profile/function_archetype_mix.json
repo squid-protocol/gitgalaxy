@@ -10355,10 +10355,11 @@
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": {},
       "scheme/racket/cpnanopass.ss": {
-        "Callbacks & Closures": 1,
-        "Compute Cores": 3,
-        "I/O & Config Routines": 2,
-        "Many-Argument Workhorses": 7
+        "Callbacks & Closures": 51,
+        "Compute Cores": 12,
+        "I/O & Config Routines": 64,
+        "Many-Argument Workhorses": 11,
+        "State Mutators": 1
       },
       "scheme/racket/eval.c": {
         "Compute Cores": 10,
@@ -10381,8 +10382,9 @@
         "Stateful Encapsulated Methods": 50
       },
       "scheme/racket/io.ss": {
-        "Compute Cores": 2,
-        "I/O & Config Routines": 4,
+        "Callbacks & Closures": 9,
+        "Compute Cores": 3,
+        "I/O & Config Routines": 27,
         "Many-Argument Workhorses": 11,
         "State Mutators": 8
       },

@@ -2733,3 +2733,50 @@ def test_a_carddemo_hand_ports_send_text_carries_the_erase_freekb_its_cobol_pass
     assert sent, "the port sends no text: the scan found nothing to check"
     for call in sent:
         assert '"ERASE"' in call and '"FREEKB"' in call, call
+
+
+class _NoFilesIR:
+    """An estate whose program names no CICS file the facts carry (zECS ZECS003 builds ZC##FILE at run time)."""
+
+    files: dict = {}
+
+    @staticmethod
+    def cics_file_lineage():
+        return []
+
+
+_RUNTIME_FILE = {
+    "key_offset": 0,
+    "key_length": 16,
+    "reclen": 32700,
+    "why": "ZECSFILE.idcams: KEYS(16 0) RECORDSIZE(100 32700)",
+}
+
+
+def test_a_case_states_a_file_the_program_names_at_run_time():
+    """#4771: ZC01FILE is ZC + EIBTRNID(3:2) + FILE, so no CSD DEFINE FILE of the facts names it; the case's dataset of
+    that name states its KEYS and RECORDSIZE with a why, for the COBOL leg only (`runtime`)."""
+    got = ec.stub_files(_NoFilesIR(), "p.cbl", {"ZC01FILE": {"runtime_file": _RUNTIME_FILE}})
+    assert got == [
+        {
+            "file": "ZC01FILE",
+            "dsname": "ZC01FILE",
+            "base": "ZC01FILE",
+            "key_offset": 0,
+            "key_length": 16,
+            "reclen": 32700,
+            "via": ["the case's runtime_file"],
+            "runtime": True,
+        }  # fmt: skip
+    ]
+    assert ec.stub_files(_NoFilesIR(), "p.cbl", {}) == []
+    for wrong in (
+        {k: v for k, v in _RUNTIME_FILE.items() if k != "why"},
+        {k: v for k, v in _RUNTIME_FILE.items() if k != "reclen"},
+        {**_RUNTIME_FILE, "key_length": "16"},
+        {**_RUNTIME_FILE, "variable": True},
+    ):
+        with pytest.raises(ec.Unsupported):
+            ec.stub_files(_NoFilesIR(), "p.cbl", {"ZC01FILE": {"runtime_file": wrong}})
+    with pytest.raises(ec.Unsupported):  # a CICS file name is at most 8 upper-case characters
+        ec.stub_files(_NoFilesIR(), "p.cbl", {"zc01file": {"runtime_file": _RUNTIME_FILE}})

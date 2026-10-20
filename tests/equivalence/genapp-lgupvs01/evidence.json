@@ -394,13 +394,13 @@
   "stillborn": 31,
   "survivors": {
    "case_gap": 0,
-   "harness_gap": 35,
+   "harness_gap": 34,
    "equivalent": 4,
-   "unreachable": 14,
+   "unreachable": 15,
    "untriaged": 0
   },
   "score_raw": "66/119",
-  "score_adjusted": "66/101",
+  "score_adjusted": "66/100",
   "source": "docs/language_status/mutation_scores.json#genapp-lgupvs01/LGUPVS01",
   "inputs": {
    "port": {

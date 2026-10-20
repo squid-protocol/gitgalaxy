@@ -215,7 +215,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | LGICDB01 (genapp-lgicdb01) | equivalence | 150/201 | 51/130 (39%) | 51/107 (48%) | 1 / 55 / 8 / 15 / 0 |
 | LGSTSQ (genapp-lgstsq) | equivalence | 89/89 | 25/78 (32%) | 25/69 (36%) | 43 / 1 / 1 / 8 / 0 |
 | LGUPDB01 (genapp-lgupdb01) | equivalence | 150/403 | 67/140 (48%) | 67/120 (56%) | 7 / 46 / 5 / 15 / 0 |
-| LGUPVS01 (genapp-lgupvs01) | equivalence | 150/160 | 66/119 (55%) | 66/101 (65%) | 0 / 35 / 4 / 14 / 0 |
+| LGUPVS01 (genapp-lgupvs01) | equivalence | 150/160 | 66/119 (55%) | 66/100 (66%) | 0 / 34 / 4 / 15 / 0 |
 | CALINK (ca-link-lengths) | crucible | 24/168 | 15/22 (68%) | 15/15 (100%) | 0 / 0 / 5 / 2 / 0 |
 | CASUB (ca-link-lengths) | crucible | 24/40 | 16/24 (67%) | 16/16 (100%) | 0 / 0 / 7 / 1 / 0 |
 | CAXA (ca-xctl-versions) | crucible | 24/78 | 16/21 (76%) | 16/16 (100%) | 0 / 0 / 3 / 2 / 0 |
@@ -238,8 +238,8 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 3697 run | **2282/3347 (68%)** | **2282/2738 (83%)** | 270 / 186 / 397 / 212 / 0 |
-| **all estate** | | 4201 run | **2601/3823 (68%)** | **2601/3092 (84%)** | 305 / 186 / 485 / 246 / 0 |
+| **all equivalence** | | 3697 run | **2282/3347 (68%)** | **2282/2737 (83%)** | 270 / 185 / 397 / 213 / 0 |
+| **all estate** | | 4201 run | **2601/3823 (68%)** | **2601/3091 (84%)** | 305 / 185 / 485 / 247 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
@@ -247,7 +247,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | BDM | 25/45 (56%) | 25/28 (89%) |
 | CON | 362/759 (48%) | 362/468 (77%) |
 | COR | 132/241 (55%) | 132/187 (71%) |
-| DEL | 392/590 (66%) | 392/475 (83%) |
+| DEL | 392/590 (66%) | 392/474 (83%) |
 | LIT | 551/734 (75%) | 551/625 (88%) |
 | NEG | 481/546 (88%) | 481/522 (92%) |
 | RET | 58/99 (59%) | 58/87 (67%) |

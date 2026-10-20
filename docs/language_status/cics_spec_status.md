@@ -78,7 +78,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | DELETEQ TS | full | yes (6 options, 1 refused by name) | yes | X29 | — | 2 (2 / 0) | — |
 | READQ TD | full | yes (8 options, 1 refused by name) | yes | X57 | — | 0 | — |
 | DELETEQ TD | full | yes (4 options, 1 refused by name) | yes | X57 | — | 0 | — |
-| SET TDQUEUE | full | yes (6 options) | yes | X61, X66 | — | 0 | — |
+| SET TDQUEUE | full | yes (7 options) | yes | X61, X66 | — | 0 | — |
 | INQUIRE TDQUEUE | full | yes (10 options) | yes | X61, X66 | — | 0 | — |
 | GETMAIN | full | yes (11 options, 2 refused by name) | yes | X47 | — | 2 (2 / 0) | — |
 | FREEMAIN | full | yes (4 options, 1 refused by name) | yes | X47 | — | 2 (2 / 0) | — |

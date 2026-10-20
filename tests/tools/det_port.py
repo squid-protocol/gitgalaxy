@@ -27,6 +27,7 @@ import re
 import shutil
 import subprocess
 import sys
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -59,6 +60,25 @@ def estate(corpus: Path, work: Path) -> Path:
     return project
 
 
+_IRS: dict[Path, Any] = {}
+_IRS_LOCK = threading.Lock()
+
+
+def engine_layouts(project: Path, corpus: Path, rel: str, mode: str = "check") -> Any:
+    """#5649: the engine's record layouts for program `rel` (det.engine_layout.EngineLayouts), from the estate's scan
+    (the clean room beside the generated project), at the translator's POINTER width; None without a scan."""
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+    from gitgalaxy.tools.cobol_to_java.det.engine_layout import EngineLayouts
+
+    db = next(iter(sorted(project.parent.glob("*_gitgalaxy_clean_*/04_ir_state_dumps/*_galaxy_master.db"))), None)
+    if db is None:
+        return None
+    with _IRS_LOCK:
+        if db not in _IRS:
+            _IRS[db] = load_galaxy_ir(db)
+    return EngineLayouts.from_ir(_IRS[db], rel, corpus, mode)
+
+
 def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "dispatch",
               typed: bool = False, groups: bool = False) -> dict[str, Any]:  # fmt: skip
     import equivalence as eq
@@ -86,7 +106,8 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
     try:
         # case.json `strict_copy` (#4486): refuse a SYSLIB collision instead of taking the first library's member
         r = P.translate(corpus / case["program_source"], dirs, stub, PKG, P.estate_files(project), project, style, typed,
-                        groups, effective_options(case).layers, strict_copy=bool(case.get("strict_copy")))  # fmt: skip
+                        groups, effective_options(case).layers, strict_copy=bool(case.get("strict_copy")),
+                        layouts=engine_layouts(project, corpus, case["program_source"]))  # fmt: skip
     except Exception as e:
         out.update({"translated": False, "error": f"{type(e).__name__}: {e}"})
         return out
@@ -106,7 +127,8 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
         try:
             x = P.translate(corpus / extra["program_source"], dirs, x_stub, PKG, P.estate_files(project), project,
                             style, typed, groups, effective_options(case, program=extra["program"]).layers,
-                            strict_copy=bool(case.get("strict_copy")))  # fmt: skip
+                            strict_copy=bool(case.get("strict_copy")),
+                            layouts=engine_layouts(project, corpus, extra["program_source"]))  # fmt: skip
         except Exception as e:
             out.update({"translated": False, "error": f"{extra['program']}: {type(e).__name__}: {e}"})
             return out

@@ -337,8 +337,11 @@ def write_only_pointers(records: list, proc) -> set[str]:
 def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
               estate: dict[str, str] | None = None, project: Path | None = None,
               style: str = "dispatch", typed: bool = False, groups: bool = False,
-              options: list[str] | None = None, unit: str | None = None, strict_copy: bool = False) -> Result:  # fmt: skip
-    """`strict_copy` (#4486): refuse a COPY whose member sits in more than one library of the program's SYSLIB order
+              options: list[str] | None = None, unit: str | None = None, strict_copy: bool = False,
+              layouts: Any = None) -> Result:  # fmt: skip
+    """`layouts` (#5649): the engine's record layouts (det.engine_layout.EngineLayouts) taken over the translator's
+    own; in its "check" mode a record whose layouts differ refuses the program (LayoutDisagrees).
+    `strict_copy` (#4486): refuse a COPY whose member sits in more than one library of the program's SYSLIB order
     (CopyUnresolved) instead of taking the first library's member, as the compiler does; each collision taken is a
     warning in `stats["warnings"]`. `unit` (#4462): the program of a multi-program source to translate (its PROGRAM-ID; None: the first), each
     nested or batch-compiled program on its own (det.source.program_unit). `style`: "dispatch" (paragraphs numbered, run by a PERFORM / GO TO dispatcher) or "structured" (paragraphs
@@ -366,6 +369,7 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
             options,
             unit,
             strict_copy,
+            layouts,
         )
         if isinstance(out, Result):
             return out
@@ -677,7 +681,7 @@ def _names_item(body: str, name: str) -> bool:
 
 def _sibling_service(sib: str, source_lines: list, program: Path, copy_dirs: list[Path], package: str,
                      estate: dict[str, str] | None, project: Path | None, style: str, typed: bool, groups: bool,
-                     options: list[str] | None, strict_copy: bool, own: str) -> _Contract | None:  # fmt: skip
+                     options: list[str] | None, strict_copy: bool, own: str, layouts: Any = None) -> _Contract | None:  # fmt: skip
     """#5106: the service of a sibling program (a PROGRAM-ID of the same source), or None where the CALL stays refused
     by name. The forge makes no stub for it (D049), so the stub is made here: `<Name>Service` with the CALL entry
     `handleCall(CobolRef<byte[]> ...)`, one parameter per USING item. Only items whose bytes are the whole contract
@@ -693,7 +697,10 @@ def _sibling_service(sib: str, source_lines: list, program: Path, copy_dirs: lis
             or re.search(r"\bEXEC\s+CICS\b", text, re.I)):  # fmt: skip
         return None
     try:
-        records = L.parse(B.lower(lines, str(program)))
+        lowered = B.lower(lines, str(program))
+        records = L.parse(lowered)
+        if layouts is not None:
+            layouts.apply(records, lowered)
         proc = S.parse(lines)
     except Exception:  # (the unit's own refusal surfaces when its program is translated)
         return None
@@ -720,7 +727,7 @@ def _sibling_service(sib: str, source_lines: list, program: Path, copy_dirs: lis
     _SIBLING_CHAIN.append(sib)
     try:
         res = translate(program, copy_dirs, stub, package, estate, project, style, typed, groups, options, sib,
-                        strict_copy)  # fmt: skip
+                        strict_copy, layouts)  # fmt: skip
     except Exception:
         return None
     finally:
@@ -758,7 +765,7 @@ def _fits(records: list, call: S.Stmt, c: _Contract) -> bool:
 def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, estate: dict[str, str] | None,
                project: Path | None, style: str, typed: bool, excluded: set[str],
                groups: bool = False, options: list[str] | None = None, unit: str | None = None,
-               strict_copy: bool = False) -> Result:  # fmt: skip
+               strict_copy: bool = False, layouts: Any = None) -> Result:  # fmt: skip
     # #4467: a COPY the translator resolves otherwise than the engine did refuses the program (CopyDisagrees)
     engine = engine_copies_from_ticket(project, program, strict_copy) if project is not None else None
     # #4462: one program of the source (the first, or `unit`): a nested or batch-compiled program is its own class
@@ -771,6 +778,10 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     # #5119 (X56): OS/VS COBOL's BLL cells and SERVICE RELOAD, lowered onto the pointer lane by IBM's own conversion
     lines = B.lower(lines, str(program))
     records = L.parse(lines)
+    laid = None
+    if layouts is not None:  # #5649: the engine's layouts, at the translator's POINTER width
+        layouts.apply(records, lines)
+        laid = {"engine": len(layouts.consumed), "own": len(layouts.own)}  # the records laid out by each
     is_cics = "runTask(CicsTask" in stub
     batch = has_batch(project)
     if is_cics:
@@ -921,7 +932,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     if siblings:
         for sib in sorted((called & siblings) - set(gen.callees)):
             done = _sibling_service(sib, source_lines, program, copy_dirs, package, estate, project, style, typed,
-                                    groups, options, strict_copy, own_name)  # fmt: skip
+                                    groups, options, strict_copy, own_name, layouts)  # fmt: skip
             if done is None:
                 continue  # (refused at the CALL, by name)
             res = done.res
@@ -1528,6 +1539,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     stats["inferred"] = inferred
     stats["callees"] = sorted(gen.callees)  # #4803: the estate programs this one CALLs through a service's handleCall
     stats["warnings"] = list(engine.warnings) if engine is not None else []  # #4486: SYSLIB collisions taken
+    if laid is not None:
+        stats["engine_layouts"] = laid
     java = "\n".join(out)
     if "Hfp." in java:  # #4271: the HFP runtime, imported only where a float is used (no other port changes)
         java = java.replace(

@@ -1515,7 +1515,8 @@ public class CicsTask {
      *  CICS TS, EXEC CICS WEB RECEIVE; register X38). LENGERR 16 for a MAXLENGTH not above zero; a body longer than
      *  MAXLENGTH is cut there with LENGERR 57 (without NOTRUNCATE "the remainder was discarded"; LENGTH then holds the
      *  bytes returned). The body is in the program's characters whatever the conversion option (ASSUMED, as X37).
-     *  Refused: no request stated, a request with no body, a second receive, a MAXLENGTH past INTO. */
+     *  Recorded as WEB-RECEIVE (the request's media type and the body returned, null on LENGERR 16; RESP, RESP2) --
+     *  the crucible SPEC's event, so a runner can tell what the program read. Refused: no request stated, a request with no body, a second receive, a MAXLENGTH past INTO. */
     public WebReceived webReceive(int maxLength, int intoCap) {
         CicsTask r = statedRequest();
         HttpRequest q = r.httpRequest;
@@ -1529,11 +1530,14 @@ public class CicsTask {
             throw refused("WEB RECEIVE length beyond its area");
         }
         if (maxLength <= 0) {
+            event("WEB-RECEIVE", "mediatype", null, "body", null, "resp", 22, "resp2", 16);
             return new WebReceived(22, 16, null, null);
         }
         r.webReceived = true;
         boolean cut = q.body().length() > maxLength;
-        return new WebReceived(cut ? 22 : 0, cut ? 57 : 0, cut ? q.body().substring(0, maxLength) : q.body(), q.mediaType());
+        WebReceived got = new WebReceived(cut ? 22 : 0, cut ? 57 : 0, cut ? q.body().substring(0, maxLength) : q.body(), q.mediaType());
+        event("WEB-RECEIVE", "mediatype", got.mediaType(), "body", got.body(), "resp", got.resp(), "resp2", got.resp2());
+        return got;
     }
 
     // ---- #4771 (register X47): storage CICS acquires for the task, addressed by a pointer ----------------------------
@@ -2449,8 +2453,7 @@ public class CicsTask {
         }
         int level = 0;
         if (trigger) {
-            String stated = tdAttr(q, "TRIGGERLEVEL");
-            level = stated == null ? 1 : Integer.parseInt(stated.strip());
+            level = tdTriggerLevel(q);
         }
         int recovCvda = 0;
         if (recov) {
@@ -2471,6 +2474,33 @@ public class CicsTask {
             }
         }
         return new int[] {0, 0, status, typeCvda, enableStatus ? (tdDisabled(q) ? 24 : 23) : 0, level, recovCvda};
+    }
+
+    /** A queue's TRIGGERLEVEL: what SET TDQUEUE TRIGGERLEVEL left, else the definition's, else 1 (IBM's default). #5168 round 7, X66. */
+    private int tdTriggerLevel(String q) {
+        Integer set = root().tempStorage.tdTrigger.get(q);
+        if (set != null) {
+            return set;
+        }
+        String stated = tdAttr(q, "TRIGGERLEVEL");
+        return stated == null ? 1 : Integer.parseInt(stated.strip());
+    }
+
+    /** SET TDQUEUE(q) TRIGGERLEVEL(n) (#5168 round 7, X66; IBM CICS TS 6.x SET TDQUEUE, intrapartition queues only): the number of
+     *  records that starts the queue's ATI transaction; 0 turns automatic task initiation off. Returns {RESP, RESP2}: QIDERR (44)
+     *  RESP2 1. Not a unit-of-work resource (a rollback or an abend keeps it). Refused: a queue that is not intrapartition (IBM names
+     *  no condition) and a level below zero. */
+    public int[] setTdQueueTriggerLevel(String queue, long level) {
+        String q = queue.strip();
+        int kind = tdKind(q);
+        if (kind == 0) {
+            return new int[] {44, 1};
+        }
+        if (kind != 1 || level < 0 || level > Integer.MAX_VALUE) {
+            throw new UnsupportedOperationException("SET TDQUEUE TRIGGERLEVEL of a queue that is not intrapartition, or below zero: not modelled");
+        }
+        root().tempStorage.tdTrigger.put(q, (int) level);
+        return new int[] {0, 0};
     }
 
     /** The TRANSID a queue's definition states (blanks when none): the text INQUIRE TDQUEUE TRANSID stores (#5168 round 6, X66). */
@@ -2525,10 +2555,10 @@ public class CicsTask {
         if (resp == 0 && kind == 1) {
             tdTouch(t);
             if (tdAttr(t, "TRANSID") != null) {
-                String level = tdAttr(t, "TRIGGERLEVEL");
+                int level = tdTriggerLevel(t);
                 java.util.ArrayDeque<String> held = tempStorage.td.get(t);
                 int after = (held == null ? 0 : held.size()) + 1;
-                if (after >= (level == null ? 1 : Integer.parseInt(level)) && !"0".equals(level)) {
+                if (level > 0 && after >= level) {
                     throw new UnsupportedOperationException("WRITEQ TD to a queue that reaches its TRIGGERLEVEL: automatic task "
                             + "initiation is not modelled");
                 }
@@ -4411,6 +4441,8 @@ CICS_TASK_JAVA += """\
         final Map<String, Boolean> tdOpen = new HashMap<>();
         /** The queues SET TDQUEUE ENABLESTATUS(DISABLED) left disabled (#5168 round 5, X66). */
         final java.util.Set<String> tdDisabled = new java.util.HashSet<>();
+        /** The levels SET TDQUEUE TRIGGERLEVEL left (#5168 round 7, X66). */
+        final java.util.Map<String, Integer> tdTrigger = new java.util.HashMap<>();
         /** The extrapartition queues a READQ TD has taken a record from (reopening an input queue would restart it). */
         final java.util.Set<String> tdRead = new java.util.HashSet<>();
 

@@ -26,7 +26,7 @@ concurrency:
 jobs:
   smoke-test:
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
+    timeout-minutes: 15  # healthy legs take 1-4 min; #5747: a hung macOS leg sat 18 min and ended as a bare cancel
     env:
       PYTHONUTF8: "1"
       GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
@@ -55,13 +55,15 @@ jobs:
 
       - name: Install macOS dependencies (OpenMP for XGBoost)
         if: runner.os == 'macOS'
-        run: brew install libomp
+        timeout-minutes: 5
+        run: tests/tools/ci_retry.sh 3 10 -- brew install libomp
 
       - name: Install dependencies
         shell: bash
+        timeout-minutes: 10
         run: |
-          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
-          pip install --require-hashes -r ci/requirements/test.txt
+          tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
+          tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/test.txt
           pip install --no-build-isolation -e .
 
       - name: Smoke Test - Core Engine

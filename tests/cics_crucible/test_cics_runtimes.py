@@ -65,7 +65,9 @@ def _compiled_stub(main: str) -> Path:
     src = base / "main.c"
     src.write_text("#include <stdlib.h>\n" + main, encoding="ascii")
     exe = base / ("stub.exe" if os.name == "nt" else "stub")
-    built = subprocess.run([CC, "-o", str(exe), str(src), str(_stub_obj())], check=False, capture_output=True, text=True)  # noqa: S603
+    built = subprocess.run(
+        [CC, "-o", str(exe), str(src), str(_stub_obj())], check=False, capture_output=True, text=True
+    )  # noqa: S603
     assert built.returncode == 0, built.stderr  # the compiler's own words, on every OS
     return exe
 
@@ -1615,6 +1617,36 @@ def test_cics_task_channels_and_containers(tmp_path):
     ]
 
 
+@needs_javac
+def test_cics_task_return_channel(tmp_path):
+    """#5005 (X17), IBM EXEC CICS RETURN CHANNEL: the channel (created empty when absent) is made available to the next
+    program and the task ends; below the highest logical level the command fails, INVREQ RESP2 2, and returns."""
+    out = _cics_task(
+        tmp_path,
+        """
+        java.util.List<String> seen = new java.util.ArrayList<>();
+        CicsTask t = new CicsTask("CA05", "ENTER", null, null).withProgram("MAIN").withPrograms(new CicsTask.Programs() {
+            public boolean defined(String p) {
+                return true;
+            }
+
+            public void run(String p, CicsTask s) {
+                int[] r = s.returnChannel("NEXT", "CH1");
+                seen.add(r[0] + "/" + r[1] + " ended=" + s.ended());
+            }
+        });
+        t.putContainer("CH1", "REQ", "AB".getBytes(), 2, null, false);
+        System.out.println(t.linkChannel("SUB", "CH1") + " " + seen + " " + t.returnedChannel());
+        int[] r = t.returnChannel("NEXT", "CH1");
+        System.out.println(r[0] + "/" + r[1] + " " + t.ended() + " " + (t.returnedChannel() != null));
+        System.out.println(t.events().get(t.events().size() - 1));""",
+    )
+    lines = out.splitlines()
+    assert lines[0] == "NORMAL [16/2 ended=false] null"
+    assert lines[1] == "0/0 true true"
+    assert "transid=NEXT" in lines[2] and "channel=CH1" in lines[2] and "containers=[REQ]" in lines[2]
+
+
 # ---- #4951: MOVE CONTAINER and the container browse ------------------------------------------------------
 # One scenario, run on the stub and on CicsTask, which must print the same lines (IBM, EXEC CICS MOVE CONTAINER (CHANNEL),
 # STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (CHANNEL)); what IBM leaves open is refused (register X42).
@@ -2365,8 +2397,15 @@ def test_cics_task_assign_startcode_userid_and_the_terminal_facts(tmp_path):
             System.out.println("refused");
         }""",
     )
-    assert out.splitlines() == ["[TD][CICSUSER][T001] 0 24x80", "[S ] 16", "unstated terminal", "unstated terminal",
-                              "no facility", "unstated", "refused"]
+    assert out.splitlines() == [
+        "[TD][CICSUSER][T001] 0 24x80",
+        "[S ] 16",
+        "unstated terminal",
+        "unstated terminal",
+        "no facility",
+        "unstated",
+        "refused",
+    ]
 
 
 _DEED_MAIN = r"""
@@ -4244,6 +4283,70 @@ def test_cics_task_serves_the_stated_request_as_the_stub_does(tmp_path):
         pos = end + 1
     unstated = lines[pos:]
     assert unstated == ["refused the HTTP request is not stated (withHttpRequest): not modelled"] * 5
+
+
+# #4767 (X38): WEB RECEIVE is recorded as WEB-RECEIVE (the request's media type, the bytes returned, RESP, RESP2) by both runtimes.
+_X38_RECEIVES = [  # (steps, the events: (media type, body, resp, resp2))
+    (["rcv 16 1"], [("text/plain", "hello world!", 0, 0)]),
+    (["rcv 12 0"], [("text/plain", "hello world!", 0, 0)]),
+    (["rcv 5 1"], [("text/plain", "hello", 22, 57)]),
+    (["rcv 0 0"], [(None, None, 22, 16)]),
+    (["rcv -3 1"], [(None, None, 22, 16)]),
+    (["rcv 5 0", "rcv 5 0"], [("text/plain", "hello", 22, 57)]),  # (the second receive is refused: no second event)
+]
+
+
+@needs_cc
+def test_the_stub_records_web_receive(tmp_path):
+    """#4767 (X38): the stub logs a WEB-RECEIVE event for each WEB RECEIVE that ended NORMAL or in a LENGERR."""
+    exe = _stub(tmp_path, _X38_MAIN)
+    for n, (steps, want) in enumerate(_X38_RECEIVES):
+        req = tmp_path / f"rcvreq{n}.cfg"
+        req.write_text(_x38_cfg("full"), encoding="ascii")
+        out = tmp_path / f"rcvout{n}"
+        out.mkdir()
+        env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+        subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+        got = []
+        for line in (out / "events.txt").read_text(encoding="latin-1").splitlines():
+            seq, verb, *rest = line.split()
+            if verb != "WEB-RECEIVE":
+                continue
+            kv = dict(a.split("=", 1) for a in rest[1:])
+            body = out / f"{seq}.bin"
+            got.append((None if kv["media"] == "-" else bytes.fromhex(kv["media"]).decode("latin-1"),
+                        None if kv["resp2"] == "16" else (body.read_bytes().decode("latin-1") if body.exists() else ""),
+                        int(kv["resp"]), int(kv["resp2"])))  # fmt: skip
+        assert got == want, steps
+
+
+@needs_javac
+def test_cics_task_records_web_receive(tmp_path):
+    """#4767 (X38): CicsTask.webReceive records the same WEB-RECEIVE events as the stub."""
+    helpers = r"""
+    static void run(int[] maxes) {
+        CicsTask t = new CicsTask("ZC01", "ENTER", null, null).withHttpRequest(new CicsTask.HttpRequest("HTTPS", "zecs.example",
+                8443, "PUT", "HTTP/1.1", "/resources/ecs/a", "x=1&y=2", java.util.List.of(), "text/plain", "hello world!"));
+        try {
+            for (int m : maxes) t.webReceive(m, 16);
+        } catch (UnsupportedOperationException e) {
+            // (a second receive is refused)
+        }
+        for (java.util.Map<String, Object> e : t.events()) {
+            if (e.get("event").equals("WEB-RECEIVE"))
+                System.out.println("ev " + e.get("mediatype") + "|" + e.get("body") + "|" + e.get("resp") + "|" + e.get("resp2"));
+        }
+        System.out.println("--");
+    }
+"""
+    parts = [f"run(new int[] {{{', '.join(st.split()[1] for st in steps)}}});" for steps, _want in _X38_RECEIVES]
+    out = _cics_task(tmp_path, "\n".join(parts) + "\n    }\n" + helpers + "\n    static void unused() {")
+    lines = out.splitlines()
+    pos = 0
+    for steps, want in _X38_RECEIVES:
+        end = lines.index("--", pos)
+        assert lines[pos:end] == [f"ev {m}|{b}|{r}|{r2}".replace("None", "null") for m, b, r, r2 in want], steps
+        pos = end + 1
 
 
 # ---- #4771 zECS (register X47): the pointer lane -- GETMAIN, FREEMAIN, WEB RECEIVE SET ----------------------------------------

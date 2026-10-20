@@ -21,6 +21,7 @@ from gitgalaxy.tools.cobol_to_java import cobol_to_java_transaction_forge as for
 from gitgalaxy.tools.cobol_to_java.det import cics as C  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_containers as CC  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_filecontrol as CF  # noqa: E402
+from gitgalaxy.tools.cobol_to_java.det import cics_taskcontrol as CT  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 STUB = ROOT / "tests" / "equivalence" / "cics"
@@ -113,3 +114,19 @@ def test_the_det_translator_holds_the_file_control_methods_in_its_mixin():
     assert "constant_int" in vars(C.Cics)  # shared with LINK / RETURN / CONVERSE: it stays the translator's own
     for verb in FILE_VERBS:
         assert C.command_key([verb], {"FILE": "'F'"}).startswith(verb), verb
+
+
+# ---- task / interval control (#5274, third family; the det half so far): START, RETRIEVE, the child tasks, DELAY ... ---
+TASK_METHODS = ("_number", "start", "retrieve", "run_transid", "fetch", "free_child", "delay", "post", "wait_event",
+                "converse", "cancel", "send_control")  # fmt: skip
+
+
+def test_the_det_translator_holds_the_task_control_methods_in_its_mixin():
+    assert issubclass(C.Cics, CT.TaskControlCommands)
+    for method in TASK_METHODS:
+        assert method in vars(CT.TaskControlCommands) and method not in vars(C.Cics), method
+    # every spec command that dispatches to one of the moved methods still reaches it through `Cics`
+    for key, cmd in COMMANDS.items():
+        if cmd.impl and cmd.impl.translator.split(".")[1] in TASK_METHODS:
+            assert callable(getattr(C.Cics, cmd.impl.translator.split(".")[1])), key
+    assert "pointer" in vars(C.Cics)  # shared with the other families: it stays the translator's own

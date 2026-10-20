@@ -1434,13 +1434,29 @@ static int td_extra_state(const char *queue) {
     return strcmp(file, "INPUT") == 0 ? 0 : 1;
 }
 
+/* #5168 round 7 (X66): a queue's TRIGGERLEVEL: what SET TDQUEUE TRIGGERLEVEL left (the file beside the queue's directory, so it
+ * outlives the task), else the definition's, else 1 (IBM's default). */
+static int td_trigger_level(const char *queue) {
+    char dir[4096], path[4200], stated[40];
+    int n;
+    td_dir(queue, dir, sizeof dir);
+    snprintf(path, sizeof path, "%s.trig", dir);
+    FILE *f = fopen(path, "r");
+    if (f) {
+        int got = fscanf(f, "%d", &n);
+        fclose(f);
+        if (got == 1) return n;
+    }
+    return td_attr(queue, "TRIGGERLEVEL", stated, sizeof stated) ? atoi(stated) : 1;
+}
+
 /* #5168 (X61): automatic task initiation is not modelled: a WRITEQ TD that brings a queue with a TRANSID to its TRIGGERLEVEL
  * (default 1; 0 turns ATI off) would start that task. */
 static void td_ati_check(const char *queue, int records_after) {
-    char transid[16], level[16];
-    int n = 1;
+    char transid[16];
+    int n;
     if (!td_attr(queue, "TRANSID", transid, sizeof transid)) return;
-    if (td_attr(queue, "TRIGGERLEVEL", level, sizeof level)) n = atoi(level);
+    n = td_trigger_level(queue);
     if (n > 0 && records_after >= n) refuse("WRITEQ TD to a queue that reaches its TRIGGERLEVEL: automatic task initiation is not modelled");
 }
 
@@ -1727,6 +1743,26 @@ int GGCSTDE(gg_cics *c) {
     return 0;
 }
 
+/* #5168 round 7 (X66): SET TDQUEUE TRIGGERLEVEL (IBM CICS TS 6.x, SET TDQUEUE: intrapartition queues only). The queue is in GG-QNAME,
+ * the level in GG-NUM; 0 turns automatic task initiation off. QIDERR RESP2 1. Not a unit-of-work resource: a rollback or an abend
+ * keeps it. Refused by name: a queue that is not intrapartition (IBM names no condition), a level below zero. */
+int GGCSTDT(gg_cics *c) {
+    char queue[17], dir[4096], path[4200];
+    int kind;
+    trim(c->qname, 16, queue);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    kind = td_kind(queue);
+    if (!kind) { c->resp = QIDERR; c->resp2 = 1; return 0; }
+    if (kind != 1 || c->num < 0) refuse("SET TDQUEUE TRIGGERLEVEL of a queue that is not intrapartition, or below zero");
+    td_dir(queue, dir, sizeof dir);
+    td_base();
+    snprintf(path, sizeof path, "%s.trig", dir);
+    FILE *f = fopen(path, "w");
+    if (f) { fprintf(f, "%d\n", (int)c->num); fclose(f); }
+    return 0;
+}
+
 int GGCITDQ(gg_cics *c) {
     char queue[17], word[32];
     int kind;
@@ -1746,7 +1782,7 @@ int GGCITDQ(gg_cics *c) {
             refuse("INQUIRE TDQUEUE TRIGGERLEVEL / TRANSID of a queue that is not intrapartition");
         }
         if (kind != 1) td_type_cvda(queue, kind, word, sizeof word);
-        if (strstr(c->flags, "TRIGGERLEVEL")) c->hours = td_attr(queue, "TRIGGERLEVEL", stated, sizeof stated) ? atoi(stated) : 1;
+        if (strstr(c->flags, "TRIGGERLEVEL")) c->hours = td_trigger_level(queue);
         if (strstr(c->flags, "RECOVSTATUS")) {
             int got = kind == 1 && td_attr(queue, "RECOVSTATUS", stated, sizeof stated);
             c->mins = kind != 1 ? 1 : got && strcmp(stated, "LOGICAL") == 0 ? 216 : got && strcmp(stated, "PHYSICAL") == 0 ? 215 : 30;
@@ -4468,6 +4504,15 @@ int GGCTCPN(gg_cics *c) {
     return 0;
 }
 
+/* #4767 (X38): the WEB-RECEIVE event: the request's media type (hex; "-": none) and the bytes returned as the event's data, RESP
+ * and RESP2 as the command ended (LENGERR 16: nothing returned). As CicsTask.webReceive records it. */
+static void web_receive_event(const gg_cics *c, const char *body, int n) {
+    char ev[WEB_TXT * 2 + 100], hx[WEB_TXT * 2 + 2];
+    if (c->resp2 == 16 || (int)strlen(webreq.media) >= WEB_TXT) strcpy(hx, "-"); else web_hex(webreq.media, (int)strlen(webreq.media), hx);
+    snprintf(ev, sizeof ev, "WEB-RECEIVE media=%s resp=%d resp2=%d", hx, c->resp == LENGERR ? 22 : 0, c->resp2);
+    event(ev, body, n);
+}
+
 /* GG-NUM MAXLENGTH; GG-FLAGS names MEDIA given; out: GG-LEN the bytes returned. */
 int GGCWRCV(gg_cics *c, char *into, int intocap, char *media, int mediacap) {
     char flags[41];
@@ -4481,12 +4526,13 @@ int GGCWRCV(gg_cics *c, char *into, int intocap, char *media, int mediacap) {
     if (hm && mediacap < 56) refuse("WEB RECEIVE length beyond its area");
     c->resp = NORMAL;
     c->resp2 = 0;
-    if (maxl <= 0) { c->resp = LENGERR; c->resp2 = 16; return 0; }
+    if (maxl <= 0) { c->resp = LENGERR; c->resp2 = 16; web_receive_event(c, NULL, 0); return 0; }
     web_received = 1;
     n = webreq.bodylen > maxl ? maxl : webreq.bodylen;
     if (webreq.bodylen > maxl) { c->resp = LENGERR; c->resp2 = 57; }
     memcpy(into, webreq.body, (size_t)n);
     c->len = n;
+    web_receive_event(c, webreq.body, n);
     if (hm) {
         if ((int)strlen(webreq.media) > 56) refuse("WEB RECEIVE length beyond its area");
         memset(media, ' ', 56);
@@ -4726,13 +4772,14 @@ int GGCWRCS(gg_cics *c, void **slot, char *media, int mediacap) {
     if (webreq.bodylen > 268435456) refuse("WEB RECEIVE SET body beyond the limit");
     c->resp = NORMAL;
     c->resp2 = 0;
-    if (maxl <= 0) { c->resp = LENGERR; c->resp2 = 16; return 0; }
+    if (maxl <= 0) { c->resp = LENGERR; c->resp2 = 16; web_receive_event(c, NULL, 0); return 0; }
     web_received = 1;
     n = webreq.bodylen > maxl ? maxl : webreq.bodylen;
     if (webreq.bodylen > maxl) { c->resp = LENGERR; c->resp2 = 57; }
     *slot = blk_new((size_t)n, BLK_RECEIVED);
     memcpy(*slot, webreq.body, (size_t)n);
     c->len = n;
+    web_receive_event(c, webreq.body, n);
     if (hm) {
         if ((int)strlen(webreq.media) > 56) refuse("WEB RECEIVE length beyond its area");
         memset(media, ' ', 56);

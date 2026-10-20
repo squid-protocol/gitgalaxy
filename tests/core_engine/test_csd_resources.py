@@ -199,3 +199,22 @@ def test_a_pathological_record_stays_linear():
     record = "DEFINE FILE(X) " + "DESCRIPTION(" * 2000 + "'" * 2000 + " PLAN(" * 2000
     # # CPU time, best of 3 (#4477): the bounded scan is ~0.1 s; the quadratic shape is ~10^8 steps (tens of seconds)
     assert_cpu_below(lambda: _resources("csd", record), 6.0, what="csd pathological record")
+
+
+def test_an_rdo_file_name_and_dsname_keep_their_install_symbols():
+    """#5089: zECS `CSDZC##.rdo` names its files `ZC@id@FILE` / `ZC@id@KEY` (substituted at install)."""
+    deck = (
+        " DEFINE FILE(ZC@id@FILE) GROUP(ZC@id@)\n"
+        "        DSNAME(@ecs_hlq@.ZC@id@FILE.@environment@)\n"
+        "        RECORDFORMAT(V) ADD(YES)\n"
+        " DEFINE FILE(ZC@id@KEY) GROUP(ZC@id@)\n"
+        "        DSNAME(@ecs_hlq@.ZC@id@KEY.@environment@)\n"
+        " DEFINE TRANCLASS(TCLZC@id@) GROUP(ZC@id@)\n"
+    )
+    rows = extract_boundary("csd", deck)["csd_resources"]
+    assert [(r["resource_type"], r["name"], r["dsname"], r["group"]) for r in rows] == [
+        ("FILE", "ZC@ID@FILE", "@ECS_HLQ@.ZC@ID@FILE.@ENVIRONMENT@", "ZC@ID@"),
+        ("FILE", "ZC@ID@KEY", "@ECS_HLQ@.ZC@ID@KEY.@ENVIRONMENT@", "ZC@ID@"),
+        ("TRANCLASS", "TCLZC@ID@", None, "ZC@ID@"),
+    ]
+    assert rows[0]["record_format"] == "V"

@@ -200,22 +200,34 @@ DELETEQ_TD = Command(
 # #5168 round 3, register X61. IBM (CICS TS 6.x, SET TDQUEUE): OPENSTATUS (extrapartition queues only) says whether the data set "is
 # to be opened" (OPEN) or "closed" (CLOSED); QIDERR RESP2 1, INVREQ RESP2 8 (an invalid CVDA), 9 (OPENSTATUS for an intrapartition
 # queue), 16 (the JCL DDNAME not found: taken as found). Round 5 (X66): ENABLESTATUS (ENABLED / DISABLED) makes READQ, WRITEQ and
-# DELETEQ TD answer DISABLED (84); INVREQ RESP2 10 is an invalid CVDA. ATIFACILITY, TRIGGERLEVEL and the rest are not modelled.
+# DELETEQ TD answer DISABLED (84); INVREQ RESP2 10 is an invalid CVDA. Round 7 (X66): TRIGGERLEVEL(n) of an intrapartition queue
+# overrides the definition's value (0 turns automatic task initiation off). ATIFACILITY, ATITERMID and the rest are not modelled.
 _TDQUEUE_REST = Refusal("only an extrapartition queue's open state and a queue's availability are modelled", "X66")
 SET_TDQUEUE = Command(
     key="SET TDQUEUE",
     ibm=ibm("CICS SPI command SET TDQUEUE", "commands-set-tdqueue"),
     status="modelled",
     register="X66",
-    options={"TDQUEUE": Arg("name", width=4), "OPENSTATUS": Arg("cvda"), "ENABLESTATUS": Arg("cvda"), **RESP_OPTIONS},
+    options={
+        "TDQUEUE": Arg("name", width=4),
+        "OPENSTATUS": Arg("cvda"),
+        "ENABLESTATUS": Arg("cvda"),
+        "TRIGGERLEVEL": Arg("value"),  # #5168 round 7 (X66)
+        **RESP_OPTIONS,
+    },
     default_refusal=_TDQUEUE_REST,
     groups=(
         required("TDQUEUE", msg="SET TDQUEUE without TDQUEUE"),
         requires(
-            ("TDQUEUE",), any_of=("OPENSTATUS", "ENABLESTATUS"), msg="SET TDQUEUE without OPENSTATUS or ENABLESTATUS"
+            ("TDQUEUE",),
+            any_of=("OPENSTATUS", "ENABLESTATUS", "TRIGGERLEVEL"),
+            msg="SET TDQUEUE without OPENSTATUS, ENABLESTATUS or TRIGGERLEVEL",
         ),
         at_most_one(
-            "OPENSTATUS", "ENABLESTATUS", msg="SET TDQUEUE: OPENSTATUS and ENABLESTATUS together are not modelled"
+            "OPENSTATUS",
+            "ENABLESTATUS",
+            "TRIGGERLEVEL",
+            msg="SET TDQUEUE: OPENSTATUS, ENABLESTATUS and TRIGGERLEVEL together are not modelled",
         ),
     ),
     outcomes=(
@@ -226,6 +238,12 @@ SET_TDQUEUE = Command(
         Outcome("INVREQ", 10, "ENABLESTATUS has an invalid CVDA value", raised_by=("ENABLESTATUS",)),
     ),
     runtime_refusals=(
+        RuntimeRefusal(
+            "SET TRIGGERLEVEL of a queue that is not intrapartition (IBM: intrapartition only; names no condition), or below zero",
+            "X66",
+            java="SET TDQUEUE TRIGGERLEVEL of a queue that is not intrapartition, or below zero",
+            c="SET TDQUEUE TRIGGERLEVEL of a queue that is not intrapartition, or below zero",
+        ),
         RuntimeRefusal(
             "an invalid ENABLESTATUS CVDA on a queue the CSD does not define: IBM does not order QIDERR and INVREQ RESP2 10",
             "X66",

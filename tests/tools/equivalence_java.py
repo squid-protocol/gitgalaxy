@@ -845,6 +845,7 @@ def _run_all(case: dict[str, Any], project: Path, work: Path, inputs: Path, envs
         area = work / "faults" / name
         (area / "out").mkdir(parents=True, exist_ok=True)
         (area / "fault.plan").write_text(plan, encoding="ascii")
+        (area / "out" / "FAULTS").unlink(missing_ok=True)  # the log appends: a re-run of this area starts afresh
         props = f"-Dgitgalaxy.faults.plan={area / 'fault.plan'} -Dgitgalaxy.faults.log={area / 'out' / 'FAULTS'}"
         if sql and sql[0]:  # #4173: the run's SQL faults, to the det runtime's DetSql (the same log)
             (area / "sqlfaults.plan").write_text(sql[0] + "\n", encoding="ascii")

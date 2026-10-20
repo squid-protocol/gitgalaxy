@@ -103,7 +103,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C18 | compiler | STORAGE, TRAP, ABTERMENC; Db2 DATE / TIME / DEC / DECPT / CCSID / bind options; CICS region and program-definition options: refuse, declare or no effect | DECLARED / REFUSED by name (LE, Db2 and CICS runtime options) | yes: every burned estate's recorded value resolves (STORAGE default via L3; GenApp EBCDIC CCSID 285 is declared) |
 | C19 | compiler | ALTER p TO [PROCEED TO] q: the GO TO of p goes to q until the next ALTER of p; the port keeps the target in a slot the paragraph dispatcher reads | MODELLED where the paragraph is a lone GO TO, REFUSED otherwise (#5560) | yes (ALTER1 / ALTER2 in test_det_programs.py against GnuCOBOL -std=ibm; CardDemo CBSTM03A, 9 -> 5 holes) |
 | D1 | data | Text order is ASCII (Latin-1), not EBCDIC | DIFFERS | keys: no; comparisons: not audited |
-| D2 | data | Hex literals that name EBCDIC characters (`X'40'`); a hex literal is its raw bytes under every single-byte record charset (refused by name in a multi-byte one where it is not text), the SYSOUT record separator a plain LF (#4698) | DIFFERS (oracle vs IBM, characters) / MATCHED (the bytes, the oracle = the port = IBM) | yes (batch Sysout byte test, 4 record charsets) |
+| D2 | data | Hex literals that name EBCDIC characters (`X'40'`); a hex literal is its raw bytes under every single-byte record charset (refused by name in a multi-byte one where it is not text), the SYSOUT record separator a plain LF (#4698) | DIFFERS (oracle vs IBM, characters) / MATCHED (the bytes, the oracle = the port = IBM) | yes (batch Sysout byte test, 4 record charsets, X'00'..X'FF' against cobc) |
 | D3 | data | Zoned signs in ASCII data (`{`, `}`, A–R overpunch) | MATCHED | yes |
 | D4 | data | An alphanumeric literal holding a character no single-byte code page holds (a UTF-8 em dash): the statement is a hole by name, the program translates; in a VALUE, a national / DBCS literal or a name the program stays refused (#4272) | REFUSED (the statement) | no |
 | F1 | files | Natural FILE STATUS values come from GnuCOBOL's BDB files | ASSUMED | yes (00, 10, 23, 22) |
@@ -1315,10 +1315,18 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
   - **Declared oracle-vs-IBM difference: the separator.** IBM ends a DISPLAY record at the device; cobc writes LF. The
     port writes LF so the capture can be split; the comparator splits on it and compares records, so the difference
     never reaches a verdict. The LF is not IBM's, and nothing in a program can read it.
+  - **Checked against the oracle (#4702).** `test_det_bytes_4690.py::test_batch_sysout_low_bytes_equal_gnucobols`
+    runs `MOVE X'hh' TO R` / `DISPLAY R` for X'00'..X'7F' (X'0A' aside: it is the capture's separator) under
+    ISO-8859-1, IBM037, IBM1047 and windows-1252, in the bytes, typed and groups modes, and compares with cobc byte
+    for byte. It found one divergence, fixed here: under IBM037 the Sysout (batch and standalone) encoded the
+    private-use character `Lossless` gives X'25' as `?` (0x3F), because it used the plain charset. The Sysout now
+    maps U+E000..U+E0FF back to their byte. `test_det_sysout_bytes_4702.py` pins X'1525' through both Sysouts.
   - **Not modelled, ASSUMED (no burned program reads it).** The Language Reference gives the system output device a
     default logical record size of 120 characters, padded with spaces ("the remaining rightmost positions are padded
     with spaces"), and a maximum of 255. Neither side pads or splits a DISPLAY to that size, so a record longer or
-    shorter than the device's is not compared as IBM would write it. Pending z/OS calibration (#4702 part 2).
+    shorter than the device's is not compared as IBM would write it. The burned sources (CardDemo, CBSA, DBB
+    MortgageApplication; GenApp, zECS and the async credit-card sample have no DISPLAY) hold no DISPLAY source line over
+    100 characters; the summed length of a multi-operand DISPLAY's fields was not computed, so the bullet stays ASSUMED. Pending z/OS calibration (#4702 part 2).
   - Rules: `RT-CBL-HEX-LITERAL-BYTES`, `RT-DATA-BYTE-TRANSPARENT`, `RT-SYS-DISPLAY-SYSOUT`
     (`docs/language_status/cobolrt_rules.json`), all `uncalibrated`.
 

@@ -224,7 +224,7 @@
     {
       "id": "procedure-pointer",
       "match": "SET TO ENTRY: procedure / function pointers",
-      "note": "Procedure / function pointers: no model (#5042 is the data-pointer lane).",
+      "note": "Procedure / function pointers: no model (#5042 is the data-pointer lane). The only burned user is DBB epscsmrd `SET ROUTINE TO ENTRY 'EPSCSMRF'`, whose pointer is only ever passed to CEEHDLR / CEEHDLU: it is proven together with `le-condition-handling` (LE dispatch, RESUME / PERCOLATE), never alone, so no pointer model is added before that one.",
       "issue": 5106
     },
     {
@@ -254,7 +254,7 @@
       "features": [
         "cics_commands: SOAPFAULT CREATE"
       ],
-      "note": "CICS web services (SOAP / WS-Addressing): no model (WEB #4767 and DOCUMENT #4769 are the HTTP side).",
+      "note": "CICS web services (SOAP / WS-Addressing): no model (WEB #4767 and DOCUMENT #4769 are the HTTP side). Refused by name, register X65, every SOAPFAULT CREATE option refused whole. The only burned user is DBB epscsmrd SEND-SOAP-FAULT (`SOAPFAULT CREATE CLIENT FAULTSTRING FAULTSTRLEN`, a web-service reply to the client); no cics-crucible event kind carries a fault, and epscsmrd stays held by the other boxes, so a model would prove no program.",
       "issue": 5106
     },
     {

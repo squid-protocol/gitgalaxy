@@ -114,7 +114,7 @@ def test_a_pointer_compared_with_null_translates_whole(tmp_path, cond, negated):
 
 @pytest.mark.parametrize(("cond", "negated"), SPELLINGS)
 def test_a_bll_cell_compared_with_zero_or_null_is_the_pointer_test(tmp_path, cond, negated):
-    for nil in ("NULL", "ZERO", "ZEROS", "ZEROES"):
+    for nil in ("NULL", "ZERO", "ZEROS", "ZEROES", "LOW-VALUE", "LOW-VALUES"):
         c = cond.replace("PTR", "USERPTR").replace("NULLS", nil).replace("NULL", nil)
         (tmp_path / nil).mkdir()
         r = _translate(tmp_path / nil, BLL.replace(BLL_CONDITION, "IF " + c), "BLLNUL")
@@ -131,6 +131,10 @@ def test_the_test_is_the_handles_all_zero_bytes(tmp_path):
 @pytest.mark.parametrize(
     ("edit", "why"),
     [
+        (
+            "IF USERPTR = LOW-VALUES",
+            "a pointer compared with a non-pointer",
+        ),  # (#5042: only a BLL cell reads it as NULL)
         ("IF USERPTR = ZERO", "a pointer compared with a non-pointer"),  # IBM: a pointer is no number
         ("IF USERPTR > NULL", "only = and NOT ="),
         ("IF USERPTR < NULL", "only = and NOT ="),
@@ -158,6 +162,7 @@ def test_null_is_still_no_operand_of_arithmetic_or_move(tmp_path):
 @pytest.mark.parametrize(
     ("edit", "why"),
     [
+        ("IF USERPTR1 = LOW-VALUES", "secondary cell"),
         ("IF USERPTR1 = ZERO", "secondary cell"),  # a long record's secondary cell holds no address of its own
         ("IF USERPTR > ZERO", "used as a number"),
         ("IF USERPTR NOT < ZERO", "used as a number"),

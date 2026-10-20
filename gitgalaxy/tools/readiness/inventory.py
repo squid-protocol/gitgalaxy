@@ -90,10 +90,8 @@ def count_call_target(inv, stmt, prog_rel):
     """#5565: the program a CALL names (a literal, upper-cased), or `(dynamic)` for a CALL through an identifier: an
     unmodelled API is otherwise detected only through its copybook (CMQ*). The category exists only once an estate has
     a CALL, so an estate without any keeps its fixture byte for byte."""
-    if stmt.data.get("dynamic"):
-        key = "(dynamic)"
-    else:
-        key = str(stmt.data.get("program") or "").strip("'\"").upper()
+    named = str(stmt.data.get("program") or "").strip("'\"").upper()
+    key = "(dynamic)" if stmt.data.get("dynamic") else named
     if key and not re.fullmatch(r"GG[A-Z]{3,4}\d{4}", key):  # the parser's own EXEC / SORT / ENTRY stand-in CALLs
         inv.setdefault("call_targets", defaultdict(lambda: {"count": 0, "programs": set()}))
         count_item(inv, "call_targets", key, prog_rel)

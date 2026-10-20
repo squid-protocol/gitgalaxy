@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `c913eb62225fe7d876ec70dcde306b4490a29259` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `4e017a8f517f`).
+The translation survey matches the translator in the tree (translator fingerprint `7c342c4d2fa5`).
 
 ## How to read this report
 
@@ -51,7 +51,7 @@ The translation survey matches the translator in the tree (translator fingerprin
 - L2+: 3 (0 awaiting re-check); L3+: 2 (0 awaiting re-check); L4+: 1 (0 awaiting re-check)
 
 - programs: 7 (with an EXEC CICS command: 5; source not read: 0)
-- translated whole: 4; refused whole: 2; holes left: 15
+- translated whole: 4; refused whole: 2; holes left: 1
 - with an equivalence case: 4; det port equal on its case: 3; with an evidence record: 0; record current at build: 0
 
 ## Options the estate compiles and runs under
@@ -87,7 +87,7 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 | Source/ECS001.cbl | L3 | 105/105 | 0 | zecs-ecs001 | equal | 22 | none | 15/15 (100.0%) | 15/18 (83.3%) | 15/18 (83.3%) | — | not measured (no det_mutation/ entry) | 3/7 |
 | Source/ZECS000.cbl | L2 | 173/173 | 0 | zecs-zecs000 | equal | 3 | none | 9/38 (23.7%) | 8/46 (17.4%) | 8/46 (17.4%) | — | not measured (no det_mutation/ entry) | 5/22 |
 | Source/ZECS003.cbl | L1 | 73/73 | 0 | zecs-zecs003 | not equal | 12 | none | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 1/12 |
-| Source/ZECS001.cbl | L0 | 546/561 | 15 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 3/27 |
+| Source/ZECS001.cbl | L0 | 560/561 | 1 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 3/27 |
 | Source/ZECS002.asm | L0 | refused | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | Source/ZECSNC.asm | L0 | refused | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 
@@ -221,15 +221,9 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 
 ### Source/ZECS001.cbl -- L0
 
-- **Next level needs:** translated whole (15 holes left)
-- **Translation:** 546/561 statements, 15 holes; whole: no
-  - hole: ARITH CACHE-ADDRESS-X: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)
+- **Next level needs:** translated whole (1 holes left)
+- **Translation:** 560/561 statements, 1 holes; whole: no
   - hole: CALL ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the 16 bytes it returns in THE-TOD are not a stated fact (oracle_assumptions.md X47)
-  - hole: EXEC EXEC CICS: CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)
-  - hole: EXEC EXEC CICS: SAVE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)
-  - hole: MOVE SAVE-ADDRESS-X: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)
-  - hole: SET-ADDRESS CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)
-  - hole: SET-ADDRESS SAVE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)
 - **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; cics.region.CICS_TS=4.2 [no effect; found at System Requirements and Considerations.md:13]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
 - **Executed equivalence:** no equivalence case runs it
@@ -271,7 +265,7 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
   - runtime fact no harness states: EIB field EIBDS (both runtimes read zero; z/OS does not)
   - runtime fact no harness states: EIB field EIBRCODE (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 15 holes; 2 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X22, X27, X30, X33, X34, X35, X36, X37, X38, X45, X46, X47, X52, X53; commands without oracle backing: ASKTIME, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, FORMATTIME, FREEMAIN, GET COUNTER, GETMAIN, INQUIRE PROGRAM, READ, REWRITE, SYNCPOINT, SYNCPOINT ROLLBACK, WEB CLOSE, WEB CONVERSE, WEB EXTRACT, WEB OPEN, WEB PARSE URL, WEB READ HTTPHEADER, WEB RECEIVE, WEB SEND, WEB WRITE HTTPHEADER, WRITE, WRITEQ TD; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 holes; 2 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X22, X27, X30, X33, X34, X35, X36, X37, X38, X45, X46, X47, X52, X53; commands without oracle backing: ASKTIME, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, FORMATTIME, FREEMAIN, GET COUNTER, GETMAIN, INQUIRE PROGRAM, READ, REWRITE, SYNCPOINT, SYNCPOINT ROLLBACK, WEB CLOSE, WEB CONVERSE, WEB EXTRACT, WEB OPEN, WEB PARSE URL, WEB READ HTTPHEADER, WEB RECEIVE, WEB SEND, WEB WRITE HTTPHEADER, WRITE, WRITEQ TD; assumption reach and the migration dimensions above: not measured
 
 ### Source/ZECS002.asm -- L0
 
@@ -331,7 +325,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f`
+- translator commit (the survey's): `c913eb62225fe7d876ec70dcde306b4490a29259`
 - corpus pin: `zecs` at `6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02`
 - crucible pins: cics `v0.9.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.9.0 (3ca75ae0)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -341,8 +335,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f
-python tests/tools/evidence_report.py zecs --baseline --sha b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f
+python tests/tools/cics_census.py survey --baseline --sha c913eb62225fe7d876ec70dcde306b4490a29259
+python tests/tools/evidence_report.py zecs --baseline --sha c913eb62225fe7d876ec70dcde306b4490a29259
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs003,zecs-zecsplt
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

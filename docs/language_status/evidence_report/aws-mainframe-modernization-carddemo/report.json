@@ -468,6 +468,12 @@
     56,
     97
    ],
+   "cbsa-bnk1cac-generated": [
+    25,
+    25,
+    59,
+    97
+   ],
    "cbsa-bnk1cca": [
     25,
     25,
@@ -580,6 +586,12 @@
     34,
     34,
     26,
+    38
+   ],
+   "cbsa-creacc-generated": [
+    34,
+    34,
+    25,
     38
    ],
    "cbsa-crecust": null,
@@ -2037,10 +2049,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f",
+   "sha": "c913eb62225fe7d876ec70dcde306b4490a29259",
    "translator": {
     "files": 132,
-    "sha256": "4e017a8f517fe994b0b8b78fa3c373ae8e7b8247748a22b60165b8a9f2e526cc"
+    "sha256": "7c342c4d2fa518001e28bb4a73dbb37dbead6c3112037717642887c0d22a25cb"
    }
   },
   "sweeps": {}
@@ -6430,7 +6442,7 @@
     "cases": [
      {
       "case": "carddemo-signon",
-      "case_scenarios": 17,
+      "case_scenarios": 18,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -6450,19 +6462,19 @@
        },
        "db2": false,
        "facade": {
-        "passed": 17,
-        "runs": 17
+        "passed": 18,
+        "runs": 18
        },
        "fault_runs": 3,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
+       "oracle_image": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
        "oracle_matches_pin": true,
-       "records_compared": 42,
-       "records_equal": 42,
-       "runs": 17,
-       "scenarios": 17,
-       "scenarios_equal": 17,
+       "records_compared": 45,
+       "records_equal": 45,
+       "runs": 18,
+       "scenarios": 18,
+       "scenarios_equal": 18,
        "stale_inputs": [],
        "status_at_build": "shown equal, unapproved",
        "verdict": "all equal"
@@ -6472,7 +6484,7 @@
     ],
     "chosen": {
      "case": "carddemo-signon",
-     "case_scenarios": 17,
+     "case_scenarios": 18,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -6492,19 +6504,19 @@
       },
       "db2": false,
       "facade": {
-       "passed": 17,
-       "runs": 17
+       "passed": 18,
+       "runs": 18
       },
       "fault_runs": 3,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
+      "oracle_image": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
       "oracle_matches_pin": true,
-      "records_compared": 42,
-      "records_equal": 42,
-      "runs": 17,
-      "scenarios": 17,
-      "scenarios_equal": 17,
+      "records_compared": 45,
+      "records_equal": 45,
+      "runs": 18,
+      "scenarios": 18,
+      "scenarios_equal": 18,
       "stale_inputs": [],
       "status_at_build": "shown equal, unapproved",
       "verdict": "all equal"
@@ -22140,8 +22152,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f",
-   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f",
+   "python tests/tools/cics_census.py survey --baseline --sha c913eb62225fe7d876ec70dcde306b4490a29259",
+   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha c913eb62225fe7d876ec70dcde306b4490a29259",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-billpay,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaus2c,carddemo-cotrtlic,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-signon,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-userdel,carddemo-userlist,carddemo-userupd  # Db2 cases (5) need the Db2 container",
    "python tests/tools/evidence.py prove carddemo-acctview carddemo-adminmenu carddemo-billpay carddemo-cardlist carddemo-cardview carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd",
@@ -22166,13 +22178,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f",
+   "sha": "c913eb62225fe7d876ec70dcde306b4490a29259",
    "translator": {
     "files": 132,
-    "sha256": "4e017a8f517fe994b0b8b78fa3c373ae8e7b8247748a22b60165b8a9f2e526cc"
+    "sha256": "7c342c4d2fa518001e28bb4a73dbb37dbead6c3112037717642887c0d22a25cb"
    }
   },
-  "translator_commit": "b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f",
+  "translator_commit": "c913eb62225fe7d876ec70dcde306b4490a29259",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -22215,6 +22227,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "4e017a8f517fe994b0b8b78fa3c373ae8e7b8247748a22b60165b8a9f2e526cc"
+  "fingerprint": "7c342c4d2fa518001e28bb4a73dbb37dbead6c3112037717642887c0d22a25cb"
  }
 }

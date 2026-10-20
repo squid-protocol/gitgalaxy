@@ -528,6 +528,12 @@
     56,
     97
    ],
+   "cbsa-bnk1cac-generated": [
+    25,
+    25,
+    59,
+    97
+   ],
    "cbsa-bnk1cca": [
     25,
     25,
@@ -640,6 +646,12 @@
     34,
     34,
     26,
+    38
+   ],
+   "cbsa-creacc-generated": [
+    34,
+    34,
+    25,
     38
    ],
    "cbsa-crecust": null,
@@ -1129,25 +1141,11 @@
     "program": "Source/ZECS001.cbl",
     "row": {
      "holes": [
-      "line 530: EXEC EXEC CICS: CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
-      "line 542: EXEC EXEC CICS: CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
-      "line 1104: EXEC EXEC CICS: CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
-      "line 1110: SET-ADDRESS CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
-      "line 1111: MOVE SAVE-ADDRESS-X: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)",
-      "line 1115: ARITH CACHE-ADDRESS-X: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)",
-      "line 1134: SET-ADDRESS CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
-      "line 1147: ARITH CACHE-ADDRESS-X: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)",
-      "line 1180: EXEC EXEC CICS: SAVE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
-      "line 1198: SET-ADDRESS SAVE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
-      "line 1244: CALL ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the 16 bytes it returns in THE-TOD are not a stated fact (oracle_assumptions.md X47)",
-      "line 1400: MOVE SAVE-ADDRESS-X: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)",
-      "line 1487: SET-ADDRESS CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
-      "line 1519: ARITH CACHE-ADDRESS-X: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)",
-      "line 1850: SET-ADDRESS SAVE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)"
+      "line 1244: CALL ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the 16 bytes it returns in THE-TOD are not a stated fact (oracle_assumptions.md X47)"
      ],
      "kind": "cics",
      "statements": 561,
-     "translated": 546
+     "translated": 560
     },
     "source_read": true
    },
@@ -1366,10 +1364,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f",
+   "sha": "c913eb62225fe7d876ec70dcde306b4490a29259",
    "translator": {
     "files": 132,
-    "sha256": "4e017a8f517fe994b0b8b78fa3c373ae8e7b8247748a22b60165b8a9f2e526cc"
+    "sha256": "7c342c4d2fa518001e28bb4a73dbb37dbead6c3112037717642887c0d22a25cb"
    }
   },
   "sweeps": {}
@@ -3825,7 +3823,7 @@
     "score": null
    },
    "next": [
-    "translated whole (15 holes left)"
+    "translated whole (1 holes left)"
    ],
    "options": {
     "assumed": 6,
@@ -4396,7 +4394,7 @@
      "WRITEQ TD"
     ],
     "facts_unstated": 2,
-    "holes": 15,
+    "holes": 1,
     "paragraphs_unrun": null,
     "refused": null
    },
@@ -4405,25 +4403,16 @@
    "survey_stale": false,
    "translation": {
     "gap_classes": [
-     "<name>: a REDEFINES overlays a POINTER with it",
-     "<name>: a pointer a REDEFINES overlays",
-     "EXEC CICS <name>: a pointer a REDEFINES overlays",
      "ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the N bytes it returns in <name> are not a stated fact"
     ],
-    "hole_count": 15,
+    "hole_count": 1,
     "holes": [
-     "ARITH CACHE-ADDRESS-X: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)",
-     "CALL ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the 16 bytes it returns in THE-TOD are not a stated fact (oracle_assumptions.md X47)",
-     "EXEC EXEC CICS: CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
-     "EXEC EXEC CICS: SAVE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
-     "MOVE SAVE-ADDRESS-X: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)",
-     "SET-ADDRESS CACHE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)",
-     "SET-ADDRESS SAVE-ADDRESS: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)"
+     "CALL ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the 16 bytes it returns in THE-TOD are not a stated fact (oracle_assumptions.md X47)"
     ],
     "refused": null,
     "source_defects": [],
     "statements": 561,
-    "translated": 546,
+    "translated": 560,
     "whole": false
    }
   },
@@ -4780,8 +4769,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f",
-   "python tests/tools/evidence_report.py zecs --baseline --sha b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f",
+   "python tests/tools/cics_census.py survey --baseline --sha c913eb62225fe7d876ec70dcde306b4490a29259",
+   "python tests/tools/evidence_report.py zecs --baseline --sha c913eb62225fe7d876ec70dcde306b4490a29259",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs003,zecs-zecsplt",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -4802,13 +4791,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f",
+   "sha": "c913eb62225fe7d876ec70dcde306b4490a29259",
    "translator": {
     "files": 132,
-    "sha256": "4e017a8f517fe994b0b8b78fa3c373ae8e7b8247748a22b60165b8a9f2e526cc"
+    "sha256": "7c342c4d2fa518001e28bb4a73dbb37dbead6c3112037717642887c0d22a25cb"
    }
   },
-  "translator_commit": "b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f",
+  "translator_commit": "c913eb62225fe7d876ec70dcde306b4490a29259",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -4838,7 +4827,7 @@
    "L4": 0,
    "L5": 0
   },
-  "holes": 15,
+  "holes": 1,
   "levels_stale": 0,
   "levels_stale_survey": 0,
   "programs": 7,
@@ -4851,6 +4840,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "4e017a8f517fe994b0b8b78fa3c373ae8e7b8247748a22b60165b8a9f2e526cc"
+  "fingerprint": "7c342c4d2fa518001e28bb4a73dbb37dbead6c3112037717642887c0d22a25cb"
  }
 }

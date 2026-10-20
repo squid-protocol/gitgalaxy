@@ -438,6 +438,12 @@
     56,
     97
    ],
+   "cbsa-bnk1cac-generated": [
+    25,
+    25,
+    59,
+    97
+   ],
    "cbsa-bnk1cca": [
     25,
     25,
@@ -550,6 +556,12 @@
     34,
     34,
     26,
+    38
+   ],
+   "cbsa-creacc-generated": [
+    34,
+    34,
+    25,
     38
    ],
    "cbsa-crecust": null,
@@ -1352,10 +1364,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f",
+   "sha": "c913eb62225fe7d876ec70dcde306b4490a29259",
    "translator": {
     "files": 132,
-    "sha256": "4e017a8f517fe994b0b8b78fa3c373ae8e7b8247748a22b60165b8a9f2e526cc"
+    "sha256": "7c342c4d2fa518001e28bb4a73dbb37dbead6c3112037717642887c0d22a25cb"
    }
   },
   "sweeps": {}
@@ -3731,8 +3743,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f",
-   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f",
+   "python tests/tools/cics_census.py survey --baseline --sha c913eb62225fe7d876ec70dcde306b4490a29259",
+   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha c913eb62225fe7d876ec70dcde306b4490a29259",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -3753,13 +3765,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f",
+   "sha": "c913eb62225fe7d876ec70dcde306b4490a29259",
    "translator": {
     "files": 132,
-    "sha256": "4e017a8f517fe994b0b8b78fa3c373ae8e7b8247748a22b60165b8a9f2e526cc"
+    "sha256": "7c342c4d2fa518001e28bb4a73dbb37dbead6c3112037717642887c0d22a25cb"
    }
   },
-  "translator_commit": "b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f",
+  "translator_commit": "c913eb62225fe7d876ec70dcde306b4490a29259",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -3802,6 +3814,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "4e017a8f517fe994b0b8b78fa3c373ae8e7b8247748a22b60165b8a9f2e526cc"
+  "fingerprint": "7c342c4d2fa518001e28bb4a73dbb37dbead6c3112037717642887c0d22a25cb"
  }
 }

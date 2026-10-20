@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `c913eb62225fe7d876ec70dcde306b4490a29259` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `4e017a8f517f`).
+The translation survey matches the translator in the tree (translator fingerprint `7c342c4d2fa5`).
 
 ## How to read this report
 
@@ -95,7 +95,7 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 | app/cbl/COCRDSLC.cbl | L4 | 263/263 | 0 | carddemo-cardview | equal | 24 | shown equal, unapproved | 30/30 (100.0%) | 69/75 (92.0%) | 69/69 (100.0%) | 49% (stale) | stale (generator, harness, oracle moved), last measured: raw 49% (72/146 caught; 150 of 2184 mutants, seed 0); 41 of 74 survivors unaccounted | 7/8 |
 | app/cbl/COCRDUPC.cbl | L4 | 488/488 | 0 | carddemo-cardupdate | equal | 43 | none | 45/45 (100.0%) | 175/189 (92.6%) | 175/175 (100.0%) | — | not measured (no det_mutation/ entry) | 7/10 |
 | app/cbl/CORPT00C.cbl | L4 | 220/220 | 0 | carddemo-report | equal | 28 | shown equal, unapproved | 10/10 (100.0%) | 52/59 (88.1%) | 52/52 (100.0%) | — | not measured (no det_mutation/ entry) | 4/5 |
-| app/cbl/COSGN00C.cbl | L4 | 71/71 | 0 | carddemo-signon | equal | 17 | shown equal, unapproved | 6/6 (100.0%) | 17/17 (100.0%) | 17/17 (100.0%) | 48% (stale) | stale (generator, case, harness, oracle moved), last measured: raw 48% (70/145 caught; 150 of 1140 mutants, seed 0); 5 of 75 survivors unaccounted | 6/7 |
+| app/cbl/COSGN00C.cbl | L4 | 71/71 | 0 | carddemo-signon | equal | 18 | shown equal, unapproved | 6/6 (100.0%) | 17/17 (100.0%) | 17/17 (100.0%) | 48% (stale) | stale (generator, case, harness, oracle moved), last measured: raw 48% (70/145 caught; 150 of 1140 mutants, seed 0); 5 of 75 survivors unaccounted | 6/7 |
 | app/cbl/COTRN00C.cbl | L4 | 294/294 | 0 | carddemo-tranlist | equal | 33 | shown equal, unapproved | 16/16 (100.0%) | 96/101 (95.0%) | 96/96 (100.0%) | 61% (stale) | stale (generator, harness, oracle moved), last measured: raw 61% (91/148 caught; 150 of 2827 mutants, seed 0); 36 of 57 survivors unaccounted | 4/8 |
 | app/cbl/COTRN01C.cbl | L4 | 95/95 | 0 | carddemo-tranview | equal | 20 | shown equal, unapproved | 9/9 (100.0%) | 23/24 (95.8%) | 23/23 (100.0%) | 56% (stale) | stale (generator, harness, oracle moved), last measured: raw 56% (83/147 caught; 150 of 1469 mutants, seed 0); 16 of 64 survivors unaccounted | 4/5 |
 | app/cbl/COTRN02C.cbl | L4 | 300/300 | 0 | carddemo-tranadd | equal | 51 | shown equal, unapproved | 18/18 (100.0%) | 72/75 (96.0%) | 72/72 (100.0%) | 61% (stale) | stale (generator, harness, oracle moved), last measured: raw 61% (90/148 caught; 150 of 2435 mutants, seed 0); 35 of 58 survivors unaccounted | 4/9 |
@@ -344,13 +344,13 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 
 ### app/cbl/COSGN00C.cbl -- L4
 
-- **Executed equivalent** on the 17 scenarios of carddemo-signon against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Executed equivalent** on the 18 scenarios of carddemo-signon against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (generator, case, harness, oracle moved), last measured: raw 48% (70/145 caught; 150 of 1140 mutants, seed 0); 5 of 75 survivors unaccounted)
 - **Translation:** 71/71 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=YES [no effect; found at samples/proc/BLDCIDB2.prc:149]; db2.bind.ISOLATION=CS [no effect; found at samples/proc/BLDCIDB2.prc:148]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.PARM=HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST [no effect; found at samples/proc/BLDCIDB2.prc:47]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at samples/proc/BUILDONL.prc:40]
 - **Executed equivalence** (carddemo-signon, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 17/17 scenarios equal, 42/42 records equal, 17 runs (3 fault runs); through its deployed entry points 17/17
+  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 18/18 scenarios equal, 45/45 records equal, 18 runs (3 fault runs); through its deployed entry points 18/18
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 6/6 (100.0%), branch outcomes 17/17 (100.0%) raw, 17/17 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -1158,7 +1158,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f`
+- translator commit (the survey's): `c913eb62225fe7d876ec70dcde306b4490a29259`
 - corpus pin: `aws-mainframe-modernization-carddemo` at `59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e`
 - crucible pins: cics `v0.9.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.9.0 (3ca75ae0)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -1168,8 +1168,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f
-python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha b38ded0f59e3f9746f52ea0d7efadaf2bb3e8f5f
+python tests/tools/cics_census.py survey --baseline --sha c913eb62225fe7d876ec70dcde306b4490a29259
+python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha c913eb62225fe7d876ec70dcde306b4490a29259
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-billpay,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaus2c,carddemo-cotrtlic,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-signon,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-userdel,carddemo-userlist,carddemo-userupd  # Db2 cases (5) need the Db2 container
 python tests/tools/evidence.py prove carddemo-acctview carddemo-adminmenu carddemo-billpay carddemo-cardlist carddemo-cardview carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd

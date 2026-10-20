@@ -57,7 +57,12 @@ def test_times_artifact_is_linux_only_and_stays_out_of_the_budget_merge():
 
 
 # #5764: slowest minutes seen per (os, python) leg on the gate's runs of 2026-10-14..20; a cap needs 1.3x headroom
-SLOWEST_SEEN_MIN = {("windows-latest", "3.11"): 24, ("windows-latest", "3.12"): 17, ("macos-latest", "3.11"): 16}
+SLOWEST_SEEN_MIN = {
+    ("windows-latest", "3.11"): 24,
+    ("windows-latest", "3.12"): 17,
+    ("macos-latest", "3.11"): 16,
+    ("macos-latest", "3.12"): 11,
+}
 
 
 def _legs():

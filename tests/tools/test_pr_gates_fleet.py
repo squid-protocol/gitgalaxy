@@ -123,3 +123,34 @@ def test_matching_tool_off_the_interpreter_bin_dir_is_on_the_clean_path(monkeypa
     assert f"PATH={tools.resolve()}:/usr/bin:/bin" in cmd
     [cmd], _ = pr_gates.pinned_ruff_lint(env)
     assert f"PATH={tools.resolve()}:/usr/bin:/bin" in cmd
+
+
+@pytest.mark.slow(reason="builds the pinned actionlint venv on a fresh runner (pip + release binary download)")
+def test_workflows_gate_is_in_fast_and_catches_expression_arithmetic(tmp_path, monkeypatch):
+    """#5768: `${{ x - 3 }}` made full-suite-gate.yml unloadable; the --fast `workflows` gate (actionlint) names it."""
+    plan = pr_gates.gates(SimpleNamespace(lower_baseline=False), {})
+    assert "workflows" in plan
+    wf = tmp_path / ".github" / "workflows"
+    wf.mkdir(parents=True)
+    (wf / "bad.yml").write_text(
+        "on: push\njobs:\n  a:\n    runs-on: ubuntu-latest\n    timeout-minutes: ${{ (matrix.t || 30) - 3 }}\n"
+        "    steps:\n      - run: echo hi\n",
+        encoding="utf-8",
+    )
+    rc = pr_gates.actionlint_gate(tmp_path)
+    if not (pr_gates.MYPY_CACHE / f"actionlint-{pr_gates.ACTIONLINT_PIN}" / ".ready").exists():
+        pytest.skip("actionlint could not be installed here (offline)")
+    assert rc != 0
+    (wf / "bad.yml").write_text(
+        "on: push\njobs:\n  a:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo hi\n", encoding="utf-8"
+    )
+    assert pr_gates.actionlint_gate(tmp_path) == 0
+
+
+def test_workflows_gate_passes_with_a_note_when_actionlint_cannot_install(tmp_path, monkeypatch, capsys):
+    (tmp_path / ".github" / "workflows").mkdir(parents=True)
+    (tmp_path / ".github" / "workflows" / "a.yml").write_text("on: push\n", encoding="utf-8")
+    monkeypatch.setattr(pr_gates, "MYPY_CACHE", tmp_path / "cache")
+    monkeypatch.setattr(subprocess, "run", lambda *a, **k: SimpleNamespace(returncode=1, stdout="", stderr=""))
+    assert pr_gates.actionlint_gate(tmp_path) == 0
+    assert "could not be installed" in capsys.readouterr().out

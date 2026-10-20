@@ -56,12 +56,13 @@ def test_times_artifact_is_linux_only_and_stays_out_of_the_budget_merge():
     assert "matrix.part" in up["with"]["name"]
 
 
-# #5764: slowest minutes seen per (os, python) leg on the gate's runs of 2026-10-14..20; a cap needs 1.3x headroom
+# #5764: slowest minutes seen per (os, python) part on the gate's runs of 2026-10-14..20; a cap needs 1.3x headroom.
+# windows 3.11 was 25 min as 2 parts; as 3 parts it is an estimate (~4 min setup + 2/3 of the tests): re-measure.
 SLOWEST_SEEN_MIN = {
-    ("windows-latest", "3.11"): 24,
-    ("windows-latest", "3.12"): 17,
+    ("windows-latest", "3.11"): 18,
+    ("windows-latest", "3.12"): 19,
     ("macos-latest", "3.11"): 16,
-    ("macos-latest", "3.12"): 11,
+    ("macos-latest", "3.12"): 17,
 }
 
 

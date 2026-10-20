@@ -2485,7 +2485,11 @@
     "receivedBlock",
     "setAddress",
     "setAddressOfRecord",
+    "setAddressOfItem",
     "setPointerToRecord",
+    "setPointerToItem",
+    "copyPointer",
+    "advancePointer",
     "samePointer",
     "wholeRecord"
    ],

@@ -708,7 +708,9 @@ public final class DetCics {
     /** SET ADDRESS OF record TO ptr: the record's bytes are the block's, so a write through either shows in the other. */
     public static void setAddress(CicsTask task, Field record, Field ptr) {
         wholeRecord(record, "SET ADDRESS OF");
-        record.storage().bytes = task.storageAt(pointerValue(ptr), record.length());
+        long handle = pointerValue(ptr);
+        record.storage().bytes = task.storageAt(handle, record.length());
+        record.storage().base = task.offsetAt(handle);
     }
 
     /** SET ADDRESS OF record TO ADDRESS OF other: both are one storage from here on. */
@@ -719,12 +721,51 @@ public final class DetCics {
             throw new UnsupportedOperationException("SET ADDRESS OF a record longer than its storage: not modelled");
         }
         record.storage().bytes = other.storage().bytes;
+        record.storage().base = other.storage().base;
+    }
+
+    /** SET ADDRESS OF record TO ADDRESS OF item, an item inside a larger storage (ZECS001's ZF-DATA in ZF-RECORD; #4771,
+     *  X47): the record's bytes are the storage's from the item on, through a Storage window, so a write through either
+     *  shows in the other. A record longer than what follows the item is refused (IBM: bytes that are not the program's). */
+    public static void setAddressOfItem(CicsTask task, Field record, Field item) {
+        wholeRecord(record, "SET ADDRESS OF");
+        if (item.storage().bytes.length - item.offset() < record.length()) {
+            throw new UnsupportedOperationException("SET ADDRESS OF a record longer than the storage after the item: not modelled");
+        }
+        record.storage().bytes = item.storage().bytes;
+        record.storage().base = item.offset();
     }
 
     /** SET ptr TO ADDRESS OF record: the handle of the record's bytes. */
     public static void setPointerToRecord(CicsTask task, Field ptr, Field record) {
         wholeRecord(record, "ADDRESS OF");
-        setPointer(ptr, task.addressOf(record.storage().bytes));
+        setPointer(ptr, task.addressOf(record.storage().bytes, record.storage().base));
+    }
+
+    /** SET ptr TO ADDRESS OF item (an item that is not a whole 01 record; #4771): the handle of the item's bytes, the same
+     *  one each time (CicsTask.addressOf with the item's offset). */
+    public static void setPointerToItem(CicsTask task, Field ptr, Field item) {
+        setPointer(ptr, task.addressOf(item.storage().bytes, item.offset()));
+    }
+
+    /** `MOVE view TO view` over two numeric views of pointers (#4771, X47): the address is copied, as the handle is. */
+    public static void copyPointer(Field to, Field from) {
+        setPointer(to, pointerValue(from));
+    }
+
+    /** `ADD n TO view` / `SUBTRACT n FROM view` over a numeric view of a pointer (#4771, X47): the pointer addresses the
+     *  same storage n bytes further on (or back), the handle of that offset (CicsTask.addressOf). Refused: a null or
+     *  freed pointer, and a result outside the storage (IBM: an address that is not the program's). */
+    // [rule RT-CICS-POINTER-LANE]
+    public static void advancePointer(CicsTask task, Field ptr, long n) {
+        long handle = pointerValue(ptr);
+        byte[] bytes = task.storageAt(handle, 0);
+        long at = task.offsetAt(handle) + n;
+        if (at < 0 || at > bytes.length) {
+            throw new UnsupportedOperationException(
+                "pointer arithmetic leaves the storage the pointer addresses (" + at + " of " + bytes.length + " bytes)");
+        }
+        setPointer(ptr, task.addressOf(bytes, (int) at));
     }
 
     /** `IF ptr-a = ptr-b` (#5042, X56): the two pointers address the same storage (CicsTask.samePointer). */
@@ -771,7 +812,7 @@ public final class DetCics {
     }
 
     private static void wholeRecord(Field record, String what) {
-        if (record.offset() != 0) {
+        if (record.offset() != record.storage().base) {
             throw new UnsupportedOperationException(what + " an item that is not a whole 01 record: not modelled");
         }
     }

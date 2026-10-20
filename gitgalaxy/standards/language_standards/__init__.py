@@ -82,6 +82,7 @@ from .languages import bms as _bms
 from .languages import c as _c
 from .languages import cobol as _cobol
 from .languages import cpp as _cpp
+from .languages import crystal as _crystal
 from .languages import csd as _csd
 from .languages import csharp as _csharp
 from .languages import css as _css
@@ -92,6 +93,7 @@ from .languages import dockerfile as _dockerfile
 from .languages import easytrieve as _easytrieve
 from .languages import embedded_python as _embedded_python
 from .languages import fortran as _fortran
+from .languages import fsharp as _fsharp
 from .languages import glsl as _glsl
 from .languages import go as _go
 from .languages import groovy as _groovy
@@ -165,6 +167,8 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
     "powershell": _powershell.DEFINITION,
     "shell": _shell.DEFINITION,
     "ruby": _ruby.DEFINITION,
+    # #5623: ".cr", ruby's `end`-delimited shape (its own Mode D scope entry).
+    "crystal": _crystal.DEFINITION,
     "swift": _swift.DEFINITION,
     "kotlin": _kotlin.DEFINITION,
     "sqlite": _sqlite.DEFINITION,
@@ -218,6 +222,8 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
     "postgresql": _postgresql.DEFINITION,
     "db2_sql": _db2_sql.DEFINITION,
     "hlasm": _hlasm.DEFINITION,
+    # #5623: owns ".fs" only on proof (internal_discriminator, Tier 2) -- GLSL and Forth use it too.
+    "fsharp": _fsharp.DEFINITION,
     "rexx": _rexx.DEFINITION,
     "csd": _csd.DEFINITION,
     "easytrieve": _easytrieve.DEFINITION,

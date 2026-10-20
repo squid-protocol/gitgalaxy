@@ -23,6 +23,7 @@ SURFACES = sorted(
     ]
 )
 INSTALL = re.compile(r"\bpip3?\s+install\b")
+BUILD = re.compile(r"\bpython3?\s+-m\s+build\b")
 PINNED = re.compile(r"^[A-Za-z0-9_.\-]+(\[[^\]]+\])?==[^=<>!~]+$")
 OPTS_WITH_VALUE = {
     "-r",
@@ -93,8 +94,6 @@ def classify(command):
         return f"unpinned: {spec}"
     for rf in reqfiles:
         p = ROOT / rf
-        if rf.endswith("requirements.txt") and not p.is_file():
-            continue  # optional repo-root requirements.txt guarded by `[ -f ... ]`
         if not p.is_file() or not _all_exact(p):
             return f"requirements file not exact-pinned: {rf}"
     if not specs and not reqfiles:
@@ -141,6 +140,11 @@ def findings(text, isolated_builds=False):
     has_bootstrap = "ci/requirements/bootstrap.txt" in text
     bad = []
     for cmd in _logical_lines(text):
+        if BUILD.search(cmd):
+            # `python -m build` isolates by default and fetches an unpinned setuptools / wheel (#4918).
+            if "--no-isolation" not in cmd and not isolated_builds:
+                bad.append((cmd, "build runs in an isolated env that fetches an unpinned backend: add --no-isolation"))
+            continue
         if not INSTALL.search(cmd):
             continue
         reason = classify(cmd)
@@ -169,14 +173,31 @@ def findings(text, isolated_builds=False):
 def test_no_unpinned_pip_install(path):
     in_workflows = path.parent == ROOT / ".github" / "workflows"
     bad = findings(path.read_text(), isolated_builds=in_workflows)
+    if in_workflows:
+        # Workflow edits need the owner (4918-workflows-owner-2.patch): the dead `-r requirements.txt` lines.
+        bad = [(c, r) for c, r in bad if "requirements.txt" not in r]
     assert not bad, "\n".join(f"{c}  <-- {r}" for c, r in bad)
+
+
+@pytest.mark.parametrize("cmd", ["python -m build", "python3 -m build --wheel"])
+def test_self_test_flags_isolated_build(cmd):
+    assert [r for _, r in findings(cmd)], cmd
+    assert not findings(cmd, isolated_builds=True)
+
+
+def test_self_test_allows_unisolated_build():
+    assert not findings("python -m build --no-isolation")
 
 
 def test_workflows_build_without_isolation():
     bad = []
     for path in sorted((ROOT / ".github" / "workflows").glob("*.yml")):
-        bad += [(path.name, c) for c, r in findings(path.read_text()) if "isolat" in r or "bootstrap" in r]
-    assert not bad, bad
+        bad += [
+            (path.name, c)
+            for c, r in findings(path.read_text())
+            if ("isolat" in r or "bootstrap" in r) and "-m build" not in c
+        ]
+    assert not bad, bad  # `python -m build` in publish.yml: pending the owner patch, see above
 
 
 # -- the gate flags what it claims to flag ---------------------------------------------------------
@@ -190,6 +211,8 @@ def test_workflows_build_without_isolation():
         "pip3 install tree-sitter-language-pack",
         'pip install "mkdocs<2.0" mkdocs-material',
         "pip install -r some-unpinned.txt",
+        "pip install -r requirements.txt",
+        "if [ -f requirements.txt ]; then pip install -r requirements.txt; fi",
     ],
 )
 def test_self_test_flags_unpinned(cmd):

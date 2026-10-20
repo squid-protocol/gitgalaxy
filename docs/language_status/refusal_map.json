@@ -192,12 +192,12 @@
     },
     {
       "id": "le-condition-handling",
-      "match": "^CALL (?:CALL )?CEEHDL[RU]\\b",
+      "match": "^CALL (?:CALL )?(?:CEEHDL[RU]|CEEMGET|CEESGL|CEENCOD|CEEMRCE|CEE3SRP)\\b",
       "api": {
-        "name": "LE condition handling (CEEHDLR / CEEHDLU)",
+        "name": "LE condition handling (CEEHDLR / CEEHDLU, CEEMGET, CEESGL, CEENCOD, CEEMRCE, CEE3SRP)",
         "issue": 5106
       },
-      "note": "Registering (CEEHDLR) or unregistering (CEEHDLU) an LE user condition handler: refused by name in dyncall.REFUSED_BY_NAME, no model raises an LE condition or runs the handler (#5106; DBB epscsmrd REGISTER-EXCEPTION-HANDLER). The old report text is `CALL CALL CEEHDLR`, the refusal reads `CALL CEEHDLR: ...`: both match.",
+      "note": "Registering (CEEHDLR) or unregistering (CEEHDLU) an LE user condition handler: refused by name in dyncall.REFUSED_BY_NAME, three pieces are missing before a registration can be proven: the procedure pointer it takes (SET TO ENTRY, `procedure-pointer`), LE's dispatch of a raised condition to the handler (CEESGL, CEENCOD, CEEMRCE, CEE3SRP) and the handler's RESUME / PERCOLATE result (#5106; DBB epscsmrd REGISTER-EXCEPTION-HANDLER, the only burned user). The handler program (EPSCSMRF) translated on its own holds two holes, `SET ADDRESS OF ... TO TOKEN` (`pointers`, #5042) and CEEMGET (this entry); its `SET RESUME TO TRUE` translates. The old report text is `CALL CALL CEEHDLR`, the refusal reads `CALL CEEHDLR: ...`: both match.",
       "issue": 5106
     },
     {

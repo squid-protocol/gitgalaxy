@@ -123,7 +123,7 @@
       ],
       "fortran/wrf/module_initialize_real.F": [
         {
-          "Call Sites": 163,
+          "Call Sites": 165,
           "Calling Files": 6,
           "Kind": "function",
           "Name": "wrf_error_fatal",
@@ -131,7 +131,7 @@
           "Via": "primitive"
         },
         {
-          "Call Sites": 111,
+          "Call Sites": 112,
           "Calling Files": 5,
           "Kind": "function",
           "Name": "wrf_message",
@@ -139,7 +139,7 @@
           "Via": "primitive"
         },
         {
-          "Call Sites": 163,
+          "Call Sites": 165,
           "Calling Files": 6,
           "Kind": "function",
           "Name": "wrf_error_fatal",

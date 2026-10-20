@@ -166,6 +166,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
+from gitgalaxy.core.cobol_preprocessor import replace_text as _replace_text  # #5648: shared with det/
 from gitgalaxy.core.compiler_options import effective as effective_options
 from gitgalaxy.core.jcl_runners import systsin_programs
 from gitgalaxy.core.source_text import read_source
@@ -925,6 +926,9 @@ class EngineFile:
     # #3490: symbolic maps generated from BMS source for COPY members no real
     # copybook answers (EngineFile, file_path `<bms>#<MAPSET>`); never in `files`.
     symbolic_copies: list = field(default_factory=list)
+    # #5649: GitGalaxy's stand-in copybooks (core/copy_libraries) for registered system members the
+    # repository does not ship (file_path `stand-in#<MEMBER>`); read only by _copybook_file.
+    stand_in_copies: list = field(default_factory=list)
 
     @property
     def is_program(self) -> bool:
@@ -1566,6 +1570,10 @@ class GalaxyIR:
                 return self.files[hits[0]]
         for ctx in contexts:  # #3490: a symbolic map generated from BMS source
             for sym in ctx.symbolic_copies:
+                if sym.file_path.rsplit("#", 1)[-1] == member:
+                    return sym
+        for ctx in contexts:  # #5649: a stand-in, only where the repository has no such member
+            for sym in ctx.stand_in_copies:
                 if sym.file_path.rsplit("#", 1)[-1] == member:
                     return sym
         return None
@@ -2325,7 +2333,9 @@ class GalaxyIR:
         return {"bytes": None if total is None else (total + 7) // 8, "variable": variable, "fields": fields,
                 "unexpanded": list(unexpanded), "copybooks": spliced, "dialect": "pli"}  # fmt: skip
 
-    def record_layout(self, ef: EngineFile, item: EngineDataItem, extension: list | None = None) -> dict:
+    def record_layout(
+        self, ef: EngineFile, item: EngineDataItem, extension: list | None = None, pointer_bytes: int | None = None
+    ) -> dict:
         """One record's storage layout, COPY-expanded, from the DB alone (#3355).
 
         Returns `bytes` (None when any width is unknown), `variable` (an OCCURS
@@ -2338,6 +2348,10 @@ class GalaxyIR:
         OCCURS group are listed once; the group's width carries the repetition.
         `extension` is (file, item) entries appended to the record's own children
         (a copied record continued in the program -- `_copy_extension`).
+
+        #5649: `pointer_bytes` is a POINTER's width (and SYNC boundary): z/OS's 4 by default, the
+        translator's target width when its storage is what is being compared. `stand_ins` lists the
+        GitGalaxy-written stand-in copybooks (core/copy_libraries) the layout read, only when it read one.
         """
         if ef.language == "pli" and not extension:
             return self._pli_record_layout(ef, item)  # #3720: PL/I structure mapping
@@ -2393,7 +2407,7 @@ class GalaxyIR:
                                 size += wide - region[1]
                                 region[1] = wide
                         continue
-                    size += _slack(kid, usage, offset + size)  # #4266: SYNCHRONIZED
+                    size += _slack(kid, usage, offset + size, pointer_bytes)  # #4266: SYNCHRONIZED
                     kid_width = _walk(kid_file, kid, offset + size, kid_depth, sink, usage)
                     region = [offset + size, kid_width, kid.name.upper()]
                     size += kid_width
@@ -2401,8 +2415,8 @@ class GalaxyIR:
                     size += -size % state["align"]  # #4266: slack ends each occurrence of a table group
                 state["align"] = max(outer_align, state["align"])
                 return size * times
-            state["align"] = max(state["align"], _sync_boundary(it, usage))
-            width = _elementary_bytes(it, usage)
+            state["align"] = max(state["align"], _sync_boundary(it, usage, pointer_bytes))
+            width = _elementary_bytes(it, usage, pointer_bytes)
             if width is None:
                 state["unknown"] = True
                 width = 0
@@ -2424,12 +2438,14 @@ class GalaxyIR:
             return width * times
 
         total = _walk(ef, item, 0, 0)
+        stand_ins = [p for p in copybooks if p.startswith(STAND_IN_PREFIX)]
         return {
             "bytes": None if state["unknown"] else total,
             "variable": state["variable"],
             "fields": fields,
             "unexpanded": unexpanded,
             "copybooks": copybooks,
+            **({"stand_ins": stand_ins} if stand_ins else {}),
         }
 
     def _program_at(self, ef: EngineFile, line: int | None) -> str | None:
@@ -5928,18 +5944,26 @@ def _item_class(item: EngineDataItem, inherited: str | None = None) -> str:
     return "9"
 
 
-def _sync_boundary(item: EngineDataItem, usage: str | None) -> int:
+# #5649: the width of USAGE POINTER under z/OS LP(32) -- the default every layout reads. A caller that lays
+# storage out for another target (the det translator's GnuCOBOL x86-64: 8, oracle register C9) passes its own.
+ZOS_POINTER_BYTES = 4
+
+
+def _sync_boundary(item: EngineDataItem, usage: str | None, pointer_bytes: int | None = None) -> int:
     """#4266: the boundary a SYNCHRONIZED elementary item starts on, in bytes from the start of its record
     (which is doubleword-aligned), per IBM Enterprise COBOL's SYNCHRONIZED clause: a binary item of up to 4
     digits a halfword, of more a fullword (an 8-byte S9(10)-S9(18) one too); COMP-1, INDEX and the
     pointers a fullword (LP(32)); COMP-2 a doubleword. 1 -- no slack -- for any other item (DISPLAY,
-    packed, national: SYNC is documentation there), a group, PL/I, or no SYNC at all."""
+    packed, national: SYNC is documentation there), a group, PL/I, or no SYNC at all. A POINTER's boundary
+    is its width, `pointer_bytes` (#5649)."""
     if not item.sync or item.attributes is not None or not _is_elementary(item, usage):
         return 1
     u = (usage or "DISPLAY").upper()
     if u in ("COMP-2", "COMPUTATIONAL-2"):
         return 8
-    if u in ("COMP-1", "COMPUTATIONAL-1", "INDEX", "POINTER", "PROCEDURE-POINTER", "FUNCTION-POINTER"):
+    if u == "POINTER":
+        return pointer_bytes or ZOS_POINTER_BYTES
+    if u in ("COMP-1", "COMPUTATIONAL-1", "INDEX", "PROCEDURE-POINTER", "FUNCTION-POINTER"):
         return 4
     if item.pic and _item_class(item, usage) == "B":
         width = _elementary_bytes(item, usage)
@@ -5947,22 +5971,27 @@ def _sync_boundary(item: EngineDataItem, usage: str | None) -> int:
     return 1
 
 
-def _slack(item: EngineDataItem, inherited: str | None, at: int) -> int:
+def _slack(item: EngineDataItem, inherited: str | None, at: int, pointer_bytes: int | None = None) -> int:
     """#4266: the slack bytes the compiler puts before `item` when it would start at record offset
     `at` (0 unless it is SYNCHRONIZED and `at` is off its boundary). `inherited` is the enclosing
     group's USAGE (#4525). Slack between the occurrences of a table is added by the callers, as IBM's
     "Slack bytes within records" rule: a table group is padded to the largest boundary under it."""
-    return -at % _sync_boundary(item, _usage_under(item, inherited))
+    return -at % _sync_boundary(item, _usage_under(item, inherited), pointer_bytes)
 
 
-def _elementary_bytes(item: EngineDataItem, inherited: str | None = None) -> int | None:
+def _elementary_bytes(
+    item: EngineDataItem, inherited: str | None = None, pointer_bytes: int | None = None
+) -> int | None:
     """One occurrence's storage width of an elementary item, or None when unknown.
-    `inherited` is the enclosing group's USAGE (#4525), used when the item has none."""
+    `inherited` is the enclosing group's USAGE (#4525), used when the item has none. A POINTER is
+    `pointer_bytes` wide, z/OS's 4 (ZOS_POINTER_BYTES) unless the caller lays out for another target (#5649)."""
     if item.attributes is not None:  # #3720: a PL/I item (attributes is None for COBOL)
         el = pli_mapping.element(item.usage, item.pic, item.attributes, False)
         return None if el is None else (el[0] + 7) // 8
     usage = (item.usage or inherited or "DISPLAY").upper()
-    if usage in ("COMP-1", "COMPUTATIONAL-1", "POINTER", "INDEX"):
+    if usage == "POINTER":
+        return pointer_bytes or ZOS_POINTER_BYTES
+    if usage in ("COMP-1", "COMPUTATIONAL-1", "INDEX"):
         return 4
     if usage in ("COMP-2", "COMPUTATIONAL-2"):
         return 8
@@ -6912,6 +6941,7 @@ def load_galaxy_ir(db_path: Path, repo_name: str | None = None) -> GalaxyIR:
         conn.close()
 
     _attach_symbolic_maps(files)
+    _attach_stand_ins(files)
     _name_pli_programs(files)
     _attribute_programs(files)
     ir = GalaxyIR(db_path, repo_name, commit_hash, files, source_pages=source_pages)
@@ -6933,35 +6963,6 @@ def _copy_replacings(item: EngineDataItem) -> list:
         found = []
     members = (item.copy_members or "").split(",")
     return [found[i] if i < len(found) else None for i in range(len(members))]
-
-
-def _replace_text(text: str | None, pairs: list) -> str | None:
-    """#4265: `text` after a COPY's REPLACING. A pseudo-text operand delimited by `:` or `( )` (a
-    tag: `:TAG:-ID`) replaces partial words; LEADING / TRAILING replace a word's start / end; any
-    other operand replaces whole words only. One left-to-right pass, as the compiler does: at each
-    position the first pair that matches is applied, and replaced text is never matched again."""
-    if not text:
-        return text
-    patterns: list[str] = []
-    targets: list[str] = []
-    for pair in pairs:
-        src, dst = pair[0], pair[1]
-        mode = pair[2] if len(pair) > 2 else None
-        if not src:
-            continue
-        if mode == "LEADING":
-            patterns.append(rf"(?<![\w-]){re.escape(src)}")
-        elif mode == "TRAILING":
-            patterns.append(rf"{re.escape(src)}(?![\w-])")
-        elif src[:1] in ":(" and src[-1:] in ":)":
-            patterns.append(re.escape(src))
-        else:
-            patterns.append(rf"(?<![\w-]){re.escape(src)}(?![\w-])")
-        targets.append(dst)
-    if not patterns:
-        return text
-    combined = re.compile("|".join(f"(?P<p{i}>{p})" for i, p in enumerate(patterns)), re.I)
-    return combined.sub(lambda m: targets[int((m.lastgroup or "p0")[1:])], text)
 
 
 def _replaced(item: EngineDataItem, pairs: list) -> EngineDataItem:
@@ -7043,6 +7044,54 @@ def _attach_symbolic_maps(files: dict[str, EngineFile]) -> None:
         for member in sorted(members):
             if member not in stems and member in maps:  # no real copybook answers the COPY
                 f.symbolic_copies.append(maps[member])
+
+
+# #5649: the file_path prefix of a stand-in copybook's synthetic EngineFile.
+STAND_IN_PREFIX = "stand-in#"
+
+
+def _attach_stand_ins(files: dict[str, EngineFile]) -> None:
+    """#5649: a COBOL program's `COPY <member>` that no copybook in the repository answers, where the
+    member is one GitGalaxy writes a stand-in for (CMQ*: register W1, CEEIGZCT: L4), gets that stand-in
+    parsed by the engine's record parser -- the same text the translator falls back on, so engine and
+    translator lay the record out from the same bytes. The layout flags it (`stand_ins`)."""
+    from gitgalaxy.core.copy_libraries import stand_in_text
+
+    stems = {Path(p).stem.upper() for p, f in files.items() if f.language == "cobol"}  # real copybooks
+    made: dict[str, EngineFile | None] = {}
+    for f in files.values():
+        if f.language != "cobol" or not f.data_items:
+            continue
+        members = {m for it in f.data_items for m in (it.copy_members or "").split(",") if m}
+        for member in sorted(members - stems):
+            if member not in made:
+                text = stand_in_text(member)
+                made[member] = None if text is None else _record_file(f"{STAND_IN_PREFIX}{member}", text)
+            if made[member] is not None:
+                f.stand_in_copies.append(made[member])
+
+
+def _record_file(file_path: str, text: str) -> EngineFile:
+    """A synthetic copybook EngineFile holding the records the engine's record parser reads from `text`."""
+    from gitgalaxy.core.mainframe_boundary import _cobol_records
+
+    made = EngineFile(file_path=file_path, language="cobol", total_loc=0)
+    for r in _cobol_records(text):
+        made.data_items.append(
+            EngineDataItem(
+                ordinal=r["ordinal"], parent_ordinal=r["parent_ordinal"], level=r["level"],
+                name=r["name"], section=None, fd_name=None, pic=r["pic"], usage=r["usage"],
+                occurs_min=r["occurs_min"], occurs_max=r["occurs_max"], occurs_depending_on=None,
+                redefines=r["redefines"], value=None, line=r["line"],
+                sync=r.get("sync"), sign_separate=bool(r.get("sign_separate")),
+                sign_leading=r.get("sign_separate") == 2,
+            )
+        )  # fmt: skip
+    by_ordinal = {it.ordinal: it for it in made.data_items}
+    for it in made.data_items:
+        parent = by_ordinal.get(it.parent_ordinal) if it.parent_ordinal is not None else None
+        (parent.children if parent is not None else made.records).append(it)
+    return made
 
 
 def _symbolic_map_files(files: dict[str, EngineFile]) -> dict[str, EngineFile]:

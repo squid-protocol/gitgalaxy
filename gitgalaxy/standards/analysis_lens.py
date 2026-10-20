@@ -219,8 +219,10 @@ LANGUAGE_STRICTNESS: dict[str, tuple[bool, bool, bool, bool] | None] = {
     # whole variable pool -- implicit globals by default.
     "rexx": (False, False, True, False),
     "ruby": (False, False, True, True),
+    "crystal": (True, True, True, True),  # #5623: compiler-checked types and nil; GC; no implicit globals
     "rust": (True, True, True, True),
     "scala": (True, False, True, True),
+    "fsharp": (True, False, True, True),
     "scheme": (False, False, True, True),  # `set!` on an unbound name is an error
     "shell": (False, False, True, False),
     "solidity": (True, False, True, True),  # low-level `call` returns a bool that can be ignored
@@ -1037,6 +1039,8 @@ LANGUAGE_SECURITY_PROFILES = {
             "csharp",
             "kotlin",
             "scala",
+            "fsharp",
+            "crystal",
             "scheme",
             "tcl",
             "matlab",

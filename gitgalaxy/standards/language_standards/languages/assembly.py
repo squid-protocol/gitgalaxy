@@ -32,6 +32,11 @@ DEFINITION: dict[str, Any] = {
         ".masm",
         ".arm",
         ".a51",
+        # #5624: Argonaut / Devpac / vasm sources (DOOM-FX: `.a` code, `.i` includes). Both are
+        # contested (static-library archives, SWIG/preprocessed C), so they join COLLISION_FREQUENCIES
+        # and are assembly only on the dialect evidence in `internal_discriminator` below.
+        ".a",
+        ".i",
     ],
     # ABSOLUTE IDENTITY & EXACT FILENAMES: Assembly is assembled directly to machine code; no extensionless exact configurations exist.
     "exact_matches": [],
@@ -48,6 +53,19 @@ DEFINITION: dict[str, Any] = {
     ],
     # EXECUTION SIGNATURES: Assembly is compiled/assembled to binary; no shebangs exist.
     "shebangs": [],
+    # #5624: collision resolution for `.a` / `.i` / `.inc` / `.asm`: the 68k / 65816 / SuperFX
+    # assemblers' export and section statements (`xdef`/`xref`, a lone `public NAME`, `section NAME`
+    # with an optional `,CODE`), `include x.i`, and `name var ...` / `name macro` definitions. HLASM and the other `.inc` claimants never write them in operation
+    # position. Registered before hlasm, so nothing here may match an HLASM member (no EQU/MACRO).
+    "extensions_needing_discriminator": [".a", ".i"],
+    "internal_discriminator": re.compile(
+        r"^[ \t]+(?:xdef|xref)[ \t]+[A-Za-z_]"
+        r"|^[ \t]+public[ \t]+[A-Za-z_]\w{0,63}[ \t]*(?:;[^\n]{0,200})?$"
+        r"|^[ \t]+include[ \t]+[\w./\\-]{1,100}\.i\b"
+        r"|^[A-Za-z_]\w{0,63}[ \t]+(?:var[ \t]+[$%#(\w-]|macro\b)"
+        r"|^[ \t]+section[ \t]+[A-Za-z_]\w{0,63}(?:,[ \t]*(?:code|data|bss)\w{0,8})?[ \t]*(?:;[^\n]{0,200})?$",
+        re.M | re.I,
+    ),
     # UPGRADED: Maps to Family 8 (Singular/Unique)
     # Rationale: Uses unique line delimiters ';' (NASM/Intel) and '#' (GAS/ARM).
     "lexical_family": "line_exclusive",
@@ -124,12 +142,24 @@ DEFINITION: dict[str, Any] = {
         # agc_assembly's own data-label win). Section/visibility/type/align directives
         # are deliberately NOT in the list -- those legitimately sit between a real
         # function's label and its first instruction.
+        # #5624: a COLUMN-0 label with no colon, alone on its line and followed (past blank lines) by an
+        # indented instruction, is an entry too -- the Argonaut / Devpac / vasm convention (`_RLInitIRQ`
+        # / `\tmode 'A!'`). `name equ ...`, `name macro` and `name dc.b ...` keep their statement on the
+        # label's line, and a label before `dc`/`ds`/`equ`/... is data, so neither matches. Exports
+        # (`public`/`xdef`) are not required: like the colon form, every code label is a unit, except
+        # the dialect's own local-label convention, a name ending in three or more digits (`FIC200`).
         "func_start": re.compile(
-            r"^[ \t]*(?!\.L|\.LC|\d|\.text|\.data|\.bss)([a-zA-Z_?@.][a-zA-Z0-9_.$?@]*)(?=[ \t]*:)"
-            r"(?![ \t]*:[ \t]*(?:\r?\n[ \t]*)?"
+            r"^(?:[ \t]*(?!\.L|\.LC|\d|\.text|\.data|\.bss)(?=[a-zA-Z_?@.][a-zA-Z0-9_.$?@]*[ \t]*:"
+            r"(?![ \t]*(?:\r?\n[ \t]*)?"
             r"(?:\.(?:org|endobj|asciz|ascii|string|byte|hword|short|word|long|int|value"
             r"|quad|octa|single|double|float|fill|space|skip|zero|incbin)"
-            r"|d[bwdq]|res[bwdq]|times)\b)",
+            r"|d[bwdq]|res[bwdq]|times)\b))"
+            r"|(?!(?i:end|endm|endc|endif|else|even|mend)\b)(?![A-Za-z_?@][A-Za-z_?@$]*[0-9]{3,}\b)"
+            r"(?=[A-Za-z_?@][A-Za-z0-9_$?@]*[ \t]*(?:;[^\n]{0,200})?\r?\n"
+            r"(?:[ \t]*(?:;[^\n]{0,200})?\r?\n){0,6}"
+            r"[ \t]+(?!(?i:d[cs](?:\.[bwl])?|dcb|rs(?:\.[bwl])?|d[bwdq]|res[bwdq]|equ|set|var|macro|reg|org|times"
+            r"|include|incbin|section|xdef|xref|public|global|end[a-z]?)\b)[A-Za-z_?@.]))"
+            r"([a-zA-Z_?@.][a-zA-Z0-9_.$?@]*)",
             re.M,
         ),
         # 5. class_start (Object / Entity Declarations)

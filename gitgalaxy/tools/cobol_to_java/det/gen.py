@@ -176,6 +176,7 @@ class Gen:
         self.write_only_pointers: set[str] = set()  # program.write_only_pointers
         self.overlaid_pointers: set[str] = set()  # program.overlaid_pointers (#4771)
         self.pointer_views: set[str] = set()  # program.pointer_views (#4771)
+        self.pointer_view_of: dict[str, str] = {}  # program.pointer_view_of (#4771): pure numeric view -> its pointer
         self.p = prog
         # structured: a program with no GO TO / HANDLE -- paragraphs are void methods called in order, no dispatcher
         self.structured = structured
@@ -337,20 +338,70 @@ class Gen:
             raise Untranslatable(f"{name}: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)")
         return self.field_expr(E.Ref(name.upper()))
 
+    def view_pointer(self, e) -> str | None:
+        """#4771 (X47): the pointer a plain reference to a pure numeric view of one (program.pointer_view_of) names."""
+        if isinstance(e, E.Ref) and not e.subscripts and e.refmod is None and not e.qualifiers:
+            return self.pointer_view_of.get(e.name.upper())
+        return None
+
+    def pointer_view_statement(self, s: S.Stmt, ind: str) -> list[str] | None:
+        """#4771 (X47): the two idioms a numeric view of a POINTER is modelled for -- `ADD|SUBTRACT n TO|FROM view` moves
+        the pointer along its block by n bytes (ZECS001's `ADD ZF-LENGTH TO CACHE-ADDRESS-X`) and `MOVE view TO view`
+        copies the address (`MOVE CACHE-ADDRESS-X TO SAVE-ADDRESS-X`). The view's bytes are never read as a number (a
+        handle is no number): any other use still falls to field_expr's refusal. None: not one of the two."""
+        d = s.data
+        if s.kind == "MOVE":
+            src = self.view_pointer(d["from"])
+            dst = [self.view_pointer(t) for t in d["to"]]
+            if src is None or not dst or None in dst:
+                return None
+            if self.cics is None:
+                raise Untranslatable("pointer arithmetic (pointers)")
+            return [f"{ind}DetCics.copyPointer({self.pointer_item(p)}, {self.pointer_item(src)});" for p in dst if p]
+        if s.kind != "ARITH" or d["op"] not in ("+=", "-=") or s.phrases:
+            return None
+        targets = d.get("targets") or []
+        if len(targets) != 1 or len(d["operands"]) != 1 or targets[0][1]:
+            return None
+        ptr = self.view_pointer(targets[0][0])
+        if ptr is None:
+            return None
+        if self.cics is None:
+            raise Untranslatable("pointer arithmetic (pointers)")
+        n = self.num(d["operands"][0])
+        sign = "" if d["op"] == "+=" else "-"
+        return [f"{ind}DetCics.advancePointer(task, {self.pointer_item(ptr)}, {sign}({n}).longValueExact());"]
+
     def address_record(self, name: str) -> str:
         """#4771 (X47): the Field of a LINKAGE 01 record whose storage a pointer can address (it has storage of its own)."""
         it = self.resolve(E.Ref(name.upper()))
-        if getattr(it, "level", None) not in (
-            None,
-            1,
-        ):  # ZECS001's ZF-DATA: an offset into its record, no storage of its own
+        if getattr(it, "level", None) not in (None, 1):
             raise Untranslatable(
                 f"ADDRESS OF {name}: a subordinate item is an offset into its record, not a LINKAGE 01 record "
-                "(needs a Storage window; not modelled)"
+                "(address it with SET ADDRESS OF / SET pointer TO ADDRESS OF)"
             )
         if getattr(it, "section", None) != "LINKAGE" or getattr(it, "level", None) != 1:
             raise Untranslatable(f"ADDRESS OF {name}: not a LINKAGE 01 record (not modelled)")
         return self.field_expr(E.Ref(name.upper()))
+
+    def address_item(self, name: str) -> tuple[str, bool]:
+        """#4771 (X47): `ADDRESS OF name` as a source of SET: (the Field, whether it is a windowed item). A LINKAGE 01
+        record is its own storage (address_record); any other single item of WORKING-STORAGE or LINKAGE (ZECS001's
+        ZF-DATA, or a WORKING-STORAGE record) is an offset into its section's or record's storage, which a record set
+        onto it views through a Storage window (Storage.base). Refused: a table element, another section's item."""
+        it = self.resolve(E.Ref(name.upper()))
+        if getattr(it, "section", None) == "LINKAGE" and getattr(it, "level", None) == 1:
+            return self.address_record(name), False
+        if getattr(it, "section", None) not in ("WORKING-STORAGE", "LINKAGE"):
+            raise Untranslatable(f"ADDRESS OF {name}: not an item of WORKING-STORAGE or LINKAGE (not modelled)")
+        in_table = it.occurs > 1
+        walker = it.parent
+        while walker is not None and not in_table:
+            in_table = walker.occurs > 1
+            walker = walker.parent
+        if in_table:
+            raise Untranslatable(f"ADDRESS OF {name}: a table element (not modelled)")
+        return self.field_expr(E.Ref(name.upper())), True
 
     def field_expr(self, ref: E.Ref) -> str:
         it = self.resolve(ref)
@@ -2011,6 +2062,9 @@ class Gen:
         if k in ("RELEASE", "RETURN"):
             return [c, *self.release_return(s, ind)]
         if k == "MOVE":
+            view = self.pointer_view_statement(s, ind)
+            if view is not None:
+                return [c, *view]
             return [c] + [ind + self.move(s.data["from"], t) for t in s.data["to"]]
         if k == "IF":
             out = [c, f"{ind}if ({self.cond_top(s.data['cond'])}) {{", *self.block(s.body, ind + "    ")]
@@ -2096,6 +2150,9 @@ class Gen:
                 self.numval_store = False  # (set by float_mode for this statement's stores only)
         if k == "ARITH":
             d = s.data
+            view = self.pointer_view_statement(s, ind)
+            if view is not None:
+                return [c, *view]
             receivers = [t for t, _ in d.get("targets") or []] + [t for t, _ in d.get("giving") or []]
             receivers += [d["remainder"]] if d.get("remainder") is not None else []
             mode = self.float_mode(d["operands"], receivers, d["op"] in ("*", "*="))
@@ -2125,15 +2182,17 @@ class Gen:
                 return [c, f"{ind}// the pointer is never read (write_only_pointers): no effect any output can show"]
             if self.cics is None:
                 raise Untranslatable("SET ADDRESS OF (pointers)")
-            call = f"DetCics.setPointerToRecord(task, {self.pointer_item(s.data['target'])}, {self.address_record(s.data['of'])});"
-            return [c, ind + call]
+            ptr = self.pointer_item(s.data["target"])
+            of, windowed = self.address_item(s.data["of"])
+            return [c, f"{ind}DetCics.{'setPointerToItem' if windowed else 'setPointerToRecord'}(task, {ptr}, {of});"]
         if k == "SET-ADDRESS":  # #4771 (X47): the record's storage becomes the pointer's / another record's
             if self.cics is None:
                 raise Untranslatable("SET ADDRESS OF (pointers)")
             rec = self.address_record(s.data["record"])
             if s.data["pointer"]:
                 return [c, f"{ind}DetCics.setAddress(task, {rec}, {self.pointer_item(s.data['pointer'])});"]
-            return [c, f"{ind}DetCics.setAddressOfRecord(task, {rec}, {self.address_record(s.data['of'])});"]
+            of, windowed = self.address_item(s.data["of"])
+            return [c, f"{ind}DetCics.{'setAddressOfItem' if windowed else 'setAddressOfRecord'}(task, {rec}, {of});"]
         if k == "INITIALIZE":
             out = [c]
             for r in s.data["refs"]:

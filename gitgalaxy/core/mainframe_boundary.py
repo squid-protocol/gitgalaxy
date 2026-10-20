@@ -87,6 +87,8 @@ from gitgalaxy.core.call_using import blank_stream, call_using_args, entry_point
 from gitgalaxy.core.cics_macro_tables import cics_macro_table_resources
 from gitgalaxy.core.cics_resources import cobol_move_literals, extract_cics_resources
 from gitgalaxy.core.cics_tasks import extract_cics_tasks
+from gitgalaxy.core.cobol_preprocessor import COPY_LIBRARY, COPY_OR_INCLUDE_HEAD, continued_literal
+from gitgalaxy.core.cobol_preprocessor import copy_replacing as _copy_replacing  # #5648: shared with det/
 from gitgalaxy.core.compiler_options import compiler_options, effective
 from gitgalaxy.core.data_moves import data_moves
 from gitgalaxy.core.db2_declare_table import _blank_sequence_fields, extract_sql_tables
@@ -549,40 +551,7 @@ _VALUE_CLAUSE = re.compile(
 _COMMA_FRACTION = re.compile(r",[0-9]{1,31}")
 
 
-def _continued_literal(code_stream: str, open_at: int) -> str | None:
-    """#4391: the value of the nonnumeric literal whose opening quote is at `open_at` when it is
-    continued (Enterprise COBOL LR, "Continuation lines"): its first line's characters after the
-    quote through column 72, then each continuation line's (`-` in column 7) characters after its
-    first quote -- through column 72 again, until a line closes the literal. None when the source is
-    not that shape (a free-format literal, a missing indicator): the raw text is then kept."""
-    quote = code_stream[open_at]
-    line_start = code_stream.rfind("\n", 0, open_at) + 1
-    col = open_at - line_start
-    if col >= 72:
-        return None
-    line_end = code_stream.find("\n", open_at)
-    line = code_stream[line_start : line_end if line_end != -1 else len(code_stream)]
-    parts = [line[col + 1 : 72].ljust(72 - col - 1)]
-    pos = line_end
-    for _ in range(50):  # a literal is at most 160 characters; bounded either way
-        if pos == -1:
-            return None
-        nxt_end = code_stream.find("\n", pos + 1)
-        nxt = code_stream[pos + 1 : nxt_end if nxt_end != -1 else len(code_stream)]
-        if len(nxt) < 8 or nxt[6] != "-":
-            return None
-        resume = nxt.find(quote, 7)
-        if resume == -1 or resume >= 72:
-            return None
-        close = nxt.find(quote, resume + 1)
-        while close != -1 and close + 1 < len(nxt) and nxt[close + 1] == quote:  # a doubled quote
-            close = nxt.find(quote, close + 2)
-        if close != -1 and close < 72:
-            parts.append(nxt[resume + 1 : close])
-            return "".join(parts)
-        parts.append(nxt[resume + 1 : 72].ljust(72 - resume - 1))
-        pos = nxt_end
-    return None
+_continued_literal = continued_literal  # #5648: the one rule, shared with det/ (tests import this name)
 
 
 _NUMERIC_BAREWORD = re.compile(r"[+-]?[0-9]{0,31}")
@@ -598,69 +567,8 @@ _NUMERIC_BAREWORD = re.compile(r"[+-]?[0-9]{0,31}")
 # #5618: a quoted GnuCOBOL file literal may carry the copybook's extension (`COPY "ws-state.cpy".`): the
 # `.ext` is swallowed only when a closing quote follows it, so the member stays the stem and the
 # `IN|OF` / `REPLACING` phrase after the quote still parses.
-_COPY_IN_ENTRY = re.compile(
-    r"(?<![A-Z"
-    + NATIONAL
-    + WIDE_DIGITS
-    + WIDE_HYPHENS
-    + r"0-9-])(?:COPY|EXEC[ \t\n\u3000]+SQL[ \t\n\u3000]+INCLUDE)[ \t\n\u3000]+['\"]?([A-Z"
-    + NATIONAL
-    + WIDE_DIGITS
-    + r"0-9@#$][A-Z"
-    + NATIONAL
-    + WIDE_DIGITS
-    + WIDE_HYPHENS
-    + r"0-9@#$-]*)(?:\.[\w-]+(?=['\"]))?",
-    re.I,
-)
-# #4265: the `IN|OF library-name` after a COPY's text-name (closing quote allowed).
-_COPY_LIBRARY = re.compile(
-    r"['\"]?[ \t\n\u3000]+(?:IN|OF)[ \t\n\u3000]+['\"]?([A-Z"
-    + NATIONAL
-    + WIDE_DIGITS
-    + r"0-9@#$][A-Z"
-    + NATIONAL
-    + WIDE_DIGITS
-    + WIDE_HYPHENS
-    + r"0-9@#$-]*)",
-    re.I,
-)
-# #4265: `REPLACING operand BY operand ...` after a COPY's text-name (and library): each operand is
-# ==pseudo-text== or a single word / literal. Read up to the statement's separator period.
-_COPY_REPLACING_HEAD = re.compile(
-    r"['\"]?(?:[ \t\n\u3000]+(?:IN|OF)[ \t\n\u3000]+['\"]?[^\s.'\"]+['\"]?)?[ \t\n\u3000]+REPLACING(?![\w-])", re.I
-)
-_REPLACING_OPERAND = r"==(.*?)==|('[^'\n]*'|\"[^\"\n]*\"|[^\s.=]+(?:\.[^\s.=]+)*)"
-_REPLACING_PAIR = re.compile(
-    r"[ \t\n\u3000]+(?:(LEADING|TRAILING)[ \t\n\u3000]+)?(?:"
-    + _REPLACING_OPERAND
-    + r")[ \t\n\u3000]+BY[ \t\n\u3000]+(?:"
-    + _REPLACING_OPERAND
-    + r")",
-    re.I | re.S,
-)
-
-
-def _copy_replacing(window: str, at: int) -> list[list[str]] | None:
-    """#4265: the [from, to] pairs of the REPLACING phrase of the COPY whose text-name ends at `at` -- a
-    third element LEADING / TRAILING when the phrase says so (partial-word replacement)."""
-    head = _COPY_REPLACING_HEAD.match(window, at)
-    if not head:
-        return None
-    pairs: list[list[str]] = []
-    pos = head.end()
-    while len(pairs) < 50:
-        m = _REPLACING_PAIR.match(window, pos)
-        if not m:
-            break
-        mode, src = m.group(1), (m.group(2) if m.group(2) is not None else m.group(3))
-        dst = m.group(4) if m.group(4) is not None else (m.group(5) or "")
-        pair = [" ".join(src.split()), " ".join(dst.split())]
-        pairs.append([*pair, mode.upper()] if mode else pair)
-        pos = m.end()
-    return pairs or None
-
-
+_COPY_IN_ENTRY = COPY_OR_INCLUDE_HEAD  # #5648: the one rule, in core.cobol_preprocessor
+_COPY_LIBRARY = COPY_LIBRARY
 # The special levels: 88 condition-names and 66 RENAMES describe the item above
 # them rather than nesting by level number, so they attach to the last real
 # item and are never pushed as a potential parent themselves.

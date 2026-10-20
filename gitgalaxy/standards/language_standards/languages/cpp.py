@@ -108,6 +108,9 @@ DEFINITION: dict[str, Any] = {
     # (`<chrono>`, `<ostream>`, `<QString>`) is a file with no extension, never a
     # same-stem `chrono.h` (fmt's own header), so the resolver matches it exactly.
     "include_names_file_literally": True,
+    # #5629: an ALL-CAPS `NAME(` before the body's `{` is a macro in the header (the defining macro of a
+    # macro-defined unit, a parameter-list macro), not a call. A top-level helper flag, not a `rules` pattern.
+    "calls_out_header_macros_are_not_calls": True,
     # #3644 (calls_out C3): `Type var(args)` in a body constructs a Type -- the callee is
     # the type, never the variable. A top-level helper flag, not a `rules` pattern (#2806).
     "calls_out_declarator_constructs": True,
@@ -373,7 +376,11 @@ DEFINITION: dict[str, Any] = {
             # this exact shape, and every `[[attribute]] Type param` case in the existing
             # extraction gauntlet still matches (the lookahead only excludes a single `[` NOT
             # immediately followed by a second one).
-            r"[ \t\n]{0,200}(?:ARGS\d+\s*\([^)]*\)|\((?![ \t\n]{0,20}\[(?!\[))(?:[^)(]|\([^)]*\))*\)|NOARGS)"
+            # #5462: a parameter list holds no `;` and no brace other than a flat brace-init default
+            # (`= {}`, `= {1, 2}`). A call passing a multi-line lambda AFTER its first argument
+            # (`walk(node, [&](T& x) noexcept {` ... `if (f(x)) {`) otherwise ran through the
+            # lambda's body to a later `) {` and was counted as a definition of `walk`.
+            r"[ \t\n]{0,200}(?:ARGS\d+\s*\([^)]*\)|\((?![ \t\n]{0,20}\[(?!\[))(?:[^)(;{}]|\([^);{}]*\)|\{[^(){};]*\})*\)|NOARGS)"
             # 8. POST-PARAMETER MODIFIERS & TRAILING RETURN TYPES
             # [OVERLAP PREVENTION]: Removed ambiguous \s* inside attribute matcher.
             # #5462: also `noexcept(expr)`, `throw(...)`, a specifier macro (psydoom `readBit() THROWS {`),

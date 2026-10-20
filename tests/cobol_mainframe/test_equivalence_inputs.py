@@ -7,7 +7,10 @@ unique and in key order, a `from` join draws only values the other file holds (a
 blank, and the same seed makes the same bytes.
 """
 
+import json
+import os
 import random
+import re
 import sys
 from decimal import Decimal
 from pathlib import Path
@@ -17,6 +20,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import equivalence as eq  # noqa: E402
 import equivalence_inputs as ei  # noqa: E402
+from gitgalaxy.core.source_text import read_source  # noqa: E402
 
 ACCOUNT = [
     {"name": "ACCT-ID", "offset": 0, "bytes": 5, "pic": "9(05)", "usage": None},
@@ -173,6 +177,9 @@ def test_a_cics_case_takes_its_generated_files_key_and_length_from_the_program_f
 @pytest.mark.parametrize("case, expect", [
     ("carddemo-posttran-generated", {"ACCTFILE": 30, "TCATBALF": 34, "TRANFILE": 16, "DALYREJS": 84}),
     ("carddemo-acctview-generated", None),
+    ("carddemo-readcard-generated", {}),
+    ("carddemo-readxref-generated", {}),
+    ("carddemo-readcust-generated", {}),
 ])  # fmt: skip
 def test_the_hand_written_ports_hold_on_generated_inputs(tmp_path, case, expect):
     """POSTTRAN (batch) and the account view (CICS: generated files, and generated COMMAREA / map input, the
@@ -185,8 +192,55 @@ def test_the_hand_written_ports_hold_on_generated_inputs(tmp_path, case, expect)
     assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
     report = json.loads((tmp_path / "report.json").read_text())
     assert report["proven"] is True
-    if expect:
+    if expect is not None:
         assert {dd: o["records"] for dd, o in report["outputs"].items()} == expect
         assert all(o["equal"] == o["records"] for o in report["outputs"].values())
     else:
         assert len(report["outputs"]) == 24
+
+
+# ---- #3806: inputs of the programs whose FD declares its record inline --------------------------------------
+CARDDEMO = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", Path(__file__).resolve().parents[2] / ".mainframe_corpora")
+                ) / "aws-mainframe-modernization-carddemo"  # fmt: skip
+INLINE_FD_PROGRAMS = ("CBACT01C", "CBACT02C", "CBACT03C", "CBACT04C", "CBCUS01C", "CBIMPORT", "CBTRN01C", "CBTRN02C",
+                      "CBTRN03C")  # fmt: skip
+_FD = re.compile(r"^ {7}FD +([A-Z0-9-]+)[^.]*\.\s+01 +([A-Z0-9-]+)", re.M | re.I)  # FD clauses hold no period
+
+
+@pytest.mark.skipif(not CARDDEMO.is_dir(), reason="the CardDemo corpus is not available")
+@pytest.mark.parametrize("program", INLINE_FD_PROGRAMS)
+def test_an_inline_fd_record_lays_out_and_generates_at_its_width(program):
+    """trial.py calls an inline FD record a layout (#5551): the generator must read every one of them from the
+    program source, each field inside the record, and fill it deterministically."""
+    source = f"app/cbl/{program}.cbl"
+    fds = _FD.findall(read_source(CARDDEMO / source).text)
+    assert fds, f"{program}: no FD with an inline 01 record"
+    for fd, record in fds:
+        fields = ei.common.layout_fields(CARDDEMO, source, record, [CARDDEMO / "app/cpy", CARDDEMO])
+        width = max(f["offset"] + f["bytes"] for f in fields)
+        spec = {"reclen": width, "organization": "sequential", "keys": [],
+                "generate": {"records": 4, "seed": 1, "fields": {}}}  # fmt: skip
+        data, _ = ei.generate_dataset(fd, spec, fields, {})
+        assert len(data) == 4 * width, (program, fd)
+        assert data == ei.generate_dataset(fd, spec, fields, {})[0]
+
+
+@pytest.mark.skipif(not CARDDEMO.is_dir(), reason="the CardDemo corpus is not available")
+@pytest.mark.parametrize("name, dd, key_field", [("readcard", "CARDFILE", "CARD-NUM"), ("readxref", "XREFFILE", "XREF-CARD-NUM"),
+                                                 ("readcust", "CUSTFILE", "CUST-ID")])  # fmt: skip
+def test_a_reader_case_generates_its_input_from_the_copybook_it_reads_into(name, dd, key_field):
+    """CBACT02C / CBACT03C / CBCUS01C declare their record inline (a key and a blob), so the case lays the input out
+    from the copybook the record is read INTO. Keys are unique, in key order, and the same on every run; a card number
+    is digits (an alphanumeric key sorts differently in the COBOL and the Java file, ASCII vs EBCDIC)."""
+    case = json.loads((Path(__file__).resolve().parents[1] / "equivalence" / f"carddemo-{name}-generated"
+                       / "case.json").read_text(encoding="utf-8"))  # fmt: skip
+    spec = case["datasets"][dd]
+    assert spec["input"] == "@generate" and case["port_from"] == f"carddemo-{name}"
+    first = ei.generate_inputs(case, CARDDEMO)[dd]
+    assert first == ei.generate_inputs(case, CARDDEMO)[dd]
+    reclen, key = spec["reclen"], spec["keys"][0]
+    rows = _rows(first, reclen)
+    keys = [r[key["offset"] : key["offset"] + key["length"]] for r in rows]
+    assert len(rows) == spec["generate"]["records"] and len(set(keys)) == len(keys) and keys == sorted(keys)
+    if key_field != "CUST-ID":
+        assert all(k.isdigit() for k in keys)

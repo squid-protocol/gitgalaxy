@@ -201,3 +201,26 @@ def test_the_scanner_and_the_translator_join_a_continued_literal_alike():
     first = src.splitlines()[1]
     assert value == first[first.index("'") + 1 : 72] + "BBBBBB"
     assert joined == "'" + value + "'."
+
+
+# ---- continuation joining (slice 4) ----------------------------------------------------------------------------------
+@pytest.mark.parametrize("q", ["'", '"'])
+def test_a_continued_literal_is_one_function_for_both_sides(q):
+    first = "       05 T PIC X(60) VALUE " + q + "A" * 43
+    src = first + "\n      -    " + q + "BB" + q + ".\n"
+    assert MB._continued_literal is PP.continued_literal
+    assert PP.continued_literal(src, first.index(q)) == "A" * 43 + "BB"
+    # a doubled quote after the resume stays inside the literal
+    src = first + "\n      -    " + q + "B" + q + q + "C" + q + ".\n"
+    assert PP.continued_literal(src, first.index(q)) == "A" * 43 + "B" + q + q + "C"
+    # no continuation indicator: not that shape
+    assert PP.continued_literal(first + "\n           " + q + "BB" + q + ".\n", first.index(q)) is None
+
+
+def test_join_continuation_resumes_a_literal_and_joins_a_word():
+    prev = "VALUE 'AAA"
+    cont = "      -    'BB'."
+    assert PP.join_continuation(prev, cont, True) == prev.ljust(65) + "BB'."
+    assert PP.join_continuation("MOVE A TO   ", "      -    B.", False) == "MOVE A TO B."
+    # an open literal whose continuation does not resume with a quote falls back to the word join
+    assert PP.join_continuation(prev, "      -    B.", True) == prev + " B."

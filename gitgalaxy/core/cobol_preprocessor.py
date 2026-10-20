@@ -12,6 +12,9 @@ rules live here once, zero-dependency (no tree-sitter), and both sides import th
     statement_end   where the COPY statement's separator period is (not one inside pseudo-text or a literal)
     copy_replacing  the REPLACING phrase's operand pairs (pseudo-text, words, literals, LEADING / TRAILING)
     replace_text    one left-to-right REPLACING pass over a text, as the compiler applies it
+    continuation_resume / continued_literal / join_continuation
+                    a continued nonnumeric literal: where it resumes, its whole value, and one continuation
+                    line joined onto the logical line before it
 
 Member resolution stays in core/copy_libraries.py (the engine owns it since #4468).
 """
@@ -182,3 +185,50 @@ def continuation_resume(line: str, quote: str | None = None) -> int | None:
     if not body or body[0] not in ("'", '"') or (quote is not None and body[0] != quote):
         return None
     return 7 + len(area) - len(body) + 1
+
+
+def continued_literal(code_stream: str, open_at: int) -> str | None:
+    """#4391, #5648: the value of the nonnumeric literal whose opening quote is at `open_at` when it is
+    continued (Enterprise COBOL LR, "Continuation lines"): its first line's characters after the
+    quote through column 72, then each continuation line's (`-` in column 7) characters after its
+    first quote -- through column 72 again, until a line closes the literal. None when the source is
+    not that shape (a free-format literal, a missing indicator): the raw text is then kept."""
+    quote = code_stream[open_at]
+    line_start = code_stream.rfind("\n", 0, open_at) + 1
+    col = open_at - line_start
+    if col >= 72:
+        return None
+    line_end = code_stream.find("\n", open_at)
+    line = code_stream[line_start : line_end if line_end != -1 else len(code_stream)]
+    parts = [line[col + 1 : 72].ljust(72 - col - 1)]
+    pos = line_end
+    for _ in range(50):  # a literal is at most 160 characters; bounded either way
+        if pos == -1:
+            return None
+        nxt_end = code_stream.find("\n", pos + 1)
+        nxt = code_stream[pos + 1 : nxt_end if nxt_end != -1 else len(code_stream)]
+        if len(nxt) < 8 or nxt[6] != "-":
+            return None
+        resume = continuation_resume(nxt, quote)
+        if resume is None:
+            return None
+        resume -= 1
+        close = nxt.find(quote, resume + 1)
+        while close != -1 and close + 1 < len(nxt) and nxt[close + 1] == quote:  # a doubled quote
+            close = nxt.find(quote, close + 2)
+        if close != -1 and close < 72:
+            parts.append(nxt[resume + 1 : close])
+            return "".join(parts)
+        parts.append(nxt[resume + 1 : 72].ljust(72 - resume - 1))
+        pos = nxt_end
+    return None
+
+
+def join_continuation(prev_text: str, line: str, literal_open: bool) -> str:
+    """#5648: the logical line `prev_text` (columns 8-72 of the line before) with the continuation `line`
+    (indicator `-`) joined on. An open literal ran to column 72 (its trailing spaces are part of it) and resumes
+    after the continuation's first quote; any other continuation joins as a word, one space between."""
+    resume = continuation_resume(line)
+    if resume is not None and literal_open:
+        return prev_text.ljust(65) + line[resume:72]
+    return prev_text.rstrip() + " " + line[7:72].lstrip()

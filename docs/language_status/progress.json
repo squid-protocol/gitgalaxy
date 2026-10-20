@@ -1,5 +1,5 @@
 {
- "commit": "d5d4f363b",
+ "commit": "f14e22bac",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -157,15 +157,15 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-20T07:15:23Z",
+  "as_of": "2026-10-20T07:41:29Z",
   "core": {
-   "closed": 144,
-   "open": 39,
+   "closed": 145,
+   "open": 38,
    "total": 183
   },
   "core_last_window": {
-   "closed": 48,
-   "net_closed": -2,
+   "closed": 49,
+   "net_closed": -1,
    "opened": 50
   },
   "core_milestone": {
@@ -232,9 +232,9 @@
    {
     "closed": 43,
     "number": 6,
-    "open": 13,
+    "open": 14,
     "title": "Side Quests \ud83d\uddfa\ufe0f",
-    "total": 56
+    "total": 57
    },
    {
     "closed": 170,
@@ -398,17 +398,17 @@
     "total": 42
    },
    {
-    "closed": 19,
+    "closed": 20,
     "number": 31,
-    "open": 16,
+    "open": 15,
     "title": "DOOM Port Speedrun",
     "total": 35
    }
   ],
   "sweep": {
    "closed": 78,
-   "open": 13,
-   "total": 91
+   "open": 14,
+   "total": 92
   },
   "title_counts": {
    "cics": {

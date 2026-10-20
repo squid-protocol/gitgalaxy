@@ -1,0 +1,562 @@
+{
+  "kind": "cics",
+  "corpus": "cics-banking-sample-application-cbsa",
+  "program": "BNK1CCS",
+  "program_source": "src/base/cobol_src/BNK1CCS.cbl",
+  "copy_dirs": [
+    "src/base/cobol_copy"
+  ],
+  "transid": "OCCS",
+  "termid": "T001",
+  "clock": "2026/10/01 10:30:15.00",
+  "region": {
+    "applid": "CBSAREGN",
+    "sysid": "CICA"
+  },
+  "taskn": 4242,
+  "programs": [
+    {
+      "program": "CRECUST",
+      "program_source": "src/base/cobol_src/CRECUST.cbl"
+    },
+    {
+      "program": "CRDTAGY1",
+      "program_source": "src/base/cobol_src/CRDTAGY1.cbl"
+    },
+    {
+      "program": "CRDTAGY2",
+      "program_source": "src/base/cobol_src/CRDTAGY2.cbl"
+    },
+    {
+      "program": "CRDTAGY3",
+      "program_source": "src/base/cobol_src/CRDTAGY3.cbl"
+    },
+    {
+      "program": "CRDTAGY4",
+      "program_source": "src/base/cobol_src/CRDTAGY4.cbl"
+    },
+    {
+      "program": "CRDTAGY5",
+      "program_source": "src/base/cobol_src/CRDTAGY5.cbl"
+    },
+    {
+      "program": "ABNDPROC",
+      "program_source": "src/base/cobol_src/ABNDPROC.cbl"
+    }
+  ],
+  "datasets": {
+    "CBSA.CICSBSA.ABNDFILE": {
+      "input": "@case/abndfile.bin",
+      "entity": "WsAbndArea",
+      "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+      "record": "WS-ABND-AREA",
+      "recovery": "NONE",
+      "recovery_why": "etc/install/base/installjcl/BANK.csd: DEFINE FILE(ABNDFILE) ... RECOVERY(NONE) -- the abend log a backout must not undo"
+    },
+    "CBSA.CICSBSA.CUSTOMER": {
+      "input": "@case/customer.txt",
+      "entity": "OutputData",
+      "copybook": "src/base/cobol_copy/CUSTOMER.cpy",
+      "record": "CUSTOMER-RECORD"
+    }
+  },
+  "db2": {
+    "ddl": [
+      "etc/install/base/db2jcl/CRETB01.jcl",
+      "etc/install/base/db2jcl/CREI101.jcl",
+      "etc/install/base/db2jcl/CRETB02.jcl",
+      "etc/install/base/db2jcl/CRETB03.jcl",
+      "etc/install/base/db2jcl/CREI301.jcl"
+    ],
+    "seed": "@generate",
+    "compare": [
+      "IBMUSER.PROCTRAN"
+    ],
+    "qualifier": "IBMUSER",
+    "compare_sql": true,
+    "generate": {
+      "seed": 4507,
+      "tables": {
+        "IBMUSER.PROCTRAN": {
+          "rows": 12
+        }
+      }
+    }
+  },
+  "commarea": {
+    "segments": [
+      {
+        "copybook": "src/base/cobol_src/BNK1CCS.cbl",
+        "record": "WS-COMM-AREA"
+      }
+    ]
+  },
+  "screens": {
+    "BNK1CC": {
+      "copybook": "@bms/BNK1CCM.cpy",
+      "input": "BNK1CCI",
+      "output": "BNK1CCO"
+    }
+  },
+  "transactions": [
+    "OCR1",
+    "OCR2",
+    "OCR3",
+    "OCR4",
+    "OCR5"
+  ],
+  "child_programs": {
+    "OCR1": "CRDTAGY1",
+    "OCR2": "CRDTAGY2",
+    "OCR3": "CRDTAGY3",
+    "OCR4": "CRDTAGY4",
+    "OCR5": "CRDTAGY5"
+  },
+  "maps": {
+    "BNK1CC": {
+      "mapset": "BNK1CCM"
+    }
+  },
+  "uctranst": "NOUCTRAN",
+  "scenarios": [
+    {
+      "name": "first-entry",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "EIBCALEN 0: WS-COMM-AREA initialised, the map sent ERASE"
+    },
+    {
+      "name": "first-entry-uctran",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "uctranst": "UCTRAN",
+      "why": "EIBCALEN 0 with the terminal translating to upper case (UCTRAN): the setting is stored and SET to NOUCTRAN"
+    },
+    {
+      "name": "first-entry-tranidonly",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "uctranst": "TRANIDONLY",
+      "why": "the terminal's UCTRANST TRANIDONLY: also SET to NOUCTRAN"
+    },
+    {
+      "name": "pa1",
+      "aid": "DFHPA1",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "PA1: CONTINUE, nothing sent; RETURN TRANSID with the COMMAREA"
+    },
+    {
+      "name": "pf3",
+      "aid": "DFHPF3",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "PF3: RETURN TRANSID('OMEN') IMMEDIATE: back to the main menu"
+    },
+    {
+      "name": "pf12",
+      "aid": "DFHPF12",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "PF12: SEND-TERMINATION-MSG, RETURN"
+    },
+    {
+      "name": "clear",
+      "aid": "DFHCLEAR",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "CLEAR: SEND CONTROL ERASE FREEKB, RETURN"
+    },
+    {
+      "name": "other-key",
+      "aid": "DFHPF7",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "PF7: WHEN OTHER -- 'Invalid key pressed.', SEND MAP DATAONLY ALARM"
+    },
+    {
+      "name": "mapfail",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "ENTER with no field modified: RECEIVE MAP MAPFAIL -- ABNDPROC LINKed (an ABNDFILE record) and ABEND HBNK"
+    },
+    {
+      "name": "born-before-1601",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "every field valid, born 01/01/1500: LINK CRECUST, whose date-of-birth check refuses the date before CEEDAYS ('O'): 'Sorry, customer is too old'",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-invalid",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'Madam': 'Valid titles are ...'",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Madam_____",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-missing",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title not typed (CUSTTITL 0): 'Valid titles are ...'",
+      "receive": {
+        "BNK1CC": {
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "customer-number-typed",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "CUSTNO2 typed (CUSTNO2L > 0): 'Please clear screen before creating new user'",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500",
+          "CUSTNO2I": "0000000001"
+        }
+      }
+    },
+    {
+      "name": "first-name-missing",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "no first name: 'Please supply a valid First Name'",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "surname-missing",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "no surname: 'Please supply a valid Surname'",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "address-missing",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "no address line 1",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "yyyy-short",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "year '15' (DOBYYL < 4)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "15"
+        }
+      }
+    },
+    {
+      "name": "dd-zero",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "day 00: 'valid Date of Birth (DD)'",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "00",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "mm-13",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "month 13",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "13",
+          "DOBYYI": "1500"
+        }
+      }
+    }
+  ],
+  "notes": "BNK1CCS on generated Db2 rows (#4507): the create-customer screen of cbsa-bnk1ccs, its LINKed CRECUST (five credit-agency children and ABNDPROC in the task). The only Db2 statement on this path is CRECUST's INSERT INTO PROCTRAN (customer and its control record are VSAM, customer.txt), so only PROCTRAN is generated from CRETB02 (12 rows, boundary values, a NULL in every nullable column; no key or foreign key) and it is compared after every task with each task's statements (compare_sql); there is nothing to generate for ACCOUNT or CONTROL. Stated scenarios keep the non-ENTER keys, MAPFAIL and the input checks; the ENTERs are generated: every title spelling EDIT-DATA lists, name, initials and address widths, day and month, and only years BEFORE 1601. NOT PROVABLE (named holes, as cbsa-bnk1ccs and cbsa-crecust-generated): L1 (a date of birth from 1601 on reaches CRECUST's CEEDAYS call, which the oracle refuses by name, and with it the whole case, so no scenario creates a customer and no PROCTRAN row is inserted: a partial reach, not a proof), X18 (the child credit schedule is ASSUMED) and L4 (FC is 8 bytes, LE's token 12). Never --record this case while a hole stands. Burned estate (CBSA). customer.txt is cbsa-bnk1ccs's, SYNTHETIC. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived.",
+  "port_from": "cbsa-bnk1ccs",
+  "scenario_generate": {
+    "seed": 4507,
+    "count": 40,
+    "prefix": "generated",
+    "aid": [
+      "DFHENTER",
+      "DFHENTER",
+      "DFHENTER",
+      "DFHENTER",
+      "DFHENTER",
+      "DFHENTER",
+      "DFHENTER",
+      "DFHENTER",
+      "DFHENTER",
+      "DFHENTER",
+      "DFHPF3",
+      "DFHPA1"
+    ],
+    "commarea": {
+      "WS-COMM-TERM": 451
+    },
+    "receive": {
+      "BNK1CC": {
+        "CUSTTITI": {
+          "values": [
+            "DR        ",
+            "DRS       ",
+            "DRS_______",
+            "DR________",
+            "Dr        ",
+            "Dr________",
+            "Drs       ",
+            "Drs_______",
+            "LADY      ",
+            "LADY______",
+            "LORD      ",
+            "LORD______",
+            "Lady      ",
+            "Lady______",
+            "Lord      ",
+            "Lord______",
+            "MISS      ",
+            "MISS______",
+            "MR        ",
+            "MRS       ",
+            "MRS_______",
+            "MR________",
+            "MS        ",
+            "MS________",
+            "Miss      ",
+            "Miss______",
+            "Mr________",
+            "Mrs       ",
+            "Mrs_______",
+            "Ms        ",
+            "Ms________",
+            "PROFESSOR ",
+            "PROFESSOR_",
+            "Professor ",
+            "Professor_",
+            "SIR       ",
+            "SIR_______",
+            "Sir       ",
+            "Sir_______",
+            "dr        ",
+            "dr________",
+            "drs       ",
+            "drs_______",
+            "lady      ",
+            "lady______",
+            "lord      ",
+            "lord______",
+            "miss______",
+            "mr________",
+            "mrs_______",
+            "ms        ",
+            "ms________",
+            "sir       ",
+            "sir_______"
+          ]
+        },
+        "CHRISTNI": {
+          "values": [
+            "Fiona_______________",
+            "A___________________",
+            "Maximiliano_Bartholo"
+          ]
+        },
+        "CUSTINSI": {
+          "values": [
+            "K___",
+            "____",
+            "AB__",
+            "ABCD"
+          ]
+        },
+        "CUSTSNI": {
+          "values": [
+            "Laidlaw____________",
+            "Li__________________",
+            "Montgomery-Featherst"
+          ]
+        },
+        "CUSTAD1I": {
+          "values": [
+            "17 Abbey Road_____________________________________",
+            "1 Ancient Way_____________________________________",
+            "X_________________________________________________"
+          ]
+        },
+        "CUSTAD2I": {
+          "values": [
+            "Winchester",
+            "Y"
+          ]
+        },
+        "CUSTAD3I": {
+          "values": [
+            "SO23 7AA",
+            "Z"
+          ]
+        },
+        "DOBDDI": {
+          "values": [
+            "01",
+            "15",
+            "28",
+            "29",
+            "31"
+          ]
+        },
+        "DOBMMI": {
+          "values": [
+            "01",
+            "02",
+            "06",
+            "12"
+          ]
+        },
+        "DOBYYI": {
+          "values": [
+            "1500",
+            "1066",
+            "1200",
+            "0001",
+            "1599",
+            "1400"
+          ]
+        }
+      }
+    }
+  }
+}

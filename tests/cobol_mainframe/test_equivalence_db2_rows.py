@@ -556,3 +556,14 @@ def test_the_delcus_service_holds_on_generated_db2_rows(tmp_path):
     assert len(sql) == 30 and all(q["equal"] == q["statements"] for q in sql)
     assert {x["verb"] for q in sql for x in q["cobol"]} >= {"SELECT", "DELETE", "INSERT"}
     assert report["coverage"]["paragraphs"]["covered"] == report["coverage"]["paragraphs"]["live"]
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_bnk1ccs_screen_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's create-customer screen (BNK1CCS -> CRECUST) on 12 generated PROCTRAN rows, the only table CRECUST touches:
+    every title spelling and field width, dates of birth before 1601 only (L1: later ones are the oracle's refusal, so
+    no customer is created), every statement answered alike on both sides, PROCTRAN alike after every task."""
+    report = _det_port_generated("cbsa-bnk1ccs-generated", tmp_path)
+    assert report["proven"] is True and report["db2_generated"] == {"IBMUSER.PROCTRAN": 12}
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    assert sql and all(q["equal"] == q["statements"] for q in sql)

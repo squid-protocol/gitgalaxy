@@ -1382,7 +1382,7 @@
     },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": 6.618,
-      "go/kubernetes/generic.go": 7.126,
+      "go/kubernetes/generic.go": 7.114,
       "go/kubernetes/kubelet.go": 6.582,
       "go/kubernetes/options.go": 5.644,
       "go/kubernetes/proxier.go": 7.215,

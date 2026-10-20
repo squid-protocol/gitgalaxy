@@ -1,0 +1,64 @@
+name: Flake history (refresh)
+
+# #5398: the learned-flake list the shepherd reads (tests/tools/flake_history.py's 14-day cache, `flake-history-*`).
+# This workflow is its ONLY writer; shepherd-reconcile.yml and shepherd-event.yml only restore it (caches are shared by
+# every workflow on main).
+# 2026-10-20: the refresh lived inside the reconcile pass, but a workflow_run-triggered pass gets a read-only cache
+# token ("cache write denied: token has no writable scopes"), and the scheduled passes that could save were mostly
+# replaced in the `shepherd` group by newer pending runs. So the cache was never saved, every pass refetched for its
+# 12-minute timeout (913 runner-min that day) and every PR waited a pass. A schedule run here can save; it has its
+# own group, so no reconcile pass replaces it. Cold, the 14 days take ~28 min (2 min a day); warm, only today and
+# yesterday are refetched (~4 min).
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: flake-history
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    name: refresh the flake-history cache
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+
+      # never an exact hit: restore-keys takes the newest saved one, and the days in it are not fetched again
+      - name: Restore the flake-history cache
+        continue-on-error: true
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: flake-cache
+          key: flake-history-${{ github.run_id }}
+          restore-keys: |
+            flake-history-
+
+      # --budget-s: stop between days before the job's timeout; the days fetched so far are saved below and the next
+      # run carries on (an unfinished cache keeps `updated` unset, so readers still see what it has)
+      - name: Refresh
+        continue-on-error: true
+        timeout-minutes: 32
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+        run: |
+          mkdir -p flake-cache
+          python3 tests/tools/flake_history.py --refresh-only --budget-s 1500 --cache flake-cache/flake_history.json
+
+      - name: Save the flake-history cache
+        if: always() && hashFiles('flake-cache/flake_history.json') != ''
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: flake-cache
+          key: flake-history-${{ github.run_id }}

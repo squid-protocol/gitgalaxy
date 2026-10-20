@@ -152,11 +152,3 @@ def test_a_killed_refresh_keeps_every_finished_day(tmp_path, monkeypatch):
         pass
     assert sorted(fh.load(cache)["days"]) == ["2026-10-19", "2026-10-20"]
     assert "updated" not in fh.load(cache)
-
-
-def test_the_reconcile_workflow_budgets_the_refresh_and_saves_only_after_one():
-    from pathlib import Path
-
-    yml = (Path(__file__).resolve().parents[2] / ".github/workflows/shepherd-reconcile.yml").read_text(encoding="utf-8")
-    assert "--refresh-only --budget-s 300" in yml
-    assert "if: always() && steps.refresh.outputs.refreshed == 'true'" in yml

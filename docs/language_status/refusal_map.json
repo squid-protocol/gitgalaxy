@@ -266,8 +266,8 @@
     {
       "id": "unbound-file",
       "match": "no repository for this file in the generated project",
-      "note": "A file with no store in the generated project (catalogue RT-FILE-UNBOUND-FILE, REFUSED). #5034 (closed) bound a CALLed subprogram's DDs in its caller's step; these programs' files are not that case.",
-      "issue": 5106
+      "note": "A file with no store in the generated project (catalogue RT-FILE-UNBOUND-FILE, REFUSED). #5034 (closed) bound a CALLed subprogram's DDs in its caller's step; these programs' files are not that case. Refused by name, not modelled: no burned estate hits it now. The two programs that carried it in the committed evidence fixtures (CardDemo CBSTM03B: CLOSE / OPEN / READ TRNX-FILE; CBSA BANKDATA: CLOSE / OPEN / WRITE CUSTOMER-FILE, with CEEGMT / CEEDATM beside them) are, in the published evidence reports, translated whole with 0 holes (CBSTM03B 3 holes -> 0, BANKDATA 6 -> 0): each file's DD reaches a repository through its caller's step (#5068) or the estate's DD / dataset binding. A file that really has no store stays an OPEN / CLOSE-only handle (DetFiles.Unbound; a record operation on it is a hole), so a program of a non-burned estate is out of scope here (burned-only policy).",
+      "issue": 5565
     }
   ]
 }

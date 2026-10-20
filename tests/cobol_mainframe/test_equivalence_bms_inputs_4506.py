@@ -176,6 +176,51 @@ def test_a_rule_beside_bms_replaces_the_generated_value_and_none_never_types(cor
         ei._bms_receive(random.Random(0), "s", {"@bms": {}, "NOPEI": "1"}, _layout(), bms, {}, 0)
 
 
+def test_a_field_rule_can_leave_its_field_alone_fset_sends_it_empty_and_any_other_omits_it(corpus):
+    """BNK1DAC tests `ACCNOI = LOW-VALUES OR ACCNOL = 0` on a non-FSET field: an `empty` share on a field rule leaves it
+    unmodified (not in the input: X'00', length 0), an FSET one is transmitted with length 0."""
+    bms = ei.bms_input_fields(corpus, "TESTMAP")
+    for field, want in (("NAMEI", None), ("ACCTI", ""), ("STATEI", "")):
+        always = {"@bms": {}, field: {"values": ["X"], "empty": 1.0}}
+        never = {"@bms": {}, field: {"values": ["X"], "empty": 0.0}}
+        for i in range(6):
+            got = ei._bms_receive(random.Random(i), "s", always, _layout(), bms, {}, i)
+            assert got.get(field, "absent") == (want if want is not None else "absent")
+            assert ei._bms_receive(random.Random(i), "s", never, _layout(), bms, {}, i)[field] == "X"
+    half = {"@bms": {}, "NAMEI": {"values": ["X"], "empty": 0.5}}
+    seen = {"NAMEI" in ei._bms_receive(random.Random(i), "s", half, _layout(), bms, {}, i) for i in range(40)}
+    assert seen == {True, False}
+
+
+def test_a_rule_without_empty_draws_nothing_extra_so_other_cases_keep_their_input(corpus):
+    bms = ei.bms_input_fields(corpus, "TESTMAP")
+    plain = {"@bms": {}, "NAMEI": {"values": ["X"]}}
+    zero = {"@bms": {}, "NAMEI": {"values": ["X"], "empty": 0}}
+    for i in range(6):
+        a = ei._bms_receive(random.Random(i), "s", plain, _layout(), bms, {}, i)
+        assert a == ei._bms_receive(random.Random(i), "s", zero, _layout(), bms, {}, i)
+
+
+def test_the_generated_bnk1dac_case_leaves_its_non_fset_account_field_alone_in_some_scenarios():
+    """BNK1DAC.cbl `IF ACCNOI = LOW-VALUES OR ACCNOL = 0`; ACCNO is not FSET, so unmodified means absent (X'00')."""
+    import json
+    import os
+
+    root = os.environ.get("GITGALAXY_MAINFRAME_CORPORA")
+    path = Path(__file__).resolve().parents[1] / "equivalence" / "cbsa-bnk1dac-generated" / "case.json"
+    case = json.loads(path.read_text("utf-8"))
+    assert case["scenario_generate"]["receive"]["BNK1DA"]["ACCNOI"]["empty"] > 0
+    if not root or not (Path(root) / case["corpus"]).is_dir():
+        pytest.skip("no CBSA corpus")
+    ei.bms_input_fields.cache_clear()
+    case = {**case, "datasets": {}, "scenario_generate": {**case["scenario_generate"], "commarea": None}}
+    out = ei.prepare_cics_case(case, Path(root) / case["corpus"], [])["scenarios"]
+    prefix = case["scenario_generate"]["prefix"] + "-"
+    maps = [s["receive"].get("BNK1DA", {}) for s in out if s["name"].startswith(prefix)]
+    assert any("ACCNOI" not in m for m in maps) and any(m.get("ACCNOI") for m in maps)
+    assert not any(m.get("ACCNOI") == "" for m in maps)  # never transmitted empty: it has no FSET
+
+
 def test_the_same_seed_types_the_same_input(corpus):
     bms = ei.bms_input_fields(corpus, "TESTMAP")
     a, b, c = (ei._bms_receive(random.Random(s), "s", "@bms", _layout(), bms, {}, 4) for s in (3, 3, 4))

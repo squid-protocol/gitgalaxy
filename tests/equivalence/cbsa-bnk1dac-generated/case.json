@@ -165,7 +165,8 @@
    "BNK1DA": {
     "ACCNOI": {
      "from": "IBMUSER.ACCOUNT.ACCOUNT_NUMBER",
-     "miss": 0.15
+     "miss": 0.15,
+     "empty": 0.2
     },
     "ACCNO2I": {
      "from": "IBMUSER.ACCOUNT.ACCOUNT_NUMBER",

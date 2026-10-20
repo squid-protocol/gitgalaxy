@@ -483,6 +483,12 @@ def _bms_value(rng: random.Random, f: dict[str, Any], i: int, bad: float) -> str
     return "".join(rng.choice("0123456789" if f["numeric"] else _TEXT) for _ in range(n))
 
 
+def _left_alone(rng: random.Random, rule: dict[str, Any], bms: dict[str, dict], fname: str) -> bool:
+    """#4506: a field rule's `empty` share: the user left the field alone (an FSET field is then sent with length 0, any other
+    omitted: X'00', length 0). The random draw is made only when the rule asks, so a rule without `empty` keeps its input."""
+    return bool(rule.get("empty")) and bool(bms) and fname in bms and rng.random() < rule["empty"]
+
+
 def _bms_receive(rng: random.Random, name: str, spec: Any, layout: dict[str, dict[str, Any]], bms: dict[str, dict],
                  pools: dict[str, list[Any]], i: int) -> dict[str, str]:  # fmt: skip
     """#4506: the map input of `"MAP": "@bms"` / `"MAP": {"@bms": {"bad": .., "empty": ..}, "FIELDI": rule}`: every typable
@@ -510,6 +516,10 @@ def _bms_receive(rng: random.Random, name: str, spec: Any, layout: dict[str, dic
         if rule is None:
             continue
         rule = rule if isinstance(rule, dict) else {"values": [rule]}
+        if _left_alone(rng, rule, bms, fname):
+            if bms.get(fname, {}).get("mdt"):
+                out[fname] = ""
+            continue
         out[fname] = _typed(rng, rule, layout[fname]["bytes"], pools.get(rule.get("from", ""), []), i)
     return out
 
@@ -615,6 +625,11 @@ def prepare_cics_case(case: dict[str, Any], corpus: Path, files: list[dict[str, 
                 if fname not in layout:
                     raise ValueError(f"{name}: map {m} has no input field {fname}")
                 rule = rule if isinstance(rule, dict) else {"values": [rule]}
+                bms = bms_input_fields(corpus, m) if rule.get("empty") else {}
+                if _left_alone(rng, rule, bms, fname):  # #4506: the user left the field alone
+                    if bms[fname]["mdt"]:
+                        receive[m][fname] = ""
+                    continue
                 receive[m][fname] = _typed(rng, rule, layout[fname]["bytes"], pools.get(rule.get("from", ""), []), i)
         if receive:
             sc["receive"] = receive

@@ -609,6 +609,16 @@ instrument). The rows below are rendered by one table in code (`compiler_options
     keeps that matrix whole. It holds only `ibm-publication` records today; NO `zos-run` record exists. A `zos-run` record needs `evidence` (job, step,
     output hash, never the data) and `calibrated_under` (`runtime_options.calibration_problems`, #4702). A model that
     disagrees with a captured record is a finding against the model: fix the model, never the record.
+  - **The capture kit (#4271, #4050).** `tests/tools/hfp_capture_kit.py emit OUTDIR` writes `HFPCAP.cbl` / `HFPCAP.jcl` from
+    the table's `ibm-publication` records: a program (Enterprise COBOL 6.3 or later, `FUNCTION HEX-OF`) that runs each
+    operation on z/OS and DISPLAYs `id|result`; `ingest SYSOUT --job J --step S --calibrated-under OPTIONS.json` appends
+    one `zos-run` record per captured line (evidence: job, step, the output's sha256; the options through
+    `calibration_problems`), never rewrites an existing record, and reports a model that disagrees as a finding (the
+    record stays, the model is fixed). 31 records are asked; 28 are SKIPPED by name: the 22 IEEE conversions (COBOL has
+    no IEEE converter) and the 6 short multiply / divide rows (IBM evaluates a COMP-1 multiply or divide in long
+    floating point, so a COBOL run cannot state the short arithmetic).
+    Proven by `test_hfp_capture_kit.py` with model-computed output (never written to the table). **The kit is not a
+    capture: no `zos-run` record exists, and the checklist's proof against captured outputs still waits on #4050.**
 - **IEEE <-> HFP conversion model (#4271).** `det/hfp.py` `ieee_value`, `from_ieee`, `to_ieee`, `exact_in_both`, proven by
   `test_hfp_ieee.py`: a binary64 fits long HFP exactly (53 bits in 56) and converts back to the same pattern; a short
   HFP inside binary32's normal range (about 1.2e-38 to 3.4e38) is exact in binary32; a long HFP rounds to binary64 half

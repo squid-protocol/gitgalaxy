@@ -229,7 +229,7 @@
     "| mutation | 237886 | 2353 | 141 | `typescript/typescript_compiler/checker.ts` |",
     "| dead_code | 18565 | 1599 | 13 | `rust/wasmtime/wasmtime_pulley_interp.rs` |",
     "| credential | 123 | 65 | 0 | `powershell/core/packaging.psm1` |",
-    "| threat | 8612 | 803 | 7 | `go/core/value.go` |",
+    "| threat | 185 | 32 | 0 | `php/wordpress/functions.php` |",
     "| ml_ai | 3032 | 312 | 0 | `lua/cosmopolitan/math.lua` |",
     "| ui | 3120 | 199 | 0 | `css/bootstrap_dist/bootstrap.rtl.css` |",
     "",

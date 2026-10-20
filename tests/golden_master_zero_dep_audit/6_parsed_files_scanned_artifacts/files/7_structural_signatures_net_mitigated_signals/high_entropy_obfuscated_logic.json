@@ -1059,11 +1059,11 @@
     },
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": 0,
-      "cobol/gnucobol_internals/codegen.c": 1,
-      "cobol/gnucobol_internals/fileio.c": 16,
+      "cobol/gnucobol_internals/codegen.c": 0,
+      "cobol/gnucobol_internals/fileio.c": 4,
       "cobol/gnucobol_internals/numeric.c": 0,
       "cobol/gnucobol_internals/parser.y": 0,
-      "cobol/gnucobol_internals/scanner.l": 6,
+      "cobol/gnucobol_internals/scanner.l": 0,
       "cobol/gnucobol_internals/syn_misc.at": 0
     },
     "cobol/zECS": {
@@ -1108,7 +1108,7 @@
       "cpp/godot/editor_node.cpp": 0,
       "cpp/godot/editor_node.h": 0,
       "cpp/godot/gdscript_vm.cpp": 0,
-      "cpp/godot/main.cpp": 30,
+      "cpp/godot/main.cpp": 0,
       "cpp/godot/main.h": 0,
       "cpp/godot/node.cpp": 0,
       "cpp/godot/node.h": 0,
@@ -1229,7 +1229,7 @@
     "dart/flutter": {
       "dart/flutter/editable_text.dart": 4,
       "dart/flutter/events.dart": 0,
-      "dart/flutter/framework.dart": 2,
+      "dart/flutter/framework.dart": 0,
       "dart/flutter/navigator.dart": 2,
       "dart/flutter/object.dart": 0,
       "dart/flutter/semantics.dart": 0,
@@ -1335,7 +1335,7 @@
       "embedded_python/meow_turtle/boot.py": 0,
       "embedded_python/meow_turtle/diagnostics.py": 0,
       "embedded_python/meow_turtle/logging.py": 0,
-      "embedded_python/meow_turtle/meowprotocol.py": 1,
+      "embedded_python/meow_turtle/meowprotocol.py": 0,
       "embedded_python/meow_turtle/mpu6050.py": 0,
       "embedded_python/meow_turtle/ota.py": 0,
       "embedded_python/meow_turtle/pio_programs.py": 0,
@@ -1374,8 +1374,8 @@
       "go/core/mutex.go": 0,
       "go/core/proc.go": 0,
       "go/core/server.go": 0,
-      "go/core/syscall_linux.go": 1,
-      "go/core/value.go": 2
+      "go/core/syscall_linux.go": 0,
+      "go/core/value.go": 0
     },
     "go/go_runtime_rand": {
       "go/go_runtime_rand/rand.go": 0
@@ -1942,8 +1942,8 @@
       "javascript/jquery/tokenize.js": 0
     },
     "javascript/node_tls_security_tests": {
-      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 2,
-      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": 1,
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 1,
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": 0,
       "javascript/node_tls_security_tests/test-fs-lchown.js": 0,
       "javascript/node_tls_security_tests/test-https-host-headers.js": 0,
       "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": 0,
@@ -1956,7 +1956,7 @@
       "javascript/react/ReactFiberWorkLoop.js": 0,
       "javascript/react/ReactFlightServer.js": 0,
       "javascript/react/ReactSymbols.js": 0,
-      "javascript/react/build.js": 1
+      "javascript/react/build.js": 0
     },
     "javascript/react_error_codes": {
       "javascript/react_error_codes/extract-errors.js": 0
@@ -2309,7 +2309,7 @@
       "lua/cosmopolitan/bitwise.lua": 0,
       "lua/cosmopolitan/bwcoercion.lua": 0,
       "lua/cosmopolitan/call-lua-module.lua": 0,
-      "lua/cosmopolitan/calls.lua": 74,
+      "lua/cosmopolitan/calls.lua": 4,
       "lua/cosmopolitan/closedsource.lua": 0,
       "lua/cosmopolitan/closure.lua": 0,
       "lua/cosmopolitan/code.lua": 0,
@@ -2321,7 +2321,7 @@
       "lua/cosmopolitan/errors.lua": 0,
       "lua/cosmopolitan/events.lua": 0,
       "lua/cosmopolitan/fetch.lua": 0,
-      "lua/cosmopolitan/files.lua": 9,
+      "lua/cosmopolitan/files.lua": 0,
       "lua/cosmopolitan/finger.lua": 0,
       "lua/cosmopolitan/gc.lua": 0,
       "lua/cosmopolitan/gengc.lua": 0,
@@ -2329,9 +2329,9 @@
       "lua/cosmopolitan/goto.lua": 0,
       "lua/cosmopolitan/heavy.lua": 0,
       "lua/cosmopolitan/hitcounter.lua": 0,
-      "lua/cosmopolitan/literals.lua": 50,
+      "lua/cosmopolitan/literals.lua": 6,
       "lua/cosmopolitan/locals.lua": 0,
-      "lua/cosmopolitan/main.lua": 15,
+      "lua/cosmopolitan/main.lua": 0,
       "lua/cosmopolitan/math.lua": 0,
       "lua/cosmopolitan/maxmind.lua": 0,
       "lua/cosmopolitan/mymodule.lua": 0,
@@ -2341,8 +2341,8 @@
       "lua/cosmopolitan/printpayload.lua": 0,
       "lua/cosmopolitan/redbean-form.lua": 0,
       "lua/cosmopolitan/sort.lua": 0,
-      "lua/cosmopolitan/strings.lua": 10,
-      "lua/cosmopolitan/tpack.lua": 17,
+      "lua/cosmopolitan/strings.lua": 0,
+      "lua/cosmopolitan/tpack.lua": 0,
       "lua/cosmopolitan/tracegc.lua": 0
     },
     "lua/darwin-xnu": {
@@ -2360,7 +2360,7 @@
       "lua/freebsd-src/color.lua": 0,
       "lua/freebsd-src/config.lua": 0,
       "lua/freebsd-src/core.lua": 0,
-      "lua/freebsd-src/drawer.lua": 48,
+      "lua/freebsd-src/drawer.lua": 0,
       "lua/freebsd-src/gfx-beastie.lua": 0,
       "lua/freebsd-src/gfx-beastiebw.lua": 0,
       "lua/freebsd-src/gfx-fbsdbw.lua": 0,
@@ -2523,29 +2523,29 @@
       "perl/bugzilla/Requirements.pm": 0
     },
     "perl/exiftool": {
-      "perl/exiftool/ExifTool.pm": 485,
+      "perl/exiftool/ExifTool.pm": 35,
       "perl/exiftool/META.json": 0,
       "perl/exiftool/Makefile.PL": 0,
       "perl/exiftool/README": 0,
       "perl/exiftool/RandomAccess.pm": 0,
-      "perl/exiftool/exiftool": 120
+      "perl/exiftool/exiftool": 7
     },
     "perl/mojo": {
-      "perl/mojo/IOLoop.pm": 4,
+      "perl/mojo/IOLoop.pm": 1,
       "perl/mojo/Makefile.PL": 0,
       "perl/mojo/Promise.pm": 0,
       "perl/mojo/Template.pm": 0,
-      "perl/mojo/WebSocket.pm": 4
+      "perl/mojo/WebSocket.pm": 1
     },
     "perl/spamassassin": {
-      "perl/spamassassin/AsyncLoop.pm": 2,
+      "perl/spamassassin/AsyncLoop.pm": 0,
       "perl/spamassassin/Bayes.pm": 0,
-      "perl/spamassassin/HTML.pm": 40,
+      "perl/spamassassin/HTML.pm": 0,
       "perl/spamassassin/Makefile.PL": 0,
-      "perl/spamassassin/Message.pm": 2,
+      "perl/spamassassin/Message.pm": 0,
       "perl/spamassassin/Parser.pm": 0,
-      "perl/spamassassin/PerMsgStatus.pm": 28,
-      "perl/spamassassin/SpamAssassin.pm": 2
+      "perl/spamassassin/PerMsgStatus.pm": 2,
+      "perl/spamassassin/SpamAssassin.pm": 0
     },
     "php": {
       "php/SOURCES.md": 0
@@ -2585,10 +2585,10 @@
     },
     "php/symfony": {
       "php/symfony/Application.php": 0,
-      "php/symfony/ContainerBuilder.php": 3,
+      "php/symfony/ContainerBuilder.php": 1,
       "php/symfony/EventDispatcher.php": 0,
       "php/symfony/HttpKernel.php": 0,
-      "php/symfony/Parser.php": 4,
+      "php/symfony/Parser.php": 0,
       "php/symfony/Request.php": 0,
       "php/symfony/Router.php": 0
     },
@@ -2598,8 +2598,8 @@
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 0,
       "php/wordpress/class-wp-query.php": 0,
-      "php/wordpress/formatting.php": 94,
-      "php/wordpress/functions.php": 183,
+      "php/wordpress/formatting.php": 10,
+      "php/wordpress/functions.php": 39,
       "php/wordpress/license.txt": 0,
       "php/wordpress/plugin.php": 0,
       "php/wordpress/wp-login.php": 0,
@@ -2653,7 +2653,7 @@
     "powershell/PowerToys": {
       "powershell/PowerToys/Build-Awake.ps1": 0,
       "powershell/PowerToys/BuildSDKHelper.ps1": 0,
-      "powershell/PowerToys/BuildSparsePackage.ps1": 1,
+      "powershell/PowerToys/BuildSparsePackage.ps1": 0,
       "powershell/PowerToys/Capture-MonitorLayout.ps1": 0,
       "powershell/PowerToys/Check preview handler registration.ps1": 0,
       "powershell/PowerToys/Check-ProcessIdentity.ps1": 0,
@@ -2669,13 +2669,13 @@
       "powershell/PowerToys/Update-WinMdCache.ps1": 0,
       "powershell/PowerToys/UpdateVersions.ps1": 0,
       "powershell/PowerToys/apply-labels.ps1": 0,
-      "powershell/PowerToys/check-extensions.ps1": 1,
+      "powershell/PowerToys/check-extensions.ps1": 0,
       "powershell/PowerToys/clear-copilot-context.ps1": 0,
       "powershell/PowerToys/collect-or-apply-milestones.ps1": 0,
       "powershell/PowerToys/format_sources.ps1": 0,
       "powershell/PowerToys/generate-interface.ps1": 0,
       "powershell/PowerToys/generateAllFileComponents.ps1": 0,
-      "powershell/PowerToys/generateMonacoWxs.ps1": 2
+      "powershell/PowerToys/generateMonacoWxs.ps1": 0
     },
     "powershell/core": {
       "powershell/core/CimCmdlets.psd1": 0,
@@ -2708,7 +2708,7 @@
       "powershell/core/nanoserver.tests.ps1": 0,
       "powershell/core/package-validation.tests.ps1": 0,
       "powershell/core/packaging.psd1": 0,
-      "powershell/core/packaging.psm1": 1,
+      "powershell/core/packaging.psm1": 0,
       "powershell/core/packaging.tests.ps1": 0,
       "powershell/core/powershell-native__Install-PowerShellRemoting.ps1": 0,
       "powershell/core/process-pester-results.ps1": 0,
@@ -3051,7 +3051,7 @@
       "python/fastapi/tests/test_stringified_annotation_dependency.py": 0,
       "python/fastapi/tests/test_stringified_annotation_dependency_py314.py": 0,
       "python/fastapi/tests/test_stringified_annotations_simple.py": 0,
-      "python/fastapi/tests/test_swagger_ui_escape.py": 5,
+      "python/fastapi/tests/test_swagger_ui_escape.py": 0,
       "python/fastapi/tests/test_swagger_ui_init_oauth.py": 0,
       "python/fastapi/tests/test_top_level_security_scheme_in_openapi.py": 0,
       "python/fastapi/tests/test_tuples.py": 0,
@@ -3097,7 +3097,7 @@
       "python/numpy/_linalg.py": 0,
       "python/numpy/cfuncs.py": 0,
       "python/numpy/core.py": 0,
-      "python/numpy/crackfortran.py": 1,
+      "python/numpy/crackfortran.py": 0,
       "python/numpy/cversions.txt": 0,
       "python/numpy/func2subr.py": 0,
       "python/numpy/genapi.py": 0,
@@ -3139,9 +3139,9 @@
     },
     "python/twisted": {
       "python/twisted/defer.py": 0,
-      "python/twisted/http.py": 129,
+      "python/twisted/http.py": 8,
       "python/twisted/reflect.py": 0,
-      "python/twisted/transport.py": 3
+      "python/twisted/transport.py": 0
     },
     "python/wtfpython": {
       "python/wtfpython/2_tricky_strings.py": 0,
@@ -3301,7 +3301,7 @@
       "scheme/racket/cpnanopass.ss": 0,
       "scheme/racket/eval.c": 0,
       "scheme/racket/fun.c": 0,
-      "scheme/racket/io.ss": 10,
+      "scheme/racket/io.ss": 0,
       "scheme/racket/schemify.rkt": 0,
       "scheme/racket/thread.rkt": 0
     },
@@ -3732,7 +3732,7 @@
       "sqlite/sqlite_cli_scripts/intck01.sql": 0,
       "sqlite/sqlite_cli_scripts/modeA.sql": 0,
       "sqlite/sqlite_cli_scripts/regexp1.sql": 0,
-      "sqlite/sqlite_cli_scripts/vt100-a.sql": 2,
+      "sqlite/sqlite_cli_scripts/vt100-a.sql": 0,
       "sqlite/sqlite_cli_scripts/wasm_000-mandelbrot.sql": 0,
       "sqlite/sqlite_cli_scripts/wasm_001-sudoku.sql": 0
     },
@@ -3876,7 +3876,7 @@
       "typescript/excalibur_math/math_ray.ts": 0
     },
     "typescript/excalidraw_text_wrapping": {
-      "typescript/excalidraw_text_wrapping/textWrapping.ts": 16
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": 13
     },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": 0,
@@ -4059,7 +4059,7 @@
     },
     "zig/mach": {
       "zig/mach/Core.zig": 0,
-      "zig/mach/StringTable.zig": 1,
+      "zig/mach/StringTable.zig": 0,
       "zig/mach/collision.zig": 0,
       "zig/mach/graph.zig": 0,
       "zig/mach/main.zig": 0,
@@ -4087,7 +4087,7 @@
       "zig/zig/Sema.zig": 0,
       "zig/zig/Type.zig": 0,
       "zig/zig/Zcu.zig": 0,
-      "zig/zig/main.zig": 1
+      "zig/zig/main.zig": 0
     },
     "zig/zig_std_linux_mips": {
       "zig/zig_std_linux_mips/mips.zig": 0
@@ -4099,7 +4099,7 @@
       "zig/zls/analysis.zig": 0,
       "zig/zls/ast.zig": 0,
       "zig/zls/config_gen.zig": 0,
-      "zig/zls/langref.html.in": 3,
+      "zig/zls/langref.html.in": 0,
       "zig/zls/print_ast.zig": 0
     }
   },

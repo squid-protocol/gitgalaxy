@@ -379,21 +379,25 @@ def actionlint_gate(root: Path = Path(".")) -> int:
     if not files:
         return 0
     venv = MYPY_CACHE / f"actionlint-{ACTIONLINT_PIN}"
-    exe = venv / "bin" / "actionlint"
+    bin_dir, ext = (venv / "Scripts", ".exe") if os.name == "nt" else (venv / "bin", "")
+    exe = bin_dir / f"actionlint{ext}"
     if not (venv / ".ready").exists():
         shutil.rmtree(venv, ignore_errors=True)
         venv.parent.mkdir(parents=True, exist_ok=True)
-        built = subprocess.run([PY, "-m", "venv", str(venv)], capture_output=True, check=False).returncode == 0  # noqa: S603
-        built = built and subprocess.run(  # noqa: S603
-            [str(venv / "bin" / "python"), "-m", "pip", "install", "-q", f"actionlint-py=={ACTIONLINT_PIN}"],
-            capture_output=True, check=False,
-        ).returncode == 0  # fmt: skip
+        try:
+            built = subprocess.run([PY, "-m", "venv", str(venv)], capture_output=True, check=False).returncode == 0  # noqa: S603
+            built = built and subprocess.run(  # noqa: S603
+                [str(bin_dir / f"python{ext}"), "-m", "pip", "install", "-q", f"actionlint-py=={ACTIONLINT_PIN}"],
+                capture_output=True, check=False,
+            ).returncode == 0  # fmt: skip
+        except OSError:
+            built = False
         if not (built and exe.exists()):
             shutil.rmtree(venv, ignore_errors=True)
             print(f"NOTE  actionlint-py=={ACTIONLINT_PIN} could not be installed: workflows not linted", flush=True)
             return 0
         (venv / ".ready").write_text(ACTIONLINT_PIN)
-    _announce("actionlint", exe, venv / "bin")
+    _announce("actionlint", exe, bin_dir)
     # the files by name: actionlint's own discovery needs a git project root (a bare tree exits 3)
     return subprocess.run([str(exe), "-shellcheck=", "-pyflakes=", "-oneline", *files], cwd=root, check=False).returncode  # noqa: S603
 

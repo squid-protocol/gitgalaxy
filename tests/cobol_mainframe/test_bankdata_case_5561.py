@@ -26,7 +26,6 @@ def test_bankdata_has_a_det_sweep_entry_with_every_paragraph_covered():
     assert entry["paragraphs"]["covered"] == entry["paragraphs"]["live"] > 0
 
 
-
 def test_bankdata_fault_runs_cover_every_vsam_status_check():
     # the three `IF CUSTOMER-VSAM-STATUS NOT EQUAL '00'` arms (OPEN, a customer WRITE, the control-record WRITE)
     faults = {f["name"]: f["plan"] for f in _case("cbsa-bankdata")["faults"]}

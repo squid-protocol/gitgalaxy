@@ -1,0 +1,389 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "CREACC",
+ "program_source": "src/base/cobol_src/CREACC.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "OCAC",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "taskn": 4242,
+ "programs": [
+  {
+   "program": "INQCUST",
+   "program_source": "src/base/cobol_src/INQCUST.cbl"
+  },
+  {
+   "program": "INQACCCU",
+   "program_source": "src/base/cobol_src/INQACCCU.cbl"
+  },
+  {
+   "program": "ABNDPROC",
+   "program_source": "src/base/cobol_src/ABNDPROC.cbl"
+  }
+ ],
+ "datasets": {
+  "CBSA.CICSBSA.ABNDFILE": {
+   "input": "@case/abndfile.bin",
+   "entity": "WsAbndArea",
+   "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+   "record": "WS-ABND-AREA",
+   "recovery": "NONE",
+   "recovery_why": "etc/install/base/installjcl/BANK.csd: DEFINE FILE(ABNDFILE) ... RECOVERY(NONE) -- the abend log a backout must not undo"
+  },
+  "CBSA.CICSBSA.CUSTOMER": {
+   "input": "@case/customer.txt",
+   "entity": "OutputData",
+   "copybook": "src/base/cobol_copy/CUSTOMER.cpy",
+   "record": "CUSTOMER-RECORD"
+  }
+ },
+ "db2": {
+  "ddl": [
+   "etc/install/base/db2jcl/CRETB01.jcl",
+   "etc/install/base/db2jcl/CREI101.jcl",
+   "etc/install/base/db2jcl/CRETB02.jcl",
+   "etc/install/base/db2jcl/CRETB03.jcl",
+   "etc/install/base/db2jcl/CREI301.jcl"
+  ],
+  "seed": "@generate",
+  "compare": [
+   "IBMUSER.ACCOUNT",
+   "IBMUSER.PROCTRAN",
+   "IBMUSER.CONTROL"
+  ],
+  "qualifier": "IBMUSER",
+  "compare_sql": true,
+  "generate": {
+   "seed": 4507,
+   "tables": {
+    "IBMUSER.ACCOUNT": {
+     "rows": 30,
+     "columns": {
+      "ACCOUNT_SORTCODE": {
+       "values": [
+        "987654",
+        "987654",
+        "987654",
+        "123456"
+       ]
+      },
+      "ACCOUNT_CUSTOMER_NUMBER": {
+       "values": [
+        "0000000001",
+        "0000000002",
+        "0000000003",
+        "0000000004",
+        "9999999999"
+       ]
+      },
+      "ACCOUNT_NUMBER": {
+       "digits": true
+      }
+     }
+    },
+    "IBMUSER.PROCTRAN": {
+     "rows": 12
+    },
+    "IBMUSER.CONTROL": {
+     "rows": 2,
+     "columns": {
+      "CONTROL_NAME": {
+       "values": [
+        "987654-ACCOUNT-LAST",
+        "987654-ACCOUNT-COUNT"
+       ]
+      },
+      "CONTROL_VALUE_NUM": {
+       "values": [
+        20,
+        13
+       ]
+      }
+     }
+    }
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/BNK1CAC.cbl",
+    "record": "SUBPGM-PARMS"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "create-current",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "ACCT",
+    "SUBPGM-CUSTNO": "0000000001",
+    "SUBPGM-ACC-TYPE": "CURRENT",
+    "SUBPGM-INT-RT": "0",
+    "SUBPGM-OVERDR-LIM": "500",
+    "SUBPGM-AVAIL-BAL": "0",
+    "SUBPGM-ACT-BAL": "0"
+   },
+   "why": "customer 1 (two 987654 accounts): INQCUST finds them, INQACCCU counts 2, CURRENT passes the type check, ENQ CBSAACCT987654, CONTROL 987654-ACCOUNT-LAST 20 -> 21 and ACCOUNT-COUNT 13 -> 14, INSERT ACCOUNT 00000021 (opened / last statement today, next statement 30 days on), INSERT PROCTRAN 'OCA', DEQ; 'Y' and the new key, dates in the COMMAREA"
+  },
+  {
+   "name": "type-prefix-isa",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "ACCT",
+    "SUBPGM-CUSTNO": "0000000003",
+    "SUBPGM-ACC-TYPE": "ISAPLUS",
+    "SUBPGM-INT-RT": "2.00",
+    "SUBPGM-OVERDR-LIM": "0",
+    "SUBPGM-AVAIL-BAL": "0",
+    "SUBPGM-ACT-BAL": "0"
+   },
+   "why": "ACC-TYPE 'ISAPLUS': the check reads only (1:3) = 'ISA', so it is accepted and stored as typed"
+  },
+  {
+   "name": "type-lower-case",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "ACCT",
+    "SUBPGM-CUSTNO": "0000000001",
+    "SUBPGM-ACC-TYPE": "current",
+    "SUBPGM-INT-RT": "0",
+    "SUBPGM-OVERDR-LIM": "0",
+    "SUBPGM-AVAIL-BAL": "0",
+    "SUBPGM-ACT-BAL": "0"
+   },
+   "why": "'current' in lower case: WHEN OTHER -- 'N' / 'A', nothing written, no ENQ"
+  },
+  {
+   "name": "type-invalid",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "ACCT",
+    "SUBPGM-CUSTNO": "0000000001",
+    "SUBPGM-ACC-TYPE": "CHEQUE",
+    "SUBPGM-INT-RT": "0",
+    "SUBPGM-OVERDR-LIM": "0",
+    "SUBPGM-AVAIL-BAL": "0",
+    "SUBPGM-ACT-BAL": "0"
+   },
+   "why": "an unknown type: 'N' / 'A'"
+  },
+  {
+   "name": "type-blank",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "ACCT",
+    "SUBPGM-CUSTNO": "0000000001",
+    "SUBPGM-ACC-TYPE": "",
+    "SUBPGM-INT-RT": "0",
+    "SUBPGM-OVERDR-LIM": "0",
+    "SUBPGM-AVAIL-BAL": "0",
+    "SUBPGM-ACT-BAL": "0"
+   },
+   "why": "a blank type: 'N' / 'A'"
+  },
+  {
+   "name": "customer-not-found",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "ACCT",
+    "SUBPGM-CUSTNO": "0000000005",
+    "SUBPGM-ACC-TYPE": "CURRENT",
+    "SUBPGM-INT-RT": "0",
+    "SUBPGM-OVERDR-LIM": "0",
+    "SUBPGM-AVAIL-BAL": "0",
+    "SUBPGM-ACT-BAL": "0"
+   },
+   "why": "customer 5 is not on the CUSTOMER file: INQCUST 'N' -> 'N' / '1', no account count, nothing written"
+  },
+  {
+   "name": "account-insert-duplicate",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "ACCT",
+    "SUBPGM-CUSTNO": "0000000001",
+    "SUBPGM-ACC-TYPE": "CURRENT",
+    "SUBPGM-INT-RT": "0",
+    "SUBPGM-OVERDR-LIM": "0",
+    "SUBPGM-AVAIL-BAL": "0",
+    "SUBPGM-ACT-BAL": "0"
+   },
+   "sql_faults": [
+    {
+     "program": "CREACC",
+     "table": "ACCOUNT",
+     "verb": "INSERT",
+     "sqlcode": -803
+    }
+   ],
+   "why": "INSERT ACCOUNT fails -803: 'N' / '7', DEQ, RETURN -- the CONTROL updates stay (no rollback), compared"
+  },
+  {
+   "name": "proctran-insert-fails",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "ACCT",
+    "SUBPGM-CUSTNO": "0000000001",
+    "SUBPGM-ACC-TYPE": "CURRENT",
+    "SUBPGM-INT-RT": "0",
+    "SUBPGM-OVERDR-LIM": "0",
+    "SUBPGM-AVAIL-BAL": "0",
+    "SUBPGM-ACT-BAL": "0"
+   },
+   "sql_faults": [
+    {
+     "program": "CREACC",
+     "table": "PROCTRAN",
+     "verb": "INSERT",
+     "sqlcode": -913
+    }
+   ],
+   "why": "INSERT PROCTRAN fails -913: DISPLAY, DEQ, ABNDPROC LINKed (an ABNDFILE record), ABEND HWPT -- the unit of work backed out"
+  },
+  {
+   "name": "control-select-fails",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "ACCT",
+    "SUBPGM-CUSTNO": "0000000001",
+    "SUBPGM-ACC-TYPE": "CURRENT",
+    "SUBPGM-INT-RT": "0",
+    "SUBPGM-OVERDR-LIM": "0",
+    "SUBPGM-AVAIL-BAL": "0",
+    "SUBPGM-ACT-BAL": "0"
+   },
+   "sql_faults": [
+    {
+     "program": "CREACC",
+     "line": 444,
+     "sqlcode": 100
+    }
+   ],
+   "why": "SELECT of 987654-ACCOUNT-LAST finds no row (+100): ABNDPROC LINKed, DISPLAY, ABEND HNCS NODUMP"
+  },
+  {
+   "name": "control-update-fails",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "ACCT",
+    "SUBPGM-CUSTNO": "0000000001",
+    "SUBPGM-ACC-TYPE": "CURRENT",
+    "SUBPGM-INT-RT": "0",
+    "SUBPGM-OVERDR-LIM": "0",
+    "SUBPGM-AVAIL-BAL": "0",
+    "SUBPGM-ACT-BAL": "0"
+   },
+   "sql_faults": [
+    {
+     "program": "CREACC",
+     "line": 529,
+     "sqlcode": -913
+    }
+   ],
+   "why": "UPDATE of ACCOUNT-LAST fails -913: ABNDPROC, ABEND HNCS"
+  },
+  {
+   "name": "count-select-fails",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "ACCT",
+    "SUBPGM-CUSTNO": "0000000001",
+    "SUBPGM-ACC-TYPE": "CURRENT",
+    "SUBPGM-INT-RT": "0",
+    "SUBPGM-OVERDR-LIM": "0",
+    "SUBPGM-AVAIL-BAL": "0",
+    "SUBPGM-ACT-BAL": "0"
+   },
+   "sql_faults": [
+    {
+     "program": "CREACC",
+     "line": 611,
+     "sqlcode": 100
+    }
+   ],
+   "why": "SELECT of 987654-ACCOUNT-COUNT finds no row: ABNDPROC, ABEND HNCS (the first UPDATE backed out with the task)"
+  },
+  {
+   "name": "count-update-fails",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "ACCT",
+    "SUBPGM-CUSTNO": "0000000001",
+    "SUBPGM-ACC-TYPE": "CURRENT",
+    "SUBPGM-INT-RT": "0",
+    "SUBPGM-OVERDR-LIM": "0",
+    "SUBPGM-AVAIL-BAL": "0",
+    "SUBPGM-ACT-BAL": "0"
+   },
+   "sql_faults": [
+    {
+     "program": "CREACC",
+     "line": 694,
+     "sqlcode": -913
+    }
+   ],
+   "why": "UPDATE of ACCOUNT-COUNT fails: ABNDPROC, ABEND HNCS"
+  }
+ ],
+ "port_from": "cbsa-creacc",
+ "scenario_generate": {
+  "seed": 4507,
+  "count": 40,
+  "prefix": "generated",
+  "commarea": {
+   "SUBPGM-EYECATCHER": {
+    "values": [
+     "ACCT"
+    ]
+   },
+   "SUBPGM-CUSTNO": {
+    "from": "IBMUSER.ACCOUNT.ACCOUNT_CUSTOMER_NUMBER",
+    "miss": 0.15
+   },
+   "SUBPGM-ACC-TYPE": {
+    "values": [
+     "CURRENT",
+     "ISA",
+     "MORTGAGE",
+     "SAVING",
+     "LOAN",
+     "ISAPLUS",
+     "current",
+     "BOGUS"
+    ]
+   },
+   "SUBPGM-INT-RT": {
+    "values": [
+     "0",
+     "3.10",
+     "4.25",
+     "1.50",
+     "17.75",
+     "2.50"
+    ]
+   },
+   "SUBPGM-OVERDR-LIM": {
+    "values": [
+     "0",
+     "500",
+     "1000",
+     "2500"
+    ]
+   },
+   "SUBPGM-AVAIL-BAL": {
+    "values": [
+     "0",
+     "250.00",
+     "-4500.00",
+     "100.00"
+    ]
+   },
+   "SUBPGM-ACT-BAL": {
+    "values": [
+     "0",
+     "250.00",
+     "-4500.00",
+     "100.00"
+    ]
+   }
+  }
+ },
+ "notes": "CREACC on generated Db2 rows (#4507): the LINKed create-account service of cbsa-creacc (INQCUST, INQACCCU and ABNDPROC in the task) with ACCOUNT rows generated from CRETB01 (30 rows, boundary values, NULLs, a quarter under another sort code, customer numbers customer.txt holds), PROCTRAN generated (12 rows) and CONTROL generated from CRETB03 with its two counter names pinned (987654-ACCOUNT-LAST 20, 987654-ACCOUNT-COUNT 13); ACCOUNT, PROCTRAN and CONTROL compared after every task and every SQL statement's SQLCODE compared. Stated scenarios keep the type checks, the unknown customer and the injected SQL faults; 40 generated COMMAREAs draw the customer number from the rows (15% one no row holds), an account type, a rate, an overdraft and balances (values exact in both IEEE and HFP, oracle_assumptions.md C6, X54). customer.txt is SYNTHETIC (cbsa-bnk1cac-generated's). Derived from the CICS Bank Sample Application (CBSA), EPL-2.0: LICENSE is the corpus's own."
+}

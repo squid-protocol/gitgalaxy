@@ -3770,6 +3770,10 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   EIBREQID, EIBRSRCE, EIBERR and EIBERRCD. A new reader fails it, which is the trigger above to model the field:
   IBM's tables verbatim, then the stub, `Cics.command` and `equivalence_cics.py` scenarios. The blind and census
   estates are not opened (PL/I's `UNSPEC(EIBRCODE)` in the dsf clone is a census count, not a reader here).
+- **Re-checked 2026-10-20 (#5126, origin/main c913eb622).** The guard above passed against the six burned estates
+  (`test_eib_fn_rcode_5126.py`, `test_eibds_5126.py`, `test_proof_blockers.py`: 101 passed, none skipped), so ZECS001
+  is still the only reader. What remains of #5126 is EIBFN / EIBRCODE, blocked on IBM's verbatim function-code and
+  condition tables; the other checklist boxes are done (#5144, #5186, #5221, #5261, #5346, #5664).
 - **Evidence level.** Translated on both sides and pinned at the translator (the text each side emits); NOT
   executed-equivalent: no case's program reads EIBDS, so no scenario ran the stub's MOVE against the port's. The
   detail the pins cannot show is the MOVE's padding on the Java side (`Cobol.move` into the X(8) field).

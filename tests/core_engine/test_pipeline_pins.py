@@ -454,3 +454,14 @@ def test_ci_retry_wraps_the_hashed_installs_of_the_two_os_grids():
         lines = (ROOT / ".github" / "workflows" / name).read_text().splitlines()
         bare = [ln.strip() for ln in lines if "pip install --require-hashes" in ln and "ci_retry.sh" not in ln]
         assert not bare, (name, bare)
+
+
+def test_every_workflow_brew_install_goes_through_ci_retry():
+    """#5747: a flaky `brew install` is retried and marked INFRASTRUCTURE, not left to fail the leg."""
+    lines = [
+        f"{path.name}: {ln.strip()}"
+        for path in sorted((ROOT / ".github" / "workflows").glob("*.yml"))
+        for ln in path.read_text().splitlines()
+        if "brew install" in ln and "ci_retry.sh" not in ln and not ln.lstrip().startswith("#")
+    ]
+    assert not lines, lines

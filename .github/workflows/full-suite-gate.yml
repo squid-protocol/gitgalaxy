@@ -162,7 +162,7 @@ jobs:
       - name: Install macOS dependencies (OpenMP for XGBoost)
         if: runner.os == 'macOS'
         timeout-minutes: 5
-        run: brew install libomp
+        run: tests/tools/ci_retry.sh 3 10 -- brew install libomp
 
       - name: Install dependencies
         shell: bash

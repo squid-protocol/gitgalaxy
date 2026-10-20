@@ -44,8 +44,7 @@ class TaskControlCommands:
         request's expiry, INVREQ RESP2 4 / 5 / 6, LENGERR, TRANSIDERR, TERMIDERR and IOERR are CicsTask's, through
         RESP / HANDLE CONDITION. FROM's bytes go in the region's page, as a TS item's do (#4528): the started task's
         RETRIEVE reads them back into its own storage's page."""
-        from gitgalaxy.standards.cics.commands import COMMANDS as SPEC
-        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError, _arg, _msg, _one_of
+        from gitgalaxy.tools.cobol_to_java.det.cics import SPEC, CicsError, _arg, _msg, _one_of
 
         if not opts.get("TRANSID"):
             raise CicsError(_msg("START", "required", "TRANSID"))
@@ -140,8 +139,7 @@ class TaskControlCommands:
         """RUN TRANSID CHILD (IBM CICS TS, EXEC CICS RUN TRANSID) on CicsTask.runTransid: the child task runs once this task
         has ended (the harness's scheduler); CHILD's 16-character area gets the child token on NORMAL; TRANSIDERR
         RESP2 1 through RESP / HANDLE CONDITION."""
-        from gitgalaxy.standards.cics.commands.shared import NEEDS_ARGUMENT
-        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError, _msg, _option
+        from gitgalaxy.tools.cobol_to_java.det.cics import NEEDS_ARGUMENT, CicsError, _msg, _option
 
         transid, child = _option(opts, "TRANSID"), _option(opts, "CHILD")
         if not transid or not child:

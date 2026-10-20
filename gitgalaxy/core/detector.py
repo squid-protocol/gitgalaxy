@@ -1096,6 +1096,12 @@ def _call_qualifier(text: str, pos: int, separators: tuple[str, ...] = _QUALIFIE
     return ".".join(reversed(segments))
 
 
+def _message_receiver(chain: str | None) -> str:
+    """#5639: an Objective-C send's receiver as a qualifier: `self`, `super`, `Foo`, `obj.view` (`->`
+    reads as `.`). A receiver that is itself a send or a call (no name chain) is `<expr>`."""
+    return re.sub(r"\s*(?:\.|->)\s*", ".", chain) if chain else "<expr>"
+
+
 def _qualifier_separators(lang_id: str) -> tuple[str, ...]:
     return _QUALIFIER_SEPARATORS_NO_ARROW if lang_id in _LAMBDA_ARROW_LANGS else _QUALIFIER_SEPARATORS
 
@@ -10475,7 +10481,8 @@ class StructuralExtractor:
         if invocation_pattern:
             # Apply literal shield to avoid capturing words inside strings
             safe_block = self._apply_literal_shield(block, self.primary_lang_id)
-            if _is_qualified_calls_out(invocation_pattern):
+            message_receivers = bool(self.languages.get(self.primary_lang_id, {}).get("calls_out_message_receivers"))
+            if message_receivers or _is_qualified_calls_out(invocation_pattern):
                 receiver_text = safe_block
                 # #3360 (C5): note which callees were captured only on a nested
                 # func_start header (`def inner(`). _function_slice drops them
@@ -10504,8 +10511,10 @@ class StructuralExtractor:
                     else 0
                 )
                 for m in invocation_pattern.finditer(safe_block):
-                    callee = m.group(1)
-                    callee_pos = m.start(1)
+                    # #5639: a message send's groups are (receiver, selector); a C call's is group 1
+                    is_send = message_receivers and m.group(3) is not None
+                    callee = m.group(3) if is_send else m.group(1)
+                    callee_pos = m.start(3) if is_send else m.start(1)
                     # #5629: a macro in the unit's header (its defining macro, a parameter-list macro).
                     if callee_pos < header_end and _HEADER_MACRO_NAME.match(callee):
                         continue
@@ -10515,7 +10524,10 @@ class StructuralExtractor:
                             if not declared[0]:
                                 continue
                             callee, callee_pos = declared
-                    qualifier = _call_qualifier(safe_block, callee_pos, _qualifier_separators(self.primary_lang_id))
+                    if is_send:
+                        qualifier = _message_receiver(m.group(2))
+                    else:
+                        qualifier = _call_qualifier(safe_block, callee_pos, _qualifier_separators(self.primary_lang_id))
                     qualifier = _mark_macro_qualifier(
                         self.primary_lang_id, safe_block, callee_pos + len(callee), qualifier
                     )

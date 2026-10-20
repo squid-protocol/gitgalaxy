@@ -1387,7 +1387,7 @@
       "go/kubernetes/options.go": 0,
       "go/kubernetes/proxier.go": 0,
       "go/kubernetes/replica_set.go": 0,
-      "go/kubernetes/scheduler.go": 2
+      "go/kubernetes/scheduler.go": 3
     },
     "go/kubernetes_kubectl_tls": {
       "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 0

@@ -86960,6 +86960,7 @@
           "V1",
           "CSIDrivers",
           "Informer",
+          "map",
           "NewNodeInfoManager",
           "GetNodeName",
           "initializeCSINode",
@@ -87289,6 +87290,7 @@
           "FindSandboxByID"
         ],
         "getContainersFromPods@371": [
+          "New",
           "Has",
           "Insert",
           "append",
@@ -87598,6 +87600,7 @@
           "SinceInSeconds",
           "Since",
           "Update",
+          "New",
           "make",
           "Reset",
           "Write",
@@ -87696,6 +87699,7 @@
           "NewUIDTrackingControllerExpectations",
           "NewControllerExpectations",
           "NewTypedRateLimitingQueueWithConfig",
+          "DefaultTypedControllerRateLimiter",
           "Informer",
           "AddEventHandler",
           "addRS",

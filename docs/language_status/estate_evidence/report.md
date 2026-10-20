@@ -14,7 +14,7 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 
 - Programs: 49; at E0 0, E1 6, E2 22, E3 21, E4 0; executed equivalent or above (E2+): 43/49 (87.8%).
 - Coverage over the programs with a record: paragraphs 440/446 (98.7%), branch outcomes 1337/1465 (91.3%).
-- Mutation: 49 program(s) measured, killed 2367/3389 (69.8%) raw (adjusted for equivalent / unreachable survivors: 2367/2738 (86.4%)); survivors case_gap 222, harness_gap 149, equivalent 454, unreachable 197, untriaged 0; open survivors 371.
+- Mutation: 49 program(s) measured, killed 2386/3389 (70.4%) raw (adjusted for equivalent / unreachable survivors: 2386/2726 (87.5%)); survivors case_gap 191, harness_gap 149, equivalent 454, unreachable 209, untriaged 0; open survivors 340.
 - Holes (stub / ported_unproven methods): 4. Declared differences: 7.
 - Approved and current: 0. Stale records: 0 (stale mutation scores: 49).
 - Lines (PROCEDURE DIVISION code lines, copybooks not expanded; 49 of 49 programs measured): 9112 (11813 code lines in all); in programs at E2+ 7251/9112 (79.6%), E3+ 862/9112 (9.5%), E4 0/9112 (0.0%); paragraph coverage weighted by lines 8984/9112 (98.6%).
@@ -23,7 +23,7 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 
 - Programs: 23; at E0 0, E1 3, E2 19, E3 1, E4 0; executed equivalent or above (E2+): 20/23 (87.0%).
 - Coverage over the programs with a record: paragraphs 343/344 (99.7%), branch outcomes 1200/1281 (93.7%).
-- Mutation: 23 program(s) measured, killed 1632/2254 (72.4%) raw (adjusted for equivalent / unreachable survivors: 1632/1803 (90.5%)); survivors case_gap 164, harness_gap 7, equivalent 335, unreachable 116, untriaged 0; open survivors 171.
+- Mutation: 23 program(s) measured, killed 1651/2254 (73.2%) raw (adjusted for equivalent / unreachable survivors: 1651/1791 (92.2%)); survivors case_gap 133, harness_gap 7, equivalent 335, unreachable 128, untriaged 0; open survivors 140.
 - Holes (stub / ported_unproven methods): 3. Declared differences: 0.
 - Approved and current: 0. Stale records: 0 (stale mutation scores: 23).
 - Lines (PROCEDURE DIVISION code lines, copybooks not expanded; 23 of 23 programs measured): 7281 (9221 code lines in all); in programs at E2+ 6260/7281 (86.0%), E3+ 140/7281 (1.9%), E4 0/7281 (0.0%); paragraph coverage weighted by lines 7266/7281 (99.8%).
@@ -32,9 +32,9 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 |---|---|---|---|---|---|---|---|---|---|---|
 | COACTVWC | carddemo-acctview | 485 | E1 | 22 runs / 6 fault | gnucobol-models | 31/32 / 58/69 | 105/129, open 8 | 0 | - | 1 hole(s) in the port itself (stub or ported_unproven method) |
 | COADM01C | carddemo-adminmenu | 153 | E1 | 30 runs / 5 fault | gnucobol-models | 8/8 / 20/26 | 63/95, open 0 | 0 | - | 1 hole(s) in the port itself (stub or ported_unproven method) |
-| COBIL00C | carddemo-billpay | 363 | E2 | 30 runs / 13 fault | gnucobol-models | 16/16 / 46/48 | 64/86, open 7 | 0 | - | coverage short: 16/16 paragraphs, 46/48 branch outcomes |
+| COBIL00C | carddemo-billpay | 363 | E2 | 30 runs / 13 fault | gnucobol-models | 16/16 / 46/48 | 66/86, open 4 | 0 | - | coverage short: 16/16 paragraphs, 46/48 branch outcomes |
 | COCRDLIC | carddemo-cardlist | 849 | E2 | 31 runs / 3 fault | gnucobol-models | 36/36 / 135/149 | 75/94, open 7 | 0 | - | coverage short: 36/36 paragraphs, 135/149 branch outcomes |
-| COCRDSLC | carddemo-cardview | 442 | E2 | 24 runs / 3 fault | gnucobol-models | 30/30 / 69/75 | 60/91, open 6 | 0 | - | coverage short: 30/30 paragraphs, 69/75 branch outcomes |
+| COCRDSLC | carddemo-cardview | 442 | E2 | 24 runs / 3 fault | gnucobol-models | 30/30 / 69/75 | 60/91, open 5 | 0 | - | coverage short: 30/30 paragraphs, 69/75 branch outcomes |
 | CBTRN01C | carddemo-dailyval | 309 | E2 | 21 runs / 20 fault | gnucobol-models | 18/18 / 65/66 | 63/96, open 8 | 0 | - | coverage short: 18/18 paragraphs, 65/66 branch outcomes |
 | CSUTLDTC | carddemo-dateutil | 51 | E2 | 1 runs / 0 fault | gnucobol-models | 2/2 / 4/10 | 145/195, open 0 | 0 | - | coverage short: 2/2 paragraphs, 4/10 branch outcomes |
 | CBACT04C | carddemo-intcalc | 417 | E2 | 20 runs / 19 fault | gnucobol-models | 22/22 / 85/86 | 70/86, open 7 | 0 | - | coverage short: 22/22 paragraphs, 85/86 branch outcomes |
@@ -43,16 +43,16 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 | CBACT02C | carddemo-readcard | 90 | E2 | 7 runs / 6 fault | gnucobol-models | 5/5 / 21/22 | 69/83, open 4 | 0 | - | coverage short: 5/5 paragraphs, 21/22 branch outcomes |
 | CBCUS01C | carddemo-readcust | 91 | E2 | 7 runs / 6 fault | gnucobol-models | 5/5 / 21/22 | 63/74, open 7 | 0 | - | coverage short: 5/5 paragraphs, 21/22 branch outcomes |
 | CBACT03C | carddemo-readxref | 91 | E2 | 7 runs / 6 fault | gnucobol-models | 5/5 / 21/22 | 69/83, open 8 | 0 | - | coverage short: 5/5 paragraphs, 21/22 branch outcomes |
-| CORPT00C | carddemo-report | 383 | E1 | 28 runs / 1 fault | gnucobol-models | 10/10 / 52/59 | 55/87, open 8 | 0 | - | 1 hole(s) in the port itself (stub or ported_unproven method) |
-| COSGN00C | carddemo-signon | 140 | E3 | 16 runs / 3 fault | gnucobol-models | 6/6 / 17/17 | 67/99, open 5 | 0 | - | mutation score stale: port, case, harness, oracle changed since it was judged (bcb4f6f82) |
-| COTRN02C | carddemo-tranadd | 550 | E2 | 51 runs / 11 fault | gnucobol-models | 18/18 / 72/75 | 61/91, open 13 | 0 | - | coverage short: 18/18 paragraphs, 72/75 branch outcomes |
-| COTRN00C | carddemo-tranlist | 479 | E2 | 33 runs / 4 fault | gnucobol-models | 16/16 / 96/101 | 60/91, open 20 | 0 | - | coverage short: 16/16 paragraphs, 96/101 branch outcomes |
+| CORPT00C | carddemo-report | 383 | E1 | 28 runs / 1 fault | gnucobol-models | 10/10 / 52/59 | 58/87, open 2 | 0 | - | 1 hole(s) in the port itself (stub or ported_unproven method) |
+| COSGN00C | carddemo-signon | 140 | E3 | 17 runs / 3 fault | gnucobol-models | 6/6 / 17/17 | 67/99, open 5 | 0 | - | mutation score stale: port, case, harness, oracle changed since it was judged (bcb4f6f82) |
+| COTRN02C | carddemo-tranadd | 550 | E2 | 51 runs / 11 fault | gnucobol-models | 18/18 / 72/75 | 61/91, open 12 | 0 | - | coverage short: 18/18 paragraphs, 72/75 branch outcomes |
+| COTRN00C | carddemo-tranlist | 479 | E2 | 33 runs / 4 fault | gnucobol-models | 16/16 / 96/101 | 64/91, open 15 | 0 | - | coverage short: 16/16 paragraphs, 96/101 branch outcomes |
 | COTRN01C | carddemo-tranview | 187 | E2 | 20 runs / 2 fault | gnucobol-models | 9/9 / 23/24 | 67/100, open 0 | 0 | - | coverage short: 9/9 paragraphs, 23/24 branch outcomes |
 | CBTRN03C | carddemo-trnrpt | 433 | E2 | 25 runs / 24 fault | gnucobol-models | 26/26 / 81/82 | 68/86, open 11 | 0 | - | coverage short: 26/26 paragraphs, 81/82 branch outcomes |
 | COUSR01C | carddemo-useradd | 168 | E2 | 22 runs / 1 fault | gnucobol-models | 9/9 / 20/21 | 63/98, open 1 | 0 | - | coverage short: 9/9 paragraphs, 20/21 branch outcomes |
 | COUSR03C | carddemo-userdel | 209 | E2 | 28 runs / 5 fault | gnucobol-models | 11/11 / 31/32 | 67/87, open 0 | 0 | - | coverage short: 11/11 paragraphs, 31/32 branch outcomes |
 | COUSR00C | carddemo-userlist | 474 | E2 | 32 runs / 4 fault | gnucobol-models | 16/16 / 95/100 | 69/100, open 23 | 0 | - | coverage short: 16/16 paragraphs, 95/100 branch outcomes |
-| COUSR02C | carddemo-userupd | 261 | E2 | 25 runs / 2 fault | gnucobol-models | 11/11 / 44/46 | 47/82, open 17 | 0 | - | coverage short: 11/11 paragraphs, 44/46 branch outcomes |
+| COUSR02C | carddemo-userupd | 261 | E2 | 25 runs / 2 fault | gnucobol-models | 11/11 / 44/46 | 57/82, open 2 | 0 | - | coverage short: 11/11 paragraphs, 44/46 branch outcomes |
 
 ## cics-banking-sample-application-cbsa
 

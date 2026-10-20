@@ -22,6 +22,11 @@ disagrees with a captured result is reported as a finding against the model: the
 Not every record can be asked of a COBOL program, and the kit says which are skipped and why (`SKIPPED`): COBOL has
 no IEEE converter (from_ieee / to_ieee), and a short multiply or divide is evaluated by IBM in long floating point and
 rounded, which is not the short arithmetic the table's short rows state.
+
+A `model-assumption` record states what the det runtime ASSUMES where IBM documents nothing (register C6, ASSUMED): a
+fixed-point value converted to float is truncated to long, a float result stored in a fixed-point receiver truncates
+unless ROUNDED (`store`), DISPLAY's mantissa is rounded. It is asked like a publication record, but its `want` is the
+model's own answer, never IBM's: it is evidence of nothing until a z/OS run agrees, and the z/OS result then decides.
 """
 
 from __future__ import annotations
@@ -31,7 +36,7 @@ import hashlib
 import json
 import re
 import sys
-from decimal import Decimal
+from decimal import ROUND_DOWN, Decimal
 from fractions import Fraction as F
 from pathlib import Path
 
@@ -42,7 +47,8 @@ from gitgalaxy.core.runtime_options import calibration_problems  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import hfp as H  # noqa: E402
 
 TABLE = REPO_ROOT / "tests" / "cobol_mainframe" / "zos_captures" / "hfp.json"
-SOURCES = ("ibm-publication", "zos-run")
+SOURCES = ("ibm-publication", "model-assumption", "zos-run")
+ASKED_SOURCES = ("ibm-publication", "model-assumption")  # a z/OS run is asked for both; only the first is IBM's word
 OPS = {
     "encode": ("value",),
     "add": ("a", "b"),
@@ -51,6 +57,7 @@ OPS = {
     "div": ("a", "b"),
     "display": ("a",),
     "fixed": ("a", "scale"),
+    "store": ("a", "b", "arith", "scale"),
     "from_ieee": ("a",),
     "to_ieee": ("a",),
     "round_short": ("a",),
@@ -58,6 +65,7 @@ OPS = {
 }
 FUNC = {"add": H.add, "sub": H.sub, "mul": H.mul, "div": H.div}
 ARITH = {"add": "+", "sub": "-", "mul": "*", "div": "/"}
+ARITH_NAME = {v: k for k, v in ARITH.items()}
 SKIP_IEEE = "COBOL has no IEEE converter"
 SKIP_SHORT = "IBM evaluates a COMP-1 multiply or divide in long floating point, not the short arithmetic the row states"
 
@@ -85,6 +93,12 @@ def compute(r: dict) -> str:
         return H.display(a, not short)
     if r["op"] == "fixed":
         return str(H.to_fixed(a, r["scale"], 9 if short else 18))
+    if r["op"] == "store":  # COMPUTE of a fixed-point receiver from long operands (size is long)
+        res = FUNC[ARITH_NAME[r["arith"]]](a, H.decode(bytes.fromhex(r["b"])), True)
+        if r.get("rounded"):
+            return str(H.to_fixed(res, r["scale"], 18))
+        q = Decimal(1).scaleb(-r["scale"])
+        return str(H._dec(res).quantize(q, rounding=ROUND_DOWN))
     out = FUNC[r["op"]](a, H.decode(bytes.fromhex(r["b"])), not short)
     return H.encode(out, short).hex().upper()
 
@@ -99,11 +113,11 @@ def skip_reason(r: dict) -> str:
 
 
 def askable(recs: list[dict]) -> list[dict]:
-    return [r for r in recs if r.get("source") == "ibm-publication" and not skip_reason(r)]
+    return [r for r in recs if r.get("source") in ASKED_SOURCES and not skip_reason(r)]
 
 
 def skipped(recs: list[dict]) -> dict[str, str]:
-    return {r["id"]: skip_reason(r) for r in recs if r.get("source") == "ibm-publication" and skip_reason(r)}
+    return {r["id"]: skip_reason(r) for r in recs if r.get("source") in ASKED_SOURCES and skip_reason(r)}
 
 
 def _line(text: str) -> str:
@@ -142,6 +156,11 @@ def statements(r: dict) -> list[str]:
     elif op == "fixed":
         out.append(f"MOVE {p}A TO E{r['scale']}")
         out.append(f"DISPLAY {tag} E{r['scale']}")
+    elif op == "store":
+        out.append(f"MOVE X'{r['b']}' TO {p}B-X")
+        out.append(f"COMPUTE Q{r['scale']} {'ROUNDED ' if r.get('rounded') else ''}= {p}A {r['arith']} {p}B")
+        out.append(f"MOVE Q{r['scale']} TO E{r['scale']}")
+        out.append(f"DISPLAY {tag} E{r['scale']}")
     else:
         out.append(f"MOVE X'{r['b']}' TO {p}B-X")
         out.append(f"COMPUTE {p}R = {p}A {ARITH[op]} {p}B")
@@ -150,11 +169,13 @@ def statements(r: dict) -> list[str]:
 
 
 def edited_fields(recs: list[dict]) -> list[str]:
-    """One numeric-edited receiver per scale a `fixed` record uses (digits before the point: 18 - scale)."""
+    """One numeric-edited receiver (and, for `store`, a numeric one) per scale used (digits before the point: 18 - scale)."""
     lines = []
-    for s in sorted({r["scale"] for r in recs if r["op"] == "fixed"}):
+    for s in sorted({r["scale"] for r in recs if r["op"] in ("fixed", "store")}):
         pic = f"-9({18 - s})" + (f".9({s})" if s else "")
         lines.append(_line(f"01  E{s} PIC {pic}."))
+        if any(r["op"] == "store" and r["scale"] == s for r in recs):
+            lines.append(_line(f"01  Q{s} PIC S9({18 - s})" + (f"V9({s})." if s else ".")))
     return lines
 
 
@@ -231,7 +252,7 @@ def ingest(text: str, table: Path, job: str, step: str, under: dict) -> dict:
             continue
         new.append(rec)
         model = compute(rec)
-        same = Decimal(model) == Decimal(result) if rec["op"] == "fixed" else model == result
+        same = Decimal(model) == Decimal(result) if rec["op"] in ("fixed", "store") else model == result
         if not same:
             findings.append(f"{rec['id']}: model {model!r}, z/OS {result!r}: a finding against the model")
     if new:

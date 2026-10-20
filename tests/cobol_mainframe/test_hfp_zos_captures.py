@@ -23,7 +23,7 @@ from gitgalaxy.core.runtime_options import calibration_problems  # noqa: E402
 from hfp_capture_kit import compute  # noqa: E402
 
 TABLE = Path(__file__).parent / "zos_captures" / "hfp.json"
-SOURCES = ("ibm-publication", "zos-run")
+SOURCES = ("ibm-publication", "model-assumption", "zos-run")
 OPS = {
     "encode": ("value",),
     "add": ("a", "b"),
@@ -32,12 +32,14 @@ OPS = {
     "div": ("a", "b"),
     "display": ("a",),
     "fixed": ("a", "scale"),
+    "store": ("a", "b", "arith", "scale"),
     "from_ieee": ("a",),
     "to_ieee": ("a",),
     "round_short": ("a",),
     "compare": ("a", "b"),
 }
-SIZES = {"round_short": ("short",)}  # a long item MOVEd to a COMP-1: the result is always short
+# round_short: a long item MOVEd to a COMP-1, the result is always short; store: a fixed-point receiver is long
+SIZES = {"round_short": ("short",), "store": ("long",)}
 
 
 def records() -> list[dict]:
@@ -73,7 +75,7 @@ def test_every_record_is_well_formed_and_ids_are_unique():
 def test_the_model_gives_the_recorded_result(r):
     want = r["want"]
     got = compute(r)
-    if r["op"] == "fixed":
+    if r["op"] in ("fixed", "store"):
         got, want = Decimal(got), Decimal(want)
     assert got == want, f"{r['source']} record {r['id']}: model {got}, recorded {want}"
 
@@ -124,3 +126,20 @@ def test_a_compare_record_states_one_of_three_signs_and_a_round_record_a_long_op
             assert r["want"] in ("<", "=", ">")
         if r["op"] == "round_short":
             assert len(r["a"]) == 16 and len(r["want"]) == 8
+
+
+def test_a_model_assumption_record_is_never_ibm_evidence():
+    """Its `want` is the model's own answer: it stays a separate source until a z/OS run states the result."""
+    asm = [r for r in records() if r["source"] == "model-assumption"]
+    assert asm and all(r["id"].startswith("asm-") for r in asm)
+    assert not [r for r in records() if r["source"] == "ibm-publication" and r["id"].startswith("asm-")]
+    assert {r["op"] for r in asm} >= {"encode", "display", "store"}
+
+
+def test_a_store_record_separates_truncation_from_rounding():
+    store = {r["id"]: r for r in records() if r["op"] == "store"}
+    assert (
+        store["asm-store-add-0.1-0.2-2"]["want"] == "0.29"
+        and store["asm-store-add-0.1-0.2-2-rounded"]["want"] == "0.30"
+    )
+    assert store["asm-store-div-2-3-2"]["want"] == "0.66" and store["asm-store-div-2-3-2-rounded"]["want"] == "0.67"

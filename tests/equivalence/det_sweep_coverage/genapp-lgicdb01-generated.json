@@ -1,0 +1,45 @@
+{
+ "format": "det-sweep-coverage/2",
+ "scenarios": 23,
+ "paragraphs": {
+  "covered": 4,
+  "live": 4
+ },
+ "branches": {
+  "covered": 11,
+  "total": 12
+ },
+ "linked": {
+  "LGSTSQ": {
+   "paragraphs": {
+    "covered": 1,
+    "live": 1
+   },
+   "branches": {
+    "covered": 3,
+    "total": 6
+   }
+  }
+ },
+ "inputs": {
+  "case": "e6ba14f8ff7211dd4598239183fbbc6b116e9013a1abd125d3203071b04f54dd",
+  "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
+  "harness": "9719d8e6fab2ada37b84b391544fa81ca9f8388e844cc714cd12adc60aff0eae",
+  "oracle": "3238a6c115da44e342ab6312da909afa4da481a2f19ae796ff58f456b030566c",
+  "components": {
+   "harness": {
+    "harness:cics": "8d9cfad1a591b53bee00d334556ae5b47587186d197229e1a8ef2a32211ef42f",
+    "harness:core": "2375da909862f564828958e7917e63c8a65baef6ce35a6fc8146d7455ba31dc0",
+    "harness:db2": "998863c44ed9d0dcac36f21eaa82a06e56199ebe017707268946ffd338655baf"
+   },
+   "oracle": {
+    "oracle:cics-stub": "8d4b95cb03310f91b20292ebc95871479fe57bab9fc6ff33a625667a5860e785",
+    "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
+    "oracle:db2": "10a2566bcd61b540984c55220468787a8493cfd4df89980c84693433146502dc",
+    "oracle:image-db2": "f138cc0d724e5e2bb4ff947dcd4c1cfed39aa35bfd7dcb27ff18a4e20b2c6198",
+    "oracle:le": "a7cfa660f76e6181cb060f9f945c4e298533793957991f29d93312db11e33b3f"
+   }
+  }
+ },
+ "measured_at": "404646f4db7af56aae51c50cdeccf42d1bafe5e6"
+}

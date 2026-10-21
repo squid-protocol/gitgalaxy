@@ -9,23 +9,26 @@
 # core.compiler_options): feed it each source line in order; `feed` says whether
 # the line is COBOL text to keep (True) or a directive / an inactive line (False).
 #
-#   >>DEFINE name AS literal [OVERRIDE]   a numeric or alphanumeric literal; the DEFINE(name=literal) compiler option
-#                                         wins over it unless OVERRIDE is written
-#   >>DEFINE name AS PARAMETER            the value of the DEFINE(name=literal) compiler option
+#   >>DEFINE name AS literal [OVERRIDE]   a numeric or alphanumeric literal; a DEFINE(name=...) compiler option does
+#                                         not change it (IBM: an option without a matching AS PARAMETER is ignored)
+#   >>DEFINE name AS PARAMETER            the value of the DEFINE(name=literal) compiler option; with no such option
+#                                         the name is not defined (IBM), which `IS DEFINED` can test
 #   >>IF condition / >>ELSE / >>END-IF    nest; condition: `name IS [NOT] DEFINED`, a relation of names and literals
-#                                         (=, <>, <, >, <=, >=, NOT, EQUAL TO, GREATER / LESS THAN [OR EQUAL TO]),
-#                                         NOT, AND, OR, parentheses
+#                                         (=, <>, <, >, <=, >=, NOT, EQUAL TO, GREATER / LESS THAN [OR EQUAL TO];
+#                                         only = / <> on alphanumeric operands, IBM), NOT, AND, OR, parentheses
+#   IBM reference (Enterprise COBOL for z/OS 6.4 Language Reference): "DEFINE directive" (rldirdef), "Constant
+#   conditional expressions" (rldircons), "Conditional compilation" (rldircon); the DEFINE compiler option page.
 #
 # SCOPE AND NON-SCOPE:
 #   - A directive in an inactive branch is ignored, except the IF / ELSE / END-IF that keep the nesting.
 #   - Refused by name (ConditionalCompilation), never guessed: an unknown form of >>DEFINE (OFF, TRUE / FALSE), a
 #     relation on a name nothing defines, a numeric against an alphanumeric operand, `>>ELSE` or `>>END-IF` with no
-#     `>>IF`, an `>>IF` left open at the end (`finish`), `>>EVALUATE`.
+#     `>>IF`, an `>>IF` left open at the end (`finish`), `>>EVALUATE`, a second `>>DEFINE` of a name to another
+#     value without OVERRIDE (IBM: it "must" have the same value), an ordering relation on alphanumerics, any of these in a COPY member (`refuse`): the
+#     compilation variables a member sees are the program's at the COPY, which a reader of the member alone lacks.
 #   - Options given outside the source (the compile step's PARM) are not read here: `defines` carries them when a
 #     caller has them. Directives other than these (`>>SOURCE FORMAT`, `>>D`) are left to the reader that owns them.
-#   - ASSUMPTION to check against the IBM manual (Enterprise COBOL for z/OS Language Reference, "Conditional
-#     compilation"): the option-over-directive precedence and the OVERRIDE keyword above. No burned-estate program
-#     uses a conditional-compilation directive, so none depends on it.
+#   - No burned-estate program uses a conditional-compilation directive, so no port depends on this reader.
 # ==============================================================================
 from __future__ import annotations
 
@@ -95,9 +98,12 @@ def options_defines(rows: Iterable[dict[str, Any]]) -> dict[str, Value]:
 class Conditional:
     """The state of `>>IF` nesting over one source, line by line."""
 
-    def __init__(self, defines: dict[str, Value] | None = None) -> None:
+    def __init__(self, defines: dict[str, Value] | None = None, refuse: str = "") -> None:
         self.option: dict[str, Value] = dict(defines or {})
-        self.vars: dict[str, Value] = dict(self.option)  # a DEFINE option defines its name before the source
+        self.refuse = refuse  # set: every directive is refused with this reason (a COPY member, see logical_lines)
+        # a name's value; None: declared by AS PARAMETER with no option, so not defined. An option alone defines
+        # nothing: IBM ignores a DEFINE option that no `>>DEFINE name AS PARAMETER` asks for.
+        self.declared: dict[str, Value | None] = {}
         # one entry per open >>IF: [branch taken, parent active, in the >>ELSE part]
         self._stack: list[list[bool]] = []
         self.where = ""
@@ -119,6 +125,8 @@ class Conditional:
         if not m:
             return self.active
         word, rest = m.group(1).upper(), m.group(2)
+        if self.refuse:
+            raise self._fail(f">>{word}: {self.refuse}")
         if word in ("EVALUATE", "WHEN"):
             raise self._fail(f">>{word}: not read (refused by name)")
         if word == "IF":
@@ -153,18 +161,22 @@ class Conditional:
                 f">>DEFINE{rest.rstrip()}: only `name AS literal [OVERRIDE]` / `name AS PARAMETER` is read"
             )
         name = words[0]
-        if words[2] == "PARAMETER" and len(toks) == 3:
-            if name not in self.option:
-                raise self._fail(f">>DEFINE {name} AS PARAMETER: no DEFINE({name}=...) option gives it a value")
-            self.vars[name] = self.option[name]
-            return
-        value = _literal(*toks[2])
         override = len(toks) == 4 and words[3] == "OVERRIDE"
-        if value is None or not (len(toks) == 3 or override):
+        if words[2] == "PARAMETER" and toks[2][0] == "word":
+            value = self.option.get(name)
+        else:
+            value = _literal(*toks[2])
+            if value is None:
+                raise self._fail(
+                    f">>DEFINE{rest.rstrip()}: only `name AS literal [OVERRIDE]` / `name AS PARAMETER` is read"
+                )
+        if not (len(toks) == 3 or override):
             raise self._fail(
                 f">>DEFINE{rest.rstrip()}: only `name AS literal [OVERRIDE]` / `name AS PARAMETER` is read"
             )
-        self.vars[name] = value if override or name not in self.option else self.option[name]
+        if not override and name in self.declared and self.declared[name] != value:
+            raise self._fail(f">>DEFINE {name}: declared again with another value and no OVERRIDE (refused)")
+        self.declared[name] = value
 
     # ---- >>IF condition ----
     def _condition(self, rest: str) -> bool:
@@ -215,7 +227,7 @@ class Conditional:
         kind, text = self._toks[self._pos]
         self._pos += 1
         if kind == "word":
-            return self.vars.get(text), text
+            return self.declared.get(text), text
         value = _literal(kind, text)
         if value is None:
             raise self._fail(f">>IF: {text!r} is not an operand")
@@ -237,6 +249,8 @@ class Conditional:
         if isinstance(left, Decimal) != isinstance(right, Decimal):
             raise self._fail(">>IF: a numeric operand is compared with an alphanumeric one (refused)")
         if isinstance(left, str) and isinstance(right, str):  # a shorter operand is padded with spaces
+            if order(-1) != order(1):  # (not = / <>)
+                raise self._fail(">>IF: only = or <> compares alphanumeric operands (refused)")
             width = max(len(left), len(right))
             left, right = left.ljust(width), right.ljust(width)
         c = (left > right) - (left < right)  # type: ignore[operator, unused-ignore]

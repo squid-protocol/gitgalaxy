@@ -5883,7 +5883,10 @@ def _attach_currency(files: list) -> None:
 # The USAGEs that make an item elementary with no PIC. Any other PIC-less item is
 # a group, even with a USAGE of its own (`01 X USAGE DISPLAY.` applies to its
 # children) -- and even when the engine read a stray USAGE into it.
-_PICLESS_USAGES = ("COMP-1", "COMPUTATIONAL-1", "COMP-2", "COMPUTATIONAL-2", "POINTER", "INDEX")
+_PICLESS_USAGES = (
+    "COMP-1", "COMPUTATIONAL-1", "COMP-2", "COMPUTATIONAL-2", "POINTER", "INDEX", "PROCEDURE-POINTER",
+    "FUNCTION-POINTER",
+)  # fmt: skip
 
 
 # Files whose class_data names are NOT programs: a CSD deck's DEFINE PROGRAM(...) entries, a
@@ -5988,7 +5991,7 @@ def _item_class(item: EngineDataItem, inherited: str | None = None) -> str:
         return "B"
     if usage in ("COMP-1", "COMPUTATIONAL-1", "COMP-2", "COMPUTATIONAL-2"):
         return "F"
-    if usage in ("POINTER", "INDEX"):
+    if usage in ("POINTER", "INDEX", "PROCEDURE-POINTER", "FUNCTION-POINTER"):
         return "A"
     pic = (item.pic or "").upper()
     if not pic:
@@ -6003,6 +6006,9 @@ def _item_class(item: EngineDataItem, inherited: str | None = None) -> str:
 # #5649: the width of USAGE POINTER under z/OS LP(32) -- the default every layout reads. A caller that lays
 # storage out for another target (the det translator's GnuCOBOL x86-64: 8, oracle register C9) passes its own.
 ZOS_POINTER_BYTES = 4
+# #5694: under z/OS a PROCEDURE-POINTER is 8 bytes and a FUNCTION-POINTER 4 (oracle register C9). A caller that lays
+# storage out for another target (`pointer_bytes`) gets both at its POINTER width, as the det translator reads them.
+_CODE_POINTER_BYTES = {"PROCEDURE-POINTER": 8, "FUNCTION-POINTER": ZOS_POINTER_BYTES}
 
 
 def _sync_boundary(item: EngineDataItem, usage: str | None, pointer_bytes: int | None = None) -> int:
@@ -6019,7 +6025,9 @@ def _sync_boundary(item: EngineDataItem, usage: str | None, pointer_bytes: int |
         return 8
     if u == "POINTER":
         return pointer_bytes or ZOS_POINTER_BYTES
-    if u in ("COMP-1", "COMPUTATIONAL-1", "INDEX", "PROCEDURE-POINTER", "FUNCTION-POINTER"):
+    if u in _CODE_POINTER_BYTES:
+        return pointer_bytes or _CODE_POINTER_BYTES[u]
+    if u in ("COMP-1", "COMPUTATIONAL-1", "INDEX"):
         return 4
     if item.pic and _item_class(item, usage) == "B":
         width = _elementary_bytes(item, usage)
@@ -6047,6 +6055,8 @@ def _elementary_bytes(
     usage = (item.usage or inherited or "DISPLAY").upper()
     if usage == "POINTER":
         return pointer_bytes or ZOS_POINTER_BYTES
+    if usage in _CODE_POINTER_BYTES:
+        return pointer_bytes or _CODE_POINTER_BYTES[usage]
     if usage in ("COMP-1", "COMPUTATIONAL-1", "INDEX"):
         return 4
     if usage in ("COMP-2", "COMPUTATIONAL-2"):

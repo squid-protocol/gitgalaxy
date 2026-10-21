@@ -17,6 +17,12 @@ Verdicts, as in mutation.py:
 
     python tests/tools/mutation_crucible.py run --work DIR [--only CASE/PROG,...] [--sample 40] [--seed 0] [--jobs 4]
     python tests/tools/mutation_crucible.py report DIR      # DIR/<case>/<PROG>/mutation.md again
+    python tests/tools/mutation_crucible.py compare A B [--require-agree N]   # two runs of one port: same verdicts?
+
+#4047, fast mode (the default): the baseline run generates the case's Java project once and every mutant copies it,
+lays its overlay and compiles (`cics_crucible.py --forge-cache`), instead of refactoring and generating again. Both
+sides still run every scenario, so a mutant's verdict and `killed_by` are the ones `--full` gives (a JVM per side,
+all of the side's scenarios in it); `compare` is the gate that says so for a sample (`--require-agree`).
 
 #4049, the test-strengthening loop: `--strengthened` proves every mutant against the case's strengthened scenarios
 too (tests/cics_crucible/strengthened, their logs derived from the COBOL), and `--case-gaps [RESULTS]` runs only
@@ -83,10 +89,17 @@ def verdict(rc: int | None, report: dict | None) -> tuple[str, list[str]]:
 STRENGTHENED = False  # #4049: --strengthened
 
 
-def prove(case: str, prog: str, overlay: Path, out: Path, timeout: float) -> tuple[str, list[str], float]:
+def prove_command(case: str, prog: str, overlay: Path, out: Path, cache: Path | None = None) -> list[str]:
+    """The crucible runner's command for one proof; `cache`: the fast mode's generated-project directory."""
+    return [sys.executable, str(RUNNER), "--cases", case, "--sides", "java-ported", "java-facade", "--overlay", str(overlay),
+            "--program", prog, "--report-dir", str(out), *(["--strengthened"] if STRENGTHENED else []),
+            *(["--forge-cache", str(cache)] if cache is not None else [])]  # fmt: skip
+
+
+def prove(case: str, prog: str, overlay: Path, out: Path, timeout: float,
+          cache: Path | None = None) -> tuple[str, list[str], float]:  # fmt: skip
     out.mkdir(parents=True, exist_ok=True)
-    cmd = [sys.executable, str(RUNNER), "--cases", case, "--sides", "java-ported", "java-facade", "--overlay", str(overlay),
-           "--program", prog, "--report-dir", str(out), *(["--strengthened"] if STRENGTHENED else [])]  # fmt: skip
+    cmd = prove_command(case, prog, overlay, out, cache)
     t0 = time.monotonic()
     with open(out / "log.txt", "w", encoding="utf-8") as log:
         try:
@@ -105,7 +118,8 @@ def run_port(case: str, prog: str, overlay: Path, work: Path, args) -> dict:
     pw = work / case / prog
     if pw.exists():
         shutil.rmtree(pw)
-    v, _, base_s = prove(case, prog, overlay, pw / "baseline", 900)
+    cache = None if args.full else pw / "forge-cache"  # the baseline fills it, the mutants copy it
+    v, _, base_s = prove(case, prog, overlay, pw / "baseline", 900, cache)
     if v != "survived":
         raise SystemExit(f"{case}/{prog}: the committed port is not proven ({pw / 'baseline'}); nothing to measure")
     every = [m for m in mu.all_mutants(overlay, args.ops) if not m.file.startswith(SHARED_RUNTIME)]
@@ -120,7 +134,7 @@ def run_port(case: str, prog: str, overlay: Path, work: Path, args) -> dict:
 
     def one(m) -> dict:
         md = mu.write_mutant(overlay, m, pw / "mutants" / m.id)
-        v, by, s = prove(case, prog, md, pw / "proofs" / m.id, limit)
+        v, by, s = prove(case, prog, md, pw / "proofs" / m.id, limit, cache)
         if v != "survived" and not args.keep:
             shutil.rmtree(pw / "proofs" / m.id, ignore_errors=True)
             shutil.rmtree(md, ignore_errors=True)
@@ -131,7 +145,7 @@ def run_port(case: str, prog: str, overlay: Path, work: Path, args) -> dict:
     with ThreadPoolExecutor(args.jobs) as pool:
         results = list(pool.map(one, chosen))
     res = {"case": f"crucible:{case}", "program": prog, "mutants": len(every), "chosen": len(chosen),
-           "seed": args.seed, "seconds": round(time.monotonic() - t0), "baseline_seconds": round(base_s, 1),
+           "seed": args.seed, "mode": "full" if args.full else "fast", "seconds": round(time.monotonic() - t0), "baseline_seconds": round(base_s, 1),
            "coverage": f"cics-crucible {PINNED_REF} java-ported + java-facade scenarios (100% paragraphs and branches, #4023)",
            "results": sorted(results, key=lambda r: (r["file"], r["line"], r["id"]))}  # fmt: skip
     (pw / "mutation.json").write_text(json.dumps(res, indent=1) + "\n", encoding="utf-8")
@@ -149,6 +163,8 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--seed", type=int, default=0)
     r.add_argument("--jobs", type=int, default=4)
     r.add_argument("--ops", default=",".join(mu.OPERATORS))
+    r.add_argument("--full", action="store_true", help="#4047: generate the project again for every mutant (the "
+                   "reference `compare` judges fast mode against); the default copies the baseline's")  # fmt: skip
     r.add_argument("--keep", action="store_true", help="keep killed mutants' proof directories too")
     r.add_argument("--strengthened", action="store_true", help="#4049: prove against the strengthened scenarios too")
     r.add_argument("--case-gaps", type=Path, nargs="?", const=REPO / "docs" / "language_status" / "mutation_scores.json",
@@ -158,7 +174,17 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--triage", type=Path, nargs="*", default=[], help="with --record: triage files for new survivors")
     rep = sub.add_parser("report")
     rep.add_argument("work", type=Path)
+    cp = sub.add_parser("compare", help="two runs of one port (fast and --full): do their verdicts agree?")
+    cp.add_argument("a", type=Path, help="a port's run directory (DIR/<case>/<PROG>)")
+    cp.add_argument("b", type=Path)
+    cp.add_argument("--require-agree", type=int, metavar="N", help="a gate: exit 1 unless both runs judged at least N "
+                    "mutants and none of them differ")  # fmt: skip
     args = ap.parse_args(argv)
+    if args.cmd == "compare":
+        loaded = [json.loads((w / "mutation.json").read_text(encoding="utf-8")) for w in (args.a, args.b)]
+        result = mu.compare(*loaded)
+        print(json.dumps(result, indent=2))
+        return 0 if mu.agreement_gate(result, args.require_agree) else 1
     if args.cmd == "report":
         for mj in sorted(args.work.glob("*/*/mutation.json")):
             mj.with_suffix(".md").write_text(mu.mutation_md(json.loads(mj.read_text(encoding="utf-8"))), "utf-8")

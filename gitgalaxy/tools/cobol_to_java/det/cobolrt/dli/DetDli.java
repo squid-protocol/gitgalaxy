@@ -271,6 +271,7 @@ public final class DetDli {
 
     private static boolean loaded;
     private static boolean scheduled;
+    private static int ioPcbs; // 1 in a BMP entered by USING its I/O PCB first (enterBmp): PCB(n) counts it
 
     /**
      * EXEC DLI SCHD PSB(name) under CICS (register I5): the stated databases are loaded at the first SCHD (they outlive
@@ -313,6 +314,7 @@ public final class DetDli {
     public static void reset() {
         loaded = false;
         scheduled = false;
+        ioPcbs = 0;
         SEGS.clear();
         FLDS.clear();
         DBS.clear();
@@ -357,6 +359,41 @@ public final class DetDli {
             }
             initMask(p);
         }
+    }
+
+    /**
+     * The entry of a BMP that issues EXEC DLI (register I5, #5857): PROCEDURE DIVISION USING io-pcb db-pcb ... (the PSB is
+     * CMPAT=YES: IMS passes the I/O PCB first), so PCB(n) counts the I/O PCB and the PSB is scheduled from the start.
+     * The DB PCBs are bound as {@link #enter} does; the I/O PCB's mask is not read or written, and a DB command on
+     * PCB(1) stops the run by name.
+     */
+    public static void enterBmp(Field io, Field... areas) {
+        enter(areas);
+        scheduled = true;
+        ioPcbs = 1;
+    }
+
+    /**
+     * EXEC DLI CHKP ID(area) in a BMP (register I5): the basic checkpoint. DIBSTAT is blank, and IMS releases every
+     * database position (the next GN starts at the beginning of the database). The ID is 8 bytes; a CHKP outside a BMP,
+     * or an ID of another length, stops the run by name. The log record itself is not modelled.
+     */
+    public static String checkpoint(Field id) {
+        if (ioPcbs == 0) {
+            throw refuse("an EXEC DLI CHKP outside a BMP entered by USING its I/O PCB");
+        }
+        if (id.length() != 8) {
+            throw refuse("a CHKP ID that is not 8 bytes");
+        }
+        for (Pcb p : PCBS) {
+            p.pos = POS_START;
+            p.at = null;
+            p.par = PAR_NONE;
+            p.parentage = null;
+            p.hold = null;
+            p.prevknown = false;
+        }
+        return "  ";
     }
 
     /** A PCB mask at its start: DBD name, level '00', status blank, PROCOPT, sensitive segments, key feedback zero. */
@@ -418,13 +455,7 @@ public final class DetDli {
      */
     // [rule RT-DLI-EXEC-GET]
     public static String get(String verb, int pcbNum, Field into, Field... ssas) {
-        if (!scheduled) {
-            throw refuse("an EXEC DLI command with no PSB scheduled");
-        }
-        if (pcbNum < 1 || pcbNum > PCBS.size()) {
-            throw refuse("a PCB number the scheduled PSB does not have");
-        }
-        Pcb p = PCBS.get(pcbNum - 1);
+        Pcb p = execPcb(pcbNum);
         boolean upd = p.procopt.indexOf('A') >= 0 || p.procopt.indexOf('R') >= 0 || p.procopt.indexOf('D') >= 0;
         String fn = switch (verb) {
             case "GU" -> upd ? "GHU " : "GU  ";
@@ -442,10 +473,13 @@ public final class DetDli {
         if (!scheduled) {
             throw refuse("an EXEC DLI command with no PSB scheduled");
         }
-        if (pcbNum < 1 || pcbNum > PCBS.size()) {
+        if (ioPcbs > 0 && pcbNum == 1) {
+            throw refuse("an EXEC DLI database command on PCB(1), the I/O PCB");
+        }
+        if (pcbNum - ioPcbs < 1 || pcbNum - ioPcbs > PCBS.size()) {
             throw refuse("a PCB number the scheduled PSB does not have");
         }
-        return PCBS.get(pcbNum - 1);
+        return PCBS.get(pcbNum - ioPcbs - 1);
     }
 
     private static String execCall(String fn, Pcb p, Field io, Field... ssas) {

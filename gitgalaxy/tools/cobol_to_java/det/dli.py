@@ -44,12 +44,31 @@ def entry_pcbs(proc: S.Procedure) -> list[str] | None:
     return [r.name.upper() for r in first.data["using"]]
 
 
+class BmpPcbs(list):
+    """The DB PCB names of a BMP / batch program that issues EXEC DLI (#5857, register I5): it is entered by PROCEDURE
+    DIVISION USING io-pcb db-pcb ... (the PSB is CMPAT=YES, IMS passes the I/O PCB first), and PCB(n) counts the I/O PCB."""
+
+    io: str = ""
+
+
+def bmp_pcbs(proc: S.Procedure) -> BmpPcbs | None:
+    """The PCBs of a non-CICS program entered by PROCEDURE DIVISION USING io-pcb db-pcb ... that issues EXEC DLI, else
+    None (a program with a USING and EXEC DLI but no ENTRY 'DLITCBL'). Needs at least the I/O PCB and one DB PCB."""
+    if len(proc.using) < 2 or not uses_exec(
+        x.text for q in proc.paragraphs for x in S.walk(q.body) if x.kind == "EXEC"
+    ):
+        return None
+    out = BmpPcbs(u.upper() for u in proc.using[1:])
+    out.io = proc.using[0].upper()
+    return out
+
+
 def call(gen: Any, s: S.Stmt, ind: str) -> list[str]:
     """CALL 'CBLTDLI' USING function pcb io-area [ssa-1 ... ssa-15]: DetDli.call, then RETURN-CODE 0."""
     from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
 
     pcbs = gen.dli_pcbs
-    if pcbs is None:
+    if pcbs is None or isinstance(pcbs, BmpPcbs):
         raise Untranslatable(f"CALL {CALL}: a program IMS does not enter at ENTRY '{ENTRY}' (BMP, MPP or CICS) "
                              "is not modelled")  # fmt: skip
     args = s.data["args"]
@@ -136,7 +155,7 @@ def _get(gen: Any, verb: str, rest: str, ind: str) -> list[str]:
             raise Untranslatable(f"EXEC DLI {verb} {k}: only PCB, SEGMENT, WHERE and INTO are modelled (register I5)")
     if names.count("PCB") != 1 or names.count("INTO") != 1 or names[0] != "PCB":
         raise Untranslatable(f"EXEC DLI {verb}: one PCB(n) first and one INTO(area) expected (register I5)")
-    cics = gen.cics
+    cics = _ops(gen)
     try:
         pcb = cics.int_(dict(cl)["PCB"])
         into = gen.field_expr(cics.ref(dict(cl)["INTO"]))
@@ -171,8 +190,10 @@ def command(gen: Any, text: str, ind: str) -> list[str]:
     """One EXEC DLI command of a CICS program: SCHD PSB(...) [NODHABEND] and TERM, DIBSTAT answered."""
     from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable, jstr
 
-    if gen.cics is None:
-        raise Untranslatable("EXEC DLI outside CICS: a batch program calls CBLTDLI (register I5)")
+    batch = isinstance(gen.dli_pcbs, BmpPcbs)
+    if gen.cics is None and not batch:
+        raise Untranslatable("EXEC DLI outside CICS: a batch program calls CBLTDLI, or is entered by PROCEDURE "
+                             "DIVISION USING its I/O PCB and DB PCBs (register I5)")  # fmt: skip
     m = _EXEC_DLI.match(text)
     body = m.group(1) if m else ""
     verb = (body.split() or [""])[0].upper()
@@ -195,14 +216,69 @@ def command(gen: Any, text: str, ind: str) -> list[str]:
         return _get(gen, verb, body[len(verb) :], ind)
     elif verb in _PUTS:
         return _put(gen, verb, body[len(verb) :], ind)
+    elif verb == "CHKP":
+        if not batch:
+            raise Untranslatable("EXEC DLI CHKP: only in a BMP / batch program entered by PROCEDURE DIVISION USING "
+                                 "(register I5)")  # fmt: skip
+        return _chkp(gen, body[len(verb) :], ind)
     elif verb == "TERM":
         if body.split()[1:]:
             raise Untranslatable("EXEC DLI TERM: no option is modelled (register I5)")
         call = f"{runtime}.terminate()"
     else:
-        raise Untranslatable(f"EXEC DLI {verb}: the segment commands (REPL, ISRT, DLET ...) are not modelled "
-                             "(register I5)")  # fmt: skip
+        raise Untranslatable(f"EXEC DLI {verb}: this command is not modelled (register I5)")
     return [f"{ind}Cobol.move({call}, {dibstat}, CS);"]
+
+
+class _Ops:
+    """The operand readers EXEC DLI needs (ref, int_, read_field) where there is no CICS lane: a BMP / batch program."""
+
+    def __init__(self, gen: Any):
+        self.g = gen
+
+    def ref(self, text: str) -> E.Ref:
+        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError
+
+        p = E.Parser(E.tokenize(text))
+        e = p.operand()
+        if not p.done() or not isinstance(e, E.Ref):
+            raise CicsError(f"not a data area: {text}")
+        return e
+
+    def int_(self, text: str) -> str:
+        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError
+
+        p = E.Parser(E.tokenize(text))
+        e = p.operand()
+        if not p.done():
+            raise CicsError(f"operand {text!r}")
+        return str(self.g.int_expr(e))
+
+    def read_field(self, text: str) -> str:
+        with self.g.reading():
+            return str(self.g.field_expr(self.ref(text)))
+
+
+def _ops(gen: Any) -> Any:
+    """The operand reader of an EXEC DLI command: the CICS lane's, else the batch one."""
+    return gen.cics if gen.cics is not None else _Ops(gen)
+
+
+def _chkp(gen: Any, rest: str, ind: str) -> list[str]:
+    """CHKP ID(area) in a BMP: DetDli.checkpoint(area), DIBSTAT answered. The ID is a data name (8 bytes, IBM: the
+    checkpoint id); the symbolic options (SAVE, AREA, ...) are not modelled."""
+    from gitgalaxy.tools.cobol_to_java.det.cics import CicsError
+    from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
+
+    cl = _clauses(rest)
+    if [k for k, _ in cl] != ["ID"]:
+        raise Untranslatable("EXEC DLI CHKP: only ID(area) is modelled (register I5)")
+    try:
+        ident = gen.field_expr(_ops(gen).ref(cl[0][1]))
+    except CicsError as e:
+        raise Untranslatable(f"EXEC DLI CHKP: {e}") from e
+    dibstat = gen.field_expr(E.Ref("DIBSTAT"))
+    return [f"{ind}Cobol.move(__PACKAGE__.cobolrt.dli.DetDli.checkpoint({ident}), {dibstat}, CS);"]
 
 
 def _clause(cl: list[tuple[str, str]], name: str) -> str:
@@ -214,7 +290,7 @@ def _ssas(gen: Any, verb: str, cl: list[tuple[str, str]]) -> list[str]:
     """The DetDli.ssa(...) expressions of a command's SEGMENT / WHERE clauses, in order (a WHERE follows its SEGMENT)."""
     from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable, jstr
 
-    cics = gen.cics
+    cics = _ops(gen)
     ssas: list[str] = []
     for k, v in cl:
         if k == "SEGMENT":
@@ -249,7 +325,7 @@ def _put(gen: Any, verb: str, rest: str, ind: str) -> list[str]:
         raise Untranslatable(f"EXEC DLI {verb}: one PCB(n) first and one FROM(area) expected (register I5)")
     if "SEGMENT" not in names or (verb != "ISRT" and names.count("SEGMENT") != 1):
         raise Untranslatable(f"EXEC DLI {verb}: SEGMENT(s) expected, once for REPL and DLET (register I5)")
-    cics = gen.cics
+    cics = _ops(gen)
     try:
         pcb = cics.int_(dict(cl)["PCB"])
         src = cics.read_field(dict(cl)["FROM"])

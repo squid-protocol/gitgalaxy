@@ -250,6 +250,24 @@ def test_the_generated_transaction_view_case_is_scored_and_states_the_mapfail_in
     assert "receive" not in scenario
 
 
+def test_the_generated_menu_case_is_scored_and_states_the_scenarios_its_survivors_needed():
+    """#4506: COMEN01C's generated variant is scored on 150 mutants; its case gaps were the twin's scenarios."""
+    results = json.loads(ms.RESULTS.read_text(encoding="utf-8"))
+    ports = {p["case"]: p for p in results["ports"]}
+    port = ports["carddemo-menu-generated"]
+    total = port["total"]
+    assert port["chosen"] == 150
+    assert total["untriaged"] == 0 and total["case_gap"] == 0 and total["killed"] > 80
+    for s in port["survivors"]:
+        assert s["reason"].strip() and s["verdict"] != "untriaged"
+    case = json.loads((REPO / "tests/equivalence/carddemo-menu-generated/case.json").read_text(encoding="utf-8"))
+    named = {s["name"]: s for s in case["scenarios"]}
+    for name in ("option-11-installed", "option-past-the-table", "carried-commarea-fields"):
+        assert "#4506" in named[name]["why"]
+    # a non-digit option is refused by the oracle (register X8), so it is a limit, not a scenario
+    assert "option-non-numeric" not in named
+
+
 def test_retriage_replaces_a_verdict_and_recounts_the_totals_and_operators():
     p = ms.port_entry(_run(), {"x-case/PROG:c": {"verdict": "case_gap", "reason": ms.PLACEHOLDER}}, "abc")
     assert ms.placeholders({"ports": [p]}) == {"x-case/PROG": 1}

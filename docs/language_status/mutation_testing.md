@@ -334,6 +334,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CSUTLDTC (carddemo-dateutil) | equivalence | 211/211 | 145/195 (74%) | 145/145 (100%) | 0 / 0 / 10 / 40 / 0 |
 | CBACT04C (carddemo-intcalc) | equivalence | 100/170 | 70/86 (81%) | 70/77 (91%) | 6 / 1 / 9 / 0 / 0 |
 | COMEN01C (carddemo-menu) | equivalence | 150/331 | 86/136 (63%) | 86/93 (92%) | 7 / 0 / 36 / 7 / 0 |
+| COMEN01C (carddemo-menu-generated) | equivalence | 150/340 | 87/139 (63%) | 87/90 (97%) | 0 / 3 / 37 / 12 / 0 |
 | CBTRN02C (carddemo-posttran) | equivalence | 100/263 | 76/85 (89%) | 76/80 (95%) | 3 / 1 / 5 / 0 / 0 |
 | CBACT02C (carddemo-readcard) | equivalence | 91/91 | 69/83 (83%) | 69/73 (95%) | 4 / 0 / 10 / 0 / 0 |
 | CBCUS01C (carddemo-readcust) | equivalence | 83/83 | 63/74 (85%) | 63/70 (90%) | 7 / 0 / 4 / 0 / 0 |
@@ -380,20 +381,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 4197 run | **2554/3819 (67%)** | **2554/3049 (84%)** | 310 / 185 / 506 / 264 / 0 |
-| **all estate** | | 4701 run | **2873/4295 (67%)** | **2873/3403 (84%)** | 345 / 185 / 594 / 298 / 0 |
+| **all equivalence** | | 4347 run | **2641/3958 (67%)** | **2641/3139 (84%)** | 310 / 188 / 543 / 276 / 0 |
+| **all estate** | | 4851 run | **2960/4434 (67%)** | **2960/3493 (85%)** | 345 / 188 / 631 / 310 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 195/250 (78%) | 195/221 (88%) |
+| AOR | 208/264 (79%) | 208/234 (89%) |
 | BDM | 25/49 (51%) | 25/28 (89%) |
-| CON | 375/858 (44%) | 375/491 (76%) |
-| COR | 160/280 (57%) | 160/217 (74%) |
-| DEL | 451/687 (66%) | 451/536 (84%) |
-| LIT | 614/824 (75%) | 614/696 (88%) |
-| NEG | 532/606 (88%) | 532/580 (92%) |
+| CON | 381/879 (43%) | 381/497 (77%) |
+| COR | 166/290 (57%) | 166/223 (74%) |
+| DEL | 471/711 (66%) | 471/556 (85%) |
+| LIT | 626/848 (74%) | 626/710 (88%) |
+| NEG | 548/629 (87%) | 548/596 (92%) |
 | RET | 52/101 (51%) | 52/89 (58%) |
-| ROR | 469/640 (73%) | 469/545 (86%) |
+| ROR | 483/663 (73%) | 483/560 (86%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|
@@ -408,6 +409,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CSUTLDTC (carddemo-dateutil) | 13/15 | - | 28/51 | 4/8 | 9/10 | 27/35 | 31/32 | - | 33/44 |
 | CBACT04C (carddemo-intcalc) | 3/4 | 4/6 | 13/21 | 1/2 | 13/17 | 20/20 | 10/10 | - | 6/6 |
 | COMEN01C (carddemo-menu) | 13/14 | - | 7/20 | 6/9 | 14/22 | 15/24 | 16/23 | - | 15/24 |
+| COMEN01C (carddemo-menu-generated) | 13/14 | - | 6/21 | 6/10 | 20/24 | 12/24 | 16/23 | - | 14/23 |
 | CBTRN02C (carddemo-posttran) | 6/6 | 6/8 | 14/15 | 2/4 | 10/11 | 13/14 | 13/13 | - | 12/14 |
 | CBACT02C (carddemo-readcard) | - | - | 17/23 | 1/3 | 9/11 | 22/25 | 12/12 | - | 8/9 |
 | CBCUS01C (carddemo-readcust) | - | - | 12/13 | 1/4 | 8/8 | 23/27 | 10/10 | - | 9/12 |

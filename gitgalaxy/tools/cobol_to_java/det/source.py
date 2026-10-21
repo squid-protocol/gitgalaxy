@@ -13,6 +13,7 @@ from pathlib import Path
 from gitgalaxy.core.cics_macro_level import ASSEMBLER_SUFFIXES, Hit, assembler_hits, cobol_hits, refusal_text
 from gitgalaxy.core.cobol_preprocessor import (
     COPY_ALONE,
+    MappedLine,
     comment_at,
     copy_replacing,
     copy_statements,
@@ -46,10 +47,9 @@ def cobol_parser():
 
 
 @dataclass
-class Line:
-    text: str  # columns 8-72 (area A and B)
-    file: str
-    line: int
+class Line(MappedLine):
+    """`text` is columns 8-72 (area A and B); `file` / `line` are the line map (core.cobol_preprocessor.MappedLine)."""
+
     cut: str = ""  # #4462: the text past column 72 of a line whose columns 8-72 end inside a literal
     lost: str = ""  # #4735: the program text past column 72 of any other fixed-form line (not a sequence / ID tag)
     lost_after: str = ""  # #4735: the last word of columns 8-72 on that line, which `lost` cuts or follows
@@ -711,7 +711,7 @@ def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset
         # never a file being expanded already (the including program or copybook itself)
         # a copybook's extensions in every directory before a program's: CBSA keeps a program INQCUST.cbl next to
         # its sources and the copybook INQCUST.cpy elsewhere; never a file being expanded already
-        where = f"{ln.file}:{ln.line}"
+        where = ln.origin
         member = engine.member(ln.file, name, m.library or None, where) if engine is not None else None
         if member is not None and member.resolve() in chain:
             raise CopyNotFound(f"{where}: COPY {name} resolves to {member}, which is being expanded already")

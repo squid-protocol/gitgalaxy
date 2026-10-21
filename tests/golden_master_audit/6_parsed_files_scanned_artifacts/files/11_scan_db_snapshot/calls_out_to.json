@@ -174614,6 +174614,7 @@
         ],
         "with_a_child_body@113": [
           "sleep",
+          "timeout",
           "atf_fail"
         ],
         "with_a_child_head@108": [
@@ -175160,7 +175161,7 @@
         "disable_aufs@1539": [
           "lsmod",
           "grep",
-          "sudo"
+          "modprobe"
         ],
         "docker-installed@1512": [
           "systemctl"
@@ -175276,7 +175277,7 @@
           "chgrp"
         ],
         "override-kubectl@3148": [
-          "sudo",
+          "env",
           "grep",
           "umask"
         ],
@@ -175310,7 +175311,7 @@
           "cut",
           "sort",
           "tail",
-          "sudo",
+          "modprobe",
           "conntrack_module",
           "sed"
         ],
@@ -176013,7 +176014,8 @@
           "cli_ctx_use"
         ],
         "cmd_entrypoint_nsenter@313": [
-          "cat"
+          "cat",
+          "nsenter"
         ],
         "cmd_entrypoint_uninstall@472": [
           "init",

@@ -642,7 +642,7 @@ python tests/tools/det_mutation.py table                     # per program: the 
 python tests/tools/det_mutation.py survivors [CASE]          # every survivor with its stated verdict
 python tests/tools/det_mutation.py state CASE TRIAGE.json    # {id: {verdict, reason}} -> the reviewed list
 python tests/tools/det_mutation.py check                     # the claims against the ledger
-python tests/tools/det_mutation.py refresh --work DIR        # the generator moved: same port bytes renew the entry
+python tests/tools/det_mutation.py refresh --work DIR        # an input moved: same port bytes carry the verdicts (#5862)
 ```
 
 - **What is mutated.** `det_port.py run --translate-only`'s port, its `service/*.java` only: the translated
@@ -654,8 +654,12 @@ python tests/tools/det_mutation.py refresh --work DIR        # the generator mov
 - **The ledger**, `tests/equivalence/det_mutation/<CASE>.json`, is written only by the tool: per case the counts, every
   judged mutant's verdict, the survivors in full, and the fingerprints of the det port's files, the case, the
   corpus pin, the harness, the oracle and the Java generator (the stand-in for the port a reader can check without
-  translating). Any fingerprint that moved makes the entry unknown; `refresh` re-translates and renews an entry whose
-  port bytes did not change.
+  translating). Any fingerprint that moved makes the entry unknown; `refresh` re-translates and, when the port
+  bytes did not change, renews it: a generator-only move needs no re-run; a case / corpus / harness / oracle move re-runs
+  only the recorded survivors (same seed, mode and scope) and carries the rest. A survivor that now dies drops out
+  (a stated `equivalent` / `unreachable` one is a wrong claim: exit 1); one still surviving with the same Java line
+  keeps its stated verdict. Mutants killed before are not re-proven, so a case weakened since would not show. The
+  entry records `refreshed` (the earlier date, the survivors re-run, the inputs that moved).
 - **The reviewed survivor list**, `tests/equivalence/det_mutation_survivors/<CASE>.json` (the #4602 pattern): each survivor
   stated `equivalent` (the change cannot alter what the program shows) or `unreachable` (no input gets there), with
   the Java change and the reason, proposed in a PR and reviewed by the owner. Two more verdicts record a triaged

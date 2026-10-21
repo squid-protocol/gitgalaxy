@@ -1,6 +1,6 @@
-"""#5401: three burned CardDemo CICS cases state the caller COMMAREA fields their mutants read: a non-blank
+"""#5401: four burned CardDemo CICS cases state the caller COMMAREA fields their mutants read: a non-blank
 CDEMO-TO-TRANID (cardview 6d63a520f9, tranlist bdeaa77fbe) and an all LOW-VALUES CDEMO-FROM-PROGRAM on PF3 (tranadd
-e31af14845). Pure JSON, no Java or Docker."""
+e31af14845), and a 12-character CDEMO-CB00-TRN-SELECTED on billpay (d3458d6107). Pure JSON, no Java or Docker."""
 
 import json
 from pathlib import Path
@@ -13,6 +13,7 @@ EQUIVALENCE = Path(__file__).resolve().parents[1] / "equivalence"
 STATED = {
     "carddemo-cardview": ("enter-carried-to-tranid", "CDEMO-TO-TRANID", lambda v: bool(v.strip())),
     "carddemo-tranlist": ("select-with-carried-to-tranid", "CDEMO-TO-TRANID", lambda v: bool(v.strip())),
+    "carddemo-billpay": ("first-entry-with-long-selected-account", "CDEMO-CB00-TRN-SELECTED", lambda v: len(v) >= 12),
     "carddemo-tranadd": ("pf3-low-values-from-program", "CDEMO-FROM-PROGRAM", lambda v: v == "\u0000" * 8),
 }
 

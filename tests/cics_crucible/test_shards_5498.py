@@ -98,3 +98,13 @@ def test_the_workflow_matrix_is_the_n_the_job_passes_to_shard():
     totals = set(re.findall(r"--shard \$\{\{ matrix\.shard \}\}/(\d+)", text))
     assert shards == list(range(1, len(shards) + 1)) and totals == {str(len(shards))}
     assert f"shard ${{{{ matrix.shard }}}}/{len(shards)}" in text  # the job name carries the same N
+
+
+def test_jobs_measure_the_cases_as_one_at_a_time_does(tmp_path):
+    """#5882: --jobs N measures N cases at once, each in its own process; the cells and coverage are the
+    sequential run's (engine-facts only: no Docker or Maven needed)."""
+    fixture = TESTS / "cics_crucible" / "fixture"
+    one = runner.measure(fixture, None, {"engine-facts"}, tmp_path / "one", offline=True)
+    two = runner.measure(fixture, None, {"engine-facts"}, tmp_path / "two", offline=True, jobs=2)
+    assert len({c["case"] for c in one["cells"].values()}) == 2
+    assert two["cells"] == one["cells"] and two["coverage"] == one["coverage"]

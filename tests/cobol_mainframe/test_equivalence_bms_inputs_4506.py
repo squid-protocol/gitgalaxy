@@ -221,6 +221,31 @@ def test_the_generated_bnk1dac_case_leaves_its_non_fset_account_field_alone_in_s
     assert not any(m.get("ACCNOI") == "" for m in maps)  # never transmitted empty: it has no FSET
 
 
+def test_the_generated_bnk1ccs_case_sends_its_fset_fields_empty_in_some_scenarios():
+    """BNK1CCS.cbl tests `CUSTTITL < 1`, `CHRISTNL < 1`, `CUSTSNL < 1`, `CUSTAD1L < 1`; all four are FSET, so unmodified means
+    transmitted with length 0 (MDT on), never absent."""
+    import json
+    import os
+
+    fields = ("CUSTTITI", "CHRISTNI", "CUSTSNI", "CUSTAD1I")
+    root = os.environ.get("GITGALAXY_MAINFRAME_CORPORA")
+    path = Path(__file__).resolve().parents[1] / "equivalence" / "cbsa-bnk1ccs-generated" / "case.json"
+    case = json.loads(path.read_text("utf-8"))
+    rules = case["scenario_generate"]["receive"]["BNK1CC"]
+    assert all(rules[f]["empty"] > 0 for f in fields)
+    if not root or not (Path(root) / case["corpus"]).is_dir():
+        pytest.skip("no CBSA corpus")
+    ei.bms_input_fields.cache_clear()
+    case = {**case, "datasets": {}, "scenario_generate": {**case["scenario_generate"], "commarea": None}}
+    out = ei.prepare_cics_case(case, Path(root) / case["corpus"], [])["scenarios"]
+    prefix = case["scenario_generate"]["prefix"] + "-"
+    maps = [s["receive"].get("BNK1CC", {}) for s in out if s["name"].startswith(prefix)]
+    for f in fields:
+        assert any(m.get(f) == "" for m in maps), f
+        assert any(m.get(f) for m in maps), f
+        assert not any(f not in m for m in maps), f  # FSET: never absent
+
+
 def test_the_same_seed_types_the_same_input(corpus):
     bms = ei.bms_input_fields(corpus, "TESTMAP")
     a, b, c = (ei._bms_receive(random.Random(s), "s", "@bms", _layout(), bms, {}, 4) for s in (3, 3, 4))

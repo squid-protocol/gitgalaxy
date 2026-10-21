@@ -178001,45 +178001,78 @@
     "tcl/macports_port_api": {
       "tcl/macports_port_api/fetch_common.tcl": {
         "portfetch::assemble_url@77": [
+          "string",
           "append"
         ],
         "portfetch::check_dns@275": [
+          "check_broken_dns",
           "ui_warn"
         ],
         "portfetch::checksites@162": [
           "set",
+          "a-zA-Z",
           "upvar",
+          "info",
+          "list",
+          "llength",
           "lassign",
+          "regexp",
           "lappend",
+          "mirror_sites",
+          "split",
           "ui_error",
+          "format",
+          "msgcat::mc",
           "append",
           "dict"
         ],
         "portfetch::get_urls@254": [
           "set",
+          "list",
           "portfetch::checkfiles",
+          "info",
           "ui_error",
+          "format",
+          "msgcat::mc",
           "lappend"
         ],
         "portfetch::mirror_sites@104": [
+          "file",
+          "info",
           "ui_warn",
+          "list",
           "set",
           "lassign",
+          "separate_tag",
+          "regexp",
+          "regsub",
           "append",
           "lappend"
         ],
         "portfetch::percent_encode@49": [
           "set",
+          "string",
           "append",
-          "default"
+          "default",
+          "split",
+          "format",
+          "scan"
         ],
         "portfetch::separate_tag@87": [
-          "set"
+          "set",
+          "string",
+          "expr",
+          "list"
         ],
         "portfetch::sortsites@231": [
           "upvar",
+          "info",
           "ui_error",
-          "set"
+          "format",
+          "msgcat::mc",
+          "set",
+          "llength",
+          "lsort"
         ]
       },
       "tcl/macports_port_api/library.tcl": {
@@ -178049,23 +178082,36 @@
         "macports_worker_init@4": [
           "interp",
           "portmain::report_platform_info",
+          "info",
           "set"
         ]
       },
       "tcl/macports_port_api/portactivate.tcl": {
         "portactivate::activate_finish@85": [
+          "tbool",
           "set",
+          "eval_targets",
           "ui_error",
+          "format",
+          "msgcat::mc",
           "unset",
+          "info",
+          "llength",
           "ui_notifications_append"
         ],
         "portactivate::activate_main@61": [
+          "info",
           "set",
-          "portstartupitem::foreach_startupitem",
+          "option",
           "dict",
+          "array",
+          "portstartupitem::foreach_startupitem",
           "registry_activate"
         ],
         "portactivate::activate_start@53": [
+          "file",
+          "getuid",
+          "geteuid",
           "elevateToRoot"
         ]
       },
@@ -178075,18 +178121,29 @@
           "depends_build-delete",
           "depends_build-append"
         ],
-        "portbuild::build_getargs@175": [],
+        "portbuild::build_getargs@175": [
+          "regexp"
+        ],
         "portbuild::build_getjobs@142": [
           "set",
+          "tbool",
           "ui_debug",
           "macports_try",
-          "ui_warn"
+          "sysctl",
+          "ui_warn",
+          "expr",
+          "string"
         ],
         "portbuild::build_getjobsarg@187": [
-          "set"
+          "set",
+          "file",
+          "lindex",
+          "exists",
+          "string"
         ],
         "portbuild::build_getmaketype@92": [
           "macports_try",
+          "findBinary",
           "bsd",
           "gnu",
           "pbx",
@@ -178107,16 +178164,36 @@
       "tcl/macports_port_api/portbump.tcl": {
         "portbump::bump_main@189": [
           "set",
+          "info",
+          "option",
+          "portchecksum::parse_checksums",
+          "list",
           "ui_info",
+          "file",
+          "llength",
           "ui_error",
+          "portchecksum::calc_",
           "lappend",
           "ui_debug",
-          "file",
+          "regexp",
+          "exec",
+          "findBinary",
+          "tbool",
           "ui_msg",
           "ui_notice",
+          "format",
+          "name_to_uid",
           "exec_as_uid",
+          "open",
+          "split",
+          "read",
           "close",
           "lassign",
+          "portbump::replace_checksums",
+          "portbump::find_revision_line",
+          "lindex",
+          "portbump::reset_revision",
+          "join",
           "puts"
         ],
         "portbump::bump_start@179": [
@@ -178124,49 +178201,91 @@
         ],
         "portbump::find_revision_line@97": [
           "set",
+          "string",
+          "llength",
+          "regexp",
+          "lindex",
           "dict",
+          "expr",
           "incr"
         ],
         "portbump::replace_checksums@59": [
           "set",
+          "list",
+          "llength",
+          "lindex",
+          "regsub",
           "lset",
           "lappend"
         ],
         "portbump::reset_revision@166": [
           "set",
+          "lindex",
+          "regsub",
           "lset"
         ]
       },
       "tcl/macports_port_api/portchecksum.tcl": {
-        "portchecksum::calc_md5@191": [],
-        "portchecksum::calc_rmd160@209": [],
-        "portchecksum::calc_sha1@200": [],
-        "portchecksum::calc_sha256@218": [],
-        "portchecksum::calc_size@227": [],
+        "portchecksum::calc_md5@191": [
+          "md5"
+        ],
+        "portchecksum::calc_rmd160@209": [
+          "rmd160"
+        ],
+        "portchecksum::calc_sha1@200": [
+          "sha1"
+        ],
+        "portchecksum::calc_sha256@218": [
+          "sha256"
+        ],
+        "portchecksum::calc_size@227": [
+          "file"
+        ],
         "portchecksum::checksum_main@245": [
+          "info",
+          "tbool",
           "ui_info",
           "set",
+          "option",
           "array",
+          "parse_checksums",
+          "file",
+          "llength",
           "ui_error",
+          "list",
+          "calc_",
           "lappend",
           "ui_debug",
-          "file",
-          "ui_notice"
+          "regexp",
+          "exec",
+          "findBinary",
+          "ui_notice",
+          "format",
+          "lsearch",
+          "lreplace",
+          "join"
         ],
         "portchecksum::checksum_start@235": [
           "ui_notice"
         ],
         "portchecksum::parse_checksums@112": [
           "set",
+          "llength",
+          "expr",
+          "lindex",
+          "linsert",
           "incr",
           "array",
+          "info",
           "lappend",
           "ui_debug",
           "ui_error"
         ],
         "portchecksum::verify_checksum_format@70": [
           "set",
+          "string",
           "sha256",
+          "regexp",
           "rmd160",
           "sha1",
           "md5",
@@ -178177,25 +178296,42 @@
       "tcl/macports_port_api/portclean.tcl": {
         "portclean::clean_archive@244": [
           "set",
+          "file",
+          "info",
+          "list",
+          "glob",
+          "string",
+          "dict",
+          "extract_archive_metadata",
           "ui_debug",
           "ui_error",
           "incr"
         ],
         "portclean::clean_dist@94": [
           "set",
+          "getdistname",
           "ui_debug",
+          "file",
           "ui_error",
           "incr",
+          "info",
+          "list",
+          "dirempty",
           "ui_warn",
+          "format",
+          "msgcat::mc",
           "lappend"
         ],
         "portclean::clean_logs@227": [
           "set",
+          "getportlogpath",
+          "file",
           "ui_debug",
           "ui_error"
         ],
         "portclean::clean_main@61": [
           "ports_clean_archive",
+          "info",
           "ui_info",
           "clean_dist",
           "clean_archive",
@@ -178204,33 +178340,51 @@
         ],
         "portclean::clean_start@51": [
           "ui_notice",
+          "getuid",
+          "geteuid",
           "elevateToRoot"
         ],
         "portclean::clean_work@177": [
+          "file",
           "ui_debug",
           "macports_try",
           "delete",
           "ui_error",
-          "set"
+          "set",
+          "portutil::get_oldbuildpath",
+          "realpath"
         ]
       },
       "tcl/macports_port_api/portdeactivate.tcl": {
         "portdeactivate::deactivate_main@58": [
+          "info",
           "set",
+          "option",
+          "portstartupitem::loaded",
+          "eval_targets",
           "ui_warn",
-          "registry_deactivate"
+          "format",
+          "msgcat::mc",
+          "registry_deactivate",
+          "array"
         ],
         "portdeactivate::deactivate_start@50": [
+          "file",
+          "getuid",
+          "geteuid",
           "elevateToRoot"
         ]
       },
       "tcl/macports_port_api/portdepends.tcl": {
         "portdepends::validate_depends_options@57": [
           "set",
-          "default"
+          "default",
+          "format",
+          "msgcat::mc"
         ],
         "portdepends::validate_depends_options_new@72": [
-          "ui_warn"
+          "ui_warn",
+          "msgcat::mc"
         ]
       },
       "tcl/macports_port_api/portdestroot.tcl": {
@@ -178238,40 +178392,63 @@
           "applications_dir",
           "destroot",
           "macportsuser",
-          "ui_debug",
           "file",
+          "ui_debug",
           "set",
+          "list",
+          "getuid",
+          "name_to_uid",
+          "uname_to_gid",
           "fs-traverse",
           "lchown",
+          "open",
+          "gets",
+          "string",
           "lappend",
           "reinplace",
           "xinstall",
           "ui_error",
           "ui_info",
+          "findBinary",
+          "readdir",
+          "regexp",
           "system",
           "puts",
           "ln",
           "_cd",
+          "llength",
+          "lshift",
+          "glob",
           "throw",
           "ui_warn",
+          "expr",
           "lpush",
           "default",
+          "fileIsSparse",
           "clonefile",
           "umask"
         ],
-        "portdestroot::destroot_getargs@71": [],
+        "portdestroot::destroot_getargs@71": [
+          "regexp"
+        ],
         "portdestroot::destroot_main@128": [
           "set",
-          "command_exec"
+          "command_exec",
+          "info"
         ],
         "portdestroot::destroot_start@83": [
           "destroot",
           "applications_dir",
           "ui_notice",
+          "getuid",
+          "geteuid",
           "ui_debug",
           "seteuid",
           "setegid",
+          "tbool",
           "set",
+          "umask",
+          "findBinary",
           "delete",
           "file",
           "system",
@@ -178282,23 +178459,37 @@
         "portdistcheck::distcheck_main@53": [
           "subport",
           "set",
+          "file",
           "ui_debug",
+          "list",
+          "tbool",
           "lappend",
           "portfetch::checkfiles",
+          "info",
           "ui_error",
+          "format",
+          "msgcat::mc",
+          "portfetch::assemble_url",
           "macports_try",
+          "curl",
           "ui_warn",
           "incr",
           "ui_info",
+          "expr",
           "ui_msg"
         ]
       },
       "tcl/macports_port_api/portdistfiles.tcl": {
         "portdistfiles::distfiles_main@54": [
           "portdbpath",
+          "info",
           "set",
+          "list",
           "portfetch::checkfiles",
-          "ui_msg"
+          "portchecksum::parse_checksums",
+          "option",
+          "ui_msg",
+          "portfetch::assemble_url"
         ],
         "portdistfiles::distfiles_start@49": [
           "ui_notice"
@@ -178306,80 +178497,132 @@
       },
       "tcl/macports_port_api/portextract.tcl": {
         "portextract::add_extract_deps@172": [
+          "tbool",
           "depends_extract-append"
         ],
         "portextract::disttagclean@194": [
-          "lappend"
+          "lappend",
+          "getdistname"
         ],
         "portextract::extract_main@224": [
-          "ui_info",
+          "exists",
           "option",
+          "ui_info",
+          "file",
+          "tbool",
           "elevateToRoot",
           "set",
           "dropPrivileges",
           "chownAsRoot",
+          "glob",
+          "llength",
+          "lindex",
           "ui_debug",
+          "format",
+          "msgcat::mc",
           "move"
         ],
         "portextract::extract_start@204": [
           "ui_notice",
           "handle_add_users",
+          "tbool",
           "ui_debug",
           "file",
-          "set"
+          "set",
+          "mkdtemp"
         ],
-        "portextract::get_extract_cmd@74": [],
-        "portextract::get_extract_post_args@118": [],
-        "portextract::get_extract_pre_args@101": [],
-        "portextract::get_extract_suffix@135": [],
+        "portextract::get_extract_cmd@74": [
+          "tbool",
+          "findBinary",
+          "binaryInPath"
+        ],
+        "portextract::get_extract_post_args@118": [
+          "tbool"
+        ],
+        "portextract::get_extract_pre_args@101": [
+          "tbool"
+        ],
+        "portextract::get_extract_suffix@135": [
+          "tbool"
+        ],
         "portextract::set_extract_type@158": [
+          "string",
           "unset"
         ]
       },
       "tcl/macports_port_api/portfetch.tcl": {
         "portfetch::_async_cleanup@655": [
+          "info",
           "curlwrap_async_cancel",
           "unset"
         ],
         "portfetch::_fetch_start@693": [
+          "info",
           "start_pings",
+          "file",
           "elevateToRoot",
+          "format",
+          "msgcat::mc",
           "chownAsRoot",
           "dropPrivileges",
           "ui_warn",
           "portfetch::check_dns"
         ],
         "portfetch::bzrfetch@247": [
-          "set"
+          "info",
+          "string",
+          "set",
+          "msgcat::mc",
+          "portfetch::fetchfiles"
         ],
         "portfetch::checkdistfiles@201": [
           "upvar",
+          "info",
+          "file",
           "set",
+          "getdisttag",
+          "getdistname",
           "lappend"
         ],
         "portfetch::checkfiles@229": [
           "upvar",
           "set",
+          "list",
           "master_sites",
+          "info",
+          "lsearch",
           "checksites",
+          "get_full_mirror_sites_path",
           "checkpatchfiles",
           "checkdistfiles"
         ],
         "portfetch::checkpatchfiles@178": [
           "upvar",
+          "info",
+          "file",
           "set",
+          "getdisttag",
+          "getdistname",
           "lappend"
         ],
         "portfetch::cvsfetch@287": [
           "cvs",
           "patch_sites",
-          "set"
+          "set",
+          "string",
+          "regexp",
+          "msgcat::mc",
+          "info",
+          "portfetch::fetchfiles"
         ],
         "portfetch::fetch_addfilestomap@612": [
+          "file",
           "filemap"
         ],
         "portfetch::fetch_async_start@635": [
           "fetch_init",
+          "info",
+          "files_present",
           "_fetch_start",
           "fetchfiles"
         ],
@@ -178390,52 +178633,86 @@
           "portfetch::checkfiles"
         ],
         "portfetch::fetch_main@743": [
+          "info",
           "bzr",
+          "bzrfetch",
           "cvs",
+          "cvsfetch",
           "svn",
+          "svnfetch",
           "git",
+          "gitfetch",
           "hg",
+          "hgfetch",
           "standard",
-          "default"
+          "default",
+          "portfetch::fetchfiles"
         ],
         "portfetch::fetch_start@724": [
+          "tbool",
           "ui_notice",
+          "files_present",
           "_fetch_start"
         ],
         "portfetch::fetchfiles@451": [
           "fetch",
+          "info",
           "set",
+          "list",
           "unset",
+          "curlwrap_async_is_complete",
           "curlwrap_async_show_progress",
           "curlwrap_async_cancel",
           "lassign",
+          "curlwrap_async_result",
           "ui_error",
           "ui_debug",
           "file",
+          "string",
           "lappend",
           "ui_info",
+          "format",
+          "msgcat::mc",
           "sortsites",
+          "curlwrap_async_file_is_in_progress",
           "touch",
           "chownAsRoot",
+          "curlwrap_async",
+          "lmap",
           "ui_notice",
+          "portfetch::assemble_url",
           "macports_try",
           "curlwrap"
         ],
-        "portfetch::files_present@623": [],
-        "portfetch::find_git_path@158": [],
-        "portfetch::get_full_mirror_sites_path@222": [],
+        "portfetch::files_present@623": [
+          "file"
+        ],
+        "portfetch::find_git_path@158": [
+          "findBinary"
+        ],
+        "portfetch::get_full_mirror_sites_path@222": [
+          "getportresourcepath",
+          "file"
+        ],
         "portfetch::gitfetch@395": [
           "git",
           "set",
           "append",
-          "ui_debug"
+          "ui_debug",
+          "msgcat::mc",
+          "info",
+          "portfetch::fetchfiles"
         ],
         "portfetch::hgfetch@427": [
           "fetch",
           "set",
-          "ui_debug"
+          "ui_debug",
+          "msgcat::mc",
+          "info",
+          "portfetch::fetchfiles"
         ],
         "portfetch::set_fetch_type@127": [
+          "string",
           "distfiles",
           "bzr",
           "depends_fetch-append",
@@ -178445,21 +178722,35 @@
           "hg"
         ],
         "portfetch::start_pings@665": [
+          "info",
           "async_ping_start",
           "set",
+          "lindex",
           "wait_for_pingtime"
         ],
-        "portfetch::suffix@172": [],
+        "portfetch::suffix@172": [
+          "join"
+        ],
         "portfetch::svn_proxy_args@336": [
+          "string",
+          "info",
           "set",
+          "expr",
           "regexp",
           "append"
         ],
         "portfetch::svnfetch@357": [
           "fetch",
+          "regexp",
+          "msgcat::mc",
+          "string",
           "append",
+          "option",
           "svn",
-          "set"
+          "set",
+          "svn_proxy_args",
+          "info",
+          "portfetch::fetchfiles"
         ]
       },
       "tcl/macports_port_api/portinstall.tcl": {
@@ -178470,39 +178761,79 @@
           "portarchive::archive_command_setup",
           "set",
           "file",
+          "open",
+          "exists",
           "puts",
           "close",
+          "list",
+          "lsort",
+          "dict",
+          "info",
+          "lindex",
+          "split",
+          "mport_lookup",
+          "llength",
           "ui_debug",
           "lassign",
+          "_get_compatible_platform",
+          "get_path_commit",
+          "expr",
+          "option",
+          "string",
           "fs-traverse",
           "lappend",
-          "dict",
-          "command_exec"
+          "md5",
+          "fileIsBinary",
+          "get_actual_cxx_stdlib",
+          "command_exec",
+          "glob"
         ],
         "portinstall::get_path_commit@57": [
           "set",
+          "file",
+          "getuid",
           "macports_try",
+          "geteuid",
+          "getegid",
           "seteuid",
           "setegid",
-          "ui_debug"
+          "name_to_gid",
+          "name_to_uid",
+          "ui_debug",
+          "info"
         ],
         "portinstall::install_main@285": [
           "portvariants",
           "portarchivetype",
           "set",
+          "get_portimage_path",
+          "find_portarchive_path",
           "file",
           "delete",
+          "option",
+          "string",
+          "extract_archive_metadata",
           "lassign",
+          "dict",
           "archiveTypeIsSupported",
           "create_archive",
+          "list",
+          "info",
+          "_get_dep_port",
           "lappend",
-          "dict",
+          "_get_compatible_platform",
+          "get_canonical_archs",
+          "expr",
+          "clock",
           "ui_debug",
           "registry_install"
         ],
         "portinstall::install_start@94": [
           "prefix_frozen",
           "ui_notice",
+          "file",
+          "getuid",
+          "geteuid",
           "elevateToRoot",
           "handle_add_users"
         ]
@@ -178510,51 +178841,90 @@
       "tcl/macports_port_api/portlint.tcl": {
         "portlint::lint_checksum@157": [
           "set",
+          "list",
+          "regexp",
+          "lindex",
           "incr",
-          "lappend"
+          "llength",
+          "portchecksum::verify_checksum_format",
+          "lappend",
+          "portlint::lint_checksum_type_list"
         ],
         "portlint::lint_checksum_type_list@125": [
           "set",
-          "lappend"
+          "list",
+          "lappend",
+          "tbool"
         ],
         "portlint::lint_main@288": [
           "set",
+          "split",
+          "llength",
           "incr",
+          "lindex",
           "ui_debug",
+          "info",
+          "dict",
+          "list",
+          "open",
           "fconfigure",
+          "gets",
+          "eof",
           "seek",
+          "read",
           "ui_warn",
           "close",
+          "seems_utf8",
           "ui_error",
-          "ui_info",
           "regexp",
-          "dict",
+          "string",
+          "ui_info",
+          "A-Za-z0-9_",
           "lappend",
           "arm64",
           "intel",
           "ppc",
           "ppc64",
           "x86_64",
+          "glob",
           "depends_fetch",
           "depends_lib",
           "depends_test",
           "replaced_by",
+          "get_canonical_archs",
+          "file",
+          "getportresourcepath",
+          "portlint::lint_platforms",
+          "ditem_key",
+          "get_variant_description",
+          "mport_lookup",
+          "lsearch",
+          "portlint::lint_checksum",
+          "get_deprecated_options",
+          "array",
           "ui_notice"
         ],
         "portlint::lint_platforms@258": [
           "set",
-          "lappend"
+          "list",
+          "lindex",
+          "lappend",
+          "string",
+          "info"
         ],
         "portlint::lint_start@283": [
           "ui_notice"
         ],
         "portlint::seems_utf8@87": [
           "set",
+          "string",
+          "scan",
           "incr"
         ]
       },
       "tcl/macports_port_api/portlivecheck.tcl": {
         "portlivecheck::_async_cleanup@68": [
+          "info",
           "curlwrap_async_cancel",
           "unset",
           "file"
@@ -178565,15 +178935,34 @@
           "homepage",
           "master_sites",
           "ui_debug",
+          "info",
+          "curlwrap_async_is_complete",
           "lassign",
+          "curlwrap_async_result",
           "unset",
           "ui_error",
           "file",
           "append",
           "set",
           "close",
+          "tbool",
           "lappend",
+          "getdefaultportresourcepath",
+          "glob",
+          "regsub",
+          "join",
           "regexp",
+          "split",
+          "llength",
+          "lindex",
+          "curlwrap_async",
+          "list",
+          "open",
+          "read",
+          "vercmp",
+          "gets",
+          "md5",
+          "curl",
           "default",
           "ui_msg",
           "ui_info"
@@ -178590,23 +178979,43 @@
           "portstartupitem::load_only",
           "portutil::autoconf::launchctl_path",
           "portstartupitem::foreach_startupitem",
+          "info",
           "set",
+          "format",
+          "msgcat::mc",
+          "file",
+          "getuid",
           "ui_warn",
+          "name_to_uid",
           "ui_notice",
           "exec_as_uid"
         ]
       },
       "tcl/macports_port_api/portmain.tcl": {
-        "portmain::check_option_integer@65": [],
-        "portmain::get_default_subport@88": [],
+        "portmain::check_option_integer@65": [
+          "string"
+        ],
+        "portmain::get_default_subport@88": [
+          "info",
+          "file"
+        ],
         "portmain::get_source_date_epoch@173": [
+          "info",
           "set",
+          "list",
           "lappend",
+          "lmap",
+          "lrange",
           "ui_debug",
+          "expr",
+          "file",
           "fs-traverse"
         ],
         "portmain::get_subbuildpath@97": [
-          "set"
+          "set",
+          "expr",
+          "file",
+          "getportbuildpath"
         ],
         "portmain::main@252": [],
         "portmain::report_platform_info@138": [
@@ -178626,12 +179035,16 @@
           "uplevel",
           "puts",
           "set",
+          "subst",
           "exit"
         ],
         "test_set@36": [
           "uplevel",
           "puts",
+          "list",
           "set",
+          "lsort",
+          "subst",
           "exit"
         ],
         "test_throws@53": [
@@ -178644,9 +179057,11 @@
         "main@5": [
           "load",
           "exec",
+          "glob",
           "registry::open",
           "registry::write",
           "set",
+          "registry::entry",
           "registry::read",
           "test_set",
           "file"
@@ -178656,16 +179071,18 @@
         "main@5": [
           "load",
           "exec",
+          "glob",
           "test_throws",
           "registry::open",
           "registry::write",
           "set",
+          "registry::entry",
           "registry::read",
           "test_equal",
           "test_set",
           "test",
+          "list",
           "puts",
-          "registry::entry",
           "registry::not-found",
           "registry::close",
           "file"
@@ -178674,21 +179091,31 @@
       "tcl/macports_registry/portimage.tcl": {
         "_activate_contents@683": [
           "set",
+          "list",
+          "clock",
+          "llength",
+          "expr",
+          "extract_archive_to_imagedir",
           "registry::write",
           "file",
           "_progress",
+          "dict",
           "registry::read",
           "incr",
           "throw",
+          "info",
           "lassign",
+          "_get_port_conflicts",
           "append",
           "lappend",
           "ui_warn",
-          "dict",
           "unset",
+          "registry::run_target",
           "deactivate",
+          "lsort",
           "_activate_directories",
           "_activate_files",
+          "lmap",
           "ui_msg",
           "ui_debug",
           "signal",
@@ -178697,6 +179124,8 @@
         ],
         "_activate_directories@399": [
           "set",
+          "expr",
+          "getuid",
           "ui_debug",
           "dict",
           "_progress",
@@ -178705,8 +179134,11 @@
         "_activate_files@331": [
           "upvar",
           "set",
-          "ui_debug",
+          "expr",
+          "fs_clone_capable",
+          "getuid",
           "dict",
+          "ui_debug",
           "clonefile",
           "lappend",
           "_progress",
@@ -178714,19 +179146,32 @@
         ],
         "_check_registry@259": [
           "set",
+          "list",
           "lappend",
           "append",
+          "registry::entry",
+          "llength",
+          "macports::ui_isset",
           "ui_msg",
+          "format",
+          "msgcat::mc",
+          "info",
+          "lindex",
           "throw"
         ],
         "_deactivate_contents@994": [
           "set",
+          "list",
+          "expr",
+          "llength",
           "_progress",
-          "incr",
-          "lappend",
           "dict",
+          "incr",
+          "realpath",
+          "lappend",
           "ui_debug",
           "unset",
+          "lsort",
           "signal",
           "registry::write",
           "_deactivate_files"
@@ -178734,112 +179179,189 @@
         "_deactivate_files@975": [
           "ui_debug",
           "incr",
-          "_progress"
+          "_progress",
+          "dirempty"
         ],
         "_extract_progress@597": [
           "exec",
           "set",
           "_progress",
           "stdin",
+          "string",
+          "dict",
           "incr",
           "exit"
         ],
         "_get_port_conflicts@634": [
+          "info",
           "set",
           "dict",
-          "lassign"
+          "lindex",
+          "registry::entry",
+          "lassign",
+          "mportlookup",
+          "lsearch",
+          "list"
         ],
         "_progress@626": [
+          "macports::ui_isset",
           "ui_progress_generic"
         ],
         "activate@78": [
+          "dict",
+          "string",
           "set",
+          "list",
           "registry::read",
+          "_check_registry",
           "ui_info",
+          "registry::entry",
           "lappend",
+          "registry::run_target",
           "deactivate",
           "ui_msg",
           "_activate_contents"
         ],
         "activate_composite@68": [
+          "activate",
+          "registry::decode_spec",
           "throw"
         ],
         "deactivate@162": [
+          "dict",
+          "string",
           "set",
           "throw",
+          "registry::entry",
+          "llength",
+          "lindex",
+          "_check_registry",
           "ui_info",
           "append",
+          "registry::check_dependents",
           "ui_msg",
           "_deactivate_contents"
         ],
         "deactivate_composite@153": [
+          "deactivate",
+          "registry::decode_spec",
           "throw"
         ],
         "extract_archive_to_imagedir@430": [
           "set",
           "file",
+          "mkdtemp",
           "aar",
+          "macports::findBinary",
           "ui_debug",
           "cp",
+          "geteuid",
+          "regexp",
           "throw",
           "t",
+          "getuid",
+          "macports::find_tar_with_hfscompression",
+          "info",
+          "macports::shellescape",
           "xar",
           "zip",
           "default",
-          "system"
+          "system",
+          "dict"
         ],
         "install@1083": [
           "registry::write",
           "set",
+          "dict",
+          "sha256",
           "file",
           "lappend",
-          "dict",
+          "list",
+          "registry::entry",
+          "info",
           "registry::file"
         ]
       },
       "tcl/macports_registry/portuninstall.tcl": {
         "cmp_regrefs@107": [
-          "set"
+          "set",
+          "string",
+          "vercmp",
+          "expr"
         ],
         "generate_deplist@44": [
           "set",
+          "list",
+          "mportopen_installed",
+          "mportinfo",
           "mportclose",
-          "lappend",
           "dict",
-          "ui_warn"
+          "lappend",
+          "lindex",
+          "split",
+          "llength",
+          "lrange",
+          "string",
+          "ui_warn",
+          "mportopen",
+          "lsort"
         ],
         "uninstall@133": [
           "dict",
           "set",
           "lappend",
           "append",
+          "registry::entry",
+          "llength",
+          "lindex",
+          "macports::ui_isset",
           "ui_msg",
+          "lsort",
+          "format",
+          "msgcat::mc",
+          "info",
           "throw",
+          "registry::run_target",
+          "registry::check_dependents",
+          "string",
           "portimage::deactivate",
+          "generate_deplist",
+          "list",
           "file",
+          "glob",
           "registry::portgroup",
           "registry::write",
-          "registry::entry",
+          "lrange",
           "lassign"
         ],
         "uninstall_composite@124": [
+          "uninstall",
+          "registry::decode_spec",
           "throw"
         ]
       },
       "tcl/macports_registry/receipt_flat.tcl": {
         "clean_dep_map@819": [
           "set",
+          "list",
+          "llength",
           "ui_debug",
+          "lsearch",
           "lappend",
+          "expr",
           "ui_info"
         ],
         "close_file_map@736": [
+          "info",
           "filemap"
         ],
         "convert_entry_from_HEAD@223": [
           "array",
-          "interp",
           "set",
+          "list",
+          "interp",
+          "llength",
+          "lindex",
           "ui_warn",
           "lappend",
           "property_store",
@@ -178848,16 +179370,20 @@
           "write_entry"
         ],
         "delete_entry@407": [
+          "info",
           "set",
           "array",
           "ui_debug",
-          "file"
+          "file",
+          "dirempty"
         ],
         "entry_exists@344": [
           "set"
         ],
         "entry_exists_for_name@360": [
-          "set"
+          "set",
+          "llength",
+          "glob"
         ],
         "file_registered@605": [
           "open_file_map",
@@ -178865,21 +179391,36 @@
         ],
         "get_head_entry_receipt_path@72": [
           "set",
+          "glob",
+          "string",
+          "lindex",
           "regexp"
         ],
         "installed@447": [
           "set",
+          "glob",
+          "string",
+          "list",
           "regexp",
+          "lindex",
           "lappend"
         ],
         "list_dependents@783": [
+          "llength",
+          "info",
           "open_dep_map",
           "set",
+          "list",
+          "lindex",
           "lappend"
         ],
         "list_depends@768": [
+          "llength",
+          "info",
           "open_dep_map",
           "set",
+          "list",
+          "lindex",
           "lappend"
         ],
         "new_entry@53": [
@@ -178888,12 +179429,27 @@
         ],
         "open_dep_map@745": [
           "set",
-          "close"
+          "exec",
+          "open",
+          "read",
+          "close",
+          "list",
+          "llength"
         ],
         "open_entry@103": [
+          "info",
           "set",
+          "get_head_entry_receipt_path",
           "regexp",
+          "glob",
+          "string",
+          "lindex",
+          "entry_exists",
+          "exec",
+          "open",
+          "read",
           "close",
+          "new_entry",
           "ui_msg",
           "convert_entry_from_HEAD",
           "file",
@@ -178902,29 +179458,46 @@
         ],
         "open_file_map@536": [
           "set",
+          "info",
           "filemap",
+          "list",
+          "exec",
+          "open",
+          "read",
           "close",
-          "ui_msg"
+          "llength",
+          "ui_msg",
+          "lindex"
         ],
         "port_registered@630": [
           "open_file_map",
           "set",
+          "llength",
+          "installed",
           "open_entry"
         ],
         "property_retrieve@395": [
-          "set"
+          "set",
+          "array",
+          "llength",
+          "lindex"
         ],
         "property_store@380": [
-          "array"
+          "array",
+          "set",
+          "list"
         ],
         "register_bulk_files@683": [
           "open_file_map",
           "set",
+          "lindex",
           "ui_debug",
           "filemap"
         ],
         "register_dep@797": [
           "set",
+          "list",
+          "lsearch",
           "lappend"
         ],
         "register_file@663": [
@@ -178934,6 +179507,7 @@
         ],
         "unregister_dep@806": [
           "set",
+          "list",
           "lappend"
         ],
         "unregister_file@705": [
@@ -178943,19 +179517,25 @@
         ],
         "write_dep_map@839": [
           "set",
+          "open",
           "puts",
           "close",
           "file",
+          "info",
           "system"
         ],
         "write_entry@311": [
           "set",
+          "array",
           "file",
+          "open",
           "puts",
           "close",
+          "info",
           "system"
         ],
         "write_file_map@720": [
+          "info",
           "open_file_map",
           "filemap"
         ]
@@ -178963,41 +179543,70 @@
       "tcl/macports_registry/receipt_sqlite.tcl": {
         "active@53": [
           "set",
-          "lappend"
+          "registry::entry",
+          "list",
+          "lappend",
+          "string"
         ],
         "close_file_map@269": [],
         "create_entry_l@390": [
           "array",
           "registry::write",
           "set",
+          "registry::entry",
+          "llength",
+          "list",
           "lappend",
+          "lindex",
           "incr"
         ],
-        "entry_exists@101": [],
-        "entry_exists_for_name@117": [],
+        "entry_exists@101": [
+          "registry::entry",
+          "llength"
+        ],
+        "entry_exists_for_name@117": [
+          "registry::entry",
+          "llength"
+        ],
         "file_registered@137": [
-          "set"
+          "set",
+          "registry::entry"
         ],
         "installed@236": [
           "set",
-          "lappend"
+          "registry::entry",
+          "list",
+          "lappend",
+          "string"
         ],
         "list_dependents@338": [
           "set",
-          "lappend"
+          "list",
+          "lappend",
+          "registry::entry",
+          "lsort"
         ],
         "list_depends@294": [
           "set",
-          "lappend"
+          "list",
+          "lappend",
+          "registry::entry",
+          "lsort"
         ],
         "open_dep_map@274": [],
-        "open_entry@84": [],
+        "open_entry@84": [
+          "registry::entry"
+        ],
         "port_registered@158": [
-          "set"
+          "registry::entry",
+          "llength",
+          "set",
+          "lindex"
         ],
         "property_retrieve@185": [
           "active",
           "set",
+          "string",
           "default"
         ],
         "property_store@209": [
@@ -179008,54 +179617,86 @@
       "tcl/macports_registry/registry.tcl": {
         "active@175": [
           "set",
-          "lappend"
+          "list",
+          "lindex",
+          "open_entry",
+          "property_retrieve",
+          "lappend",
+          "llength"
         ],
         "clean_dep_map@377": [],
         "close_file_map@279": [],
         "convert_to_sqlite@435": [
           "set",
+          "receipt_flat::installed",
+          "lindex",
+          "list",
+          "receipt_flat::open_entry",
           "lappend",
+          "receipt_flat::property_retrieve",
+          "string",
+          "expr",
+          "receipt_flat::port_registered",
           "receipt_flat::open_dep_map",
+          "receipt_flat::list_depends",
           "receipt_sqlite::create_entry_l"
         ],
         "delete_entry@103": [
-          "set"
+          "set",
+          "property_retrieve"
         ],
         "entry_exists@76": [],
         "entry_exists_for_name@82": [],
         "exclusive_lock@389": [
           "incr",
           "set",
+          "info",
           "ui_msg",
           "adv-flock",
           "ui_debug"
         ],
         "exclusive_unlock@419": [
           "incr",
-          "ui_warn"
+          "ui_warn",
+          "info"
         ],
         "file_registered@238": [
           "set",
           "ui_debug"
         ],
-        "fileinfo_for_file@325": [],
+        "fileinfo_for_file@325": [
+          "list"
+        ],
         "fileinfo_for_index@342": [
           "set",
-          "lappend"
+          "list",
+          "string",
+          "lappend",
+          "fileinfo_for_file"
         ],
         "installed@137": [
           "set",
-          "lappend"
+          "list",
+          "lindex",
+          "open_entry",
+          "property_retrieve",
+          "lappend",
+          "llength"
         ],
         "list_dependents@362": [],
         "list_depends@356": [],
         "location@208": [
           "set",
-          "puts"
+          "registry::installed",
+          "llength",
+          "puts",
+          "lindex"
         ],
         "new_entry@49": [
+          "entry_exists",
           "set",
-          "property_store"
+          "property_store",
+          "clock"
         ],
         "open_dep_map@307": [],
         "open_entry@116": [],
@@ -179073,6 +179714,8 @@
         "register_dependencies@285": [
           "open_dep_map",
           "set",
+          "lindex",
+          "split",
           "register_dep",
           "write_dep_map"
         ],
@@ -179080,26 +179723,35 @@
         "unregister_dep@372": [],
         "unregister_dependencies@298": [
           "open_dep_map",
+          "list_depends",
           "unregister_dep",
+          "lindex",
           "write_dep_map"
         ],
         "unregister_file@269": [],
         "write_dep_map@382": [],
         "write_entry@88": [
-          "set"
+          "set",
+          "property_retrieve"
         ],
         "write_file_map@274": []
       },
       "tcl/macports_registry/registry_util.tcl": {
         "check_dependents@68": [
           "set",
+          "registry::entry",
+          "llength",
+          "list",
           "lappend",
+          "info",
+          "string",
           "ui_msg",
           "ui_warn",
           "throw"
         ],
         "decode_spec@58": [
-          "upvar"
+          "upvar",
+          "regexp"
         ],
         "delete_dependencies@190": [
           "set"
@@ -179107,14 +179759,18 @@
         "run_target@127": [
           "set",
           "ui_debug",
+          "mportopen_installed",
           "ui_warn",
           "activate",
           "deactivate",
           "uninstall",
+          "registry::entry",
+          "info",
           "mportclose"
         ],
         "tdbc_connect@178": [
           "set",
+          "tdbc::sqlite3::connection",
           "trace"
         ]
       }
@@ -179134,24 +179790,40 @@
           "shmfault"
         ],
         "doPassiveTest@573": [
+          "info",
+          "string",
           "set",
           "do_test",
-          "sqlite3_memdebug_fail"
+          "list",
+          "uplevel",
+          "join",
+          "sqlite3_memdebug_fail",
+          "expr",
+          "lsearch"
         ],
         "do_error_test@569": [
-          "uplevel"
+          "uplevel",
+          "list"
         ],
         "do_faultsim_test@121": [
+          "array",
           "set",
           "fix_testname",
-          "array",
+          "info",
+          "list",
+          "llength",
+          "concat",
+          "lsort",
           "eval"
         ],
         "do_malloc_test@416": [
           "array",
+          "string",
           "set",
+          "info",
           "save_prng_state",
           "restore_prng_state",
+          "glob",
           "do_test",
           "forcedelete",
           "copy_file",
@@ -179161,28 +179833,41 @@
           "execsql",
           "sqlite3_memdebug_fail",
           "append",
+          "expr",
+          "db",
           "puts",
           "lappend",
+          "list",
           "unset"
         ],
         "do_one_faultsim_test@326": [
           "set",
+          "list",
           "array",
+          "info",
           "uplevel",
           "eval",
           "do_test"
         ],
         "do_restart_select_test@565": [
-          "uplevel"
+          "uplevel",
+          "list"
         ],
         "do_select_test@561": [
-          "uplevel"
+          "uplevel",
+          "list"
         ],
         "do_write_test@655": [
+          "info",
           "db",
           "set",
+          "list",
           "lappend",
-          "do_test"
+          "join",
+          "uplevel",
+          "sqlite3_memdebug_fail",
+          "do_test",
+          "lsearch"
         ],
         "faultsim_delete_and_reopen@177": [
           "uplevel",
@@ -179203,12 +179888,16 @@
         "faultsim_test_proc@347": [],
         "faultsim_test_result@348": [
           "uplevel",
+          "list",
           "eval",
           "set"
         ],
         "faultsim_test_result_int@291": [
           "upvar",
-          "set"
+          "set",
+          "list",
+          "lindex",
+          "lsearch"
         ],
         "fullerr_injectinstall@238": [
           "testvfs"
@@ -179227,7 +179916,8 @@
           "set"
         ],
         "interrupt_injectstop@281": [
-          "set"
+          "set",
+          "expr"
         ],
         "interrupt_injectuninstall@276": [],
         "ioerr_injectstart@202": [
@@ -179237,7 +179927,8 @@
           "set"
         ],
         "oom_injectstart@192": [
-          "sqlite3_memdebug_fail"
+          "sqlite3_memdebug_fail",
+          "expr"
         ],
         "oom_injectstop@195": [
           "sqlite3_memdebug_fail"
@@ -179259,68 +179950,98 @@
       "tcl/sqlite/tester.tcl": {
         "allcksum@2145": [
           "set",
+          "list",
           "ifcapable",
-          "append"
+          "append",
+          "md5"
         ],
         "append_graph@1017": [
           "upvar",
           "set",
-          "append"
+          "llength",
+          "lindex",
+          "append",
+          "info"
         ],
         "capable@1718": [
-          "set"
+          "set",
+          "fix_ifcapable_expr",
+          "expr"
         ],
         "catchcmd@830": [
           "set",
+          "open",
           "puts",
           "close",
           "list"
         ],
         "catchcmdex@849": [
           "set",
+          "open",
           "fconfigure",
           "puts",
           "close",
-          "eval",
-          "list"
+          "list",
+          "eval"
         ],
         "catchsafecmd@839": [
           "set",
+          "open",
           "puts",
           "close",
           "list"
         ],
         "catchsql@1460": [
           "set",
+          "list",
           "lappend"
         ],
         "cksum@2124": [
           "set",
-          "append"
+          "append",
+          "string",
+          "md5"
         ],
         "copy_file@197": [
           "do_copy_file"
         ],
         "crash_on_write@1844": [
           "set",
+          "llength",
+          "lindex",
+          "expr",
           "default",
+          "open",
           "puts",
           "close",
           "exec",
+          "info",
           "lappend"
         ],
         "crashsql@1752": [
           "set",
+          "lindex",
+          "llength",
+          "string",
+          "expr",
+          "file",
+          "get_pwd",
+          "open",
           "puts",
+          "btree_from_db",
           "close",
           "exec",
+          "info",
           "lappend"
         ],
         "db_delete_and_reopen@2482": [
+          "glob",
           "sqlite3"
         ],
         "db_restore@2470": [
+          "glob",
           "set",
+          "string",
           "forcecopy"
         ],
         "db_restore_and_reopen@2477": [
@@ -179328,6 +180049,7 @@
           "sqlite3"
         ],
         "db_save@2458": [
+          "glob",
           "set",
           "forcecopy"
         ],
@@ -179336,7 +180058,8 @@
         ],
         "dbcksum@2176": [
           "set",
-          "append"
+          "append",
+          "md5"
         ],
         "delete_all_data@1159": [
           "db"
@@ -179346,50 +180069,81 @@
         ],
         "do_catchsql_test@973": [
           "fix_testname",
-          "uplevel"
+          "uplevel",
+          "list"
         ],
         "do_copy_file@205": [
           "set",
+          "getFileRetries",
+          "getFileRetryDelay",
           "file"
         ],
         "do_delete_file@276": [
           "set",
+          "getFileRetries",
+          "getFileRetryDelay",
           "file"
         ],
         "do_eqp_execsql_test@1070": [
+          "regexp",
           "set",
+          "query_plan_graph",
+          "list",
           "uplevel",
-          "do_test"
+          "do_test",
+          "string"
         ],
         "do_eqp_test@1048": [
+          "regexp",
           "set",
+          "query_plan_graph",
+          "list",
           "uplevel",
-          "do_test"
+          "do_test",
+          "string"
         ],
         "do_execsql_test@941": [
           "set",
+          "lindex",
+          "lrange",
+          "llength",
+          "string",
           "wrong",
           "fix_testname",
-          "uplevel"
+          "uplevel",
+          "list"
         ],
         "do_filepath_test@882": [
           "uplevel",
-          "subst"
+          "list",
+          "subst",
+          "filepath_normalize"
         ],
         "do_ioerr_test@1927": [
           "set",
           "array",
+          "info",
           "append",
           "save_prng_state",
           "run_ioerr_prep",
           "eval",
+          "cksum",
           "incr",
+          "lsearch",
           "restore_prng_state",
           "do_test",
+          "subst",
+          "sqlite3_errcode",
+          "regexp",
           "expr",
+          "btree_from_db",
           "db_enter",
+          "btree_pager_stats",
           "db_leave",
+          "sqlite3_get_autocommit",
           "ifcapable",
+          "db",
+          "sqlite3",
           "output2",
           "unset"
         ],
@@ -179399,119 +180153,190 @@
         ],
         "do_realnum_test@892": [
           "uplevel",
-          "subst"
+          "list",
+          "subst",
+          "realnum_normalize"
         ],
         "do_select_tests@1103": [
           "set",
+          "lindex",
+          "lrange",
+          "llength",
+          "string",
+          "list",
+          "incr",
           "eval",
           "execsql",
           "uplevel",
-          "db"
+          "db",
+          "format"
         ],
         "do_test@703": [
           "fix_testname",
           "sqlite3_memdebug_settitle",
+          "info",
           "set",
           "incr_ntest",
           "output1",
           "flush",
+          "string",
           "output2_if_no_verbose",
           "output2",
           "fail_test",
+          "permutation",
+          "list",
+          "regexp",
+          "expr",
+          "llength",
+          "fpnum_compare",
           "omit_test",
           "uplevel",
           "append",
+          "format",
+          "scan",
+          "open",
           "puts",
           "close",
-          "list",
           "fconfigure",
           "eval",
-          "string",
-          "subst",
-          "upvar",
-          "wrong",
-          "db",
-          "lappend",
           "regsub",
+          "a-z",
+          "subst",
+          "filepath_normalize",
+          "realnum_normalize",
+          "upvar",
+          "db",
+          "lindex",
+          "lrange",
+          "wrong",
+          "lappend",
+          "append_graph",
+          "A-F0-9",
+          "query_plan_graph",
+          "incr",
           "execsql",
+          "time",
           "sqlite3",
           "versdb",
           "finish_test_precleanup",
           "db_delete_and_reopen",
+          "set_test_counter",
           "vfs_unlink_test",
           "sqlite3_reset_auto_extension",
           "sqlite3_soft_heap_limit64",
           "sqlite3_hard_heap_limit64",
+          "file",
+          "read",
           "run_thread_tests",
+          "lsort",
+          "working_64bit_int",
           "vfslog",
-          "incr",
+          "sqlite3_status",
+          "sqlite3_memory_used",
           "ifcapable",
           "sqlite3_memdebug_dump",
           "show_memstats",
           "memdebug_log_sql",
           "sqlite3_memdebug_log",
           "vdbe_coverage_report",
+          "glob",
           "forcedelete",
           "exit",
+          "eof",
+          "gets",
+          "vdbe_coverage",
           "Seek",
           "NoConflict",
           "SorterSort",
+          "array",
           "memdb",
+          "sqlite3_step",
+          "sqlite3_data_count",
+          "sqlite3_column_text",
+          "sqlite3_prepare",
+          "uses_stmt_journal",
           "sqlite3_finalize",
+          "fix_ifcapable_expr",
+          "get_pwd",
+          "btree_from_db",
           "exec",
           "default",
           "sqlite3_extended_result_codes",
-          "expr",
-          "array",
           "save_prng_state",
           "run_ioerr_prep",
+          "cksum",
+          "lsearch",
           "restore_prng_state",
+          "sqlite3_errcode",
           "db_enter",
+          "btree_pager_stats",
           "db_leave",
+          "sqlite3_get_autocommit",
           "unset",
+          "md5",
+          "pid",
+          "split",
+          "wal_is_wal_mode",
           "interp",
           "tinterp",
           "load_testfixture_extensions",
+          "sqlite3_enable_shared_cache",
           "reset_prng_state",
+          "hexio_read",
           "db36231",
           "hexio_write",
           "forcecopy",
           "db_save",
           "db_restore",
           "sqlite3_shutdown",
+          "sqlite3_config_pagecache",
           "sqlite3_initialize",
           "autoinstall_test_functions",
           "reset_db",
-          "file",
+          "test_binary_name",
           "finish_test",
+          "test_find_binary",
+          "sqlite3_next_stmt",
           "sqlite3_expanded_sql",
           "database_never_corrupt",
           "extra_schema_checks"
         ],
         "do_test_with_ansi_output@815": [
-          "uplevel"
+          "info",
+          "uplevel",
+          "list"
         ],
         "do_timed_execsql_test@977": [
           "fix_testname",
-          "uplevel"
+          "uplevel",
+          "list"
         ],
         "do_vmstep_test@916": [
           "uplevel",
-          "set"
+          "list",
+          "set",
+          "db",
+          "string"
         ],
         "drop_all_indexes@2279": [
           "set"
         ],
         "drop_all_tables@2254": [
           "ifcapable",
-          "set"
+          "set",
+          "db"
         ],
         "dumpbytes@821": [
           "set",
-          "append"
+          "string",
+          "append",
+          "format",
+          "scan"
         ],
         "execpresql@313": [
-          "trace"
+          "trace",
+          "list",
+          "info"
         ],
         "execsql2@1628": [
           "set",
@@ -179519,24 +180344,37 @@
           "lappend"
         ],
         "execsql@1445": [
-          "uplevel"
+          "uplevel",
+          "list"
         ],
         "execsql_pp@1575": [
           "set",
+          "llength",
+          "string",
           "lappend",
+          "array",
           "incr",
-          "puts"
+          "expr",
+          "puts",
+          "lrange",
+          "format"
         ],
         "execsql_timed@1449": [
           "set",
+          "time",
+          "uplevel",
+          "list",
+          "lindex",
           "output1"
         ],
         "expand_all_sql@2601": [
           "set",
+          "sqlite3_next_stmt",
           "sqlite3_expanded_sql"
         ],
         "explain@1469": [
-          "output2"
+          "output2",
+          "format"
         ],
         "explain_i@1480": [
           "output2",
@@ -179545,51 +180383,79 @@
           "NoConflict",
           "SorterSort",
           "incr",
-          "append"
+          "expr",
+          "info",
+          "string",
+          "append",
+          "format"
         ],
         "explain_no_trace@1620": [
-          "set"
+          "set",
+          "db",
+          "lrange"
         ],
         "fail_test@603": [
           "set",
-          "lappend",
           "set_test_counter",
+          "lappend",
+          "expr",
           "output2",
           "finalize_testing"
         ],
         "filepath_normalize@873": [
           "string",
+          "list",
+          "regsub",
+          "a-z",
           "set"
         ],
         "finalize_testing@1256": [
           "set",
+          "set_test_counter",
           "vfs_unlink_test",
           "sqlite3",
           "db",
           "sqlite3_reset_auto_extension",
           "sqlite3_soft_heap_limit64",
           "sqlite3_hard_heap_limit64",
+          "incr_ntest",
+          "file",
+          "open",
+          "read",
           "close",
+          "info",
           "output2",
           "regsub",
+          "string",
           "append",
           "run_thread_tests",
+          "llength",
+          "lsort",
+          "format",
+          "lindex",
+          "working_64bit_int",
           "vfslog",
           "incr",
+          "sqlite3_status",
+          "sqlite3_memory_used",
           "ifcapable",
           "sqlite3_memdebug_dump",
           "show_memstats",
           "memdebug_log_sql",
           "sqlite3_memdebug_log",
           "vdbe_coverage_report",
+          "glob",
           "forcedelete",
-          "exit"
+          "exit",
+          "expr"
         ],
         "finish_test@1237": [
           "finish_test_precleanup",
+          "llength",
           "puts",
           "db_delete_and_reopen",
-          "uplevel"
+          "uplevel",
+          "info"
         ],
         "finish_test@1243": [
           "finish_test_precleanup"
@@ -179597,10 +180463,14 @@
         "finish_test_precleanup@1226": [],
         "fix_ifcapable_expr@1697": [
           "set",
+          "string",
+          "expr",
           "append"
         ],
         "fix_testname@898": [
           "upvar",
+          "info",
+          "string",
           "set"
         ],
         "forcecopy@201": [
@@ -179609,22 +180479,38 @@
         "forcedelete@272": [
           "do_delete_file"
         ],
-        "getFileRetries@146": [],
-        "getFileRetryDelay@157": [],
+        "getFileRetries@146": [
+          "info",
+          "expr"
+        ],
+        "getFileRetryDelay@157": [
+          "info"
+        ],
         "get_pwd@173": [
-          "set"
+          "info",
+          "set",
+          "string",
+          "list",
+          "exec",
+          "pwd"
         ],
         "ifcapable@1725": [
-          "set"
+          "set",
+          "fix_ifcapable_expr"
         ],
         "incr_ntest@630": [
-          "set_test_counter"
+          "set_test_counter",
+          "expr"
         ],
         "integrity_check@1674": [
           "ifcapable",
-          "do_test"
+          "do_test",
+          "list"
         ],
-        "is_relative_file@240": [],
+        "is_relative_file@240": [
+          "expr",
+          "file"
+        ],
         "isquick@2340": [
           "set"
         ],
@@ -179635,30 +180521,53 @@
         ],
         "memdebug_log_sql@2190": [
           "set",
+          "sqlite3_memdebug_log",
+          "expr",
+          "llength",
+          "lindex",
+          "lrange",
           "append",
+          "pid",
+          "array",
+          "format",
+          "eval",
+          "split",
+          "open",
+          "read",
           "close",
+          "string",
+          "list",
           "puts"
         ],
-        "nonzero_reserved_bytes@331": [],
+        "nonzero_reserved_bytes@331": [
+          "sqlite3"
+        ],
         "normalize_list@907": [
-          "set"
+          "set",
+          "list"
         ],
         "omit_test@593": [
           "set",
+          "set_test_counter",
           "lappend",
-          "set_test_counter"
+          "list"
         ],
         "output1@649": [
           "set",
-          "uplevel"
+          "verbose",
+          "uplevel",
+          "lrange"
         ],
         "output2@657": [
           "set",
+          "llength",
           "uplevel"
         ],
         "output2_if_no_verbose@661": [
           "set",
-          "uplevel"
+          "verbose",
+          "uplevel",
+          "lrange"
         ],
         "permutation@2329": [
           "set"
@@ -179673,85 +180582,139 @@
         "puts@687": [],
         "puts_override@674": [
           "set",
-          "uplevel"
+          "llength",
+          "string",
+          "lindex",
+          "uplevel",
+          "info",
+          "lrange"
         ],
         "query_plan_graph@990": [
           "db",
           "set",
           "lappend",
           "append",
-          "regsub"
+          "append_graph",
+          "regsub",
+          "A-F0-9"
         ],
         "realnum_normalize@888": [
           "string",
           "uplevel",
+          "list",
           "subst",
           "upvar",
+          "info",
           "set",
+          "db",
+          "lindex",
+          "lrange",
+          "llength",
           "wrong",
           "fix_testname",
-          "db",
           "lappend",
           "append",
+          "append_graph",
           "regsub",
+          "A-F0-9",
+          "regexp",
+          "query_plan_graph",
           "do_test",
+          "incr",
           "eval",
           "execsql",
+          "format",
           "output2",
           "flush",
+          "time",
+          "expr",
           "sqlite3",
           "versdb",
           "finish_test_precleanup",
           "puts",
           "db_delete_and_reopen",
+          "set_test_counter",
           "vfs_unlink_test",
           "sqlite3_reset_auto_extension",
           "sqlite3_soft_heap_limit64",
           "sqlite3_hard_heap_limit64",
+          "incr_ntest",
+          "file",
+          "open",
+          "read",
           "close",
           "run_thread_tests",
+          "lsort",
+          "working_64bit_int",
           "vfslog",
-          "incr",
+          "sqlite3_status",
+          "sqlite3_memory_used",
           "ifcapable",
           "sqlite3_memdebug_dump",
           "show_memstats",
           "memdebug_log_sql",
           "sqlite3_memdebug_log",
           "vdbe_coverage_report",
+          "glob",
           "forcedelete",
           "exit",
+          "eof",
+          "gets",
+          "vdbe_coverage",
           "output1",
           "Seek",
           "NoConflict",
           "SorterSort",
+          "array",
           "memdb",
+          "sqlite3_step",
+          "sqlite3_data_count",
+          "sqlite3_column_text",
+          "sqlite3_prepare",
+          "uses_stmt_journal",
           "sqlite3_finalize",
+          "fix_ifcapable_expr",
+          "get_pwd",
+          "btree_from_db",
           "exec",
           "default",
           "sqlite3_extended_result_codes",
-          "expr",
-          "array",
           "save_prng_state",
           "run_ioerr_prep",
+          "cksum",
+          "lsearch",
           "restore_prng_state",
+          "sqlite3_errcode",
           "db_enter",
+          "btree_pager_stats",
           "db_leave",
+          "sqlite3_get_autocommit",
           "unset",
+          "md5",
+          "pid",
+          "split",
+          "permutation",
+          "wal_is_wal_mode",
           "interp",
           "tinterp",
           "load_testfixture_extensions",
+          "sqlite3_enable_shared_cache",
           "reset_prng_state",
+          "hexio_read",
           "db36231",
           "hexio_write",
           "forcecopy",
           "db_save",
           "db_restore",
           "sqlite3_shutdown",
+          "sqlite3_config_pagecache",
           "sqlite3_initialize",
           "autoinstall_test_functions",
           "reset_db",
-          "file",
+          "test_binary_name",
           "finish_test",
+          "test_find_binary",
+          "sqlite3_next_stmt",
           "sqlite3_expanded_sql",
           "database_never_corrupt",
           "extra_schema_checks"
@@ -179760,65 +180723,97 @@
           "forcedelete",
           "sqlite3",
           "set",
+          "sqlite3_connection_pointer",
+          "info",
           "db"
         ],
         "run_ioerr_prep@1890": [
           "set",
+          "sqlite3",
           "sqlite3_extended_result_codes",
+          "info",
           "eval",
           "execsql",
           "expr"
         ],
         "set_test_counter@583": [
-          "set"
+          "llength",
+          "set",
+          "lindex"
         ],
         "show_memstats@1419": [
           "set",
+          "sqlite3_status",
+          "format",
+          "lindex",
           "output1",
           "ifcapable",
           "output2"
         ],
         "slave_test_file@2392": [
           "set",
+          "file",
+          "info",
+          "permutation",
           "unset",
           "ifcapable",
+          "sqlite3_enable_shared_cache",
           "reset_prng_state",
+          "time",
+          "list",
+          "expr",
+          "lindex",
           "do_test",
           "output2",
           "show_memstats"
         ],
         "slave_test_script@2348": [
           "interp",
+          "list",
+          "info",
           "tinterp",
+          "array",
           "load_testfixture_extensions",
           "set"
         ],
         "speed_trial@1168": [
           "output2",
+          "format",
           "flush",
           "set",
+          "time",
+          "lindex",
+          "expr",
           "lappend"
         ],
         "speed_trial_init@1200": [
           "set",
+          "list",
           "sqlite3",
           "versdb",
           "output2"
         ],
         "speed_trial_summary@1209": [
           "output2",
+          "format",
           "sqlite3",
           "set",
+          "lindex",
           "versdb"
         ],
         "speed_trial_tcl@1184": [
           "output2",
+          "format",
           "flush",
           "set",
+          "time",
+          "lindex",
+          "expr",
           "lappend"
         ],
         "sql36231@2446": [
           "set",
+          "hexio_read",
           "sqlite3",
           "execsql",
           "db36231",
@@ -179826,40 +180821,64 @@
         ],
         "sql_uses_stmt@1690": [
           "set",
+          "sqlite3_prepare",
+          "uses_stmt_journal",
           "sqlite3_finalize"
         ],
         "sqlite3@116": [
+          "llength",
+          "string",
+          "lindex",
+          "info",
           "set",
+          "concat",
+          "sqlite_orig",
           "lappend",
           "uplevel"
         ],
         "stepsql@1649": [
           "set",
-          "lappend"
+          "string",
+          "list",
+          "sqlite3_step",
+          "sqlite3_data_count",
+          "lappend",
+          "sqlite3_column_text"
         ],
         "test_binary_name@2529": [
           "set",
           "file"
         ],
         "test_cli_invocation@2566": [
-          "set"
+          "set",
+          "test_find_binary",
+          "expr",
+          "permutation",
+          "info"
         ],
         "test_find_binary@2538": [
           "set",
+          "test_binary_name",
+          "file",
           "finish_test"
         ],
         "test_find_cli@2551": [
-          "set"
+          "set",
+          "test_find_binary"
         ],
         "test_find_sqldiff@2592": [
-          "set"
+          "set",
+          "test_find_binary"
         ],
         "test_pwd@248": [
+          "llength",
           "set",
+          "lindex",
           "ifcapable"
         ],
         "test_restore_config_pagecache@2514": [
           "sqlite3_shutdown",
+          "info",
           "eval",
           "unset",
           "sqlite3_initialize",
@@ -179869,6 +180888,7 @@
         "test_set_config_pagecache@2496": [
           "sqlite3_shutdown",
           "set",
+          "sqlite3_config_pagecache",
           "sqlite3_initialize",
           "autoinstall_test_functions",
           "reset_db"
@@ -179876,54 +180896,92 @@
         "vdbe_coverage_report@1384": [
           "puts",
           "set",
+          "list",
+          "file",
+          "open",
+          "eof",
+          "gets",
           "incr",
+          "regexp",
           "lappend",
-          "close"
+          "close",
+          "vdbe_coverage",
+          "llength",
+          "lindex",
+          "lrange"
         ],
         "verbose@637": [],
         "verify_ex_errcode@1682": [
-          "do_test"
+          "do_test",
+          "list"
         ],
         "wal_check_journal_mode@2316": [
-          "do_test"
+          "wal_is_wal_mode",
+          "do_test",
+          "list"
         ],
         "wal_is_capable@2323": [
-          "ifcapable"
+          "ifcapable",
+          "permutation"
         ],
         "wal_is_wal_mode@2308": [
-          "expr"
+          "expr",
+          "permutation"
         ],
-        "wal_set_journal_mode@2311": [],
+        "wal_set_journal_mode@2311": [
+          "wal_is_wal_mode"
+        ],
         "warning@618": [
           "output2",
           "set",
-          "lappend",
-          "set_test_counter"
+          "set_test_counter",
+          "lappend"
         ]
       },
       "tcl/sqlite/testrunner.tcl": {
         "add_build_job@1220": [
           "set",
           "append",
-          "list"
+          "add_job",
+          "list",
+          "file"
         ],
         "add_devtest_jobs@1380": [
           "set",
+          "add_build_job",
           "add_tcl_jobs",
           "add_fuzztest_jobs",
-          "trdb"
+          "trdb",
+          "add_shell_build_job",
+          "lindex"
         ],
         "add_fuzztest_jobs@1280": [
+          "trd_fuzztest_data",
           "set",
+          "lrange",
+          "lindex",
+          "string",
           "lappend",
+          "list",
+          "info",
+          "file",
+          "expr",
+          "llength",
+          "job_matches_any_pattern",
+          "add_build_job",
           "add_job"
         ],
         "add_job@1052": [
           "set",
           "array",
+          "info",
+          "lsearch",
           "tcl",
+          "file",
+          "lindex",
           "bld",
           "fuzz",
+          "lrange",
           "make",
           "trdb",
           "displaytype",
@@ -179931,9 +180989,14 @@
         ],
         "add_jobs_from_cmdline@1426": [
           "add_zipvfs_jobs",
+          "llength",
           "set",
+          "list",
+          "lindex",
           "all",
           "must_be_testfixture",
+          "lrange",
+          "trd_all_configs",
           "add_tcl_jobs",
           "devtest",
           "mdevtest",
@@ -179943,69 +181006,111 @@
           "sdevtest",
           "All-Sanitize",
           "release",
+          "trd_builds",
+          "regexp",
+          "add_build_job",
+          "trd_configs",
+          "trd_extras",
           "add_fuzztest_jobs",
+          "job_matches_any_pattern",
           "add_make_job",
           "trdb",
-          "list",
+          "add_shell_build_job",
+          "array",
           "lappend",
           "puts",
           "exit",
           "retest",
-          "default"
+          "default",
+          "info"
         ],
         "add_make_job@1261": [
           "set",
+          "string",
+          "lindex",
           "append",
           "add_job"
         ],
         "add_shell_build_job@1245": [
           "set",
+          "string",
           "add_build_job"
         ],
         "add_tcl_jobs@1160": [
           "set",
+          "file",
+          "info",
+          "lindex",
+          "dict",
+          "job_matches_any_pattern",
+          "string",
+          "list",
+          "trd_test_script_properties",
+          "lsearch",
           "incr",
           "add_job",
+          "llength",
           "trdb"
         ],
         "add_zipvfs_jobs@1361": [
+          "file",
           "set",
-          "add_job"
+          "add_build_job",
+          "zipvfs_testrunner_files",
+          "add_job",
+          "lindex"
         ],
         "aggregate_test_counts@797": [
-          "set"
+          "set",
+          "list"
         ],
         "build_to_dirname@980": [
-          "set"
+          "set",
+          "string"
         ],
         "clock_milliseconds@85": [
           "clock"
         ],
         "create_or_clear_dir@972": [
-          "set"
+          "set",
+          "file",
+          "glob"
         ],
         "default_njob@211": [
-          "set"
+          "info",
+          "set",
+          "guess_number_of_cores",
+          "expr"
         ],
         "dirname@1651": [],
         "dirs_allocDir@958": [
           "array",
+          "list",
           "set",
+          "info",
           "lappend"
         ],
         "dirs_freeDir@947": [
-          "set"
+          "set",
+          "list",
+          "llength"
         ],
         "dirs_nHelper@943": [
           "llength"
         ],
         "display_job@567": [
           "array",
+          "string",
           "set",
+          "format",
+          "expr",
+          "elapsetime",
           "puts"
         ],
         "elapsetime@552": [
-          "set"
+          "set",
+          "expr",
+          "format"
         ],
         "explain_layer@1897": [
           "set",
@@ -180017,9 +181122,14 @@
         ],
         "find_interpreter@31": [
           "set",
+          "file",
+          "info",
+          "string",
           "puts",
           "exec",
+          "trd_get_bin_name",
           "exit",
+          "open",
           "close"
         ],
         "finish_test@421": [
@@ -180027,11 +181137,17 @@
           "helper_finish_test",
           "eval",
           "reset_db",
-          "exit"
+          "exit",
+          "llength",
+          "string",
+          "lindex"
         ],
         "guess_number_of_cores@189": [
           "set",
-          "close"
+          "open",
+          "gets",
+          "close",
+          "expr"
         ],
         "handle_buildonly@1884": [
           "r_write_db",
@@ -180044,50 +181160,78 @@
           "trdb"
         ],
         "job_matches_any_pattern@1127": [
-          "set"
+          "set",
+          "llength",
+          "string"
         ],
         "launch_another_job@1655": [
           "set",
+          "r_get_next_job",
           "array",
+          "dirname",
           "create_or_clear_dir",
+          "file",
+          "zipvfs_testrunner_script",
+          "expr",
+          "trd_buildscript",
+          "open",
           "puts",
           "close",
           "mark_job_as_finished",
           "dirs_freeDir",
+          "pwd",
           "cd",
           "fconfigure",
-          "fileevent"
+          "fileevent",
+          "list"
         ],
         "launch_some_jobs@1782": [
           "set",
+          "trdb",
+          "dirs_nHelper",
+          "dirs_allocDir",
+          "launch_another_job",
           "dirs_freeDir"
         ],
         "make_new_testset@1544": [
           "trdb",
           "r_write_db",
           "set",
+          "clock_milliseconds",
           "add_jobs_from_cmdline"
         ],
         "mark_job_as_finished@1562": [
           "set",
           "regexp",
           "r_write_db",
+          "info",
+          "string",
           "trdb",
           "ntest"
         ],
         "must_be_testfixture@1411": [
+          "lsearch",
+          "info",
+          "file",
           "puts",
           "exit",
           "set"
         ],
         "progress_report@1725": [
           "exec",
+          "info",
           "show_status",
           "set",
+          "expr",
+          "clock_milliseconds",
+          "format",
           "r_write_db",
           "trdb",
           "incr",
+          "lsort",
+          "array",
           "lappend",
+          "string",
           "append",
           "puts",
           "flush",
@@ -180095,8 +181239,12 @@
         ],
         "r_get_next_job@998": [
           "set",
+          "list",
           "r_write_db",
-          "trdb"
+          "trdb",
+          "clock_milliseconds",
+          "dirname",
+          "array"
         ],
         "r_write_db@987": [
           "trdb",
@@ -180104,23 +181252,33 @@
         ],
         "run_testset@1795": [
           "set",
+          "clock_milliseconds",
+          "open",
           "launch_some_jobs",
           "progress_report",
+          "dirs_nHelper",
           "after",
           "vwait",
           "close",
           "puts",
           "r_write_db",
           "trdb",
-          "sum"
+          "info",
+          "sum",
+          "elapsetime"
         ],
         "script_input_ready@1595": [
+          "eof",
           "trdb",
           "file",
           "set",
           "fconfigure",
           "puts",
+          "format",
           "exit",
+          "string",
+          "clock_milliseconds",
+          "expr",
           "mark_job_as_finished",
           "dirs_freeDir",
           "launch_some_jobs",
@@ -180130,14 +181288,23 @@
         "show_status@588": [
           "set",
           "puts",
+          "clock_milliseconds",
           "incr",
+          "expr",
           "flush",
+          "format",
+          "file",
+          "string",
           "append",
-          "display_job"
+          "display_job",
+          "array"
         ],
         "usage@93": [
           "set",
+          "file",
           "puts",
+          "string",
+          "subst",
           "Usage",
           "where",
           "Special",

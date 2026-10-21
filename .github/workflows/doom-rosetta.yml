@@ -70,6 +70,7 @@ jobs:
 
   shard:
     needs: plan
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
     name: shard ${{ matrix.shard }} (${{ matrix.loc }} LOC)
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -106,6 +107,7 @@ jobs:
           pip install --require-hashes -r ci/requirements/yaml.txt
           pip install --no-build-isolation -e .
           pip install --require-hashes -r ci/requirements/pytest.txt
+          pip install --require-hashes -r ci/requirements/treesitter.txt
 
       # Same hard preflight as tri-comparison-audit.yml: Ubuntu's arduino-ctags can shadow the `ctags` name.
       - name: Install universal-ctags and verify it's the real thing

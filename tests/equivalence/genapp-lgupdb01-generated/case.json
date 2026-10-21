@@ -1,0 +1,279 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGUPDB01",
+ "program_source": "base/src/lgupdb01.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGUP",
+ "clock": "2026/10/01 10:30:15.00",
+ "programs": [
+  {
+   "program": "LGUPVS01",
+   "program_source": "base/src/lgupvs01.cbl"
+  }
+ ],
+ "datasets": {
+  "<USRHLQ>.GENAPP.KSDSPOLY": {
+   "input": "@case/ksdspoly.txt",
+   "entity": "WfPolicyInfo",
+   "copybook": "base/src/lgupvs01.cbl",
+   "record": "WF-POLICY-INFO",
+   "vsam": {
+    "key_offset": 0,
+    "key_length": 21,
+    "reclen": 64,
+    "why": "base/cntl/adef121.jcl DEFINE2: DATA(... KEYS(21 0) RECORDSIZE(64 64)); the engine's facts do not read KEYS / RECORDSIZE inside the DATA component, so the case states them"
+   }
+  }
+ },
+ "clock_fields": {
+  "db2": [
+   "GENASA1.POLICY.LASTCHANGED"
+  ],
+  "commarea": [
+   "CA-REQUEST-SPECIFIC(31:26)"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgupol01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "db2": {
+  "ddl": [
+   "base/cntl/db2cre.jcl"
+  ],
+  "seed": "@generate",
+  "symbols": {
+   "<DB2DBID>": "GENASA1"
+  },
+  "qualifier": "GENASA1",
+  "compare": [
+   "GENASA1.POLICY",
+   "GENASA1.ENDOWMENT",
+   "GENASA1.HOUSE",
+   "GENASA1.MOTOR"
+  ],
+  "compare_sql": true,
+  "generate": {
+   "seed": 4507,
+   "tables": {
+    "GENASA1.CUSTOMER": {
+     "rows": 10,
+     "columns": {
+      "CUSTOMERNUMBER": {
+       "values": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+       ]
+      }
+     }
+    },
+    "GENASA1.POLICY": {
+     "rows": 12
+    },
+    "GENASA1.ENDOWMENT": {
+     "rows": 3
+    },
+    "GENASA1.HOUSE": {
+     "rows": 4
+    },
+    "GENASA1.MOTOR": {
+     "rows": 4
+    },
+    "GENASA1.COMMERCIAL": {
+     "rows": 3
+    }
+   }
+  }
+ },
+ "notes": "Generated-row sibling (#4507) of genapp-lgupdb01: CUSTOMER, POLICY and the ENDOWMENT / HOUSE / MOTOR / COMMERCIAL tables are generated from base/cntl/db2cre.jcl (the same generate block as genapp-lgipdb01-generated: identity policy numbers 1000001..1000012 (the requests carry them), FKs POLICY->CUSTOMER and type->POLICY, NULLs and boundary values), not GenApp's INSERTs. The scenarios are written against those seed 4507 rows: each names a customer, a policy and the row's LASTCHANGED (the optimistic lock) as the generated POLICY row holds it; LGUPVS01's KSDSPOLY (ksdspoly.txt) holds a record for each policy that reaches it. Covered: the three types on generated policies, the lowest and highest timestamps, a NULL BROKERID and a NULL BROKERSREFERENCE read through their indicators, a stale LASTCHANGED ('02'), a request for a type the policy does not hold (+100 '01'), a wrong customer and an unknown policy (FETCH +100). Not generated: policies 4 and 5, whose ISSUEDATE / EXPIRYDATE are NULL (the FETCH has no indicator for them: -305, '90', WRITE-ERROR-MESSAGE LINKs LGSTSQ, oracle_assumptions.md X6), and the paths on which LGUPVS01 fails. A change to the generator's draw moves the rows: the E2E test in tests/cobol_mainframe/test_equivalence_db2_rows.py fails the case then. Program, LINKed LGUPVS01 and the LGCMAREA COMMAREA as in genapp-lgupdb01.",
+ "scenarios": [
+  {
+   "name": "end-p10",
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "1",
+    "CA-REQUEST-SPECIFIC": "00010000102026-01-012027-01-012007-12-14-05.54.32.4232080000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "why": "LASTCHANGED matches: UPDATE ENDOWMENT, positioned UPDATE POLICY, read back, LGUPVS01 rewrites the VSAM record; '00'"
+  },
+  {
+   "name": "end-p8",
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "1",
+    "CA-REQUEST-SPECIFIC": "00010000082026-01-012027-01-012023-11-22-10.25.19.3484750000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "why": "policy 8 (generated BROKERSREFERENCE NULL, read through its indicator)"
+  },
+  {
+   "name": "end-p7",
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "1",
+    "CA-REQUEST-SPECIFIC": "00010000072026-01-012027-01-011997-12-02-05.10.18.2769660000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "why": "a third endowment policy"
+  },
+  {
+   "name": "hou-p12",
+   "commarea": {
+    "CA-REQUEST-ID": "01UHOU",
+    "CA-CUSTOMER-NUM": "9",
+    "CA-REQUEST-SPECIFIC": "00010000122026-01-012027-01-012018-11-28-02.25.16.7370170000000007REF0000001001234COTTAGE        00300425000ROSE                12  SO21 1AA"
+   },
+   "why": "house path"
+  },
+  {
+   "name": "hou-p11",
+   "commarea": {
+    "CA-REQUEST-ID": "01UHOU",
+    "CA-CUSTOMER-NUM": "6",
+    "CA-REQUEST-SPECIFIC": "00010000112026-01-012027-01-012011-08-03-06.32.26.4832570000000007REF0000001001234COTTAGE        00300425000ROSE                12  SO21 1AA"
+   },
+   "why": "house path, another customer"
+  },
+  {
+   "name": "hou-p8",
+   "commarea": {
+    "CA-REQUEST-ID": "01UHOU",
+    "CA-CUSTOMER-NUM": "1",
+    "CA-REQUEST-SPECIFIC": "00010000082026-01-012027-01-012023-11-22-10.25.19.3484750000000007REF0000001001234COTTAGE        00300425000ROSE                12  SO21 1AA"
+   },
+   "why": "policy 8 also holds a house row"
+  },
+  {
+   "name": "hou-p2",
+   "commarea": {
+    "CA-REQUEST-ID": "01UHOU",
+    "CA-CUSTOMER-NUM": "5",
+    "CA-REQUEST-SPECIFIC": "00010000022026-01-012027-01-010001-01-01-00.00.00.0000000000000007REF0000001001234COTTAGE        00300425000ROSE                12  SO21 1AA"
+   },
+   "why": "LASTCHANGED is the lowest timestamp (0001-01-01-00.00.00.000000)"
+  },
+  {
+   "name": "mot-p3",
+   "commarea": {
+    "CA-REQUEST-ID": "01UMOT",
+    "CA-CUSTOMER-NUM": "2",
+    "CA-REQUEST-SPECIFIC": "00010000032026-01-012027-01-019999-12-31-23.59.59.9999990000000007REF0000001001234FORD           FIESTA         009500AB12CDEBLUE    12002019-05-01000450000001"
+   },
+   "why": "LASTCHANGED is the highest timestamp (9999-12-31-23.59.59.999999)"
+  },
+  {
+   "name": "mot-p12",
+   "commarea": {
+    "CA-REQUEST-ID": "01UMOT",
+    "CA-CUSTOMER-NUM": "9",
+    "CA-REQUEST-SPECIFIC": "00010000122026-01-012027-01-012018-11-28-02.25.16.7370170000000007REF0000001001234FORD           FIESTA         009500AB12CDEBLUE    12002019-05-01000450000001"
+   },
+   "why": "motor path"
+  },
+  {
+   "name": "mot-p9",
+   "commarea": {
+    "CA-REQUEST-ID": "01UMOT",
+    "CA-CUSTOMER-NUM": "7",
+    "CA-REQUEST-SPECIFIC": "00010000092026-01-012027-01-012017-01-11-05.41.43.0941070000000042REF0000001001234FORD           FIESTA         009500AB12CDEBLUE    12002019-05-01000450000001"
+   },
+   "why": "generated BROKERID NULL, read through its indicator, then set from the request"
+  },
+  {
+   "name": "mot-p11",
+   "commarea": {
+    "CA-REQUEST-ID": "01UMOT",
+    "CA-CUSTOMER-NUM": "6",
+    "CA-REQUEST-SPECIFIC": "00010000112026-01-012027-01-012011-08-03-06.32.26.4832570000000007REF0000001001234FORD           FIESTA         009500AB12CDEBLUE    12002019-05-01000450000001"
+   },
+   "why": "motor path"
+  },
+  {
+   "name": "stale-end-p10",
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "1",
+    "CA-REQUEST-SPECIFIC": "00010000102026-01-012027-01-012007-12-14-05.54.32.4232090000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "why": "CA-LASTCHANGED one microsecond off the row's: '02', nothing changed"
+  },
+  {
+   "name": "stale-mot-p3",
+   "commarea": {
+    "CA-REQUEST-ID": "01UMOT",
+    "CA-CUSTOMER-NUM": "2",
+    "CA-REQUEST-SPECIFIC": "00010000032026-01-012027-01-019999-12-31-23.59.59.9999980000000007REF0000001001234FORD           FIESTA         009500AB12CDEBLUE    12002019-05-01000450000001"
+   },
+   "why": "stale LASTCHANGED on the highest-timestamp row"
+  },
+  {
+   "name": "end-no-type-row-p1",
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "1",
+    "CA-REQUEST-SPECIFIC": "00010000012026-01-012027-01-012024-02-29-12.00.00.0000000000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "why": "policy 1 holds no endowment row: UPDATE ENDOWMENT +100, '01'"
+  },
+  {
+   "name": "hou-for-endowment-p10",
+   "commarea": {
+    "CA-REQUEST-ID": "01UHOU",
+    "CA-CUSTOMER-NUM": "1",
+    "CA-REQUEST-SPECIFIC": "00010000102026-01-012027-01-012007-12-14-05.54.32.4232080000000007REF0000001001234COTTAGE        00300425000ROSE                12  SO21 1AA"
+   },
+   "why": "a house update of an endowment policy: UPDATE HOUSE +100, '01'"
+  },
+  {
+   "name": "mot-for-endowment-p10",
+   "commarea": {
+    "CA-REQUEST-ID": "01UMOT",
+    "CA-CUSTOMER-NUM": "1",
+    "CA-REQUEST-SPECIFIC": "00010000102026-01-012027-01-012007-12-14-05.54.32.4232080000000007REF0000001001234FORD           FIESTA         009500AB12CDEBLUE    12002019-05-01000450000001"
+   },
+   "why": "a motor update of an endowment policy: UPDATE MOTOR +100, '01'"
+  },
+  {
+   "name": "end-wrong-customer",
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "2",
+    "CA-REQUEST-SPECIFIC": "00010000102026-01-012027-01-012007-12-14-05.54.32.4232080000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "why": "policy 10 belongs to customer 1: the cursor FETCH finds no row (+100)"
+  },
+  {
+   "name": "hou-wrong-customer",
+   "commarea": {
+    "CA-REQUEST-ID": "01UHOU",
+    "CA-CUSTOMER-NUM": "3",
+    "CA-REQUEST-SPECIFIC": "00010000122026-01-012027-01-012018-11-28-02.25.16.7370170000000007REF0000001001234COTTAGE        00300425000ROSE                12  SO21 1AA"
+   },
+   "why": "policy 12 belongs to customer 9: FETCH +100"
+  },
+  {
+   "name": "mot-unknown-policy",
+   "commarea": {
+    "CA-REQUEST-ID": "01UMOT",
+    "CA-CUSTOMER-NUM": "1",
+    "CA-REQUEST-SPECIFIC": "00000009992026-01-012027-01-012024-02-29-12.00.00.0000000000000007REF0000001001234FORD           FIESTA         009500AB12CDEBLUE    12002019-05-01000450000001"
+   },
+   "why": "no policy 999: FETCH +100"
+  }
+ ]
+}

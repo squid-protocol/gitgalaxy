@@ -152,3 +152,14 @@ def test_lua_call_after_concat_and_not():
 def test_tcl_command_after_a_closing_brace():
     code = "proc main {} {\n    foreach x $l {\n        puts $x\n    }\n    startClient\n    if {$a} {\n        foo\n    }\n    start\n}\n"
     assert {"startClient", "foo", "start"} <= set(_calls("tcl", code, "main"))
+
+
+def test_tcl_command_substitution_is_a_call():
+    code = "proc main {} {\n    set a [foo 1]\n    puts [ bar [baz]]\n}\nproc foo {x} {}\nproc bar {x} {}\nproc baz {} {}\n"
+    assert {"foo", "bar", "baz"} <= set(_calls("tcl", code, "main"))
+
+
+def test_tcl_pattern_is_redos_immune():
+    pattern = LANGUAGE_DEFINITIONS["tcl"]["rules"]["calls_out"]
+    assert_redos_immune(pattern, "[" * 50000)
+    assert_redos_immune(pattern, "[ " * 20000 + "x:")

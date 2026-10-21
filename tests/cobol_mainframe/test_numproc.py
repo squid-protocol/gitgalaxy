@@ -26,6 +26,8 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "tests" / "tools"))
 
 import equivalence_common as common  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 PLAIN = "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P.\n"
 V6 = {"product": "Enterprise COBOL", "version": "6.1", "evidence": "IGY.V6R1M0.SIGYCOMP"}
@@ -174,7 +176,7 @@ def test_the_runtime_reads_preferred_signs_and_refuses_the_rest_under_pfd(tmp_pa
     (tmp_path / "src/Probe.java").write_text(RUNTIME_PROBE)
     jdk = _jdk()
     files = [str(f) for f in (tmp_path / "src").rglob("*.java")]
-    subprocess.run(
+    javac_run(
         [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True
     )  # noqa: S603
     lines = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Probe"], capture_output=True,  # noqa: S603

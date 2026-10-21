@@ -12,6 +12,10 @@ import pytest
 
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_messaging_forge import MessagingForge
 from gitgalaxy.tools.cobol_to_java.java_target import target_from_dict
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 # queue -> (CSD TYPE, the rest of the operand text); a queue missing here is not defined in the CSD
 DEFS = {
@@ -148,7 +152,7 @@ def ran(tmp_path_factory):
     (data / "INCLOSED.txt").write_text("hidden\n", encoding="utf-8")
     sources = [str(p) for p in src.rglob("*.java")]
     out.mkdir()
-    subprocess.run(
+    javac_run(
         [javac, "-encoding", "UTF-8", "--release", "17", "-d", str(out), *sources],
         check=True,
         capture_output=True,

@@ -17,6 +17,8 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_repository_forge import COBOL_R
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import test_vsam_repositories as vsam  # noqa: E402 -- the VSAM estate, re-keyed on a text field below
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 _JDK = Path("/usr/lib/jvm/java-17-openjdk-amd64/bin")
 KEYS = ["A001", "a001", "1001", "Ä001", "A-01", "A 01"]
@@ -98,7 +100,7 @@ def test_the_sort_key_orders_as_the_code_page_bytes(tmp_path, code_page):
         '        for (String k : keys) System.out.println(k.replace("\\u00c4", "AE"));\n    }\n}\n',
         encoding="utf-8",
     )
-    subprocess.run(
+    javac_run(
         [str(_JDK / "javac"), "-encoding", "UTF-8", "-d", str(tmp_path), *map(str, tmp_path.glob("*.java"))], check=True
     )
     out = subprocess.run(

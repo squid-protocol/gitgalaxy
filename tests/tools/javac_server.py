@@ -144,8 +144,9 @@ def _servable(argv: list[str], kw: dict[str, Any]) -> bool:
 
 def javac(argv: list[str], **kw: Any) -> subprocess.CompletedProcess:
     """`subprocess.run(argv, **kw)` for a javac launcher `argv[0]` (its JDK's bin/javac), through that JDK's server."""
-    bin_dir = Path(argv[0]).parent
-    if Path(argv[0]).name not in ("javac", "javac.exe") or not _servable(argv, kw) or _FAILED.get(bin_dir, 0) >= 2:
+    bin_dir = Path(argv[0]).resolve().parent  # (/usr/bin/javac -> its JDK's bin: the server runs THAT JDK's java)
+    if (Path(argv[0]).name not in ("javac", "javac.exe") or not os.path.isabs(argv[0])  # (a bare javac: PATH's)
+            or not _servable(argv, kw) or _FAILED.get(bin_dir, 0) >= 2):  # fmt: skip
         return subprocess.run(argv, **kw)  # noqa: S603
     with _LOCK:
         s = _SERVERS.get(bin_dir)

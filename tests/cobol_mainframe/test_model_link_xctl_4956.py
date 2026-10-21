@@ -18,6 +18,9 @@ import subprocess
 from pathlib import Path
 
 import pytest
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 MAIN = """package com.acme.cics;
 
@@ -161,7 +164,7 @@ def test_cictask_refuses_an_xctl_of_the_dto_its_program_was_linked_with(tmp_path
     (root / "CicsSpec.java").write_text(CICS_SPEC_JAVA.replace("__PACKAGE__", "com.acme"), encoding="utf-8")
     (root / "Main.java").write_text(MAIN, encoding="utf-8")
     jdk = _jdk()
-    built = subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+    built = javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
                             *map(str, root.glob("*.java"))], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert built.returncode == 0, built.stderr[:3000]
     out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "com.acme.cics.Main"],  # noqa: S603

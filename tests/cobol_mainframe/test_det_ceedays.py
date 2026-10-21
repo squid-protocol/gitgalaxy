@@ -27,6 +27,9 @@ import subprocess
 from pathlib import Path
 
 import pytest
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 ROOT = Path(__file__).resolve().parents[2]
 CEEDAYS_C = ROOT / "tests/equivalence/le/ceedays.c"
@@ -277,7 +280,7 @@ def test_the_runtime_is_the_oracle_model_byte_for_byte(c_driver, tmp_path):
     (tmp_path / "src/Probe.java").write_text(JAVA_PROBE)
     jdk = _jdk()
     files = [str(f) for f in (tmp_path / "src").rglob("*.java")]
-    subprocess.run(
+    javac_run(
         [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True
     )  # noqa: S603
     feed = "\n".join(f"{v[0]}|{v[1]}|{v[2]}|{v[3]}" for v in VECTORS) + "\n"

@@ -18,6 +18,9 @@ import pytest
 
 pytest.importorskip("tree_sitter_language_pack")
 from test_det_programs import IMAGE, PKG, _java, program
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 E2E = pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1" or not shutil.which("docker") or _java() is None,
                          reason="needs Docker and a JDK 17 (JAVA_HOME / JDK_17)")  # fmt: skip
@@ -222,7 +225,7 @@ def _port_run(work: Path, name: str, src: str) -> str:
     (srcdir / "Main.java").write_text(f"public class Main {{ public static void main(String[] a) {{ "
                                       f"new {PKG}.service.{r.service}({ctor}).runProgram(); }} }}\n")  # fmt: skip
     jdk = _java()
-    subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(work / "classes"), *[str(f) for f in srcdir.rglob("*.java")]],  # noqa: S603
+    javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(work / "classes"), *[str(f) for f in srcdir.rglob("*.java")]],  # noqa: S603
                    check=True)  # fmt: skip
     return subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(work / "classes"), "Main"], capture_output=True, text=True, encoding="utf-8",  # noqa: S603
                           check=True).stdout  # fmt: skip

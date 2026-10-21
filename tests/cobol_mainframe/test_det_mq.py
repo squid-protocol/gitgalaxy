@@ -33,6 +33,8 @@ sys.path.insert(0, str(ROOT / "tests" / "tools"))
 import equivalence_mq as EQ  # noqa: E402
 
 from gitgalaxy.standards import mq as SPEC  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 MQ_C = ROOT / "tests/equivalence/mq/ggmq.c"
 RT = ROOT / "gitgalaxy/tools/cobol_to_java/det/cobolrt"
@@ -573,7 +575,7 @@ def test_the_runtime_is_the_oracle_model_byte_for_byte(c_driver, tmp_path):
         (src / "p/cobolrt/mq" / f.name).write_text(f.read_text(encoding="utf-8").replace("__PACKAGE__", "p"))
     (src / "Probe.java").write_text(JAVA_PROBE)
     jdk = _jdk()
-    subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *map(str, src.rglob("*.java"))],
+    javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *map(str, src.rglob("*.java"))],
                    check=True)  # fmt: skip
     bad = []
     for name, st, steps in SCRIPTS:

@@ -28,6 +28,8 @@ sys.path.insert(0, str(HERE.parents[1] / "tests" / "tools"))
 sys.path.insert(0, str(HERE.parents[1] / "tests" / "cics_crucible"))
 import test_cics_runtimes as R  # noqa: E402  (bare imports: tests/ has no __init__.py, see CLAUDE.md)
 import test_pointer_lane_4771 as PL  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 PROGRAM = """\
        IDENTIFICATION DIVISION.
@@ -274,7 +276,7 @@ public class Main {
         (src / rel).write_text(text, encoding="utf-8")
     jdk = _javac()
     assert jdk is not None
-    built = subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+    built = javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
                             *map(str, src.rglob("*.java"))], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert built.returncode == 0, built.stderr
     out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Main"], capture_output=True,  # noqa: S603

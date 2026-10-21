@@ -13,6 +13,9 @@ from pathlib import Path
 
 import pytest
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA, CICS_TASK_JAVA
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 
 def _jdk() -> Path | None:
@@ -117,7 +120,7 @@ def test_a_dto_only_answer_refuses_bytes_the_dto_cannot_hold(tmp_path):
     )
     (src / "CicsSpec.java").write_text(CICS_SPEC_JAVA.replace("package __PACKAGE__.cics;", pkg), encoding="utf-8")
     (src / "Main.java").write_text(MAIN, encoding="utf-8")
-    subprocess.run(
+    javac_run(
         [
             str(jdk / "bin" / "javac"),
             "-encoding",

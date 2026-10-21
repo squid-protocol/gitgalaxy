@@ -20,6 +20,8 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from test_det_programs import PKG, _batch_package, _java
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 pytestmark = pytest.mark.skipif(_java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
 
@@ -96,7 +98,7 @@ def _classes() -> Path:
     jdk = _java()
     assert jdk is not None
     out = base / "classes"
-    subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(out),  # noqa: S603
+    javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(out),  # noqa: S603
                     *map(str, src.rglob("*.java"))], check=True)  # fmt: skip
     return out
 

@@ -33,21 +33,30 @@ EQUIVALENCE = [t for t in ev.targets() if t.kind != "crucible"]
 ALL = ev.targets()
 
 
+_BYTES: dict[str, bytes] = {}  # the repo's files, read once (nothing writes them while the tests run)
+
+
+def _read(p: str) -> bytes:
+    if p not in _BYTES:
+        _BYTES[p] = (REPO / p).read_bytes()
+    return _BYTES[p]
+
+
 class Tree:
     """The repo's files with some bytes appended: what compute_inputs sees after an edit to them."""
 
     def __init__(self, *paths: str, replace: dict[str, bytes] | None = None):
-        self.edits = {**(replace or {}), **{p: (REPO / p).read_bytes() + b"\n// edited\n" for p in paths}}
+        self.edits = {**(replace or {}), **{p: _read(p) + b"\n// edited\n" for p in paths}}
 
     def read(self, p: str) -> bytes:
-        return self.edits[p] if p in self.edits else (REPO / p).read_bytes()
+        return self.edits[p] if p in self.edits else _read(p)
 
 
 _STORED: dict[str, dict] = {}
 
 
-def specs(t, tree: Tree | None = None) -> dict:
-    return ev.spec_inputs(t, ev._files_now(), tree.read if tree else None)
+def specs(t, tree: Tree | None = None, names=None) -> dict:
+    return ev.spec_inputs(t, ev._files_now(), tree.read if tree else _read, names)
 
 
 def stale_after(t, *paths: str) -> list[str]:
@@ -77,7 +86,7 @@ def test_the_components_partition_each_input():
             for t in reps:
                 before = _STORED.setdefault(t.key, specs(t))[name]
                 if path in ev._match(ev._files_now(), t.specs[name]["paths"], t.specs[name]["exclude"]):
-                    after = specs(t, Tree(path))[name]
+                    after = specs(t, Tree(path), [name])[name]  # (only the input this path is in: the others hold still)
                     assert before["sha256"] != after["sha256"]
                     moved |= before["components"] != after["components"]
             assert moved, f"{path} is in no component any kind of target uses"

@@ -34,6 +34,8 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from gitgalaxy.tools.cobol_to_java.det import hfp as H  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 
 def _short(v) -> str:
@@ -304,7 +306,7 @@ def test_the_runtime_is_the_model_bit_for_bit(tmp_path):
     (tmp_path / "src/Probe.java").write_text(probe)
     jdk = _jdk()
     files = [str(f) for f in (tmp_path / "src").rglob("*.java")]
-    subprocess.run(
+    javac_run(
         [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True
     )  # noqa: S603
     got = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Probe"], capture_output=True,  # noqa: S603
@@ -423,7 +425,7 @@ def test_numval_is_a_long_hfp_operand_and_refuses_what_ibm_does_not_describe(tmp
     (tmp_path / "src/Probe.java").write_text(probe)
     jdk = _jdk()
     files = [str(f) for f in (tmp_path / "src").rglob("*.java")]
-    subprocess.run(
+    javac_run(
         [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True
     )  # noqa: S603
     got = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Probe"], capture_output=True,  # noqa: S603
@@ -503,7 +505,7 @@ def test_numval_in_a_fixed_point_store_rounds_as_ibms_float_to_fixed_move(tmp_pa
     (tmp_path / "src/Probe.java").write_text(probe)
     jdk = _jdk()
     files = [str(f) for f in (tmp_path / "src").rglob("*.java")]
-    subprocess.run(
+    javac_run(
         [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True
     )  # noqa: S603
     got = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Probe"], capture_output=True,  # noqa: S603

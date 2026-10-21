@@ -146,6 +146,11 @@ when a port's recall or precision drops by more than `--tolerance` (0.001), a ba
 consensus engine-miss or false-edge count grows. That is the hook for the DOOM-rosetta nightly (#5619, #5630; the workflow job is not wired yet, it needs an owner-approved
 `doom-rosetta.yml` edit): `fetch` and `scan` the baseline's ports, then the `--only all --baseline` command; regenerate the baseline only with an explained engine change.
 
+Attribution convention (owner ruling nyx-o8, 2026-10-21): a call inside a nested function is credited to the nested
+function, never to the enclosing one, matching the engine (a C++ local class's method and a GNU C nested function are
+each their own unit). The `else if` that `#ifdef` splitting makes tree-sitter read as a nested definition is not a
+function and stays with the enclosing body. A lambda is not a named function: its calls stay with the enclosing one.
+
 Blind spots:
 - **Tree-sitter does not preprocess either.** An `else if` split by `#ifdef` parses as a nested function definition,
   and a macro table with no semicolon swallows the function after it. The first is read by a text fallback over the

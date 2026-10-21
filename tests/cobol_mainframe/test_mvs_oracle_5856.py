@@ -26,6 +26,8 @@ sys.path.insert(0, str(ROOT / "tests/tools"))
 
 import equivalence_mvs as M  # noqa: E402
 import test_tiot_walk_5856 as W  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 GGTIOT_C = ROOT / "tests/equivalence/le/ggtiot.c"
 RT = ROOT / "gitgalaxy/tools/cobol_to_java/det/cobolrt"
@@ -153,7 +155,7 @@ def test_the_c_blocks_are_the_det_runtime_blocks_byte_for_byte(c_driver, tmp_pat
         (out / "le" / f.name).write_text(f.read_text(encoding="utf-8").replace("__PACKAGE__", "p"), encoding="utf-8")
     (out / "MvsProbe.java").write_text(JAVA_PROBE)
     files = [str(f) for f in (tmp_path / "src").rglob("*.java")]
-    subprocess.run(  # noqa: S603
+    javac_run(  # noqa: S603
         [str(_jdk() / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True
     )
     got = subprocess.run(  # noqa: S603

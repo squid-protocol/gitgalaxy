@@ -22,6 +22,8 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import equivalence as eq
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 REPO = Path(__file__).resolve().parents[2]
 RT = REPO / "gitgalaxy" / "tools" / "cobol_to_java" / "det" / "cobolrt"
@@ -1028,7 +1030,7 @@ def runs(tmp_path_factory):
     classes = work / "classes"
     classes.mkdir()
     files = [str(p) for p in src.rglob("*.java")]
-    javac = subprocess.run(  # noqa: S603
+    javac = javac_run(  # noqa: S603
         [str(JAVA_BIN / "javac"), "-encoding", "UTF-8", "-d", str(classes), *files],
         capture_output=True,
         text=True,

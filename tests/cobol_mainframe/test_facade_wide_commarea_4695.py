@@ -20,6 +20,9 @@ from pathlib import Path
 
 import pytest
 from gitgalaxy.tools.cobol_to_java.det import program as P
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 DET_CICS = Path(P.__file__).parent / "cobolrt" / "cics" / "DetCics.java"
 
@@ -147,7 +150,7 @@ def test_commarea_as_reads_the_bytes_through_the_layout(tmp_path):
     (tmp_path / "Main.java").write_text(
         MAIN % {"commarea_in": _commarea_in(), "methods": "\n".join(P.WIDE_ANSWER)}, encoding="utf-8"
     )
-    subprocess.run(
+    javac_run(
         [str(jdk / "bin" / "javac"), "-encoding", "UTF-8", "-d", str(tmp_path / "c"), str(tmp_path / "Main.java")],
         check=True,
     )  # noqa: S603

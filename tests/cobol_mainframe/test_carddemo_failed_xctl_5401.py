@@ -11,6 +11,8 @@ from pathlib import Path
 
 import pytest
 
+from gitgalaxy.core.source_text import read_source
+
 EQUIVALENCE = Path(__file__).resolve().parents[1] / "equivalence"
 
 # case -> [(scenario, faulted XCTL target)]
@@ -71,7 +73,7 @@ def test_every_xctl_site_has_a_failed_xctl_scenario(name):
     source = Path(root or "") / "aws-mainframe-modernization-carddemo" / "app" / "cbl" / f"{program}.cbl"
     if not root or not source.is_file():
         pytest.skip("CardDemo corpus not fetched")
-    lines = source.read_text(encoding="utf-8", errors="replace").splitlines()
+    lines = read_source(source).text.splitlines()
     sites = sum(1 for ln in lines if ln[6:7] not in ("*", "/") and re.search(r"\bXCTL\b", ln[7:72]))
     assert sites == expected, f"{program}: {sites} XCTL sites in the source, the test pins {expected}"
     faulted = [s for s in _scenarios(name) if any(f.get("cmd") == "XCTL" for f in s.get("faults") or [])]

@@ -30,7 +30,8 @@ def test_audit_flags_only_uncited_claims(monkeypatch, tmp_path):
     assert [i for i, _, _ in found] == ["C1", "C4"]
 
 
-def test_audit_problems_name_new_and_fixed():
+def test_audit_problems_name_new_and_fixed(monkeypatch):
+    monkeypatch.setattr(register, "UNCITED_BASELINE", frozenset({"A1", "B2"}))
     base = sorted(register.UNCITED_BASELINE)
     found = [(i, "ASSUMED", "no") for i in base[1:]] + [("Z99", "ASSUMED", "no")]
     problems = register.audit_problems(found)
@@ -40,3 +41,7 @@ def test_audit_problems_name_new_and_fixed():
 
 def test_the_real_register_matches_the_baseline():
     assert register.audit_problems(register.audit()) == []
+
+
+def test_the_baseline_is_empty():
+    assert not register.UNCITED_BASELINE

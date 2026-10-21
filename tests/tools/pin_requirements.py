@@ -22,6 +22,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -95,7 +96,13 @@ def compile_lockfile(
     upgrade: bool = False,
     upgrade_packages: list[str] | None = None,
 ) -> str:
-    """Compile a single .in file to .txt using uv pip compile from its directory."""
+    """Compile a single .in file to .txt using uv pip compile from its directory.
+
+    The committed .txt is handed to uv as the output file (a scratch copy), so uv keeps every existing pin that still
+    satisfies the .in file and moves only what the .in file, --upgrade or --upgrade-package asks for. Without it a
+    regeneration floated every unpinned transitive dependency to the newest release, and --check reported STALE as
+    soon as anything upstream published a release.
+    """
     dir_path = in_path.parent
     desc, regen = HEADER_DESCRIPTIONS.get(
         dir_path,
@@ -120,15 +127,22 @@ def compile_lockfile(
         for pkg in upgrade_packages:
             cmd.extend(["--upgrade-package", pkg])
 
-    res = subprocess.run(cmd, cwd=dir_path, capture_output=True, text=True, check=False)  # noqa: S603
-    if res.returncode != 0:
-        raise RuntimeError(f"Failed to compile {in_path}:\n{res.stderr.strip()}")
+    txt_path = in_path.with_suffix(".txt")
+    with tempfile.TemporaryDirectory() as scratch:
+        seed = Path(scratch) / txt_path.name
+        if txt_path.is_file():
+            shutil.copyfile(txt_path, seed)
+        cmd.extend(["--output-file", str(seed)])
+        res = subprocess.run(cmd, cwd=dir_path, capture_output=True, text=True, check=False)  # noqa: S603
+        if res.returncode != 0:
+            raise RuntimeError(f"Failed to compile {in_path}:\n{res.stderr.strip()}")
+        body = seed.read_text(encoding="utf-8")
 
     header = (
         f"# Hash-pinned install set for {desc} (#4918). Do not edit by hand.\n"
         f"# Regenerate: {regen}  (source: {in_path.name})\n"
     )
-    return header + res.stdout
+    return header + body
 
 
 def process_target(

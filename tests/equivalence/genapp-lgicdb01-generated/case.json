@@ -1,0 +1,193 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGICDB01",
+ "program_source": "base/src/lgicdb01.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGIC",
+ "clock": "2026/10/01 10:30:15.00",
+ "db2": {
+  "ddl": [
+   "base/cntl/db2cre.jcl"
+  ],
+  "seed": "@generate",
+  "symbols": {
+   "<DB2DBID>": "GENASA1"
+  },
+  "qualifier": "GENASA1",
+  "compare": [
+   "GENASA1.CUSTOMER"
+  ],
+  "tables": [
+   "GENASA1.CLAIM",
+   "GENASA1.COMMERCIAL",
+   "GENASA1.MOTOR",
+   "GENASA1.HOUSE",
+   "GENASA1.ENDOWMENT",
+   "GENASA1.POLICY",
+   "GENASA1.CUSTOMER_SECURE",
+   "GENASA1.CUSTOMER"
+  ],
+  "compare_sql": true,
+  "generate": {
+   "seed": 4507,
+   "tables": {
+    "GENASA1.CUSTOMER": {
+     "rows": 10,
+     "columns": {
+      "CUSTOMERNUMBER": {
+       "values": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+       ]
+      },
+      "FIRSTNAME": {
+       "null": false
+      },
+      "LASTNAME": {
+       "null": false
+      },
+      "DATEOFBIRTH": {
+       "null": false
+      },
+      "HOUSENAME": {
+       "null": false
+      },
+      "HOUSENUMBER": {
+       "null": false
+      },
+      "POSTCODE": {
+       "null": false
+      },
+      "PHONEMOBILE": {
+       "null": false
+      },
+      "PHONEHOME": {
+       "null": false
+      },
+      "EMAILADDRESS": {
+       "null": false
+      }
+     }
+    }
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgicus01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "prefilled-commarea-overwritten",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": 3,
+    "CA-REQUEST-SPECIFIC": "XXXXXXXXXXYYYYYYYYYYYYYYYYYYYY1999-99-99ZZZZZZZZZZZZZZZZZZZZ9999QQ99QQQ 123MMMMMMMMMMMMMMMMMMMMHHHHHHHHHHHHHHHHHHHHeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeePOLICYDATA"
+   },
+   "why": "CA-CUSTOMER-REQUEST arrives full of junk: the nine SELECTed fields are replaced, CA-NUM-POLICIES ('123') and CA-POLICY-DATA are left as they came"
+  },
+  {
+   "name": "not-found-keeps-prefill",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": 12,
+    "CA-REQUEST-SPECIFIC": "XXXXXXXXXXYYYYYYYYYYYYYYYYYYYY1999-99-99ZZZZZZZZZZZZZZZZZZZZ9999QQ99QQQ 123MMMMMMMMMMMMMMMMMMMMHHHHHHHHHHHHHHHHHHHHeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeePOLICYDATA"
+   },
+   "why": "+100 with a filled COMMAREA: '01' and every customer byte unchanged"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "EIBCALEN 0: ' NO COMMAREA RECEIVED', WRITE-ERROR-MESSAGE LINKs LGSTSQ (TD CSMT and TS GENAERRS: #4607), then ABEND LGCA"
+  },
+  {
+   "name": "short-commarea",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": 3
+   },
+   "commarea_length": 60,
+   "why": "EIBCALEN 60 < 90 (WS-CUSTOMER-LEN + the header and trailer): CA-RETURN-CODE '98' and RETURN, no SELECT"
+  },
+  {
+   "name": "select-fails-deadlock",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": 3
+   },
+   "sql_faults": [
+    {
+     "line": 169,
+     "sqlcode": -913
+    }
+   ],
+   "why": "SQLCODE -913 (deadlock or timeout) on the SELECT: CA-RETURN-CODE '01' like not found, the customer fields untouched"
+  },
+  {
+   "name": "select-fails-other",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": 3
+   },
+   "sql_faults": [
+    {
+     "line": 169,
+     "sqlcode": -811,
+     "sqlstate": "21000"
+    }
+   ],
+   "why": "any other negative SQLCODE (-811 here): '90', WRITE-ERROR-MESSAGE LINKs LGSTSQ with ERROR-MSG (the clock stamp and the WRITEQ are X6): judged up to it"
+  }
+ ],
+ "notes": "Generated-row sibling (#4507) of genapp-lgicdb01: the ten CUSTOMER rows (numbers 1..10) are generated from base/cntl/db2cre.jcl (CHAR / DATE boundary values, short values, blanks; the generator is seeded), not GenApp's INSERTs. LGICDB01 SELECTs nine nullable columns INTO host variables with no indicator, so a generated NULL would answer SQLCODE -305 and take the '90' path (WRITE-ERROR-MESSAGE stamps ASKTIME / FORMATTIME and LINKs LGSTSQ, whose WRITEQ is X6: oracle_assumptions.md): those nine columns are generated with \"null\": false, the other path stays with the stated scenarios of genapp-lgicdb01. 16 generated requests draw CA-CUSTOMER-NUM from the generated numbers, a quarter of the time a number the rows do not hold (+100, '01'), with the request id varied (LGICDB01 never tests it). The two stated scenarios keep the COMMAREA bytes the SELECT does not replace. Not generated, stated instead: EIBCALEN 0 (no-commarea), EIBCALEN < 90 ('98', short-commarea) and an injected -913 / -811 on the SELECT (line 169; '01' and '90'). See genapp-lgicdb01 for the program and COMMAREA notes. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2021), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived.",
+ "programs": [
+  {
+   "program": "LGSTSQ",
+   "program_source": "base/src/lgstsq.cbl"
+  }
+ ],
+ "region": {
+  "applid": "GENAREGN",
+  "sysid": "CICA"
+ },
+ "scenario_generate": {
+  "seed": 4507,
+  "count": 16,
+  "prefix": "generated",
+  "commarea": {
+   "CA-REQUEST-ID": {
+    "values": [
+     "01ICUS",
+     "01ICUS",
+     "01ICUS",
+     "01ICUS",
+     "01ICUS",
+     "",
+     "01icus",
+     "99XXXX"
+    ]
+   },
+   "CA-CUSTOMER-NUM": {
+    "from": "GENASA1.CUSTOMER.CUSTOMERNUMBER",
+    "miss": 0.25
+   }
+  }
+ }
+}

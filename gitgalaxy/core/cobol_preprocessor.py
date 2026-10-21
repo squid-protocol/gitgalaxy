@@ -18,6 +18,10 @@ rules live here once, zero-dependency (no tree-sitter), and both sides import th
     open_literal / comment_at / drop_comment / free_code
                     a floating `*>` comment (free format, and IBM Enterprise COBOL 6 / GnuCOBOL in fixed form
                     too) is a comment only outside a literal: where it starts and the text without it
+    MappedLine / line_map
+                    one expanded line with the file and line it came from (a COPY member's own line, not a
+                    line of the expanded text), and the map of a whole expansion: findings and generated
+                    code point at `CUSTREC.cpy:12`
 
 Member resolution stays in core/copy_libraries.py (the engine owns it since #4468).
 """
@@ -27,6 +31,7 @@ from __future__ import annotations
 import re
 from collections.abc import Iterator
 from dataclasses import dataclass
+from pathlib import Path
 
 from gitgalaxy.standards.language_standards.identifiers import NATIONAL, WIDE_DIGITS, WIDE_HYPHENS
 
@@ -268,3 +273,29 @@ def drop_comment(text: str) -> str:
     literal that holds `*>` is kept whole."""
     at = comment_at(text)
     return text[:at].rstrip() if at < len(text) else text
+
+
+@dataclass
+class MappedLine:
+    """#5648: one line of an expanded program with where it came from: `file` and 1-based `line` of the source or
+    COPY member that holds it (a member's lines keep the member's own numbers), never a position in the expanded
+    text. The translator's `Line` extends it with its column-72 bookkeeping."""
+
+    text: str
+    file: str
+    line: int
+
+    @property
+    def origin(self) -> str:
+        """`file:line` with the path as given."""
+        return f"{self.file}:{self.line}"
+
+    @property
+    def short_origin(self) -> str:
+        """`CUSTREC.cpy:12`: the file's name without its directory."""
+        return f"{Path(self.file).name}:{self.line}"
+
+
+def line_map(lines: list[MappedLine]) -> list[tuple[str, int]]:
+    """#5648: the expansion's line map: entry i is the (file, line) of expanded line i."""
+    return [(ln.file, ln.line) for ln in lines]

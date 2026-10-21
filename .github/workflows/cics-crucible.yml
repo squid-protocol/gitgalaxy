@@ -151,7 +151,8 @@ jobs:
           GITGALAXY_ORACLE_STRICT: "1"
         run: |
           cd gitgalaxy
-          python tests/tools/cics_crucible.py --crucible ../cics-crucible --shard ${{ matrix.shard }}/4 --ci --out "$RUNNER_TEMP/cics_crucible"
+          # #5882: four cases at once, one per vCPU (results and log the same as one at a time)
+          python tests/tools/cics_crucible.py --crucible ../cics-crucible --shard ${{ matrix.shard }}/4 --jobs 4 --ci --out "$RUNNER_TEMP/cics_crucible"
 
       - name: Upload this shard's results
         if: always()

@@ -618,12 +618,17 @@ instrument). The rows below are rendered by one table in code (`compiler_options
     record stays, the model is fixed). 47 `ibm-publication` records are asked; 28 are SKIPPED by name: the 22 IEEE conversions (COBOL has
     no IEEE converter) and the 6 short multiply / divide rows (IBM evaluates a COMP-1 multiply or divide in long
     floating point, so a COBOL run cannot state the short arithmetic).
-    **Model-assumption probes (#4271).** 12 `model-assumption` records (`asm-*`) ask the ASSUMED rules above too, so
+    **Model-assumption probes (#4271).** 22 `model-assumption` records (`asm-*`) ask the ASSUMED rules above too, so
     the first z/OS run settles them: a fixed-point value converted to long (0.3, 123.45, -0.3; to short, 0.3), a float's
     DISPLAY mantissa (long and short images of 0.1, short 0.7), and the new `store` op, a COMPUTE of a fixed-point
     receiver from two long operands, truncated and `ROUNDED` (0.1 + 0.2 to 2 places: 0.29 / 0.30; 2 / 3: 0.66 / 0.67;
     0.7 * 3). Their `want` is the model's own answer and the source never counts as IBM's word; a z/OS result that
-    differs is a finding against the model like any other. Asked: 59 records.
+    differs is a finding against the model like any other. Asked: 69 records.
+    **The BNK1TFN shape (#4271, PR #5703's evidence).** A non-exact COMP-2 (12.34, 0.01, 9999999999.99; the first two
+    also as COMP-1) MOVEd to a 2-decimal field gives a different answer on GnuCOBOL (truncates the float) and on the
+    det port (rounds in the receiver's low-order position, "Conversions and precision"); IBM is not settled by a run.
+    10 more `asm-enc-*` / `asm-fixed-*` records ask the image and the digits, so the first z/OS run settles it; until
+    then the BNK1TFN case draws only exactly-representable amounts.
     Proven by `test_hfp_capture_kit.py` with model-computed output (never written to the table). **The kit is not a
     capture: no `zos-run` record exists, and the checklist's proof against captured outputs still waits on #4050.**
 - **IEEE <-> HFP conversion model (#4271).** `det/hfp.py` `ieee_value`, `from_ieee`, `to_ieee`, `exact_in_both`, proven by

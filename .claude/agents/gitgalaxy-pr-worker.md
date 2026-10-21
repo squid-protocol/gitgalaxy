@@ -76,6 +76,10 @@ Evidence (#5206, #4703; detail in `blocker-slice` / `cics-command-slice`): read 
 - A hook blocks `pgrep -f` wait loops that match their own shell (one worker spun ~1 h): wait on a PID (`wait $pid`, `kill -0`), `bg-job.sh wait NAME` or `wait-pids.sh`. `pkill -f` kills your own shell (exit 144): `pgrep -af`, kill by PID (#5277, #5279, #5369).
 - Issues you file get a type label, an area label, one `priority: ...` and the current milestone (skip if denied). The GitHub API budget (5,000/hr) is shared by ALL agents: no tight loops or per-file calls.
 
+- Bracket the first letter of a `pgrep -f` pattern (`[m]utation.py`) or the loop matches itself (#5528). `pkill -f` may also leave children running: check each PID is yours before killing (#5431).
+- Venv bin on PATH for `golden-lock.sh`, `heavy-run.sh`, `audit_check.py` (`python: command not found`, FileNotFoundError 'mypy'), and the three `*_CRUCIBLE_PATH` variables for `crucible_check.py` (details: `golden-master-guidelines.md` section 4).
+- Check a brief's premise before planning on it: `git cat-file -e <sha>` for "already strengthened at <sha>" (#5472), `mutation_scores.json` for a mutation issue (#5541), and for a "main is red" issue rerun the failing check on current main, since a later PR may have fixed it (#5503).
+
 ## Never
 Merge (unless told to). Rebase or force-push. Close issues. `--no-verify`, `reset --hard`, rewriting published history. Route around a denial or classifier block: STOP and report it.
 

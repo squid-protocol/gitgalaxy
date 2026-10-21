@@ -1,0 +1,52 @@
+# ruff: noqa: S101
+"""Tests for tests/tools/dependabot_relock.py (the pure parts; the git and uv steps run in the workflow)."""
+
+from __future__ import annotations
+
+from tests.tools.dependabot_relock import bumped, outside_req_dirs, parse_pins, upgrade_args
+
+MAIN = """certifi==2026.7.22 \\
+    --hash=sha256:aa
+gitgalaxy==2.11.0 \\
+    --hash=sha256:bb
+numpy==2.2.6 ; python_full_version < '3.11' \\
+    --hash=sha256:cc
+numpy==2.5.4 ; python_full_version >= '3.12' \\
+    --hash=sha256:dd
+"""
+
+# What Dependabot wrote on #5792: a certifi bump, plus a flattened numpy and an extras-spelled gitgalaxy pin.
+DEPENDABOT = """certifi==2026.10.19 \\
+    --hash=sha256:ee
+gitgalaxy[full]==2.11.0 \\
+    --hash=sha256:bb
+numpy==2.5.4 \\
+    --hash=sha256:dd
+"""
+
+
+def test_parse_pins_normalises_names_and_drops_extras():
+    pins = parse_pins("Tree_Sitter.Language-Pack==1.21.1 \\\ngitgalaxy[full]==2.11.0 \\\n")
+    assert pins == {"tree-sitter-language-pack": {"1.21.1"}, "gitgalaxy": {"2.11.0"}}
+
+
+def test_only_the_real_bump_is_relocked():
+    # the flattened numpy and the respelled gitgalaxy pin add no version main lacks: only certifi moves
+    assert bumped(parse_pins(MAIN), parse_pins(DEPENDABOT)) == {"certifi": {"2026.10.19"}}
+
+
+def test_upgrade_args_pin_an_exact_target_when_there_is_one():
+    assert upgrade_args({"certifi": {"2026.10.19"}, "ruff": {"0.17.0"}}) == [
+        "-P",
+        "certifi==2026.10.19",
+        "-P",
+        "ruff==0.17.0",
+    ]
+    assert upgrade_args({"numpy": {"2.4.7", "2.5.5"}}) == ["-P", "numpy"]
+
+
+def test_a_pr_outside_the_requirement_sets_is_refused():
+    assert outside_req_dirs(["ci/requirements/lint.txt", "templates/requirements/full.txt"]) == []
+    assert outside_req_dirs(["ci/requirements/lint.txt", "tests/tools/pin_requirements.py"]) == [
+        "tests/tools/pin_requirements.py"
+    ]

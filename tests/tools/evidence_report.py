@@ -213,6 +213,7 @@ TRANSLATOR_INPUTS = (
     "gitgalaxy/core/bms_symbolic.py",
     "gitgalaxy/core/cics_macro_level.py",
     "gitgalaxy/core/cobol_preprocessor.py",
+    "gitgalaxy/core/cobol_conditional.py",
     "gitgalaxy/core/cobol_source_format.py",
     "gitgalaxy/core/compiler_options.py",
     "gitgalaxy/core/ebcdic_codecs.py",

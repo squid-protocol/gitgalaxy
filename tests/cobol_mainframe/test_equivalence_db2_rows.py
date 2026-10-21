@@ -809,3 +809,27 @@ def test_lgicdb01_det_port_holds_on_generated_customer_rows(tmp_path):
     assert len(sql) == 16 and all(q["equal"] == q["statements"] and q["statements"] for q in sql)
     assert {x["verb"] for q in sql for x in q["cobol"]} == {"SELECT"}
     assert {x["sqlcode"] for q in sql for x in q["cobol"]} == {0, 100}
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_lgucdb01_det_port_holds_on_generated_customer_rows(tmp_path):
+    """GenApp's update-customer service (LGUCDB01) on generated CUSTOMER rows: 16 generated requests, each UPDATE
+    answered alike on both sides (found: +0, a number the rows do not hold: +100) and the table alike after every
+    task, LGUCVS01 rewriting the VSAM copy. The injected -913 / -811 faults are stated scenarios."""
+    import json
+    import shutil
+    import subprocess
+
+    if not shutil.which("docker"):
+        pytest.skip("no docker")
+    tool = Path(__file__).resolve().parents[1] / "tools" / "det_port.py"
+    proc = subprocess.run([sys.executable, str(tool), "run", "genapp-lgucdb01-generated", "--work", str(tmp_path)],  # noqa: S603
+                          capture_output=True, text=True, check=False)  # fmt: skip
+    assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
+    report = json.loads(next(tmp_path.glob("genapp-lgucdb01-generated/**/report.json")).read_text())
+    assert report["proven"] is True
+    assert report["db2_generated"] == {"GENASA1.CUSTOMER": 10}
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    assert len(sql) == 16 and all(q["equal"] == q["statements"] and q["statements"] for q in sql)
+    assert {x["verb"] for q in sql for x in q["cobol"]} == {"UPDATE"}
+    assert {x["sqlcode"] for q in sql for x in q["cobol"]} == {0, 100}

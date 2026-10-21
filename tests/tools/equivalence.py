@@ -101,6 +101,7 @@ import cobol_coverage as cov  # noqa: E402 -- #4023
 # The primitives every harness module shares live in a leaf module (no cycle); re-exported here.
 import equivalence_db2
 import equivalence_ims
+import equivalence_mvs
 import equivalence_oracle
 import equivalence_sql
 from equivalence_common import (
@@ -266,6 +267,10 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
             raise RuntimeError(f"not runnable faithfully: {e}") from e
         (work / "stmts.txt").write_text(table, encoding="latin-1")
         shutil.copy(equivalence_db2.STUB, src / "ggsql.c")
+    try:  # #5856 (A2): a PSA -> TCB -> TIOT walk runs on ggtiot.c's blocks, laid from the case's stated step
+        program = equivalence_mvs.lower(program, case.get("mvs_step"))
+    except equivalence_mvs.Unsupported as e:
+        raise RuntimeError(f"not runnable faithfully: {e}") from e
     (src / "PROGRAM.cbl").write_text(program, encoding=staged)
     stage_copybooks(case, corpus, src)
     comp5_layout_guard(src)  # #4751: a 1- or 2-digit COMP-5 is one byte in GnuCOBOL, a halfword on z/OS (C16)
@@ -333,6 +338,7 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
     # the step's RETURN-CODE is an output like any other (CBTRN02C sets 4 when it rejects): recorded, not fatal
     sqlenv = equivalence_db2.cobol_env("/work/stmts.txt") if db2 else ""
     sqlenv += "GGDLI_DIR=/work/dli GGDLI_OUT=/work/dliout " if ims else ""
+    sqlenv += f"GGMVS_STEP='{case['mvs_step']}' " if case.get("mvs_step") is not None else ""
     if db2:  # #4173: each statement the step runs traced; a fault run's SQL faults, those that fire logged
         # #4507: and what Db2 answered each one (equivalence_db2.cobol_outcomes)
         sqlenv += "GGSQL_TRACE=/work/sqltrace.txt GGSQL_OUTCOMES=/work/sqlout.txt GGSQL_FAULTS_LOG=/work/FAULTS "

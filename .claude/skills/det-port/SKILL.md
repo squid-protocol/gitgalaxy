@@ -183,3 +183,43 @@ A translator fix is never a hand edit of a port.
 - **A crucible port's overlay can contain the shared translator runtime**: sample only the port's own files or
   mutation scores measure nothing (#5326). PROVENANCE `files` counts the crucible sample (4-30 files), not the
   upstream tree (#5357).
+
+## Lessons (det, Db2 and mutation traps promoted from the inbox)
+
+- **`DetFiles.java` change**: `det_port.py check` lists ~80 ports; compare the DIFFERS to `det_sweep_baseline.json` (#5589).
+- **A runtime class every det lane needs belongs at the cobolrt root**: `runtime_files()` drops `batch/` for standalone
+  projects and `standalone/` for batch ones (#5868). A CALLed program's file handles were only built in `runBatch`: an NPE on
+  `<FD>_FILE` is the symptom (#5589). Any new Lossless private-use mapping is mirrored in both Sysouts (#5737).
+- **`register.py audit --ci` accepts only a citation matching `IBM_CITE`**: "z/OS MVS Data Areas" alone fails; include an
+  `ibm.com/docs` URL (#5868).
+- **`new String(b, cs)` is not injective for the JDK's IBM037 family** (X'15' and X'25' both decode to U+000A): a "lossless"
+  charset view must handle duplicate decodes, not only unmapped bytes (#5513).
+- **`det_port.py` printing DIFFERS can hide an unnamed X8 refusal**: read `DIR/<case>/proof.log` (#5765). Fault logs
+  (`work/FAULTS`, CICS `{name}.faults`) are append-only: clear them before a rerun or `--reuse` step or entries double (#5748).
+- **A Db2 case with no `port/` dir**: prove with `det_port.py run CASE --work DIR`; `equivalence.py run` takes the model-port
+  path and reports every Java event unequal (#5811).
+- **`det_coverage_ledger.py update` needs a `proof_sweep.py --det-only --cases CASE --work DIR --no-ratchet` dir**; a
+  `det_port.py --work` dir has no `sweep.json` (#5811); `--record-ledger` alone does not write `det_sweep_coverage` (#5709).
+- **`db2.generate`**: a program reading nullable columns without indicators needs `"null": false` on each, else a generated
+  NULL gives -305 and an unjudgeable LGSTSQ link (#5880). A `sql_faults` entry whose SQLCODE has no built-in SQLSTATE raises
+  Unsupported ("NOT PROVEN (no coverage line)"): give an explicit `"sqlstate"` (#5880). Scenarios reaching the DSNTIAC hole
+  (-532 FK delete, +100 vanished row) cannot be in a Db2 case until modelled (#5765).
+- **Case-draw traps.** A `commarea_length` scenario's commarea holds only fields wholly inside the cut (past the cut a field is
+  blank in COBOL, set in Java) (#5544). A case-level `"maps"` key makes the COBOL oracle abend ABM0 but the java-facade does
+  not check the mapset, so LIT `sendMap` mutants survive (#5552). Harness ASSIGN codegen space-pads the whole target, so a field
+  wider than the ASSIGN width (SYSIDO 8 vs SYSID 4) differs from IBM (#5669). Typing an amount into a COMP-2 field exposes
+  GnuCOBOL-vs-port MOVE differences: draw amounts a double holds exactly, and read the first DIFFERS before blaming the
+  generator (#5703). Generated alphanumeric KSDS keys sort ASCII in GnuCOBOL vs EBCDIC in Java: use `"digits": true` unless
+  collation is the point (#5658).
+- **A new committed port for program P changes the proof inputs of every committed case listing P in `programs`** (#4188):
+  check `evidence.py status` and re-prove them in the same PR (#5611). A model-written port that clamps WRITEQ LENGTH to FROM
+  is not X6-faithful: the oracle stops at the refusal, Java that runs on fails the comparison (#5611).
+- **A 4th SET TDQUEUE option**: update `at_most_one` in `queues.py`, the `given` lists in `det/cics.py` and
+  `equivalence_cics.py`, and the "without ..." message pinned in `test_td_openstatus_translate_5168.py` (#5727).
+- **Mutation.** A `-generated` case is a separate mutation row for the same port: give it the hand-proposed scenarios its
+  sibling got (#5660). `mutation.py --only` takes another run's DIR (with `mutation.json` `results[].verdict`, else KeyError),
+  not ids; use `--ops` to re-judge (#5669, #5861). Re-judge a few survivors after a full `--record` with a filtered
+  `mutation.json` for `--only`, then `mutation_scores.py build --rejudged ... --keep-others` (#5660). Ledger mutant ids shift
+  when the translator template changes: verdicts carry by (op, before, after) text; after `--record` on regenerated ports carry
+  old triage the same way (#5472, #5528). `mutation.py run --record` and `mutation_scores.py retriage` rewrite
+  `tests/equivalence/carddemo-tranlist/evidence.json`: `git checkout` it before staging (#5861).

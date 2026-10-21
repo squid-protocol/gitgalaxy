@@ -263,15 +263,6 @@
    "reason": "base + 0 and base - 0 are the same offset"
   },
   {
-   "id": "15af7ded9c",
-   "op": "CON",
-   "line": 546,
-   "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
-   "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 1, whole, 0, s_DFHCOMMAREA.bytes.length);",
-   "verdict": "case-gap",
-   "reason": "COADM01C's DFHCOMMAREA is a short, exactCommarea area only when a caller passes fewer bytes than the 01 level (calen < its length); no scenario passes a short COMMAREA to COADM01C: a scenario with an XCTL / RETURN COMMAREA shorter than the record would kill it"
-  },
-  {
    "id": "5b2dc3285b",
    "op": "DEL",
    "line": 571,
@@ -421,8 +412,8 @@
    "line": 697,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
    "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "case-gap",
-   "reason": "COADM01C's DFHCOMMAREA is a short, exactCommarea area only when a caller passes fewer bytes than the 01 level (calen < its length); no scenario passes a short COMMAREA to COADM01C: a scenario with an XCTL / RETURN COMMAREA shorter than the record would kill it"
+   "verdict": "equivalent",
+   "reason": "COADM01C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN) (COADM01C.cbl line 90), so whether the port narrows DFHCOMMAREA to EIBCALEN bytes for a short exact COMMAREA (X23) is unobservable: no reference past EIBCALEN exists to refuse, and the typed COMMAREA the program returns and XCTLs comes from CARDDEMO-COMMAREA. The short-commarea-146 and -159 scenarios reach the branch and agree with the un-narrowed and guard-flipped forms."
   },
   {
    "id": "41c02c5377",
@@ -430,8 +421,8 @@
    "line": 697,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
    "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "COADM01C's DFHCOMMAREA is a short, exactCommarea area only when a caller passes fewer bytes than the 01 level (calen < its length); no scenario passes a short COMMAREA to COADM01C: a scenario with an XCTL / RETURN COMMAREA shorter than the record would kill it"
+   "verdict": "equivalent",
+   "reason": "COADM01C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN) (COADM01C.cbl line 90), so whether the port narrows DFHCOMMAREA to EIBCALEN bytes for a short exact COMMAREA (X23) is unobservable: no reference past EIBCALEN exists to refuse, and the typed COMMAREA the program returns and XCTLs comes from CARDDEMO-COMMAREA. The short-commarea-146 and -159 scenarios reach the branch and agree with the un-narrowed and guard-flipped forms."
   },
   {
    "id": "bce318f64b",
@@ -439,8 +430,8 @@
    "line": 697,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
    "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "COADM01C's DFHCOMMAREA is a short, exactCommarea area only when a caller passes fewer bytes than the 01 level (calen < its length); no scenario passes a short COMMAREA to COADM01C: a scenario with an XCTL / RETURN COMMAREA shorter than the record would kill it"
+   "verdict": "equivalent",
+   "reason": "COADM01C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN) (COADM01C.cbl line 90), so whether the port narrows DFHCOMMAREA to EIBCALEN bytes for a short exact COMMAREA (X23) is unobservable: no reference past EIBCALEN exists to refuse, and the typed COMMAREA the program returns and XCTLs comes from CARDDEMO-COMMAREA. The short-commarea-146 and -159 scenarios reach the branch and agree with the un-narrowed and guard-flipped forms."
   },
   {
    "id": "f576ab72fd",
@@ -448,8 +439,8 @@
    "line": 697,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
    "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "COADM01C's DFHCOMMAREA is a short, exactCommarea area only when a caller passes fewer bytes than the 01 level (calen < its length); no scenario passes a short COMMAREA to COADM01C: a scenario with an XCTL / RETURN COMMAREA shorter than the record would kill it"
+   "verdict": "equivalent",
+   "reason": "COADM01C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN) (COADM01C.cbl line 90), so whether the port narrows DFHCOMMAREA to EIBCALEN bytes for a short exact COMMAREA (X23) is unobservable: no reference past EIBCALEN exists to refuse, and the typed COMMAREA the program returns and XCTLs comes from CARDDEMO-COMMAREA. The short-commarea-146 and -159 scenarios reach the branch and agree with the un-narrowed and guard-flipped forms."
   },
   {
    "id": "06e5042d3c",
@@ -457,8 +448,8 @@
    "line": 699,
    "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
    "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */",
-   "verdict": "case-gap",
-   "reason": "COADM01C's DFHCOMMAREA is a short, exactCommarea area only when a caller passes fewer bytes than the 01 level (calen < its length); no scenario passes a short COMMAREA to COADM01C: a scenario with an XCTL / RETURN COMMAREA shorter than the record would kill it"
+   "verdict": "equivalent",
+   "reason": "COADM01C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN) (COADM01C.cbl line 90), so whether the port narrows DFHCOMMAREA to EIBCALEN bytes for a short exact COMMAREA (X23) is unobservable: no reference past EIBCALEN exists to refuse, and the typed COMMAREA the program returns and XCTLs comes from CARDDEMO-COMMAREA. The short-commarea-146 and -159 scenarios reach the branch and agree with the un-narrowed and guard-flipped forms."
   },
   {
    "id": "a7f20928d1",

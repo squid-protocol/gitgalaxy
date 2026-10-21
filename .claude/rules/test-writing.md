@@ -23,3 +23,4 @@
   group) or use the CI venv (#5264).
 * **A module-scoped fixture's cost lands on whichever test runs first in a CI split part,** so any consumer of an
   expensive fixture can trip the per-test time ratchet (#5269).
+* **A baselined test fails at 2.5x its baseline even when slow-marked:** split it instead of marking it (#5613).

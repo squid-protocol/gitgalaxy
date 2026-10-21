@@ -88,16 +88,19 @@ def dbd(text: str, where: str) -> dict[str, Any]:
     return {"name": db["name"].upper(), "segments": segs}
 
 
-def psb(text: str, where: str, dbds: dict[str, dict[str, Any]], bmp: bool = False) -> list[dict[str, Any]]:
+def psb(
+    text: str, where: str, dbds: dict[str, dict[str, Any]], bmp: bool = False, cics: bool = False
+) -> list[dict[str, Any]]:
     """The PSB's DB PCBs, in order: [{dbd, procopt, keylen}]; an I/O or GSAM PCB, or what else is not modelled,
     refused. `bmp`: the program is a BMP (#5857), which IMS enters with the I/O PCB first (CMPAT=YES): required then,
-    and refused otherwise."""
+    and refused otherwise. `cics`: EXEC DLI numbers the DB PCBs from 1 (no I/O PCB first), so CMPAT=YES changes nothing
+    (I5 ASSUMPTION, no IBM text cited)."""
     rows = ims_gen_macros(text)
     gen = next((r for r in rows if r["kind"] == "PSBGEN"), None)
     if gen is None:
         raise Unsupported(f"{where}: no PSBGEN statement")
     compat = (_keyed(gen["attributes"], "CMPAT") or "NO") == "YES"
-    if compat and not bmp:
+    if compat and not bmp and not cics:
         raise Unsupported(f"{where}: CMPAT=YES (IMS passes an I/O PCB first: only a BMP entered USING its I/O PCB "
                           "is modelled)")  # fmt: skip
     if bmp and not compat:
@@ -133,14 +136,14 @@ def psb(text: str, where: str, dbds: dict[str, dict[str, Any]], bmp: bool = Fals
 
 
 def definitions(
-    case: dict[str, Any], corpus: Path, bmp: bool = False
+    case: dict[str, Any], corpus: Path, bmp: bool = False, cics: bool = False
 ) -> tuple[dict[str, dict[str, Any]], list[dict[str, Any]]]:
     ims = case["ims"]
     dbds: dict[str, dict[str, Any]] = {}
     for rel in ims["dbd"]:
         d = dbd((corpus / rel).read_text(encoding="latin-1"), rel)
         dbds[d["name"]] = d
-    return dbds, psb((corpus / ims["psb"]).read_text(encoding="latin-1"), ims["psb"], dbds, bmp)
+    return dbds, psb((corpus / ims["psb"]).read_text(encoding="latin-1"), ims["psb"], dbds, bmp, cics)
 
 
 def _layout(case: dict[str, Any], corpus: Path, seg: str) -> list[dict[str, Any]] | None:
@@ -212,7 +215,10 @@ def seed(case: dict[str, Any], corpus: Path, name: str, db: dict[str, Any]) -> b
     out = bytearray()
     if "unload" in spec:
         layouts: dict[str, list[dict[str, Any]]] = {}
-        for seg, data in unload(corpus / spec["unload"]):
+        skip = set(spec.get("skip", []))  # record numbers left out (a root whose packed key is blank: GU would refuse)
+        for n, (seg, data) in enumerate(unload(corpus / spec["unload"])):
+            if n in skip:
+                continue
             if seg not in sizes:
                 raise Unsupported(f"{spec['unload']}: segment {seg} is not in DBD {name}")
             if seg not in layouts:

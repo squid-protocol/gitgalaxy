@@ -5,18 +5,18 @@
  "case": "carddemo-adminmenu",
  "entry": {
   "program": "COADM01C",
-  "commit": "978323857d828887485d41c8aef24ef1d4c17a67+uncommitted",
-  "date": "2026-10-20",
+  "commit": "b402800241b9aae13d7e72037a003a924bb622c7+uncommitted",
+  "date": "2026-10-21",
   "mode": "fast",
   "seed": 0,
   "mutants": 1382,
   "out_of_scope": 12,
   "chosen": 150,
-  "coverage": "proven on 32 scenarios, covering 8/8 paragraphs and 20/26 branches",
+  "coverage": "proven on 34 scenarios, covering 8/8 paragraphs and 20/26 branches",
   "counts": {
-   "killed": 78,
+   "killed": 79,
    "timeout": 1,
-   "survived": 66,
+   "survived": 65,
    "stillborn": 5,
    "error": 0,
    "pending": 0
@@ -30,6 +30,7 @@
    "0f2659519a",
    "11c5dee666",
    "143587ec86",
+   "15af7ded9c",
    "17de3e3a9b",
    "19ab85bc31",
    "1c1672f150",
@@ -335,14 +336,6 @@
     "after": "Cobol.move(d.getCdemoFromTranid() == null ? \"\" : d.getCdemoFromTranid(), Field.alphanumeric(s, base - 0, 4, false), CS);"
    },
    {
-    "id": "15af7ded9c",
-    "op": "CON",
-    "file": "service/Coadm01cService.java",
-    "line": 546,
-    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
-    "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 1, whole, 0, s_DFHCOMMAREA.bytes.length);"
-   },
-   {
     "id": "5b2dc3285b",
     "op": "DEL",
     "file": "service/Coadm01cService.java",
@@ -640,18 +633,18 @@
    }
   ],
   "inputs": {
-   "port": "8a9f4aa4653d75b13372067d23006fdcadb060b02e02d329083639f9107d81dd",
-   "generator": "3538350b8108874f1be3961c3292be067ffbc4048df491465411fea99a811492",
-   "case": "39f62be0b5801bc9669e0c444f30f673bc867c2228b202b3a01069025ccab7d5",
+   "port": "eda04fd3319730a08baa7c5e0d5f53c300e68df8b188bc90226d41715bc65a68",
+   "generator": "9a13ebd4ea9beab7b49c4a7d535b68343fc2b3d15ef4de30a09086d3097d8353",
+   "case": "e5d10d996687e9f43875cac4e648a4d92e877f9ca924d84af7d16cd1400fc12f",
    "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-   "harness": "25d0470a9243da12cff391858540cdcb15165a12fb142873ef1fbc358cda48a6",
-   "oracle": "32d131c5f3d27b1c94489099b37fb148b906efec6bc2ab7a90322e1ce8780cbb"
+   "harness": "9719d8e6fab2ada37b84b391544fa81ca9f8388e844cc714cd12adc60aff0eae",
+   "oracle": "3238a6c115da44e342ab6312da909afa4da481a2f19ae796ff58f456b030566c"
   },
   "components": {
    "generator": {
     "generator:core": "a7b1e205ba94cbbb82ef0cd84b755c343c2f7e8afa912e487823daaf34e29af3",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "8ba712e6973cfd4209fc553ec8ab80e4bb6096c12d272598d4a0be8a34d7a904",
+    "generator:det/cics": "2a4fbbd7a9e55ee9dc6b9fa0e2ff2802c57cab2ff0d36459b676c1143707b507",
     "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
     "generator:det/cics_filecontrol": "3d10979d783b0f39b3184d3111b9e543cd87941cbe7814f0edc65454e6f1f2b7",
     "generator:det/cics_taskcontrol": "7d3892cd106fe0ab3a165551af8497cb67ee0337d2cb97f7a72ef8805710bdbf",
@@ -660,17 +653,17 @@
     "generator:det/dyncall": "ab79c3282f9bcba02dfab16f0df14d5dd77dc5c228b2a79ecdbfcfe596467c02",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
-    "generator:det/gen": "be91e8831f5d11170c1543340648202235890103eb83de046db9fa76b698e794",
+    "generator:det/gen": "3e6a97fac619cf3ebec3571975131cf977d379a49ac5667a9cc1334693629ce2",
     "generator:det/hfp": "cec77a165f9657e15473ce0c2913b1256451731abc473571ed56951d0faba36c",
     "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
     "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
     "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
-    "generator:det/source": "88b148652fbb037ae599679a40b94360204926a88454926fa008740b3fc13507",
+    "generator:det/source": "46ec3ecfe05e9a2b8614283a9173862913d284b644328eb92c75bf363f5d0230",
     "generator:det/stmt": "014835ecefbec5b761734642ac25fc8270092f80945e8f79bcaaa9d3aee2c9ff"
    },
    "harness": {
-    "harness:cics": "55caeea90745b3aad6afaf6ad3b52dad29f2f96eea0f4983925e2ca95ae583eb",
-    "harness:core": "120ae815acefc558bb7dd5b32a8e4200e6352f9d93fb998d70aa0398069caee6"
+    "harness:cics": "8d9cfad1a591b53bee00d334556ae5b47587186d197229e1a8ef2a32211ef42f",
+    "harness:core": "2375da909862f564828958e7917e63c8a65baef6ce35a6fc8146d7455ba31dc0"
    },
    "oracle": {
     "oracle:cics-stub": "8d4b95cb03310f91b20292ebc95871479fe57bab9fc6ff33a625667a5860e785",

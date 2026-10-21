@@ -1487,6 +1487,12 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
   (length -1).
 - **Not modelled.** What a 3270 shows after BMS merges the physical map, MAPONLY, DATAONLY, ERASE and FRSET. Two
   ports with equal symbolic maps could differ on a terminal only if BMS itself differed.
+- **IBM.** CICS TS Application Programming Reference, EXEC CICS SEND MAP (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-send-map):
+  SEND MAP merges the application data structure (the symbolic map) with the physical map BMS holds, and builds the
+  3270 data stream; MAPONLY sends the map with no data, DATAONLY only the data, ERASE clears the screen first, and
+  FRSET resets the modified-data tags. The wording is paraphrased, not verbatim.
+- **Declared difference.** IBM's result is the 3270 data stream BMS builds; the oracle and the port are compared one
+  step earlier, at the symbolic map, since BMS itself is not modelled.
 
 ### X3. Backout and recoverable files — MATCHED
 - **What.** SYNCPOINT ROLLBACK, or an abend that terminates the task, backs out the unit of work: the recoverable files'
@@ -1505,12 +1511,25 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
   region a LINK is local and no remote system takes part. A program LINKed from outside the region (CicsTask's DPL
   server, `LocalRegion.linked`) refuses SYNCPOINT, since the region does not know whether its client gave
   SYNCONRETURN. EXECUTIONSET is not read: CBSA's CSD defines its programs FULLAPI (`BANK.csd`).
+- **IBM.** CICS TS Application Programming Reference, EXEC CICS SYNCPOINT and SYNCPOINT ROLLBACK
+  (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-syncpoint): SYNCPOINT commits the unit of work, ROLLBACK backs
+  out the changes to recoverable resources since the last syncpoint; INVREQ and ROLLEDBACK are the responses named
+  above. CICS TS Recovery and Restart Guide: a file defined RECOVERY(NONE) is not backed out, and an abend that ends
+  the task backs out the recoverable resources. The wording is paraphrased, not verbatim.
+- **Declared difference.** Temporary storage: IBM backs out a recoverable TS queue, the models do not back out any
+  (see Not modelled above).
 
 ### X4. Time — ASSUMED
 - **What.** EIBDATE and EIBTIME are the case's clock at dispatch. ASKTIME leaves them unchanged (a task takes no time),
   and FORMATTIME formats from that clock.
 - A DELAY takes no time either (CBSA's INQCUST and credit agencies retry after one); ENQ and DEQ are NORMAL, one
   task being the region's only one.
+- **IBM.** CICS TS Application Programming Reference, EXEC CICS ASKTIME, FORMATTIME, DELAY, ENQ and DEQ
+  (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-asktime): ASKTIME updates the task's current time (EIBDATE
+  and EIBTIME are refreshed by it, ABSTIME is returned); FORMATTIME formats an ABSTIME; DELAY suspends the task for
+  the interval; ENQ and DEQ serialize on a resource across tasks. The wording is paraphrased, not verbatim.
+- **Declared difference.** IBM's ASKTIME returns a later time and a DELAY takes the interval; here neither moves the
+  clock. ENQ never waits, since one task is the region's only one.
 
 ### X5. What IBM leaves open — REFUSED
 Refused by name (`equivalence_cics.Unsupported`):
@@ -4524,6 +4543,11 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   WaitInterval other than MQWI_UNLIMITED (IBM: MQRC_WAIT_INTERVAL_ERROR, not modelled).
 - **Not modelled.** A concurrent producer, MQGMO_SET_SIGNAL, and triggering itself (CKTI starting the transaction): a
   case states the trigger message the task is started with instead (W8's neighbour: `start_data`, the MQTM).
+- **IBM (document).** IBM MQ Application Programming Reference, MQGET and MQGMO (WaitInterval, MQGMO_WAIT,
+  MQWI_UNLIMITED), and the MQRC_NO_MSG_AVAILABLE (2033) and MQRC_WAIT_INTERVAL_ERROR reason codes
+  (https://www.ibm.com/docs/en/ibm-mq/9.3?topic=reference-mqget-get-message). The wording is paraphrased, not verbatim.
+- **Declared difference.** IBM waits the full WaitInterval before 2033; the models answer at once because no
+  producer can put meanwhile.
 
 ### W3. Queues — local queues the case states, delivered by priority then first in first out
 - **What.** A case's `"mq"` section states the queue manager (its name and CCSID) and its local queues with their

@@ -1,5 +1,5 @@
 {
- "commit": "cfcd786d1",
+ "commit": "7464366e7",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -28,7 +28,7 @@
     "CBL": {
      "ASSUMED": 2,
      "DIFFERS": 13,
-     "MATCHED": 27,
+     "MATCHED": 28,
      "REFUSED": 3
     },
     "CICS": {
@@ -90,11 +90,11 @@
     }
    },
    "measured_on_zos": 0,
-   "rules": 177,
+   "rules": 178,
    "status": {
     "ASSUMED": 56,
     "DIFFERS": 23,
-    "MATCHED": 84,
+    "MATCHED": 85,
     "REFUSED": 14
    }
   },
@@ -157,7 +157,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-21T06:37:55Z",
+  "as_of": "2026-10-21T07:05:26Z",
   "core": {
    "closed": 155,
    "open": 28,

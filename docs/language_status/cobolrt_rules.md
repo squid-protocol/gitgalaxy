@@ -8,7 +8,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 
 | family | files | rules | catalogued |
 |---|---|---|---|
-| CBL: statements and data movement | `Cobol.java` | 45 | yes |
+| CBL: statements and data movement | `Cobol.java` | 46 | yes |
 | NUM: numeric storage codecs | `Codec.java`, `Zoned.java` | 13 | yes |
 | HFP: COMP-1 / COMP-2 as hexadecimal floating point | `Hfp.java` | 13 | yes |
 | EDIT: numeric editing | `Editing.java` | 5 | yes |
@@ -23,7 +23,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | FILE: batch files | `batch/DetFiles.java` | 3 | yes |
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 
-177 rules: 84 MATCHED, 23 DIFFERS, 14 REFUSED, 56 ASSUMED; 0 measured on z/OS (#4702).
+178 rules: 85 MATCHED, 23 DIFFERS, 14 REFUSED, 56 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -106,6 +106,7 @@ MOVE, arithmetic stores and intermediates, comparisons, class tests, DISPLAY, ST
 | RT-CBL-UNSTRING | UNSTRING ... DELIMITED BY ... INTO ... [DELIMITER IN] [COUNT IN] [WITH POINTER] [TALLYING]: the rest to the first INTO with no delimiter; OVERFLOW when the pointer is outside the source or characters remain | `cobol-lr` UNSTRING statement | - | - | MATCHED | uncalibrated |
 | RT-CBL-INSPECT | INSPECT TALLYING / REPLACING / CONVERTING with BEFORE / AFTER: the phrases act on the original text, the earlier clause takes the characters, TALLYING and REPLACING are separate passes | `cobol-lr` INSPECT statement | - | - | MATCHED | uncalibrated |
 | RT-CBL-LINK-COMMAREA | A LINK's COMMAREA is the caller's storage from the area's first byte, up to the end of the caller's record; bytes past it are LOW-VALUES here (z/OS shows whatever storage follows) | `cics-apr` LINK | - | X10 (DIFFERS) | DIFFERS | uncalibrated |
+| RT-CBL-INITIALIZE-REPLACING-TABLE | INITIALIZE REPLACING of a table leaves the categories it does not name as they are (IBM); the port stops by name when the occurrences differ, because the oracle copies the first over the others | `cobol-lr` INITIALIZE statement | - | C17 (DIFFERS (oracle vs IBM) / GUARDED (the port stops by name at run time when the occurrences differ)) | MATCHED | uncalibrated |
 
 ## NUM: numeric storage codecs
 

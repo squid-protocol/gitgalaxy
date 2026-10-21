@@ -99,7 +99,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C14 | compiler | Size errors without ON SIZE ERROR: a zero divisor leaves the receivers unchanged in the oracle (libcob's NaN), the det runtime the same (#4655); z/OS's result is undefined (a decimal-divide exception); 0 ** a negative is 0 in the oracle, a size error on z/OS | MATCHED (det runtime = oracle) / DIFFERS (oracle vs z/OS) | not known to be: no proven scenario divides by zero |
 | C15 | compiler | `CALL identifier`: the port dispatches over the program names the item can hold, found from the source (VALUE, VALUE table, MOVEs of literals); uppercase names of up to 8 characters; any other value, write or name refused by name (#4736) | MODELLED where the names are known, REFUSED where they are not | yes (end-to-end test against cobc; DBB EPSCSMRT translates whole, its callee EPSMPMT is refused) |
 | C16 | compiler | A 1- or 2-digit COMP-5 item: one byte in GnuCOBOL, a halfword on z/OS (and in the det layout), so offsets, record lengths and a value past the byte differ; no cobc option changes it (#4751) | DIFFERS (oracle vs IBM, declared) / REFUSED (the oracle refuses such a program by name) | no: no corpus or case declares one |
-| C17 | compiler | INITIALIZE REPLACING of a table holding an item of a category REPLACING does not name: GnuCOBOL gives that item the first occurrence's value, IBM leaves it as it is; refused by name | DIFFERS (oracle vs IBM) / REFUSED (the translator refuses such a statement by name) | no: CardDemo CODATE01's two INITIALIZE REPLACING statements name groups with no table |
+| C17 | compiler | INITIALIZE REPLACING of a table holding an item of a category REPLACING does not name: GnuCOBOL gives that item the first occurrence's value, IBM leaves it as it is; the port stops by name when the occurrences differ | DIFFERS (oracle vs IBM) / GUARDED (the port stops by name at run time when the occurrences differ) | yes: CardDemo COPAUA0C 8400-UPDATE-SUMMARY (PA-ACCOUNT-STATUS X(02) OCCURS 5, REPLACING NUMERIC); CODATE01 has no table |
 | C18 | compiler | STORAGE, TRAP, ABTERMENC; Db2 DATE / TIME / DEC / DECPT / CCSID / bind options; CICS region and program-definition options: refuse, declare or no effect | DECLARED / REFUSED by name (LE, Db2 and CICS runtime options) | yes: every burned estate's recorded value resolves (STORAGE default via L3; GenApp EBCDIC CCSID 285 is declared) |
 | C19 | compiler | ALTER p TO [PROCEED TO] q: the GO TO of p goes to q until the next ALTER of p; the port keeps the target in a slot the paragraph dispatcher reads | MODELLED where the paragraph is a lone GO TO, REFUSED otherwise (#5560) | yes (ALTER1 / ALTER2 in test_det_programs.py against GnuCOBOL -std=ibm; CardDemo CBSTM03A, 9 -> 5 holes) |
 | D1 | data | Text order is ASCII (Latin-1), not EBCDIC | DIFFERS | keys: no; comparisons: not audited |
@@ -1143,10 +1143,11 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   category REPLACING does not name takes the first occurrence's value in every other occurrence. Measured
   (tests/cobol_mainframe/test_det_programs.py, #4892): after `MOVE 31 TO G-T(2)`, `INITIALIZE G REPLACING
   ALPHANUMERIC BY 'XY'` left the port's `G-T(2)` at 31, as IBM says, and GnuCOBOL's at the first occurrence's 00.
-- **Refused.** The det translator refuses an INITIALIZE REPLACING whose target holds a table with an elementary item
-  of a category the statement does not name (a named hole, `det/gen.py` `initialize`), so no proof rests on the
-  oracle's copy. When every item of the table is of a named category, setting each one and copying the first agree,
-  and the statement translates (test_det_initialize_replacing.py, and INITREPL proves it against GnuCOBOL).
+- **Guarded (#5278).** The translator follows IBM (only the named categories are set, per occurrence) and, for each item
+  of a category the statement does not name, emits `Cobol.sameBytes(first, occurrence k)` before it, throwing `Hole` by
+  name when an occurrence differs. Where they agree, IBM's "left as it is" and the oracle's copy are the same bytes, so
+  no proof rests on the oracle's copy. A table nested in a table, with such items, is still a named hole
+  (test_det_initialize_replacing.py; INITRTB and INITREPL prove the agreeing case against GnuCOBOL).
 
 ### C18. LE, Db2 and CICS runtime options: each judged by one table, refused by name or a declared difference (#4707)
 - **What.** The estate options file (`tests/equivalence/estate_options/<corpus>.json`, #4704) records the Language

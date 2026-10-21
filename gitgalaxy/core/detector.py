@@ -1384,29 +1384,6 @@ def _drop_nested_declaration_calls(sats: list[Any], candidates: list[tuple[Any, 
             sat["calls_out_qualifiers"] = {c: q for c, q in sat["calls_out_qualifiers"].items() if c not in drop}
 
 
-def _drop_own_leaf_recursion(sats: list[Any], candidates: list[tuple[Any, str, set[str]]]) -> None:
-    """#5628: keep a scoped unit's bare call to its own leaf name only if it is not recursion.
-
-    In `Scope::f` (C++) or `IEnumerable.GetEnumerator` (C#), an unqualified `f(` is the
-    recursion the contract drops (#3327) -- unless the file has a DIFFERENT unit named
-    exactly `f` (a free function, the class's own method): then the call reaches that one,
-    so the edge stays. Without one the call is dropped, as is any other candidate
-    (`Other::f` is not reachable by a bare name). A call written `this->f(` or `Scope::f(`
-    was already dropped by the detector and is not here.
-    """
-    bare = {str(s.get("name") or "") for s in sats}
-    for sat, leaf, own_qualifiers in candidates:
-        if leaf in bare:
-            continue
-        rest = [q for q in sat["calls_out_qualifiers"].get(leaf, []) if q not in own_qualifiers]
-        if rest:
-            sat["calls_out_qualifiers"][leaf] = rest
-            continue
-        sat["calls_out_to"] = [c for c in sat["calls_out_to"] if c != leaf]
-        sat["calls_out_qualifiers"].pop(leaf, None)
-        sat["calls_out_arities"].pop(leaf, None)
-
-
 _UNIT_NAME_SEPARATORS = re.compile(r"::|\.|->")
 
 # References (Python): a function name used as a value -- `Depends(get_db)`,
@@ -2707,9 +2684,6 @@ class StructuralExtractor:
         # #3642 (C8): (unit, its block, its rules) for each unit one segment's
         # slicing scanned for calls; _function_slice resolves them.
         self._call_scans: list[tuple[FunctionNode, str, dict[str, Any]]] | None = None
-        # #5628: (unit, leaf, own qualifiers) for each `Class::leaf` unit that calls the bare
-        # `leaf`; _function_slice keeps the call only if another unit named `leaf` exists.
-        self._own_leaf_calls: list[tuple[FunctionNode, str, set[str]]] | None = None
 
         # #2728: the names this language's own `func_start` can synthesize from a
         # closed keyword alternation rather than capture from source. Empty for
@@ -4946,7 +4920,6 @@ class StructuralExtractor:
             impact = 0.0
             self._nested_decl_candidates = []
             self._call_scans = []
-            self._own_leaf_calls = []
 
             if integration_mode == "mode_d":
                 mode_name = "Mode_D_Keywords"
@@ -5170,9 +5143,6 @@ class StructuralExtractor:
             if self._nested_decl_candidates:
                 _drop_nested_declaration_calls(sats, self._nested_decl_candidates)
             self._nested_decl_candidates = None
-            if self._own_leaf_calls:
-                _drop_own_leaf_recursion(sats, self._own_leaf_calls)
-            self._own_leaf_calls = None
 
             # --- SATELLITE-SCOPED CORRELATION (#346 phase 1, #348 phase 2) ---
             # Runs for every segment unconditionally, using THIS segment's own
@@ -10509,7 +10479,6 @@ class StructuralExtractor:
         invoked: set[str] = set()
         own_leaf: str | None = None
         own_qualifiers: set[str] = set()
-        own_leaf_bare = False
         if invocation_pattern:
             # Apply literal shield to avoid capturing words inside strings
             safe_block = self._apply_literal_shield(block, self.primary_lang_id)
@@ -10564,12 +10533,12 @@ class StructuralExtractor:
                         self.primary_lang_id, safe_block, callee_pos + len(callee), qualifier
                     )
                     if callee == own_leaf and qualifier in own_qualifiers:
-                        # #5628: a bare `leaf(` may reach a different unit of that name;
-                        # _function_slice drops it if none exists. Anything written with a
-                        # receiver or scope is the unit itself.
+                        # #5628: a bare `leaf(` may reach a different unit of that name, in this
+                        # file or another: kept, and the call resolver drops it when it only
+                        # resolves to the unit itself. Anything written with a receiver or scope
+                        # is the unit itself.
                         if qualifier:
                             continue
-                        own_leaf_bare = True
                     if callee_pos == m.start(1) and _is_declaration_header(decl_headers, m):
                         header_only.add(callee)
                     else:
@@ -10708,8 +10677,6 @@ class StructuralExtractor:
         decl_only = header_only - invoked
         if decl_only and self._nested_decl_candidates is not None:
             self._nested_decl_candidates.append((sat, decl_only))
-        if own_leaf_bare and own_leaf in calls_out and self._own_leaf_calls is not None:
-            self._own_leaf_calls.append((sat, own_leaf, own_qualifiers))
         return sat, magnitude
 
     def _export_declaration_offsets(self, code_stream: str) -> set[int]:

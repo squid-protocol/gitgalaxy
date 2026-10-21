@@ -21,8 +21,9 @@ def test_cpp_scoped_unit_calling_free_function_keeps_the_edge():
     assert fns["f"]["calls_out_to"] == ["g"]  # the free f's own recursion-free body
 
 
-def test_cpp_scoped_unit_with_no_other_unit_is_recursion():
-    assert _fns("cpp", "void Scope::f(int a) {\n  f(a);\n}\n")["Scope::f"]["calls_out_to"] == []
+def test_cpp_scoped_unit_with_no_namesake_in_the_file_keeps_the_call_for_the_resolver():
+    # the free `f` may live in another file; the call resolver drops it when it finds none
+    assert _fns("cpp", "void Scope::f(int a) {\n  f(a);\n}\n")["Scope::f"]["calls_out_to"] == ["f"]
 
 
 def test_cpp_explicit_self_references_stay_dropped():
@@ -33,11 +34,6 @@ def test_cpp_explicit_self_references_stay_dropped():
 def test_cpp_receiver_call_to_same_name_was_and_stays_a_call():
     src = "void Scope::f(int a) {\n  child->f(a);\n}\n"
     assert _fns("cpp", src)["Scope::f"]["calls_out_to"] == ["f"]
-
-
-def test_cpp_other_class_unit_is_not_reachable_by_a_bare_name():
-    src = "void Other::f() {\n}\nvoid Scope::f(int a) {\n  f(a);\n}\n"
-    assert _fns("cpp", src)["Scope::f"]["calls_out_to"] == []
 
 
 @pytest.mark.parametrize("lang", ["c", "cpp"])
@@ -66,9 +62,9 @@ def test_csharp_explicit_interface_impl_calls_the_same_named_method():
     assert fns["GetEnumerator"]["calls_out_to"] == []
 
 
-def test_csharp_explicit_interface_impl_without_a_namesake_is_recursion():
+def test_csharp_explicit_interface_impl_without_a_namesake_keeps_the_call_for_the_resolver():
     src = "class A : IEnumerable {\n  IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();\n}\n"
-    assert _fns("csharp", src)["IEnumerable.GetEnumerator"]["calls_out_to"] == []
+    assert _fns("csharp", src)["IEnumerable.GetEnumerator"]["calls_out_to"] == ["GetEnumerator"]
 
 
 def test_nested_declaration_shapes_are_still_dropped():

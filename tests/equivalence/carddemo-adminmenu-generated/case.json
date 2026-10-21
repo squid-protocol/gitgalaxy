@@ -1,0 +1,354 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "COADM01C",
+ "program_source": "app/cbl/COADM01C.cbl",
+ "copy_dirs": [
+  "app/cpy",
+  "app/cpy-bms"
+ ],
+ "port_from": "carddemo-adminmenu",
+ "transid": "CA00",
+ "clock": "2022/07/18 10:30:15.00",
+ "csd": "app/csd/CARDDEMO.CSD",
+ "datasets": {},
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "app/cpy/COCOM01Y.cpy",
+    "record": "CARDDEMO-COMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "COADM1A": {
+   "copybook": "app/cpy-bms/COADM01.CPY",
+   "input": "COADM1AI",
+   "output": "COADM1AO"
+  }
+ },
+ "notes": "CardDemo's admin menu (CA00, COADM01C) on a GENERATED map input (#4506): 40 scenarios whose COMMAREA is generated and whose RECEIVE MAP input is typed from COADM01's BMS source (its one unprotected field, OPTION: NUM, 2 bytes; full width / short / random, a third left alone, sent with length 0 since it is FSET); the key pressed turns through ENTER, PF3, PF4 and PF9. No scenario types a non-number, a NUM field cannot be keyed with letters (#5116), so `bad` is 0. The base CSD does not define options 5 and 6 (COTRTLIC, COTRTUPC), so their XCTL raises PGMIDERR as in the hand-written case. Proves the carddemo-adminmenu port on inputs it was not written against; the hand-written scenarios left are the fault runs, the COMMAREA shapes a generated one never has, and the two non-digit option bytes (colon, less-than) that a NUM field cannot key. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+ "scenario_generate": {
+  "seed": 4506,
+  "count": 40,
+  "prefix": "generated",
+  "aid": [
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHPF3",
+   "DFHPF4",
+   "DFHPF9"
+  ],
+  "commarea": {
+   "CDEMO-FROM-TRANID": "CC00",
+   "CDEMO-FROM-PROGRAM": "COSGN00C",
+   "CDEMO-USER-ID": "ADMIN001",
+   "CDEMO-USER-TYPE": "A",
+   "CDEMO-PGM-CONTEXT": {
+    "values": [
+     0,
+     1
+    ]
+   }
+  },
+  "receive": {
+   "COADM1A": {
+    "@bms": {
+     "bad": 0,
+     "empty": 0.3
+    }
+   }
+  }
+ },
+ "scenarios": [
+  {
+   "name": "no-commarea",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "#4506: no COMMAREA, which a generated COMMAREA never leaves out"
+  },
+  {
+   "name": "option-1-xctl-not-authorised",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "1"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COUSR00C",
+     "nth": 1,
+     "resp": "NOTAUTH",
+     "resp2": 101
+    }
+   ],
+   "why": "#4506: fault run: XCTL raises NOTAUTH"
+  },
+  {
+   "name": "option-1-xctl-fails",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "1"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COUSR00C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4506: fault run: XCTL raises PGMIDERR"
+  },
+  {
+   "name": "pf3-xctl-not-authorised",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "1"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COSGN00C",
+     "nth": 1,
+     "resp": "NOTAUTH",
+     "resp2": 101
+    }
+   ],
+   "why": "#4506: fault run: XCTL raises NOTAUTH"
+  },
+  {
+   "name": "pf3-xctl-fails",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "1"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COSGN00C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4506: fault run: XCTL raises PGMIDERR"
+  },
+  {
+   "name": "option-colon",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": ":"
+    }
+   },
+   "why": "#4506: a non-digit option byte, which a NUM field cannot key (#5116)"
+  },
+  {
+   "name": "option-less-than",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "<"
+    }
+   },
+   "why": "#4506: a non-digit option byte, which a NUM field cannot key (#5116)"
+  },
+  {
+   "name": "pf3-blank-to-program",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-PROGRAM": ""
+   },
+   "why": "#4506: a COMMAREA carrying CDEMO-TO-PROGRAM, which a generated COMMAREA does not"
+  },
+  {
+   "name": "pf3-low-values-to-program",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-PROGRAM": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"
+   },
+   "why": "#4506: a COMMAREA carrying CDEMO-TO-PROGRAM, which a generated COMMAREA does not"
+  },
+  {
+   "name": "carried-commarea-fields",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-TRANID": "CAVW",
+    "CDEMO-TO-PROGRAM": "COACTVWC",
+    "CDEMO-CUST-LNAME": "Kessler",
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CUST-ID": 42
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "1"
+    }
+   },
+   "why": "#4506: a COMMAREA with carried account, customer and target fields, which a generated COMMAREA does not have"
+  },
+  {
+   "name": "pf3-commarea-without-to-program",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "why": "#4506: PF3 with a COMMAREA that has no CDEMO-TO-PROGRAM set"
+  },
+  {
+   "name": "carried-account-and-card-fields",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CUST-FNAME": "Ada",
+    "CDEMO-CUST-MNAME": "Byron",
+    "CDEMO-CUST-ID": 7,
+    "CDEMO-ACCT-ID": 10000000007,
+    "CDEMO-CARD-NUM": 4111111111111111,
+    "CDEMO-LAST-MAP": "COADM1A",
+    "CDEMO-LAST-MAPSET": "COADM01"
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "1"
+    }
+   },
+   "why": "#4506: a COMMAREA with carried account and card fields, which a generated COMMAREA does not have"
+  },
+  {
+   "name": "first-entry-carried-account-and-card-fields",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-CUST-MNAME": "Byron",
+    "CDEMO-ACCT-ID": 10000000007,
+    "CDEMO-CARD-NUM": 4111111111111111,
+    "CDEMO-LAST-MAP": "COADM1A",
+    "CDEMO-LAST-MAPSET": "COADM01"
+   },
+   "why": "#4506: first entry with carried account and card fields, which a generated COMMAREA does not have"
+  },
+  {
+   "name": "no-commarea-xctl-fails",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COSGN00C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4506: fault run: no COMMAREA and XCTL raises PGMIDERR"
+  },
+  {
+   "name": "pf4-other-key",
+   "aid": "DFHPF4",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-TO-TRANID": "CT01",
+    "CDEMO-TO-PROGRAM": "COUSR00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "FIRSTNAME",
+    "CDEMO-CUST-MNAME": "MIDNAME",
+    "CDEMO-CUST-LNAME": "LASTNAME",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 1234567890123456,
+    "CDEMO-LAST-MAP": "LASTMAP",
+    "CDEMO-LAST-MAPSET": "LASTSET"
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "1"
+    }
+   },
+   "why": "#4506: a full COMMAREA under a key the screen does not assign"
+  }
+ ]
+}

@@ -334,7 +334,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CSUTLDTC (carddemo-dateutil) | equivalence | 211/211 | 145/195 (74%) | 145/145 (100%) | 0 / 0 / 10 / 40 / 0 |
 | CBACT04C (carddemo-intcalc) | equivalence | 100/170 | 70/86 (81%) | 70/77 (91%) | 6 / 1 / 9 / 0 / 0 |
 | COMEN01C (carddemo-menu) | equivalence | 150/331 | 86/136 (63%) | 86/93 (92%) | 7 / 0 / 36 / 7 / 0 |
-| COMEN01C (carddemo-menu-generated) | equivalence | 150/340 | 87/139 (63%) | 87/90 (97%) | 0 / 3 / 37 / 12 / 0 |
+| COMEN01C (carddemo-menu-generated) | equivalence | 150/340 | 87/139 (63%) | 87/88 (99%) | 0 / 1 / 35 / 16 / 0 |
 | CBTRN02C (carddemo-posttran) | equivalence | 100/263 | 76/85 (89%) | 76/80 (95%) | 3 / 1 / 5 / 0 / 0 |
 | CBACT02C (carddemo-readcard) | equivalence | 91/91 | 69/83 (83%) | 69/73 (95%) | 4 / 0 / 10 / 0 / 0 |
 | CBCUS01C (carddemo-readcust) | equivalence | 83/83 | 63/74 (85%) | 63/70 (90%) | 7 / 0 / 4 / 0 / 0 |
@@ -381,8 +381,8 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 4347 run | **2641/3958 (67%)** | **2641/3139 (84%)** | 310 / 188 / 543 / 276 / 0 |
-| **all estate** | | 4851 run | **2960/4434 (67%)** | **2960/3493 (85%)** | 345 / 188 / 631 / 310 / 0 |
+| **all equivalence** | | 4347 run | **2641/3958 (67%)** | **2641/3137 (84%)** | 310 / 186 / 541 / 280 / 0 |
+| **all estate** | | 4851 run | **2960/4434 (67%)** | **2960/3491 (85%)** | 345 / 186 / 629 / 314 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
@@ -391,10 +391,10 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CON | 381/879 (43%) | 381/497 (77%) |
 | COR | 166/290 (57%) | 166/223 (74%) |
 | DEL | 471/711 (66%) | 471/556 (85%) |
-| LIT | 626/848 (74%) | 626/710 (88%) |
+| LIT | 626/848 (74%) | 626/709 (88%) |
 | NEG | 548/629 (87%) | 548/596 (92%) |
 | RET | 52/101 (51%) | 52/89 (58%) |
-| ROR | 483/663 (73%) | 483/560 (86%) |
+| ROR | 483/663 (73%) | 483/559 (86%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|

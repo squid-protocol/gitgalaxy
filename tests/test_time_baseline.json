@@ -28,7 +28,7 @@
     "tests/core_engine/test_scan_path_independence_4058.py::test_the_same_tree_scans_the_same_under_any_parent[tmp]": 42.24,
     "tests/cultural_gauntlet/test_cultural_gauntlet.py::test_the_executed_layer_runs_the_india_cell": 13.76,
     "tests/cultural_gauntlet/test_cultural_gauntlet.py::test_the_input_layer_runs_under_every_environment": 11.68,
-    "tests/cultural_gauntlet/test_cultural_gauntlet.py::test_the_sampled_plan_passes_its_ratchet": 60.83,
+    "tests/cultural_gauntlet/test_cultural_gauntlet.py::test_the_sampled_plan": 60.83,
     "tests/extraction/languages/test_cleanup_contract_2888.py::test_cleanup_contract_redos_sweep": 33.23,
     "tests/extraction/languages/test_immutability_locks_contract_2772.py::test_immutability_locks_redos_sweep": 20.97,
     "tests/security_auditing/test_redos_poison.py::TestProductionRegexSecurity::test_production_regex_redos_immunity": 11.2,

@@ -66,3 +66,35 @@ def test_genapp_lgdpvs01_proof_stops_at_the_first_link_of_write_error_message():
     """#5252: lgdpvs01's 102-byte ERROR-MSG already overruns LGSTSQ's 95-byte WRITE-MSG (X6), so lines 117-118 are never reached."""
     (e,) = io.load()["genapp-lgdpvs01"]
     assert "102-byte ERROR-MSG" in e["reason"] and "X6" in e["reason"]
+
+
+EOF_LOOP_CASES = {  # case: (flag, the loop's `PERFORM UNTIL` line)
+    "carddemo-readcard": ("END-OF-FILE", 74),
+    "carddemo-readxref": ("END-OF-FILE", 74),
+    "carddemo-readcust": ("END-OF-FILE", 74),
+    "carddemo-intcalc": ("END-OF-FILE", 188),
+    "carddemo-posttran": ("END-OF-FILE", 202),
+    "carddemo-trnrpt": ("END-OF-FILE", 170),
+    "carddemo-dailyval": ("END-OF-DAILY-TRANS-FILE", 164),
+}
+
+
+def test_carddemo_batch_read_loop_guard_is_the_only_outcome_the_proof_leaves():
+    """#5864: the CardDemo batch programs' `IF flag = 'N'` inside `PERFORM UNTIL flag = 'Y'` has no false outcome; it is
+    the one outcome their committed proofs leave uncovered, and each entry takes exactly it out of the branch total."""
+    ledger = io.load()
+    for case, (flag, until) in EOF_LOOP_CASES.items():
+        (e,) = ledger[case]
+        assert (e["line"], e["kind"], e["outcome"], e["family"]) == (until + 1, "IF", "false", "C")
+        assert flag in e["reason"] and f"line {until}" in e["reason"]
+        record = json.loads((io.CASES / case / "evidence.json").read_text(encoding="utf-8"))["coverage"]
+        assert [(b["line"], b["kind"], b["outcome"]) for b in record["uncovered_branches"]] == [
+            (e["line"], "IF", "false")
+        ]
+        covered, total = record["branches"]["covered"], record["branches"]["total"]
+        assert io.adjust(case, (1, 1, covered, total), record["uncovered_branches"], ledger)[0] == (
+            1,
+            1,
+            covered,
+            total - 1,
+        )

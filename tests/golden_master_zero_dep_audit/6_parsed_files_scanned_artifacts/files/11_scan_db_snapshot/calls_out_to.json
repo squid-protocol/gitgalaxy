@@ -163209,7 +163209,6 @@
     "scheme/racket": {
       "scheme/racket/cpnanopass.ss": {
         "$add-move@8993": [
-          "x1",
           "uvar?",
           "not",
           "uvar-poison?",
@@ -163229,7 +163228,6 @@
           "fx>"
         ],
         "Effect@10166": [
-          "e*",
           "null?",
           "safe-assert",
           "Effect*",
@@ -163261,14 +163259,12 @@
           "reverse",
           "Pred",
           "for-each",
-          "x",
           "var-spillable-conflict*-set!",
           "make-empty-cset",
           "var-unspillable-conflict*-set!",
           "vector-for-each",
           "add-static-conflict!",
           "uvar-conflict*",
-          "block",
           "block-effect*",
           "goto-block?",
           "joto-block?",
@@ -163281,7 +163277,6 @@
           "sorry!"
         ],
         "Effect@10538": [
-          "block",
           "null?",
           "block-effect*-set!",
           "reverse",
@@ -163295,7 +163290,6 @@
           "cons"
         ],
         "Effect@8788": [
-          "out",
           "fold-left",
           "nanopass-case",
           "L15a",
@@ -163322,7 +163316,6 @@
           "check-live"
         ],
         "Effect@9025": [
-          "live*",
           "nanopass-case",
           "L15a",
           "uvar?",
@@ -163331,7 +163324,6 @@
           "live-info-live"
         ],
         "Pred@8762": [
-          "out",
           "nanopass-case",
           "L15a",
           "inline",
@@ -163344,7 +163336,6 @@
           "sorry!"
         ],
         "Profile@760": [
-          "e",
           "nanopass-case",
           "L1",
           "seq",
@@ -163352,7 +163343,6 @@
           "f",
           "cons",
           "values",
-          "e1",
           "with-output-language",
           "L2",
           "eq?",
@@ -163362,7 +163352,6 @@
           "define-pass",
           "ir",
           "definitions",
-          "x",
           "uvar?",
           "uvar-name",
           "string?",
@@ -163373,14 +163362,12 @@
           "error"
         ],
         "Ref@3301": [
-          "ir",
           "var?",
           "values",
           "tmp",
           "make-tmp",
           "cons",
           "Rhs",
-          "x",
           "nanopass-case",
           "L10",
           "e*",
@@ -163399,12 +163386,10 @@
           "f",
           "cdr",
           "append",
-          "maybe-e",
           "fp-lvalue?",
           "eq?",
           "uvar-type",
           "mref",
-          "x*",
           "fold-right",
           "with-output-language",
           "seq",
@@ -163418,6 +163403,7 @@
           "length",
           "sorry!",
           "CaseLambdaClause",
+          "ir",
           "clause",
           "Expr",
           "safe-assert",
@@ -163428,11 +163414,9 @@
           "list",
           "inline",
           "alloc",
-          "t*",
           "attachment-get",
           "attachment-consume",
           "Triv?",
-          "t?",
           "attachment-set",
           "continuation-get",
           "continuation-set",
@@ -163452,11 +163436,8 @@
           "mlabel",
           "map",
           "make-local-label",
-          "info",
           "fold-left",
-          "body",
           "uvar-referenced?",
-          "nfixed",
           "local-label-iteration-set!",
           "list-head",
           "list-ref",
@@ -163466,7 +163447,6 @@
           "constant",
           "Pvalues",
           "for-each",
-          "l",
           "rhs->type",
           "label*",
           "local-label-iteration",
@@ -163488,7 +163468,6 @@
           "tail"
         ],
         "Rhs@8754": [
-          "out",
           "nanopass-case",
           "L15a",
           "inline",
@@ -163500,12 +163479,10 @@
           "Triv"
         ],
         "Tail@10161": [
-          "tl",
           "nanopass-case",
           "L15d",
           "jump",
           "Triv",
-          "e*",
           "null?",
           "safe-assert",
           "Effect*",
@@ -163534,14 +163511,12 @@
           "reverse",
           "Pred",
           "for-each",
-          "x",
           "var-spillable-conflict*-set!",
           "make-empty-cset",
           "var-unspillable-conflict*-set!",
           "vector-for-each",
           "add-static-conflict!",
           "uvar-conflict*",
-          "block",
           "block-effect*",
           "goto-block?",
           "joto-block?",
@@ -163552,7 +163527,6 @@
           "tail-block-tail",
           "sorry!",
           "define-who",
-          "lambda-info",
           "vector-length",
           "length",
           "eq?",
@@ -163560,14 +163534,11 @@
           "fx-",
           "uvar-ref-weight",
           "uvar-save-weight",
-          "x*",
           "uvar-degree-set!",
           "fx+",
           "conflict-bit-count",
           "var-spillable-conflict*",
-          "reg",
           "cset-for-each",
-          "x-offset",
           "vector-ref",
           "uvar-location",
           "uvar-degree",
@@ -163576,7 +163547,6 @@
           "reg-type",
           "uvar-unspillable?",
           "conflict-bit-set?",
-          "x0",
           "clear-seen!",
           "fail",
           "f",
@@ -163589,7 +163559,6 @@
           "try-reg",
           "uvar?",
           "cons",
-          "home",
           "cset-merge!",
           "uvar-location-set!",
           "update-conflict!",
@@ -163600,14 +163569,13 @@
           "fx>",
           "uvar-weight",
           "values",
-          "victim",
-          "offset",
-          "victim*",
           "map",
           "list-sort",
           "uvar-spilled?",
           "relevant?",
+          "victim*",
           "partition",
+          "victim",
           "pick-potential-spill",
           "remove-victim!",
           "list",
@@ -163617,7 +163585,6 @@
           "compute-degrees!",
           "pick-victims",
           "andmap",
-          "info",
           "get-name",
           "unannotate",
           "uvar-source",
@@ -163630,10 +163597,8 @@
           "vector",
           "list->vector",
           "info-lambda-ctci",
-          "ctci",
           "ctci-live-set!",
           "make-vector",
-          "source",
           "singleton",
           "uvar-iii-set!",
           "vector-set!",
@@ -163643,7 +163608,6 @@
           "box"
         ],
         "Tail@8771": [
-          "out",
           "nanopass-case",
           "L15a",
           "goto",
@@ -163660,20 +163624,17 @@
           "sorry!"
         ],
         "Triv@3329": [
-          "maybe-e",
           "t",
           "build-seq*",
           "k"
         ],
         "Triv@8748": [
-          "out",
           "nanopass-case",
           "L15a",
           "mref",
           "add-var"
         ],
         "add-caller-save-registers@642": [
-          "reg*",
           "fx=",
           "vector-length",
           "vector-ref",
@@ -163684,17 +163645,14 @@
           "cons"
         ],
         "add-counter@2072": [
-          "counter",
           "with-output-language",
           "L7",
           "literal",
           "make-info-literal",
           "constant",
-          "e",
           "track-dynamic-closure-counts",
           "_",
           "uvar-was-closure-ref?",
-          "free**",
           "null?",
           "length",
           "car",
@@ -163702,19 +163660,14 @@
           "cdr",
           "fx+",
           "fold-left",
-          "cnt",
           "not",
           "uvar-was-closure-ref!",
           "track-static-closure-counts",
-          "ci",
           "static-closure-info-raw-closure-count-set!",
-          "count",
           "static-closure-info-raw-free-var-count-set!",
           "static-closure-info-raw-free-var-count",
           "static-closure-info-raw-closure-count",
-          "c*",
           "for-each",
-          "c",
           "closure-type",
           "closure-wk?",
           "static-closure-info-wk-empty-count-set!",
@@ -163743,42 +163696,31 @@
           "static-closure-info-nwk-empty-count-set!",
           "static-closure-info-nwk-empty-count",
           "new",
-          "l",
-          "b",
           "info-lambda-well-known?",
           "uvar-info-lambda",
           "binding-x",
           "name",
-          "wk?",
           "binding-l",
           "uvar-location-set!",
           "module",
           "make-bank",
-          "free*",
           "sort",
-          "x",
           "fx<",
           "var-index",
           "cons",
           "sort-free",
           "closure-name",
-          "name*",
           "filter",
-          "a",
           "memq",
           "assoc",
           "with-offsets",
-          "x*",
           "var-index-set!",
           "identifier?",
           "set-offsets!"
         ],
         "add-final-closures@2132": [
-          "c*",
           "track-static-closure-counts",
-          "ci",
           "for-each",
-          "c",
           "closure-type",
           "closure-wk?",
           "constant",
@@ -163810,20 +163752,16 @@
           "static-closure-info-nwk-empty-count"
         ],
         "add-instr@6948": [
-          "block",
           "block-effect*-set!",
           "cons",
           "block-effect*"
         ],
         "add-label-link@6952": [
-          "from",
           "local-label-block",
           "block?",
           "setter",
           "local-label-block-set!",
           "cons",
-          "to",
-          "l",
           "safe-assert",
           "not",
           "for-each",
@@ -163887,7 +163825,6 @@
           "make-local-label",
           "if-block-pred-set!",
           "map",
-          "t",
           "mlabel",
           "null?",
           "car",
@@ -163898,19 +163835,15 @@
           "build-graph"
         ],
         "add-original-closures@2120": [
-          "free**",
           "track-static-closure-counts",
-          "ci",
           "static-closure-info-raw-closure-count-set!",
           "fold-left",
-          "count",
           "static-closure-info-raw-free-var-count-set!",
           "static-closure-info-raw-free-var-count",
           "length",
           "static-closure-info-raw-closure-count"
         ],
         "add-reify-cc-save@4072": [
-          "live-reg*",
           "intrinsic-modify-reg*",
           "reg-list",
           "with-output-language",
@@ -163918,7 +163851,6 @@
           "list",
           "ref-reg",
           "fold-left",
-          "reg*",
           "memq",
           "cons",
           "ref-tmp-reg",
@@ -163930,13 +163862,11 @@
           "cdr",
           "safe-assert",
           "andmap",
-          "tmp-reg",
           "not",
           "with-saved-ret-reg",
           "fx+",
           "t",
           "build-call",
-          "tl",
           "label-ref",
           "constant",
           "meta-cond",
@@ -163944,14 +163874,12 @@
           "get-ret-fv"
         ],
         "adjust-return-point-offset@8560": [
-          "offset",
           "return-point-label?",
           "return-point-label-compact?",
           "fx-",
           "constant"
         ],
         "alloc-helper@6785": [
-          "info",
           "generate-allocation-counts",
           "nanopass-case",
           "L14",
@@ -163959,14 +163887,11 @@
           "build-inc-cc-counter",
           "in-context",
           "parent",
-          "pargs->new",
           "rec",
           "make-goto-block",
           "next",
-          "true",
-          "nfv*",
+          "pargs->new",
           "new",
-          "block",
           "block-effect*",
           "if-block-pred",
           "tail-block-tail",
@@ -163991,17 +163916,15 @@
           "ir",
           "definitions",
           "cons",
-          "from",
           "local-label-block",
           "block?",
           "setter",
           "local-label-block-set!",
-          "to",
-          "l",
           "safe-assert",
           "not",
           "for-each",
           "add-link!",
+          "block",
           "local-label?",
           "add-label-link!",
           "values",
@@ -164045,6 +163968,7 @@
           "block-label-set!",
           "resolve-waiting-links!",
           "check-live",
+          "true",
           "add-true",
           "false",
           "make-if-block",
@@ -164061,7 +163985,6 @@
           "block-pseudo-src-set!",
           "make-source",
           "block-checksum",
-          "b",
           "block-repeater?",
           "goto-block-next",
           "null?",
@@ -164074,14 +163997,11 @@
           "newframe-block-rp*-set!",
           "map",
           "newframe-block-rp*",
-          "dcl",
           "resolve",
           "eq?",
           "info-lambda-dcl*",
           "make-info-literal",
-          "new*",
           "link-counter",
-          "counter",
           "link-from",
           "link-to",
           "fx=",
@@ -164098,10 +164018,7 @@
           "list",
           "remq",
           "fold-left",
-          "exit-block",
-          "plus",
           "car",
-          "link",
           "build-op",
           "maybe-build-op",
           "joto-block-next",
@@ -164109,7 +164026,6 @@
           "if-block-false",
           "tail-block-exit",
           "newframe-block-next",
-          "n",
           "link-mst",
           "make-op",
           "exit-ops",
@@ -164119,7 +164035,6 @@
           "link-counter-set!",
           "filter-src*",
           "block-pseudo-src",
-          "ls",
           "make-rblock",
           "module",
           "p-graph",
@@ -164127,7 +164042,6 @@
           "start-block-link*"
         ],
         "asm-data-label@8568": [
-          "code*",
           "make-funcrel",
           "cons*",
           "aop-cons*",
@@ -164147,16 +164061,12 @@
           "architecture"
         ],
         "asm-size@8537": [
-          "x*",
           "fold-left",
-          "size",
           "fx+"
         ],
         "assign-frame@9166": [
-          "spill*",
           "map",
           "list-sort",
-          "x",
           "fx>",
           "cdr",
           "fv?",
@@ -164168,7 +164078,6 @@
           "fx+",
           "null?",
           "cons",
-          "x0",
           "var-spillable-conflict*",
           "conflict-bit-set?",
           "var-index",
@@ -164178,7 +164087,6 @@
           "f",
           "uvar-seen!",
           "caar",
-          "fv",
           "conflict-fv?",
           "loop",
           "safe-assert",
@@ -164188,8 +164096,6 @@
           "succ",
           "try-fv",
           "uvar-location",
-          "spill",
-          "home",
           "compatible-fv?",
           "uvar-type",
           "uvar-location-set!",
@@ -164202,7 +164108,6 @@
           "values"
         ],
         "bar@3237": [
-          "e",
           "eq?",
           "with-output-language",
           "L9",
@@ -164212,17 +164117,15 @@
           "pred-primitive?"
         ],
         "binding-well-known@2189": [
-          "b",
           "info-lambda-well-known?",
           "uvar-info-lambda",
           "binding-x"
         ],
         "build-alloc@6745": [
-          "info",
           "make-local-label",
-          "p",
           "meta-cond",
           "real-register?",
+          "p",
           "seq"
         ],
         "build-attachment-get@5217": [
@@ -164245,7 +164148,6 @@
           "check-live",
           "intrinsic-entry-live*",
           "reify-cc-help",
-          "reg",
           "eq?",
           "seq",
           "asm-return",
@@ -164283,13 +164185,10 @@
           "mvcall",
           "make-local-label",
           "build-nontail-call",
-          "newframe-info",
           "label",
           "mvset",
           "map",
-          "x*",
           "set-formal-registers!",
-          "x",
           "uvar-location-set!",
           "Effect",
           "foreign-call",
@@ -164308,7 +164207,6 @@
           "get-ret-fv",
           "check-and-set",
           "continuation-set",
-          "body",
           "redirect-and-set",
           "add-redirect",
           "continuation-get",
@@ -164322,7 +164220,6 @@
           "compatible-fv?",
           "do-frame",
           "cdr",
-          "mcp",
           "f",
           "build-mv-return",
           "list",
@@ -164330,7 +164227,6 @@
           "make-info",
           "enter",
           "make-info-c-simple-call",
-          "name",
           "fxsll",
           "make-info-load",
           "bigit-type",
@@ -164341,9 +164237,7 @@
           "eq?",
           "sorry!",
           "frob-expr",
-          "c*",
           "fold-right",
-          "c",
           "closure-type",
           "pair",
           "closure-name",
@@ -164351,7 +164245,6 @@
           "retain",
           "closure-free*",
           "map",
-          "cl",
           "CaseLambdaClause",
           "ir",
           "clause",
@@ -164364,15 +164257,12 @@
           "Expr",
           "closures",
           "andmap",
-          "x*",
           "add-original-closures!",
-          "x",
           "make-local-label",
           "uvar-name",
           "wk*",
           "partition",
           "null?",
-          "b",
           "make-closure",
           "list",
           "cons",
@@ -164401,16 +164291,13 @@
           "closure-type-set!",
           "closure-wk?",
           "borrow",
-          "mc",
           "closure-borrowed-name-set!",
           "deposit",
           "binding-x",
           "add-final-closures!",
           "fold-left",
-          "body",
           "nanopass-case",
           "L6",
-          "le",
           "with-was-closure-ref",
           "CaseLambdaExpr",
           "filter",
@@ -164421,7 +164308,6 @@
           "with-raw-closure-ref-counter",
           "loop",
           "call",
-          "frob",
           "fcallable",
           "mvlet",
           "labels",
@@ -164430,7 +164316,6 @@
           "define-",
           "L7",
           "with-output-language",
-          "info1",
           "build-fixnum?",
           "primref-name",
           "process-paired-predicate",
@@ -164455,7 +164340,6 @@
           "fx1+",
           "e*-promise",
           "mvmap",
-          "e",
           "analyze-loops",
           "foreign-call",
           "label",
@@ -164481,7 +164365,6 @@
           "flonum-result?",
           "fx-",
           "fxsrl",
-          "x1",
           "box",
           "last-box",
           "set-box!",
@@ -164489,13 +164372,11 @@
           "compress!",
           "box?",
           "uvar-type-set!",
-          "pr",
           "ensure-not-unboxed!",
           "all-set?",
           "prim-mask",
           "primref-flags",
           "primref-arity",
-          "i",
           "fx<",
           "fx>=",
           "fx<=",
@@ -164518,7 +164399,6 @@
           "info-foreign-result-type",
           "raw",
           "unify-boxed!",
-          "l",
           "local-label-overflow-check",
           "local-label-trap-check",
           "local-label-overflow-check-set!",
@@ -164534,21 +164414,19 @@
           "info-literal-type",
           "libspec-does-not-expect-headroom?",
           "info-literal-addr",
-          "e?",
           "libspec-has-does-not-expect-headroom-version?",
           "generate-interrupt-trap",
-          "overflow?",
           "combine-seq",
           "local-label?",
+          "e?",
           "info-call-error?",
           "add-trap-check",
           "trap-check-label?",
           "info-call-pariah?",
           "wrap-tc",
           "has-no-headroom-libcall?",
-          "info0",
+          "body",
           "combine-branch",
-          "ocx",
           "wrap-oc",
           "strip-redundant-overflow-and-trap",
           "info-lambda-libspec",
@@ -164560,7 +164438,6 @@
           "add-prefix*!"
         ],
         "build-mem-opnd@8530": [
-          "base",
           "nanopass-case",
           "L16",
           "immediate",
@@ -164568,7 +164445,6 @@
           "index"
         ],
         "build-mv-return@4435": [
-          "t*",
           "reg*",
           "get-arg-regs",
           "null?",
@@ -164587,18 +164463,14 @@
           "get-ret-fv"
         ],
         "build-nontail-call@4265": [
-          "info",
           "reg*",
           "get-arg-regs",
           "fold-left",
-          "ls",
           "cons",
           "make-tmp",
           "fold-right",
-          "x",
           "store-cp?",
           "map",
-          "tc",
           "make-return-point-label",
           "make-info-newframe",
           "info-call-src",
@@ -164607,12 +164479,9 @@
           "remq",
           "with-output-language",
           "L13",
-          "rpl",
           "tail",
           "label",
           "return-point",
-          "loc*",
-          "loc",
           "seq",
           "prepare-for-consumer-call",
           "null?",
@@ -164623,7 +164492,6 @@
           "cdr",
           "build-consumer-call",
           "Triv",
-          "e",
           "info-call-pariah?",
           "pariah",
           "set-locs",
@@ -164647,7 +164515,6 @@
           "fx+",
           "get-ptr-fv",
           "build-nontail-call-for-tail-call-with-consumers",
-          "newframe-info",
           "safe-assert",
           "remove-frame",
           "restore-local-saves",
@@ -164664,29 +164531,21 @@
           "jump",
           "uvar-referenced!",
           "build-foreign-call",
-          "t",
-          "type",
-          "width",
           "fx>=",
           "constant",
           "build-unfix",
           "toC",
           "not",
           "build-fix",
-          "big",
           "e1"
         ],
         "build-pinfo@7589": [
-          "exit-block",
-          "plus",
           "null?",
           "fx=",
           "length",
           "car",
           "cons",
           "define-who",
-          "block",
-          "link",
           "eq?",
           "build-op",
           "goto-block?",
@@ -164702,12 +164561,10 @@
           "newframe-block?",
           "newframe-block-next",
           "sorry!",
-          "n",
           "block-in-link*",
           "map",
           "not",
           "remq",
-          "l",
           "link-mst",
           "link-to",
           "make-op",
@@ -164721,22 +164578,18 @@
           "block-src*",
           "block-pseudo-src",
           "fold-left",
-          "ls",
           "make-rblock"
         ],
         "build-return-point@4274": [
-          "rpl",
           "tail",
           "label",
           "return-point",
           "remq"
         ],
         "build-seq@3339": [
-          "x*",
           "fold-right"
         ],
         "build-seq@3341": [
-          "x",
           "values",
           "seq",
           "call",
@@ -164773,11 +164626,9 @@
           "car",
           "cdr",
           "Triv*",
-          "t*",
           "attachment-get",
           "attachment-consume",
           "Triv?",
-          "t?",
           "attachment-set",
           "continuation-get",
           "continuation-set",
@@ -164795,7 +164646,6 @@
           "profile"
         ],
         "build-tail-call@4401": [
-          "info",
           "null?",
           "reg*",
           "get-arg-regs",
@@ -164812,7 +164662,6 @@
           "make-local-label",
           "store-cp?",
           "build-nontail-call-for-tail-call-with-consumers",
-          "newframe-info",
           "safe-assert",
           "remove-frame",
           "restore-local-saves",
@@ -164837,7 +164686,6 @@
           "compatible-var-types?",
           "module",
           "restore-scheme-state",
-          "x",
           "base-in",
           "_",
           "in",
@@ -164845,7 +164693,6 @@
           "datum",
           "inreg",
           "outreg",
-          "x*",
           "null?",
           "remove*",
           "cdr",
@@ -164865,10 +164712,8 @@
           "reg-tc-disp",
           "reg-type",
           "fold-left",
-          "body",
           "save?",
           "nop",
-          "reg*",
           "fx=",
           "vector-length",
           "vector-ref",
@@ -164891,11 +164736,11 @@
           "define-pass",
           "ir",
           "definitions",
+          "x*",
           "identifier?",
           "map",
           "dynamic-wind",
           "for-each",
-          "id",
           "prelex-name",
           "uvar?",
           "sorry!",
@@ -164917,7 +164762,6 @@
           "foreign",
           "fcallable",
           "seq",
-          "e*",
           "fold-right",
           "nanopass-case",
           "L1",
@@ -164928,11 +164772,9 @@
           "symbol?",
           "pair?",
           "error",
-          "le",
           "primref-name",
           "info-foreign-name-set!",
           "info-lambda-name-set!",
-          "t",
           "uvar-assigned?",
           "handle-assigned",
           "with-output-language",
@@ -164950,7 +164792,6 @@
           "info-call-check?-set!",
           "profile",
           "pariah",
-          "check?",
           "Producer",
           "make-tmp",
           "mvlet",
@@ -164964,10 +164805,8 @@
           "uvar-loop!",
           "label",
           "attachment-set",
-          "mode",
           "non",
           "tail",
-          "info",
           "info-call-src",
           "info-call-sexpr",
           "info-call-check?",
@@ -164980,13 +164819,13 @@
           "info-call->consumer-shifting-info-call",
           "closures",
           "reverse",
+          "le",
           "with-offsets",
           "make-clinfo",
           "clinfo-fv*",
           "record-ref!",
           "uvar-location-set!",
           "find-matching-clause",
-          "dcl",
           "direct-call-label-referenced-set!",
           "np-lift-well-known-closures",
           "var-index-set!",
@@ -164997,12 +164836,9 @@
           "outer?",
           "lifted?",
           "n",
-          "cle",
           "L6",
-          "ls",
           "make-eq-hashtable",
           "eq-hashtable-set!",
-          "us",
           "eq-hashtable-contains?",
           "uvar-set-ht",
           "void",
@@ -165031,7 +164867,6 @@
           "cons",
           "fx+",
           "for-each",
-          "v",
           "binding-done",
           "binding-root",
           "fxmin",
@@ -165047,10 +164882,8 @@
           "ir",
           "closures",
           "map",
-          "b",
           "binding-link*-set!",
           "fold-left",
-          "link*",
           "uvar-location",
           "binding?",
           "binding-x*",
@@ -165068,7 +164901,6 @@
           "clause",
           "lift-info-le**",
           "info-lambda-lift-barrier?",
-          "cl",
           "LiftedCaseLambdaClause",
           "length",
           "fx<",
@@ -165079,27 +164911,21 @@
           "np-identify-scc",
           "module",
           "np-expand-closures",
-          "l*",
-          "p",
           "nanopass-case",
           "L7",
           "info-lambda-seqno",
           "sort",
-          "x",
           "seqno",
           "values",
           "define-pass",
           "definitions",
           "_",
           "with-output-language",
-          "free*",
           "constant",
           "with-uvar-location",
           "create-bindings",
           "build-free-ref",
-          "c*",
           "fold-right",
-          "c",
           "fcallable",
           "labels",
           "add-original-closures!",
@@ -165112,19 +164938,13 @@
           "fxsll",
           "fxsra",
           "closure",
-          "counter",
           "literal",
           "make-info-literal",
-          "e",
           "uvar-was-closure-ref?",
-          "free**",
-          "cnt",
           "not",
           "uvar-was-closure-ref!",
           "track-static-closure-counts",
-          "ci",
           "static-closure-info-raw-closure-count-set!",
-          "count",
           "static-closure-info-raw-free-var-count-set!",
           "static-closure-info-raw-free-var-count",
           "static-closure-info-raw-closure-count",
@@ -165151,23 +164971,18 @@
           "static-closure-info-nwk-empty-count-set!",
           "static-closure-info-nwk-empty-count",
           "new",
-          "l",
           "info-lambda-well-known?",
           "uvar-info-lambda",
           "name",
-          "wk?",
           "binding-l",
           "make-bank",
           "var-index",
           "sort-free",
           "closure-name",
-          "name*",
           "filter",
-          "a",
           "memq",
           "assoc",
           "with-offsets",
-          "x*",
           "var-index-set!",
           "identifier?",
           "set-offsets!",
@@ -165201,57 +165016,46 @@
           "closure-sibling*",
           "closure-type-set!",
           "borrow",
-          "mc",
           "closure-borrowed-name-set!",
           "deposit",
           "add-final-closures!",
-          "body",
           "L6",
-          "le",
           "with-was-closure-ref",
           "create-inits",
           "add-raw-counters",
           "with-raw-closure-ref-counter",
-          "frob",
           "define-",
-          "info1",
           "build-fixnum?",
           "primref-name"
         ],
         "conflict-bit-count@8702": [
-          "cset",
           "tree-bit-count",
           "cset-tree",
           "cset-size"
         ],
         "conflict-bit-set@8688": [
-          "cset",
           "cset-tree-set!",
           "tree-bit-set",
           "cset-tree",
           "cset-size"
         ],
         "conflict-bit-set@8698": [
-          "cset",
           "tree-bit-set?",
           "cset-tree",
           "cset-size"
         ],
         "conflict-bit-unset@8693": [
-          "cset",
           "cset-tree-set!",
           "tree-bit-unset",
           "cset-tree",
           "cset-size"
         ],
         "conflict-fv@9189": [
-          "x",
           "var-spillable-conflict*",
           "conflict-bit-set?",
           "var-index"
         ],
         "cool@9271": [
-          "base",
           "null?",
           "not",
           "car",
@@ -165263,8 +165067,6 @@
           "loop",
           "cdr",
           "fx+",
-          "cnfv*",
-          "nfv*",
           "fxmax",
           "uvar-type",
           "safe-assert",
@@ -165277,15 +165079,12 @@
           "cool?",
           "andmap",
           "for-each",
-          "index*",
           "fx>",
           "fixnum-width",
           "fold-left",
-          "m",
           "fxdiv",
           "fx-",
           "make-fxvector",
-          "index",
           "i",
           "fxdiv-and-mod",
           "fxvector-set!",
@@ -165298,7 +165097,6 @@
           "bitwise-arithmetic-shift-left",
           "f",
           "fx*",
-          "live*",
           "build-mask",
           "cons-fv",
           "fv-offset",
@@ -165316,44 +165114,35 @@
           "info-newframe-nfv**",
           "info-newframe-local-save*-set!",
           "filter",
-          "x",
           "uvar?",
           "uvar-local-save?",
-          "src",
           "info-lambda-ctci",
-          "ctci",
-          "i*",
           "uvar-iii",
           "vector-ref",
           "ctci-live",
           "logbit?"
         ],
         "cset-copy@8710": [
-          "cset",
           "make-cset",
           "cset-size",
           "cset-tree"
         ],
         "cset-for-each@8714": [
-          "cset",
           "tree-for-each",
           "cset-tree",
           "cset-size"
         ],
         "cset-full@8684": [
-          "cset",
           "eq?",
           "cset-tree"
         ],
         "cset-merge@8706": [
-          "cset1",
           "cset-tree-set!",
           "tree-merge",
           "cset-tree",
           "cset-size"
         ],
         "divide-flow@7396": [
-          "flow",
           "safe-assert",
           "fx>",
           "fx=",
@@ -165388,13 +165177,10 @@
           "cdr",
           "module",
           "make-do",
-          "enter",
-          "ret-loc",
           "nop",
           "with-saved-scheme-state",
           "in",
           "out",
-          "e",
           "asm-enter",
           "check-live",
           "inline",
@@ -165407,12 +165193,10 @@
           "make-info-condition-code",
           "sorry!",
           "asm-return",
-          "name",
           "literal",
           "make-info-literal"
         ],
         "do-link@7300": [
-          "from",
           "make-link",
           "block-in-link*-set!",
           "cons",
@@ -165436,7 +165220,6 @@
           "newframe-block-next-set!",
           "newframe-block-next",
           "map",
-          "rp",
           "newframe-block-rp*",
           "newframe-block-rp",
           "start-block-link*-set!",
@@ -165447,12 +165230,9 @@
           "sorry!"
         ],
         "do-live-analysis@8735": [
-          "live-size",
           "make-add-var",
           "make-remove-var",
           "define-who",
-          "block",
-          "out",
           "nanopass-case",
           "L15a",
           "mref",
@@ -165534,19 +165314,14 @@
           "newframe-block-live-rp",
           "newframe-block-live-call",
           "newframe-block-live-rp-set!",
-          "live*",
           "cons*",
           "reg-cons*",
           "info-newframe-cnfv*",
           "info-newframe-nfv**",
           "get-ret-fv",
           "newframe-block-live-call-set!",
-          "live",
           "newframe-block-live-out",
           "newframe-block-live-out-set!",
-          "entry-block",
-          "name",
-          "x",
           "fv?",
           "meta-cond",
           "real-register?",
@@ -165556,7 +165331,6 @@
           "printf"
         ],
         "extract-conflicts@8718": [
-          "cset",
           "tree-extract",
           "cset-tree",
           "cset-size"
@@ -165592,28 +165366,21 @@
           "make-funcrel",
           "adjust-return-point-offset",
           "Triv",
-          "base",
           "nanopass-case",
           "L16",
           "immediate",
           "index",
-          "x*",
           "fold-left",
-          "size",
           "_",
           "x",
           "Triv->rand",
           "cons*",
-          "i*",
-          "mask",
           "logor",
           "ash",
-          "offset",
           "return-point-label?",
           "return-point-label-compact?",
           "fx-",
           "constant",
-          "code*",
           "aop-cons*",
           "abs",
           "library-code",
@@ -165631,33 +165398,25 @@
           "module",
           "np-allocate-registers",
           "define-threaded",
-          "live1",
           "tree-merge",
           "tree-same?",
-          "live*",
           "tree-bit-set?",
           "var-index",
           "tree-extract",
-          "live-size",
           "tree-bit-set",
           "not",
           "tree-bit-unset",
           "make-empty-cset",
           "make-cset",
-          "cset",
           "cset-tree",
           "cset-tree-set!",
           "cset-size",
           "tree-bit-count",
-          "cset1",
           "tree-for-each",
-          "n",
           "fxodd?",
           "make-add-var",
           "make-remove-var",
           "define-who",
-          "block",
-          "out",
           "L15a",
           "mref",
           "add-var",
@@ -165732,11 +165491,8 @@
           "info-newframe-nfv**",
           "get-ret-fv",
           "newframe-block-live-call-set!",
-          "live",
           "newframe-block-live-out",
           "newframe-block-live-out-set!",
-          "entry-block",
-          "name",
           "fv?",
           "meta-cond",
           "real-register?",
@@ -165744,7 +165500,6 @@
           "remp",
           "get-live-vars",
           "printf",
-          "block*",
           "vector-length",
           "fixnum?",
           "most-positive-fixnum",
@@ -165756,13 +165511,11 @@
           "uvar-save-weight",
           "info-newframe-weight",
           "info-newframe-call-live*-set!",
-          "x1",
           "uvar-poison?",
           "uvar-move*-set!",
           "call-with-values",
           "uvar-move*",
           "move2",
-          "kspillable",
           "vector-ref",
           "uvar-live-count",
           "fx=",
@@ -165777,13 +165530,10 @@
           "refine",
           "fxsrl",
           "fx<",
-          "y-offset",
           "conflict-bit-set!",
           "var-spillable-conflict*",
-          "rhs",
           "add-conflict!",
           "void",
-          "e",
           "var?",
           "add-move!",
           "var-spillable-conflict*-set!",
@@ -165797,14 +165547,11 @@
           "iota",
           "newline",
           "assign-frame!",
-          "fv",
           "cset-merge!",
           "cset-copy",
-          "spill*",
           "list-sort",
           "uvar-spilled?",
           "relevant?",
-          "x0",
           "conflict-bit-set?",
           "uvar-seen?",
           "clear-seen!",
@@ -165815,8 +165562,6 @@
           "succ",
           "try-fv",
           "uvar-location",
-          "spill",
-          "home",
           "compatible-fv?",
           "uvar-type",
           "uvar-location-set!",
@@ -165834,14 +165579,9 @@
           "define-pass",
           "ir",
           "L15b",
-          "definitions",
-          "call-live*",
-          "call-max-fv",
-          "cnfv*",
-          "nfv*"
+          "definitions"
         ],
         "extract-uvar@694": [
-          "id",
           "prelex-name",
           "uvar?",
           "sorry!",
@@ -165863,7 +165603,6 @@
           "foreign",
           "fcallable",
           "seq",
-          "e*",
           "fold-right",
           "nanopass-case",
           "L1",
@@ -165872,7 +165611,6 @@
           "build-seq*",
           "define-pass",
           "definitions",
-          "x",
           "uvar-name",
           "string?",
           "symbol?",
@@ -165882,15 +165620,12 @@
           "eq?",
           "error",
           "map",
-          "le",
           "primref-name",
           "info-foreign-name-set!",
           "info-lambda-name",
           "info-lambda-name-set!",
-          "t",
           "uvar-assigned?",
           "handle-assigned",
-          "x*",
           "null?",
           "with-output-language",
           "L4",
@@ -165908,7 +165643,6 @@
           "info-call-check?-set!",
           "profile",
           "pariah",
-          "check?",
           "Producer",
           "k",
           "make-tmp",
@@ -165927,10 +165661,8 @@
           "uvar-loop!",
           "label",
           "attachment-set",
-          "mode",
           "non",
           "tail",
-          "info",
           "info-call-src",
           "info-call-sexpr",
           "info-call-check?",
@@ -165943,13 +165675,13 @@
           "info-call->consumer-shifting-info-call",
           "closures",
           "reverse",
+          "le",
           "with-offsets",
           "make-clinfo",
           "clinfo-fv*",
           "record-ref!",
           "uvar-location-set!",
           "find-matching-clause",
-          "dcl",
           "direct-call-label-referenced-set!",
           "module",
           "np-lift-well-known-closures",
@@ -165962,12 +165694,9 @@
           "outer?",
           "lifted?",
           "n",
-          "cle",
           "L6",
-          "ls",
           "make-eq-hashtable",
           "eq-hashtable-set!",
-          "us",
           "eq-hashtable-contains?",
           "uvar-set-ht",
           "void",
@@ -165993,7 +165722,6 @@
           "recur",
           "identifier?",
           "with-implicit",
-          "le-info",
           "make-lift-info",
           "fx+",
           "le-info-cle",
@@ -166003,16 +165731,11 @@
           "append",
           "le-info-fv*",
           "make-uvar-set",
-          "fv",
           "find-extra-arg*",
-          "xe*",
           "le-info-x",
-          "le-info*",
-          "x+e*",
           "info-lambda-well-known?-set!",
           "new-le",
           "info-lambda-interface*-set!",
-          "x+extra-arg*",
           "list",
           "new-lift-info",
           "lift*",
@@ -166026,7 +165749,6 @@
           "arg-info"
         ],
         "find-homes@9250": [
-          "spill*",
           "null?",
           "max-fv",
           "find-home!",
@@ -166035,7 +165757,6 @@
           "cdr"
         ],
         "find-matching-clause@735": [
-          "len",
           "null?",
           "kfail",
           "car",
@@ -166049,17 +165770,13 @@
           "kfixed"
         ],
         "find-max-fv@9265": [
-          "call-live*",
           "fold-left",
-          "call-max-fv",
           "fxmax",
           "fv-offset",
           "uvar?",
           "uvar-location"
         ],
         "find-move-related-home@9187": [
-          "x0",
-          "x",
           "var-spillable-conflict*",
           "conflict-bit-set?",
           "var-index",
@@ -166073,7 +165790,6 @@
           "uvar-seen!",
           "uvar-move*",
           "caar",
-          "fv",
           "conflict-fv?",
           "loop",
           "safe-assert",
@@ -166086,8 +165802,6 @@
           "uvar?",
           "uvar-location",
           "cons",
-          "spill",
-          "home",
           "compatible-fv?",
           "uvar-type",
           "uvar-location-set!",
@@ -166100,7 +165814,6 @@
           "fxmax"
         ],
         "finish-call@4123": [
-          "argcnt?",
           "safe-assert",
           "not",
           "eq?",
@@ -166109,23 +165822,19 @@
           "meta-cond",
           "real-register?",
           "cons",
-          "e",
           "jump",
           "goto",
           "var?",
           "_",
           "seq",
-          "reg",
           "info-call-check?",
           "label-ref"
         ],
         "fixnum@8978": [
-          "x",
           "fixnum?",
           "most-positive-fixnum"
         ],
         "flatten-clauses@3870": [
-          "info",
           "maybe-drop-trap-check",
           "nanopass-case",
           "L11",
@@ -166150,7 +165859,6 @@
           "immediate"
         ],
         "flatten-mvclauses@3930": [
-          "x**",
           "with-output-language",
           "L12",
           "null?",
@@ -166165,14 +165873,12 @@
           "immediate"
         ],
         "force-live-in@8836": [
-          "block",
           "eq?",
           "block-live-in",
           "block-seen?",
           "block-live-in-set!",
           "block-seen!",
           "do-live!",
-          "out",
           "not",
           "same-live?"
         ],
@@ -166188,10 +165894,8 @@
           "eq?",
           "uvar-type",
           "mref",
-          "x*",
           "fold-right",
           "with-output-language",
-          "x",
           "values",
           "seq",
           "call",
@@ -166225,11 +165929,9 @@
           "car",
           "cdr",
           "Triv*",
-          "t*",
           "attachment-get",
           "attachment-consume",
           "Triv?",
-          "t?",
           "attachment-set",
           "continuation-get",
           "continuation-set",
@@ -166256,7 +165958,6 @@
           "eq?",
           "uvar-type",
           "mref",
-          "lvalue",
           "with-output-language",
           "L11",
           "pred-primitive?",
@@ -166312,7 +166013,6 @@
           "cdr"
         ],
         "get-arg-regs@4047": [
-          "t*",
           "null?",
           "values",
           "car",
@@ -166343,14 +166043,12 @@
           "fv-type"
         ],
         "get-live-vars@8645": [
-          "live*",
           "tree-extract"
         ],
         "get-ret-fv@544": [
           "get-ptr-fv"
         ],
         "handle-do-rest@4820": [
-          "fixed-args",
           "with-output-language",
           "L13",
           "arg",
@@ -166372,11 +166070,9 @@
           "vector-ref",
           "asm-return",
           "intrinsic-return-live*",
-          "n",
           "length",
           "fx<=",
           "list-ref",
-          "interface",
           "immediate",
           "meta-cond",
           "real-register?",
@@ -166401,9 +166097,7 @@
           "goto"
         ],
         "increment-live-counts@9015": [
-          "live",
           "tree-for-each",
-          "offset",
           "vector-ref",
           "fx+",
           "uvar-live-count",
@@ -166412,12 +166106,10 @@
           "uvar-live-count-set!"
         ],
         "insert-procedure-check@4173": [
-          "reg",
           "info-call-check?",
           "label-ref"
         ],
         "insert-procedure-check@957": [
-          "check?",
           "with-output-language",
           "L4",
           "call",
@@ -166445,7 +166137,6 @@
           "length",
           "info-foreign-arg-type*",
           "map",
-          "x",
           "make-info-lambda",
           "loop",
           "for-each",
@@ -166454,10 +166145,8 @@
           "profile",
           "pariah",
           "attachment-set",
-          "mode",
           "non",
           "tail",
-          "info",
           "info-call-src",
           "info-call-sexpr",
           "info-call-check?",
@@ -166487,7 +166176,6 @@
           "uvar-location-set!",
           "find-matching-clause",
           "uvar-info-lambda",
-          "dcl",
           "direct-call-label-referenced-set!",
           "module",
           "np-lift-well-known-closures",
@@ -166500,12 +166188,9 @@
           "outer?",
           "lifted?",
           "n",
-          "cle",
           "L6",
-          "ls",
           "make-eq-hashtable",
           "eq-hashtable-set!",
-          "us",
           "eq-hashtable-contains?",
           "uvar-set-ht",
           "void",
@@ -166513,15 +166198,14 @@
           "uvar-set-add!",
           "uvar-set-ls-set!",
           "uvar-set-ls",
-          "proc",
           "values",
+          "proc",
           "a",
           "fx=",
           "bitwise-and",
           "info-lambda-flags",
           "constant",
           "definitions",
-          "x*",
           "partition3",
           "info-lambda-well-known?",
           "cle-info",
@@ -166537,7 +166221,6 @@
           "recur",
           "identifier?",
           "with-implicit",
-          "le-info",
           "make-lift-info",
           "fx+",
           "le-info-cle",
@@ -166547,16 +166230,11 @@
           "append",
           "le-info-fv*",
           "make-uvar-set",
-          "fv",
           "find-extra-arg*",
-          "xe*",
           "le-info-x",
-          "le-info*",
-          "x+e*",
           "info-lambda-well-known?-set!",
           "new-le",
           "info-lambda-interface*-set!",
-          "x+extra-arg*",
           "list",
           "new-lift-info",
           "lift*",
@@ -166572,15 +166250,12 @@
           "make-cpvar",
           "LiftedCaseLambdaExpr",
           "info-lambda-lift-barrier?",
-          "cl",
           "closure-name",
           "fx*",
           "closure-free*",
           "label-ref",
           "closure-label",
-          "c*",
           "fold-right",
-          "c",
           "build-free-ref",
           "info-lambda-fv*-set!",
           "info-lambda-closure-rep-set!",
@@ -166604,23 +166279,19 @@
           "closure"
         ],
         "live@8641": [
-          "live*",
           "tree-bit-set?",
           "var-index"
         ],
         "loc@10455": [
-          "x",
           "uvar?",
           "uvar-location",
           "sorry!"
         ],
         "low-degree@10317": [
-          "x",
           "fx<",
           "uvar-degree",
           "eq?",
           "uvar-type",
-          "x*",
           "cdr",
           "car",
           "null?",
@@ -166630,15 +166301,12 @@
           "f",
           "values",
           "remq",
-          "victim",
           "cset-for-each",
           "var-spillable-conflict*",
-          "offset",
           "vector-ref",
           "uvar-degree-set!",
           "fx-",
           "var-unspillable-conflict*",
-          "victim*",
           "map",
           "list-sort",
           "reg?",
@@ -166649,7 +166317,9 @@
           "relevant?",
           "fx+",
           "cons",
+          "victim*",
           "partition",
+          "victim",
           "pick-potential-spill",
           "remove-victim!",
           "list",
@@ -166661,7 +166331,6 @@
           "pick-victims",
           "safe-assert",
           "andmap",
-          "info",
           "get-name",
           "unannotate",
           "uvar-source",
@@ -166674,10 +166343,8 @@
           "vector",
           "list->vector",
           "info-lambda-ctci",
-          "ctci",
           "ctci-live-set!",
           "make-vector",
-          "source",
           "singleton",
           "uvar-iii-set!",
           "vector-set!",
@@ -166693,7 +166360,6 @@
           "fpmem",
           "ur",
           "fpur",
-          "fmt",
           "op",
           "c",
           "a",
@@ -166723,8 +166389,6 @@
           "not"
         ],
         "make-add-var@8649": [
-          "live-size",
-          "live*",
           "var-index",
           "tree-bit-set",
           "safe-assert",
@@ -166733,7 +166397,6 @@
           "tree-same?"
         ],
         "make-arg-opnd@5717": [
-          "n",
           "length",
           "fx<=",
           "list-ref",
@@ -166744,19 +166407,15 @@
           "constant"
         ],
         "make-bank@2226": [
-          "free*",
           "cons",
           "sort-free",
           "closure-name",
-          "name*",
           "filter",
-          "a",
           "memq",
           "cdr",
           "assoc",
           "module",
           "with-offsets",
-          "x*",
           "fx+",
           "null?",
           "var-index-set!",
@@ -166764,11 +166423,9 @@
           "_",
           "identifier?",
           "set-offsets!",
-          "for-each",
-          "x"
+          "for-each"
         ],
         "make-dofretuns@6087": [
-          "name",
           "with-output-language",
           "L13",
           "make-info",
@@ -166790,11 +166447,9 @@
           "goto"
         ],
         "make-empty-cset@8676": [
-          "size",
           "make-cset"
         ],
         "make-full-cset@8680": [
-          "size",
           "make-cset"
         ],
         "make-info@5712": [
@@ -166802,7 +166457,6 @@
           "make-info-lambda"
         ],
         "make-op@7594": [
-          "plus",
           "null?",
           "fx=",
           "length",
@@ -166810,8 +166464,6 @@
           "cons"
         ],
         "make-remove-var@8660": [
-          "live-size",
-          "live*",
           "var-index",
           "tree-bit-unset",
           "safe-assert",
@@ -166820,7 +166472,6 @@
           "tree-same?"
         ],
         "make-tmp@3291": [
-          "x",
           "mktmp",
           "only",
           "cons",
@@ -166833,7 +166484,6 @@
           "x",
           "only",
           "cons",
-          "info",
           "make-info-call",
           "info-call-src",
           "info-call-sexpr",
@@ -166866,31 +166516,25 @@
           "goto"
         ],
         "make-tmp@3676": [
-          "x",
           "only",
           "cons"
         ],
         "make-tmp@6736": [
-          "x",
           "only",
           "cons"
         ],
         "make-tmps@1005": [
-          "n",
           "fx<",
           "fx-",
           "fx="
         ],
         "mask@8551": [
-          "i*",
           "fold-left",
           "logor",
           "ash"
         ],
         "maybe-add-counter@7540": [
-          "new*",
           "link-counter",
-          "counter",
           "link-from",
           "link-to",
           "fx=",
@@ -166937,7 +166581,6 @@
           "not",
           "info-lambda-libspec",
           "andmap",
-          "cl",
           "direct-call-label-referenced",
           "nanopass-case",
           "L11",
@@ -166981,28 +166624,19 @@
           "label-ref",
           "literal",
           "symref?",
-          "sym",
           "make-info-literal",
           "libref?",
-          "libspec",
-          "tlbody",
           "libspec-closure?",
           "normal-call",
-          "tc",
           "build-call",
-          "mrvl",
           "null?",
           "car",
           "label",
-          "t",
-          "info",
           "reg*",
           "get-arg-regs",
           "fold-left",
-          "ls",
           "make-tmp",
           "fold-right",
-          "x",
           "store-cp?",
           "map",
           "make-return-point-label",
@@ -167011,17 +166645,13 @@
           "info-call-sexpr",
           "reverse",
           "remq",
-          "rpl",
           "tail",
           "return-point",
-          "loc*",
-          "loc",
           "prepare-for-consumer-call",
           "build-return-point",
           "make-local-label",
           "cdr",
           "build-consumer-call",
-          "e",
           "info-call-pariah?",
           "set-locs",
           "new-frame",
@@ -167039,7 +166669,6 @@
           "fxmax",
           "get-ptr-fv",
           "build-nontail-call-for-tail-call-with-consumers",
-          "newframe-info",
           "remove-frame",
           "restore-local-saves",
           "build-shift-args",
@@ -167050,13 +166679,10 @@
           "with-implicit",
           "uvar-referenced!",
           "build-foreign-call",
-          "type",
-          "width",
           "fx>=",
           "build-unfix",
           "toC",
           "build-fix",
-          "big",
           "e1",
           "fx>",
           "alloc-fptr",
@@ -167081,7 +166707,6 @@
           "info-foreign-arg-type*",
           "info-foreign-result-type",
           "info-foreign-unboxed?",
-          "reg",
           "reg-callee-save?",
           "allocate",
           "asm-foreign-call",
@@ -167096,12 +166721,10 @@
           "make-info-c-simple-call",
           "Scheme->C-for-result",
           "c-return",
-          "fixed-args",
           "arg",
           "values"
         ],
         "maybe-build-op@7602": [
-          "link",
           "eq?",
           "cons",
           "build-op"
@@ -167135,7 +166758,6 @@
           "cons"
         ],
         "path-compress@10697": [
-          "b",
           "block-repeater?",
           "goto-block-next",
           "goto-block?",
@@ -167146,8 +166768,6 @@
           "goto-block-next-set!"
         ],
         "pick-victims@10315": [
-          "x*",
-          "x",
           "fx<",
           "uvar-degree",
           "eq?",
@@ -167161,15 +166781,12 @@
           "f",
           "values",
           "remq",
-          "victim",
           "cset-for-each",
           "var-spillable-conflict*",
-          "offset",
           "vector-ref",
           "uvar-degree-set!",
           "fx-",
           "var-unspillable-conflict*",
-          "victim*",
           "map",
           "list-sort",
           "reg?",
@@ -167180,7 +166797,9 @@
           "relevant?",
           "fx+",
           "cons",
+          "victim*",
           "partition",
+          "victim",
           "pick-potential-spill",
           "remove-victim!",
           "list",
@@ -167191,7 +166810,6 @@
           "compute-degrees!",
           "safe-assert",
           "andmap",
-          "info",
           "get-name",
           "unannotate",
           "uvar-source",
@@ -167204,10 +166822,8 @@
           "vector",
           "list->vector",
           "info-lambda-ctci",
-          "ctci",
           "ctci-live-set!",
           "make-vector",
-          "source",
           "singleton",
           "uvar-iii-set!",
           "vector-set!",
@@ -167218,7 +166834,6 @@
           "box"
         ],
         "prepare-for-consumer-call@4250": [
-          "mrvl",
           "with-output-language",
           "L13",
           "null?",
@@ -167228,7 +166843,6 @@
           "label"
         ],
         "propagate-live@8853": [
-          "block",
           "scan-block",
           "different?",
           "block-live-in",
@@ -167243,7 +166857,6 @@
           "do-live!"
         ],
         "ptr@4597": [
-          "width",
           "fx>=",
           "constant",
           "build-fix",
@@ -167271,13 +166884,9 @@
           "deallocate",
           "fp-ftd",
           "C->Scheme",
-          "info",
-          "loc*",
           "fold-right",
-          "loc",
           "set-locs",
           "map",
-          "reg",
           "reg-tc-disp",
           "save-scheme-state",
           "in",
@@ -167289,13 +166898,11 @@
           "c-return"
         ],
         "relevant@9177": [
-          "x",
           "fv?",
           "uvar?",
           "uvar-spilled?"
         ],
         "remove@563": [
-          "x*",
           "null?",
           "remove*",
           "cdr",
@@ -167303,7 +166910,6 @@
           "car"
         ],
         "resolve@10708": [
-          "b",
           "block-repeater?",
           "goto-block-next"
         ],
@@ -167314,7 +166920,6 @@
           "goto-block-next"
         ],
         "return@1162": [
-          "mode",
           "non",
           "with-output-language",
           "L4",
@@ -167331,7 +166936,6 @@
           "tail"
         ],
         "rhs-inline@3686": [
-          "lvalue",
           "with-output-language",
           "L11",
           "pred-primitive?",
@@ -167385,11 +166989,9 @@
           "length"
         ],
         "same-live@8637": [
-          "live1",
           "tree-same?"
         ],
         "seqs-and-profiles@754": [
-          "e",
           "nanopass-case",
           "L1",
           "profile",
@@ -167397,14 +166999,11 @@
           "seqs-and-profiles?"
         ],
         "set-cp@4229": [
-          "tlbody",
           "libspec-closure?",
           "literal",
           "make-info-literal",
           "normal-call",
-          "tc",
           "build-call",
-          "mrvl",
           "with-output-language",
           "L13",
           "null?",
@@ -167412,18 +167011,14 @@
           "car",
           "immediate",
           "label",
-          "t",
           "nanopass-case",
           "L12",
-          "info",
           "reg*",
           "get-arg-regs",
           "fold-left",
-          "ls",
           "cons",
           "make-tmp",
           "fold-right",
-          "x",
           "store-cp?",
           "map",
           "make-return-point-label",
@@ -167432,11 +167027,8 @@
           "info-call-sexpr",
           "reverse",
           "remq",
-          "rpl",
           "tail",
           "return-point",
-          "loc*",
-          "loc",
           "seq",
           "prepare-for-consumer-call",
           "build-return-point",
@@ -167444,7 +167036,6 @@
           "cdr",
           "build-consumer-call",
           "Triv",
-          "e",
           "info-call-pariah?",
           "pariah",
           "set-locs",
@@ -167467,7 +167058,6 @@
           "fx+",
           "get-ptr-fv",
           "build-nontail-call-for-tail-call-with-consumers",
-          "newframe-info",
           "safe-assert",
           "remove-frame",
           "restore-local-saves",
@@ -167483,19 +167073,15 @@
           "jump",
           "uvar-referenced!",
           "build-foreign-call",
-          "type",
-          "width",
           "fx>=",
           "constant",
           "build-unfix",
           "toC",
           "not",
           "build-fix",
-          "big",
           "e1"
         ],
         "set-formal-registers@4039": [
-          "x*",
           "null?",
           "uvar-location-set!",
           "car",
@@ -167503,8 +167089,6 @@
           "cdr"
         ],
         "set-home@10296": [
-          "home",
-          "reg",
           "cset-merge!",
           "var-spillable-conflict*",
           "var-unspillable-conflict*",
@@ -167512,9 +167096,7 @@
           "update-conflict!"
         ],
         "set-locs@4277": [
-          "loc*",
           "fold-right",
-          "loc",
           "seq",
           "prepare-for-consumer-call",
           "null?",
@@ -167527,9 +167109,7 @@
           "Triv"
         ],
         "set-locs@4374": [
-          "loc*",
           "fold-right",
-          "loc",
           "fv?",
           "uvar?",
           "eq?",
@@ -167541,7 +167121,6 @@
           "label",
           "shift-arg",
           "goto",
-          "info",
           "null?",
           "reg*",
           "get-arg-regs",
@@ -167557,7 +167136,6 @@
           "make-local-label",
           "store-cp?",
           "build-nontail-call-for-tail-call-with-consumers",
-          "newframe-info",
           "safe-assert",
           "remove-frame",
           "restore-local-saves",
@@ -167572,7 +167150,6 @@
           "get-ret-fv"
         ],
         "set-offsets@1363": [
-          "x*",
           "cdr",
           "fx+",
           "null?",
@@ -167580,17 +167157,13 @@
           "car"
         ],
         "sort-free@2223": [
-          "free*",
           "sort",
-          "x",
           "fx<",
           "var-index"
         ],
         "sort-spill@9168": [
-          "spill*",
           "map",
           "list-sort",
-          "x",
           "fx>",
           "cdr",
           "fv?",
@@ -167604,30 +167177,24 @@
           "cons"
         ],
         "stack-align@8724": [
-          "n",
           "constant-case",
           "fxodd?",
           "fx+"
         ],
         "stack-aligned-first-argument@8729": [
-          "n",
           "constant-case",
           "fxodd?"
         ],
         "store-cp@4260": [
-          "t",
           "nanopass-case",
           "L12",
           "literal"
         ],
         "sum-link-weights@7354": [
-          "links",
           "fold-left",
-          "n",
           "link-weight"
         ],
         "symref@4056": [
-          "info",
           "info-literal-indirect?",
           "eq?",
           "info-literal-type",
@@ -167644,7 +167211,6 @@
           "cons",
           "fx+",
           "for-each",
-          "v",
           "binding-done",
           "binding-root",
           "fxmin",
@@ -167661,10 +167227,8 @@
           "ir",
           "closures",
           "map",
-          "b",
           "binding-link*-set!",
           "fold-left",
-          "link*",
           "uvar-location",
           "binding?",
           "binding-x*",
@@ -167682,7 +167246,6 @@
           "clause",
           "lift-info-le**",
           "info-lambda-lift-barrier?",
-          "cl",
           "LiftedCaseLambdaClause",
           "length",
           "fx<",
@@ -167693,27 +167256,21 @@
           "np-identify-scc",
           "module",
           "np-expand-closures",
-          "l*",
-          "p",
           "nanopass-case",
           "L7",
           "info-lambda-seqno",
           "sort",
-          "x",
           "seqno",
           "values",
           "define-pass",
           "definitions",
           "_",
           "with-output-language",
-          "free*",
           "constant",
           "with-uvar-location",
           "create-bindings",
           "build-free-ref",
-          "c*",
           "fold-right",
-          "c",
           "fcallable",
           "labels",
           "add-original-closures!",
@@ -167726,19 +167283,13 @@
           "fxsll",
           "fxsra",
           "closure",
-          "counter",
           "literal",
           "make-info-literal",
-          "e",
           "uvar-was-closure-ref?",
-          "free**",
-          "cnt",
           "not",
           "uvar-was-closure-ref!",
           "track-static-closure-counts",
-          "ci",
           "static-closure-info-raw-closure-count-set!",
-          "count",
           "static-closure-info-raw-free-var-count-set!",
           "static-closure-info-raw-free-var-count",
           "static-closure-info-raw-closure-count",
@@ -167765,23 +167316,18 @@
           "static-closure-info-nwk-empty-count-set!",
           "static-closure-info-nwk-empty-count",
           "new",
-          "l",
           "info-lambda-well-known?",
           "uvar-info-lambda",
           "name",
-          "wk?",
           "binding-l",
           "make-bank",
           "var-index",
           "sort-free",
           "closure-name",
-          "name*",
           "filter",
-          "a",
           "memq",
           "assoc",
           "with-offsets",
-          "x*",
           "var-index-set!",
           "identifier?",
           "set-offsets!",
@@ -167815,25 +167361,19 @@
           "closure-sibling*",
           "closure-type-set!",
           "borrow",
-          "mc",
           "closure-borrowed-name-set!",
           "deposit",
           "add-final-closures!",
-          "body",
           "L6",
-          "le",
           "with-was-closure-ref",
           "create-inits",
           "add-raw-counters",
           "with-raw-closure-ref-counter",
-          "frob",
           "define-",
-          "info1",
           "build-fixnum?",
           "primref-name"
         ],
         "tree-extract@294": [
-          "st",
           "fixnum?",
           "fxsrl",
           "fx+",
@@ -167869,7 +167409,6 @@
           "tree-bit-unset",
           "fxbit-count",
           "tree-bit-count",
-          "st1",
           "tree-node?",
           "tree-same?",
           "safe-assert",
@@ -167882,24 +167421,20 @@
           "compatible-var-types?"
         ],
         "try-reg@10283": [
-          "reg",
           "conflict?",
           "loop",
           "clear-seen!",
           "succ"
         ],
         "union-live@8632": [
-          "live1",
           "tree-merge"
         ],
         "update-conflict@10298": [
-          "reg",
           "cset-merge!",
           "var-spillable-conflict*",
           "var-unspillable-conflict*"
         ],
         "update-conflict@9154": [
-          "fv",
           "var-spillable-conflict*",
           "cset-merge!",
           "var-spillable-conflict*-set!",
@@ -167907,13 +167442,11 @@
           "uvar-poison?"
         ],
         "uvar-weight@10229": [
-          "x",
           "eq?",
           "uvar-type",
           "fx-",
           "uvar-ref-weight",
           "uvar-save-weight",
-          "x*",
           "for-each",
           "uvar-degree-set!",
           "fx+",
@@ -167921,9 +167454,7 @@
           "var-spillable-conflict*",
           "var-unspillable-conflict*",
           "vector-for-each",
-          "reg",
           "cset-for-each",
-          "x-offset",
           "vector-ref",
           "uvar-location",
           "uvar-degree",
@@ -167934,7 +167465,6 @@
           "uvar-unspillable?",
           "conflict-bit-set?",
           "var-index",
-          "x0",
           "uvar-seen?",
           "null?",
           "clear-seen!",
@@ -167954,13 +167484,9 @@
           "cons"
         ],
         "weight-graph@7352": [
-          "start-block",
-          "links",
           "fold-left",
-          "n",
           "link-weight",
           "define-who",
-          "ls",
           "link-to",
           "block-finished?",
           "block-seen?",
@@ -167980,7 +167506,6 @@
           "sorry!",
           "block-finished!",
           "cons",
-          "block",
           "sum-link-weights",
           "block-in-link*",
           "list",
@@ -167990,11 +167515,9 @@
           "null?",
           "pariah*",
           "partition",
-          "link",
           "block-pariah?",
           "divide-flow",
           "length",
-          "flow",
           "fx>",
           "fx=",
           "car",
@@ -168017,10 +167540,8 @@
           "make-block",
           "make-link",
           "most-positive-fixnum",
-          "size",
           "make-vector",
           "fx+",
-          "heap",
           "vector-ref",
           "fx",
           "vector-set!",
@@ -168030,7 +167551,6 @@
           "most-negative-fixnum",
           "fx>=",
           "pqdownheap",
-          "pq",
           "set-car!",
           "eq?",
           "block-effect*",
@@ -168049,7 +167569,6 @@
           "immediate"
         ],
         "wrap-tc@3042": [
-          "overflow?",
           "info-call-error?",
           "eq?",
           "fold-left",
@@ -168060,14 +167579,12 @@
           "call",
           "info-call-pariah?",
           "has-no-headroom-libcall?",
-          "info0",
           "safe-assert",
           "libspec-does-not-expect-headroom?",
           "info-literal-addr",
           "overflow-check"
         ],
         "wrap-tc@3112": [
-          "tcx",
           "eq?",
           "add-trap-check"
         ]
@@ -170565,7 +170082,6 @@
       },
       "scheme/racket/io.ss": {
         "$make-ready-for-output@1236": [
-          "who",
           "eq?",
           "binary-port-input-size",
           "port-input-empty?",
@@ -170588,15 +170104,12 @@
           "fx-"
         ],
         "binary-custom-port-clear-input@799": [
-          "who",
           "set-binary-port-input-size!"
         ],
         "binary-custom-port-clear-output@840": [
-          "who",
           "set-binary-port-output-index!"
         ],
         "binary-custom-port-close-port@844": [
-          "who",
           "close",
           "mark-port-closed!",
           "input-port?",
@@ -170606,7 +170119,6 @@
           "set-binary-port-output-size!"
         ],
         "binary-custom-port-get-some@783": [
-          "who",
           "binary-port-input-count",
           "not",
           "eq?",
@@ -170622,7 +170134,6 @@
           "eof-object"
         ],
         "binary-custom-port-get@770": [
-          "who",
           "not",
           "port-input-empty?",
           "binary-port-input-index",
@@ -170636,7 +170147,6 @@
           "eof-object?"
         ],
         "binary-custom-port-lookahead@747": [
-          "who",
           "not",
           "port-input-empty?",
           "bytevector-u8-ref",
@@ -170649,7 +170159,6 @@
           "set-port-eof!"
         ],
         "binary-custom-port-put-some@815": [
-          "who",
           "fx<=",
           "binary-port-output-count",
           "binary-port-output-index",
@@ -170660,7 +170169,6 @@
           "bv-write!"
         ],
         "binary-custom-port-put@803": [
-          "who",
           "binary-port-output-buffer",
           "binary-port-output-index",
           "bytevector-u8-set!",
@@ -170670,7 +170178,6 @@
           "set-binary-port-output-index!"
         ],
         "binary-custom-port-unget@759": [
-          "who",
           "port-flag-eof-set?",
           "unget-error",
           "eof-object?",
@@ -170682,14 +170189,12 @@
           "fx1-"
         ],
         "binary-file-port-flush@447": [
-          "who",
           "bytevector-flush",
           "binary-port-output-buffer",
           "binary-port-output-index",
           "set-binary-port-output-index!"
         ],
         "binary-file-port-get@493": [
-          "who",
           "not",
           "port-input-empty?",
           "binary-port-input-index",
@@ -170777,20 +170282,17 @@
           "set-textual-port-output-size!"
         ],
         "binary-file-port-port-length@708": [
-          "who",
           "port-gz-mode",
           "fixnum?",
           "bignum?",
           "port-oops"
         ],
         "binary-file-port-port-nonblocking@697": [
-          "who",
           "port-gz-mode",
           "boolean?",
           "port-oops"
         ],
         "binary-file-port-ready@453": [
-          "who",
           "not",
           "port-input-empty?",
           "port-flag-eof-set?",
@@ -170810,7 +170312,6 @@
           "loop"
         ],
         "binary-file-port-set-port-length@714": [
-          "who",
           "integer?",
           "exact?",
           "expt",
@@ -170818,12 +170319,10 @@
           "eq?"
         ],
         "binary-file-port-set-port-nonblocking@703": [
-          "who",
           "port-gz-mode",
           "eq?"
         ],
         "binary-file-port-set-port-position@690": [
-          "who",
           "integer?",
           "exact?",
           "expt",
@@ -170831,7 +170330,6 @@
           "eq?"
         ],
         "binary-file-port-unget@482": [
-          "who",
           "port-flag-eof-set?",
           "unget-error",
           "eof-object?",
@@ -170859,7 +170357,6 @@
           "fx<="
         ],
         "bv-write@737": [
-          "who",
           "eq?",
           "write!",
           "fixnum?",
@@ -170869,7 +170366,6 @@
           "fx-"
         ],
         "bytevector-flush@438": [
-          "who",
           "port-gz-mode",
           "eq?",
           "fixnum?",
@@ -170879,13 +170375,11 @@
           "fx-"
         ],
         "bytevector-write@432": [
-          "who",
           "port-gz-mode",
           "fixnum?",
           "write-oops"
         ],
         "check-option@271": [
-          "who",
           "not",
           "eq?"
         ],
@@ -170909,7 +170403,6 @@
           "decode-oops"
         ],
         "eol-char@215": [
-          "c",
           "memv",
           "_",
           "constant",
@@ -170924,7 +170417,6 @@
           "textual-port-output-buffer",
           "fx-",
           "transcoder",
-          "who",
           "not",
           "eq?",
           "foreign-procedure",
@@ -170935,16 +170427,14 @@
           "clear-open-files",
           "make-weak-eq-hashtable",
           "make-guardian",
-          "p",
           "with-tc-mutex",
           "eq-hashtable-set!",
           "file-guardian",
           "eq-hashtable-contains?",
           "eq-hashtable-delete!",
-          "pvec",
           "vector-for-each",
-          "x",
           "textual-port?",
+          "c",
           "void",
           "close-port",
           "binary-port?",
@@ -171076,7 +170566,6 @@
           "make-enumeration",
           "file-options-list",
           "enum-set-constructor",
-          "mode",
           "memq",
           "none",
           "encode-oops",
@@ -171096,7 +170585,6 @@
           "codec-info-icr-set!",
           "decode-oops",
           "map",
-          "b",
           "eof-object?",
           "format"
         ],
@@ -171113,7 +170601,6 @@
           "fx-"
         ],
         "get-some-maybe-nb@1447": [
-          "who",
           "not",
           "port-handler-ready?",
           "port-handler-get-some",
@@ -171122,7 +170609,6 @@
         ],
         "make-binary-file-input-handler@1010": [
           "make-port-handler",
-          "who",
           "check-interrupt",
           "critical-section",
           "assert-not-closed",
@@ -171146,7 +170632,6 @@
         "make-binary-file-input/output-handler@1254": [
           "make-binary-file-input",
           "make-port-handler",
-          "who",
           "check-interrupt",
           "critical-section",
           "assert-not-closed",
@@ -171180,7 +170665,6 @@
         ],
         "make-binary-file-output-handler@1116": [
           "make-port-handler",
-          "who",
           "critical-section",
           "assert-not-closed",
           "binary-file-port-put",
@@ -171199,7 +170683,6 @@
         ],
         "make-fd@173": [],
         "open-binary-fd-input-port@1089": [
-          "who",
           "eq?",
           "buffer-mode",
           "file-buffer-size",
@@ -171210,7 +170693,6 @@
           "register-open-file"
         ],
         "open-binary-fd-input/output-port@1374": [
-          "who",
           "eq?",
           "buffer-mode",
           "file-buffer-size",
@@ -171223,7 +170705,6 @@
           "register-open-file"
         ],
         "open-binary-fd-output-port@1190": [
-          "who",
           "eq?",
           "buffer-mode",
           "file-buffer-size",
@@ -171256,13 +170737,11 @@
           "make-i"
         ],
         "register-open-file@348": [
-          "p",
           "with-tc-mutex",
           "eq-hashtable-set!",
           "file-guardian"
         ],
         "registered-open-file@354": [
-          "p",
           "with-tc-mutex",
           "eq-hashtable-contains?"
         ],
@@ -171287,9 +170766,7 @@
           "codec-info-icr-set!"
         ],
         "silent-close@364": [
-          "pvec",
           "vector-for-each",
-          "x",
           "textual-port?",
           "c",
           "void",
@@ -171298,7 +170775,6 @@
         ],
         "unget-error@212": [],
         "unregister-open-file@359": [
-          "p",
           "with-tc-mutex",
           "eq-hashtable-delete!"
         ],
@@ -171395,7 +170871,6 @@
           "maybe-unsafe",
           "values",
           "struct-convert",
-          "v",
           "schemify"
         ],
         "make-expr-defns@274": [
@@ -171526,7 +171001,6 @@
           "ex-int-id",
           "ex-ext-id",
           "match",
-          "instance-variable-reference",
           "for*",
           "in-list",
           "import-group-imports",
@@ -171552,7 +171026,6 @@
           "schemify-body",
           "new-body",
           "schemify-body*",
-          "v",
           "make-hasheq",
           "add-extra-variables",
           "append",
@@ -171592,7 +171065,6 @@
           "unnest-let",
           "left-to-right",
           "letrec-values",
-          "form",
           "letrec-splitable-values-binding?",
           "letrec-split-values-binding",
           "letrec-conversion",
@@ -171645,7 +171117,6 @@
           "find-known+import",
           "inline-ptr-ref",
           "inline-ptr-set",
-          "e",
           "known-struct-constructor?",
           "known-struct-predicate?",
           "known-field-accessor?",
@@ -171655,9 +171126,7 @@
           "memq",
           "copy*",
           "symbol?",
-          "ex",
           "variable-ref",
-          "im",
           "import-lookup",
           "known-literal?",
           "wrap-literal",
@@ -171680,7 +171149,6 @@
         ],
         "current-thread@171": [
           "current-future",
-          "f",
           "future->thread",
           "future-barrier"
         ],
@@ -171700,10 +171168,8 @@
           "thread-group-add!",
           "raise-custodian-is-shut-down",
           "values",
-          "proc",
           "check",
           "procedure-arity-includes",
-          "v",
           "eq?",
           "make-initial-thread",
           "unsafe-thread-at-root",
@@ -171800,7 +171266,6 @@
           "struct",
           "thread-dead-evt?",
           "dead-evt",
-          "t",
           "set-thread-dead-evt!",
           "lock-custodians",
           "custodian-register-also",
@@ -171834,7 +171299,6 @@
           "set-suspend-resume-evt-thread!",
           "set-thread-suspended-evt!",
           "thread-resume",
-          "p",
           "thread?",
           "custodian?",
           "do-thread-resume",
@@ -171857,7 +171321,6 @@
           "thread-pop-suspend+resume-callbacks!",
           "sel",
           "sema",
-          "s",
           "suspend-resume-evt-thread",
           "thread-resume-evt",
           "resume-evt",
@@ -171870,8 +171333,8 @@
           "set-thread-sched-info!",
           "engine-block",
           "sleep",
-          "c",
           "real?",
+          "c",
           "zero?",
           "current-inexact-monotonic-milliseconds",
           "define-place-local",
@@ -171900,7 +171363,6 @@
           "terminate",
           "set-thread-pending-break!",
           "call-with-escape-continuation",
-          "k",
           "raise",
           "exn",
           "error-message->string",
@@ -171908,12 +171370,10 @@
           "end-atomic",
           "set-break-enabled-transition-hook!",
           "break-thread",
-          "other-t",
           "break>?",
           "add-end-atomic-callback!",
           "break-max",
           "set-ctl-c-handler!",
-          "kind",
           "thread-ignore-break-cells",
           "hash?",
           "hash-ref",
@@ -171938,8 +171398,6 @@
           "thread-try-receive",
           "thread-rewind-receive",
           "for-each",
-          "msg",
-          "self",
           "poll-ctx-poll?",
           "poll-ctx-select-proc",
           "select-proc",
@@ -171947,10 +171405,8 @@
           "receive",
           "thread-receive-evt",
           "thread-receiver-evt",
-          "f",
           "set-future->thread!",
           "set-immediate-allocation-check-proc!",
-          "n",
           "custodian-check-immediate-limit",
           "set-thread-engine-for-roots!"
         ],
@@ -178052,6 +177508,7 @@
         "portfetch::percent_encode@49": [
           "set",
           "string",
+          "incr",
           "append",
           "default",
           "split",
@@ -178100,6 +177557,7 @@
           "ui_notifications_append"
         ],
         "portactivate::activate_main@61": [
+          "_inregistry_version",
           "info",
           "set",
           "option",
@@ -178176,6 +177634,7 @@
           "lappend",
           "ui_debug",
           "regexp",
+          "strsed",
           "exec",
           "findBinary",
           "tbool",
@@ -178194,7 +177653,8 @@
           "lindex",
           "portbump::reset_revision",
           "join",
-          "puts"
+          "puts",
+          "move"
         ],
         "portbump::bump_start@179": [
           "ui_notice"
@@ -178203,16 +177663,17 @@
           "set",
           "string",
           "llength",
+          "incr",
           "regexp",
           "lindex",
           "dict",
-          "expr",
-          "incr"
+          "expr"
         ],
         "portbump::replace_checksums@59": [
           "set",
           "list",
           "llength",
+          "incr",
           "lindex",
           "regsub",
           "lset",
@@ -178227,15 +177688,19 @@
       },
       "tcl/macports_port_api/portchecksum.tcl": {
         "portchecksum::calc_md5@191": [
+          "file",
           "md5"
         ],
         "portchecksum::calc_rmd160@209": [
+          "file",
           "rmd160"
         ],
         "portchecksum::calc_sha1@200": [
+          "file",
           "sha1"
         ],
         "portchecksum::calc_sha256@218": [
+          "file",
           "sha256"
         ],
         "portchecksum::calc_size@227": [
@@ -178257,6 +177722,7 @@
           "lappend",
           "ui_debug",
           "regexp",
+          "strsed",
           "exec",
           "findBinary",
           "ui_notice",
@@ -178304,6 +177770,7 @@
           "dict",
           "extract_archive_metadata",
           "ui_debug",
+          "delete",
           "ui_error",
           "incr"
         ],
@@ -178312,6 +177779,7 @@
           "getdistname",
           "ui_debug",
           "file",
+          "delete",
           "ui_error",
           "incr",
           "info",
@@ -178327,6 +177795,7 @@
           "getportlogpath",
           "file",
           "ui_debug",
+          "delete",
           "ui_error"
         ],
         "portclean::clean_main@61": [
@@ -178357,6 +177826,7 @@
       },
       "tcl/macports_port_api/portdeactivate.tcl": {
         "portdeactivate::deactivate_main@58": [
+          "_inregistry_version",
           "info",
           "set",
           "option",
@@ -178405,6 +177875,7 @@
           "gets",
           "string",
           "lappend",
+          "close",
           "reinplace",
           "xinstall",
           "ui_error",
@@ -178413,9 +177884,10 @@
           "readdir",
           "regexp",
           "system",
+          "pwd",
+          "_cd",
           "puts",
           "ln",
-          "_cd",
           "llength",
           "lshift",
           "glob",
@@ -178424,6 +177896,7 @@
           "expr",
           "lpush",
           "default",
+          "fs_clone_capable",
           "fileIsSparse",
           "clonefile",
           "umask"
@@ -178498,6 +177971,7 @@
       "tcl/macports_port_api/portextract.tcl": {
         "portextract::add_extract_deps@172": [
           "tbool",
+          "findBinary",
           "depends_extract-append"
         ],
         "portextract::disttagclean@194": [
@@ -178512,6 +177986,7 @@
           "tbool",
           "elevateToRoot",
           "set",
+          "command_exec",
           "dropPrivileges",
           "chownAsRoot",
           "glob",
@@ -178571,7 +178046,9 @@
         "portfetch::bzrfetch@247": [
           "info",
           "string",
+          "http",
           "set",
+          "command_exec",
           "msgcat::mc",
           "portfetch::fetchfiles"
         ],
@@ -178611,6 +178088,7 @@
           "set",
           "string",
           "regexp",
+          "command_exec",
           "msgcat::mc",
           "info",
           "portfetch::fetchfiles"
@@ -178699,6 +178177,7 @@
           "set",
           "append",
           "ui_debug",
+          "system",
           "msgcat::mc",
           "info",
           "portfetch::fetchfiles"
@@ -178707,6 +178186,7 @@
           "fetch",
           "set",
           "ui_debug",
+          "system",
           "msgcat::mc",
           "info",
           "portfetch::fetchfiles"
@@ -178733,8 +178213,10 @@
         ],
         "portfetch::svn_proxy_args@336": [
           "string",
+          "http",
           "info",
           "set",
+          "https",
           "expr",
           "regexp",
           "append"
@@ -178749,6 +178231,7 @@
           "svn",
           "set",
           "svn_proxy_args",
+          "command_exec",
           "info",
           "portfetch::fetchfiles"
         ]
@@ -178790,6 +178273,7 @@
         ],
         "portinstall::get_path_commit@57": [
           "set",
+          "findBinary",
           "file",
           "getuid",
           "macports_try",
@@ -178800,6 +178284,7 @@
           "name_to_gid",
           "name_to_uid",
           "ui_debug",
+          "exec",
           "info"
         ],
         "portinstall::install_main@285": [
@@ -178916,10 +178401,11 @@
           "ui_notice"
         ],
         "portlint::seems_utf8@87": [
+          "str",
           "set",
           "string",
-          "scan",
-          "incr"
+          "incr",
+          "scan"
         ]
       },
       "tcl/macports_port_api/portlivecheck.tcl": {
@@ -178957,12 +178443,13 @@
           "lindex",
           "curlwrap_async",
           "list",
+          "curl",
           "open",
           "read",
           "vercmp",
           "gets",
           "md5",
-          "curl",
+          "exec",
           "default",
           "ui_msg",
           "ui_info"
@@ -179002,10 +178489,12 @@
         "portmain::get_source_date_epoch@173": [
           "info",
           "set",
+          "findBinary",
           "list",
           "lappend",
           "lmap",
           "lrange",
+          "exec",
           "ui_debug",
           "expr",
           "file",
@@ -179116,6 +178605,7 @@
           "_activate_directories",
           "_activate_files",
           "lmap",
+          "_",
           "ui_msg",
           "ui_debug",
           "signal",
@@ -179160,6 +178650,7 @@
           "throw"
         ],
         "_deactivate_contents@994": [
+          "rollback",
           "set",
           "list",
           "expr",
@@ -179208,6 +178699,9 @@
           "ui_progress_generic"
         ],
         "activate@78": [
+          "revision",
+          "variants",
+          "options",
           "dict",
           "string",
           "set",
@@ -179223,11 +178717,15 @@
           "_activate_contents"
         ],
         "activate_composite@68": [
+          "optionslist",
           "activate",
           "registry::decode_spec",
           "throw"
         ],
         "deactivate@162": [
+          "revision",
+          "variants",
+          "options",
           "dict",
           "string",
           "set",
@@ -179243,6 +178741,7 @@
           "_deactivate_contents"
         ],
         "deactivate_composite@153": [
+          "optionslist",
           "deactivate",
           "registry::decode_spec",
           "throw"
@@ -179261,6 +178760,7 @@
           "t",
           "getuid",
           "macports::find_tar_with_hfscompression",
+          "macports::binaryInPath",
           "info",
           "macports::shellescape",
           "xar",
@@ -179299,6 +178799,7 @@
           "lappend",
           "lindex",
           "split",
+          "mportlookup",
           "llength",
           "lrange",
           "string",
@@ -179307,6 +178808,9 @@
           "lsort"
         ],
         "uninstall@133": [
+          "revision",
+          "variants",
+          "options",
           "dict",
           "set",
           "lappend",
@@ -179331,10 +178835,12 @@
           "glob",
           "registry::portgroup",
           "registry::write",
+          "incr",
           "lrange",
           "lassign"
         ],
         "uninstall_composite@124": [
+          "options",
           "uninstall",
           "registry::decode_spec",
           "throw"
@@ -179363,6 +178869,7 @@
           "llength",
           "lindex",
           "ui_warn",
+          "register_file",
           "lappend",
           "property_store",
           "write_file_map",
@@ -179370,6 +178877,7 @@
           "write_entry"
         ],
         "delete_entry@407": [
+          "variants",
           "info",
           "set",
           "array",
@@ -179378,6 +178886,7 @@
           "dirempty"
         ],
         "entry_exists@344": [
+          "variants",
           "set"
         ],
         "entry_exists_for_name@360": [
@@ -179397,6 +178906,7 @@
           "regexp"
         ],
         "installed@447": [
+          "version",
           "set",
           "glob",
           "string",
@@ -179415,6 +178925,8 @@
           "lappend"
         ],
         "list_depends@768": [
+          "revision",
+          "variants",
           "llength",
           "info",
           "open_dep_map",
@@ -179437,6 +178949,9 @@
           "llength"
         ],
         "open_entry@103": [
+          "revision",
+          "variants",
+          "epoch",
           "info",
           "set",
           "get_head_entry_receipt_path",
@@ -179453,8 +178968,8 @@
           "ui_msg",
           "convert_entry_from_HEAD",
           "file",
-          "ui_error",
-          "array"
+          "array",
+          "ui_error"
         ],
         "open_file_map@536": [
           "set",
@@ -179525,6 +179040,7 @@
           "system"
         ],
         "write_entry@311": [
+          "variants",
           "set",
           "array",
           "file",
@@ -179561,10 +179077,13 @@
           "incr"
         ],
         "entry_exists@101": [
+          "variants",
+          "set",
           "registry::entry",
           "llength"
         ],
         "entry_exists_for_name@117": [
+          "set",
           "registry::entry",
           "llength"
         ],
@@ -179573,6 +179092,7 @@
           "registry::entry"
         ],
         "installed@236": [
+          "version",
           "set",
           "registry::entry",
           "list",
@@ -179598,9 +179118,9 @@
           "registry::entry"
         ],
         "port_registered@158": [
+          "set",
           "registry::entry",
           "llength",
-          "set",
           "lindex"
         ],
         "property_retrieve@185": [
@@ -179645,26 +179165,31 @@
           "set",
           "property_retrieve"
         ],
-        "entry_exists@76": [],
+        "entry_exists@76": [
+          "variants"
+        ],
         "entry_exists_for_name@82": [],
         "exclusive_lock@389": [
           "incr",
           "set",
           "info",
-          "ui_msg",
           "adv-flock",
+          "ui_msg",
           "ui_debug"
         ],
         "exclusive_unlock@419": [
           "incr",
           "ui_warn",
-          "info"
+          "info",
+          "adv-flock"
         ],
         "file_registered@238": [
           "set",
+          "fs_case_sensitive",
           "ui_debug"
         ],
         "fileinfo_for_file@325": [
+          "file",
           "list"
         ],
         "fileinfo_for_index@342": [
@@ -179675,6 +179200,7 @@
           "fileinfo_for_file"
         ],
         "installed@137": [
+          "version",
           "set",
           "list",
           "lindex",
@@ -179683,8 +179209,14 @@
           "lappend",
           "llength"
         ],
-        "list_dependents@362": [],
-        "list_depends@356": [],
+        "list_dependents@362": [
+          "revision",
+          "variants"
+        ],
+        "list_depends@356": [
+          "revision",
+          "variants"
+        ],
         "location@208": [
           "set",
           "registry::installed",
@@ -179693,13 +179225,19 @@
           "lindex"
         ],
         "new_entry@49": [
+          "variants",
+          "epoch",
           "entry_exists",
           "set",
           "property_store",
           "clock"
         ],
         "open_dep_map@307": [],
-        "open_entry@116": [],
+        "open_entry@116": [
+          "revision",
+          "variants",
+          "epoch"
+        ],
         "open_file_map@233": [],
         "port_registered@250": [],
         "property_retrieve@130": [],
@@ -179760,13 +179298,14 @@
           "set",
           "ui_debug",
           "mportopen_installed",
+          "mportexec",
+          "mportclose",
           "ui_warn",
           "activate",
           "deactivate",
           "uninstall",
           "registry::entry",
-          "info",
-          "mportclose"
+          "info"
         ],
         "tdbc_connect@178": [
           "set",
@@ -179787,16 +179326,21 @@
           "shmfault"
         ],
         "cantopen_injectuninstall@259": [
+          "db",
+          "db2",
           "shmfault"
         ],
         "doPassiveTest@573": [
           "info",
-          "string",
           "set",
+          "string",
           "do_test",
           "list",
           "uplevel",
+          "out",
           "join",
+          "incr",
+          "sqlite3",
           "sqlite3_memdebug_fail",
           "expr",
           "lsearch"
@@ -179807,6 +179351,7 @@
         ],
         "do_faultsim_test@121": [
           "array",
+          "lappend",
           "set",
           "fix_testname",
           "info",
@@ -179822,11 +179367,15 @@
           "set",
           "info",
           "save_prng_state",
+          "incr",
           "restore_prng_state",
           "glob",
           "do_test",
+          "db",
+          "db2",
           "forcedelete",
           "copy_file",
+          "sqlite3",
           "sqlite3_extended_result_codes",
           "sqlite3_db_config_lookaside",
           "eval",
@@ -179834,7 +179383,6 @@
           "sqlite3_memdebug_fail",
           "append",
           "expr",
-          "db",
           "puts",
           "lappend",
           "list",
@@ -179859,13 +179407,16 @@
         ],
         "do_write_test@655": [
           "info",
-          "db",
           "set",
+          "db",
           "list",
+          "out",
           "lappend",
+          "unable",
           "join",
-          "uplevel",
+          "incr",
           "sqlite3_memdebug_fail",
+          "uplevel",
           "do_test",
           "lsearch"
         ],
@@ -179877,14 +179428,20 @@
         "faultsim_integrity_check@183": [
           "set"
         ],
-        "faultsim_restore@171": [],
+        "faultsim_restore@171": [
+          "uplevel"
+        ],
         "faultsim_restore_and_reopen@172": [
           "uplevel",
           "sqlite3_extended_result_codes",
           "sqlite3_db_config_lookaside"
         ],
-        "faultsim_save@169": [],
-        "faultsim_save_and_close@170": [],
+        "faultsim_save@169": [
+          "uplevel"
+        ],
+        "faultsim_save_and_close@170": [
+          "uplevel"
+        ],
         "faultsim_test_proc@347": [],
         "faultsim_test_result@348": [
           "uplevel",
@@ -179909,6 +179466,8 @@
           "shmfault"
         ],
         "fullerr_injectuninstall@241": [
+          "db",
+          "db2",
           "shmfault"
         ],
         "interrupt_injectinstall@274": [],
@@ -179944,6 +179503,8 @@
           "shmfault"
         ],
         "shmerr_injectuninstall@223": [
+          "db",
+          "db2",
           "shmfault"
         ]
       },
@@ -179959,6 +179520,7 @@
           "upvar",
           "set",
           "llength",
+          "incr",
           "lindex",
           "append",
           "info"
@@ -179973,6 +179535,7 @@
           "open",
           "puts",
           "close",
+          "eval",
           "list"
         ],
         "catchcmdex@849": [
@@ -179989,6 +179552,7 @@
           "open",
           "puts",
           "close",
+          "eval",
           "list"
         ],
         "catchsql@1460": [
@@ -180009,6 +179573,7 @@
           "set",
           "llength",
           "lindex",
+          "incr",
           "expr",
           "default",
           "open",
@@ -180022,6 +179587,7 @@
           "set",
           "lindex",
           "llength",
+          "incr",
           "string",
           "expr",
           "file",
@@ -180035,6 +179601,7 @@
           "lappend"
         ],
         "db_delete_and_reopen@2482": [
+          "db",
           "glob",
           "sqlite3"
         ],
@@ -180045,6 +179612,7 @@
           "forcecopy"
         ],
         "db_restore_and_reopen@2477": [
+          "db",
           "db_restore",
           "sqlite3"
         ],
@@ -180054,7 +179622,8 @@
           "forcecopy"
         ],
         "db_save_and_close@2465": [
-          "db_save"
+          "db_save",
+          "db"
         ],
         "dbcksum@2176": [
           "set",
@@ -180076,13 +179645,17 @@
           "set",
           "getFileRetries",
           "getFileRetryDelay",
-          "file"
+          "incr",
+          "file",
+          "after"
         ],
         "do_delete_file@276": [
           "set",
           "getFileRetries",
           "getFileRetryDelay",
-          "file"
+          "incr",
+          "file",
+          "after"
         ],
         "do_eqp_execsql_test@1070": [
           "regexp",
@@ -180143,6 +179716,7 @@
           "sqlite3_get_autocommit",
           "ifcapable",
           "db",
+          "db2",
           "sqlite3",
           "output2",
           "unset"
@@ -180162,9 +179736,9 @@
           "lindex",
           "lrange",
           "llength",
+          "incr",
           "string",
           "list",
-          "incr",
           "eval",
           "execsql",
           "uplevel",
@@ -180180,6 +179754,7 @@
           "output1",
           "flush",
           "string",
+          "uplevel",
           "output2_if_no_verbose",
           "output2",
           "fail_test",
@@ -180190,15 +179765,15 @@
           "llength",
           "fpnum_compare",
           "omit_test",
-          "uplevel",
+          "incr",
           "append",
           "format",
           "scan",
           "open",
           "puts",
           "close",
-          "fconfigure",
           "eval",
+          "fconfigure",
           "regsub",
           "a-z",
           "subst",
@@ -180213,13 +179788,19 @@
           "append_graph",
           "A-F0-9",
           "query_plan_graph",
-          "incr",
           "execsql",
           "time",
           "sqlite3",
           "versdb",
+          "db1",
+          "db2",
+          "db3",
+          "unregister_devsim",
+          "unregister_jt_vfs",
+          "unregister_demovfs",
           "finish_test_precleanup",
           "db_delete_and_reopen",
+          "finalize_testing",
           "set_test_counter",
           "vfs_unlink_test",
           "sqlite3_reset_auto_extension",
@@ -180227,6 +179808,7 @@
           "sqlite3_hard_heap_limit64",
           "file",
           "read",
+          "exec",
           "run_thread_tests",
           "lsort",
           "working_64bit_int",
@@ -180249,17 +179831,18 @@
           "NoConflict",
           "SorterSort",
           "array",
+          "sql",
           "memdb",
+          "sqlite3_prepare",
           "sqlite3_step",
           "sqlite3_data_count",
           "sqlite3_column_text",
-          "sqlite3_prepare",
-          "uses_stmt_journal",
           "sqlite3_finalize",
+          "uses_stmt_journal",
           "fix_ifcapable_expr",
+          "elsecode",
           "get_pwd",
           "btree_from_db",
-          "exec",
           "default",
           "sqlite3_extended_result_codes",
           "save_prng_state",
@@ -180329,6 +179912,7 @@
         "dumpbytes@821": [
           "set",
           "string",
+          "incr",
           "append",
           "format",
           "scan"
@@ -180339,6 +179923,7 @@
           "info"
         ],
         "execsql2@1628": [
+          "sql",
           "set",
           "db",
           "lappend"
@@ -180378,6 +179963,7 @@
         ],
         "explain_i@1480": [
           "output2",
+          "fconfigure",
           "set",
           "Seek",
           "NoConflict",
@@ -180412,9 +179998,11 @@
         "finalize_testing@1256": [
           "set",
           "set_test_counter",
+          "db",
+          "db2",
+          "db3",
           "vfs_unlink_test",
           "sqlite3",
-          "db",
           "sqlite3_reset_auto_extension",
           "sqlite3_soft_heap_limit64",
           "sqlite3_hard_heap_limit64",
@@ -180424,7 +180012,9 @@
           "read",
           "close",
           "info",
+          "incr",
           "output2",
+          "exec",
           "regsub",
           "string",
           "append",
@@ -180435,7 +180025,6 @@
           "lindex",
           "working_64bit_int",
           "vfslog",
-          "incr",
           "sqlite3_status",
           "sqlite3_memory_used",
           "ifcapable",
@@ -180455,15 +180044,25 @@
           "puts",
           "db_delete_and_reopen",
           "uplevel",
-          "info"
+          "db",
+          "info",
+          "finalize_testing"
         ],
         "finish_test@1243": [
           "finish_test_precleanup"
         ],
-        "finish_test_precleanup@1226": [],
+        "finish_test_precleanup@1226": [
+          "db1",
+          "db2",
+          "db3",
+          "unregister_devsim",
+          "unregister_jt_vfs",
+          "unregister_demovfs"
+        ],
         "fix_ifcapable_expr@1697": [
           "set",
           "string",
+          "incr",
           "expr",
           "append"
         ],
@@ -180495,8 +180094,10 @@
           "pwd"
         ],
         "ifcapable@1725": [
+          "elsecode",
           "set",
-          "fix_ifcapable_expr"
+          "fix_ifcapable_expr",
+          "uplevel"
         ],
         "incr_ntest@630": [
           "set_test_counter",
@@ -180553,12 +180154,14 @@
           "list"
         ],
         "output1@649": [
+          "args",
           "set",
           "verbose",
           "uplevel",
           "lrange"
         ],
         "output2@657": [
+          "args",
           "set",
           "llength",
           "uplevel"
@@ -180579,7 +180182,9 @@
           "puts",
           "exit"
         ],
-        "puts@687": [],
+        "puts@687": [
+          "uplevel"
+        ],
         "puts_override@674": [
           "set",
           "llength",
@@ -180617,10 +180222,10 @@
           "append_graph",
           "regsub",
           "A-F0-9",
+          "incr",
           "regexp",
           "query_plan_graph",
           "do_test",
-          "incr",
           "eval",
           "execsql",
           "format",
@@ -180630,9 +180235,16 @@
           "expr",
           "sqlite3",
           "versdb",
+          "db1",
+          "db2",
+          "db3",
+          "unregister_devsim",
+          "unregister_jt_vfs",
+          "unregister_demovfs",
           "finish_test_precleanup",
           "puts",
           "db_delete_and_reopen",
+          "finalize_testing",
           "set_test_counter",
           "vfs_unlink_test",
           "sqlite3_reset_auto_extension",
@@ -180643,6 +180255,7 @@
           "open",
           "read",
           "close",
+          "exec",
           "run_thread_tests",
           "lsort",
           "working_64bit_int",
@@ -180662,21 +180275,23 @@
           "gets",
           "vdbe_coverage",
           "output1",
+          "fconfigure",
           "Seek",
           "NoConflict",
           "SorterSort",
           "array",
+          "sql",
           "memdb",
+          "sqlite3_prepare",
           "sqlite3_step",
           "sqlite3_data_count",
           "sqlite3_column_text",
-          "sqlite3_prepare",
-          "uses_stmt_journal",
           "sqlite3_finalize",
+          "uses_stmt_journal",
           "fix_ifcapable_expr",
+          "elsecode",
           "get_pwd",
           "btree_from_db",
-          "exec",
           "default",
           "sqlite3_extended_result_codes",
           "save_prng_state",
@@ -180720,15 +180335,18 @@
           "extra_schema_checks"
         ],
         "reset_db@551": [
+          "db",
           "forcedelete",
           "sqlite3",
           "set",
           "sqlite3_connection_pointer",
-          "info",
-          "db"
+          "info"
         ],
         "run_ioerr_prep@1890": [
           "set",
+          "db",
+          "db2",
+          "forcedelete",
           "sqlite3",
           "sqlite3_extended_result_codes",
           "info",
@@ -180812,11 +180430,12 @@
           "lappend"
         ],
         "sql36231@2446": [
+          "sql",
           "set",
           "hexio_read",
           "sqlite3",
-          "execsql",
           "db36231",
+          "execsql",
           "hexio_write"
         ],
         "sql_uses_stmt@1690": [
@@ -180826,6 +180445,7 @@
           "sqlite3_finalize"
         ],
         "sqlite3@116": [
+          "args",
           "llength",
           "string",
           "lindex",
@@ -180839,11 +180459,14 @@
         "stepsql@1649": [
           "set",
           "string",
+          "sqlite3_prepare",
           "list",
           "sqlite3_step",
           "sqlite3_data_count",
+          "incr",
           "lappend",
-          "sqlite3_column_text"
+          "sqlite3_column_text",
+          "sqlite3_finalize"
         ],
         "test_binary_name@2529": [
           "set",
@@ -180877,6 +180500,9 @@
           "ifcapable"
         ],
         "test_restore_config_pagecache@2514": [
+          "db",
+          "db2",
+          "db3",
           "sqlite3_shutdown",
           "info",
           "eval",
@@ -180886,6 +180512,9 @@
           "sqlite3"
         ],
         "test_set_config_pagecache@2496": [
+          "db",
+          "db2",
+          "db3",
           "sqlite3_shutdown",
           "set",
           "sqlite3_config_pagecache",
@@ -180940,6 +180569,7 @@
       },
       "tcl/sqlite/testrunner.tcl": {
         "add_build_job@1220": [
+          "depid",
           "set",
           "append",
           "add_job",
@@ -180961,6 +180591,7 @@
           "lrange",
           "lindex",
           "string",
+          "incr",
           "lappend",
           "list",
           "info",
@@ -181088,11 +180719,13 @@
           "list",
           "set",
           "info",
+          "incr",
           "lappend"
         ],
         "dirs_freeDir@947": [
           "set",
           "list",
+          "lappend",
           "llength"
         ],
         "dirs_nHelper@943": [
@@ -181143,6 +180776,7 @@
           "lindex"
         ],
         "guess_number_of_cores@189": [
+          "number_of_cores",
           "set",
           "open",
           "gets",
@@ -181155,9 +180789,10 @@
         ],
         "handle_retest@1865": [
           "set",
+          "trdb",
           "puts",
           "exit",
-          "trdb"
+          "incr"
         ],
         "job_matches_any_pattern@1127": [
           "set",
@@ -181214,6 +180849,7 @@
           "info",
           "file",
           "puts",
+          "exec",
           "exit",
           "set"
         ],
@@ -181255,12 +180891,13 @@
           "clock_milliseconds",
           "open",
           "launch_some_jobs",
+          "puts",
           "progress_report",
           "dirs_nHelper",
           "after",
+          "incr",
           "vwait",
           "close",
-          "puts",
           "r_write_db",
           "trdb",
           "info",
@@ -181273,6 +180910,7 @@
           "file",
           "set",
           "fconfigure",
+          "close",
           "puts",
           "format",
           "exit",
@@ -181283,6 +180921,7 @@
           "dirs_freeDir",
           "launch_some_jobs",
           "incr",
+          "gets",
           "append"
         ],
         "show_status@588": [

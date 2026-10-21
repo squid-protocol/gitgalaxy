@@ -202,3 +202,18 @@ def test_refresh_refuses_when_the_port_moved(monkeypatch, tmp_path):
     written, calls = refresh_env(monkeypatch, tmp_path, False, {**FP, "case": "a2"}, ("survived", "survived"))
     assert dm.refresh([CASE], tmp_path) == 2
     assert written == {} and calls == []
+
+
+def test_stale_check_flags_a_moved_case_and_scopes_to_the_branch(monkeypatch, capsys):
+    now = {k: {"sha256": v} for k, v in FP.items()}
+    moved = {**now, "case": {"sha256": "changed"}}
+    monkeypatch.setattr(dm, "load", lambda: {CASE: entry()})
+    monkeypatch.setattr(dm, "fingerprints", lambda c: moved)
+    assert dm.stale_check() == 1
+    assert f"{CASE}: stale (case)" in capsys.readouterr().out
+    monkeypatch.setattr(dm, "changed_cases", lambda ref: {"other-case"})  # this PR does not touch the case
+    assert dm.stale_check("origin/main") == 0
+    monkeypatch.setattr(dm, "changed_cases", lambda ref: {CASE})
+    assert dm.stale_check("origin/main") == 1
+    monkeypatch.setattr(dm, "fingerprints", lambda c: now)
+    assert dm.stale_check("origin/main") == 0

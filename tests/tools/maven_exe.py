@@ -23,13 +23,17 @@ def mvn_executable(env: Mapping[str, str] | None = None) -> str:
 
 # #5161: the JVMs Maven starts (Maven's own, surefire's fork) write in the locale charset unless told otherwise.
 JVM_UTF8_FLAGS = "-Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8"
+# #5882: a JVM that lives seconds (Maven's own, a test's run): C1 only and one GC thread. C2 never pays back in a run
+# that short, and its threads take the cores the other parallel cases need (a det shard runs 4 on a 4-vCPU runner).
+# The JIT tier changes speed only, not what a program computes (Java 17 floating point is strict at every tier).
+JVM_SHORT_RUN_FLAGS = "-XX:TieredStopAtLevel=1 -XX:+UseSerialGC"
 
 
 def maven_utf8_env(env: Mapping[str, str] | None = None) -> dict[str, str]:
-    """A copy of `env` (default: the process's) whose `MAVEN_OPTS` makes Maven's own JVM write UTF-8; pair it with
-    `encoding="utf-8"` on the subprocess call that captures the output."""
+    """A copy of `env` (default: the process's) whose `MAVEN_OPTS` makes Maven's own JVM write UTF-8 (and start like
+    a short run, #5882); pair it with `encoding="utf-8"` on the subprocess call that captures the output."""
     out = dict(os.environ if env is None else env)
-    out["MAVEN_OPTS"] = f"{out.get('MAVEN_OPTS', '')} {JVM_UTF8_FLAGS}".strip()
+    out["MAVEN_OPTS"] = f"{out.get('MAVEN_OPTS', '')} {JVM_UTF8_FLAGS} {JVM_SHORT_RUN_FLAGS}".strip()
     return out
 
 

@@ -36,7 +36,7 @@ from collections.abc import Callable
 
 import equivalence_common as common
 import java_target_matrix as jtm
-from maven_exe import JVM_UTF8_FLAGS, decode_output, maven_utf8_env, mvn_executable, run_decoded
+from maven_exe import JVM_SHORT_RUN_FLAGS, JVM_UTF8_FLAGS, decode_output, maven_utf8_env, mvn_executable, run_decoded
 
 CASES = Path(__file__).resolve().parents[1] / "equivalence"  # == equivalence.CASES
 PKG = "com.gitgalaxy.modernized"
@@ -682,8 +682,8 @@ def start_session(project: Path, env: dict[str, str]) -> JvmSession | None:
     if parts is None:
         return None
     java_bin, full = parts
-    cmd = [str(java_bin / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", *split_argline(jvm_args(env)),
-           "-cp", full, "EquivalenceMain", "--session"]  # fmt: skip
+    cmd = [str(java_bin / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", *JVM_SHORT_RUN_FLAGS.split(),
+           *split_argline(jvm_args(env)), "-cp", full, "EquivalenceMain", "--session"]  # fmt: skip
     return JvmSession(cmd, project, shell)
 
 
@@ -868,7 +868,7 @@ def run_maven(project: Path, work: Path, inputs: Path, env: dict[str, str] | Non
     props = f"{jvm_args(env or environment('default'))} {props}".strip()
     shell = dict(os.environ, JAVA_HOME=jtm._jdk(17))
     shell["PATH"] = str(Path(shell["JAVA_HOME"]) / "bin") + os.pathsep + shell["PATH"]
-    argline = f"-Dequivalence.in={inputs} -Dequivalence.out={out} -Dequivalence.datasets={datasets} {props}"
+    argline = f"{JVM_SHORT_RUN_FLAGS} -Dequivalence.in={inputs} -Dequivalence.out={out} -Dequivalence.datasets={datasets} {props}"  # fmt: skip
     maven_argline = (
         f"{JVM_UTF8_FLAGS} {argline}"  # #5161: surefire's fork names its charset; an env's own file.encoding follows
     )

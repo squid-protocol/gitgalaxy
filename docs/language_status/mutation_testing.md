@@ -201,8 +201,32 @@ every scenario, so `killed_by` is the same. `mutation_crucible.py compare A B --
 | hx-extended-cursor / HXEXT | 24 | 24 | 371 -> 308 | 115 -> 93 |
 
 72 of 72 agree, every operator present (AOR, COR, CON, DEL, LIT, NEG, RET, ROR). The saving is modest (2-26%): a crucible
-proof is mostly the two Maven runs, not the 12-14 s generate. Not validated: entry runs (no burned port has any), samples
-above 24 on the crucible ports, the other 14 crucible ports.
+proof is mostly the two Maven runs, not the 12-14 s generate.
+
+**The other 14 crucible ports (2026-10-21, #4047).** The same `--sample 24 --seed 2 --jobs 2`, `--full` then fast, each
+pair judged by `mutation_crucible.py compare --require-agree 10` (the box was otherwise idle):
+
+| port | judged by both | agree | proof s, full -> fast | survivors' proof s, full -> fast |
+|---|---|---|---|---|
+| ca-link-lengths / CALINK | 24 | 24 | 686 -> 283 | 118 -> 47 |
+| ca-xctl-versions / CAXA | 24 | 24 | 639 -> 240 | 222 -> 89 |
+| ca-xctl-versions / CAXB | 24 | 24 | 669 -> 257 | 282 -> 111 |
+| gt-terminal-coalesce / GTSHOW | 24 | 24 | 626 -> 246 | 186 -> 78 |
+| gt-terminal-coalesce / GTTERM | 24 | 24 | 643 -> 250 | 166 -> 69 |
+| gt-start-retrieve / GTWORK | 24 | 24 | 745 -> 372 | 85 -> 33 |
+| hc-abend-link / HCMAIN | 24 | 24 | 721 -> 314 | 397 -> 170 |
+| hc-perform-range / HCQREAD | 24 | 24 | 660 -> 250 | 262 -> 110 |
+| hc-abend-link / HCSUB | 24 | 24 | 1118 -> 592 | 296 -> 160 |
+| hx-attr-bytes / HXATTR | 24 | 24 | 664 -> 289 | 111 -> 51 |
+| pc-wizard / PCCONF | 24 | 24 | 746 -> 301 | 340 -> 142 |
+| pc-aid-menu / PCDETL | 24 | 24 | 692 -> 328 | 260 -> 123 |
+| pc-aid-menu / PCMENU | 24 | 24 | 667 -> 276 | 280 -> 119 |
+| pc-wizard / PCWIZ | 24 | 24 | 726 -> 281 | 212 -> 83 |
+
+**336 of 336 agree** (every operator present: AOR, BDM, CON, COR, DEL, LIT, NEG, RET, ROR); with the three above, 408 of 408
+on 17 of the 21 scored crucible programs. Proof time over the 14: 10,003 s -> 4,278 s (57% less; the saving is larger than the
+2-26% above because those three ran beside other proofs). Not validated: the four PCIMM ports (PCIMMA/B/L/S, whose
+runtime mutants are left out of the sample), entry runs (no burned port has any), samples above 24.
 
 ## Scores
 

@@ -13,6 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import equivalence_common as common
 import equivalence_java as ej
 import mutation as mu
+import mutation_crucible as mc
 from maven_exe import mvn_executable
 
 JAVA = """package com.gitgalaxy.modernized.service;
@@ -509,3 +510,23 @@ def test_a_linked_program_is_translated_from_the_stub_also_on_reuse(tmp_path, mo
     case = {"programs": [{"program": "ABNDPROC", "program_source": "abndproc.cbl"}]}
     files, origins = ej.linked_programs(case, tmp_path, project, {}, tmp_path / "work")
     assert seen == ["// stub\n"] and rel in files and "det port" in origins["ABNDPROC"]
+
+
+def test_crucible_prove_command_passes_the_forge_cache_only_in_fast_mode_and_strengthened_by_the_flag(monkeypatch):
+    ov, out = Path("ov"), Path("out")
+    full = mc.prove_command("pc-wizard", "PCWIZ", ov, out)
+    assert "--forge-cache" not in full and "--strengthened" not in full
+    assert full[full.index("--sides") + 1 : full.index("--overlay")] == ["java-ported", "java-facade"]
+    fast = mc.prove_command("pc-wizard", "PCWIZ", ov, out, Path("cache"))
+    assert fast[fast.index("--forge-cache") + 1] == "cache"
+    monkeypatch.setattr(mc, "STRENGTHENED", True)
+    assert "--strengthened" in mc.prove_command("pc-wizard", "PCWIZ", ov, out)
+
+
+def test_crucible_verdict_tells_survived_stillborn_killed_and_timeout_apart():
+    assert mc.verdict(0, {"proven": True}) == ("survived", [])
+    assert mc.verdict(None, None) == ("timeout", [])
+    broken = {"cells": {"a/s1": {"kind": mc.NOT_COMPILED, "status": "fail"}}}
+    assert mc.verdict(1, broken) == ("stillborn", [])
+    hit = {"cells": {"java-ported/s2": {"status": "fail"}, "java-ported/s1": {"status": "pass"}}}
+    assert mc.verdict(1, hit) == ("killed", ["s2"])

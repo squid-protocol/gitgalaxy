@@ -4580,6 +4580,14 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   ALTERNATE_USER_AUTHORITY, a second input handle beside an MQOO_INPUT_EXCLUSIVE one (MQRC_OBJECT_IN_USE), queue
   depth limits (MAXDEPTH, MAXMSGL), expiry.
 
+- **IBM (document).** IBM MQ Application Programming Reference, MQOPEN and the MQOD structure (an unknown ObjectName
+  returns MQRC_UNKNOWN_OBJECT_NAME, 2085), and the IBM MQ local-queue attributes in the DEFINE QLOCAL reference
+  (MSGDLVSQ, default FIFO or PRIORITY by queue; DEFPRTY, default 0; DEFPSIST, default NO)
+  (https://www.ibm.com/docs/en/ibm-mq/9.3?topic=reference-mqopen-open-object). The wording is paraphrased, not
+  verbatim.
+- **Declared difference.** A queue's MSGDLVSQ is modelled as PRIORITY for every queue. IBM's default for a queue is
+  FIFO, so a case that relies on arrival order across priorities states it and is judged against the model, not z/OS.
+
 ### W4. Identifiers the queue manager makes — MsgId and object handles, deterministic on both sides
 - **IBM.** A put with MsgId MQMI_NONE gets a unique MsgId from the queue manager, returned in the MQMD; its form is
   the queue manager's own. An object handle is an opaque value.
@@ -4589,6 +4597,13 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   would differ from z/OS; no modelled program does.
 - **Not modelled.** MQPMO_NEW_MSG_ID / NEW_CORREL_ID (refused by name), MsgId / CorrelId matching on MQGET (a get
   whose MQMD carries an id other than MQMI_NONE / MQCI_NONE is refused), message groups and segments.
+
+- **IBM (document).** IBM MQ Application Programming Reference, the MQMD structure (MsgId: the queue manager
+  generates a unique id when MQMI_NONE is given) and MQCLOSE (the handle is set to MQHO_UNUSABLE_HOBJ)
+  (https://www.ibm.com/docs/en/ibm-mq/9.3?topic=reference-mqmd-message-descriptor). The wording is paraphrased, not
+  verbatim.
+- **Declared difference.** The `GGMQ` + 20-digit MsgId form and the handle numbers 1, 2, 3 are the models', not
+  z/OS's. IBM does not define the form, so the comparator expects the two models to agree with each other only.
 
 ### W5. The unit of work — MQ's is the CICS task's: SYNCPOINT commits, ROLLBACK and an abend back out, the task's end commits
 - **IBM.** Under CICS the MQ unit of work is the task's: EXEC CICS SYNCPOINT commits it, SYNCPOINT ROLLBACK and an
@@ -4602,6 +4617,14 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   RETURN; a SYNCPOINT ROLLBACK after a SYNCPOINT stays refused by CicsTask as before.
 - **Not modelled (refused).** MQCMIT, MQBACK, MQBEGIN (an MQ unit of work of its own), MQGMO_SYNCPOINT_IF_PERSISTENT,
   MQGMO_MARK_SKIP_BACKOUT, backout thresholds and requeueing.
+
+- **IBM (document).** IBM MQ Application Programming Guide, using MQ in a CICS program (the MQ unit of work is the
+  CICS task's; SYNCPOINT commits, SYNCPOINT ROLLBACK backs out), and the IBM MQ Application Programming Reference,
+  MQGMO (MQGMO_SYNCPOINT, MQGMO_NO_SYNCPOINT) and the MQMD BackoutCount field
+  (https://www.ibm.com/docs/en/ibm-mq/9.3?topic=reference-mqgmo-get-message-options). The wording is paraphrased, not
+  verbatim.
+- **Declared difference.** None for the modelled points. The one assumption (the task's normal end commits for every
+  program) is stated above; the refused calls are not a difference, they are not run.
 
 ### W6. MQI outside the modelled calls — batch MQ, the other verbs, a connection handle
 - **Modelled.** MQOPEN, MQGET (destructive), MQPUT, MQPUT1 and MQCLOSE from a CICS program, every parameter BY
@@ -4647,6 +4670,13 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 - **Not modelled (refused).** MQPMO_PASS_*_CONTEXT and SET_*_CONTEXT on a put.
 - **The trigger message.** A triggered transaction's MQTM (RETRIEVE INTO the CMQTML layout) is a case fact
   (`start_data`, #4892), given to both sides as the task's START data.
+
+- **IBM (document).** IBM MQ Application Programming Reference, MQPMO (MQPMO_DEFAULT_CONTEXT, MQPMO_NO_CONTEXT) and
+  the MQMD identity and origin context fields (UserIdentifier, AccountingToken, PutApplType, PutApplName, PutDate,
+  PutTime) (https://www.ibm.com/docs/en/ibm-mq/9.3?topic=reference-mqpmo-put-message-options). The wording is
+  paraphrased, not verbatim.
+- **Declared difference.** UserIdentifier, AccountingToken and PutApplName are placeholders, and PutDate / PutTime
+  are the pinned case clock: z/OS fills them from the running task and the real clock.
 
 ## The Java side
 

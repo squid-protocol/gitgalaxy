@@ -610,14 +610,14 @@
   "survived": 28,
   "stillborn": 13,
   "survivors": {
-   "case_gap": 1,
+   "case_gap": 0,
    "harness_gap": 0,
    "equivalent": 16,
-   "unreachable": 11,
+   "unreachable": 12,
    "untriaged": 0
   },
   "score_raw": "109/137",
-  "score_adjusted": "109/110",
+  "score_adjusted": "109/109",
   "source": "docs/language_status/mutation_scores.json#carddemo-acctview-generated/COACTVWC",
   "inputs": {
    "port": {

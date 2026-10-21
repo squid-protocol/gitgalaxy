@@ -75,7 +75,7 @@
        "USER0015",
        "USER0016",
        "USER0017",
-       "USER0018"
+       "USERZ018"
       ]
      }
     }
@@ -285,6 +285,84 @@
     }
    },
    "why": "SYSIDI arrives with 8 bytes: ASSIGN SYSID writes 4 and the other 4 stay as received (a MOVE would space them, #4049)"
+  },
+  {
+   "name": "lowercase-z-credentials",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "userz018",
+     "PASSWDI": "password"
+    }
+   },
+   "why": "#4506 mutation survivors of the generated variant: a lowercase z in the id: UPPER-CASE folds a through z, so userz018 is the USERZ018 on file (z is the last letter of the range)"
+  },
+  {
+   "name": "uppercase-z-credentials",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "USERZ018",
+     "PASSWDI": "PASSWORD"
+    }
+   },
+   "why": "#4506 mutation survivors of the generated variant: an upper-case Z in the id is left alone by UPPER-CASE (only a-z fold), and signs the user on"
+  },
+  {
+   "name": "user-not-on-file",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "NOBODY01",
+     "PASSWDI": "PASSWORD"
+    }
+   },
+   "why": "#4506 mutation survivors of the generated variant: an id that is not on USRSEC: RESP 13 (NOTFND) takes the 'User not found' message and the cursor on USERID"
+  },
+  {
+   "name": "userid-not-sent",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "PASSWDI": "PASSWORD"
+    }
+   },
+   "why": "#4506 mutation survivors of the generated variant: the terminal sent no USERID: the field stays LOW-VALUES, which the blank test treats as empty"
+  },
+  {
+   "name": "passwd-not-sent",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "USER0001"
+    }
+   },
+   "why": "#4506 mutation survivors of the generated variant: the terminal sent no PASSWD: the field stays LOW-VALUES, which the blank test treats as empty"
   }
  ]
 }

@@ -1938,7 +1938,7 @@
       "javascript/jquery/core.js": 0.454,
       "javascript/jquery/css.js": 0.745,
       "javascript/jquery/deferred.js": 0.1,
-      "javascript/jquery/event.js": 0.704,
+      "javascript/jquery/event.js": 0.673,
       "javascript/jquery/tokenize.js": -1.001
     },
     "javascript/node_tls_security_tests": {
@@ -3923,7 +3923,7 @@
       "typescript/vscode/gulpfile.vscode.ts": 1.033,
       "typescript/vscode/instantiationService.ts": -1.178,
       "typescript/vscode/ipc.ts": -0.664,
-      "typescript/vscode/lifecycle.ts": -0.921,
+      "typescript/vscode/lifecycle.ts": -0.839,
       "typescript/vscode/package.json": 0.0,
       "typescript/vscode/vscode.d.ts": 0.938
     },

@@ -4568,9 +4568,11 @@
         "import:javascript/jquery/event.js"
       ],
       "typescript/vscode/instantiationService.ts": [
+        "fcall:typescript/vscode/lifecycle.ts",
         "import:javascript/jquery/event.js"
       ],
       "typescript/vscode/ipc.ts": [
+        "fcall:typescript/vscode/lifecycle.ts",
         "import:javascript/jquery/event.js"
       ]
     },

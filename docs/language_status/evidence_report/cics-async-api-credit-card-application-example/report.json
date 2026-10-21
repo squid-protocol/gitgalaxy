@@ -174,6 +174,12 @@
     46,
     48
    ],
+   "carddemo-billpay-generated": [
+    16,
+    16,
+    41,
+    48
+   ],
    "carddemo-cardlist": [
     36,
     36,
@@ -366,10 +372,22 @@
     52,
     59
    ],
+   "carddemo-report-generated": [
+    10,
+    10,
+    45,
+    59
+   ],
    "carddemo-signon": [
     6,
     6,
     17,
+    17
+   ],
+   "carddemo-signon-generated": [
+    6,
+    6,
+    16,
     17
    ],
    "carddemo-tranadd": [
@@ -1606,10 +1624,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "093a99f0a1201b5c09d29e99280955de12f8d5d9",
+   "sha": "c01d313247586c255b10293cf256dd2dfa0018f7",
    "translator": {
     "files": 133,
-    "sha256": "7e82cf057a5dafc027cd42857545e64211c861812f632ea2052afd47d6e14081"
+    "sha256": "bfe79aadd7f35cb2f845f3257a2f9d620b7e0802520aea31798c198b7790492e"
    }
   },
   "sweeps": {}
@@ -6296,8 +6314,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 093a99f0a1201b5c09d29e99280955de12f8d5d9",
-   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 093a99f0a1201b5c09d29e99280955de12f8d5d9",
+   "python tests/tools/cics_census.py survey --baseline --sha c01d313247586c255b10293cf256dd2dfa0018f7",
+   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha c01d313247586c255b10293cf256dd2dfa0018f7",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases asynccc-asyncpnt,asynccc-crdtchk,asynccc-csstats2,asynccc-csstatus,asynccc-getaddr,asynccc-getname,asynccc-getpol,asynccc-getspnd,asynccc-seqpnt,asynccc-updcsdb",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -6318,13 +6336,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "093a99f0a1201b5c09d29e99280955de12f8d5d9",
+   "sha": "c01d313247586c255b10293cf256dd2dfa0018f7",
    "translator": {
     "files": 133,
-    "sha256": "7e82cf057a5dafc027cd42857545e64211c861812f632ea2052afd47d6e14081"
+    "sha256": "bfe79aadd7f35cb2f845f3257a2f9d620b7e0802520aea31798c198b7790492e"
    }
   },
-  "translator_commit": "093a99f0a1201b5c09d29e99280955de12f8d5d9",
+  "translator_commit": "c01d313247586c255b10293cf256dd2dfa0018f7",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -6367,6 +6385,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "7e82cf057a5dafc027cd42857545e64211c861812f632ea2052afd47d6e14081"
+  "fingerprint": "bfe79aadd7f35cb2f845f3257a2f9d620b7e0802520aea31798c198b7790492e"
  }
 }

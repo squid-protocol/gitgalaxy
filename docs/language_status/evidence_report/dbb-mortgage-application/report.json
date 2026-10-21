@@ -186,6 +186,12 @@
     46,
     48
    ],
+   "carddemo-billpay-generated": [
+    16,
+    16,
+    41,
+    48
+   ],
    "carddemo-cardlist": [
     36,
     36,
@@ -378,10 +384,22 @@
     52,
     59
    ],
+   "carddemo-report-generated": [
+    10,
+    10,
+    45,
+    59
+   ],
    "carddemo-signon": [
     6,
     6,
     17,
+    17
+   ],
+   "carddemo-signon-generated": [
+    6,
+    6,
+    16,
     17
    ],
    "carddemo-tranadd": [
@@ -1212,8 +1230,8 @@
       "line 244: EXEC EXEC CICS: GETMAIN without INITIMG: IBM gives acquired storage no default contents",
       "line 254: EXEC EXEC CICS: GETMAIN without INITIMG: IBM gives acquired storage no default contents",
       "line 276: EXEC EXEC CICS: EXEC CICS SOAPFAULT CREATE not modelled (web services (SOAP / WS-Addressing) are not modelled)",
-      "line 282: CALL EPSCSMRI: a sibling program of this source (translated on its own, no service of its own is made for it, so a CALL cannot reach it)",
-      "line 293: CALL EPSCSMRO: a sibling program of this source (translated on its own, no service of its own is made for it, so a CALL cannot reach it)",
+      "line 282: CALL EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:1266: the PICTURE N (a national / DBCS item) is not modelled (national / DBCS data, #4664): the translator reads one byte a character",
+      "line 293: CALL EPSCSMRO: no service of its own, its translation is refused: OS/VS COBOL BLL addressing: SERVICE LABEL (line 3332: the CICS translator's output): not modelled",
       "line 304: HOLE SET TO ENTRY: procedure / function pointers are not modelled",
       "line 305: SET-POINTER ADDRESS OF ERROR-RESPONSE: not an item of WORKING-STORAGE or LINKAGE (not modelled)",
       "line 306: CALL CEEHDLR: registering an LE user condition handler is not modelled (the procedure pointer it takes (SET TO ENTRY), LE's dispatch of a raised condition to the handler and its RESUME / PERCOLATE result are missing, so a no-op registration would hide the handler's effect)",
@@ -1471,10 +1489,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "093a99f0a1201b5c09d29e99280955de12f8d5d9",
+   "sha": "c01d313247586c255b10293cf256dd2dfa0018f7",
    "translator": {
     "files": 133,
-    "sha256": "7e82cf057a5dafc027cd42857545e64211c861812f632ea2052afd47d6e14081"
+    "sha256": "bfe79aadd7f35cb2f845f3257a2f9d620b7e0802520aea31798c198b7790492e"
    }
   },
   "sweeps": {}
@@ -3583,8 +3601,8 @@
      "<name> ADDRESS OF <name>: not an item of <name> or LINKAGE",
      "CEEHDLR: registering an LE user condition handler is not modelled",
      "CEEHDLU: unregistering an LE user condition handler is not modelled",
-     "EPSCSMRI: a sibling program of this source",
-     "EPSCSMRO: a sibling program of this source",
+     "EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (\u2026) is not modelled (\u2026): the translator reads one byte a character",
+     "EPSCSMRO: no service of its own, its translation is refused: OS/VS COBOL BLL addressing: SERVICE LABEL (\u2026): not modelled",
      "EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents",
      "EXEC CICS SOAPFAULT CREATE",
      "SET TO ENTRY: procedure / function pointers are not modelled"
@@ -3593,8 +3611,8 @@
     "holes": [
      "CALL CEEHDLR: registering an LE user condition handler is not modelled (the procedure pointer it takes (SET TO ENTRY), LE's dispatch of a raised condition to the handler and its RESUME / PERCOLATE result are missing, so a no-op registration would hide the handler's effect)",
      "CALL CEEHDLU: unregistering an LE user condition handler is not modelled (the registration (CEEHDLR) is refused, so there is nothing to undo)",
-     "CALL EPSCSMRI: a sibling program of this source (translated on its own, no service of its own is made for it, so a CALL cannot reach it)",
-     "CALL EPSCSMRO: a sibling program of this source (translated on its own, no service of its own is made for it, so a CALL cannot reach it)",
+     "CALL EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:1266: the PICTURE N (a national / DBCS item) is not modelled (national / DBCS data, #4664): the translator reads one byte a character",
+     "CALL EPSCSMRO: no service of its own, its translation is refused: OS/VS COBOL BLL addressing: SERVICE LABEL (line 3332: the CICS translator's output): not modelled",
      "EXEC EXEC CICS: EXEC CICS SOAPFAULT CREATE not modelled (web services (SOAP / WS-Addressing) are not modelled)",
      "EXEC EXEC CICS: GETMAIN without INITIMG: IBM gives acquired storage no default contents",
      "HOLE SET TO ENTRY: procedure / function pointers are not modelled",
@@ -3850,8 +3868,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 093a99f0a1201b5c09d29e99280955de12f8d5d9",
-   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 093a99f0a1201b5c09d29e99280955de12f8d5d9",
+   "python tests/tools/cics_census.py survey --baseline --sha c01d313247586c255b10293cf256dd2dfa0018f7",
+   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha c01d313247586c255b10293cf256dd2dfa0018f7",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -3872,13 +3890,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "093a99f0a1201b5c09d29e99280955de12f8d5d9",
+   "sha": "c01d313247586c255b10293cf256dd2dfa0018f7",
    "translator": {
     "files": 133,
-    "sha256": "7e82cf057a5dafc027cd42857545e64211c861812f632ea2052afd47d6e14081"
+    "sha256": "bfe79aadd7f35cb2f845f3257a2f9d620b7e0802520aea31798c198b7790492e"
    }
   },
-  "translator_commit": "093a99f0a1201b5c09d29e99280955de12f8d5d9",
+  "translator_commit": "c01d313247586c255b10293cf256dd2dfa0018f7",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -3921,6 +3939,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "7e82cf057a5dafc027cd42857545e64211c861812f632ea2052afd47d6e14081"
+  "fingerprint": "bfe79aadd7f35cb2f845f3257a2f9d620b7e0802520aea31798c198b7790492e"
  }
 }

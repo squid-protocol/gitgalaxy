@@ -216,6 +216,12 @@
     46,
     48
    ],
+   "carddemo-billpay-generated": [
+    16,
+    16,
+    41,
+    48
+   ],
    "carddemo-cardlist": [
     36,
     36,
@@ -408,10 +414,22 @@
     52,
     59
    ],
+   "carddemo-report-generated": [
+    10,
+    10,
+    45,
+    59
+   ],
    "carddemo-signon": [
     6,
     6,
     17,
+    17
+   ],
+   "carddemo-signon-generated": [
+    6,
+    6,
+    16,
     17
    ],
    "carddemo-tranadd": [
@@ -2154,10 +2172,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "093a99f0a1201b5c09d29e99280955de12f8d5d9",
+   "sha": "c01d313247586c255b10293cf256dd2dfa0018f7",
    "translator": {
     "files": 133,
-    "sha256": "7e82cf057a5dafc027cd42857545e64211c861812f632ea2052afd47d6e14081"
+    "sha256": "bfe79aadd7f35cb2f845f3257a2f9d620b7e0802520aea31798c198b7790492e"
    }
   },
   "sweeps": {}
@@ -3798,6 +3816,17 @@
        "status_at_build": "shown equal, unapproved",
        "verdict": "all equal"
       },
+      "role": "program"
+     },
+     {
+      "case": "carddemo-billpay-generated",
+      "case_scenarios": 20,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
       "role": "program"
      }
     ],
@@ -6056,6 +6085,17 @@
        "verdict": "all equal"
       },
       "role": "program"
+     },
+     {
+      "case": "carddemo-report-generated",
+      "case_scenarios": 17,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
      }
     ],
     "chosen": {
@@ -6617,6 +6657,17 @@
        "status_at_build": "shown equal, unapproved",
        "verdict": "all equal"
       },
+      "role": "program"
+     },
+     {
+      "case": "carddemo-signon-generated",
+      "case_scenarios": 8,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
       "role": "program"
      }
     ],
@@ -8565,7 +8616,7 @@
        "fault_runs": 11,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
        "records_compared": 227,
        "records_equal": 227,
@@ -8611,7 +8662,7 @@
       "fault_runs": 11,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
+      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
       "records_compared": 227,
       "records_equal": 227,
@@ -22340,10 +22391,10 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 093a99f0a1201b5c09d29e99280955de12f8d5d9",
-   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 093a99f0a1201b5c09d29e99280955de12f8d5d9",
+   "python tests/tools/cics_census.py survey --baseline --sha c01d313247586c255b10293cf256dd2dfa0018f7",
+   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha c01d313247586c255b10293cf256dd2dfa0018f7",
    "python tests/tools/evidence_report.py --refresh",
-   "python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-adminmenu-generated,carddemo-billpay,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cardview-generated,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaus2c,carddemo-copaus2c-generated,carddemo-cotrtlic,carddemo-cotrtlic-generated,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-menu-generated,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-signon,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-useradd-generated,carddemo-userdel,carddemo-userdel-generated,carddemo-userlist,carddemo-userupd,carddemo-userupd-generated  # Db2 cases (7) need the Db2 container",
+   "python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-adminmenu-generated,carddemo-billpay,carddemo-billpay-generated,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cardview-generated,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaus2c,carddemo-copaus2c-generated,carddemo-cotrtlic,carddemo-cotrtlic-generated,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-menu-generated,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-report-generated,carddemo-signon,carddemo-signon-generated,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-useradd-generated,carddemo-userdel,carddemo-userdel-generated,carddemo-userlist,carddemo-userupd,carddemo-userupd-generated  # Db2 cases (7) need the Db2 container",
    "python tests/tools/evidence.py prove carddemo-acctview carddemo-adminmenu carddemo-billpay carddemo-cardlist carddemo-cardview carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
@@ -22366,13 +22417,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "093a99f0a1201b5c09d29e99280955de12f8d5d9",
+   "sha": "c01d313247586c255b10293cf256dd2dfa0018f7",
    "translator": {
     "files": 133,
-    "sha256": "7e82cf057a5dafc027cd42857545e64211c861812f632ea2052afd47d6e14081"
+    "sha256": "bfe79aadd7f35cb2f845f3257a2f9d620b7e0802520aea31798c198b7790492e"
    }
   },
-  "translator_commit": "093a99f0a1201b5c09d29e99280955de12f8d5d9",
+  "translator_commit": "c01d313247586c255b10293cf256dd2dfa0018f7",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -22415,6 +22466,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "7e82cf057a5dafc027cd42857545e64211c861812f632ea2052afd47d6e14081"
+  "fingerprint": "bfe79aadd7f35cb2f845f3257a2f9d620b7e0802520aea31798c198b7790492e"
  }
 }

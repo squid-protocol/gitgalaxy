@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `093a99f0a1201b5c09d29e99280955de12f8d5d9` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `c01d313247586c255b10293cf256dd2dfa0018f7` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `7e82cf057a5d`).
+The translation survey matches the translator in the tree (translator fingerprint `bfe79aadd7f3`).
 
 ## How to read this report
 
@@ -182,8 +182,8 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
 - **Translation:** 50/59 statements, 9 holes; whole: no
   - hole: CALL CEEHDLR: registering an LE user condition handler is not modelled (the procedure pointer it takes (SET TO ENTRY), LE's dispatch of a raised condition to the handler and its RESUME / PERCOLATE result are missing, so a no-op registration would hide the handler's effect)
   - hole: CALL CEEHDLU: unregistering an LE user condition handler is not modelled (the registration (CEEHDLR) is refused, so there is nothing to undo)
-  - hole: CALL EPSCSMRI: a sibling program of this source (translated on its own, no service of its own is made for it, so a CALL cannot reach it)
-  - hole: CALL EPSCSMRO: a sibling program of this source (translated on its own, no service of its own is made for it, so a CALL cannot reach it)
+  - hole: CALL EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:1266: the PICTURE N (a national / DBCS item) is not modelled (national / DBCS data, #4664): the translator reads one byte a character
+  - hole: CALL EPSCSMRO: no service of its own, its translation is refused: OS/VS COBOL BLL addressing: SERVICE LABEL (line 3332: the CICS translator's output): not modelled
   - hole: EXEC EXEC CICS: EXEC CICS SOAPFAULT CREATE not modelled (web services (SOAP / WS-Addressing) are not modelled)
   - hole: EXEC EXEC CICS: GETMAIN without INITIMG: IBM gives acquired storage no default contents
   - hole: HOLE SET TO ENTRY: procedure / function pointers are not modelled
@@ -243,7 +243,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `093a99f0a1201b5c09d29e99280955de12f8d5d9`
+- translator commit (the survey's): `c01d313247586c255b10293cf256dd2dfa0018f7`
 - corpus pin: `dbb-mortgage-application` at `ce2c1be58eb049e000c6627bd8273263fef0c606`
 - crucible pins: cics `v0.9.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.9.0 (3ca75ae0)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -253,8 +253,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 093a99f0a1201b5c09d29e99280955de12f8d5d9
-python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 093a99f0a1201b5c09d29e99280955de12f8d5d9
+python tests/tools/cics_census.py survey --baseline --sha c01d313247586c255b10293cf256dd2dfa0018f7
+python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha c01d313247586c255b10293cf256dd2dfa0018f7
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

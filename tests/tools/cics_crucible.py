@@ -450,17 +450,26 @@ def maven(project: Path, args: list[str], offline: bool, log: Path) -> tuple[boo
     return proc.returncode == 0, "\n".join(errors[:20]) or _tail(proc.stdout + proc.stderr, 20)
 
 
-def forge(case: cc.Case, work: Path, offline: bool,
-          overlays: list[Path] | None = None) -> tuple[cc.Verdict, Path | None]:  # fmt: skip
+def forge(case: cc.Case, work: Path, offline: bool, overlays: list[Path] | None = None,
+          cache: Path | None = None) -> tuple[cc.Verdict, Path | None]:  # fmt: skip
     """Refactor + cobol-to-java (config h2, the equivalence harness's) + `mvn compile`. `overlays` (the
-    java-ported side) are port overlay trees laid over the generated sources before the compile, in order."""
+    java-ported side) are port overlay trees laid over the generated sources before the compile, in order.
+    #4047: `cache` is a directory holding the generated project (before any overlay or compile): the first forge
+    fills it, later ones copy it instead of refactoring and generating again (the mutation runs' fast mode)."""
     import java_target_matrix as jtm
 
     work.mkdir(parents=True, exist_ok=True)
+    cached = cache / "project" if cache is not None else None
     try:
-        with quiet(work / "forge.log"):
-            clean = jtm.refactor(case.dir, work, scan=True)
-            project = jtm.generate(clean, "h2", jtm.MATRIX["h2"], work)
+        if cached is not None and cached.is_dir():
+            project = work / "java_h2"
+            shutil.copytree(cached, project, ignore=shutil.ignore_patterns("target"))
+        else:
+            with quiet(work / "forge.log"):
+                clean = jtm.refactor(case.dir, work, scan=True)
+                project = jtm.generate(clean, "h2", jtm.MATRIX["h2"], work)
+            if cached is not None:
+                shutil.copytree(project, cached, ignore=shutil.ignore_patterns("target"))
     except (Exception, SystemExit) as e:  # noqa: BLE001 -- the generator failing is this cell's verdict
         return cc.Verdict(
             "fail", f"generation failed: {e!r} (see {work / 'forge.log'})", kind="generation failed"
@@ -2787,6 +2796,7 @@ class PortOptions:
     of one program's port), and `actual` collects each measured cell's actual log (the proof's feedback)."""
 
     ports: Path | None = None
+    forge_cache: Path | None = None  # #4047: forge()'s `cache`
     root: Path = PORTS_DIR  # <case>/<KEY>/overlay: where each case's committed ports are, unless `ports` is given
     overlays: list[Path] = dataclasses.field(default_factory=list)
     program: str | None = None
@@ -2810,7 +2820,7 @@ def measure_ported(case: cc.Case, work: Path, offline: bool, opts: PortOptions,
             for sc in scenarios:
                 put(sc["id"], side, cc.Verdict("fail", "no port of any of its programs", needs[sc["id"]], "not ported"))
         return
-    verdict, project = forge(case, work / "forge-ported", offline, trees)
+    verdict, project = forge(case, work / "forge-ported", offline, trees, opts.forge_cache)
     if verdict.status != "pass" or project is None:
         for side in sides:
             for sc in scenarios:
@@ -3528,6 +3538,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--program", help="java-ported: only the scenarios that run this program (a proof of its port)")
     ap.add_argument("--report-dir", type=Path, help="write a proof report.json here (port_runner prove's "
                     "{report_dir}); the exit status is then whether every java-ported cell passes")  # fmt: skip
+    ap.add_argument("--forge-cache", type=Path, help="#4047: a directory holding the generated project, filled by the "
+                    "first run and copied by later ones (the mutation runs' fast mode); java-ported only")  # fmt: skip
     ap.add_argument("--strengthened", action="store_true",
                     help="#4049: add each case's strengthened scenarios (tests/cics_crucible/strengthened)")  # fmt: skip
     ap.add_argument("--derive-expected", action="store_true", help="#4049: run the strengthened scenarios of the "
@@ -3554,7 +3566,8 @@ def main(argv: list[str] | None = None) -> int:
         print("--strengthened scenarios are held for review: not in the baseline or the --ci ratchet", file=sys.stderr)
         return 2
     ported = PortOptions(ports=args.ports.resolve() if args.ports else None,
-                         overlays=[o.resolve() for o in args.overlay], program=args.program)  # fmt: skip
+                         overlays=[o.resolve() for o in args.overlay], program=args.program,
+                         forge_cache=args.forge_cache.resolve() if args.forge_cache else None)  # fmt: skip
     custom = bool(args.ports or args.overlay or args.program)
     complete = not args.cases and set(args.sides) == set(cc.SIDES) and not custom
     if args.update_baseline and not complete:

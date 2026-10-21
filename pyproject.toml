@@ -196,6 +196,7 @@ markers = [
     "slow(reason): a test over 10 s that is meant to be; the reason is required (test-time ratchet, tests/tools/time_ratchet.py)",
     "redos_sweep: an extraction ReDoS sweep (tests/extraction, name has redos / linear_on_pathological), applied by tests/conftest.py; a pull request that changes no sweep input deselects it (tests/tools/sweep_plan.py, #5166)",
     "golden_crucible: opt-in end-to-end regression test against the language-crucible corpus; needs a local checkout. Run explicitly via `pytest -m golden_crucible`.",
+    "doom_rosetta: opt-in zero-drift scan of the pinned DOOM ports against tests/golden_doom_rosetta (#5619); fetches clones at the manifest SHA and needs Universal Ctags. Run explicitly via `pytest -m doom_rosetta`.",
 ]
 addopts = "-m 'not golden_crucible'"
 norecursedirs = ["tests/fixtures"]

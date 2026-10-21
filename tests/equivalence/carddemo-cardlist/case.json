@@ -1288,6 +1288,69 @@
    "why": "#4602: WS-CA-LAST-PAGE-DISPLAYED 5, neither CA-LAST-PAGE-SHOWN (0) nor CA-LAST-PAGE-NOT-SHOWN (9): PF8 with no next page relists the last page and 1400-SETUP-MESSAGE takes the PF8 / no-next-page arm with IF CA-LAST-PAGE-NOT-SHOWN (line 913) false"
   },
   {
+   "name": "pf8-next-page-carries-return-flag",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 0,
+    "CDEMO-CARD-NUM": 0,
+    "CDEMO-LAST-MAP": "CCRDLIA",
+    "CDEMO-LAST-MAPSET": "COCRDLI",
+    "WS-CA-LAST-CARD-NUM": "1561409106491600",
+    "WS-CA-LAST-CARD-ACCT-ID": 35,
+    "WS-CA-FIRST-CARD-NUM": "0500024453765740",
+    "WS-CA-FIRST-CARD-ACCT-ID": 50,
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-ALL-ROWS": "000000000500500024453765740Y000000000270683586198171516Y000000000020923877193247330Y000000000200927987108636232Y000000000120982496213629795Y000000000441014086565224350Y000000000371142167692878931Y",
+    "WS-RETURN-FLAG": "1"
+   },
+   "receive": {
+    "CCRDLIA": {}
+   },
+   "why": "#5401 (mutation survivor 62c41cc4a8): a non-blank WS-RETURN-FLAG in the caller's COMMAREA is carried to the output COMMAREA; no other scenario sets it"
+  },
+  {
+   "name": "pf3-from-menu-stale-first-card-faulting-carddat",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 0,
+    "CDEMO-CARD-NUM": 0,
+    "CDEMO-LAST-MAP": "CCRDLIA",
+    "CDEMO-LAST-MAPSET": "COCRDLI",
+    "WS-CA-LAST-CARD-NUM": "5407099850479866",
+    "WS-CA-LAST-CARD-ACCT-ID": 21,
+    "WS-CA-FIRST-CARD-NUM": "3766281984155154",
+    "WS-CA-FIRST-CARD-ACCT-ID": 41,
+    "WS-CA-SCREEN-NUM": 3,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-ALL-ROWS": "000000000413766281984155154Y000000000193940246016141489Y000000000033999169246375885Y000000000134011500891777367Y000000000344385271476627819Y000000000364534784102713951Y000000000074859452612877065Y"
+   },
+   "receive": {
+    "CCRDLIA": {}
+   },
+   "faults": [
+    {
+     "cmd": "READNEXT",
+     "file": "CARDDAT",
+     "resp": "IOERR",
+     "why": "17 on the first READNEXT: no row is read, so CA-FIRST-CARD-ACCT-ID stays as INITIALIZE left it"
+    }
+   ],
+   "why": "#5401 (mutation survivor 6fef123a15): entered from the menu, the program INITIALIZEs its COMMAREA, so the stale first-card account id (41) must come back 0 when the browse reads no row"
+  },
+  {
    "name": "full-commarea-length",
    "aid": "DFHPF8",
    "commarea": {

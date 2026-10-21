@@ -428,8 +428,9 @@ PIC 9 is IBM-undefined and the oracle and the port read it differently (pf7/pf8 
 (`mutation.py run --only`, no re-sample): cardview `enter-carried-to-tranid` (non-blank `CDEMO-TO-TRANID`, echoed by the RETURN COMMAREA, `6d63a520f9`),
 tranlist `select-with-carried-to-tranid` (non-blank `CDEMO-TO-TRANID` on a select, so the XCTL COMMAREA shows the ninth FROM-PROGRAM byte spilling over it,
 `bdeaa77fbe`) and tranadd `pf3-low-values-from-program` (LOW-VALUES `CDEMO-FROM-PROGRAM`, which COBOL reads as blank, `e31af14845`). GnuCOBOL and the port agree on all
-three; the scores are not re-run. `test_carddemo_commarea_fields_5401.py` pins them. billpay `first-entry-with-long-selected-account` (`CDEMO-CB00-TRN-SELECTED` of 12 characters, which the MOVE truncates to 11, `d3458d6107`) is added the same way. Still open: cardlist `6fef123a15` (a stale first card account id with an empty or faulting CARDDAT) and `62c41cc4a8` (a non-blank `WS-RETURN-FLAG`);
-cardlist's two wait on the X8 oracle refusals.
+three; the scores are not re-run. `test_carddemo_commarea_fields_5401.py` pins them. billpay `first-entry-with-long-selected-account` (`CDEMO-CB00-TRN-SELECTED` of 12 characters, which the MOVE truncates to 11, `d3458d6107`) is added the same way. cardlist `pf8-next-page-carries-return-flag` (a non-blank `WS-RETURN-FLAG`, `62c41cc4a8`) and `pf3-from-menu-stale-first-card-faulting-carddat` (a menu entry whose
+stale first card account id must come back 0 when the first READNEXT faults, `6fef123a15`) need no refused scenario, so the X8 refusals never blocked them: both mutants differ
+(`commarea.WS-RETURN-FLAG` 1 vs None, `commarea.WS-CA-FIRST-CARD-ACCT-ID` 0 vs 41), and the case is proven on 33 scenarios, 36/36 paragraphs, 136/149 branches. No survivor of the item is open.
 
 #4047 then scored six CardDemo batch ports (readxref, readcust, dailyval, intcalc, posttran, trnrpt; seed 0, up to 100
 mutants each, `--jobs 3`, fast mode). These rows are seed 0 and differ from the older seed-1 CBACT04C, CBTRN02C and

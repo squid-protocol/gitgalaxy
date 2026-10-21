@@ -274,12 +274,19 @@ def pointer_view_of(records: list) -> dict[str, str]:
     items = [x for r in records for x in r.walk()]
     pointers = {x.name.upper() for x in items if x.usage == "POINTER" and x.occurs <= 1}
     out: dict[str, str] = {}
+    by_name = {x.name.upper(): x for x in items}
     for x in items:
-        if not (x.redefines and x.redefines.upper() in pointers):
+        if x.redefines and x.redefines.upper() in pointers:  # the view over the pointer (ZECS001)
+            view, ptr = x, x.redefines.upper()
+        elif x.usage == "POINTER" and x.occurs <= 1 and not x.children and x.redefines:  # #5856: the pointer over it
+            view, ptr = by_name.get(x.redefines.upper()), x.name.upper()  # (CBSTM03A's TIOT-INDEX over BUMP-TIOT)
+            if view is None or view.redefines or sum(1 for y in items if (y.redefines or "").upper() == view.name.upper()) > 1:
+                continue  # (a second REDEFINES of the view could read the handle's bytes)
+        else:
             continue
-        pic = x.picture()
-        if x.usage == "BINARY" and x.occurs <= 1 and not x.children and re.fullmatch(r"S?9+", pic):
-            out[x.name.upper()] = x.redefines.upper()
+        pic = view.picture()
+        if view.usage == "BINARY" and view.occurs <= 1 and not view.children and re.fullmatch(r"S?9+", pic):
+            out[view.name.upper()] = ptr
     return out
 
 
@@ -298,7 +305,8 @@ def overlaid_pointers(records: list) -> set[str]:
         while p is not None:
             chain.append(p)
             p = p.parent
-        if {c.name.upper() for c in chain} & redefined or any(c.redefines for c in chain):
+        over = [c for c in chain if c.redefines and views.get(c.redefines.upper()) != x.name.upper()]
+        if {c.name.upper() for c in chain} & redefined or over:
             out.add(x.name.upper())
     return out
 
@@ -315,7 +323,7 @@ def pointer_views(records: list) -> set[str]:
             view = list(x.walk())
             if any(y.category == "NUMERIC" for y in view):  # a byte (PIC X) view stays bytes
                 out.update(y.name.upper() for y in view)
-    return out
+    return out | set(pointer_view_of(records))  # #5856: and the numeric item a POINTER redefines (BUMP-TIOT)
 
 
 def write_only_pointers(records: list, proc) -> set[str]:
@@ -1286,6 +1294,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
 
     if any(f.sort for f in prog.files.values()) or gen.pcs_used:
         extra_imports.append(f"{package}.cobolrt.Sort")
+    if gen.uses_mvs:  # #5856 (A2): the z/OS control blocks a batch pointer addresses
+        extra_imports.append(f"{package}.cobolrt.DetMvs")
     if gen.sql is not None:  # the generated Db2 repositories the statements run on
         ctor_repos += [(c, f) for c, f in gen.sql.repos.items()]
         extra_imports.append(f"{package}.cobolrt.sql.DetSql")

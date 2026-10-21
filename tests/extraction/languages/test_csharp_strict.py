@@ -709,6 +709,8 @@ def test_csharp_api_contract_2730():
 # #3182: Branch C's "opens a block" lookahead, before and after the linear rewrite.
 _BRANCH_C_LOOKAHEAD_OLD = r"(?=[ \t\n]*(?:[^)]|\([^)]*\))*[ \t\n]*\)[ \t\n]*(?:\{|=>))"
 _BRANCH_C_LOOKAHEAD_NEW = r"(?=(?:[^()]*\([^)]*\))*[^)]*\)[ \t\n]*(?:\{|=>))"
+# #5685: the live lookahead also bars `;`, braces and a bare `(` in the parameter text.
+_BRANCH_C_LOOKAHEAD_LIVE = r"(?=(?:[^();{}]*\([^);{}]*\))*[^();{}]*\)[ \t\n]*(?:\{|=>))"
 
 
 def test_csharp_func_start_blanked_verbatim_string_redos_3182():
@@ -721,7 +723,7 @@ def test_csharp_func_start_blanked_verbatim_string_redos_3182():
     the old regex ~2.4s; the rewrite handles it in about a millisecond.
     """
     func_start = CSHARP_RULES["func_start"]
-    assert _BRANCH_C_LOOKAHEAD_NEW in func_start.pattern
+    assert _BRANCH_C_LOOKAHEAD_LIVE in func_start.pattern
 
     blanked_verbatim = (" " * 60 + "\n") * 100
     payload = "            verifier.VerifyIL(" + " " * 80 + ",\n" + blanked_verbatim + ");\n"

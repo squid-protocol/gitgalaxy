@@ -428,8 +428,7 @@ PIC 9 is IBM-undefined and the oracle and the port read it differently (pf7/pf8 
 (`mutation.py run --only`, no re-sample): cardview `enter-carried-to-tranid` (non-blank `CDEMO-TO-TRANID`, echoed by the RETURN COMMAREA, `6d63a520f9`),
 tranlist `select-with-carried-to-tranid` (non-blank `CDEMO-TO-TRANID` on a select, so the XCTL COMMAREA shows the ninth FROM-PROGRAM byte spilling over it,
 `bdeaa77fbe`) and tranadd `pf3-low-values-from-program` (LOW-VALUES `CDEMO-FROM-PROGRAM`, which COBOL reads as blank, `e31af14845`). GnuCOBOL and the port agree on all
-three; the scores are not re-run. `test_carddemo_commarea_fields_5401.py` pins them. Still open: billpay `d3458d6107` (`CDEMO-CB00-TRN-SELECTED` of 12 or
-more characters) and cardlist `6fef123a15` (a stale first card account id with an empty or faulting CARDDAT) and `62c41cc4a8` (a non-blank `WS-RETURN-FLAG`);
+three; the scores are not re-run. `test_carddemo_commarea_fields_5401.py` pins them. billpay `first-entry-with-long-selected-account` (`CDEMO-CB00-TRN-SELECTED` of 12 characters, which the MOVE truncates to 11, `d3458d6107`) is added the same way. Still open: cardlist `6fef123a15` (a stale first card account id with an empty or faulting CARDDAT) and `62c41cc4a8` (a non-blank `WS-RETURN-FLAG`);
 cardlist's two wait on the X8 oracle refusals.
 
 #4047 then scored six CardDemo batch ports (readxref, readcust, dailyval, intcalc, posttran, trnrpt; seed 0, up to 100

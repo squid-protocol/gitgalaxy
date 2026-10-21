@@ -61,28 +61,6 @@ GAPS = "copybook_resolution_gaps"  # not features: read as `missing copybook NAM
 RULE_ORDER = ("MATCHED", "ASSUMED", "DIFFERS", "REFUSED")  # worst last
 SEQUENCE_FRAGMENT = re.compile(r"\b\d{6,8}\b")  # a key holding a sequence-area number (columns 1-6 / 73-80)
 
-# The catalogue family a feature's rules live in, and the title words that name it (None: the whole family).
-_FILE_VERBS = {"OPEN", "CLOSE", "READ", "WRITE", "REWRITE", "DELETE", "START"}
-_STATEMENT_WORDS = {
-    "ARITH": ["ADD", "SUBTRACT", "MULTIPLY", "DIVIDE", "COMPUTE"],
-    "SET-TO": ["SET"],
-    "SET-TRUE": ["SET"],
-    "SET-BY": ["SET"],
-    "GOTO": ["GO TO"],
-}
-_DATA = {
-    "COMP-1": ("HFP", None),
-    "COMP-2": ("HFP", None),
-    "EDITED": ("EDIT", None),
-    "PACKED": ("NUM", ["packed"]),
-    "COMP-3": ("NUM", ["packed"]),
-    "BINARY": ("NUM", ["BINARY"]),
-    "COMP-5": ("NUM", ["COMP-5"]),
-    "P-SCALED": ("NUM", ["P-scaled"]),
-}
-_SQL_WORDS = {"STATIC": None, "DECLARE CURSOR": ["CURSOR"]}
-
-
 def _load(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -138,48 +116,16 @@ def load_catalogue(path: Path | None) -> dict[str, Any] | None:
     return _load(path) if path and path.is_file() else None
 
 
-def _word(w: str) -> re.Pattern[str]:
-    return re.compile(r"(?<![\w-])" + re.escape(w) + r"(?![\w-])")
-
-
-def _route(category: str, key: str) -> tuple[list[str], list[str] | None, str | None]:
-    """(families, title words or None for the whole family, an option name for a compile option)."""
-    if category == "compile_options":
-        return [], [], key.split(":")[0].strip()
-    if category in ("cics_commands", "cics_options"):
-        verb, _, opt = key.partition(": ")
-        return ["CICS"], [verb] + ([opt] if opt else []), None
-    if category == "sql_forms":
-        return ["SQL"], _SQL_WORDS.get(key, [key]), None
-    if category == "intrinsic_functions":
-        return ["FUNC"], [key], None
-    if category == "data_types":
-        fam, words = _DATA.get(key, (None, []))
-        return ([fam] if fam else []), words, None
-    if key in ("SORT", "MERGE", "RELEASE", "RETURN"):
-        return ["SORT"], None, None
-    if key in _FILE_VERBS:
-        return ["FILE"], [key], None
-    if key in ("DISPLAY", "STOP"):
-        return ["SYS"], [key], None
-    return ["CBL"], _STATEMENT_WORDS.get(key, [key]), None
-
-
 def match_rules(category: str, key: str, catalogue: dict[str, Any] | None) -> list[dict[str, Any]]:
-    """The catalogue rules for a feature: a compile option by the rules' `options`; any other feature by its family
-    and its words in the rule's title (all words, case as written). A heuristic until the catalogue keys features."""
+    """The catalogue rules for a feature: a compile option by the rules' `options`, any other feature by the rules'
+    `features` (the inventory's "category: key", #5565)."""
     if not catalogue:
         return []
-    families, words, option = _route(category, key)
-    if option:
+    if category == "compile_options":
+        option = key.split(":")[0].strip()
         return [r for r in catalogue["rules"] if option in r.get("options", [])]
-    out = []
-    for r in catalogue["rules"]:
-        if r["family"] not in families:
-            continue
-        if words is None or all(_word(w).search(r["title"]) for w in words):
-            out.append(r)
-    return out
+    fid = f"{category}: {key}"
+    return [r for r in catalogue["rules"] if fid in r.get("features", [])]
 
 
 def _programs(report: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -522,7 +468,7 @@ def render_non_burned_eras(nb: dict[str, Any]) -> list[str]:
 def render(matrix: dict[str, Any] | None = None) -> str:
     m = matrix or build()
     catalogue = (
-        f"`{m['catalogue']}` (features matched to rules by family and title words: a heuristic)."
+        f"`{m['catalogue']}` (features matched to rules by their `features` keys)."
         if m["catalogue"]
         else "not yet catalogued (#4711): every feature misses that condition."
     )

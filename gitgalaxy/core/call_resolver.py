@@ -1461,13 +1461,9 @@ def resolve_calls(
                 for step, dst in targets:
                     if dst is not None and dst.path == src_path and dst.line == caller_line and dst.name == caller_name:
                         # recursion through a qualified name (`Foo::bar` calling `bar`); a bare call
-                        # that reaches only the unit itself is not a call (#3327, #5628)
-                        if (
-                            kind == "call"
-                            and callee != caller_name
-                            and len(targets) == 1
-                            and not any(quals.get(callee) or ())
-                        ):
+                        # that reaches only the unit itself is not a call (#3327, #5628); only where the
+                        # detector recorded the bare qualifier (a shell `md5` is a binary, not recursion)
+                        if kind == "call" and callee != caller_name and len(targets) == 1 and quals.get(callee) == [""]:
                             recursive.append(callee)
                         continue
                     resolution = RESOLUTION_OF_STEP[step]

@@ -95,7 +95,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C10 | compiler | INITIALIZE / VALUE ZERO zoned items: unsigned F zone (GnuCOBOL) vs preferred C sign (z/OS) | DIFFERS (tolerated where a case declares it) | yes (CardDemo READACCT ARRYFILE) |
 | C11 | compiler | A non-digit in a numeric DISPLAY item: MOVEd from an alphanumeric item (#4049); MOVEd to a binary item (#4652); read as a MOVE sender, an operand, a comparand, and the sign rewrite of a signed sender (#4662) | DIFFERS (#4049: inputs kept out of the cases) / MODELLED, the oracle's rules (#4652, #4662) | yes (COMEN01C option `1!`; GenApp LGTESTP4's add) |
 | C12 | compiler | FUNCTION RANDOM: the oracle's generator (glibc via GnuCOBOL), not IBM's unpublished one; a seed IBM does not allow refused | DIFFERS (the numbers) / ASSUMED (the interface) | yes (CBSA CRDTAGY1-5, INQCUST: cbsa-crdtagy1..5, cbsa-inqcust, seeds 0 and a stated `"taskn"`; BANKDATA: cbsa-bankdata, seed 7, with an indexed file and Db2); translated, no proof yet (GenApp LGICVS01) |
-| C13 | compiler | A numeric operand compared with a nonnumeric one (an alphanumeric, alphabetic or numeric-edited item): compared as its characters, not by value (#4665) | MATCHED (unsigned integer literals as written; zoned, packed and binary items as their digits, sign dropped; non-integer ones as the oracle's digits) / REFUSED (a signed literal, a SIGN SEPARATE or P-scaled item, an arithmetic expression, an equality with a literal of more decimal places than an edited item) | yes: CardDemo COTRTLIC (proven; an alphanumeric item against `0`); no proven program compares an edited item or a group with a number |
+| C13 | compiler | A numeric operand compared with a nonnumeric one (an alphanumeric, alphabetic or numeric-edited item): compared as its characters, not by value (#4665) | MATCHED (unsigned integer literals as written; zoned items as their digits, sign dropped; non-integer ones as the oracle's digits) / REFUSED (a signed literal, a SIGN SEPARATE, P-scaled, packed or binary item, an arithmetic expression, an equality with a literal of more decimal places than an edited item) | yes: CardDemo COTRTLIC (proven; an alphanumeric item against `0`); no proven program compares an edited item or a group with a number |
 | C14 | compiler | Size errors without ON SIZE ERROR: a zero divisor leaves the receivers unchanged in the oracle (libcob's NaN), the det runtime the same (#4655); z/OS's result is undefined (a decimal-divide exception); 0 ** a negative is 0 in the oracle, a size error on z/OS | MATCHED (det runtime = oracle) / DIFFERS (oracle vs z/OS) | not known to be: no proven scenario divides by zero |
 | C15 | compiler | `CALL identifier`: the port dispatches over the program names the item can hold, found from the source (VALUE, VALUE table, MOVEs of literals); uppercase names of up to 8 characters; any other value, write or name refused by name (#4736) | MODELLED where the names are known, REFUSED where they are not | yes (end-to-end test against cobc; DBB EPSCSMRT translates whole, its callee EPSMPMT is refused) |
 | C16 | compiler | A 1- or 2-digit COMP-5 item: one byte in GnuCOBOL, a halfword on z/OS (and in the det layout), so offsets, record lengths and a value past the byte differ; no cobc option changes it (#4751) | DIFFERS (oracle vs IBM, declared) / REFUSED (the oracle refuses such a program by name) | no: no corpus or case declares one |
@@ -969,7 +969,7 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   ZZZ,ZZ9.99` holding 1500 (`  1,500.00`) is neither greater than `1499.99` nor `1499` -- text, not value. A literal
   is its characters as written: `0012` is `0012`, `12` is `12` (`  12` = `12` is false), `1499.99` is `149999`,
   `0.12` is `012`. A zoned item is its bytes with an overpunched sign unpunched; a packed or binary item its value in
-  its PICTURE's digits (`S9(4) COMP-3` 12 is `0012`); the sign is dropped (-1234 equals `1234`). ZERO against an
+  its PICTURE's digits (refused by the port, below) (`S9(4) COMP-3` 12 is `0012`); the sign is dropped (-1234 equals `1234`). ZERO against an
   edited item is a run of `0` characters. EVALUATE subjects, THRU ranges and an 88 on an edited item compare the
   same way.
 - **A group** (#4671; `GRPCMP`, measured 2026-10-17): GnuCOBOL compares a group holding `0012` with a number as text,
@@ -996,10 +996,18 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   zoned item's overpunch, a packed or binary item's bytes, so `G = NP` with `G` `0012` and `NP` 12 was false in
   the port, true in the oracle). A group against a numeric literal was already its written characters.
 - **Pinned** by `tests/cobol_mainframe/test_det_programs.py` (`EDCMP` and `GRPCMP` against GnuCOBOL; the refusals by name, group shapes too).
-- **To settle.** IBM's packed, binary and expression operands are rejected, while the port still compares a packed
-  or binary item against a nonnumeric one as its digits (the oracle does); a program IBM rejects never reaches that.
-  A z/OS run of `EDCMP` (and of a signed-literal variant) would confirm the characters; `calibration` stays
-  "uncalibrated" until then (#4702 Part 2).
+- **Packed and binary items (#4702) -- REFUSED.** IBM's table has no entry for a native numeric item (packed, binary,
+  COMP-5) against an alphanumeric, edited or group operand, so IBM rejects the program, while the oracle compares the
+  item's digits. The port used to follow the oracle; `Gen.digits_as_text` now refuses it by name ("IBM rejects a packed
+  or binary operand there ... (C13)"), either way round, for every nonnumeric comparand (alphanumeric, numeric-edited,
+  group) and in EVALUATE, THRU and 88 forms (all go through `Gen.cmp`). Floating-point items were already refused (C6).
+  Nothing proven moved: `det_port.py check` over the six burned estates (CardDemo, CBSA, GenApp, zECS, DBB
+  MortgageApplication, cicsdev async credit-card; 146 cases) left 146/146 ports unchanged, 2026-10-20, so no burned
+  program compares a packed or binary item with a nonnumeric one. `EDCMP` and `GRPCMP` lost their packed / binary lines
+  (still equal to GnuCOBOL otherwise); the refusal is pinned in `test_det_programs.py`
+  (`test_a_native_numeric_item_compared_with_a_nonnumeric_one_is_refused_by_name_ibm_rejects_it`).
+- **To settle.** A z/OS run of `EDCMP` (and of a signed-literal variant) would confirm the characters; `calibration`
+  stays "uncalibrated" until then (#4702 Part 2).
 
 ### C14. Size errors (a zero divisor, an exponent, overflow) — the det runtime MATCHES the oracle (#4655); the oracle DIFFERS from z/OS where IBM leaves the result undefined
 - **IBM** (Enterprise COBOL for z/OS 6.4 Language Reference, SC27-8713-03, "SIZE ERROR phrases", pp. 296-297,

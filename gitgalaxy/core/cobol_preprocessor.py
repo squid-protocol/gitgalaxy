@@ -25,6 +25,8 @@ rules live here once, zero-dependency (no tree-sitter), and both sides import th
                     one expanded line with the file and line it came from (a COPY member's own line, not a
                     line of the expanded text), and the map of a whole expansion: findings and generated
                     code point at `CUSTREC.cpy:12`
+    expand          every COPY / EXEC SQL INCLUDE replaced by its member's lines (recursively, REPLACING applied);
+                    which file a member is, and how its lines are read, are the caller's callbacks
 
 Member resolution stays in core/copy_libraries.py (the engine owns it since #4468).
 """
@@ -32,7 +34,7 @@ Member resolution stays in core/copy_libraries.py (the engine owns it since #446
 from __future__ import annotations
 
 import re
-from collections.abc import Iterator
+from collections.abc import Callable, Hashable, Iterator
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -339,3 +341,76 @@ class MappedLine:
 def line_map(lines: list[MappedLine]) -> list[tuple[str, int]]:
     """#5648: the expansion's line map: entry i is the (file, line) of expanded line i."""
     return [(ln.file, ln.line) for ln in lines]
+
+
+def expand(
+    lines: list,
+    resolve: Callable[[MappedLine, CopyStatement, str, frozenset], Hashable | None],
+    load: Callable[[Hashable, str, CopyStatement], list],
+    *,
+    depth: int = 0,
+    chain: frozenset = frozenset(),
+    make: Callable[[str, str, int], MappedLine] = MappedLine,
+    on_copy: Callable[[MappedLine, str], None] | None = None,
+    max_depth: int = 8,
+    nesting_error: Callable[[str], Exception] = ValueError,
+    identity: Callable[[Hashable], Hashable] = lambda key: key,
+) -> list:
+    """#5648: `lines` with each COPY statement (and `EXEC SQL INCLUDE m END-EXEC`, read as `COPY m.`) replaced by its
+    member's lines, recursively, REPLACING ==a== BY ==b== and word-for-word `a BY b` applied to the member's text.
+
+    The member's identity and text belong to the caller: `resolve(line, copy, where, chain)` returns a hashable key
+    for the member `copy` names on `line` (None: none found, the COPY expands to nothing) and raises its own refusal;
+    `chain` is the keys being expanded already (the caller refuses a cycle). `load(key, where, copy)` returns the member's
+    lines (and may refuse a member that is not a copybook). `make(text, file, line)` builds a line of the caller's
+    own class. `identity(key)` is what `chain` holds for a member (a resolved path). `on_copy(line, member_name)` sees each COPY of the top level only. A member nested deeper than
+    `max_depth` raises `nesting_error(message)`."""
+    out: list = []
+    i = 0
+    while i < len(lines):
+        ln = lines[i]
+        texts = [x.text for x in lines]
+        joined = join_copy_alone(texts, i)
+        if joined is not None:  # #4459: the member name on the next line
+            ln = make(joined, ln.file, ln.line)
+            lines = [*lines[:i], ln, *lines[i + 2 :]]
+        m = next((c for c in copy_statements(ln.text) if not open_literal(ln.text[: c.start])), None)
+        if not m:
+            texts = [x.text for x in lines]
+            inc = sql_include_as_copy(texts, i)
+            if inc is not None:  # EXEC SQL INCLUDE member END-EXEC is a COPY of the member
+                lines = [*lines[:i], make(inc[0], ln.file, ln.line), *lines[inc[1] + 1 :]]
+                ln = lines[i]
+                m = next((c for c in copy_statements(ln.text) if not open_literal(ln.text[: c.start])), None)
+        if not m:
+            out.append(ln)
+            i += 1
+            continue
+        stmt, j = gather_copy([x.text for x in lines], i, m.start)
+        end = statement_end(stmt, m.start)
+        tail = stmt[end:] if end > 0 else ""
+        stmt = stmt[m.start : end] if end > 0 else stmt[m.start :]
+        where = ln.origin
+        member = resolve(ln, m, where, chain)
+        if depth > max_depth:
+            raise nesting_error(f"{where}: COPY {m.member} nests deeper than {max_depth}")
+        if on_copy is not None:
+            on_copy(ln, m.member)
+        expanded: list = []
+        if member is not None:
+            body = load(member, where, m)
+            pairs = copy_replacing(stmt, m.end - m.start)
+            if pairs:
+                for b in body:
+                    b.text = replace_text(b.text, pairs) or b.text
+            expanded = expand(body, resolve, load, depth=depth + 1, chain=chain | {identity(member)},
+                              make=make, max_depth=max_depth, nesting_error=nesting_error, identity=identity)  # fmt: skip
+        # the text before COPY on its line (rare: `01 X. COPY Y.`) and what follows the COPY's period stay
+        head = ln.text[: m.start]
+        if head.strip():
+            out.append(make(head, ln.file, ln.line))
+        out += expanded
+        if tail.strip():  # what follows the COPY's period (`COPY A. COPY B.`) is read on
+            lines = [*lines[: j + 1], make(tail.lstrip(), ln.file, lines[j].line), *lines[j + 1 :]]
+        i = j + 1
+    return out

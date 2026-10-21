@@ -936,6 +936,42 @@
    }
   },
   {
+   "name": "pf3-xctl-fails",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 0,
+    "CDEMO-CARD-NUM": 0,
+    "CDEMO-LAST-MAP": "CCRDLIA",
+    "CDEMO-LAST-MAPSET": "COCRDLI",
+    "WS-CA-LAST-CARD-NUM": "1561409106491600",
+    "WS-CA-LAST-CARD-ACCT-ID": 35,
+    "WS-CA-FIRST-CARD-NUM": "0500024453765740",
+    "WS-CA-FIRST-CARD-ACCT-ID": 50,
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-ALL-ROWS": "000000000500500024453765740Y000000000270683586198171516Y000000000020923877193247330Y000000000200927987108636232Y000000000120982496213629795Y000000000441014086565224350Y000000000371142167692878931Y"
+   },
+   "receive": {
+    "CCRDLIA": {}
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COMEN01C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#5401: XCTL COMEN01C answers PGMIDERR RESP2 3 (the program could not be loaded, IBM CICS TS XCTL conditions); the source has no RESP, so CICS abends the task and no screen or COMMAREA is returned"
+  },
+  {
    "name": "pf15-acts-as-pf3",
    "aid": "DFHPF15",
    "commarea": {
@@ -1377,6 +1413,82 @@
    },
    "commarea_length": 414,
    "why": "#5401 (EIBCALEN, mutation survivors): the caller states EIBCALEN as the whole COMMAREA. No shorter length can be stated: the program moves DFHCOMMAREA past 160 bytes unconditionally, a reference past EIBCALEN the oracle refuses (X23)"
+  },
+  {
+   "name": "select-view-xctl-fails",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 0,
+    "CDEMO-CARD-NUM": 0,
+    "CDEMO-LAST-MAP": "CCRDLIA",
+    "CDEMO-LAST-MAPSET": "COCRDLI",
+    "WS-CA-LAST-CARD-NUM": "1561409106491600",
+    "WS-CA-LAST-CARD-ACCT-ID": 35,
+    "WS-CA-FIRST-CARD-NUM": "0500024453765740",
+    "WS-CA-FIRST-CARD-ACCT-ID": 50,
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-ALL-ROWS": "000000000500500024453765740Y000000000270683586198171516Y000000000020923877193247330Y000000000200927987108636232Y000000000120982496213629795Y000000000441014086565224350Y000000000371142167692878931Y"
+   },
+   "receive": {
+    "CCRDLIA": {
+     "CRDSEL3I": "S"
+    }
+   },
+   "why": "#5401: XCTL COCRDSLC answers PGMIDERR RESP2 3 (the program could not be loaded, IBM CICS TS XCTL conditions); the source has no RESP, so CICS abends the task and no screen or COMMAREA is returned",
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COCRDSLC",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ]
+  },
+  {
+   "name": "select-update-xctl-fails",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 0,
+    "CDEMO-CARD-NUM": 0,
+    "CDEMO-LAST-MAP": "CCRDLIA",
+    "CDEMO-LAST-MAPSET": "COCRDLI",
+    "WS-CA-LAST-CARD-NUM": "3766281984155154",
+    "WS-CA-LAST-CARD-ACCT-ID": 41,
+    "WS-CA-FIRST-CARD-NUM": "1561409106491600",
+    "WS-CA-FIRST-CARD-ACCT-ID": 35,
+    "WS-CA-SCREEN-NUM": 2,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-ALL-ROWS": "000000000351561409106491600Y000000000392745303720002090Y000000000242760836797107565Y000000000062871968252812490Y000000000222940139362300449Y000000000042988091353094312Y000000000103260763612337560Y"
+   },
+   "receive": {
+    "CCRDLIA": {
+     "CRDSEL5I": "U"
+    }
+   },
+   "why": "#5401: XCTL COCRDUPC answers PGMIDERR RESP2 3 (the program could not be loaded, IBM CICS TS XCTL conditions); the source has no RESP, so CICS abends the task and no screen or COMMAREA is returned",
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COCRDUPC",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ]
   }
  ],
  "bounds_refused": {

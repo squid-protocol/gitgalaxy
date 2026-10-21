@@ -335,3 +335,52 @@ def test_the_generated_screen_cases_type_their_map_from_the_bms_source(case_dir,
     assert rule[typed_field]["miss"] > 0
     assert len(set(gen["aid"])) > 2 and case["port_from"] == case_dir.removesuffix("-generated")
     assert case["scenarios"] and all(s.get("why") for s in case["scenarios"])
+
+
+@pytest.mark.parametrize(
+    ("case_dir", "map_name", "typed_field", "opts"),
+    [
+        ("carddemo-adminmenu-generated", "COADM1A", None, {"bad": 0, "empty": 0.3}),
+        ("carddemo-menu-generated", "COMEN1A", "OPTIONI", {"bad": 0, "empty": 0}),
+    ],
+)
+def test_the_generated_menu_cases_type_their_option_from_the_bms_source(case_dir, map_name, typed_field, opts):
+    """The menus have no file to draw from (#4506): the map input is generated from the BMS source, `bad` is 0 (a NUM
+    field cannot be keyed with letters, #5116), the menu pins the option to 1-12 (0, blank and 13+ are X8 bounds
+    refusals, left to carddemo-menu's bounds_refused scenarios), and each hand-written scenario left carries its reason."""
+    import json
+
+    case = json.loads((Path(__file__).resolve().parents[1] / "equivalence" / case_dir / "case.json").read_text("utf-8"))
+    gen = case["scenario_generate"]
+    rule = gen["receive"][map_name]
+    assert rule["@bms"] == opts and not case["datasets"]
+    if typed_field:
+        assert {int(v) for v in rule[typed_field]["values"]} == set(range(1, 13))
+    assert len(set(gen["aid"])) > 2 and case["port_from"] == case_dir.removesuffix("-generated")
+    assert case["scenarios"] and all(s.get("why") for s in case["scenarios"])
+
+
+@pytest.mark.parametrize(
+    ("case_dir", "map_name", "typed_fields"),
+    [
+        ("carddemo-signon-generated", "COSGN0A", {"USERIDI", "PASSWDI"}),
+        ("carddemo-billpay-generated", "COBIL0A", {"ACTIDINI", "CONFIRMI"}),
+        ("carddemo-report-generated", "CORPT0A", {"MONTHLYI", "SDTMMI", "CONFIRMI"}),
+    ],
+)
+def test_the_generated_signon_billpay_and_report_cases_type_their_map_from_the_bms_source(
+    case_dir, map_name, typed_fields
+):
+    """The hand-written receive of signon, billpay and report moved to `@bms` (#4506): NUM fields are never keyed with
+    letters (`bad` 0, #5116), the fields a case pins beside `@bms` keep their own rule (signon's empty share is on the
+    field rule, which replaces `@bms`'s), the aid list turns through more than ENTER, the files the program reads are
+    generated (or none), and each hand-written scenario left carries its reason."""
+    import json
+
+    case = json.loads((Path(__file__).resolve().parents[1] / "equivalence" / case_dir / "case.json").read_text("utf-8"))
+    gen = case["scenario_generate"]
+    rule = gen["receive"][map_name]
+    assert rule["@bms"]["bad"] == 0 and typed_fields <= set(rule)
+    assert all(d["input"] == "@generate" for d in case["datasets"].values())
+    assert len(set(gen["aid"])) > 2 and case["port_from"] == case_dir.removesuffix("-generated")
+    assert case["scenarios"] and all(s.get("why") for s in case["scenarios"])

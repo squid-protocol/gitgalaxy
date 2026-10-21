@@ -202,8 +202,8 @@
     },
     {
       "id": "multi-program-call",
-      "match": "^CALL (?:CALL )?(?:EPSCSMR[A-Z]\\b|[A-Z0-9#@$-]+: a sibling program of this source)",
-      "note": "A CALL to a sibling program of the same multi-program source (DBB epscsmrd.cbl's EPSCSMRI / EPSCSMRO / EPSCSMRX): refused by name since #5106 (dyncall.sibling_refusal), static and dynamic CALL. Each program is translated on its own and no service is made for a sibling, so the CALL has nothing to reach; the shapes epscsmrd's CALLs use (OMITTED, RETURNING, a group USING item) are not yet read. The old report text is `CALL CALL EPSCSMRX`, the refusal reads `CALL EPSCSMRX: ...`: both match. Engine side: #4447, #4404.",
+      "match": "^CALL CALL EPSCSMR[A-Z]$|^CALL [A-Z0-9#@$-]+: a sibling program of this source",
+      "note": "A CALL to a sibling program of the same multi-program source (DBB epscsmrd.cbl's EPSCSMRI / EPSCSMRO / EPSCSMRX): resolved since #5106 to a service of its own (static and dynamic CALL; OMITTED, RETURNING, group and BY CONTENT USING items). What stays refused is a sibling that cannot be translated: its CALL reads `X: no service of its own, its translation is refused: <the sibling's reason>` and maps to the entry owning that reason (EPSCSMRI: national text; EPSCSMRO: bll-cells), not here. This entry holds only a CALL refused for the sibling's contract (BY VALUE, a unit that CALLs back, a CICS unit, a USING shape the entry does not take) and the old report text `CALL CALL EPSCSMRX`. Engine side: #4447, #4404.",
       "issue": 5106
     },
     {
@@ -241,7 +241,7 @@
     },
     {
       "id": "bll-cells",
-      "match": "^OS/VS COBOL BLL addressing: ",
+      "match": "OS/VS COBOL BLL addressing: ",
       "issue": 5119,
       "features": [
         "statements: SERVICE"

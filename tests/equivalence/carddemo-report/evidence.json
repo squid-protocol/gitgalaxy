@@ -27,7 +27,7 @@
     "tests/equivalence/carddemo-report/**"
    ],
    "files": 1,
-   "sha256": "9a93ca4a6f47f02fc29bcaa2d0910c81d632c779ae5bc5841376e2e618ff03b4"
+   "sha256": "3aba172de5beadf93786196f08fbca230680b9134d7dab7097a9e6205423dc9c"
   },
   "harness": {
    "paths": [
@@ -181,12 +181,12 @@
     }
    }
   },
-  "digest": "5ba9d69bdfe7cc9c3b276ddf7758d0b70329867eb6247514513a83b09f074282"
+  "digest": "5aeb7dbe1bc9201a082c58555705a599e40e0a69a9cd179898c55a405220d835"
  },
  "proof": {
-  "at": "2026-10-21T03:30:49Z",
+  "at": "2026-10-21T06:51:37Z",
   "verdict": "proven",
-  "runs": 29,
+  "runs": 30,
   "fault_runs": 2,
   "environments": null,
   "outputs": {
@@ -305,6 +305,10 @@
    "short-commarea-153": {
     "equal": 3,
     "records": 3
+   },
+   "custom-end-month-single-digit": {
+    "equal": 20,
+    "records": 20
    }
   },
   "return_code_equal": null,
@@ -313,16 +317,16 @@
   "java_failed": false,
   "facade": {
    "verdict": "proven",
-   "runs": 29,
-   "passed": 29,
+   "runs": 30,
+   "passed": 30,
    "entry_points": [
     "handleTransaction"
    ],
    "failed": [],
    "error": null
   },
-  "harness_commit": "6c79520aa95e88431ea443d5ff9f7841272e4464+uncommitted",
-  "inputs_digest": "5ba9d69bdfe7cc9c3b276ddf7758d0b70329867eb6247514513a83b09f074282"
+  "harness_commit": "d3bba97b214e238efce044beba9e6aec1f6a5856+uncommitted",
+  "inputs_digest": "5aeb7dbe1bc9201a082c58555705a599e40e0a69a9cd179898c55a405220d835"
  },
  "coverage": {
   "paragraphs": {
@@ -382,7 +386,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "5ba9d69bdfe7cc9c3b276ddf7758d0b70329867eb6247514513a83b09f074282"
+  "inputs_digest": "5aeb7dbe1bc9201a082c58555705a599e40e0a69a9cd179898c55a405220d835"
  },
  "reach": {
   "entry_points": [

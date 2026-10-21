@@ -510,6 +510,16 @@
     "reason": "`IF EIBCALEN > 0` (the outer test of WRITE-ERROR-MESSAGE's COMMAREA copy) is false only for a call with no COMMAREA. Before any error path the program has already used the COMMAREA: lines 68-72 WRITEs FROM(CA-Customer-Num) with RIDFLD(CA-Customer-Num), items of the LINKAGE DFHCOMMAREA, so with EIBCALEN 0 they are read from no storage. The only caller, LGACDB01 (line 174), LINKs with Commarea(DFHCOMMAREA) LENGTH(225), so EIBCALEN is 225 on every call; a harness cannot state a COMMAREA-less call without a reference to unaddressable LINKAGE storage, which IBM leaves undefined (X23: a reference past EIBCALEN is refused on both sides, the task judged up to it)."
    }
   ],
+  "genapp-lgdpvs01": [
+   {
+    "unit": "WRITE-ERROR-MESSAGE",
+    "line": 117,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "G",
+    "reason": "`IF EIBCALEN > 0` (the outer test of WRITE-ERROR-MESSAGE's COMMAREA copy) is false only for a call with no COMMAREA. Before any error path the program has already used the COMMAREA: lines 77-79 move CA-Request-ID(4:1), CA-Policy-Num and CA-Customer-Num, items of the LINKAGE DFHCOMMAREA, into WF-Policy-Key for the DELETE, so with EIBCALEN 0 they are read from no storage. The only caller, LGDPDB01 (line 168), LINKs with Commarea(DFHCOMMAREA) LENGTH(32500) past its own `IF EIBCALEN IS EQUAL TO ZERO` ABEND LGCA, so EIBCALEN is never 0 on a call; a harness cannot state a COMMAREA-less call without a reference to unaddressable LINKAGE storage, which IBM leaves undefined (X23: a reference past EIBCALEN is refused on both sides, the task judged up to it)."
+   }
+  ],
   "genapp-lgucvs01": [
    {
     "unit": "WRITE-ERROR-MESSAGE",

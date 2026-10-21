@@ -2792,3 +2792,21 @@ def test_a_case_states_a_file_the_program_names_at_run_time():
             ec.stub_files(_NoFilesIR(), "p.cbl", {"ZC01FILE": {"runtime_file": wrong}})
     with pytest.raises(ec.Unsupported):  # a CICS file name is at most 8 upper-case characters
         ec.stub_files(_NoFilesIR(), "p.cbl", {"zc01file": {"runtime_file": _RUNTIME_FILE}})
+
+
+def test_a_clock_value_inside_a_writeq_record_is_masked_like_a_commarea_clock():
+    """X6 (past FROM): a WRITEQ record that carries the run's clock (LGAPDB01's CICA line) differs between the two runs
+    only by the moment; a stale or scenario-written timestamp is still compared exactly."""
+    import datetime
+
+    now = datetime.datetime.now().strftime("%Y-%m-%d-%H.%M.%S.%f")
+    case = {"clock_fields": {"commarea": ["CA-REQUEST-SPECIFIC(31:26)"]}}
+    counter = [0]
+    events = [
+        {"verb": "WRITEQ-TD", "text": f"CICA COMMAREA=01A{now}   "},
+        {"verb": "WRITEQ-TS", "data": "2001-01-01-00.00.00.000000"},
+    ]
+    out = ec.mask_clock_events(case, events, counter)
+    assert out[0]["text"] == "CICA COMMAREA=01A<clock>   "
+    assert out[1]["data"] == "2001-01-01-00.00.00.000000"
+    assert counter == [1]

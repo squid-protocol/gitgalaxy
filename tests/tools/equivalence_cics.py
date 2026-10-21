@@ -557,10 +557,12 @@ def _past_from(length: str | None, area: str | None, what: str) -> list[str]:
             "    MOVE 98 TO RETURN-CODE", "    STOP RUN", "END-IF"]  # fmt: skip
 
 
-def _pad_move(area: str) -> list[str]:
-    """MOVE area TO GG-PADQ(1:LENGTH OF area), split across lines when a long name would run past column 72."""
-    one = f"MOVE {area} TO GG-PADQ(1:LENGTH OF {area})"
-    return [one] if len(one) <= 48 else [f"MOVE {area}", "    TO GG-PADQ(1:", f"    LENGTH OF {area})"]
+def _move_to_padq(area: str) -> list[str]:
+    """The MOVE of a FROM item into GG-PADQ, on two lines when a long item name would push it past column 72."""
+    one = f"    MOVE {area} TO GG-PADQ(1:LENGTH OF {area})"
+    return (
+        [one] if len(_AREA_B) + len(one) + 4 <= 72 else [f"    MOVE {area}", f"        TO GG-PADQ(1:LENGTH OF {area})"]
+    )
 
 
 def _write_from(length: str | None, area: str, what: str, call: list[str]) -> list[str]:
@@ -575,7 +577,7 @@ def _write_from(length: str | None, area: str, what: str, call: list[str]) -> li
             f"        DISPLAY '{what} LENGTH > FROM: not modelled'",
             "        MOVE 98 TO RETURN-CODE", "        STOP RUN", "    END-IF",
             "    MOVE SPACES TO GG-PADQ",
-            *["    " + ln for ln in _pad_move(area)],
+            *_move_to_padq(area),
             *["    " + ln for ln in call[:-1] + [call[-1].replace(f"BY REFERENCE {area}", "BY REFERENCE GG-PADQ")]],
             "ELSE", *["    " + ln for ln in call], "END-IF"]  # fmt: skip
 
@@ -5538,6 +5540,12 @@ def mask_clock_events(case: dict[str, Any], events: list[dict[str, Any]], counte
                     ca[name] = v[:start] + "<clock>".ljust(length) + v[start + length :]
                     counter[0] += 1
             e = {**e, "commarea": ca}
+        for k in ("text", "data"):  # a WRITEQ record that carries the clock (X6: LGAPDB01's CICA line past its FROM)
+            if isinstance(e.get(k), str):
+                v = _CLOCK.sub(lambda m: "<clock>" if _from_clock(m.group()) else m.group(), e[k])
+                if v != e[k]:
+                    counter[0] += 1
+                    e = {**e, k: v}
         out.append(e)
     return out
 

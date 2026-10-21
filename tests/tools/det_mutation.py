@@ -10,6 +10,7 @@ mode and seeded sample -- and each mutant the proof does not kill either killed 
     python tests/tools/det_mutation.py record CASE RUN_DIR PORT_DIR      # a mutation.py run dir -> the ledger
     python tests/tools/det_mutation.py refresh [CASE ...] --work DIR     # an input moved: same port? carry the verdicts
     python tests/tools/det_mutation.py check                             # the ledgers' form and the claims
+    python tests/tools/det_mutation.py stale-check [--vs REF]            # exit 1: a ledger an input moved (the PR's cases)
     python tests/tools/det_mutation.py table [CASE ...]                  # per program, as the PR table
     python tests/tools/det_mutation.py survivors [CASE ...]              # the survivors and their stated verdicts
     python tests/tools/det_mutation.py state CASE TRIAGE.json            # {id: {verdict, reason}} -> the list
@@ -529,6 +530,43 @@ def refresh(cases: list[str], work: Path) -> int:
     return rc or (2 if port_moved else 0)
 
 
+def changed_cases(ref: str) -> set[str] | None:
+    """The cases whose directory differs from `ref`'s merge base (what this PR changes), or None when git cannot say."""
+    base = subprocess.run(["git", "merge-base", ref, "HEAD"], cwd=REPO, capture_output=True, text=True, check=False)
+    if base.returncode:
+        return None
+    diff = subprocess.run(["git", "diff", "--name-only", base.stdout.strip(), "--", "tests/equivalence"], cwd=REPO,
+                          capture_output=True, text=True, check=False)  # fmt: skip
+    if diff.returncode:
+        return None
+    return {parts[2] for f in diff.stdout.split() if len(parts := f.split("/")) > 3}
+
+
+def stale_check(ref: str | None = None) -> int:
+    """Exit 1 when a ledger's case has an input that moved (cheap: fingerprints only, no translate). With `ref`, only
+    the cases this PR changes: a case-strengthening PR re-runs its ledger in the same PR (#5862); drift main already
+    carries is the nightly lane's (evidence-refresh.yml)."""
+    ledger = load()
+    scope = changed_cases(ref) if ref else None
+    if ref and scope is None:
+        print(f"det mutation: cannot diff against {ref}: checking every ledger")
+    bad = []
+    for case in sorted(ledger):
+        if scope is not None and case not in scope or not (CASES / case / "case.json").is_file():
+            continue
+        try:
+            moved = stale(ledger[case], fingerprints(case))
+        except (RuntimeError, KeyError, OSError):
+            moved = ["unknown"]
+        if moved:
+            bad.append(case)
+            print(f"det mutation: {case}: stale ({', '.join(moved)}): python tests/tools/det_mutation.py refresh "
+                  f"{case} --work DIR (a det port that moved needs `run`), then commit "
+                  f"tests/equivalence/det_mutation/{case}.json")  # fmt: skip
+    print("det mutation: no stale ledger" if not bad else f"det mutation: {len(bad)} stale ledger(s)")
+    return 1 if bad else 0
+
+
 def state(case: str, triage: dict[str, dict[str, str]]) -> int:
     """Write verdicts for the case's surviving mutants into the survivor list, the Java line before / after taken
     from the ledger's run (an id the run did not see survive is refused)."""
@@ -601,6 +639,8 @@ def main(argv: list[str] | None = None) -> int:
     rf.add_argument("cases", nargs="*")
     rf.add_argument("--work", type=Path, required=True)
     sub.add_parser("check")
+    sc = sub.add_parser("stale-check")
+    sc.add_argument("--vs", metavar="REF", help="only the cases this branch changes against REF (merge base)")
     t = sub.add_parser("table")
     t.add_argument("cases", nargs="*")
     st = sub.add_parser("state")
@@ -615,6 +655,8 @@ def main(argv: list[str] | None = None) -> int:
         return record(args.case, args.run_dir, args.port)
     if args.cmd == "refresh":
         return refresh(args.cases, args.work)
+    if args.cmd == "stale-check":
+        return stale_check(args.vs)
     if args.cmd == "table":
         print(table(args.cases or None))
         return 0

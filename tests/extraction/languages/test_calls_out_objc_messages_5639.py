@@ -52,6 +52,12 @@ def _calls(body: str) -> list[str]:
         ("    [arr[i] count];", ["count"]),
         ("    [(Foo *)obj bar:1];", ["bar"]),
         ("    [Lookup(x) fetch];", ["Lookup", "fetch"]),
+        # a keyword send to a call receiver: the call and the send are both recorded (the send is found at its `[`, before the call)
+        ("    [Lookup(x) fetch:1];", ["fetch", "Lookup"]),
+        ("    [Lookup(a, g(b)) fetch:1 with:2];", ["fetch", "Lookup", "g"]),
+        ("    x = [[Lookup(x) fetch:1] other];", ["fetch", "Lookup", "other"]),
+        ("    [self add:Lookup(x) to:y];", ["add", "Lookup"]),
+        ("    y = c ? f(x) g : h;", ["f"]),
         # inside a C call, beside a C call
         ("    return NameForIWAD([self getSelectedIWAD]);", ["NameForIWAD", "getSelectedIWAD"]),
         ("    free(x);\n    [self done];", ["free", "done"]),
@@ -82,6 +88,8 @@ def test_pattern_is_redos_immune():
     assert_redos_immune(pattern, "[" + " " * 20000 + "x")
     assert_redos_immune(pattern, "] " * 20000)
     assert_redos_immune(pattern, "[(" + "a" * 20000)
+    assert_redos_immune(pattern, "[f(" + "(a" * 5000)
+    assert_redos_immune(pattern, "[f(" + "a " * 20000)
 
 
 def _qualifiers(body: str) -> dict[str, list[str]]:
@@ -104,6 +112,7 @@ def _qualifiers(body: str) -> dict[str, list[str]]:
         # a receiver that is itself a send or a call has no name
         ("    x = [[Foo alloc] init];", {"alloc": ["Foo"], "init": ["<expr>"]}),
         ("    [Lookup(x) fetch];", {"Lookup": [""], "fetch": ["<expr>"]}),
+        ("    [Lookup(x) fetch:1];", {"Lookup": [""], "fetch": ["<expr>"]}),
         ("    free(x);\n    [self done];", {"free": [""], "done": ["self"]}),
         ("    [a go];\n    [b go];\n    [a go];", {"go": ["a", "b"]}),
     ],

@@ -10544,9 +10544,11 @@ class StructuralExtractor:
                 )
                 for m in invocation_pattern.finditer(safe_block):
                     # #5639: a message send's groups are (receiver, selector); a C call's is group 1
-                    is_send = message_receivers and m.group(3) is not None
-                    callee = m.group(3) if is_send else m.group(1)
-                    callee_pos = m.start(3) if is_send else m.start(1)
+                    # group 4 is a keyword send to a call receiver (`[f(x) a:1]`)
+                    send_group = next((g for g in (3, 4) if g <= m.re.groups and m.group(g) is not None), None)
+                    is_send = message_receivers and send_group is not None
+                    callee = m.group(send_group) if is_send else m.group(1)
+                    callee_pos = m.start(send_group) if is_send else m.start(1)
                     # #5629: a macro in the unit's header (its defining macro, a parameter-list macro).
                     if callee_pos < header_end and _HEADER_MACRO_NAME.match(callee):
                         continue

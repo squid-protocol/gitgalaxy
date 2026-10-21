@@ -201,6 +201,23 @@ def coverage_of(line: str) -> tuple[int, int, int, int] | None:
     return tuple(int(x) for x in m.groups()) if m else None  # type: ignore[return-value]
 
 
+_LEDGERS: dict[tuple, dict[str, Any]] = {}
+
+
+def _ledger() -> dict[str, Any]:
+    """det_coverage_ledger.load(), read again only when a file of the ledger changed (name, size, mtime): a report
+    build asks once a program (~165 a build), and each read parsed every entry (#5882). Its readers here only read it."""
+    import det_coverage_ledger as dcl
+
+    d = dcl.LEDGER_DIR
+    key = (id(dcl.load), str(d),  # (a test's own load or directory is read as itself)
+           tuple((f.name, f.stat().st_size, f.stat().st_mtime_ns) for f in sorted(d.glob("*.json"))) if d.is_dir() else ())  # fmt: skip
+    if key not in _LEDGERS:
+        _LEDGERS.clear()
+        _LEDGERS[key] = dcl.load()
+    return _LEDGERS[key]
+
+
 def ledger_readings(cases: list[str] | None = None, cases_dir: Path = CASES) -> dict[str, Any]:
     """#5075: case -> its det-sweep ledger entry as a reader may take it (det_coverage_ledger.last_coverage):
     [paragraphs covered, live, branches covered, total] while current; {"coverage": [...], "stale_inputs": [...],
@@ -211,7 +228,7 @@ def ledger_readings(cases: list[str] | None = None, cases_dir: Path = CASES) -> 
 
     if cases_dir != CASES:  # a fixture tree: fingerprints are the repo's
         return {}
-    ledger = dcl.load()
+    ledger = _ledger()
     out: dict[str, Any] = {}
     for case in sorted(ledger) if cases is None else cases:
         last = dcl.last_coverage(case, ledger)
@@ -233,7 +250,7 @@ def ledger_linked(cases: list[str] | None = None, cases_dir: Path = CASES) -> di
 
     if cases_dir != CASES:
         return {}
-    ledger = dcl.load()
+    ledger = _ledger()
     out: dict[str, dict[str, Any]] = {}
     for case in sorted(ledger) if cases is None else cases:
         last = dcl.last_coverage(case, ledger)
@@ -267,7 +284,7 @@ def ledger_coverage(case: str, cases_dir: Path = CASES) -> tuple[int, int, int, 
 
     if cases_dir != CASES:  # a fixture tree: fingerprints are the repo's
         return None
-    return dcl.fresh_coverage(case, dcl.load())
+    return dcl.fresh_coverage(case, _ledger())
 
 
 def evidence_coverage(case: str, cases_dir: Path = CASES) -> tuple[int, int, int, int] | None:

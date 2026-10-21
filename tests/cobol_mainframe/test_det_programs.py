@@ -1385,6 +1385,27 @@ PROGRAMS["INITREPL"] = program(
         "DISPLAY NUMS",
     ],
 )
+# #5278 (CardDemo COPAUA0C, register C17): a table holding items REPLACING does not name translates with a run-time check
+# that the occurrences agree (then IBM's "left as it is" and GnuCOBOL's copy of the first are the same bytes)
+PROGRAMS["INITRTB"] = program(
+    "INITRTB",
+    [
+        "01 TBL.",
+        "   05 T-ST PIC X(2) OCCURS 3 VALUE 'AB'.",
+        "   05 T-N PIC 9(2) OCCURS 3 VALUE 9.",
+        "01 GRP.",
+        "   05 G-TAB OCCURS 2.",
+        "      10 G-T PIC 9(2) VALUE 9.",
+        "      10 G-TX PIC X(2) VALUE 'TT'.",
+    ],
+    [
+        "INITIALIZE TBL REPLACING NUMERIC DATA BY ZERO",
+        "DISPLAY T-ST(1) T-ST(2) T-ST(3) T-N(1) T-N(2) T-N(3)",
+        "MOVE 31 TO G-T(2)",
+        "INITIALIZE GRP REPLACING NUMERIC BY 5",
+        "DISPLAY G-T(1) G-TX(1) G-T(2) G-TX(2)",
+    ],
+)
 # the same under a PROGRAM COLLATING SEQUENCE (EBCDIC; letters and spaces only, which IBM and GnuCOBOL order alike),
 # and with an ALSO alphabet where an equality consults the sequence too
 _ALL_LETTERS = [i for i in ALL_ITEMS if i[0][0] != "N"]

@@ -22,7 +22,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [CORPT00C](carddemo-report.md) | carddemo-report | cics | proven, unapproved |  | 30 | 10/10 / 52/59 | 58/87 / 58/60 | 0 | - |
 | [COSGN00C](carddemo-signon.md) | carddemo-signon | cics | proven, unapproved |  | 18 | 6/6 / 17/17 | 67/99 / 67/72 | 0 | - |
 | [COTRN02C](carddemo-tranadd.md) | carddemo-tranadd | cics | proven, unapproved |  | 78 | 18/18 / 72/75 | 61/91 / 61/73 | 0 | - |
-| [COTRN00C](carddemo-tranlist.md) | carddemo-tranlist | cics | proven, unapproved |  | 36 | 16/16 / 96/101 | 64/91 / 64/79 | 0 | - |
+| [COTRN00C](carddemo-tranlist.md) | carddemo-tranlist | cics | proven, unapproved |  | 36 | 16/16 / 96/101 | 66/91 / 66/79 | 0 | - |
 | [COTRN01C](carddemo-tranview.md) | carddemo-tranview | cics | proven, unapproved |  | 20 | 9/9 / 23/24 | 67/100 / 67/67 | 0 | - |
 | [CBTRN03C](carddemo-trnrpt.md) | carddemo-trnrpt | batch | proven, unapproved |  | 25 | 26/26 / 81/82 | 68/86 / 68/79 | 0 | - |
 | [COUSR01C](carddemo-useradd.md) | carddemo-useradd | cics | proven, unapproved |  | 22 | 9/9 / 20/21 | 63/98 / 63/64 | 0 | - |

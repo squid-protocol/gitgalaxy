@@ -4,7 +4,7 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `c01d313247586c255b10293cf256dd2dfa0018f7` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `5a2f980da440fded936b567f016701765dff653d` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
 The translation survey matches the translator in the tree (translator fingerprint `bfe79aadd7f3`).
 
@@ -937,7 +937,7 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Executed equivalence** (carddemo-acctview, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 22/22 scenarios equal, 53/53 records equal, 22 runs (6 fault runs); through its deployed entry points 22/22
 - **Executed equivalence** (carddemo-acctview-generated, program): det port equal (CI det-sweep ratchet on main)
-  - evidence record: none (0 scenarios in case.json)
+  - evidence record (the case's committed port): not measured; its proof: all equal, 63/63 scenarios equal, 174/174 records equal, 63 runs (6 fault runs); through its deployed entry points 63/63
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 31/32 (96.9%), branch outcomes 58/69 (84.1%) raw, 58/69 (84.1%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -1179,7 +1179,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `c01d313247586c255b10293cf256dd2dfa0018f7`
+- translator commit (the survey's): `5a2f980da440fded936b567f016701765dff653d`
 - corpus pin: `aws-mainframe-modernization-carddemo` at `59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e`
 - crucible pins: cics `v0.9.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.9.0 (3ca75ae0)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -1189,10 +1189,10 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha c01d313247586c255b10293cf256dd2dfa0018f7
-python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha c01d313247586c255b10293cf256dd2dfa0018f7
+python tests/tools/cics_census.py survey --baseline --sha 5a2f980da440fded936b567f016701765dff653d
+python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 5a2f980da440fded936b567f016701765dff653d
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-adminmenu-generated,carddemo-billpay,carddemo-billpay-generated,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cardview-generated,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaus2c,carddemo-copaus2c-generated,carddemo-cotrtlic,carddemo-cotrtlic-generated,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-menu-generated,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-report-generated,carddemo-signon,carddemo-signon-generated,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-useradd-generated,carddemo-userdel,carddemo-userdel-generated,carddemo-userlist,carddemo-userupd,carddemo-userupd-generated  # Db2 cases (7) need the Db2 container
-python tests/tools/evidence.py prove carddemo-acctview carddemo-adminmenu carddemo-billpay carddemo-cardlist carddemo-cardview carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd
+python tests/tools/evidence.py prove carddemo-acctview carddemo-acctview-generated carddemo-adminmenu carddemo-billpay carddemo-cardlist carddemo-cardview carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin
 ```

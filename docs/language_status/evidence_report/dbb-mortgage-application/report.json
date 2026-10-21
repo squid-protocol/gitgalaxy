@@ -163,9 +163,9 @@
     69
    ],
    "carddemo-acctview-generated": [
-    30,
+    31,
     32,
-    42,
+    58,
     69
    ],
    "carddemo-adminmenu": [
@@ -770,6 +770,12 @@
     14
    ],
    "genapp-lgacdb02": [
+    3,
+    3,
+    10,
+    10
+   ],
+   "genapp-lgacdb02-generated": [
     3,
     3,
     10,
@@ -1489,7 +1495,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "c01d313247586c255b10293cf256dd2dfa0018f7",
+   "sha": "5a2f980da440fded936b567f016701765dff653d",
    "translator": {
     "files": 133,
     "sha256": "bfe79aadd7f35cb2f845f3257a2f9d620b7e0802520aea31798c198b7790492e"
@@ -3868,8 +3874,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha c01d313247586c255b10293cf256dd2dfa0018f7",
-   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha c01d313247586c255b10293cf256dd2dfa0018f7",
+   "python tests/tools/cics_census.py survey --baseline --sha 5a2f980da440fded936b567f016701765dff653d",
+   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 5a2f980da440fded936b567f016701765dff653d",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -3890,13 +3896,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "c01d313247586c255b10293cf256dd2dfa0018f7",
+   "sha": "5a2f980da440fded936b567f016701765dff653d",
    "translator": {
     "files": 133,
     "sha256": "bfe79aadd7f35cb2f845f3257a2f9d620b7e0802520aea31798c198b7790492e"
    }
   },
-  "translator_commit": "c01d313247586c255b10293cf256dd2dfa0018f7",
+  "translator_commit": "5a2f980da440fded936b567f016701765dff653d",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

@@ -193,9 +193,9 @@
     69
    ],
    "carddemo-acctview-generated": [
-    30,
+    31,
     32,
-    42,
+    58,
     69
    ],
    "carddemo-adminmenu": [
@@ -800,6 +800,12 @@
     14
    ],
    "genapp-lgacdb02": [
+    3,
+    3,
+    10,
+    10
+   ],
+   "genapp-lgacdb02-generated": [
     3,
     3,
     10,
@@ -2172,7 +2178,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "c01d313247586c255b10293cf256dd2dfa0018f7",
+   "sha": "5a2f980da440fded936b567f016701765dff653d",
    "translator": {
     "files": 133,
     "sha256": "bfe79aadd7f35cb2f845f3257a2f9d620b7e0802520aea31798c198b7790492e"
@@ -18281,13 +18287,55 @@
      },
      {
       "case": "carddemo-acctview-generated",
-      "case_scenarios": 0,
+      "case_scenarios": 39,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
        "state": "equal"
       },
-      "record": null,
+      "record": {
+       "coverage": {
+        "branches": {
+         "covered": 58,
+         "total": 69
+        },
+        "paragraphs": {
+         "covered": 31,
+         "live": 32
+        },
+        "uncovered_branches": [
+         "line 307 IF false (0000-MAIN)",
+         "line 312 IF true (0000-MAIN)",
+         "line 567 IF true (1300-SETUP-SCREEN-ATTRS)",
+         "line 657 IF false (2210-EDIT-ACCOUNT)",
+         "line 670 IF false (2210-EDIT-ACCOUNT)",
+         "line 704 IF true (9000-READ-ACCT)",
+         "line 713 IF true (9000-READ-ACCT)",
+         "line 744 IF false (9200-GETCARDXREF-BYACCT)",
+         "line 793 IF false (9300-GETACCTDATA-BYACCT)",
+         "line 918 IF true (ABEND-ROUTINE)",
+         "line 918 IF false (ABEND-ROUTINE)"
+        ]
+       },
+       "db2": false,
+       "facade": {
+        "passed": 63,
+        "runs": 63
+       },
+       "fault_runs": 6,
+       "java_failed": false,
+       "option_differences": [],
+       "oracle_image": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
+       "oracle_matches_pin": true,
+       "records_compared": 174,
+       "records_equal": 174,
+       "runs": 63,
+       "scenarios": 63,
+       "scenarios_equal": 63,
+       "stale_inputs": [],
+       "status_at_build": "not measured",
+       "verdict": "all equal"
+      },
       "role": "program"
      }
     ],
@@ -22391,11 +22439,11 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha c01d313247586c255b10293cf256dd2dfa0018f7",
-   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha c01d313247586c255b10293cf256dd2dfa0018f7",
+   "python tests/tools/cics_census.py survey --baseline --sha 5a2f980da440fded936b567f016701765dff653d",
+   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 5a2f980da440fded936b567f016701765dff653d",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-adminmenu-generated,carddemo-billpay,carddemo-billpay-generated,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cardview-generated,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaus2c,carddemo-copaus2c-generated,carddemo-cotrtlic,carddemo-cotrtlic-generated,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-menu-generated,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-report-generated,carddemo-signon,carddemo-signon-generated,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-useradd-generated,carddemo-userdel,carddemo-userdel-generated,carddemo-userlist,carddemo-userupd,carddemo-userupd-generated  # Db2 cases (7) need the Db2 container",
-   "python tests/tools/evidence.py prove carddemo-acctview carddemo-adminmenu carddemo-billpay carddemo-cardlist carddemo-cardview carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd",
+   "python tests/tools/evidence.py prove carddemo-acctview carddemo-acctview-generated carddemo-adminmenu carddemo-billpay carddemo-cardlist carddemo-cardview carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
   "corpus_ref": "59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e",
@@ -22417,13 +22465,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "c01d313247586c255b10293cf256dd2dfa0018f7",
+   "sha": "5a2f980da440fded936b567f016701765dff653d",
    "translator": {
     "files": 133,
     "sha256": "bfe79aadd7f35cb2f845f3257a2f9d620b7e0802520aea31798c198b7790492e"
    }
   },
-  "translator_commit": "c01d313247586c255b10293cf256dd2dfa0018f7",
+  "translator_commit": "5a2f980da440fded936b567f016701765dff653d",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

@@ -1164,13 +1164,13 @@
       "csharp/SOURCES.md": 0
     },
     "csharp/roslyn": {
-      "csharp/roslyn/CSharpCompilation.cs": 232,
+      "csharp/roslyn/CSharpCompilation.cs": 230,
       "csharp/roslyn/CSharpSyntaxTree.cs": 55,
       "csharp/roslyn/DiagnosticAnalyzer.cs": 4,
       "csharp/roslyn/LanguageParser.cs": 474,
       "csharp/roslyn/License.txt": 0,
-      "csharp/roslyn/MethodCompiler.cs": 58,
-      "csharp/roslyn/Workspace.cs": 156
+      "csharp/roslyn/MethodCompiler.cs": 55,
+      "csharp/roslyn/Workspace.cs": 146
     },
     "css": {
       "css/SOURCES.md": 0

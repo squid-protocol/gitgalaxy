@@ -322,7 +322,11 @@ DEFINITION: dict[str, Any] = {
             + r"$]["
             + ID_CONTINUE
             + r"$.]*))(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]{0,200}\("
-            r"(?=(?:[^()]*\([^)]*\))*[^)]*\)[ \t\n]*(?:\{|=>))"
+            # #5685: the parameter list holds no `;` and no brace. A call passing a multi-line lambda
+            # (`Walk(n, (x) => { Use(x); if (Check(x)) {`) otherwise ran through the lambda body to a
+            # later `) {` and was counted as a definition of `Walk`; so did `Walk(n, (x) => f(x));`
+            # followed by an `if (...) {` line.
+            r"(?=(?:[^();{}]*\([^);{}]*\))*[^();{}]*\)[ \t\n]*(?:\{|=>))"
             r")",
             re.M,
         ),

@@ -701,9 +701,9 @@ def _names_item(body: str, name: str) -> bool:
 
 def _sibling_service(sib: str, source_lines: list, program: Path, copy_dirs: list[Path], package: str,
                      estate: dict[str, str] | None, project: Path | None, style: str, typed: bool, groups: bool,
-                     options: list[str] | None, strict_copy: bool, own: str, layouts: Any = None) -> _Contract | None:  # fmt: skip
-    """#5106: the service of a sibling program (a PROGRAM-ID of the same source), or None where the CALL stays refused
-    by name. The forge makes no stub for it (D049), so the stub is made here: `<Name>Service` with the CALL entry
+                     options: list[str] | None, strict_copy: bool, own: str, layouts: Any = None) -> _Contract | str | None:  # fmt: skip
+    """#5106: the service of a sibling program (a PROGRAM-ID of the same source), None where the CALL stays refused
+    by name, or the reason the unit's own translation is refused (the CALL then names it). The forge makes no stub for it (D049), so the stub is made here: `<Name>Service` with the CALL entry
     `handleCall(CobolRef<byte[]> ...)`, one parameter per USING item. Only items whose bytes are the whole contract
     are taken: BY REFERENCE (the default), a record of fixed size with no OCCURS, REDEFINES, pointer or float; BY
     VALUE / BY CONTENT, a unit that CALLs back into the chain, or one that is itself a CICS program is left refused.
@@ -722,8 +722,8 @@ def _sibling_service(sib: str, source_lines: list, program: Path, copy_dirs: lis
         if layouts is not None:
             layouts.apply(records, lowered)
         proc = S.parse(lines)
-    except Exception:  # (the unit's own refusal surfaces when its program is translated)
-        return None
+    except Exception as e:  # (the unit's own refusal: the CALL names it)
+        return str(e)
     linkage = {r.name: r for r in records if r.section == "LINKAGE" and r.level == 1}
     items = [linkage.get(u) for u in proc.using]
     for i in items:
@@ -748,8 +748,8 @@ def _sibling_service(sib: str, source_lines: list, program: Path, copy_dirs: lis
     try:
         res = translate(program, copy_dirs, stub, package, estate, project, style, typed, groups, options, sib,
                         strict_copy, layouts)  # fmt: skip
-    except Exception:
-        return None
+    except Exception as e:
+        return str(e)
     finally:
         del _SIBLING_CHAIN[-2 if seeded else -1 :]
     return _Contract(res, [i.size for i in items if i], named, ret is not None)
@@ -954,7 +954,9 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         for sib in sorted((called & siblings) - set(gen.callees)):
             done = _sibling_service(sib, source_lines, program, copy_dirs, package, estate, project, style, typed,
                                     groups, options, strict_copy, own_name, layouts)  # fmt: skip
-            if done is None:
+            if done is None or isinstance(done, str):
+                if done:
+                    gen.sibling_why[sib] = done
                 continue  # (refused at the CALL, by name)
             res = done.res
             if not all(_fits(records, c, done) for c in calls if sib in _targets(gen, c)):

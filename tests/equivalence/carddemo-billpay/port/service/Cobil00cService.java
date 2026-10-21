@@ -237,7 +237,7 @@ public class Cobil00cService {
     /** Store into PIC S9(digits)V9(scale): truncate decimals, lose high-order digits. */
     private static BigDecimal store(BigDecimal v, int digits, int scale) {
         BigInteger u = v.setScale(scale, RoundingMode.DOWN).unscaledValue();
-        BigInteger m = u.abs().mod(BigInteger.TEN.pow(digits));
+        BigInteger m = u.abs().mod(BigInteger.TEN.pow(digits + scale));
         return new BigDecimal(u.signum() < 0 ? m.negate() : m, scale);
     }
 

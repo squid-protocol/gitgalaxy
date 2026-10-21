@@ -1,0 +1,290 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "COSGN00C",
+ "program_source": "app/cbl/COSGN00C.cbl",
+ "copy_dirs": [
+  "app/cpy",
+  "app/cpy-bms"
+ ],
+ "transid": "CC00",
+ "clock": "2022/07/18 10:30:15.00",
+ "region": {
+  "applid": "CARDDEMO",
+  "sysid": "CICA"
+ },
+ "datasets": {
+  "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS": {
+   "input": "@generate",
+   "entity": "SecUserData",
+   "copybook": "app/cpy/CSUSR01Y.cpy",
+   "record": "SEC-USER-DATA",
+   "generate": {
+    "copybook": "app/cpy/CSUSR01Y.cpy",
+    "record": "SEC-USER-DATA",
+    "records": 20,
+    "seed": 4506,
+    "fields": {
+     "SEC-USR-TYPE": {
+      "values": [
+       "A",
+       "U",
+       "U",
+       "U",
+       "A",
+       "U",
+       "U",
+       "U",
+       "U",
+       "U",
+       "U",
+       "U",
+       "U",
+       "U",
+       "U",
+       "U",
+       "U",
+       "U",
+       "U",
+       "U"
+      ]
+     },
+     "SEC-USR-PWD": {
+      "values": [
+       "PASSWORD"
+      ]
+     },
+     "SEC-USR-ID": {
+      "values": [
+       "ADMIN001",
+       "USER0001",
+       "USER0002",
+       "USER0003",
+       "ADMIN002",
+       "USER0004",
+       "USER0005",
+       "USER0006",
+       "USER0007",
+       "USER0008",
+       "USER0009",
+       "USER0010",
+       "USER0011",
+       "USER0012",
+       "USER0013",
+       "USER0014",
+       "USER0015",
+       "USER0016",
+       "USER0017",
+       "USER0018"
+      ]
+     }
+    }
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "app/cpy/COCOM01Y.cpy",
+    "record": "CARDDEMO-COMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "COSGN0A": {
+   "copybook": "app/cpy-bms/COSGN00.CPY",
+   "input": "COSGN0AI",
+   "output": "COSGN0AO"
+  }
+ },
+ "notes": "CardDemo's sign-on (CC00, COSGN00C) on a GENERATED map input (#4506): 30 scenarios whose COMMAREA is generated and whose RECEIVE MAP input is typed for COSGN0's two unprotected fields, USERID and PASSWD (8 bytes each), over a generated USRSEC file: the id is drawn from the file or misses it, the password is the stored one, a wrong one or empty, and the key pressed turns through ENTER, PF3 and PF7. Proves the carddemo-signon port on inputs it was not written against; the hand-written scenarios left are fault runs, the lowercase fold and the COMMAREA lengths. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+ "port_from": "carddemo-signon",
+ "scenario_generate": {
+  "seed": 4506,
+  "count": 30,
+  "prefix": "generated",
+  "aid": [
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHPF3",
+   "DFHPF7"
+  ],
+  "commarea": {
+   "CDEMO-FROM-TRANID": "CC00",
+   "CDEMO-FROM-PROGRAM": "COSGN00C",
+   "CDEMO-PGM-CONTEXT": 0
+  },
+  "receive": {
+   "COSGN0A": {
+    "@bms": {
+     "bad": 0,
+     "empty": 0.15
+    },
+    "USERIDI": {
+     "from": "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS.SEC-USR-ID",
+     "miss": 0.2,
+     "empty": 0.15
+    },
+    "PASSWDI": {
+     "values": [
+      "PASSWORD",
+      "PASSWORD",
+      "WRONGPWD"
+     ],
+     "empty": 0.15
+    }
+   }
+  }
+ },
+ "scenarios": [
+  {
+   "name": "first-entry",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "#4506: a hand-written scenario of carddemo-signon that the generated inputs do not reach"
+  },
+  {
+   "name": "lowercase-credentials",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "user0001",
+     "PASSWDI": "password"
+    }
+   },
+   "why": "UPPER-CASE on both the id and the password"
+  },
+  {
+   "name": "admin-xctl-not-authorised",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "ADMIN001",
+     "PASSWDI": "PASSWORD"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COADM01C",
+     "nth": 1,
+     "resp": "NOTAUTH",
+     "resp2": 101
+    }
+   ],
+   "why": "#4628: NOTAUTH on the admin sign-on's XCTL to COADM01C; COSGN00C has no HANDLE CONDITION / ERROR, so CICS abends the task (AEY7): kills the condition() / XCTL RESP tests of the port"
+  },
+  {
+   "name": "user-xctl-not-authorised",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "USER0003",
+     "PASSWDI": "PASSWORD"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COMEN01C",
+     "nth": 1,
+     "resp": "NOTAUTH",
+     "resp2": 101
+    }
+   ],
+   "why": "#4628: NOTAUTH on the regular user's XCTL to COMEN01C: the same abend on the other XCTL"
+  },
+  {
+   "name": "user-signs-on-short-commarea",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "USER0003",
+     "PASSWDI": "PASSWORD"
+    }
+   },
+   "commarea_length": 100,
+   "why": "#4628: the caller passed 100 of the COMMAREA's 160 bytes (EIBCALEN 100, X23): the port cuts DFHCOMMAREA to EIBCALEN and restores the record before writing the task's object back; COSGN00C never references DFHCOMMAREA"
+  },
+  {
+   "name": "user-file-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "USER0001",
+     "PASSWDI": "PASSWORD"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "USRSEC",
+     "resp": "IOERR",
+     "why": "17 on the READ -> WHEN OTHER: 'Unable to verify the User ...'"
+    }
+   ],
+   "why": "#4506: a hand-written scenario of carddemo-signon that the generated inputs do not reach"
+  },
+  {
+   "name": "eibcalen-zero-with-commarea",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "USER0003",
+     "PASSWDI": "PASSWORD"
+    }
+   },
+   "commarea_length": 0,
+   "why": "#4049: the caller passed a COMMAREA of length 0 (EIBCALEN 0, X23) with ENTER: COSGN00C tests EIBCALEN = 0 first and shows the first-entry screen, not the AID branch (the credentials are not read); the COMMAREA is present, unlike first-entry"
+  },
+  {
+   "name": "sysid-sent",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "USER0001",
+     "PASSWDI": "NOTMYPWD",
+     "SYSIDI": "ABCDEFGH"
+    }
+   },
+   "why": "SYSIDI arrives with 8 bytes: ASSIGN SYSID writes 4 and the other 4 stay as received (a MOVE would space them, #4049)"
+  }
+ ]
+}

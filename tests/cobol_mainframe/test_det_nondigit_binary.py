@@ -125,6 +125,9 @@ def _runtime_classes() -> Path:
 def _det(src: str, work: Path, trunc: str) -> subprocess.CompletedProcess:
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
+    sys.path.insert(0, str(ROOT / "tests" / "tools"))
+    from javac_server import javac
+
     (work / "NDB.cbl").write_text(src)
     project = work / "project"
     project.mkdir()
@@ -144,7 +147,7 @@ def _det(src: str, work: Path, trunc: str) -> subprocess.CompletedProcess:
                          f"new {PKG}.service.{r.service}().runProgram(); }} }}\n")  # fmt: skip
     jdk = _java()
     classes = work / "classes"
-    subprocess.run(
+    javac(  # a javac that stays up (tests/tools/javac_server.py): ~0.05 s a program here, not a JVM start
         [
             str(jdk / "javac"),
             "-encoding",

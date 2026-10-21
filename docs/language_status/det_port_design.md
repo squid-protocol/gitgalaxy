@@ -867,11 +867,12 @@ NULL is distinct.
   DBUNLDGS (GSAM PCBs). (COPAUA0C, COPAUS0C, COPAUS1C and CBPAUP0C's EXEC DLI commands translate, above; no equivalence case for COPAUS0C, COPAUS1C yet.)
 - **CBPAUP0C as a BMP (`carddemo-cbpaup0c`, #5857).** The step is entered USING the I/O PCB and the one DB PCB of PSBPAUTB, reads
   its PRM-INFO card from SYSIN, walks the corpus's own DBPAUTP0 unload with GN / GNP, DLETs the expired details and emptied
-  summaries and takes CHKP ID checkpoints. Proven on one run (DBPAUTP0 183/183 segments equal, RETURN-CODE 0 on both sides), covering
-  13/16 paragraphs and 2/40 branches. The case has no `port/` directory, so it has no `evidence.json` (`evidence.py` records only
+  summaries and takes CHKP ID checkpoints. Proven on five runs (the base card and four control-card scenarios, each a `faults` entry with its own
+  `sysin` and no plan, #5857: debug Y, a card of only the expiry, an expiry nothing reaches, and 5 expiry days whose first DLET
+  answers DJ and abends, RC 16, on both sides), DBPAUTP0 equal on every run, covering 15/16 paragraphs and 4/40 branches. The case has no `port/` directory, so it has no `evidence.json` (`evidence.py` records only
   committed ports, and a record is not a condition of any level): its level is the det-sweep coverage ledger's
-  (`tests/equivalence/det_sweep_coverage/carddemo-cbpaup0c.json`). Left: more scenarios (a case has one `sysin` and `faults` are
-  file / SQL statuses only), e.g. the expiry-days variant whose DLET answers DJ and abends.
+  (`tests/equivalence/det_sweep_coverage/carddemo-cbpaup0c.json`). Left: the branch count is far below what the five runs execute (the IFs at l.196 / 201 / 284 show uncovered
+  although every run takes them); cause not yet found (suspect the branch trace of the BMP-rewritten program).
 
 ## In port_runner
 

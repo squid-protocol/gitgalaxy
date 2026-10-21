@@ -226,6 +226,14 @@ def fault_plan(fault: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def run_sysin(case: dict[str, Any], fault: dict[str, Any] | None = None) -> str | None:
+    """#5857: the SYSIN a run reads: the fault run's own `sysin` (a batch step's control card, so an expiry or a
+    checkpoint frequency is a run of its own), else the case's."""
+    if fault is not None and fault.get("sysin") is not None:
+        return str(fault["sysin"])
+    return case.get("sysin")
+
+
 def run_parm(case: dict[str, Any], fault: dict[str, Any] | None = None) -> str | None:
     """#5561: the PARM a run gets: the fault run's own `parm` (a batch step's input, so END < START, step 0 or a
     seed are runs of their own), else the case's."""
@@ -298,8 +306,8 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
                 script.append(f"INFILE=/work/{dd}.in {dd}=/work/{dd}.idx ./ld{dd}")
         elif "input" in spec:
             script.append(f"cp /work/{dd}.in /work/{dd}.idx")
-    if case.get("sysin") is not None:  # #5106: the step's SYSIN stream (ACCEPT FROM SYSIN), one record per line
-        sysin = case["sysin"]
+    sysin = run_sysin(case, fault)
+    if sysin is not None:  # #5106: the step's SYSIN stream (ACCEPT FROM SYSIN), one record per line
         (work / "SYSIN.in").write_bytes((sysin if sysin.endswith("\n") else sysin + "\n").encode(enc))
     ims = case.get("ims")
     if ims:  # #4893: a DL/I program -- IMS enters it at DLITCBL with its PCBs -- on the stated databases (ggdli.c)
@@ -355,7 +363,7 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
             (work / "sqlfaults.cfg").write_text("".join(x + "\n" for x in fault["sql_plan"]), encoding="ascii")
             sqlenv += "GGSQL_FAULTS=/work/sqlfaults.cfg "
     script.append(f"set +e; {cov.trace_env('/work/' + cov.TRACE_NAME)}GG_ABEND=/work/ABEND COB_VARSEQ_FORMAT=0 {inject}{tz}{clock}{env} "
-                  f"{sqlenv}./program {'< /work/SYSIN.in ' if case.get('sysin') is not None else ''}> /work/stdout.txt 2>&1; echo $? > /work/RETURN-CODE; set -e")  # fmt: skip
+                  f"{sqlenv}./program {'< /work/SYSIN.in ' if sysin is not None else ''}> /work/stdout.txt 2>&1; echo $? > /work/RETURN-CODE; set -e")  # fmt: skip
     # after an abend (or an OPEN a fault refused) an output may not exist: unloaded if it does
     for dd, spec in case["datasets"].items():
         if spec.get("compare") and spec.get("organization") == "indexed":
@@ -635,7 +643,9 @@ def compare_run(case: dict[str, Any], corpus: Path, cobol: dict[str, bytes], jav
                  (("cobol", cobol), ("java", java))}  # fmt: skip
         fired = {side: [x for x in lines if x.strip()] for side, lines in fired.items()}
         run["fired"] = fired
-        if not fired["cobol"] and fault.get("plan"):  # #5561: a run with only its own parm plans no fault
+        if not fired["cobol"] and fault.get(
+            "plan"
+        ):  # #5561: a run with only its own parm (or #5857 sysin) plans no fault
             why.append("the planned fault never fired on the COBOL side: the run does not reach it")
         if fired["cobol"] != fired["java"]:
             why.append(f"faults fired differ: COBOL {fired['cobol']}, Java {fired['java']}")
@@ -883,7 +893,7 @@ def main() -> int:
         with equivalence_common.phase("java_runs"):  # #5882: the build, then every run (environments, faults, entries)
             runs = ej.run_java_environments(case, corpus, work / "java", work / "cobol", envs,
                                             port=not args.generated_only, port_dir=args.port,
-                                            faults=tuple((f["name"], fault_plan(f), "\n".join(f.get("sql_plan", [])), run_parm(case, f) if f.get("parm") is not None else "")
+                                            faults=tuple((f["name"], fault_plan(f), "\n".join(f.get("sql_plan", [])), run_parm(case, f) if f.get("parm") is not None else "", f["sysin"] if f.get("sysin") is not None else "")
                                                          for f in faults),
                                             stop=differs if args.first_difference else None,
                                             entries=tuple(entries), one_jvm=args.one_jvm)  # fmt: skip
@@ -915,7 +925,8 @@ def main() -> int:
     for f in faults_made:  # #4023 follow-up: each fault run, proven like the normal one
         run = compare_run(case, corpus, cobol_faults[f["name"]], runs[f"fault:{f['name']}"], fault=f)
         report.setdefault("faults", []).append({"name": f["name"], "why": f.get("why", ""), "plan": fault_plan(f)
-                                                .strip().splitlines() + ([f"PARM {f['parm']}"] if f.get("parm") is not None else []),
+                                                .strip().splitlines() + ([f"PARM {f['parm']}"] if f.get("parm") is not None else [])
+                                                + ([f"SYSIN {f['sysin']}"] if f.get("sysin") is not None else []),
                                                 **run})  # fmt: skip
         ok &= run["ok"]
     whys = {e["method"]: e.get("why", "") for e in case.get("entries", [])}

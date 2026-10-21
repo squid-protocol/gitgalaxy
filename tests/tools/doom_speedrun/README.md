@@ -143,8 +143,8 @@ python tests/tools/doom_speedrun/callgraph_oracle.py --only eternity,odamex,gzdo
 Output: `<work>/results/<sha>/callgraph.{json,md}` (per port and per shape, with up to 3 `path:line caller -> callee`
 examples each). `--write-baseline FILE` writes the numbers-only view; `--baseline FILE --fail-on-regression` exits 1
 when a port's recall or precision drops by more than `--tolerance` (0.001), a baseline port is missing, or the
-consensus engine-miss or false-edge count grows. That is the hook, and `doom-rosetta.yml`'s nightly `callgraph` job runs it (06:37 UTC, or `workflow_dispatch`; not on
-PRs): `fetch` and `scan` the baseline's ports, then the `--only all --baseline` command; regenerate the baseline only with an explained engine change.
+consensus engine-miss or false-edge count grows. That is the hook for the DOOM-rosetta nightly (#5619, #5630; the workflow job is not wired yet, it needs an owner-approved
+`doom-rosetta.yml` edit): `fetch` and `scan` the baseline's ports, then the `--only all --baseline` command; regenerate the baseline only with an explained engine change.
 
 Blind spots:
 - **Tree-sitter does not preprocess either.** An `else if` split by `#ifdef` parses as a nested function definition,

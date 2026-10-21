@@ -5,8 +5,7 @@ name: DOOM-rosetta
 # the golden's own per-file LOC) and each shard runs `pytest -m doom_rosetta` with DOOM_ROSETTA_PORTS narrowed to its
 # ports. Clones are fetched at the manifest SHA at run time (never committed) and cached per shard, keyed by the
 # manifest hash. Each shard writes its wall time to the job summary: the PR wall time is the slowest shard.
-# The nightly --oracle run is slice 4. The nightly also runs the C/C++ call-graph oracle (#5630) against its committed
-# baseline in the `callgraph` job below; a recall or precision drop, or a growing consensus miss count, fails it.
+# The nightly --oracle run is slice 4.
 
 on:
   pull_request:
@@ -22,8 +21,6 @@ on:
       - "tests/tools/doom_rosetta_check.py"
       - "tests/tools/doom_speedrun/**"
       - ".github/workflows/doom-rosetta.yml"
-  schedule:
-    - cron: "37 6 * * *"  # nightly, 06:37 UTC (#5630)
   workflow_dispatch:
 
 permissions:
@@ -141,52 +138,3 @@ jobs:
         run: |
           s=$(( $(date +%s) - T0 ))
           echo "shard ${{ matrix.shard }} (${{ matrix.loc }} LOC): ${s}s" >> "$GITHUB_STEP_SUMMARY"
-
-  # #5630: the C/C++ call-graph oracle over the baseline's 20 licensed ports, nightly and on demand (not on PRs: the
-  # scan of 20 ports is the slow part, and a PR's engine drift is the golden's job).
-  callgraph:
-    if: ${{ github.event_name != 'pull_request' }}
-    name: call-graph oracle
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    env:
-      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
-      DOOM_SPEEDRUN_WORK: ${{ github.workspace }}/../doom-work
-    steps:
-      - name: Checkout GitGalaxy
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          path: gitgalaxy
-          persist-credentials: false
-
-      - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        with:
-          python-version: "3.12"
-          cache: "pip"
-          cache-dependency-path: |
-            gitgalaxy/pyproject.toml
-            gitgalaxy/ci/requirements/*.txt
-
-      - name: Install GitGalaxy
-        run: |
-          cd gitgalaxy
-          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
-          pip install --require-hashes -r ci/requirements/yaml.txt
-          pip install --no-build-isolation -e .
-          pip install --require-hashes -r ci/requirements/treesitter.txt
-
-      - name: Cache the pinned clones
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ${{ github.workspace }}/../doom-work
-          key: doom-callgraph-${{ hashFiles('gitgalaxy/tests/doom_rosetta/manifest.csv') }}
-
-      - name: Scan the baseline's ports and check the call graph against the baseline
-        run: |
-          cd gitgalaxy
-          ports=$(python -c "import json; print(','.join(sorted(json.load(open('tests/tools/doom_speedrun/callgraph_baseline.json'))['ports'])))")
-          export GITGALAXY_DISABLE_GIT_HISTORY=1
-          python tests/tools/doom_speedrun/doom_speedrun.py fetch --only "$ports"
-          python tests/tools/doom_speedrun/doom_speedrun.py scan --only "$ports"
-          python tests/tools/doom_speedrun/callgraph_oracle.py --only all --baseline tests/tools/doom_speedrun/callgraph_baseline.json --fail-on-regression | tee "$GITHUB_STEP_SUMMARY"

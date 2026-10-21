@@ -200,5 +200,5 @@ def test_refresh_generator_only_does_not_rerun(monkeypatch, tmp_path):
 
 def test_refresh_refuses_when_the_port_moved(monkeypatch, tmp_path):
     written, calls = refresh_env(monkeypatch, tmp_path, False, {**FP, "case": "a2"}, ("survived", "survived"))
-    assert dm.refresh([CASE], tmp_path) == 1
+    assert dm.refresh([CASE], tmp_path) == 2
     assert written == {} and calls == []

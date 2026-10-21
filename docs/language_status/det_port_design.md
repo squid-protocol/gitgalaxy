@@ -857,7 +857,8 @@ NULL is distinct.
   rules `RT-DLI-EXEC-ISRT` / `-CHANGE`) are DetDli calls answering DIBSTAT. ASSUMED: a get is a get-hold where the PCB's PROCOPT allows an
   update, so a REPL / DLET acts on the segment the previous get held; segments are fixed length, a SEGLENGTH other than the DBD's stops the
   run by name. Every EXEC DLI command of the burned CICS programs (COPAUA0C, COPAUS0C, COPAUS1C) translates
-  (pinned in `test_det_dli.py`). Still holes: other EXEC DLI commands and options (CHKP, CBPAUP0C's batch EXEC DLI: I/O PCB, #4893),
+  (pinned in `test_det_dli.py`). COPAUA0C has no hole at all: `det_port.py run --all-cases --translate-only` translates 344/344 statements
+  (its INITIALIZE ... REPLACING of a table is C17, #5823; its three READ KEYLENGTH(LENGTH OF ...) take the mapped file's key, #5831). Still holes: other EXEC DLI commands and options (CHKP, CBPAUP0C's batch EXEC DLI: I/O PCB, #4893),
   and the oracle side (`ggdli.c`).
 - **Refused (register I5).** Other EXEC DLI; BMP / MPP / CICS DL/I programs and the I/O PCB (IMS TM); GSAM; DL/I calls
   other than the nine; command codes and boolean SSAs; AIBTDLI / CEETDLI; HDAM order; secondary indexes; logical

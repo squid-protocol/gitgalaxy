@@ -164,6 +164,18 @@ def test_placeholder_verdicts_only_shrink_and_every_triaged_survivor_has_a_reaso
             assert s["verdict"] != "untriaged" and s["reason"].strip()
 
 
+def test_the_generated_acctview_case_is_scored_and_states_the_card_numbers_that_kill_the_parser_mutants():
+    """#4506: a generated xref card number is random text, so alnumToUnsigned always returned 0 and hid its mutants."""
+    results = json.loads(ms.RESULTS.read_text(encoding="utf-8"))
+    port = next(p for p in results["ports"] if p["case"] == "carddemo-acctview-generated")
+    assert port["total"]["untriaged"] == 0 and port["total"]["killed"] > 100
+    case = json.loads((REPO / "tests/equivalence/carddemo-acctview-generated/case.json").read_text(encoding="utf-8"))
+    xref = case["datasets"]["AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS"]["generate"]["fields"]["XREF-CARD-NUM"]
+    assert len(set(xref["values"])) == len(xref["values"]) and all(len(v) == 16 for v in xref["values"])
+    card = [s for s in case["scenarios"] if s["name"].startswith("card-number-")]
+    assert len(card) == 7 and all("#4506" in s["why"] for s in card)
+
+
 def test_retriage_replaces_a_verdict_and_recounts_the_totals_and_operators():
     p = ms.port_entry(_run(), {"x-case/PROG:c": {"verdict": "case_gap", "reason": ms.PLACEHOLDER}}, "abc")
     assert ms.placeholders({"ports": [p]}) == {"x-case/PROG": 1}

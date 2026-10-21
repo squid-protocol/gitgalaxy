@@ -309,6 +309,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | port | harness | mutants run / all | raw score | without equivalent + unreachable | survivors: case gap / harness gap / equivalent / unreachable / untriaged |
 |---|---|---|---|---|---|
 | COACTVWC (carddemo-acctview) | equivalence | 150/328 | 105/129 (81%) | 105/113 (93%) | 8 / 0 / 16 / 0 / 0 |
+| COACTVWC (carddemo-acctview-generated) | equivalence | 150/427 | 109/137 (80%) | 109/110 (99%) | 1 / 0 / 16 / 11 / 0 |
 | COADM01C (carddemo-adminmenu) | equivalence | 100/340 | 63/95 (66%) | 63/63 (100%) | 0 / 0 / 29 / 3 / 0 |
 | COBIL00C (carddemo-billpay) | equivalence | 100/529 | 66/86 (77%) | 66/70 (94%) | 4 / 0 / 12 / 4 / 0 |
 | COCRDLIC (carddemo-cardlist) | equivalence | 100/1034 | 75/94 (80%) | 75/82 (91%) | 7 / 0 / 12 / 0 / 0 |
@@ -362,24 +363,25 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 3697 run | **2217/3347 (66%)** | **2217/2712 (82%)** | 310 / 185 / 408 / 227 / 0 |
-| **all estate** | | 4201 run | **2536/3823 (66%)** | **2536/3066 (83%)** | 345 / 185 / 496 / 261 / 0 |
+| **all equivalence** | | 3847 run | **2326/3484 (67%)** | **2326/2822 (82%)** | 311 / 185 / 424 / 238 / 0 |
+| **all estate** | | 4351 run | **2645/3960 (67%)** | **2645/3176 (83%)** | 346 / 185 / 512 / 272 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 182/233 (78%) | 182/208 (88%) |
-| BDM | 24/45 (53%) | 24/27 (89%) |
-| CON | 345/758 (46%) | 345/461 (75%) |
-| COR | 130/242 (54%) | 130/187 (70%) |
-| DEL | 382/589 (65%) | 382/467 (82%) |
-| LIT | 535/733 (73%) | 535/617 (87%) |
-| NEG | 474/546 (87%) | 474/522 (91%) |
+| AOR | 188/242 (78%) | 188/214 (88%) |
+| BDM | 24/46 (52%) | 24/27 (89%) |
+| CON | 359/780 (46%) | 359/476 (75%) |
+| COR | 147/263 (56%) | 147/204 (72%) |
+| DEL | 398/610 (65%) | 398/483 (82%) |
+| LIT | 551/754 (73%) | 551/633 (87%) |
+| NEG | 494/567 (87%) | 494/542 (91%) |
 | RET | 50/99 (51%) | 50/87 (57%) |
-| ROR | 414/578 (72%) | 414/490 (84%) |
+| ROR | 434/599 (72%) | 434/510 (85%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|
 | COACTVWC (carddemo-acctview) | 3/3 | 0/1 | 11/24 | 8/9 | 19/23 | 20/23 | 22/23 | - | 22/23 |
+| COACTVWC (carddemo-acctview-generated) | 6/9 | 0/1 | 14/22 | 17/21 | 16/21 | 16/21 | 20/21 | - | 20/21 |
 | COADM01C (carddemo-adminmenu) | 8/8 | - | 2/14 | 6/8 | 8/16 | 7/15 | 15/15 | 4/4 | 13/15 |
 | COBIL00C (carddemo-billpay) | 4/5 | 1/3 | 5/13 | 9/12 | 10/12 | 12/13 | 12/13 | 2/2 | 11/13 |
 | COCRDLIC (carddemo-cardlist) | 8/8 | - | 8/13 | 10/13 | 7/13 | 12/13 | 13/13 | 6/9 | 11/12 |

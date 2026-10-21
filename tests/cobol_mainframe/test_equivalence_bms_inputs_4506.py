@@ -286,7 +286,7 @@ def test_the_generated_tranview_case_turns_through_keys_and_types_its_one_field(
     assert gen["receive"] == {"COTRN1A": {"@bms": {"bad": 0.1, "empty": 0.3}}}
     first, *rest = case["scenarios"]
     assert first["name"] == "no-commarea" and first["commarea"] is None
-    assert rest and all("#4049" in s["why"] for s in rest)
+    assert rest and all("#4049" in s["why"] or "#4506" in s["why"] for s in rest)
 
 
 def test_the_generated_tranview_screen_sends_its_fset_id_field_empty_in_some_scenarios():

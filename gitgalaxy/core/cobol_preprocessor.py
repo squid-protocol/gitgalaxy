@@ -37,6 +37,7 @@ import re
 from collections.abc import Callable, Hashable, Iterator
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TypeVar
 
 from gitgalaxy.standards.language_standards.identifiers import NATIONAL, WIDE_DIGITS, WIDE_HYPHENS
 
@@ -343,19 +344,23 @@ def line_map(lines: list[MappedLine]) -> list[tuple[str, int]]:
     return [(ln.file, ln.line) for ln in lines]
 
 
+_L = TypeVar("_L", bound="MappedLine")
+_K = TypeVar("_K", bound=Hashable)
+
+
 def expand(
-    lines: list,
-    resolve: Callable[[MappedLine, CopyStatement, str, frozenset], Hashable | None],
-    load: Callable[[Hashable, str, CopyStatement], list],
+    lines: list[_L],
+    resolve: Callable[[_L, CopyStatement, str, frozenset], _K | None],
+    load: Callable[[_K, str, CopyStatement], list[_L]],
     *,
     depth: int = 0,
     chain: frozenset = frozenset(),
-    make: Callable[[str, str, int], MappedLine] = MappedLine,
-    on_copy: Callable[[MappedLine, str], None] | None = None,
+    make: Callable[[str, str, int], _L],
+    on_copy: Callable[[_L, str], None] | None = None,
     max_depth: int = 8,
     nesting_error: Callable[[str], Exception] = ValueError,
-    identity: Callable[[Hashable], Hashable] = lambda key: key,
-) -> list:
+    identity: Callable[[_K], Hashable] = lambda key: key,
+) -> list[_L]:
     """#5648: `lines` with each COPY statement (and `EXEC SQL INCLUDE m END-EXEC`, read as `COPY m.`) replaced by its
     member's lines, recursively, REPLACING ==a== BY ==b== and word-for-word `a BY b` applied to the member's text.
 
@@ -365,7 +370,7 @@ def expand(
     lines (and may refuse a member that is not a copybook). `make(text, file, line)` builds a line of the caller's
     own class. `identity(key)` is what `chain` holds for a member (a resolved path). `on_copy(line, member_name)` sees each COPY of the top level only. A member nested deeper than
     `max_depth` raises `nesting_error(message)`."""
-    out: list = []
+    out: list[_L] = []
     i = 0
     while i < len(lines):
         ln = lines[i]
@@ -396,7 +401,7 @@ def expand(
             raise nesting_error(f"{where}: COPY {m.member} nests deeper than {max_depth}")
         if on_copy is not None:
             on_copy(ln, m.member)
-        expanded: list = []
+        expanded: list[_L] = []
         if member is not None:
             body = load(member, where, m)
             pairs = copy_replacing(stmt, m.end - m.start)

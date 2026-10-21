@@ -15,18 +15,15 @@ from gitgalaxy.core.cobol_conditional import Conditional, options_defines
 from gitgalaxy.core.cobol_preprocessor import (
     MappedLine,
     comment_at,
-    copy_replacing,
     copy_statements,
     drop_comment,
-    expand as core_expand,
     free_code,
-    gather_copy,
     join_continuation,
     join_copy_alone,
     open_literal,
-    replace_text,
-    sql_include_as_copy,
-    statement_end,
+)
+from gitgalaxy.core.cobol_preprocessor import (
+    expand as core_expand,
 )
 from gitgalaxy.core.cobol_source_format import FIXED_LEAD, TEXT_WIDTH, ispf_screen, join_wrapped, wrap_fixed
 from gitgalaxy.core.compiler_options import cards, compiler_options

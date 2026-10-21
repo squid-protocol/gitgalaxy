@@ -30,7 +30,7 @@ def _run(lines, **kw):
     def load(key, where, m):
         return [MappedLine(t, f"{key}.cpy", n) for n, t in enumerate(MEMBERS[key], 1)]
 
-    out = expand(lines, resolve, load, on_copy=lambda ln, name: seen.append(name), **kw)
+    out = expand(lines, resolve, load, make=MappedLine, on_copy=lambda ln, name: seen.append(name), **kw)
     return out, seen
 
 
@@ -76,4 +76,4 @@ def test_resolver_refusal_and_depth_limit_propagate():
         return "LOOP"
 
     with pytest.raises(ValueError, match="nests deeper than 2"):
-        expand(_lines("COPY LOOP."), resolve, lambda k, w, m: _lines("COPY LOOP."), max_depth=2)
+        expand(_lines("COPY LOOP."), resolve, make=MappedLine, load=lambda k, w, m: _lines("COPY LOOP."), max_depth=2)

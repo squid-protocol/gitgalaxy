@@ -732,3 +732,10 @@ truncates anyway, and defensive file handling the COBOL has no counterpart for. 
 non-numeric 9x file statuses, which only a fault plan reaches. Two are open: TRNRPT's account-total add/subtract and
 its line counter. The strengthened cases are proven, and are `candidate_case.json` files for a person to review;
 they are not committed.
+
+**#4628 slice 3 closes (2026-10-21).** COADM01C and COTRN02C each had one `harness-gap` survivor left: the final RETURN's COMMAREA
+length (160 -> 161, 218 -> 219). The proof ends at the RETURN and compares no length. Both are stated `equivalent` from the
+program's own reads, proposed for owner review: the RETURN re-enters the same program, which uses EIBCALEN only in `IF EIBCALEN = 0`
+and in `MOVE DFHCOMMAREA(1:EIBCALEN) TO CARDDEMO-COMMAREA` (a 160- / 218-byte target truncates the extra byte). Unaccounted
+before -> after: COADM01C 1 -> 0, COTRN02C 1 -> 0, COBIL00C 0; all three reach L5 (`det_mutation.py table`). Still open as a sibling
+gap: the harness compares no RETURN COMMAREA length for any det port.

@@ -326,6 +326,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COACTVWC (carddemo-acctview) | equivalence | 150/328 | 105/129 (81%) | 105/113 (93%) | 8 / 0 / 16 / 0 / 0 |
 | COACTVWC (carddemo-acctview-generated) | equivalence | 150/427 | 109/137 (80%) | 109/109 (100%) | 0 / 0 / 16 / 12 / 0 |
 | COADM01C (carddemo-adminmenu) | equivalence | 100/340 | 63/95 (66%) | 63/63 (100%) | 0 / 0 / 29 / 3 / 0 |
+| COADM01C (carddemo-adminmenu-generated) | equivalence | 150/340 | 97/145 (67%) | 97/97 (100%) | 0 / 0 / 43 / 5 / 0 |
 | COBIL00C (carddemo-billpay) | equivalence | 100/529 | 66/86 (77%) | 66/70 (94%) | 4 / 0 / 12 / 4 / 0 |
 | COBIL00C (carddemo-billpay-generated) | equivalence | 150/530 | 104/136 (76%) | 104/104 (100%) | 0 / 0 / 17 / 15 / 0 |
 | COCRDLIC (carddemo-cardlist) | equivalence | 100/1034 | 75/94 (80%) | 75/82 (91%) | 7 / 0 / 12 / 0 / 0 |
@@ -334,6 +335,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CSUTLDTC (carddemo-dateutil) | equivalence | 211/211 | 145/195 (74%) | 145/145 (100%) | 0 / 0 / 10 / 40 / 0 |
 | CBACT04C (carddemo-intcalc) | equivalence | 100/170 | 70/86 (81%) | 70/77 (91%) | 6 / 1 / 9 / 0 / 0 |
 | COMEN01C (carddemo-menu) | equivalence | 150/331 | 86/136 (63%) | 86/93 (92%) | 7 / 0 / 36 / 7 / 0 |
+| COMEN01C (carddemo-menu-generated) | equivalence | 150/340 | 87/139 (63%) | 87/88 (99%) | 0 / 1 / 35 / 16 / 0 |
 | CBTRN02C (carddemo-posttran) | equivalence | 100/263 | 76/85 (89%) | 76/80 (95%) | 3 / 1 / 5 / 0 / 0 |
 | CBACT02C (carddemo-readcard) | equivalence | 91/91 | 69/83 (83%) | 69/73 (95%) | 4 / 0 / 10 / 0 / 0 |
 | CBCUS01C (carddemo-readcust) | equivalence | 83/83 | 63/74 (85%) | 63/70 (90%) | 7 / 0 / 4 / 0 / 0 |
@@ -380,26 +382,27 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 4197 run | **2554/3819 (67%)** | **2554/3049 (84%)** | 310 / 185 / 506 / 264 / 0 |
-| **all estate** | | 4701 run | **2873/4295 (67%)** | **2873/3403 (84%)** | 345 / 185 / 594 / 298 / 0 |
+| **all equivalence** | | 4497 run | **2738/4103 (67%)** | **2738/3234 (85%)** | 310 / 186 / 584 / 285 / 0 |
+| **all estate** | | 5001 run | **3057/4579 (67%)** | **3057/3588 (85%)** | 345 / 186 / 672 / 319 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 195/250 (78%) | 195/221 (88%) |
+| AOR | 216/272 (79%) | 216/242 (89%) |
 | BDM | 25/49 (51%) | 25/28 (89%) |
-| CON | 375/858 (44%) | 375/491 (76%) |
-| COR | 160/280 (57%) | 160/217 (74%) |
-| DEL | 451/687 (66%) | 451/536 (84%) |
-| LIT | 614/824 (75%) | 614/696 (88%) |
-| NEG | 532/606 (88%) | 532/580 (92%) |
-| RET | 52/101 (51%) | 52/89 (58%) |
-| ROR | 469/640 (73%) | 469/545 (86%) |
+| CON | 385/903 (43%) | 385/501 (77%) |
+| COR | 172/298 (58%) | 172/229 (75%) |
+| DEL | 485/737 (66%) | 485/570 (85%) |
+| LIT | 640/873 (73%) | 640/723 (89%) |
+| NEG | 573/654 (88%) | 573/621 (92%) |
+| RET | 56/105 (53%) | 56/93 (60%) |
+| ROR | 505/688 (73%) | 505/581 (87%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|
 | COACTVWC (carddemo-acctview) | 3/3 | 0/1 | 11/24 | 8/9 | 19/23 | 20/23 | 22/23 | - | 22/23 |
 | COACTVWC (carddemo-acctview-generated) | 6/9 | 0/1 | 14/22 | 17/21 | 16/21 | 16/21 | 20/21 | - | 20/21 |
 | COADM01C (carddemo-adminmenu) | 8/8 | - | 2/14 | 6/8 | 8/16 | 7/15 | 15/15 | 4/4 | 13/15 |
+| COADM01C (carddemo-adminmenu-generated) | 8/8 | - | 4/24 | 6/8 | 14/26 | 14/25 | 25/25 | 4/4 | 22/25 |
 | COBIL00C (carddemo-billpay) | 4/5 | 1/3 | 5/13 | 9/12 | 10/12 | 12/13 | 12/13 | 2/2 | 11/13 |
 | COBIL00C (carddemo-billpay-generated) | 5/6 | 1/3 | 9/23 | 9/12 | 17/22 | 21/23 | 22/23 | 2/2 | 18/22 |
 | COCRDLIC (carddemo-cardlist) | 8/8 | - | 8/13 | 10/13 | 7/13 | 12/13 | 13/13 | 6/9 | 11/12 |
@@ -408,6 +411,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CSUTLDTC (carddemo-dateutil) | 13/15 | - | 28/51 | 4/8 | 9/10 | 27/35 | 31/32 | - | 33/44 |
 | CBACT04C (carddemo-intcalc) | 3/4 | 4/6 | 13/21 | 1/2 | 13/17 | 20/20 | 10/10 | - | 6/6 |
 | COMEN01C (carddemo-menu) | 13/14 | - | 7/20 | 6/9 | 14/22 | 15/24 | 16/23 | - | 15/24 |
+| COMEN01C (carddemo-menu-generated) | 13/14 | - | 6/21 | 6/10 | 20/24 | 12/24 | 16/23 | - | 14/23 |
 | CBTRN02C (carddemo-posttran) | 6/6 | 6/8 | 14/15 | 2/4 | 10/11 | 13/14 | 13/13 | - | 12/14 |
 | CBACT02C (carddemo-readcard) | - | - | 17/23 | 1/3 | 9/11 | 22/25 | 12/12 | - | 8/9 |
 | CBCUS01C (carddemo-readcust) | - | - | 12/13 | 1/4 | 8/8 | 23/27 | 10/10 | - | 9/12 |
@@ -743,3 +747,10 @@ program's own reads, proposed for owner review: the RETURN re-enters the same pr
 and in `MOVE DFHCOMMAREA(1:EIBCALEN) TO CARDDEMO-COMMAREA` (a 160- / 218-byte target truncates the extra byte). Unaccounted
 before -> after: COADM01C 1 -> 0, COTRN02C 1 -> 0, COBIL00C 0; all three reach L5 (`det_mutation.py table`). Still open as a sibling
 gap: the harness compares no RETURN COMMAREA length for any det port.
+
+**#4628 slice 4 (2026-10-21): COTRN00C reaches L5 with no new scenario.** The committed ledger predated the later `carddemo-tranlist`
+scenarios (#5401 and after) and the translator changes since. Re-measured at current main (seed 0, sample 150, fast mode): 148 killed,
+0 survived, 2 stillborn, 0 unaccounted. The 21 survivors stated `equivalent` / `unreachable` before are all killed by the current case, so
+their claims were refuted and removed from `det_mutation_survivors/carddemo-tranlist.json`, which now lists none. The 36 other survivors of the old
+ledger were re-run by id against the current case first: 36 of 36 killed. Slice 4's other programs stay open: COCRDSLC (carddemo-cardview,
+41 unaccounted) and COTRN01C (carddemo-tranview, 3 `harness-gap`).

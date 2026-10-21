@@ -340,6 +340,10 @@ public final class DetDli {
      */
     // [rule RT-DLI-ENTRY]
     public static void enter(Field... areas) {
+        bind(false, areas);
+    }
+
+    private static void bind(boolean bmp, Field... areas) {
         try {
             load();
             loaded = true;
@@ -355,7 +359,11 @@ public final class DetDli {
             Pcb p = PCBS.get(i);
             p.mask = areas[i];
             if (p.mask.length() < 36 + p.keylen) {
-                throw refuse("a PCB mask shorter than the PCB (36 bytes and the KEYLEN)");
+                if (!bmp) {
+                    throw refuse("a PCB mask shorter than the PCB (36 bytes and the KEYLEN)");
+                }
+                // a BMP's EXEC DLI names PCB(n), never the mask (CBPAUP0C declares it PIC X): the runtime's own mask
+                p.mask = Field.group(new Storage(36 + p.keylen), 0, 36 + p.keylen);
             }
             initMask(p);
         }
@@ -364,11 +372,11 @@ public final class DetDli {
     /**
      * The entry of a BMP that issues EXEC DLI (register I5, #5857): PROCEDURE DIVISION USING io-pcb db-pcb ... (the PSB is
      * CMPAT=YES: IMS passes the I/O PCB first), so PCB(n) counts the I/O PCB and the PSB is scheduled from the start.
-     * The DB PCBs are bound as {@link #enter} does; the I/O PCB's mask is not read or written, and a DB command on
+     * The DB PCBs are bound as {@link #enter} does (a mask shorter than the PCB, a PIC X the program never names, is replaced by the runtime's own); the I/O PCB's mask is not read or written, and a DB command on
      * PCB(1) stops the run by name.
      */
     public static void enterBmp(Field io, Field... areas) {
-        enter(areas);
+        bind(true, areas);
         scheduled = true;
         ioPcbs = 1;
     }

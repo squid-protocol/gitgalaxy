@@ -442,7 +442,7 @@ def test_exec_dli_get_without_using_is_the_same_command(tmp_path):
 @pytest.mark.parametrize(
     "stmt, why",
     [
-        ("EXEC DLI GHU USING PCB(1) SEGMENT(S1) INTO(IOA) END-EXEC", "EXEC DLI GHU: the segment commands"),
+        ("EXEC DLI GHU USING PCB(1) SEGMENT(S1) INTO(IOA) END-EXEC", "EXEC DLI GHU: this command is not modelled"),
         ("EXEC DLI GU USING PCB(1) SEGMENT(S1) END-EXEC", "one PCB(n) first and one INTO(area)"),
         ("EXEC DLI GU SEGMENT(S1) PCB(1) INTO(IOA) END-EXEC", "one PCB(n) first and one INTO(area)"),
         ("EXEC DLI GU USING PCB(1) SEGMENT(S1) INTO(IOA) FIELDLENGTH(4) END-EXEC", "FIELDLENGTH: only PCB"),
@@ -652,9 +652,9 @@ def test_detdli_isrt_repl_dlet_answer_the_status_ibm_gives_through_the_pcb_by_nu
                    "[  E009ZED ]", f"[{nothing}]", "[GE]", "[AM]", "[  ]", "[GE]", f"[{no_pcb}]"]  # fmt: skip
 
 
-def test_every_burned_cics_exec_dli_command_translates_and_cbpaup0c_stays_a_named_hole(tmp_path):
+def test_every_burned_exec_dli_command_translates_cics_and_cbpaup0c_bmp(tmp_path):
     """#5278: CardDemo's EXEC DLI programs under CICS (COPAUA0C, COPAUS0C, COPAUS1C: SCHD, TERM, GU, GNP, ISRT, REPL)
-    have no EXEC DLI hole; CBPAUP0C (a batch program: GN, GNP, DLET, CHKP) keeps its by-name hole, outside CICS."""
+    have no EXEC DLI hole; CBPAUP0C (a BMP: GN, GNP, DLET, CHKP) has none either (#5857)."""
     pytest.importorskip("tree_sitter_language_pack")
     corpora = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", ROOT / ".mainframe_corpora"))
     corpus = corpora / "aws-mainframe-modernization-carddemo"
@@ -674,6 +674,125 @@ def test_every_burned_cics_exec_dli_command_translates_and_cbpaup0c_stays_a_name
     for name in ("COPAUA0C", "COPAUS0C", "COPAUS1C"):
         got = holes(name, cics)
         assert not [h for h in got if "EXEC DLI" in h or "DIBSTAT" in h], (name, got)
-    batch = holes("CBPAUP0C", "public class X { }")
-    dli = [h for h in batch if "EXEC DLI" in h]
-    assert dli and all("outside CICS" in h for h in dli), batch
+    batch = holes("CBPAUP0C", "public class X { }")  # #5857: a BMP entered by USING its I/O PCB and DB PCB
+    assert not [h for h in batch if "EXEC DLI" in h or "DIBSTAT" in h], batch
+
+
+BMP_WS = ["WORKING-STORAGE SECTION.", "01  PCB-NUM PIC S9(4) COMP VALUE +2.", "01  CHK-ID.", "    05 FILLER PIC X(4) VALUE 'RMAD'.",
+          "    05 CHK-CTR PIC 9(4) VALUE ZEROES.", "01  SHORT-ID PIC X(4).", "01  SEG-A PIC X(20).", "01  SEG-B PIC X(20)."]  # fmt: skip
+
+
+def _bmp(proc: list[str], using: str = " USING IO-PCB DB-PCB") -> str:
+    lines = ["IDENTIFICATION DIVISION.", "PROGRAM-ID. DLIT.", "DATA DIVISION.", *BMP_WS, "LINKAGE SECTION.",
+             "01  IO-PCB PIC X.", "01  DB-PCB PIC X(46).", f"PROCEDURE DIVISION{using}.", "MAIN-PARA.", *proc,
+             "    IF DIBSTAT = SPACES", "       DISPLAY 'OK'", "    END-IF", "    GOBACK."]  # fmt: skip
+    return "\n".join(" " * 7 + ln for ln in lines) + "\n"
+
+
+def _bmp_stmt(stmt: str) -> list[str]:
+    return _wrap(stmt)
+
+
+@pytest.mark.parametrize(
+    "stmt, call",
+    [
+        ("EXEC DLI GN USING PCB(PCB-NUM) SEGMENT(DEPT) INTO(SEG-A) END-EXEC", r'DetDli\.get\("GN", .*Cobol\.num\(\w+, CS\)\.intValue\(\), \w+, .*ssa\("DEPT"\)\)'),
+        ("EXEC DLI GNP USING PCB(2) SEGMENT(EMP) INTO(SEG-A) END-EXEC", r'DetDli\.get\("GNP", .*2, \w+, .*ssa\("EMP"\)\)'),
+        ("EXEC DLI DLET USING PCB(PCB-NUM) SEGMENT(EMP) FROM(SEG-A) END-EXEC", r'DetDli\.execChange\("DLET", .*"EMP"\)'),
+        ("EXEC DLI CHKP ID(CHK-ID) END-EXEC", r"DetDli\.checkpoint\(\w+\)"),
+        ("EXEC DLI CHKP ID (CHK-ID) END-EXEC", r"DetDli\.checkpoint\(\w+\)"),
+    ],
+)  # fmt: skip
+def test_a_bmp_with_exec_dli_is_entered_with_its_io_pcb_and_answers_dibstat(tmp_path, stmt, call):
+    """#5857 (I5): PROCEDURE DIVISION USING io-pcb db-pcb, PCB(n) counting the I/O PCB; GN / GNP / DLET / CHKP answer
+    DIBSTAT, which a batch port now has (the CICS lane's DIB)."""
+    r = _translate(tmp_path, _bmp(_bmp_stmt(stmt)))
+    assert not r.stats["holes"], r.stats["holes"]
+    java = r.java
+    assert re.search(r"DetDli\.enterBmp\(\w+, \w+\);", java), java
+    assert re.search(call, java), java
+    assert re.search(r"Cobol\.move\(__PKG__|Cobol\.move\(p\.cobolrt\.dli\.DetDli", java) or "Cobol.move(" in java
+    assert "DetDli.leave();" in java
+    assert "parmText" not in java
+
+
+@pytest.mark.parametrize(
+    "stmt, why",
+    [
+        ("EXEC DLI CHKP END-EXEC", "only ID(area) is modelled"),
+        ("EXEC DLI CHKP ID(CHK-ID) SAVE END-EXEC", "only ID(area) is modelled"),
+        ("EXEC DLI CHKP ID('RMAD0001') END-EXEC", "not a data area"),
+        ("EXEC DLI ISRT USING PCB(2) SEGMENT(DEPT) FROM(SEG-A) END-EXEC", None),
+        ("EXEC DLI XRST END-EXEC", "this command is not modelled"),
+        ("EXEC DLI ROLB END-EXEC", "this command is not modelled"),
+        ("EXEC DLI GN USING PCB(2) SEGMENT(DEPT) INTO(SEG-A) FIELDLENGTH(4) END-EXEC", "only PCB, SEGMENT, WHERE and INTO"),
+    ],
+)  # fmt: skip
+def test_a_bmp_exec_dli_not_modelled_is_a_hole_by_name(tmp_path, stmt, why):
+    r = _translate(tmp_path, _bmp(_bmp_stmt(stmt)))
+    if why is None:  # the writes are the CICS lane's forms: the same DetDli calls in a BMP
+        assert not r.stats["holes"], r.stats["holes"]
+        assert "DetDli.execIsrt(" in r.java
+        return
+    assert len(r.stats["holes"]) == 1 and why in r.stats["holes"][0], r.stats["holes"]
+
+
+def test_chkp_outside_a_bmp_and_cbltdli_in_a_bmp_are_holes_by_name(tmp_path):
+    r = _translate_cics(tmp_path, _cics_program(_wrap("EXEC DLI CHKP ID(IOA) END-EXEC")))
+    assert any("CHKP" in h for h in r.stats["holes"]), r.stats["holes"]
+    r = _translate(tmp_path, _bmp(["    CALL 'CBLTDLI' USING FN DB-PCB SEG-A"]))
+    assert any("not modelled" in h and "CBLTDLI" in h for h in r.stats["holes"]), r.stats["holes"]
+    # a USING of one item is not a BMP's I/O PCB and DB PCB: EXEC DLI stays a hole outside CICS
+    r = _translate(tmp_path, _bmp(_bmp_stmt("EXEC DLI GN USING PCB(2) SEGMENT(DEPT) INTO(SEG-A) END-EXEC"),
+                                  using=" USING IO-PCB"))  # fmt: skip
+    assert any("EXEC DLI outside CICS" in h for h in r.stats["holes"]), r.stats["holes"]
+
+
+@pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_detdli_bmp_entry_numbers_pcbs_after_the_io_pcb_and_chkp_releases_positions(tmp_path):
+    """enterBmp: PCB(1) is the I/O PCB (refused by name), PCB(2) the first DB PCB; a GN walks on, CHKP answers blank
+    and the next GN starts at the database's beginning; a CHKP ID of another length, or CHKP after a SCHD (not a BMP),
+    is refused by name."""
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    _stage(tmp_path / "dli")
+    src = tmp_path / "src"
+    for rel, text in P.runtime_files("t", batch=False).items():
+        if not rel.startswith(("cobolrt/cics/", "cobolrt/sql/")):
+            (src / "t" / rel).parent.mkdir(parents=True, exist_ok=True)
+            (src / "t" / rel).write_text(text)
+    d = "t.cobolrt.dli.DetDli"
+    refused = "catch (UnsupportedOperationException e) { p(e.getMessage()); }"
+    steps = [
+        f'{d}.enterBmp(io, m1, m2);',
+        f'try {{ {d}.get("GN", 1, into, {d}.ssa("DEPT")); }} {refused}',
+        f'p({d}.get("GN", 2, into, {d}.ssa("DEPT")) + new String(st.bytes, 0, 4));',
+        f'p({d}.get("GN", 2, into, {d}.ssa("DEPT")) + new String(st.bytes, 0, 4));',
+        f'p({d}.checkpoint(id));',
+        f'p({d}.get("GN", 2, into, {d}.ssa("DEPT")) + new String(st.bytes, 0, 4));',
+        f'try {{ {d}.checkpoint(sid); }} {refused}',
+        f'try {{ {d}.get("GN", 4, into); }} {refused}',
+        f'{d}.reset(); {d}.schedule("LVLPSB", true);',
+        f'try {{ {d}.checkpoint(id); }} {refused}',
+    ]  # fmt: skip
+    setup = ("static t.cobolrt.Storage st = new t.cobolrt.Storage(64); "
+             "static t.cobolrt.Field into = t.cobolrt.Field.group(st, 0, 20); "
+             "static t.cobolrt.Field io = t.cobolrt.Field.group(new t.cobolrt.Storage(8), 0, 8); "
+             "static t.cobolrt.Field m1 = t.cobolrt.Field.group(new t.cobolrt.Storage(64), 0, 64); "
+             "static t.cobolrt.Field m2 = t.cobolrt.Field.group(new t.cobolrt.Storage(64), 0, 64); "
+             "static t.cobolrt.Field id = t.cobolrt.Field.group(new t.cobolrt.Storage(8), 0, 8); "
+             "static t.cobolrt.Field sid = t.cobolrt.Field.group(new t.cobolrt.Storage(4), 0, 4); ")  # fmt: skip
+    (src / "Main.java").write_text(
+        'public class Main { static void p(String s) { System.out.println("[" + s + "]"); } '
+        f"{setup}public static void main(String[] a) {{ {' '.join(steps)} }} }}\n"
+    )
+    jdk = _jdk()
+    subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                    *map(str, src.rglob("*.java"))], check=True)  # fmt: skip
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", f"-Dgitgalaxy.dli.dir={tmp_path / 'dli'}", "-cp", str(tmp_path / "classes"),  # noqa: S603
+                          "Main"], capture_output=True, check=True).stdout.decode("utf-8").splitlines()  # fmt: skip
+    io_pcb = "CBLTDLI: an EXEC DLI database command on PCB(1), the I/O PCB is not modelled"
+    no_pcb = "CBLTDLI: a PCB number the scheduled PSB does not have is not modelled"
+    assert out == [f"[{io_pcb}]", "[  D100]", "[  D200]", "[  ]", "[  D100]",
+                   "[CBLTDLI: a CHKP ID that is not 8 bytes is not modelled]", f"[{no_pcb}]",
+                   "[CBLTDLI: an EXEC DLI CHKP outside a BMP entered by USING its I/O PCB is not modelled]"]  # fmt: skip

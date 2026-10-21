@@ -1040,7 +1040,7 @@ _DECREMENT_OPERATOR_LANGS = frozenset(
     {
         "c",
         "cpp",
-        "objectivec",
+        "objective-c",
         "glsl",
         "java",
         "groovy",

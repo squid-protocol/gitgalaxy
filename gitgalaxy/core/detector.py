@@ -86,6 +86,13 @@ def get_token_mass(text: str) -> int | None:
 
 # The language-agnostic indentation signatures coding_analysis tallies per
 # segment (#3069: compiled once instead of a re-cache lookup per segment).
+# #5640: a shell function defined and closed on one line (`name() { cmd; }`, `function name { cmd; }`).
+_SHELL_ONELINE_FUNCTION = re.compile(
+    r"[ \t]*(?:function[ \t]+[A-Za-z_][\w.:-]*[ \t]*(?:\(\)[ \t]*)?"
+    r"|(?!(?:if|then|elif|else|fi|case|esac|while|until|for|in|do|done|function|select|time|coproc)\b)"
+    r"[A-Za-z_][\w.:-]*[ \t]*\(\)[ \t]*)"
+    r"\{[^\n]*\}[ \t]*(?:;[ \t]*)?\r?\n?$"
+)
 _INDENT_TABS_PATTERN = re.compile(r"^\t+(?=\S)", flags=re.MULTILINE)
 _INDENT_SPACES_PATTERN = re.compile(r"^[ ]{2,}(?=\S)", flags=re.MULTILINE)
 
@@ -8279,6 +8286,23 @@ class StructuralExtractor:
                     # what `spatial_correlation` scopes on; the char pair stays
                     # the block's own coordinates.
                     sat_start_char = current_char_offset
+                elif lang_key == "shell" and _SHELL_ONELINE_FUNCTION.match(safe_line):
+                    # #5640: `name() { cmd; }` opens and closes on one line (net 0), so it never
+                    # became a unit and its calls were read as top-level code.
+                    block = orig_line.strip()
+                    sat, mag = self._calculate_block_metrics(
+                        self._extract_semantic_name(safe_line, lang_key),
+                        block,
+                        1,
+                        current_line_offset + 1,
+                        current_line_offset + 1,
+                        rules,
+                        current_char_offset,
+                        current_char_offset + len(orig_line),
+                        spatial_map,
+                    )
+                    satellites.append(sat)
+                    sum_fxn_impact += mag
                 else:
                     global_dust.append(orig_line)
                     stack_depth = max(0, stack_depth + net_change)

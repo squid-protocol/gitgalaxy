@@ -189,7 +189,7 @@ jobs:
     needs: plan
     if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (needs.plan.outputs.db2_shards != '0' && needs.plan.outputs.db2_shards != '') }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
-    timeout-minutes: 18  # measured: a 9-10 case shard took 8.5-11.7 min from job start (full run, #4901)
+    timeout-minutes: 30  # 70 Db2 cases on 4 shards: 14-17 min from job start (2026-10-21: 3 min Db2 start + 14 min proving); 18 timed shards out and failed `det`
     strategy:
       fail-fast: false
       matrix:

@@ -271,6 +271,7 @@ class Gen:
         self.sql: Any = None  # det.sql.Sql for a program with EXEC SQL
         self.dli_pcbs: list[str] | None = None  # #4893: the PCBs IMS passes at ENTRY 'DLITCBL' (det/dli.py)
         self.clock = "clock.currentDate()"  # FUNCTION CURRENT-DATE outside CICS
+        self.uses_mvs = False  # #5856: a batch pointer addresses a z/OS control block (DetMvs, register A2)
         self.uses_random = False  # FUNCTION RANDOM: the program keeps a run unit's sequence (Funcs.Random)
         self.callees: dict[str, str] = {}  # CALLed program -> the ObjectProvider field of its service
         self.entry_tested = False  # #5106: a condition read the `present` flags
@@ -345,33 +346,55 @@ class Gen:
             return self.pointer_view_of.get(e.name.upper())
         return None
 
+    def pointer_lane(self) -> tuple[str, str]:
+        """The runtime a pointer's handle lives in, and its task argument: a CICS task's storage (X47), or in batch the
+        z/OS control blocks the run's stated job step lays (#5856, register A2: DetMvs)."""
+        if self.cics is not None:
+            return "DetCics", "task, "
+        self.uses_mvs = True
+        return "DetMvs", ""
+
     def pointer_view_statement(self, s: S.Stmt, ind: str) -> list[str] | None:
-        """#4771 (X47): the two idioms a numeric view of a POINTER is modelled for -- `ADD|SUBTRACT n TO|FROM view` moves
-        the pointer along its block by n bytes (ZECS001's `ADD ZF-LENGTH TO CACHE-ADDRESS-X`) and `MOVE view TO view`
-        copies the address (`MOVE CACHE-ADDRESS-X TO SAVE-ADDRESS-X`). The view's bytes are never read as a number (a
-        handle is no number): any other use still falls to field_expr's refusal. None: not one of the two."""
+        """#4771 (X47): the idioms a numeric view of a POINTER is modelled for -- `ADD|SUBTRACT n TO|FROM view` and
+        `COMPUTE view = view + n` / `view - n` (#5856: CBSTM03A's `COMPUTE BUMP-TIOT = BUMP-TIOT + LENGTH OF TIOT-SEG`)
+        move the pointer along its block by n bytes (ZECS001's `ADD ZF-LENGTH TO CACHE-ADDRESS-X`) and `MOVE view TO
+        view` copies the address (`MOVE CACHE-ADDRESS-X TO SAVE-ADDRESS-X`). The view's bytes are never read as a number
+        (a handle is no number): any other use still falls to field_expr's refusal. None: not one of these."""
         d = s.data
         if s.kind == "MOVE":
             src = self.view_pointer(d["from"])
             dst = [self.view_pointer(t) for t in d["to"]]
             if src is None or not dst or None in dst:
                 return None
-            if self.cics is None:
-                raise Untranslatable("pointer arithmetic (pointers)")
-            return [f"{ind}DetCics.copyPointer({self.pointer_item(p)}, {self.pointer_item(src)});" for p in dst if p]
-        if s.kind != "ARITH" or d["op"] not in ("+=", "-=") or s.phrases:
+            lane, _ = self.pointer_lane()
+            return [f"{ind}{lane}.copyPointer({self.pointer_item(p)}, {self.pointer_item(src)});" for p in dst if p]
+        if s.kind == "COMPUTE" and not s.phrases:
+            targets = d["targets"]
+            e = d["expr"]
+            if len(targets) != 1 or targets[0][1] or not isinstance(e, E.Bin) or e.op not in ("+", "-"):
+                return None
+            ptr = self.view_pointer(targets[0][0])
+            left = e.left
+            if ptr is None or not isinstance(left, E.Ref) or self.view_pointer(left) != ptr:
+                return None
+            if targets[0][0].name.upper() != left.name.upper():
+                return None
+            op, operand = ("+=" if e.op == "+" else "-="), e.right
+        elif s.kind == "ARITH" and d["op"] in ("+=", "-=") and not s.phrases:
+            targets = d.get("targets") or []
+            if len(targets) != 1 or len(d["operands"]) != 1 or targets[0][1]:
+                return None
+            ptr = self.view_pointer(targets[0][0])
+            if ptr is None:
+                return None
+            op, operand = d["op"], d["operands"][0]
+        else:
             return None
-        targets = d.get("targets") or []
-        if len(targets) != 1 or len(d["operands"]) != 1 or targets[0][1]:
-            return None
-        ptr = self.view_pointer(targets[0][0])
-        if ptr is None:
-            return None
-        if self.cics is None:
-            raise Untranslatable("pointer arithmetic (pointers)")
-        n = self.num(d["operands"][0])
-        sign = "" if d["op"] == "+=" else "-"
-        return [f"{ind}DetCics.advancePointer(task, {self.pointer_item(ptr)}, {sign}({n}).longValueExact());"]
+        lane, task = self.pointer_lane()
+        n = self.num(operand)
+        sign = "" if op == "+=" else "-"
+        cs = "" if lane == "DetCics" else ", CS"
+        return [f"{ind}{lane}.advancePointer({task}{self.pointer_item(ptr)}, {sign}({n}).longValueExact(){cs});"]
 
     def address_record(self, name: str) -> str:
         """#4771 (X47): the Field of a LINKAGE 01 record whose storage a pointer can address (it has storage of its own)."""
@@ -2154,6 +2177,9 @@ class Gen:
                     raise Untranslatable(f"EXHIBIT NAMED of {written}: only plain names and nonnumeric literals")
             return [c, f"{ind}Sysout.display({', '.join(parts)});"]
         if k == "COMPUTE":
+            view = self.pointer_view_statement(s, ind)
+            if view is not None:
+                return [c, *view]
             mode = self.float_mode([s.data["expr"]], [t for t, _ in s.data["targets"]])
             try:
                 if mode is not None:
@@ -2206,9 +2232,12 @@ class Gen:
             of, windowed = self.address_item(s.data["of"])
             return [c, f"{ind}DetCics.{'setPointerToItem' if windowed else 'setPointerToRecord'}(task, {ptr}, {of});"]
         if k == "SET-ADDRESS":  # #4771 (X47): the record's storage becomes the pointer's / another record's
-            if self.cics is None:
+            if self.cics is None and not s.data["pointer"]:
                 raise Untranslatable("SET ADDRESS OF (pointers)")
             rec = self.address_record(s.data["record"])
+            if self.cics is None:  # #5856 (A2): the z/OS control block the pointer addresses (PSA / TCB / TIOT)
+                self.uses_mvs = True
+                return [c, f"{ind}DetMvs.setAddress({rec}, {self.pointer_item(s.data['pointer'])}, CS);"]
             if s.data["pointer"]:
                 return [c, f"{ind}DetCics.setAddress(task, {rec}, {self.pointer_item(s.data['pointer'])});"]
             of, windowed = self.address_item(s.data["of"])

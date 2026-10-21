@@ -421,9 +421,9 @@ def test_the_handler_program_s_holes_are_each_owned_by_one_refusal_map_entry():
             "SET RESUME TO TRUE",
         )
     )
-    assert len(holes) == 2, holes
-    assert "SET ADDRESS OF" in holes[0] and "CEEMGET:" in holes[1] and "not modelled" in holes[1], holes
-    assert _ids(holes) == [["pointers"], ["le-condition-handling"]], holes
+    assert len(holes) == 1, holes
+    assert "CEEMGET:" in holes[0] and "not modelled" in holes[0], holes
+    assert _ids(holes) == [["le-condition-handling"]], holes
 
 
 @pytest.mark.parametrize("service", ["CEEMGET", "CEESGL", "CEENCOD", "CEEMRCE", "CEE3SRP"])
@@ -519,13 +519,40 @@ def test_the_real_epscsmrd_registration_holes_are_each_owned_by_one_entry():
     ], found  # fmt: skip
 
 
-def test_the_real_epscsmrd_handler_program_holds_pointers_and_two_ceemget_holes_only():
-    """EPSCSMRF translated as its own unit: SET ADDRESS OF ... TO TOKEN (`pointers`) and CEEMGET at lines 406 and 422
-    (`le-condition-handling`); its SET RESUME TO TRUE and the rest translate. CEE3SRP / CEENCOD (EPSCSMRI, EPSCSMRO) sit
+def test_the_real_epscsmrd_handler_program_holds_two_ceemget_holes_only():
+    """EPSCSMRF translated as its own unit: CEEMGET at lines 406 and 422 (`le-condition-handling`); SET ADDRESS OF ... TO
+    TOKEN (line 383) now translates, as does its SET RESUME TO TRUE and the rest. CEE3SRP / CEENCOD (EPSCSMRI, EPSCSMRO) sit
     behind those programs' own refusals (national-text, bll-cells) and so are not reached."""
     holes = _real_epscsmrd("EPSCSMRF")
     by_line = {re.match(r"line (\d+): ", h).group(1): h for h in holes}
-    assert sorted(by_line) == ["383", "406", "422"], holes
-    assert _ids([by_line["383"]]) == [["pointers"]], by_line
+    assert sorted(by_line) == ["406", "422"], holes
     assert all("CEEMGET:" in by_line[k] and "not modelled" in by_line[k] for k in ("406", "422")), by_line
     assert _ids([by_line["406"], by_line["422"]]) == [["le-condition-handling"]] * 2, by_line
+
+
+def test_the_real_epscsmrd_soapfault_hole_is_owned_by_soap_only():
+    """The CICS lane (a stub with `runTask(CicsTask)`, as the forge's has) on DBB epscsmrd.cbl: SEND-SOAP-FAULT's
+    `EXEC CICS SOAPFAULT CREATE CLIENT FAULTSTRING ...` (line 276) is the one SOAP hole, refused whole by name and owned by
+    the `soap` entry alone. No model: GnuCOBOL has no web-service reply and no cics-crucible event kind carries a fault, so
+    one would have no oracle (see the entry's note)."""
+    import os
+
+    pytest.importorskip("tree_sitter_language_pack")
+    root = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA") or ROOT / ".mainframe_corpora")
+    src = root / "dbb-mortgage-application/zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+    if not src.is_file():
+        pytest.skip("no dbb-mortgage-application corpus")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    project = Path(tempfile.mkdtemp(prefix="t5106s")) / "project"
+    vsam = project / "src/main/java/com/x/entity/vsam"
+    vsam.mkdir(parents=True)
+    (vsam / "CobolRecords.java").write_text("package com.x.entity.vsam; public class CobolRecords {}\n")
+    stub = (
+        "package com.x.service;\nimport com.x.cics.CicsTask;\npublic class EpscsmrdService {\n"
+        "    public void runTask(CicsTask task) {}\n}\n"
+    )
+    holes = P.translate(src, [], stub, "com.x", {}, project).stats["holes"]
+    soap = [h for h in holes if "SOAPFAULT" in h]
+    assert len(soap) == 1 and soap[0].startswith("line 276: ") and "not modelled" in soap[0], holes
+    assert _ids(soap) == [["soap"]], soap

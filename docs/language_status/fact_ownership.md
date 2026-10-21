@@ -115,3 +115,13 @@ exception on the way out: the translator consumes the engine's (#5649) and its o
 
 Existing causes reused: #4302 (engine main line has no extent), #3362 (the engine drops a GO TO to
 its own paragraph by design).
+
+## The expanded program text is a shared input (#5648)
+
+The scanner and the translator no longer each keep their own copy of the text-level front end: COPY / REPLACING,
+continuation joining, floating `*>` comments, the line map and `>>DEFINE` / `>>IF` live in `core.cobol_preprocessor`,
+`core.cobol_source_format` and `core.cobol_conditional`. A blind spot there is one blind spot, so the fact cross-check
+cannot agree on it by accident. The scanner reads `>>IF` through `cobol_conditional.active_source` (directive lines and
+branches not taken blanked, so every fact keeps its line in the file); a COPY member, which has no PROGRAM-ID, and a
+refused form are read whole. Not yet shared: the scanner records COPY statements as facts and does not splice members
+(`galaxy_ir` expands item trees), so `core.cobol_preprocessor.expand` has only the translator as a consumer.

@@ -8,11 +8,14 @@ so the workflow can run -- and report its required `det` check -- on every PR). 
 tests/equivalence/<case>/ re-proves those cases (and the cases that
 take that case's port: `port_from`, `uses_ports`, transitively); so does one changing a case's coverage-ledger file,
 tests/equivalence/det_sweep_coverage/<case>.json (#4789: the sweep of that case is what checks the entry). A change to the translator + runtime (det/) or the generator (GENERATOR: the forges that write the
-project) is judged by the port diff (mode "ports", then --ports; #4814, #4847). Anything
-else -- the harness, the tools, the corpora pin, the workflow, the baseline, a file straight under
-tests/equivalence/, a case directory with no case.json (a case added or removed), an unreadable diff -- is a full
-sweep, as is every event that is not a pull request (nightly, manual). When in doubt, full. Stdlib only: the job runs
-before anything is installed.
+project) is judged by the port diff (mode "ports", then --ports; #4814, #4847). #5885: a shared file is narrowed
+to the cases it can move -- the baseline and infeasible_outcomes.json to the cases whose entries changed (KEYED), the
+corpora pin to the cases on a corpus whose pin changed, a harness / oracle file to the cases that use its component
+(evidence.COMPONENTS, #4731); the mutation scores are no input at all. Anything else -- the harness / oracle core, the
+det tools, the workflow, a file straight under tests/equivalence/, a case directory with no case.json (a case added
+or removed), an unreadable diff or side -- is a full sweep, as is every event that is not a pull request (nightly,
+manual: the backstop for a narrowing that missed). When in doubt, full. Stdlib only: the job runs before anything is
+installed.
 
 Prints JSON {mode, cases, shards, matrix, db2_cases, db2_shards, db2_matrix, reason}: `cases` is "all" or the names;
 `matrix` the shard labels "I/N". The Db2 cases (a "db2" section in case.json) are split off into `db2_cases` (#4901):
@@ -28,6 +31,7 @@ import json
 import os
 import subprocess
 import sys
+from collections.abc import Callable
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -38,6 +42,8 @@ PER_SHARD = 3  # narrow: about this many cases per runner
 DB2_MAX_SHARDS = 4  # a full sweep: as many as the nightly Evidence Refresh's Db2 job
 DB2_PER_SHARD = 6  # narrow: about this many Db2 cases per runner (a Db2 start is paid per runner)
 IGNORED = {"tests/equivalence/det_sweep_durations.json"}  # only balances shards, never a verdict
+# #5885: the mutation scores and their survivors (det_mutation.py, evidence_report.py): no det proof reads them
+IGNORED_DIRS = ("tests/equivalence/det_mutation/", "tests/equivalence/det_mutation_survivors/")
 # #4814: a change confined to these is judged by what it does to the generated ports: `det_port.py check` translates
 # every case at the base and at HEAD and names the ports that differ; only those (and their dependents) are proven.
 # Only the translator + runtime -- everything a port's bytes come from. Anything else that can move a verdict without
@@ -59,7 +65,8 @@ GENERATOR = tuple(
     )
 )  # fmt: skip
 # #5274: the transaction forge's CicsTask family, split out of it
-GENERATOR += ("gitgalaxy/tools/cobol_to_java/cics_task_containers.py",)
+GENERATOR += ("gitgalaxy/tools/cobol_to_java/cics_task_containers.py",
+              "gitgalaxy/tools/cobol_to_java/cics_task_filecontrol.py")  # fmt: skip  # #5448 split it out too (#5885)
 
 
 def port_diff_input(path: str) -> bool:
@@ -84,7 +91,8 @@ DET_INPUTS = (
 
 
 def det_input(path: str) -> bool:
-    return not path.endswith(".md") and any(fnmatch.fnmatch(path, p) for p in DET_INPUTS)
+    return (not path.endswith(".md") and not path.startswith(IGNORED_DIRS)
+            and any(fnmatch.fnmatch(path, p) for p in DET_INPUTS))  # fmt: skip
 
 
 # #4789: <case>.json, the det-sweep coverage ledger's entry of a case
@@ -113,6 +121,80 @@ def dependents(changed: set[str], cases: dict[str, dict]) -> set[str]:
         out |= more
 
 
+# #5885: shared files keyed by case: a change to some entries is proven by sweeping those cases (the sweep checks a
+# case's baseline entry and its infeasible-outcome claims; infeasible_outcomes.check reads the whole file's form on
+# every det run). {path: (the top-level sections keyed by case, the ones that only describe)}; any other top-level
+# change, an unknown case key or an unreadable side is a full sweep.
+KEYED = {
+    "tests/equivalence/det_sweep_baseline.json": (("det", "model"), ("about",)),
+    "tests/equivalence/infeasible_outcomes.json": (("cases",), ("about", "issue", "families")),  # families: below
+}
+CORPORA = "tests/cobol_mainframe/corpora.json"
+
+
+def _json(text: str | None) -> dict | None:
+    try:
+        value = json.loads(text) if text is not None else None
+    except ValueError:
+        return None
+    return value if isinstance(value, dict) else None
+
+
+def keyed_cases(path: str, base: str | None, head: str | None, cases: dict[str, dict]) -> set[str] | None:
+    """#5885: the cases whose entries of KEYED file `path` differ between the base and HEAD texts, or None (full)."""
+    old, new = _json(base), _json(head)
+    if old is None or new is None:
+        return None
+    sections, prose = KEYED[path]
+    if any(old.get(k) != new.get(k) for k in set(old) | set(new) if k not in sections and k not in prose):
+        return None
+    out: set[str] = set()
+    for sec in sections:
+        a, b = old.get(sec) or {}, new.get(sec) or {}
+        out |= {k for k in set(a) | set(b) if a.get(k) != b.get(k)}
+    if path.endswith("infeasible_outcomes.json") and old.get("families") != new.get("families"):
+        fa, fb = old.get("families") or {}, new.get("families") or {}
+        moved = {k for k in set(fa) | set(fb) if fa.get(k) != fb.get(k)}  # a family's text: the cases that cite it
+        for side in (old, new):
+            out |= {c for c, es in (side.get("cases") or {}).items() if any(e.get("family") in moved for e in es)}
+    return out if out <= set(cases) else None
+
+
+def corpus_cases(base: str | None, head: str | None, cases: dict[str, dict]) -> set[str] | None:
+    """#5885: the cases on a corpus whose pin (tests/cobol_mainframe/corpora.json) changed, or None (full)."""
+    old, new = _json(base), _json(head)
+    if old is None or new is None or {k: v for k, v in old.items() if k != "corpora"} != {
+            k: v for k, v in new.items() if k != "corpora"}:  # fmt: skip
+        return None
+    try:
+        a = {c["name"]: c for c in old["corpora"]}
+        b = {c["name"]: c for c in new["corpora"]}
+    except (KeyError, TypeError):
+        return None
+    moved = {n for n in set(a) | set(b) if a.get(n) != b.get(n)}
+    return {n for n, c in cases.items() if c.get("corpus") in moved}
+
+
+def component_cases(path: str, cases: dict[str, dict]) -> set[str] | None:
+    """#5885: the cases that use the harness / oracle component `path` belongs to, by the component map the evidence
+    records are fingerprinted with (evidence.COMPONENTS, #4731: e.g. the Db2 layer is linked into Db2 cases only);
+    None when `path` is no harness / oracle file, or lies in `<input>:core` (every case uses it)."""
+    import evidence  # noqa: PLC0415 -- stdlib only, like this planner; read only when a harness / oracle file changed
+
+    if path in evidence.HARNESS:
+        name = "harness"
+    elif any(path == p or fnmatch.fnmatchcase(path, p) for p in evidence.ORACLE):
+        name = "oracle"
+    else:
+        return None
+    comp = next((c for c in evidence.COMPONENTS if c.input == name
+                 and any(path == p or fnmatch.fnmatchcase(path, p) for p in c.paths)), None)  # fmt: skip
+    if comp is None:
+        return None
+    return {n for n, c in cases.items()
+            if comp.uses(evidence.Use(c.get("kind", "batch"), is_db2(c), bool(c.get("programs")), ims="ims" in c))}
+
+
 FULL_LABEL = "shepherd:full"  # #4847: a maintainer's request for the full sweep on a pull request (docs/ci.md)
 
 
@@ -125,8 +207,10 @@ def labels_from_event(path: Path) -> list[str]:
     return [x.get("name", "") for x in (payload.get("pull_request") or {}).get("labels") or []]
 
 
-def plan(files: list[str], event: str, cases: dict[str, dict], labels: list[str] | None = None) -> dict:
-    """The plan for `files` (repo-relative, as git prints them) on `event`, given the pull request's `labels`."""
+def plan(files: list[str], event: str, cases: dict[str, dict], labels: list[str] | None = None,
+         texts: Callable[[str], tuple[str | None, str | None]] | None = None) -> dict:
+    """The plan for `files` (repo-relative, as git prints them) on `event`, given the pull request's `labels`;
+    `texts(path)` is (the file at the merge base, at HEAD), None for a side that is absent or unreadable."""
     # #4901: a full sweep proves every Db2 case too, except in the nightly (Evidence Refresh's Db2 job runs then)
     full = {"mode": "full", "cases": "all", "db2_cases": [] if event == "schedule" else "all"}
     if event != "pull_request":
@@ -142,12 +226,28 @@ def plan(files: list[str], event: str, cases: dict[str, dict], labels: list[str]
             "reason": "no changed file is a det-sweep input (DET_INPUTS)",
         }
     touched: set[str] = set()
+    why: list[str] = []  # #5885: the shared files narrowed to the cases they move
     translator = sorted(f for f in files if port_diff_input(f))
     for f in files:
         if port_diff_input(f):
             continue
         if f.startswith(LEDGER_DIR) and f.endswith(".json") and f[len(LEDGER_DIR) : -5] in cases:
             touched.add(f[len(LEDGER_DIR) : -5])  # #4789: a case's ledger entry is checked by sweeping that case
+            continue
+        if f in KEYED or f == CORPORA:
+            got = None
+            if texts is not None:
+                got = keyed_cases(f, *texts(f), cases) if f in KEYED else corpus_cases(*texts(f), cases)
+            if got is None:
+                return {**full, "reason": f"{f}: not narrowed to the entries it changes (unreadable, or outside them)"}
+            touched |= got
+            why.append(f"{f} ({len(got)} case(s))")
+            continue
+        if (got := component_cases(f, cases)) is not None:
+            if set(cases) <= got:
+                return {**full, "reason": f"{f}: its component is used by every case"}
+            touched |= got
+            why.append(f"{f} ({len(got)} case(s) use its component)")
             continue
         parts = f.split("/")
         if len(parts) < 4 or parts[:2] != ["tests", "equivalence"] or parts[2] not in cases:
@@ -164,7 +264,8 @@ def plan(files: list[str], event: str, cases: dict[str, dict], labels: list[str]
     runnable = [c for c in affected if not is_db2(cases[c])]
     db2 = [c for c in affected if is_db2(cases[c])]  # #4901: proven by the db2 job
     return {"mode": "narrow", "cases": runnable, "db2_cases": db2,
-            "reason": f"only case files changed: {', '.join(sorted(touched)) or 'none'}"
+            "reason": (f"shared files narrowed: {'; '.join(why)}; " if why else "")
+                      + f"only case files changed: {', '.join(sorted(touched)) or 'none'}"
                       + (f" (+ dependents {', '.join(sorted(set(affected) - touched))})" if set(affected) - touched else "")}  # fmt: skip
 
 
@@ -209,6 +310,19 @@ def db2_shards_for(p: dict) -> list[str]:
     return [f"{i}/{n}" for i in range(1, n + 1)]
 
 
+def file_texts(base: str) -> Callable[[str], tuple[str | None, str | None]]:
+    """#5885: path -> (the file at the merge base of `base` and HEAD, at HEAD); None for a side git cannot give."""
+
+    def git_show(rev: str, path: str) -> str | None:
+        proc = subprocess.run(["git", "show", f"{rev}:{path}"], cwd=REPO_ROOT,  # noqa: S603, S607
+                              capture_output=True, text=True, check=False)  # fmt: skip
+        return proc.stdout if proc.returncode == 0 else None
+
+    mb = subprocess.run(["git", "merge-base", base, "HEAD"], cwd=REPO_ROOT,  # noqa: S603, S607
+                        capture_output=True, text=True, check=False).stdout.strip()  # fmt: skip
+    return lambda path: (git_show(mb, path) if mb else None, git_show("HEAD", path))
+
+
 def changed_files(base: str) -> list[str]:
     proc = subprocess.run(["git", "diff", "--name-only", f"{base}...HEAD"], cwd=REPO_ROOT,  # noqa: S603, S607
                           capture_output=True, text=True, check=False)  # fmt: skip
@@ -245,7 +359,7 @@ def main() -> int:
         return emit(p, args.github_output)
     try:
         files = args.files if args.files is not None else changed_files(args.base)
-        p = plan(files, args.event, cases, labels) if files or args.event != "pull_request" else {
+        p = plan(files, args.event, cases, labels, file_texts(args.base)) if files or args.event != "pull_request" else {
             "mode": "full", "cases": "all", "db2_cases": "all", "reason": "no changed files found (the diff is unreadable or empty)"}  # fmt: skip
     except RuntimeError as e:  # cannot tell what changed: everything
         p = {"mode": "full", "cases": "all", "db2_cases": "all", "reason": f"cannot diff ({e})"}

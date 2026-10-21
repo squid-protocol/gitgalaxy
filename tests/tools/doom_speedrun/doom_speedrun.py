@@ -30,7 +30,7 @@ sys.path.insert(0, str(HERE))
 import doom_diff  # noqa: E402
 import doom_scorer  # noqa: E402
 
-MANIFEST = HERE / "manifest.csv"
+MANIFEST = REPO_ROOT / "tests" / "doom_rosetta" / "manifest.csv"  # moved from this directory (#5619)
 DEFAULT_WORK = Path(os.environ.get("DOOM_SPEEDRUN_WORK", "/tmp/gitgalaxy-scratch/doom-speedrun"))
 HEAVY_RUN = REPO_ROOT / "tests" / "tools" / "box" / "heavy-run.sh"
 ORACLE_COLUMNS = ("treesitter_functions", "ts_delta_pct")

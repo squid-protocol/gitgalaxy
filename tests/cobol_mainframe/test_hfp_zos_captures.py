@@ -143,3 +143,17 @@ def test_a_store_record_separates_truncation_from_rounding():
         and store["asm-store-add-0.1-0.2-2-rounded"]["want"] == "0.30"
     )
     assert store["asm-store-div-2-3-2"]["want"] == "0.66" and store["asm-store-div-2-3-2-rounded"]["want"] == "0.67"
+
+
+def test_the_bnk1tfn_non_exact_float_to_fixed_shape_is_asked():
+    """#4271 (BNK1TFN): 12.34 / 0.01 / 9999999999.99 as COMP-2 (and the first two as COMP-1) moved to a 2-decimal field.
+
+    GnuCOBOL truncates the float, the model rounds in the receiver's low-order position; each value is asked as an
+    encode and a fixed record, so a z/OS run states both the image and the digits.
+    """
+    by_id = {r["id"]: r for r in records()}
+    for v, sizes in (("12.34", ("long", "short")), ("0.01", ("long", "short")), ("9999999999.99", ("long",))):
+        for sz in sizes:
+            enc, fix = by_id[f"asm-enc-{v}-{sz}"], by_id[f"asm-fixed-{v}-{sz}-2"]
+            assert enc["source"] == fix["source"] == "model-assumption"
+            assert fix["a"] == enc["want"] and Decimal(fix["want"]) == Decimal(v)

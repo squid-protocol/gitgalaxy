@@ -128,3 +128,77 @@ def test_component_staleness_as_evidence_records():
     now["harness"]["components"] = {"cics": "x2"}
     assert dm.stale(e, now) == ["harness"]
     assert dm.stale(entry(), {**FP, "harness": "c2"}) == ["harness"]  # no components stored: the whole input decides
+
+
+def rr(s, verdict):
+    return {"id": s["id"], "verdict": verdict, "before": s["before"], "after": s["after"]}
+
+
+def test_merge_survivors_carries_verdicts():
+    e = entry()
+    m = dm.merge_survivors(e, [rr(S1, "survived"), rr(S2, "killed")])
+    assert [s["id"] for s in m["survived"]] == [S1["id"]]
+    assert S2["id"] in m["killed"] and m["killed"] == sorted(m["killed"])
+    assert (m["counts"]["killed"], m["counts"]["survived"]) == (4, 1)
+    assert e == entry()  # the input is not touched
+    m = dm.merge_survivors(e, [rr(S1, "timeout"), rr(S2, "survived")])
+    assert (m["counts"]["timeout"], m["counts"]["survived"]) == (1, 1)
+    m = dm.merge_survivors(e, [rr(S1, "error"), rr(S2, "survived")])  # an error is kept and counted: no L5
+    assert [s["id"] for s in m["survived"]] == [S1["id"], S2["id"]] and m["counts"]["error"] == 1
+    assert dm.summary(CASE, m, {CASE: [claim(S1), claim(S2)]})["l5"] is False
+    assert dm.merge_survivors(e, [rr(S1, "survived")]) is None  # one not re-run
+    assert dm.merge_survivors(e, [rr(S1, "survived"), {**rr(S2, "survived"), "after": "g();"}]) is None
+
+
+def refresh_env(monkeypatch, tmp_path, ported, fresh, verdicts):
+    """refresh() with the translator, fingerprints and mutation.run stubbed; returns the entries written."""
+    import evidence
+    import mutation as mu
+
+    port = tmp_path / "det" / CASE / "port"
+    port.mkdir(parents=True)
+    (port / "A.java").write_text("class A {}", encoding="utf-8")
+    e = entry(inputs={"port": dm.port_sha(port) if ported else "other", **FP})
+    written, calls = {}, []
+    monkeypatch.setattr(dm, "load", lambda path=dm.LEDGER: {CASE: e})
+    monkeypatch.setattr(dm, "load_survivors", lambda path=dm.SURVIVORS: {CASE: [claim(S1), claim(S2)]})
+    monkeypatch.setattr(dm, "fingerprints", lambda case: {k: {"sha256": v} for k, v in fresh.items()})
+    monkeypatch.setattr(dm, "translate", lambda cases, work: tmp_path / "det")
+    monkeypatch.setattr(dm, "scope_filter", lambda kind, p: lambda ms: ms)
+    monkeypatch.setattr(dm, "write", lambda case, ent, path=None: written.update({case: ent}))
+    monkeypatch.setattr(evidence, "harness_commit", lambda: "abc")
+
+    def fake_run(case, work, jobs, n, seed, ops, timeout, keep, full, only=None, **kw):
+        calls.append((seed, only))
+        return {"results": [rr(S1, verdicts[0]), rr(S2, verdicts[1])], "coverage": "cov"}
+
+    monkeypatch.setattr(mu, "run", fake_run)
+    return written, calls
+
+
+def test_refresh_carries_verdicts_across_case_drift(monkeypatch, tmp_path):
+    written, calls = refresh_env(monkeypatch, tmp_path, True, {**FP, "case": "a2"}, ("survived", "survived"))
+    assert dm.refresh([CASE], tmp_path) == 0
+    assert calls and calls[0][0] == 0  # the entry's seed, only the recorded survivors
+    e = written[CASE]
+    assert e["inputs"]["case"] == "a2" and e["refreshed"]["survivors_rerun"] == 2 and e["coverage"] == "cov"
+    assert dm.stale(e, {k: {"sha256": v} for k, v in {**FP, "case": "a2"}.items()}) == []
+    assert dm.summary(CASE, e)["l5"] is True  # both survivors keep their stated verdicts
+
+
+def test_refresh_flags_a_killed_stated_claim(monkeypatch, tmp_path):
+    written, _ = refresh_env(monkeypatch, tmp_path, True, {**FP, "harness": "c2"}, ("survived", "killed"))
+    assert dm.refresh([CASE], tmp_path) == 1
+    assert written[CASE]["survived"] == [S1]
+
+
+def test_refresh_generator_only_does_not_rerun(monkeypatch, tmp_path):
+    written, calls = refresh_env(monkeypatch, tmp_path, True, {**FP, "generator": "g2"}, ("killed", "killed"))
+    assert dm.refresh([CASE], tmp_path) == 0
+    assert calls == [] and "refreshed" not in written[CASE] and written[CASE]["inputs"]["generator"] == "g2"
+
+
+def test_refresh_refuses_when_the_port_moved(monkeypatch, tmp_path):
+    written, calls = refresh_env(monkeypatch, tmp_path, False, {**FP, "case": "a2"}, ("survived", "survived"))
+    assert dm.refresh([CASE], tmp_path) == 1
+    assert written == {} and calls == []

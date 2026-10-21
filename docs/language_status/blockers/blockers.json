@@ -89,7 +89,7 @@
    "refuses_program": false
   },
   {
-   "gap": "EPSCSMRI: a sibling program of this source",
+   "gap": "EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (\u2026) is not modelled (\u2026): the translator reads one byte a character",
    "only": 0,
    "only_burned": 0,
    "only_non_burned": 0,
@@ -102,7 +102,7 @@
    "refuses_program": false
   },
   {
-   "gap": "EPSCSMRO: a sibling program of this source",
+   "gap": "EPSCSMRO: no service of its own, its translation is refused: OS/VS COBOL BLL addressing: SERVICE LABEL (\u2026): not modelled",
    "only": 0,
    "only_burned": 0,
    "only_non_burned": 0,

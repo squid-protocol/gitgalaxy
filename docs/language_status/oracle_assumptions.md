@@ -4550,8 +4550,13 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   - Every other EXEC DLI command (XRST, ROLB, GHU ...) stays a hole by name, as do the get clauses not modelled
     (FIELDLENGTH, KEYS, a multi-field WHERE, SEGMENT-less WHERE), CHKP with any option but ID, and EXEC DLI outside
     CICS in a program that is not such a BMP.
-    It is what holds CardDemo COPAUA0C (REPL / ISRT under CICS; its MQ calls are modelled, W6), also COPAUS0C and
-    COPAUS1C.
+    CardDemo COPAUA0C (GU, ISRT, REPL under CICS; its MQ calls are modelled, W6) is translated and run as
+    `carddemo-copaua0c` (17 scenarios, #5278); CBPAUP0C, COPAUS0C and COPAUS1C have no case yet.
+  - ASSUMPTION (#5278, no IBM text cited): under CICS, EXEC DLI numbers the DB PCBs from 1 with no I/O PCB first, so a
+    PSB's CMPAT=YES changes nothing there; the harness takes it for a CICS case (`equivalence_ims.psb(cics=True)`). Owner
+    to confirm.
+  - A case's `ims.seed.<DBD>.skip` lists unload record numbers left out of the seed (the corpus unload of DBPAUTP0 ends
+    with a root whose packed key is blank, which a qualified GU refuses by design).
   - CALL 'CBLTDLI' is refused in a program IMS does not enter at ENTRY 'DLITCBL' (a BMP, MPP or CICS program).
   - Also refused: the parameter-count form (a binary count first), a PCB the entry was not passed, any ON EXCEPTION
     phrase, and CALL 'AIBTDLI' or 'CEETDLI'.
@@ -4559,7 +4564,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   - HDAM and PHDAM: the root sequence is the randomizer's.
   - GSAM, INDEX and LOGICAL databases.
   - Logical relationships, variable-length segments, a non-unique or missing sequence field.
-  - CMPAT=YES (IMS passes an I/O PCB first: IMS TM), and an I/O, alternate or GSAM PCB.
+  - CMPAT=YES in a batch program (IMS passes an I/O PCB first: IMS TM; taken under CICS, see the ASSUMPTION), and an I/O, alternate or GSAM PCB.
   - PROCSEQ (a secondary index), PROCOPT L / LS (load mode), a segment-level PROCOPT, and a PCB not sensitive to every
     segment.
   - An ENTRY 'DLITCBL' that does not name one area per PCB.

@@ -239,6 +239,12 @@ def ratchets() -> list[Ratchet]:
             _need_corpora,
         ),  # fmt: skip
         Ratchet(
+            "det-mutation",
+            [PY, t + "det_mutation.py", "stale-check", "--vs", "origin/main"],
+            "python tests/tools/det_mutation.py refresh CASE --work DIR   (commit tests/equivalence/det_mutation/CASE.json; a moved det port needs `run`; #5862)",
+            _need_corpora,
+        ),  # fmt: skip
+        Ratchet(
             "time",
             [PY, t + "time_ratchet.py", "check"],
             "make the test faster (over 15 s), or mark it @pytest.mark.slow(reason=...); shrink the baseline: python tests/tools/time_ratchet.py update --times .test_durations (never raises; #5166)",

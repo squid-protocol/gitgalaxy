@@ -42,7 +42,7 @@ DEFINITION: dict[str, Any] = {
         # the SQL words are excluded by name, upper-case only: `set`/`update` are
         # real Tcl commands. The lookahead is one bounded alternation (Rule 5).
         "calls_out": re.compile(
-            r"(?m)^[ \t]*(?!(?:SELECT|INSERT|UPDATE|DELETE|REPLACE|FROM|WHERE|SET|VALUES|INTO|AND|OR|NOT"
+            r"(?m)(?:^[ \t]*|\[[ \t]*)(?!(?:SELECT|INSERT|UPDATE|DELETE|REPLACE|FROM|WHERE|SET|VALUES|INTO|AND|OR|NOT"
             r"|UNION|WITH|AS|ON|USING|JOIN|INNER|OUTER|LEFT|CROSS|NATURAL|ORDER|GROUP|HAVING|LIMIT|OFFSET"
             r"|CREATE|DROP|ALTER|TABLE|INDEX|VIEW|TRIGGER|BEGIN|COMMIT|ROLLBACK|PRAGMA|COALESCE|CASE|WHEN"
             r"|THEN|ELSE|END|EXCEPT|INTERSECT|RETURNING|DISTINCT|ALL|IN|IS|NULL|LIKE|BETWEEN)(?!["

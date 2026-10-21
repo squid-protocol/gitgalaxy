@@ -1,0 +1,81 @@
+{
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "CBSTM03A",
+ "program_source": "app/cbl/CBSTM03A.CBL",
+ "copy_dirs": [
+  "app/cpy"
+ ],
+ "job": "CREASTMT",
+ "step": "STEP040",
+ "parm": null,
+ "clock": "2022/07/18 10:30:15.00",
+ "mvs_step": "CREASTMT;STEP040;;STEPLIB:UCB,SYSPRINT:NOUCB,SYSOUT:NOUCB,TRNXFILE:UCB,XREFFILE:UCB,ACCTFILE:UCB,CUSTFILE:UCB,STMTFILE:UCB,HTMLFILE:UCB",
+ "subprograms": [
+  "app/cbl/CBSTM03B.CBL"
+ ],
+ "datasets": {
+  "TRNXFILE": {
+   "input": "@case/trnx.txt",
+   "organization": "indexed",
+   "reclen": 350,
+   "keys": [
+    {
+     "offset": 0,
+     "length": 32
+    }
+   ],
+   "entity": "FdTrnxfileRec"
+  },
+  "XREFFILE": {
+   "input": "app/data/ASCII/cardxref.txt",
+   "organization": "indexed",
+   "reclen": 50,
+   "keys": [
+    {
+     "offset": 0,
+     "length": 16
+    }
+   ],
+   "entity": "CardXrefRecord"
+  },
+  "CUSTFILE": {
+   "input": "app/data/ASCII/custdata.txt",
+   "organization": "indexed",
+   "reclen": 500,
+   "keys": [
+    {
+     "offset": 0,
+     "length": 9
+    }
+   ],
+   "entity": "CustomerRecord"
+  },
+  "ACCTFILE": {
+   "input": "app/data/ASCII/acctdata.txt",
+   "organization": "indexed",
+   "reclen": 300,
+   "keys": [
+    {
+     "offset": 0,
+     "length": 11
+    }
+   ],
+   "entity": "AccountRecord"
+  },
+  "STMTFILE": {
+   "organization": "sequential",
+   "reclen": 80,
+   "compare": true,
+   "copybook": "app/cbl/CBSTM03A.CBL",
+   "record": "FD-STMTFILE-REC"
+  },
+  "HTMLFILE": {
+   "organization": "sequential",
+   "reclen": 100,
+   "compare": true,
+   "copybook": "app/cbl/CBSTM03A.CBL",
+   "record": "FD-HTMLFILE-REC"
+  }
+ },
+ "notes": "CardDemo CBSTM03A (job CREASTMT, STEP040), the statement writer: it walks PSA -> TCB -> TIOT to DISPLAY its job, step and DD names (register A2; `mvs_step` states the step, the DDs in CREASTMT.JCL order, on both sides), then drives CBSTM03B (CALLed, compiled and translated as a subprogram) through TRNXFILE, XREFFILE, CUSTFILE and ACCTFILE and writes the plain-text (STMTFILE) and HTML (HTMLFILE) statements, both compared with SYSOUT. TRNXFILE is the first three records of the corpus's dailytran.txt (trnx.txt here); the other three files are the corpus's own data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+}

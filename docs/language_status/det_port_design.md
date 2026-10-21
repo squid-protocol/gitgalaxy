@@ -857,12 +857,14 @@ NULL is distinct.
   rules `RT-DLI-EXEC-ISRT` / `-CHANGE`) are DetDli calls answering DIBSTAT. ASSUMED: a get is a get-hold where the PCB's PROCOPT allows an
   update, so a REPL / DLET acts on the segment the previous get held; segments are fixed length, a SEGLENGTH other than the DBD's stops the
   run by name. Every EXEC DLI command of the burned CICS programs (COPAUA0C, COPAUS0C, COPAUS1C) translates
-  (pinned in `test_det_dli.py`). Still holes: other EXEC DLI commands and options (CHKP, CBPAUP0C's batch EXEC DLI: I/O PCB, #4893),
-  and the oracle side (`ggdli.c`).
+  (pinned in `test_det_dli.py`). COPAUA0C has no hole at all: `det_port.py run --all-cases --translate-only` translates 344/344 statements
+  (its INITIALIZE ... REPLACING of a table is C17, #5823; its three READ KEYLENGTH(LENGTH OF ...) take the mapped file's key, #5831). A BMP entered `USING` its I/O PCB and DB PCBs translates GN / GNP / DLET / CHKP ID(area) and answers DIBSTAT (#5857; CBPAUP0C
+  translates 110/110, pinned in `test_det_dli.py`); its oracle side is linked (`ggdli.c`, #5889). Still holes: other EXEC DLI commands
+  and options, and any DIB field but DIBSTAT.
 - **Refused (register I5).** Other EXEC DLI; BMP / MPP / CICS DL/I programs and the I/O PCB (IMS TM); GSAM; DL/I calls
   other than the nine; command codes and boolean SSAs; AIBTDLI / CEETDLI; HDAM order; secondary indexes; logical
   relationships; load mode. CardDemo's other DL/I programs stop at one of these: PAUDBLOD (CMPAT=YES, an I/O PCB),
-  DBUNLDGS (GSAM PCBs), and CBPAUP0C, COPAUA0C, COPAUS0C, COPAUS1C (EXEC DLI).
+  DBUNLDGS (GSAM PCBs). (COPAUA0C, COPAUS0C, COPAUS1C and CBPAUP0C's EXEC DLI commands translate, above; no equivalence case for CBPAUP0C, COPAUS0C, COPAUS1C yet.)
 
 ## In port_runner
 

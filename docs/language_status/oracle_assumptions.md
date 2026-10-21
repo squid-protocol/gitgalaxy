@@ -194,7 +194,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | Q6 | Db2 | Date and time text in ISO form; DDL adapted from z/OS jobs | ASSUMED | yes (CBSA, GenApp) |
 | Q7 | Db2 | `CCSID EBCDIC` tables hold Unicode text: string order differs | DIFFERS | no |
 | Q8 | Db2 | Positioned UPDATE / DELETE: the Java side by row id | MATCHED | yes (GenApp LGUPDB01) |
-| Q9 | Db2 | More host variables than columns: SQLWARN3, the rest untouched | MATCHED | yes (GenApp LGUPDB01) |
+| Q9 | Db2 | More host variables than columns: SQLWARN3, the rest untouched | MATCHED (declared difference: SQLWARN3) | yes (GenApp LGUPDB01) |
 | Q10 | Db2 | A statement the driver fails with no Db2 SQLCODE (a blank timestamp host variable) | REFUSED (the task; an enumerated fault task not judged) | yes (GenApp LGTESTP4: its add's enumerated fault task `add--sql-lgapdb01-316` (SELECT LASTCHANGED faulted), not run) |
 | I1 | IMS | CBLTDLI GU GHU GN GHN GNP GHNP ISRT REPL DLET on a stated hierarchy (DBD / PSB sources, a seed), status codes from IBM's table, RETURN-CODE 0 after each call | ASSUMED | yes (CardDemo PAUDBUNL, carddemo-paudbunl, #4893) |
 | I2 | IMS | twins and qualifications compare the field's stored bytes; a C / X key's order is the data page's (ASCII on both sides), not EBCDIC's; a P qualification only where packed and logical comparison agree | DIFFERS | no (CardDemo's keys are packed and binary bytes, the same in both pages) |
@@ -4170,6 +4170,11 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   outside its halfword / fullword / doubleword (Db2 types the host variable by its data type: S9(9) COMP is INTEGER), not
   beyond its PICTURE's digits: 2147483647 into `S9(9) COMP` is assigned. That holds under TRUNC(STD) too; STD limits
   COBOL's own MOVE / arithmetic (C1), not the SQL assignment. ggsql.c `num_store` and DetSql (`Cobol.storeHostChecked`) agree.
+- **IBM.** Db2 10 for z/OS Codes, SQLCODE -304 (SQLSTATE 22003): "A VALUE WITH DATA TYPE data-type1 CANNOT BE ASSIGNED TO A
+  HOST VARIABLE ... the host variable with data type data-type2 was not large enough to hold the retrieved value". The test
+  is the host variable's Db2 data type (halfword, fullword, doubleword), as here. Db2 13 FETCH (SQL Reference): "If an
+  assignment error occurs, the value is not assigned to the target and no more values are assigned to targets."
+  The statement that STD does not apply is ours: the cited pages do not mention TRUNC. Not measured on z/OS (#4702 Part 2).
 
 ### Q1b. A datetime host variable Db2 rejects: -180 / 22007 on both sides — MATCHED (#4658)
 - **What.** An UPDATE binding an unset (non-date) PIC X host variable to a DATE column gets SQLCODE -180, SQLSTATE 22007
@@ -4178,6 +4183,9 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   -4220 (conversion error) before Db2 sees them; that code is never a Db2 SQLCODE an embedded-SQL program meets, so
   DetSql maps it to -180 / 22007. Other driver errors pass through unchanged. SQLERRMC/SQLERRD of the mapped error stay
   empty (the DISPLAYed SQLERRD(3) is 0 on both sides).
+- **IBM.** Db2 13 for z/OS Codes, SQLCODE -180, SQLSTATE 22007: "The length or string representation of a DATE, TIME, or
+  TIMESTAMP value does not conform to any valid format." The -4220 mapping is ours (a driver code, not a Db2 SQLCODE).
+  SQLERRMC/SQLERRD of the mapped error are not compared with z/OS; not measured there (#4702 Part 2).
 
 ### Q2. EXEC SQL keeps RETURN-CODE — ASSUMED
 - The precompiled CALL preserves RETURN-CODE around the stub. Whether IBM's DSNHLI call resets it is not documented.
@@ -4295,11 +4303,22 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   `RID_BIT` (as `GG_RID`, never assigned to a host variable), and the positioned statement updates `WHERE
   RID_BIT(table) = :ggRid` for the row FETCH last returned; no current row is -508, as Db2 gives.
 - `RID_BIT` is Db2 for Linux's; a production target on Db2 for z/OS would use `RID()` or the table's key.
+- **IBM.** Db2 13 for z/OS Codes, SQLCODE -508 (SQLSTATE 24504): "The cursor must be positioned on the row that is to be
+  updated or deleted" (UPDATE or DELETE WHERE CURRENT OF). The COBOL side is the statement as written; the Java side
+  reproduces the same SQLCODE.
+- **Declared difference.** The Java side's `RID_BIT` row addressing is not a mechanism IBM documents (the existing `RID_BIT` note above
+  stands); it is our implementation choice, and only the SQLCODEs are compared.
 
 ### Q9. More host variables than columns — MATCHED
-- GenApp's LGUPDB01 FETCHes six host variables from a five-column cursor (a GenApp defect). Db2 sets SQLWARN3 and
-  leaves the sixth as it was; both sides now do the same (the COBOL stub had reported an error, the Java side a
+- GenApp's LGUPDB01 FETCHes six host variables from a five-column cursor (a GenApp defect). IBM sets nothing and leaves the
+  sixth as it was; both sides set SQLWARN3 and leave it as it was (the COBOL stub had reported an error, the Java side a
   NULL).
+- **IBM.** Db2 13 for z/OS FETCH (SQL Reference): "There is no warning if there are more targets than the number of
+  result columns." SQLWARN3 is 'W' only "if the number of result columns is larger than the number of host variables"
+  (Db2 10 SQL Reference, Description of SQLCA fields). The extra variable is left unchanged, which both sides do.
+- **Declared difference.** Both sides set SQLWARN3 (and SQLWARN0) 'W' for the extra variable, which IBM does not
+  (ggsql.c, `DetSql.into`). The oracle and port agree, so no proof differs; LGUPDB01 does not test SQLWARN3. Aligning
+  both to IBM moves the DetSql overlay copies under tests/cics_crucible/ports and needs re-proofs: a separate slice.
 
 ### Q10. A statement the driver fails with no Db2 SQLCODE — REFUSED (#4270)
 - **What.** A host variable Db2 cannot take (GenApp LGAPDB01's INSERT COMMERCIAL with a blank CA-LASTCHANGED as its

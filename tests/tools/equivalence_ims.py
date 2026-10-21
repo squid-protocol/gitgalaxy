@@ -135,14 +135,20 @@ def psb(
     return pcbs
 
 
+def dbd_definitions(case: dict[str, Any], corpus: Path) -> dict[str, dict[str, Any]]:
+    """The case's DBDs by name (the PSB, which depends on how the program is entered, not read)."""
+    dbds: dict[str, dict[str, Any]] = {}
+    for rel in case["ims"]["dbd"]:
+        d = dbd((corpus / rel).read_text(encoding="latin-1"), rel)
+        dbds[d["name"]] = d
+    return dbds
+
+
 def definitions(
     case: dict[str, Any], corpus: Path, bmp: bool = False, cics: bool = False
 ) -> tuple[dict[str, dict[str, Any]], list[dict[str, Any]]]:
     ims = case["ims"]
-    dbds: dict[str, dict[str, Any]] = {}
-    for rel in ims["dbd"]:
-        d = dbd((corpus / rel).read_text(encoding="latin-1"), rel)
-        dbds[d["name"]] = d
+    dbds = dbd_definitions(case, corpus)
     return dbds, psb((corpus / ims["psb"]).read_text(encoding="latin-1"), ims["psb"], dbds, bmp, cics)
 
 
@@ -331,7 +337,7 @@ def split(data: bytes, sizes: dict[str, int]) -> list[tuple[str, bytes]]:
 def diff_db(case: dict[str, Any], corpus: Path, name: str, cobol: bytes, java: bytes) -> dict[str, Any]:
     """One database on both sides: its segments paired in hierarchic sequence, each one's fields (its segment's
     layout, else its bytes) compared."""
-    dbds, _ = definitions(case, corpus)
+    dbds = dbd_definitions(case, corpus)
     sizes = {s["name"]: s["bytes"] for s in dbds[name]["segments"]}
     left, right = split(cobol, sizes), split(java, sizes)
     diffs: list[dict[str, Any]] = []

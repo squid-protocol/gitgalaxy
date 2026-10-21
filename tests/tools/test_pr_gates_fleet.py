@@ -72,7 +72,7 @@ def test_ratchets_skip_when_nothing_present(monkeypatch, tmp_path, capsys):
     out = capsys.readouterr().out
     # ... and nothing that needs an external resource ran: only cics-spec (spec PR 4) and time (#5166), which need none
     assert [c[0][2:] for c in ran] == [["gitgalaxy.standards.cics", "regen", "--check"], ["check"]]
-    assert out.count("not available:") == 6
+    assert out.count("not available:") == 7
     assert "not checked" in out and "mainframe_corpus.py fetch" in out and "mvn" in out
 
 
@@ -154,3 +154,8 @@ def test_workflows_gate_passes_with_a_note_when_actionlint_cannot_install(tmp_pa
     monkeypatch.setattr(subprocess, "run", lambda *a, **k: SimpleNamespace(returncode=1, stdout="", stderr=""))
     assert pr_gates.actionlint_gate(tmp_path) == 0
     assert "could not be installed" in capsys.readouterr().out
+
+
+def test_det_mutation_ratchet_is_registered_and_scoped_to_the_branch():
+    r = {x.name: x for x in pr_gates.ratchets()}["det-mutation"]
+    assert r.cmd[-3:] == ["stale-check", "--vs", "origin/main"] and "refresh" in r.update

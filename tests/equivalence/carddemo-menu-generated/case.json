@@ -133,6 +133,145 @@
     }
    ],
    "why": "#4506: the fault run of carddemo-menu (XCTL raises PGMIDERR), which generated inputs do not reach"
+  },
+  {
+   "name": "option-9",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COMEN1A": {
+     "OPTIONI": "9"
+    }
+   },
+   "why": "#4506 (mutation survivors of the generated variant): a one-digit option 9 (the draw never sends 9 on ENTER with context 1)"
+  },
+  {
+   "name": "option-10",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COMEN1A": {
+     "OPTIONI": "10"
+    }
+   },
+   "why": "#4506 (mutation survivors of the generated variant): option 10: a second digit 0 and the tenth table entry's program (COBIL00C)"
+  },
+  {
+   "name": "option-past-the-table",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COMEN1A": {
+     "OPTIONI": "12"
+    }
+   },
+   "why": "#4506 (mutation survivors of the generated variant): option 12: past the 11 installed options, inside the 12-entry table"
+  },
+  {
+   "name": "option-right-justified",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COMEN1A": {
+     "OPTIONI": "3 "
+    }
+   },
+   "why": "#4506 (mutation survivors of the generated variant): an option typed in the first column ('3 ')"
+  },
+  {
+   "name": "last-map-carried",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "COSGN0A",
+    "CDEMO-LAST-MAPSET": "COSGN00"
+   },
+   "why": "#4506 (mutation survivors of the generated variant): a COMMAREA whose last map and mapset are set, as the sign-on leaves them"
+  },
+  {
+   "name": "carried-commarea-fields",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-TRANID": "CAVW",
+    "CDEMO-TO-PROGRAM": "COACTVWC",
+    "CDEMO-CUST-LNAME": "Kessler",
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CUST-FNAME": "Ada"
+   },
+   "receive": {
+    "COMEN1A": {
+     "OPTIONI": "1"
+    }
+   },
+   "why": "#4506 (mutation survivors of the generated variant): non-blank TO-TRANID, TO-PROGRAM, CUST-FNAME, CUST-LNAME and ACCT-STATUS in the input COMMAREA reach the XCTL"
+  },
+  {
+   "name": "option-12-typed-over",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COMEN1A": {
+     "OPTIONI": "12",
+     "OPTN012I": "TYPED OVER THE TWELFTH LINE"
+    }
+   },
+   "why": "#4506 (mutation survivors of the generated variant): an invalid option 12 with the twelfth option line received, which the 11-entry menu never rewrites before the re-send"
+  },
+  {
+   "name": "option-11-installed",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COMEN1A": {
+     "OPTIONI": "11"
+    }
+   },
+   "why": "#4506 (mutation survivors of the generated variant): option 11 with COPAUS0C installed, which carries the COMMAREA to the XCTL (the draw's option 11 on ENTER did not reach it)"
   }
  ]
 }

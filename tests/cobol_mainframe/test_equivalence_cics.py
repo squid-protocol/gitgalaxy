@@ -380,10 +380,15 @@ def test_ts_commands_pass_length_item_and_numitems_in_and_out():
     assert ec.translate_command("READQ TS QNAME(Q) INTO(X) RESP(R)")[1] == "MOVE LENGTH OF X TO GG-LEN"
     w = ec.translate_command("WRITEQ TS QUEUE('Q') FROM(WS-ONE) LENGTH(1) ITEM(WS-I)")
     assert w[:4] == ["MOVE 'Q' TO GG-QNAME", "MOVE 1 TO GG-LEN", "MOVE 0 TO GG-ITEM", "MOVE SPACES TO GG-FLAGS"]
-    # a LENGTH past the FROM item stops the run, refused by name (oracle_assumptions.md X6)
-    assert w[4:9] == ["IF GG-LEN > LENGTH OF WS-ONE", "    DISPLAY 'WRITEQ TS LENGTH > FROM: not modelled'",
-                      "    MOVE 98 TO RETURN-CODE", "    STOP RUN", "END-IF"]  # fmt: skip
-    assert ["IF GG-RESP = 0", "    MOVE GG-ITEM TO WS-I", "END-IF"] == w[11:14]
+    # X6 (ASSUMED): a LENGTH past the FROM item writes FROM's bytes then spaces (GG-PADQ); a record over 32767 is refused
+    assert w[4:16] == ["IF GG-LEN > LENGTH OF WS-ONE", "    IF GG-LEN > LENGTH OF GG-PADQ",
+                       "        DISPLAY 'WRITEQ TS LENGTH > FROM: not modelled'", "        MOVE 98 TO RETURN-CODE",
+                       "        STOP RUN", "    END-IF", "    MOVE SPACES TO GG-PADQ",
+                       "    MOVE WS-ONE TO GG-PADQ(1:LENGTH OF WS-ONE)", "    CALL 'GGCWRTQ' USING GG-CICS",
+                       "        BY REFERENCE GG-PADQ", "ELSE", "    CALL 'GGCWRTQ' USING GG-CICS"]  # fmt: skip
+    assert (
+        w[16:19] == ["        BY REFERENCE WS-ONE", "END-IF", "IF GG-RESP = 0"] and "    MOVE GG-ITEM TO WS-I" == w[19]
+    )
     r = ec.translate_command("WRITEQ TS QUEUE('Q') FROM(A) ITEM(WS-I) REWRITE")
     assert r[2:4] == ["MOVE WS-I TO GG-ITEM", "MOVE 'REWRITE' TO GG-FLAGS"] and "    MOVE GG-ITEM TO WS-I" not in r
 
@@ -906,6 +911,13 @@ def test_assign_applid_sysid_and_writeq_td_translate():
     td = ec.translate_command("WRITEQ TD QUEUE('JOBS') FROM(REC) RESP(R)")
     assert td[:4] == ["MOVE 'JOBS' TO GG-QNAME", "MOVE LENGTH OF REC TO GG-LEN", "CALL 'GGCWRTD' USING GG-CICS",
                       "    BY REFERENCE REC"]  # fmt: skip
+    # X6 (ASSUMED): TD with a LENGTH past FROM pads through GG-PADQ as TS does; LENGTH within FROM or a literal FROM does not
+    pad = ec.translate_command("WRITEQ TD QUEUE('JOBS') FROM(REC) LENGTH(WS-L) RESP(R)")
+    assert pad[1:3] == ["MOVE WS-L TO GG-LEN", "IF GG-LEN > LENGTH OF REC"]
+    assert "    MOVE REC TO GG-PADQ(1:LENGTH OF REC)" in pad and "        BY REFERENCE GG-PADQ" in pad
+    assert pad.count("    CALL 'GGCWRTD' USING GG-CICS") == 2 and "        BY REFERENCE REC" in pad
+    assert "GG-PADQ" not in " ".join(ec.translate_command("WRITEQ TD QUEUE('JOBS') FROM('X') LENGTH(1) RESP(R)"))
+    assert "GG-PADQ" in ec._PADQ
     with pytest.raises(ec.Unsupported):
         ec.translate_command("ASSIGN OPID(U)")
 

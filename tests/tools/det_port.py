@@ -38,6 +38,7 @@ REPO_ROOT = TOOLS.parent.parent
 sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO_ROOT))
 
+from equivalence_common import engine_layouts  # noqa: E402 -- #5649: the engine's layouts, shared with equivalence_java
 from gitgalaxy.core.estate_options import effective_options  # noqa: E402 -- #4704: the one options resolver
 
 PKG = "com.gitgalaxy.modernized"
@@ -58,25 +59,6 @@ def estate(corpus: Path, work: Path) -> Path:
     project = jtm.generate(clean, "h2", jtm.MATRIX["h2"], work / "estate")
     done.write_text(str(project) + "\n", encoding="utf-8")
     return project
-
-
-_IRS: dict[Path, Any] = {}
-_IRS_LOCK = threading.Lock()
-
-
-def engine_layouts(project: Path, corpus: Path, rel: str, mode: str = "check") -> Any:
-    """#5649: the engine's record layouts for program `rel` (det.engine_layout.EngineLayouts), from the estate's scan
-    (the clean room beside the generated project), at the translator's POINTER width; None without a scan."""
-    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
-    from gitgalaxy.tools.cobol_to_java.det.engine_layout import EngineLayouts
-
-    db = next(iter(sorted(project.parent.glob("*_gitgalaxy_clean_*/04_ir_state_dumps/*_galaxy_master.db"))), None)
-    if db is None:
-        return None
-    with _IRS_LOCK:
-        if db not in _IRS:
-            _IRS[db] = load_galaxy_ir(db)
-    return EngineLayouts.from_ir(_IRS[db], rel, corpus, mode)
 
 
 def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "dispatch",

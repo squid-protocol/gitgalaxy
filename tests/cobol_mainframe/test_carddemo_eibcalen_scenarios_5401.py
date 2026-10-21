@@ -1,5 +1,5 @@
 """#5401: every burned CardDemo CICS port states EIBCALEN (`commarea_length`) in at least one scenario, so the mutants
-that depend on the COMMAREA length stay killable. The seven cases are a literal list: a new burned CICS port needs a
+that depend on the COMMAREA length stay killable. The eight cases are a literal list: a new burned CICS port needs a
 deliberate addition here. Pure JSON, no Java or Docker."""
 
 import json
@@ -11,6 +11,7 @@ EQUIVALENCE = Path(__file__).resolve().parents[1] / "equivalence"
 
 # case -> the commarea_length values its scenarios state today (cardview and cardlist: whole COMMAREA only, X23).
 STATED = {
+    "carddemo-adminmenu": {146, 159},
     "carddemo-userupd": {185, 186},
     "carddemo-report": {146, 153},
     "carddemo-tranlist": {160},

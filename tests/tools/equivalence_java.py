@@ -430,7 +430,8 @@ def linked_programs(case: dict[str, Any], corpus: Path, project: Path, sources: 
         kept = project.parent / GENERATED_KEEP / rel
         stub = (kept if kept.is_file() else project / "src/main/java" / PKG_DIR / rel).read_text(encoding="utf-8")
         r = P.translate(corpus / extra["program_source"], dirs, stub, PKG, P.estate_files(project), project,
-                        options=common.effective_options(case, program=extra["program"]).layers)  # fmt: skip
+                        options=common.effective_options(case, program=extra["program"]).layers,
+                        layouts=common.engine_layouts(project, corpus, extra["program_source"]))  # fmt: skip
         out = work / "linked" / rel
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(r.java, encoding="utf-8")

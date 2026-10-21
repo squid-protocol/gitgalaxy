@@ -1,0 +1,187 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGUCDB01",
+ "program_source": "base/src/lgucdb01.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGUC",
+ "clock": "2026/10/01 10:30:15.00",
+ "programs": [
+  {
+   "program": "LGUCVS01",
+   "program_source": "base/src/lgucvs01.cbl"
+  },
+  {
+   "program": "LGSTSQ",
+   "program_source": "base/src/lgstsq.cbl"
+  }
+ ],
+ "datasets": {
+  "<USRHLQ>.GENAPP.KSDSCUST": {
+   "input": "@case/ksdscust.txt",
+   "entity": "CaCustomerNum",
+   "copybook": "base/src/lgcmarea.cpy",
+   "record": "CA-CUSTOMER-NUM",
+   "vsam": {
+    "key_offset": 0,
+    "key_length": 10,
+    "reclen": 225,
+    "why": "base/cntl/adef121.jcl DEFINE1: DATA(... KEYS(10 0) RECORDSIZE(225 225)); the engine's facts do not read KEYS / RECORDSIZE inside the DATA component, so the case states them"
+   },
+   "append": "@case/ksdscust-vsam-only.txt"
+  }
+ },
+ "db2": {
+  "ddl": [
+   "base/cntl/db2cre.jcl"
+  ],
+  "seed": "@generate",
+  "symbols": {
+   "<DB2DBID>": "GENASA1"
+  },
+  "qualifier": "GENASA1",
+  "compare": [
+   "GENASA1.CUSTOMER"
+  ],
+  "tables": [
+   "GENASA1.CLAIM",
+   "GENASA1.COMMERCIAL",
+   "GENASA1.MOTOR",
+   "GENASA1.HOUSE",
+   "GENASA1.ENDOWMENT",
+   "GENASA1.POLICY",
+   "GENASA1.CUSTOMER_SECURE",
+   "GENASA1.CUSTOMER"
+  ],
+  "compare_sql": true,
+  "generate": {
+   "seed": 4507,
+   "tables": {
+    "GENASA1.CUSTOMER": {
+     "rows": 10,
+     "columns": {
+      "CUSTOMERNUMBER": {
+       "values": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+       ]
+      }
+     }
+    }
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgucus01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "region": {
+  "applid": "GENAREGN",
+  "sysid": "CICA"
+ },
+ "scenarios": [
+  {
+   "name": "update-long-email",
+   "commarea": {
+    "CA-REQUEST-ID": "01UCUS",
+    "CA-CUSTOMER-NUM": "3",
+    "CA-REQUEST-SPECIFIC": "Long      Email               1970-01-01                    1   AB12CD  000                                        xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   },
+   "why": "a 100-byte email fills EMAILADDRESS CHAR(100)"
+  },
+  {
+   "name": "update-customer-11-vsam-only",
+   "commarea": {
+    "CA-REQUEST-ID": "01UCUS",
+    "CA-CUSTOMER-NUM": "11",
+    "CA-REQUEST-SPECIFIC": "Ada       Lovelace            1815-12-10Ockham Park         12  KT246HP 00007700900999        01483222111         ada@engine.example                                                                              "
+   },
+   "why": "customer 11 is on KSDSCUST (ksdscust-vsam-only.txt, appended) but not in Db2's CUSTOMER: the UPDATE is +100 (l.173 true), CA-RETURN-CODE '01', no '90' and no WRITE-ERROR-MESSAGE; LGUCVS01 is still LINKed and its READ UPDATE / REWRITE of customer 11 are NORMAL -- the two stores out of step, as GenApp's design allows"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "EIBCALEN 0: IF EIBCALEN IS EQUAL TO ZERO -- EM-VARIABLE ' NO COMMAREA RECEIVED', WRITE-ERROR-MESSAGE LINKs LGSTSQ with ERROR-MSG (it writes the message to TD CSMT and TS GENAERRS: #4607), IF EIBCALEN > 0 is false, then ABEND LGCA"
+  },
+  {
+   "name": "update-fails-deadlock",
+   "commarea": {
+    "CA-REQUEST-ID": "01UCUS",
+    "CA-CUSTOMER-NUM": "3",
+    "CA-REQUEST-SPECIFIC": "Graham    Cuthbert            1967-01-03                    55  TR68BK  00007700100100         02083443444         g.cuthbert@new.example                                                                              "
+   },
+   "sql_faults": [
+    {
+     "line": 155,
+     "sqlcode": -913,
+     "sqlstate": "57033"
+    }
+   ],
+   "why": "SQLCODE -913 on the UPDATE: not +100, so '90' and WRITE-ERROR-MESSAGE LINKs LGSTSQ; LGUCVS01 still runs"
+  },
+  {
+   "name": "update-fails-other",
+   "commarea": {
+    "CA-REQUEST-ID": "01UCUS",
+    "CA-CUSTOMER-NUM": "3",
+    "CA-REQUEST-SPECIFIC": "Graham    Cuthbert            1967-01-03                    55  TR68BK  00007700100100         02083443444         g.cuthbert@new.example                                                                              "
+   },
+   "sql_faults": [
+    {
+     "line": 155,
+     "sqlcode": -811,
+     "sqlstate": "21000"
+    }
+   ],
+   "why": "any other negative SQLCODE (-811): '90' like -913"
+  }
+ ],
+ "notes": "Generated-row sibling (#4507) of genapp-lgucdb01: the ten CUSTOMER rows (numbers 1..10) are generated from base/cntl/db2cre.jcl, not GenApp's INSERTs; LGUCDB01 only writes them (UPDATE ... WHERE CUSTOMERNUMBER), so every column keeps its generated NULLs and boundary values. 16 generated requests draw CA-CUSTOMER-NUM from the generated numbers (a quarter of the time one the rows do not hold: +100, '01'), the update fields from four stated records and the request id varied (never tested by the program). LGUCVS01 rewrites KSDSCUST (ksdscust.txt, customers 1..10; customer 11 on VSAM only). Stated, not generated: EIBCALEN 0, customer 11, a 100-byte email and an injected -913 / -811 on the UPDATE (line 155, sqlstate given: '90', WRITE-ERROR-MESSAGE LINKs LGSTSQ, X6 judged up to the refused WRITEQ). Program, LGUCVS01 and COMMAREA notes: see genapp-lgucdb01. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2021), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived.",
+ "scenario_generate": {
+  "seed": 4507,
+  "count": 16,
+  "prefix": "generated",
+  "commarea": {
+   "CA-REQUEST-ID": {
+    "values": [
+     "01UCUS",
+     "01UCUS",
+     "01UCUS",
+     "01UCUS",
+     "01UCUS",
+     "",
+     "01ucus",
+     "99XXXX"
+    ]
+   },
+   "CA-CUSTOMER-NUM": {
+    "from": "GENASA1.CUSTOMER.CUSTOMERNUMBER",
+    "miss": 0.25
+   },
+   "CA-REQUEST-SPECIFIC": {
+    "values": [
+     "Graham    Cuthbert            1967-01-03                    55  TR68BK  00007700100100         02083443444         g.cuthbert@new.example                                                                              ",
+     "Andrew    Pandy               1950-07-11The Grange          34  PI101O  00007799123456         01962811234         a.pandy@example.com                                                                                 ",
+     "Zed       Last                1980-02-29                                000                                                                                                                                            ",
+     "Long      Email               1970-01-01                    1   AB12CD  000                                        xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    ]
+   }
+  }
+ }
+}

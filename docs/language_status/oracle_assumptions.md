@@ -675,6 +675,14 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   IBM does.
 - **Refused.** An operand outside the model (floating point, more than 32 operands) writes `GGDISPLAY-NOT-MODELLED`,
   and that run's SYSOUT is not compared.
+- **IBM.** Enterprise COBOL for z/OS 6.4 Programming Guide (SC27-8714-03), "Sign representation of zoned and
+  packed-decimal data", and Language Reference (SC27-8713-03), "DISPLAY statement": DISPLAY writes a numeric item in its
+  external form, so a signed zoned (external decimal) item carries its sign in the zone of its last digit (`{` / `A`-`I`
+  positive, `}` / `J`-`R` negative in the displayed character set) and has no separate `-`. The overpunched text is
+  IBM's, and `ggdisplay.c` produces it; GnuCOBOL's `012-` / `-00007` is the oracle's form, which the wrapper
+  rewrites (the declared difference, closed by the rewrite).
+- **Not quoted.** The exact text IBM writes for a signed COMP or COMP-3 item under DISPLAY (converted to external
+  decimal first) is ASSUMED to follow the same overpunch rule; no z/OS run measures it (#4702 Part 2).
 
 ### C9. POINTER size — DIFFERS
 - **What.** A POINTER is 8 bytes in GnuCOBOL on x86-64 and 4 on z/OS (31-bit), so every offset after one differs.
@@ -1348,6 +1356,13 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
 ### D3. Zoned signs in ASCII data — MATCHED
 - `-fsign=EBCDIC` reads the corpora's ASCII data with EBCDIC-style overpunch (`{` = +0, A–I positive, `}` J–R
   negative), as the data was unloaded from z/OS.
+- **IBM.** Enterprise COBOL for z/OS 6.4 Programming Guide (SC27-8714-03), "Sign representation of zoned and
+  packed-decimal data": the sign of an external decimal item is the zone nibble of its last digit (X'C' positive,
+  X'D' negative, X'F' unsigned or positive under NOPFD). On the EBCDIC code page those bytes display as `{` / `A`-`I`
+  (C0-C9), `}` / `J`-`R` (D0-D9). The corpora's ASCII unloads keep those characters, so `-fsign=EBCDIC` reads the
+  same sign IBM would.
+- **Declared difference.** An ASCII byte that is no overpunch (e.g. `!`) has no IBM meaning in these unloads; the
+  oracle reads its low nibble (C11 holds the rule and what the port refuses).
 
 ### D4. A character no single-byte code page holds, in an alphanumeric literal — REFUSED (the statement, #4272)
 - **What.** A UTF-8 source with an em dash (U+2014) in `MOVE 'Conto bloccato — operazione negata' TO WS-MSG` (a
@@ -1540,6 +1555,12 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   text, RESP, item number), on both sides as CicsTask records them. Before #4607 the COBOL side dropped the stub's
   WRITEQ-TS line, so any task that wrote TS differed. The item is read in each side's page: the stub's storage page,
   and the det port's region page (CCSID 037 by default, #4528); a port in another region page shows as a difference.
+- **IBM.** CICS TS Application Programming Reference, EXEC CICS ASSIGN (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-assign):
+  PROGRAM returns the name of the current program; INVOKINGPROG returns the name of the program that invoked it
+  (by LINK or XCTL), blanks when the program was not invoked by another one. The wording is paraphrased, not
+  verbatim.
+- **Declared difference.** Only a task's own LINK / XCTL chain is modelled; the other ways IBM documents a program
+  being invoked (e.g. through a remote DPL) are not.
 
 ### X8. A reference modification past its item — refused by name
 - **What.** GenApp's LGAPDB01 MOVEs into `WS-VARY-CHAR(1:WS-VARY-LEN)`, the COMMAREA's length less the request's:
@@ -4020,6 +4041,13 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 
 ### L2. CEE3ABD — MATCHED
 - `ggabend.c` records `ABEND Unnnn`, and the Java side's CobolAbend gives the same.
+- **IBM.** z/OS Language Environment Programming Reference (SA38-0682), CEE3ABD (terminate enclave with an abend):
+  `CALL 'CEE3ABD' USING abcode, timing` ends the enclave with a user abend; `abcode` is a fullword binary user
+  completion code and `timing` says whether LE cleanup runs first. The step then ends `ABEND Unnnn`, with no return
+  code.
+- **Declared difference.** GnuCOBOL has no CEE3ABD, so `ggabend.c` stands in for it: it records `U%04d` (the code
+  modulo 4096, as a user completion code is) and exits. `timing` is not modelled (LE cleanup is not run); the abend
+  code is the only thing compared. The reason code and any dump are not produced.
 
 ### L3. WORKING-STORAGE with no VALUE clause — ASSUMED
 - **What.** GnuCOBOL initialises such an alphanumeric item to spaces. On z/OS its first contents follow the LE

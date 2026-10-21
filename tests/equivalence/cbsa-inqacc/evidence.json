@@ -490,14 +490,14 @@
   "survived": 68,
   "stillborn": 19,
   "survivors": {
-   "case_gap": 0,
+   "case_gap": 51,
    "harness_gap": 0,
-   "equivalent": 0,
-   "unreachable": 0,
-   "untriaged": 68
+   "equivalent": 11,
+   "unreachable": 6,
+   "untriaged": 0
   },
   "score_raw": "63/131",
-  "score_adjusted": "63/131",
+  "score_adjusted": "63/114",
   "source": "docs/language_status/mutation_scores.json#cbsa-inqacc/INQACC",
   "inputs": {
    "port": {

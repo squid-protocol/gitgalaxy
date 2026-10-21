@@ -22,8 +22,9 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | SORT: SORT / MERGE and collating sequences | `Sort.java` | 6 | yes |
 | FILE: batch files | `batch/DetFiles.java` | 3 | yes |
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
+| MVS: z/OS control blocks a batch program reads | `DetMvs.java` | 1 | yes |
 
-178 rules: 85 MATCHED, 23 DIFFERS, 14 REFUSED, 56 ASSUMED; 0 measured on z/OS (#4702).
+179 rules: 85 MATCHED, 23 DIFFERS, 14 REFUSED, 57 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -40,6 +41,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 - `ims-apis`: IBM IMS Application Programming APIs (DL/I calls, SSAs, relational operators)
 - `ims-ap`: IBM IMS Application Programming (DB PCB masks, current position in the database)
 - `ims-codes`: IBM IMS Messages and Codes, Volume 4: IMS Component Codes (DL/I status codes)
+- `mvs-da`: IBM z/OS MVS Data Areas (PSA, TCB, TIOT)
 
 ## Options
 
@@ -330,3 +332,11 @@ DISPLAY and abends of a standalone (batch) port.
 |---|---|---|---|---|---|---|
 | RT-SYS-DISPLAY-SYSOUT | DISPLAY [WITH NO ADVANCING] to SYSOUT: the operands joined, in the record charset (a byte the charset leaves unmapped as its latin-1 byte), a record per DISPLAY | `cobol-lr` DISPLAY statement | - | C8 (MATCHED); D2 (DIFFERS (oracle vs IBM, characters) / MATCHED (the bytes, the oracle = the port = IBM)) | MATCHED | uncalibrated |
 | RT-SYS-USER-ABEND | A user abend (CEE3ABD) carries its code, U followed by four digits | `le-pr` CEE3ABD: terminate enclave with an abend | - | L2 (MATCHED) | MATCHED | uncalibrated |
+
+## MVS: z/OS control blocks a batch program reads
+
+The PSA -> TCB -> TIOT a batch program walks through pointers to read its own job, step and DD names, laid from the job step the run states (#5856).
+
+| id | rule | IBM | options | register (its status) | status | calibration |
+|---|---|---|---|---|---|---|
+| RT-MVS-CONTROL-BLOCKS | SET ADDRESS OF a record TO a pointer into the PSA (a NULL pointer is address 0), the TCB (PSATNEW) or the TIOT (TCBTIO), and the pointer moved along its block through a numeric item it REDEFINES: the blocks laid from the stated job step at IBM's offsets; a record or an advance past what is laid is refused | `mvs-da` PSA, TCB, TIOT | - | A2 (ASSUMED); C9 (DIFFERS (declared: each side's fields read by its own layout, compared by name; a POINTER only as NULL or not)) | ASSUMED | uncalibrated |

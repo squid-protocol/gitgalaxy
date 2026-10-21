@@ -186,6 +186,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | L5 | LE | CEELOCT: Lilian day, seconds and YYYYMMDDHHMISS999 from the pinned clock, feedback all zero; the unwritten tail of IBM's longer Gregorian field and the float's representation assumed | ASSUMED | yes (CBSA CRECUST, cbsa-crecust, #4952) |
 | L6 | LE | LE date/time services: Lilian date / seconds semantics and the documented feedback codes; GMT is the pinned clock; the VSTRING output layout assumed; open conditions refused by name | MATCHED / ASSUMED / REFUSED | no (CBSA BANKDATA, the caller of CEEGMT and CEEDATM, has no equivalence case: its CUSTOMER-FILE and its Db2 estate are not a case yet) |
 | A1 | assembler | CardDemo's COBDATFT, translated instruction for instruction; load-module-dependent paths refused | MATCHED / REFUSED | yes (CardDemo READACCT) |
+| A2 | z/OS control blocks | a batch program's PSA -> TCB -> TIOT walk reads stand-in blocks built from the stated step; no step stated is refused | ASSUMED | yes (CardDemo CBSTM03A, det only; oracle not yet modelled) |
 | Q1 | Db2 | Db2 for Linux runs the SQL, not Db2 for z/OS | ASSUMED | yes |
 | Q2 | Db2 | EXEC SQL keeps RETURN-CODE | ASSUMED | yes |
 | Q3 | Db2 | The unit of work: one per CICS task; one per batch step, ended by EXEC SQL COMMIT / ROLLBACK (cursors closed as Db2 for z/OS closes them), backed out by an abend, with SAVEPOINT / ROLLBACK TO SAVEPOINT / RELEASE SAVEPOINT run by Db2; a CICS program's ROLLBACK refused (-926) | MATCHED | CICS: yes (CBSA XFRFUN); batch: yes (synthetic UOWDEMO, `tests/equivalence/db2/uow`, #4269) |
@@ -4210,6 +4211,33 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   (`tests/equivalence/le/mvswait.c`, `Mvswait.java`): it loads its fullword argument, starts an interval timer and
   returns with R15 = 0, writing nothing to the caller. The wait is not observable in a compared output, so it is not
   slept; an argument shorter than the fullword is refused on the Java side.
+
+### A2. z/OS control blocks (PSA / TCB / TIOT) — laid from the job step the run states
+- **What.** CardDemo's CBSTM03A walks z/OS control blocks to DISPLAY its job, step and DD names: a POINTER never set
+  (NULL, the PSA at address 0) addresses the PSA, `PSATNEW` gives the current TCB, `TCBTIO` gives the TIOT, and a
+  POINTER over a BINARY counter steps through the TIOT's DD entries until a zero fullword. Nothing in the source
+  decides what those blocks hold; the job step does. Like X68's EIBTRNID, the step is a stated fact of the run (the
+  case's), here the system property `gitgalaxy.mvs.step`, in the form `JOB;STEP;PROCSTEP;DD:UCB,DD:NOUCB,...`
+  (the three header names in the TIOT's order, then each DD in JCL order, `UCB` for a data set DD, `NOUCB` for
+  SYSOUT / DUMMY / in-stream).
+- **IBM.** z/OS MVS Data Areas (ibm.com/docs/en/zos, the PSA, TCB and TIOT data areas): PSA (`PSATNEW` at X'218'), TCB (`TCBTIO` at offset 12), TIOT (a 24-byte header,
+  `TIOCNJOB` / `TIOCSTPN` / `TIOCJSTP`, then one entry per DD: `TIOELNGH` 20 for a single-unit DD, `TIOEDDNM` at +4,
+  the UCB token `TIOEFSRT` at +17..19; the list ends at a zero fullword).
+- **Modelled (det runtime `DetMvs.java`, rule RT-MVS-CONTROL-BLOCKS).** Three blocks addressed by 8-byte handles
+  (C9; block in the high word, offset in the low): the PSA (544 bytes, `PSATNEW` holding the TCB handle), the TCB
+  (20 bytes, `TCBTIO` holding the TIOT handle), the TIOT laid from the stated step. `SET ADDRESS OF` a whole 01 to
+  a pointer, `SET ptr1 TO ptr2`, and ADD / SUBTRACT / `COMPUTE v = v +/- n` on the BINARY a POINTER REDEFINES
+  (or on X47's view) move through them.
+- **Assumptions.** `PSATNEW` is the program's own TCB while it runs; only the bytes the walk reads are laid (every
+  other byte is zero); a DD is single-unit (20-byte entry) and the TIOT holds no JOBLIB / STEPLIB-from-JOBLIB or
+  dynamically allocated entries beyond those stated; the UCB token is nonzero exactly for a data set DD; pointers
+  are 8 bytes (C9), so `PSATOLD` at X'21C' is not laid.
+- **Refused by name (run time).** No step stated, or one without its four fields; a DD that is not `NAME:UCB` /
+  `NAME:NOUCB` or whose name is longer than 8; a record laid past the fields the stand-in lays (a zero-DD step's
+  TIOT entry); pointer arithmetic that leaves its block; a pointer to no block the stand-in lays. `SET ADDRESS OF x
+  TO ADDRESS OF y` and `SET ptr TO ADDRESS OF x` stay translator holes in a batch program.
+- **Oracle.** Not yet modelled (slice 2 of #5856): GnuCOBOL has no PSA at address 0, so the COBOL side needs a C
+  stand-in laying the same blocks from the same step before CBSTM03A's equivalence case can be proven.
 
 ## Db2 (`equivalence_sql.py`, `ggsql.c`, `DetSql`)
 

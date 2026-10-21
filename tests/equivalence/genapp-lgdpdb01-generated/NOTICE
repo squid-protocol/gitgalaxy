@@ -1,0 +1,13 @@
+CICS General Insurance Application (GenApp)
+https://github.com/cicsdev/cics-genapp
+(C) Copyright IBM Corp. 2011, 2020
+
+Licensed under the Eclipse Public License - v 2.0 (see LICENSE, the corpus's
+own licence file). The program under test, base/src/lgdpdb01.cbl, the programs
+it LINKs to (base/src/lgdpvs01.cbl, base/src/lgstsq.cbl), their copybooks, the
+COMMAREA layout (base/src/lgdpol01.cbl, COPY LGCMAREA) and the Db2 DDL
+(base/cntl/db2cre.jcl) are GenApp's, used unmodified from the corpus.
+
+The Db2 rows are generated from the DDL (not GenApp's INSERTs). ksdspoly.txt
+follows the genapp-lgdpdb01 case's record layout; the scenarios in case.json are
+written for this case, against the generated rows.

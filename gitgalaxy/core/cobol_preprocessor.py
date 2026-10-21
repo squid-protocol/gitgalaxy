@@ -185,7 +185,6 @@ def replace_text(text: str | None, pairs: list) -> str | None:
     return combined.sub(lambda m: targets[int((m.lastgroup or "p0")[1:])], text)
 
 
-
 def join_copy_alone(texts: list[str], i: int) -> str | None:
     """#4459: line `i` with the next line's text joined on when it ends in a bare `COPY` (its member is on the next
     line), or None when it does not."""
@@ -221,6 +220,7 @@ def sql_include_as_copy(texts: list[str], i: int) -> tuple[str, int] | None:
         block += " " + texts[j]
     inc = _SQL_INCLUDE.match(block)
     return (f"COPY {inc.group(1)}.", j) if inc else None
+
 
 def continuation_resume(line: str, quote: str | None = None) -> int | None:
     """#5648: where a continued nonnumeric literal resumes on a continuation line (indicator `-` in column 7): the

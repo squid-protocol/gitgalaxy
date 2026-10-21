@@ -324,7 +324,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | port | harness | mutants run / all | raw score | without equivalent + unreachable | survivors: case gap / harness gap / equivalent / unreachable / untriaged |
 |---|---|---|---|---|---|
 | COACTVWC (carddemo-acctview) | equivalence | 150/328 | 105/129 (81%) | 105/113 (93%) | 8 / 0 / 16 / 0 / 0 |
-| COACTVWC (carddemo-acctview-generated) | equivalence | 150/427 | 109/137 (80%) | 109/110 (99%) | 1 / 0 / 16 / 11 / 0 |
+| COACTVWC (carddemo-acctview-generated) | equivalence | 150/427 | 109/137 (80%) | 109/109 (100%) | 0 / 0 / 16 / 12 / 0 |
 | COADM01C (carddemo-adminmenu) | equivalence | 100/340 | 63/95 (66%) | 63/63 (100%) | 0 / 0 / 29 / 3 / 0 |
 | COBIL00C (carddemo-billpay) | equivalence | 100/529 | 66/86 (77%) | 66/70 (94%) | 4 / 0 / 12 / 4 / 0 |
 | COCRDLIC (carddemo-cardlist) | equivalence | 100/1034 | 75/94 (80%) | 75/82 (91%) | 7 / 0 / 12 / 0 / 0 |
@@ -339,6 +339,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CBACT03C (carddemo-readxref) | equivalence | 90/90 | 69/83 (83%) | 69/77 (90%) | 8 / 0 / 6 / 0 / 0 |
 | CORPT00C (carddemo-report) | equivalence | 100/642 | 58/87 (67%) | 58/60 (97%) | 2 / 0 / 16 / 11 / 0 |
 | COSGN00C (carddemo-signon) | equivalence | 100/196 | 67/99 (68%) | 67/72 (93%) | 5 / 0 / 25 / 2 / 0 |
+| COSGN00C (carddemo-signon-generated) | equivalence | 150/202 | 99/149 (66%) | 99/99 (100%) | 0 / 0 / 42 / 8 / 0 |
 | COTRN02C (carddemo-tranadd) | equivalence | 100/770 | 61/91 (67%) | 61/73 (84%) | 12 / 0 / 10 / 8 / 0 |
 | COTRN00C (carddemo-tranlist) | equivalence | 100/697 | 66/91 (73%) | 66/79 (84%) | 13 / 0 / 5 / 7 / 0 |
 | COTRN01C (carddemo-tranview) | equivalence | 100/314 | 67/100 (67%) | 67/67 (100%) | 0 / 0 / 25 / 8 / 0 |
@@ -378,20 +379,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 3847 run | **2326/3484 (67%)** | **2326/2822 (82%)** | 311 / 185 / 424 / 238 / 0 |
-| **all estate** | | 4351 run | **2645/3960 (67%)** | **2645/3176 (83%)** | 346 / 185 / 512 / 272 / 0 |
+| **all equivalence** | | 3997 run | **2425/3633 (67%)** | **2425/2920 (83%)** | 310 / 185 / 466 / 247 / 0 |
+| **all estate** | | 4501 run | **2744/4109 (67%)** | **2744/3274 (84%)** | 345 / 185 / 554 / 281 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 188/242 (78%) | 188/214 (88%) |
+| AOR | 190/244 (78%) | 190/216 (88%) |
 | BDM | 24/46 (52%) | 24/27 (89%) |
-| CON | 359/780 (46%) | 359/476 (75%) |
-| COR | 147/263 (56%) | 147/204 (72%) |
-| DEL | 398/610 (65%) | 398/483 (82%) |
-| LIT | 551/754 (73%) | 551/633 (87%) |
-| NEG | 494/567 (87%) | 494/542 (91%) |
+| CON | 365/816 (45%) | 365/481 (76%) |
+| COR | 151/268 (56%) | 151/208 (73%) |
+| DEL | 421/646 (65%) | 421/506 (83%) |
+| LIT | 582/789 (74%) | 582/664 (88%) |
+| NEG | 510/583 (87%) | 510/558 (91%) |
 | RET | 50/99 (51%) | 50/87 (57%) |
-| ROR | 434/599 (72%) | 434/510 (85%) |
+| ROR | 451/618 (73%) | 451/527 (86%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|
@@ -411,6 +412,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CBACT03C (carddemo-readxref) | - | - | 16/19 | 1/4 | 9/9 | 22/27 | 10/10 | - | 11/14 |
 | CORPT00C (carddemo-report) | 3/3 | 0/1 | 1/11 | 10/13 | 6/13 | 12/13 | 13/13 | 4/7 | 9/13 |
 | COSGN00C (carddemo-signon) | 2/2 | - | 3/20 | 3/4 | 12/20 | 18/20 | 15/16 | - | 14/17 |
+| COSGN00C (carddemo-signon-generated) | 2/2 | - | 6/36 | 4/5 | 23/36 | 31/35 | 16/16 | - | 17/19 |
 | COTRN02C (carddemo-tranadd) | 7/7 | 3/7 | 1/12 | 5/12 | 8/12 | 11/12 | 11/11 | 4/7 | 11/11 |
 | COTRN00C (carddemo-tranlist) | 6/9 | - | 10/14 | 8/14 | 11/13 | 10/14 | 11/11 | 2/3 | 8/13 |
 | COTRN01C (carddemo-tranview) | 1/1 | - | 2/24 | 2/3 | 21/24 | 19/24 | 17/17 | - | 5/7 |

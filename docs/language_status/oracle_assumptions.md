@@ -4212,6 +4212,15 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   returns with R15 = 0, writing nothing to the caller. The wait is not observable in a compared output, so it is not
   slept; an argument shorter than the fullword is refused on the Java side.
 
+- **IBM (document).** The instructions the translation reproduces are defined in the IBM z/Architecture Principles of
+  Operation (SA22-7832): MVC moves the bytes of the length coded (length code plus one), and CLC compares operand 1's
+  length of bytes against operand 2, so an operand 1 with no explicit length takes the length of its symbol, here 20
+  bytes, against a 1-byte literal. High Level Assembler for z/OS Language Reference (SC26-4940) gives the default
+  length of an operand written without one. The wording is paraphrased, not verbatim.
+- **Declared difference.** The oracle is not the assembler and not z/OS: the COBOL side runs a C translation of the
+  routine, the Java side another, both written from the source. The paths whose result rests on the load module's
+  literal pool are refused (exit 98), not matched; the modelled path (type `'2'` to `'2'`) moves bytes the source names.
+
 ### A2. z/OS control blocks (PSA / TCB / TIOT) — laid from the job step the run states
 - **What.** CardDemo's CBSTM03A walks z/OS control blocks to DISPLAY its job, step and DD names: a POINTER never set
   (NULL, the PSA at address 0) addresses the PSA, `PSATNEW` gives the current TCB, `TCBTIO` gives the TIOT, and a
@@ -4567,6 +4576,15 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   must decode as valid packed numbers, except one root whose key is spaces (I2). A file that does not match is refused,
   never seeded.
 
+- **IBM (document).** The utility is documented in IMS Database Utilities (IMS 15 Database Utilities, the HD
+  Reorganization Unload utility DFSURGU0 and its reload counterpart DFSURGL0) at
+  https://www.ibm.com/docs/en/ims/15.4.0?topic=utilities-hd-reorganization-unload-utility-dfsurgu0. The wording is
+  paraphrased, not verbatim.
+- **Declared difference.** IBM documents what the utility does, not the byte layout of its output file, so the layout
+  here is an observation of one corpus's file, not an IBM-quoted format. The oracle does not run DFSURGU0 or DFSURGL0;
+  it reads the file as a seed. The two checks above are what stands in for a quoted layout, and a file that fails
+  either is refused.
+
 ## IBM MQ (ggmq.c)
 
 ### W1. The MQ copybooks — GitGalaxy-written stand-ins of the version-1 structures and the modelled constants only
@@ -4720,6 +4738,13 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   record codecs, and Db2 repositories run on the real Db2.
 - **Not proven.** Another target database (Postgres, Oracle) brings its own collation and type behaviour.
 
+- **IBM (document).** The IBM side of a VSAM file is DFSMS Using Data Sets (VSAM KSDS, ESDS and RRDS organizations,
+  key order and record access), with the CICS file-control behaviour in the CICS TS Application Programming Reference.
+  The wording is paraphrased, not verbatim.
+- **Declared difference.** H2 tables are not VSAM data sets. Key order, duplicate-key and not-found conditions are
+  carried by the record codecs and compared with the oracle's files; they are not measured on z/OS. Another target
+  database's collation and type behaviour is outside the proofs (above).
+
 ## Method
 
 ### M1. The scenarios are ours — limits every claim
@@ -4751,6 +4776,15 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   recorded "not judged" (no SQL fault hook), never run unfaulted.
 - **Effect.** Coverage of the 17 Db2 cases before and after is in the #4173 PR, e.g. GenApp LGACDB01 6/14 → 8/14
   branches, LGUPDB01 17/38 → 26/38, CBSA DELACC 10/14 → 13/14.
+
+- **IBM (document).** Db2 13 for z/OS SQL Reference, SQL communication area (SQLCA): SQLCODE, SQLSTATE, SQLERRMC with
+  SQLERRML, SQLERRD and SQLWARN; and Db2 13 for z/OS codes for -803 (duplicate key on a unique index), +100 (no row
+  found) and -913 (unsuccessful execution caused by deadlock or timeout, reason code in the first SQLERRMC token),
+  https://www.ibm.com/docs/en/db2-for-zos/13?topic=reference-sql-communication-area-sqlca. The wording is
+  paraphrased, not verbatim.
+- **Declared difference.** A fault is injected, not raised by Db2, so the SQLCA is the stub's: SQLERRMC empty unless
+  declared, SQLERRD zero, SQLERRP and SQLWARN unmodelled, where Db2 fills them per code. -913 rolls back the
+  statement only, as the Db2 code documents; -911 (unit-of-work rollback) is not used.
 
 ### M3. A LINKed program's COMMAREA — fixed 2026-10-02
 - A LINKed program answers through the COMMAREA it leaves in its caller's storage. Until 2026-10-02 the harness

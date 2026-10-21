@@ -976,6 +976,11 @@ def _run_all(case: dict[str, Any], project: Path, work: Path, inputs: Path, envs
         props = f"-Dgitgalaxy.faults.plan={area / 'fault.plan'} -Dgitgalaxy.faults.log={area / 'out' / 'FAULTS'}"
         if len(rest) > 1 and rest[1]:  # #5561: this run's own PARM (rest[1]), not the case's
             props += f" -Dequivalence.parm={run_parm(rest[1])}"
+        if len(rest) > 2 and rest[2]:  # #5857: this run's own SYSIN (rest[2]), staged as the COBOL side read it
+            sysin = rest[2]
+            staged = (sysin if sysin.endswith("\n") else sysin + "\n").encode(common.data_encoding(case))
+            (area / "SYSIN.in").write_bytes(staged)
+            props += f" -Dequivalence.sysin={area / 'SYSIN.in'}"
         if sql and sql[0]:  # #4173: the run's SQL faults, to the det runtime's DetSql (the same log)
             (area / "sqlfaults.plan").write_text(sql[0] + "\n", encoding="ascii")
             props += (
@@ -1025,7 +1030,7 @@ def _run_area(case: dict[str, Any], project: Path, area: Path, inputs: Path, env
         props = f"{props} -Dgitgalaxy.dli.dir={inputs / 'dli'} -Dgitgalaxy.dli.out={dliout}"
     if case.get("mvs_step") is not None:  # #5856 (A2): the job step whose control blocks DetMvs lays
         props = f"{props} -Dgitgalaxy.mvs.step={case['mvs_step']}"
-    if case.get("sysin") is not None:  # #5106: the very bytes the COBOL side read (equivalence.run_cobol)
+    if case.get("sysin") is not None and "-Dequivalence.sysin=" not in props:  # #5106: what the COBOL side read
         props = f"{props} -Dequivalence.sysin={inputs / 'SYSIN.in'}"
     out = run_maven(
         project, area, inputs, env, f"{props} -Dgitgalaxy.sysout={sysout} {data_charset_arg(case)}".strip(), session

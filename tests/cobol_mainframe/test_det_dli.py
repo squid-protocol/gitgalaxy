@@ -176,12 +176,11 @@ def test_an_ebcdic_segment_is_laid_out_into_the_data_page():
 
 def test_diff_db_pairs_segments_and_names_the_ones_that_differ():
     case = {"ims": {"dbd": [], "psb": ""}}
-    ei_definitions = ei.definitions
+    ei_definitions = ei.dbd_definitions
     try:
-        ei.definitions = lambda c, corpus: (
-            {"X": {"segments": [{"name": "R", "bytes": 2}, {"name": "C", "bytes": 1}]}},
-            [],
-        )
+        ei.dbd_definitions = lambda c, corpus: {
+            "X": {"segments": [{"name": "R", "bytes": 2}, {"name": "C", "bytes": 1}]}
+        }
         same = _segment("R", b"r1") + _segment("C", b"c")
         assert ei.diff_db(case, ROOT, "X", same, same) == {"records": 2, "equal": 2, "filler_differs": 0, "diffs": []}
         d = ei.diff_db(case, ROOT, "X", same, _segment("R", b"r2") + _segment("C", b"c"))
@@ -189,7 +188,7 @@ def test_diff_db_pairs_segments_and_names_the_ones_that_differ():
         d = ei.diff_db(case, ROOT, "X", same, _segment("R", b"r1"))
         assert d["equal"] == 1 and d["diffs"] == [{"segment": 2, "cobol": "C", "java": None}]
     finally:
-        ei.definitions = ei_definitions
+        ei.dbd_definitions = ei_definitions
 
 
 # ---- the det translator ------------------------------------------------------------------------------------------

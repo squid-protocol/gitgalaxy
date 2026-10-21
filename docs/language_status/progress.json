@@ -1,5 +1,5 @@
 {
- "commit": "5387c2527",
+ "commit": "74dadd1fe",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -157,22 +157,22 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-21T12:37:20Z",
+  "as_of": "2026-10-21T13:01:04Z",
   "core": {
-   "closed": 153,
-   "open": 25,
-   "total": 178
+   "closed": 154,
+   "open": 27,
+   "total": 181
   },
   "core_last_window": {
    "closed": 52,
-   "net_closed": 16,
-   "opened": 36
+   "net_closed": 13,
+   "opened": 39
   },
   "core_milestone": {
    "closed": 84,
    "number": 28,
-   "open": 16,
-   "total": 100
+   "open": 19,
+   "total": 103
   },
   "epics": {
    "4890": "open",
@@ -181,7 +181,7 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "11 days",
+  "eta": "15 days",
   "frontier": {
    "closed": 102,
    "found_last_window": 26,
@@ -196,8 +196,8 @@
   },
   "infra": {
    "closed": 187,
-   "open": 54,
-   "total": 241
+   "open": 55,
+   "total": 242
   },
   "measured": true,
   "milestones": [
@@ -307,9 +307,9 @@
     "total": 3
    },
    {
-    "closed": 43,
+    "closed": 44,
     "number": 18,
-    "open": 4,
+    "open": 3,
     "title": "Run Verified \u2705 \u2014 Pics or It Didn't Port",
     "total": 47
    },
@@ -379,16 +379,16 @@
    {
     "closed": 245,
     "number": 28,
-    "open": 17,
+    "open": 20,
     "title": "Training Montage \ud83c\udfcb\ufe0f \u2014 Prepping to one-shot our 4th CICS to Java translation attempt",
-    "total": 262
+    "total": 265
    },
    {
     "closed": 0,
     "number": 29,
-    "open": 7,
+    "open": 8,
     "title": "Open World \ud83d\uddfa\ufe0f \u2014 leaving the starter zone",
-    "total": 7
+    "total": 8
    },
    {
     "closed": 0,
@@ -413,11 +413,11 @@
   "title_counts": {
    "cics": {
     "closed": 85,
-    "total": 102
+    "total": 103
    },
    "cobol": {
     "closed": 128,
-    "total": 143
+    "total": 144
    }
   },
   "window_days": 7

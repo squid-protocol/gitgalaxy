@@ -38,6 +38,7 @@ import equivalence_common as common
 import equivalence_cics_containers as cics_containers  # #5274: the channels / containers family
 import equivalence_cics_filecontrol as cics_filecontrol  # #5274: the file control family
 import equivalence_db2
+import equivalence_ims  # #5278
 import equivalence_inputs  # #3804
 import equivalence_mq  # #4892
 import equivalence_oracle
@@ -60,7 +61,8 @@ LE_MODELS = common.CASES / "le"  # Language Environment service models (CEEDAYS)
 # (gitgalaxy/standards/cics, #4270 spec PR 3), the det translator's own table.
 DFHRESP: dict[str, int] = dict(SPEC_DFHRESP)
 
-_EXEC = re.compile(r"\bEXEC\s+CICS\b", re.I)
+_EXEC = re.compile(r"\bEXEC\s+(?:CICS|DLI)\b", re.I)
+_DLI_TAG = "\0DLI "  # (#5278) an EXEC DLI block's body, as _exec_blocks yields it
 _END_EXEC = re.compile(r"\bEND-EXEC\b", re.I)
 _DFHRESP = re.compile(r"\bDFHRESP\s*\(\s*([A-Z0-9]+)\s*\)", re.I)
 _DFHVALUE = re.compile(r"\bDFHVALUE\s*\(\s*([A-Z0-9]+)\s*\)", re.I)  # #4415: a CVDA, the number IBM gives it
@@ -2009,6 +2011,8 @@ def _exec_blocks(lines: list[str]) -> Iterator[tuple[int, int, str, str, str]]:
             i += 1
             continue
         prefix, body, j = code[: start.start()], code[start.end() :], i
+        if start.group(0).split()[1].upper() == "DLI":
+            body = _DLI_TAG + body
         while not _END_EXEC.search(body):
             j += 1
             if j >= len(lines):
@@ -2035,6 +2039,103 @@ def _numbered(ln: str) -> str:
     return (new.ljust(72) if tail and new != head else new) + tail
 
 
+_DIB = "       01  DIB.\n           05 FILLER   PIC XX.\n           05 DIBSTAT  PIC XX.\n"
+
+
+DLI_CALL = re.compile(r"\bEXEC\s+DLI\b", re.I)
+
+
+def dli_stage(case: dict[str, Any], corpus: Path, dest: Path) -> list[str]:
+    """#5278: the stated databases of a case whose program issues EXEC DLI -- dbd.cfg, psb.cfg and each seed, into
+    `dest` (the stub reads them from the scenario's directory, the port from gitgalaxy.dli.dir). The DBDs' names."""
+    try:
+        dbds, pcbs = equivalence_ims.definitions(case, corpus)
+        dest.mkdir(parents=True, exist_ok=True)
+        dbd_cfg, psb_cfg = equivalence_ims.config(dbds, pcbs)
+        (dest / "dbd.cfg").write_text(dbd_cfg, encoding="ascii")
+        (dest / "psb.cfg").write_text(psb_cfg, encoding="ascii")
+        for name, db in dbds.items():
+            (dest / f"seed.{name}").write_bytes(equivalence_ims.seed(case, corpus, name, db))
+    except equivalence_ims.Unsupported as e:
+        raise Unsupported(f"EXEC DLI: {e}", ["EXEC DLI"]) from e
+    return list(dbds)
+
+
+def _dli_operand(text: str, what: str) -> str:
+    """An integer operand of an EXEC DLI command, `BY VALUE`: a literal or a data name."""
+    t = text.strip()
+    if re.fullmatch(r"[0-9]+", t) or re.fullmatch(r"[A-Za-z0-9-]+", t):
+        return f"BY VALUE {t}"
+    raise Unsupported(f"EXEC DLI {what}({text}): a literal or a data name expected", ["EXEC DLI"])
+
+
+def translate_dli(body: str) -> list[str]:
+    """One EXEC DLI command (#5278, register I5) -> the CALLs of ggdli.c's EXEC entry points (GGDLISCHD, GGDLITERM,
+    GGDLIX), DIBSTAT answered. The forms are the ones DetDli models; any other is refused by name."""
+    from gitgalaxy.tools.cobol_to_java.det import dli
+    from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
+
+    text = body.strip()
+    verb = (text.split() or [""])[0].upper()
+    try:
+        if verb == "SCHD":
+            m = dli._SCHD.fullmatch(text)
+            if m is None:
+                raise Unsupported(
+                    "EXEC DLI SCHD: only PSB(name), PSB('name') or PSB((area)) with NODHABEND", ["EXEC DLI"]
+                )
+            return [f"CALL 'GGDLISCHD' USING BY REFERENCE DIBSTAT BY VALUE {1 if m.group('nodh') else 0}"]
+        if verb == "TERM":
+            if text.split()[1:]:
+                raise Unsupported("EXEC DLI TERM: no option is modelled", ["EXEC DLI"])
+            return ["CALL 'GGDLITERM' USING BY REFERENCE DIBSTAT"]
+        if verb not in (*dli._GETS, *dli._PUTS):
+            raise Unsupported(f"EXEC DLI {verb}: not modelled (register I5)", ["EXEC DLI"])
+        cl = dli._clauses(re.sub(r"(?is)^\s*USING\b", "", text[len(verb) :]))
+    except Untranslatable as e:
+        raise Unsupported(str(e), ["EXEC DLI"]) from None
+    names = [k for k, _ in cl]
+    get = verb in dli._GETS
+    allowed = {"PCB", "SEGMENT", "WHERE", "INTO"} if get else {"PCB", "SEGMENT", "FROM"}
+    if verb == "ISRT":
+        allowed |= {"WHERE", "SEGLENGTH"}
+    area = "INTO" if get else "FROM"
+    if (bad := [k for k in names if k not in allowed]) or names[:1] != ["PCB"] or names.count(area) != 1:
+        raise Unsupported(f"EXEC DLI {verb} {bad[0] if bad else ''}: PCB(n) first and one {area}(area); only "
+                          f"{', '.join(sorted(allowed))} are modelled", ["EXEC DLI"])  # fmt: skip
+    ssas: list[tuple[str, str, str, str]] = []  # (segment, field, operator, value text)
+    for k, v in cl:
+        if k == "SEGMENT":
+            if not re.fullmatch(dli._ID + r"{1,8}", v, re.I):
+                raise Unsupported(f"EXEC DLI {verb}: SEGMENT({v}) is not a segment name", ["EXEC DLI"])
+            ssas.append((v.upper(), "", "", ""))
+        elif k == "WHERE":
+            w = dli._WHERE.fullmatch(v)
+            if not ssas or ssas[-1][1] or w is None or w.group("op").upper() not in dli._OPS:
+                raise Unsupported(f"EXEC DLI {verb}: WHERE({v}): one `field op value` after its SEGMENT", ["EXEC DLI"])
+            ssas[-1] = (ssas[-1][0], w.group("f").upper(), dli._OPS[w.group("op").upper()], w.group("v"))
+    if not get and (not ssas or (verb != "ISRT" and len(ssas) != 1)):
+        raise Unsupported(f"EXEC DLI {verb}: SEGMENT(s) expected, once for REPL and DLET", ["EXEC DLI"])
+    if len(ssas) > 3:
+        raise Unsupported(f"EXEC DLI {verb}: more than 3 SEGMENTs", ["EXEC DLI"])
+    clause = dict(cl)
+    seglen = _dli_operand(clause["SEGLENGTH"], "SEGLENGTH") if "SEGLENGTH" in clause else "BY VALUE -1"
+    io = clause[area].strip()
+    if not re.fullmatch(r"[A-Za-z0-9-]*[A-Za-z][A-Za-z0-9-]*(?:\s*\([^()]*\))?", io):
+        raise Unsupported(f"EXEC DLI {verb}: {area}({io}): a data name expected", ["EXEC DLI"])
+    out = ["CALL 'GGDLIX' USING BY REFERENCE DIBSTAT", f"    BY CONTENT '{verb:<4}'",
+           f"    {_dli_operand(clause['PCB'], 'PCB')}", f"    BY REFERENCE {io}", f"    {seglen}"]  # fmt: skip
+    for seg, fld, op, val in ssas:
+        out.append(f"    BY CONTENT '{seg:<8}{fld:<8}{op:<2}'")
+        if not fld:
+            out += ["    BY REFERENCE DIBSTAT", "    BY VALUE 0"]
+        elif re.fullmatch(r"[A-Za-z0-9-]*[A-Za-z][A-Za-z0-9-]*", val):
+            out += [f"    BY REFERENCE {val}", f"    BY VALUE LENGTH OF {val}"]
+        else:
+            raise Unsupported(f"EXEC DLI {verb}: WHERE value {val}: a data name expected (as the port)", ["EXEC DLI"])
+    return out
+
+
 def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bool]:
     """A fixed-format CICS program -> (the program the stub runtime runs, whether it takes a
     COMMAREA through LINKAGE). Raises Unsupported naming each command it cannot model. #5119 (X56): an OS/VS COBOL
@@ -2052,8 +2153,9 @@ def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bo
     ):
         raise Unsupported("WITH DEBUGGING MODE: debugging lines compiled as code (not modelled)", ["DEBUGGING MODE"])
     blocks = list(_exec_blocks(lines))
-    labels = handler_labels([b[3] for b in blocks])  # #4003: what GG-GOTO indexes, program-wide
-    handle_aid = any(re.match(r"\s*HANDLE\s+AID\b", b[3], re.I) for b in blocks)  # #4007
+    cics_bodies = [b[3] for b in blocks if not b[3].startswith(_DLI_TAG)]
+    labels = handler_labels(cics_bodies)  # #4003: what GG-GOTO indexes, program-wide
+    handle_aid = any(re.match(r"\s*HANDLE\s+AID\b", b_, re.I) for b_ in cics_bodies)  # #4007
     eibds = reads_eibds(lines)  # #5126 (X64)
     out: list[str] = []
     problems: list[str] = []
@@ -2066,10 +2168,13 @@ def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bo
         if prefix.strip():
             out.append(line[:7] + prefix.rstrip())
         try:
-            stmts = translate_command(body, labels, handle_aid, eibds)
+            if body.startswith(_DLI_TAG):
+                stmts = translate_dli(body[len(_DLI_TAG) :])
+            else:
+                stmts = translate_command(body, labels, handle_aid, eibds)
         except Unsupported as e:
             msg = str(e)  # (a whole command's refusal names it already: "EXEC CICS GETMAIN not modelled (...)")
-            problems.append(f"line {i + 1}: {msg if msg.startswith('EXEC CICS ') else f'EXEC CICS {msg}'}")
+            problems.append(f"line {i + 1}: {msg if msg.startswith('EXEC ') else f'EXEC CICS {msg}'}")
             features += [f for f in e.features if f not in features]
             stmts = []
         for s in stmts:
@@ -2095,7 +2200,8 @@ def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bo
         re.search(r"^.{6} +01\s+DFHCOMMAREA\b", text, re.M | re.I)
         or re.search(r"^.{6} +COPY\s+\S+\s+REPLACING\b[^.]*\bBY\s+DFHCOMMAREA\b", text, re.M | re.I)
     )
-    text = re.sub(r"^(.{6} +WORKING-STORAGE\s+SECTION\.[^\n]*\n)", r"\1       COPY DFHEIBLK.\n", text,
+    dib = _DIB if any(b[3].startswith(_DLI_TAG) for b in blocks) else ""  # (#5278: IBM's DIB, only DIBSTAT supplied)
+    text = re.sub(r"^(.{6} +WORKING-STORAGE\s+SECTION\.[^\n]*\n)", r"\1       COPY DFHEIBLK.\n" + dib, text,
                   count=1, flags=re.M | re.I)  # fmt: skip
     if "COPY DFHEIBLK" not in text:
         raise Unsupported("no WORKING-STORAGE SECTION to hold the EIB")
@@ -3215,6 +3321,11 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     for model in sorted(LE_MODELS.glob("*.c")) if subs or calls_le else []:
         shutil.copy(model, src / model.name)
         subs.append(f"src/{model.name}")
+    if DLI_CALL.search(source):  # #5278 (register I5): the DL/I model, its databases stated in the case's "ims"
+        if not case.get("ims"):
+            raise Unsupported('EXEC DLI in a case with no "ims" section', ["EXEC DLI"])
+        shutil.copy(equivalence_ims.STUB, src / "ggdli.c")
+        subs.append("src/ggdli.c")
     if equivalence_mq.MQ_CALL.search(source):  # #4892 (register W): the MQ model, and the stand-ins the estate lacks
         shutil.copy(equivalence_mq.MODEL, src / equivalence_mq.MODEL.name)
         subs.append(f"src/{equivalence_mq.MODEL.name}")
@@ -3335,6 +3446,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                                                         for n, t in doctemplates(case, sc).items()), encoding="ascii")  # fmt: skip
         for i, data in enumerate(equivalence_mq.start_data(case, sc, enc), 1):  # #4892: the data it was started with
             (d / f"retrieve_{i:03d}.bin").write_bytes(data)
+        if DLI_CALL.search(source):  # #5278: the databases (the stub's $GGCICS_DIR)
+            dli_stage(case, corpus, d)
         if equivalence_mq.state(case, sc) is not None:  # #4892 (W): the queue manager its MQI calls reach
             (d / "mq.cfg").write_text(equivalence_mq.cfg(equivalence_mq.state(case, sc), enc), encoding="ascii")
         if task_facts(case, sc)[1] is not None:  # #4270: what the operator typed (an unformatted RECEIVE)
@@ -3840,6 +3953,9 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             res.setdefault("children", []).append(outputs(out / kv["dir"] / "out", case, corpus, []))
     res["containers"] = task_containers(out / "containers.out")  # #4270 (X24): the current channel's, at task end
     res["mq_queues"] = equivalence_mq.queues_left(out / "mq.out")  # #4892: the queues the task left
+    dli = {p.stem: p.read_bytes() for p in sorted(out.glob("*.out")) if (out.parent / f"seed.{p.stem}").is_file()}
+    if dli:  # #5278: the databases the task left (the stub's exit dump), by DBD
+        res["dli"] = dli
     left = out / "commarea.out"  # a LINKed program's result: the COMMAREA it left (ggcics GGCAOUT)
     res["linked_commarea"] = (
         decode_record(left.read_bytes(), ca_fields, enc, exact=True, unnamed=True)
@@ -4666,6 +4782,35 @@ class EquivalenceRunTest {{
         }}
     }}
 
+    /** #5278: a new task on the stated databases (cobolrt.dli.DetDli, the stub's ggdli.c): nothing scheduled, nothing read yet. */
+    static void dliReset(Path dir) {{
+        System.setProperty("gitgalaxy.dli.dir", dir.toString());
+        try {{
+            Class.forName("{pkg}.cobolrt.dli.DetDli").getMethod("reset").invoke(null);
+        }} catch (ReflectiveOperationException e) {{
+            throw new IllegalStateException("a DL/I runtime for a port with no cobolrt.dli", e);
+        }}
+    }}
+
+    /** #5278: each database as the port leaves it (DetDli.leave), by DBD name, in hex -- the stub's exit dump. */
+    static Map<String, String> dliLeft(Path to, JsonNode dbs) {{
+        Map<String, String> left = new LinkedHashMap<>();
+        try {{
+            Files.createDirectories(to);
+            System.setProperty("gitgalaxy.dli.out", to.toString());
+            Class.forName("{pkg}.cobolrt.dli.DetDli").getMethod("leave").invoke(null);
+            for (JsonNode n : dbs) {{
+                Path f = to.resolve(n.asText() + ".out");
+                if (Files.exists(f)) {{
+                    left.put(n.asText(), java.util.HexFormat.of().withUpperCase().formatHex(Files.readAllBytes(f)));
+                }}
+            }}
+        }} catch (ReflectiveOperationException | java.io.IOException e) {{
+            throw new IllegalStateException(e);
+        }}
+        return left;
+    }}
+
     /** #4892: the queues the task left (null: it had no queue manager), its normal end committing it. */
     static Object mqEnd(CicsTask task) {{
         try {{
@@ -4733,6 +4878,9 @@ class EquivalenceRunTest {{
             }}
             if (sc.hasNonNull("mq")) {{  // #4892 (W): the queue manager its MQI calls reach, as the stub's mq.cfg
                 mqAttach(task, in.resolve(sc.get("mq").asText()));
+            }}
+            if (sc.hasNonNull("dli")) {{  // #5278 (I5): the databases EXEC DLI reaches, afresh for each task
+                dliReset(in.resolve(sc.get("dli").get("dir").asText()));
             }}
             if (sc.hasNonNull("urimaps")) {{  // #4270 zECS (X32): INQUIRE URIMAP's installed definitions, as the stub's
                 java.util.List<String[]> defs = new java.util.ArrayList<>();
@@ -4878,6 +5026,12 @@ class EquivalenceRunTest {{
                 Map<String, Object> left = new LinkedHashMap<>();
                 left.put("event", "MQ-QUEUES");
                 left.put("queues", mqLeft);
+                events.add(left);
+            }}
+            if (sc.hasNonNull("dli")) {{  // #5278: the databases the task left, by DBD, as the stub's exit dump
+                Map<String, Object> left = new LinkedHashMap<>();
+                left.put("event", "DLI-DBS");
+                left.put("dbs", dliLeft(out.resolve(sc.get("name").asText() + ".dli"), sc.get("dli").get("dbs")));
                 events.add(left);
             }}
             if (commarea != null) {{  // a LINKed program's result: the COMMAREA it leaves (equivalence_cics.linked_result)
@@ -5066,7 +5220,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                           **({"td": td_seed(case, sc)} if td_seed(case, sc) else {}),
                           "doctemplates": doctemplates(case, sc), "http_peers": http_peers(case, sc),
                           "http_request": http_request(case, sc), "tcpip": tcpip(case, sc),
-                          **_java_mq(case, sc, inputs, len(scenarios))})  # fmt: skip
+                          **_java_mq(case, sc, inputs, len(scenarios)), **_java_dli(case, corpus, inputs)})  # fmt: skip
     (inputs / "scenarios.json").write_text(json.dumps(scenarios, indent=1), encoding="utf-8")
     props = ej.data_charset_arg(case)
     if case.get("db2"):  # the seed and the dump queries, and the harness's Db2
@@ -5106,6 +5260,13 @@ def _run_facade(ej: Any, project: Path, work: Path, inputs: Path, props: str, se
         facade["entries"][sc["name"]] = json.loads(ent.read_text(encoding="utf-8")) if ent.is_file() else []
         if why.is_file():
             facade["refused"][sc["name"]] = why.read_text(encoding="utf-8")
+
+
+def _java_dli(case: dict[str, Any], corpus: Path, inputs: Path) -> dict[str, Any]:
+    """#5278: a case whose program issues EXEC DLI: the databases' directory (the very files the stub reads) and their names."""
+    if not case.get("ims") or not DLI_CALL.search(common.read_program(case, corpus / case["program_source"])[0]):
+        return {}
+    return {"dli": {"dir": "dli", "dbs": dli_stage(case, corpus, inputs / "dli")}}
 
 
 def _java_mq(case: dict[str, Any], sc: dict[str, Any], inputs: Path, n: int) -> dict[str, Any]:
@@ -5519,6 +5680,8 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
         out.append({"event": "CONTAINERS", **res["containers"]})
     if res.get("mq_queues") is not None:  # #4892: the queues the task leaves (its normal end commits it)
         out.append({"event": "MQ-QUEUES", "queues": res["mq_queues"]})
+    if res.get("dli"):  # #5278: the databases the task leaves, each in hierarchic sequence
+        out.append({"event": "DLI-DBS", "dbs": {k: v.hex().upper() for k, v in res["dli"].items()}})
     if res.get("linked_commarea") is not None:
         out.append({"event": "COMMAREA", "commarea": res["linked_commarea"]})
     return out

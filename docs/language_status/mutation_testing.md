@@ -462,6 +462,15 @@ is re-judged with `mutation.py run --only` (no re-sample), which also records `b
 `test_carddemo_failed_xctl_5401.py` pins the four scenarios. cardlist (COCRDLIC) states one per XCTL site (lines 402, 538, 566; #5819), so the item is closed: the test also
 counts the XCTL sites in each of the seven sources and requires a faulted-XCTL scenario for each. The cardlist score is not re-run (16 of its 46 scenarios are refused by the oracle, X8).
 
+**Bad-format amount and date survivors** (#5401, 2026-10-21). COTRN02C validates the amount with four clauses (sign byte, digits 2-9, the point, cents) and each date with
+five (year, `-`, month, `-`, day), and the case had one all-bad value per field, which fails the first clause and leaves a mutant of any later one alive. tranadd now
+states one scenario per clause with only that byte bad: 6 amount (`amount-bad-sign-good-digits`, first and last digit, point, cents tens and units) and 5 each for the
+original and the processing date (`orig-date-*`, `proc-date-*`). report states `custom-end-month-single-digit` (EDTMMI `6`, which NUMVAL-C rebuilds as `06`). GnuCOBOL and the
+port agree on all 12: tranadd is proven on 74 scenarios (72/75 branches), report on 30 (52/59). The seven survivors are killed in a re-run of the same sample (seed 0, 100
+mutants): tranadd `18030c6651`, `d06e6adeed`, `b72db7485f` (the mutated Java crashes on the amount, so the harness records `java`), `327311d5b9`, `1cee2b8e8a`, `b7fd450d80`, and report
+`70523f5c3d`. The scores are not recorded. Left: tranadd `eea78d1ed0` (a character with no cp037 encoding in the amount sign or a date separator; the oracle may not carry it).
+`test_carddemo_bad_format_5401.py` pins that each scenario breaks exactly one byte.
+
 #4047 then scored six CardDemo batch ports (readxref, readcust, dailyval, intcalc, posttran, trnrpt; seed 0, up to 100
 mutants each, `--jobs 3`, fast mode). These rows are seed 0 and differ from the older seed-1 CBACT04C, CBTRN02C and
 CBTRN03C figures above. The case gaps repeat across the six: `displayIoStatus` takes a numeric test on both status bytes,

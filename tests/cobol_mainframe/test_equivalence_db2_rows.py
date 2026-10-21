@@ -727,3 +727,35 @@ def test_lgupdb01_det_port_holds_on_generated_multi_table_rows_with_fk(tmp_path)
     sql = [o["sql"] for o in report["outputs"].values() if "sql" in o]
     assert len(sql) == 19 and all(q["equal"] == q["statements"] for q in sql)
     assert {x["sqlcode"] for q in sql for x in q["cobol"]} == {0, 100}
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_lgdpdb01_det_port_holds_on_generated_multi_table_rows_with_fk(tmp_path):
+    """GenApp's delete-policy service (LGDPDB01, LINKing LGDPVS01 and LGSTSQ) on generated CUSTOMER, POLICY and type-table
+    rows joined by foreign keys: DELETE FROM POLICY of each type with its ON DELETE CASCADE into the type tables (and a
+    policy that holds two type rows), a wrong customer, an unknown policy and a repeated delete (+100, '90'), the
+    non-delete request ids ('99'), and a missing or short COMMAREA; every statement and SQLCODE answered alike on both
+    sides, and the Db2 and VSAM state after each task compared."""
+    import json
+    import shutil
+    import subprocess
+
+    if not shutil.which("docker"):
+        pytest.skip("no docker")
+    tool = Path(__file__).resolve().parents[1] / "tools" / "det_port.py"
+    proc = subprocess.run([sys.executable, str(tool), "run", "genapp-lgdpdb01-generated", "--work", str(tmp_path)],  # noqa: S603
+                          capture_output=True, text=True, check=False)  # fmt: skip
+    assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
+    report = json.loads(next(tmp_path.glob("genapp-lgdpdb01-generated/**/report.json")).read_text())
+    assert report["proven"] is True
+    assert report["db2_generated"] == {
+        "GENASA1.CUSTOMER": 10,
+        "GENASA1.POLICY": 12,
+        "GENASA1.ENDOWMENT": 3,
+        "GENASA1.HOUSE": 4,
+        "GENASA1.MOTOR": 4,
+        "GENASA1.COMMERCIAL": 3,
+    }
+    sql = [o["sql"] for o in report["outputs"].values() if "sql" in o]
+    assert len(sql) == 17 and all(q["equal"] == q["statements"] for q in sql)
+    assert {x["sqlcode"] for q in sql for x in q["cobol"]} == {0, 100}

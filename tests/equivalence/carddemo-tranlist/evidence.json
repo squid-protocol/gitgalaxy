@@ -77,7 +77,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 99,
-   "sha256": "1552f771b96daac15b5620c736b0b5ebbed2be6464bce6dde3973133f5060d28",
+   "sha256": "9532e140cf23d8b5b3d412b4f10692d886b63dd7043b5de8c59879fe43340f02",
    "components": {
     "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
     "generator:core": "a7b1e205ba94cbbb82ef0cd84b755c343c2f7e8afa912e487823daaf34e29af3",
@@ -88,10 +88,10 @@
     "generator:det/cics_taskcontrol": "7d3892cd106fe0ab3a165551af8497cb67ee0337d2cb97f7a72ef8805710bdbf",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
     "generator:det/dli": "04ca03b9b2a187dcfc5fe62623a5ba53e509390e6ebf2bc8acf7ef3a7e7260d3",
-    "generator:det/dyncall": "ab79c3282f9bcba02dfab16f0df14d5dd77dc5c228b2a79ecdbfcfe596467c02",
+    "generator:det/dyncall": "b79c6f85a0946930ba2d2fdedd9da09a3f7d2e0c09c7041e58fdfee5daa6cc9c",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
-    "generator:det/gen": "50d750af93da49c5148073d6a015f125518ba75e3d20dbe1407e40642dbb73d2",
+    "generator:det/gen": "c9cbec43f4c3bcc67cdee1a4982d20ab6fadc953a9baf0e8c6e35d59e5531b81",
     "generator:det/hfp": "cec77a165f9657e15473ce0c2913b1256451731abc473571ed56951d0faba36c",
     "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
     "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
@@ -180,10 +180,10 @@
     }
    }
   },
-  "digest": "1b3b0b3701fb89df6120ff9f0519618d21c00b0cbfd907c4b06d37aea947e79f"
+  "digest": "d6e08c97dfa696333a48e2c04b1d5981da159519a2f0c8666195d1ea72aa5afb"
  },
  "proof": {
-  "at": "2026-10-21T03:30:27Z",
+  "at": "2026-10-21T12:10:22Z",
   "verdict": "proven",
   "runs": 36,
   "fault_runs": 6,
@@ -348,8 +348,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "6c79520aa95e88431ea443d5ff9f7841272e4464+uncommitted",
-  "inputs_digest": "1b3b0b3701fb89df6120ff9f0519618d21c00b0cbfd907c4b06d37aea947e79f"
+  "harness_commit": "5a2f980da440fded936b567f016701765dff653d+uncommitted",
+  "inputs_digest": "d6e08c97dfa696333a48e2c04b1d5981da159519a2f0c8666195d1ea72aa5afb"
  },
  "coverage": {
   "paragraphs": {
@@ -397,7 +397,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "1b3b0b3701fb89df6120ff9f0519618d21c00b0cbfd907c4b06d37aea947e79f"
+  "inputs_digest": "d6e08c97dfa696333a48e2c04b1d5981da159519a2f0c8666195d1ea72aa5afb"
  },
  "reach": {
   "entry_points": [
@@ -454,43 +454,43 @@
  "mutation": {
   "commit": "7470befa4",
   "rejudged": {
-   "commit": "d8e642a10",
-   "issue": "#5401",
-   "mutants": 20,
-   "killed": 4
+   "commit": "6c79520aa",
+   "issue": "#4049",
+   "mutants": 100,
+   "killed": 66
   },
   "seed": 0,
   "mode": null,
   "mutants": 697,
   "chosen": 100,
-  "killed": 64,
-  "survived": 27,
+  "killed": 66,
+  "survived": 25,
   "stillborn": 9,
   "survivors": {
-   "case_gap": 15,
+   "case_gap": 13,
    "harness_gap": 0,
    "equivalent": 5,
    "unreachable": 7,
    "untriaged": 0
   },
-  "score_raw": "64/91",
-  "score_adjusted": "64/79",
+  "score_raw": "66/91",
+  "score_adjusted": "66/79",
   "source": "docs/language_status/mutation_scores.json#carddemo-tranlist/COTRN00C",
   "inputs": {
    "port": {
     "sha256": "1f1757505d68b2f7aff07d5fb28e6fb32eec27cacea2750aa6023881e9fd87a3"
    },
    "case": {
-    "sha256": "49a29c59c9bfb861b1e3b85db0ba8c347df3c683d459460fc982ec6a37f0d928"
+    "sha256": "1accc810e372be6f9f77b9d63b4c2d32d83b6cfd0bb4c3bd7bccfb318f0127e7"
    },
    "corpus": {
     "sha256": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919"
    },
    "harness": {
-    "sha256": "e221595d3022c0d5399cd63080f7a9264ae78b5c996b6eca66c3c19b94a9d6a5"
+    "sha256": "9719d8e6fab2ada37b84b391544fa81ca9f8388e844cc714cd12adc60aff0eae"
    },
    "oracle": {
-    "sha256": "a5ae4eed2090b4cb10446837bd69e02eb34f2c89a735b17c287ad082b57444ec"
+    "sha256": "3238a6c115da44e342ab6312da909afa4da481a2f19ae796ff58f456b030566c"
    }
   }
  },
@@ -503,7 +503,7 @@
   "compiler_options": null,
   "image": {
    "name": "gitgalaxy-gnucobol:3",
-   "id": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
+   "id": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []

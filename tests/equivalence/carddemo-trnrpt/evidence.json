@@ -45,9 +45,9 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 14,
-   "sha256": "d55430a41af36915b7293d7a23866a24b59db7a824f4e68e8dba03ade106e9b3",
+   "sha256": "9719d8e6fab2ada37b84b391544fa81ca9f8388e844cc714cd12adc60aff0eae",
    "components": {
-    "harness:core": "e13043b0f7e404a5ebf32812767840664ea1f21ab0447dba3c8f501e03208b95"
+    "harness:core": "2375da909862f564828958e7917e63c8a65baef6ce35a6fc8146d7455ba31dc0"
    }
   },
   "oracle": {
@@ -63,7 +63,7 @@
     "tests/equivalence/ims/ggdli.c"
    ],
    "files": 36,
-   "sha256": "ffaa6dd0898bbf956479a5817450963c0550acd3f45309cae7a898a6176350ad",
+   "sha256": "3238a6c115da44e342ab6312da909afa4da481a2f19ae796ff58f456b030566c",
    "components": {
     "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
     "oracle:file-io": "e74b2733865b6c48f5ccf8d292c81c28e4827e0229e7383baeb7a3a26327f501",
@@ -74,14 +74,14 @@
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 98,
-   "sha256": "4d2e989995809ae162d6df1b3261a3151dc7efda57da04cdcfcebfe41e1612e1",
+   "files": 99,
+   "sha256": "9532e140cf23d8b5b3d412b4f10692d886b63dd7043b5de8c59879fe43340f02",
    "components": {
     "generator:cobolrt/standalone/CobolAbend.java": "f8b72030ecb8862738c562b0c826ff9b1a085d92050664082f96e6107d5dfdb7",
-    "generator:cobolrt/standalone/Sysout.java": "407512cfedf89455f08193fe4aed96e26fdfc9fd34e8636a662b6574a5645b4f",
-    "generator:core": "c0881ad6e7bad948fb31c12842e1df9768c4ee175324d0b051815acbffa8e17c",
+    "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
+    "generator:core": "a7b1e205ba94cbbb82ef0cd84b755c343c2f7e8afa912e487823daaf34e29af3",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/source": "88b148652fbb037ae599679a40b94360204926a88454926fa008740b3fc13507"
+    "generator:det/source": "46ec3ecfe05e9a2b8614283a9173862913d284b644328eb92c75bf363f5d0230"
    }
   },
   "corpus": {
@@ -166,10 +166,10 @@
     }
    }
   },
-  "digest": "4f901cc72a6f67bf8cdfccbc7a26aab0668fc86dc4fcab3f2cabf48baa371c17"
+  "digest": "229a5505530dcf815e302ed0ec12ce0edec3f567f26e69747738aa8c4b66e5b3"
  },
  "proof": {
-  "at": "2026-10-20T10:49:10Z",
+  "at": "2026-10-21T12:15:49Z",
   "verdict": "proven",
   "runs": 25,
   "fault_runs": 24,
@@ -184,8 +184,8 @@
   "sysout_compared": true,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "c913eb62225fe7d876ec70dcde306b4490a29259+uncommitted",
-  "inputs_digest": "4f901cc72a6f67bf8cdfccbc7a26aab0668fc86dc4fcab3f2cabf48baa371c17"
+  "harness_commit": "5a2f980da440fded936b567f016701765dff653d+uncommitted",
+  "inputs_digest": "229a5505530dcf815e302ed0ec12ce0edec3f567f26e69747738aa8c4b66e5b3"
  },
  "coverage": {
   "paragraphs": {
@@ -209,7 +209,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "4f901cc72a6f67bf8cdfccbc7a26aab0668fc86dc4fcab3f2cabf48baa371c17"
+  "inputs_digest": "229a5505530dcf815e302ed0ec12ce0edec3f567f26e69747738aa8c4b66e5b3"
  },
  "reach": {
   "entry_points": [
@@ -292,7 +292,7 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "4190e40fae1f8f11b69c6499de0d356118a8ca8c5e220bd2004f0ba798da0327"
+    "sha256": "4a999cd558b9f121f53f3d791b667c4871442e5f167bb07502a9eb56b15d46a9"
    },
    {
     "path": "tests/equivalence/cics/ggcics_containers.c",
@@ -332,7 +332,7 @@
    },
    {
     "path": "tests/equivalence/db2/ggsql.c",
-    "sha256": "b7d6932d123d35ca30e0907693a15f430c9dc51f99620d9050d2dadcfeadfc9b"
+    "sha256": "f3d0954ea93ea8ce11102810e24d39247260e4f8bcac9b4188870519094182b8"
    },
    {
     "path": "tests/equivalence/db2/ggsqlrun.c",
@@ -392,7 +392,7 @@
    },
    {
     "path": "tests/equivalence/ims/ggdli.c",
-    "sha256": "43a7ce327a77bf6b654f31c4631a84eaa6a43008d64afde8184e269dac70f1f9"
+    "sha256": "eb63e2a1d46f06356ba85666a9a609a68ba216364e4a661723fcb57d3bb309b7"
    },
    {
     "path": "tests/equivalence/le/ceedays.c",

@@ -111,7 +111,7 @@ def test_one_vendored_lib_does_not_take_a_mostly_first_party_container(repo):
 
 
 def test_container_without_subprojects_stays_scanned(repo):
-    # doom64ex extern/: build glue and one patched header, no subproject
+    # an extern/ of build glue and one patched header, no subproject
     _write(repo / "extern/CMakeLists.txt", "add_library(x)\n")
     assert _admitted(repo, "extern/patched-config_win32.h")
 
@@ -129,7 +129,7 @@ def test_scan_root_is_never_a_candidate(tmp_path):
     "name", ["third_party_libs", "third-party-libs", "thirdparty_src", "3rdparty-code", "3rd_party_lib"]
 )
 def test_third_party_prefix_spellings_are_excluded_without_a_license(repo, name):
-    # psydoom: third_party_libs/libsdl/sdl2 (367k lines)
+    # a third_party_libs/libsdl/sdl2 tree (367k lines)
     assert not _admitted(repo, f"{name}/libsdl/sdl2/src/SDL.c")
 
 

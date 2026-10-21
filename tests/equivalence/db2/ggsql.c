@@ -37,10 +37,12 @@
  * closes it at the server but leaves the CLI handle: this stub closes and frees the handles itself.)
  *
  * #4173 -- SQL faults. $GGSQL_FAULTS names a plan, one fault per line:
- *   <program> <line> <nth|*> <sqlcode> <sqlstate>
+ *   <program> <line> <nth|*> <sqlcode> <sqlstate> [<sqlerrmc token|-> [<sqlerrd3>]]
  * The nth execution of the statement at that line of that program (every one, for *) does not reach Db2: its SQLCA
  * is the one sqlca_reset leaves, with that SQLCODE and SQLSTATE -- no message tokens (SQLERRML 0), SQLERRD 0, no
- * warning (docs/language_status/oracle_assumptions.md M2) -- and nothing else changes: no row, no host variable,
+ * warning (docs/language_status/oracle_assumptions.md M2) unless the line declares them (#5561: one token, no
+ * blanks, as SQLERRMC with its SQLERRML; and SQLERRD(3), the reason code a program reads) -- and nothing else
+ * changes: no row, no host variable,
  * a cursor's state as it was. Each fault that fires is appended to $GGSQL_FAULTS_LOG as
  *   SQL <program> <line> <n> <sqlcode>
  * the line the det port's DetSql writes for the same fault. $GGSQL_TRACE, when set, gets `<program> <line>` for
@@ -452,14 +454,20 @@ static int injected(stmt *s, sqlca_t *c) {
         if (t) { fprintf(t, "%s %d\n", s->program, s->line); fclose(t); }
     }
     FILE *f = plan && *plan ? fopen(plan, "r") : NULL;
-    char prog[16], nth[16], state[8], line[256];
-    int ln, code, hit = 0;
+    char prog[16], nth[16], state[8], token[71], line[256];
+    int ln, code, errd3, hit = 0;
     while (f && !hit && fgets(line, sizeof line, f)) {
-        if (sscanf(line, "%15s %d %15s %d %7s", prog, &ln, nth, &code, state) != 5) continue;
+        token[0] = 0;
+        errd3 = 0;
+        if (sscanf(line, "%15s %d %15s %d %7s %70s %d", prog, &ln, nth, &code, state, token, &errd3) < 5) continue;
         if (strcmp(prog, s->program) || ln != s->line) continue;
         if (nth[0] != '*' && atoi(nth) != n) continue;
         c->sqlcode = code;
         memcpy(c->sqlstate, state, 5);
+        if (!strcmp(token, "-")) token[0] = 0;  /* `-`: no token (SQLERRD3 alone) */
+        c->sqlerrml = (short)strlen(token);  /* #5561: the declared message token and reason code */
+        memcpy(c->sqlerrmc, token, strlen(token));
+        c->sqlerrd[2] = errd3;
         hit = 1;
     }
     if (f) fclose(f);

@@ -12,6 +12,7 @@
     "copybook_resolution_gaps": { "$ref": "#/$defs/category" },
     "refusal_families": { "$ref": "#/$defs/family_category" },
     "stand_in_copybooks": { "$ref": "#/$defs/family_category" },
+    "call_targets": { "$ref": "#/$defs/family_category" },
     "eras": { "$ref": "#/$defs/eras" },
     "unparsed_programs": {
       "type": "array",

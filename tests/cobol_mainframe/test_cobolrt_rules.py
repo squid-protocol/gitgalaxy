@@ -355,3 +355,16 @@ def test_compare_a_comment_in_the_ports_own_code_still_counts(tmp_path):
     _port(tmp_path / "a", "c1", {"service/S.java": "class S {}"})
     _port(tmp_path / "b", "c1", {"service/S.java": "class S {} // a translator comment is output"})
     assert det_port.compare(tmp_path / "a", tmp_path / "b")[0]["status"] == "changed"
+
+
+@pytest.mark.parametrize("features", [[], ["MOVE"], [3]])
+def test_a_features_key_is_a_non_empty_list_of_category_key_strings(rt, features):
+    cat = _cat()
+    cat["rules"][0]["features"] = features
+    assert any("features is a non-empty list" in p for p in _probs(cat, rt))
+
+
+def test_a_keyed_rule_passes_the_check(rt):
+    cat = _cat()
+    cat["rules"][0]["features"] = ["statements: MOVE"]
+    assert _probs(cat, rt) == []

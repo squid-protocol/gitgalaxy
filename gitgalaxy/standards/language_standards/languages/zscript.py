@@ -29,7 +29,7 @@ _RET = (
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
-        "target_version": "ZScript 4.x (GZDoom / Zandronum 3.x object scripting)",
+        "target_version": "ZScript 4.x (GZDoom object scripting)",
         "last_updated": "2026-10-18",
         "blueprint_version": "v5.0",
         "status": "production",

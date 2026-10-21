@@ -209,15 +209,6 @@
    "reason": "paragraph() is called only from condition() for a HANDLE ABEND label; COBIL00C issues no HANDLE"
   },
   {
-   "id": "0c3795ad12",
-   "op": "ROR",
-   "line": 497,
-   "before": "Cobol.move(d.getCdemoCb00TrnSelFlg() == null ? \"\" : d.getCdemoCb00TrnSelFlg(), Field.alphanumeric(s, base + 201, 1, false), CS);",
-   "after": "Cobol.move(d.getCdemoCb00TrnSelFlg() != null ? \"\" : d.getCdemoCb00TrnSelFlg(), Field.alphanumeric(s, base + 201, 1, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_ moves '' instead of the caller's CDEMO-CB00-TRN-SEL-FLG, which the RETURN COMMAREA carries. Killed by scenario full-commarea-carried (added in this PR: every COMMAREA field set, the CB00 part too)"
-  },
-  {
    "id": "599ad45d04",
    "op": "DEL",
    "line": 588,
@@ -225,6 +216,42 @@
    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, f14_WS_CURR_BAL, CS); */",
    "verdict": "equivalent",
    "reason": "WS-CURR-BAL is moved from ACCT-CURR-BAL (line 193) before MOVE WS-CURR-BAL TO CURBALI reads it"
+  },
+  {
+   "id": "c69b761f9c",
+   "op": "DEL",
+   "line": 673,
+   "before": "calen = cx(task, cb.length);",
+   "after": "/* calen = cx(task, cb.length); */",
+   "verdict": "unreachable",
+   "reason": "Statement is in the byte[] entry point (the raw-COMMAREA path); every scenario and the CICS harness enter COBIL00C through the typed DTO entry, so this branch has no caller."
+  },
+  {
+   "id": "44061bde1d",
+   "op": "COR",
+   "line": 684,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "equivalent",
+   "reason": "Both the original and the mutant cut the COMMAREA only for references written (1:EIBCALEN), which are bounded by EIBCALEN regardless of the storage length; the cut changes no value the program reads."
+  },
+  {
+   "id": "ea24f7b9e3",
+   "op": "DEL",
+   "line": 686,
+   "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
+   "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */",
+   "verdict": "equivalent",
+   "reason": "Copying the caller's COMMAREA to calen bytes is only observable through a reference past EIBCALEN; COBIL00C only references DFHCOMMAREA(1:EIBCALEN), so the uncut storage reads identically."
+  },
+  {
+   "id": "39924b60e2",
+   "op": "ROR",
+   "line": 699,
+   "before": "if (caWhole == null) {",
+   "after": "if (caWhole != null) {",
+   "verdict": "unreachable",
+   "reason": "The null-COMMAREA catch is reached only by a reference past a cut COMMAREA; COBIL00C has none (see 44061bde1d), so the branch cannot be entered."
   },
   {
    "id": "24dae49f6b",
@@ -299,6 +326,15 @@
    "reason": "perform() reaches this only after a paragraph that is not its range's last returns; COBIL00C's PERFORMs each name one paragraph (from == thru) and MAIN-PARA (runTask's 0-15) always ends in RETURN / XCTL / an abend, so no PerformExit is ever thrown, and this catch never runs"
   },
   {
+   "id": "7d68ef528e",
+   "op": "LIT",
+   "line": 951,
+   "before": "f12_WS_CONF_PAY_FLG = \"N\";",
+   "after": "f12_WS_CONF_PAY_FLG = \"X\";",
+   "verdict": "equivalent",
+   "reason": "WS-CONF-PAY-FLG is tested only through the CONF-PAY-YES condition; 'N' and 'X' are both not 'Y', so every later branch is the same."
+  },
+  {
    "id": "c756609e5a",
    "op": "DEL",
    "line": 1035,
@@ -324,6 +360,15 @@
    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f238_TRAN_RECORD.storage(), f238_TRAN_RECORD.offset() + 144, 9, 0, false, false, false), CS);",
    "verdict": "equivalent",
    "reason": "INITIALIZE TRAN-RECORD: every field it initializes is moved to right after (TRAN-ID, TYPE-CD, CAT-CD, SOURCE, DESC, AMT, CARD-NUM, MERCHANT-ID / NAME / CITY / ZIP, ORIG-TS, PROC-TS) before the WRITE; as offset 144 the initializing spills into TRAN-MERCHANT-NAME's first byte, which the next statements rewrite, and leaves MERCHANT-ID's first byte for MOVE 999999999 to rewrite"
+  },
+  {
+   "id": "69a74b7f52",
+   "op": "AOR",
+   "line": 1101,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f202_WS_TIMESTAMP.storage(), f202_WS_TIMESTAMP.offset() + 5, 2, 0, false, false, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f202_WS_TIMESTAMP.storage(), f202_WS_TIMESTAMP.offset() - 5, 2, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "The mutated MOVE ZEROS targets WS-TIMESTAMP's minutes field (WS-CURTIME-MM), which POPULATE-HEADER-INFO re-sets (COBIL00C lines 334-336) before it is ever read; it is a dead store."
   },
   {
    "id": "b865e7bf73",
@@ -353,6 +398,15 @@
    "reason": "COBIL00C never reads EIBRESP2, so its value cannot show"
   },
   {
+   "id": "74b4bb8c3a",
+   "op": "LIT",
+   "line": 1184,
+   "before": "java.util.Optional<Cobil0aScreen> received8 = task.receive(\"COBIL0A\", \"COBIL00\", Cobil0aScreen.class);",
+   "after": "java.util.Optional<Cobil0aScreen> received8 = task.receive(\"COBIL0A\", \"XOBIL00\", Cobil0aScreen.class);",
+   "verdict": "equivalent",
+   "reason": "The mapset argument of RECEIVE MAP is not observed: the comparator checks the map name only (equivalence_cics.py:5449-5450), and the DTO receive does not use the mapset."
+  },
+  {
    "id": "7d64efbfdb",
    "op": "DEL",
    "line": 1220,
@@ -360,6 +414,24 @@
    "after": "/* Cobol.store(f389_EIBRESP, BigDecimal.valueOf(resp10), false, CS); */",
    "verdict": "equivalent",
    "reason": "COBIL00C never reads EIBRESP2 (or EIBRESP), so its value cannot show"
+  },
+  {
+   "id": "e3fe56b6fb",
+   "op": "DEL",
+   "line": 1222,
+   "before": "Cobol.store(f9_WS_RESP_CD, BigDecimal.valueOf(resp10), false, CS);",
+   "after": "/* Cobol.store(f9_WS_RESP_CD, BigDecimal.valueOf(resp10), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "WS-RESP-CD from the RECEIVE MAP is overwritten by the next EXEC CICS before any EVALUATE reads it: a dead store."
+  },
+  {
+   "id": "98b61b79e0",
+   "op": "DEL",
+   "line": 1265,
+   "before": "heldKey.put(f6_WS_ACCTDAT_FILE.strip(), rec12);",
+   "after": "/* heldKey.put(f6_WS_ACCTDAT_FILE.strip(), rec12); */",
+   "verdict": "equivalent",
+   "reason": "heldKey (the position kept by a READ UPDATE) is read only by a DELETE without RIDFLD; COBIL00C issues no DELETE, so the record is never consulted."
   },
   {
    "id": "e41675085d",

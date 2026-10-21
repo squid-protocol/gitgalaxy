@@ -222,7 +222,7 @@ def carries_homoglyph(line: str) -> bool:
 # #4987: commented-out COMMAND shapes for the dead_code signature. Each alternative needs the syntax
 # that makes the word a command or call (a flag/URL/quote after curl, a pipe into a shell, `eval(`),
 # never the bare English word. A URL counts as a call argument only right after `(`, `=`, `,` or `[`;
-# a quoted URL after prose (`// Ken's web site: "http://...`) is a citation (#4548, zandronum `basicinlines.h`).
+# a quoted URL after prose (`// Ken's web site: "http://...`) is a citation (#4548, a `basicinlines.h` header).
 _DEAD_CODE_COMMAND = (
     r"(?:\b(?:curl|wget)\b[ \t]+(?:-|[\"']?https?://|[\"'$])"
     r"|\|[ \t]*(?:sudo[ \t]+)?(?:ba|z)?sh\b"

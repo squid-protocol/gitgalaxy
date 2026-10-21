@@ -49,3 +49,14 @@ def test_the_ledger_is_tracked():
 
     out = subprocess.run(["git", "ls-files", "--error-unmatch", str(io.LEDGER)], cwd=io.REPO, capture_output=True)
     assert out.returncode == 0, "tests/equivalence/infeasible_outcomes.json is not tracked: see .gitignore"
+
+
+def test_genapp_vsam_no_commarea_outcomes_are_stated_where_the_proof_leaves_only_them():
+    """#5252: lgacvs01 / lgucvs01 leave only WRITE-ERROR-MESSAGE's `IF EIBCALEN > 0` false (a COMMAREA-less call, X23)."""
+    ledger = io.load()
+    for case, line in (("genapp-lgacvs01", 106), ("genapp-lgucvs01", 121)):
+        (e,) = ledger[case]
+        assert (e["unit"], e["line"], e["kind"], e["outcome"]) == ("WRITE-ERROR-MESSAGE", line, "IF", "false")
+        assert "X23" in e["reason"] and "LENGTH(225)" in e["reason"]
+        uncovered = [{"line": line, "outcome": "false"}]
+        assert io.adjust(case, (3, 3, 3, 4), uncovered, ledger)[0] == (3, 3, 3, 3)

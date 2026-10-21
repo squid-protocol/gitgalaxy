@@ -5,24 +5,25 @@
  "case": "carddemo-billpay",
  "entry": {
   "program": "COBIL00C",
-  "commit": "eb1349e16b76fffa6296c5328c0142371af094e0",
-  "date": "2026-10-19",
+  "commit": "978323857d828887485d41c8aef24ef1d4c17a67+uncommitted",
+  "date": "2026-10-20",
   "mode": "fast",
   "seed": 0,
   "mutants": 1656,
   "out_of_scope": 12,
   "chosen": 150,
-  "coverage": "proven on 30 scenarios, covering 16/16 paragraphs and 46/48 branches",
+  "coverage": "proven on 32 scenarios, covering 16/16 paragraphs and 46/48 branches",
   "counts": {
-   "killed": 93,
+   "killed": 95,
    "timeout": 0,
-   "survived": 54,
+   "survived": 52,
    "stillborn": 3,
    "error": 0,
    "pending": 0
   },
   "killed": [
    "0aa096b83a",
+   "0c3795ad12",
    "1076e243f2",
    "16abbe0915",
    "173dd800e8",
@@ -64,6 +65,7 @@
    "6a7e3a1146",
    "6cf9d7bfe0",
    "7276e7735c",
+   "728bfe534e",
    "79d0496552",
    "7c63846472",
    "7d5ccf70ee",
@@ -299,14 +301,6 @@
     "after": "if (i != null) {"
    },
    {
-    "id": "0c3795ad12",
-    "op": "ROR",
-    "file": "service/Cobil00cService.java",
-    "line": 497,
-    "before": "Cobol.move(d.getCdemoCb00TrnSelFlg() == null ? \"\" : d.getCdemoCb00TrnSelFlg(), Field.alphanumeric(s, base + 201, 1, false), CS);",
-    "after": "Cobol.move(d.getCdemoCb00TrnSelFlg() != null ? \"\" : d.getCdemoCb00TrnSelFlg(), Field.alphanumeric(s, base + 201, 1, false), CS);"
-   },
-   {
     "id": "599ad45d04",
     "op": "DEL",
     "file": "service/Cobil00cService.java",
@@ -417,14 +411,6 @@
     "line": 951,
     "before": "f12_WS_CONF_PAY_FLG = \"N\";",
     "after": "f12_WS_CONF_PAY_FLG = \"X\";"
-   },
-   {
-    "id": "728bfe534e",
-    "op": "CON",
-    "file": "service/Cobil00cService.java",
-    "line": 976,
-    "before": "} else if ((Cobol.compare(f104_CONFIRMI, \"N\", CS) == 0) || (Cobol.compare(f104_CONFIRMI, \"n\", CS) == 0)) {",
-    "after": "} else if ((Cobol.compare(f104_CONFIRMI, \"N\", CS) == 0) || (Cobol.compare(f104_CONFIRMI, \"n\", CS) == 1)) {"
    },
    {
     "id": "c756609e5a",
@@ -556,40 +542,41 @@
    }
   ],
   "inputs": {
-   "port": "9d38cdc59e955ca19e397a1956499e8589e481f240039e2f22088b0748a3f900",
-   "generator": "4f56fc49289beb182ffb13c4913706f05bb84f4977dac0317286c26c9f554ca3",
-   "case": "76ba940f7deb977ce14a2629f0f61afe1a11242d190b9166459607075b5ea095",
+   "port": "0dbed93ccc6c70579327af912175db0bda29c222df3e65a94dd1e35246248af7",
+   "generator": "3538350b8108874f1be3961c3292be067ffbc4048df491465411fea99a811492",
+   "case": "8bfbcd480ad545c83a3e3b0e4f5bf938247cd3454ebe4a05c26059efe9efa657",
    "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-   "harness": "edd5fd6ee47251dc0f3c003b939784cb59b414c65c7a2139705dc8ed5ec0b447",
-   "oracle": "a5ae4eed2090b4cb10446837bd69e02eb34f2c89a735b17c287ad082b57444ec"
+   "harness": "25d0470a9243da12cff391858540cdcb15165a12fb142873ef1fbc358cda48a6",
+   "oracle": "32d131c5f3d27b1c94489099b37fb148b906efec6bc2ab7a90322e1ce8780cbb"
   },
   "components": {
    "generator": {
-    "generator:cobolrt/standalone/Sysout.java": "407512cfedf89455f08193fe4aed96e26fdfc9fd34e8636a662b6574a5645b4f",
-    "generator:core": "c66ca7d2dc2303a595ef7f1f3e3b1de62bb8afc47df32a09ff0a41764cda88cd",
+    "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
+    "generator:core": "a7b1e205ba94cbbb82ef0cd84b755c343c2f7e8afa912e487823daaf34e29af3",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "2fb7efeabce1d18016eff29d627435e3ff36b8f005690229fee0e6ccda386941",
+    "generator:det/cics": "8ba712e6973cfd4209fc553ec8ab80e4bb6096c12d272598d4a0be8a34d7a904",
     "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
-    "generator:det/cics_filecontrol": "0715992f6d3910f379816a22c029c9dd844172f469f1ca677a729f1805c6d938",
+    "generator:det/cics_filecontrol": "3d10979d783b0f39b3184d3111b9e543cd87941cbe7814f0edc65454e6f1f2b7",
+    "generator:det/cics_taskcontrol": "7d3892cd106fe0ab3a165551af8497cb67ee0337d2cb97f7a72ef8805710bdbf",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
-    "generator:det/dli": "ee33be26ce7d401159cd144c9a2b70c56a6de5ad22b882d89126d6963a9d27a0",
-    "generator:det/dyncall": "89a918e40701b9238f8acbf1263bd6f85ed6e94e9b56a82ca6d36e4f807e0783",
+    "generator:det/dli": "04ca03b9b2a187dcfc5fe62623a5ba53e509390e6ebf2bc8acf7ef3a7e7260d3",
+    "generator:det/dyncall": "ab79c3282f9bcba02dfab16f0df14d5dd77dc5c228b2a79ecdbfcfe596467c02",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
-    "generator:det/gen": "166274f2b2ca23e88d8904e448d94d68cca325736765e2ef891613583111db6c",
-    "generator:det/hfp": "7371422d1821ad22c526f9ba0e37deaa0ffc38ed190c6ad76e7475d820df95a1",
+    "generator:det/gen": "be91e8831f5d11170c1543340648202235890103eb83de046db9fa76b698e794",
+    "generator:det/hfp": "cec77a165f9657e15473ce0c2913b1256451731abc473571ed56951d0faba36c",
     "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
     "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
     "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
-    "generator:det/source": "8bd64a1f9b6a3f3ae66fd9f8380a206be5a1601cdb84a24209f659822ce4919f",
+    "generator:det/source": "88b148652fbb037ae599679a40b94360204926a88454926fa008740b3fc13507",
     "generator:det/stmt": "014835ecefbec5b761734642ac25fc8270092f80945e8f79bcaaa9d3aee2c9ff"
    },
    "harness": {
-    "harness:cics": "0e0a63846e13241a9959abb9231892d89d73b5701f6ef5388ccb9ceb0ec94d80",
-    "harness:core": "ec1579a36aba78053cb3f2494c11b56bcfcc2cde0cf9fee89dca055509aea31e"
+    "harness:cics": "55caeea90745b3aad6afaf6ad3b52dad29f2f96eea0f4983925e2ca95ae583eb",
+    "harness:core": "120ae815acefc558bb7dd5b32a8e4200e6352f9d93fb998d70aa0398069caee6"
    },
    "oracle": {
-    "oracle:cics-stub": "37343070bc79966d4f779738c4de6e2d7ede8df68761c37613c223bddca1c531",
+    "oracle:cics-stub": "8d4b95cb03310f91b20292ebc95871479fe57bab9fc6ff33a625667a5860e785",
     "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
     "oracle:le": "a7cfa660f76e6181cb060f9f945c4e298533793957991f29d93312db11e33b3f"
    }

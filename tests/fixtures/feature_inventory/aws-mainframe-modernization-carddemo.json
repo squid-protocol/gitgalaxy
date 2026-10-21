@@ -1,4 +1,105 @@
 {
+  "call_targets": {
+    "(dynamic)": {
+      "count": 1,
+      "programs": [
+        "app/app-transaction-type-db2/cbl/COTRTLIC.cbl"
+      ]
+    },
+    "CBLTDLI": {
+      "count": 9,
+      "programs": [
+        "app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL",
+        "app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL",
+        "app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL"
+      ]
+    },
+    "CBSTM03B": {
+      "count": 13,
+      "programs": [
+        "app/cbl/CBSTM03A.CBL"
+      ]
+    },
+    "CEE3ABD": {
+      "count": 11,
+      "programs": [
+        "app/cbl/CBACT01C.cbl",
+        "app/cbl/CBACT02C.cbl",
+        "app/cbl/CBACT03C.cbl",
+        "app/cbl/CBACT04C.cbl",
+        "app/cbl/CBCUS01C.cbl",
+        "app/cbl/CBEXPORT.cbl",
+        "app/cbl/CBIMPORT.cbl",
+        "app/cbl/CBSTM03A.CBL",
+        "app/cbl/CBTRN01C.cbl",
+        "app/cbl/CBTRN02C.cbl",
+        "app/cbl/CBTRN03C.cbl"
+      ]
+    },
+    "CEEDAYS": {
+      "count": 1,
+      "programs": [
+        "app/cbl/CSUTLDTC.cbl"
+      ]
+    },
+    "COBDATFT": {
+      "count": 1,
+      "programs": [
+        "app/cbl/CBACT01C.cbl"
+      ]
+    },
+    "CSUTLDTC": {
+      "count": 5,
+      "programs": [
+        "app/cbl/COACTUPC.cbl",
+        "app/cbl/CORPT00C.cbl",
+        "app/cbl/COTRN02C.cbl"
+      ]
+    },
+    "MQCLOSE": {
+      "count": 7,
+      "programs": [
+        "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+        "app/app-vsam-mq/cbl/COACCT01.cbl",
+        "app/app-vsam-mq/cbl/CODATE01.cbl"
+      ]
+    },
+    "MQGET": {
+      "count": 3,
+      "programs": [
+        "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+        "app/app-vsam-mq/cbl/COACCT01.cbl",
+        "app/app-vsam-mq/cbl/CODATE01.cbl"
+      ]
+    },
+    "MQOPEN": {
+      "count": 7,
+      "programs": [
+        "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+        "app/app-vsam-mq/cbl/COACCT01.cbl",
+        "app/app-vsam-mq/cbl/CODATE01.cbl"
+      ]
+    },
+    "MQPUT": {
+      "count": 4,
+      "programs": [
+        "app/app-vsam-mq/cbl/COACCT01.cbl",
+        "app/app-vsam-mq/cbl/CODATE01.cbl"
+      ]
+    },
+    "MQPUT1": {
+      "count": 1,
+      "programs": [
+        "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl"
+      ]
+    },
+    "MVSWAIT": {
+      "count": 1,
+      "programs": [
+        "app/cbl/COBSWAIT.cbl"
+      ]
+    }
+  },
   "cics_commands": {
     "ABEND": {
       "count": 5,

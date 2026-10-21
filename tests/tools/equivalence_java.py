@@ -915,6 +915,8 @@ def _run_area(case: dict[str, Any], project: Path, area: Path, inputs: Path, env
         shutil.rmtree(dliout, ignore_errors=True)
         dliout.mkdir(parents=True)
         props = f"{props} -Dgitgalaxy.dli.dir={inputs / 'dli'} -Dgitgalaxy.dli.out={dliout}"
+    if case.get("mvs_step") is not None:  # #5856 (A2): the job step whose control blocks DetMvs lays
+        props = f"{props} -Dgitgalaxy.mvs.step={case['mvs_step']}"
     if case.get("sysin") is not None:  # #5106: the very bytes the COBOL side read (equivalence.run_cobol)
         props = f"{props} -Dequivalence.sysin={inputs / 'SYSIN.in'}"
     out = run_maven(

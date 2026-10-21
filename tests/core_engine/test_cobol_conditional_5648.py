@@ -8,7 +8,7 @@ import pytest
 
 from gitgalaxy.core.cobol_conditional import Conditional, ConditionalCompilation, options_defines
 from gitgalaxy.core.compiler_options import compiler_options
-from gitgalaxy.tools.cobol_to_java.det.source import logical_lines
+from gitgalaxy.tools.cobol_to_java.det.source import logical_lines, program_lines
 
 
 def kept(lines, defines=None):
@@ -59,22 +59,23 @@ def test_nesting_and_directives_in_an_inactive_branch_are_ignored():
         "e",
     ]
     assert kept(src) == ["c", "d", "e"]  # Y was defined only in the branch not taken
-    assert kept(src, {"X": Decimal(1)}) == ["a", "e"]
+    assert kept([">>DEFINE X AS 1", *src]) == ["a", "e"]
 
 
-def test_option_beats_the_directive_unless_override_and_parameter_reads_the_option():
-    src = [
-        ">>DEFINE V AS 1",
-        ">>IF V = 9",
-        "nine",
-        ">>END-IF",
-        ">>DEFINE W AS 1 OVERRIDE",
-        ">>IF W = 1",
-        "one",
-        ">>END-IF",
-    ]
-    assert kept(src, {"V": Decimal(9), "W": Decimal(7)}) == ["nine", "one"]
-    assert kept([">>DEFINE P AS PARAMETER", ">>IF P = 'Z'", "z", ">>END-IF"], {"P": "Z"}) == ["z"]
+def test_an_option_is_read_only_through_as_parameter():
+    # IBM (DEFINE option): an option no `>>DEFINE name AS PARAMETER` asks for is ignored; the source literal stands
+    opts = {"V": Decimal(9), "P": "Z"}
+    assert kept([">>IF V DEFINED", "yes", ">>ELSE", "no", ">>END-IF"], opts) == ["no"]
+    assert kept([">>DEFINE V AS 1", ">>IF V = 1", "one", ">>END-IF"], opts) == ["one"]
+    assert kept([">>DEFINE P AS PARAMETER", ">>IF P = 'Z'", "z", ">>END-IF"], opts) == ["z"]
+    # AS PARAMETER with no option: the name is not defined (IBM), not an error
+    assert kept([">>DEFINE Q AS PARAMETER", ">>IF Q IS NOT DEFINED", "none", ">>END-IF"], opts) == ["none"]
+
+
+def test_redefinition_needs_override_unless_the_value_is_the_same():
+    assert kept(
+        [">>DEFINE W AS 1", ">>DEFINE W AS 1", ">>DEFINE W AS 2 OVERRIDE", ">>IF W = 2", "two", ">>END-IF"]
+    ) == ["two"]
 
 
 @pytest.mark.parametrize(
@@ -85,7 +86,9 @@ def test_option_beats_the_directive_unless_override_and_parameter_reads_the_opti
         [">>IF A DEFINED", "x"],  # left open
         [">>IF A = 1", ">>END-IF"],  # relation on an undefined name
         [">>DEFINE A AS 1", ">>IF A = 'x'", ">>END-IF"],  # numeric against alphanumeric
-        [">>DEFINE A AS PARAMETER"],  # no option value
+        [">>DEFINE A AS 1", ">>DEFINE A AS 2"],  # another value without OVERRIDE
+        [">>DEFINE A AS 'X'", ">>IF A < 'Y'", ">>END-IF"],  # ordering on alphanumerics
+        [">>DEFINE A AS 1 2"],
         [">>DEFINE A OFF"],
         [">>DEFINE A AS TRUE"],
         [">>EVALUATE X"],
@@ -109,6 +112,7 @@ def test_logical_lines_fixed_drops_branches_not_taken_with_their_continuations_a
     raw = [
         "       CBL DEFINE(PROD=1)",
         "       IDENTIFICATION DIVISION.",
+        "      >>DEFINE PROD AS PARAMETER",
         "      >>IF PROD = 1",
         "       DISPLAY 'LIVE'.",
         "      >>ELSE",
@@ -121,7 +125,7 @@ def test_logical_lines_fixed_drops_branches_not_taken_with_their_continuations_a
     assert [ln.text.strip() for ln in logical_lines(raw, "P.cbl")] == [
         "IDENTIFICATION DIVISION.", "DISPLAY 'LIVE'.", "STOP RUN."
     ]  # fmt: skip
-    assert [ln.line for ln in logical_lines(raw, "P.cbl")] == [2, 4, 10]
+    assert [ln.line for ln in logical_lines(raw, "P.cbl")] == [2, 5, 11]
 
 
 def test_logical_lines_free_format_and_unterminated_if_names_its_file():
@@ -129,3 +133,18 @@ def test_logical_lines_free_format_and_unterminated_if_names_its_file():
     assert [ln.text.strip() for ln in logical_lines(raw, "/x/P.cbl")] == ["yes"]
     with pytest.raises(ConditionalCompilation, match=r"P\.cbl"):
         logical_lines(["      >>IF A DEFINED", "       X."], "/x/P.cbl")
+
+
+def test_a_directive_in_a_copy_member_is_refused_by_name(tmp_path):
+    # the member is read alone: the program's >>DEFINE at the COPY is not known there, so `X IS DEFINED` cannot be
+    # answered; a member without directives still expands
+    prog = tmp_path / "P.cbl"
+    prog.write_text(
+        "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P.\n      >>DEFINE X AS 1\n"
+        "       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       COPY M.\n"
+    )
+    (tmp_path / "M.cpy").write_text("       01 A PIC X.\n")
+    assert [ln.text.strip() for ln in program_lines(prog, [])][-1] == "01 A PIC X."
+    (tmp_path / "M.cpy").write_text("      >>IF X IS DEFINED\n       01 A PIC X.\n      >>END-IF\n")
+    with pytest.raises(ConditionalCompilation, match=r"M\.cpy:1: >>IF: conditional compilation in a COPY member"):
+        program_lines(prog, [])

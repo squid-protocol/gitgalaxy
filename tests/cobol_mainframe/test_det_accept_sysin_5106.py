@@ -13,6 +13,8 @@ import sys
 from pathlib import Path
 
 import pytest
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
@@ -78,7 +80,7 @@ def _run(tmp_path: Path, stdin: bytes, accepts: int = 1) -> subprocess.Completed
     )
     (src / "Main.java").write_text(f"public class Main {{ public static void main(String[] a) {{ {body} }} }}\n")
     jdk = _jdk()
-    subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+    javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
                     *map(str, src.rglob("*.java"))], check=True)  # fmt: skip
     return subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp",  # noqa: S603
                            str(tmp_path / "classes"), "Main"], input=stdin, capture_output=True)  # fmt: skip

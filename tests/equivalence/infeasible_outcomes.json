@@ -258,6 +258,26 @@
     "reason": "`IF ABEND-MSG EQUAL LOW-VALUES`: ABEND-MSG is `PIC X(72) VALUE SPACES` (CSMSG02Y, lines 28-29), outside the items INITIALIZEd at lines 254-256, and the program writes it only at line 860 (a non-blank literal). It is never LOW-VALUES."
    }
   ],
+  "carddemo-dailyval": [
+   {
+    "unit": "MAIN-PARA",
+    "line": 165,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "C",
+    "reason": "`IF END-OF-DAILY-TRANS-FILE = 'N'` (the outer test of the read loop) runs only inside `PERFORM UNTIL END-OF-DAILY-TRANS-FILE = 'Y'` (line 164), so END-OF-DAILY-TRANS-FILE is not 'Y' on entry; END-OF-DAILY-TRANS-FILE has VALUE 'N' and the only statement that writes it is `MOVE 'Y' TO END-OF-DAILY-TRANS-FILE` (line 217), so it holds only 'N' or 'Y' and the false outcome (neither) is never reached"
+   }
+  ],
+  "carddemo-intcalc": [
+   {
+    "unit": "PROCEDURE-DIVISION",
+    "line": 189,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "C",
+    "reason": "`IF END-OF-FILE = 'N'` (the outer test of the read loop) runs only inside `PERFORM UNTIL END-OF-FILE = 'Y'` (line 188), so END-OF-FILE is not 'Y' on entry; END-OF-FILE has VALUE 'N' and the only statement that writes it is `MOVE 'Y' TO END-OF-FILE` (line 340), so it holds only 'N' or 'Y' and the false outcome (neither) is never reached"
+   }
+  ],
   "carddemo-menu": [
    {
     "unit": "PROCESS-ENTER-KEY",
@@ -282,6 +302,46 @@
     "outcome": "WHEN@297",
     "family": "C",
     "reason": "`EVALUATE WS-IDX` `WHEN 12` inside `PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > CDEMO-MENU-OPT-COUNT` (264-265): the count is the constant 11 (COMEN02Y line 21 `05 CDEMO-MENU-OPT-COUNT PIC 9(02) VALUE 11`), never written by COMEN01C, and the loop body does not change WS-IDX, so WS-IDX takes only 1-11."
+   }
+  ],
+  "carddemo-posttran": [
+   {
+    "unit": "PROCEDURE-DIVISION",
+    "line": 203,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "C",
+    "reason": "`IF END-OF-FILE = 'N'` (the outer test of the read loop) runs only inside `PERFORM UNTIL END-OF-FILE = 'Y'` (line 202), so END-OF-FILE is not 'Y' on entry; END-OF-FILE has VALUE 'N' and the only statement that writes it is `MOVE 'Y' TO END-OF-FILE` (line 361), so it holds only 'N' or 'Y' and the false outcome (neither) is never reached"
+   }
+  ],
+  "carddemo-readcard": [
+   {
+    "unit": "PROCEDURE-DIVISION",
+    "line": 75,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "C",
+    "reason": "`IF END-OF-FILE = 'N'` (the outer test of the read loop) runs only inside `PERFORM UNTIL END-OF-FILE = 'Y'` (line 74), so END-OF-FILE is not 'Y' on entry; END-OF-FILE has VALUE 'N' and the only statement that writes it is `MOVE 'Y' TO END-OF-FILE` (line 108), so it holds only 'N' or 'Y' and the false outcome (neither) is never reached"
+   }
+  ],
+  "carddemo-readcust": [
+   {
+    "unit": "PROCEDURE-DIVISION",
+    "line": 75,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "C",
+    "reason": "`IF END-OF-FILE = 'N'` (the outer test of the read loop) runs only inside `PERFORM UNTIL END-OF-FILE = 'Y'` (line 74), so END-OF-FILE is not 'Y' on entry; END-OF-FILE has VALUE 'N' and the only statement that writes it is `MOVE 'Y' TO END-OF-FILE` (line 108), so it holds only 'N' or 'Y' and the false outcome (neither) is never reached"
+   }
+  ],
+  "carddemo-readxref": [
+   {
+    "unit": "PROCEDURE-DIVISION",
+    "line": 75,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "C",
+    "reason": "`IF END-OF-FILE = 'N'` (the outer test of the read loop) runs only inside `PERFORM UNTIL END-OF-FILE = 'Y'` (line 74), so END-OF-FILE is not 'Y' on entry; END-OF-FILE has VALUE 'N' and the only statement that writes it is `MOVE 'Y' TO END-OF-FILE` (line 108), so it holds only 'N' or 'Y' and the false outcome (neither) is never reached"
    }
   ],
   "carddemo-report": [
@@ -418,6 +478,16 @@
     "outcome": "true",
     "family": "G",
     "reason": "`IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (lines 95 and 126 move 'COSGN00C' / 'COTRN00C', line 117 'COMEN01C', and line 120 moves CDEMO-FROM-PROGRAM only after line 116 tested it is neither SPACES nor LOW-VALUES; both fields PIC X(08), COCOM01Y). COTRN01C never moves SPACES or LOW-VALUES into it in between."
+   }
+  ],
+  "carddemo-trnrpt": [
+   {
+    "unit": "PROCEDURE-DIVISION",
+    "line": 171,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "C",
+    "reason": "`IF END-OF-FILE = 'N'` (the outer test of the read loop) runs only inside `PERFORM UNTIL END-OF-FILE = 'Y'` (line 170), so END-OF-FILE is not 'Y' on entry; END-OF-FILE has VALUE 'N' and the only statement that writes it is `MOVE 'Y' TO END-OF-FILE` (lines 236 and 264), so it holds only 'N' or 'Y' and the false outcome (neither) is never reached"
    }
   ],
   "carddemo-useradd": [

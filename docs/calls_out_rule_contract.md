@@ -96,7 +96,7 @@ one exception to self-removal: a step that runs a program of its own name is not
 `calls_out` is the one rule that runs after `_apply_literal_shield`, so a name inside a string
 literal is not a call. This is a documented exception to STREAM_CONTRACT corollary 1, and tcl's
 brace-quoted strings are the gap (#3359). A language with no by-name invocation form, or one where
-only an AST could tell (shell, markup, data, config), sets `CALLS_OUT_UNSUPPORTED` and records an
+only an AST could tell (markup, data, config), sets `CALLS_OUT_UNSUPPORTED` and records an
 empty list, never a heuristic.
 
 **C8 · A call belongs to the innermost named unit around it** (#3641, decided by Joe
@@ -167,7 +167,7 @@ fixed it: the census below predates that fix.
 | json | blind | -- | -- | agrees (C7: declared blind) |
 | kotlin | C-style | 28 | 35 | A: `@Throws(`, `@JvmName(` |
 | livecode | command position | 1,063 | 2,527 | K: `private` 250, `public` 99, `command` 95, `variable`, `case`, `break`, `module`, `handler`, `default`, `constant` (~800 of 2,527) |
-| lua | C-style | 1,370 | 3,301 | K: `not (`/`or (`/`and (`; D (`local function f`, 55) |
+| lua | C-style | 1,370 | 3,301 | K: `not (`/`or (`/`and (`; D (`local function f`, 55). A call after `..` or `not` is captured (pinned, #5640) |
 | m4 | C-style | 39 | 142 | agrees (macro invocations are calls) |
 | makefile | own | 1 | 0 | agrees (`$(call f)`) |
 | markdown | blind | -- | -- | agrees (C7: declared blind) |
@@ -187,12 +187,12 @@ fixed it: the census below predates that fix.
 | ruby | C-style | 132 | 111 | agrees; B (`super`). Since #3377 its own family: paren-less calls took Level-1 recall 34.4% -> 92.9% |
 | rust | C-style | 2,113 | 7,898 | K: `pub(crate)` 81, `let (a, b)` 68, `fn(` pointer types; D (nested `fn`, 78); variants `Some(`/`Ok(` are constructors (C3) |
 | scala | C-style | 541 | 3,434 | K: `case (` 55, `val (` 27; D (nested def, 72); A (`@deprecated(`) |
-| scheme | lisp | 83 | 3,480 | K: special forms `let*`/`let-values`/`case-lambda`/`syntax-case`/`define-record-type` and binding lists `((x 1))` |
-| shell | blind | -- | -- | agrees (C7: declared blind) |
+| scheme | lisp | 83 | 3,480 | K: special forms `let*`/`let-values`/`case-lambda`/`syntax-case`/`define-record-type` and binding lists `((x 1))` (the first name of a `let`/`let*`/`letrec` list is skipped, #5640; a named let and later bindings still leak) |
+| shell | own | -- | -- | command words are calls since #5640 (a language-local rule, no longer blind), one-line `name() { cmd; }` units, and `time`/`exec`/`nohup`/`nice`/`sudo` prefixes name the command after them; the resolver keeps the ones naming a script's functions. Not audited on the crucible |
 | solidity | C-style | 105 | 321 | K: `returns (` 74, `assembly`, `override(` |
 | sqlite | blind | -- | -- | agrees (C7: declared blind) |
 | swift | C-style | 133 | 319 | A: `@available(`, `@escaping`, `@Sendable` (25) |
-| tcl | command position | 394 | 1,110 | S: SQL keywords inside brace-quoted strings in command position (`SELECT`, `WHERE`) |
+| tcl | command position | 394 | 1,110 | S: SQL keywords inside brace-quoted strings in command position (`SELECT`, `WHERE`). A command after `}` in `foreach`/`namespace eval` bodies is captured (pinned, #5640); a one-line `switch` arm body (`x { doX }`) is not (the label reads as the command) |
 | td | blind | -- | -- | agrees (C7: declared blind) |
 | typescript | C-style | 5,770 | 13,765 | K: `async (` 34; D (nested `function`, 172); B |
 | xml | blind | -- | -- | agrees (C7: declared blind) |

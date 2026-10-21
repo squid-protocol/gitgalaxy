@@ -310,3 +310,23 @@ def test_the_generated_tranview_screen_sends_its_fset_id_field_empty_in_some_sce
     typed = [s["receive"]["COTRN1A"].get("TRNIDINI") for s in out if s["name"].startswith(prefix)]
     assert "" in typed and any(typed)
     assert None not in typed
+
+
+@pytest.mark.parametrize(
+    ("case_dir", "map_name", "typed_field"),
+    [("carddemo-cardview-generated", "CCRDSLA", "CARDSIDI"), ("carddemo-userdel-generated", "COUSR3A", "USRIDINI")],
+)
+def test_the_generated_screen_cases_type_their_map_from_the_bms_source(case_dir, map_name, typed_field):
+    """The hand-written receive of cardview and userdel moved to `@bms` (#4506): the map input is generated from the
+    BMS source, the one field a case names beside `@bms` is drawn from its file (with misses), the aid list turns
+    through more than ENTER, and each hand-written scenario left carries its reason."""
+    import json
+
+    case = json.loads((Path(__file__).resolve().parents[1] / "equivalence" / case_dir / "case.json").read_text("utf-8"))
+    gen = case["scenario_generate"]
+    rule = gen["receive"][map_name]
+    assert rule["@bms"] == {"bad": 0.1, "empty": 0.3}
+    assert rule[typed_field]["from"].rsplit(".", 1)[0] in case["datasets"]
+    assert rule[typed_field]["miss"] > 0
+    assert len(set(gen["aid"])) > 2 and case["port_from"] == case_dir.removesuffix("-generated")
+    assert case["scenarios"] and all(s.get("why") for s in case["scenarios"])

@@ -557,6 +557,12 @@ def _past_from(length: str | None, area: str | None, what: str) -> list[str]:
             "    MOVE 98 TO RETURN-CODE", "    STOP RUN", "END-IF"]  # fmt: skip
 
 
+def _pad_move(area: str) -> list[str]:
+    """MOVE area TO GG-PADQ(1:LENGTH OF area), split across lines when a long name would run past column 72."""
+    one = f"MOVE {area} TO GG-PADQ(1:LENGTH OF {area})"
+    return [one] if len(one) <= 48 else [f"MOVE {area}", "    TO GG-PADQ(1:", f"    LENGTH OF {area})"]
+
+
 def _write_from(length: str | None, area: str, what: str, call: list[str]) -> list[str]:
     """X6 (ASSUMED, owner 2026-10-21): a WRITEQ whose LENGTH runs past its FROM item writes FROM's bytes then SPACES to
     LENGTH. IBM takes the bytes that follow the item in storage (undefined); GnuCOBOL's layout differs, so the fill is
@@ -569,7 +575,7 @@ def _write_from(length: str | None, area: str, what: str, call: list[str]) -> li
             f"        DISPLAY '{what} LENGTH > FROM: not modelled'",
             "        MOVE 98 TO RETURN-CODE", "        STOP RUN", "    END-IF",
             "    MOVE SPACES TO GG-PADQ",
-            f"    MOVE {area} TO GG-PADQ(1:LENGTH OF {area})",
+            *["    " + ln for ln in _pad_move(area)],
             *["    " + ln for ln in call[:-1] + [call[-1].replace(f"BY REFERENCE {area}", "BY REFERENCE GG-PADQ")]],
             "ELSE", *["    " + ln for ln in call], "END-IF"]  # fmt: skip
 

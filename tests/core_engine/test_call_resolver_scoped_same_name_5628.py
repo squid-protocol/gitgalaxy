@@ -65,6 +65,21 @@ def test_csharp_explicit_interface_impl_reaches_the_class_method(lang, path):
     assert all(src_name != "Rec" for src_name, _, _ in edges)
 
 
+def test_csharp_block_bodied_explicit_interface_impl_reaches_the_class_method():
+    # the helion shapes (VertexAllocator, ArchiveMapiterator, ConsoleCommands): a block body, not `=>`
+    src = (
+        "class A : IEnumerable {\n"
+        "  public IEnumerator<int> GetEnumerator() {\n"
+        "    yield return 1;\n"
+        "  }\n"
+        "  IEnumerator IEnumerable.GetEnumerator() {\n"
+        "    return GetEnumerator();\n"
+        "  }\n"
+        "}\n"
+    )
+    assert ("IEnumerable.GetEnumerator", "GetEnumerator", 2) in _edges("csharp", src, "a.cs")
+
+
 def _scan(files: dict[str, str]) -> tuple[list[dict], list[dict]]:
     parsed_files = []
     for path, code in files.items():

@@ -47,8 +47,10 @@ def test_no_matrix_job_restores_the_newest_durations_itself():
 
 def test_the_restore_that_picks_the_newest_runs_once_per_workflow_run():
     pickers = [(wf, jid) for wf, jid, job, step in durations_restores() if "restore-keys" in (step.get("with") or {})]
-    # det-sweep `det` is the single nightly merge job (not a shard): it extends the newest file, then saves it
-    assert sorted(pickers) == [("det-sweep", "det"), ("det-sweep", "plan"), ("smoke-test", "durations")]
+    # det-sweep `det` is the single nightly merge job (not a shard): it extends the newest file, then saves it; the plan
+    # picks the newest of each namespace (#5882: the Db2 cases' own, which Evidence Refresh's single `db2` merge job extends)
+    assert sorted(pickers) == [("det-sweep", "det"), ("det-sweep", "plan"), ("det-sweep", "plan"),
+                               ("evidence-refresh", "db2"), ("smoke-test", "durations")]  # fmt: skip
 
 
 @pytest.mark.parametrize("job", ["shard", "db2"])
@@ -61,7 +63,19 @@ def test_det_sweep_shards_balance_by_the_plans_durations_artifact(job):
 
 
 def test_evidence_refresh_shards_read_no_durations_cache():
-    assert not [t for t in durations_restores() if t[0] == "evidence-refresh"]
+    """#5114: Evidence Refresh's shards balance by the committed file at the pinned commit. Its one durations restore is
+    the `db2` merge job's (#5882), which writes the Db2 cases' seconds and never balances anything."""
+    found = [(jid, step) for wf, jid, job, step in durations_restores() if wf == "evidence-refresh"]
+    assert [jid for jid, _ in found] == ["db2"]
+    assert not (load("evidence-refresh")["jobs"]["db2"].get("strategy") or {}).get("matrix")
+    assert found[0][1]["with"]["restore-keys"].strip() == "det-db2-durations-"
+
+
+def test_the_db2_durations_namespace_is_not_a_prefix_match_of_the_main_one():
+    """#5882: restore-keys match by prefix, so `det-durations-` would also restore a `det-durations-db2-...` entry."""
+    keys = {str((step.get("with") or {}).get("restore-keys", "")).strip() for *_, step in durations_restores()}
+    assert "det-db2-durations-" in keys and "det-durations-" in keys
+    assert not "det-db2-durations-".startswith("det-durations-")
 
 
 def test_smoke_test_parts_restore_the_exact_key_the_durations_job_chose():

@@ -99,6 +99,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import cobol_coverage as cov  # noqa: E402 -- #4023
 
 # The primitives every harness module shares live in a leaf module (no cycle); re-exported here.
+import equivalence_common
 import equivalence_db2
 import equivalence_ims
 import equivalence_mvs
@@ -806,7 +807,8 @@ def main() -> int:
         for d in args.option_differences:
             print(f"{case['name']}: declared difference -- {d['note']}")
     if case.get("db2"):  # a database of the pool to this case alone (parallel runs take the others, or wait)
-        equivalence_db2.hold_lock()
+        with equivalence_common.phase("db2_lock_wait"):  # #5882
+            equivalence_db2.hold_lock()
     work = args.keep or Path(tempfile.mkdtemp(prefix=f"equiv_{args.case}_"))
     if args.reuse:
         reuse(work, args.reuse)
@@ -829,8 +831,10 @@ def main() -> int:
                                                  one_jvm=args.one_jvm))  # fmt: skip
     faults = selected_faults(case, args.faults)
     if case.get("db2"):  # the case's tables, created from its DDL on the harness's Db2 (equivalence_db2.py)
-        equivalence_db2.create(case, corpus)
-    cobol = run_cobol(case, corpus, work / "cobol")
+        with equivalence_common.phase("db2_create"):  # #5882
+            equivalence_db2.create(case, corpus)
+    with equivalence_common.phase("cobol_run"):
+        cobol = run_cobol(case, corpus, work / "cobol")
     if case.get("db2") and args.sql_faults != "none":  # #4173: the case's SQL faults, resolved to their statements
         import equivalence_cics as ec
 
@@ -843,7 +847,8 @@ def main() -> int:
     cobol_faults, unrunnable = {}, {}
     for f in faults:
         try:
-            cobol_faults[f["name"]] = run_cobol(case, corpus, work / "faults" / f["name"] / "cobol", f)
+            with equivalence_common.phase("cobol_fault_runs"):  # #5882
+                cobol_faults[f["name"]] = run_cobol(case, corpus, work / "faults" / f["name"] / "cobol", f)
         except RuntimeError as e:
             # #5561: a derived SQL fault whose oracle run is "not runnable faithfully" (BANKDATA's failed DELETE
             # shows SQLERRMC(1:SQLERRML), length 0 under an injected fault: X8) has no oracle: named in the report,
@@ -875,12 +880,13 @@ def main() -> int:
         return not compare_run(case, corpus, cobol_faults[f["name"]] if f else cobol, java, fault=f)["ok"]
 
     try:
-        runs = ej.run_java_environments(case, corpus, work / "java", work / "cobol", envs,
-                                        port=not args.generated_only, port_dir=args.port,
-                                        faults=tuple((f["name"], fault_plan(f), "\n".join(f.get("sql_plan", [])), run_parm(case, f) if f.get("parm") is not None else "")
-                                                     for f in faults),
-                                        stop=differs if args.first_difference else None,
-                                        entries=tuple(entries), one_jvm=args.one_jvm)  # fmt: skip
+        with equivalence_common.phase("java_runs"):  # #5882: the build, then every run (environments, faults, entries)
+            runs = ej.run_java_environments(case, corpus, work / "java", work / "cobol", envs,
+                                            port=not args.generated_only, port_dir=args.port,
+                                            faults=tuple((f["name"], fault_plan(f), "\n".join(f.get("sql_plan", [])), run_parm(case, f) if f.get("parm") is not None else "")
+                                                         for f in faults),
+                                            stop=differs if args.first_difference else None,
+                                            entries=tuple(entries), one_jvm=args.one_jvm)  # fmt: skip
     except RuntimeError as e:  # the port does not compile, or its run fails: the loop's feedback, not a crash
         failed = java_failure_report(case, work, str(e))
         (work / "report.json").write_text(json.dumps(failed, indent=2) + "\n", encoding="utf-8")
@@ -922,7 +928,8 @@ def main() -> int:
     traces = [work / "cobol" / cov.TRACE_NAME] + [
         work / "faults" / f["name"] / "cobol" / cov.TRACE_NAME for f in faults
     ]
-    report["coverage"] = cobol_coverage(case, corpus, traces, work / "coverage.json")  # #4023, every run together
+    with equivalence_common.phase("coverage"):
+        report["coverage"] = cobol_coverage(case, corpus, traces, work / "coverage.json")  # #4023, every run together
     if unrunnable:  # only when non-empty (python-test-traps.md): a case with none keeps its report as it was
         report["unrunnable_faults"] = unrunnable
     report["runs"] = 1 + len(faults)
@@ -963,6 +970,7 @@ def main() -> int:
 def _recorded(args: argparse.Namespace, work: Path, rc: int) -> int:
     """#4048 `--record`: the evidence record of the run just made (report.json in `work`), proven or not."""
     report_file = work / "report.json"
+    equivalence_common.write_phases(work)  # #5882: where this proof's time went (phases.json, not the report)
     if getattr(args, "option_differences", None) and report_file.is_file():  # #4706: what the proof cannot claim
         report = json.loads(report_file.read_text(encoding="utf-8"))
         report["option_differences"] = args.option_differences

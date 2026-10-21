@@ -183,9 +183,9 @@ survived of 150) was recorded before this fix.
 
 **Re-recorded (2026-10-21, #4047).** The scored cases with a det-translated LINKed program are exactly five (the five
 below; the other 38 scored cases have no `"programs"`), each re-run with `--sample 150 --seed 0 --jobs 2 --record`
-on the fixed code. cbsa-inqacc fell from 131 killed / 0 survived to **63 killed / 68 survived** (51 case gaps: no
-scenario declares a SQL or CICS fault, so the abend path and the ABNDPROC record are never run; 11 equivalent; 6
-unreachable, widths beyond the DB2 column). The four GenApp cases did not move except genapp-lgupdb01 (67 -> 68 killed).
+on the fixed code. cbsa-inqacc fell from 131 killed / 0 survived to **63 killed / 68 survived** (43 case gaps: no
+scenario declares a SQL or CICS fault, so the abend path and the ABNDPROC record are never run; 11 equivalent; 14
+unreachable: widths beyond the DB2 column, and the facade entry no proof calls). The four GenApp cases did not move except genapp-lgupdb01 (67 -> 68 killed).
 
 ## Scores
 
@@ -273,7 +273,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COUSR03C (carddemo-userdel) | equivalence | 100/340 | 67/87 (77%) | 67/67 (100%) | 0 / 0 / 17 / 3 / 0 |
 | COUSR00C (carddemo-userlist) | equivalence | 100/493 | 69/100 (69%) | 69/92 (75%) | 23 / 0 / 8 / 0 / 0 |
 | COUSR02C (carddemo-userupd) | equivalence | 100/481 | 57/82 (70%) | 57/59 (97%) | 2 / 0 / 14 / 9 / 0 |
-| INQACC (cbsa-inqacc) | equivalence | 150/470 | 63/131 (48%) | 63/114 (55%) | 51 / 0 / 11 / 6 / 0 |
+| INQACC (cbsa-inqacc) | equivalence | 150/470 | 63/131 (48%) | 63/106 (59%) | 43 / 0 / 11 / 14 / 0 |
 | UPDACC (cbsa-updacc) | equivalence | 133/133 | 95/133 (71%) | 95/110 (86%) | 15 / 0 / 17 / 6 / 0 |
 | LGAPDB01 (genapp-lgapdb01) | equivalence | 150/444 | 58/137 (42%) | 58/129 (45%) | 71 / 0 / 1 / 7 / 0 |
 | LGAPVS01 (genapp-lgapvs01) | equivalence | 150/184 | 72/125 (58%) | 72/113 (64%) | 0 / 41 / 1 / 11 / 0 |
@@ -303,20 +303,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 3697 run | **2215/3347 (66%)** | **2215/2720 (81%)** | 320 / 185 / 408 / 219 / 0 |
-| **all estate** | | 4201 run | **2534/3823 (66%)** | **2534/3074 (82%)** | 355 / 185 / 496 / 253 / 0 |
+| **all equivalence** | | 3697 run | **2215/3347 (66%)** | **2215/2712 (82%)** | 312 / 185 / 408 / 227 / 0 |
+| **all estate** | | 4201 run | **2534/3823 (66%)** | **2534/3066 (83%)** | 347 / 185 / 496 / 261 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
 | AOR | 182/233 (78%) | 182/208 (88%) |
 | BDM | 24/45 (53%) | 24/27 (89%) |
 | CON | 344/758 (45%) | 344/461 (75%) |
-| COR | 130/242 (54%) | 130/188 (69%) |
+| COR | 130/242 (54%) | 130/187 (70%) |
 | DEL | 381/589 (65%) | 381/467 (82%) |
-| LIT | 535/733 (73%) | 535/622 (86%) |
+| LIT | 535/733 (73%) | 535/617 (87%) |
 | NEG | 474/546 (87%) | 474/522 (91%) |
 | RET | 50/99 (51%) | 50/87 (57%) |
-| ROR | 414/578 (72%) | 414/492 (84%) |
+| ROR | 414/578 (72%) | 414/490 (84%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|

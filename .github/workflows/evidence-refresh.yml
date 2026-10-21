@@ -804,8 +804,167 @@ jobs:
           echo "::error title=Evidence refresh::a record's proof failed or could not run -- see the summary"
           exit 1
 
+  # #5862: the stale det_mutation ledgers (tests/equivalence/det_mutation/), renewed on the nightly so `current` holds without a
+  # PR per port. `det_mutation.py refresh` translates the stale cases again; where the det port's bytes are unchanged it
+  # re-runs ONLY the recorded survivors (same seed, fast mode) and carries every other verdict. Exit 2 = a port moved (a person
+  # runs `det_mutation.py run`): a warning, it must not hold back the other records. Exit 1 = a stated claim the re-run killed,
+  # or an error result: the job fails, the bot PR is opened and not auto-merged. L5 stays strict: no stale carry (owner, 2026-10-21).
+  det-mutation:
+    needs: lane
+    # not when the lane job says a push run stands down for a full run (#4743)
+    if: ${{ needs.lane.result == 'success' && needs.lane.outputs.defer != 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+      PYTHONUTF8: "1"
+      GITGALAXY_ORACLE_STRICT: "1"
+      GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          ref: ${{ needs.lane.outputs.sha }}  # the run's pinned commit of main (#4640, #4744)
+          fetch-depth: 0  # a record's mutation section is judged against its commit's inputs (git history)
+          persist-credentials: false
+
+      - name: Clone cics-crucible at the pin
+        run: |
+          # The pin is tests/crucible_pins.toml (one source; a fork PR reads it too).
+          ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get cics)
+          git init -q cics-crucible
+          git -C cics-crucible remote add origin https://github.com/squid-protocol/cics-crucible.git
+          if echo "$ref" | grep -Eq '^[0-9a-f]{40}$'; then
+            git -C cics-crucible fetch -q --depth 1 origin "$ref"
+          else
+            git -C cics-crucible fetch -q --depth 1 origin "+refs/tags/$ref:refs/tags/$ref"
+          fi
+          git -C cics-crucible checkout -q --detach FETCH_HEAD
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: |
+            gitgalaxy/pyproject.toml
+            gitgalaxy/ci/requirements/*.txt
+
+      - name: Install GitGalaxy
+        run: |
+          python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
+          # [translator]: tree-sitter-language-pack, which the det translator parses COBOL with. Without it every det
+          # proof fails to translate and the sweep proves 0/40 (#4270), as run 37661913700 did.
+          pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
+          pip install --no-build-isolation -e "./gitgalaxy[translator]"
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: evidence-m2-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py') }}
+          restore-keys: |
+            evidence-m2-
+            det-sweep-m2-
+            cics-crucible-m2-
+            java-compile-m2-
+
+      - name: Cache the pinned corpora
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
+
+      - name: Fetch the pinned corpora
+        run: |
+          cd gitgalaxy
+          rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
+          PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
+
+      # The oracle image is built once per Dockerfile and kept (docker save, under the Dockerfile's hash; det-sweep.yml's
+      # cache): every shard loads it instead of building it. The fingerprint check is still the pin (#4309): a stale image
+      # fails it.
+      - name: Cache the GnuCOBOL oracle image
+        id: image
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/gnucobol-image.tar
+          key: gnucobol-image-${{ hashFiles('gitgalaxy/tests/equivalence/gnucobol.Dockerfile') }}
+
+      - name: Load or build the oracle image, and check it against its pin (#4309)
+        env:
+          IMAGE_CACHE_HIT: ${{ steps.image.outputs.cache-hit }}
+        run: |
+          if [ "$IMAGE_CACHE_HIT" = "true" ]; then
+            docker load -i "$RUNNER_TEMP/gnucobol-image.tar"
+          else
+            docker build -q -t gitgalaxy-gnucobol:3 -f gitgalaxy/tests/equivalence/gnucobol.Dockerfile gitgalaxy/tests/equivalence
+            docker save -o "$RUNNER_TEMP/gnucobol-image.tar" gitgalaxy-gnucobol:3
+          fi
+          python gitgalaxy/tests/tools/equivalence_oracle.py --strict
+          echo "GITGALAXY_ORACLE_PREBUILT=1" >> "$GITHUB_ENV"  # the harness need not rebuild it per proof
+
+      - name: Renew the stale det mutation ledgers (#5862)
+        id: detmut
+        continue-on-error: true
+        shell: bash  # -eo pipefail: the refresh's exit status, not tee's
+        run: |
+          cd gitgalaxy
+          set +e
+          python tests/tools/det_mutation.py refresh --work "$RUNNER_TEMP/detmut" | tee "$RUNNER_TEMP/detmut.txt"
+          rc=${PIPESTATUS[0]}
+          if [ "$rc" -eq 2 ]; then
+            echo "::warning title=det mutation::a det port moved since its ledger was cut: run det_mutation.py run for it (see the summary)"
+            rc=0
+          fi
+          exit "$rc"
+
+      - name: Stage the ledgers this job wrote
+        if: always()
+        shell: bash
+        run: |
+          out="$RUNNER_TEMP/detmut-out"
+          mkdir -p "$out/records"
+          cd gitgalaxy
+          git ls-files -z --modified --others --exclude-standard -- 'tests/equivalence/det_mutation/*.json' \
+            | while IFS= read -r -d '' f; do mkdir -p "$out/records/$(dirname "$f")"; cp "$f" "$out/records/$f"; done
+          find "$out" -type f | sort
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Stale det mutation ledgers (#5862)"
+            echo '```'
+            cat "$RUNNER_TEMP/detmut.txt" 2>/dev/null || echo "(no output)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep the renewed ledgers
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: refresh-detmut
+          path: ${{ runner.temp }}/detmut-out
+          if-no-files-found: ignore
+          retention-days: 3
+
+      - name: Fail when a det mutation claim or result is wrong
+        if: steps.detmut.outcome == 'failure'
+        run: |
+          echo "::error title=det mutation::a stated survivor was killed by the re-run, or a result errored -- see the summary"
+          exit 1
+
+
   refresh:
-    needs: [lane, db2, sweep, records]
+    needs: [lane, db2, sweep, records, det-mutation]
     # runs whether the Db2 job ran (nightly, dispatch), was skipped (push) or failed: the non-Db2 refresh never waits on Db2's luck.
     # Not when the lane job says a push run stands down for a full run (#4743), and not when the lane job itself failed.
     if: ${{ !cancelled() && needs.lane.result == 'success' && needs.lane.outputs.defer != 'true' }}
@@ -970,6 +1129,27 @@ jobs:
           fi
           # (#4825: the pages are no longer committed here; evidence-pages.yml renders them from main after merge)
 
+      - name: Take the det mutation ledgers (#5862)
+        id: detmut_in
+        if: needs.det-mutation.result == 'success' || needs.det-mutation.result == 'failure'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: refresh-detmut
+          path: ${{ runner.temp }}/detmut-in
+        continue-on-error: true
+
+      - name: Put the renewed det mutation ledgers in place (#5862)
+        if: steps.detmut_in.outcome == 'success'
+        shell: bash
+        run: |
+          in="$RUNNER_TEMP/detmut-in/records/tests/equivalence/det_mutation"
+          if [ -d "$in" ]; then
+            # only ledger JSON, as regular files: nothing else from an artifact reaches the tree
+            bad=$(find "$RUNNER_TEMP/detmut-in" -type f ! -name '*.json' -o -type l)
+            if [ -n "$bad" ]; then echo "::error title=det mutation::unexpected files in the artifact: $bad"; exit 1; fi
+            cp -r "$in"/. gitgalaxy/tests/equivalence/det_mutation/
+          fi
+
       - name: Take the det sweep shards' results (#4744)
         id: sweep_in
         if: needs.sweep.result == 'success' || needs.sweep.result == 'failure'
@@ -1114,12 +1294,13 @@ jobs:
           delete-branch: true
           add-paths: |
             tests/equivalence/det_sweep_coverage/*.json
+            tests/equivalence/det_mutation/*.json
             tests/equivalence/*/evidence.json
             tests/cics_crucible/ports/*/*/evidence.json
 
       - name: Enable squash auto-merge on the bot PR
         # Only after a clean run: a proof that failed is recorded as not proven and needs a person (#4048).
-        if: steps.cpr.outputs.pull-request-number != '' && steps.cpr.outputs.pull-request-operation != 'closed' && needs.records.result == 'success' && needs.sweep.result == 'success' && steps.ledger_sweep.outcome == 'success' && (needs.db2.result == 'success' || needs.db2.result == 'skipped')
+        if: steps.cpr.outputs.pull-request-number != '' && steps.cpr.outputs.pull-request-operation != 'closed' && needs.records.result == 'success' && needs.det-mutation.result == 'success' && needs.sweep.result == 'success' && steps.ledger_sweep.outcome == 'success' && (needs.db2.result == 'success' || needs.db2.result == 'skipped')
         env:
           GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
           PR: ${{ steps.cpr.outputs.pull-request-number }}
@@ -1136,7 +1317,7 @@ jobs:
           echo "::warning title=Evidence refresh::auto-merge could not be enabled (checks never registered); PR #$PR left open"
 
       - name: Fail when a re-proof failed
-        if: needs.records.result != 'success' || needs.sweep.result != 'success' || steps.ledger_sweep.outcome == 'failure' || needs.db2.result == 'failure'
+        if: needs.records.result != 'success' || needs.det-mutation.result != 'success' || needs.sweep.result != 'success' || steps.ledger_sweep.outcome == 'failure' || needs.db2.result == 'failure'
         run: |
           echo "::error title=Evidence refresh::a record's proof, the det sweep or the Db2 job failed or could not run -- see the summary"
           exit 1

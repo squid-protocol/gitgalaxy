@@ -470,7 +470,9 @@ def refresh(cases: list[str], work: Path) -> int:
     fingerprint. Case / corpus / harness / oracle moved: re-run only the recorded survivors (same seed, operators,
     scope and mode) and carry the other verdicts; a survivor that now dies drops out of the survivors (a stated
     `equivalent` / `unreachable` one is a wrong claim: exit 1), one still surviving with the same Java line before /
-    after keeps its stated verdict. Mutants killed before are not re-proven (a case weakened since would not show)."""
+    after keeps its stated verdict. Mutants killed before are not re-proven (a case weakened since would not show).
+    Exit 1: a wrong claim, an error, a survivor not re-run. Exit 2: only that a port moved (a person runs `run`); the
+    scheduled lane (evidence-refresh.yml) warns on 2 and fails on 1."""
     import evidence as ev
     import mutation as mu
 
@@ -481,12 +483,12 @@ def refresh(cases: list[str], work: Path) -> int:
         print("det mutation: nothing stale")
         return 0
     det = translate(todo, work)
-    rc = 0
+    rc, port_moved = 0, False
     for case in todo:
         entry, port = ledger[case], det / case / "port"
         if not port.is_dir() or port_sha(port) != entry["inputs"]["port"]:
             print(f"{case}: the det port changed: re-run (det_mutation.py run {case} --work DIR)")
-            rc = 1
+            port_moved = True
             continue
         now = fingerprints(case)
         moved = stale(entry, now)
@@ -524,7 +526,7 @@ def refresh(cases: list[str], work: Path) -> int:
         for i in s["refuted"]:
             print(f"{case}: {i} is stated {stated(case)[i]['verdict']} but the re-run killed it: the claim is wrong")
             rc = 1
-    return rc
+    return rc or (2 if port_moved else 0)
 
 
 def state(case: str, triage: dict[str, dict[str, str]]) -> int:

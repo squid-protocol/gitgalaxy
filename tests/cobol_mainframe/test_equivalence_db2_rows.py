@@ -694,3 +694,36 @@ def test_lgipdb01_det_port_holds_on_generated_multi_table_rows_with_fk(tmp_path)
     assert len(sql) == 32 and all(q["equal"] == q["statements"] for q in sql)
     assert sum(1 for q in sql if q["statements"]) == 30
     assert {x["sqlcode"] for q in sql for x in q["cobol"]} >= {0, 100}
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_lgupdb01_det_port_holds_on_generated_multi_table_rows_with_fk(tmp_path):
+    """GenApp's update-policy service (LGUPDB01, LINKing LGUPVS01) on generated CUSTOMER, POLICY and type-table rows
+    joined by foreign keys: 19 requests name generated policies (the three types, the lowest and highest timestamps, a
+    NULL BROKERID and BROKERSREF read through their indicators), a stale LASTCHANGED, a type the policy does not hold,
+    a wrong customer and an unknown policy; every statement and SQLCODE answered alike on both sides, and the Db2 and
+    VSAM state after each task compared. Policies 4 and 5 (NULL ISSUEDATE / EXPIRYDATE: -305, then LGSTSQ, X6) are
+    not generated."""
+    import json
+    import shutil
+    import subprocess
+
+    if not shutil.which("docker"):
+        pytest.skip("no docker")
+    tool = Path(__file__).resolve().parents[1] / "tools" / "det_port.py"
+    proc = subprocess.run([sys.executable, str(tool), "run", "genapp-lgupdb01-generated", "--work", str(tmp_path)],  # noqa: S603
+                          capture_output=True, text=True, check=False)  # fmt: skip
+    assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
+    report = json.loads(next(tmp_path.glob("genapp-lgupdb01-generated/**/report.json")).read_text())
+    assert report["proven"] is True
+    assert report["db2_generated"] == {
+        "GENASA1.CUSTOMER": 10,
+        "GENASA1.POLICY": 12,
+        "GENASA1.ENDOWMENT": 3,
+        "GENASA1.HOUSE": 4,
+        "GENASA1.MOTOR": 4,
+        "GENASA1.COMMERCIAL": 3,
+    }
+    sql = [o["sql"] for o in report["outputs"].values() if "sql" in o]
+    assert len(sql) == 19 and all(q["equal"] == q["statements"] for q in sql)
+    assert {x["sqlcode"] for q in sql for x in q["cobol"]} == {0, 100}

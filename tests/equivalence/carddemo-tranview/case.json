@@ -349,6 +349,101 @@
     }
    },
    "why": "#4049 slice 3 (mutation survivors): the error screen for an empty transaction id redisplays the received processing date (a found record would overwrite it)"
+  },
+  {
+   "name": "full-commarea-carried",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "COTRN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-TRANID": "CT01",
+    "CDEMO-TO-PROGRAM": "COTRN01C",
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "FIRSTNAMEABCDEFGHIJKLMNO",
+    "CDEMO-CUST-MNAME": "MIDDLENAMEABCDEFGHIJKLMN",
+    "CDEMO-CUST-LNAME": "LASTNAMEABCDEFGHIJKLMNOPQ",
+    "CDEMO-ACCT-ID": 98765432101,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 4111111111111111,
+    "CDEMO-LAST-MAP": "COTRN1A",
+    "CDEMO-LAST-MAPSET": "COTRN01",
+    "CDEMO-CT01-TRNID-FIRST": "0000000000000011",
+    "CDEMO-CT01-TRNID-LAST": "0000000000000022",
+    "CDEMO-CT01-PAGE-NUM": 7,
+    "CDEMO-CT01-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CT01-TRN-SEL-FLG": "S",
+    "CDEMO-CT01-TRN-SELECTED": "0000000000683580"
+   },
+   "receive": {
+    "COTRN1A": {
+     "TRNIDINI": "0000000328781772"
+    }
+   },
+   "why": "#4628 slice 4 (det-port mutation survivors): every COMMAREA field set, the CT01 part too, so each field the program carries into its RETURN COMMAREA shows if the port drops, shifts or blanks it"
+  },
+  {
+   "name": "pf5-xctl-fails",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "COTRN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN1A": {
+     "TRNIDINI": "0000000328781772"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COTRN00C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4628 slice 4 (det-port mutation survivors): PGMIDERR on PF5's XCTL to the list: no HANDLE CONDITION, so the task ends"
+  },
+  {
+   "name": "invalid-key-header-fields-sent-back",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "COTRN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN1A": {
+     "TRNIDINI": "0000000328781772",
+     "PGMNAMEI": "COTRN01C",
+     "TITLE01I": "TITLE ONE",
+     "TITLE02I": "TITLE TWO",
+     "TRNNAMEI": "CT01",
+     "CURDATEI": "07/18/22",
+     "CURTIMEI": "10:30:15"
+    }
+   },
+   "why": "#4628 slice 4 (det-port mutation survivors): the terminal sends back the FSET header fields, so RECEIVE MAP stores each by its own name"
+  },
+  {
+   "name": "enter-no-map-received",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "COTRN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "why": "#4628 slice 4 (det-port mutation survivors): ENTER on a re-entry with no map received (MAPFAIL): the program never tests RESP, so the screen is the working storage it began with"
   }
  ],
  "notes": "CardDemo's view-transaction screen (transaction CT01, program COTRN01C): entered from the transaction list with a selected transaction it reads it and shows every field (the amount through an edited picture); ENTER looks one up, PF3 returns, PF4 clears, PF5 goes to the list. The TRANSACT file is loaded from CardDemo's own dailytran.txt (the same 350-byte layout, CVTRA05Y / CVTRA06Y, that POSTTRAN posts into it). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

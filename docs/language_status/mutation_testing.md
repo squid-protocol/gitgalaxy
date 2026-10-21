@@ -471,6 +471,16 @@ mutants): tranadd `18030c6651`, `d06e6adeed`, `b72db7485f` (the mutated Java cra
 `70523f5c3d`. The scores are not recorded. Left: tranadd `eea78d1ed0` (a character with no cp037 encoding in the amount sign or a date separator; the oracle may not carry it).
 `test_carddemo_bad_format_5401.py` pins that each scenario breaks exactly one byte.
 
+**Rounding with fractional amounts** (#5401, 2026-10-21). COTRN02C moves NUMVAL-C of the amount into `S9(9)V99` and the port truncates it (`RoundingMode.DOWN`); every
+tranadd amount had cents below .50, so a `HALF_UP` mutant of the integer part could not show. tranadd now states `amount-fraction-above-half` (`+00000123.75`),
+`amount-fraction-at-half` (.50), `amount-fraction-nines` (.99) and `amount-negative-fraction-above-half` (`-00000123.75`). GnuCOBOL and the port agree on all four:
+tranadd is proven on 78 scenarios (72/75 branches), and the deterministic port on the same 78. In a re-run of the same sample (seed 0, 100 mutants) `35957e9be4` and
+`77da652333` are killed; the scores are not recorded. `test_carddemo_fractional_5401.py` pins the cents (below, at and above half) and both signs. Left: report
+`d2fca7d77a` (`unsignedDigits`, `HALF_UP`). A fractional date part (`SDTDDI` `.9`) kills it on the model port, but the case is not provable: GnuCOBOL truncates
+NUMVAL-C into `PIC 99` (00, the date is refused) while IBM rounds a float-mode store (01, register C6, `RT-HFP-FLOAT-STATEMENT-STORE`), which the deterministic port follows, so the
+det sweep of carddemo-report fails on it. The scenario is not committed. The mutant is a real IBM difference, not an equivalent one: the model port's `DOWN` follows the oracle.
+billpay `868815f4c6` and `29f0e18174` (a balance of 1,000,000.00 or more) are a different mechanism and stay open.
+
 #4047 then scored six CardDemo batch ports (readxref, readcust, dailyval, intcalc, posttran, trnrpt; seed 0, up to 100
 mutants each, `--jobs 3`, fast mode). These rows are seed 0 and differ from the older seed-1 CBACT04C, CBTRN02C and
 CBTRN03C figures above. The case gaps repeat across the six: `displayIoStatus` takes a numeric test on both status bytes,

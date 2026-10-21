@@ -39,7 +39,8 @@ _NOT_END = r"(?<!END )(?<!END\t)"
 # and clause words (`VALUES (`, `IN (`, `OVER (`) are excluded by the lookahead below (_SQL_BUILTINS).
 _SQL_NOT_A_CALL = (
     r"\b(?<!EXECUTE )(?<!EXECUTE\t)(?:FUNCTION|PROCEDURE|TRIGGER|TABLE|VIEW|INTO|TYPE|DOMAIN|INDEX|SCHEMA|SEQUENCE|REFERENCES|KEY|USING|CONSTRAINT|WITH|RECURSIVE)"
-    r"[ \t\r\n]+" + _QUAL + _NAME + r"[ \t]*\("
+    # #5736: the shield blanks a block comment to `""`, so MySQL's `TABLE /*prefix*/blobs (` is `TABLE ""blobs (`
+    r"[ \t\r\n]+(?:\"\"[ \t\r\n]*)?" + _QUAL + _NAME + r"[ \t]*\("
     # `COMMENT ON [COLUMN] t (`, `CREATE INDEX i ON t (`: an `ON` that is not a join condition
     r"|\bCOMMENT[ \t]+ON[ \t\r\n]+(?:[A-Z]+[ \t\r\n]+)?" + _QUAL + _NAME + r"[ \t]*\("
     r"|\bINDEX[ \t\r\n]+" + _QUAL + _NAME + r"[ \t\r\n]+ON[ \t\r\n]+" + _QUAL + _NAME + r"[ \t]*\("

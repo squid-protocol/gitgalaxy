@@ -8,7 +8,7 @@ mode and seeded sample -- and each mutant the proof does not kill either killed 
 
     python tests/tools/det_mutation.py run CASE [CASE ...] --work DIR [--sample 150] [--seed 0] [--jobs 3]
     python tests/tools/det_mutation.py record CASE RUN_DIR PORT_DIR      # a mutation.py run dir -> the ledger
-    python tests/tools/det_mutation.py refresh [CASE ...] --work DIR     # the generator moved: is the port the same?
+    python tests/tools/det_mutation.py refresh [CASE ...] --work DIR     # an input moved: same port? carry the verdicts
     python tests/tools/det_mutation.py check                             # the ledgers' form and the claims
     python tests/tools/det_mutation.py table [CASE ...]                  # per program, as the PR table
     python tests/tools/det_mutation.py survivors [CASE ...]              # the survivors and their stated verdicts
@@ -21,8 +21,9 @@ Two committed directories, one <CASE>.json per case in each (two PRs measuring d
     port's own files (`port`), the case, the corpus pin, the harness and the oracle (tests/tools/evidence.py's), and
     the Java generator (`generator`), the cheap stand-in for the port: a reader cannot translate. An entry is
     trusted only while every fingerprint matches the tree; stale or missing is unknown (`status` returns None).
-    When only the generator moved, `refresh` translates the case again and, when the port is byte-identical,
-    renews the generator fingerprint (no mutant re-run).
+    When an input moved, `refresh` translates the case again and, when the port is byte-identical, renews the
+    fingerprints: the generator alone needs no re-run; a case / corpus / harness / oracle move re-runs only the
+    recorded survivors (same seed) and carries the rest (#5862).
 
   tests/equivalence/det_mutation_survivors/ -- written by a person: per case, a surviving mutant (by id, with
     the Java line before / after) and its verdict, `equivalent` (the change cannot alter anything the program
@@ -435,30 +436,93 @@ def run(cases: list[str], work: Path, sample: int | None, seed: int, jobs: int, 
     return rc
 
 
+def merge_survivors(entry: dict[str, Any], rerun: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """The entry with its recorded survivors replaced by `rerun`'s verdicts (mutation.py results, same seed and port):
+    a survivor still surviving with the same Java line before / after stays; a killed one moves to `killed` (a timeout
+    counts as killed, as in `entry_from_run`); an error / pending one stays listed and is counted, so L5 is withheld.
+    The killed and stillborn lists are carried. None when a survivor was not re-run or its line moved (not the same
+    mutant: re-run the case)."""
+    got = {r["id"]: r for r in rerun}
+    out = json.loads(json.dumps(entry))  # (a copy)
+    counts = out["counts"]
+    kept, killed = [], list(out.get("killed", []))
+    for s in entry.get("survived", []):
+        r = got.get(s["id"])
+        if r is None or any(r.get(k, s[k]) != s[k] for k in ("before", "after")):
+            return None
+        v = r["verdict"]
+        if v == "survived":
+            kept.append(s)
+            continue
+        counts["survived"] -= 1
+        counts[v] = counts.get(v, 0) + 1
+        if v in ("killed", "timeout"):
+            killed.append(s["id"])
+        else:  # error / pending: not a verdict to carry
+            kept.append(s)
+    out["survived"] = kept
+    out["killed"] = sorted(set(killed))
+    return out
+
+
 def refresh(cases: list[str], work: Path) -> int:
-    """For each entry stale on the generator only: translate again; the same port bytes renew the fingerprint."""
+    """Renew each stale entry whose det port bytes did not move (#5862). Generator only: translate again, renew the
+    fingerprint. Case / corpus / harness / oracle moved: re-run only the recorded survivors (same seed, operators,
+    scope and mode) and carry the other verdicts; a survivor that now dies drops out of the survivors (a stated
+    `equivalent` / `unreachable` one is a wrong claim: exit 1), one still surviving with the same Java line before /
+    after keeps its stated verdict. Mutants killed before are not re-proven (a case weakened since would not show)."""
+    import evidence as ev
+    import mutation as mu
+
     ledger = load()
-    todo = []
-    for case in cases or sorted(ledger):
-        entry = ledger.get(case)
-        if entry and stale(entry, fingerprints(case)) == ["generator"]:
-            todo.append(case)
+    todo = [c for c in (cases or sorted(ledger))
+            if c in ledger and (CASES / c / "case.json").is_file() and stale(ledger[c], fingerprints(c))]  # fmt: skip
     if not todo:
-        print("det mutation: nothing stale on the generator alone")
+        print("det mutation: nothing stale")
         return 0
     det = translate(todo, work)
     rc = 0
     for case in todo:
-        port = det / case / "port"
-        if port.is_dir() and port_sha(port) == ledger[case]["inputs"]["port"]:
-            gen = fingerprints(case)["generator"]
-            ledger[case]["inputs"]["generator"] = gen["sha256"]
-            if "components" in gen:
-                ledger[case].setdefault("components", {})["generator"] = gen["components"]
-            write(case, ledger[case])
-            print(f"{case}: the det port is unchanged: fingerprint renewed")
-        else:
+        entry, port = ledger[case], det / case / "port"
+        if not port.is_dir() or port_sha(port) != entry["inputs"]["port"]:
             print(f"{case}: the det port changed: re-run (det_mutation.py run {case} --work DIR)")
+            rc = 1
+            continue
+        now = fingerprints(case)
+        moved = stale(entry, now)
+        if moved != ["generator"] and entry.get("survived"):
+            only = work / case / "survivors"
+            only.mkdir(parents=True, exist_ok=True)
+            results = [{"id": s["id"], "verdict": "survived"} for s in entry["survived"]]
+            (only / "mutation.json").write_text(json.dumps({"results": results}), encoding="utf-8")
+            try:
+                res = mu.run(case, work / case / "rerun", 3, None, entry["seed"], set(mu.OPERATORS), None, False,
+                             entry.get("mode") == "full", only=only, port=port, files=FILES,
+                             select=scope_filter(case_kind(case), port))  # fmt: skip
+            except SystemExit as e:  # the det port is not proven now: nothing to carry
+                print(f"{case}: {e}")
+                rc = 1
+                continue
+            merged = merge_survivors(entry, res["results"])
+            if merged is None:
+                print(f"{case}: a recorded survivor was not re-run or moved: re-run (det_mutation.py run {case})")
+                rc = 1
+                continue
+            merged["refreshed"] = {"from": entry.get("date"), "survivors_rerun": len(results), "stale": moved}
+            merged["date"] = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+            merged["commit"] = ev.harness_commit()
+            if res.get("coverage"):
+                merged["coverage"] = res["coverage"]
+            entry = merged
+        for n, v in now.items():
+            entry["inputs"][n] = v["sha256"]
+            if "components" in v:
+                entry.setdefault("components", {})[n] = v["components"]
+        write(case, entry)
+        s = summary(case, entry)
+        print(f"{case}: the det port is unchanged: renewed ({', '.join(moved)}); {_row(s)}")
+        for i in s["refuted"]:
+            print(f"{case}: {i} is stated {stated(case)[i]['verdict']} but the re-run killed it: the claim is wrong")
             rc = 1
     return rc
 

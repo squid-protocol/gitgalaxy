@@ -111078,7 +111078,11 @@
         "equivalent@69": [
           "toupper"
         ],
-        "follow@341": [],
+        "follow@341": [
+          "select",
+          "printf",
+          "addObject"
+        ],
         "free@214": [
           "removeObject",
           "printf",
@@ -111092,7 +111096,10 @@
           "removeObject",
           "addObject"
         ],
-        "linkTo@331": [],
+        "linkTo@331": [
+          "printf",
+          "addObject"
+        ],
         "moveBy@172": [
           "lastObject",
           "indexOf",
@@ -111102,7 +111109,18 @@
           "printf"
         ],
         "new@47": [],
-        "newAddress@117": [],
+        "newAddress@117": [
+          "HTParse",
+          "free",
+          "newParent",
+          "count",
+          "objectAt",
+          "equivalent",
+          "printf",
+          "new",
+          "StrAllocCopy",
+          "addObject"
+        ],
         "newParent@84": [
           "count",
           "objectAt",
@@ -111623,7 +111641,10 @@
           "paperRect",
           "getMarginLeft"
         ],
-        "paste@1568": [],
+        "paste@1568": [
+          "printf",
+          "HTStyleForRun"
+        ],
         "readRichText@1086": [
           "adjustWindow"
         ],

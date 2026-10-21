@@ -6653,6 +6653,14 @@ class StructuralExtractor:
                         term_idx, term_kind = pos, ("brace" if ch == opener else "semi")
                         break
                     pos += 1
+                if term_kind == "semi":
+                    # #5639: `- (void)m;` then a `{` body (a stray `;` after the header, doom-ios `setOn:`,
+                    # prboom-plus `removeAllPathsFromQueue`) is a definition: a declaration is never followed by `{`.
+                    nxt = term_idx + 1
+                    while nxt < search_limit and safe_code[nxt].isspace():
+                        nxt += 1
+                    if nxt < search_limit and safe_code[nxt] == opener:
+                        term_idx, term_kind = nxt, "brace"
                 if term_kind == "brace":
                     end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
                 elif term_kind == "semi":

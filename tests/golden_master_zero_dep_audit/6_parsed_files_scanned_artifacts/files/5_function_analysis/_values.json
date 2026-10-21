@@ -366578,6 +366578,19 @@
           "Structural Impact": 15.2
         },
         {
+          "Control Flow Branches": 6,
+          "Control Flow Ratio": "75.0%",
+          "End Line": 154,
+          "Function Name": "newAddress",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 38,
+          "Reflection Hits": 0,
+          "Start Line": 117,
+          "Structural Impact": 11.8
+        },
+        {
           "Control Flow Branches": 4,
           "Control Flow Ratio": "66.7%",
           "End Line": 106,
@@ -366628,6 +366641,32 @@
           "Reflection Hits": 0,
           "Start Line": 214,
           "Structural Impact": 5.5
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "60.0%",
+          "End Line": 352,
+          "Function Name": "follow",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 0,
+          "Start Line": 341,
+          "Structural Impact": 4.6
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "100.0%",
+          "End Line": 337,
+          "Function Name": "linkTo",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 331,
+          "Structural Impact": 3.2
         },
         {
           "Control Flow Branches": 1,
@@ -366732,32 +366771,6 @@
           "Reflection Hits": 0,
           "Start Line": 263,
           "Structural Impact": 1.6
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 117,
-          "Function Name": "newAddress",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 117,
-          "Structural Impact": 1.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 331,
-          "Function Name": "linkTo",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 331,
-          "Structural Impact": 1.5
         },
         {
           "Control Flow Branches": 0,
@@ -366874,19 +366887,6 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 230,
-          "Structural Impact": 1.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 341,
-          "Function Name": "follow",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 341,
           "Structural Impact": 1.1
         },
         {
@@ -368471,6 +368471,19 @@
           "Structural Impact": 14.2
         },
         {
+          "Control Flow Branches": 7,
+          "Control Flow Ratio": "87.5%",
+          "End Line": 1611,
+          "Function Name": "paste",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 44,
+          "Reflection Hits": 0,
+          "Start Line": 1568,
+          "Structural Impact": 13.5
+        },
+        {
           "Control Flow Branches": 10,
           "Control Flow Ratio": "71.4%",
           "End Line": 571,
@@ -368962,19 +368975,6 @@
           "Lines of Code (LOC)": 11,
           "Reflection Hits": 0,
           "Start Line": 1342,
-          "Structural Impact": 1.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 1568,
-          "Function Name": "paste",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 1,
-          "Reflection Hits": 0,
-          "Start Line": 1568,
           "Structural Impact": 1.5
         },
         {

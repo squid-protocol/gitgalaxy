@@ -3493,9 +3493,11 @@ def sql_statements(table: str) -> list[dict[str, Any]]:
 
 
 def sql_fault_plan(case: dict[str, Any], sc: dict[str, Any], table: str) -> list[str]:
-    """A scenario's `sql_faults` as both sides read them: `PROGRAM LINE NTH SQLCODE SQLSTATE` (ggsql.c's
-    $GGSQL_FAULTS, DetSql.withFaults). A fault names its statement by `line` (and `program`, the case's own by
-    default), or by `table` and `verb` (every statement of that kind on that table)."""
+    """A scenario's `sql_faults` as both sides read them: `PROGRAM LINE NTH SQLCODE SQLSTATE [TOKEN [SQLERRD3]]`
+    (ggsql.c's $GGSQL_FAULTS, DetSql.withFaults). A fault names its statement by `line` (and `program`, the case's own by
+    default), or by `table` and `verb` (every statement of that kind on that table). A fault may declare `sqlerrmc`
+    (one token, no blanks, up to 70 characters) and `sqlerrd3` (#5561): what the SQLCA carries for a program that
+    reads them (BANKDATA's `SQLERRMC(1:SQLERRML)`, its SQLERRD(3) reason-code arms); undeclared, both are empty."""
     stmts = sql_statements(table)
     out = []
     for f in sc.get("sql_faults") or []:
@@ -3513,7 +3515,13 @@ def sql_fault_plan(case: dict[str, Any], sc: dict[str, Any], table: str) -> list
                     and re.search(rf"\b{re.escape(table_name)}\b", x["sql"].upper())]  # fmt: skip
         if not hits:
             raise Unsupported(f"scenario {sc['name']}: SQL fault {f} names no statement of {program}")
-        out += [f"{x['program']} {x['line']} {nth} {code} {state}" for x in hits]
+        extra = ""
+        if f.get("sqlerrmc") or f.get("sqlerrd3"):
+            token = str(f.get("sqlerrmc") or "-")
+            if not re.fullmatch(r"\S{1,70}", token):
+                raise Unsupported(f"scenario {sc['name']}: SQL fault {f}: sqlerrmc is one token of 1-70 characters")
+            extra = f" {token} {int(f.get('sqlerrd3', 0))}"
+        out += [f"{x['program']} {x['line']} {nth} {code} {state}{extra}" for x in hits]
     return out
 
 

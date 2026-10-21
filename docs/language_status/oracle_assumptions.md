@@ -2060,9 +2060,12 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   carries the store under `ZC@ID@FILE` and the det port emits `fileKey(name)`, which maps the run-time `ZC01FILE` onto that
   store (`cics_filecontrol.file_key_method`; a program with no template store keeps its text). ASSUMED: one shared H2 table
   stands behind every `ZCnn` instance, as the generated project has one entity for `ZC@ID@FILE`, so the instance the case
-  runs cannot change the data. Not yet bound: `ZC@ID@KEY` (ZECS003's DELETE GENERIC on the key store) has a stub method
-  with no repository finder, so `Generated._map_files` maps no store for it; ZECS000's own names are built from EIBTRNID
-  at run time (`VALUE SPACES`) and stay unresolved. Test: `tests/cobol_mainframe/test_template_file_lineage_4771.py`.
+  runs cannot change the data. **Slice 3.** `ZC@ID@KEY` (ZECS003's plain DELETE by RIDFLD on the key store) has a void `deleteX(key)` stub with no
+  `Optional<>` / `List<>` entity; `Generated._map_files` now names the entity from the `<entity>Repository` field, so the
+  store binds. Equivalence case zecs-zecs003 states the instance (`install_symbols` ID 01, ECS_HLQ ZECS, ENVIRONMENT TEST)
+  and seeds ZECS.ZC01FILE.TEST / ZECS.ZC01KEY.TEST: expired record (DELETE GENERIC KEYLENGTH 8 + key delete), fresh
+  record kept, expired record with no key record; `det_port.py run` PROVED. No evidence.json: `--record` needs a committed
+  port. Not bound: ZECS000's own names are built from EIBTRNID at run time (`VALUE SPACES`) and stay unresolved. Test: `tests/cobol_mainframe/test_template_file_lineage_4771.py`.
 - **Reached.** GenApp LGICVS01 (READ ... KEYLENGTH(10) GTEQ on KSDSCUST): equivalence case genapp-lgicvs01 -- the
   key on file, the next greater key, none past the end (NOTFND) and a RANDOM key in range, all PROVED. To run that
   terminal transaction the equivalence harness now states, as the cics-crucible runner does, a case's or scenario's

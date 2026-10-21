@@ -184,7 +184,7 @@
   "digest": "5aeb7dbe1bc9201a082c58555705a599e40e0a69a9cd179898c55a405220d835"
  },
  "proof": {
-  "at": "2026-10-21T06:10:55Z",
+  "at": "2026-10-21T06:51:37Z",
   "verdict": "proven",
   "runs": 30,
   "fault_runs": 2,
@@ -325,7 +325,7 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "d25e34e0084fc6c29bd693ec768b0b337c55f50e+uncommitted",
+  "harness_commit": "d3bba97b214e238efce044beba9e6aec1f6a5856+uncommitted",
   "inputs_digest": "5aeb7dbe1bc9201a082c58555705a599e40e0a69a9cd179898c55a405220d835"
  },
  "coverage": {

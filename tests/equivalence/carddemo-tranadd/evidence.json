@@ -27,7 +27,7 @@
     "tests/equivalence/carddemo-tranadd/**"
    ],
    "files": 1,
-   "sha256": "a4b99545c477cbfe68d893b69c104518ad2919643628d9fa409d9eced4e07295"
+   "sha256": "93e02845220048be584a0caaa1b7cabdcf1e6db30fe3cf8e86544b74340f4293"
   },
   "harness": {
    "paths": [
@@ -181,12 +181,12 @@
     }
    }
   },
-  "digest": "cbb49bfb97f49e4585b11599fef7ca3665ae6426986cf62016a7a5eade38772e"
+  "digest": "88378c3ec2271a69ea73d618f4458745d540fd59ea1b51524dee0d465fd67e84"
  },
  "proof": {
-  "at": "2026-10-21T06:10:26Z",
+  "at": "2026-10-21T06:45:21Z",
   "verdict": "proven",
-  "runs": 68,
+  "runs": 74,
   "fault_runs": 11,
   "environments": null,
   "outputs": {
@@ -398,6 +398,30 @@
     "equal": 3,
     "records": 3
    },
+   "amount-body-not-numeric": {
+    "equal": 3,
+    "records": 3
+   },
+   "orig-date-month-not-numeric": {
+    "equal": 3,
+    "records": 3
+   },
+   "proc-date-year-not-numeric": {
+    "equal": 3,
+    "records": 3
+   },
+   "proc-date-first-separator": {
+    "equal": 3,
+    "records": 3
+   },
+   "proc-date-month-not-numeric": {
+    "equal": 3,
+    "records": 3
+   },
+   "selection-flag-in-commarea": {
+    "equal": 3,
+    "records": 3
+   },
    "amount-bad-sign-good-digits": {
     "equal": 3,
     "records": 3
@@ -422,7 +446,7 @@
     "equal": 3,
     "records": 3
    },
-   "orig-date-year-not-numeric": {
+   "orig-date-year-first-digit-not-numeric": {
     "equal": 3,
     "records": 3
    },
@@ -430,7 +454,7 @@
     "equal": 3,
     "records": 3
    },
-   "orig-date-month-not-numeric": {
+   "orig-date-month-units-not-numeric": {
     "equal": 3,
     "records": 3
    },
@@ -442,7 +466,7 @@
     "equal": 3,
     "records": 3
    },
-   "proc-date-year-not-numeric": {
+   "proc-date-year-first-digit-not-numeric": {
     "equal": 3,
     "records": 3
    },
@@ -450,7 +474,7 @@
     "equal": 3,
     "records": 3
    },
-   "proc-date-month-not-numeric": {
+   "proc-date-month-units-not-numeric": {
     "equal": 3,
     "records": 3
    },
@@ -469,16 +493,16 @@
   "java_failed": false,
   "facade": {
    "verdict": "proven",
-   "runs": 68,
-   "passed": 68,
+   "runs": 74,
+   "passed": 74,
    "entry_points": [
     "handleTransaction"
    ],
    "failed": [],
    "error": null
   },
-  "harness_commit": "d25e34e0084fc6c29bd693ec768b0b337c55f50e+uncommitted",
-  "inputs_digest": "cbb49bfb97f49e4585b11599fef7ca3665ae6426986cf62016a7a5eade38772e"
+  "harness_commit": "d3bba97b214e238efce044beba9e6aec1f6a5856+uncommitted",
+  "inputs_digest": "88378c3ec2271a69ea73d618f4458745d540fd59ea1b51524dee0d465fd67e84"
  },
  "coverage": {
   "paragraphs": {
@@ -514,7 +538,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "cbb49bfb97f49e4585b11599fef7ca3665ae6426986cf62016a7a5eade38772e"
+  "inputs_digest": "88378c3ec2271a69ea73d618f4458745d540fd59ea1b51524dee0d465fd67e84"
  },
  "reach": {
   "entry_points": [

@@ -25,9 +25,9 @@ AMOUNT = {
     "amount-cents-units-not-numeric": 12,
 }
 DATE = {
-    "date-year-not-numeric": 1,
+    "date-year-first-digit-not-numeric": 1,
     "date-first-separator-wrong": 5,
-    "date-month-not-numeric": 7,
+    "date-month-units-not-numeric": 7,
     "date-second-separator-wrong": 8,
     "date-day-tens-not-numeric": 9,
 }

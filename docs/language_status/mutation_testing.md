@@ -466,7 +466,7 @@ counts the XCTL sites in each of the seven sources and requires a faulted-XCTL s
 five (year, `-`, month, `-`, day), and the case had one all-bad value per field, which fails the first clause and leaves a mutant of any later one alive. tranadd now
 states one scenario per clause with only that byte bad: 6 amount (`amount-bad-sign-good-digits`, first and last digit, point, cents tens and units) and 5 each for the
 original and the processing date (`orig-date-*`, `proc-date-*`). report states `custom-end-month-single-digit` (EDTMMI `6`, which NUMVAL-C rebuilds as `06`). GnuCOBOL and the
-port agree on all 12: tranadd is proven on 68 scenarios (72/75 branches), report on 30 (52/59). The seven survivors are killed in a re-run of the same sample (seed 0, 100
+port agree on all 12: tranadd is proven on 74 scenarios (72/75 branches), report on 30 (52/59). The seven survivors are killed in a re-run of the same sample (seed 0, 100
 mutants): tranadd `18030c6651`, `d06e6adeed`, `b72db7485f` (the mutated Java crashes on the amount, so the harness records `java`), `327311d5b9`, `1cee2b8e8a`, `b7fd450d80`, and report
 `70523f5c3d`. The scores are not recorded. Left: tranadd `eea78d1ed0` (a character with no cp037 encoding in the amount sign or a date separator; the oracle may not carry it).
 `test_carddemo_bad_format_5401.py` pins that each scenario breaks exactly one byte.

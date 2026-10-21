@@ -15,17 +15,15 @@ from gitgalaxy.core.cobol_conditional import Conditional, options_defines
 from gitgalaxy.core.cobol_preprocessor import (
     MappedLine,
     comment_at,
-    copy_replacing,
     copy_statements,
     drop_comment,
     free_code,
-    gather_copy,
     join_continuation,
     join_copy_alone,
     open_literal,
-    replace_text,
-    sql_include_as_copy,
-    statement_end,
+)
+from gitgalaxy.core.cobol_preprocessor import (
+    expand as core_expand,
 )
 from gitgalaxy.core.cobol_source_format import FIXED_LEAD, TEXT_WIDTH, ispf_screen, join_wrapped, wrap_fixed
 from gitgalaxy.core.compiler_options import cards, compiler_options
@@ -687,73 +685,41 @@ def _search_member(name: str, dirs: list[Path], chain: frozenset, where: str, fi
 
 def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset = frozenset(),
            engine: EngineCopies | None = None, expanded_names: set[str] | None = None) -> list[Line]:  # fmt: skip
-    """COPY statements replaced by their members' lines (recursively); REPLACING ==a== BY ==b== and word-for-word
-    `a BY b` applied. A member found nowhere raises CopyNotFound. `engine` (#4468): each COPY in an estate file takes
-    the member the engine resolved (CopyUnresolved where it resolved none or several); without it, and for a member
-    outside the estate, the first of `dirs` holding it. `expanded_names` collects the program's own members."""
-    out: list[Line] = []
+    """COPY statements replaced by their members' lines (recursively; core.cobol_preprocessor.expand); REPLACING
+    ==a== BY ==b== and word-for-word `a BY b` applied. A member found nowhere raises CopyNotFound. `engine` (#4468):
+    each COPY in an estate file takes the member the engine resolved (CopyUnresolved where it resolved none or
+    several); without it, and for a member outside the estate, the first of `dirs` holding it. `expanded_names`
+    collects the program's own members."""
     own = str(engine.program) if engine is not None else None
-    i = 0
-    while i < len(lines):
-        ln = lines[i]
-        joined = join_copy_alone([x.text for x in lines], i)
-        if joined is not None:  # #4459: the member name on the next line
-            ln = Line(joined, ln.file, ln.line)
-            lines = [*lines[:i], ln, *lines[i + 2 :]]
-        m = _copy_match(ln.text)
-        if not m:
-            inc = sql_include_as_copy([x.text for x in lines], i)
-            if inc is not None:  # EXEC SQL INCLUDE member END-EXEC is a COPY of the member
-                lines = [*lines[:i], Line(inc[0], ln.file, ln.line), *lines[inc[1] + 1 :]]
-                ln = lines[i]
-                m = _copy_match(ln.text)
-        if not m:
-            out.append(ln)
-            i += 1
-            continue
-        stmt, j = gather_copy([x.text for x in lines], i, m.start)
-        end = statement_end(stmt, m.start)
-        tail = stmt[end:] if end > 0 else ""
-        stmt = stmt[m.start : end] if end > 0 else stmt[m.start :]
+
+    def resolve(ln: Line, m, where: str, seen: frozenset) -> Path | None:
         name = m.member
-        # never a file being expanded already (the including program or copybook itself)
-        # a copybook's extensions in every directory before a program's: CBSA keeps a program INQCUST.cbl next to
-        # its sources and the copybook INQCUST.cpy elsewhere; never a file being expanded already
-        where = ln.origin
         member = engine.member(ln.file, name, m.library or None, where) if engine is not None else None
-        if member is not None and member.resolve() in chain:
+        if member is not None and member.resolve() in seen:
             raise CopyNotFound(f"{where}: COPY {name} resolves to {member}, which is being expanded already")
         if member is None:
-            member = _search_member(name, dirs, chain, where, m.file_name)
+            member = _search_member(name, dirs, seen, where, m.file_name)
             if member is None and not unmasked("missing-copybook"):  # (a survey's what-if only: survey_unmask)
                 raise CopyNotFound(f"{where}: COPY {name} found in none of {[str(d) for d in dirs]}")
             if member is not None and engine is not None and engine.in_estate(Path(ln.file)):
                 engine.unresolved(ln.file, name, member, where)
-        if depth > 8:
-            raise CopyNotFound(f"{where}: COPY {name} nests deeper than 8")
-        if engine is not None and ln.file == own and expanded_names is not None:
+        return member
+
+    def load(member: Path, where: str, m) -> list[Line]:
+        body = logical_lines(_raw_lines(member, engine), str(member), member=True)
+        if any(_PROGRAM_MARK.match(b.text) for b in body):
+            # #4460: a program, not a copybook: splicing it in would give the includer another program's records
+            raise CopyNotFound(f"{where}: COPY {m.member} resolves to {member}, which is a program "
+                               "(IDENTIFICATION DIVISION / PROGRAM-ID), not a copybook")  # fmt: skip
+        return body
+
+    def seen_top(ln: Line, name: str) -> None:
+        if ln.file == own and expanded_names is not None:
             expanded_names.add(name)
-        expanded: list[Line] = []
-        if member is not None:
-            body = logical_lines(_raw_lines(member, engine), str(member), member=True)
-            if any(_PROGRAM_MARK.match(b.text) for b in body):
-                # #4460: a program, not a copybook: splicing it in would give the includer another program's records
-                raise CopyNotFound(f"{where}: COPY {name} resolves to {member}, which is a program (IDENTIFICATION "
-                                   "DIVISION / PROGRAM-ID), not a copybook")  # fmt: skip
-            pairs = copy_replacing(stmt, m.end - m.start)
-            if pairs:
-                for b in body:
-                    b.text = replace_text(b.text, pairs) or b.text
-            expanded = expand(body, dirs, depth + 1, chain | {member.resolve()}, engine)
-        # the text before COPY on its line (rare: `01 X. COPY Y.`) and what follows the COPY's period stay
-        head = ln.text[: m.start]
-        if head.strip():
-            out.append(Line(head, ln.file, ln.line))
-        out += expanded
-        if tail.strip():  # what follows the COPY's period (`COPY A. COPY B.`) is read on
-            lines = [*lines[: j + 1], Line(tail.lstrip(), ln.file, lines[j].line), *lines[j + 1 :]]
-        i = j + 1
-    return out
+
+    return core_expand(lines, resolve, load, depth=depth, chain=chain, make=Line,
+                       on_copy=seen_top if engine is not None else None, nesting_error=CopyNotFound,
+                       identity=lambda p: p.resolve())  # fmt: skip
 
 
 def program_lines(program: Path, dirs: list[Path], engine: EngineCopies | None = None) -> list[Line]:

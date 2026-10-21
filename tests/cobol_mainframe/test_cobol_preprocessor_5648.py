@@ -77,7 +77,7 @@ def test_replacing_after_a_file_literal_parses_and_applies_in_one_pass():
 
 def test_the_scanner_and_the_translator_share_one_rule():
     assert MB._copy_replacing is PP.copy_replacing and GIR._replace_text is PP.replace_text
-    assert SRC.statement_end is PP.statement_end and SRC.copy_replacing is PP.copy_replacing
+    assert SRC.core_expand is PP.expand  # the translator's expand() is an adapter over the shared one
 
 
 # ---- the translator: the member is found, expanded and translated ----------------------------------------------------

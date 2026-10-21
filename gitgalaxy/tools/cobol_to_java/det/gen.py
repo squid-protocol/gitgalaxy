@@ -1940,12 +1940,26 @@ class Gen:
             if replacing is not None and k == 0:
                 # #4892 (register C17): GnuCOBOL sets a table's first occurrence and copies it over the others, so
                 # an item REPLACING does not name would take the first occurrence's value -- IBM leaves it as it is
-                other = sorted({_replacing_category(x) for x in c.walk() if not x.children} - set(replacing))
-                if other:
-                    raise Untranslatable(
-                        f"INITIALIZE REPLACING of the table {c.name}, which holds {', '.join(other)} "
-                        "items REPLACING does not name (the oracle copies its first occurrence: register C17)"
-                    )
+                unnamed = [x for x in c.walk() if not x.children and x.name != "FILLER" and not x.redefines
+                           and _replacing_category(x) not in replacing]  # fmt: skip
+                if unnamed:
+                    if any(x.occurs > 1 for x in c.walk() if x is not c):
+                        raise Untranslatable(
+                            f"INITIALIZE REPLACING of the table {c.name}, which holds a nested table and items "
+                            "REPLACING does not name (the oracle copies its first occurrence: register C17)"
+                        )
+                    # IBM leaves those items as they are; the oracle gives each the first occurrence's value. Where
+                    # the occurrences already agree the two are the same, so the port checks that at run time and
+                    # stops by name when they differ, never answering for a case the oracle would get wrong
+                    for leaf in unnamed:
+                        first = self.factory(leaf, f"{base}.storage()", f"{base}.offset() + {leaf.offset - it.offset}")
+                        for j in range(1, c.occurs):
+                            other = self.factory(
+                                leaf, f"{base}.storage()", f"{base}.offset() + {leaf.offset - it.offset + j * c.size}"
+                            )
+                            msg = (f"INITIALIZE REPLACING of the table {c.name}: occurrence {j + 1} of {leaf.name} "
+                                   "differs from the first, which the oracle would copy (register C17)")  # fmt: skip
+                            out.append(f"if (!Cobol.sameBytes({first}, {other})) throw new Hole({jstr(msg)});")
             for leaf in c.walk():
                 if leaf.children or leaf.name == "FILLER" or leaf.redefines:
                     continue

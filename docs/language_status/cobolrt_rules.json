@@ -225,6 +225,7 @@
     "le/Ceesecs.java",
     "le/Ceeutc.java",
     "le/Cobdatft.java",
+    "le/Dsntiac.java",
     "le/LeTime.java",
     "le/Mvswait.java"
    ],
@@ -3250,6 +3251,27 @@
    "options": [],
    "register": [
     "L6"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-LE-DSNTIAC",
+   "family": "LE",
+   "title": "DSNTIAC: formats an SQLCA into message lines (a stand-in; the text is unproven)",
+   "methods": [
+    "le/Dsntiac.java:call",
+    "le/Dsntiac.java:wrap",
+    "le/Dsntiac.java:s16",
+    "le/Dsntiac.java:s32"
+   ],
+   "ibm": {
+    "doc": "db2-app",
+    "section": "DSNTIAC: the CICS interface to DSNTIAR"
+   },
+   "options": [],
+   "register": [
+    "Q5"
    ],
    "status": "ASSUMED",
    "calibration": "uncalibrated"

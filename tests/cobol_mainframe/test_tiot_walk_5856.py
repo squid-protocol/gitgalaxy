@@ -88,7 +88,14 @@ CREASTMT = (
 
 def _src(data: str = DATA, proc: str = PROC) -> str:
     head = "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. TIOTW.\n       DATA DIVISION.\n"
-    return head + "       WORKING-STORAGE SECTION.\n" + data + "       PROCEDURE DIVISION.\n" + proc + "           GOBACK.\n"
+    return (
+        head
+        + "       WORKING-STORAGE SECTION.\n"
+        + data
+        + "       PROCEDURE DIVISION.\n"
+        + proc
+        + "           GOBACK.\n"
+    )
 
 
 def _translate(src: str):
@@ -123,7 +130,9 @@ def _build(src: str) -> tuple[Path, Path]:
         svc.parent.mkdir(parents=True, exist_ok=True)
         svc.write_text(java)
         main = work / "java/Main.java"
-        main.write_text(f"public class Main {{ public static void main(String[] a) {{ new {PKG}.service.{r.service}().runProgram(); }} }}\n")
+        main.write_text(
+            f"public class Main {{ public static void main(String[] a) {{ new {PKG}.service.{r.service}().runProgram(); }} }}\n"
+        )
         classes = work / "classes"
         subprocess.run([str(_java() / "javac"), "-encoding", "UTF-8", "-nowarn", "-cp", str(rt), "-d", str(classes),  # noqa: S603
                         str(svc), str(main)], check=True)  # fmt: skip
@@ -162,14 +171,17 @@ def test_what_the_batch_lane_cannot_model_is_a_hole(statement, why):
     """A handle is no number: only `view = view +|- n`, ADD / SUBTRACT n and MOVE view TO view move the pointer; any
     other use of the numeric item reads handle bytes and is refused, and `SET ADDRESS OF ... TO ADDRESS OF` stays
     CICS-only."""
-    data = DATA.replace("       LINKAGE SECTION.\n", "       01  OTHER-NUM PIC S9(08) BINARY.\n       LINKAGE SECTION.\n")
+    data = DATA.replace(
+        "       LINKAGE SECTION.\n", "       01  OTHER-NUM PIC S9(08) BINARY.\n       LINKAGE SECTION.\n"
+    )
     r, _ = _translate(_src(data, f"           {statement}\n"))
     assert any(why in h for h in r.stats["holes"]), r.stats["holes"]
 
 
 def test_a_second_redefines_of_the_numeric_item_keeps_the_pointer_refused():
     data = DATA.replace(
-        "       LINKAGE SECTION.\n", "       01  BUMP-BYTES              REDEFINES BUMP-TIOT PIC X(04).\n       LINKAGE SECTION.\n"
+        "       LINKAGE SECTION.\n",
+        "       01  BUMP-BYTES              REDEFINES BUMP-TIOT PIC X(04).\n       LINKAGE SECTION.\n",
     )
     r, _ = _translate(_src(data))
     assert any("a pointer a REDEFINES overlays" in h for h in r.stats["holes"]), r.stats["holes"]
@@ -215,8 +227,11 @@ def test_one_dd_step_and_the_add_subtract_forms():
         ("J;S;P", None, "no job step stated"),
         ("J;S;;A:TAPE", None, "a DD is NAME:UCB or NAME:NOUCB"),
         ("J;S;;A:UCB", ("+ LENGTH OF TIOT-BLOCK.", "- 100."), "pointer arithmetic leaves the control block"),
-        ("J;S;;A:UCB", ("SET ADDRESS OF TIOT-BLOCK  TO TIOT-POINT.", "SET ADDRESS OF PSA-BLOCK TO TIOT-POINT."),
-         "past the fields the stand-in lays"),  # (the PSA's 544 bytes over a 48-byte TIOT)
+        (
+            "J;S;;A:UCB",
+            ("SET ADDRESS OF TIOT-BLOCK  TO TIOT-POINT.", "SET ADDRESS OF PSA-BLOCK TO TIOT-POINT."),
+            "past the fields the stand-in lays",
+        ),  # (the PSA's 544 bytes over a 48-byte TIOT)
     ],
 )
 def test_what_the_stand_in_does_not_lay_is_refused_by_name(step, proc_edit, why):

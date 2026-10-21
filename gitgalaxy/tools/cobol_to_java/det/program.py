@@ -280,7 +280,11 @@ def pointer_view_of(records: list) -> dict[str, str]:
             view, ptr = x, x.redefines.upper()
         elif x.usage == "POINTER" and x.occurs <= 1 and not x.children and x.redefines:  # #5856: the pointer over it
             view, ptr = by_name.get(x.redefines.upper()), x.name.upper()  # (CBSTM03A's TIOT-INDEX over BUMP-TIOT)
-            if view is None or view.redefines or sum(1 for y in items if (y.redefines or "").upper() == view.name.upper()) > 1:
+            if (
+                view is None
+                or view.redefines
+                or sum(1 for y in items if (y.redefines or "").upper() == view.name.upper()) > 1
+            ):
                 continue  # (a second REDEFINES of the view could read the handle's bytes)
         else:
             continue

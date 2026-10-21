@@ -374,7 +374,10 @@ class Gen:
             if len(targets) != 1 or targets[0][1] or not isinstance(e, E.Bin) or e.op not in ("+", "-"):
                 return None
             ptr = self.view_pointer(targets[0][0])
-            if ptr is None or self.view_pointer(e.left) != ptr or targets[0][0].name.upper() != e.left.name.upper():
+            left = e.left
+            if ptr is None or not isinstance(left, E.Ref) or self.view_pointer(left) != ptr:
+                return None
+            if targets[0][0].name.upper() != left.name.upper():
                 return None
             op, operand = ("+=" if e.op == "+" else "-="), e.right
         elif s.kind == "ARITH" and d["op"] in ("+=", "-=") and not s.phrases:

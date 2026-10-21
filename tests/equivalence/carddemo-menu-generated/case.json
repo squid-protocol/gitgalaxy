@@ -1,0 +1,138 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "COMEN01C",
+ "program_source": "app/cbl/COMEN01C.cbl",
+ "copy_dirs": [
+  "app/cpy",
+  "app/cpy-bms"
+ ],
+ "port_from": "carddemo-menu",
+ "transid": "CM00",
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {},
+ "screens": {
+  "COMEN1A": {
+   "copybook": "app/cpy-bms/COMEN01.CPY",
+   "input": "COMEN1AI",
+   "output": "COMEN1AO"
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "app/cpy/COCOM01Y.cpy",
+    "record": "CARDDEMO-COMMAREA"
+   }
+  ]
+ },
+ "notes": "CardDemo's main menu (CM00, COMEN01C) on a GENERATED map input (#4506): 30 scenarios whose COMMAREA is generated and whose RECEIVE MAP input is typed for COMEN01's one unprotected field, OPTION (NUM, 2 bytes), over options 1 to 12 (0, blank and 13 to 99 index past the table, which register X8 refuses, so those stay in carddemo-menu as the named bounds_refused scenarios option-zero / option-blank); the key pressed turns through ENTER, PF3, PF5 and PF12. Proves the carddemo-menu port on inputs it was not written against; the hand-written scenarios left are fault runs. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+ "scenario_generate": {
+  "seed": 4506,
+  "count": 30,
+  "prefix": "generated",
+  "aid": [
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHPF3",
+   "DFHPF5",
+   "DFHPF12"
+  ],
+  "commarea": {
+   "CDEMO-FROM-TRANID": "CC00",
+   "CDEMO-FROM-PROGRAM": "COSGN00C",
+   "CDEMO-USER-ID": "USER0001",
+   "CDEMO-USER-TYPE": "U",
+   "CDEMO-PGM-CONTEXT": {
+    "values": [
+     0,
+     1
+    ]
+   }
+  },
+  "receive": {
+   "COMEN1A": {
+    "@bms": {
+     "bad": 0,
+     "empty": 0
+    },
+    "OPTIONI": {
+     "values": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11",
+      "12"
+     ]
+    }
+   }
+  }
+ },
+ "scenarios": [
+  {
+   "name": "no-commarea",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "#4506: no COMMAREA, which a generated COMMAREA never leaves out"
+  },
+  {
+   "name": "option-11-not-installed",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COMEN1A": {
+     "OPTIONI": "11"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "INQUIRE",
+     "program": "COPAUS0C",
+     "nth": 1,
+     "resp": "PGMIDERR"
+    }
+   ],
+   "why": "#4506: the fault run of carddemo-menu (INQUIRE PROGRAM raises PGMIDERR), which generated inputs do not reach"
+  },
+  {
+   "name": "option-1-xctl-fails",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COMEN1A": {
+     "OPTIONI": "1"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COACTVWC",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4506: the fault run of carddemo-menu (XCTL raises PGMIDERR), which generated inputs do not reach"
+  }
+ ]
+}

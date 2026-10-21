@@ -27,7 +27,7 @@
     "tests/equivalence/carddemo-tranadd/**"
    ],
    "files": 1,
-   "sha256": "93e02845220048be584a0caaa1b7cabdcf1e6db30fe3cf8e86544b74340f4293"
+   "sha256": "9f7584b8ab39f4a2e47f7a3eb3b4560d6c9510dac34cdf06f2b24a1dde9fdef7"
   },
   "harness": {
    "paths": [
@@ -78,7 +78,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 99,
-   "sha256": "1552f771b96daac15b5620c736b0b5ebbed2be6464bce6dde3973133f5060d28",
+   "sha256": "9a13ebd4ea9beab7b49c4a7d535b68343fc2b3d15ef4de30a09086d3097d8353",
    "components": {
     "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
     "generator:core": "a7b1e205ba94cbbb82ef0cd84b755c343c2f7e8afa912e487823daaf34e29af3",
@@ -92,7 +92,7 @@
     "generator:det/dyncall": "ab79c3282f9bcba02dfab16f0df14d5dd77dc5c228b2a79ecdbfcfe596467c02",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
-    "generator:det/gen": "50d750af93da49c5148073d6a015f125518ba75e3d20dbe1407e40642dbb73d2",
+    "generator:det/gen": "3e6a97fac619cf3ebec3571975131cf977d379a49ac5667a9cc1334693629ce2",
     "generator:det/hfp": "cec77a165f9657e15473ce0c2913b1256451731abc473571ed56951d0faba36c",
     "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
     "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
@@ -181,12 +181,12 @@
     }
    }
   },
-  "digest": "88378c3ec2271a69ea73d618f4458745d540fd59ea1b51524dee0d465fd67e84"
+  "digest": "4164a8571b581cd8ea095d4dccdf9aa3b75fb03a21ba0aa2ad823c341279b4d4"
  },
  "proof": {
-  "at": "2026-10-21T06:45:21Z",
+  "at": "2026-10-21T07:34:08Z",
   "verdict": "proven",
-  "runs": 74,
+  "runs": 78,
   "fault_runs": 11,
   "environments": null,
   "outputs": {
@@ -485,6 +485,22 @@
    "proc-date-day-tens-not-numeric": {
     "equal": 3,
     "records": 3
+   },
+   "amount-fraction-above-half": {
+    "equal": 3,
+    "records": 3
+   },
+   "amount-fraction-at-half": {
+    "equal": 3,
+    "records": 3
+   },
+   "amount-fraction-nines": {
+    "equal": 3,
+    "records": 3
+   },
+   "amount-negative-fraction-above-half": {
+    "equal": 3,
+    "records": 3
    }
   },
   "return_code_equal": null,
@@ -493,16 +509,16 @@
   "java_failed": false,
   "facade": {
    "verdict": "proven",
-   "runs": 74,
-   "passed": 74,
+   "runs": 78,
+   "passed": 78,
    "entry_points": [
     "handleTransaction"
    ],
    "failed": [],
    "error": null
   },
-  "harness_commit": "d3bba97b214e238efce044beba9e6aec1f6a5856+uncommitted",
-  "inputs_digest": "88378c3ec2271a69ea73d618f4458745d540fd59ea1b51524dee0d465fd67e84"
+  "harness_commit": "cc9fa3f6b758ac4d4b086b878fc621c4f1c79fba+uncommitted",
+  "inputs_digest": "4164a8571b581cd8ea095d4dccdf9aa3b75fb03a21ba0aa2ad823c341279b4d4"
  },
  "coverage": {
   "paragraphs": {
@@ -538,7 +554,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "88378c3ec2271a69ea73d618f4458745d540fd59ea1b51524dee0d465fd67e84"
+  "inputs_digest": "4164a8571b581cd8ea095d4dccdf9aa3b75fb03a21ba0aa2ad823c341279b4d4"
  },
  "reach": {
   "entry_points": [

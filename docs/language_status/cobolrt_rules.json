@@ -1279,6 +1279,25 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-CBL-INITIALIZE-REPLACING-TABLE",
+   "family": "CBL",
+   "title": "INITIALIZE REPLACING of a table leaves the categories it does not name as they are (IBM); the port stops by name when the occurrences differ, because the oracle copies the first over the others",
+   "methods": [
+    "sameBytes"
+   ],
+   "site": "sameBytes",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "INITIALIZE statement"
+   },
+   "options": [],
+   "register": [
+    "C17"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-NUM-TRUNC-BINARY",
    "family": "NUM",
    "title": "A COMP / COMP-4 / BINARY item under TRUNC(STD) holds at most its PICTURE's digits (high-order ones lost); under TRUNC(BIN), and a COMP-5 item always, whatever its 2 / 4 / 8 bytes hold",

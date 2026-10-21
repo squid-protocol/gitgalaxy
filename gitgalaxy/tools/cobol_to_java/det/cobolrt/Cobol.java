@@ -357,6 +357,7 @@ public final class Cobol {
     }
 
     /** Whether two items of one length hold the same bytes (INITIALIZE REPLACING of a table: oracle register C17). */
+    // [rule RT-CBL-INITIALIZE-REPLACING-TABLE]
     public static boolean sameBytes(Field a, Field b) {
         return a.length() == b.length() && Arrays.equals(a.storage().bytes, a.at(), a.at() + a.length(),
                 b.storage().bytes, b.at(), b.at() + b.length());

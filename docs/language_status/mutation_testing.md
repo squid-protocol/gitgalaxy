@@ -260,7 +260,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CORPT00C (carddemo-report) | equivalence | 100/642 | 58/87 (67%) | 58/60 (97%) | 2 / 0 / 16 / 11 / 0 |
 | COSGN00C (carddemo-signon) | equivalence | 100/196 | 67/99 (68%) | 67/72 (93%) | 5 / 0 / 25 / 2 / 0 |
 | COTRN02C (carddemo-tranadd) | equivalence | 100/770 | 61/91 (67%) | 61/73 (84%) | 12 / 0 / 10 / 8 / 0 |
-| COTRN00C (carddemo-tranlist) | equivalence | 100/697 | 64/91 (70%) | 64/79 (81%) | 15 / 0 / 5 / 7 / 0 |
+| COTRN00C (carddemo-tranlist) | equivalence | 100/697 | 66/91 (73%) | 66/79 (84%) | 13 / 0 / 5 / 7 / 0 |
 | COTRN01C (carddemo-tranview) | equivalence | 100/314 | 67/100 (67%) | 67/67 (100%) | 0 / 0 / 25 / 8 / 0 |
 | COTRN01C (carddemo-tranview-generated) | equivalence | 100/314 | 66/100 (66%) | 66/67 (99%) | 0 / 1 / 25 / 8 / 0 |
 | CBTRN03C (carddemo-trnrpt) | equivalence | 100/408 | 68/86 (79%) | 68/79 (86%) | 8 / 3 / 7 / 0 / 0 |
@@ -298,16 +298,16 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 3697 run | **2282/3347 (68%)** | **2282/2737 (83%)** | 270 / 185 / 397 / 213 / 0 |
-| **all estate** | | 4201 run | **2601/3823 (68%)** | **2601/3091 (84%)** | 305 / 185 / 485 / 247 / 0 |
+| **all equivalence** | | 3697 run | **2284/3347 (68%)** | **2284/2737 (83%)** | 268 / 185 / 397 / 213 / 0 |
+| **all estate** | | 4201 run | **2603/3823 (68%)** | **2603/3091 (84%)** | 303 / 185 / 485 / 247 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
 | AOR | 182/233 (78%) | 182/208 (88%) |
 | BDM | 25/45 (56%) | 25/28 (89%) |
-| CON | 362/759 (48%) | 362/468 (77%) |
+| CON | 363/759 (48%) | 363/468 (78%) |
 | COR | 132/241 (55%) | 132/187 (71%) |
-| DEL | 392/590 (66%) | 392/474 (83%) |
+| DEL | 393/590 (67%) | 393/474 (83%) |
 | LIT | 551/734 (75%) | 551/625 (88%) |
 | NEG | 481/546 (88%) | 481/522 (92%) |
 | RET | 58/99 (59%) | 58/87 (67%) |
@@ -331,7 +331,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CORPT00C (carddemo-report) | 3/3 | 0/1 | 1/11 | 10/13 | 6/13 | 12/13 | 13/13 | 4/7 | 9/13 |
 | COSGN00C (carddemo-signon) | 2/2 | - | 3/20 | 3/4 | 12/20 | 18/20 | 15/16 | - | 14/17 |
 | COTRN02C (carddemo-tranadd) | 7/7 | 3/7 | 1/12 | 5/12 | 8/12 | 11/12 | 11/11 | 4/7 | 11/11 |
-| COTRN00C (carddemo-tranlist) | 6/9 | - | 9/14 | 8/14 | 10/13 | 10/14 | 11/11 | 2/3 | 8/13 |
+| COTRN00C (carddemo-tranlist) | 6/9 | - | 10/14 | 8/14 | 11/13 | 10/14 | 11/11 | 2/3 | 8/13 |
 | COTRN01C (carddemo-tranview) | 1/1 | - | 2/24 | 2/3 | 21/24 | 19/24 | 17/17 | - | 5/7 |
 | COTRN01C (carddemo-tranview-generated) | 1/1 | - | 2/24 | 2/3 | 20/24 | 19/24 | 17/17 | - | 5/7 |
 | CBTRN03C (carddemo-trnrpt) | 2/2 | 5/7 | 9/14 | 1/7 | 14/14 | 13/14 | 12/14 | - | 12/14 |
@@ -431,6 +431,14 @@ tranlist `select-with-carried-to-tranid` (non-blank `CDEMO-TO-TRANID` on a selec
 three; the scores are not re-run. `test_carddemo_commarea_fields_5401.py` pins them. billpay `first-entry-with-long-selected-account` (`CDEMO-CB00-TRN-SELECTED` of 12 characters, which the MOVE truncates to 11, `d3458d6107`) is added the same way. cardlist `pf8-next-page-carries-return-flag` (a non-blank `WS-RETURN-FLAG`, `62c41cc4a8`) and `pf3-from-menu-stale-first-card-faulting-carddat` (a menu entry whose
 stale first card account id must come back 0 when the first READNEXT faults, `6fef123a15`) need no refused scenario, so the X8 refusals never blocked them: both mutants differ
 (`commarea.WS-RETURN-FLAG` 1 vs None, `commarea.WS-CA-FIRST-CARD-ACCT-ID` 0 vs 41), and the case is proven on 33 scenarios, 36/36 paragraphs, 136/149 branches. No survivor of the item is open.
+
+**Failed XCTL survivors** (#5401, 2026-10-21). A case with an XCTL site had no scenario where the XCTL answers a non-NORMAL condition. The source has no RESP, so
+CICS abends the task (PGMIDERR, RESP2 3), the shape billpay, tranadd and cardview already state (`pf3-xctl-fails`). Added: tranlist `select-xctl-fails` (XCTL COTRN01C) and
+`pf3-xctl-fails` (XCTL COMEN01C), report `pf3-xctl-fails` (CORPT00C's one XCTL, COMEN01C) and userupd `pf3-saves-then-xctl-fails` (the update saved first, then XCTL COADM01C).
+GnuCOBOL and the port agree on all four. tranlist `9e54fb034b` (the `abendOnCondition` after the XCTL, `Cotrn00cService.java:522`) is killed by both tranlist scenarios; the case
+is re-judged with `mutation.py run --only` (no re-sample), which also records `bdeaa77fbe` as killed (the score had not been re-run for it): COTRN00C 66/91 killed.
+`test_carddemo_failed_xctl_5401.py` pins the four scenarios. Still open: cardlist (COCRDLIC), three XCTL sites (lines 402, 538, 566) and no failed-XCTL scenario; 16 of its 46
+scenarios are already refused by the oracle (X8), so it is its own slice.
 
 #4047 then scored six CardDemo batch ports (readxref, readcust, dailyval, intcalc, posttran, trnrpt; seed 0, up to 100
 mutants each, `--jobs 3`, fast mode). These rows are seed 0 and differ from the older seed-1 CBACT04C, CBTRN02C and

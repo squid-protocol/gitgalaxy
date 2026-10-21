@@ -3,6 +3,9 @@
 
 * shell: a command word is a call (it was declared blind); the resolver keeps the ones naming a script's functions.
 * scheme: `(define name (lambda ...))` is a procedure definition, so its calls have an owner.
+* shell: a function defined and closed on one line (`name() { cmd; }`) is a unit that owns its calls.
+* tcl: a one-line brace body (`catch {qux}`, `if {$a} {foo}`, `after 10 {zed}`) is command position.
+* scheme: the formals list of a `lambda` is not a call.
 * lua / tcl: the shapes the issue named (a call after `..` or `not`, a command after `}`) are pinned as working.
 
 Driven through `StructuralExtractor.splice()`, the path a scan takes.
@@ -97,6 +100,22 @@ def test_shell_pattern_is_redos_immune():
     assert_redos_immune(pattern, "; " * 20000 + "x:")
 
 
+@pytest.mark.parametrize(
+    "code, units",
+    [
+        ("foo() { bar; baz; }\nbar() { :; }\n", {"foo": ["bar", "baz"], "bar": []}),
+        ("function foo { bar; }\nbar() { :; }\n", {"foo": ["bar"], "bar": []}),
+        ("a() { b; }\nb() { a; }\nc() {\n  a\n}\n", {"a": ["b"], "b": ["a"], "c": ["a"]}),
+    ],
+)
+def test_shell_one_line_function_is_a_unit(code, units):
+    assert {n: f["calls_out_to"] for n, f in _functions("shell", code).items()} == units
+
+
+def test_shell_one_line_keyword_block_is_not_a_function():
+    assert "if" not in _functions("shell", "if() { x; }\nwhile() { y; }\nreal() { z; }\n")
+
+
 # --- scheme --------------------------------------------------------------------------------------
 
 
@@ -131,6 +150,19 @@ def test_scheme_define_of_a_value_is_not_a_unit(code):
     assert _functions("scheme", code + "(define (helper a) a)\n").keys() == {"helper"}
 
 
+@pytest.mark.parametrize(
+    "code",
+    [
+        "(define (g) ((lambda (y) (h y)) 1))\n",
+        "(define (g) (map (lambda (y) (h y)) l))\n",
+        "(define (g) (named-lambda (fn y) (h y)))\n",
+    ],
+)
+def test_scheme_lambda_formals_are_not_calls(code):
+    calls = _calls("scheme", code + "(define (h z) z)\n", "g")
+    assert "h" in calls and not {"y", "fn"} & set(calls)
+
+
 def test_scheme_procedure_define_is_unchanged():
     functions = _functions("scheme", "(define (f x)\n  (g x))\n(define (g y) y)\n")
     assert functions["f"]["calls_out_to"] == ["g"]
@@ -159,7 +191,30 @@ def test_tcl_command_substitution_is_a_call():
     assert {"foo", "bar", "baz"} <= set(_calls("tcl", code, "main"))
 
 
+@pytest.mark.parametrize(
+    "line, callee",
+    [
+        ("catch {qux}", "qux"),
+        ("catch { qux 1 } err", "qux"),
+        ("after 10 {zed}", "zed"),
+        ("if {$a} {foo}", "foo"),
+        ("if {$a} {foo} else {bar}", "bar"),
+        ("try {baz} finally {cleanup}", "cleanup"),
+        ("eval {run_it}", "run_it"),
+    ],
+)
+def test_tcl_one_line_brace_body_is_a_call(line, callee):
+    assert callee in _calls("tcl", "proc main {} {\n    " + line + "\n}\n", "main")
+
+
+def test_tcl_data_braces_are_not_calls():
+    calls = _calls("tcl", "proc main {} {\n    set l {alpha beta}\n    puts {gamma}\n}\n", "main")
+    assert not {"alpha", "beta", "gamma"} & set(calls)
+
+
 def test_tcl_pattern_is_redos_immune():
     pattern = LANGUAGE_DEFINITIONS["tcl"]["rules"]["calls_out"]
     assert_redos_immune(pattern, "[" * 50000)
     assert_redos_immune(pattern, "[ " * 20000 + "x:")
+    assert_redos_immune(pattern, "} " * 20000 + "{ " * 20000)
+    assert_redos_immune(pattern, "catch " * 20000 + "{")

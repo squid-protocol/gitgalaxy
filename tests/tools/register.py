@@ -124,11 +124,9 @@ def check() -> list[str]:
     return []
 
 
-# Entries that name no IBM document and declare no difference (#4702, swept 2026-10-21). Each needs the IBM quote
-# (document, section, page) or a declared difference; fixing one removes it here. A new entry never joins this list.
-UNCITED_BASELINE = frozenset(
-    "A1 I6 J1 M2".split()  # noqa: SIM905
-)
+# Entries that name no IBM document and declare no difference (#4702, swept 2026-10-21; now empty). A new entry needs
+# the IBM quote (document, section, page) or a declared difference and never joins this list.
+UNCITED_BASELINE: frozenset[str] = frozenset()
 IBM_CITE = re.compile(
     r"SC\d\d-\d{4}|[SGA][CHA]\d\d-\d{4}|ibm\.com/docs|Language Reference|Programming Guide|Enterprise COBOL"
     r"|CICS TS|Application Programming|Db2 (for z/OS )?\d|DFSORT|IMS (V|\d)|DFSMS",

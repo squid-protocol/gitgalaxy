@@ -59,6 +59,13 @@ def _shell(body: str) -> list[str]:
         ("  case $1 in\n    start) do_start ;;\n  esac", "do_start"),
         ("  case $1 in\n    a|b) do_ab ;;\n  esac", "do_ab"),
         ("  { cleanup; }", "cleanup"),
+        ("  time foo", "foo"),
+        ("  time -p foo", "foo"),
+        ("  exec bar", "bar"),
+        ("  nohup qux &", "qux"),
+        ("  x=$(time foo)", "foo"),
+        ("  if time foo; then :; fi", "foo"),
+        ("  cmd && exec bar", "bar"),
     ],
 )
 def test_shell_command_word_is_a_call(body, callee):
@@ -74,6 +81,10 @@ def test_shell_command_word_is_a_call(body, callee):
         ("  # note_helper is only a comment\n  :", "note_helper"),
         ("  echo helper_name", "helper_name"),
         ("  for f in a b; do :; done", "f"),
+        ("  exec >log", "log"),
+        ("  exec 3>&1", "3"),
+        ("  time", "time"),
+        ("  echo time foo", "foo"),
         ("  if true; then :; fi", "then"),
     ],
 )
@@ -163,6 +174,23 @@ def test_scheme_lambda_formals_are_not_calls(code):
     assert "h" in calls and not {"y", "fn"} & set(calls)
 
 
+@pytest.mark.parametrize(
+    "form",
+    [
+        "(let ((tmp (h z))) tmp)",
+        "(let* ((tmp (h z)) (n 1)) tmp)",
+        "(letrec ((tmp (h z))) tmp)",
+    ],
+)
+def test_scheme_first_let_binding_name_is_not_a_call(form):
+    calls = _calls("scheme", "(define (g z)\n  " + form + ")\n(define (h z) z)\n", "g")
+    assert "h" in calls and "tmp" not in calls
+
+
+def test_scheme_cond_clause_test_is_still_a_call():
+    assert "even?" in _calls("scheme", "(define (g z)\n  (cond ((even? z) 1) (else 2)))\n", "g")
+
+
 def test_scheme_procedure_define_is_unchanged():
     functions = _functions("scheme", "(define (f x)\n  (g x))\n(define (g y) y)\n")
     assert functions["f"]["calls_out_to"] == ["g"]
@@ -184,6 +212,14 @@ def test_lua_call_after_concat_and_not():
 def test_tcl_command_after_a_closing_brace():
     code = "proc main {} {\n    foreach x $l {\n        puts $x\n    }\n    startClient\n    if {$a} {\n        foo\n    }\n    start\n}\n"
     assert {"startClient", "foo", "start"} <= set(_calls("tcl", code, "main"))
+
+
+def test_tcl_foreach_switch_namespace_bodies():
+    code = (
+        "proc main {} {\n    foreach x $l {\n        puts $x\n    }\n    switch $a {\n        y {\n            doY\n        }\n"
+        "    }\n    namespace eval ns {\n        nsCall\n    }\n    after_all\n}\n"
+    )
+    assert {"doY", "nsCall", "after_all"} <= set(_calls("tcl", code, "main"))
 
 
 def test_tcl_command_substitution_is_a_call():

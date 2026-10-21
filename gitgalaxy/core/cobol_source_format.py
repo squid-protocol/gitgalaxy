@@ -198,7 +198,6 @@ def wrap_fixed(text: str) -> list[str]:
         rest, cont = rest[k:].lstrip(" "), False
 
 
-
 _CONTINUED = re.compile(r"\n {6}-\s*['\"]")
 
 

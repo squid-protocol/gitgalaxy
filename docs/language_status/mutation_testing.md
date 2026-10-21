@@ -442,8 +442,8 @@ CICS abends the task (PGMIDERR, RESP2 3), the shape billpay, tranadd and cardvie
 `pf3-xctl-fails` (XCTL COMEN01C), report `pf3-xctl-fails` (CORPT00C's one XCTL, COMEN01C) and userupd `pf3-saves-then-xctl-fails` (the update saved first, then XCTL COADM01C).
 GnuCOBOL and the port agree on all four. tranlist `9e54fb034b` (the `abendOnCondition` after the XCTL, `Cotrn00cService.java:522`) is killed by both tranlist scenarios; the case
 is re-judged with `mutation.py run --only` (no re-sample), which also records `bdeaa77fbe` as killed (the score had not been re-run for it): COTRN00C 66/91 killed.
-`test_carddemo_failed_xctl_5401.py` pins the four scenarios. Still open: cardlist (COCRDLIC), three XCTL sites (lines 402, 538, 566) and no failed-XCTL scenario; 16 of its 46
-scenarios are already refused by the oracle (X8), so it is its own slice.
+`test_carddemo_failed_xctl_5401.py` pins the four scenarios. cardlist (COCRDLIC) states one per XCTL site (lines 402, 538, 566; #5819), so the item is closed: the test also
+counts the XCTL sites in each of the seven sources and requires a faulted-XCTL scenario for each. The cardlist score is not re-run (16 of its 46 scenarios are refused by the oracle, X8).
 
 #4047 then scored six CardDemo batch ports (readxref, readcust, dailyval, intcalc, posttran, trnrpt; seed 0, up to 100
 mutants each, `--jobs 3`, fast mode). These rows are seed 0 and differ from the older seed-1 CBACT04C, CBTRN02C and

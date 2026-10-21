@@ -259,8 +259,9 @@ def test_the_cli_reads_the_diff_and_falls_back_to_full(tmp_path):
     proc = subprocess.run(
         [*run, "--files", "tests/equivalence/carddemo-menu/case.json"], capture_output=True, text=True, check=True
     )  # noqa: S603
-    assert json.loads(proc.stdout)["cases"] == ["carddemo-menu"]
-    assert "cases=carddemo-menu" in out.read_text(encoding="utf-8")
+    # the case and the cases that take its port (`port_from`: carddemo-menu-generated, #4506)
+    assert json.loads(proc.stdout)["cases"] == ["carddemo-menu", "carddemo-menu-generated"]
+    assert "cases=carddemo-menu,carddemo-menu-generated" in out.read_text(encoding="utf-8")
     bad = subprocess.run([*run, "--base", "no-such-ref"], capture_output=True, text=True, check=True)  # noqa: S603
     assert json.loads(bad.stdout)["mode"] == "full"  # cannot diff: everything
 

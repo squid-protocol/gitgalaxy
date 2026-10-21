@@ -94,3 +94,17 @@ def test_a_server_that_died_is_replaced(tmp_path):
     js.javac(argv, check=True)
     (second,) = js._SERVERS.values()
     assert second is not first and second.proc.poll() is None
+
+
+def test_a_linked_launcher_is_served_by_its_own_jdk(tmp_path):
+    """/usr/bin/javac and /usr/bin/java can be two JDKs (Debian alternatives: 17 and 21 on the box this was found on):
+    the server runs the java of the JDK the javac link resolves to, never the java beside the link."""
+    links = tmp_path / "bin"
+    links.mkdir()
+    (links / "javac").symlink_to(JAVAC.resolve())
+    (links / "java").symlink_to("/bin/false")  # the other JDK's java, here one that cannot serve at all
+    src = _src(tmp_path)
+    r = js.javac([str(links / "javac"), "-encoding", "UTF-8", "-d", str(tmp_path / "o"), str(src)], check=True,
+                 capture_output=True)  # fmt: skip
+    assert r.returncode == 0 and (tmp_path / "o" / "A.class").is_file()
+    assert [b.name for b in js._SERVERS] == ["bin"] and list(js._SERVERS)[0] == JAVAC.resolve().parent

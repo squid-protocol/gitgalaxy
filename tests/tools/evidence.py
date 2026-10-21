@@ -319,9 +319,19 @@ COMPONENTS: tuple[Component, ...] = (
 
 def _names(u: Use, *stems: str) -> bool:
     text = u.port_text()
-    return any(re.search(rf"\b{s}\b", text) for s in stems)
+    words = _words(text)  # a stem of word characters is named exactly when it is one of the text's \w+ runs
+    return any(s in words if _WORD.fullmatch(s) else re.search(rf"\b{s}\b", text) for s in stems)
 
 
+_WORD = re.compile(r"\w+")
+
+
+@functools.lru_cache(maxsize=64)
+def _words(text: str) -> frozenset[str]:
+    return frozenset(_WORD.findall(text))
+
+
+@functools.lru_cache(maxsize=4096)
 def _java_code(text: str) -> str:
     """Java source without comments (a class named in a comment is not a reference)."""
     return re.sub(r"(?<![:\"'])//[^\n]*", "", re.sub(r"/\*.*?\*/", "", text, flags=re.S))
@@ -548,11 +558,13 @@ def options_input(t: Target) -> dict[str, Any]:
             "legacy_semantic_sha256": json_sha256(legacy.semantic()), "estate": fp["estate"], "effective": fp}  # fmt: skip
 
 
-def spec_inputs(t: Target, files: Any, read: Any = None) -> dict[str, Any]:
+def spec_inputs(t: Target, files: Any, read: Any = None, names: Any = None) -> dict[str, Any]:
     """The fingerprints of the target's file-spec inputs (port, case, harness, oracle, generator) over `files`; the
-    harness / oracle / generator ones carry their per-component fingerprints (#4731)."""
+    harness / oracle / generator ones carry their per-component fingerprints (#4731). `names`: only those inputs."""
     out: dict[str, Any] = {}
     for name, spec in t.specs.items():
+        if names is not None and name not in names:
+            continue
         matched = _match(files, spec["paths"], spec["exclude"])
         out[name] = {"paths": spec["paths"], "files": len(matched), "sha256": tree_sha256(matched, read)}
         if name in COMPONENT_INPUTS:  # #4731: the same files, per component (those this target uses)

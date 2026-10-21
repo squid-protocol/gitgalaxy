@@ -36,6 +36,8 @@ JAVA_SUBPROCESS_TEST_FILES = [
 
 
 SUBPROCESS_FUNCS = {"run", "Popen", "check_output", "check_call"}
+# tests/tools/javac_server.py's javac, imported under this name: a subprocess.run of the javac launcher
+JAVAC_RUNNERS = {"javac_run"}
 JAVA_NAMES = {"java", "javac", "java_bin", "javac_bin", "JAVA_BIN", "_JDK"}
 
 
@@ -63,7 +65,7 @@ def _is_tool_call(node: ast.expr) -> bool:
 
 def _java_calls(source: str) -> list[tuple[ast.expr, str, list[str]]]:
     """Every subprocess call in `source` that starts a java/javac: (call, kind, the constant argv strings)."""
-    if ("subprocess" not in source and ".tool" not in source) or "java" not in source:
+    if ("subprocess" not in source and ".tool" not in source and "javac_run" not in source) or "java" not in source:
         return []
     found = []
     tree = ast.parse(source)
@@ -76,7 +78,7 @@ def _java_calls(source: str) -> list[tuple[ast.expr, str, list[str]]]:
             and func.attr in SUBPROCESS_FUNCS
             and isinstance(func.value, ast.Name)
             and func.value.id == "subprocess"
-        ):
+        ) and not (isinstance(func, ast.Name) and func.id in JAVAC_RUNNERS):
             continue
         argv = node.args[0]
         if not isinstance(argv, (ast.List, ast.Tuple)) or not argv.elts:

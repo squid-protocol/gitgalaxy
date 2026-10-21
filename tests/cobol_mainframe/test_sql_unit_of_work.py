@@ -19,6 +19,8 @@ import sys
 from pathlib import Path
 
 import pytest
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 TOOLS = Path(__file__).resolve().parents[1] / "tools"
 sys.path.insert(0, str(TOOLS))
@@ -299,7 +301,7 @@ def test_detsql_ends_the_runners_unit_of_work_and_closes_cursors_as_db2_does(tmp
     (src / "Main.java").write_text(MAIN, encoding="utf-8")
     jdk = _jdk()
     files = [str(p) for p in (tmp_path / "src").rglob("*.java")]
-    javac = subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files],  # noqa: S603
+    javac = javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files],  # noqa: S603
                            capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert javac.returncode == 0, javac.stderr[:3000]
     out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "ggtest.Main"],  # noqa: S603

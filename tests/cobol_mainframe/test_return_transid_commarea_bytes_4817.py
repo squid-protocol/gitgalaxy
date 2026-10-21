@@ -11,6 +11,9 @@ from pathlib import Path
 
 import pytest
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_TASK_JAVA, CICS_SPEC_JAVA
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 
 def _jdk() -> Path | None:
@@ -78,7 +81,7 @@ def test_return_transid_passes_the_commarea_bytes_to_the_next_task(tmp_path):
     )
     (src / "Main.java").write_text(TASK_MAIN)
 
-    subprocess.run(
+    javac_run(
         [
             str(jdk / "bin" / "javac"),
             "-encoding",

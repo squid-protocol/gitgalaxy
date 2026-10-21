@@ -16,6 +16,8 @@ import tempfile
 from pathlib import Path
 
 import pytest
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
@@ -134,7 +136,7 @@ def _build(src: str) -> tuple[Path, Path]:
             f"public class Main {{ public static void main(String[] a) {{ new {PKG}.service.{r.service}().runProgram(); }} }}\n"
         )
         classes = work / "classes"
-        subprocess.run([str(_java() / "javac"), "-encoding", "UTF-8", "-nowarn", "-cp", str(rt), "-d", str(classes),  # noqa: S603
+        javac_run([str(_java() / "javac"), "-encoding", "UTF-8", "-nowarn", "-cp", str(rt), "-d", str(classes),  # noqa: S603
                         str(svc), str(main)], check=True)  # fmt: skip
         _BUILT[src] = (classes, rt)
     return _BUILT[src]

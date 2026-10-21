@@ -349,6 +349,57 @@
     }
    },
    "why": "#4506: a full COMMAREA under a key the screen does not assign"
+  },
+  {
+   "name": "option-9",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "9"
+    }
+   },
+   "why": "#4506: a single digit 9 is a number: OPTION echoes 09 and the menu refuses it as out of range"
+  },
+  {
+   "name": "option-11",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "11"
+    }
+   },
+   "why": "#4506: a two-digit option past the table (11): refused, not read as 1 (a tens digit that is divided, not multiplied, would take option 1)"
+  },
+  {
+   "name": "option-5-pgmiderr",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "5"
+    }
+   },
+   "why": "#4506: option 5 (COTRTLIC, not in the CSD): XCTL answers PGMIDERR"
   }
  ]
 }

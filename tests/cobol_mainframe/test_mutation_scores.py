@@ -203,6 +203,35 @@ def test_the_generated_signon_case_is_scored_and_states_the_credentials_that_kil
     assert "PASSWDI" not in named["passwd-not-sent"]["receive"]["COSGN0A"]
 
 
+def test_the_generated_billpay_case_is_scored_and_states_the_inputs_that_kill_the_survivors():
+    """#4506: COBIL00C's generated variant is scored; its survivors were stated inputs the random draw missed."""
+    results = json.loads(ms.RESULTS.read_text(encoding="utf-8"))
+    ports = {p["case"]: p for p in results["ports"]}
+    total = ports["carddemo-billpay-generated"]["total"]
+    assert total["untriaged"] == 0 and total["case_gap"] == 0 and total["killed"] > 100
+    for s in ports["carddemo-billpay-generated"]["survivors"]:
+        assert s["reason"].strip() and s["verdict"] != "untriaged"
+    case = json.loads((REPO / "tests/equivalence/carddemo-billpay-generated/case.json").read_text(encoding="utf-8"))
+    ids = case["datasets"]["AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"]["generate"]["fields"]["TRAN-ID"]["values"]
+    # the oracle sorts ASCII, the port cp037: a key mixing letters and digits would order differently
+    assert ids and all(v.isdigit() for v in ids)
+    named = {s["name"]: s for s in case["scenarios"]}
+    for n in (
+        "pay-lowercase-y",
+        "zero-balance-confirm",
+        "pay-large-balance",
+        "pay-near-maximum-balance",
+        "account-id-one-digit-padded",
+        "account-id-embedded-blank",
+        "account-id-with-letter",
+        "endbr-invalid-request",
+        "pf3-blank-from-program",
+    ):
+        assert "#4506" in named[n]["why"]
+    assert [f["cmd"] for f in named["endbr-invalid-request"]["faults"]] == ["ENDBR"]
+    assert named["pf3-blank-from-program"]["commarea"]["CDEMO-FROM-PROGRAM"] == ""
+
+
 def test_retriage_replaces_a_verdict_and_recounts_the_totals_and_operators():
     p = ms.port_entry(_run(), {"x-case/PROG:c": {"verdict": "case_gap", "reason": ms.PLACEHOLDER}}, "abc")
     assert ms.placeholders({"ports": [p]}) == {"x-case/PROG": 1}

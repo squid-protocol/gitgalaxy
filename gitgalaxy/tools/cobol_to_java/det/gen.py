@@ -275,6 +275,7 @@ class Gen:
         self.callees: dict[str, str] = {}  # CALLed program -> the ObjectProvider field of its service
         self.entry_tested = False  # #5106: a condition read the `present` flags
         self.entry_items: dict[str, int] = {}  # #5106: a sibling's USING item -> its position (ADDRESS OF = NULL)
+        self.sibling_why: dict[str, str] = {}  # #5106: a sibling whose own translation is refused -> why
         self.siblings: set[str] = set()  # #5106: the other programs of this program's source (no service of their own)
         # CALLed program -> its handleCall parameter types (CobolRef<String>, or a contract DTO for a group item)
         self.callee_types: dict[str, list[str]] = {}
@@ -2984,7 +2985,7 @@ class Gen:
         if prog in self.siblings:
             from gitgalaxy.tools.cobol_to_java.det.dyncall import sibling_refusal
 
-            raise Untranslatable(sibling_refusal(prog))
+            raise Untranslatable(sibling_refusal(prog, self.sibling_why.get(prog)))
         raise Untranslatable(f"CALL {prog}")
 
     def string(self, s: S.Stmt, ind: str) -> list[str]:

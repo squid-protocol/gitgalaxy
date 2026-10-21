@@ -759,3 +759,28 @@ def test_lgdpdb01_det_port_holds_on_generated_multi_table_rows_with_fk(tmp_path)
     sql = [o["sql"] for o in report["outputs"].values() if "sql" in o]
     assert len(sql) == 17 and all(q["equal"] == q["statements"] for q in sql)
     assert {x["sqlcode"] for q in sql for x in q["cobol"]} == {0, 100}
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_lgacdb02_det_port_holds_on_generated_customer_secure_rows_with_fk(tmp_path):
+    """GenApp's add-password service (LGACDB02) on generated CUSTOMER rows and the CUSTOMER_SECURE rows that reference
+    them by foreign key: 16 generated requests, each INSERT (customers 2 and 7 hold no password row) answered alike
+    on both sides and both compared tables alike after every task. A duplicate (-803) and the zero-length COMMAREA
+    stamp the error log with a clock and LINK LGSTSQ (X6): stated scenarios, not generated."""
+    import json
+    import shutil
+    import subprocess
+
+    if not shutil.which("docker"):
+        pytest.skip("no docker")
+    tool = Path(__file__).resolve().parents[1] / "tools" / "det_port.py"
+    proc = subprocess.run([sys.executable, str(tool), "run", "genapp-lgacdb02-generated", "--work", str(tmp_path)],  # noqa: S603
+                          capture_output=True, text=True, check=False)  # fmt: skip
+    assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
+    report = json.loads(next(tmp_path.glob("genapp-lgacdb02-generated/**/report.json")).read_text())
+    assert report["proven"] is True
+    assert report["db2_generated"] == {"GENASA1.CUSTOMER": 12, "GENASA1.CUSTOMER_SECURE": 10}
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    assert sum(1 for q in sql if q["statements"]) == 10 and all(q["equal"] == q["statements"] for q in sql)
+    assert {x["verb"] for q in sql for x in q["cobol"]} == {"INSERT"}
+    assert {x["sqlcode"] for q in sql for x in q["cobol"]} == {0}

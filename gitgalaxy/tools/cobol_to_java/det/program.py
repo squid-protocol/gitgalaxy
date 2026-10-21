@@ -701,9 +701,9 @@ def _names_item(body: str, name: str) -> bool:
 
 def _sibling_service(sib: str, source_lines: list, program: Path, copy_dirs: list[Path], package: str,
                      estate: dict[str, str] | None, project: Path | None, style: str, typed: bool, groups: bool,
-                     options: list[str] | None, strict_copy: bool, own: str, layouts: Any = None) -> _Contract | None:  # fmt: skip
-    """#5106: the service of a sibling program (a PROGRAM-ID of the same source), or None where the CALL stays refused
-    by name. The forge makes no stub for it (D049), so the stub is made here: `<Name>Service` with the CALL entry
+                     options: list[str] | None, strict_copy: bool, own: str, layouts: Any = None) -> _Contract | str | None:  # fmt: skip
+    """#5106: the service of a sibling program (a PROGRAM-ID of the same source), None where the CALL stays refused
+    by name, or the reason the unit's own translation is refused (the CALL then names it). The forge makes no stub for it (D049), so the stub is made here: `<Name>Service` with the CALL entry
     `handleCall(CobolRef<byte[]> ...)`, one parameter per USING item. Only items whose bytes are the whole contract
     are taken: BY REFERENCE (the default), a record of fixed size with no OCCURS, REDEFINES, pointer or float; BY
     VALUE / BY CONTENT, a unit that CALLs back into the chain, or one that is itself a CICS program is left refused.
@@ -722,8 +722,8 @@ def _sibling_service(sib: str, source_lines: list, program: Path, copy_dirs: lis
         if layouts is not None:
             layouts.apply(records, lowered)
         proc = S.parse(lines)
-    except Exception:  # (the unit's own refusal surfaces when its program is translated)
-        return None
+    except Exception as e:  # (the unit's own refusal: the CALL names it)
+        return str(e)
     linkage = {r.name: r for r in records if r.section == "LINKAGE" and r.level == 1}
     items = [linkage.get(u) for u in proc.using]
     for i in items:
@@ -748,8 +748,8 @@ def _sibling_service(sib: str, source_lines: list, program: Path, copy_dirs: lis
     try:
         res = translate(program, copy_dirs, stub, package, estate, project, style, typed, groups, options, sib,
                         strict_copy, layouts)  # fmt: skip
-    except Exception:
-        return None
+    except Exception as e:
+        return str(e)
     finally:
         del _SIBLING_CHAIN[-2 if seeded else -1 :]
     return _Contract(res, [i.size for i in items if i], named, ret is not None)
@@ -822,7 +822,10 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             L.layout(idx)
             records.append(idx)
     proc = S.parse(lines)
-    if is_cics and DLI.uses_exec(x.text for q in proc.paragraphs for x in S.walk(q.body) if x.kind == "EXEC"):
+    bmp = None if is_cics or DLI.entry_pcbs(proc) is not None else DLI.bmp_pcbs(proc)  # #5857: a BMP's EXEC DLI
+    if bmp is not None or (
+        is_cics and DLI.uses_exec(x.text for q in proc.paragraphs for x in S.walk(q.body) if x.kind == "EXEC")
+    ):
         records += DLI.dib_records()  # #5278: EXEC DLI answers DIBSTAT (det/dli.py)
     # SORT-RETURN: the special register, S9(4) BINARY (IBM: 0 after a successful SORT / MERGE) -- only in a program
     # that sorts or names it, so no other port's storage changes
@@ -887,7 +890,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     gen.alphabets, gen.program_collating = alphabets(lines)
     _pcs_figuratives(records, gen)
     gen.copy_dirs = [program.parent, *copy_dirs, C.COPY]
-    gen.dli_pcbs = None if is_cics else DLI.entry_pcbs(proc)  # #4893: IMS enters it at ENTRY 'DLITCBL' (det/dli.py)
+    # #4893: IMS enters it at ENTRY 'DLITCBL'; #5857: a BMP with EXEC DLI is entered by USING its I/O PCB and DB PCBs
+    gen.dli_pcbs = bmp if bmp is not None else (None if is_cics else DLI.entry_pcbs(proc))  # (det/dli.py)
     gen.engine = engine
     gen.java_root = (project / "src/main/java") if project is not None else None
     gen.clock = "clock.currentDate()" if batch else "Funcs.currentDate(java.time.LocalDateTime.now())"
@@ -954,7 +958,9 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         for sib in sorted((called & siblings) - set(gen.callees)):
             done = _sibling_service(sib, source_lines, program, copy_dirs, package, estate, project, style, typed,
                                     groups, options, strict_copy, own_name, layouts)  # fmt: skip
-            if done is None:
+            if done is None or isinstance(done, str):
+                if done:
+                    gen.sibling_why[sib] = done
                 continue  # (refused at the CALL, by name)
             res = done.res
             if not all(_fits(records, c, done) for c in calls if sib in _targets(gen, c)):
@@ -1157,7 +1163,11 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     extra_imports: list[str] = []
     using = [u for u in proc.using if u != "BY"]
     parm_code = []
-    if gen.dli_pcbs is not None:  # #4893: IMS passes the PSB's PCBs, no PARM (DFSRRC00's PARM is IMS's own)
+    if isinstance(gen.dli_pcbs, DLI.BmpPcbs):  # #5857: the I/O PCB first (CMPAT=YES), then the DB PCBs
+        names = [gen.dli_pcbs.io, *gen.dli_pcbs]
+        parm_code = [f"        DetDli.enterBmp({', '.join(gen.field_expr(E.Ref(n)) for n in names)});"]
+        extra_imports.append(f"{package}.cobolrt.dli.DetDli")
+    elif gen.dli_pcbs is not None:  # #4893: IMS passes the PSB's PCBs, no PARM (DFSRRC00's PARM is IMS's own)
         parm_code = [f"        DetDli.enter({', '.join(gen.field_expr(E.Ref(n)) for n in gen.dli_pcbs)});"]
         extra_imports.append(f"{package}.cobolrt.dli.DetDli")
     elif using:

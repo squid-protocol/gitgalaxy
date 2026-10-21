@@ -134,3 +134,50 @@ def test_a_path_outside_the_root_is_not_the_estates(estate):
     lay = EngineLayouts.from_ir(estate[0], "LAYTOY.cbl", estate[1])
     assert lay.rel(str(estate[1] / "LAYCPY.cpy")) == "LAYCPY.cpy"
     assert lay.rel(str(Path(estate[2]) / "SYSREC.cpy")) is None
+
+
+CODEPTR = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. PTRTOY.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-PP.
+           05  PP-A               PIC X(2).
+           05  PP-PROC            USAGE PROCEDURE-POINTER.
+           05  PP-B               PIC X.
+           05  PP-FUNC            FUNCTION-POINTER.
+           05  PP-C               PIC X.
+           05  PP-TBL             PROCEDURE-POINTER OCCURS 2.
+           05  PP-D               PIC X.
+       PROCEDURE DIVISION.
+           GOBACK.
+"""
+
+
+@pytest.fixture(scope="module")
+def codeptr_estate(tmp_path_factory):
+    pytest.importorskip("tree_sitter_language_pack")
+    base = tmp_path_factory.mktemp("engine_layout_5694")
+    repo = base / "repo"
+    repo.mkdir()
+    (repo / "PTRTOY.cbl").write_text(CODEPTR, encoding="utf-8")
+    return load_galaxy_ir(scan_to_db(repo, base / "scan")), repo
+
+
+def test_code_pointers_have_a_width_the_engine_can_hand_the_translator(codeptr_estate):
+    """#5694: a record holding a PROCEDURE- / FUNCTION-POINTER is consumed, not refused. At the translator's width both
+    are its POINTER (8); at z/OS's, a procedure pointer is 8 and a function pointer 4 (register C9)."""
+    ir, repo = codeptr_estate
+    lines = program_lines(repo / "PTRTOY.cbl", [repo], None)
+    recs = L.parse(lines)
+    own = {x.name: (x.offset, x.size) for r in recs for x in r.walk()}
+    lay = EngineLayouts.from_ir(ir, "PTRTOY.cbl", repo, mode="check")
+    lay.apply(recs, lines)
+    assert lay.consumed == ["WS-PP"] and lay.own == []
+    assert {x.name: (x.offset, x.size) for r in recs for x in r.walk()} == own
+    assert [_at(recs, n) for n in ("PP-PROC", "PP-FUNC", "PP-TBL", "PP-D", "WS-PP")] == [
+        (2, 8), (11, 8), (20, 8), (36, 1), (0, 37)]  # fmt: skip
+    ef = ir.files["PTRTOY.cbl"]
+    top = next(i for i in ef.data_items if i.name == "WS-PP")
+    fields = {f["name"]: (f["offset"], f["bytes"]) for f in ir.record_layout(ef, top)["fields"]}  # z/OS: no override
+    assert [fields[n] for n in ("PP-PROC", "PP-FUNC", "PP-TBL", "PP-D")] == [(2, 8), (11, 4), (16, 16), (32, 1)]

@@ -68,6 +68,40 @@
      "XREF-CUST-ID": {
       "from": "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS.CUST-ID",
       "miss": 0.2
+     },
+     "XREF-CARD-NUM": {
+      "values": [
+       " +40000000000051",
+       "-400000000000051",
+       "4111111111111110",
+       "4000 00000000051",
+       "+000000000000051",
+       "                ",
+       "400000000000051 ",
+       "A1B2C3D4E5F6G7H8",
+       "XYZXYZXYZXYZXYZX",
+       "4000000000O00051",
+       "ABCDEFGHIJKLMNOP",
+       "49,000000000091X",
+       "4111111111111111",
+       "4111111111111112",
+       "4111111111111113",
+       "4111111111111114",
+       "4111111111111115",
+       "4111111111111116",
+       "4111111111111117",
+       "4111111111111118",
+       "4111111111111119",
+       "4111111111111120",
+       "4111111111111121",
+       "4111111111111122",
+       "4111111111111123",
+       "4111111111111124",
+       "4111111111111125",
+       "4111111111111126",
+       "4111111111111127",
+       "4111111111111128"
+      ]
      }
     }
    }
@@ -92,7 +126,681 @@
    "output": "CACTVWAO"
   }
  },
- "scenarios": [],
+ "scenarios": [
+  {
+   "name": "enter-from-menu",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "why": "#4506 mutation survivors of the generated variant: carddemo-acctview's enter-from-menu"
+  },
+  {
+   "name": "view-account",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "00981382950"
+    }
+   },
+   "why": "#4506 mutation survivors of the generated variant: carddemo-acctview's view-account (on an account of this case's generated data)"
+  },
+  {
+   "name": "account-not-on-file",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "99999999999"
+    }
+   },
+   "why": "#4506 mutation survivors of the generated variant: carddemo-acctview's account-not-on-file (on an account of this case's generated data)"
+  },
+  {
+   "name": "account-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "ABC"
+    }
+   },
+   "why": "#4506 mutation survivors of the generated variant: carddemo-acctview's account-not-numeric (on an account of this case's generated data)"
+  },
+  {
+   "name": "pf3-back-to-menu",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "why": "#4506 mutation survivors of the generated variant: carddemo-acctview's pf3-back-to-menu"
+  },
+  {
+   "name": "pf15-back-to-menu",
+   "aid": "DFHPF15",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "why": "#4506 mutation survivors of the generated variant: PF15 is PF3 on a 24-key keyboard (CSSTRPFY)"
+  },
+  {
+   "name": "xref-file-notopen",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "00981382950"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CXACAIX",
+     "nth": 1,
+     "resp": "NOTOPEN"
+    }
+   ],
+   "why": "#4506 mutation survivors of the generated variant: carddemo-acctview's xref-file-notopen (on an account of this case's generated data)"
+  },
+  {
+   "name": "account-not-found",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "00981382950"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "ACCTDAT",
+     "nth": 1,
+     "resp": "NOTFND"
+    }
+   ],
+   "why": "#4506 mutation survivors of the generated variant: carddemo-acctview's account-not-found (on an account of this case's generated data)"
+  },
+  {
+   "name": "account-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "00981382950"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "ACCTDAT",
+     "nth": 1,
+     "resp": "IOERR"
+    }
+   ],
+   "why": "#4506 mutation survivors of the generated variant: carddemo-acctview's account-io-error (on an account of this case's generated data)"
+  },
+  {
+   "name": "customer-not-found",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "00981382950"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTDAT",
+     "nth": 1,
+     "resp": "NOTFND"
+    }
+   ],
+   "why": "#4506 mutation survivors of the generated variant: carddemo-acctview's customer-not-found (on an account of this case's generated data)"
+  },
+  {
+   "name": "account-and-customer-not-found",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "00981382950"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "ACCTDAT",
+     "nth": 1,
+     "resp": "NOTFND"
+    },
+    {
+     "cmd": "READ",
+     "file": "CUSTDAT",
+     "nth": 1,
+     "resp": "NOTFND"
+    }
+   ],
+   "why": "#4506 mutation survivors of the generated variant: carddemo-acctview's account-and-customer-not-found (on an account of this case's generated data)"
+  },
+  {
+   "name": "customer-file-disabled",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "00981382950"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTDAT",
+     "nth": 1,
+     "resp": "DISABLED"
+    }
+   ],
+   "why": "#4506 mutation survivors of the generated variant: carddemo-acctview's customer-file-disabled (on an account of this case's generated data)"
+  },
+  {
+   "name": "reenter-carried-fields",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-TRANID": "CAVW",
+    "CDEMO-CUST-FNAME": "ADA",
+    "CDEMO-CUST-LNAME": "LOVELACE",
+    "CDEMO-LAST-MAP": "CACTVWA",
+    "CDEMO-LAST-MAPSET": "COACTVW",
+    "CA-FROM-PROGRAM": "COMEN01C",
+    "CA-FROM-TRANID": "CM00",
+    "CDEMO-CUST-MNAME": "BYRON"
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "00981382950"
+    }
+   },
+   "why": "#4506 mutation survivors of the generated variant: carddemo-acctview's reenter-carried-fields (on an account of this case's generated data)"
+  },
+  {
+   "name": "star-account-id",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "*"
+    }
+   },
+   "why": "#4506 mutation survivors of the generated variant: carddemo-acctview's star-account-id (on an account of this case's generated data)"
+  },
+  {
+   "name": "blank-account-id",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": ""
+    }
+   },
+   "why": "#4506 mutation survivors of the generated variant: carddemo-acctview's blank-account-id (on an account of this case's generated data)"
+  },
+  {
+   "name": "pf3-blank-caller",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "",
+    "CDEMO-FROM-PROGRAM": "",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "why": "#4506 mutation survivors of the generated variant: carddemo-acctview's pf3-blank-caller"
+  },
+  {
+   "name": "pf3-from-itself",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "why": "#4506 mutation survivors of the generated variant: carddemo-acctview's pf3-from-itself"
+  },
+  {
+   "name": "context-two",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 2
+   },
+   "why": "#4506 mutation survivors of the generated variant: carddemo-acctview's context-two"
+  },
+  {
+   "name": "no-commarea-enter",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "#4506 mutation survivors of the generated variant: carddemo-acctview's no-commarea-enter"
+  },
+  {
+   "name": "no-commarea-pf3",
+   "aid": "DFHPF3",
+   "commarea": null,
+   "why": "#4506 mutation survivors of the generated variant: carddemo-acctview's no-commarea-pf3"
+  },
+  {
+   "name": "large-balance-group-account",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "00981382950"
+    }
+   },
+   "why": "#4506 mutation survivors of the generated variant: carddemo-acctview's large-balance-group-account (on an account of this case's generated data)"
+  },
+  {
+   "name": "carried-account-status",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-TO-TRANID": "CM00",
+    "CDEMO-TO-PROGRAM": "COMEN01C"
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "00981382950"
+    }
+   },
+   "why": "#4506 mutation survivors of the generated variant: carddemo-acctview's carried-account-status (on an account of this case's generated data)"
+  },
+  {
+   "name": "pf3-low-values-caller",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "\u0000\u0000\u0000\u0000",
+    "CDEMO-FROM-PROGRAM": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "why": "#4506 mutation survivors of the generated variant: carddemo-acctview's pf3-low-values-caller"
+  },
+  {
+   "name": "id-no-leading-zeros",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "350490883"
+    }
+   },
+   "why": "#4506 mutation survivors: a typed account id shape (MOVE of PIC X to PIC 9(11) without validation) no generated scenario sends"
+  },
+  {
+   "name": "id-leading-spaces",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "   350490883"
+    }
+   },
+   "why": "#4506 mutation survivors: a typed account id shape (MOVE of PIC X to PIC 9(11) without validation) no generated scenario sends"
+  },
+  {
+   "name": "id-plus-sign",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "+0350490883"
+    }
+   },
+   "why": "#4506 mutation survivors: a typed account id shape (MOVE of PIC X to PIC 9(11) without validation) no generated scenario sends"
+  },
+  {
+   "name": "id-minus-sign",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "-0350490883"
+    }
+   },
+   "why": "#4506 mutation survivors: a typed account id shape (MOVE of PIC X to PIC 9(11) without validation) no generated scenario sends"
+  },
+  {
+   "name": "id-comma",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "0,350,49088"
+    }
+   },
+   "why": "#4506 mutation survivors: a typed account id shape (MOVE of PIC X to PIC 9(11) without validation) no generated scenario sends"
+  },
+  {
+   "name": "id-point-in-digits",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "00350.49088"
+    }
+   },
+   "why": "#4506 mutation survivors: a typed account id shape (MOVE of PIC X to PIC 9(11) without validation) no generated scenario sends"
+  },
+  {
+   "name": "id-trailing-space",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "0350490883 "
+    }
+   },
+   "why": "#4506 mutation survivors: a typed account id shape (MOVE of PIC X to PIC 9(11) without validation) no generated scenario sends"
+  },
+  {
+   "name": "id-letter-inside",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "0035A490883"
+    }
+   },
+   "why": "#4506 mutation survivors: a typed account id shape (MOVE of PIC X to PIC 9(11) without validation) no generated scenario sends"
+  },
+  {
+   "name": "id-all-nines",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "99999999999"
+    }
+   },
+   "why": "#4506 mutation survivors: a typed account id shape (MOVE of PIC X to PIC 9(11) without validation) no generated scenario sends"
+  },
+  {
+   "name": "card-number-blank",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "00454465424"
+    }
+   },
+   "why": "#4506 mutation survivors of the generated variant: the account's card-xref number is 16 blanks, MOVEd to the 9(16) CDEMO-CARD-NUM as zero"
+  },
+  {
+   "name": "card-number-comma-trailing-letter",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "00479662014"
+    }
+   },
+   "why": "#4506 mutation survivors of the generated variant: the card-xref number '49,000000000091X': libcob ignores the comma and stops filling at 16 digits, before the letter"
+  },
+  {
+   "name": "card-number-inner-space",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "00805183641"
+    }
+   },
+   "why": "#4506 mutation survivors of the generated variant: the card-xref number holds a blank between digits, which the MOVE ignores"
+  },
+  {
+   "name": "card-number-minus-sign",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "00423191701"
+    }
+   },
+   "why": "#4506 mutation survivors of the generated variant: the card-xref number leads with a minus: the MOVE to an unsigned item drops the sign"
+  },
+  {
+   "name": "card-number-trailing-space",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "00924044565"
+    }
+   },
+   "why": "#4506 mutation survivors of the generated variant: the card-xref number is 15 digits and a trailing blank"
+  },
+  {
+   "name": "card-number-space-then-plus",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "00519977849"
+    }
+   },
+   "why": "#4506 mutation survivors of the generated variant: the card-xref number is a blank, a plus sign and 14 digits; its customer is not on file"
+  },
+  {
+   "name": "card-number-plus-sign",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CAVW",
+    "CDEMO-FROM-PROGRAM": "COACTVWC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CACTVWA": {
+     "ACCTSIDI": "00385955696"
+    }
+   },
+   "why": "#4506 mutation survivors of the generated variant: the card-xref number leads with a plus; its customer is not on file"
+  }
+ ],
  "scenario_generate": {
   "seed": 3804,
   "count": 24,
@@ -119,5 +827,5 @@
    }
   }
  },
- "notes": "CardDemo's account view (CAVW) on GENERATED inputs (#3804), proving the carddemo-acctview port on data it was not written against: accounts, customers and card cross-references built from their record layouts (a cross-reference to an account only some of the time, a fifth pointing at a customer that is not on file), and 24 generated re-entries whose typed account id is one on file, one that is not, or not a number (letters, blanks, signs, a decimal point). #4506: every other unprotected field of the CACTVWA map is typed too, generated from the BMS source (COACTVW.bms: its lengths and NUM/PICIN), some of the time left alone, some of the time not a number. The cross-reference's card number is generated from its layout alone, letters and blanks included: the COBOL's MOVE of that PIC X(16) into a PIC 9(16) does not validate, and the port gives its result (#4491, found by this case's first run). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+ "notes": "CardDemo's account view (CAVW) on GENERATED inputs (#3804), proving the carddemo-acctview port on data it was not written against: accounts, customers and card cross-references built from their record layouts (a cross-reference to an account only some of the time, a fifth pointing at a customer that is not on file), and 24 generated re-entries whose typed account id is one on file, one that is not, or not a number (letters, blanks, signs, a decimal point). #4506: every other unprotected field of the CACTVWA map is typed too, generated from the BMS source (COACTVW.bms: its lengths and NUM/PICIN), some of the time left alone, some of the time not a number. The cross-reference's card number is a stated list (#4506): clean digits, letters, blanks, signs, commas and a point among digits -- the COBOL's MOVE of that PIC X(16) into a PIC 9(16) does not validate, and the port gives its result (#4491, found by this case's first run, which generated it from the layout alone). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
 }

@@ -1170,7 +1170,7 @@
       "csharp/roslyn/LanguageParser.cs": 7.302,
       "csharp/roslyn/License.txt": 0.0,
       "csharp/roslyn/MethodCompiler.cs": 7.126,
-      "csharp/roslyn/Workspace.cs": 7.585
+      "csharp/roslyn/Workspace.cs": 7.584
     },
     "css": {
       "css/SOURCES.md": 0.0
@@ -3921,8 +3921,8 @@
       "typescript/vscode/eslint.config.js": 6.106,
       "typescript/vscode/extHost.api.impl.ts": 11.375,
       "typescript/vscode/gulpfile.vscode.ts": 7.756,
-      "typescript/vscode/instantiationService.ts": 7.512,
-      "typescript/vscode/ipc.ts": 6.483,
+      "typescript/vscode/instantiationService.ts": 7.483,
+      "typescript/vscode/ipc.ts": 6.469,
       "typescript/vscode/lifecycle.ts": 7.831,
       "typescript/vscode/package.json": 0.0,
       "typescript/vscode/vscode.d.ts": 9.248

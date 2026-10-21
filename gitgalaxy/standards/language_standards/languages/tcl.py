@@ -41,8 +41,13 @@ DEFINITION: dict[str, Any] = {
         # WHERE ... }`). Tcl cannot shield braces, which are also code bodies, so
         # the SQL words are excluded by name, upper-case only: `set`/`update` are
         # real Tcl commands. The lookahead is one bounded alternation (Rule 5).
+        # #5640: a one-line brace body is command position too: after `} {` (`if {$a} {foo}`), after a
+        # script-taking word (`catch {qux}`) or a number (`after 10 {zed}`). Lookbehinds, not consumed
+        # words: the line-start branch has already eaten `catch`.
         "calls_out": re.compile(
-            r"(?m)(?:^[ \t]*|\[[ \t]*)(?!(?:SELECT|INSERT|UPDATE|DELETE|REPLACE|FROM|WHERE|SET|VALUES|INTO|AND|OR|NOT"
+            r"(?m)(?:^[ \t]*|\[[ \t]*|\}[ \t]*\{[ \t]*"
+            r"|(?:(?<=\bcatch)|(?<=\belse)|(?<=\btry)|(?<=\bfinally)|(?<=\beval)|(?<=\buplevel)|(?<=[0-9]))[ \t]+\{[ \t]*)"
+            r"(?!(?:SELECT|INSERT|UPDATE|DELETE|REPLACE|FROM|WHERE|SET|VALUES|INTO|AND|OR|NOT"
             r"|UNION|WITH|AS|ON|USING|JOIN|INNER|OUTER|LEFT|CROSS|NATURAL|ORDER|GROUP|HAVING|LIMIT|OFFSET"
             r"|CREATE|DROP|ALTER|TABLE|INDEX|VIEW|TRIGGER|BEGIN|COMMIT|ROLLBACK|PRAGMA|COALESCE|CASE|WHEN"
             r"|THEN|ELSE|END|EXCEPT|INTERSECT|RETURNING|DISTINCT|ALL|IN|IS|NULL|LIKE|BETWEEN)(?!["

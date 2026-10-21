@@ -421,9 +421,9 @@ def test_the_handler_program_s_holes_are_each_owned_by_one_refusal_map_entry():
             "SET RESUME TO TRUE",
         )
     )
-    assert len(holes) == 2, holes
-    assert "SET ADDRESS OF" in holes[0] and "CEEMGET:" in holes[1] and "not modelled" in holes[1], holes
-    assert _ids(holes) == [["pointers"], ["le-condition-handling"]], holes
+    assert len(holes) == 1, holes
+    assert "CEEMGET:" in holes[0] and "not modelled" in holes[0], holes
+    assert _ids(holes) == [["le-condition-handling"]], holes
 
 
 @pytest.mark.parametrize("service", ["CEEMGET", "CEESGL", "CEENCOD", "CEEMRCE", "CEE3SRP"])
@@ -519,13 +519,12 @@ def test_the_real_epscsmrd_registration_holes_are_each_owned_by_one_entry():
     ], found  # fmt: skip
 
 
-def test_the_real_epscsmrd_handler_program_holds_pointers_and_two_ceemget_holes_only():
-    """EPSCSMRF translated as its own unit: SET ADDRESS OF ... TO TOKEN (`pointers`) and CEEMGET at lines 406 and 422
-    (`le-condition-handling`); its SET RESUME TO TRUE and the rest translate. CEE3SRP / CEENCOD (EPSCSMRI, EPSCSMRO) sit
+def test_the_real_epscsmrd_handler_program_holds_two_ceemget_holes_only():
+    """EPSCSMRF translated as its own unit: CEEMGET at lines 406 and 422 (`le-condition-handling`); SET ADDRESS OF ... TO
+    TOKEN (line 383) now translates, as does its SET RESUME TO TRUE and the rest. CEE3SRP / CEENCOD (EPSCSMRI, EPSCSMRO) sit
     behind those programs' own refusals (national-text, bll-cells) and so are not reached."""
     holes = _real_epscsmrd("EPSCSMRF")
     by_line = {re.match(r"line (\d+): ", h).group(1): h for h in holes}
-    assert sorted(by_line) == ["383", "406", "422"], holes
-    assert _ids([by_line["383"]]) == [["pointers"]], by_line
+    assert sorted(by_line) == ["406", "422"], holes
     assert all("CEEMGET:" in by_line[k] and "not modelled" in by_line[k] for k in ("406", "422")), by_line
     assert _ids([by_line["406"], by_line["422"]]) == [["le-condition-handling"]] * 2, by_line

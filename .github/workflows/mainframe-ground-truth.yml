@@ -101,6 +101,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0  # git diff origin/main...HEAD needs the merge base
+          filter: blob:none  # #5882: history without file contents (~1 s, not ~45-75 s); a file git reads is fetched then
           persist-credentials: false
 
       - name: Plan the check

@@ -106,6 +106,37 @@ def test_an_unreadable_diff_runs_the_sweeps(monkeypatch, tmp_path, capsys):
     assert "cannot diff" in capsys.readouterr().out
 
 
+def _pr_list(tmp_path, rows):
+    path = tmp_path / "pr-files.jsonl"
+    path.write_text("".join(json.dumps(r) + "\n" for r in rows), encoding="utf-8")
+    return path
+
+
+def test_the_prs_file_list_names_a_rename_twice(tmp_path):
+    rows = [{"filename": "docs/a.md", "previous_filename": None},
+            {"filename": "docs/new.md", "previous_filename": "gitgalaxy/old.py"}]  # fmt: skip
+    assert sp.pr_files(_pr_list(tmp_path, rows), "2") == ["docs/a.md", "docs/new.md", "gitgalaxy/old.py"]
+
+
+@pytest.mark.parametrize("count", ["3", "", "x"])
+def test_a_partial_or_uncounted_pr_list_is_unreadable(tmp_path, count):
+    with pytest.raises(RuntimeError):
+        sp.pr_files(_pr_list(tmp_path, [{"filename": "docs/a.md"}, {"filename": "docs/b.md"}]), count)
+
+
+@pytest.mark.parametrize(("rows", "count", "mode"), [
+    ([{"filename": "docs/ci.md"}], "1", "none"),
+    ([{"filename": "docs/ci.md"}], "2", "full"),  # not the whole list: cannot tell, so the sweeps run
+    ([{"filename": "docs/ci.md", "previous_filename": "gitgalaxy/core/x.py"}], "1", "full"),  # renamed from an input
+])  # fmt: skip
+def test_main_plans_from_the_prs_file_list(monkeypatch, tmp_path, capsys, rows, count, mode):
+    monkeypatch.setattr(sys, "argv", ["sweep_plan", "--pr-files", str(_pr_list(tmp_path, rows)),
+                                      "--pr-file-count", count])  # fmt: skip
+    monkeypatch.setattr(sp, "changed_files", lambda _base: pytest.fail("no git diff when the PR's list is given"))
+    assert sp.main() == 0
+    assert json.loads(capsys.readouterr().out)["mode"] == mode
+
+
 def test_main_writes_the_mode_for_the_workflow(monkeypatch, tmp_path):
     out = tmp_path / "out"
     monkeypatch.setattr(sys, "argv", ["sweep_plan", "--files", "docs/ci.md", "--github-output", str(out)])
@@ -202,8 +233,12 @@ def test_the_workflow_plans_then_deselects_with_golden_crucible_kept():
     assert run_step["env"]["SWEEPS"] == "${{ steps.sweeps.outputs.mode }}"
     assert '[ "$SWEEPS" = "none" ]' in run_step["run"]  # only an explicit none deselects
     assert '-m "not golden_crucible and not redos_sweep"' in run_step["run"]
+    # #5882: the plan reads the PR's own file list (whole, by count), so the part checks out one commit and fetches
+    # no history (an `event == 'pull_request' && 0 || 1` depth was always 1: the plan could never diff)
+    assert '"repos/$REPO/pulls/$PR/files"' in plan_step["run"] and '--pr-files "$files"' in plan_step["run"]
+    assert '--pr-file-count "$count"' in plan_step["run"] and "git fetch" not in plan_step["run"]
     checkout = next(s for s in job["steps"] if str(s.get("uses", "")).startswith("actions/checkout"))
-    assert "pull_request" in str(checkout["with"]["fetch-depth"])  # the diff needs the merge base
+    assert checkout["with"]["fetch-depth"] == 1
     # the required aggregate and its needs are unchanged; the matrix gate never deselects
     assert wf["full-suite"]["needs"] == ["tested-tree", "full-suite-part"]
     gate = (ROOT / ".github" / "workflows" / "full-suite-gate.yml").read_text(encoding="utf-8")

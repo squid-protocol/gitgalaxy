@@ -4080,6 +4080,12 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   numeric DISPLAY items (date of birth, review date), the same bytes on the Java side.
 - **Assumed** to be spaces (zeros for a numeric DISPLAY item, as GnuCOBOL initialises it). A z/OS run with
   STORAGE(00) would give X'0000' there.
+- **IBM.** The Enterprise COBOL for z/OS Language Reference (VALUE clause) leaves the initial contents of a data item
+  with no VALUE clause undefined; the Language Environment Programming Reference's STORAGE runtime option (IBM default
+  `NONE,NONE,NONE,0K`, i.e. no initialisation) decides what the storage held.
+- **Declared difference.** The oracle's spaces (zeros in a numeric DISPLAY item) are a declared oracle-vs-IBM
+  difference, not a match: IBM defines no value there. No proof rests on a byte IBM leaves undefined beyond the two
+  bytes and the `WS-CONT-IN` tail above (C18 applies the same stated difference).
 
 ### L4. CEEIGZCT — a GitGalaxy-written stand-in, only where the estate has none
 - **What.** IBM's Language Environment copybook CEEIGZCT is not in any estate and is never shipped. The translator
@@ -4212,6 +4218,10 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   -803, -811, -532) are the same codes on z/OS. SQLERRMC tokens come from Db2 itself.
 - **Not compared to z/OS.** SQLSTATE subclasses, SQLERRD values beyond the row count, SQLERRP, and the dialect
   differences of other statements.
+- **IBM.** The Db2 for z/OS Codes reference defines SQLCODE +100 (no row), -803 (duplicate key), -811 (more than one
+  row from a SELECT INTO) and -532 (a delete rule restricts); Db2 for LUW uses the same SQLCODE numbers for these.
+- **Declared difference.** Db2 for LUW is the oracle's engine and z/OS is IBM's: the SQLSTATE subclasses, SQLERRD
+  beyond the row count and SQLERRP above are a declared oracle-vs-IBM difference, uncompared.
 
 ### Q1a. A binary host variable takes what its bytes hold — MATCHED (#4579)
 - **What.** SELECT INTO / FETCH INTO a COMP / COMP-4 / BINARY / COMP-5 host variable gives SQLCODE -304 only for a value
@@ -4237,6 +4247,10 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 
 ### Q2. EXEC SQL keeps RETURN-CODE — ASSUMED
 - The precompiled CALL preserves RETURN-CODE around the stub. Whether IBM's DSNHLI call resets it is not documented.
+- **IBM.** The Db2 for z/OS Application Programming and SQL Guide describes the language interface module (DSNHLI)
+  and the SQLCODE / SQLSTATE it returns; it does not say whether RETURN-CODE is preserved around the call. IBM is
+  silent, so this is a declared oracle-vs-IBM difference risk, not a match: a program that reads RETURN-CODE after an
+  EXEC SQL without setting it would differ. No burned program does.
 
 ### Q3. The Db2 unit of work — MATCHED for CICS tasks and for batch steps (#4269)
 - **CICS.** The equivalence test runs each task's SQL in one Db2 transaction, as CICS's Db2 thread does: committed when
@@ -4338,6 +4352,11 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   removed (`IN db.ts`, `USING STOGROUP`, `AUDIT`, `[NOT] VOLATILE CARDINALITY`, `SET CURRENT SQLID`, CREATE
   DATABASE / STOGROUP / TABLESPACE). None changes what a query returns. The bind's `QUALIFIER` is each side's
   current schema.
+- **IBM.** The Db2 for z/OS Command Reference (BIND PACKAGE, DATE option) sets the date format of output host
+  variables (ISO, EUR, USA, JIS or LOCAL; default the installation's, ISO as IBM ships it); the SQL Reference defines
+  the ISO string form `yyyy-mm-dd`.
+- **Declared difference.** The harness database's USA default for `CHAR(date)` in SQL text, and the removed
+  placement and audit clauses, are a declared oracle-vs-IBM difference; none changes a proven result.
 
 ### Q7. `CCSID EBCDIC` tables — DIFFERS
 - **What.** GenApp's DDL creates its tables `CCSID EBCDIC`; Db2 for Linux has no such clause, and the harness

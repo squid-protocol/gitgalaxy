@@ -83,7 +83,10 @@ LIBRARY = {
     # #5003: the offset from GMT (zero: the run's clock is GMT); CEEUTCO is the same service as CEEGMTO
     "CEEGMTO": ("__PACKAGE__.cobolrt.le.Ceegmto.call", 4),
     "CEEUTCO": ("__PACKAGE__.cobolrt.le.Ceegmto.call", 4),
+    # #5858 (register Q5): Db2's SQLCA message formatter as a stand-in, the twin of tests/equivalence/le/dsntiac.c
+    "DSNTIAC": ("__PACKAGE__.cobolrt.le.Dsntiac.call", 5),
 }
+LIBRARY_RC = {"DSNTIAC"}  # the routines whose int result is the CALL's RETURN-CODE
 LIBRARY_CLOCK = {
     "CEELOCT",
     "CEEGMT",
@@ -104,7 +107,7 @@ LIBRARY_FLOATS = {
     "CEEGMTO": {2},
     "CEEUTCO": {2},
 }
-LIBRARY_CHARSET = {*LIBRARY_CLOCK, *LIBRARY_FLOATS, "CEEDATE", "CEEQCEN"}
+LIBRARY_CHARSET = {*LIBRARY_CLOCK, *LIBRARY_FLOATS, *LIBRARY_RC, "CEEDATE", "CEEQCEN"}
 
 
 def jstr(s: str) -> str:
@@ -3002,6 +3005,11 @@ class Gen:
                 refs = [self.current_date_expr(), *refs]
             if prog in LIBRARY_CHARSET:
                 refs.append("CS")
+            if prog in LIBRARY_RC:
+                rc = self.tmpname("rc")
+                target = self.field_expr(E.Ref("RETURN-CODE"))
+                return [f"{ind}int {rc} = {lib[0]}({', '.join(refs)});",
+                        f"{ind}Cobol.store({target}, BigDecimal.valueOf({rc}), false, CS);"]  # fmt: skip
             return [f"{ind}{lib[0]}({', '.join(refs)});"]
         from gitgalaxy.tools.cobol_to_java.det import mq
 

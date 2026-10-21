@@ -385,8 +385,8 @@
    "line": 1061,
    "before": "task.returnTransid(f3_WS_TRANID.strip(), out_Cotrn02cCarddemoCommarea(f29_CARDDEMO_COMMAREA.storage(), f29_CARDDEMO_COMMAREA.offset()), (Integer) null, Cobol.commarea(f29_CARDDEMO_COMMAREA, 218).bytes);",
    "after": "task.returnTransid(f3_WS_TRANID.strip(), out_Cotrn02cCarddemoCommarea(f29_CARDDEMO_COMMAREA.storage(), f29_CARDDEMO_COMMAREA.offset()), (Integer) null, Cobol.commarea(f29_CARDDEMO_COMMAREA, 219).bytes);",
-   "verdict": "harness-gap",
-   "reason": "the mutant sends a RETURN COMMAREA length of 219 for 218; the harness does not compare the length argument of RETURN COMMAREA (the same gap as COADM01C 952), so the proof cannot see it"
+   "verdict": "equivalent",
+   "reason": "The final RETURN TRANSID(CT02) re-enters COTRN02C itself, and the next task is the only reader of the COMMAREA length (its EIBCALEN). COTRN02C uses EIBCALEN twice: IF EIBCALEN = 0 (line 115), false at 218 and at 219; and MOVE DFHCOMMAREA(1:EIBCALEN) TO CARDDEMO-COMMAREA (line 119), a 218-byte target, so the extra byte of 219 is truncated. DFHCOMMAREA is read nowhere else. The proof does not compare the length argument (a chained next-task run is not modelled), so this is stated from the program's own reads, proposed for owner review."
   },
   {
    "id": "7696e19f3f",

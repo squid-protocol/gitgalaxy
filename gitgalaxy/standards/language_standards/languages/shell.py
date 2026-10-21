@@ -14,6 +14,11 @@ from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: comp
 
 from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
+# #5640: a prefix word that runs the command after it (`time foo`, `exec foo`, `nohup foo`), with up to
+# four option words (`time -p foo`). Consumed, so the capture is the command it runs; a bare `exec >log`
+# or `time` alone does not match it and stays an ignored word.
+_WRAPPER = r"(?:(?:time|exec|nohup|nice|sudo)[ \t]+(?:-[^\s]*[ \t]+){0,4})?"
+
 DEFINITION: dict[str, Any] = {
     "_meta": {
         "target_version": "Bash 5.2 / Zsh 5.9 / Modern DevOps Scripts",
@@ -77,10 +82,12 @@ DEFINITION: dict[str, Any] = {
             # a case arm `pattern)` opens a command (tried first: `a|b)` must not read `a` as one)
             r"(?m)(?:^[ \t]*\(?[^\s()]+\)[ \t]*(?=[A-Za-z_][A-Za-z0-9_.:-]*(?:[ \t;&|}`\r]|$))"
             r"|(?:^|[;&|{!])[ \t]*(?!(?:then|do|else|elif|if|while|until)\b)"
-            r"(?=[A-Za-z_][A-Za-z0-9_.:-]*(?:[ \t;&|}`\r]|$))"
+            + _WRAPPER
+            + r"(?=[A-Za-z_][A-Za-z0-9_.:-]*(?:[ \t;&|}`\r]|$))"
             r"|\b(?:then|do|else|elif|if|while|until)\b[ \t]*"
-            r"(?=[A-Za-z_][A-Za-z0-9_.:-]*(?:[ \t;&|}`\r]|$))"
-            r"|(?:\$\((?!\()|`)[ \t]*(?=[A-Za-z_][A-Za-z0-9_.:-]*(?:[ \t;&|)}`\r]|$)))"
+            + _WRAPPER
+            + r"(?=[A-Za-z_][A-Za-z0-9_.:-]*(?:[ \t;&|}`\r]|$))"
+            r"|(?:\$\((?!\()|`)[ \t]*" + _WRAPPER + r"(?=[A-Za-z_][A-Za-z0-9_.:-]*(?:[ \t;&|)}`\r]|$)))"
             r"([A-Za-z_][A-Za-z0-9_.:-]*)"
         ),
         "_calls_out_ignore": frozenset(

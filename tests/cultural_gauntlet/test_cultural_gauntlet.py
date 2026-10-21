@@ -30,10 +30,18 @@ def sampled(tmp_path_factory):
     return code, results, (base / "out" / "report.md").read_text(encoding="utf-8")
 
 
-@pytest.mark.slow(
-    reason="the module-scoped sampled-plan fixture (~55 s) is set up by whichever of its tests a CI part runs first"
-)
-def test_the_sampled_plan_passes_its_ratchet(sampled):
+@pytest.mark.slow(reason="the sampled plan (~55 s), run once")
+def test_the_sampled_plan(sampled):
+    """The sampled plan's checks, against ONE run of it. Four tests of their own each set the module fixture up
+    again wherever pytest-split / xdist put them (Smoke Tests: 3 parts x -n auto), ~55-72 s each time: one test
+    runs it once. Each check below is the test it was (part 1, part 2's India slice, part 3)."""
+    _the_sampled_plan_passes_its_ratchet(sampled)
+    _the_code_page_checks_pass_in_every_page(sampled)
+    _the_india_cells_run_in_the_sampled_plan(sampled)
+    _the_sampled_plan_runs_part_3(sampled)
+
+
+def _the_sampled_plan_passes_its_ratchet(sampled):
     code, results, report = sampled
     assert code == 0
     assert "| dialect | utf8 | cp037 |" in report and "skipped" in report
@@ -47,10 +55,7 @@ def test_the_sampled_plan_passes_its_ratchet(sampled):
     assert euro and all("skipped" in r and not r["diffs"] for r in euro)
 
 
-@pytest.mark.slow(
-    reason="the module-scoped sampled-plan fixture (~55 s) is set up by whichever of its tests a CI part runs first"
-)
-def test_the_code_page_checks_pass_in_every_page(sampled):
+def _the_code_page_checks_pass_in_every_page(sampled):
     """The generated CobolRecords overpunches as each page does, and the scan reads each page's
     source to the declared facts: the oracle is sound where the converter is right."""
     _, results, _ = sampled
@@ -158,10 +163,7 @@ def test_the_sign_check_names_each_value_a_codec_gets_wrong():
 
 
 # ---- part 2: the India slice ----------------------------------------------------------------------
-@pytest.mark.slow(
-    reason="the module-scoped sampled-plan fixture (~55 s) is set up by whichever of its tests a CI part runs first"
-)
-def test_the_india_cells_run_in_the_sampled_plan(sampled):
+def _the_india_cells_run_in_the_sampled_plan(sampled):
     """INR in the control and cp1140, plain in cp1140, '₹' in the control; the report names the India row."""
     _, results, report = sampled
     ran = {(r["dialect"], r["page"]) for r in results.values() if "skipped" not in r}
@@ -446,10 +448,7 @@ def test_the_database_answers_are_checked_against_the_mainframes():
     assert cg.collation_db_diffs({"error": "javac: x"}, "cp037") == ["executed layer failed: javac: x"]
 
 
-@pytest.mark.slow(
-    reason="the module-scoped sampled-plan fixture (~55 s) is set up by whichever of its tests a CI part runs first"
-)
-def test_the_sampled_plan_runs_part_3(sampled):
+def _the_sampled_plan_runs_part_3(sampled):
     """Each database target and each DB2 format runs in the sampled plan (static layers), and passes: #3945's
     sequential READ orders by the sort column."""
     _, results, report = sampled

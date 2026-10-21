@@ -27,6 +27,8 @@ sys.path.insert(0, str(TESTS / "tools"))
 CC = shutil.which("cc") or shutil.which("gcc")
 needs_cc = pytest.mark.skipif(CC is None, reason="needs a C compiler")
 needs_javac = pytest.mark.skipif(shutil.which("javac") is None, reason="needs a JDK (javac)")
+javac = shutil.which("javac") or "javac"  # PATH's javac by its path: tests/tools/javac_server.py serves only an absolute one
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 _STUB_MAIN = r"""
 #include <stdio.h>
@@ -144,7 +146,7 @@ def _cics_task(tmp_path: Path, main_body: str) -> str:
     main_java.write_text("package t.cics;\n\npublic class Main {\n    public static void main(String[] a) {\n"
                          + main_body + "\n    }\n}\n", encoding="utf-8")  # fmt: skip
     classes = tmp_path / "classes"
-    built = subprocess.run(["javac", "-encoding", "UTF-8", "-cp", str(rt_classes), "-d", str(classes), str(main_java)], check=False,  # noqa: S603, S607
+    built = javac_run([javac, "-encoding", "UTF-8", "-cp", str(rt_classes), "-d", str(classes), str(main_java)], check=False,  # noqa: S603, S607
                            capture_output=True, text=True, encoding="utf-8")  # fmt: skip
     assert built.returncode == 0, built.stderr
     cp = os.pathsep.join([str(classes), str(rt_classes)])

@@ -59,6 +59,31 @@ def tree_fingerprints_computed_once():
         yield
 
 
+@pytest.fixture(autouse=True, scope="module")
+def published_tip_fetched_once():
+    """Every live check fetched the `generated` branch's tip from origin (ls-remote + fetch, ~1.7 s a test): once a
+    module now (a tip does not move between two tests)."""
+    import generated_branch as gb
+
+    real_tip, tips = gb.fetch_tip, {}
+
+    def fetch_tip(*a, **k):
+        key = (a, tuple(sorted(k.items())))
+        if key not in tips:
+            try:
+                tips[key] = (real_tip(*a, **k), None)
+            except RuntimeError as e:  # (no origin: every call raises, as it would have)
+                tips[key] = (None, e)
+        tip, err = tips[key]
+        if err is not None:
+            raise err
+        return tip
+
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(gb, "fetch_tip", fetch_tip)
+        yield
+
+
 # A number as the Markdown prints it: not part of a name (CBACT01C, L5) or a hex digest (8dff2ec2e).
 _NUMBER = re.compile(r"(?<![A-Za-z0-9.])\d+(?:\.\d+)*(?![A-Za-z0-9])")
 

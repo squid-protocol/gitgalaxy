@@ -60,3 +60,9 @@ def test_genapp_vsam_no_commarea_outcomes_are_stated_where_the_proof_leaves_only
         assert "X23" in e["reason"] and "LENGTH(" in e["reason"]
         uncovered = [{"line": line, "outcome": "false"}]
         assert io.adjust(case, (3, 3, 3, 4), uncovered, ledger)[0] == (3, 3, 3, 3)
+
+
+def test_genapp_lgdpvs01_proof_stops_at_the_first_link_of_write_error_message():
+    """#5252: lgdpvs01's 102-byte ERROR-MSG already overruns LGSTSQ's 95-byte WRITE-MSG (X6), so lines 117-118 are never reached."""
+    (e,) = io.load()["genapp-lgdpvs01"]
+    assert "102-byte ERROR-MSG" in e["reason"] and "X6" in e["reason"]

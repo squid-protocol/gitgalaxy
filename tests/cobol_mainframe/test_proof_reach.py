@@ -315,7 +315,9 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     # #4054 then adopted LGUPVS01's port (proven on attempt 1), scored it (seed 0, 150) and re-ran LGAPVS01 on the LGSTSQ
     # port (ending its stale-record skip again): 13 more flagged survivors, all unreachable: the facade entry
     # (handleLink / lastLinkBytes), the EIBCALEN = 0 branch and the dead ABEND helpers. 63 -> 76.
-    assert len(flagged) == 76 and verdicts.count("unreachable") == 73 and verdicts.count("equivalent") == 3
+    # #4047 then re-recorded the five LINKed-program ports in one JVM per proof: 15 more flagged survivors (INQACC's 8
+    # among them, its stale-record skip ended), all in code no proof runs, so all unreachable. 76 -> 91.
+    assert len(flagged) == 91 and verdicts.count("unreachable") == 88 and verdicts.count("equivalent") == 3
     assert not {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C", "CSUTLDTC"}
 
 

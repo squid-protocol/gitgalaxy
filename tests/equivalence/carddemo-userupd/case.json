@@ -315,6 +315,36 @@
    }
   },
   {
+   "name": "pf3-saves-then-xctl-fails",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR2A": {
+     "USRIDINI": "USER0003",
+     "FNAMEI": "LAURITZ",
+     "LNAMEI": "ALME",
+     "PASSWDI": "NEWPASS1",
+     "USRTYPEI": "U"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COADM01C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#5401: XCTL COADM01C answers PGMIDERR RESP2 3 (the program could not be loaded, IBM CICS TS XCTL conditions); the source has no RESP, so CICS abends the task and no screen or COMMAREA is returned"
+  },
+  {
    "name": "pf3-returns-to-admin-menu",
    "aid": "DFHPF3",
    "commarea": {

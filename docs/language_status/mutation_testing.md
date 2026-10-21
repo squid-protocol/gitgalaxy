@@ -179,8 +179,30 @@ from the generated stub in the project; on `--reuse` that file was already the e
 translation had no file stores. `--reuse` now carries the earlier run's `generated_before_overlay` (the stubs) and
 `linked_programs` translates from it. Fast mode was therefore **not** agreeing with `--full` on a case whose proof
 LINKs a det-translated program, and its score overstated the kills: the committed cbsa-inqacc score (131 killed, 0
-survived of 150) was recorded before this fix. Not re-recorded here; the same holds for every case with a det-translated
-LINKed program (the cbsa and genapp cases, mortgage-cmort, the asynccc cases: 56 of the cases in `tests/equivalence`).
+survived of 150) was recorded before this fix.
+
+**Re-recorded (2026-10-21, #4047).** The scored cases with a det-translated LINKed program are exactly five (the five
+below; the other 38 scored cases have no `"programs"`), each re-run with `--sample 150 --seed 0 --jobs 2 --record`
+on the fixed code. cbsa-inqacc fell from 131 killed / 0 survived to **63 killed / 68 survived** (43 case gaps: no
+scenario declares a SQL or CICS fault, so the abend path and the ABNDPROC record are never run; 11 equivalent; 14
+unreachable: widths beyond the DB2 column, and the facade entry no proof calls). The four GenApp cases did not move except genapp-lgupdb01 (67 -> 68 killed).
+
+**The 17 crucible ports get a fast mode (2026-10-21, #4047).** `mutation_crucible.py` already ran every scenario of a
+side in one JVM (`mvn test`, one JVM per side); what each mutant repeated was the refactor and cobol-to-java generate.
+Fast mode (the default; `--full` opts out) generates the case's Java project once, in the baseline proof, and each mutant
+copies it (without `target/`), lays its overlay and compiles (`cics_crucible.py --forge-cache`). Both sides still run
+every scenario, so `killed_by` is the same. `mutation_crucible.py compare A B --require-agree N` judges two runs.
+`--sample 24 --seed 2`, `--full` then fast, `--jobs 2`:
+
+| port | judged by both | agree | proof s, full -> fast | survivors' proof s, full -> fast |
+|---|---|---|---|---|
+| ca-link-lengths / CASUB | 24 | 24 | 397 -> 292 | 165 -> 122 |
+| gt-start-retrieve / GTSTART | 24 | 24 | 342 -> 335 | 101 -> 95 |
+| hx-extended-cursor / HXEXT | 24 | 24 | 371 -> 308 | 115 -> 93 |
+
+72 of 72 agree, every operator present (AOR, COR, CON, DEL, LIT, NEG, RET, ROR). The saving is modest (2-26%): a crucible
+proof is mostly the two Maven runs, not the 12-14 s generate. Not validated: entry runs (no burned port has any), samples
+above 24 on the crucible ports, the other 14 crucible ports.
 
 ## Scores
 
@@ -260,7 +282,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CORPT00C (carddemo-report) | equivalence | 100/642 | 58/87 (67%) | 58/60 (97%) | 2 / 0 / 16 / 11 / 0 |
 | COSGN00C (carddemo-signon) | equivalence | 100/196 | 67/99 (68%) | 67/72 (93%) | 5 / 0 / 25 / 2 / 0 |
 | COTRN02C (carddemo-tranadd) | equivalence | 100/770 | 61/91 (67%) | 61/73 (84%) | 12 / 0 / 10 / 8 / 0 |
-| COTRN00C (carddemo-tranlist) | equivalence | 100/697 | 64/91 (70%) | 64/79 (81%) | 15 / 0 / 5 / 7 / 0 |
+| COTRN00C (carddemo-tranlist) | equivalence | 100/697 | 66/91 (73%) | 66/79 (84%) | 13 / 0 / 5 / 7 / 0 |
 | COTRN01C (carddemo-tranview) | equivalence | 100/314 | 67/100 (67%) | 67/67 (100%) | 0 / 0 / 25 / 8 / 0 |
 | COTRN01C (carddemo-tranview-generated) | equivalence | 100/314 | 66/100 (66%) | 66/67 (99%) | 0 / 1 / 25 / 8 / 0 |
 | CBTRN03C (carddemo-trnrpt) | equivalence | 100/408 | 68/86 (79%) | 68/79 (86%) | 8 / 3 / 7 / 0 / 0 |
@@ -268,13 +290,13 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COUSR03C (carddemo-userdel) | equivalence | 100/340 | 67/87 (77%) | 67/67 (100%) | 0 / 0 / 17 / 3 / 0 |
 | COUSR00C (carddemo-userlist) | equivalence | 100/493 | 69/100 (69%) | 69/92 (75%) | 23 / 0 / 8 / 0 / 0 |
 | COUSR02C (carddemo-userupd) | equivalence | 100/481 | 57/82 (70%) | 57/59 (97%) | 2 / 0 / 14 / 9 / 0 |
-| INQACC (cbsa-inqacc) | equivalence | 150/464 | 131/131 (100%) | 131/131 (100%) | 0 / 0 / 0 / 0 / 0 |
+| INQACC (cbsa-inqacc) | equivalence | 150/470 | 63/131 (48%) | 63/106 (59%) | 43 / 0 / 11 / 14 / 0 |
 | UPDACC (cbsa-updacc) | equivalence | 133/133 | 95/133 (71%) | 95/110 (86%) | 15 / 0 / 17 / 6 / 0 |
 | LGAPDB01 (genapp-lgapdb01) | equivalence | 150/444 | 58/137 (42%) | 58/129 (45%) | 71 / 0 / 1 / 7 / 0 |
 | LGAPVS01 (genapp-lgapvs01) | equivalence | 150/184 | 72/125 (58%) | 72/113 (64%) | 0 / 41 / 1 / 11 / 0 |
 | LGICDB01 (genapp-lgicdb01) | equivalence | 150/201 | 51/130 (39%) | 51/107 (48%) | 1 / 55 / 8 / 15 / 0 |
 | LGSTSQ (genapp-lgstsq) | equivalence | 89/89 | 25/78 (32%) | 25/69 (36%) | 43 / 1 / 1 / 8 / 0 |
-| LGUPDB01 (genapp-lgupdb01) | equivalence | 150/403 | 67/140 (48%) | 67/120 (56%) | 7 / 46 / 5 / 15 / 0 |
+| LGUPDB01 (genapp-lgupdb01) | equivalence | 150/403 | 68/140 (49%) | 68/120 (57%) | 6 / 46 / 5 / 15 / 0 |
 | LGUPVS01 (genapp-lgupvs01) | equivalence | 150/160 | 66/119 (55%) | 66/100 (66%) | 0 / 34 / 4 / 15 / 0 |
 | CALINK (ca-link-lengths) | crucible | 24/168 | 15/22 (68%) | 15/15 (100%) | 0 / 0 / 5 / 2 / 0 |
 | CASUB (ca-link-lengths) | crucible | 24/40 | 16/24 (67%) | 16/16 (100%) | 0 / 0 / 7 / 1 / 0 |
@@ -298,20 +320,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 3697 run | **2282/3347 (68%)** | **2282/2737 (83%)** | 270 / 185 / 397 / 213 / 0 |
-| **all estate** | | 4201 run | **2601/3823 (68%)** | **2601/3091 (84%)** | 305 / 185 / 485 / 247 / 0 |
+| **all equivalence** | | 3697 run | **2217/3347 (66%)** | **2217/2712 (82%)** | 310 / 185 / 408 / 227 / 0 |
+| **all estate** | | 4201 run | **2536/3823 (66%)** | **2536/3066 (83%)** | 345 / 185 / 496 / 261 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
 | AOR | 182/233 (78%) | 182/208 (88%) |
-| BDM | 25/45 (56%) | 25/28 (89%) |
-| CON | 362/759 (48%) | 362/468 (77%) |
-| COR | 132/241 (55%) | 132/187 (71%) |
-| DEL | 392/590 (66%) | 392/474 (83%) |
-| LIT | 551/734 (75%) | 551/625 (88%) |
-| NEG | 481/546 (88%) | 481/522 (92%) |
-| RET | 58/99 (59%) | 58/87 (67%) |
-| ROR | 418/576 (73%) | 418/492 (85%) |
+| BDM | 24/45 (53%) | 24/27 (89%) |
+| CON | 345/758 (46%) | 345/461 (75%) |
+| COR | 130/242 (54%) | 130/187 (70%) |
+| DEL | 382/589 (65%) | 382/467 (82%) |
+| LIT | 535/733 (73%) | 535/617 (87%) |
+| NEG | 474/546 (87%) | 474/522 (91%) |
+| RET | 50/99 (51%) | 50/87 (57%) |
+| ROR | 414/578 (72%) | 414/490 (84%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|
@@ -331,7 +353,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CORPT00C (carddemo-report) | 3/3 | 0/1 | 1/11 | 10/13 | 6/13 | 12/13 | 13/13 | 4/7 | 9/13 |
 | COSGN00C (carddemo-signon) | 2/2 | - | 3/20 | 3/4 | 12/20 | 18/20 | 15/16 | - | 14/17 |
 | COTRN02C (carddemo-tranadd) | 7/7 | 3/7 | 1/12 | 5/12 | 8/12 | 11/12 | 11/11 | 4/7 | 11/11 |
-| COTRN00C (carddemo-tranlist) | 6/9 | - | 9/14 | 8/14 | 10/13 | 10/14 | 11/11 | 2/3 | 8/13 |
+| COTRN00C (carddemo-tranlist) | 6/9 | - | 10/14 | 8/14 | 11/13 | 10/14 | 11/11 | 2/3 | 8/13 |
 | COTRN01C (carddemo-tranview) | 1/1 | - | 2/24 | 2/3 | 21/24 | 19/24 | 17/17 | - | 5/7 |
 | COTRN01C (carddemo-tranview-generated) | 1/1 | - | 2/24 | 2/3 | 20/24 | 19/24 | 17/17 | - | 5/7 |
 | CBTRN03C (carddemo-trnrpt) | 2/2 | 5/7 | 9/14 | 1/7 | 14/14 | 13/14 | 12/14 | - | 12/14 |
@@ -339,13 +361,13 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COUSR03C (carddemo-userdel) | 0/1 | - | 6/17 | 2/4 | 14/17 | 14/16 | 16/16 | - | 15/16 |
 | COUSR00C (carddemo-userlist) | 9/11 | - | 5/15 | 8/15 | 10/15 | 13/15 | 14/15 | - | 10/14 |
 | COUSR02C (carddemo-userupd) | 1/1 | - | 3/16 | 3/5 | 11/16 | 14/16 | 13/13 | - | 12/15 |
-| INQACC (cbsa-inqacc) | 3/3 | 2/2 | 22/22 | 4/4 | 22/22 | 22/22 | 21/21 | 16/16 | 19/19 |
+| INQACC (cbsa-inqacc) | 3/3 | 1/2 | 4/21 | 2/5 | 10/21 | 6/21 | 14/21 | 8/16 | 15/21 |
 | UPDACC (cbsa-updacc) | 4/4 | 0/3 | 17/30 | 3/10 | 16/27 | 28/32 | 8/8 | - | 19/19 |
 | LGAPDB01 (genapp-lgapdb01) | 5/13 | - | 8/23 | 0/2 | 7/21 | 12/23 | 13/23 | 2/10 | 11/22 |
 | LGAPVS01 (genapp-lgapvs01) | 14/16 | - | 25/41 | 0/1 | 6/11 | 12/28 | 6/9 | - | 9/19 |
 | LGICDB01 (genapp-lgicdb01) | 2/5 | - | 9/28 | 1/5 | 6/20 | 14/27 | 9/16 | 1/7 | 9/22 |
 | LGSTSQ (genapp-lgstsq) | 1/5 | - | 1/21 | 0/1 | 5/11 | 10/21 | 5/6 | - | 3/13 |
-| LGUPDB01 (genapp-lgupdb01) | 11/12 | - | 11/22 | 0/2 | 4/22 | 12/22 | 14/22 | 3/17 | 12/21 |
+| LGUPDB01 (genapp-lgupdb01) | 11/12 | - | 11/22 | 0/2 | 5/22 | 12/22 | 14/22 | 3/17 | 12/21 |
 | LGUPVS01 (genapp-lgupvs01) | 14/14 | - | 29/44 | 0/1 | 4/10 | 10/31 | 7/10 | - | 2/9 |
 | CALINK (ca-link-lengths) | 2/2 | - | 1/4 | 0/1 | 2/4 | 3/3 | 3/3 | 2/2 | 2/3 |
 | CASUB (ca-link-lengths) | - | - | 2/5 | - | 3/5 | 4/5 | 4/5 | - | 3/4 |
@@ -431,6 +453,14 @@ tranlist `select-with-carried-to-tranid` (non-blank `CDEMO-TO-TRANID` on a selec
 three; the scores are not re-run. `test_carddemo_commarea_fields_5401.py` pins them. billpay `first-entry-with-long-selected-account` (`CDEMO-CB00-TRN-SELECTED` of 12 characters, which the MOVE truncates to 11, `d3458d6107`) is added the same way. cardlist `pf8-next-page-carries-return-flag` (a non-blank `WS-RETURN-FLAG`, `62c41cc4a8`) and `pf3-from-menu-stale-first-card-faulting-carddat` (a menu entry whose
 stale first card account id must come back 0 when the first READNEXT faults, `6fef123a15`) need no refused scenario, so the X8 refusals never blocked them: both mutants differ
 (`commarea.WS-RETURN-FLAG` 1 vs None, `commarea.WS-CA-FIRST-CARD-ACCT-ID` 0 vs 41), and the case is proven on 33 scenarios, 36/36 paragraphs, 136/149 branches. No survivor of the item is open.
+
+**Failed XCTL survivors** (#5401, 2026-10-21). A case with an XCTL site had no scenario where the XCTL answers a non-NORMAL condition. The source has no RESP, so
+CICS abends the task (PGMIDERR, RESP2 3), the shape billpay, tranadd and cardview already state (`pf3-xctl-fails`). Added: tranlist `select-xctl-fails` (XCTL COTRN01C) and
+`pf3-xctl-fails` (XCTL COMEN01C), report `pf3-xctl-fails` (CORPT00C's one XCTL, COMEN01C) and userupd `pf3-saves-then-xctl-fails` (the update saved first, then XCTL COADM01C).
+GnuCOBOL and the port agree on all four. tranlist `9e54fb034b` (the `abendOnCondition` after the XCTL, `Cotrn00cService.java:522`) is killed by both tranlist scenarios; the case
+is re-judged with `mutation.py run --only` (no re-sample), which also records `bdeaa77fbe` as killed (the score had not been re-run for it): COTRN00C 66/91 killed.
+`test_carddemo_failed_xctl_5401.py` pins the four scenarios. Still open: cardlist (COCRDLIC), three XCTL sites (lines 402, 538, 566) and no failed-XCTL scenario; 16 of its 46
+scenarios are already refused by the oracle (X8), so it is its own slice.
 
 #4047 then scored six CardDemo batch ports (readxref, readcust, dailyval, intcalc, posttran, trnrpt; seed 0, up to 100
 mutants each, `--jobs 3`, fast mode). These rows are seed 0 and differ from the older seed-1 CBACT04C, CBTRN02C and

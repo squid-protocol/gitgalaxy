@@ -660,3 +660,37 @@ def test_lgacdb01_det_port_holds_on_generated_customer_rows_with_fk(tmp_path):
     assert len(sql) == 16 and all(q["equal"] == q["statements"] and q["statements"] for q in sql)
     assert {x["verb"] for q in sql for x in q["cobol"]} == {"INSERT"}
     assert {x["sqlcode"] for q in sql for x in q["cobol"]} == {0}
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_lgipdb01_det_port_holds_on_generated_multi_table_rows_with_fk(tmp_path):
+    """GenApp's inquire-policy service (LGIPDB01, LINKing LGSTSQ) on generated CUSTOMER, POLICY and type-table rows
+    joined by foreign keys: 32 generated requests (endowment / house / motor / commercial by policy, the customer and
+    postcode cursors, unknown ids) name policies the generated rows hold or miss, every statement and SQLCODE
+    answered alike on both sides. The policy-10 endowment (empty PADDINGDATA, X8) and the -904 and short-COMMAREA
+    paths are not generated."""
+    import json
+    import shutil
+    import subprocess
+
+    if not shutil.which("docker"):
+        pytest.skip("no docker")
+    tool = Path(__file__).resolve().parents[1] / "tools" / "det_port.py"
+    proc = subprocess.run([sys.executable, str(tool), "run", "genapp-lgipdb01-generated", "--work", str(tmp_path)],  # noqa: S603
+                          capture_output=True, text=True, check=False)  # fmt: skip
+    assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
+    report = json.loads(next(tmp_path.glob("genapp-lgipdb01-generated/**/report.json")).read_text())
+    assert report["proven"] is True
+    assert report["db2_generated"] == {
+        "GENASA1.CUSTOMER": 10,
+        "GENASA1.POLICY": 12,
+        "GENASA1.ENDOWMENT": 3,
+        "GENASA1.HOUSE": 4,
+        "GENASA1.MOTOR": 4,
+        "GENASA1.COMMERCIAL": 3,
+    }
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    # (the unknown-id requests RETURN before any statement)
+    assert len(sql) == 32 and all(q["equal"] == q["statements"] for q in sql)
+    assert sum(1 for q in sql if q["statements"]) == 30
+    assert {x["sqlcode"] for q in sql for x in q["cobol"]} >= {0, 100}

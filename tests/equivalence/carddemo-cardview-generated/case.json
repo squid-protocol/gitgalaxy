@@ -1,0 +1,204 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "COCRDSLC",
+ "program_source": "app/cbl/COCRDSLC.cbl",
+ "copy_dirs": [
+  "app/cpy",
+  "app/cpy-bms"
+ ],
+ "port_from": "carddemo-cardview",
+ "transid": "CCDL",
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {
+  "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS": {
+   "input": "@generate",
+   "entity": "CardRecord",
+   "copybook": "app/cpy/CVACT02Y.cpy",
+   "record": "CARD-RECORD",
+   "generate": {
+    "copybook": "app/cpy/CVACT02Y.cpy",
+    "record": "CARD-RECORD",
+    "records": 30,
+    "seed": 4506,
+    "fields": {
+     "CARD-NUM": {
+      "digits": true
+     },
+     "CARD-EXPIRAION-DATE": {
+      "date": "YYYY-MM-DD"
+     }
+    }
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "app/cpy/COCOM01Y.cpy",
+    "record": "CARDDEMO-COMMAREA"
+   },
+   {
+    "copybook": "app/cbl/COCRDSLC.cbl",
+    "record": "WS-THIS-PROGCOMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "CCRDSLA": {
+   "copybook": "app/cpy-bms/COCRDSL.CPY",
+   "input": "CCRDSLAI",
+   "output": "CCRDSLAO"
+  }
+ },
+ "notes": "CardDemo's card detail screen (CCDL, COCRDSLC) on GENERATED data and a GENERATED map input (#4506): 30 CARDDATA records built from CVACT02Y's layout, and 30 scenarios whose RECEIVE MAP input is typed from COCRDSL's BMS source (the account and card filters: their lengths, full width / short / random, a tenth not a number, three in ten left empty; a fifth of the typed card numbers and account ids are not on file); the key pressed turns through ENTER, PF3 and keys the screen does not assign. Proves the carddemo-cardview port on inputs it was not written against; the hand-written scenarios are the ones mutation survivors point at. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+ "scenario_generate": {
+  "seed": 4506,
+  "count": 30,
+  "prefix": "generated",
+  "aid": [
+   "DFHENTER",
+   "DFHENTER",
+   "DFHPF3",
+   "DFHENTER",
+   "DFHPF4",
+   "DFHPF9"
+  ],
+  "commarea": {
+   "CDEMO-FROM-TRANID": "CM00",
+   "CDEMO-FROM-PROGRAM": "COMEN01C",
+   "CDEMO-USER-ID": "USER0001",
+   "CDEMO-USER-TYPE": "U",
+   "CDEMO-PGM-CONTEXT": {
+    "values": [
+     0,
+     1
+    ]
+   }
+  },
+  "receive": {
+   "CCRDSLA": {
+    "@bms": {
+     "bad": 0.1,
+     "empty": 0.3
+    },
+    "ACCTSIDI": {
+     "from": "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS.CARD-ACCT-ID",
+     "miss": 0.2,
+     "bad": 0.1
+    },
+    "CARDSIDI": {
+     "from": "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS.CARD-NUM",
+     "miss": 0.2,
+     "bad": 0.1
+    }
+   }
+  }
+ },
+ "scenarios": [
+  {
+   "name": "no-commarea",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "#4506: no COMMAREA, which a generated COMMAREA never leaves out"
+  },
+  {
+   "name": "card-file-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDSLA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CARDDAT",
+     "resp": "IOERR",
+     "why": "17 on the READ -> WHEN OTHER: the file error message"
+    }
+   ],
+   "why": "#4506: the same input as carddemo-cardview's card-file-io-error"
+  },
+  {
+   "name": "card-file-not-open",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDSLA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CARDDAT",
+     "resp": "NOTOPEN",
+     "why": "19 on the READ -> WHEN OTHER"
+    }
+   ],
+   "why": "#4506: the same input as carddemo-cardview's card-file-not-open"
+  },
+  {
+   "name": "pf3-xctl-fails-abend-routine",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDSLA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COCRDLIC",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4316 unproven ports: reaches onAbendL250 (HANDLE ABEND LABEL(ABEND-ROUTINE), app/cbl/COCRDSLC.cbl:250). PGMIDERR RESP2 3, the program could not be loaded (IBM CICS TS, XCTL conditions): the XCTL back to the caller fails with no RESP, so CICS abends the task and the active HANDLE ABEND passes control to ABEND-ROUTINE"
+  },
+  {
+   "name": "full-commarea-length",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDSLA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740"
+    }
+   },
+   "commarea_length": 172,
+   "why": "#5401 (EIBCALEN, mutation survivors): the caller states EIBCALEN as the whole COMMAREA. No shorter length can be stated: the program moves DFHCOMMAREA past 160 bytes unconditionally, a reference past EIBCALEN the oracle refuses (X23)"
+  }
+ ]
+}

@@ -192,6 +192,18 @@
     "COTRN1A": {}
    },
    "why": "#4049 slice 4 (mutation survivors of the generated variant): the same input as carddemo-tranview's enter-empty-transaction-id"
+  },
+  {
+   "name": "enter-no-map-received",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "COTRN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "why": "#4506 (mutation survivors of the generated variant): ENTER on a re-entry with no map received (MAPFAIL): the program never tests RESP, so the screen is the working storage it began with (spaces), not the received input"
   }
  ],
  "scenario_generate": {

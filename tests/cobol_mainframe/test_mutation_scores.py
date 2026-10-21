@@ -232,6 +232,24 @@ def test_the_generated_billpay_case_is_scored_and_states_the_inputs_that_kill_th
     assert named["pf3-blank-from-program"]["commarea"]["CDEMO-FROM-PROGRAM"] == ""
 
 
+def test_the_generated_transaction_view_case_is_scored_and_states_the_mapfail_input():
+    """#4506: COTRN01C's generated variant is scored on 150 mutants; its one case gap was an input the draw missed."""
+    results = json.loads(ms.RESULTS.read_text(encoding="utf-8"))
+    ports = {p["case"]: p for p in results["ports"]}
+    port = ports["carddemo-tranview-generated"]
+    total = port["total"]
+    assert port["chosen"] == 150
+    assert total["untriaged"] == 0 and total["case_gap"] == 0 and total["killed"] > 80
+    for s in port["survivors"]:
+        assert s["reason"].strip() and s["verdict"] != "untriaged"
+    case = json.loads((REPO / "tests/equivalence/carddemo-tranview-generated/case.json").read_text(encoding="utf-8"))
+    named = {s["name"]: s for s in case["scenarios"]}
+    scenario = named["enter-no-map-received"]
+    assert "#4506" in scenario["why"]
+    # a MAPFAIL: the screen is never received, so the port's cleared screen is what the oracle compares
+    assert "receive" not in scenario
+
+
 def test_retriage_replaces_a_verdict_and_recounts_the_totals_and_operators():
     p = ms.port_entry(_run(), {"x-case/PROG:c": {"verdict": "case_gap", "reason": ms.PLACEHOLDER}}, "abc")
     assert ms.placeholders({"ports": [p]}) == {"x-case/PROG": 1}

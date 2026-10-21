@@ -187,6 +187,23 @@ on the fixed code. cbsa-inqacc fell from 131 killed / 0 survived to **63 killed 
 scenario declares a SQL or CICS fault, so the abend path and the ABNDPROC record are never run; 11 equivalent; 14
 unreachable: widths beyond the DB2 column, and the facade entry no proof calls). The four GenApp cases did not move except genapp-lgupdb01 (67 -> 68 killed).
 
+**The 17 crucible ports get a fast mode (2026-10-21, #4047).** `mutation_crucible.py` already ran every scenario of a
+side in one JVM (`mvn test`, one JVM per side); what each mutant repeated was the refactor and cobol-to-java generate.
+Fast mode (the default; `--full` opts out) generates the case's Java project once, in the baseline proof, and each mutant
+copies it (without `target/`), lays its overlay and compiles (`cics_crucible.py --forge-cache`). Both sides still run
+every scenario, so `killed_by` is the same. `mutation_crucible.py compare A B --require-agree N` judges two runs.
+`--sample 24 --seed 2`, `--full` then fast, `--jobs 2`:
+
+| port | judged by both | agree | proof s, full -> fast | survivors' proof s, full -> fast |
+|---|---|---|---|---|
+| ca-link-lengths / CASUB | 24 | 24 | 397 -> 292 | 165 -> 122 |
+| gt-start-retrieve / GTSTART | 24 | 24 | 342 -> 335 | 101 -> 95 |
+| hx-extended-cursor / HXEXT | 24 | 24 | 371 -> 308 | 115 -> 93 |
+
+72 of 72 agree, every operator present (AOR, COR, CON, DEL, LIT, NEG, RET, ROR). The saving is modest (2-26%): a crucible
+proof is mostly the two Maven runs, not the 12-14 s generate. Not validated: entry runs (no burned port has any), samples
+above 24 on the crucible ports, the other 14 crucible ports.
+
 ## Scores
 
 After #4056 (SYSOUT compared) and #4053 (SEND MAP attributes compared), on 2026-10-01:

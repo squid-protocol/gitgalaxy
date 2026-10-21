@@ -1,0 +1,164 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "COUSR01C",
+ "program_source": "app/cbl/COUSR01C.cbl",
+ "copy_dirs": [
+  "app/cpy",
+  "app/cpy-bms"
+ ],
+ "port_from": "carddemo-useradd",
+ "transid": "CU01",
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {
+  "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS": {
+   "input": "@generate",
+   "entity": "SecUserData",
+   "copybook": "app/cpy/CSUSR01Y.cpy",
+   "record": "SEC-USER-DATA",
+   "generate": {
+    "copybook": "app/cpy/CSUSR01Y.cpy",
+    "record": "SEC-USER-DATA",
+    "records": 20,
+    "seed": 4506,
+    "fields": {
+     "SEC-USR-TYPE": {
+      "values": [
+       "A",
+       "U"
+      ]
+     }
+    }
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "app/cpy/COCOM01Y.cpy",
+    "record": "CARDDEMO-COMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "COUSR1A": {
+   "copybook": "app/cpy-bms/COUSR01.CPY",
+   "input": "COUSR1AI",
+   "output": "COUSR1AO"
+  }
+ },
+ "maps": {
+  "COUSR1A": {
+   "mapset": "COUSR01"
+  }
+ },
+ "notes": "CardDemo's add-user screen (CU01, COUSR01C) on GENERATED data and a GENERATED map input (#4506): 20 USRSEC records built from CSUSR01Y's layout, and 30 scenarios whose RECEIVE MAP input is typed from COUSR01's BMS source (first name, last name, user id, password and user type: each by its length, full width / short / random, a tenth not text, three in ten left empty; the user id drawn from the file, so an ENTER adds a duplicate user two times in five and a new one otherwise); the key pressed turns through ENTER, PF3, PF4 and one the screen does not assign (PF5). Each scenario's USRSEC file is compared after the task, so an add is proven on the file. Proves the carddemo-useradd port on inputs it was not written against; the hand-written scenarios are the COMMAREA-less run and the fault run. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+ "scenario_generate": {
+  "seed": 4506,
+  "count": 30,
+  "prefix": "generated",
+  "aid": [
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHPF3",
+   "DFHPF4",
+   "DFHENTER",
+   "DFHPF5"
+  ],
+  "commarea": {
+   "CDEMO-FROM-TRANID": "CA00",
+   "CDEMO-FROM-PROGRAM": "COADM01C",
+   "CDEMO-USER-ID": "ADMIN001",
+   "CDEMO-USER-TYPE": "A",
+   "CDEMO-PGM-CONTEXT": {
+    "values": [
+     0,
+     1
+    ]
+   }
+  },
+  "receive": {
+   "COUSR1A": {
+    "@bms": {
+     "bad": 0.1,
+     "empty": 0.3
+    },
+    "USERIDI": {
+     "from": "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS.SEC-USR-ID",
+     "miss": 0.6,
+     "bad": 0.1
+    }
+   }
+  }
+ },
+ "scenarios": [
+  {
+   "name": "no-commarea",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "#4506: the same input as carddemo-useradd's no-commarea (not reached by the generated inputs)"
+  },
+  {
+   "name": "write-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR1A": {
+     "FNAMEI": "GRACE",
+     "LNAMEI": "HOPPER",
+     "USERIDI": "USER0099",
+     "PASSWDI": "COBOL123",
+     "USRTYPEI": "U"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "WRITE",
+     "file": "USRSEC",
+     "resp": "IOERR",
+     "why": "17: an I/O error on the WRITE (IBM CICS, RESP values) -> the program's WHEN OTHER: 'Unable to Add User...'"
+    }
+   ],
+   "why": "#4506: the same input as carddemo-useradd's write-io-error (a fault run the generated inputs do not reach)"
+  },
+  {
+   "name": "pf3-blank-to-program",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-PROGRAM": ""
+   },
+   "receive": {
+    "COUSR1A": {}
+   },
+   "why": "#4506: the same input as carddemo-useradd's pf3-blank-to-program (not reached by the generated inputs)"
+  },
+  {
+   "name": "pf3-low-values-to-program",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-PROGRAM": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"
+   },
+   "receive": {
+    "COUSR1A": {}
+   },
+   "why": "#4506: the same input as carddemo-useradd's pf3-low-values-to-program (not reached by the generated inputs)"
+  }
+ ]
+}

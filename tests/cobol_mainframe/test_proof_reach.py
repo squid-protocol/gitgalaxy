@@ -317,7 +317,9 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     # (handleLink / lastLinkBytes), the EIBCALEN = 0 branch and the dead ABEND helpers. 63 -> 76.
     # #4047 then re-recorded the five LINKed-program ports in one JVM per proof: 15 more flagged survivors (INQACC's 8
     # among them, its stale-record skip ended), all in code no proof runs, so all unreachable. 76 -> 91.
-    assert len(flagged) == 91 and verdicts.count("unreachable") == 88 and verdicts.count("equivalent") == 3
+    # #4506 then fixed CARDDEMO BILLPAY's store() modulus (digits + scale, found by the typed-BMS generated case): its
+    # recorded mutation run judges the old port, so its 2 flagged survivors are skipped until it is re-run. 91 -> 89.
+    assert len(flagged) == 89 and verdicts.count("unreachable") == 86 and verdicts.count("equivalent") == 3
     assert not {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C", "CSUTLDTC"}
 
 

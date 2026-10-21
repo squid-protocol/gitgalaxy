@@ -1,0 +1,598 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "CORPT00C",
+ "program_source": "app/cbl/CORPT00C.cbl",
+ "copy_dirs": [
+  "app/cpy",
+  "app/cpy-bms"
+ ],
+ "transid": "CR00",
+ "clock": "2022/07/18 10:30:15.00",
+ "csd": "app/csd/CARDDEMO.CSD",
+ "subprograms": [
+  "app/cbl/CSUTLDTC.cbl"
+ ],
+ "uses_ports": [
+  "carddemo-dateutil"
+ ],
+ "datasets": {},
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "app/cbl/CORPT00C.cbl",
+    "record": "CARDDEMO-COMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "CORPT0A": {
+   "copybook": "app/cpy-bms/CORPT00.CPY",
+   "input": "CORPT0AI",
+   "output": "CORPT0AO"
+  }
+ },
+ "notes": "CardDemo's report request (CR00, CORPT00C) on a GENERATED map input (#4506): 30 scenarios whose COMMAREA is generated and whose RECEIVE MAP input is typed for CORPT0's unprotected fields: the three report selectors, the six date parts (months 1 to 12, days 1 to 31, three years: a day past the month's end reaches the CEEDAYS refusal) and CONFIRM (Y, y, N, n or another letter); the key pressed turns through ENTER, PF3 and PF5. Proves the carddemo-report port on inputs it was not written against; the hand-written scenarios left are the fault runs, the clock-stated December wrap, the COMMAREA lengths and the named validation bounds (a month above 12 or a day above 31 is refused by the CEEDAYS model, which IBM leaves open). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+ "port_from": "carddemo-report",
+ "scenario_generate": {
+  "seed": 4506,
+  "count": 30,
+  "prefix": "generated",
+  "aid": [
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHPF3",
+   "DFHPF5"
+  ],
+  "commarea": {
+   "CDEMO-FROM-TRANID": "CM00",
+   "CDEMO-FROM-PROGRAM": "COMEN01C",
+   "CDEMO-USER-ID": "USER0001",
+   "CDEMO-USER-TYPE": "U",
+   "CDEMO-PGM-CONTEXT": 1
+  },
+  "receive": {
+   "CORPT0A": {
+    "@bms": {
+     "bad": 0,
+     "empty": 0.3
+    },
+    "MONTHLYI": {
+     "values": [
+      "X"
+     ]
+    },
+    "YEARLYI": {
+     "values": [
+      "X"
+     ]
+    },
+    "CUSTOMI": {
+     "values": [
+      "X"
+     ]
+    },
+    "SDTMMI": {
+     "values": [
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06",
+      "07",
+      "08",
+      "09",
+      "10",
+      "11",
+      "12"
+     ]
+    },
+    "EDTMMI": {
+     "values": [
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06",
+      "07",
+      "08",
+      "09",
+      "10",
+      "11",
+      "12"
+     ]
+    },
+    "SDTDDI": {
+     "values": [
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06",
+      "07",
+      "08",
+      "09",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18",
+      "19",
+      "20",
+      "21",
+      "22",
+      "23",
+      "24",
+      "25",
+      "26",
+      "27",
+      "28",
+      "29",
+      "30",
+      "31"
+     ]
+    },
+    "EDTDDI": {
+     "values": [
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06",
+      "07",
+      "08",
+      "09",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18",
+      "19",
+      "20",
+      "21",
+      "22",
+      "23",
+      "24",
+      "25",
+      "26",
+      "27",
+      "28",
+      "29",
+      "30",
+      "31"
+     ]
+    },
+    "SDTYYYYI": {
+     "values": [
+      "2021",
+      "2022",
+      "2023"
+     ]
+    },
+    "EDTYYYYI": {
+     "values": [
+      "2021",
+      "2022",
+      "2023"
+     ]
+    },
+    "CONFIRMI": {
+     "values": [
+      "Y",
+      "Y",
+      "y",
+      "N",
+      "n",
+      "Q"
+     ]
+    }
+   }
+  }
+ },
+ "scenarios": [
+  {
+   "name": "no-commarea",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "#4506: a hand-written scenario of carddemo-report that the generated inputs do not reach"
+  },
+  {
+   "name": "monthly-in-december",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "MONTHLYI": "X",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "the clock's month is December: the month-end arithmetic (the first of the next month, less a day) wraps to January of the next year, so the JCL lines on JOBS run 2022-12-01 to 2022-12-31",
+   "clock": "2022/12/18 10:30:15.00"
+  },
+  {
+   "name": "custom-not-a-date",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CUSTOMI": "X",
+     "SDTMMI": "01",
+     "SDTDDI": "01",
+     "SDTYYYYI": "2022",
+     "EDTMMI": "02",
+     "EDTDDI": "30",
+     "EDTYYYYI": "2022",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "CSUTLDTC -> CEEDAYS 2508"
+  },
+  {
+   "name": "pf3-xctl-fails",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {}
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COMEN01C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#5401: XCTL COMEN01C answers PGMIDERR RESP2 3 (the program could not be loaded, IBM CICS TS XCTL conditions); the source has no RESP, so CICS abends the task and no screen or COMMAREA is returned"
+  },
+  {
+   "name": "jobs-queue-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "MONTHLYI": "X",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "WRITEQ-TD",
+     "file": "JOBS",
+     "resp": "IOERR",
+     "nth": 3,
+     "why": "17 on the third JCL line: 'Unable to Write TDQ (JOBS)...'"
+    }
+   ],
+   "why": "#4506: a hand-written scenario of carddemo-report that the generated inputs do not reach"
+  },
+  {
+   "name": "custom-start-day-empty",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CUSTOMI": "X",
+     "SDTMMI": "01",
+     "SDTYYYYI": "2022",
+     "EDTMMI": "06",
+     "EDTDDI": "30",
+     "EDTYYYYI": "2022",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "WHEN SDTDDI = SPACES OR LOW-VALUES (line 266): 'Start Date - Day can NOT be empty...'"
+  },
+  {
+   "name": "custom-start-year-empty",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CUSTOMI": "X",
+     "SDTMMI": "01",
+     "SDTDDI": "01",
+     "EDTMMI": "06",
+     "EDTDDI": "30",
+     "EDTYYYYI": "2022",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "WHEN SDTYYYYI empty (line 273): 'Start Date - Year can NOT be empty...'"
+  },
+  {
+   "name": "custom-end-month-empty",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CUSTOMI": "X",
+     "SDTMMI": "01",
+     "SDTDDI": "01",
+     "SDTYYYYI": "2022",
+     "EDTDDI": "30",
+     "EDTYYYYI": "2022",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "WHEN EDTMMI empty (line 280): 'End Date - Month can NOT be empty...'"
+  },
+  {
+   "name": "custom-end-day-empty",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CUSTOMI": "X",
+     "SDTMMI": "01",
+     "SDTDDI": "01",
+     "SDTYYYYI": "2022",
+     "EDTMMI": "06",
+     "EDTYYYYI": "2022",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "WHEN EDTDDI empty (line 287): 'End Date - Day can NOT be empty...'"
+  },
+  {
+   "name": "custom-start-month-13",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CUSTOMI": "X",
+     "SDTMMI": "13",
+     "SDTDDI": "01",
+     "SDTYYYYI": "2022",
+     "EDTMMI": "06",
+     "EDTDDI": "30",
+     "EDTYYYYI": "2022",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "SDTMMI > '12' (line 329): 'Start Date - Not a valid Month...'"
+  },
+  {
+   "name": "custom-end-month-13",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CUSTOMI": "X",
+     "SDTMMI": "01",
+     "SDTDDI": "01",
+     "SDTYYYYI": "2022",
+     "EDTMMI": "13",
+     "EDTDDI": "30",
+     "EDTYYYYI": "2022",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "EDTMMI > '12' (line 355): 'End Date - Not a valid Month...'"
+  },
+  {
+   "name": "custom-end-day-32",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CUSTOMI": "X",
+     "SDTMMI": "01",
+     "SDTDDI": "01",
+     "SDTYYYYI": "2022",
+     "EDTMMI": "06",
+     "EDTDDI": "32",
+     "EDTYYYYI": "2022",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "EDTDDI > '31' (line 364): 'End Date - Not a valid Day...'"
+  },
+  {
+   "name": "custom-start-not-a-date",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CUSTOMI": "X",
+     "SDTMMI": "02",
+     "SDTDDI": "30",
+     "SDTYYYYI": "2022",
+     "EDTMMI": "06",
+     "EDTDDI": "30",
+     "EDTYYYYI": "2022",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "2022-02-30 as the start: CSUTLDTC -> CEEDAYS 2508, not 2513 (lines 396 / 399): 'Start Date - Not a valid date...'"
+  },
+  {
+   "name": "custom-dates-before-gregorian",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CUSTOMI": "X",
+     "SDTMMI": "01",
+     "SDTDDI": "01",
+     "SDTYYYYI": "1500",
+     "EDTMMI": "12",
+     "EDTDDI": "31",
+     "EDTYYYYI": "1500",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "1500-01-01 .. 1500-12-31: CEEDAYS answers 2513 (outside its supported range) for both dates, which lines 399 / 419 let through, so the job is submitted"
+  },
+  {
+   "name": "short-commarea-146",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-TO-TRANID": "CT01",
+    "CDEMO-TO-PROGRAM": "COTRN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "FIRSTNAME",
+    "CDEMO-CUST-MNAME": "MIDNAME",
+    "CDEMO-CUST-LNAME": "LASTNAME",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 1234567890123456,
+    "CDEMO-LAST-MAP": "LASTMAP",
+    "CDEMO-LAST-MAPSET": "LASTSET"
+   },
+   "receive": {
+    "CORPT0A": {}
+   },
+   "commarea_length": 146,
+   "why": "#5401 (EIBCALEN, mutation survivors): the caller passed 146 of the COMMAREA's 160 bytes, every field non-blank: only the bytes inside EIBCALEN are moved"
+  },
+  {
+   "name": "short-commarea-153",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-TO-TRANID": "CT01",
+    "CDEMO-TO-PROGRAM": "COTRN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "FIRSTNAME",
+    "CDEMO-CUST-MNAME": "MIDNAME",
+    "CDEMO-CUST-LNAME": "LASTNAME",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 1234567890123456,
+    "CDEMO-LAST-MAP": "LASTMAP",
+    "CDEMO-LAST-MAPSET": "LASTSET"
+   },
+   "receive": {
+    "CORPT0A": {}
+   },
+   "commarea_length": 153,
+   "why": "#5401 (EIBCALEN, mutation survivors): the caller passed 153 of the COMMAREA's 160 bytes, every field non-blank: only the bytes inside EIBCALEN are moved"
+  },
+  {
+   "name": "custom-end-month-single-digit",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CUSTOMI": "X",
+     "SDTMMI": "01",
+     "SDTDDI": "01",
+     "SDTYYYYI": "2022",
+     "EDTMMI": "6",
+     "EDTDDI": "30",
+     "EDTYYYYI": "2022",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#5401: EDTMMI '6', one digit: NUMVAL-C rebuilds it as '06' (line 317) before the IS NOT NUMERIC test and the JCL date"
+  }
+ ]
+}

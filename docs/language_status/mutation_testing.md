@@ -225,8 +225,26 @@ pair judged by `mutation_crucible.py compare --require-agree 10` (the box was ot
 
 **336 of 336 agree** (every operator present: AOR, BDM, CON, COR, DEL, LIT, NEG, RET, ROR); with the three above, 408 of 408
 on 17 of the 21 scored crucible programs. Proof time over the 14: 10,003 s -> 4,278 s (57% less; the saving is larger than the
-2-26% above because those three ran beside other proofs). Not validated: the four PCIMM ports (PCIMMA/B/L/S, whose
-runtime mutants are left out of the sample), entry runs (no burned port has any), samples above 24.
+2-26% above because those three ran beside other proofs). The four PCIMM ports (PCIMMA/B/L/S, whose runtime mutants
+are left out of the sample) and larger samples follow; entry runs (no burned port has any) are not validated.
+
+**The PCIMM ports and samples above 24 (2026-10-21, #4047).** The PCIMM ports with `--sample 24 --seed 2 --jobs 2`; the
+larger samples with `--seed 5` (crucible) and `--seed 9` (burned), `--full` then fast (the session JVM for the burned case),
+judged by `compare --require-agree`:
+
+| port / case | judged by both | agree | proof s, full -> fast | survivors' proof s, full -> fast |
+|---|---|---|---|---|
+| pc-return-immediate / PCIMMA | 24 | 24 | 334 -> 279 | 210 -> 175 |
+| pc-return-immediate / PCIMMB | 24 | 24 | 327 -> 278 | 230 -> 199 |
+| pc-return-immediate / PCIMML | 24 | 24 | 326 -> 295 | 246 -> 222 |
+| pc-return-immediate / PCIMMS | 24 | 24 | 356 -> 281 | 234 -> 186 |
+| ca-link-lengths / CASUB (`--sample 80`: all 40 mutants) | 40 | 40 | 559 -> 491 | 202 -> 172 |
+| hc-abend-link / HCSUB (`--sample 80`) | 80 | 80 | 1,279 -> 1,010 | 553 -> 432 |
+| carddemo-tranlist (COTRN00C, CICS, `--sample 80`) | 80 | 80 | 1,988 -> 1,248 | 461 -> 219 |
+
+**296 of 296 agree**, no `no report` errors, every operator present (AOR, BDM, COR, CON, DEL, LIT, NEG, RET, ROR). With the
+earlier tables, fast mode has agreed with `--full` on all 21 scored crucible programs. Not validated: entry runs (no
+burned committed port has one; unit tests only) and samples above 80.
 
 ## Scores
 

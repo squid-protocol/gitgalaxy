@@ -431,3 +431,29 @@ def test_every_condition_service_a_handler_calls_is_a_named_refusal(service):
     holes = _holes(_handler(f"CALL '{service}' USING CURRENT-CONDITION FC"))
     assert len(holes) == 1 and f"{service}:" in holes[0] and "not modelled" in holes[0], holes
     assert _ids(holes) == [["le-condition-handling"]], holes
+
+
+@pytest.mark.parametrize("call", ["CALL 'SIB' USING FC", "CALL PGM USING FC"])
+def test_a_sibling_refused_for_its_own_reason_maps_to_the_entry_owning_that_reason(call):
+    src = _with_sibling(call, "01 L PIC X(8).|01 N PIC N(4).", " USING L")
+    if call.startswith("CALL PGM"):
+        src = src.replace("VALUE 'CEEHDLR'", "VALUE 'SIB'")
+    holes = _translated(src).stats["holes"]
+    assert len(holes) == 1 and "SIB: no service of its own, its translation is refused: " in holes[0], holes
+    assert "a sibling program of this source" not in holes[0]
+    assert [e["id"] for e in sm.classify(holes[0].split(": ", 1)[1], sm.load_map())] == ["national-text"]
+
+
+@pytest.mark.parametrize(
+    ("text", "owner"),
+    [
+        ("CALL EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:1266: the PICTURE N (a "
+         "national / DBCS item) is not modelled (national / DBCS data, #4664)", "national-text"),
+        ("CALL EPSCSMRO: no service of its own, its translation is refused: OS/VS COBOL BLL addressing: SERVICE "
+         "LABEL (line 3332): not modelled", "bll-cells"),
+        ("CALL EPSCSMRX: a sibling program of this source (translated on its own)", "multi-program-call"),
+        ("CALL CALL EPSCSMRX", "multi-program-call"),
+    ],
+)  # fmt: skip
+def test_a_refused_sibling_call_text_maps_to_exactly_one_entry(text, owner):
+    assert [e["id"] for e in sm.classify(text, sm.load_map())] == [owner]

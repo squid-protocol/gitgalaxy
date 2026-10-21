@@ -2345,9 +2345,9 @@
   {
    "id": "RT-CICS-WRITEQ-PAST-FROM",
    "family": "CICS",
-   "title": "A WRITEQ TS / TD whose LENGTH runs past its FROM item is refused by name, the task judged up to it",
+   "title": "A WRITEQ TS / TD whose LENGTH runs past its FROM item writes FROM's bytes then spaces to LENGTH (ASSUMED: IBM takes the storage that follows, undefined)",
    "methods": [
-    "within"
+    "padded"
    ],
    "ibm": {
     "doc": "cics-apr",
@@ -2362,7 +2362,7 @@
    "register": [
     "X6"
    ],
-   "status": "REFUSED",
+   "status": "ASSUMED",
    "calibration": "uncalibrated"
   },
   {
@@ -2371,7 +2371,8 @@
    "title": "DOCUMENT CREATE TEXT / BINARY LENGTH(n): n bytes of the area (negative: LENGERR); DOCUMENT RETRIEVE INTO: at most MAXLENGTH bytes, the rest of INTO as it was; past the area refused",
    "methods": [
     "documentBytes",
-    "putDocument"
+    "putDocument",
+    "within"
    ],
    "ibm": {
     "doc": "cics-apr",

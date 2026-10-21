@@ -2501,11 +2501,11 @@
       "objective-c/SOURCES.md": 1.0
     },
     "objective-c/worldwideweb": {
-      "objective-c/worldwideweb/Anchor.m": 149.8,
+      "objective-c/worldwideweb/Anchor.m": 166.3,
       "objective-c/worldwideweb/HText.c": 747.44,
       "objective-c/worldwideweb/HyperManager.m": 244.68,
       "objective-c/worldwideweb/HyperText.h": 93.44,
-      "objective-c/worldwideweb/HyperText.m": 1262.78,
+      "objective-c/worldwideweb/HyperText.m": 1274.78,
       "objective-c/worldwideweb/TcpAccess.m": 36.76
     },
     "perl": {

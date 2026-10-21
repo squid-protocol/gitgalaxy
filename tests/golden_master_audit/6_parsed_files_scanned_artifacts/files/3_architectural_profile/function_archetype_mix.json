@@ -7434,11 +7434,10 @@
     },
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/Anchor.m": {
-        "Compute Cores": 1,
+        "Compute Cores": 2,
         "I/O & Config Routines": 2,
         "Interface Declarations": 13,
         "Parameter Forwarders": 1,
-        "State Mutators": 1,
         "Type Conversions": 8
       },
       "objective-c/worldwideweb/HText.c": {
@@ -7458,13 +7457,12 @@
         "Type Conversions": 26
       },
       "objective-c/worldwideweb/HyperText.m": {
-        "Compute Cores": 8,
+        "Compute Cores": 9,
         "Generic / Templated Code": 1,
         "I/O & Config Routines": 15,
         "Interface Declarations": 2,
         "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 2,
-        "State Mutators": 1,
         "Type Conversions": 23
       },
       "objective-c/worldwideweb/TcpAccess.m": {

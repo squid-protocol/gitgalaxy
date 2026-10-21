@@ -88,6 +88,224 @@
       "name": "parm-over-1000-customers",
       "parm": "1,1002,1,0000000000000007",
       "why": "1002 customers: COMMIT-COUNT passes 1000 (l.579) so the program commits mid-run, and with that many account open dates drawn some fall on or before the birth year, so the opened-date retry (l.912 false, l.917 false) runs; the 100-attempt arm (l.917 true) needs 100 failed draws in a row, a probability near zero"
+    },
+    {
+      "name": "sql-account-insert-timeout",
+      "plan": [],
+      "sql_faults": [
+        {
+          "line": 808,
+          "nth": 1,
+          "sqlcode": -913,
+          "sqlstate": "57033",
+          "sqlerrmc": "00C9008E",
+          "sqlerrd3": 13172878
+        }
+      ],
+      "why": "#5561: ACCOUNT INSERT (line 808) fails with -913 and TIMEOUT (00C900E) reason code 13172878 -- the first token IBM's -913 SQLERRMC carries is the reason code: the program shows the reason, RETURN-CODE 12, PROGRAM-DONE (assumption M2: only the declared token and SQLERRD(3) are set, IBM's other tokens and X'FF' separators are not modelled)"
+    },
+    {
+      "name": "sql-account-insert-deadlock",
+      "plan": [],
+      "sql_faults": [
+        {
+          "line": 808,
+          "nth": 1,
+          "sqlcode": -913,
+          "sqlstate": "57033",
+          "sqlerrmc": "00C90088",
+          "sqlerrd3": 13172872
+        }
+      ],
+      "why": "#5561: ACCOUNT INSERT (line 808) fails with -913 and DEADLOCK (00C9088) reason code 13172872: the program shows the reason, RETURN-CODE 12, PROGRAM-DONE (assumption M2: only the declared token and SQLERRD(3) are set, IBM's other tokens and X'FF' separators are not modelled)"
+    },
+    {
+      "name": "sql-account-insert-other",
+      "plan": [],
+      "sql_faults": [
+        {
+          "line": 808,
+          "nth": 1,
+          "sqlcode": -913,
+          "sqlstate": "57033",
+          "sqlerrmc": "UNKNOWN"
+        }
+      ],
+      "why": "#5561: ACCOUNT INSERT (line 808) fails with -913 and Unknown ReasonCode (SQLERRD(3) 0); the token's value is not judged, both sides carry the same bytes, the arm needs SQLERRML above 0 for SQLERRMC(1:SQLERRML): the program shows the reason, RETURN-CODE 12, PROGRAM-DONE (assumption M2: only the declared token and SQLERRD(3) are set, IBM's other tokens and X'FF' separators are not modelled)"
+    },
+    {
+      "name": "sql-account-delete-timeout",
+      "plan": [],
+      "sql_faults": [
+        {
+          "line": 1192,
+          "nth": 1,
+          "sqlcode": -913,
+          "sqlstate": "57033",
+          "sqlerrmc": "00C9008E",
+          "sqlerrd3": 13172878
+        }
+      ],
+      "why": "#5561: ACCOUNT DELETE (line 1192) fails with -913 and TIMEOUT (00C900E) reason code 13172878 -- the first token IBM's -913 SQLERRMC carries is the reason code: the program shows the reason, RETURN-CODE 12, PROGRAM-DONE (assumption M2: only the declared token and SQLERRD(3) are set, IBM's other tokens and X'FF' separators are not modelled)"
+    },
+    {
+      "name": "sql-account-delete-deadlock",
+      "plan": [],
+      "sql_faults": [
+        {
+          "line": 1192,
+          "nth": 1,
+          "sqlcode": -913,
+          "sqlstate": "57033",
+          "sqlerrmc": "00C90088",
+          "sqlerrd3": 13172872
+        }
+      ],
+      "why": "#5561: ACCOUNT DELETE (line 1192) fails with -913 and DEADLOCK (00C9088) reason code 13172872: the program shows the reason, RETURN-CODE 12, PROGRAM-DONE (assumption M2: only the declared token and SQLERRD(3) are set, IBM's other tokens and X'FF' separators are not modelled)"
+    },
+    {
+      "name": "sql-account-delete-other",
+      "plan": [],
+      "sql_faults": [
+        {
+          "line": 1192,
+          "nth": 1,
+          "sqlcode": -913,
+          "sqlstate": "57033",
+          "sqlerrmc": "UNKNOWN"
+        }
+      ],
+      "why": "#5561: ACCOUNT DELETE (line 1192) fails with -913 and Unknown ReasonCode (SQLERRD(3) 0); the token's value is not judged, both sides carry the same bytes, the arm needs SQLERRML above 0 for SQLERRMC(1:SQLERRML): the program shows the reason, RETURN-CODE 12, PROGRAM-DONE (assumption M2: only the declared token and SQLERRD(3) are set, IBM's other tokens and X'FF' separators are not modelled)"
+    },
+    {
+      "name": "sql-control-delete-1-timeout",
+      "plan": [],
+      "sql_faults": [
+        {
+          "line": 1256,
+          "nth": 1,
+          "sqlcode": -913,
+          "sqlstate": "57033",
+          "sqlerrmc": "00C9008E",
+          "sqlerrd3": 13172878
+        }
+      ],
+      "why": "#5561: CONTROL DELETE (the customer-last row) (line 1256) fails with -913 and TIMEOUT (00C900E) reason code 13172878 -- the first token IBM's -913 SQLERRMC carries is the reason code: the program shows the reason, RETURN-CODE 12, PROGRAM-DONE (assumption M2: only the declared token and SQLERRD(3) are set, IBM's other tokens and X'FF' separators are not modelled)"
+    },
+    {
+      "name": "sql-control-delete-1-deadlock",
+      "plan": [],
+      "sql_faults": [
+        {
+          "line": 1256,
+          "nth": 1,
+          "sqlcode": -913,
+          "sqlstate": "57033",
+          "sqlerrmc": "00C90088",
+          "sqlerrd3": 13172872
+        }
+      ],
+      "why": "#5561: CONTROL DELETE (the customer-last row) (line 1256) fails with -913 and DEADLOCK (00C9088) reason code 13172872: the program shows the reason, RETURN-CODE 12, PROGRAM-DONE (assumption M2: only the declared token and SQLERRD(3) are set, IBM's other tokens and X'FF' separators are not modelled)"
+    },
+    {
+      "name": "sql-control-delete-1-other",
+      "plan": [],
+      "sql_faults": [
+        {
+          "line": 1256,
+          "nth": 1,
+          "sqlcode": -913,
+          "sqlstate": "57033",
+          "sqlerrmc": "UNKNOWN"
+        }
+      ],
+      "why": "#5561: CONTROL DELETE (the customer-last row) (line 1256) fails with -913 and Unknown ReasonCode (SQLERRD(3) 0); the token's value is not judged, both sides carry the same bytes, the arm needs SQLERRML above 0 for SQLERRMC(1:SQLERRML): the program shows the reason, RETURN-CODE 12, PROGRAM-DONE (assumption M2: only the declared token and SQLERRD(3) are set, IBM's other tokens and X'FF' separators are not modelled)"
+    },
+    {
+      "name": "sql-control-delete-2-timeout",
+      "plan": [],
+      "sql_faults": [
+        {
+          "line": 1322,
+          "nth": 1,
+          "sqlcode": -913,
+          "sqlstate": "57033",
+          "sqlerrmc": "00C9008E",
+          "sqlerrd3": 13172878
+        }
+      ],
+      "why": "#5561: CONTROL DELETE (the account-last row) (line 1322) fails with -913 and TIMEOUT (00C900E) reason code 13172878 -- the first token IBM's -913 SQLERRMC carries is the reason code: the program shows the reason, RETURN-CODE 12, PROGRAM-DONE (assumption M2: only the declared token and SQLERRD(3) are set, IBM's other tokens and X'FF' separators are not modelled)"
+    },
+    {
+      "name": "sql-control-delete-2-deadlock",
+      "plan": [],
+      "sql_faults": [
+        {
+          "line": 1322,
+          "nth": 1,
+          "sqlcode": -913,
+          "sqlstate": "57033",
+          "sqlerrmc": "00C90088",
+          "sqlerrd3": 13172872
+        }
+      ],
+      "why": "#5561: CONTROL DELETE (the account-last row) (line 1322) fails with -913 and DEADLOCK (00C9088) reason code 13172872: the program shows the reason, RETURN-CODE 12, PROGRAM-DONE (assumption M2: only the declared token and SQLERRD(3) are set, IBM's other tokens and X'FF' separators are not modelled)"
+    },
+    {
+      "name": "sql-control-delete-2-other",
+      "plan": [],
+      "sql_faults": [
+        {
+          "line": 1322,
+          "nth": 1,
+          "sqlcode": -913,
+          "sqlstate": "57033",
+          "sqlerrmc": "UNKNOWN"
+        }
+      ],
+      "why": "#5561: CONTROL DELETE (the account-last row) (line 1322) fails with -913 and Unknown ReasonCode (SQLERRD(3) 0); the token's value is not judged, both sides carry the same bytes, the arm needs SQLERRML above 0 for SQLERRMC(1:SQLERRML): the program shows the reason, RETURN-CODE 12, PROGRAM-DONE (assumption M2: only the declared token and SQLERRD(3) are set, IBM's other tokens and X'FF' separators are not modelled)"
+    },
+    {
+      "name": "sql-account-delete-positive",
+      "plan": [],
+      "sql_faults": [
+        {
+          "line": 1192,
+          "nth": 1,
+          "sqlcode": 802,
+          "sqlstate": "01519",
+          "sqlerrmc": "UNKNOWN"
+        }
+      ],
+      "why": "#5561: the ACCOUNT delete (line 1192) ends with a warning SQLCODE +802 / 01519 (IBM Db2 SQL messages), neither 0 nor +100: the IF SQLCODE < 0 false arm (sign '+'), the reason shown, RETURN-CODE 12, PROGRAM-DONE; the token is not judged, both sides carry the same bytes"
+    },
+    {
+      "name": "sql-control-delete-1-positive",
+      "plan": [],
+      "sql_faults": [
+        {
+          "line": 1256,
+          "nth": 1,
+          "sqlcode": 802,
+          "sqlstate": "01519",
+          "sqlerrmc": "UNKNOWN"
+        }
+      ],
+      "why": "#5561: the first CONTROL delete (line 1256) ends with a warning SQLCODE +802 / 01519 (IBM Db2 SQL messages), neither 0 nor +100: the IF SQLCODE < 0 false arm (sign '+'), the reason shown, RETURN-CODE 12, PROGRAM-DONE; the token is not judged, both sides carry the same bytes"
+    },
+    {
+      "name": "sql-control-delete-2-positive",
+      "plan": [],
+      "sql_faults": [
+        {
+          "line": 1322,
+          "nth": 1,
+          "sqlcode": 802,
+          "sqlstate": "01519",
+          "sqlerrmc": "UNKNOWN"
+        }
+      ],
+      "why": "#5561: the second CONTROL delete (line 1322) ends with a warning SQLCODE +802 / 01519 (IBM Db2 SQL messages), neither 0 nor +100: the IF SQLCODE < 0 false arm (sign '+'), the reason shown, RETURN-CODE 12, PROGRAM-DONE; the token is not judged, both sides carry the same bytes"
     }
   ],
   "notes": "CBSA's data generator (BANKDATA, a batch step under IKJEFT01): PARM start,end,step,seed (customers 1 to 3 step 1, random seed 7; the seed is 16 digits, it is REDEFINED as numeric, and a one-line PARM literal is 65 columns at most) opens CUSTOMER-FILE (the VSAM DD) OUTPUT, writes one customer record per number plus the control record (sortcode 000000, number 9999999999), and for each customer generates 1-5 ACCOUNT rows in Db2 (DELETE of the sortcode's ACCOUNT and CONTROL rows first, COMMIT, then the 987654-ACCOUNT-LAST / -ACCOUNT-COUNT CONTROL rows). The names, addresses, dates of birth and account types are drawn from FUNCTION RANDOM, one run unit's sequence (oracle_assumptions.md C12); CEEGMT / CEEDATM are the harness's LE time models (le_time.c) under the case's fixed clock. seed.sql holds ACCOUNT and CONTROL rows of the generated sortcode (987654, replaced) and of another (111111, kept), so the DELETE is observable. Both sides run their SQL on one real Db2; the VSAM file and the two tables are compared. Derived from the CICS Bank Sample Application (CBSA), EPL-2.0: LICENSE is the corpus's own."

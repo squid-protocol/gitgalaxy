@@ -7122,8 +7122,8 @@
     },
     "objective-c/worldwideweb": {
       "Average Risk Exposures": {
-        "API Exposure": "54.49%",
-        "Cognitive Load Exposure": "59.46%",
+        "API Exposure": "54.78%",
+        "Cognitive Load Exposure": "59.09%",
         "Commented Logic Exposure": "3.45%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "100.0%",
@@ -7132,15 +7132,15 @@
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "83.3%",
-        "Tech Debt Exposure": "18.73%",
+        "Tech Debt Exposure": "18.97%",
         "Testing Exposure": "67.1%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 2534.9,
+      "Directory Group Magnitude": 2563.4,
       "Ecosystem Fingerprint (Archetypes)": {
-        "file_cluster_11": "33.3%",
+        "file_cluster_11": "16.7%",
         "file_cluster_12": "16.7%",
-        "file_cluster_15": "16.7%",
+        "file_cluster_15": "33.3%",
         "file_cluster_17": "16.7%",
         "file_cluster_4": "16.7%"
       },

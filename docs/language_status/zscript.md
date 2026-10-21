@@ -8,7 +8,7 @@ Snapshot generated 2026-10-18 against `main` (issue #5465, slice 2). Source:
 `tests/extraction/languages/test_zscript_strict.py`. Re-run the `language-status` skill's data-gathering commands
 before trusting these numbers if this doc looks old relative to `last_updated` below.
 
-ZScript is the object-scripting language of GZDoom (and Zandronum 3.x): C#/Java-like classes, structs and enums,
+ZScript is the object-scripting language of GZDoom: C#/Java-like classes, structs and enums,
 `States {}` / `Default {}` blocks, `Class<T>` / `Array<T>` / `Map<K,V>` generics, `deprecated("..","..")` /
 `version("x")` attributes, and `#include "path"`. Identifiers are case-insensitive.
 
@@ -20,7 +20,7 @@ entries are not part of this slice (see §7).
 | Field | Value |
 |---|---|
 | `_meta.status` | `production` |
-| `_meta.target_version` | ZScript 4.x (GZDoom / Zandronum 3.x) |
+| `_meta.target_version` | ZScript 4.x (GZDoom) |
 | `_meta.blueprint_version` | v5.0 |
 | `_meta.last_updated` | 2026-10-18 |
 | `lexical_family` | `standard_block` (`//` and `/* */`) |

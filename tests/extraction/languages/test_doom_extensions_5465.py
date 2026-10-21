@@ -14,7 +14,7 @@ CMAKE = "cmake_minimum_required(VERSION 3.10)\nfunction(add_thing name)\n  messa
 @pytest.mark.parametrize(
     ("path", "content", "expected"),
     [
-        ("sketch/doom-nano.ino", CPP_SKETCH, "cpp"),
+        ("sketch/raycaster.ino", CPP_SKETCH, "cpp"),
         ("sketch/main.pde", CPP_SKETCH, "cpp"),
         ("shaders/glsl/main.fp", GLSL_FRAG, "glsl"),
         ("shaders/glsl/main.vp", GLSL_VERT, "glsl"),

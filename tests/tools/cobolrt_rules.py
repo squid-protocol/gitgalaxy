@@ -11,7 +11,8 @@ Source of truth: ``docs/language_status/cobolrt_rules.json``
   rules       id (RT-<PREFIX>-<NAME>, never reused), title, family, methods ("name", or "file:name" where the family's
               files share a name), site (optional: the declaration the marker stands on, "name", "file:name" or
               "...@N" for the Nth declaration of the name; default the first method), ibm ({doc, section}, or null with
-              `ibm_note` for a rule that is not MATCHED), options, register (oracle-assumptions entries,
+              `ibm_note` for a rule that is not MATCHED), options, features (optional, only when non-empty: the
+              feature-inventory keys "category: key" the rule governs, joined by the support matrix, #5565), register (oracle-assumptions entries,
               docs/language_status/register/), status (MATCHED / DIFFERS / REFUSED / ASSUMED, against IBM),
               calibration ("uncalibrated", or "z/OS-measured" with `evidence` and `calibrated_under`, the LE / Db2 / CICS
               options the measurement held under, runtime_options.calibration_problems; #4702)
@@ -220,6 +221,10 @@ def check(cat: dict[str, Any] | None = None, rt: Path = RT, register: dict[str, 
                 probs.append(f"{rid}: no IBM reference -- only a rule that is not MATCHED, with ibm_note saying why")
         elif ibm.get("doc") not in docs or not ibm.get("section"):
             probs.append(f"{rid}: ibm needs a doc of `documents` and a section, has {ibm!r}")
+        feats = r.get("features", [])
+        if not isinstance(feats, list) or not feats or any(not isinstance(f, str) or ": " not in f for f in feats):
+            if "features" in r:
+                probs.append(f"{rid}: features is a non-empty list of 'category: key' (leave the key out when none)")
         probs += [f"{rid}: option {o!r} is not in `options`" for o in r.get("options") or [] if o not in opts]
         probs += [f"{rid}: no register entry {e}" for e in r.get("register") or [] if e not in register]
         if r.get("calibration") not in CALIBRATIONS:

@@ -4,7 +4,9 @@ reaches the CSD's `ZC@ID@FILE` store, and the det translator switches a run-time
 - galaxy_ir: `_group_template` reads the group's VALUEs; `_template_names` joins it to exactly one CSD name by
   wildcard shape; a group that is not plain valued X items, an ambiguous join and a template no CSD file fits resolve
   to nothing (never a guess);
-- det/cics_filecontrol: `file_key_method` emits `fileKey` only for a template store.
+- det/cics_filecontrol: `file_key_method` emits `fileKey` only for a template store;
+- slice 3: det/cics `Generated._map_files` binds a file the program only DELETEs by RIDFLD (ZECS003's `ZC##KEY`: a
+  void `deleteX(key)` stub, no `Optional<>` / `List<>` entity), naming the entity from the repository field.
 """
 
 from __future__ import annotations
@@ -102,6 +104,30 @@ def test_file_key_method_is_emitted_only_for_template_stores():
     assert "CUSTOMER" not in java
     assert FC.file_key_call(["ZC@ID@FILE"], "n") == "fileKey(n)"
     assert FC.file_key_method(["ZC##FILE"])[3] == '        if (t.matches("ZC.+FILE")) return "ZC##FILE";'
+
+
+_DELETE_ONLY_STUB = """
+/** Stand-in for EXEC CICS DELETE as CICS file ZK-FCT at ZECS003.cbl:210 */
+public void deleteZkRecord(String key) {
+    zkRecordRepository.deleteById(key);
+}
+"""
+
+
+def test_a_delete_only_stub_binds_its_file_to_the_repository_entity():
+    from gitgalaxy.tools.cobol_to_java.det.cics import Generated
+
+    files: dict = {}
+    Generated._map_files(_DELETE_ONLY_STUB, files)
+    assert files == {"ZK-FCT": ("zkRecordRepository", "ZkRecord", None)}
+
+
+def test_a_stub_without_a_repository_call_binds_nothing():
+    from gitgalaxy.tools.cobol_to_java.det.cics import Generated
+
+    files: dict = {}
+    Generated._map_files("/** as CICS file X-FCT at P.cbl:1 */\npublic void f() { }\n", files)
+    assert files == {}
 
 
 CORPORA = os.environ.get("GITGALAXY_MAINFRAME_CORPORA")

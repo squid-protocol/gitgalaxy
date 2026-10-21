@@ -54528,6 +54528,7 @@
           "VBufStorage_controlFieldNode_t",
           "nhAssert",
           "getDebugInfo",
+          "addControlFieldNode",
           "LOG_DEBUGWARNING"
         ],
         "VBufStorage_buffer_t::addControlFieldNode@561": [
@@ -60206,7 +60207,9 @@
           "_duplicate_properties",
           "_duplicate_signals"
         ],
-        "Node::duplicate_from_editor@2948": [],
+        "Node::duplicate_from_editor@2948": [
+          "duplicate_from_editor"
+        ],
         "Node::duplicate_from_editor@2953": [
           "_duplicate",
           "ERR_FAIL_NULL_V_MSG",
@@ -62512,13 +62515,15 @@
           "memnew_placement",
           "resize",
           "size",
-          "set"
+          "set",
+          "Variant"
         ],
         "Variant::Variant@2604": [
           "type",
           "memnew_placement",
           "resize",
-          "size"
+          "size",
+          "Variant"
         ],
         "Variant::Variant@2615": [
           "size",
@@ -62576,7 +62581,9 @@
         "Variant::construct_from_string@3495": [
           "Variant"
         ],
-        "Variant::get_call_error_text@3506": [],
+        "Variant::get_call_error_text@3506": [
+          "get_call_error_text"
+        ],
         "Variant::get_call_error_text@3510": [
           "itos",
           "get_type_name",

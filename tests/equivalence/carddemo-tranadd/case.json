@@ -1548,6 +1548,646 @@
    },
    "commarea_length": 201,
    "why": "#5401 (EIBCALEN, mutation survivors): the caller passed 201 of the COMMAREA's 218 bytes, ending after the page-number field so no numeric is blank: only the bytes inside EIBCALEN are moved"
+  },
+  {
+   "name": "amount-body-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+0000ABCD.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4628 (mutation survivors, COR 1301): the amount body (positions 2-9) is not numeric while the sign, the point and the decimals are right, so only the body WHEN rejects it"
+  },
+  {
+   "name": "orig-date-month-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-1X-18",
+     "TPROCDTI": "2022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4628 (mutation survivors, COR 1314): the orig date has a non-numeric month and right separators, so only the month WHEN rejects it"
+  },
+  {
+   "name": "proc-date-year-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "ABCD-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4628 (mutation survivors, COR 1327): the proc date has a non-numeric year and right separators, so only the year WHEN rejects it"
+  },
+  {
+   "name": "proc-date-first-separator",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022/07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4628 (mutation survivors, COR 1327): the proc date has a wrong first separator and a numeric month, so only the separator WHEN rejects it"
+  },
+  {
+   "name": "proc-date-month-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022-1X-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4628 (mutation survivors, COR 1327): the proc date has a non-numeric month and right separators, so only the month WHEN rejects it"
+  },
+  {
+   "name": "selection-flag-in-commarea",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CT02-TRN-SEL-FLG": "S",
+    "CDEMO-CT02-TRN-SELECTED": "0000000000000007"
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4628 (mutation survivors, ROR 589): a non-blank CDEMO-CT02-TRN-SEL-FLG and CDEMO-CT02-TRN-SELECTED in the full COMMAREA come back in the RETURN COMMAREA unchanged"
+  },
+  {
+   "name": "amount-bad-sign-good-digits",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "x00000123.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#5401 bad-format amount: sign byte (1:1) alone wrong, digits, point and cents good (line 340): 'Amount should be in format -99999999.99'"
+  },
+  {
+   "name": "amount-first-digit-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+a0000123.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#5401 bad-format amount: only the first digit position, byte 2 of (2:8), is non-numeric (line 341): 'Amount should be in format -99999999.99'"
+  },
+  {
+   "name": "amount-last-digit-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+0000012a.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#5401 bad-format amount: only the last integer digit, byte 9 of (2:8), is non-numeric (line 341): 'Amount should be in format -99999999.99'"
+  },
+  {
+   "name": "amount-point-not-a-point",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123,45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#5401 bad-format amount: only byte 10 is not '.' (line 342): 'Amount should be in format -99999999.99'"
+  },
+  {
+   "name": "amount-cents-tens-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.x5",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#5401 bad-format amount: only the cents tens digit, byte 11 of (11:2), is non-numeric (line 343): 'Amount should be in format -99999999.99'"
+  },
+  {
+   "name": "amount-cents-units-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.4x",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#5401 bad-format amount: only the cents units digit, byte 12 of (11:2), is non-numeric (line 343): 'Amount should be in format -99999999.99'"
+  },
+  {
+   "name": "orig-date-year-first-digit-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "x022-07-18",
+     "TPROCDTI": "2022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#5401 bad-format orig date: only the first year digit, byte 1 of (1:4), is non-numeric (lines 354-358): 'Orig Date should be in format YYYY-MM-DD'"
+  },
+  {
+   "name": "orig-date-first-separator-wrong",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022/07-18",
+     "TPROCDTI": "2022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#5401 bad-format orig date: only byte 5 is not '-' (lines 354-358): 'Orig Date should be in format YYYY-MM-DD'"
+  },
+  {
+   "name": "orig-date-month-units-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-0x-18",
+     "TPROCDTI": "2022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#5401 bad-format orig date: only the month units digit, byte 7 of (6:2), is non-numeric (lines 354-358): 'Orig Date should be in format YYYY-MM-DD'"
+  },
+  {
+   "name": "orig-date-second-separator-wrong",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-07/18",
+     "TPROCDTI": "2022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#5401 bad-format orig date: only byte 8 is not '-' (lines 354-358): 'Orig Date should be in format YYYY-MM-DD'"
+  },
+  {
+   "name": "orig-date-day-tens-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-07-x8",
+     "TPROCDTI": "2022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#5401 bad-format orig date: only the day tens digit, byte 9 of (9:2), is non-numeric (lines 354-358): 'Orig Date should be in format YYYY-MM-DD'"
+  },
+  {
+   "name": "proc-date-year-first-digit-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "x022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#5401 bad-format proc date: only the first year digit, byte 1 of (1:4), is non-numeric (lines 369-373): 'Proc Date should be in format YYYY-MM-DD'"
+  },
+  {
+   "name": "proc-date-first-separator-wrong",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022/07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#5401 bad-format proc date: only byte 5 is not '-' (lines 369-373): 'Proc Date should be in format YYYY-MM-DD'"
+  },
+  {
+   "name": "proc-date-month-units-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022-0x-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#5401 bad-format proc date: only the month units digit, byte 7 of (6:2), is non-numeric (lines 369-373): 'Proc Date should be in format YYYY-MM-DD'"
+  },
+  {
+   "name": "proc-date-second-separator-wrong",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022-07/18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#5401 bad-format proc date: only byte 8 is not '-' (lines 369-373): 'Proc Date should be in format YYYY-MM-DD'"
+  },
+  {
+   "name": "proc-date-day-tens-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022-07-x8",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#5401 bad-format proc date: only the day tens digit, byte 9 of (9:2), is non-numeric (lines 369-373): 'Proc Date should be in format YYYY-MM-DD'"
   }
  ],
  "notes": "CardDemo's add-transaction screen (transaction CT02, program COTRN02C): the account (through the CXACAIX alternate index) or the card (CCXREF) is looked up in the card cross-reference, every field is validated -- the dates through CALL 'CSUTLDTC' (CEEDAYS; the COBOL side links CardDemo's CSUTLDTC and tests/equivalence/le/ceedays.c, the Java side its proven port from carddemo-dateutil) -- and on confirmation the new transaction id is the last id + 1, found by a HIGH-VALUES STARTBR and a READPREV, and WRITEn. PF5 copies the last transaction's data. Each scenario's TRANSACT file is compared after the task; it is loaded from CardDemo's own dailytran.txt (the same 350-byte layout). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

@@ -1375,6 +1375,7 @@ def resolve_calls(
                 for q, c in receiver_types.items()
                 if c and _is_class(index, group, str(c), lang)
             }
+            recursive: list[str] = []
             for callee, kind in callees:
                 bucket = index.get((group, _key(str(callee), lang)))
                 quals = {"call": qualifier_map, "decorator": decorator_map, "reference": reference_map}.get(kind, {})
@@ -1427,9 +1428,11 @@ def resolve_calls(
                     and bucket.free.defs
                 ):
                     # #5628: a bare `f(` in `Scope::f` found the unit itself on the class rung; the
-                    # detector kept the call only because a DIFFERENT unit named `f` exists, so
-                    # the free function is the callee, not recursion.
-                    step, dst = _ladder(bucket.free, caller, False, cache)
+                    # detector keeps it because a free `f` (this file or another) may be the callee.
+                    # If one resolves, that is the edge; if none does it stays recursion.
+                    free_step, free_dst = _ladder(bucket.free, caller, False, cache)
+                    if free_dst is not None:
+                        step, dst = free_step, free_dst
                 cls = None
                 if dst is not None and dst.kind == "class":
                     # A constructor call reaches the class's constructor method.
@@ -1457,7 +1460,12 @@ def resolve_calls(
                             targets.append(("overload", dst if dst not in picked else overloads[0]))
                 for step, dst in targets:
                     if dst is not None and dst.path == src_path and dst.line == caller_line and dst.name == caller_name:
-                        continue  # recursion through a qualified name (`Foo::bar` calling `bar`)
+                        # recursion through a qualified name (`Foo::bar` calling `bar`); a bare call
+                        # that reaches only the unit itself is not a call (#3327, #5628); only where the
+                        # detector recorded the bare qualifier (a shell `md5` is a binary, not recursion)
+                        if kind == "call" and callee != caller_name and len(targets) == 1 and quals.get(callee) == [""]:
+                            recursive.append(callee)
+                        continue
                     resolution = RESOLUTION_OF_STEP[step]
                     if kind == "call":
                         by_step[step] += 1
@@ -1489,6 +1497,11 @@ def resolve_calls(
                             "dst_class_name": cls.name if cls else None,
                         }
                     )
+            if recursive:
+                func["calls_out_to"] = [c for c in func["calls_out_to"] if c not in recursive]
+                for gone in recursive:
+                    qualifier_map.pop(gone, None)
+                    (func.get("calls_out_arities") or {}).pop(gone, None)
 
     by_resolution: Counter[str] = Counter()
     for step, n in by_step.items():

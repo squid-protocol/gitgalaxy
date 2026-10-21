@@ -63,3 +63,42 @@ def test_csharp_explicit_interface_impl_reaches_the_class_method(lang, path):
     edges = _edges(lang, src, path)
     assert ("IEnumerable.GetEnumerator", "GetEnumerator", 2) in edges
     assert all(src_name != "Rec" for src_name, _, _ in edges)
+
+
+def _scan(files: dict[str, str]) -> tuple[list[dict], list[dict]]:
+    parsed_files = []
+    for path, code in files.items():
+        parsed = StructuralExtractor("cpp", LANGUAGE_DEFINITIONS).splice(code, "")
+        parsed_files.append(
+            {"path": path, "lang_id": "cpp", "functions": parsed["functions"], "classes": parsed.get("classes", [])}
+        )
+    sites, _ = resolve_calls(parsed_files)
+    return parsed_files, sites
+
+
+def test_cpp_scoped_unit_reaches_a_free_function_in_another_file():
+    files, sites = _scan(
+        {"scope.cpp": "void Scope::f(int a) {\n  f(a);\n}\n", "free.cpp": "void f(int a) {\n  g(a);\n}\n"}
+    )
+    assert [(s["src_name"], s["dst_path"], s["dst_name"]) for s in sites if s["src_name"] == "Scope::f"] == [
+        ("Scope::f", "free.cpp", "f")
+    ]
+    scoped = next(fn for fn in files[0]["functions"] if fn["name"] == "Scope::f")
+    assert scoped["calls_out_to"] == ["f"]
+
+
+def test_cpp_cross_file_recursion_with_no_free_function_anywhere_stays_dropped():
+    files, sites = _scan({"scope.cpp": "void Scope::f(int a) {\n  f(a);\n}\n", "other.cpp": "void h() {\n}\n"})
+    assert not [s for s in sites if s["src_name"] == "Scope::f"]
+    assert next(fn for fn in files[0]["functions"] if fn["name"] == "Scope::f")["calls_out_to"] == []
+
+
+def test_cpp_other_class_method_is_not_reachable_by_a_bare_name():
+    files, sites = _scan({"a.cpp": "void Other::f() {\n}\nvoid Scope::f(int a) {\n  f(a);\n}\n"})
+    assert not [s for s in sites if s["src_name"] == "Scope::f" and s["dst_name"] == "Other::f"]
+    assert next(fn for fn in files[0]["functions"] if fn["name"] == "Scope::f")["calls_out_to"] == []
+
+
+def test_cpp_receiver_call_to_the_same_name_is_not_pruned():
+    files, _ = _scan({"a.cpp": "void Scope::f(int a) {\n  child->f(a);\n}\n"})
+    assert next(fn for fn in files[0]["functions"] if fn["name"] == "Scope::f")["calls_out_to"] == ["f"]

@@ -92,6 +92,14 @@ DEFINITION: dict[str, Any] = {
             r"(?:\s*(?:\.|->)\s*[" + ID_START + r"][" + ID_CONTINUE + r"]*){0,8})"
             r"\s+|\]\s+|\)\s+(?=[" + ID_START + r"][" + ID_CONTINUE + r"]*\s*\]))"
             r"([" + ID_START + r"][" + ID_CONTINUE + r"]*)(?=\s*[\]:])"
+            # Group 4: a keyword send to a call receiver (`[f(x) a:1]`). It consumes only the `[` (the lookahead
+            # reads the call's balanced one-level argument list), so `f(` is still recorded as a C call.
+            r"|\[(?=\s*["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*\s*\((?:[^()\[\]]|\((?:[^()\[\]]|\([^()\[\]]*\))*\)){0,120}\)"
+            r"\s+([" + ID_START + r"][" + ID_CONTINUE + r"]*)\s*:)"
         ),
         "_calls_out_ignore": frozenset({"self", "throw"}),  # #3645: `throw` is a keyword here
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---

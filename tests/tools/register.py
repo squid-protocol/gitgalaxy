@@ -127,7 +127,7 @@ def check() -> list[str]:
 # Entries that name no IBM document and declare no difference (#4702, swept 2026-10-21). Each needs the IBM quote
 # (document, section, page) or a declared difference; fixing one removes it here. A new entry never joins this list.
 UNCITED_BASELINE = frozenset(
-    "A1 C8 D3 I6 J1 L2 L3 M2 Q1 Q1a Q1b Q2 Q6 Q8 Q9 W2 W3 W4 W5 W8 X2 X3 X4 X7".split()  # noqa: SIM905
+    "A1 I6 J1 L3 M2 Q1 Q2 Q6 W2 W3 W4 W5 W8 X2 X3 X4".split()  # noqa: SIM905
 )
 IBM_CITE = re.compile(
     r"SC\d\d-\d{4}|[SGA][CHA]\d\d-\d{4}|ibm\.com/docs|Language Reference|Programming Guide|Enterprise COBOL"

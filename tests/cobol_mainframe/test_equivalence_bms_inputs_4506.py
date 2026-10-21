@@ -314,10 +314,15 @@ def test_the_generated_tranview_screen_sends_its_fset_id_field_empty_in_some_sce
 
 @pytest.mark.parametrize(
     ("case_dir", "map_name", "typed_field"),
-    [("carddemo-cardview-generated", "CCRDSLA", "CARDSIDI"), ("carddemo-userdel-generated", "COUSR3A", "USRIDINI")],
+    [
+        ("carddemo-cardview-generated", "CCRDSLA", "CARDSIDI"),
+        ("carddemo-userdel-generated", "COUSR3A", "USRIDINI"),
+        ("carddemo-useradd-generated", "COUSR1A", "USERIDI"),
+        ("carddemo-userupd-generated", "COUSR2A", "USRIDINI"),
+    ],
 )
 def test_the_generated_screen_cases_type_their_map_from_the_bms_source(case_dir, map_name, typed_field):
-    """The hand-written receive of cardview and userdel moved to `@bms` (#4506): the map input is generated from the
+    """The hand-written receive of cardview, userdel, useradd and userupd moved to `@bms` (#4506): the map input is generated from the
     BMS source, the one field a case names beside `@bms` is drawn from its file (with misses), the aid list turns
     through more than ENTER, and each hand-written scenario left carries its reason."""
     import json

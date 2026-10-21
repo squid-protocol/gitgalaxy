@@ -13,16 +13,18 @@ from pathlib import Path
 from gitgalaxy.core.cics_macro_level import ASSEMBLER_SUFFIXES, Hit, assembler_hits, cobol_hits, refusal_text
 from gitgalaxy.core.cobol_conditional import Conditional, options_defines
 from gitgalaxy.core.cobol_preprocessor import (
-    COPY_ALONE,
     MappedLine,
     comment_at,
     copy_replacing,
     copy_statements,
     drop_comment,
     free_code,
+    gather_copy,
     join_continuation,
+    join_copy_alone,
     open_literal,
     replace_text,
+    sql_include_as_copy,
     statement_end,
 )
 from gitgalaxy.core.cobol_source_format import FIXED_LEAD, TEXT_WIDTH, ispf_screen, join_wrapped, wrap_fixed
@@ -646,10 +648,9 @@ def copy_names(lines: list[Line]) -> set[str]:
     """The members the COPY statements of `lines` name (each form `expand` reads: after other text, several to a
     line, the member on the next line)."""
     names: set[str] = set()
-    for i, ln in enumerate(lines):
-        text = ln.text
-        if COPY_ALONE.search(text) and not open_literal(text) and i + 1 < len(lines):
-            text = text.rstrip() + " " + lines[i + 1].text.lstrip()
+    texts = [ln.text for ln in lines]
+    for i, text in enumerate(texts):
+        text = join_copy_alone(texts, i) or text
         names |= {c.member for c in copy_statements(text) if not open_literal(text[: c.start])}
     return names
 
@@ -695,32 +696,23 @@ def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset
     i = 0
     while i < len(lines):
         ln = lines[i]
-        if COPY_ALONE.search(ln.text) and not open_literal(ln.text) and i + 1 < len(lines):
-            # #4459: the member name on the next line
-            ln = Line(ln.text.rstrip() + " " + lines[i + 1].text.lstrip(), ln.file, ln.line)
+        joined = join_copy_alone([x.text for x in lines], i)
+        if joined is not None:  # #4459: the member name on the next line
+            ln = Line(joined, ln.file, ln.line)
             lines = [*lines[:i], ln, *lines[i + 2 :]]
         m = _copy_match(ln.text)
-        if not m and re.match(r"\s*EXEC\s+SQL\b", ln.text, re.I):
-            # EXEC SQL INCLUDE member END-EXEC is a COPY of the member (Db2's precompiler includes it the same way)
-            j, block = i, ln.text
-            while not re.search(r"\bEND-EXEC\b", block, re.I) and j + 1 < len(lines):
-                j += 1
-                block += " " + lines[j].text
-            inc = re.match(r"\s*EXEC\s+SQL\s+INCLUDE\s+([A-Z0-9#@$-]+)\s+END-EXEC\s*\.?\s*$", block, re.I)
-            if inc:
-                lines = [*lines[:i], Line(f"COPY {inc.group(1)}.", ln.file, ln.line), *lines[j + 1 :]]
+        if not m:
+            inc = sql_include_as_copy([x.text for x in lines], i)
+            if inc is not None:  # EXEC SQL INCLUDE member END-EXEC is a COPY of the member
+                lines = [*lines[:i], Line(inc[0], ln.file, ln.line), *lines[inc[1] + 1 :]]
                 ln = lines[i]
                 m = _copy_match(ln.text)
         if not m:
             out.append(ln)
             i += 1
             continue
-        stmt, j = ln.text, i
+        stmt, j = gather_copy([x.text for x in lines], i, m.start)
         end = statement_end(stmt, m.start)
-        while end < 0 and j + 1 < len(lines):
-            j += 1
-            stmt += " " + lines[j].text
-            end = statement_end(stmt, m.start)
         tail = stmt[end:] if end > 0 else ""
         stmt = stmt[m.start : end] if end > 0 else stmt[m.start :]
         name = m.member

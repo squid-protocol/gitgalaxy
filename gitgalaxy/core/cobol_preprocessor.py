@@ -18,6 +18,9 @@ rules live here once, zero-dependency (no tree-sitter), and both sides import th
     open_literal / comment_at / drop_comment / free_code
                     a floating `*>` comment (free format, and IBM Enterprise COBOL 6 / GnuCOBOL in fixed form
                     too) is a comment only outside a literal: where it starts and the text without it
+    join_copy_alone / gather_copy / sql_include_as_copy
+                    a COPY statement spread over lines (`COPY` ending a line, its member on the next; the
+                    statement running on to its period) and `EXEC SQL INCLUDE member END-EXEC` read as `COPY member.`
     MappedLine / line_map
                     one expanded line with the file and line it came from (a COPY member's own line, not a
                     line of the expanded text), and the map of a whole expansion: findings and generated
@@ -181,6 +184,43 @@ def replace_text(text: str | None, pairs: list) -> str | None:
     combined = re.compile("|".join(f"(?P<p{i}>{p})" for i, p in enumerate(patterns)), re.I)
     return combined.sub(lambda m: targets[int((m.lastgroup or "p0")[1:])], text)
 
+
+
+def join_copy_alone(texts: list[str], i: int) -> str | None:
+    """#4459: line `i` with the next line's text joined on when it ends in a bare `COPY` (its member is on the next
+    line), or None when it does not."""
+    text = texts[i]
+    if COPY_ALONE.search(text) and not open_literal(text) and i + 1 < len(texts):
+        return text.rstrip() + " " + texts[i + 1].lstrip()
+    return None
+
+
+def gather_copy(texts: list[str], i: int, start: int) -> tuple[str, int]:
+    """The COPY statement beginning at `start` of line `i`, joined over as many following lines as it takes to reach
+    its period: (the text from line `i` on, index of the last line used)."""
+    stmt, j = texts[i], i
+    end = statement_end(stmt, start)
+    while end < 0 and j + 1 < len(texts):
+        j += 1
+        stmt += " " + texts[j]
+        end = statement_end(stmt, start)
+    return stmt, j
+
+
+_SQL_INCLUDE = re.compile(r"\s*EXEC\s+SQL\s+INCLUDE\s+([A-Z0-9#@$-]+)\s+END-EXEC\s*\.?\s*$", re.I)
+
+
+def sql_include_as_copy(texts: list[str], i: int) -> tuple[str, int] | None:
+    """`EXEC SQL INCLUDE member END-EXEC` starting at line `i` is a COPY of the member (Db2's precompiler includes it the
+    same way): (`COPY member.`, index of the block's last line), or None for any other EXEC SQL block."""
+    if not re.match(r"\s*EXEC\s+SQL\b", texts[i], re.I):
+        return None
+    j, block = i, texts[i]
+    while not re.search(r"\bEND-EXEC\b", block, re.I) and j + 1 < len(texts):
+        j += 1
+        block += " " + texts[j]
+    inc = _SQL_INCLUDE.match(block)
+    return (f"COPY {inc.group(1)}.", j) if inc else None
 
 def continuation_resume(line: str, quote: str | None = None) -> int | None:
     """#5648: where a continued nonnumeric literal resumes on a continuation line (indicator `-` in column 7): the

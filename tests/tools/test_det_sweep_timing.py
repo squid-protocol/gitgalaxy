@@ -168,3 +168,31 @@ def test_the_db2_shard_waits_only_for_the_first_database():
     assert "GITGALAXY_DB2_READY_DIR=" in run and ".ready\").touch()" in run
     (wait,) = [s for s in jobs["db2"]["steps"] if s.get("name") == "Wait for the first Db2 database"]
     assert "GGDB.ready" in wait["run"]
+
+
+def test_a_container_that_passed_the_full_check_is_not_checked_again(tmp_path, monkeypatch):
+    """#5882: the ready mark (container id, start time, COBOL image id) skips the full check in a later process; a
+    restarted container (another start time) does not match and is checked in full."""
+    import equivalence_db2 as d
+
+    state = {"start": "2026-10-21T10:00:00Z"}
+    calls = []
+
+    def docker(*args, check=True, timeout=600, inp=None):
+        calls.append(args[0])
+        if args[0] == "inspect":
+            return f"abc {state['start']} true\n"
+        if args[0] == "images":
+            return "img1\n"
+        raise AssertionError(f"the full check ran: docker {args}")
+
+    monkeypatch.setattr(d, "READY_MARK", tmp_path / "ready")
+    monkeypatch.setattr(d, "_docker", docker)
+    monkeypatch.setattr(d, "_CONTAINER_READY", False)
+    (tmp_path / "ready").write_text("abc 2026-10-21T10:00:00Z img1\n")
+    d._ensure_container()
+    assert d._CONTAINER_READY and calls == ["inspect", "images"]
+    monkeypatch.setattr(d, "_CONTAINER_READY", False)
+    state["start"] = "2026-10-21T11:00:00Z"  # restarted: the full check (here: the fake's AssertionError)
+    with pytest.raises(AssertionError, match="full check ran"):
+        d._ensure_container()

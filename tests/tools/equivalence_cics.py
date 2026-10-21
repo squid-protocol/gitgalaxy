@@ -3275,7 +3275,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             )
         except equivalence_sql.Unsupported as e:
             raise Unsupported(f"EXEC SQL: {e}", ["EXEC SQL"]) from e
-        equivalence_db2.create(case, corpus)
+        if not keep:  # #5882: a second pass keeps the first's tables (each task resets them first, identities too):
+            equivalence_db2.create(case, corpus)  # what its tasks find is what they found after the first pass's
         (work / "stmts.txt").write_text(table, encoding="latin-1")
         (work / "reset.sql").write_text(equivalence_db2.reset_script(case, corpus), encoding="latin-1")
         shutil.copy(equivalence_db2.STUB, src / "ggsql.c")

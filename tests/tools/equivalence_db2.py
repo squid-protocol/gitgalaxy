@@ -335,12 +335,32 @@ def run_ref(image: str = IMAGE) -> str:
 
 
 _CONTAINER_READY = False  # #5882: checked once a process (a case's create() runs once a COBOL pass)
+# #5882: and once a container start: every case is a process of its own, and each re-read the whole `docker logs`, the
+# database configuration, the images and the network (~3 s a case). The full check, once passed, records the
+# container's id and start time with the COBOL image's id; a process that finds the same three (one inspect each)
+# skips it. A restarted or replaced container, or a rebuilt image, never matches: the full check runs.
+READY_MARK = Path.home() / ".cache" / "gitgalaxy-db2-ready"
+
+
+def _container_identity() -> str:
+    """The running container's id and start time, and the COBOL image's id; "" when either is missing."""
+    state = _docker("inspect", "-f", "{{.Id}} {{.State.StartedAt}} {{.State.Running}}", CONTAINER, check=False).split()
+    image = _docker("images", "-q", COBOL_IMAGE, check=False).strip()
+    if len(state) != 3 or state[2] != "true" or not image:
+        return ""
+    return f"{state[0]} {state[1]} {image}"
 
 
 def _ensure_container() -> None:
     global _CONTAINER_READY
     if _CONTAINER_READY:
         return
+    try:
+        if READY_MARK.read_text(encoding="utf-8").strip() == _container_identity() != "":
+            _CONTAINER_READY = True  # (the mark: this container passed the full check below)
+            return
+    except OSError:
+        pass
     if not _docker("images", "-q", COBOL_IMAGE).strip():
         with _setup_lock("gitgalaxy-db2-image.lock"):  # #5094: one build; the others find the image
             if not _docker("images", "-q", COBOL_IMAGE).strip():
@@ -372,6 +392,11 @@ def _ensure_container() -> None:
             DATABASE0
         ):
             _CONTAINER_READY = True
+            if ident := _container_identity():
+                READY_MARK.parent.mkdir(parents=True, exist_ok=True)
+                tmp = READY_MARK.with_name(f"{READY_MARK.name}.{os.getpid()}")
+                tmp.write_text(ident + "\n", encoding="utf-8")
+                tmp.replace(READY_MARK)
             return
         time.sleep(10)
     raise RuntimeError("Db2 did not come up")

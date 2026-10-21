@@ -186,7 +186,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | L5 | LE | CEELOCT: Lilian day, seconds and YYYYMMDDHHMISS999 from the pinned clock, feedback all zero; the unwritten tail of IBM's longer Gregorian field and the float's representation assumed | ASSUMED | yes (CBSA CRECUST, cbsa-crecust, #4952) |
 | L6 | LE | LE date/time services: Lilian date / seconds semantics and the documented feedback codes; GMT is the pinned clock; the VSTRING output layout assumed; open conditions refused by name | MATCHED / ASSUMED / REFUSED | no (CBSA BANKDATA, the caller of CEEGMT and CEEDATM, has no equivalence case: its CUSTOMER-FILE and its Db2 estate are not a case yet) |
 | A1 | assembler | CardDemo's COBDATFT, translated instruction for instruction; load-module-dependent paths refused | MATCHED / REFUSED | yes (CardDemo READACCT) |
-| A2 | z/OS control blocks | a batch program's PSA -> TCB -> TIOT walk reads stand-in blocks built from the stated step; no step stated is refused | ASSUMED | yes (CardDemo CBSTM03A, det only; oracle not yet modelled) |
+| A2 | z/OS control blocks | a batch program's PSA -> TCB -> TIOT walk reads stand-in blocks built from the stated step; no step stated is refused | ASSUMED | yes (CardDemo CBSTM03A; det and oracle modelled, equivalence case pending) |
 | Q1 | Db2 | Db2 for Linux runs the SQL, not Db2 for z/OS | ASSUMED | yes |
 | Q2 | Db2 | EXEC SQL keeps RETURN-CODE | ASSUMED | yes |
 | Q3 | Db2 | The unit of work: one per CICS task; one per batch step, ended by EXEC SQL COMMIT / ROLLBACK (cursors closed as Db2 for z/OS closes them), backed out by an abend, with SAVEPOINT / ROLLBACK TO SAVEPOINT / RELEASE SAVEPOINT run by Db2; a CICS program's ROLLBACK refused (-926) | MATCHED | CICS: yes (CBSA XFRFUN); batch: yes (synthetic UOWDEMO, `tests/equivalence/db2/uow`, #4269) |
@@ -4245,8 +4245,20 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   `NAME:NOUCB` or whose name is longer than 8; a record laid past the fields the stand-in lays (a zero-DD step's
   TIOT entry); pointer arithmetic that leaves its block; a pointer to no block the stand-in lays. `SET ADDRESS OF x
   TO ADDRESS OF y` and `SET ptr TO ADDRESS OF x` stay translator holes in a batch program.
-- **Oracle.** Not yet modelled (slice 2 of #5856): GnuCOBOL has no PSA at address 0, so the COBOL side needs a C
-  stand-in laying the same blocks from the same step before CBSTM03A's equivalence case can be proven.
+- **Oracle (tests/equivalence/le/ggtiot.c, tests/tools/equivalence_mvs.py).** GnuCOBOL has no PSA at address 0 and a
+  4-byte BINARY cannot overlay its 8-byte POINTER, so the harness lowers the program and links a C stand-in that lays
+  the same three blocks (real pointers: `PSATNEW` to the TCB buffer, `TCBTIO` to the TIOT buffer) from the case's
+  `mvs_step` (env `GGMVS_STEP`, same grammar and refusals as `DetMvs.build`). The lowering: a plain POINTER only ever
+  the source of `SET ADDRESS OF` gets `CALL "GGPSAPTR"` (NULL is the PSA); every `SET ADDRESS OF rec TO ptr` is
+  preceded by `CALL "GGMVSCHK" USING ptr BY VALUE LENGTH OF rec`; `ptr REDEFINES view POINTER` becomes a standalone
+  POINTER (the numeric `view` is dropped) and `COMPUTE view = view +/- n`, `ADD n TO view`, `SUBTRACT n FROM view`
+  (`n` a signed integer or `LENGTH OF id`) become `CALL "GGTIOTADV"` / `"GGTIOTSUB"`. Any other use of `view`
+  (MOVE, IF, `*`, ROUNDED, SIZE ERROR, GIVING, a second REDEFINES) is refused by name, as the translator refuses it,
+  and so is a program that walks the blocks in a case with no `mvs_step`. A refusal inside the C side is
+  `GGTIOT: ... is not modelled`, exit 98. Checked: the C blocks equal `DetMvs.build`'s byte for byte over 23 steps
+  (test_mvs_oracle_5856.py), and the lowered walk prints on GnuCOBOL what the det port prints.
+  Limit: a pointer into no laid block is let through by `GGMVSCHK` (the C side cannot tell it from another lane's
+  pointer); the det side refuses it. The CBSTM03A equivalence case is slice 3 of #5856.
 
 ## Db2 (`equivalence_sql.py`, `ggsql.c`, `DetSql`)
 

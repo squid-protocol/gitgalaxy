@@ -279,6 +279,23 @@ def case_path(corpus: Path, rel: str) -> Path:
     return bms_dir(corpus) / rel[len("@bms/") :] if rel.startswith("@bms/") else corpus / rel
 
 
+def _past_72(data: bytes) -> bool:
+    return any(len(ln.rstrip()) > 72 and ln[6:7] not in (b"*", b"/") for ln in data.split(b"\n"))
+
+
+def _tab_stops(data: bytes, name: str) -> bytes:
+    """A member with tab characters (CardDemo CUSTREC.cpy: `<TAB><TAB>     05  CUST-FIRST-NAME   PIC X(25).`)
+    whose lines GnuCOBOL's tab stops of 8 push past column 72, where they are cut (#5856): staged at stops of 4, the
+    width its author laid it out for. Only columns move (a level, a name and a PICTURE are the same tokens wherever
+    they sit); a member that fits at 8 is staged untouched, and one still past column 72 is refused by name."""
+    if b"\t" not in data or not _past_72(data.expandtabs(8)):
+        return data
+    out = data.expandtabs(4)
+    if _past_72(out):
+        raise RuntimeError(f"not runnable faithfully: {name}: a tab-indented line past column 72")
+    return out
+
+
 def stage_copybooks(case: dict[str, Any], corpus: Path, src: Path) -> None:
     """The case's copy_dirs into the GnuCOBOL source directory. A z/OS library member's name is upper-case and COPY
     names are not case-sensitive, so each file is also staged under its upper-case name: COPY COACTVW finds
@@ -289,8 +306,9 @@ def stage_copybooks(case: dict[str, Any], corpus: Path, src: Path) -> None:
     for cpy in case.get("copy_dirs", []):
         for p in (corpus / cpy).iterdir():
             if p.is_file() and p.suffix.lower() != ".bms":
-                shutil.copy(p, src / p.name)
-                shutil.copy(p, src / (p.stem.upper() + ".cpy"))
+                data = _tab_stops(p.read_bytes(), p.name)
+                (src / p.name).write_bytes(data)
+                (src / (p.stem.upper() + ".cpy")).write_bytes(data)
     if any(str(s.get("copybook", "")).startswith("@bms/") for s in (case.get("screens") or {}).values()):
         for p in bms_dir(corpus).iterdir():
             if p.is_file() and not (src / p.name).exists():

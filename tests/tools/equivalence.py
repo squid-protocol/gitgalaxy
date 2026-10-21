@@ -272,6 +272,11 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
     except equivalence_mvs.Unsupported as e:
         raise RuntimeError(f"not runnable faithfully: {e}") from e
     (src / "PROGRAM.cbl").write_text(program, encoding=staged)
+    subs = ""  # #5856: the COBOL programs the program CALLs (CBSTM03A -> CBSTM03B), as they are
+    for rel in case.get("subprograms", []):
+        sub_text, _ = read_program(case, corpus / rel)
+        (src / f"SUB{Path(rel).stem.upper()}.cbl").write_text(compile_options(case, sub_text)[0], encoding=staged)
+        subs += f" src/SUB{Path(rel).stem.upper()}.cbl"
     stage_copybooks(case, corpus, src)
     comp5_layout_guard(src)  # #4751: a 1- or 2-digit COMP-5 is one byte in GnuCOBOL, a halfword on z/OS (C16)
     script = ["set -e", "cd /work"]
@@ -317,7 +322,7 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
     sql += " src/ggdli.c" if ims else ""
     le = "".join(f" src/{m.name}" for m in models)
     script.append(
-        f"cobc -x {flags} {cov.TRACE_FLAG} -o program src/EQDRIVER.cbl src/PROGRAM.cbl src/ggabend.c{le}{sql}"
+        f"cobc -x {flags} {cov.TRACE_FLAG} -o program src/EQDRIVER.cbl src/PROGRAM.cbl{subs} src/ggabend.c{le}{sql}"
     )
     # #4056: DISPLAY as IBM writes it (faults/ggdisplay.c), so SYSOUT is compared against IBM's text
     script.append("gcc -shared -fPIC -O2 -o /work/ggdisplay.so src/ggdisplay.c -ldl")

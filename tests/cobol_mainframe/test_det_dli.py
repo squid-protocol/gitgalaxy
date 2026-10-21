@@ -676,6 +676,15 @@ def test_every_burned_exec_dli_command_translates_cics_and_cbpaup0c_bmp(tmp_path
         assert not [h for h in got if "EXEC DLI" in h or "DIBSTAT" in h], (name, got)
     batch = holes("CBPAUP0C", "public class X { }")  # #5857: a BMP entered by USING its I/O PCB and DB PCB
     assert not [h for h in batch if "EXEC DLI" in h or "DIBSTAT" in h], batch
+    res = P.translate(cbl / "CBPAUP0C.cbl", copies, "public class X { }", "pkg", None, tmp_path / "all")
+    assert res.stats["holes"] == [] and res.stats["translated"] == res.stats["statements"], res.stats  # 110 of 110
+
+    # #5278 checklist c:595f3352: COPAUA0C's INITIALIZE ... REPLACING of the table PA-ACCOUNT-STATUS (C17) is no hole,
+    # and without an estate (no file is mapped) the only holes left are its three READ KEYLENGTH(LENGTH OF ...), which
+    # translate once the case maps the files (det_port: carddemo-copaua0c 344/344 translated)
+    left = holes("COPAUA0C", cics)
+    assert not [h for h in left if "INITIALIZE" in h], left
+    assert len(left) == 3 and all("READ KEYLENGTH(LENGTH OF" in h for h in left), left
 
 
 BMP_WS = ["WORKING-STORAGE SECTION.", "01  PCB-NUM PIC S9(4) COMP VALUE +2.", "01  CHK-ID.", "    05 FILLER PIC X(4) VALUE 'RMAD'.",
@@ -735,6 +744,14 @@ def test_a_bmp_exec_dli_not_modelled_is_a_hole_by_name(tmp_path, stmt, why):
         assert "DetDli.execIsrt(" in r.java
         return
     assert len(r.stats["holes"]) == 1 and why in r.stats["holes"][0], r.stats["holes"]
+
+
+def test_a_bmp_supplies_only_dibstat_of_the_dib(tmp_path):
+    """#5857: the DIB of a BMP is the CICS lane's: DIBSTAT (the only field the runtime sets) reads, any other DIB field
+    (DIBSEGM) is `no such item`, a hole by name."""
+    r = _translate(tmp_path, _bmp(_bmp_stmt("EXEC DLI GN USING PCB(2) SEGMENT(DEPT) INTO(SEG-A) END-EXEC")
+                                  + ["    MOVE DIBSEGM TO SEG-B"]))  # fmt: skip
+    assert len(r.stats["holes"]) == 1 and "DIBSEGM" in r.stats["holes"][0], r.stats["holes"]
 
 
 def test_chkp_outside_a_bmp_and_cbltdli_in_a_bmp_are_holes_by_name(tmp_path):

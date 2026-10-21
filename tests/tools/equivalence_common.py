@@ -15,7 +15,9 @@ undeclared run is byte-identical). Every bytes <-> text step of the harness goes
 from __future__ import annotations
 
 import codecs
+import contextlib
 import functools
+import json
 import os
 import re
 import shutil
@@ -280,6 +282,23 @@ def case_path(corpus: Path, rel: str) -> Path:
     return bms_dir(corpus) / rel[len("@bms/") :] if rel.startswith("@bms/") else corpus / rel
 
 
+def _past_72(data: bytes) -> bool:
+    return any(len(ln.rstrip()) > 72 and ln[6:7] not in (b"*", b"/") for ln in data.split(b"\n"))
+
+
+def _tab_stops(data: bytes, name: str) -> bytes:
+    """A member with tab characters (CardDemo CUSTREC.cpy: `<TAB><TAB>     05  CUST-FIRST-NAME   PIC X(25).`)
+    whose lines GnuCOBOL's tab stops of 8 push past column 72, where they are cut (#5856): staged at stops of 4, the
+    width its author laid it out for. Only columns move (a level, a name and a PICTURE are the same tokens wherever
+    they sit); a member that fits at 8 is staged untouched, and one still past column 72 is refused by name."""
+    if b"\t" not in data or not _past_72(data.expandtabs(8)):
+        return data
+    out = data.expandtabs(4)
+    if _past_72(out):
+        raise RuntimeError(f"not runnable faithfully: {name}: a tab-indented line past column 72")
+    return out
+
+
 def stage_copybooks(case: dict[str, Any], corpus: Path, src: Path) -> None:
     """The case's copy_dirs into the GnuCOBOL source directory. A z/OS library member's name is upper-case and COPY
     names are not case-sensitive, so each file is also staged under its upper-case name: COPY COACTVW finds
@@ -290,8 +309,9 @@ def stage_copybooks(case: dict[str, Any], corpus: Path, src: Path) -> None:
     for cpy in case.get("copy_dirs", []):
         for p in (corpus / cpy).iterdir():
             if p.is_file() and p.suffix.lower() != ".bms":
-                shutil.copy(p, src / p.name)
-                shutil.copy(p, src / (p.stem.upper() + ".cpy"))
+                data = _tab_stops(p.read_bytes(), p.name)
+                (src / p.name).write_bytes(data)
+                (src / (p.stem.upper() + ".cpy")).write_bytes(data)
     if any(str(s.get("copybook", "")).startswith("@bms/") for s in (case.get("screens") or {}).values()):
         for p in bms_dir(corpus).iterdir():
             if p.is_file() and not (src / p.name).exists():
@@ -1108,6 +1128,31 @@ def compare_sysout(cobol: bytes, java: bytes, enc: str) -> dict[str, Any]:
              for i in range(max(len(c), len(j))) if (c[i] if i < len(c) else None) != (j[i] if i < len(j) else None)]  # fmt: skip
     return {"compared": True, "lines": len(c), "equal": max(len(c), len(j)) - len(diffs), "diffs": diffs[:20],
             "differing": len(diffs)}  # fmt: skip
+
+
+# #5882: where a proof's time goes. Each phase's seconds and count, summed over the process (one case: equivalence.py
+# run); _recorded writes them to phases.json beside report.json (never into the report: evidence records stay as they
+# were), det_port carries them into the sweep, det_sweep_timing.py sums them per shard. Phases may nest (java_cics
+# holds java_generate and java_maven); the totals are read side by side, not added up.
+PHASES: dict[str, list[float]] = {}
+
+
+@contextlib.contextmanager
+def phase(name: str):
+    t0 = time.monotonic()
+    try:
+        yield
+    finally:
+        entry = PHASES.setdefault(name, [0.0, 0])
+        entry[0] += time.monotonic() - t0
+        entry[1] += 1
+
+
+def write_phases(work: Path) -> None:
+    """phases.json in `work`: {phase: {"seconds": s, "count": n}} ({} when none was timed)."""
+    work.mkdir(parents=True, exist_ok=True)
+    data = {k: {"seconds": round(v[0], 1), "count": v[1]} for k, v in sorted(PHASES.items())}
+    (work / "phases.json").write_text(json.dumps(data, indent=1) + "\n", encoding="utf-8")
 
 
 _IRS: dict[Path, Any] = {}

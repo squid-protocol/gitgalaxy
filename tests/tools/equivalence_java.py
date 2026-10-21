@@ -20,6 +20,7 @@ Maven runs offline when the local repository already holds the build's artifacts
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import queue
@@ -351,10 +352,11 @@ def prepare_project(case: dict[str, Any], corpus: Path, work: Path, test_source:
     else:
         import equivalence_cache
 
-        clean = equivalence_cache.refactor(corpus, work, scan=True)  # (once per corpus and engine: every case's)
-        # #3828: a case's `culture` (e.g. {"db2_date_format": "eur"}) is the Java side's target config too
-        config = {**jtm.MATRIX["h2"], "culture": case["culture"]} if case.get("culture") else jtm.MATRIX["h2"]
-        project = jtm.generate(clean, "h2", config, work)
+        with common.phase("java_generate"):  # #5882
+            clean = equivalence_cache.refactor(corpus, work, scan=True)  # (once per corpus and engine: every case's)
+            # #3828: a case's `culture` (e.g. {"db2_date_format": "eur"}) is the Java side's target config too
+            config = {**jtm.MATRIX["h2"], "culture": case["culture"]} if case.get("culture") else jtm.MATRIX["h2"]
+            project = jtm.generate(clean, "h2", config, work)
     (project / OVERLAY_FILE).write_text(json.dumps(overlay) + "\n", encoding="utf-8")
     sources = {rel: (port_dir / rel if (port_dir / rel).is_file() else next(d / r for d, r in used if r == rel))
                for rel in overlay}  # fmt: skip
@@ -480,6 +482,9 @@ JAVAC_OVERLAY_TIMEOUT = (
 )
 MAVEN_TEST_TIMEOUT = (
     1200  # seconds: hang guard, well above the slowest honest run (normal mvn test execution (~20-60s))
+)
+JAVAC_PROJECT_TIMEOUT = (
+    600  # seconds: hang guard, well above the slowest honest run (normal whole-project javac compile (~3-10s))
 )
 PRECOMPILED = "target/equivalence-precompiled"  # present: the main classes are built, Maven skips compiling them
 TEST_CLASSPATH = "target/equivalence-test-classpath"  # --reuse: the classpath the tests run on, this project's
@@ -706,6 +711,95 @@ def _surefire_classpath(report: Path, project: Path) -> list[str]:
     return [e.replace(old, str(project)) for e in props["surefire.test.class.path"].split(os.pathsep)]
 
 
+# #5882: a project's first run went through Maven (its lifecycle and a surefire fork, ~5-10 s a case on top of the
+# compile and the run), only to compile the sources and run the test. The dependency classpath depends only on the
+# pom, so the first Maven run of a pom records it here, keyed by the pom's bytes (and the JDK); a later project with
+# that pom compiles ALL its own sources with javac -- the options and annotation processing the pom's compiler plugin
+# uses (JAVAC_OPTIONS: class files byte-identical to Maven's) -- and takes `_run_direct` from its first run. Nothing is
+# shared between projects but the classpath. Anything unsure (no record, a jar gone, a resource Maven would filter,
+# javac failing) falls back to Maven, which then reports as before. GITGALAXY_EQUIV_MAVEN_ONLY=1: always Maven.
+CLASSPATH_CACHE = Path.home() / ".cache" / "gitgalaxy-equivalence" / "classpath"
+MAVEN_ONLY_ENV = "GITGALAXY_EQUIV_MAVEN_ONLY"
+
+
+def _pom_key(project: Path) -> str:
+    """The pom's dependency identity: its bytes less the project's own top-level artifactId / name / description (a
+    corpus's name: the only difference between two corpora's generated poms), and the JDK. A pom that does not parse
+    is keyed by its raw bytes."""
+    import xml.etree.ElementTree as ET
+
+    raw = (project / "pom.xml").read_bytes()
+    try:
+        root = ET.fromstring(raw)  # noqa: S314 -- the generator's own pom
+        for child in list(root):
+            if child.tag.rsplit("}", 1)[-1] in ("artifactId", "name", "description"):
+                root.remove(child)
+        raw = ET.tostring(root)
+    except ET.ParseError:
+        pass
+    return hashlib.sha256(raw + jtm._jdk(17).encode()).hexdigest()[:32]
+
+
+def _save_classpath(project: Path, entries: list[str]) -> None:
+    """The dependency jars of `entries` (a surefire classpath of `project`), recorded under the pom's key."""
+    jars = [e for e in entries if not e.startswith(str(project))]
+    CLASSPATH_CACHE.mkdir(parents=True, exist_ok=True)
+    tmp = CLASSPATH_CACHE / f".{_pom_key(project)}.{os.getpid()}"
+    tmp.write_text("\n".join(jars) + "\n", encoding="utf-8")
+    tmp.replace(CLASSPATH_CACHE / f"{_pom_key(project)}.txt")
+
+
+def _filtered(resources: Path) -> bool:
+    """A resource spring-boot-starter-parent's filtering could change (an @...@ token): only Maven copies it right."""
+    return resources.is_dir() and any(f.is_file() and b"@" in f.read_bytes() for f in resources.rglob("*"))
+
+
+def _javac(args: list[str], env: dict[str, str]) -> bool:
+    javac = str(Path(env["JAVA_HOME"]) / "bin" / "javac")
+    try:
+        return subprocess.run([javac, "-encoding", "UTF-8", *JAVAC_OPTIONS, *args], env=env, capture_output=True, text=True,  # noqa: S603
+                              encoding="utf-8", check=False, timeout=JAVAC_PROJECT_TIMEOUT).returncode == 0  # fmt: skip
+    except subprocess.TimeoutExpired:
+        return False
+
+
+def _javac_build(project: Path, shell: dict[str, str]) -> bool:
+    """#5882: build `project` (main and test classes, resources) with javac on its pom's recorded classpath and mark it
+    for `_run_direct`; False (nothing left behind) when Maven must build it."""
+    if os.environ.get(MAVEN_ONLY_ENV) or not (project / "pom.xml").is_file():
+        return False
+    try:
+        record = CLASSPATH_CACHE / f"{_pom_key(project)}.txt"
+    except OSError:
+        return False
+    if not record.is_file():
+        return False
+    jars = [e for e in record.read_text(encoding="utf-8").splitlines() if e]
+    main_res, test_res = project / "src/main/resources", project / "src/test/resources"
+    if not all(Path(j).exists() for j in jars) or _filtered(main_res) or _filtered(test_res):
+        return False
+    classes, test_classes = project / "target" / "classes", project / "target" / "test-classes"
+    main = sorted(str(f) for f in (project / "src/main/java").rglob("*.java"))
+    tests = sorted(str(f) for f in (project / "src/test/java").rglob("*.java"))
+    for d in (classes, test_classes):
+        shutil.rmtree(d, ignore_errors=True)
+        d.mkdir(parents=True)
+    ok = _javac(["-d", str(classes), "-cp", os.pathsep.join(jars), *main], shell) and _javac(
+        ["-d", str(test_classes), "-cp", os.pathsep.join([str(classes), *jars]), *tests], shell
+    )
+    if not ok:  # Maven builds it from scratch and says why
+        for d in (classes, test_classes):
+            shutil.rmtree(d, ignore_errors=True)
+        return False
+    for res, dest in ((main_res, classes), (test_res, test_classes)):
+        if res.is_dir():
+            shutil.copytree(res, dest, dirs_exist_ok=True)
+    (project / TEST_CLASSPATH).write_text(os.pathsep.join([str(test_classes), str(classes), *jars]), encoding="utf-8")
+    (project / TEST_SOURCE).write_bytes((project / TEST_FILE).read_bytes())
+    (project / PRECOMPILED).write_text("", encoding="utf-8")
+    return True
+
+
 def _record_direct(project: Path) -> None:
     """#4910: after the first Maven run of a project built here (main classes compiled, tests passed on surefire's
     classpath), keep that classpath so every later run of it takes `_run_direct` -- a fresh JVM, no Maven/Spring
@@ -720,6 +814,10 @@ def _record_direct(project: Path) -> None:
         return
     (project / TEST_CLASSPATH).write_text(os.pathsep.join(entries), encoding="utf-8")
     (project / PRECOMPILED).write_text("", encoding="utf-8")
+    try:
+        _save_classpath(project, entries)  # #5882: the next project with this pom builds with javac
+    except OSError:  # (no pom, an unwritable cache: the next project just runs Maven)
+        pass
 
 
 def _compile_overlay(project: Path, earlier: Path, overlay: list[str], work: Path) -> None:
@@ -769,13 +867,18 @@ def run_maven(project: Path, work: Path, inputs: Path, env: dict[str, str] | Non
     maven_argline = (
         f"{JVM_UTF8_FLAGS} {argline}"  # #5161: surefire's fork names its charset; an env's own file.encoding follows
     )
-    proc = session.run(argline, JAVA_DIRECT_TIMEOUT) if session else _run_direct(project, argline, shell)
+    if session is None and not (project / PRECOMPILED).is_file():
+        with common.phase("java_javac"):  # #5882: a pom Maven built once before: javac, then the run below is direct
+            _javac_build(project, shell)
+    with common.phase("java_direct"):  # #5882: a run without Maven (None: Maven runs it, timed below)
+        proc = session.run(argline, JAVA_DIRECT_TIMEOUT) if session else _run_direct(project, argline, shell)
     if proc is None:
         skip = ["-Dmaven.main.skip=true"] if (project / PRECOMPILED).is_file() else []  # --reuse: compiled already
         cmd = [mvn_executable(shell), "-q", "-B", "test", *skip, "-Dtest=EquivalenceRunTest", "-Dsurefire.failIfNoSpecifiedTests=false",
                f"-DargLine={maven_argline}"]  # fmt: skip
         try:
-            proc = run_decoded(cmd, cwd=project, env=maven_utf8_env(shell), check=False, timeout=MAVEN_TEST_TIMEOUT)
+            with common.phase("java_maven"):  # #5882
+                proc = run_decoded(cmd, cwd=project, env=maven_utf8_env(shell), check=False, timeout=MAVEN_TEST_TIMEOUT)
         except subprocess.TimeoutExpired as exc:
             proc = subprocess.CompletedProcess(
                 args=cmd,
@@ -915,6 +1018,8 @@ def _run_area(case: dict[str, Any], project: Path, area: Path, inputs: Path, env
         shutil.rmtree(dliout, ignore_errors=True)
         dliout.mkdir(parents=True)
         props = f"{props} -Dgitgalaxy.dli.dir={inputs / 'dli'} -Dgitgalaxy.dli.out={dliout}"
+    if case.get("mvs_step") is not None:  # #5856 (A2): the job step whose control blocks DetMvs lays
+        props = f"{props} -Dgitgalaxy.mvs.step={case['mvs_step']}"
     if case.get("sysin") is not None:  # #5106: the very bytes the COBOL side read (equivalence.run_cobol)
         props = f"{props} -Dequivalence.sysin={inputs / 'SYSIN.in'}"
     out = run_maven(

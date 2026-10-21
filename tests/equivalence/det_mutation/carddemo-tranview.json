@@ -5,18 +5,18 @@
  "case": "carddemo-tranview",
  "entry": {
   "program": "COTRN01C",
-  "commit": "0ef19ce8704c4ab5f33322ba618f2762be0c4bd8",
-  "date": "2026-10-19",
+  "commit": "9b8dea0484357eab2de3292b9bc67ed026422614+uncommitted",
+  "date": "2026-10-21",
   "mode": "fast",
   "seed": 0,
   "mutants": 1469,
   "out_of_scope": 12,
   "chosen": 150,
-  "coverage": "proven on 20 scenarios, covering 9/9 paragraphs and 23/24 branches",
+  "coverage": "proven on 24 scenarios, covering 9/9 paragraphs and 23/24 branches",
   "counts": {
-   "killed": 83,
+   "killed": 91,
    "timeout": 0,
-   "survived": 64,
+   "survived": 56,
    "stillborn": 3,
    "error": 0,
    "pending": 0
@@ -28,6 +28,8 @@
    "08d0102197",
    "0921516057",
    "0a8e225184",
+   "0c159ea658",
+   "0d657cab48",
    "142395f3ff",
    "1595aa9b41",
    "181229fea2",
@@ -49,9 +51,11 @@
    "4d788ec3a8",
    "4dd9bf46dc",
    "5622032445",
+   "56df72fd7b",
    "5a53fb392f",
    "617570d215",
    "6387c33277",
+   "68d132c4fe",
    "69558c65ee",
    "6e640feb90",
    "6e85c64723",
@@ -65,6 +69,7 @@
    "8dcf917f5a",
    "9350f80485",
    "948756aba7",
+   "9a3b66c5ac",
    "9c6f57f80e",
    "9cb11955b1",
    "9cd3ab35d8",
@@ -72,6 +77,7 @@
    "9e98aa5798",
    "a078c2621f",
    "aaf04317f6",
+   "ab2120f05c",
    "ac9519bdda",
    "aea24e57e8",
    "b0886e088c",
@@ -85,6 +91,7 @@
    "c1c40e0061",
    "c7889ed277",
    "c9f2144e0e",
+   "cafe3779dd",
    "cb1383a80b",
    "cef32d6e32",
    "d52ef2b661",
@@ -100,6 +107,7 @@
    "efc73440c3",
    "efe904f688",
    "f09622c0e4",
+   "f0bbd55f1c",
    "f0fd3a71f9",
    "f223cd6157",
    "f4056ebdb2",
@@ -281,76 +289,12 @@
     "after": "return -2;"
    },
    {
-    "id": "0c159ea658",
-    "op": "ROR",
-    "file": "service/Cotrn01cService.java",
-    "line": 516,
-    "before": "Cobol.move(d.getCdemoCustMname() == null ? \"\" : d.getCdemoCustMname(), Field.alphanumeric(s, base + 68, 25, false), CS);",
-    "after": "Cobol.move(d.getCdemoCustMname() != null ? \"\" : d.getCdemoCustMname(), Field.alphanumeric(s, base + 68, 25, false), CS);"
-   },
-   {
-    "id": "68d132c4fe",
-    "op": "CON",
-    "file": "service/Cotrn01cService.java",
-    "line": 519,
-    "before": "Cobol.move(d.getCdemoAcctStatus() == null ? \"\" : d.getCdemoAcctStatus(), Field.alphanumeric(s, base + 129, 1, false), CS);",
-    "after": "Cobol.move(d.getCdemoAcctStatus() == null ? \"\" : d.getCdemoAcctStatus(), Field.alphanumeric(s, base + 130, 1, false), CS);"
-   },
-   {
-    "id": "ab2120f05c",
-    "op": "ROR",
-    "file": "service/Cotrn01cService.java",
-    "line": 520,
-    "before": "Cobol.move(d.getCdemoCardNum() == null ? BigDecimal.ZERO : new BigDecimal(d.getCdemoCardNum().toString()), Field.zoned(s, base + 130, 16, 0, false, false, false), CS);",
-    "after": "Cobol.move(d.getCdemoCardNum() != null ? BigDecimal.ZERO : new BigDecimal(d.getCdemoCardNum().toString()), Field.zoned(s, base + 130, 16, 0, false, false, false), CS);"
-   },
-   {
-    "id": "0d657cab48",
-    "op": "CON",
-    "file": "service/Cotrn01cService.java",
-    "line": 522,
-    "before": "Cobol.move(d.getCdemoLastMapset() == null ? \"\" : d.getCdemoLastMapset(), Field.alphanumeric(s, base + 153, 7, false), CS);",
-    "after": "Cobol.move(d.getCdemoLastMapset() == null ? \"\" : d.getCdemoLastMapset(), Field.alphanumeric(s, base + 154, 7, false), CS);"
-   },
-   {
-    "id": "f0bbd55f1c",
-    "op": "ROR",
-    "file": "service/Cotrn01cService.java",
-    "line": 527,
-    "before": "Cobol.move(d.getCdemoCt01TrnSelFlg() == null ? \"\" : d.getCdemoCt01TrnSelFlg(), Field.alphanumeric(s, base + 201, 1, false), CS);",
-    "after": "Cobol.move(d.getCdemoCt01TrnSelFlg() != null ? \"\" : d.getCdemoCt01TrnSelFlg(), Field.alphanumeric(s, base + 201, 1, false), CS);"
-   },
-   {
-    "id": "cafe3779dd",
-    "op": "DEL",
-    "file": "service/Cotrn01cService.java",
-    "line": 540,
-    "before": "d.setCdemoCustFname(Cobol.text(Field.alphanumeric(s, base + 43, 25, false), CS));",
-    "after": "/* d.setCdemoCustFname(Cobol.text(Field.alphanumeric(s, base + 43, 25, false), CS)); */"
-   },
-   {
-    "id": "9a3b66c5ac",
-    "op": "DEL",
-    "file": "service/Cotrn01cService.java",
-    "line": 542,
-    "before": "d.setCdemoCustLname(Cobol.text(Field.alphanumeric(s, base + 93, 25, false), CS));",
-    "after": "/* d.setCdemoCustLname(Cobol.text(Field.alphanumeric(s, base + 93, 25, false), CS)); */"
-   },
-   {
     "id": "bfb37a3f75",
     "op": "ROR",
     "file": "service/Cotrn01cService.java",
     "line": 564,
     "before": "if (s_DFHCOMMAREA.bytes != whole) {",
     "after": "if (s_DFHCOMMAREA.bytes == whole) {"
-   },
-   {
-    "id": "56df72fd7b",
-    "op": "DEL",
-    "file": "service/Cotrn01cService.java",
-    "line": 587,
-    "before": "System.arraycopy(IMAGE_s_COTRN1AI, 0, s_COTRN1AI.bytes, 0, IMAGE_s_COTRN1AI.length);",
-    "after": "/* System.arraycopy(IMAGE_s_COTRN1AI, 0, s_COTRN1AI.bytes, 0, IMAGE_s_COTRN1AI.length); */"
    },
    {
     "id": "8e3adfd4ef",
@@ -626,42 +570,43 @@
    }
   ],
   "inputs": {
-   "port": "f154d2bedb7524f272ff9e2874a6e4a14fe6e4be6d7f4b3ff337e47ef58291c9",
-   "generator": "4f56fc49289beb182ffb13c4913706f05bb84f4977dac0317286c26c9f554ca3",
-   "case": "1653587407f0de68b75027cf8a5b081dfa1484e83e387fd8d17816d37e8e926a",
+   "port": "aa0f0436375a276182d805067dece07305d15ace96021ea33bd496e6e997fcc8",
+   "generator": "855554bd61bde01c0c2f45eb17d192b9deaa059b4be4fd4848bc706bf0ea6af0",
+   "case": "7148cf52494b920cc05fb1237fd20092be03f3ca5d6ae4e26108eebccb1a28c3",
    "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-   "harness": "4d19ada813ef323339fec778aadffeea8ce5d597568bdea868f5b574229551fd",
-   "oracle": "a5ae4eed2090b4cb10446837bd69e02eb34f2c89a735b17c287ad082b57444ec"
+   "harness": "98bbf8bc7da21e1c66e5d7f2026b49b2afabdf856a135564e0b0a5beec66d65f",
+   "oracle": "17cd9672a389c1f7e6db6ce3dc6f1c3c7705de887086f50931ac52d49971e558"
   },
   "components": {
    "generator": {
-    "generator:cobolrt/standalone/Sysout.java": "407512cfedf89455f08193fe4aed96e26fdfc9fd34e8636a662b6574a5645b4f",
-    "generator:core": "c66ca7d2dc2303a595ef7f1f3e3b1de62bb8afc47df32a09ff0a41764cda88cd",
+    "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
+    "generator:core": "a7b1e205ba94cbbb82ef0cd84b755c343c2f7e8afa912e487823daaf34e29af3",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "2fb7efeabce1d18016eff29d627435e3ff36b8f005690229fee0e6ccda386941",
+    "generator:det/cics": "2a4fbbd7a9e55ee9dc6b9fa0e2ff2802c57cab2ff0d36459b676c1143707b507",
     "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
-    "generator:det/cics_filecontrol": "0715992f6d3910f379816a22c029c9dd844172f469f1ca677a729f1805c6d938",
+    "generator:det/cics_filecontrol": "3d10979d783b0f39b3184d3111b9e543cd87941cbe7814f0edc65454e6f1f2b7",
+    "generator:det/cics_taskcontrol": "7d3892cd106fe0ab3a165551af8497cb67ee0337d2cb97f7a72ef8805710bdbf",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
-    "generator:det/dli": "ee33be26ce7d401159cd144c9a2b70c56a6de5ad22b882d89126d6963a9d27a0",
-    "generator:det/dyncall": "89a918e40701b9238f8acbf1263bd6f85ed6e94e9b56a82ca6d36e4f807e0783",
+    "generator:det/dli": "59300231ec82938ae8606969155f9d0fef4962ad739e8d6da188a7b6202e9ebd",
+    "generator:det/dyncall": "88c49b4c2e152b1e81d9afb16790c0faac7e6ce25a5f797a5b7c3528f7de92ae",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
-    "generator:det/gen": "166274f2b2ca23e88d8904e448d94d68cca325736765e2ef891613583111db6c",
-    "generator:det/hfp": "7371422d1821ad22c526f9ba0e37deaa0ffc38ed190c6ad76e7475d820df95a1",
+    "generator:det/gen": "6df3c4e25730ed5f5d06c4b9891a4a45958c6fa9808761f5f8078be3ef0d99b4",
+    "generator:det/hfp": "cec77a165f9657e15473ce0c2913b1256451731abc473571ed56951d0faba36c",
     "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
     "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
     "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
-    "generator:det/source": "8bd64a1f9b6a3f3ae66fd9f8380a206be5a1601cdb84a24209f659822ce4919f",
+    "generator:det/source": "fae1970c7ef44602e80821ec2d26c091d354a68754047ca598e0569b14dd8c03",
     "generator:det/stmt": "014835ecefbec5b761734642ac25fc8270092f80945e8f79bcaaa9d3aee2c9ff"
    },
    "harness": {
-    "harness:cics": "0e0a63846e13241a9959abb9231892d89d73b5701f6ef5388ccb9ceb0ec94d80",
-    "harness:core": "7fe1a657752c63d791b2bdcfa57282c5d9575502a7b7882923b428d782a054c9"
+    "harness:cics": "8fbc3c37d90f038139f222aa57785f8bcc59bb64a1ddc170c52c0a51d0ab7e36",
+    "harness:core": "f144b02edb124d60ed8310b12b33bca9d62b04387625f941823c0e43796c0fb7"
    },
    "oracle": {
-    "oracle:cics-stub": "37343070bc79966d4f779738c4de6e2d7ede8df68761c37613c223bddca1c531",
+    "oracle:cics-stub": "8d4b95cb03310f91b20292ebc95871479fe57bab9fc6ff33a625667a5860e785",
     "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
-    "oracle:le": "a7cfa660f76e6181cb060f9f945c4e298533793957991f29d93312db11e33b3f"
+    "oracle:le": "200b234c8ffa2bf4cb1a9c143f22a5a3b696279e000cbf67ff9330fdfb7a9183"
    }
   }
  }

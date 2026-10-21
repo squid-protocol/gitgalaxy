@@ -10532,13 +10532,11 @@ class StructuralExtractor:
                     qualifier = _mark_macro_qualifier(
                         self.primary_lang_id, safe_block, callee_pos + len(callee), qualifier
                     )
-                    if callee == own_leaf and qualifier in own_qualifiers:
-                        # #5628: a bare `leaf(` may reach a different unit of that name, in this
-                        # file or another: kept, and the call resolver drops it when it only
-                        # resolves to the unit itself. Anything written with a receiver or scope
-                        # is the unit itself.
-                        if qualifier:
-                            continue
+                    # #5628: a bare `leaf(` may reach a different unit of that name, in this file
+                    # or another: kept, and the call resolver drops it when it only resolves to
+                    # the unit itself. Anything written with a receiver or scope is the unit itself.
+                    if callee == own_leaf and qualifier in own_qualifiers and qualifier:
+                        continue
                     if callee_pos == m.start(1) and _is_declaration_header(decl_headers, m):
                         header_only.add(callee)
                     else:

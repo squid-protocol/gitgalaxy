@@ -17,6 +17,8 @@ import tempfile
 from pathlib import Path
 
 import pytest
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
@@ -1563,7 +1565,7 @@ def _runtime_classes(batch: bool = False, charset: str = "ISO-8859-1") -> Path:
     jdk = _java()
     classes = base / "classes"
     files = [str(f) for f in srcdir.rglob("*.java")]
-    subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(classes), *files], check=True)  # noqa: S603
+    javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(classes), *files], check=True)  # noqa: S603
     return classes
 
 
@@ -1605,7 +1607,7 @@ def _java_run(
                          f"new {PKG}.service.{r.service}().runProgram(); }} }}\n")  # fmt: skip
     jdk = _java()
     classes = work / "classes"
-    subprocess.run(
+    javac_run(
         [
             str(jdk / "javac"),
             "-encoding",
@@ -1663,7 +1665,7 @@ def _java_run_batch(
     )
     jdk = _java()
     classes = work / "classes"
-    subprocess.run(
+    javac_run(
         [
             str(jdk / "javac"),
             "-encoding",

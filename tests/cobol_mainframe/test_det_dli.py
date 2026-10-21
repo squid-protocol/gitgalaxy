@@ -20,6 +20,8 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tests" / "tools"))
 
 import equivalence_ims as ei  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 FIXTURE = ROOT / "tests" / "equivalence" / "ims" / "fixture"
 IMAGE = "gitgalaxy-gnucobol:3"
@@ -298,7 +300,7 @@ def _java_side(work: Path, seed: bytes = SEED) -> tuple[str, bytes]:
         ".runBatch(java.util.List.of(), null); } }\n"
     )
     jdk = _jdk()
-    subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(work / "classes"),  # noqa: S603
+    javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(work / "classes"),  # noqa: S603
                     *map(str, srcdir.rglob("*.java"))], check=True)  # fmt: skip
     run = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8",  # noqa: S603
                           f"-Dgitgalaxy.dli.dir={work / 'dli'}", f"-Dgitgalaxy.dli.out={work / 'dliout'}",
@@ -353,7 +355,7 @@ def test_accept_from_date_day_and_time_read_the_runs_clock(tmp_path):
                      f'"{f}"), java.nio.charset.StandardCharsets.ISO_8859_1));' for f in forms)  # fmt: skip
     (src / "Main.java").write_text(f"public class Main {{ public static void main(String[] a) {{ {calls} }} }}\n")
     jdk = _jdk()
-    subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+    javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
                     *map(str, src.rglob("*.java"))], check=True)  # fmt: skip
     out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp",  # noqa: S603
                           str(tmp_path / "classes"), "Main"], capture_output=True, check=True).stdout.decode("utf-8").split()  # fmt: skip
@@ -545,7 +547,7 @@ def test_detdli_get_answers_the_status_ibm_gives_through_the_pcb_by_number(tmp_p
         f"public static void main(String[] a) {{ {setup}{' '.join(steps)} }} }}\n"
     )
     jdk = _jdk()
-    subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+    javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
                     *map(str, src.rglob("*.java"))], check=True)  # fmt: skip
     out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", f"-Dgitgalaxy.dli.dir={tmp_path / 'dli'}", "-cp", str(tmp_path / "classes"),  # noqa: S603
                           "Main"], capture_output=True, check=True).stdout.decode("utf-8").splitlines()  # fmt: skip
@@ -577,7 +579,7 @@ def test_detdli_schedule_and_terminate_answer_the_status_ibm_gives(tmp_path):
             f'try {{ {d}.terminate(); }} catch (UnsupportedOperationException e) {{ System.out.println(e.getMessage()); }}')  # fmt: skip
     (src / "Main.java").write_text(f"public class Main {{ public static void main(String[] a) {{ {body} }} }}\n")
     jdk = _jdk()
-    subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+    javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
                     *map(str, src.rglob("*.java"))], check=True)  # fmt: skip
     out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", f"-Dgitgalaxy.dli.dir={tmp_path / 'dli'}", "-cp", str(tmp_path / "classes"),  # noqa: S603
                           "Main"], capture_output=True, check=True).stdout.decode("utf-8").splitlines()  # fmt: skip
@@ -641,7 +643,7 @@ def test_detdli_isrt_repl_dlet_answer_the_status_ibm_gives_through_the_pcb_by_nu
         f'{setup}public static void main(String[] a) {{ put("E009", ev); {" ".join(steps)} }} }}\n'
     )
     jdk = _jdk()
-    subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+    javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
                     *map(str, src.rglob("*.java"))], check=True)  # fmt: skip
     out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", f"-Dgitgalaxy.dli.dir={tmp_path / 'dli'}", "-cp", str(tmp_path / "classes"),  # noqa: S603
                           "Main"], capture_output=True, check=True).stdout.decode("utf-8").splitlines()  # fmt: skip
@@ -804,7 +806,7 @@ def test_detdli_bmp_entry_numbers_pcbs_after_the_io_pcb_and_chkp_releases_positi
         f"{setup}public static void main(String[] a) {{ {' '.join(steps)} }} }}\n"
     )
     jdk = _jdk()
-    subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+    javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
                     *map(str, src.rglob("*.java"))], check=True)  # fmt: skip
     out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", f"-Dgitgalaxy.dli.dir={tmp_path / 'dli'}", "-cp", str(tmp_path / "classes"),  # noqa: S603
                           "Main"], capture_output=True, check=True).stdout.decode("utf-8").splitlines()  # fmt: skip

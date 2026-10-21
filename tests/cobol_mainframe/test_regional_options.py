@@ -33,6 +33,8 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_port_tickets import (
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import equivalence_common as common  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 _JDK = Path("/usr/lib/jvm/java-17-openjdk-amd64/bin")
 
@@ -235,7 +237,7 @@ def test_db2_dates_formats_and_parses_as_db2(tmp_path, fmt, date, time):
     (pkg / "Db2Dates.java").write_text(db2_dates_source("t", fmt), encoding="utf-8")
     (tmp_path / "t" / "Runner.java").write_text(_RUNNER, encoding="utf-8")
     sources = [str(p) for p in tmp_path.rglob("*.java")]
-    subprocess.run([str(_JDK / "javac"), "-encoding", "UTF-8", "-d", str(tmp_path / "out"), *sources], check=True)  # noqa: S603
+    javac_run([str(_JDK / "javac"), "-encoding", "UTF-8", "-d", str(tmp_path / "out"), *sources], check=True)  # noqa: S603
     out = subprocess.run([str(_JDK / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "out"), "t.Runner"],  # noqa: S603
                          capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert out.returncode == 0, out.stderr

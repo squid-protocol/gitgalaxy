@@ -14,6 +14,9 @@ from pathlib import Path
 
 import pytest
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA, CICS_TASK_JAVA
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 MAIN = """
 package com.squid.gitgalaxy.cics;
@@ -118,7 +121,7 @@ def test_return_and_xctl_pass_length_bytes_and_the_byte_answer_is_by_design(tmp_
         CICS_SPEC_JAVA.replace("package __PACKAGE__.cics;", "package com.squid.gitgalaxy.cics;")
     )
     (src / "Main.java").write_text(MAIN)
-    subprocess.run(
+    javac_run(
         [
             str(jdk / "bin" / "javac"),
             "-encoding",

@@ -9,6 +9,9 @@ import subprocess
 from pathlib import Path
 
 import pytest
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 ROOT = Path(__file__).resolve().parents[2]
 FUNCS = ROOT / "gitgalaxy/tools/cobol_to_java/det/cobolrt/Funcs.java"
@@ -51,7 +54,7 @@ def test_test_numval_is_gnucobols(tmp_path):
         "        p.cobolrt.Funcs.testNumvalC(s).intValue()); } } }\n"
     )
     java = _java()
-    subprocess.run(
+    javac_run(
         [str(java / "javac"), "-encoding", "UTF-8", "-d", "out", "p/cobolrt/Funcs.java", "TN.java"],
         cwd=tmp_path,
         check=True,
@@ -89,7 +92,7 @@ def test_random_is_the_oracles_sequence_and_refuses_what_ibm_does_not_allow(tmp_
         '    catch (IllegalArgumentException e) { System.out.println("refused " + bad); } } } }\n'
     )
     java = _java()
-    subprocess.run(
+    javac_run(
         [str(java / "javac"), "-encoding", "UTF-8", "-d", "out", "p/cobolrt/Funcs.java", "RN.java"],
         cwd=tmp_path,
         check=True,

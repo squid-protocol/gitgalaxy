@@ -191,7 +191,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | Q2 | Db2 | EXEC SQL keeps RETURN-CODE | ASSUMED | yes |
 | Q3 | Db2 | The unit of work: one per CICS task; one per batch step, ended by EXEC SQL COMMIT / ROLLBACK (cursors closed as Db2 for z/OS closes them), backed out by an abend, with SAVEPOINT / ROLLBACK TO SAVEPOINT / RELEASE SAVEPOINT run by Db2; a CICS program's ROLLBACK refused (-926) | MATCHED | CICS: yes (CBSA XFRFUN); batch: yes (synthetic UOWDEMO, `tests/equivalence/db2/uow`, #4269) |
 | Q4 | Db2 | dynamic SQL beyond a literal INSERT (EXECUTE IMMEDIATE, PREPARE/EXECUTE), CONNECT, CALL, scroll FETCH, host-variable arrays; a savepoint statement in a CICS program | REFUSED | — |
-| Q5 | Db2 | DSNTIAC / DSNTIAR message formatting | REFUSED | no |
+| Q5 | Db2 | DSNTIAC / DSNTIAR message formatting | STAND-IN | no |
 | Q6 | Db2 | Date and time text in ISO form; DDL adapted from z/OS jobs | ASSUMED | yes (CBSA, GenApp) |
 | Q7 | Db2 | `CCSID EBCDIC` tables hold Unicode text: string order differs | DIFFERS | no |
 | Q8 | Db2 | Positioned UPDATE / DELETE: the Java side by row id | MATCHED | yes (GenApp LGUPDB01) |
@@ -4381,13 +4381,24 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   variable or a `WHERE CURRENT OF` a cursor the program does not declare. A positioned UPDATE / DELETE on a declared
   cursor runs (Q8).
 
-### Q5. DSNTIAC / DSNTIAR — REFUSED
+### Q5. DSNTIAC stand-in (text unproven); DSNTIAR REFUSED
 - **What.** Db2's message formatters (DSNTIAR formats an SQLCA into message text in a caller's buffer; DSNTIAC is its CICS
-  interface; IBM Db2 for z/OS Application Programming and SQL Guide, paraphrased and not re-fetched for this entry) are not modelled: the text is Db2's message catalogue, which IBM documents by message number but
-  not byte for byte, and the oracle (ggsql.c / equivalence_sql.py, Db2 for Linux) has no routine that produces
-  z/OS's text. The port refuses both by name, whether the program writes `CALL 'DSNTIAC'` or calls it through a data
-  item (COTRTLIC's `CALL LIT-DSNTIAC`, #4736): "DSNTIAC: Db2's message text is not modelled".
-- **Reached.** No scenario reaches it. COTRTLIC's call, on the Db2-error path, is its one untranslated statement.
+  interface; IBM Db2 for z/OS Application Programming and SQL Guide, paraphrased and not re-fetched for this entry). The
+  text is Db2's message catalogue, which IBM documents by message number but not byte for byte, and the oracle
+  (ggsql.c / equivalence_sql.py, Db2 for Linux) has no routine that produces z/OS's text.
+  - **DSNTIAC (#5858): a stand-in, one model on both sides.** `cobolrt/le/Dsntiac.java` (the port) and
+    `tests/equivalence/le/dsntiac.c` (linked into the GnuCOBOL oracle) hold the same message table and wrapping, so the
+    two sides are compared on the CALL's contract: the message area is filled in whole lines of the stated line length
+    (72 to 240), blank padded; RETURN-CODE is 0, 4 (more text than room), 8 (line length out of range), 12 (area holds no
+    whole line) or 24 (SQLCA not a Db2 SQLCA). A SQLCODE the table does not hold (100, -204, -305, -530, -532, -803,
+    -811, -904, -911, -913) is refused at run time ("not modelled"), never given invented text.
+  - **DSNTIAR stays refused by name** (`CALL 'DSNTIAR'` or through a data item): "DSNTIAR: Db2's message text is not
+    modelled".
+- **Assumption (unproven).** The wording of each message line, and the DSNT415I / 416I / 418I trailer lines, are written
+  from the public message titles, not captured from z/OS. A scenario that prints them proves the port equals the stand-in,
+  not that z/OS prints the same bytes. Residual risk: a program that parses the text, not the return code.
+- **Reached.** COTRTLIC's `9999-FORMAT-DB2-MESSAGE` (CALL LIT-DSNTIAC, #4736), on the Db2-error path: the injected SQL
+  faults of `carddemo-cotrtlic` reach it and both sides agree.
 
 ### Q6. Date text and DDL from z/OS jobs — ASSUMED
 - **Date text.** A DATE column read into a character host variable comes back as `YYYY-MM-DD` on both sides: Db2's
@@ -4788,7 +4799,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   -913 rolls back the statement only; -911's unit-of-work rollback is not used. Nothing else changes: no row, no host
   variable, a cursor where it was.
 - **Not judged.** A fault task that LINKs to a program the case does not run is judged up to that LINK (X6). One whose
-  path reaches a det port's named hole (COTRTLIC's CALL DSNTIAC) is recorded "not judged" and left out of the proof
+  path reaches a det port's named hole (formerly COTRTLIC's CALL DSNTIAC, now modelled, Q5) is recorded "not judged" and left out of the proof
   and of the coverage figure. A port without DetSql (a model port) cannot take a planned SQL fault: such a task is
   recorded "not judged" (no SQL fault hook), never run unfaulted.
 - **Effect.** Coverage of the 17 Db2 cases before and after is in the #4173 PR, e.g. GenApp LGACDB01 6/14 → 8/14

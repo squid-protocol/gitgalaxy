@@ -1,5 +1,5 @@
 {
- "commit": "874fd45df",
+ "commit": "9b8dea048",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -65,7 +65,7 @@
      "REFUSED": 1
     },
     "LE": {
-     "ASSUMED": 5,
+     "ASSUMED": 6,
      "MATCHED": 10
     },
     "MQ": {
@@ -93,9 +93,9 @@
     }
    },
    "measured_on_zos": 0,
-   "rules": 179,
+   "rules": 180,
    "status": {
-    "ASSUMED": 57,
+    "ASSUMED": 58,
     "DIFFERS": 23,
     "MATCHED": 85,
     "REFUSED": 14
@@ -160,21 +160,21 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-21T19:10:00Z",
+  "as_of": "2026-10-21T19:30:21Z",
   "core": {
-   "closed": 154,
-   "open": 27,
+   "closed": 155,
+   "open": 26,
    "total": 181
   },
   "core_last_window": {
-   "closed": 51,
-   "net_closed": 13,
+   "closed": 52,
+   "net_closed": 14,
    "opened": 38
   },
   "core_milestone": {
-   "closed": 84,
+   "closed": 85,
    "number": 28,
-   "open": 19,
+   "open": 18,
    "total": 103
   },
   "epics": {
@@ -184,7 +184,7 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "15 days",
+  "eta": "13 days",
   "frontier": {
    "closed": 104,
    "found_last_window": 24,
@@ -380,9 +380,9 @@
     "total": 21
    },
    {
-    "closed": 245,
+    "closed": 246,
     "number": 28,
-    "open": 20,
+    "open": 19,
     "title": "Training Montage \ud83c\udfcb\ufe0f \u2014 Prepping to one-shot our 4th CICS to Java translation attempt",
     "total": 265
    },

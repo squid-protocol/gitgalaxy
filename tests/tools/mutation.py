@@ -52,6 +52,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 TOOLS = Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO_ROOT))
+from equivalence_java import JAVAC_JVM_OPTIONS  # noqa: E402
 from maven_exe import maven_utf8_env, mvn_executable, run_decoded  # noqa: E402
 
 EQUIVALENCE = TOOLS / "equivalence.py"
@@ -321,7 +322,7 @@ def compiles(mutant_port: Path, classpath: str, out: Path) -> tuple[bool, str]:
     out.mkdir(parents=True, exist_ok=True)
     sources = [str(p) for p in sorted(mutant_port.rglob("*.java"))]
     try:
-        proc = subprocess.run(["javac", "-encoding", "UTF-8", "-nowarn", "-d", str(out), "-cp", classpath, *sources],  # noqa: S603, S607
+        proc = subprocess.run(["javac", *JAVAC_JVM_OPTIONS, "-encoding", "UTF-8", "-nowarn", "-d", str(out), "-cp", classpath, *sources],  # noqa: S603, S607
                               env=_java_env(), capture_output=True, text=True, encoding="utf-8", check=False,
                               timeout=JAVAC_MUTANT_TIMEOUT)  # fmt: skip
     except subprocess.TimeoutExpired:

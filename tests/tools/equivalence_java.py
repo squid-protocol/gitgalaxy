@@ -470,6 +470,11 @@ def _reused_project(earlier: Path, work: Path, overlay: list[str]) -> Path:
 # javac exactly as the generated pom's maven-compiler-plugin runs it (Spring Boot's parent: -parameters, release 17;
 # Lombok found on the classpath)
 JAVAC_OPTIONS = ["-g", "-parameters", "--release", "17", "-encoding", "UTF-8", "-nowarn"]
+# #5882: the javac launcher's own JVM, C1 only and one GC thread: a compile is too short for C2 to pay back. A whole
+# generated project (~210 sources, Lombok) took 13.9 CPU-s with the default JIT, 4.4 CPU-s like this, at the same wall
+# time alone and ~2.3x faster four at once on four cores (a det shard's --jobs 4). Same compiler: the class files are
+# byte-identical. (A warm javac_server JVM did not help: Lombok's processor reloads every compile.)
+JAVAC_JVM_OPTIONS = ["-J-XX:TieredStopAtLevel=1", "-J-XX:+UseSerialGC"]
 # #4904: timeouts for javac/java execution in equivalence tests
 JAVAC_RUNNER_TIMEOUT = (
     300  # seconds: hang guard, well above the slowest honest run (normal single-file javac compile (~1-2s))
@@ -577,7 +582,7 @@ def _runner(launcher: Path, java_bin: Path, classpath: str, shell: dict[str, str
     build = Path(tempfile.mkdtemp(prefix="equivalence-runner-"))
     (build / "EquivalenceMain.java").write_text(RUNNER, encoding="utf-8")
     try:
-        subprocess.run([str(java_bin / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(build), "-cp", classpath,  # noqa: S603
+        subprocess.run([str(java_bin / "javac"), *JAVAC_JVM_OPTIONS, "-encoding", "UTF-8", "-nowarn", "-d", str(build), "-cp", classpath,  # noqa: S603
                         str(build / "EquivalenceMain.java")], env=shell, check=True, capture_output=True,
                        timeout=JAVAC_RUNNER_TIMEOUT)  # fmt: skip
     except subprocess.TimeoutExpired as exc:
@@ -757,7 +762,7 @@ def _filtered(resources: Path) -> bool:
 def _javac(args: list[str], env: dict[str, str]) -> bool:
     javac = str(Path(env["JAVA_HOME"]) / "bin" / "javac")
     try:
-        return subprocess.run([javac, "-encoding", "UTF-8", *JAVAC_OPTIONS, *args], env=env, capture_output=True, text=True,  # noqa: S603
+        return subprocess.run([javac, *JAVAC_JVM_OPTIONS, "-encoding", "UTF-8", *JAVAC_OPTIONS, *args], env=env, capture_output=True, text=True,  # noqa: S603
                               encoding="utf-8", check=False, timeout=JAVAC_PROJECT_TIMEOUT).returncode == 0  # fmt: skip
     except subprocess.TimeoutExpired:
         return False
@@ -839,7 +844,7 @@ def _compile_overlay(project: Path, earlier: Path, overlay: list[str], work: Pat
     env = dict(os.environ, JAVA_HOME=jtm._jdk(17))
     javac = str(Path(env["JAVA_HOME"]) / "bin" / "javac")
     try:
-        proc = subprocess.run([javac, "-encoding", "UTF-8", *JAVAC_OPTIONS, "-d", str(classes), "-cp", classpath, *sources],  # noqa: S603
+        proc = subprocess.run([javac, *JAVAC_JVM_OPTIONS, "-encoding", "UTF-8", *JAVAC_OPTIONS, "-d", str(classes), "-cp", classpath, *sources],  # noqa: S603
                               env=env, capture_output=True, text=True, encoding="utf-8", check=False,
                               timeout=JAVAC_OVERLAY_TIMEOUT)  # fmt: skip
     except subprocess.TimeoutExpired as exc:

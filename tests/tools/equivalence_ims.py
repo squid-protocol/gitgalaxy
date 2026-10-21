@@ -88,15 +88,20 @@ def dbd(text: str, where: str) -> dict[str, Any]:
     return {"name": db["name"].upper(), "segments": segs}
 
 
-def psb(text: str, where: str, dbds: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+def psb(text: str, where: str, dbds: dict[str, dict[str, Any]], bmp: bool = False) -> list[dict[str, Any]]:
     """The PSB's DB PCBs, in order: [{dbd, procopt, keylen}]; an I/O or GSAM PCB, or what else is not modelled,
-    refused."""
+    refused. `bmp`: the program is a BMP (#5857), which IMS enters with the I/O PCB first (CMPAT=YES): required then,
+    and refused otherwise."""
     rows = ims_gen_macros(text)
     gen = next((r for r in rows if r["kind"] == "PSBGEN"), None)
     if gen is None:
         raise Unsupported(f"{where}: no PSBGEN statement")
-    if (_keyed(gen["attributes"], "CMPAT") or "NO") == "YES":
-        raise Unsupported(f"{where}: CMPAT=YES (IMS passes an I/O PCB first: IMS TM, not modelled)")
+    compat = (_keyed(gen["attributes"], "CMPAT") or "NO") == "YES"
+    if compat and not bmp:
+        raise Unsupported(f"{where}: CMPAT=YES (IMS passes an I/O PCB first: only a BMP entered USING its I/O PCB "
+                          "is modelled)")  # fmt: skip
+    if bmp and not compat:
+        raise Unsupported(f"{where}: a BMP is entered with the I/O PCB first, which needs CMPAT=YES")
     pcbs: list[dict[str, Any]] = []
     for r in rows:
         attrs = r["attributes"] or ""
@@ -127,13 +132,15 @@ def psb(text: str, where: str, dbds: dict[str, dict[str, Any]]) -> list[dict[str
     return pcbs
 
 
-def definitions(case: dict[str, Any], corpus: Path) -> tuple[dict[str, dict[str, Any]], list[dict[str, Any]]]:
+def definitions(
+    case: dict[str, Any], corpus: Path, bmp: bool = False
+) -> tuple[dict[str, dict[str, Any]], list[dict[str, Any]]]:
     ims = case["ims"]
     dbds: dict[str, dict[str, Any]] = {}
     for rel in ims["dbd"]:
         d = dbd((corpus / rel).read_text(encoding="latin-1"), rel)
         dbds[d["name"]] = d
-    return dbds, psb((corpus / ims["psb"]).read_text(encoding="latin-1"), ims["psb"], dbds)
+    return dbds, psb((corpus / ims["psb"]).read_text(encoding="latin-1"), ims["psb"], dbds, bmp)
 
 
 def _layout(case: dict[str, Any], corpus: Path, seg: str) -> list[dict[str, Any]] | None:
@@ -249,14 +256,33 @@ def entry_using(source: str) -> list[str] | None:
     return [w for w in words if w not in ("BY", "REFERENCE")]
 
 
+def _code(source: str) -> str:
+    return "\n".join(line[6:72] for line in source.splitlines() if len(line) > 6 and line[6] not in "*/")
+
+
+def bmp_using(source: str) -> list[str] | None:
+    """#5857 (register I5): the items of a BMP's PROCEDURE DIVISION USING (the I/O PCB first, then the DB PCBs) -- a
+    program with no ENTRY 'DLITCBL' that issues EXEC DLI -- else None."""
+    code = _code(source)
+    if entry_using(source) is not None or not re.search(r"\bEXEC\s+DLI\b", code, re.I):
+        return None
+    m = re.search(r"\bPROCEDURE\s+DIVISION\s+USING\s+(.*?)\.", code, re.I | re.S)
+    if not m:
+        return None
+    return [w for w in (x.upper() for x in m.group(1).split()) if w not in ("BY", "REFERENCE")]
+
+
 def stage(case: dict[str, Any], corpus: Path, source: str, dest: Path) -> list[dict[str, Any]]:
     """Write dbd.cfg, psb.cfg and the seeds into `dest` (both sides read them); the PSB's DB PCBs."""
-    dbds, pcbs = definitions(case, corpus)
-    using = entry_using(source)
-    if using is None:
-        raise Unsupported(f"{case['program']}: no ENTRY 'DLITCBL' (a BMP / MPP or CICS DL/I program is not modelled)")
+    bmp = bmp_using(source)
+    dbds, pcbs = definitions(case, corpus, bmp is not None)
+    using = entry_using(source) if bmp is None else bmp[1:]
+    if using is None or (bmp is not None and len(bmp) < 2):
+        raise Unsupported(f"{case['program']}: no ENTRY 'DLITCBL' and not a BMP entered USING its I/O PCB and DB "
+                          "PCBs (an MPP or CICS DL/I program is not modelled)")  # fmt: skip
     if len(using) != len(pcbs):
-        raise Unsupported(f"{case['program']}: ENTRY 'DLITCBL' names {len(using)} PCBs, the PSB has {len(pcbs)}")
+        raise Unsupported(f"{case['program']}: {'PROCEDURE DIVISION USING' if bmp else 'ENTRY DLITCBL'} names "
+                          f"{len(using)} DB PCBs, the PSB has {len(pcbs)}")  # fmt: skip
     dest.mkdir(parents=True, exist_ok=True)
     dbd_cfg, psb_cfg = config(dbds, pcbs)
     (dest / "dbd.cfg").write_text(dbd_cfg, encoding="ascii")
@@ -266,16 +292,19 @@ def stage(case: dict[str, Any], corpus: Path, source: str, dest: Path) -> list[d
     return pcbs
 
 
-def cobol_driver(program_entry: str, pcbs: list[dict[str, Any]]) -> list[str]:
+def cobol_driver(program_entry: str, pcbs: list[dict[str, Any]], io: bool = False) -> list[str]:
     """The driver's lines: each PCB an area of its own, bound (GGDLINIT), the program entered at `program_entry`
-    with them, the databases written (GGDLIEND) -- the step's RETURN-CODE kept across that last CALL."""
+    with them, the databases written (GGDLIEND) -- the step's RETURN-CODE kept across that last CALL. `io` (#5857): a
+    BMP, its I/O PCB's area first (GGDLIBMP binds the DB PCBs after it)."""
     areas = [f"PCB-{i + 1}" for i in range(len(pcbs))]
+    if io:
+        areas.insert(0, "PCB-IO")
     using = " ".join(areas)
     return [
         "IDENTIFICATION DIVISION.", "PROGRAM-ID. EQDRIVER.", "DATA DIVISION.", "WORKING-STORAGE SECTION.",
         *[f"01  {a} PIC X({AREA}) VALUE LOW-VALUES." for a in areas],
         "01  GG-RC PIC S9(9) COMP-5.",
-        "PROCEDURE DIVISION.", f"    CALL 'GGDLINIT' USING {using}", f"    CALL '{program_entry}' USING {using}",
+        "PROCEDURE DIVISION.", f"    CALL '{'GGDLIBMP' if io else 'GGDLINIT'}' USING {using}", f"    CALL '{program_entry}' USING {using}",
         "    MOVE RETURN-CODE TO GG-RC", "    CALL 'GGDLIEND'", "    MOVE GG-RC TO RETURN-CODE", "    STOP RUN.",
     ]  # fmt: skip
 
@@ -317,3 +346,64 @@ def diff_db(case: dict[str, Any], corpus: Path, name: str, cobol: bytes, java: b
         diffs.append({"segment": k + 1, "name": a[0], "diffs": d["diffs"]})
     records = max(len(left), len(right))
     return {"records": records, "equal": records - len(diffs), "filler_differs": 0, "diffs": diffs}
+
+
+def rewrite_bmp(source: str) -> str:
+    """#5857 (register I5): a BMP's EXEC DLI -> the CALLs of ggdli.c (GGDLIX as under CICS, GGDLICHKP for CHKP
+    ID(area)), IBM's DIB (DIBSTAT only) supplied. Any other form is refused by name, as the det translator does."""
+    import equivalence_cics as ec
+
+    from gitgalaxy.tools.cobol_to_java.det import dli
+    from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
+
+    lines = source.splitlines()
+    out: list[str] = []
+    problems: list[str] = []
+    at = 0
+    try:
+        blocks = list(ec._exec_blocks(lines))
+    except ec.Unsupported as e:
+        raise Unsupported(str(e)) from e
+    for i, j, prefix, body, suffix in blocks:
+        out += lines[at:i]
+        at = j + 1
+        if prefix.strip():
+            out.append(lines[i][:7] + prefix.rstrip())
+        text = body[len(ec._DLI_TAG) :].strip() if body.startswith(ec._DLI_TAG) else ""
+        try:
+            if not text:
+                raise Unsupported("EXEC CICS in a batch program")
+            if text.split()[0].upper() == "CHKP":
+                try:
+                    cl = dli._clauses(text.split(None, 1)[1] if len(text.split()) > 1 else "")
+                except Untranslatable as e:
+                    raise Unsupported(str(e)) from None
+                ident = cl[0][1].strip() if len(cl) == 1 and cl[0][0] == "ID" else ""
+                if not re.fullmatch(r"[A-Za-z0-9-]*[A-Za-z][A-Za-z0-9-]*", ident):
+                    raise Unsupported("EXEC DLI CHKP: only ID(data name) is modelled (register I5)")
+                stmts = ["CALL 'GGDLICHKP' USING BY REFERENCE DIBSTAT",
+                         f"    BY REFERENCE {ident}",
+                         f"    BY VALUE LENGTH OF {ident}"]  # fmt: skip
+            else:
+                try:
+                    stmts = ec.translate_dli(text)
+                except ec.Unsupported as e:
+                    raise Unsupported(str(e)) from None
+        except Unsupported as e:
+            problems.append(f"line {i + 1}: {e}")
+            stmts = []
+        for s in stmts:
+            if len(ec._AREA_B) + len(s) > 72:
+                raise Unsupported(f"line {i + 1}: generated statement too long: {s}")
+            out.append(ec._AREA_B + s)
+        if suffix.strip():
+            out.append(ec._AREA_B + suffix.strip())
+    out += lines[at:]
+    if problems:
+        raise Unsupported("; ".join(problems))
+    text = "\n".join(out) + "\n"
+    text, n = re.subn(r"^(.{6} +WORKING-STORAGE\s+SECTION\.[^\n]*\n)", lambda m: m.group(1) + ec._DIB, text,
+                      count=1, flags=re.M | re.I)  # fmt: skip
+    if n != 1:
+        raise Unsupported("no WORKING-STORAGE SECTION to hold the DIB")
+    return text

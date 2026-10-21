@@ -10,6 +10,8 @@
  *                                              the PSB (psb.cfg, in order) to the area passed, and fills its mask
  *   CALL 'CBLTDLI'  USING function pcb io-area [ssa-1 ... ssa-15]
  *   CALL 'GGDLIEND'                            the driver, after the program returns: writes each database
+ *   CALL 'GGDLIBMP' USING io-pcb pcb-1 ... pcb-n   the driver of a BMP (#5857): IMS passes the I/O PCB first (PSB
+ *                                              CMPAT=YES); the DB PCBs are bound as GGDLINIT does, the PSB scheduled
  *
  * Inputs ($GGDLI_DIR, written by tests/tools/equivalence_ims.py from the case's DBD / PSB sources and seed):
  *   dbd.cfg    DBD <name> / SEGM <dbd> <name> <parent name or 0> <bytes> /
@@ -74,6 +76,7 @@ static Fld flds[MAXFLD];
 static Db dbs[MAXDB];
 static Pcb pcbs[MAXPCB];
 static int nseg, nfld, ndb, npcb, loaded, refused;
+static int bmp; /* 1 in a BMP entered by GGDLIBMP: PCB numbers of an EXEC DLI count the I/O PCB (#5857) */
 
 static void refuse(const char *what) {
     fprintf(stderr, "CBLTDLI: %s is not modelled\n", what);
@@ -256,6 +259,22 @@ int GGDLINIT(P a0, P a1, P a2, P a3, P a4, P a5, P a6, P a7, P a8, P a9, P a10, 
         pcbs[i].mask = areas[i];
         init_mask(&pcbs[i]);
     }
+    return 0;
+}
+
+/* A BMP's driver (#5857, the twin of DetDli.enterBmp): areas[0] is the I/O PCB, the rest the DB PCBs in PSB order. */
+static int scheduled;
+int GGDLIBMP(P a0, P a1, P a2, P a3, P a4, P a5, P a6, P a7, P a8, P a9, P a10, P a11, P a12, P a13, P a14, P a15) {
+    P areas[16] = {a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15};
+    load();
+    read_psb();
+    if (cob_get_num_params() != npcb + 1) refuse("a BMP whose USING does not list the I/O PCB and one area per PCB of the PSB");
+    for (int i = 0; i < npcb; i++) {
+        pcbs[i].mask = areas[i + 1];
+        init_mask(&pcbs[i]);
+    }
+    bmp = 1;
+    scheduled = 1;
     return 0;
 }
 
@@ -716,13 +735,12 @@ int CBLTDLI(P a0, P a1, P a2, P a3, P a4, P a5, P a6, P a7, P a8, P a9, P a10, P
  *   CALL 'GGDLIX'    USING dibstat verb BY VALUE pcb-number io BY VALUE seglength spec-1 value-1 BY VALUE length-1 [spec-2 ...]
  *                          verb: GU GN GNP ISRT REPL DLET (4 bytes); spec: segment(8) field(8) operator(2), the field
  *                          blank for an unqualified SSA; a REPL / DLET names its segment in spec-1 only. */
-static int scheduled;
-
 static int by_value(P a) { return (int)(long)a; }
 
 static void set_dibstat(P dibstat, const char *st) { memcpy(dibstat, st, 2); }
 
 int GGDLISCHD(P dibstat, P nodhabend) {
+    if (bmp) refuse("an EXEC DLI SCHD in a BMP");
     if (scheduled) {
         if (!by_value(nodhabend)) refuse("a SCHD of a PSB already scheduled, without NODHABEND (the task would abend)");
         set_dibstat(dibstat, "TC");
@@ -744,6 +762,7 @@ int GGDLISCHD(P dibstat, P nodhabend) {
 }
 
 int GGDLITERM(P dibstat) {
+    if (bmp) refuse("an EXEC DLI TERM in a BMP");
     if (!scheduled) refuse("a TERM with no PSB scheduled");
     scheduled = 0;
     npcb = 0;
@@ -754,7 +773,8 @@ int GGDLITERM(P dibstat) {
 int GGDLIX(P dibstat, P verb, P pcbnum, P io, P seglen, P s1, P v1, P l1, P s2, P v2, P l2, P s3, P v3, P l3) {
     int n = cob_get_num_params();
     if (!scheduled) refuse("an EXEC DLI command with no PSB scheduled");
-    int num = by_value(pcbnum);
+    int num = by_value(pcbnum) - bmp;
+    if (bmp && num < 1) refuse("an EXEC DLI database command on PCB(1), the I/O PCB");
     if (num < 1 || num > npcb) refuse("a PCB number the scheduled PSB does not have");
     Pcb *p = &pcbs[num - 1];
     char fn[5];
@@ -798,5 +818,23 @@ int GGDLIX(P dibstat, P verb, P pcbnum, P io, P seglen, P s1, P v1, P l1, P s2, 
     P args[6] = {(P)fn, p->mask, io, k > 0 ? ssa[0] : NULL, k > 1 ? ssa[1] : NULL, k > 2 ? ssa[2] : NULL};
     do_call(args, 3 + k);
     memcpy(dibstat, p->mask + 10, 2);
+    return 0;
+}
+
+/* EXEC DLI CHKP ID(area) in a BMP (#5857, the twin of DetDli.checkpoint): DIBSTAT blank, every database position
+ * released (the next GN starts at the beginning). The ID is 8 bytes. ASSUMPTION (register I5, no IBM text cited). */
+int GGDLICHKP(P dibstat, P id, P idlen) {
+    if (!bmp) refuse("an EXEC DLI CHKP outside a BMP entered by USING its I/O PCB");
+    if (by_value(idlen) != 8) refuse("a CHKP ID that is not 8 bytes");
+    for (int i = 0; i < npcb; i++) {
+        Pcb *p = &pcbs[i];
+        p->pos = POS_START;
+        p->at = NULL;
+        p->par = PAR_NONE;
+        p->parentage = NULL;
+        p->hold = NULL;
+        p->prevknown = 0;
+    }
+    set_dibstat(dibstat, "  ");
     return 0;
 }

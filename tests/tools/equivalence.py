@@ -294,9 +294,13 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
     if ims:  # #4893: a DL/I program -- IMS enters it at DLITCBL with its PCBs -- on the stated databases (ggdli.c)
         try:
             pcbs = equivalence_ims.stage(case, corpus, source, work / "dli")
+            bmp = equivalence_ims.bmp_using(source) is not None  # #5857: entered USING its I/O PCB, EXEC DLI
+            if bmp:
+                (src / "PROGRAM.cbl").write_text(equivalence_ims.rewrite_bmp(program), encoding=staged)
         except equivalence_ims.Unsupported as e:
             raise RuntimeError(f"not runnable faithfully: {e}") from e
-        (src / "EQDRIVER.cbl").write_text(_cbl(equivalence_ims.cobol_driver("DLITCBL", pcbs)), encoding="ascii")
+        driver = equivalence_ims.cobol_driver(case["program"] if bmp else "DLITCBL", pcbs, io=bmp)
+        (src / "EQDRIVER.cbl").write_text(_cbl(driver), encoding="ascii")
         shutil.copy(equivalence_ims.STUB, src / "ggdli.c")
         shutil.rmtree(work / "dliout", ignore_errors=True)
         (work / "dliout").mkdir()

@@ -3270,7 +3270,8 @@ def sql_first_id(table: str) -> int:
 RECOVER: dict[str, Any] = {}  # #4173: a COBOL work area -> its coverage recomputed for the tasks judged
 
 
-def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[dict[str, Any]]) -> dict[str, Any]:
+def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[dict[str, Any]],
+                   keep: frozenset[str] = frozenset()) -> dict[str, Any]:  # fmt: skip
     """Translate, compile and run each scenario; {scenario: its outputs} (see `outputs`)."""
     work.mkdir(parents=True, exist_ok=True)
     src = work / "src"
@@ -3297,7 +3298,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             )
         except equivalence_sql.Unsupported as e:
             raise Unsupported(f"EXEC SQL: {e}", ["EXEC SQL"]) from e
-        equivalence_db2.create(case, corpus)
+        if not keep:  # #5882: a second pass keeps the first's tables (each task resets them first, identities too):
+            equivalence_db2.create(case, corpus)  # what its tasks find is what they found after the first pass's
         (work / "stmts.txt").write_text(table, encoding="latin-1")
         (work / "reset.sql").write_text(equivalence_db2.reset_script(case, corpus), encoding="latin-1")
         shutil.copy(equivalence_db2.STUB, src / "ggsql.c")
@@ -3337,8 +3339,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                                     "compiled_name": f"SUB{name}.cbl"})  # fmt: skip
     # (#4950: or the program itself CALLs one -- CBSA CRECUST's CEEDAYS / CEELOCT; #5076: or a program it LINKs in the
     # task does, BNK1CCS -> CRECUST)
-    calls_le = re.search(r"(?i)\bCALL\s+['\"]CEE", source) or any(
-        re.search(r"(?i)\bCALL\s+['\"]CEE", common.read_program(case, corpus / extra["program_source"])[0])
+    le_call = re.compile(r"(?i)\bCALL\s+['\"]CEE|\bCOPY\s+CSDB2RPY\b|\bDSNTIAC\b")  # #5858: DSNTIAC's model too
+    calls_le = le_call.search(source) or any(
+        le_call.search(common.read_program(case, corpus / extra["program_source"])[0])
         for extra in case.get("programs", [])
     )
     for model in sorted(LE_MODELS.glob("*.c")) if subs or calls_le else []:
@@ -3421,8 +3424,20 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         if sc.get("sql_faults") and not db2:
             raise Unsupported(f'scenario {sc["name"]}: SQL faults in a case with no "db2" section')
         sc["sql_plan"] = sql_fault_plan(case, sc, sql_table) if sc.get("sql_faults") else []
-    shutil.rmtree(work / "scenarios", ignore_errors=True)  # a second pass (#4173) starts afresh: the logs append
+    # #5882: `keep` names the tasks a first pass (#4173) already ran in this `work`: their directories (outputs, traces,
+    # logs) are kept and they are not run again -- each task runs alone (its own files, the tables reset first, its own
+    # clock and task number), so a second run of it is the first one again. Only the new tasks (the derived SQL-fault
+    # ones) are staged and run; the binary is compiled and the tables created as before. Every other directory starts
+    # afresh (the logs append).
+    if keep:
+        for d in (work / "scenarios").glob("*"):
+            if d.name not in keep:
+                shutil.rmtree(d, ignore_errors=True)
+    else:
+        shutil.rmtree(work / "scenarios", ignore_errors=True)
     for sc in case["scenarios"]:
+        if sc["name"] in keep:
+            continue
         d = work / "scenarios" / sc["name"]
         (d / "out").mkdir(parents=True, exist_ok=True)
         # each task its own copy of the files: what it writes is its own, and is compared (file updates)
@@ -6157,12 +6172,15 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
     # on both sides; `declared` runs only the scenarios' own sql_faults; `none` drops those too
     if sql_faults == "none":
         case = {**case, "scenarios": [{**sc, "sql_faults": []} for sc in case["scenarios"]]}
-    cobol = run_cobol_cics(case, corpus, work / "cobol", files)
+    with common.phase("cobol_cics"):  # #5882
+        cobol = run_cobol_cics(case, corpus, work / "cobol", files)
     if case.get("db2") and sql_faults == "auto":
         derived = enumerated_sql_faults(case, work / "cobol")
         if derived:
+            ran = frozenset(sc["name"] for sc in case["scenarios"])  # #5882: run once, in the first pass
             case = {**case, "scenarios": [*case["scenarios"], *derived]}
-            cobol = run_cobol_cics(case, corpus, work / "cobol", files)
+            with common.phase("cobol_cics_sql_faults"):  # only the derived fault tasks
+                cobol = run_cobol_cics(case, corpus, work / "cobol", files, keep=ran)
     refused = json.loads((work / "cobol" / "refused.json").read_text(encoding="utf-8"))
     for name, why in refused.items():
         print(f"{case['program']} {name}: not run -- {why}")
@@ -6173,7 +6191,8 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         return 0
     try:
         facade: dict[str, Any] | None = {} if facades and port else None
-        java = run_java_cics(case, corpus, work / "java", work / "cobol", files, port, port_dir, facade, one_jvm)
+        with common.phase("java_cics"):  # #5882: holds java_generate and java_maven
+            java = run_java_cics(case, corpus, work / "java", work / "cobol", files, port, port_dir, facade, one_jvm)
     except RuntimeError as e:  # the port does not compile, or its run fails: the loop's feedback, not a crash
         failed = common.java_failure_report(case, work, str(e))
         (work / "report.json").write_text(json.dumps(failed, indent=2) + "\n", encoding="utf-8")

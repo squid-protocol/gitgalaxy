@@ -200,67 +200,13 @@
    "reason": "condition() answering -2 instead of -1 for a condition ignored by default: callers test only `to >= 0`, false for both"
   },
   {
-   "id": "0c159ea658",
+   "id": "bfb37a3f75",
    "op": "ROR",
-   "line": 516,
-   "before": "Cobol.move(d.getCdemoCustMname() == null ? \"\" : d.getCdemoCustMname(), Field.alphanumeric(s, base + 68, 25, false), CS);",
-   "after": "Cobol.move(d.getCdemoCustMname() != null ? \"\" : d.getCdemoCustMname(), Field.alphanumeric(s, base + 68, 25, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_ moves '' instead of the caller's CDEMO-CUST-MNAME, which the RETURN COMMAREA carries. Killed by scenario full-commarea-carried (added in this PR: every COMMAREA field set, the CT01 part too)"
-  },
-  {
-   "id": "68d132c4fe",
-   "op": "CON",
-   "line": 519,
-   "before": "Cobol.move(d.getCdemoAcctStatus() == null ? \"\" : d.getCdemoAcctStatus(), Field.alphanumeric(s, base + 129, 1, false), CS);",
-   "after": "Cobol.move(d.getCdemoAcctStatus() == null ? \"\" : d.getCdemoAcctStatus(), Field.alphanumeric(s, base + 130, 1, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_ moves CDEMO-ACCT-STATUS one byte on (over CDEMO-CARD-NUM's first byte, rewritten next), leaving the status byte as the image's space instead of the caller's. Killed by scenario full-commarea-carried (added in this PR: every COMMAREA field set, the CT01 part too)"
-  },
-  {
-   "id": "ab2120f05c",
-   "op": "ROR",
-   "line": 520,
-   "before": "Cobol.move(d.getCdemoCardNum() == null ? BigDecimal.ZERO : new BigDecimal(d.getCdemoCardNum().toString()), Field.zoned(s, base + 130, 16, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getCdemoCardNum() != null ? BigDecimal.ZERO : new BigDecimal(d.getCdemoCardNum().toString()), Field.zoned(s, base + 130, 16, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_ moves 0 instead of the caller's CDEMO-CARD-NUM, which the RETURN COMMAREA carries. Killed by scenario full-commarea-carried (added in this PR: every COMMAREA field set, the CT01 part too)"
-  },
-  {
-   "id": "0d657cab48",
-   "op": "CON",
-   "line": 522,
-   "before": "Cobol.move(d.getCdemoLastMapset() == null ? \"\" : d.getCdemoLastMapset(), Field.alphanumeric(s, base + 153, 7, false), CS);",
-   "after": "Cobol.move(d.getCdemoLastMapset() == null ? \"\" : d.getCdemoLastMapset(), Field.alphanumeric(s, base + 154, 7, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_ moves CDEMO-LAST-MAPSET one byte on (its last byte over CDEMO-CT01-TRNID-FIRST's first, rewritten next), leaving the mapset's first byte as the image's space. Killed by scenario full-commarea-carried (added in this PR: every COMMAREA field set, the CT01 part too)"
-  },
-  {
-   "id": "f0bbd55f1c",
-   "op": "ROR",
-   "line": 527,
-   "before": "Cobol.move(d.getCdemoCt01TrnSelFlg() == null ? \"\" : d.getCdemoCt01TrnSelFlg(), Field.alphanumeric(s, base + 201, 1, false), CS);",
-   "after": "Cobol.move(d.getCdemoCt01TrnSelFlg() != null ? \"\" : d.getCdemoCt01TrnSelFlg(), Field.alphanumeric(s, base + 201, 1, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_ moves '' instead of the caller's CDEMO-CT01-TRN-SEL-FLG, which the RETURN COMMAREA carries. Killed by scenario full-commarea-carried (added in this PR: every COMMAREA field set, the CT01 part too)"
-  },
-  {
-   "id": "cafe3779dd",
-   "op": "DEL",
-   "line": 540,
-   "before": "d.setCdemoCustFname(Cobol.text(Field.alphanumeric(s, base + 43, 25, false), CS));",
-   "after": "/* d.setCdemoCustFname(Cobol.text(Field.alphanumeric(s, base + 43, 25, false), CS)); */",
-   "verdict": "case-gap",
-   "reason": "without fill_'s CDEMO-CUST-FNAME setter the RETURN COMMAREA lacks the first name it carries. Killed by scenario full-commarea-carried (added in this PR: every COMMAREA field set, the CT01 part too)"
-  },
-  {
-   "id": "9a3b66c5ac",
-   "op": "DEL",
-   "line": 542,
-   "before": "d.setCdemoCustLname(Cobol.text(Field.alphanumeric(s, base + 93, 25, false), CS));",
-   "after": "/* d.setCdemoCustLname(Cobol.text(Field.alphanumeric(s, base + 93, 25, false), CS)); */",
-   "verdict": "case-gap",
-   "reason": "without fill_'s CDEMO-CUST-LNAME setter the RETURN COMMAREA lacks the last name it carries. Killed by scenario full-commarea-carried (added in this PR: every COMMAREA field set, the CT01 part too)"
+   "line": 564,
+   "before": "if (s_DFHCOMMAREA.bytes != whole) {",
+   "after": "if (s_DFHCOMMAREA.bytes == whole) {",
+   "verdict": "equivalent",
+   "reason": "caWhole rebuilds DFHCOMMAREA's whole 32767-byte record around what the task left in its EIBCALEN bytes; COTRN01C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), at most the 218 bytes of its COMMAREA, which in_ writes from the caller's COMMAREA first, so the bytes the negation changes lie past them; for a terminal task the area's final contents are not observable (CICS discards them; linked_result drops them)"
   },
   {
    "id": "8e3adfd4ef",
@@ -297,6 +243,15 @@
    "after": "Cobol.store(f466_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
    "verdict": "equivalent",
    "reason": "COTRN01C never reads EIBDATE / EIBTIME (the header date and time come from FUNCTION CURRENT-DATE), so EIBTIME cannot show"
+  },
+  {
+   "id": "89e7395192",
+   "op": "LIT",
+   "line": 649,
+   "before": "case \"NULL\" -> Cobol.move(f359_DFHNULL, f474_EIBAID, CS);",
+   "after": "case \"XULL\" -> Cobol.move(f359_DFHNULL, f474_EIBAID, CS);",
+   "verdict": "equivalent",
+   "reason": "a NULL attention key no longer sets EIBAID, which keeps its initial byte (a space); COTRN01C tests only ENTER, PF3, PF4 and PF5, so it takes WHEN OTHER exactly as NULL does (no scenario sends NULL, and the result would be the same)"
   },
   {
    "id": "3b963a3947",
@@ -353,6 +308,15 @@
    "reason": "a byte[] COMMAREA longer than DFHCOMMAREA's record is passed by no scenario (the det port is entered with a typed CarddemoCommarea object); only a caller with an over-long raw COMMAREA reaches it"
   },
   {
+   "id": "2c67b620e2",
+   "op": "ROR",
+   "line": 707,
+   "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+   "after": "s_DFHCOMMAREA.beyond = raw.length <= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+   "verdict": "unreachable",
+   "reason": "the area beyond EIBCALEN is copied only when task.linkArea() is set, i.e. a det-port program LINKed COTRN01C with its COMMAREA's bytes; no CardDemo program LINKs COTRN01C (a terminal transaction, CT01, entered by XCTL)"
+  },
+  {
    "id": "0aabfa1ab3",
    "op": "COR",
    "line": 712,
@@ -407,6 +371,15 @@
    "reason": "handleLink is the LINKed-program facade; carddemo-signon is a terminal task (no `linked`), so the facade is never called"
   },
   {
+   "id": "d967ca9724",
+   "op": "DEL",
+   "line": 773,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "/* lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null; */",
+   "verdict": "unreachable",
+   "reason": "lastLinkBytes records the COMMAREA a LINKed task hands back (task.linkAreaTaken() is true only for a LINKed task); COTRN01C runs as a terminal transaction and no CardDemo program LINKs it"
+  },
+  {
    "id": "73041bcfaf",
    "op": "AOR",
    "line": 861,
@@ -434,6 +407,15 @@
    "reason": "WS-ERR-FLG is tested only through ERR-FLG-ON ('Y'); 'X' and 'N' are both not ON, and every path that sets the flag moves 'Y'"
   },
   {
+   "id": "49da70879d",
+   "op": "DEL",
+   "line": 919,
+   "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f169_COTRN1AO, CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f169_COTRN1AO, CS); */",
+   "verdict": "harness-gap",
+   "reason": "MOVE LOW-VALUES TO COTRN1AO on the first entry: without it the screen fields no program statement sets keep the image's spaces instead of low-values; the harness reads screen values with rstrip(' \\x00') (equivalence_cics.py:2644, _same) and so cannot tell a blank field from a low-values one in the sent map"
+  },
+  {
    "id": "160de7ab05",
    "op": "LIT",
    "line": 959,
@@ -441,6 +423,15 @@
    "after": "f6_WS_ERR_FLG = \"X\";",
    "verdict": "equivalent",
    "reason": "the 'Y' written on 'User not found' is never tested in this task (ERR-FLG-ON is read before READ-USER-SEC-FILE), and the next task starts from initialState's 'N'"
+  },
+  {
+   "id": "0f0e836089",
+   "op": "DEL",
+   "line": 994,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, f90_TRNIDI, CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.SPACES, f90_TRNIDI, CS); */",
+   "verdict": "harness-gap",
+   "reason": "MOVE SPACES TO TRNIDI before the READ: on a failed READ (transaction not found) the screen's TRNID keeps low-values from the RECEIVE instead of spaces; the success path overwrites it with TRAN-ID. The harness reads screen values with rstrip(' \\x00') (equivalence_cics.py:2644, _same) and cannot tell low-values from spaces"
   },
   {
    "id": "00d031ceb2",
@@ -488,6 +479,15 @@
    "reason": "COTRN01C never reads EIBRESP2 (no reference in the source), so the zero stored after SEND MAP cannot show"
   },
   {
+   "id": "96652f9e28",
+   "op": "LIT",
+   "line": 1146,
+   "before": "if (typed6.get(\"TITLE01\") != null) {",
+   "after": "if (typed6.get(\"XITLE01\") != null) {",
+   "verdict": "equivalent",
+   "reason": "a received TITLE01 (ATTRB=(ASKIP,FSET): the terminal sends it back) is stored in TITLE01I, the storage of TITLE01O; every SEND MAP follows POPULATE-HEADER-INFO, which MOVEs CCDA-TITLE01 TO TITLE01O, so the stored value is overwritten before anything reads or sends it"
+  },
+  {
    "id": "4dacb583e4",
    "op": "LIT",
    "line": 1194,
@@ -504,6 +504,15 @@
    "after": "/* Cobol.store(f494_EIBRESP, BigDecimal.valueOf(read8.resp()), false, CS); */",
    "verdict": "equivalent",
    "reason": "COTRN01C never reads EIBRESP (no reference in the source), so the READ's stored response code cannot show"
+  },
+  {
+   "id": "bf3b4cccda",
+   "op": "DEL",
+   "line": 1300,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, f90_TRNIDI, CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.SPACES, f90_TRNIDI, CS); */",
+   "verdict": "harness-gap",
+   "reason": "INITIALIZE-ALL-FIELDS (PF4 clear) without MOVE SPACES TO TRNIDI: the cleared screen's TRNID keeps low-values from the RECEIVE instead of spaces; the harness reads screen values with rstrip(' \\x00') (equivalence_cics.py:2644, _same) and cannot tell low-values from spaces"
   }
  ]
 }

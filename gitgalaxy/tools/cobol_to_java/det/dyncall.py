@@ -30,9 +30,9 @@ _WORD = re.compile(r"[A-Z0-9][A-Z0-9-]*")
 _NAME = re.compile(r"[A-Z0-9@#$]{1,8}")
 # statements that write no data item of their own (their nested statements are walked on their own)
 _READ_ONLY = {"DISPLAY", "GOTO", "CONTINUE", "EXIT", "GOBACK", "STOP", "NEXT-SENTENCE", "IF", "EVALUATE"}
-# IBM's Db2 message formatter and the SQLCA formatter: the text is Db2's message catalogue (oracle_assumptions.md Q5)
+# IBM's Db2 SQLCA formatter: the text is Db2's message catalogue (oracle_assumptions.md Q5); DSNTIAC, its CICS interface,
+# is the stand-in det/cobolrt/le/Dsntiac.java (#5858) and no longer refused
 REFUSED_BY_NAME = {
-    "DSNTIAC": "DSNTIAC: Db2's message text is not modelled (oracle_assumptions.md Q5)",
     "DSNTIAR": "DSNTIAR: Db2's message text is not modelled (oracle_assumptions.md Q5)",
     # #4771: zECS's store-clock wrapper (ZECS001 4000-GET-COUNTER); the estate holds no source for it (an assembler module)
     "ZUIDSTCK": "ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the 16 bytes it "

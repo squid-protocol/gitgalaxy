@@ -677,6 +677,13 @@ def test_every_burned_exec_dli_command_translates_cics_and_cbpaup0c_bmp(tmp_path
     batch = holes("CBPAUP0C", "public class X { }")  # #5857: a BMP entered by USING its I/O PCB and DB PCB
     assert not [h for h in batch if "EXEC DLI" in h or "DIBSTAT" in h], batch
 
+    # #5278 checklist c:595f3352: COPAUA0C's INITIALIZE ... REPLACING of the table PA-ACCOUNT-STATUS (C17) is no hole,
+    # and without an estate (no file is mapped) the only holes left are its three READ KEYLENGTH(LENGTH OF ...), which
+    # translate once the case maps the files (det_port: carddemo-copaua0c 344/344 translated)
+    left = holes("COPAUA0C", cics)
+    assert not [h for h in left if "INITIALIZE" in h], left
+    assert len(left) == 3 and all("READ KEYLENGTH(LENGTH OF" in h for h in left), left
+
 
 BMP_WS = ["WORKING-STORAGE SECTION.", "01  PCB-NUM PIC S9(4) COMP VALUE +2.", "01  CHK-ID.", "    05 FILLER PIC X(4) VALUE 'RMAD'.",
           "    05 CHK-CTR PIC 9(4) VALUE ZEROES.", "01  SHORT-ID PIC X(4).", "01  SEG-A PIC X(20).", "01  SEG-B PIC X(20)."]  # fmt: skip

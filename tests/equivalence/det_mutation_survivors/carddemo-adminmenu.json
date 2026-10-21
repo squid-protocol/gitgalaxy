@@ -520,8 +520,8 @@
    "line": 952,
    "before": "task.returnTransid(f3_WS_TRANID.strip(), out_CarddemoCommarea(f13_CARDDEMO_COMMAREA.storage(), f13_CARDDEMO_COMMAREA.offset()), (Integer) null, Cobol.commarea(f13_CARDDEMO_COMMAREA, 160).bytes);",
    "after": "task.returnTransid(f3_WS_TRANID.strip(), out_CarddemoCommarea(f13_CARDDEMO_COMMAREA.storage(), f13_CARDDEMO_COMMAREA.offset()), (Integer) null, Cobol.commarea(f13_CARDDEMO_COMMAREA, 161).bytes);",
-   "verdict": "harness-gap",
-   "reason": "The final RETURN's COMMAREA length (160 vs 161) is what the next invocation would see as EIBCALEN, but the harness ends the scenario at the RETURN and compares the typed COMMAREA projection, not the length argument; observing it needs a chained next-task run."
+   "verdict": "equivalent",
+   "reason": "The final RETURN TRANSID(CA00) re-enters COADM01C itself, and the next task is the only reader of the COMMAREA length (its EIBCALEN). COADM01C uses EIBCALEN twice: IF EIBCALEN = 0 (line 86), false at 160 and at 161; and MOVE DFHCOMMAREA(1:EIBCALEN) TO CARDDEMO-COMMAREA (line 90), a 160-byte target, so the extra byte of 161 is truncated. DFHCOMMAREA is read nowhere else. The proof does not compare the length argument (a chained next-task run is not modelled), so this is stated from the program's own reads, proposed for owner review."
   },
   {
    "id": "09757783e7",

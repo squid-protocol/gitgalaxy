@@ -380,7 +380,13 @@ class Generated:
             body = mm.group(2)
             r = re.search(r"\b(\w+Repository)\.(\w+)\(", body)
             ent = re.search(r"(?:Optional|List)<(\w+)>", body)
-            if r and ent:
+            entity = ent.group(1) if ent else None
+            if r and not ent and r.group(2) == "deleteById" and len(r.group(1)) > len("Repository"):
+                # #4771: a file the program only DELETEs by RIDFLD (ZC@ID@KEY) has a void deleteX(key) stub, no entity
+                # in its signature; the forge names the repository field <entity>Repository
+                stem = r.group(1)[: -len("Repository")]
+                entity = stem[:1].upper() + stem[1:]
+            if r and entity:
                 # an alternate index: findBy<Property>(key); a browse (findBy...GreaterThanEqual...OrderBy...) and
                 # findById are the base cluster's key
                 alt = re.fullmatch(r"findBy([A-Z]\w*)", r.group(2))
@@ -392,7 +398,7 @@ class Generated:
                 )
                 name = mm.group(1).upper()
                 if name not in files or prop is None:
-                    files[name] = (r.group(1), ent.group(1), prop[0].lower() + prop[1:] if prop else None)
+                    files[name] = (r.group(1), entity, prop[0].lower() + prop[1:] if prop else None)
 
     def _file(self, kind: str, cls: str) -> Path:
         hits = list(self.java.rglob(f"{kind}/{cls}.java"))

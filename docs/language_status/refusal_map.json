@@ -260,7 +260,7 @@
     {
       "id": "dto-property",
       "match": "a property the port cannot convert",
-      "note": "A COMMAREA DTO property the CICS port cannot map to bytes. An elementary item's own OCCURS (a List<T> of String / Integer / Long / Short / BigDecimal) is modelled since #5565 (occurrence i at offset + i * width): CardDemo's COPAUS0C / COPAUS1C PAUKEY-PREV-PG and AUTH-KEYS no longer hit this. What is left refused: a List of another type, a table whose bytes are not n equal items, and a PIC the DTO comment does not carry. The committed evidence report still shows the pre-#5565 hole until the nightly refresh.",
+      "note": "A COMMAREA DTO property the CICS port cannot map to bytes. An elementary item's own OCCURS (a List<T> of String / Integer / Long / Short / BigDecimal) is modelled since #5565 (#5567; occurrence i at offset + i * width): CardDemo's COPAUS0C / COPAUS1C PAUKEY-PREV-PG and AUTH-KEYS no longer hit this (the published evidence report shows both with 0 holes, COPAUS0C 370/370, COPAUS1C 193/193). What is left refused: a List of another type, a table whose bytes are not n equal items, and a PIC the DTO comment does not carry.",
       "issue": 5565
     },
     {

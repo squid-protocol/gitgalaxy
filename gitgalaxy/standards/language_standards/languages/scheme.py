@@ -49,9 +49,7 @@ DEFINITION: dict[str, Any] = {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         # #5640: the family pattern, minus the formals list of a `(lambda (y) ...)` / `(named-lambda (f y) ...)`,
         # which is a parameter list and not a call (`(y` read as one).
-        "calls_out": re.compile(
-            r"(?<!\(lambda\s)(?<!\(named-lambda\s)" + CALLS_OUT_LISP_FAMILY.pattern
-        ),
+        "calls_out": re.compile(r"(?<!\(lambda\s)(?<!\(named-lambda\s)" + CALLS_OUT_LISP_FAMILY.pattern),
         "_calls_out_ignore": frozenset(
             {
                 "define",

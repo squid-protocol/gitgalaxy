@@ -1,0 +1,9 @@
+Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+This case is derived from the AWS Mainframe Modernization CardDemo application
+(https://github.com/aws-samples/aws-mainframe-modernization-carddemo), licensed under the Apache License, Version 2.0
+(LICENSE here): the program under test (app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl), its copybooks, the DBD
+(ims/DBPAUTP0.dbd), the PSB (ims/PSBPAUTB.psb), the database's unload
+(data/EBCDIC/AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0.dat) and the VSAM data (app/data/ASCII) are CardDemo's, used unmodified.
+Written for this case: case.json and cardxref-5278.txt (two extra card cross-reference records, one naming an account
+and one a customer the master files do not hold).

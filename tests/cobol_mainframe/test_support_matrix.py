@@ -105,6 +105,7 @@ CATALOGUE = {
             "family": "CBL",
             "title": "MOVE of a group",
             "options": [],
+            "features": ["statements: MOVE"],
             "register": ["C1"],
             "status": "ASSUMED",
             "calibration": "uncalibrated",
@@ -123,6 +124,7 @@ CATALOGUE = {
             "family": "HFP",
             "title": "hex float",
             "options": [],
+            "features": ["data_types: COMP-1"],
             "register": ["C6"],
             "status": "DIFFERS",
             "calibration": "uncalibrated",
@@ -132,6 +134,7 @@ CATALOGUE = {
             "family": "FUNC",
             "title": "FUNCTION NUMVAL-C only",
             "options": [],
+            "features": ["intrinsic_functions: NUMVAL-C"],
             "register": [],
             "status": "MATCHED",
             "calibration": "uncalibrated",
@@ -234,7 +237,7 @@ def test_no_catalogue_says_not_yet_catalogued(bare):
     assert "not yet catalogued (#4711)" in sm.render({"catalogue": None, "estates": {"synthetic": bare}})
 
 
-def test_catalogue_join_by_family_title_word_and_option(catalogued):
+def test_catalogue_join_by_feature_key_and_option(catalogued):
     feats = by_feature(catalogued)
     move = feats["statements: MOVE"]
     assert move["rules"] == ["RT-CBL-MOVE"]
@@ -243,7 +246,7 @@ def test_catalogue_join_by_family_title_word_and_option(catalogued):
     assert "IBM-matched (worst rule ASSUMED: uncalibrated)" in move["missing"]
     assert feats["compile_options: TRUNC: STD"]["rules"] == ["RT-NUM-TRUNC"]
     assert feats["data_types: COMP-1"]["rules"] == ["RT-HFP-ADD"]
-    assert feats["intrinsic_functions: NUMVAL"]["rules"] == []  # NUMVAL-C is another word
+    assert feats["intrinsic_functions: NUMVAL"]["rules"] == []  # NUMVAL-C is another key; a title word joins nothing (#5565)
     assert "catalogued" in feats["intrinsic_functions: NUMVAL"]["missing"]
     assert all("calibrated on z/OS (#4702)" in f["missing"] for f in catalogued["features"])
 

@@ -9,12 +9,15 @@ must be (a) inside a `try` that catches ImportError, (b) in a file that calls `p
 from __future__ import annotations
 
 import ast
+import re
 from pathlib import Path
 
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 POSIX_ONLY = frozenset({"fcntl", "termios", "pwd", "grp", "resource", "posix"})
+# #5882: an import names its module as a word, so a file without one cannot import it: only those are parsed (~1 in 10)
+_MENTIONS = re.compile(r"\b(?:" + "|".join(sorted(POSIX_ONLY)) + r")\b")
 # Linux-only by design: the file runs only where Docker/Db2 or the CI shepherd box is, and every test reaching it
 # skips on Windows (the test files `importorskip("fcntl")`).
 LINUX_ONLY = {
@@ -71,7 +74,10 @@ def unguarded(root: Path = REPO_ROOT) -> list[str]:
             if rel in LINUX_ONLY:
                 continue
             try:
-                tree = ast.parse(path.read_text(encoding="utf-8"))
+                text = path.read_text(encoding="utf-8")
+                if not _MENTIONS.search(text):
+                    continue
+                tree = ast.parse(text)
             except (OSError, SyntaxError, UnicodeDecodeError):
                 continue
             guarded, skipped = _guarded_by_try(tree), _importorskipped(tree)

@@ -73,10 +73,11 @@ static Segm segs[MAXSEG];
 static Fld flds[MAXFLD];
 static Db dbs[MAXDB];
 static Pcb pcbs[MAXPCB];
-static int nseg, nfld, ndb, npcb, loaded;
+static int nseg, nfld, ndb, npcb, loaded, refused;
 
 static void refuse(const char *what) {
     fprintf(stderr, "CBLTDLI: %s is not modelled\n", what);
+    refused = 1; /* a refused run writes no database (the atexit dump of an EXEC DLI task) */
     exit(98);
 }
 
@@ -100,6 +101,7 @@ static int find_fld(int seg, const char *name) {
 
 static FILE *open_in(const char *file) {
     const char *dir = getenv("GGDLI_DIR");
+    if (!dir) dir = getenv("GGCICS_DIR"); /* a CICS task: the scenario's directory holds the stated databases */
     char path[4096];
     if (!dir) refuse("a run with no database stated (GGDLI_DIR)");
     snprintf(path, sizeof path, "%s/%s", dir, file);
@@ -207,42 +209,52 @@ static void put_fullword(unsigned char *p, int v) {
 
 typedef unsigned char *P;
 
-int GGDLINIT(P a0, P a1, P a2, P a3, P a4, P a5, P a6, P a7, P a8, P a9, P a10, P a11, P a12, P a13, P a14, P a15) {
-    P areas[16] = {a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15};
-    load();
+/* The PSB's DB PCBs (psb.cfg, in order) into pcbs[], masks unbound; a PSB read again starts afresh (EXEC DLI SCHD). */
+static void read_psb(void) {
     FILE *f = open_in("psb.cfg");
     if (!f) refuse("a run with no psb.cfg");
     char line[256], a[64], b[64];
     int k;
+    npcb = 0;
     while (fgets(line, sizeof line, f)) {
         if (sscanf(line, "PCB %63s %63s %d", a, b, &k) != 3) continue;
         if (npcb == 16) refuse("a PSB of more than 16 DB PCBs");
         Pcb *p = &pcbs[npcb];
+        memset(p, 0, sizeof *p);
         p->db = -1;
         for (int d = 0; d < ndb; d++)
             if (!strcmp(dbs[d].name, a)) p->db = d;
         snprintf(p->procopt, 5, "%.4s", b);
         p->keylen = k;
-        p->sensegs = 0;
         for (int s = 0; s < nseg; s++)
             if (segs[s].db == p->db) p->sensegs++;
         npcb++;
     }
     fclose(f);
+}
+
+/* The mask of a PCB with no position: DBD name, level 00, status blank, PROCOPT, sensitive segments, empty key feedback */
+static void init_mask(Pcb *p) {
+    memset(p->mask, ' ', 36);
+    memcpy(p->mask, dbs[p->db].name, strlen(dbs[p->db].name));
+    memcpy(p->mask + 8, "00", 2);
+    memcpy(p->mask + 12, p->procopt, strlen(p->procopt));
+    put_fullword(p->mask + 16, 0);
+    put_fullword(p->mask + 28, 0);
+    put_fullword(p->mask + 32, p->sensegs);
+    memset(p->mask + 36, 0, p->keylen);
+    p->pos = POS_START;
+    p->par = PAR_NONE;
+}
+
+int GGDLINIT(P a0, P a1, P a2, P a3, P a4, P a5, P a6, P a7, P a8, P a9, P a10, P a11, P a12, P a13, P a14, P a15) {
+    P areas[16] = {a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15};
+    load();
+    read_psb();
     if (cob_get_num_params() != npcb) refuse("an entry whose USING does not list one area per PCB of the PSB");
     for (int i = 0; i < npcb; i++) {
-        Pcb *p = &pcbs[i];
-        p->mask = areas[i];
-        memset(p->mask, ' ', 36);
-        memcpy(p->mask, dbs[p->db].name, strlen(dbs[p->db].name));
-        memcpy(p->mask + 8, "00", 2);
-        memcpy(p->mask + 12, p->procopt, strlen(p->procopt));
-        put_fullword(p->mask + 16, 0);
-        put_fullword(p->mask + 28, 0);
-        put_fullword(p->mask + 32, p->sensegs);
-        memset(p->mask + 36, 0, p->keylen);
-        p->pos = POS_START;
-        p->par = PAR_NONE;
+        pcbs[i].mask = areas[i];
+        init_mask(&pcbs[i]);
     }
     return 0;
 }
@@ -258,9 +270,10 @@ static void dump_node(FILE *f, const Node *n) {
     }
 }
 
-int GGDLIEND(void) {
+static void write_dbs(void) {
     const char *out = getenv("GGDLI_OUT");
-    if (!out) return 0;
+    if (!out) out = getenv("GGCICS_OUT");
+    if (!out) return;
     load();
     for (int d = 0; d < ndb; d++) {
         char path[4096];
@@ -270,6 +283,15 @@ int GGDLIEND(void) {
         dump_node(f, &dbs[d].root);
         fclose(f);
     }
+}
+
+static int scheduled_once;
+static void write_dbs_unless_refused(void) {
+    if (!refused) write_dbs();
+}
+
+int GGDLIEND(void) {
+    write_dbs();
     return 0;
 }
 
@@ -639,10 +661,8 @@ static void change(Pcb *p, int dlet, unsigned char *io, Node *held, int k) {
     p->prevknown = 0;
 }
 
-int CBLTDLI(P a0, P a1, P a2, P a3, P a4, P a5, P a6, P a7, P a8, P a9, P a10, P a11, P a12, P a13, P a14, P a15,
-            P a16, P a17) {
-    P args[18] = {a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17};
-    int n = cob_get_num_params();
+/* One DL/I call: args[0] function, args[1] the PCB mask, args[2] the I/O area, args[3..n-1] the SSAs */
+static int do_call(P *args, int n) {
     load();
     if (n < 2) refuse("a call with fewer than a function and a PCB");
     Pcb *p = find_pcb(args[1]);
@@ -678,5 +698,105 @@ int CBLTDLI(P a0, P a1, P a2, P a3, P a4, P a5, P a6, P a7, P a8, P a9, P a10, P
         isrt(p, args[2], s, k);
     else
         change(p, fn[0] == 'D', args[2], held, k);
+    return 0;
+}
+
+int CBLTDLI(P a0, P a1, P a2, P a3, P a4, P a5, P a6, P a7, P a8, P a9, P a10, P a11, P a12, P a13, P a14, P a15,
+            P a16, P a17) {
+    P args[18] = {a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17};
+    return do_call(args, cob_get_num_params());
+}
+
+/* ---- EXEC DLI under CICS (#5278, register I5) -----------------------------------------------------------------
+ * The harness lowers each EXEC DLI command to one of these (the Java twin is DetDli.schedule / terminate / get / execIsrt /
+ * execChange). The databases are read from $GGDLI_DIR, else $GGCICS_DIR, and written at exit to $GGDLI_OUT, else
+ * $GGCICS_OUT. DIBSTAT (2 bytes) is the first argument of each.
+ *   CALL 'GGDLISCHD' USING dibstat BY VALUE nodhabend      EXEC DLI SCHD PSB(..) [NODHABEND]
+ *   CALL 'GGDLITERM' USING dibstat                         EXEC DLI TERM
+ *   CALL 'GGDLIX'    USING dibstat verb BY VALUE pcb-number io BY VALUE seglength spec-1 value-1 BY VALUE length-1 [spec-2 ...]
+ *                          verb: GU GN GNP ISRT REPL DLET (4 bytes); spec: segment(8) field(8) operator(2), the field
+ *                          blank for an unqualified SSA; a REPL / DLET names its segment in spec-1 only. */
+static int scheduled;
+
+static int by_value(P a) { return (int)(long)a; }
+
+static void set_dibstat(P dibstat, const char *st) { memcpy(dibstat, st, 2); }
+
+int GGDLISCHD(P dibstat, P nodhabend) {
+    if (scheduled) {
+        if (!by_value(nodhabend)) refuse("a SCHD of a PSB already scheduled, without NODHABEND (the task would abend)");
+        set_dibstat(dibstat, "TC");
+        return 0;
+    }
+    load();
+    read_psb();
+    for (int i = 0; i < npcb; i++) {
+        pcbs[i].mask = calloc(1, 36 + pcbs[i].keylen);
+        init_mask(&pcbs[i]);
+    }
+    if (!scheduled_once) {
+        scheduled_once = 1;
+        atexit(write_dbs_unless_refused);
+    }
+    scheduled = 1;
+    set_dibstat(dibstat, "  ");
+    return 0;
+}
+
+int GGDLITERM(P dibstat) {
+    if (!scheduled) refuse("a TERM with no PSB scheduled");
+    scheduled = 0;
+    npcb = 0;
+    set_dibstat(dibstat, "  ");
+    return 0;
+}
+
+int GGDLIX(P dibstat, P verb, P pcbnum, P io, P seglen, P s1, P v1, P l1, P s2, P v2, P l2, P s3, P v3, P l3) {
+    int n = cob_get_num_params();
+    if (!scheduled) refuse("an EXEC DLI command with no PSB scheduled");
+    int num = by_value(pcbnum);
+    if (num < 1 || num > npcb) refuse("a PCB number the scheduled PSB does not have");
+    Pcb *p = &pcbs[num - 1];
+    char fn[5];
+    memcpy(fn, verb, 4);
+    fn[4] = 0;
+    int upd = strchr(p->procopt, 'A') || strchr(p->procopt, 'R') || strchr(p->procopt, 'D');
+    if (!strcmp(fn, "GU  ")) memcpy(fn, upd ? "GHU " : "GU  ", 4);
+    else if (!strcmp(fn, "GN  ")) memcpy(fn, upd ? "GHN " : "GN  ", 4);
+    else if (!strcmp(fn, "GNP ")) memcpy(fn, upd ? "GHNP" : "GNP ", 4);
+    P specs[3] = {s1, s2, s3}, vals[3] = {v1, v2, v3}, lens[3] = {l1, l2, l3};
+    int k = (n - 5) / 3;
+    unsigned char *ssa[3];
+    for (int i = 0; i < k; i++) {
+        int vl = by_value(lens[i]);
+        int q = specs[i][8] != ' ' || specs[i][9] != ' ';
+        ssa[i] = calloc(1, 20 + vl + 1);
+        memset(ssa[i], ' ', 20 + vl);
+        memcpy(ssa[i], specs[i], 8);
+        if (q && (!strcmp(fn, "REPL") || !strcmp(fn, "DLET"))) refuse("a REPL / DLET with a WHERE");
+        if (q) {
+            ssa[i][8] = '(';
+            memcpy(ssa[i] + 9, specs[i] + 8, 8);
+            memcpy(ssa[i] + 17, specs[i] + 16, 2);
+            memcpy(ssa[i] + 19, vals[i], vl);
+            ssa[i][19 + vl] = ')';
+        }
+    }
+    int change = !strcmp(fn, "REPL") || !strcmp(fn, "DLET");
+    if (change) {
+        char nm[9];
+        name8(nm, specs[0]);
+        if (p->hold && strcmp(segs[p->hold->seg].name, nm))
+            refuse("an EXEC DLI REPL / DLET whose SEGMENT is not the held segment's type");
+        k = 0;
+    }
+    if (!strcmp(fn, "ISRT") && by_value(seglen) >= 0 && k > 0) {
+        Ssa parsed[3];
+        if (!parse_ssas(p->db, ssa, k, parsed) && segs[parsed[k - 1].seg].bytes != by_value(seglen))
+            refuse("an ISRT whose SEGLENGTH is not the segment's fixed length");
+    }
+    P args[6] = {(P)fn, p->mask, io, k > 0 ? ssa[0] : NULL, k > 1 ? ssa[1] : NULL, k > 2 ? ssa[2] : NULL};
+    do_call(args, 3 + k);
+    memcpy(dibstat, p->mask + 10, 2);
     return 0;
 }

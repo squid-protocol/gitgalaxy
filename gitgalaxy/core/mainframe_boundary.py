@@ -87,6 +87,7 @@ from gitgalaxy.core.call_using import blank_stream, call_using_args, entry_point
 from gitgalaxy.core.cics_macro_tables import cics_macro_table_resources
 from gitgalaxy.core.cics_resources import cobol_move_literals, extract_cics_resources
 from gitgalaxy.core.cics_tasks import extract_cics_tasks
+from gitgalaxy.core.cobol_conditional import active_source
 from gitgalaxy.core.cobol_preprocessor import COPY_LIBRARY, COPY_OR_INCLUDE_HEAD, continued_literal
 from gitgalaxy.core.cobol_preprocessor import copy_replacing as _copy_replacing  # #5648: shared with det/
 from gitgalaxy.core.compiler_options import compiler_options, effective
@@ -2600,6 +2601,8 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
     if not code_stream:
         return {"calls": [], "datasets": [], "records": [], "transactions": []}
     if dialect == "cobol":
+        options = compiler_options(code_stream)  # read before >>IF drops anything
+        code_stream = active_source(code_stream)  # #5648: a branch `>>IF` does not take is not source
         values = _cobol_value_map(code_stream)
         specials = special_names(code_stream)
         section_copies: list[dict[str, Any]] = []
@@ -2622,7 +2625,7 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
             "file_control": cobol_file_control(code_stream),  # #3455
             "data_moves": data_moves(code_stream),  # #3452
             "special_names": specials,  # #3820
-            "compiler_options": compiler_options(code_stream),  # #3828
+            "compiler_options": options,  # #3828
         }
     if dialect == "jcl":
         boundary = _jcl_boundary(code_stream)

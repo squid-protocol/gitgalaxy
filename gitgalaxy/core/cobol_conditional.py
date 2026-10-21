@@ -276,3 +276,26 @@ class Conditional:
                     return (lambda c: c >= 0) if base > 0 else (lambda c: c <= 0)
                 return (lambda c: c == 0) if base == 0 else ((lambda c: c > 0) if base > 0 else (lambda c: c < 0))
         raise self._fail(f">>IF: {self._toks[self._pos][1]!r} is not a relational operator")
+
+
+_PROGRAM_UNIT = re.compile(r"\b(?:PROGRAM-ID|CLASS-ID)\b", re.I)
+
+
+def active_source(code_stream: str) -> str:
+    """#5648: the scanner's reading of `>>IF`: `code_stream` with every directive line and every line of a branch not
+    taken blanked, so the line count and every offset stay the same (the line map is the identity: a fact's line is
+    still its line in the file). A scan never raises: a refused form (see `Conditional`) and a text that is not a
+    program (a COPY member has no PROGRAM-ID, and reads the program's compilation variables at the COPY, which a
+    reader of the member alone lacks) come back unchanged, as does a source with no directive."""
+    if ">>" not in code_stream or not _PROGRAM_UNIT.search(code_stream):
+        return code_stream
+    from gitgalaxy.core.compiler_options import compiler_options  # lazy: the options reader is not needed otherwise
+
+    try:
+        cond = Conditional(options_defines(compiler_options(code_stream)))
+        lines = code_stream.split("\n")
+        kept = [ln if cond.feed(ln) else "" for ln in lines]
+        cond.finish()
+    except ConditionalCompilation:
+        return code_stream
+    return "\n".join(kept)

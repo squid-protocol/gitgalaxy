@@ -3314,8 +3314,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                                     "compiled_name": f"SUB{name}.cbl"})  # fmt: skip
     # (#4950: or the program itself CALLs one -- CBSA CRECUST's CEEDAYS / CEELOCT; #5076: or a program it LINKs in the
     # task does, BNK1CCS -> CRECUST)
-    calls_le = re.search(r"(?i)\bCALL\s+['\"]CEE", source) or any(
-        re.search(r"(?i)\bCALL\s+['\"]CEE", common.read_program(case, corpus / extra["program_source"])[0])
+    le_call = re.compile(r"(?i)\bCALL\s+['\"]CEE|\bCOPY\s+CSDB2RPY\b|\bDSNTIAC\b")  # #5858: DSNTIAC's model too
+    calls_le = le_call.search(source) or any(
+        le_call.search(common.read_program(case, corpus / extra["program_source"])[0])
         for extra in case.get("programs", [])
     )
     for model in sorted(LE_MODELS.glob("*.c")) if subs or calls_le else []:

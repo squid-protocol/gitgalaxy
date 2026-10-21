@@ -574,7 +574,7 @@ def test_cotrtlic_screen_holds_on_generated_db2_rows(tmp_path):
     """CardDemo's transaction-type list (COTRTLIC) on 14 generated TRANSACTION_TYPE and 20 generated category rows:
     filters and D / U selections typed, PF10 DELETE / UPDATE of a generated type, every statement answered alike on
     both sides. Six generated scenarios drive WS-STRING-OUT to length 0 (X8, named in bounds_refused); the injected
-    SQL faults reach the DSNTIAC hole, which the report names rather than compares."""
+    SQL faults reach the DSNTIAC stand-in (Q5), whose text both sides model alike."""
     report = _det_port_generated("carddemo-cotrtlic-generated", tmp_path)
     assert report["proven"] is True
     assert report["db2_generated"] == {"CARDDEMO.TRANSACTION_TYPE": 14, "CARDDEMO.TRANSACTION_TYPE_CATEGORY": 20}

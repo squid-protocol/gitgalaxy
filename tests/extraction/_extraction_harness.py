@@ -54,34 +54,71 @@ def _detonate(pattern: re.Pattern, payload: str, result_queue: "multiprocessing.
     result_queue.put(time.thread_time() - start)
 
 
-def assert_redos_immune(pattern: re.Pattern, payload: str, timeout_sec: float = 1.0):
-    """
-    Runs a regex in an isolated process; if it exceeds timeout_sec, flags it
-    as a Catastrophic Backtracking (ReDoS) vulnerability and violently
-    terminates the OS process so pytest doesn't hang. Identical to (and
-    duplicated from, deliberately, to avoid a cross-test-module import)
-    tests/core_engine/test_language_standards_strict.py's own helper of the
-    same name.
-    """
-    ctx = multiprocessing.get_context("spawn")
-    result_queue = ctx.Queue()
-    started = ctx.Event()
+# One spawned child per test process, reused: a call sends (pattern, payload) down a pipe and the child answers with the
+# regex's CPU seconds, measured as _detonate measures them. A fresh interpreter per call (~0.3-1 s on a runner) was most
+# of these tests' time (Smoke Tests: the language contracts' *_rules_are_redos_immune alone, 16 files, ~22% of the suite).
+# A regex past the hang cap kills the child (and fails, as before); the next call starts another.
+_CHAMBER: list = []  # [(process, connection)] while one is up
 
-    p = ctx.Process(target=_detonate, args=(_plain(pattern), payload, result_queue, started))
+
+def _chamber_loop(conn, started):
+    started.set()
+    while True:
+        try:
+            pattern, payload = conn.recv()
+        except EOFError:
+            return
+        start = time.thread_time()  # CPU time of the child, not wall time (#4477)
+        list(pattern.finditer(payload))
+        conn.send(time.thread_time() - start)
+
+
+def _chamber():
+    if _CHAMBER and _CHAMBER[0][0].is_alive():
+        return _CHAMBER[0]
+    _discard()
+    ctx = multiprocessing.get_context("spawn")
+    conn, child = ctx.Pipe()
+    started = ctx.Event()
+    p = ctx.Process(target=_chamber_loop, args=(child, started), daemon=True)
     p.start()
+    child.close()
     # The timeout bounds the regex, not interpreter start-up: a spawned child on a loaded Windows runner
     # can take over a second before it runs anything (#4494).
     assert started.wait(60), "the ReDoS child process never started"
-    p.join(_hang_cap(timeout_sec))
+    _CHAMBER[:] = [(p, conn)]
+    return p, conn
 
-    if p.is_alive():
-        p.terminate()
-        p.join()
+
+def _discard():
+    if _CHAMBER:
+        p, conn = _CHAMBER.pop()
+        if p.is_alive():
+            p.terminate()  # Violently kill the OS process so it doesn't trap pytest's atexit handler
+        p.join()  # Reap the zombie process instantly
+        conn.close()
+
+
+def assert_redos_immune(pattern: re.Pattern, payload: str, timeout_sec: float = 1.0):
+    """
+    Runs a regex in an isolated process. If it exceeds timeout_sec, it is
+    flagged as a Catastrophic Backtracking (ReDoS) vulnerability, and the
+    OS process is violently terminated to prevent pytest from hanging.
+    """
+    plain = _plain(pattern)
+    if plain is None:  # a disabled rule: nothing to detonate (its one-shot child died with nothing to report)
+        return
+    _, conn = _chamber()
+    conn.send((plain, payload))
+    if not conn.poll(_hang_cap(timeout_sec)):
+        _discard()
         raise AssertionError(f"🔥 ReDoS TRIGGERED! Regex hung on payload:\n{payload}\nRegex: {pattern.pattern}")
-
-    if not result_queue.empty():
-        duration = result_queue.get()
-        assert duration < timeout_sec, f"Regex took too long: {duration:.4f}s"
+    try:
+        duration = conn.recv()
+    except EOFError:  # the child died on it (a MemoryError ...): the one-shot child reported nothing either
+        _discard()
+        return
+    assert duration < timeout_sec, f"Regex took too long: {duration:.4f}s"
 
 
 def assert_valid_match(pattern, payload, expected_name, label):

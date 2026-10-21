@@ -243,8 +243,23 @@ judged by `compare --require-agree`:
 | carddemo-tranlist (COTRN00C, CICS, `--sample 80`) | 80 | 80 | 1,988 -> 1,248 | 461 -> 219 |
 
 **296 of 296 agree**, no `no report` errors, every operator present (AOR, BDM, COR, CON, DEL, LIT, NEG, RET, ROR). With the
-earlier tables, fast mode has agreed with `--full` on all 21 scored crucible programs. Not validated: entry runs (no
-burned committed port has one; unit tests only) and samples above 80.
+earlier tables, fast mode has agreed with `--full` on all 21 scored crucible programs.
+
+**Samples above 80 (2026-10-21, #4047).** `--sample N --seed 11 --jobs 2`, `--full` then fast (the session JVM), judged by
+`mutation.py compare --require-agree`:
+
+| case | judged by both | agree | killed / survived / stillborn | proof s, full -> fast | survivors' proof s, full -> fast |
+|---|---|---|---|---|---|
+| carddemo-tranlist (COTRN00C, CICS, `--sample 160`) | 160 | 160 | 108 / 45 / 7 (4 of the killed by timeout) | 4,201 -> 2,604 | 915 -> 411 |
+| carddemo-menu (COMEN01C, CICS, `--sample 120`) | 120 | 120 | 72 / 39 / 9 (1 of the killed by timeout) | 2,067 -> 1,479 | 646 -> 423 |
+
+**280 of 280 agree**, the same verdict counts in both modes, every operator the cases have (tranlist: AOR, BDM, CON, COR, DEL,
+LIT, NEG, RET, ROR; menu: AOR, CON, COR, DEL, LIT, NEG, ROR). A survivor costs about 45% (tranlist) to 65% (menu) of its
+`--full` proof. With the earlier tables the largest burned sample judged is 160.
+
+**Entry runs have nothing burned to be validated on.** No committed `tests/equivalence/*/case.json` has `entries`;
+`test_mutation_one_jvm_scope_4047.py` fails the day one does, so that case is compared against `--full` (and recorded
+here) before the default covers it. Entry runs stay covered by unit tests. Db2 and IMS cases always use a JVM per run.
 
 ## Scores
 

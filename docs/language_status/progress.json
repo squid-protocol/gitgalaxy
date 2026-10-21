@@ -1,5 +1,5 @@
 {
- "commit": "966838466",
+ "commit": "2086cb4c5",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -157,7 +157,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-21T13:59:32Z",
+  "as_of": "2026-10-21T14:27:31Z",
   "core": {
    "closed": 154,
    "open": 27,
@@ -400,9 +400,9 @@
    {
     "closed": 25,
     "number": 31,
-    "open": 15,
+    "open": 18,
     "title": "DOOM Port Speedrun",
-    "total": 40
+    "total": 43
    }
   ],
   "sweep": {

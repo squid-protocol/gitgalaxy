@@ -4492,10 +4492,17 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
     exit) beside the CICS events, which carry the control flow DIBSTAT drives. Up to 3 SEGMENTs, a WHERE value a data
     name, INTO / FROM a data name. Not logged per command: the compare is the final database plus the program's own
     output. The oracle is GnuCOBOL plus our model of DL/I, not IMS.
-  - Every other EXEC DLI command (REPL, ISRT, DLET ...) stays a hole by name, as do the get clauses not modelled
-    (FIELDLENGTH, KEYS, a multi-field WHERE, SEGMENT-less WHERE), and EXEC DLI outside CICS.
-    It is what holds CardDemo COPAUA0C (REPL / ISRT under CICS; its MQ calls are modelled, W6), also CBPAUP0C,
-    COPAUS0C and COPAUS1C.
+  - EXEC DLI in a BMP (#5857) is translated when the program is entered `PROCEDURE DIVISION USING io-pcb db-pcb ...`
+    (IMS passes the I/O PCB first, PSB CMPAT=YES; PCB(n) counts it, so the first database PCB is PCB(2) and PCB(1) is
+    refused by name): GN, GNP and the writes as under CICS, the DIB (DIBSTAT only), and CHKP ID(area) (`DetDli.checkpoint`,
+    DIBSTAT blank, ID of 8 bytes). ASSUMPTION: a basic CHKP loses every database position, so the next GN starts at the
+    beginning; no IBM text is cited for it. The oracle side is not linked yet (`ggdli.c` has no batch EXEC entry or
+    CHKP, and `equivalence_ims.py` refuses CMPAT=YES): such a port is translated, not yet proved.
+  - Every other EXEC DLI command (XRST, ROLB, GHU ...) stays a hole by name, as do the get clauses not modelled
+    (FIELDLENGTH, KEYS, a multi-field WHERE, SEGMENT-less WHERE), CHKP with any option but ID, and EXEC DLI outside
+    CICS in a program that is not such a BMP.
+    It is what holds CardDemo COPAUA0C (REPL / ISRT under CICS; its MQ calls are modelled, W6), also COPAUS0C and
+    COPAUS1C.
   - CALL 'CBLTDLI' is refused in a program IMS does not enter at ENTRY 'DLITCBL' (a BMP, MPP or CICS program).
   - Also refused: the parameter-count form (a binary count first), a PCB the entry was not passed, any ON EXCEPTION
     phrase, and CALL 'AIBTDLI' or 'CEETDLI'.

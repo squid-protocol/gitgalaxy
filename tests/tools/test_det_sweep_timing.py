@@ -196,3 +196,11 @@ def test_a_container_that_passed_the_full_check_is_not_checked_again(tmp_path, m
     state["start"] = "2026-10-21T11:00:00Z"  # restarted: the full check (here: the fake's AssertionError)
     with pytest.raises(AssertionError, match="full check ran"):
         d._ensure_container()
+
+
+def test_the_restored_durations_are_merged_over_the_committed_ones_never_copied():
+    """#5882: run 39647808867's plan copied the nightly cache (no Db2 case in it) over the committed file and lost every
+    seeded Db2 duration: 5-6 unmeasured cases a db2 shard, sweeps 382-770 s."""
+    text = (ROOT / ".github" / "workflows" / "det-sweep.yml").read_text(encoding="utf-8")
+    assert "cp durations-cache/det_sweep_durations.json" not in text
+    assert text.count("merge-durations durations-cache/det_sweep_durations.json tests/equivalence/det_sweep_durations.json") == 2

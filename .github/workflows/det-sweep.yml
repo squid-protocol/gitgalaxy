@@ -174,10 +174,12 @@ jobs:
           restore-keys: |
             det-durations-
 
+      # #5882: merged over the committed file, not copied over it: a case the cache has no seconds for (a Db2 case: the
+      # nightly here proves none) keeps its committed ones (a copy left every Db2 case unmeasured: shards 2.0x apart)
       - name: Choose the durations for every shard
         run: |
           if [ -n "${{ steps.durations.outputs.cache-matched-key }}" ]; then
-            cp durations-cache/det_sweep_durations.json tests/equivalence/det_sweep_durations.json
+            python3 tests/tools/det_sweep_timing.py merge-durations durations-cache/det_sweep_durations.json tests/equivalence/det_sweep_durations.json
           fi
 
       # #5882: the Db2 cases' measured seconds (Evidence Refresh's nightly Db2 merge saves them; the nightly here proves
@@ -685,7 +687,7 @@ jobs:
 
       - name: Merge into the restored durations (nightly)
         if: github.event_name == 'schedule' && steps.durations.outputs.cache-matched-key != ''
-        run: cp durations-cache/det_sweep_durations.json tests/equivalence/det_sweep_durations.json
+        run: python3 tests/tools/det_sweep_timing.py merge-durations durations-cache/det_sweep_durations.json tests/equivalence/det_sweep_durations.json  # #5882: the committed entries the cache lacks are kept
 
       - name: Download the shards' results
         if: needs.plan.outputs.shards != '0'

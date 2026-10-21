@@ -273,8 +273,8 @@ era 0: 0, era 1: 0, era 2: 2, era 3: 0, era 4: 1, era none: 3
 | 3 | <name> ADDRESS OF <name>: not an item of <name> or LINKAGE | 0 | 0 | 1 | - |
 | 4 | CEEHDLR: registering an LE user condition handler is not modelled | 0 | 0 | 1 | - |
 | 5 | CEEHDLU: unregistering an LE user condition handler is not modelled | 0 | 0 | 1 | - |
-| 6 | EPSCSMRI: a sibling program of this source | 0 | 0 | 1 | - |
-| 7 | EPSCSMRO: a sibling program of this source | 0 | 0 | 1 | - |
+| 6 | EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (…) is not modelled | 0 | 0 | 1 | - |
+| 7 | EPSCSMRO: no service of its own, its translation is refused: OS/VS COBOL BLL addressing: SERVICE LABEL (…): no | 0 | 0 | 1 | - |
 | 8 | EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents | 0 | 0 | 1 | - |
 | 9 | EXEC CICS SOAPFAULT CREATE | 0 | 0 | 1 | - |
 | 10 | SET TO ENTRY: procedure / function pointers are not modelled | 0 | 0 | 1 | - |

@@ -1,5 +1,5 @@
 {
- "commit": "4dbfecc10",
+ "commit": "bb97d01c8",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -120,7 +120,7 @@
   },
   "translator": {
    "of": 129,
-   "whole": 118
+   "whole": 119
   }
  },
  "eras": {
@@ -136,7 +136,7 @@
   },
   "2": {
    "l2_plus": 67,
-   "l4_plus": 21,
+   "l4_plus": 23,
    "programs": 70
   },
   "3": {
@@ -145,7 +145,7 @@
    "programs": 16
   },
   "4": {
-   "l2_plus": 18,
+   "l2_plus": 19,
    "l4_plus": 9,
    "programs": 21
   },
@@ -157,7 +157,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-21T09:34:17Z",
+  "as_of": "2026-10-21T10:00:58Z",
   "core": {
    "closed": 155,
    "open": 28,
@@ -431,15 +431,15 @@
     "l4_plus_pct": 34.1,
     "l5": 0,
     "levels": {
-     "L0": 6,
-     "L1": 4,
+     "L0": 5,
+     "L1": 5,
      "L2": 5,
      "L3": 14,
      "L4": 15,
      "L5": 0
     },
     "programs": 44,
-    "translated_whole": 38
+    "translated_whole": 39
    },
    "cics-async-api-credit-card-application-example": {
     "l2_plus": 10,
@@ -478,15 +478,15 @@
    "cics-genapp": {
     "l2_plus": 31,
     "l2_plus_pct": 100.0,
-    "l4_plus": 5,
-    "l4_plus_pct": 16.1,
+    "l4_plus": 7,
+    "l4_plus_pct": 22.6,
     "l5": 0,
     "levels": {
      "L0": 0,
      "L1": 0,
      "L2": 7,
-     "L3": 19,
-     "L4": 5,
+     "L3": 17,
+     "L4": 7,
      "L5": 0
     },
     "programs": 31,
@@ -510,15 +510,15 @@
     "translated_whole": 4
    },
    "zecs": {
-    "l2_plus": 3,
-    "l2_plus_pct": 42.9,
+    "l2_plus": 4,
+    "l2_plus_pct": 57.1,
     "l4_plus": 1,
     "l4_plus_pct": 14.3,
     "l5": 0,
     "levels": {
      "L0": 3,
-     "L1": 1,
-     "L2": 1,
+     "L1": 0,
+     "L2": 2,
      "L3": 1,
      "L4": 1,
      "L5": 0
@@ -528,21 +528,21 @@
    }
   },
   "total": {
-   "l2_plus": 111,
-   "l2_plus_pct": 86.0,
-   "l4_plus": 38,
-   "l4_plus_pct": 29.5,
+   "l2_plus": 112,
+   "l2_plus_pct": 86.8,
+   "l4_plus": 40,
+   "l4_plus_pct": 31.0,
    "l5": 0,
    "levels": {
-    "L0": 11,
+    "L0": 10,
     "L1": 7,
-    "L2": 27,
-    "L3": 46,
-    "L4": 38,
+    "L2": 28,
+    "L3": 44,
+    "L4": 40,
     "L5": 0
    },
    "programs": 129,
-   "translated_whole": 118
+   "translated_whole": 119
   }
  },
  "oracle": "GnuCOBOL plus IBM documentation, not z/OS",

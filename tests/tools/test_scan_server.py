@@ -39,6 +39,7 @@ def _rows(db: Path) -> dict[str, list[str]]:
         con.close()
 
 
+@pytest.mark.slow(reason="compares the served scan with a real galaxyscope subprocess scan of the fixture (10-18 s)")
 def test_a_scan_writes_what_the_engines_own_scan_writes(repo, tmp_path):
     """The master DB, every table and row, as the engine's own subprocess scan writes it."""
     real = galaxy_ir.scan_to_db(repo, tmp_path / "real")
@@ -46,6 +47,7 @@ def test_a_scan_writes_what_the_engines_own_scan_writes(repo, tmp_path):
     assert served.name == real.name and _rows(served) == _rows(real)
 
 
+@pytest.mark.slow(reason="compares the served scan with a real galaxyscope subprocess scan of the fixture (10-18 s)")
 def test_each_scan_starts_from_the_same_state(repo, tmp_path):
     first = ss.scan_to_db(repo, tmp_path / "one")
     second = ss.scan_to_db(repo, tmp_path / "two")
@@ -53,6 +55,7 @@ def test_each_scan_starts_from_the_same_state(repo, tmp_path):
     assert len(ss._SERVER) == 1  # one server for both
 
 
+@pytest.mark.slow(reason="compares the served scan with a real galaxyscope subprocess scan of the fixture (10-18 s)")
 def test_a_failing_scan_raises_as_the_engines_does(tmp_path):
     with pytest.raises(subprocess.CalledProcessError):
         galaxy_ir.scan_to_db(tmp_path / "missing", tmp_path / "real")
@@ -60,6 +63,7 @@ def test_a_failing_scan_raises_as_the_engines_does(tmp_path):
         ss.scan_to_db(tmp_path / "missing", tmp_path / "served")
 
 
+@pytest.mark.slow(reason="compares the served scan with a real galaxyscope subprocess scan of the fixture (10-18 s)")
 def test_switched_off_or_gone_it_is_the_engines_own(repo, tmp_path, monkeypatch):
     calls = []
     real = galaxy_ir.scan_to_db

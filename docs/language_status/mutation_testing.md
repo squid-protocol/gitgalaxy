@@ -743,3 +743,10 @@ program's own reads, proposed for owner review: the RETURN re-enters the same pr
 and in `MOVE DFHCOMMAREA(1:EIBCALEN) TO CARDDEMO-COMMAREA` (a 160- / 218-byte target truncates the extra byte). Unaccounted
 before -> after: COADM01C 1 -> 0, COTRN02C 1 -> 0, COBIL00C 0; all three reach L5 (`det_mutation.py table`). Still open as a sibling
 gap: the harness compares no RETURN COMMAREA length for any det port.
+
+**#4628 slice 4 (2026-10-21): COTRN00C reaches L5 with no new scenario.** The committed ledger predated the later `carddemo-tranlist`
+scenarios (#5401 and after) and the translator changes since. Re-measured at current main (seed 0, sample 150, fast mode): 148 killed,
+0 survived, 2 stillborn, 0 unaccounted. The 21 survivors stated `equivalent` / `unreachable` before are all killed by the current case, so
+their claims were refuted and removed from `det_mutation_survivors/carddemo-tranlist.json`, which now lists none. The 36 other survivors of the old
+ledger were re-run by id against the current case first: 36 of 36 killed. Slice 4's other programs stay open: COCRDSLC (carddemo-cardview,
+41 unaccounted) and COTRN01C (carddemo-tranview, 3 `harness-gap`).

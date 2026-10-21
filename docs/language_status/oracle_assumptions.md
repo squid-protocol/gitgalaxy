@@ -4613,13 +4613,16 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   is little-endian on the oracle). Every option bit outside the modelled set, Report options, and MQCLOSE options other
   than MQCO_NONE stop the run by name on both sides.
 - **Burned estates (#5278).** The MQI calls the burned programs make are MQOPEN, MQGET, MQPUT1 and MQCLOSE (CardDemo
-  CODATE01, COACCT01, COPAUA0C), all modelled; none calls MQINQ or MQSET (`test_det_mq.py`). COPAUA0C is held by
-  EXEC DLI under CICS (I5), not by MQ.
+  CODATE01, COACCT01, COPAUA0C), all modelled; none calls MQINQ or MQSET (`test_det_mq.py`). COPAUA0C is not held
+  by MQ.
 - **COPAUA0C translates with no MQ hole (#5278).** Under CICS its MQOPEN / MQGET / MQPUT1 / MQCLOSE and the CMQ* layouts
   translate; the options it builds (MQGMO NO-SYNCPOINT + WAIT + CONVERT + FAIL-IF-QUIESCING, MQPMO NO-SYNCPOINT +
-  DEFAULT-CONTEXT, MQOO INPUT-SHARED, MQCO NONE) are inside the modelled sets. What still holds it is EXEC DLI (I5),
-  three READ KEYLENGTH(LENGTH OF ...) forms and one INITIALIZE REPLACING of a table (C17). The `missing copybook CMQGMOV`
-  rows in `blockers_history.jsonl` are from before #5236 and do not reproduce.
+  DEFAULT-CONTEXT, MQOO INPUT-SHARED, MQCO NONE) are inside the modelled sets. Measured (#5278, det_survey on the
+  generated CardDemo estate, with C17's run-time guard): 344 of 344 statements translate, no hole, and the port
+  compiles. Its three READ KEYLENGTH(LENGTH OF ...) forms are the file's full key on mapped files, so they are no
+  hole; they were one only when the file was unmapped (the stub-only translation in `test_det_mq.py`). EXEC DLI (I5)
+  and the INITIALIZE REPLACING of a table (C17) no longer hold it. The `missing copybook CMQGMOV` rows in
+  `blockers_history.jsonl` are from before #5236 and do not reproduce.
 
 ### W7. MQGMO_CONVERT — a no-op where the message is already as asked, refused otherwise
 - **IBM.** MQGMO_CONVERT converts the application data to the CodedCharSetId and Encoding the MQMD asks for, by the

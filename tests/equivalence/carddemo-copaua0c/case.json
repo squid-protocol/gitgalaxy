@@ -1,0 +1,363 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "COPAUA0C",
+ "program_source": "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+ "copy_dirs": [
+  "app/cpy",
+  "app/app-authorization-ims-db2-mq/cpy"
+ ],
+ "transid": "CP00",
+ "clock": "2022/07/18 10:30:15.00",
+ "region": {
+  "applid": "CARDDEMO",
+  "sysid": "CICA"
+ },
+ "datasets": {
+  "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS": {
+   "input": "app/data/ASCII/acctdata.txt",
+   "entity": "AccountRecord",
+   "copybook": "app/cpy/CVACT01Y.cpy",
+   "record": "ACCOUNT-RECORD"
+  },
+  "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS": {
+   "input": "app/data/ASCII/custdata.txt",
+   "entity": "CustomerRecord",
+   "copybook": "app/cpy/CVCUS01Y.cpy",
+   "record": "CUSTOMER-RECORD"
+  },
+  "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS": {
+   "input": "app/data/ASCII/cardxref.txt",
+   "entity": "CardXrefRecord",
+   "copybook": "app/cpy/CVACT03Y.cpy",
+   "record": "CARD-XREF-RECORD",
+   "append": "@case/cardxref-5278.txt"
+  }
+ },
+ "commarea": null,
+ "screens": {},
+ "mq": {
+  "qmgr": "CSQ1",
+  "ccsid": 37,
+  "queues": {
+   "CARDDEMO.REQUEST.QUEUE": {
+    "messages": []
+   },
+   "CARD.DEMO.REPLY.AUTH": {},
+   "CARD.DEMO.ERROR": {}
+  }
+ },
+ "start_data": [
+  {
+   "mqtm": {
+    "qname": "CARDDEMO.REQUEST.QUEUE",
+    "processname": "CARDDEMO.AUTH.PROCESS",
+    "applid": "CP00"
+   }
+  }
+ ],
+ "ims": {
+  "dbd": [
+   "app/app-authorization-ims-db2-mq/ims/DBPAUTP0.dbd"
+  ],
+  "psb": "app/app-authorization-ims-db2-mq/ims/PSBPAUTB.psb",
+  "seed": {
+   "DBPAUTP0": {
+    "unload": "app/app-authorization-ims-db2-mq/data/EBCDIC/AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0.dat",
+    "skip": [
+     223
+    ]
+   }
+  },
+  "segments": {
+   "PAUTSUM0": {
+    "copybook": "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+    "record": "PENDING-AUTH-SUMMARY"
+   },
+   "PAUTDTL1": {
+    "copybook": "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+    "record": "PENDING-AUTH-DETAILS"
+   }
+  },
+  "compare": [
+   "DBPAUTP0"
+  ]
+ },
+ "notes": "CardDemo's pending-authorization task (transaction CP00, program COPAUA0C, app-authorization-ims-db2-mq): the CKTI trigger monitor starts it with an MQTM naming the request queue; each comma-delimited request is decided against the account's summary segment (IMS DBPAUTP0, PSB PSBPAUTB) or, with none, ACCTDAT's limits, answered on the request's reply queue and recorded in IMS (the summary REPLaced, or INITIALIZEd REPLACING NUMERIC and ISRTed: register C17, then a PAUTDTL1 detail). The database is the corpus's own HD unload (22 roots, the last with a blank key left out: 21 seeded); the VSAM files are CardDemo's data plus two extra xref records. Both sides get the same queue manager, trigger data (register W3, W8) and database; every MQI call, EXEC DLI call and CICS command is an event compared with its completion codes, and the queues and final database bytes are compared. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+ "scenarios": [
+  {
+   "name": "no-request",
+   "why": "the request queue is empty: MQGET 2033 ends the loop at once; no PSB is scheduled, nothing is replied"
+  },
+  {
+   "name": "approve-summary-found",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "260101,120000,9680294154603697,POS,1226,PURCH,POS,000000,0000000100.00,5411,USA,05,MERCHANT000001,ACME GROCERY,SPRINGFIELD,IL,627010000,TXN000000000001",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.AUTH",
+      "correlid": "REQ-0001"
+     }
+    ]
+   },
+   "why": "account 1 has a summary segment in DBPAUTP0 and funds left: reply 00 / 0000, the summary REPLaced and a PAUTDTL1 detail inserted under it"
+  },
+  {
+   "name": "decline-insufficient-funds",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "260101,120000,9349107475869214,POS,1226,PURCH,POS,000000,0000009999.00,5411,USA,05,MERCHANT000001,ACME GROCERY,SPRINGFIELD,IL,627010000,TXN000000000002",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.AUTH"
+     }
+    ]
+   },
+   "why": "account 17 (credit limit 568.00 in its summary): an amount over limit minus balance is declined 05 / 4100, still recorded (declined count and amount)"
+  },
+  {
+   "name": "approve-no-summary",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "260101,120000,0923877193247330,POS,1226,PURCH,POS,000000,0000000010.00,5411,USA,05,MERCHANT000001,ACME GROCERY,SPRINGFIELD,IL,627010000,TXN000000000003",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.AUTH"
+     }
+    ]
+   },
+   "why": "account 2 has no summary segment (GE): the limits come from ACCTDAT, the summary is INITIALIZEd REPLACING NUMERIC (register C17) and ISRTed, then the detail"
+  },
+  {
+   "name": "decline-no-summary-over-account-limit",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "260101,120000,0923877193247330,POS,1226,PURCH,POS,000000,0099999999.00,5411,USA,05,MERCHANT000001,ACME GROCERY,SPRINGFIELD,IL,627010000,TXN000000000004",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.AUTH"
+     }
+    ]
+   },
+   "why": "no summary and an amount over ACCT-CREDIT-LIMIT less ACCT-CURR-BAL: declined 4100 from the account's own figures"
+  },
+  {
+   "name": "card-not-in-xref",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "260101,120000,1111222233334444,POS,1226,PURCH,POS,000000,0000000050.00,5411,USA,05,MERCHANT000001,ACME GROCERY,SPRINGFIELD,IL,627010000,TXN000000000005",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.AUTH"
+     }
+    ]
+   },
+   "why": "READ CCXREF NOTFND: warning A001 to CSSL, declined 05 / 3100, and nothing is written to IMS"
+  },
+  {
+   "name": "account-not-in-master",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "260101,120000,8888000000000001,POS,1226,PURCH,POS,000000,0000000050.00,5411,USA,05,MERCHANT000001,ACME GROCERY,SPRINGFIELD,IL,627010000,TXN000000000006",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.AUTH"
+     }
+    ]
+   },
+   "why": "the xref names an account ACCTDAT does not hold: READ NOTFND logs A002, no summary exists, declined 3100"
+  },
+  {
+   "name": "customer-not-in-master",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "260101,120000,8888000000000002,POS,1226,PURCH,POS,000000,0000000050.00,5411,USA,05,MERCHANT000001,ACME GROCERY,SPRINGFIELD,IL,627010000,TXN000000000007",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.AUTH"
+     }
+    ]
+   },
+   "why": "the xref names a customer CUSTDAT does not hold: READ NOTFND logs A003; the account is found, so the decision is by funds"
+  },
+  {
+   "name": "same-account-twice",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "260101,120000,0923877193247330,POS,1226,PURCH,POS,000000,0000000020.00,5411,USA,05,MERCHANT000001,ACME GROCERY,SPRINGFIELD,IL,627010000,TXN000000000008",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.AUTH",
+      "correlid": "REQ-0008"
+     },
+     {
+      "data": "260101,120000,0923877193247330,POS,1226,PURCH,POS,000000,0000000030.00,5411,USA,05,MERCHANT000001,ACME GROCERY,SPRINGFIELD,IL,627010000,TXN000000000009",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.AUTH",
+      "correlid": "REQ-0009"
+     }
+    ]
+   },
+   "why": "two requests for an account with no summary: the first ISRTs it (C17 path), the second finds it and REPLaces it; a SYNCPOINT after each"
+  },
+  {
+   "name": "amount-without-decimals",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "260101,120000,9680294154603697,POS,1226,PURCH,POS,000000,250,5411,USA,05,MERCHANT000001,ACME GROCERY,SPRINGFIELD,IL,627010000,TXN000000000010",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.AUTH"
+     }
+    ]
+   },
+   "why": "an amount with no decimal point or leading zeros goes through FUNCTION NUMVAL"
+  },
+  {
+   "name": "amount-with-sign",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "260101,120000,9680294154603697,POS,1226,PURCH,POS,000000,+0000000075.50,5411,USA,05,MERCHANT000001,ACME GROCERY,SPRINGFIELD,IL,627010000,TXN000000000011",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.AUTH"
+     }
+    ]
+   },
+   "why": "a leading-plus amount, as PIC +9(10).99 prints it"
+  },
+  {
+   "name": "three-requests-mixed",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "260101,120000,9680294154603697,POS,1226,PURCH,POS,000000,0000000100.00,5411,USA,05,MERCHANT000001,ACME GROCERY,SPRINGFIELD,IL,627010000,TXN000000000012",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.AUTH"
+     },
+     {
+      "data": "260101,120000,9349107475869214,POS,1226,PURCH,POS,000000,0000009999.00,5411,USA,05,MERCHANT000001,ACME GROCERY,SPRINGFIELD,IL,627010000,TXN000000000013",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.AUTH"
+     },
+     {
+      "data": "260101,120000,1111222233334444,POS,1226,PURCH,POS,000000,0000000001.00,5411,USA,05,MERCHANT000001,ACME GROCERY,SPRINGFIELD,IL,627010000,TXN000000000014",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.AUTH"
+     }
+    ]
+   },
+   "why": "an approval, a decline and a card not in the xref in one task: the loop, SYNCPOINT and PSB re-schedule after each"
+  },
+  {
+   "name": "read-xref-io-error",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "260101,120000,9680294154603697,POS,1226,PURCH,POS,000000,0000000100.00,5411,USA,05,MERCHANT000001,ACME GROCERY,SPRINGFIELD,IL,627010000,TXN000000000001",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.AUTH"
+     }
+    ]
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CCXREF",
+     "resp": "IOERR",
+     "why": "WHEN OTHER of 5100: the critical end routine"
+    }
+   ],
+   "why": "READ CCXREF IOERR (WHEN OTHER): critical C001 to CSSL, then 9990-END-ROUTINE ends the task (TERM, MQCLOSE, RETURN)"
+  },
+  {
+   "name": "read-acct-io-error",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "260101,120000,9680294154603697,POS,1226,PURCH,POS,000000,0000000100.00,5411,USA,05,MERCHANT000001,ACME GROCERY,SPRINGFIELD,IL,627010000,TXN000000000001",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.AUTH"
+     }
+    ]
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "ACCTDAT",
+     "resp": "IOERR",
+     "why": "WHEN OTHER of 5200"
+    }
+   ],
+   "why": "READ ACCTDAT IOERR: critical C002 and the end routine"
+  },
+  {
+   "name": "read-cust-io-error",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "260101,120000,9680294154603697,POS,1226,PURCH,POS,000000,0000000100.00,5411,USA,05,MERCHANT000001,ACME GROCERY,SPRINGFIELD,IL,627010000,TXN000000000001",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.AUTH"
+     }
+    ]
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTDAT",
+     "resp": "IOERR",
+     "why": "WHEN OTHER of 5300"
+    }
+   ],
+   "why": "READ CUSTDAT IOERR: critical C003 and the end routine"
+  },
+  {
+   "name": "no-trigger-data",
+   "start_data": [],
+   "why": "RETRIEVE answers ENDDATA: the request queue name stays spaces, MQOPEN fails and the critical M001 ends the task"
+  },
+  {
+   "name": "no-reply-queue",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "260101,120000,9680294154603697,POS,1226,PURCH,POS,000000,0000000100.00,5411,USA,05,MERCHANT000001,ACME GROCERY,SPRINGFIELD,IL,627010000,TXN000000000001",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.AUTH"
+     }
+    ]
+   },
+   "mq": {
+    "qmgr": "CSQ1",
+    "ccsid": 37,
+    "queues": {
+     "CARDDEMO.REQUEST.QUEUE": {
+      "messages": []
+     },
+     "CARD.DEMO.ERROR": {}
+    }
+   },
+   "why": "the reply queue is not defined: MQPUT1 fails (2085), critical M004 and the end routine; the request is already gone (MQGET NO_SYNCPOINT)"
+  }
+ ]
+}

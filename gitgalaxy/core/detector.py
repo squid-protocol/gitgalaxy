@@ -8520,9 +8520,9 @@ class StructuralExtractor:
         # independently reconsidered as a string delimiter. Same fix as
         # `_build_indentation_safe_stream` / `_apply_literal_shield`.
         def preserve_newlines(m):
-            if m.groupdict().get("comment2") is not None:
+            if m.lastgroup == "line_comment":
                 return ""
-            if m.groupdict().get("comment") is not None:
+            if m.lastgroup == "block_comment":
                 return "\n" * m.group(0).count("\n")
             return '""' + "\n" * m.group(0).count("\n")
 
@@ -8530,7 +8530,7 @@ class StructuralExtractor:
         # neither ends nor ignites a statement. Scoped to SQL: erlang's `/` and prolog's own
         # comment handling are unchanged. A comment is matched before a quote inside it.
         sql_block_comment = (
-            r"(?P<comment>/\*.*?\*/)|"
+            r"(?P<block_comment>/\*.*?\*/)|"
             if "sql" in ScopeParsingRegistry._ALIASES.get(lang_id.lower(), lang_id.lower())
             else ""
         )
@@ -8538,7 +8538,7 @@ class StructuralExtractor:
             sql_block_comment + r'"(?:\\.|[^"\\])*"|'
             r"'(?:\\.|[^'\\])*'|"
             r"`(?:\\.|[^`\\])*`|"
-            r"(?P<comment2>--|%)[^\n]*",
+            r"(?P<line_comment>--|%)[^\n]*",
             preserve_newlines,
             code,
             flags=re.DOTALL,

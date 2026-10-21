@@ -1,0 +1,205 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGIPDB01",
+ "program_source": "base/src/lgipdb01.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGIP",
+ "clock": "2026/10/01 10:30:15.00",
+ "db2": {
+  "ddl": [
+   "base/cntl/db2cre.jcl"
+  ],
+  "symbols": {
+   "<DB2DBID>": "GENASA1"
+  },
+  "qualifier": "GENASA1",
+  "compare": [
+   "GENASA1.POLICY",
+   "GENASA1.ENDOWMENT",
+   "GENASA1.HOUSE",
+   "GENASA1.MOTOR",
+   "GENASA1.COMMERCIAL"
+  ],
+  "seed": "@generate",
+  "compare_sql": true,
+  "generate": {
+   "seed": 4507,
+   "tables": {
+    "GENASA1.CUSTOMER": {
+     "rows": 10,
+     "columns": {
+      "CUSTOMERNUMBER": {
+       "values": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+       ]
+      }
+     }
+    },
+    "GENASA1.POLICY": {
+     "rows": 12
+    },
+    "GENASA1.ENDOWMENT": {
+     "rows": 3
+    },
+    "GENASA1.HOUSE": {
+     "rows": 4
+    },
+    "GENASA1.MOTOR": {
+     "rows": 4
+    },
+    "GENASA1.COMMERCIAL": {
+     "rows": 3
+    }
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgipol01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "programs": [
+  {
+   "program": "LGSTSQ",
+   "program_source": "base/src/lgstsq.cbl"
+  }
+ ],
+ "region": {
+  "applid": "GENAREGN",
+  "sysid": "CICA"
+ },
+ "scenarios": [],
+ "notes": "Generated-row sibling (#4507) of genapp-lgipdb01: CUSTOMER, POLICY and the ENDOWMENT / HOUSE / MOTOR / COMMERCIAL type tables are generated from base/cntl/db2cre.jcl (the same generate block as genapp-lgapdb01-generated: identity policy numbers 1000001..1000012, FKs POLICY->CUSTOMER and type->POLICY, NULLs and boundary values), not GenApp's INSERTs. The 32 generated requests are written against those rows (a request names a customer and a policy that the seed 4507 rows hold, or one they do not): 01IEND / 01IHOU / 01IMOT / 01ICOM found, wrong customer (+100 '01'), policy of another type (+100); 02ICOM by policy; 03ICOM Cust_Cursor (customer 1 holds two commercial policies, which the hand-seeded case never reached: the cursor loop runs twice), a customer with one and one with none; 05ICOM Zip_Cursor (a postcode held, one it does not, one in the wrong case); 04ICOM and 99XXXX are unknown request ids ('99'). A change to the generator's draw moves which policies exist: the E2E test in tests/cobol_mainframe/test_equivalence_db2_rows.py fails the case then (the SQLCODE mix and row counts it asserts move). Not generated: an endowment inquiry on policy 1000010, whose generated PADDINGDATA is empty (not NULL): CA-E-PADDING-DATA(1:0) is a zero-length reference modification (oracle_assumptions.md X8, libcob 'length out of bounds: 0'), the endowment path lgapdb01-generated leaves out too. The error paths (a negative SQLCODE on a SELECT, an OPEN or a CLOSE, the short COMMAREA '98') are genapp-lgipdb01's. Program, LINKed LGSTSQ and the LGCMAREA COMMAREA as in genapp-lgipdb01.",
+ "scenario_generate": {
+  "seed": 4507,
+  "count": 32,
+  "prefix": "generated",
+  "commarea": {
+   "CA-REQUEST-ID": {
+    "values": [
+     "01IEND",
+     "01IEND",
+     "01IEND",
+     "01iend",
+     "01IEND",
+     "01IHOU",
+     "01IHOU",
+     "01IHOU",
+     "01IHOU",
+     "01IHOU",
+     "01IMOT",
+     "01IMOT",
+     "01IMOT",
+     "01IMOT",
+     "01IMOT",
+     "01ICOM",
+     "01ICOM",
+     "01ICOM",
+     "01ICOM",
+     "02ICOM",
+     "02ICOM",
+     "02ICOM",
+     "02icom",
+     "03ICOM",
+     "03ICOM",
+     "03ICOM",
+     "05ICOM",
+     "05ICOM",
+     "05ICOM",
+     "05ICOM",
+     "04ICOM",
+     "99XXXX"
+    ]
+   },
+   "CA-CUSTOMER-NUM": {
+    "values": [
+     "1",
+     "1",
+     "1",
+     "1",
+     "2",
+     "9",
+     "6",
+     "1",
+     "5",
+     "1",
+     "2",
+     "9",
+     "7",
+     "6",
+     "2",
+     "5",
+     "1",
+     "1",
+     "2",
+     "0",
+     "0",
+     "0",
+     "0",
+     "1",
+     "5",
+     "2",
+     "0",
+     "0",
+     "0",
+     "0",
+     "1",
+     "1"
+    ]
+   },
+   "CA-REQUEST-SPECIFIC": {
+    "values": [
+     "0001000001                                                                      ",
+     "0001000008                                                                      ",
+     "0001000007                                                                      ",
+     "0001000007                                                                      ",
+     "0001000010                                                                      ",
+     "0001000012                                                                      ",
+     "0001000011                                                                      ",
+     "0001000008                                                                      ",
+     "0001000002                                                                      ",
+     "0001000012                                                                      ",
+     "0001000003                                                                      ",
+     "0001000012                                                                      ",
+     "0001000009                                                                      ",
+     "0001000011                                                                      ",
+     "0001000009                                                                      ",
+     "0001000002                                                                      ",
+     "0001000007                                                                      ",
+     "0001000001                                                                      ",
+     "0001000002                                                                      ",
+     "0001000002                                                                      ",
+     "0001000007                                                                      ",
+     "0001000001                                                                      ",
+     "0001000006                                                                      ",
+     "0001000000                                                                      ",
+     "0001000000                                                                      ",
+     "0001000000                                                                      ",
+     "0001000000                                                                                                                                                                                                                                                                                                                                       AAAA                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ",
+     "0001000000                                                                                                                                                                                                                                                                                                                                       ZZZZZZZZ                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           ",
+     "0001000000                                                                                                                                                                                                                                                                                                                                       NOWHERE                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ",
+     "0001000000                                                                                                                                                                                                                                                                                                                                       aaaa                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ",
+     "0001000010                                                                      ",
+     "0001000010                                                                      "
+    ]
+   }
+  }
+ }
+}

@@ -5,7 +5,7 @@
   ],
   "value": {
     "Galaxy Column Digests": {
-      "a_dists": "6463aca403f8",
+      "a_dists": "a4353dd778cc",
       "a_ids": "90b34b311d01",
       "ai_threats": "702f60aa030f",
       "author_distribution": "702f60aa030f",
@@ -29,7 +29,7 @@
       "tel_cfr": "22d317026281",
       "tel_lt": "a5110b875769",
       "tel_pid": "729eb627fcbc",
-      "tel_pop": "47813eaf7315",
+      "tel_pop": "71c832180fac",
       "tel_purp": "64d3ca5df8c8"
     },
     "Galaxy Files": {
@@ -3281,9 +3281,9 @@
       "typescript/vscode/eslint.config.js": "6b4d8f152491",
       "typescript/vscode/extHost.api.impl.ts": "f39fe776b8a9",
       "typescript/vscode/gulpfile.vscode.ts": "761346ef7a7a",
-      "typescript/vscode/instantiationService.ts": "676caf6bf76e",
-      "typescript/vscode/ipc.ts": "82f5781d8805",
-      "typescript/vscode/lifecycle.ts": "ccf8791ed8d6",
+      "typescript/vscode/instantiationService.ts": "3df0ed22294e",
+      "typescript/vscode/ipc.ts": "041c7fbb335f",
+      "typescript/vscode/lifecycle.ts": "b373557757ec",
       "typescript/vscode/package.json": "eb755c584bf5",
       "typescript/vscode/vscode.d.ts": "b0665b5d671a",
       "typescript/zod/package.json": "939555f90593",
@@ -3412,7 +3412,7 @@
       "ecosystem_audits": "aa094343f1a1",
       "ecosystem_fingerprint": "4350181b84f3",
       "health": "a68be623cabf",
-      "network_macro": "ea3be4fca188",
+      "network_macro": "92511ca4fac9",
       "repo_macro_species": "2bd4f962ad9c",
       "summary": "6fe52f83dcb9",
       "typosquat_hits": "5feceb66ffc8",

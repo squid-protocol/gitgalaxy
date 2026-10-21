@@ -557,6 +557,31 @@ def _past_from(length: str | None, area: str | None, what: str) -> list[str]:
             "    MOVE 98 TO RETURN-CODE", "    STOP RUN", "END-IF"]  # fmt: skip
 
 
+def _move_to_padq(area: str) -> list[str]:
+    """The MOVE of a FROM item into GG-PADQ, on two lines when a long item name would push it past column 72."""
+    one = f"    MOVE {area} TO GG-PADQ(1:LENGTH OF {area})"
+    return (
+        [one] if len(_AREA_B) + len(one) + 4 <= 72 else [f"    MOVE {area}", f"        TO GG-PADQ(1:LENGTH OF {area})"]
+    )
+
+
+def _write_from(length: str | None, area: str, what: str, call: list[str]) -> list[str]:
+    """X6 (ASSUMED, owner 2026-10-21): a WRITEQ whose LENGTH runs past its FROM item writes FROM's bytes then SPACES to
+    LENGTH. IBM takes the bytes that follow the item in storage (undefined); GnuCOBOL's layout differs, so the fill is
+    the one both sides agree on (DetCics.textPadded). The record goes through GG-PADQ (a record is at most 32767 bytes);
+    a stated LENGTH over that is refused at run time, as before."""
+    if not length or _literal(area):
+        return call
+    return [f"IF GG-LEN > LENGTH OF {area}",
+            "    IF GG-LEN > LENGTH OF GG-PADQ",
+            f"        DISPLAY '{what} LENGTH > FROM: not modelled'",
+            "        MOVE 98 TO RETURN-CODE", "        STOP RUN", "    END-IF",
+            "    MOVE SPACES TO GG-PADQ",
+            *_move_to_padq(area),
+            *["    " + ln for ln in call[:-1] + [call[-1].replace(f"BY REFERENCE {area}", "BY REFERENCE GG-PADQ")]],
+            "ELSE", *["    " + ln for ln in call], "END-IF"]  # fmt: skip
+
+
 def _ts_command(verb: str, opts: dict[str, str | None], labels: list[str] | None = None) -> list[str]:
     """#4002: READQ TS / WRITEQ TS -> GGCREADQ / GGCWRTQ. LENGTH is in-out on READQ (the most INTO
     takes; then the item's length, set on NORMAL and LENGERR only: IBM documents it for neither
@@ -600,7 +625,7 @@ def _ts_command(verb: str, opts: dict[str, str | None], labels: list[str] | None
             raise Unsupported(f"{feature} REWRITE without ITEM", [feature])
         lines += [f"MOVE {item if rewrite else 0} TO GG-ITEM",
                   "MOVE 'REWRITE' TO GG-FLAGS" if rewrite else "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
-        lines += _past_from(length, area, "WRITEQ TS") + _call("GGCWRTQ", [f"BY REFERENCE {area}"])
+        lines += _write_from(length, area, "WRITEQ TS", _call("GGCWRTQ", [f"BY REFERENCE {area}"]))
         if item and not rewrite:
             after += ["IF GG-RESP = 0", f"    MOVE GG-ITEM TO {item}", "END-IF"]
     if num:
@@ -1805,8 +1830,8 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         if not (queue and frm):
             raise Unsupported("WRITEQ TD without QUEUE / FROM", ["WRITEQ TD"])
         return ([name(queue, "GG-QNAME"), f"MOVE {opts.get('LENGTH') or 'LENGTH OF ' + frm} TO GG-LEN"]
-                + _past_from(opts.get("LENGTH"), frm, "WRITEQ TD")
-                + _call("GGCWRTD", [f"BY REFERENCE {frm}"]) + _resp(opts, True, labels))  # fmt: skip
+                + _write_from(opts.get("LENGTH"), frm, "WRITEQ TD", _call("GGCWRTD", [f"BY REFERENCE {frm}"]))
+                + _resp(opts, True, labels))  # fmt: skip
     if verb in ("READQ", "DELETEQ") and "TD" in opts:  # #5079 (X57): transient data, intrapartition
         return _td_command(verb, opts, labels)
     if verb == "DELETEQ" and "TD" not in opts:  # #4415 slice 2 (X29): the whole TS queue
@@ -2041,6 +2066,9 @@ def _numbered(ln: str) -> str:
 
 _DIB = "       01  DIB.\n           05 FILLER   PIC XX.\n           05 DIBSTAT  PIC XX.\n"
 
+# X6: the record a WRITEQ past its FROM item writes (_write_from); only a program that has such a WRITEQ gets it
+_PADQ = "       01  GG-PADQ PIC X(32767).\n"
+
 
 DLI_CALL = re.compile(r"\bEXEC\s+DLI\b", re.I)
 
@@ -2203,7 +2231,8 @@ def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bo
         or re.search(r"^.{6} +COPY\s+\S+\s+REPLACING\b[^.]*\bBY\s+DFHCOMMAREA\b", text, re.M | re.I)
     )
     dib = _DIB if any(b[3].startswith(_DLI_TAG) for b in blocks) else ""  # (#5278: IBM's DIB, only DIBSTAT supplied)
-    text = re.sub(r"^(.{6} +WORKING-STORAGE\s+SECTION\.[^\n]*\n)", r"\1       COPY DFHEIBLK.\n" + dib, text,
+    pad = _PADQ if "GG-PADQ" in text else ""
+    text = re.sub(r"^(.{6} +WORKING-STORAGE\s+SECTION\.[^\n]*\n)", r"\1       COPY DFHEIBLK.\n" + dib + pad, text,
                   count=1, flags=re.M | re.I)  # fmt: skip
     if "COPY DFHEIBLK" not in text:
         raise Unsupported("no WORKING-STORAGE SECTION to hold the EIB")
@@ -5511,6 +5540,12 @@ def mask_clock_events(case: dict[str, Any], events: list[dict[str, Any]], counte
                     ca[name] = v[:start] + "<clock>".ljust(length) + v[start + length :]
                     counter[0] += 1
             e = {**e, "commarea": ca}
+        for k in ("text", "data"):  # a WRITEQ record that carries the clock (X6: LGAPDB01's CICA line past its FROM)
+            if isinstance(e.get(k), str):
+                v = _CLOCK.sub(lambda m: "<clock>" if _from_clock(m.group()) else m.group(), e[k])
+                if v != e[k]:
+                    counter[0] += 1
+                    e = {**e, k: v}
         out.append(e)
     return out
 

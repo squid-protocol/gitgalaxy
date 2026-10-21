@@ -2756,9 +2756,9 @@ def test_ts_items_move_between_the_storage_page_and_the_regions():
     assert not c.region_used and c.region == "IBM037"
     out = c.command("WRITEQ TS QUEUE('Q') FROM(REC) LENGTH(10)", "")
     assert (
-        out[0] == "CicsTask.TsResult ts1 = task.writeqTs('Q'.strip(), DetCics.toRegion(DetCics.bytes(f_REC, "
-        'DetCics.within(f_REC, INT(10), "WRITEQ TS")), CS, REGION));'
-    )  # (#4607 x X6: a LENGTH past FROM refused)
+        out[0] == "CicsTask.TsResult ts1 = task.writeqTs('Q'.strip(), DetCics.toRegion("
+        'DetCics.padded(f_REC, INT(10), "WRITEQ TS", CS), CS, REGION));'
+    )  # (X6: a LENGTH past FROM is padded with spaces)
     out = c.command("WRITEQ TS QUEUE('Q') FROM(REC) ITEM(3) REWRITE", "")
     assert "DetCics.toRegion(DetCics.bytes(f_REC, f_REC.length()), CS, REGION)" in out[0]
     out = c.command("READQ TS QUEUE('Q') INTO(REC) LENGTH(VARLEN) ITEM(2)", "")
@@ -3100,22 +3100,23 @@ def test_a_program_without_function_random_carries_no_sequence(tmp_path):
     assert r.stats["holes"] == [] and "funcRandom" not in r.java
 
 
-def test_a_writeq_length_past_from_is_refused_by_the_det_port_as_by_the_stub_x6():
-    """#4607 x X6: a WRITEQ TS / TD LENGTH past its FROM item (GenApp LGSTSQ: 104 bytes from 95) reads the storage
-    that follows the item. The stub stops there ("not modelled"); the det port refuses at the same statement
-    (DetCics.within throws DetCics.PastFrom), so both sides' tasks are judged up to it. Without LENGTH nothing is
-    checked: FROM's own length cannot run past it."""
+def test_a_writeq_length_past_from_is_padded_by_the_det_port_as_by_the_stub_x6():
+    """X6 (ASSUMED, owner 2026-10-21): a WRITEQ TS / TD LENGTH past its FROM item (GenApp LGSTSQ: 104 bytes from 95)
+    writes FROM's bytes then spaces to LENGTH, the fill the stub uses (IBM reads the storage that follows: undefined).
+    Without LENGTH nothing is padded; only a LENGTH over the longest record (32767) is refused (PastFrom)."""
     ts = _ChanCics().command("WRITEQ TS QUEUE('Q') FROM(REC) LENGTH(20) RESP(R)", "")
-    assert ts[0] == ("CicsTask.TsResult ts1 = task.writeqTs('Q'.strip(), DetCics.toRegion(DetCics.bytes(f_REC, "
-                     'DetCics.within(f_REC, INT(20), "WRITEQ TS")), CS, REGION));')  # fmt: skip
+    assert ts[0] == ("CicsTask.TsResult ts1 = task.writeqTs('Q'.strip(), DetCics.toRegion("
+                     'DetCics.padded(f_REC, INT(20), "WRITEQ TS", CS), CS, REGION));')  # fmt: skip
     td = _ChanCics().command("WRITEQ TD QUEUE('Q') FROM(REC) LENGTH(20) RESP(R)", "")
-    assert td[0] == ("int resp1 = task.writeqTd('Q'.strip(), Cobol.text(f_REC, CS).substring(0, "
-                     'DetCics.within(f_REC, INT(20), "WRITEQ TD")));')  # fmt: skip
-    assert "within" not in _ChanCics().command("WRITEQ TS QUEUE('Q') FROM(REC) RESP(R)", "")[0]
-    assert "within" not in _ChanCics().command("WRITEQ TD QUEUE('Q') FROM(REC) RESP(R)", "")[0]
+    assert td[0] == ("int resp1 = task.writeqTd('Q'.strip(), "
+                     'new String(DetCics.padded(f_REC, INT(20), "WRITEQ TD", CS), CS));')  # fmt: skip
+    assert "padded" not in _ChanCics().command("WRITEQ TS QUEUE('Q') FROM(REC) RESP(R)", "")[0]
+    td_plain = _ChanCics().command("WRITEQ TD QUEUE('Q') FROM(REC) RESP(R)", "")[0]
+    assert "padded" not in td_plain and "Cobol.text(f_REC, CS)" in td_plain
     rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
     assert "public static final class PastFrom extends UnsupportedOperationException" in rt
-    assert "public static int within(Field f, int n, String what)" in rt
+    assert "public static byte[] padded(Field f, int n, String what, Charset cs)" in rt
+    assert "public static int within(Field f, int n, String what)" in rt  # DOCUMENT CREATE still refuses
 
 
 def test_readq_td_and_deleteq_td_call_the_task_and_move_the_record_into():

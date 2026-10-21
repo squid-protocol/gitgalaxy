@@ -1407,11 +1407,11 @@ class Cics(ContainerCommands, FileControlCommands, TaskControlCommands):
         if verb == "WRITEQ TD":
             r = g.tmpname("resp")
             f = self.read_field(_arg(opts["FROM"]))
-            n = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else str(self.size(_arg(opts["FROM"])))
-            if opts.get("LENGTH"):  # #4607 x X6: a LENGTH past FROM is refused, as the stub refuses it
-                n = f'DetCics.within({f}, {n}, "WRITEQ TD")'
-            return [f"{ind}int {r} = task.writeqTd({self.name(_arg(opts['QUEUE']))}, "
-                    f"Cobol.text({f}, CS).substring(0, {n}));",
+            if opts.get("LENGTH"):  # X6 (ASSUMED): a LENGTH past FROM writes FROM's bytes then spaces, as the stub does
+                data = f'new String(DetCics.padded({f}, {self.int_(_arg(opts["LENGTH"]))}, "WRITEQ TD", CS), CS)'
+            else:
+                data = f"Cobol.text({f}, CS)"
+            return [f"{ind}int {r} = task.writeqTd({self.name(_arg(opts['QUEUE']))}, {data});",
                     *self.outcome(opts, r, "0", ind)]  # fmt: skip
         if verb == "DELETEQ TD":  # #5079 (X57): every record of an intrapartition queue
             r = g.tmpname("resp")
@@ -2103,11 +2103,12 @@ class Cics(ContainerCommands, FileControlCommands, TaskControlCommands):
             return [f"{ind}int {r} = task.deleteqTs({queue});", *self.outcome(opts, r, "0", ind)]
         if verb == "WRITEQ":
             f = self.read_field(_arg(opts.get("FROM")))
-            n = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else f"{f}.length()"
-            if opts.get("LENGTH"):  # #4607 x X6: a LENGTH past FROM is refused, as the stub refuses it
-                n = f'DetCics.within({f}, {n}, "WRITEQ TS")'
+            if opts.get("LENGTH"):  # X6 (ASSUMED): a LENGTH past FROM writes FROM's bytes then spaces, as the stub does
+                body = f'DetCics.padded({f}, {self.int_(_arg(opts["LENGTH"]))}, "WRITEQ TS", CS)'
+            else:
+                body = f"DetCics.bytes({f}, {f}.length())"
             # #4528: the item in the region's page, as the COBOL side's region keeps it
-            data = f"DetCics.toRegion(DetCics.bytes({f}, {n}), CS, REGION)"
+            data = f"DetCics.toRegion({body}, CS, REGION)"
             if "REWRITE" in opts:
                 out.append(
                     f"{ind}CicsTask.TsResult {r} = task.rewriteqTs({queue}, {self.int_(_arg(opts.get('ITEM')))}, {data});"

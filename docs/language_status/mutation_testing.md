@@ -243,8 +243,23 @@ judged by `compare --require-agree`:
 | carddemo-tranlist (COTRN00C, CICS, `--sample 80`) | 80 | 80 | 1,988 -> 1,248 | 461 -> 219 |
 
 **296 of 296 agree**, no `no report` errors, every operator present (AOR, BDM, COR, CON, DEL, LIT, NEG, RET, ROR). With the
-earlier tables, fast mode has agreed with `--full` on all 21 scored crucible programs. Not validated: entry runs (no
-burned committed port has one; unit tests only) and samples above 80.
+earlier tables, fast mode has agreed with `--full` on all 21 scored crucible programs.
+
+**Samples above 80 (2026-10-21, #4047).** `--sample N --seed 11 --jobs 2`, `--full` then fast (the session JVM), judged by
+`mutation.py compare --require-agree`:
+
+| case | judged by both | agree | killed / survived / stillborn | proof s, full -> fast | survivors' proof s, full -> fast |
+|---|---|---|---|---|---|
+| carddemo-tranlist (COTRN00C, CICS, `--sample 160`) | 160 | 160 | 108 / 45 / 7 (4 of the killed by timeout) | 4,201 -> 2,604 | 915 -> 411 |
+| carddemo-menu (COMEN01C, CICS, `--sample 120`) | 120 | 120 | 72 / 39 / 9 (1 of the killed by timeout) | 2,067 -> 1,479 | 646 -> 423 |
+
+**280 of 280 agree**, the same verdict counts in both modes, every operator the cases have (tranlist: AOR, BDM, CON, COR, DEL,
+LIT, NEG, RET, ROR; menu: AOR, CON, COR, DEL, LIT, NEG, ROR). A survivor costs about 45% (tranlist) to 65% (menu) of its
+`--full` proof. With the earlier tables the largest burned sample judged is 160.
+
+**Entry runs have nothing burned to be validated on.** No committed `tests/equivalence/*/case.json` has `entries`;
+`test_mutation_one_jvm_scope_4047.py` fails the day one does, so that case is compared against `--full` (and recorded
+here) before the default covers it. Entry runs stay covered by unit tests. Db2 and IMS cases always use a JVM per run.
 
 ## Scores
 
@@ -309,6 +324,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | port | harness | mutants run / all | raw score | without equivalent + unreachable | survivors: case gap / harness gap / equivalent / unreachable / untriaged |
 |---|---|---|---|---|---|
 | COACTVWC (carddemo-acctview) | equivalence | 150/328 | 105/129 (81%) | 105/113 (93%) | 8 / 0 / 16 / 0 / 0 |
+| COACTVWC (carddemo-acctview-generated) | equivalence | 150/427 | 109/137 (80%) | 109/109 (100%) | 0 / 0 / 16 / 12 / 0 |
 | COADM01C (carddemo-adminmenu) | equivalence | 100/340 | 63/95 (66%) | 63/63 (100%) | 0 / 0 / 29 / 3 / 0 |
 | COBIL00C (carddemo-billpay) | equivalence | 100/529 | 66/86 (77%) | 66/70 (94%) | 4 / 0 / 12 / 4 / 0 |
 | COCRDLIC (carddemo-cardlist) | equivalence | 100/1034 | 75/94 (80%) | 75/82 (91%) | 7 / 0 / 12 / 0 / 0 |
@@ -323,6 +339,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CBACT03C (carddemo-readxref) | equivalence | 90/90 | 69/83 (83%) | 69/77 (90%) | 8 / 0 / 6 / 0 / 0 |
 | CORPT00C (carddemo-report) | equivalence | 100/642 | 58/87 (67%) | 58/60 (97%) | 2 / 0 / 16 / 11 / 0 |
 | COSGN00C (carddemo-signon) | equivalence | 100/196 | 67/99 (68%) | 67/72 (93%) | 5 / 0 / 25 / 2 / 0 |
+| COSGN00C (carddemo-signon-generated) | equivalence | 150/202 | 99/149 (66%) | 99/99 (100%) | 0 / 0 / 42 / 8 / 0 |
 | COTRN02C (carddemo-tranadd) | equivalence | 100/770 | 61/91 (67%) | 61/73 (84%) | 12 / 0 / 10 / 8 / 0 |
 | COTRN00C (carddemo-tranlist) | equivalence | 100/697 | 66/91 (73%) | 66/79 (84%) | 13 / 0 / 5 / 7 / 0 |
 | COTRN01C (carddemo-tranview) | equivalence | 100/314 | 67/100 (67%) | 67/67 (100%) | 0 / 0 / 25 / 8 / 0 |
@@ -362,24 +379,25 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 3697 run | **2217/3347 (66%)** | **2217/2712 (82%)** | 310 / 185 / 408 / 227 / 0 |
-| **all estate** | | 4201 run | **2536/3823 (66%)** | **2536/3066 (83%)** | 345 / 185 / 496 / 261 / 0 |
+| **all equivalence** | | 3997 run | **2425/3633 (67%)** | **2425/2920 (83%)** | 310 / 185 / 466 / 247 / 0 |
+| **all estate** | | 4501 run | **2744/4109 (67%)** | **2744/3274 (84%)** | 345 / 185 / 554 / 281 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 182/233 (78%) | 182/208 (88%) |
-| BDM | 24/45 (53%) | 24/27 (89%) |
-| CON | 345/758 (46%) | 345/461 (75%) |
-| COR | 130/242 (54%) | 130/187 (70%) |
-| DEL | 382/589 (65%) | 382/467 (82%) |
-| LIT | 535/733 (73%) | 535/617 (87%) |
-| NEG | 474/546 (87%) | 474/522 (91%) |
+| AOR | 190/244 (78%) | 190/216 (88%) |
+| BDM | 24/46 (52%) | 24/27 (89%) |
+| CON | 365/816 (45%) | 365/481 (76%) |
+| COR | 151/268 (56%) | 151/208 (73%) |
+| DEL | 421/646 (65%) | 421/506 (83%) |
+| LIT | 582/789 (74%) | 582/664 (88%) |
+| NEG | 510/583 (87%) | 510/558 (91%) |
 | RET | 50/99 (51%) | 50/87 (57%) |
-| ROR | 414/578 (72%) | 414/490 (84%) |
+| ROR | 451/618 (73%) | 451/527 (86%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|
 | COACTVWC (carddemo-acctview) | 3/3 | 0/1 | 11/24 | 8/9 | 19/23 | 20/23 | 22/23 | - | 22/23 |
+| COACTVWC (carddemo-acctview-generated) | 6/9 | 0/1 | 14/22 | 17/21 | 16/21 | 16/21 | 20/21 | - | 20/21 |
 | COADM01C (carddemo-adminmenu) | 8/8 | - | 2/14 | 6/8 | 8/16 | 7/15 | 15/15 | 4/4 | 13/15 |
 | COBIL00C (carddemo-billpay) | 4/5 | 1/3 | 5/13 | 9/12 | 10/12 | 12/13 | 12/13 | 2/2 | 11/13 |
 | COCRDLIC (carddemo-cardlist) | 8/8 | - | 8/13 | 10/13 | 7/13 | 12/13 | 13/13 | 6/9 | 11/12 |
@@ -394,6 +412,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CBACT03C (carddemo-readxref) | - | - | 16/19 | 1/4 | 9/9 | 22/27 | 10/10 | - | 11/14 |
 | CORPT00C (carddemo-report) | 3/3 | 0/1 | 1/11 | 10/13 | 6/13 | 12/13 | 13/13 | 4/7 | 9/13 |
 | COSGN00C (carddemo-signon) | 2/2 | - | 3/20 | 3/4 | 12/20 | 18/20 | 15/16 | - | 14/17 |
+| COSGN00C (carddemo-signon-generated) | 2/2 | - | 6/36 | 4/5 | 23/36 | 31/35 | 16/16 | - | 17/19 |
 | COTRN02C (carddemo-tranadd) | 7/7 | 3/7 | 1/12 | 5/12 | 8/12 | 11/12 | 11/11 | 4/7 | 11/11 |
 | COTRN00C (carddemo-tranlist) | 6/9 | - | 10/14 | 8/14 | 11/13 | 10/14 | 11/11 | 2/3 | 8/13 |
 | COTRN01C (carddemo-tranview) | 1/1 | - | 2/24 | 2/3 | 21/24 | 19/24 | 17/17 | - | 5/7 |

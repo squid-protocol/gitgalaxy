@@ -22,6 +22,7 @@ import re
 import time
 from typing import Any, ClassVar, TypedDict, cast
 
+from gitgalaxy.core.call_resolver import BARE_CALL_SKIPS_METHODS
 from gitgalaxy.core.cobol_source_format import FIXED, line_formats
 from gitgalaxy.core.fortran_calls import fortran_call_names
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS
@@ -1039,7 +1040,7 @@ _DECREMENT_OPERATOR_LANGS = frozenset(
     {
         "c",
         "cpp",
-        "objectivec",
+        "objective-c",
         "glsl",
         "java",
         "groovy",
@@ -2684,6 +2685,8 @@ class StructuralExtractor:
         # #3642 (C8): (unit, its block, its rules) for each unit one segment's
         # slicing scanned for calls; _function_slice resolves them.
         self._call_scans: list[tuple[FunctionNode, str, dict[str, Any]]] | None = None
+        # #5699: units (name, start line) that call their own bare name; a method of one keeps the call
+        self._bare_self_units: set[tuple[str, int]] = set()
 
         # #2728: the names this language's own `func_start` can synthesize from a
         # closed keyword alternation rather than capture from source. Empty for
@@ -3279,6 +3282,13 @@ class StructuralExtractor:
                         innermost_cls = cls
                 if innermost_cls is not None:
                     func["parent_class_name"] = innermost_cls["name"]
+                    if (func["name"], func.get("start_line", 0)) in self._bare_self_units and func["name"] not in func[
+                        "calls_out_to"
+                    ]:
+                        # #5699: a bare `f(` in a method `f` is not the method here (it needs `self.f`):
+                        # kept for the resolver, which reaches a free `f` or prunes it as recursion
+                        func["calls_out_to"].append(func["name"])
+                        func["calls_out_qualifiers"][func["name"]] = [""]
                     class_methods_by_id[id(innermost_cls)].append(func)
 
             for cls in classes:
@@ -10489,6 +10499,8 @@ class StructuralExtractor:
         invoked: set[str] = set()
         own_leaf: str | None = None
         own_qualifiers: set[str] = set()
+        bare_self_hits = 0
+        own_header_seen = False
         if invocation_pattern:
             # Apply literal shield to avoid capturing words inside strings
             safe_block = self._apply_literal_shield(block, self.primary_lang_id)
@@ -10549,7 +10561,13 @@ class StructuralExtractor:
                     # the unit itself. Anything written with a receiver or scope is the unit itself.
                     if callee == own_leaf and qualifier in own_qualifiers and qualifier:
                         continue
-                    if callee_pos == m.start(1) and _is_declaration_header(decl_headers, m):
+                    is_decl = callee_pos == m.start(1) and _is_declaration_header(decl_headers, m)
+                    if callee == name and not qualifier:
+                        # the first bare match of the unit's own name is its own header
+                        if own_header_seen and not is_decl:
+                            bare_self_hits += 1
+                        own_header_seen = True
+                    if is_decl:
                         header_only.add(callee)
                     else:
                         invoked.add(callee)
@@ -10687,6 +10705,9 @@ class StructuralExtractor:
         decl_only = header_only - invoked
         if decl_only and self._nested_decl_candidates is not None:
             self._nested_decl_candidates.append((sat, decl_only))
+        # #5699: a bare `f(` after the unit's own header that is not a nested declaration header
+        if bare_self_hits and self.primary_lang_id in BARE_CALL_SKIPS_METHODS:
+            self._bare_self_units.add((name, start_line))
         return sat, magnitude
 
     def _export_declaration_offsets(self, code_stream: str) -> set[int]:

@@ -274,12 +274,23 @@ def pointer_view_of(records: list) -> dict[str, str]:
     items = [x for r in records for x in r.walk()]
     pointers = {x.name.upper() for x in items if x.usage == "POINTER" and x.occurs <= 1}
     out: dict[str, str] = {}
+    by_name = {x.name.upper(): x for x in items}
     for x in items:
-        if not (x.redefines and x.redefines.upper() in pointers):
+        if x.redefines and x.redefines.upper() in pointers:  # the view over the pointer (ZECS001)
+            view, ptr = x, x.redefines.upper()
+        elif x.usage == "POINTER" and x.occurs <= 1 and not x.children and x.redefines:  # #5856: the pointer over it
+            view, ptr = by_name.get(x.redefines.upper()), x.name.upper()  # (CBSTM03A's TIOT-INDEX over BUMP-TIOT)
+            if (
+                view is None
+                or view.redefines
+                or sum(1 for y in items if (y.redefines or "").upper() == view.name.upper()) > 1
+            ):
+                continue  # (a second REDEFINES of the view could read the handle's bytes)
+        else:
             continue
-        pic = x.picture()
-        if x.usage == "BINARY" and x.occurs <= 1 and not x.children and re.fullmatch(r"S?9+", pic):
-            out[x.name.upper()] = x.redefines.upper()
+        pic = view.picture()
+        if view.usage == "BINARY" and view.occurs <= 1 and not view.children and re.fullmatch(r"S?9+", pic):
+            out[view.name.upper()] = ptr
     return out
 
 
@@ -298,7 +309,8 @@ def overlaid_pointers(records: list) -> set[str]:
         while p is not None:
             chain.append(p)
             p = p.parent
-        if {c.name.upper() for c in chain} & redefined or any(c.redefines for c in chain):
+        over = [c for c in chain if c.redefines and views.get(c.redefines.upper()) != x.name.upper()]
+        if {c.name.upper() for c in chain} & redefined or over:
             out.add(x.name.upper())
     return out
 
@@ -315,7 +327,7 @@ def pointer_views(records: list) -> set[str]:
             view = list(x.walk())
             if any(y.category == "NUMERIC" for y in view):  # a byte (PIC X) view stays bytes
                 out.update(y.name.upper() for y in view)
-    return out
+    return out | set(pointer_view_of(records))  # #5856: and the numeric item a POINTER redefines (BUMP-TIOT)
 
 
 def write_only_pointers(records: list, proc) -> set[str]:
@@ -822,7 +834,10 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             L.layout(idx)
             records.append(idx)
     proc = S.parse(lines)
-    if is_cics and DLI.uses_exec(x.text for q in proc.paragraphs for x in S.walk(q.body) if x.kind == "EXEC"):
+    bmp = None if is_cics or DLI.entry_pcbs(proc) is not None else DLI.bmp_pcbs(proc)  # #5857: a BMP's EXEC DLI
+    if bmp is not None or (
+        is_cics and DLI.uses_exec(x.text for q in proc.paragraphs for x in S.walk(q.body) if x.kind == "EXEC")
+    ):
         records += DLI.dib_records()  # #5278: EXEC DLI answers DIBSTAT (det/dli.py)
     # SORT-RETURN: the special register, S9(4) BINARY (IBM: 0 after a successful SORT / MERGE) -- only in a program
     # that sorts or names it, so no other port's storage changes
@@ -887,7 +902,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     gen.alphabets, gen.program_collating = alphabets(lines)
     _pcs_figuratives(records, gen)
     gen.copy_dirs = [program.parent, *copy_dirs, C.COPY]
-    gen.dli_pcbs = None if is_cics else DLI.entry_pcbs(proc)  # #4893: IMS enters it at ENTRY 'DLITCBL' (det/dli.py)
+    # #4893: IMS enters it at ENTRY 'DLITCBL'; #5857: a BMP with EXEC DLI is entered by USING its I/O PCB and DB PCBs
+    gen.dli_pcbs = bmp if bmp is not None else (None if is_cics else DLI.entry_pcbs(proc))  # (det/dli.py)
     gen.engine = engine
     gen.java_root = (project / "src/main/java") if project is not None else None
     gen.clock = "clock.currentDate()" if batch else "Funcs.currentDate(java.time.LocalDateTime.now())"
@@ -1159,7 +1175,11 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     extra_imports: list[str] = []
     using = [u for u in proc.using if u != "BY"]
     parm_code = []
-    if gen.dli_pcbs is not None:  # #4893: IMS passes the PSB's PCBs, no PARM (DFSRRC00's PARM is IMS's own)
+    if isinstance(gen.dli_pcbs, DLI.BmpPcbs):  # #5857: the I/O PCB first (CMPAT=YES), then the DB PCBs
+        names = [gen.dli_pcbs.io, *gen.dli_pcbs]
+        parm_code = [f"        DetDli.enterBmp({', '.join(gen.field_expr(E.Ref(n)) for n in names)});"]
+        extra_imports.append(f"{package}.cobolrt.dli.DetDli")
+    elif gen.dli_pcbs is not None:  # #4893: IMS passes the PSB's PCBs, no PARM (DFSRRC00's PARM is IMS's own)
         parm_code = [f"        DetDli.enter({', '.join(gen.field_expr(E.Ref(n)) for n in gen.dli_pcbs)});"]
         extra_imports.append(f"{package}.cobolrt.dli.DetDli")
     elif using:
@@ -1286,6 +1306,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
 
     if any(f.sort for f in prog.files.values()) or gen.pcs_used:
         extra_imports.append(f"{package}.cobolrt.Sort")
+    if gen.uses_mvs:  # #5856 (A2): the z/OS control blocks a batch pointer addresses
+        extra_imports.append(f"{package}.cobolrt.DetMvs")
     if gen.sql is not None:  # the generated Db2 repositories the statements run on
         ctor_repos += [(c, f) for c, f in gen.sql.repos.items()]
         extra_imports.append(f"{package}.cobolrt.sql.DetSql")

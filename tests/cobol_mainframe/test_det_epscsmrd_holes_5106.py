@@ -421,9 +421,9 @@ def test_the_handler_program_s_holes_are_each_owned_by_one_refusal_map_entry():
             "SET RESUME TO TRUE",
         )
     )
-    assert len(holes) == 2, holes
-    assert "SET ADDRESS OF" in holes[0] and "CEEMGET:" in holes[1] and "not modelled" in holes[1], holes
-    assert _ids(holes) == [["pointers"], ["le-condition-handling"]], holes
+    assert len(holes) == 1, holes
+    assert "CEEMGET:" in holes[0] and "not modelled" in holes[0], holes
+    assert _ids(holes) == [["le-condition-handling"]], holes
 
 
 @pytest.mark.parametrize("service", ["CEEMGET", "CEESGL", "CEENCOD", "CEEMRCE", "CEE3SRP"])
@@ -457,3 +457,74 @@ def test_a_sibling_refused_for_its_own_reason_maps_to_the_entry_owning_that_reas
 )  # fmt: skip
 def test_a_refused_sibling_call_text_maps_to_exactly_one_entry(text, owner):
     assert [e["id"] for e in sm.classify(text, sm.load_map())] == [owner]
+
+
+def test_the_real_epscsmrd_resolves_its_translatable_sibling_and_names_the_others_owner():
+    """DBB epscsmrd.cbl itself (the only burned multi-program source): EPSCSMRX is a service of its own; EPSCSMRI and
+    EPSCSMRO are refused for their own reasons, each owned by one entry, none left to `multi-program-call`."""
+    import os
+
+    pytest.importorskip("tree_sitter_language_pack")
+    root = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA") or ROOT / ".mainframe_corpora")
+    src = root / "dbb-mortgage-application/zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+    if not src.is_file():
+        pytest.skip("no dbb-mortgage-application corpus")
+    import test_det_programs as tdp
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    project = Path(tempfile.mkdtemp(prefix="t5106r")) / "project"
+    tdp._batch_package(project / "src/main/java")
+    holes = P.translate(src, [], "public class EpscsmrdService {\n}\n", PKG, None, project).stats["holes"]
+    calls = {}
+    for h in holes:
+        m = re.match(r"line \d+: (CALL \w+): no service of its own", h)
+        if m:
+            calls[m.group(1)] = h.split(": ", 1)[1]
+    assert not any("EPSCSMRX" in h for h in holes), holes
+    assert sorted(calls) == ["CALL EPSCSMRI", "CALL EPSCSMRO"], calls
+    owners = {k: [e["id"] for e in sm.classify(v, sm.load_map())] for k, v in calls.items()}
+    assert owners == {"CALL EPSCSMRI": ["national-text"], "CALL EPSCSMRO": ["bll-cells"]}, owners
+    assert not [h for h in holes if "a sibling program of this source" in h]
+
+
+def _real_epscsmrd(unit: str | None = None) -> list[str]:
+    """The holes of DBB epscsmrd.cbl translated as `unit` (None: the main program EPSCSMRD)."""
+    import os
+
+    pytest.importorskip("tree_sitter_language_pack")
+    root = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA") or ROOT / ".mainframe_corpora")
+    src = root / "dbb-mortgage-application/zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+    if not src.is_file():
+        pytest.skip("no dbb-mortgage-application corpus")
+    import test_det_programs as tdp
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    project = Path(tempfile.mkdtemp(prefix="t5106u")) / "project"
+    tdp._batch_package(project / "src/main/java")
+    r = P.translate(
+        src, [], "public class EpscsmrdService {\n}\n", PKG, None, project, **({"unit": unit} if unit else {})
+    )
+    return r.stats["holes"]
+
+
+def test_the_real_epscsmrd_registration_holes_are_each_owned_by_one_entry():
+    """The main program: the registration (CEEHDLR line 306) and its undo (CEEHDLU line 310) each name the service and
+    map to `le-condition-handling`; the pointer they take (SET TO ENTRY line 304) maps to `procedure-pointer`."""
+    holes = _real_epscsmrd()
+    found = {re.match(r"line (\d+): ", h).group(1): h for h in holes if re.search(r"CEEHDL[RU]|SET TO ENTRY", h)}
+    assert sorted(found) == ["304", "306", "310"], holes
+    assert "CEEHDLR:" in found["306"] and "CEEHDLU:" in found["310"], found
+    assert _ids([found["304"], found["306"], found["310"]]) == [
+        ["procedure-pointer"], ["le-condition-handling"], ["le-condition-handling"],
+    ], found  # fmt: skip
+
+
+def test_the_real_epscsmrd_handler_program_holds_two_ceemget_holes_only():
+    """EPSCSMRF translated as its own unit: CEEMGET at lines 406 and 422 (`le-condition-handling`); SET ADDRESS OF ... TO
+    TOKEN (line 383) now translates, as does its SET RESUME TO TRUE and the rest. CEE3SRP / CEENCOD (EPSCSMRI, EPSCSMRO) sit
+    behind those programs' own refusals (national-text, bll-cells) and so are not reached."""
+    holes = _real_epscsmrd("EPSCSMRF")
+    by_line = {re.match(r"line (\d+): ", h).group(1): h for h in holes}
+    assert sorted(by_line) == ["406", "422"], holes
+    assert all("CEEMGET:" in by_line[k] and "not modelled" in by_line[k] for k in ("406", "422")), by_line
+    assert _ids([by_line["406"], by_line["422"]]) == [["le-condition-handling"]] * 2, by_line

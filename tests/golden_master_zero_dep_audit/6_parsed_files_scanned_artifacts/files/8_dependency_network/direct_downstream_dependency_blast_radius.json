@@ -3923,7 +3923,7 @@
       "typescript/vscode/gulpfile.vscode.ts": 0,
       "typescript/vscode/instantiationService.ts": 0,
       "typescript/vscode/ipc.ts": 0,
-      "typescript/vscode/lifecycle.ts": 2,
+      "typescript/vscode/lifecycle.ts": 4,
       "typescript/vscode/package.json": 0,
       "typescript/vscode/vscode.d.ts": 0
     },

@@ -164,6 +164,45 @@ def test_placeholder_verdicts_only_shrink_and_every_triaged_survivor_has_a_reaso
             assert s["verdict"] != "untriaged" and s["reason"].strip()
 
 
+def test_the_generated_acctview_case_is_scored_and_states_the_card_numbers_that_kill_the_parser_mutants():
+    """#4506: a generated xref card number is random text, so alnumToUnsigned always returned 0 and hid its mutants."""
+    results = json.loads(ms.RESULTS.read_text(encoding="utf-8"))
+    port = next(p for p in results["ports"] if p["case"] == "carddemo-acctview-generated")
+    assert port["total"]["untriaged"] == 0 and port["total"]["killed"] > 100
+    case = json.loads((REPO / "tests/equivalence/carddemo-acctview-generated/case.json").read_text(encoding="utf-8"))
+    xref = case["datasets"]["AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS"]["generate"]["fields"]["XREF-CARD-NUM"]
+    assert len(set(xref["values"])) == len(xref["values"]) and all(len(v) == 16 for v in xref["values"])
+    card = [s for s in case["scenarios"] if s["name"].startswith("card-number-")]
+    assert len(card) == 7 and all("#4506" in s["why"] for s in card)
+
+
+def test_the_generated_signon_case_is_scored_and_states_the_credentials_that_kill_the_survivors():
+    """#4506: COSGN00C's generated variant is scored; its survivors were stated inputs the random draw missed."""
+    results = json.loads(ms.RESULTS.read_text(encoding="utf-8"))
+    ports = {p["case"]: p for p in results["ports"]}
+    for name in ("carddemo-signon-generated", "carddemo-acctview-generated"):
+        total = ports[name]["total"]
+        assert total["untriaged"] == 0 and total["case_gap"] == 0 and total["killed"] > 90
+        for s in ports[name]["survivors"]:
+            assert s["reason"].strip() and s["verdict"] != "untriaged"
+    case = json.loads((REPO / "tests/equivalence/carddemo-signon-generated/case.json").read_text(encoding="utf-8"))
+    ids = case["datasets"]["AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS"]["generate"]["fields"]["SEC-USR-ID"]["values"]
+    named = {s["name"]: s for s in case["scenarios"]}
+    for n in (
+        "lowercase-z-credentials",
+        "uppercase-z-credentials",
+        "user-not-on-file",
+        "userid-not-sent",
+        "passwd-not-sent",
+    ):
+        assert "#4506" in named[n]["why"]
+    z = named["lowercase-z-credentials"]["receive"]["COSGN0A"]["USERIDI"]
+    assert "z" in z and z.upper() in ids
+    assert named["user-not-on-file"]["receive"]["COSGN0A"]["USERIDI"] not in ids
+    assert "USERIDI" not in named["userid-not-sent"]["receive"]["COSGN0A"]
+    assert "PASSWDI" not in named["passwd-not-sent"]["receive"]["COSGN0A"]
+
+
 def test_retriage_replaces_a_verdict_and_recounts_the_totals_and_operators():
     p = ms.port_entry(_run(), {"x-case/PROG:c": {"verdict": "case_gap", "reason": ms.PLACEHOLDER}}, "abc")
     assert ms.placeholders({"ports": [p]}) == {"x-case/PROG": 1}

@@ -56,6 +56,13 @@ import posixpath
 from collections import Counter
 from typing import Any
 
+# #5699: languages where a bare `f(` inside a method `f` is never the method (it needs `self.f` /
+# `this.f` / `$this->f`), so it may reach a free `f`. The detector keeps such a call for a unit
+# inside a class and this resolver prunes it when only the unit itself resolves. Not here:
+# Kotlin, Swift, Java, Ruby, C# (a member shadows the free function, so it is recursion) and
+# Go (a method has no enclosing class in the scan, so the detector cannot tell it from a function).
+BARE_CALL_SKIPS_METHODS = frozenset({"rust", "php", "typescript", "javascript", "python"})
+
 # Languages whose identifiers are case-insensitive, so `CALL Foo` reaches a
 # `FOO` definition. The detector's calls_out ignore uses the same list for its
 # keywords (detector.py, `_CALLS_OUT_GLOBAL_IGNORE`'s comment).
@@ -1463,7 +1470,12 @@ def resolve_calls(
                         # recursion through a qualified name (`Foo::bar` calling `bar`); a bare call
                         # that reaches only the unit itself is not a call (#3327, #5628); only where the
                         # detector recorded the bare qualifier (a shell `md5` is a binary, not recursion)
-                        if kind == "call" and callee != caller_name and len(targets) == 1 and quals.get(callee) == [""]:
+                        if (
+                            kind == "call"
+                            and (callee != caller_name or lang in BARE_CALL_SKIPS_METHODS)
+                            and len(targets) == 1
+                            and quals.get(callee) == [""]
+                        ):
                             recursive.append(callee)
                         continue
                     resolution = RESOLUTION_OF_STEP[step]

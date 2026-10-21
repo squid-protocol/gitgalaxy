@@ -53,6 +53,11 @@ def test_call_after_a_prefix_decrement_is_kept(lang, stmt):
     assert _calls(lang, _wrap(lang, stmt))["f"] == ["ReadVar"]
 
 
+def test_objective_c_prefix_decrement_is_kept():
+    # the registry id is "objective-c"; the langs set once carried "objectivec" and silently missed it
+    assert _calls("objective-c", _wrap("c", "\t--vars[ReadVar()];"))["f"] == ["ReadVar"]
+
+
 @pytest.mark.parametrize("lang", ("c", "cpp", "java"))
 def test_prefix_increment_and_a_real_comment_still_behave(lang):
     body = "\t++vars[ReadVar()]; // --not_a_call(1)\n\t/* --also_not(2) */ Other();"

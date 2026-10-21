@@ -46,6 +46,9 @@
   },
   "ims-codes": {
    "title": "IBM IMS Messages and Codes, Volume 4: IMS Component Codes (DL/I status codes)"
+  },
+  "mvs-da": {
+   "title": "IBM z/OS MVS Data Areas (PSA, TCB, TIOT)"
   }
  },
  "options": {
@@ -258,7 +261,9 @@
     "area",
     "ssa",
     "execPcb",
-    "execCall"
+    "execCall",
+    "enterBmp",
+    "checkpoint"
    ]
   },
   {
@@ -355,6 +360,24 @@
    "done": true,
    "about": "DISPLAY and abends of a standalone (batch) port.",
    "plumbing": []
+  },
+  {
+   "id": "MVS",
+   "prefix": "MVS",
+   "title": "z/OS control blocks a batch program reads",
+   "files": [
+    "DetMvs.java"
+   ],
+   "done": true,
+   "about": "The PSA -> TCB -> TIOT a batch program walks through pointers to read its own job, step and DD names, laid from the job step the run states (#5856).",
+   "plumbing": [
+    "block",
+    "blocks",
+    "name",
+    "put",
+    "pointerValue",
+    "setPointer"
+   ]
   }
  ],
  "rules": [
@@ -4156,6 +4179,28 @@
    "options": [],
    "register": [
     "W5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-MVS-CONTROL-BLOCKS",
+   "family": "MVS",
+   "title": "SET ADDRESS OF a record TO a pointer into the PSA (a NULL pointer is address 0), the TCB (PSATNEW) or the TIOT (TCBTIO), and the pointer moved along its block through a numeric item it REDEFINES: the blocks laid from the stated job step at IBM's offsets; a record or an advance past what is laid is refused",
+   "methods": [
+    "setAddress",
+    "advancePointer",
+    "copyPointer",
+    "build"
+   ],
+   "ibm": {
+    "doc": "mvs-da",
+    "section": "PSA, TCB, TIOT"
+   },
+   "options": [],
+   "register": [
+    "A2",
+    "C9"
    ],
    "status": "ASSUMED",
    "calibration": "uncalibrated"

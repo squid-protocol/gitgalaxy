@@ -1,16 +1,16 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 38,
+ "scenarios": 43,
  "paragraphs": {
   "covered": 6,
   "live": 6
  },
  "branches": {
-  "covered": 16,
+  "covered": 17,
   "total": 17
  },
  "inputs": {
-  "case": "ea324f8bcd3909afdcfee80e78df8262bb14345496106308d4da922a929f37db",
+  "case": "b36dbfcb0269c6e47fbc184879d1e7bcc45f4271dc67d28a001dcef29345a755",
   "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
   "harness": "9719d8e6fab2ada37b84b391544fa81ca9f8388e844cc714cd12adc60aff0eae",
   "oracle": "3238a6c115da44e342ab6312da909afa4da481a2f19ae796ff58f456b030566c",
@@ -26,5 +26,5 @@
    }
   }
  },
- "measured_at": "1ab21432c5a5bc9d8e3127a76a49f2eca236b170"
+ "measured_at": "5a2f980da440fded936b567f016701765dff653d"
 }

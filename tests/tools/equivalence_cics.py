@@ -2049,7 +2049,7 @@ def dli_stage(case: dict[str, Any], corpus: Path, dest: Path) -> list[str]:
     """#5278: the stated databases of a case whose program issues EXEC DLI -- dbd.cfg, psb.cfg and each seed, into
     `dest` (the stub reads them from the scenario's directory, the port from gitgalaxy.dli.dir). The DBDs' names."""
     try:
-        dbds, pcbs = equivalence_ims.definitions(case, corpus)
+        dbds, pcbs = equivalence_ims.definitions(case, corpus, cics=True)
         dest.mkdir(parents=True, exist_ok=True)
         dbd_cfg, psb_cfg = equivalence_ims.config(dbds, pcbs)
         (dest / "dbd.cfg").write_text(dbd_cfg, encoding="ascii")
@@ -2066,6 +2066,8 @@ def _dli_operand(text: str, what: str) -> str:
     t = text.strip()
     if re.fullmatch(r"[0-9]+", t) or re.fullmatch(r"[A-Za-z0-9-]+", t):
         return f"BY VALUE {t}"
+    if re.fullmatch(r"LENGTH\s+OF\s+[A-Za-z0-9-]+", t, re.I):
+        return f"BY VALUE {' '.join(t.split()).upper()}"
     raise Unsupported(f"EXEC DLI {what}({text}): a literal or a data name expected", ["EXEC DLI"])
 
 
@@ -3954,8 +3956,8 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
     res["containers"] = task_containers(out / "containers.out")  # #4270 (X24): the current channel's, at task end
     res["mq_queues"] = equivalence_mq.queues_left(out / "mq.out")  # #4892: the queues the task left
     dli = {p.stem: p.read_bytes() for p in sorted(out.glob("*.out")) if (out.parent / f"seed.{p.stem}").is_file()}
-    if dli:  # #5278: the databases the task left (the stub's exit dump), by DBD
-        res["dli"] = dli
+    if dli or any(out.parent.glob("seed.*")):  # #5278: the databases the task left (the stub's exit dump), by DBD;
+        res["dli"] = dli  # none when it never scheduled the PSB: the port's DetDli.leave dumps nothing then either
     left = out / "commarea.out"  # a LINKed program's result: the COMMAREA it left (ggcics GGCAOUT)
     res["linked_commarea"] = (
         decode_record(left.read_bytes(), ca_fields, enc, exact=True, unnamed=True)
@@ -5680,7 +5682,7 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
         out.append({"event": "CONTAINERS", **res["containers"]})
     if res.get("mq_queues") is not None:  # #4892: the queues the task leaves (its normal end commits it)
         out.append({"event": "MQ-QUEUES", "queues": res["mq_queues"]})
-    if res.get("dli"):  # #5278: the databases the task leaves, each in hierarchic sequence
+    if res.get("dli") is not None:  # #5278: the databases the task leaves, each in hierarchic sequence
         out.append({"event": "DLI-DBS", "dbs": {k: v.hex().upper() for k, v in res["dli"].items()}})
     if res.get("linked_commarea") is not None:
         out.append({"event": "COMMAREA", "commarea": res["linked_commarea"]})

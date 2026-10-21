@@ -32,6 +32,16 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
   `has_table` / `has_column` injected (#5410).
 * **`test_java_matrix_gate.py` needs `tests/tools` on `PYTHONPATH`** when run alone (#5382). Raising the Python
   floor drops the old CI matrix legs in the same PR (#5370).
+* **Never build JSON by string interpolation in tests when a value is a filesystem path:** use `json.dumps` (Windows
+  backslashes) (#5549).
+* **`read_text(errors="replace")` on a corpus file in a test fails `tests/test_source_reads.py`:** use
+  `gitgalaxy.core.source_text.read_source` (#5658).
+* **`dead_key_audit` flags a constant dict subscript that is read only once** (#5627).
+* **`tree_sitter_accuracy_audit.py` takes `--lang <name>`, not `--language`** (#5503).
+* **C evaluation order:** `memcpy(b, f(&n), n)` reads `n` before `f` runs; take the pointer into a local first (ASan
+  catches it) (#5887).
+* **Fixed-format COBOL test input past column 72 is silently truncated by `_code`:** one statement per line in lowering
+  tests (#5887).
 
 ## CI and workflow traps
 * On a path-filtered workflow, key caches by `hashFiles` of the inputs, not the sha: the sha only has an entry for

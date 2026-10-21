@@ -8,6 +8,8 @@ and check mode names the item."""
 
 from __future__ import annotations
 
+import shutil
+import sys
 from pathlib import Path
 
 import pytest
@@ -17,6 +19,9 @@ from gitgalaxy.tools.cobol_to_java.det import layout as L
 from gitgalaxy.tools.cobol_to_java.det.cics import POINTER_BYTES
 from gitgalaxy.tools.cobol_to_java.det.engine_layout import EngineLayouts, LayoutDisagrees, adopt
 from gitgalaxy.tools.cobol_to_java.det.source import program_lines
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+import equivalence_common  # noqa: E402 -- the shared engine_layouts helper (bare import: tests/ has no package)
 
 PROGRAM = """\
        IDENTIFICATION DIVISION.
@@ -181,3 +186,23 @@ def test_code_pointers_have_a_width_the_engine_can_hand_the_translator(codeptr_e
     top = next(i for i in ef.data_items if i.name == "WS-PP")
     fields = {f["name"]: (f["offset"], f["bytes"]) for f in ir.record_layout(ef, top)["fields"]}  # z/OS: no override
     assert [fields[n] for n in ("PP-PROC", "PP-FUNC", "PP-TBL", "PP-D")] == [(2, 8), (11, 4), (16, 16), (32, 1)]
+
+
+def test_the_shared_helper_finds_the_estate_scan_beside_the_project(tmp_path):
+    """#5649: det_port and equivalence_java take the engine's layouts from the clean room's scan DB beside the
+    generated project; without one the translator keeps its own (None)."""
+    pytest.importorskip("tree_sitter_language_pack")
+    corpus = tmp_path / "corpus"
+    corpus.mkdir()
+    (corpus / "LAYTOY.cbl").write_text(PROGRAM, encoding="utf-8")
+    (corpus / "LAYCPY.cpy").write_text(LAYCPY, encoding="utf-8")
+    project = tmp_path / "estate" / "project"
+    project.mkdir(parents=True)
+    assert equivalence_common.engine_layouts(project, corpus, "LAYTOY.cbl") is None
+    db = scan_to_db(corpus, tmp_path / "scan")
+    dumps = project.parent / "x_gitgalaxy_clean_1" / "04_ir_state_dumps"
+    dumps.mkdir(parents=True)
+    shutil.copy(db, dumps / "x_galaxy_master.db")
+    lay = equivalence_common.engine_layouts(project, corpus, "LAYTOY.cbl")
+    assert lay is not None and lay.mode == "check" and lay.pointer_bytes == POINTER_BYTES
+    assert equivalence_common.engine_layouts(project, corpus, "NOPE.cbl") is None

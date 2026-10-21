@@ -1,0 +1,122 @@
+"""#5278: the CardDemo COPAUA0C equivalence case (IMS DBPAUTP0 through EXEC DLI, three VSAM files, the MQ request / reply
+queues) and the harness steps it needed. The unit tests need nothing but the case; the proof itself (17 scenarios,
+GnuCOBOL against the det port) is the det sweep's, `det_port.py run carddemo-copaua0c`."""
+
+from __future__ import annotations
+
+import json
+import os
+import sys
+from pathlib import Path
+
+import pytest
+
+pytest.importorskip("tree_sitter_language_pack")
+
+ROOT = Path(__file__).resolve().parents[2]
+TOOLS = ROOT / "tests" / "tools"
+sys.path.insert(0, str(TOOLS))
+
+import equivalence_cics as ec  # noqa: E402
+import equivalence_ims as ims  # noqa: E402
+
+CASE = ROOT / "tests" / "equivalence" / "carddemo-copaua0c"
+APP = "app/app-authorization-ims-db2-mq"
+
+# the request outcomes the program decides, the file faults it handles, and the queue set-ups it reports
+SCENARIOS = [
+    "no-request", "approve-summary-found", "decline-insufficient-funds", "approve-no-summary",
+    "decline-no-summary-over-account-limit", "card-not-in-xref", "account-not-in-master", "customer-not-in-master",
+    "same-account-twice", "amount-without-decimals", "amount-with-sign", "three-requests-mixed",
+    "read-xref-io-error", "read-acct-io-error", "read-cust-io-error", "no-trigger-data", "no-reply-queue",
+]  # fmt: skip
+
+
+def _case() -> dict:
+    return json.loads((CASE / "case.json").read_text(encoding="utf-8"))
+
+
+def _corpus() -> Path | None:
+    corpora = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", ROOT / ".mainframe_corpora"))
+    corpus = corpora / "aws-mainframe-modernization-carddemo"
+    return corpus if (corpus / APP / "cbl/COPAUA0C.cbl").is_file() else None
+
+
+def test_the_case_states_every_scenario_with_its_reason():
+    case = _case()
+    assert [s["name"] for s in case["scenarios"]] == SCENARIOS
+    assert all(s["why"].strip() for s in case["scenarios"])
+
+
+def test_every_queue_and_file_a_scenario_names_is_stated():
+    case = _case()
+    queues = set(case["mq"]["queues"])
+    files = {f.split(".")[-3] if f.count(".") > 2 else f for f in case["datasets"]}
+    assert len(files) == 3
+    for s in case["scenarios"]:
+        for q, msgs in s.get("mq_messages", {}).items():
+            assert q in queues
+            assert all(m["replytoq"] in queues for m in msgs if m.get("replytoq"))
+        assert set(s.get("mq", {}).get("queues", queues)) <= queues
+    assert {c["name"] for c in case["ims"]["compare"]} == {"DBPAUTP0"} if isinstance(case["ims"]["compare"][0], dict) \
+        else set(case["ims"]["compare"]) == {"DBPAUTP0"}  # fmt: skip
+
+
+def test_the_case_notice_names_the_sources_own_license():
+    assert "Apache" in (CASE / "NOTICE").read_text(encoding="utf-8")
+    assert (CASE / "LICENSE").read_text(encoding="utf-8").lstrip().startswith("Apache License")
+
+
+def test_the_two_extra_xref_records_are_card_xref_records():
+    rows = (CASE / "cardxref-5278.txt").read_text(encoding="ascii").splitlines()
+    assert [len(r) for r in rows] == [36, 36]  # CVACT03Y: card 16, customer 9, account 11
+    assert {r[:16] for r in rows} == {"8888000000000001", "8888000000000002"}
+
+
+def test_a_dli_length_may_be_a_length_of():
+    """COPAUA0C: SEGLENGTH(LENGTH OF PENDING-AUTH-DETAILS) -- the oracle passes it by value, as a literal."""
+    out = ec.translate_dli("ISRT USING PCB(PAUT-PCB-NUM) SEGMENT(PAUTSUM0) SEGMENT(PAUTDTL1) "
+                           "FROM(PENDING-AUTH-DETAILS) SEGLENGTH(length  of PENDING-AUTH-DETAILS)")  # fmt: skip
+    assert "    BY VALUE LENGTH OF PENDING-AUTH-DETAILS" in out
+    with pytest.raises(ec.Unsupported, match="a literal or a data name"):
+        ec._dli_operand("LENGTH OF A(1)", "SEGLENGTH")
+
+
+PSB = """\
+P1       PCB   TYPE=DB,DBDNAME=D1,PROCOPT=A,KEYLEN=4
+         SENSEG  NAME=ROOT,PARENT=0
+         PSBGEN  LANG=COBOL,PSBNAME=P,CMPAT=YES
+"""
+DBD = """\
+         DBD   NAME=D1,ACCESS=(HIDAM,VSAM)
+         DATASET DD1=A,DEVICE=3380
+SEG1     SEGM  NAME=ROOT,PARENT=0,BYTES=8
+         FIELD NAME=(KEY,SEQ,U),BYTES=4,START=1,TYPE=C
+         DBDGEN
+         FINISH
+         END
+"""
+
+
+def test_cmpat_yes_is_refused_for_batch_dli_and_taken_under_cics():
+    """Register I5: EXEC DLI numbers the DB PCBs from 1 (no I/O PCB first), so the PSB's CMPAT=YES changes nothing there;
+    a batch program is still entered with the I/O PCB first (not modelled)."""
+    dbds = {"D1": ims.dbd(DBD, "d1.dbd")}
+    with pytest.raises(ims.Unsupported, match="CMPAT=YES"):
+        ims.psb(PSB, "p.psb", dbds)
+    assert [p["dbd"] for p in ims.psb(PSB, "p.psb", dbds, cics=True)] == ["D1"]
+
+
+def test_an_unload_record_can_be_left_out_of_the_seed(tmp_path):
+    """The corpus's HD unload ends with a root whose packed key is blank, which a GU qualification refuses by design."""
+    corpus = _corpus()
+    if corpus is None:
+        pytest.skip("needs the burned mainframe corpora (GITGALAXY_MAINFRAME_CORPORA)")
+    case = _case()
+    dbds, _ = ims.definitions(case, corpus, cics=True)
+    assert case["ims"]["seed"]["DBPAUTP0"]["skip"] == [223]
+    kept = ims.seed(case, corpus, "DBPAUTP0", dbds["DBPAUTP0"])
+    case["ims"]["seed"]["DBPAUTP0"].pop("skip")
+    whole = ims.seed(case, corpus, "DBPAUTP0", dbds["DBPAUTP0"])
+    assert len(whole) - len(kept) == 8 + dbds["DBPAUTP0"]["segments"][0]["bytes"]
+    assert whole.startswith(kept)

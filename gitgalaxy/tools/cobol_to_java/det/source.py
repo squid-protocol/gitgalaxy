@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from gitgalaxy.core.cics_macro_level import ASSEMBLER_SUFFIXES, Hit, assembler_hits, cobol_hits, refusal_text
+from gitgalaxy.core.cobol_conditional import Conditional, options_defines
 from gitgalaxy.core.cobol_preprocessor import (
     COPY_ALONE,
     MappedLine,
@@ -25,7 +26,7 @@ from gitgalaxy.core.cobol_preprocessor import (
     statement_end,
 )
 from gitgalaxy.core.cobol_source_format import FIXED_LEAD, TEXT_WIDTH, ispf_screen, join_wrapped, wrap_fixed
-from gitgalaxy.core.compiler_options import cards
+from gitgalaxy.core.compiler_options import cards, compiler_options
 from gitgalaxy.core.source_text import read_source
 
 # a copybook's own extensions before a program's: `COPY GETCOMPY` in GETCOMPY.cbl means the member, not the program
@@ -322,7 +323,7 @@ def _lost_text(line: str) -> str:
     return tail
 
 
-def logical_lines(raw: list[str], file: str) -> list[Line]:
+def logical_lines(raw: list[str], file: str, member: bool = False) -> list[Line]:
     """Columns 8-72 of each code line; comment (* /), debugging (D) and blank lines dropped; a continuation line
     (indicator '-') joined to the line before: a continued literal resumes after the continuation's first quote.
     #4462: after `>>SOURCE FORMAT FREE` (until `>>SOURCE FORMAT FIXED`) a line is code from column 1, of any length,
@@ -332,10 +333,24 @@ def logical_lines(raw: list[str], file: str) -> list[Line]:
     # Compiler-option cards (CBL / PROCESS, before the program or after an END PROGRAM) are not COBOL text. The
     # engine's own reader decides which lines they are: a card may start in any column from 1, so IBM DBB's
     # `   CBL NUMPROC(MIG),...` (CBL in columns 4-6) is one, as GenApp's `       PROCESS SQL` is.
-    card_lines = {n for n, _ in cards("\n".join(raw))}
+    text = "\n".join(raw)
+    card_lines = {n for n, _ in cards(text)}
+    # #5648: >>DEFINE / >>IF / >>ELSE / >>END-IF; a COPY member (`member`) is read alone, without the program's
+    # compilation variables at the COPY, so a directive in it is refused rather than evaluated on none
+    refuse = "conditional compilation in a COPY member is not read (refused by name)" if member else ""
+    cond = Conditional(options_defines(compiler_options(text)), refuse)
     free = False
     for n, line in enumerate(raw, 1):
         if n in card_lines:
+            continue
+        where = f"{Path(file).name}:{n}"
+        if free:
+            if not cond.feed(line, where):
+                continue
+        elif line[6:8] == ">>" or (len(line) >= 7 and line[6] == " "):
+            if not cond.feed(line[6:72], where):
+                continue
+        elif not cond.active:  # a comment, debugging or continuation line inside a branch not taken
             continue
         fmt = _SOURCE_FORMAT.match(line if free else line[6:])
         if fmt:
@@ -373,6 +388,7 @@ def logical_lines(raw: list[str], file: str) -> list[Line]:
             row.lost, row.lost_after = lost, words[-1] if words else ""
             row.lost_joined = len(line) > 72 and line[71] != " " and line[72] != " "
         out.append(row)
+    cond.finish(Path(file).name)
     return out
 
 
@@ -727,7 +743,7 @@ def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset
             expanded_names.add(name)
         expanded: list[Line] = []
         if member is not None:
-            body = logical_lines(_raw_lines(member, engine), str(member))
+            body = logical_lines(_raw_lines(member, engine), str(member), member=True)
             if any(_PROGRAM_MARK.match(b.text) for b in body):
                 # #4460: a program, not a copybook: splicing it in would give the includer another program's records
                 raise CopyNotFound(f"{where}: COPY {name} resolves to {member}, which is a program (IDENTIFICATION "

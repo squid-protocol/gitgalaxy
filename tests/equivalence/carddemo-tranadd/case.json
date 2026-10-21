@@ -1548,6 +1548,182 @@
    },
    "commarea_length": 201,
    "why": "#5401 (EIBCALEN, mutation survivors): the caller passed 201 of the COMMAREA's 218 bytes, ending after the page-number field so no numeric is blank: only the bytes inside EIBCALEN are moved"
+  },
+  {
+   "name": "amount-body-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+0000ABCD.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4628 (mutation survivors, COR 1301): the amount body (positions 2-9) is not numeric while the sign, the point and the decimals are right, so only the body WHEN rejects it"
+  },
+  {
+   "name": "orig-date-month-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-1X-18",
+     "TPROCDTI": "2022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4628 (mutation survivors, COR 1314): the orig date has a non-numeric month and right separators, so only the month WHEN rejects it"
+  },
+  {
+   "name": "proc-date-year-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "ABCD-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4628 (mutation survivors, COR 1327): the proc date has a non-numeric year and right separators, so only the year WHEN rejects it"
+  },
+  {
+   "name": "proc-date-first-separator",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022/07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4628 (mutation survivors, COR 1327): the proc date has a wrong first separator and a numeric month, so only the separator WHEN rejects it"
+  },
+  {
+   "name": "proc-date-month-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022-1X-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4628 (mutation survivors, COR 1327): the proc date has a non-numeric month and right separators, so only the month WHEN rejects it"
+  },
+  {
+   "name": "selection-flag-in-commarea",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CT02-TRN-SEL-FLG": "S",
+    "CDEMO-CT02-TRN-SELECTED": "0000000000000007"
+   },
+   "receive": {
+    "COTRN2A": {
+     "TTYPCDI": "01",
+     "TCATCDI": "0001",
+     "TRNSRCI": "POS TERM",
+     "TDESCI": "Purchase at Corner Books",
+     "TRNAMTI": "+00000123.45",
+     "TORIGDTI": "2022-07-18",
+     "TPROCDTI": "2022-07-18",
+     "MIDI": "800000001",
+     "MNAMEI": "Corner Books",
+     "MCITYI": "Springfield",
+     "MZIPI": "12345",
+     "ACTIDINI": "00000000050",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4628 (mutation survivors, ROR 589): a non-blank CDEMO-CT02-TRN-SEL-FLG and CDEMO-CT02-TRN-SELECTED in the full COMMAREA come back in the RETURN COMMAREA unchanged"
   }
  ],
  "notes": "CardDemo's add-transaction screen (transaction CT02, program COTRN02C): the account (through the CXACAIX alternate index) or the card (CCXREF) is looked up in the card cross-reference, every field is validated -- the dates through CALL 'CSUTLDTC' (CEEDAYS; the COBOL side links CardDemo's CSUTLDTC and tests/equivalence/le/ceedays.c, the Java side its proven port from carddemo-dateutil) -- and on confirmation the new transaction id is the last id + 1, found by a HIGH-VALUES STARTBR and a READPREV, and WRITEn. PF5 copies the last transaction's data. Each scenario's TRANSACT file is compared after the task; it is loaded from CardDemo's own dailytran.txt (the same 350-byte layout). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

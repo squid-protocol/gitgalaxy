@@ -158,6 +158,8 @@ class Body:
             if n.type == "function_definition":
                 if n.parent is not None and n.parent.type == "field_declaration_list":
                     continue  # a local class's method is its own unit
+                if _is_real_nested_function(n):
+                    continue  # nyx-o8: a nested function's calls are credited to it, not to the outer (as the engine does)
                 inner = n.child_by_field_name("body")  # C has no nested functions: a misparsed statement
                 end = inner.start_byte if inner is not None else n.end_byte
                 self._text_calls(n.text[: end - n.start_byte])
@@ -231,6 +233,17 @@ class TextBody(Body):
         self._text_calls(body.encode())
         self.refs = set(re.findall(r"\b[A-Za-z_]\w*\b", body)) - set(self.calls)
         self.text_only = [m.group(0) for m in STRIP.finditer(raw[open_at : end + 1])]
+
+
+def _is_real_nested_function(node):
+    """A nested ``function_definition`` that is a function (a GNU C nested function), not the ``else if (...) {`` that
+    ``#ifdef`` splitting makes tree-sitter read as one: its type or declarator name is a keyword."""
+    kind = node.child_by_field_name("type")
+    decl = node.child_by_field_name("declarator")
+    name = callee_node(decl.child_by_field_name("declarator")) if decl is not None else None
+    if name is None or decode_bytes(name.text) in KEYWORDS:
+        return False
+    return kind is None or decode_bytes(kind.text) not in KEYWORDS
 
 
 def _word_in(word, text):

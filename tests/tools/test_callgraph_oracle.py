@@ -110,6 +110,14 @@ def test_an_ifdef_split_else_if_is_read_by_the_text_fallback():
     assert {"a", "b", "c"} <= set(body.calls)
 
 
+def test_a_nested_function_gets_its_own_calls_not_the_outer_function():
+    """Owner ruling nyx-o8 (#5630): the engine credits a nested function's calls to the nested function."""
+    src = "void outer(void)\n{\n    void inner(void)\n    {\n        a();\n    }\n    c();\n}\n"
+    nodes = co.function_nodes(co._parser("c").parse(src.encode()))
+    assert set(co.Body(co.definition_at(nodes, 1)).calls) == {"c"}
+    assert set(co.Body(co.definition_at(nodes, 3)).calls) == {"a"}
+
+
 def test_a_function_swallowed_by_a_macro_table_uses_the_brace_fallback():
     src = """TABLE_START(x)
   TABLE_ROW("a", b)

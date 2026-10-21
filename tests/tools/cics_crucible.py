@@ -54,6 +54,12 @@ that now passes (lower the ledger: `--update-baseline`), so the ledger only shri
 #3989 closes the cells; docs/language_status/cics_crucible.md (written with the baseline) groups
 them by trap, side, failure reason and missing feature.
 
+#5053: every event that carries a COMMAREA's bytes is compared by those bytes, not the DTO's (a numeric DISPLAY field
+holding spaces reads as a number): LINK and XCTL by the event's `area`, a RETURN by `answer_bytes`, a LINKed
+program's RETURN `caller_commarea` by `area_bytes` (an XCTL chain's by the first program's kept bytes), START / RETRIEVE
+by their data; all in the runtime page, converted to CCSID 037. A program with no bytes overload falls back to the DTO.
+Not covered: a CHANNEL's containers (SPEC 6.2 has no container event; seen only through what a program logs).
+
 #4023: a passing proof only proves the paths its scenarios run. The cobol-stub side compiles the COBOL
 -ftraceall and traces every task (tests/tools/cobol_coverage.py), so per program the report says how much
 the passing scenarios execute -- live paragraphs and sections entered, IF / EVALUATE outcomes taken, HANDLE

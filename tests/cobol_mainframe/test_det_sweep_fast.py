@@ -322,7 +322,14 @@ def test_db2_runner_count_and_full_sweeps():
     assert plan.db2_shards_for({"mode": "narrow", "db2_cases": names[:7]}) == ["1/2", "2/2"]
     assert len(plan.db2_shards_for({"mode": "narrow", "db2_cases": names})) == 3
     assert len(plan.db2_shards_for({"mode": "narrow", "db2_cases": names * 3})) == plan.DB2_MAX_SHARDS
-    assert plan.db2_shards_for({"mode": "full", "db2_cases": "all"}) == [f"{i}/4" for i in range(1, 5)]
+    # #5882: a full sweep scales with the Db2 cases, one runner per DB2_FULL_PER_SHARD, at most DB2_MAX_SHARDS
+    full = {"mode": "full", "db2_cases": "all"}
+    assert plan.db2_shards_for(full, 1) == ["1/1"]
+    assert plan.db2_shards_for(full, 24) == ["1/2", "2/2"]
+    assert len(plan.db2_shards_for(full, 25)) == 3
+    assert len(plan.db2_shards_for(full, 1000)) == plan.DB2_MAX_SHARDS
+    on_disk = sum(plan.is_db2(c) for c in plan.case_dirs().values())
+    assert plan.db2_shards_for(full) == plan.db2_shards_for(full, on_disk)
     # every full sweep proves the Db2 cases, except the nightly: Evidence Refresh's Db2 job does that
     assert plan.plan([], "workflow_dispatch", CASES)["db2_cases"] == "all"
     assert (

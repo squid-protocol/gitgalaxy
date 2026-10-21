@@ -35,7 +35,11 @@ CASES = REPO_ROOT / "tests" / "equivalence"
 MAX_SHARDS = 6  # full sweep: runners (#5135: 6 fat shards, ~10 min each, not 20 that queue behind the 20-job pool; a narrow plan starts one per PER_SHARD cases)
 PER_SHARD = 3  # narrow: about this many cases per runner
 # #4901: the Db2 cases run on their own runners (each starts IBM's Db2 container, minutes), in parallel with the shards
-DB2_MAX_SHARDS = 4  # a full sweep: as many as the nightly Evidence Refresh's Db2 job
+# #5882: a full sweep's Db2 runners scale with the Db2 cases (a fixed 4 timed shards out at 70 cases): one per
+# DB2_FULL_PER_SHARD, at most DB2_MAX_SHARDS (6 shards + 6 Db2 + plan + det fit the 20-job pool, #5135). Evidence
+# Refresh's Db2 job takes the same count (--db2-full-matrix).
+DB2_MAX_SHARDS = 6
+DB2_FULL_PER_SHARD = 12  # full: ~12 Db2 cases per runner (~8 min proving at --jobs 4, plus the Db2 start)
 DB2_PER_SHARD = 6  # narrow: about this many Db2 cases per runner (a Db2 start is paid per runner)
 IGNORED = {"tests/equivalence/det_sweep_durations.json"}  # only balances shards, never a verdict
 # #4814: a change confined to these is judged by what it does to the generated ports: `det_port.py check` translates
@@ -201,11 +205,18 @@ def shards_for(p: dict) -> list[str]:
     return [f"{i}/{n}" for i in range(1, n + 1)]
 
 
-def db2_shards_for(p: dict) -> list[str]:
-    """The Db2 runner labels "I/N": DB2_MAX_SHARDS for a full sweep, one per DB2_PER_SHARD cases when narrow, none for none."""
+def db2_shards_for(p: dict, n_db2: int | None = None) -> list[str]:
+    """The Db2 runner labels "I/N": one per DB2_FULL_PER_SHARD of the `n_db2` Db2 cases (default: the cases on disk) for
+    a full sweep, one per DB2_PER_SHARD cases when narrow, at most DB2_MAX_SHARDS; none for none."""
     if p["mode"] == "ports" or not p["db2_cases"]:
         return []
-    n = DB2_MAX_SHARDS if p["db2_cases"] == "all" else min(DB2_MAX_SHARDS, -(-len(p["db2_cases"]) // DB2_PER_SHARD))
+    if p["db2_cases"] == "all":
+        if n_db2 is None:
+            n_db2 = sum(is_db2(c) for c in case_dirs().values())
+        n = -(-n_db2 // DB2_FULL_PER_SHARD)
+    else:
+        n = -(-len(p["db2_cases"]) // DB2_PER_SHARD)
+    n = max(1, min(DB2_MAX_SHARDS, n))
     return [f"{i}/{n}" for i in range(1, n + 1)]
 
 
@@ -235,7 +246,12 @@ def main() -> int:
     ap.add_argument(
         "--labels", help="the PR's labels, comma-separated, read live when the job runs (a rerun sees a new one)"
     )
+    ap.add_argument("--db2-full-matrix", action="store_true",
+                    help="#5882: print only a full sweep's Db2 runner labels as JSON (Evidence Refresh's Db2 parts)")  # fmt: skip
     args = ap.parse_args()
+    if args.db2_full_matrix:
+        print(json.dumps(db2_shards_for({"mode": "full", "db2_cases": "all"})))
+        return 0
     labels = labels_from_event(args.labels_from_event) if args.labels_from_event else []
     if args.labels is not None:
         labels = [x for x in args.labels.split(",") if x]
@@ -255,7 +271,7 @@ def main() -> int:
 def emit(p: dict, github_output: Path | None) -> int:
     p["matrix"] = shards_for(p)
     p["shards"] = len(p["matrix"])
-    p["db2_matrix"] = db2_shards_for(p)
+    p["db2_matrix"] = db2_shards_for(p)  # a full sweep counts the Db2 cases on disk (#5882)
     p["db2_shards"] = len(p["db2_matrix"])
     print(json.dumps(p, indent=1))
     if github_output:

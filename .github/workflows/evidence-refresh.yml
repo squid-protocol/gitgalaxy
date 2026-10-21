@@ -104,6 +104,7 @@ jobs:
     outputs:
       defer: ${{ steps.push_gate.outputs.defer }}
       sha: ${{ steps.pin.outputs.sha }}  # #4744: the one commit every job of this run works from
+      db2_parts: ${{ steps.db2parts.outputs.parts }}  # #5882: det-sweep's full-sweep Db2 shard count, plus the records part
     env:
       REPO: ${{ github.repository }}
       EVENT: ${{ github.event_name }}
@@ -116,6 +117,25 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: echo "sha=$(gh api "repos/$REPO/commits/main" --jq .sha)" >> "$GITHUB_OUTPUT"
+
+      # #5882: the Db2 parts scale with the Db2 cases as det-sweep's full sweep does (det_sweep_plan.py db2_shards_for):
+      # only the plan tool and the case.json files, at the pinned commit
+      - name: Checkout the plan tool and the cases (#5882)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ steps.pin.outputs.sha }}
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            tests/tools/det_sweep_plan.py
+            tests/equivalence/*/case.json
+
+      - name: Count the Db2 parts (#5882)
+        id: db2parts
+        run: |
+          parts=$(python3 tests/tools/det_sweep_plan.py --db2-full-matrix | python3 -c 'import json,sys; print(json.dumps(json.load(sys.stdin) + ["records"]))')
+          echo "parts=$parts" >> "$GITHUB_OUTPUT"
+          echo "Db2 parts: $parts"
 
       - name: Push lane - stand down while a full run is queued or running
         id: push_gate
@@ -146,8 +166,8 @@ jobs:
   # #4733: the Db2 half of the sweep and the Db2 records. Its own runners: IBM's Db2 Community container needs --privileged
   # and a few GB of memory (a GitHub-hosted ubuntu-latest runner has both: 4 vCPU, 16 GB, root docker).
   # #4863 step 6: one runner took ~34 min (38 cases, 673 scenarios at ~9 s a scenario per slot, then the stale records
-  # re-proved after the sweep), the refresh's critical path. Now 5 runners, each with its own Db2: the sweep in 4 shards
-  # (proof_sweep.py --shard I/4 --no-ratchet, balanced by det_sweep_durations.json) and the records beside them; the
+  # re-proved after the sweep), the refresh's critical path. Now one runner per part, each with its own Db2: the sweep in
+  # det-sweep's full-sweep Db2 shard count (#5882: one per ~12 Db2 cases, at most 6) plus the records (proof_sweep.py --shard I/N --no-ratchet, balanced by det_sweep_durations.json) and the records beside them; the
   # `db2` job below merges the shards and applies the ratchet, as the `refresh` job does for the non-Db2 shards.
   # #5114: the split is pinned, not restored: no job here reads the durations cache (det-sweep.yml's `plan` chooses its
   # durations once and shares them); every shard balances by the committed det_sweep_durations.json of the ONE commit
@@ -161,7 +181,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        part: ["1/4", "2/4", "3/4", "4/4", "records"]
+        part: ${{ fromJSON(needs.lane.outputs.db2_parts) }}  # #5882: one sweep part per ~12 Db2 cases (at most 6), + records
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       PYTHONUTF8: "1"
@@ -245,7 +265,7 @@ jobs:
           python gitgalaxy/tests/tools/equivalence_oracle.py --strict
 
       # #5262: the pinned image is restored from actions/cache (key = its digest) so no part asks icr.io; this job runs
-      # on main's schedule, so it is the cache writer (part 1/4, on a miss) that warms det-sweep's pull requests.
+      # on main's schedule, so it is the cache writer (part 1/N, on a miss) that warms det-sweep's pull requests.
       - name: Name the Db2 image cache entry (#5262)
         id: db2key
         run: echo "key=$(python3 gitgalaxy/tests/tools/db2_image_cache.py key)" >> "$GITHUB_OUTPUT"
@@ -269,11 +289,11 @@ jobs:
           echo "DB2 image: \`$image\` (cache: ${{ steps.db2image.outputs.cache-hit == 'true' && 'hit' || 'miss' }})" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Save the pinned Db2 image to the cache (main only, #5262)
-        if: steps.db2image.outputs.cache-hit != 'true' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && matrix.part == '1/4'
+        if: steps.db2image.outputs.cache-hit != 'true' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && startsWith(matrix.part, '1/')
         run: python3 gitgalaxy/tests/tools/db2_image_cache.py save "$RUNNER_TEMP/db2-image-cache"
 
       - name: Store the Db2 image cache entry (main only, #5262)
-        if: steps.db2image.outputs.cache-hit != 'true' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && matrix.part == '1/4'
+        if: steps.db2image.outputs.cache-hit != 'true' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && startsWith(matrix.part, '1/')
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/db2-image-cache
@@ -414,6 +434,16 @@ jobs:
           path: ${{ runner.temp }}/db2-in
         continue-on-error: true
 
+      # #5882: the Db2 cases' measured seconds, for det-sweep's plan to balance its db2 shards by (det-sweep's nightly
+      # proves no Db2 case, so nothing else measures them). Extends the newest saved file, then saves it below.
+      - name: Restore the newest measured Db2 durations (#5882)
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: durations-db2
+          key: det-db2-durations-${{ github.run_id }}  # never an exact hit: restore-keys takes the newest saved one
+          restore-keys: |
+            det-db2-durations-
+
       - name: Merge the Db2 shards and apply the ratchet
         id: db2_sweep
         continue-on-error: true
@@ -423,8 +453,18 @@ jobs:
           shopt -s nullglob
           found=("$RUNNER_TEMP"/db2-in/*/sweep/sweep.json)
           echo "shards found: ${#found[@]}"
+          mkdir -p ../durations-db2
           python tests/tools/proof_sweep.py --aggregate "${found[@]}" --expect db2 --skip-ledger-check \
-            | tee "$RUNNER_TEMP/db2-sweep.txt"
+            --update-durations --durations ../durations-db2/det_sweep_durations.json | tee "$RUNNER_TEMP/db2-sweep.txt"
+
+      # Saved whatever the ratchet said: a duration only balances shards, never changes a verdict (#4847)
+      - name: Cache the Db2 durations (#5882)
+        if: always() && hashFiles('durations-db2/det_sweep_durations.json') != ''
+        continue-on-error: true  # best effort: a miss only leaves the next plan on the older numbers
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: durations-db2
+          key: det-db2-durations-${{ github.run_id }}
 
       - name: Stage what the refresh job takes
         if: always()

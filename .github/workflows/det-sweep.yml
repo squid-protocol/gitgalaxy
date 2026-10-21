@@ -22,11 +22,16 @@ name: Det Sweep
 # splits `db2_cases` off): Db2 started in the background first so it overlaps the setup, then `proof_sweep.py
 # --det-only --db2-only --cases ...`. Its results join `det`'s ratchet, so a moved Db2 case that stops proving is red,
 # as a non-Db2 one; when none moved the job is skipped (no cost). A pull request or a manual run that plans a FULL sweep
-# proves all the Db2 cases (4 runners); the nightly leaves them to Evidence Refresh's Db2 job, which runs just after it
+# proves all the Db2 cases (one runner per ~12, at most 6: #5882); the nightly leaves them to Evidence Refresh's Db2 job, which runs just after it
 # and re-proves every Db2 case anyway (a second Db2 pass here would double its cost for nothing).
 # Balancing (#4847): the shards are balanced by the durations file, which every run restores from the newest
 # nightly's cache (`durations-cache/`, saved by the nightly `det` job from the shards' measured seconds) and
-# falls back to the committed tests/equivalence/det_sweep_durations.json on a miss.
+# falls back to the committed tests/equivalence/det_sweep_durations.json on a miss. The Db2 cases' seconds come from
+# Evidence Refresh's nightly Db2 merge (cache `det-db2-durations-`, merged in by the plan; #5882: the nightly here
+# proves no Db2 case, so they were never measured).
+# Timing (#5882): every shard writes shard.json (its cases, planned seconds, unmeasured cases) and timing.json (the
+# epoch of each phase: job start, image / Db2 ready, sweep start / end); `det` renders them planned-vs-measured
+# (tests/tools/det_sweep_timing.py report), warns past the budget, and keeps det-sweep-timing for a week's read-back.
 #
 # Pull requests run it only when what a det proof reads changes: the translator and the generator it builds on,
 # the harness and oracle, the cases, the corpus pin.
@@ -175,6 +180,21 @@ jobs:
             cp durations-cache/det_sweep_durations.json tests/equivalence/det_sweep_durations.json
           fi
 
+      # #5882: the Db2 cases' measured seconds (Evidence Refresh's nightly Db2 merge saves them; the nightly here proves
+      # no Db2 case). A prefix of its own: `det-durations-` would match `det-durations-db2-...` too.
+      - name: Restore the newest measured Db2 durations (#5882)
+        id: db2durations
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: durations-db2
+          key: det-db2-durations-${{ github.run_id }}  # never an exact hit: restore-keys takes the newest saved one
+          restore-keys: |
+            det-db2-durations-
+
+      - name: Merge the Db2 durations in (#5882)
+        if: steps.db2durations.outputs.cache-matched-key != ''
+        run: python3 tests/tools/det_sweep_timing.py merge-durations durations-db2/det_sweep_durations.json tests/equivalence/det_sweep_durations.json
+
       - name: Hand the durations to the shards (#5048)
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -189,7 +209,7 @@ jobs:
     needs: plan
     if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (needs.plan.outputs.db2_shards != '0' && needs.plan.outputs.db2_shards != '') }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
-    timeout-minutes: 30  # 70 Db2 cases on 4 shards: 14-17 min from job start (2026-10-21: 3 min Db2 start + 14 min proving); 18 timed shards out and failed `det`
+    timeout-minutes: 30  # 70 Db2 cases on 4 shards took 14-21 min (2026-10-21; 18 timed shards out and failed `det`); #5882: ~12 per shard now, the det job's timing report warns past 15
     strategy:
       fail-fast: false
       matrix:
@@ -200,6 +220,9 @@ jobs:
       GITGALAXY_ORACLE_STRICT: "1"
       GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
     steps:
+      - name: Mark the job's start (#5882)
+        run: date +%s > "$RUNNER_TEMP/t0"
+
       - name: Checkout GitGalaxy
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -226,7 +249,6 @@ jobs:
           image=$(grep -oE 'icr\.io/db2_community/db2@sha256:[0-9a-f]{64}' gitgalaxy/tests/tools/equivalence_db2.py | head -1)
           echo "Db2 image: $image (cache: ${{ steps.db2image.outputs.cache-hit == 'true' && 'hit' || 'miss' }})"
           echo "DB2 image: \`$image\` (cache: ${{ steps.db2image.outputs.cache-hit == 'true' && 'hit' || 'miss' }})" >> "$GITHUB_STEP_SUMMARY"
-          date +%s > "$RUNNER_TEMP/t0"
           setsid nohup bash -c "python3 gitgalaxy/tests/tools/db2_image_cache.py load '$RUNNER_TEMP/db2-image-cache' || gitgalaxy/tests/tools/ci_retry.sh 4 15 -- docker pull -q '$image'; date +%s > '$RUNNER_TEMP/pull-done'" > "$RUNNER_TEMP/pull.log" 2>&1 &
 
       - name: Setup Python
@@ -287,21 +309,29 @@ jobs:
           echo "GITGALAXY_DB2_POOL=$n" >> "$GITHUB_ENV"
           export GITGALAXY_DB2_POOL=$n
           cat > "$RUNNER_TEMP/db2_prewarm.py" <<'PY'
+          import json
           import sys
           import time
+          from pathlib import Path
 
           t = time.time()
+          marks = {"start": int(t), "container": None, "databases": {}}  # #5882: seconds from start, for timing.json
+          out = Path(sys.argv[1])
           sys.path.insert(0, "gitgalaxy/tests/tools")
           import equivalence_db2 as d
 
           d._ensure_container()
+          marks["container"] = round(time.time() - t, 1)
+          out.write_text(json.dumps(marks))
           print(f"db2 container ready after {time.time() - t:.0f}s", flush=True)
           for db in d.pool():
               d._ensure_database(db)
               d.activate(db)
+              marks["databases"][db] = round(time.time() - t, 1)
+              out.write_text(json.dumps(marks))
               print(f"db2 {db} ready after {time.time() - t:.0f}s", flush=True)
           PY
-          setsid nohup bash -c "python '$RUNNER_TEMP/db2_prewarm.py'; echo \$? > '$RUNNER_TEMP/db2-prewarm.done'" \
+          setsid nohup bash -c "python '$RUNNER_TEMP/db2_prewarm.py' '$RUNNER_TEMP/db2-prewarm.json'; echo \$? > '$RUNNER_TEMP/db2-prewarm.done'" \
             > "$RUNNER_TEMP/db2-prewarm.log" 2>&1 &
           echo "started the background Db2 start"
 
@@ -367,6 +397,7 @@ jobs:
           done
           cat "$RUNNER_TEMP/db2-prewarm.log" | grep -v 'WARNING\|INFO' || true
           [ "$(cat "$RUNNER_TEMP/db2-prewarm.done" 2>/dev/null)" = "0" ] || { echo "::error title=Db2::the background Db2 start did not finish"; exit 1; }
+          date +%s > "$RUNNER_TEMP/db2-ready"
 
       # #5262: the cache writer is main's runs (schedule / dispatch on main), one shard, and only on a miss. Docker save
       # runs here, after the wait: the background pull is finished by then (Db2 started from the image).
@@ -391,9 +422,21 @@ jobs:
           only=()
           if [ "$CASES" != "all" ]; then only=(--cases "$CASES"); fi
           start=$(date +%s)
+          echo "$start" > "$RUNNER_TEMP/sweep-start"
+          trap 'date +%s > "$RUNNER_TEMP/sweep-end"' EXIT  # #5882: the sweep's end, even when it fails
           python tests/tools/proof_sweep.py --det-only --db2-only --jobs "$DB2_JOBS" --shard "${{ matrix.shard }}" "${only[@]}" \
             --no-ratchet --work "$RUNNER_TEMP/sweep" | tee "$RUNNER_TEMP/sweep.txt"
           echo "sweep_seconds=$(( $(date +%s) - start ))" >> "$GITHUB_OUTPUT"
+
+      # #5882: the phases' epochs beside shard.json and sweep.json, for the det job's timing report (a killed sweep has
+      # no sweep_end: the report says so)
+      - name: Record this shard's timing (#5882)
+        if: always()
+        run: |
+          python3 gitgalaxy/tests/tools/det_sweep_timing.py record --out "$RUNNER_TEMP/sweep/timing.json" --kind db2 \
+            --shard "${{ matrix.shard }}" --mark job_start="$RUNNER_TEMP/t0" --mark image_ready="$RUNNER_TEMP/pull-done" \
+            --mark db2_ready="$RUNNER_TEMP/db2-ready" --mark sweep_start="$RUNNER_TEMP/sweep-start" \
+            --mark sweep_end="$RUNNER_TEMP/sweep-end" --prewarm "$RUNNER_TEMP/db2-prewarm.json"
 
       - name: Summary (with the step timings, #4901)
         if: always()
@@ -415,7 +458,10 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: det-sweep-db2-${{ strategy.job-index }}
-          path: ${{ runner.temp }}/sweep/sweep.json
+          path: |
+            ${{ runner.temp }}/sweep/sweep.json
+            ${{ runner.temp }}/sweep/shard.json
+            ${{ runner.temp }}/sweep/timing.json
           if-no-files-found: ignore
           retention-days: 7
 
@@ -448,6 +494,9 @@ jobs:
       GITGALAXY_ORACLE_STRICT: "1"
       GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
     steps:
+      - name: Mark the job's start (#5882)
+        run: date +%s > "$RUNNER_TEMP/t0"
+
       - name: Checkout GitGalaxy
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -547,8 +596,17 @@ jobs:
           cd gitgalaxy
           only=()
           if [ "$CASES" != "all" ]; then only=(--cases "$CASES"); fi
+          date +%s > "$RUNNER_TEMP/sweep-start"
+          trap 'date +%s > "$RUNNER_TEMP/sweep-end"' EXIT  # #5882
           python tests/tools/proof_sweep.py --det-only --skip-db2 --jobs 4 --shard "${{ matrix.shard }}" "${only[@]}" \
             --no-ratchet --work "$RUNNER_TEMP/sweep" | tee "$RUNNER_TEMP/sweep.txt"
+
+      - name: Record this shard's timing (#5882)
+        if: always()
+        run: |
+          python3 gitgalaxy/tests/tools/det_sweep_timing.py record --out "$RUNNER_TEMP/sweep/timing.json" --kind det \
+            --shard "${{ matrix.shard }}" --mark job_start="$RUNNER_TEMP/t0" --mark sweep_start="$RUNNER_TEMP/sweep-start" \
+            --mark sweep_end="$RUNNER_TEMP/sweep-end"
 
       - name: Summary
         if: always()
@@ -565,7 +623,10 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: det-sweep-shard-${{ strategy.job-index }}
-          path: ${{ runner.temp }}/sweep/sweep.json
+          path: |
+            ${{ runner.temp }}/sweep/sweep.json
+            ${{ runner.temp }}/sweep/shard.json
+            ${{ runner.temp }}/sweep/timing.json
           if-no-files-found: ignore
           retention-days: 7
 
@@ -681,6 +742,23 @@ jobs:
             fi
           fi
           exit $rc
+
+      # #5882: planned vs measured per shard (setup, Db2 ready, sweep, job), with a warning past the budget or the 1.3x
+      # imbalance; the rows are kept a month so a week of runs can be read back (gh run download -n det-sweep-timing).
+      - name: Shard timings (#5882)
+        if: always()
+        run: |
+          python3 tests/tools/det_sweep_timing.py report shards db2-shards --json det-sweep-timing.json \
+            --github-summary "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Keep the shard timings (#5882)
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: det-sweep-timing
+          path: det-sweep-timing.json
+          if-no-files-found: ignore
+          retention-days: 30
 
       # #5084: the aggregate re-recorded the ledger entries it re-checked (fingerprints included); the runner's copy is
       # thrown away, so hand the rewritten files on for whoever commits them.

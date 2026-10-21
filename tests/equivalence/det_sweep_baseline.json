@@ -14,10 +14,6 @@
    "issue": "#4803",
    "why": "EPSCSMRT CALLs EPSMPMT, which has holes (line 125: (1 + C) ** N floating-point exponentiation, oracle_assumptions.md C6; line 144: FUNCTION ANNUITY, dead code). The case's five validation-path scenarios run equal on both sides and never reach them, but a program is not proven while a program it CALLs has holes, whichever scenarios were written (owner decision 2026-10-11): the proof passes, the port stays unproven until EPSMPMT's holes are closed (#4271)."
   },
-  "zecs-zecs003": {
-   "issue": "#5076",
-   "why": "ZECS003 reads and deletes records of the instance's files ZC##FILE and ZC##KEY, named at run time from EIBTRNID; zECS defines them in IDCAMS jobs with install placeholders (@ECS_HLQ@ ...) in the dataset names, so no case can state their records and the generated project stores no such file: the Java side refuses the READ of ZC01FILE by name ('Hole: CICS file ZC01FILE: the program names no file the generated project stores') where GnuCOBOL answers FILENOTFOUND. The scenarios cover the COMMAREA, the document template, the WEB PARSE / OPEN / CONVERSE / CLOSE replication and the WEB SEND on the COBOL side; the expired-record browse and 3100-DELETE are not covered and not proven."
-  },
   "mortgage-cmort": {
    "issue": "#4803",
    "why": "EPSCMORT's ENTER path LINKs EPSCSMRT (PROGRAM from a variable), which CALLs EPSMPMT, which has holes (line 125: (1 + C) ** N floating-point exponentiation, oracle_assumptions.md C6; line 144: FUNCTION ANNUITY, dead code). The case's 16 scenarios run equal on both sides (runTask and java-facade) and the ENTER / WHEN OTHER scenarios stay on EPSMPMT's validation paths, but a program is not proven while a program it LINKs or CALLs has holes, whichever scenarios were written (owner decision 2026-10-11, mainframe-evidence-policy.md 4): the proof passes, the port stays unproven until EPSMPMT's holes are closed (#4271)."

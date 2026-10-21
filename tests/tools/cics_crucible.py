@@ -129,7 +129,7 @@ REPO_ROOT = HERE_TOOLS.parents[1]
 sys.path.insert(0, str(HERE_TOOLS))
 sys.path.insert(0, str(REPO_ROOT / "tests"))
 sys.path.insert(0, str(REPO_ROOT))
-from maven_exe import maven_utf8_env, mvn_executable, run_decoded  # noqa: E402
+from maven_exe import JVM_SHORT_RUN_FLAGS, maven_utf8_env, mvn_executable, run_decoded  # noqa: E402
 
 import cics_crucible_compare as cc  # noqa: E402
 import cobol_coverage as cov  # noqa: E402
@@ -1924,7 +1924,7 @@ def run_java(case: cc.Case, project: Path, work: Path, offline: bool, facades: b
     for d in (inputs, out):
         d.mkdir(parents=True, exist_ok=True)
     (inputs / "plan.json").write_text(json.dumps(java_plan(case, src), indent=1), encoding="utf-8")
-    props = f"-Dequivalence.in={inputs} -Dequivalence.out={out} {ej.jvm_args(ej.environment('default'))}"
+    props = f"{JVM_SHORT_RUN_FLAGS} -Dequivalence.in={inputs} -Dequivalence.out={out} {ej.jvm_args(ej.environment('default'))}"  # fmt: skip
     props += f" -Dgitgalaxy.data.charset={java_charset_name(RUNTIME_PAGE)}"  # #5053: the page the answered bytes are in
     if facades:
         props += " -Dequivalence.facades=true"

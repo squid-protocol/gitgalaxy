@@ -258,7 +258,9 @@
     "area",
     "ssa",
     "execPcb",
-    "execCall"
+    "execCall",
+    "enterBmp",
+    "checkpoint"
    ]
   },
   {

@@ -822,7 +822,10 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             L.layout(idx)
             records.append(idx)
     proc = S.parse(lines)
-    if is_cics and DLI.uses_exec(x.text for q in proc.paragraphs for x in S.walk(q.body) if x.kind == "EXEC"):
+    bmp = None if is_cics or DLI.entry_pcbs(proc) is not None else DLI.bmp_pcbs(proc)  # #5857: a BMP's EXEC DLI
+    if bmp is not None or (
+        is_cics and DLI.uses_exec(x.text for q in proc.paragraphs for x in S.walk(q.body) if x.kind == "EXEC")
+    ):
         records += DLI.dib_records()  # #5278: EXEC DLI answers DIBSTAT (det/dli.py)
     # SORT-RETURN: the special register, S9(4) BINARY (IBM: 0 after a successful SORT / MERGE) -- only in a program
     # that sorts or names it, so no other port's storage changes
@@ -887,7 +890,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     gen.alphabets, gen.program_collating = alphabets(lines)
     _pcs_figuratives(records, gen)
     gen.copy_dirs = [program.parent, *copy_dirs, C.COPY]
-    gen.dli_pcbs = None if is_cics else DLI.entry_pcbs(proc)  # #4893: IMS enters it at ENTRY 'DLITCBL' (det/dli.py)
+    # #4893: IMS enters it at ENTRY 'DLITCBL'; #5857: a BMP with EXEC DLI is entered by USING its I/O PCB and DB PCBs
+    gen.dli_pcbs = bmp if bmp is not None else (None if is_cics else DLI.entry_pcbs(proc))  # (det/dli.py)
     gen.engine = engine
     gen.java_root = (project / "src/main/java") if project is not None else None
     gen.clock = "clock.currentDate()" if batch else "Funcs.currentDate(java.time.LocalDateTime.now())"
@@ -1159,7 +1163,11 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     extra_imports: list[str] = []
     using = [u for u in proc.using if u != "BY"]
     parm_code = []
-    if gen.dli_pcbs is not None:  # #4893: IMS passes the PSB's PCBs, no PARM (DFSRRC00's PARM is IMS's own)
+    if isinstance(gen.dli_pcbs, DLI.BmpPcbs):  # #5857: the I/O PCB first (CMPAT=YES), then the DB PCBs
+        names = [gen.dli_pcbs.io, *gen.dli_pcbs]
+        parm_code = [f"        DetDli.enterBmp({', '.join(gen.field_expr(E.Ref(n)) for n in names)});"]
+        extra_imports.append(f"{package}.cobolrt.dli.DetDli")
+    elif gen.dli_pcbs is not None:  # #4893: IMS passes the PSB's PCBs, no PARM (DFSRRC00's PARM is IMS's own)
         parm_code = [f"        DetDli.enter({', '.join(gen.field_expr(E.Ref(n)) for n in gen.dli_pcbs)});"]
         extra_imports.append(f"{package}.cobolrt.dli.DetDli")
     elif using:

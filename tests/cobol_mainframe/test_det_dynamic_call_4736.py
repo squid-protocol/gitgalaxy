@@ -129,12 +129,12 @@ REFUSED = {
         ["MOVE 1 TO I", "MOVE T-NAME(I) TO PGM", "CALL PGM USING ARG"],
         "a subscript that is not a literal",
     ),
-    "dsntiac": (
-        ["01 PGM PIC X(8) VALUE 'DSNTIAC'.", *ARG],
+    "dsntiar": (
+        ["01 PGM PIC X(8) VALUE 'DSNTIAR'.", *ARG],
         ["CALL PGM USING ARG"],
-        "DSNTIAC: Db2's message text is not modelled",
+        "DSNTIAR: Db2's message text is not modelled",
     ),
-    "dsntiac-literal": (["01 X PIC X.", *ARG], ["CALL 'DSNTIAC' USING ARG"], "DSNTIAC: Db2's message text"),
+    "dsntiar-literal": (["01 X PIC X.", *ARG], ["CALL 'DSNTIAR' USING ARG"], "DSNTIAR: Db2's message text"),
     "zuidstck": (
         ["01 PGM PIC X(8) VALUE 'ZUIDSTCK'.", *ARG],
         ["CALL PGM USING ARG"],

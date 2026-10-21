@@ -1310,10 +1310,10 @@
       "scala/kafka/SocketServer.scala": 119
     },
     "scheme/racket": {
-      "scheme/racket/cpnanopass.ss": 1185,
+      "scheme/racket/cpnanopass.ss": 1183,
       "scheme/racket/eval.c": 2457,
       "scheme/racket/fun.c": 6129,
-      "scheme/racket/io.ss": 289,
+      "scheme/racket/io.ss": 287,
       "scheme/racket/schemify.rkt": 11,
       "scheme/racket/thread.rkt": 19
     },
@@ -1511,6 +1511,9 @@
     "sql/baseline": {
       "sql/baseline/schema.php": 349
     },
+    "sql/mediawiki_postgresql": {
+      "sql/mediawiki_postgresql/tables.sql": 6
+    },
     "swift/alamofire": {
       "swift/alamofire/Alamofire.podspec": 32,
       "swift/alamofire/ParameterEncoder.swift": 18,
@@ -1558,6 +1561,7 @@
     },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/ast.ts": 91,
+      "typescript/assemblyscript/builtins.ts": 2677,
       "typescript/assemblyscript/compiler.ts": 3131,
       "typescript/assemblyscript/parser.ts": 1120
     },
@@ -1583,7 +1587,10 @@
       "typescript/playwright/frames.ts": 314
     },
     "typescript/typescript_compiler": {
-      "typescript/typescript_compiler/binder.ts": 743
+      "typescript/typescript_compiler/binder.ts": 743,
+      "typescript/typescript_compiler/checker.ts": 7911,
+      "typescript/typescript_compiler/emitter.ts": 528,
+      "typescript/typescript_compiler/parser.ts": 1302
     },
     "typescript/vscode": {
       "typescript/vscode/async.ts": 430,
@@ -1645,6 +1652,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": 442,
       "zig/zig/InternPool.zig": 649,
+      "zig/zig/Sema.zig": 2184,
       "zig/zig/Type.zig": 94,
       "zig/zig/Zcu.zig": 205,
       "zig/zig/main.zig": 1759

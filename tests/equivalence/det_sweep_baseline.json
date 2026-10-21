@@ -8,27 +8,11 @@
   },
   "mortgage-mpmt": {
    "issue": "#4271",
-   "why": "IBM DBB EPSMPMT computes its payment through a COMP-1 item in hexadecimal floating point on z/OS, truncated decimal on GnuCOBOL. The det runtime models HFP since #4271 slice 1 (its interest COMPUTE translates), but the payment's (1 + C) ** N, N with decimal places, is a floating-point exponentiation IBM does not document bit for bit: a named hole (oracle_assumptions.md C6; its CBL NUMPROC(MIG) is modelled, C5)"
+   "why": "IBM DBB EPSMPMT computes its payment through a COMP-1 item in hexadecimal floating point on z/OS, truncated decimal on GnuCOBOL. The det runtime models HFP since #4271 slice 1 (its interest COMPUTE translates), but the payment's (1 + C) ** N, N with decimal places, is a floating-point exponentiation IBM does not document bit for bit: a named hole (oracle_assumptions.md C6; its CBL NUMPROC(MIG) is modelled, C5). The dead-code FUNCTION ANNUITY (line 144) is the second: IBM defines the formula, arg-1 / (1 - (1 + arg-1) ** -arg-2), but not the bits of the power or of the result, so it is refused by name with that reason (not modelled). Two holes before and after #4271's last slice; the callers mortgage-csmrt and mortgage-cmort keep theirs"
   },
   "mortgage-csmrt": {
    "issue": "#4803",
    "why": "EPSCSMRT CALLs EPSMPMT, which has holes (line 125: (1 + C) ** N floating-point exponentiation, oracle_assumptions.md C6; line 144: FUNCTION ANNUITY, dead code). The case's five validation-path scenarios run equal on both sides and never reach them, but a program is not proven while a program it CALLs has holes, whichever scenarios were written (owner decision 2026-10-11): the proof passes, the port stays unproven until EPSMPMT's holes are closed (#4271)."
-  },
-  "cbsa-bnk1uac": {
-   "issue": "#5076",
-   "why": "BNK1UAC RETURNs its 99-byte WS-COMM-AREA (RETURN TRANSID('OUAC') LENGTH(99)) but the program's DFHCOMMAREA, the record its deployed entry point (handleTransaction) answers, is 107 bytes: 99 plus COMM-PCB1-POINTER, a POINTER. The runTask proof is equal on all 72 scenarios and 31 of 31 paragraphs (75 of 88 branches; the rest are failure branches after SEND MAP / RETURN / LINK no fault can reach), but the java-facade side refuses the answer, never guessing the eight bytes the RETURN did not pass ('the task RETURNed a [B ... fewer bytes than the record'), so the port stays unproven. A named hole of the facade comparison, not of the translation."
-  },
-  "cbsa-bnk1tfn": {
-   "issue": "#5076",
-   "why": "BNK1TFN RETURNs RETURN TRANSID('OTFN') COMMAREA(WS-COMMAREA) LENGTH(29) over a 28-byte WS-COMMAREA: one byte of whatever follows the item in storage, which GnuCOBOL and IBM's compiler lay out differently. The runTask proof is equal on all 45 scenarios and 28 of 28 paragraphs, but the java-facade side refuses the answer (an area longer than its record: 'the task RETURNed a [B'), by name, never guessing the byte, so the port stays unproven."
-  },
-  "cbsa-bnk1ccs": {
-   "issue": "#5076",
-   "why": "Three named holes. (1) BNK1CCS RETURNs RETURN TRANSID('OCCS') COMMAREA(WS-COMM-AREA) LENGTH(248) over a 5-byte WS-COMM-AREA: 243 bytes of storage after the item, which the two compilers lay out differently, so the java-facade side refuses the answer by name. (2) It LINKs CRECUST, whose CEEDAYS call the oracle refuses (oracle_assumptions.md L1, #4952): no scenario creates a customer (every scenario that reaches CRECUST is born in 1500, which CRECUST refuses before CEEDAYS), so the successful create is not covered. (3) CRECUST's async credit check schedule is ASSUMED (X18), and its FC is 8 bytes where LE writes 12 (L4). The runTask proof is equal on all 83 scenarios and 33 of 33 paragraphs."
-  },
-  "zecs-zecs003": {
-   "issue": "#5076",
-   "why": "ZECS003 reads and deletes records of the instance's files ZC##FILE and ZC##KEY, named at run time from EIBTRNID; zECS defines them in IDCAMS jobs with install placeholders (@ECS_HLQ@ ...) in the dataset names, so no case can state their records and the generated project stores no such file: the Java side refuses the READ of ZC01FILE by name ('Hole: CICS file ZC01FILE: the program names no file the generated project stores') where GnuCOBOL answers FILENOTFOUND. The scenarios cover the COMMAREA, the document template, the WEB PARSE / OPEN / CONVERSE / CLOSE replication and the WEB SEND on the COBOL side; the expired-record browse and 3100-DELETE are not covered and not proven."
   },
   "mortgage-cmort": {
    "issue": "#4803",

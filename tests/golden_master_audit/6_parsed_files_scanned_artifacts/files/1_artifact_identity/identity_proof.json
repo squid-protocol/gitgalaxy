@@ -128,7 +128,7 @@
       "assembly/cosmopolitan/BUILD.mk": "Single Indicator (Ext: .mk)",
       "assembly/cosmopolitan/ape.S": "Single Indicator (Ext: .s)",
       "assembly/cosmopolitan/loader.c": "Ecosystem Consensus Lock (100% Local Dominance)",
-      "assembly/cosmopolitan/notice.inc": "Ecosystem Consensus Lock (70% Local Dominance)",
+      "assembly/cosmopolitan/notice.inc": "Ecosystem Consensus Lock (78% Local Dominance)",
       "assembly/cosmopolitan/start.S": "Single Indicator (Ext: .s)"
     },
     "assembly/cosmopolitan_runtime": {
@@ -1135,7 +1135,7 @@
       "cpp/powertoys/centralized_kb_hook.cpp": "Single Indicator (Ext: .cpp)",
       "cpp/powertoys/logger.cpp": "Single Indicator (Ext: .cpp)",
       "cpp/powertoys/main.cpp": "Single Indicator (Ext: .cpp)",
-      "cpp/powertoys/powertoy_module.h": "Ecosystem Consensus Lock (81% Local Dominance)"
+      "cpp/powertoys/powertoy_module.h": "Ecosystem Consensus Lock (89% Local Dominance)"
     },
     "cpp/serenity_ak_siphash_cpu": {
       "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": "Single Indicator (Ext: .cpp)",
@@ -3268,7 +3268,8 @@
       "rust/tokio/maybe_done.rs": "Single Indicator (Ext: .rs)",
       "rust/tokio/tests.rs": "Single Indicator (Ext: .rs)",
       "rust/tokio/tokio_mpsc_bounded.rs": "Single Indicator (Ext: .rs)",
-      "rust/tokio/tokio_named_pipe.rs": "Single Indicator (Ext: .rs)"
+      "rust/tokio/tokio_named_pipe.rs": "Single Indicator (Ext: .rs)",
+      "rust/tokio/tokio_udp.rs": "Single Indicator (Ext: .rs)"
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": "Single Indicator (Ext: .rs)"
@@ -3397,6 +3398,7 @@
       "shell/freebsd-src/dd2_test.sh": "Single Indicator (Ext: .sh)",
       "shell/freebsd-src/dtest.sh": "Absolute Consensus (Ext + Shebang)",
       "shell/freebsd-src/echo_test.sh": "Single Indicator (Ext: .sh)",
+      "shell/freebsd-src/ed_test.sh": "Single Indicator (Ext: .sh)",
       "shell/freebsd-src/format_string_test.sh": "Single Indicator (Ext: .sh)",
       "shell/freebsd-src/functional_test.sh": "Single Indicator (Ext: .sh)",
       "shell/freebsd-src/hostname_test.sh": "Single Indicator (Ext: .sh)",
@@ -3434,6 +3436,7 @@
       "shell/haiku/default_deskbar_items.sh": "Absolute Consensus (Ext + Shebang)",
       "shell/haiku/gen-bepo.sh": "Absolute Consensus (Ext + Shebang)",
       "shell/haiku/generate_CountryFlags.sh": "Absolute Consensus (Ext + Shebang)",
+      "shell/haiku/generate_ids_from_drivers.sh": "Absolute Consensus (Ext + Shebang)",
       "shell/haiku/install-wifi-firmwares.sh": "Absolute Consensus (Ext + Shebang)",
       "shell/haiku/install.sh": "Absolute Consensus (Ext + Shebang)",
       "shell/haiku/leak_analyser.sh": "Absolute Consensus (Ext + Shebang)",
@@ -3627,7 +3630,7 @@
     },
     "sql/mediawiki_postgresql": {
       "sql/mediawiki_postgresql/COPYING": "Metadata Anchor (COPYING)",
-      "sql/mediawiki_postgresql/tables.sql": "Ecosystem Consensus Lock (75% Local Dominance)"
+      "sql/mediawiki_postgresql/tables.sql": "Single Indicator (Internal Signature)"
     },
     "sql/spamassassin_mysql": {
       "sql/spamassassin_mysql/NOTICE": "Metadata Anchor (NOTICE)",
@@ -3640,7 +3643,7 @@
       "sql/sqlite/dotcmd01.sql": "Single Indicator (Shebang)"
     },
     "sql/sqlmap_postgresql": {
-      "sql/sqlmap_postgresql/dns_request.sql": "Ecosystem Consensus Lock (75% Local Dominance)"
+      "sql/sqlmap_postgresql/dns_request.sql": "Single Indicator (Internal Signature)"
     },
     "sqlite": {
       "sqlite/SOURCES.md": "Prose Extension (.md)"
@@ -3859,6 +3862,7 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": "Single Indicator (Ext: .json)",
       "typescript/assemblyscript/ast.ts": "Single Indicator (Ext: .ts)",
+      "typescript/assemblyscript/builtins.ts": "Single Indicator (Ext: .ts)",
       "typescript/assemblyscript/compiler.ts": "Single Indicator (Ext: .ts)",
       "typescript/assemblyscript/package.json": "Single Indicator (Exact Match)",
       "typescript/assemblyscript/parser.ts": "Single Indicator (Ext: .ts)"
@@ -3904,7 +3908,11 @@
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": "Prose Extension (.txt)",
       "typescript/typescript_compiler/binder.ts": "Single Indicator (Ext: .ts)",
-      "typescript/typescript_compiler/package.json": "Single Indicator (Exact Match)"
+      "typescript/typescript_compiler/checker.ts": "Single Indicator (Ext: .ts)",
+      "typescript/typescript_compiler/emitter.ts": "Single Indicator (Ext: .ts)",
+      "typescript/typescript_compiler/package.json": "Single Indicator (Exact Match)",
+      "typescript/typescript_compiler/parser.ts": "Single Indicator (Ext: .ts)",
+      "typescript/typescript_compiler/types.ts": "Single Indicator (Ext: .ts)"
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": "Prose Extension (.txt)",
@@ -4076,6 +4084,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": "Single Indicator (Ext: .zig)",
       "zig/zig/InternPool.zig": "Single Indicator (Ext: .zig)",
+      "zig/zig/Sema.zig": "Single Indicator (Ext: .zig)",
       "zig/zig/Type.zig": "Single Indicator (Ext: .zig)",
       "zig/zig/Zcu.zig": "Single Indicator (Ext: .zig)",
       "zig/zig/main.zig": "Single Indicator (Ext: .zig)"
@@ -4090,6 +4099,7 @@
       "zig/zls/analysis.zig": "Single Indicator (Ext: .zig)",
       "zig/zls/ast.zig": "Single Indicator (Ext: .zig)",
       "zig/zls/config_gen.zig": "Single Indicator (Ext: .zig)",
+      "zig/zls/langref.html.in": "Single Indicator (Ext: .html)",
       "zig/zls/print_ast.zig": "Single Indicator (Ext: .zig)"
     }
   },

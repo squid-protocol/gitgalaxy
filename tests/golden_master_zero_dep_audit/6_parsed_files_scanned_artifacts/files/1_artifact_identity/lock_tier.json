@@ -3268,7 +3268,8 @@
       "rust/tokio/maybe_done.rs": 2,
       "rust/tokio/tests.rs": 2,
       "rust/tokio/tokio_mpsc_bounded.rs": 2,
-      "rust/tokio/tokio_named_pipe.rs": 2
+      "rust/tokio/tokio_named_pipe.rs": 2,
+      "rust/tokio/tokio_udp.rs": 2
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": 2
@@ -3397,6 +3398,7 @@
       "shell/freebsd-src/dd2_test.sh": 2,
       "shell/freebsd-src/dtest.sh": 0,
       "shell/freebsd-src/echo_test.sh": 2,
+      "shell/freebsd-src/ed_test.sh": 2,
       "shell/freebsd-src/format_string_test.sh": 2,
       "shell/freebsd-src/functional_test.sh": 2,
       "shell/freebsd-src/hostname_test.sh": 2,
@@ -3434,6 +3436,7 @@
       "shell/haiku/default_deskbar_items.sh": 0,
       "shell/haiku/gen-bepo.sh": 0,
       "shell/haiku/generate_CountryFlags.sh": 0,
+      "shell/haiku/generate_ids_from_drivers.sh": 0,
       "shell/haiku/install-wifi-firmwares.sh": 0,
       "shell/haiku/install.sh": 0,
       "shell/haiku/leak_analyser.sh": 0,
@@ -3627,7 +3630,7 @@
     },
     "sql/mediawiki_postgresql": {
       "sql/mediawiki_postgresql/COPYING": 1,
-      "sql/mediawiki_postgresql/tables.sql": 1.5
+      "sql/mediawiki_postgresql/tables.sql": 2
     },
     "sql/spamassassin_mysql": {
       "sql/spamassassin_mysql/NOTICE": 1,
@@ -3640,7 +3643,7 @@
       "sql/sqlite/dotcmd01.sql": 2
     },
     "sql/sqlmap_postgresql": {
-      "sql/sqlmap_postgresql/dns_request.sql": 1.5
+      "sql/sqlmap_postgresql/dns_request.sql": 2
     },
     "sqlite": {
       "sqlite/SOURCES.md": 1
@@ -3859,6 +3862,7 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 2,
       "typescript/assemblyscript/ast.ts": 2,
+      "typescript/assemblyscript/builtins.ts": 2,
       "typescript/assemblyscript/compiler.ts": 2,
       "typescript/assemblyscript/package.json": 2,
       "typescript/assemblyscript/parser.ts": 2
@@ -3904,7 +3908,11 @@
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 1,
       "typescript/typescript_compiler/binder.ts": 2,
-      "typescript/typescript_compiler/package.json": 2
+      "typescript/typescript_compiler/checker.ts": 2,
+      "typescript/typescript_compiler/emitter.ts": 2,
+      "typescript/typescript_compiler/package.json": 2,
+      "typescript/typescript_compiler/parser.ts": 2,
+      "typescript/typescript_compiler/types.ts": 2
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 1,
@@ -4076,6 +4084,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": 2,
       "zig/zig/InternPool.zig": 2,
+      "zig/zig/Sema.zig": 2,
       "zig/zig/Type.zig": 2,
       "zig/zig/Zcu.zig": 2,
       "zig/zig/main.zig": 2
@@ -4090,6 +4099,7 @@
       "zig/zls/analysis.zig": 2,
       "zig/zls/ast.zig": 2,
       "zig/zls/config_gen.zig": 2,
+      "zig/zls/langref.html.in": 2,
       "zig/zls/print_ast.zig": 2
     }
   },

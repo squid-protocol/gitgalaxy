@@ -6,19 +6,19 @@
   "value": {
     "highest": [
       {
+        "name": "checker.ts",
+        "path": "typescript/typescript_compiler/checker.ts",
+        "value": 55293.14
+      },
+      {
+        "name": "Sema.zig",
+        "path": "zig/zig/Sema.zig",
+        "value": 18798.88
+      },
+      {
         "name": "module_physics_init.F",
         "path": "fortran/wrf/module_physics_init.F",
         "value": 13658.6
-      },
-      {
-        "name": "module_sf_noahdrv.F",
-        "path": "fortran/wrf/module_sf_noahdrv.F",
-        "value": 12731.28
-      },
-      {
-        "name": "Nodes.py",
-        "path": "python/cython/Nodes.py",
-        "value": 12177.16
       }
     ],
     "lowest": [

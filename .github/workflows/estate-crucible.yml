@@ -85,7 +85,7 @@ jobs:
       - name: Install GitGalaxy
         run: |
           python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
-          pip install -e ./gitgalaxy
+          pip install --no-build-isolation -e ./gitgalaxy
 
       - name: Score the estate against the baseline
         run: |

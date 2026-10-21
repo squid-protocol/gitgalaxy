@@ -149,6 +149,29 @@
    }
   },
   {
+   "name": "select-with-carried-to-tranid",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CT00-TRNID-FIRST": "0000000000683580",
+    "CDEMO-CT00-TRNID-LAST": "0000000021711604",
+    "CDEMO-CT00-PAGE-NUM": 1,
+    "CDEMO-CT00-NEXT-PAGE-FLG": "Y",
+    "CDEMO-TO-TRANID": "CT01"
+   },
+   "receive": {
+    "COTRN0A": {
+     "SEL0004I": "S",
+     "TRNID04I": "0000000009101861"
+    }
+   },
+   "why": "#5401 (proposed for bdeaa77fbe): select with a non-blank CDEMO-TO-TRANID on input, so the XCTL COMMAREA shows whether the ninth FROM-PROGRAM byte spills over it"
+  },
+  {
    "name": "select-lowercase",
    "aid": "DFHENTER",
    "commarea": {
@@ -635,6 +658,33 @@
      "why": "19 on the PF7 STARTBR -> 'Unable to lookup transaction...'; PROCESS-PAGE-BACKWARD does nothing more"
     }
    ]
+  },
+  {
+   "name": "enter-short-commarea",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-TO-TRANID": "CT01",
+    "CDEMO-TO-PROGRAM": "COTRN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "FIRSTNAME",
+    "CDEMO-CUST-MNAME": "MIDNAME",
+    "CDEMO-CUST-LNAME": "LASTNAME",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 1234567890123456,
+    "CDEMO-LAST-MAP": "LASTMAP",
+    "CDEMO-LAST-MAPSET": "LASTSET"
+   },
+   "receive": {
+    "COTRN0A": {}
+   },
+   "commarea_length": 160,
+   "why": "#5401 (EIBCALEN, mutation survivors): the caller passed the 160-byte general COMMAREA and not the 58 bytes of paging state, which stay as initialised (the tail of the COMMAREA is blanked)"
   }
  ],
  "notes": "CardDemo's transaction list (transaction CT00, program COTRN00C): ten transactions a page browsed from TRANSACT (STARTBR / READNEXT / READPREV / ENDBR, the amount through an edited picture, the date cut from the timestamp), PF8 / PF7 page forward and back, an 'S' beside one XCTLs to the view screen, a search id must be numeric. TRANSACT is loaded from CardDemo's own dailytran.txt (300 transactions, the 350-byte layout POSTTRAN posts into it). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

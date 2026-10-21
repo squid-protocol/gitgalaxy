@@ -157,7 +157,7 @@ Every tool that rewrites a record keeps the approvals on disk byte for byte.
 |---|---|
 | `equivalence.py run CASE --record` (committed port, committed case, no overrides) | inputs, proof, coverage, reach, oracle, provenance, mutation |
 | `evidence.py prove KEY` / `refresh --stale` (crucible ports through `cics_crucible.py --report-dir`) | the same |
-| `mutation_scores.py build` (into the committed file) / `evidence.py mutation` | mutation |
+| `mutation.py run CASE --record` / `mutation_crucible.py run --record` (the committed port, committed case; triage of the committed file kept, `--triage FILE` for new survivors), `mutation_scores.py build` (into the committed file), `evidence.py mutation` | mutation |
 | `evidence.py approve` / `reject` (a person at a terminal) | approvals |
 
 ## Defaults taken when the record was built (the owner may revisit)

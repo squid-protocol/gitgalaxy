@@ -3264,7 +3264,8 @@
       "rust/tokio/maybe_done.rs": "rust",
       "rust/tokio/tests.rs": "rust",
       "rust/tokio/tokio_mpsc_bounded.rs": "rust",
-      "rust/tokio/tokio_named_pipe.rs": "rust"
+      "rust/tokio/tokio_named_pipe.rs": "rust",
+      "rust/tokio/tokio_udp.rs": "rust"
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": "rust"
@@ -3393,6 +3394,7 @@
       "shell/freebsd-src/dd2_test.sh": "shell",
       "shell/freebsd-src/dtest.sh": "shell",
       "shell/freebsd-src/echo_test.sh": "shell",
+      "shell/freebsd-src/ed_test.sh": "shell",
       "shell/freebsd-src/format_string_test.sh": "shell",
       "shell/freebsd-src/functional_test.sh": "shell",
       "shell/freebsd-src/hostname_test.sh": "shell",
@@ -3430,6 +3432,7 @@
       "shell/haiku/default_deskbar_items.sh": "shell",
       "shell/haiku/gen-bepo.sh": "shell",
       "shell/haiku/generate_CountryFlags.sh": "shell",
+      "shell/haiku/generate_ids_from_drivers.sh": "shell",
       "shell/haiku/install-wifi-firmwares.sh": "shell",
       "shell/haiku/install.sh": "shell",
       "shell/haiku/leak_analyser.sh": "shell",
@@ -3622,8 +3625,8 @@
       "sql/mediawiki_mysql/blobs.sql": "sqlite"
     },
     "sql/mediawiki_postgresql": {
-      "sql/mediawiki_postgresql/COPYING": "sqlite",
-      "sql/mediawiki_postgresql/tables.sql": "sqlite"
+      "sql/mediawiki_postgresql/COPYING": "postgresql",
+      "sql/mediawiki_postgresql/tables.sql": "postgresql"
     },
     "sql/spamassassin_mysql": {
       "sql/spamassassin_mysql/NOTICE": "sqlite",
@@ -3636,7 +3639,7 @@
       "sql/sqlite/dotcmd01.sql": "sqlite"
     },
     "sql/sqlmap_postgresql": {
-      "sql/sqlmap_postgresql/dns_request.sql": "sqlite"
+      "sql/sqlmap_postgresql/dns_request.sql": "postgresql"
     },
     "sqlite": {
       "sqlite/SOURCES.md": "markdown"
@@ -3855,6 +3858,7 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": "typescript",
       "typescript/assemblyscript/ast.ts": "typescript",
+      "typescript/assemblyscript/builtins.ts": "typescript",
       "typescript/assemblyscript/compiler.ts": "typescript",
       "typescript/assemblyscript/package.json": "typescript",
       "typescript/assemblyscript/parser.ts": "typescript"
@@ -3898,9 +3902,13 @@
       "typescript/playwright/protocol.ts": "typescript"
     },
     "typescript/typescript_compiler": {
-      "typescript/typescript_compiler/LICENSE.txt": "plaintext",
-      "typescript/typescript_compiler/binder.ts": "plaintext",
-      "typescript/typescript_compiler/package.json": "plaintext"
+      "typescript/typescript_compiler/LICENSE.txt": "typescript",
+      "typescript/typescript_compiler/binder.ts": "typescript",
+      "typescript/typescript_compiler/checker.ts": "typescript",
+      "typescript/typescript_compiler/emitter.ts": "typescript",
+      "typescript/typescript_compiler/package.json": "typescript",
+      "typescript/typescript_compiler/parser.ts": "typescript",
+      "typescript/typescript_compiler/types.ts": "typescript"
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": "typescript",
@@ -4072,6 +4080,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": "zig",
       "zig/zig/InternPool.zig": "zig",
+      "zig/zig/Sema.zig": "zig",
       "zig/zig/Type.zig": "zig",
       "zig/zig/Zcu.zig": "zig",
       "zig/zig/main.zig": "zig"
@@ -4086,6 +4095,7 @@
       "zig/zls/analysis.zig": "zig",
       "zig/zls/ast.zig": "zig",
       "zig/zls/config_gen.zig": "zig",
+      "zig/zls/langref.html.in": "zig",
       "zig/zls/print_ast.zig": "zig"
     }
   },

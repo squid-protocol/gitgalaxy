@@ -120,3 +120,35 @@ def test_corpus_clone_goes_through_ci_retry_and_keeps_the_pin(name):
         # a retry starts from a clean directory (a partial clone would fail every later try) and clones the pin
         assert ln.index("rm -rf language-crucible") < ln.index("git clone"), ln
         assert '--branch "$1"' in ln and ln.endswith('_ "$ref"'), ln
+
+
+# #5048: hash-pinned pip installs. pip's own --retries covers only connection resets, so the wrapper is the fix.
+PIP_RETRIED = ["det-sweep.yml", "full-suite-gate.yml", "java-base-generation.yml", "mainframe-ground-truth.yml"]
+PIP_LINE = "pip install --require-hashes"
+
+
+@pytest.mark.parametrize("name", PIP_RETRIED)
+def test_hash_pinned_pip_installs_go_through_ci_retry_and_keep_the_hashes(name):
+    lines = [
+        ln.strip()
+        for ln in (WORKFLOWS / name).read_text(encoding="utf-8").splitlines()
+        if PIP_LINE in ln and not ln.lstrip().startswith("#")
+    ]
+    assert lines, f"{name}: no hash-pinned pip install left"
+    for ln in lines:
+        assert ln.startswith(("tests/tools/ci_retry.sh 4 10 -- ", "gitgalaxy/tests/tools/ci_retry.sh 4 10 -- ")), ln
+        assert "-r " in ln and "ci/requirements/" in ln, ln
+
+
+def test_workflows_with_an_unretried_hash_pinned_pip_install_do_not_grow():
+    """The class can only shrink: wrap a workflow's installs, then delete it from this list."""
+    unwrapped = sorted(
+        p.name
+        for p in WORKFLOWS.glob("*.yml")
+        if any(
+            PIP_LINE in ln and "ci_retry.sh" not in ln and not ln.lstrip().startswith("#")
+            for ln in p.read_text(encoding="utf-8").splitlines()
+        )
+    )
+    assert not set(PIP_RETRIED) & set(unwrapped)
+    assert len(unwrapped) <= 32, f"a new workflow has an unretried pip install: {unwrapped}"

@@ -79,7 +79,7 @@ runtime, and the generated Java. It also lists the harness work each unsupported
 
 **Offline readiness scanner & CICS era tagging (#4724, #4725, #4726, #5117): [`feature_inventory.md`](feature_inventory.md) and [`gitgalaxy/tools/readiness/README.md`](../../gitgalaxy/tools/readiness/README.md).** `gitgalaxy assess` inventories a customer estate offline and read-only, tags each program and copybook across `Era 0` (CICS macro level) through `Era 4` (Enterprise COBOL channels, containers, web, and async) from 22 concrete source tells (`era_tags.py`), and projects the output through a closed-vocabulary schema with zero source text leakage. `tests/tools/support_matrix.py` and `tests/tools/era_distribution.py` render the burned-estate support matrices and non-burned era distributions.
 
-**Evidence reports & per-program records (#4048, #4054, #5206): [`evidence_records.md`](evidence_records.md) and [`evidence_report/README.md`](evidence_report/README.md).** `tests/tools/evidence_report.py` measures the `L0–L5` deterministic translation ladder across the 6 burned estates (129 programs), regenerated on every push to `main` onto the `generated` branch. `tests/tools/estate_evidence.py` rolls up the 49 committed `evidence.json` records onto the `E0–E4` ladder (coverage and mutation scores).
+**Evidence reports & per-program records (#4048, #4054, #5206): [`evidence_records.md`](evidence_records.md) and [`evidence_report/README.md`](evidence_report/README.md).** `tests/tools/evidence_report.py` measures the `L0–L5` deterministic translation ladder across the 6 burned estates (129 programs), regenerated on every push to `main` onto the `generated` branch. `tests/tools/estate_evidence.py` rolls up the 49 committed `evidence.json` records onto the `E0–E4` ladder (coverage and mutation scores, lines), published nightly on `generated` (`estate_evidence/`).
 
 **COBOL-to-Java proofs: [`oracle_assumptions.md`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md)** (added 2026-10-02). A proof compares the
 Java port with the COBOL program run by GnuCOBOL plus our CICS, Db2 and LE models, not by IBM z/OS. That page lists
@@ -127,6 +127,7 @@ epic #813), not that no cases exist.
 | **[c](c.md)** | production | standard_block | 50/52 | 42 | 86 | **written** |
 | **[cobol](cobol.md)** | production | positional_anchored | 48/52 | 62 | 82 | **written** |
 | **[cpp](cpp.md)** | production | standard_block | 52/52 | 46 | 76 | **written** |
+| **[crystal](crystal.md)** | production | line_exclusive | 54/54 | | 13 | **written** (#5623) |
 | **[csharp](csharp.md)** | production | standard_block | 51/52 | 61 | 106 | **written** |
 | **[css](css.md)** | production | standard_block | 30/48 | 18 | 74 | **written** |
 | dart | production | standard_block | 51/52 | 91 | 86 | not written |
@@ -135,6 +136,7 @@ epic #813), not that no cases exist.
 | easytrieve | production | line_exclusive | 11/35 | | | not written |
 | embedded_python | production | line_exclusive | 51/52 | 64 | 107 | [embedded_python.md](embedded_python.md) |
 | **[fortran](fortran.md)** | production | positional_anchored | 45/52 | 35 | 101 | **written** |
+| **[fsharp](fsharp.md)** | production | recursive_block | 54/54 | | 16 | **written** (#5623) |
 | go | production | standard_block | 51/52 | 47 | 84 | not written |
 | **[groovy](groovy.md)** | production | standard_block | 44/48 | 53 | 91 | **written** |
 | haskell | production | recursive_block_haskell | 52/52 | 48 | 97 | not written |

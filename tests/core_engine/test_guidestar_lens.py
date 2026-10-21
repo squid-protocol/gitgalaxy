@@ -17,7 +17,6 @@ MOCK_GUIDESTAR_CONFIG = {
         "pyproject.toml": "python",
     },
     "INTENT_BIASED_SECTORS": ["src", "lib", "core", "api"],
-    "EXEC_PREFIX_MAP": {"python": "python", "node": "javascript"},
 }
 
 
@@ -451,33 +450,17 @@ def test_guidestar_sector_bias_ignores_the_roots_parents(tmp_path, parent):
 
 
 # ==============================================================================
-# TEST 13: ORPHANED FEATURE -- _extract_execution_triggers is never called
-# from anywhere in the codebase (see the filed GitHub issue). Tested here in
-# isolation so the logic itself has coverage regardless of the wiring
-# decision.
+# TEST 13: README command examples are not an intent source (#513). The orphaned
+# execution-trigger scanner was removed rather than wired in: a basename-keyed
+# lock minted from prose would re-label every same-named file in the repo.
 # ==============================================================================
-def test_extract_execution_triggers_in_isolation(guidestar):
-    """
-    Direct unit test of _extract_execution_triggers's own regex/dispatch
-    logic, since nothing in the production pipeline currently calls it.
-    """
-    text = "Run the demo with `python demo.py` or `./run.sh` or `node server.js`."
-    guidestar._extract_execution_triggers(text)
+def test_readme_command_examples_mint_no_locks(tmp_path):
+    (tmp_path / "README.md").write_text("# Usage\n\nRun `python demo.py`, `./run.sh` or `node server.js`.\n")
+    lens = GuideStarLens(root_path=tmp_path, guidestar_config=MOCK_GUIDESTAR_CONFIG)
+    lens.scan_project_config()
 
-    found, lock = guidestar.get_intent_status("demo.py")
-    assert found is True
-    assert lock["lang_id"] == "python"
-    assert "Execution Trigger" in lock["source_proof"]
-
-    # "./run.sh" -- the "./" prefix forces predicted_lang to "unknown"
-    # regardless of EXEC_PREFIX_MAP, per the explicit override in the method.
-    found, lock = guidestar.get_intent_status("run.sh")
-    assert found is True
-    assert lock["lang_id"] == "unknown"
-
-    found, lock = guidestar.get_intent_status("server.js")
-    assert found is True
-    assert lock["lang_id"] == "javascript"
+    assert lens.intent_locks == {}
+    assert lens.get_intent_status("demo.py") == (False, {})
 
 
 # ==============================================================================

@@ -564,6 +564,7 @@ def test_a_generated_msgid_and_the_default_context(c_driver, tmp_path):
     assert stored[2].split()[2] == "-"  # the empty message
 
 
+@pytest.mark.slow(reason="javac-compiles the MQ runtime, then starts one JVM and one C driver per script (18 s on CI)")
 @pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
 def test_the_runtime_is_the_oracle_model_byte_for_byte(c_driver, tmp_path):
     src = tmp_path / "src"
@@ -888,8 +889,8 @@ def test_copaua0c_includes_only_copybooks_the_models_ship():
 
 def test_copaua0c_translates_with_no_mq_hole(tmp_path):
     """#5278: no hole of CardDemo COPAUA0C is an MQ one -- its MQOPEN / MQGET / MQPUT1 / MQCLOSE and the CMQ* layouts
-    translate under CICS; what holds the program is EXEC DLI (I5), and the other holes are not MQ's (they are named
-    here so a change that moves them is seen)."""
+    translate under CICS; EXEC DLI (ISRT, REPL, DLET, #5278) no longer holds it either, and the remaining holes are not
+    MQ's (they are named here so a change that moves them is seen)."""
     pytest.importorskip("tree_sitter_language_pack")
     corpora = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", ROOT / ".mainframe_corpora"))
     corpus = corpora / "aws-mainframe-modernization-carddemo"
@@ -905,6 +906,6 @@ def test_copaua0c_translates_with_no_mq_hole(tmp_path):
     holes = [str(h) for h in res.stats["holes"]]
     assert holes
     assert not [h for h in holes if re.search(r"\bMQ|CMQ|batch MQ|copybook", h, re.IGNORECASE)], holes
-    assert any("EXEC DLI" in h for h in holes)
-    assert not [h for h in holes if "EXEC DLI" not in h and "DIBSTAT" not in h and "KEYLENGTH" not in h
+    assert not [h for h in holes if "EXEC DLI" in h], holes
+    assert not [h for h in holes if "DIBSTAT" not in h and "KEYLENGTH" not in h
                 and "INITIALIZE REPLACING" not in h], holes  # fmt: skip

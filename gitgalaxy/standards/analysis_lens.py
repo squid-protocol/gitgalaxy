@@ -173,6 +173,10 @@ LANGUAGE_STRICTNESS: dict[str, tuple[bool, bool, bool, bool] | None] = {
     # affinity); SQLCODE/SQLSTATE can be silently ignored unless a handler is
     # DECLAREd; variables must be DECLAREd before SET.
     "db2_sql": (True, False, True, True),
+    # #5622: same typing/handler/DECLARE discipline as db2_sql (strong column types;
+    # PL/pgSQL errors propagate unless an EXCEPTION block catches them; variables are
+    # DECLAREd).
+    "postgresql": (True, False, True, True),
     "dart": (True, False, True, True),
     "dockerfile": (False, False, True, False),  # RUN lines are shell; ARG/ENV are global
     "easytrieve": (True, False, True, False),  # files and reports are global
@@ -215,8 +219,10 @@ LANGUAGE_STRICTNESS: dict[str, tuple[bool, bool, bool, bool] | None] = {
     # whole variable pool -- implicit globals by default.
     "rexx": (False, False, True, False),
     "ruby": (False, False, True, True),
+    "crystal": (True, True, True, True),  # #5623: compiler-checked types and nil; GC; no implicit globals
     "rust": (True, True, True, True),
     "scala": (True, False, True, True),
+    "fsharp": (True, False, True, True),
     "scheme": (False, False, True, True),  # `set!` on an unbound name is an error
     "shell": (False, False, True, False),
     "solidity": (True, False, True, True),  # low-level `call` returns a bool that can be ignored
@@ -229,6 +235,8 @@ LANGUAGE_STRICTNESS: dict[str, tuple[bool, bool, bool, bool] | None] = {
     "yacc": (False, False, False, False),  # untyped $$/$N; actions are C; yylval/yytext are global
     "yaml": None,
     "zig": (True, True, False, True),  # error unions must be handled; manual memory
+    "acs": (False, False, True, True),  # implicit int/fixed/str; no exceptions or pointers
+    "zscript": (True, False, True, True),  # typed, garbage-collected; no exceptions
 }
 
 # Dialects: resolved before the strictness and fidelity lookups so a family member
@@ -1025,11 +1033,14 @@ LANGUAGE_SECURITY_PROFILES = {
         # Data processing, APIs, and strict-typed object orientation.
         "backend": {
             "python",
+            "postgresql",
             "java",
             "go",
             "csharp",
             "kotlin",
             "scala",
+            "fsharp",
+            "crystal",
             "scheme",
             "tcl",
             "matlab",
@@ -1038,6 +1049,8 @@ LANGUAGE_SECURITY_PROFILES = {
             "lua",
             "apex",
             "swift",
+            "zscript",
+            "acs",
         },
     },
     # Baseline multipliers applied when the file MATCHES its neighborhood's dominant ecosystem
@@ -1223,7 +1236,6 @@ RECORDING_SCHEMAS: RecordingSchemas = {
         # --- NEW: DOMAIN INTENT SENSORS ---
         "auth_middleware",
         "ipc_rpc_bridges",
-        "feature_flags",
         "serialization_parsing",
         "regex_execution",
         "time_date_logic",
@@ -1595,12 +1607,12 @@ SURFACE_FAMILIES: dict[str, list[str]] = {
     "events": ["events", "telemetry", "listeners"],
     "tests": ["test", "test_skip"],
     "docs": ["doc", "lit_code_blocks", "lit_diagrams", "lit_headers", "lit_links"],
-    "debt": ["planned_debt", "fragile_debt", "debug_prints", "feature_flags", "duplicate_logic"],
+    "debt": ["planned_debt", "fragile_debt", "debug_prints", "duplicate_logic"],
     "mutation": ["state_mutation", "core_var_decl", "system_config_mutation"],
     "dead_code": ["dead_code", "unreferenced_by_name"],
     "credential": ["sec_hardcoded_secrets", "sec_entropy"],
     "threat": [
-        "reflection_metaprogramming",
+        "sec_reflection_metaprogramming",
         "sec_shadow_imports",
         "sec_homoglyphs",
         "sec_extension_mismatch",
@@ -1650,11 +1662,15 @@ SURFACE_FAMILY_EXEMPT: dict[str, str] = {
     "closures": "paradigm: functional-style marker, not a surface family",
     "generics": "paradigm: generic-programming style marker, not a surface family",
     "comprehensions": "paradigm: functional-style marker, not a surface family",
-    # --- sec_* lens duplicates (7): would double-count signals already
-    # --- summed under their non-sec_ counterpart's family ---
-    "sec_reflection_metaprogramming": (
-        "sec_* duplicate of 'reflection_metaprogramming' (threat family); would double-count"
+    # --- metaprogramming marker (1, #4548): the language-level construct count (C/C++: function-like
+    # --- #define macros and goto), not a threat. The threat family carries the security lens's own
+    # --- sec_reflection_metaprogramming (threat_obfuscated) instead, so macro-only headers
+    # --- (glext.h, _sal.h) no longer drive fam_threat ---
+    "reflection_metaprogramming": (
+        "metaprogramming marker: language-level macro/reflection count, not a threat surface (#4548)"
     ),
+    # --- sec_* lens duplicates (6): would double-count signals already
+    # --- summed under their non-sec_ counterpart's family ---
     "sec_safety_bypasses": "sec_* duplicate of 'safety_bypasses' (danger family); would double-count",
     "sec_io": "sec_* duplicate of 'io' (io family); would double-count",
     "sec_high_risk_execution": "sec_* duplicate of 'high_risk_execution' (danger family); would double-count",
@@ -2549,7 +2565,6 @@ GENERAL_FILE_INFERENCE_MODEL = {
         "log_density_arch_crypto",
         "log_density_def_auth",
         "log_density_arch_ipc",
-        "log_density_arch_feature_flags",
         "log_density_arch_serialization",
         "log_density_arch_regex",
         "log_density_arch_time",
@@ -2558,7 +2573,6 @@ GENERAL_FILE_INFERENCE_MODEL = {
         "log_density_state_unreferenced",
     ],
     "FEATURE_WEIGHTS": [
-        1.0,
         1.0,
         1.0,
         1.0,
@@ -2692,7 +2706,6 @@ GENERAL_FILE_INFERENCE_MODEL = {
         "log_density_arch_crypto": "cryptography",
         "log_density_def_auth": "auth_middleware",
         "log_density_arch_ipc": "ipc_rpc_bridges",
-        "log_density_arch_feature_flags": "feature_flags",
         "log_density_arch_serialization": "serialization_parsing",
         "log_density_arch_regex": "regex_execution",
         "log_density_arch_time": "time_date_logic",
@@ -2752,7 +2765,6 @@ GENERAL_FILE_INFERENCE_MODEL = {
         0.0,
         0.0,
         1.493,
-        0.0,
         0.0,
         0.0,
         0.0,
@@ -2865,7 +2877,6 @@ GENERAL_FILE_INFERENCE_MODEL = {
         1.0,
         1.0,
         1.0,
-        1.0,
         2.872,
         1.0,
         1.364,
@@ -2968,7 +2979,6 @@ GENERAL_FILE_INFERENCE_MODEL = {
             0.001,
             0.0,
             0.007,
-            0.0,
             0.013,
             0.012,
             0.044,
@@ -3053,7 +3063,6 @@ GENERAL_FILE_INFERENCE_MODEL = {
             0.0,
             0.001,
             0.043,
-            0.0,
             0.038,
             0.099,
             0.057,
@@ -3138,7 +3147,6 @@ GENERAL_FILE_INFERENCE_MODEL = {
             0.002,
             0.0,
             0.024,
-            0.0,
             0.012,
             0.029,
             0.018,
@@ -3223,7 +3231,6 @@ GENERAL_FILE_INFERENCE_MODEL = {
             0.001,
             0.003,
             0.046,
-            0.0,
             0.029,
             0.101,
             0.044,
@@ -3308,7 +3315,6 @@ GENERAL_FILE_INFERENCE_MODEL = {
             0.001,
             0.001,
             0.041,
-            0.0,
             0.019,
             0.056,
             0.05,
@@ -3393,7 +3399,6 @@ GENERAL_FILE_INFERENCE_MODEL = {
             0.003,
             0.002,
             0.011,
-            0.0,
             0.019,
             0.022,
             0.083,
@@ -3478,7 +3483,6 @@ GENERAL_FILE_INFERENCE_MODEL = {
             0.001,
             0.001,
             0.046,
-            0.0,
             0.02,
             0.066,
             0.052,
@@ -3563,7 +3567,6 @@ GENERAL_FILE_INFERENCE_MODEL = {
             0.001,
             0.0,
             0.032,
-            0.0,
             0.022,
             0.071,
             0.037,
@@ -3648,7 +3651,6 @@ GENERAL_FILE_INFERENCE_MODEL = {
             0.001,
             0.002,
             0.049,
-            0.0,
             0.021,
             0.085,
             0.053,
@@ -3733,7 +3735,6 @@ GENERAL_FILE_INFERENCE_MODEL = {
             0.001,
             0.001,
             0.046,
-            0.0,
             0.032,
             0.086,
             0.046,
@@ -3818,7 +3819,6 @@ GENERAL_FILE_INFERENCE_MODEL = {
             0.007,
             0.001,
             0.047,
-            0.0,
             0.046,
             0.065,
             0.097,
@@ -3903,7 +3903,6 @@ GENERAL_FILE_INFERENCE_MODEL = {
             0.0,
             0.002,
             0.02,
-            0.0,
             0.017,
             0.022,
             0.038,
@@ -3988,7 +3987,6 @@ GENERAL_FILE_INFERENCE_MODEL = {
             0.003,
             0.001,
             0.041,
-            0.0,
             0.036,
             0.065,
             0.073,
@@ -4073,7 +4071,6 @@ GENERAL_FILE_INFERENCE_MODEL = {
             0.0,
             0.002,
             0.004,
-            0.0,
             0.009,
             0.012,
             0.036,
@@ -4158,7 +4155,6 @@ GENERAL_FILE_INFERENCE_MODEL = {
             0.0,
             0.001,
             0.063,
-            0.0,
             0.023,
             0.416,
             0.186,
@@ -4243,7 +4239,6 @@ GENERAL_FILE_INFERENCE_MODEL = {
             0.002,
             0.001,
             0.023,
-            0.0,
             0.02,
             0.049,
             0.034,
@@ -4328,7 +4323,6 @@ GENERAL_FILE_INFERENCE_MODEL = {
             0.001,
             0.001,
             0.048,
-            0.0,
             0.011,
             0.014,
             0.039,
@@ -4413,7 +4407,6 @@ GENERAL_FILE_INFERENCE_MODEL = {
             -0.0,
             0.0,
             0.015,
-            0.0,
             0.001,
             0.001,
             0.014,

@@ -72,6 +72,19 @@
    }
   },
   {
+   "name": "first-entry-with-long-selected-account",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-CB00-TRN-SELECTED": "000000000012"
+   },
+   "why": "#5401: CDEMO-CB00-TRN-SELECTED is 16 wide but the MOVE to ACTIDINI keeps 11, so the 12th character must not reach the account key (kills mutant d3458d6107)."
+  },
+  {
    "name": "show-balance",
    "aid": "DFHENTER",
    "commarea": {
@@ -595,6 +608,122 @@
     }
    ],
    "why": "#4648: NOTAUTH RESP2 101, the user may not use the program (IBM CICS TS, XCTL conditions): not handled, CICS abends the task (AEY7)"
+  },
+  {
+   "name": "short-commarea-200",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-TO-TRANID": "CT01",
+    "CDEMO-TO-PROGRAM": "COTRN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "FIRSTNAME",
+    "CDEMO-CUST-MNAME": "MIDNAME",
+    "CDEMO-CUST-LNAME": "LASTNAME",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 1234567890123456,
+    "CDEMO-LAST-MAP": "LASTMAP",
+    "CDEMO-LAST-MAPSET": "LASTSET",
+    "CDEMO-CB00-TRNID-FIRST": "0000000000000001",
+    "CDEMO-CB00-TRNID-LAST": "0000000000000009",
+    "CDEMO-CB00-PAGE-NUM": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001"
+    }
+   },
+   "commarea_length": 200,
+   "why": "#5401 (EIBCALEN, mutation survivors): the caller passed 200 of the COMMAREA's 218 bytes, ending after the page-number field so no numeric is blank: only the bytes inside EIBCALEN are moved"
+  },
+  {
+   "name": "short-commarea-201",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-TO-TRANID": "CT01",
+    "CDEMO-TO-PROGRAM": "COTRN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "FIRSTNAME",
+    "CDEMO-CUST-MNAME": "MIDNAME",
+    "CDEMO-CUST-LNAME": "LASTNAME",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 1234567890123456,
+    "CDEMO-LAST-MAP": "LASTMAP",
+    "CDEMO-LAST-MAPSET": "LASTSET",
+    "CDEMO-CB00-TRNID-FIRST": "0000000000000001",
+    "CDEMO-CB00-TRNID-LAST": "0000000000000009",
+    "CDEMO-CB00-PAGE-NUM": 1,
+    "CDEMO-CB00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001"
+    }
+   },
+   "commarea_length": 201,
+   "why": "#5401 (EIBCALEN, mutation survivors): the caller passed 201 of the COMMAREA's 218 bytes, ending after the page-number field so no numeric is blank: only the bytes inside EIBCALEN are moved"
+  },
+  {
+   "name": "decline-lowercase-n",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "n"
+    }
+   },
+   "why": "#4628 (mutation survivors): the lowercase 'n' declines like 'N' (the WHEN 'n' arm; pay-lowercase-y is the 'y' twin)"
+  },
+  {
+   "name": "full-commarea-carried",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-TO-TRANID": "CT01",
+    "CDEMO-TO-PROGRAM": "COTRN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "FIRSTNAME",
+    "CDEMO-CUST-MNAME": "MIDNAME",
+    "CDEMO-CUST-LNAME": "LASTNAME",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 1234567890123456,
+    "CDEMO-LAST-MAP": "LASTMAP",
+    "CDEMO-LAST-MAPSET": "LASTSET",
+    "CDEMO-CB00-TRNID-FIRST": "0000000000000001",
+    "CDEMO-CB00-TRNID-LAST": "0000000000000009",
+    "CDEMO-CB00-PAGE-NUM": 1,
+    "CDEMO-CB00-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CB00-TRN-SEL-FLG": "S"
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001"
+    }
+   },
+   "why": "#4628 (mutation survivors): the whole 218-byte COMMAREA arrives, with CDEMO-CB00-TRN-SEL-FLG non-blank, so the RETURN's commarea must carry that flag"
   }
  ],
  "notes": "CardDemo's bill payment (transaction CB00, program COBIL00C): an account's balance is read FOR UPDATE and shown; on confirmation the whole balance is paid -- a new transaction (the last id + 1, found by a HIGH-VALUES STARTBR and a READPREV; its timestamps from ASKTIME / FORMATTIME at the task's clock) is WRITEn to TRANSACT and the account REWRITten. Each scenario's files are compared after the task. acctdata.txt is CardDemo's own accounts plus one synthetic account, 00000099999, with a zero balance (written for this case) for 'You have nothing to pay...'. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

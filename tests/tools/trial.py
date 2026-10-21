@@ -64,6 +64,7 @@ BINS = ("@1", "@2", "@3", "@4+")
 HARNESS_PATHS = ("tests/tools/equivalence.py", "tests/tools/equivalence_common.py", "tests/tools/equivalence_java.py",
                  "tests/tools/equivalence_inputs.py", "tests/tools/equivalence_cics.py",
                  "tests/tools/equivalence_cics_containers.py",  # #5274: the CICS harness's containers family
+                 "tests/tools/equivalence_cics_filecontrol.py",  # #5274: ... and its file control family
                  "tests/tools/cobol_coverage.py",  # #4023: every COBOL run is traced through it
                  "tests/equivalence/faults/ggfault.c", "tests/equivalence/faults/ggabend.c",  # fault runs, CEE3ABD
                  "tests/equivalence/faults/ggdisplay.c",  # #4056: DISPLAY as IBM writes it
@@ -170,7 +171,7 @@ def out_of_scope_reason(skeleton: dict[str, Any], text: str, shipped: bool) -> s
     """Why the equivalence harness cannot run a program (None: eligible). The batch harness runs a COBOL
     program under GnuCOBOL with a driver, loads its input files (generated from their copybook layouts,
     #3804, or shipped) and compares its output files record by record -- so the program must be batch COBOL
-    with no database, IMS or MQ side, write at least one file, and have a record layout for every input."""
+    with no database, IMS or MQ side, write at least one file, DISPLAY (SYSOUT is compared, #4056), set RETURN-CODE or abend (CEE3ABD), and have a record layout for every input (a COPY in its FD, or an inline 01 record)."""
     for rule, reason in ELIGIBILITY_RULES:
         if rule(skeleton, text, shipped):
             return reason
@@ -181,15 +182,86 @@ def _not_cobol(sk: dict[str, Any], _t: str, _s: bool) -> bool:
     return (sk.get("program", {}).get("language") or "").lower() != "cobol"
 
 
-def _no_output(sk: dict[str, Any], _t: str, _s: bool) -> bool:
-    return not any(_WRITES & set(d.get("modes") or []) for d in _sections(sk, "datasets"))
+_PROCEDURE = re.compile(r"\bPROCEDURE[ \t\n]{1,20}DIVISION\b", re.I)
+_DISPLAY_STMT = re.compile(r"(?<![\w-])DISPLAY(?![\w-])", re.I)
 
 
-def _input_without_layout(sk: dict[str, Any], _t: str, shipped: bool) -> bool:
+def _procedure_body(text: str) -> str:
+    """The PROCEDURE DIVISION's code: fixed-format comment lines and trailing `*>` comments removed."""
+    code = []
+    for line in text.splitlines():
+        if line[6:7] in ("*", "/") or line.lstrip().startswith("*>"):
+            continue
+        code.append(line.split("*>", 1)[0])
+    body = "\n".join(code)
+    m = _PROCEDURE.search(body)
+    return body[m.end() :] if m else ""
+
+
+_RETURN_CODE_SET = re.compile(r"(?<![\w-])(?:TO|GIVING|COMPUTE)[ \t\n]{1,20}RETURN-CODE(?![\w-])", re.I)
+
+
+def _displays(text: str) -> bool:
+    """Whether the PROCEDURE DIVISION holds a DISPLAY statement (SYSOUT is a proved channel, #4056). The data
+    division's USAGE DISPLAY clause, comment lines and DISPLAY-... names are not statements."""
+    return bool(_DISPLAY_STMT.search(_procedure_body(text)))
+
+
+def _sets_return_code(text: str) -> bool:
+    """Whether the PROCEDURE DIVISION sets RETURN-CODE (MOVE/ADD ... TO, COMPUTE, ... GIVING): the harness
+    compares the step's RETURN-CODE as an output (equivalence.py), so a program whose result is its return code
+    has a channel. A bare read of RETURN-CODE, a comment or a string-free name like DISPLAY-RETURN-CODE is not."""
+    return bool(_RETURN_CODE_SET.search(_procedure_body(text)))
+
+
+_ABEND_CALL = re.compile(r"(?<![\w-])CALL[ \t\n]{1,20}['\"]CEE3ABD['\"]", re.I)
+
+
+def _abends(text: str) -> bool:
+    """Whether the PROCEDURE DIVISION CALLs the CEE3ABD abend stub: the harness records the abend (ABEND Unnnn)
+    and a proof needs the same abend on both sides (equivalence.py), so it is an output channel. A comment, a
+    data-division mention, a variable CALL target or another abend routine (no stub) is not."""
+    return bool(_ABEND_CALL.search(_procedure_body(text)))
+
+
+def _no_output(sk: dict[str, Any], t: str, _s: bool) -> bool:
+    if any(_WRITES & set(d.get("modes") or []) for d in _sections(sk, "datasets")):
+        return False
+    return not (_displays(t) or _sets_return_code(t) or _abends(t))
+
+
+_FD_ENTRY = re.compile(r"(?<![\w-])FD[ \t\n]{1,20}([A-Z0-9][A-Z0-9-]*)", re.I)
+_FD_END = re.compile(
+    r"(?<![\w-])(?:[FS]D[ \t\n]|WORKING-STORAGE|LOCAL-STORAGE|LINKAGE[ \t\n]{1,20}SECTION|PROCEDURE[ \t\n]{1,20}DIVISION)",
+    re.I,
+)
+_RECORD_01 = re.compile(r"(?<![\w-])01[ \t\n]{1,20}[A-Z0-9]", re.I)
+_PIC = re.compile(r"(?<![\w-])PIC(?:TURE)?(?![\w-])", re.I)
+
+
+def _fd_inline_records(text: str) -> set[str]:
+    """Names of the files whose FD describes its record in the program itself: an 01 with at least one PICTURE
+    item (equivalence_common.layout_fields reads such a layout from the program source, #3804). Comment lines
+    are ignored; an FD with no 01, or no PICTURE, is not a layout."""
+    code = "\n".join(ln for ln in text.splitlines() if ln[6:7] not in ("*", "/") and not ln.lstrip().startswith("*>"))
+    out = set()
+    for m in _FD_ENTRY.finditer(code):
+        end = _FD_END.search(code, m.end())
+        region = code[m.end() : end.start() if end else len(code)]
+        if _RECORD_01.search(region) and _PIC.search(region):
+            out.add(m.group(1).upper())
+    return out
+
+
+def _input_without_layout(sk: dict[str, Any], t: str, shipped: bool) -> bool:
     if shipped:
         return False
     reads = {d.get("internal_name") for d in _sections(sk, "datasets") if {"INPUT", "I-O"} & set(d.get("modes") or [])}
-    return any(fc.get("select_name") in reads and not fc.get("fd_copies") for fc in _sections(sk, "file_control"))
+    inline = _fd_inline_records(t)
+    return any(
+        fc.get("select_name") in reads and not fc.get("fd_copies") and str(fc.get("select_name")).upper() not in inline
+        for fc in _sections(sk, "file_control")
+    )
 
 
 ELIGIBILITY_RULES = (
@@ -198,8 +270,14 @@ ELIGIBILITY_RULES = (
     (lambda _k, t, _s: bool(_SQL.search(t)), "DB2 (EXEC SQL): the harness has no database side"),
     (lambda _k, t, _s: bool(_IMS.search(t)), "IMS (DL/I): the harness has no IMS side"),
     (lambda _k, t, _s: bool(_MQ.search(t)), "MQ calls: the harness has no queue manager"),
-    (_no_output, "writes no file: the harness has no output records to compare"),
-    (_input_without_layout, "an input file with no copybook record layout: its records cannot be generated (#3804)"),
+    (
+        _no_output,
+        "writes no file, DISPLAYs nothing, sets no RETURN-CODE and does not abend: the harness has no output to compare",
+    ),
+    (
+        _input_without_layout,
+        "an input file whose FD holds no record layout (neither a COPY nor an inline 01 with PICTURE items): its records cannot be generated (#3804)",
+    ),
 )
 
 

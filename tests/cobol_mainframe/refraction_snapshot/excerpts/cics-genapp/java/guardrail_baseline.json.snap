@@ -73,7 +73,21 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "cd640297033dcf65e1df16f018b604071f48e07cdb4c8b43579af0d766263ff0"
+      "sha256": "cd640297033dcf65e1df16f018b604071f48e07cdb4c8b43579af0d766263ff0",
+      "string_fields": [
+        "caData",
+        "date1",
+        "emCusnum",
+        "emDate",
+        "emPolnum",
+        "emSqlreq",
+        "emTime",
+        "icomRecord",
+        "time1",
+        "wsRequestId",
+        "wsTermid",
+        "wsTransid"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/dto/Lgipol01DfhcommareaDto.java": {
       "calls": [],
@@ -98,7 +112,18 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "0f4a4b7c2a3836e7d99d906509153f84bd74601c22c0936e1c7ad19e1f0d9e1e"
+      "sha256": "0f4a4b7c2a3836e7d99d906509153f84bd74601c22c0936e1c7ad19e1f0d9e1e",
+      "string_fields": [
+        "caData",
+        "date1",
+        "emDate",
+        "emTime",
+        "emVariable",
+        "lgipdb01",
+        "time1",
+        "wsTermid",
+        "wsTransid"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Lgtestp1CommArea.java": {
       "calls": [],
@@ -113,7 +138,10 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "189fddbf5eaa16eaa8739ba729739e4f96869f0614efca5b8823fbad708e1412"
+      "sha256": "189fddbf5eaa16eaa8739ba729739e4f96869f0614efca5b8823fbad708e1412",
+      "string_fields": [
+        "msgend"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/service/Lgipdb01Service.java": {
       "calls": [],

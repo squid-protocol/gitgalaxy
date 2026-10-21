@@ -28,6 +28,7 @@ from pathlib import Path
 from typing import Any
 
 from gitgalaxy.tools.cobol_to_java.cics_task_containers import CONTAINERS_JAVA
+from gitgalaxy.tools.cobol_to_java.cics_task_filecontrol import FILECONTROL_JAVA
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import (
     ClassNames,
     TraceLog,
@@ -1514,7 +1515,8 @@ public class CicsTask {
      *  CICS TS, EXEC CICS WEB RECEIVE; register X38). LENGERR 16 for a MAXLENGTH not above zero; a body longer than
      *  MAXLENGTH is cut there with LENGERR 57 (without NOTRUNCATE "the remainder was discarded"; LENGTH then holds the
      *  bytes returned). The body is in the program's characters whatever the conversion option (ASSUMED, as X37).
-     *  Refused: no request stated, a request with no body, a second receive, a MAXLENGTH past INTO. */
+     *  Recorded as WEB-RECEIVE (the request's media type and the body returned, null on LENGERR 16; RESP, RESP2) --
+     *  the crucible SPEC's event, so a runner can tell what the program read. Refused: no request stated, a request with no body, a second receive, a MAXLENGTH past INTO. */
     public WebReceived webReceive(int maxLength, int intoCap) {
         CicsTask r = statedRequest();
         HttpRequest q = r.httpRequest;
@@ -1528,11 +1530,14 @@ public class CicsTask {
             throw refused("WEB RECEIVE length beyond its area");
         }
         if (maxLength <= 0) {
+            event("WEB-RECEIVE", "mediatype", null, "body", null, "resp", 22, "resp2", 16);
             return new WebReceived(22, 16, null, null);
         }
         r.webReceived = true;
         boolean cut = q.body().length() > maxLength;
-        return new WebReceived(cut ? 22 : 0, cut ? 57 : 0, cut ? q.body().substring(0, maxLength) : q.body(), q.mediaType());
+        WebReceived got = new WebReceived(cut ? 22 : 0, cut ? 57 : 0, cut ? q.body().substring(0, maxLength) : q.body(), q.mediaType());
+        event("WEB-RECEIVE", "mediatype", got.mediaType(), "body", got.body(), "resp", got.resp(), "resp2", got.resp2());
+        return got;
     }
 
     // ---- #4771 (register X47): storage CICS acquires for the task, addressed by a pointer ----------------------------
@@ -1540,6 +1545,7 @@ public class CicsTask {
      *  ADDRESS OF a pointer was set to (2), or a block FREEMAIN released (3). */
     private static final class Block {
         byte[] bytes;
+        int off;  // #4771: where the block starts in `bytes` (an item inside a larger storage)
         int kind;
         boolean bound;
         String key;  // #5042: what a later command of the same kind ends (null: valid to the task's end)
@@ -1552,6 +1558,7 @@ public class CicsTask {
 
     private final java.util.Map<Long, Block> blocks = new java.util.HashMap<>();
     private final java.util.IdentityHashMap<byte[], Long> addressed = new java.util.IdentityHashMap<>();
+    private final java.util.IdentityHashMap<byte[], java.util.Map<Integer, Long>> addressedAt = new java.util.IdentityHashMap<>();
     private long nextBlock = 1;
 
     private long newBlock(byte[] bytes, int kind) {
@@ -1667,6 +1674,24 @@ public class CicsTask {
         return root().addressed.computeIfAbsent(record, r -> newBlock(r, 2));
     }
 
+    /** SET ptr TO ADDRESS OF item (#4771): the handle of the bytes from `off` on (the same one each time); 0 is the record. */
+    public long addressOf(byte[] storage, int off) {
+        if (off == 0) {
+            return addressOf(storage);
+        }
+        return root().addressedAt.computeIfAbsent(storage, r -> new java.util.HashMap<>()).computeIfAbsent(off, o -> {
+            long h = newBlock(storage, 2);
+            root().blocks.get(h).off = o;
+            return h;
+        });
+    }
+
+    /** Where the block `handle` starts in its bytes (0 unless it is an item inside a larger storage). */
+    public int offsetAt(long handle) {
+        Block b = root().blocks.get(handle);
+        return b == null ? 0 : b.off;
+    }
+
     /** `ptr-a = ptr-b` (#5042, X56): two pointers are equal when they address the same storage. One block can have two
      *  handles (a record's ADDRESS OF beside the pointer it was set to), so the handles are equal, or both name blocks
      *  of one byte array. NULL (0) equals only NULL. */
@@ -1676,7 +1701,7 @@ public class CicsTask {
         }
         Block x = root().blocks.get(a);
         Block y = root().blocks.get(b);
-        return x != null && y != null && x.bytes == y.bytes;
+        return x != null && y != null && x.bytes == y.bytes && x.off == y.off;
     }
 
     /** SET ADDRESS OF record TO ptr: the bytes the pointer addresses, for a record of `need` bytes. A record longer than
@@ -1691,7 +1716,7 @@ public class CicsTask {
         if (b.kind == 3) {
             throw refused("SET ADDRESS OF storage already freed");
         }
-        if (b.bytes.length < need) {
+        if (b.bytes.length - b.off < need) {
             if (b.kind == 2 || b.bound) {
                 throw refused("SET ADDRESS OF a record longer than its storage");
             }
@@ -2407,10 +2432,36 @@ public class CicsTask {
     /** INQUIRE TDQUEUE ... ENABLESTATUS (#5168 round 5, X66): {RESP, RESP2, OPENSTATUS CVDA, TYPE CVDA, ENABLESTATUS CVDA}; ENABLED 23
      *  or DISABLED 24, the state SET TDQUEUE ENABLESTATUS left (ENABLED before any). An INDIRECT queue answers about itself. */
     public int[] inquireTdQueue(String queue, boolean openStatus, boolean type, boolean enableStatus) {
+        return inquireTdQueue(queue, openStatus, type, enableStatus, false, false, false);
+    }
+
+    /** INQUIRE TDQUEUE ... TRIGGERLEVEL / RECOVSTATUS / TRANSID (#5168 round 6, X66): {RESP, RESP2, OPENSTATUS, TYPE, ENABLESTATUS,
+     *  TRIGGERLEVEL, RECOVSTATUS}; the TRANSID text is tdTransid(queue). The queue's definition: RECOVSTATUS is LOGICAL 216,
+     *  PHYSICAL 215 or NOTRECOVABLE 30 for an intrapartition queue (NOTRECOVABLE when none stated: X61 assumption 2), NOTAPPLIC 1
+     *  "the queue is not intrapartition" for the others; TRIGGERLEVEL (1 when none stated: IBM's default) and TRANSID (blanks when
+     *  none stated: ASSUMED) are those of an intrapartition queue, and are refused for any other (IBM names no value). */
+    public int[] inquireTdQueue(String queue, boolean openStatus, boolean type, boolean enableStatus, boolean trigger,
+            boolean recov, boolean transid) {
         String q = queue.strip();
         int kind = tdKind(q);
         if (kind == 0) {
-            return new int[] {44, 1, 0, 0, 0};
+            return new int[] {44, 1, 0, 0, 0, 0, 0};
+        }
+        if ((trigger || transid) && kind != 1) {
+            tdTypeCvda(q, kind);
+            throw new UnsupportedOperationException("INQUIRE TDQUEUE TRIGGERLEVEL / TRANSID of a queue that is not intrapartition: not modelled");
+        }
+        int level = 0;
+        if (trigger) {
+            level = tdTriggerLevel(q);
+        }
+        int recovCvda = 0;
+        if (recov) {
+            String stated = kind == 1 ? tdAttr(q, "RECOVSTATUS") : null;
+            if (kind != 1) {
+                tdTypeCvda(q, kind);
+            }
+            recovCvda = kind != 1 ? 1 : "LOGICAL".equals(stated) ? 216 : "PHYSICAL".equals(stated) ? 215 : 30;
         }
         int typeCvda = type ? tdTypeCvda(q, kind) : 0;
         int status = 0;
@@ -2422,7 +2473,40 @@ public class CicsTask {
                 status = 1;
             }
         }
-        return new int[] {0, 0, status, typeCvda, enableStatus ? (tdDisabled(q) ? 24 : 23) : 0};
+        return new int[] {0, 0, status, typeCvda, enableStatus ? (tdDisabled(q) ? 24 : 23) : 0, level, recovCvda};
+    }
+
+    /** A queue's TRIGGERLEVEL: what SET TDQUEUE TRIGGERLEVEL left, else the definition's, else 1 (IBM's default). #5168 round 7, X66. */
+    private int tdTriggerLevel(String q) {
+        Integer set = root().tempStorage.tdTrigger.get(q);
+        if (set != null) {
+            return set;
+        }
+        String stated = tdAttr(q, "TRIGGERLEVEL");
+        return stated == null ? 1 : Integer.parseInt(stated.strip());
+    }
+
+    /** SET TDQUEUE(q) TRIGGERLEVEL(n) (#5168 round 7, X66; IBM CICS TS 6.x SET TDQUEUE, intrapartition queues only): the number of
+     *  records that starts the queue's ATI transaction; 0 turns automatic task initiation off. Returns {RESP, RESP2}: QIDERR (44)
+     *  RESP2 1. Not a unit-of-work resource (a rollback or an abend keeps it). Refused: a queue that is not intrapartition (IBM names
+     *  no condition) and a level below zero. */
+    public int[] setTdQueueTriggerLevel(String queue, long level) {
+        String q = queue.strip();
+        int kind = tdKind(q);
+        if (kind == 0) {
+            return new int[] {44, 1};
+        }
+        if (kind != 1 || level < 0 || level > Integer.MAX_VALUE) {
+            throw new UnsupportedOperationException("SET TDQUEUE TRIGGERLEVEL of a queue that is not intrapartition, or below zero: not modelled");
+        }
+        root().tempStorage.tdTrigger.put(q, (int) level);
+        return new int[] {0, 0};
+    }
+
+    /** The TRANSID a queue's definition states (blanks when none): the text INQUIRE TDQUEUE TRANSID stores (#5168 round 6, X66). */
+    public String tdTransid(String queue) {
+        String stated = tdAttr(queue.strip(), "TRANSID");
+        return stated == null ? "" : stated;
     }
 
     /** SET TDQUEUE(q) ENABLESTATUS(cvda) (#5168 round 5, X66; IBM CICS TS 6.x SET TDQUEUE): ENABLED (23) lets applications access
@@ -2471,10 +2555,10 @@ public class CicsTask {
         if (resp == 0 && kind == 1) {
             tdTouch(t);
             if (tdAttr(t, "TRANSID") != null) {
-                String level = tdAttr(t, "TRIGGERLEVEL");
+                int level = tdTriggerLevel(t);
                 java.util.ArrayDeque<String> held = tempStorage.td.get(t);
                 int after = (held == null ? 0 : held.size()) + 1;
-                if (after >= (level == null ? 1 : Integer.parseInt(level)) && !"0".equals(level)) {
+                if (level > 0 && after >= level) {
                     throw new UnsupportedOperationException("WRITEQ TD to a queue that reaches its TRIGGERLEVEL: automatic task "
                             + "initiation is not modelled");
                 }
@@ -3613,6 +3697,18 @@ CICS_TASK_JAVA += """\
         return linkAreaTaken;
     }
 
+    /** #5053: the LINK COMMAREA's bytes as they are now, without counting as the program taking them (linkArea does):
+     *  what a harness hands a byte-carrying handleLink, and reads back after it. Null: the caller passed none. */
+    public byte[] linkAreaView() {
+        return linkArea;
+    }
+
+    /** #5053: whether linkArea is the LINK caller's own storage (the first program a LINK ran: by address), not a copy
+     *  (an XCTL target's: IBM gives it a copy of LENGTH bytes). */
+    public boolean linkAreaOfCaller() {
+        return callerArea;
+    }
+
     private java.util.Map<String, Long> counters = new java.util.HashMap<>();  // the region's named counters (root's)
     /** #4770 (X45): the {minimum, maximum} (unsigned doublewords) of a counter DEFINE DCOUNTER made; a counter with no entry
      *  (DEFINE COUNTER's, or one a scenario states) has limits the run does not state. */
@@ -4136,550 +4232,10 @@ CICS_TASK_JAVA += """\
         return this;
     }
 
-    /** READ FILE(file) (#4023 follow-up): `lookup` is the service's generated read method. RESP NORMAL (0) and the
-     *  record, or NOTFND (13) without one -- or the condition the harness planned, and then nothing is read. */
-    public <T> FileRead<T> read(String file, java.util.function.Supplier<Optional<T>> lookup) {
-        int[] planned = root().injected("READ", file);
-        if (planned != null) {
-            return new FileRead<>(planned[0], planned[1], null);
-        }
-        T record = lookup.get().orElse(null);
-        if (record == null) {
-            return new FileRead<>(13, 80, null);  // #5092 (X52): IBM, EXEC CICS READ: NOTFND RESP2 80
-        }
-        int[] o = root().dupkeyOr();  // #4623: a planned DUPKEY follows the read that found the record
-        return new FileRead<>(o[0], o[1], record);
-    }
-
-    /** READ FILE(file) UPDATE: as read, and the file's record is held for a REWRITE. */
-    public <T> FileRead<T> readForUpdate(String file, java.util.function.Supplier<Optional<T>> lookup) {
-        if (root().held.contains(file)) {
-            return new FileRead<>(16, 28, null);  // #5092: a second READ UPDATE without a token, nothing released between
-        }
-        FileRead<T> r = read(file, lookup);
-        if (r.normal()) {
-            root().held.add(file);
-        }
-        return r;
-    }
-
-    /** #5092 (X52) READ FILE(file) KEYLENGTH(n) that IBM answers INVREQ: `resp2` 25 / 42 (a GENERIC KEYLENGTH not shorter than
-     *  the key / below zero) or 26 (a KEYLENGTH without GENERIC that is not the key's length). Nothing is read or held; a
-     *  second READ UPDATE on a held file is INVREQ 28 first, a planned condition next, as the stub orders them. */
-    public <T> FileRead<T> readInvalid(String file, boolean update, int resp2) {
-        if (update && root().held.contains(file)) {
-            return new FileRead<>(16, 28, null);
-        }
-        int[] planned = root().injected("READ", file);
-        if (planned != null) {
-            return new FileRead<>(planned[0], planned[1], null);
-        }
-        return new FileRead<>(16, resp2, null);
-    }
-
-    /** #4270 READ FILE(file) GTEQ / GENERIC [UPDATE] (oracle_assumptions.md X22): `lookup` searches the file (the
-     *  det port's DetCics.Store.search). RESP NORMAL and the record found, or NOTFND (13) with IBM's RESP2 80 ("An
-     *  attempt to retrieve a record based on the search argument provided is unsuccessful") -- or the condition the
-     *  harness planned, and then nothing is read. With `update` the file's record is held for a REWRITE. */
-    public <T> FileRead<T> readSearch(String file, boolean update, java.util.function.Supplier<Optional<T>> lookup) {
-        if (update && root().held.contains(file)) {
-            return new FileRead<>(16, 28, null);  // #5092
-        }
-        int[] planned = root().injected("READ", file);
-        if (planned != null) {
-            return new FileRead<>(planned[0], planned[1], null);
-        }
-        T record = lookup.get().orElse(null);
-        if (record == null) {
-            return new FileRead<>(13, 80, null);
-        }
-        if (update) {
-            root().held.add(file);
-        }
-        int[] o = root().dupkeyOr();
-        return new FileRead<>(o[0], o[1], record);
-    }
-
-    /** WRITE FILE(file) RIDFLD FROM: `exists` says whether the key is there already (DUPREC, 14, as CICS answers);
-     *  else `store` saves the record (the service's generated repository save) and RESP is NORMAL -- or the
-     *  condition the harness planned, and nothing is written. */
-    public int write(String file, boolean exists, Runnable store) {
-        int[] planned = root().injected("WRITE", file);
-        if (planned != null) {
-            return done(planned[0], planned[1]);  // #5044: the plan's RESP2 (IBM's), as the stub's WRITE sets it
-        }
-        if (exists) {
-            return done(14, 0);
-        }
-        store.run();
-        return done(0, 0);
-    }
-
-    /** REWRITE FILE(file) FROM: replaces the record a readForUpdate holds (INVREQ, 16, when none is held). */
-    public int rewrite(String file, Runnable store) {
-        int[] planned = root().injected("REWRITE", file);
-        if (planned != null) {
-            return done(planned[0], planned[1]);  // #5044
-        }
-        if (!root().held.remove(file)) {
-            return done(16, 30);  // #5092: no READ UPDATE without a token before it
-        }
-        store.run();
-        invalidateSet("READ " + file);  // IBM: a READ SET pointer is valid "until completion of a corresponding REWRITE"
-        return done(0, 0);
-    }
-
-    /** DELETE FILE(file) RIDFLD: `exists` says whether the key is there (NOTFND, 13, when not); else `remove`
-     *  deletes it (the service's generated repository delete) -- or the condition the harness planned. */
-    public int delete(String file, boolean exists, Runnable remove) {
-        int[] planned = root().injected("DELETE", file);
-        if (planned != null) {
-            return done(planned[0], planned[1]);
-        }
-        if (root().esds.containsKey(file)) {
-            return done(16, 21);  // #5092 (X22): IBM, EXEC CICS DELETE: INVREQ RESP2 21, a file that refers to a VSAM ESDS
-        }
-        return deleteRecord(file, exists, remove);
-    }
-
-    /** DELETE FILE(file) GENERIC (#5092, X22): as `delete` over every record with the generic key; a file that is not a
-     *  KSDS (an ESDS here) is INVREQ RESP2 22 (IBM: "A generic delete is issued for a file that is not a VSAM KSDS"). */
-    public int deleteGeneric(String file, boolean exists, Runnable remove) {
-        int[] planned = root().injected("DELETE", file);
-        if (planned != null) {
-            return done(planned[0], planned[1]);
-        }
-        if (root().esds.containsKey(file)) {
-            return done(16, 22);
-        }
-        return deleteRecord(file, exists, remove);
-    }
-
-    /** DELETE FILE(file) [GENERIC] KEYLENGTH(n) that IBM answers INVREQ (#5092, X22): `resp2` 25 / 42 (a GENERIC KEYLENGTH
-     *  not shorter than the key / below zero) or 26 (a KEYLENGTH without GENERIC that is not the key's length). Nothing is
-     *  deleted; a planned condition comes first, then an ESDS (21, generic 22), as the stub orders them. */
-    public int deleteInvalid(String file, boolean generic, int resp2) {
-        int[] planned = root().injected("DELETE", file);
-        if (planned != null) {
-            return done(planned[0], planned[1]);
-        }
-        return done(16, root().esds.containsKey(file) ? (generic ? 22 : 21) : resp2);
-    }
-
-    private int deleteRecord(String file, boolean exists, Runnable remove) {
-        if (!exists) {
-            return done(13, 80);
-        }
-        remove.run();
-        invalidateSet("READ " + file);  // IBM: "until completion of a corresponding ... DELETE"
-        return done(0, 0);
-    }
-
-    /** DELETE FILE(file) without RIDFLD: the record a readForUpdate holds (INVREQ, 16, when none is held). */
-    public int deleteHeld(String file, Runnable remove) {
-        int[] planned = root().injected("DELETE", file);
-        if (planned != null) {
-            return done(planned[0], planned[1]);  // #5044
-        }
-        if (root().esds.containsKey(file)) {
-            return done(16, 21);  // #5092 (X22): an ESDS
-        }
-        if (!root().held.remove(file)) {
-            return done(16, 31);  // #5092: no RIDFLD and no READ UPDATE without a token before it
-        }
-        remove.run();
-        invalidateSet("READ " + file);
-        return done(0, 0);
-    }
-
-    /** READ FILE(file) UPDATE TOKEN(d) (#5078, X52; IBM, EXEC CICS READ): the record whose key is `key` is held under a
-     *  token of its own, however many are held; returns the token (the task's 1, 2, ...: IBM leaves the value open,
-     *  ASSUMED). */
-    public int holdToken(String file, byte[] key) {
-        int id = root().nextToken++;
-        root().updateTokens.put(id, new Object[] {file, key});
-        return id;
-    }
-
-    /** A token's {file, key}, spent; null when it matches no token in use for `file` (never issued, spent, or the
-     *  token of another file's record): INVREQ, RESP2 47 ("a token whose value cannot be matched against any token in
-     *  use for an existing read for UPDATE"). */
-    private Object[] spendToken(String file, int token) {
-        Object[] t = root().updateTokens.get(token);
-        if (t == null || !t[0].equals(file)) {
-            return null;
-        }
-        root().updateTokens.remove(token);
-        return t;
-    }
-
-    /** REWRITE FILE(file) FROM TOKEN(token): replaces the record the token holds; `key` is FROM's record's key (a key
-     *  other than the held record's is refused: IBM does not say). */
-    public int rewriteToken(String file, int token, byte[] key, Runnable store) {
-        int[] planned = root().injected("REWRITE", file);
-        if (planned != null) {
-            return done(planned[0], planned[1]);
-        }
-        Object[] t = root().updateTokens.get(token);
-        if (t == null || !t[0].equals(file)) {
-            return done(16, 47);
-        }
-        if (!java.util.Arrays.equals((byte[]) t[1], key)) {
-            throw new UnsupportedOperationException("REWRITE TOKEN FROM: a key other than the held record's: not modelled");
-        }
-        spendToken(file, token);
-        store.run();
-        invalidateSet("READ " + file);
-        return done(0, 0);
-    }
-
-    /** DELETE FILE(file) TOKEN(token), no RIDFLD: deletes the record the token holds (`remove` is given its key). */
-    public int deleteToken(String file, int token, java.util.function.Consumer<byte[]> remove) {
-        int[] planned = root().injected("DELETE", file);
-        if (planned != null) {
-            return done(planned[0], planned[1]);
-        }
-        if (root().esds.containsKey(file)) {
-            return done(16, 21);  // #5092 (X22): an ESDS
-        }
-        Object[] t = spendToken(file, token);
-        if (t == null) {
-            return done(16, 47);
-        }
-        remove.accept((byte[]) t[1]);
-        invalidateSet("READ " + file);
-        return done(0, 0);
-    }
-
-    /** UNLOCK FILE(file) without TOKEN (#5079, X52): releases the record the file's readForUpdate holds; none held: no action, NORMAL (IBM). */
-    public int unlockHeld(String file) {
-        root().held.remove(file);
-        invalidateSet("READ " + file);  // IBM: "until completion of a corresponding ... UNLOCK"
-        return done(0, 0);
-    }
-
-    /** UNLOCK FILE(file) TOKEN(token): releases the record the token holds, unchanged (IBM, EXEC CICS UNLOCK). */
-    public int unlockToken(String file, int token) {
-        if (spendToken(file, token) == null) {
-            return done(16, 47);
-        }
-        invalidateSet("READ " + file);
-        return done(0, 0);
-    }
-
-    /** One file's browse: its keys (asked again on every command, so a record written meanwhile is seen), how it
-     *  started, and the last key read and in which direction (0: none yet). An RBA browse (#4213) keeps RBAs. */
-    private static final class Browse {
-        java.util.function.Supplier<java.util.NavigableSet<String>> keys;
-        boolean equal;
-        String start;
-        String last;
-        int dir;
-        boolean rba;
-        long rbaStart;
-        long rbaLast = -1;
-    }
-
-    private final Map<String, Browse> browses = new java.util.HashMap<>();
-
-    /** What a READNEXT / READPREV found: its RESP and the key read (null when none; then look nothing up). */
-    public record Browsed(int resp, int resp2, String key) {
-        public boolean normal() {
-            return resp == 0 || resp == 15;  // #4623: DUPKEY (15) delivers the record too
-        }
-    }
-
-    private static boolean highValues(String key) {
-        return !key.isEmpty() && key.chars().allMatch(ch -> ch == '\\u00ff');  // ASCII escape: javac reads source as cp1252 on Windows
-    }
-
-    private int lastResp2;
-
-    /** The RESP2 of the last STARTBR / ENDBR / DELETE by key (those that return only their RESP, an int): IBM's
-     *  documented value where the command states one (#4657) -- STARTBR INVREQ 33 (a browse is active) and NOTFND 80,
-     *  ENDBR INVREQ 35 (no browse), DELETE NOTFND 80 -- else 0, or the planned fault's. */
-    public int resp2() {
-        return root().lastResp2;
-    }
-
-    private int done(int resp, int resp2) {
-        root().lastResp2 = resp2;
-        return resp;
-    }
-
-    /** STARTBR FILE(file) RIDFLD(key) [GTEQ | EQUAL] (IBM CICS TS): positions a browse on the first key >= `key`
-     *  (GTEQ, the default) or on `key` itself (EQUAL); NOTFND (13) when there is none. A key of all X'FF'
-     *  (HIGH-VALUES) positions at the end, for READPREV. A second STARTBR on the file: INVREQ (16). `keys`: the
-     *  file's keys, in key order (e.g. the repository's ids as a TreeSet). */
-    public int startbr(String file, String key, boolean equal,
-                       java.util.function.Supplier<java.util.NavigableSet<String>> keys) {
-        int[] planned = root().injected("STARTBR", file);
-        if (planned != null) {
-            return done(planned[0], planned[1]);
-        }
-        if (root().esds.containsKey(file)) {
-            throw refused("STARTBR by key on " + file + ", an ESDS");
-        }
-        Map<String, Browse> all = root().browses;
-        if (all.containsKey(file)) {
-            return done(16, 33);
-        }
-        java.util.NavigableSet<String> k = keys.get();
-        if (!highValues(key) && (equal ? !k.contains(key) : k.ceiling(key) == null)) {
-            return done(13, 80);
-        }
-        Browse b = new Browse();
-        b.keys = keys;
-        b.equal = equal;
-        b.start = key;
-        all.put(file, b);
-        return done(0, 0);
-    }
-
-    /** READNEXT FILE(file) RIDFLD(ridfld): the key of the next record -- the one STARTBR positioned on first; set
-     *  RIDFLD to it and look the record up by it. A RIDFLD the program changed, or a READNEXT after a READPREV,
-     *  repositions at the first key >= RIDFLD. ENDFILE (20) past the last; INVREQ (16) with no browse. */
-    public Browsed readnext(String file, String ridfld) {
-        int[] planned = root().injected("READNEXT", file);
-        if (planned != null) {
-            return new Browsed(planned[0], planned.length > 1 ? planned[1] : 0, null);
-        }
-        Browse b = root().browses.get(file);
-        if (b == null) {
-            return new Browsed(16, 34, null);
-        }
-        if (b.rba) {
-            throw refused("READNEXT by key in an RBA browse of " + file);
-        }
-        java.util.NavigableSet<String> k = b.keys.get();
-        boolean changed = !ridfld.equals(b.last != null ? b.last : b.start);
-        String at;
-        if (b.dir == 1 && !changed) {
-            at = k.higher(ridfld);
-        } else if (highValues(ridfld)) {
-            at = null;
-        } else {
-            at = b.equal ? (k.contains(ridfld) ? ridfld : null) : k.ceiling(ridfld);
-        }
-        if (at == null) {
-            return new Browsed(20, 90, null);
-        }
-        b.last = at;
-        b.dir = 1;
-        int[] o = root().dupkeyOr();
-        return new Browsed(o[0], o[1], at);
-    }
-
-    /** READPREV FILE(file) RIDFLD(ridfld): the key of the previous record. Right after STARTBR the STARTBR key must
-     *  exist (else NOTFND, 13); after a READNEXT, or with RIDFLD changed, it repositions to RIDFLD and reads that
-     *  record -- so it reads again the record READNEXT just read; after a HIGH-VALUES STARTBR, the last record.
-     *  ENDFILE (20) before the first; INVREQ (16) with no browse. */
-    public Browsed readprev(String file, String ridfld) {
-        int[] planned = root().injected("READPREV", file);
-        if (planned != null) {
-            return new Browsed(planned[0], planned.length > 1 ? planned[1] : 0, null);
-        }
-        Browse b = root().browses.get(file);
-        if (b == null) {
-            return new Browsed(16, 34, null);
-        }
-        if (b.rba) {
-            throw refused("READPREV by key in an RBA browse of " + file);
-        }
-        java.util.NavigableSet<String> k = b.keys.get();
-        boolean changed = !ridfld.equals(b.last != null ? b.last : b.start);
-        String at;
-        int none;
-        if (highValues(ridfld) && (b.dir == 0 || changed)) {
-            at = k.isEmpty() ? null : k.last();
-            none = 20;
-        } else if (b.dir == -1 && !changed) {
-            at = k.lower(ridfld);
-            none = 20;
-        } else {
-            at = k.contains(ridfld) ? ridfld : null;
-            none = 13;
-        }
-        if (at == null) {
-            return new Browsed(none, none == 20 ? 90 : 80, null);
-        }
-        b.last = at;
-        b.dir = -1;
-        int[] o = root().dupkeyOr();
-        return new Browsed(o[0], o[1], at);
-    }
-
-    // ---- #4213: an ESDS browsed by relative byte address (STARTBR / READNEXT / READPREV ... RBA) ----------------
-    // IBM CICS TS, EXEC CICS STARTBR / READNEXT / READPREV, option RBA: RIDFLD "contains a relative byte address",
-    // and READNEXT / READPREV "return the relative byte address of each retrieved record". EQUAL is "the default for a
-    // direct ESDS browse"; a RIDFLD of X'FF's positions at the end, for READPREV. The records are fixed-length, in
-    // arrival order, and a record's RBA is its byte offset (oracle_assumptions.md X13); the browse moves as the keyed
-    // one does, in RBA order. Refused (UnsupportedOperationException, "... not modelled"), as the COBOL side's stub
-    // refuses them: an RBA that addresses no record, RBA on a file that is not an ESDS, a browse mixing RBA and keys.
-
-    /** An ESDS of the region: its records in arrival order, each `reclen` bytes. */
-    private record Esds(int reclen, List<byte[]> records) {
-    }
-
-    private final Map<String, Esds> esds = new java.util.HashMap<>();
-
-    /** The region's ESDS `file` (a case's dataset): its records in arrival order, each `reclen` bytes. */
-    public CicsTask withEsds(String file, int reclen, List<byte[]> records) {
-        root().esds.put(file, new Esds(reclen, new ArrayList<>(records)));
-        return this;
-    }
-
-    /** The ESDS `file`'s records, as the task leaves them. */
-    public List<byte[]> esdsRecords(String file) {
-        return root().esds.get(file).records();
-    }
-
-    /** A fullword RIDFLD's RBA: its first four bytes, big-endian, unsigned. */
-    public static long rba(byte[] ridfld) {
-        long v = 0;
-        for (int i = 0; i < 4; i++) {
-            v = (v << 8) | (ridfld[i] & 0xFF);
-        }
-        return v;
-    }
-
-    /** An RBA as the fullword CICS returns in RIDFLD. */
-    public static byte[] rbaBytes(long rba) {
-        return new byte[] {(byte) (rba >>> 24), (byte) (rba >>> 16), (byte) (rba >>> 8), (byte) rba};
-    }
-
-    private static final long RBA_END = 0xFFFFFFFFL;
-
-    private static UnsupportedOperationException refused(String what) {
-        return new UnsupportedOperationException(what + ": not modelled");
-    }
-
-    private Esds esdsOf(String file) {
-        Esds e = root().esds.get(file);
-        if (e == null) {
-            throw refused("STARTBR RBA on " + file + ", not an ESDS");
-        }
-        return e;
-    }
-
-    /** The record (0-based) at `rba`; refused when no record starts there. */
-    private static int rbaRecord(String verb, String file, Esds e, long rba) {
-        if (rba % e.reclen() == 0 && rba / e.reclen() < e.records().size()) {
-            return (int) (rba / e.reclen());
-        }
-        throw refused(verb + " RBA " + rba + " on " + file + ": no record starts there");
-    }
-
-    /** What a READNEXT / READPREV ... RBA found: its RESP and RESP2, and the record and its RBA (null: none). A record
-     *  longer than INTO is LENGERR (22) with the record still returned (CICS copies what INTO takes). */
-    public record BrowsedRba(int resp, int resp2, long rba, byte[] record) {
-        public boolean normal() {
-            return resp == 0 || resp == 15;  // #4623: DUPKEY (15) delivers the record too
-        }
-    }
-
-    /** STARTBR FILE(file) RIDFLD(rba) RBA [EQUAL]: positions on the record at `rba`, or at the end for X'FFFFFFFF'.
-     *  INVREQ (16) when a browse of the file is active. */
-    public int startbrRba(String file, long rba) {
-        int[] planned = root().injected("STARTBR", file);
-        if (planned != null) {
-            return done(planned[0], planned[1]);
-        }
-        Esds e = esdsOf(file);
-        Map<String, Browse> all = root().browses;
-        if (all.containsKey(file)) {
-            return done(16, 33);
-        }
-        if (rba != RBA_END) {
-            rbaRecord("STARTBR", file, e, rba);
-        }
-        Browse b = new Browse();
-        b.rba = true;
-        b.equal = true;
-        b.rbaStart = rba;
-        all.put(file, b);
-        return done(0, 0);
-    }
-
-    /** READNEXT FILE(file) RIDFLD(ridfld) RBA: the record STARTBR positioned on, then each next; a RIDFLD the program
-     *  changed, or a READNEXT after a READPREV, repositions at that RBA. ENDFILE (20) past the last; INVREQ (16) with
-     *  no browse. `intoLength`: INTO's length (LENGERR past it). */
-    public BrowsedRba readnextRba(String file, long ridfld, int intoLength) {
-        return rbaRead("READNEXT", 1, file, ridfld, intoLength);
-    }
-
-    /** READPREV FILE(file) RIDFLD(ridfld) RBA: right after STARTBR the STARTBR's record (or, after X'FFFFFFFF', the
-     *  last); after a READNEXT, or with RIDFLD changed, the record at RIDFLD -- the one READNEXT just read, again;
-     *  then each previous. ENDFILE (20) before the first; INVREQ (16) with no browse. */
-    public BrowsedRba readprevRba(String file, long ridfld, int intoLength) {
-        return rbaRead("READPREV", -1, file, ridfld, intoLength);
-    }
-
-    private BrowsedRba rbaRead(String verb, int dir, String file, long ridfld, int intoLength) {
-        int[] planned = root().injected(verb, file);
-        if (planned != null) {
-            return new BrowsedRba(planned[0], planned.length > 1 ? planned[1] : 0, ridfld, null);
-        }
-        Browse b = root().browses.get(file);
-        if (b == null) {
-            return new BrowsedRba(16, 34, ridfld, null);
-        }
-        if (!b.rba) {
-            throw refused(verb + " by RBA in a keyed browse of " + file);
-        }
-        Esds e = root().esds.get(file);
-        int n = e.records().size();
-        boolean changed = ridfld != (b.rbaLast >= 0 ? b.rbaLast : b.rbaStart);
-        long at;
-        if (dir > 0) {
-            if (b.dir == 0 && b.rbaStart != RBA_END && !changed) {
-                at = rbaRecord(verb, file, e, ridfld);
-            } else if (b.dir == 1 && !changed) {
-                at = ridfld / e.reclen() + 1;
-            } else if (ridfld == RBA_END) {
-                at = -1;
-            } else {
-                at = rbaRecord(verb, file, e, ridfld);
-            }
-            if (at >= n) {
-                at = -1;
-            }
-        } else {
-            if (ridfld == RBA_END && (b.dir == 0 || changed)) {
-                at = n - 1;
-            } else if (b.dir == -1 && !changed) {
-                at = ridfld / e.reclen() - 1;
-            } else {
-                at = rbaRecord(verb, file, e, ridfld);
-            }
-        }
-        if (at < 0) {
-            return new BrowsedRba(20, 90, ridfld, null);
-        }
-        byte[] rec = e.records().get((int) at);
-        long rba = at * e.reclen();
-        b.rbaLast = rba;
-        b.dir = dir;
-        if (rec.length > intoLength) {
-            return new BrowsedRba(22, 11, rba, rec);
-        }
-        int[] o = root().dupkeyOr();
-        return new BrowsedRba(o[0], o[1], rba, rec);
-    }
-
-    /** ENDBR FILE(file): the browse ends; INVREQ (16) when none is active. */
-    public int endbr(String file) {
-        int[] planned = root().injected("ENDBR", file);
-        if (planned != null) {
-            return done(planned[0], planned[1]);
-        }
-        if (root().browses.remove(file) == null) {
-            return done(16, 35);
-        }
-        invalidateSet("BROWSE " + file);  // IBM: "no longer valid after an ENDBR"
-        return done(0, 0);
-    }
-
+"""
+# #5274: the file-control family's methods live in their own module (cics_task_filecontrol.py).
+CICS_TASK_JAVA += FILECONTROL_JAVA
+CICS_TASK_JAVA += """\
     /** #4437: the task runs a program LINKed from outside the region -- a distributed program link's server. */
     public CicsTask asDplServer() {
         this.dplServer = true;
@@ -4885,6 +4441,8 @@ CICS_TASK_JAVA += """\
         final Map<String, Boolean> tdOpen = new HashMap<>();
         /** The queues SET TDQUEUE ENABLESTATUS(DISABLED) left disabled (#5168 round 5, X66). */
         final java.util.Set<String> tdDisabled = new java.util.HashSet<>();
+        /** The levels SET TDQUEUE TRIGGERLEVEL left (#5168 round 7, X66). */
+        final java.util.Map<String, Integer> tdTrigger = new java.util.HashMap<>();
         /** The extrapartition queues a READQ TD has taken a record from (reopening an input queue would restart it). */
         final java.util.Set<String> tdRead = new java.util.HashSet<>();
 
@@ -5230,6 +4788,11 @@ CICS_TASK_JAVA += """\
         /** The program level `program` runs at when another program LINKs (or XCTLs) to it with `commarea` (null:
          *  none) -- the whole record, passed by reference: what the program changes in it, the caller sees. */
         CicsTask linked(String program, Object commarea);
+        /** #5053: same, with the raw bytes of the LINK's COMMAREA: its program's DFHCOMMAREA, passed by address (what it
+         *  leaves there the caller sees), every byte -- the ones the contract DTO does not name too. */
+        default CicsTask linked(String program, Object commarea, byte[] bytes) {
+            return linked(program, commarea).withLinkArea(bytes);
+        }
 
         /** Runs `program` on `task`: `self` is the program's own runTask; a LINK / XCTL reaches the region's others. */
         void run(CicsTask task, String program, Consumer<CicsTask> self);
@@ -5338,6 +4901,9 @@ CICS_TASK_JAVA += """\
      *  numeric field holding spaces too, which the DTO reads as a number -- as a LINK's (linkArea). */
     public String xctl(String program, Object commarea, Integer length, byte[] area) {
         String resp = xctl(program, commarea, length, (Channel) null);
+        if (area != null) {  // #5053: the event carries the bytes the caller sent (base64), as a LINK's does
+            events.get(events.size() - 1).put("area", java.util.Base64.getEncoder().encodeToString(areaOf(area, length)));
+        }
         if ("NORMAL".equals(resp)) {
             xctlArea = areaOf(area, length);
         }
@@ -5356,6 +4922,22 @@ CICS_TASK_JAVA += """\
                 || o instanceof Double || o instanceof Float);
     }
 
+    /** #5060: two values are the same when equal, numbers by numeric value whatever their width or scale (an int
+     *  field passed as a long, 1.0 and 1.00): refuse, never guess. */
+    private static boolean sameValue(Object a, Object b) {
+        if (a.equals(b)) {
+            return true;
+        }
+        if (a instanceof Number && b instanceof Number) {
+            try {
+                return new java.math.BigDecimal(a.toString()).compareTo(new java.math.BigDecimal(b.toString())) == 0;
+            } catch (NumberFormatException e) {
+                return false;  // NaN, infinity: equals above decided
+            }
+        }
+        return false;
+    }
+
     /** #5060: a String or number `part` cannot be traced by reference, so it counts when it equals a value `whole`
      *  holds (an equal-valued copy is refused too: refuse, never guess).
      *  #4956: whether `part` is `whole` or an object `whole` holds (a nested group, a table, an element, a byte
@@ -5366,7 +4948,7 @@ CICS_TASK_JAVA += """\
         }
         boolean byValue = part != null && !aliasable(part);  // #5060: a value is traced by equality, not identity
         if (!aliasable(whole)) {
-            return byValue && part.equals(whole);
+            return byValue && sameValue(part, whole);
         }
         if (seen.put(whole, Boolean.TRUE) != null) {
             return false;
@@ -5375,6 +4957,13 @@ CICS_TASK_JAVA += """\
         java.util.List<Object> held = new ArrayList<>();
         if (type.isArray()) {
             if (type.getComponentType().isPrimitive()) {
+                if (byValue) {  // #5060: a numeric table's element is a value of the DTO too
+                    for (int i = 0; i < java.lang.reflect.Array.getLength(whole); i++) {
+                        if (sameValue(part, java.lang.reflect.Array.get(whole, i))) {
+                            return true;
+                        }
+                    }
+                }
                 return false;
             }
             held.addAll(Arrays.asList((Object[]) whole));
@@ -6444,6 +6033,30 @@ class CicsForge:
             "}", "",
         ])  # fmt: skip
 
+    @staticmethod
+    def link_bytes_overload(prog: CicsProgram, name: str, req: str, resp: str | None) -> list[str]:
+        """#5053: handleLink with the raw bytes of the LINK's COMMAREA, and the lastLinkBytes() accessor beside it."""
+        return [
+            "    /** #5053: handleLink with the raw bytes of the LINK's COMMAREA (passed by address: what the program",
+            "     *  leaves there the caller sees); lastLinkBytes() then answers the bytes it left. */",
+            f"    public {req if resp == req else 'void'} handleLink({req} request, byte[] area) {{",
+            f'        log.info("{prog.cls}: handleLink (bytes)");',
+            "        CicsTask.Region region = CicsTask.region();",
+            f"        CicsTask task = region.linked({name}, request, area);",
+            f"        region.run(task, {name}, this::runTask);",
+            "        byte[] left = task.linkAreaView();",
+            "        lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+            *(["        return request;"] if resp == req else []),
+            "    }\n",
+            "    // @facade-helper: the bytes the last byte-carrying handleLink's program left in the COMMAREA",
+            "    private byte[] lastLinkBytes;\n",
+            "    /** The bytes the last byte-carrying handleLink's program left in the LINK COMMAREA (a copy; null: it took",
+            "     *  none -- its DTO is the COMMAREA). @facade-helper */",
+            "    public byte[] lastLinkBytes() {",
+            "        return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
+            "    }\n",
+        ]  # fmt: skip
+
     def service_extras(self, prog: CicsProgram) -> dict:
         """The imports and methods the program's @Service gains: the handlers its endpoints call."""
         req, resp = self.link_types(prog)
@@ -6549,6 +6162,10 @@ class CicsForge:
                 f"        region.run(task, {name}, this::runTask);",
                 *(["        return request;"] if resp == req and req else []),
                 "    }\n",
+                # #5053: the same entry with the bytes of the LINK's COMMAREA (a LINK with none has no bytes to carry:
+                # `handleLink(byte[])` would only collide with the DTO form's arity), and the bytes the program left
+                # there (lastLinkBytes()): the signature above is unchanged (the equivalence harness reads it).
+                *(self.link_bytes_overload(prog, name, req, resp) if req else []),
             ]  # fmt: skip
         elif self.has_link_handler(prog):
             handler("handleLink", None, req, resp, "Another program LINKed / XCTLed to this one.")

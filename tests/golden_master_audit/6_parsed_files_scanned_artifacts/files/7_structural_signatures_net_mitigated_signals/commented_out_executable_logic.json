@@ -1964,7 +1964,7 @@
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": 0,
       "javascript/threejs/Editor.js": 0,
-      "javascript/threejs/GLTFLoader.js": 4,
+      "javascript/threejs/GLTFLoader.js": 2,
       "javascript/threejs/Matrix4.js": 0,
       "javascript/threejs/Nodes.js": 0,
       "javascript/threejs/WebGLProgram.js": 0,
@@ -2286,7 +2286,7 @@
       "livecode/livecode/revdeploylibraryios.livecodescript": 0,
       "livecode/livecode/revdocsparser.livecodescript": 0,
       "livecode/livecode/revhtml5urllibrary.livecodescript": 0,
-      "livecode/livecode/revliburl.livecodescript": 1,
+      "livecode/livecode/revliburl.livecodescript": 0,
       "livecode/livecode/revsaveasandroidstandalone.livecodescript": 0,
       "livecode/livecode/revsaveasemscriptenstandalone.livecodescript": 0,
       "livecode/livecode/stdlib__arithmetic.lcb": 0,
@@ -2488,7 +2488,7 @@
     },
     "nix/bun": {
       "nix/bun/LICENSE.md": 0,
-      "nix/bun/flake.nix": 1,
+      "nix/bun/flake.nix": 0,
       "nix/bun/shell.nix": 0
     },
     "nix/ghostty": {
@@ -2517,7 +2517,7 @@
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": 0,
-      "perl/bugzilla/Bug.pm": 1,
+      "perl/bugzilla/Bug.pm": 0,
       "perl/bugzilla/CGI.pm": 0,
       "perl/bugzilla/DB.pm": 0,
       "perl/bugzilla/Requirements.pm": 1
@@ -2532,7 +2532,7 @@
     },
     "perl/mojo": {
       "perl/mojo/IOLoop.pm": 0,
-      "perl/mojo/Makefile.PL": 1,
+      "perl/mojo/Makefile.PL": 0,
       "perl/mojo/Promise.pm": 0,
       "perl/mojo/Template.pm": 0,
       "perl/mojo/WebSocket.pm": 0
@@ -2540,7 +2540,7 @@
     "perl/spamassassin": {
       "perl/spamassassin/AsyncLoop.pm": 0,
       "perl/spamassassin/Bayes.pm": 0,
-      "perl/spamassassin/HTML.pm": 1,
+      "perl/spamassassin/HTML.pm": 0,
       "perl/spamassassin/Makefile.PL": 0,
       "perl/spamassassin/Message.pm": 0,
       "perl/spamassassin/Parser.pm": 0,
@@ -2598,8 +2598,8 @@
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 0,
       "php/wordpress/class-wp-query.php": 0,
-      "php/wordpress/formatting.php": 2,
-      "php/wordpress/functions.php": 2,
+      "php/wordpress/formatting.php": 1,
+      "php/wordpress/functions.php": 0,
       "php/wordpress/license.txt": 0,
       "php/wordpress/plugin.php": 0,
       "php/wordpress/wp-login.php": 1,
@@ -2808,7 +2808,7 @@
     "python/airflow": {
       "python/airflow/NOTICE": 0,
       "python/airflow/dag.py": 0,
-      "python/airflow/s3.py": 2,
+      "python/airflow/s3.py": 0,
       "python/airflow/scheduler_job_runner.py": 0
     },
     "python/airflow_ai_providers": {
@@ -3200,7 +3200,7 @@
       "ruby/rails/generator.rb": 0,
       "ruby/rails/inbound_emails_controller.rb": 0,
       "ruby/rails/metal.rb": 2,
-      "ruby/rails/routing.rb": 2
+      "ruby/rails/routing.rb": 0
     },
     "ruby/rails_http_token_auth": {
       "ruby/rails_http_token_auth/MIT-LICENSE": 0,
@@ -3268,7 +3268,8 @@
       "rust/tokio/maybe_done.rs": 0,
       "rust/tokio/tests.rs": 0,
       "rust/tokio/tokio_mpsc_bounded.rs": 0,
-      "rust/tokio/tokio_named_pipe.rs": 0
+      "rust/tokio/tokio_named_pipe.rs": 0,
+      "rust/tokio/tokio_udp.rs": 1
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": 0
@@ -3343,7 +3344,7 @@
     },
     "shell/curl": {
       "shell/curl/COPYING": 0,
-      "shell/curl/appveyor.sh": 1,
+      "shell/curl/appveyor.sh": 0,
       "shell/curl/cmakelint.sh": 0,
       "shell/curl/cmp-pkg-config.sh": 0,
       "shell/curl/codespell.sh": 0,
@@ -3368,10 +3369,10 @@
     },
     "shell/darwin-xnu": {
       "shell/darwin-xnu/MPMMtest_run.sh": 0,
-      "shell/darwin-xnu/generate_combined_symbolsets_plist.sh": 1,
+      "shell/darwin-xnu/generate_combined_symbolsets_plist.sh": 0,
       "shell/darwin-xnu/generate_linker_aliases.sh": 0,
       "shell/darwin-xnu/generate_linker_exports.sh": 0,
-      "shell/darwin-xnu/generate_symbolset_plist.sh": 1,
+      "shell/darwin-xnu/generate_symbolset_plist.sh": 0,
       "shell/darwin-xnu/ios_trace_ipc.sh": 0,
       "shell/darwin-xnu/iosspeedtracer.sh": 0,
       "shell/darwin-xnu/list_supported.sh": 0,
@@ -3397,6 +3398,7 @@
       "shell/freebsd-src/dd2_test.sh": 0,
       "shell/freebsd-src/dtest.sh": 0,
       "shell/freebsd-src/echo_test.sh": 0,
+      "shell/freebsd-src/ed_test.sh": 0,
       "shell/freebsd-src/format_string_test.sh": 0,
       "shell/freebsd-src/functional_test.sh": 0,
       "shell/freebsd-src/hostname_test.sh": 0,
@@ -3434,6 +3436,7 @@
       "shell/haiku/default_deskbar_items.sh": 0,
       "shell/haiku/gen-bepo.sh": 1,
       "shell/haiku/generate_CountryFlags.sh": 0,
+      "shell/haiku/generate_ids_from_drivers.sh": 0,
       "shell/haiku/install-wifi-firmwares.sh": 0,
       "shell/haiku/install.sh": 0,
       "shell/haiku/leak_analyser.sh": 0,
@@ -3789,7 +3792,7 @@
       "tcl/macports_port_api/portdistcheck.tcl": 0,
       "tcl/macports_port_api/portdistfiles.tcl": 0,
       "tcl/macports_port_api/portextract.tcl": 0,
-      "tcl/macports_port_api/portfetch.tcl": 1,
+      "tcl/macports_port_api/portfetch.tcl": 0,
       "tcl/macports_port_api/portinstall.tcl": 0,
       "tcl/macports_port_api/portlint.tcl": 0,
       "tcl/macports_port_api/portlivecheck.tcl": 0,
@@ -3859,6 +3862,7 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 0,
       "typescript/assemblyscript/ast.ts": 0,
+      "typescript/assemblyscript/builtins.ts": 0,
       "typescript/assemblyscript/compiler.ts": 0,
       "typescript/assemblyscript/package.json": 0,
       "typescript/assemblyscript/parser.ts": 0
@@ -3904,7 +3908,11 @@
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 0,
       "typescript/typescript_compiler/binder.ts": 0,
-      "typescript/typescript_compiler/package.json": 0
+      "typescript/typescript_compiler/checker.ts": 2,
+      "typescript/typescript_compiler/emitter.ts": 0,
+      "typescript/typescript_compiler/package.json": 0,
+      "typescript/typescript_compiler/parser.ts": 1,
+      "typescript/typescript_compiler/types.ts": 0
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0,
@@ -4076,6 +4084,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": 0,
       "zig/zig/InternPool.zig": 0,
+      "zig/zig/Sema.zig": 1,
       "zig/zig/Type.zig": 0,
       "zig/zig/Zcu.zig": 0,
       "zig/zig/main.zig": 0
@@ -4090,6 +4099,7 @@
       "zig/zls/analysis.zig": 0,
       "zig/zls/ast.zig": 0,
       "zig/zls/config_gen.zig": 1,
+      "zig/zls/langref.html.in": 1,
       "zig/zls/print_ast.zig": 0
     }
   },

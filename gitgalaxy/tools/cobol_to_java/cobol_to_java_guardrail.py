@@ -20,7 +20,11 @@
 #                    row class: a COMMAREA / container / record field outside the
 #                    verified layout;
 #   unknown-table    SQL naming a table the project's own SQL never uses;
-#   new-endpoint     a controller entry point the skeleton does not define.
+#   new-endpoint     a controller entry point the skeleton does not define;
+#   collation        `.compareTo(` / `.equals(` (and the IgnoreCase and Objects.equals forms)
+#                    with a String field or its getter on either side: an alphanumeric
+#                    comparison must go through CobolCompare, which follows the code page's
+#                    bytes as the program did, not Java's UTF-16 order (#4035).
 #
 # Violations exit 1. Notices (a new helper class, a deleted file) do not. The
 # report goes to agent_guardrail.json / .md, into the audit as section [4], and,
@@ -60,6 +64,13 @@ _IMPORT = re.compile(r"^[ \t]*import[ \t]+(?:static[ \t]+)?([\w.]+)[ \t]*;", re.
 _PACKAGE = re.compile(r"^[ \t]*package[ \t]+([\w.]+)[ \t]*;", re.M)
 _ANNOTATION = re.compile(r"@[\w.]+(?:\s*\((?:[^()]|\([^()]*\))*\))?")
 _MAPPING = re.compile(r"@(?:Get|Post|Put|Delete|Patch|Request)Mapping\b")
+_COMPARE = re.compile(
+    r"\.\s*(compareToIgnoreCase|compareTo|equalsIgnoreCase|equals)\s*\(|\bObjects\s*\.\s*(equals)\s*\("
+)
+_RECEIVER = re.compile(r"(\w+)\s*(?:\(\s*\))?\s*(?:\.\s*(?:trim|strip|toUpperCase|toLowerCase)\s*\(\s*\)\s*)*$")
+_OPERAND = re.compile(r"\b(\w+)\b(?!\s*\([^)])")
+_STRING_FIELD = re.compile(r"\s*(?:(?:private|public|protected|final|transient|volatile)\s+)*String\s+\w+\s*$")
+_STRING_COMPONENT = re.compile(r"\s*(?:@\w+\s+)*(?:final\s+)?String\s+\w+\s*$")
 _SQL_START = re.compile(r"^\s*(?:SELECT|INSERT|UPDATE|DELETE|MERGE|WITH)\b", re.I)
 _SQL_TABLE = re.compile(r"\b(?:FROM|JOIN|INTO|UPDATE)\s+([A-Za-z_][\w.$#@]*)", re.I)
 
@@ -126,7 +137,7 @@ def _last_ident(text: str) -> str | None:
 def read_java(src: str) -> dict:
     """What a Java file declares at class level, and what it calls and queries."""
     code, strings = split_java(src)
-    fields, methods, endpoints = [], [], []
+    fields, methods, endpoints, string_fields = [], [], [], []
     for raw, end in _class_level(code):
         text = _ANNOTATION.sub(" ", raw)  # `@Column(name = "X") private String x;` is a field
         head = text.split("=", 1)[0]
@@ -134,6 +145,8 @@ def read_java(src: str) -> dict:
             name = _last_ident(head)
             if name:
                 fields.append(name)
+                if _STRING_FIELD.match(head):
+                    string_fields.append(name)
         elif end == "{" and "(" in text and not _TYPE_DECL.search(text):
             name = _last_ident(text.split("(", 1)[0])
             if name and name not in ("if", "for", "while", "switch", "catch", "synchronized"):
@@ -151,6 +164,7 @@ def read_java(src: str) -> dict:
             else:
                 part += ch
         fields += [n for n in (_last_ident(p) for p in comps if p.strip()) if n]
+        string_fields += [n for n in (_last_ident(p) for p in comps if _STRING_COMPONENT.match(p)) if n]
     tables = sorted(
         {t.upper() for s in strings if _SQL_START.match(s) for t in _SQL_TABLE.findall(s) if not t.startswith(":")}
     )
@@ -159,6 +173,7 @@ def read_java(src: str) -> dict:
         "package": pkg.group(1) if pkg else "",
         "classes": _TYPE_DECL.findall(code),
         "fields": sorted(set(fields)),
+        "string_fields": sorted(set(string_fields)),
         "methods": sorted(set(methods)),
         "endpoints": sorted(set(endpoints)),
         "refs": sorted(set(_REF.findall(code)) - set(_TYPE_DECL.findall(code))),  # not its own `X.class`
@@ -202,6 +217,7 @@ def build_baseline(
             "program": _owner(rel, owners or {}),
             "classes": info["classes"],
             "fields": info["fields"],
+            **({"string_fields": info["string_fields"]} if info["string_fields"] else {}),
             "methods": info["methods"],
             "endpoints": info["endpoints"],
             "calls": sorted(calls),
@@ -217,6 +233,33 @@ def write_baseline(java_dir: Path, generated_from: dict | None = None,
     return baseline
 
 
+def _string_operand(text: str, names: set[str]) -> str | None:
+    """The String field (or its getter) an operand names, else None."""
+    for m in _OPERAND.finditer(text):
+        word = m.group(1)
+        if word in names:
+            return word
+        if len(word) > 3 and word.startswith("get") and word[3].isupper() and word[3].lower() + word[4:] in names:
+            return word[3].lower() + word[4:]
+    return None
+
+
+def collation_hits(code: str, names: set[str]) -> list[tuple[str, str]]:
+    """(String field, method) for each comparison call in `code` with a String field on either side."""
+    hits = []
+    for m in _COMPARE.finditer(code):
+        depth, i = 1, m.end()
+        while i < len(code) and depth:
+            depth += (code[i] == "(") - (code[i] == ")")
+            i += 1
+        method = m.group(1) or m.group(2)
+        recv = None if m.group(2) else _RECEIVER.search(code[: m.start()])
+        field = (recv and _string_operand(recv.group(1), names)) or _string_operand(code[m.end() : i - 1], names)
+        if field:
+            hits.append((field, method))
+    return hits
+
+
 # ---- the check ---------------------------------------------------------------
 def _line_of(src: str, word: str) -> int | None:
     m = re.search(rf"\b{re.escape(word)}\b", src)
@@ -228,6 +271,7 @@ def check(baseline: dict, current: dict[str, str]) -> dict:
     base = baseline["files"]
     known = {c for f in base.values() for c in f["classes"]}
     tables = set(baseline["tables"])
+    string_fields = {n for f in base.values() for n in f.get("string_fields", [])}  # absent in an older baseline
     violations: list[dict] = []
     notices: list[dict] = []
 
@@ -269,6 +313,10 @@ def check(baseline: dict, current: dict[str, str]) -> dict:
         if _kind(rel) == "controller":
             for name in sorted(set(info["endpoints"]) - set((was or {}).get("endpoints", []))):
                 flag("new-endpoint", rel, f"new entry point {name}: the skeleton defines no such transaction", name)
+        names = (string_fields | set(info["string_fields"])) if string_fields else set()
+        for field, method in sorted(set(collation_hits(split_java(current[rel])[0], names))):
+            flag("collation", rel, f"{method} on String field {field}: compare alphanumerics with CobolCompare "
+                 "(compare, eq, gt, ge, lt, le), not Java's String order", field)  # fmt: skip
         for t in info["tables"]:
             if t not in tables:
                 flag("unknown-table", rel, f"SQL names table {t}, which the project's SQL never uses", t)

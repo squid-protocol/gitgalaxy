@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/carddemo-adminmenu/port/service/Coadm01cService.java"
   ],
-  "sha256": "4edb090e63db2576e6a71452bf14e2489a167925e33679bd4097005b94959e62",
+  "sha256": "f081dfb00503dc8df16fef236ed92c3aeace68e0f7bd399292c67cc708cdf559",
   "entry_points": [
    "handleTransaction",
    "runTask"
@@ -19,14 +19,14 @@
     "tests/equivalence/carddemo-adminmenu/port/**"
    ],
    "files": 1,
-   "sha256": "4edb090e63db2576e6a71452bf14e2489a167925e33679bd4097005b94959e62"
+   "sha256": "f081dfb00503dc8df16fef236ed92c3aeace68e0f7bd399292c67cc708cdf559"
   },
   "case": {
    "paths": [
     "tests/equivalence/carddemo-adminmenu/**"
    ],
    "files": 1,
-   "sha256": "8b67ea5d25e696401b3842db52818498d815a5a7098564768f5cd338943275a6"
+   "sha256": "39f62be0b5801bc9669e0c444f30f673bc867c2228b202b3a01069025ccab7d5"
   },
   "harness": {
    "paths": [
@@ -36,6 +36,7 @@
     "tests/tools/equivalence_inputs.py",
     "tests/tools/equivalence_cics.py",
     "tests/tools/equivalence_cics_containers.py",
+    "tests/tools/equivalence_cics_filecontrol.py",
     "tests/tools/equivalence_call.py",
     "tests/tools/equivalence_cache.py",
     "tests/tools/equivalence_db2.py",
@@ -44,11 +45,11 @@
     "tests/tools/java_target_matrix.py",
     "tests/tools/equivalence_ims.py"
    ],
-   "files": 13,
-   "sha256": "fc0a04f296ea85609daf2e933a30d160dbd726ebdfdcd079060a8f638f60cb78",
+   "files": 14,
+   "sha256": "25d0470a9243da12cff391858540cdcb15165a12fb142873ef1fbc358cda48a6",
    "components": {
-    "harness:cics": "a2c2a68cf1d3fb1cb630c3143dc169906107f5c767b05ce431fc417a376cae88",
-    "harness:core": "6f13d22bab57c67e9caaf5d2714906e9c7c0149a83dcfd6650e2514e2c478318"
+    "harness:cics": "55caeea90745b3aad6afaf6ad3b52dad29f2f96eea0f4983925e2ca95ae583eb",
+    "harness:core": "120ae815acefc558bb7dd5b32a8e4200e6352f9d93fb998d70aa0398069caee6"
    }
   },
   "oracle": {
@@ -63,37 +64,39 @@
     "tests/tools/equivalence_sql.py",
     "tests/equivalence/ims/ggdli.c"
    ],
-   "files": 26,
-   "sha256": "7939e0943fd432a108ed735a15e5c9c297d9fd9639c8381ce43d26176fe4f7c7",
+   "files": 36,
+   "sha256": "32d131c5f3d27b1c94489099b37fb148b906efec6bc2ab7a90322e1ce8780cbb",
    "components": {
-    "oracle:cics-stub": "63665f662be4f63476f900abf291151ca1e91a840cfe9a0132ae2cf3921f71d7",
-    "oracle:core": "eea2a006cc58ebd1141804b10def30c657d4d2d2a3d2a19cf5d137d9dea04359",
-    "oracle:le": "66f2875621048177f9d8c839aa5b86b7a6c4888fcf8a837c04900fe6e6fe673b"
+    "oracle:cics-stub": "8d4b95cb03310f91b20292ebc95871479fe57bab9fc6ff33a625667a5860e785",
+    "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
+    "oracle:le": "a7cfa660f76e6181cb060f9f945c4e298533793957991f29d93312db11e33b3f"
    }
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 93,
-   "sha256": "746fe385081c2077ede81b34f400013f93c7599bbc207168eff8d1623143b5ee",
+   "files": 99,
+   "sha256": "3538350b8108874f1be3961c3292be067ffbc4048df491465411fea99a811492",
    "components": {
-    "generator:core": "00a51b802c3abe168274cb883cebad26a30fd953da20731ffeab526e5dfb1661",
+    "generator:core": "a7b1e205ba94cbbb82ef0cd84b755c343c2f7e8afa912e487823daaf34e29af3",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "53777d4d088757d2892d96a52197fe409893cb5471f9d3f70da21260353c471a",
+    "generator:det/cics": "8ba712e6973cfd4209fc553ec8ab80e4bb6096c12d272598d4a0be8a34d7a904",
     "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
+    "generator:det/cics_filecontrol": "3d10979d783b0f39b3184d3111b9e543cd87941cbe7814f0edc65454e6f1f2b7",
+    "generator:det/cics_taskcontrol": "7d3892cd106fe0ab3a165551af8497cb67ee0337d2cb97f7a72ef8805710bdbf",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
-    "generator:det/dli": "834aba674d85c25af1299ae19d8b49288f4bd831b578889d9bf40d83b5fea342",
-    "generator:det/dyncall": "19e29320d37a470811447e91448a577f53b1910f291371fc0889999b5f9f630a",
+    "generator:det/dli": "04ca03b9b2a187dcfc5fe62623a5ba53e509390e6ebf2bc8acf7ef3a7e7260d3",
+    "generator:det/dyncall": "ab79c3282f9bcba02dfab16f0df14d5dd77dc5c228b2a79ecdbfcfe596467c02",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
-    "generator:det/expr": "50f53f541efb6853fd8a97ba022a97e8a4f691d2bbde8655293f47f77f47a0af",
-    "generator:det/gen": "a3c01de91fac1bd5ea6a7be7a3ee22e40fba44ce5a34ebb45efc53c556ffba20",
-    "generator:det/hfp": "7371422d1821ad22c526f9ba0e37deaa0ffc38ed190c6ad76e7475d820df95a1",
+    "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
+    "generator:det/gen": "be91e8831f5d11170c1543340648202235890103eb83de046db9fa76b698e794",
+    "generator:det/hfp": "cec77a165f9657e15473ce0c2913b1256451731abc473571ed56951d0faba36c",
     "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
     "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
     "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
-    "generator:det/source": "8bd64a1f9b6a3f3ae66fd9f8380a206be5a1601cdb84a24209f659822ce4919f",
-    "generator:det/stmt": "c721d141835a1d80dd7aa3d6218e00a2f8e97d4336d12c1e2c1de32b6523acb5"
+    "generator:det/source": "88b148652fbb037ae599679a40b94360204926a88454926fa008740b3fc13507",
+    "generator:det/stmt": "014835ecefbec5b761734642ac25fc8270092f80945e8f79bcaaa9d3aee2c9ff"
    }
   },
   "corpus": {
@@ -176,13 +179,13 @@
     }
    }
   },
-  "digest": "4a264afcb7fa0fce3bb744f2fdbfa646816ddf56f48328638fd7c7121c646a47"
+  "digest": "651092d5586b14249cbf2fa8dc325240efe59acb9ec7a55b8de35310924eb15a"
  },
  "proof": {
-  "at": "2026-10-16T22:39:34Z",
+  "at": "2026-10-20T21:45:10Z",
   "verdict": "proven",
-  "runs": 19,
-  "fault_runs": 4,
+  "runs": 32,
+  "fault_runs": 5,
   "environments": null,
   "outputs": {
    "first-entry": {
@@ -260,6 +263,58 @@
    "pf3-xctl-fails": {
     "equal": 4,
     "records": 4
+   },
+   "option-10": {
+    "equal": 3,
+    "records": 3
+   },
+   "option-12": {
+    "equal": 3,
+    "records": 3
+   },
+   "option-colon": {
+    "equal": 3,
+    "records": 3
+   },
+   "option-less-than": {
+    "equal": 3,
+    "records": 3
+   },
+   "pf3-blank-to-program": {
+    "equal": 2,
+    "records": 2
+   },
+   "pf3-low-values-to-program": {
+    "equal": 2,
+    "records": 2
+   },
+   "carried-commarea-fields": {
+    "equal": 2,
+    "records": 2
+   },
+   "pf3-commarea-without-to-program": {
+    "equal": 2,
+    "records": 2
+   },
+   "carried-account-and-card-fields": {
+    "equal": 2,
+    "records": 2
+   },
+   "first-entry-carried-account-and-card-fields": {
+    "equal": 2,
+    "records": 2
+   },
+   "no-commarea-xctl-fails": {
+    "equal": 3,
+    "records": 3
+   },
+   "pf4-other-key": {
+    "equal": 3,
+    "records": 3
+   },
+   "invalid-key-unread-option-field": {
+    "equal": 3,
+    "records": 3
    }
   },
   "return_code_equal": null,
@@ -268,16 +323,16 @@
   "java_failed": false,
   "facade": {
    "verdict": "proven",
-   "runs": 19,
-   "passed": 19,
+   "runs": 32,
+   "passed": 32,
    "entry_points": [
     "handleTransaction"
    ],
    "failed": [],
    "error": null
   },
-  "harness_commit": "cf0bcb927a5e2ecb03515be08f0710b3829b24e9+uncommitted",
-  "inputs_digest": "4a264afcb7fa0fce3bb744f2fdbfa646816ddf56f48328638fd7c7121c646a47"
+  "harness_commit": "978323857d828887485d41c8aef24ef1d4c17a67+uncommitted",
+  "inputs_digest": "651092d5586b14249cbf2fa8dc325240efe59acb9ec7a55b8de35310924eb15a"
  },
  "coverage": {
   "paragraphs": {
@@ -331,7 +386,7 @@
    "total": 1
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "4a264afcb7fa0fce3bb744f2fdbfa646816ddf56f48328638fd7c7121c646a47"
+  "inputs_digest": "651092d5586b14249cbf2fa8dc325240efe59acb9ec7a55b8de35310924eb15a"
  },
  "reach": {
   "entry_points": [
@@ -348,60 +403,72 @@
    {
     "class": "Coadm01cService",
     "method": "handleLink",
-    "line": 155,
+    "line": 113,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "Coadm01cService",
+    "method": "lastLinkBytes",
+    "line": 125,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "Coadm01cService",
+    "method": "handleLink",
+    "line": 176,
     "kind": "left_as_generated"
    },
    {
     "class": "Coadm01cService",
     "method": "onConditionPgmiderrL77",
-    "line": 291,
+    "line": 312,
     "kind": "stub"
    }
   ],
   "counts": {
    "stub": 1,
-   "left_as_generated": 2,
+   "left_as_generated": 4,
    "det_helper": 0,
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "4edb090e63db2576e6a71452bf14e2489a167925e33679bd4097005b94959e62"
+  "port_sha256": "f081dfb00503dc8df16fef236ed92c3aeace68e0f7bd399292c67cc708cdf559"
  },
  "mutation": {
-  "commit": "bcb4f6f82",
+  "commit": "2721b9fc4fcec5dba0ab9277037ede4d07a84860",
   "rejudged": null,
   "seed": 0,
   "mode": null,
-  "mutants": 334,
+  "mutants": 340,
   "chosen": 100,
-  "killed": 53,
-  "survived": 42,
+  "killed": 63,
+  "survived": 32,
   "stillborn": 5,
   "survivors": {
-   "case_gap": 16,
+   "case_gap": 0,
    "harness_gap": 0,
-   "equivalent": 26,
-   "unreachable": 0,
+   "equivalent": 29,
+   "unreachable": 3,
    "untriaged": 0
   },
-  "score_raw": "53/95",
-  "score_adjusted": "53/69",
+  "score_raw": "63/95",
+  "score_adjusted": "63/63",
   "source": "docs/language_status/mutation_scores.json#carddemo-adminmenu/COADM01C",
   "inputs": {
    "port": {
-    "sha256": "4edb090e63db2576e6a71452bf14e2489a167925e33679bd4097005b94959e62"
+    "sha256": "f081dfb00503dc8df16fef236ed92c3aeace68e0f7bd399292c67cc708cdf559"
    },
    "case": {
-    "sha256": "8b67ea5d25e696401b3842db52818498d815a5a7098564768f5cd338943275a6"
+    "sha256": "23c96b9a5bc7fbcc97965edf0fd51bbcb56d2ff6fe0dd7c5d27239cb1cad1a08"
    },
    "corpus": {
     "sha256": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919"
    },
    "harness": {
-    "sha256": "3a799dc096941f8b94da64beed1ea63864a7645a8634c8589b29872ab99b6e94"
+    "sha256": "747bdfc81e535de3668e7f81a5b1b0ad45a685f1c7021d7d27eeb72a88e84493"
    },
    "oracle": {
-    "sha256": "7939e0943fd432a108ed735a15e5c9c297d9fd9639c8381ce43d26176fe4f7c7"
+    "sha256": "78abad3ef2da17f34959fee0e54309421ecc8dce147b4cd13fe6d93f195b358a"
    }
   }
  },
@@ -434,11 +501,15 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "49644e1d36214b28314ee5fc89645632e37340459e6bb8f9e94c360da7f3d09d"
+    "sha256": "4a999cd558b9f121f53f3d791b667c4871442e5f167bb07502a9eb56b15d46a9"
    },
    {
     "path": "tests/equivalence/cics/ggcics_containers.c",
     "sha256": "ef11cda70e87cf14758ca327a1e5f28bf4e7813aba11a33ab5260dd55c1a76af"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_filecontrol.c",
+    "sha256": "73a09eb183c091d3989ec16786467e091f4d6ff0e7c1ad6b6376cf02031cb5d7"
    },
    {
     "path": "tests/equivalence/cics/ggcics_spec.h",
@@ -451,6 +522,22 @@
    {
     "path": "tests/equivalence/db2/SQLDA.cpy",
     "sha256": "2f0c5b623926aa9767764344fc9d10fbbad8f9a404e2198c920a37baad8a6b6c"
+   },
+   {
+    "path": "tests/equivalence/db2/dynsql/cbl/DYNDEMO.cbl",
+    "sha256": "1e9f535f8653d3d4940ae963978f5b2856813599a0e1912b3118998fd1152203"
+   },
+   {
+    "path": "tests/equivalence/db2/dynsql/ddl/DTAB.ddl",
+    "sha256": "271155a181e5405c561a59ccd068da8ec26f2bfbf994a530640a3155bf1a6a2f"
+   },
+   {
+    "path": "tests/equivalence/db2/dynsql/jcl/DYNDEMO.jcl",
+    "sha256": "107f687e0cde38258f3cc65a501a1900f115b254ad09324d5ea60e6fb5b46c64"
+   },
+   {
+    "path": "tests/equivalence/db2/dynsql/seed.sql",
+    "sha256": "7a29b60f0801d1c8b0287ded57ccf206d109ad21627a8ceab29b9abe5ea3aa4b"
    },
    {
     "path": "tests/equivalence/db2/ggsql.c",
@@ -477,12 +564,28 @@
     "sha256": "60a4043a04f8ef42b05718e215aca89897404385a6fe3c660b5932ce0514e78a"
    },
    {
+    "path": "tests/equivalence/db2/whenever/cbl/WHENDEMO.cbl",
+    "sha256": "72422a3abc812fd33104d19fe52ebfdd5bbf5e1cf0506c009113e2db33dcfecf"
+   },
+   {
+    "path": "tests/equivalence/db2/whenever/ddl/WTAB.ddl",
+    "sha256": "4c6acedae0523d807381f3e1448b7320f2bbc137e94515733418023319c20cef"
+   },
+   {
+    "path": "tests/equivalence/db2/whenever/jcl/WHENDEMO.jcl",
+    "sha256": "9b3029a39fe1b1c5ceaf06a3ba81dde70523910c1c0d69465786563cf5924424"
+   },
+   {
+    "path": "tests/equivalence/db2/whenever/seed.sql",
+    "sha256": "0c58404dce0d48d2da82ddaf96625cbd6c9ada1bea57c89ea9a709e20df2453f"
+   },
+   {
     "path": "tests/equivalence/faults/ggabend.c",
     "sha256": "d10fab112cf8c0549c7d163d3c4907ce4bc84785170d8b2ea680946658ffbcf2"
    },
    {
     "path": "tests/equivalence/faults/ggdisplay.c",
-    "sha256": "27101f274ac2f1e81cf0b5b4567caeb25311b17a8cd16447791be76b0cf51797"
+    "sha256": "1637e53820229d9d29da3efbefada5782c98891589cb423af58151cf2919bdcb"
    },
    {
     "path": "tests/equivalence/faults/ggfault.c",
@@ -514,7 +617,11 @@
    },
    {
     "path": "tests/equivalence/le/le_time.c",
-    "sha256": "aa951d4f9e065423e5aa9e4aec605145a9250924034be2a70c736e5b7b2633ce"
+    "sha256": "07c4ce3e78b578bb8286cbc6ffcd35ea7a308533dd23b0d0b537cb310feb0e03"
+   },
+   {
+    "path": "tests/equivalence/le/mvswait.c",
+    "sha256": "ed25d9c9cf3b8f2c7a9e319fdc117bff0ff775b15c1c32b3e0d9c20c33d66321"
    },
    {
     "path": "tests/equivalence/odbc_cli.pin",
@@ -522,7 +629,7 @@
    },
    {
     "path": "tests/tools/equivalence_sql.py",
-    "sha256": "4ff432b15bd1a47e1f7618e7d456bc7d4ed6dc9183a3158295cdd0fe33b55551"
+    "sha256": "731946960e517e2174a303046e46a6ce7a92a44341feaeda2c097ffcc77eeac0"
    }
   ],
   "assumptions": null
@@ -541,7 +648,7 @@
   "provenance_file": {
    "path": "tests/equivalence/carddemo-adminmenu/port/provenance.json",
    "format": "porting-loop-provenance/1",
-   "sha256": "01db53487d72caaa87f66d8e1ba051b499363b006138e19ebf980c6744515c97"
+   "sha256": "42bf2a0f1b088208793f83dae99ad8125cf96c021b32f6daee8282d465ea19e5"
   }
  },
  "approvals": []

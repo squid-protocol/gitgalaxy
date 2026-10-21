@@ -26,6 +26,8 @@ from gitgalaxy.standards.cics.resp import DFHRESP
 from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import layout as L
 from gitgalaxy.tools.cobol_to_java.det.cics_containers import ContainerCommands  # #5274
+from gitgalaxy.tools.cobol_to_java.det.cics_filecontrol import FileControlCommands  # #5274
+from gitgalaxy.tools.cobol_to_java.det.cics_taskcontrol import TaskControlCommands  # #5274
 
 COPY = Path(__file__).parent / "copy"  # DFHEIBLK, DFHAID, DFHBMSCA
 
@@ -229,7 +231,8 @@ def parse_exec(text: str) -> tuple[list[str], dict[str, str | None]]:
 
 
 # ---- the generated DTOs ----------------------------------------------------------------------------------------
-_PROP = re.compile(r"//\s*(.+?)\n\s*private\s+([\w.<>]+)\s+(\w+);")
+_PROP = re.compile(r"//\s*(.+?)\n(?:\s*//\s*OCCURS\s+(\d+)\s+TIMES\n)?\s*private\s+([\w.<>]+)\s+(\w+);")
+_LIST = re.compile(r"List<(\w+)>")
 _LEAF = re.compile(r"([A-Z0-9-]+):\s*PIC\s+(\S+?)(?:\s+(COMP-3|COMP-5|COMP-4|COMP|BINARY|PACKED-DECIMAL|DISPLAY))?,"
                    r"\s*offset\s+(\d+),\s*(\d+)\s+bytes(?:\s*\(([^)]+)\))?")  # fmt: skip
 _PART = re.compile(r"offset\s+(\d+),\s*(\d+)\s+bytes\s*->\s*([A-Z0-9-]+)")
@@ -247,8 +250,9 @@ class Leaf:
     pic: str
     usage: str
     offset: int
-    size: int
+    size: int  # one occurrence's bytes
     source: str | None = None  # the copybook the generator read the field from
+    occurs: int = 1  # #5565: a List<T> property: `occurs` consecutive `size`-byte items
 
 
 @dataclass
@@ -278,7 +282,7 @@ class Dto:
     @property
     def extent(self) -> int:
         """Where the DTO's last property ends, in storage bytes: what its object carries."""
-        n = max((self.at(x.offset) + (POINTER_BYTES if x.usage == "POINTER" else x.size) for x in self.leaves),
+        n = max((self.at(x.offset) + (POINTER_BYTES if x.usage == "POINTER" else x.size * x.occurs) for x in self.leaves),
                 default=0)  # fmt: skip
         return max([n] + [self.at(off) + p.size for _, p, off in self.parts])
 
@@ -376,7 +380,13 @@ class Generated:
             body = mm.group(2)
             r = re.search(r"\b(\w+Repository)\.(\w+)\(", body)
             ent = re.search(r"(?:Optional|List)<(\w+)>", body)
-            if r and ent:
+            entity = ent.group(1) if ent else None
+            if r and not ent and r.group(2) == "deleteById" and len(r.group(1)) > len("Repository"):
+                # #4771: a file the program only DELETEs by RIDFLD (ZC@ID@KEY) has a void deleteX(key) stub, no entity
+                # in its signature; the forge names the repository field <entity>Repository
+                stem = r.group(1)[: -len("Repository")]
+                entity = stem[:1].upper() + stem[1:]
+            if r and entity:
                 # an alternate index: findBy<Property>(key); a browse (findBy...GreaterThanEqual...OrderBy...) and
                 # findById are the base cluster's key
                 alt = re.fullmatch(r"findBy([A-Z]\w*)", r.group(2))
@@ -388,7 +398,7 @@ class Generated:
                 )
                 name = mm.group(1).upper()
                 if name not in files or prop is None:
-                    files[name] = (r.group(1), ent.group(1), prop[0].lower() + prop[1:] if prop else None)
+                    files[name] = (r.group(1), entity, prop[0].lower() + prop[1:] if prop else None)
 
     def _file(self, kind: str, cls: str) -> Path:
         hits = list(self.java.rglob(f"{kind}/{cls}.java"))
@@ -404,7 +414,7 @@ class Generated:
         head = _DTO_RECORD.search(text)
         d.record = int(head.group(1)) if head else None
         d.occurs = "Fields inside an OCCURS group appear once" in text
-        for comment, jtype, var in _PROP.findall(text):
+        for comment, table, jtype, var in _PROP.findall(text):
             part = _PART.search(comment)
             if part:
                 d.parts.append((var, self.dto(jtype), int(part.group(1))))
@@ -418,10 +428,17 @@ class Generated:
                                      ptr.group(4)))  # fmt: skip
                 continue
             leaf = _LEAF.search(comment)
-            if not leaf or jtype not in ("String", "Integer", "Long", "Short", "BigDecimal", "java.math.BigDecimal"):
+            n, elem = int(table or 1), _LIST.fullmatch(jtype) if table else None
+            if elem:  # #5565: `OCCURS n` on an elementary item is a List of its occurrences (CardDemo's PAUKEY-PREV-PG)
+                jtype = elem.group(1)
+            if not leaf or jtype not in ("String", "Integer", "Long", "Short", "BigDecimal", "java.math.BigDecimal") \
+                    or bool(table) != bool(elem):  # fmt: skip
                 raise CicsError(f"{cls}.{var}: a property the port cannot convert ({jtype})")
+            width = int(leaf.group(5))
+            if width % n:
+                raise CicsError(f"{cls}.{var}: an OCCURS {n} table whose {width} bytes are not {n} equal items")
             d.leaves.append(Leaf(var, jtype, leaf.group(1), leaf.group(2), (leaf.group(3) or "DISPLAY").upper(),
-                                 int(leaf.group(4)), int(leaf.group(5)), leaf.group(6)))  # fmt: skip
+                                 int(leaf.group(4)), width // n, leaf.group(6), n))  # fmt: skip
         self.dtos[cls] = d
         return d
 
@@ -465,7 +482,7 @@ def item_for(leaf: Leaf) -> L.Item:
 
 
 # ---- the commands ------------------------------------------------------------------------------------------------
-class Cics(ContainerCommands):
+class Cics(ContainerCommands, FileControlCommands, TaskControlCommands):
     """Translates EXEC CICS for one program; `gen` is the program's det.gen.Gen. A command family split out of this
     file (#5274: the containers / channels commands, det/cics_containers.py) is a base class: `command` dispatches."""
 
@@ -705,8 +722,12 @@ class Cics(ContainerCommands):
             if it.size != leaf.size:
                 # the comment does not carry everything (SIGN LEADING SEPARATE): the item as its copybook declares it
                 it = self.declared(leaf)
-            f = self.g.factory(it, "s", f"base + {at}")
             cap = leaf.var[0].upper() + leaf.var[1:]
+            if leaf.occurs > 1:
+                lines_in.append(self.table_in(leaf, it, cap, at))
+                lines_out.append(self.table_out(leaf, it, cap, at))
+                continue
+            f = self.g.factory(it, "s", f"base + {at}")
             if leaf.jtype == "String":
                 lines_in.append(f'        Cobol.move(d.get{cap}() == null ? "" : d.get{cap}(), {f}, CS);')
                 lines_out.append(f"        d.set{cap}(Cobol.text({f}, CS));")
@@ -724,6 +745,26 @@ class Cics(ContainerCommands):
                             f"    private {cls} out_{cls}(Storage s, int base) {{", f"        {cls} d = new {cls}();",
                             f"        fill_{cls}(d, s, base);", "        return d;", "    }", ""]  # fmt: skip
         return cls
+
+    def table_in(self, leaf: Leaf, it: L.Item, cap: str, at: int) -> str:
+        """#5565: a List property into storage -- occurrence i at `at + i * size`; an absent or short list leaves the
+        rest as an unset scalar does (spaces / zero)."""
+        f = self.g.factory(it, "s", f"base + {at} + i * {leaf.size}")
+        got = f"d.get{cap}() == null || d.get{cap}().size() <= i"
+        if leaf.jtype == "String":
+            move = f'Cobol.move({got} ? "" : d.get{cap}().get(i), {f}, CS);'
+        else:
+            move = f"Cobol.move({got} ? BigDecimal.ZERO : new BigDecimal(d.get{cap}().get(i).toString()), {f}, CS);"
+        return f"        for (int i = 0; i < {leaf.occurs}; i++) {{ {move} }}"
+
+    def table_out(self, leaf: Leaf, it: L.Item, cap: str, at: int) -> str:
+        """#5565: every occurrence out of storage, as a List of exactly `occurs` items."""
+        f = self.g.factory(it, "s", f"base + {at} + i * {leaf.size}")
+        conv = {"Integer": ".intValue()", "Long": ".longValue()", "Short": ".shortValue()"}.get(leaf.jtype, "")
+        item = f"Cobol.text({f}, CS)" if leaf.jtype == "String" else f"Cobol.num({f}, CS){conv}"
+        jtype = "java.math.BigDecimal" if leaf.jtype == "BigDecimal" else leaf.jtype
+        return (f"        {{ java.util.List<{jtype}> t = new java.util.ArrayList<>(); "
+                f"for (int i = 0; i < {leaf.occurs}; i++) {{ t.add({item}); }} d.set{cap}(t); }}")  # fmt: skip
 
     def pointer_outside_occurs(self, cls: str, leaf: Leaf) -> None:
         """#4270 (C9): a DTO's POINTER, as its copybook declares it, is under no OCCURS -- else each occurrence would
@@ -1138,6 +1179,15 @@ class Cics(ContainerCommands):
                     f"{ind}if (task.ended()) throw abended();"]  # #4534: unwound past this level  # fmt: skip
             return out + self.outcome(opts, f"DetCics.resp({r})", "task.transferResp2()", ind)  # #4679
         if verb == "RETURN":
+            if "CHANNEL" in opts:  # #5005 (X17): the next task's current channel (CicsTask.returnChannel)
+                if not opts.get("TRANSID") or {"COMMAREA", "LENGTH", "IMMEDIATE"} & opts.keys():
+                    raise CicsError(_msg("RETURN", "at_most_one", "CHANNEL"))
+                tid, chan = self.name(_arg(opts["TRANSID"])), self.name(_arg(opts["CHANNEL"]))
+                rr = g.tmpname("rr")
+                # below the highest level it fails (INVREQ RESP2 2) and returns to the program; else the task ends
+                return [f"{ind}int[] {rr} = task.returnChannel({tid}, {chan});",
+                        f"{ind}if ({rr}[0] == 0) {{ caBack.run(); throw new Goback(); }}",
+                        *self.outcome(opts, f"{rr}[0]", f"{rr}[1]", ind)]  # fmt: skip
             if "IMMEDIATE" in opts:  # #4270 (X27): IBM, EXEC CICS RETURN IMMEDIATE -- TRANSID's task attached at once
                 if not opts.get("TRANSID"):
                     raise CicsError(
@@ -1311,28 +1361,36 @@ class Cics(ContainerCommands):
             r = g.tmpname("tdq")
             queue = self.name(_arg(opts["TDQUEUE"]))
             if key == "SET TDQUEUE":
-                if opts.get("OPENSTATUS") and opts.get("ENABLESTATUS"):
-                    raise CicsError("SET TDQUEUE with OPENSTATUS and ENABLESTATUS together: not modelled")
-                o = "ENABLESTATUS" if opts.get("ENABLESTATUS") else "OPENSTATUS"
-                if not opts.get(o):
+                given = [o for o in ("OPENSTATUS", "ENABLESTATUS", "TRIGGERLEVEL") if opts.get(o)]
+                if len(given) > 1:
+                    raise CicsError(f"SET TDQUEUE with {' and '.join(given)} together: not modelled")
+                if not given:
                     raise CicsError(_requires(key, "TDQUEUE", "OPENSTATUS"))
-                call = "setTdQueueEnableStatus" if o == "ENABLESTATUS" else "setTdQueueOpenStatus"
+                o = given[0]
+                call = {
+                    "ENABLESTATUS": "setTdQueueEnableStatus",
+                    "OPENSTATUS": "setTdQueueOpenStatus",
+                    "TRIGGERLEVEL": "setTdQueueTriggerLevel",  # #5168 round 7 (X66)
+                }[o]
                 return [f"{ind}int[] {r} = task.{call}({queue}, {self.int_(_arg(opts[o]))});",
                         *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
-            wanted = [o for o in ("OPENSTATUS", "TYPE", "ENABLESTATUS") if opts.get(o)]
+            order = ("OPENSTATUS", "TYPE", "ENABLESTATUS", "TRIGGERLEVEL", "RECOVSTATUS", "TRANSID")
+            wanted = [o for o in order if opts.get(o)]
             if not wanted:
                 raise CicsError(_requires(key, "TDQUEUE", "OPENSTATUS"))
-            # the 3-argument call (the round 3 shape) unless ENABLESTATUS is asked for
-            wants = ", ".join(
-                str(o in wanted).lower()
-                for o in ("OPENSTATUS", "TYPE", "ENABLESTATUS")[: 3 if "ENABLESTATUS" in wanted else 2]
+            # the 3-argument call (the round 3 shape) unless ENABLESTATUS is asked for; the 6-argument one (round 6) for the ATI options
+            width = (
+                6 if {"TRIGGERLEVEL", "RECOVSTATUS", "TRANSID"} & set(wanted) else 3 if "ENABLESTATUS" in wanted else 2
             )
+            wants = ", ".join(str(o in wanted).lower() for o in order[:width])
             lines = [f"{ind}int[] {r} = task.inquireTdQueue({queue}, {wants});", f"{ind}if ({r}[0] == 0) {{"]
-            for o, i in (("OPENSTATUS", 2), ("TYPE", 3), ("ENABLESTATUS", 4)):
+            for o, i in (("OPENSTATUS", 2), ("TYPE", 3), ("ENABLESTATUS", 4), ("TRIGGERLEVEL", 5), ("RECOVSTATUS", 6)):
                 if o in wanted:
                     lines.append(
                         ind + "    " + g.store_into(self.ref(_arg(opts[o])), f"BigDecimal.valueOf({r}[{i}])", False)
                     )
+            if "TRANSID" in wanted:
+                lines.append(f"{ind}    Cobol.move(task.tdTransid({queue}), {self.field(_arg(opts['TRANSID']))}, CS);")
             return [*lines, f"{ind}}}", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
         if verb == "INQUIRE" and "PROGRAM" in opts:
             r = g.tmpname("resp")
@@ -1822,282 +1880,6 @@ class Cics(ContainerCommands):
             call = f'task.webStartBrowse("{kind}", null, null)'
         return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
 
-    # -- #4270 slice 2: interval control
-    def _number(self, text: str) -> str:
-        """An INTERVAL / TIME / HOURS ... value as a Java int expression (a literal's leading zeros dropped)."""
-        t = text.strip()
-        return str(int(t)) if re.fullmatch(r"\d+", t) else self.int_(t)
-
-    def start(self, opts: dict, ind: str) -> list[str]:
-        """START TRANSID (IBM CICS TS, EXEC CICS START) on CicsTask.startRequest: INTERVAL(hhmmss) / TIME(hhmmss) /
-        AFTER or AT HOURS MINUTES SECONDS (none: INTERVAL(0)), TERMID, REQID, PROTECT, FROM's first LENGTH bytes (no
-        LENGTH: FROM's length), and the data options RTRANSID / RTERMID / QUEUE the started task RETRIEVEs. The
-        request's expiry, INVREQ RESP2 4 / 5 / 6, LENGERR, TRANSIDERR, TERMIDERR and IOERR are CicsTask's, through
-        RESP / HANDLE CONDITION. FROM's bytes go in the region's page, as a TS item's do (#4528): the started task's
-        RETRIEVE reads them back into its own storage's page."""
-        if not opts.get("TRANSID"):
-            raise CicsError(_msg("START", "required", "TRANSID"))
-        whens = [w for w in ("INTERVAL", "TIME", "AFTER", "AT") if w in opts]
-        if len(whens) > 1:
-            raise CicsError(_msg("START", "at_most_one", "INTERVAL", " and ".join(whens)))
-        when = whens[0] if whens else "INTERVAL"
-        hms = [o for o in ("HOURS", "MINUTES", "SECONDS") if o in opts]
-        if (when in ("AFTER", "AT")) != bool(hms):
-            raise CicsError(_msg("START", "requires", "HOURS", when, " ".join(hms)))
-        for g in SPEC["START"].groups:  # #4950: START CHANNEL's form -- no expiry, no data options, no REQID
-            if g.kind == "at_most_one" and g.options[0] == "CHANNEL" and all(o in opts for o in g.options):
-                raise CicsError(g.msg.format(g.options[1]))
-        chain = f"task.startRequest({self.name(_arg(opts['TRANSID']))})"
-        if hms:
-            vals = [self._number(_arg(opts[o])) if o in opts else "null" for o in ("HOURS", "MINUTES", "SECONDS")]
-            chain += f".{when.lower()}({', '.join(vals)})"
-        elif when in opts:
-            chain += f".{when.lower()}({self._number(_arg(opts[when]))})"
-        for o in ("TERMID", "REQID", "RTRANSID", "RTERMID", "QUEUE", "CHANNEL"):  # (#4950: START CHANNEL)
-            if o in opts:
-                chain += f".{o.lower()}({self.name(_arg(opts[o]))})"
-        if "FROM" in opts:
-            frm = _arg(opts["FROM"])
-            f = self.read_field(frm)
-            length = _one_of(opts, "LENGTH", "FLENGTH")
-            n = self.int_(length) if length else str(self.size(frm))
-            self.region_used = True
-            chain += f".from(DetCics.toRegion(DetCics.startData({f}, {n}), CS, REGION))"
-        elif "LENGTH" in opts or "FLENGTH" in opts:
-            raise CicsError(_msg("START", "requires", "LENGTH"))
-        if "PROTECT" in opts:
-            chain += ".protect(true)"
-        r = self.g.tmpname("start")
-        return [f"{ind}CicsTask.StartResult {r} = {chain}.issue();",
-                *self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)]  # fmt: skip
-
-    def retrieve(self, opts: dict, ind: str) -> list[str]:
-        """RETRIEVE (IBM CICS TS, EXEC CICS RETRIEVE) on CicsTask.retrieve: INTO takes at most LENGTH's value (else
-        INTO's length) -- the data into INTO's first bytes, back in the storage's page; LENGTH, a data area, is set to
-        the data's length on NORMAL and LENGERR ("On completion of the retrieval operation, the data area is set to
-        the original length of the data"); RTRANSID / RTERMID / QUEUE get the values the START gave. ENDDATA,
-        ENVDEFERR and LENGERR through RESP / HANDLE CONDITION. SET(pointer) LENGTH(data-area) (#5042, X58): the data in a new
-        block of task storage the pointer addresses (DetCics.setBlock), LENGTH its length. WAIT is refused (OPTIONS)."""
-        into = opts.get("INTO")
-        length = _one_of(opts, "LENGTH", "FLENGTH")
-        into_ptr = ""  # set by the SET branch below; read only under the same guard
-        named = [o for o in ("RTRANSID", "RTERMID", "QUEUE") if o in opts]
-        if "SET" in opts:  # #5042 (X58): SET(pointer) LENGTH(data-area): the data in a new block of task storage
-            if into:
-                raise CicsError(_msg("RETRIEVE", "at_most_one", "INTO"))
-            if length is None:
-                raise CicsError(_msg("RETRIEVE", "requires", "SET"))
-            if re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", length.strip()) is not None:
-                raise CicsError("RETRIEVE SET with a literal LENGTH: IBM says the argument must be a data area")
-            into_ptr = self.pointer(opts["SET"])
-        elif not into and (not named or length is not None):
-            raise CicsError(_msg("RETRIEVE", "requires", "LENGTH"))
-        g = self.g
-        r = g.tmpname("retrieved")
-        most = "null"
-        if into:
-            most = self.int_(length) if length else str(self.size(into))
-        elif "SET" in opts:
-            most = "Integer.MAX_VALUE"  # IBM gives SET no most: LENGTH is only set
-        flags = ", ".join(str(o in named).lower() for o in ("RTRANSID", "RTERMID", "QUEUE"))
-        out = [f"{ind}CicsTask.RetrieveResult {r} = task.retrieve({most}, {flags});"]
-        if "SET" in opts:
-            self.region_used = True
-            # IBM gives the pointer no validity end for RETRIEVE: it lasts to the task's end (ASSUMED, X58)
-            out.append(f"{ind}if ({r}.data() != null) DetCics.setBlock(task, {into_ptr}, null, "
-                       f"DetCics.fromRegion({r}.data(), REGION, CS));")  # fmt: skip
-            set_back = g.store_into(self.ref(length or ""), f"BigDecimal.valueOf({r}.length())", False)
-            out.append(f"{ind}if ({r}.length() >= 0) {set_back}")
-        elif into:
-            self.region_used = True
-            out.append(f"{ind}if ({r}.data() != null) DetCics.put({self.field(into)}, "
-                       f"DetCics.fromRegion({r}.data(), REGION, CS));")  # fmt: skip
-            settable = length is not None and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", length.strip()) is None
-            if settable and length is not None:
-                set_back = g.store_into(self.ref(length), f"BigDecimal.valueOf({r}.length())", False)
-                out.append(f"{ind}if ({r}.length() >= 0) {set_back}")
-        out += [f"{ind}if ({r}.{o.lower()}() != null) DetCics.putPadded({self.field(_arg(opts[o]))}, "
-                f"{r}.{o.lower()}(), CS);" for o in named]  # fmt: skip
-        return out + self.outcome(opts, f"DetCics.resp({r}.resp())", "0", ind)
-
-    def run_transid(self, opts: dict, ind: str) -> list[str]:
-        """RUN TRANSID CHILD (IBM CICS TS, EXEC CICS RUN TRANSID) on CicsTask.runTransid: the child task runs once this task
-        has ended (the harness's scheduler); CHILD's 16-character area gets the child token on NORMAL; TRANSIDERR
-        RESP2 1 through RESP / HANDLE CONDITION."""
-        transid, child = _option(opts, "TRANSID"), _option(opts, "CHILD")
-        if not transid or not child:
-            raise CicsError(_msg("RUN", "required", "TRANSID"))
-        r = self.g.tmpname("run")
-        channel = _option(opts, "CHANNEL")  # #4884: the child's copy of a channel (it runs after this task ends)
-        if "CHANNEL" in opts and not channel:
-            raise CicsError(NEEDS_ARGUMENT)
-        arg = self.name(transid) + (f", {self.name(channel)}" if channel else "")
-        return [f"{ind}CicsTask.RunResult {r} = task.runTransid({arg});",
-                f"{ind}if ({r}.child() != null) DetCics.putPadded({self.field(child)}, {r}.child(), CS);",
-                *self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)]  # fmt: skip
-
-    def fetch(self, key: str, opts: dict, ind: str) -> list[str]:
-        """FETCH ANY / FETCH CHILD(token) (IBM CICS TS, EXEC CICS FETCH) on CicsTask.fetch, #4950: NOSUSPEND, TIMEOUT
-        (milliseconds) or neither (it waits); on NORMAL the token goes to ANY, the reply channel's name to CHANNEL, the
-        abend code to ABCODE (only for a child that abended) and the completion status's CVDA to COMPSTATUS. The
-        conditions (NOTFINISHED 52 / 53, NOTFND, INVREQ 50 / 52) through RESP / HANDLE CONDITION."""
-        form = key.split()[1]
-        token = _option(opts, form)
-        if not token:
-            raise CicsError(_msg(key, "required", form))
-        if "NOSUSPEND" in opts and "TIMEOUT" in opts:
-            raise CicsError(_msg(key, "at_most_one", "NOSUSPEND", "NOSUSPEND", "TIMEOUT"))
-        mode, timeout = "WAIT", "0"
-        if "NOSUSPEND" in opts:
-            mode = "NOSUSPEND"
-        elif "TIMEOUT" in opts:
-            mode, timeout = "TIMEOUT", self._number(_arg(opts["TIMEOUT"]))
-        r = self.g.tmpname("fetch")
-        child = self.name(token) if form == "CHILD" else "null"
-        out = [f'{ind}CicsTask.FetchResult {r} = task.fetch({child}, "{mode}", {timeout}, {str("CHANNEL" in opts).lower()});',
-               f"{ind}if ({r}.child() != null) {{"]  # fmt: skip
-        if form == "ANY":
-            out.append(f"{ind}    DetCics.putPadded({self.field(token)}, {r}.child(), CS);")
-        if "CHANNEL" in opts:
-            out.append(f"{ind}    DetCics.putPadded({self.field(_arg(opts['CHANNEL']))}, {r}.channel(), CS);")
-        if "ABCODE" in opts:
-            out.append(
-                f"{ind}    if ({r}.abcode() != null) DetCics.putPadded({self.field(_arg(opts['ABCODE']))}, {r}.abcode(), CS);"
-            )
-        if "COMPSTATUS" in opts:
-            out.append(ind + "    " + self.g.store_into(self.ref(_arg(opts["COMPSTATUS"])),
-                                                     f"BigDecimal.valueOf({r}.compstatus())", False))  # fmt: skip
-        out.append(f"{ind}}}")
-        return out + self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)
-
-    def free_child(self, opts: dict, ind: str) -> list[str]:
-        """#4950: FREE CHILD(token) (IBM CICS TS, EXEC CICS FREE CHILD) on CicsTask.freeChild: INVREQ 50 for a token
-        that is not a child's or was freed, through RESP / HANDLE CONDITION."""
-        token = _option(opts, "CHILD")
-        if not token:
-            raise CicsError(_msg("FREE CHILD", "required", "CHILD"))
-        r = self.g.tmpname("freed")
-        return [f"{ind}CicsTask.FetchResult {r} = task.freeChild({self.name(token)});",
-                *self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)]  # fmt: skip
-
-    def delay(self, opts: dict, ind: str) -> list[str]:
-        """#4950: DELAY (IBM CICS TS, EXEC CICS DELAY) on CicsTask.delay: INTERVAL(hhmmss), or [FOR] HOURS / MINUTES /
-        SECONDS / MILLISECS, as milliseconds (CicsTask.delayMillis: -1 out of IBM's ranges); none, INTERVAL(0). A task
-        takes no time (X4): NORMAL at once, after the RUN children the wait dispatches. TIME (a time of day) and a
-        value out of range are refused in a task with RUN children (CicsTask.delay)."""
-
-        def num(o: str) -> str:
-            return f"Long.valueOf({self._number(_arg(opts[o]))})" if o in opts else "null"
-
-        if "TIME" in opts:
-            ms, what = "-1L", "DELAY TIME (a time of day)"
-        elif "INTERVAL" in opts:
-            ms, what = f"CicsTask.delayMillis({num('INTERVAL')}, null, null, null, null)", "DELAY out of range"
-        elif any(o in opts for o in ("HOURS", "MINUTES", "SECONDS", "MILLISECS")):
-            ms = f"CicsTask.delayMillis(null, {num('HOURS')}, {num('MINUTES')}, {num('SECONDS')}, {num('MILLISECS')})"
-            what = "DELAY out of range"
-        else:
-            ms, what = "0L", "DELAY"
-        return [f'{ind}task.delay({ms}, "{what}");', *self.outcome(opts, "0", "0", ind)]
-
-    def post(self, opts: dict, ind: str) -> list[str]:
-        """#5079 (X63): POST INTERVAL(hhmmss) | TIME(hhmmss) | AFTER / AT HOURS MINUTES SECONDS [SET(ptr)] [REQID] (IBM CICS TS,
-        EXEC CICS POST) on CicsTask.post. SET: the pointer takes the new timer-event control area's handle (the 4 bytes
-        SET ADDRESS OF reads, zero until posted); EXPIRED and INVREQ RESP2 4 / 5 / 6 leave it as it was. No REQID: IBM
-        "generates one" and returns it in EIBREQID, which gets CicsTask's POSTnnnn (ASSUMED). No expiry option:
-        INTERVAL(0). The conditions go through RESP / HANDLE CONDITION."""
-        whens = [w for w in ("INTERVAL", "TIME", "AFTER", "AT") if w in opts]
-        if len(whens) > 1:
-            raise CicsError(_msg("POST", "at_most_one", "INTERVAL", " and ".join(whens)))
-        when = whens[0] if whens else "INTERVAL"
-        hms = [o for o in ("HOURS", "MINUTES", "SECONDS") if o in opts]
-        if (when in ("AFTER", "AT")) != bool(hms):
-            raise CicsError(_msg("POST", "requires", "HOURS", when, " ".join(hms)))
-        vals = [self._number(_arg(opts[o])) if o in opts else "null" for o in ("HOURS", "MINUTES", "SECONDS")]
-        hhmmss = self._number(_arg(opts[when])) if when in ("INTERVAL", "TIME") and when in opts else "0"
-        reqid = self.name(_arg(opts["REQID"])) if "REQID" in opts else "null"
-        r = self.g.tmpname("post")
-        out = [f'{ind}CicsTask.PostResult {r} = task.post("{when}", {hhmmss}, {", ".join(vals)}, {reqid});']
-        if "SET" in opts:
-            out.append(f"{ind}if ({r}.handle() != 0) DetCics.setPointer({self.pointer(opts['SET'])}, {r}.handle());")
-        if "REQID" not in opts:
-            out.append(f"{ind}if ({r}.handle() != 0) DetCics.putPadded({self.field('EIBREQID')}, {r}.reqid(), CS);")
-        return [*out, *self.outcome(opts, f"DetCics.resp({r}.resp())", f"{r}.resp2()", ind)]
-
-    def wait_event(self, opts: dict, ind: str) -> list[str]:
-        """#5079 (X63): WAIT EVENT ECADDR(ptr) [NAME] (IBM CICS TS, EXEC CICS WAIT EVENT) on CicsTask.waitEvent: the area
-        a POST made is posted at its expiry (the clock runs to it; a task takes no time, X4), so the task resumes at once;
-        INVREQ RESP2 2 for a null pointer. An address that is no POST's area, or one a later POST / CANCEL / START /
-        DELAY ended, is refused when it runs. NAME only labels the waiting task (INQUIRE TASK): it changes nothing."""
-        if not opts.get("ECADDR"):
-            raise CicsError(_msg("WAIT EVENT", "required", "ECADDR"))
-        r = self.g.tmpname("waited")
-        return [f"{ind}int[] {r} = task.waitEvent(DetCics.pointerValue({self.pointer(opts['ECADDR'])}));",
-                *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
-
-    def converse(self, opts: dict, ind: str) -> list[str]:
-        """#5079 (X63): CONVERSE FROM [FROMLENGTH] INTO [TOLENGTH] [MAXLENGTH] [NOTRUNCATE] (IBM CICS TS, EXEC CICS CONVERSE
-        (default)) on CicsTask.converse: the FROM data written to the terminal (what a plain SEND records: its first
-        FROMLENGTH bytes, else FROM's length), then a terminal RECEIVE of the reply (as `receive`: the most taken is
-        MAXLENGTH, else TOLENGTH's value, else INTO's length; TOLENGTH set to the reply's length, or the original length
-        under LENGERR). LENGERR is the only condition IBM lists; the reply's EOC of an LUTYPE2 terminal is refused when it
-        runs. A negative FROMLENGTH is LENGERR with nothing sent (ASSUMED). SET and the conversation options are refused by
-        name by the spec entry."""
-        for req in ("FROM", "INTO"):
-            if not opts.get(req):
-                raise CicsError(_msg("CONVERSE", "required", req))
-        frm = _arg(opts["FROM"])
-        sent = _one_of(opts, "FROMLENGTH", "FROMFLENGTH")
-        length = _one_of(opts, "TOLENGTH", "TOFLENGTH")
-        most = _one_of(opts, "MAXLENGTH", "MAXFLENGTH")
-        settable = length is not None and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", length.strip()) is None
-        g = self.g
-        n = self.int_(sent) if sent else str(self.size(frm))
-        fixed = self.constant_int(sent) if sent else None
-        t, r = g.tmpname("text"), g.tmpname("conversed")
-        text = (
-            "Cobol.text({}, CS)"
-            if not sent or (fixed is not None and fixed <= self.size(frm))
-            else 'new String(DetCics.withinRecord({}, {}, "CONVERSE"), CS)'
-        ).format(self.read_field(frm), n)
-        target = self.field(opts["INTO"])
-        limit = self.int_(most) if most else self.int_(length) if length else str(self.size(opts["INTO"]))
-        out = [f"{ind}String {t} = {text};",
-               (f"{ind}CicsTask.Received {r} = task.converse({t}.substring(0, Math.min({t}.length(), Math.max({n}, 0))), "
-                f"{n}, {limit}, {str('NOTRUNCATE' in opts).lower()});"),
-               f"{ind}if ({r}.data() != null) DetCics.received({target}, {r}.data(), CS);"]  # fmt: skip
-        if settable and length is not None:
-            out.append(
-                f"{ind}if ({r}.length() >= 0) "
-                + g.store_into(self.ref(length), f"BigDecimal.valueOf({r}.length())", False)
-            )
-        return out + self.outcome(opts, f"DetCics.resp({r}.resp())", "0", ind)
-
-    def cancel(self, opts: dict, ind: str) -> list[str]:
-        """CANCEL REQID (IBM CICS TS, EXEC CICS CANCEL) on CicsTask.cancel: NORMAL for a request not yet expired,
-        NOTFND when none matches "an unexpired interval control command"."""
-        reqid = _option(opts, "REQID")
-        if not reqid:
-            raise CicsError(_msg("CANCEL", "required", "REQID"))
-        r = self.g.tmpname("cancelled")
-        return [f"{ind}int {r} = DetCics.resp(task.cancel({self.name(reqid)}));",
-                *self.outcome(opts, r, "0", ind)]  # fmt: skip
-
-    # -- #4413: terminal control without a map
-    def send_control(self, opts: dict, ind: str) -> list[str]:
-        """SEND CONTROL (IBM, EXEC CICS SEND CONTROL): device controls, recorded with CicsTask.sendControl. CURSOR
-        names an offset ("a halfword binary value that specifies the cursor position relative to zero"); without
-        one IBM documents no meaning (symbolic cursor positioning needs a map), so it is refused. No condition it
-        documents arises on a plain terminal: NORMAL."""
-        cursor = "null"
-        if "CURSOR" in opts:
-            if not opts["CURSOR"]:
-                raise CicsError("SEND CONTROL CURSOR without a value: not modelled")
-            cursor = self.int_(opts["CURSOR"])
-        flags = [o for o in _SEND_CONTROL if o in opts]  # (sorted by the runtime)
-        return [f"{ind}task.sendControl({cursor}{''.join(', ' + G_jstr(x) for x in sorted(flags))});",
-                *self.outcome(opts, "0", "0", ind)]  # fmt: skip
-
     def pointer(self, text: str | None) -> str:
         """#4771 (X47): the Field of the plain USAGE POINTER item an option names (SET / DATAPOINTER)."""
         from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
@@ -2532,43 +2314,6 @@ class Cics(ContainerCommands):
         out.append(f"{ind}}}")
         return out + self.input_outcome(opts, resp, ind)
 
-    # -- #4213: an ESDS browsed by relative byte address (IBM DBB EPSMLIST)
-    def _rba(self, verb: str, opts: dict) -> bool:
-        """Whether the command addresses its file by RBA; what is not modelled is a hole by name. Modelled: STARTBR /
-        READNEXT / READPREV ... RBA (CicsTask's RBA browse, oracle_assumptions.md X13). XRBA, RRN, READ / WRITE / DELETE
-        by RBA, and GTEQ / KEYLENGTH / GENERIC / REQID in an RBA browse are not (IBM: GTEQ "is not valid for directly
-        browsing an ESDS")."""
-        for o in ("XRBA", "RRN"):
-            if o in opts:
-                raise CicsError(f"{verb} {o}: not modelled")
-        if "RBA" not in opts:
-            return False
-        if verb not in ("STARTBR", "READNEXT", "READPREV"):
-            raise CicsError(f"{verb} RBA: not modelled")
-        for o in ("GTEQ", "KEYLENGTH", "GENERIC", "REQID"):
-            if o in opts:
-                raise CicsError(f"{verb} RBA {o}: not modelled")
-        if self.size(opts["RIDFLD"]) < 4:
-            raise CicsError(f"{verb} RBA: RIDFLD {opts['RIDFLD']} is shorter than the fullword an RBA is")
-        return True
-
-    def rba_browse(self, verb: str, opts: dict, ind: str) -> list[str]:
-        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
-        rid = self.field(opts["RIDFLD"])
-        rba = f"CicsTask.rba(DetCics.bytes({rid}, 4))"
-        if verb == "STARTBR":
-            r = self.g.tmpname("resp")
-            return [f"{ind}int {r} = task.startbrRba({file}, {rba});", *self.outcome(opts, r, "task.resp2()", ind)]
-        r = self.g.tmpname("read")
-        fn = "readnextRba" if verb == "READNEXT" else "readprevRba"
-        into = self.field(opts["INTO"])
-        return [f"{ind}CicsTask.BrowsedRba {r} = task.{fn}({file}, {rba}, {self.size(opts['INTO'])});",
-                f"{ind}if ({r}.record() != null) {{",
-                f"{ind}    DetCics.put({rid}, CicsTask.rbaBytes({r}.rba()));",
-                f"{ind}    DetCics.put({into}, {r}.record());",
-                f"{ind}}}",
-                *self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)]  # fmt: skip
-
     def constant_int(self, text: str) -> int | None:
         """An option's value when the translator knows it: an integer literal, LENGTH OF an item, or a data item
         with a numeric VALUE the program never changes; else None."""
@@ -2592,395 +2337,6 @@ class Cics(ContainerCommands):
         if len(vals) == 1 and vals[0][0] == "num" and self.g.never_written(it):
             return int(vals[0][1])
         return None
-
-    def _keylength(self, verb: str, opts: dict) -> int | None:
-        """#4411: KEYLENGTH is honoured only as what it changes nothing for, the file's full key (a shorter one is a
-        generic key, an unequal one INVREQ): a known value equal to the key's length, on a file the port knows.
-
-        #4270 READ GENERIC (oracle_assumptions.md X22): the generic key's length -- a known value above zero and
-        shorter than the key (IBM, EXEC CICS READ: INVREQ RESP2 25 for one "greater than or equal to the length of a
-        full key", 42 below zero; zero undocumented), refused by name otherwise. Returns the length searched: the
-        generic key's, else the full key's (None without KEYLENGTH)."""
-        generic = verb == "READ" and "GENERIC" in opts
-        if "KEYLENGTH" not in opts:
-            return None
-        arg = _arg(opts["KEYLENGTH"])
-        n = self.constant_int(arg)
-        if n is None and re.fullmatch(r"-\s*\d+", arg.strip()):  # a negative literal (IBM: INVREQ 42 for GENERIC)
-            n = -int(re.sub(r"\D", "", arg))
-        name = self.constant(opts.get("DATASET") or opts.get("FILE"))
-        mapped = self.gp.file(name) if name is not None else None
-        if n is None or mapped is None:
-            raise CicsError(f"{verb} KEYLENGTH({arg}): not a known length on a known file, so maybe not the full key")
-        _, key = self.gp.entity_key(mapped[1], mapped[2])
-        # #5092 (X52), IBM, EXEC CICS READ: INVREQ RESP2 25 GENERIC KEYLENGTH "greater than or equal to the length of a
-        # full key", 42 "less than zero", 26 a KEYLENGTH without GENERIC that is not the key's length; zero is undocumented
-        if generic and n < 0:
-            raise KeylengthInvreq(f"{verb} GENERIC KEYLENGTH({arg}) = {n}: INVREQ (RESP2 42)", 42)
-        if generic and n >= key:
-            raise KeylengthInvreq(f"{verb} GENERIC KEYLENGTH({arg}) = {n}, the key is {key}: INVREQ (RESP2 25)", 25)
-        if generic and n == 0:
-            raise CicsError(f"{verb} GENERIC KEYLENGTH({arg}) = {n}: not above zero (INVREQ / undocumented)")
-        if not generic and n != key:
-            raise KeylengthInvreq(f"{verb} KEYLENGTH({arg}) = {n}, the key is {key}: INVREQ (RESP2 26)", 26)
-        return n
-
-    def _search(self, opts: dict, file: str, st: str, rec: str) -> tuple[str, str] | None:
-        """#4270 READ GTEQ / GENERIC (oracle_assumptions.md X22): the read call and the held key's expression, None for
-        a plain keyed READ. IBM, EXEC CICS READ: GENERIC -- "the search key is a generic key whose length is
-        specified in the KEYLENGTH option"; GTEQ -- "if the search for a record that has the same key (complete or
-        generic) ... is unsuccessful, the first record that has a greater key is retrieved"; NOTFND RESP2 80
-        (CicsTask.readSearch). A READ UPDATE holds the record found (its key, not RIDFLD's)."""
-        gteq, generic = "GTEQ" in opts, "GENERIC" in opts
-        if not (gteq or generic):
-            return None
-        if gteq and "EQUAL" in opts:
-            raise CicsError(_msg("READ", "at_most_one", "EQUAL", "EQUAL", "GTEQ"))
-        if generic and "KEYLENGTH" not in opts:
-            raise CicsError(_msg("READ", "requires", "GENERIC"))
-        n = self._keylength("READ", opts)
-        rid = _arg(opts.get("RIDFLD"))
-        gt = "true" if gteq else "false"
-        update = "true" if "UPDATE" in opts and "TOKEN" not in opts else "false"  # a TOKEN read is held by its token
-        if n is None:  # GTEQ on the full key: the file's
-            name = self.constant(opts.get("DATASET") or opts.get("FILE"))
-            if name is None:
-                # #4771 (zECS FILE(ZF-FCT)): a file named at run time -- its key length is the one of the store that name
-                # picks then; a name the project stores no file for is a Hole then, as store() makes it for every other
-                # command on such a file; a RIDFLD shorter than that key is refused then, as below (X6)
-                if not self.gp.files:
-                    hole = f'throw new Hole("CICS file " + {file} + ": the program names no file the generated project stores");'
-                    return f"task.readSearch({file}, {update}, () -> {{ {hole} }})", f"{st}.keyOf({{}}.record())"
-                k = self.g.tmpname("keylen")
-                search = (f"{{ int {k} = {self._runtime_keylength(file)}; if ({rec}.length < {k}) throw new "
-                          f'DetCics.PastFrom("READ RIDFLD({rid}) shorter than the key searched: not modelled"); '
-                          f"return {st}.search({rec}, {k}, {gt}); }}")  # fmt: skip
-                return f"task.readSearch({file}, {update}, () -> {search})", f"{st}.keyOf({{}}.record())"
-            mapped = self.gp.file(name) if name is not None else None
-            if mapped is None:
-                raise CicsError(
-                    "READ GTEQ: not a known file, so not a known key length"
-                    + f" (FILE {name!r} is no file the project stores)"
-                )
-            _, n = self.gp.entity_key(mapped[1], mapped[2])
-        if self.size(rid) < n:  # CICS would read the storage after RIDFLD, laid out unlike IBM's by GnuCOBOL (X6)
-            raise CicsError(f"READ RIDFLD({rid}) is {self.size(rid)} bytes, shorter than the {n} bytes searched")
-        call = f"task.readSearch({file}, {update}, () -> {st}.search({rec}, {n}, {gt}))"
-        return call, f"{st}.keyOf({{}}.record())"
-
-    def _read_length(self, verb: str, opts: dict) -> str | None:
-        """A read's LENGTH (IBM, EXEC CICS READ: "the length ... of the data area where the record is to be put. On
-        completion ... the actual length of the record"; a longer record "is truncated", LENGERR RESP2 11).
-
-        #4436: a keyed READ models it (DetCics.readInto): the LENGTH operand is returned for the code to emit, or None
-        where it changes nothing -- a literal or LENGTH OF equal to INTO's own length, nothing to set back. READNEXT /
-        READPREV and the RBA browse still honour only INTO's own length (#4411); any other is refused by name."""
-        if "LENGTH" not in opts:
-            return None
-        arg = _arg(opts["LENGTH"])
-        n = self.constant_int(arg)
-        into = self.size(_arg(opts.get("INTO")))
-        fixed = re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", arg.strip()) is not None
-        if n is not None and n == into and (fixed or verb != "READ" or "RBA" in opts):
-            return None
-        if verb == "READ" and "RBA" not in opts:
-            return arg
-        raise CicsError(f"{verb} LENGTH({arg}): not INTO's length (LENGERR, the length read: not modelled)")
-
-    def read(self, verb: str, opts: dict, ind: str) -> list[str]:
-        """READ / READNEXT / READPREV. #5042 (X58) SET(pointer): the record in a new block of task storage the pointer
-        addresses (DetCics.setBlock), valid -- IBM, EXEC CICS READ -- "until the next READ command for the same file or until
-        completion of a corresponding REWRITE, DELETE, or UNLOCK command, or a SYNCPOINT in the case of READ UPDATE SET";
-        READNEXT / READPREV: "until the next READNEXT or READPREV command specifies SET for the same browse (REQID) for the
-        same file ... no longer valid after an ENDBR or SYNCPOINT" (CicsTask.acquireSet / invalidateSet). RBA, a LENGTH on
-        a browse and a SET with INTO are refused by name; READ's LENGTH(data-area) is set to the record's length."""
-        if bool(opts.get("INTO")) == ("SET" in opts):
-            raise CicsError(_msg(verb, "one_of", "INTO", verb))
-        if "SET" in opts and ("RBA" in opts or "RRN" in opts or "XRBA" in opts):
-            raise CicsError(
-                f"{verb} SET with RBA / RRN / XRBA: not modelled (the block would hold a relative-byte record)"
-            )
-        if self._rba(verb, opts):
-            self._read_length(verb, opts)
-            return self.rba_browse(verb, opts, ind)
-        searched = verb == "READ" and ("GTEQ" in opts or "GENERIC" in opts)
-        if verb == "READ":
-            try:
-                self._keylength(verb, opts)
-            except (
-                KeylengthInvreq
-            ) as bad:  # #5092 (X52): the read is not done: INVREQ with IBM's RESP2 (CicsTask.readInvalid)
-                r = self.g.tmpname("read")
-                file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
-                update = "true" if "UPDATE" in opts and "TOKEN" not in opts else "false"
-                return [
-                    f"{ind}CicsTask.FileRead<byte[]> {r} = task.readInvalid({file}, {update}, {bad.resp2});",
-                    *self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind),
-                ]
-        elif not searched:
-            self._keylength(verb, opts)
-        if "SET" in opts:
-            return self.read_set(verb, opts, ind)
-        length = self._read_length(verb, opts)
-        st = self.store(opts)
-        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
-        into = self.field(opts["INTO"])
-        rid = self.field(opts["RIDFLD"])
-        if verb == "READ" and length is not None:
-            return self.read_length(opts, length, file, st, into, rid, ind)
-        g = self.g
-        r, rec = g.tmpname("read"), g.tmpname("rec")
-        if verb == "READ":
-            fn = "readForUpdate" if "UPDATE" in opts and "TOKEN" not in opts else "read"  # TOKEN: held by the token
-            call, held = f"task.{fn}({file}, () -> {st}.find({rec}))", rec
-            search = self._search(opts, file, st, rec)
-            if search is not None:
-                call, held = search[0], search[1].format(r)
-            out = [
-                f"{ind}byte[] {rec} = DetCics.bytes({rid});",
-                f"{ind}CicsTask.FileRead<byte[]> {r} = {call};",
-                f"{ind}if ({r}.record() != null) {{",
-                f"{ind}    DetCics.put({into}, {r}.record());",
-                *([f"{ind}    heldKey.put({file}, {held});"] if "UPDATE" in opts and "TOKEN" not in opts else []),
-                *self.token_out(opts, file, st, r, f"{ind}    "),
-                f"{ind}}}",
-            ]
-            return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
-        fn = "readnext" if verb == "READNEXT" else "readprev"
-        out = [f"{ind}CicsTask.Browsed {r} = task.{fn}({file}, new String(DetCics.bytes({rid}), CS));",
-               f"{ind}if ({r}.normal()) {{",
-               f"{ind}    DetCics.put({rid}, {r}.key().getBytes(CS));",
-               f"{ind}    {st}.find({r}.key().getBytes(CS)).ifPresent(b -> DetCics.put({into}, b));",
-               f"{ind}}}"]  # fmt: skip
-        return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
-
-    def read_set(self, verb: str, opts: dict, ind: str) -> list[str]:
-        """#5042 (X58): READ / READNEXT / READPREV SET(pointer): as the INTO form (the same store lookups, holds and
-        tokens), but the record goes into a new block the pointer addresses. READ's LENGTH(data-area) is set to the
-        record's length (IBM: "the LENGTH parameter contains the actual length of the record"); a LENGTH that is a
-        literal, on a browse, or with a READ UPDATE LENGERR has nothing to say here and is refused."""
-        g = self.g
-        ptr = self.pointer(opts["SET"])
-        st = self.store(opts)
-        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
-        rid = self.field(opts["RIDFLD"])
-        length = None
-        if "LENGTH" in opts:
-            arg = _arg(opts["LENGTH"])
-            if verb != "READ" or re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", arg.strip()) is not None:
-                raise CicsError(f"{verb} SET with LENGTH({arg}): only a data area on READ is modelled (it is set to the "
-                                "record's length)")  # fmt: skip
-            length = arg
-        r, rec = g.tmpname("read"), g.tmpname("rec")
-        if verb == "READ":
-            update = "UPDATE" in opts or "TOKEN" in opts  # TOKEN implies UPDATE
-            fn = "readForUpdate" if "UPDATE" in opts and "TOKEN" not in opts else "read"
-            call, held = f"task.{fn}({file}, () -> {st}.find({rec}))", rec
-            search = self._search(opts, file, st, rec)
-            if search is not None:
-                call, held = search[0], search[1].format(r)
-            out = [f"{ind}byte[] {rec} = DetCics.bytes({rid});",
-                   f"{ind}CicsTask.FileRead<byte[]> {r} = {call};",
-                   f"{ind}if ({r}.record() != null) {{",
-                   f'{ind}    DetCics.setBlock(task, {ptr}, "READ " + {file}, {r}.record(), {str(update).lower()});',
-                   *([f"{ind}    heldKey.put({file}, {held});"] if "UPDATE" in opts and "TOKEN" not in opts else []),
-                   *self.token_out(opts, file, st, r, f"{ind}    ")]  # fmt: skip
-            if length is not None:
-                out.append(
-                    f"{ind}    " + g.store_into(self.ref(length), f"BigDecimal.valueOf({r}.record().length)", False)
-                )
-            out.append(f"{ind}}}")
-            return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
-        fn = "readnext" if verb == "READNEXT" else "readprev"
-        got = g.tmpname("rec")
-        out = [f"{ind}CicsTask.Browsed {r} = task.{fn}({file}, new String(DetCics.bytes({rid}), CS));",
-               f"{ind}if ({r}.normal()) {{",
-               f"{ind}    DetCics.put({rid}, {r}.key().getBytes(CS));",
-               f"{ind}    byte[] {got} = {st}.find({r}.key().getBytes(CS)).orElse(null);",
-               f'{ind}    if ({got} != null) DetCics.setBlock(task, {ptr}, "BROWSE " + {file}, {got}, true);',
-               f"{ind}}}"]  # fmt: skip
-        return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
-
-    def token_out(self, opts: dict, file: str, st: str, r: str, ind: str) -> list[str]:
-        """#5078 (X52): READ ... UPDATE TOKEN(d) -- the record read is held under a token (CicsTask.holdToken) that is
-        stored into d, a fullword (IBM, EXEC CICS READ: "a unique identifier for this READ UPDATE request"; "If you
-        specify TOKEN it implies update"). The key held is the record's own, as the stub holds it."""
-        if "TOKEN" not in opts:
-            return []
-        if not opts["TOKEN"]:
-            raise CicsError("READ TOKEN needs a data area")
-        tok = self.g.tmpname("tok")
-        return [f"{ind}int {tok} = task.holdToken({file}, {st}.keyOf({r}.record()));",
-                f"{ind}{self.g.store_into(self.ref(_arg(opts['TOKEN'])), f'BigDecimal.valueOf({tok})', False)}"]  # fmt: skip
-
-    def read_length(self, opts: dict, length: str, file: str, st: str, into: str, rid: str, ind: str) -> list[str]:
-        """#4436: READ ... INTO LENGTH(length). LENGTH's value is the most the program takes: the record goes INTO,
-        truncated to it with LENGERR (22, RESP2 11) when longer, and LENGTH is set to the record's length (on NORMAL
-        and LENGERR; a literal's or LENGTH OF's temporary is set by CICS and read by no one). What IBM leaves
-        undocumented or the storage layout decides is refused at run time by DetCics.readInto (a negative LENGTH; a
-        record moved past INTO; LENGERR on READ UPDATE -- whether the record is still held)."""
-        g = self.g
-        r, rec = g.tmpname("read"), g.tmpname("rec")
-        resp, resp2 = g.tmpname("resp"), g.tmpname("resp2")
-        update = "UPDATE" in opts or "TOKEN" in opts  # TOKEN implies UPDATE
-        fn = "readForUpdate" if "UPDATE" in opts and "TOKEN" not in opts else "read"
-        call, held = f"task.{fn}({file}, () -> {st}.find({rec}))", rec
-        search = self._search(opts, file, st, rec)  # #4270: GTEQ / GENERIC
-        if search is not None:
-            call, held = search[0], search[1].format(r)
-        settable = re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()) is None
-        out = [f"{ind}byte[] {rec} = DetCics.bytes({rid});",
-               f"{ind}CicsTask.FileRead<byte[]> {r} = {call};",
-               f"{ind}int {resp} = {r}.resp();",
-               f"{ind}int {resp2} = {r}.resp2();",
-               f"{ind}if ({r}.record() != null) {{",
-               f"{ind}    {resp} = DetCics.readInto({into}, {r}.record(), {self.int_(length)}, {str(update).lower()});",
-               f"{ind}    {resp2} = {resp} == 22 ? 11 : 0;"]  # fmt: skip
-        if update and "TOKEN" not in opts:
-            out.append(f"{ind}    heldKey.put({file}, {held});")  # (LENGERR on READ UPDATE: refused above)
-        out += self.token_out(opts, file, st, r, f"{ind}    ")
-        if settable:
-            set_back = g.store_into(self.ref(length), f"BigDecimal.valueOf({r}.record().length)", False)
-            out.append(f"{ind}    {set_back}")
-        out.append(f"{ind}}}")
-        return out + self.outcome(opts, resp, resp2, ind)
-
-    def record_from(self, opts: dict) -> str:
-        """A WRITE / REWRITE's record: FROM's bytes, or LENGTH bytes from FROM's first (as CICS reads them)."""
-        frm = self.read_field(opts["FROM"])
-        if opts.get("LENGTH"):
-            return f"DetCics.bytes({frm}, {self.int_(_arg(opts['LENGTH']))})"
-        return f"DetCics.bytes({frm})"
-
-    def _runtime_keylength(self, file: str) -> str:
-        """#4771: the key length of the store a file name picks at run time (the project's stores, by name); a name it
-        stores no file for is a Hole then, as store() makes it."""
-        lengths = "; ".join(f"case {G_jstr(f)} -> {self.gp.entity_key(e, p)[1]}"
-                            for f, (_repo, e, p) in self.gp.files.items())  # fmt: skip
-        return (f'switch ({file}) {{ {lengths}; default -> throw new Hole("CICS file " + {file} + ": no store in the '
-                f'generated project"); }}')  # fmt: skip
-
-    def delete_generic(self, opts: dict, ind: str) -> list[str]:
-        """#4771 (zECS ZECS003) DELETE GENERIC (IBM, EXEC CICS DELETE; register X22): every record whose key starts with
-        RIDFLD's first KEYLENGTH bytes, NOTFND RESP2 80 when none does (CicsTask.deleteGeneric). #5092 (X22), IBM INVREQ
-        RESP2: 42 a KEYLENGTH below zero, 25 one "greater than or equal to the length of a full key" (here when the file is
-        known, at run time when it is named then), 22 on a file that is not a KSDS (CicsTask, at run time); zero is
-        undocumented and refused by name."""
-        for o in ("KEYLENGTH", "RIDFLD"):
-            if not opts.get(o):
-                raise CicsError(_requires("DELETE", "GENERIC", o))
-        arg = _arg(opts["KEYLENGTH"])
-        n = self.constant_int(arg)
-        if n is None and re.fullmatch(r"-\s*\d+", arg.strip()):  # a negative literal
-            n = -int(re.sub(r"\D", "", arg))
-        if n is None:
-            raise CicsError(f"DELETE GENERIC KEYLENGTH({arg}): not a known length")
-        if n == 0:
-            raise CicsError(f"DELETE GENERIC KEYLENGTH({arg}) = {n}: not above zero (undocumented)")
-        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
-        name = self.constant(opts.get("DATASET") or opts.get("FILE"))
-        g = self.g
-        r = g.tmpname("resp")
-        bad = 42 if n < 0 else None
-        if name is not None and bad is None:
-            mapped = self.gp.file(name)
-            if mapped is None:
-                raise CicsError(f"DELETE GENERIC: FILE {name!r} is no file the project stores, so not a known key")
-            if n >= self.gp.entity_key(mapped[1], mapped[2])[1]:
-                bad = 25
-        if bad is not None:  # INVREQ: nothing is read from RIDFLD nor deleted (CicsTask.deleteInvalid)
-            return [
-                f"{ind}int {r} = task.deleteInvalid({file}, true, {bad});",
-                *self.outcome(opts, r, "task.resp2()", ind),
-            ]
-        rid = _arg(opts["RIDFLD"])
-        if self.size(rid) < n:  # CICS would read the storage after RIDFLD, laid out unlike IBM's by GnuCOBOL (X6)
-            raise CicsError(f"DELETE RIDFLD({rid}) is {self.size(rid)} bytes, shorter than the {n}-byte generic key")
-        st = self.store(opts)
-        gk, found = g.tmpname("generic"), g.tmpname("found")
-        out = [f"{ind}byte[] {gk} = DetCics.bytes({self.field(rid)});"]
-        call = [f"task.deleteGeneric({file}, {st}.search({gk}, {n}, false).isPresent(), () -> {{",
-                f"{ind}    java.util.Optional<byte[]> {found};",
-                f"{ind}    while (({found} = {st}.search({gk}, {n}, false)).isPresent()) {st}.remove({st}.keyOf({found}.get()));",
-                f"{ind}}})"]  # fmt: skip
-        if name is None and self.gp.files:  # named at run time: the key of the store the name picks then
-            out += [f"{ind}int {r};",
-                    f"{ind}if ({n} >= {self._runtime_keylength(file)}) {r} = task.deleteInvalid({file}, true, 25);",
-                    f"{ind}else {r} = {call[0]}", *call[1:-1], f"{call[-1]};"]  # fmt: skip
-        else:
-            out += [f"{ind}int {r} = {call[0]}", *call[1:-1], f"{call[-1]};"]
-        return out + self.outcome(opts, r, "task.resp2()", ind)
-
-    def token_update(self, verb: str, opts: dict, ind: str) -> list[str]:
-        """#5078 (X52): REWRITE / DELETE / UNLOCK TOKEN(t) act on the record the READ UPDATE TOKEN that returned `t` holds
-        (IBM). A token matching none in use is INVREQ RESP2 47 (CicsTask.rewriteToken / deleteToken / unlockToken)."""
-        if not opts["TOKEN"]:
-            raise CicsError(f"{verb} TOKEN needs a value")
-        if verb == "DELETE" and opts.get("RIDFLD"):
-            raise CicsError(_msg("DELETE", "at_most_one", "RIDFLD", "RIDFLD", "TOKEN"))
-        st = self.store(opts)
-        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
-        tok = self.int_(_arg(opts["TOKEN"]))
-        r = self.g.tmpname("resp")
-        if verb == "REWRITE":
-            rec = self.g.tmpname("rec")
-            out = [f"{ind}byte[] {rec} = {self.record_from(opts)};",
-                   f"{ind}int {r} = task.rewriteToken({file}, {tok}, {st}.keyOf({rec}), () -> {st}.store({rec}));"]  # fmt: skip
-        elif verb == "DELETE":
-            out = [f"{ind}int {r} = task.deleteToken({file}, {tok}, k -> {st}.remove(k));"]
-        else:  # UNLOCK
-            out = [f"{ind}int {r} = task.unlockToken({file}, {tok});"]
-        return out + self.outcome(opts, r, "task.resp2()", ind)
-
-    def file_update(self, verb: str, opts: dict, ind: str) -> list[str]:
-        if self._rba(verb, opts):
-            return self.rba_browse(verb, opts, ind)
-        if verb == "DELETE" and "GENERIC" in opts:  # #4771
-            if "TOKEN" in opts:
-                raise CicsError(_msg("DELETE", "at_most_one", "GENERIC", "GENERIC", "TOKEN"))
-            return self.delete_generic(opts, ind)
-        if "TOKEN" in opts:  # #5078 (X52): the record a READ UPDATE TOKEN holds
-            return self.token_update(verb, opts, ind)
-        if verb == "UNLOCK":  # #5079 (X52): the file's tokenless hold
-            file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
-            r = self.g.tmpname("resp")
-            return [f"{ind}int {r} = task.unlockHeld({file});", *self.outcome(opts, r, "task.resp2()", ind)]
-        if verb == "DELETE":
-            try:
-                self._keylength(verb, opts)
-            except KeylengthInvreq as bad:  # #5092 (X22): IBM INVREQ 26, a KEYLENGTH that is not the key's length
-                file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
-                r = self.g.tmpname("resp")
-                return [f"{ind}int {r} = task.deleteInvalid({file}, false, {bad.resp2});",
-                        *self.outcome(opts, r, "task.resp2()", ind)]  # fmt: skip
-        else:
-            self._keylength(verb, opts)
-        st = self.store(opts)
-        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
-        g = self.g
-        r = g.tmpname("resp")
-        if verb == "WRITE":
-            rid = self.field(opts["RIDFLD"])
-            out = [f"{ind}int {r} = task.write({file}, {st}.exists(DetCics.bytes({rid})), "
-                   f"() -> {st}.store({self.record_from(opts)}));"]  # fmt: skip
-        elif verb == "REWRITE":
-            out = [f"{ind}int {r} = task.rewrite({file}, () -> {st}.store({self.record_from(opts)}));"]
-        elif verb == "DELETE":
-            if opts.get("RIDFLD"):
-                rid = self.field(opts["RIDFLD"])
-                out = [f"{ind}int {r} = task.delete({file}, {st}.exists(DetCics.bytes({rid})), "
-                       f"() -> {st}.remove(DetCics.bytes({rid})));"]  # fmt: skip
-            else:
-                held = g.tmpname("held")
-                out = [f"{ind}byte[] {held} = heldKey.get({file});",
-                       f"{ind}int {r} = task.deleteHeld({file}, () -> {st}.remove({held}));"]  # fmt: skip
-        elif verb == "STARTBR":
-            rid = self.field(opts["RIDFLD"])
-            out = [f"{ind}int {r} = task.startbr({file}, new String(DetCics.bytes({rid}), CS), "
-                   f"{'true' if 'EQUAL' in opts else 'false'}, () -> {st}.keys());"]  # fmt: skip
-        else:  # ENDBR
-            out = [f"{ind}int {r} = task.endbr({file});"]
-        return out + self.outcome(opts, r, "task.resp2()", ind)  # #4657: IBM's RESP2 (CicsTask.resp2)
 
 
 def _option(opts: dict, name: str) -> str | None:

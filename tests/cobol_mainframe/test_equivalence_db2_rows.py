@@ -232,6 +232,175 @@ def test_the_updacc_port_holds_on_generated_db2_rows(tmp_path):
     assert {x["sqlcode"] for q in sql for x in q["cobol"]} >= {0, 100}
 
 
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_inqacc_port_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's INQACC (CICS, Db2 cursor) proves on 30 generated ACCOUNT rows and 41 LINKs: statements answered alike,
+    the table alike after every task, and a generated NULL last-statement date reaches FETCH -305 and the ABNDPROC
+    LINK + HRAC abend on both sides (the harness folds -304 / -305 into the fetched row: the abend is the proof)."""
+    import json
+    import shutil
+    import subprocess
+
+    if not shutil.which("docker"):
+        pytest.skip("no docker")
+    tool = Path(__file__).resolve().parents[1] / "tools" / "equivalence.py"
+    proc = subprocess.run([sys.executable, str(tool), "run", "cbsa-inqacc-generated", "--keep", str(tmp_path)],  # noqa: S603
+                          capture_output=True, text=True, check=False)  # fmt: skip
+    assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
+    report = json.loads((tmp_path / "report.json").read_text())
+    assert report["proven"] is True and report["db2_generated"] == {"IBMUSER.ACCOUNT": 30}
+    outs = list(report["outputs"].values())
+    assert len(outs) == 41 and all(o["sql"]["statements"] and o["sql"]["equal"] == o["sql"]["statements"] for o in outs)
+    assert {x["sqlcode"] for o in outs for x in o["sql"]["cobol"]} >= {0, 100}
+    assert any(e.get("abcode") == "HRAC" for o in outs for e in o["cobol"])
+
+
+def _det_port_generated(case, work):
+    """#4507: det-port the case (no hand port exists for these CBSA programs), prove it, return the report."""
+    import json
+    import shutil
+    import subprocess
+
+    if not shutil.which("docker"):
+        pytest.skip("no docker")
+    tool = Path(__file__).resolve().parents[1] / "tools" / "det_port.py"
+    proc = subprocess.run([sys.executable, str(tool), "run", case, "--work", str(work)],  # noqa: S603
+                          capture_output=True, text=True, check=False)  # fmt: skip
+    assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
+    return json.loads((work / case / "proof" / "report.json").read_text())
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_acctctrl_det_port_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's ACCTCTRL (CICS, SELECT COUNT(*)) on 30 generated ACCOUNT rows: the count answered alike on both sides."""
+    report = _det_port_generated("cbsa-acctctrl-generated", tmp_path)
+    assert report["proven"] is True and report["db2_generated"] == {"IBMUSER.ACCOUNT": 30}
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    assert len(sql) == 6 and all(q["statements"] and q["equal"] == q["statements"] for q in sql)
+    assert report["coverage"]["branches"]["covered"] == report["coverage"]["branches"]["total"]
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_delacc_det_port_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's DELACC (CICS, SELECT + DELETE + PROCTRAN INSERT) on 30 generated ACCOUNT rows: statements answered alike
+    (+0 and +100), ACCOUNT and PROCTRAN alike after every task, and a generated NULL date abends HRAC on both sides."""
+    report = _det_port_generated("cbsa-delacc-generated", tmp_path)
+    assert report["proven"] is True and report["db2_generated"] == {"IBMUSER.ACCOUNT": 30}
+    sql = [o["sql"] for o in report["outputs"].values() if "sql" in o]
+    assert sql and all(q["statements"] and q["equal"] == q["statements"] for q in sql)
+    assert {x["sqlcode"] for q in sql for x in q["cobol"]} >= {0, 100}
+    assert any(e.get("abcode") == "HRAC" for o in report["outputs"].values() for e in o["cobol"])
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_inqacccu_det_port_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's INQACCCU (CICS, ACC-CURSOR by customer, LINK INQCUST) on 30 generated ACCOUNT rows: statements answered
+    alike on both sides and ACCOUNT alike after every task."""
+    report = _det_port_generated("cbsa-inqacccu-generated", tmp_path)
+    assert report["proven"] is True and report["db2_generated"] == {"IBMUSER.ACCOUNT": 30}
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    assert sql and all(q["statements"] and q["equal"] == q["statements"] for q in sql)
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_dbcrfun_det_port_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's DBCRFUN (CICS, SELECT + UPDATE + PROCTRAN INSERT) on 30 generated ACCOUNT rows: statements answered alike
+    on both sides (+0 and +100), ACCOUNT and PROCTRAN alike after every task."""
+    report = _det_port_generated("cbsa-dbcrfun-generated", tmp_path)
+    assert report["proven"] is True and report["db2_generated"] == {"IBMUSER.ACCOUNT": 30}
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    assert len(sql) == 40 and all(q["statements"] and q["equal"] == q["statements"] for q in sql)
+    assert {x["sqlcode"] for q in sql for x in q["cobol"]} >= {0, 100}
+    assert any(x["verb"] == "INSERT" for q in sql for x in q["cobol"])
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_xfrfun_det_port_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's XFRFUN (CICS, two SELECT + UPDATE pairs + PROCTRAN INSERT, SYNCPOINT ROLLBACK) on 30 generated ACCOUNT
+    rows: statements answered alike on both sides, including the UPDATE Db2 rejects with -180 (SQLSTATE 22007) when a
+    NULL-date read left the host date unset -- the JDBC driver refuses those bytes on the client, and the harness
+    logs the statement as Db2's answer."""
+    report = _det_port_generated("cbsa-xfrfun-generated", tmp_path)
+    assert report["proven"] is True and report["db2_generated"] == {"IBMUSER.ACCOUNT": 30}
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    assert len(sql) == 40 and all(q["equal"] == q["statements"] for q in sql)  # (amount <= 0 and FROM = TO: no SQL)
+    assert sum(1 for q in sql if q["statements"]) >= 20
+    assert {x["sqlcode"] for q in sql for x in q["cobol"]} >= {0, 100, -180}
+    assert any(x["verb"] == "INSERT" for q in sql for x in q["cobol"])
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_bnk1cra_screen_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's credit / debit screen (BNK1CRA -> DBCRFUN) on 30 generated ACCOUNT rows: typed account numbers drawn from
+    them (some no row holds), statements answered alike on both sides, ACCOUNT and PROCTRAN alike. (BNK1TFN: its
+    RETURN LENGTH(29) passes more than its 28-byte DTO, and the deployed-entry-point check refuses that: not yet.)"""
+    report = _det_port_generated("cbsa-bnk1cra-generated", tmp_path)
+    assert report["proven"] is True and report["db2_generated"] == {"IBMUSER.ACCOUNT": 30}
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    assert sql and all(q["equal"] == q["statements"] for q in sql)
+    assert sum(1 for q in sql if q["statements"]) >= 10
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_bnk1dac_screen_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's display / delete screen (BNK1DAC -> INQACC, DELACC) on 30 generated ACCOUNT rows: inquiries and PF5
+    deletes of numbers the rows hold, statements answered alike on both sides, ACCOUNT and PROCTRAN alike. (The
+    screen's ACCNO2 never misses: a letters-for-digits value makes the Java NUMVAL throw where GnuCOBOL's reads 0.)"""
+    report = _det_port_generated("cbsa-bnk1dac-generated", tmp_path)
+    assert report["proven"] is True and report["db2_generated"] == {"IBMUSER.ACCOUNT": 30}
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    assert sql and all(q["equal"] == q["statements"] for q in sql)
+    assert any(x["verb"] == "DELETE" for q in sql for x in q["cobol"])
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_bnk1uac_screen_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's update screen (BNK1UAC -> INQACC, UPDACC) on 30 generated ACCOUNT rows: inquiries and PF5 updates of numbers
+    the rows hold (and some they do not), every event and statement answered alike on both sides, ACCOUNT and PROCTRAN
+    alike. Not asserted: the report's `proven`, which also needs the java-facade leg, and BNK1UAC's facade refuses (its
+    RETURN passes a LENGTH past the DTO and no layout converts the bytes, the hand-written cbsa-bnk1uac too)."""
+    report = _det_port_generated("cbsa-bnk1uac-generated", tmp_path)
+    assert report["db2_generated"] == {"IBMUSER.ACCOUNT": 30} and not report["refused"]
+    outputs = report["outputs"]
+    assert outputs and all(o["equal"] == o["records"] and not o["diffs"] for o in outputs.values())
+    sql = [o["sql"] for k, o in outputs.items() if k.startswith("generated") and "sql" in o]
+    assert sql and all(q["equal"] == q["statements"] for q in sql)
+    assert any(x["verb"] == "UPDATE" for q in sql for x in q["cobol"])
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_bnk1tfn_screen_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's transfer screen (BNK1TFN -> XFRFUN) on 30 generated ACCOUNT rows (PROCTRAN empty, no foreign key joins
+    them): FROM and TO numbers drawn from the rows (some none holds), every statement answered alike on both sides
+    (SELECT, UPDATE, INSERT; 0, +100 and the -180 of a NULL-date UPDATE), ACCOUNT and PROCTRAN alike after every task.
+    Amounts are ones a binary double holds exactly: BNK1TFN moves the typed amount through a COMP-2 and GnuCOBOL and
+    the port differ on 12.34 and 0.01 (see the case's notes)."""
+    report = _det_port_generated("cbsa-bnk1tfn-generated", tmp_path)
+    assert report["proven"] is True and report["db2_generated"] == {"IBMUSER.ACCOUNT": 30}
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    assert len(sql) == 40 and all(q["equal"] == q["statements"] for q in sql)
+    assert sum(1 for q in sql if q["statements"]) >= 10
+    assert {x["sqlcode"] for q in sql for x in q["cobol"]} >= {0, 100}
+    assert {x["verb"] for q in sql for x in q["cobol"]} >= {"SELECT", "UPDATE", "INSERT"}
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_bnk1cca_screen_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's customer-account list (BNK1CCA -> INQACCCU) on 30 generated ACCOUNT rows keyed to the customers the
+    CUSTOMER file holds: typed customer numbers drawn from them (some no row holds), statements answered alike on
+    both sides, ACCOUNT alike after every task."""
+    report = _det_port_generated("cbsa-bnk1cca-generated", tmp_path)
+    assert report["proven"] is True and report["db2_generated"] == {"IBMUSER.ACCOUNT": 30}
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    assert sql and all(q["equal"] == q["statements"] for q in sql)
+    assert {x["sqlcode"] for q in sql for x in q["cobol"]} >= {0, 100}
+
+
+def test_the_harness_logs_a_statement_the_driver_refuses_on_the_client_as_db2s_minus_180():
+    """The Java outcome log (EquivalenceDb2Config) names the -4220 bind refusal and answers it -180 / 22007."""
+    assert "getErrorCode() == -4220" in db2.CONFIG and 'o.state = "22007"' in db2.CONFIG
+
+
 _BATCH_CBL = """\
        FD TR-RECORD RECORDING MODE F.
        01 WS-INPUT-VARS.
@@ -345,3 +514,124 @@ def test_clp_connect_ok_is_unchanged(monkeypatch):
     monkeypatch.setattr(db2.subprocess, "run", _fake_run(0, 'SQL0204N  "T" is an undefined name.  SQLSTATE=42704\n'))
     with pytest.raises(RuntimeError, match="SQL0204N"):
         db2._clp("SELECT * FROM T;")
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_bnk1cac_screen_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's create-account screen (BNK1CAC -> CREACC) on 30 generated ACCOUNT rows keyed to the customers customer.txt
+    holds, 12 generated PROCTRAN rows and the two generated CONTROL counter rows CREACC reads and bumps: customer
+    numbers drawn from the rows (some none holds), every statement answered alike on both sides, the three tables alike
+    after every task. Rates are ones both IEEE and HFP hold exactly (see the case's notes)."""
+    report = _det_port_generated("cbsa-bnk1cac-generated", tmp_path)
+    assert report["proven"] is True
+    assert report["db2_generated"] == {"IBMUSER.ACCOUNT": 30, "IBMUSER.PROCTRAN": 12, "IBMUSER.CONTROL": 2}
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    assert len(sql) == 40 and all(q["equal"] == q["statements"] for q in sql)
+    assert {x["verb"] for q in sql for x in q["cobol"]} >= {"SELECT", "UPDATE", "INSERT"}
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_creacc_service_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's CREACC (LINKed create-account service) on 30 generated ACCOUNT rows, 12 generated PROCTRAN rows and the
+    two generated CONTROL counter rows it reads and bumps: customer numbers drawn from the rows (some none holds), every
+    statement answered alike on both sides, the three tables alike after every task, the injected faults kept."""
+    report = _det_port_generated("cbsa-creacc-generated", tmp_path)
+    assert report["proven"] is True
+    assert report["db2_generated"] == {"IBMUSER.ACCOUNT": 30, "IBMUSER.PROCTRAN": 12, "IBMUSER.CONTROL": 2}
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    assert len(sql) == 40 and all(q["equal"] == q["statements"] for q in sql)
+    assert {x["verb"] for q in sql for x in q["cobol"]} >= {"SELECT", "UPDATE", "INSERT"}
+    assert report["coverage"]["paragraphs"]["covered"] == report["coverage"]["paragraphs"]["live"]
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_delcus_service_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's DELCUS (LINKed delete-customer service; LINKs INQCUST, INQACCCU and DELACC) on 30 generated ACCOUNT rows
+    and 12 generated PROCTRAN rows: customer numbers drawn from the rows (some none holds), every statement answered
+    alike on both sides, ACCOUNT and PROCTRAN alike after every task, the injected faults kept."""
+    report = _det_port_generated("cbsa-delcus-generated", tmp_path)
+    assert report["proven"] is True
+    assert report["db2_generated"] == {"IBMUSER.ACCOUNT": 30, "IBMUSER.PROCTRAN": 12}
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    assert len(sql) == 30 and all(q["equal"] == q["statements"] for q in sql)
+    assert {x["verb"] for q in sql for x in q["cobol"]} >= {"SELECT", "DELETE", "INSERT"}
+    assert report["coverage"]["paragraphs"]["covered"] == report["coverage"]["paragraphs"]["live"]
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_the_bnk1ccs_screen_holds_on_generated_db2_rows(tmp_path):
+    """CBSA's create-customer screen (BNK1CCS -> CRECUST) on 12 generated PROCTRAN rows, the only table CRECUST touches:
+    every title spelling and field width, dates of birth before 1601 only (L1: later ones are the oracle's refusal, so
+    no customer is created), every statement answered alike on both sides, PROCTRAN alike after every task."""
+    report = _det_port_generated("cbsa-bnk1ccs-generated", tmp_path)
+    assert report["proven"] is True and report["db2_generated"] == {"IBMUSER.PROCTRAN": 12}
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    assert sql and all(q["equal"] == q["statements"] for q in sql)
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_cotrtlic_screen_holds_on_generated_db2_rows(tmp_path):
+    """CardDemo's transaction-type list (COTRTLIC) on 14 generated TRANSACTION_TYPE and 20 generated category rows:
+    filters and D / U selections typed, PF10 DELETE / UPDATE of a generated type, every statement answered alike on
+    both sides. Six generated scenarios drive WS-STRING-OUT to length 0 (X8, named in bounds_refused); the injected
+    SQL faults reach the DSNTIAC hole, which the report names rather than compares."""
+    report = _det_port_generated("carddemo-cotrtlic-generated", tmp_path)
+    assert report["proven"] is True
+    assert report["db2_generated"] == {"CARDDEMO.TRANSACTION_TYPE": 14, "CARDDEMO.TRANSACTION_TYPE_CATEGORY": 20}
+    assert {k for k in report["refused"] if k.startswith("generated-") and "--" not in k} == {
+        f"generated-{i:02d}" for i in (3, 4, 10, 15, 21, 22)
+    }
+    sql = [o["sql"] for o in report["outputs"].values() if "sql" in o]
+    assert sql and all(q["equal"] == q["statements"] for q in sql)
+    assert {x["verb"] for q in sql for x in q["cobol"]} >= {"SELECT", "UPDATE", "DELETE"}
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_copaus2c_det_port_holds_on_generated_db2_rows(tmp_path):
+    """CardDemo's fraud-report service (COPAUS2C, LINKed) on 6 generated AUTHFRDS rows: authorizations whose key a row
+    holds (INSERT -803, then the UPDATE) and ones it does not (INSERT), and the two injected -913 faults, alike on both
+    sides with AUTHFRDS alike after every task, every paragraph and branch covered."""
+    report = _det_port_generated("carddemo-copaus2c-generated", tmp_path)
+    assert report["proven"] is True and report["db2_generated"] == {"CARDDEMO.AUTHFRDS": 6}
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    assert len(sql) == 24 and all(q["statements"] and q["equal"] == q["statements"] for q in sql)
+    assert {(x["verb"], x["sqlcode"]) for q in sql for x in q["cobol"]} >= {
+        ("INSERT", 0),
+        ("INSERT", -803),
+        ("UPDATE", 0),
+    }
+    assert report["coverage"]["branches"]["covered"] == report["coverage"]["branches"]["total"]
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_lgapdb01_port_holds_on_generated_multi_table_db2_rows(tmp_path):
+    """GenApp's add-policy service (LGAPDB01, LINKed with LGAPVS01) on generated CUSTOMER, POLICY and type-table rows
+    joined by foreign keys: 24 generated requests (house / motor / commercial / unknown id in turn) name a generated
+    customer, every statement answered alike on both sides and the five compared tables alike after every task. The
+    -530 miss path (clock stamp in the error log, X6) and the endowment path (X8) are not generated."""
+    import json
+    import shutil
+    import subprocess
+
+    if not shutil.which("docker"):
+        pytest.skip("no docker")
+    tool = Path(__file__).resolve().parents[1] / "tools" / "equivalence.py"
+    proc = subprocess.run([sys.executable, str(tool), "run", "genapp-lgapdb01-generated", "--keep", str(tmp_path)],  # noqa: S603
+                          capture_output=True, text=True, check=False)  # fmt: skip
+    assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
+    report = json.loads((tmp_path / "report.json").read_text())
+    assert report["proven"] is True
+    assert report["db2_generated"] == {
+        "GENASA1.CUSTOMER": 10,
+        "GENASA1.POLICY": 12,
+        "GENASA1.ENDOWMENT": 3,
+        "GENASA1.HOUSE": 4,
+        "GENASA1.MOTOR": 4,
+        "GENASA1.COMMERCIAL": 3,
+    }
+    sql = [o["sql"] for k, o in report["outputs"].items() if k.startswith("generated") and "sql" in o]
+    # (the unknown-id requests RETURN before any statement)
+    assert len(sql) == 24 and all(q["equal"] == q["statements"] for q in sql)
+    assert sum(1 for q in sql if q["statements"]) == 18
+    verbs = {x["verb"] for q in sql for x in q["cobol"]}
+    assert verbs >= {"SELECT", "INSERT"} and {x["sqlcode"] for q in sql for x in q["cobol"]} == {0}

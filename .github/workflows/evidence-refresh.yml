@@ -201,7 +201,7 @@ jobs:
         run: |
           python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
           pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
-          pip install -e "./gitgalaxy[translator]"
+          pip install --no-build-isolation -e "./gitgalaxy[translator]"
 
       - name: Setup JDK 17
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
@@ -405,7 +405,7 @@ jobs:
       - name: Install GitGalaxy
         run: |
           python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
-          pip install -e "./gitgalaxy"
+          pip install --no-build-isolation -e "./gitgalaxy"
 
       - name: Take the parts' results
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
@@ -507,7 +507,7 @@ jobs:
           # [translator]: tree-sitter-language-pack, which the det translator parses COBOL with. Without it every det
           # proof fails to translate and the sweep proves 0/40 (#4270), as run 37661913700 did.
           pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
-          pip install -e "./gitgalaxy[translator]"
+          pip install --no-build-isolation -e "./gitgalaxy[translator]"
 
       - name: Setup JDK 17
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
@@ -657,7 +657,7 @@ jobs:
           # [translator]: tree-sitter-language-pack, which the det translator parses COBOL with. Without it every det
           # proof fails to translate and the sweep proves 0/40 (#4270), as run 37661913700 did.
           pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
-          pip install -e "./gitgalaxy[translator]"
+          pip install --no-build-isolation -e "./gitgalaxy[translator]"
 
       - name: Setup JDK 17
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
@@ -827,7 +827,7 @@ jobs:
           # [translator]: tree-sitter-language-pack, which the det translator parses COBOL with. Without it every det
           # proof fails to translate and the sweep proves 0/40 (#4270), as run 37661913700 did.
           pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
-          pip install -e "./gitgalaxy[translator]"
+          pip install --no-build-isolation -e "./gitgalaxy[translator]"
 
       - name: Cache the pinned corpora
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -1001,6 +1001,24 @@ jobs:
           path: gitgalaxy/docs/language_status/evidence_report
           retention-days: 1
 
+      # #4054: the estate roll-up (E0-E4 from the evidence records, lines from the corpora checked out above). It is written
+      # outside the repository and published on its own path: evidence_report.py treats any extra file under evidence_report/
+      # as stray. A failure here never blocks the L0-L5 report above.
+      - name: Roll up the estate evidence (#4054)
+        id: estate
+        continue-on-error: true
+        run: |
+          cd gitgalaxy
+          PYTHONPATH="$PWD" python tests/tools/estate_evidence.py --out "$RUNNER_TEMP/estate-evidence"
+
+      - name: Keep the estate roll-up for the publish job
+        if: always() && steps.estate.outcome == 'success'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: estate-evidence
+          path: ${{ runner.temp }}/estate-evidence
+          retention-days: 1
+
       - name: Summary
         if: always()
         run: |
@@ -1123,6 +1141,25 @@ jobs:
             --message "evidence report as of main $SHA" \
             docs/language_status/evidence_report
 
+      # #4054: the estate roll-up, when the refresh job built one (a missing artifact skips, never fails, the report above).
+      - name: Download the estate roll-up
+        id: estate
+        continue-on-error: true
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: estate-evidence
+          path: main/docs/language_status/estate_evidence
+
+      - name: Publish the estate roll-up to the generated branch
+        if: steps.estate.outcome == 'success'
+        env:
+          SHA: ${{ needs.refresh.outputs.sha }}
+        run: |
+          cd main
+          python tests/tools/generated_branch.py publish --stamp estate-evidence \
+            --message "estate evidence roll-up as of main $SHA" \
+            docs/language_status/estate_evidence
+
   publish-blockers:
     needs: [refresh]
     if: ${{ !cancelled() && needs.refresh.outputs.surveyed == 'true' }}
@@ -1153,7 +1190,7 @@ jobs:
       - name: Install GitGalaxy
         run: |
           python -m pip install --require-hashes -r main/ci/requirements/bootstrap.txt
-          pip install -e ./main
+          pip install --no-build-isolation -e ./main
 
       - name: Take the refresh job's survey
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2

@@ -54,6 +54,7 @@ class Procedure:
     paragraphs: list
     execs: dict  # placeholder number -> EXEC text
     using: list  # PROCEDURE DIVISION USING items
+    returning: str | None = None  # #5106: PROCEDURE DIVISION ... RETURNING item
 
 
 PHRASES = {"at_end": "AT-END", "not_at_end": "NOT-AT-END", "invalid_key": "INVALID-KEY",
@@ -86,10 +87,17 @@ def parse(lines: list[Line]) -> Procedure:
         raise E.ExprError("no PROCEDURE DIVISION")
     header = m.group(0)
     using = []
+    returning = None
     u = re.search(r"\bUSING\b(.*)\.", header, re.I | re.S)
     if u:
-        using = [w.upper() for w in u.group(1).replace(",", " ").split()
-                 if w.upper() not in ("BY", "REFERENCE", "VALUE", "CONTENT")]  # fmt: skip
+        words = [w.upper() for w in u.group(1).replace(",", " ").split()]
+        if "RETURNING" in words:  # #5106: the item the program returns, not a USING item
+            at = words.index("RETURNING")
+            returning = words[at + 1] if at + 1 < len(words) else None
+            words = words[:at]
+        using = [w for w in words if w not in ("BY", "REFERENCE", "VALUE", "CONTENT")]
+    elif r := re.search(r"\bRETURNING\s+([\w-]+)", header, re.I):
+        returning = r.group(1).upper()
     execs: dict[int, str] = {}
 
     def ph(mm):
@@ -369,7 +377,7 @@ def parse(lines: list[Line]) -> Procedure:
         # #4893: IMS enters a DL/I program at DLITCBL even when PROCEDURE DIVISION has a USING of its own
         first.data["first"] = True
         using = [r.name for r in first.data["using"]]
-    return Procedure(paragraphs, execs, using)
+    return Procedure(paragraphs, execs, using, returning)
 
 
 # pd children that open a frame (closed by their END_x / ELSE / WHEN, or by the period)
@@ -900,6 +908,21 @@ def _goto(p: E.Parser, text: str, line: int) -> Stmt:
         p.accept("ON")
         dep = p.ref()
     return Stmt("GOTO", line, text, {"targets": targets, "depending": dep})
+
+
+def _alter(p: E.Parser, text: str, line: int) -> Stmt:
+    """ALTER p TO [PROCEED TO] q [p TO [PROCEED TO] q]... (#5560, IBM Enterprise COBOL Language Reference, ALTER)."""
+    pairs = []
+    while not p.done():
+        para = p.take().upper()
+        if not p.accept("TO"):
+            raise E.ExprError("ALTER without TO")
+        if p.accept("PROCEED") and not p.accept("TO"):
+            raise E.ExprError("ALTER PROCEED without TO")
+        pairs.append((para, p.take().upper()))
+    if not pairs:
+        raise E.ExprError("ALTER without a paragraph")
+    return Stmt("ALTER", line, text, {"pairs": pairs})
 
 
 def _call(p: E.Parser, text: str, line: int) -> Stmt:
@@ -1473,7 +1496,7 @@ _PARSERS = {
     "RELEASE": _release, "RETURN": _return,
     "MOVE": _move, "DISPLAY": _display, "COMPUTE": _compute, "ADD": _add, "SUBTRACT": _subtract,
     "MULTIPLY": _multiply, "DIVIDE": _divide, "INITIALIZE": _initialize, "SET": _set, "PERFORM": _perform,
-    "GO": _goto, "CALL": _call, "EXIT": _simple("EXIT"), "GOBACK": _simple("GOBACK"), "STOP": _simple("STOP"),
+    "GO": _goto, "ALTER": _alter, "CALL": _call, "EXIT": _simple("EXIT"), "GOBACK": _simple("GOBACK"), "STOP": _simple("STOP"),
     "CONTINUE": _simple("CONTINUE"), "NEXT": _simple("NEXT-SENTENCE"), "OPEN": _open, "CLOSE": _close,
     "READ": _read, "WRITE": _write, "REWRITE": _rewrite, "START": _start, "ACCEPT": _accept, "STRING": _string, "UNSTRING": _unstring,
     "INSPECT": _inspect,

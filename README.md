@@ -131,9 +131,9 @@ have to guess what the numbers mean. Other modes: `--sarif-only`, `--sbom-only`,
 
 | You ask | GitGalaxy gives you |
 |---|---|
-| *What is this repository made of?* | Language composition and the macro state of the repo, in the first page of the [architecture brief](docs/gitgalaxy_architecture_brief.md). |
+| *What is this repository made of?* | Language composition and the macro state of the repo, in the first page of the [architecture brief](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/gitgalaxy_architecture_brief.md). |
 | *What is load-bearing? What breaks if I change this?* | An import graph and a function call graph with PageRank blast radius, articulation points, choke points and cycles. [Call graph](docs/function_call_graph.md) · [graph accuracy](docs/graph_accuracy.md) |
-| *Where should I read first?* | The heaviest functions and files, and ranked hitlists, with the formula printed in the report. [Architecture brief](docs/gitgalaxy_architecture_brief.md) |
+| *Where should I read first?* | The heaviest functions and files, and ranked hitlists, with the formula printed in the report. [Architecture brief](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/gitgalaxy_architecture_brief.md) |
 | *Where are secrets, unsafe calls, dynamic execution, I/O, concurrency?* | The Structural Surface Profile: 13 per-file vectors showing where each pattern concentrates. [Vectors](docs/vectors.md) |
 | *What dependencies are actually on disk?* | A CycloneDX SBOM from the scan itself, plus supply-chain audits. [SBOM](docs/wiki/04-02-sbom-generator.md) |
 | *Which code is complex, high-churn, or owned by one person?* | Refactoring targets ranked by volatility and authorship concentration, and bus-factor exposure. |
@@ -187,7 +187,7 @@ zero-connection files, and the report says to check the connection counts before
 Hundreds of unedited briefs for independently selected repositories are committed at
 [gitgalaxy-raw-output](https://github.com/squid-protocol/gitgalaxy-raw-output). This repo's
 own always-current self-scan brief is at
-[`docs/gitgalaxy_architecture_brief.md`](docs/gitgalaxy_architecture_brief.md).
+[`docs/gitgalaxy_architecture_brief.md`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/gitgalaxy_architecture_brief.md).
 
 ---
 

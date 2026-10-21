@@ -58,7 +58,7 @@ jobs:
           cd gitgalaxy
           python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
           pip install --require-hashes -r ci/requirements/engines.txt
-          pip install -e .
+          pip install --no-build-isolation -e .
 
       - name: Fetch Language Crucible (pinned)
         run: |

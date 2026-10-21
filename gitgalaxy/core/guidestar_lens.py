@@ -47,12 +47,6 @@ class GuideStarLens:
     This guarantees accurate language detection and bypasses expensive inference checks.
     """
 
-    # Compiled regex for extracting target headers from README files
-    README_TARGET_HEADERS = re.compile(
-        r"^#+\s+(Usage|Structure|File|Layout|Getting\s+Started|Installation|Architecture|Scripts|CLI)",
-        re.I | re.MULTILINE,
-    )
-
     def __init__(
         self,
         root_path: str | Path,
@@ -78,7 +72,6 @@ class GuideStarLens:
         self._gs_config = guidestar_config if guidestar_config is not None else GUIDESTAR_CONFIG
         self.MANIFEST_MAP = self._gs_config.get("MANIFEST_MAP", {})
         self.INTENT_BIASED_SECTORS = set(self._gs_config.get("INTENT_BIASED_SECTORS", []))
-        self.EXEC_PREFIX_MAP = self._gs_config.get("EXEC_PREFIX_MAP", {})
 
         # Internal Lock Map: Dict[filename, {lang, confidence, proof}]
         self.intent_locks: dict[str, dict[str, Any]] = {}
@@ -332,22 +325,6 @@ class GuideStarLens:
         except Exception as e:
             self.logger.debug(f"GuideStar: failed to parse TOML-style manifest '{path}': {e}")
 
-    def _extract_execution_triggers(self, text: str):
-        """Finds extensionless files used in command-line examples and infers exact language."""
-        exec_matches = re.findall(
-            r"(\.\/|python3?\s+|node\s+|sh\s+|bash\s+|cargo\s+run\s+|go\s+run\s+)([a-zA-Z0-9_\-\./]+)",
-            text,
-        )
-        for prefix, filename in exec_matches:
-            prefix_clean = prefix.strip().split()[0]
-            predicted_lang = self.EXEC_PREFIX_MAP.get(prefix_clean, "unknown")
-
-            if prefix.strip() == "./":
-                predicted_lang = "unknown"
-
-            self.logger.debug(f"GuideStar: Contextual hint found via execution trigger: '{filename}'")
-            self._inject_intent_lock(filename, predicted_lang, 0.85, f"Execution Trigger ({prefix_clean})")
-
     # ==============================================================================
 
     # galaxyscope:ignore sec_io, llm_hooks
@@ -498,10 +475,7 @@ class GuideStarLens:
                 for d in dirs
                 if d.lower() not in ignored_directories_lower
                 and not (d.lower() in VIRTUALENV_CANDIDATE_NAMES and looks_like_virtualenv(Path(root_dir) / d))
-                and not (
-                    VendorDirectoryDetector.is_candidate_name(d)
-                    and vendor_dirs.is_vendored((Path(root_dir) / d).relative_to(self.root).as_posix())
-                )
+                and not vendor_dirs.is_vendored((Path(root_dir) / d).relative_to(self.root).as_posix())
             ]
 
             dir_path = Path(root_dir)

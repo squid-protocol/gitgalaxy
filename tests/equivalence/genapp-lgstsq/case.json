@@ -1,0 +1,85 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGSTSQ",
+ "program_source": "base/src/lgstsq.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGSQ",
+ "clock": "2026/10/01 10:30:15.00",
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgacdb01.cbl",
+    "record": "CA-ERROR-MSG"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "full-commarea",
+   "commarea": {
+    "CA-DATA": "Plain text error message from a caller"
+   },
+   "commarea_length": 90,
+   "why": "EIBCALEN 90, the longest the oracle judges: 'COMMAREA=' + 81 bytes; LENGTH 90 + 5 = 95 = WRITE-MSG, so TD CSMT and TS GENAERRS are written"
+  },
+  {
+   "name": "caller-error-record",
+   "commarea": {
+    "CA-DATA": "20261001 103015 LGAPVS01 CUSTNUM=0000000001 POLNUM=0000000001 RESP=00000070"
+   },
+   "commarea_length": 90,
+   "why": "the shape a caller's WRITE-ERROR-MESSAGE sends (date, time, program, customer, policy, RESP) behind the 9-byte 'COMMAREA=' tag"
+  },
+  {
+   "name": "short-commarea",
+   "commarea": {
+    "CA-DATA": "short text"
+   },
+   "commarea_length": 40,
+   "why": "EIBCALEN 40 (GenApp's IF EIBCALEN < 91 arm of the callers): LENGTH 40 + 5 = 45, only the first 45 bytes of WRITE-MSG are logged"
+  },
+  {
+   "name": "tiny-commarea",
+   "commarea": {
+    "CA-DATA": "x"
+   },
+   "commarea_length": 10,
+   "why": "EIBCALEN 10: the 9-byte tag and one byte of text"
+  },
+  {
+   "name": "tag-only",
+   "commarea": {
+    "CA-DATA": ""
+   },
+   "commarea_length": 9,
+   "why": "EIBCALEN 9: the 'COMMAREA=' tag alone, LENGTH 14"
+  },
+  {
+   "name": "blank-text",
+   "commarea": {
+    "CA-DATA": ""
+   },
+   "commarea_length": 90,
+   "why": "EIBCALEN 90, CA-DATA blanks: the message is the tag and blanks"
+  },
+  {
+   "name": "full-text-bytes",
+   "commarea": {
+    "CA-DATA": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+   },
+   "commarea_length": 90,
+   "why": "all 81 bytes of CA-DATA that fit under EIBCALEN 90"
+  }
+ ],
+ "notes": "GenApp's error logger (LGSTSQ), the program every GenApp program LINKs on a non-NORMAL RESP. LINKed with a COMMAREA (ASSIGN INVOKINGPROG is the caller's name, so the 'C' arm runs): COMMA-DATA (90 bytes) is the message, WRITEQ TD to CSMT and WRITEQ TS to GENAERRS (or GENA + the 4 bytes after a leading 'Q=') with LENGTH = EIBCALEN + 5 (- 7 for a 'Q=' prefix), the SYSID of the region in front. The case ships the LINKed arm only: the transaction arm (INVOKINGPROG blank: RECEIVE INTO, SEND TEXT) needs a started task, and a case is either LINKed or started. A COMMAREA longer than 90 bytes (the callers' 99-byte CA-ERROR-MSG, 101-byte ERROR-MSG) gives LENGTH > FROM on the WRITEQ TD, which the oracle refuses by name (oracle_assumptions.md X6): not here. The region ASSIGN SYSID is a deployment fact the corpus does not name. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived.",
+ "region": {
+  "applid": "GENAPP",
+  "sysid": "CICA",
+  "why": "a deployment fact: LGSTSQ ASSIGNs SYSID into the message it writes; GenApp names no region in the corpus"
+ }
+}

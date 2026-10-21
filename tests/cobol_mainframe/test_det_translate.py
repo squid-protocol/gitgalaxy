@@ -18,6 +18,8 @@ sys.path.insert(0, str(ROOT))
 
 from gitgalaxy.tools.cobol_to_java.det import cics as C  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_containers as CC  # noqa: E402
+from gitgalaxy.tools.cobol_to_java.det import cics_filecontrol as CF  # noqa: E402
+from gitgalaxy.tools.cobol_to_java.det import cics_taskcontrol as CT  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import expr as E  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import stmt as S  # noqa: E402
 
@@ -668,7 +670,9 @@ def test_options_honoured_without_code_say_why():
     """An OPTIONS entry is read by the translator (its name appears in det/cics.py's code) or is one of the options
     whose having no effect the table states."""
     src = Path(C.__file__).read_text(encoding="utf-8")
-    code = src[src.index("def command_key") :] + Path(CC.__file__).read_text(encoding="utf-8")  # #5274: its families
+    code = src[src.index("def command_key") :]
+    for family in (CC, CF, CT):  # #5274: the command families split out of det/cics.py
+        code += Path(family.__file__).read_text(encoding="utf-8")
     stated = {"NODUMP", "MAIN", "AUXILIARY", "NOSUSPEND", "EQUAL", "GTEQ", "TASK", "UOW", "MAXLIFETIME", "RESOURCE",
               "FOR", "INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS", "TS",
               "TERMINAL", "BELOW", "EXECUTABLE", "NAME"}  # (#5079 X63: WAIT EVENT NAME only labels the task)  # (#4771 X47: GETMAIN's placement flags change no byte the program sees)  # fmt: skip
@@ -1373,6 +1377,24 @@ def test_link_and_xctl_pass_a_channel_and_assign_reads_it():
             c.command(bad, "")
 
 
+def test_return_channel_hands_the_next_task_a_channel():
+    """#5005, IBM EXEC CICS RETURN: CHANNEL is "made available to the next program"; below the highest level the
+    command fails (INVREQ RESP2 2) and returns to the program. COMMAREA, LENGTH, IMMEDIATE and a missing TRANSID are
+    refused by name."""
+    c = _ChanCics()
+    out = c.command("RETURN TRANSID('NEXT') CHANNEL(CH) RESP(R)", "")
+    assert out[0] == "int[] rr1 = task.returnChannel('NEXT'.strip(), CH.strip());"
+    assert out[1] == "if (rr1[0] == 0) { caBack.run(); throw new Goback(); }"
+    for bad in (
+        "RETURN TRANSID('NEXT') CHANNEL(CH) COMMAREA(REC)",
+        "RETURN TRANSID('NEXT') CHANNEL(CH) LENGTH(4)",
+        "RETURN TRANSID('NEXT') CHANNEL(CH) IMMEDIATE",
+        "RETURN CHANNEL(CH)",
+    ):
+        with pytest.raises(C.CicsError, match="RETURN CHANNEL with COMMAREA"):
+            c.command(bad, "")
+
+
 def test_send_text_terminal_is_the_default_disposition():
     """#4270 slice 4, IBM "Output disposition options: TERMINAL, SET, and PAGING": TERMINAL "is the default value that
     you get if you do not specify another disposition" and "sends the output to the principal facility of your task".
@@ -1989,13 +2011,12 @@ def test_inquire_urimap_direct_form_and_inquire_program_status():
         ("GET CONTAINER(CN) FLENGTH(FL)", "one of INTO / NODATA"),
         ("PUT CONTAINER(CN) FROM(REC) BIT CHAR", "one data type"),
         ("PUT CONTAINER(CN) FROM(REC) DATATYPE(WS-TYPE)", "DFHVALUE"),
-        ("RETURN TRANSID('T') CHANNEL(CH)", "next task's channel"),
         ("MOVE CONTAINER(A) AS(B) CONTAINERTYPE(X)", "CONTAINERTYPE"),
     ],
 )
 def test_what_the_container_commands_do_not_model_is_refused_by_name(text, why):
-    """#4270: CHAR conversion (FROMCCSID / INTOCCSID / code pages / CONVERTST), SET, BYTEOFFSET, PREPEND, RETURN
-    CHANNEL, MOVE CONTAINER and the container browse are refused with their reason, never accepted and ignored."""
+    """#4270: CHAR conversion (FROMCCSID / INTOCCSID / code pages / CONVERTST), SET, BYTEOFFSET, PREPEND,
+    MOVE CONTAINER and the container browse are refused with their reason, never accepted and ignored."""
     with pytest.raises(C.CicsError, match=why):
         _ChanCics().command(text, "")
 

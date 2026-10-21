@@ -70,6 +70,7 @@ class LiftViolation(Exception):
 LIBRARY = {
     "CEEDAYS": ("__PACKAGE__.cobolrt.le.Ceedays.call", 4),
     "COBDATFT": ("__PACKAGE__.cobolrt.le.Cobdatft.call", 1),
+    "MVSWAIT": ("__PACKAGE__.cobolrt.le.Mvswait.call", 1),  # #5106: CardDemo's assembler wait (COBSWAIT)
     "CEELOCT": ("__PACKAGE__.cobolrt.le.Ceeloct.call", 4),  # #4884: also takes the clock first and the charset last
     # #4949: the LE date/time services (register L6); each is the twin of tests/equivalence/le/le_time.c
     "CEEGMT": ("__PACKAGE__.cobolrt.le.Ceegmt.call", 3),
@@ -79,6 +80,9 @@ LIBRARY = {
     "CEEDATE": ("__PACKAGE__.cobolrt.le.Ceedate.call", 4),
     "CEEISEC": ("__PACKAGE__.cobolrt.le.Ceeisec.call", 9),
     "CEEQCEN": ("__PACKAGE__.cobolrt.le.Ceeqcen.call", 2),
+    # #5003: the offset from GMT (zero: the run's clock is GMT); CEEUTCO is the same service as CEEGMTO
+    "CEEGMTO": ("__PACKAGE__.cobolrt.le.Ceegmto.call", 4),
+    "CEEUTCO": ("__PACKAGE__.cobolrt.le.Ceegmto.call", 4),
 }
 LIBRARY_CLOCK = {
     "CEELOCT",
@@ -90,7 +94,16 @@ LIBRARY_CLOCK = {
 # #5119 (X56): the CALLs det/bll.py lowers OS/VS COBOL's chained storage areas to (`MOVE cell TO fullword`, `MOVE fullword TO
 # cell`, a record re-addressed at a paragraph name); the oracle's stub (ggcics.c) has the first two, and sees SET ADDRESS OF
 BLL_CALLS = ("GGCBLLP", "GGCBLLG", "GGCBLLR")
-LIBRARY_FLOATS = {"CEELOCT": {1}, "CEEGMT": {1}, "CEEUTC": {1}, "CEEDATM": {0}, "CEESECS": {2}, "CEEISEC": {7}}
+LIBRARY_FLOATS = {
+    "CEELOCT": {1},
+    "CEEGMT": {1},
+    "CEEUTC": {1},
+    "CEEDATM": {0},
+    "CEESECS": {2},
+    "CEEISEC": {7},
+    "CEEGMTO": {2},
+    "CEEUTCO": {2},
+}
 LIBRARY_CHARSET = {*LIBRARY_CLOCK, *LIBRARY_FLOATS, "CEEDATE", "CEEQCEN"}
 
 
@@ -163,6 +176,7 @@ class Gen:
         self.write_only_pointers: set[str] = set()  # program.write_only_pointers
         self.overlaid_pointers: set[str] = set()  # program.overlaid_pointers (#4771)
         self.pointer_views: set[str] = set()  # program.pointer_views (#4771)
+        self.pointer_view_of: dict[str, str] = {}  # program.pointer_view_of (#4771): pure numeric view -> its pointer
         self.p = prog
         # structured: a program with no GO TO / HANDLE -- paragraphs are void methods called in order, no dispatcher
         self.structured = structured
@@ -222,6 +236,19 @@ class Gen:
                 for c in it.conditions:
                     self.conds.setdefault(c.name, []).append(c)
         self.para_index = {p.name: i for i, p in enumerate(prog.proc.paragraphs)}
+        # #5560 ALTER: paragraph index -> its GO TO's target slot (a Java int field), for each paragraph an ALTER names
+        # whose only statement is a GO TO without DEPENDING (IBM, ALTER: a paragraph of one sentence, one GO TO)
+        self.alter_slots: dict[int, str] = {}
+        self.alter_fields: list[str] = []
+        for para in prog.proc.paragraphs:
+            for st in S.walk(para.body):
+                for name, _ in st.data.get("pairs", []) if st.kind == "ALTER" else []:
+                    i = self.para_index.get(name)
+                    if i is not None and i not in self.alter_slots and self._alterable(prog.proc.paragraphs[i]):
+                        self.alter_slots[i] = f"alt{i}"
+                        t = prog.proc.paragraphs[i].body[0].data["targets"]
+                        first = self.para_index.get(t[0], -1) if t else -1
+                        self.alter_fields.append(f"    private int alt{i} = {first};")
         self.consts: dict[str, str] = {}
         self.dcs: dict[
             tuple, tuple
@@ -246,8 +273,14 @@ class Gen:
         self.clock = "clock.currentDate()"  # FUNCTION CURRENT-DATE outside CICS
         self.uses_random = False  # FUNCTION RANDOM: the program keeps a run unit's sequence (Funcs.Random)
         self.callees: dict[str, str] = {}  # CALLed program -> the ObjectProvider field of its service
+        self.entry_tested = False  # #5106: a condition read the `present` flags
+        self.entry_items: dict[str, int] = {}  # #5106: a sibling's USING item -> its position (ADDRESS OF = NULL)
+        self.siblings: set[str] = set()  # #5106: the other programs of this program's source (no service of their own)
         # CALLed program -> its handleCall parameter types (CobolRef<String>, or a contract DTO for a group item)
         self.callee_types: dict[str, list[str]] = {}
+        self.callee_returns: dict[
+            str, bool
+        ] = {}  # #5106: a sibling whose entry returns its RETURNING item (not RETURN-CODE)
         # the COMMAREA codec (det.cics.Cics) a DTO crosses storage with: the CICS one, or made on first use for a batch
         # program
         self.dto_codecs: Cics | None = None
@@ -305,12 +338,70 @@ class Gen:
             raise Untranslatable(f"{name}: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)")
         return self.field_expr(E.Ref(name.upper()))
 
+    def view_pointer(self, e) -> str | None:
+        """#4771 (X47): the pointer a plain reference to a pure numeric view of one (program.pointer_view_of) names."""
+        if isinstance(e, E.Ref) and not e.subscripts and e.refmod is None and not e.qualifiers:
+            return self.pointer_view_of.get(e.name.upper())
+        return None
+
+    def pointer_view_statement(self, s: S.Stmt, ind: str) -> list[str] | None:
+        """#4771 (X47): the two idioms a numeric view of a POINTER is modelled for -- `ADD|SUBTRACT n TO|FROM view` moves
+        the pointer along its block by n bytes (ZECS001's `ADD ZF-LENGTH TO CACHE-ADDRESS-X`) and `MOVE view TO view`
+        copies the address (`MOVE CACHE-ADDRESS-X TO SAVE-ADDRESS-X`). The view's bytes are never read as a number (a
+        handle is no number): any other use still falls to field_expr's refusal. None: not one of the two."""
+        d = s.data
+        if s.kind == "MOVE":
+            src = self.view_pointer(d["from"])
+            dst = [self.view_pointer(t) for t in d["to"]]
+            if src is None or not dst or None in dst:
+                return None
+            if self.cics is None:
+                raise Untranslatable("pointer arithmetic (pointers)")
+            return [f"{ind}DetCics.copyPointer({self.pointer_item(p)}, {self.pointer_item(src)});" for p in dst if p]
+        if s.kind != "ARITH" or d["op"] not in ("+=", "-=") or s.phrases:
+            return None
+        targets = d.get("targets") or []
+        if len(targets) != 1 or len(d["operands"]) != 1 or targets[0][1]:
+            return None
+        ptr = self.view_pointer(targets[0][0])
+        if ptr is None:
+            return None
+        if self.cics is None:
+            raise Untranslatable("pointer arithmetic (pointers)")
+        n = self.num(d["operands"][0])
+        sign = "" if d["op"] == "+=" else "-"
+        return [f"{ind}DetCics.advancePointer(task, {self.pointer_item(ptr)}, {sign}({n}).longValueExact());"]
+
     def address_record(self, name: str) -> str:
         """#4771 (X47): the Field of a LINKAGE 01 record whose storage a pointer can address (it has storage of its own)."""
         it = self.resolve(E.Ref(name.upper()))
+        if getattr(it, "level", None) not in (None, 1):
+            raise Untranslatable(
+                f"ADDRESS OF {name}: a subordinate item is an offset into its record, not a LINKAGE 01 record "
+                "(address it with SET ADDRESS OF / SET pointer TO ADDRESS OF)"
+            )
         if getattr(it, "section", None) != "LINKAGE" or getattr(it, "level", None) != 1:
             raise Untranslatable(f"ADDRESS OF {name}: not a LINKAGE 01 record (not modelled)")
         return self.field_expr(E.Ref(name.upper()))
+
+    def address_item(self, name: str) -> tuple[str, bool]:
+        """#4771 (X47): `ADDRESS OF name` as a source of SET: (the Field, whether it is a windowed item). A LINKAGE 01
+        record is its own storage (address_record); any other single item of WORKING-STORAGE or LINKAGE (ZECS001's
+        ZF-DATA, or a WORKING-STORAGE record) is an offset into its section's or record's storage, which a record set
+        onto it views through a Storage window (Storage.base). Refused: a table element, another section's item."""
+        it = self.resolve(E.Ref(name.upper()))
+        if getattr(it, "section", None) == "LINKAGE" and getattr(it, "level", None) == 1:
+            return self.address_record(name), False
+        if getattr(it, "section", None) not in ("WORKING-STORAGE", "LINKAGE"):
+            raise Untranslatable(f"ADDRESS OF {name}: not an item of WORKING-STORAGE or LINKAGE (not modelled)")
+        in_table = it.occurs > 1
+        walker = it.parent
+        while walker is not None and not in_table:
+            in_table = walker.occurs > 1
+            walker = walker.parent
+        if in_table:
+            raise Untranslatable(f"ADDRESS OF {name}: a table element (not modelled)")
+        return self.field_expr(E.Ref(name.upper())), True
 
     def field_expr(self, ref: E.Ref) -> str:
         it = self.resolve(ref)
@@ -358,6 +449,18 @@ class Gen:
             return self.field_expr(ref)
         finally:
             self._value_use -= 1
+
+    def check_record_bytes(self, record: L.Item | None, what: str) -> None:
+        """A file or sort record read or written as bytes (#4271, C6 / C7): a COMP-1 / COMP-2 or COMP-5 item in it has
+        the oracle's bytes in the file, not z/OS's. Never reached through field_expr (the record is named by its FD)."""
+        if record is None:
+            return
+        over = self.overlaps_float(record)
+        if over is not None:
+            raise Untranslatable(f"{what}: the record holds {over.name} {over.usage} ({FLOAT_BYTES})")
+        over = self.overlaps_float(record, self.comp5_extents)
+        if over is not None:
+            raise Untranslatable(f"{what}: the record holds {over.name} COMP-5 ({COMP5_BYTES})")
 
     def overlaps_float(self, it: L.Item, extents: dict[int, list] | None = None) -> L.Item | None:
         """The float item whose bytes `it` (not a float) covers -- as a group holding it, or a REDEFINES over it -- or
@@ -660,6 +763,8 @@ class Gen:
                 finally:
                     self.intr -= 1
             return f"Hfp.numval({arg}, {_b(e.name == 'NUMVAL-C')})"
+        if isinstance(e, E.Func) and e.name == "ANNUITY":
+            self._func(e)  # raises its named refusal (the formula and why no result is modelled)
         if isinstance(e, E.Func):
             raise Untranslatable(f"FUNCTION {e.name} in a floating-point expression (oracle_assumptions.md C6)")
         raise Untranslatable(f"floating-point expression {type(e).__name__}")
@@ -716,6 +821,31 @@ class Gen:
         if self.id_methods[entity] is None:
             return ""
         return f".withFindById(rec -> {repo}.findById(id_{entity}(rec)))"
+
+    @staticmethod
+    def _alterable(p: S.Paragraph) -> bool:
+        """IBM (ALTER): the altered paragraph holds one sentence, a GO TO without DEPENDING."""
+        return (
+            p.section != p.name
+            and len(p.body) == 1
+            and p.body[0].kind == "GOTO"
+            and p.body[0].data["depending"] is None
+            and len(p.body[0].data["targets"]) <= 1
+        )
+
+    def alter(self, s: S.Stmt, ind: str) -> list[str]:
+        """ALTER p TO [PROCEED TO] q: write q into p's GO TO slot (the last ALTER of p wins)."""
+        out = []
+        for name, target in s.data["pairs"]:
+            if name not in self.para_index:
+                raise Untranslatable(f"ALTER {name}: undeclared paragraph")
+            if target not in self.para_index:
+                raise Untranslatable(f"ALTER {name} TO {target}: undeclared paragraph")
+            slot = self.alter_slots.get(self.para_index[name])
+            if slot is None:
+                raise Untranslatable(f"ALTER {name}: the paragraph is not a lone GO TO without DEPENDING (IBM, ALTER)")
+            out.append(f"{ind}{slot} = {self.para_index[target]};")
+        return out
 
     def method(self, i: int) -> str:
         """The Java method of paragraph i: p{i} (dispatcher), else the paragraph's name in camelCase."""
@@ -1175,6 +1305,14 @@ class Gen:
             # the run unit's sequence (Funcs.Random): the oracle's generator, not z/OS's (oracle_assumptions C12)
             self.uses_random = True
             return f"funcRandom.next({self.num(args[0])})" if args else "funcRandom.next()"
+        if name == "ANNUITY":
+            # IBM (6.4 Language Reference, ANNUITY): arg-1 / (1 - (1 + arg-1) ** -arg-2), or 1 / arg-2 when arg-1 is 0,
+            # a floating-point approximation; the power with a variable exponent is the run-time routine whose bits
+            # IBM does not document, so no result is modelled (the same hole as `**`, oracle_assumptions.md C6)
+            raise Untranslatable(
+                "FUNCTION ANNUITY (IBM defines arg-1 / (1 - (1 + arg-1) ** -arg-2) but not the bits of the power "
+                "or of the floating-point result; oracle_assumptions.md C6)"
+            )
         raise Untranslatable(f"FUNCTION {name}")
 
     def numval_arg(self, a) -> str:
@@ -1261,6 +1399,8 @@ class Gen:
                 t = f"Cobol.{fn}({self.field_expr(c.operand)}, CS)"
             return f"!({t})" if c.negated else t
         if isinstance(c, E.Rel):
+            if isinstance(c.left, E.AddrOf):
+                return self.rel_address_null(c, c.left)
             if self.null_relation(c):
                 return self.rel_null(c)
             if self.pointer_operand(c.left) and self.pointer_operand(c.right):
@@ -1268,6 +1408,17 @@ class Gen:
             with self.relation():
                 return self.rel(c.op, c.left, c.right)
         raise Untranslatable(f"condition {type(c).__name__}")
+
+    def rel_address_null(self, c: E.Rel, addr: E.AddrOf) -> str:
+        """#5106: `ADDRESS OF item = NULL` / `NOT =`, on a USING item of a sibling's CALL entry: IBM sets the address of an
+        OMITTED item to NULL, so the test is whether the caller passed a reference (`present`, set at the entry).
+        Any other ADDRESS OF relation stays refused by name."""
+        r = addr.ref
+        k = self.entry_items.get(r.name.upper())
+        if c.op not in ("=", "<>") or k is None or r.subscripts or r.qualifiers or r.refmod:
+            raise Untranslatable("condition: ADDRESS OF")
+        self.entry_tested = True
+        return f"present[{k}]" if c.op == "<>" else f"!present[{k}]"
 
     @staticmethod
     def null_relation(c: E.Rel) -> bool:
@@ -1476,7 +1627,8 @@ class Gen:
     def digits_as_text(self, a: E.Ref, b: E.Ref) -> None:
         """Refuse a numeric item compared as its characters with a nonnumeric one, a group too (#4671; `a` against `b`, either
         way round) where the oracle's characters are not IBM's (C13): a SIGN SEPARATE item (GnuCOBOL compares its
-        sign character) and a P-scaled one (GnuCOBOL its stored digits)."""
+        sign character), a P-scaled one (GnuCOBOL its stored digits) and a packed or binary one (IBM
+        rejects the program)."""
         for num, other in ((a, b), (b, a)):
             try:
                 it, ot = self.resolve(num), self.resolve(other)
@@ -1486,6 +1638,10 @@ class Gen:
                                                                "ALPHANUMERIC-EDITED", "GROUP")  # fmt: skip
             if num.refmod is not None or it.category != "NUMERIC" or not text:
                 continue
+            if it.usage != "DISPLAY":  # IBM's table has no entry for a native numeric item against a nonnumeric one
+                raise Untranslatable(f"{num.name} ({it.usage}) compared with the nonnumeric {other.name}: IBM rejects "
+                                     f"a packed or binary operand there, GnuCOBOL compares its "
+                                     f"digits (C13)")  # fmt: skip
             if it.sign_separate and it.signed:
                 raise Untranslatable(f"{num.name} (SIGN SEPARATE) compared with the nonnumeric {other.name}: GnuCOBOL "
                                      f"compares its sign character, IBM no sign (C13)")  # fmt: skip
@@ -1702,7 +1858,7 @@ class Gen:
 
     def noninteger_to_text(self, src: E.Ref, target: E.Ref) -> None:
         """Refuse a MOVE of a noninteger numeric item to an alphanumeric one (#4996): Enterprise COBOL 6.4 Language
-        Reference, MOVE, "Valid and invalid elementary moves" (Table 51), numeric noninteger sending item to an
+        Reference, MOVE, "Valid and invalid elementary moves" (Table 47), numeric noninteger sending item to an
         alphabetic / alphanumeric / alphanumeric-edited receiver: NO, a compile error on z/OS (an integer one,
         a right-P item too, is valid: each P counts as a zero). GnuCOBOL accepts it with a warning (register C11)."""
         if src.refmod is not None:
@@ -1715,7 +1871,7 @@ class Gen:
                                                                          "ALPHANUMERIC-EDITED"):  # fmt: skip
             raise Untranslatable(
                 f"MOVE {src.name} (PIC {it.pic}, a noninteger numeric item) to the {tt.category.lower()} "
-                f"{target.name}: an invalid MOVE in Enterprise COBOL (Language Reference, Table 51; C11)"
+                f"{target.name}: an invalid MOVE in Enterprise COBOL (Language Reference, Table 47; C11)"
             )
 
     def _move_from(self, src, ft: str, target: E.Ref) -> str:
@@ -1911,6 +2067,9 @@ class Gen:
         if k in ("RELEASE", "RETURN"):
             return [c, *self.release_return(s, ind)]
         if k == "MOVE":
+            view = self.pointer_view_statement(s, ind)
+            if view is not None:
+                return [c, *view]
             return [c] + [ind + self.move(s.data["from"], t) for t in s.data["to"]]
         if k == "IF":
             out = [c, f"{ind}if ({self.cond_top(s.data['cond'])}) {{", *self.block(s.body, ind + "    ")]
@@ -1921,8 +2080,17 @@ class Gen:
             return [c, *self.evaluate(s, ind)]
         if k == "PERFORM":
             return [c, *self.perform(s, ind)]
+        if k == "ALTER":
+            return [c, *self.alter(s, ind)]
         if k == "GOTO":
             t = s.data["targets"]
+            slot = self.alter_slots.get(self.cur)
+            if slot is not None and s.data["depending"] is None:  # the altered GO TO reads its slot (#5560)
+                return [
+                    c,
+                    f'{ind}if ({slot} < 0) throw new Hole("GO TO with no operand reached before any ALTER");',
+                    f"{ind}if (true) return GOTO | {slot};",
+                ]
             if s.data["depending"] is None:
                 if len(t) != 1 or t[0] not in self.para_index:
                     raise Untranslatable(f"GO TO {t}")
@@ -1987,6 +2155,9 @@ class Gen:
                 self.numval_store = False  # (set by float_mode for this statement's stores only)
         if k == "ARITH":
             d = s.data
+            view = self.pointer_view_statement(s, ind)
+            if view is not None:
+                return [c, *view]
             receivers = [t for t, _ in d.get("targets") or []] + [t for t, _ in d.get("giving") or []]
             receivers += [d["remainder"]] if d.get("remainder") is not None else []
             mode = self.float_mode(d["operands"], receivers, d["op"] in ("*", "*="))
@@ -2016,15 +2187,17 @@ class Gen:
                 return [c, f"{ind}// the pointer is never read (write_only_pointers): no effect any output can show"]
             if self.cics is None:
                 raise Untranslatable("SET ADDRESS OF (pointers)")
-            call = f"DetCics.setPointerToRecord(task, {self.pointer_item(s.data['target'])}, {self.address_record(s.data['of'])});"
-            return [c, ind + call]
+            ptr = self.pointer_item(s.data["target"])
+            of, windowed = self.address_item(s.data["of"])
+            return [c, f"{ind}DetCics.{'setPointerToItem' if windowed else 'setPointerToRecord'}(task, {ptr}, {of});"]
         if k == "SET-ADDRESS":  # #4771 (X47): the record's storage becomes the pointer's / another record's
             if self.cics is None:
                 raise Untranslatable("SET ADDRESS OF (pointers)")
             rec = self.address_record(s.data["record"])
             if s.data["pointer"]:
                 return [c, f"{ind}DetCics.setAddress(task, {rec}, {self.pointer_item(s.data['pointer'])});"]
-            return [c, f"{ind}DetCics.setAddressOfRecord(task, {rec}, {self.address_record(s.data['of'])});"]
+            of, windowed = self.address_item(s.data["of"])
+            return [c, f"{ind}DetCics.{'setAddressOfItem' if windowed else 'setAddressOfRecord'}(task, {rec}, {of});"]
         if k == "INITIALIZE":
             out = [c]
             for r in s.data["refs"]:
@@ -2052,12 +2225,16 @@ class Gen:
             for t in s.data["targets"]:
                 f = self.field_expr(t)
                 op = "add" if s.data["up"] else "subtract"
-                out.append(f"{ind}Cobol.store({f}, Cobol.num({f}, CS).{op}({self.num(s.data['by'])}), false, CS);")
+                out.append(
+                    f"{ind}Cobol.store({f}, Cobol.receiverNum({f}, CS).{op}({self.num(s.data['by'])}), false, CS);"
+                )  # #4692
             return out
         if k == "CALL":
             return [c, *self.call(s, ind)]
         if k == "ACCEPT":
             frm = s.data["from"]
+            if frm == "SYSIN":  # #5106: the batch input stream, one record per ACCEPT
+                return [c, f"{ind}Accept.sysin({self.field_expr(s.data['target'])}, CS);"]
             # #4893: the run's clock (FUNCTION CURRENT-DATE's) as the unsigned integer item IBM names (Accept.from)
             if frm not in ("DATE", "DATE YYYYMMDD", "TIME", "DAY", "DAY YYYYDDD"):
                 raise Untranslatable(f"ACCEPT FROM {frm}")
@@ -2078,6 +2255,11 @@ class Gen:
                     return [c, *self.sql.command(s.text, s.line, ind)]
                 except (self.sql.Error, E.ExprError, KeyError) as e:
                     raise Untranslatable(f"EXEC SQL: {e}") from e
+            if len(words) > 1 and words[1].upper() == "DLI":  # #5278: SCHD / TERM under CICS (det/dli.py)
+                try:
+                    return [c, *dli.command(self, s.text, ind)]
+                except (E.ExprError, KeyError) as e:
+                    raise Untranslatable(f"EXEC DLI: {e}") from e
             if self.cics is None or len(words) < 2 or words[1].upper() != "CICS":
                 raise Untranslatable("EXEC " + (words[1] if len(words) > 1 else ""))
             from gitgalaxy.tools.cobol_to_java.det.cics import CicsError
@@ -2646,7 +2828,7 @@ class Gen:
                 if not isinstance(frm, (E.Bin, E.Neg))
                 else f"Cobol.store({f}, {self.num(frm)}, false, CS);"
             )
-            step = f"Cobol.store({f}, Cobol.num({f}, CS).add({self.num(by)}), false, CS);"
+            step = f"Cobol.store({f}, Cobol.receiverNum({f}, CS).add({self.num(by)}), false, CS);"  # #4692: read before stored
             self.leak = leak_before
             until_code = self.cond_top(until)
             self.leak = leak_after
@@ -2715,15 +2897,34 @@ class Gen:
             return [f"{ind}DetCics.bllReload(task, {self.address_record(a.name)}, {self.pointer_item(b.name)});"]
         callee = self.callees.get(prog)
         if callee is not None:
-            if any(m != "REFERENCE" or not isinstance(a, E.Ref) for m, a in args):
+            sib = prog in self.callee_returns  # #5106: a sibling of this source (BY CONTENT hands it a copy)
+            modes = ("REFERENCE", "CONTENT") if sib else ("REFERENCE",)
+            if any(m not in modes or not (isinstance(a, E.Ref) or (a is None and sib)) for m, a in args):
                 raise Untranslatable(f"CALL {prog}: items BY REFERENCE expected")
+            ret = s.data.get("returning")
+            if prog in self.callee_returns and (ret is not None) != self.callee_returns[prog]:
+                raise Untranslatable(f"CALL {prog}: RETURNING does not match the sibling program's")
             refs, out, back = [], [], []
             types = self.callee_types.get(prog, [])
-            for k, (_, a) in enumerate(args):
+            for k, (mode, a) in enumerate(args):
                 v = self.tmpname("arg")
                 refs.append(v)
-                f = self.field_expr(a)
                 typ = types[k] if k < len(types) else "CobolRef<String>"
+                if a is None:  # OMITTED: no storage behind the parameter (the sibling never names it, program._fits)
+                    out.append(f"{ind}{typ} {v} = null;")
+                    continue
+                f = self.field_expr(a)
+                if typ == "CobolRef<byte[]>":  # #5106: a sibling's item: its bytes in and, BY REFERENCE, out again
+                    out.append(
+                        f"{ind}CobolRef<byte[]> {v} = CobolRef.of(java.util.Arrays.copyOfRange({f}.storage().bytes, "
+                        f"{f}.offset(), {f}.offset() + {f}.length()));"
+                    )
+                    if mode == "REFERENCE":  # BY CONTENT: the sibling changes its copy, never the caller's item
+                        back.append(
+                            f"{ind}System.arraycopy({v}.get(), 0, {f}.storage().bytes, {f}.offset(), "
+                            f"Math.min({v}.get().length, {f}.length()));"
+                        )
+                    continue
                 if typ == "CobolRef<String>":
                     out.append(f"{ind}CobolRef<String> {v} = CobolRef.of(Cobol.text({f}, CS));")
                     back.append(f"{ind}Cobol.move({v}.get(), {f}, CS);")
@@ -2736,9 +2937,9 @@ class Gen:
             rc = self.tmpname("rc")
             out.append(f"{ind}int {rc} = {callee}.getObject().handleCall({', '.join(refs)});")
             out += back
-            out.append(
-                f"{ind}Cobol.store({self.field_expr(E.Ref('RETURN-CODE'))}, BigDecimal.valueOf({rc}), false, CS);"
-            )
+            ret_ref = ret if (self.callee_returns.get(prog) and ret is not None) else E.Ref("RETURN-CODE")
+            target = self.field_expr(ret_ref)
+            out.append(f"{ind}Cobol.store({target}, BigDecimal.valueOf({rc}), false, CS);")
             return out
         if prog in ("CBLTDLI", *dli.REFUSED_BY_NAME):  # #4893: IMS DL/I (det/dli.py, register family I)
             if prog != "CBLTDLI":
@@ -2766,6 +2967,10 @@ class Gen:
 
         if prog in REFUSED_BY_NAME:
             raise Untranslatable(REFUSED_BY_NAME[prog])
+        if prog in self.siblings:
+            from gitgalaxy.tools.cobol_to_java.det.dyncall import sibling_refusal
+
+            raise Untranslatable(sibling_refusal(prog))
         raise Untranslatable(f"CALL {prog}")
 
     def string(self, s: S.Stmt, ind: str) -> list[str]:
@@ -2823,11 +3028,11 @@ class Gen:
 
     def unstring_operands(self, d: dict) -> None:
         """Refuse the numeric UNSTRING operands the port does not model (#5032, sibling of string_sender), each by name.
-        What Enterprise COBOL 6.4 (Language Reference, UNSTRING) rejects: a numeric INTO item with the symbol 'P', and
-        a COUNT IN / POINTER / TALLYING IN item that is not an integer without a P. The port's own CONSERVATIVE choice,
-        not an IBM compile error (REFUSED / ASSUMED, register C11): a numeric sending or DELIMITED BY item, and a
-        decimal (no P) INTO item, whose bytes GnuCOBOL moves and the port does not model. Reference-modified items are
-        alphanumeric."""
+        What Enterprise COBOL 6.4 (Language Reference SC27-8713-03, UNSTRING, pp. 465-466) rejects: a numeric sending
+        item or DELIMITED BY / DELIMITER IN item (identifier-1, -2, -3, -5 are never category numeric), a numeric INTO
+        item with the symbol 'P', and a COUNT IN / POINTER / TALLYING IN item that is not an integer without a P.
+        The port's own CONSERVATIVE choice, not an IBM compile error (REFUSED, register C11): a decimal (no P) INTO
+        item, which IBM allows and moves as an unsigned integer. Reference-modified items are alphanumeric."""
         roles = [("sending item", d["src"], "not_numeric")]
         roles += [("DELIMITED BY item", op, "not_numeric") for op, _every in d["delims"]]
         for tgt, dl, cnt in d["intos"]:
@@ -2864,8 +3069,8 @@ class Gen:
                 )
             if rule == "not_numeric":
                 raise Untranslatable(
-                    what + "a numeric item here is not modelled (the port's conservative choice, not an IBM rule "
-                    "verified against the Language Reference; C11)"
+                    what + "a numeric item here is a compile error in Enterprise COBOL (Language Reference, UNSTRING: "
+                    "the sending, DELIMITED BY and DELIMITER IN items are never category numeric; C11)"
                 )
 
     def string_sender(self, e) -> None:
@@ -2953,6 +3158,7 @@ class Gen:
             fd = self.p.files.get(s.data["file"])
             if fd is None:
                 raise Untranslatable(f"READ {s.data['file']}: no SELECT")
+            self.check_record_bytes(fd.record, f"READ {fd.select}")
             if fd.handle is None:
                 raise Untranslatable(f"{fd.select}: {fd.why}")
             if fd.varying is not None:
@@ -2980,6 +3186,7 @@ class Gen:
             fd = next((f for f in self.p.files.values() if f.record is not None and rec_item.fd == f.fd), None)
             if fd is None:
                 raise Untranslatable(f"{k} {s.data['record'].name}: no file")
+            self.check_record_bytes(rec_item, f"{k} {fd.select}")
             if fd.handle is None:
                 raise Untranslatable(f"{fd.select}: {fd.why}")
             v = jname(fd.select)
@@ -3139,6 +3346,7 @@ class Gen:
             raise Untranslatable(f"{name}: {fd.why}")
         if fd.varying is not None or fd.record is None or fd.record.size != sd.sort_length:
             raise Untranslatable(f"{verb} USING / GIVING {name}: records not the sort file's length: not modelled")
+        self.check_record_bytes(fd.record, f"{verb} USING / GIVING {name}")
         return fd, fd.record
 
     def using_file(self, verb: str, var: str, sd: FileDef, name: str, ind: str) -> list[str]:
@@ -3181,6 +3389,7 @@ class Gen:
             what = jstr(f"RELEASE {it.name} outside an input procedure")
             return [*out, f"{ind}Sort.active({var}, {what}).release({self.field_expr(s.data['record'])});"]
         sd = self.sort_file(s.data["file"])
+        self.check_record_bytes(sd.record, f"RETURN {sd.select}")
         var, rec, st = f"sort_{jname(sd.select)}", self.ids[id(sd.record)], self.tmpname("st")
         what = jstr(f"RETURN {s.data['file']} outside an output procedure")
         out = [f'{ind}String {st} = Sort.active({var}, {what}).returnInto({rec}) ? "00" : "10";']
@@ -3237,7 +3446,7 @@ JAVA_RESERVED = {"abstract", "assert", "boolean", "break", "byte", "case", "catc
                  "switch", "synchronized", "this", "throw", "throws", "transient", "try", "void", "volatile", "while",
                  "true", "false", "null", "var", "record", "yield"}  # fmt: skip
 # the service's own members a paragraph method must not shadow
-METHODS_TAKEN = {"initialState", "perform", "run", "runTask", "runBatch", "runProgram", "handleCall", "handleTransaction", "handleLink",
+METHODS_TAKEN = {"initialState", "perform", "run", "runTask", "runBatch", "runProgram", "handleCall", "handleTransaction", "handleLink", "lastLinkBytes",
                  "store", "condition", "paragraph", "dd", "cx", "task", "files", "datasets", "clock", "handlers",
                  "stores", "heldKey", "caBack", "fields0", "fields1", "fields2", "fields3"}  # fmt: skip
 

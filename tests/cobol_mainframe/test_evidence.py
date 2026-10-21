@@ -19,10 +19,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import evidence as ev  # noqa: E402
 
 REPO = ev.REPO_ROOT
+MUTATION_SCORES = REPO / "docs" / "language_status" / "mutation_scores.json"
 
 # Committed ports with no evidence record yet, each with the reason. A ratchet: it only shrinks (an entry whose
 # record now exists fails test_the_missing_list_only_shrinks).
 MISSING: dict[str, str] = {}
+
+# Records whose `mutation` section is still null, each with the reason (#4048). A ratchet: it only shrinks.
+MUTATION_PENDING: dict[str, str] = {}
 
 
 def _records():
@@ -60,6 +64,32 @@ def test_the_missing_list_only_shrinks():
     known = {t.key for t in ev.targets()}
     assert not (set(MISSING) & have), f"these have a record now: drop them from MISSING: {sorted(set(MISSING) & have)}"
     assert set(MISSING) <= known, f"not a committed port: {sorted(set(MISSING) - known)}"
+
+
+def test_every_record_carries_a_mutation_section():
+    """#4048: a record's mutation section is filled from docs/language_status/mutation_scores.json, never null, and
+    its source names a port that file really scores."""
+    scored = {f"{p['case']}/{p['program']}" for p in json.loads(MUTATION_SCORES.read_text())["ports"]}
+    nulls, dangling = [], []
+    for t, rec in _records():
+        if rec is None or t.key in MUTATION_PENDING:
+            continue
+        mut = rec.get("mutation")
+        if not mut:
+            nulls.append(t.key)
+        elif mut.get("source", "").split("#", 1)[-1] not in scored:
+            dangling.append(f"{t.key}: {mut.get('source')}")
+    assert not nulls, (
+        f"records with mutation: null (mutation.py run, mutation_scores.py build, evidence.py mutation): {nulls}"
+    )
+    assert not dangling, f"mutation source not in mutation_scores.json: {dangling}"
+
+
+def test_the_mutation_pending_list_only_shrinks():
+    done = {t.key for t, rec in _records() if rec is not None and rec.get("mutation")}
+    known = {t.key for t in ev.targets()}
+    assert not (set(MUTATION_PENDING) & done), f"drop from MUTATION_PENDING: {sorted(set(MUTATION_PENDING) & done)}"
+    assert set(MUTATION_PENDING) <= known, f"not a committed port: {sorted(set(MUTATION_PENDING) - known)}"
 
 
 def test_every_record_is_valid():
@@ -101,7 +131,7 @@ def test_committed_approvals_name_a_person_and_what_they_attest():
 
 # ---- only a person writes an approval -----------------------------------------------------------------------------
 _TOOLS_WITHOUT_APPROVALS = ("equivalence.py", "equivalence_call.py", "equivalence_cics.py",
-                            "equivalence_cics_containers.py", "cics_crucible.py",
+                            "equivalence_cics_containers.py", "equivalence_cics_filecontrol.py", "cics_crucible.py",
                             "mutation.py", "mutation_crucible.py", "mutation_scores.py", "crucible_port_provenance.py")  # fmt: skip
 _ALLOWED_WRITERS = {"_append_approval", "new_record", "save"}
 

@@ -256,6 +256,20 @@ def main_failures(api: pr_check.Api, lookback: int = 3) -> set[str]:
     return failed
 
 
+def main_green(api: pr_check.Api) -> tuple[str, set[str]]:
+    """(main's newest sha, the checks completed green on exactly that commit) (#5484). Tip only, no look-back: a check
+    still pending on the tip is not green yet, so a PR waiting on main keeps waiting. Unreadable: ("", set())."""
+    try:
+        sha = api(f"repos/{REPO_SLUG}/commits/main")["sha"]
+        runs = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
+    except (SystemExit, KeyError, TypeError):
+        return "", set()
+    c = pr_check.classify(runs, [])
+    failed, _ = _completed_names(runs)
+    pending = {x.rsplit(" (", 1)[0] for x in c["pending"]}
+    return sha, set(c["passed"]) - failed - pending
+
+
 def first_attempt(api: pr_check.Api, job_id: int) -> bool:
     """True when the job ran in its workflow run's first attempt (unknown counts as not)."""
     try:

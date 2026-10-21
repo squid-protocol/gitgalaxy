@@ -81,6 +81,29 @@ PILOT_REPOS: dict[str, dict[str, Any]] = {
         "pin": None,
         "burned": True,
     },
+    # The other burned estates (estate4_draw.BURNED_NAMES). The local .mainframe_corpora copies are single-commit
+    # squashes, so each needs its upstream clone for history. "subdir" limits the archive and the log to the estate.
+    "cbsa": {
+        "url": "https://github.com/cicsdev/cics-banking-sample-application-cbsa",
+        "pin": None,
+        "burned": True,
+    },
+    "genapp": {"url": "https://github.com/cicsdev/cics-genapp", "pin": None, "burned": True},
+    # zECS's sources arrive with the 2016-11-29 "Initial commit on github"; a midpoint pin would scan only markdown.
+    "zecs": {"url": "https://github.com/walmartlabs/zECS", "pin": "9ab1e35", "burned": True},
+    "dbb-mortgage": {
+        "url": "https://github.com/IBM/dbb",
+        # zBuilder/MortgageApplication was moved in on 2025-09-11 (2 commits touch it): the pin is that move,
+        # because an earlier mid-history pin has no such tree to archive.
+        "pin": "0f8a61f",
+        "burned": True,
+        "subdir": "zBuilder/MortgageApplication",
+    },
+    "async-credit-card": {
+        "url": "https://github.com/cicsdev/cics-async-api-credit-card-application-example",
+        "pin": None,
+        "burned": True,
+    },
 }
 
 # The structural-signal columns summed into per-file "measured evidence". Dynamism (state_heat_triggers) is left out
@@ -196,7 +219,7 @@ def later_fix_counts(
 
 
 def history_after_pin(
-    repo: Path, pin: str, window_days: int
+    repo: Path, pin: str, window_days: int, subdir: str | None = None
 ) -> list[tuple[str, str, list[tuple[str, str, str | None]]]]:
     start = pin_date(repo, pin)
     end = start + timedelta(days=window_days)
@@ -209,6 +232,7 @@ def history_after_pin(
         "--format=%x01%H%x02%s",
         f"--until={end.isoformat()}",
         f"{pin}..HEAD",
+        *(["--", subdir] if subdir else []),
     )
     return parse_log(text)
 
@@ -223,6 +247,10 @@ def resolve_pin(repo: Path, entry: dict[str, Any], pin_fraction: float = 0.5) ->
         return _git(repo, "rev-parse", entry["pin"]).strip()
     shas = _git(repo, "rev-list", "--first-parent", "--reverse", "HEAD").split()
     return shas[min(len(shas) - 1, int(len(shas) * pin_fraction))]
+
+
+def _subdir_args(entry: dict[str, Any]) -> list[str]:
+    return [entry["subdir"]] if entry.get("subdir") else []
 
 
 def cmd_clone(work: Path, names: list[str]) -> None:
@@ -242,7 +270,9 @@ def cmd_scan(work: Path, names: list[str]) -> None:
         out = work / "scans" / name
         if not snap.exists():
             snap.mkdir(parents=True)
-            archive = subprocess.Popen(["git", "-C", str(repo), "archive", pin], stdout=subprocess.PIPE)
+            archive = subprocess.Popen(
+                ["git", "-C", str(repo), "archive", pin, *_subdir_args(PILOT_REPOS[name])], stdout=subprocess.PIPE
+            )
             subprocess.run(["tar", "-x", "-C", str(snap)], stdin=archive.stdout, check=True)
             archive.wait()
         out.mkdir(parents=True, exist_ok=True)
@@ -313,7 +343,7 @@ def cmd_label(work: Path, names: list[str], window_days: int) -> None:
             files = read_scan(dbs[0])
             snap = work / "snapshots" / name
             by_rel = {relative_path(f["path"], snap): f for f in files}
-            commits = history_after_pin(repo, pin, window_days)
+            commits = history_after_pin(repo, pin, window_days, PILOT_REPOS[name].get("subdir"))
             fixes, touches, _final = later_fix_counts(commits, by_rel)
             sample_rng = random.Random(f"{SEED}:{name}")
             fix_commits = [(s, subj) for s, subj, _c in commits if is_fix_subject(subj)]
@@ -512,9 +542,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     ap.add_argument("repos", nargs="*", help="pilot repo names (default: all)")
     ap.add_argument("--work", type=Path, default=Path("/tmp/gitgalaxy-scratch/claude/outcome-pilot"))
     ap.add_argument("--window-days", type=int, default=DEFAULT_WINDOW_DAYS)
+    ap.add_argument("--burned-only", action="store_true", help="only the burned mainframe estates")
     ap.add_argument("--rounds", type=int, default=BOOTSTRAP_ROUNDS)
     args = ap.parse_args(argv)
-    names = args.repos or list(PILOT_REPOS)
+    names = args.repos or [n for n, e in PILOT_REPOS.items() if e["burned"] or not args.burned_only]
     unknown = [n for n in names if n not in PILOT_REPOS]
     if unknown:
         ap.error(f"unknown pilot repo(s): {unknown}")

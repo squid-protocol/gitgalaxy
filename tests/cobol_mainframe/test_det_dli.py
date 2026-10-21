@@ -358,3 +358,322 @@ def test_accept_from_date_day_and_time_read_the_runs_clock(tmp_path):
     out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp",  # noqa: S603
                           str(tmp_path / "classes"), "Main"], capture_output=True, check=True).stdout.decode("utf-8").split()  # fmt: skip
     assert out == ["240315", "20240315", "24075", "2024075", "14302512"]
+
+
+# ---- EXEC DLI under CICS: SCHD PSB, TERM and DIBSTAT (#5278, register I5) ---------------------------------------------
+CICS_STUB = "public class DlitService { void f() { runTask(CicsTask t); } }"
+
+
+def _cics_program(proc: list[str]) -> str:
+    lines = ["IDENTIFICATION DIVISION.", "PROGRAM-ID. DLIT.", "DATA DIVISION.", "WORKING-STORAGE SECTION.",
+             "01  PSB-NAME PIC X(8) VALUE 'PSBX'.", "01  PSB-NUM PIC S9(4) COMP VALUE 1.", "01  IMS-RC PIC XX.",
+             "01  IOA PIC X(20).", "PROCEDURE DIVISION.", "MAIN-PARA.", *proc, "    GOBACK."]  # fmt: skip
+    return "\n".join(" " * 7 + ln for ln in lines) + "\n"
+
+
+def _wrap(stmt: str) -> list[str]:
+    """The statement as lines inside fixed-form columns 8-72."""
+    lines, cur = [], ""
+    for w in stmt.split():
+        if len(cur) + len(w) > 50:
+            lines.append("    " + cur)
+            cur = ""
+        cur = f"{cur} {w}".strip()
+    return [*lines, "    " + cur]
+
+
+def _translate_cics(tmp_path: Path, src: str):
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "DLIT.cbl").write_text(src)
+    return P.translate(tmp_path / "DLIT.cbl", [], CICS_STUB, PKG, None, tmp_path / "project")
+
+
+@pytest.mark.parametrize(
+    "stmt, call",
+    [
+        ("EXEC DLI SCHD PSB((PSB-NAME)) NODHABEND END-EXEC", r"schedule\(\w+, true\)"),
+        ("EXEC DLI SCHD PSB((PSB-NAME)) END-EXEC", r"schedule\(\w+, false\)"),
+        ("EXEC DLI SCHD PSB(PSBPAUTB) NODHABEND END-EXEC", r'schedule\("PSBPAUTB", true\)'),
+        ("EXEC DLI SCHD PSB('psbpautb') END-EXEC", r'schedule\("PSBPAUTB", false\)'),
+        ("EXEC DLI TERM END-EXEC", r"terminate\(\)"),
+    ],
+)  # fmt: skip
+def test_exec_dli_schd_and_term_answer_dibstat_through_the_runtime(tmp_path, stmt, call):
+    """SCHD PSB (a name, a literal or a data area, with or without NODHABEND) and TERM are DetDli calls whose answer
+    lands in DIBSTAT, the DIB item the translator supplies; every form is a whole translation."""
+    r = _translate_cics(tmp_path, _cics_program([f"    {stmt}", "    MOVE DIBSTAT TO IMS-RC"]))
+    assert not r.stats["holes"], r.stats["holes"]
+    assert re.search(rf"Cobol\.move\(\w+\.cobolrt\.dli\.DetDli\.{call}, \w+_DIBSTAT, CS\);", r.java), r.java
+
+
+@pytest.mark.parametrize("verb", ["GU", "GN", "GNP"])
+@pytest.mark.parametrize("pcb, pcb_java", [("1", "1"), ("PSB-NUM", r"Cobol\.num\(\w+, CS\)\.intValue\(\)")])
+@pytest.mark.parametrize(
+    "segs, ssas",
+    [
+        ("", r""),
+        ("SEGMENT(DEPT)", r', \w+\.cobolrt\.dli\.DetDli\.ssa\("DEPT"\)'),
+        ("SEGMENT (DEPT) WHERE (DEPTNO = IOA) SEGMENT(EMP)",
+         r', \w+\.cobolrt\.dli\.DetDli\.ssa\("DEPT", "DEPTNO", "EQ", \w+\), \w+\.cobolrt\.dli\.DetDli\.ssa\("EMP"\)'),
+        ("SEGMENT(S1) WHERE(F1 >= IOA)", r', \w+\.cobolrt\.dli\.DetDli\.ssa\("S1", "F1", "GE", \w+\)'),
+        ("SEGMENT(S1) WHERE(F1 NE IOA)", r', \w+\.cobolrt\.dli\.DetDli\.ssa\("S1", "F1", "NE", \w+\)'),
+        ("SEGMENT(S1) WHERE(F1 <= IOA)", r', \w+\.cobolrt\.dli\.DetDli\.ssa\("S1", "F1", "LE", \w+\)'),
+        ("SEGMENT(S1) WHERE(F1>IOA)", r', \w+\.cobolrt\.dli\.DetDli\.ssa\("S1", "F1", "GT", \w+\)'),
+    ],
+)  # fmt: skip
+def test_exec_dli_gets_are_detdli_get_with_their_ssas_and_answer_dibstat(tmp_path, verb, pcb, pcb_java, segs, ssas):
+    """GU / GN / GNP, the PCB a literal or a data item, no SEGMENT, a SEGMENT, a WHERE with each operator spelling and
+    more than one level: one DetDli.get whose answer lands in DIBSTAT; a whole translation."""
+    stmt = f"EXEC DLI {verb} USING PCB({pcb}) {segs} INTO(IOA) END-EXEC"
+    r = _translate_cics(tmp_path, _cics_program([*_wrap(stmt), "    MOVE DIBSTAT TO IMS-RC"]))
+    assert not r.stats["holes"], r.stats["holes"]
+    rx = rf'Cobol\.move\(\w+\.cobolrt\.dli\.DetDli\.get\("{verb}", {pcb_java}, \w+{ssas}\), \w+_DIBSTAT, CS\);'
+    assert re.search(rx, r.java), r.java
+
+
+def test_exec_dli_get_without_using_is_the_same_command(tmp_path):
+    r = _translate_cics(tmp_path, _cics_program(["    EXEC DLI GU PCB(1) SEGMENT(S1) INTO(IOA) END-EXEC"]))
+    assert not r.stats["holes"], r.stats["holes"]
+    assert 'DetDli.get("GU", 1, ' in r.java
+
+
+@pytest.mark.parametrize(
+    "stmt, why",
+    [
+        ("EXEC DLI GHU USING PCB(1) SEGMENT(S1) INTO(IOA) END-EXEC", "EXEC DLI GHU: the segment commands"),
+        ("EXEC DLI GU USING PCB(1) SEGMENT(S1) END-EXEC", "one PCB(n) first and one INTO(area)"),
+        ("EXEC DLI GU SEGMENT(S1) PCB(1) INTO(IOA) END-EXEC", "one PCB(n) first and one INTO(area)"),
+        ("EXEC DLI GU USING PCB(1) SEGMENT(S1) INTO(IOA) FIELDLENGTH(4) END-EXEC", "FIELDLENGTH: only PCB"),
+        ("EXEC DLI GU USING PCB(1) SEGMENT(S1) INTO(IOA) KEYS(IOA) END-EXEC", "KEYS: only PCB"),
+        ("EXEC DLI GU USING PCB(1) SEGMENT(S1) WHERE(F1 = IOA AND F2 = IOA) INTO(IOA) END-EXEC", "only field op value"),
+        ("EXEC DLI GU USING PCB(1) WHERE(F1 = IOA) INTO(IOA) END-EXEC", "WHERE must follow its SEGMENT"),
+        ("EXEC DLI GU USING PCB(1) SEGMENT(S1) WHERE(F1 = 5) INTO(IOA) END-EXEC", "not a data area"),
+        ("EXEC DLI GU USING PCB(1) SEGMENT(S1 S2) INTO(IOA) END-EXEC", "is not a segment name"),
+        ("EXEC DLI REPL USING PCB(1) SEGMENT(S1) END-EXEC", "one PCB(n) first and one FROM(area)"),
+        ("EXEC DLI REPL USING PCB(1) FROM(IOA) END-EXEC", "SEGMENT(s) expected, once"),
+        ("EXEC DLI REPL USING PCB(1) SEGMENT(S1) SEGMENT(S2) FROM(IOA) END-EXEC", "SEGMENT(s) expected, once"),
+        ("EXEC DLI REPL USING PCB(1) SEGMENT(S1) WHERE(F1 = IOA) FROM(IOA) END-EXEC", "REPL WHERE: only PCB"),
+        ("EXEC DLI REPL USING PCB(1) SEGMENT(S1) FROM(IOA) SEGLENGTH(20) END-EXEC", "REPL SEGLENGTH: only PCB"),
+        ("EXEC DLI DLET USING PCB(1) SEGMENT(S1) FROM(IOA) FIELDLENGTH(4) END-EXEC", "DLET FIELDLENGTH: only PCB"),
+        ("EXEC DLI ISRT USING PCB(1) SEGMENT(S1) FROM(IOA) FROM(IOA) END-EXEC", "one PCB(n) first and one FROM(area)"),
+        ("EXEC DLI ISRT USING PCB(1) SEGMENT(S1) FROM(IOA) KEYS(IOA) END-EXEC", "ISRT KEYS: only PCB"),
+        ("EXEC DLI ISRT USING SEGMENT(S1) PCB(1) FROM(IOA) END-EXEC", "one PCB(n) first and one FROM(area)"),
+        ("EXEC DLI ISRT USING PCB(1) FROM(IOA) END-EXEC", "SEGMENT(s) expected"),
+        ("EXEC DLI ISRT USING PCB(1) WHERE(F1 = IOA) SEGMENT(S1) FROM(IOA) END-EXEC", "WHERE must follow its SEGMENT"),
+        ("EXEC DLI ISRT USING PCB(1) SEGMENT(S1) FROM(5) END-EXEC", "not a data area"),
+        ("EXEC DLI ISRT USING PCB(1) SEGMENT(S1 S2) FROM(IOA) END-EXEC", "is not a segment name"),
+        ("EXEC DLI SCHD PSB((PSB-NAME)) NODHABEND SYSSERVE END-EXEC", "EXEC DLI SCHD: only PSB"),
+        ("EXEC DLI SCHD END-EXEC", "EXEC DLI SCHD: only PSB"),
+        ("EXEC DLI TERM PSB END-EXEC", "EXEC DLI TERM: no option"),
+        ("EXEC DLI SCHD PSB((PSB-NUM)) END-EXEC", "not a DISPLAY item"),
+    ],
+)  # fmt: skip
+def test_the_exec_dli_forms_not_modelled_are_holes_by_name(tmp_path, stmt, why):
+    r = _translate_cics(tmp_path, _cics_program(_wrap(stmt)))
+    assert len(r.stats["holes"]) == 1 and why in r.stats["holes"][0], r.stats["holes"]
+
+
+@pytest.mark.parametrize("pcb, pcb_java", [("1", "1"), ("PSB-NUM", r"Cobol\.num\(\w+, CS\)\.intValue\(\)")])
+@pytest.mark.parametrize(
+    "stmt, call",
+    [
+        ("ISRT USING PCB({p}) SEGMENT(S1) FROM(IOA)", r'execIsrt\({p}, \w+, -1, {d}\.ssa\("S1"\)\)'),
+        ("ISRT USING PCB({p}) SEGMENT(S1) FROM(IOA) SEGLENGTH(LENGTH OF IOA)", r'execIsrt\({p}, \w+, BigDecimal\.valueOf\(20\)\.intValue\(\), {d}\.ssa\("S1"\)\)'),
+        ("ISRT USING PCB({p}) SEGMENT(S1) WHERE(F1 = IOA) SEGMENT(S2) FROM(IOA) SEGLENGTH(8)",
+         r'execIsrt\({p}, \w+, 8, {d}\.ssa\("S1", "F1", "EQ", \w+\), {d}\.ssa\("S2"\)\)'),
+        ("REPL USING PCB({p}) SEGMENT(s1) FROM(IOA)", r'execChange\("REPL", {p}, \w+, "S1"\)'),
+        ("DLET USING PCB({p}) SEGMENT(S1) FROM(IOA)", r'execChange\("DLET", {p}, \w+, "S1"\)'),
+    ],
+)  # fmt: skip
+def test_exec_dli_isrt_repl_dlet_are_detdli_calls_and_answer_dibstat(tmp_path, pcb, pcb_java, stmt, call):
+    """ISRT (a root, a child under a qualified parent, with and without SEGLENGTH), REPL and DLET, the PCB a literal or
+    a data item: one DetDli call whose answer lands in DIBSTAT; a whole translation."""
+    d = r"\w+\.cobolrt\.dli\.DetDli"
+    r = _translate_cics(
+        tmp_path, _cics_program([*_wrap(f"EXEC DLI {stmt.format(p=pcb)} END-EXEC"), "    MOVE DIBSTAT TO IMS-RC"])
+    )
+    assert not r.stats["holes"], r.stats["holes"]
+    rx = rf"Cobol\.move\({d}\.{call.format(p=pcb_java, d=d)}, \w+_DIBSTAT, CS\);"
+    assert re.search(rx, r.java), r.java
+
+
+def test_exec_dli_in_a_batch_program_is_a_hole_and_other_dib_fields_are_no_such_item(tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    r = _translate(tmp_path, _program(["    EXEC DLI TERM END-EXEC"], entry="    ENTRY 'DLITCBL' USING PCB1 PCB2."))
+    assert len(r.stats["holes"]) == 1 and "EXEC DLI outside CICS" in r.stats["holes"][0], r.stats["holes"]
+    r = _translate_cics(tmp_path, _cics_program(["    MOVE DIBSEGM TO IOA"]))
+    assert any("DIBSEGM" in h for h in r.stats["holes"]), r.stats["holes"]  # only DIBSTAT is supplied
+
+
+@pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_detdli_get_answers_the_status_ibm_gives_through_the_pcb_by_number(tmp_path):
+    """GU with and without WHERE, GN walking on, a miss (GE), an unknown segment (AC) and field (AK), PCB 2 (PROCOPT G,
+    no hold); a get before SCHD, after TERM or through a PCB the PSB lacks is refused by name."""
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    _stage(tmp_path / "dli")
+    src = tmp_path / "src"
+    for rel, text in P.runtime_files("t", batch=False).items():
+        if not rel.startswith(("cobolrt/cics/", "cobolrt/sql/")):
+            (src / "t" / rel).parent.mkdir(parents=True, exist_ok=True)
+            (src / "t" / rel).write_text(text)
+    d = "t.cobolrt.dli.DetDli"
+    key = f'{d}.ssa("DEPT", "DEPTNO", "EQ", v)'
+    steps = [
+        f'try {{ {d}.get("GU", 1, into); }} catch (UnsupportedOperationException e) {{ p(e.getMessage()); }}',
+        f'{d}.schedule("LVLPSB", true); v.storage().bytes = "D200".getBytes();',
+        f'p({d}.get("GU", 1, into, {key}) + new String(st.bytes, 0, 20));',
+        f'p({d}.get("GN", 2, into, {d}.ssa("EMP")));',
+        f'p({d}.get("GU", 2, into, {key}, {d}.ssa("EMP")) + new String(st.bytes, 0, 14));',
+        f'p({d}.get("GN", 2, into, {d}.ssa("EMP")));',
+        'v.storage().bytes = "D999".getBytes();',
+        f'p({d}.get("GU", 1, into, {key}));',
+        f'p({d}.get("GU", 1, into, {d}.ssa("DEPT", "NOFIELD", "EQ", v)));',
+        f'p({d}.get("GU", 1, into, {d}.ssa("NOSEG")));',
+        f'try {{ {d}.get("GU", 3, into); }} catch (UnsupportedOperationException e) {{ p(e.getMessage()); }}',
+        f'try {{ {d}.get("GU", 0, into); }} catch (UnsupportedOperationException e) {{ p(e.getMessage()); }}',
+        f'{d}.terminate();',
+        f'try {{ {d}.get("GU", 1, into); }} catch (UnsupportedOperationException e) {{ p(e.getMessage()); }}',
+    ]  # fmt: skip
+    setup = ("t.cobolrt.Storage st = new t.cobolrt.Storage(64); t.cobolrt.Field into = t.cobolrt.Field.group(st, 0, 20); "
+             "t.cobolrt.Storage vs = new t.cobolrt.Storage(4); "
+             "t.cobolrt.Field v = t.cobolrt.Field.alphanumeric(vs, 0, 4, false); ")  # fmt: skip
+    (src / "Main.java").write_text(
+        'public class Main { static void p(String s) { System.out.println("[" + s + "]"); } '
+        f"public static void main(String[] a) {{ {setup}{' '.join(steps)} }} }}\n"
+    )
+    jdk = _jdk()
+    subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                    *map(str, src.rglob("*.java"))], check=True)  # fmt: skip
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", f"-Dgitgalaxy.dli.dir={tmp_path / 'dli'}", "-cp", str(tmp_path / "classes"),  # noqa: S603
+                          "Main"], capture_output=True, check=True).stdout.decode("utf-8").splitlines()  # fmt: skip
+    no_pcb = "CBLTDLI: a PCB number the scheduled PSB does not have is not modelled"
+    no_psb = "CBLTDLI: an EXEC DLI command with no PSB scheduled is not modelled"
+    assert out == [f"[{no_psb}]", "[  D200OPS             ]", "[  ]", "[  E003CAROL     ]", "[GB]", "[GE]", "[AK]", "[AC]",
+                   f"[{no_pcb}]", f"[{no_pcb}]", f"[{no_psb}]"]  # fmt: skip
+
+
+@pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_detdli_schedule_and_terminate_answer_the_status_ibm_gives(tmp_path):
+    """SCHD: blank, the PCBs at their start; a second SCHD of the scheduled PSB is TC (with NODHABEND; without it the
+    task would abend: refused); TERM: blank, then SCHD is blank again; a TERM with nothing scheduled is refused."""
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    _stage(tmp_path / "dli")
+    src = tmp_path / "src"
+    for rel, text in P.runtime_files("t", batch=False).items():
+        if not rel.startswith(("cobolrt/cics/", "cobolrt/sql/")):
+            (src / "t" / rel).parent.mkdir(parents=True, exist_ok=True)
+            (src / "t" / rel).write_text(text)
+    d = "t.cobolrt.dli.DetDli"
+    body = (f'System.out.println("[" + {d}.schedule("PSBX", true) + "]"); '
+            f'System.out.println("[" + {d}.schedule("PSBX", true) + "]"); '
+            f'try {{ {d}.schedule("PSBX", false); }} catch (UnsupportedOperationException e) {{ '
+            'System.out.println(e.getMessage()); } '
+            f'System.out.println("[" + {d}.terminate() + "]"); '
+            f'System.out.println("[" + {d}.schedule("PSBX", false) + "]"); {d}.terminate(); '
+            f'try {{ {d}.terminate(); }} catch (UnsupportedOperationException e) {{ System.out.println(e.getMessage()); }}')  # fmt: skip
+    (src / "Main.java").write_text(f"public class Main {{ public static void main(String[] a) {{ {body} }} }}\n")
+    jdk = _jdk()
+    subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                    *map(str, src.rglob("*.java"))], check=True)  # fmt: skip
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", f"-Dgitgalaxy.dli.dir={tmp_path / 'dli'}", "-cp", str(tmp_path / "classes"),  # noqa: S603
+                          "Main"], capture_output=True, check=True).stdout.decode("utf-8").splitlines()  # fmt: skip
+    assert out == [
+        "[  ]",
+        "[TC]",
+        "CBLTDLI: a SCHD of a PSB already scheduled, without NODHABEND (the task would abend) is not modelled",
+        "[  ]",
+        "[  ]",
+        "CBLTDLI: a TERM with no PSB scheduled is not modelled",
+    ]
+
+
+@pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_detdli_isrt_repl_dlet_answer_the_status_ibm_gives_through_the_pcb_by_number(tmp_path):
+    """ISRT of a root and of a child under a qualified parent (blank), a duplicate (II), a missing parent (GE), a
+    PROCOPT G PCB (AM); REPL after a get-hold (blank, the segment changed), with no hold (DJ), with the key changed
+    (DA); DLET (blank, then GE); a SEGLENGTH that is not the fixed length, or a SEGMENT that is not the held type, is
+    refused by name."""
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    _stage(tmp_path / "dli")
+    src = tmp_path / "src"
+    for rel, text in P.runtime_files("t", batch=False).items():
+        if not rel.startswith(("cobolrt/cics/", "cobolrt/sql/")):
+            (src / "t" / rel).parent.mkdir(parents=True, exist_ok=True)
+            (src / "t" / rel).write_text(text)
+    d = "t.cobolrt.dli.DetDli"
+    key = f'{d}.ssa("DEPT", "DEPTNO", "EQ", v)'
+    refused = "catch (UnsupportedOperationException e) { p(e.getMessage()); }"
+    steps = [
+        f'{d}.schedule("LVLPSB", true); put("D200", v);',
+        f'p({d}.get("GU", 1, into, {key}));',
+        f'put("D200RENAMED        ", into); p({d}.execChange("REPL", 1, into, "DEPT"));',
+        f'p({d}.execChange("REPL", 1, into, "DEPT"));',
+        f'p({d}.get("GU", 1, into, {key}) + new String(st.bytes, 0, 20));',
+        f'put("D999RENAMED        ", into); p({d}.execChange("REPL", 1, into, "DEPT"));',
+        f'put("D200", v); {d}.get("GU", 1, into, {key});',
+        f'try {{ {d}.execChange("REPL", 1, into, "EMP"); }} {refused}',
+        f'put("D400NEWDEPT         ", into); p({d}.execIsrt(1, into, -1, {d}.ssa("DEPT")));',
+        f'p({d}.execIsrt(1, into, 20, {d}.ssa("DEPT")));',
+        f'put("E009ZED                 ", into); p({d}.execIsrt(1, into, 20, {key}, {d}.ssa("EMP")));',
+        f'p({d}.get("GU", 1, into, {key}, {d}.ssa("EMP", "EMPNO", "EQ", ev)) + new String(st.bytes, 0, 8));',
+        f'try {{ {d}.execIsrt(1, into, 19, {key}, {d}.ssa("EMP")); }} {refused}',
+        f'put("D999", v); p({d}.execIsrt(1, into, 20, {key}, {d}.ssa("EMP")));',
+        f'p({d}.execIsrt(2, into, -1, {d}.ssa("DEPT")));',
+        f'put("D400", v); {d}.get("GU", 1, into, {key}); p({d}.execChange("DLET", 1, into, "DEPT"));',
+        f'p({d}.get("GU", 1, into, {key}));',
+        f'try {{ {d}.execIsrt(3, into, -1, {d}.ssa("DEPT")); }} {refused}',
+    ]  # fmt: skip
+    setup = ("static t.cobolrt.Storage st = new t.cobolrt.Storage(64); "
+             "static t.cobolrt.Field into = t.cobolrt.Field.group(st, 0, 20); "
+             "static t.cobolrt.Storage vs = new t.cobolrt.Storage(4); "
+             "static t.cobolrt.Field v = t.cobolrt.Field.alphanumeric(vs, 0, 4, false); "
+             "static t.cobolrt.Storage es = new t.cobolrt.Storage(4); "
+             "static t.cobolrt.Field ev = t.cobolrt.Field.alphanumeric(es, 0, 4, false); "
+             "static void put(String s, t.cobolrt.Field f) { byte[] b = s.getBytes(); "
+             "System.arraycopy(b, 0, f.storage().bytes, f.offset(), b.length); } ")  # fmt: skip
+    (src / "Main.java").write_text(
+        'public class Main { static void p(String s) { System.out.println("[" + s + "]"); } '
+        f'{setup}public static void main(String[] a) {{ put("E009", ev); {" ".join(steps)} }} }}\n'
+    )
+    jdk = _jdk()
+    subprocess.run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                    *map(str, src.rglob("*.java"))], check=True)  # fmt: skip
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", f"-Dgitgalaxy.dli.dir={tmp_path / 'dli'}", "-cp", str(tmp_path / "classes"),  # noqa: S603
+                          "Main"], capture_output=True, check=True).stdout.decode("utf-8").splitlines()  # fmt: skip
+    nothing = "CBLTDLI: an ISRT whose SEGLENGTH is not the segment's fixed length is not modelled"
+    wrong = "CBLTDLI: an EXEC DLI REPL whose SEGMENT is not the held segment's type is not modelled"
+    no_pcb = "CBLTDLI: a PCB number the scheduled PSB does not have is not modelled"
+    assert out == ["[  ]", "[  ]", "[DJ]", "[  D200RENAMED         ]", "[DA]", f"[{wrong}]", "[  ]", "[II]", "[  ]",
+                   "[  E009ZED ]", f"[{nothing}]", "[GE]", "[AM]", "[  ]", "[GE]", f"[{no_pcb}]"]  # fmt: skip
+
+
+def test_every_burned_cics_exec_dli_command_translates_and_cbpaup0c_stays_a_named_hole(tmp_path):
+    """#5278: CardDemo's EXEC DLI programs under CICS (COPAUA0C, COPAUS0C, COPAUS1C: SCHD, TERM, GU, GNP, ISRT, REPL)
+    have no EXEC DLI hole; CBPAUP0C (a batch program: GN, GNP, DLET, CHKP) keeps its by-name hole, outside CICS."""
+    pytest.importorskip("tree_sitter_language_pack")
+    corpora = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", ROOT / ".mainframe_corpora"))
+    corpus = corpora / "aws-mainframe-modernization-carddemo"
+    cbl = corpus / "app/app-authorization-ims-db2-mq/cbl"
+    if not cbl.is_dir():
+        pytest.skip("needs the burned mainframe corpora (GITGALAXY_MAINFRAME_CORPORA)")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    copies = [corpus / "app/cpy", corpus / "app/app-authorization-ims-db2-mq/cpy"]
+    copies.append(corpus / "app/app-authorization-ims-db2-mq/cpy-bms")
+    cics = "public class X { void f() { runTask(CicsTask t); } }"  # the marker that makes it a CICS port
+
+    def holes(name: str, stub: str) -> list[str]:
+        res = P.translate(cbl / f"{name}.cbl", copies, stub, "pkg", None, tmp_path / name)
+        return [str(h) for h in res.stats["holes"]]
+
+    for name in ("COPAUA0C", "COPAUS0C", "COPAUS1C"):
+        got = holes(name, cics)
+        assert not [h for h in got if "EXEC DLI" in h or "DIBSTAT" in h], (name, got)
+    batch = holes("CBPAUP0C", "public class X { }")
+    dli = [h for h in batch if "EXEC DLI" in h]
+    assert dli and all("outside CICS" in h for h in dli), batch

@@ -125,6 +125,32 @@ def runtime_effect(path: str, value: Any, code_page: str | None = None) -> str:
     return "honoured" if not hit else ("declared" if hit[0]["policy"] == "declare" else "refused")
 
 
+def calibration_problems(under: Any) -> list[str]:
+    """The problems of the runtime options a z/OS measurement says it was taken under (#4702 part 2): `under` is
+    {"le.runtime_options.TRAP": "ON,SPIE", ...}. A measured IBM result only calibrates a proof run under the same
+    effective options, so every option the table judges (policy refuse or declare) must be stated, a key the table does
+    not know is refused, and a value the harness cannot honour is named (the measurement does not transfer to it)."""
+    if not isinstance(under, dict) or not under:
+        return ["calibrated_under is a non-empty {option path: value} object"]
+    probs = [f"{path}: no row in the runtime option table" for path in under if path not in RUNTIME_OPTION_TABLE]
+    probs += [
+        f"{path}: judged by the table (policy {row['policy']}) and not stated"
+        for path, row in RUNTIME_OPTION_TABLE.items()
+        if row["policy"] and path not in under
+    ]
+    known: dict[str, dict[str, Any]] = {}
+    for path, value in under.items():
+        if path in RUNTIME_OPTION_TABLE:
+            section, _, key = path.partition(".")
+            known.setdefault(section, {})[key] = value
+    probs += [
+        f"{hit['option']}={hit['declared']}: measured under a value the harness cannot honour ({hit['policy']})"
+        for hit in runtime_unhonoured(known)
+        if hit["option"] in RUNTIME_OPTION_TABLE
+    ]
+    return probs
+
+
 # #4707: the CICS conventions a result depends on that no options file records: the EIB fields a program reads and
 # the abend conventions. Same four answers as the option rows. `register`: the entries that state it (an empty list
 # is a gap, named in `note`). `used_by`: the burned corpora whose COBOL names the field (a test greps them).
@@ -145,8 +171,8 @@ CICS_CONVENTIONS: dict[str, dict[str, Any]] = {
         "det": "the runner-stated task number", "otherwise": "DIFFERS from z/OS in value, both sides agree (declared)",
         "register": ["X21"], "used_by": ["cics-banking-sample-application-cbsa", "cics-genapp", "zecs"]},
     "EIBTRNID": {"changes": "yes: the transaction id a program routes on", "cobc": "the case's transid, moved by the stub",
-        "det": "task.transid()", "otherwise": "ASSUMED: no register entry states it",
-        "register": [], "used_by": ["cics-banking-sample-application-cbsa", "cics-genapp", "zecs"]},
+        "det": "task.transid()", "otherwise": "the case's transid, ASSUMED to be the region's; not validated (X68)",
+        "register": ["X68"], "used_by": ["cics-banking-sample-application-cbsa", "cics-genapp", "zecs"]},
     "EIBTRMID": {"changes": "yes when a program starts a task at its own terminal", "cobc": "the case's termid, moved by the stub",
         "det": "task.termid(), blanks for a task with none", "otherwise": "ASSUMED",
         "register": ["X18"], "used_by": ["cics-banking-sample-application-cbsa", "cics-genapp"]},

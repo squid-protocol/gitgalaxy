@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -124,6 +125,159 @@ def input_generation(case: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
+# Issue classes 1 (qualified names, formats a PICTURE cannot say) and 3 (cross-record business rules) are left
+# unclassified on purpose: the burned `@generate` records hold no duplicate field name and every case states its
+# rules (`digits`, `date`, `values`, single-field `from`), so no burned program needs a cause for them (checked
+# 2026-10-18; test_burned_generated_inputs_need_no_class_1_or_3_cause). When one does, add its cause to
+# record_cause / FIX_LAYOUT and that test's guard moves with it.
+# ---- what stops an input being generated (#4493 blocker classes 1 and 2) --------------------------------------------
+FIX_LAYOUT = {
+    "redefines": "State a hand rule for the field that selects the REDEFINES alternative (the generator fills the first)",
+    "renames": "Extend the layout model to RENAMES (#4266)",
+    "sync": "Extend the layout model to SYNC (#4266)",
+    "unresolved copy": "Connect the unresolved COPY member (or the COPY ... REPLACING)",
+    "no layout": "Name a record the copybook holds",
+    "not read": "Provide the corpus checkout so the layout can be read",
+}
+NON_VSAM_FIX = {
+    "db2": "Provide DDL or sample rows for the Db2 tables (generated rows cover only some programs)",
+    "mq": "Add an MQ queue model for the input messages (no generated MQ inputs yet)",
+    "ims": "Add IMS segment inputs (not generated yet)",
+    "recfm v": "Add variable-length (RECFM V) record generation",
+    "gdg": "Add generation-data-group inputs",
+}
+_REDEF = re.compile(r"\bREDEFINES\b", re.I)
+_SYNC = re.compile(r"\bSYNC(?:HRONIZED)?\b", re.I)
+_LEVEL66 = re.compile(r"^.{6}\s*66\s", re.M)
+_RECORD_START = re.compile(r"^.{6}\s*(?:01|77)\s")
+
+
+def _record_text(text: str, record: str) -> str:
+    """The lines of one 01 record: from its header to the next 01/77 (the whole text when it is not found)."""
+    lines = text.splitlines()
+    head = re.compile(rf"^.{{6}}\s*01\s+{re.escape(record)}\b", re.I) if record else _RECORD_START
+    start = next((i for i, ln in enumerate(lines) if head.match(ln)), 0)
+    end = next((i for i in range(start + 1, len(lines)) if _RECORD_START.match(lines[i])), len(lines))
+    return "\n".join(lines[start:end])
+
+
+_SELECTOR_NAME = re.compile(r"(?:^|-)(?:TYPE|CODE|ID|REQUEST|FLAG|IND|KIND|STATUS|SW|SWITCH)(?:-|$)")
+
+
+def redefines_choices(items: list[dict[str, Any]], record: str = "") -> list[str]:
+    """REDEFINES alternatives that another field selects, one line each: `TARGET -> ALT1/ALT2 (selector SEL)`.
+
+    Chosen means a group alternative (a different layout over the target's bytes) or 2+ items over one target; a
+    same-bytes elementary re-view (X(8) read as 9(8)) and a FILLER are not: the first alternative the generator fills
+    already holds them. The selector is the nearest preceding sibling that owns 88-level values, else one whose name
+    says it is a code (`(selector not found)` when none)."""
+    roots = [i for i in items if i["parent"] is None and i["level"] not in (66, 88)]
+    root = next((r for r in roots if r["name"] == record), None) if record else None
+    root = root or next((r for r in roots if not r.get("redefines")), None)
+    if root is None:
+        return []
+    later = [r["line"] for r in roots if r["line"] > root["line"]]
+    inside = [i for i in items if root["line"] <= i["line"] < (min(later) if later else 1 << 30)]
+    has88 = {i["parent"] for i in inside if i["level"] == 88}
+    has_kids = {i["parent"] for i in inside if i["level"] not in (66, 88)}
+    by_target: dict[str, list[dict[str, Any]]] = {}
+    for i in inside:
+        if i.get("redefines") and i["level"] not in (66, 88) and i["name"] != "FILLER":
+            by_target.setdefault(i["redefines"], []).append(i)
+    out = []
+    for target, alts in sorted(by_target.items()):
+        if len(alts) < 2 and not any(a["ordinal"] in has_kids and not a.get("pic") for a in alts):
+            continue
+        t = next((i for i in inside if i["name"] == target and not i.get("redefines")), None)
+        sibs = [i for i in inside if t and i["parent"] == t["parent"] and i["line"] < t["line"] and i["level"] != 88]
+        sibs = [i for i in sibs if not i.get("redefines") and i["ordinal"] not in has_kids]
+        pick = next((i for i in reversed(sibs) if i["ordinal"] in has88), None) or next(
+            (i for i in reversed(sibs) if _SELECTOR_NAME.search(i["name"])), None
+        )
+        sel = f"selector {pick['name']}" if pick else "selector not found"
+        out.append(f"{target} -> {'/'.join(a['name'] for a in alts)} ({sel})")
+    return out
+
+
+def record_limit(roots: list[Path], case: dict[str, Any], dataset: str) -> tuple[str, str]:
+    """(cause, symbols) of one generated record's layout limit: a key of FIX_LAYOUT or "", and the names involved."""
+    gen = case["datasets"][dataset].get("generate") or {}
+    corpus = case.get("corpus", "")
+    base = next((r / corpus for r in roots if (r / corpus).is_dir()), None)
+    cpy = gen.get("copybook") or case["datasets"][dataset].get("copybook", "")
+    if base is None or not (base / cpy).is_file():
+        return "not read", ""
+    import equivalence_common as common
+
+    record = gen.get("record") or case["datasets"][dataset].get("record") or None
+    try:
+        common.layout_fields(base, cpy, record)
+    except common.LayoutError as e:
+        return ("no layout" if "no record" in str(e) else "unresolved copy"), ""
+    from gitgalaxy.core.source_text import read_source
+
+    text = _record_text(read_source(base / cpy).text, record or "")
+    if _LEVEL66.search(text):
+        return "renames", ""
+    if _SYNC.search(text):
+        return "sync", ""
+    if _REDEF.search(text) and not gen.get("fields"):  # a case that states field rules has chosen what to fill
+        import cobol_answer_key as ak
+
+        path = base / cpy
+        lines = common._expanded_lines(path, [path.parent, base], [])
+        items = [it for it in ak._data_items(ak.Source(path, list(enumerate(lines, 1))))]
+        if chosen := redefines_choices(items, record or ""):
+            return "redefines", "; ".join(chosen)
+    return "", ""
+
+
+def record_cause(roots: list[Path], case: dict[str, Any], dataset: str) -> str:
+    """Why one generated record's layout is limited: a key of FIX_LAYOUT, or "" when nothing applies."""
+    return record_limit(roots, case, dataset)[0]
+
+
+def non_vsam_kinds(case: dict[str, Any]) -> list[str]:
+    """The inputs of a case that are not fixed-length data a layout generates: Db2 rows, MQ, IMS, RECFM V, GDGs."""
+    kinds = {k for k in ("db2", "mq", "ims") if case.get(k) is not None}
+    for dd, spec in (case.get("datasets") or {}).items():
+        if str(spec.get("record_format", "")).upper().startswith("V"):
+            kinds.add("recfm v")
+        if spec.get("gdg") or re.search(r"\(\+?-?\d+\)", dd):
+            kinds.add("gdg")
+    return sorted(kinds)
+
+
+def input_blockers(
+    rows: list[dict[str, Any]], inputs: dict[str, dict[str, Any]], tests: dict[str, int]
+) -> list[dict[str, Any]]:
+    """Input-generation limits grouped by cause, stated as the fix, with the programs and tests they sit under."""
+    by: dict[str, dict[str, Any]] = {}
+    for c, i in inputs.items():
+        found = [
+            (
+                r["cause"],
+                f"{r['dataset']} ({r['record'] or r['copybook']})" + (f": {r['symbols']}" if r.get("symbols") else ""),
+            )
+            for r in i.get("records", [])
+            if r["cause"]
+        ]
+        found += [(k, "case input") for k in i.get("non_vsam", [])]
+        for cause, what in found:
+            b = by.setdefault(cause, {"cases": set(), "items": [], "programs": set()})
+            b["cases"].add(c)
+            b["items"].append(f"{c}: {what}")
+            b["programs"].update(r["program"] for r in rows if r["case"] == c)
+    out = []
+    for cause, b in by.items():
+        cases = sorted(b["cases"])
+        fix = FIX_LAYOUT.get(cause) or NON_VSAM_FIX[cause]
+        out.append({"cause": cause, "fix": f"{fix}: {len(b['items'])} input(s) in {', '.join(cases)}.",
+                    "items": sorted(b["items"]), "cases": cases, "programs": sorted(b["programs"]),
+                    "tests_held": sum(tests.get(c, 0) for c in cases)})  # fmt: skip
+    return sorted(out, key=lambda b: (-b["tests_held"], b["cause"]))
+
+
 def case_coverage(cases_dir: Path, name: str) -> dict[str, int] | None:
     f = cases_dir / name / "evidence.json"
     if not f.is_file():
@@ -141,7 +295,9 @@ def pct(n: int, d: int) -> float | None:
 
 
 # ---- the report ----------------------------------------------------------------------------------------------------
-def build(res: dict[str, Any], estate: str = "estate", cases_dir: Path = CASES) -> dict[str, Any]:
+def build(
+    res: dict[str, Any], estate: str = "estate", cases_dir: Path = CASES, roots: list[Path] | None = None
+) -> dict[str, Any]:
     """The report data from `proof_blockers`' result. Burned, non-crucible programs only; others are counted."""
     from proof_blockers import is_crucible
 
@@ -200,12 +356,23 @@ def build(res: dict[str, Any], estate: str = "estate", cases_dir: Path = CASES) 
         "cases_measured": len(cov), "cases": len(case_names),
     }  # fmt: skip
     inputs = {c: input_generation(cases[c]) | {"tests": tests[c]} for c in case_names}
-    return {
+    for c, i in inputs.items():  # only when non-empty: an always-present empty key breaks exact-equality tests
+        if i["generated"]:
+            i["records"] = []
+            for g in i["generated"]:
+                cause, symbols = record_limit(roots or [], cases[c], g["dataset"])
+                i["records"].append(g | {"cause": cause} | ({"symbols": symbols} if symbols else {}))
+        if kinds := non_vsam_kinds(cases[c]):
+            i["non_vsam"] = kinds
+    rep = {
         "schema_version": SCHEMA_VERSION, "estate": estate, "scope": res.get("scope", ""),
         "coverage": coverage, "status_counts": statuses, "programs": rows, "inputs": inputs, "blockers": blockers,
         "not_listed": {"non_burned_programs": len([p for p in progs if not p.get("burned")]),
                        "note": "non-burned census programs are counted, never named (mainframe evidence policy)"},
     }  # fmt: skip
+    if in_blockers := input_blockers(rows, inputs, tests):
+        rep["input_blockers"] = in_blockers
+    return rep
 
 
 def _p(v: float | None) -> str:
@@ -255,14 +422,21 @@ def markdown(rep: dict[str, Any]) -> str:
         gen = ", ".join(f"{g['dataset']} ({g['record'] or g['copybook']})" for g in i["generated"]) or "-"
         out.append(f"| {name} | {gen} | {', '.join(i['shipped']) or '-'} | {', '.join(i['skipped']) or '-'} |"
                    f" {'yes' if i['scenarios_generated'] else 'no'} |")  # fmt: skip
+    if rep.get("input_blockers"):
+        out += ["", "### Input-generation blockers (highest value first)", ""]
+        for n, b in enumerate(rep["input_blockers"], 1):
+            out.append(f"{n}. {b['fix']} Holds back {b['tests_held']} tests across {len(b['programs'])} programs.")
+            out += [f"   - {it}" for it in b["items"]]
     nl = rep["not_listed"]
     out += ["", f"Not listed: {nl['non_burned_programs']} non-burned programs ({nl['note']}).", ""]
     return "\n".join(out)
 
 
-def write_report(res: dict[str, Any], out: Path, estate: str = "estate", cases_dir: Path = CASES) -> dict[str, Path]:
+def write_report(
+    res: dict[str, Any], out: Path, estate: str = "estate", cases_dir: Path = CASES, roots: list[Path] | None = None
+) -> dict[str, Path]:
     out.mkdir(parents=True, exist_ok=True)
-    rep = build(res, estate, cases_dir)
+    rep = build(res, estate, cases_dir, roots)
     paths = {"json": out / "harness_report.json", "md": out / "harness_report.md"}
     paths["json"].write_text(json.dumps(rep, indent=1) + "\n", encoding="utf-8")
     paths["md"].write_text(markdown(rep), encoding="utf-8")
@@ -279,6 +453,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--estate", default="burned estates")
     ap.add_argument("--cases-dir", type=Path, default=CASES)
     args = ap.parse_args(argv)
+    roots: list[Path] = []
     if args.survey:
         import cics_census as cc
         import proof_blockers as pb
@@ -294,7 +469,14 @@ def main(argv: list[str] | None = None) -> int:
         res = json.loads(args.input.read_text(encoding="utf-8"))
     else:
         ap.error("give PROOF_BLOCKERS.json or --survey DIR")
-    for p in write_report(res, args.out, args.estate, args.cases_dir).values():
+    if not roots:  # a PROOF_BLOCKERS.json run still reads the layouts when the corpora are here
+        import cics_census as cc
+
+        try:
+            roots = [cc.mainframe_root(None)]
+        except (SystemExit, OSError):
+            roots = []
+    for p in write_report(res, args.out, args.estate, args.cases_dir, roots).values():
         print(p)
     return 0
 

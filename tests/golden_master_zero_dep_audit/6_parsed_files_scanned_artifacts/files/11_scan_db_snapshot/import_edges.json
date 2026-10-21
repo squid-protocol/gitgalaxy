@@ -1635,6 +1635,18 @@
       "fortran/wrf/module_sf_noahdrv.F": [
         "fcall:fortran/wrf/module_initialize_real.F"
       ],
+      "fortran/wrf/regtest.csh": [
+        "fcall:shell/curl/initscript.sh",
+        "fcall:shell/kubernetes/common.sh"
+      ],
+      "fortran/wrf/regtest_hwrf.csh": [
+        "fcall:shell/curl/initscript.sh",
+        "fcall:shell/kubernetes/common.sh"
+      ],
+      "fortran/wrf/regtest_nmmnest.csh": [
+        "fcall:shell/curl/initscript.sh",
+        "fcall:shell/kubernetes/common.sh"
+      ],
       "fortran/wrf/sourcetree.py": [
         "import:embedded_python/meow_turtle/logging.py"
       ],
@@ -1652,7 +1664,6 @@
         "import:assembly/bootos/counter.asm",
         "import:assembly/bootos/os.asm",
         "import:livecode/livecode/log.livecodescript",
-        "import:python/fastapi/fastapi/types.py",
         "import:ruby/rails/base.rb",
         "import:shell/curl/coverage.sh"
       ],
@@ -1691,16 +1702,14 @@
         "import:assembly/bootos/os.asm",
         "import:lua/cosmopolitan/errors.lua",
         "import:lua/cosmopolitan/strings.lua",
-        "import:python/fastapi/fastapi/types.py",
         "import:shell/kubernetes/util.sh"
       ],
       "go/kubernetes/generic.go": [
-        "import:dockerfile/moby/builder/dockerfile/metrics.go",
-        "import:python/fastapi/fastapi/types.py"
+        "fcall:go/kubernetes/scheduler.go",
+        "import:dockerfile/moby/builder/dockerfile/metrics.go"
       ],
       "go/kubernetes/kubelet.go": [
-        "import:dockerfile/moby/builder/dockerfile/metrics.go",
-        "import:python/fastapi/fastapi/types.py"
+        "import:dockerfile/moby/builder/dockerfile/metrics.go"
       ],
       "go/kubernetes/proxier.go": [
         "fcall:go/kubernetes/generic.go",
@@ -1708,7 +1717,6 @@
         "import:dockerfile/moby/builder/dockerfile/metrics.go",
         "import:lua/cosmopolitan/errors.lua",
         "import:lua/cosmopolitan/strings.lua",
-        "import:python/fastapi/fastapi/types.py",
         "import:scheme/racket/io.ss",
         "import:shell/kubernetes/util.sh"
       ],
@@ -1716,7 +1724,6 @@
         "import:dockerfile/moby/builder/dockerfile/metrics.go",
         "import:lua/cosmopolitan/errors.lua",
         "import:lua/cosmopolitan/strings.lua",
-        "import:python/fastapi/fastapi/types.py",
         "import:python/twisted/reflect.py"
       ],
       "go/kubernetes/scheduler.go": [
@@ -2648,6 +2655,7 @@
         "import:objective-c/worldwideweb/HyperText.h"
       ],
       "objective-c/worldwideweb/TcpAccess.m": [
+        "fcall:objective-c/worldwideweb/Anchor.m",
         "fcall:objective-c/worldwideweb/HyperText.h",
         "fcall:objective-c/worldwideweb/HyperText.m"
       ]
@@ -4288,6 +4296,9 @@
       ],
       "rust/tokio/tokio_named_pipe.rs": [
         "import:rust/tokio/lib.rs"
+      ],
+      "rust/tokio/tokio_udp.rs": [
+        "import:rust/tokio/lib.rs"
       ]
     },
     "scala/kafka": {
@@ -4369,6 +4380,15 @@
       ]
     },
     "shell/kubernetes": {
+      "shell/kubernetes/common.sh": [
+        "fcall:shell/kubernetes/release.sh"
+      ],
+      "shell/kubernetes/e2e-cluster-size.sh": [
+        "fcall:shell/kubernetes/skeleton__util.sh"
+      ],
+      "shell/kubernetes/log-dump.sh": [
+        "fcall:shell/kubernetes/skeleton__util.sh"
+      ],
       "shell/kubernetes/util.sh": [
         "import:shell/kubernetes/config-default.sh"
       ]
@@ -4469,26 +4489,27 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/ast.ts": [
         "import:embedded_python/meow_turtle/diagnostics.py",
-        "import:python/fastapi/fastapi/types.py",
         "import:shell/kubernetes/util.sh",
+        "import:zig/mach/module.zig"
+      ],
+      "typescript/assemblyscript/builtins.ts": [
+        "import:embedded_python/meow_turtle/diagnostics.py",
+        "import:shell/kubernetes/util.sh",
+        "import:typescript/assemblyscript/ast.ts",
+        "import:typescript/assemblyscript/compiler.ts",
         "import:zig/mach/module.zig"
       ],
       "typescript/assemblyscript/compiler.ts": [
         "import:embedded_python/meow_turtle/diagnostics.py",
-        "import:python/fastapi/fastapi/types.py",
         "import:shell/kubernetes/util.sh",
         "import:typescript/assemblyscript/ast.ts",
+        "import:typescript/assemblyscript/builtins.ts",
         "import:zig/mach/module.zig"
       ],
       "typescript/assemblyscript/parser.ts": [
         "import:embedded_python/meow_turtle/diagnostics.py",
         "import:shell/kubernetes/util.sh",
         "import:typescript/assemblyscript/ast.ts"
-      ]
-    },
-    "typescript/excalidraw_text_wrapping": {
-      "typescript/excalidraw_text_wrapping/textWrapping.ts": [
-        "import:python/fastapi/fastapi/types.py"
       ]
     },
     "typescript/fp-ts": {
@@ -4509,22 +4530,18 @@
         "import:livecode/livecode/network.livecodescript",
         "import:lua/cosmopolitan/errors.lua",
         "import:lua/cosmopolitan/fetch.lua",
-        "import:python/fastapi/fastapi/types.py",
         "import:shell/curl/coverage.sh"
       ],
       "typescript/playwright/bidiConnection.ts": [
-        "import:python/fastapi/fastapi/types.py",
         "import:python/twisted/transport.py"
       ],
       "typescript/playwright/connection.ts": [
         "import:html/wordpress_blocks/page.html",
         "import:livecode/livecode/network.livecodescript",
         "import:lua/cosmopolitan/errors.lua",
-        "import:lua/cosmopolitan/fetch.lua",
-        "import:python/fastapi/fastapi/types.py"
+        "import:lua/cosmopolitan/fetch.lua"
       ],
       "typescript/playwright/crConnection.ts": [
-        "import:python/fastapi/fastapi/types.py",
         "import:python/twisted/transport.py",
         "import:typescript/playwright/protocol.ts"
       ],
@@ -4534,8 +4551,7 @@
       "typescript/playwright/frames.ts": [
         "import:html/wordpress_blocks/page.html",
         "import:livecode/livecode/network.livecodescript",
-        "import:lua/cosmopolitan/errors.lua",
-        "import:python/fastapi/fastapi/types.py"
+        "import:lua/cosmopolitan/errors.lua"
       ]
     },
     "typescript/vscode": {
@@ -4622,6 +4638,7 @@
       "zig/zig/Compilation.zig": [
         "import:shell/serenity/builtin.sh",
         "import:zig/zig/InternPool.zig",
+        "import:zig/zig/Sema.zig",
         "import:zig/zig/Type.zig",
         "import:zig/zig/Zcu.zig",
         "import:zig/zig/main.zig"
@@ -4630,15 +4647,23 @@
         "import:shell/serenity/builtin.sh",
         "import:zig/zig/Zcu.zig"
       ],
+      "zig/zig/Sema.zig": [
+        "import:zig/zig/Compilation.zig",
+        "import:zig/zig/InternPool.zig",
+        "import:zig/zig/Type.zig",
+        "import:zig/zig/Zcu.zig"
+      ],
       "zig/zig/Type.zig": [
         "import:shell/serenity/builtin.sh",
         "import:zig/zig/InternPool.zig",
+        "import:zig/zig/Sema.zig",
         "import:zig/zig/Zcu.zig"
       ],
       "zig/zig/Zcu.zig": [
         "import:shell/serenity/builtin.sh",
         "import:zig/zig/Compilation.zig",
         "import:zig/zig/InternPool.zig",
+        "import:zig/zig/Sema.zig",
         "import:zig/zig/Type.zig"
       ],
       "zig/zig/main.zig": [

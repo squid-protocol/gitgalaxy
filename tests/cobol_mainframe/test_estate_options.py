@@ -217,6 +217,9 @@ def test_oracle_and_det_port_resolve_the_same_options_for_every_case():
         assert common.numproc(case, text) == ("NOPFD" if eff["NUMPROC"].upper() == "MIG" else eff["NUMPROC"].upper())
         assert P.trunc_mode(src, r.layers) == eff["TRUNC"].upper(), c.parent.name
         assert P.numproc_pfd(src, r.layers) == (eff["NUMPROC"].upper() == "PFD"), c.parent.name
+        # ARITH on the det side too (the oracle's cobc flags above raise for a value it cannot run)
+        assert P.arith_extend(src, r.layers) == (eff["ARITH"].upper() == "EXTEND"), c.parent.name
+        assert not r.version_conflicts(text), (c.parent.name, r.version_conflicts(text))
         checked += 1
     assert checked, "no case's program was readable"
 
@@ -280,3 +283,37 @@ def test_the_options_input_is_stored_in_new_records_without_provenance():
     assert got["estate"] == "cics-banking-sample-application-cbsa"
     assert "TRUNC(OPT)" in got["effective"]["declared_parm"] and "TRUNC(STD)" in got["effective"]["parm"]
     assert "source" not in json.dumps(got["effective"])  # a changed note is not a changed option
+
+
+# ---- the compiler version bounds which options exist (#4704) -------------------------------------------------------
+@pytest.mark.parametrize(("version", "option", "value", "conflicts"), [
+    ("6.3", "NUMCHECK", None, []),
+    ("6.1", "NUMCHECK", None, ["NUMCHECK"]),
+    ("6.3", "INVDATA", "FNC", ["INVDATA"]),
+    ("6.4", "INVDATA", "FNC", []),
+    ("V6.4.0", "INVDATA", None, []),
+    ("4.2", "NONUMCHECK", None, ["NUMCHECK"]),
+    (None, "INVDATA", None, []),
+    ("unknown", "INVDATA", None, []),
+    ("6.1", "TRUNC", "BIN", []),
+])  # fmt: skip
+def test_an_option_the_stated_compiler_version_lacks_is_reported(version, option, value, conflicts):
+    est = _estate(parm=[_parm(option, value)])
+    est["compiler"]["version"] = _entry(version)
+    r = eo.effective_options({"program": "P"}, est)
+    assert [c["option"] for c in r.version_conflicts()] == conflicts
+
+
+def test_a_version_conflict_enters_the_fingerprint_only_when_there_is_one():
+    clean = eo.effective_options({"program": "P"}, _estate()).fingerprint()
+    assert "version_conflicts" not in clean
+    est = _estate(parm=[_parm("NUMCHECK")])
+    est["compiler"]["version"] = _entry("6.1")
+    assert eo.effective_options({"program": "P"}, est).fingerprint()["version_conflicts"][0]["since"] == "6.3"
+
+
+def test_a_cards_option_is_checked_against_the_version_too():
+    est = _estate()
+    est["compiler"]["version"] = _entry("6.1")
+    r = eo.effective_options({"program": "P"}, est)
+    assert [c["option"] for c in r.version_conflicts("       CBL INVDATA\n" + PLAIN)] == ["INVDATA"]

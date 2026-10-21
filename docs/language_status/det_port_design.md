@@ -1,9 +1,11 @@
 ---
-description: "**Status (2026-10-02): 48 programs are translated with no model and proven.** That is 27 from CardDemo, 8 from"
+description: "Dated snapshot (2026-10-02) of the deterministic translator design and its proof results; current counts are on the generated progress page."
 ---
 # Deterministic port (det-port): design and the runtime contract
 
-**Status (2026-10-02): 48 programs are translated with no model and proven.** That is 27 from CardDemo, 8 from
+> **Dated historical snapshot (2026-10-02).** The counts on this page were measured once and are not updated. For current counts (level per program, per estate) read the generated [progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md) (#5280, #5282).
+
+**Status at the 2026-10-02 snapshot: 48 programs were translated with no model and proven (equality on the case's runs).** That was 27 from CardDemo, 8 from
 CBSA and 13 from GenApp, over 50 equivalence cases; 17 of those cases run embedded SQL on a real Db2. Two cases are
 not proven on purpose, each with its reason (`KNOWN_UNPROVEN` in `tests/tools/proof_sweep.py`): COCRDUPC writes
 blanks into a `PIC 9(3)` field a typed DTO cannot hold (#4085), and `carddemo-intcalc-generated` depends on
@@ -851,7 +853,13 @@ NULL is distinct.
   children) through GN / GNP into two files. It is proven on 5 runs (the step and four file faults), covering 9/10
   paragraphs and 20/22 branches. The same work made ACCEPT FROM DATE / DAY / TIME translate (`cobolrt/Accept.java`): the
   translator had emitted a call to a method the runtime did not have.
-- **Refused (register I5).** EXEC DLI; BMP / MPP / CICS DL/I programs and the I/O PCB (IMS TM); GSAM; DL/I calls
+- **EXEC DLI under CICS (#5278, register I5).** SCHD PSB, TERM, GU / GN / GNP, and ISRT / REPL / DLET (`DetDli.execIsrt` / `execChange`,
+  rules `RT-DLI-EXEC-ISRT` / `-CHANGE`) are DetDli calls answering DIBSTAT. ASSUMED: a get is a get-hold where the PCB's PROCOPT allows an
+  update, so a REPL / DLET acts on the segment the previous get held; segments are fixed length, a SEGLENGTH other than the DBD's stops the
+  run by name. Every EXEC DLI command of the burned CICS programs (COPAUA0C, COPAUS0C, COPAUS1C) translates
+  (pinned in `test_det_dli.py`). Still holes: other EXEC DLI commands and options (CHKP, CBPAUP0C's batch EXEC DLI: I/O PCB, #4893),
+  and the oracle side (`ggdli.c`).
+- **Refused (register I5).** Other EXEC DLI; BMP / MPP / CICS DL/I programs and the I/O PCB (IMS TM); GSAM; DL/I calls
   other than the nine; command codes and boolean SSAs; AIBTDLI / CEETDLI; HDAM order; secondary indexes; logical
   relationships; load mode. CardDemo's other DL/I programs stop at one of these: PAUDBLOD (CMPAT=YES, an I/O PCB),
   DBUNLDGS (GSAM PCBs), and CBPAUP0C, COPAUA0C, COPAUS0C, COPAUS1C (EXEC DLI).
@@ -881,7 +889,7 @@ The combined method runs in the porting loop like any other backend, and every e
   CREACC) is compared field by field, each side read by its own layout, and the POINTER only as NULL or not; **D1**, proofs compare text in ASCII order, z/OS in EBCDIC: indexed
   keys that mix letters and digits browse differently, and no audit has yet counted the in-program comparisons whose
   result could change.
-- **Breadth outside CardDemo** is 21 programs in two estates (CBSA 8, GenApp 13), 14 of them on Db2. CBSA's other
+- **Breadth outside CardDemo** (2026-10-02) was 21 programs in two estates (CBSA 8, GenApp 13), 14 of them on Db2. CBSA's other
   Db2 programs are blocked by C9 (INQACCCU, DELCUS, CREACC), by its
   output file and CEEGMT / CEEDATM calls (BANKDATA; its FUNCTION RANDOM translates since C12) or by having only a
   Java caller (ACCTCTRL). CRECUST translates whole since #4884 (CEEIGZCT stand-in L4, CEELOCT L5, FETCH / RUN CHANNEL
@@ -897,8 +905,14 @@ The combined method runs in the porting loop like any other backend, and every e
   no other port moves; #5116: a NUM field with no JUSTIFY is IBM's RIGHT,ZERO, so `ScreenField.justify` carries that too and a port that RECEIVEs a NUM field goes through `DetJustify.place`). proof_reach counts a det port's own helpers (`runProgram`, the `in_X` / `out_X` codecs,
   `handleLink` ...: `proof_reach.DET_HELPERS`, only in a file marked as a det port) as `det_helper`, proven by the cells that
   reach the class, not as `ported_unproven`.
-- **Out of scope for this translator:** IMS (EXEC DLI), MQ beyond the CICS MQOPEN / MQGET / MQPUT / MQPUT1 / MQCLOSE modelled since #4892 (register W), pointer arithmetic, ALTER, ENTRY, a dynamic CALL whose names the source does not fix (#4736,
+- **Out of scope for this translator:** IMS (EXEC DLI), MQ beyond the CICS MQOPEN / MQGET / MQPUT / MQPUT1 / MQCLOSE modelled since #4892 (register W), pointer arithmetic, ENTRY, a dynamic CALL whose names the source does not fix (#4736,
   oracle_assumptions.md C15). Such statements stay named holes. A POINTER only stored and passed on (GenApp's prologue) is translated.
+- **ALTER (#5560, modelled).** `ALTER p TO [PROCEED TO] q` (several pairs per statement allowed) writes q into a Java `int`
+  slot (`alt<i>`, initialised to the target p's GO TO names) that p's GO TO reads in the paragraph dispatcher; the last ALTER
+  wins, and GO TO, PERFORM and fall-through reach the altered paragraph as any other. p must hold one GO TO without DEPENDING
+  (IBM Language Reference, ALTER); anything else, and an ALTER of an undeclared paragraph, is a named hole. A bare `GO TO.`
+  with no ALTER before it throws a Hole at run time. Independent segments (reset on entry) are not modelled. Proof: `ALTER1` /
+  `ALTER2` in test_det_programs.py against GnuCOBOL `-std=ibm`; CardDemo CBSTM03A 9 -> 5 holes (the rest: SET ADDRESS OF). Register: C19.
 - **Re-proving everything** after a runtime, harness or oracle change: `tests/tools/proof_sweep.py --work DIR`
   re-proves every det and model port and compares the result with the cases not proven on purpose.
 

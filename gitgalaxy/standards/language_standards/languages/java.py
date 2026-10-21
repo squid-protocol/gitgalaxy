@@ -217,13 +217,13 @@ DEFINITION: dict[str, Any] = {
             # return type, and constructors always have a body.
             r"(?:"
             r"(?:[a-zA-Z_$][\w<>$\[\]?.,]*[ \t\n]+){1,5}"
-            r"(?!(?:if|for|while|switch|catch|new|return|class|interface|enum|record)\b)(["
+            r"(?!(?:if|for|while|switch|catch|synchronized|try|new|return|class|interface|enum|record)\b)(["
             + ID_START
             + r"$]["
             + ID_CONTINUE
             + r"$]*)\s*\((?=[^)]*\)[ \t\n]*(?:throws[ \t\n]+[\w., \t\n]+)?[{;])"
             r"|"
-            r"(?!(?:if|for|while|switch|catch|new|return|class|interface|enum|record)\b)(["
+            r"(?!(?:if|for|while|switch|catch|synchronized|try|new|return|class|interface|enum|record)\b)(["
             + ID_START
             + r"$]["
             + ID_CONTINUE

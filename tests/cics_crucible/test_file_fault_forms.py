@@ -184,6 +184,6 @@ def test_cics_task_reads_the_record_and_answers_dupkey(tmp_path):
 def test_both_runtimes_hold_a_planned_dupkey_back_instead_of_returning_it_early():
     from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_TASK_JAVA
 
-    stub = rt.STUB.read_text(encoding="utf-8")
+    stub = rt.STUB.read_text(encoding="utf-8") + (rt.STUB.parent / "ggcics_filecontrol.c").read_text(encoding="utf-8")
     assert "dupkey_apply(c)" in stub and "DFHRESP_DUPKEY" in stub
     assert "dupkeyOr()" in CICS_TASK_JAVA and "resp == 15" in CICS_TASK_JAVA

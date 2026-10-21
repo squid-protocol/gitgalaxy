@@ -97,6 +97,7 @@ ASSIGN_TASK_FACTS = {"STARTCODE": "STARTCODE", "USERID": "USERID", "FACILITY": "
 ASSIGN_REGION_FACTS = ("APPLID", "SYSID")  # stated by a case's "region"
 
 # #5077: a whole COBOL word -- not the front of a hyphenated user name (EIBRCODE-NICE) or a literal's text ('EIBFN: ')
+_DEBUGGING_MODE = re.compile(r"\bWITH\s+DEBUGGING\s+MODE\b", re.IGNORECASE)
 _EIB = re.compile(r"(?<![A-Z0-9_-])EIB[A-Z0-9]+(?![A-Z0-9_-])")
 LINKED_NOT_MEASURED = "coverage: not measured for a LINKed program"  # #4270
 _COV = re.compile(r"(\d+)/(\d+) paragraphs and (\d+)/(\d+) branches")
@@ -438,18 +439,41 @@ def crucible_runs(crucible_dir: Path = CRUCIBLE, branches: bool = False) -> dict
 # ---- runtime facts ----------------------------------------------------------------------------------------------
 def code_only(text: str) -> str:
     """The program with every non-code span blanked, length-preserving, line structure kept: string literals
-    (including one continued onto the next line by a column-7 hyphen) and `*>` floating comment tails. Comment lines
-    (column 7 `*` or `/`) are left for `cc.fixed_format_text` to drop. #5089: one rule for every fact keyword."""
+    (including one continued onto the next line: a column-7 hyphen in fixed format, a next line opening with the
+    quote in free format) and `*>` floating comment tails. Comment lines (column 7 `*` or `/`; free `*>`) are left
+    for `cc.fixed_format_text` to drop. A column-7 `D` line (free: `>>D`) is a comment unless the source has an
+    active `WITH DEBUGGING MODE` (IBM), so it is blanked too. #5089: one rule for every fact keyword, per line
+    format (`cc.source_lines`: fixed, variable, free, `>>SOURCE FORMAT` switches followed)."""
+    srcs = cc.source_lines(text)
+
+    def is_comment(fmt: str, ln: str) -> bool:
+        if fmt == "free":
+            return ln.lstrip().startswith("*>")
+        return len(ln) <= 6 or ln[6] in "*/"
+
+    def is_debug(fmt: str, ln: str) -> bool:
+        if fmt == "free":
+            return ln.lstrip()[:3].upper() == ">>D"
+        return len(ln) > 6 and ln[6] in "Dd"
+
+    debugging = any(
+        not is_comment(f, ln)
+        and not is_debug(f, ln)
+        and _DEBUGGING_MODE.search((ln if f != "fixed" else ln[:72]).split("*>")[0])
+        for f, ln in srcs
+    )
     out, quote = [], ""
-    for ln in text.splitlines():
-        if len(ln) <= 6 or ln[6] in "*/":
-            out.append(ln)
+    for fmt, ln in srcs:
+        if is_comment(fmt, ln) or (is_debug(fmt, ln) and not debugging):
+            blank = is_debug(fmt, ln) and not is_comment(fmt, ln)
+            out.append(" " * len(ln) if blank and fmt == "free" else ln[:7] + " " * (len(ln) - 7) if blank else ln)
             quote = ""
             continue
-        code = list(ln[:72])
-        i = 7
+        free = fmt == "free"
+        code = list(ln if fmt != "fixed" else ln[:72])
+        i = 0 if free else 7
         if quote:
-            if ln[6] != "-":
+            if not free and ln[6] != "-":
                 quote = ""
             else:  # the continuation's first quote reopens the literal; the blanks before it are padding
                 while i < len(code) and code[i] == " ":
@@ -472,7 +496,7 @@ def code_only(text: str) -> str:
                 code[i:] = " " * (len(code) - i)
                 break
             i += 1
-        out.append("".join(code) + ln[72:])
+        out.append("".join(code) + (ln[72:] if fmt == "fixed" else ""))
     return "\n".join(out)
 
 

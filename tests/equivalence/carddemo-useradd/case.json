@@ -271,7 +271,203 @@
      "why": "17: an I/O error on the WRITE (IBM CICS, RESP values) -> the program's WHEN OTHER: 'Unable to Add User...'"
     }
    ]
+  },
+  {
+   "name": "pf3-blank-to-program",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-PROGRAM": ""
+   },
+   "receive": {
+    "COUSR1A": {}
+   },
+   "why": "#4049 (proposed for the mutation survivors): PF3 with a blank to-program: the return default"
+  },
+  {
+   "name": "pf3-low-values-to-program",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-PROGRAM": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"
+   },
+   "receive": {
+    "COUSR1A": {}
+   },
+   "why": "#4049 (proposed for the mutation survivors): PF3 with a LOW-VALUES to-program"
+  },
+  {
+   "name": "input-screen-with-errmsg",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR1A": {
+     "FNAMEI": "GRACE",
+     "LNAMEI": "HOPPER",
+     "USERIDI": "USER0098",
+     "PASSWDI": "COBOL123",
+     "USRTYPEI": "U",
+     "ERRMSGI": "Old message"
+    }
+   },
+   "why": "#4049 (proposed for the mutation survivors): the input screen arrives with an ERRMSG already on it"
+  },
+  {
+   "name": "carried-status-and-last-map",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-LAST-MAP": "COADM1A",
+    "CDEMO-LAST-MAPSET": "COADM01"
+   },
+   "receive": {
+    "COUSR1A": {
+     "FNAMEI": "ADA",
+     "LNAMEI": "LOVELACE",
+     "USERIDI": "USER0097",
+     "PASSWDI": "COBOL123",
+     "USRTYPEI": "U"
+    }
+   },
+   "why": "#4049 (proposed for the mutation survivors): carried ACCT-STATUS, LAST-MAP and LAST-MAPSET in the input commarea"
+  },
+  {
+   "name": "short-user-id",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR1A": {
+     "FNAMEI": "GRACE",
+     "LNAMEI": "HOPPER",
+     "USERIDI": "USR99",
+     "PASSWDI": "COBOL123",
+     "USRTYPEI": "U"
+    }
+   },
+   "why": "#4049 slice 2 (mutation survivors): a user id shorter than 8 bytes: the 'has been added' message stops at the first space (DELIMITED BY SPACE)"
+  },
+  {
+   "name": "pf3-commarea-without-to-program",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR1A": {}
+   },
+   "why": "#4049 slice 2 (mutation survivors): PF3 with a COMMAREA that never names a to-program: the unset field takes the return-to-signon default"
+  },
+  {
+   "name": "pf3-carried-customer-name",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-PROGRAM": "COADM01C",
+    "CDEMO-CUST-FNAME": "Ada",
+    "CDEMO-CUST-MNAME": "Byron",
+    "CDEMO-CUST-LNAME": "Kessler"
+   },
+   "receive": {
+    "COUSR1A": {}
+   },
+   "why": "#4049 slice 2 (mutation survivors): PF3 with the customer name fields set: they travel in the XCTL COMMAREA"
+  },
+  {
+   "name": "short-commarea-147",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "FIRSTNAME",
+    "CDEMO-CUST-MNAME": "MIDNAME",
+    "CDEMO-CUST-LNAME": "LASTNAME",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 1234567890123456
+   },
+   "receive": {
+    "COUSR1A": {
+     "FNAMEI": "GRACE",
+     "LNAMEI": "HOPPER",
+     "USERIDI": "USER0097",
+     "PASSWDI": "COBOL123",
+     "USRTYPEI": "U"
+    }
+   },
+   "commarea_length": 147,
+   "why": "#4049 slice 3 (mutation survivors): the caller passed 147 of the COMMAREA's 160 bytes, past every numeric field: EIBCALEN is stated and non-zero, so the program does not take the no-COMMAREA path"
+  },
+  {
+   "name": "short-commarea-150",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "FIRSTNAME",
+    "CDEMO-CUST-MNAME": "MIDNAME",
+    "CDEMO-CUST-LNAME": "LASTNAME",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 1234567890123456
+   },
+   "receive": {
+    "COUSR1A": {
+     "FNAMEI": "GRACE",
+     "LNAMEI": "HOPPER",
+     "USERIDI": "USER0097",
+     "PASSWDI": "COBOL123",
+     "USRTYPEI": "U"
+    }
+   },
+   "commarea_length": 150,
+   "why": "#4049 slice 3 (mutation survivors): the caller passed 150 of the COMMAREA's 160 bytes, past every numeric field: EIBCALEN is stated and non-zero, so the program does not take the no-COMMAREA path"
   }
  ],
- "notes": "CardDemo's add-user screen (transaction CU01, program COUSR01C): entered from the admin menu it sends the empty screen; re-entered with the five fields it validates them in order and WRITEs the user security record (DUPREC: 'User ID already exist...'); PF3 returns to the admin menu, PF4 clears. Its first proof of a CICS file update: each scenario's USRSEC file is compared after the task. usrsec.txt is the ten users of CardDemo's own app/jcl/DUSRSECJ.jcl in-stream data (SYSUT1 DD *). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+ "notes": "CardDemo's add-user screen (transaction CU01, program COUSR01C): entered from the admin menu it sends the empty screen; re-entered with the five fields it validates them in order and WRITEs the user security record (DUPREC: 'User ID already exist...'); PF3 returns to the admin menu, PF4 clears. Its first proof of a CICS file update: each scenario's USRSEC file is compared after the task. usrsec.txt is the ten users of CardDemo's own app/jcl/DUSRSECJ.jcl in-stream data (SYSUT1 DD *). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+ "maps": {
+  "COUSR1A": {
+   "mapset": "COUSR01"
+  }
+ }
 }

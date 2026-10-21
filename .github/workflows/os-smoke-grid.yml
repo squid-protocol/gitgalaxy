@@ -1,7 +1,7 @@
 name: OS Smoke Grid
 
-# #5130: the 3 OS x 3 Python smoke grid -- cheap, OS/Python-version-sensitive checks only (package installs, CLI entry
-# points, syntax floor). It used to run in smoke-test.yml on every push to main: 9 runners per merge (3 of them macOS,
+# #5130: the 3 OS x 2 Python smoke grid -- cheap, OS/Python-version-sensitive checks only (package installs, CLI entry
+# points, syntax floor). It used to run in smoke-test.yml on every push to main: 6 runners per merge (2 of them macOS,
 # the scarcest pool) competing with PR jobs. Now post-merge.yml dispatches it on main when no PR job is waiting, at most
 # once per cadence window and only when main changed a non-docs file since its last run (#5136), plus nightly and on
 # release tags. PRs never ran it: they get ubuntu/3.12 and the --help entry-point checks through smoke-test.yml's
@@ -26,7 +26,7 @@ concurrency:
 jobs:
   smoke-test:
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
+    timeout-minutes: 15  # healthy legs take 1-4 min; #5747: a hung macOS leg sat 18 min and ended as a bare cancel
     env:
       PYTHONUTF8: "1"
       GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
@@ -34,9 +34,9 @@ jobs:
       OBJC_DISABLE_INITIALIZE_FORK_SAFETY: "YES"
     strategy:
       fail-fast: false
-      # #4518/#4520: the full 9-way grid
+      # #4518/#4520: the full 6-way grid (3.10 dropped, #3322)
       matrix:
-        include: ${{ fromJSON('[{"os":"ubuntu-latest","python-version":"3.10"},{"os":"ubuntu-latest","python-version":"3.11"},{"os":"ubuntu-latest","python-version":"3.12"},{"os":"windows-latest","python-version":"3.10"},{"os":"windows-latest","python-version":"3.11"},{"os":"windows-latest","python-version":"3.12"},{"os":"macos-latest","python-version":"3.10"},{"os":"macos-latest","python-version":"3.11"},{"os":"macos-latest","python-version":"3.12"}]') }}
+        include: ${{ fromJSON('[{"os":"ubuntu-latest","python-version":"3.11"},{"os":"ubuntu-latest","python-version":"3.12"},{"os":"windows-latest","python-version":"3.11"},{"os":"windows-latest","python-version":"3.12"},{"os":"macos-latest","python-version":"3.11"},{"os":"macos-latest","python-version":"3.12"}]') }}
 
     steps:
       - name: Check out repository code
@@ -55,14 +55,15 @@ jobs:
 
       - name: Install macOS dependencies (OpenMP for XGBoost)
         if: runner.os == 'macOS'
-        run: brew install libomp
+        timeout-minutes: 5
+        run: tests/tools/ci_retry.sh 3 10 -- brew install libomp
 
       - name: Install dependencies
         shell: bash
+        timeout-minutes: 10
         run: |
-          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install --require-hashes -r ci/requirements/test.txt
+          tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
+          tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/test.txt
           pip install --no-build-isolation -e .
 
       - name: Smoke Test - Core Engine

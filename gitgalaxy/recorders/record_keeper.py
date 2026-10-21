@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import Any, TypedDict, cast
 
 from gitgalaxy.core.call_resolver import encode_qualifiers, resolution_rates
+from gitgalaxy.core.fact_channels import CHANNELS
 from gitgalaxy.core.function_population import population_functions
 from gitgalaxy.metrics import archetype_classifier
 from gitgalaxy.metrics.archetype_parity import WITHHELD_LABEL
@@ -296,7 +297,6 @@ class RecordKeeper:
             "regex_execution": "arch_regex",
             "time_date_logic": "arch_time",
             "system_config_mutation": "arch_sys_config",
-            "feature_flags": "arch_feature_flags",
             "inline_asm": "arch_inline_asm",
             "safety": "def_safety",
             "immutability_locks": "def_freeze_hits",
@@ -3005,236 +3005,20 @@ class RecordKeeper:
                     call_rows,
                 )
 
-        # #3201: the dataset bindings -- a per-file fact channel (no cross-file
-        # resolution, unlike call_site_data above).
-        _insert_per_file_child(
-            cursor,
-            parsed_files,
-            path_to_file_id,
-            repo_name,
-            commit_hash,
-            "dataset_data",
-            (
-                "step_name",
-                "internal_name",
-                "assign_name",
-                "dd_name",
-                "access_modes",
-                "dsn",
-                "line_number",
-                "dsn_resolved",
-                "dsn_resolution",
-                "open_sites",
-            ),
-            "dataset_bindings",
-            lambda b: (
-                b.get("step_name"),
-                b.get("internal_name"),
-                b.get("assign_name"),
-                b.get("dd_name"),
-                ",".join(b.get("modes") or []) or None,
-                b.get("dsn"),
-                int(b.get("line", 0) or 0),
-                b.get("dsn_resolved"),  # #3345
-                b.get("dsn_resolution"),
-                json.dumps(b["open_sites"]) if b.get("open_sites") is not None else None,  # #3348
-            ),
-        )
-
-        # #3246: the DATA DIVISION item tree + FD record layouts -- the same
-        # per-file fact-channel shape as the dataset bindings above.
-        _insert_per_file_child(
-            cursor,
-            parsed_files,
-            path_to_file_id,
-            repo_name,
-            commit_hash,
-            "record_data",
-            (
-                "section",
-                "fd_name",
-                "ordinal",
-                "parent_ordinal",
-                "level_number",
-                "item_name",
-                "pic",
-                "usage",
-                "occurs_min",
-                "occurs_max",
-                "occurs_depending_on",
-                "redefines",
-                "value_literal",
-                "line_number",
-                "attributes",
-                "copy_members",
-                "sign_separate",
-                "copy_libraries",
-                "copy_replacing",
-                "sync",
-                "justified",
-                "blank_when_zero",
-                "renames",
-            ),
-            "record_layouts",
-            lambda it: (
-                it.get("section"),
-                it.get("fd_name"),
-                int(it.get("ordinal", 0) or 0),
-                it.get("parent_ordinal"),
-                int(it.get("level", 0) or 0),
-                it.get("name"),
-                it.get("pic"),
-                it.get("usage"),
-                it.get("occurs_min"),
-                it.get("occurs_max"),
-                it.get("occurs_depending_on"),
-                it.get("redefines"),
-                it.get("value"),
-                int(it.get("line", 0) or 0),
-                it.get("attributes"),
-                it.get("copy_members"),  # #3355
-                int(it["sign_separate"]) if it.get("sign_separate") else None,  # #3694: 1 trailing, 2 leading
-                it.get("copy_libraries"),  # #4265
-                it.get("copy_replacing"),  # #4265
-                it.get("sync"),  # #4266
-                1 if it.get("justified") else None,  # #4266
-                1 if it.get("blank_when_zero") else None,  # #4266
-                it.get("renames"),  # #4266
-            ),
-        )
-
-        # #3356: CSD resource definitions -- per-file, like sql_table_data.
-        _insert_per_file_child(
-            cursor,
-            parsed_files,
-            path_to_file_id,
-            repo_name,
-            commit_hash,
-            "csd_resource_data",
-            (
-                "resource_type",
-                "resource_name",
-                "group_name",
-                "dsname",
-                "ddname",
-                "record_format",
-                "key_length",
-                "record_size",
-                "queue_type",
-                "plan",
-                "db2_entry",
-                "transid",
-                "program",
-                "attributes",
-                "line_number",
-                "source",
-                "macro_table",
-            ),
-            "csd_resources",
-            lambda r: (
-                r.get("resource_type"),
-                r.get("name"),
-                r.get("group"),
-                r.get("dsname"),
-                r.get("ddname"),
-                r.get("record_format"),
-                r.get("key_length"),
-                r.get("record_size"),
-                r.get("queue_type"),
-                r.get("plan"),
-                r.get("db2_entry"),
-                r.get("transid"),
-                r.get("program"),
-                r.get("attributes"),
-                int(r.get("line", 0) or 0),
-                r.get("source") or "CSD",
-                r.get("macro_table"),
-            ),
-        )
-
-        # #3347: BMS screen-field layouts -- the same per-file shape.
-        _insert_per_file_child(
-            cursor,
-            parsed_files,
-            path_to_file_id,
-            repo_name,
-            commit_hash,
-            "screen_field_data",
-            (
-                "kind",
-                "ordinal",
-                "parent_ordinal",
-                "field_name",
-                "pos_line",
-                "pos_column",
-                "length",
-                "attrb",
-                "picin",
-                "picout",
-                "initial_value",
-                "occurs",
-                "attributes",
-                "line_number",
-            ),
-            "screen_fields",
-            lambda sf: (
-                sf.get("kind"),
-                int(sf.get("ordinal", 0) or 0),
-                sf.get("parent_ordinal"),
-                sf.get("name"),
-                sf.get("pos_line"),
-                sf.get("pos_column"),
-                sf.get("length"),
-                sf.get("attrb"),
-                sf.get("picin"),
-                sf.get("picout"),
-                sf.get("initial"),
-                sf.get("occurs"),
-                sf.get("attributes"),
-                int(sf.get("line", 0) or 0),
-            ),
-        )
-
-        # #3351-#3354: CICS resource operations -- the same per-file shape.
-        _insert_per_file_child(
-            cursor,
-            parsed_files,
-            path_to_file_id,
-            repo_name,
-            commit_hash,
-            "cics_resource_data",
-            (
-                "verb",
-                "resource_kind",
-                "access",
-                "name_operand",
-                "resource_name",
-                "name_resolution",
-                "name_candidates",
-                "qualifier_operand",
-                "qualifier",
-                "record_clause",
-                "record_name",
-                "attributes",
-                "line_number",
-            ),
-            "cics_resources",
-            lambda op: (
-                op.get("verb"),
-                op.get("kind"),
-                op.get("access"),
-                op.get("operand"),
-                op.get("name"),
-                op.get("resolution"),
-                op.get("candidates"),
-                op.get("qualifier_operand"),
-                op.get("qualifier"),
-                op.get("record_clause"),
-                op.get("record"),
-                op.get("attributes"),
-                int(op.get("line", 0) or 0),
-            ),
-        )
+        # #3383: the registered per-file fact channels (dataset, record, sql_table, csd_resource,
+        # screen_field, cics_resource) -- declared in gitgalaxy/core/fact_channels.py.
+        for channel in CHANNELS:
+            _insert_per_file_child(
+                cursor,
+                parsed_files,
+                path_to_file_id,
+                repo_name,
+                commit_hash,
+                channel.table,
+                channel.columns,
+                channel.payload_key,
+                channel.to_row,
+            )
 
         # #3449: CICS task control -- per-file, like cics_resource_data.
         _insert_per_file_child(
@@ -3768,41 +3552,6 @@ class RecordKeeper:
                 """,
                     txn_rows,
                 )
-
-        # #3344: DB2 DECLARE TABLE / DCLGEN columns -- per-file, like record_data.
-        _insert_per_file_child(
-            cursor,
-            parsed_files,
-            path_to_file_id,
-            repo_name,
-            commit_hash,
-            "sql_table_data",
-            (
-                "table_name",
-                "table_line",
-                "colno",
-                "column_name",
-                "sql_type",
-                "length",
-                "scale",
-                "nullable",
-                "attributes",
-                "line_number",
-            ),
-            "sql_tables",
-            lambda c: (
-                c.get("table"),
-                int(c.get("table_line", 0) or 0),
-                int(c.get("colno", 0) or 0),
-                c.get("name"),
-                c.get("sql_type"),
-                c.get("length"),
-                c.get("scale"),
-                1 if c.get("nullable", True) else 0,
-                c.get("attributes"),
-                int(c.get("line", 0) or 0),
-            ),
-        )
 
         # #3446: embedded SQL statements -- per-file, like sql_table_data.
         _insert_per_file_child(

@@ -301,7 +301,7 @@ def test_a_pull_request_ignores_cobol_mainframe_once_and_nothing_else_does():
     assert "PYTEST_ADDOPTS" not in gate
     gt = yaml.safe_load((ROOT / ".github" / "workflows" / "mainframe-ground-truth.yml").read_text(encoding="utf-8"))
     part = gt["jobs"]["ground-truth-part"]
-    assert part["strategy"]["matrix"]["group"] == [1, 2]  # the two groups together are the whole directory
+    assert "fromJSON(needs.plan.outputs.matrix" in part["strategy"]["matrix"]  # #5543: the plan job picks 4 parts or 2
     steps = " ".join(s.get("run", "") for s in part["steps"])
     assert "tests/cobol_mainframe/ " in steps  # the job that now owns the directory still runs all of it
-    assert "--splits 2" in steps
+    assert "--splits ${{ matrix.parts }}" in steps  # every layout's groups together are the whole directory

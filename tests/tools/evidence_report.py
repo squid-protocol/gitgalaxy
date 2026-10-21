@@ -28,8 +28,10 @@ caveats of docs/language_status/oracle_assumptions.md. Each program gets the hig
   L4 + branch coverage         ... and >= the branch bar (default 100) of the branch outcomes NET of the case's
                                reviewed infeasible outcomes (tests/equivalence/infeasible_outcomes.json, #4602), listed
                                per program as stated assumptions; raw and net numbers both printed
-  L5 + mutants accounted for   every surviving mutant of the det port accounted for (#4628: not built yet, so no
-                               program is placed at L5; the report says "not yet measured")
+  L5 + mutants accounted for   every surviving mutant of the det port's seeded mutation sample accounted for: the
+                               case's fresh tests/equivalence/det_mutation/<case>.json entry (det_mutation.py, #4628),
+                               each survivor stated equivalent / unreachable in det_mutation_survivors/<case>.json
+                               (owner-reviewed), none refuted; the raw score is a column whatever the level
 
 Oracle backing is a separate per-program column, not a rung: per CICS command, spec entry full / name-only, a
 hand-traced cics-crucible case both runtimes agree with; DIFFERS assumptions reached: not measured.
@@ -111,7 +113,7 @@ DOCKERFILE = REPO / "tests" / "equivalence" / "gnucobol.Dockerfile"
 CORPORA = REPO / "tests" / "cobol_mainframe" / "corpora.json"
 DEFAULT_BARS = {"paragraphs": 100.0, "branches": 100.0}  # owner decision on #4601: strict
 # #4602: an owner-reviewed per-case list of infeasible branch outcomes, which the bars will be taken net of once it lands
-MUTATION = "not yet measured (#4628)"  # det-port mutation: the L5 hook
+MUTATION = "det_mutation.py (#4628): a fresh entry, every survivor of the seeded sample accounted for"  # the L5 hook
 LEVELS = ["L0", "L1", "L2", "L3", "L4", "L5"]
 
 # #4514 (the whole-migration epic): each part adds a section here when it is built; until then, not measured.
@@ -210,6 +212,7 @@ TRANSLATOR_INPUTS = (
     "gitgalaxy/core/bms_screen_fields.py",
     "gitgalaxy/core/bms_symbolic.py",
     "gitgalaxy/core/cics_macro_level.py",
+    "gitgalaxy/core/cobol_preprocessor.py",
     "gitgalaxy/core/cobol_source_format.py",
     "gitgalaxy/core/compiler_options.py",
     "gitgalaxy/core/ebcdic_codecs.py",
@@ -530,6 +533,11 @@ def backing(commands: list[str], crucible: dict[str, list[str]], disagree: dict[
     return out
 
 
+def _pct(score: float | None, current: bool | None) -> str:
+    """A 0-1 score as a percent ('—' unmeasured; '(stale)' when its entry's inputs moved)."""
+    return "—" if score is None else f"{100 * score:.0f}%" + ("" if current else " (stale)")
+
+
 def level_of(p: dict[str, Any], bars: dict[str, float]) -> tuple[str, list[str]]:
     """(the highest level whose conditions hold, what the next level needs)."""
     t, eq, cov = p["translation"], p["equivalence"], p["coverage"]
@@ -554,7 +562,30 @@ def level_of(p: dict[str, Any], bars: dict[str, float]) -> tuple[str, list[str]]
     if cov["branch_net_pct"] is None or cov["branch_net_pct"] < bars["branches"]:
         why = f"now {cov['branch_pct']} raw, {cov['branch_net_pct']} net of the reviewed infeasible outcomes"
         return "L3", [f"branch coverage >= {bars['branches']} net ({why})"]
-    return "L4", [f"every surviving mutant of the det port accounted for: {MUTATION}"]
+    mut = p.get("mutation") or {}
+    if mut.get("current") and mut.get("l5"):
+        return "L5", []
+    why = mut.get("det_port") or "not measured"
+    return "L4", [f"every surviving mutant of the det port accounted for (#4628, det_mutation.py: {why})"]
+
+
+def mutation_of(case: dict[str, Any] | None, program: str, cache: dict[str, Any]) -> dict[str, Any]:
+    """#4628: the det-port mutation result of the case for the program (det_mutation.measured, stale included),
+    as the report shows it: the one-line `det_port`, the raw `score` and the L5 inputs."""
+    import det_mutation as dm  # (git-backed fingerprints: only for a case with a ledger entry)
+
+    name = case["case"] if case else None
+    key = f"{name}\0{program}"
+    if key not in cache:
+        s = dm.measured(name, Path(program).stem) if name else None
+        cache[key] = {
+            "det_port": dm.describe(s),
+            "score": s["score"] if s else None,
+            "current": bool(s and s["current"]),
+            "l5": bool(s and s["l5"]),
+            **({k: s[k] for k in ("killed", "survived", "accounted", "unaccounted", "stale_inputs")} if s else {}),
+        }
+    return cache[key]
 
 
 # ---- options (#4708) ---------------------------------------------------------------------------------------------
@@ -695,6 +726,7 @@ def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[s
     for c in candidates:
         p["equivalence"] = {"cases": cases, "chosen": c}
         p["coverage"] = coverage_of(c, ctx["swept"], ctx["ledger"])
+        p["mutation"] = mutation_of(c, prog, ctx.setdefault("mutation", {}))
         lvl, nxt = level_of(p, ctx["bars"])
         key = (
             LEVELS.index(lvl),
@@ -704,12 +736,13 @@ def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[s
             -len(nxt),
         )
         if best is None or key > best[0]:
-            best = (key, c, lvl, nxt, p["coverage"])
+            best = (key, c, lvl, nxt, p["coverage"], p["mutation"])
     if best is None:  # pragma: no cover -- the loop runs at least once
         raise RuntimeError("no candidate")
-    _, chosen, lvl, nxt, cov = best
+    _, chosen, lvl, nxt, cov, mut = best
     p["equivalence"] = {"cases": cases, "chosen": chosen}
     p["coverage"] = cov
+    p["mutation"] = mut
     p["level"], p["next"] = lvl, nxt
     # #4730: a level that rests on the ledger's last measurement (stale on a scheduled input) is shown, marked stale;
     # L0 / L1 do not read coverage, so they are always current. #4758: a Db2 case's det verdict read from the ledger
@@ -732,9 +765,8 @@ def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[s
     p["level_current"] = not stale_in
     p["stale_inputs"] = stale_in
     p["stale_since"] = stale_at
-    # #4628: the det port's mutation score is the L5 hook. docs/language_status/mutation_scores.json covers the
-    # model / hand ports only, so it is deliberately left out here (it says nothing about the det port).
-    p["mutation"] = {"det_port": MUTATION}
+    # #4628: p["mutation"] (set above) is the det port's; docs/language_status/mutation_scores.json covers the model /
+    # hand ports only, so it is deliberately left out here (it says nothing about the det port).
     regs = sorted({x for b in p["oracle_backing"] for x in b["registers"]}, key=lambda x: int(x[1:]))
     region = bool(chosen and ev._case_json(chosen["case"]).get("region", {}).get("applid"))
     unstated = [f"EIB field {e} (both runtimes read zero; z/OS does not)" for e in facts.get("eib", [])]
@@ -943,7 +975,8 @@ def level_table(bars: dict[str, float]) -> list[dict[str, str]]:
         {
             "level": "L5",
             "name": "mutants accounted for",
-            "condition": f"L4, and every surviving mutant of the det port accounted for: {MUTATION}",
+            "condition": "L4, and every surviving mutant of the det port's seeded mutation sample accounted for "
+            "(stated equivalent / unreachable, owner-reviewed; a fresh det_mutation/ entry, #4628)",
         },
     ]
 
@@ -1335,9 +1368,10 @@ def render(rep: dict[str, Any]) -> str:
         "",
         (
             "| program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | "
-            "branches (raw) | branches (net of infeasible) | det-port mutation | CICS commands oracle-backed |"
+            "branches (raw) | branches (net of infeasible) | det-port mutation (raw) | det-port mutation | "
+            "CICS commands oracle-backed |"
         ),
-        "|---|---|---|---|---|---|---|---|---|---|---|---|---|",
+        "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for p in rep["programs"]:
         t, c, cov = p["translation"], p["equivalence"]["chosen"], p["coverage"]
@@ -1352,7 +1386,7 @@ def render(rep: dict[str, Any]) -> str:
             f"{_frac(cov['paragraphs'], 'covered', 'live', cov['paragraph_pct'])} | "
             f"{_frac(cov['branches'], 'covered', 'total', cov['branch_pct'])} | "
             f"{_frac(cov['branches_net'], 'covered', 'total', cov['branch_net_pct'])} | "
-            f"{p['mutation']['det_port']} | "
+            f"{_pct(p['mutation'].get('score'), p['mutation'].get('current'))} | {p['mutation']['det_port']} | "
             + (f"{rs['commands_backed']}/{rs['commands']}" if rs["commands"] else "—")
             + " |"
         )

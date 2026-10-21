@@ -1,0 +1,106 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "INQACC",
+ "program_source": "src/base/cobol_src/INQACC.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "OUAC",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "programs": [
+  {
+   "program": "ABNDPROC",
+   "program_source": "src/base/cobol_src/ABNDPROC.cbl"
+  }
+ ],
+ "datasets": {
+  "CBSA.CICSBSA.ABNDFILE": {
+   "input": "@case/abndfile.bin",
+   "entity": "WsAbndArea",
+   "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+   "record": "WS-ABND-AREA",
+   "recovery": "NONE",
+   "recovery_why": "etc/install/base/installjcl/BANK.csd: DEFINE FILE(ABNDFILE) ... RECOVERY(NONE) -- the abend log a backout must not undo"
+  }
+ },
+ "db2": {
+  "ddl": [
+   "etc/install/base/db2jcl/CRETB01.jcl",
+   "etc/install/base/db2jcl/CREI101.jcl"
+  ],
+  "seed": "@generate",
+  "compare": [
+   "IBMUSER.ACCOUNT"
+  ],
+  "qualifier": "IBMUSER",
+  "compare_sql": true,
+  "generate": {
+   "seed": 4507,
+   "tables": {
+    "IBMUSER.ACCOUNT": {
+     "rows": 30,
+     "columns": {
+      "ACCOUNT_SORTCODE": {
+       "values": [
+        "987654",
+        "987654",
+        "987654",
+        "123456"
+       ]
+      },
+      "ACCOUNT_NUMBER": {
+       "digits": true
+      }
+     }
+    }
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_copy/INQACC.cpy",
+    "record": "INQACC-COMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "notes": "CBSA's inquire-account service (INQACC) on GENERATED Db2 rows (#4507), proving the cbsa-inqacc port on data it was not written against: 30 IBMUSER.ACCOUNT rows built from CRETB01's CREATE TABLE and CREI101's unique index (every column at its boundaries, a NULL in every nullable column, then values between; a quarter under another sort code). 40 generated LINKs: the account number each row's in turn (a fifth of the time one the table does not hold: the cursor's FETCH +100), the sort code the program's own or another (the cursor ignores INQACC-SCODE). A generated NULL last-statement date reaches FETCH -305 (no indicator) and the ABNDPROC LINK and ABNDFILE record; the 99999999 sentinel is pinned as a hand scenario (READ-ACCOUNT-LAST). Every task's statements are compared with what Db2 answered (compare_sql), and ACCOUNT and ABNDFILE after every task. Burned estate (CBSA).",
+ "port_from": "cbsa-inqacc",
+ "scenario_generate": {
+  "seed": 4507,
+  "count": 40,
+  "prefix": "generated",
+  "commarea": {
+   "INQACC-SCODE": {
+    "values": [
+     "987654",
+     "987654",
+     "987654",
+     "123456"
+    ]
+   },
+   "INQACC-ACCNO": {
+    "from": "IBMUSER.ACCOUNT.ACCOUNT_NUMBER",
+    "miss": 0.2,
+    "turn": true
+   }
+  }
+ },
+ "scenarios": [
+  {
+   "name": "last-account-sentinel",
+   "commarea": {
+    "INQACC-SCODE": "987654",
+    "INQACC-ACCNO": "99999999"
+   },
+   "why": "INQACC-ACCNO 99999999: READ-ACCOUNT-LAST's SELECT ... ORDER BY ACCOUNT_NUMBER DESC FETCH FIRST 1 ROW gives the highest account of sort code 987654 (99999998), 'Y'"
+  }
+ ]
+}

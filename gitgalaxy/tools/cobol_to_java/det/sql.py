@@ -113,7 +113,17 @@ _WHENEVER = re.compile(r"WHENEVER\s+(SQLERROR|NOT\s+FOUND|SQLWARNING)\s+(?:(CONT
 _WHENEVER_ORDER = ("SQLERROR", "NOT FOUND", "SQLWARNING")
 _SAVEPOINT = re.compile(r"SAVEPOINT\s.*|ROLLBACK(?:\s+WORK)?\s+TO\s+SAVEPOINT(?:\s+[A-Z0-9_]+)?|RELEASE(?:\s+TO)?\s+SAVEPOINT\s+"
                         r"[A-Z0-9_]+", re.S)  # fmt: skip
+# #4269: EXECUTE IMMEDIATE 'statement text' (a string literal fixed in the source); an embedded quote is doubled
+_IMMEDIATE = re.compile(r"EXECUTE\s+IMMEDIATE\s+'((?:[^']|'')*)'", re.I)
+# #4269: PREPARE name FROM 'text' / EXECUTE name (no USING): the same literal-text path as EXECUTE IMMEDIATE
+_PREPARE = re.compile(r"PREPARE\s+([A-Z0-9_-]+)\s+FROM\s+'((?:[^']|'')*)'", re.I)
+_EXECUTE = re.compile(r"EXECUTE\s+([A-Z0-9_-]+)", re.I)
+_IMMEDIATE_INSERT = re.compile(r"INSERT\s+INTO\s[^?]*\bVALUES\b[^?]*", re.I | re.S)
 _HOLD = re.compile(r"\bDECLARE\s+([A-Z0-9_-]+)\s+(?:[A-Z]+\s+){0,2}?CURSOR\s+WITH\s+HOLD\b", re.I)
+
+
+# #4269: what a PREPARE runs: a statement Db2 answers SQLCODE 0 with no row touched (the SQLCA a PREPARE leaves)
+PREPARE_NOOP = "VALUES 1"
 
 
 def _norm(text: str) -> str:
@@ -133,6 +143,8 @@ class Sql:
         # #4269: (line, normalised text) of an executable statement -> its WHENEVER actions {condition: label}; None
         # when two statements share the key with different actions (a copybook line number that collides)
         self.whenever: dict[tuple[int, str], dict[str, str] | None] = {}
+        # #4269: PREPARE name FROM 'literal' -> [(line, text)] of every such PREPARE of the name, source order
+        self.prepared: dict[str, list[tuple[int, str]]] = {}
 
     def scan_whenever(self, stmts) -> None:
         """#4269: walk the program's EXEC statements in source order, WHENEVER scoping each executable EXEC SQL."""
@@ -152,6 +164,9 @@ class Sql:
                     else:
                         state[cond] = w.group(3).upper()
             elif verb not in ("INCLUDE", "DECLARE"):
+                p = _PREPARE.fullmatch(sql)
+                if p:
+                    self.prepared.setdefault(p.group(1).upper(), []).append((s.line, p.group(2).replace("''", "'")))
                 key = (s.line, sql.upper())
                 if key in self.whenever and self.whenever[key] != state:
                     self.whenever[key] = None
@@ -299,6 +314,12 @@ class Sql:
             if not _WHENEVER.fullmatch(sql):
                 raise SqlError(f"EXEC SQL {u[:50]}")  # WHENEVER with a form not modelled
             return []
+        if verb == "EXECUTE" and re.match(r"EXECUTE\s+IMMEDIATE\b", u):
+            return self._execute_immediate(sql, line, ind)
+        if verb == "PREPARE" and _PREPARE.fullmatch(sql):
+            return self._prepare(sql, line, ind)
+        if verb == "EXECUTE" and _EXECUTE.fullmatch(sql):
+            return self._execute_prepared(sql, line, ind)
         if verb in ("PREPARE", "EXECUTE", "DESCRIBE", "CONNECT", "SET", "CALL") and not assigns:
             raise SqlError(f"EXEC SQL {verb}")
         if _SAVEPOINT.fullmatch(u):
@@ -369,6 +390,68 @@ class Sql:
             return [f"{ind}DetSql.reset(SQLCA_AREA, CS);  // the task's unit of work commits with the task"]
         at = self.g_str(f"{self.program}:{line}")
         return [f"{ind}DetSql.{verb.lower()}(SQLCA_AREA, {at}, CS);"]
+
+    def _execute_immediate(self, sql: str, line: int, ind: str) -> list[str]:
+        """#4269: EXECUTE IMMEDIATE 'INSERT ... VALUES ...' (IBM Db2 for z/OS SQL Reference, EXECUTE IMMEDIATE): the
+        literal's text runs as written on the unit of work's connection, Db2 answering (DetSql.savepoint's path). Only
+        what that path answers faithfully is taken: an INSERT of VALUES. A searched UPDATE / DELETE / MERGE that changes
+        no row is +100 and an INSERT ... SELECT of no row too, which needs the row count the connection does not give
+        back (a later slice), so those are refused with the rest."""
+        m = _IMMEDIATE.fullmatch(sql)
+        if not m:
+            raise SqlError(f"EXEC SQL {sql[:50]}: only a string literal as the statement text is modelled")
+        text = m.group(1).replace("''", "'")
+        if self.g.cics is not None:
+            raise SqlError("EXEC SQL EXECUTE IMMEDIATE in a CICS program: the task's unit of work is not modelled "
+                           "for it (a later slice)")  # fmt: skip
+        if not _IMMEDIATE_INSERT.fullmatch(text.strip()) or re.search(r"\bSELECT\b", text, re.I):
+            raise SqlError("EXEC SQL EXECUTE IMMEDIATE: only INSERT ... VALUES (no parameter marker) is modelled")
+        at = self.g_str(f"{self.program}:{line}")
+        return [f"{ind}DetSql.savepoint(SQLCA_AREA, {at}, {self.g_str(text.strip())}, CS);"]
+
+    def _literal_text(self, text: str, what: str) -> str:
+        """#4269: the dynamic statement text this slice runs: an INSERT ... VALUES with no parameter marker, no CICS."""
+        if self.g.cics is not None:
+            raise SqlError(f"EXEC SQL {what} in a CICS program: the task's unit of work is not modelled for it "
+                           "(a later slice)")  # fmt: skip
+        if not _IMMEDIATE_INSERT.fullmatch(text.strip()) or re.search(r"\bSELECT\b", text, re.I):
+            why = f"EXEC SQL {what}: only "
+            why += "INSERT ... VALUES (no parameter marker) is modelled"
+            raise SqlError(why)
+        return text.strip()
+
+    def _prepare(self, sql: str, line: int, ind: str) -> list[str]:
+        """#4269: PREPARE name FROM 'INSERT ... VALUES ...' (IBM Db2 for z/OS SQL Reference, PREPARE). The text is
+        kept for the EXECUTE; the statement itself leaves the SQLCA at SQLCODE 0 and touches no row. Assumption: Db2's
+        -104 for text it cannot parse lands at the EXECUTE here, not at the PREPARE. A name PREPAREd with two
+        different literals is refused (which text an EXECUTE runs is control flow)."""
+        m = _PREPARE.fullmatch(sql)
+        if m is None:
+            raise SqlError(f"EXEC SQL {sql[:50]}")
+        name = m.group(1).upper()
+        self._literal_text(m.group(2).replace("''", "'"), "PREPARE")
+        if len({t for _, t in self.prepared.get(name, [])}) > 1:
+            raise SqlError(f"EXEC SQL PREPARE {name}: prepared from more than one literal text")
+        at = self.g_str(f"{self.program}:{line}")
+        return [f"{ind}DetSql.savepoint(SQLCA_AREA, {at}, {self.g_str(PREPARE_NOOP)}, CS);"]
+
+    def _execute_prepared(self, sql: str, line: int, ind: str) -> list[str]:
+        """#4269: EXECUTE name (no USING) of a name PREPAREd earlier in the source from a literal: that text runs as
+        EXECUTE IMMEDIATE's does. An EXECUTE reached at run time before its PREPARE (-518) is not modelled; one placed
+        before every PREPARE of the name in the source is refused."""
+        m = _EXECUTE.fullmatch(sql)
+        if m is None:
+            raise SqlError(f"EXEC SQL {sql[:50]}")
+        name = m.group(1).upper()
+        preps = self.prepared.get(name, [])
+        if not preps or min(ln for ln, _ in preps) >= line:
+            raise SqlError(f"EXEC SQL EXECUTE {name}: no earlier PREPARE {name} FROM a string literal")
+        texts = {t for _, t in preps}
+        if len(texts) > 1:
+            raise SqlError(f"EXEC SQL EXECUTE {name}: prepared from more than one literal text")
+        text = self._literal_text(next(iter(texts)), "EXECUTE")
+        at = self.g_str(f"{self.program}:{line}")
+        return [f"{ind}DetSql.savepoint(SQLCA_AREA, {at}, {self.g_str(text)}, CS);"]
 
     def _savepoint(self, sql: str, u: str, line: int, ind: str) -> list[str]:
         """#4269: SAVEPOINT, ROLLBACK [WORK] TO SAVEPOINT, RELEASE SAVEPOINT (IBM Db2 for z/OS SQL Reference): run as

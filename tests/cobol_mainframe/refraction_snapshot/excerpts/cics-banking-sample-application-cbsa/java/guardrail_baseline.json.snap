@@ -52,7 +52,12 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "934d12575e111722724199f76e34a95778c297588175e7b28e3d0a0e63bd8809"
+      "sha256": "934d12575e111722724199f76e34a95778c297588175e7b28e3d0a0e63bd8809",
+      "string_fields": [
+        "wsCustomerRangeBottom",
+        "wsCustomerRangeMiddle",
+        "wsCustomerRangeTop"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/dto/Bnk1cacDfhcommareaDto.java": {
       "calls": [],
@@ -111,7 +116,21 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "0c68dfae1500e5dd908b38a4099c2f02aa7b9ca63f0d07344c378098e5a39820"
+      "sha256": "0c68dfae1500e5dd908b38a4099c2f02aa7b9ca63f0d07344c378098e5a39820",
+      "string_fields": [
+        "commAcctype",
+        "endOfSessionMessage",
+        "subpgmAccType",
+        "subpgmEyecatcher",
+        "subpgmFailCode",
+        "subpgmSuccess",
+        "validDataSw",
+        "wsAbendPgm",
+        "wsCicsFailMsg",
+        "wsCommAcctype",
+        "wsOrigDate",
+        "wsReverse"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/entity/BankdataParmBuffer.java": {
       "calls": [],
@@ -232,7 +251,55 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "a7eaf9384463ff9568253f71df977adee3310a7c29c47f22b022d889a8fc0bcf"
+      "sha256": "a7eaf9384463ff9568253f71df977adee3310a7c29c47f22b022d889a8fc0bcf",
+      "string_fields": [
+        "datmConv",
+        "datmFormat",
+        "dispReasonCode",
+        "dispSign",
+        "fc",
+        "forename",
+        "hvAccountCustNo",
+        "hvAccountEyecatcher",
+        "hvAccountLastStmtDate",
+        "hvAccountLastStmtDay",
+        "hvAccountLastStmtDelim1",
+        "hvAccountLastStmtDelim2",
+        "hvAccountLastStmtMonth",
+        "hvAccountLastStmtYear",
+        "hvAccountNextStmtDate",
+        "hvAccountNextStmtDay",
+        "hvAccountNextStmtDelim1",
+        "hvAccountNextStmtDelim2",
+        "hvAccountNextStmtMonth",
+        "hvAccountNextStmtYear",
+        "hvAccountNumber",
+        "hvAccountOpened",
+        "hvAccountOpenedDay",
+        "hvAccountOpenedDelim1",
+        "hvAccountOpenedDelim2",
+        "hvAccountOpenedMonth",
+        "hvAccountOpenedYear",
+        "hvAccountSortCode",
+        "hvAccountType",
+        "hvControlName",
+        "hvControlValueStr",
+        "initialCharacter",
+        "openedDateValid",
+        "parm",
+        "randomSeed",
+        "rdate",
+        "streetNameRoad",
+        "streetNameTree",
+        "surname",
+        "timestampFunction",
+        "titleWord",
+        "town",
+        "wsAccountType",
+        "wsDayToday",
+        "wsWeekday",
+        "wsWeekdays"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Crdtagy1AbndinfoRec.java": {
       "calls": [],
@@ -267,7 +334,13 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "75d905e51e50354db3081199e510f3dd9b310fdc694b90fa44995e23eed771f1"
+      "sha256": "75d905e51e50354db3081199e510f3dd9b310fdc694b90fa44995e23eed771f1",
+      "string_fields": [
+        "wsAbendPgm",
+        "wsChannelName",
+        "wsContainerName",
+        "wsOrigDate"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/service/AbndprocService.java": {
       "calls": [],

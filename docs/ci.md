@@ -35,7 +35,7 @@ A label added by someone without write access is removed too, on any pass (the t
 | Label | Meaning | What you do |
 |---|---|---|
 | `shepherd:needs-fix` | A real failure, a merge conflict or a red matrix on this head. One digest comment says what failed and the local command that reproduces it. | Fix it, push. |
-| `shepherd:waiting-on-main` | The failing check fails on `main` too. | Nothing on this PR; main's owner fixes it. |
+| `shepherd:waiting-on-main` | The failing check fails on `main` too, or did until `main` went green and this head has not been re-tested with the fix. | Nothing on this PR: main's owner fixes it, then the reconcile pass merges `main` in once (#5484) and the label stays until a run on that head finishes. |
 | `shepherd:retrying` | An infra or flake failure is being rerun (up to 3 times, 15 minutes apart). | Nothing; wait. |
 | `shepherd:reapprove` | New commits dropped `shepherd:merge` (an approval is bound to its head). | Review the new head, re-add `shepherd:merge`. |
 
@@ -44,7 +44,7 @@ Status labels are cleared when no request label is left, except `shepherd:reappr
 ## Other rules
 
 - **Depends on #N.** A PR whose body says `Depends on #N` does not auto-merge until #N is merged.
-- **Behind main.** Nothing updates a branch just because it is behind (#5134, owner decision 2026-10-14): every push to a ready PR costs one full CI run (superseded-SHA runs were 27% of CI minutes). Workers merge main only when the PR is CONFLICTING/dirty, a required check fails because of main, or golden masters / generated files must be re-blessed after a sibling merge. Main Watch (`ci-red-main`) is the backstop for a bad combination. The classic branch-protection `strict: true` is cleared by the owner by hand; while it is set, GitHub reports a green PR as `behind` and `pr_check` refuses it. Merge-main commits per PR are measured for 3 days after this merged.
+- **Behind main.** Nothing updates a branch just because it is behind (#5134, owner decision 2026-10-14): every push to a ready PR costs one full CI run (superseded-SHA runs were 27% of CI minutes). Workers merge main only when the PR is CONFLICTING/dirty, a required check fails because of main, or golden masters / generated files must be re-blessed after a sibling merge. The one exception (#5484, reconcile passes only): a `shepherd:waiting-on-main` PR whose failing check is now green on main's newest commit gets `main` merged in once per main head (`PUT pulls/N/update-branch` with `AUTOMATION_PAT`, a plain merge, so `shepherd:merge` carries over through the bot's marker pair). Not done for a fork, `shepherd:hold`, a conflicting PR (churn fixes those) or a PR that is merely behind. A failure that survives a head containing main's fix is `real`. Main Watch (`ci-red-main`) is the backstop for a bad combination. The classic branch-protection `strict: true` is cleared by the owner by hand; while it is set, GitHub reports a green PR as `behind` and `pr_check` refuses it. Merge-main commits per PR are measured for 3 days after this merged.
 - **Infra reruns.** Only a failed job of an infra or flake kind is rerun, and only three times per run.
 - **Permissions.** The request labels are honoured only from collaborators with `write`, `maintain` or `admin`.
 
@@ -60,9 +60,19 @@ Both workflows check out `main` only and never run pull-request code. They use t
 
 To create or refresh the label set (idempotent), run the reconcile workflow by hand with `ensure_labels: true`.
 
+## Learned flakes
+
+A check that `flake_history.py` learned is flaky (passed on a rerun at least 3 times, 80% of its reruns, last 14 days)
+gets one automatic rerun for its first failure instead of going to a fixer as `real`. `shepherd_gh.py reconcile --flake-cache FILE`
+(or `$SHEPHERD_FLAKE_CACHE`) reads `flake_history.json`; it never scans. No cache means no learned flakes, never a wait.
+Both shepherd workflows restore the file from the Actions cache (`flake-history-*`, newest wins) and pass `--flake-cache`;
+`shepherd-reconcile.yml` also runs `flake_history.py --refresh-only` when it is over 6 hours old (best effort, 12 minute cap)
+and saves the cache even when the pass failed (#5398).
+
 ## Fallback
 
-The local shepherd still works from a maintainer's checkout:
+The box shepherd (`tests/tools/box/ci_shepherd.py`) is retired as the live shepherd (#5398) but still works from a
+maintainer's checkout:
 `python tests/tools/box/ci_shepherd.py add N` (see its docstring). Use it if the workflows are down.
 
 ## Changing the shepherd or label workflows
@@ -87,16 +97,29 @@ enables auto-merge in a later one, and `pr_check.py --merge` marks a draft ready
 so no unreviewed code merges. `pull_request_target` (the shepherd's label events) is unchanged. `tests/core_engine/test_workflow_draft_gate.py`
 fails when a heavy PR workflow lacks the condition; its allowlist is the cheap audits.
 
-## Critical path: ground-truth in 2 parts, evidence deltas apart (#5133)
+## Critical path: ground-truth as a warm job and 4 parts, evidence deltas apart (#5133, #5543)
 
-`ground-truth` (a required check) aggregates `ground-truth-part` 1/2 and 2/2, as `full-suite` aggregates its parts. pytest-split cuts
-`tests/cobol_mainframe/` between them (`--splits 2 --splitting-algorithm least_duration`, over the committed `.test_durations`, so
-both parts cut one split; no hand-listed files, a new test is placed by its recorded seconds). Part 2 also runs the ledger gate and
-the history append; the recorded seconds are level between the parts, so it is the longer one by the ledger's ~3 min. Refresh the
+`ground-truth` (a required check) aggregates `ground-truth-warm` and `ground-truth-part` 1/4..4/4, as `full-suite` aggregates its parts.
+The warm job pays the warm-up once: it fetches the corpora, scans all of them in parallel, runs the ledger gate (summary and history
+append) and uploads the scans (`_scans`, tarred because upload-artifact skips hidden paths) as `ground-truth-scans`. Each part restores the
+clones, unpacks those scans (the engine key is this commit's HEAD, the same in every job of the run, so they count as cached) and runs its
+pytest share, so no part re-runs the gate and no test pays a cold scan. pytest-split cuts
+`tests/cobol_mainframe/` between the parts (`--splits 4 --splitting-algorithm least_duration`, over the committed
+`.test_durations`, so all parts cut one split; no hand-listed files, a new test is placed by its recorded seconds). Refresh the
 ground-truth tests' seconds in `.test_durations` from the `test-times-ground-truth-part-N` artifacts of a main run
 (`tests/tools/merge_test_durations.py`): smoke runs have no corpora, so the corpus tests are recorded as skipped. The advisory evidence level deltas are the `evidence-deltas` job of `smoke-test.yml`
 (`continue-on-error`, not in `full-suite`'s needs). The smoke full-suite parts balance by the newest nightly's durations cache (#4847), falling back to the committed
 `.test_durations`, which the ground-truth parts and the OS-matrix gate always read.
+
+**Measured after #5264 (before #5543's warm job; the 2-part layout) (main push run 39108505757, 2026-10-18).** `ground-truth part 1/2` 11.0 min, `part 2/2` 11.3 min (the
+aggregate `ground-truth` check green about 1 min later), against one job of about 14-16.5 min before the split: the parts are
+within 3% of each other and time-to-green on this check fell by 3-5 min. `.test_durations` had no seconds for 696 of the
+5782 `tests/cobol_mainframe/` tests the parts ran and a stale value for 86 more; it is now refreshed from that run's
+`test-times-ground-truth-part-N` artifacts (the two files hold disjoint halves, so `merge_test_durations.py` merged them with
+no conflict), and a replay of `least_duration` over it gives two parts of 1354 s each. The full-suite after-numbers need a
+completed main smoke run after #5264: run 39108505787 was superseded (part 2 cancelled), so they are not recorded here.
+`test_the_ground_truth_seconds_are_recorded_and_the_parts_balanced` pins both facts. The 8 warnings `time_ratchet.py check`
+now prints (10-11.4 s tests under `-n auto` contention in the ground-truth job) fail nothing: the limit is 15 s.
 
 `ground-truth` also has a `plan` job (#5164, `tests/tools/ground_truth_plan.py`, as `det` has `det_sweep_plan.py`): a PR whose every changed file is a provable non-input (docs outside `docs/language_status/`, `.claude/`, churn / shepherd tooling, workflows and test directories the job does not read) skips both parts and passes in about a minute. The list is an allow-list of what the job does not read: an unlisted file is an input, and push, nightly and manual runs are always full.
 
@@ -104,8 +127,7 @@ ground-truth tests' seconds in `.test_durations` from the `test-times-ground-tru
 
 `mainframe-ground-truth.yml`, `smoke-test.yml` (its `full-suite` parts) and `java-compile.yml` run on the PR and again
 when it merges, because the push run does something a later dispatch cannot: ground truth appends and publishes its history
-per push, the full suite is the per-merge regression net, and java-compile's push run seeds the
-`java-same-base-<corpus>-<sha>` cache that PRs based on that commit restore. Their `tested-tree` job
+per push, the full suite is the per-merge regression net, and java-compile's push run builds main's tree. Their `tested-tree` job
 (`tests/tools/skip_tested_tree.py`, rule and tests in `tests/tools/test_skip_tested_tree.py`) skips the push run when
 the merged commit's tree SHA equals the PR head's tree SHA, the commit's parent is in the head (so the PR run's test
 merge was that same tree), and the newest `pull_request` run of the same workflow on the head succeeded. Red, cancelled,
@@ -125,7 +147,11 @@ filter matched on main: a missing run is never a proof. The PR must also have ta
 `tests/tools/test_tested_tree_workflows.py` pins each workflow's wiring and its PR/push filter pair, so a filter edit is a
 reviewed decision, and fails when a workflow on both a PR and a main push has no gate (or a gate has no push to skip).
 `java-compile`'s PR run may skip its build when the generated Java equals the base's (`--same-as`); the skipped push is
-then the same tree as a base whose own push built it.
+then the same tree as a base whose own push built it. The base's generation comes from the `java-same-base-<corpus>-<content hash>`
+cache, which `java-base-generation.yml` seeds on every main push that touches the generation inputs (#5142): not in
+java-compile's push run, which is cancelled by the next push (#4825) or skipped by tested-tree and so saved nothing, leaving
+most PRs to regenerate the base's two paths (dsf: 420-520 s). Its per-sha concurrency group never cancels, and a lookup-only
+restore makes a push whose content key exists cost seconds.
 
 Main Watch still gets a verdict: the workflow concludes `success` or `failure`, and a skip is a true green, because that
 exact tree passed the same workflow on the PR. Main Watch ignores only workflow runs that conclude `skipped` or
@@ -208,3 +234,4 @@ PR CI is limited by queueing (a pool of about 20 concurrent jobs), so every job 
 | tests / docs / `.claude` only | 7 (docs-only: none of the path-ignored ones) | 1 | Muninn about 7.6 min, CodeQL about 4.9 min, 2 golden legs about 7 min, 2 pre-gate runners |
 
 The critical path (time-to-green) is unchanged on an engine PR: it is `full-suite` and `ground-truth`, set by #5133 / #5151. Runner-minutes are from one recent run of each workflow, not a controlled measurement. The nightly durations cache is still recorded under `-n auto` contention (see #5162 above); a wall-calibrated weight is not done.
+- **Network fetches in a workflow step** (apt, npm, `docker pull`, the corpus clone, hash-pinned `pip install`) go through `tests/tools/ci_retry.sh 4 10 --` so a hiccup is retried and a final failure prints the `INFRASTRUCTURE` marker the shepherd reruns (#5048). `test_ci_retry.py` pins the wrapped sites and caps the workflows still unwrapped.

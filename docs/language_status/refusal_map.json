@@ -25,7 +25,7 @@
         "name": "IBM MQ (MQI: MQOPEN / MQGET / MQPUT / MQCLOSE)",
         "issue": 4892
       },
-      "note": "IBM MQ copybooks not found: point the scanner at SCSQCOBC. The det translator ships GitGalaxy-written stand-ins with the MQ model behind them (register W1): MQOPEN / MQGET / MQPUT / MQPUT1 / MQCLOSE from a CICS program translate and are provable (#4892); any other MQI call, batch MQ and an MQ constant the stand-in CMQV does not declare stay refused (register W6)."
+      "note": "IBM MQ copybooks not found: point the scanner at SCSQCOBC. The det translator ships GitGalaxy-written stand-ins with the MQ model behind them (register W1): MQOPEN / MQGET / MQPUT / MQPUT1 / MQCLOSE from a CICS program translate and are provable (#4892); any other MQI call, batch MQ and an MQ constant the stand-in CMQV does not declare stay refused (register W6). The inventory's `call_targets` category (#5565) names every CALLed program, so an unmodelled API is seen without its copybook; the matrix does not yet join `call_targets` features to entries (keyed in `features` once `test_refusal_map_entries_are_well_formed` allows the category)."
     },
     {
       "id": "le-copybooks",
@@ -94,11 +94,12 @@
     },
     {
       "id": "alter",
-      "match": "\\bALTER not modelled",
-      "charter": "cobol-unmodelled",
+      "match": "\\bALTER (not modelled|\\S+: the paragraph is not a lone GO TO)",
+      "issue": 5560,
       "features": [
         "statements: ALTER"
-      ]
+      ],
+      "note": "ALTER is modelled (#5560, register C19): the altered GO TO reads a per-paragraph slot in the paragraph dispatcher. What stays a named hole is an ALTER of a paragraph that is not a lone GO TO without DEPENDING (IBM refuses it too), an undeclared paragraph, and an independent segment. `ALTER not modelled` is the text of reports made before #5568; no burned estate carries the other forms."
     },
     {
       "id": "float-exponentiation",
@@ -191,24 +192,24 @@
     },
     {
       "id": "le-condition-handling",
-      "match": "^CALL CALL CEEHDL[RU]\\b",
+      "match": "^CALL (?:CALL )?(?:CEEHDL[RU]|CEEMGET|CEESGL|CEENCOD|CEEMRCE|CEE3SRP)\\b",
       "api": {
-        "name": "LE condition handling (CEEHDLR / CEEHDLU)",
+        "name": "LE condition handling (CEEHDLR / CEEHDLU, CEEMGET, CEESGL, CEENCOD, CEEMRCE, CEE3SRP)",
         "issue": 5106
       },
-      "note": "Registering a user condition handler: no model.",
+      "note": "Registering (CEEHDLR) or unregistering (CEEHDLU) an LE user condition handler: refused by name in dyncall.REFUSED_BY_NAME, three pieces are missing before a registration can be proven: the procedure pointer it takes (SET TO ENTRY, `procedure-pointer`), LE's dispatch of a raised condition to the handler (CEESGL, CEENCOD, CEEMRCE, CEE3SRP) and the handler's RESUME / PERCOLATE result (#5106; DBB epscsmrd REGISTER-EXCEPTION-HANDLER, the only burned user). The handler program (EPSCSMRF) translated on its own holds two holes, `SET ADDRESS OF ... TO TOKEN` (`pointers`, #5042) and CEEMGET (this entry); its `SET RESUME TO TRUE` translates. The old report text is `CALL CALL CEEHDLR`, the refusal reads `CALL CEEHDLR: ...`: both match.",
       "issue": 5106
     },
     {
       "id": "multi-program-call",
-      "match": "^CALL CALL EPSCSMR[A-Z]\\b",
-      "note": "A CALL to a sibling program of the same multi-program source (DBB epscsmrd.cbl's EPSCSMRI / EPSCSMRX / ...): the translator takes the first program only. Engine side: #4447, #4404.",
+      "match": "^CALL (?:CALL )?(?:EPSCSMR[A-Z]\\b|[A-Z0-9#@$-]+: a sibling program of this source)",
+      "note": "A CALL to a sibling program of the same multi-program source (DBB epscsmrd.cbl's EPSCSMRI / EPSCSMRO / EPSCSMRX): refused by name since #5106 (dyncall.sibling_refusal), static and dynamic CALL. Each program is translated on its own and no service is made for a sibling, so the CALL has nothing to reach; the shapes epscsmrd's CALLs use (OMITTED, RETURNING, a group USING item) are not yet read. The old report text is `CALL CALL EPSCSMRX`, the refusal reads `CALL EPSCSMRX: ...`: both match. Engine side: #4447, #4404.",
       "issue": 5106
     },
     {
       "id": "site-routine",
       "match": "^CALL CALL MVSWAIT\\b",
-      "note": "A site routine no estate holds (CardDemo COBSWAIT): no program, no model.",
+      "note": "CALL MVSWAIT (CardDemo COBSWAIT): modelled since #5106 (det LIBRARY entry, Mvswait.java, tests/equivalence/le/mvswait.c; returns at once, RETURN-CODE 0, storage untouched; register A1). The report lines move once the program is translated; COBSWAIT is proven on the det port with the job's own SYSIN card since #5106 (case carddemo-cobswait; the oracle feeds both sides the case's sysin; the proof shows the run completes with RETURN-CODE 0 and no output, the MOVE of the card into the COMP item is not observed).",
       "issue": 5106
     },
     {
@@ -217,14 +218,26 @@
       "features": [
         "statements: ACCEPT"
       ],
-      "note": "ACCEPT FROM SYSIN (a batch input stream): no model.",
+      "note": "ACCEPT FROM SYSIN (a batch input stream): modelled by the det runtime (Accept.sysin, one stdin record per ACCEPT, no record left refused by name); the oracle feeds both sides the case's `sysin` stream (equivalence.py, equivalence_java.py), so COBSWAIT is provable (carddemo-cobswait). The oracle is GnuCOBOL: IBM leaves the target undefined with no record left, and the runtime refuses by name.",
       "issue": 5106
     },
     {
       "id": "procedure-pointer",
       "match": "SET TO ENTRY: procedure / function pointers",
-      "note": "Procedure / function pointers: no model (#5042 is the data-pointer lane).",
+      "note": "Procedure / function pointers: no model (#5042 is the data-pointer lane). The only burned user is DBB epscsmrd `SET ROUTINE TO ENTRY 'EPSCSMRF'`, whose pointer is only ever passed to CEEHDLR / CEEHDLU: it is proven together with `le-condition-handling` (LE dispatch, RESUME / PERCOLATE), never alone, so no pointer model is added before that one.",
       "issue": 5106
+    },
+    {
+      "id": "address-of-record",
+      "match": "^SET-(?:POINTER|ADDRESS) ADDRESS OF \\S+: (?:not a LINKAGE 01 record|a subordinate item)",
+      "note": "SET ptr TO ADDRESS OF rec / SET ADDRESS OF rec TO ...: only a LINKAGE 01 record has storage a pointer can address (det/gen.py address_record). A WORKING-STORAGE record (DBB epscsmrd's ERROR-RESPONSE, handed to the LE handler as TOKEN) or a subordinate item (an offset into its record) is refused by name; the sole consumer in the burned estates is the CEEHDLR handler token, which is itself refused (#5106).",
+      "issue": 5106
+    },
+    {
+      "id": "getmain-initimg",
+      "match": "GETMAIN without INITIMG",
+      "note": "EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents, so a zero-filled block would be an invented fact; refused by name (storage.py, register X47). DBB epscsmrd's ALLOCATE-DFH-BODY-WORK-AREA / ALLOCATE-DFH-DATA-WORK-AREA are the only burned users (#5106).",
+      "issue": 4771
     },
     {
       "id": "bll-cells",
@@ -241,20 +254,20 @@
       "features": [
         "cics_commands: SOAPFAULT CREATE"
       ],
-      "note": "CICS web services (SOAP / WS-Addressing): no model (WEB #4767 and DOCUMENT #4769 are the HTTP side).",
+      "note": "CICS web services (SOAP / WS-Addressing): no model (WEB #4767 and DOCUMENT #4769 are the HTTP side). Refused by name, register X65, every SOAPFAULT CREATE option refused whole. The only burned user is DBB epscsmrd SEND-SOAP-FAULT (`SOAPFAULT CREATE CLIENT FAULTSTRING FAULTSTRLEN`, a web-service reply to the client); no cics-crucible event kind carries a fault, and epscsmrd stays held by the other boxes, so a model would prove no program.",
       "issue": 5106
     },
     {
       "id": "dto-property",
       "match": "a property the port cannot convert",
-      "note": "A COMMAREA DTO property the CICS port cannot map to bytes (an OCCURS table as List<String>).",
-      "issue": 5106
+      "note": "A COMMAREA DTO property the CICS port cannot map to bytes. An elementary item's own OCCURS (a List<T> of String / Integer / Long / Short / BigDecimal) is modelled since #5565 (#5567; occurrence i at offset + i * width): CardDemo's COPAUS0C / COPAUS1C PAUKEY-PREV-PG and AUTH-KEYS no longer hit this (the published evidence report shows both with 0 holes, COPAUS0C 370/370, COPAUS1C 193/193). What is left refused: a List of another type, a table whose bytes are not n equal items, and a PIC the DTO comment does not carry.",
+      "issue": 5565
     },
     {
       "id": "unbound-file",
       "match": "no repository for this file in the generated project",
-      "note": "A file with no store in the generated project (catalogue RT-FILE-UNBOUND-FILE, REFUSED). #5034 (closed) bound a CALLed subprogram's DDs in its caller's step; these programs' files are not that case.",
-      "issue": 5106
+      "note": "A file with no store in the generated project (catalogue RT-FILE-UNBOUND-FILE, REFUSED). #5034 (closed) bound a CALLed subprogram's DDs in its caller's step; these programs' files are not that case. Refused by name, not modelled: no burned estate hits it now. The two programs that carried it in the committed evidence fixtures (CardDemo CBSTM03B: CLOSE / OPEN / READ TRNX-FILE; CBSA BANKDATA: CLOSE / OPEN / WRITE CUSTOMER-FILE, with CEEGMT / CEEDATM beside them) are, in the published evidence reports, translated whole with 0 holes (CBSTM03B 3 holes -> 0, BANKDATA 6 -> 0): each file's DD reaches a repository through its caller's step (#5068) or the estate's DD / dataset binding. A file that really has no store stays an OPEN / CLOSE-only handle (DetFiles.Unbound; a record operation on it is a hole), so a program of a non-burned estate is out of scope here (burned-only policy).",
+      "issue": 5565
     }
   ]
 }

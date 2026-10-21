@@ -355,6 +355,236 @@
     }
    ],
    "why": "#4648: PGMIDERR on the sign-off XCTL (line 168): HANDLE CONDITION PGMIDERR shows 'This option is not installed ...'"
+  },
+  {
+   "name": "option-10",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "10"
+    }
+   },
+   "why": "#4049 (proposed for the mutation survivors): a two-digit option 10: the tens digit times ten, past the admin table"
+  },
+  {
+   "name": "option-12",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "12"
+    }
+   },
+   "why": "#4049 (proposed for the mutation survivors): a two-digit option 12"
+  },
+  {
+   "name": "option-colon",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": ":"
+    }
+   },
+   "why": "#4049 (proposed for the mutation survivors): a non-digit (':', just above '9') in the option: not numeric"
+  },
+  {
+   "name": "option-less-than",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "<"
+    }
+   },
+   "why": "#4049 (proposed for the mutation survivors): a non-digit ('<') that falls in 10..12 as a number"
+  },
+  {
+   "name": "pf3-blank-to-program",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-PROGRAM": ""
+   },
+   "why": "#4049 (proposed for the mutation survivors): PF3 with a blank to-program: the return-to-signon default"
+  },
+  {
+   "name": "pf3-low-values-to-program",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-PROGRAM": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"
+   },
+   "why": "#4049 (proposed for the mutation survivors): PF3 with a LOW-VALUES to-program"
+  },
+  {
+   "name": "carried-commarea-fields",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-TRANID": "CAVW",
+    "CDEMO-TO-PROGRAM": "COACTVWC",
+    "CDEMO-CUST-LNAME": "Kessler",
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CUST-ID": 42
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "1"
+    }
+   },
+   "why": "#4049 (proposed for the mutation survivors): non-blank carried commarea fields reach the XCTL commarea"
+  },
+  {
+   "name": "pf3-commarea-without-to-program",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "why": "#4049 slice 2 (mutation survivors): PF3 with a COMMAREA that never names a to-program: the unset field takes the return-to-signon default"
+  },
+  {
+   "name": "carried-account-and-card-fields",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CUST-FNAME": "Ada",
+    "CDEMO-CUST-MNAME": "Byron",
+    "CDEMO-CUST-ID": 7,
+    "CDEMO-ACCT-ID": 10000000007,
+    "CDEMO-CARD-NUM": 4111111111111111,
+    "CDEMO-LAST-MAP": "COADM1A",
+    "CDEMO-LAST-MAPSET": "COADM01"
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "1"
+    }
+   },
+   "why": "#4049 slice 2 (mutation survivors): every COMMAREA field the program copies is non-blank, so a skipped or inverted copy shows in the XCTL COMMAREA"
+  },
+  {
+   "name": "first-entry-carried-account-and-card-fields",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-CUST-MNAME": "Byron",
+    "CDEMO-ACCT-ID": 10000000007,
+    "CDEMO-CARD-NUM": 4111111111111111,
+    "CDEMO-LAST-MAP": "COADM1A",
+    "CDEMO-LAST-MAPSET": "COADM01"
+   },
+   "why": "#4049 slice 2 (mutation survivors): first entry (context 0) with the account, card and last-map fields set: the menu is sent and the COMMAREA returned"
+  },
+  {
+   "name": "no-commarea-xctl-fails",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COSGN00C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4049 slice 3 (mutation survivors): no COMMAREA and the sign-on XCTL answers PGMIDERR: the program's own blank COMMAREA is what it returns"
+  },
+  {
+   "name": "pf4-other-key",
+   "aid": "DFHPF4",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-TO-TRANID": "CT01",
+    "CDEMO-TO-PROGRAM": "COUSR00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "FIRSTNAME",
+    "CDEMO-CUST-MNAME": "MIDNAME",
+    "CDEMO-CUST-LNAME": "LASTNAME",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 1234567890123456,
+    "CDEMO-LAST-MAP": "LASTMAP",
+    "CDEMO-LAST-MAPSET": "LASTSET"
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "1"
+    }
+   },
+   "why": "#4628 (mutation survivors): PF4 is neither ENTER nor PF3, so it takes the invalid-key branch; a DFHPF3 constant moved onto DFHPF4's byte would read it as PF3"
+  },
+  {
+   "name": "invalid-key-unread-option-field",
+   "aid": "DFHPF9",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COADM1A": {
+     "OPTIONI": "1",
+     "OPTN008I": "stale option text"
+    }
+   },
+   "why": "#4628 (mutation survivors): a typed RECEIVE field the program never reads (OPTN008I) lands in the map storage that the invalid-key SEND returns as OPTN008O, so the port must receive it"
   }
  ],
  "notes": "CardDemo's admin menu (transaction CA00, program COADM01C): it lists the six options of COADM02Y and XCTLs to the chosen program; an option outside 1-6 or zero is refused (OPTION is a NUM field, which a 3270 cannot key letters into, so no scenario types a non-numeric option, #5116). Options 5 and 6 (COTRTLIC, COTRTUPC) belong to CardDemo's optional DB2 module, which the base CSD (app/csd/CARDDEMO.CSD, named by the case) does not define, so their XCTL raises PGMIDERR and the program's HANDLE CONDITION label answers 'This option is not installed ...'. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

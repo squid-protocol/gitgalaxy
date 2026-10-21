@@ -221,14 +221,15 @@ def carries_homoglyph(line: str) -> bool:
 
 # #4987: commented-out COMMAND shapes for the dead_code signature. Each alternative needs the syntax
 # that makes the word a command or call (a flag/URL/quote after curl, a pipe into a shell, `eval(`),
-# never the bare English word.
+# never the bare English word. A URL counts as a call argument only right after `(`, `=`, `,` or `[`;
+# a quoted URL after prose (`// Ken's web site: "http://...`) is a citation (#4548, a `basicinlines.h` header).
 _DEAD_CODE_COMMAND = (
     r"(?:\b(?:curl|wget)\b[ \t]+(?:-|[\"']?https?://|[\"'$])"
     r"|\|[ \t]*(?:sudo[ \t]+)?(?:ba|z)?sh\b"
     r"|\bbash\b[ \t]+(?:-|<\()"
     r"|\beval\b[ \t]*(?:\(|[\"'$`])"
     r"|\bbase64\b[ \t]+-|\|[ \t]*base64\b|\bbase64\b[ \t]*\("
-    r"|\bnc\s+-e|/dev/tcp|[\"'(]https?://)"
+    r"|\bnc\s+-e|/dev/tcp|\([ \t]*[\"']?https?://|[=,\[][ \t]*[\"']https?://)"
 )
 
 
@@ -291,9 +292,13 @@ class SecurityLens:
             # #4987: this half reads the comment-blanked code stream (a commented-out `atob(` or `\x41`
             # is not an obfuscated payload; dead_code reports commented-out logic). The invisible-
             # Unicode half is HIDDEN_TEXT_SIGNATURES and reads the RAW text on purpose.
+            # #4548: a RUN of escapes (adjacent, or split across string pieces / array elements) is ONE
+            # hit, and a run needs 4+ escapes (`"\x65\x76\x61\x6c"` is the shortest encoded word): a lone
+            # `\xB0` / `\x1b[0m` / `\u00e9` is a character literal. Counting each `\x5B` scored an embedded
+            # glyph table as 32,987 hits (doomretro v_data.c) and every degree sign as one (c_cmds.c).
             "reflection_metaprogramming": re.compile(
                 r"\b(?:atob|btoa|base64_decode|base64_encode|gzuncompress|str_rot13)\b|"
-                r"\\x[0-9a-fA-F]{2}|\\u[0-9a-fA-F]{4}|"
+                r"(?:\\x[0-9a-fA-F]{2}|\\u[0-9a-fA-F]{4})(?:[ \t\r\n\"',]{0,8}(?:\\x[0-9a-fA-F]{2}|\\u[0-9a-fA-F]{4})){3,}|"
                 r'(?:\w{15,}[ \t]*=[ \t]*["\'][A-Za-z0-9+/]{40,}={0,2}["\'])',
                 re.I,
             ),
@@ -622,6 +627,68 @@ class SecurityLens:
     CODE_STREAM_SIGNALS = CODE_STREAM_SIGNALS | {"safety_bypasses", "reflection_metaprogramming", "homoglyphs"}
     PROSE_SKIPPED_SIGNALS = (CODE_STREAM_SIGNALS - {"reflection_metaprogramming", "homoglyphs"}) | {"dead_code"}
 
+    # #5463: each high_risk_execution alternative is only an execution vector in the languages that have
+    # the construct. `require( expr )` is a C++ contract macro, `asio::require(e, ...)` a customization
+    # point and Lua's loader; `system(` is not a function in Go. The first rule whose pattern matches the
+    # START of the hit decides; a hit whose rule does not list the file's language is dropped. An unknown
+    # language (None) or a hit no rule claims keeps the old behaviour.
+    _JS_FAMILY = frozenset({"javascript", "typescript", "html"})
+    _DYNAMIC_EVAL = _JS_FAMILY | {
+        "php",
+        "python",
+        "embedded_python",
+        "ruby",
+        "perl",
+        "lua",
+        "powershell",
+        "shell",
+        "tcl",
+        "scheme",
+        "matlab",
+        "groovy",
+        "rexx",
+        "livecode",
+        "nix",
+        "apex",
+        "yaml",
+    }
+    _MAINFRAME = frozenset({"cobol", "jcl", "rexx", "pli", "hlasm", "bms", "easytrieve", "db2_sql", "csd"})
+    HIGH_RISK_EXECUTION_SCOPE: tuple[tuple[re.Pattern[str], frozenset[str]], ...] = tuple(
+        (re.compile(pat, re.I), langs)
+        for pat, langs in (
+            (r"(?:BPXBATCH|IKJEFT01|IRXJCL)\b", _MAINFRAME | {"shell", "yaml", "assembly"}),
+            (r"EXEC\s+CICS\b", _MAINFRAME | {"c", "cpp", "assembly"}),
+            (r"eval\b", _DYNAMIC_EVAL),
+            (r"(?:Function|setTimeout|setInterval|document\.write|location\.replace)\b", _JS_FAMILY),
+            (r"(?:create_function|passthru|shell_exec)\b", frozenset({"php"})),
+            (
+                r"system\b",
+                frozenset(
+                    {"c", "cpp", "objectivec", "php", "perl", "ruby", "python", "embedded_python", "matlab", "tcl"}
+                    | {"lua", "fortran", "shell"}
+                ),
+            ),
+            (r"assert\b", frozenset({"php"})),
+            (r"child_process\b", _JS_FAMILY),
+            (r"(?:window|global|this|globalThis)\[", _JS_FAMILY),
+            (r"\$\{\{", frozenset({"yaml", "markdown"})),
+            (r"\$", frozenset({"php"})),
+            (r"(?:getattr|importlib|__builtins__)\b", frozenset({"python", "embedded_python"})),
+            (r"require\b", _JS_FAMILY | {"php", "ruby", "perl"}),
+            (r"Assembly\.Load\b", frozenset({"csharp", "powershell"})),
+        )
+    )
+
+    @classmethod
+    def _high_risk_applies(cls, hit: str, language: str | None) -> bool:
+        """Whether a high_risk_execution hit `hit` is a vector in `language` (#5463)."""
+        if language is None:
+            return True
+        for pattern, langs in cls.HIGH_RISK_EXECUTION_SCOPE:
+            if pattern.match(hit):
+                return language in langs
+        return True
+
     @staticmethod
     def _armor(text: str) -> tuple[str, list[int]]:
         """The ReDoS-armored haystack: stripped lines, lines of 250+ chars emptied (not removed, so a
@@ -631,13 +698,16 @@ class SecurityLens:
         indents = [len(line) - len(line.lstrip()) if len(line) < 250 else 0 for line in lines]
         return "\n".join(line.strip() if len(line) < 250 else "" for line in lines), indents
 
-    def scan_content(self, content: str, code_stream: str | None = None, prose: bool = False) -> dict:
+    def scan_content(
+        self, content: str, code_stream: str | None = None, prose: bool = False, language: str | None = None
+    ) -> dict:
         """
         Executes primary regex scanning, entropy calculation, and multi-line data flow taint tracking.
 
         `code_stream` is the comment-blanked, line-preserving payload from prism (CODE_STREAM_SIGNALS
         read it; omitted -> they read `content`). `prose=True` marks a file with no executable
-        surface (plaintext / markdown / csv): the code-behaviour signals are skipped.
+        surface (plaintext / markdown / csv): the code-behaviour signals are skipped. `language` is the file's
+        language id: high_risk_execution alternatives that do not apply to it are dropped (#5463).
         """
         counts: dict[str, int] = {}
         snippets: dict[str, list[str]] = {}
@@ -661,6 +731,8 @@ class SecurityLens:
                 for lit in literals:
                     # Use a fast word-boundary regex to prevent substring hallucination
                     # e.g., prevents "fetch(" from matching inside "prefetch("
+                    if key == "high_risk_execution" and not self._high_risk_applies(lit, language):
+                        continue
                     if re.search(rf"\b{re.escape(lit)}", content):
                         counts[key] = counts.get(key, 0) + 1
                         snippets.setdefault(key, []).append(f"[Minified Literal Hit]: {lit}")
@@ -744,6 +816,8 @@ class SecurityLens:
                     line_end = hay.find("\n", match.end())
                     if not carries_homoglyph(hay[line_start : line_end if line_end >= 0 else None]):
                         continue
+                if key == "high_risk_execution" and not self._high_risk_applies(match.group(0), language):
+                    continue
                 line_idx = bisect.bisect_right(hay_starts, match.start()) - 1
                 if key == "dead_code":
                     # #4987: one commented-out line is one finding; the `//` inside `http://` would

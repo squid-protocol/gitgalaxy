@@ -11,7 +11,7 @@ import base64
 import contextlib
 import re
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -19,6 +19,7 @@ from typing import Any
 from gitgalaxy.core.aperture import DET_PORT_MARKER
 from gitgalaxy.tools.cobol_to_java.det import bll as B
 from gitgalaxy.tools.cobol_to_java.det import cics as C
+from gitgalaxy.tools.cobol_to_java.det import cics_filecontrol as FC
 from gitgalaxy.tools.cobol_to_java.det import dli as DLI
 from gitgalaxy.tools.cobol_to_java.det import dyncall
 from gitgalaxy.tools.cobol_to_java.det import expr as E
@@ -31,6 +32,7 @@ from gitgalaxy.tools.cobol_to_java.det.source import (
     engine_copies_from_ticket,
     program_lines,
     program_unit,
+    program_units,
 )
 
 RUNTIME = Path(__file__).parent / "cobolrt"
@@ -41,6 +43,7 @@ class Result:
     java: str
     service: str  # the class name
     stats: dict
+    extra: list[Result] = field(default_factory=list)  # #5106: the sibling programs' services this one CALLs
 
 
 IMAGE_PIECE = 400  # base64 characters per line of a storage image
@@ -250,7 +253,7 @@ def structurable(proc: S.Procedure) -> bool:
                 s.kind == "EXEC" and re.search(r"(?is)\bHANDLE\b|\bWHENEVER\b.*\bGO\s*TO\b", s.text)
             ):
                 return False
-            if s.kind == "HOLE" and re.match(r"(?i)\s*ALTER\b", s.text):
+            if s.kind == "ALTER" or (s.kind == "HOLE" and re.match(r"(?i)\s*ALTER\b", s.text)):
                 return False
     return True
 
@@ -263,11 +266,30 @@ def _dto_size(gp, cls: str) -> int:
         return 0
 
 
-def overlaid_pointers(records: list) -> set[str]:
-    """#4771 (X47): the POINTER items a REDEFINES overlays (or that sit in a group one overlays, or redefine something):
-    their bytes can be read or changed as a number, which a handle does not model."""
+def pointer_view_of(records: list) -> dict[str, str]:
+    """#4771 (X47): the pure numeric views of a POINTER -- an elementary integer BINARY item that REDEFINES it and has nothing
+    under it (ZECS001's CACHE-ADDRESS-X, `PIC S9(08) COMP`). The only uses of one that are modelled are the address
+    idioms (`ADD|SUBTRACT n TO|FROM view`, `MOVE view TO view`: Gen.pointer_view_statement), which move the pointer along its
+    block; the view is never read as a number. {view name: pointer name}, upper case."""
     items = [x for r in records for x in r.walk()]
-    redefined = {x.redefines.upper() for x in items if x.redefines}
+    pointers = {x.name.upper() for x in items if x.usage == "POINTER" and x.occurs <= 1}
+    out: dict[str, str] = {}
+    for x in items:
+        if not (x.redefines and x.redefines.upper() in pointers):
+            continue
+        pic = x.picture()
+        if x.usage == "BINARY" and x.occurs <= 1 and not x.children and re.fullmatch(r"S?9+", pic):
+            out[x.name.upper()] = x.redefines.upper()
+    return out
+
+
+def overlaid_pointers(records: list) -> set[str]:
+    """#4771 (X47): the POINTER items a REDEFINES overlays other than by a pure numeric view (pointer_view_of), or that sit
+    in a group one overlays, or redefine something: their bytes can be read or changed as a number, which a handle does
+    not model."""
+    items = [x for r in records for x in r.walk()]
+    views = pointer_view_of(records)
+    redefined = {x.redefines.upper() for x in items if x.redefines and x.name.upper() not in views}
     out = set()
     for x in items:
         if x.usage != "POINTER":
@@ -335,8 +357,11 @@ def write_only_pointers(records: list, proc) -> set[str]:
 def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
               estate: dict[str, str] | None = None, project: Path | None = None,
               style: str = "dispatch", typed: bool = False, groups: bool = False,
-              options: list[str] | None = None, unit: str | None = None, strict_copy: bool = False) -> Result:  # fmt: skip
-    """`strict_copy` (#4486): refuse a COPY whose member sits in more than one library of the program's SYSLIB order
+              options: list[str] | None = None, unit: str | None = None, strict_copy: bool = False,
+              layouts: Any = None) -> Result:  # fmt: skip
+    """`layouts` (#5649): the engine's record layouts (det.engine_layout.EngineLayouts) taken over the translator's
+    own; in its "check" mode a record whose layouts differ refuses the program (LayoutDisagrees).
+    `strict_copy` (#4486): refuse a COPY whose member sits in more than one library of the program's SYSLIB order
     (CopyUnresolved) instead of taking the first library's member, as the compiler does; each collision taken is a
     warning in `stats["warnings"]`. `unit` (#4462): the program of a multi-program source to translate (its PROGRAM-ID; None: the first), each
     nested or batch-compiled program on its own (det.source.program_unit). `style`: "dispatch" (paragraphs numbered, run by a PERFORM / GO TO dispatcher) or "structured" (paragraphs
@@ -364,6 +389,7 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
             options,
             unit,
             strict_copy,
+            layouts,
         )
         if isinstance(out, Result):
             return out
@@ -400,6 +426,24 @@ def arith_extend(program: Path, options: list[str] | None = None, declared: str 
 
     eff = effective_with_defaults(options, read_source(program, declared=declared).text)
     return str(eff.get("ARITH") or "").upper() == "EXTEND"
+
+
+def intdate_lilian(program: Path, options: list[str] | None = None, declared: str | None = None) -> bool:
+    """Whether the program is compiled with INTDATE(LILIAN) (#4706): its CBL / PROCESS cards over `options` (the compile
+    step's PARM), else IBM's default, ANSI -- the same resolver as TRUNC and ARITH (#4704)."""
+    from gitgalaxy.core.compiler_options import effective_with_defaults
+    from gitgalaxy.core.source_text import read_source
+
+    eff = effective_with_defaults(options, read_source(program, declared=declared).text)
+    return str(eff.get("INTDATE") or "").upper() == "LILIAN"
+
+
+def with_intdate_lilian(java: str) -> str:
+    """INTDATE(LILIAN) (#4706): the integer-date functions count from 1582-10-15, `Funcs.*Lilian`. Fixed at translation
+    (no run-time switch): the option is the program's own, so a LINK or CALL into another program leaves it alone."""
+    return java.replace("Funcs.integerOfDate(", "Funcs.integerOfDateLilian(").replace(
+        "Funcs.dateOfInteger(", "Funcs.dateOfIntegerLilian("
+    )
 
 
 def numproc_pfd(program: Path, options: list[str] | None = None, declared: str | None = None) -> bool:
@@ -529,7 +573,7 @@ def liftable(records: list, excluded: set[str], rc: L.Item) -> dict[int, str]:
     out: dict[int, str] = {}
     images: dict[int, bytes] = {}
     for rec in records:
-        if rec is rc or rec.section != "WORKING-STORAGE" or rec.name in ("DFHAID", "DFHBMSCA", "DFHEIBLK"):
+        if rec is rc or rec.section != "WORKING-STORAGE" or rec.name in ("DFHAID", "DFHBMSCA", "DFHEIBLK", "DIB"):
             continue
         if rec.redefines or any(r.redefines == rec.name for r in records):
             continue  # a whole record shared with another
@@ -580,17 +624,184 @@ def _pcs_figuratives(records: list[L.Item], gen: G.Gen) -> None:
                         raise L.LayoutError(f"line {it.line}: {it.name} VALUE {e}") from e
 
 
+_SIBLING_CHAIN: list[str] = []  # the sibling units being translated, outermost first (a CALL cycle is refused)
+
+
+def _targets(gen: G.Gen, call: S.Stmt) -> set[str]:
+    """The programs a CALL can reach: its literal, or the names its identifier can hold (det.dyncall)."""
+    if call.data.get("dynamic") is None:
+        return {call.data["program"]} if call.data["program"] else set()
+    with contextlib.suppress(dyncall.Unknown, G.Untranslatable):
+        return {n for n in dyncall.values(gen, call) if n}
+    return set()
+
+
+@dataclass
+class _Contract:
+    """#5106: what a sibling's CALL entry takes: one `CobolRef<byte[]>` per USING item (the item's bytes, BY REFERENCE:
+    a group, a number and a text item alike), its size, whether its body names it (an OMITTED item that is named
+    is undefined behaviour on IBM), and whether it returns its RETURNING item (a number) as the entry's result."""
+
+    res: Result
+    sizes: list[int]
+    named: list[bool]
+    returns: bool
+
+
+def _null_test(tok: list[str], i: int) -> tuple[int, bool] | None:
+    """#5106: the `ADDRESS OF item [IS] [NOT] EQUAL [TO] / = / <> NULL` at token `i`: (the index after it, whether it is the
+    not-null form), or None where the tokens are not that relation."""
+    if tok[i : i + 2] != ["ADDRESS", "OF"] or i + 2 >= len(tok):
+        return None
+    j = i + 3
+    if tok[j : j + 1] == ["IS"]:
+        j += 1
+    neg = tok[j : j + 1] == ["NOT"]
+    j += neg
+    if tok[j : j + 1] in (["="], ["EQUAL"], ["EQUALS"], ["<>"]):
+        neg ^= tok[j] == "<>"
+        j += 1
+        j += tok[j : j + 1] == ["TO"]
+        if tok[j : j + 1] in (["NULL"], ["NULLS"]):
+            return j + 1, neg
+    return None
+
+
+def _names_item(body: str, name: str) -> bool:
+    """#5106: whether a sibling's body names the item other than as a test of its address: the only references an OMITTED
+    item allows are `ADDRESS OF item NOT = NULL` and what sits inside the branch such an IF guards (an ELSE, a period
+    or an unrelated IF is not guarded). IBM leaves any other reference to an OMITTED item undefined."""
+    tok = re.findall(r"[A-Za-z0-9_-]+|[^\sA-Za-z0-9_-]+", re.sub(r"'[^']*'|\"[^\"]*\"", " ", body).upper())
+    frames: list[bool] = []  # one per open IF: whether its THEN branch is guarded by this item's not-null test
+    i = 0
+    while i < len(tok):
+        t = tok[i]
+        if t == "ADDRESS":
+            hit = _null_test(tok, i)
+            if hit is not None and tok[i + 2] == name:
+                i = hit[0]
+                continue
+        elif t == "IF":
+            guard = False
+            hit = _null_test(tok, i + 1)
+            if hit is not None and hit[1] and tok[i + 3] == name and tok[hit[0] : hit[0] + 1] not in (["AND"], ["OR"]):
+                guard, i = True, hit[0] - 1
+            frames.append(guard)
+        elif t == "ELSE" and frames:
+            frames[-1] = False
+        elif t == "END-IF" and frames:
+            frames.pop()
+        elif t == ".":
+            frames.clear()
+        elif t == name and not any(frames):
+            return True
+        i += 1
+    return False
+
+
+def _sibling_service(sib: str, source_lines: list, program: Path, copy_dirs: list[Path], package: str,
+                     estate: dict[str, str] | None, project: Path | None, style: str, typed: bool, groups: bool,
+                     options: list[str] | None, strict_copy: bool, own: str, layouts: Any = None) -> _Contract | None:  # fmt: skip
+    """#5106: the service of a sibling program (a PROGRAM-ID of the same source), or None where the CALL stays refused
+    by name. The forge makes no stub for it (D049), so the stub is made here: `<Name>Service` with the CALL entry
+    `handleCall(CobolRef<byte[]> ...)`, one parameter per USING item. Only items whose bytes are the whole contract
+    are taken: BY REFERENCE (the default), a record of fixed size with no OCCURS, REDEFINES, pointer or float; BY
+    VALUE / BY CONTENT, a unit that CALLs back into the chain, or one that is itself a CICS program is left refused.
+    RETURNING takes a whole-number item of at most 9 digits (the entry's int result is that item, not RETURN-CODE)."""
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
+
+    lines = program_unit(source_lines, sib)
+    text = " ".join(ln.text for ln in lines)
+    header = re.search(r"\bPROCEDURE\s+DIVISION\b([^.]*)\.", text, re.I)
+    if (header is None or re.search(r"\b(?:VALUE|CONTENT)\b", header.group(1), re.I) or sib in _SIBLING_CHAIN
+            or re.search(r"\bEXEC\s+CICS\b", text, re.I)):  # fmt: skip
+        return None
+    try:
+        lowered = B.lower(lines, str(program))
+        records = L.parse(lowered)
+        if layouts is not None:
+            layouts.apply(records, lowered)
+        proc = S.parse(lines)
+    except Exception:  # (the unit's own refusal surfaces when its program is translated)
+        return None
+    linkage = {r.name: r for r in records if r.section == "LINKAGE" and r.level == 1}
+    items = [linkage.get(u) for u in proc.using]
+    for i in items:
+        if i is None or i.occurs != 1 or any(d.redefines or d.depending or d.occurs != 1 or d.usage in ("POINTER", "INDEX", "COMP-1", "COMP-2")
+                                              for d in i.walk()):  # fmt: skip
+            return None
+    ret = linkage.get(proc.returning) if proc.returning else None
+    if proc.returning and (ret is None or ret.children or ret.category != "NUMERIC" or ret.occurs != 1
+                           or set(ret.picture()) - set("9S") or ret.picture().count("9") > 9):  # fmt: skip
+        return None
+    body = text[header.end() :]
+    named = [_names_item(body, i.name.upper()) for i in items if i]
+    cls = java_class_base(sib) + "Service"
+    stub = (f"public class {cls} {{\n    public int handleCall("
+            + ", ".join(f"CobolRef<byte[]> a{k}" for k in range(len(items))) + ") {\n        return 0;\n    }\n}\n")  # fmt: skip
+    seeded = not _SIBLING_CHAIN
+    if seeded:
+        _SIBLING_CHAIN.append(
+            own
+        )  # (the program being translated is the chain's first: a call back into it is refused)
+    _SIBLING_CHAIN.append(sib)
+    try:
+        res = translate(program, copy_dirs, stub, package, estate, project, style, typed, groups, options, sib,
+                        strict_copy, layouts)  # fmt: skip
+    except Exception:
+        return None
+    finally:
+        del _SIBLING_CHAIN[-2 if seeded else -1 :]
+    return _Contract(res, [i.size for i in items if i], named, ret is not None)
+
+
+def _fits(records: list, call: S.Stmt, c: _Contract) -> bool:
+    """#5106: whether this CALL passes what the sibling's entry takes: as many items, each BY REFERENCE or BY CONTENT (a copy) to a whole data
+    item at least as long as the sibling's (a shorter one would be read past its end; a longer one is exact, the
+    sibling sees its prefix), OMITTED only where the sibling never names the item, and RETURNING a whole-number item
+    exactly when the sibling returns one."""
+    args = call.data["args"]
+    if len(args) != len(c.sizes):
+        return False
+    for k, (mode, a) in enumerate(args):
+        if a is None:
+            if c.named[k]:
+                return False
+            continue
+        if mode not in ("REFERENCE", "CONTENT") or not isinstance(a, E.Ref) or a.subscripts or a.refmod:
+            return False
+        it = next((x for r in records for x in r.walk() if x.name == a.name), None)
+        if it is None or it.size * it.occurs < c.sizes[k] or it.occurs != 1 or it.redefines:
+            return False
+    ret = call.data.get("returning")
+    if (ret is not None) != c.returns:
+        return False
+    if ret is not None:
+        it = next((x for r in records for x in r.walk() if x.name == ret.name), None)
+        return it is not None and not (ret.subscripts or ret.refmod) and it.category == "NUMERIC" and not it.children
+    return True
+
+
 def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, estate: dict[str, str] | None,
                project: Path | None, style: str, typed: bool, excluded: set[str],
                groups: bool = False, options: list[str] | None = None, unit: str | None = None,
-               strict_copy: bool = False) -> Result:  # fmt: skip
+               strict_copy: bool = False, layouts: Any = None) -> Result:  # fmt: skip
     # #4467: a COPY the translator resolves otherwise than the engine did refuses the program (CopyDisagrees)
     engine = engine_copies_from_ticket(project, program, strict_copy) if project is not None else None
     # #4462: one program of the source (the first, or `unit`): a nested or batch-compiled program is its own class
-    lines = program_unit(program_lines(program, [*copy_dirs, C.COPY], engine), unit)
+    source_lines = program_lines(program, [*copy_dirs, C.COPY], engine)
+    lines = program_unit(source_lines, unit)
+    # #5106: the other programs of the same source (DBB epscsmrd's EPSCSMRI / O / X): a CALL to one has no service to reach
+    units = program_units(source_lines)
+    own_name = (unit or units[0].name).upper()
+    siblings = {u.name for u in units} - {own_name}
     # #5119 (X56): OS/VS COBOL's BLL cells and SERVICE RELOAD, lowered onto the pointer lane by IBM's own conversion
     lines = B.lower(lines, str(program))
     records = L.parse(lines)
+    laid = None
+    if layouts is not None:  # #5649: the engine's layouts, at the translator's POINTER width
+        layouts.apply(records, lines)
+        laid = {"engine": len(layouts.consumed), "own": len(layouts.own)}  # the records laid out by each
     is_cics = "runTask(CicsTask" in stub
     batch = has_batch(project)
     if is_cics:
@@ -611,6 +822,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             L.layout(idx)
             records.append(idx)
     proc = S.parse(lines)
+    if is_cics and DLI.uses_exec(x.text for q in proc.paragraphs for x in S.walk(q.body) if x.kind == "EXEC"):
+        records += DLI.dib_records()  # #5278: EXEC DLI answers DIBSTAT (det/dli.py)
     # SORT-RETURN: the special register, S9(4) BINARY (IBM: 0 after a successful SORT / MERGE) -- only in a program
     # that sorts or names it, so no other port's storage changes
     sorts = any(s.kind in ("SORT", "MERGE") for p in proc.paragraphs for s in S.walk(p.body))
@@ -643,9 +856,19 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
 
     structured = style == "structured" and structurable(proc)
     gen = G.Gen(prog, structured)
+    gen.siblings = siblings
+    hc0 = re.search(r"public int handleCall\(([^)]*)\)", stub)
+    if hc0:  # #5106: a sibling's byte items, whose ADDRESS OF is NULL when the caller passed OMITTED
+        kinds = [p.strip().rsplit(" ", 1)[0] for p in hc0.group(1).split(",") if p.strip()]
+        gen.entry_items = {
+            u: k
+            for k, u in enumerate(x for x in proc.using if x != "BY")
+            if k < len(kinds) and kinds[k] == "CobolRef<byte[]>"
+        }
     gen.write_only_pointers = write_only_pointers(records, proc)
     gen.overlaid_pointers = overlaid_pointers(records)
     gen.pointer_views = pointer_views(records)
+    gen.pointer_view_of = pointer_view_of(records)
     # #4270: a floating-point expression under ARITH(EXTEND) is extended-precision HFP, refused (Gen.fnum)
     gen.arith_extend = arith_extend(program, options, engine.page(program) if engine is not None else None)
     # #4271: every COMP-1 / COMP-2 item's bytes, by storage, for the refusal of byte uses that overlap one
@@ -709,13 +932,11 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             providers.append((f"ObjectProvider<{m.group(1)}Service>", m.group(2)))
     # a CALLed program the stub does not wire (the CALL sits in a procedure copybook): its service in the estate,
     # when it has the CALL entry
+    calls = [s for p in proc.paragraphs for s in S.walk(p.body) if s.kind == "CALL"]
+    called = {
+        n for s in calls for n in _targets(gen, s)
+    }  # (#4736: a CALL identifier's names; else refused at the statement)
     if project is not None:
-        calls = [s for p in proc.paragraphs for s in S.walk(p.body) if s.kind == "CALL"]
-        called = {s.data["program"] for s in calls if s.data["program"]}
-        for s in calls:  # #4736: CALL identifier -- the programs the identifier can hold (det.dyncall)
-            if s.data.get("dynamic") is not None:
-                with contextlib.suppress(dyncall.Unknown, G.Untranslatable):  # (else refused at the statement, by name)
-                    called |= {n for n in dyncall.values(gen, s) if n}
         for prog_name in sorted(called - set(gen.callees)):
             from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
 
@@ -727,6 +948,25 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
                 gen.callee_types[prog_name] = callee_types(cls)
                 providers.append((f"ObjectProvider<{cls}Service>", field))
                 inferred.append(f"CALL {prog_name} -> {cls}Service.handleCall: the estate's service for it")
+    # #5106: a CALLed program of this same source: its own service, translated here from a stub the forge never made
+    siblings_out: list[Result] = []
+    if siblings:
+        for sib in sorted((called & siblings) - set(gen.callees)):
+            done = _sibling_service(sib, source_lines, program, copy_dirs, package, estate, project, style, typed,
+                                    groups, options, strict_copy, own_name, layouts)  # fmt: skip
+            if done is None:
+                continue  # (refused at the CALL, by name)
+            res = done.res
+            if not all(_fits(records, c, done) for c in calls if sib in _targets(gen, c)):
+                continue  # a CALL that does not pass the sibling's contract: refused at the CALL, by name
+            fld = res.service[0].lower() + res.service[1:]
+            gen.callees[sib] = fld
+            gen.callee_types[sib] = ["CobolRef<byte[]>"] * len(done.sizes)
+            gen.callee_returns[sib] = done.returns
+            providers.append((f"ObjectProvider<{res.service}>", fld))
+            siblings_out += [res, *res.extra]
+            res.extra = []
+            inferred.append(f"CALL {sib} -> {res.service}.handleCall: the sibling program of this source")
     file_decls, file_inits, ctor_repos = [], [], []
     fds = fd_entries(lines)
     for fc in file_control(lines):
@@ -939,6 +1179,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     call_entry: list[str] = []
     call_codecs: list[str] = []
     hc = re.search(r"public int handleCall\(([^)]*)\)", stub)
+    ret_item = next((r for r in linkage if r.name == proc.returning), None)  # #5106: the item a sibling returns
     if hc:
         params = [p.strip() for p in hc.group(1).split(",") if p.strip()]
         signature = ", ".join(f"{p.rsplit(' ', 1)[0]} arg{k + 1}" for k, p in enumerate(params))
@@ -960,6 +1201,20 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             span = f"Math.min(areas[{k}].length, {f}.length())"
             areas_in.append(f"            System.arraycopy(areas[{k}], 0, {f}.storage().bytes, {f}.offset(), {span});")
             areas_out.append(f"            System.arraycopy({f}.storage().bytes, {f}.offset(), areas[{k}], 0, {span});")
+            if typ == "CobolRef<byte[]>":  # #5106: a sibling's item, its bytes (an OMITTED item is a null ref)
+                ins.append(f"        if ({name} != null && {name}.get() != null) {{")
+                ins.append(
+                    f"            System.arraycopy({name}.get(), 0, {f}.storage().bytes, {f}.offset(), "
+                    f"Math.min({name}.get().length, {f}.length()));"
+                )
+                ins.append("        }")
+                body_out.append(f"        if ({name} != null) {{")
+                body_out.append(
+                    f"            {name}.set(java.util.Arrays.copyOfRange({f}.storage().bytes, {f}.offset(), "
+                    f"{f}.offset() + {f}.length()));"
+                )
+                body_out.append("        }")
+                continue
             if typ == "CobolRef<String>":
                 ins.append(f'        Cobol.move({name}.get() == null ? "" : {name}.get(), {f}, CS);')
                 body_out.append(f"        {name}.set(Cobol.text({f}, CS));")
@@ -986,15 +1241,17 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
                 "",
             ]
         else:
-            call_entry = ["    private byte[][] callAreas;  // #4778: the next handleCall's items as bytes (withCallAreas)", "",
+            present = [f"        present = new boolean[] {{{', '.join(f'arg{k + 1} != null' for k in range(len(params)))}}};"] if gen.entry_tested else []  # fmt: skip
+            call_entry = ["    private boolean[] present = new boolean[0];  // #5106: which USING items the caller passed (not OMITTED)", ""] if gen.entry_tested else []  # fmt: skip
+            call_entry += ["    private byte[][] callAreas;  // #4778: the next handleCall's items as bytes (withCallAreas)", "",
                           "    /** #4778: the next handleCall's USING items as their caller's bytes too, one array per item, BY",
                           "     *  REFERENCE: the program runs over them -- every byte, those no DTO property names too -- and leaves",
                           "     *  its result there as well as in the objects. */",
                           "    public void withCallAreas(byte[]... areas) {", "        this.callAreas = areas;", "    }", "",
-                          f"    public int handleCall({signature}) {{", *body_in,
+                          f"    public int handleCall({signature}) {{", *present, *body_in,
                           "        try {", f"            {'runAll()' if gen.structured else f'perform(0, {len(proc.paragraphs) - 1})'};",
                           "        } catch (Goback g) {", "            // GOBACK", "        }", *body_out,
-                          f"        return Cobol.num({gen.ids[id(rc)]}, CS).intValue();", "    }", ""]  # fmt: skip
+                          f"        return Cobol.num({gen.ids[id(ret_item or rc)]}, CS).intValue();", "    }", ""]  # fmt: skip
         if "CobolRef" in hc.group(1):
             imports.setdefault("CobolRef", f"{package}.call.CobolRef")
             extra_imports.append(imports["CobolRef"])
@@ -1008,7 +1265,10 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         ctor_repos += providers
         extra_imports.append("org.springframework.beans.factory.ObjectProvider")
         # CobolRef only where a CALL passes text: a callee taking DTOs only has no `call` package in the estate
-        if any(not ts or "CobolRef<String>" in ts for ts in (gen.callee_types.get(p, []) for p in gen.callees)):
+        if any(
+            not ts or any(t.startswith("CobolRef<") for t in ts)
+            for ts in (gen.callee_types.get(p, []) for p in gen.callees)
+        ):
             extra_imports.append(f"{package}.call.CobolRef")
     if not is_cics and any(gen.id_methods.values()):
         extra_imports.append(f"{package}.entity.vsam.*")  # an entity's composite id class, for findById
@@ -1030,6 +1290,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     consts = [f'    private static final BigDecimal {n} = new BigDecimal("{v}");' for v, n in gen.consts.items()]
     # ARITHMETIC-OSVS (#4287): libcob's decimal constants, their scale changed by use, set again at each entry
     consts += [f'    private final Cobol.Dc {n} = new Cobol.Dc("{v}");' for n, v in gen.dcs.values()]
+    consts += gen.alter_fields  # #5560: one target slot per altered paragraph
     if gen.pcs_used:  # #4539: the PROGRAM COLLATING SEQUENCE its nonnumeric relation conditions compare under
         consts.append(f"    private static final Sort.Collating COLLATING = {gen.pcs_used};")
     n_para = len(proc.paragraphs)
@@ -1206,6 +1467,9 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         ),
         # a CALLed program's WORKING-STORAGE is set once and keeps its values from call to call
         *(["        initialState();"] if hc else []),
+        # #5561: a CALLed program's files are its own for the life of the service (OPEN in one call, READ in the next):
+        # the handles are built once here, no JCL DD list behind them (a sequential file has no DD to resolve yet)
+        *(["        List<Dd> dds = List.of();", *file_inits] if hc and batch and file_inits else []),
         "    }",
         "",
     ]
@@ -1296,14 +1560,16 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     stats["inferred"] = inferred
     stats["callees"] = sorted(gen.callees)  # #4803: the estate programs this one CALLs through a service's handleCall
     stats["warnings"] = list(engine.warnings) if engine is not None else []  # #4486: SYSLIB collisions taken
+    if laid is not None:
+        stats["engine_layouts"] = laid
     java = "\n".join(out)
     if "Hfp." in java:  # #4271: the HFP runtime, imported only where a float is used (no other port changes)
         java = java.replace(
             f"import {pkg}.cobolrt.Funcs;\n", f"import {pkg}.cobolrt.Funcs;\nimport {pkg}.cobolrt.Hfp;\n", 1
         )
     if (
-        "Accept.from(" in java
-    ):  # #4893: ACCEPT FROM DATE / DAY / TIME, imported only where it is used (no other port changes)
+        "Accept.from(" in java or "Accept.sysin(" in java
+    ):  # #4893: ACCEPT FROM DATE / DAY / TIME (#5106: SYSIN), imported only where it is used (no other port changes)
         java = java.replace(
             f"import {pkg}.cobolrt.Funcs;\n", f"import {pkg}.cobolrt.Accept;\nimport {pkg}.cobolrt.Funcs;\n", 1
         )
@@ -1315,7 +1581,9 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         numproc_pfd(program, options, page),
         arith_extend(program, options, page),
     )
-    return Result(java, service, stats)
+    if intdate_lilian(program, options, page):
+        java = with_intdate_lilian(java)
+    return Result(java, service, stats, siblings_out)
 
 
 def _record_io(proc: S.Procedure, fd: G.FileDef, records: list) -> bool:
@@ -1518,7 +1786,7 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         "    private <E> DetCics.Store<E> store(String name) {",
         *(
             [
-                "        return (DetCics.Store<E>) stores.computeIfAbsent(name, n -> switch (n) {",
+                f"        return (DetCics.Store<E>) stores.computeIfAbsent(name, n -> switch ({FC.file_key_call(cx.stores, 'n')}) {{",
                 *store_cases,
                 '            default -> throw new Hole("CICS file " + n + ": no store in the generated project");',
                 "        });",
@@ -1530,6 +1798,7 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         ),
         "    }",
         "",
+        *FC.file_key_method(cx.stores),
         "    private static final java.util.Map<String, Integer> PARAGRAPHS = java.util.Map.ofEntries(",
         # a name declared twice (COACTVWC's 0000-MAIN-EXIT) cannot be referenced unqualified: its first one
         ",\n".join(
@@ -1653,10 +1922,10 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         "    }",
         "",
     ]
-    return members + ca_whole, entry + facades(stub, cx.passes_bytes)
+    return members + ca_whole, entry + facades(stub, cx.passes_bytes, wide_shapes(cx))
 
 
-def answer_lines(ret: str, own: str | None) -> list[str]:
+def answer_lines(ret: str, own: str | None, codec: bool = False) -> list[str]:
     """#4695: the lines that answer handleTransaction of a program whose RETURN or XCTL can pass its COMMAREA as bytes
     (a LENGTH past the DTO, #4679: DetCics.commareaOut). The answer is then the program's own DTO read from them
     (wideAnswer: the layout of #4449, through the region page), the task keeping the bytes for the next one. Bytes no
@@ -1667,15 +1936,21 @@ def answer_lines(ret: str, own: str | None) -> list[str]:
         return ["        return task.returned(Object.class);"]
     dto = own if ret == "Object" else ret
     read = f"wideAnswer(wide, {dto}.class)"
+    # #5089: bytes no layout reads are read through the program's codec, where it has one -- for a typed answer, which
+    # would be refused; an Object answer keeps the bytes, lossless (a DTO cannot hold a space in a numeric field)
+    more = (["            if (read == null) {", f"                read = codecAnswer(wide, {dto}.class);", "            }"]
+            if codec and ret != "Object" else [])  # fmt: skip
     if ret == "Object":
         return ["        Object answer = task.returned(Object.class);",
                 "        if (answer instanceof byte[] wide) {",
                 f"            Object read = {read};",
+                *more,
                 "            return read != null ? read : answer;",
                 "        }",
                 "        return answer;"]  # fmt: skip
     return ["        if (task.returned(Object.class) instanceof byte[] wide) {",
             f"            {ret} read = {read};",
+            *more,
             "            if (read != null) {",
             "                return read;",
             "            }",
@@ -1699,7 +1974,69 @@ WIDE_ANSWER = [
 ]
 
 
-def facades(stub: str, passes_bytes: bool = False) -> list[str]:
+def wide_shapes(cx: C.Cics) -> dict[str, tuple[int, int]]:
+    """#5089: for each DTO with a storage codec, (the bytes its object spans in the port's storage, the bytes its
+    non-POINTER properties need): a RETURN whose LENGTH differs from the record passes that many bytes, and a DTO with
+    no layout of its own is read from them through the codec. A POINTER the bytes do not reach was never passed (IBM:
+    the next task sees EIBCALEN = LENGTH); it reads as NULL, the only pointer a COMMAREA carries (DetCics.pointerOut)."""
+    out = {}
+    for cls in cx.codecs:
+        d = cx.gp.dto(cls)
+        need = max([d.at(x.offset) + x.size * x.occurs for x in d.leaves if x.usage != "POINTER"]
+                   + [d.at(off) + p.size for _, p, off in d.parts], default=0)  # fmt: skip
+        out[cls] = (d.extent, need)
+    return out
+
+
+def codec_answer(shapes: dict[str, tuple[int, int]]) -> list[str]:
+    """#5089: the facade helpers that read, and check, an answer through the program's storage codecs."""
+    reads = []
+    same = []
+    for cls, (extent, need) in shapes.items():
+        reads += [f"        if (type == {cls}.class) {{",
+                  f"            return ebcdic.length < {need} ? null : type.cast(out_{cls}(wideStorage(ebcdic, {extent}), 0));",
+                  "        }"]  # fmt: skip
+        same += [f"        if (dto instanceof {cls} d) {{",
+                 f"            Storage s = wideStorage(ebcdic, {extent});  // bytes no property names (FILLER) stay as passed",
+                 f"            in_{cls}(d, s, 0);",
+                 "            return wideSame(s, ebcdic);",
+                 "        }"]  # fmt: skip
+    return [
+        "    // @facade-helper: a handleTransaction answer read through the storage codec (#5089)",
+        "    /** #5089: the COMMAREA bytes a RETURN passed with a LENGTH that differs from the record, read through the",
+        "     *  program's own codec: the bytes past the record are storage no one defined and are dropped, a POINTER the",
+        "     *  LENGTH stops short of reads NULL; null when the bytes stop short of the non-POINTER properties or the",
+        "     *  type has no codec. @facade-helper */",
+        "    private <T> T codecAnswer(byte[] ebcdic, Class<T> type) {",
+        *reads,
+        "        return null;",
+        "    }",
+        "",
+        "    private static Storage wideStorage(byte[] ebcdic, int extent) {",
+        "        byte[] page = DetCics.commareaIn(ebcdic, CS);",
+        "        Storage s = new Storage(extent);",
+        "        System.arraycopy(page, 0, s.bytes, 0, Math.min(page.length, extent));",
+        "        return s;",
+        "    }",
+        "",
+        "    private static boolean wideSame(Storage s, byte[] ebcdic) {",
+        "        byte[] page = DetCics.commareaIn(ebcdic, CS);",
+        "        int n = Math.min(page.length, s.bytes.length);",
+        "        return java.util.Arrays.equals(java.util.Arrays.copyOf(s.bytes, n), java.util.Arrays.copyOf(page, n));",
+        "    }",
+        "",
+        "    /** #5089: whether `dto` is the record the COMMAREA bytes a RETURN passed hold: the DTO written back through the",
+        "     *  codec over the passed bytes and compared with the bytes over the span both define (a record past LENGTH was never passed, bytes",
+        "     *  past the record are undefined). @facade-helper */",
+        "    public boolean wideSame(byte[] ebcdic, Object dto) {",
+        *same,
+        "        return false;",
+        "    }",
+        "",
+    ]
+
+
+def facades(stub: str, passes_bytes: bool = False, shapes: dict[str, tuple[int, int]] | None = None) -> list[str]:
     """The stub's handleTransaction / handleLink, kept for their callers (#4465): each runs the program -- one task of
     it in the region, as the generator's own facades do (#4343: CicsTask.region(), region.transaction / region.linked,
     region.run(task, NAME, this::runTask)) -- and returns what the generated signature says: the COMMAREA its RETURN
@@ -1710,6 +2047,7 @@ def facades(stub: str, passes_bytes: bool = False) -> list[str]:
     name = re.search(r'region\.run\(task, ("(?:[^"\\]|\\.)*"), this::runTask\)', stub)
     out: list[str] = []
     wide = False
+    typed = False  # #5089: a typed answer reads through the codec, so the helpers are emitted
     for meth in ("handleTransaction", "handleLink"):
         # #4870: handleTransaction has two overloads -- the DTO's, and the one carrying the COMMAREA's bytes in (and,
         # through lastAnswerBytes(), out) -- each rebuilt on its own
@@ -1722,22 +2060,39 @@ def facades(stub: str, passes_bytes: bool = False) -> list[str]:
                 body = [(f'        throw new UnsupportedOperationException("{meth}: the program has no task facade (a '
                          'channel program); it runs as runTask");')]  # fmt: skip
             else:
+                pre = []
+                if area and req and req.group(1) == "Object":
+                    # #5053: an Object request can be the byte[] a wide RETURN answered (the region's EBCDIC, #4695); the
+                    # bytes beside it are in the port's page (lastAnswerBytes / lastLinkBytes): both at once is one
+                    # COMMAREA in two charsets, so it stops by name rather than take either
+                    pre = ["        if (request instanceof byte[] && " + area.group(1) + " != null) {",
+                           '            throw new IllegalArgumentException("' + meth + ': the request is the COMMAREA as bytes '
+                           '(the region\'s EBCDIC) and the bytes beside it are in the port\'s page: pass one");',
+                           "        }"]  # fmt: skip
+                # #5053: a LINK's byte overload hands the region the COMMAREA's bytes too (region.linked(.., area))
                 task = (f"region.transaction(transid, {arg}{', ' + area.group(1) if area else ''})"
-                        if meth == "handleTransaction" else f"region.linked({name.group(1)}, {arg})")  # fmt: skip
-                body = ["        CicsTask.Region region = CicsTask.region();",
+                        if meth == "handleTransaction"
+                        else f"region.linked({name.group(1)}, {arg}{', ' + area.group(1) if area else ''})")  # fmt: skip
+                body = [*pre, "        CicsTask.Region region = CicsTask.region();",
                         f"        CicsTask task = {task};",
                         f"        region.run(task, {name.group(1)}, this::runTask);"]  # fmt: skip
                 if area and meth == "handleTransaction":
                     body.append("        lastAnswerBytes = task.returnedBytes();")
+                if area and meth == "handleLink":  # #5053: the bytes the program left in the COMMAREA, if it took them
+                    body += ["        byte[] left = task.linkAreaView();",
+                             "        lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;"]  # fmt: skip
                 if ret != "void" and meth == "handleTransaction" and passes_bytes:
-                    body += (lines := answer_lines(ret, req.group(1) if req else None))
+                    body += (lines := answer_lines(ret, req.group(1) if req else None, bool(shapes)))
                     wide = wide or len(lines) > 1
+                    typed = typed or (len(lines) > 1 and ret != "Object" and bool(shapes))
                 elif ret != "void":
                     body.append("        return request;" if meth == "handleLink" and req and ret == req.group(1)
                                 else f"        return task.returned({ret}.class);")  # fmt: skip
             out += [f"    public {ret} {meth}({params}) {{", *body, "    }", ""]
     if wide:
         out += WIDE_ANSWER
+        if typed and shapes:
+            out += codec_answer(shapes)
     # The bytes the byte-carrying overload answers: a field and its accessor, tagged for port_surface (#4870)
     if re.search(r"public byte\[\] lastAnswerBytes\(\)", stub):
         out += ["    // @facade-helper: the bytes the last byte-carrying handleTransaction answered",
@@ -1747,6 +2102,16 @@ def facades(stub: str, passes_bytes: bool = False) -> list[str]:
                 "     *  @facade-helper */",
                 "    public byte[] lastAnswerBytes() {",
                 "        return lastAnswerBytes == null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);",
+                "    }",
+                ""]  # fmt: skip
+    if re.search(r"public byte\[\] lastLinkBytes\(\)", stub):  # #5053: the LINK's, as lastAnswerBytes is the RETURN's
+        out += ["    // @facade-helper: the bytes the last byte-carrying handleLink's program left in the COMMAREA",
+                "    private byte[] lastLinkBytes;",
+                "",
+                "    /** The bytes the last byte-carrying handleLink's program left in the LINK COMMAREA (a copy; null: it",
+                "     *  took none -- its DTO is the COMMAREA). @facade-helper */",
+                "    public byte[] lastLinkBytes() {",
+                "        return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
                 "    }",
                 ""]  # fmt: skip
     # A program with a COMMAREA AND a channel (GenApp's LGASTAT1) also has a channel entry, handleChannel, which its

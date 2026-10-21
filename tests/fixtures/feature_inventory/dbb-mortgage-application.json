@@ -1,4 +1,120 @@
 {
+  "call_targets": {
+    "(dynamic)": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrt.cbl"
+      ]
+    },
+    "CEE3SRP": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "CEECMI": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "CEEHDLR": {
+      "count": 3,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "CEEHDLU": {
+      "count": 3,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "CEEMGET": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "CEEMRCE": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "CEENCOD": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "CEESGL": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "EPSCSMRC": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "EPSCSMRI": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "EPSCSMRJ": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "EPSCSMRK": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "EPSCSMRL": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "EPSCSMRO": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "EPSCSMRX": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "EPSNBRVL": {
+      "count": 3,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl"
+      ]
+    },
+    "XCHRFLTR": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "XWSPFLTR": {
+      "count": 3,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    }
+  },
   "cics_commands": {
     "ABEND": {
       "count": 1,

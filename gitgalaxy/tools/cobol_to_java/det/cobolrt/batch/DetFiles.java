@@ -295,6 +295,11 @@ public final class DetFiles {
         private final java.util.function.Consumer<E> save;
         private final Charset cs;
         private Iterator<byte[]> cursor;
+        // #5561: the file's own state, for a CALLed program that OPENs in one call and READs in the next: 41 an OPEN
+        // of an open file, 42 a CLOSE of a closed one, 47 a READ of a file not open, 46 a sequential READ after the
+        // end of file (ISO / IBM file statuses)
+        private boolean opened;
+        private boolean atEnd;
         private Function<byte[], Optional<E>> byId;  // the repository's findById on the key's id, when it has one
 
         /** A primary-key READ / WRITE / REWRITE through findById (verified against the key bytes). */
@@ -354,29 +359,51 @@ public final class DetFiles {
 
         @Override
         public String open(String mode) {
+            if (opened) {
+                return "41";
+            }
             String st = files.open(dd);
             if (st.startsWith("0")) {
                 cursor = records().iterator();
+                opened = true;
+                atEnd = false;
             }
             return st;
         }
 
         @Override
         public String close() {
-            return files.close(dd);
+            if (!opened) {
+                return "42";
+            }
+            String st = files.close(dd);
+            if (st.startsWith("0")) {
+                opened = false;
+            }
+            return st;
         }
 
         @Override
         public String readNext() {
+            if (!opened) {
+                return "47";
+            }
+            if (atEnd) {
+                return "46";
+            }
             CobolFiles.Read<byte[]> r = files.readNext(dd, cursor != null ? cursor : List.<byte[]>of().iterator());
             if (r.record() != null) {
                 System.arraycopy(r.record(), 0, rec.bytes, offset, reclen);
             }
+            atEnd = r.status().equals("10");
             return r.status();
         }
 
         @Override
         public String readKey(int off, int len) {
+            if (!opened) {
+                return "47";
+            }
             byte[] key = Arrays.copyOfRange(rec.bytes, offset + off, offset + off + len);
             CobolFiles.Read<byte[]> r = files.read(dd, () -> find(off, len, key));
             if (r.record() != null) {

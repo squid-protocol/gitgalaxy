@@ -53,6 +53,18 @@
     "handleTransaction(String,CocrdslcCommarea,byte[])",
     "lastAnswerBytes()"
    ]
+  },
+  {
+   "at": "2026-10-17T19:05:37+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "b3b16bb72",
+   "generated_from": "service/CocrdslcService.java",
+   "added": [
+    "lastLinkBytes (field)",
+    "handleLink(CocrdslcCommarea,byte[])",
+    "lastLinkBytes()"
+   ]
   }
  ]
 }

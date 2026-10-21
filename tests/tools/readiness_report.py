@@ -10,6 +10,10 @@ Sources (nothing is re-measured here):
   rules to land          cics_census.blockers() over those programs' gap classes -- the ranking of
                          `cics_census.py blockers`, not a second one. `only` = programs the rule alone leaves not
                          whole, `one_away` = programs it leaves one rule from whole, `touched` = all with it
+  proofs to land         the same ranking one level up (#5229): for each program translated whole, what its `next`
+                         entries say stops it being proven (coverage below the bar, no case, a Db2 case CI does not
+                         sweep, a callee with holes), ranked by proof_blockers.rank() -- derived from the report, not a
+                         proof_blockers run (that needs a survey and the corpora). The L5 mutant entry is left out
   era                    tests/fixtures/feature_inventory/<estate>.json `eras` (era_tags.py, #5117)
   missing inputs         estate_intake.py (#4709): assumed options and missing copybooks
   oracle caveats         the register entries the report says each program's commands name (an upper bound: the
@@ -43,6 +47,23 @@ LEVELS = ("L0", "L1", "L2", "L3", "L4", "L5")
 ERAS = ("0", "1", "2", "3", "4", "none")
 CALLEE = re.compile(r"\b(?:CALLs|LINKs)\b.*\bholes?\b")  # evidence_report's "EPSCSMRT CALLs EPSMPMT, which has holes"
 TOP = 15
+# #5229: the evidence report's `next` text -> a proof gap class (numbers and case ids stripped so equal causes group).
+# None: not a proof blocker (the L5 hook is "not yet measured" for every program).
+PROOF_CLASSES: tuple[tuple[re.Pattern[str], str | None], ...] = (
+    (re.compile(r"^every surviving mutant"), None),
+    (re.compile(r"^an equivalence case that runs it"), "no case"),
+    (re.compile(r"^its det port equal on every scenario of .*\b(?:CALLs|LINKs)\b.*\bholes?\b"), "callee has holes"),
+    (
+        re.compile(r"^its det port equal on every scenario of .*ledgered as differing"),
+        "known unproven: det sweep baseline",
+    ),
+    (re.compile(r"^its det port equal on every scenario of .*a Db2 case"), "not proven in CI: Db2"),
+    (re.compile(r"^paragraph coverage .*\(coverage not measured"), "coverage: not measured"),
+    (re.compile(r"^paragraph coverage"), "coverage: paragraphs below the bar"),
+    (re.compile(r"^branch coverage .*\(coverage not measured"), "coverage: not measured"),
+    (re.compile(r"^branch coverage"), "coverage: branch outcomes below the bar"),
+)
+PROOF_CLASS_NAMES = frozenset(n for _, n in PROOF_CLASSES if n)
 
 
 def _load(path: Path) -> Any:
@@ -117,6 +138,35 @@ def rules_to_land(programs: list[dict[str, Any]], estate: str, eras: dict[str, s
     return {"classes": len(gaps), "histogram": res["histogram"], "ranked": gaps[:top] if top else gaps}
 
 
+def proof_class(text: str) -> str | None:
+    """The proof gap class of one `next` entry; None for the L5 hook. An entry no pattern knows keeps its (digit-free)
+    text, so a new wording shows up in the ranking instead of vanishing."""
+    for pat, name in PROOF_CLASSES:
+        if pat.search(text):
+            return name
+    return re.sub(r"\d+(?:\.\d+)?", "N", text)[:110]
+
+
+def proofs_to_land(programs: list[dict[str, Any]], top: int = TOP) -> dict[str, Any]:
+    """proof_blockers.rank() over the programs translated whole: each one's gaps are the classes of its `next`."""
+    import proof_blockers
+
+    progs: dict[tuple[str, str], tuple[bool, set[str]]] = {}
+    for p in programs:
+        if p["translation"]["whole"]:
+            gaps = {c for n in p.get("next") or [] if (c := proof_class(n))}
+            progs[("", p["program"])] = (True, gaps)
+    res = proof_blockers.rank(progs)
+    ranked = [{k: g[k] for k in ("gap", "only", "one_away", "touched")} for g in res["gaps"]]
+    return {
+        "whole": res["whole"],
+        "proven": res["proven"],
+        "histogram": res["histogram"],
+        "classes": len(ranked),
+        "ranked": ranked[:top] if top else ranked,
+    }
+
+
 def caveats(programs: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Register entries the programs' commands name, with the programs naming each (an upper bound)."""
     seen: dict[str, dict[str, Any]] = {}
@@ -153,6 +203,7 @@ def build_estate(estate: str, report: dict[str, Any], inventory: dict[str, Any],
         "ladder": ladder(programs),
         "eras": {e: era_counts[e] for e in ERAS},
         "rules_to_land": rules_to_land(programs, estate, eras, top),
+        "proofs_to_land": proofs_to_land(programs, top),
         "missing_inputs": missing_inputs(estate, report),
         "oracle_caveats": caveats(programs),
         "charter": {"bars": report["bars"], "levels": report["levels"]},
@@ -197,7 +248,15 @@ def delta(old: dict[str, Any], new: dict[str, Any]) -> dict[str, Any]:
             if was != (i, g["only"]):
                 rules[g["gap"]] = {"rank": [was[0] if was else None, i], "only": [was[1] if was else None, g["only"]]}
         gone = sorted(set(old_rank) - {g["gap"] for g in cur["rules_to_land"]["ranked"]})
-        out[name] = {"ladder": lad, "rules": rules, "no_longer_ranked": gone}
+        old_p = {
+            g["gap"]: (i + 1, g["only"]) for i, g in enumerate((prev.get("proofs_to_land") or {}).get("ranked", []))
+        }
+        proofs = {}
+        for i, g in enumerate(cur["proofs_to_land"]["ranked"], 1):
+            was = old_p.get(g["gap"])
+            if was != (i, g["only"]):
+                proofs[g["gap"]] = {"rank": [was[0] if was else None, i], "only": [was[1] if was else None, g["only"]]}
+        out[name] = {"ladder": lad, "rules": rules, "no_longer_ranked": gone, "proofs": proofs}
     return out
 
 
@@ -247,6 +306,21 @@ def render_estate(m: dict[str, Any], d: dict[str, Any] | None = None) -> list[st
         mix = ", ".join(f"era {e}: {c}" for e, c in g["only_by_era"].items()) or "-"
         star = " (refuses the whole program: upper bound)" if g["refuses_program"] else ""
         out.append(f"| {i} | {g['gap'][:110]}{star} | {g['only']} | {g['one_away']} | {g['touched']} | {mix} |")
+    pr = m["proofs_to_land"]
+    out += [
+        "",
+        (
+            f"### Proof blockers ({pr['whole']} programs translated whole, {pr['proven']} with no proof gap; "
+            f"top {len(pr['ranked'])} of {pr['classes']} classes, `proof_blockers.py` statistics)"
+        ),
+        "",
+        "| rank | what stops the proof | alone | one gap away | touched |",
+        "|---|---|---|---|---|",
+    ]
+    out += [
+        f"| {i} | {g['gap'][:110]} | {g['only']} | {g['one_away']} | {g['touched']} |"
+        for i, g in enumerate(pr["ranked"], 1)
+    ]
     mi = m["missing_inputs"]
     out += ["", "### Missing inputs", "", f"- assumed options awaiting customer confirmation: {mi['assumed_options']}"]
     if mi["by_checklist_section"]:
@@ -271,6 +345,10 @@ def render_estate(m: dict[str, Any], d: dict[str, Any] | None = None) -> list[st
             out += [f"- rule `{g[:80]}`: rank {v['rank'][0]} -> {v['rank'][1]}, alone {v['only'][0]} -> {v['only'][1]}"
                     for g, v in d["rules"].items()]  # fmt: skip
             out += [f"- rule `{g[:80]}` is no longer ranked" for g in d["no_longer_ranked"]]
+            out += [
+                f"- proof gap `{g[:80]}`: rank {v['rank'][0]} -> {v['rank'][1]}, alone {v['only'][0]} -> {v['only'][1]}"
+                for g, v in d.get("proofs", {}).items()
+            ]
     return [*out, ""]
 
 

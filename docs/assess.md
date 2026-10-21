@@ -15,9 +15,14 @@ pip install "gitgalaxy[translator] @ git+https://github.com/squid-protocol/gitga
 gitgalaxy assess --help
 ```
 
-The `translator` extra installs the COBOL grammar (`tree-sitter-language-pack`), which is what reads the programs. There is no
-published package or tested clean-machine install yet; both are follow-ups of #4726. On an offline site, build the
-wheels on a connected machine (`pip wheel "gitgalaxy[translator]" -w wheels/`), copy them across, and install with
+A plain `pip install gitgalaxy` (no extras) runs the inventory: counts, feature names and statuses of every program. The
+`translator` extra installs the COBOL grammar (`tree-sitter-language-pack`), which the translate-only dry run needs.
+Without it the command prints `translate-only dry run skipped: pip install gitgalaxy[translator]` on standard error
+and writes the report without the `translation` fields (the same as `--no-translate`). A test builds the wheel, installs
+it into a fresh virtual environment with no extras and runs the installed command
+(`tests/cobol_mainframe/test_assess_clean_install.py`). The package is not published to PyPI for this yet; a post-publish
+install check is a follow-up of #4726. On an offline site, build the wheels on a connected machine
+(`pip wheel "gitgalaxy[translator]" -w wheels/`), copy them across, and install with
 `pip install --no-index --find-links wheels/ "gitgalaxy[translator]"`.
 
 GitGalaxy is licensed under PolyForm Noncommercial 1.0.0. For commercial use, set the `GITGALAXY_LICENSE_KEY` your
@@ -30,6 +35,7 @@ gitgalaxy assess /path/to/estate --out report.json
 gitgalaxy assess /path/to/estate --redact --out report.json                          # labels instead of names
 gitgalaxy assess /path/to/estate --redact --redact-key-file site.key --out report.json   # the same labels every run
 gitgalaxy assess /path/to/estate --options estate_options.json --out report.json
+gitgalaxy assess /path/to/estate --jcl /path/to/compile/jcl --out report.json        # options from your compile JCL
 ```
 
 - `ESTATE` is a directory holding the programs (`.cbl`, `.cob`, `.cobol`), their copybooks and BMS maps, and any
@@ -37,8 +43,16 @@ gitgalaxy assess /path/to/estate --options estate_options.json --out report.json
 - `--options` is the estate options file (compiler, LE, Db2 and CICS options with their provenance; see
   `gitgalaxy/core/estate_options.py`). Without it, every option is IBM's default.
 - `--no-translate` skips the translate-only dry run (below); the report is then the inventory alone.
-- `--jcl` is not supported yet. The command refuses it by name and does not ignore it. Until it is supported, pass the
-  options your JCL sets with `--options`.
+- `--jcl` is a JCL member or a directory of them (`.jcl`, `.cntl`, `.proc`, `.prc`). The `PARM` of each
+  `EXEC PGM=IGYCRCTL` step is read as the compiler options, with the member and line as provenance. It cannot be
+  combined with `--options` (the command refuses both by name). What the JCL leaves open is printed on standard error,
+  as option names only, never JCL text:
+  - Several compile steps whose `PARM`s differ: only the options all of them agree on are kept, because the JCL does
+    not say which program each step builds. A step with no `PARM` leaves none.
+  - `PARM='OPTFILE'`: the options are in a SYSOPTF member, which is not read; IBM's defaults apply.
+  - No `IGYCRCTL` step: IBM's defaults apply.
+  - Not read: `PARM.step` overrides on a cataloged compile procedure, and the LE, Db2 and CICS options (use
+    `--options` for those).
 - `--out` may not point inside the estate. Without `--out`, the report goes to standard output.
 - `--verbose` shows the engine's own scan log on your terminal. That log can name files, and it is never part of the
   report.
@@ -111,8 +125,6 @@ Counts are the same as in the plain report.
 
 ## Follow-ups (#4726)
 
-- A published package, and a CI job that installs it on a clean machine.
-- The translate-only dry run per program (whole / with holes / refused) with no JDK.
-- `--jcl`.
+- A post-publish check that installs the PyPI package on a clean runner.
 - The readiness report's ranked rules once #5228 lands.
 - The network block on spawn-start platforms (macOS and Windows).

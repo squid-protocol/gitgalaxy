@@ -246,3 +246,56 @@ def test_real_failures_still_triage_real():
     assert d["failed"][0]["triage"] == "real"
     inside = fake_api([run(1, "full-suite part 1/3", "failure")], pr_files=["tests/in_diff/test_a.py"])
     assert cd.digest(7, inside, lambda i: ratchet_log((T_IN, 90.0, UNMARKED)))["failed"][0]["triage"] == "real"
+
+
+# #5276: PARTS mirrors the part-job names of three workflows by hand (the check-runs API has no `needs`)
+WORKFLOWS = Path(__file__).resolve().parents[2] / ".github" / "workflows"
+ROLLUP_PARTS = {  # roll-up check -> (workflow, the part jobs whose check-run names its PARTS pattern must match)
+    "full-suite": ("smoke-test.yml", {"full-suite-part"}),
+    "ground-truth": ("mainframe-ground-truth.yml", {"ground-truth-part"}),
+    "det": ("det-sweep.yml", {"plan", "shard", "db2"}),
+}
+MATRIX_SAMPLE = {"matrix.group": "1", "matrix.shard": "1/4"}
+
+
+def rendered_job_names(workflow):
+    """Check-run name of each job (`name:` or the job id) with its matrix expressions filled in."""
+    import re
+
+    import pytest
+
+    yaml = pytest.importorskip("yaml")
+    jobs = yaml.safe_load((WORKFLOWS / workflow).read_text(encoding="utf-8"))["jobs"]
+    names = {}
+    for job_id, job in jobs.items():
+        name = re.sub(
+            r"\$\{\{\s*([\w.]+)\s*\}\}", lambda m: MATRIX_SAMPLE.get(m.group(1), m.group(0)), job.get("name", job_id)
+        )
+        assert "${{" not in name, f"{workflow}: job {job_id} name {name!r} has an expression this test cannot render"
+        names[job_id] = name
+    return jobs, names
+
+
+def test_every_parts_pattern_still_matches_the_workflow_jobs_it_mirrors():
+    import re
+
+    assert set(cd.PARTS) == set(ROLLUP_PARTS), "a PARTS roll-up is missing from (or extra in) ROLLUP_PARTS"
+    for rollup, (workflow, expected) in ROLLUP_PARTS.items():
+        jobs, names = rendered_job_names(workflow)
+        assert rollup in jobs, f"{workflow} has no job {rollup}"
+        needs = jobs[rollup]["needs"]
+        assert expected <= set(needs), f"{rollup} no longer needs {expected - set(needs)}"
+        matched = {job_id for job_id, name in names.items() if re.search(cd.PARTS[rollup], name)}
+        assert matched == expected, (
+            f"PARTS[{rollup!r}] matches {sorted(matched)} in {workflow}, expected {sorted(expected)}"
+        )
+
+
+def test_every_alternative_of_the_det_pattern_matches_a_job():
+    """`det` alternates three part names; one renamed job must not hide behind the others."""
+    import re
+
+    _, names = rendered_job_names("det-sweep.yml")
+    inner = cd.PARTS["det"].removeprefix("^(").removesuffix(")$")
+    for alt in inner.split("|"):
+        assert any(re.fullmatch(alt, n) for n in names.values()), f"no det-sweep.yml job matches {alt!r}"

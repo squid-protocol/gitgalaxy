@@ -34,9 +34,9 @@ TOOLS = Path(__file__).resolve().parent
 REPO = TOOLS.parents[1]
 sys.path.insert(0, str(REPO))
 
-SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION = "1.1"
 HASH_HEX = 6
-REDACTIONS = ("subclass", "counts")
+REDACTIONS = ("subclass", "counts", "repro")
 
 # The fields of one anonymized blocker, and of the report around them: the manifest a security team approves.
 ANON_BLOCKER_FIELDS = {
@@ -44,6 +44,7 @@ ANON_BLOCKER_FIELDS = {
     "category": "blocker category from a fixed list",
     "subclass": "sub-class from fixed vocabulary (CICS verb, refusal class, fact kind); dropped by --redact-more subclass",
     "signature": "construct signature built from fixed vocabulary; every customer name is a KIND_xxxx hash",
+    "repro": "optional minimal synthetic COBOL snippet built from the signature, made-up names; dropped by --redact-more repro",
     "programs_blocked": "programs the gap blocks (count)",
     "programs_only_gap": "programs for which it is the only gap left (count)",
     "programs_one_away": "programs it leaves one gap from proven (count)",
@@ -59,7 +60,7 @@ ANON_REPORT_FIELDS = {
     "manifest": "this list of fields",
     "redactions": "the --redact-more options applied",
 }
-RULE_CATALOGUE = "1"
+RULE_CATALOGUE = "2"
 
 CATEGORIES = (
     "unresolved-link", "refusal", "cics-command", "runtime-fact", "no-case", "known-unproven",
@@ -177,6 +178,46 @@ def classify(gap: str, salt: bytes) -> tuple[str, str, str]:
     return "other", "unclassified", "unclassified"
 
 
+_HASH = re.compile(r"[A-Z]{3}_[0-9a-f]{%d}" % HASH_HEX)
+
+
+def _cobol_name(token: str) -> str:
+    """`PGM_7f3a1c` -> `PGM-7F3A1C`: a hash as a legal COBOL name."""
+    return token.replace("_", "-").upper()
+
+
+def repro(cat: str, sig: str) -> str | None:
+    """A minimal synthetic COBOL snippet that holds only the construct, from a signature that is already allow-listed
+    (vocabulary words and KIND_xxxxxx hashes). None where no construct can be rebuilt from the signature."""
+    vocab = vocabulary()
+    head = ["       IDENTIFICATION DIVISION.", "       PROGRAM-ID. REPRO1."]
+    if cat == "unresolved-link":
+        m = re.fullmatch(r"missing copybook(?: \(ambiguous\))? (CPY_[0-9a-f]+)", sig)
+        if m and _HASH.fullmatch(m.group(1)):
+            body = [
+                "       DATA DIVISION.",
+                "       WORKING-STORAGE SECTION.",
+                f"           COPY {_cobol_name(m.group(1))}.",
+            ]
+            return "\n".join(head + body) + "\n"
+    elif cat == "cics-command" and sig.startswith("EXEC CICS "):
+        toks = sig.split()[2:]
+        if toks and all(t in vocab or _HASH.fullmatch(t) for t in toks):
+            stmt = (
+                "           EXEC CICS "
+                + " ".join(_cobol_name(t) if _HASH.fullmatch(t) else t for t in toks)
+                + " END-EXEC."
+            )
+            return "\n".join(head + ["       PROCEDURE DIVISION.", stmt, "           GOBACK."]) + "\n"
+    elif cat == "runtime-fact":
+        m = re.fullmatch(r"fact: (\S+)", sig)
+        if m and (m.group(1) in vocab or _HASH.fullmatch(m.group(1))):
+            body = ["       DATA DIVISION.", "       WORKING-STORAGE SECTION.", "       01 WS-OUT PIC X(8).",
+                    "       PROCEDURE DIVISION.", f"           MOVE {_cobol_name(m.group(1))} TO WS-OUT.", "           GOBACK."]  # fmt: skip
+            return "\n".join(head + body) + "\n"
+    return None
+
+
 # ---- the two reports ----------------------------------------------------------------------------------------------
 def engine_version() -> str:
     try:
@@ -219,6 +260,8 @@ def anon_report(res: dict[str, Any], salt: bytes, estate: str, redact_more: tupl
         if "subclass" not in redact_more:
             blocker["subclass"] = sub
         blocker["signature"] = sig
+        if "repro" not in redact_more and (snippet := repro(cat, sig)):
+            blocker["repro"] = snippet
         if "counts" not in redact_more:
             blocker["programs_blocked"] = len(seen[(cat, sub, sig)])
             blocker.update(b)

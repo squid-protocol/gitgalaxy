@@ -88,6 +88,10 @@ every task of the TRANSID a fault names in `task` -- a terminal step's task or a
 commands; the stub (faults.cfg) and CicsTask.withFaults read the same plan, and the planned command does nothing
 but return the condition. A derived log records the faults that fired; one that never fired refuses the log.
 
+A typed-transid step's `commarea` (#4443) is `{"hex": <the record, in the runtime page>, "length": n}`: the task is
+entered directly with the first n bytes (EIBCALEN n), for a program only a RETURN TRANSID otherwise reaches with a
+short or odd area. The java plan carries the record decoded through the DTO the facade takes (seeded_step).
+
 Needs: the crucible checkout (CICS_CRUCIBLE_PATH, else ../cics-crucible beside the main gitgalaxy
 checkout) at the pin; for cobol-stub, Docker and the GnuCOBOL image (tests/equivalence/
 gnucobol.Dockerfile); for forge-compile / java, a JDK 17 and Maven (`--offline` for mvn -o).
@@ -166,6 +170,9 @@ _START_KEYS = frozenset(
     "transid termid interval time from reqid protect resp resp2 expires rtransid rtermid queue".split()
 )
 _RETRIEVE_KEYS = frozenset("resp length data rtransid rtermid queue".split())
+# #4767 zECS (X37, X38): an `http` task's request body and response, on both sides
+_WEB_RECEIVE_KEYS = frozenset("resp resp2 length data".split())
+_WEB_SEND_KEYS = frozenset("status statustext mediatype from resp resp2".split())
 COBOL_CAPS = cc.Capabilities(
     layer="stub",
     task_keys=frozenset(cc.TASK_KEYS) | {"end"},
@@ -187,9 +194,12 @@ COBOL_CAPS = cc.Capabilities(
         "RETRIEVE": _RETRIEVE_KEYS,
         "CANCEL": frozenset({"reqid", "resp"}),
         "RUN": frozenset({"transid", "resp", "resp2"}),  # #4270
+        "WEB-RECEIVE": _WEB_RECEIVE_KEYS,  # #4767 (X37, X38)
+        "WEB-SEND": _WEB_SEND_KEYS,
     },
     ts_queues=True,
     start_tasks=True,
+    http_tasks=True,
 )
 JAVA_CAPS = cc.Capabilities(
     layer="CicsTask",
@@ -211,9 +221,12 @@ JAVA_CAPS = cc.Capabilities(
         "RETRIEVE": _RETRIEVE_KEYS,
         "CANCEL": frozenset({"reqid", "resp"}),
         "RUN": frozenset({"transid", "resp", "resp2"}),  # #4270
+        "WEB-RECEIVE": _WEB_RECEIVE_KEYS,  # #4767 (X37, X38)
+        "WEB-SEND": _WEB_SEND_KEYS,
     },
     ts_queues=True,
     start_tasks=True,
+    http_tasks=True,
 )
 
 
@@ -780,6 +793,15 @@ class EquivalenceRunTest {
                 q.getValue().forEach(item -> items.add(HexFormat.of().parseHex(item.asText())));
                 ts.seed(q.getKey(), items);
             });
+            sc.path("http").forEach(h -> {  // #4767 (X37): an inbound HTTP request, due at its time like a START
+                Map<String, Object> r = new LinkedHashMap<>();
+                r.put("issue", h.get("index").asInt() - 100000);  // (ahead of a START due at the same time)
+                r.put("transid", h.get("transid").asText());
+                r.put("expires", clock.plusSeconds(h.get("at").asLong()));
+                r.put("kind", "http");
+                r.put("http", h);
+                requests.add(r);
+            });
         }
 
         Map<String, Object> drive() {
@@ -820,13 +842,21 @@ class EquivalenceRunTest {
                     });
                     Map<String, Object> trigger = new LinkedHashMap<>();
                     trigger.put("kind", first.getOrDefault("kind", "start"));  // #4270: "run" for a RUN TRANSID child
-                    trigger.put("task", first.get("task"));
-                    trigger.put("event", first.get("event"));
+                    JsonNode http = (JsonNode) first.get("http");  // #4767: an inbound HTTP request's task
+                    if (http != null) {
+                        trigger.put("request", http.get("index").asInt());
+                    } else {
+                        trigger.put("task", first.get("task"));
+                        trigger.put("event", first.get("event"));
+                    }
                     Map<String, Object> f = frame((String) first.get("termid"), trigger, null);
                     // #4270 slice 3: ASSIGN STARTCODE -- "S" a START that "did not pass data in the FROM option", "SD"
                     // one that did; a coalesced group that mixes the two is not stated (refused)
                     long withFrom = group.stream().filter(r -> r.get("data") != null).count();
-                    f.put("startcode", withFrom == group.size() ? "SD" : withFrom == 0 ? "S" : null);
+                    f.put("startcode", http != null ? null : withFrom == group.size() ? "SD" : withFrom == 0 ? "S" : null);
+                    if (http != null) {
+                        f.put("http_request", http.get("request"));
+                    }
                     runOne(f, (String) first.get("transid"), null, null, null, data);
                     continue;
                 }
@@ -855,6 +885,11 @@ class EquivalenceRunTest {
                         transid = text.split("\\s+")[0];
                         commarea = null;
                         calen = null;
+                        if (step.hasNonNull("commarea")) {  // #4443: a direct entry with a COMMAREA of its own
+                            JsonNode seed = step.get("commarea");
+                            commarea = seedArea(transid, seed.get("dto"));
+                            calen = seed.get("length").asInt();
+                        }
                     }
                     Map<String, Object> trigger = new LinkedHashMap<>();
                     trigger.put("kind", "terminal");
@@ -881,6 +916,27 @@ class EquivalenceRunTest {
             return log;
         }
 
+        /** #4443: the DTO a seeded step enters its program with: the plan's JSON as the type of the facade's
+         *  handleTransaction(String, T) the program's service declares. */
+        Object seedArea(String transid, JsonNode dto) {
+            String program = plan.path("transactions").path(transid).asText(null);
+            Object service = program == null ? null : service(plan, program);
+            if (service == null) {
+                throw new IllegalStateException("no generated service for the seeded COMMAREA of " + transid);
+            }
+            for (Method m : service.getClass().getMethods()) {
+                if (m.getName().equals("handleTransaction") && m.getParameterCount() >= 2
+                        && m.getParameterTypes()[1] != byte[].class) {
+                    try {
+                        return json.treeToValue(dto, m.getParameterTypes()[1]);
+                    } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+                        throw new IllegalStateException(e);
+                    }
+                }
+            }
+            throw new IllegalStateException("handleTransaction of " + program + " takes no COMMAREA to seed");
+        }
+
         Map<String, Object> frame(String termid, Map<String, Object> trigger, String aid) {
             Map<String, Object> f = new LinkedHashMap<>();
             f.put("termid", termid);
@@ -897,6 +953,7 @@ class EquivalenceRunTest {
             answered = null;
             answeredByBytes = false;
             task.remove("startcode");
+            task.remove("http_request");
             task.put("transid", transid);
             task.put("program", program);
             task.put("commarea", describe(commarea));
@@ -965,6 +1022,15 @@ class EquivalenceRunTest {
                     t.withTerminalInput(step.get("text").asText());
                 }
                 t.withEndOfChain("LUTYPE2".equals(plan.path("terminal_device").asText()));  // #4413
+                if (frame.get("http_request") instanceof JsonNode q) {  // #4767 (X37): the request the task serves
+                    List<String[]> headers = new ArrayList<>();
+                    q.get("headers").forEach(h -> headers.add(new String[] {h.get(0).asText(), h.get(1).asText()}));
+                    t.withHttpRequest(new CicsTask.HttpRequest(q.get("scheme").asText(), q.get("host").asText(),
+                            q.get("port").asInt(), q.get("method").asText(), q.get("version").asText(),
+                            q.get("path").asText(), q.get("query").asText(), headers,
+                            q.hasNonNull("mediatype") ? q.get("mediatype").asText() : null,
+                            q.hasNonNull("body") ? q.get("body").asText() : null));
+                }
                 if (plan.has("urimaps")) {
                     // #4270 zECS (X32): INQUIRE URIMAP -- the URIMAP definitions the case CSD installs, as {name,
                     // transaction, path}, in the CSD's order
@@ -1068,6 +1134,9 @@ class EquivalenceRunTest {
             Consumer<CicsTask> firstHop;  // the facade's own runTask, for the task's first program
             CicsTask linked;  // the level a LINK / XCTL runs, until handleLink asks for it
             String linkedProgram;
+            /** #5053: by program level, the bytes the first program of a LINK's XCTL chain left in the caller's area,
+             *  until the chain's RETURN (an XCTL target's, which is not the program that held the area) takes them. */
+            final Map<Integer, byte[]> callerLeft = new java.util.HashMap<>();
 
             FacadeRegion(int taskNo) {
                 this.taskNo = taskNo;
@@ -1092,6 +1161,16 @@ class EquivalenceRunTest {
                             + " that is not the LINK / XCTL the scenario made");
                 }
                 linked = null;
+                return t;
+            }
+
+            @Override
+            public CicsTask linked(String program, Object commarea, byte[] bytes) {
+                CicsTask t = linked(program, commarea);
+                if (t.linkAreaView() != bytes) {  // #5053: the LINK's own area, by address
+                    throw new IllegalStateException("a facade handed the region a COMMAREA's bytes of " + program
+                            + " that are not the ones the LINK / XCTL made");
+                }
                 return t;
             }
 
@@ -1181,7 +1260,7 @@ class EquivalenceRunTest {
                     self.accept(task);
                     return;
                 }
-                Method m = method(service, "handleLink", 1);
+                Method m = facade(service, "handleLink", 1, false);
                 if (m == null) {
                     entry(p, "runTask");
                     invoke(method(service, "runTask", 1), service, task);
@@ -1192,17 +1271,83 @@ class EquivalenceRunTest {
                     throw new IllegalStateException("handleLink of " + p + " takes a " + m.getParameterTypes()[0]
                             .getName() + ", the LINK / XCTL passed a " + ca.getClass().getName());
                 }
+                // #5053: by the byte-carrying overload when the service has one and the LINK / XCTL passed bytes: the
+                // COMMAREA's bytes in (by address), the bytes the program left in them out (lastLinkBytes())
+                Method mb = facade(service, "handleLink", 2, true);
+                byte[] view = task.linkAreaView();
+                boolean bytes = viaBytes && mb != null && view != null && ca != null
+                        && mb.getParameterTypes()[0].isInstance(ca);
                 CicsTask outer = linked;
                 String outerProgram = linkedProgram;
+                int mark = scenarioTask.events().size();  // #5053: this program's own events start here
+                if (task.linkAreaOfCaller()) {
+                    callerLeft.remove(task.level());  // a new chain: nothing is left of an earlier one's
+                }
                 linked = task;
                 linkedProgram = p;
                 entry(p, "handleLink");
-                invoke(m, service, ca);
+                if (bytes) {
+                    usedBytes = true;  // even when it throws: the run is the byte overload's, and is compared
+                    invoke(mb, service, ca, view);
+                } else {
+                    invoke(m, service, ca);
+                }
                 if (linked == task) {
                     throw new IllegalStateException("handleLink of " + p + " did not run its task in the region");
                 }
                 linked = outer;
                 linkedProgram = outerProgram;
+                if (bytes) {
+                    linkBytes(p, task, service, view, mark);
+                }
+                byte[] kept = task.linkAreaOfCaller() ? null : callerLeft.remove(task.level());
+                if (kept != null && !tagReturn(task.level(), kept, mark)) {
+                    callerLeft.put(task.level(), kept);  // it XCTLed on again: the next target's RETURN takes them
+                }
+            }
+
+            /** #5053: the bytes the caller sees back, on the RETURN of `level` that this program recorded (from event
+             *  `mark` on); false when it recorded none (it XCTLed instead) or one that already has them. */
+            boolean tagReturn(int level, byte[] bytes, int mark) {
+                List<Map<String, Object>> evs = scenarioTask.events();
+                for (int i = evs.size() - 1; i >= mark; i--) {
+                    Map<String, Object> e = evs.get(i);
+                    if ("RETURN".equals(e.get("event")) && Integer.valueOf(level).equals(e.get("level"))
+                            && !e.containsKey("area_bytes")) {
+                        e.put("area_bytes", java.util.Base64.getEncoder().encodeToString(bytes));
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            /** #5053: lastLinkBytes() answers the bytes the program left in the LINK's COMMAREA when it took them (null
+             *  when it did not: its DTO is the COMMAREA) -- a facade that stopped assigning them is not proven by the
+             *  DTO's bytes the comparison falls back to. What the caller sees back (the RETURN's caller_commarea) is
+             *  then compared by them: those of the program the LINK reached, whose area is the caller's own (an XCTL
+             *  target's is a copy of the bytes XCTL passed, so the caller sees the first program's, kept in callerLeft
+             *  for the chain's RETURN). */
+            void linkBytes(String p, CicsTask task, Object service, byte[] view, int mark) {
+                Method a0 = null;
+                for (Method m : service.getClass().getMethods()) {
+                    if (m.getName().equals("lastLinkBytes") && m.getParameterCount() == 0) {
+                        a0 = m;
+                    }
+                }
+                if (a0 == null) {
+                    throw new IllegalStateException("handleLink (bytes) of " + p + " has no lastLinkBytes()");
+                }
+                byte[] left = (byte[]) invoke(a0, service);
+                if (!java.util.Arrays.equals(left, task.linkAreaTaken() ? view : null)) {
+                    throw new IllegalStateException("lastLinkBytes() of " + p
+                            + " is not the bytes its task left in the LINK COMMAREA");
+                }
+                if (left == null || !task.linkAreaOfCaller()) {
+                    return;
+                }
+                if (!tagReturn(task.level(), left, mark)) {
+                    callerLeft.put(task.level(), left);  // #5053: it XCTLed: its target's RETURN is what the caller sees
+                }
             }
 
             void entry(String program, String method) {
@@ -1415,6 +1560,29 @@ class EquivalenceRunTest {
 """
 
 
+def seeded_step(case: cc.Case, src: Path, step: dict[str, Any]) -> dict[str, Any]:
+    """#4443: a step with a `commarea` (see step_commarea) as the Java plan carries it: the record's fields decoded
+    through the layout of the DTO the typed transaction's facade takes, as that DTO's JSON, and the length."""
+    import equivalence_cics as ec
+    import equivalence_java as ej
+
+    spec = step.get("commarea")
+    if spec is None:
+        return step
+    words = (step.get("text") or "").split()
+    program = case.csd["transactions"][words[0]]
+    service = next(src.rglob(f"{ej._service_class(program)}.java"))
+    found = re.search(r"handleTransaction\(String \w+, (\w+) \w+\)", service.read_text(encoding="utf-8"))
+    if found is None:
+        raise LookupError(f"{service.name} has no handleTransaction(String, DTO) to seed")
+    layout = dto_layout(src, found.group(1))
+    if layout is None:
+        raise LookupError(f"{found.group(1)} has no record layout to seed")
+    values = ec.decode_record(bytes.fromhex(spec["hex"]), layout, RUNTIME_PAGE)
+    dto = ec.to_java(values, ec.dto_shape(src, found.group(1)))
+    return {**step, "commarea": {"dto": dto, "length": spec.get("length", len(bytes.fromhex(spec["hex"])))}}
+
+
 def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
     """plan.json for the generated test: transid -> program (the case's CSD), program -> service
     class, map -> screen class (found in the generated sources), and each scenario's steps."""
@@ -1432,7 +1600,7 @@ def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
             cls = ec._generated_class(src, 'String MAP = "' + re.escape(m) + '";')
             screens[m] = f"{ej.PKG}.dto.screen.{cls}"
     # #4002: seeds as EBCDIC hex (SPEC 2: the region's page); #4006: `until` for the scheduler
-    scenarios = [{"id": sc["id"], "steps": sc["steps"], "until": sc.get("until"), "fault_plans": fault_plans(sc),
+    scenarios = [{"id": sc["id"], "steps": [seeded_step(case, src, st) for st in sc["steps"]], "until": sc.get("until"), "fault_plans": fault_plans(sc), "http": http_plan(case, sc)[0],
                   "ts_queues": {q: [cc.expected_bytes(i).hex() for i in items]
                                 for q, items in ((sc.get("initial") or {}).get("ts_queues") or {}).items()}}
                  for sc in case.scenarios]  # fmt: skip
@@ -1579,6 +1747,8 @@ def _with_answered_bytes(area: Any, answer: str | None, page: str = RUNTIME_PAGE
     if answer is None or not isinstance(area, cc.FieldArea):
         return area
     data = cc.to_ebcdic(cc.RawArea(base64.b64decode(answer), page), layout)
+    if isinstance(area.length, int) and not isinstance(area.length, bool):
+        data = data[: area.length]  # #5053: a LINK's area is its caller's whole storage; the LINK's LENGTH bounds it
     return dataclasses.replace(area, data=data, known=len(data))
 
 
@@ -1654,8 +1824,10 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
                 )
             elif kind == "RETURN" and (e.get("level") or 1) > 1:  # #4004: back to the linking program
                 # #3989: the caller sees the LINK's LENGTH bytes of it (CicsTask records that LENGTH here)
-                ev.update(level=e["level"], caller_commarea=_java_area(e.get("caller_commarea"), src, shapes,
-                                                                       e.get("length")))  # fmt: skip
+                # #5053: and, when the program took the LINK's COMMAREA bytes, the bytes lastLinkBytes() answered
+                ev.update(level=e["level"], caller_commarea=_with_answered_bytes(
+                    _java_area(e.get("caller_commarea"), src, shapes, e.get("length")), e.get("area_bytes"),
+                    RUNTIME_PAGE, _answered_layout(e.get("caller_commarea"), shapes)))  # fmt: skip
             elif kind == "RETURN":
                 ev.update(level=1, transid=e.get("transid"),
                           commarea=_with_answered_bytes(_java_area(e.get("commarea"), src, shapes, e.get("length")),
@@ -1664,13 +1836,20 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
                 if e.get("immediate"):  # #4270 (X27)
                     ev["immediate"] = True
             elif kind == "LINK":
+                # #5053: the bytes the caller handed the LINK (the event's `area`, in the runtime page) are the sent
+                # COMMAREA's bytes -- a numeric DISPLAY field holding spaces too, which the DTO cannot carry
                 ev.update(target=e.get("target"), length=e.get("length"), resp=e.get("resp"), resp2=e.get("resp2"),
-                          commarea=_java_area(e.get("commarea"), src, shapes, e.get("length")))  # fmt: skip
+                          commarea=_with_answered_bytes(_java_area(e.get("commarea"), src, shapes, e.get("length")),
+                                                        e.get("area"), RUNTIME_PAGE,
+                                                        _answered_layout(e.get("commarea"), shapes)))  # fmt: skip
             elif kind == "XCTL":  # #4008: LENGTH, RESP, RESP2 (a whole-record DTO's LENGTH is not the log's)
                 length = e.get("length")
                 ca = _java_area(e.get("commarea"), src, shapes, length)
                 if length is None:
                     length = cc.Unmodelled("XCTL LENGTH of a whole-record COMMAREA") if ca is not None else 0
+                ca = _with_answered_bytes(
+                    ca, e.get("area"), RUNTIME_PAGE, _answered_layout(e.get("commarea"), shapes)
+                )  # #5053
                 ev.update(target=e.get("target"), commarea=ca, length=length, resp=e.get("resp"), resp2=e.get("resp2"))
             elif kind == "START":  # #4006: FROM data as base64, EBCDIC bytes; REQID only if the program named one
                 b64 = e.get("from")
@@ -1686,6 +1865,11 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
                 ev.update(reqid=e.get("reqid"), resp=e.get("resp"))
             elif kind == "RUN":  # #4270
                 ev.update({k: e[k] for k in ("transid", "resp", "resp2") if k in e})
+            elif kind == "WEB-RECEIVE":  # #4767 (X38): the body the task read; RESP2 where IBM documents it
+                ev.update(_web_receive_event(e.get("resp"), e.get("resp2"), e.get("body")))
+            elif kind == "WEB-SEND":  # #4767 (X37): the response the task sent
+                ev.update(_web_send_event(e.get("status"), e.get("statustext"), e.get("mediatype"),
+                                          str(e.get("body") or "").encode("latin-1"), e.get("resp"), e.get("resp2")))  # fmt: skip
             elif kind == "ABEND":  # #4003: cause, condition, outcome and the exit, as CicsTask records them
                 ev.update({k: e[k] for k in ("abcode", "cause", "condition", "outcome", "exit") if k in e})
             else:
@@ -1693,7 +1877,10 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
             task["events"].append(ev)
         tasks.append(task)
     final = {q: [bytes.fromhex(i) for i in items] for q, items in (raw.get("ts_queues") or {}).items()}
-    return {"tasks": tasks, "stopped": raw.get("stopped"), "final": {"ts_queues": final}}
+    sc = next((s for s in case.scenarios if s["id"] == raw.get("_scenario")), {}) if case is not None else {}
+    tasks = http_order(tasks)
+    return {"tasks": tasks, "stopped": raw.get("stopped"), "final": {"ts_queues": final},
+            **(http_peer_log(case, sc, tasks) if case is not None else {})}  # fmt: skip
 
 
 class JavaRunError(RuntimeError):
@@ -1745,6 +1932,47 @@ def run_java(case: cc.Case, project: Path, work: Path, offline: bool, facades: b
             braw["_scenario"] = sc["id"]
             byte_runs[sc["id"]] = java_actual(case, braw, src, screens)
     return result
+
+
+# ---- the async scheduler and channel hand-off (#4950, X18) --------------------------------------
+_EXEC_CICS = re.compile(r"\bEXEC\s+CICS\b(.*?)\bEND-EXEC\b", re.I | re.S)
+
+
+def async_refusals(source: str) -> list[str]:
+    """The async-CICS members of one program the runner does not model, by name (X18; empty when it uses none).
+
+    The runner runs a RUN TRANSID child as SPEC section 4 says (after its parent has ended) and has no CHILD or channel
+    event in the log (section 6.2), so a program whose result turns on the region's scheduler or on a channel handed
+    to a started or run task cannot be compared. A parent that never waits and RUNs a child is not listed."""
+    text = "\n".join(ln for ln in source.splitlines() if not (len(ln) > 6 and ln[6] in "*/"))
+    cmds = [" ".join(m.group(1).upper().split()) for m in _EXEC_CICS.finditer(text)]
+    out: list[str] = []
+
+    def has(cmd: str, *words: str) -> bool:
+        return any(c.split(" ")[0] == cmd and all(re.search(rf"\b{w}\b", c) for w in words) for c in cmds)
+
+    for verb in ("START", "RUN"):
+        if has(verb, "CHANNEL"):
+            out.append(f"scheduler: {verb} CHANNEL (the channel copy handed to the task is not modelled, X18)")
+    if has("FETCH"):
+        waits = any(c.startswith("FETCH ") and not re.search(r"\bNOSUSPEND\b", c) for c in cmds)
+        out.append("scheduler: " + ("a waiting FETCH (child dispatch at a wait" if waits else "FETCH NOSUSPEND (no child schedule")
+                   + " is not modelled, X18)")  # fmt: skip
+    if has("FREE", "CHILD"):
+        out.append("scheduler: FREE CHILD (no child schedule is modelled, X18)")
+    if has("RUN") and (has("DELAY") or any(c.startswith("FETCH ") for c in cmds)):
+        out.append(
+            "scheduler: a parent that waits (DELAY or FETCH) with a RUN child (dispatch at the wait is not modelled, X18)"
+        )
+    return list(dict.fromkeys(out))
+
+
+def case_async_refusals(case: cc.Case) -> list[str]:
+    """async_refusals over every COBOL source of the case."""
+    out: list[str] = []
+    for rel in case.data["sources"]["cobol"]:
+        out.extend(async_refusals((case.dir / rel).read_text(encoding="utf-8")))
+    return list(dict.fromkeys(out))
 
 
 # ---- the COBOL side ------------------------------------------------------------------------------
@@ -1945,6 +2173,18 @@ def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = N
             ev.update(_named(args, ("rtransid", "rtermid", "queue")))
         elif verb == "CANCEL":
             ev.update(reqid=arg("reqid"), resp=names.get(int(arg("resp") or 0), arg("resp")))
+        elif verb == "WEB-RECEIVE":  # #4767 (X38): LENGERR 16 returned nothing (no data)
+            ev.update(_web_receive_event(int(arg("resp") or 0), int(arg("resp2") or 0),
+                                         None if arg("resp2") == "16" else data.decode("latin-1")))  # fmt: skip
+        elif (
+            verb == "WEB-SEND"
+        ):  # #4767 (X37): the media type and status text in hex ('-': not given), the body in the blob
+
+            def hx(k: str) -> str | None:
+                return None if arg(k) in ("", "-") else bytes.fromhex(arg(k)).decode("latin-1")
+
+            ev.update(_web_send_event(int(arg("status")), hx("stext"), hx("media"), data, int(arg("resp") or 0),
+                                      int(arg("resp2") or 0)))  # fmt: skip
         elif verb == "RUN":  # #4270: RUN TRANSID; RESP2 where IBM documents it (not NORMAL)
             resp = names.get(int(arg("resp") or 0), arg("resp"))
             ev.update(
@@ -2126,6 +2366,128 @@ def _record(r: dict[str, Any]) -> dict[str, Any] | None:
     return rec if any(v is not None for v in rec.values()) else None
 
 
+# ---- #4767 zECS (X37, X38): an inbound HTTP request is a task ---------------------------------------------
+def _resp_name(code: Any) -> Any:
+    import equivalence_cics as ec
+
+    return {v: k for k, v in ec.DFHRESP.items() if k != "DSIDERR"}.get(code, code) if isinstance(code, int) else code
+
+
+def _web_receive_event(resp: Any, resp2: Any, body: str | None) -> dict[str, Any]:
+    """The WEB-RECEIVE event of SPEC 6.2 from what either side recorded: LENGTH is the bytes returned, `data` None when
+    LENGERR 16 returned nothing; RESP2 only where IBM documents it (a condition)."""
+    ev: dict[str, Any] = {"resp": _resp_name(resp), "length": None if body is None else len(body),
+                          "data": None if body is None else cc.RawArea(body.encode("latin-1"), "latin-1")}  # fmt: skip
+    if resp2:
+        ev["resp2"] = resp2
+    return ev
+
+
+def _web_send_event(status: Any, statustext: str | None, mediatype: str | None, body: bytes, resp: Any,
+                    resp2: Any) -> dict[str, Any]:  # fmt: skip
+    """The WEB-SEND event of SPEC 6.2 from what either side recorded (FROM's bytes in the stub's page)."""
+    ev: dict[str, Any] = {"status": status, "statustext": statustext, "mediatype": mediatype,
+                          "from": cc.RawArea(body, "latin-1"), "resp": _resp_name(resp)}  # fmt: skip
+    if resp2:
+        ev["resp2"] = resp2
+    return ev
+
+
+def server_urimap_matches(case: cc.Case, req: dict[str, Any]) -> list[str]:
+    """The installed `USAGE(SERVER)` URIMAPs an inbound request matches (SPEC section 2, HTTP peer; IBM, URIMAP resource
+    definitions): SCHEME the request's, HOST equal or the single `*`, PATH equal or ending in `*` as a prefix, STATUS
+    enabled. The names, in the CSD's order."""
+    out = []
+    for u in case.csd.get("server_urimaps") or []:
+        path = u["path"]
+        if (u["scheme"] == req["scheme"].upper() and u["status"] == "ENABLED" and u["host"] in ("*", req["host"])
+                and (req["path"] == path or (path.endswith("*") and req["path"].startswith(path[:-1])))):  # fmt: skip
+            out.append(u["name"])
+    return out
+
+
+def http_plan(case: cc.Case, sc: dict[str, Any]) -> tuple[list[dict[str, Any]], str | None]:
+    """The scenario's `requests` as the tasks they start: ([{index, at, transid, peer, request}] -- `request` the
+    stated request as both runtimes take it (equivalence_cics.http_request) --, why the scenario cannot run). A
+    request naming a peer the case does not state, or matching no or more than one server URIMAP, is a defined failure
+    (`http-peer`): the case is invalid."""
+    plan: list[dict[str, Any]] = []
+    peers = case.data.get("peers") or {}
+    for i, r in enumerate(sc.get("requests") or []):
+        if r.get("peer") not in peers:
+            return [], f"http-peer: request {i} names peer {r.get('peer')!r}, which the case does not state"
+        if (r.get("mediatype") is None) != (r.get("body") is None):
+            return [], f"http-peer: request {i} states a body without its media type (or the reverse)"
+        hits = server_urimap_matches(case, r)
+        if len(hits) != 1:
+            return (
+                [],
+                f"http-peer: request {i} matches {len(hits)} server URIMAPs ({', '.join(hits) or 'none'}), not one",
+            )
+        uri = next(u for u in case.csd["server_urimaps"] if u["name"] == hits[0])
+        transid = uri["transaction"]
+        if transid not in case.csd["transactions"]:
+            return [], f"http-peer: request {i}: URIMAP {hits[0]} names no installed transaction"
+        req = {"scheme": r["scheme"].upper(), "host": r["host"], "port": 80, "method": r["method"],
+               "version": "HTTP/1.1", "path": r["path"], "query": "", "headers": [],
+               "mediatype": r.get("mediatype"), "body": r.get("body")}  # fmt: skip
+        plan.append({"index": i, "at": r["at"], "transid": transid, "peer": r["peer"], "request": req})
+    return plan, None
+
+
+def http_order(tasks: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """An ACTION(EVENTUAL) WEB SEND is recorded after the task's other events (the stub and CicsTask send it as the task
+    ends); SPEC 6.2 logs the response where the command is issued, so an `http` task's WEB-SEND is moved ahead of the
+    RETURN it trails."""
+    for t in tasks:
+        evs = t["events"]
+        if (t.get("trigger") or {}).get("kind") == "http" and evs and evs[-1]["event"] == "WEB-SEND":
+            at = next((i for i, e in enumerate(evs) if e["event"] == "RETURN" and (e.get("level") or 1) == 1), None)
+            if at is not None:
+                evs.insert(at, evs.pop())
+    return tasks
+
+
+def http_peer_log(case: cc.Case, sc: dict[str, Any], tasks: list[dict[str, Any]]) -> dict[str, Any]:
+    """{"http_peer": why} when an `http` task's response is not the one its client peer states (SPEC section 2): each peer
+    states one response per request it sends, in order; the task must send exactly one `WEB-SEND`, equal to it in status,
+    media type and body. A response with no stated counterpart or a second response is the `http-peer` failure. {} when
+    every response is the peer's."""
+    peers = case.data.get("peers") or {}
+    seen: dict[str, int] = {}
+    for t in tasks:
+        trig = t.get("trigger") or {}
+        if trig.get("kind") != "http":
+            continue
+        i = trig["request"]
+        peer = sc["requests"][i]["peer"]
+        k = seen[peer] = seen.get(peer, -1) + 1
+        sent = [e for e in t["events"] if e["event"] == "WEB-SEND"]
+        where = f"request {i} (peer {peer})"
+        if len(sent) != 1:
+            return {"http_peer": f"{where}: the task sent {len(sent)} responses, SPEC allows exactly one"}
+        stated = peers[peer]["responses"]
+        if k >= len(stated):
+            return {"http_peer": f"{where}: the task answered, the peer states no response #{k + 1}"}
+        got = {"status": sent[0]["status"], "mediatype": sent[0]["mediatype"],
+               "body": sent[0]["from"].data.decode("latin-1")}  # fmt: skip
+        for key, want in stated[k].items():
+            if got.get(key) != want:
+                return {"http_peer": f"{where}: response {key} {got.get(key)!r}, the peer states {want!r}"}
+    return {}
+
+
+def step_commarea(step: dict[str, Any]) -> bytes | None:
+    """#4443: the COMMAREA a typed-transid step enters with (a direct entry into a program that is otherwise only
+    reached through a RETURN TRANSID): `commarea: {"hex": ..., "length": n}` is the first n bytes of the hex record,
+    so a short EIBCALEN needs no neighbour program passing one. None: the task starts with no COMMAREA."""
+    spec = step.get("commarea")
+    if spec is None:
+        return None
+    data = bytes.fromhex(spec["hex"])
+    return data[: spec.get("length", len(data))]
+
+
 def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[list[dict[str, Any]], str | None]:
     """The scheduler of SPEC section 4, for either side: (tasks in dispatch order, why it stopped early).
 
@@ -2148,6 +2510,13 @@ def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[lis
     immediate: dict[str, Any] | None = None  # #4270 (X27): a RETURN IMMEDIATE's task, attached before anything else
     now = clock
     steps = list(enumerate(sc["steps"]))
+    plan, why = http_plan(case, sc)  # #4767 (X37): the inbound HTTP requests, due like START requests
+    if why:
+        return tasks, why
+    for h in plan:
+        requests.append({"issue": h["index"] - 100000, "transid": h["transid"], "termid": None, "reqid": None,
+                         "expires": clock + datetime.timedelta(seconds=h["at"]), "data": None, "kind": "http",
+                         "task": None, "event": None, "http": h})  # fmt: skip
 
     def ended(task: dict[str, Any], at: datetime.datetime) -> None:
         nonlocal issued, pending, pending_ca, immediate
@@ -2213,6 +2582,10 @@ def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[lis
             frame = {"termid": first["termid"], "at": now.strftime("%Y-%m-%dT%H:%M:%S"),
                      "trigger": {"kind": first.get("kind", "start"), "task": first["task"], "event": first["event"]},
                      "eibaid": None, "startcode": "SD" if with_from == len(group) else "S" if not with_from else None}  # fmt: skip
+            if first.get("kind") == "http":  # #4767: the request's task: no terminal, no STARTCODE it states
+                frame["trigger"] = {"kind": "http", "request": first["http"]["index"]}
+                frame["startcode"] = None
+                frame["http_request"] = first["http"]["request"]
             run(frame, first["transid"], None, None, [_record(r) for r in group if _record(r) is not None], now)
             continue
         nxt = min((r["expires"] for r in requests), default=None)
@@ -2229,7 +2602,7 @@ def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[lis
                 words = (step.get("text") or "").split()
                 if not words:
                     return tasks, f"step {n}: no pending RETURN TRANSID and no transaction id typed"
-                transid, commarea = words[0], None
+                transid, commarea = words[0], step_commarea(step)
             run(task_frame(case, n, step), transid, commarea, step, [], now)
             continue
         if nxt is not None and until is not None and nxt < until:
@@ -2252,7 +2625,8 @@ def run_scenario(case: cc.Case, sc: dict[str, Any], box: "Container", work: Path
         )
 
     tasks, stopped = drive_scenario(case, sc, run_one)
-    return {"tasks": tasks, "stopped": stopped, "final": {"ts_queues": read_ts(work / ts)}}
+    return {"tasks": tasks, "stopped": stopped, "final": {"ts_queues": read_ts(work / ts)},
+            **http_peer_log(case, sc, tasks)}  # fmt: skip
 
 
 def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, transid: str, frame: dict[str, Any],
@@ -2264,7 +2638,8 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
     unexpired requests a CANCEL searches, the virtual clock), then the stub's events as the task's."""
     program = case.csd["transactions"].get(transid)
     startcode = frame.get("startcode")  # #4270 slice 3: ASSIGN STARTCODE (the scheduler's; not a log key)
-    frame = {k: v for k, v in frame.items() if k != "startcode"}
+    http_req = frame.get("http_request")  # #4767 (X37): the request an `http` task serves (not a log key)
+    frame = {k: v for k, v in frame.items() if k not in ("startcode", "http_request")}
     task: dict[str, Any] = {"transid": transid, "program": program, **frame, "eibcalen": len(commarea or b""),
                             "commarea": cc.RawArea(commarea, "latin-1") if commarea else None,
                             "events": [], "end": "normal"}  # fmt: skip
@@ -2302,6 +2677,10 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
             )
     if commarea:
         (d / "commarea.in").write_bytes(commarea)
+    if http_req is not None:
+        import equivalence_cics as ec
+
+        (d / "webreq.cfg").write_text(ec.http_request_cfg(http_req, RUNTIME_PAGE), encoding="ascii")
     step = step or {}
     if faults:  # #4049: the conditions the scenario plans for this task's TRANSID
         (d / "faults.cfg").write_text("".join(x + "\n" for x in faults), encoding="ascii")
@@ -2320,6 +2699,7 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
            f"GGCICS_DIR=/work/{rel} GGCICS_OUT=/work/{rel}/out EIBIN=/work/{rel}/eib.in "
            f"{'GGCICS_LU2=1 ' if terminal_device(case) == 'LUTYPE2' else ''}"  # #4413: EOC on RECEIVE
            f"GGCICS_URIMAPS=/work/{rel}/urimaps.cfg "  # #4270 zECS (X32)
+           f"{f'GGCICS_WEBREQ=/work/{rel}/webreq.cfg ' if http_req is not None else ''}"  # #4767 (X37)
            f"{f'GGCICS_DOCTEMPLATES=/work/{rel}/doctemplates.cfg ' if case.data.get('doctemplates') is not None else ''}"  # #4769 (X33)
            f"{f'GGCICS_UCTRANST={terminal_uctranst(case)} ' if terminal_uctranst(case) else ''}"  # #4415
            f"{f'GGCICS_ORIGIN={origin_env(case)} ' if origin_env(case) and (frame.get('trigger') or {}).get('kind') == 'terminal' else ''}"  # #4415 slice 2
@@ -2330,6 +2710,7 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
            f"GGCICS_TS=/work/{ts} GGCICS_NOW={frame['at']} COB_CURRENT_DATE='{when.strftime('%Y/%m/%d %H:%M:%S')}.00' ./bin/task "
            f"> /work/{rel}/stdout.txt 2>&1")  # fmt: skip
     task["events"] = _cobol_events(d / "out", program, screens)
+    http_order([task])
     if any((e["event"] == "ABEND" and e.get("outcome") == "terminated") or e["event"] == "DRIVER-ERROR"
            for e in task["events"]):  # fmt: skip
         task["end"] = "abend"
@@ -2482,6 +2863,12 @@ def measure_case(case: cc.Case, sides: set[str], work: Path, offline: bool,
             for sc in case.scenarios:
                 put(sc["id"], side, cc.not_run(why, []))
         return cells
+    async_why = case_async_refusals(case)
+    if async_why:  # #4950 (X18): the SPEC section 4 schedule is the only one the runner has; named, never compared
+        for side in sorted(sides - {"engine-facts", "forge-compile"}):
+            for sc in case.scenarios:
+                put(sc["id"], side, cc.not_run(async_why, []))
+        sides = sides & {"engine-facts", "forge-compile"}
     ctx = case_context(case)
     if "engine-facts" in sides:
         put("*", "engine-facts", engine_facts(case, work / "facts"))
@@ -2576,6 +2963,89 @@ def measure(crucible: Path, only: set[str] | None, sides: set[str], work: Path, 
         oracle = equivalence_oracle.checked()
     return {"crucible_ref": crucible_ref(crucible), "oracle": oracle, "cells": dict(sorted(cells.items())),
             "coverage": dict(sorted(coverage.items()))}  # fmt: skip
+
+
+# ---- shards (#5498) -----------------------------------------------------------------------------------
+# Seconds per case on a hosted runner (run 39142662150, 2026-10-18: 1215 s over 43 cases). Only the balance depends on
+# it: a case missing here weighs the median, so a new case never goes unmeasured, it may just skew a shard.
+CASE_SECONDS = {
+    "ca-address-commarea": 21, "ca-address-eib-commarea": 20, "ca-address-twa-tctua": 19, "ca-channel-containers": 22,
+    "ca-container-byteoffset": 21, "ca-container-ccsid": 20, "ca-get-container-set": 21, "ca-getmain-pointer": 21,
+    "ca-link-lengths": 50, "ca-receive-retrieve-set": 20, "ca-xctl-versions": 50, "gt-assign-startcode": 21,
+    "gt-http-inbound": 19, "gt-send-text-terminal": 21, "gt-start-options": 22, "gt-start-retrieve": 51,
+    "gt-terminal-coalesce": 49, "gt-urimap-browse": 21, "gt-web-parse-url": 21, "hc-abend-link": 49,
+    "hc-counter-increment-wrap": 21, "hc-counter-shared-namespace": 21, "hc-dcounters": 21, "hc-deedit-uctranst": 21,
+    "hc-eoc-error": 21, "hc-file-read-set": 20, "hc-file-unlock": 21, "hc-handle-aid": 21, "hc-ignore-error": 22,
+    "hc-inquire-deleteq": 22, "hc-map-not-in-mapset": 21, "hc-named-counters": 22, "hc-perform-range": 48,
+    "hc-readq-td": 21, "hc-resp-options": 21, "hc-terminal-eoc": 20, "hc-terminal-receive": 20, "hx-attr-bytes": 48,
+    "hx-extended-cursor": 49, "pc-aid-menu": 51, "pc-return-channel": 20, "pc-return-immediate": 51, "pc-wizard": 53,
+}  # fmt: skip
+DEFAULT_CASE_SECONDS = 21
+
+
+def parse_shard(text: str) -> tuple[int, int]:
+    """'i/N' -> (i, N), 1-based."""
+    try:
+        i, n = (int(x) for x in text.split("/"))
+    except ValueError:
+        raise SystemExit(f"--shard {text!r}: expected i/N, e.g. 2/4") from None
+    if not 1 <= i <= n:
+        raise SystemExit(f"--shard {text!r}: need 1 <= i <= N")
+    return i, n
+
+
+def shard_plan(case_ids: list[str], n: int) -> list[list[str]]:
+    """Partition the case ids into n shards, deterministically and balanced by CASE_SECONDS (heaviest first into the
+    lightest shard). Every id lands in exactly one shard; the plan depends only on the ids and the weights."""
+    bins: list[tuple[int, list[str]]] = [(0, []) for _ in range(n)]
+    for cid in sorted(case_ids, key=lambda c: (-CASE_SECONDS.get(c, DEFAULT_CASE_SECONDS), c)):
+        k = min(range(n), key=lambda j: (bins[j][0], len(bins[j][1]), j))
+        bins[k] = (bins[k][0] + CASE_SECONDS.get(cid, DEFAULT_CASE_SECONDS), bins[k][1] + [cid])
+    return [sorted(b[1]) for b in bins]
+
+
+def restrict(baseline: dict[str, Any], coverage: dict[str, Any], cases: set[str]) -> tuple[dict, dict]:
+    """The two ledgers cut to one shard's cases (cell ids are case/scenario/side, coverage keys case/program)."""
+    base = {**baseline, "cells": {k: v for k, v in baseline.get("cells", {}).items() if k.split("/")[0] in cases}}
+    cov = {**coverage, "programs": {k: v for k, v in coverage.get("programs", {}).items() if k.split("/")[0] in cases}}
+    return base, cov
+
+
+def merge_shards(parts: list[dict[str, Any]], all_cases: list[str]) -> tuple[dict[str, Any], list[str]]:
+    """(results, errors): the shards' results.json merged into one run. Errors: a shard missing or repeated, shards cut
+    for different N, a case in two shards, a case in none, a case a shard claims but did not measure."""
+    errors: list[str] = []
+    totals = {p["shard"]["total"] for p in parts if "shard" in p}
+    if len(totals) != 1 or any("shard" not in p for p in parts):
+        return {}, [f"SHARDS: results are not all from one sharded run (totals {sorted(totals)})"]
+    total = totals.pop()
+    seen = sorted(p["shard"]["index"] for p in parts)
+    if seen != list(range(1, total + 1)):
+        errors.append(f"SHARDS: have shards {seen}, need 1..{total}")
+    owner: dict[str, int] = {}
+    cells: dict[str, Any] = {}
+    coverage: dict[str, Any] = {}
+    for p in parts:
+        i = p["shard"]["index"]
+        measured = {cid.split("/")[0] for cid in p["cells"]}
+        for case in p["shard"]["cases"]:
+            if case in owner:
+                errors.append(f"SHARDS: case {case} is in shard {owner[case]} and shard {i}")
+            owner[case] = i
+            if case not in measured:
+                errors.append(f"SHARDS: case {case} is in shard {i} but has no cells in its results")
+        for case in sorted(measured - set(p["shard"]["cases"])):
+            errors.append(f"SHARDS: shard {i} measured {case}, which is not in its plan")
+        cells.update(p["cells"])
+        coverage.update(p.get("coverage", {}))
+    for case in sorted(set(all_cases) - set(owner)):
+        errors.append(f"SHARDS: case {case} is in no shard")
+    for case in sorted(set(owner) - set(all_cases)):
+        errors.append(f"SHARDS: shard plan names {case}, which is not under the crucible")
+    first = parts[0]
+    merged = {"crucible_ref": first.get("crucible_ref"), "oracle": first.get("oracle"),
+              "cells": dict(sorted(cells.items())), "coverage": dict(sorted(coverage.items()))}  # fmt: skip
+    return merged, errors
 
 
 # ---- the ratchet ------------------------------------------------------------------------------------
@@ -2994,6 +3464,45 @@ def write_proof(report_dir: Path, case: cc.Case, results: dict[str, Any], opts: 
 
 
 # ---- CLI ------------------------------------------------------------------------------------------------
+def hold_ratchets(
+    results: dict[str, Any], sides: set[str], custom: bool, complete: bool, cases: set[str] | None = None
+) -> int:
+    """--ci: print the ratchet errors, return the exit status. `cases` cuts both ledgers to one shard's cases."""
+    baseline, ledger = read_baseline(), read_coverage()
+    if cases is not None:
+        baseline, ledger = restrict(baseline, ledger, cases)
+    errors, notes = ratchet(results, baseline, complete)
+    if "cobol-stub" in sides and not custom:
+        errors += coverage_ratchet(results, ledger, complete)
+    for line in notes:
+        print(f"note: {line}")
+    for line in errors:
+        print(line)
+    if errors:
+        print(f"\n{len(errors)} ratchet error(s). If intended, run with --update-baseline and commit "
+              "tests/cics_crucible/baseline.json, tests/cics_crucible/coverage.json and "
+              "docs/language_status/cics_crucible.md.")  # fmt: skip
+    return 1 if errors else 0
+
+
+def merge_main(args: argparse.Namespace, crucible: Path) -> int:
+    """#5498: one run from its shards' --out dirs: the completeness check, the whole 710-cell report, the full ratchet."""
+    parts = [json.loads((d / "results.json").read_text(encoding="utf-8")) for d in args.merge]
+    results, errors = merge_shards(parts, [d.name for d in cc.discover(crucible)])
+    for line in errors:
+        print(line)
+    if errors:
+        return 1
+    n = Counter(c["status"] for c in results["cells"].values())
+    print(f"CICS crucible: {n['pass']} pass, {n['fail']} fail, {n['unsupported']} unsupported "
+          f"({len(results['cells'])} cells, {len(parts)} shards)")  # fmt: skip
+    if args.out:
+        args.out.mkdir(parents=True, exist_ok=True)
+        (args.out / "results.json").write_text(json.dumps(results, indent=1) + "\n", encoding="utf-8")
+        (args.out / "report.md").write_text(report_md(results), encoding="utf-8")
+    return hold_ratchets(results, set(cc.SIDES), False, True) if args.ci else 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument(
@@ -3008,6 +3517,10 @@ def main(argv: list[str] | None = None) -> int:
         "--ci", action="store_true", help="fail on a cell the baseline does not list, or a listed one that passes"
     )
     ap.add_argument("--update-baseline", action="store_true", help="write the baseline and the report from this run")
+    ap.add_argument("--shard", metavar="i/N", help="#5498: run only shard i of N (a balanced partition of the cases); "
+                    "--ci then holds the ledgers cut to those cases. Merge the shards' --out dirs with --merge")  # fmt: skip
+    ap.add_argument("--merge", type=Path, nargs="+", metavar="DIR", help="#5498: merge the --out dirs of every shard of "
+                    "one run, check each case ran in exactly one, and hold the whole ratchet (with --ci)")  # fmt: skip
     ap.add_argument("--ports", type=Path, help="java-ported: a directory of <KEY>/overlay port trees (port_runner's "
                     "ai_agent_jobs/ports) instead of the committed tests/cics_crucible/ports/<case>")  # fmt: skip
     ap.add_argument("--overlay", type=Path, action="append", default=[],
@@ -3028,6 +3541,8 @@ def main(argv: list[str] | None = None) -> int:
     if problem:
         print(problem, file=sys.stderr)
         return 2
+    if args.merge:
+        return merge_main(args, crucible)
     if args.derive_expected:
         work = (args.keep or Path(tempfile.mkdtemp(prefix="cics_crucible_derive_"))).resolve()
         for d in cc.discover(crucible, set(args.cases) if args.cases else None):
@@ -3051,9 +3566,22 @@ def main(argv: list[str] | None = None) -> int:
             "--ports / --overlay / --program / --report-dir prove one case's ports: give one --cases", file=sys.stderr
         )
         return 2
+    shard: dict[str, Any] | None = None
+    if args.shard:
+        if args.cases or args.update_baseline or custom or args.strengthened:
+            print("--shard cuts a whole run: not with --cases / --update-baseline / --ports / --overlay / --program "
+                  "/ --strengthened", file=sys.stderr)  # fmt: skip
+            return 2
+        index, total = parse_shard(args.shard)
+        plan = shard_plan([d.name for d in cc.discover(crucible)], total)
+        shard = {"index": index, "total": total, "cases": plan[index - 1]}
+        print(f"shard {index}/{total}: {len(shard['cases'])} cases: {' '.join(shard['cases'])}", flush=True)
+        args.cases = shard["cases"]
     work = args.keep or Path(tempfile.mkdtemp(prefix="cics_crucible_"))
     results = measure(crucible, set(args.cases) if args.cases else None, set(args.sides), work.resolve(), args.offline,
                       ported, args.strengthened)  # fmt: skip
+    if shard:
+        results["shard"] = shard
     n = Counter(c["status"] for c in results["cells"].values())
     print(f"CICS crucible: {n['pass']} pass, {n['fail']} fail, {n['unsupported']} unsupported "
           f"({len(results['cells'])} cells)")  # fmt: skip
@@ -3076,18 +3604,7 @@ def main(argv: list[str] | None = None) -> int:
               f"{len(coverage_of(results)['programs'])} programs; report: {REPORT.relative_to(REPO_ROOT)}")  # fmt: skip
         return 0
     if args.ci:
-        errors, notes = ratchet(results, read_baseline(), complete)
-        if "cobol-stub" in args.sides and not custom:
-            errors += coverage_ratchet(results, read_coverage(), complete)
-        for line in notes:
-            print(f"note: {line}")
-        for line in errors:
-            print(line)
-        if errors:
-            print(f"\n{len(errors)} ratchet error(s). If intended, run with --update-baseline and commit "
-                  "tests/cics_crucible/baseline.json, tests/cics_crucible/coverage.json and "
-                  "docs/language_status/cics_crucible.md.")  # fmt: skip
-        return 1 if errors else 0
+        return hold_ratchets(results, set(args.sides), custom, complete, set(shard["cases"]) if shard else None)
     return 0
 
 

@@ -79,13 +79,13 @@ jobs:
   # ============================================================
   # POST-GATE — one galaxyscope pass produces all 6 outputs; we route 3 of
   # them (SARIF -> Security tab, SBOM + self-scan DB -> artifacts, LLM brief
-  # -> committed doc) and let the rest live only in the ephemeral runner.
+  # -> the generated branch) and let the rest live only in the ephemeral runner.
   # --fail-on-malware stays on here too, as a safety net in case branch
   # protection is ever bypassed.
   #
   # Runs on a daily schedule (or manual dispatch), NOT per-push: the LLM brief
   # embeds a Timestamp/Scan Duration/Git Commit (llm_recorder.py) so it always
-  # produces a diff, its PR auto-merges, and that merge is itself a push --
+  # produced a diff, whose PR auto-merged, and that merge was itself a push --
   # a per-push trigger made this a treadmill (~21 brief commits/day; a
   # confirmed 13-commits-in-13-minutes runaway on 2026-07-25) that also
   # exhausted the mirrored Azure/Bitbucket free CI minutes. A daily brief is
@@ -98,8 +98,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     permissions:
-      contents: write
-      pull-requests: write   # NEW — required for create-pull-request to open the PR
+      contents: write  # push to the `generated` branch only
       security-events: write
     steps:
       - name: Checkout Repository          # unchanged
@@ -169,34 +168,12 @@ jobs:
           mkdir -p docs
           mv *_galaxy_llm.md docs/gitgalaxy_architecture_brief.md
 
-      - name: Open PR with Updated LLM Brief
-        id: llm-brief-pr
-        uses: squid-protocol/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # forked from peter-evans/create-pull-request v8.1.1
-        with:
-          token: ${{ secrets.AUTOMATION_PAT }}
-          commit-message: "docs: auto-update LLM architectural brief"
-          title: "docs: auto-update LLM architectural brief"
-          body: "Automated update from the latest GalaxyScope scan on `main`."
-          branch: auto/llm-architecture-brief
-          delete-branch: true
-          add-paths: docs/gitgalaxy_architecture_brief.md
-
-      # Nothing gates this PR today (branch protection requires 0
-      # reviews/checks), so without this it just sits mergeable-but-unmerged
-      # until a human notices. `gh pr merge --auto` alone is unreliable here:
-      # GitHub's enablePullRequestAutoMerge mutation *rejects* PRs that are
-      # already in "clean" (immediately mergeable) status with "Pull request
-      # is in clean status" -- and given 0 required checks, a fresh PR here
-      # reaches clean almost instantly, so whether --auto lands before or
-      # after that happens is a race (confirmed: PR #409 hit the rejection).
-      # Try a direct merge first (the expected path today); only fall back
-      # to --auto if that's rejected because something is still genuinely
-      # pending -- which is exactly the case --auto is for.
-      - name: Merge the LLM Brief PR
-        if: steps.llm-brief-pr.outputs.pull-request-number
-        env:
-          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+      # #4963: published to the `generated` branch (tests/tools/generated_branch.py), not committed to main through an
+      # auto-merged PR. The brief carries no per-scan field, so a scan of an unchanged architecture commits nothing.
+      # Agents read it with `python tests/tools/generated_branch.py show docs/gitgalaxy_architecture_brief.md`.
+      - name: Publish the LLM Brief to the generated branch
+        if: github.ref == 'refs/heads/main'
         run: |
-          PR="${{ steps.llm-brief-pr.outputs.pull-request-number }}"
-          gh pr merge --squash "$PR" --repo ${{ github.repository }} || \
-            gh pr merge --squash --auto "$PR" --repo ${{ github.repository }}
+          python tests/tools/generated_branch.py publish --stamp architecture-brief \
+            --message "architecture brief as of main $GITHUB_SHA" \
+            docs/gitgalaxy_architecture_brief.md

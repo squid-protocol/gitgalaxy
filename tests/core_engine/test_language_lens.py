@@ -214,6 +214,31 @@ def test_prose_and_metadata_anchors(isolated_detector):
     assert result["lock_tier"] == 1
 
 
+PROSE_NOTE = (
+    "\nREADME - DOOM assembly code\n\nOkay, I add the DOS assembly module for the historically\n"
+    "inclined here. If anyone feels the urge to port these, be my guest.\n\n"
+    "Module tmap.S includes the inner loops for texture mapping,\nthe interesting one being the floor span.\n"
+    "It contained implementations both for i386 and M68k.\n"
+    "For brevity, I include only the i386 fixed point stuff below.\n"
+)
+
+
+@pytest.mark.parametrize("name", ["README.asm", "NOTES.c", "READ.ME.py", "docs/README.sh"])
+def test_prose_note_with_code_extension_is_prose(isolated_detector, name):
+    """#5466: a README.<code-ext> that opens as prose is not classified by its extension."""
+    isolated_detector.PROSE_ANCHORS = {"README", "NOTES"}
+    content = PROSE_NOTE + "\n\t.text\n_R_DrawSpan:\n\tpushad\n"
+    result = isolated_detector.inspect(file_path=name, content_sample=content)
+    assert result["lang_id"] in ("markdown", "plaintext")
+
+
+def test_readme_that_is_code_keeps_its_extension(isolated_detector):
+    """#5466: the shield still holds for a README.py that is code."""
+    code = "import os\n\ndef main():\n    return os.getcwd()\n\nmain()\n"
+    result = isolated_detector.inspect(file_path="README.py", content_sample=code)
+    assert result["lang_id"] == "python"
+
+
 # ==============================================================================
 # TEST 9: Hardware Failure & OS Exceptions
 # ==============================================================================

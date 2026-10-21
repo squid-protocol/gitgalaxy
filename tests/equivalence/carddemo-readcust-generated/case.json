@@ -1,0 +1,34 @@
+{
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "CBCUS01C",
+ "program_source": "app/cbl/CBCUS01C.cbl",
+ "copy_dirs": [
+  "app/cpy"
+ ],
+ "port_from": "carddemo-readcust",
+ "job": "READCUST",
+ "step": "STEP05",
+ "parm": null,
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {
+  "CUSTFILE": {
+   "input": "@generate",
+   "organization": "indexed",
+   "reclen": 500,
+   "keys": [
+    {
+     "offset": 0,
+     "length": 9
+    }
+   ],
+   "entity": "CustomerRecord",
+   "generate": {
+    "copybook": "app/cpy/CVCUS01Y.cpy",
+    "record": "CUSTOMER-RECORD",
+    "records": 30,
+    "seed": 3804
+   }
+  }
+ },
+ "notes": "CBCUS01C on GENERATED inputs (#3804): the input file is built from the CVCUS01Y record layout (edge values first, unique keys in key order) instead of CardDemo's data file, proving the carddemo-readcust port on records it was not written against. CBCUS01C reads the customer master and DISPLAYs each record; its FD declares the record inline (two items), so the layout is the copybook it reads INTO. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+}

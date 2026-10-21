@@ -24,7 +24,6 @@ from .._shared_patterns import (
     JS_LLM_API,
     JS_LLM_ORCHESTRATOR,
     JS_LLM_VECTOR_STORE,
-    JS_ML_TRADITIONAL,
 )
 
 DEFINITION: dict[str, Any] = {
@@ -377,7 +376,7 @@ DEFINITION: dict[str, Any] = {
         "llm_api": JS_LLM_API,
         "llm_orchestrator": JS_LLM_ORCHESTRATOR,
         "llm_vector_store": JS_LLM_VECTOR_STORE,
-        "ml_traditional": JS_ML_TRADITIONAL,
+        "ml_traditional": None,  # stated absence: no js/ts scikit-learn (#4251)
         "dl_frameworks": JS_DL_FRAMEWORKS,
         # 24. import (Dependency Inclusions)
         "import": re.compile(

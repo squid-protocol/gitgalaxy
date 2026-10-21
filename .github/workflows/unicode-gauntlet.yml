@@ -71,7 +71,7 @@ jobs:
         run: |
           python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
           pip install --require-hashes -r gitgalaxy/ci/requirements/engines.txt
-          pip install -e ./gitgalaxy
+          pip install --no-build-isolation -e ./gitgalaxy
 
       - name: Run the gauntlet against its baseline
         env:

@@ -270,6 +270,9 @@
       "typescript/playwright/dispatcher.ts": "8 instances",
       "typescript/playwright/frames.ts": "47 instances"
     },
+    "typescript/typescript_compiler": {
+      "typescript/typescript_compiler/checker.ts": "2 instances"
+    },
     "typescript/vscode": {
       "typescript/vscode/async.ts": "84 instances",
       "typescript/vscode/codeEditorWidget.ts": "1 instances",

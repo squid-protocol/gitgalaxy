@@ -4,11 +4,16 @@ real detector (PRISM code stream -> splice -> extract_wrapper_facts), so the
 spans, branch counts and `calls_out_to` are the engine's own.
 """
 
+import re
+
+import pytest
+
 from gitgalaxy.core.detector import StructuralExtractor
 from gitgalaxy.core.prism import Prism
-from gitgalaxy.core.wrapper_extractor import extract_wrapper_facts, is_method_definition
+from gitgalaxy.core.wrapper_extractor import _standalone_spans, extract_wrapper_facts, is_method_definition
 from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE
 
 
 def _facts(lang, source):
@@ -144,3 +149,63 @@ def test_a_qualified_method_call_is_not_a_callee():
     src = "function addAntecedent(arr, x) {\n  arr.push(x);\n  helper(x);\n}\n"
     cand = _cands(_facts("javascript", src))["addAntecedent"]
     assert cand["callees"] == ["helper"]
+
+
+@pytest.mark.parametrize(
+    ("text", "name"),
+    [
+        ("foo(foo) foo_bar xfoo foo$ foo", "foo"),  # ASCII neighbours, `$` and `_` continue a name
+        ("foo", "foo"),  # the name is the whole text
+        ("foofoo foo", "foo"),  # overlapping candidates: only the standalone one
+        ("fo foo", "foo"),
+        ("a" + chr(0x0301) + "b b" + chr(0x0301), "b"),  # a combining mark continues a name (UAX #31)
+        ("b" + chr(0x1D7D8) + " b", "b"),  # an astral digit continues a name
+        ("", "foo"),
+    ],
+)
+def test_standalone_spans_match_the_per_name_regex(text, name):
+    """The str.find scan is the lookaround regex it replaced, name by name (#5531)."""
+    pat = re.compile("(?<![" + ID_CONTINUE + "$])" + re.escape(name) + "(?![" + ID_CONTINUE + "$])")
+    assert _standalone_spans(text, name) == [m.span() for m in pat.finditer(text)]
+
+
+def test_pattern_compiles_do_not_grow_with_the_function_count(monkeypatch):
+    """Each function used to compile two ID_CONTINUE patterns (15 s for 3,900 C functions, over the 60 s fuse on a
+    loaded runner): the big-class compiles for 1,000 more functions must stay near zero. (Small per-name patterns
+    elsewhere, e.g. the detector's `_name_boundary_pattern`, are cheap and not counted.)"""
+    compiles = []
+    real = re._compiler.compile
+    monkeypatch.setattr(
+        re._compiler, "compile", lambda *a, **k: (len(str(a[0])) > 1000 and compiles.append(a[0])) or real(*a, **k)
+    )
+
+    def run(n):
+        src = "".join(f"static int fn_{i}(int a)\n{{\n    return g(a + {i});\n}}\n\n" for i in range(n))
+        assert len(_facts("c", src + "int g(int a) { return a; }\n")["defined"]) == n + 1
+        return len(compiles)
+
+    run(50)  # warm: the detector's own lazy patterns
+    base = len(compiles)
+    assert run(1050) - base < 100
+
+
+def test_no_core_function_builds_a_per_name_unicode_class_pattern():
+    """A pattern built per call from `re.escape(name)` plus the huge ID_CONTINUE / ID_START class overflows re's
+    512-entry cache; compile once at module level and match with `str.find` (#5531)."""
+    import ast
+    from pathlib import Path
+
+    core = Path(__file__).resolve().parents[2] / "gitgalaxy" / "core"
+    offenders = []
+    for path in sorted(core.glob("*.py")):
+        for func in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+            if not isinstance(func, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            names = {n.id for n in ast.walk(func) if isinstance(n, ast.Name)}
+            escapes = any(
+                isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and n.func.attr == "escape"
+                for n in ast.walk(func)
+            )
+            if escapes and names & {"ID_CONTINUE", "ID_START"}:
+                offenders.append(f"{path.name}:{func.name}")
+    assert not offenders, offenders

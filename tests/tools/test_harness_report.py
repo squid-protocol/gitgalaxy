@@ -5,6 +5,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness_report as hr
 import proof_blockers as pb
@@ -118,3 +120,160 @@ def test_empty_estate_and_write(tmp_path):
     paths = hr.write_report(proof(cases, *rest), tmp_path / "out", "est", cases)
     assert json.loads(paths["json"].read_text())["schema_version"] == hr.SCHEMA_VERSION
     assert "## Blockers (highest value first)" in paths["md"].read_text()
+
+
+def layout_case(tmp_path, copybooks):
+    """A case whose generated datasets read `copybooks` ({name: text}) from a fixture corpus."""
+    corpora = tmp_path / "corpora"
+    ds = {}
+    for name, text in copybooks.items():
+        tpb.write(corpora / "estate" / f"{name}.cpy", text)
+        ds[name.upper()] = {"input": "@generate", "reclen": 20,
+                            "generate": {"copybook": f"{name}.cpy", "record": "REC", "records": 3}}  # fmt: skip
+    return corpora, {"corpus": "estate", "datasets": ds}
+
+
+def cpy(*lines):
+    return "\n".join(f"       {ln}" for ln in lines) + "\n"
+
+
+def test_record_layout_limits_each_land_under_one_cause(tmp_path):
+    corpora, case = layout_case(tmp_path, {
+        "ok": cpy("01 REC.", "   05 A PIC X(5)."),
+        "redef": cpy("01 REC.", "   05 T PIC X.", "      88 T-A VALUE 'A'.", "   05 A.", "      10 X1 PIC X(4).",
+                     "   05 B REDEFINES A.", "      10 N1 PIC 9(4)."),
+        "ren": cpy("01 REC.", "   05 A PIC X(5).", "   05 C PIC X(2).", "   66 AC RENAMES A THRU C."),
+        "syn": cpy("01 REC.", "   05 A PIC S9(4) COMP SYNC."),
+        "cop": cpy("01 REC.", "   COPY NOWHERE.", "   05 A PIC X."),
+    })  # fmt: skip
+    got = {dd: hr.record_cause([corpora], case, dd) for dd in case["datasets"]}
+    assert got == {"OK": "", "REDEF": "redefines", "REN": "renames", "SYN": "sync", "COP": "unresolved copy"}
+    assert hr.record_limit([corpora], case, "REDEF") == ("redefines", "A -> B (selector T)")
+    assert hr.record_cause([], case, "OK") == "not read"  # no corpus: stated, not an error
+
+
+def test_redefines_only_when_another_field_chooses(tmp_path):
+    corpora, case = layout_case(tmp_path, {
+        "view": cpy("01 REC.", "   05 A PIC X(8).", "   05 B REDEFINES A PIC 9(8)."),
+        "filler": cpy("01 REC.", "   05 A PIC X(8).", "   05 FILLER REDEFINES A PIC X(8)."),
+        "two": cpy("01 REC.", "   05 KIND PIC X(2).", "   05 A PIC X(4).", "   05 B REDEFINES A PIC 9(4).",
+                   "   05 C REDEFINES A PIC S9(4) COMP."),
+        "code": cpy("01 REC.", "   05 REC-CODE PIC X(2).", "   05 A.", "      10 X1 PIC X(4).",
+                    "   05 B REDEFINES A.", "      10 N1 PIC 9(4)."),
+        "none": cpy("01 REC.", "   05 A.", "      10 X1 PIC X(4).", "   05 B REDEFINES A.", "      10 N1 PIC 9(4)."),
+    })  # fmt: skip
+    got = {dd: hr.record_limit([corpora], case, dd) for dd in case["datasets"]}
+    assert got["VIEW"] == got["FILLER"] == ("", "")  # the first alternative already holds a same-bytes view
+    assert got["TWO"] == ("redefines", "A -> B/C (selector KIND)")
+    assert got["CODE"] == ("redefines", "A -> B (selector REC-CODE)")
+    assert got["NONE"] == ("redefines", "A -> B (selector not found)")
+    ruled = {"corpus": "estate", "datasets": {"CODE": {"input": "@generate", "generate": {
+        "copybook": "code.cpy", "record": "REC", "records": 1, "fields": {"REC-CODE": {"values": ["AA"]}}}}}}  # fmt: skip
+    assert hr.record_cause([corpora], ruled, "CODE") == ""  # stated rules have chosen what to fill
+
+
+def test_redefines_symbols_reach_the_page(tmp_path):
+    cases, *rest = fixture(tmp_path)
+    corpora, lc = layout_case(tmp_path / "l", {"r": cpy("01 REC.", "   05 T PIC X.", "   88 T-A VALUE 'A'.",
+                                                        "   05 A.", "      10 X1 PIC X.", "   05 B REDEFINES A.",
+                                                        "      10 N1 PIC 9.")})  # fmt: skip
+    f = cases / "c-known" / "case.json"
+    f.write_text(json.dumps(json.loads(f.read_text()) | lc))
+    rep = hr.build(proof(cases, *rest), "x", cases, [corpora])
+    assert rep["inputs"]["c-known"]["records"][0]["symbols"] == "A -> B (selector T)"
+    blocker = next(b for b in rep["input_blockers"] if b["cause"] == "redefines")
+    assert "A -> B (selector T)" in blocker["items"][0]
+    assert "A -> B (selector T)" in hr.markdown(rep)
+
+
+def test_input_blockers_are_stated_as_fixes_and_sorted(tmp_path):
+    cases, *rest = fixture(tmp_path)
+    corpora, lc = layout_case(tmp_path / "l", {"ren": cpy("01 REC.", "   05 A PIC X.", "   66 R RENAMES A.")})
+    lc["mq"] = {}
+    lc["datasets"]["REN"]["record_format"] = "VB"
+    f = cases / "c-known" / "case.json"
+    f.write_text(json.dumps(json.loads(f.read_text()) | lc))
+    rep = hr.build(proof(cases, *rest), "x", cases, [corpora])
+    kinds = {b["cause"]: b for b in rep["input_blockers"]}
+    assert set(kinds) == {"renames", "mq", "recfm v", "db2"}  # (c-db2 of the fixture is a Db2 case)
+    assert kinds["renames"]["cases"] == ["c-known"] and kinds["renames"]["tests_held"] == 4
+    assert "RENAMES" in kinds["renames"]["fix"] and "(#4266)" in kinds["renames"]["fix"]
+    assert [b["tests_held"] for b in rep["input_blockers"]] == sorted(
+        (b["tests_held"] for b in rep["input_blockers"]), reverse=True
+    )
+    assert rep["inputs"]["c-known"]["records"][0]["cause"] == "renames"
+    assert "### Input-generation blockers" in hr.markdown(rep)
+
+
+def test_input_keys_only_when_something_limits_an_input(tmp_path):
+    cases, *rest = fixture(tmp_path)
+    rep = hr.build(proof(cases, *rest), "x", cases)
+    assert [b["cause"] for b in rep["input_blockers"]] == ["db2"]  # the fixture's only limited input
+    assert all("records" not in i for i in rep["inputs"].values())
+    assert hr.build({"programs": [], "gaps": []}, "none", tmp_path).get("input_blockers") is None
+
+
+# ---- #4493 issue classes 1 and 3: unclassified because no burned program needs them ------------------------------
+EQUIVALENCE = Path(__file__).resolve().parents[1] / "equivalence"
+STATED_RULES = {"values", "every", "from", "miss", "digits", "date"}
+
+
+def generated_datasets():
+    for f in sorted(EQUIVALENCE.glob("*/case.json")):
+        case = json.loads(f.read_text(encoding="utf-8"))
+        for dd, spec in (case.get("datasets") or {}).items():
+            if spec.get("input") == "@generate":
+                yield f.parent.name, case, dd, spec
+
+
+def test_burned_generated_rules_are_stated_single_field_joins():
+    """Class 3: no case needs a rule across records (a sum, a transition); `from` joins one field of one dataset."""
+    seen = 0
+    for name, _case, dd, spec in generated_datasets():
+        for field, rule in ((spec.get("generate") or {}).get("fields") or {}).items():
+            seen += 1
+            assert set(rule) <= STATED_RULES, f"{name}/{dd}.{field}: a rule beyond the stated ones: {sorted(rule)}"
+            if "from" in rule:
+                assert isinstance(rule["from"], str) and rule["from"].count(".") >= 1, (name, dd, field)
+    assert seen  # the committed cases do state rules
+
+
+def test_burned_generated_inputs_need_no_class_1_or_3_cause():
+    """Class 1: no burned generated record repeats a field name (a qualified name would be needed to tell them apart).
+    Needs the corpora checkout; without it there is nothing to read."""
+    import os
+
+    import equivalence_common as common
+
+    roots = [Path(p) for p in os.environ.get("GITGALAXY_MAINFRAME_CORPORA", "").split(os.pathsep) if p]
+    checked = 0
+    for name, case, dd, spec in generated_datasets():
+        base = next((r / case.get("corpus", "") for r in roots if (r / case.get("corpus", "")).is_dir()), None)
+        gen = spec.get("generate") or {}
+        cpy = gen.get("copybook") or spec.get("copybook", "")
+        if base is None or not (base / cpy).is_file():
+            continue
+        fields = common.layout_fields(base, cpy, gen.get("record") or spec.get("record") or None)
+        names = [f["name"] for f in fields if not f["name"].startswith("FILLER")]
+        dup = sorted({n for n in names if names.count(n) > 1})
+        assert not dup, f"{name}/{dd}: qualified names needed for {dup}: add a cause to record_cause / FIX_LAYOUT"
+        checked += 1
+    if not checked:
+        pytest.skip("no burned corpus checkout")
+
+
+def test_burned_generated_records_have_no_redefines_chosen_by_a_field():
+    """No burned `@generate` record carries a chosen REDEFINES (checked 2026-10-18); when one does, state its `fields`
+    rules or accept the "redefines" blocker. Needs the corpora checkout."""
+    import os
+
+    roots = [Path(p) for p in os.environ.get("GITGALAXY_MAINFRAME_CORPORA", "").split(os.pathsep) if p]
+    checked = 0
+    for name, case, dd, _spec in generated_datasets():
+        cause, symbols = hr.record_limit(roots, case, dd)
+        if cause == "not read":
+            continue
+        assert cause != "redefines", f"{name}/{dd}: {symbols}"
+        checked += 1
+    if not checked:
+        pytest.skip("no burned corpus checkout")

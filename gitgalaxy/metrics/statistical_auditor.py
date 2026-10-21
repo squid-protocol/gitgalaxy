@@ -51,6 +51,8 @@ class StatisticalAuditor:
     the same fix; see the note in `audit()`.
     """
 
+    _ANCHORED_CONFIG_LANGS = frozenset({"yaml", "json", "toml", "ini"})
+
     def __init__(
         self,
         parent_logger: logging.Logger | None = None,
@@ -133,6 +135,23 @@ class StatisticalAuditor:
         physical = max(artifact.get("total_loc", coding), 1)
         avg_line = artifact.get("size_bytes", 0) / physical
         return imports >= self.MANIFEST_IMPORT_SHARE * coding and avg_line <= self.MANIFEST_MAX_AVG_LINE
+
+    # #5460: a hand-written file with named functions beside a big constant table (Helion
+    # `EntityFlags.cs`, gzdoom `gl_load.c`) scores > 3 hits/line like a payload does. A payload
+    # is few, long lines; source with real definitions at an ordinary line width is not.
+    DEFINITION_MIN_FUNCTIONS = 1
+    DEFINITION_MAX_AVG_LINE = 120
+
+    def _has_named_definitions(self, artifact: dict[str, Any]) -> bool:
+        named = [u for u in artifact.get("functions", []) if not u.get("calls_only")]
+        if len(named) < self.DEFINITION_MIN_FUNCTIONS:
+            return False
+        return self._is_ordinary_width(artifact)
+
+    def _is_ordinary_width(self, artifact: dict[str, Any]) -> bool:
+        coding = max(artifact.get("coding_loc", 0), 1)
+        physical = max(artifact.get("total_loc", coding), 1)
+        return artifact.get("size_bytes", 0) / physical <= self.DEFINITION_MAX_AVG_LINE
 
     def audit(self, parsed_files: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
         """Executes statistical gating to identify data-dumps and structural outliers."""
@@ -484,8 +503,14 @@ class StatisticalAuditor:
                     include_langs.get(lid) and artifact.get("telemetry", {}).get("popularity", 0) > 0
                 )
 
+                # #5467: a Tier 0/1 anchor on a config format (`.clang-format`, `.eslintrc`) or a
+                # header claimed by its sibling source file is right about the file, and
+                # such files carry no logic signals by design. Only the "too sparse" test is waived.
+                anchored_sibling = lock_tier <= 1 and str(source_proof).startswith("Sibling Anchor")
+                anchored_data = anchored_sibling or (lock_tier <= 1 and lid in self._ANCHORED_CONFIG_LANGS)
+
                 # ZERO-DENSITY THRESHOLD: Hard Floor check for data dumps disguised as code
-                if included_member and rho <= 3.0:
+                if (included_member or anchored_data) and rho <= 3.0:
                     pass
                 elif loc > 50 and rho == 0 and not is_minified:
                     is_outlier = True
@@ -495,7 +520,16 @@ class StatisticalAuditor:
                 # Normal human code rarely sustains > 1.5 logic hits per physical line.
                 # If a file sustains > 3.0 across 30+ lines, it is mathematically guaranteed
                 # to be minified, obfuscated, or packed with embedded binaries.
-                elif loc > 30 and rho > 3.0 and not is_minified and not self._is_import_manifest(artifact):
+                elif (
+                    loc > 30
+                    and rho > 3.0
+                    and not is_minified
+                    and not self._is_import_manifest(artifact)
+                    and not self._has_named_definitions(artifact)
+                    # #5467: a header its sibling source file claims (edge-classic `rad_act.h`, a
+                    # page of prototypes) is dense by design; only long packed lines make it a payload.
+                    and not (anchored_sibling and self._is_ordinary_width(artifact))
+                ):
                     is_outlier = True
                     relegation_reason = f"Packed Payload Guard (Impossible Density: {rho:.2f} hits/line)"
 

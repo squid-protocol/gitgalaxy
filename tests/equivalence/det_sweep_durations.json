@@ -64,6 +64,7 @@
   "cbsa-getcompy": 14,
   "cbsa-getscode": 16,
   "cbsa-inqacc": 31,
+  "cbsa-inqacc-generated": 35,
   "cbsa-inqacccu": 32,
   "cbsa-inqcust": 15,
   "cbsa-updacc": 27,

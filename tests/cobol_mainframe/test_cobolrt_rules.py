@@ -199,8 +199,39 @@ def test_each_field_rule(rt, edit, expect):
 def test_a_rule_not_matched_may_name_why_ibm_is_silent(rt):
     cat = _cat()
     cat["rules"][0].update(ibm=None, ibm_note="IBM documents no result", status="DIFFERS")
-    cat["rules"][1].update(calibration="z/OS-measured", evidence="tests/equivalence/zos/demo.json")
+    cat["rules"][1].update(
+        calibration="z/OS-measured", evidence="tests/equivalence/zos/demo.json", calibrated_under=_under()
+    )
     assert _probs(cat, rt) == []
+
+
+def _under():
+    from gitgalaxy.core.runtime_options import RUNTIME_OPTION_TABLE  # noqa: PLC0415
+
+    return {k: r["default"] for k, r in RUNTIME_OPTION_TABLE.items() if r["policy"]}
+
+
+@pytest.mark.parametrize(
+    ("edit", "expect"),
+    [
+        (lambda u: u.clear(), "calibrated_under is a non-empty"),
+        (lambda u: u.pop("le.runtime_options.TRAP"), "le.runtime_options.TRAP: judged by the table"),
+        (lambda u: u.update({"le.runtime_options.TRAP": "OFF"}), "TRAP=OFF: measured under a value the harness cannot"),
+        (lambda u: u.update({"le.runtime_options.NEWOPT": "X"}), "NEWOPT: no row in the runtime option table"),
+    ],
+)
+def test_a_measurement_names_the_options_it_held_under(rt, edit, expect):
+    cat = _cat()
+    under = _under()
+    edit(under)
+    cat["rules"][1].update(calibration="z/OS-measured", evidence="e.json", calibrated_under=under)
+    _has(_probs(cat, rt), expect)
+
+
+def test_a_measurement_with_no_options_fails(rt):
+    cat = _cat()
+    cat["rules"][1].update(calibration="z/OS-measured", evidence="e.json")
+    _has(_probs(cat, rt), "RT-DEMO-TEXT: calibrated_under is a non-empty")
 
 
 def test_mark_writes_the_missing_markers_and_changes_no_code(rt):
@@ -324,3 +355,16 @@ def test_compare_a_comment_in_the_ports_own_code_still_counts(tmp_path):
     _port(tmp_path / "a", "c1", {"service/S.java": "class S {}"})
     _port(tmp_path / "b", "c1", {"service/S.java": "class S {} // a translator comment is output"})
     assert det_port.compare(tmp_path / "a", tmp_path / "b")[0]["status"] == "changed"
+
+
+@pytest.mark.parametrize("features", [[], ["MOVE"], [3]])
+def test_a_features_key_is_a_non_empty_list_of_category_key_strings(rt, features):
+    cat = _cat()
+    cat["rules"][0]["features"] = features
+    assert any("features is a non-empty list" in p for p in _probs(cat, rt))
+
+
+def test_a_keyed_rule_passes_the_check(rt):
+    cat = _cat()
+    cat["rules"][0]["features"] = ["statements: MOVE"]
+    assert _probs(cat, rt) == []

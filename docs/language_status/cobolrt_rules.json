@@ -32,6 +32,9 @@
   "le-pr": {
    "title": "IBM z/OS Language Environment Programming Reference"
   },
+  "carddemo-mvswait": {
+   "title": "CardDemo app/asm/MVSWAIT.asm -- the estate's own assembler routine (no IBM manual applies; the source is the reference)"
+  },
   "carddemo-cobdatft": {
    "title": "CardDemo app/asm/COBDATFT.asm -- the estate's own assembler routine (no IBM manual applies; the source is the reference)"
   },
@@ -212,16 +215,18 @@
     "le/Ceedatm.java",
     "le/Ceedays.java",
     "le/Ceegmt.java",
+    "le/Ceegmto.java",
     "le/Ceeisec.java",
     "le/Ceeloct.java",
     "le/Ceeqcen.java",
     "le/Ceesecs.java",
     "le/Ceeutc.java",
     "le/Cobdatft.java",
-    "le/LeTime.java"
+    "le/LeTime.java",
+    "le/Mvswait.java"
    ],
    "done": true,
-   "about": "The date / time services and COBDATFT, as the harness's C models do them.",
+   "about": "The date / time services, COBDATFT and MVSWAIT, as the harness's C models do them.",
    "plumbing": []
   },
   {
@@ -247,7 +252,12 @@
     "descends",
     "descendsType",
     "lastInSubtree",
-    "ancestorOfType"
+    "ancestorOfType",
+    "initMask",
+    "area",
+    "ssa",
+    "execPcb",
+    "execCall"
    ]
   },
   {
@@ -567,6 +577,9 @@
    "ibm": null,
    "ibm_note": "IBM documents no result for non-digit data in a numeric item; the oracle's (GnuCOBOL 3.1.2) rule is modelled (cobc compiles the MOVE as a memcpy)",
    "options": [],
+   "features": [
+    "statements: MOVE"
+   ],
    "register": [
     "C11"
    ],
@@ -593,6 +606,9 @@
    },
    "options": [
     "DECIMAL-POINT-COMMA"
+   ],
+   "features": [
+    "statements: MOVE"
    ],
    "register": [],
    "status": "MATCHED",
@@ -661,6 +677,9 @@
     "section": "Conversions and precision"
    },
    "options": [],
+   "features": [
+    "statements: MOVE"
+   ],
    "register": [
     "C6"
    ],
@@ -701,6 +720,9 @@
    "options": [
     "QUOTE"
    ],
+   "features": [
+    "statements: MOVE"
+   ],
    "register": [
     "C6"
    ],
@@ -719,6 +741,9 @@
     "section": "Figurative constants: ALL literal"
    },
    "options": [],
+   "features": [
+    "statements: MOVE"
+   ],
    "register": [],
    "status": "MATCHED",
    "calibration": "uncalibrated"
@@ -738,7 +763,7 @@
    },
    "options": [],
    "register": [],
-   "status": "ASSUMED",
+   "status": "MATCHED",
    "calibration": "uncalibrated"
   },
   {
@@ -817,14 +842,23 @@
   {
    "id": "RT-CBL-RECEIVER-NONDIGIT-REFUSED",
    "family": "CBL",
-   "title": "The receiver of ADD / SUBTRACT / MULTIPLY / DIVIDE is read before it stores: a zoned receiver holding a non-digit is refused by name",
+   "title": "The receiver of ADD / SUBTRACT / MULTIPLY / DIVIDE, the PERFORM VARYING variable and the SET UP / DOWN BY target are read before it stores: a zoned receiver holding a non-digit is refused by name",
    "methods": [
     "receiverNum"
    ],
-   "ibm": null,
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "ZONEDATA (replaced by INVDATA in 6.4)"
+   },
    "ibm_note": "IBM documents no result (ZONEDATA(PFD) assumes valid zone bits; ZONEDATA(NOPFD|MIG) corrects them on an addition)",
    "options": [
     "ZONEDATA"
+   ],
+   "features": [
+    "statements: PERFORM",
+    "statements: SET-BY",
+    "statements: SET-TO",
+    "statements: SET-TRUE"
    ],
    "register": [
     "C11"
@@ -839,10 +873,18 @@
    "methods": [
     "counterNum"
    ],
-   "ibm": null,
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "ZONEDATA (replaced by INVDATA in 6.4)"
+   },
    "ibm_note": "IBM documents no result (ZONEDATA(PFD) assumes valid zone bits); the same ground as the receiver of ADD",
    "options": [
     "ZONEDATA"
+   ],
+   "features": [
+    "statements: INSPECT",
+    "statements: STRING",
+    "statements: UNSTRING"
    ],
    "register": [
     "C11"
@@ -1159,6 +1201,9 @@
     "section": "STRING statement"
    },
    "options": [],
+   "features": [
+    "statements: STRING"
+   ],
    "register": [],
    "status": "MATCHED",
    "calibration": "uncalibrated"
@@ -1179,6 +1224,9 @@
     "section": "UNSTRING statement"
    },
    "options": [],
+   "features": [
+    "statements: UNSTRING"
+   ],
    "register": [],
    "status": "MATCHED",
    "calibration": "uncalibrated"
@@ -1201,6 +1249,9 @@
     "section": "INSPECT statement"
    },
    "options": [],
+   "features": [
+    "statements: INSPECT"
+   ],
    "register": [],
    "status": "MATCHED",
    "calibration": "uncalibrated"
@@ -1241,6 +1292,10 @@
    },
    "options": [
     "TRUNC"
+   ],
+   "features": [
+    "data_types: BINARY",
+    "data_types: COMP-5"
    ],
    "register": [
     "C1"
@@ -1306,6 +1361,9 @@
    "options": [
     "NUMPROC"
    ],
+   "features": [
+    "data_types: PACKED"
+   ],
    "register": [
     "C5"
    ],
@@ -1348,6 +1406,9 @@
     "section": "Sign representation of zoned and packed-decimal data"
    },
    "options": [],
+   "features": [
+    "data_types: PACKED"
+   ],
    "register": [],
    "status": "MATCHED",
    "calibration": "uncalibrated"
@@ -1366,6 +1427,10 @@
     "section": "USAGE clause: COMPUTATIONAL-5"
    },
    "options": [],
+   "features": [
+    "data_types: BINARY",
+    "data_types: COMP-5"
+   ],
    "register": [
     "C7"
    ],
@@ -1385,6 +1450,9 @@
    },
    "options": [
     "TRUNC"
+   ],
+   "features": [
+    "data_types: COMP-5"
    ],
    "register": [],
    "status": "MATCHED",
@@ -1460,6 +1528,9 @@
    "ibm": null,
    "ibm_note": "IBM documents no result for non-digit data in a numeric item; the oracle's (GnuCOBOL 3.1.2) rule is modelled",
    "options": [],
+   "features": [
+    "data_types: PACKED"
+   ],
    "register": [
     "C11"
    ],
@@ -1493,7 +1564,8 @@
    "title": "COMP-1 / COMP-2 are HFP: sign bit, excess-64 characteristic (a power of 16), 6 / 14 hexadecimal fraction digits, big-endian; true zero all zero bytes; an unnormalized fraction reads as its value",
    "methods": [
     "read",
-    "store"
+    "store",
+    "image"
    ],
    "site": "read",
    "ibm": {
@@ -1501,6 +1573,10 @@
     "section": "Hexadecimal-Floating-Point Number Representation"
    },
    "options": [],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
    "register": [
     "C6"
    ],
@@ -1519,6 +1595,10 @@
     "section": "Hexadecimal-Floating-Point Instructions"
    },
    "options": [],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
    "register": [
     "C6"
    ],
@@ -1539,6 +1619,10 @@
     "section": "Hexadecimal-Floating-Point Instructions: ADD NORMALIZED"
    },
    "options": [],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
    "register": [
     "C6"
    ],
@@ -1557,6 +1641,10 @@
     "section": "Hexadecimal-Floating-Point Instructions: MULTIPLY"
    },
    "options": [],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
    "register": [
     "C6"
    ],
@@ -1575,6 +1663,10 @@
     "section": "Hexadecimal-Floating-Point Instructions: DIVIDE"
    },
    "options": [],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
    "register": [
     "C6"
    ],
@@ -1593,6 +1685,10 @@
    "ibm": null,
    "ibm_note": "z/OS leaves a zero divisor's result undefined; the oracle's NaN is modelled",
    "options": [],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
    "register": [
     "C14"
    ],
@@ -1612,10 +1708,39 @@
     "section": "Conversions and precision"
    },
    "options": [],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
    "register": [
     "C6"
    ],
    "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-HFP-IEEE-CONVERSION",
+   "family": "HFP",
+   "title": "An IEEE binary32 / binary64 pattern to and from COMP-1 / COMP-2: binary64 exact in long HFP, binary32 truncated to long then rounded to short, HFP to IEEE nearest ties to even",
+   "methods": [
+    "ieeeValue",
+    "fromIeee",
+    "toIeee",
+    "ebits",
+    "fbits",
+    "cmp2"
+   ],
+   "ibm": null,
+   "ibm_note": "IBM documents no IEEE converter for COMP-1 / COMP-2; the model's choice (det/hfp.py from_ieee / to_ieee)",
+   "options": [],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
+   "register": [
+    "C6"
+   ],
+   "status": "ASSUMED",
    "calibration": "uncalibrated"
   },
   {
@@ -1632,6 +1757,10 @@
    "ibm": null,
    "ibm_note": "IBM does not document the generated conversion; truncation is the model's choice",
    "options": [],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
    "register": [
     "C6"
    ],
@@ -1650,6 +1779,10 @@
     "section": "Conversions and precision"
    },
    "options": [],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
    "register": [
     "C6"
    ],
@@ -1670,6 +1803,10 @@
    "options": [
     "ARITH"
    ],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
    "register": [
     "C6"
    ],
@@ -1688,6 +1825,10 @@
     "section": "Conversions and precision"
    },
    "options": [],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
    "register": [
     "C6"
    ],
@@ -1706,6 +1847,10 @@
     "section": "DISPLAY statement"
    },
    "options": [],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
    "register": [
     "C6"
    ],
@@ -1727,6 +1872,9 @@
    "options": [
     "DECIMAL-POINT-COMMA"
    ],
+   "features": [
+    "data_types: EDITED"
+   ],
    "register": [],
    "status": "MATCHED",
    "calibration": "uncalibrated"
@@ -1744,6 +1892,9 @@
     "section": "PICTURE clause: floating insertion editing"
    },
    "options": [],
+   "features": [
+    "data_types: EDITED"
+   ],
    "register": [],
    "status": "MATCHED",
    "calibration": "uncalibrated"
@@ -1763,6 +1914,9 @@
    "options": [
     "CURRENCY-SIGN"
    ],
+   "features": [
+    "data_types: EDITED"
+   ],
    "register": [],
    "status": "MATCHED",
    "calibration": "uncalibrated"
@@ -1778,6 +1932,9 @@
    "ibm": null,
    "ibm_note": "IBM documents no result for non-digit data in a numeric item; the oracle's (GnuCOBOL 3.1.2) rule is modelled (cob_move_display_to_edited)",
    "options": [],
+   "features": [
+    "data_types: EDITED"
+   ],
    "register": [
     "C11"
    ],
@@ -1799,6 +1956,9 @@
    "options": [
     "DECIMAL-POINT-COMMA"
    ],
+   "features": [
+    "data_types: EDITED"
+   ],
    "register": [],
    "status": "MATCHED",
    "calibration": "uncalibrated"
@@ -1816,6 +1976,10 @@
     "section": "Intrinsic functions: UPPER-CASE, LOWER-CASE"
    },
    "options": [],
+   "features": [
+    "intrinsic_functions: LOWER-CASE",
+    "intrinsic_functions: UPPER-CASE"
+   ],
    "register": [],
    "status": "MATCHED",
    "calibration": "uncalibrated"
@@ -1832,6 +1996,9 @@
     "section": "Intrinsic functions: REVERSE"
    },
    "options": [],
+   "features": [
+    "intrinsic_functions: REVERSE"
+   ],
    "register": [],
    "status": "MATCHED",
    "calibration": "uncalibrated"
@@ -1850,6 +2017,9 @@
     "section": "Intrinsic functions: TRIM"
    },
    "options": [],
+   "features": [
+    "intrinsic_functions: TRIM"
+   ],
    "register": [],
    "status": "ASSUMED",
    "calibration": "uncalibrated"
@@ -1867,6 +2037,9 @@
     "section": "Intrinsic functions: MOD, REM"
    },
    "options": [],
+   "features": [
+    "intrinsic_functions: MOD"
+   ],
    "register": [
     "C14"
    ],
@@ -1889,6 +2062,9 @@
     "section": "Intrinsic functions: INTEGER, INTEGER-PART, ABS, MIN, MAX"
    },
    "options": [],
+   "features": [
+    "intrinsic_functions: INTEGER"
+   ],
    "register": [],
    "status": "MATCHED",
    "calibration": "uncalibrated"
@@ -1908,6 +2084,10 @@
    "options": [
     "ARITH"
    ],
+   "features": [
+    "intrinsic_functions: NUMVAL",
+    "intrinsic_functions: NUMVAL-C"
+   ],
    "register": [],
    "status": "MATCHED",
    "calibration": "uncalibrated"
@@ -1926,6 +2106,10 @@
     "section": "Intrinsic functions: TEST-NUMVAL, TEST-NUMVAL-C"
    },
    "options": [],
+   "features": [
+    "intrinsic_functions: TEST-NUMVAL",
+    "intrinsic_functions: TEST-NUMVAL-C"
+   ],
    "register": [],
    "status": "ASSUMED",
    "calibration": "uncalibrated"
@@ -1942,6 +2126,9 @@
     "section": "Intrinsic functions: CURRENT-DATE"
    },
    "options": [],
+   "features": [
+    "intrinsic_functions: CURRENT-DATE"
+   ],
    "register": [
     "X4"
    ],
@@ -1963,6 +2150,9 @@
     "section": "Intrinsic functions: RANDOM"
    },
    "options": [],
+   "features": [
+    "intrinsic_functions: RANDOM"
+   ],
    "register": [
     "C12"
    ],
@@ -1972,10 +2162,12 @@
   {
    "id": "RT-FUNC-DATE-INTEGER",
    "family": "FUNC",
-   "title": "FUNCTION INTEGER-OF-DATE / DATE-OF-INTEGER: day 1 is 1 January 1601 (INTDATE(ANSI))",
+   "title": "FUNCTION INTEGER-OF-DATE / DATE-OF-INTEGER: day 1 is 1 January 1601 (INTDATE(ANSI)) or 15 October 1582 (INTDATE(LILIAN))",
    "methods": [
     "integerOfDate",
-    "dateOfInteger"
+    "dateOfInteger",
+    "integerOfDateLilian",
+    "dateOfIntegerLilian"
    ],
    "ibm": {
     "doc": "cobol-lr",
@@ -1983,6 +2175,10 @@
    },
    "options": [
     "INTDATE"
+   ],
+   "features": [
+    "intrinsic_functions: DATE-OF-INTEGER",
+    "intrinsic_functions: INTEGER-OF-DATE"
    ],
    "register": [
     "C5"
@@ -2004,6 +2200,20 @@
    "options": [],
    "register": [],
    "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-FUNC-ACCEPT-SYSIN",
+   "family": "FUNC",
+   "title": "ACCEPT identifier FROM SYSIN: the next line of standard input moved to the target as an alphanumeric MOVE; no record left stops the run by name",
+   "methods": [
+    "sysin"
+   ],
+   "ibm": null,
+   "ibm_note": "IBM leaves the target undefined when the input stream is exhausted; the port refuses by name instead of blanking it",
+   "options": [],
+   "register": [],
+   "status": "REFUSED",
    "calibration": "uncalibrated"
   },
   {
@@ -2040,6 +2250,9 @@
     "section": "READ"
    },
    "options": [],
+   "features": [
+    "cics_commands: READ"
+   ],
    "register": [],
    "status": "MATCHED",
    "calibration": "uncalibrated"
@@ -2056,6 +2269,12 @@
     "section": "READ"
    },
    "options": [],
+   "features": [
+    "cics_commands: READ",
+    "cics_options: READ: GENERIC",
+    "cics_options: READ: GTEQ",
+    "cics_options: READ: LENGTH"
+   ],
    "register": [
     "X22"
    ],
@@ -2091,6 +2310,11 @@
     "section": "WRITEQ TS: FROM, LENGTH"
    },
    "options": [],
+   "features": [
+    "cics_commands: WRITEQ TS",
+    "cics_options: WRITEQ TS: FROM",
+    "cics_options: WRITEQ TS: LENGTH"
+   ],
    "register": [
     "X6"
    ],
@@ -2110,6 +2334,16 @@
     "section": "DOCUMENT CREATE, DOCUMENT RETRIEVE"
    },
    "options": [],
+   "features": [
+    "cics_commands: DOCUMENT CREATE",
+    "cics_commands: DOCUMENT RETRIEVE",
+    "cics_commands: RETRIEVE",
+    "cics_options: DOCUMENT RETRIEVE: INTO",
+    "cics_options: DOCUMENT RETRIEVE: LENGTH",
+    "cics_options: DOCUMENT RETRIEVE: MAXLENGTH",
+    "cics_options: RETRIEVE: INTO",
+    "cics_options: RETRIEVE: LENGTH"
+   ],
    "register": [
     "X33",
     "X6"
@@ -2129,6 +2363,14 @@
     "section": "SEND TEXT"
    },
    "options": [],
+   "features": [
+    "cics_commands: SEND",
+    "cics_commands: SEND TEXT",
+    "cics_options: SEND TEXT: FROM",
+    "cics_options: SEND TEXT: LENGTH",
+    "cics_options: SEND: FROM",
+    "cics_options: SEND: LENGTH"
+   ],
    "register": [
     "X20",
     "X6"
@@ -2151,6 +2393,10 @@
     "section": "XCTL"
    },
    "options": [],
+   "features": [
+    "cics_commands: XCTL",
+    "cics_options: XCTL: COMMAREA"
+   ],
    "register": [
     "X23",
     "X10"
@@ -2171,6 +2417,18 @@
     "section": "PUT CONTAINER (CHANNEL), GET CONTAINER (CHANNEL)"
    },
    "options": [],
+   "features": [
+    "cics_commands: GET",
+    "cics_commands: PUT",
+    "cics_options: GET: CONTAINER",
+    "cics_options: GET: FLENGTH",
+    "cics_options: GET: INTO",
+    "cics_options: GET: RESP2",
+    "cics_options: PUT: CONTAINER",
+    "cics_options: PUT: FLENGTH",
+    "cics_options: PUT: FROM",
+    "cics_options: PUT: RESP2"
+   ],
    "register": [
     "X17",
     "X6"
@@ -2190,6 +2448,11 @@
     "section": "START"
    },
    "options": [],
+   "features": [
+    "cics_commands: START",
+    "cics_options: START: FROM",
+    "cics_options: START: LENGTH"
+   ],
    "register": [
     "X18",
     "X6"
@@ -2210,6 +2473,10 @@
     "section": "RETRIEVE"
    },
    "options": [],
+   "features": [
+    "cics_commands: RETRIEVE",
+    "cics_options: RETRIEVE: INTO"
+   ],
    "register": [
     "X18"
    ],
@@ -2228,6 +2495,12 @@
     "section": "READ: INTO, LENGTH"
    },
    "options": [],
+   "features": [
+    "cics_commands: READ",
+    "cics_options: READ: INTO",
+    "cics_options: READ: LENGTH",
+    "cics_options: READ: RESP2"
+   ],
    "register": [
     "X14"
    ],
@@ -2267,6 +2540,9 @@
     "section": "BIF DEEDIT"
    },
    "options": [],
+   "features": [
+    "cics_commands: BIF DEEDIT"
+   ],
    "register": [
     "X26"
    ],
@@ -2306,6 +2582,10 @@
     "section": "ASSIGN"
    },
    "options": [],
+   "features": [
+    "cics_commands: ASSIGN",
+    "cics_options: ASSIGN: SYSID"
+   ],
    "register": [
     "X19"
    ],
@@ -2325,6 +2605,10 @@
     "section": "SEND MAP, RECEIVE MAP"
    },
    "options": [],
+   "features": [
+    "cics_commands: RECEIVE",
+    "cics_options: RECEIVE: MAP"
+   ],
    "register": [
     "X2"
    ],
@@ -2343,6 +2627,10 @@
     "section": "RECEIVE MAP, DFHMDF JUSTIFY"
    },
    "options": [],
+   "features": [
+    "cics_commands: RECEIVE",
+    "cics_options: RECEIVE: MAP"
+   ],
    "register": [
     "X54"
    ],
@@ -2397,6 +2685,9 @@
     "section": "RECEIVE (LUTYPE2/LUTYPE3): EOC default action"
    },
    "options": [],
+   "features": [
+    "cics_commands: HANDLE CONDITION"
+   ],
    "register": [
     "X15"
    ],
@@ -2416,6 +2707,9 @@
     "section": "HANDLE AID, POP HANDLE"
    },
    "options": [],
+   "features": [
+    "cics_commands: HANDLE AID"
+   ],
    "register": [
     "X16"
    ],
@@ -2436,6 +2730,11 @@
     "section": "RECEIVE"
    },
    "options": [],
+   "features": [
+    "cics_commands: RECEIVE",
+    "cics_commands: SET",
+    "cics_options: RECEIVE: INTO"
+   ],
    "register": [
     "X15"
    ],
@@ -2453,7 +2752,11 @@
     "receivedBlock",
     "setAddress",
     "setAddressOfRecord",
+    "setAddressOfItem",
     "setPointerToRecord",
+    "setPointerToItem",
+    "copyPointer",
+    "advancePointer",
     "samePointer",
     "wholeRecord"
    ],
@@ -2463,6 +2766,17 @@
     "section": "GETMAIN"
    },
    "options": [],
+   "features": [
+    "cics_commands: GETMAIN",
+    "cics_commands: RECEIVE",
+    "cics_commands: SET",
+    "cics_commands: WEB RECEIVE",
+    "cics_options: GETMAIN: INITIMG",
+    "cics_options: GETMAIN: SET",
+    "cics_options: RECEIVE: RESP2",
+    "cics_options: SET: RESP2",
+    "cics_options: WEB RECEIVE: SET"
+   ],
    "register": [
     "X47"
    ],
@@ -2499,6 +2813,18 @@
     "section": "READ"
    },
    "options": [],
+   "features": [
+    "cics_commands: GET",
+    "cics_commands: READ",
+    "cics_commands: READNEXT",
+    "cics_commands: READPREV",
+    "cics_commands: READQ TS",
+    "cics_commands: RECEIVE",
+    "cics_commands: RETRIEVE",
+    "cics_commands: SET",
+    "cics_options: GET: CONTAINER",
+    "cics_options: GET: SET"
+   ],
    "register": [
     "X58"
    ],
@@ -2534,6 +2860,9 @@
    "ibm": null,
    "ibm_note": "the faults are the harness's; the SQLCA a fault leaves is assumed",
    "options": [],
+   "features": [
+    "sql_forms: STATIC"
+   ],
    "register": [
     "M2"
    ],
@@ -2560,6 +2889,9 @@
     "section": "SQL communication area (SQLCA)"
    },
    "options": [],
+   "features": [
+    "sql_forms: STATIC"
+   ],
    "register": [
     "Q1",
     "C7"
@@ -2582,6 +2914,9 @@
     "section": "Equivalent SQL and COBOL data types"
    },
    "options": [],
+   "features": [
+    "sql_forms: STATIC"
+   ],
    "register": [],
    "status": "MATCHED",
    "calibration": "uncalibrated"
@@ -2599,6 +2934,13 @@
     "section": "SQLCODE +100"
    },
    "options": [],
+   "features": [
+    "sql_forms: DELETE",
+    "sql_forms: INSERT",
+    "sql_forms: SELECT",
+    "sql_forms: STATIC",
+    "sql_forms: UPDATE"
+   ],
    "register": [],
    "status": "MATCHED",
    "calibration": "uncalibrated"
@@ -2616,6 +2958,10 @@
     "section": "SELECT INTO"
    },
    "options": [],
+   "features": [
+    "sql_forms: SELECT",
+    "sql_forms: STATIC"
+   ],
    "register": [],
    "status": "MATCHED",
    "calibration": "uncalibrated"
@@ -2633,6 +2979,9 @@
     "section": "SQLCODE -304, -305"
    },
    "options": [],
+   "features": [
+    "sql_forms: STATIC"
+   ],
    "register": [
     "Q1a",
     "Q1b"
@@ -2656,6 +3005,10 @@
     "section": "COMMIT, ROLLBACK"
    },
    "options": [],
+   "features": [
+    "sql_forms: COMMIT",
+    "sql_forms: STATIC"
+   ],
    "register": [
     "Q3"
    ],
@@ -2674,6 +3027,9 @@
     "section": "SAVEPOINT"
    },
    "options": [],
+   "features": [
+    "sql_forms: STATIC"
+   ],
    "register": [],
    "status": "MATCHED",
    "calibration": "uncalibrated"
@@ -2694,6 +3050,13 @@
     "section": "SQLCODE +100, -501, -502"
    },
    "options": [],
+   "features": [
+    "sql_forms: CLOSE",
+    "sql_forms: COMMIT",
+    "sql_forms: FETCH",
+    "sql_forms: OPEN",
+    "sql_forms: STATIC"
+   ],
    "register": [],
    "status": "MATCHED",
    "calibration": "uncalibrated"
@@ -2711,6 +3074,11 @@
     "section": "SQLCODE -508"
    },
    "options": [],
+   "features": [
+    "sql_forms: DELETE",
+    "sql_forms: STATIC",
+    "sql_forms: UPDATE"
+   ],
    "register": [
     "Q8"
    ],
@@ -2821,6 +3189,24 @@
    "register": [
     "L6",
     "X4"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-LE-CEEGMTO",
+   "family": "LE",
+   "title": "CEEGMTO / CEEUTCO: the offset from GMT is zero on the GMT clock",
+   "methods": [
+    "le/Ceegmto.java:call"
+   ],
+   "ibm": {
+    "doc": "le-pr",
+    "section": "CEEGMTO: get offset from Greenwich Mean Time to local time"
+   },
+   "options": [],
+   "register": [
+    "L6"
    ],
    "status": "ASSUMED",
    "calibration": "uncalibrated"
@@ -2990,6 +3376,25 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-LE-MVSWAIT",
+   "family": "LE",
+   "title": "MVSWAIT (CardDemo's assembler wait routine): returns at once with RETURN-CODE 0, caller storage untouched (the timer wait is not observable); an argument shorter than the fullword it loads: refused",
+   "methods": [
+    "le/Mvswait.java:call"
+   ],
+   "site": "le/Mvswait.java:call",
+   "ibm": {
+    "doc": "carddemo-mvswait",
+    "section": "MVSWAIT.asm"
+   },
+   "options": [],
+   "register": [
+    "A1"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-DLI-ENTRY",
    "family": "DLI",
    "title": "ENTRY 'DLITCBL': each DB PCB of the PSB bound to the area IMS passes, its mask filled (DBD name, level 00, blank status, PROCOPT, sensitive segments, key feedback zero)",
@@ -3113,6 +3518,55 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-DLI-EXEC-GET",
+   "family": "DLI",
+   "title": "EXEC DLI GU / GN / GNP USING PCB(n) [SEGMENT WHERE] INTO under CICS: the CBLTDLI get of the same SSAs against PCB n of the scheduled PSB, a hold where PROCOPT allows an update; DIBSTAT the PCB's status",
+   "methods": [
+    "get"
+   ],
+   "site": "get@1",
+   "ibm": null,
+   "ibm_note": "EXEC DLI has no HOLD option; the hold on an updating PROCOPT is assumed (register I5)",
+   "options": [],
+   "register": [
+    "I5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-EXEC-ISRT",
+   "family": "DLI",
+   "title": "EXEC DLI ISRT USING PCB(n) SEGMENT(s) [WHERE ...] ... SEGMENT(t) FROM(area) [SEGLENGTH(n)] under CICS: the CBLTDLI ISRT of the same SSAs against PCB n of the scheduled PSB; segments are fixed length, so a SEGLENGTH that differs from the DBD's stops the run; DIBSTAT the PCB's status",
+   "methods": [
+    "execIsrt"
+   ],
+   "ibm": null,
+   "ibm_note": "Segments are fixed length (the DBD's); a variable-length SEGLENGTH is refused by name (register I5)",
+   "options": [],
+   "register": [
+    "I5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-EXEC-CHANGE",
+   "family": "DLI",
+   "title": "EXEC DLI REPL / DLET USING PCB(n) SEGMENT(s) FROM(area) under CICS: the CBLTDLI REPL / DLET of the segment the previous get on this PCB held (DJ with none, DA for a changed key); SEGMENT must name the held segment's type; DIBSTAT the PCB's status",
+   "methods": [
+    "execChange"
+   ],
+   "ibm": null,
+   "ibm_note": "The command form has no SSA, so SEGMENT is checked against the held segment's type; the hold comes from the get-hold on an updating PROCOPT (register I5)",
+   "options": [],
+   "register": [
+    "I5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-DLI-ISRT",
    "family": "DLI",
    "title": "ISRT: the segment under the parent its SSAs (or current position) locate, among its twins by sequence field; II for a key its twins hold, GE for a parent not found",
@@ -3166,6 +3620,43 @@
    "options": [],
    "register": [
     "I1",
+    "I5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-SCHD",
+   "family": "DLI",
+   "title": "EXEC DLI SCHD PSB under CICS: the databases load at the first SCHD, the PSB's PCBs start with no position, DIBSTAT blank; a PSB already scheduled is TC (with NODHABEND), else refused",
+   "methods": [
+    "schedule",
+    "buildPcbs"
+   ],
+   "ibm": {
+    "doc": "ims-apis",
+    "section": "EXEC DLI SCHD / TERM"
+   },
+   "options": [],
+   "register": [
+    "I5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-TERM",
+   "family": "DLI",
+   "title": "EXEC DLI TERM: the scheduled PSB is released (the databases keep what was written), DIBSTAT blank; a TERM with no PSB scheduled is refused",
+   "methods": [
+    "terminate"
+   ],
+   "ibm": {
+    "doc": "ims-apis",
+    "section": "EXEC DLI SCHD / TERM"
+   },
+   "options": [],
+   "register": [
     "I5"
    ],
    "status": "ASSUMED",
@@ -3410,6 +3901,13 @@
     "section": "File status key"
    },
    "options": [],
+   "features": [
+    "statements: CLOSE",
+    "statements: OPEN",
+    "statements: READ",
+    "statements: REWRITE",
+    "statements: WRITE"
+   ],
    "register": [
     "F1",
     "F2"
@@ -3434,6 +3932,11 @@
     "section": "READ statement: KEY phrase"
    },
    "options": [],
+   "features": [
+    "statements: READ",
+    "statements: REWRITE",
+    "statements: WRITE"
+   ],
    "register": [
     "F1",
     "F5"
@@ -3451,6 +3954,10 @@
    "ibm": null,
    "ibm_note": "a record operation the translator could not bind is not modelled",
    "options": [],
+   "features": [
+    "statements: CLOSE",
+    "statements: OPEN"
+   ],
    "register": [],
    "status": "REFUSED",
    "calibration": "uncalibrated"
@@ -3473,8 +3980,12 @@
     "section": "DISPLAY statement"
    },
    "options": [],
+   "features": [
+    "statements: DISPLAY"
+   ],
    "register": [
-    "C8"
+    "C8",
+    "D2"
    ],
    "status": "MATCHED",
    "calibration": "uncalibrated"

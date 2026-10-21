@@ -1,6 +1,7 @@
 package __PACKAGE__.cobolrt.dli;
 
 import __PACKAGE__.cobolrt.Field;
+import __PACKAGE__.cobolrt.Storage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -247,6 +248,78 @@ public final class DetDli {
         System.arraycopy(t, 0, b, o, Math.min(t.length, len));
     }
 
+    /** The PSB's DB PCBs, in order, each at its start (no position, status blank), from psb.cfg. */
+    private static void buildPcbs() throws IOException {
+        PCBS.clear();
+        for (String line : Files.readAllLines(dir().resolve("psb.cfg"), StandardCharsets.ISO_8859_1)) {
+            String[] w = line.trim().split("\\s+");
+            if (!w[0].equals("PCB")) {
+                continue;
+            }
+            Pcb p = new Pcb();
+            p.db = DBS.indexOf(w[1]);
+            p.procopt = w[2].length() > 4 ? w[2].substring(0, 4) : w[2];
+            p.keylen = Integer.parseInt(w[3]);
+            for (Segm s : SEGS) {
+                if (s.db == p.db) {
+                    p.sensegs++;
+                }
+            }
+            PCBS.add(p);
+        }
+    }
+
+    private static boolean loaded;
+    private static boolean scheduled;
+
+    /**
+     * EXEC DLI SCHD PSB(name) under CICS (register I5): the stated databases are loaded at the first SCHD (they outlive
+     * a TERM), the PSB's PCBs start with no position, and DIBSTAT is blank. A PSB already scheduled in the task is
+     * DIBSTAT TC (IBM, IMS Application Programming, EXEC DLI SCHD) -- with NODHABEND, else the task would abend, which
+     * is not modelled. The PSB is the one stated (psb.cfg), whatever name the program gives.
+     */
+    // [rule RT-DLI-SCHD]
+    public static String schedule(String psb, boolean nodhabend) {
+        if (scheduled) {
+            if (!nodhabend) {
+                throw refuse("a SCHD of a PSB already scheduled, without NODHABEND (the task would abend)");
+            }
+            return "TC";
+        }
+        try {
+            if (!loaded) {
+                load();
+                loaded = true;
+            }
+            buildPcbs();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        for (Pcb p : PCBS) { // a CICS program names its PCB by number (PCB(n)): the mask is the runtime's own
+            p.mask = Field.group(new Storage(36 + p.keylen), 0, 36 + p.keylen);
+            initMask(p);
+        }
+        scheduled = true;
+        return "  ";
+    }
+
+    /** SCHD PSB((area)): the PSB name is the area's bytes (the name the program built there). */
+    public static String schedule(Field psb, boolean nodhabend) {
+        return schedule(new String(psb.storage().bytes, psb.offset(), psb.length(), StandardCharsets.ISO_8859_1).trim(),
+            nodhabend);
+    }
+
+    /** EXEC DLI TERM: the PSB is released (the databases keep what was written); DIBSTAT blank. */
+    // [rule RT-DLI-TERM]
+    public static String terminate() {
+        if (!scheduled) {
+            throw refuse("a TERM with no PSB scheduled");
+        }
+        scheduled = false;
+        PCBS.clear();
+        return "  ";
+    }
+
     /**
      * The batch entry (ENTRY 'DLITCBL' USING pcb ...): the stated databases loaded, each DB PCB of the PSB (in order)
      * bound to the area passed, its mask filled -- DBD name, level '00', status blank, PROCOPT, the number of
@@ -256,22 +329,9 @@ public final class DetDli {
     public static void enter(Field... areas) {
         try {
             load();
-            for (String line : Files.readAllLines(dir().resolve("psb.cfg"), StandardCharsets.ISO_8859_1)) {
-                String[] w = line.trim().split("\\s+");
-                if (!w[0].equals("PCB")) {
-                    continue;
-                }
-                Pcb p = new Pcb();
-                p.db = DBS.indexOf(w[1]);
-                p.procopt = w[2].length() > 4 ? w[2].substring(0, 4) : w[2];
-                p.keylen = Integer.parseInt(w[3]);
-                for (Segm s : SEGS) {
-                    if (s.db == p.db) {
-                        p.sensegs++;
-                    }
-                }
-                PCBS.add(p);
-            }
+            loaded = true;
+            scheduled = false;
+            buildPcbs();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -284,18 +344,136 @@ public final class DetDli {
             if (p.mask.length() < 36 + p.keylen) {
                 throw refuse("a PCB mask shorter than the PCB (36 bytes and the KEYLEN)");
             }
-            byte[] b = p.mask.storage().bytes;
-            int o = p.mask.offset();
-            Arrays.fill(b, o, o + 36, (byte) ' ');
-            text(p.mask, 0, 8, DBS.get(p.db));
-            text(p.mask, 8, 2, "00");
-            text(p.mask, 12, 4, p.procopt);
-            fullword(p.mask, 16, 0);
-            fullword(p.mask, 28, 0);
-            fullword(p.mask, 32, p.sensegs);
-            // the key feedback area, and the bytes past it the program's mask may name: X'00' (register I4)
-            Arrays.fill(b, o + 36, o + p.mask.length(), (byte) 0);
+            initMask(p);
         }
+    }
+
+    /** A PCB mask at its start: DBD name, level '00', status blank, PROCOPT, sensitive segments, key feedback zero. */
+    private static void initMask(Pcb p) {
+        byte[] b = p.mask.storage().bytes;
+        int o = p.mask.offset();
+        Arrays.fill(b, o, o + 36, (byte) ' ');
+        text(p.mask, 0, 8, DBS.get(p.db));
+        text(p.mask, 8, 2, "00");
+        text(p.mask, 12, 4, p.procopt);
+        fullword(p.mask, 16, 0);
+        fullword(p.mask, 28, 0);
+        fullword(p.mask, 32, p.sensegs);
+        // the key feedback area, and the bytes past it the program's mask may name: X'00' (register I4)
+        Arrays.fill(b, o + 36, o + p.mask.length(), (byte) 0);
+    }
+
+    private static Field area(byte[] b) {
+        Storage st = new Storage(0);
+        st.bytes = b;
+        return Field.group(st, 0, b.length);
+    }
+
+    /** An SSA for EXEC DLI SEGMENT(seg): unqualified. */
+    public static Field ssa(String seg) {
+        byte[] b = new byte[9];
+        Arrays.fill(b, (byte) ' ');
+        System.arraycopy(seg.getBytes(StandardCharsets.ISO_8859_1), 0, b, 0, Math.min(8, seg.length()));
+        return area(b);
+    }
+
+    /** An SSA for SEGMENT(seg) WHERE(fld op value): qualified (op: EQ GT LT GE LE NE), the value's bytes as they are. */
+    public static Field ssa(String seg, String fld, String op, Field value) {
+        int k = -1;
+        for (int i = 0; i < OPS.length; i++) {
+            if (OPS[i][0].equals(op)) {
+                k = i;
+            }
+        }
+        if (k < 0) {
+            throw refuse("a WHERE operator other than EQ GT LT GE LE NE");
+        }
+        byte[] v = Arrays.copyOfRange(value.storage().bytes, value.offset(), value.offset() + value.length());
+        byte[] b = new byte[19 + v.length + 1];
+        Arrays.fill(b, (byte) ' ');
+        System.arraycopy(seg.getBytes(StandardCharsets.ISO_8859_1), 0, b, 0, Math.min(8, seg.length()));
+        b[8] = '(';
+        System.arraycopy(fld.getBytes(StandardCharsets.ISO_8859_1), 0, b, 9, Math.min(8, fld.length()));
+        System.arraycopy(OPS[k][1].getBytes(StandardCharsets.ISO_8859_1), 0, b, 17, 2);
+        System.arraycopy(v, 0, b, 19, v.length);
+        b[19 + v.length] = ')';
+        return area(b);
+    }
+
+    /**
+     * EXEC DLI GU / GN / GNP USING PCB(n) [SEGMENT(s) [WHERE(f op v)] ...] INTO(area) under CICS (register I5): the
+     * CBLTDLI get of the same SSAs against PCB n of the scheduled PSB, DIBSTAT the PCB's status. A get is a get-hold
+     * where the PCB's PROCOPT allows an update (A, R or D) -- ASSUMED, the command has no HOLD option (register I5).
+     */
+    // [rule RT-DLI-EXEC-GET]
+    public static String get(String verb, int pcbNum, Field into, Field... ssas) {
+        if (!scheduled) {
+            throw refuse("an EXEC DLI command with no PSB scheduled");
+        }
+        if (pcbNum < 1 || pcbNum > PCBS.size()) {
+            throw refuse("a PCB number the scheduled PSB does not have");
+        }
+        Pcb p = PCBS.get(pcbNum - 1);
+        boolean upd = p.procopt.indexOf('A') >= 0 || p.procopt.indexOf('R') >= 0 || p.procopt.indexOf('D') >= 0;
+        String fn = switch (verb) {
+            case "GU" -> upd ? "GHU " : "GU  ";
+            case "GN" -> upd ? "GHN " : "GN  ";
+            case "GNP" -> upd ? "GHNP" : "GNP ";
+            default -> throw refuse("EXEC DLI " + verb);
+        };
+        Storage f = new Storage(4);
+        f.bytes = fn.getBytes(StandardCharsets.ISO_8859_1);
+        call(Field.group(f, 0, 4), p.mask, into, ssas);
+        return new String(p.mask.storage().bytes, p.mask.offset() + 10, 2, StandardCharsets.ISO_8859_1);
+    }
+
+    private static Pcb execPcb(int pcbNum) {
+        if (!scheduled) {
+            throw refuse("an EXEC DLI command with no PSB scheduled");
+        }
+        if (pcbNum < 1 || pcbNum > PCBS.size()) {
+            throw refuse("a PCB number the scheduled PSB does not have");
+        }
+        return PCBS.get(pcbNum - 1);
+    }
+
+    private static String execCall(String fn, Pcb p, Field io, Field... ssas) {
+        Storage f = new Storage(4);
+        f.bytes = fn.getBytes(StandardCharsets.ISO_8859_1);
+        call(Field.group(f, 0, 4), p.mask, io, ssas);
+        return new String(p.mask.storage().bytes, p.mask.offset() + 10, 2, StandardCharsets.ISO_8859_1);
+    }
+
+    /**
+     * EXEC DLI ISRT USING PCB(n) SEGMENT(s) [WHERE(..)] ... SEGMENT(t) FROM(area) [SEGLENGTH(n)] under CICS (register
+     * I5): the CBLTDLI ISRT of the same SSAs, the last one unqualified. Segments are fixed length (the DBD's): a
+     * SEGLENGTH (seglen, -1 where absent) that differs from it stops the run by name.
+     */
+    // [rule RT-DLI-EXEC-ISRT]
+    public static String execIsrt(int pcbNum, Field from, int seglen, Field... ssas) {
+        Pcb p = execPcb(pcbNum);
+        if (seglen >= 0 && ssas.length > 0) {
+            String[] st = new String[1];
+            Ssa[] s = parseSsas(p.db, ssas, st);
+            if (st[0] == null && SEGS.get(s[s.length - 1].seg).bytes != seglen) {
+                throw refuse("an ISRT whose SEGLENGTH is not the segment's fixed length");
+            }
+        }
+        return execCall("ISRT", p, from, ssas);
+    }
+
+    /**
+     * EXEC DLI REPL / DLET USING PCB(n) SEGMENT(s) FROM(area) under CICS (register I5): the CBLTDLI REPL / DLET of the
+     * segment the previous command on this PCB held (a get is a get-hold where the PCB's PROCOPT allows an update, see
+     * {@link #get}); SEGMENT must name that segment's type -- ASSUMED, the command form has no SSA.
+     */
+    // [rule RT-DLI-EXEC-CHANGE]
+    public static String execChange(String verb, int pcbNum, Field from, String segment) {
+        Pcb p = execPcb(pcbNum);
+        if (p.hold != null && !SEGS.get(p.hold.seg).name.equals(segment)) {
+            throw refuse("an EXEC DLI " + verb + " whose SEGMENT is not the held segment's type");
+        }
+        return execCall(verb.equals("DLET") ? "DLET" : "REPL", p, from);
     }
 
     /** The step ended: each database, in hierarchic sequence (8-byte segment name, then its data), to gitgalaxy.dli.out. */

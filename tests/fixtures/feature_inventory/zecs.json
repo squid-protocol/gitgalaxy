@@ -1,4 +1,12 @@
 {
+  "call_targets": {
+    "(dynamic)": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    }
+  },
   "cics_commands": {
     "ASKTIME": {
       "count": 6,

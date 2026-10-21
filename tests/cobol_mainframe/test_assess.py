@@ -160,25 +160,28 @@ def test_no_source_text_in_the_report(estate):
 
 
 def test_the_checker_catches_the_raw_inventory():
-    """The source-text check is not vacuous: the raw CardDemo inventory, written as it stands, fails it."""
+    """The source-text check is not vacuous: the CardDemo inventory with a sequence-number key planted (what the stale
+    fixture held before #5235) fails it."""
     estate_dir = CORPORA / "aws-mainframe-modernization-carddemo"
     if not estate_dir.is_dir():
         pytest.skip("no mainframe corpora (mainframe_corpus.py fetch)")
-    inv = _inventory("aws-mainframe-modernization-carddemo")
+    inv = json.loads(json.dumps(_inventory("aws-mainframe-modernization-carddemo")))
+    inv["cics_commands"]["ASKTIME 03430012"] = {"count": 1, "programs": [next(iter(inv["eras"]["programs"]))]}
     with pytest.raises(AssertionError):
         assert_no_source_text(inv, estate_dir, _program_names(inv))
 
 
 def test_carddemo_sequence_numbers_never_reach_the_report():
-    """The raw CardDemo inventory carries sequence-area numbers read as CICS command words (the census fallback of the
-    programs whose MQ copybooks are missing); the report counts them under `other` and prints none."""
-    inv = _inventory("aws-mainframe-modernization-carddemo")
-    raw = [k for k in inv["cics_commands"] if re.search(r"\d{6}", k)]
-    assert raw, "the raw inventory no longer carries them: drop this test's premise, keep the class test above"
+    """A raw inventory that carried sequence-area numbers as CICS command words (the stale CardDemo fixture before
+    #5235) is planted into the current one; the report counts them under `other` and prints none."""
+    inv = json.loads(json.dumps(_inventory("aws-mainframe-modernization-carddemo")))
+    planted = ["02750012 029200", "ASKTIME 03430012"]
+    for k in planted:
+        inv["cics_commands"][k] = {"count": 1, "programs": [next(iter(inv["eras"]["programs"]))]}
     report = SC.project(inv)
     text = json.dumps(report)
-    assert not any(w in text for k in raw for w in k.split() if w.isdigit())
-    assert report["other"]["cics_commands"]["keys"] == len(raw)
+    assert not any(w in text for k in planted for w in k.split() if w.isdigit())
+    assert report["other"]["cics_commands"]["keys"] >= len(planted)
 
 
 def _names(inv: dict) -> set[str]:
@@ -399,9 +402,9 @@ def test_out_inside_the_estate_is_refused(planted):
     assert not (estate / "report.json").exists()
 
 
-def test_jcl_is_refused_by_name(tmp_path):
-    res = _assess(str(tmp_path), "--jcl", str(tmp_path))
-    assert res.returncode == 2 and "--jcl is not supported yet" in res.stderr
+def test_jcl_and_options_together_are_refused_by_name(tmp_path):
+    res = _assess(str(tmp_path), "--jcl", str(tmp_path), "--options", str(tmp_path / "o.json"))
+    assert res.returncode == 2 and "--jcl and --options" in res.stderr
 
 
 # --- the network guard -------------------------------------------------------------------------------------------------
@@ -469,6 +472,48 @@ def test_the_scan_child_runs_under_the_guard(tmp_path):
     env = dict(_env(), PYTHONPATH=os.pathsep.join([str(tmp_path), str(REPO)]))
     res = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, env=env, check=False)  # noqa: S603
     assert res.stdout.split() == ["refused"] * 4 + ["ok"], res.stderr[-2000:]
+
+
+def _spawned_probe(offline_flag):
+    """Runs in a spawn-start worker: the real scan initializer, then a network attempt (#5235)."""
+    import socket
+
+    from gitgalaxy import galaxyscope
+
+    try:
+        galaxyscope._init_worker(str(REPO), {}, {}, 30, set(), set(), offline_flag)
+    except Exception:  # noqa: BLE001 -- a bare config may not warm everything; the guard installs before any of it
+        pass
+    try:
+        socket.create_connection(("127.0.0.1", 9), timeout=1)
+    except offline.OfflineViolation:
+        return "refused"
+    except OSError:
+        return "allowed"
+    return "allowed"
+
+
+@pytest.mark.parametrize(("flag", "expected"), [(True, "refused"), (False, "allowed")])
+def test_a_spawn_start_scan_worker_runs_under_the_guard(flag, expected):
+    """A spawn worker is a fresh interpreter: only `_init_worker(offline=True)` can install the guard there."""
+    import concurrent.futures
+    import multiprocessing
+
+    with concurrent.futures.ProcessPoolExecutor(max_workers=1, mp_context=multiprocessing.get_context("spawn")) as pool:
+        assert pool.submit(_spawned_probe, flag).result(timeout=120) == expected
+
+
+def test_the_scan_child_asks_its_workers_for_the_guard(monkeypatch, tmp_path):
+    seen = {}
+
+    def fake_run(argv, env=None, **_kw):
+        seen["env"] = env
+        raise RuntimeError("stop")
+
+    monkeypatch.setattr(offline.subprocess, "run", fake_run)
+    with pytest.raises(RuntimeError, match="stop"):
+        offline.guarded_scan(tmp_path, tmp_path / "out")
+    assert seen["env"][offline.OFFLINE_ENV] == "1"
 
 
 # --- every burned estate, the command end to end ---------------------------------------------------------------------

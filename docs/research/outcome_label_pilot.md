@@ -1,7 +1,7 @@
 # Outcome-label pilot: do strictness and dynamism predict later fix commits? (#2720, child of #2716)
 
 Reproduce with `tests/tools/outcome_pilot.py` (`clone`, `scan`, `label`, `analyze`; work dir `/tmp/gitgalaxy-scratch/claude/outcome-pilot`).
-Ten repos is a pilot, not a calibration: it says whether the full build-out is worth it, and which way the first numbers point.
+Ten repos (plus the five other burned estates, see below) is a pilot, not a calibration: it says whether the full build-out is worth it, and which way the first numbers point.
 
 ## Method
 
@@ -64,6 +64,32 @@ to build scripts. No Rust (0 gaps) shares a repo with a language of more gaps, s
   gives a size for it: at most about a quarter more later fixes per file at equal evidence, with the interval's low end near 1.1.
 * **Not shown:** that either term causes fixes; that 10 repos generalise; anything for COBOL (CardDemo: 0 later fixes in scanned files).
 
+## Burned mainframe estates beyond CardDemo (second slice, #2720)
+
+Added to `PILOT_REPOS` (`outcome_pilot.py clone|scan|label --burned-only`; `analyze` on a rows file holding only these). The local
+`.mainframe_corpora` copies are single-commit squashes, so each estate is cloned from its upstream URL with history; the pin is mid-history
+(first-parent midpoint, except zECS and DBB, which carry an explicit pin: a midpoint pin precedes their sources). No non-burned repo was cloned or read. Window and labeller are the first slice's.
+
+| estate | upstream history | scanned files (rowed languages) | later fix hits | files with a fix |
+|---|---|---|---|---|
+| CardDemo | full | 106 (cobol 70, jcl 36) | 0 | 0 |
+| CBSA | 443 commits, 2022-10 to 2026-07 | 272 (jcl 110, java 90, cobol 68, shell 2, batch 2) | 4 | 4 |
+| GenApp | 20 commits, 2021-05 to 2026-07 | 76 (cobol 44, jcl 29, rexx 2, shell 1) | 24 | 22 |
+| zECS | 20 commits, 2016-11 to 2017-07; pinned at the commit that adds the sources (`9ab1e35`) | 20 (jcl 10, cobol 7, hlasm 2, rexx 1) | 0 | 0 |
+| DBB MortgageApplication | `zBuilder/MortgageApplication` only, moved in 2025-09-11; 2 commits touch it | 12 (cobol) | 0 | 0 |
+| cicsdev async credit-card | 20 commits | 10 (cobol) | 0 | 0 |
+
+Pooled with CardDemo: 496 files, 28 fix hits on 26 files. Dynamism MH rate ratio 0.73 (95% CI 0.14-2.5); the strictness contrasts have no
+interval (their exposed groups carry 0 or 1 files with a fix). These numbers are not an estimate of anything, and they do not move the first
+slice's conclusion:
+
+* **22 of the 24 GenApp hits come from two commits both titled "COBOL updates and fixes"**, bulk edits across the tree, not fixes found by file.
+  The subject-only label cannot tell a bulk update from a fix.
+* **Label check (all fix subjects of the estates with any):** CBSA 5 labelled, about 2-3 are code fixes ("Fix bugs for Qube", "Bug fixes"; "Fix pictures",
+  "Fix doc" are not); zECS 1 labelled (a markdown fix, in the window but touching no scanned source file); GenApp 2 labelled, both bulk. Precision for code defects is below the first slice's 83%.
+* The estates are small, sample-style repos with few commits; with these windows they cannot give a COBOL rate. The honest result: COBOL stays
+  untested, and the burned estates cannot test it by git history alone.
+
 ## Limits
 
 Subject-only labels (precision ~83%, recall well below); effective follow-up of about 6-7 months for nine repos; a rate per file (equal follow-up) rather than per line;
@@ -73,5 +99,6 @@ one language row per repo for most repos; dynamism comes from one signal (`refle
 
 * Full build-out to the 218 pinned repos with a longer horizon (or older pins) - no burned-estate program needs it; frontier.
 * A repo pair that puts a 0-gap language beside a 3-4-gap language at equal role (e.g. Rust + build scripts) to test the table's low end - frontier.
-* Burned mainframe estates beyond CardDemo (CBSA, GenApp, zECS, DBB, cicsdev async) with history, to test COBOL - only burned estates, so these are the in-scope next step; none needed by a program today.
+* Burned mainframe estates beyond CardDemo: done in the second slice above (CBSA, GenApp, zECS, DBB MortgageApplication, cicsdev async); too little history and too few fixes to test COBOL. Closing the COBOL question needs diff-verified fix labels (below) or a longer-lived burned estate - none needed by a program today.
+* DBB MortgageApplication: the tree moved into `zBuilder/` in 2025-09, so pathspec history stops there; `--follow` per file across the move would recover the 2019 `Build/MortgageApplicationV2` history - sweep.
 * Recall of the fix label (trailers, linked issues, diff-verified fixes as in `temporal-crucible`'s harvesters) - sweep.

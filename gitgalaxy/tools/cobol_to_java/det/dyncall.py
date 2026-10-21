@@ -37,6 +37,27 @@ REFUSED_BY_NAME = {
     # #4771: zECS's store-clock wrapper (ZECS001 4000-GET-COUNTER); the estate holds no source for it (an assembler module)
     "ZUIDSTCK": "ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the 16 bytes it "
     "returns in THE-TOD are not a stated fact (oracle_assumptions.md X47)",
+    # #5106: IBM LE CEEHDLR / CEEHDLU register and unregister a user condition handler that LE calls, with the
+    # condition token, when a condition is raised in the enclosing stack frame (DBB epscsmrd:
+    # REGISTER-EXCEPTION-HANDLER). Three things a registration needs are not modelled: the procedure pointer it is
+    # given (SET ... TO ENTRY, a hole), LE's dispatch of a raised condition to the handler stack, and the handler's
+    # RESUME / PERCOLATE result. A registration that never runs its handler would hide the handler's effect, so it
+    # is refused, never a silent no-op and never a CEE000 the port invented.
+    "CEEHDLR": "CEEHDLR: registering an LE user condition handler is not modelled (the procedure pointer it takes "
+    "(SET TO ENTRY), LE's dispatch of a raised condition to the handler and its RESUME / PERCOLATE result are "
+    "missing, so a no-op registration would hide the handler's effect)",
+    "CEEHDLU": "CEEHDLU: unregistering an LE user condition handler is not modelled (the registration "
+    "(CEEHDLR) is refused, so there is nothing to undo)",
+    # #5106: the LE condition services a handler (or the program around it) calls. None is modelled: each needs a
+    # raised-condition model (the condition token's facility, severity and message number) the port does not have.
+    "CEEMGET": "CEEMGET: retrieving the message text of an LE condition token is not modelled (the condition "
+    "token comes from a raised condition, and LE's dispatch of one is missing)",
+    "CEESGL": "CEESGL: signalling an LE condition is not modelled (LE's dispatch of a raised condition to the "
+    "registered handlers and their RESUME / PERCOLATE result are missing)",
+    "CEENCOD": "CEENCOD: building an LE condition token is not modelled (the condition model "
+    "a token is raised and dispatched through is missing)",
+    "CEEMRCE": "CEEMRCE: moving the LE resume cursor is not modelled (the handler RESUME result it sets is missing)",
+    "CEE3SRP": "CEE3SRP: setting an LE resume point is not modelled (the handler RESUME result it sets is missing)",
 }
 
 
@@ -273,6 +294,14 @@ def _reaching(gen, s: S.Stmt, ref: E.Ref, it: L.Item) -> set[str] | None:
     return None
 
 
+def sibling_refusal(name: str) -> str:
+    """#5106 (#4447, #4404): why a CALL to another program of the same source is refused. Each program of a multi-program
+    source is translated on its own as the service of its own class; no service is made for a sibling, so there is
+    nothing for the CALL to reach, and the CALL's shape (OMITTED, RETURNING, a group item) is not read before that."""
+    return (f"{name}: a sibling program of this source (translated on its own, no service of its own is made for it, "
+            "so a CALL cannot reach it)")  # fmt: skip
+
+
 def values(gen, s: S.Stmt) -> list[str]:
     """The program names (blanks trimmed) the CALL's identifier can hold; Unknown (its reason) when not known."""
     ref = s.data["dynamic"]
@@ -321,6 +350,8 @@ def targets(gen, s: S.Stmt) -> list[str]:
             raise Untranslatable(
                 f"{n!r}: not a program name the port matches (uppercase, 8 characters at most: PGMNAME(COMPAT))"
             )
+        if n in gen.siblings and n not in gen.callees:  # #5106
+            raise Untranslatable(sibling_refusal(n))
         if n != "CEE3ABD" and n not in gen.callees and n not in LIBRARY and n not in MQ_CALLS:  # (#4892: MQI)
             raise Untranslatable(f"{n}: no program of that name with a CALL entry in the estate")
     return names

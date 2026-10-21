@@ -9,7 +9,7 @@
 # ==============================================================================
 """#4726: `gitgalaxy assess ESTATE` -- the readiness scanner a customer runs on their own machine.
 
-    gitgalaxy assess ESTATE [--options FILE] [--redact [--redact-key-file FILE]] [--no-translate] [--out FILE] [--verbose]
+    gitgalaxy assess ESTATE [--options FILE | --jcl FILE_OR_DIR] [--redact [--redact-key-file FILE]] [--no-translate] [--out FILE] [--verbose]
     python -m gitgalaxy.cli assess ...                       (the same, without the console script)
 
 Offline: the network guard (`offline.install`) is in place before anything reads the estate, in this process and in
@@ -23,6 +23,7 @@ dry run (dryrun.py) runs the det translator against a synthetic stub, keeping on
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import os
 import sys
@@ -45,7 +46,11 @@ def tool_version() -> str:
 def add_arguments(p: argparse.ArgumentParser) -> None:
     p.add_argument("estate", type=Path, help="the estate's directory (programs, copybooks, BMS maps), read only")
     p.add_argument("--options", type=Path, help="the estate options file (compiler / LE / Db2 / CICS options, #4704)")
-    p.add_argument("--jcl", type=Path, help="not supported yet: reading options from the estate's JCL is a follow-up")
+    p.add_argument(
+        "--jcl",
+        type=Path,
+        help="the estate's compile JCL (a member or a directory): the PARM of its IGYCRCTL steps sets the compiler options",
+    )
     p.add_argument("--redact", action="store_true", help="program and copybook names as keyed-hash labels")
     p.add_argument(
         "--redact-key-file",
@@ -111,8 +116,10 @@ def run(args: argparse.Namespace) -> int:
     estate: Path = args.estate
     if not estate.is_dir():
         return _fail(f"{estate} is not a directory")
-    if args.jcl is not None:
-        return _fail("--jcl is not supported yet (#4726 follow-up): pass the options it sets with --options")
+    if args.jcl is not None and args.options is not None:
+        return _fail("--jcl and --options both set the options: pass one")
+    if args.jcl is not None and not args.jcl.exists():
+        return _fail(f"{args.jcl} does not exist")
     if args.out is not None and _inside(args.out, estate):
         return _fail("--out is inside the estate; the estate is read only")
     if args.redact_key_file is not None and not args.redact:
@@ -128,6 +135,12 @@ def run(args: argparse.Namespace) -> int:
         errs = validate(options)
         if errs:
             return _fail(f"{args.options}: " + "; ".join(errs))
+    if args.jcl is not None:
+        from gitgalaxy.tools.readiness.jcl_options import options_from_jcl
+
+        options, notices = options_from_jcl(args.jcl)
+        for line in notices:
+            print(f"gitgalaxy assess: --jcl: {line}", file=sys.stderr)
     key = None
     if args.redact:
         key = args.redact_key_file.read_bytes().strip() if args.redact_key_file else os.urandom(32)
@@ -136,7 +149,12 @@ def run(args: argparse.Namespace) -> int:
 
     from gitgalaxy.tools.readiness.schema import validate as check
 
-    report = build(estate, options=options, redact_key=key, verbose=args.verbose, translate=not args.no_translate)
+    translate = not args.no_translate
+    if translate and importlib.util.find_spec("tree_sitter_language_pack") is None:
+        # a clean `pip install gitgalaxy` has no COBOL parser: say so, rather than report every program as refused
+        print("gitgalaxy assess: translate-only dry run skipped: pip install gitgalaxy[translator]", file=sys.stderr)
+        translate = False
+    report = build(estate, options=options, redact_key=key, verbose=args.verbose, translate=translate)
     problems = check(report)
     if problems:
         for line in problems[:20]:

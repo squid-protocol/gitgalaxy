@@ -346,19 +346,19 @@
       "assembly/x86_bare_metal/bios_clear_screen.S": "Declarative / Non-Code",
       "assembly/x86_bare_metal/bios_color.S": "Declarative / Non-Code",
       "assembly/x86_bare_metal/bios_cursor_position.S": "Declarative / Non-Code",
-      "assembly/x86_bare_metal/bios_detect_memory.S": "Large Core Modules (3)",
-      "assembly/x86_bare_metal/bios_disk_load.S": "Large Core Modules",
+      "assembly/x86_bare_metal/bios_detect_memory.S": "Parameter Forwarders Files",
+      "assembly/x86_bare_metal/bios_disk_load.S": "Many-Argument Workhorses Files",
       "assembly/x86_bare_metal/bios_disk_load2.S": "Interface Declarations Files",
-      "assembly/x86_bare_metal/bios_hello_world.S": "Compute Cores Files",
+      "assembly/x86_bare_metal/bios_hello_world.S": "Large Core Modules (3)",
       "assembly/x86_bare_metal/bios_initial_state.S": "Parameter Forwarders Files",
       "assembly/x86_bare_metal/bios_keyboard.S": "Data / Markup / Trivial",
       "assembly/x86_bare_metal/bios_keyboard_loop.S": "Data / Markup / Trivial",
       "assembly/x86_bare_metal/bios_newline.S": "Data / Markup / Trivial",
-      "assembly/x86_bare_metal/bios_pixel.S": "State Mutators Files",
-      "assembly/x86_bare_metal/bios_pixel_line.S": "State Mutators Files",
+      "assembly/x86_bare_metal/bios_pixel.S": "Parameter Forwarders Files",
+      "assembly/x86_bare_metal/bios_pixel_line.S": "Parameter Forwarders Files",
       "assembly/x86_bare_metal/bios_putc.S": "Data / Markup / Trivial",
       "assembly/x86_bare_metal/bios_scroll.S": "Declarative / Non-Code",
-      "assembly/x86_bare_metal/bios_serial.S": "Compute Cores Files",
+      "assembly/x86_bare_metal/bios_serial.S": "Large Core Modules (3)",
       "assembly/x86_bare_metal/bios_sleep.S": "Parameter Forwarders Files",
       "assembly/x86_bare_metal/c_hello_world_entry.S": "Parameter Forwarders Files"
     },
@@ -3268,7 +3268,8 @@
       "rust/tokio/maybe_done.rs": "Generic / Templated Code Files",
       "rust/tokio/tests.rs": "Large Core Modules (3)",
       "rust/tokio/tokio_mpsc_bounded.rs": "Generic / Templated Code Files",
-      "rust/tokio/tokio_named_pipe.rs": "Generic / Templated Code Files"
+      "rust/tokio/tokio_named_pipe.rs": "Generic / Templated Code Files",
+      "rust/tokio/tokio_udp.rs": "Large Core Modules (3)"
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": "Encapsulated Accessors Files"
@@ -3297,10 +3298,10 @@
     },
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": "Data / Markup / Trivial",
-      "scheme/racket/cpnanopass.ss": "Many-Argument Workhorses Files",
+      "scheme/racket/cpnanopass.ss": "Large Core Modules",
       "scheme/racket/eval.c": "Large Core Modules (3)",
       "scheme/racket/fun.c": "Large Core Modules (3)",
-      "scheme/racket/io.ss": "Many-Argument Workhorses Files",
+      "scheme/racket/io.ss": "Large Core Modules",
       "scheme/racket/schemify.rkt": "Large Core Modules (3)",
       "scheme/racket/thread.rkt": "Large Core Modules"
     },
@@ -3397,6 +3398,7 @@
       "shell/freebsd-src/dd2_test.sh": "Large Core Modules",
       "shell/freebsd-src/dtest.sh": "Large Core Modules",
       "shell/freebsd-src/echo_test.sh": "Large Core Modules",
+      "shell/freebsd-src/ed_test.sh": "Large Core Modules",
       "shell/freebsd-src/format_string_test.sh": "Many-Argument Workhorses Files",
       "shell/freebsd-src/functional_test.sh": "Compute Cores Files",
       "shell/freebsd-src/hostname_test.sh": "Large Core Modules",
@@ -3434,6 +3436,7 @@
       "shell/haiku/default_deskbar_items.sh": "Declarative / Non-Code",
       "shell/haiku/gen-bepo.sh": "Data / Markup / Trivial",
       "shell/haiku/generate_CountryFlags.sh": "Declarative / Non-Code",
+      "shell/haiku/generate_ids_from_drivers.sh": "Parameter Forwarders Files",
       "shell/haiku/install-wifi-firmwares.sh": "Large Core Modules",
       "shell/haiku/install.sh": "Declarative / Non-Code",
       "shell/haiku/leak_analyser.sh": "Compute Cores Files",
@@ -3627,7 +3630,7 @@
     },
     "sql/mediawiki_postgresql": {
       "sql/mediawiki_postgresql/COPYING": "Data / Markup / Trivial",
-      "sql/mediawiki_postgresql/tables.sql": "Declarative / Non-Code"
+      "sql/mediawiki_postgresql/tables.sql": "State Mutators Files"
     },
     "sql/spamassassin_mysql": {
       "sql/spamassassin_mysql/NOTICE": "Data / Markup / Trivial",
@@ -3859,6 +3862,7 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": "Data / Markup / Trivial",
       "typescript/assemblyscript/ast.ts": "Large Core Modules (3)",
+      "typescript/assemblyscript/builtins.ts": "Parameter Forwarders Files",
       "typescript/assemblyscript/compiler.ts": "Large Core Modules (3)",
       "typescript/assemblyscript/package.json": "Data / Markup / Trivial",
       "typescript/assemblyscript/parser.ts": "Compute Cores Files"
@@ -3904,7 +3908,11 @@
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": "Data / Markup / Trivial",
       "typescript/typescript_compiler/binder.ts": "Large Core Modules (3)",
-      "typescript/typescript_compiler/package.json": "Data / Markup / Trivial"
+      "typescript/typescript_compiler/checker.ts": "Large Core Modules (3)",
+      "typescript/typescript_compiler/emitter.ts": "State Mutators Files",
+      "typescript/typescript_compiler/package.json": "Data / Markup / Trivial",
+      "typescript/typescript_compiler/parser.ts": "Large Core Modules (3)",
+      "typescript/typescript_compiler/types.ts": "State Mutators Files"
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": "Data / Markup / Trivial",
@@ -4076,6 +4084,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": "Large Core Modules (2)",
       "zig/zig/InternPool.zig": "Large Core Modules (3)",
+      "zig/zig/Sema.zig": "Large Core Modules (2)",
       "zig/zig/Type.zig": "Large Core Modules (2)",
       "zig/zig/Zcu.zig": "Large Core Modules (2)",
       "zig/zig/main.zig": "Large Core Modules (2)"
@@ -4090,6 +4099,7 @@
       "zig/zls/analysis.zig": "Large Core Modules (2)",
       "zig/zls/ast.zig": "Large Core Modules (3)",
       "zig/zls/config_gen.zig": "Large Core Modules (2)",
+      "zig/zls/langref.html.in": "Data / Markup / Trivial",
       "zig/zls/print_ast.zig": "Large Core Modules (2)"
     }
   },

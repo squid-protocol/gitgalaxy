@@ -168,12 +168,14 @@ def test_the_workflow_reads_nothing_the_planner_skips():
 def test_the_workflow_wires_the_plan_to_the_required_check():
     jobs = yaml.safe_load((ROOT / ".github/workflows/mainframe-ground-truth.yml").read_text(encoding="utf-8"))["jobs"]
     assert "plan" in jobs["ground-truth"]["needs"] and "plan" in jobs["ground-truth-part"]["needs"]
+    assert "plan" in jobs["ground-truth-warm"]["needs"]
+    assert "needs.plan.outputs.mode != 'none'" in jobs["ground-truth-warm"]["if"]
     assert "needs.plan.outputs.mode != 'none'" in jobs["ground-truth-part"]["if"]
     # the required check always reports (always()), and passes on skipped parts only for mode none or a tested tree
     assert jobs["ground-truth"]["if"].startswith("${{ always()")
     env = jobs["ground-truth"]["steps"][0]["env"]
     assert env["MODE"] == "${{ needs.plan.outputs.mode }}"
     run = jobs["ground-truth"]["steps"][0]["run"]
-    assert '"$MODE" = "none"' in run and '"$PARTS" = "success"' in run
+    assert '"$MODE" = "none"' in run and 'ok "$PARTS"' in run and 'ok "$WARM"' in run
     # #5176: publish-history also needs the part that uploads the history (skipped parts upload nothing)
-    assert jobs["publish-history"]["needs"] == ["ground-truth", "ground-truth-part"]
+    assert jobs["publish-history"]["needs"] == ["ground-truth", "ground-truth-warm", "ground-truth-part"]

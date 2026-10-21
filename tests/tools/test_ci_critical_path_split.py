@@ -1,9 +1,10 @@
-"""#5133: the CI critical path -- the ground-truth job in 2 parts and the advisory evidence deltas in their own job.
+"""#5133, #5543: the CI critical path -- the ground-truth job as a warm job and 4 parts (or 2 self-warming parts when CI is busy) and the advisory evidence deltas in their own job.
 
 `ground-truth` and `full-suite` are required checks (the ruleset names them), so each stays one job that aggregates its
 parts. The parts must together cover everything the single job ran, and nothing advisory may hold the required check back.
 """
 
+import sys
 from pathlib import Path
 
 import pytest
@@ -11,6 +12,9 @@ import pytest
 yaml = pytest.importorskip("yaml")
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "tests" / "tools"))
+import ci_layout as cl  # noqa: E402
+
 WORKFLOWS = ROOT / ".github" / "workflows"
 
 
@@ -24,55 +28,168 @@ def _steps(job):
 
 def test_ground_truth_is_the_aggregate_of_its_parts():
     jobs = _jobs("mainframe-ground-truth.yml")
-    assert "ground-truth" in jobs and "ground-truth-part" in jobs
+    assert "ground-truth" in jobs and "ground-truth-part" in jobs and "ground-truth-warm" in jobs
     assert "ground-truth-part" in jobs["ground-truth"]["needs"]
+    assert "ground-truth-warm" in jobs["ground-truth"]["needs"]  # #5543: a failed warm job must fail the required check
     assert "ground-truth" in jobs["publish-history"]["needs"] or jobs["publish-history"]["needs"] == "ground-truth"
     publish = jobs["publish-history"]
     assert "ground-truth-part" in publish["needs"]  # #5176: a tested-tree skip uploads no history artifact
     assert "needs.ground-truth-part.result == 'success'" in publish["if"]
+    assert (
+        "ground-truth-warm" in publish["needs"]
+    )  # #5543: the history is uploaded by the warm job (or by part 1: no warm job on a cache hit)
     assert "name" not in jobs["ground-truth"]  # the check is named by its key: `ground-truth`
 
 
-LEDGER_GROUP = 2  # the part that also runs the ledger gate (~3 min) and the history append
+PARTS = 4  # #5543: the calm layout; the busy one is BUSY_PARTS. The ledger gate and the history are not in every part
 
 
 def test_the_parts_partition_tests_cobol_mainframe():
     """#5133: pytest-split cuts the directory; no hand-listed files, so a new test is placed by its recorded seconds."""
     part = _jobs("mainframe-ground-truth.yml")["ground-truth-part"]
-    assert part["strategy"]["matrix"]["group"] == [1, 2]
-    assert "include" not in part["strategy"]["matrix"]
+    assert "fromJSON(needs.plan.outputs.matrix" in part["strategy"]["matrix"]  # the plan job picks the layout (#5543)
     assert part["strategy"]["fail-fast"] is False
     run = _steps(part)["Full-corpus differential and answer-key tests"]["run"]
     pytest_line = " ".join(run[run.index("-m pytest") :].split("\\\n"))
     pytest_line = " ".join(pytest_line.split())
     assert "tests/cobol_mainframe/ " in pytest_line and "--ignore" not in pytest_line
-    assert "--splits 2 --splitting-algorithm least_duration --group ${{ matrix.group }}" in pytest_line
+    assert (
+        "--splits ${{ matrix.parts }} --splitting-algorithm least_duration --group ${{ matrix.group }}" in pytest_line
+    )
+    assert part["name"] == "ground-truth part ${{ matrix.shard }}"  # ci_digest.PARTS matches "ground-truth part N/M"
 
 
-def test_history_stays_in_one_part_and_the_gate_runs_on_both():
-    steps = _steps(_jobs("mainframe-ground-truth.yml")["ground-truth-part"])
-    for name in (
-        "Restore the published history from the generated branch",
-        "Keep the history for the publish job",
-    ):
-        assert f"matrix.group == {LEDGER_GROUP}" in steps[name]["if"], name
-    # #5133: the gate runs on both parts so the corpus scans are warm; only the ledger part writes summary and history
-    gate = steps["Gate against the ground-truth ledger"]
-    assert "if" not in gate
-    assert f"matrix.group == {LEDGER_GROUP}" in gate["run"]
+def test_the_fallback_matrix_is_the_calm_layout():
+    """A failed plan leaves `matrix` empty: the workflow runs the 4 parts of the warm layout, as it did before the plan chose."""
+    import json
+    import re
+
+    expr = _jobs("mainframe-ground-truth.yml")["ground-truth-part"]["strategy"]["matrix"]
+    fallback = json.loads(re.search(r"\|\| '(.*)'\) \}\}$", expr).group(1))
+    assert fallback == cl.matrix(PARTS)
 
 
-def test_the_ledger_part_is_not_the_heavier_one():
+def test_the_warm_job_runs_the_gate_once_and_the_parts_only_unpack_its_scans():
+    """#5543: the warm-up (parallel scans + the ledger gate) is paid once; the gate runs in the warm job or, with none, in part 1 only."""
+    jobs = _jobs("mainframe-ground-truth.yml")
+    warm, part = jobs["ground-truth-warm"], jobs["ground-truth-part"]
+    steps = _steps(warm)
+    for name in ("Restore the published history from the generated branch", "Keep the history for the publish job"):
+        assert "matrix" not in steps[name]["if"], name
+    assert "--summary" in steps["Gate against the ground-truth ledger"]["run"]
+    assert "mainframe_corpus.py scan" in steps["Scan the pinned corpora in parallel"]["run"]
+    assert steps["Upload the scans for the parts"]["with"]["name"] == "ground-truth-scans"
+    part_steps = _steps(part)
+    gate = part_steps["Gate against the ground-truth ledger"]
+    assert (
+        gate["if"] == "needs.plan.outputs.warm == 'false' && matrix.group == 1"
+    )  # never beside a warm job, never twice
+    assert "needs.plan.outputs.warm != 'false'" in warm["if"]  # skipped on a cache hit and when busy
+    assert part_steps["Download the scans"]["with"]["name"] == "ground-truth-scans"
+    assert part_steps["Download the scans"]["if"] == "needs.plan.outputs.warm != 'false'"
+    assert "ground-truth-warm" in part["needs"]
+    assert "needs.ground-truth-warm.result == 'success'" in part["if"]  # the download needs an uploader that ran
+    names = list(part_steps)
+    for scans in ("Unpack the scans", "Restore the cached scans", "Scan the pinned corpora in parallel"):
+        assert names.index("Fetch the pinned corpora") < names.index(scans)  # the fetch prunes `_scans`
+        assert (
+            names.index(scans)
+            < names.index("Gate against the ground-truth ledger")
+            < names.index("Full-corpus differential and answer-key tests")
+        )
+
+
+def test_the_scans_cache_is_saved_on_main_only_and_every_job_names_the_scans_alike():
+    """#5543: a PR's cache scope is its own ref (#5024): restore-only on a PR; the keys and the engine key come from `plan`."""
+    jobs = _jobs("mainframe-ground-truth.yml")
+    key = "needs.plan.outputs.scans_key"
+    save = _steps(jobs["ground-truth-warm"])["Save the scans (main)"]
+    assert save["if"] == "github.event_name != 'pull_request'" and save["with"]["key"] == "${{ " + key + " }}"
+    assert save["with"]["path"] == ".mainframe_corpora/_scans" and save["uses"].startswith("actions/cache/save@")
+    restore = _steps(jobs["ground-truth-part"])["Restore the cached scans"]
+    assert restore["uses"].startswith("actions/cache/restore@") and restore["with"]["key"] == save["with"]["key"]
+    lookup = _steps(jobs["plan"])["Look up the cached scans"]
+    assert lookup["with"]["lookup-only"] is True and lookup["with"]["path"] == save["with"]["path"]
+    assert lookup["with"]["key"] == "${{ steps.key.outputs.scans }}"
+    keyed = _steps(jobs["plan"])["Key the scans by engine state"]
+    assert "corpora.json" in keyed["run"] and "gitgalaxy/**" in keyed["env"]["ENGINE"]  # content, never the commit
+    assert "github.sha" not in str(keyed)
+    for job in ("ground-truth-warm", "ground-truth-part"):
+        assert jobs[job]["env"]["MAINFRAME_ENGINE_KEY"] == "${{ needs.plan.outputs.engine_key }}"
+
+
+def test_the_aggregate_accepts_a_skipped_warm_job_only_when_the_plan_needed_none():
+    run = _steps(_jobs("mainframe-ground-truth.yml")["ground-truth"])["Every part passed"]["run"]
+    assert 'test "$PLANNED_WARM" = "false"' in run and 'ok "$PARTS"' in run
+
+
+def test_the_layout_follows_the_queue_and_the_cache():
+    """#5543: calm = warm + 4 parts (no warm on a cache hit); busy = 2 self-warming parts; only a pull request goes busy."""
+    calm = cl.choose("pull_request", "full", False, 0)
+    assert (calm["layout"], calm["warm"], calm["parts"], calm["gate_in_part"]) == ("calm", True, PARTS, False)
+    hit = cl.choose("pull_request", "full", True, cl.BUSY_ABOVE)  # at the threshold is still calm
+    assert (hit["layout"], hit["warm"], hit["parts"], hit["gate_in_part"]) == ("calm", False, PARTS, True)
+    for cached in (False, True):
+        busy = cl.choose("pull_request", "full", cached, cl.BUSY_ABOVE + 1)
+        assert (busy["layout"], busy["warm"], busy["parts"], busy["gate_in_part"]) == ("busy", False, 2, True)
+    for event in ("push", "schedule", "workflow_dispatch"):
+        assert cl.choose(event, "full", False, 999)["layout"] == "calm", event
+    assert cl.choose("pull_request", "full", False, None)["layout"] == "calm"  # an unreadable queue is calm
+    assert cl.choose("pull_request", "none", True, 999)["layout"] == "none"
+    assert [m["shard"] for m in cl.matrix(2)["include"]] == ["1/2", "2/2"]
+
+
+def test_the_layout_cli_writes_the_outputs_and_the_summary(tmp_path):
+    import subprocess
+    import sys
+
+    out, summary = tmp_path / "out", tmp_path / "summary.md"
+    cmd = [sys.executable, str(ROOT / "tests/tools/ci_layout.py"), "--event", "pull_request", "--waiting", "30"]
+    subprocess.run([*cmd, "--github-output", str(out), "--summary", str(summary)], check=True, capture_output=True)  # noqa: S603
+    lines = dict(ln.split("=", 1) for ln in out.read_text(encoding="utf-8").splitlines())
+    assert (lines["layout"], lines["warm"], lines["parts"]) == ("busy", "false", "2")
+    assert "## Ground-truth layout: busy" in summary.read_text(encoding="utf-8")
+
+
+def test_the_engine_key_can_be_named_by_ci(monkeypatch):
+    import mainframe_corpus as mc
+
+    monkeypatch.setenv("MAINFRAME_ENGINE_KEY", "abc123")
+    assert mc.engine_key() == "abc123"
+
+
+def _ground_truth_totals():
     """Replays pytest-split's least_duration (heaviest first, into the lightest group) over the committed durations."""
     import json
+    import subprocess
 
-    durations = json.loads((ROOT / ".test_durations").read_text(encoding="utf-8"))
+    # The full-suite parts overwrite the working-tree .test_durations with the restored cache (smoke-test.yml, "Balance
+    # by the restored durations"), which has no ground-truth seconds: read the committed blob, the file the fallback uses.
+    shown = subprocess.run(
+        ["git", "show", "HEAD:.test_durations"],  # noqa: S607
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    text = shown.stdout if shown.returncode == 0 and shown.stdout else (ROOT / ".test_durations").read_text("utf-8")
+    durations = json.loads(text)
     seconds = sorted((v for k, v in durations.items() if k.startswith("tests/cobol_mainframe/")), reverse=True)
     assert seconds, "no recorded tests/cobol_mainframe/ durations"
-    totals = [0.0, 0.0]
+    totals = [0.0] * PARTS
     for s in seconds:
         totals[totals.index(min(totals))] += s
-    assert totals[LEDGER_GROUP - 1] <= totals[2 - LEDGER_GROUP] * 1.01, totals  # the ledger step is extra work on top
+    return seconds, totals
+
+
+def test_the_ground_truth_seconds_are_recorded_and_the_parts_balanced():
+    """#5133: the ground-truth tests were absent from .test_durations (the smoke runs have no corpora), so pytest-split
+    cut them by a default weight. Refresh from the test-times-ground-truth-part-N artifacts of a main run; the replay
+    of the parts must then be within 20% (#5133 acceptance)."""
+    seconds, totals = _ground_truth_totals()
+    assert len(seconds) > 5500, f"only {len(seconds)} tests/cobol_mainframe/ durations recorded: refresh them"
+    assert max(totals) <= min(totals) * 1.2, totals
+    assert seconds[0] < sum(totals) / 4, "one test is a quarter of the ground-truth job: no split can balance it"
 
 
 def test_evidence_deltas_is_advisory_and_off_the_required_check():

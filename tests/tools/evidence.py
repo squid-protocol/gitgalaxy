@@ -100,7 +100,8 @@ SCHEDULED = ("harness", "oracle", "generator")  # Q1: stale here is re-proven by
 MUTATION_INPUTS = ("port", "case", "corpus", "harness", "oracle")  # Q3: the generator alone keeps a score
 HARNESS = ("tests/tools/equivalence.py", "tests/tools/equivalence_common.py", "tests/tools/equivalence_java.py",
            "tests/tools/equivalence_inputs.py", "tests/tools/equivalence_cics.py",
-           "tests/tools/equivalence_cics_containers.py", "tests/tools/equivalence_call.py",
+           "tests/tools/equivalence_cics_containers.py", "tests/tools/equivalence_cics_filecontrol.py",
+           "tests/tools/equivalence_call.py",
            "tests/tools/equivalence_cache.py", "tests/tools/equivalence_db2.py", "tests/tools/equivalence_oracle.py",
            "tests/tools/cobol_coverage.py", "tests/tools/java_target_matrix.py",
            "tests/tools/equivalence_ims.py")  # fmt: skip
@@ -235,7 +236,11 @@ COMPONENTS: tuple[Component, ...] = (
     Component(
         "harness:cics",
         "harness",
-        ("tests/tools/equivalence_cics.py", "tests/tools/equivalence_cics_containers.py"),  # #5274: its families
+        (
+            "tests/tools/equivalence_cics.py",
+            "tests/tools/equivalence_cics_containers.py",
+            "tests/tools/equivalence_cics_filecontrol.py",
+        ),  # #5274: its families
         lambda u: u.cics_harness,
         "run_case for kind cics; batch Db2 SQL faults and call arg encoding import it; a plain batch run never does",
     ),
@@ -906,7 +911,14 @@ def record_equivalence_run(case: str, work: Path) -> dict[str, Any]:
 def refresh_mutation(keys: list[str] | None = None) -> list[str]:
     """Re-read every record's `mutation` from mutation_scores.json (mutation_scores.py build calls this)."""
     done = []
-    for t in targets():
+    # a port_from case (e.g. carddemo-tranview-generated) has a record but no port/ of its own: not in targets()
+    own = targets()
+    shared = [
+        equivalence_target(p.parent.name)
+        for p in sorted(CASES.glob("*/case.json"))
+        if "port_from" in _case_json(p.parent.name) and (p.parent / RECORD_NAME).is_file()
+    ]
+    for t in [*own, *(s for s in shared if s.key not in {o.key for o in own})]:
         if keys and t.key not in keys:
             continue
         rec = load(t)

@@ -46,6 +46,7 @@ from gitgalaxy.core.compiler_options import (
     compiler_options,
     effective,
     effective_with_defaults,
+    not_in_version,
     rows_of,
     unhonoured,
 )
@@ -151,6 +152,11 @@ class EffectiveOptions:
         against it)."""
         return runtime_unhonoured(self.runtime, self.runtime_sources, code_page)
 
+    def version_conflicts(self, source_text: str = "") -> list[dict[str, Any]]:
+        """#4704: the options in force that the estate's stated compiler version does not have (NUMCHECK before 6.3,
+        INVDATA before 6.4): each is {option, since, version}. Empty when the version is not stated."""
+        return not_in_version(self.values(source_text), self.compiler.get("version"))
+
     def semantic(self, source_text: str = "") -> dict[str, str]:
         v = self.values(source_text)
         return {o: str(v.get(o) or "").upper() for o in SEMANTIC_OPTIONS if o in v}
@@ -158,7 +164,7 @@ class EffectiveOptions:
     def fingerprint(self) -> dict[str, Any]:
         """The program's options as the evidence fingerprint hashes them: every value, no provenance (a changed note
         or source line is not a changed option), and not the program's own cards -- the corpus pin fixes those."""
-        return {
+        out: dict[str, Any] = {
             "estate": self.estate,
             "compiler": self.compiler,
             "parm": self.layers,
@@ -166,6 +172,9 @@ class EffectiveOptions:
             "semantic": self.semantic(),
             "runtime": self.runtime,
         }
+        if conflicts := self.version_conflicts():  # only when non-empty: a record from before stays current
+            out["version_conflicts"] = conflicts
+        return out
 
 
 def _value(entry: Any) -> Any:

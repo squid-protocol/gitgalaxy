@@ -1,0 +1,159 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "INQACCCU",
+ "program_source": "src/base/cobol_src/INQACCCU.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "OCCA",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "programs": [
+  {
+   "program": "INQCUST",
+   "program_source": "src/base/cobol_src/INQCUST.cbl"
+  },
+  {
+   "program": "ABNDPROC",
+   "program_source": "src/base/cobol_src/ABNDPROC.cbl"
+  }
+ ],
+ "datasets": {
+  "CBSA.CICSBSA.ABNDFILE": {
+   "input": "@case/abndfile.bin",
+   "entity": "WsAbndArea",
+   "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+   "record": "WS-ABND-AREA",
+   "recovery": "NONE",
+   "recovery_why": "etc/install/base/installjcl/BANK.csd: DEFINE FILE(ABNDFILE) ... RECOVERY(NONE) -- the abend log a backout must not undo"
+  },
+  "CBSA.CICSBSA.CUSTOMER": {
+   "input": "@case/customer.txt",
+   "entity": "OutputData",
+   "copybook": "src/base/cobol_copy/CUSTOMER.cpy",
+   "record": "CUSTOMER-RECORD"
+  }
+ },
+ "db2": {
+  "ddl": [
+   "etc/install/base/db2jcl/CRETB01.jcl",
+   "etc/install/base/db2jcl/CREI101.jcl"
+  ],
+  "seed": "@generate",
+  "compare": [
+   "IBMUSER.ACCOUNT"
+  ],
+  "qualifier": "IBMUSER",
+  "compare_sql": true,
+  "generate": {
+   "seed": 4507,
+   "tables": {
+    "IBMUSER.ACCOUNT": {
+     "rows": 30,
+     "columns": {
+      "ACCOUNT_SORTCODE": {
+       "values": [
+        "987654",
+        "987654",
+        "987654",
+        "123456"
+       ]
+      },
+      "ACCOUNT_NUMBER": {
+       "digits": true
+      },
+      "ACCOUNT_CUSTOMER_NUMBER": {
+       "values": [
+        "0000000001",
+        "0000000001",
+        "0000000002",
+        "0000000004",
+        "0000000005",
+        "0000000001"
+       ]
+      }
+     }
+    }
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/INQACCCU.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "customer-not-on-file",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "5",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "why": "customer 5 has generated accounts but no CUSTOMER record: INQCUST NOTFND, 'N'; CUSTOMER-FOUND 'N', COMM-FAIL-CODE '1', NUMBER-OF-ACCOUNTS 0, no SQL"
+  },
+  {
+   "name": "customer-zero",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "0",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "why": "CUSTOMER-NUMBER zero: not looked up (no LINK), CUSTOMER-FOUND 'N', COMM-FAIL-CODE '1', NUMBER-OF-ACCOUNTS 0"
+  },
+  {
+   "name": "customer-9999999999",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "9999999999",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "why": "CUSTOMER-NUMBER 9999999999 (on the CUSTOMER file): not looked up either, 'N' / '1'"
+  },
+  {
+   "name": "caller-leaves-data",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "1",
+    "COMM-PCB-POINTER": "NULL",
+    "COMM-EYE": "XXXX",
+    "COMM-CUSTNO": "ZZZZZZZZZZ",
+    "COMM-ACC-TYPE": "OLDTYPE"
+   },
+   "why": "the caller's COMMAREA arrives with account 1's fields already holding text; every field after the POINTER is overwritten when the customer has accounts"
+  }
+ ],
+ "notes": "CBSA's INQACCCU on GENERATED Db2 rows (#4507): 30 IBMUSER.ACCOUNT rows built from CRETB01's CREATE TABLE and CREI101's index (every column at its boundaries, a NULL in every nullable column; a quarter under sort code 123456), their ACCOUNT_CUSTOMER_NUMBER cycling through customers 1, 2, 4 and 5 (customer.txt holds 1, 2, 4 under 987654, not 5), so ACC-CURSOR meets customers with several, one and no accounts; 30 generated LINKs draw CUSTOMER-NUMBER from those rows (a fifth of the time one the table does not hold). Every task's statements are compared with what Db2 answered (compare_sql), and ACCOUNT after every task. The hand scenarios of cbsa-inqacccu that do not depend on its seed.sql rows (customer 0, 9999999999, 5 not on file, a caller's data left in the COMMAREA) stay. Data: customer.txt is SYNTHETIC (cbsa-updcust's). Burned estate (CBSA). Derived from the CICS Bank Sample Application (CBSA), Copyright IBM Corp. 2023, EPL-2.0: LICENSE is the corpus's own. A customer whose rows include a generated NULL date reaches FETCH -305 and the program's failure path; customer 2's rows hold none, so it is the one that returns accounts.",
+ "port_from": "cbsa-inqacccu",
+ "scenario_generate": {
+  "seed": 4507,
+  "count": 30,
+  "prefix": "generated",
+  "commarea": {
+   "NUMBER-OF-ACCOUNTS": {
+    "values": [
+     "20"
+    ]
+   },
+   "COMM-PCB-POINTER": {
+    "values": [
+     "NULL"
+    ]
+   },
+   "CUSTOMER-NUMBER": {
+    "from": "IBMUSER.ACCOUNT.ACCOUNT_CUSTOMER_NUMBER",
+    "miss": 0.2,
+    "turn": true
+   }
+  }
+ }
+}

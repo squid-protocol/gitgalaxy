@@ -33,6 +33,7 @@ from gitgalaxy.core.call_resolver import confident_file_pairs, resolve_calls
 from gitgalaxy.core.copy_libraries import load_copy_libraries
 from gitgalaxy.core.detector import HAS_TIKTOKEN, _compiled_rules
 from gitgalaxy.core.function_graph import attach_function_metrics, function_metrics
+from gitgalaxy.core.generated_fastlane import clean_directive_table_scan
 from gitgalaxy.core.guidestar_lens import GuideStarLens
 from gitgalaxy.core.invocation_resolver import resolve_invocations, resolve_transactions
 from gitgalaxy.core.mainframe_boundary import extract_boundary
@@ -224,6 +225,8 @@ def _init_worker(
     log_level: int,
     git_tracked: set[str],
     census: set[str],
+    offline: bool = False,
+    c_macro_args: dict[str, Any] | None = None,
 ):
     """
     Initializes the CPU-bound optical modules within the worker process's isolated memory.
@@ -236,7 +239,14 @@ def _init_worker(
     compiled regex objects across the IPC (Inter-Process Communication) boundary.
     """
     from gitgalaxy.core.detector import StructuralExtractor as OpticalDetector
+    from gitgalaxy.core.detector import set_c_repo_macro_args
 
+    set_c_repo_macro_args(c_macro_args or {})  # #5563: always reset, so an in-process scan never inherits the last one
+
+    if offline:  # #5235: a spawn-start worker is a fresh interpreter; the assess guard does not reach it by inheritance
+        from gitgalaxy.tools.readiness.offline import install as install_offline_guard
+
+        install_offline_guard()
     logging.getLogger().setLevel(log_level)
     worker_logger = logging.getLogger("GalaxyScope.Worker")
 
@@ -794,6 +804,15 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             if re.search(r"\.min\.[a-z]+$", rel_path, re.I) or any(v in safe_path for v in vendor_paths):
                 is_minified = True
 
+            # #3188: a large, repetitive preprocessor table skips only the Security Lens (the gate runs that lens
+            # over one line per distinct shape first); the detector still runs, so its signals are unchanged.
+            fast_scan = (
+                None
+                if is_minified
+                else clean_directive_table_scan(cast(str, content_buffer), lang_id, size_bytes, security)
+            )
+            fast_lane = fast_scan is not None
+
             # #3313 step 3: the file's idiom-wrapper facts; stays None for a
             # minified/vendor file, which skips the detector entirely.
             wrapper_facts = None
@@ -896,10 +915,15 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                 # #4548: the behaviour signals read the comment-blanked code stream, and are
                 # skipped on prose files (no executable surface); the raw text still feeds the
                 # comment-aware ones (dead_code, secrets, hidden unicode, entropy).
-                sec_results = security.scan_content(
-                    content_buffer,
-                    code_stream=refraction.get("code_stream"),
-                    prose=lang_id in ("plaintext", "markdown", "csv"),
+                sec_results = (
+                    fast_scan
+                    if fast_scan is not None
+                    else security.scan_content(
+                        content_buffer,
+                        code_stream=refraction.get("code_stream"),
+                        prose=lang_id in ("plaintext", "markdown", "csv"),
+                        language=lang_id,
+                    )
                 )
 
                 # Additive, not an overwrite (#344): detector.py's own coding_analysis()
@@ -1218,6 +1242,7 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             "stem": Path(rel_path).stem.lower(),
             "lang_id": lang_id,
             "is_minified": is_minified,
+            **({"fast_lane": "directive_table"} if fast_lane else {}),
             "lock_tier": detection_result.get("lock_tier", 4),
             "intensity": detection_result.get("intensity", 0.0),
             "source_proof": detection_result.get("source_proof", "Discovery"),
@@ -2397,6 +2422,26 @@ class Orchestrator:
             return False
         return bool(detect_disguised_executable(head, Path(full_path).suffix.lower()))
 
+    # #5563: C/C++ header extensions whose function-defining `#define`s name macro definitions in other files.
+    _C_HEADER_EXTS = frozenset({".h", ".hh", ".hpp", ".hxx", ".h++", ".inl", ".ipp"})
+
+    def _c_repo_macro_args(self) -> dict[str, Any]:
+        """#5563: the repo-wide `#define` table (`detector.c_repo_macro_name_args`) over every C/C++ header of the
+        scan, the delta scan's cached files included. A file's own defines still win inside that file."""
+        from gitgalaxy.core.detector import c_repo_macro_name_args
+
+        rels = {*self.stem_map.values(), *self.ram_cache.keys()}
+        headers = sorted(r for r in rels if Path(r).suffix.lower() in self._C_HEADER_EXTS)
+
+        def texts():
+            for rel in headers:
+                try:
+                    yield read_source(self.root / self.disk_paths.get(rel, rel), limit=2_000_000).text
+                except OSError:
+                    continue
+
+        return c_repo_macro_name_args(texts())
+
     def _extract_features_parallel(self):
         """
         Phase 1: Parallel Extraction & Asset Filtering via Multi-Core Map-Reduce.
@@ -2427,6 +2472,8 @@ class Orchestrator:
             worker_log_level,
             self.git_tracked_files,
             self.census,
+            os.environ.get("GITGALAXY_ASSESS_OFFLINE") == "1",
+            self._c_repo_macro_args(),
         )
         # #3913: never more workers than files, and none at all for a small scan (or a pinned
         # single worker) -- the files are extracted in this process, by the same worker code.

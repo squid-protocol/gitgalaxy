@@ -76,12 +76,12 @@ def translate_program(
         return {"translation": REFUSED, "refusal": "Timeout"}
     except Exception as e:
         return {"translation": REFUSED, "refusal": type(e).__name__}
-    st = r.stats
-    holes = len(st["holes"])
+    stats = [r.stats, *(x.stats for x in r.extra)]  # #5106: each sibling program the unit CALLs counts for it
+    holes = sum(len(st["holes"]) for st in stats)
     return {
         "translation": HOLES if holes else WHOLE,
-        "statements": int(st["statements"]),
-        "translated_statements": int(st["translated"]),
+        "statements": sum(int(st["statements"]) for st in stats),
+        "translated_statements": sum(int(st["translated"]) for st in stats),
         "holes": holes,
     }
 

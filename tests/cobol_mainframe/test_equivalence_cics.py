@@ -73,7 +73,7 @@ def test_handle_ignore_push_pop_and_assign_become_stub_calls():
     assert ec.translate_command("PUSH HANDLE")[0] == "CALL 'GGCPUSH' USING GG-CICS"
     assert "    CALL 'GGCCOND' USING GG-CICS" in ec.translate_command("POP HANDLE")  # INVREQ with nothing pushed
     assert ec.translate_command("ASSIGN ABCODE(WS-AB)")[1:3] == ["CALL 'GGCASGN' USING GG-CICS",
-                                                                "MOVE GG-NAME1(1:4) TO WS-AB"]  # fmt: skip
+                                                                "MOVE GG-NAME1(1:4) TO WS-AB(1:4)"]  # fmt: skip
     abend = ec.translate_command("ABEND ABCODE('HCX1')", ["SUB-ABEND"])
     assert abend[:3] == ["MOVE 'HCX1' TO GG-NAME1", "MOVE SPACES TO GG-FLAGS", "CALL 'GGCABND' USING GG-CICS"]
     assert abend[3:] == ["GO TO", "    SUB-ABEND", "    DEPENDING ON GG-GOTO", "GOBACK"]
@@ -591,6 +591,34 @@ def test_send_control_is_an_event_both_sides_compare_by_options_and_cursor():
     assert ec.compare_events(cobol, java[1:])["equal"] == 0
 
 
+def test_send_text_options_are_compared_both_sides():
+    """#5401 (COCRDSLC mutant 0173a35c74): SEND TEXT compared by text only let an options-changing mutant read as
+    proven. The stub's opts line (kind marker dropped) is compared with CicsTask's, on the options the stub gets."""
+    res = {"events": ["SEND-TEXT len=5 opts=TEXT FREEKB ERASE", "SEND-TEXT len=2 opts=DATA", "SEND-TEXT len=1",
+                      "RETURN pgm=P level=1 transid= len=0"],
+           "screens": [], "text": ["HELLO", "HI", "X"], "text_options": [ec._text_options(a) for a in
+                                                                         ("opts=TEXT FREEKB ERASE", "opts=DATA", "")],
+           "return": {"transid": "", "commarea": None}}  # fmt: skip
+    cobol = ec.cobol_events(res)
+    assert [c["options"] for c in cobol[:3]] == [["ERASE", "FREEKB"], [], []]
+    ret = {"event": "RETURN", "transid": None, "commarea": None}
+
+    def java(*opts):
+        return [{"event": "SEND-TEXT", "text": t, "options": o} for t, o in zip(("HELLO", "HI", "X"), opts)] + [ret]
+
+    same = java(["ERASE", "FREEKB"], [], [])
+    assert ec.compare_events(cobol, same)["equal"] == 4
+    assert ec.compare_events(cobol, java(["FREEKB", "ERASE"], [], []))["equal"] == 4  # order
+    assert ec.compare_events(cobol, java(["ERASE", "FREEKB", "PRINT"], [], []))["equal"] == 4  # not forwarded
+    for wrong in (["ERASE"], ["ERASE", "FREEKB", "ALARM"], ["ERASE", "WAIT"], []):  # missing, extra, other
+        got = ec.compare_events(cobol, java(wrong, [], []))
+        assert got["equal"] == 3 and got["diffs"][0]["fields"][0]["field"] == "options"
+    assert ec.compare_events(cobol, java(["ERASE", "FREEKB"], ["ERASE"], []))["equal"] == 3
+    assert ec.compare_events(cobol, java(["ERASE", "FREEKB"], [], ["LAST"]))["equal"] == 3
+    other_text = [{**same[0], "text": "BYE"}, *same[1:]]
+    assert ec.compare_events(cobol, other_text)["equal"] == 3
+
+
 def test_a_tasks_terminal_and_origin_are_stated_facts_or_none():
     """#4270: "termid" / "uctranst" / "origin" -- the scenario's, else the case's; unstated None (the commands that
     read them are then refused by both runtimes); a malformed one refused by name."""
@@ -873,13 +901,25 @@ def test_a_repeat_count_with_a_nine_is_not_a_digit_position():
 
 def test_assign_applid_sysid_and_writeq_td_translate():
     got = ec.translate_command("ASSIGN APPLID(A) SYSID(S)")
-    assert got[:3] == ["MOVE 'APPLID' TO GG-NAME2", "CALL 'GGCASGN' USING GG-CICS", "MOVE GG-NAME1(1:8) TO A"]
-    assert got[3:6] == ["MOVE 'SYSID' TO GG-NAME2", "CALL 'GGCASGN' USING GG-CICS", "MOVE GG-NAME1(1:4) TO S"]
+    assert got[:3] == ["MOVE 'APPLID' TO GG-NAME2", "CALL 'GGCASGN' USING GG-CICS", "MOVE GG-NAME1(1:8) TO A(1:8)"]
+    assert got[3:6] == ["MOVE 'SYSID' TO GG-NAME2", "CALL 'GGCASGN' USING GG-CICS", "MOVE GG-NAME1(1:4) TO S(1:4)"]
     td = ec.translate_command("WRITEQ TD QUEUE('JOBS') FROM(REC) RESP(R)")
     assert td[:4] == ["MOVE 'JOBS' TO GG-QNAME", "MOVE LENGTH OF REC TO GG-LEN", "CALL 'GGCWRTD' USING GG-CICS",
                       "    BY REFERENCE REC"]  # fmt: skip
     with pytest.raises(ec.Unsupported):
         ec.translate_command("ASSIGN OPID(U)")
+
+
+@pytest.mark.parametrize("opt,width", [("APPLID", 8), ("SYSID", 4), ("ABCODE", 4), ("PROGRAM", 8), ("INVOKINGPROG", 8),
+                                       ("STARTCODE", 2), ("USERID", 8)])  # fmt: skip
+def test_assign_writes_exactly_the_option_width(opt, width):
+    """#4049: IBM ASSIGN writes `width` bytes and leaves a wider data area's tail as it was; a plain MOVE would space it
+    (CardDemo SYSIDO is 8 bytes, SYSID 4). The target is reference-modified to the width, whatever its qualification,
+    and an already reference-modified target is refused by name."""
+    for target in ("WS-X", "SYSIDO OF COSGN0AO", "WS-T(IDX)"):
+        assert f"MOVE GG-NAME1(1:{width}) TO {target}(1:{width})" in ec.translate_command(f"ASSIGN {opt}({target})")
+    with pytest.raises(ec.Unsupported, match="reference-modified"):
+        ec.translate_command(f"ASSIGN {opt}(WS-X(1:2))")
 
 
 def test_send_text_terminal_translates_as_send_text():
@@ -916,8 +956,8 @@ def test_assign_startcode_userid_and_the_terminal_facts_translate():
     """#4270 slice 3: STARTCODE / USERID through GGCASGN; FACILITY / SCRNHT / SCRNWD behind TERMCHK (INVREQ RESP2 5 for
     a task with no terminal, then no data area written), with the condition's handling."""
     got = ec.translate_command("ASSIGN STARTCODE(SC) USERID(U)")
-    assert got[:6] == ["MOVE 'STARTCOD' TO GG-NAME2", "CALL 'GGCASGN' USING GG-CICS", "MOVE GG-NAME1(1:2) TO SC",
-                       "MOVE 'USERID' TO GG-NAME2", "CALL 'GGCASGN' USING GG-CICS", "MOVE GG-NAME1(1:8) TO U"]  # fmt: skip
+    assert got[:6] == ["MOVE 'STARTCOD' TO GG-NAME2", "CALL 'GGCASGN' USING GG-CICS", "MOVE GG-NAME1(1:2) TO SC(1:2)",
+                       "MOVE 'USERID' TO GG-NAME2", "CALL 'GGCASGN' USING GG-CICS", "MOVE GG-NAME1(1:8) TO U(1:8)"]  # fmt: skip
     got = ec.translate_command("ASSIGN FACILITY(F) SCRNHT(H) RESP(R)")
     assert got[:4] == ["MOVE 'TERMCHK' TO GG-NAME2", "CALL 'GGCASGN' USING GG-CICS", "IF GG-RESP = 0",
                        "    MOVE 'FACILITY' TO GG-NAME2"]  # fmt: skip
@@ -2010,12 +2050,13 @@ def test_a_commarea_in_an_event_of_a_case_with_none_is_refused(tmp_path):
 
 def test_a_scenario_states_a_commarea_shorter_than_its_record():
     """#4270 (X23): `"commarea_length": N` is EIBCALEN -- the caller passed the record's first N bytes and no more
-    (GenApp's IF EIBCALEN < 91, its '98' returns). 1 to the record's length; never on a scenario with no COMMAREA."""
+    (GenApp's IF EIBCALEN < 91, its '98' returns). 0 to the record's length; never on a scenario with no COMMAREA."""
     fields = [{"name": "CA-A", "offset": 0, "bytes": 2}, {"name": "CA-B", "offset": 2, "bytes": 98}]
     assert ec.commarea_length({"name": "s", "commarea": {}}, fields) is None
     assert ec.commarea_length({"name": "s", "commarea": {}, "commarea_length": 60}, fields) == 60
     assert ec.commarea_length({"name": "s", "commarea": {}, "commarea_length": 100}, fields) == 100
-    for bad in (0, 101, -1, "60", True, 6.0):
+    assert ec.commarea_length({"name": "s", "commarea": {}, "commarea_length": 0}, fields) == 0  # #4049: EIBCALEN 0
+    for bad in (101, -1, "60", True, 6.0):
         with pytest.raises(ec.Unsupported, match="is not a length"):
             ec.commarea_length({"name": "s", "commarea": {}, "commarea_length": bad}, fields)
     with pytest.raises(ec.Unsupported, match="with no COMMAREA"):
@@ -2676,3 +2717,66 @@ def test_a_syncpoint_rollback_restarts_the_file_unit_of_work_instead_of_ending_i
     assert java.count("status.setRollbackOnly();") >= 2  # the refused and failed-run paths: the current unit
     restart = java[java.index("void restart()") :].split("void end()")[0]
     assert "tm.rollback(st);" in restart and "tm.getTransaction(" in restart
+
+
+@pytest.mark.parametrize("case", ["carddemo-acctview", "carddemo-cardview", "carddemo-signon"])
+def test_a_carddemo_hand_ports_send_text_carries_the_erase_freekb_its_cobol_passes(case):
+    """#5440: every CardDemo SEND TEXT ends ERASE FREEKB; #5412 compares the options, so a port that drops them fails."""
+    import re
+
+    sent = []
+    for src in sorted((Path(__file__).resolve().parents[1] / "equivalence" / case / "port").rglob("*.java")):
+        for call in re.findall(r"\.sendText\((.*?)\);", src.read_text(encoding="utf-8"), re.S):
+            # the one SEND FROM(ABEND-DATA) in COCRDSLC is a plain SEND, not SEND TEXT: it has no options
+            if "abendCode" not in call and "data, 134" not in call:
+                sent.append(call)
+    assert sent, "the port sends no text: the scan found nothing to check"
+    for call in sent:
+        assert '"ERASE"' in call and '"FREEKB"' in call, call
+
+
+class _NoFilesIR:
+    """An estate whose program names no CICS file the facts carry (zECS ZECS003 builds ZC##FILE at run time)."""
+
+    files: dict = {}
+
+    @staticmethod
+    def cics_file_lineage():
+        return []
+
+
+_RUNTIME_FILE = {
+    "key_offset": 0,
+    "key_length": 16,
+    "reclen": 32700,
+    "why": "ZECSFILE.idcams: KEYS(16 0) RECORDSIZE(100 32700)",
+}
+
+
+def test_a_case_states_a_file_the_program_names_at_run_time():
+    """#4771: ZC01FILE is ZC + EIBTRNID(3:2) + FILE, so no CSD DEFINE FILE of the facts names it; the case's dataset of
+    that name states its KEYS and RECORDSIZE with a why, for the COBOL leg only (`runtime`)."""
+    got = ec.stub_files(_NoFilesIR(), "p.cbl", {"ZC01FILE": {"runtime_file": _RUNTIME_FILE}})
+    assert got == [
+        {
+            "file": "ZC01FILE",
+            "dsname": "ZC01FILE",
+            "base": "ZC01FILE",
+            "key_offset": 0,
+            "key_length": 16,
+            "reclen": 32700,
+            "via": ["the case's runtime_file"],
+            "runtime": True,
+        }  # fmt: skip
+    ]
+    assert ec.stub_files(_NoFilesIR(), "p.cbl", {}) == []
+    for wrong in (
+        {k: v for k, v in _RUNTIME_FILE.items() if k != "why"},
+        {k: v for k, v in _RUNTIME_FILE.items() if k != "reclen"},
+        {**_RUNTIME_FILE, "key_length": "16"},
+        {**_RUNTIME_FILE, "variable": True},
+    ):
+        with pytest.raises(ec.Unsupported):
+            ec.stub_files(_NoFilesIR(), "p.cbl", {"ZC01FILE": {"runtime_file": wrong}})
+    with pytest.raises(ec.Unsupported):  # a CICS file name is at most 8 upper-case characters
+        ec.stub_files(_NoFilesIR(), "p.cbl", {"zc01file": {"runtime_file": _RUNTIME_FILE}})

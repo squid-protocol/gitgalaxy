@@ -326,40 +326,40 @@
       "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": 0
     },
     "assembly/rpi_smartstart_baremetal": {
-      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": 6,
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": 22,
       "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": 6,
-      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": 6,
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": 21,
       "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": 5,
       "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": 6,
-      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": 6,
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": 21,
       "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": 6,
       "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": 9,
       "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": 8,
-      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": 6
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": 22
     },
     "assembly/x86_bare_metal": {
       "assembly/x86_bare_metal/LICENSE.adoc": 0,
       "assembly/x86_bare_metal/apm_shutdown.S": 0,
       "assembly/x86_bare_metal/apm_shutdown2.S": 0,
       "assembly/x86_bare_metal/bios_background.S": 0,
-      "assembly/x86_bare_metal/bios_carriage_return.S": 0,
+      "assembly/x86_bare_metal/bios_carriage_return.S": 1,
       "assembly/x86_bare_metal/bios_clear_screen.S": 0,
       "assembly/x86_bare_metal/bios_color.S": 0,
       "assembly/x86_bare_metal/bios_cursor_position.S": 0,
-      "assembly/x86_bare_metal/bios_detect_memory.S": 0,
-      "assembly/x86_bare_metal/bios_disk_load.S": 0,
-      "assembly/x86_bare_metal/bios_disk_load2.S": 0,
-      "assembly/x86_bare_metal/bios_hello_world.S": 1,
-      "assembly/x86_bare_metal/bios_initial_state.S": 0,
+      "assembly/x86_bare_metal/bios_detect_memory.S": 1,
+      "assembly/x86_bare_metal/bios_disk_load.S": 1,
+      "assembly/x86_bare_metal/bios_disk_load2.S": 2,
+      "assembly/x86_bare_metal/bios_hello_world.S": 2,
+      "assembly/x86_bare_metal/bios_initial_state.S": 1,
       "assembly/x86_bare_metal/bios_keyboard.S": 0,
       "assembly/x86_bare_metal/bios_keyboard_loop.S": 1,
-      "assembly/x86_bare_metal/bios_newline.S": 0,
-      "assembly/x86_bare_metal/bios_pixel.S": 1,
-      "assembly/x86_bare_metal/bios_pixel_line.S": 1,
+      "assembly/x86_bare_metal/bios_newline.S": 1,
+      "assembly/x86_bare_metal/bios_pixel.S": 2,
+      "assembly/x86_bare_metal/bios_pixel_line.S": 2,
       "assembly/x86_bare_metal/bios_putc.S": 0,
       "assembly/x86_bare_metal/bios_scroll.S": 0,
-      "assembly/x86_bare_metal/bios_serial.S": 1,
-      "assembly/x86_bare_metal/bios_sleep.S": 1,
+      "assembly/x86_bare_metal/bios_serial.S": 2,
+      "assembly/x86_bare_metal/bios_sleep.S": 2,
       "assembly/x86_bare_metal/c_hello_world_entry.S": 1
     },
     "assembly/xv6_x86_kernel": {
@@ -1354,7 +1354,7 @@
       "fortran/wrf/gen_be_wrapper.ksh": 0,
       "fortran/wrf/module_configure.F": 0,
       "fortran/wrf/module_domain.F": 0,
-      "fortran/wrf/module_initialize_real.F": 9,
+      "fortran/wrf/module_initialize_real.F": 10,
       "fortran/wrf/module_physics_init.F": 2,
       "fortran/wrf/module_sf_noahdrv.F": 0,
       "fortran/wrf/regtest.csh": 0,
@@ -1362,7 +1362,7 @@
       "fortran/wrf/regtest_nmmnest.csh": 0,
       "fortran/wrf/run_convert_e2c.ksh": 0,
       "fortran/wrf/sourcetree.py": 1,
-      "fortran/wrf/wrf_timeseries.F": 1
+      "fortran/wrf/wrf_timeseries.F": 2
     },
     "go": {
       "go/SOURCES.md": 0
@@ -2505,7 +2505,7 @@
       "objective-c/worldwideweb/HText.c": 0,
       "objective-c/worldwideweb/HyperManager.m": 0,
       "objective-c/worldwideweb/HyperText.h": 0,
-      "objective-c/worldwideweb/HyperText.m": 29,
+      "objective-c/worldwideweb/HyperText.m": 30,
       "objective-c/worldwideweb/TcpAccess.m": 0
     },
     "perl": {
@@ -3268,7 +3268,8 @@
       "rust/tokio/maybe_done.rs": 4,
       "rust/tokio/tests.rs": 28,
       "rust/tokio/tokio_mpsc_bounded.rs": 25,
-      "rust/tokio/tokio_named_pipe.rs": 4
+      "rust/tokio/tokio_named_pipe.rs": 4,
+      "rust/tokio/tokio_udp.rs": 47
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": 1
@@ -3297,7 +3298,7 @@
     },
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 0,
-      "scheme/racket/cpnanopass.ss": 6,
+      "scheme/racket/cpnanopass.ss": 18,
       "scheme/racket/eval.c": 53,
       "scheme/racket/fun.c": 56,
       "scheme/racket/io.ss": 0,
@@ -3397,6 +3398,7 @@
       "shell/freebsd-src/dd2_test.sh": 9,
       "shell/freebsd-src/dtest.sh": 0,
       "shell/freebsd-src/echo_test.sh": 5,
+      "shell/freebsd-src/ed_test.sh": 35,
       "shell/freebsd-src/format_string_test.sh": 2,
       "shell/freebsd-src/functional_test.sh": 1,
       "shell/freebsd-src/hostname_test.sh": 4,
@@ -3434,6 +3436,7 @@
       "shell/haiku/default_deskbar_items.sh": 0,
       "shell/haiku/gen-bepo.sh": 0,
       "shell/haiku/generate_CountryFlags.sh": 0,
+      "shell/haiku/generate_ids_from_drivers.sh": 0,
       "shell/haiku/install-wifi-firmwares.sh": 0,
       "shell/haiku/install.sh": 0,
       "shell/haiku/leak_analyser.sh": 0,
@@ -3859,7 +3862,8 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 0,
       "typescript/assemblyscript/ast.ts": 0,
-      "typescript/assemblyscript/compiler.ts": 3,
+      "typescript/assemblyscript/builtins.ts": 0,
+      "typescript/assemblyscript/compiler.ts": 0,
       "typescript/assemblyscript/package.json": 0,
       "typescript/assemblyscript/parser.ts": 4
     },
@@ -3904,7 +3908,11 @@
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 0,
       "typescript/typescript_compiler/binder.ts": 0,
-      "typescript/typescript_compiler/package.json": 0
+      "typescript/typescript_compiler/checker.ts": 50,
+      "typescript/typescript_compiler/emitter.ts": 7,
+      "typescript/typescript_compiler/package.json": 0,
+      "typescript/typescript_compiler/parser.ts": 125,
+      "typescript/typescript_compiler/types.ts": 0
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0,
@@ -4076,6 +4084,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": 0,
       "zig/zig/InternPool.zig": 0,
+      "zig/zig/Sema.zig": 0,
       "zig/zig/Type.zig": 0,
       "zig/zig/Zcu.zig": 0,
       "zig/zig/main.zig": 0
@@ -4090,6 +4099,7 @@
       "zig/zls/analysis.zig": 0,
       "zig/zls/ast.zig": 0,
       "zig/zls/config_gen.zig": 2,
+      "zig/zls/langref.html.in": 0,
       "zig/zls/print_ast.zig": 1
     }
   },

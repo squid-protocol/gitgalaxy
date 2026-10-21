@@ -220,7 +220,7 @@
       "Size": "13804 bytes"
     },
     {
-      "Diagnostic Reason": "Blocked (Monolithic Amalgamation: 36288 LOC exceeds safe regex boundaries)",
+      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 36288 LOC)",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
       "Identity Confidence": "0.0%",
@@ -1436,10 +1436,10 @@
       "Size": "9874 bytes"
     },
     {
-      "Diagnostic Reason": "Blocked (Unsupported Extension: '.i')",
+      "Diagnostic Reason": "Unsupported Format (.undeterminable)",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
+      "Identity Confidence": "10.0%",
       "Path": "python/numpy/numpy.i",
       "Size": "103122 bytes"
     },
@@ -1508,14 +1508,6 @@
       "Size": "1070 bytes"
     },
     {
-      "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 2342 LOC)",
-      "Discovery Proof": "Radar Scan",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
-      "Path": "rust/tokio/tokio_udp.rs",
-      "Size": "88127 bytes"
-    },
-    {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
@@ -1570,22 +1562,6 @@
       "Identity Confidence": "0.0%",
       "Path": "shell/darwin-xnu/reproto.sh",
       "Size": "2327 bytes"
-    },
-    {
-      "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 2116 LOC)",
-      "Discovery Proof": "Radar Scan",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
-      "Path": "shell/freebsd-src/ed_test.sh",
-      "Size": "33274 bytes"
-    },
-    {
-      "Diagnostic Reason": "Blocked (Saturation: Line 37 exceeds 500 chars)",
-      "Discovery Proof": "Radar Scan",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
-      "Path": "shell/haiku/generate_ids_from_drivers.sh",
-      "Size": "12673 bytes"
     },
     {
       "Diagnostic Reason": "Blocked (Unsupported Extension: '.LICENSE')",
@@ -2724,14 +2700,6 @@
       "Size": "11357 bytes"
     },
     {
-      "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 11395 LOC)",
-      "Discovery Proof": "Radar Scan",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
-      "Path": "typescript/assemblyscript/builtins.ts",
-      "Size": "420717 bytes"
-    },
-    {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
@@ -2778,38 +2746,6 @@
       "Identity Confidence": "0.0%",
       "Path": "typescript/playwright/LICENSE",
       "Size": "11601 bytes"
-    },
-    {
-      "Diagnostic Reason": "Blocked (Monolithic Amalgamation: 54435 LOC exceeds safe regex boundaries)",
-      "Discovery Proof": "Radar Scan",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
-      "Path": "typescript/typescript_compiler/checker.ts",
-      "Size": "3151774 bytes"
-    },
-    {
-      "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 6379 LOC)",
-      "Discovery Proof": "Radar Scan",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
-      "Path": "typescript/typescript_compiler/emitter.ts",
-      "Size": "273338 bytes"
-    },
-    {
-      "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 10824 LOC)",
-      "Discovery Proof": "Radar Scan",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
-      "Path": "typescript/typescript_compiler/parser.ts",
-      "Size": "539685 bytes"
-    },
-    {
-      "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 10671 LOC)",
-      "Discovery Proof": "Radar Scan",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
-      "Path": "typescript/typescript_compiler/types.ts",
-      "Size": "487846 bytes"
     },
     {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
@@ -2972,14 +2908,6 @@
       "Size": "1080 bytes"
     },
     {
-      "Diagnostic Reason": "Blocked (Monolithic Amalgamation: 37746 LOC exceeds safe regex boundaries)",
-      "Discovery Proof": "Radar Scan",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
-      "Path": "zig/zig/Sema.zig",
-      "Size": "1610629 bytes"
-    },
-    {
       "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 8582 LOC)",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
@@ -3002,14 +2930,6 @@
       "Identity Confidence": "0.0%",
       "Path": "zig/zls/LICENSE",
       "Size": "1068 bytes"
-    },
-    {
-      "Diagnostic Reason": "Blocked (Saturation: Line 9 exceeds 500 chars)",
-      "Discovery Proof": "Radar Scan",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "0.0%",
-      "Path": "zig/zls/langref.html.in",
-      "Size": "351215 bytes"
     },
     {
       "Diagnostic Reason": "Zero-Density Threshold (LOC: 173, Signals: 0)",

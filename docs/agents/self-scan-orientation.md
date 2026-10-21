@@ -16,8 +16,9 @@ the file's risk standing: check the brief's blast-radius/risk lists (Sections 7,
 the DB for that file's complexity/fan-in anyway before editing, so "how conservative should this
 diff be" is answered from data instead of a guess informed only by the issue text.
 
-- **`docs/gitgalaxy_architecture_brief.md`** — auto-committed on every merge to main (a byproduct
-  of the CI scan that also produces SARIF/SBOM), so it's always close to current HEAD. This scan
+- **`docs/gitgalaxy_architecture_brief.md`** — NOT in a checkout: it is published daily to the
+  `generated` branch (read it with `python tests/tools/generated_branch.py show
+  docs/gitgalaxy_architecture_brief.md`), a byproduct of the CI scan that also produces SARIF/SBOM. This scan
   always installs `tiktoken`/`xgboost`/`pandas`/`numpy` first (`gitgalaxy.yml`'s
   "Install GitGalaxy & Full Precision Engines" step) — confirm by checking the brief's own
   Section 0 traceability table, which reports `Zero-Dependency Mode: Inactive (Full Precision)`.
@@ -61,6 +62,11 @@ diff be" is answered from data instead of a guess informed only by the issue tex
     rather than silently producing a degraded DB — if you hit that, `pip install` whatever it
     lists. CI's copy (the `gitgalaxy-self-scan-db` artifact) always has these installed first, so
     it's always full-precision; only a local run can be affected.
-  - It also doesn't parse inside large dict/list literals (e.g. it can't tell you where the
+  - **Line numbers:** `function_data.start_line` (with `loc`) is populated, so `path:start-end` for a
+    function comes straight from the DB. `python tests/tools/context_pack.py <issue>` does this for an
+    issue: it resolves the paths, function/class names and backticked identifiers the issue names and
+    prints `path:start-end` pointers (plus one hop of callers/callees and big-file flags) capped at
+    ~3k tokens; `--body-file` runs it offline. Ranges are hints from the last scan.
+  - It doesn't parse inside large dict/list literals (e.g. it can't tell you where the
     `"scala"` key starts inside `language_standards.py`'s `LANGUAGE_DEFINITIONS`) — it's for
     orientation and prioritization, not symbol lookup. Read the actual file for that.

@@ -22,8 +22,10 @@ if _LANGUAGES_DIR not in sys.path:
 
 from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
 
-_OLD_ANCHOR = r"(?:^|(?<=[^<>(,\s]))[ \t\n]*"
-_NEW_ANCHOR = r"(?:(?<=[^<>(,\s])|^(?:(?=[ \t]*[^ \t\n])|(?![ \t]*[^ \t\n])(?:(?<=[^ \t\n]\n)|\A)))[ \t\n]*"
+# Only the start-anchor head is swapped: a lookahead a later issue (#5503) put between the head and
+# the whitespace run stays in both patterns, so the comparison isolates the #3182 rewrite.
+_OLD_ANCHOR = r"(?:^|(?<=[^<>(,\s]))"
+_NEW_ANCHOR = r"(?:(?<=[^<>(,\s])|^(?:(?=[ \t]*[^ \t\n])|(?![ \t]*[^ \t\n])(?:(?<=[^ \t\n]\n)|\A)))"
 
 _LANGS = ["javascript", "typescript"]
 

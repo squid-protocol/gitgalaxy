@@ -141,7 +141,7 @@ jobs:
         run: |
           cd gitgalaxy
           python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
-          pip install -e .
+          pip install --no-build-isolation -e .
 
       - name: Cache the pinned corpora
         id: corpora
@@ -175,42 +175,16 @@ jobs:
           persist-credentials: false
 
       # #4968: restore-only on every ref. A PR's cache scope is its own ref, so a PR that saved here left one copy per PR
-      # (13-14 per corpus) that nothing else could read. Main saves it below, keyed on the commit a PR's base is.
+      # (13-14 per corpus) that nothing else could read. java-base-generation.yml saves it (#5142), keyed on the content a PR's base has.
       - name: Restore the base branch's generation
         id: base-gen
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/java_base_cache
-          # #5142: keyed on the CONTENT of the files that decide the generation (the paths: list above), of the base checkout on a PR
+          # #5142: seeded by java-base-generation.yml (a push run here is cancelled or tested-tree-skipped before it could save). Keyed on the CONTENT of the files that decide the generation (the paths: list above), of the base checkout on a PR
           # and of main's own checkout on a push. The old key was the base COMMIT, which has an entry only for the ~43 pct of
           # main commits that touch those paths (the push run is path-filtered), so most PRs missed and regenerated both sides.
           key: java-same-base-${{ matrix.corpus }}-${{ github.event_name == 'pull_request' && hashFiles('base/gitgalaxy/cobol_to_java_controller.py', 'base/gitgalaxy/cobol_refractor_controller.py', 'base/gitgalaxy/tools/cobol_to_java/**', 'base/gitgalaxy/tools/cobol_to_cobol/**', 'base/gitgalaxy/standards/yaml_reader.py', 'base/gitgalaxy/standards/fact_channel_confidence.json', 'base/tests/tools/java_target_matrix.py', 'base/tests/cobol_mainframe/corpora.json', 'base/tests/tools/mainframe_corpus.py') || hashFiles('gitgalaxy/gitgalaxy/cobol_to_java_controller.py', 'gitgalaxy/gitgalaxy/cobol_refractor_controller.py', 'gitgalaxy/gitgalaxy/tools/cobol_to_java/**', 'gitgalaxy/gitgalaxy/tools/cobol_to_cobol/**', 'gitgalaxy/gitgalaxy/standards/yaml_reader.py', 'gitgalaxy/gitgalaxy/standards/fact_channel_confidence.json', 'gitgalaxy/tests/tools/java_target_matrix.py', 'gitgalaxy/tests/cobol_mainframe/corpora.json', 'gitgalaxy/tests/tools/mainframe_corpus.py') }}
-
-      - name: Keep this commit's generation for the pull requests based on it (main)
-        id: keep-gen
-        if: github.event_name != 'pull_request' && steps.base-gen.outputs.cache-hit != 'true'
-        continue-on-error: true  # best effort: a miss only costs the next PR a base generation
-        env:
-          CORPUS: ${{ matrix.corpus }}
-          CONFIGS: ${{ matrix.configs }}
-        run: |
-          cd gitgalaxy
-          ONLY=()
-          if [ -n "$CONFIGS" ]; then ONLY=(--only $CONFIGS); fi
-          # this checkout is its own base: the run keeps the base side's projects in the cache directory
-          PYTHONPATH="$PWD" python tests/tools/java_target_matrix.py \
-            "$GITGALAXY_MAINFRAME_CORPORA/$CORPUS" \
-            --same-as "$GITHUB_WORKSPACE/gitgalaxy" \
-            --base-cache "$RUNNER_TEMP/java_base_cache" \
-            --work "$RUNNER_TEMP/java_keep" \
-            "${ONLY[@]}"
-
-      - name: Save the generation under this commit (main)
-        if: github.event_name != 'pull_request' && steps.base-gen.outputs.cache-hit != 'true' && steps.keep-gen.outcome == 'success'
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ${{ runner.temp }}/java_base_cache
-          key: java-same-base-${{ matrix.corpus }}-${{ hashFiles('gitgalaxy/gitgalaxy/cobol_to_java_controller.py', 'gitgalaxy/gitgalaxy/cobol_refractor_controller.py', 'gitgalaxy/gitgalaxy/tools/cobol_to_java/**', 'gitgalaxy/gitgalaxy/tools/cobol_to_cobol/**', 'gitgalaxy/gitgalaxy/standards/yaml_reader.py', 'gitgalaxy/gitgalaxy/standards/fact_channel_confidence.json', 'gitgalaxy/tests/tools/java_target_matrix.py', 'gitgalaxy/tests/cobol_mainframe/corpora.json', 'gitgalaxy/tests/tools/mainframe_corpus.py') }}
 
       - name: Is the generated Java unchanged? (pull requests)
         id: same

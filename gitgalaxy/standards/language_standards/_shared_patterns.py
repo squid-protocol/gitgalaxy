@@ -115,7 +115,9 @@ GLOBAL_FRAGILE_DEBT = re.compile(f"{_HYPHEN_IDENT_PRE}{_SPACED_FRAGILE}{_HYPHEN_
 #   after `import` must BE the package, optionally followed by a submodule
 #   (`from openai.types import X`). Anchored at a statement start (line start or
 #   `;`), so `from airflow.providers import openai` and `from . import openai`
-#   are not package imports. Pieces are adjacent-disjoint (`[\w.]+` / `[ \t]` /
+#   are not package imports. The anchor also excludes a doctest
+#   `>>> import openai` / `... import openai` line: decided NOT to count it (#4250), as for
+#   the general python `import` rule (#2875 C5); pinned by test_doctest_import_policy_4250. Pieces are adjacent-disjoint (`[\w.]+` / `[ \t]` /
 #   `,`) and the item list is bounded, so there is no Rule-14 split ambiguity.
 # * JS/TS (`_js_package_import`): the module SPECIFIER (the quoted string after
 #   `from` / `import` / `require(` / `import(`) must name the package. A relative
@@ -158,15 +160,27 @@ JS_LLM_ORCHESTRATOR = _js_package_import(r"langchain|llamaindex|@(?:langchain|ll
 # llm_vector_store (#4150): Chroma and Pinecone (npm: `@pinecone-database/*`).
 PY_LLM_VECTOR_STORE = _py_package_import(r"chromadb|pinecone")
 JS_LLM_VECTOR_STORE = _js_package_import(r"chromadb|@pinecone-database/[\w.-]+")
-# ml_traditional (#4150): scikit-learn. There is no js/ts scikit-learn; the
-# anchored name is kept so a literal `require('sklearn')` still counts.
-PY_ML_TRADITIONAL = _py_package_import(r"sklearn")
-JS_ML_TRADITIONAL = _js_package_import(r"sklearn")
-# dl_frameworks (#4150): TensorFlow, PyTorch, Keras. On npm TensorFlow.js ships
-# as the `@tensorflow/*` and `@tensorflow-models/*` scopes; the bare names are
-# kept so a literal `from 'tensorflow'` still counts.
-PY_DL_FRAMEWORKS = _py_package_import(r"tensorflow|torch|keras")
-JS_DL_FRAMEWORKS = _js_package_import(r"tensorflow|torch|keras|@tensorflow(?:-models)?/[\w.-]+")
+# ml_traditional (#4150, #4252): scikit-learn and the gradient-boosting
+# libraries (`xgboost`, `lightgbm`, `catboost`). There is no js/ts equivalent, so
+# the javascript/typescript rule is the stated absence (None, #4251): a pattern
+# for the literal specifier `'sklearn'` matched nothing real on npm.
+PY_ML_TRADITIONAL = _py_package_import(r"sklearn|xgboost|lightgbm|catboost")
+# dl_frameworks (#4150, #4252): TensorFlow, PyTorch, Keras and their companion
+# distributions (`torchvision`, `torchaudio`, `torchtext`, `tensorflow_hub`,
+# `tensorflow_datasets`, `tensorflow_text`), plus Hugging Face `transformers`.
+# Each is a top-level package of its own: the `(?!\w)` anchor means `torch` never
+# matches `torchvision`, so every companion is named. Generic names (`datasets`,
+# `accelerate`, `peft`) are left out: they appear in non-ML code. On npm
+# TensorFlow.js ships as the `@tensorflow/*` and `@tensorflow-models/*` scopes and
+# Transformers.js as `@huggingface/transformers` / `@xenova/transformers`; the bare
+# names are kept so a literal `from 'tensorflow'` still counts.
+PY_DL_FRAMEWORKS = _py_package_import(
+    r"tensorflow|torch|keras|transformers|torchvision|torchaudio|torchtext"
+    r"|tensorflow_hub|tensorflow_datasets|tensorflow_text"
+)
+JS_DL_FRAMEWORKS = _js_package_import(
+    r"tensorflow|torch|keras|transformers|@tensorflow(?:-models)?/[\w.-]+|@(?:huggingface|xenova)/transformers"
+)
 
 # hardware_bridge / cryptography (#4238): the last two import-anchored rules had the
 # same `\b(?:import|require|from)\b.*?(?:names)\b` shape (library name ANYWHERE on
@@ -358,6 +372,27 @@ CALLS_OUT_RUST = re.compile(
 _GO_CONVERSION_PREFIX = (
     r"(?<![\w)\]])\(\*{0,2}(?:\[[^\]\n]{0,64}\])?(?:[" + ID_START + r"][" + ID_CONTINUE + r"]{0,63}\.)?"
 )
+# #5634: a generic instantiation call, `F[*T](x)`, `Map[int, string](xs)`, `New[pkg.T]()`, sits between
+# the name and `(` as `[type args]`. `fns[i](x)` (an index, then a call of the element) is the same
+# shape, so the bracket must READ as type arguments: a pointer, slice, map, func or predeclared type
+# first, a `,` between two, or a qualified `pkg.T`. One level of nested `[...]`; bounded, disjoint.
+_GO_TYPE_ARG_BODY = r"[^\[\]\n]{0,64}(?:\[[^\[\]\n]{0,64}\][^\[\]\n]{0,64}){0,2}"
+_GO_PREDECLARED_TYPE = (
+    r"(?:u?int(?:8|16|32|64)?|uintptr|float(?:32|64)|complex(?:64|128)|string|bool|byte|rune|error|any|comparable)\b"
+)
+_GO_TYPE_ARGS = (
+    r"\[(?:[*]|\[\]|map(?=\[)|func\b|chan\b|"
+    + _GO_PREDECLARED_TYPE
+    + r"|[^\[\]\n,]{1,64},|["
+    + ID_START
+    + r"]["
+    + ID_CONTINUE
+    + r"]{0,63}\.["
+    + ID_START
+    + r"])"
+    + _GO_TYPE_ARG_BODY
+    + r"\]"
+)
 CALLS_OUT_GO = re.compile(
     r"(?=(?:" + _GO_CONVERSION_PREFIX + r")?(?<!\w)([" + ID_START + r"][" + ID_CONTINUE + r"]*))"
     r"(?:"
@@ -370,7 +405,9 @@ CALLS_OUT_GO = re.compile(
     + ID_START
     + r"]["
     + ID_CONTINUE
-    + r"]*(?=\s*\())"
+    + r"]*(?=(?:"
+    + _GO_TYPE_ARGS
+    + r")?\s*\())"
 )
 
 # The invocation patterns detector.py treats as the C-style family: group 1 is
@@ -430,3 +467,39 @@ COMMENTED_STATEMENT = (
     r")[ \t]*;"
 )
 COMMENTED_STATEMENT_C_FAMILY = r"(?<![/*])(?://|/\*)[ \t]*" + COMMENTED_STATEMENT  # (not a `///` doc line)
+
+
+# ------------------------------------------------------------------------------
+# #5461: C/C++ function-defining macros (`CCMD(map) {`, `DEFINE_ACTION_FUNCTION(AActor, A_Look) {`,
+# `TEST(Suite, Name) {`, odamex `FUNC(LS_Door_Open) {`). Pattern SOURCE (an alternative of `func_start`; the macro's name lands in group 2 and the detector's `lastindex` read
+# picks it up). Name rule: the only argument; of several, the second (`Class, name` /
+# `Type, name` / `Suite, Name`), except the `C_MACRO_FIRST_ARG_NAMES` macros, which name the first. Anchors: an ALL-CAPS macro of 3+ chars at column 0 whose
+# argument list holds plain identifiers (no nested call, no operators) and is followed by `{`.
+# Column 0, not "after indentation": an indented `MACRO(x) {` sits inside a body, where it is a
+# statement macro (godot `OPCODE(OPCODE_JUMP) {` = `case`, `OPCODE_WHILE(true) {` = `while`).
+# Excluded: control-flow shouts, `BEGIN`/`END`, and class-like macros (`DE_PIMPL`, `*NAMESPACE*`) and `*MODULE` binders (`NB_MODULE(name, m)`: `m` is a variable).
+# The `#define` lookup (odamex FUNC) lives in `detector._slice_by_braces`: a macro whose in-file define is not a signature is dropped.
+# ------------------------------------------------------------------------------
+# The identifier is not always the second argument. These macros name the FIRST (`DEFINE_PROPERTY(name, Type, Class)`,
+# `DEFINE_MAP_OPTION(name, true)`): the exact names only, so `DEFINE_CLASS_PROPERTY_PREFIX(prefix, name, Type, Class)`
+# and `DEFINE_PROPERTYKEY` keep the general rule (`;`-terminated, so the latter never reaches the `{`).
+# `DEFINE_CLASS_PROPERTY*` is exempt from the class-like exclusion below: it defines a property, not a class.
+C_MACRO_FIRST_ARG_NAMES = r"DEFINE_(?:(?:CLASS|INFO)_)?PROPERTY|DEFINE_MAP_OPTION"
+
+
+def _c_macro_func_start(name_open: str) -> str:
+    return (
+        r"^(?!(?!DEFINE_CLASS_PROPERTY)[A-Z0-9_]{0,40}(?:PIMPL|NAMESPACE|CLASS|STRUCT|ENUM|TEMPLATE|UNION|MODULE)|"
+        r"(?:IF|FOR|WHILE|SWITCH|ELSE|DO|BEGIN|END|ASSERT|CASE|RETURN)\b)"
+        rf"(?:(?:{C_MACRO_FIRST_ARG_NAMES})[ \t]*\([ \t]*"
+        rf"|(?!(?:{C_MACRO_FIRST_ARG_NAMES})[ \t]*\()[A-Z][A-Z0-9_]{{2,}}[ \t]*\([ \t]*"
+        rf"(?:[{ID_START}][{ID_CONTINUE}]{{0,60}}[ \t]*,[ \t]*)?)"
+        rf"{name_open}[{ID_START}][{ID_CONTINUE}]{{0,100}})[ \t]*"
+        r"(?:,[^()\n;{}]{0,200})?\)[ \t\n]{0,200}\{"
+    )
+
+
+# The capturing form is the SECOND alternative of `func_start` (so the generic branch keeps group 1); `_GUARD` is
+# the same shape without a group, for a rule whose generic branch would otherwise name the macro itself (C++).
+C_MACRO_FUNC_START_SOURCE = _c_macro_func_start("(")
+C_MACRO_FUNC_START_GUARD = _c_macro_func_start("(?:")

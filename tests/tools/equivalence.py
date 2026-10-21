@@ -224,6 +224,24 @@ def fault_plan(fault: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def run_parm(case: dict[str, Any], fault: dict[str, Any] | None = None) -> str | None:
+    """#5561: the PARM a run gets: the fault run's own `parm` (a batch step's input, so END < START, step 0 or a
+    seed are runs of their own), else the case's."""
+    if fault is not None and fault.get("parm") is not None:
+        if case.get("entries"):
+            raise SystemExit(f"{case['name']}: a run's own parm cannot go with `entries` (they pass no PARM)")
+        return str(fault["parm"])
+    return case.get("parm")
+
+
+def fresh_fault_log(work: Path, fault: dict[str, Any] | None) -> None:
+    """ggfault.c / ggsql APPEND to work/FAULTS: a second pass over the same work dir (a kept baseline run again) would
+    log every fault twice, and a --reuse of it would copy the doubled log into each mutant's COBOL side (mutation
+    testing's false kills: "faults fired differ: COBOL [x2], Java [x1]"). A step that is reused keeps its earlier log."""
+    if fault is not None and not step_reused(work):
+        (work / "FAULTS").unlink(missing_ok=True)
+
+
 def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, Any] | None = None) -> dict[str, bytes]:
     """Stage, compile and run the case's program under GnuCOBOL; {dd: output bytes}, plus RETURN-CODE -- or,
     when the step abended, ABEND (Unnnn, the CEE3ABD stub's) -- and, for a `fault` run, FAULTS: the planned
@@ -269,6 +287,9 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
                 script.append(f"INFILE=/work/{dd}.in {dd}=/work/{dd}.idx ./ld{dd}")
         elif "input" in spec:
             script.append(f"cp /work/{dd}.in /work/{dd}.idx")
+    if case.get("sysin") is not None:  # #5106: the step's SYSIN stream (ACCEPT FROM SYSIN), one record per line
+        sysin = case["sysin"]
+        (work / "SYSIN.in").write_bytes((sysin if sysin.endswith("\n") else sysin + "\n").encode(enc))
     ims = case.get("ims")
     if ims:  # #4893: a DL/I program -- IMS enters it at DLITCBL with its PCBs -- on the stated databases (ggdli.c)
         try:
@@ -280,7 +301,7 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
         shutil.rmtree(work / "dliout", ignore_errors=True)
         (work / "dliout").mkdir()
     else:
-        (src / "EQDRIVER.cbl").write_text(cobol_driver(case["program"], case.get("parm")), encoding="ascii")
+        (src / "EQDRIVER.cbl").write_text(cobol_driver(case["program"], run_parm(case, fault)), encoding="ascii")
     for stub in ("ggabend.c", "ggfault.c", "ggdisplay.c"):
         shutil.copy(FAULTS_DIR / stub, src / stub)
     models = sorted(LE_MODELS.glob("*.c"))
@@ -318,7 +339,7 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
             (work / "sqlfaults.cfg").write_text("".join(x + "\n" for x in fault["sql_plan"]), encoding="ascii")
             sqlenv += "GGSQL_FAULTS=/work/sqlfaults.cfg "
     script.append(f"set +e; {cov.trace_env('/work/' + cov.TRACE_NAME)}GG_ABEND=/work/ABEND COB_VARSEQ_FORMAT=0 {inject}{tz}{clock}{env} "
-                  f"{sqlenv}./program > /work/stdout.txt 2>&1; echo $? > /work/RETURN-CODE; set -e")  # fmt: skip
+                  f"{sqlenv}./program {'< /work/SYSIN.in ' if case.get('sysin') is not None else ''}> /work/stdout.txt 2>&1; echo $? > /work/RETURN-CODE; set -e")  # fmt: skip
     # after an abend (or an OPEN a fault refused) an output may not exist: unloaded if it does
     for dd, spec in case["datasets"].items():
         if spec.get("compare") and spec.get("organization") == "indexed":
@@ -326,6 +347,7 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
         elif spec.get("compare"):
             script.append(f"[ ! -e /work/{dd}.idx ] || cp /work/{dd}.idx /work/{dd}.out")
     (work / "run.sh").write_text("\n".join(script) + "\n", encoding="ascii")
+    fresh_fault_log(work, fault)
     if db2 and not step_reused(work):
         equivalence_db2.reset(case, corpus)
     proc = (run_cobol_step(work, equivalence_db2.COBOL_IMAGE, tuple(equivalence_db2.cobol_docker_args(case))) if db2
@@ -597,7 +619,7 @@ def compare_run(case: dict[str, Any], corpus: Path, cobol: dict[str, bytes], jav
                  (("cobol", cobol), ("java", java))}  # fmt: skip
         fired = {side: [x for x in lines if x.strip()] for side, lines in fired.items()}
         run["fired"] = fired
-        if not fired["cobol"]:
+        if not fired["cobol"] and fault.get("plan"):  # #5561: a run with only its own parm plans no fault
             why.append("the planned fault never fired on the COBOL side: the run does not reach it")
         if fired["cobol"] != fired["java"]:
             why.append(f"faults fired differ: COBOL {fired['cobol']}, Java {fired['java']}")
@@ -718,6 +740,10 @@ def main() -> int:
                    "(mutation testing: many ports of one case)")  # fmt: skip
     r.add_argument("--first-difference", action="store_true", help="stop at the first run that differs: the "
                    "verdict is the same, the report names only that run (mutation testing)")  # fmt: skip
+    r.add_argument("--one-jvm", action="store_true", help="a batch proof's runs in the first environment (it, the "
+                   "faults, the entries), or a call / CICS proof's runs (task, facade), in one JVM, each on a fresh "
+                   "Spring context, instead of a JVM each; Db2 / IMS "
+                   "cases and a project that cannot run without Maven keep a JVM per run (mutation testing)")  # fmt: skip
     r.add_argument("--generated-only", action="store_true",
                    help="run the generated service as generated (no port): the generator's own baseline")  # fmt: skip
     r.add_argument("--no-facades", action="store_true", help="#4449: a CICS case's port is proven through runTask "
@@ -737,13 +763,13 @@ def main() -> int:
         return 0
     import mainframe_corpus as mc
 
-    if args.record and (args.port or args.case_file or args.reuse or args.first_difference or args.generated_only
+    if args.record and (args.port or args.case_file or args.reuse or args.first_difference or args.one_jvm or args.generated_only
                         or args.cobol_only or args.faults not in (None, "all") or args.environments
                         or args.sql_faults != "auto" or args.source_encoding or args.data_encoding
                         or args.no_facades or args.corpus_dir):  # fmt: skip
         raise SystemExit(
             "--record proves the committed port on the committed case as it is: drop --port / "
-            "--case-file / --reuse / --first-difference / --generated-only / --cobol-only / --no-facades / --corpus-dir "
+            "--case-file / --reuse / --first-difference / --one-jvm / --generated-only / --cobol-only / --no-facades / --corpus-dir "
             "and the overrides"
         )
     case = load_case(args.case, args.case_file)
@@ -776,14 +802,16 @@ def main() -> int:
         import equivalence_call as ecall
 
         return _recorded(args, work, ecall.run_case(case, corpus, work, port=not args.generated_only,
-                                                    port_dir=args.port, cobol_only=args.cobol_only))  # fmt: skip
+                                                    port_dir=args.port, cobol_only=args.cobol_only,
+                                                    one_jvm=args.one_jvm))  # fmt: skip
     if case.get("kind") == "cics":  # #3754: an online program, run as tasks under the stub CICS runtime
         import equivalence_cics as ec
 
         return _recorded(args, work, ec.run_case(case, corpus, work, port=not args.generated_only,
                                                  port_dir=args.port, cobol_only=args.cobol_only,
                                                  sql_faults=args.sql_faults,
-                                                 facades=not args.no_facades))  # fmt: skip
+                                                 facades=not args.no_facades,
+                                                 one_jvm=args.one_jvm))  # fmt: skip
     faults = selected_faults(case, args.faults)
     if case.get("db2"):  # the case's tables, created from its DDL on the harness's Db2 (equivalence_db2.py)
         equivalence_db2.create(case, corpus)
@@ -797,7 +825,18 @@ def main() -> int:
                 f["sql_plan"] = ec.sql_fault_plan(case, {"name": f["name"], **f}, table)
         if args.sql_faults == "auto" and args.faults != "none":
             faults = [*faults, *enumerated_batch_sql_faults(work / "cobol", table)]
-    cobol_faults = {f["name"]: run_cobol(case, corpus, work / "faults" / f["name"] / "cobol", f) for f in faults}
+    cobol_faults, unrunnable = {}, {}
+    for f in faults:
+        try:
+            cobol_faults[f["name"]] = run_cobol(case, corpus, work / "faults" / f["name"] / "cobol", f)
+        except RuntimeError as e:
+            # #5561: a derived SQL fault whose oracle run is "not runnable faithfully" (BANKDATA's failed DELETE
+            # shows SQLERRMC(1:SQLERRML), length 0 under an injected fault: X8) has no oracle: named in the report,
+            # never proven or guessed. A declared fault, or any other failure, still stops the proof.
+            if not f.get("derived") or "not runnable faithfully" not in str(e):
+                raise
+            unrunnable[f["name"]] = str(e).strip().splitlines()[0]
+    faults = [f for f in faults if f["name"] in cobol_faults]
     if args.cobol_only:
         for name, res in [("", cobol), *cobol_faults.items()]:
             for dd, data in res.items():
@@ -823,10 +862,10 @@ def main() -> int:
     try:
         runs = ej.run_java_environments(case, corpus, work / "java", work / "cobol", envs,
                                         port=not args.generated_only, port_dir=args.port,
-                                        faults=tuple((f["name"], fault_plan(f), "\n".join(f.get("sql_plan", [])))
+                                        faults=tuple((f["name"], fault_plan(f), "\n".join(f.get("sql_plan", [])), run_parm(case, f) if f.get("parm") is not None else "")
                                                      for f in faults),
                                         stop=differs if args.first_difference else None,
-                                        entries=tuple(entries))  # fmt: skip
+                                        entries=tuple(entries), one_jvm=args.one_jvm)  # fmt: skip
     except RuntimeError as e:  # the port does not compile, or its run fails: the loop's feedback, not a crash
         failed = java_failure_report(case, work, str(e))
         (work / "report.json").write_text(json.dumps(failed, indent=2) + "\n", encoding="utf-8")
@@ -855,7 +894,8 @@ def main() -> int:
     for f in faults_made:  # #4023 follow-up: each fault run, proven like the normal one
         run = compare_run(case, corpus, cobol_faults[f["name"]], runs[f"fault:{f['name']}"], fault=f)
         report.setdefault("faults", []).append({"name": f["name"], "why": f.get("why", ""), "plan": fault_plan(f)
-                                                .strip().splitlines(), **run})  # fmt: skip
+                                                .strip().splitlines() + ([f"PARM {f['parm']}"] if f.get("parm") is not None else []),
+                                                **run})  # fmt: skip
         ok &= run["ok"]
     whys = {e["method"]: e.get("why", "") for e in case.get("entries", [])}
     for e in entries_made:  # #4048 follow-up: each entry run, against the same COBOL run as the normal one
@@ -868,6 +908,8 @@ def main() -> int:
         work / "faults" / f["name"] / "cobol" / cov.TRACE_NAME for f in faults
     ]
     report["coverage"] = cobol_coverage(case, corpus, traces, work / "coverage.json")  # #4023, every run together
+    if unrunnable:  # only when non-empty (python-test-traps.md): a case with none keeps its report as it was
+        report["unrunnable_faults"] = unrunnable
     report["runs"] = 1 + len(faults)
     report["oracle"] = equivalence_oracle.for_case(case)  # #4309: which GnuCOBOL produced the expected outputs
     report["feedback"] = feedback_md(report) if not ok else ""

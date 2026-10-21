@@ -36,6 +36,7 @@ from collections.abc import Iterator
 import cobol_coverage as cov  # #4023
 import equivalence_common as common
 import equivalence_cics_containers as cics_containers  # #5274: the channels / containers family
+import equivalence_cics_filecontrol as cics_filecontrol  # #5274: the file control family
 import equivalence_db2
 import equivalence_inputs  # #3804
 import equivalence_mq  # #4892
@@ -273,7 +274,11 @@ def _handle(pairs: list[tuple[str, str | None]], labels: list[str]) -> list[str]
             lines += ["MOVE SPACES TO GG-NAME2" if n == "ABCODE" else f"MOVE '{n[:8]}' TO GG-NAME2"] + _call(
                 "GGCASGN", []
             )
-            lines.append(f"MOVE GG-NAME1(1:{width}) TO {target}")
+            # IBM writes exactly `width` bytes and leaves the rest of a wider data area as it was (det: DetCics.put); a
+            # plain MOVE would space-pad that tail (#4049), so the target is reference-modified to the width
+            if re.search(r"\(\s*\d*\s*:", target):
+                raise Unsupported(f"ASSIGN {n}: a reference-modified target", [f"ASSIGN {n}"])
+            lines.append(f"MOVE GG-NAME1(1:{width}) TO {target}(1:{width})")
         if not any(n in TERMINAL_OPTIONS for n, _v in asked):
             return lines + _resp(opts, False)
         # INVREQ RESP2 5 for a task with no terminal, and then no data area written (register X19)
@@ -1447,165 +1452,10 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
     def name(operand: str | None, into: str) -> str:
         return f"MOVE {operand} TO {into}" if operand else f"MOVE SPACES TO {into}"
 
-    if verb == "READ":
-        _check_spec("READ", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
-        for bad in ("RBA", "XRBA", "RRN"):
-            if bad in opts:
-                raise _stub_only(f"READ {bad}")
-        file, into, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("INTO"), opts.get("RIDFLD")
-        setp = opts.get("SET")  # #5042 (X58): SET(pointer) -> GGCRDST, the record as a new block
-        if "SET" in opts and into:
-            raise Unsupported(_rule("READ", "one_of", "INTO"), ["READ"])
-        if not (file and (into or setp) and ridfld):
-            raise Unsupported("READ without FILE / INTO / RIDFLD")
-        keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
-        # #4270 GTEQ / GENERIC (X22): a search, the generic key KEYLENGTH long; the option rules as the translator's
-        if "GTEQ" in opts and "EQUAL" in opts:
-            raise Unsupported(_rule("READ", "at_most_one", "EQUAL", "EQUAL", "GTEQ"), ["READ GTEQ"])
-        if "GENERIC" in opts and "KEYLENGTH" not in opts:
-            raise Unsupported(_rule("READ", "requires", "GENERIC"), ["READ GENERIC"])
-        # UPDATE holds the record; TOKEN (#5078, X52) implies it and holds it under a token of its own, GG-NUM out
-        words = [w for w in ("UPDATE", "TOKEN", "GTEQ", "GENERIC") if w in opts or (w == "UPDATE" and "TOKEN" in opts)]
-        if (
-            "KEYLENGTH" in opts and "GENERIC" not in opts
-        ):  # #5092 (X52): given, so INVREQ 26 unless it is the key's length
-            words.append("KEYLENGTH")
-        if "TOKEN" in opts and not opts["TOKEN"]:
-            raise Unsupported("READ TOKEN needs a data area", ["READ TOKEN"])
-        update = f"MOVE '{' '.join(words)}' TO GG-FLAGS" if words else "MOVE SPACES TO GG-FLAGS"
-        # #4436: LENGTH is in-out (IBM, EXEC CICS READ): in, the most INTO takes (a longer record is truncated, with
-        # LENGERR); out, the record's length, on NORMAL and LENGERR. Without it, LENGTH OF INTO (as the translator
-        # supplies it). A literal / LENGTH OF is set in a temporary no one reads.
-        length = opts.get("LENGTH")
-        settable = bool(length) and re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()) is None
-        after = ["IF GG-RESP = 0 OR GG-RESP = 22", f"    MOVE GG-LEN TO {length}", "END-IF"] if settable else []
-        if "TOKEN" in opts:
-            after += ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['TOKEN']}", "END-IF"]
-        if setp:  # (LENGTH(data-area) is set to the record's length, on NORMAL and DUPKEY, as the translator's)
-            if length and not settable:
-                raise Unsupported("READ SET with a literal LENGTH: only a data area is modelled", ["READ SET"])
-            after = ["IF GG-RESP = 0 OR GG-RESP = 15", f"    MOVE GG-LEN TO {length}", "END-IF"] if length else []
-            if "TOKEN" in opts:
-                after += ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['TOKEN']}", "END-IF"]
-            return ([name(file, "GG-NAME1"), update, "MOVE 0 TO GG-LEN"]
-                    + _call("GGCRDST", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {_pointer('READ', setp)}"])
-                    + after + _resp(opts, True, labels))  # fmt: skip
-        return ([name(file, "GG-NAME1"), update, f"MOVE {length or f'LENGTH OF {into}'} TO GG-LEN"]
-                + _call("GGCREAD", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {into}",
-                                    f"BY VALUE LENGTH OF {into}"])
-                + after + _resp(opts, True, labels))  # fmt: skip
-    if verb == "WRITE" and {"FILE", "DATASET"} & set(opts):
-        _check_spec("WRITE", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
-        for bad in ("RBA", "XRBA", "RRN"):
-            if bad in opts:
-                raise _stub_only(f"WRITE {bad}")
-        file, frm, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("FROM"), opts.get("RIDFLD")
-        if not (file and frm and ridfld):
-            raise Unsupported("WRITE without FILE / FROM / RIDFLD")
-        keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
-        return ([name(file, "GG-NAME1")]
-                + _call("GGCWRIT", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {frm}",
-                                    f"BY VALUE {opts.get('LENGTH') or f'LENGTH OF {frm}'}"])
-                + _resp(opts, True, labels))  # fmt: skip
-    if verb == "REWRITE" and ({"FILE", "DATASET"} & set(opts)):
-        _check_spec("REWRITE", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
-        file, frm = opts.get("FILE") or opts.get("DATASET"), opts.get("FROM")
-        if not (file and frm):
-            raise Unsupported("REWRITE without FILE / FROM")
-        length = opts.get("LENGTH") or f"LENGTH OF {frm}"  # LENGTH bytes from FROM's first, as CICS reads them
-        if "TOKEN" in opts:  # #5078 (X52): the record the READ UPDATE TOKEN holds (GG-NUM in)
-            if not opts["TOKEN"]:
-                raise Unsupported("REWRITE TOKEN needs a value", ["REWRITE TOKEN"])
-            return ([name(file, "GG-NAME1"), "MOVE 'TOKEN' TO GG-FLAGS", f"MOVE {opts['TOKEN']} TO GG-NUM"]
-                    + _call("GGCREWR", [f"BY REFERENCE {frm}", f"BY VALUE {length}"]) + _resp(opts, True, labels))  # fmt: skip
-        return ([name(file, "GG-NAME1"), "MOVE SPACES TO GG-FLAGS"] + _call("GGCREWR", [f"BY REFERENCE {frm}", f"BY VALUE {length}"])
-                + _resp(opts, True, labels))  # fmt: skip
-    if verb == "STARTBR":  # browse (CardDemo's lists): one browse per file, full keys -- or an ESDS's RBAs (#4213)
-        rba = "RBA" in opts
-        _check_spec("STARTBR", opts, (verb,), lambda bad: [f"STARTBR {'RBA ' if rba else ''}{bad[0]}"])
-        for bad in ("RRN", "XRBA") + (("GTEQ", "KEYLENGTH") if rba else ()):
-            if bad in opts:
-                raise _stub_only(f"STARTBR {'RBA ' if rba else ''}{bad}")
-        file, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("RIDFLD")
-        if not (file and ridfld):
-            raise Unsupported("STARTBR without FILE / RIDFLD")
-        keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
-        # GTEQ is a keyed browse's default; EQUAL "is the default for a direct ESDS browse" (IBM, STARTBR), and GTEQ
-        # "is not valid for directly browsing an ESDS"
-        mode = ("MOVE 'EQUAL RBA' TO GG-FLAGS" if rba else
-                "MOVE 'EQUAL' TO GG-FLAGS" if "EQUAL" in opts else "MOVE SPACES TO GG-FLAGS")  # fmt: skip
-        return ([name(file, "GG-NAME1"), mode] + _call("GGCSTBR", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}"])
-                + _resp(opts, True, labels))  # fmt: skip
-    if verb in ("READNEXT", "READPREV"):
-        rba = "RBA" in opts  # #4213: every READNEXT / READPREV of an RBA browse says RBA too
-        _check_spec(verb, opts, (verb,), lambda bad: [f"{verb} {'RBA ' if rba else ''}{bad[0]}"])
-        for bad in ("RRN", "XRBA") + (("KEYLENGTH",) if rba else ()):
-            if bad in opts:
-                raise _stub_only(f"{verb} {'RBA ' if rba else ''}{bad}")
-        file, into, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("INTO"), opts.get("RIDFLD")
-        setp = opts.get("SET")  # #5042 (X58): SET(pointer) -> GGCRDNS / GGCRDPS, the record as a new block
-        if "SET" in opts and (into or rba or opts.get("LENGTH")):
-            raise Unsupported(f"{verb} SET with INTO, RBA or LENGTH: not modelled", [f"{verb} SET"])
-        if not (file and (into or setp) and ridfld):
-            raise Unsupported(f"{verb} without FILE / INTO / RIDFLD")
-        keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
-        if setp:
-            stub = "GGCRDNS" if verb == "READNEXT" else "GGCRDPS"
-            return ([name(file, "GG-NAME1"), "MOVE SPACES TO GG-FLAGS"]
-                    + _call(stub, [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {_pointer(verb, setp)}"])
-                    + _resp(opts, True, labels))  # fmt: skip
-        stub = "GGCRDNX" if verb == "READNEXT" else "GGCRDPV"
-        return ([name(file, "GG-NAME1"), "MOVE 'RBA' TO GG-FLAGS" if rba else "MOVE SPACES TO GG-FLAGS"]
-                + _call(stub, [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {into}",
-                               f"BY VALUE LENGTH OF {into}"])
-                + _resp(opts, True, labels))  # fmt: skip
-    if verb == "ENDBR":
-        _check_spec("ENDBR", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
-        file = opts.get("FILE") or opts.get("DATASET")
-        if not file:
-            raise Unsupported("ENDBR without FILE")
-        return [name(file, "GG-NAME1")] + _call("GGCENBR", []) + _resp(opts, True, labels)
-    if verb == "DELETE" and ({"FILE", "DATASET"} & set(opts)):
-        _check_spec("DELETE", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
-        for bad in ("RBA", "XRBA", "RRN"):
-            if bad in opts:
-                raise _stub_only(f"DELETE {bad}")
-        file, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("RIDFLD")
-        if "TOKEN" in opts and "GENERIC" in opts:  # #5078 (X52)
-            raise Unsupported(_rule("DELETE", "at_most_one", "GENERIC", "GENERIC", "TOKEN"), ["DELETE TOKEN"])
-        if "GENERIC" in opts:  # #4771 (X22): every record with the generic key, KEYLENGTH long
-            for o in ("KEYLENGTH", "RIDFLD"):
-                if not opts.get(o):
-                    raise Unsupported(next(g.msg for g in SPEC["DELETE"].groups if o in g.any_of), ["DELETE GENERIC"])
-            args = [f"BY REFERENCE {ridfld}", f"BY VALUE {opts['KEYLENGTH']}"]
-            return ([name(file, "GG-NAME1"), "MOVE 'GENERIC' TO GG-FLAGS"] + _call("GGCDELT", args)
-                    + _resp(opts, True, labels))  # fmt: skip
-        if "TOKEN" in opts:  # #5078 (X52): the record the READ UPDATE TOKEN holds, no RIDFLD
-            if ridfld:
-                raise Unsupported(_rule("DELETE", "at_most_one", "RIDFLD", "RIDFLD", "TOKEN"), ["DELETE TOKEN"])
-            if not opts["TOKEN"]:
-                raise Unsupported("DELETE TOKEN needs a value", ["DELETE TOKEN"])
-            return ([name(file, "GG-NAME1"), "MOVE 'TOKEN' TO GG-FLAGS", f"MOVE {opts['TOKEN']} TO GG-NUM"]
-                    + _call("GGCDELT", ["BY REFERENCE GG-FLAGS", "BY VALUE 0"]) + _resp(opts, True, labels))  # fmt: skip
-        if ridfld:  # the record with that key
-            keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
-            args = [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}"]
-            # #5092 (X22): a given KEYLENGTH is INVREQ 26 unless it is the key's length, as READ's (GG-FLAGS KEYLENGTH)
-            mode = "MOVE 'KEYLENGTH' TO GG-FLAGS" if opts.get("KEYLENGTH") else "MOVE SPACES TO GG-FLAGS"
-        else:  # the record a READ UPDATE holds
-            args, mode = ["BY REFERENCE GG-FLAGS", "BY VALUE 0"], "MOVE 'HELD' TO GG-FLAGS"
-        return [name(file, "GG-NAME1"), mode] + _call("GGCDELT", args) + _resp(opts, True, labels)
-    if verb == "UNLOCK" and ({"FILE", "DATASET"} & set(opts)):  # #5078 (X52): UNLOCK TOKEN -> GGCUNLK (GG-NUM in)
-        _check_spec("UNLOCK", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
-        file = opts.get("FILE") or opts.get("DATASET")
-        token = (
-            [f"MOVE {opts['TOKEN']} TO GG-NUM", "MOVE 'TOKEN' TO GG-FLAGS"]
-            if opts.get("TOKEN")
-            else ["MOVE SPACES TO GG-FLAGS"]
-        )
-        return (
-            [name(file, "GG-NAME1"), *token] + _call("GGCUNLK", []) + _resp(opts, True, labels)
-        )  # #5079: no TOKEN, the file's hold
+    if verb in cics_filecontrol.FILE_VERBS:  # #5274: the file control family
+        lines = cics_filecontrol.file_command(verb, opts, labels)
+        if lines is not None:
+            return lines
     if verb == "DELAY":  # #4950: the wait at which RUN children are dispatched (GGCDLAY)
         return _delay(opts, labels)
     if verb == "POST":  # #5079 (X63): a timer-event control area
@@ -1877,18 +1727,26 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
             raise Unsupported(_rule(key, "required", "TDQUEUE"), [key])
         queue = name(opts["TDQUEUE"], "GG-QNAME")
         if verb == "SET":
-            if not opts.get("OPENSTATUS") and not opts.get("ENABLESTATUS"):
+            given = [o for o in ("OPENSTATUS", "ENABLESTATUS", "TRIGGERLEVEL") if opts.get(o)]
+            if not given:
                 raise Unsupported(_rule(key, "requires", "TDQUEUE"), [key])
-            if opts.get("OPENSTATUS") and opts.get("ENABLESTATUS"):  # #5168 round 5 (X66): one state per command
-                raise Unsupported("SET TDQUEUE with OPENSTATUS and ENABLESTATUS together", [key])
+            if len(given) > 1:  # #5168 round 5 (X66): one state per command
+                raise Unsupported(f"SET TDQUEUE with {' and '.join(given)} together", [key])
+            if opts.get("TRIGGERLEVEL"):  # #5168 round 7 (X66): the level in GG-NUM
+                return ([queue, f"MOVE {opts['TRIGGERLEVEL']} TO GG-NUM"] + _call("GGCSTDT", [])
+                        + _resp(opts, True, labels))  # fmt: skip
             if opts.get("ENABLESTATUS"):
                 return ([queue, f"MOVE {opts['ENABLESTATUS']} TO GG-NUM"] + _call("GGCSTDE", [])
                         + _resp(opts, True, labels))  # fmt: skip
             return [queue, f"MOVE {opts['OPENSTATUS']} TO GG-NUM"] + _call("GGCSTDQ", []) + _resp(opts, True, labels)
-        wanted = [o for o in ("OPENSTATUS", "TYPE", "ENABLESTATUS") if opts.get(o)]
+        wanted = [
+            o for o in ("OPENSTATUS", "TYPE", "ENABLESTATUS", "TRIGGERLEVEL", "RECOVSTATUS", "TRANSID") if opts.get(o)
+        ]
         if not wanted:
             raise Unsupported(_rule(key, "requires", "TDQUEUE"), [key])
-        field = {"OPENSTATUS": "GG-NUM", "TYPE": "GG-LEN", "ENABLESTATUS": "GG-ITEM"}
+        # #5168 round 6 (X66): TRIGGERLEVEL, RECOVSTATUS and TRANSID come back in the otherwise unused GG-HOURS, GG-MINS, GG-RTRAN
+        field = {"OPENSTATUS": "GG-NUM", "TYPE": "GG-LEN", "ENABLESTATUS": "GG-ITEM", "TRIGGERLEVEL": "GG-HOURS",
+                 "RECOVSTATUS": "GG-MINS", "TRANSID": "GG-RTRAN"}  # fmt: skip
         return ([queue, f"MOVE '{' '.join(wanted)}' TO GG-FLAGS"] + _call("GGCITDQ", []) + ["IF GG-RESP = 0"]
                 + [f"    MOVE {field[o]} TO {opts[o]}" for o in wanted]
                 + ["END-IF"] + _resp(opts, True, labels))  # fmt: skip
@@ -1996,6 +1854,8 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         if verb == "XCTL" and not opts.get("PROGRAM"):
             raise Unsupported("XCTL without PROGRAM")
         _check_spec(verb, opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
+        if verb == "RETURN" and "CHANNEL" in opts:  # #5005: the det port carries it; no stub process outlives its task
+            raise _stub_only("RETURN CHANNEL")
         if verb == "XCTL" and opts.get("CHANNEL"):  # #4270: the target's current channel (GGCXCTL)
             if "COMMAREA" in opts or "LENGTH" in opts:
                 raise Unsupported(_rule("XCTL", "at_most_one", "CHANNEL"), ["XCTL CHANNEL"])
@@ -2396,6 +2256,32 @@ def _case_csd(file: str, datasets: dict[str, Any] | None) -> dict[str, Any] | No
             "reclen": spec["reclen"], "via": ["the case's csd"], "organization": "ESDS"}  # fmt: skip
 
 
+def case_runtime_files(datasets: dict[str, Any] | None) -> list[dict[str, Any]]:
+    """#4771: a CICS file the program names at run time (zECS: `ZC` + EIBTRNID(3:2) + `FILE` / `KEY`), so no CSD DEFINE
+    FILE of the engine's facts carries its name. The case's dataset of that file name states it with its `why`:
+    `"runtime_file": {"key_offset", "key_length", "reclen", "why"}` -- the IDCAMS job's KEYS and RECORDSIZE, as `vsam` is
+    for a named dataset. Only the COBOL leg binds it: the generated project stores no file the program does not name."""
+    out = []
+    for name, spec in sorted((datasets or {}).items()):
+        rf = (spec or {}).get("runtime_file")
+        if rf is None:
+            continue
+        if (
+            not re.fullmatch(r"[A-Z0-9]{1,8}", name)
+            or not all(isinstance(rf.get(k), int) for k in ("key_offset", "key_length", "reclen"))
+            or not rf.get("why")
+            or set(rf) - {"key_offset", "key_length", "reclen", "why"}
+        ):
+            raise Unsupported(
+                f"dataset {name}: a case's runtime_file states key_offset, key_length, reclen and why (a CICS file name "
+                f"of at most 8 upper-case characters): {rf}"
+            )
+        out.append({"file": name, "dsname": name, "base": name, "key_offset": rf["key_offset"],
+                    "key_length": rf["key_length"], "reclen": rf["reclen"],
+                    "via": ["the case's runtime_file"], "runtime": True})  # fmt: skip
+    return out
+
+
 _INSTALL_SYMBOL = re.compile(r"@([A-Za-z0-9_#$-]+)@")
 
 
@@ -2477,8 +2363,11 @@ def stub_files(
         if d is not None and d.kind == "PATH":
             via.append(f"PATH {d.name}")
             d = defines.get((d.related or "").upper())
-        if d is None and symbols and dsn != defs[0]["dsname"].upper():
-            vsam = ((datasets or {}).get(dsn) or {}).get("vsam") or {}  # #5089: stated, with the install symbols
+        stated_vsam = ((datasets or {}).get(dsn) or {}).get("vsam")
+        # #5089: a name resolved through the install symbols takes the case's stated vsam, also when the engine now
+        # reads the IDCAMS job as a define (its name keeps the placeholders, so its base would not be the dataset's)
+        if (d is None or stated_vsam) and symbols and dsn != defs[0]["dsname"].upper():
+            vsam = stated_vsam or {}
             if not all(isinstance(vsam.get(k), int) for k in ("key_offset", "key_length", "reclen")) or not vsam.get(
                 "why"
             ):
@@ -2511,21 +2400,25 @@ def stub_files(
             d = defines.get((d.related or "").upper())
             if d is None:
                 raise Unsupported(f"CICS file {e['name']}: AIX {key.name} has no base cluster define")
-        stated = ((datasets or {}).get(d.name.upper()) or {}).get("vsam") or {}
+        base = substitute_install_symbols(d.name, symbols)  # #5089: the define's name with the case's install symbols
+        stated = ((datasets or {}).get(base) or {}).get("vsam") or {}
         if key is d and (d.organization or "").upper() == "NONINDEXED":  # #4213: an ESDS: no key, browsed by RBA
             reclen = d.record_max if d.record_max is not None else stated.get("reclen")
             if reclen is None or (d.record_avg is not None and d.record_avg != reclen):
                 raise Unsupported(f"CICS file {e['name']}: ESDS {d.name} without fixed-length records (RECORDSIZE)")
-            out.append({"file": e["name"], "dsname": dsn, "base": d.name.upper(), "key_offset": 0, "key_length": 0,
+            out.append({"file": e["name"], "dsname": dsn, "base": base, "key_offset": 0, "key_length": 0,
                         "reclen": reclen, "via": via, "organization": "ESDS"})  # fmt: skip
             continue
         koff = key.key_offset if key.key_offset is not None else stated.get("key_offset")
         klen = key.key_length if key.key_length is not None else stated.get("key_length")
         reclen = d.record_max if d.record_max is not None else stated.get("reclen")
+        if (defs[0].get("record_format") or "").upper() == "V" and stated.get("variable") is True:
+            reclen = stated.get("reclen", reclen)  # #5089: a V file's records are all the one length the case states
         if koff is None or klen is None or reclen is None:
             raise Unsupported(f"CICS file {e['name']}: {key.name}'s KEYS or {d.name}'s RECORDSIZE is not in the facts")
-        out.append({"file": e["name"], "dsname": dsn, "base": d.name.upper(), "key_offset": koff,
+        out.append({"file": e["name"], "dsname": dsn, "base": base, "key_offset": koff,
                     "key_length": klen, "reclen": reclen, "via": via})  # fmt: skip
+    out += [r for r in case_runtime_files(datasets) if r["file"] not in {f["file"] for f in out}]
     return sorted(out, key=lambda f: f["file"])
 
 
@@ -2852,16 +2745,18 @@ def commarea_length(sc: dict[str, Any], ca_fields: list[dict[str, Any]]) -> int 
     """#4270 (oracle_assumptions.md X23): a scenario's stated EIBCALEN, `"commarea_length": N` -- the caller passed
     the first N bytes of the COMMAREA record and no more (GenApp's `IF EIBCALEN < 91`, its '98' "COMMAREA too short"
     returns). Both sides give the program exactly N bytes: the stub's guard page (GGCAREA) and the det port's
-    DFHCOMMAREA (CicsTask.withExactCommarea) stop a reference past them, judged up to it. None when not stated."""
+    DFHCOMMAREA (CicsTask.withExactCommarea) stop a reference past them, judged up to it. None when not stated.
+    #4049: 0 is EIBCALEN 0 with the COMMAREA record present (a program that tests EIBCALEN first, COSGN00C, takes its
+    first-entry branch; one that touches DFHCOMMAREA is stopped at the reference, as for any shorter length)."""
     n = sc.get("commarea_length")
     if n is None:
         return None
     whole = max((f["offset"] + f["bytes"] for f in ca_fields), default=0)
     if sc.get("commarea") is None or not ca_fields:
         raise Unsupported(f"scenario {sc['name']}: a commarea_length with no COMMAREA", ["COMMAREA"])
-    if isinstance(n, bool) or not isinstance(n, int) or not 1 <= n <= whole:
+    if isinstance(n, bool) or not isinstance(n, int) or not 0 <= n <= whole:
         raise Unsupported(f"scenario {sc['name']}: commarea_length {n!r} is not a length of the {whole}-byte COMMAREA "
-                          "(1 to its length)", ["COMMAREA"])  # fmt: skip
+                          "(0 to its length)", ["COMMAREA"])  # fmt: skip
     return n
 
 
@@ -3598,9 +3493,11 @@ def sql_statements(table: str) -> list[dict[str, Any]]:
 
 
 def sql_fault_plan(case: dict[str, Any], sc: dict[str, Any], table: str) -> list[str]:
-    """A scenario's `sql_faults` as both sides read them: `PROGRAM LINE NTH SQLCODE SQLSTATE` (ggsql.c's
-    $GGSQL_FAULTS, DetSql.withFaults). A fault names its statement by `line` (and `program`, the case's own by
-    default), or by `table` and `verb` (every statement of that kind on that table)."""
+    """A scenario's `sql_faults` as both sides read them: `PROGRAM LINE NTH SQLCODE SQLSTATE [TOKEN [SQLERRD3]]`
+    (ggsql.c's $GGSQL_FAULTS, DetSql.withFaults). A fault names its statement by `line` (and `program`, the case's own by
+    default), or by `table` and `verb` (every statement of that kind on that table). A fault may declare `sqlerrmc`
+    (one token, no blanks, up to 70 characters) and `sqlerrd3` (#5561): what the SQLCA carries for a program that
+    reads them (BANKDATA's `SQLERRMC(1:SQLERRML)`, its SQLERRD(3) reason-code arms); undeclared, both are empty."""
     stmts = sql_statements(table)
     out = []
     for f in sc.get("sql_faults") or []:
@@ -3618,7 +3515,13 @@ def sql_fault_plan(case: dict[str, Any], sc: dict[str, Any], table: str) -> list
                     and re.search(rf"\b{re.escape(table_name)}\b", x["sql"].upper())]  # fmt: skip
         if not hits:
             raise Unsupported(f"scenario {sc['name']}: SQL fault {f} names no statement of {program}")
-        out += [f"{x['program']} {x['line']} {nth} {code} {state}" for x in hits]
+        extra = ""
+        if f.get("sqlerrmc") or f.get("sqlerrd3"):
+            token = str(f.get("sqlerrmc") or "-")
+            if not re.fullmatch(r"\S{1,70}", token):
+                raise Unsupported(f"scenario {sc['name']}: SQL fault {f}: sqlerrmc is one token of 1-70 characters")
+            extra = f" {token} {int(f.get('sqlerrd3', 0))}"
+        out += [f"{x['program']} {x['line']} {nth} {code} {state}{extra}" for x in hits]
     return out
 
 
@@ -3848,6 +3751,16 @@ def channel_copy(path: Path) -> dict[str, Any]:
             "containers": {w[0]: "" if w[2] == "-" else w[2].upper() for w in (ln.split() for ln in lines[1:])}}  # fmt: skip
 
 
+# the SEND TEXT options the COBOL translation passes to the stub (GG-FLAGS holds 40 characters); the Java side records
+# every TEXT_OPTIONS flag, so it is compared on these only (PRINT, INVITE, DEFRESP, STRFIELD are not forwarded)
+TEXT_OPTIONS_FORWARDED = ("ERASE", "FREEKB", "ALARM", "WAIT", "LAST")
+
+
+def _text_options(args: str) -> list[str]:
+    """#5401: a SEND-TEXT line's options, sorted, without the stub's TEXT / DATA kind marker."""
+    return sorted(o for o in args.partition("opts=")[2].split() if o not in ("TEXT", "DATA"))
+
+
 def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[str, Any]]) -> dict[str, Any]:
     """A task's outputs from the stub's log: `events` (every command, in order), `screens`
     ([{map, fields}] per SEND MAP, data fields only: <name>O -> <name>), `text` (SEND TEXT),
@@ -3885,6 +3798,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
         elif verb == "SEND-TEXT":
             text = common._decode_text(data, enc)  # #3815: not text in the page -> the bytes shown, never dropped
             res["text"].append(f"<undecodable {data!r} in {enc}>" if text is None else text.rstrip(" \x00"))
+            res.setdefault("text_options", []).append(_text_options(args))
         # the task's own (a LINK level's: no); a RETURN IMMEDIATE that failed (it has a resp, #4270) went on in the program
         elif verb in ("RETURN", "XCTL") and int(kv.get("level", "1")) <= 1 and not (verb == "RETURN" and "resp" in kv):
             key = "transid" if verb == "RETURN" else "program"
@@ -3908,6 +3822,8 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             res.setdefault("websend", []).append(_cobol_web_send(kv, data, enc))
         elif verb == "WEB-HEADER":  # #4767 (X38): a response header the program wrote
             res.setdefault("webheader", []).append(_cobol_web_header(kv, enc))
+        elif verb == "WEB-RECEIVE":  # #4767 (X38): the request body the program read, as CicsTask records it
+            res.setdefault("webreceive", []).append(_cobol_web_receive(kv, data, enc))
         elif verb == "WRITEQ-TS":  # #4607: as CicsTask records it (queue, data, resp, item)
             res.setdefault("ts", []).append(_cobol_ts(kv, data, enc))
         elif verb in ("READQ-TS", "READQ-TD", "RECEIVE"):  # #4270 (GenApp LGICVS01): as CicsTask records them
@@ -4321,7 +4237,7 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
             if (top != null) {
                 throw new FacadeRefused("handleTransaction of " + program + " did not run its task in the region");
             }
-            if (used.getReturnType() != void.class && !answered(got, scenario, used.getReturnType())) {
+            if (used.getReturnType() != void.class && !answered(got, scenario, used.getReturnType(), service)) {
                 throw new FacadeRefused("handleTransaction of " + program
                         + " answered a COMMAREA other than the one its RETURN passes on");
             }
@@ -4451,10 +4367,20 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
     /** Whether a facade answered the COMMAREA its task's RETURN passed on: that very object -- or, where the facade
      *  answers its own DTO and the task RETURNed another record (#4449), those bytes read through it (task.returned):
      *  a fresh object of the facade's type, laid out as the same bytes. */
-    static boolean answered(Object got, CicsTask task, Class<?> type) {
+    static boolean answered(Object got, CicsTask task, Class<?> type, Object service) {
         Object raw = task.returned(Object.class);
         if (got == raw) {
             return true;
+        }
+        if (raw instanceof byte[] wide && got != null && service != null && !(got instanceof byte[])
+                && java.util.Arrays.stream(got.getClass().getMethods()).noneMatch(m -> m.getName().equals("fromCommarea"))) {
+            // #5089: a DTO with no layout (a POINTER, a LENGTH that differs from the record) is read through the
+            // program's own codec; written back, it must give the bytes the RETURN passed, over the span both define
+            try {
+                return (Boolean) service.getClass().getMethod("wideSame", byte[].class, Object.class).invoke(service, wide, got);
+            } catch (ReflectiveOperationException | RuntimeException e) {
+                return false;
+            }
         }
         if (raw instanceof byte[] wide && got != null && got.getClass() == type) {
             // #4695: a RETURN with a LENGTH past the DTO passes the COMMAREA as bytes (the region's EBCDIC); the facade
@@ -4583,6 +4509,8 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
                      f"            }});")  # fmt: skip
     fields, loads, dumps = [], [], []
     for dsn, spec in case.get("datasets", {}).items():
+        if by_base[dsn].get("runtime"):  # #4771: stated for the COBOL leg; the project stores no file named at run time
+            continue
         if by_base[dsn].get("organization") == "ESDS":  # #4213: the region's ESDS, on the task (CicsTask.withEsds)
             f = by_base[dsn]
             csd_java += (
@@ -4651,10 +4579,12 @@ import java.lang.reflect.Method;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /** #3754: the CICS equivalence run of {case["program"]} ({case["name"]}) -- generated by tests/tools/equivalence_cics.py. */
 @SpringBootTest(properties = {{"spring.jpa.show-sql=false", "gitgalaxy.clock={ej._clock(case)}"}})
+@DirtiesContext  // --one-jvm: the facade run is this class again in the session JVM, on a context of its own
 class EquivalenceRunTest {{
 
     static final Charset TEXT = {common.java_charset(common.data_encoding(case))};
@@ -5058,7 +4988,8 @@ def sql_unjudged(plan: list[str], seams: set[str]) -> str:
 
 def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Path, files: list[dict[str, Any]],
                   port: bool = True, port_dir: Path | None = None,
-                  facade: dict[str, Any] | None = None) -> dict[str, list[dict[str, Any]]]:  # fmt: skip
+                  facade: dict[str, Any] | None = None,
+                  one_jvm: bool = False) -> dict[str, list[dict[str, Any]]]:  # fmt: skip
     """The generated project runs every scenario as a CicsTask; {scenario: its events}, each
     COMMAREA mapped back to COBOL field names through the DTO's own comments.
 
@@ -5066,7 +4997,8 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     task entered through the program's deployed entry point (handleTransaction, or handleLink for a LINKed program;
     a LINK target the case runs through its handleLink) with the scenario's region joined. `facade` gets `events`
     ({scenario: events}, as above), `entries` ({scenario: [{program, method}]}), `refused` ({scenario: why}) and
-    `out` (the run's output directory); or `error` when that run itself fails."""
+    `out` (the run's output directory); or `error` when that run itself fails.
+    #4047: `one_jvm` runs the tasks and the facade run in one session JVM (a Db2 case keeps a JVM each)."""
     import json
 
     import equivalence_java as ej
@@ -5143,23 +5075,37 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
             f"{t}\t{'|'.join(n)}\t{equivalence_db2.dump_query(t, n)}\n"
             for t, n in ((t, equivalence_db2.columns(t)) for t in case["db2"].get("compare", []))), encoding="latin-1")  # fmt: skip
         props = f"{props} {equivalence_db2.java_props(case)}"
-    out = ej.run_maven(project, work, inputs, props=props)
-    result = _java_events(case, out, shape, ca_read)
-    if facade is not None:  # #4449: the java-facade side, the same project and inputs
-        try:
-            fout = ej.run_maven(project, work / "facade", inputs, props=f"{props} -Dequivalence.facades=true")
-        except RuntimeError as e:
-            facade["error"] = str(e)
-            return result
-        facade["out"] = fout
-        facade["events"] = _java_events(case, fout, shape, ca_read)
-        facade["entries"], facade["refused"] = {}, {}
-        for sc in case["scenarios"]:
-            ent, why = fout / f"{sc['name']}.entries.json", fout / f"{sc['name']}.refused"
-            facade["entries"][sc["name"]] = json.loads(ent.read_text(encoding="utf-8")) if ent.is_file() else []
-            if why.is_file():
-                facade["refused"][sc["name"]] = why.read_text(encoding="utf-8")
-    return result
+    import equivalence_call
+
+    sessions = equivalence_call.sessions_for(case, project, one_jvm)
+    try:
+        out = ej.run_maven(project, work, inputs, props=props, session=sessions.get() if sessions else None)
+        result = _java_events(case, out, shape, ca_read)
+        if facade is not None:  # #4449: the java-facade side, the same project and inputs
+            _run_facade(ej, project, work, inputs, props, sessions, case, shape, ca_read, facade)
+        return result
+    finally:
+        if sessions:
+            sessions.close()
+
+
+def _run_facade(ej: Any, project: Path, work: Path, inputs: Path, props: str, sessions: Any, case: dict[str, Any],
+                shape: Any, ca_read: Any, facade: dict[str, Any]) -> None:  # fmt: skip
+    """#4449: the facade run into `facade` (`error` when the run itself fails)."""
+    try:
+        fout = ej.run_maven(project, work / "facade", inputs, props=f"{props} -Dequivalence.facades=true",
+                            session=sessions.get() if sessions else None)  # fmt: skip
+    except RuntimeError as e:
+        facade["error"] = str(e)
+        return
+    facade["out"] = fout
+    facade["events"] = _java_events(case, fout, shape, ca_read)
+    facade["entries"], facade["refused"] = {}, {}
+    for sc in case["scenarios"]:
+        ent, why = fout / f"{sc['name']}.entries.json", fout / f"{sc['name']}.refused"
+        facade["entries"][sc["name"]] = json.loads(ent.read_text(encoding="utf-8")) if ent.is_file() else []
+        if why.is_file():
+            facade["refused"][sc["name"]] = why.read_text(encoding="utf-8")
 
 
 def _java_mq(case: dict[str, Any], sc: dict[str, Any], inputs: Path, n: int) -> dict[str, Any]:
@@ -5446,10 +5392,19 @@ def _cobol_web_header(kv: dict[str, str], enc: str) -> dict[str, Any]:
             "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
 
 
+def _cobol_web_receive(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
+    """#4767 (X38): a WEB-RECEIVE line of the stub's events (the media type in hex, the bytes returned as the data) as CicsTask
+    records it; LENGERR 16 returned nothing (no body)."""
+    none = kv["resp2"] == "16"
+    return {"mediatype": None if kv["media"] == "-" else bytes.fromhex(kv["media"]).decode(enc),
+            "body": None if none else data.decode(enc), "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
+
+
 def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     """The COBOL task's outputs as the event list CicsTask records."""
     out: list[dict[str, Any]] = []
     screens, texts, records = iter(res["screens"]), iter(res["text"]), iter(res.get("td", []))
+    text_options = iter(res.get("text_options", []))
     queued = iter(res.get("ts", []))
     operator = iter(res.get("operator", []))
     reads = iter(res.get("reads", []))  # #4270: READQ TS / terminal RECEIVE
@@ -5459,6 +5414,7 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     webs = iter(res.get("web", []))  # #4767 (X35): WEB CONVERSE
     websends = iter(res.get("websend", []))  # #4767 (X37): WEB SEND
     webheaders = iter(res.get("webheader", []))  # #4767 (X38): WEB WRITE HTTPHEADER
+    webreceives = iter(res.get("webreceive", []))  # #4767 (X38): WEB RECEIVE
     children = iter(res.get("children", []))  # #4950: RUN TRANSID children
     for line in res["events"]:
         verb, _, args = line.partition(" ")
@@ -5466,8 +5422,8 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             s = next(screens)
             out.append({"event": "SEND-MAP", "map": s["map"], "screen": s["fields"], "subfields": s["subfields"],
                         "options": s["options"], "cursor": s["cursor"]})  # fmt: skip
-        elif verb == "SEND-TEXT":
-            out.append({"event": "SEND-TEXT", "text": next(texts)})
+        elif verb == "SEND-TEXT":  # #5401: its options too, as CicsTask.sendText records them
+            out.append({"event": "SEND-TEXT", "text": next(texts), "options": next(text_options, [])})
         elif verb == "SEND-CONTROL":  # #4270: CicsTask.sendControl records it -- its options and CURSOR's offset
             cur = int((re.search(r"\bcursor=(-?\d+)", args) or [None, "-1"])[1])
             out.append({"event": "SEND-CONTROL", "options": args.partition("opts=")[2].split(),
@@ -5486,6 +5442,8 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             out.append({"event": "WEB-SEND", **next(websends)})
         elif verb == "WEB-HEADER":  # #4767 (X38): CicsTask.webWriteHeader records the header written
             out.append({"event": "WEB-HEADER", **next(webheaders)})
+        elif verb == "WEB-RECEIVE":  # #4767 (X38): CicsTask.webReceive records the body read
+            out.append({"event": "WEB-RECEIVE", **next(webreceives)})
         elif verb == "WRITEQ-TS":  # #4607: CicsTask.writeqTs records it (queue, data, resp, item)
             out.append({"event": "WRITEQ-TS", **next(queued)})
         elif verb in ("READQ-TS", "READQ-TD", "RECEIVE"):  # #4270: CicsTask records them (queue, item, resp, data)
@@ -5640,6 +5598,10 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
             for key in ("name", "value", "resp2"):
                 if (key in c or key in j) and c.get(key) != j.get(key):
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
+        if c["event"] == "WEB-RECEIVE":  # #4767 (X38): the body each side read and its media type, both ways
+            for key in ("mediatype", "body", "resp", "resp2"):
+                if (key in c or key in j) and c.get(key) != j.get(key):
+                    bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
         if c["event"] == "WEB-SEND":  # #4767 (X37): the response each side sent, both ways
             for key in ("status", "statustext", "mediatype", "body", "action", "resp2"):  # (exactly: blanks are sent)
                 if (key in c or key in j) and c.get(key) != j.get(key):
@@ -5662,6 +5624,10 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
                     continue
                 if not same(cv[name], jv.get(name)):
                     bad.append({"field": f"{part}.{name}", "cobol": cv[name], "java": jv.get(name)})
+        if c["event"] == "SEND-TEXT" and "options" in c:  # #5401: the options the translation forwards, both ways
+            java_options = sorted(o for o in j.get("options") or [] if o in TEXT_OPTIONS_FORWARDED)
+            if c["options"] != java_options:
+                bad.append({"field": "options", "cobol": c["options"], "java": java_options})
         if c["event"] == "SEND-CONTROL":  # #4270: ERASE / FREEKB / ALARM ... and the cursor, as the crucible compares
             if sorted(c.get("options") or []) != sorted(j.get("options") or []):
                 bad.append({"field": "options", "cobol": c.get("options"), "java": j.get("options")})
@@ -5982,7 +5948,8 @@ def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]
 
 
 def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, port_dir: Path | None = None,
-             cobol_only: bool = False, sql_faults: str = "auto", facades: bool = False) -> int:  # fmt: skip
+             cobol_only: bool = False, sql_faults: str = "auto", facades: bool = False,
+             one_jvm: bool = False) -> int:  # fmt: skip
     """A CICS case end to end: facts -> stub files, the COBOL tasks, the Java tasks, the report.
 
     #4449: `facades` (with a port) runs the java-facade side too -- every scenario again, entered through the
@@ -6020,7 +5987,7 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         return 0
     try:
         facade: dict[str, Any] | None = {} if facades and port else None
-        java = run_java_cics(case, corpus, work / "java", work / "cobol", files, port, port_dir, facade)
+        java = run_java_cics(case, corpus, work / "java", work / "cobol", files, port, port_dir, facade, one_jvm)
     except RuntimeError as e:  # the port does not compile, or its run fails: the loop's feedback, not a crash
         failed = common.java_failure_report(case, work, str(e))
         (work / "report.json").write_text(json.dumps(failed, indent=2) + "\n", encoding="utf-8")

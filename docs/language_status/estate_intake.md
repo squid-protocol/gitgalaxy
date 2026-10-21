@@ -42,6 +42,7 @@ product and PTF level, and the **IGYCDOPT** listing (the installation-defaults m
 
 - **Why:** a program with no PARM gets the installation defaults. TRUNC, NUMPROC, ARITH, INTDATE, CODEPAGE, ZONEDATA, DISPSIGN, NSYMBOL, SSRANGE
   and OPTIMIZE change arithmetic and data results (register C1-C5, C10, C11); the version bounds which options exist.
+- **Version bounds the options (#4704):** an option the stated version does not have (NUMCHECK before 6.3, INVDATA before 6.4) is reported by `EffectiveOptions.version_conflicts()`, enters the evidence fingerprint, and means the estate's version or its PARM is wrong: ask the customer which. An estate whose version is not stated (the async credit-card corpus) reports nothing, and every option stays an assumption.
 - **If missing:** `assumed: IBM default` - IBM's shipped defaults for the stated version (for example TRUNC(STD), NUMPROC(NOPFD), ARITH(COMPAT), INTDATE(ANSI), CODEPAGE 1140).
 
 ## 3. Language Environment runtime options

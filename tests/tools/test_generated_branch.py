@@ -104,7 +104,6 @@ def test_publish_refuses_a_missing_file(remote_and_clone):
 # Bot workflows that still land a commit on main through a PR. Each is a known gap (#4847 / #4935), not a pattern to
 # copy: new bot output goes to `generated` through tests/tools/generated_branch.py.
 STILL_COMMITS_TO_MAIN = {
-    "gitgalaxy.yml",  # docs/gitgalaxy_architecture_brief.md, read from the checkout by agents (CLAUDE.md)
     "evidence-refresh.yml",  # evidence records + det-sweep ledger: inputs of human approval, must be on main (its report is MOVED)
     "release-crucible-archive.yml",  # opens its PR in language-crucible, not in this repo
 }
@@ -114,6 +113,7 @@ MOVED = {
     "tree-sitter-accuracy-history.yml": ["docs/self_scan/tree_sitter_accuracy_history.csv"],
     "tri-comparison-history.yml": ["docs/self_scan/tri_comparison_ledger.json"],
     "mainframe-ground-truth.yml": ["docs/self_scan/ground_truth_history.jsonl"],  # #4963
+    "gitgalaxy.yml": ["docs/gitgalaxy_architecture_brief.md"],  # #4963
     "archetype-validation.yml": ["gitgalaxy/standards/archetype_brains/archetype_validation.json"],
     # #5057: rendered from committed sources, never committed (tests/tools/generated_docs.py PAGES)
     "generated-docs.yml": [
@@ -190,6 +190,21 @@ def test_the_evidence_report_is_published_not_committed_by_the_refresh_bot():
     assert 'EVIDENCE_REPORT_WRITE_INDEX: "1"' in code  # #5206: the index is written in the refresh job only
 
 
+def test_the_estate_rollup_is_published_not_committed_and_never_blocks_the_report():
+    """#4054: estate_evidence.py writes outside the repo (--out), the roll-up is published on its own path and stamp,
+    and a failure of either step leaves the L0-L5 report's publish alone."""
+    code = _code("evidence-refresh.yml")
+    add_paths = code.split("add-paths: |", 1)[1].split("- name:", 1)[0]
+    assert "estate_evidence" not in add_paths
+    build = code.split("id: estate", 1)[1].split("- name:", 1)[0]
+    assert "continue-on-error: true" in build
+    assert 'estate_evidence.py --out "$RUNNER_TEMP/' in build
+    publish = code.split("publish-report:", 1)[1].split("\n  publish-blockers:", 1)[0]
+    assert "docs/language_status/estate_evidence" in publish
+    assert "--stamp estate-evidence" in publish and "--stamp evidence-report" in publish
+    assert "docs/language_status/evidence_report/estate" not in code
+
+
 def test_the_ground_truth_pr_job_holds_no_write_token():
     """The job that runs PR code only reads; the publish to generated is a separate, main-only job."""
     code = _code("mainframe-ground-truth.yml")
@@ -212,3 +227,15 @@ def test_the_generated_docs_render_job_holds_no_write_token_and_publish_runs_on_
     head = publish.split("steps:", 1)[0]
     assert "refs/heads/main" in head and "github.event_name != 'pull_request'" in head
     assert set(MOVED["generated-docs.yml"]) == set(generated_docs.PAGES)
+
+
+def test_the_architecture_brief_is_published_from_main_only_and_never_tracked():
+    """#4963: the brief is read with `generated_branch.py show`; a committed copy would be a stale fallback (#5206)."""
+    code = _code("gitgalaxy.yml")
+    step = code.split("Publish the LLM Brief to the generated branch", 1)[1].split("- name:", 1)[0]
+    assert "refs/heads/main" in step and "generated_branch.py publish" in step
+    assert "security-events: write" in code  # the SARIF upload keeps its permission
+    brief = "docs/gitgalaxy_architecture_brief.md"
+    tracked = subprocess.run(["git", "ls-files", brief], cwd=REPO, capture_output=True, text=True, check=False)
+    assert tracked.returncode == 0 and tracked.stdout.strip() == "", "the brief must not be committed to main"
+    assert brief in (REPO / ".gitignore").read_text(encoding="utf-8").splitlines()

@@ -3268,7 +3268,8 @@
       "rust/tokio/maybe_done.rs": "Unknown Architect",
       "rust/tokio/tests.rs": "Unknown Architect",
       "rust/tokio/tokio_mpsc_bounded.rs": "Unknown Architect",
-      "rust/tokio/tokio_named_pipe.rs": "Unknown Architect"
+      "rust/tokio/tokio_named_pipe.rs": "Unknown Architect",
+      "rust/tokio/tokio_udp.rs": "Unknown Architect"
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": "Unknown Architect"
@@ -3397,6 +3398,7 @@
       "shell/freebsd-src/dd2_test.sh": "Unknown Architect",
       "shell/freebsd-src/dtest.sh": "Unknown Architect",
       "shell/freebsd-src/echo_test.sh": "Unknown Architect",
+      "shell/freebsd-src/ed_test.sh": "Unknown Architect",
       "shell/freebsd-src/format_string_test.sh": "Unknown Architect",
       "shell/freebsd-src/functional_test.sh": "Unknown Architect",
       "shell/freebsd-src/hostname_test.sh": "Unknown Architect",
@@ -3434,6 +3436,7 @@
       "shell/haiku/default_deskbar_items.sh": "Unknown Architect",
       "shell/haiku/gen-bepo.sh": "Unknown Architect",
       "shell/haiku/generate_CountryFlags.sh": "Unknown Architect",
+      "shell/haiku/generate_ids_from_drivers.sh": "Unknown Architect",
       "shell/haiku/install-wifi-firmwares.sh": "Unknown Architect",
       "shell/haiku/install.sh": "Unknown Architect",
       "shell/haiku/leak_analyser.sh": "Unknown Architect",
@@ -3859,6 +3862,7 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": "Unknown Architect",
       "typescript/assemblyscript/ast.ts": "Unknown Architect",
+      "typescript/assemblyscript/builtins.ts": "Unknown Architect",
       "typescript/assemblyscript/compiler.ts": "Unknown Architect",
       "typescript/assemblyscript/package.json": "Unknown Architect",
       "typescript/assemblyscript/parser.ts": "Unknown Architect"
@@ -3904,7 +3908,11 @@
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": "Unknown Architect",
       "typescript/typescript_compiler/binder.ts": "Unknown Architect",
-      "typescript/typescript_compiler/package.json": "Unknown Architect"
+      "typescript/typescript_compiler/checker.ts": "Unknown Architect",
+      "typescript/typescript_compiler/emitter.ts": "Unknown Architect",
+      "typescript/typescript_compiler/package.json": "Unknown Architect",
+      "typescript/typescript_compiler/parser.ts": "Unknown Architect",
+      "typescript/typescript_compiler/types.ts": "Unknown Architect"
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": "Unknown Architect",
@@ -4076,6 +4084,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": "Unknown Architect",
       "zig/zig/InternPool.zig": "Unknown Architect",
+      "zig/zig/Sema.zig": "Unknown Architect",
       "zig/zig/Type.zig": "Unknown Architect",
       "zig/zig/Zcu.zig": "Unknown Architect",
       "zig/zig/main.zig": "Unknown Architect"
@@ -4090,6 +4099,7 @@
       "zig/zls/analysis.zig": "Unknown Architect",
       "zig/zls/ast.zig": "Unknown Architect",
       "zig/zls/config_gen.zig": "Unknown Architect",
+      "zig/zls/langref.html.in": "Unknown Architect",
       "zig/zls/print_ast.zig": "Unknown Architect"
     }
   },

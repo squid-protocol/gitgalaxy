@@ -22,7 +22,11 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from test_det_nondigit_binary import FLAGS, IMAGE, _det, _java  # noqa: E402
+from test_det_nondigit_binary import FLAGS, IMAGE, PKG, _det, _java  # noqa: E402
+
+pytestmark = pytest.mark.slow(
+    reason="the first java test of a CI split part pays the one-time javac of the cobolrt runtime: 12-17 s on a runner (#5668)"
+)
 
 EXPECTED = Path(__file__).with_name("nondigit_zoned_expected.txt")
 
@@ -347,6 +351,41 @@ def test_a_plain_item_cleared_to_spaces_is_refused_as_a_receiver(op, tmp_path):
     assert run.returncode != 0 and "receiver is a zoned item holding a non-digit is not modelled" in run.stderr
 
 
+# #4692: the other forms of a statement that reads its receiver before it stores: ON SIZE ERROR, ROUNDED + SIZE ERROR,
+# several receivers, SUBTRACT ROUNDED. Each is refused on a dirty receiver exactly as the plain form is.
+CHECKED_OPS = ["ADD 1 TO V ON SIZE ERROR DISPLAY 'E'", "SUBTRACT 1 FROM V ROUNDED ON SIZE ERROR DISPLAY 'E'",
+               "ADD 1 TO OT V", "ADD W 1 TO V", "SUBTRACT W 1 FROM V"]  # fmt: skip
+
+
+@pytest.mark.skipif(_java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+@pytest.mark.parametrize("op", CHECKED_OPS)
+@pytest.mark.parametrize("kind", list(KINDS))
+def test_a_non_digit_receiver_is_refused_in_every_form_of_the_statement(kind, op, tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    run = _det(_rprogram(kind, [op], [RCASES[kind][1]]), tmp_path, "STD")
+    assert run.returncode != 0 and "register C11" in run.stderr, run.stderr
+    assert "receiver is a zoned item holding a non-digit is not modelled" in run.stderr, run.stderr
+
+
+@pytest.mark.skipif(_java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+@pytest.mark.parametrize("verb", ["ADD", "SUBTRACT"])
+def test_a_corresponding_receiver_is_refused_at_translation(verb, tmp_path):
+    """ADD / SUBTRACT CORRESPONDING is not translated at all, so no dirty group member can reach its read."""
+    pytest.importorskip("tree_sitter_language_pack")
+    prep = "TO" if verb == "ADD" else "FROM"
+    src = "\n".join(["       IDENTIFICATION DIVISION.", "       PROGRAM-ID. NDB.", "       DATA DIVISION.",
+                     "       WORKING-STORAGE SECTION.", "       01 G1.", "          05 A PIC 9(4).",
+                     "       01 G2.", "          05 A PIC 9(4).",
+                     "       PROCEDURE DIVISION.", "           MOVE SPACES TO G2", f"           {verb} CORRESPONDING G1 {prep} G2",
+                     "           GOBACK.", ""])  # fmt: skip
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "NDB.cbl").write_text(src)
+    (tmp_path / "project").mkdir()
+    r = P.translate(tmp_path / "NDB.cbl", [], "public class NdbService {\n}\n", PKG, None, tmp_path / "project")
+    assert any("CORRESPONDING" in h for h in r.stats["holes"]), r.stats["holes"]  # a hole, not a translation
+
+
 # ---------------------------------------------------------------------------------------------------------------
 # #4692 / #4685: a zoned SENDER with a P position holding a non-digit. cobc 3.1.2 (measured) hangs on `MOVE` of a left-P
 # one (VPP99) to a binary item and computes a right-P one (99PP) by no explainable rule (`ADD S TO DS` of two spaces
@@ -446,19 +485,19 @@ def test_a_p_scaled_display_initialize_and_string_are_refused_by_name(pic, data,
 @pytest.mark.parametrize("data", [b"12", b"1A"])
 @pytest.mark.parametrize("target", ["X", "XB"])
 def test_a_noninteger_p_scaled_item_moved_to_alphanumeric_is_refused_by_name(pic, data, target, tmp_path):
-    """Enterprise COBOL 6.4 Language Reference Table 51: a numeric noninteger sending item to an alphanumeric or
+    """Enterprise COBOL 6.4 Language Reference Table 47: a numeric noninteger sending item to an alphanumeric or
     alphanumeric-edited receiver is an invalid MOVE (a left-P item has only decimal places); cobc warns and moves."""
     pytest.importorskip("tree_sitter_language_pack")
     src = _pprogram(pic, f"MOVE S TO {target}", data).replace(
         "       01 N PIC 9(4).", "       01 N PIC 9(4).\n       01 XB PIC XXBXX."
     )
     holes = _holes(src, tmp_path)
-    assert len(holes) == 1 and "a noninteger numeric item" in holes[0] and "Table 51" in holes[0], holes
+    assert len(holes) == 1 and "a noninteger numeric item" in holes[0] and "Table 47" in holes[0], holes
 
 
 @pytest.mark.parametrize("op", ["MOVE V TO X", "STRING V DELIMITED BY SIZE INTO X"])
 def test_a_noninteger_numeric_to_alphanumeric_or_string_is_refused_by_name_without_p_too(op, tmp_path):
-    """The same two rules without a P (Table 51; STRING needs an integer): `PIC 9V99` is no sender of either."""
+    """The same two rules without a P (Table 47; STRING needs an integer): `PIC 9V99` is no sender of either."""
     pytest.importorskip("tree_sitter_language_pack")
     src = _pprogram("PIC 99PP", op, b"12").replace(
         "01 S REDEFINES R PIC 99PP.", "01 S REDEFINES R PIC 99PP.\n       01 V PIC 9V99."
@@ -571,7 +610,7 @@ def _sprogram(decls: str, op: str, data: bytes = b"12") -> str:
 @pytest.mark.parametrize("receiver", ["PIC N(4)", "PIC G(4)", "PIC X(4) USAGE NATIONAL", "PIC N(4) USAGE NATIONAL",
                                       "PIC X(4) USAGE DISPLAY-1", "PIC N(2)BN(2)"])  # fmt: skip
 def test_a_move_to_a_national_receiver_is_refused_by_name_whatever_the_sender(pic, receiver, tmp_path):
-    """Table 51 makes a noninteger numeric to NATIONAL invalid; the translator refuses every national item at the
+    """Table 47 makes a noninteger numeric to NATIONAL invalid; the translator refuses every national item at the
     source (#4462 / #4664), so no sender shape reaches a national receiver (the integer ones included)."""
     pytest.importorskip("tree_sitter_language_pack")
     from gitgalaxy.tools.cobol_to_java.det import program as P
@@ -616,12 +655,13 @@ def test_an_unstring_numeric_operand_that_ibm_rejects_is_refused_by_name(decls, 
 @pytest.mark.parametrize(("decls", "op", "ibm"), [
     ("01 V PIC 99PP.", "UNSTRING R DELIMITED BY ',' INTO V", True),
     ("01 V PIC 9V99.", "UNSTRING R DELIMITED BY ',' INTO V", False),
-    ("01 V PIC 9(4).", "UNSTRING V DELIMITED BY ',' INTO X", False),
+    ("01 V PIC 9(4).", "UNSTRING V DELIMITED BY ',' INTO X", True),
     ("01 V PIC 9V9.", "UNSTRING R DELIMITED BY ',' INTO X WITH POINTER V", True),
 ])  # fmt: skip
 def test_an_unstring_refusal_names_whose_rule_it_is(decls, op, ibm, tmp_path):
-    """A P in an INTO item and a non-integer COUNT / POINTER / TALLYING item are IBM's rules; a decimal INTO item and
-    a numeric sender are the port's conservative choice and must not be called an IBM compile error."""
+    """A P in an INTO item, a non-integer COUNT / POINTER / TALLYING item and a numeric sender are IBM's rules (the
+    Language Reference, UNSTRING, p. 465-466); a decimal INTO item is the port's conservative choice and must not be
+    called an IBM compile error."""
     pytest.importorskip("tree_sitter_language_pack")
     (hole,) = _holes(_sprogram(decls, op), tmp_path)
     assert ("compile error in Enterprise COBOL" in hole) == ibm, hole
@@ -684,3 +724,48 @@ if __name__ == "__main__":  # rewrite nondigit_zoned_expected.txt (and the recei
         with tempfile.TemporaryDirectory() as d:
             parts += [f"== {_pkey(c)}", *_esc(_pcobc(c, Path(d))), "== end"]
     P_EXPECTED.write_text("\n".join(parts) + "\n")
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# #4692: the PERFORM VARYING variable and the SET x UP / DOWN BY target are read before they store, as the receiver of
+# ADD is: a zoned one holding a non-digit is refused by name (Cobol.receiverNum, register C11); a digit-only one steps.
+# ---------------------------------------------------------------------------------------------------------------
+VARYING_OP = "PERFORM VARYING V FROM 1 BY 1 UNTIL V > 2\n               CONTINUE END-PERFORM"
+
+
+def _step_program(op: str, start: bytes) -> str:
+    return "\n".join(["       IDENTIFICATION DIVISION.", "       PROGRAM-ID. NDB.", "       DATA DIVISION.",
+                      "       WORKING-STORAGE SECTION.", "       01 R PIC X(4).", "       01 V REDEFINES R PIC 9(4).",
+                      "       PROCEDURE DIVISION.", f"           MOVE X'{start.hex().upper()}' TO R", f"           {op}",
+                      "           DISPLAY 'R=' R", "           GOBACK.", ""])  # fmt: skip
+
+
+@pytest.mark.skipif(_java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_a_non_digit_varying_variable_is_only_read_after_the_from_overwrites_it(tmp_path):
+    """FROM stores before the first step reads, so spaces before the loop never reach the step: translated, 0003."""
+    pytest.importorskip("tree_sitter_language_pack")
+    run = _det(_step_program(VARYING_OP, b"    "), tmp_path, "STD")
+    assert run.returncode == 0, run.stderr
+    assert "R=0003" in run.stdout.replace("\r", ""), run.stdout
+
+
+@pytest.mark.skipif(_java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_a_varying_step_that_meets_a_non_digit_is_refused_by_name(tmp_path):
+    """The loop body blanks the variable, so the next step reads spaces."""
+    pytest.importorskip("tree_sitter_language_pack")
+    op = "PERFORM VARYING V FROM 1 BY 1 UNTIL V > 2\n               MOVE SPACES TO R END-PERFORM"
+    run = _det(_step_program(op, b"0000"), tmp_path, "STD")
+    assert run.returncode != 0 and "register C11" in run.stderr, run.stderr
+    assert "receiver is a zoned item holding a non-digit is not modelled" in run.stderr, run.stderr
+
+
+@pytest.mark.skipif(_java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_a_digit_only_varying_step_counts_as_ever(tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    run = _det(
+        _step_program("PERFORM VARYING V FROM 1 BY 2 UNTIL V > 4\n               CONTINUE END-PERFORM", b"0000"),
+        tmp_path,
+        "STD",
+    )
+    assert run.returncode == 0, run.stderr
+    assert "R=0005" in run.stdout.replace("\r", ""), run.stdout

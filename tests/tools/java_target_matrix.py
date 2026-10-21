@@ -41,7 +41,7 @@ from unittest.mock import patch
 
 REPO_ROOT = Path(os.environ.get("GITGALAXY_CODE_ROOT") or Path(__file__).resolve().parents[2]).resolve()
 sys.path.insert(0, str(REPO_ROOT))
-from maven_exe import maven_utf8_env, mvn_executable, run_decoded  # noqa: E402
+from maven_exe import GRADLE_DAEMON_ARG, gradle_utf8_env, maven_utf8_env, mvn_executable, run_decoded  # noqa: E402
 from launcher_exe import launcher_executable  # noqa: E402
 
 _TIMESTAMP = re.compile(rb"gitgalaxy_(clean|java_spring)_[0-9]{8}_[0-9]{6}")
@@ -226,10 +226,13 @@ def build(project: Path, version: int, m2: Path) -> tuple[bool, str]:
             "--no-daemon",
             "compileJava",
             f"-Dorg.gradle.java.installations.paths={env['JAVA_HOME']}",
+            GRADLE_DAEMON_ARG,
         ]
+        env = gradle_utf8_env(env)
     else:
         cmd = [mvn_executable(), "-q", "-B", "compile", f"-Dmaven.repo.local={m2}"]
-    proc = run_decoded(cmd, cwd=project, env=maven_utf8_env(env), timeout=1800)
+        env = maven_utf8_env(env)
+    proc = run_decoded(cmd, cwd=project, env=env, timeout=1800)
     errors = [ln for ln in (proc.stdout + proc.stderr).splitlines() if "ERROR" in ln or "error:" in ln]
     return proc.returncode == 0, "\n".join(errors[:8])
 

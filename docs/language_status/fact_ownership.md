@@ -13,11 +13,11 @@ Cross-check** workflow (`.github/workflows/fact-crosscheck.yml`) against
 
 ## What was compared
 
-- **Universe:** the 7 keyed mainframe corpora (`tests/cobol_mainframe/corpora.json`: CardDemo, CBSA,
-  GenApp, zECS, DSF, zopeneditor-sample, IBM DBB mortgage), 128 sources with hand-verified answer
-  keys; the 54 programs the det-port equivalence cases translate (each with its case's own copy
-  directories; all 54 are also keyed); the 112 keyed copybooks (`layouts`); and estate-crucible at
-  its pin (v0.4.0, 40 COBOL programs, a generated key whose planted "horrors" cite IBM).
+- **Universe:** the keyed mainframe corpora (`tests/cobol_mainframe/corpora.json`: CardDemo, CBSA,
+  GenApp, zECS, DSF, zopeneditor-sample, IBM DBB mortgage) with hand-verified answer
+  keys; the programs the det-port equivalence cases translate (each with its case's own copy
+  directories, all also keyed); the keyed copybooks (`layouts`); and estate-crucible at
+  its pin (v0.4.0, COBOL programs, a generated key whose planted "horrors" cite IBM).
 - **Engine side:** `tests/tools/referees/engine_adapter.py` (the referee panel's, #4377) plus
   `offsets`, `moves` and `copy_resolution`.
 - **Translator side:** `tests/tools/referees/translator_adapter.py`. Every value comes from the
@@ -79,12 +79,13 @@ engine-owned rows below.
 | COPY members and their resolution | **engine** | engine 100 / 100 vs the keys; the translator searches a flat directory list and takes the wrong member when one exists in two libraries (estate-crucible H-0034, H-0052: 98.3 / 97.8), splices a program source as a copybook, and misses two COPY statement forms | consumes the engine's resolution since #4468 (`GalaxyIR.copy_resolution`); refuses gaps and #4459's unexpanded forms by name; a SYSLIB collision takes the engine's first-library member with a warning (#4486; refused in strict mode). The cross-check's translator side takes it too |
 | data items: PIC, USAGE (as written), OCCURS, REDEFINES | **engine** | 100% vs the keys on every attribute; the translator agrees on 99.8–100% (its misses come from the COPY defects above) | check |
 | VALUE | **engine** for analysis (as written); **translator** for translation (parsed) | the 18 disagreements are spelling: `0225` vs 225, `ALL` vs `ALL '#'` | both kept |
-| record layouts / offsets | **translator** for its own translation; **engine** for analysis, checked by this gate | 96.2% agreement on 16,153 values. Engine wrong on 337: section-level COPY REPLACING (#4457) and a COPY continuation (#4458). Translator wrong on 78, every one from COPY resolution or expansion, none from the layout arithmetic. POINTER width (228) is a platform setting: 4 on z/OS, 8 in the GnuCOBOL storage the proofs run on (`oracle_assumptions.md` C9) | revisit having the translator consume engine layouts once #4457 / #4458 are fixed and POINTER width is a parameter: the engine would then match the translator everywhere on these corpora |
+| record layouts / offsets | **engine** (computes once: offsets, lengths, OCCURS strides, REDEFINES, POINTER width as a parameter, the shipped stand-in copybooks flagged as stand-ins, #5649) | before #5649 the translator laid out its own records: 96.2% agreement on 16,153 values, engine wrong on 337 (section-level COPY REPLACING #4457, a COPY continuation #4458, both fixed), translator wrong on 78, every one from COPY resolution or expansion, none from the layout arithmetic. POINTER width is a platform setting: 4 on z/OS, 8 in the GnuCOBOL storage the proofs run on (`oracle_assumptions.md` C9) | consumes the engine's layout since #5649 (`GalaxyIR.record_layout`, `det/engine_layout.py`) at its own POINTER width (`det.cics.POINTER_BYTES`), in check mode: its own computation runs beside the engine's and any difference refuses the program by name (`LayoutDisagrees`). A record the engine has no entry for (a system member such as DFHAID, a generated BMS map, special registers) keeps the translator's layout. The gate keeps checking until the translator's copy is deleted (one release); the ledger keeps only the `pointer-width` entries, where the cross-check's engine side stays at the z/OS width |
 | MOVE pairs | **engine** for lineage; **translator** for meaning | engine 100 / 100 vs the keys; the 54 disagreements are CVDA moves (`DFHVALUE(GET)`: the engine keeps the operand, the translator its number) | both kept |
 | EXEC CICS commands | **translator** for command semantics (every option, refusing the unmodelled, #4411); **engine** for the resource census | 100% agreement over the verbs the keys census; the translator also reads the commands nobody censuses (ASKTIME, RETURN, SEND TEXT …) | the engine's resource inventory (files, maps, queues, resolved names) stays engine-owned |
 
 The ownership changes where a fact is consumed, not who computes it: both sides keep deriving
-every channel, and the gate keeps them honest against each other.
+every channel, and the gate keeps them honest against each other. Record layouts are the first
+exception on the way out: the translator consumes the engine's (#5649) and its own copy stays only as a check.
 
 ## The gate
 

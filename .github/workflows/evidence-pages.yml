@@ -54,7 +54,7 @@ jobs:
       - name: Install GitGalaxy
         run: |
           python -m pip install --require-hashes -r main/ci/requirements/bootstrap.txt
-          pip install -e ./main
+          pip install --no-build-isolation -e ./main
 
       - name: Render the pages from main's records
         env:

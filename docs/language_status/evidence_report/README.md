@@ -13,3 +13,7 @@ publishes it to the `generated` branch, so one copy exists and it is the latest 
   Link this README or the `generated` URL.
 - The release gate (`evidence_report.py --check --live`, `publish.yml`) still requires every level to be current.
 - Tests run on a frozen snapshot, `tests/fixtures/evidence_report/` (never quote it as current levels).
+
+The estate roll-up (`tests/tools/estate_evidence.py`, #4054: the E0-E4 level of each evidence record, coverage and mutation
+score, open survivors, lines) is published the same way, at `docs/language_status/estate_evidence/` on `generated`:
+`python tests/tools/generated_branch.py show docs/language_status/estate_evidence/report.md` (or `report.json`).

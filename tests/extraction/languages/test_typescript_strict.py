@@ -94,7 +94,6 @@ _TYPESCRIPT_SIMPLE_CASES = [
     ("llm_api", "import OpenAI from 'openai';", "const x = 1;"),
     ("llm_orchestrator", "import { Chain } from 'langchain';", "const x = 1;"),
     ("llm_vector_store", "import { Client } from 'chromadb';", "const x = 1;"),
-    ("ml_traditional", "import x from 'sklearn';", "const x = 1;"),
     ("dl_frameworks", "import * as tf from 'tensorflow';", "const x = 1;"),
     # --- ADVERSARIAL CASES FOR HIGH-AMBIGUITY SIGNATURES ---
     ("branch", "const result = (a ?? b) || c && d ? e : f;", None),
@@ -352,6 +351,31 @@ def test_typescript_func_start_nested_generic_constraint_regression():
 
     assert_redos_immune(func_start, "function foo<" + "a" * 100000, timeout_sec=3.0)
     assert_redos_immune(func_start, "myMethod<" + "a" * 100000, timeout_sec=3.0)
+
+
+@pytest.mark.parametrize("nl", ["\n", "\r\n"])
+def test_typescript_func_start_ternary_consequent_is_not_a_definition_5503(nl):
+    """A call on the line after `cond ?` whose `: alternate;` reads as a return type is no function."""
+    func_start = TYPESCRIPT_RULES["func_start"]
+
+    def names(src):
+        return [m.group(0).strip().split("(")[0] for m in func_start.finditer(src.replace("\n", nl))]
+
+    ternary = "const n = ok ?\n    countWhere(xs, p => !p.f)\n    : length(xs);\n"
+    assert names(ternary) == []
+    assert names("x = ok ?\n    getNodePos()\n    : other(a);\n") == []
+    assert names("x = a ?\n    f(1) :\n    g(2);\n") == []
+    # a blanked comment line between the `?` and the call (prism leaves spaces)
+    assert names("x = ok ?\n        \n    f(1)\n    : g(2);\n") == []
+    # a function-typed property returning `readonly T[]` is a type, not a function value
+    assert names("interface I {\n  getAll: () => readonly Foo[];\n}\n") == []
+    # multi-line parameter lists: neither `name: T,` lines nor a default-valued arrow are definitions
+    params = "function f(\n  a: string,\n  b: number,\n  c = (): string => g(a),\n) {}\n"
+    assert names(params) == ["function f"]
+    # controls: stubs, bodies and a method after an optional property still match
+    assert names("interface I {\n  foo(): void;\n}\n") == ["foo"]
+    assert names("class A {\n  p?: number;\n  bar(x: number): number {\n    return x;\n  }\n}\n") == ["bar"]
+    assert names("const o = {\n  baz(a) {\n    return a;\n  },\n};\n") == ["baz"]
 
 
 def test_typescript_bitwise_ops_vs_closures_no_false_collision():

@@ -444,3 +444,25 @@ def test_file_archetype_profile_reports_distance_not_retired_fields(recorder, tm
     assert prof["Repository Fingerprint"] == {"file_cluster_3": 1.25, "file_cluster_4": 2.5}
     for retired in ("File Archetype", "File Drift (Z-Score)", "File Fingerprint", "Repository Drift (Z-Score)"):
         assert retired not in prof
+
+
+# ==============================================================================
+# TEST 6: ML LAYER NOT RUN IS NOT A CLEAN VERDICT (#2986)
+# ==============================================================================
+@pytest.mark.parametrize(
+    ("session", "expect_key"),
+    [
+        ({"ml_inference_ran": False}, True),
+        ({"ml_inference_ran": True}, False),
+        ({}, False),  # a caller that predates the key
+    ],
+)
+def test_audit_recorder_flags_ml_layer_not_run(recorder, tmp_path, session, expect_key):
+    output_file = tmp_path / "forensic_ml_flag.json"
+    recorder.generate_report([], [], {}, {}, session, str(output_file))
+    with open(output_file, encoding="utf-8") as f:
+        ml = json.load(f)["3. Forensic Security & Vulnerability Audit"]["ML Threat Intelligence (XGBoost)"]
+    assert ml["Infected Files Detected"] == 0
+    assert ("Inference Ran" in ml) is expect_key
+    if expect_key:
+        assert ml["Inference Ran"] is False

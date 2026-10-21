@@ -14,11 +14,27 @@ from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: comp
 from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
 
 from .._shared_patterns import (
+    C_MACRO_FUNC_START_GUARD,
+    C_MACRO_FUNC_START_SOURCE,
     CALLS_OUT_C_STYLE_GENERIC,
     COMMENTED_STATEMENT_C_FAMILY,
     GLOBAL_FRAGILE_DEBT,
     GLOBAL_PLANNED_DEBT,
 )
+
+# #5462: a class-template qualifier segment (`Foo<A, B>::`) in an out-of-line member
+# definition; the template argument list nests two levels and is bounded by the `::`.
+_TPL_QUAL = r"(?:<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?"
+
+# #5462: the tail between a definition's parameter list and its body (func_start item 8).
+# A one-level-nested parenthesised group: `noexcept(sizeof(T) > 4)`, `throw(A, B)`, `decltype(a + b)`.
+_PARENS = r"\((?:[^()]|\([^()]*\))*\)"
+# A specifier macro (`THROWS`, `ASIO_NOEXCEPT`, `Q_DECL_OVERRIDE`): a bare ALL-CAPS name of two characters
+# or more, on the `)` line or indented below it. Never one with an argument list or at column 0: that is
+# the next macro statement of a chain (gzdoom `EXTERN_CVAR(Bool, x)` / `CUSTOM_CVAR(Int, y, 0, 0) {`).
+_SPEC_MACRO = r"(?:[ \t]+|[ \t]*\n[ \t]+)[A-Z][A-Z0-9_]{1,63}(?![" + ID_CONTINUE + r"]|[ \t]*\()"
+# A trailing return type token: a qualified name with template arguments (`std::map<int, int>`).
+_RET_TOKEN = r"[a-zA-Z_:" + ID_CONTINUE + r"*<>]+"
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -44,6 +60,9 @@ DEFINITION: dict[str, Any] = {
         ".cp",
         ".C",
         ".H",
+        # #5465: Arduino / Processing-style sketches are C++ (an Arduino port's entry file is a .ino).
+        ".ino",
+        ".pde",
     ],
     # ABSOLUTE IDENTITY & EXACT FILENAMES: Extensionless build/config scripts and tooling configs that are secretly pure code.
     "exact_matches": [],
@@ -89,6 +108,9 @@ DEFINITION: dict[str, Any] = {
     # (`<chrono>`, `<ostream>`, `<QString>`) is a file with no extension, never a
     # same-stem `chrono.h` (fmt's own header), so the resolver matches it exactly.
     "include_names_file_literally": True,
+    # #5629: an ALL-CAPS `NAME(` before the body's `{` is a macro in the header (the defining macro of a
+    # macro-defined unit, a parameter-list macro), not a call. A top-level helper flag, not a `rules` pattern.
+    "calls_out_header_macros_are_not_calls": True,
     # #3644 (calls_out C3): `Type var(args)` in a body constructs a Type -- the callee is
     # the type, never the variable. A top-level helper flag, not a `rules` pattern (#2806).
     "calls_out_declarator_constructs": True,
@@ -154,7 +176,9 @@ DEFINITION: dict[str, Any] = {
             + ID_START
             + r"]["
             + ID_CONTINUE
-            + r"]*::)*(?:["
+            + r"]*"
+            + _TPL_QUAL
+            + r"::)*(?:["
             + ID_START
             + r"]["
             + ID_CONTINUE
@@ -176,6 +200,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(namespace|using|class|struct|enum|union|template|typename|concept|requires|auto|return|void|inline|virtual|explicit|friend|module|export|import|typedef|goto)\b"
         ),
         "func_start": re.compile(
+            "(?:(?!" + C_MACRO_FUNC_START_GUARD + ")"
             # =====================================================================
             # [ CONTEXT: C++ FUNCTION AST EXTRACTOR & REDOS SHIELD]
             # PURPOSE: Anchors executable logic blocks (methods/functions) in C++.
@@ -269,7 +294,7 @@ DEFINITION: dict[str, Any] = {
             r"(?:[ \t]{0,20}[*&]{1,5}[ \t\n]{0,200}|[ \t\n]{1,200})){0,5}"
             # 5. THE "NOT A FUNCTION" SHIELD
             # Prevents control flow (if, while) and primitive types from being captured as function names.
-            r"(?!(?:if|for|while|switch|return|catch|else|elif|sizeof|new|delete|ARGS\d+|NOARGS|int|float|double|char|void|long|short|unsigned|signed|bool|INTEGER|LOGICAL|real|__attribute__|__declspec|__asm__)\b)"
+            r"(?!(?:if|for|while|switch|return|catch|else|elif|sizeof|alignas|new|delete|ARGS\d+|NOARGS|int|float|double|char|void|long|short|unsigned|signed|bool|INTEGER|LOGICAL|real|__attribute__|__declspec|__asm__)\b)"
             # 6. THE IDENTIFIER CAPTURE (FUNCTION IDENTIFIER - GROUP 1)
             # [IRON WALL]: Ensures the actual function/operator name isn't hijacked by a macro definition.
             # OUT-OF-LINE OPERATOR FIX (epic #813/#821): the operator alternatives had no
@@ -295,19 +320,27 @@ DEFINITION: dict[str, Any] = {
             + ID_START
             + r"]["
             + ID_CONTINUE
-            + r"]*::)*operator[ \t]*[^a-zA-Z_\s(]+|(?:["
+            + r"]*"
+            + _TPL_QUAL
+            + r"::)*operator[ \t]*[^a-zA-Z_\s(]+|(?:["
             + ID_START
             + r"]["
             + ID_CONTINUE
-            + r"]*::)*operator[ \t]*\(\)|(?:["
+            + r"]*"
+            + _TPL_QUAL
+            + r"::)*operator[ \t]*\(\)|(?:["
             + ID_START
             + r"]["
             + ID_CONTINUE
-            + r"]*::)*operator[ \t]+(?:new|delete)(?:\[\])?|(?:["
+            + r"]*"
+            + _TPL_QUAL
+            + r"::)*operator[ \t]+(?:new|delete)(?:\[\])?|(?:["
             + ID_START
             + r"]["
             + ID_CONTINUE
-            + r"]*::)*operator[ \t]+(?:(?:const|volatile)[ \t]+){0,2}(?:::)?["
+            + r"]*"
+            + _TPL_QUAL
+            + r"::)*operator[ \t]+(?:(?:const|volatile)[ \t]+){0,2}(?:::)?["
             + ID_START
             + r"]["
             + ID_CONTINUE
@@ -319,7 +352,9 @@ DEFINITION: dict[str, Any] = {
             + ID_START
             + r"]["
             + ID_CONTINUE
-            + r"]*::)*[~"
+            + r"]*"
+            + _TPL_QUAL
+            + r"::)*[~"
             + ID_START
             + r"]["
             + ID_CONTINUE
@@ -341,11 +376,32 @@ DEFINITION: dict[str, Any] = {
             # this exact shape, and every `[[attribute]] Type param` case in the existing
             # extraction gauntlet still matches (the lookahead only excludes a single `[` NOT
             # immediately followed by a second one).
-            r"[ \t\n]{0,200}(?:ARGS\d+\s*\([^)]*\)|\((?![ \t\n]{0,20}\[(?!\[))(?:[^)(]|\([^)]*\))*\)|NOARGS)"
+            # #5462: a parameter list holds no `;` and no brace other than a flat brace-init default
+            # (`= {}`, `= {1, 2}`). A call passing a multi-line lambda AFTER its first argument
+            # (`walk(node, [&](T& x) noexcept {` ... `if (f(x)) {`) otherwise ran through the
+            # lambda's body to a later `) {` and was counted as a definition of `walk`.
+            r"[ \t\n]{0,200}(?:ARGS\d+\s*\([^)]*\)|\((?![ \t\n]{0,20}\[(?!\[))(?:[^)(;{}]|\([^);{}]*\)|\{[^(){};]*\})*\)|NOARGS)"
             # 8. POST-PARAMETER MODIFIERS & TRAILING RETURN TYPES
             # [OVERLAP PREVENTION]: Removed ambiguous \s* inside attribute matcher.
-            r"(?:[ \t\n]+(?:const|volatile|noexcept|override|final|&{1,2}|__attribute__\((?:[^)(]|\([^)]*\))*\)|\[\[[^\]]*\]\])){0,10}"
-            r"(?:[ \t\n]*->[ \t]*[a-zA-Z_:" + ID_CONTINUE + r"*<>]+)?"
+            # #5462: also `noexcept(expr)`, `throw(...)`, a specifier macro (`readBit() THROWS {`),
+            # a trailing return type with cv-qualifiers, `decltype(...)`, commas or a pointer
+            # (`-> const char *`), a C++20 `requires` clause and a function-try-block (`f() try {`).
+            r"(?:[ \t\n]+(?:const|volatile|noexcept(?:[ \t]*"
+            + _PARENS
+            + r")?|throw[ \t]*"
+            + _PARENS
+            + r"|override|final|&{1,2}|__attribute__\((?:[^)(]|\([^)]*\))*\)|\[\[[^\]]*\]\])|"
+            + _SPEC_MACRO
+            + r"){0,10}"
+            r"(?:[ \t\n]*->[ \t]*(?:(?:const|volatile|typename)[ \t]+){0,3}(?:decltype[ \t]*"
+            + _PARENS
+            + r"|"
+            + _RET_TOKEN
+            + r"(?:,[ \t]*"
+            + _RET_TOKEN
+            + r"){0,10})(?:[ \t]*[*&]{1,3})?)?"
+            r"(?:[ \t\n]+requires[ \t\n(][^{};#]{0,300})?"
+            r"(?:[ \t\n]+try)?"
             # 9. THE K&R C AND C++ CONSTRUCTOR GAP (ReDoS mitigated via Strict Bounding)
             # Handles C++ initializer lists (e.g., `MyClass() : a(1) {`) and legacy K&R declarations.
             # [IRON WALL - CATASTROPHIC BACKTRACKING FIX]:
@@ -353,7 +409,7 @@ DEFINITION: dict[str, Any] = {
             # This caps the permutation tree instantly.
             r"(?:[ \t\n]*(?![ \t]*#):[^{;]{0,2000}|(?:[ \t\n]+(?![ \t]*#)[" + ID_START + r"][^(){};]{0,100};){1,20})?"
             # 10. THE IGNITION (The opening brace confirming it is a definition, not a declaration)
-            r"[ \t\n]*\{",
+            r"[ \t\n]*\{" + "|" + C_MACRO_FUNC_START_SOURCE + ")",
             re.M,
         ),
         # 5. class_start (Object / Entity Declarations)

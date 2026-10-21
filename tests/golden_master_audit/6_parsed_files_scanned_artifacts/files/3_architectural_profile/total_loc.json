@@ -3268,7 +3268,8 @@
       "rust/tokio/maybe_done.rs": 124,
       "rust/tokio/tests.rs": 979,
       "rust/tokio/tokio_mpsc_bounded.rs": 1950,
-      "rust/tokio/tokio_named_pipe.rs": 2700
+      "rust/tokio/tokio_named_pipe.rs": 2700,
+      "rust/tokio/tokio_udp.rs": 2342
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": 96
@@ -3397,6 +3398,7 @@
       "shell/freebsd-src/dd2_test.sh": 98,
       "shell/freebsd-src/dtest.sh": 140,
       "shell/freebsd-src/echo_test.sh": 59,
+      "shell/freebsd-src/ed_test.sh": 2116,
       "shell/freebsd-src/format_string_test.sh": 164,
       "shell/freebsd-src/functional_test.sh": 72,
       "shell/freebsd-src/hostname_test.sh": 89,
@@ -3434,6 +3436,7 @@
       "shell/haiku/default_deskbar_items.sh": 13,
       "shell/haiku/gen-bepo.sh": 12,
       "shell/haiku/generate_CountryFlags.sh": 22,
+      "shell/haiku/generate_ids_from_drivers.sh": 212,
       "shell/haiku/install-wifi-firmwares.sh": 329,
       "shell/haiku/install.sh": 42,
       "shell/haiku/leak_analyser.sh": 153,
@@ -3859,6 +3862,7 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 47,
       "typescript/assemblyscript/ast.ts": 2420,
+      "typescript/assemblyscript/builtins.ts": 11395,
       "typescript/assemblyscript/compiler.ts": 10689,
       "typescript/assemblyscript/package.json": 115,
       "typescript/assemblyscript/parser.ts": 4588
@@ -3904,7 +3908,11 @@
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 56,
       "typescript/typescript_compiler/binder.ts": 3917,
-      "typescript/typescript_compiler/package.json": 118
+      "typescript/typescript_compiler/checker.ts": 54435,
+      "typescript/typescript_compiler/emitter.ts": 6379,
+      "typescript/typescript_compiler/package.json": 118,
+      "typescript/typescript_compiler/parser.ts": 10824,
+      "typescript/typescript_compiler/types.ts": 10671
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 22,
@@ -4076,6 +4084,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": 8171,
       "zig/zig/InternPool.zig": 13040,
+      "zig/zig/Sema.zig": 37746,
       "zig/zig/Type.zig": 4357,
       "zig/zig/Zcu.zig": 4802,
       "zig/zig/main.zig": 7530
@@ -4090,6 +4099,7 @@
       "zig/zls/analysis.zig": 7016,
       "zig/zls/ast.zig": 1847,
       "zig/zls/config_gen.zig": 1092,
+      "zig/zls/langref.html.in": 8436,
       "zig/zls/print_ast.zig": 950
     }
   },

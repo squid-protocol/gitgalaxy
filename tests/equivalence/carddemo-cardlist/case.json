@@ -1286,6 +1286,34 @@
     "CCRDLIA": {}
    },
    "why": "#4602: WS-CA-LAST-PAGE-DISPLAYED 5, neither CA-LAST-PAGE-SHOWN (0) nor CA-LAST-PAGE-NOT-SHOWN (9): PF8 with no next page relists the last page and 1400-SETUP-MESSAGE takes the PF8 / no-next-page arm with IF CA-LAST-PAGE-NOT-SHOWN (line 913) false"
+  },
+  {
+   "name": "full-commarea-length",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 0,
+    "CDEMO-CARD-NUM": 0,
+    "CDEMO-LAST-MAP": "CCRDLIA",
+    "CDEMO-LAST-MAPSET": "COCRDLI",
+    "WS-CA-LAST-CARD-NUM": "1561409106491600",
+    "WS-CA-LAST-CARD-ACCT-ID": 35,
+    "WS-CA-FIRST-CARD-NUM": "0500024453765740",
+    "WS-CA-FIRST-CARD-ACCT-ID": 50,
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-ALL-ROWS": "000000000500500024453765740Y000000000270683586198171516Y000000000020923877193247330Y000000000200927987108636232Y000000000120982496213629795Y000000000441014086565224350Y000000000371142167692878931Y"
+   },
+   "receive": {
+    "CCRDLIA": {}
+   },
+   "commarea_length": 414,
+   "why": "#5401 (EIBCALEN, mutation survivors): the caller states EIBCALEN as the whole COMMAREA. No shorter length can be stated: the program moves DFHCOMMAREA past 160 bytes unconditionally, a reference past EIBCALEN the oracle refuses (X23)"
   }
  ],
  "bounds_refused": {

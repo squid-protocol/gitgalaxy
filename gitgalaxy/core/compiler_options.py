@@ -213,8 +213,13 @@ OPTION_TABLE: dict[str, dict[str, Any]] = {
                            "computes as NONUMCHECK"},
     "INITCHECK": {"kind": "flag", "default": "NOINITCHECK", "honoured": None, "policy": None,
                   "reason": "INITCHECK only warns at compile time about uninitialised items: no run result changes"},
+    "NOZWB": {"kind": "flag", "default": "ZWB", "honoured": (), "policy": "refuse",
+              "reason": "NOZWB moves the signed value of a zoned DISPLAY operand into the temporary item of a numeric-vs-"
+                        "nonnumeric comparison, where ZWB (IBM's default) moves the unsigned value (Language Reference, "
+                        "General relation conditions; Programming Guide, ZWB); the det port and the oracle compare unsigned"},
     "OPTIMIZE": {"kind": "value", "default": "0", "honoured": None, "policy": None,
-                 "reason": "OPTIMIZE(0|1|2|STD|FULL) changes run time and storage, not a defined result"},
+                 "reason": "OPTIMIZE(0|1|2|STD|FULL) changes run time and storage, not a defined result; a zero divisor without ON SIZE "
+                           "ERROR is undefined on IBM at every level, and the harness follows cobc there whatever the level (C14)"},
 }  # fmt: skip
 # Options of SEMANTIC_OPTIONS: the oracle's cobc flags (equivalence_common.COBC_OPTIONS) decide them, not this table.
 COBC_DECIDED_OPTIONS = ("ARITH", "INTDATE", "NUMPROC", "TRUNC")
@@ -251,3 +256,31 @@ def unhonoured(eff: dict[str, str | None], code_page: str | None = None) -> list
         out.append({"option": option, "declared": state, "policy": row["policy"], "applied": applied,
                     "note": f"{state if row['kind'] == 'flag' else f'{option}({state})'}: {row['reason']}"})  # fmt: skip
     return out
+
+
+# ---- the compiler version bounds which options exist (#4704) -------------------------------------------------------------
+# First Enterprise COBOL for z/OS release that has the option (Programming Guide, "Compiler options": each option's
+# section names the release it came in). Only the options whose release is certain are listed; an option not listed is
+# never reported. A program whose estate states an older compiler cannot have been compiled under such an option, so the
+# value is an assumption that contradicts the stated version, not a finding.
+OPTION_SINCE: dict[str, tuple[int, int]] = {"NUMCHECK": (6, 3), "INVDATA": (6, 4)}
+
+
+def version_tuple(version: Any) -> tuple[int, int] | None:
+    """(major, minor) of a version text (`6.1`, `V6.3.0`, `4.2`); None when it names none."""
+    m = re.match(r"\s*[Vv]?(\d+)(?:\.(\d+))?", str(version or ""))
+    return (int(m.group(1)), int(m.group(2) or 0)) if m else None
+
+
+def not_in_version(eff: dict[str, str | None], version: Any) -> list[dict[str, Any]]:
+    """[{option, since, version}] of the options in `eff` that the stated compiler `version` does not have, in
+    OPTION_SINCE order. A NO- form counts as the option; an unstated or unparsable version reports nothing."""
+    have = version_tuple(version)
+    if have is None:
+        return []
+    named = {o[2:] if o.startswith("NO") and o[2:] in OPTION_SINCE else o for o in eff}
+    return [
+        {"option": o, "since": ".".join(map(str, since)), "version": str(version)}
+        for o, since in OPTION_SINCE.items()
+        if o in named and have < since
+    ]

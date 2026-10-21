@@ -567,3 +567,79 @@ def test_fact_keywords_in_a_continued_literal_or_inline_comment_are_no_read():
     assert got["eib"] == {"EIBFN"} and got["assign_task"] == {"USERID"} and not got["assign_region"]
     # length-preserving: the line structure the command scan relies on is unchanged
     assert [len(x) for x in pb.code_only(real).splitlines()] == [len(x) for x in real.splitlines()]
+
+
+def col7(*lines: str) -> str:
+    """Lines whose first character is the indicator area (column 7)."""
+    return "\n".join(f"{i * 100:06d}{ln}" for i, ln in enumerate(lines, 1)) + "\n"
+
+
+def test_debugging_lines_are_no_read_unless_debugging_mode_is_active():
+    """#5089: a column-7 `D` line is a comment unless WITH DEBUGGING MODE is active (a commented one does not count)."""
+    empty = {"eib": set(), "assign_task": set(), "assign_region": set()}
+    dbg = (
+        "D    MOVE EIBFN TO X.",
+        "D    EXEC CICS ASSIGN USERID(U) APPLID(A) STARTCODE(S) END-EXEC.",
+        "D    MOVE 'EXEC CICS ASSIGN USERID(U)",
+        "-    'END-EXEC' TO X.",
+    )
+    assert pb.facts_needed(col7(" MOVE 1 TO Y.", *dbg)) == empty
+    mode = "     SOURCE-COMPUTER. IBM-370 WITH DEBUGGING MODE."
+    got = pb.facts_needed(col7(mode, *dbg))
+    assert got["eib"] == {"EIBFN"} and got["assign_task"] == {"USERID", "STARTCODE"}  # active: they are code
+    assert pb.facts_needed(col7("*" + mode[1:], *dbg)) == empty  # a commented mode does not activate them
+    real = col7(dbg[0], "     MOVE EIBRCODE TO Y.")
+    assert pb.facts_needed(real)["eib"] == {"EIBRCODE"}
+    assert [len(x) for x in pb.code_only(real).splitlines()] == [len(x) for x in real.splitlines()]
+
+
+def free(*lines: str) -> str:
+    """Free-format source: program text from column 1, no sequence area or indicator."""
+    return "\n".join(lines) + "\n"
+
+
+FREE_FACTS = (
+    "IDENTIFICATION DIVISION.",
+    "PROGRAM-ID. FREEFMT.",
+    "PROCEDURE DIVISION.",
+    "MOVE EIBFN TO WS-F. *> a floating comment tail with EIBRCODE",
+    "EXEC CICS ASSIGN USERID(U) APPLID(A) END-EXEC.",
+)
+
+
+def test_free_format_source_is_read_whole_and_variable_past_column_72():
+    """#5089: a free-format program keeps its first six columns and everything past column 72 (the fixed-format cut
+    lost both), for every fact keyword; a `>>SOURCE FORMAT` switch is followed line by line."""
+    got = pb.facts_needed(free(*FREE_FACTS))
+    assert got["eib"] == {"EIBFN"} and got["assign_task"] == {"USERID"} and got["assign_region"] == {"APPLID"}
+    far = free(
+        "IDENTIFICATION DIVISION.",
+        "PROCEDURE DIVISION.",
+        "MOVE 1 TO " + "X" * 70 + " EXEC CICS ASSIGN SYSID(S) END-EXEC.",
+    )
+    assert pb.facts_needed(far)["assign_region"] == {"SYSID"}
+    assert pb.cc.commands(far) == [["ASSIGN", "SYSID"]]
+    # variable format: fixed areas, no column-72 limit
+    var = ">>SOURCE FORMAT IS VARIABLE\n" + col7(" MOVE 1 TO " + "X" * 70 + " EXEC CICS ASSIGN STARTCODE(S) END-EXEC.")
+    assert pb.facts_needed(var)["assign_task"] == {"STARTCODE"}
+    # a directive switches mid-file: the fixed part keeps its column cut, the free part has none
+    mixed = fixed("PROCEDURE DIVISION.", "    MOVE EIBTASKN TO X.") + ">>SOURCE FORMAT FREE\nMOVE EIBRCODE TO Y.\n"
+    assert pb.facts_needed(mixed)["eib"] == {"EIBTASKN", "EIBRCODE"}
+
+
+def test_free_format_literals_comments_and_debug_lines_are_no_read():
+    """#5089: the text-that-names-a-fact class in free format: a literal (also continued onto a line opening with
+    the quote), `*>` lines and tails, and `>>D` lines (code only under WITH DEBUGGING MODE)."""
+    empty = {"eib": set(), "assign_task": set(), "assign_region": set()}
+    for src in (
+        free("IDENTIFICATION DIVISION.", "MOVE 'EXEC CICS ASSIGN USERID(U) EIBFN", "'END-EXEC' TO X."),
+        free("IDENTIFICATION DIVISION.", 'MOVE "EIBRCODE" TO X.', "*> EXEC CICS ASSIGN APPLID(A) END-EXEC"),
+        free("IDENTIFICATION DIVISION.", "MOVE 1 TO X. *> EIBFN", "   *> EIBERR"),
+        free("IDENTIFICATION DIVISION.", ">>D MOVE EIBFN TO X.", ">>D EXEC CICS ASSIGN USERID(U) END-EXEC."),
+    ):
+        assert pb.facts_needed(src) == empty, src
+    dbg = free("IDENTIFICATION DIVISION.", "SOURCE-COMPUTER. IBM-370 WITH DEBUGGING MODE.", ">>D MOVE EIBFN TO X.")
+    assert pb.facts_needed(dbg)["eib"] == {"EIBFN"}
+    real = free("IDENTIFICATION DIVISION.", "MOVE 'A *> B' TO X EIBFN.", "'") + "MOVE EIBERR TO Y.\n"
+    assert pb.facts_needed(real)["eib"] == {"EIBFN", "EIBERR"}
+    assert [len(x) for x in pb.code_only(real).splitlines()] == [len(x) for x in real.splitlines()]

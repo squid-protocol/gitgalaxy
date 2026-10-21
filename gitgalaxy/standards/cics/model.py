@@ -263,8 +263,8 @@ class Command:
             raise ValueError(f"{self.key}: a whole-command reason is for a refused / engine-only command only")
         if self.why is not None and (not self.why or self.why != self.why.strip()):
             raise ValueError(f"{self.key}: reason {self.why!r}")
-        if self.status == "refused" and (self.options or self.refused or self.groups or self.outcomes):
-            raise ValueError(f"{self.key}: a name-only entry has a name, a URL and a reason only")
+        if self.status == "refused" and (self.options or self.groups or self.outcomes):
+            raise ValueError(f"{self.key}: a name-only entry has a name, a URL, a reason and the option names only")
         for word in self.key.split():
             _name(word, f"{self.key}: command word")
         for o in list(self.options) + list(self.refused):

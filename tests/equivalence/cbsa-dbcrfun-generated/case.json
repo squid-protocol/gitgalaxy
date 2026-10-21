@@ -1,0 +1,101 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "DBCRFUN",
+ "program_source": "src/base/cobol_src/DBCRFUN.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "OCRA",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "db2": {
+  "ddl": [
+   "etc/install/base/db2jcl/CRETB01.jcl",
+   "etc/install/base/db2jcl/CREI101.jcl",
+   "etc/install/base/db2jcl/CRETB02.jcl"
+  ],
+  "seed": "@generate",
+  "compare": [
+   "IBMUSER.ACCOUNT",
+   "IBMUSER.PROCTRAN"
+  ],
+  "qualifier": "IBMUSER",
+  "compare_sql": true,
+  "generate": {
+   "seed": 4507,
+   "tables": {
+    "IBMUSER.ACCOUNT": {
+     "rows": 30,
+     "columns": {
+      "ACCOUNT_SORTCODE": {
+       "values": [
+        "987654",
+        "987654",
+        "987654",
+        "123456"
+       ]
+      },
+      "ACCOUNT_NUMBER": {
+       "digits": true
+      }
+     }
+    }
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/BNK1CRA.cbl",
+    "record": "SUBPGM-PARMS"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [],
+ "notes": "CBSA's debit/credit service (DBCRFUN) on GENERATED Db2 rows (#4507): 30 IBMUSER.ACCOUNT rows built from CRETB01's CREATE TABLE and CREI101's unique index (every column at its boundaries, a NULL in every nullable column, then values between; a quarter under another sort code); PROCTRAN starts empty and is compared with ACCOUNT after every task (no foreign key joins them in CRETB02). 40 generated LINKs with BNK1CRA's SUBPGM-PARMS: the account each row's in turn (one in ten one the table does not hold: SELECT +100, 'N' '1'), amounts debit and credit from 0.01 to the S9(10)V99 limit, teller and payment (496) facility types, so the LOAN / MORTGAGE and insufficient-balance refusals, the PROCTRAN rows and a generated NULL date (SELECT -305, 'N' '2') are reached by the data. The hand scenarios of cbsa-dbcrfun name particular seed rows and stay with that case. Every task's statements are compared with what Db2 answered (compare_sql). Burned estate (CBSA).",
+ "port_from": "cbsa-dbcrfun",
+ "scenario_generate": {
+  "seed": 4507,
+  "count": 40,
+  "prefix": "generated",
+  "commarea": {
+   "SUBPGM-ACCNO": {
+    "from": "IBMUSER.ACCOUNT.ACCOUNT_NUMBER",
+    "miss": 0.1,
+    "turn": true
+   },
+   "SUBPGM-SORTC": "987654",
+   "SUBPGM-AMT": {
+    "values": [
+     "-100.50",
+     "250.25",
+     "-0.01",
+     "0.01",
+     "-9999999999.99",
+     "9999999999.99",
+     "500.00",
+     "-2500.00",
+     "0"
+    ]
+   },
+   "SUBPGM-APPLID": "CBSAAPPL",
+   "SUBPGM-USERID": "PAYUSER1",
+   "SUBPGM-FACILITY-NAME": "TERM0001",
+   "SUBPGM-NETWRK-ID": "NETWORK1",
+   "SUBPGM-FACILTYPE": {
+    "values": [
+     0,
+     496,
+     496,
+     1
+    ]
+   }
+  }
+ }
+}

@@ -3,6 +3,10 @@ description: "*2026-10-03. A fourth public COBOL/CICS estate, from a different I
 ---
 # Estate 4: IBM DBB MortgageApplication
 
+> **Dated historical snapshot (2026-10-03).** This is the onboarding record of the estate. The numbers below were measured once and are not updated. For current counts (translated whole, level per program, per estate) read the generated
+> [progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md)
+> (#5280, #5282).
+
 *2026-10-03. A fourth public COBOL/CICS estate, from a different IBM team than CBSA and GenApp, onboarded to test how
 far the deterministic translator and the equivalence harness generalise.*
 
@@ -42,7 +46,7 @@ DATA DIVISION is nine programs'. Before the fixes below, all 6 were refused.
 | `mortgage-nbrvl` | EPSNBRVL, number validator | CALL, group USING item | **proven**, 15 calls | 3/3 paragraphs, 22/22 branches |
 | `mortgage-cmort` | EPSCMORT, mortgage screen | CICS, BMS (generated map), Db2 `SYSIBM.SYSDUMMY1`, CALL EPSNBRVL, LINK EPSMLIST (#4213) | **proven**, 9 scenarios (8 written, plus the automatic SQL-fault task on its SELECT, #4200) | 3/6 paragraphs, 15/21 branches |
 | `mortgage-mlist` | EPSMLIST, company list | CICS, BMS (generated map), an ESDS browsed by RBA (STARTBR / READNEXT ... RBA, #4213), the dataset stated by the case | **proven**, 9 scenarios (2 with injected STARTBR / READNEXT conditions) | 5/6 paragraphs, 14/15 branches |
-| `mortgage-mpmt` | EPSMPMT, payment calculator | CALL, binary arguments as field values | **not proven on purpose**: the payment is computed through a COMP-1 item, in hexadecimal floating point on z/OS and in truncated decimal on GnuCOBOL. Since #4271 slice 1 the det runtime models HFP and the interest COMPUTE translates, but the payment's `(1 + C) ** N` (N with decimal places) is a floating-point exponentiation IBM does not document bit for bit: a named hole (C6). Its `CBL NUMPROC(MIG)` compiles as NUMPROC(NOPFD) under the estate's Enterprise COBOL 6.1 (C5, #4271) | — |
+| `mortgage-mpmt` | EPSMPMT, payment calculator | CALL, binary arguments as field values | **not proven on purpose**: the payment is computed through a COMP-1 item, in hexadecimal floating point on z/OS and in truncated decimal on GnuCOBOL. Since #4271 slice 1 the det runtime models HFP and the interest COMPUTE translates, but the payment's `(1 + C) ** N` (N with decimal places) is a floating-point exponentiation IBM does not document bit for bit: a named hole in every shape (C6, pinned by `test_det_hfp.py`; line 125), and modelling it would still leave the case unproven until z/OS captures exist (#4050). Its `CBL NUMPROC(MIG)` compiles as NUMPROC(NOPFD) under the estate's Enterprise COBOL 6.1 (C5, #4271) | — |
 
 **Not reached, and why:**
 - EPSCMORT's ENTER (indicator '3') and WHEN OTHER paths LINK EPSCSMRT. EPSCSMRT CALLs EPSMPMT through a data

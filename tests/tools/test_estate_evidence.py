@@ -66,6 +66,17 @@ def test_a_level_never_outruns_its_numbers(rows):
             assert r["mutation"] and not r["mutation"]["survivors"]["untriaged"], r["key"]
 
 
+def test_every_committed_carddemo_record_has_a_mutation_section():
+    """#4048: a burned CardDemo record left at `mutation: null` has no score; this includes a port_from case
+    (carddemo-tranview-generated), which has a record but no port/ of its own and is not in targets()."""
+    records = sorted((ev.CASES).glob("carddemo-*/" + ev.RECORD_NAME))
+    assert records
+    for path in records:
+        rec = json.loads(path.read_text(encoding="utf-8"))
+        assert rec["mutation"], path.parent.name
+        assert not rec["mutation"]["survivors"]["untriaged"], path.parent.name
+
+
 def test_the_rollup_adds_up_to_the_rows(report, rows):
     s = report["summary"]
     assert s["programs"] == len(rows)

@@ -254,6 +254,101 @@
      "why": "17 on the READ -> WHEN OTHER: 'Unable to lookup Transaction...'"
     }
    ]
+  },
+  {
+   "name": "pf3-blank-from-program",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN1A": {
+     "TRNIDINI": "0000000328781772"
+    }
+   },
+   "why": "#4049 (proposed for the mutation survivors): PF3 with a blank caller program: the COMEN01C default"
+  },
+  {
+   "name": "pf3-low-values-from-program",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN1A": {
+     "TRNIDINI": "0000000328781772"
+    }
+   },
+   "why": "#4049 (proposed for the mutation survivors): PF3 with a LOW-VALUES caller program: the COMEN01C default"
+  },
+  {
+   "name": "pf3-xctl-fails",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "COTRN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN1A": {
+     "TRNIDINI": "0000000328781772"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COTRN00C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4049 (proposed for the mutation survivors): PGMIDERR on the PF3 XCTL: no HANDLE CONDITION, so the task ends"
+  },
+  {
+   "name": "enter-with-process-date-on-screen",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "COTRN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN1A": {
+     "TRNIDINI": "0000000328781772",
+     "TPROCDTI": "2022-06-10"
+    }
+   },
+   "why": "#4049 slice 2 (mutation survivors): the received processing date is non-blank, so copying it back to the redisplayed screen shows"
+  },
+  {
+   "name": "enter-empty-transaction-id-with-process-date",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "COTRN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN1A": {
+     "TPROCDTI": "2022-06-10"
+    }
+   },
+   "why": "#4049 slice 3 (mutation survivors): the error screen for an empty transaction id redisplays the received processing date (a found record would overwrite it)"
   }
  ],
  "notes": "CardDemo's view-transaction screen (transaction CT01, program COTRN01C): entered from the transaction list with a selected transaction it reads it and shows every field (the amount through an edited picture); ENTER looks one up, PF3 returns, PF4 clears, PF5 goes to the list. The TRANSACT file is loaded from CardDemo's own dailytran.txt (the same 350-byte layout, CVTRA05Y / CVTRA06Y, that POSTTRAN posts into it). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

@@ -135,6 +135,65 @@ def test_a_disabled_program_definition_refuses_the_case_by_name(tmp_path):
     assert all(c["status"] == "unsupported" and "STATUS(DISABLED)" in c["reason"] for c in cells.values())
 
 
+def _prog(*cmds: str) -> str:
+    body = "".join(f"           EXEC CICS {c}\n           END-EXEC.\n" for c in cmds)
+    return "       PROCEDURE DIVISION.\n" + body + "           EXEC CICS RETURN END-EXEC.\n"
+
+
+@pytest.mark.parametrize(
+    ("cmds", "named"),
+    [
+        (["START TRANSID('ABCD') CHANNEL(CH)"], "START CHANNEL"),
+        (["RUN TRANSID('ABCD') CHANNEL(CH) CHILD(TK)"], "RUN CHANNEL"),
+        (["FETCH CHILD(TK)"], "a waiting FETCH"),
+        (["FETCH ANY(TK) TIMEOUT(5)"], "a waiting FETCH"),
+        (["FETCH CHILD(TK) NOSUSPEND"], "FETCH NOSUSPEND"),
+        (["FREE CHILD(TK)"], "FREE CHILD"),
+        (["RUN TRANSID('ABCD') CHILD(TK)", "DELAY FOR SECONDS(3)"], "a parent that waits"),
+    ],
+)
+def test_each_async_member_the_runner_cannot_schedule_is_named(cmds, named):
+    """#4950 (register X18): the runner has no child schedule and no channel event, so each member is refused by name."""
+    assert any(named in f and "X18" in f for f in runner.async_refusals(_prog(*cmds)))
+
+
+def test_a_parent_that_never_waits_still_runs_its_children_after_it_ends():
+    """The positive control: SPEC section 4's schedule is the runner's, so a RUN child with no wait, a channel on a
+    PUT CONTAINER or a RETURN, and a commented-out FETCH are not refused."""
+    src = _prog(
+        "RUN TRANSID('ABCD') CHILD(TK)", "PUT CONTAINER('C') CHANNEL(CH) FROM(X)", "RETURN TRANSID('ABCD') CHANNEL(CH)"
+    )
+    src += "      *    EXEC CICS FETCH CHILD(TK) END-EXEC.\n"
+    assert runner.async_refusals(src) == []
+
+
+def test_no_pinned_crucible_case_needs_the_child_schedule():
+    """#4950 (register X18): the runner's missing child schedule has no consumer. Not one case of the pinned crucible
+    is refused by `case_async_refusals`; the day one is, the SPEC 6.2 CHILD event and the runner wiring become work."""
+    env = os.environ.get(runner.PATH_ENV)
+    if not env or not Path(env, "cases").is_dir():
+        pytest.skip(f"no cics-crucible checkout ({runner.PATH_ENV})")
+    needing = {d.name: f for d in cc.discover(Path(env)) if (f := runner.case_async_refusals(cc.load_case(d)))}
+    assert needing == {}
+
+
+def test_a_case_with_an_async_member_is_refused_by_name_on_every_run_side(tmp_path):
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "P.cbl").write_text(_prog("FREE CHILD(TK)"), encoding="utf-8")
+    data = {
+        "id": "c1",
+        "trap": "t",
+        "scenarios": [{"id": "s1"}],
+        "sources": {"cobol": ["src/P.cbl"], "copy": []},
+        "layouts": {},
+        "maps": {},
+    }
+    case = cc.Case(dir=tmp_path, data=data, expected={}, csd=cc.parse_csd("DEFINE PROGRAM(P) GROUP(G)\n"))
+    cells = runner.measure_case(case, {"cobol-stub", "java", "java-ported"}, tmp_path / "w", offline=True)
+    assert sorted(c["side"] for c in cells.values()) == ["cobol-stub", "java", "java-ported"]
+    assert all(c["status"] == "unsupported" and "FREE CHILD" in c["reason"] for c in cells.values())
+
+
 def test_a_cases_stated_origin_is_the_stubs_origin_env():
     """#4415 slice 2 (register X29): the case's `origin` -- applid, userid, facilname, networkid, faciltype, as the case
     states them -- is $GGCICS_ORIGIN in that order; a case that states none gives none (INQUIRE ASSOCIATION is refused)."""

@@ -1,0 +1,297 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "BNK1UAC",
+ "program_source": "src/base/cobol_src/BNK1UAC.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "OUAC",
+ "termid": "T001",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "taskn": 4242,
+ "programs": [
+  {
+   "program": "INQACC",
+   "program_source": "src/base/cobol_src/INQACC.cbl"
+  },
+  {
+   "program": "UPDACC",
+   "program_source": "src/base/cobol_src/UPDACC.cbl"
+  },
+  {
+   "program": "ABNDPROC",
+   "program_source": "src/base/cobol_src/ABNDPROC.cbl"
+  }
+ ],
+ "datasets": {
+  "CBSA.CICSBSA.ABNDFILE": {
+   "input": "@case/abndfile.bin",
+   "entity": "WsAbndArea",
+   "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+   "record": "WS-ABND-AREA",
+   "recovery": "NONE",
+   "recovery_why": "etc/install/base/installjcl/BANK.csd: DEFINE FILE(ABNDFILE) ... RECOVERY(NONE) -- the abend log a backout must not undo"
+  }
+ },
+ "db2": {
+  "ddl": [
+   "etc/install/base/db2jcl/CRETB01.jcl",
+   "etc/install/base/db2jcl/CREI101.jcl",
+   "etc/install/base/db2jcl/CRETB02.jcl"
+  ],
+  "seed": "@generate",
+  "compare": [
+   "IBMUSER.ACCOUNT",
+   "IBMUSER.PROCTRAN"
+  ],
+  "qualifier": "IBMUSER",
+  "compare_sql": true,
+  "generate": {
+   "seed": 4507,
+   "tables": {
+    "IBMUSER.ACCOUNT": {
+     "rows": 30,
+     "columns": {
+      "ACCOUNT_SORTCODE": {
+       "values": [
+        "987654",
+        "987654",
+        "987654",
+        "123456"
+       ]
+      },
+      "ACCOUNT_NUMBER": {
+       "digits": true
+      }
+     }
+    }
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/BNK1UAC.cbl",
+    "record": "WS-COMM-AREA"
+   }
+  ]
+ },
+ "screens": {
+  "BNK1UA": {
+   "copybook": "@bms/BNK1UAM.cpy",
+   "input": "BNK1UAI",
+   "output": "BNK1UAO"
+  }
+ },
+ "scenarios": [
+  {
+   "name": "first-entry",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "EIBCALEN 0: WS-COMM-AREA initialised, the map sent ERASE"
+  },
+  {
+   "name": "pa1",
+   "aid": "DFHPA1",
+   "commarea": {},
+   "why": "PA1: CONTINUE, nothing sent; RETURN TRANSID with the COMMAREA"
+  },
+  {
+   "name": "pf3",
+   "aid": "DFHPF3",
+   "commarea": {},
+   "why": "PF3: RETURN TRANSID('OMEN') IMMEDIATE: back to the main menu"
+  },
+  {
+   "name": "pf12",
+   "aid": "DFHPF12",
+   "commarea": {},
+   "why": "PF12: SEND-TERMINATION-MSG, RETURN"
+  },
+  {
+   "name": "clear",
+   "aid": "DFHCLEAR",
+   "commarea": {},
+   "why": "CLEAR: SEND CONTROL ERASE FREEKB, RETURN"
+  },
+  {
+   "name": "other-key",
+   "aid": "DFHPF7",
+   "commarea": {},
+   "why": "PF7: WHEN OTHER -- 'Invalid key pressed.', SEND MAP DATAONLY ALARM"
+  },
+  {
+   "name": "mapfail",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "why": "ENTER with no field modified: RECEIVE MAP MAPFAIL -- ABNDPROC LINKed (an ABNDFILE record) and ABEND HBNK"
+  }
+ ],
+ "notes": "BNK1UAC on generated Db2 rows (#4507): the update-account screen of cbsa-bnk1uac, its LINKed INQACC and UPDACC and the tables ACCOUNT and PROCTRAN compared after every task, with ACCOUNT rows generated from the DDL (30 rows, boundary values, NULLs) and the typed account numbers drawn from them (ACCNO misses 15% of the time). Stated scenarios keep the non-ENTER / non-PF5 keys and MAPFAIL; the inquiries and updates are generated, their type, rate, overdraft and statement-date fields drawn from the values the hand-written cbsa-bnk1uac scenarios use (valid, boundary and refused; no rate with four decimal places: BNK1UAC reference-modifies INTRTI past its 7 bytes, layout luck on IBM). Derived from the CICS Bank Sample Application (CBSA), EPL-2.0: LICENSE is the corpus's own.",
+ "port_from": "cbsa-bnk1uac",
+ "scenario_generate": {
+  "seed": 4507,
+  "count": 50,
+  "prefix": "generated",
+  "aid": [
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHPF5",
+   "DFHPF5",
+   "DFHPF5",
+   "DFHPF5",
+   "DFHPF5",
+   "DFHPF5",
+   "DFHPF5",
+   "DFHPF5",
+   "DFHPF3",
+   "DFHPA1"
+  ],
+  "commarea": {},
+  "receive": {
+   "BNK1UA": {
+    "ACCNOI": {
+     "from": "IBMUSER.ACCOUNT.ACCOUNT_NUMBER",
+     "miss": 0.15
+    },
+    "ACTYPEI": {
+     "values": [
+      "SAVING  ",
+      "CURRENT ",
+      "LOAN    ",
+      "MORTGAGE",
+      "ISA     ",
+      "SAVING  ",
+      "CURRENT ",
+      "CHECKING"
+     ]
+    },
+    "INTRTI": {
+     "values": [
+      "3.25",
+      "5",
+      "12.50",
+      "9999.75",
+      "0000.00",
+      "1.234",
+      "+3.5",
+      "-1.5",
+      "10000",
+      "abc",
+      "1.2.3",
+      "17.5"
+     ]
+    },
+    "OVERDRI": {
+     "values": [
+      "100",
+      "0",
+      "500",
+      "99999999",
+      "12ab"
+     ]
+    },
+    "OPENDDI": {
+     "values": [
+      "31",
+      "01",
+      "15"
+     ]
+    },
+    "OPENMMI": {
+     "values": [
+      "01",
+      "06",
+      "12"
+     ]
+    },
+    "OPENYYI": {
+     "values": [
+      "2020",
+      "2015",
+      "2024"
+     ]
+    },
+    "LSTMTDDI": {
+     "values": [
+      "01",
+      "15",
+      "29",
+      "30",
+      "31",
+      "00",
+      "32",
+      "ab"
+     ]
+    },
+    "LSTMTMMI": {
+     "values": [
+      "08",
+      "02",
+      "04",
+      "09",
+      "12",
+      "13",
+      "00",
+      "x1"
+     ]
+    },
+    "LSTMTYYI": {
+     "values": [
+      "2026",
+      "2025",
+      "20x6"
+     ]
+    },
+    "NSTMTDDI": {
+     "values": [
+      "01",
+      "15",
+      "30",
+      "31",
+      "00",
+      "ab"
+     ]
+    },
+    "NSTMTMMI": {
+     "values": [
+      "09",
+      "02",
+      "04",
+      "11",
+      "12",
+      "13"
+     ]
+    },
+    "NSTMTYYI": {
+     "values": [
+      "2026",
+      "2027",
+      "2o26"
+     ]
+    },
+    "AVBALI": {
+     "values": [
+      "+0000098765.43",
+      "-0000000100.00",
+      "+0000000000.00"
+     ]
+    },
+    "ACTBALI": {
+     "values": [
+      "+0000098765.43",
+      "-0000000100.00",
+      "+0000000000.00"
+     ]
+    }
+   }
+  }
+ }
+}

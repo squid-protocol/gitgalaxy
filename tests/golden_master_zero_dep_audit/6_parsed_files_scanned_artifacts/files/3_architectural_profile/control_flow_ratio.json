@@ -3268,7 +3268,8 @@
       "rust/tokio/maybe_done.rs": "8.9%",
       "rust/tokio/tests.rs": "1.2%",
       "rust/tokio/tokio_mpsc_bounded.rs": "9.7%",
-      "rust/tokio/tokio_named_pipe.rs": "8.7%"
+      "rust/tokio/tokio_named_pipe.rs": "8.7%",
+      "rust/tokio/tokio_udp.rs": "9.8%"
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": "1.6%"
@@ -3397,6 +3398,7 @@
       "shell/freebsd-src/dd2_test.sh": "9.5%",
       "shell/freebsd-src/dtest.sh": "16.1%",
       "shell/freebsd-src/echo_test.sh": "0.0%",
+      "shell/freebsd-src/ed_test.sh": "0.1%",
       "shell/freebsd-src/format_string_test.sh": "0.8%",
       "shell/freebsd-src/functional_test.sh": "13.9%",
       "shell/freebsd-src/hostname_test.sh": "2.1%",
@@ -3434,6 +3436,7 @@
       "shell/haiku/default_deskbar_items.sh": "12.5%",
       "shell/haiku/gen-bepo.sh": "0.0%",
       "shell/haiku/generate_CountryFlags.sh": "14.3%",
+      "shell/haiku/generate_ids_from_drivers.sh": "0.0%",
       "shell/haiku/install-wifi-firmwares.sh": "8.7%",
       "shell/haiku/install.sh": "21.4%",
       "shell/haiku/leak_analyser.sh": "11.1%",
@@ -3627,7 +3630,7 @@
     },
     "sql/mediawiki_postgresql": {
       "sql/mediawiki_postgresql/COPYING": "0.0%",
-      "sql/mediawiki_postgresql/tables.sql": "0.0%"
+      "sql/mediawiki_postgresql/tables.sql": "12.5%"
     },
     "sql/spamassassin_mysql": {
       "sql/spamassassin_mysql/NOTICE": "0.0%",
@@ -3640,7 +3643,7 @@
       "sql/sqlite/dotcmd01.sql": "1.7%"
     },
     "sql/sqlmap_postgresql": {
-      "sql/sqlmap_postgresql/dns_request.sql": "0.0%"
+      "sql/sqlmap_postgresql/dns_request.sql": "14.3%"
     },
     "sqlite": {
       "sqlite/SOURCES.md": "0.0%"
@@ -3859,6 +3862,7 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": "0.0%",
       "typescript/assemblyscript/ast.ts": "6.1%",
+      "typescript/assemblyscript/builtins.ts": "15.1%",
       "typescript/assemblyscript/compiler.ts": "23.7%",
       "typescript/assemblyscript/package.json": "0.0%",
       "typescript/assemblyscript/parser.ts": "25.7%"
@@ -3904,7 +3908,11 @@
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": "0.0%",
       "typescript/typescript_compiler/binder.ts": "33.1%",
-      "typescript/typescript_compiler/package.json": "0.0%"
+      "typescript/typescript_compiler/checker.ts": "41.7%",
+      "typescript/typescript_compiler/emitter.ts": "26.3%",
+      "typescript/typescript_compiler/package.json": "0.0%",
+      "typescript/typescript_compiler/parser.ts": "31.2%",
+      "typescript/typescript_compiler/types.ts": "16.2%"
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": "0.0%",
@@ -4076,6 +4084,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": "15.3%",
       "zig/zig/InternPool.zig": "8.4%",
+      "zig/zig/Sema.zig": "15.8%",
       "zig/zig/Type.zig": "16.0%",
       "zig/zig/Zcu.zig": "13.1%",
       "zig/zig/main.zig": "26.8%"
@@ -4090,6 +4099,7 @@
       "zig/zls/analysis.zig": "22.2%",
       "zig/zls/ast.zig": "13.9%",
       "zig/zls/config_gen.zig": "19.3%",
+      "zig/zls/langref.html.in": "0.0%",
       "zig/zls/print_ast.zig": "4.8%"
     }
   },

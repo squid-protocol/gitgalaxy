@@ -2,8 +2,11 @@
 
 import subprocess
 import sys
+
 from pathlib import Path
 from types import SimpleNamespace
+
+import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import pr_gates
@@ -17,7 +20,7 @@ def test_ci_pins_reads_workflows():
 
 def test_mypy_workflow_installs_from_the_pin_file():
     yml = (pr_gates.REPO / ".github" / "workflows" / "mypy-audit.yml").read_text(encoding="utf-8")
-    assert "pip install -r tests/requirements-mypy.txt" in yml
+    assert "pip install --require-hashes -r ci/requirements/mypy.txt" in yml
 
 
 def test_version_warnings_flag_drift_and_print_private_venv():
@@ -96,3 +99,58 @@ def test_audits_always_run_under_env_i_and_print_the_tool_used(monkeypatch, caps
     assert cmd[:2] == ["env", "-i"]
     out = capsys.readouterr().out
     assert "mypy used:" in out and "ruff used:" in out
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="the gate runs under POSIX `env -i` with a /usr/bin:/bin PATH")
+def test_matching_tool_off_the_interpreter_bin_dir_is_on_the_clean_path(monkeypatch, tmp_path):
+    """churn's precheck runs under /usr/bin/python3 with the pinned ruff on ~/.local/bin: the gate's `env -i` PATH must
+    name the dir the matched ruff/mypy is in, not the interpreter's (it failed lint in 0 s with 'ruff' not found)."""
+    tools = tmp_path / "local-bin"
+    tools.mkdir()
+    for name in ("ruff", "mypy"):
+        (tools / name).write_text("#!/bin/sh\n")
+        (tools / name).chmod(0o755)
+    monkeypatch.setattr(
+        pr_gates,
+        "local_versions",
+        lambda env=None: {"mypy": pr_gates.ci_pins()["mypy"], "ruff": pr_gates.ci_pins()["ruff"]},
+    )
+    sysbin = tmp_path / "sysbin"  # the interpreter's bin dir, with no ruff/mypy in it (like /usr/bin)
+    sysbin.mkdir()
+    monkeypatch.setattr(pr_gates, "PY", str(sysbin / "python3"))
+    env = {"PATH": f"{sysbin}:{tools}"}
+    [cmd] = pr_gates.pinned_mypy_audit(pr_gates.REPO, env)
+    assert f"PATH={tools.resolve()}:/usr/bin:/bin" in cmd
+    [cmd], _ = pr_gates.pinned_ruff_lint(env)
+    assert f"PATH={tools.resolve()}:/usr/bin:/bin" in cmd
+
+
+@pytest.mark.slow(reason="builds the pinned actionlint venv on a fresh runner (pip + release binary download)")
+def test_workflows_gate_is_in_fast_and_catches_expression_arithmetic(tmp_path, monkeypatch):
+    """#5768: `${{ x - 3 }}` made full-suite-gate.yml unloadable; the --fast `workflows` gate (actionlint) names it."""
+    plan = pr_gates.gates(SimpleNamespace(lower_baseline=False), {})
+    assert "workflows" in plan
+    wf = tmp_path / ".github" / "workflows"
+    wf.mkdir(parents=True)
+    (wf / "bad.yml").write_text(
+        "on: push\njobs:\n  a:\n    runs-on: ubuntu-latest\n    timeout-minutes: ${{ (matrix.t || 30) - 3 }}\n"
+        "    steps:\n      - run: echo hi\n",
+        encoding="utf-8",
+    )
+    rc = pr_gates.actionlint_gate(tmp_path)
+    if not (pr_gates.MYPY_CACHE / f"actionlint-{pr_gates.ACTIONLINT_PIN}" / ".ready").exists():
+        pytest.skip("actionlint could not be installed here (offline)")
+    assert rc != 0
+    (wf / "bad.yml").write_text(
+        "on: push\njobs:\n  a:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo hi\n", encoding="utf-8"
+    )
+    assert pr_gates.actionlint_gate(tmp_path) == 0
+
+
+def test_workflows_gate_passes_with_a_note_when_actionlint_cannot_install(tmp_path, monkeypatch, capsys):
+    (tmp_path / ".github" / "workflows").mkdir(parents=True)
+    (tmp_path / ".github" / "workflows" / "a.yml").write_text("on: push\n", encoding="utf-8")
+    monkeypatch.setattr(pr_gates, "MYPY_CACHE", tmp_path / "cache")
+    monkeypatch.setattr(subprocess, "run", lambda *a, **k: SimpleNamespace(returncode=1, stdout="", stderr=""))
+    assert pr_gates.actionlint_gate(tmp_path) == 0
+    assert "could not be installed" in capsys.readouterr().out

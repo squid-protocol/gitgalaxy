@@ -84,6 +84,17 @@ def test_read_fallback_without_fadvise(tmp_path, monkeypatch):
     assert (h.files, h.bytes) == (2, 6_000_000)
 
 
+def test_read_fallback_when_fadvise_exists_without_its_constant(tmp_path, monkeypatch):
+    calls = []
+    monkeypatch.setattr(os, "posix_fadvise", lambda *a: calls.append(a), raising=False)
+    monkeypatch.delattr(os, "POSIX_FADV_WILLNEED", raising=False)  # absent on macOS and Windows
+    entries = _files(tmp_path, ["a", "b"], size=3_000_000)
+    h = pf.start_prefetch(str(tmp_path), entries, environ={pf.PREFETCH_ENV: "1"})
+    _wait(h)
+    assert calls == []
+    assert (h.files, h.bytes) == (2, 6_000_000)
+
+
 def test_memory_cap_stops_the_thread(tmp_path):
     meminfo = tmp_path / "meminfo"
     meminfo.write_text("MemTotal: 1 kB\nMemAvailable:       1 kB\n")  # cap = ~716 bytes
@@ -130,6 +141,7 @@ def test_env_is_read_at_call_time(tmp_path, monkeypatch):
     assert h.skipped is None and h.files == 1
 
 
+@pytest.mark.skipif(not hasattr(os, "major"), reason="os.major/os.minor do not exist on Windows (#5367)")
 def test_is_rotational_reads_the_flag(tmp_path):
     dev = os.stat(tmp_path).st_dev
     q = tmp_path / f"{os.major(dev)}:{os.minor(dev)}" / "queue"

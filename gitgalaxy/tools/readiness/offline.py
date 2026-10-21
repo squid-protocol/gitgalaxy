@@ -14,7 +14,8 @@ create_connection, getaddrinfo, gethostbyname[_ex]) with ones that raise `Offlin
 but AF_UNIX (multiprocessing's local channels stay usable), except inside `socket.socketpair` itself, whose Windows
 emulation connects over AF_INET loopback. It is installed in the assess process and, through
 `BOOTSTRAP`, in the galaxyscope scan it runs; the scan's worker processes inherit it where they fork (Linux). A
-spawn-start worker (macOS / Windows default) starts a fresh interpreter without it -- named as a follow-up of #4726.
+spawn-start worker (macOS / Windows default) starts a fresh interpreter, so the scan passes `OFFLINE_ENV` to
+`_init_worker`, which installs the guard there (#5235).
 """
 
 from __future__ import annotations
@@ -32,6 +33,9 @@ from typing import Any
 _LOCAL_FAMILIES = frozenset({getattr(socket, "AF_UNIX", None)} - {None})
 _installed = False
 _local = threading.local()
+
+# Set in the scan child so galaxyscope's worker initializer installs the guard in spawn-start workers too.
+OFFLINE_ENV = "GITGALAXY_ASSESS_OFFLINE"
 
 # Runs galaxyscope's own __main__ with the guard installed first (the argv after `-c` is galaxyscope's).
 BOOTSTRAP = (
@@ -113,7 +117,7 @@ def guarded_scan(target: Path, out_dir: Path, timeout: int = 3600, verbose: bool
     target = Path(target).resolve()
     out_dir = Path(out_dir).resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
-    env = dict(os.environ, GITGALAXY_DISABLE_GIT_HISTORY="1")
+    env = dict(os.environ, GITGALAXY_DISABLE_GIT_HISTORY="1", **{OFFLINE_ENV: "1"})
     argv = [
         sys.executable,
         "-c",

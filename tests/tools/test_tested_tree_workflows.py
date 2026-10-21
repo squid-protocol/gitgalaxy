@@ -21,7 +21,7 @@ WORKFLOWS = Path(__file__).resolve().parents[2] / ".github" / "workflows"
 GATED = [
     "mainframe-ground-truth",  # #4961; its push run appends and publishes the ground-truth history
     "smoke-test",  # #4961; the per-merge ubuntu full suite
-    "java-compile",  # #4964; its push run seeds the base-generation cache PRs based on that commit restore
+    "java-compile",  # #4964; its push run builds main's tree (the base-generation cache is java-base-generation.yml's, #5142)
 ]  # fmt: skip
 # push `paths` entries the PR filter lacks (the push could fire on a change the PR run was never created for), and
 # PR-only entries (the PR runs where the push does not: harmless). Pinned; an edit to a filter updates it knowingly.

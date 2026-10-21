@@ -15,6 +15,7 @@ A survivor's verdict is one of
 
     python tests/tools/mutation_scores.py build --runs DIR [DIR ...] --triage T.json --commit SHA [--out FILE]
                                                 [--rejudged DIR ... --rejudged-commit SHA] [--keep-others]
+    python tests/tools/mutation_scores.py retriage --triage T.json [...]   # new verdicts for committed survivors, no re-run
     python tests/tools/mutation_scores.py table [--results FILE] [--doc FILE]     # re-render the doc's table
 
 `build` writes the compact results file (default docs/language_status/mutation_scores.json) and the table;
@@ -42,6 +43,8 @@ BEGIN, END = "<!-- mutation-scores -->", "<!-- /mutation-scores -->"
 TRIAGE = ("case_gap", "harness_gap", "equivalent", "unreachable")
 TRIAGE_ALL = (*TRIAGE, "untriaged")
 COUNTS = ("killed", "survived", "stillborn", *TRIAGE_ALL)
+# #4047: the reason an early bulk triage gave every survivor it had not read; it is no verdict (retriage replaces it)
+PLACEHOLDER = "not proven equivalent and no scenario of the case kills it"
 
 
 def _key(run: dict) -> str:
@@ -73,6 +76,55 @@ def port_entry(run: dict, triage: dict, commit: str) -> dict:
             "survivors": survivors}  # fmt: skip
 
 
+def placeholders(results: dict) -> dict[str, int]:
+    """Per `case/program`, how many survivors still carry the bulk placeholder reason instead of a reading."""
+    out = {}
+    for p in results["ports"]:
+        n = sum(s["reason"].startswith(PLACEHOLDER) for s in p["survivors"])
+        if n:
+            out[f"{p['case']}/{p['program']}"] = n
+    return out
+
+
+def retriage_port(p: dict, triage: dict) -> int:
+    """Re-apply `triage` ({<case>/<PROGRAM>:<id>: {verdict, reason}}) to one committed port entry, then recount its
+    per-operator and total verdict counts from the survivors. Returns how many survivors changed."""
+    changed = 0
+    for s in p["survivors"]:
+        t = triage.get(f"{_key(p)}:{s['id']}")
+        if t and t["verdict"] in TRIAGE and (t["verdict"], t["reason"]) != (s["verdict"], s["reason"]):
+            s["verdict"], s["reason"] = t["verdict"], t["reason"]
+            changed += 1
+    for c in p["ops"].values():
+        for k in TRIAGE_ALL:
+            c.pop(k, None)
+    for s in p["survivors"]:
+        c = p["ops"][s["op"]]
+        c[s["verdict"]] = c.get(s["verdict"], 0) + 1
+    p["total"] = {k: sum(c.get(k, 0) for c in p["ops"].values()) for k in COUNTS}
+    return changed
+
+
+def retriage(triage: dict, out: Path | None = None) -> int:
+    """Apply `triage` to the committed results file without re-running a mutant (the verdicts are judgements about
+    survivors already measured), then re-render the table and refresh the evidence records. Unknown keys fail."""
+    out = out or RESULTS
+    results = json.loads(out.read_text(encoding="utf-8"))
+    known = {f"{_key(p)}:{s['id']}" for p in results["ports"] for s in p["survivors"]}
+    if missing := sorted(set(triage) - known):
+        raise SystemExit(f"triage keys that are no survivor of {out}: {missing[:5]}")
+    changed = sum(retriage_port(p, triage) for p in results["ports"])
+    out.write_text(json.dumps(results, indent=None, separators=(",", ":")).replace(',{"case"', ',\n{"case"')
+                   + "\n", encoding="utf-8")  # fmt: skip
+    if out.resolve() == RESULTS.resolve():
+        import evidence
+
+        print(f"evidence records: mutation refreshed for {len(evidence.refresh_mutation())}")
+        evidence.write_pages()
+        render(results, DOC)
+    return changed
+
+
 def scores(t: dict) -> tuple[int, int, int]:
     """(caught, judged raw, judged without equivalent and unreachable)."""
     judged = t["killed"] + t["survived"]
@@ -81,6 +133,20 @@ def scores(t: dict) -> tuple[int, int, int]:
 
 def _pct(a: int, b: int) -> str:
     return f"{a}/{b} ({100 * a / b:.0f}%)" if b else "-"
+
+
+def operator_matrix(results: dict) -> str:
+    """Per port, per operator: caught / judged (raw). `-` where the port has no judged mutant of that operator."""
+    ops = sorted({op for p in results["ports"] for op in p["ops"]})
+    rows = ["| port | " + " | ".join(ops) + " |", "|---|" + "---|" * len(ops)]
+    for p in results["ports"]:
+        cells = []
+        for op in ops:
+            c = p["ops"].get(op, {})
+            judged = c.get("killed", 0) + c.get("survived", 0)
+            cells.append(f"{c.get('killed', 0)}/{judged}" if judged else "-")
+        rows.append(f"| {p['program']} ({p['case'].removeprefix('crucible:')}) | " + " | ".join(cells) + " |")
+    return "\n".join(rows)
 
 
 def table(results: dict) -> str:
@@ -119,6 +185,7 @@ def table(results: dict) -> str:
     for op, t in sorted(ops.items()):
         caught, raw, adj = scores(t)
         rows.append(f"| {op} | {_pct(caught, raw)} | {_pct(caught, adj)} |")
+    rows += ["", operator_matrix(results)]
     return "\n".join(rows)
 
 
@@ -147,6 +214,57 @@ def runs_in(d: Path) -> list[Path]:
     return [d / "mutation.json"] if (d / "mutation.json").exists() else sorted(d.glob("*/*/mutation.json"))
 
 
+def build_scores(runs_dirs: list[Path], triage: dict, commit: str, out: Path | None = None,
+                 keep_others: bool = False, rejudged: list[Path] | None = None,
+                 rejudged_commit: str | None = None) -> dict:  # fmt: skip
+    """Write the results file from the run directories; into the committed file, also refresh every evidence record's
+    `mutation` and the pages (#4048: `mutation.py run --record` and `mutation_crucible.py run --record` call this)."""
+    out = out or RESULTS
+    runs = [json.loads(p.read_text(encoding="utf-8")) for d in runs_dirs for p in runs_in(d)]
+    again: dict[str, dict] = {}
+    for d in rejudged or []:
+        for p in runs_in(d):
+            r = json.loads(p.read_text(encoding="utf-8"))
+            again.setdefault(_key(r), {}).update({x["id"]: x for x in r["results"]})
+    ports = []
+    for r in runs:
+        redo = again.get(_key(r), {})
+        if redo:
+            r = {**r, "results": [redo.get(x["id"], x) for x in r["results"]]}
+        entry = port_entry(r, triage, commit)
+        if redo:
+            entry["rejudged"] = {"commit": rejudged_commit, "issue": "#4049", "mutants": len(redo),
+                                 "killed": sum(x["verdict"] in ("killed", "timeout") for x in redo.values())}  # fmt: skip
+        ports.append(entry)
+    if keep_others and out.exists():
+        done = {(q["case"], q["program"]) for q in ports}
+        ports += [q for q in json.loads(out.read_text(encoding="utf-8"))["ports"]
+                  if (q["case"], q["program"]) not in done]  # fmt: skip
+    results = {"format": "gitgalaxy-mutation-scores/1", "issue": "#4047",
+               "ports": sorted(ports, key=lambda p: (p["case"].startswith("crucible:"), p["case"], p["program"]))}  # fmt: skip
+    out.write_text(json.dumps(results, indent=None, separators=(",", ":")).replace(',{"case"', ',\n{"case"')
+                   + "\n", encoding="utf-8")  # fmt: skip
+    if out.resolve() == RESULTS.resolve():  # #4048: each port's evidence record carries its score
+        import evidence
+
+        print(f"evidence records: mutation refreshed for {len(evidence.refresh_mutation())}")
+        evidence.write_pages()
+    return results
+
+
+def record_run(work: Path, triage_files: list[Path] | None = None) -> None:
+    """`--record` of a mutation runner: the run in `work` becomes its port's committed score and evidence record.
+    The committed file's own survivor verdicts carry over (a re-run keeps the triage); `triage_files` add to them."""
+    import subprocess
+
+    commit = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=REPO, capture_output=True, text=True, check=True
+    ).stdout.strip()
+    triage = load_triage([*([RESULTS] if RESULTS.exists() else []), *(triage_files or [])])
+    build_scores([work], triage, commit, RESULTS, keep_others=True)
+    render(json.loads(RESULTS.read_text(encoding="utf-8")), DOC)
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -159,41 +277,18 @@ def main(argv: list[str] | None = None) -> int:
     b.add_argument("--keep-others", action="store_true", help="keep --out's entries for ports these runs do not cover")
     b.add_argument("--rejudged", nargs="*", type=Path, default=[], help="#4049: runs judging some mutants again")
     b.add_argument("--rejudged-commit", help="the gitgalaxy commit the --rejudged runs ran on")
+    r = sub.add_parser("retriage", help="apply triage maps to the committed results (no mutant is re-run)")
+    r.add_argument("--triage", type=Path, nargs="+", required=True)
     t = sub.add_parser("table")
     t.add_argument("--results", type=Path, default=RESULTS)
     t.add_argument("--doc", type=Path, default=DOC)
     args = ap.parse_args(argv)
+    if args.cmd == "retriage":
+        print(f"{retriage(load_triage(args.triage))} survivors re-triaged")
+        return 0
     if args.cmd == "build":
-        triage = load_triage(args.triage)
-        runs = [json.loads(p.read_text(encoding="utf-8")) for d in args.runs for p in runs_in(d)]
-        again: dict[str, dict] = {}
-        for d in args.rejudged:
-            for p in runs_in(d):
-                r = json.loads(p.read_text(encoding="utf-8"))
-                again.setdefault(_key(r), {}).update({x["id"]: x for x in r["results"]})
-        ports = []
-        for r in runs:
-            redo = again.get(_key(r), {})
-            if redo:
-                r = {**r, "results": [redo.get(x["id"], x) for x in r["results"]]}
-            entry = port_entry(r, triage, args.commit)
-            if redo:
-                entry["rejudged"] = {"commit": args.rejudged_commit, "issue": "#4049", "mutants": len(redo),
-                                     "killed": sum(x["verdict"] in ("killed", "timeout") for x in redo.values())}  # fmt: skip
-            ports.append(entry)
-        if args.keep_others and args.out.exists():
-            done = {(q["case"], q["program"]) for q in ports}
-            ports += [q for q in json.loads(args.out.read_text(encoding="utf-8"))["ports"]
-                      if (q["case"], q["program"]) not in done]  # fmt: skip
-        results = {"format": "gitgalaxy-mutation-scores/1", "issue": "#4047",
-                   "ports": sorted(ports, key=lambda p: (p["case"].startswith("crucible:"), p["case"], p["program"]))}  # fmt: skip
-        args.out.write_text(json.dumps(results, indent=None, separators=(",", ":")).replace(',{"case"', ',\n{"case"')
-                            + "\n", encoding="utf-8")  # fmt: skip
-        if args.out.resolve() == RESULTS.resolve():  # #4048: each port's evidence record carries its score
-            import evidence
-
-            print(f"evidence records: mutation refreshed for {len(evidence.refresh_mutation())}")
-            evidence.write_pages()
+        results = build_scores(args.runs, load_triage(args.triage), args.commit, args.out, args.keep_others,
+                               args.rejudged, args.rejudged_commit)  # fmt: skip
     else:
         results = json.loads(args.results.read_text(encoding="utf-8"))
     render(results, args.doc)

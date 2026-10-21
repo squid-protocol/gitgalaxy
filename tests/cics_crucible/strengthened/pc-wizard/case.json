@@ -1,0 +1,123 @@
+{
+ "format": "gitgalaxy/crucible-strengthened/1",
+ "case": "pc-wizard",
+ "scenarios": [
+  {
+   "id": "amount-not-numeric",
+   "summary": "the operator types letters in the amount: AMTI IS NOT NUMERIC counts an error and redisplays the amount screen",
+   "path": "trap",
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "PC01"
+    },
+    {
+     "at": 10,
+     "aid": "ENTER",
+     "map": "PCM1",
+     "fields": {
+      "NAME": "ALAN"
+     }
+    },
+    {
+     "at": 20,
+     "aid": "ENTER",
+     "map": "PCM2",
+     "fields": {
+      "AMT": "ABC"
+     }
+    }
+   ]
+  },
+  {
+   "id": "back-xctl-fails",
+   "summary": "PF7 on the confirm screen: the XCTL back to PCWIZ fails NOTAUTH, PCCONF keeps control",
+   "path": "trap",
+   "faults": [
+    {
+     "task": "PC03",
+     "cmd": "XCTL",
+     "program": "PCWIZ",
+     "nth": 1,
+     "resp": "NOTAUTH"
+    }
+   ],
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "PC01"
+    },
+    {
+     "at": 10,
+     "aid": "ENTER",
+     "map": "PCM1",
+     "fields": {
+      "NAME": "ALAN"
+     }
+    },
+    {
+     "at": 20,
+     "aid": "ENTER",
+     "map": "PCM2",
+     "fields": {
+      "AMT": "999"
+     }
+    },
+    {
+     "at": 30,
+     "aid": "PF7"
+    }
+   ]
+  },
+  {
+   "id": "name-erased",
+   "summary": "the operator erases the name with ERASE EOF and presses ENTER: the field is sent with length 0, RECEIVE MAP is NORMAL, NAMEL = 0 counts an error",
+   "path": "trap",
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "PC01"
+    },
+    {
+     "at": 10,
+     "aid": "ENTER",
+     "map": "PCM1",
+     "fields": {
+      "NAME": ""
+     }
+    }
+   ]
+  },
+  {
+   "id": "amount-erased",
+   "summary": "the operator erases the amount with ERASE EOF and presses ENTER: RECEIVE MAP is NORMAL, AMTL = 0 counts an error",
+   "path": "trap",
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "PC01"
+    },
+    {
+     "at": 10,
+     "aid": "ENTER",
+     "map": "PCM1",
+     "fields": {
+      "NAME": "ALAN"
+     }
+    },
+    {
+     "at": 20,
+     "aid": "ENTER",
+     "map": "PCM2",
+     "fields": {
+      "AMT": ""
+     }
+    }
+   ]
+  }
+ ]
+}

@@ -15,6 +15,7 @@ Characters are built with chr() (X-Ray flags literal non-ASCII runs).
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -78,3 +79,57 @@ def test_planted_file_fires_exactly_its_signal(signatures, name):
     assert name in signatures, "planted file was not parsed"
     assert (signatures[name][HOMOGLYPH] > 0) is homoglyph
     assert (signatures[name][INVISIBLE] > 0) is invisible
+
+
+# --- Sec Extension Mismatch: the #4126 sensor, read through the audit label the golden reads ---
+MISMATCH = "Sec Extension Mismatch"
+ELF = b"\x7fELF\x02\x01\x01\x00" + b"\x00" * 120
+LFS = b"version https://git-lfs.github.com/spec/v1\noid sha256:abc\nsize 123\n"
+# path -> (bytes, fires)
+BINARY_PLANTS = {
+    "disguised.png": (ELF, True),
+    "disguised.pdf": (ELF, True),
+    "lfs_pointer.png": (LFS, False),
+    "empty.png": (b"", False),
+}
+
+
+@pytest.fixture(scope="module")
+def mismatch_signatures(tmp_path_factory):
+    root = tmp_path_factory.mktemp("planted_bin") / "repo"
+    root.mkdir()
+    for name, (data, _) in BINARY_PLANTS.items():
+        (root / name).write_bytes(data)
+    (root / "main.py").write_text("def f():\n    return 1\n", encoding="utf-8")
+    git = ["git", "-c", "user.email=t@t", "-c", "user.name=t"]
+    subprocess.run([*git, "init", "-q"], cwd=root, check=True)  # noqa: S603
+    subprocess.run([*git, "add", "-A"], cwd=root, check=True)  # noqa: S603
+    subprocess.run([*git, "commit", "-qm", "planted"], cwd=root, check=True)  # noqa: S603
+    out = tmp_path_factory.mktemp("out_bin")
+    env = dict(os.environ, GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER", GITGALAXY_DISABLE_GIT_HISTORY="1")
+    env["PYTHONPATH"] = os.pathsep.join(filter(None, [str(REPO_ROOT), env.get("PYTHONPATH", "")]))
+    subprocess.run(  # noqa: S603
+        [sys.executable, "-m", "gitgalaxy.galaxyscope", str(root), "--audit-only", "--output", str(out / "o")],
+        check=True,
+        env=env,
+        capture_output=True,
+        cwd=str(out),
+        timeout=120,
+    )
+    audit = json.loads(next((out / "o").glob("*_galaxy_audit.json")).read_text(encoding="utf-8"))
+    found = {}
+    for group in audit["6. Parsed Files (Scanned Artifacts)"].values():
+        for path, rec in group["Files"].items():
+            found[Path(path).name] = rec[SIGS]
+    return found
+
+
+@pytest.mark.skipif(shutil.which("git") is None, reason="needs git for the census")
+@pytest.mark.parametrize("name", sorted(BINARY_PLANTS))
+def test_disguised_executable_fires_the_audit_label(mismatch_signatures, name):
+    fires = BINARY_PLANTS[name][1]
+    if fires:
+        assert mismatch_signatures[name][MISMATCH] > 0
+    else:
+        assert mismatch_signatures.get(name, {}).get(MISMATCH, 0) == 0
+    assert mismatch_signatures["main.py"][MISMATCH] == 0

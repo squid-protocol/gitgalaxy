@@ -95,7 +95,7 @@ lone `.` after a plain space (`find -s . -mindepth`, `--init-path . name`,
 embedded_python anchor to `(?:^|;)` with the loader calls unanchored —
 twin parity with the already-anchored twin; on the code stream this moves
 one crucible hit (1541 → 1540), because Prism strips docstrings before rules
-run, so the 279 doctest lines in numpy's docstrings were never counted. shell's
+run, so the 279 doctest lines in numpy's docstrings were never counted. The same holds for the seven rules built by `_py_package_import` (llm_api, the four AI/ML rules, hardware_bridge, cryptography): a `>>>` / `...` prefixed import does not count, decided in #4250 and pinned by `test_doctest_import_policy_4250.py`. shell's
 anchor closed the two "known limitation" pins in `test_shell.py` (a
 commented-out `# source .env` and a spaced string lookalike no longer
 capture) — by the boundary set, not by string-awareness (#2535 still holds:

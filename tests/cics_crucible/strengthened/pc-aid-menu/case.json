@@ -1,0 +1,15 @@
+{
+ "format": "gitgalaxy/crucible-strengthened/1",
+ "case": "pc-aid-menu",
+ "scenarios": [
+  {
+   "id": "enter-sends-no-data",
+   "summary": "ENTER on the menu with nothing typed: RECEIVE MAP raises MAPFAIL, no HANDLE CONDITION or RESP, so the task abends (the defect the port keeps)",
+   "path": "trap",
+   "steps": [
+    {"at": 0, "aid": "ENTER", "text": "PC11"},
+    {"at": 10, "aid": "ENTER", "map": "PCMN", "fields": {}}
+   ]
+  }
+ ]
+}

@@ -258,7 +258,7 @@ DEFINITION: dict[str, Any] = {
             # flat `<[^>]{0,100}>` can't span since it stops at the FIRST inner `>`. Bounded to 5
             # nested pairs per outer token -- 3+ levels of nesting (`List<Foo<Bar<Baz>>>`) is a
             # real, accepted gap, not attempted, since it wasn't found in the corpus.
-            r"(?:(?![ \t]*#)(?!(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|readonly|delegate|event|if|for|foreach|while|switch|catch|using|lock|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|var|in|when|or|and|not|is)\b)(?!\?|\[(?![ \t,]*\]))(?:[a-zA-Z0-9_>\]?.*]|(?!<[^<>]{0,100}(?:<[^<>]{0,100}>[^<>]{0,100}){0,5}>)<|\([^()]{0,80}\)|<[^<>]{0,100}(?:<[^<>]{0,100}>[^<>]{0,100}){0,5}>|\[[^\]]{0,80}\])+[ \t\n]{1,200}){0,10}"
+            r"(?:(?![ \t]*#)(?!(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|readonly|delegate|event|if|for|foreach|while|switch|catch|using|lock|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|var|in|when|or|and|not|is)\b)(?!\?|[<>][ \t\n]|\[(?![ \t,]*\]))(?:[a-zA-Z0-9_>\]?.*]|(?!<[^<>]{0,100}(?:<[^<>]{0,100}>[^<>]{0,100}){0,5}>)<|\([^()]{0,80}\)|<[^<>]{0,100}(?:<[^<>]{0,100}>[^<>]{0,100}){0,5}>|\[[^\]]{0,80}\])+[ \t\n]{1,200}){0,10}"
             # 4. THE "NOT A FUNCTION" SHIELD
             # Negative lookahead ensuring we don't accidentally capture control flow,
             # primitive type keywords, or object instantiations as function names.
@@ -289,7 +289,7 @@ DEFINITION: dict[str, Any] = {
             # #2054: same fix as Branch A's identical token loop above -- see its comment for
             # full rationale (bare comma let call-argument lists be absorbed as return-type
             # tokens; `(?!\?)` closes a ternary `?` being consumed as a nullable-type marker).
-            r"(?:(?![ \t]*#)(?!(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|readonly|delegate|event|if|for|foreach|while|switch|catch|using|lock|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|var|in|when|or|and|not|is)\b)(?!\?|\[(?![ \t,]*\]))(?:[a-zA-Z0-9_>\]?.*]|(?!<[^<>]{0,100}(?:<[^<>]{0,100}>[^<>]{0,100}){0,5}>)<|\([^()]{0,80}\)|<[^<>]{0,100}(?:<[^<>]{0,100}>[^<>]{0,100}){0,5}>|\[[^\]]{0,80}\])+[ \t\n]{1,200}){1,10}"
+            r"(?:(?![ \t]*#)(?!(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|readonly|delegate|event|if|for|foreach|while|switch|catch|using|lock|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|var|in|when|or|and|not|is)\b)(?!\?|[<>][ \t\n]|\[(?![ \t,]*\]))(?:[a-zA-Z0-9_>\]?.*]|(?!<[^<>]{0,100}(?:<[^<>]{0,100}>[^<>]{0,100}){0,5}>)<|\([^()]{0,80}\)|<[^<>]{0,100}(?:<[^<>]{0,100}>[^<>]{0,100}){0,5}>|\[[^\]]{0,80}\])+[ \t\n]{1,200}){1,10}"
             r"(?!(?:if|for|foreach|while|switch|catch|using|lock|new|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|delegate|event|var|in|when|or|and|not|is|static)\b)"
             r"((?:operator[ \t\n]+(?:[+\-*/%&|^~!=<>]+|true|false|[\w_$.]+)|[@"
             + ID_START
@@ -314,7 +314,9 @@ DEFINITION: dict[str, Any] = {
             # language, deterministically: every `)` before the decisive one must close a
             # segment containing a `(` (the old `\([^)]*\)` arm), the final segment is free.
             # Identical match set by construction; linear per attempt.
-            r"(?!(?:if|for|foreach|while|switch|catch|using|lock|new|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|delegate|event|var|in|when|or|and|not|is|static)\b)"
+            # #5631: `base`/`this` are excluded here only: a constructor initializer on a continuation
+            # line (`Ctor(args) :\n    base(...)\n{`) is a call the signature owns, not a function.
+            r"(?!(?:if|for|foreach|while|switch|catch|using|lock|new|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|delegate|event|var|in|when|or|and|not|is|static|base|this)\b)"
             r"((?:operator[ \t\n]+(?:[+\-*/%&|^~!=<>]+|true|false|[\w_$.]+)|[@"
             + ID_START
             + r"$]["

@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""The CI shepherd (#4790): takes a queue of pull requests to merge, and does the waiting and the sorting itself.
+"""RETIRED as the live shepherd (#5398): the GitHub workflows (shepherd-reconcile.yml / shepherd-event.yml, via
+tests/tools/shepherd_gh.py) are the live one; no unit or process runs this on the box. Kept as the fallback docs/ci.md
+names for when the workflows are down. Its learned-flake handling (below) now exists in shepherd_gh too.
+
+The CI shepherd (#4790): takes a queue of pull requests to merge, and does the waiting and the sorting itself.
 
     python tests/tools/box/ci_shepherd.py add 4811 4819 [--after 4811]   # queue PRs (--after: wait for that one first)
     python tests/tools/box/ci_shepherd.py run [--once] [--every 600] [--hours 6]

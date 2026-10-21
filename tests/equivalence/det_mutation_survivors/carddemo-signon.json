@@ -1,0 +1,689 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "carddemo-signon",
+ "survivors": [
+  {
+   "id": "4aee6e8e0d",
+   "op": "LIT",
+   "line": 54,
+   "before": "\"MDAwMDAwMDAwMDAwMDAwMDAwLzAwLzAwMDA6MDA6MDAwMDAwLTAwLTAwIDAwOjAwOjAwLjAwMDAwMA==\"));",
+   "after": "\"XDAwMDAwMDAwMDAwMDAwMDAwLzAwLzAwMDA6MDA6MDAwMDAwLTAwLTAwIDAwOjAwOjAwLjAwMDAwMA==\"));",
+   "verdict": "equivalent",
+   "reason": "First byte of WS-DATE-TIME's VALUE image is WS-CURDATE-YEAR(1:1); POPULATE-HEADER-INFO's MOVE FUNCTION CURRENT-DATE TO WS-CURDATE-DATA overwrites it before any WS-CURDATE-* field is read, and nothing reads WS-DATE-TIME earlier."
+  },
+  {
+   "id": "0f8554afc8",
+   "op": "LIT",
+   "line": 72,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (one chunk of its 32767-byte VALUE image): COSGN00C's PROCEDURE DIVISION never references DFHCOMMAREA (it reads only EIBCALEN); the area's bytes are read only by fill_CarddemoCommarea through caBack, into the task's COMMAREA object, which for a terminal task (CC00, never LINKed) is not observable: CICS discards it at RETURN, and equivalence_cics.linked_result drops it (the RETURN / XCTL COMMAREA is out_'s copy of CARDDEMO-COMMAREA)."
+  },
+  {
+   "id": "a5a0f25be1",
+   "op": "LIT",
+   "line": 85,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (one chunk of its 32767-byte VALUE image): COSGN00C's PROCEDURE DIVISION never references DFHCOMMAREA (it reads only EIBCALEN); the area's bytes are read only by fill_CarddemoCommarea through caBack, into the task's COMMAREA object, which for a terminal task (CC00, never LINKed) is not observable: CICS discards it at RETURN, and equivalence_cics.linked_result drops it (the RETURN / XCTL COMMAREA is out_'s copy of CARDDEMO-COMMAREA)."
+  },
+  {
+   "id": "0372441f4e",
+   "op": "LIT",
+   "line": 90,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (one chunk of its 32767-byte VALUE image): COSGN00C's PROCEDURE DIVISION never references DFHCOMMAREA (it reads only EIBCALEN); the area's bytes are read only by fill_CarddemoCommarea through caBack, into the task's COMMAREA object, which for a terminal task (CC00, never LINKed) is not observable: CICS discards it at RETURN, and equivalence_cics.linked_result drops it (the RETURN / XCTL COMMAREA is out_'s copy of CARDDEMO-COMMAREA)."
+  },
+  {
+   "id": "d60d043500",
+   "op": "LIT",
+   "line": 93,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (one chunk of its 32767-byte VALUE image): COSGN00C's PROCEDURE DIVISION never references DFHCOMMAREA (it reads only EIBCALEN); the area's bytes are read only by fill_CarddemoCommarea through caBack, into the task's COMMAREA object, which for a terminal task (CC00, never LINKed) is not observable: CICS discards it at RETURN, and equivalence_cics.linked_result drops it (the RETURN / XCTL COMMAREA is out_'s copy of CARDDEMO-COMMAREA)."
+  },
+  {
+   "id": "844addaf51",
+   "op": "LIT",
+   "line": 95,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (one chunk of its 32767-byte VALUE image): COSGN00C's PROCEDURE DIVISION never references DFHCOMMAREA (it reads only EIBCALEN); the area's bytes are read only by fill_CarddemoCommarea through caBack, into the task's COMMAREA object, which for a terminal task (CC00, never LINKed) is not observable: CICS discards it at RETURN, and equivalence_cics.linked_result drops it (the RETURN / XCTL COMMAREA is out_'s copy of CARDDEMO-COMMAREA)."
+  },
+  {
+   "id": "c143284d91",
+   "op": "LIT",
+   "line": 118,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (one chunk of its 32767-byte VALUE image): COSGN00C's PROCEDURE DIVISION never references DFHCOMMAREA (it reads only EIBCALEN); the area's bytes are read only by fill_CarddemoCommarea through caBack, into the task's COMMAREA object, which for a terminal task (CC00, never LINKed) is not observable: CICS discards it at RETURN, and equivalence_cics.linked_result drops it (the RETURN / XCTL COMMAREA is out_'s copy of CARDDEMO-COMMAREA)."
+  },
+  {
+   "id": "a0d307db01",
+   "op": "LIT",
+   "line": 147,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (one chunk of its 32767-byte VALUE image): COSGN00C's PROCEDURE DIVISION never references DFHCOMMAREA (it reads only EIBCALEN); the area's bytes are read only by fill_CarddemoCommarea through caBack, into the task's COMMAREA object, which for a terminal task (CC00, never LINKed) is not observable: CICS discards it at RETURN, and equivalence_cics.linked_result drops it (the RETURN / XCTL COMMAREA is out_'s copy of CARDDEMO-COMMAREA)."
+  },
+  {
+   "id": "775eafeaba",
+   "op": "LIT",
+   "line": 149,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (one chunk of its 32767-byte VALUE image): COSGN00C's PROCEDURE DIVISION never references DFHCOMMAREA (it reads only EIBCALEN); the area's bytes are read only by fill_CarddemoCommarea through caBack, into the task's COMMAREA object, which for a terminal task (CC00, never LINKed) is not observable: CICS discards it at RETURN, and equivalence_cics.linked_result drops it (the RETURN / XCTL COMMAREA is out_'s copy of CARDDEMO-COMMAREA)."
+  },
+  {
+   "id": "260159fb04",
+   "op": "LIT",
+   "line": 167,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (one chunk of its 32767-byte VALUE image): COSGN00C's PROCEDURE DIVISION never references DFHCOMMAREA (it reads only EIBCALEN); the area's bytes are read only by fill_CarddemoCommarea through caBack, into the task's COMMAREA object, which for a terminal task (CC00, never LINKed) is not observable: CICS discards it at RETURN, and equivalence_cics.linked_result drops it (the RETURN / XCTL COMMAREA is out_'s copy of CARDDEMO-COMMAREA)."
+  },
+  {
+   "id": "a911224794",
+   "op": "LIT",
+   "line": 169,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (one chunk of its 32767-byte VALUE image): COSGN00C's PROCEDURE DIVISION never references DFHCOMMAREA (it reads only EIBCALEN); the area's bytes are read only by fill_CarddemoCommarea through caBack, into the task's COMMAREA object, which for a terminal task (CC00, never LINKed) is not observable: CICS discards it at RETURN, and equivalence_cics.linked_result drops it (the RETURN / XCTL COMMAREA is out_'s copy of CARDDEMO-COMMAREA)."
+  },
+  {
+   "id": "2dd157868d",
+   "op": "CON",
+   "line": 208,
+   "before": "private final Field f50_CURDATEA = Field.alphanumeric(s_COSGN0AI, 72, 1, false);",
+   "after": "private final Field f50_CURDATEA = Field.alphanumeric(s_COSGN0AI, 72, 2, false);",
+   "verdict": "equivalent",
+   "reason": "CURDATEA is read only by SEND MAP's DetCics.subfields, which reads the attribute / colour / highlight field's FIRST byte (the offset is unchanged), and COSGN00C never MOVEs to it"
+  },
+  {
+   "id": "b8c66e3105",
+   "op": "CON",
+   "line": 211,
+   "before": "private final Field f56_PGMNAMEA = Field.alphanumeric(s_COSGN0AI, 87, 1, false);",
+   "after": "private final Field f56_PGMNAMEA = Field.alphanumeric(s_COSGN0AI, 87, 2, false);",
+   "verdict": "equivalent",
+   "reason": "PGMNAMEA is read only by SEND MAP's DetCics.subfields, which reads the attribute / colour / highlight field's FIRST byte (the offset is unchanged), and COSGN00C never MOVEs to it"
+  },
+  {
+   "id": "a1723d0682",
+   "op": "CON",
+   "line": 221,
+   "before": "private final Field f76_APPLIDI = Field.alphanumeric(s_COSGN0AI, 170, 8, false);",
+   "after": "private final Field f76_APPLIDI = Field.alphanumeric(s_COSGN0AI, 170, 9, false);",
+   "verdict": "equivalent",
+   "reason": "APPLIDI is written only by RECEIVE MAP (APPLID is FSET, PROT) and never read: POPULATE-HEADER-INFO's ASSIGN writes APPLIDO before every SEND; the 9th byte falls on SYSIDL's high byte, which only SEND MAP's cursor test (`SYSIDL = -1`) reads, and neither X'0000' nor X'20xx' is -1"
+  },
+  {
+   "id": "a584ee44df",
+   "op": "CON",
+   "line": 223,
+   "before": "private final Field f80_SYSIDA = Field.alphanumeric(s_COSGN0AI, 180, 1, false);",
+   "after": "private final Field f80_SYSIDA = Field.alphanumeric(s_COSGN0AI, 181, 1, false);",
+   "verdict": "equivalent",
+   "reason": "SYSIDA (byte 180) read as byte 181 (SYSIDC): the program never references either; both bytes hold the VALUE image (spaces), LOW-VALUES (first entry's MOVE LOW-VALUES TO COSGN0AO, or RECEIVE's zero fill) or whatever RECEIVE leaves, and SYSID is a PROT field (no EOF flag), so DetCics.subfields reports the same (nothing) for both."
+  },
+  {
+   "id": "596453d364",
+   "op": "CON",
+   "line": 248,
+   "before": "private final Field f130_TITLE02H = Field.alphanumeric(s_COSGN0AI, 105, 1, false);",
+   "after": "private final Field f130_TITLE02H = Field.alphanumeric(s_COSGN0AI, 106, 1, false);",
+   "verdict": "equivalent",
+   "reason": "TITLE02H (byte 105) read as byte 106 (TITLE02V): the program never references either; both hold spaces (VALUE image) or X'00' (MOVE LOW-VALUES / RECEIVE zero fill) in every path, so DetCics.subfields reports no highlight either way."
+  },
+  {
+   "id": "7ce0537ea6",
+   "op": "CON",
+   "line": 255,
+   "before": "private final Field f144_APPLIDO = Field.alphanumeric(s_COSGN0AI, 170, 8, false);",
+   "after": "private final Field f144_APPLIDO = Field.alphanumeric(s_COSGN0AI, 171, 8, false);",
+   "verdict": "equivalent",
+   "reason": "ASSIGN APPLID writes APPLIDO and SEND reads it back through the same Field, so shifting it one byte sends the same 8 bytes; the one extra byte written (178, the high byte of SYSIDL) can only matter to DetCics.subfields' SYSIDL = -1 cursor test, and the program never moves -1 to SYSIDL (RECEIVE sets it to a length >= 0), so it is never -1; byte 170 is not read."
+  },
+  {
+   "id": "1146069196",
+   "op": "CON",
+   "line": 289,
+   "before": "private final Field f226_DFHCLRP = Field.alphanumeric(s_DFHAID, 3, 1, false);",
+   "after": "private final Field f226_DFHCLRP = Field.alphanumeric(s_DFHAID, 3, 2, false);",
+   "verdict": "equivalent",
+   "reason": "DFHCLRP is read only by runTask's aid switch, as MOVE DFHCLRP TO EIBAID; EIBAID is one byte, so an alphanumeric MOVE keeps the first byte of a 2-byte source: the same value. COSGN00C itself references only DFHENTER and DFHPF3."
+  },
+  {
+   "id": "9919c9fde7",
+   "op": "CON",
+   "line": 310,
+   "before": "private final Field f247_DFHPF13 = Field.alphanumeric(s_DFHAID, 24, 1, false);",
+   "after": "private final Field f247_DFHPF13 = Field.alphanumeric(s_DFHAID, 24, 2, false);",
+   "verdict": "equivalent",
+   "reason": "DFHPF13 as 2 bytes: it is only moved into EIBAID (PIC X, 1 byte), which keeps the first byte, DFHPF13's own"
+  },
+  {
+   "id": "f188397fd4",
+   "op": "CON",
+   "line": 314,
+   "before": "private final Field f251_DFHPF17 = Field.alphanumeric(s_DFHAID, 28, 1, false);",
+   "after": "private final Field f251_DFHPF17 = Field.alphanumeric(s_DFHAID, 29, 1, false);",
+   "verdict": "equivalent",
+   "reason": "DFHPF17 read one byte on is DFHPF18's code; COSGN00C's EVALUATE EIBAID tests only DFHENTER and DFHPF3, so either value takes WHEN OTHER ('Invalid key pressed'), and EIBAID is not otherwise observable."
+  },
+  {
+   "id": "f8420364b2",
+   "op": "CON",
+   "line": 322,
+   "before": "private final Field f330_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f330_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "COSGN00C never references EIBTIME (only EIBCALEN and EIBAID; the time comes from FUNCTION CURRENT-DATE through the task's clock) and DFHEIBLK is not compared; the one neighbouring byte the shifted store touches is EIBDATE's first byte, also never referenced."
+  },
+  {
+   "id": "dabdf91f1c",
+   "op": "CON",
+   "line": 329,
+   "before": "private final Field f358_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f358_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "EIBRESP / EIBRESP2 are only ever stored by the translator after each command (RESP and RESP2 operands feed WS-RESP-CD / WS-REAS-CD directly from the command result); COSGN00C never references the EIB fields, so a different scale, width, value or no store is never read, and DFHEIBLK is not compared."
+  },
+  {
+   "id": "05f2af1819",
+   "op": "CON",
+   "line": 330,
+   "before": "private final Field f359_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+   "after": "private final Field f359_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 9, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "EIBRESP / EIBRESP2 are only ever stored by the translator after each command (RESP and RESP2 operands feed WS-RESP-CD / WS-REAS-CD directly from the command result); COSGN00C never references the EIB fields, so a different scale, width, value or no store is never read, and DFHEIBLK is not compared."
+  },
+  {
+   "id": "6a5e5be51c",
+   "op": "ROR",
+   "line": 365,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() <= 1) {",
+   "verdict": "equivalent",
+   "reason": "abended() runs caBack only for a LINKed task (level > 1); COSGN00C runs as a terminal task (level 1), whose COMMAREA storage is not observable (CICS discards it; linked_result drops it), so running or skipping caBack at an abend shows nothing"
+  },
+  {
+   "id": "b3e6bf7b0b",
+   "op": "NEG",
+   "line": 365,
+   "before": "if (task.level() > 1) {",
+   "after": "if (!(task.level() > 1)) {",
+   "verdict": "equivalent",
+   "reason": "abended() runs caBack only for a LINKed task (level > 1); COSGN00C runs as a terminal task (level 1), whose COMMAREA storage is not observable (CICS discards it; linked_result drops it), so running or skipping caBack at an abend shows nothing"
+  },
+  {
+   "id": "b235c31418",
+   "op": "DEL",
+   "line": 366,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "unreachable",
+   "reason": "abended() runs caBack only at task.level() > 1, i.e. COSGN00C LINKed from another program; no CardDemo program LINKs it (CC00 is a terminal transaction, entered or XCTLed to at level 1), so the statement never runs."
+  },
+  {
+   "id": "45afca634c",
+   "op": "LIT",
+   "line": 375,
+   "before": "default -> throw new Hole(\"CICS file \" + n + \": no store in the generated project\");",
+   "after": "default -> throw new Hole(\"CICS file \" + n + \"X no store in the generated project\");",
+   "verdict": "unreachable",
+   "reason": "store()'s default arm runs for a file name other than USRSEC; COSGN00C's only file command reads WS-USRSEC-FILE, VALUE 'USRSEC  ', never written"
+  },
+  {
+   "id": "df2e6a4950",
+   "op": "ROR",
+   "line": 390,
+   "before": "if (i == null) {",
+   "after": "if (i != null) {",
+   "verdict": "unreachable",
+   "reason": "paragraph() is called only from condition() for a HANDLE ABEND label (task.abendOnCondition); COSGN00C issues no HANDLE ABEND"
+  },
+  {
+   "id": "9e1ab46b83",
+   "op": "NEG",
+   "line": 425,
+   "before": "if (d == null) {",
+   "after": "if (!(d == null)) {",
+   "verdict": "equivalent",
+   "reason": "in_CarddemoCommarea writes the task's COMMAREA object into DFHCOMMAREA; COSGN00C's PROCEDURE DIVISION never references DFHCOMMAREA (it reads only EIBCALEN); the area's bytes are read only by fill_CarddemoCommarea through caBack, into the task's COMMAREA object, which for a terminal task (CC00, never LINKed) is not observable: CICS discards it at RETURN, and equivalence_cics.linked_result drops it"
+  },
+  {
+   "id": "bc998a2a7e",
+   "op": "DEL",
+   "line": 426,
+   "before": "return;",
+   "after": "/* return; */",
+   "verdict": "unreachable",
+   "reason": "in_CarddemoCommarea's null guard: runTask calls it only inside `ca instanceof CarddemoCommarea x`, which is never null."
+  },
+  {
+   "id": "c58749fa42",
+   "op": "ROR",
+   "line": 429,
+   "before": "Cobol.move(d.getCdemoFromProgram() == null ? \"\" : d.getCdemoFromProgram(), Field.alphanumeric(s, base + 4, 8, false), CS);",
+   "after": "Cobol.move(d.getCdemoFromProgram() != null ? \"\" : d.getCdemoFromProgram(), Field.alphanumeric(s, base + 4, 8, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in_CarddemoCommarea copies a DTO field into DFHCOMMAREA, which COSGN00C never references (only EIBCALEN); the bytes only go back through fill_ into the task's COMMAREA object, not observable for a terminal task (linked_result dropped)"
+  },
+  {
+   "id": "9c6501ac57",
+   "op": "ROR",
+   "line": 430,
+   "before": "Cobol.move(d.getCdemoToTranid() == null ? \"\" : d.getCdemoToTranid(), Field.alphanumeric(s, base + 12, 4, false), CS);",
+   "after": "Cobol.move(d.getCdemoToTranid() != null ? \"\" : d.getCdemoToTranid(), Field.alphanumeric(s, base + 12, 4, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in_CarddemoCommarea copies a DTO field into DFHCOMMAREA, which COSGN00C never references (only EIBCALEN); the bytes only go back through fill_ into the task's COMMAREA object, not observable for a terminal task (linked_result drops it), and the DTO fields are never null (the case INITIALIZEs the whole record), so the null guard is not taken either. This case is not linked, so no link-area bytes mask the DTO path, but the program has no reader of it."
+  },
+  {
+   "id": "60608a1a6c",
+   "op": "ROR",
+   "line": 433,
+   "before": "Cobol.move(d.getCdemoUserType() == null ? \"\" : d.getCdemoUserType(), Field.alphanumeric(s, base + 32, 1, false), CS);",
+   "after": "Cobol.move(d.getCdemoUserType() != null ? \"\" : d.getCdemoUserType(), Field.alphanumeric(s, base + 32, 1, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in_CarddemoCommarea copies a DTO field into DFHCOMMAREA, which COSGN00C never references (only EIBCALEN); the bytes only go back through fill_ into the task's COMMAREA object, not observable for a terminal task (linked_result drops it), and the DTO fields are never null (the case INITIALIZEs the whole record), so the null guard is not taken either. This case is not linked, so no link-area bytes mask the DTO path, but the program has no reader of it."
+  },
+  {
+   "id": "787bbad8e3",
+   "op": "DEL",
+   "line": 434,
+   "before": "Cobol.move(d.getCdemoPgmContext() == null ? BigDecimal.ZERO : new BigDecimal(d.getCdemoPgmContext().toString()), Field.zoned(s, base + 33, 1, 0, false, false, false), CS);",
+   "after": "/* Cobol.move(d.getCdemoPgmContext() == null ? BigDecimal.ZERO : new BigDecimal(d.getCdemoPgmContext().toString()), Field.zoned(s, base + 33, 1, 0, false, false, false), CS); */",
+   "verdict": "equivalent",
+   "reason": "in_CarddemoCommarea copies a DTO field into DFHCOMMAREA, which COSGN00C never references (only EIBCALEN); the bytes only go back through fill_ into the task's COMMAREA object, not observable for a terminal task (linked_result drops it), and the DTO fields are never null (the case INITIALIZEs the whole record), so the null guard is not taken either. This case is not linked, so no link-area bytes mask the DTO path, but the program has no reader of it."
+  },
+  {
+   "id": "dd0a88663c",
+   "op": "ROR",
+   "line": 435,
+   "before": "Cobol.move(d.getCdemoCustId() == null ? BigDecimal.ZERO : new BigDecimal(d.getCdemoCustId().toString()), Field.zoned(s, base + 34, 9, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getCdemoCustId() != null ? BigDecimal.ZERO : new BigDecimal(d.getCdemoCustId().toString()), Field.zoned(s, base + 34, 9, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in_CarddemoCommarea copies a DTO field into DFHCOMMAREA, which COSGN00C never references (only EIBCALEN); the bytes only go back through fill_ into the task's COMMAREA object, not observable for a terminal task (linked_result drops it), and the DTO fields are never null (the case INITIALIZEs the whole record), so the null guard is not taken either. This case is not linked, so no link-area bytes mask the DTO path, but the program has no reader of it."
+  },
+  {
+   "id": "ce8f0522b9",
+   "op": "ROR",
+   "line": 439,
+   "before": "Cobol.move(d.getCdemoAcctId() == null ? BigDecimal.ZERO : new BigDecimal(d.getCdemoAcctId().toString()), Field.zoned(s, base + 118, 11, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getCdemoAcctId() != null ? BigDecimal.ZERO : new BigDecimal(d.getCdemoAcctId().toString()), Field.zoned(s, base + 118, 11, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in_CarddemoCommarea writes the task's COMMAREA object into DFHCOMMAREA; COSGN00C's PROCEDURE DIVISION never references DFHCOMMAREA (it reads only EIBCALEN); the area's bytes are read only by fill_CarddemoCommarea through caBack, into the task's COMMAREA object, which for a terminal task (CC00, never LINKed) is not observable: CICS discards it at RETURN, and equivalence_cics.linked_result drops it"
+  },
+  {
+   "id": "ab53e43fce",
+   "op": "ROR",
+   "line": 441,
+   "before": "Cobol.move(d.getCdemoCardNum() == null ? BigDecimal.ZERO : new BigDecimal(d.getCdemoCardNum().toString()), Field.zoned(s, base + 130, 16, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getCdemoCardNum() != null ? BigDecimal.ZERO : new BigDecimal(d.getCdemoCardNum().toString()), Field.zoned(s, base + 130, 16, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in_CarddemoCommarea copies a DTO field into DFHCOMMAREA, which COSGN00C never references (only EIBCALEN); the bytes only go back through fill_ into the task's COMMAREA object, not observable for a terminal task (linked_result dropped)"
+  },
+  {
+   "id": "de3f9e5e77",
+   "op": "CON",
+   "line": 443,
+   "before": "Cobol.move(d.getCdemoLastMapset() == null ? \"\" : d.getCdemoLastMapset(), Field.alphanumeric(s, base + 153, 7, false), CS);",
+   "after": "Cobol.move(d.getCdemoLastMapset() == null ? \"\" : d.getCdemoLastMapset(), Field.alphanumeric(s, base + 154, 7, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in_CarddemoCommarea copies a DTO field into DFHCOMMAREA, which COSGN00C never references (only EIBCALEN); the bytes only go back through fill_ into the task's COMMAREA object, not observable for a terminal task (linked_result drops it), and the DTO fields are never null (the case INITIALIZEs the whole record), so the null guard is not taken either. This case is not linked, so no link-area bytes mask the DTO path, but the program has no reader of it."
+  },
+  {
+   "id": "bb0406c245",
+   "op": "CON",
+   "line": 448,
+   "before": "d.setCdemoFromProgram(Cobol.text(Field.alphanumeric(s, base + 4, 8, false), CS));",
+   "after": "d.setCdemoFromProgram(Cobol.text(Field.alphanumeric(s, base + 4, 9, false), CS));",
+   "verdict": "equivalent",
+   "reason": "fill_CarddemoCommarea writes DFHCOMMAREA back into the task's COMMAREA object, which for a terminal task (CC00, never LINKed) is not observable: CICS discards it at RETURN and equivalence_cics.linked_result drops the COMMAREA event; the RETURN / XCTL COMMAREA is out_'s copy of CARDDEMO-COMMAREA, a separate record."
+  },
+  {
+   "id": "e3b24b70aa",
+   "op": "CON",
+   "line": 460,
+   "before": "d.setCdemoCardNum(Cobol.num(Field.zoned(s, base + 130, 16, 0, false, false, false), CS).longValue());",
+   "after": "d.setCdemoCardNum(Cobol.num(Field.zoned(s, base + 130, 16, 1, false, false, false), CS).longValue());",
+   "verdict": "equivalent",
+   "reason": "fill_ also builds the RETURN / XCTL COMMAREA from WORKING-STORAGE's CARDDEMO-COMMAREA (out_); COSGN00C never writes CDEMO-CARD-NUM, which keeps its initial zeros, and 0 read at scale 1 is still 0"
+  },
+  {
+   "id": "bcc8d300ab",
+   "op": "DEL",
+   "line": 461,
+   "before": "d.setCdemoLastMap(Cobol.text(Field.alphanumeric(s, base + 146, 7, false), CS));",
+   "after": "/* d.setCdemoLastMap(Cobol.text(Field.alphanumeric(s, base + 146, 7, false), CS)); */",
+   "verdict": "equivalent",
+   "reason": "fill_CarddemoCommarea writes DFHCOMMAREA back into the task's COMMAREA object, which for a terminal task (CC00, never LINKed) is not observable: CICS discards it at RETURN and equivalence_cics.linked_result drops the COMMAREA event; the RETURN / XCTL COMMAREA is out_'s copy of CARDDEMO-COMMAREA, a separate record."
+  },
+  {
+   "id": "200f1f3b56",
+   "op": "DEL",
+   "line": 494,
+   "before": "System.arraycopy(IMAGE_s_WS_VARIABLES, 0, s_WS_VARIABLES.bytes, 0, IMAGE_s_WS_VARIABLES.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_VARIABLES, 0, s_WS_VARIABLES.bytes, 0, IMAGE_s_WS_VARIABLES.length); */",
+   "verdict": "equivalent",
+   "reason": "WS-VARIABLES' VALUE image: the VALUE items (WS-PGMNAME, WS-TRANID, WS-USRSEC-FILE, WS-ERR-FLG, WS-RESP-CD, WS-REAS-CD) are typed Java fields set by their own statements in initialState, and every other byte read is written first in each task: WS-MESSAGE by MOVE SPACES at MAIN-PARA's start, WS-USER-ID / WS-USER-PWD by PROCESS-ENTER-KEY's MOVEs before the READ"
+  },
+  {
+   "id": "a87ca8001e",
+   "op": "DEL",
+   "line": 549,
+   "before": "Cobol.move(task.transid(), f332_EIBTRNID, CS);",
+   "after": "/* Cobol.move(task.transid(), f332_EIBTRNID, CS); */",
+   "verdict": "equivalent",
+   "reason": "EIBTRNID is never referenced by COSGN00C (it uses its own WS-TRANID); DFHEIBLK is not compared."
+  },
+  {
+   "id": "4226d098d9",
+   "op": "AOR",
+   "line": 553,
+   "before": "Cobol.store(f331_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f331_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "COSGN00C never reads EIBDATE (the header date comes from FUNCTION CURRENT-DATE), so its value cannot show"
+  },
+  {
+   "id": "a25c9e37ad",
+   "op": "AOR",
+   "line": 553,
+   "before": "Cobol.store(f331_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f331_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "COSGN00C never reads EIBDATE (the header date comes from FUNCTION CURRENT-DATE), so its value cannot show"
+  },
+  {
+   "id": "27ffacde63",
+   "op": "AOR",
+   "line": 554,
+   "before": "Cobol.store(f330_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f330_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "COSGN00C never reads EIBTIME (the header time comes from FUNCTION CURRENT-DATE), so its value cannot show"
+  },
+  {
+   "id": "616cefa10d",
+   "op": "AOR",
+   "line": 554,
+   "before": "Cobol.store(f330_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f330_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "COSGN00C never reads EIBTIME (the header time comes from FUNCTION CURRENT-DATE), so its value cannot show"
+  },
+  {
+   "id": "87f5c85e9b",
+   "op": "LIT",
+   "line": 569,
+   "before": "case \"PF2\" -> Cobol.move(f236_DFHPF2, f338_EIBAID, CS);",
+   "after": "case \"XF2\" -> Cobol.move(f236_DFHPF2, f338_EIBAID, CS);",
+   "verdict": "equivalent",
+   "reason": "a PF2 key no longer sets EIBAID, which keeps its initial byte (DFHEIBLK's image: a space); COSGN00C tests EIBAID only against DFHENTER and DFHPF3, so a space takes WHEN OTHER exactly as PF2 does"
+  },
+  {
+   "id": "c2d79cf89f",
+   "op": "LIT",
+   "line": 571,
+   "before": "case \"PF4\" -> Cobol.move(f238_DFHPF4, f338_EIBAID, CS);",
+   "after": "case \"XF4\" -> Cobol.move(f238_DFHPF4, f338_EIBAID, CS);",
+   "verdict": "equivalent",
+   "reason": "a PF4 key no longer sets EIBAID, which keeps its initial byte (a space); COSGN00C tests EIBAID only against DFHENTER and DFHPF3, so a space takes WHEN OTHER exactly as PF4 does (pf4-invalid-key pins that outcome)"
+  },
+  {
+   "id": "e3324f9c07",
+   "op": "DEL",
+   "line": 601,
+   "before": "s_DFHCOMMAREA.beyond = null;",
+   "after": "/* s_DFHCOMMAREA.beyond = null; */",
+   "verdict": "unreachable",
+   "reason": "s_DFHCOMMAREA.beyond is non-null only for a COMMAREA longer than the 32767-byte DFHCOMMAREA storage (byte[] or link-area branch), which CICS cannot pass (COMMAREA is at most 32763 bytes), so the reset to null is a no-op."
+  },
+  {
+   "id": "4abce820d3",
+   "op": "CON",
+   "line": 604,
+   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "verdict": "case-gap",
+   "reason": "The byte[] COMMAREA entry (ca instanceof byte[]) is never used: the harness passes a DTO. Needs a task whose COMMAREA is a byte[] (the mutants throw ArrayIndexOutOfBounds / take EIBCALEN 0, i.e. the first-entry screen); the harness cannot yet express it."
+  },
+  {
+   "id": "b0e6944df5",
+   "op": "DEL",
+   "line": 608,
+   "before": "calen = cx(task, cb.length);",
+   "after": "/* calen = cx(task, cb.length); */",
+   "verdict": "case-gap",
+   "reason": "The byte[] COMMAREA entry (ca instanceof byte[]) is never used: the harness passes a DTO. Needs a task whose COMMAREA is a byte[] (the mutants throw ArrayIndexOutOfBounds / take EIBCALEN 0, i.e. the first-entry screen); the harness cannot yet express it."
+  },
+  {
+   "id": "f6e9d5c4f2",
+   "op": "ROR",
+   "line": 616,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond == null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "verdict": "case-gap",
+   "reason": "The link-area branch (task.linkArea() non-null) runs only for a LINKed task and this case is not linked; with `beyond` null the inverted test throws NullPointerException at RETURN. A sibling case with \"linked\": true (any ENTER scenario) would run the write-back and kill it."
+  },
+  {
+   "id": "0e692fa1c5",
+   "op": "ROR",
+   "line": 619,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "equivalent",
+   "reason": "at calen == the area's length the cut to EIBCALEN keeps every byte, so the branch's restore is a no-op; calen < length (user-signs-on-short-commarea) is the only case it changes anything"
+  },
+  {
+   "id": "a90dc32b23",
+   "op": "ROR",
+   "line": 619,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "equivalent",
+   "reason": "Cutting s_DFHCOMMAREA to EIBCALEN bytes (X23) matters only to a reference past EIBCALEN; COSGN00C never references DFHCOMMAREA, and the plumbing's own in_ (runs before the cut) and fill_ (runs after caWhole restores the full array) see the whole array either way, so cutting or not cutting is unobservable for every EIBCALEN."
+  },
+  {
+   "id": "c0694e35a5",
+   "op": "COR",
+   "line": 619,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "equivalent",
+   "reason": "Cutting s_DFHCOMMAREA to EIBCALEN bytes (X23) matters only to a reference past EIBCALEN; COSGN00C never references DFHCOMMAREA, and the plumbing's own in_ (runs before the cut) and fill_ (runs after caWhole restores the full array) see the whole array either way, so cutting or not cutting is unobservable for every EIBCALEN."
+  },
+  {
+   "id": "fb378b8a11",
+   "op": "NEG",
+   "line": 619,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {",
+   "verdict": "equivalent",
+   "reason": "Cutting s_DFHCOMMAREA to EIBCALEN bytes (X23) matters only to a reference past EIBCALEN; COSGN00C never references DFHCOMMAREA, and the plumbing's own in_ (runs before the cut) and fill_ (runs after caWhole restores the full array) see the whole array either way, so cutting or not cutting is unobservable for every EIBCALEN."
+  },
+  {
+   "id": "e1ef2b1a97",
+   "op": "ROR",
+   "line": 634,
+   "before": "if (caWhole == null) {",
+   "after": "if (caWhole != null) {",
+   "verdict": "unreachable",
+   "reason": "The IndexOutOfBoundsException catch is reached only by a reference past a COMMAREA cut to EIBCALEN; COSGN00C never references DFHCOMMAREA, and in_/fill_ run on the full array, so nothing throws it."
+  },
+  {
+   "id": "5c15b2774a",
+   "op": "DEL",
+   "line": 648,
+   "before": "Cobol.swapTruncBinary(truncBefore);",
+   "after": "/* Cobol.swapTruncBinary(truncBefore); */",
+   "verdict": "equivalent",
+   "reason": "the restore of the TRUNC mode in runTask's finally matters only to code that runs after the task in the same JVM; every det-port entry point sets the mode itself (runTask: swapTruncBinary(true)) before it runs a program, and the harness code between tasks reads no COMP field."
+  },
+  {
+   "id": "f188a94f58",
+   "op": "COR",
+   "line": 680,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "verdict": "unreachable",
+   "reason": "handleLink is the LINKed-program facade; carddemo-signon is a terminal task (no `linked`), so the facade is never called"
+  },
+  {
+   "id": "da5a9a9e95",
+   "op": "DEL",
+   "line": 708,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "equivalent",
+   "reason": "PerformExit's constructor without super(null, null, false, false): the default constructor only also records a stack trace; the exception's depth field, the only thing read, is set the same"
+  },
+  {
+   "id": "47407ef72f",
+   "op": "DEL",
+   "line": 744,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "equivalent",
+   "reason": "PerformExit's constructor without super(null, null, false, false): the default constructor only also records a stack trace; the exception's depth field, the only thing read, is set the same"
+  },
+  {
+   "id": "1327aece83",
+   "op": "AOR",
+   "line": 768,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "perform() reaches the outer-PERFORM scan only after a paragraph that is not its range's last returns; COSGN00C's PERFORMs each name one paragraph (from == thru) and MAIN-PARA (runTask's 0-5) always ends in EXEC CICS RETURN / XCTL / an abend, a Goback, so the scan never iterates and no PerformExit is thrown (this catch never runs)."
+  },
+  {
+   "id": "4a4f399f06",
+   "op": "AOR",
+   "line": 768,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 0; d++) {",
+   "verdict": "unreachable",
+   "reason": "perform() reaches this only after a paragraph that is not its range's last returns; COSGN00C's PERFORMs each name one paragraph (from == thru) and MAIN-PARA (runTask's 0-5) always ends in EXEC CICS RETURN / XCTL / an abend, a Goback, so the scan over outer PERFORMs never iterates (only runTask's range spans several paragraphs, at depth 0 where the scan is empty)"
+  },
+  {
+   "id": "689518c203",
+   "op": "ROR",
+   "line": 769,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (performThru[d] != i) {",
+   "verdict": "unreachable",
+   "reason": "perform() reaches the outer-PERFORM scan only after a paragraph that is not its range's last returns; COSGN00C's PERFORMs each name one paragraph (from == thru) and MAIN-PARA always ends in RETURN / XCTL / an abend, so performThru is never matched"
+  },
+  {
+   "id": "acc4784388",
+   "op": "NEG",
+   "line": 780,
+   "before": "if (e.depth != mine) {",
+   "after": "if (!(e.depth != mine)) {",
+   "verdict": "unreachable",
+   "reason": "perform() reaches the outer-PERFORM scan only after a paragraph that is not its range's last returns; COSGN00C's PERFORMs each name one paragraph (from == thru) and MAIN-PARA (runTask's 0-5) always ends in EXEC CICS RETURN / XCTL / an abend, a Goback, so the scan never iterates and no PerformExit is thrown (this catch never runs)."
+  },
+  {
+   "id": "3aecb9e020",
+   "op": "DEL",
+   "line": 835,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "unreachable",
+   "reason": "abended() runs caBack only at task.level() > 1, i.e. COSGN00C LINKed from another program; no CardDemo program LINKs it (CC00 is a terminal transaction, entered or XCTLed to at level 1), so the statement never runs."
+  },
+  {
+   "id": "021ab187fb",
+   "op": "CON",
+   "line": 838,
+   "before": "return 1;",
+   "after": "return 2;",
+   "verdict": "unreachable",
+   "reason": "MAIN-PARA's `return 1` follows `if (true) throw new Goback()` (its EXEC CICS RETURN), which is thrown first; the statement never runs."
+  },
+  {
+   "id": "19f3fb0c69",
+   "op": "LIT",
+   "line": 850,
+   "before": "DetCics.typed(f40_TRNNAMEI, f35_TRNNAMEL, typed2.get(\"TRNNAME\"), CS);",
+   "after": "DetCics.typed(f40_TRNNAMEI, f35_TRNNAMEL, typed2.get(\"XRNNAME\"), CS);",
+   "verdict": "case-gap",
+   "reason": "the RECEIVE MAP value of the protected TRNNAME field is never typed by a scenario; a scenario that types TRNNAME would kill it"
+  },
+  {
+   "id": "1619b4cef9",
+   "op": "LIT",
+   "line": 942,
+   "before": "DetCics.subfields(sub5, \"CURTIME\", f65_CURTIMEL, f68_CURTIMEA, f134_CURTIMEC, f136_CURTIMEH, CS);",
+   "after": "DetCics.subfields(sub5, \"XURTIME\", f65_CURTIMEL, f68_CURTIMEA, f134_CURTIMEC, f136_CURTIMEH, CS);",
+   "verdict": "harness-gap",
+   "reason": "DetCics.subfields (attribute / cursor sub-fields of the sent CURTIME field) is not compared by the harness; COSGN00C never sets CURTIMEA/C/H"
+  },
+  {
+   "id": "0fdf4eaca4",
+   "op": "NEG",
+   "line": 959,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (!(to >= 0)) return GOTO | to;",
+   "verdict": "unreachable",
+   "reason": "inside `if (0 != 0)`: SEND MAP has no RESP and the translator writes its response as the constant 0, so the block never runs."
+  },
+  {
+   "id": "7e6a7263b2",
+   "op": "CON",
+   "line": 970,
+   "before": "Cobol.store(f359_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "Cobol.store(f359_EIBRESP2, BigDecimal.valueOf(1), false, CS);",
+   "verdict": "equivalent",
+   "reason": "EIBRESP / EIBRESP2 are only ever stored by the translator after each command (RESP and RESP2 operands feed WS-RESP-CD / WS-REAS-CD directly from the command result); COSGN00C never references the EIB fields, so a different scale, width, value or no store is never read, and DFHEIBLK is not compared."
+  },
+  {
+   "id": "7e77c26f96",
+   "op": "NEG",
+   "line": 1052,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (!(to >= 0)) return GOTO | to;",
+   "verdict": "unreachable",
+   "reason": "inside `if (0 != 0)`: SEND MAP has no RESP and the translator writes its response as the constant 0, so the block never runs."
+  },
+  {
+   "id": "2a91a1aa99",
+   "op": "ROR",
+   "line": 1062,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to < 0) return GOTO | to;",
+   "verdict": "unreachable",
+   "reason": "inside `if (0 != 0)`-style dead branch: the paragraph's GO-TO result is only taken from a block the translator guards with the constant response 0 (SEND MAP has no RESP), so it never runs"
+  },
+  {
+   "id": "af37b2a794",
+   "op": "LIT",
+   "line": 1084,
+   "before": "f6_WS_ERR_FLG = \"Y\";",
+   "after": "f6_WS_ERR_FLG = \"X\";",
+   "verdict": "equivalent",
+   "reason": "the 'Y' written on 'User not found' is never tested in this task (ERR-FLG-ON is read before READ-USER-SEC-FILE), and the next task starts from initialState's 'N'"
+  }
+ ]
+}

@@ -126,9 +126,10 @@ class Prefetcher:
                 return 0
             size = st.st_size
             fadvise = getattr(os, "posix_fadvise", None)
-            if fadvise is not None:
+            willneed = getattr(os, "POSIX_FADV_WILLNEED", None)
+            if fadvise is not None and willneed is not None:
                 try:
-                    fadvise(fd, 0, 0, os.POSIX_FADV_WILLNEED)
+                    fadvise(fd, 0, 0, willneed)
                     return size
                 except OSError:
                     pass

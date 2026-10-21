@@ -48,7 +48,7 @@ def main():
             for cat in data:
                 if cat in ("unparsed_programs", "eras"):
                     continue
-                if "unknown" not in data[cat] and cat != "refusal_families":
+                if "unknown" not in data[cat] and cat not in ("refusal_families", "stand_in_copybooks", "call_targets"):
                     raise ValueError
                 for k in data[cat]:
                     if "count" not in data[cat][k]:

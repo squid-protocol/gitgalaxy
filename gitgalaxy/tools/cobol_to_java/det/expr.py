@@ -101,6 +101,13 @@ class Rel:
 
 
 @dataclass
+class AddrOf:
+    """#5106: `ADDRESS OF item` as the subject of a relation with NULL (the test for an OMITTED USING item)."""
+
+    ref: Ref
+
+
+@dataclass
 class ClassCond:
     operand: object
     kind: str  # NUMERIC ALPHABETIC ALPHABETIC-UPPER ALPHABETIC-LOWER POSITIVE NEGATIVE ZERO
@@ -377,6 +384,25 @@ class Parser:
             return Fig(NULL_POINTER)
         return None
 
+    def _address_null(self) -> object | None:
+        """#5106: `ADDRESS OF item [IS] [NOT] = NULL`, the only relation an ADDRESS OF is read in (a sibling's test for an
+        OMITTED item). Anything else leaves the position untouched, for the ADDRESS OF refusal."""
+        if not (self.up() == "ADDRESS" and self.up(1) == "OF"):
+            return None
+        start = self.i
+        self.i += 2
+        ref = self.ref()
+        if self.up() == "IS":
+            self.i += 1
+        if self._rel_start():
+            op, neg = self._rel_op()
+            if self.up() in ("NULL", "NULLS"):
+                self.i += 1
+                r = Rel(op, AddrOf(ref), Fig(NULL_POINTER))
+                return Not(r) if neg else r
+        self.i = start
+        return None
+
     def _rel_op_ahead(self, k: int) -> bool:
         u = self.up(k)
         return u in REL_WORDS or u in ("EQUAL", "EQUALS", "GREATER", "LESS")
@@ -401,6 +427,9 @@ class Parser:
                 obj = self._null_operand() or self.arith()  # (#5042: `PTR = A OR NULL`)
                 r = Rel(last.op, last.left, obj)
                 return Not(r) if negated else r
+        addr = self._address_null()
+        if addr is not None:
+            return addr
         left = self._null_operand() or self.arith()
         if self.up() == "IS":
             self.i += 1

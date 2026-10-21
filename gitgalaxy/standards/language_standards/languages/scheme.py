@@ -159,7 +159,11 @@ DEFINITION: dict[str, Any] = {
             # the S-expression structure to ensure the parser can track the
             # identifier no matter how deeply it is vertically nested.
             # =====================================================================
-            r"^[ \t\n]*\([ \t\n]*define[ \t\n]+\([ \t\n]*([" + ID_CONTINUE + r"!?*+/<>=.~$%^&:-]+)(?![^ \t\n)\]\r])",
+            # #5640: `(define name (lambda ...))` (also case-lambda / named-lambda) is a procedure definition
+            # too. The second alternative is a lookahead only, so the single name group is shared.
+            r"^[ \t\n]*\([ \t\n]*define[ \t\n]+(?:\([ \t\n]*|(?=[" + ID_CONTINUE + r"!?*+/<>=.~$%^&:-]+[ \t\n]+"
+            r"\([ \t\n]*(?:lambda|case-lambda|named-lambda)[ \t\n)]))"
+            r"([" + ID_CONTINUE + r"!?*+/<>=.~$%^&:-]+)(?![^ \t\n)\]\r])",
             re.M,
         ),
         # 5. class_start (Object / Entity Declarations)

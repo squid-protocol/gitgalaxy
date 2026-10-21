@@ -211,6 +211,7 @@ class Precompiler:
         self.cursors: dict[str, str] = {}  # name -> its SELECT (host variables still named)
         self.hold: set[str] = set()  # #4269: the cursors declared WITH HOLD
         self.whenever: dict[str, str] = {}  # #4269: WHENEVER condition -> its GO TO label, in force from here
+        self.prepared: dict[str, str] = {}  # #4269: PREPARE name FROM 'literal' -> the text, from here on
 
     def _bind(self, text: str, args: list[str]) -> tuple[str, list[tuple[list[int], int | None]]]:
         """The SQL with every host variable a `?`, and per marker (the elementary items, the indicator)."""
@@ -281,6 +282,34 @@ class Precompiler:
             else:
                 self.whenever[cond] = w.group(3)
             return None
+        if verb == "EXECUTE" and re.match(r"EXECUTE\s+IMMEDIATE\b", u):
+            # #4269: EXECUTE IMMEDIATE 'INSERT ... VALUES ...' runs as written (the det port's DetSql.savepoint path)
+            lit = re.fullmatch(r"EXECUTE\s+IMMEDIATE\s+'((?:[^']|'')*)'", text, re.I)
+            if not lit:
+                raise Unsupported(f"EXEC SQL {u[:60]}: only a string literal as the statement text is modelled")
+            inner = lit.group(1).replace("''", "'").strip()
+            self._dynamic_insert(inner, "EXECUTE IMMEDIATE")
+            st = Statement(sid, "EXEC", _norm(inner))
+            self.statements.append(st)
+            return st, args
+        prep = re.fullmatch(r"PREPARE\s+([A-Z0-9_-]+)\s+FROM\s+'((?:[^']|'')*)'", text, re.I)
+        if verb == "PREPARE" and prep:  # #4269: the text is kept; the statement runs a no-op (the port's PREPARE_NOOP)
+            inner = prep.group(2).replace("''", "'").strip()
+            self._dynamic_insert(inner, "PREPARE")
+            name = prep.group(1).upper()
+            if self.prepared.get(name, inner) != inner:
+                raise Unsupported(f"EXEC SQL PREPARE {name}: prepared from more than one literal text")
+            self.prepared[name] = inner
+            st = Statement(sid, "EXEC", "VALUES 1")
+            self.statements.append(st)
+            return st, args
+        ex = re.fullmatch(r"EXECUTE\s+([A-Z0-9_-]+)", text, re.I)
+        if verb == "EXECUTE" and ex:  # #4269: EXECUTE name (no USING) of an earlier PREPARE FROM a literal
+            if ex.group(1).upper() not in self.prepared:
+                raise Unsupported(f"EXEC SQL EXECUTE {ex.group(1)}: no earlier PREPARE FROM a string literal")
+            st = Statement(sid, "EXEC", _norm(self.prepared[ex.group(1).upper()]))
+            self.statements.append(st)
+            return st, args
         if verb in ("PREPARE", "EXECUTE", "DESCRIBE", "CONNECT", "SET", "CALL", "ALLOCATE", "ASSOCIATE"):
             raise Unsupported(f"EXEC SQL {verb}")
         pos = re.search(r"\bWHERE\s+CURRENT\s+OF\s+([A-Z0-9_-]+)", u)
@@ -330,6 +359,12 @@ class Precompiler:
             raise Unsupported(f"EXEC SQL with {len(args)} host variables (the stub takes {MAX_ARGS})")
         self.statements.append(st)
         return st, args
+
+    @staticmethod
+    def _dynamic_insert(inner: str, what: str) -> None:
+        if (not re.fullmatch(r"INSERT\s+INTO\s[^?]*\bVALUES\b[^?]*", inner, re.I | re.S)
+                or re.search(r"\bSELECT\b", inner, re.I)):  # fmt: skip
+            raise Unsupported(f"EXEC SQL {what} '{inner[:40]}': only INSERT ... VALUES is modelled")
 
     def whenever_tests(self, period: str) -> list[str]:
         """#4269: the SQLCA tests of the WHENEVER actions in force, IBM's order (SQLERROR, NOT FOUND, SQLWARNING)."""

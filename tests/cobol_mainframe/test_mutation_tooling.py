@@ -231,3 +231,281 @@ def test_runs_after_the_first_maven_run_take_the_direct_path_with_mavens_classpa
     assert java[-3:] == ["-cp", os.pathsep.join([surefire_cp, str(launcher), str(runner)]), "EquivalenceMain"]
     assert java_kw["cwd"] == mvn_kw["cwd"] == project  # the same working directory
     assert java_kw["timeout"] == ej.JAVA_DIRECT_TIMEOUT
+
+
+# ---- --one-jvm: all the runs of one proof in one JVM -----------------------------------------------------------------
+FAKE_JVM = f"""import sys, time
+for line in sys.stdin:
+    line = line.rstrip("\\n")
+    if line == "quit":
+        break
+    if "die" in line:
+        sys.exit(3)
+    if "hang" in line:
+        time.sleep(60)
+    print("props=" + repr(line.split("\\t")), flush=True)
+    print("{ej.RUN_DONE} " + ("1" if "fail=1" in line else "0"), flush=True)
+"""
+
+
+@pytest.fixture
+def fake_session(tmp_path):
+    script = tmp_path / "fake_jvm.py"
+    script.write_text(FAKE_JVM, encoding="utf-8")
+    made = []
+
+    def start():
+        s = ej.JvmSession([sys.executable, str(script)], tmp_path, dict(os.environ))
+        made.append(s)
+        return s
+
+    yield start
+    for s in made:
+        s.close()
+
+
+def test_a_session_jvm_runs_one_proof_run_per_line_with_that_runs_properties(fake_session):
+    s = fake_session()
+    a = s.run("-Dequivalence.out=/o/1 -Dgitgalaxy.faults.plan=/p", 20)
+    b = s.run("-Dequivalence.out=/o/2 -Dfail=1", 20)
+    assert (a.returncode, b.returncode) == (0, 1)  # the run's own verdict, not the JVM's
+    assert a.stdout.strip() == "props=['equivalence.out=/o/1', 'gitgalaxy.faults.plan=/p']"
+    assert "/o/1" not in b.stdout and "equivalence.out=/o/2" in b.stdout  # each run's output is its own
+
+
+def test_a_session_run_that_hangs_or_kills_the_jvm_is_a_failed_run_not_a_hang(fake_session):
+    s = fake_session()
+    hung = s.run("-Dx=hang", 1)
+    assert hung.returncode == 124 and "timed out" in hung.stderr
+    died = fake_session().run("-Dx=die", 20)  # the JVM exits before RUN_DONE
+    assert died.returncode == 3 and "ended before the run finished" in died.stderr
+
+
+def _env_run(monkeypatch, tmp_path, case, envs, one_jvm=True, stop=None):
+    sessions, seen = [], []
+
+    class Fake:
+        closed = False
+
+        def close(self):
+            self.closed = True
+
+    monkeypatch.setattr(ej, "prepare_project", lambda *a, **k: tmp_path)
+    monkeypatch.setattr(ej, "equivalence_test", lambda c: "")
+    monkeypatch.setattr(ej, "start_session", lambda project, env: sessions.append(Fake()) or sessions[-1])
+
+    def area(case_, project, area_, inputs, env, props="", session=None):
+        seen.append((env["name"], props.split()[0] if props else "", session))
+        return {"RETURN-CODE": b"0"}
+
+    monkeypatch.setattr(ej, "_run_area", area)
+    runs = ej.run_java_environments(
+        case,
+        tmp_path,
+        tmp_path,
+        tmp_path,
+        envs,
+        faults=(("f1", "plan"), ("f2", "plan")),
+        entries=("E1",),
+        one_jvm=one_jvm,
+        stop=stop,
+    )
+    return runs, sessions, seen
+
+
+def test_one_jvm_carries_the_first_environments_runs_and_the_other_environments_get_a_jvm_each(monkeypatch, tmp_path):
+    envs = [ej.environment("default"), ej.environment("turkish")]
+    runs, sessions, seen = _env_run(monkeypatch, tmp_path, {"datasets": {}}, envs)
+    assert list(runs) == ["default", "turkish", "fault:f1", "fault:f2", "entry:E1"]
+    assert len(sessions) == 1 and sessions[0].closed  # one JVM, closed when the proof ends
+    by_run = {(n, p): s for n, p, s in seen}
+    assert by_run[("default", "")] is sessions[0] and by_run[("turkish", "")] is None
+    assert all(s is sessions[0] for n, p, s in seen if p)  # every fault and entry run is in it
+
+
+def test_one_jvm_is_off_by_default_and_for_db2_and_ims_cases(monkeypatch, tmp_path):
+    envs = [ej.environment("default")]
+    for case, one_jvm in (({"datasets": {}}, False), ({"datasets": {}, "db2": {"tables": []}}, True),
+                          ({"datasets": {}, "ims": {"compare": []}}, True)):  # fmt: skip
+        _, sessions, seen = _env_run(monkeypatch, tmp_path, case, envs, one_jvm)
+        assert not sessions and all(s is None for _n, _p, s in seen)
+
+
+def test_first_difference_ends_a_one_jvm_proof_where_it_ends_a_jvm_per_run_proof(monkeypatch, tmp_path):
+    envs = [ej.environment("default")]
+    runs, sessions, _ = _env_run(monkeypatch, tmp_path, {"datasets": {}}, envs, stop=lambda n, _o: n == "fault:f1")
+    assert list(runs) == ["default", "fault:f1"] and sessions[0].closed
+
+
+def test_the_session_runner_and_the_test_it_runs_are_made_for_repeated_runs():
+    assert "--session" in ej.RUNNER and ej.RUN_DONE in ej.RUNNER and "System.clearProperty" in ej.RUNNER
+    case = {"program": "X", "name": "x", "datasets": {}, "clock": "2024/01/02 03:04:05.00"}
+    assert "@DirtiesContext" in ej.equivalence_test(case)  # a second run in the JVM never meets the first's context
+
+
+class _FakeHolder:
+    def __init__(self):
+        self.closed, self.session = False, object()
+
+    def get(self):
+        return self.session
+
+    def close(self):
+        self.closed = True
+
+
+@pytest.mark.parametrize("case,one_jvm,expect", [({}, True, True), ({}, False, False), ({"db2": {"tables": []}}, True, False),
+                                                 ({"ims": {"compare": []}}, True, False)])  # fmt: skip
+def test_sessions_for_is_the_one_rule_of_who_gets_a_session_jvm(tmp_path, case, one_jvm, expect):
+    import equivalence_call as ecall
+
+    assert bool(ecall.sessions_for(case, tmp_path, one_jvm)) is expect
+
+
+def _recording_maven(monkeypatch):
+    seen = []
+    monkeypatch.setattr(ej, "run_maven", lambda project, work, inputs, env=None, props="", session=None:
+                        seen.append((work.name, props, session)) or work / "out")  # fmt: skip
+    return seen
+
+
+@pytest.mark.parametrize("one_jvm", [True, False])
+def test_a_call_proofs_run_goes_through_the_session_only_under_one_jvm(monkeypatch, tmp_path, one_jvm):
+    import equivalence_call as ecall
+
+    holders = []
+    monkeypatch.setattr(
+        ecall, "sessions_for", lambda *a: holders.append(_FakeHolder()) or holders[-1] if a[2] else None
+    )
+    seen = _recording_maven(monkeypatch)
+    out = ecall._run_calls(ej, {"datasets": {}}, tmp_path, tmp_path / "w", tmp_path, one_jvm)
+    assert out == tmp_path / "w" / "out" and len(seen) == 1
+    assert (seen[0][2] is holders[0].session and holders[0].closed) if one_jvm else (seen[0][2] is None)
+
+
+def test_a_cics_proofs_task_run_and_facade_run_share_one_session_that_is_closed(monkeypatch, tmp_path):
+    import equivalence_cics as ec
+
+    holder = _FakeHolder()
+    seen = _recording_maven(monkeypatch)
+    monkeypatch.setattr(ec, "_java_events", lambda *a: {})
+    facade = {}
+    ec._run_facade(ej, tmp_path, tmp_path / "w", tmp_path, "-Dp=1", holder, {"scenarios": []}, None, None, facade)
+    assert seen == [("facade", "-Dp=1 -Dequivalence.facades=true", holder.session)] and facade["events"] == {}
+
+
+def test_a_facade_run_that_fails_is_the_facades_error_not_a_crash(monkeypatch, tmp_path):
+    import equivalence_cics as ec
+
+    def boom(*a, **k):
+        raise RuntimeError("no go")
+
+    monkeypatch.setattr(ej, "run_maven", boom)
+    facade = {}
+    ec._run_facade(ej, tmp_path, tmp_path / "w", tmp_path, "", None, {"scenarios": []}, None, None, facade)
+    assert facade == {"error": "no go"}
+
+
+def test_the_call_and_cics_tests_are_made_for_a_second_run_in_the_session_jvm():
+    import equivalence_call as ecall
+    import equivalence_cics as ec
+
+    case = {"program": "X", "name": "x", "datasets": {}, "using": [], "calls": [], "clock": "2024/01/02 03:04:05.00"}
+    assert "@DirtiesContext" in ecall.java_test(case) and "@DirtiesContext" in ecall.java_test_dto(
+        case, ["CobolRef<String>"]
+    )
+    import inspect
+
+    assert "@DirtiesContext" in inspect.getsource(ec.cics_equivalence_test)
+
+
+def _run(mode, verdicts):
+    return {"mode": mode, "results": [{"id": f"m{i}", "op": op, "line": i, "verdict": v, "seconds": s}
+                                      for i, (op, v, s) in enumerate(verdicts)]}  # fmt: skip
+
+
+def test_compare_counts_killed_and_timeout_as_one_and_names_every_difference_by_operator():
+    full = _run(
+        "full", [("NEG", "killed", 100), ("CMP", "survived", 90), ("CMP", "timeout", 80), ("LIT", "stillborn", 1)]
+    )
+    fast = _run(
+        "fast", [("NEG", "timeout", 10), ("CMP", "survived", 20), ("CMP", "survived", 20), ("LIT", "stillborn", 1)]
+    )
+    got = mu.compare(full, fast)
+    assert got["judged_by_both"] == 4 and got["agree"] == 3
+    assert [d["id"] for d in got["differ"]] == ["m2"]
+    assert got["by_operator"]["CMP"] == {"judged": 2, "differ": 1} and got["by_operator"]["NEG"]["differ"] == 0
+    assert got["survivor_proof_seconds"] == {"full": 170, "fast": 40}  # a survivor in either run
+
+
+def test_compare_leaves_out_a_mutant_that_is_pending_in_either_run():
+    got = mu.compare(
+        _run("a", [("NEG", "killed", 1), ("NEG", "pending", 0)]),
+        _run("b", [("NEG", "killed", 1), ("NEG", "killed", 1)]),
+    )
+    assert got["judged_by_both"] == 1 and not got["differ"]
+
+
+@pytest.mark.parametrize("judged,differ,minimum,ok", [(12, [], None, True), (12, [], 12, True), (11, [], 12, False),
+                                                      (12, [{"id": "m1"}], 12, False), (3, [{"id": "m1"}], None, True)])  # fmt: skip
+def test_the_agreement_gate_needs_enough_mutants_judged_and_no_difference(judged, differ, minimum, ok):
+    assert mu.agreement_gate({"judged_by_both": judged, "differ": differ}, minimum) is ok
+
+
+@pytest.mark.parametrize("flags,expect", [([], True), (["--one-jvm"], True), (["--no-one-jvm"], False), (["--full"], False),
+                                          (["--record"], True)])  # fmt: skip
+def test_the_session_jvm_is_the_fast_default_and_off_for_full(monkeypatch, tmp_path, flags, expect):
+    seen = {}
+
+    def fake_run(*args, **kw):
+        seen.update(kw, full=args[8])
+        return {}
+
+    monkeypatch.setattr(mu, "run", fake_run)
+    monkeypatch.setattr(mu, "mutation_md", lambda s: "")
+    monkeypatch.setitem(sys.modules, "mutation_scores", type("S", (), {"record_run": staticmethod(lambda *a: None)}))
+    assert mu.main(["run", "carddemo-intcalc", "--work", str(tmp_path), *flags]) == 0
+    assert seen["one_jvm"] is expect and seen["full"] is ("--full" in flags)
+
+
+def test_one_jvm_with_full_is_refused(tmp_path):
+    with pytest.raises(SystemExit, match="fast-mode option"):
+        mu.main(["run", "carddemo-intcalc", "--work", str(tmp_path), "--full", "--one-jvm"])
+
+
+def test_a_reused_project_carries_the_stubs_the_earlier_overlay_replaced(tmp_path, earlier):
+    """#4047: a LINKed program is translated from its generated stub; the reused project's file is the earlier run's
+    translation, and translating that lost the program's CICS file stores (cbsa-inqacc: ABNDPROC, 9 false kills)."""
+    kept = earlier / "java" / ej.GENERATED_KEEP / "service"
+    kept.mkdir(parents=True)
+    (kept / "XService.java").write_text("// the stub\n", encoding="utf-8")
+    work = tmp_path / "now" / "java"
+    ej._reused_project(earlier / "java", work, ["service/XService.java"])
+    assert (work / ej.GENERATED_KEEP / "service" / "XService.java").read_text(encoding="utf-8") == "// the stub\n"
+
+
+@pytest.mark.parametrize("reused", [False, True])
+def test_a_linked_program_is_translated_from_the_stub_also_on_reuse(tmp_path, monkeypatch, reused):
+    P = pytest.importorskip("gitgalaxy.tools.cobol_to_java.det.program")
+    project = tmp_path / "java" / "java_h2"
+    rel = "service/AbndprocService.java"
+    (project / "src/main/java" / ej.PKG_DIR / "service").mkdir(parents=True)
+    (project / "src/main/java" / ej.PKG_DIR / rel).write_text("// translated by the earlier run\n" if reused else "// stub\n",
+                                                              encoding="utf-8")  # fmt: skip
+    if reused:
+        (project.parent / ej.GENERATED_KEEP / "service").mkdir(parents=True)
+        (project.parent / ej.GENERATED_KEEP / rel).write_text("// stub\n", encoding="utf-8")
+    seen = []
+
+    def translate(source, dirs, stub, *a, **kw):
+        seen.append(stub)
+        return type("R", (), {"java": "// out\n", "extra": []})()
+
+    monkeypatch.setattr(P, "translate", translate)
+    monkeypatch.setattr(P, "estate_files", lambda p: {})
+    monkeypatch.setattr(P, "runtime_files", lambda *a: {})
+    monkeypatch.setattr(P, "has_batch", lambda p: False)
+    monkeypatch.setattr(ej, "CASES", tmp_path / "no-cases")
+    case = {"programs": [{"program": "ABNDPROC", "program_source": "abndproc.cbl"}]}
+    files, origins = ej.linked_programs(case, tmp_path, project, {}, tmp_path / "work")
+    assert seen == ["// stub\n"] and rel in files and "det port" in origins["ABNDPROC"]

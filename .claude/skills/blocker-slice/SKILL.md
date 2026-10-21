@@ -107,8 +107,8 @@ $PY tests/tools/proof_blockers.py SURVEY_DIR --label LABEL [--sweep SWEEP_DIR]
   A case branch runs with `--crucible-dir DIR --unpinned`.
 - **`gh issue view` / `gh pr edit` fail** on this repo (Projects-classic GraphQL): use `gh api` REST
   (`gh api repos/squid-protocol/gitgalaxy/issues/N`, `-X PATCH .../pulls/N -f body=...`).
-- **ruff is pinned at 0.16.0** (CI's): a different local ruff reformats unrelated lines. `ruff format` only the
-  files you changed; never `ruff format tests/tools/estate4_draw.py` (its hand layout is load-bearing for the draw).
+- **ruff is pinned at 0.16.10** (CI's, used by `pr_gates --fast`): a different local ruff reformats unrelated lines.
+  `ruff format` only the files you changed; never `ruff format tests/tools/estate4_draw.py` (its hand layout is load-bearing for the draw).
 - **GnuCOBOL source in tests stays within column 72**: fixed-form COBOL drops columns 73-80, so a long line in a
   test fixture silently loses its tail (and now trips the #4590 refusal). A test program built from EXEC CICS
   command strings must wrap them (`textwrap.wrap`) or the layout reader fails with "source text past column 72
@@ -125,6 +125,10 @@ $PY tests/tools/proof_blockers.py SURVEY_DIR --label LABEL [--sweep SWEEP_DIR]
   `NotCobol`): list it as unparsed, never let it crash the scan (#5215).
 - JDK 17 (`equivalence_env.py` exports it), `importorskip("tree_sitter_language_pack")` in any translator test, and
   the other traps in `cics-command-slice` section 2.
+
+- **`proof_blockers` ranks only whole programs:** a real EIB read in a program with holes never shows in the gap list
+  (#5294). Before planning a sibling-gap issue, `git log origin/main --grep=<issue>` for "Part of" PRs that may
+  already cover the acceptance (#4949).
 
 ## 6. Brief template (orchestrator -> agent)
 

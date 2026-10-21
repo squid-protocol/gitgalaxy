@@ -1310,10 +1310,10 @@
       "scala/kafka/SocketServer.scala": "33 instances"
     },
     "scheme/racket": {
-      "scheme/racket/cpnanopass.ss": "246 instances",
+      "scheme/racket/cpnanopass.ss": "245 instances",
       "scheme/racket/eval.c": "758 instances",
       "scheme/racket/fun.c": "1938 instances",
-      "scheme/racket/io.ss": "72 instances",
+      "scheme/racket/io.ss": "71 instances",
       "scheme/racket/schemify.rkt": "3 instances",
       "scheme/racket/thread.rkt": "4 instances"
     },
@@ -1511,6 +1511,9 @@
     "sql/baseline": {
       "sql/baseline/schema.php": "107 instances"
     },
+    "sql/mediawiki_postgresql": {
+      "sql/mediawiki_postgresql/tables.sql": "2 instances"
+    },
     "swift/alamofire": {
       "swift/alamofire/Alamofire.podspec": "7 instances",
       "swift/alamofire/ParameterEncoder.swift": "4 instances",
@@ -1558,6 +1561,7 @@
     },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/ast.ts": "27 instances",
+      "typescript/assemblyscript/builtins.ts": "403 instances",
       "typescript/assemblyscript/compiler.ts": "983 instances",
       "typescript/assemblyscript/parser.ts": "367 instances"
     },
@@ -1583,7 +1587,10 @@
       "typescript/playwright/frames.ts": "90 instances"
     },
     "typescript/typescript_compiler": {
-      "typescript/typescript_compiler/binder.ts": "213 instances"
+      "typescript/typescript_compiler/binder.ts": "213 instances",
+      "typescript/typescript_compiler/checker.ts": "2445 instances",
+      "typescript/typescript_compiler/emitter.ts": "160 instances",
+      "typescript/typescript_compiler/parser.ts": "401 instances"
     },
     "typescript/vscode": {
       "typescript/vscode/async.ts": "116 instances",
@@ -1645,6 +1652,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": "126 instances",
       "zig/zig/InternPool.zig": "178 instances",
+      "zig/zig/Sema.zig": "630 instances",
       "zig/zig/Type.zig": "31 instances",
       "zig/zig/Zcu.zig": "59 instances",
       "zig/zig/main.zig": "561 instances"

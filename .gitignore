@@ -121,6 +121,10 @@ museum_2/
 !docs/research/*.json
 # #4047: the committed mutation scores of the proven ports (tests/tools/mutation_scores.py)
 !docs/language_status/mutation_scores.json
+# #4628: the det-port mutation ledgers and the reviewed survivor lists (tests/tools/det_mutation.py), one file per case
+!tests/equivalence/det_mutation/*.json
+!tests/cobol_mainframe/zos_captures/*.json
+!tests/equivalence/det_mutation_survivors/*.json
 # #4270: the measured census use / crucible cases the CICS spec status page renders (cics_spec_status.py)
 !docs/language_status/cics_spec_status.json
 # #4711: the cobolrt rule catalogue (tests/tools/cobolrt_rules.py renders docs/language_status/cobolrt_rules.md from it)
@@ -133,6 +137,8 @@ docs/language_status/evidence_report/*
 # #3315: hand-labelled thin-wrapper verdicts -- source data the wrapper probe scores against.
 !tests/tools/wrapper_labels.json
 !tests/tools/wrapper_labels_memory_alloc.json
+# #5630: the C/C++ call-graph oracle baseline (numbers only, licensed DOOM ports).
+!tests/tools/doom_speedrun/callgraph_baseline.json
 # ...and the COBOL modernization answer key (#3210): hand-verified per-program truth,
 # committed and reviewed like the ledger above. A new key file dropped silently by
 # the *.json rule above is how its first PR shipped without its own data.
@@ -157,6 +163,8 @@ docs/language_status/evidence_report/*
 !tests/cobol_mainframe/refraction_differential_baseline.json
 # ...and the mainframe ground-truth ledger (tests/tools/ground_truth_ledger.py).
 !tests/cobol_mainframe/ground_truth_ledger.json
+# ...and the port-side blocker ledger (#5051, tests/tools/port_blockers.py).
+!tests/cobol_mainframe/port_blockers.json
 # ...and the fresh-estate trial ledger (#3805, tests/tools/trial.py).
 !tests/cobol_mainframe/trials.json
 # ...and the CICS crucible runner's ratchet ledger and its fixture case (#3989): the fixture is in the
@@ -248,6 +256,8 @@ docs/language_status/readiness_report.md
 docs/language_status/progress.md
 docs/language_status/progress.json
 docs/language_status/progress.svg
+# #4963: the architecture brief is published to the generated branch by gitgalaxy.yml, never committed
+docs/gitgalaxy_architecture_brief.md
 docs/language_status/progress_issues_cache.json
 
 # #4980: fetched by equivalence_db2.fetch_odbc_cli() into the Docker build context; never committed

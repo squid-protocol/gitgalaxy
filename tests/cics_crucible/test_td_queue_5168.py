@@ -14,10 +14,15 @@ CicsTask over one operation list per scenario (IBM, CICS TS 6.x, READQ TD / TDQU
 * round 5: SET TDQUEUE ENABLESTATUS(ENABLED 23 / DISABLED 24) and INQUIRE TDQUEUE ENABLESTATUS: a disabled queue answers DISABLED
   (84) to READQ, WRITEQ and DELETEQ TD, whatever its type or open state; INVREQ RESP2 10 (invalid CVDA), QIDERR RESP2 1; INDIRECT /
   REMOTE and an invalid CVDA on an undefined queue: refused. The state is not a unit-of-work resource (a rollback keeps it).
+* round 7: SET TDQUEUE TRIGGERLEVEL(n) of an intrapartition queue overrides the definition's value (0: automatic task initiation off):
+  the write that reaches the level with a TRANSID is refused, the others complete, INQUIRE reads the level back; QIDERR RESP2 1; a
+  queue that is not intrapartition, INDIRECT, REMOTE, or a level below zero: refused. A rollback keeps the level.
 
 Operations: W:queue:text writes, R:queue:n reads INTO an 8-byte area with LENGTH(n), P:queue reads SET, D:queue deletes, S is a
 SYNCPOINT, B a SYNCPOINT ROLLBACK, O:queue:cvda SET TDQUEUE OPENSTATUS, Q:queue INQUIRE TDQUEUE OPENSTATUS and TYPE,
-E:queue:cvda SET TDQUEUE ENABLESTATUS, F:queue INQUIRE TDQUEUE ENABLESTATUS."""
+E:queue:cvda SET TDQUEUE ENABLESTATUS, F:queue INQUIRE TDQUEUE ENABLESTATUS, I:queue INQUIRE TDQUEUE TRIGGERLEVEL RECOVSTATUS
+TRANSID, G:queue INQUIRE TDQUEUE RECOVSTATUS (round 6: an intrapartition queue answers by its definition, RECOVSTATUS is NOTAPPLIC 1
+for the others, TRIGGERLEVEL / TRANSID of the others are refused), T:queue:n SET TDQUEUE TRIGGERLEVEL (round 7)."""
 
 import subprocess
 import sys
@@ -219,19 +224,69 @@ _SCENARIOS: dict[str, tuple[dict[str, str] | None, dict[str, list[str]], list[st
     "inquire enablestatus of an indirect queue": (
         {"AAAA": "INTRA", "IIII": "INDIRECT INDIRECTNAME=AAAA"}, {}, ["F:IIII"], ["F:IIII resp=0 resp2=0 enable=23"]
     ),
+    # round 6 (X66): INQUIRE TDQUEUE TRIGGERLEVEL / RECOVSTATUS / TRANSID. I: all three; G: RECOVSTATUS alone
+    "inquire ati options": (
+        {"AAAA": "INTRA TRIGGERLEVEL=3 TRANSID=TRN1 RECOVSTATUS=LOGICAL", "BBBB": "INTRA", "CCCC": "INTRA RECOVSTATUS=PHYSICAL",
+         "DDDD": "INTRA RECOVSTATUS=NO TRIGGERLEVEL=0"}, {},
+        ["I:AAAA", "I:BBBB", "G:CCCC", "I:DDDD", "I:ZZZZ", "G:ZZZZ"],
+        ["I:AAAA resp=0 resp2=0 trigger=3 recov=216 transid=[TRN1]", "I:BBBB resp=0 resp2=0 trigger=1 recov=30 transid=[    ]",
+         "G:CCCC resp=0 resp2=0 recov=215", "I:DDDD resp=0 resp2=0 trigger=0 recov=30 transid=[    ]",
+         "I:ZZZZ resp=44 resp2=1 trigger=0 recov=0 transid=[]", "G:ZZZZ resp=44 resp2=1 recov=0"],
+    ),
+    "inquire recovstatus of other queues": (
+        {"XXXX": _E, "IIII": "INDIRECT INDIRECTNAME=XXXX", "RRRR": "REMOTE"}, {},
+        ["G:XXXX", "G:IIII", "G:RRRR"],
+        ["G:XXXX resp=0 resp2=0 recov=1", "G:IIII resp=0 resp2=0 recov=1", "G:RRRR resp=0 resp2=0 recov=1"],
+    ),
+    "inquire trigger level of an extrapartition queue": ({"XXXX": _E}, {}, ["I:XXXX"], ["REFUSED"]),
+    "inquire trigger level of an indirect queue": (
+        {"AAAA": "INTRA", "IIII": "INDIRECT INDIRECTNAME=AAAA"}, {}, ["I:IIII"], ["REFUSED"]
+    ),
+    "inquire trigger level of a remote queue": ({"RRRR": "REMOTE"}, {}, ["I:RRRR"], ["REFUSED"]),
+    "set trigger level": (
+        {"TTTT": "INTRA TRANSID=TRN1 TRIGGERLEVEL=1", "AAAA": "INTRA", "SSSS": "INTRA TRANSID=TRN1 TRIGGERLEVEL=9"},
+        {"SSSS": ["s1", "s2"]},
+        ["T:TTTT:3", "W:TTTT:a", "W:TTTT:b", "I:TTTT", "T:AAAA:2", "W:AAAA:p", "I:AAAA", "T:SSSS:3", "W:SSSS:x"],
+        ["T:TTTT:3 resp=0 resp2=0", "W:TTTT:a resp=0", "W:TTTT:b resp=0", "I:TTTT resp=0 resp2=0 trigger=3 recov=30 transid=[TRN1]",
+         "T:AAAA:2 resp=0 resp2=0", "W:AAAA:p resp=0", "I:AAAA resp=0 resp2=0 trigger=2 recov=30 transid=[    ]",
+         "T:SSSS:3 resp=0 resp2=0", "REFUSED"],
+    ),
+    "set trigger level to zero and back": (
+        {"UUUU": "INTRA TRANSID=TRN1 TRIGGERLEVEL=1"}, {},
+        ["T:UUUU:0", "W:UUUU:a", "W:UUUU:b", "I:UUUU", "T:UUUU:1", "W:UUUU:c"],
+        ["T:UUUU:0 resp=0 resp2=0", "W:UUUU:a resp=0", "W:UUUU:b resp=0", "I:UUUU resp=0 resp2=0 trigger=0 recov=30 transid=[TRN1]",
+         "T:UUUU:1 resp=0 resp2=0", "REFUSED"],
+    ),
+    "set trigger level survives a rollback": (
+        {"LLLL": _L + " TRANSID=TRN1 TRIGGERLEVEL=1"}, {},
+        ["T:LLLL:5", "W:LLLL:a", "B", "I:LLLL", "R:LLLL:8"],
+        ["T:LLLL:5 resp=0 resp2=0", "W:LLLL:a resp=0", "B", "I:LLLL resp=0 resp2=0 trigger=5 recov=216 transid=[TRN1]",
+         f"R:LLLL:8 resp=23 len=-1 {R8}"],
+    ),
+    "set trigger level of an undefined queue": (
+        {"AAAA": "INTRA"}, {}, ["T:NOPE:1", "T:NOPE:-1"], ["T:NOPE:1 resp=44 resp2=1", "T:NOPE:-1 resp=44 resp2=1"]
+    ),
+    "set trigger level below zero": ({"AAAA": "INTRA"}, {}, ["T:AAAA:-1"], ["REFUSED"]),
+    "set trigger level of an extrapartition queue": ({"XXXX": _E}, {}, ["T:XXXX:1"], ["REFUSED"]),
+    "set trigger level of an indirect queue": (
+        {"AAAA": "INTRA", "IIII": "INDIRECT INDIRECTNAME=AAAA"}, {}, ["T:IIII:1"], ["REFUSED"]
+    ),
+    "set trigger level of a remote queue": ({"RRRR": "REMOTE"}, {}, ["T:RRRR:1"], ["REFUSED"]),
 }  # fmt: skip
 
 _MAIN = r"""
 #include <stdio.h>
 #include <string.h>
 typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
-                 char qname[16]; int item; int num; int go_to; } gg_cics;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
 int GGCWRTD(gg_cics *c, char *from);
 int GGCRDTD(gg_cics *c, char *into, int intolen);
 int GGCRDTS(gg_cics *c, void **slot);
 int GGCDLTD(gg_cics *c);
 int GGCSTDQ(gg_cics *c);
 int GGCSTDE(gg_cics *c);
+int GGCSTDT(gg_cics *c);
 int GGCITDQ(gg_cics *c);
 int GGCSYNC(gg_cics *c);
 int GGCABND(gg_cics *c);
@@ -269,10 +324,19 @@ int main(int argc, char **argv) {
             c.num = atoi(a + 7);
             GGCSTDE(&c);
             printf("%s resp=%d resp2=%d\n", a, c.resp, c.resp2);
+        } else if (a[0] == 'T') {
+            c.num = atoi(a + 7);
+            GGCSTDT(&c);
+            printf("%s resp=%d resp2=%d\n", a, c.resp, c.resp2);
         } else if (a[0] == 'F') {
             strcpy(c.flags, "ENABLESTATUS");
             GGCITDQ(&c);
             printf("%s resp=%d resp2=%d enable=%d\n", a, c.resp, c.resp2, c.item);
+        } else if (a[0] == 'I' || a[0] == 'G') {
+            strcpy(c.flags, a[0] == 'I' ? "TRIGGERLEVEL RECOVSTATUS TRANSID" : "RECOVSTATUS");
+            GGCITDQ(&c);
+            if (a[0] == 'I') printf("%s resp=%d resp2=%d trigger=%d recov=%d transid=[%.4s]\n", a, c.resp, c.resp2, c.hours, c.mins, c.resp == 0 ? c.rtran : "");
+            else printf("%s resp=%d resp2=%d recov=%d\n", a, c.resp, c.resp2, c.mins);
         } else if (a[0] == 'Q') {
             strcpy(c.flags, "OPENSTATUS TYPE");
             GGCITDQ(&c);
@@ -371,9 +435,19 @@ def _java_scenario(name: str, queues, seed, ops) -> str:
                     }} else if (p[0].equals("E")) {{
                         int[] r = t.setTdQueueEnableStatus(p[1], Long.parseLong(p[2]));
                         System.out.println(op + " resp=" + r[0] + " resp2=" + r[1]);
+                    }} else if (p[0].equals("T")) {{
+                        int[] r = t.setTdQueueTriggerLevel(p[1], Long.parseLong(p[2]));
+                        System.out.println(op + " resp=" + r[0] + " resp2=" + r[1]);
                     }} else if (p[0].equals("F")) {{
                         int[] r = t.inquireTdQueue(p[1], false, false, true);
                         System.out.println(op + " resp=" + r[0] + " resp2=" + r[1] + " enable=" + r[4]);
+                    }} else if (p[0].equals("I")) {{
+                        int[] r = t.inquireTdQueue(p[1], false, false, false, true, true, true);
+                        System.out.println(op + " resp=" + r[0] + " resp2=" + r[1] + " trigger=" + r[5] + " recov=" + r[6]
+                                + " transid=[" + (r[0] == 0 ? String.format("%-4s", t.tdTransid(p[1])) : "") + "]");
+                    }} else if (p[0].equals("G")) {{
+                        int[] r = t.inquireTdQueue(p[1], false, false, false, false, true, false);
+                        System.out.println(op + " resp=" + r[0] + " resp2=" + r[1] + " recov=" + r[6]);
                     }} else if (p[0].equals("Q")) {{
                         int[] r = t.inquireTdQueue(p[1], true, true);
                         System.out.println(op + " resp=" + r[0] + " resp2=" + r[1] + " open=" + r[2] + " type=" + r[3]);
@@ -415,6 +489,9 @@ def java_outputs(tmp_path_factory):
 
 
 @pytest.mark.parametrize("name", list(_SCENARIOS))
+@pytest.mark.slow(
+    reason="the module fixture compiles and runs every scenario in one javac task; the first test in a split part pays it"
+)
 @needs_javac
 def test_cics_task_runs_each_scenario_as_the_stub_does(name, java_outputs):
     assert java_outputs[name] == _SCENARIOS[name][3]

@@ -40,14 +40,14 @@ PROOF_ROOTS = ("runTask", "handleCall", "withCallAreas", "runBatch")
 # #5082: what the deterministic translator (det/) writes into a port besides the program's paragraphs -- the entry
 # points a proof does not drive (runProgram: the program run on its own; handleTransaction / handleLink / handleChannel:
 # the generated facades over runTask), the run-unit plumbing (initialState, perform, runAll, run, paragraph, condition,
-# aid, abended, caWhole, cx, dd, store, lastAnswerBytes) and the contract-DTO codecs (in_X / out_X / fill_X). Their text
+# aid, abended, caWhole, cx, dd, store, lastAnswerBytes, lastLinkBytes) and the contract-DTO codecs (in_X / out_X / fill_X). Their text
 # is the translator's, the same in every port ("translated by rule, statement for statement", DET_PORT_MARKER), so a
 # helper no proof method calls is proven by the cells that reach its class, not a behaviour a porter added. Only a
 # method of a marked file with one of these names is one: any other method of it, and every method of a file without
 # the marker, still counts as ported-unproven. tests/cobol_mainframe/test_proof_reach.py keeps this list equal to what
 # det/ emits.
 DET_HELPERS = frozenset({
-    "runProgram", "handleTransaction", "handleLink", "handleChannel", "lastAnswerBytes", "initialState", "perform",
+    "runProgram", "handleTransaction", "handleLink", "handleChannel", "lastAnswerBytes", "lastLinkBytes", "initialState", "perform",
     "runAll", "run", "paragraph", "condition", "aid", "abended", "caWhole", "cx", "dd", "store",
 })  # fmt: skip
 _DET_CODEC = re.compile(r"(?:in|out|fill)_[A-Z]\w*")

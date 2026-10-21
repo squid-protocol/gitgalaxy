@@ -24,6 +24,10 @@ sys.path.insert(0, str(ROOT))
 IMAGE = "gitgalaxy-gnucobol:3"
 PKG = "p"
 
+pytestmark = pytest.mark.slow(
+    reason="the first java test of a CI split part pays the one-time javac of the cobolrt runtime: 12-17 s on a runner (#5668)"
+)
+
 
 def program(name: str, data: list[str], proc: list[str]) -> str:
     lines = ["       IDENTIFICATION DIVISION.", f"       PROGRAM-ID. {name}.", "       DATA DIVISION.",
@@ -462,6 +466,67 @@ PROGRAMS = {
             "           GO TO A-EXIT.",
             "       B-EXIT.",
             "           EXIT.",
+            "",
+        ]
+    ),  # fmt: skip
+    # ALTER (#5560, IBM Language Reference, ALTER): several ALTERs of one paragraph (the last wins), a multi-pair ALTER,
+    # the altered GO TO reached by GO TO, by PERFORM ... THRU and by falling through from the paragraph before it
+    "ALTER1": "\n".join(
+        [
+            "       IDENTIFICATION DIVISION.",
+            "       PROGRAM-ID. ALTER1.",
+            "       PROCEDURE DIVISION.",
+            "       MAIN-PARA.",
+            "           DISPLAY 'MAIN'",
+            "           ALTER SW TO PROCEED TO T1",
+            "           ALTER SW TO PROCEED TO T2",
+            "           GO TO SW.",
+            "       T1.",
+            "           DISPLAY 'T1 WRONG'",
+            "           GO TO FIN.",
+            "       T2.",
+            "           DISPLAY 'T2 BY GO TO'",
+            "           ALTER SW TO SWX",
+            "           PERFORM SW THRU SWX",
+            "           DISPLAY 'AFTER PERFORM'",
+            "           ALTER SW TO T3 SW2 TO PROCEED TO T4",
+            "           GO TO PRE.",
+            "       PRE.",
+            "           DISPLAY 'PRE'.",
+            "       SW.",
+            "           GO TO T1.",
+            "       SWX.",
+            "           DISPLAY 'IN SWX'.",
+            "       SW2.",
+            "           GO TO T1.",
+            "       T3.",
+            "           DISPLAY 'T3 BY FALL-THROUGH'",
+            "           GO TO SW2.",
+            "       T4.",
+            "           DISPLAY 'T4'.",
+            "       FIN.",
+            "           DISPLAY 'FIN'",
+            "           GOBACK.",
+            "",
+        ]
+    ),  # fmt: skip
+    # an altered GO TO with no operand: its target comes only from the ALTER
+    "ALTER2": "\n".join(
+        [
+            "       IDENTIFICATION DIVISION.",
+            "       PROGRAM-ID. ALTER2.",
+            "       PROCEDURE DIVISION.",
+            "       MAIN-PARA.",
+            "           ALTER BARE TO PROCEED TO DONE",
+            "           PERFORM BARE THRU BARE-END",
+            "           DISPLAY 'NOT REACHED'.",
+            "       BARE.",
+            "           GO TO.",
+            "       BARE-END.",
+            "           EXIT.",
+            "       DONE.",
+            "           DISPLAY 'DONE'",
+            "           GOBACK.",
             "",
         ]
     ),  # fmt: skip
@@ -1052,8 +1117,6 @@ PROGRAMS = {
             "IF 0012 > E2 DISPLAY 'F GT' ELSE DISPLAY 'F LE' END-IF",
             "IF E2 < N4 DISPLAY 'G LT' ELSE DISPLAY 'G GE' END-IF",
             "IF E2 = NS DISPLAY 'H EQ' ELSE DISPLAY 'H NE' END-IF",
-            "IF E2 > NP DISPLAY 'I GT' ELSE DISPLAY 'I LE' END-IF",
-            "IF NB < E2 DISPLAY 'J LT' ELSE DISPLAY 'J GE' END-IF",
             "IF E2 = NV DISPLAY 'K EQ' ELSE DISPLAY 'K NE' END-IF",
             "MOVE 12 TO E3",
             "IF E2 = E3 DISPLAY 'L EQ' ELSE DISPLAY 'L NE' END-IF",
@@ -1076,14 +1139,11 @@ PROGRAMS = {
             "IF EN < 0 DISPLAY 'S LT' ELSE DISPLAY 'S GE' END-IF",
             "MOVE 1234 TO E2 NS NP NB",
             "IF E2 = NS DISPLAY 'T EQ' ELSE DISPLAY 'T NE' END-IF",
-            "IF E2 = NP DISPLAY 'U EQ' ELSE DISPLAY 'U NE' END-IF",
-            "IF E2 = NB DISPLAY 'V EQ' ELSE DISPLAY 'V NE' END-IF",
             "MOVE '149999' TO AX6",
             "IF AX6 = 1499.99 DISPLAY 'W EQ' ELSE DISPLAY 'W NE' END-IF",
             "MOVE '0012' TO AX4",
             "MOVE 12 TO NB",
             "IF AX4 = 0012 DISPLAY 'X EQ' ELSE DISPLAY 'X NE' END-IF",
-            "IF AX4 = NB DISPLAY 'Y EQ' ELSE DISPLAY 'Y NE' END-IF",
             "IF AX4 = 0.012 DISPLAY 'Z EQ' ELSE DISPLAY 'Z NE' END-IF",
             "MOVE 112.5 TO EV",
             "IF EV = 112.5 DISPLAY 'AA EQ' ELSE DISPLAY 'AA NE' END-IF",
@@ -1093,8 +1153,8 @@ PROGRAMS = {
         ],
     ),
     # #4671: a group is an alphanumeric operand: a numeric item or literal compared with it is compared as its digits,
-    # sign dropped (IBM: an unsigned integer; GnuCOBOL likewise, measured) -- a signed zoned, a packed and a binary
-    # item as well as an unsigned one, either way round, ordering and equality, EVALUATE; held as digits and as spaces
+    # sign dropped (IBM: an unsigned integer; GnuCOBOL likewise, measured) -- a signed zoned item as well as an
+    # unsigned one (a packed or binary one is refused: IBM rejects it, C13), either way round, ordering and equality, EVALUATE; held as digits and as spaces
     "GRPCMP": program(
         "GRPCMP",
         [
@@ -1124,32 +1184,19 @@ PROGRAMS = {
             "IF G = N2 DISPLAY 'I EQ' ELSE DISPLAY 'I NE' END-IF",
             "IF N4 = G DISPLAY 'J EQ' ELSE DISPLAY 'J NE' END-IF",
             "IF G = NS DISPLAY 'K EQ' ELSE DISPLAY 'K NE' END-IF",
-            "IF G = NP DISPLAY 'L EQ' ELSE DISPLAY 'L NE' END-IF",
-            "IF G = NB DISPLAY 'M EQ' ELSE DISPLAY 'M NE' END-IF",
-            "IF G = NU DISPLAY 'N EQ' ELSE DISPLAY 'N NE' END-IF",
             "IF G = NV DISPLAY 'O EQ' ELSE DISPLAY 'O NE' END-IF",
             "IF G > NS DISPLAY 'P GT' ELSE DISPLAY 'P LE' END-IF",
-            "IF G > NB DISPLAY 'Q GT' ELSE DISPLAY 'Q LE' END-IF",
-            "IF NP < G DISPLAY 'R LT' ELSE DISPLAY 'R GE' END-IF",
             "EVALUATE G",
             "  WHEN 12 DISPLAY 'S 12'",
             "  WHEN N4 DISPLAY 'S N4'",
             "  WHEN OTHER DISPLAY 'S OTHER'",
-            "END-EVALUATE",
-            "EVALUATE NP",
-            "  WHEN G DISPLAY 'T G'",
-            "  WHEN OTHER DISPLAY 'T OTHER'",
             "END-EVALUATE",
             "MOVE '  12' TO G",
             "MOVE -12 TO NP NB",
             "IF G = 12 DISPLAY 'U EQ' ELSE DISPLAY 'U NE' END-IF",
             "IF G = N4 DISPLAY 'V EQ' ELSE DISPLAY 'V NE' END-IF",
             "IF G = NS DISPLAY 'W EQ' ELSE DISPLAY 'W NE' END-IF",
-            "IF G = NP DISPLAY 'X EQ' ELSE DISPLAY 'X NE' END-IF",
-            "IF G = NB DISPLAY 'Y EQ' ELSE DISPLAY 'Y NE' END-IF",
             "MOVE '0012' TO G",
-            "IF G = NP DISPLAY 'Z EQ' ELSE DISPLAY 'Z NE' END-IF",
-            "IF G = NB DISPLAY 'AA EQ' ELSE DISPLAY 'AA NE' END-IF",
         ],
     ),
 }
@@ -1703,6 +1750,25 @@ def test_p_scaled_items_the_oracle_cannot_answer_are_refused_by_name(data, proc,
 
 
 @pytest.mark.parametrize(
+    ("proc", "why"),
+    [
+        # IBM, ALTER: the altered paragraph is one GO TO sentence; any other shape is refused by name
+        (["    ALTER P1 TO PROCEED TO P2", "    GOBACK.", "P1.", "    DISPLAY 'X'", "    GO TO P2.", "P2.", "    EXIT."], "lone GO TO"),
+        (["    ALTER P1 TO PROCEED TO P2", "    GOBACK.", "P1.", "    GO TO P2 P3 DEPENDING ON N.", "P2.", "P3.", "    EXIT."], "lone GO TO"),
+        (["    ALTER NOPE TO PROCEED TO P2", "    GOBACK.", "P1.", "    GO TO P2.", "P2.", "    EXIT."], "ALTER NOPE: undeclared paragraph"),
+    ],
+)  # fmt: skip
+def test_alter_of_a_paragraph_that_is_not_a_lone_go_to_is_refused_by_name(proc, why, tmp_path):
+    """#5560: the translated ALTERs are in ALTER1 / ALTER2; the rest is a named hole, never a wrong GO TO."""
+    pytest.importorskip("tree_sitter_language_pack")
+    head = ["IDENTIFICATION DIVISION.", "PROGRAM-ID. ALTX.", "DATA DIVISION.", "WORKING-STORAGE SECTION.",
+            "01 N PIC 9 VALUE 1.", "PROCEDURE DIVISION.", "MAIN-PARA."]  # fmt: skip
+    src = "\n".join("       " + x for x in [*head, *proc]) + "\n"
+    holes = _pcs_holes(tmp_path, src)
+    assert any(why in h for h in holes), holes
+
+
+@pytest.mark.parametrize(
     ("data", "proc"),
     [
         # #4271 (register C7): a COMP-5 item's bytes are the oracle's (little-endian), not z/OS's (big-endian)
@@ -1735,6 +1801,54 @@ def test_comp5_read_as_a_number_is_not_refused(data, proc, tmp_path):
     pytest.importorskip("tree_sitter_language_pack")
     holes = _pcs_holes(tmp_path, program("COMP5N", [*data, "01 T PIC X(8)."], proc))
     assert not any("oracle_assumptions.md C7" in h for h in holes), holes
+
+
+def _record_io_holes(tmp_path, record: list[str], proc: list[str], *, sort: bool = False) -> list[str]:
+    fd = "SD" if sort else "FD"
+    select = "SELECT F ASSIGN TO FFILE."
+    src = fprogram("RECIO", [], [select], [f"{fd} F.", "01 REC.", *record], ["01 N PIC S9(4)."],
+                   ["MAIN.", *[f"    {x}" for x in proc], "    GOBACK."])  # fmt: skip
+    return _pcs_holes(tmp_path, src)
+
+
+@pytest.mark.parametrize(
+    ("record", "proc", "register"),
+    [
+        # #4271 (C6 / C7): a record is named by its FD, so a file READ / WRITE / REWRITE (no INTO / FROM) and a SORT
+        # RETURN never went through field_expr: the oracle's bytes of a COMP-5 / COMP-1 / COMP-2 item reached the file
+        (["05 A PIC S9(9) COMP-5.", "05 B PIC X(4)."], ["OPEN OUTPUT F", "WRITE REC", "CLOSE F"], "C7"),
+        (["05 A PIC S9(4) COMP-5.", "05 B PIC X(4)."], ["OPEN I-O F", "REWRITE REC", "CLOSE F"], "C7"),
+        (["05 A PIC S9(18) COMP-5."], ["OPEN INPUT F", "READ F", "CLOSE F"], "C7"),
+        (["05 G.", "   10 A PIC S9(9) COMP-5 OCCURS 2.", "05 B PIC X(4)."], ["OPEN INPUT F", "READ F", "CLOSE F"], "C7"),
+        (["05 A COMP-1.", "05 B PIC X(4)."], ["OPEN OUTPUT F", "WRITE REC", "CLOSE F"], "C6"),
+        (["05 A COMP-2."], ["OPEN INPUT F", "READ F", "CLOSE F"], "C6"),
+    ],
+)  # fmt: skip
+def test_record_io_refuses_comp5_and_float_bytes_by_name(record, proc, register, tmp_path):
+    """#4271: a file record holding a COMP-5 / COMP-1 / COMP-2 item is refused on READ / WRITE / REWRITE."""
+    pytest.importorskip("tree_sitter_language_pack")
+    holes = _record_io_holes(tmp_path, record, proc)
+    assert any(f"oracle_assumptions.md {register}" in h for h in holes), holes
+
+
+def test_record_io_refuses_comp5_in_a_sort_record_on_return(tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    holes = _record_io_holes(tmp_path, ["05 A PIC S9(9) COMP-5.", "05 B PIC X(4)."], ["RETURN F AT END MOVE 1 TO N"],
+                             sort=True)  # fmt: skip
+    assert any("oracle_assumptions.md C7" in h for h in holes), holes
+
+
+@pytest.mark.parametrize(
+    "record",
+    [
+        ["05 A PIC X(4).", "05 B PIC S9(7) COMP-3.", "05 C PIC S9(9) COMP."],  # no COMP-5 / float
+        ["05 A PIC S9(4) COMP.", "05 B PIC X(4)."],  # COMP is big-endian on both sides
+    ],
+)
+def test_record_io_without_comp5_or_float_bytes_is_not_refused(record, tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    holes = _record_io_holes(tmp_path, record, ["OPEN INPUT F", "READ F", "CLOSE F"])
+    assert not any("oracle_assumptions.md C6" in h or "oracle_assumptions.md C7" in h for h in holes), holes
 
 
 def test_p_scaled_items_store_their_nines_scaled():
@@ -2062,6 +2176,50 @@ def test_a_numeric_operand_compared_as_text_refuses_by_name_what_ibm_and_gnucobo
     holes = P.translate(tmp_path / "EDREF.cbl", [], "public class EdrefService {\n}\n", PKG, None,
                         tmp_path / "project").stats["holes"]  # fmt: skip
     assert any(why in h and "(C13)" in h for h in holes), holes
+
+
+# IBM's table of numeric / nonnumeric comparisons has no entry for a packed or binary item (a floating-point one is
+# refused earlier, C6), so it rejects the program; GnuCOBOL compares the item's digits (register C13). Refused by name, either way round, against an
+# alphanumeric item, a numeric-edited item and a group (the whole class, #4702).
+@pytest.mark.parametrize(
+    ("decl", "use"),
+    [("S9(4) COMP-3", "PACKED"), ("9(4) COMP-3", "PACKED"), ("S9(4) COMP", "BINARY"), ("9(9) COMP", "BINARY"),
+     ("S9(4) COMP-4", "BINARY"), ("S9(4) COMP-5", "COMP-5")],
+)  # fmt: skip
+@pytest.mark.parametrize(
+    ("other", "cond"),
+    [(["01  O PIC X(4)."], "N = O"), (["01  O PIC X(4)."], "O < N"), (["01  O PIC ZZZ9."], "N = O"),
+     (["01  O PIC -ZZ9."], "O > N"), (["01  O.", "    05 OA PIC X(4)."], "N = O"), (["01  O.", "    05 OA PIC X(4)."], "O = N")],
+)  # fmt: skip
+def test_a_native_numeric_item_compared_with_a_nonnumeric_one_is_refused_by_name_ibm_rejects_it(
+    decl, use, other, cond, tmp_path
+):
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "NATREF.cbl").write_text(program("NATREF", [f"01  N PIC {decl}.", *other],
+                                                 [f"IF {cond} DISPLAY 'Y' END-IF"]))  # fmt: skip
+    (tmp_path / "project").mkdir()
+    holes = P.translate(tmp_path / "NATREF.cbl", [], "public class NatrefService {\n}\n", PKG, None,
+                        tmp_path / "project").stats["holes"]  # fmt: skip
+    assert any(
+        f"N ({use}) compared with the nonnumeric O" in h and "IBM rejects" in h and "(C13)" in h for h in holes
+    ), holes
+
+
+def test_a_native_numeric_item_still_compares_with_a_numeric_operand_and_a_zoned_one_with_text(tmp_path):
+    """The refusal is narrow: native item vs numeric (by value) and zoned item vs nonnumeric (as digits) translate."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    data = ["01  N PIC S9(4) COMP-3.", "01  M PIC S9(4) COMP.", "01  Z PIC 9(4).", "01  E PIC ZZZ9."]
+    (tmp_path / "NATOK.cbl").write_text(
+        program("NATOK", data, ["IF N = M AND Z = E AND N = 12 AND M > Z DISPLAY 'Y' END-IF"])
+    )
+    (tmp_path / "project").mkdir()
+    holes = P.translate(tmp_path / "NATOK.cbl", [], "public class NatokService {\n}\n", PKG, None,
+                        tmp_path / "project").stats["holes"]  # fmt: skip
+    assert not [h for h in holes if "(C13)" in h], holes
 
 
 # ---- #4462: a multi-program source, one program at a time; a reference modification of an intrinsic function -----

@@ -280,7 +280,8 @@ def _containers() -> list[str]:
 
 def _mount(path: Path) -> Path:
     path = path.resolve()
-    while not path.is_mount() and path != path.parent:
+    # os.path.ismount, not Path.is_mount: the latter raises NotImplementedError on Windows before Python 3.12 (#5367)
+    while not os.path.ismount(path) and path != path.parent:
         path = path.parent
     return path
 

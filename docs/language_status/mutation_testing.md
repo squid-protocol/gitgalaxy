@@ -754,3 +754,12 @@ scenarios (#5401 and after) and the translator changes since. Re-measured at cur
 their claims were refuted and removed from `det_mutation_survivors/carddemo-tranlist.json`, which now lists none. The 36 other survivors of the old
 ledger were re-run by id against the current case first: 36 of 36 killed. Slice 4's other programs stay open: COCRDSLC (carddemo-cardview,
 41 unaccounted) and COTRN01C (carddemo-tranview, 3 `harness-gap`).
+
+**#4628 slice 4 closes (2026-10-21): COCRDSLC and COTRN01C reach L5 with no new scenario.** Both ledgers predated the later scenarios and
+translator changes (`det_mutation.py refresh` reported "the det port changed"), so each was re-run from scratch at current main (seed 0,
+sample 150, fast mode). COCRDSLC (carddemo-cardview): 146 killed, 0 survived, 4 stillborn (before: 72 killed, 74 survived, 41 unaccounted).
+COTRN01C (carddemo-tranview): 147 killed, 0 survived, 3 stillborn (before: 91 killed, 56 survived, 3 `harness-gap`). The 33 + 53 survivors
+stated `equivalent` / `unreachable` before were all killed by the current cases, so those claims were refuted and removed from
+`det_mutation_survivors/`, which now lists none for either case; the three COTRN01C `harness-gap` survivors are killed too. All three slice-4
+programs (with COTRN00C, #5921) are at L5 (`det_mutation.py table`). The score is a seeded sample (150 of 2,184 / 1,469 in scope), not the
+whole mutant set.

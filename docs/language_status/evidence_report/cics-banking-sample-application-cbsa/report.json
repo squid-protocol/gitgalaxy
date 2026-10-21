@@ -20,7 +20,7 @@
   },
   {
    "area": "CICS",
-   "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; RETURN CHANNEL, BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42)",
+   "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port only, the stub refuses it), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42)",
    "id": "X17",
    "status": "ASSUMED (REFUSED where IBM is silent)"
   },
@@ -222,6 +222,12 @@
     20,
     26
    ],
+   "carddemo-adminmenu-generated": [
+    8,
+    8,
+    20,
+    26
+   ],
    "carddemo-billpay": [
     16,
     16,
@@ -231,7 +237,7 @@
    "carddemo-cardlist": [
     36,
     36,
-    135,
+    136,
     149
    ],
    "carddemo-cardupdate": [
@@ -244,6 +250,12 @@
     30,
     30,
     69,
+    75
+   ],
+   "carddemo-cardview-generated": [
+    29,
+    30,
+    53,
     75
    ],
    "carddemo-cbstm03b": [
@@ -288,10 +300,22 @@
     6,
     6
    ],
+   "carddemo-copaus2c-generated": [
+    2,
+    2,
+    6,
+    6
+   ],
    "carddemo-cotrtlic": [
     50,
     59,
     145,
+    230
+   ],
+   "carddemo-cotrtlic-generated": [
+    50,
+    59,
+    123,
     230
    ],
    "carddemo-cotrtupc": [
@@ -328,6 +352,12 @@
     7,
     7,
     29,
+    33
+   ],
+   "carddemo-menu-generated": [
+    7,
+    7,
+    26,
     33
    ],
    "carddemo-paudbunl": [
@@ -438,10 +468,22 @@
     20,
     21
    ],
+   "carddemo-useradd-generated": [
+    9,
+    9,
+    17,
+    21
+   ],
    "carddemo-userdel": [
     11,
     11,
     31,
+    32
+   ],
+   "carddemo-userdel-generated": [
+    11,
+    11,
+    24,
     32
    ],
    "carddemo-userlist": [
@@ -454,6 +496,12 @@
     11,
     11,
     44,
+    46
+   ],
+   "carddemo-userupd-generated": [
+    11,
+    11,
+    31,
     46
    ],
    "cbsa-abndproc": [
@@ -477,7 +525,7 @@
    "cbsa-bankdata": [
     24,
     24,
-    17,
+    47,
     48
    ],
    "cbsa-bnk1cac": [
@@ -510,6 +558,12 @@
     109,
     143
    ],
+   "cbsa-bnk1ccs-generated": [
+    33,
+    33,
+    84,
+    143
+   ],
    "cbsa-bnk1cra": [
     28,
     28,
@@ -531,7 +585,7 @@
    "cbsa-bnk1dac-generated": [
     31,
     31,
-    41,
+    42,
     60
    ],
    "cbsa-bnk1dcs": [
@@ -655,6 +709,12 @@
     13,
     16
    ],
+   "cbsa-delcus-generated": [
+    22,
+    22,
+    13,
+    16
+   ],
    "cbsa-getcompy": [
     2,
     2,
@@ -733,6 +793,12 @@
     13,
     14
    ],
+   "genapp-lgacdb01-generated": [
+    4,
+    4,
+    13,
+    14
+   ],
    "genapp-lgacdb02": [
     3,
     3,
@@ -757,6 +823,12 @@
     17,
     31
    ],
+   "genapp-lgapdb01-generated": [
+    6,
+    7,
+    17,
+    31
+   ],
    "genapp-lgapol01": [
     2,
     2,
@@ -776,6 +848,12 @@
     10
    ],
    "genapp-lgdpdb01": [
+    3,
+    3,
+    12,
+    12
+   ],
+   "genapp-lgdpdb01-generated": [
     3,
     3,
     12,
@@ -821,6 +899,12 @@
     12,
     12,
     73,
+    74
+   ],
+   "genapp-lgipdb01-generated": [
+    12,
+    12,
+    55,
     74
    ],
    "genapp-lgipol01": [
@@ -907,6 +991,12 @@
     26,
     38
    ],
+   "genapp-lgupdb01-generated": [
+    9,
+    9,
+    29,
+    38
+   ],
    "genapp-lgupol01": [
     4,
     4,
@@ -958,7 +1048,12 @@
     8,
     46
    ],
-   "zecs-zecs003": null,
+   "zecs-zecs003": [
+    19,
+    21,
+    20,
+    28
+   ],
    "zecs-zecsplt": [
     11,
     11,
@@ -2587,6 +2682,10 @@
     "stale": [],
     "status": "shown equal, unapproved"
    },
+   "genapp-lgapdb01": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
    "genapp-lgapvs01": {
     "stale": [],
     "status": "shown equal, unapproved"
@@ -2595,7 +2694,15 @@
     "stale": [],
     "status": "shown equal, unapproved"
    },
+   "genapp-lgstsq": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
    "genapp-lgupdb01": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "genapp-lgupvs01": {
     "stale": [],
     "status": "shown equal, unapproved"
    }
@@ -2603,10 +2710,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "c913eb62225fe7d876ec70dcde306b4490a29259",
+   "sha": "093a99f0a1201b5c09d29e99280955de12f8d5d9",
    "translator": {
-    "files": 132,
-    "sha256": "7c342c4d2fa518001e28bb4a73dbb37dbead6c3112037717642887c0d22a25cb"
+    "files": 133,
+    "sha256": "7e82cf057a5dafc027cd42857545e64211c861812f632ea2052afd47d6e14081"
    }
   },
   "sweeps": {}
@@ -2946,6 +3053,17 @@
       "role": "linked"
      },
      {
+      "case": "cbsa-bnk1ccs-generated",
+      "case_scenarios": 19,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
       "case": "cbsa-bnk1cra",
       "case_scenarios": 22,
       "db2": true,
@@ -3102,6 +3220,17 @@
       "role": "linked"
      },
      {
+      "case": "cbsa-delcus-generated",
+      "case_scenarios": 4,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
       "case": "cbsa-inqacc",
       "case_scenarios": 14,
       "db2": true,
@@ -3150,7 +3279,7 @@
          "option": "TRUNC"
         }
        ],
-       "oracle_image": "sha256:a5d98aa60e208081ab751d64d74ba8cee9755126910eb8a98f71aaef36d45ec7",
+       "oracle_image": "sha256:b927c71a132ad48503e1cf667e1cbf0641514ba6acec544c7e059d731e4f8f07",
        "oracle_matches_pin": true,
        "records_compared": 29,
        "records_equal": 29,
@@ -4837,7 +4966,7 @@
        "fault_runs": 0,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:a5d98aa60e208081ab751d64d74ba8cee9755126910eb8a98f71aaef36d45ec7",
+       "oracle_image": "sha256:b927c71a132ad48503e1cf667e1cbf0641514ba6acec544c7e059d731e4f8f07",
        "oracle_matches_pin": true,
        "records_compared": 20,
        "records_equal": 20,
@@ -4892,7 +5021,7 @@
       "fault_runs": 0,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:a5d98aa60e208081ab751d64d74ba8cee9755126910eb8a98f71aaef36d45ec7",
+      "oracle_image": "sha256:b927c71a132ad48503e1cf667e1cbf0641514ba6acec544c7e059d731e4f8f07",
       "oracle_matches_pin": true,
       "records_compared": 20,
       "records_equal": 20,
@@ -5718,14 +5847,14 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 35.4,
-    "branch_pct": 35.4,
+    "branch_net_pct": 97.9,
+    "branch_pct": 97.9,
     "branches": {
-     "covered": 17,
+     "covered": 47,
      "total": 48
     },
     "branches_net": {
-     "covered": 17,
+     "covered": 47,
      "total": 48
     },
     "current": true,
@@ -5778,7 +5907,7 @@
     "score": null
    },
    "next": [
-    "branch coverage >= 100.0 net (now 35.4 raw, 35.4 net of the reviewed infeasible outcomes)"
+    "branch coverage >= 100.0 net (now 97.9 raw, 97.9 net of the reviewed infeasible outcomes)"
    ],
    "options": {
     "assumed": 5,
@@ -5953,7 +6082,7 @@
    "program": "src/base/cobol_src/BANKDATA.cbl",
    "residual": {
     "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": 31,
+    "branch_outcomes_unrun": 1,
     "commands": 0,
     "commands_backed": 0,
     "commands_not_backed": [],
@@ -7468,6 +7597,17 @@
      {
       "case": "cbsa-bnk1ccs",
       "case_scenarios": 83,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     },
+     {
+      "case": "cbsa-bnk1ccs-generated",
+      "case_scenarios": 19,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -12054,6 +12194,17 @@
       },
       "record": null,
       "role": "linked"
+     },
+     {
+      "case": "cbsa-delcus-generated",
+      "case_scenarios": 4,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
      }
     ],
     "chosen": {
@@ -12460,6 +12611,17 @@
      {
       "case": "cbsa-delcus",
       "case_scenarios": 10,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     },
+     {
+      "case": "cbsa-delcus-generated",
+      "case_scenarios": 4,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -14369,7 +14531,7 @@
     "named_by_commands": [
      {
       "area": "CICS",
-      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; RETURN CHANNEL, BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42)",
+      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port only, the stub refuses it), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42)",
       "id": "X17",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -14432,6 +14594,17 @@
      {
       "case": "cbsa-bnk1ccs",
       "case_scenarios": 83,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "cbsa-bnk1ccs-generated",
+      "case_scenarios": 19,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -14959,7 +15132,7 @@
     "named_by_commands": [
      {
       "area": "CICS",
-      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; RETURN CHANNEL, BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42)",
+      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port only, the stub refuses it), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42)",
       "id": "X17",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -15022,6 +15195,17 @@
      {
       "case": "cbsa-bnk1ccs",
       "case_scenarios": 83,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "cbsa-bnk1ccs-generated",
+      "case_scenarios": 19,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -15549,7 +15733,7 @@
     "named_by_commands": [
      {
       "area": "CICS",
-      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; RETURN CHANNEL, BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42)",
+      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port only, the stub refuses it), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42)",
       "id": "X17",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -15612,6 +15796,17 @@
      {
       "case": "cbsa-bnk1ccs",
       "case_scenarios": 83,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "cbsa-bnk1ccs-generated",
+      "case_scenarios": 19,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -16139,7 +16334,7 @@
     "named_by_commands": [
      {
       "area": "CICS",
-      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; RETURN CHANNEL, BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42)",
+      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port only, the stub refuses it), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42)",
       "id": "X17",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -16202,6 +16397,17 @@
      {
       "case": "cbsa-bnk1ccs",
       "case_scenarios": 83,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "cbsa-bnk1ccs-generated",
+      "case_scenarios": 19,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -16729,7 +16935,7 @@
     "named_by_commands": [
      {
       "area": "CICS",
-      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; RETURN CHANNEL, BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42)",
+      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port only, the stub refuses it), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42)",
       "id": "X17",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -16792,6 +16998,17 @@
      {
       "case": "cbsa-bnk1ccs",
       "case_scenarios": 83,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "cbsa-bnk1ccs-generated",
+      "case_scenarios": 19,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -17325,7 +17542,7 @@
      },
      {
       "area": "CICS",
-      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL CHANNEL, ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; RETURN CHANNEL, BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42)",
+      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port only, the stub refuses it), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42)",
       "id": "X17",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -17406,6 +17623,17 @@
      {
       "case": "cbsa-bnk1ccs",
       "case_scenarios": 83,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "cbsa-bnk1ccs-generated",
+      "case_scenarios": 19,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -18719,7 +18947,7 @@
          "option": "TRUNC"
         }
        ],
-       "oracle_image": "sha256:a5d98aa60e208081ab751d64d74ba8cee9755126910eb8a98f71aaef36d45ec7",
+       "oracle_image": "sha256:b927c71a132ad48503e1cf667e1cbf0641514ba6acec544c7e059d731e4f8f07",
        "oracle_matches_pin": true,
        "records_compared": 29,
        "records_equal": 29,
@@ -18793,7 +19021,7 @@
         "option": "TRUNC"
        }
       ],
-      "oracle_image": "sha256:a5d98aa60e208081ab751d64d74ba8cee9755126910eb8a98f71aaef36d45ec7",
+      "oracle_image": "sha256:b927c71a132ad48503e1cf667e1cbf0641514ba6acec544c7e059d731e4f8f07",
       "oracle_matches_pin": true,
       "records_compared": 29,
       "records_equal": 29,
@@ -19394,6 +19622,17 @@
      {
       "case": "cbsa-delcus",
       "case_scenarios": 10,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "cbsa-delcus-generated",
+      "case_scenarios": 4,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -20052,6 +20291,17 @@
      {
       "case": "cbsa-delcus",
       "case_scenarios": 10,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "cbsa-delcus-generated",
+      "case_scenarios": 4,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -21188,10 +21438,10 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha c913eb62225fe7d876ec70dcde306b4490a29259",
-   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha c913eb62225fe7d876ec70dcde306b4490a29259",
+   "python tests/tools/cics_census.py survey --baseline --sha 093a99f0a1201b5c09d29e99280955de12f8d5d9",
+   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 093a99f0a1201b5c09d29e99280955de12f8d5d9",
    "python tests/tools/evidence_report.py --refresh",
-   "python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-acctctrl-generated,cbsa-bankdata,cbsa-bnk1cac,cbsa-bnk1cac-generated,cbsa-bnk1cca,cbsa-bnk1cca-generated,cbsa-bnk1ccs,cbsa-bnk1cra,cbsa-bnk1cra-generated,cbsa-bnk1dac,cbsa-bnk1dac-generated,cbsa-bnk1dcs,cbsa-bnk1tfn,cbsa-bnk1tfn-generated,cbsa-bnk1uac,cbsa-bnk1uac-generated,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-creacc-generated,cbsa-crecust,cbsa-crecust-generated,cbsa-custctrl,cbsa-dbcrfun,cbsa-dbcrfun-generated,cbsa-delacc,cbsa-delacc-generated,cbsa-delcus,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacc-generated,cbsa-inqacccu,cbsa-inqacccu-generated,cbsa-inqcust,cbsa-updacc,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun,cbsa-xfrfun-generated  # Db2 cases (34) need the Db2 container",
+   "python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-acctctrl-generated,cbsa-bankdata,cbsa-bnk1cac,cbsa-bnk1cac-generated,cbsa-bnk1cca,cbsa-bnk1cca-generated,cbsa-bnk1ccs,cbsa-bnk1ccs-generated,cbsa-bnk1cra,cbsa-bnk1cra-generated,cbsa-bnk1dac,cbsa-bnk1dac-generated,cbsa-bnk1dcs,cbsa-bnk1tfn,cbsa-bnk1tfn-generated,cbsa-bnk1uac,cbsa-bnk1uac-generated,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-creacc-generated,cbsa-crecust,cbsa-crecust-generated,cbsa-custctrl,cbsa-dbcrfun,cbsa-dbcrfun-generated,cbsa-delacc,cbsa-delacc-generated,cbsa-delcus,cbsa-delcus-generated,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacc-generated,cbsa-inqacccu,cbsa-inqacccu-generated,cbsa-inqcust,cbsa-updacc,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun,cbsa-xfrfun-generated  # Db2 cases (36) need the Db2 container",
    "python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
@@ -21206,20 +21456,20 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:a5d98aa60e208081ab751d64d74ba8cee9755126910eb8a98f71aaef36d45ec7"
+   "sha256:b927c71a132ad48503e1cf667e1cbf0641514ba6acec544c7e059d731e4f8f07"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "c913eb62225fe7d876ec70dcde306b4490a29259",
+   "sha": "093a99f0a1201b5c09d29e99280955de12f8d5d9",
    "translator": {
-    "files": 132,
-    "sha256": "7c342c4d2fa518001e28bb4a73dbb37dbead6c3112037717642887c0d22a25cb"
+    "files": 133,
+    "sha256": "7e82cf057a5dafc027cd42857545e64211c861812f632ea2052afd47d6e14081"
    }
   },
-  "translator_commit": "c913eb62225fe7d876ec70dcde306b4490a29259",
+  "translator_commit": "093a99f0a1201b5c09d29e99280955de12f8d5d9",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -21262,6 +21512,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "7c342c4d2fa518001e28bb4a73dbb37dbead6c3112037717642887c0d22a25cb"
+  "fingerprint": "7e82cf057a5dafc027cd42857545e64211c861812f632ea2052afd47d6e14081"
  }
 }

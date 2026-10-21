@@ -172,3 +172,69 @@ def test_retriage_replaces_a_verdict_and_recounts_the_totals_and_operators():
     assert p["total"]["equivalent"] == 1 and p["total"]["case_gap"] == 0
     assert p["ops"]["ROR"].get("equivalent") == 1 and "case_gap" not in p["ops"]["ROR"]
     assert ms.scores(p["total"]) == (2, 5, 4)
+
+
+# ---- #4047: the crucible runner's fast mode (a generated project copied per mutant) -----------------------------
+
+
+def test_the_proof_command_carries_the_forge_cache_only_in_fast_mode(tmp_path):
+    fast = mc.prove_command("c", "P", tmp_path / "o", tmp_path / "out", tmp_path / "cache")
+    full = mc.prove_command("c", "P", tmp_path / "o", tmp_path / "out")
+    assert fast[fast.index("--forge-cache") + 1] == str(tmp_path / "cache") and "--forge-cache" not in full
+    assert fast[: fast.index("--forge-cache")] == full  # both sides, the overlay and the program are the same
+    assert fast[fast.index("--sides") + 1 : fast.index("--sides") + 3] == ["java-ported", "java-facade"]
+
+
+def _fake_forge(monkeypatch, tmp_path):
+    """cics_crucible.forge with the generator and Maven replaced: the generator writes one file and counts its runs."""
+    import types
+
+    import cics_crucible as cx
+
+    runs: list[Path] = []
+
+    def generate(clean, name, config, work, header=None):
+        runs.append(work)
+        project = work / "java_h2"
+        (project / "src/main/java").mkdir(parents=True)
+        (project / "src/main/java/Gen.java").write_text("generated", encoding="utf-8")
+        (project / "target").mkdir()
+        (project / "target/stale.class").write_text("x", encoding="utf-8")
+        return project
+
+    fake = types.SimpleNamespace(refactor=lambda corpus, work, scan=False: work, generate=generate, MATRIX={"h2": {}})
+    monkeypatch.setitem(sys.modules, "java_target_matrix", fake)
+    monkeypatch.setattr(cx, "maven", lambda project, args, offline, log: (True, ""))
+    monkeypatch.setattr(cx, "lay_overlay", lambda overlay, project: (project / "laid.txt").write_text(overlay.name))
+    return cx, runs, types.SimpleNamespace(dir=tmp_path)
+
+
+def test_a_forge_cache_is_generated_once_and_each_copy_has_the_overlay_but_no_build_output(monkeypatch, tmp_path):
+    cx, runs, case = _fake_forge(monkeypatch, tmp_path)
+    cache = tmp_path / "cache"
+    for n in range(3):  # the baseline fills the cache, two mutants copy it
+        verdict, project = cx.forge(case, tmp_path / f"w{n}", False, [tmp_path / f"overlay{n}"], cache)
+        assert verdict.status == "pass"
+        assert (project / "src/main/java/Gen.java").read_text(encoding="utf-8") == "generated"
+        assert (project / "laid.txt").read_text(encoding="utf-8") == f"overlay{n}"  # this mutant's, not the first's
+        assert n == 0 or not (project / "target").exists()  # a copy never carries the baseline's build output
+    assert len(runs) == 1  # generated once
+    assert not (cache / "project" / "laid.txt").exists() and not (cache / "project" / "target").exists()
+    cx.forge(case, tmp_path / "w9", False, [tmp_path / "o"], None)  # no cache: --full generates every time
+    assert len(runs) == 2
+
+
+def test_compare_gates_two_crucible_runs_of_one_port(tmp_path):
+    def run(mode, verdicts):
+        d = tmp_path / mode
+        d.mkdir()
+        res = [{"id": f"m{n}", "op": "ROR", "line": n, "verdict": v, "seconds": 1} for n, v in enumerate(verdicts)]
+        (d / "mutation.json").write_text(json.dumps({"mode": mode, "results": res}), encoding="utf-8")
+        return str(d)
+
+    same = ["killed", "survived", "stillborn", "timeout"]
+    a, b = run("full", same), run("fast", ["timeout", "survived", "stillborn", "killed"])  # timeout and killed: caught
+    assert mc.main(["compare", a, b, "--require-agree", "4"]) == 0
+    assert mc.main(["compare", a, b, "--require-agree", "5"]) == 1  # too few judged
+    c = run("other", ["survived", "survived", "stillborn", "killed"])
+    assert mc.main(["compare", a, c, "--require-agree", "1"]) == 1  # one mutant judged differently

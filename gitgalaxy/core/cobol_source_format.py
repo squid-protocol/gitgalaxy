@@ -157,6 +157,57 @@ def blank_sequence_area(code_stream: str, formats: list[str] | None = None) -> s
 
 
 # ------------------------------------------------------------------------------
+# Writing program text back into fixed form (#5648): the translator's parser wants columns 8-72
+# ------------------------------------------------------------------------------
+TEXT_END = 72  # the last program-text column
+TEXT_WIDTH = 65  # columns 8-72
+FIXED_LEAD = " " * 7  # sequence area, indicator, blank
+CONTINUATION_LEAD = "      -  "  # a continuation row: '-' in column 7, text from column 10
+
+
+def wrap_fixed(text: str) -> list[str]:
+    """`text` as fixed-form rows, none past column 72: split at a space outside literals, or a literal open at
+    column 72 continued on the next row ('-' in column 7, the quote again in column 10)."""
+    rows: list[str] = []
+    rest, cont = text, False
+    while True:
+        lead = CONTINUATION_LEAD if cont else FIXED_LEAD
+        lim = TEXT_END - len(lead)
+        if len(rest) <= lim:
+            return [*rows, lead + rest]
+        quote, last_space, closed = None, -1, -1
+        for i, ch in enumerate(rest[:lim]):
+            if quote:
+                quote, closed = (None, i) if ch == quote else (quote, closed)
+            elif ch in "'\"":
+                quote = ch
+            elif ch == " ":
+                last_space = i
+        if quote is None and closed == lim - 1 and rest[lim : lim + 1] == rest[closed]:
+            # #4523: column 72 holds the first of a doubled quote: the literal is still open; the row ends a column
+            # early so the pair stays together on the next (the grammar's row is short; `unwrap` joins it exactly)
+            rows.append(lead + rest[: lim - 1])
+            rest, cont = rest[closed] + rest[lim - 1 :], True
+            continue
+        if quote is not None:  # the literal runs to column 72 and reopens on the next row
+            rows.append(lead + rest[:lim])
+            rest, cont = quote + rest[lim:], True
+            continue
+        k = last_space if last_space > 0 else lim
+        rows.append(lead + rest[:k])
+        rest, cont = rest[k:].lstrip(" "), False
+
+
+
+_CONTINUED = re.compile(r"\n {6}-\s*['\"]")
+
+
+def join_wrapped(text: str) -> str:
+    """`text` with the continuation rows `wrap_fixed` wrote joined again (a continued literal's own text)."""
+    return _CONTINUED.sub("", text)
+
+
+# ------------------------------------------------------------------------------
 # A saved ISPF editor screen is no COBOL source (#4735)
 # ------------------------------------------------------------------------------
 # What a 3270 ISPF edit panel puts on the screen, which a screen capture saved as `PROG.cbl` keeps: the menu bar, the

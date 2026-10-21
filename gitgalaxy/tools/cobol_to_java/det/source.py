@@ -23,7 +23,7 @@ from gitgalaxy.core.cobol_preprocessor import (
     replace_text,
     statement_end,
 )
-from gitgalaxy.core.cobol_source_format import ispf_screen
+from gitgalaxy.core.cobol_source_format import FIXED_LEAD, TEXT_WIDTH, ispf_screen, join_wrapped, wrap_fixed
 from gitgalaxy.core.compiler_options import cards
 from gitgalaxy.core.source_text import read_source
 
@@ -920,9 +920,6 @@ def engine_copies_from_ticket(project: Path, program: Path, strict: bool = False
     return None
 
 
-WIDTH = 65  # columns 8-72
-
-
 def as_fixed(lines: list[Line]) -> str:
     """The lines as fixed-format source again (for a parser): seven blank columns, then the text."""
     return as_fixed_rows(lines)[0]
@@ -944,8 +941,8 @@ def as_fixed_rows(lines: list[Line]) -> tuple[str, list[int]]:
         bare = _outside_literals(ln.text)
         opens = _EXEC.search(bare)
         # SQL / CICS text keeps its own quote style (the grammar never reads it: blanked, or a placeholder CALL)
-        code = ln.text if in_exec or opens else _grammar_literals(ln.text, apostrophes=len(ln.text) > WIDTH)
-        wrapped = _wrap(code) if len(code) > WIDTH else ["       " + code]
+        code = ln.text if in_exec or opens else _grammar_literals(ln.text, apostrophes=len(ln.text) > TEXT_WIDTH)
+        wrapped = wrap_fixed(code) if len(code) > TEXT_WIDTH else [FIXED_LEAD + code]
         for row in wrapped:
             out.append(row + "\n")
             rows.append(k)
@@ -1005,44 +1002,10 @@ def _grammar_literals(text: str, apostrophes: bool) -> str:
     return "".join(out)
 
 
-def _wrap(text: str) -> list[str]:
-    rows: list[str] = []
-    rest, cont = text, False
-    while True:
-        lead = "      -  " if cont else "       "
-        lim = 72 - len(lead)
-        if len(rest) <= lim:
-            return [*rows, lead + rest]
-        quote, last_space, closed = None, -1, -1
-        for i, ch in enumerate(rest[:lim]):
-            if quote:
-                quote, closed = (None, i) if ch == quote else (quote, closed)
-            elif ch in "'\"":
-                quote = ch
-            elif ch == " ":
-                last_space = i
-        if quote is None and closed == lim - 1 and rest[lim : lim + 1] == rest[closed]:
-            # #4523: column 72 holds the first of a doubled quote: the literal is still open; the row ends a column
-            # early so the pair stays together on the next (the grammar's row is short; `unwrap` joins it exactly)
-            rows.append(lead + rest[: lim - 1])
-            rest, cont = rest[closed] + rest[lim - 1 :], True
-            continue
-        if quote is not None:  # the literal runs to column 72 and reopens on the next row
-            rows.append(lead + rest[:lim])
-            rest, cont = quote + rest[lim:], True
-            continue
-        k = last_space if last_space > 0 else lim
-        rows.append(lead + rest[:k])
-        rest, cont = rest[k:].lstrip(" "), False
-
-
-_CONTINUED = re.compile(r"\n {6}-\s*['\"]")
-
-
 def unwrap(text: str) -> str:
     """Parser text with as_fixed_rows' literal continuations joined again (a continued literal's own text), and its
     stand-ins (QQ, HX) back as `""` and `X"`."""
-    return _CONTINUED.sub("", text).replace(QQ, '""').replace('"' + HX, 'X"')
+    return join_wrapped(text).replace(QQ, '""').replace('"' + HX, 'X"')
 
 
 # #4462: the COBOL-74 / OS/VS alphabet clause, `alphabet-name IS {literal ... | STANDARD-1 | NATIVE ...}` with no

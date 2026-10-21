@@ -138,7 +138,43 @@
     "copybook": "app/cpy/CVTRA05Y.cpy",
     "record": "TRAN-RECORD",
     "records": 30,
-    "seed": 4506
+    "seed": 4506,
+    "fields": {
+     "TRAN-ID": {
+      "values": [
+       "0000000000001000",
+       "0000000000001037",
+       "0000000000001074",
+       "0000000000001111",
+       "0000000000001148",
+       "0000000000001185",
+       "0000000000001222",
+       "0000000000001259",
+       "0000000000001296",
+       "0000000000001333",
+       "0000000000001370",
+       "0000000000001407",
+       "0000000000001444",
+       "0000000000001481",
+       "0000000000001518",
+       "0000000000001555",
+       "0000000000001592",
+       "0000000000001629",
+       "0000000000001666",
+       "0000000000001703",
+       "0000000000001740",
+       "0000000000001777",
+       "0000000000001814",
+       "0000000000001851",
+       "0000000000001888",
+       "0000000000001925",
+       "0000000000001962",
+       "0000000000001999",
+       "0000000000002036",
+       "0000000000002073"
+      ]
+     }
+    }
    }
   }
  },
@@ -696,6 +732,174 @@
     }
    },
    "why": "#4628 (mutation survivors): the whole 218-byte COMMAREA arrives, with CDEMO-CB00-TRN-SEL-FLG non-blank, so the RETURN's commarea must carry that flag"
+  },
+  {
+   "name": "pay-lowercase-y",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000008",
+     "CONFIRMI": "y"
+    }
+   },
+   "why": "#4506 (mutation survivor): a lowercase y confirms the payment like Y (the 'y' literal of the CONFIRM test, line 499); account 8 owes 5000.00"
+  },
+  {
+   "name": "zero-balance-confirm",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000002",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4506 (mutation survivor): account 2 has a balance of exactly 0: not above zero, so 'You have nothing to pay...' (the <= 0 test, line 516)"
+  },
+  {
+   "name": "pay-large-balance",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000003",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4506 (mutation survivor): account 3 owes 798929100.87: the payment amount keeps all nine integer digits of TRAN-AMT (STORE, line 239-240)"
+  },
+  {
+   "name": "pay-near-maximum-balance",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000006",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4506 (mutation survivor): account 6 owes 99999999.99: the largest balance in the file that the payment amount still holds"
+  },
+  {
+   "name": "account-id-one-digit-padded",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "1"
+    }
+   },
+   "why": "#4506 (mutation survivor): ACTIDIN '1' followed by blanks: the blanks are skipped and the id is 1 (digitsKey, line 227), so account 1 is found"
+  },
+  {
+   "name": "account-id-embedded-blank",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "0000000 001",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4506 (mutation survivor): a blank inside the id is skipped, as libcob's MOVE X(11) TO 9(11) skips it (digitsKey, line 227)"
+  },
+  {
+   "name": "account-id-with-letter",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "0000000000X",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4506 (mutation survivor): a letter in the id makes the move invalid (digitsKey returns null)"
+  },
+  {
+   "name": "endbr-invalid-request",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "ENDBR",
+     "file": "TRANSACT",
+     "resp": "INVREQ",
+     "why": "16 on the ENDBR after the READPREV (line 689): no RESP, so CICS abends the task (AEIP)"
+    }
+   ],
+   "why": "#4506 (mutation survivor): the ENDBR fault run of the pay path (endbrTransactFile)"
+  },
+  {
+   "name": "pf3-blank-from-program",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001"
+    }
+   },
+   "why": "#4506 (mutation survivor): PF3 with a blank CDEMO-FROM-PROGRAM: XCTL goes to the default COMEN01C"
   }
  ]
 }

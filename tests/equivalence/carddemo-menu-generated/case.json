@@ -228,14 +228,15 @@
     "CDEMO-TO-TRANID": "CAVW",
     "CDEMO-TO-PROGRAM": "COACTVWC",
     "CDEMO-CUST-LNAME": "Kessler",
-    "CDEMO-ACCT-STATUS": "Y"
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CUST-FNAME": "Ada"
    },
    "receive": {
     "COMEN1A": {
      "OPTIONI": "1"
     }
    },
-   "why": "#4506 (mutation survivors of the generated variant): non-blank TO-TRANID, TO-PROGRAM, CUST-LNAME and ACCT-STATUS in the input COMMAREA reach the XCTL"
+   "why": "#4506 (mutation survivors of the generated variant): non-blank TO-TRANID, TO-PROGRAM, CUST-FNAME, CUST-LNAME and ACCT-STATUS in the input COMMAREA reach the XCTL"
   },
   {
    "name": "option-12-typed-over",
@@ -256,7 +257,7 @@
    "why": "#4506 (mutation survivors of the generated variant): an invalid option 12 with the twelfth option line received, which the 11-entry menu never rewrites before the re-send"
   },
   {
-   "name": "option-non-numeric",
+   "name": "option-11-installed",
    "aid": "DFHENTER",
    "commarea": {
     "CDEMO-FROM-TRANID": "CC00",
@@ -267,10 +268,10 @@
    },
    "receive": {
     "COMEN1A": {
-     "OPTIONI": "AB"
+     "OPTIONI": "11"
     }
    },
-   "why": "#4506 (mutation survivors of the generated variant): a non-digit option, which the generator's typed NUM field never sends"
+   "why": "#4506 (mutation survivors of the generated variant): option 11 with COPAUS0C installed, which carries the COMMAREA to the XCTL (the draw's option 11 on ENTER did not reach it)"
   }
  ]
 }

@@ -323,7 +323,7 @@ def _lost_text(line: str) -> str:
     return tail
 
 
-def logical_lines(raw: list[str], file: str) -> list[Line]:
+def logical_lines(raw: list[str], file: str, member: bool = False) -> list[Line]:
     """Columns 8-72 of each code line; comment (* /), debugging (D) and blank lines dropped; a continuation line
     (indicator '-') joined to the line before: a continued literal resumes after the continuation's first quote.
     #4462: after `>>SOURCE FORMAT FREE` (until `>>SOURCE FORMAT FIXED`) a line is code from column 1, of any length,
@@ -335,7 +335,10 @@ def logical_lines(raw: list[str], file: str) -> list[Line]:
     # `   CBL NUMPROC(MIG),...` (CBL in columns 4-6) is one, as GenApp's `       PROCESS SQL` is.
     text = "\n".join(raw)
     card_lines = {n for n, _ in cards(text)}
-    cond = Conditional(options_defines(compiler_options(text)))  # #5648: >>DEFINE / >>IF / >>ELSE / >>END-IF
+    # #5648: >>DEFINE / >>IF / >>ELSE / >>END-IF; a COPY member (`member`) is read alone, without the program's
+    # compilation variables at the COPY, so a directive in it is refused rather than evaluated on none
+    refuse = "conditional compilation in a COPY member is not read (refused by name)" if member else ""
+    cond = Conditional(options_defines(compiler_options(text)), refuse)
     free = False
     for n, line in enumerate(raw, 1):
         if n in card_lines:
@@ -740,7 +743,7 @@ def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset
             expanded_names.add(name)
         expanded: list[Line] = []
         if member is not None:
-            body = logical_lines(_raw_lines(member, engine), str(member))
+            body = logical_lines(_raw_lines(member, engine), str(member), member=True)
             if any(_PROGRAM_MARK.match(b.text) for b in body):
                 # #4460: a program, not a copybook: splicing it in would give the includer another program's records
                 raise CopyNotFound(f"{where}: COPY {name} resolves to {member}, which is a program (IDENTIFICATION "

@@ -245,8 +245,10 @@ def _prove(name: str, work: Path, faults: str) -> dict[str, Any]:
             return {"proof_rc": None, "proved": False, "java_failed": True, "timed_out": True, "log": str(log)}
     report = keep / "report.json"
     rep = json.loads(report.read_text(encoding="utf-8")) if report.is_file() else {}
+    phases = keep / "phases.json"  # #5882: where the proof's time went (equivalence_common.phase)
     return {"proof_rc": rc, "proved": rc == 0 and bool(rep) and not rep.get("java_failed"),
-            "java_failed": bool(rep.get("java_failed")), "log": str(log)}  # fmt: skip
+            "java_failed": bool(rep.get("java_failed")), "log": str(log),
+            "phases": json.loads(phases.read_text(encoding="utf-8")) if phases.is_file() else {}}  # fmt: skip
 
 
 def all_cases() -> list[str]:

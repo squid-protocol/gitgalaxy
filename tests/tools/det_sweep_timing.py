@@ -97,7 +97,17 @@ def row(d: Path) -> dict[str, Any]:
         "sweep_s": _since(marks, "sweep_start", "sweep_end"),
         "job_s": _since(marks, "job_start", "sweep_end"),
         "slowest": sorted(((round(r.get("seconds") or 0), c) for c, r in sweep.items()), reverse=True)[:3],
+        "phases": phase_totals(sweep),
     }
+
+
+def phase_totals(sweep: dict[str, dict]) -> dict[str, float]:
+    """#5882: each harness phase's seconds summed over a shard's cases (the rows' `phases`, equivalence_common.phase)."""
+    out: dict[str, float] = {}
+    for r in sweep.values():
+        for name, v in (r.get("phases") or {}).items():
+            out[name] = round(out.get(name, 0) + (v.get("seconds") or 0), 1)
+    return out
 
 
 def _fmt(v: Any) -> str:
@@ -120,12 +130,21 @@ def report(rows: list[dict[str, Any]]) -> tuple[list[str], list[str]]:
             warnings.append(f"{r['kind']} {r['shard']}: job took {r['job_s'] / 60:.1f} min, over the {BUDGET_SECONDS // 60} min budget")
     lines.append("")
     for kind in sorted({r["kind"] for r in rows}):
-        done = [r for r in rows if r["kind"] == kind and r["sweep_s"]]
+        mine = [r for r in rows if r["kind"] == kind]
+        totals: dict[str, float] = {}
+        for r in mine:
+            for name, v in (r.get("phases") or {}).items():
+                totals[name] = totals.get(name, 0) + v
+        case_s = sum(r["case_s"] for r in mine) or 1
+        if totals:  # phases nest (java_cics holds java_maven): each is a share of the case seconds, not a partition
+            lines.append(f"- **{kind}** case seconds by phase: " + ", ".join(
+                f"{n} {v:.0f} s ({100 * v / case_s:.0f}%)" for n, v in sorted(totals.items(), key=lambda kv: -kv[1])))  # fmt: skip
+        done = [r for r in mine if r["sweep_s"]]
         if len(done) < 2:
             continue
         slow, fast = max(done, key=lambda r: r["sweep_s"]), min(done, key=lambda r: r["sweep_s"])
         ratio = slow["sweep_s"] / fast["sweep_s"]
-        unmeasured = sum(r["unmeasured"] for r in rows if r["kind"] == kind)
+        unmeasured = sum(r["unmeasured"] for r in mine)
         lines.append(f"- **{kind}**: sweep {fast['sweep_s']}-{slow['sweep_s']} s ({ratio:.2f}x, slowest {slow['shard']}); "
                      f"job up to {_fmt(max((r['job_s'] for r in done if r['job_s'] is not None), default=None))} s; "
                      f"{unmeasured} case(s) had no recorded duration")  # fmt: skip

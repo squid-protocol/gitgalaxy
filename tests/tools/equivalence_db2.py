@@ -65,6 +65,11 @@ IMAGE_ALIAS = "gitgalaxy-db2-pinned:" + IMAGE.rsplit(":", 1)[1][:12]
 DATABASE0 = "GGDB"  # the container's own database: the pool's first
 DATABASE = DATABASE0  # this process's database (hold_lock picks it from the pool)
 POOL_ENV = "GITGALAXY_DB2_POOL"
+# #5882: CI's background start creates the pool's databases one at a time and marks each <name>.ready in this directory
+# once it is created and active; with it set, a case takes only a marked database, so the sweep starts as soon as GGDB is
+# up instead of waiting for the whole pool (a database still being created gave "no table" before, #4901). Unset
+# (a local run): every pool database, created on first use as before.
+READY_ENV = "GITGALAXY_DB2_READY_DIR"
 USER, PASSWORD = "db2inst1", "ggdb2pass"  # a local, throwaway test database
 PORT = 50000
 DOCKERFILE = common.CASES / "gnucobol-db2.Dockerfile"
@@ -79,6 +84,12 @@ def pool() -> list[str]:
     """The databases Db2 cases run on, one case at a time each."""
     n = max(1, int(os.environ.get(POOL_ENV) or 4))
     return [DATABASE0, *(f"{DATABASE0}{i}" for i in range(1, n))]
+
+
+def _ready(database: str) -> bool:
+    """A database a case may take: any, unless READY_ENV names a directory, then only one marked ready there."""
+    d = os.environ.get(READY_ENV)
+    return not d or (Path(d) / f"{database}.ready").is_file()
 
 
 def _lock_path(database: str) -> Path:
@@ -118,6 +129,8 @@ def hold_lock(timeout: float = DB2_POOL_DEADLINE) -> None:
     deadline = time.monotonic() + timeout
     while True:
         for database in pool():
+            if not _ready(database):  # #5882: still being created by CI's background start
+                continue
             path = _lock_path(database)
             path.parent.mkdir(parents=True, exist_ok=True)
             fh = path.open("w")
@@ -146,9 +159,10 @@ _ACTIVE: set[str] = set()
 
 def ensure() -> None:
     """The Db2 container running, this process's database created and active, the COBOL side's image built."""
-    _ensure_container()
-    _ensure_database(DATABASE)
-    activate(DATABASE)
+    with common.phase("db2_ensure"):  # #5882: the start lock and the readiness checks, every create()
+        _ensure_container()
+        _ensure_database(DATABASE)
+        activate(DATABASE)
 
 
 def activate(database: str) -> None:
@@ -320,7 +334,13 @@ def run_ref(image: str = IMAGE) -> str:
     return IMAGE_ALIAS if _docker("image", "inspect", "-f", "{{.Id}}", IMAGE_ALIAS, check=False).strip() else image
 
 
+_CONTAINER_READY = False  # #5882: checked once a process (a case's create() runs once a COBOL pass)
+
+
 def _ensure_container() -> None:
+    global _CONTAINER_READY
+    if _CONTAINER_READY:
+        return
     if not _docker("images", "-q", COBOL_IMAGE).strip():
         with _setup_lock("gitgalaxy-db2-image.lock"):  # #5094: one build; the others find the image
             if not _docker("images", "-q", COBOL_IMAGE).strip():
@@ -351,6 +371,7 @@ def _ensure_container() -> None:
         if "Setup has completed" in _docker("logs", CONTAINER, check=False) and "Database code set" in _db_cfg(
             DATABASE0
         ):
+            _CONTAINER_READY = True
             return
         time.sleep(10)
     raise RuntimeError("Db2 did not come up")
@@ -373,7 +394,8 @@ def _check_container_image() -> None:
 
 def _clp(script: str, check: bool = True) -> tuple[int, str]:
     """Run SQL (`;`-terminated statements) with Db2's command line processor, connected to the case database."""
-    proc = subprocess.run(["docker", "exec", "-i", CONTAINER, "su", "-", USER, "-c",  # noqa: S603, S607
+    with common.phase("db2_clp"):  # #5882: each call is a docker exec and a fresh connect
+        proc = subprocess.run(["docker", "exec", "-i", CONTAINER, "su", "-", USER, "-c",  # noqa: S603, S607
                            f'db2 connect to {DATABASE} >/tmp/.clp_connect_$$ 2>&1; rc=$?; '  # (no $(...): the CLP session is the shell's)
                            f'if [ "$rc" -ge 4 ]; then cat /tmp/.clp_connect_$$; rm -f /tmp/.clp_connect_$$; exit {_CONNECT_FAILED_RC}; fi; rm -f /tmp/.clp_connect_$$; db2 -x -t -v +p'],
                           input=script if script.rstrip().endswith(";") else script + ";",

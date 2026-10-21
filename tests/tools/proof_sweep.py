@@ -146,7 +146,7 @@ def det_cases(skip_db2: bool = False, only_db2: bool = False) -> list[str]:
 
 
 # What a re-proof of the same case may legitimately differ in: how long it took.
-_TIMING_FIELDS = frozenset({"seconds"})
+_TIMING_FIELDS = frozenset({"seconds", "phases"})  # #5882: phases are timing too
 
 
 def merge_sweeps(dirs: list[Path]) -> dict[str, dict[str, dict]]:
@@ -207,6 +207,8 @@ def det_sweep(
                             "called_holes": len(row.get("called_holes") or []),
                             "translated": f"{row.get('translated_statements')}/{row.get('statements')}",
                             "seconds": round(row.get("translate_seconds", 0) + row.get("proof_seconds", 0), 1),
+                            "phases": {"translate": {"seconds": row.get("translate_seconds", 0), "count": 1},
+                                       **(row.get("phases") or {})},  # #5882: where the seconds went
                             "uncovered": _uncovered(work / row["case"] / "proof" / "cobol" / "coverage.json"),
                             "linked": _linked(work / row["case"] / "proof" / "cobol" / "coverage.json")}  # fmt: skip
     return out

@@ -15,7 +15,9 @@ undeclared run is byte-identical). Every bytes <-> text step of the harness goes
 from __future__ import annotations
 
 import codecs
+import contextlib
 import functools
+import json
 import os
 import re
 import shutil
@@ -1107,3 +1109,28 @@ def compare_sysout(cobol: bytes, java: bytes, enc: str) -> dict[str, Any]:
              for i in range(max(len(c), len(j))) if (c[i] if i < len(c) else None) != (j[i] if i < len(j) else None)]  # fmt: skip
     return {"compared": True, "lines": len(c), "equal": max(len(c), len(j)) - len(diffs), "diffs": diffs[:20],
             "differing": len(diffs)}  # fmt: skip
+
+
+# #5882: where a proof's time goes. Each phase's seconds and count, summed over the process (one case: equivalence.py
+# run); _recorded writes them to phases.json beside report.json (never into the report: evidence records stay as they
+# were), det_port carries them into the sweep, det_sweep_timing.py sums them per shard. Phases may nest (java_cics
+# holds java_generate and java_maven); the totals are read side by side, not added up.
+PHASES: dict[str, list[float]] = {}
+
+
+@contextlib.contextmanager
+def phase(name: str):
+    t0 = time.monotonic()
+    try:
+        yield
+    finally:
+        entry = PHASES.setdefault(name, [0.0, 0])
+        entry[0] += time.monotonic() - t0
+        entry[1] += 1
+
+
+def write_phases(work: Path) -> None:
+    """phases.json in `work`: {phase: {"seconds": s, "count": n}} ({} when none was timed)."""
+    work.mkdir(parents=True, exist_ok=True)
+    data = {k: {"seconds": round(v[0], 1), "count": v[1]} for k, v in sorted(PHASES.items())}
+    (work / "phases.json").write_text(json.dumps(data, indent=1) + "\n", encoding="utf-8")

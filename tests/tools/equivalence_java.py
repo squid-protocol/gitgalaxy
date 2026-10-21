@@ -351,10 +351,11 @@ def prepare_project(case: dict[str, Any], corpus: Path, work: Path, test_source:
     else:
         import equivalence_cache
 
-        clean = equivalence_cache.refactor(corpus, work, scan=True)  # (once per corpus and engine: every case's)
-        # #3828: a case's `culture` (e.g. {"db2_date_format": "eur"}) is the Java side's target config too
-        config = {**jtm.MATRIX["h2"], "culture": case["culture"]} if case.get("culture") else jtm.MATRIX["h2"]
-        project = jtm.generate(clean, "h2", config, work)
+        with common.phase("java_generate"):  # #5882
+            clean = equivalence_cache.refactor(corpus, work, scan=True)  # (once per corpus and engine: every case's)
+            # #3828: a case's `culture` (e.g. {"db2_date_format": "eur"}) is the Java side's target config too
+            config = {**jtm.MATRIX["h2"], "culture": case["culture"]} if case.get("culture") else jtm.MATRIX["h2"]
+            project = jtm.generate(clean, "h2", config, work)
     (project / OVERLAY_FILE).write_text(json.dumps(overlay) + "\n", encoding="utf-8")
     sources = {rel: (port_dir / rel if (port_dir / rel).is_file() else next(d / r for d, r in used if r == rel))
                for rel in overlay}  # fmt: skip
@@ -768,13 +769,15 @@ def run_maven(project: Path, work: Path, inputs: Path, env: dict[str, str] | Non
     maven_argline = (
         f"{JVM_UTF8_FLAGS} {argline}"  # #5161: surefire's fork names its charset; an env's own file.encoding follows
     )
-    proc = session.run(argline, JAVA_DIRECT_TIMEOUT) if session else _run_direct(project, argline, shell)
+    with common.phase("java_direct"):  # #5882: a run without Maven (None: Maven runs it, timed below)
+        proc = session.run(argline, JAVA_DIRECT_TIMEOUT) if session else _run_direct(project, argline, shell)
     if proc is None:
         skip = ["-Dmaven.main.skip=true"] if (project / PRECOMPILED).is_file() else []  # --reuse: compiled already
         cmd = [mvn_executable(shell), "-q", "-B", "test", *skip, "-Dtest=EquivalenceRunTest", "-Dsurefire.failIfNoSpecifiedTests=false",
                f"-DargLine={maven_argline}"]  # fmt: skip
         try:
-            proc = run_decoded(cmd, cwd=project, env=maven_utf8_env(shell), check=False, timeout=MAVEN_TEST_TIMEOUT)
+            with common.phase("java_maven"):  # #5882
+                proc = run_decoded(cmd, cwd=project, env=maven_utf8_env(shell), check=False, timeout=MAVEN_TEST_TIMEOUT)
         except subprocess.TimeoutExpired as exc:
             proc = subprocess.CompletedProcess(
                 args=cmd,

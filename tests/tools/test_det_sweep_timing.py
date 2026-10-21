@@ -113,3 +113,58 @@ def test_both_shard_kinds_ship_their_timing_and_det_reports_it():
     det = jobs["det"]["steps"]
     assert any("det_sweep_timing.py report" in s.get("run", "") for s in det)
     assert any((s.get("with") or {}).get("name") == "det-sweep-timing" for s in det)
+
+
+def test_report_sums_each_phase_over_a_kinds_cases(tmp_path):
+    _shard(tmp_path / "a", "1/1", "db2", {"job_start": 0, "sweep_start": 1, "sweep_end": 2}, {"x": 100, "y": 50})
+    sweep = json.loads((tmp_path / "a" / "sweep.json").read_text())
+    sweep["det"]["x"]["phases"] = {"java_maven": {"seconds": 60, "count": 1}, "db2_clp": {"seconds": 5, "count": 9}}
+    sweep["det"]["y"]["phases"] = {"java_maven": {"seconds": 30, "count": 1}}
+    (tmp_path / "a" / "sweep.json").write_text(json.dumps(sweep))
+    (row,) = [t.row(d) for d in t._shard_dirs([tmp_path])]
+    assert row["phases"] == {"java_maven": 90, "db2_clp": 5}
+    lines, _ = t.report([row])  # one shard: no ratio, still the phases
+    assert any("java_maven 90 s (60%)" in ln for ln in lines)
+
+
+def test_phase_timer_sums_and_writes_phases_json(tmp_path, monkeypatch):
+    import equivalence_common as common
+
+    monkeypatch.setattr(common, "PHASES", {})
+    for _ in range(2):
+        with common.phase("db2_clp"):
+            pass
+    with pytest.raises(ValueError), common.phase("java_maven"):  # a failing step is still timed
+        raise ValueError
+    common.write_phases(tmp_path)
+    data = json.loads((tmp_path / "phases.json").read_text())
+    assert data["db2_clp"]["count"] == 2 and data["java_maven"]["count"] == 1
+
+
+def test_a_case_takes_only_a_database_marked_ready(tmp_path, monkeypatch):
+    """#5882: CI starts the sweep once GGDB is up; a database the background start is still creating is never taken."""
+    import equivalence_db2 as d
+
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv(d.POOL_ENV, "3")
+    ready = tmp_path / "ready"
+    ready.mkdir()
+    (ready / "GGDB1.ready").touch()
+    monkeypatch.setenv(d.READY_ENV, str(ready))
+    monkeypatch.setattr(d, "_LOCK", None)
+    monkeypatch.setattr(d, "DATABASE", d.DATABASE0)
+    d.hold_lock(timeout=0)
+    assert d.DATABASE == "GGDB1"
+    monkeypatch.setattr(d, "_LOCK", None)
+    with pytest.raises(d.Db2PoolTimeoutError):  # GGDB1 held by this process's first lock, the others not ready
+        d.hold_lock(timeout=0)
+    monkeypatch.delenv(d.READY_ENV)
+    assert d._ready("GGDB2")  # unset (a local run): every pool database
+
+
+def test_the_db2_shard_waits_only_for_the_first_database():
+    jobs = yaml.safe_load((ROOT / ".github" / "workflows" / "det-sweep.yml").read_text(encoding="utf-8"))["jobs"]
+    run = "\n".join(s.get("run", "") for s in jobs["db2"]["steps"])
+    assert "GITGALAXY_DB2_READY_DIR=" in run and ".ready\").touch()" in run
+    (wait,) = [s for s in jobs["db2"]["steps"] if s.get("name") == "Wait for the first Db2 database"]
+    assert "GGDB.ready" in wait["run"]

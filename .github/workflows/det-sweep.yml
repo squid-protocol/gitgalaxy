@@ -308,6 +308,8 @@ jobs:
           echo "DB2_JOBS=$n" >> "$GITHUB_ENV"
           echo "GITGALAXY_DB2_POOL=$n" >> "$GITHUB_ENV"
           export GITGALAXY_DB2_POOL=$n
+          mkdir -p "$RUNNER_TEMP/db2-ready.d"  # #5882: a case takes only a database marked ready here
+          echo "GITGALAXY_DB2_READY_DIR=$RUNNER_TEMP/db2-ready.d" >> "$GITHUB_ENV"
           cat > "$RUNNER_TEMP/db2_prewarm.py" <<'PY'
           import json
           import sys
@@ -317,6 +319,7 @@ jobs:
           t = time.time()
           marks = {"start": int(t), "container": None, "databases": {}}  # #5882: seconds from start, for timing.json
           out = Path(sys.argv[1])
+          ready = Path(sys.argv[2])
           sys.path.insert(0, "gitgalaxy/tests/tools")
           import equivalence_db2 as d
 
@@ -329,9 +332,10 @@ jobs:
               d.activate(db)
               marks["databases"][db] = round(time.time() - t, 1)
               out.write_text(json.dumps(marks))
+              (ready / f"{db}.ready").touch()  # #5882: the sweep may take it now
               print(f"db2 {db} ready after {time.time() - t:.0f}s", flush=True)
           PY
-          setsid nohup bash -c "python '$RUNNER_TEMP/db2_prewarm.py' '$RUNNER_TEMP/db2-prewarm.json'; echo \$? > '$RUNNER_TEMP/db2-prewarm.done'" \
+          setsid nohup bash -c "python '$RUNNER_TEMP/db2_prewarm.py' '$RUNNER_TEMP/db2-prewarm.json' '$RUNNER_TEMP/db2-ready.d'; echo \$? > '$RUNNER_TEMP/db2-prewarm.done'" \
             > "$RUNNER_TEMP/db2-prewarm.log" 2>&1 &
           echo "started the background Db2 start"
 
@@ -385,18 +389,20 @@ jobs:
       - name: Balance by the plan's durations
         run: cp durations-plan/det_sweep_durations.json gitgalaxy/tests/equivalence/det_sweep_durations.json
 
-      # The databases are only used once the start is done: a case that picked a database the background start was still
-      # creating got no connection (first CI run: "Db2: no table IBMUSER.ACCOUNT" on cbsa-updacc-generated). Lazy creation
-      # in the harness paid the same serial CREATE DATABASE time, so this wait costs nothing.
-      - name: Wait for the background Db2 start
+      # A database is only used once the start has created and activated it: a case that picked a database the background
+      # start was still creating got no connection (first CI run: "Db2: no table IBMUSER.ACCOUNT" on cbsa-updacc-generated).
+      # #5882: the start marks each one ready (GITGALAXY_DB2_READY_DIR) and a case takes only a marked one, so the sweep
+      # starts once GGDB is up (~1.5-3 min of the shard's idle wait for GGDB1..3 saved) and the rest join as they come.
+      - name: Wait for the first Db2 database
         shell: bash
         run: |
           for _ in $(seq 1 120); do
-            if [ -f "$RUNNER_TEMP/db2-prewarm.done" ]; then break; fi
+            if [ -f "$RUNNER_TEMP/db2-ready.d/GGDB.ready" ] || [ -f "$RUNNER_TEMP/db2-prewarm.done" ]; then break; fi
             sleep 5
           done
           cat "$RUNNER_TEMP/db2-prewarm.log" | grep -v 'WARNING\|INFO' || true
-          [ "$(cat "$RUNNER_TEMP/db2-prewarm.done" 2>/dev/null)" = "0" ] || { echo "::error title=Db2::the background Db2 start did not finish"; exit 1; }
+          ls "$RUNNER_TEMP/db2-ready.d"
+          [ -f "$RUNNER_TEMP/db2-ready.d/GGDB.ready" ] || { echo "::error title=Db2::the background Db2 start did not bring up GGDB"; exit 1; }
           date +%s > "$RUNNER_TEMP/db2-ready"
 
       # #5262: the cache writer is main's runs (schedule / dispatch on main), one shard, and only on a miss. Docker save
@@ -442,9 +448,15 @@ jobs:
         if: always()
         shell: bash
         run: |
+          if [ "$(cat "$RUNNER_TEMP/db2-prewarm.done" 2>/dev/null)" != "0" ]; then  # #5882: the sweep no longer waits for it
+            echo "::warning title=Db2::the background Db2 start did not finish every pool database (ready: $(ls "$RUNNER_TEMP/db2-ready.d" 2>/dev/null | tr '\n' ' ')); the sweep ran on fewer"
+          fi
           {
             echo "## Db2 det sweep, shard ${{ matrix.shard }}"
             echo "image pull finished at +$(( $(cat "$RUNNER_TEMP/pull-done" 2>/dev/null || echo 0) - $(cat "$RUNNER_TEMP/t0" 2>/dev/null || echo 0) )) s from the job's start"
+            if [ "$(cat "$RUNNER_TEMP/db2-prewarm.done" 2>/dev/null)" != "0" ]; then  # #5882: the sweep no longer waits for it
+              echo "**the background Db2 start did not finish every pool database** (ready: $(ls "$RUNNER_TEMP/db2-ready.d" 2>/dev/null | tr '\n' ' '))"
+            fi
             echo '```'
             cat "$RUNNER_TEMP/db2-prewarm.log" 2>/dev/null | grep -v 'WARNING\|INFO' || echo "(no prewarm log)"
             echo '```'

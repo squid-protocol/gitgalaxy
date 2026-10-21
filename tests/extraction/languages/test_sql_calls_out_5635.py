@@ -112,3 +112,35 @@ def test_derived_tables_aliases_and_builtins_are_not_calls(lang, clause):
     # sqldoom shapes: `FROM (`, `JOIN (`, `AS g(k)`, `fn(...) r(i)` aliases read as calls named FROM / JOIN / g / r
     src = f"CREATE FUNCTION f3() RETURNS int AS $$ BEGIN\n  {clause};\nEND; $$ LANGUAGE sql;\n"
     assert _calls(lang, src) == {"f3": []}
+
+
+LICENSE_HEADER = """\
+/*
+ * Copyright (C) 2020 Foo; all rights reserved.
+ * Licensed under X (the "License"); see CREATE TABLE notes below.
+ */
+"""
+
+
+@pytest.mark.parametrize("lang", ["postgresql", "db2_sql", "sqlite"])
+def test_block_comment_with_semicolon_is_not_sliced_mid_comment(lang):
+    # #5736: a `;` inside a `/* */` header ended the statement mid-comment, so the next chunk's
+    # `Copyright (C)` / `X (the ...)` read as calls and the routine lost its name.
+    src = LICENSE_HEADER + PG_BODY
+    result = StructuralExtractor(lang, LANGUAGE_DEFINITIONS).splice(src, "")
+    for f in result["functions"]:
+        assert "Copyright" not in f["calls_out_to"]
+        assert "X" not in f["calls_out_to"]
+        assert "CREATE_Statement" != f["name"] or lang == "sqlite"
+    if lang != "sqlite":
+        assert _calls(lang, src)["doom_a"][:1] == ["doom_b"]
+
+
+@pytest.mark.parametrize("lang", ["postgresql", "db2_sql"])
+def test_ddl_head_behind_a_block_comment_is_not_a_call(lang):
+    # #5736: MySQL's `CREATE TABLE /*prefix*/blobs (` -- the comment hid the DDL head.
+    src = "CREATE TABLE /*prefix*/blobs (id int);\nCREATE TABLE plain (id int);\n"
+    result = StructuralExtractor(lang, LANGUAGE_DEFINITIONS).splice(src, "")
+    assert all(f["calls_out_to"] == [] for f in result["functions"])
+    body = "CREATE FUNCTION f(x int) RETURNS int AS $$\nBEGIN RETURN /* c */ g(x); END;\n$$ LANGUAGE plpgsql;\n"
+    assert _calls(lang, body)["f"] == ["g"]

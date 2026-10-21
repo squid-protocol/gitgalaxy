@@ -3667,3 +3667,33 @@ def test_extract_tcpip_reads_the_stated_connection():
                      ("TERMINAL(REC)", "only CLIENTADDR")):  # fmt: skip
         with pytest.raises(C.CicsError, match=why):
             c.command(f"EXTRACT TCPIP {bad}", "")
+
+
+class _DatasetNameCics(_KeyCics):
+    """#5278 (CardDemo COPAUA0C): the file is named by a data item (VALUE 'ACCTDAT ' -> KSDS here), the key by an
+    alias item of the key's size (a REDEFINES of a numeric key as X(n)), and KEYLENGTH is LENGTH OF that alias."""
+
+    SIZES = {**_KeyCics.SIZES, "WS-KEY-X": 10, "WS-SHORT-X": 6, "WS-LONG-X": 11}
+
+    def constant(self, text):
+        return "KSDS" if text and text.strip() == "WS-FILE" else super().constant(text)
+
+
+@pytest.mark.parametrize("verb_opts", ["READ", "READ UPDATE"])
+def test_read_dataset_name_keylength_length_of_the_key_alias_translates_as_without(verb_opts):
+    """#5278: COPAUA0C's three READ ... DATASET(WS-xxx-FILE) RIDFLD(alias) KEYLENGTH(LENGTH OF alias) are the full key
+    through a named dataset: the port is the one without KEYLENGTH (no hole once the file is mapped)."""
+    plain = _DatasetNameCics().command(f"{verb_opts} DATASET(WS-FILE) INTO(REC) RIDFLD(WS-KEY-X) RESP(R)", "")
+    got = _DatasetNameCics().command(
+        f"{verb_opts} DATASET(WS-FILE) INTO(REC) RIDFLD(WS-KEY-X) KEYLENGTH(LENGTH OF WS-KEY-X) LENGTH(LENGTH OF REC) RESP(R)",
+        "",
+    )
+    assert got == plain
+
+
+@pytest.mark.parametrize(("alias", "resp2"), [("WS-SHORT-X", 26), ("WS-LONG-X", 26)])
+def test_read_dataset_name_keylength_of_an_alias_not_the_key_size_is_invreq(alias, resp2):
+    out = _DatasetNameCics().command(
+        f"READ DATASET(WS-FILE) INTO(REC) RIDFLD({alias}) KEYLENGTH(LENGTH OF {alias}) RESP(R)", ""
+    )
+    assert out[0].endswith(f"{resp2});") and "readInvalid" in out[0]

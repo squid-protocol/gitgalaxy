@@ -239,6 +239,7 @@
    "done": true,
    "about": "A batch DL/I program's CALL 'CBLTDLI' through a DB PCB on a stated database: the twin of the harness's ggdli.c (register family I).",
    "plumbing": [
+    "reset",
     "refuse",
     "dir",
     "name8",

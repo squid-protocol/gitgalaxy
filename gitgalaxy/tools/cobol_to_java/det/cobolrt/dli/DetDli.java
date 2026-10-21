@@ -309,6 +309,17 @@ public final class DetDli {
             nodhabend);
     }
 
+    /** A new task in one JVM (the equivalence harness runs scenarios in turn): no PSB scheduled, the databases to be read afresh. */
+    public static void reset() {
+        loaded = false;
+        scheduled = false;
+        SEGS.clear();
+        FLDS.clear();
+        DBS.clear();
+        ROOTS.clear();
+        PCBS.clear();
+    }
+
     /** EXEC DLI TERM: the PSB is released (the databases keep what was written); DIBSTAT blank. */
     // [rule RT-DLI-TERM]
     public static String terminate() {

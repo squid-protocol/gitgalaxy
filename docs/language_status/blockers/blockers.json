@@ -1,12 +1,12 @@
 {
  "programs": 106,
  "non_burned": 0,
- "whole": 100,
+ "whole": 101,
  "whole_non_burned": 0,
  "refused": 2,
  "histogram": {
-  "0": 100,
-  "1": 5,
+  "0": 101,
+  "1": 4,
   "8": 1
  },
  "gaps": [
@@ -25,19 +25,6 @@
   },
   {
    "gap": "DSNTIAC: Db2's message text is not modelled",
-   "only": 1,
-   "only_burned": 1,
-   "only_non_burned": 0,
-   "one_away": 0,
-   "one_away_burned": 0,
-   "one_away_non_burned": 0,
-   "touched": 1,
-   "touched_burned": 1,
-   "touched_non_burned": 0,
-   "refuses_program": false
-  },
-  {
-   "gap": "INITIALIZE REPLACING of the table <name>, which holds ALPHANUMERIC items REPLACING does not name",
    "only": 1,
    "only_burned": 1,
    "only_non_burned": 0,

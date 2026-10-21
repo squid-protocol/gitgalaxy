@@ -179,8 +179,13 @@ from the generated stub in the project; on `--reuse` that file was already the e
 translation had no file stores. `--reuse` now carries the earlier run's `generated_before_overlay` (the stubs) and
 `linked_programs` translates from it. Fast mode was therefore **not** agreeing with `--full` on a case whose proof
 LINKs a det-translated program, and its score overstated the kills: the committed cbsa-inqacc score (131 killed, 0
-survived of 150) was recorded before this fix. Not re-recorded here; the same holds for every case with a det-translated
-LINKed program (the cbsa and genapp cases, mortgage-cmort, the asynccc cases: 56 of the cases in `tests/equivalence`).
+survived of 150) was recorded before this fix.
+
+**Re-recorded (2026-10-21, #4047).** The scored cases with a det-translated LINKed program are exactly five (the five
+below; the other 38 scored cases have no `"programs"`), each re-run with `--sample 150 --seed 0 --jobs 2 --record`
+on the fixed code. cbsa-inqacc fell from 131 killed / 0 survived to **63 killed / 68 survived** (43 case gaps: no
+scenario declares a SQL or CICS fault, so the abend path and the ABNDPROC record are never run; 11 equivalent; 14
+unreachable: widths beyond the DB2 column, and the facade entry no proof calls). The four GenApp cases did not move except genapp-lgupdb01 (67 -> 68 killed).
 
 ## Scores
 
@@ -268,13 +273,13 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COUSR03C (carddemo-userdel) | equivalence | 100/340 | 67/87 (77%) | 67/67 (100%) | 0 / 0 / 17 / 3 / 0 |
 | COUSR00C (carddemo-userlist) | equivalence | 100/493 | 69/100 (69%) | 69/92 (75%) | 23 / 0 / 8 / 0 / 0 |
 | COUSR02C (carddemo-userupd) | equivalence | 100/481 | 57/82 (70%) | 57/59 (97%) | 2 / 0 / 14 / 9 / 0 |
-| INQACC (cbsa-inqacc) | equivalence | 150/464 | 131/131 (100%) | 131/131 (100%) | 0 / 0 / 0 / 0 / 0 |
+| INQACC (cbsa-inqacc) | equivalence | 150/470 | 63/131 (48%) | 63/106 (59%) | 43 / 0 / 11 / 14 / 0 |
 | UPDACC (cbsa-updacc) | equivalence | 133/133 | 95/133 (71%) | 95/110 (86%) | 15 / 0 / 17 / 6 / 0 |
 | LGAPDB01 (genapp-lgapdb01) | equivalence | 150/444 | 58/137 (42%) | 58/129 (45%) | 71 / 0 / 1 / 7 / 0 |
 | LGAPVS01 (genapp-lgapvs01) | equivalence | 150/184 | 72/125 (58%) | 72/113 (64%) | 0 / 41 / 1 / 11 / 0 |
 | LGICDB01 (genapp-lgicdb01) | equivalence | 150/201 | 51/130 (39%) | 51/107 (48%) | 1 / 55 / 8 / 15 / 0 |
 | LGSTSQ (genapp-lgstsq) | equivalence | 89/89 | 25/78 (32%) | 25/69 (36%) | 43 / 1 / 1 / 8 / 0 |
-| LGUPDB01 (genapp-lgupdb01) | equivalence | 150/403 | 67/140 (48%) | 67/120 (56%) | 7 / 46 / 5 / 15 / 0 |
+| LGUPDB01 (genapp-lgupdb01) | equivalence | 150/403 | 68/140 (49%) | 68/120 (57%) | 6 / 46 / 5 / 15 / 0 |
 | LGUPVS01 (genapp-lgupvs01) | equivalence | 150/160 | 66/119 (55%) | 66/100 (66%) | 0 / 34 / 4 / 15 / 0 |
 | CALINK (ca-link-lengths) | crucible | 24/168 | 15/22 (68%) | 15/15 (100%) | 0 / 0 / 5 / 2 / 0 |
 | CASUB (ca-link-lengths) | crucible | 24/40 | 16/24 (67%) | 16/16 (100%) | 0 / 0 / 7 / 1 / 0 |
@@ -298,20 +303,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 3697 run | **2282/3347 (68%)** | **2282/2737 (83%)** | 270 / 185 / 397 / 213 / 0 |
-| **all estate** | | 4201 run | **2601/3823 (68%)** | **2601/3091 (84%)** | 305 / 185 / 485 / 247 / 0 |
+| **all equivalence** | | 3697 run | **2215/3347 (66%)** | **2215/2712 (82%)** | 312 / 185 / 408 / 227 / 0 |
+| **all estate** | | 4201 run | **2534/3823 (66%)** | **2534/3066 (83%)** | 347 / 185 / 496 / 261 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
 | AOR | 182/233 (78%) | 182/208 (88%) |
-| BDM | 25/45 (56%) | 25/28 (89%) |
-| CON | 362/759 (48%) | 362/468 (77%) |
-| COR | 132/241 (55%) | 132/187 (71%) |
-| DEL | 392/590 (66%) | 392/474 (83%) |
-| LIT | 551/734 (75%) | 551/625 (88%) |
-| NEG | 481/546 (88%) | 481/522 (92%) |
-| RET | 58/99 (59%) | 58/87 (67%) |
-| ROR | 418/576 (73%) | 418/492 (85%) |
+| BDM | 24/45 (53%) | 24/27 (89%) |
+| CON | 344/758 (45%) | 344/461 (75%) |
+| COR | 130/242 (54%) | 130/187 (70%) |
+| DEL | 381/589 (65%) | 381/467 (82%) |
+| LIT | 535/733 (73%) | 535/617 (87%) |
+| NEG | 474/546 (87%) | 474/522 (91%) |
+| RET | 50/99 (51%) | 50/87 (57%) |
+| ROR | 414/578 (72%) | 414/490 (84%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|
@@ -339,13 +344,13 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COUSR03C (carddemo-userdel) | 0/1 | - | 6/17 | 2/4 | 14/17 | 14/16 | 16/16 | - | 15/16 |
 | COUSR00C (carddemo-userlist) | 9/11 | - | 5/15 | 8/15 | 10/15 | 13/15 | 14/15 | - | 10/14 |
 | COUSR02C (carddemo-userupd) | 1/1 | - | 3/16 | 3/5 | 11/16 | 14/16 | 13/13 | - | 12/15 |
-| INQACC (cbsa-inqacc) | 3/3 | 2/2 | 22/22 | 4/4 | 22/22 | 22/22 | 21/21 | 16/16 | 19/19 |
+| INQACC (cbsa-inqacc) | 3/3 | 1/2 | 4/21 | 2/5 | 10/21 | 6/21 | 14/21 | 8/16 | 15/21 |
 | UPDACC (cbsa-updacc) | 4/4 | 0/3 | 17/30 | 3/10 | 16/27 | 28/32 | 8/8 | - | 19/19 |
 | LGAPDB01 (genapp-lgapdb01) | 5/13 | - | 8/23 | 0/2 | 7/21 | 12/23 | 13/23 | 2/10 | 11/22 |
 | LGAPVS01 (genapp-lgapvs01) | 14/16 | - | 25/41 | 0/1 | 6/11 | 12/28 | 6/9 | - | 9/19 |
 | LGICDB01 (genapp-lgicdb01) | 2/5 | - | 9/28 | 1/5 | 6/20 | 14/27 | 9/16 | 1/7 | 9/22 |
 | LGSTSQ (genapp-lgstsq) | 1/5 | - | 1/21 | 0/1 | 5/11 | 10/21 | 5/6 | - | 3/13 |
-| LGUPDB01 (genapp-lgupdb01) | 11/12 | - | 11/22 | 0/2 | 4/22 | 12/22 | 14/22 | 3/17 | 12/21 |
+| LGUPDB01 (genapp-lgupdb01) | 11/12 | - | 11/22 | 0/2 | 5/22 | 12/22 | 14/22 | 3/17 | 12/21 |
 | LGUPVS01 (genapp-lgupvs01) | 14/14 | - | 29/44 | 0/1 | 4/10 | 10/31 | 7/10 | - | 2/9 |
 | CALINK (ca-link-lengths) | 2/2 | - | 1/4 | 0/1 | 2/4 | 3/3 | 3/3 | 2/2 | 2/3 |
 | CASUB (ca-link-lengths) | - | - | 2/5 | - | 3/5 | 4/5 | 4/5 | - | 3/4 |

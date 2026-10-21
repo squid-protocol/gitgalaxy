@@ -1,0 +1,222 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "COUSR03C",
+ "program_source": "app/cbl/COUSR03C.cbl",
+ "copy_dirs": [
+  "app/cpy",
+  "app/cpy-bms"
+ ],
+ "port_from": "carddemo-userdel",
+ "transid": "CU03",
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {
+  "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS": {
+   "input": "@generate",
+   "entity": "SecUserData",
+   "copybook": "app/cpy/CSUSR01Y.cpy",
+   "record": "SEC-USER-DATA",
+   "generate": {
+    "copybook": "app/cpy/CSUSR01Y.cpy",
+    "record": "SEC-USER-DATA",
+    "records": 20,
+    "seed": 4506,
+    "fields": {
+     "SEC-USR-TYPE": {
+      "values": [
+       "A",
+       "U"
+      ]
+     }
+    }
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "app/cbl/COUSR03C.cbl",
+    "record": "CARDDEMO-COMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "COUSR3A": {
+   "copybook": "app/cpy-bms/COUSR03.CPY",
+   "input": "COUSR3AI",
+   "output": "COUSR3AO"
+  }
+ },
+ "notes": "CardDemo's delete-user screen (CU03, COUSR03C) on GENERATED data and a GENERATED map input (#4506): 20 USRSEC records built from CSUSR01Y's layout, and 30 scenarios whose COMMAREA carries a selected user (a fifth of the time one the file does not hold) and whose RECEIVE MAP input is typed from COUSR03's BMS source (its one unprotected field, the user id: its length, full width / short / random, a tenth not on file; three in ten left empty); the key pressed turns through ENTER, PF3, PF4, PF5, PF12 and one the screen does not assign. Each scenario's USRSEC file is compared after the task, so a PF5 delete is proven on the file. Proves the carddemo-userdel port on inputs it was not written against; the hand-written scenarios are fault runs. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+ "scenario_generate": {
+  "seed": 4506,
+  "count": 30,
+  "prefix": "generated",
+  "aid": [
+   "DFHENTER",
+   "DFHENTER",
+   "DFHPF5",
+   "DFHPF5",
+   "DFHPF3",
+   "DFHPF4",
+   "DFHPF12",
+   "DFHPF7"
+  ],
+  "commarea": {
+   "CDEMO-FROM-TRANID": "CA00",
+   "CDEMO-FROM-PROGRAM": "COADM01C",
+   "CDEMO-USER-ID": "ADMIN001",
+   "CDEMO-USER-TYPE": "A",
+   "CDEMO-PGM-CONTEXT": {
+    "values": [
+     0,
+     1
+    ]
+   },
+   "CDEMO-CU03-USR-SELECTED": {
+    "from": "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS.SEC-USR-ID",
+    "miss": 0.2
+   }
+  },
+  "receive": {
+   "COUSR3A": {
+    "@bms": {
+     "bad": 0.1,
+     "empty": 0.3
+    },
+    "USRIDINI": {
+     "from": "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS.SEC-USR-ID",
+     "miss": 0.2,
+     "bad": 0.1
+    }
+   }
+  }
+ },
+ "scenarios": [
+  {
+   "name": "no-commarea",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "#4506: no COMMAREA, which a generated COMMAREA never leaves out"
+  },
+  {
+   "name": "pf5-delete-not-open",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "USER0004"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "DELETE",
+     "file": "USRSEC",
+     "resp": "NOTOPEN",
+     "why": "19 on the DELETE -> WHEN OTHER; the user stays"
+    }
+   ],
+   "why": "#4506: the same input as carddemo-userdel's pf5-delete-not-open (a fault run the generated inputs do not reach)"
+  },
+  {
+   "name": "lookup-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "USER0004"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "USRSEC",
+     "resp": "IOERR",
+     "why": "17 on the READ UPDATE -> WHEN OTHER: 'Unable to lookup User...'"
+    }
+   ],
+   "why": "#4506: the same input as carddemo-userdel's lookup-io-error (a fault run the generated inputs do not reach)"
+  },
+  {
+   "name": "pf3-xctl-fails",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "USER0004"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COADM01C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4506: the same input as carddemo-userdel's pf3-xctl-fails (a fault run the generated inputs do not reach)"
+  },
+  {
+   "name": "pf3-blank-to-program",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-PROGRAM": ""
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "USER0004"
+    }
+   },
+   "why": "#4506: the same input as carddemo-userdel's pf3-blank-to-program (a fault run the generated inputs do not reach)"
+  },
+  {
+   "name": "pf5-delete-not-found",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "USER0004"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "DELETE",
+     "file": "USRSEC",
+     "resp": "NOTFND",
+     "why": "13 on the DELETE (the record vanished after the READ UPDATE): 'User ID NOT found...', error flag set"
+    }
+   ],
+   "why": "#4506: the same input as carddemo-userdel's pf5-delete-not-found (a fault run the generated inputs do not reach)"
+  }
+ ]
+}

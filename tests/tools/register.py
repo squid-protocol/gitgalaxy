@@ -19,6 +19,9 @@ A PR commits entry files only; its CI renders the page and shows the diff (tests
   register.py next FAMILY      the next free number in a family (C, D, F, X, L, A, Q, J, M), looking at this
                                tree, origin/main and the remote branches; take it when the issue is filed
   register.py new ID           write a skeleton entry file for an ID
+  register.py audit [--ci]     list entries that claim a match (ASSUMED / MATCHED / no status) with no IBM document
+                               citation and no declared difference (#4702); --ci fails on one not in UNCITED_BASELINE
+                               or on a baselined one that is now cited (the list only shrinks)
 """
 
 from __future__ import annotations
@@ -121,6 +124,39 @@ def check() -> list[str]:
     return []
 
 
+# Entries that name no IBM document and declare no difference (#4702, swept 2026-10-21). Each needs the IBM quote
+# (document, section, page) or a declared difference; fixing one removes it here. A new entry never joins this list.
+UNCITED_BASELINE = frozenset(
+    "A1 C8 D3 I6 J1 L2 L3 M2 Q1 Q1a Q1b Q2 Q6 Q8 Q9 W2 W3 W4 W5 W8 X2 X3 X4 X7".split()  # noqa: SIM905
+)
+IBM_CITE = re.compile(
+    r"SC\d\d-\d{4}|[SGA][CHA]\d\d-\d{4}|ibm\.com/docs|Language Reference|Programming Guide|Enterprise COBOL"
+    r"|CICS TS|Application Programming|Db2 (for z/OS )?\d|DFSORT|IMS (V|\d)|DFSMS",
+    re.I,
+)
+DECLARED_DIFF = re.compile(r"declared (oracle-vs-IBM )?difference|DIFFERS|Where they differ", re.I)
+
+
+def audit() -> list[tuple[str, str, str]]:
+    """(id, status, reached) of each entry that claims a match with neither an IBM citation nor a declared difference."""
+    out = []
+    for meta, body in load_entries():
+        status = meta["status"]
+        claims = "ASSUMED" in status or "MATCHED" in status or not status
+        if claims and not IBM_CITE.search(body) and not DECLARED_DIFF.search(body):
+            out.append((meta["id"], status, meta["reached"]))
+    return out
+
+
+def audit_problems(found: list[tuple[str, str, str]]) -> list[str]:
+    ids = {i for i, _, _ in found}
+    new = sorted(ids - UNCITED_BASELINE, key=id_key)
+    fixed = sorted(UNCITED_BASELINE - ids, key=id_key)
+    return [f"{i}: no IBM citation or declared difference (quote IBM, or declare the difference)" for i in new] + [
+        f"{i}: now cited; remove it from UNCITED_BASELINE" for i in fixed
+    ]
+
+
 def _git(*args: str) -> str:
     r = subprocess.run(["git", "-C", str(REPO), *args], capture_output=True, text=True, check=False)
     return r.stdout if r.returncode == 0 else ""
@@ -160,6 +196,8 @@ def main(argv: list[str] | None = None) -> int:
     n.add_argument("family")
     n.add_argument("--local", action="store_true", help="this tree only (no origin/main, no remote branches)")
     sub.add_parser("new").add_argument("id")
+    au = sub.add_parser("audit")
+    au.add_argument("--ci", action="store_true", help="fail on an uncited entry outside UNCITED_BASELINE")
     a = ap.parse_args(argv)
     if a.check:
         problems = check()
@@ -169,6 +207,15 @@ def main(argv: list[str] | None = None) -> int:
     if a.cmd == "render":
         PAGE.write_text(render(), encoding="utf-8")
         print(f"wrote {PAGE.relative_to(REPO)}")
+    elif a.cmd == "audit":
+        found = audit()
+        for i, status, reached in found:
+            print(f"{i}\t{status or '(none)'}\treached: {reached}")
+        print(f"{len(found)} entries without an IBM citation or declared difference", file=sys.stderr)
+        problems = audit_problems(found) if a.ci else []
+        for p in problems:
+            print(f"register audit: {p}", file=sys.stderr)
+        return 1 if problems else 0
     elif a.cmd == "next":
         print(next_id(a.family, a.local))
     elif a.cmd == "new":

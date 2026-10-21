@@ -356,6 +356,12 @@ public final class Cobol {
         Zoned.putSign(from, raw, cs);
     }
 
+    /** Whether two items of one length hold the same bytes (INITIALIZE REPLACING of a table: oracle register C17). */
+    public static boolean sameBytes(Field a, Field b) {
+        return a.length() == b.length() && Arrays.equals(a.storage().bytes, a.at(), a.at() + a.length(),
+                b.storage().bytes, b.at(), b.at() + b.length());
+    }
+
     private static boolean sameZonedShape(Field a, Field b) {
         return a.digits == b.digits && a.scale == b.scale && a.signed == b.signed && a.signLeading == b.signLeading
                 && a.signSeparate == b.signSeparate && a.len == b.len && a.blankWhenZero == b.blankWhenZero;

@@ -66,9 +66,28 @@ def _translate(tmp_path, data: list[str], proc: list[str]):
 TABLE = ["01 T.", "   05 E OCCURS 3.", "      10 N PIC 9(2).", "      10 X PIC X(2)."]
 
 
-def test_a_table_holding_an_item_replacing_does_not_name_is_a_hole(tmp_path):
+def test_a_table_holding_an_item_replacing_does_not_name_is_checked_at_run_time(tmp_path):
     r = _translate(tmp_path, TABLE, ["INITIALIZE T REPLACING ALPHANUMERIC BY 'Q'"])
-    assert any("register C17" in h and "NUMERIC" in h for h in r.stats["holes"]), r.stats["holes"]
+    assert not r.stats["holes"], r.stats["holes"]
+    assert r.java.count("Cobol.sameBytes(") == 2  # occurrences 2 and 3 of N against the first
+    assert r.java.count("register C17") == 2 and r.java.count('Cobol.move("Q"') == 3
+
+
+def test_every_unnamed_category_of_a_table_is_checked(tmp_path):
+    table = ["01 T.", "   05 E OCCURS 2.", "      10 N PIC 9(2).", "      10 P PIC S9(3) COMP-3.",
+             "      10 X PIC X(2).", "      10 FILLER PIC X."]  # fmt: skip
+    r = _translate(tmp_path, table, ["INITIALIZE T REPLACING ALPHANUMERIC BY 'Q'"])
+    assert not r.stats["holes"], r.stats["holes"]
+    assert r.java.count("Cobol.sameBytes(") == 2  # N and P, not FILLER and not the named X
+    (tmp_path / "again").mkdir()
+    r = _translate(tmp_path / "again", table, ["INITIALIZE T REPLACING NUMERIC BY 5"])
+    assert not r.stats["holes"] and r.java.count("Cobol.sameBytes(") == 1  # X
+
+
+def test_a_nested_table_with_unnamed_items_stays_a_hole(tmp_path):
+    nested = ["01 T.", "   05 E OCCURS 2.", "      10 N PIC 9(2).", "      10 I OCCURS 2 PIC X."]
+    r = _translate(tmp_path, nested, ["INITIALIZE T REPLACING NUMERIC BY 5"])
+    assert any("register C17" in h for h in r.stats["holes"]), r.stats["holes"]
 
 
 def test_a_table_whose_every_item_is_named_translates(tmp_path):

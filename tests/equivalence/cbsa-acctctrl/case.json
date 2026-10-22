@@ -160,6 +160,143 @@
    },
    "commarea_length": 98,
    "why": "EIBCALEN equals the record (98 bytes, X23): the COMMAREA is stated exact and the INITIALIZE and the count fit"
+  },
+  {
+   "name": "dto-entry-count-accounts",
+   "commarea": {},
+   "dto_entry": true,
+   "why": "as count-accounts, through the typed DTO alone: in_ reads the blank record, fill_ gives back the count 13 and 'Y' (#5863)"
+  },
+  {
+   "name": "dto-entry-caller-data-initialised",
+   "commarea": {
+    "ACCOUNT-CONTROL-EYE-CATCHER": "XXXX",
+    "ACCOUNT-CONTROL-SORT-CODE": "123456",
+    "ACCOUNT-CONTROL-NUMBER": "99",
+    "NUMBER-OF-ACCOUNTS": "99999999",
+    "LAST-ACCOUNT-NUMBER": "12345678",
+    "ACCOUNT-CONTROL-SUCCESS-FLAG": "N",
+    "ACCOUNT-CONTROL-FAIL-CODE": "9"
+   },
+   "dto_entry": true,
+   "why": "as caller-data-initialised, through the typed DTO alone: the caller's values read by in_, INITIALIZEd, then the count and 'Y' (#5863)"
+  },
+  {
+   "name": "dto-entry-select-fails",
+   "commarea": {},
+   "sql_faults": [
+    {
+     "program": "ACCTCTRL",
+     "table": "ACCOUNT",
+     "verb": "SELECT",
+     "sqlcode": -913
+    }
+   ],
+   "dto_entry": true,
+   "why": "as select-fails (-913), through the typed DTO alone: 'N' and the INITIALIZE's zero count in fill_ (#5863)"
+  },
+  {
+   "name": "dto-entry-select-fails-caller-data",
+   "commarea": {
+    "ACCOUNT-CONTROL-EYE-CATCHER": "XXXX",
+    "ACCOUNT-CONTROL-SORT-CODE": "123456",
+    "ACCOUNT-CONTROL-NUMBER": "12345678",
+    "NUMBER-OF-ACCOUNTS": "99999999",
+    "LAST-ACCOUNT-NUMBER": "87654321",
+    "ACCOUNT-CONTROL-SUCCESS-FLAG": "Y",
+    "ACCOUNT-CONTROL-FAIL-CODE": "9"
+   },
+   "sql_faults": [
+    {
+     "program": "ACCTCTRL",
+     "table": "ACCOUNT",
+     "verb": "SELECT",
+     "sqlcode": -913
+    }
+   ],
+   "dto_entry": true,
+   "why": "as select-fails-caller-data, through the typed DTO alone: nothing of the caller's values survives the failure branch (#5863)"
+  },
+  {
+   "name": "dto-entry-no-commarea",
+   "commarea": null,
+   "dto_entry": true,
+   "why": "as no-commarea, through the typed DTO alone (#5863)"
+  },
+  {
+   "name": "dto-entry-eibcalen-zero",
+   "commarea": {
+    "ACCOUNT-CONTROL-EYE-CATCHER": "XXXX",
+    "ACCOUNT-CONTROL-SORT-CODE": "123456",
+    "ACCOUNT-CONTROL-NUMBER": "12345678",
+    "NUMBER-OF-ACCOUNTS": "99999999",
+    "LAST-ACCOUNT-NUMBER": "87654321",
+    "ACCOUNT-CONTROL-SUCCESS-FLAG": "Y",
+    "ACCOUNT-CONTROL-FAIL-CODE": "9"
+   },
+   "commarea_length": 0,
+   "dto_entry": true,
+   "why": "as eibcalen-zero (X23), through the typed DTO alone (#5863)"
+  },
+  {
+   "name": "dto-entry-eibcalen-short",
+   "commarea": {
+    "ACCOUNT-CONTROL-EYE-CATCHER": "XXXX",
+    "ACCOUNT-CONTROL-SORT-CODE": "123456",
+    "ACCOUNT-CONTROL-NUMBER": "12345678",
+    "NUMBER-OF-ACCOUNTS": "99999999",
+    "LAST-ACCOUNT-NUMBER": "87654321",
+    "ACCOUNT-CONTROL-SUCCESS-FLAG": "Y",
+    "ACCOUNT-CONTROL-FAIL-CODE": "9"
+   },
+   "commarea_length": 20,
+   "dto_entry": true,
+   "why": "as eibcalen-short (20 of 98 bytes, X23), through the typed DTO alone (#5863)"
+  },
+  {
+   "name": "dto-entry-eibcalen-45",
+   "commarea": {
+    "ACCOUNT-CONTROL-EYE-CATCHER": "XXXX",
+    "ACCOUNT-CONTROL-SORT-CODE": "123456",
+    "ACCOUNT-CONTROL-NUMBER": "12345678",
+    "NUMBER-OF-ACCOUNTS": "99999999",
+    "LAST-ACCOUNT-NUMBER": "87654321",
+    "ACCOUNT-CONTROL-SUCCESS-FLAG": "Y",
+    "ACCOUNT-CONTROL-FAIL-CODE": "9"
+   },
+   "commarea_length": 45,
+   "dto_entry": true,
+   "why": "as eibcalen-45 (one byte short of FAIL-CODE, X23), through the typed DTO alone (#5863)"
+  },
+  {
+   "name": "dto-entry-eibcalen-46",
+   "commarea": {
+    "ACCOUNT-CONTROL-EYE-CATCHER": "XXXX",
+    "ACCOUNT-CONTROL-SORT-CODE": "123456",
+    "ACCOUNT-CONTROL-NUMBER": "12345678",
+    "NUMBER-OF-ACCOUNTS": "99999999",
+    "LAST-ACCOUNT-NUMBER": "87654321",
+    "ACCOUNT-CONTROL-SUCCESS-FLAG": "Y",
+    "ACCOUNT-CONTROL-FAIL-CODE": "9"
+   },
+   "commarea_length": 46,
+   "dto_entry": true,
+   "why": "as eibcalen-46 (exactly the 46 addressed bytes), through the typed DTO alone (#5863)"
+  },
+  {
+   "name": "dto-entry-eibcalen-full",
+   "commarea": {
+    "ACCOUNT-CONTROL-EYE-CATCHER": "XXXX",
+    "ACCOUNT-CONTROL-SORT-CODE": "123456",
+    "ACCOUNT-CONTROL-NUMBER": "12345678",
+    "NUMBER-OF-ACCOUNTS": "99999999",
+    "LAST-ACCOUNT-NUMBER": "87654321",
+    "ACCOUNT-CONTROL-SUCCESS-FLAG": "Y",
+    "ACCOUNT-CONTROL-FAIL-CODE": "9"
+   },
+   "commarea_length": 98,
+   "dto_entry": true,
+   "why": "as eibcalen-full (98 bytes), through the typed DTO alone (#5863)"
   }
  ],
  "notes": "CBSA's account-control service (ACCTCTRL; no program in the corpus LINKs it -- the transaction OCAC is the create-account one, which the program never reads -- so the COMMAREA is its own DFHCOMMAREA, the ACCTCTRL copybook's ACCOUNT-CONTROL-RECORD). It INITIALIZEs the COMMAREA and counts the ACCOUNT rows of the program's own sort code (987654) with SELECT COUNT(*) INTO from Db2 (unqualified: the bind's QUALIFIER, IBMUSER); SQLCODE 0 gives 'Y' and the count in NUMBER-OF-ACCOUNTS, any other 'N'. POPULATE-TIME-DATE is never PERFORMed (dead code). The table is compared after every scenario. Data: seed.sql is cbsa-creacc's (SYNTHETIC; CONTROL rows left out: only ACCOUNT is created). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."

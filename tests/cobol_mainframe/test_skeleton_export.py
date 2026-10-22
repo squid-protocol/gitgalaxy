@@ -16,7 +16,8 @@ from unittest.mock import patch
 import pytest
 
 import gitgalaxy.cobol_refractor_controller as refractor
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import EngineCall, EngineFile, GalaxyIR, scan_to_db
+from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import EngineCall, EngineFile, GalaxyIR
+from scan_server import scan_to_db
 from gitgalaxy.tools.cobol_to_cobol.skeleton_export import (
     ESTATE_JOINS,
     FILE_CHANNELS,

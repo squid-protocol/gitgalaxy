@@ -17,7 +17,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import equivalence as eq  # noqa: E402
 import equivalence_cics as ec  # noqa: E402
 
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db  # noqa: E402
+from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir  # noqa: E402
+from scan_server import scan_to_db  # noqa: E402
 
 
 def test_a_read_becomes_a_stub_call_and_its_resp_is_the_programs():

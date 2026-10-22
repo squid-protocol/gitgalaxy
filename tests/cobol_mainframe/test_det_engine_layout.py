@@ -14,7 +14,8 @@ from pathlib import Path
 
 import pytest
 
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import ZOS_POINTER_BYTES, load_galaxy_ir, scan_to_db
+from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import ZOS_POINTER_BYTES, load_galaxy_ir
+from scan_server import scan_to_db
 from gitgalaxy.tools.cobol_to_java.det import layout as L
 from gitgalaxy.tools.cobol_to_java.det.cics import POINTER_BYTES
 from gitgalaxy.tools.cobol_to_java.det.engine_layout import EngineLayouts, LayoutDisagrees, adopt

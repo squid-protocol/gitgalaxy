@@ -13,7 +13,8 @@ import sqlite3
 import pytest
 
 from gitgalaxy.core.mainframe_boundary import _copy_replacing, extract_boundary
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import _replace_text, load_galaxy_ir, scan_to_db
+from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import _replace_text, load_galaxy_ir
+from scan_server import scan_to_db
 
 PAYMAIN = """\
        IDENTIFICATION DIVISION.

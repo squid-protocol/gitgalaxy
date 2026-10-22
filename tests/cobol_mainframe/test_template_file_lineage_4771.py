@@ -140,6 +140,12 @@ def test_zecs_003_file_op_reaches_the_zc_id_file_store(tmp_path):
 
     from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
 
-    ir = load_galaxy_ir(ec.scan_db(Path(CORPORA) / "zecs", tmp_path / "scan"))
+    import mainframe_corpus as mc
+
+    try:  # #5882: the pinned clone's cached scan (the parts have it), else a scan of whatever clone is there
+        db = mc.scan(mc.select(["zecs"])[0])
+    except SystemExit:  # not fetched at its pin
+        db = ec.scan_db(Path(CORPORA) / "zecs", tmp_path / "scan")
+    ir = load_galaxy_ir(db)
     got = {(e["program"], e["name"]) for e in ir.cics_file_lineage()}
     assert ("Source/ZECS003.cbl", "ZC@ID@FILE") in got

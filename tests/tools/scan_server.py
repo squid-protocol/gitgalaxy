@@ -58,6 +58,7 @@ for line in sys.stdin:
 
 class _Server:
     def __init__(self) -> None:
+        self.owner = os.getpid()  # #5882: a forked child (a ProcessPoolExecutor worker) starts its own, never shares this
         env = dict(os.environ, PYTHONPATH=os.pathsep.join(filter(None, [str(REPO_ROOT), os.environ.get("PYTHONPATH")])))
         self.proc = subprocess.Popen([sys.executable, "-c", SERVER], stdin=subprocess.PIPE, stdout=subprocess.PIPE,  # noqa: S603
                                      text=True, env=env, start_new_session=True)  # fmt: skip
@@ -93,7 +94,8 @@ _FAILED = [0]
 
 def _close() -> None:
     for s in _SERVER:
-        s.close()
+        if s.owner == os.getpid():
+            s.close()
 
 
 atexit.register(_close)
@@ -112,7 +114,7 @@ def scan_to_db(target: Path, out_dir: Path, timeout: int = 3600, extra_args: Seq
     env.setdefault("GITGALAXY_DISABLE_GIT_HISTORY", "1")  # as galaxy_ir.scan_to_db
     args = [str(target), "--db-only", "--output", str(out_dir), *extra_args]
     with _LOCK:
-        if not _SERVER or _SERVER[0].proc.poll() is not None:
+        if not _SERVER or _SERVER[0].owner != os.getpid() or _SERVER[0].proc.poll() is not None:
             _SERVER[:] = [_Server()]
         try:
             rc = _SERVER[0].scan(args, env, timeout)

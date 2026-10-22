@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 
 import pytest
+import scan_server
 
 from gitgalaxy.core.mainframe_boundary import cobol_select_assigns
 from gitgalaxy.tools.cobol_to_cobol.cobol_dag_architect import extract_lineage
@@ -128,6 +129,7 @@ def _refractor_lineage(tmp_path: Path, monkeypatch, *flags: str) -> dict:
     (estate / "ASGTO.cbl").write_text(PROGRAM, encoding="utf-8")
     monkeypatch.chdir(root)
     monkeypatch.setattr("sys.argv", ["cobol-refractor", str(estate), *flags])
+    monkeypatch.setattr(refractor, "scan_to_db", scan_server.scan_to_db)  # #5882: the engine imported once a process
     refractor.main()
     (clean,) = root.glob("estate_gitgalaxy_clean_*")
     dump = json.loads((clean / "04_ir_state_dumps" / "ASGTO_ir.json").read_text(encoding="utf-8"))

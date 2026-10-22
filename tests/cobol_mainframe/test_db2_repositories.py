@@ -14,7 +14,8 @@ from unittest.mock import patch
 import pytest
 
 import gitgalaxy.cobol_refractor_controller as refractor
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+from scan_server import scan_to_db
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_db2_forge import sql_java_type, to_jdbc
 
 DCLACCT = """\

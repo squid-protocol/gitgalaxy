@@ -242,3 +242,30 @@ def test_changed_cases_reads_real_git_and_cases_to_rerun_keeps_the_ledgered(monk
     monkeypatch.setattr(dm, "load", lambda: {"a": entry()})
     assert dm.cases_to_rerun("main") == ["a"]
     assert dm.cases_to_rerun("no-such-ref") == []
+
+
+def test_a_case_touch_in_a_real_branch_fails_the_ratchet_and_an_untouched_one_does_not(monkeypatch, tmp_path, capsys):
+    """#5862 box 3 end to end: real git, real `changed_cases` / `stale_check` / `main`; only the fingerprints are stubbed
+    (the tree's case hash moves exactly when the case file was changed)."""
+    eq = tmp_path / "tests" / "equivalence"
+    for d in ("a", "b"):
+        (eq / d).mkdir(parents=True)
+        (eq / d / "case.json").write_text("{}", encoding="utf-8")
+    _git(tmp_path, "init", "-q", "-b", "main")
+    _git(tmp_path, "add", ".")
+    _git(tmp_path, "commit", "-q", "-m", "base")
+    _git(tmp_path, "checkout", "-q", "-b", "pr")
+    monkeypatch.setattr(dm, "REPO", tmp_path)
+    monkeypatch.setattr(dm, "CASES", eq)
+    monkeypatch.setattr(dm, "load", lambda: {"a": entry(), "b": entry()})
+    monkeypatch.setattr(dm, "fingerprints",
+                        lambda c: {**{k: {"sha256": v} for k, v in FP.items()},
+                                   "case": {"sha256": "changed" if (eq / c / "case.json").read_text() != "{}" else "a"}})  # fmt: skip
+    assert dm.stale_check("main") == 0 and dm.cases_to_rerun("main") == []
+    (eq / "a" / "case.json").write_text('{"strengthened": 1}', encoding="utf-8")
+    assert dm.cases_to_rerun("main") == ["a"]  # the working tree counts: pr_gates runs before the commit
+    capsys.readouterr()
+    assert dm.stale_check("main") == 1
+    out = capsys.readouterr().out
+    assert "a: stale (case)" in out and "b: stale" not in out and "refresh a --work DIR" in out
+    assert dm.stale_check() == 1  # no ref: every ledger; "b" is in step, "a" is not

@@ -68,3 +68,8 @@ def test_strict_problems_name_new_and_fixed(monkeypatch, tmp_path):
 
 def test_the_baseline_is_empty():
     assert not register.UNCITED_BASELINE
+
+
+def test_the_strict_baseline_is_empty():
+    assert not register.STRICT_BASELINE
+    assert register.audit_strict() == []

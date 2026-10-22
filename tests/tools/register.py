@@ -98,6 +98,9 @@ def zos_calibrated(path: Path | None = None) -> set[str]:
 
 
 def zos_problems(ids: set[str], path: Path | None = None) -> list[str]:
+    """A result also names the LE / Db2 / CICS option set it was measured under (`runtime_options`, #4707)."""
+    from gitgalaxy.core.runtime_options import RUNTIME_OPTION_TABLE
+
     out = []
     for i, recs in sorted(load_zos(path).items()):
         if i not in ids:
@@ -108,6 +111,16 @@ def zos_problems(ids: set[str], path: Path | None = None) -> list[str]:
                 out.append(f"zos_calibration.json: {i}[{n}] lacks {', '.join(gaps)}")
             elif r["verdict"] not in ZOS_VERDICTS:
                 out.append(f"zos_calibration.json: {i}[{n}] verdict {r['verdict']!r} not in {ZOS_VERDICTS}")
+            runtime = r.get("runtime_options")
+            if not runtime:
+                out.append(f"zos_calibration.json: {i}[{n}] lacks runtime_options")
+                continue
+            unknown = sorted(set(runtime) - set(RUNTIME_OPTION_TABLE))
+            missing = sorted(set(RUNTIME_OPTION_TABLE) - set(runtime))
+            if unknown or missing:
+                out.append(
+                    f"zos_calibration.json: {i}[{n}] runtime_options unknown {unknown or '-'}, lacks {missing or '-'}"
+                )
     return out
 
 

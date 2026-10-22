@@ -60,6 +60,7 @@ import bisect
 import re
 from typing import Any
 
+from gitgalaxy.core.cobol_preprocessor import free_code
 from gitgalaxy.core.db2_declare_table import _blank_sequence_fields
 from gitgalaxy.core.special_names import special_names
 from gitgalaxy.standards.language_standards.identifiers import NATIONAL, WIDE_DIGITS, WIDE_HYPHENS
@@ -137,8 +138,8 @@ def _procedure_text(code_stream: str) -> str:
     for i, line in enumerate(lines):
         if len(line) > 6 and line[6] in "*/Dd":  # comment, page eject, debugging line
             lines[i] = ""
-        elif "*>" in line:
-            lines[i] = line[: line.index("*>")]
+        else:
+            lines[i] = free_code(line)  # #5648: a literal that holds `*>` is not a comment
     text = "\n".join(lines)
     m = re.search(r"(?<![A-Z0-9-])PROCEDURE[ \t\n]{1,200}DIVISION(?![A-Z0-9-])", text, re.I)
     if m:

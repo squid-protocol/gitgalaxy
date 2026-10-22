@@ -42,4 +42,4 @@ doom-fx,https://github.com/RandalLinden/DOOM-FX,90af514994d6434b7ba6e74ca9109dad
 fps-cob,https://github.com/icitry/FPS.cob,7c557fe5d53be9f75027674a662001aba38f1359,,cobol,raycaster,Apache-2.0,COBOL raycaster (sector mode),
 agentic-cobol-doom-cc,https://github.com/acherm/agentic-cobol-doom-cc,117db757cb69ed78dd0fe6195f66b219dca1042a,,cobol,raycaster,MIT,COBOL raycaster written by Claude (agentic-cobol study),
 agentic-cobol-doom-codex,https://github.com/acherm/agentic-cobol-doom-codex,0c4fe3e2c25480518290f5824920a3536bb25866,,cobol c,raycaster,MIT,COBOL raycaster written by Codex (same study),
-mood,https://github.com/notactuallytreyanastasio/mood,9f2345d71361124cf3ac1383715cacad2e745f8d,,c cobol jcl,engine-port,GPL-2.0,modified linuxdoom driving a COBOL AI on z/OS,
+mood,https://github.com/notactuallytreyanastasio/mood,9f2345d71361124cf3ac1383715cacad2e745f8d,,c cobol jcl,engine-port,GPL-2.0,modified linuxdoom driving a COBOL AI on z/OS,callgraph

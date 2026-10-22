@@ -613,6 +613,14 @@ instrument). The rows below are rendered by one table in code (`compiler_options
     places (0.00416667), and `1 + rate` is a long add (`4110111111000000`); the `**` after it stays a Hole (below). Asked
     as 5 `model-assumption` records (90 asked in all; `asm-*-eps-*`), pinned by `test_the_epsmpmt_interest_shapes_are_asked`.
     Still pending z/OS capture (#4050).
+  - **The exponentiation after it (DBB EPSMPMT lines 125-130, `(1 + WS-CALC-INTEREST) ** WS-NUMBER-OF-MONTHS`).** The kit has
+    a `pow` op (`COMPUTE LR = LA ** LB`, long only: a short `**` is skipped like a short multiply). IBM documents no result,
+    so the 5 `asm-pow-eps-*` records (95 asked in all) are `model-assumption` records whose `want` is the kit's own reference
+    (`hfp_capture_kit.power`: the exact power for an integer exponent, `exp(b ln a)` at 60 digits for a fractional one,
+    truncated to long): 5% over 360 months, 12, 2.5 and -12, and 6.5% over 360. The base is the `1 + rate` long add above,
+    the exponent the month count (`9(9)V99 COMP`) converted to long. They are evidence of nothing until z/OS agrees; the
+    det translator still refuses a float `**` (the Hole above) and `mortgage-mpmt` stays in KNOWN_UNPROVEN. Pinned by
+    `test_the_epsmpmt_exponentiation_is_asked`. Whether the det runtime should ever adopt a `**` routine is an owner decision.
   - CBSA's CRECUST, BANKDATA, BNK1CAC, BNK1CRA, BNK1TFN and BNK1UAC are not cases. Since #4270's NUMVAL slice
     BNK1CAC, BNK1TFN and BNK1UAC translate whole (BNK1CRA still has EXEC CICS INQUIRE).
 - **Exponentiation is refused in every shape, on purpose (#4271).** IBM documents no result for `**` in a

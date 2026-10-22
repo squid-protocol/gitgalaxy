@@ -51,7 +51,14 @@ def test_report_rows_planned_against_measured_and_warns_on_imbalance_and_budget(
            unmeasured=["z"])  # fmt: skip
     rows = [t.row(d) for d in t._shard_dirs([tmp_path])]
     a, b = sorted(rows, key=lambda r: r["shard"])
-    assert (a["cases"], a["planned_s"], a["case_s"], a["setup_s"], a["sweep_s"], a["job_s"]) == (2, 1600, 1600, 200, 400, 600)
+    assert (a["cases"], a["planned_s"], a["case_s"], a["setup_s"], a["sweep_s"], a["job_s"]) == (
+        2,
+        1600,
+        1600,
+        200,
+        400,
+        600,
+    )
     assert a["slowest"] == [(900, "x"), (700, "y")] and b["unmeasured"] == 1
     lines, warnings = t.report(rows)
     assert any("| db2 | 2/2 | 1 | 1 | 1 |" in ln for ln in lines)
@@ -143,6 +150,7 @@ def test_phase_timer_sums_and_writes_phases_json(tmp_path, monkeypatch):
 
 def test_a_case_takes_only_a_database_marked_ready(tmp_path, monkeypatch):
     """#5882: CI starts the sweep once GGDB is up; a database the background start is still creating is never taken."""
+    pytest.importorskip("fcntl")  # the Db2 pool and container locks are flock: Linux-only (no Db2 on Windows, #5933)
     import equivalence_db2 as d
 
     monkeypatch.setenv("HOME", str(tmp_path))
@@ -165,7 +173,7 @@ def test_a_case_takes_only_a_database_marked_ready(tmp_path, monkeypatch):
 def test_the_db2_shard_waits_only_for_the_first_database():
     jobs = yaml.safe_load((ROOT / ".github" / "workflows" / "det-sweep.yml").read_text(encoding="utf-8"))["jobs"]
     run = "\n".join(s.get("run", "") for s in jobs["db2"]["steps"])
-    assert "GITGALAXY_DB2_READY_DIR=" in run and ".ready\").touch()" in run
+    assert "GITGALAXY_DB2_READY_DIR=" in run and '.ready").touch()' in run
     (wait,) = [s for s in jobs["db2"]["steps"] if s.get("name") == "Wait for the first Db2 database"]
     assert "GGDB.ready" in wait["run"]
 
@@ -173,6 +181,7 @@ def test_the_db2_shard_waits_only_for_the_first_database():
 def test_a_container_that_passed_the_full_check_is_not_checked_again(tmp_path, monkeypatch):
     """#5882: the ready mark (container id, start time, COBOL image id) skips the full check in a later process; a
     restarted container (another start time) does not match and is checked in full."""
+    pytest.importorskip("fcntl")  # the Db2 pool and container locks are flock: Linux-only (no Db2 on Windows, #5933)
     import equivalence_db2 as d
 
     state = {"start": "2026-10-21T10:00:00Z"}
@@ -203,4 +212,9 @@ def test_the_restored_durations_are_merged_over_the_committed_ones_never_copied(
     seeded Db2 duration: 5-6 unmeasured cases a db2 shard, sweeps 382-770 s."""
     text = (ROOT / ".github" / "workflows" / "det-sweep.yml").read_text(encoding="utf-8")
     assert "cp durations-cache/det_sweep_durations.json" not in text
-    assert text.count("merge-durations durations-cache/det_sweep_durations.json tests/equivalence/det_sweep_durations.json") == 2
+    assert (
+        text.count(
+            "merge-durations durations-cache/det_sweep_durations.json tests/equivalence/det_sweep_durations.json"
+        )
+        == 2
+    )

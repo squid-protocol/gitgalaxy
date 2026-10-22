@@ -25,7 +25,16 @@ from gitgalaxy.core.cobol_preprocessor import (
 from gitgalaxy.core.cobol_preprocessor import (
     expand as core_expand,
 )
-from gitgalaxy.core.cobol_source_format import FIXED_LEAD, TEXT_WIDTH, ispf_screen, join_wrapped, wrap_fixed
+from gitgalaxy.core.cobol_source_format import (
+    FIXED_LEAD,
+    FREE,
+    TEXT_WIDTH,
+    VARIABLE,
+    directive_format,
+    ispf_screen,
+    join_wrapped,
+    wrap_fixed,
+)
 from gitgalaxy.core.compiler_options import cards, compiler_options
 from gitgalaxy.core.source_text import read_source
 
@@ -294,8 +303,18 @@ def _headers(code: str) -> str:
     return _PROGRAM_ID_NO_PERIOD.sub(lambda m: m.group(1) + ".", code, count=1)
 
 
-# `>>SOURCE FORMAT FREE` / `>>SOURCE FORMAT IS FIXED` / `>>SOURCE FREE` (IBM Enterprise COBOL 6.3+, GnuCOBOL)
-_SOURCE_FORMAT = re.compile(r"\s*>>\s*SOURCE(?:\s+FORMAT)?(?:\s+IS)?\s+(FREE|FIXED)\b", re.I)
+class SourceFormatRefused(ValueError):
+    """#5648: a source-format directive this reader does not follow (`>>SOURCE FORMAT IS VARIABLE`)."""
+
+
+def _format_switch(line: str, free: bool) -> str | None:
+    """The format (`free` / `fixed`) a source-format directive on `line` switches to, or None: the directive rule is
+    core.cobol_source_format.directive_format's (`>>SOURCE FORMAT [IS] FREE|FIXED`, `>>SOURCE FREE`, GnuCOBOL's
+    `>>FORMAT`, Micro Focus `$SET SOURCEFORMAT`), read from column 7 of a fixed line. VARIABLE is refused by name."""
+    fmt = directive_format(line if free else FIXED_LEAD[:6] + line[6:])
+    if fmt == VARIABLE:
+        raise SourceFormatRefused("source format VARIABLE is not read (fixed areas without the column-72 limit)")
+    return fmt
 
 
 # #4462: IBM's listing-control statements -- EJECT, SKIP1 / SKIP2 / SKIP3, TITLE literal -- each the only statement on
@@ -352,9 +371,9 @@ def logical_lines(raw: list[str], file: str, member: bool = False) -> list[Line]
                 continue
         elif not cond.active:  # a comment, debugging or continuation line inside a branch not taken
             continue
-        fmt = _SOURCE_FORMAT.match(line if free else line[6:])
+        fmt = _format_switch(line, free)
         if fmt:
-            free = fmt.group(1).upper() == "FREE"
+            free = fmt == FREE
             continue
         if free:
             code = free_code(line).rstrip()

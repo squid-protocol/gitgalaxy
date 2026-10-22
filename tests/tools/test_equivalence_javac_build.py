@@ -94,3 +94,24 @@ def test_a_different_pom_is_a_different_record(tmp_path, cache):
     (p / "pom.xml").write_text("<project><dependencies/></project>\n", encoding="utf-8")  # e.g. Db2's driver patched in
     assert ej._pom_key(p) != key
     shutil.rmtree(p)
+
+
+def test_reuse_takes_the_classpath_a_javac_built_baseline_recorded_when_it_has_no_surefire_report(tmp_path, cache):
+    earlier = tmp_path / "earlier"
+    base = _project(earlier)  # (earlier / java_h2, the way a baseline's work dir holds its project)
+    ej._save_classpath(base, [str(base / "target/test-classes"), str(base / "target/classes")])
+    assert ej._javac_build(base, _shell())
+    assert not list(earlier.glob("*/target/surefire-reports/TEST-*.xml"))
+    mutant = _project(tmp_path / "mutant", body="public int one() { return 2; }")
+    shutil.copytree(base / "target", mutant / "target")
+    ej._compile_overlay(mutant, earlier, ["Svc.java"], tmp_path / "work")
+    recorded = (mutant / ej.TEST_CLASSPATH).read_text(encoding="utf-8").split(os.pathsep)
+    assert recorded[:2] == [str(mutant / "target/test-classes"), str(mutant / "target/classes")]
+    assert (mutant / ej.PRECOMPILED).is_file()
+    assert (mutant / "target/classes" / ej.PKG_DIR / "Svc.class").stat().st_mtime >= (
+        base / "target/classes" / ej.PKG_DIR / "Svc.class").stat().st_mtime  # fmt: skip
+
+
+def test_reuse_with_neither_a_report_nor_a_record_says_so(tmp_path):
+    with pytest.raises(RuntimeError, match="no surefire report or recorded classpath"):
+        ej._compile_overlay(_project(tmp_path / "m"), tmp_path / "empty", ["Svc.java"], tmp_path / "work")

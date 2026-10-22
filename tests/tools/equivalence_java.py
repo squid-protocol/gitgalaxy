@@ -832,11 +832,17 @@ def _compile_overlay(project: Path, earlier: Path, overlay: list[str], work: Pat
     import xml.etree.ElementTree as ET
 
     reports = sorted(earlier.glob("*/target/surefire-reports/TEST-*.xml"))
-    if not reports:
-        raise RuntimeError(f"--reuse: {earlier} has no surefire report to take the classpath from")
-    props = {p.get("name"): p.get("value") for p in ET.parse(reports[0]).iter("property")}  # noqa: S314
-    old = str(reports[0].parents[2])
-    entries = [e.replace(old, str(project)) for e in props["surefire.test.class.path"].split(os.pathsep)]
+    if reports:
+        props = {p.get("name"): p.get("value") for p in ET.parse(reports[0]).iter("property")}  # noqa: S314
+        old = str(reports[0].parents[2])
+        entries = props["surefire.test.class.path"].split(os.pathsep)
+    else:  # #5882: a project `_javac_build` built ran no Maven, so no surefire report; it kept the classpath itself
+        recorded = sorted(earlier.glob(f"*/{TEST_CLASSPATH}"))
+        if not recorded:
+            raise RuntimeError(f"--reuse: {earlier} has no surefire report or recorded classpath to take it from")
+        old = str(recorded[0].parents[1])
+        entries = recorded[0].read_text(encoding="utf-8").split(os.pathsep)
+    entries = [e.replace(old, str(project)) for e in entries]
     classpath = os.pathsep.join(e for e in entries if not e.endswith("test-classes"))
     (project / TEST_CLASSPATH).write_text(os.pathsep.join(entries), encoding="utf-8")
     classes = project / "target" / "classes"

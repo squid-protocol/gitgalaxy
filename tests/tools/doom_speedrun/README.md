@@ -113,6 +113,7 @@ Blind spots of this oracle:
 - **Check 6 reads the log text**, so a new log wording needs `log_problems` updated.
 - **Pinned SHAs are the ports' HEAD at study time** (2026-10-18); a force-pushed upstream makes `fetch` fail loudly.
 - **Round 2's CSV was produced at engine `585c243e9`**; the current engine will differ, which is the point.
+- **`#ifdef`/`#else` alternate definitions are both counted.** A static scan cannot know the build configuration, so both branches are real source (owner ruling nyx-o9, 2026-10-21, #5462).
 
 ## C/C++ call-graph oracle (`callgraph_oracle.py`, #5630)
 

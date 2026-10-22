@@ -834,3 +834,174 @@ Insert Into <DB2DBID>.policy (policyNumber, customerNumber, issueDate, expiryDat
 Insert Into <DB2DBID>.motor (policyNumber, make, model, value, regNumber, colour, cc, yearOfManufacture, premium,
    accidents)
        Values (103, 'BABBAGE', 'ENGINE', 12000, 'AL15ADA', 'BRASS', 1815, '2015-12-10', 600, 1);
+
+-- Customer 11 also holds 21 commercial policies (201-221): Cust_Cursor's 20-row cap (line 907) needs a 21st FETCH that returns a row.
+-- Postcode GU215CP is theirs alone, so no other cursor scenario meets these rows.
+Insert Into <DB2DBID>.policy (policyNumber, customerNumber, issueDate, expiryDate, policyType, lastChanged,
+   brokerId, brokersReference, payment, commission)
+       Values (201, 11, '2026-04-01', '2027-03-31', 'C', '2026-04-01 08:00:00', NULL, '', NULL, 0);
+Insert Into <DB2DBID>.COMMERCIAL(PolicyNumber, RequestDate, StartDate, RenewalDate, Address, Zipcode, LatitudeN, LongitudeW,
+   Customer, PropertyType, FirePeril, FirePremium, CrimePeril, CrimePremium, FloodPeril, FloodPremium, WeatherPeril,
+   WeatherPremium, Status, RejectionReason)
+       Values (201, '2026-04-01 08:00:00', '2026-04-02', '2027-03-31', 'UNIT 1', 'GU215CP', '51.2362', '-0.5704',
+   'Analytical Engines', 'WAREHOUSE', 1, 1000, 1, 1000, 1, 1000, 1, 1000, 1, 'ACTIVE');
+Insert Into <DB2DBID>.policy (policyNumber, customerNumber, issueDate, expiryDate, policyType, lastChanged,
+   brokerId, brokersReference, payment, commission)
+       Values (202, 11, '2026-04-01', '2027-03-31', 'C', '2026-04-01 08:00:00', NULL, '', NULL, 0);
+Insert Into <DB2DBID>.COMMERCIAL(PolicyNumber, RequestDate, StartDate, RenewalDate, Address, Zipcode, LatitudeN, LongitudeW,
+   Customer, PropertyType, FirePeril, FirePremium, CrimePeril, CrimePremium, FloodPeril, FloodPremium, WeatherPeril,
+   WeatherPremium, Status, RejectionReason)
+       Values (202, '2026-04-01 08:00:00', '2026-04-02', '2027-03-31', 'UNIT 2', 'GU215CP', '51.2362', '-0.5704',
+   'Analytical Engines', 'WAREHOUSE', 1, 1000, 1, 1000, 1, 1000, 1, 1000, 1, 'ACTIVE');
+Insert Into <DB2DBID>.policy (policyNumber, customerNumber, issueDate, expiryDate, policyType, lastChanged,
+   brokerId, brokersReference, payment, commission)
+       Values (203, 11, '2026-04-01', '2027-03-31', 'C', '2026-04-01 08:00:00', NULL, '', NULL, 0);
+Insert Into <DB2DBID>.COMMERCIAL(PolicyNumber, RequestDate, StartDate, RenewalDate, Address, Zipcode, LatitudeN, LongitudeW,
+   Customer, PropertyType, FirePeril, FirePremium, CrimePeril, CrimePremium, FloodPeril, FloodPremium, WeatherPeril,
+   WeatherPremium, Status, RejectionReason)
+       Values (203, '2026-04-01 08:00:00', '2026-04-02', '2027-03-31', 'UNIT 3', 'GU215CP', '51.2362', '-0.5704',
+   'Analytical Engines', 'WAREHOUSE', 1, 1000, 1, 1000, 1, 1000, 1, 1000, 1, 'ACTIVE');
+Insert Into <DB2DBID>.policy (policyNumber, customerNumber, issueDate, expiryDate, policyType, lastChanged,
+   brokerId, brokersReference, payment, commission)
+       Values (204, 11, '2026-04-01', '2027-03-31', 'C', '2026-04-01 08:00:00', NULL, '', NULL, 0);
+Insert Into <DB2DBID>.COMMERCIAL(PolicyNumber, RequestDate, StartDate, RenewalDate, Address, Zipcode, LatitudeN, LongitudeW,
+   Customer, PropertyType, FirePeril, FirePremium, CrimePeril, CrimePremium, FloodPeril, FloodPremium, WeatherPeril,
+   WeatherPremium, Status, RejectionReason)
+       Values (204, '2026-04-01 08:00:00', '2026-04-02', '2027-03-31', 'UNIT 4', 'GU215CP', '51.2362', '-0.5704',
+   'Analytical Engines', 'WAREHOUSE', 1, 1000, 1, 1000, 1, 1000, 1, 1000, 1, 'ACTIVE');
+Insert Into <DB2DBID>.policy (policyNumber, customerNumber, issueDate, expiryDate, policyType, lastChanged,
+   brokerId, brokersReference, payment, commission)
+       Values (205, 11, '2026-04-01', '2027-03-31', 'C', '2026-04-01 08:00:00', NULL, '', NULL, 0);
+Insert Into <DB2DBID>.COMMERCIAL(PolicyNumber, RequestDate, StartDate, RenewalDate, Address, Zipcode, LatitudeN, LongitudeW,
+   Customer, PropertyType, FirePeril, FirePremium, CrimePeril, CrimePremium, FloodPeril, FloodPremium, WeatherPeril,
+   WeatherPremium, Status, RejectionReason)
+       Values (205, '2026-04-01 08:00:00', '2026-04-02', '2027-03-31', 'UNIT 5', 'GU215CP', '51.2362', '-0.5704',
+   'Analytical Engines', 'WAREHOUSE', 1, 1000, 1, 1000, 1, 1000, 1, 1000, 1, 'ACTIVE');
+Insert Into <DB2DBID>.policy (policyNumber, customerNumber, issueDate, expiryDate, policyType, lastChanged,
+   brokerId, brokersReference, payment, commission)
+       Values (206, 11, '2026-04-01', '2027-03-31', 'C', '2026-04-01 08:00:00', NULL, '', NULL, 0);
+Insert Into <DB2DBID>.COMMERCIAL(PolicyNumber, RequestDate, StartDate, RenewalDate, Address, Zipcode, LatitudeN, LongitudeW,
+   Customer, PropertyType, FirePeril, FirePremium, CrimePeril, CrimePremium, FloodPeril, FloodPremium, WeatherPeril,
+   WeatherPremium, Status, RejectionReason)
+       Values (206, '2026-04-01 08:00:00', '2026-04-02', '2027-03-31', 'UNIT 6', 'GU215CP', '51.2362', '-0.5704',
+   'Analytical Engines', 'WAREHOUSE', 1, 1000, 1, 1000, 1, 1000, 1, 1000, 1, 'ACTIVE');
+Insert Into <DB2DBID>.policy (policyNumber, customerNumber, issueDate, expiryDate, policyType, lastChanged,
+   brokerId, brokersReference, payment, commission)
+       Values (207, 11, '2026-04-01', '2027-03-31', 'C', '2026-04-01 08:00:00', NULL, '', NULL, 0);
+Insert Into <DB2DBID>.COMMERCIAL(PolicyNumber, RequestDate, StartDate, RenewalDate, Address, Zipcode, LatitudeN, LongitudeW,
+   Customer, PropertyType, FirePeril, FirePremium, CrimePeril, CrimePremium, FloodPeril, FloodPremium, WeatherPeril,
+   WeatherPremium, Status, RejectionReason)
+       Values (207, '2026-04-01 08:00:00', '2026-04-02', '2027-03-31', 'UNIT 7', 'GU215CP', '51.2362', '-0.5704',
+   'Analytical Engines', 'WAREHOUSE', 1, 1000, 1, 1000, 1, 1000, 1, 1000, 1, 'ACTIVE');
+Insert Into <DB2DBID>.policy (policyNumber, customerNumber, issueDate, expiryDate, policyType, lastChanged,
+   brokerId, brokersReference, payment, commission)
+       Values (208, 11, '2026-04-01', '2027-03-31', 'C', '2026-04-01 08:00:00', NULL, '', NULL, 0);
+Insert Into <DB2DBID>.COMMERCIAL(PolicyNumber, RequestDate, StartDate, RenewalDate, Address, Zipcode, LatitudeN, LongitudeW,
+   Customer, PropertyType, FirePeril, FirePremium, CrimePeril, CrimePremium, FloodPeril, FloodPremium, WeatherPeril,
+   WeatherPremium, Status, RejectionReason)
+       Values (208, '2026-04-01 08:00:00', '2026-04-02', '2027-03-31', 'UNIT 8', 'GU215CP', '51.2362', '-0.5704',
+   'Analytical Engines', 'WAREHOUSE', 1, 1000, 1, 1000, 1, 1000, 1, 1000, 1, 'ACTIVE');
+Insert Into <DB2DBID>.policy (policyNumber, customerNumber, issueDate, expiryDate, policyType, lastChanged,
+   brokerId, brokersReference, payment, commission)
+       Values (209, 11, '2026-04-01', '2027-03-31', 'C', '2026-04-01 08:00:00', NULL, '', NULL, 0);
+Insert Into <DB2DBID>.COMMERCIAL(PolicyNumber, RequestDate, StartDate, RenewalDate, Address, Zipcode, LatitudeN, LongitudeW,
+   Customer, PropertyType, FirePeril, FirePremium, CrimePeril, CrimePremium, FloodPeril, FloodPremium, WeatherPeril,
+   WeatherPremium, Status, RejectionReason)
+       Values (209, '2026-04-01 08:00:00', '2026-04-02', '2027-03-31', 'UNIT 9', 'GU215CP', '51.2362', '-0.5704',
+   'Analytical Engines', 'WAREHOUSE', 1, 1000, 1, 1000, 1, 1000, 1, 1000, 1, 'ACTIVE');
+Insert Into <DB2DBID>.policy (policyNumber, customerNumber, issueDate, expiryDate, policyType, lastChanged,
+   brokerId, brokersReference, payment, commission)
+       Values (210, 11, '2026-04-01', '2027-03-31', 'C', '2026-04-01 08:00:00', NULL, '', NULL, 0);
+Insert Into <DB2DBID>.COMMERCIAL(PolicyNumber, RequestDate, StartDate, RenewalDate, Address, Zipcode, LatitudeN, LongitudeW,
+   Customer, PropertyType, FirePeril, FirePremium, CrimePeril, CrimePremium, FloodPeril, FloodPremium, WeatherPeril,
+   WeatherPremium, Status, RejectionReason)
+       Values (210, '2026-04-01 08:00:00', '2026-04-02', '2027-03-31', 'UNIT 10', 'GU215CP', '51.2362', '-0.5704',
+   'Analytical Engines', 'WAREHOUSE', 1, 1000, 1, 1000, 1, 1000, 1, 1000, 1, 'ACTIVE');
+Insert Into <DB2DBID>.policy (policyNumber, customerNumber, issueDate, expiryDate, policyType, lastChanged,
+   brokerId, brokersReference, payment, commission)
+       Values (211, 11, '2026-04-01', '2027-03-31', 'C', '2026-04-01 08:00:00', NULL, '', NULL, 0);
+Insert Into <DB2DBID>.COMMERCIAL(PolicyNumber, RequestDate, StartDate, RenewalDate, Address, Zipcode, LatitudeN, LongitudeW,
+   Customer, PropertyType, FirePeril, FirePremium, CrimePeril, CrimePremium, FloodPeril, FloodPremium, WeatherPeril,
+   WeatherPremium, Status, RejectionReason)
+       Values (211, '2026-04-01 08:00:00', '2026-04-02', '2027-03-31', 'UNIT 11', 'GU215CP', '51.2362', '-0.5704',
+   'Analytical Engines', 'WAREHOUSE', 1, 1000, 1, 1000, 1, 1000, 1, 1000, 1, 'ACTIVE');
+Insert Into <DB2DBID>.policy (policyNumber, customerNumber, issueDate, expiryDate, policyType, lastChanged,
+   brokerId, brokersReference, payment, commission)
+       Values (212, 11, '2026-04-01', '2027-03-31', 'C', '2026-04-01 08:00:00', NULL, '', NULL, 0);
+Insert Into <DB2DBID>.COMMERCIAL(PolicyNumber, RequestDate, StartDate, RenewalDate, Address, Zipcode, LatitudeN, LongitudeW,
+   Customer, PropertyType, FirePeril, FirePremium, CrimePeril, CrimePremium, FloodPeril, FloodPremium, WeatherPeril,
+   WeatherPremium, Status, RejectionReason)
+       Values (212, '2026-04-01 08:00:00', '2026-04-02', '2027-03-31', 'UNIT 12', 'GU215CP', '51.2362', '-0.5704',
+   'Analytical Engines', 'WAREHOUSE', 1, 1000, 1, 1000, 1, 1000, 1, 1000, 1, 'ACTIVE');
+Insert Into <DB2DBID>.policy (policyNumber, customerNumber, issueDate, expiryDate, policyType, lastChanged,
+   brokerId, brokersReference, payment, commission)
+       Values (213, 11, '2026-04-01', '2027-03-31', 'C', '2026-04-01 08:00:00', NULL, '', NULL, 0);
+Insert Into <DB2DBID>.COMMERCIAL(PolicyNumber, RequestDate, StartDate, RenewalDate, Address, Zipcode, LatitudeN, LongitudeW,
+   Customer, PropertyType, FirePeril, FirePremium, CrimePeril, CrimePremium, FloodPeril, FloodPremium, WeatherPeril,
+   WeatherPremium, Status, RejectionReason)
+       Values (213, '2026-04-01 08:00:00', '2026-04-02', '2027-03-31', 'UNIT 13', 'GU215CP', '51.2362', '-0.5704',
+   'Analytical Engines', 'WAREHOUSE', 1, 1000, 1, 1000, 1, 1000, 1, 1000, 1, 'ACTIVE');
+Insert Into <DB2DBID>.policy (policyNumber, customerNumber, issueDate, expiryDate, policyType, lastChanged,
+   brokerId, brokersReference, payment, commission)
+       Values (214, 11, '2026-04-01', '2027-03-31', 'C', '2026-04-01 08:00:00', NULL, '', NULL, 0);
+Insert Into <DB2DBID>.COMMERCIAL(PolicyNumber, RequestDate, StartDate, RenewalDate, Address, Zipcode, LatitudeN, LongitudeW,
+   Customer, PropertyType, FirePeril, FirePremium, CrimePeril, CrimePremium, FloodPeril, FloodPremium, WeatherPeril,
+   WeatherPremium, Status, RejectionReason)
+       Values (214, '2026-04-01 08:00:00', '2026-04-02', '2027-03-31', 'UNIT 14', 'GU215CP', '51.2362', '-0.5704',
+   'Analytical Engines', 'WAREHOUSE', 1, 1000, 1, 1000, 1, 1000, 1, 1000, 1, 'ACTIVE');
+Insert Into <DB2DBID>.policy (policyNumber, customerNumber, issueDate, expiryDate, policyType, lastChanged,
+   brokerId, brokersReference, payment, commission)
+       Values (215, 11, '2026-04-01', '2027-03-31', 'C', '2026-04-01 08:00:00', NULL, '', NULL, 0);
+Insert Into <DB2DBID>.COMMERCIAL(PolicyNumber, RequestDate, StartDate, RenewalDate, Address, Zipcode, LatitudeN, LongitudeW,
+   Customer, PropertyType, FirePeril, FirePremium, CrimePeril, CrimePremium, FloodPeril, FloodPremium, WeatherPeril,
+   WeatherPremium, Status, RejectionReason)
+       Values (215, '2026-04-01 08:00:00', '2026-04-02', '2027-03-31', 'UNIT 15', 'GU215CP', '51.2362', '-0.5704',
+   'Analytical Engines', 'WAREHOUSE', 1, 1000, 1, 1000, 1, 1000, 1, 1000, 1, 'ACTIVE');
+Insert Into <DB2DBID>.policy (policyNumber, customerNumber, issueDate, expiryDate, policyType, lastChanged,
+   brokerId, brokersReference, payment, commission)
+       Values (216, 11, '2026-04-01', '2027-03-31', 'C', '2026-04-01 08:00:00', NULL, '', NULL, 0);
+Insert Into <DB2DBID>.COMMERCIAL(PolicyNumber, RequestDate, StartDate, RenewalDate, Address, Zipcode, LatitudeN, LongitudeW,
+   Customer, PropertyType, FirePeril, FirePremium, CrimePeril, CrimePremium, FloodPeril, FloodPremium, WeatherPeril,
+   WeatherPremium, Status, RejectionReason)
+       Values (216, '2026-04-01 08:00:00', '2026-04-02', '2027-03-31', 'UNIT 16', 'GU215CP', '51.2362', '-0.5704',
+   'Analytical Engines', 'WAREHOUSE', 1, 1000, 1, 1000, 1, 1000, 1, 1000, 1, 'ACTIVE');
+Insert Into <DB2DBID>.policy (policyNumber, customerNumber, issueDate, expiryDate, policyType, lastChanged,
+   brokerId, brokersReference, payment, commission)
+       Values (217, 11, '2026-04-01', '2027-03-31', 'C', '2026-04-01 08:00:00', NULL, '', NULL, 0);
+Insert Into <DB2DBID>.COMMERCIAL(PolicyNumber, RequestDate, StartDate, RenewalDate, Address, Zipcode, LatitudeN, LongitudeW,
+   Customer, PropertyType, FirePeril, FirePremium, CrimePeril, CrimePremium, FloodPeril, FloodPremium, WeatherPeril,
+   WeatherPremium, Status, RejectionReason)
+       Values (217, '2026-04-01 08:00:00', '2026-04-02', '2027-03-31', 'UNIT 17', 'GU215CP', '51.2362', '-0.5704',
+   'Analytical Engines', 'WAREHOUSE', 1, 1000, 1, 1000, 1, 1000, 1, 1000, 1, 'ACTIVE');
+Insert Into <DB2DBID>.policy (policyNumber, customerNumber, issueDate, expiryDate, policyType, lastChanged,
+   brokerId, brokersReference, payment, commission)
+       Values (218, 11, '2026-04-01', '2027-03-31', 'C', '2026-04-01 08:00:00', NULL, '', NULL, 0);
+Insert Into <DB2DBID>.COMMERCIAL(PolicyNumber, RequestDate, StartDate, RenewalDate, Address, Zipcode, LatitudeN, LongitudeW,
+   Customer, PropertyType, FirePeril, FirePremium, CrimePeril, CrimePremium, FloodPeril, FloodPremium, WeatherPeril,
+   WeatherPremium, Status, RejectionReason)
+       Values (218, '2026-04-01 08:00:00', '2026-04-02', '2027-03-31', 'UNIT 18', 'GU215CP', '51.2362', '-0.5704',
+   'Analytical Engines', 'WAREHOUSE', 1, 1000, 1, 1000, 1, 1000, 1, 1000, 1, 'ACTIVE');
+Insert Into <DB2DBID>.policy (policyNumber, customerNumber, issueDate, expiryDate, policyType, lastChanged,
+   brokerId, brokersReference, payment, commission)
+       Values (219, 11, '2026-04-01', '2027-03-31', 'C', '2026-04-01 08:00:00', NULL, '', NULL, 0);
+Insert Into <DB2DBID>.COMMERCIAL(PolicyNumber, RequestDate, StartDate, RenewalDate, Address, Zipcode, LatitudeN, LongitudeW,
+   Customer, PropertyType, FirePeril, FirePremium, CrimePeril, CrimePremium, FloodPeril, FloodPremium, WeatherPeril,
+   WeatherPremium, Status, RejectionReason)
+       Values (219, '2026-04-01 08:00:00', '2026-04-02', '2027-03-31', 'UNIT 19', 'GU215CP', '51.2362', '-0.5704',
+   'Analytical Engines', 'WAREHOUSE', 1, 1000, 1, 1000, 1, 1000, 1, 1000, 1, 'ACTIVE');
+Insert Into <DB2DBID>.policy (policyNumber, customerNumber, issueDate, expiryDate, policyType, lastChanged,
+   brokerId, brokersReference, payment, commission)
+       Values (220, 11, '2026-04-01', '2027-03-31', 'C', '2026-04-01 08:00:00', NULL, '', NULL, 0);
+Insert Into <DB2DBID>.COMMERCIAL(PolicyNumber, RequestDate, StartDate, RenewalDate, Address, Zipcode, LatitudeN, LongitudeW,
+   Customer, PropertyType, FirePeril, FirePremium, CrimePeril, CrimePremium, FloodPeril, FloodPremium, WeatherPeril,
+   WeatherPremium, Status, RejectionReason)
+       Values (220, '2026-04-01 08:00:00', '2026-04-02', '2027-03-31', 'UNIT 20', 'GU215CP', '51.2362', '-0.5704',
+   'Analytical Engines', 'WAREHOUSE', 1, 1000, 1, 1000, 1, 1000, 1, 1000, 1, 'ACTIVE');
+Insert Into <DB2DBID>.policy (policyNumber, customerNumber, issueDate, expiryDate, policyType, lastChanged,
+   brokerId, brokersReference, payment, commission)
+       Values (221, 11, '2026-04-01', '2027-03-31', 'C', '2026-04-01 08:00:00', NULL, '', NULL, 0);
+Insert Into <DB2DBID>.COMMERCIAL(PolicyNumber, RequestDate, StartDate, RenewalDate, Address, Zipcode, LatitudeN, LongitudeW,
+   Customer, PropertyType, FirePeril, FirePremium, CrimePeril, CrimePremium, FloodPeril, FloodPremium, WeatherPeril,
+   WeatherPremium, Status, RejectionReason)
+       Values (221, '2026-04-01 08:00:00', '2026-04-02', '2027-03-31', 'UNIT 21', 'GU215CP', '51.2362', '-0.5704',
+   'Analytical Engines', 'WAREHOUSE', 1, 1000, 1, 1000, 1, 1000, 1, 1000, 1, 'ACTIVE');

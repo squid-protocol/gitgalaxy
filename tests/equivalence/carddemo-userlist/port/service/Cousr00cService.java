@@ -240,7 +240,11 @@ public class Cousr00cService {
         }
 
         String str(String v, int off, int w, int len) {
-            return CobolRecords.fit(off < len ? v : null, w, cs);
+            if (v == null || off >= len) {
+                return CobolRecords.fit(null, w, cs);
+            }
+            // a field the COMMAREA ends inside keeps only the bytes it holds (EIBCALEN - off), the rest are spaces
+            return CobolRecords.fit(CobolRecords.fit(v, w, cs).substring(0, Math.min(w, len - off)), w, cs);
         }
 
         /** MOVE DFHCOMMAREA(1:EIBCALEN) TO CARDDEMO-COMMAREA: bytes past EIBCALEN are spaces. */
@@ -588,7 +592,11 @@ public class Cousr00cService {
             Optional<Cousr0aScreen> in = task.receive(Cousr0aScreen.MAP, Cousr0aScreen.MAPSET, Cousr0aScreen.class);
             if (in.isPresent()) {
                 for (Map.Entry<String, String> e : in.get().screenValues().entrySet()) {
-                    put(e.getKey(), e.getValue() == null ? "" : e.getValue());
+                    if (e.getValue() == null) {
+                        low(e.getKey());   // a field the terminal did not send arrives as LOW-VALUES
+                    } else {
+                        put(e.getKey(), e.getValue());
+                    }
                 }
             }
             respCd = in.isPresent() ? 0 : 36;

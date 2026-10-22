@@ -64,7 +64,9 @@ _SHEBANG_ENV_SKIP = re.compile(r"^(?:-|[A-Za-z_]\w*=)")
 
 # #5876: syntax only Objective-C carries, line-leading so a comment or string cannot supply it. A `.h` is
 # objective-c only when its own text has one of these; a `.m` neighbour or a same-stem `.m` never decides it.
-_OBJC_SYNTAX = re.compile(r"^[ \t]*(?:@(?:interface|implementation|protocol|class|end)\b|#[ \t]*import\b)", re.MULTILINE)
+_OBJC_SYNTAX = re.compile(
+    r"^[ \t]*(?:@(?:interface|implementation|protocol|class|end)\b|#[ \t]*import\b)", re.MULTILINE
+)
 
 
 def _shebang_interpreter(first_line: str) -> str:

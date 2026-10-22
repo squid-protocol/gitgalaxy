@@ -8,9 +8,13 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 OBJC_IFACE = "#import <Foundation/Foundation.h>\n\n@interface Widget : NSObject\n- (void)reset;\n@end\n"
 OBJC_FORWARD = "@class Widget;\n\nvoid widget_register(Widget *w);\n"
 OBJC_IMPL = "#import <Foundation/Foundation.h>\n\n@implementation Widget\n- (void)reset {\n}\n@end\n"
-PLAIN_C = "#ifndef GLUE_H\n#define GLUE_H\n\nvoid *glue_create(float size, int weight);\nint glue_count(void);\n\n#endif\n"
+PLAIN_C = (
+    "#ifndef GLUE_H\n#define GLUE_H\n\nvoid *glue_create(float size, int weight);\nint glue_count(void);\n\n#endif\n"
+)
 # the C++ guard Doomsday-style bridge headers carry
-EXTERN_C = "#ifdef __cplusplus\nextern \"C\" {\n#endif\n\nvoid *bridge_font(float size);\n\n#ifdef __cplusplus\n}\n#endif\n"
+EXTERN_C = (
+    '#ifdef __cplusplus\nextern "C" {\n#endif\n\nvoid *bridge_font(float size);\n\n#ifdef __cplusplus\n}\n#endif\n'
+)
 
 
 def _lang(root, name, ext_tally):

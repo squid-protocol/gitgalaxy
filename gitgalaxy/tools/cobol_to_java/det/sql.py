@@ -117,13 +117,20 @@ _SAVEPOINT = re.compile(r"SAVEPOINT\s.*|ROLLBACK(?:\s+WORK)?\s+TO\s+SAVEPOINT(?:
 _IMMEDIATE = re.compile(r"EXECUTE\s+IMMEDIATE\s+'((?:[^']|'')*)'", re.I)
 # #4269: PREPARE name FROM 'text' / EXECUTE name (no USING): the same literal-text path as EXECUTE IMMEDIATE
 _PREPARE = re.compile(r"PREPARE\s+([A-Z0-9_-]+)\s+FROM\s+'((?:[^']|'')*)'", re.I)
-_EXECUTE = re.compile(r"EXECUTE\s+([A-Z0-9_-]+)", re.I)
-_IMMEDIATE_INSERT = re.compile(r"INSERT\s+INTO\s[^?]*\bVALUES\b[^?]*", re.I | re.S)
+# (#4269: ... USING :H1, :H2 binds the prepared text's parameter markers, one host variable each)
+_EXECUTE = re.compile(r"EXECUTE\s+([A-Z0-9_-]+)(?:\s+USING\s+(.+))?", re.I)
+_IMMEDIATE_INSERT = re.compile(r"INSERT\s+INTO\s.*\bVALUES\b.*", re.I | re.S)
+_QUOTED = re.compile(r"'(?:[^']|'')*'")
 _HOLD = re.compile(r"\bDECLARE\s+([A-Z0-9_-]+)\s+(?:[A-Z]+\s+){0,2}?CURSOR\s+WITH\s+HOLD\b", re.I)
 
 
 # #4269: what a PREPARE runs: a statement Db2 answers SQLCODE 0 with no row touched (the SQLCA a PREPARE leaves)
 PREPARE_NOOP = "VALUES 1"
+
+
+def _markers(text: str) -> list[int]:
+    """#4269: the offsets of the parameter markers (`?`) in a statement text, outside its string literals."""
+    return [m.start() for m in re.finditer(r"\?", _QUOTED.sub(lambda q: " " * len(q.group()), text))]
 
 
 def _norm(text: str) -> str:
@@ -404,19 +411,20 @@ class Sql:
         if self.g.cics is not None:
             raise SqlError("EXEC SQL EXECUTE IMMEDIATE in a CICS program: the task's unit of work is not modelled "
                            "for it (a later slice)")  # fmt: skip
-        if not _IMMEDIATE_INSERT.fullmatch(text.strip()) or re.search(r"\bSELECT\b", text, re.I):
+        if not _IMMEDIATE_INSERT.fullmatch(text.strip()) or re.search(r"\bSELECT\b", text, re.I) or _markers(text):
             raise SqlError("EXEC SQL EXECUTE IMMEDIATE: only INSERT ... VALUES (no parameter marker) is modelled")
         at = self.g_str(f"{self.program}:{line}")
         return [f"{ind}DetSql.savepoint(SQLCA_AREA, {at}, {self.g_str(text.strip())}, CS);"]
 
     def _literal_text(self, text: str, what: str) -> str:
-        """#4269: the dynamic statement text this slice runs: an INSERT ... VALUES with no parameter marker, no CICS."""
+        """#4269: the dynamic statement text this slice runs: an INSERT ... VALUES, no CICS (parameter markers are
+        bound by an EXECUTE ... USING; an unbound one is Db2's -313 and refused at the EXECUTE)."""
         if self.g.cics is not None:
             raise SqlError(f"EXEC SQL {what} in a CICS program: the task's unit of work is not modelled for it "
                            "(a later slice)")  # fmt: skip
         if not _IMMEDIATE_INSERT.fullmatch(text.strip()) or re.search(r"\bSELECT\b", text, re.I):
             why = f"EXEC SQL {what}: only "
-            why += "INSERT ... VALUES (no parameter marker) is modelled"
+            why += "INSERT ... VALUES is modelled"
             raise SqlError(why)
         return text.strip()
 
@@ -424,7 +432,8 @@ class Sql:
         """#4269: PREPARE name FROM 'INSERT ... VALUES ...' (IBM Db2 for z/OS SQL Reference, PREPARE). The text is
         kept for the EXECUTE; the statement itself leaves the SQLCA at SQLCODE 0 and touches no row. Assumption: Db2's
         -104 for text it cannot parse lands at the EXECUTE here, not at the PREPARE. A name PREPAREd with two
-        different literals is refused (which text an EXECUTE runs is control flow)."""
+        different literals is refused (which text an EXECUTE runs is control flow). Parameter markers are allowed: the
+        EXECUTE ... USING binds them."""
         m = _PREPARE.fullmatch(sql)
         if m is None:
             raise SqlError(f"EXEC SQL {sql[:50]}")
@@ -436,9 +445,13 @@ class Sql:
         return [f"{ind}DetSql.savepoint(SQLCA_AREA, {at}, {self.g_str(PREPARE_NOOP)}, CS);"]
 
     def _execute_prepared(self, sql: str, line: int, ind: str) -> list[str]:
-        """#4269: EXECUTE name (no USING) of a name PREPAREd earlier in the source from a literal: that text runs as
+        """#4269: EXECUTE name [USING :H, ...] of a name PREPAREd earlier in the source from a literal: that text runs as
         EXECUTE IMMEDIATE's does. An EXECUTE reached at run time before its PREPARE (-518) is not modelled; one placed
-        before every PREPARE of the name in the source is refused."""
+        before every PREPARE of the name in the source is refused. USING binds the text's parameter markers, one scalar
+        host variable (with an optional indicator) each, by value at the EXECUTE: the port writes the value into the
+        text as a literal (a character value quoted, an indicator below zero NULL, a number as its digits) where Db2
+        binds it. Assumption: that is the same row for an INSERT ... VALUES. Refused by name: USING DESCRIPTOR, a
+        host structure or array, and a marker count that is not the host-variable count (Db2 answers -313)."""
         m = _EXECUTE.fullmatch(sql)
         if m is None:
             raise SqlError(f"EXEC SQL {sql[:50]}")
@@ -451,7 +464,32 @@ class Sql:
             raise SqlError(f"EXEC SQL EXECUTE {name}: prepared from more than one literal text")
         text = self._literal_text(next(iter(texts)), "EXECUTE")
         at = self.g_str(f"{self.program}:{line}")
-        return [f"{ind}DetSql.savepoint(SQLCA_AREA, {at}, {self.g_str(text)}, CS);"]
+        marks = _markers(text)
+        using = m.group(2) or ""
+        hosts = list(_HOST.finditer(using))
+        if re.sub(r"[\s,]", "", _HOST.sub("", using)) or (using and not hosts):
+            raise SqlError(f"EXEC SQL EXECUTE {name} USING {using[:30]}: only host variables are modelled")
+        if len(hosts) != len(marks):
+            raise SqlError(f"EXEC SQL EXECUTE {name}: {len(marks)} parameter markers, {len(hosts)} USING host "
+                           "variables (Db2 answers -313)")  # fmt: skip
+        if not marks:
+            return [f"{ind}DetSql.savepoint(SQLCA_AREA, {at}, {self.g_str(text)}, CS);"]
+        out, parts, last = [], [], 0
+        for h, pos in zip(hosts, marks, strict=True):
+            items = self._elementary(self._item(self._ref(h.group(1))))
+            if len(items) != 1:
+                raise SqlError(f"a host structure in EXECUTE {name} USING (:{h.group(1)})")
+            value = self.value_in(items[0])
+            if h.group(2):
+                value = f"DetSql.orNull({value}, {self.g.field_expr(self._ref(h.group(2)))}, CS)"
+            v = self.g.tmpname("sqlArg")
+            out.append(f"{ind}Object {v} = {value};")
+            parts += [self.g_str(text[last:pos]),
+                      f'({v} == null ? "NULL" : {v} instanceof String ? "\'" + ((String) {v}).replace("\'", "\'\'") + '
+                      f'"\'" : ((java.math.BigDecimal) {v}).toPlainString())']  # fmt: skip
+            last = pos + 1
+        parts.append(self.g_str(text[last:]))
+        return [*out, f"{ind}DetSql.savepoint(SQLCA_AREA, {at}, {' + '.join(parts)}, CS);"]
 
     def _savepoint(self, sql: str, u: str, line: int, ind: str) -> list[str]:
         """#4269: SAVEPOINT, ROLLBACK [WORK] TO SAVEPOINT, RELEASE SAVEPOINT (IBM Db2 for z/OS SQL Reference): run as

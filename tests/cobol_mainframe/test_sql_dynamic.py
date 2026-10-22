@@ -4,8 +4,9 @@ IBM Db2 for z/OS SQL Reference, EXECUTE IMMEDIATE statement: the statement strin
 Db2 answering it (its SQLCODE lands in the SQLCA). Modelled here: a string-literal text of an INSERT ... VALUES, run as
 written on the unit of work's connection (DetSql.savepoint's path). Refused by name, never guessed: a host variable as
 the text, a searched UPDATE / DELETE / MERGE and an INSERT ... SELECT (each is +100 when it changes no row, a count the
-connection does not give back), a parameter marker, DDL, and a CICS program. PREPARE FROM such a literal keeps the text
-(the statement runs a no-op, SQLCODE 0); an EXECUTE of the name runs it, EXECUTE ... USING stays refused.
+connection does not give back), a parameter marker in EXECUTE IMMEDIATE, DDL, and a CICS program. PREPARE FROM such a
+literal keeps the text (the statement runs a no-op, SQLCODE 0); an EXECUTE of the name runs it. Its parameter markers
+are bound by EXECUTE ... USING :H [:IND], ...: the port writes each value into the text as a literal, Db2 binds it.
 """
 
 from __future__ import annotations
@@ -64,10 +65,10 @@ def test_the_statement_text_may_span_lines_and_keep_its_case():
         ("EXECUTE IMMEDIATE 'COMMIT'", "INSERT ... VALUES"),
         ("EXECUTE IMMEDIATE 'SELECT 1 FROM SYSIBM.SYSDUMMY1'", "INSERT ... VALUES"),
         ("EXECUTE STMT1 USING :A", "EXEC SQL EXECUTE"),
+        ("EXECUTE STMT1 USING DESCRIPTOR :SQLDA", "EXEC SQL EXECUTE"),
         ("EXECUTE STMT1", "EXEC SQL EXECUTE"),
         ("PREPARE STMT1 FROM :TXT", "EXEC SQL PREPARE"),
         ("PREPARE STMT1 INTO :SQLDA FROM 'INSERT INTO T VALUES (1)'", "EXEC SQL PREPARE"),
-        ("PREPARE STMT1 FROM 'INSERT INTO T VALUES (?, 1)'", "INSERT ... VALUES"),
         ("PREPARE STMT1 FROM 'DELETE FROM T'", "INSERT ... VALUES"),
         ("PREPARE STMT1 FROM 'SELECT 1 FROM SYSIBM.SYSDUMMY1'", "INSERT ... VALUES"),
         ("PREPARE STMT1 FROM 'INSERT INTO T SELECT A FROM U'", "INSERT ... VALUES"),
@@ -150,7 +151,8 @@ def test_dyndemo_translates_whole_with_the_whenever_after_a_dynamic_statement():
     # (the two SELECTs have no generated repository method without the forge's project: the e2e test below has one)
     holes = [h for h in r.stats["holes"] if "no generated Db2 repository method" not in h]
     assert holes == [], "\n".join(holes)
-    assert r.java.count("DetSql.savepoint(") == 7  # 4 immediate, the PREPARE's no-op, 2 EXECUTEs
+    assert r.java.count("DetSql.savepoint(") == 11  # 4 immediate, 2 PREPARE no-ops, 2 EXECUTEs, 3 EXECUTE ... USING
+    assert "INSERT INTO GGDYN.DTAB VALUES (" in r.java and "instanceof String" in r.java
     assert "INSERT INTO GGDYN.DTAB VALUES (5, 'PREP')" in r.java.replace('\\"', '"')
     assert "INSERT INTO GGDYN.DTAB VALUES (3, 'IT''S')" in r.java.replace('\\"', '"')
 
@@ -162,15 +164,17 @@ def test_the_oracles_precompiler_runs_the_literal_as_written(tmp_path):
     out, table = ES.precompile(src, [DYN / "cbl"], DYN / "cbl" / "DYNDEMO.cbl", 1, "DYNDEMO")
     assert "EXECUTE S1" not in out and "PREPARE S1" not in out
     assert "Q INSERT INTO GGDYN.DTAB VALUES (3, 'IT''S')" in table.splitlines()
-    assert table.count(" EXEC 0 0 ") == 7
-    assert table.count("Q VALUES 1") == 1  # the PREPARE
+    assert table.count(" EXEC 0 0 ") == 8
+    assert table.count(" EXEC 2 0 ") == 3  # the EXECUTE ... USING: two host variables each
+    assert table.count("Q VALUES 1") == 2  # the PREPAREs
     assert "IF SQLCODE < 0" in out  # the WHENEVER after the first dynamic statements applies to the last
 
 
 @pytest.mark.parametrize(
     "stmt",
     ["EXECUTE IMMEDIATE :STMT", "EXECUTE IMMEDIATE 'DELETE FROM T'", "EXECUTE IMMEDIATE 'INSERT INTO T SELECT 1 FROM U'",
-     "EXECUTE S1", "PREPARE S1 FROM 'SELECT 1'", "PREPARE S1 FROM :TXT"],
+     "EXECUTE S1", "PREPARE S1 FROM 'SELECT 1'", "PREPARE S1 FROM :TXT",
+     "EXECUTE IMMEDIATE 'INSERT INTO T VALUES (?, 1)'"],
 )  # fmt: skip
 def test_the_oracles_precompiler_refuses_what_the_port_refuses(tmp_path, stmt):
     import equivalence_sql as ES
@@ -191,6 +195,10 @@ D DUPLICATE       -803
 F PREPARE          0
 G EXECUTE          0
 H AGAIN       -803
+J USING          0
+K BOUND BOUND'S   
+L USING AGAIN       -803
+M NULL NAME       -407
 I MISSING TABLE       -204
 """
 
@@ -234,3 +242,80 @@ def test_dyndemo_det_port_proves_on_db2(tmp_path):
     report = json.loads((keep / "report.json").read_text(encoding="utf-8"))
     assert report["proven"] is True
     assert (keep / "cobol" / "stdout.txt").read_text(encoding="latin-1") == TRACED
+
+
+# ---- EXECUTE name USING :H [:IND], ...: the parameter markers of a prepared INSERT (#4269) --------------------------
+class _Host(_Gen):
+    """Host variables WS-ID (numeric), WS-NAME (character), WS-IND (the indicator) and a group, by name."""
+
+    n = 0
+
+    def tmpname(self, base):
+        self.n += 1
+        return f"{base}{self.n}"
+
+    def resolve(self, ref):
+        if ref.name == "WS-GRP":
+            return SimpleNamespace(name="WS-GRP", pic=None, occurs=1, children=[
+                SimpleNamespace(name="A", pic="X", occurs=1, children=[], category="ALPHANUMERIC", level=5),
+                SimpleNamespace(name="B", pic="X", occurs=1, children=[], category="ALPHANUMERIC", level=5)],
+                category="GROUP", level=1, usage=None, parent=None)  # fmt: skip
+        cat = "NUMERIC" if ref.name in ("WS-ID", "WS-IND") else "ALPHANUMERIC"
+        return SimpleNamespace(name=ref.name, pic="9", occurs=1, children=[], category=cat, level=1, usage=None,
+                               parent=None)  # fmt: skip
+
+
+def _using(text, using, gen=None):
+    from gitgalaxy.tools.cobol_to_java.det.sql import Sql
+
+    sq = Sql(gen or _Host(), "P", None)
+    sq.scan_whenever([SimpleNamespace(line=3, text=f"EXEC SQL PREPARE S1 FROM '{text}' END-EXEC")])
+    return sq.command(f"EXEC SQL EXECUTE S1 {using} END-EXEC", 9, "")
+
+
+def test_using_writes_each_host_value_into_its_marker():
+    out = _using("INSERT INTO T VALUES (?, ?)", "USING :WS-ID, :WS-NAME")
+    assert out[0].startswith("Object ") and out[1].startswith("Object ")
+    call = out[2]
+    assert call.startswith('DetSql.savepoint(ca, "P:9", "INSERT INTO T VALUES (" + (')
+    assert call.count("instanceof String") == 2 and call.endswith('+ ")", CS);')
+    assert "DetSql.numIn(ca, CS)" in out[0] and "DetSql.charIn(ca, CS)" in out[1]
+
+
+def test_an_indicator_makes_the_value_null():
+    out = _using("INSERT INTO T VALUES (?, ?)", "USING :WS-ID :WS-IND, :WS-NAME")
+    assert "DetSql.orNull(DetSql.numIn(ca, CS), ca, CS)" in out[0]
+
+
+def test_a_question_mark_inside_a_string_literal_is_not_a_marker():
+    out = _using("INSERT INTO T VALUES (''WHY?'', ?)", "USING :WS-ID")
+    assert len(out) == 2 and "WHY?" in out[1]
+    assert _using("INSERT INTO T VALUES (''WHY?'')", "")[0].startswith("DetSql.savepoint(")
+
+
+@pytest.mark.parametrize(
+    "text, using, why",
+    [
+        ("INSERT INTO T VALUES (?, ?)", "USING :WS-ID", "2 parameter markers, 1 USING"),
+        ("INSERT INTO T VALUES (?)", "USING :WS-ID, :WS-NAME", "1 parameter markers, 2 USING"),
+        ("INSERT INTO T VALUES (?)", "", "1 parameter markers, 0 USING"),
+        ("INSERT INTO T VALUES (1)", "USING :WS-ID", "0 parameter markers, 1 USING"),
+        ("INSERT INTO T VALUES (?)", "USING WS-ID", "only host variables"),
+        ("INSERT INTO T VALUES (?)", "USING DESCRIPTOR :SQLDA", "only host variables"),
+        ("INSERT INTO T VALUES (?)", "USING :WS-GRP", "host structure"),
+    ],
+)
+def test_using_that_does_not_match_the_markers_is_refused_by_name(text, using, why):
+    from gitgalaxy.tools.cobol_to_java.det.sql import SqlError
+
+    with pytest.raises(SqlError, match=why):
+        _using(text, using)
+
+
+def test_using_in_a_cics_program_is_refused():
+    from gitgalaxy.tools.cobol_to_java.det.sql import SqlError
+
+    gen = _Host()
+    gen.cics = SimpleNamespace()
+    with pytest.raises(SqlError, match="CICS"):
+        _using("INSERT INTO T VALUES (?)", "USING :WS-ID", gen=gen)

@@ -322,12 +322,11 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     # #4443 re-ran CARDDEMO COMEN01C and COACTVWC (seed 0, 150 mutants each; their records judged older ports, so their
     # survivors were skipped), ending the skip: 6 more flagged survivors, all unreachable: the facade's lastLinkBytes()
     # and the program-name literal in region.run / region.linked. 89 -> 95.
-    # #6072 gave COACTVWC's hand port the abend path after a failed XCTL (the new pf3-xctl-fails-abend-routine scenario):
-    # its recorded mutation run judges the old port, so its 2 flagged survivors are skipped until it is re-run. 95 -> 93.
-    assert len(flagged) == 93 and verdicts.count("unreachable") == 90 and verdicts.count("equivalent") == 3
+    # #6072 re-ran COACTVWC on its hand port with the abend path (seed 0, 150 mutants): one fewer flagged survivor than
+    # #4443's 6 (the facade's lastLinkBytes(); the program-name literal in region.run / region.linked), all unreachable. 95 -> 94.
+    assert len(flagged) == 94 and verdicts.count("unreachable") == 91 and verdicts.count("equivalent") == 3
     assert not {prog for prog, _ in flagged} & {"CSUTLDTC"}
-    # COACTVWC is skipped while its record judges the old port (above), so only COMEN01C is still flagged.
-    assert {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C"} == {"COMEN01C"}
+    assert {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C"} == {"COACTVWC", "COMEN01C"}
 
 
 def test_the_re_run_crucible_ports_keep_their_measured_floor():

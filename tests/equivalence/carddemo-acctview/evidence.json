@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/carddemo-acctview/port/service/CoactvwcService.java"
   ],
-  "sha256": "6d5673e69cf2b4c68550cd32719472fcdeba7c594de15d09b9c1aa24532f8270",
+  "sha256": "06317f2808fdc4f02622d71a95a7fe2c9f90e25988c2ffd1672682ef62bb0fe1",
   "entry_points": [
    "handleTransaction",
    "runTask"
@@ -19,7 +19,7 @@
     "tests/equivalence/carddemo-acctview/port/**"
    ],
    "files": 1,
-   "sha256": "6d5673e69cf2b4c68550cd32719472fcdeba7c594de15d09b9c1aa24532f8270"
+   "sha256": "06317f2808fdc4f02622d71a95a7fe2c9f90e25988c2ffd1672682ef62bb0fe1"
   },
   "case": {
    "paths": [
@@ -179,10 +179,10 @@
     }
    }
   },
-  "digest": "3ef5c5eee44d6a49b5dd9abf5379e7731bd5533fb6cc15b41361aa4e61039f28"
+  "digest": "da38481db0b3175627d76bdc7c68fba9023ec70967bc9b573f1443cad40c13fd"
  },
  "proof": {
-  "at": "2026-10-22T22:31:48Z",
+  "at": "2026-10-22T23:28:28Z",
   "verdict": "proven",
   "runs": 36,
   "fault_runs": 7,
@@ -347,8 +347,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "d2daea624a9f39d0f6dcae4a57be746e515b5f06+uncommitted",
-  "inputs_digest": "3ef5c5eee44d6a49b5dd9abf5379e7731bd5533fb6cc15b41361aa4e61039f28"
+  "harness_commit": "776deaabf4eb9d65ef00c2a104c588d740f0425f",
+  "inputs_digest": "da38481db0b3175627d76bdc7c68fba9023ec70967bc9b573f1443cad40c13fd"
  },
  "coverage": {
   "paragraphs": {
@@ -426,7 +426,7 @@
    "total": 1
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "3ef5c5eee44d6a49b5dd9abf5379e7731bd5533fb6cc15b41361aa4e61039f28"
+  "inputs_digest": "da38481db0b3175627d76bdc7c68fba9023ec70967bc9b573f1443cad40c13fd"
  },
  "reach": {
   "entry_points": [
@@ -461,13 +461,13 @@
    {
     "class": "CoactvwcService",
     "method": "onAbendL264",
-    "line": 549,
+    "line": 550,
     "kind": "stub"
    },
    {
     "class": "CoactvwcService",
     "method": "abendLegacy9999L934",
-    "line": 559,
+    "line": 560,
     "kind": "left_as_generated"
    }
   ],
@@ -478,43 +478,43 @@
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "6d5673e69cf2b4c68550cd32719472fcdeba7c594de15d09b9c1aa24532f8270"
+  "port_sha256": "06317f2808fdc4f02622d71a95a7fe2c9f90e25988c2ffd1672682ef62bb0fe1"
  },
  "mutation": {
-  "commit": "fb2a45c87d106e9ac144267542bbe76df403785c",
+  "commit": "776deaabf4eb9d65ef00c2a104c588d740f0425f",
   "rejudged": null,
   "seed": 0,
   "mode": null,
-  "mutants": 428,
+  "mutants": 446,
   "chosen": 150,
-  "killed": 110,
-  "survived": 27,
+  "killed": 119,
+  "survived": 18,
   "stillborn": 13,
   "survivors": {
    "case_gap": 0,
    "harness_gap": 0,
-   "equivalent": 16,
-   "unreachable": 11,
+   "equivalent": 12,
+   "unreachable": 6,
    "untriaged": 0
   },
-  "score_raw": "110/137",
-  "score_adjusted": "110/110",
+  "score_raw": "119/137",
+  "score_adjusted": "119/119",
   "source": "docs/language_status/mutation_scores.json#carddemo-acctview/COACTVWC",
   "inputs": {
    "port": {
-    "sha256": "56019ff5b5aea133a1fbe4e41de1658790550de9eb5bfdf9f554a47031308577"
+    "sha256": "06317f2808fdc4f02622d71a95a7fe2c9f90e25988c2ffd1672682ef62bb0fe1"
    },
    "case": {
-    "sha256": "e13f3498edb2a843bdc55b02ae9a254b415b7d2770c06ccca13d7eb42607d1c0"
+    "sha256": "7c1bff9b54949b411c1db6fa8436e5a22e12c4de598feb7f6b34b12baab32394"
    },
    "corpus": {
     "sha256": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919"
    },
    "harness": {
-    "sha256": "c894f4be06c9d7db7602b550c60fd6f5c339c34ba7f53e68c3895a1bd36bbc24"
+    "sha256": "f9e65af791308ff4e0b1a6f54872ab959d68ee71cae56dba41d2d07b6426d135"
    },
    "oracle": {
-    "sha256": "3869f6f0ef0199bbb2740962ab86ce23d2a3025c69b1b9fcb55d72025f366ea7"
+    "sha256": "720f71c29ffd50872fe5ac1677767c843f09319451f8d1a06d3c442231689af1"
    }
   }
  },

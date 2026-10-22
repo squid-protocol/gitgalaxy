@@ -279,12 +279,14 @@ public class Cousr00cService {
         void abendOn(int resp) {
             String cond = switch (resp) {
                 case 13 -> "NOTFND";
+                case 21 -> "ILLOGIC";
                 case 22 -> "LENGERR";
                 case 26 -> "ITEMERR";
                 case 27 -> "PGMIDERR";
                 case 29 -> "ENDDATA";
                 case 36 -> "MAPFAIL";
                 case 44 -> "QIDERR";
+                case 70 -> "NOTAUTH";
                 default -> "INVREQ";
             };
             task.abendOnCondition(cond);

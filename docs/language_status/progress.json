@@ -1,5 +1,5 @@
 {
- "commit": "c91d4af64",
+ "commit": "236645480",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-22T16:06:31Z",
+  "as_of": "2026-10-22T16:12:35Z",
   "core": {
    "closed": 0,
    "open": 0,
@@ -186,21 +186,21 @@
   },
   "eta": "none open",
   "frontier": {
-   "closed": 41,
-   "found_last_window": 24,
-   "open": 59,
-   "total": 100
+   "closed": 0,
+   "found_last_window": 0,
+   "open": 0,
+   "total": 0
   },
   "frontier_milestone": {
    "closed": 0,
    "number": 30,
-   "open": 36,
-   "total": 36
+   "open": 0,
+   "total": 0
   },
   "infra": {
-   "closed": 189,
-   "open": 59,
-   "total": 248
+   "closed": 154,
+   "open": 46,
+   "total": 200
   },
   "measured": true,
   "milestones": [
@@ -419,7 +419,7 @@
     "total": 105
    },
    "cobol": {
-    "closed": 0,
+    "closed": 128,
     "total": 144
    }
   },

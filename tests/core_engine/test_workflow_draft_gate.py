@@ -34,15 +34,17 @@ def _on(doc):
 
 
 def _load(path):
-    return yaml.safe_load(path.read_text(encoding="utf-8"))
+    # #5882: libyaml's loader where the wheel has it (this module parses every workflow at collection, per worker)
+    return yaml.load(path.read_text(encoding="utf-8"), Loader=getattr(yaml, "CSafeLoader", yaml.SafeLoader))
 
 
 def heavy_pr_workflows():
     out = {}
     for p in sorted(WORKFLOWS.glob("*.yml")):
-        on = _on(_load(p))
+        doc = _load(p)
+        on = _on(doc)
         if isinstance(on, dict) and "pull_request" in on and p.name not in CHEAP:
-            out[p.name] = _load(p)
+            out[p.name] = doc
     return out
 
 

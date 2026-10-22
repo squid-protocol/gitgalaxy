@@ -403,7 +403,8 @@ def _java_sources(java: Path) -> dict[str, str]:
 def _observe(cell_dir: Path, dialect: str, column: str) -> dict[str, Any]:
     """Build the estate, run scan -> refractor -> COBOL-to-Java, and collect what the checks read."""
     from gitgalaxy.core.source_text import decode_source
-    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+    from scan_server import scan_to_db  # #5882: galaxy_ir.scan_to_db, the engine imported once a process
 
     obs: dict[str, Any] = {}
     estate = cell_dir / "estate"
@@ -1316,7 +1317,7 @@ def collation_db_diffs(run: dict[str, Any], column: str) -> list[str]:
 
 
 def _observe_collation(cell_dir: Path, target: str, column: str) -> dict[str, Any]:
-    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import scan_to_db
+    from scan_server import scan_to_db  # #5882: galaxy_ir.scan_to_db, the engine imported once a process
 
     estate = cell_dir / "estate"
     unfit = _write_estate(estate, COLLATION_ESTATE, column)
@@ -1539,7 +1540,7 @@ public class InputDriver {
 
 
 def _observe_input(cell_dir: Path, name: str, column: str) -> dict[str, Any]:
-    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import scan_to_db
+    from scan_server import scan_to_db  # #5882: galaxy_ir.scan_to_db, the engine imported once a process
 
     estate = cell_dir / "estate"
     unfit = _write_estate(estate, INPUT_ESTATE, column)

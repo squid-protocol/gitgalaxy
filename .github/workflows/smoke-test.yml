@@ -130,7 +130,9 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: ${{ github.event_name == 'pull_request' && 0 || 1 }}  # #5166: the sweep plan's git diff origin/main...HEAD needs the merge base
+          # #5882: one commit. The sweep plan reads the PR's file list from the API, not a git diff. (The old
+          # `event == 'pull_request' && 0 || 1` was always 1, as 0 is falsy: the plan could not diff and ran the sweeps.)
+          fetch-depth: 1
           persist-credentials: false
 
       - name: Set up Python 3.12
@@ -200,10 +202,16 @@ jobs:
           PR: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
         run: |
-          git fetch --no-tags origin main:refs/remotes/origin/main 2>/dev/null || true
-          labels=""
-          if [ -n "$PR" ]; then labels=$(gh api "repos/$REPO/issues/$PR/labels" --jq '[.[].name] | join(",")' || true); fi
-          python3 tests/tools/sweep_plan.py --event "$GITHUB_EVENT_NAME" --base origin/main \
+          labels="" count=""
+          files="$RUNNER_TEMP/pr-files.jsonl"
+          : > "$files"
+          if [ -n "$PR" ]; then
+            labels=$(gh api "repos/$REPO/issues/$PR/labels" --jq '[.[].name] | join(",")' || true)
+            # #5882: the PR's changed files, whole or not at all (sweep_plan.py checks the count): no git history needed
+            gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | {filename, previous_filename}' > "$files" || : > "$files"
+            count=$(gh api "repos/$REPO/pulls/$PR" --jq .changed_files || true)
+          fi
+          python3 tests/tools/sweep_plan.py --event "$GITHUB_EVENT_NAME" --pr-files "$files" --pr-file-count "$count" \
             --labels "$labels" --github-output "$GITHUB_OUTPUT" | tee sweep-plan.json
           {
             echo "## ReDoS sweep plan"

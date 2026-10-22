@@ -2,6 +2,7 @@
 """Whether a pull request needs the extraction ReDoS sweeps (the "Plan the ReDoS sweeps" step of smoke-test.yml, #5166).
 
     python tests/tools/sweep_plan.py [--event pull_request] [--base origin/main] [--files FILE ...] [--labels L,L] [--github-output PATH]
+    python tests/tools/sweep_plan.py --pr-files LIST --pr-file-count N ...   # the PR's own file list (the workflow)
 
 The sweeps are the tests under tests/extraction/ that tests/conftest.py marks `redos_sweep` (the name has `redos` or
 `linear_on_pathological`): about 18 of the 19 minutes of that directory. A pull request that changes nothing they read
@@ -104,19 +105,40 @@ def changed_files(base: str) -> list[str]:
     return [ln for ln in proc.stdout.splitlines() if ln.strip()]
 
 
+def pr_files(path: Path, count: str) -> list[str]:
+    """#5882: the changed files from the pull request's own list (`gh api --paginate repos/R/pulls/N/files --jq '.[] |
+    {filename, previous_filename}'`, one object a line), so the step needs no git history. A renamed file counts
+    under both names. A list that is not the whole of the PR's `count` files (a failed call; the API stops at 3000)
+    cannot tell what changed."""
+    try:
+        rows = [json.loads(ln) for ln in path.read_text(encoding="utf-8").splitlines() if ln.strip()]
+    except (OSError, ValueError) as e:
+        raise RuntimeError(f"the PR's file list is unreadable: {e}") from e
+    if not count.strip().isdigit() or len(rows) != int(count):
+        raise RuntimeError(f"the PR's file list has {len(rows)} of {count.strip() or '?'} files")
+    return sorted({n for r in rows for n in (r.get("filename"), r.get("previous_filename")) if n})
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--event", default="pull_request")
     ap.add_argument("--base", default="origin/main")
     ap.add_argument("--files", nargs="*", help="the changed files, instead of git diff --name-only BASE...HEAD")
+    ap.add_argument("--pr-files", type=Path, help="the PR's file list (see pr_files), instead of git diff")
+    ap.add_argument("--pr-file-count", default="", help="the PR's changed_files: the list must hold exactly this many")
     ap.add_argument("--labels", default="", help="the PR's labels, comma-separated (read live by the step)")
     ap.add_argument("--github-output", type=Path, help="append mode=none|full for later steps")
     args = ap.parse_args()
     labels = [x for x in args.labels.split(",") if x]
     try:
-        files = (
-            args.files if args.files is not None else (changed_files(args.base) if args.event == "pull_request" else [])
-        )
+        if args.pr_files is not None and args.event == "pull_request":
+            files = pr_files(args.pr_files, args.pr_file_count)
+        else:
+            files = (
+                args.files
+                if args.files is not None
+                else (changed_files(args.base) if args.event == "pull_request" else [])
+            )
         p = plan(files, args.event, labels)
     except RuntimeError as e:  # cannot tell what changed: everything
         p = {"mode": "full", "reason": f"cannot diff ({e})", "inputs": []}

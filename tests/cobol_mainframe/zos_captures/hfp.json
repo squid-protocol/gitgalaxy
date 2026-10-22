@@ -114,6 +114,11 @@
     {"id": "mul-long-12.34-neg1", "source": "ibm-publication", "op": "mul", "a": "41C570A3D70A3D70", "b": "C110000000000000", "size": "long", "want": "C1C570A3D70A3D70"},
     {"id": "cmp-long-12.34-zero", "source": "ibm-publication", "op": "compare", "a": "41C570A3D70A3D70", "b": "0000000000000000", "size": "long", "want": ">"},
     {"id": "cmp-long-neg-12.34-zero", "source": "ibm-publication", "op": "compare", "a": "C1C570A3D70A3D70", "b": "0000000000000000", "size": "long", "want": "<"},
-    {"id": "asm-fixed-neg-12.34-long-2", "source": "model-assumption", "op": "fixed", "a": "C1C570A3D70A3D70", "size": "long", "scale": 2, "want": "-12.34"}
+    {"id": "asm-fixed-neg-12.34-long-2", "source": "model-assumption", "op": "fixed", "a": "C1C570A3D70A3D70", "size": "long", "scale": 2, "want": "-12.34"},
+    {"id": "asm-enc-eps-5pct-monthly-short", "source": "model-assumption", "op": "encode", "value": "0.004166666666666667", "size": "short", "want": "3F111111"},
+    {"id": "asm-fixed-eps-5pct-monthly-short-8", "source": "model-assumption", "op": "fixed", "a": "3F111111", "size": "short", "scale": 8, "want": "0.00416667"},
+    {"id": "asm-enc-eps-6.5pct-monthly-short", "source": "model-assumption", "op": "encode", "value": "0.005416666666666667", "size": "short", "want": "3F162FC9"},
+    {"id": "asm-fixed-eps-6.5pct-monthly-short-8", "source": "model-assumption", "op": "fixed", "a": "3F162FC9", "size": "short", "scale": 8, "want": "0.00541667"},
+    {"id": "asm-add-1-eps-5pct-monthly-long", "source": "model-assumption", "op": "add", "a": "4110000000000000", "b": "3F11111100000000", "size": "long", "want": "4110111111000000"}
   ]
 }

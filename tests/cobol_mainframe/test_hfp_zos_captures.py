@@ -208,3 +208,19 @@ def test_the_bnk1cra_amount_shapes_are_asked():
     assert (neg_cmp["a"], neg_cmp["want"]) == (neg["want"], "<") and neg_cmp["b"] == "0" * 16
     fix = by_id["asm-fixed-neg-12.34-long-2"]
     assert fix["source"] == "model-assumption" and fix["a"] == neg["want"] and Decimal(fix["want"]) == Decimal("-12.34")
+
+
+def test_the_epsmpmt_interest_shapes_are_asked():
+    """#4271 (DBB EPSMPMT `WS-CALC-INTEREST` COMP-1 = (rate / 100) / 12, then `1 + WS-CALC-INTEREST`).
+
+    The monthly rate is a non-exact quotient stored as short HFP, read back at 8 places, and added to 1 in long HFP (the
+    statement's mode, since the `**` that follows is long). All model-assumption: IBM documents none of the three results.
+    """
+    by_id = {r["id"]: r for r in records()}
+    enc, fix = by_id["asm-enc-eps-5pct-monthly-short"], by_id["asm-fixed-eps-5pct-monthly-short-8"]
+    assert enc["source"] == fix["source"] == "model-assumption" and enc["size"] == "short"
+    assert fix["a"] == enc["want"] and fix["scale"] == 8 and Decimal(fix["want"]) == Decimal("0.00416667")
+    add = by_id["asm-add-1-eps-5pct-monthly-long"]
+    assert add["source"] == "model-assumption" and add["a"] == "4110000000000000"
+    assert add["b"] == enc["want"] + "0" * 8 and add["size"] == "long"
+    assert "asm-enc-eps-6.5pct-monthly-short" in by_id

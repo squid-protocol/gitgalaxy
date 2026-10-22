@@ -197,3 +197,15 @@ def test_the_zecs001_case_states_two_tods_that_differ_in_the_kept_prefix():
     tods = [ec.scenario_tod(case, sc) for sc in case["scenarios"]]
     assert len(tods) >= 2 and all(tods) and len(set(tods)) == len(tods)
     assert len({t[:12] for t in tods}) == len(tods)
+
+
+def test_every_le_stand_in_of_the_port_has_an_oracle_twin():
+    # system-copybook rule (mainframe-evidence-policy 6): a stand-in only with a modelled runtime on both sides.
+    # Each port class under cobolrt/le (LeTime is the shared helper) must be a service the oracle's le/*.c defines.
+    import re
+
+    oracle = "\n".join(p.read_text(encoding="utf-8") for p in (ROOT / "tests/equivalence/le").glob("*.c"))
+    services = {p.stem.upper() for p in (RT / "le").glob("*.java") if p.stem != "LeTime"}
+    assert "ZUIDSTCK" in services
+    missing = sorted(s for s in services if not re.search(rf"^int {s}\(", oracle, re.M))
+    assert not missing, f"port stand-ins with no oracle twin: {missing}"

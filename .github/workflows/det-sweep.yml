@@ -61,6 +61,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: read  # the PR's labels, read live (shepherd:full)
+      actions: read  # #5919: the queue depth that shrinks the Db2 runner cap (ci_layout.waiting_now)
     timeout-minutes: 25  # a minute normally; ~10 when a translator change needs the port diff (#4814)
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
@@ -191,6 +192,7 @@ jobs:
         if: steps.plan.outputs.mode == 'ports'
         env:
           TOUCHED: ${{ steps.plan.outputs.cases }}
+          GH_TOKEN: ${{ github.token }}  # #5919: the queue depth, as in the first plan
         run: |
           python3 tests/tools/det_sweep_plan.py --ports "$RUNNER_TEMP/portcheck/check.json" --touched "$TOUCHED" \
             --github-output "$GITHUB_OUTPUT" | tee plan2.json

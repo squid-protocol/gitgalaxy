@@ -44,7 +44,7 @@ PER_SHARD = 3  # narrow: about this many cases per runner
 # #5882: a full sweep's Db2 runners scale with the Db2 cases (a fixed 4 timed shards out at 70 cases): one per
 # DB2_FULL_PER_SHARD, at most DB2_MAX_SHARDS (6 shards + 6 Db2 + plan + det fit the 20-job pool, #5135). Evidence
 # Refresh's Db2 job takes the same count (--db2-full-matrix).
-DB2_MAX_SHARDS = 6
+DB2_MAX_SHARDS = 6  # this workflow's share of the 20-job pool for Db2 runners (#5919: ci_shard_plan.pool_cap halves it while PR jobs queue)
 DB2_FULL_PER_SHARD = 12  # full: ~12 Db2 cases per runner (~8 min proving at --jobs 4, plus the Db2 start)
 DB2_PER_SHARD = 6  # narrow: about this many Db2 cases per runner (a Db2 start is paid per runner)
 # #5919: with the measured durations the Db2 shard count and every shard job's timeout come from ci_shard_plan: the fewest
@@ -505,6 +505,7 @@ def main() -> int:
                     help="#5919: shard timing artifacts (det_sweep_timing record) whose median setup replaces DB2_SETUP_S")  # fmt: skip
     args = ap.parse_args()
     setup_s = db2_setup_from(args.timing)
+    args.waiting = queue_waiting(args.event, args.waiting)
     if args.evidence_plan:
         ep = evidence_plan(load_durations(args.durations), args.waiting, db2_setup_s=setup_s)
         print(json.dumps(ep))
@@ -539,6 +540,18 @@ def main() -> int:
     except RuntimeError as e:  # cannot tell what changed: everything
         p = {"mode": "full", "cases": "all", "db2_cases": "all", "reason": f"cannot diff ({e})"}
     return emit(p, args.github_output, load_durations(args.durations), args.waiting, setup_s)
+
+
+def queue_waiting(event: str, waiting: int | None) -> int | None:
+    """#5919: queued PR jobs for the pool-share cap: `waiting` as given, else read live on a pull request (ci_layout's
+    reader; a queue that cannot be read is None, which plans calm). Other events plan calm: they do not compete with PRs."""
+    if waiting is not None or event != "pull_request":
+        return waiting
+    try:
+        import ci_layout  # noqa: PLC0415 -- stdlib only, like this planner
+    except ImportError:  # Evidence Refresh's sparse checkout does not carry it: plan calm
+        return None
+    return ci_layout.waiting_now()
 
 
 def db2_setup_from(timing_paths: list[Path]) -> float | None:

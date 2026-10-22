@@ -124,6 +124,33 @@ def test_db2_shards_busy_queue_halves_the_cap():
     assert len(plan.db2_shards_for(p, durations=dur, waiting=99)) == plan.DB2_MAX_SHARDS // 2
 
 
+def test_queue_depth_is_read_live_on_a_pull_request_only(monkeypatch):
+    import ci_layout
+
+    calls = []
+    monkeypatch.setattr(ci_layout, "waiting_now", lambda: calls.append(1) or 99)
+    assert plan.queue_waiting("pull_request", None) == 99
+    assert plan.queue_waiting("pull_request", 3) == 3  # --waiting wins
+    assert plan.queue_waiting("schedule", None) is None and len(calls) == 1
+    p, dur = _db2_plan(400)
+    assert len(plan.db2_shards_for(p, durations=dur, waiting=plan.queue_waiting("pull_request", None))) == (
+        plan.DB2_MAX_SHARDS // 2
+    )
+
+
+def test_unreadable_queue_plans_calm(monkeypatch):
+    monkeypatch.delenv("GITHUB_REPOSITORY", raising=False)  # waiting_now cannot ask the API: None, not a failed plan
+    assert plan.queue_waiting("pull_request", None) is None
+
+
+def test_det_sweep_plan_job_may_read_the_queue():
+    job = _workflow("det-sweep.yml")["jobs"]["plan"]
+    assert job["permissions"]["actions"] == "read"
+    for s in job["steps"]:
+        if s.get("name", "").startswith(("Plan the sweep", "Plan from the port diff")):
+            assert "GH_TOKEN" in s["env"]
+
+
 def test_db2_plan_with_unmeasured_cases_fails_and_nothing_to_prove_is_no_shards():
     p, dur = _db2_plan(10)
     with pytest.raises(sp.PlanError):

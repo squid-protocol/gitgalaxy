@@ -1,4 +1,4 @@
-# blockers in baseline 1b9ba2b085d9 (burned + local corpora (no census)): programs with an EXEC CICS command
+# blockers in baseline 60569a84d4dc (burned + local corpora (no census)): programs with an EXEC CICS command
 translated whole: 103 / 106 (non-burned 0 / 0); refused whole (no statements translated): 2
 distinct gap classes per program: 0: 103, 1: 2, 8: 1
 

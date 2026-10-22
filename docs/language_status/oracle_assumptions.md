@@ -3481,6 +3481,9 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   left-justified. A NUM field's generated screen class now carries `"RIGHT,ZERO"` in LAYOUT; a port that RECEIVEs one moves.
 - **JUSTIFY on SEND MAP: not applicable.** IBM: JUSTIFY "specifies the field justifications for input operations", so the output
   map keeps the program's text as is (SEND MAP is not modelled to justify, and need not be).
+  Re-read 2026-10-22 (#5116, c:5781930a): the live DFHMDF page says JUSTIFY "specifies the field justifications for input operations." and
+  nothing in it gives JUSTIFY an output effect. Pinned by `test_det_send_map_never_justifies_5116` and
+  `test_the_oracle_output_side_never_justifies_5116` (`Cics.send_map` and `compare_events` never read it).
 - **PICIN / PICOUT: out of scope, by name.** They are pictures given to the *generated symbolic-map field* (compile-time: the item's
   PICTURE in the copybook) and BMS does not check or convert the data at run time ("the validity of the input data is not checked by
   BMS"); no run-time conversion exists to model. The symbolic map's PICTURE is already what the layouts read.

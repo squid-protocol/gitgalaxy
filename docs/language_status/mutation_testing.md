@@ -323,7 +323,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 <!-- mutation-scores -->
 | port | harness | mutants run / all | raw score | without equivalent + unreachable | survivors: case gap / harness gap / equivalent / unreachable / untriaged |
 |---|---|---|---|---|---|
-| COACTVWC (carddemo-acctview) | equivalence | 150/428 | 96/137 (70%) | 96/109 (88%) | 13 / 0 / 16 / 12 / 0 |
+| COACTVWC (carddemo-acctview) | equivalence | 150/428 | 110/137 (80%) | 110/110 (100%) | 0 / 0 / 16 / 11 / 0 |
 | COACTVWC (carddemo-acctview-generated) | equivalence | 150/427 | 109/137 (80%) | 109/109 (100%) | 0 / 0 / 16 / 12 / 0 |
 | COADM01C (carddemo-adminmenu) | equivalence | 100/340 | 63/95 (66%) | 63/63 (100%) | 0 / 0 / 29 / 3 / 0 |
 | COADM01C (carddemo-adminmenu-generated) | equivalence | 150/340 | 97/145 (67%) | 97/97 (100%) | 0 / 0 / 43 / 5 / 0 |
@@ -382,24 +382,24 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 4497 run | **2731/4114 (66%)** | **2731/3224 (85%)** | 308 / 185 / 583 / 307 / 0 |
-| **all estate** | | 5001 run | **3050/4590 (66%)** | **3050/3578 (85%)** | 343 / 185 / 671 / 341 / 0 |
+| **all equivalence** | | 4497 run | **2745/4114 (67%)** | **2745/3225 (85%)** | 295 / 185 / 583 / 306 / 0 |
+| **all estate** | | 5001 run | **3064/4590 (67%)** | **3064/3579 (86%)** | 330 / 185 / 671 / 340 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 217/278 (78%) | 217/244 (89%) |
+| AOR | 219/278 (79%) | 219/245 (89%) |
 | BDM | 25/49 (51%) | 25/28 (89%) |
 | CON | 385/902 (43%) | 385/499 (77%) |
-| COR | 176/311 (57%) | 176/234 (75%) |
+| COR | 182/311 (59%) | 182/235 (77%) |
 | DEL | 489/737 (66%) | 489/565 (87%) |
-| LIT | 633/871 (73%) | 633/719 (88%) |
-| NEG | 569/652 (87%) | 569/618 (92%) |
+| LIT | 635/871 (73%) | 635/718 (88%) |
+| NEG | 571/652 (88%) | 571/618 (92%) |
 | RET | 56/105 (53%) | 56/93 (60%) |
-| ROR | 500/685 (73%) | 500/578 (87%) |
+| ROR | 502/685 (73%) | 502/578 (87%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|
-| COACTVWC (carddemo-acctview) | 4/9 | 0/1 | 12/22 | 12/21 | 16/21 | 16/21 | 18/21 | - | 18/21 |
+| COACTVWC (carddemo-acctview) | 6/9 | 0/1 | 12/22 | 18/21 | 16/21 | 18/21 | 20/21 | - | 20/21 |
 | COACTVWC (carddemo-acctview-generated) | 6/9 | 0/1 | 14/22 | 17/21 | 16/21 | 16/21 | 20/21 | - | 20/21 |
 | COADM01C (carddemo-adminmenu) | 8/8 | - | 2/14 | 6/8 | 8/16 | 7/15 | 15/15 | 4/4 | 13/15 |
 | COADM01C (carddemo-adminmenu-generated) | 8/8 | - | 4/24 | 6/8 | 14/26 | 14/25 | 25/25 | 4/4 | 22/25 |
@@ -617,6 +617,8 @@ the negative balance); the third, `* 10000` for `% 10000` on the destination of 
 (WS-V2's V2-VISITS is zero after INITIALIZE, so the destination digits are always 0000). CAXB is now 20/3 with 0 case gaps.
 This landed in #5505, so the "needs a cics-crucible CAXA mode" wording in #5490 and #5491 is superseded: no release or pin bump was needed.
 
+Spot-check 2026-10-22 (#4443): 22 of the 45 equivalent verdicts on the 13 re-run ports were re-read against the port source; all hold, no new case. The sample and its caveats: [mutation_equivalent_spot_check.md](mutation_equivalent_spot_check.md).
+
 A score is quoted with its case and seed, never alone. Every survivor is triaged as a case gap, a
 harness gap, an equivalent mutant (with the reason) or dead code.
 
@@ -828,3 +830,17 @@ LENGTH) and `beyond` (X10).
 | UPDACC (cbsa-updacc) | 713/713 | 304 | 384 | 25 | 256 | 128 | 304/688 (44%) | no |
 
 The "unaccounted" column includes the open `case-gap` / `harness-gap` rows, which block L5 until a scenario or the harness covers them.
+
+**#4628 slice 5 (2026-10-22): no user-admin program reaches L5; every open survivor is a `harness-gap`.** First det-port ledgers for the
+three CardDemo user-admin ports (150 mutants each, seed 0, fast mode, JDK 17). New scenarios kill survivors: `header-fields-sent-back`
+(COUSR03C: a received TRNNAME), `pf3-returns-to-menu-caller` and `pf5-updates-short-user-id` (COUSR02C, plus the OPS record in its
+`usrsec.txt`), and the COUSR01C additions. Every survivor has a stated reason in `det_mutation_survivors/carddemo-user*.json`; the
+verdicts are proposals for owner review. The open ones are the byte[] COMMAREA entry (`cb.length > s_DFHCOMMAREA.bytes.length`,
+`cx(task, cb.length)`), which the harness cannot express (2 / 1 / 3 in useradd / userupd / userdel), and COUSR03C's first-entry
+`MOVE LOW-VALUES TO COUSR3AO`, whose spaces-versus-low-values difference the proof strips (#4635).
+
+| program (case) | mutants run / in scope | killed | survived | stillborn | stated equivalent / unreachable | unaccounted | raw score | L5 |
+|---|---|---|---|---|---|---|---|---|
+| COUSR01C (carddemo-useradd) | 150/1214 | 91 | 56 | 3 | 54 | 2 | 91/147 (62%) | no |
+| COUSR02C (carddemo-userupd) | 150/1404 | 96 | 48 | 6 | 47 | 1 | 96/144 (67%) | no |
+| COUSR03C (carddemo-userdel) | 150/1302 | 84 | 58 | 8 | 54 | 4 | 84/142 (59%) | no |

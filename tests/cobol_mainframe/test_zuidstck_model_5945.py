@@ -186,3 +186,14 @@ def test_the_model_is_linked_for_a_program_that_calls_it():
     text = (ROOT / "tests/tools/equivalence_cics.py").read_text(encoding="utf-8")
     assert "ZUIDSTCK" in text.split("le_call = re.compile(", 1)[1].split(")  # #5858", 1)[0]
     assert "ZUIDSTCK" in G.LIBRARY and (RT / "le/Zuidstck.java").is_file()
+
+
+def test_the_zecs001_case_states_two_tods_that_differ_in_the_kept_prefix():
+    # ZECS001 keeps only THE-TOD(1:6) (ZK-ZF-IDN): two scenarios must differ there, or the case proves nothing about it
+    import json
+
+    case = json.loads((ROOT / "tests/equivalence/zecs-zecs001/case.json").read_text(encoding="utf-8"))
+    assert case["program"] == "ZECS001" and ec.case_states_tod(case)
+    tods = [ec.scenario_tod(case, sc) for sc in case["scenarios"]]
+    assert len(tods) >= 2 and all(tods) and len(set(tods)) == len(tods)
+    assert len({t[:12] for t in tods}) == len(tods)

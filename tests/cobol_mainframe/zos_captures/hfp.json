@@ -98,6 +98,10 @@
     {"id": "asm-enc-0.01-short", "source": "model-assumption", "op": "encode", "value": "0.01", "size": "short", "want": "3F28F5C3"},
     {"id": "asm-fixed-0.01-short-2", "source": "model-assumption", "op": "fixed", "a": "3F28F5C3", "size": "short", "scale": 2, "want": "0.01"},
     {"id": "asm-enc-9999999999.99-long", "source": "model-assumption", "op": "encode", "value": "9999999999.99", "size": "long", "want": "492540BE3FFFD70A"},
-    {"id": "asm-fixed-9999999999.99-long-2", "source": "model-assumption", "op": "fixed", "a": "492540BE3FFFD70A", "size": "long", "scale": 2, "want": "9999999999.99"}
+    {"id": "asm-fixed-9999999999.99-long-2", "source": "model-assumption", "op": "fixed", "a": "492540BE3FFFD70A", "size": "long", "scale": 2, "want": "9999999999.99"},
+    {"id": "asm-enc-13987654321-long", "source": "model-assumption", "op": "encode", "value": "13987654321", "size": "long", "want": "49341BAAAB100000"},
+    {"id": "asm-fixed-13987654321-long-0", "source": "model-assumption", "op": "fixed", "a": "49341BAAAB100000", "size": "long", "scale": 0, "want": "13987654321"},
+    {"id": "asm-enc-13987654321.6-long", "source": "model-assumption", "op": "encode", "value": "13987654321.6", "size": "long", "want": "49341BAAAB199999"},
+    {"id": "asm-fixed-13987654321.6-long-0", "source": "model-assumption", "op": "fixed", "a": "49341BAAAB199999", "size": "long", "scale": 0, "want": "13987654322"}
   ]
 }

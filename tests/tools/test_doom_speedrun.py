@@ -299,10 +299,10 @@ def test_score_port_scores_by_design_exclusions_with_a_reason(tmp_path, monkeypa
     con = sqlite3.connect(scan / "p_galaxy_master.db")
     con.executescript(
         "create table file_data (id integer primary key, file_path text, language text, has_credentials int);"
-        "create table function_data (id integer primary key, file_id int);"
+        "create table function_data (id integer primary key, file_id int, func_name text, start_line int, calls_out_to text);"
         "create table excluded_artifacts (file_path text, exclusion_reason text);"
         "insert into file_data values (1, 'src/main.c', 'c', 0);"
-        "insert into function_data values (1, 1);"
+        "insert into function_data values (1, 1, 'main', 1, '[]');"
         "insert into excluded_artifacts values ('docs/ex.py', 'Doc Surface');"
     )
     con.commit()

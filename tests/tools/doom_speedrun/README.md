@@ -217,3 +217,27 @@ Blind spots:
   survival looks at every function the port has.
 - **`parent` is read from free text**: a lineage naming no manifest port (`WinMBF <- MBF <- Boom`, `PrBoom`) has
   none, and the tool does not walk chains.
+
+## Function-metric distributions (`distribution.py`, #5620)
+
+How each port's per-function metrics are shaped next to linuxdoom's: the round-1 study's distribution script, ported
+(stdlib only). It reads the scans alone (no clone); licensed ports only (`lineage.LICENSED`), `assets` projects and
+ports under `--min-functions` (30) code functions skipped.
+
+```bash
+python tests/tools/doom_speedrun/distribution.py [--only gore,room4doom] [--sha SHA] [--min-functions N]
+```
+
+Per port, over the functions of code languages (`CODE_LANGUAGES`): median and 90th percentile of complexity, LOC,
+call fan-out, token mass and argument count, plus the share of functions with complexity >= 10. `dist` is the mean,
+over those five metrics, of the 1-D Wasserstein distance to linuxdoom (mean gap between 201 matching quantiles)
+divided by linuxdoom's standard deviation for the metric. A second table places linuxdoom's median among the ports'
+medians. Results in `<work>/results/<sha>/distribution/`: `distribution.csv`, `distribution.json`, `distribution.md`.
+On the 0e2bf4ade scans it reproduces the study script's numbers for all 30 shared ports (to 1e-14).
+
+Blind spots:
+- **A distance is a shape comparison, not a correctness claim.** A port in another language moves every metric by how
+  the engine counts that language (what the cross-language slice is for); a large `dist` says "different", not "wrong".
+- **Vendored code is not excluded** (the study script did not either): a port that bundles a library carries its
+  functions in its own distribution. `lineage.py` is the tool that applies the engine's vendor test.
+- **The majority language names the port** (`lang`); a polyglot port's functions of other code languages stay in.

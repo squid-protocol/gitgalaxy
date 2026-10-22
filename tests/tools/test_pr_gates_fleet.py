@@ -159,3 +159,22 @@ def test_workflows_gate_passes_with_a_note_when_actionlint_cannot_install(tmp_pa
 def test_det_mutation_ratchet_is_registered_and_scoped_to_the_branch():
     r = {x.name: x for x in pr_gates.ratchets()}["det-mutation"]
     assert r.cmd[-3:] == ["stale-check", "--vs", "origin/main"] and "refresh" in r.update
+
+
+def test_det_mutation_hint_names_the_cases_and_never_fails(monkeypatch, capsys):
+    import det_mutation
+
+    monkeypatch.setattr(det_mutation, "cases_to_rerun", lambda ref: ["carddemo-billpay"])
+    pr_gates.det_mutation_hint()
+    out = capsys.readouterr().out
+    assert "HINT  det-mutation" in out and "carddemo-billpay" in out and "--only-ratchets det-mutation" in out
+    monkeypatch.setattr(det_mutation, "cases_to_rerun", lambda ref: [])
+    pr_gates.det_mutation_hint()
+    assert capsys.readouterr().out == ""
+
+    def boom(ref):
+        raise RuntimeError("no git")
+
+    monkeypatch.setattr(det_mutation, "cases_to_rerun", boom)
+    pr_gates.det_mutation_hint()
+    assert capsys.readouterr().out == ""

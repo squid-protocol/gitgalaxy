@@ -43,6 +43,42 @@
     "COMPANY-NAME": "Some Other Bank Name That Is Long"
    },
    "why": "a shorter caller name under the literal: no byte of it survives the MOVE"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "the caller passes no COMMAREA (EIBCALEN 0, no DFHCOMMAREA): the program still MOVEs to COMPANY-NAME, never testing EIBCALEN"
+  },
+  {
+   "name": "eibcalen-zero",
+   "commarea": {
+    "COMPANY-NAME": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+   },
+   "commarea_length": 0,
+   "why": "EIBCALEN 0 with the COMMAREA record present (X23): the MOVE reaches past the bytes the caller passed"
+  },
+  {
+   "name": "eibcalen-short",
+   "commarea": {
+    "COMPANY-NAME": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+   },
+   "commarea_length": 20,
+   "why": "the caller passed 20 of the 40 bytes: the MOVE writes all 40, past EIBCALEN"
+  },
+  {
+   "name": "longer-caller-name",
+   "commarea": {
+    "COMPANY-NAME": "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL"
+   },
+   "why": "the caller's name is 60 characters for the 40-byte COMPANY-NAME: the stated value overruns the field and the MOVE replaces it whole (no byte of the 20 past the field is kept)"
+  },
+  {
+   "name": "eibcalen-full",
+   "commarea": {
+    "COMPANY-NAME": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+   },
+   "commarea_length": 40,
+   "why": "EIBCALEN equals the record (40 bytes, X23): the COMMAREA is stated exact, so the area is cut to the 40 bytes the caller passed and the MOVE fits exactly"
   }
  ]
 }

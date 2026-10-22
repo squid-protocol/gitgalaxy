@@ -5,18 +5,18 @@
  "case": "cbsa-getscode",
  "entry": {
   "program": "GETSCODE",
-  "commit": "157ad694e8cea01222f9f9de3cf2892594e1f4b2",
+  "commit": "cb1a0ba1b5eee2adf3667a7b7520a222b91bfc09+uncommitted",
   "date": "2026-10-22",
   "mode": "fast",
   "seed": 0,
   "mutants": 227,
   "out_of_scope": 24,
   "chosen": 227,
-  "coverage": "proven on 3 scenarios, covering 2/2 paragraphs and 0/0 branches",
+  "coverage": "proven on 8 scenarios, covering 2/2 paragraphs and 0/0 branches",
   "counts": {
-   "killed": 45,
+   "killed": 61,
    "timeout": 1,
-   "survived": 167,
+   "survived": 151,
    "stillborn": 14,
    "error": 0,
    "pending": 0
@@ -28,28 +28,38 @@
    "0c5e25803c",
    "1675679b57",
    "2098c1b535",
+   "21c5ed7a7b",
    "21c7214022",
    "221f0ddcee",
    "2e07ed9e5f",
    "2e28f8296a",
    "30011f9420",
+   "302d47983c",
    "30cc5190c3",
+   "337d62ae76",
    "3d9cfbb2a7",
    "43263487c5",
    "45435f7340",
    "4d3ee72afc",
+   "54bea949f2",
    "5a81d370be",
+   "5be2b414f3",
    "5ea022db8e",
    "6358b7f253",
    "6457837001",
+   "70405ceba0",
+   "7d6cfde6be",
    "84fee04071",
    "869d85a5b2",
    "8b158bdf0b",
    "97f46a72a6",
    "996dfe677b",
    "99f4ac50d7",
+   "9cc111f042",
    "9f606b48f9",
+   "a3b2948ca1",
    "a3d42cb113",
+   "a5179c03b0",
    "aa97fab200",
    "ad3535492a",
    "b08cd57981",
@@ -57,17 +67,23 @@
    "b344b319b8",
    "b84d330451",
    "b9f9c68443",
+   "bce35eeb57",
+   "bfaf479d4c",
    "c5ae165bbd",
    "c7531e7366",
    "cb18cf93e7",
    "cf06fb82c9",
    "d68197ac49",
+   "daf04bbcb8",
+   "dbf7e1f1eb",
    "e6ff0f1d52",
    "e8b6f228a4",
    "edd85f415b",
    "ef70ea5571",
    "f1e86c0214",
-   "f67ad3e9c0"
+   "f31e236ea3",
+   "f67ad3e9c0",
+   "fd7c14cac0"
   ],
   "stillborn": [
    "1ccdffdea6",
@@ -181,14 +197,6 @@
     "line": 60,
     "before": "private final Field f1_LITERAL_SORTCODE = Field.zoned(s_LITERAL_SORTCODE, 0, 6, 0, false, false, false);",
     "after": "private final Field f1_LITERAL_SORTCODE = Field.zoned(s_LITERAL_SORTCODE, 0, 6, 1, false, false, false);"
-   },
-   {
-    "id": "337d62ae76",
-    "op": "CON",
-    "file": "service/GetscodeService.java",
-    "line": 61,
-    "before": "private final Field f4_SORTCODE = Field.alphanumeric(s_DFHCOMMAREA, 0, 6, false);",
-    "after": "private final Field f4_SORTCODE = Field.alphanumeric(s_DFHCOMMAREA, 0, 7, false);"
    },
    {
     "id": "17ea03b3ba",
@@ -631,54 +639,6 @@
     "after": "/* fill_GetscodeDfhcommarea(d, s, base); */"
    },
    {
-    "id": "bce35eeb57",
-    "op": "NEG",
-    "file": "service/GetscodeService.java",
-    "line": 150,
-    "before": "if (s_DFHCOMMAREA.bytes != whole) {",
-    "after": "if (!(s_DFHCOMMAREA.bytes != whole)) {"
-   },
-   {
-    "id": "7d6cfde6be",
-    "op": "ROR",
-    "file": "service/GetscodeService.java",
-    "line": 150,
-    "before": "if (s_DFHCOMMAREA.bytes != whole) {",
-    "after": "if (s_DFHCOMMAREA.bytes == whole) {"
-   },
-   {
-    "id": "70405ceba0",
-    "op": "DEL",
-    "file": "service/GetscodeService.java",
-    "line": 151,
-    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
-    "after": "/* System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length); */"
-   },
-   {
-    "id": "fd7c14cac0",
-    "op": "CON",
-    "file": "service/GetscodeService.java",
-    "line": 151,
-    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
-    "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 1, whole, 0, s_DFHCOMMAREA.bytes.length);"
-   },
-   {
-    "id": "21c5ed7a7b",
-    "op": "CON",
-    "file": "service/GetscodeService.java",
-    "line": 151,
-    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
-    "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 1, s_DFHCOMMAREA.bytes.length);"
-   },
-   {
-    "id": "f31e236ea3",
-    "op": "DEL",
-    "file": "service/GetscodeService.java",
-    "line": 152,
-    "before": "s_DFHCOMMAREA.bytes = whole;",
-    "after": "/* s_DFHCOMMAREA.bytes = whole; */"
-   },
-   {
     "id": "c2a3f6c547",
     "op": "DEL",
     "file": "service/GetscodeService.java",
@@ -871,14 +831,6 @@
     "after": "caBack = () -> fill_GetscodeDfhcommarea(x, s_DFHCOMMAREA, 1);"
    },
    {
-    "id": "302d47983c",
-    "op": "DEL",
-    "file": "service/GetscodeService.java",
-    "line": 213,
-    "before": "calen = cx(task, 6);",
-    "after": "/* calen = cx(task, 6); */"
-   },
-   {
     "id": "ca8a5de7cb",
     "op": "CON",
     "file": "service/GetscodeService.java",
@@ -1007,52 +959,12 @@
     "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };"
    },
    {
-    "id": "bfaf479d4c",
-    "op": "NEG",
-    "file": "service/GetscodeService.java",
-    "line": 233,
-    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-    "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {"
-   },
-   {
-    "id": "54bea949f2",
-    "op": "COR",
-    "file": "service/GetscodeService.java",
-    "line": 233,
-    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-    "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {"
-   },
-   {
     "id": "e1060a3496",
     "op": "ROR",
     "file": "service/GetscodeService.java",
     "line": 233,
     "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
     "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {"
-   },
-   {
-    "id": "9cc111f042",
-    "op": "ROR",
-    "file": "service/GetscodeService.java",
-    "line": 233,
-    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-    "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {"
-   },
-   {
-    "id": "a5179c03b0",
-    "op": "DEL",
-    "file": "service/GetscodeService.java",
-    "line": 234,
-    "before": "caWhole = s_DFHCOMMAREA.bytes;",
-    "after": "/* caWhole = s_DFHCOMMAREA.bytes; */"
-   },
-   {
-    "id": "a3b2948ca1",
-    "op": "DEL",
-    "file": "service/GetscodeService.java",
-    "line": 235,
-    "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
-    "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */"
    },
    {
     "id": "2c40876d5d",
@@ -1087,22 +999,6 @@
     "after": "perform(0, 2);"
    },
    {
-    "id": "5be2b414f3",
-    "op": "NEG",
-    "file": "service/GetscodeService.java",
-    "line": 248,
-    "before": "if (caWhole == null) {",
-    "after": "if (!(caWhole == null)) {"
-   },
-   {
-    "id": "daf04bbcb8",
-    "op": "ROR",
-    "file": "service/GetscodeService.java",
-    "line": 248,
-    "before": "if (caWhole == null) {",
-    "after": "if (caWhole != null) {"
-   },
-   {
     "id": "ea27fd1955",
     "op": "LIT",
     "file": "service/GetscodeService.java",
@@ -1117,14 +1013,6 @@
     "line": 251,
     "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
     "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");"
-   },
-   {
-    "id": "dbf7e1f1eb",
-    "op": "DEL",
-    "file": "service/GetscodeService.java",
-    "line": 254,
-    "before": "caWhole(caWhole);",
-    "after": "/* caWhole(caWhole); */"
    },
    {
     "id": "7b9c78d61b",
@@ -1424,12 +1312,12 @@
    }
   ],
   "inputs": {
-   "port": "f2e778de5a5b32841ac7a9a4e9fe66c278694e32df0207c89402bcec99a8192a",
-   "generator": "e3cd26f0bd1240b8fe399b400a7a150388b4e1bf1dd65e58693708555873a21d",
-   "case": "f3c639db397c01ea468144e68fbea43c86cef76de6ebfabb17ef5d54e046664e",
+   "port": "740b286eb6646b9a8cc90f6dcaccc51c67df38d446a28adcbf0688a7d6d3d5c1",
+   "generator": "6fc449c5044ccd60b72e16fe8d2fac83eedbbd0c3b06d3e04594a63b0ad40212",
+   "case": "3f7e54766e65da419b91dd503782bd77fbb4c647ff31c0d8b268346fbb94ac99",
    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-   "harness": "f52c0d770de36086c14d386cd691c57484fe24f59d0b29112cb7d2e56e75d4b6",
-   "oracle": "27cd5d5127a7ff5cf004d7ea63517333edb599feefc1643485560c707d475c0b"
+   "harness": "cfa692619ce6fb10c7dd1076f2b885d8ffa2cf6352ec9b564081e1cce86e4e90",
+   "oracle": "ed495da81e6a1a607ebc1aba3daf85ba474192e76c482e7b124b8c2e49b760e2"
   },
   "components": {
    "generator": {
@@ -1441,10 +1329,10 @@
     "generator:det/cics_taskcontrol": "7d3892cd106fe0ab3a165551af8497cb67ee0337d2cb97f7a72ef8805710bdbf",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
     "generator:det/dli": "59300231ec82938ae8606969155f9d0fef4962ad739e8d6da188a7b6202e9ebd",
-    "generator:det/dyncall": "88c49b4c2e152b1e81d9afb16790c0faac7e6ce25a5f797a5b7c3528f7de92ae",
+    "generator:det/dyncall": "7f776808ec711cab1ada988a7ee2aded100227a543eeea393d17f5d389b3dc0c",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
-    "generator:det/gen": "6df3c4e25730ed5f5d06c4b9891a4a45958c6fa9808761f5f8078be3ef0d99b4",
+    "generator:det/gen": "aa7ce25ed9096b6ba2b8465f2be013cc1cb13f8bbf60c5077fbaa6530239640f",
     "generator:det/hfp": "cec77a165f9657e15473ce0c2913b1256451731abc473571ed56951d0faba36c",
     "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
     "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
@@ -1453,14 +1341,21 @@
     "generator:det/stmt": "014835ecefbec5b761734642ac25fc8270092f80945e8f79bcaaa9d3aee2c9ff"
    },
    "harness": {
-    "harness:cics": "213c9450546bf312b75d1e132d67f07d558860d6645035e28f54d04046f36195",
-    "harness:core": "e995854ba8cad1ec5dabaf5752f5fe625ed3de76b8b92ccdb4129f1250359d5e"
+    "harness:cics": "a12b1c4f47a4a2d419f7f443b5563d6a8e7d6adc11997003ef3ef03de8446c1a",
+    "harness:core": "7027a1c80de76c69e876c70e853b627ece976d1de704474c26f7c065cb1f61a9"
    },
    "oracle": {
     "oracle:cics-stub": "8d4b95cb03310f91b20292ebc95871479fe57bab9fc6ff33a625667a5860e785",
     "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
     "oracle:le": "200b234c8ffa2bf4cb1a9c143f22a5a3b696279e000cbf67ff9330fdfb7a9183"
    }
+  },
+  "refreshed": {
+   "from": "2026-10-22",
+   "survivors_rerun": 151,
+   "stale": [
+    "harness"
+   ]
   }
  }
 }

@@ -1,5 +1,5 @@
 {
- "commit": "236645480",
+ "commit": "228bbefc4",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -114,11 +114,11 @@
    }
   },
   "mutation": {
-   "adjusted_kill_pct": 85.2,
-   "adjusted_total": 3578,
-   "killed": 3050,
+   "adjusted_kill_pct": 85.6,
+   "adjusted_total": 3579,
+   "killed": 3064,
    "ports": 58,
-   "raw_kill_pct": 66.4,
+   "raw_kill_pct": 66.8,
    "raw_total": 4590
   },
   "translator": {
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-22T16:12:35Z",
+  "as_of": "2026-10-22T16:19:28Z",
   "core": {
    "closed": 0,
    "open": 0,
@@ -198,9 +198,9 @@
    "total": 0
   },
   "infra": {
-   "closed": 154,
-   "open": 46,
-   "total": 200
+   "closed": 0,
+   "open": 0,
+   "total": 0
   },
   "measured": true,
   "milestones": [
@@ -415,12 +415,12 @@
   },
   "title_counts": {
    "cics": {
-    "closed": 85,
-    "total": 105
+    "closed": 0,
+    "total": 0
    },
    "cobol": {
-    "closed": 128,
-    "total": 144
+    "closed": 0,
+    "total": 0
    }
   },
   "window_days": 7

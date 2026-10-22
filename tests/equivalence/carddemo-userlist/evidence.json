@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/carddemo-userlist/port/service/Cousr00cService.java"
   ],
-  "sha256": "4341dbcfd920f3ca68eda4e6b0165c4847937313eb2620853d0ddd075fc52989",
+  "sha256": "f0e9f2cbf1e500852e2ca3dee50f808e3dc1e0e5a3e34fef3c707cded3b7a5a8",
   "entry_points": [
    "handleTransaction",
    "runTask"
@@ -19,14 +19,14 @@
     "tests/equivalence/carddemo-userlist/port/**"
    ],
    "files": 1,
-   "sha256": "4341dbcfd920f3ca68eda4e6b0165c4847937313eb2620853d0ddd075fc52989"
+   "sha256": "f0e9f2cbf1e500852e2ca3dee50f808e3dc1e0e5a3e34fef3c707cded3b7a5a8"
   },
   "case": {
    "paths": [
     "tests/equivalence/carddemo-userlist/**"
    ],
    "files": 2,
-   "sha256": "17c1d7b6a66033173daa044d382d7cb944f823aa3eb96c06ad4994ffdd086a41"
+   "sha256": "5f96fb2bfe1d8ecbcbe90f948000ca6e03c8a064f7d4c85d8e5df1d6a0b475a9"
   },
   "harness": {
    "paths": [
@@ -65,7 +65,7 @@
     "tests/equivalence/ims/ggdli.c"
    ],
    "files": 39,
-   "sha256": "c16b52604cd8fd17fb175d78decab45df98fa472134a0d92759e6bdfe631c71a",
+   "sha256": "a72339d492e955b0b5211d2f06f3af3a5d3abcb9bd7a9de93596fe16c46d34a7",
    "components": {
     "oracle:cics-stub": "8d4b95cb03310f91b20292ebc95871479fe57bab9fc6ff33a625667a5860e785",
     "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
@@ -77,7 +77,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 102,
-   "sha256": "efdeb8065b1ecce331c38a4fb9d500e0289fc8608f10c528268cd58dca338720",
+   "sha256": "99a366706ad341e0ee9ef5add6430c6645e3095df9317c4bf139319bd25e0cfe",
    "components": {
     "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
     "generator:core": "286f1220d709fb1d4689c6d78a413a9440109a0ecca0472d2e3811c8ac0d9f81",
@@ -180,13 +180,13 @@
     }
    }
   },
-  "digest": "7cee75789f468dd74a322a0a9dd38f1eb159ff38597f72b604eaed8fa5a28d4e"
+  "digest": "0d820c259355c0a535771762da6e9cafcf13c76c8a857cfa96f529addf100386"
  },
  "proof": {
-  "at": "2026-10-22T19:20:20Z",
+  "at": "2026-10-22T21:46:42Z",
   "verdict": "proven",
-  "runs": 47,
-  "fault_runs": 6,
+  "runs": 55,
+  "fault_runs": 8,
   "environments": null,
   "outputs": {
    "first-entry": {
@@ -376,6 +376,38 @@
    "endbr-notauth-after-a-page-back": {
     "equal": 3,
     "records": 3
+   },
+   "short-commarea-187": {
+    "equal": 3,
+    "records": 3
+   },
+   "enter-lists-with-eleven-left": {
+    "equal": 3,
+    "records": 3
+   },
+   "enter-lists-only-the-last-user": {
+    "equal": 4,
+    "records": 4
+   },
+   "select-two-rows-first-wins": {
+    "equal": 2,
+    "records": 2
+   },
+   "rows-sent-back-pf8-readnext-io-error": {
+    "equal": 4,
+    "records": 4
+   },
+   "rows-sent-back-pf7-readprev-io-error": {
+    "equal": 4,
+    "records": 4
+   },
+   "pf8-with-low-values-last-id": {
+    "equal": 4,
+    "records": 4
+   },
+   "select-row-with-no-id-received": {
+    "equal": 3,
+    "records": 3
    }
   },
   "return_code_equal": null,
@@ -384,16 +416,16 @@
   "java_failed": false,
   "facade": {
    "verdict": "proven",
-   "runs": 47,
-   "passed": 47,
+   "runs": 55,
+   "passed": 55,
    "entry_points": [
     "handleTransaction"
    ],
    "failed": [],
    "error": null
   },
-  "harness_commit": "00ed6c0f5336f75d990da8aa67482d3e82b05ec9+uncommitted",
-  "inputs_digest": "7cee75789f468dd74a322a0a9dd38f1eb159ff38597f72b604eaed8fa5a28d4e"
+  "harness_commit": "73d09df13844c0245c96923014121b40b3b19957+uncommitted",
+  "inputs_digest": "0d820c259355c0a535771762da6e9cafcf13c76c8a857cfa96f529addf100386"
  },
  "coverage": {
   "paragraphs": {
@@ -441,7 +473,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "7cee75789f468dd74a322a0a9dd38f1eb159ff38597f72b604eaed8fa5a28d4e"
+  "inputs_digest": "0d820c259355c0a535771762da6e9cafcf13c76c8a857cfa96f529addf100386"
  },
  "reach": {
   "entry_points": [
@@ -493,43 +525,43 @@
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "4341dbcfd920f3ca68eda4e6b0165c4847937313eb2620853d0ddd075fc52989"
+  "port_sha256": "f0e9f2cbf1e500852e2ca3dee50f808e3dc1e0e5a3e34fef3c707cded3b7a5a8"
  },
  "mutation": {
-  "commit": "bcb4f6f82",
+  "commit": "73d09df13",
   "rejudged": null,
   "seed": 0,
   "mode": null,
-  "mutants": 493,
-  "chosen": 100,
-  "killed": 69,
-  "survived": 31,
-  "stillborn": 0,
+  "mutants": 510,
+  "chosen": 510,
+  "killed": 377,
+  "survived": 128,
+  "stillborn": 5,
   "survivors": {
-   "case_gap": 23,
-   "harness_gap": 0,
-   "equivalent": 8,
-   "unreachable": 0,
+   "case_gap": 0,
+   "harness_gap": 2,
+   "equivalent": 55,
+   "unreachable": 71,
    "untriaged": 0
   },
-  "score_raw": "69/100",
-  "score_adjusted": "69/92",
+  "score_raw": "377/505",
+  "score_adjusted": "377/379",
   "source": "docs/language_status/mutation_scores.json#carddemo-userlist/COUSR00C",
   "inputs": {
    "port": {
-    "sha256": "e985d8e66d046479129cb9421f91a871acd506d4a0d857b94df1a2c42bb54127"
+    "sha256": "f0e9f2cbf1e500852e2ca3dee50f808e3dc1e0e5a3e34fef3c707cded3b7a5a8"
    },
    "case": {
-    "sha256": "ba56996a6dacc7ccc8c563aa388d6b41b4d9d737635e307d6a43dcc5ab0f1ba9"
+    "sha256": "5f96fb2bfe1d8ecbcbe90f948000ca6e03c8a064f7d4c85d8e5df1d6a0b475a9"
    },
    "corpus": {
     "sha256": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919"
    },
    "harness": {
-    "sha256": "3a799dc096941f8b94da64beed1ea63864a7645a8634c8589b29872ab99b6e94"
+    "sha256": "f6fc656cfb906c118205c985d0d60e49de564621c2ff04af298b4752a3ede275"
    },
    "oracle": {
-    "sha256": "7939e0943fd432a108ed735a15e5c9c297d9fd9639c8381ce43d26176fe4f7c7"
+    "sha256": "a72339d492e955b0b5211d2f06f3af3a5d3abcb9bd7a9de93596fe16c46d34a7"
    }
   }
  },
@@ -586,7 +618,7 @@
    },
    {
     "path": "tests/equivalence/db2/dynsql/cbl/DYNDEMO.cbl",
-    "sha256": "1e9f535f8653d3d4940ae963978f5b2856813599a0e1912b3118998fd1152203"
+    "sha256": "5c84ea37bd96c5a503fcd07d94a7b53eadea6be5b78744a3b9307d3a1d769d16"
    },
    {
     "path": "tests/equivalence/db2/dynsql/ddl/DTAB.ddl",
@@ -702,7 +734,7 @@
    },
    {
     "path": "tests/tools/equivalence_sql.py",
-    "sha256": "731946960e517e2174a303046e46a6ce7a92a44341feaeda2c097ffcc77eeac0"
+    "sha256": "70d91a1e48f88083efc26fd17347ec7e1de53748f812612555ba1e8e799e0fce"
    }
   ],
   "assumptions": null

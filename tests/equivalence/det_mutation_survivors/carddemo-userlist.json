@@ -263,15 +263,6 @@
    "reason": "PROCESS-PAGE-BACKWARD is performed only from PROCESS-PF7-KEY, so EIBAID is always PF7 there: `NOT = DFHENTER AND DFHPF8` and `NOT = DFHENTER OR DFHPF8` are both true"
   },
   {
-   "id": "b5d8f195c8",
-   "op": "COR",
-   "line": 1495,
-   "before": "if ((isUserSecNotEof() && isErrFlgOff())) {",
-   "after": "if ((isUserSecNotEof() || isErrFlgOff())) {",
-   "verdict": "unreachable",
-   "reason": "at this test (after the first READPREV) USER-SEC-EOF with ERR-FLG-OFF would need that READPREV to end in ENDFILE; the skip-read right after a successful STARTBR returns the positioned record, and the only route to EOF here (STARTBR NOTFND) is followed by a READPREV that raises a condition other than ENDFILE and sets ERR-FLG-ON (the oracle's trace of scenario rows-sent-back-pf7-start-not-found: one 'RESP:' DISPLAY, from READPREV's WHEN OTHER), so AND and OR agree"
-  },
-  {
    "id": "fc899c30ca",
    "op": "NEG",
    "line": 1641,

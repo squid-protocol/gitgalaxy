@@ -5,18 +5,18 @@
  "case": "carddemo-userlist",
  "entry": {
   "program": "COUSR00C",
-  "commit": "00ed6c0f5336f75d990da8aa67482d3e82b05ec9+uncommitted",
+  "commit": "73d09df13844c0245c96923014121b40b3b19957+uncommitted",
   "date": "2026-10-22",
   "mode": "fast",
   "seed": 0,
   "mutants": 2828,
   "out_of_scope": 12,
   "chosen": 150,
-  "coverage": "proven on 47 scenarios, covering 16/16 paragraphs and 95/100 branches",
+  "coverage": "proven on 55 scenarios, covering 16/16 paragraphs and 95/100 branches",
   "counts": {
-   "killed": 101,
+   "killed": 102,
    "timeout": 7,
-   "survived": 39,
+   "survived": 38,
    "stillborn": 3,
    "error": 0,
    "pending": 0
@@ -102,6 +102,7 @@
    "b2fd4001aa",
    "b3c1279b4e",
    "b58f46a6f1",
+   "b5d8f195c8",
    "b7473b2e21",
    "b8f6739f71",
    "baeb5bed1e",
@@ -362,14 +363,6 @@
     "after": "if ((!(Cobol.compare(f933_EIBAID, f819_DFHENTER, CS) == 0) || !(Cobol.compare(f933_EIBAID, f837_DFHPF8, CS) == 0))) {"
    },
    {
-    "id": "b5d8f195c8",
-    "op": "COR",
-    "file": "service/Cousr00cService.java",
-    "line": 1495,
-    "before": "if ((isUserSecNotEof() && isErrFlgOff())) {",
-    "after": "if ((isUserSecNotEof() || isErrFlgOff())) {"
-   },
-   {
     "id": "fc899c30ca",
     "op": "NEG",
     "file": "service/Cousr00cService.java",
@@ -452,11 +445,11 @@
   ],
   "inputs": {
    "port": "b2ade90a21b053d972e9f8eb236f536881e71358541ac7904f0b87b2b7e37e65",
-   "generator": "efdeb8065b1ecce331c38a4fb9d500e0289fc8608f10c528268cd58dca338720",
-   "case": "17c1d7b6a66033173daa044d382d7cb944f823aa3eb96c06ad4994ffdd086a41",
+   "generator": "99a366706ad341e0ee9ef5add6430c6645e3095df9317c4bf139319bd25e0cfe",
+   "case": "5f96fb2bfe1d8ecbcbe90f948000ca6e03c8a064f7d4c85d8e5df1d6a0b475a9",
    "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
    "harness": "f6fc656cfb906c118205c985d0d60e49de564621c2ff04af298b4752a3ede275",
-   "oracle": "c16b52604cd8fd17fb175d78decab45df98fa472134a0d92759e6bdfe631c71a"
+   "oracle": "a72339d492e955b0b5211d2f06f3af3a5d3abcb9bd7a9de93596fe16c46d34a7"
   },
   "components": {
    "generator": {

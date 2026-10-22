@@ -685,6 +685,18 @@ instrument). The rows below are rendered by one table in code (`compiler_options
     OPTIONS.json` appends the `zos-run` records; (5) re-check EPSMPMT's float `**` and the `reached:` line above.
     Proven by `test_hfp_capture_kit.py` with model-computed output (never written to the table). **The kits are not a
     capture: no `zos-run` record exists, and the checklist's proof against captured outputs still waits on #4050.**
+  - **Remaining lines of the hex-float checklist item (#4271, split after nine partial slices).** The model, the Java
+    runtime, the power routine, the `ANNUITY` refusal, the capture table, the burned-float census and the HFPCAPA lint are
+    merged; what is left is one external step and three PRs behind it, in this order:
+    (1) a z/OS run of HFPCAP and HFPCAPA, SYSOUT kept (owner action, #4050; not agent work);
+    (2) PR: `ingest` the HFPCAP SYSOUT as `zos-run` records, and settle any ASSUMED rule the run disagrees with (power,
+    store, DISPLAY, float-to-fixed) in `det/hfp.py`, `Hfp.java` and `cobolrt_rules.json`, never in a record;
+    (3) PR: `ingest --kit asm` the HFPCAPA SYSOUT, and re-check EPSMPMT's float `**` against it;
+    (4) PR: if the `**` agrees, move `mortgage-mpmt` and `mortgage-cmort` out of `KNOWN_UNPROVEN` and
+    `det_sweep_baseline.json`, update this register and the ground-truth ledger.
+    Burned programs gated: EPSMPMT (lines 2-4). Unsettled siblings: `FUNCTION ANNUITY` stays a Hole (EPSMPMT only); a
+    non-exact COMP-2 MOVEd into a 2-decimal field differs between GnuCOBOL and the det port (BNK1TFN, line 494), IBM
+    behaviour unsettled, so the CBSA case draws only exactly-representable amounts.
 - **IEEE <-> HFP conversion model (#4271).** `det/hfp.py` `ieee_value`, `from_ieee`, `to_ieee`, `exact_in_both`, proven by
   `test_hfp_ieee.py`: a binary64 fits long HFP exactly (53 bits in 56) and converts back to the same pattern; a short
   HFP inside binary32's normal range (about 1.2e-38 to 3.4e38) is exact in binary32; a long HFP rounds to binary64 half

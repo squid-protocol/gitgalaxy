@@ -81806,6 +81806,9 @@
           "WRFREGDATAEM",
           "dataset",
           "unsetenv",
+          "io_bin",
+          "em_real",
+          "em_b_wave",
           "cat",
           "dom_real",
           "EOF",
@@ -81963,6 +81966,7 @@
           "uname",
           "ps",
           "mpd",
+          "mpirun",
           "f90",
           "machfile",
           "ifort",
@@ -82031,6 +82035,9 @@
           "dataset",
           "unsetenv",
           "mkdir",
+          "io_bin",
+          "em_real",
+          "nmm_real",
           "cat",
           "dom_real",
           "EOF",
@@ -82124,6 +82131,7 @@
           "uname",
           "ps",
           "mpd",
+          "mpirun",
           "f90",
           "machfile",
           "ifort",
@@ -82191,6 +82199,9 @@
           "dataset",
           "unsetenv",
           "mkdir",
+          "io_bin",
+          "em_real",
+          "nmm_real",
           "cat",
           "dom_real",
           "EOF",
@@ -82284,6 +82295,7 @@
           "uname",
           "ps",
           "mpd",
+          "mpirun",
           "f90",
           "machfile",
           "ifort",
@@ -173254,8 +173266,8 @@
         ],
         "sigint_read_body@75": [
           "atf_check",
-          "dd",
           "sleep",
+          "dd",
           "kill"
         ],
         "sigint_read_head@71": [
@@ -173273,8 +173285,8 @@
           "STDERR",
           "kill",
           "expr",
-          "head",
-          "ksh"
+          "ksh",
+          "head"
         ],
         "usage@3": [
           "cat",
@@ -174905,6 +174917,7 @@
           "find-tar"
         ],
         "find-tar@306": [
+          "ls",
           "head"
         ],
         "gen-kube-basicauth@222": [
@@ -174971,6 +174984,7 @@
         "kube::build::docker_delete_old_containers@273": [
           "tail",
           "awk",
+          "kube::log::status",
           "kube::build::destroy_container"
         ],
         "kube::build::docker_image_exists@260": [
@@ -175016,7 +175030,8 @@
         "kube::build::short_hash@291": [
           "kube::log::error",
           "which",
-          "md5"
+          "md5",
+          "md5sum"
         ],
         "kube::build::verify_prereqs@168": [
           "kube::log::status",
@@ -175581,6 +175596,7 @@
         ],
         "write-pki-data@658": [
           "rm",
+          "umask",
           "base64",
           "chgrp",
           "chmod"
@@ -175600,12 +175616,12 @@
           "readlink",
           "ETCD_VERSION",
           "os",
+          "kube::log::info",
           "kube::util::download_file",
           "unzip",
           "ln",
           "rm",
-          "tar",
-          "kube::log::info"
+          "tar"
         ],
         "kube::etcd::scrape@112": [
           "curl",
@@ -175665,13 +175681,16 @@
           "gcloud"
         ],
         "dump_masters@371": [
+          "log_dump_custom_get_instances",
           "KUBERNETES_PROVIDER",
+          "detect-master",
           "max_dump_processes",
           "mkdir",
           "save-logs",
           "proc"
         ],
         "dump_nodes@418": [
+          "log_dump_custom_get_instances",
           "KUBERNETES_PROVIDER",
           "detect-node-names",
           "shuf",
@@ -175683,6 +175702,7 @@
           "proc"
         ],
         "dump_nodes_with_logexporter@528": [
+          "log_dump_custom_get_instances",
           "detect-node-names",
           "GOOGLE_APPLICATION_CREDENTIALS",
           "mkdir",
@@ -176086,6 +176106,7 @@
           "type",
           "go",
           "armel",
+          "armhf",
           "arm"
         ],
         "get_target_variant@258": [],
@@ -176110,6 +176131,7 @@
           "test_env"
         ],
         "test_env@39": [
+          "go",
           "env"
         ]
       },
@@ -176267,10 +176289,14 @@
       "shell/serenity/builtin.sh": {
         "__complete_job_spec@22": [
           "match",
+          "name",
           "jobs",
           "grep",
+          "i",
+          "id",
           "length",
-          "ps"
+          "ps",
+          "_"
         ],
         "_complete_cd@82": [
           "concat_lists",
@@ -176290,6 +176316,18 @@
       },
       "shell/serenity/generate_manpages.sh": {
         "Anonymous_Block_[Truncated]@23": [
+          "config",
+          "fortune",
+          "grep",
+          "nc",
+          "nl",
+          "passwd",
+          "readelf",
+          "shot",
+          "sql",
+          "tr",
+          "traceroute",
+          "truncate",
           "mkdir",
           "exit_for_error",
           "rm",

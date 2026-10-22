@@ -43623,7 +43623,7 @@
         "retry@22": 0
       },
       "shell/kubernetes/build-image.sh": {
-        "cleanup@25": 0
+        "cleanup@25": 1
       },
       "shell/kubernetes/cluster__common.sh": {
         "clear-kubeconfig@146": 0,
@@ -43835,7 +43835,7 @@
         "kube::release::sha1@258": 0
       },
       "shell/kubernetes/skeleton__util.sh": {
-        "detect-master@21": 0,
+        "detect-master@21": 1,
         "detect-node-names@27": 3,
         "detect-nodes@32": 0,
         "detect-project@77": 0,
@@ -43849,7 +43849,7 @@
         "verify-prereqs@37": 0
       },
       "shell/kubernetes/stage-upload.sh": {
-        "cleanup@42": 0
+        "cleanup@42": 1
       }
     },
     "shell/linux": {
@@ -43903,7 +43903,7 @@
         "mount_directory@64": 1
       },
       "shell/moby/dockerize-disk.sh": {
-        "cleanup@37": 0,
+        "cleanup@37": 1,
         "usage@9": 1
       },
       "shell/moby/download-frozen-image-v2.sh": {
@@ -43930,7 +43930,7 @@
     },
     "shell/reactos": {
       "shell/reactos/codespell_changed_files.sh": {
-        "changed_files@10": 0
+        "changed_files@10": 1
       },
       "shell/reactos/configure.sh": {
         "usage@13": 1

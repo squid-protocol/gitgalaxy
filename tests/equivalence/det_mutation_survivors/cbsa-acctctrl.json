@@ -1105,8 +1105,8 @@
    "line": 239,
    "before": "Cobol.move(d.getAccountControlEyeCatcher() == null ? \"\" : d.getAccountControlEyeCatcher(), Field.alphanumeric(s, base + 0, 4, false), CS);",
    "after": "Cobol.move(d.getAccountControlEyeCatcher() == null ? \"\" : d.getAccountControlEyeCatcher(), Field.alphanumeric(s, base - 0, 4, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values)"
   },
   {
    "id": "50663b0da1",
@@ -1114,8 +1114,8 @@
    "line": 239,
    "before": "Cobol.move(d.getAccountControlEyeCatcher() == null ? \"\" : d.getAccountControlEyeCatcher(), Field.alphanumeric(s, base + 0, 4, false), CS);",
    "after": "Cobol.move(d.getAccountControlEyeCatcher() != null ? \"\" : d.getAccountControlEyeCatcher(), Field.alphanumeric(s, base + 0, 4, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values)"
   },
   {
    "id": "78c9805309",
@@ -1123,8 +1123,8 @@
    "line": 239,
    "before": "Cobol.move(d.getAccountControlEyeCatcher() == null ? \"\" : d.getAccountControlEyeCatcher(), Field.alphanumeric(s, base + 0, 4, false), CS);",
    "after": "Cobol.move(d.getAccountControlEyeCatcher() == null ? \"\" : d.getAccountControlEyeCatcher(), Field.alphanumeric(s, base + 1, 4, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
   {
    "id": "8c15077654",
@@ -1132,8 +1132,8 @@
    "line": 239,
    "before": "Cobol.move(d.getAccountControlEyeCatcher() == null ? \"\" : d.getAccountControlEyeCatcher(), Field.alphanumeric(s, base + 0, 4, false), CS);",
    "after": "Cobol.move(d.getAccountControlEyeCatcher() == null ? \"\" : d.getAccountControlEyeCatcher(), Field.alphanumeric(s, base + 0, 5, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
   {
    "id": "1c76b4c880",
@@ -1141,8 +1141,8 @@
    "line": 240,
    "before": "Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 6, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 7, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
   {
    "id": "7012ac6af4",
@@ -1150,8 +1150,8 @@
    "line": 240,
    "before": "Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 6, 0, false, false, false), CS);",
    "after": "/* Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 6, 0, false, false, false), CS); */",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values)"
   },
   {
    "id": "7a2224bb1f",
@@ -1159,8 +1159,8 @@
    "line": 240,
    "before": "Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 6, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 15, 6, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
   {
    "id": "9dc2adfd3f",
@@ -1168,8 +1168,8 @@
    "line": 240,
    "before": "Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 6, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getAccountControlSortCode() != null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 6, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values)"
   },
   {
    "id": "c57681bed8",
@@ -1177,8 +1177,8 @@
    "line": 240,
    "before": "Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 6, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 6, 1, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
   {
    "id": "0eda295cf8",
@@ -1186,8 +1186,8 @@
    "line": 241,
    "before": "Cobol.move(d.getAccountControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlNumber().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getAccountControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlNumber().toString()), Field.zoned(s, base + 20, 8, 1, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
   {
    "id": "1cd723b35f",
@@ -1195,8 +1195,8 @@
    "line": 241,
    "before": "Cobol.move(d.getAccountControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlNumber().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getAccountControlNumber() != null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlNumber().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values)"
   },
   {
    "id": "9a2655c5a7",
@@ -1204,8 +1204,8 @@
    "line": 241,
    "before": "Cobol.move(d.getAccountControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlNumber().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getAccountControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlNumber().toString()), Field.zoned(s, base + 20, 9, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
   {
    "id": "ee7dd2438a",
@@ -1213,8 +1213,8 @@
    "line": 241,
    "before": "Cobol.move(d.getAccountControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlNumber().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);",
    "after": "/* Cobol.move(d.getAccountControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlNumber().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS); */",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values)"
   },
   {
    "id": "f134aa706c",
@@ -1222,8 +1222,8 @@
    "line": 241,
    "before": "Cobol.move(d.getAccountControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlNumber().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getAccountControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlNumber().toString()), Field.zoned(s, base + 21, 8, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
   {
    "id": "50ccae0a07",
@@ -1231,8 +1231,8 @@
    "line": 242,
    "before": "Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 8, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 9, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
   {
    "id": "6a7cfcd4fc",
@@ -1240,8 +1240,8 @@
    "line": 242,
    "before": "Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 8, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 8, 1, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
   {
    "id": "a9cc604e30",
@@ -1249,8 +1249,8 @@
    "line": 242,
    "before": "Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 8, 0, false, false, false), CS);",
    "after": "/* Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 8, 0, false, false, false), CS); */",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values)"
   },
   {
    "id": "aaa660a012",
@@ -1258,8 +1258,8 @@
    "line": 242,
    "before": "Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 8, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 29, 8, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
   {
    "id": "ab6051e9ea",
@@ -1267,8 +1267,8 @@
    "line": 242,
    "before": "Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 8, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getNumberOfAccounts() != null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 8, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values)"
   },
   {
    "id": "066e94b6df",
@@ -1276,8 +1276,8 @@
    "line": 243,
    "before": "Cobol.move(d.getLastAccountNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 8, 0, false, false, false), CS);",
    "after": "/* Cobol.move(d.getLastAccountNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 8, 0, false, false, false), CS); */",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values)"
   },
   {
    "id": "341d263ad9",
@@ -1285,8 +1285,8 @@
    "line": 243,
    "before": "Cobol.move(d.getLastAccountNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 8, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getLastAccountNumber() != null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 8, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values)"
   },
   {
    "id": "3b6e574da8",
@@ -1294,8 +1294,8 @@
    "line": 243,
    "before": "Cobol.move(d.getLastAccountNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 8, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getLastAccountNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 8, 1, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
   {
    "id": "6daf3a9671",
@@ -1303,8 +1303,8 @@
    "line": 243,
    "before": "Cobol.move(d.getLastAccountNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 8, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getLastAccountNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 37, 8, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
   {
    "id": "e7703e407b",
@@ -1312,8 +1312,8 @@
    "line": 243,
    "before": "Cobol.move(d.getLastAccountNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 8, 0, false, false, false), CS);",
    "after": "Cobol.move(d.getLastAccountNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 9, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
   {
    "id": "2597206bb6",
@@ -1321,8 +1321,8 @@
    "line": 244,
    "before": "Cobol.move(d.getAccountControlSuccessFlag() == null ? \"\" : d.getAccountControlSuccessFlag(), Field.alphanumeric(s, base + 44, 1, false), CS);",
    "after": "Cobol.move(d.getAccountControlSuccessFlag() == null ? \"\" : d.getAccountControlSuccessFlag(), Field.alphanumeric(s, base + 44, 2, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
   {
    "id": "8aceaa6a35",
@@ -1330,8 +1330,8 @@
    "line": 244,
    "before": "Cobol.move(d.getAccountControlSuccessFlag() == null ? \"\" : d.getAccountControlSuccessFlag(), Field.alphanumeric(s, base + 44, 1, false), CS);",
    "after": "Cobol.move(d.getAccountControlSuccessFlag() != null ? \"\" : d.getAccountControlSuccessFlag(), Field.alphanumeric(s, base + 44, 1, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values)"
   },
   {
    "id": "e196ae1b5f",
@@ -1339,8 +1339,8 @@
    "line": 244,
    "before": "Cobol.move(d.getAccountControlSuccessFlag() == null ? \"\" : d.getAccountControlSuccessFlag(), Field.alphanumeric(s, base + 44, 1, false), CS);",
    "after": "Cobol.move(d.getAccountControlSuccessFlag() == null ? \"\" : d.getAccountControlSuccessFlag(), Field.alphanumeric(s, base + 45, 1, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
   {
    "id": "2410d9c710",
@@ -1348,8 +1348,8 @@
    "line": 245,
    "before": "Cobol.move(d.getAccountControlFailCode() == null ? \"\" : d.getAccountControlFailCode(), Field.alphanumeric(s, base + 45, 1, false), CS);",
    "after": "Cobol.move(d.getAccountControlFailCode() != null ? \"\" : d.getAccountControlFailCode(), Field.alphanumeric(s, base + 45, 1, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values)"
   },
   {
    "id": "3c66a4db2b",
@@ -1357,8 +1357,8 @@
    "line": 245,
    "before": "Cobol.move(d.getAccountControlFailCode() == null ? \"\" : d.getAccountControlFailCode(), Field.alphanumeric(s, base + 45, 1, false), CS);",
    "after": "Cobol.move(d.getAccountControlFailCode() == null ? \"\" : d.getAccountControlFailCode(), Field.alphanumeric(s, base + 45, 2, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
   {
    "id": "8182c53108",
@@ -1366,26 +1366,8 @@
    "line": 245,
    "before": "Cobol.move(d.getAccountControlFailCode() == null ? \"\" : d.getAccountControlFailCode(), Field.alphanumeric(s, base + 45, 1, false), CS);",
    "after": "Cobol.move(d.getAccountControlFailCode() == null ? \"\" : d.getAccountControlFailCode(), Field.alphanumeric(s, base + 46, 1, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "0daccda4f1",
-   "op": "CON",
-   "line": 249,
-   "before": "d.setAccountControlEyeCatcher(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
-   "after": "d.setAccountControlEyeCatcher(Cobol.text(Field.alphanumeric(s, base + 0, 5, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "13f134a6fc",
-   "op": "CON",
-   "line": 249,
-   "before": "d.setAccountControlEyeCatcher(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
-   "after": "d.setAccountControlEyeCatcher(Cobol.text(Field.alphanumeric(s, base + 1, 4, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); a store that is widened or shifted lands in another named item (INITIALIZEd as well) or in FILLER, which the program never reads and the DTO has no property for"
   },
   {
    "id": "5b48eb01e3",
@@ -1393,17 +1375,8 @@
    "line": 249,
    "before": "d.setAccountControlEyeCatcher(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
    "after": "d.setAccountControlEyeCatcher(Cobol.text(Field.alphanumeric(s, base - 0, 4, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "97beec4e2e",
-   "op": "DEL",
-   "line": 249,
-   "before": "d.setAccountControlEyeCatcher(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
-   "after": "/* d.setAccountControlEyeCatcher(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+   "verdict": "equivalent",
+   "reason": "base - 0 is base + 0: the same offset"
   },
   {
    "id": "068a904301",
@@ -1411,17 +1384,8 @@
    "line": 250,
    "before": "d.setAccountControlSortCode(Cobol.num(Field.zoned(s, base + 14, 6, 0, false, false, false), CS).intValue());",
    "after": "d.setAccountControlSortCode(Cobol.num(Field.zoned(s, base + 15, 6, 0, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "2993a1c3d6",
-   "op": "DEL",
-   "line": 250,
-   "before": "d.setAccountControlSortCode(Cobol.num(Field.zoned(s, base + 14, 6, 0, false, false, false), CS).intValue());",
-   "after": "/* d.setAccountControlSortCode(Cobol.num(Field.zoned(s, base + 14, 6, 0, false, false, false), CS).intValue()); */",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+   "verdict": "equivalent",
+   "reason": "fill_ reads SORT-CODE, which INITIALIZE DFHCOMMAREA leaves at zero and no statement of the program sets (it sets only NUMBER-OF-ACCOUNTS and the success flag); a shifted, widened or scaled read of those zero bytes reads zeros all the same, so the DTO value is the same"
   },
   {
    "id": "98be072e98",
@@ -1429,8 +1393,8 @@
    "line": 250,
    "before": "d.setAccountControlSortCode(Cobol.num(Field.zoned(s, base + 14, 6, 0, false, false, false), CS).intValue());",
    "after": "d.setAccountControlSortCode(Cobol.num(Field.zoned(s, base + 14, 6, 1, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+   "verdict": "equivalent",
+   "reason": "fill_ reads SORT-CODE, which INITIALIZE DFHCOMMAREA leaves at zero and no statement of the program sets (it sets only NUMBER-OF-ACCOUNTS and the success flag); a shifted, widened or scaled read of those zero bytes reads zeros all the same, so the DTO value is the same"
   },
   {
    "id": "a46c6faced",
@@ -1438,8 +1402,8 @@
    "line": 250,
    "before": "d.setAccountControlSortCode(Cobol.num(Field.zoned(s, base + 14, 6, 0, false, false, false), CS).intValue());",
    "after": "d.setAccountControlSortCode(Cobol.num(Field.zoned(s, base + 14, 7, 0, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+   "verdict": "equivalent",
+   "reason": "fill_ reads SORT-CODE, which INITIALIZE DFHCOMMAREA leaves at zero and no statement of the program sets (it sets only NUMBER-OF-ACCOUNTS and the success flag); a shifted, widened or scaled read of those zero bytes reads zeros all the same, so the DTO value is the same"
   },
   {
    "id": "4b2f97c8ca",
@@ -1447,8 +1411,8 @@
    "line": 251,
    "before": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue());",
    "after": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 9, 0, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+   "verdict": "case-gap",
+   "reason": "fill_ reads ACCOUNT-CONTROL-NUMBER's 8 zero bytes (INITIALIZE; the program never sets it); this read takes in byte 28, the first digit of NUMBER-OF-ACCOUNTS, which is 0 for every count under 10,000,000: a case needs a Db2 table of that many ACCOUNT rows to kill it"
   },
   {
    "id": "81f24fa7dd",
@@ -1456,8 +1420,8 @@
    "line": 251,
    "before": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue());",
    "after": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 8, 1, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+   "verdict": "equivalent",
+   "reason": "fill_ reads ACCOUNT-CONTROL-NUMBER, which INITIALIZE DFHCOMMAREA leaves at zero and no statement of the program sets (it sets only NUMBER-OF-ACCOUNTS and the success flag); a scaled read (zero divided by ten) reads zeros all the same, so the DTO value is the same"
   },
   {
    "id": "e665241919",
@@ -1465,53 +1429,8 @@
    "line": 251,
    "before": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue());",
    "after": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 21, 8, 0, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "f9072c7177",
-   "op": "DEL",
-   "line": 251,
-   "before": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue());",
-   "after": "/* d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue()); */",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "2c08775302",
-   "op": "CON",
-   "line": 252,
-   "before": "d.setNumberOfAccounts(Cobol.num(Field.zoned(s, base + 28, 8, 0, false, false, false), CS).intValue());",
-   "after": "d.setNumberOfAccounts(Cobol.num(Field.zoned(s, base + 28, 8, 1, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "6080dd996a",
-   "op": "CON",
-   "line": 252,
-   "before": "d.setNumberOfAccounts(Cobol.num(Field.zoned(s, base + 28, 8, 0, false, false, false), CS).intValue());",
-   "after": "d.setNumberOfAccounts(Cobol.num(Field.zoned(s, base + 28, 9, 0, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "b0ccd5d4fb",
-   "op": "CON",
-   "line": 252,
-   "before": "d.setNumberOfAccounts(Cobol.num(Field.zoned(s, base + 28, 8, 0, false, false, false), CS).intValue());",
-   "after": "d.setNumberOfAccounts(Cobol.num(Field.zoned(s, base + 29, 8, 0, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "b94509aa9e",
-   "op": "DEL",
-   "line": 252,
-   "before": "d.setNumberOfAccounts(Cobol.num(Field.zoned(s, base + 28, 8, 0, false, false, false), CS).intValue());",
-   "after": "/* d.setNumberOfAccounts(Cobol.num(Field.zoned(s, base + 28, 8, 0, false, false, false), CS).intValue()); */",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+   "verdict": "case-gap",
+   "reason": "fill_ reads ACCOUNT-CONTROL-NUMBER's 8 zero bytes (INITIALIZE; the program never sets it); this read takes in byte 28, the first digit of NUMBER-OF-ACCOUNTS, which is 0 for every count under 10,000,000: a case needs a Db2 table of that many ACCOUNT rows to kill it"
   },
   {
    "id": "3e34e93d08",
@@ -1519,35 +1438,8 @@
    "line": 253,
    "before": "d.setLastAccountNumber(Cobol.num(Field.zoned(s, base + 36, 8, 0, false, false, false), CS).intValue());",
    "after": "d.setLastAccountNumber(Cobol.num(Field.zoned(s, base + 36, 8, 1, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "43682074a4",
-   "op": "CON",
-   "line": 253,
-   "before": "d.setLastAccountNumber(Cobol.num(Field.zoned(s, base + 36, 8, 0, false, false, false), CS).intValue());",
-   "after": "d.setLastAccountNumber(Cobol.num(Field.zoned(s, base + 37, 8, 0, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "46b3bb0089",
-   "op": "DEL",
-   "line": 253,
-   "before": "d.setLastAccountNumber(Cobol.num(Field.zoned(s, base + 36, 8, 0, false, false, false), CS).intValue());",
-   "after": "/* d.setLastAccountNumber(Cobol.num(Field.zoned(s, base + 36, 8, 0, false, false, false), CS).intValue()); */",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "61c87bcc6a",
-   "op": "CON",
-   "line": 253,
-   "before": "d.setLastAccountNumber(Cobol.num(Field.zoned(s, base + 36, 8, 0, false, false, false), CS).intValue());",
-   "after": "d.setLastAccountNumber(Cobol.num(Field.zoned(s, base + 36, 9, 0, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+   "verdict": "equivalent",
+   "reason": "fill_ reads LAST-ACCOUNT-NUMBER, which INITIALIZE DFHCOMMAREA leaves at zero and no statement of the program sets (it sets only NUMBER-OF-ACCOUNTS and the success flag); a scaled read (zero divided by ten) reads zeros all the same, so the DTO value is the same"
   },
   {
    "id": "13b138bd8d",
@@ -1555,53 +1447,8 @@
    "line": 254,
    "before": "d.setAccountControlSuccessFlag(Cobol.text(Field.alphanumeric(s, base + 44, 1, false), CS));",
    "after": "d.setAccountControlSuccessFlag(Cobol.text(Field.alphanumeric(s, base + 44, 2, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "b2a660ac42",
-   "op": "DEL",
-   "line": 254,
-   "before": "d.setAccountControlSuccessFlag(Cobol.text(Field.alphanumeric(s, base + 44, 1, false), CS));",
-   "after": "/* d.setAccountControlSuccessFlag(Cobol.text(Field.alphanumeric(s, base + 44, 1, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "f8d0d16fb3",
-   "op": "CON",
-   "line": 254,
-   "before": "d.setAccountControlSuccessFlag(Cobol.text(Field.alphanumeric(s, base + 44, 1, false), CS));",
-   "after": "d.setAccountControlSuccessFlag(Cobol.text(Field.alphanumeric(s, base + 45, 1, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "177acf7752",
-   "op": "DEL",
-   "line": 255,
-   "before": "d.setAccountControlFailCode(Cobol.text(Field.alphanumeric(s, base + 45, 1, false), CS));",
-   "after": "/* d.setAccountControlFailCode(Cobol.text(Field.alphanumeric(s, base + 45, 1, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "a0d68d5e6e",
-   "op": "CON",
-   "line": 255,
-   "before": "d.setAccountControlFailCode(Cobol.text(Field.alphanumeric(s, base + 45, 1, false), CS));",
-   "after": "d.setAccountControlFailCode(Cobol.text(Field.alphanumeric(s, base + 45, 2, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "b73eb40403",
-   "op": "CON",
-   "line": 255,
-   "before": "d.setAccountControlFailCode(Cobol.text(Field.alphanumeric(s, base + 45, 1, false), CS));",
-   "after": "d.setAccountControlFailCode(Cobol.text(Field.alphanumeric(s, base + 46, 1, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+   "verdict": "equivalent",
+   "reason": "fill_ reads the success flag and, widened to 2, the FAIL-CODE byte after it, a space the program never sets; the comparison drops trailing spaces (_same_commarea), so 'Y ' and 'Y' are the same value"
   },
   {
    "id": "a2dd54b9af",
@@ -1609,8 +1456,8 @@
    "line": 260,
    "before": "fill_AcctctrlDfhcommarea(d, s, base);",
    "after": "/* fill_AcctctrlDfhcommarea(d, s, base); */",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+   "verdict": "unreachable",
+   "reason": "fill_ is called here by out_AcctctrlDfhcommarea, which nothing calls: the port returns the DTO through caBack (line 358), whose fill_ call the dto_entry scenarios kill"
   },
   {
    "id": "9971728c50",
@@ -2032,8 +1879,8 @@
    "line": 357,
    "before": "in_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 0);",
    "after": "/* in_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 0); */",
-   "verdict": "case-gap",
-   "reason": "the typed-DTO entry (`ca instanceof AcctctrlDfhcommarea x`) is reached on every scenario, but the link area (linked:true) then overwrites the bytes it filled and replaces the returned DTO, so a dropped call or a changed offset cannot show; same gap as in_/fill_"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); the call's removal or a shifted base changes only bytes INITIALIZE then overwrites"
   },
   {
    "id": "1a85cee40c",
@@ -2041,26 +1888,8 @@
    "line": 357,
    "before": "in_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 0);",
    "after": "in_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 1);",
-   "verdict": "case-gap",
-   "reason": "the typed-DTO entry (`ca instanceof AcctctrlDfhcommarea x`) is reached on every scenario, but the link area (linked:true) then overwrites the bytes it filled and replaces the returned DTO, so a dropped call or a changed offset cannot show; same gap as in_/fill_"
-  },
-  {
-   "id": "7899f1d0ca",
-   "op": "CON",
-   "line": 358,
-   "before": "caBack = () -> fill_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 0);",
-   "after": "caBack = () -> fill_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 1);",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea (the caBack that refills the DTO) is replaced by the link area on the harness side: the returned DTO is built from the area bytes (java_area), so dropping or retargeting it is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "b45f6e978a",
-   "op": "DEL",
-   "line": 358,
-   "before": "caBack = () -> fill_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 0);",
-   "after": "/* caBack = () -> fill_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 0); */",
-   "verdict": "harness-gap",
-   "reason": "fill_AcctctrlDfhcommarea (the caBack that refills the DTO) is replaced by the link area on the harness side: the returned DTO is built from the area bytes (java_area), so dropping or retargeting it is never compared; the harness must compare the DTO as well"
+   "verdict": "equivalent",
+   "reason": "in_AcctctrlDfhcommarea copies the DTO into the COMMAREA storage, and the program's first statement INITIALIZEs DFHCOMMAREA (every named item to zero or space; EIBCALEN is never tested) before anything reads it, so what in_ stores, or not, is overwritten (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back, over a COMMAREA full of the caller's values); the call's removal or a shifted base changes only bytes INITIALIZE then overwrites"
   },
   {
    "id": "2996a39364",

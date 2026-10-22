@@ -5,7 +5,7 @@
   ],
   "value": {
     "Galaxy Column Digests": {
-      "a_dists": "a4353dd778cc",
+      "a_dists": "c006b77a470d",
       "a_ids": "90b34b311d01",
       "ai_threats": "702f60aa030f",
       "author_distribution": "702f60aa030f",
@@ -29,7 +29,7 @@
       "tel_cfr": "22d317026281",
       "tel_lt": "a5110b875769",
       "tel_pid": "729eb627fcbc",
-      "tel_pop": "71c832180fac",
+      "tel_pop": "95b73a25e1ea",
       "tel_purp": "64d3ca5df8c8"
     },
     "Galaxy Files": {
@@ -3022,8 +3022,8 @@
       "shell/reactos/CreateCabFile.sh": "d86ff1fdcffa",
       "shell/reactos/autogen.sh": "638b28bfd588",
       "shell/reactos/check_code_format.sh": "c45349ce0d30",
-      "shell/reactos/codespell_changed_files.sh": "760002599842",
-      "shell/reactos/codespell_check.sh": "98e7dbce1033",
+      "shell/reactos/codespell_changed_files.sh": "f55665f3aca8",
+      "shell/reactos/codespell_check.sh": "3a6c4c446fd2",
       "shell/reactos/configure.sh": "e66121bda1e3",
       "shell/reactos/do_code_format.sh": "0834117b9093",
       "shell/reactos/dos2unix.sh": "99e6b4de1207",
@@ -3412,7 +3412,7 @@
       "ecosystem_audits": "aa094343f1a1",
       "ecosystem_fingerprint": "4350181b84f3",
       "health": "a68be623cabf",
-      "network_macro": "92511ca4fac9",
+      "network_macro": "18f5a99b0745",
       "repo_macro_species": "2bd4f962ad9c",
       "summary": "6fe52f83dcb9",
       "typosquat_hits": "5feceb66ffc8",

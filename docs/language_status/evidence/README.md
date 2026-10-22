@@ -6,7 +6,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 
 | program | case | kind | status | why | runs | coverage (para / branch) | mutation (raw / adj) | ported unproven | approved |
 |---|---|---|---|---|---|---|---|---|---|
-| [COACTVWC](carddemo-acctview.md) | carddemo-acctview | cics | proven, unapproved |  | 22 | 31/32 / 58/69 | 105/129 / 105/113 | 0 | - |
+| [COACTVWC](carddemo-acctview.md) | carddemo-acctview | cics | proven, unapproved |  | 24 | 31/32 / 58/69 | 96/137 / 96/109 | 0 | - |
 | [COADM01C](carddemo-adminmenu.md) | carddemo-adminmenu | cics | proven, unapproved |  | 34 | 8/8 / 20/26 | 63/95 / 63/63 | 0 | - |
 | [COBIL00C](carddemo-billpay.md) | carddemo-billpay | cics | proven, unapproved |  | 33 | 16/16 / 46/48 | 66/86 / 66/70 | 0 | - |
 | [COCRDLIC](carddemo-cardlist.md) | carddemo-cardlist | cics | proven, unapproved |  | 36 | 36/36 / 136/149 | 75/94 / 75/82 | 0 | - |
@@ -17,7 +17,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [CBTRN01C](carddemo-dailyval.md) | carddemo-dailyval | batch | proven, unapproved |  | 21 | 18/18 / 65/66 | 63/96 / 63/71 | 0 | - |
 | [CSUTLDTC](carddemo-dateutil.md) | carddemo-dateutil | call | proven, unapproved |  | 1 | 2/2 / 4/10 | 145/195 / 145/145 | 0 | - |
 | [CBACT04C](carddemo-intcalc.md) | carddemo-intcalc | batch | proven, unapproved |  | 20 | 22/22 / 85/86 | 70/86 / 70/77 | 0 | - |
-| [COMEN01C](carddemo-menu.md) | carddemo-menu | cics | proven, unapproved |  | 15 | 7/7 / 29/33 | 86/136 / 86/93 | 0 | - |
+| [COMEN01C](carddemo-menu.md) | carddemo-menu | cics | proven, unapproved |  | 16 | 7/7 / 29/33 | 87/139 / 87/87 | 0 | - |
 | [CBTRN02C](carddemo-posttran.md) | carddemo-posttran | batch | proven, unapproved |  | 29 | 26/26 / 95/96 | 76/85 / 76/80 | 0 | - |
 | [CBACT02C](carddemo-readcard.md) | carddemo-readcard | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | 69/83 / 69/73 | 0 | - |
 | [CBCUS01C](carddemo-readcust.md) | carddemo-readcust | batch | proven, unapproved |  | 7 | 5/5 / 21/22 | 63/74 / 63/70 | 0 | - |

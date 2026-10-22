@@ -43791,7 +43791,7 @@
       "shell/kubernetes/log-dump.sh": {
         "copy-logs-from-node@124": 0,
         "detect_node_failures@655": 1,
-        "dump_masters@371": 1,
+        "dump_masters@371": 2,
         "dump_nodes@418": 3,
         "dump_nodes_with_logexporter@528": 3,
         "export-windows-docker-event-log@248": 0,

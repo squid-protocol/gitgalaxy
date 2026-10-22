@@ -105,7 +105,9 @@ name. Source line numbers are dropped.
 
 **Offline:** `gitgalaxy/tools/readiness/offline.py` blocks network sockets and DNS lookups, both in the command and in
 the scan it runs. Linux workers inherit the block when they fork. On macOS and Windows the scan's worker processes
-start fresh without it, which is a follow-up.
+start fresh, so the scan passes them `GITGALAXY_ASSESS_OFFLINE` and each worker's initializer installs the block itself
+(#5235; `test_a_spawn_start_scan_worker_runs_under_the_guard` runs a spawn-start worker and checks it refuses a
+connection).
 
 **Read only:** the scan's database and the generated BMS copybooks go to a temporary directory that is deleted
 afterwards. The engine scan runs `--db-only --no-dependency-cache` with git history off. The tests compare every
@@ -126,5 +128,4 @@ Counts are the same as in the plain report.
 ## Follow-ups (#4726)
 
 - A post-publish check that installs the PyPI package on a clean runner.
-- The readiness report's ranked rules once #5228 lands.
-- The network block on spawn-start platforms (macOS and Windows).
+- The readiness report's ranked rules (#5228 has closed; `assess` does not carry them yet).

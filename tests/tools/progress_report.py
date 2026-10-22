@@ -44,6 +44,8 @@ REPO = TOOLS.parents[1]
 sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO))
 
+import ladder_exclusions  # noqa: E402
+
 FORMAT = "gitgalaxy-progress/1"
 STATUS_DOCS = REPO / "docs" / "language_status"
 SPEC_STATUS = STATUS_DOCS / "cics_spec_status.json"
@@ -416,6 +418,10 @@ def build(
             for p in progs
         ]
     total = sum_ladders(list(per.values()))
+    unreachable = ladder_exclusions.summarize({n: reports[n]["programs"] for n in reports})
+    if unreachable:  # added only when non-empty; every program stays in the fixed denominator
+        total["unreachable"] = unreachable
+        total["reachable"] = total["programs"] - unreachable["count"]
     return {
         "format": FORMAT,
         "commit": commit,
@@ -486,6 +492,28 @@ def render(rep: dict[str, Any]) -> str:
         "| Estate | Programs | L0 | L1 | L2 | L3 | L4 | L5 | L2+ | L4+ | L5 |",
         "|---|---|---|---|---|---|---|---|---|---|---|",
     ]
+    if "reachable" in t:
+        u = t["unreachable"]
+        parts = " - ".join(str(u["kinds"][k]["count"]) for k in u["kinds"])
+        out[-2:-2] = [
+            f"Reachable denominator: {t['reachable']} programs ({t['programs']} - {parts}). These programs stay in "
+            "the fixed denominator and in the table; each is reported apart because its blocker is not a translator gap.",
+            "",
+            "| Not reachable for a non-translator reason | Programs | Issue | Reason |",
+            "|---|---|---|---|",
+            *(
+                f"| {ladder_exclusions.KIND_LABEL[k]} | {v['count']}: "
+                + ", ".join(f"`{n}`" for n in v["programs"])
+                + f" | {', '.join(v['issues'])} | {'; '.join(v['reasons'])} |"
+                for k, v in u["kinds"].items()
+            ),
+            *(
+                ["", f"Entries that no longer hold (the program is above L0): {', '.join(u['stale'])}."]
+                if u.get("stale")
+                else []
+            ),
+            "",
+        ]
     rows = [*lad["estates"].items(), ("Total", t)]
     for name, r in rows:
         lv = r["levels"]

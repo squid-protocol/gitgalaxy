@@ -241,6 +241,7 @@ tests/telemetry_out/
 !docs/language_status/register/_layout.json
 # #4702 Part 2: the z/OS calibration ledger is source
 !docs/language_status/zos_calibration.json
+!docs/language_status/zos_probes.json
 !tests/tools/feature_inventory.schema.json
 !tests/fixtures/feature_inventory/*.json
 !tests/fixtures/era_distribution/summary.json

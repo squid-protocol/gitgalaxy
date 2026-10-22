@@ -11,6 +11,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [COBIL00C](carddemo-billpay.md) | carddemo-billpay | cics | proven, unapproved |  | 33 | 16/16 / 46/48 | 66/86 / 66/70 | 0 | - |
 | [COCRDLIC](carddemo-cardlist.md) | carddemo-cardlist | cics | proven, unapproved |  | 36 | 36/36 / 136/149 | 75/94 / 75/82 | 0 | - |
 | [COCRDSLC](carddemo-cardview.md) | carddemo-cardview | cics | proven, unapproved |  | 25 | 30/30 / 69/75 | 60/91 / 60/65 | 0 | - |
+| [CBSTM03A](carddemo-cbstm03a.md) | carddemo-cbstm03a | batch | proven, unapproved |  | 1 | 23/25 / 0/46 | - | 0 | - |
 | [CBTRN01C](carddemo-dailyval.md) | carddemo-dailyval | batch | proven, unapproved |  | 21 | 18/18 / 65/66 | 63/96 / 63/71 | 0 | - |
 | [CSUTLDTC](carddemo-dateutil.md) | carddemo-dateutil | call | proven, unapproved |  | 1 | 2/2 / 4/10 | 145/195 / 145/145 | 0 | - |
 | [CBACT04C](carddemo-intcalc.md) | carddemo-intcalc | batch | proven, unapproved |  | 20 | 22/22 / 85/86 | 70/86 / 70/77 | 0 | - |

@@ -10504,7 +10504,8 @@ class StructuralExtractor:
         own_leaf: str | None = None
         own_qualifiers: set[str] = set()
         bare_self_hits = 0
-        own_header_seen = False
+        # #5699: an Objective-C method header (`- (int)f:(int)a`) is no call match, so its first bare `f(` is a body call
+        own_header_seen = self.primary_lang_id == "objective-c" and block.lstrip()[:1] in ("-", "+")
         if invocation_pattern:
             # Apply literal shield to avoid capturing words inside strings
             safe_block = self._apply_literal_shield(block, self.primary_lang_id)

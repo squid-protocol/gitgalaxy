@@ -29,6 +29,11 @@ METHOD_CALLS_FREE = {
         "a.go",
         "package p\n\nfunc f(a int) int {\n\treturn a\n}\n\ntype S struct{}\n\nfunc (s *S) f(a int) int {\n\treturn f(a)\n}\n",
     ),
+    # ObjC / ObjC++ (.mm): a method is reached by a message send, so a bare `f(` is the C function
+    "objective-c": (
+        "a.mm",
+        "int f(int a) {\n    return a;\n}\n@implementation S\n- (int)f:(int)a {\n    return f(a);\n}\n@end\n",
+    ),
 }
 
 RECURSION = {
@@ -38,6 +43,7 @@ RECURSION = {
     "javascript": ("a.js", "function f(a) {\n    return f(a - 1)\n}\n"),
     "python": ("a.py", "def f(a):\n    return f(a - 1)\n"),
     "go": ("a.go", "package p\n\nfunc f(a int) int {\n\treturn f(a - 1)\n}\n"),
+    "objective-c": ("a.mm", "int f(int a) {\n    return f(a - 1);\n}\n"),
 }
 
 # a member shadows the free function: a bare `f(` in the member is the member
@@ -140,3 +146,26 @@ def test_go_without_a_receiver_or_free_target_stays_recursion(code):
     file, edges = _scan("go", "a.go", code)
     assert edges == []
     assert all(not fn["calls_out_to"] for fn in file["functions"])
+
+
+@pytest.mark.parametrize(
+    "code",
+    [
+        # a message send to self is the method itself: recursion
+        "int f(int a) {\n    return a;\n}\n@implementation S\n- (int)f:(int)a {\n    return [self f:a];\n}\n@end\n",
+        # a method `f` with no free `f`: the bare call has no target
+        "@implementation S\n- (int)f:(int)a {\n    return f(a);\n}\n@end\n",
+        # a class method (`+`) with a message send only
+        "int f(void) {\n    return 1;\n}\n@implementation S\n+ (int)f {\n    return [S f];\n}\n@end\n",
+    ],
+)
+def test_objc_message_send_or_missing_free_target_stays_recursion(code):
+    file, edges = _scan("objective-c", "a.mm", code)
+    assert edges == []
+    assert all(not fn["calls_out_to"] for fn in file["functions"])
+
+
+def test_objc_class_method_bare_call_reaches_the_free_function():
+    code = "int f(void) {\n    return 1;\n}\n@implementation S\n+ (int)f {\n    return f();\n}\n@end\n"
+    _, edges = _scan("objective-c", "a.mm", code)
+    assert [(s, d) for s, d, _, _ in edges] == [("f", "f")]

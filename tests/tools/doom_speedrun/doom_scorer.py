@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Clean-scan scorer for the DOOM Port Speedrun harness (#5468).
 
-Six checks per port, on first-party code only (ported from the round-2 study's clean_check.py, #5457):
+Seven checks per port, on first-party code only (1-6 ported from the round-2 study's clean_check.py, #5457; 7 added
+by #5874):
   1 coverage    every first-party source file is mapped (excluded ones listed with the engine's reason; a
                 'Machine-Generated' exclusion is accepted when the head carries a generator banner)
   2 language    each mapped file's language fits its extension
@@ -10,6 +11,9 @@ Six checks per port, on first-party code only (ported from the round-2 study's c
   4 typosquat   no TYPOSQUATTING DETECTED log lines
   5 credentials no has_credentials files (SARIF error results are listed for review, never scored)
   6 health      rc=0 and no ERROR / CLASSIFICATION REFUTATION / Traceback log lines
+  7 callgraph   C/C++ call edges match the tree-sitter body oracle (callgraph_oracle.py): no miss and no engine-only
+                edge the callee's body never mentions. Constructor and function-pointer edges are reported, not
+                scored, until the owner rules the edge convention; a port with no oracle is ``n/a`` (a pass, shown)
 
 Second oracle: tree-sitter definition counts (``--oracle``), reported beside ctags, never scored: ctags misses
 macro-defined functions (#5461), so "matches ctags" alone is not the claim. Third, on a subset: libclang (``--clang``,
@@ -220,8 +224,49 @@ def functions_agreement(gg_total, ct_total, ts_total):
     return ""
 
 
-def verdict(fails):
-    return "PERFECT" if not fails else f"{6 - len(fails)}/6"
+def verdict(fails, total=6):
+    return "PERFECT" if not fails else f"{total - len(fails)}/{total}"
+
+
+# Engine-only edge kinds (callgraph_oracle.body_oracle) that fail check 7: the callee appears nowhere in the caller's
+# body, or only in a comment or string. ``type`` (a constructor), ``function-pointer`` and ``macro`` are unscored.
+SCORED_ENGINE_ONLY = ("absent", "comment/string")
+CALLGRAPH_NA = {
+    k: "n/a"
+    for k in (
+        "callgraph_recall",
+        "callgraph_precision",
+        "callgraph_misses",
+        "callgraph_engine_only",
+        "callgraph_unscored",
+    )
+}
+
+
+def callgraph_columns(oracle):
+    """Check 7's row columns from a ``body_oracle`` result: misses, scored and unscored engine-only edge counts."""
+    kinds = oracle["engine_only_by_kind"]
+    return {
+        "callgraph_recall": oracle["recall"],
+        "callgraph_precision": oracle["precision"],
+        "callgraph_misses": sum(oracle["misses_by_shape"].values()),
+        "callgraph_engine_only": sum(kinds.get(k, 0) for k in SCORED_ENGINE_ONLY),
+        "callgraph_unscored": sum(v for k, v in kinds.items() if k not in SCORED_ENGINE_ONLY),
+    }
+
+
+def callgraph_check(name, repo, dbp):
+    """Check 7 for one scanned port: ``n/a`` columns for a port outside the licensed C/C++ set or with no C/C++
+    function; else the body oracle's numbers. Returns (columns, passed)."""
+    import callgraph_oracle
+
+    if name not in callgraph_oracle.LICENSED:
+        return dict(CALLGRAPH_NA), True
+    rows = callgraph_oracle.load_port(repo, dbp)
+    if not rows:
+        return dict(CALLGRAPH_NA), True
+    cols = callgraph_columns(callgraph_oracle.body_oracle(callgraph_oracle.Port(name, repo, rows)))
+    return cols, cols["callgraph_misses"] == 0 and cols["callgraph_engine_only"] == 0
 
 
 def log_problems(log):
@@ -396,16 +441,22 @@ def score_port(name, repo, scan, scratch, oracle=False, legacy_vendor=False, cla
     det["credential_files"] = creds
     con.close()
 
+    # 7 callgraph (its numbers join the row below, in check order)
+    cols7, ok7 = callgraph_check(name, repo, dbp)
+
     # 6 health
     bad = log_problems(log)
     row["log_problems"] = len(bad)
     det["log_problems"] = bad[:15]
 
+    row.update(cols7)
     checks = [
         ("coverage", not missed), ("language", not wrong_lang), ("functions", bool(row["functions_agree"])),
         ("typosquat", not typos), ("credentials", not creds), ("health", rc == "0" and not bad),
+        ("callgraph", ok7),
     ]  # fmt: skip
     fails = [k for k, ok in checks if not ok]
     row["fails"] = " ".join(fails)
-    row["verdict"] = verdict(fails)
+    row["verdict"] = verdict(fails, 7)
+    row["verdict6"] = verdict([k for k in fails if k != "callgraph"])
     return row, det

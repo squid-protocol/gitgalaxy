@@ -512,7 +512,8 @@ public class CoactvwcService {
      */
     private void abendRoutine(CicsTask task) {
         // MOVE LIT-THISPGM TO ABEND-CULPRIT; EXEC CICS SEND FROM(ABEND-DATA) LENGTH(LENGTH OF ABEND-DATA) NOHANDLE
-        task.sendText(" ".repeat(4) + "COACTVWC" + " ".repeat(50 + 72), 134);
+        String data = " ".repeat(4) + "COACTVWC" + " ".repeat(50 + 72);
+        task.sendText(data, 134);
         task.handleAbendCancel();       // EXEC CICS HANDLE ABEND CANCEL
         task.abend("9999");             // EXEC CICS ABEND ABCODE('9999')
     }

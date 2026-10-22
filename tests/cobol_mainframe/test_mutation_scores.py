@@ -275,6 +275,31 @@ def test_the_generated_menu_case_is_scored_and_states_the_scenarios_its_survivor
     assert "option-non-numeric" not in named
 
 
+def test_the_re_run_menu_and_account_view_cases_are_current_and_state_the_scenarios_their_survivors_needed():
+    """#4443: carddemo-menu and carddemo-acctview were re-run on their current ports (seed 0, 150 mutants); the
+    survivors showed two committed-case gaps, closed with stated scenarios, and the record is current again."""
+    results = json.loads(ms.RESULTS.read_text(encoding="utf-8"))
+    ports = {p["case"]: p for p in results["ports"]}
+    for name in ("carddemo-menu", "carddemo-acctview"):
+        port = ports[name]
+        assert port["chosen"] == 150 and port["total"]["untriaged"] == 0 and port["total"]["harness_gap"] == 0
+        for s in port["survivors"]:
+            assert s["reason"].strip() and s["verdict"] != "untriaged"
+        evidence = json.loads((REPO / "tests/equivalence" / name / "evidence.json").read_text(encoding="utf-8"))
+        assert evidence["mutation"]["inputs"]["port"]["sha256"] == evidence["inputs"]["port"]["sha256"]
+    assert ports["carddemo-menu"]["total"]["case_gap"] == 0
+    # the account view's parser mutants need card-number records the case does not carry yet: a stated case gap
+    assert ports["carddemo-acctview"]["total"]["case_gap"] > 0
+    for name, scenarios in (
+        ("carddemo-menu", ("carried-customer-and-card-fields",)),
+        ("carddemo-acctview", ("pf15-back-to-menu", "carried-middle-name-and-ids")),
+    ):
+        case = json.loads((REPO / "tests/equivalence" / name / "case.json").read_text(encoding="utf-8"))
+        named = {s["name"]: s for s in case["scenarios"]}
+        for scenario in scenarios:
+            assert "#4443" in named[scenario]["why"]
+
+
 def test_the_generated_admin_menu_case_is_scored_and_states_the_scenarios_its_survivors_needed():
     """#4506: COADM01C's generated variant is scored on 150 mutants; its case gaps became three stated scenarios."""
     results = json.loads(ms.RESULTS.read_text(encoding="utf-8"))

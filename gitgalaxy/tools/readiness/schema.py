@@ -22,6 +22,10 @@ the only path from it to a report, and it lets through only:
   statuses and reasons from fixed sets (an exception's class name, never its message).
 
 `validate` re-checks a report against those rules, so a later change to `project` cannot widen it unnoticed.
+
+`rules` (the ranked rules to land) is built from the dry run's holes: each hole is reduced to a gap class -- its head
+(a COBOL statement, `EXEC CICS` with the spec's command words, `EXEC SQL`) plus at most one reason from the closed
+list `GAP_REASONS` -- or to the word `other`. The hole's own text, which can quote the program, is never kept.
 """
 
 from __future__ import annotations
@@ -110,6 +114,25 @@ ROW_KEYS = frozenset(
 )
 TRANSLATIONS = ("whole", "holes", "refused")  # dryrun.TRANSLATIONS
 TRANSLATION_INTS = ("statements", "translated_statements", "holes")
+OTHER_RULE = "other"  # a hole that no closed gap class names
+RULES_TOP = 25
+RULE_INTS = ("only", "one_away", "touched")
+ERA_KEYS = ("0", "1", "2", "3", "4", "none")
+# the translator's reasons, as closed names: a hole's wording is matched to one of these and only the name is kept
+GAP_REASONS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    ("no generated Db2 repository method", re.compile(r"no generated Db\d repository method")),
+    ("no generated DTO for COMMAREA", re.compile(r"no generated DTO for COMMAREA")),
+    ("no generated screen for map", re.compile(r"no generated screen for map")),
+    ("no batch package", re.compile(r"the generated project has no batch package")),
+    ("key length not known", re.compile(r"KEYLENGTH.*not a known length")),
+    ("no service of its own", re.compile(r"no service of its own")),
+    ("no program of that name", re.compile(r"no program of that name")),
+    ("not modelled", re.compile(r"not modelled")),
+    ("no such item", re.compile(r"\bno such item|undeclared item")),
+    ("does not parse", re.compile(r"does not parse|not parsed")),
+)
+GAP_REASON_NAMES = frozenset(n for n, _ in GAP_REASONS)
+_HOLE_LINE = re.compile(r"^line \d+:\s*")
 _OPTION_VALUE = re.compile(r"^-?[A-Z0-9]{1,10}$")
 _MEMBER = re.compile(r"^[A-Za-z0-9@#$_-]{1,30}$")
 _EXC_CLASS = re.compile(r"^[A-Za-z][A-Za-z0-9_]{0,60}$")
@@ -210,6 +233,87 @@ def _tag(tag: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
+def gap_class(hole: str) -> str:
+    """One hole of the dry run -> its gap class (`EXEC CICS WRITE: key length not known`, `EXEC SQL: no generated Db2
+    repository method`, `CALL: no service of its own`) or `other`. Only vocabulary words and `GAP_REASONS` names leave."""
+    text = _HOLE_LINE.sub("", hole.strip())
+    if text.startswith("EXEC EXEC CICS:") or text.startswith("EXEC CICS"):
+        head = "EXEC CICS"
+        rest = text.split(":", 1)[1].strip() if text.startswith("EXEC EXEC CICS:") else text[len("EXEC CICS") :].strip()
+        rest = re.sub(r"^EXEC CICS\s+", "", rest)
+        words: list[str] = []
+        for w in rest.split():
+            if w not in cics_words() or len(words) == 3:
+                break
+            words.append(w)
+        while words and not _cics_command(" ".join(words)):
+            words.pop()
+        if words:
+            head += " " + " ".join(words)
+    elif text.startswith("EXEC EXEC SQL"):
+        head = "EXEC SQL"
+    else:
+        kind = text.split(" ", 1)[0].rstrip(":")
+        if kind not in STATEMENTS:
+            return OTHER_RULE
+        head = kind
+    reason = next((n for n, pat in GAP_REASONS if pat.search(text)), None)
+    return f"{head}: {reason}" if reason else head
+
+
+def _rule_known(rule: str) -> bool:
+    """Whether `rule` is a class `gap_class` or a dry-run refusal can name."""
+    if rule == OTHER_RULE:
+        return True
+    head, _, reason = rule.partition(": ")
+    if head == "refused":
+        return bool(_EXC_CLASS.match(reason))
+    if reason and reason not in GAP_REASON_NAMES:
+        return False
+    if head in ("EXEC SQL", "EXEC CICS"):
+        return True
+    if head.startswith("EXEC CICS "):
+        return _cics_command(head[len("EXEC CICS ") :])
+    return head in STATEMENTS
+
+
+def rules_to_land(rows: list[tuple[set[str], str]]) -> dict[str, Any]:
+    """The ranked rules of the programs that do not translate whole. `rows`: (gap classes, era) per such program.
+    `only`: programs the rule alone keeps from whole; `one_away`: programs left one other rule from whole; `touched`:
+    programs with it at all; `only_by_era`: the era mix of the `only` programs. Same ranking as cics_census.blockers."""
+    stats: dict[str, dict[str, Any]] = {}
+    for classes, era in rows:
+        for g in classes:
+            st = stats.setdefault(g, {"only": 0, "one_away": 0, "touched": 0, "only_by_era": defaultdict(int)})
+            st["touched"] += 1
+            if len(classes) == 1:
+                st["only"] += 1
+                st["only_by_era"][era] += 1
+            elif len(classes) == 2:
+                st["one_away"] += 1
+    ranked = sorted(stats.items(), key=lambda kv: (-kv[1]["only"], -kv[1]["one_away"], -kv[1]["touched"], kv[0]))
+    return {
+        "classes": len(ranked),
+        "ranked": [
+            {
+                "rule": g,
+                **{k: st[k] for k in RULE_INTS},
+                "only_by_era": {e: st["only_by_era"][e] for e in ERA_KEYS if st["only_by_era"][e]},
+            }
+            for g, st in ranked[:RULES_TOP]
+        ],
+    }
+
+
+def _program_gaps(t: dict[str, Any]) -> set[str]:
+    """The gap classes keeping one dry-run outcome from whole (empty: whole)."""
+    if t.get("translation") == "refused":
+        cls = str(t.get("refusal"))
+        return {f"refused: {cls}" if _EXC_CLASS.match(cls) else OTHER_RULE}
+    classes = {g if isinstance(g, str) and _rule_known(g) else OTHER_RULE for g in t.get("gap_classes", [])}
+    return classes or ({OTHER_RULE} if t.get("translation") == "holes" else set())
+
+
 def _translation(t: dict[str, Any]) -> dict[str, Any]:
     """The dry run's outcome of one program, reduced to its closed fields: a status, three counts, a refusal's class."""
     out: dict[str, Any] = {"translation": t.get("translation")}
@@ -266,6 +370,7 @@ def project(
     asm_tags = inv.get("eras", {}).get("assembler", {})  # #5195: the era tags of assembler members
 
     programs = []
+    blocked: list[tuple[set[str], str]] = []
     for p in sorted(set(tags) | set(families)):
         row: dict[str, Any] = {"name": names.program(p), "kind": "cobol" if p in tags else "assembler"}
         if p in families:
@@ -279,6 +384,10 @@ def project(
             row["status"] = PARSED
             if translation is not None and p in translation:
                 row.update(_translation(translation[p]))
+                classes = _program_gaps(translation[p])
+                if classes:
+                    era = (tags.get(p) or {}).get("era")
+                    blocked.append((classes, str(era) if era is not None else "none"))
         if p in tags:
             row.update(_tag(tags[p]))
         elif p in asm_tags:
@@ -319,6 +428,8 @@ def project(
         ),
         "programs": programs,
     }
+    if translation is not None:
+        report["rules"] = rules_to_land(blocked)
     return report
 
 
@@ -330,6 +441,25 @@ def _ints(node: Any, where: str, problems: list[str]) -> None:
             _ints(v, f"{where}.{k}", problems)
     elif not (isinstance(node, int) or node is None):
         problems.append(f"{where}: {type(node).__name__} where a count belongs")
+
+
+def _rules_problems(rules: Any) -> list[str]:
+    if not isinstance(rules, dict) or set(rules) != {"classes", "ranked"}:
+        return ["rules: shape"]
+    p: list[str] = []
+    if not isinstance(rules["classes"], int) or not isinstance(rules["ranked"], list):
+        return ["rules: shape"]
+    for r in rules["ranked"]:
+        if not isinstance(r, dict) or set(r) != {"rule", *RULE_INTS, "only_by_era"}:
+            p.append("rules: entry shape")
+            continue
+        if not isinstance(r["rule"], str) or not _rule_known(r["rule"]):
+            p.append(f"rules: {r['rule']!r} is not a closed gap class")
+        p.extend(f"rules.{r['rule']}: {k}" for k in RULE_INTS if not (isinstance(r[k], int) and r[k] >= 0))
+        eras = r["only_by_era"]
+        if not isinstance(eras, dict) or not set(eras) <= set(ERA_KEYS) or r["only"] != sum(eras.values()):
+            p.append(f"rules.{r['rule']}: only_by_era")
+    return p
 
 
 def validate(report: dict[str, Any]) -> list[str]:
@@ -346,7 +476,7 @@ def validate(report: dict[str, Any]) -> list[str]:
         "copybook_gaps",
         "programs",
     }
-    if set(report) != expected:
+    if set(report) - {"rules"} != expected:
         p.append(f"top-level keys {sorted(set(report) ^ expected)}")
         return p
     if report["schema"] != SCHEMA or not re.match(r"^[A-Za-z0-9.+_-]{1,64}$", str(report["tool_version"])):
@@ -374,6 +504,8 @@ def validate(report: dict[str, Any]) -> list[str]:
             if set(v) != {"count", "programs"} or not isinstance(v["count"], int):
                 p.append(f"features.{cat}.{key}: shape")
             p.extend(f"features.{cat}.{key}: program {n!r}" for n in v.get("programs", []) if n not in names)
+    if "rules" in report:
+        p.extend(_rules_problems(report["rules"]))
     for cat, v in report["other"].items():
         if cat not in CATEGORIES:
             p.append(f"other category {cat!r}")

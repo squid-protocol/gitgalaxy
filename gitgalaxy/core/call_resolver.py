@@ -61,8 +61,9 @@ from typing import Any
 # inside a class and this resolver prunes it when only the unit itself resolves. Not here:
 # Kotlin, Swift, Java, Ruby and C# (a member shadows the free function, so it is recursion).
 # Go qualifies by its receiver (`func (s *S) f(`) rather than an enclosing class: the detector
-# keeps the call only for a unit whose header names one.
-BARE_CALL_SKIPS_METHODS = frozenset({"rust", "php", "typescript", "javascript", "python", "go"})
+# keeps the call only for a unit whose header names one. Objective-C (and ObjC++) reaches a method
+# by message send, so a bare `f(` is always the C function.
+BARE_CALL_SKIPS_METHODS = frozenset({"rust", "php", "typescript", "javascript", "python", "go", "objective-c"})
 
 # Languages whose identifiers are case-insensitive, so `CALL Foo` reaches a
 # `FOO` definition. The detector's calls_out ignore uses the same list for its

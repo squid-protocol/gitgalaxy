@@ -606,8 +606,13 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   - **A COMP-2 amount negated, compared with ZERO and MOVEd on (BNK1CRA `WS-AMOUNT-AS-FLOAT`, lines 495-498, 1133).**
     `COMPUTE X = X * -1` is an exact long multiply by -1 (`mul-long-12.34-neg1`), `IF X = ZERO` compares both signs
     (`cmp-long-12.34-zero`, `cmp-long-neg-12.34-zero`) and the MOVE to the 2-decimal amount rounds a negative value
-    (`asm-fixed-neg-12.34-long-2`, model-assumption). Asked as 4 records (85 asked in all), pinned by
+    (`asm-fixed-neg-12.34-long-2`, model-assumption). Asked as 4 records (85 asked then), pinned by
     `test_the_bnk1cra_amount_shapes_are_asked`. Still pending z/OS capture (#4050).
+  - **A monthly interest rate stored in a COMP-1 and added to 1 (DBB EPSMPMT `WS-CALC-INTEREST`, lines 120-130).** The
+    quotient `(rate / 100) / 12` is not exact (5% is 0.0041666...), stored as short HFP (`3F111111`), read back at 8
+    places (0.00416667), and `1 + rate` is a long add (`4110111111000000`); the `**` after it stays a Hole (below). Asked
+    as 5 `model-assumption` records (90 asked in all; `asm-*-eps-*`), pinned by `test_the_epsmpmt_interest_shapes_are_asked`.
+    Still pending z/OS capture (#4050).
   - CBSA's CRECUST, BANKDATA, BNK1CAC, BNK1CRA, BNK1TFN and BNK1UAC are not cases. Since #4270's NUMVAL slice
     BNK1CAC, BNK1TFN and BNK1UAC translate whole (BNK1CRA still has EXEC CICS INQUIRE).
 - **Exponentiation is refused in every shape, on purpose (#4271).** IBM documents no result for `**` in a

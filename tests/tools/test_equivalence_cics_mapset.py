@@ -40,4 +40,6 @@ def test_a_different_mapset_is_a_difference_and_the_same_one_is_not():
         assert "mapset" not in str(same)
         assert "mapset" in str(mutant)
         # a COBOL side that states no mapset compares nothing
-        assert "mapset" not in str(ec.compare_events([{"event": event, "map": "M"}], [{"event": event, "map": "M", "mapset": "X"}]))
+        assert "mapset" not in str(
+            ec.compare_events([{"event": event, "map": "M"}], [{"event": event, "map": "M", "mapset": "X"}])
+        )

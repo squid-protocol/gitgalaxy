@@ -5764,9 +5764,11 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
             diffs.append({"event": n + 1, "cobol": c and c["event"], "java": j and j["event"]})
             continue
         bad = []
-        for key in ("map", "mapset", "transid", "program", "text", "abcode", "queue", "data", "resp", "item", "resource"):
+        for key in ("map", "transid", "program", "text", "abcode", "queue", "data", "resp", "item", "resource"):
             if key in c and not _same(c[key], j.get(key)):
                 bad.append({"field": key, "cobol": c[key], "java": j.get(key)})
+        if "mapset" in c and c["mapset"] != j.get("mapset"):  # #5862: the MAPSET of a SEND / RECEIVE MAP
+            bad.append({"field": "mapset", "cobol": c["mapset"], "java": j.get("mapset")})
         if c["event"] == "START":  # #4270: what CicsTask.start records besides the transid and RESP, both ways
             for key in ("termid", "interval", "time", "reqid", "protect", "resp2", "expires", "from",
                         "rtransid", "rtermid", "queue", "channel"):  # fmt: skip

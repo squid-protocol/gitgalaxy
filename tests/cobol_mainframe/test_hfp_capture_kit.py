@@ -190,3 +190,94 @@ def test_a_pow_capture_that_disagrees_with_the_reference_is_a_finding(table):
     out = _sysout(recs, skip={ident}) + f"{ident}|4110D18F228CDE63\n"
     res = K.ingest(out, table, "J1", "GO", _under())
     assert len(res["findings"]) == 1 and f"zos-{ident}" in res["findings"][0]
+
+
+def test_verify_reports_what_ingest_would_and_writes_nothing(table, tmp_path, capsys):
+    recs = K.records(table)
+    before = table.read_text(encoding="utf-8")
+    ok = tmp_path / "ok.txt"
+    ok.write_text(_sysout(recs), encoding="utf-8")
+    assert K.main(["verify", str(ok), "--table", str(table)]) == 0
+    report = json.loads(capsys.readouterr().out)
+    assert report["added"] == ["zos-" + r["id"] for r in K.askable(recs)] and report["findings"] == []
+    bad = tmp_path / "bad.txt"
+    bad.write_text(_sysout(recs, skip={"enc-1", "disp-1.5"}) + "enc-1|41200000\n", encoding="utf-8")
+    assert K.main(["verify", str(bad), "--table", str(table)]) == 1
+    report = json.loads(capsys.readouterr().out)
+    assert "zos-enc-1" in report["findings"][0] and report["missing"] == ["disp-1.5"]
+    assert table.read_text(encoding="utf-8") == before
+
+
+def test_a_dry_run_ingest_needs_no_evidence_and_a_real_one_still_does(table):
+    recs = K.records(table)
+    assert K.ingest(_sysout(recs), table, "", "", {}, dry_run=True)["added"]
+    with pytest.raises(ValueError):
+        K.ingest(_sysout(recs), table, "", "", {})
+
+
+def _asm_sysout(recs):
+    return "\n".join(f"{r['id']}|{K.compute(r)}" for r in K.asm_askable(recs)) + "\n"
+
+
+def test_the_assembler_kit_asks_exactly_the_records_the_cobol_kit_skips():
+    recs = K.records()
+    skipped_by_cobol = set(K.skipped(recs))
+    asm = {r["id"] for r in K.asm_askable(recs)}
+    assert asm == skipped_by_cobol and len(asm) == 28
+    assert not K.skipped(recs, "asm")
+    assert not asm & {r["id"] for r in K.askable(recs)}
+
+
+def test_each_skipped_op_becomes_the_instruction_its_row_states():
+    by_id = {r["id"]: r for r in K.records()}
+    one = lambda i: "\n".join(K.asm_statements(by_id[i], 1))  # noqa: E731
+    assert "THDER 2,0" in one("from_ieee-1-short") and "STD   2,RES" in one("from_ieee-1-short")
+    assert "THDR  2,0" in one("from_ieee-1-long")
+    assert "TBEDR 2,4,0" in one("to_ieee-1-short") and "STE   2,RES" in one("to_ieee-1-short")
+    assert "TBDR  2,4,0" in one("to_ieee-1-long") and "STD   2,RES" in one("to_ieee-1-long")
+    assert "MEER  0,2" in one("mul-1-half") and "DER   0,2" in one("div-1-2")
+    assert "LA    4,2" in one("from_ieee-1-long") and "LA    4,1" in one("mul-1-half")
+    with pytest.raises(ValueError, match="cannot ask"):
+        K.asm_statements({"id": "x", "op": "add", "size": "long", "a": "00"}, 1)
+
+
+def test_the_emitted_assembler_is_deterministic_within_column_71_and_prints_every_id():
+    recs = K.records()
+    src = K.emit_asm(recs)
+    assert src == K.emit_asm(recs)
+    assert all(len(line) <= 71 for line in src.splitlines())
+    assert src.splitlines()[0] == "*PROCESS OPTABLE(UNI)" and src.rstrip().endswith("END")
+    for r in K.asm_askable(recs):
+        assert f"=C'{r['id']}|'" in src
+    assert src.count("PUT   SYSPRINT,LINE") == len(K.asm_askable(recs))
+    assert src.count("DC    XL8'") >= len(K.asm_askable(recs))
+    assert "TBEDR" in src and "THDR" in src and "MEER" in src and "DER" in src
+
+
+def test_verify_and_ingest_of_the_assembler_output_use_the_kit_flag(table, tmp_path, capsys):
+    recs = K.records()
+    out = tmp_path / "sysout.txt"
+    out.write_text(_asm_sysout(recs), encoding="utf-8")
+    before = table.read_bytes()
+    assert K.main(["verify", str(out), "--table", str(table), "--kit", "asm"]) == 0
+    assert table.read_bytes() == before
+    assert len(json.loads(capsys.readouterr().out)["added"]) == 28
+    # the COBOL kit's report of the same output names no asm record: they are not its to ask
+    assert not K.ingest(out.read_text(), table, "", "", {}, dry_run=True)["added"]
+    res = K.ingest(out.read_text(), table, "JOB1", "GO", _under(), kit="asm")
+    assert len(res["added"]) == 28 and not res["findings"] and not res["missing"]
+    assert all(r["source"] == "zos-run" for r in K.records(table) if r["id"].startswith("zos-"))
+
+
+def test_an_assembler_result_that_disagrees_with_the_model_is_a_finding(table):
+    recs = K.records()
+    text = _asm_sysout(recs).replace("from_ieee-1-short|41100000", "from_ieee-1-short|41100001")
+    res = K.ingest(text, table, "", "", {}, dry_run=True, kit="asm")
+    assert [f for f in res["findings"] if f.startswith("zos-from_ieee-1-short")]
+    assert len(res["findings"]) == 1
+
+
+def test_the_cli_also_emits_the_assembler_kit(tmp_path):
+    assert K.main(["emit", str(tmp_path)]) == 0
+    assert (tmp_path / "HFPCAPA.asm").read_text() == K.emit_asm(K.records())
+    assert "ASMACLG" in (tmp_path / "HFPCAPA.jcl").read_text()

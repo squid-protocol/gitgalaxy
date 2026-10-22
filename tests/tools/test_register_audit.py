@@ -43,5 +43,28 @@ def test_the_real_register_matches_the_baseline():
     assert register.audit_problems(register.audit()) == []
 
 
+def test_strict_tier_needs_a_number_a_difference_or_stated_silence(monkeypatch, tmp_path):
+    _audit_with(
+        monkeypatch,
+        tmp_path,
+        {
+            "C1": ("ASSUMED", "- see the Language Reference"),
+            "C2": ("MATCHED", "- Enterprise COBOL 6.4 Language Reference, SC27-8713-03, says so"),
+            "C3": ("ASSUMED", "- **Where they differ.** the oracle pads"),
+            "C4": ("ASSUMED", "- IBM is silent here"),
+            "C5": ("REFUSED", "- nothing"),
+        },
+    )
+    assert register.audit_strict() == ["C1"]
+
+
+def test_strict_problems_name_new_and_fixed(monkeypatch, tmp_path):
+    _audit_with(monkeypatch, tmp_path, {"C1": ("ASSUMED", "- Language Reference"), "C2": ("MATCHED", "- SC27-8713-03")})
+    monkeypatch.setattr(register, "STRICT_BASELINE", frozenset({"C2"}))
+    problems = register.audit_problems([])
+    assert any(p.startswith("C1:") for p in problems)
+    assert any(p.startswith("C2:") and "STRICT_BASELINE" in p for p in problems)
+
+
 def test_the_baseline_is_empty():
     assert not register.UNCITED_BASELINE

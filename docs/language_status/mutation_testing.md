@@ -548,6 +548,17 @@ NUMVAL-C into `PIC 99` (00, the date is refused) while IBM rounds a float-mode s
 det sweep of carddemo-report fails on it. The scenario is not committed. The mutant is a real IBM difference, not an equivalent one: the model port's `DOWN` follows the oracle.
 billpay `868815f4c6` and `29f0e18174` (a balance of 1,000,000.00 or more) are a different mechanism and stay open.
 
+**Wide balances on billpay** (#5401, 2026-10-22). Every CardDemo account is below 1,000,000.00, so billpay never showed a wide amount or the tenth integer digit
+that COBIL00C's MOVE of `ACCT-CURR-BAL` (`S9(10)V99`) into `TRAN-AMT` (`S9(9)V99`) drops. The case appends two synthetic accounts and their card xref rows
+(`acctdata-5401.txt`, `cardxref-5401.txt`): `00000099998` at 1,234,567.89 (`pay-balance-over-one-million`) and `00000099997` at 1,234,567,890.12
+(`pay-balance-ten-integer-digits`, TRAN-AMT keeps 234,567,890.12). GnuCOBOL and the port agree on both: billpay is proven on 35 scenarios (46/48 branches).
+The two survivors that named this gap, `868815f4c6` and `29f0e18174`, were judged on the port before #5844 changed `store()` to count integer digits; their ids no longer exist.
+Against the current port the same mutants (`store(.., 9, 3)` at line 542, `store(.., 10, 3)` at 552; ids `84cb7729f6`, `95f2f0cf57`) change only the scale of a
+value that the setter writes at scale 2, so they survive the new scenarios and are equivalent, not case gaps. The digit-count mutants the new account does reach:
+`d5264128d1` (`store(bal, 10, 2)` at 542) is killed by the ten-integer-digit scenario; `2f50a14acd` (`store(.., 11, 2)` at 552) survives and is unreachable
+(balance minus amount is at most 1,000,000,000.00, 10 digits). The scores are not re-run, and `mutation_scores.json` is not edited.
+`test_carddemo_wide_balance_5401.py` pins the accounts, the xref rows and the scenarios.
+
 #4047 then scored six CardDemo batch ports (readxref, readcust, dailyval, intcalc, posttran, trnrpt; seed 0, up to 100
 mutants each, `--jobs 3`, fast mode). These rows are seed 0 and differ from the older seed-1 CBACT04C, CBTRN02C and
 CBTRN03C figures above. The case gaps repeat across the six: `displayIoStatus` takes a numeric test on both status bytes,

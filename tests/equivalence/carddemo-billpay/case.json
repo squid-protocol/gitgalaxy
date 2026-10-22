@@ -14,11 +14,15 @@
    "input": "@case/acctdata.txt",
    "entity": "AccountRecord",
    "copybook": "app/cpy/CVACT01Y.cpy",
-   "record": "ACCOUNT-RECORD"
+   "record": "ACCOUNT-RECORD",
+   "append": "@case/acctdata-5401.txt"
   },
   "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS": {
    "input": "app/data/ASCII/cardxref.txt",
-   "entity": "CardXrefRecord"
+   "entity": "CardXrefRecord",
+   "copybook": "app/cpy/CVACT03Y.cpy",
+   "record": "CARD-XREF-RECORD",
+   "append": "@case/cardxref-5401.txt"
   },
   "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS": {
    "input": "app/data/ASCII/dailytran.txt",
@@ -724,6 +728,42 @@
     }
    },
    "why": "#4628 (mutation survivors): the whole 218-byte COMMAREA arrives, with CDEMO-CB00-TRN-SEL-FLG non-blank, so the RETURN's commarea must carry that flag"
+  },
+  {
+   "name": "pay-balance-over-one-million",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000099998",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "pays balance 1,234,567.89, above 1,000,000.00 with every cents digit kept: the wide amount that no CardDemo account reaches (#5401)"
+  },
+  {
+   "name": "pay-balance-ten-integer-digits",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000099997",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "pays balance 1,234,567,890.12 (ACCT-CURR-BAL S9(10)V99): MOVE to TRAN-AMT S9(9)V99 drops the high digit (234,567,890.12) and the REWRITE keeps 10 integer digits of bal - TRAN-AMT (#5401, port store() digit-count mutants at the TRAN-AMT and ACCT-CURR-BAL stores)"
   }
  ],
  "notes": "CardDemo's bill payment (transaction CB00, program COBIL00C): an account's balance is read FOR UPDATE and shown; on confirmation the whole balance is paid -- a new transaction (the last id + 1, found by a HIGH-VALUES STARTBR and a READPREV; its timestamps from ASKTIME / FORMATTIME at the task's clock) is WRITEn to TRANSACT and the account REWRITten. Each scenario's files are compared after the task. acctdata.txt is CardDemo's own accounts plus one synthetic account, 00000099999, with a zero balance (written for this case) for 'You have nothing to pay...'. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

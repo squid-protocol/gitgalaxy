@@ -4927,6 +4927,199 @@
         }
       ]
     },
+    "db2_sql/db2unit": {
+      "db2_sql/db2unit/06-AssertsNoMessage.sql": [
+        {
+          "Form": "literal",
+          "Line": 50,
+          "Operand": "FAIL",
+          "Target": "FAIL",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 82,
+          "Operand": "ASSERT_STRING_EQUALS",
+          "Target": "ASSERT_STRING_EQUALS",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 108,
+          "Operand": "ASSERT_STRING_NULL",
+          "Target": "ASSERT_STRING_NULL",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 134,
+          "Operand": "ASSERT_STRING_NOT_NULL",
+          "Target": "ASSERT_STRING_NOT_NULL",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 165,
+          "Operand": "ASSERT_BOOLEAN_EQUALS",
+          "Target": "ASSERT_BOOLEAN_EQUALS",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 191,
+          "Operand": "ASSERT_BOOLEAN_TRUE",
+          "Target": "ASSERT_BOOLEAN_TRUE",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 217,
+          "Operand": "ASSERT_BOOLEAN_FALSE",
+          "Target": "ASSERT_BOOLEAN_FALSE",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 243,
+          "Operand": "ASSERT_BOOLEAN_NULL",
+          "Target": "ASSERT_BOOLEAN_NULL",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 269,
+          "Operand": "ASSERT_BOOLEAN_NOT_NULL",
+          "Target": "ASSERT_BOOLEAN_NOT_NULL",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 300,
+          "Operand": "ASSERT_INT_EQUALS",
+          "Target": "ASSERT_INT_EQUALS",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 326,
+          "Operand": "ASSERT_INT_NULL",
+          "Target": "ASSERT_INT_NULL",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 352,
+          "Operand": "ASSERT_INT_NOT_NULL",
+          "Target": "ASSERT_INT_NOT_NULL",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 383,
+          "Operand": "ASSERT_DEC_EQUALS",
+          "Target": "ASSERT_DEC_EQUALS",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 409,
+          "Operand": "ASSERT_DEC_NULL",
+          "Target": "ASSERT_DEC_NULL",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 435,
+          "Operand": "ASSERT_DEC_NOT_NULL",
+          "Target": "ASSERT_DEC_NOT_NULL",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 472,
+          "Operand": "ASSERT_TABLE_EQUALS",
+          "Target": "ASSERT_TABLE_EQUALS",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 502,
+          "Operand": "ASSERT_TABLE_EMPTY",
+          "Target": "ASSERT_TABLE_EMPTY",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 531,
+          "Operand": "ASSERT_TABLE_NON_EMPTY",
+          "Target": "ASSERT_TABLE_NON_EMPTY",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 562,
+          "Operand": "ASSERT_TIMESTAMP_EQUALS",
+          "Target": "ASSERT_TIMESTAMP_EQUALS",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 588,
+          "Operand": "ASSERT_TIMESTAMP_NULL",
+          "Target": "ASSERT_TIMESTAMP_NULL",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 614,
+          "Operand": "ASSERT_TIMESTAMP_NOT_NULL",
+          "Target": "ASSERT_TIMESTAMP_NOT_NULL",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 645,
+          "Operand": "ASSERT_DATE_EQUALS",
+          "Target": "ASSERT_DATE_EQUALS",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 671,
+          "Operand": "ASSERT_DATE_NULL",
+          "Target": "ASSERT_DATE_NULL",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 697,
+          "Operand": "ASSERT_DATE_NOT_NULL",
+          "Target": "ASSERT_DATE_NOT_NULL",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 728,
+          "Operand": "ASSERT_TIME_EQUALS",
+          "Target": "ASSERT_TIME_EQUALS",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 754,
+          "Operand": "ASSERT_TIME_NULL",
+          "Target": "ASSERT_TIME_NULL",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 780,
+          "Operand": "ASSERT_TIME_NOT_NULL",
+          "Target": "ASSERT_TIME_NOT_NULL",
+          "Verb": "CALL"
+        }
+      ]
+    },
     "hlasm/zecs": {
       "hlasm/zecs/ZECSNC.asm": [
         {

@@ -797,6 +797,7 @@ def test_an_off_pin_checkout_is_refused(tmp_path, monkeypatch):
 
 
 # ---- end to end ---------------------------------------------------------------------------------
+@pytest.mark.e2e
 @pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL) and a JDK + Maven")
 def test_the_fixture_runs_through_every_side(tmp_path):
     """The COBOL passes on the stub (terminal steps chained by RETURN TRANSID COMMAREA, an XCTL run in

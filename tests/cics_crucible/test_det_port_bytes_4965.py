@@ -43,6 +43,7 @@ E2E = os.environ.get("EQUIVALENCE_E2E") == "1" and bool(os.environ.get(runner.PA
 
 
 @pytest.mark.slow(reason="two Maven builds of the generated project (the det port, then its mutant)")
+@pytest.mark.e2e
 @pytest.mark.skipif(not E2E, reason="needs EQUIVALENCE_E2E=1, a JDK + Maven and a cics-crucible checkout")
 def test_the_crucible_proves_the_byte_overload_and_kills_its_assignment(tmp_path):
     crucible = Path(os.environ[runner.PATH_ENV])

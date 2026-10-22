@@ -133,6 +133,7 @@ from maven_exe import JVM_SHORT_RUN_FLAGS, maven_utf8_env, mvn_executable, run_d
 
 import cics_crucible_compare as cc  # noqa: E402
 import cobol_coverage as cov  # noqa: E402
+from crucible_shard_plan import CASE_SECONDS, DEFAULT_CASE_SECONDS  # noqa: E402
 from _cics_crucible_pin import PATH_ENV, PINNED_REF, pin_mismatch  # noqa: E402
 from gitgalaxy.core.ebcdic_codecs import java_charset_name  # noqa: E402
 
@@ -3010,21 +3011,8 @@ def measure(crucible: Path, only: set[str] | None, sides: set[str], work: Path, 
 
 
 # ---- shards (#5498) -----------------------------------------------------------------------------------
-# Seconds per case on a hosted runner (run 39142662150, 2026-10-18: 1215 s over 43 cases). Only the balance depends on
-# it: a case missing here weighs the median, so a new case never goes unmeasured, it may just skew a shard.
-CASE_SECONDS = {
-    "ca-address-commarea": 21, "ca-address-eib-commarea": 20, "ca-address-twa-tctua": 19, "ca-channel-containers": 22,
-    "ca-container-byteoffset": 21, "ca-container-ccsid": 20, "ca-get-container-set": 21, "ca-getmain-pointer": 21,
-    "ca-link-lengths": 50, "ca-receive-retrieve-set": 20, "ca-xctl-versions": 50, "gt-assign-startcode": 21,
-    "gt-http-inbound": 19, "gt-send-text-terminal": 21, "gt-start-options": 22, "gt-start-retrieve": 51,
-    "gt-terminal-coalesce": 49, "gt-urimap-browse": 21, "gt-web-parse-url": 21, "hc-abend-link": 49,
-    "hc-counter-increment-wrap": 21, "hc-counter-shared-namespace": 21, "hc-dcounters": 21, "hc-deedit-uctranst": 21,
-    "hc-eoc-error": 21, "hc-file-read-set": 20, "hc-file-unlock": 21, "hc-handle-aid": 21, "hc-ignore-error": 22,
-    "hc-inquire-deleteq": 22, "hc-map-not-in-mapset": 21, "hc-named-counters": 22, "hc-perform-range": 48,
-    "hc-readq-td": 21, "hc-resp-options": 21, "hc-terminal-eoc": 20, "hc-terminal-receive": 20, "hx-attr-bytes": 48,
-    "hx-extended-cursor": 49, "pc-aid-menu": 51, "pc-return-channel": 20, "pc-return-immediate": 51, "pc-wizard": 53,
-}  # fmt: skip
-DEFAULT_CASE_SECONDS = 21
+# CASE_SECONDS (seconds per case on a hosted runner; run 39142662150, 2026-10-18: 1215 s over 43 cases) lives in
+# crucible_shard_plan.py, which also sizes the shard count and timeout (#5919). Only the balance depends on it.
 
 
 def parse_shard(text: str) -> tuple[int, int]:

@@ -2,7 +2,8 @@
        PROGRAM-ID. DYNDEMO.
       * #4269: dynamic SQL, a literal INSERT text run at once,
       * the statement text a string literal; Db2 answers it.
-      * a PREPARE from a literal, then the prepared name run.
+      * a PREPARE from a literal, then the prepared name run,
+      * and its parameter markers bound by EXECUTE ... USING.
        DATA DIVISION.
        WORKING-STORAGE SECTION.
            EXEC SQL INCLUDE SQLCA END-EXEC.
@@ -13,6 +14,7 @@
        01  WS-ID                    PIC S9(9) COMP.
        01  WS-NAME                  PIC X(10).
        01  WS-CODE                  PIC -(9)9.
+       01  WS-NIND                  PIC S9(4) COMP.
        PROCEDURE DIVISION.
        MAIN-PARA.
            EXEC SQL
@@ -55,6 +57,34 @@
            EXEC SQL EXECUTE S1 END-EXEC
            MOVE SQLCODE TO WS-CODE
            DISPLAY 'H AGAIN ' WS-CODE
+           EXEC SQL
+               PREPARE S2 FROM
+               'INSERT INTO GGDYN.DTAB VALUES (?, ?)'
+           END-EXEC
+           MOVE 6 TO WS-ID
+           MOVE "BOUND'S" TO WS-NAME
+           MOVE 0 TO WS-NIND
+           EXEC SQL EXECUTE S2 USING :WS-ID, :WS-NAME :WS-NIND
+           END-EXEC
+           MOVE SQLCODE TO WS-CODE
+           DISPLAY 'J USING ' WS-CODE
+           MOVE 6 TO WS-ID
+           MOVE SPACES TO WS-NAME
+           EXEC SQL
+               SELECT NAME INTO :WS-NAME FROM GGDYN.DTAB
+                   WHERE ID = :WS-ID
+           END-EXEC
+           DISPLAY 'K BOUND ' WS-NAME
+           EXEC SQL EXECUTE S2 USING :WS-ID, :WS-NAME
+           END-EXEC
+           MOVE SQLCODE TO WS-CODE
+           DISPLAY 'L USING AGAIN ' WS-CODE
+           MOVE 7 TO WS-ID
+           MOVE -1 TO WS-NIND
+           EXEC SQL EXECUTE S2 USING :WS-ID, :WS-NAME :WS-NIND
+           END-EXEC
+           MOVE SQLCODE TO WS-CODE
+           DISPLAY 'M NULL NAME ' WS-CODE
            EXEC SQL WHENEVER SQLERROR GO TO ERR-PARA END-EXEC
            EXEC SQL
                EXECUTE IMMEDIATE

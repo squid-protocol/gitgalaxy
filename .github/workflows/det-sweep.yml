@@ -74,6 +74,8 @@ jobs:
       db2_cases: ${{ steps.final.outputs.db2_cases || steps.plan.outputs.db2_cases }}  # #4901
       db2_matrix: ${{ steps.final.outputs.db2_matrix || steps.plan.outputs.db2_matrix }}
       db2_shards: ${{ steps.final.outputs.db2_shards || steps.plan.outputs.db2_shards }}
+      timeout: ${{ steps.final.outputs.timeout || steps.plan.outputs.timeout }}  # #5919: the shard jobs' timeout-minutes
+      db2_timeout: ${{ steps.final.outputs.db2_timeout || steps.plan.outputs.db2_timeout }}
     steps:
       - name: Checkout GitGalaxy
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -81,6 +83,41 @@ jobs:
           fetch-depth: 0  # git diff origin/main...HEAD needs the merge base
           filter: blob:none  # #5882: history without file contents (~1 s, not ~45-75 s); a file git reads is fetched then
           persist-credentials: false
+
+      # #5048: the durations every shard and Db2 shard balances by, chosen ONCE here (the newest measured ones, else the
+      # committed file) and handed on as an artifact: shards that restored different files cut different slices.
+      # #5919: chosen before the plan, which sizes its shard counts and timeouts from the same file.
+      - name: Restore the newest measured durations (#4847)
+        id: durations
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: durations-cache
+          key: det-durations-${{ github.run_id }}  # never an exact hit: restore-keys takes the newest saved one
+          restore-keys: |
+            det-durations-
+
+      # #5882: merged over the committed file, not copied over it: a case the cache has no seconds for (a Db2 case: the
+      # nightly here proves none) keeps its committed ones (a copy left every Db2 case unmeasured: shards 2.0x apart)
+      - name: Choose the durations for every shard
+        run: |
+          if [ -n "${{ steps.durations.outputs.cache-matched-key }}" ]; then
+            python3 tests/tools/det_sweep_timing.py merge-durations durations-cache/det_sweep_durations.json tests/equivalence/det_sweep_durations.json
+          fi
+
+      # #5882: the Db2 cases' measured seconds (Evidence Refresh's nightly Db2 merge saves them; the nightly here proves
+      # no Db2 case). A prefix of its own: `det-durations-` would match `det-durations-db2-...` too.
+      - name: Restore the newest measured Db2 durations (#5882)
+        id: db2durations
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: durations-db2
+          key: det-db2-durations-${{ github.run_id }}  # never an exact hit: restore-keys takes the newest saved one
+          restore-keys: |
+            det-db2-durations-
+
+      - name: Merge the Db2 durations in (#5882)
+        if: steps.db2durations.outputs.cache-matched-key != ''
+        run: python3 tests/tools/det_sweep_timing.py merge-durations durations-db2/det_sweep_durations.json tests/equivalence/det_sweep_durations.json
 
       - name: Plan the sweep
         id: plan
@@ -164,40 +201,6 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
-      # #5048: the durations every shard and Db2 shard balances by, chosen ONCE here (the newest measured ones, else the
-      # committed file) and handed on as an artifact: shards that restored different files cut different slices.
-      - name: Restore the newest measured durations (#4847)
-        id: durations
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: durations-cache
-          key: det-durations-${{ github.run_id }}  # never an exact hit: restore-keys takes the newest saved one
-          restore-keys: |
-            det-durations-
-
-      # #5882: merged over the committed file, not copied over it: a case the cache has no seconds for (a Db2 case: the
-      # nightly here proves none) keeps its committed ones (a copy left every Db2 case unmeasured: shards 2.0x apart)
-      - name: Choose the durations for every shard
-        run: |
-          if [ -n "${{ steps.durations.outputs.cache-matched-key }}" ]; then
-            python3 tests/tools/det_sweep_timing.py merge-durations durations-cache/det_sweep_durations.json tests/equivalence/det_sweep_durations.json
-          fi
-
-      # #5882: the Db2 cases' measured seconds (Evidence Refresh's nightly Db2 merge saves them; the nightly here proves
-      # no Db2 case). A prefix of its own: `det-durations-` would match `det-durations-db2-...` too.
-      - name: Restore the newest measured Db2 durations (#5882)
-        id: db2durations
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: durations-db2
-          key: det-db2-durations-${{ github.run_id }}  # never an exact hit: restore-keys takes the newest saved one
-          restore-keys: |
-            det-db2-durations-
-
-      - name: Merge the Db2 durations in (#5882)
-        if: steps.db2durations.outputs.cache-matched-key != ''
-        run: python3 tests/tools/det_sweep_timing.py merge-durations durations-db2/det_sweep_durations.json tests/equivalence/det_sweep_durations.json
-
       - name: Hand the durations to the shards (#5048)
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -212,7 +215,7 @@ jobs:
     needs: plan
     if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (needs.plan.outputs.db2_shards != '0' && needs.plan.outputs.db2_shards != '') }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
-    timeout-minutes: 30  # 70 Db2 cases on 4 shards took 14-21 min (2026-10-21; 18 timed shards out and failed `det`); #5882: ~12 per shard now, the det job's timing report warns past 15
+    timeout-minutes: ${{ fromJSON(needs.plan.outputs.db2_timeout || '30') }}  # #5919: the slowest planned shard x 1.5 (tests/tools/ci_shard_plan.py), not hand-set
     strategy:
       fail-fast: false
       matrix:
@@ -244,6 +247,19 @@ jobs:
         with:
           path: ${{ runner.temp }}/db2-image-cache
           key: ${{ steps.db2key.outputs.key }}
+
+      # #5882: Db2 as the first start of the pinned image leaves it (the instance, the empty pool databases): restored in
+      # ~35 s instead of a fresh start (~2-3 min) and a CREATE DATABASE per pool database (all ready after ~5-7 min).
+      - name: Name the Db2 snapshot cache entry (#5882)
+        id: snapkey
+        run: echo "key=$(python3 gitgalaxy/tests/tools/db2_snapshot.py key)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore the Db2 snapshot from the cache (#5882)
+        id: snapshot
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/db2-snapshot
+          key: ${{ steps.snapkey.outputs.key }}
 
       # #5048: the pull is retried (bounded); a final failure is only logged here, the harness pulls again (pull_image).
       # The pull overlaps everything below; the image is the one tests/tools/equivalence_db2.py pins by digest (#4733).
@@ -315,6 +331,8 @@ jobs:
           echo "GITGALAXY_DB2_READY_DIR=$RUNNER_TEMP/db2-ready.d" >> "$GITHUB_ENV"
           cat > "$RUNNER_TEMP/db2_prewarm.py" <<'PY'
           import json
+          import os
+          import subprocess
           import sys
           import time
           from pathlib import Path
@@ -323,9 +341,18 @@ jobs:
           marks = {"start": int(t), "container": None, "databases": {}}  # #5882: seconds from start, for timing.json
           out = Path(sys.argv[1])
           ready = Path(sys.argv[2])
+          snapshot = Path(sys.argv[3])
           sys.path.insert(0, "gitgalaxy/tests/tools")
           import equivalence_db2 as d
 
+          if (snapshot / "snapshot.json").is_file():  # #5882: the cached first start, once the pinned image is here
+              pulled = Path(os.environ["RUNNER_TEMP"]) / "pull-done"
+              for _ in range(900):
+                  if pulled.exists():
+                      break
+                  time.sleep(1)
+              cmd = [sys.executable, "gitgalaxy/tests/tools/db2_snapshot.py", "restore", str(snapshot)]
+              marks["snapshot"] = subprocess.run(cmd, check=False).returncode == 0
           d._ensure_container()
           marks["container"] = round(time.time() - t, 1)
           out.write_text(json.dumps(marks))
@@ -338,7 +365,7 @@ jobs:
               (ready / f"{db}.ready").touch()  # #5882: the sweep may take it now
               print(f"db2 {db} ready after {time.time() - t:.0f}s", flush=True)
           PY
-          setsid nohup bash -c "python '$RUNNER_TEMP/db2_prewarm.py' '$RUNNER_TEMP/db2-prewarm.json' '$RUNNER_TEMP/db2-ready.d'; echo \$? > '$RUNNER_TEMP/db2-prewarm.done'" \
+          setsid nohup bash -c "python '$RUNNER_TEMP/db2_prewarm.py' '$RUNNER_TEMP/db2-prewarm.json' '$RUNNER_TEMP/db2-ready.d' '$RUNNER_TEMP/db2-snapshot'; echo \$? > '$RUNNER_TEMP/db2-prewarm.done'" \
             > "$RUNNER_TEMP/db2-prewarm.log" 2>&1 &
           echo "started the background Db2 start"
 
@@ -493,12 +520,25 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+      # #5882: on a miss, a FRESH container (never the one this shard's cases used) is set up and snapshotted; last, so
+      # nothing above still reads the sweep's container. Main only, one shard, as the image (#5262).
+      - name: Make the Db2 snapshot (main only, #5882)
+        if: success() && steps.snapshot.outputs.cache-hit != 'true' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && startsWith(matrix.shard, '1/')
+        run: python gitgalaxy/tests/tools/db2_snapshot.py save "$RUNNER_TEMP/db2-snapshot"
+
+      - name: Store the Db2 snapshot cache entry (main only, #5882)
+        if: success() && steps.snapshot.outputs.cache-hit != 'true' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && startsWith(matrix.shard, '1/')
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/db2-snapshot
+          key: ${{ steps.snapkey.outputs.key }}
+
   shard:
     name: shard ${{ matrix.shard }}
     needs: plan
     if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (needs.plan.outputs.shards != '0') }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
-    timeout-minutes: 30  # a full-sweep shard is ~18 cases, ~10-12 min (#5135: up to 6 shards); a hang should fail, not hold a runner for 6 h
+    timeout-minutes: ${{ fromJSON(needs.plan.outputs.timeout || '30') }}  # #5919: planned, as for db2; a hang still fails instead of holding a runner for 6 h
     strategy:
       fail-fast: false
       matrix:

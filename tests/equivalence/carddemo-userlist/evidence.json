@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/carddemo-userlist/port/service/Cousr00cService.java"
   ],
-  "sha256": "19379351a57af7739477fadfa550b2b3d9730b1d1ab4d2b2ffc4ff2a22d3c14e",
+  "sha256": "4341dbcfd920f3ca68eda4e6b0165c4847937313eb2620853d0ddd075fc52989",
   "entry_points": [
    "handleTransaction",
    "runTask"
@@ -19,14 +19,14 @@
     "tests/equivalence/carddemo-userlist/port/**"
    ],
    "files": 1,
-   "sha256": "19379351a57af7739477fadfa550b2b3d9730b1d1ab4d2b2ffc4ff2a22d3c14e"
+   "sha256": "4341dbcfd920f3ca68eda4e6b0165c4847937313eb2620853d0ddd075fc52989"
   },
   "case": {
    "paths": [
     "tests/equivalence/carddemo-userlist/**"
    ],
    "files": 2,
-   "sha256": "981094c1bebb24e278adffa9751928c3c9f7f3862c6404deccaef34cd138bfc0"
+   "sha256": "17c1d7b6a66033173daa044d382d7cb944f823aa3eb96c06ad4994ffdd086a41"
   },
   "harness": {
    "paths": [
@@ -180,13 +180,13 @@
     }
    }
   },
-  "digest": "8661d14e183690edf7fe862f6a128f382f3d2903844128f9ccb1aba957580ae9"
+  "digest": "7cee75789f468dd74a322a0a9dd38f1eb159ff38597f72b604eaed8fa5a28d4e"
  },
  "proof": {
-  "at": "2026-10-22T17:33:52Z",
+  "at": "2026-10-22T19:20:20Z",
   "verdict": "proven",
-  "runs": 42,
-  "fault_runs": 4,
+  "runs": 47,
+  "fault_runs": 6,
   "environments": null,
   "outputs": {
    "first-entry": {
@@ -356,6 +356,26 @@
    "pf7-back-to-the-top-exactly": {
     "equal": 4,
     "records": 4
+   },
+   "short-commarea-184": {
+    "equal": 3,
+    "records": 3
+   },
+   "short-commarea-185": {
+    "equal": 3,
+    "records": 3
+   },
+   "short-commarea-186": {
+    "equal": 3,
+    "records": 3
+   },
+   "endbr-illogic-after-a-page-forward": {
+    "equal": 2,
+    "records": 2
+   },
+   "endbr-notauth-after-a-page-back": {
+    "equal": 3,
+    "records": 3
    }
   },
   "return_code_equal": null,
@@ -364,16 +384,16 @@
   "java_failed": false,
   "facade": {
    "verdict": "proven",
-   "runs": 42,
-   "passed": 42,
+   "runs": 47,
+   "passed": 47,
    "entry_points": [
     "handleTransaction"
    ],
    "failed": [],
    "error": null
   },
-  "harness_commit": "6efae1bb19a46056eb64b98a73d0d5f8a9dd51e4",
-  "inputs_digest": "8661d14e183690edf7fe862f6a128f382f3d2903844128f9ccb1aba957580ae9"
+  "harness_commit": "00ed6c0f5336f75d990da8aa67482d3e82b05ec9+uncommitted",
+  "inputs_digest": "7cee75789f468dd74a322a0a9dd38f1eb159ff38597f72b604eaed8fa5a28d4e"
  },
  "coverage": {
   "paragraphs": {
@@ -421,7 +441,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "8661d14e183690edf7fe862f6a128f382f3d2903844128f9ccb1aba957580ae9"
+  "inputs_digest": "7cee75789f468dd74a322a0a9dd38f1eb159ff38597f72b604eaed8fa5a28d4e"
  },
  "reach": {
   "entry_points": [
@@ -473,7 +493,7 @@
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "19379351a57af7739477fadfa550b2b3d9730b1d1ab4d2b2ffc4ff2a22d3c14e"
+  "port_sha256": "4341dbcfd920f3ca68eda4e6b0165c4847937313eb2620853d0ddd075fc52989"
  },
  "mutation": {
   "commit": "bcb4f6f82",

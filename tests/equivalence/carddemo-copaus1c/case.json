@@ -458,6 +458,160 @@
     }
    ],
    "why": "the LINK itself fails (PGMIDERR): EIBRESP not NORMAL, SYNCPOINT ROLLBACK, the detail shown as read"
+  },
+  {
+   "name": "entry-gu-system-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CUST-ID": 1,
+    "CDEMO-CPVD-PAU-SELECTED": "vi\u009c\u0099\u0087GDL"
+   },
+   "why": "DL/I fault: GU of the summary answers AC: WHEN OTHER, 'System error while reading Auth Summary'",
+   "dli_faults": [
+    {
+     "op": "GU",
+     "nth": 1,
+     "status": "AC"
+    }
+   ]
+  },
+  {
+   "name": "entry-gu-end-of-db",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CUST-ID": 1,
+    "CDEMO-CPVD-PAU-SELECTED": "vi\u009c\u0099\u0087GDL"
+   },
+   "why": "DL/I fault: GU answers GB (END-OF-DB): AUTHS-EOF, no detail is read",
+   "dli_faults": [
+    {
+     "op": "GU",
+     "nth": 1,
+     "status": "GB"
+    }
+   ]
+  },
+  {
+   "name": "entry-gnp-system-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CUST-ID": 1,
+    "CDEMO-CPVD-PAU-SELECTED": "vi\u009c\u0099\u0087GDL"
+   },
+   "why": "DL/I fault: the qualified GNP of the selected detail answers AC: WHEN OTHER, 'System error while reading Auth Details'",
+   "dli_faults": [
+    {
+     "op": "GNP",
+     "nth": 1,
+     "status": "AC"
+    }
+   ]
+  },
+  {
+   "name": "entry-gnp-end-of-db",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CUST-ID": 1,
+    "CDEMO-CPVD-PAU-SELECTED": "vi\u009c\u0099\u0087GDL"
+   },
+   "why": "DL/I fault: the qualified GNP answers GB (END-OF-DB): AUTHS-EOF",
+   "dli_faults": [
+    {
+     "op": "GNP",
+     "nth": 1,
+     "status": "GB"
+    }
+   ]
+  },
+  {
+   "name": "pf8-gnp-system-error",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 17,
+    "CDEMO-CUST-ID": 17,
+    "CDEMO-CPVD-PAU-SELECTED": "vp\f\u0083Q\u00829\\"
+   },
+   "why": "DL/I fault: PF8's unqualified GNP answers AC: WHEN OTHER, 'System error while reading Auth Details'",
+   "dli_faults": [
+    {
+     "op": "GNP",
+     "nth": 2,
+     "status": "AC"
+    }
+   ]
+  },
+  {
+   "name": "pf8-gnp-end-of-db",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 17,
+    "CDEMO-CUST-ID": 17,
+    "CDEMO-CPVD-PAU-SELECTED": "vp\f\u0083Q\u00829\\"
+   },
+   "why": "DL/I fault: PF8's unqualified GNP answers GB (END-OF-DB): AUTHS-EOF",
+   "dli_faults": [
+    {
+     "op": "GNP",
+     "nth": 2,
+     "status": "GB"
+    }
+   ]
+  },
+  {
+   "name": "pf5-repl-fails",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 17,
+    "CDEMO-CUST-ID": 17,
+    "CDEMO-CPVD-PAU-SELECTED": "vp\f\u0083Q\u00829\\"
+   },
+   "why": "DL/I fault: after the LINK's INSERT, REPL answers AC: ROLL-BACK, 'System error while FRAUD Tagging, ROLLBACK', the INSERT is undone",
+   "dli_faults": [
+    {
+     "op": "REPL",
+     "nth": 1,
+     "status": "AC"
+    }
+   ]
   }
  ],
  "db2": {

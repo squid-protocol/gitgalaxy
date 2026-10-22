@@ -34,6 +34,9 @@ import sys
 from collections.abc import Callable
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import ci_shard_plan as shard_plan  # noqa: E402 -- stdlib only, like this planner
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CASES = REPO_ROOT / "tests" / "equivalence"
 MAX_SHARDS = 6  # full sweep: runners (#5135: 6 fat shards, ~10 min each, not 20 that queue behind the 20-job pool; a narrow plan starts one per PER_SHARD cases)
@@ -45,6 +48,17 @@ PER_SHARD = 3  # narrow: about this many cases per runner
 DB2_MAX_SHARDS = 6
 DB2_FULL_PER_SHARD = 12  # full: ~12 Db2 cases per runner (~8 min proving at --jobs 4, plus the Db2 start)
 DB2_PER_SHARD = 6  # narrow: about this many Db2 cases per runner (a Db2 start is paid per runner)
+# #5919: with the measured durations the Db2 shard count and every shard job's timeout come from ci_shard_plan: the fewest
+# Db2 runners (at most DB2_MAX_SHARDS, the cap) whose slowest fits DB2_TARGET_S, the Db2 start (DB2_SETUP_S, paid per
+# runner) included; a timeout is the slowest planned shard x 1.5 between the floor and the ceiling. The *_PER_SHARD
+# counts above are the fallback when no durations are given.
+DB2_SETUP_S = 420  # job start, checkout, Db2 container + databases (~6 min, #5882) before the first proof
+DB2_TARGET_S = 15 * 60  # a Db2 job, start to sweep end (det_sweep_timing.BUDGET_SECONDS)
+SHARD_SETUP_S = 300  # a non-Db2 shard: checkout, install, the GnuCOBOL image
+PROOF_JOBS = 4  # proof_sweep.py --jobs: cases proven at once in a shard
+TIMEOUT_FLOOR, TIMEOUT_CEILING = 25, 45  # minutes
+DEFAULT_TIMEOUT = 30  # minutes, when there are no durations to size from
+DURATIONS = CASES / "det_sweep_durations.json"
 IGNORED = {"tests/equivalence/det_sweep_durations.json"}  # only balances shards, never a verdict
 # #5885: the mutation scores and their survivors (det_mutation.py, evidence_report.py): no det proof reads them
 IGNORED_DIRS = ("tests/equivalence/det_mutation/", "tests/equivalence/det_mutation_survivors/")
@@ -195,8 +209,11 @@ def component_cases(path: str, cases: dict[str, dict]) -> set[str] | None:
                  and any(path == p or fnmatch.fnmatchcase(path, p) for p in c.paths)), None)  # fmt: skip
     if comp is None:
         return None
-    return {n for n, c in cases.items()
-            if comp.uses(evidence.Use(c.get("kind", "batch"), is_db2(c), bool(c.get("programs")), ims="ims" in c))}
+    return {
+        n
+        for n, c in cases.items()
+        if comp.uses(evidence.Use(c.get("kind", "batch"), is_db2(c), bool(c.get("programs")), ims="ims" in c))
+    }
 
 
 FULL_LABEL = "shepherd:full"  # #4847: a maintainer's request for the full sweep on a pull request (docs/ci.md)
@@ -211,8 +228,13 @@ def labels_from_event(path: Path) -> list[str]:
     return [x.get("name", "") for x in (payload.get("pull_request") or {}).get("labels") or []]
 
 
-def plan(files: list[str], event: str, cases: dict[str, dict], labels: list[str] | None = None,
-         texts: Callable[[str], tuple[str | None, str | None]] | None = None) -> dict:
+def plan(
+    files: list[str],
+    event: str,
+    cases: dict[str, dict],
+    labels: list[str] | None = None,
+    texts: Callable[[str], tuple[str | None, str | None]] | None = None,
+) -> dict:
     """The plan for `files` (repo-relative, as git prints them) on `event`, given the pull request's `labels`;
     `texts(path)` is (the file at the merge base, at HEAD), None for a side that is absent or unreadable."""
     # #4901: a full sweep proves every Db2 case too, except in the nightly (Evidence Refresh's Db2 job runs then)
@@ -306,11 +328,33 @@ def shards_for(p: dict) -> list[str]:
     return [f"{i}/{n}" for i in range(1, n + 1)]
 
 
-def db2_shards_for(p: dict, n_db2: int | None = None) -> list[str]:
-    """The Db2 runner labels "I/N": one per DB2_FULL_PER_SHARD of the `n_db2` Db2 cases (default: the cases on disk) for
-    a full sweep, one per DB2_PER_SHARD cases when narrow, at most DB2_MAX_SHARDS; none for none."""
+def load_durations(path: Path = DURATIONS) -> dict[str, float] | None:
+    """{case: seconds} of the durations file's "det" section; None when the file is missing or unreadable."""
+    try:
+        return {k: float(v) for k, v in json.loads(path.read_text(encoding="utf-8")).get("det", {}).items()}
+    except (OSError, ValueError, AttributeError):
+        return None
+
+
+def db2_names(p: dict) -> list[str]:
+    return sorted(n for n, c in case_dirs().items() if is_db2(c)) if p["db2_cases"] == "all" else list(p["db2_cases"])
+
+
+def db2_shards_for(p: dict, n_db2: int | None = None, durations: dict[str, float] | None = None,
+                   waiting: int | None = None) -> list[str]:  # fmt: skip
+    """The Db2 runner labels "I/N". With `durations` (#5919): the fewest runners whose slowest fits DB2_TARGET_S, at most
+    DB2_MAX_SHARDS (halved while PR jobs queue); the plan fails (PlanError) when too many cases are unmeasured. Without:
+    one per DB2_FULL_PER_SHARD of the `n_db2` Db2 cases (default: the cases on disk) for a full sweep, one per
+    DB2_PER_SHARD cases when narrow, at most DB2_MAX_SHARDS; none for none."""
     if p["mode"] == "ports" or not p["db2_cases"]:
         return []
+    if durations is not None:
+        w, missing = shard_plan.weights(db2_names(p), durations)
+        shard_plan.check_measured(missing, len(w), "Db2 case")
+        n = shard_plan.shards_for(
+            w, DB2_SETUP_S, PROOF_JOBS, DB2_TARGET_S, shard_plan.pool_cap(DB2_MAX_SHARDS, waiting)
+        )
+        return [f"{i}/{n}" for i in range(1, n + 1)]
     if p["db2_cases"] == "all":
         if n_db2 is None:
             n_db2 = sum(is_db2(c) for c in case_dirs().values())
@@ -319,6 +363,24 @@ def db2_shards_for(p: dict, n_db2: int | None = None) -> list[str]:
         n = -(-len(p["db2_cases"]) // DB2_PER_SHARD)
     n = max(1, min(DB2_MAX_SHARDS, n))
     return [f"{i}/{n}" for i in range(1, n + 1)]
+
+
+def timeouts_for(p: dict, durations: dict[str, float] | None) -> dict[str, int]:
+    """#5919: the `timeout` (non-Db2 shard) and `db2_timeout` job minutes, from the slowest planned shard of the plan's
+    matrices; DEFAULT_TIMEOUT for a kind with no durations or no shards."""
+    out = {"timeout": DEFAULT_TIMEOUT, "db2_timeout": DEFAULT_TIMEOUT}
+    if durations is None:
+        return out
+    cases = case_dirs()
+    sets = (("timeout", "matrix", SHARD_SETUP_S, [n for n, c in cases.items() if not is_db2(c)]
+             if p["cases"] == "all" else list(p["cases"])),
+            ("db2_timeout", "db2_matrix", DB2_SETUP_S, db2_names(p) if p["db2_cases"] else []))  # fmt: skip
+    for key, matrix, setup, names in sets:
+        n = len(p.get(matrix) or [])
+        if n and names:
+            w, _ = shard_plan.weights(names, durations)
+            out[key] = shard_plan.timeout_minutes(w, n, setup, PROOF_JOBS, TIMEOUT_FLOOR, TIMEOUT_CEILING)
+    return out
 
 
 def file_texts(base: str) -> Callable[[str], tuple[str | None, str | None]]:
@@ -360,11 +422,20 @@ def main() -> int:
     ap.add_argument(
         "--labels", help="the PR's labels, comma-separated, read live when the job runs (a rerun sees a new one)"
     )
+    ap.add_argument("--durations", type=Path, default=DURATIONS,
+                    help="#5919: the durations file the shard counts and timeouts are sized from (missing: counts only)")  # fmt: skip
+    ap.add_argument("--waiting", type=int, help="#5919: queued PR jobs (halves the Db2 shard cap past ci_shard_plan.BUSY_ABOVE)")  # fmt: skip
     ap.add_argument("--db2-full-matrix", action="store_true",
                     help="#5882: print only a full sweep's Db2 runner labels as JSON (Evidence Refresh's Db2 parts)")  # fmt: skip
     args = ap.parse_args()
     if args.db2_full_matrix:
-        print(json.dumps(db2_shards_for({"mode": "full", "db2_cases": "all"})))
+        print(
+            json.dumps(
+                db2_shards_for(
+                    {"mode": "full", "db2_cases": "all"}, durations=load_durations(args.durations), waiting=args.waiting
+                )
+            )
+        )
         return 0
     labels = labels_from_event(args.labels_from_event) if args.labels_from_event else []
     if args.labels is not None:
@@ -372,21 +443,25 @@ def main() -> int:
     cases = case_dirs()
     if args.ports:
         p = narrow_by_ports(args.ports, [c for c in args.touched.split(",") if c], cases)
-        return emit(p, args.github_output)
+        return emit(p, args.github_output, load_durations(args.durations), args.waiting)
     try:
         files = args.files if args.files is not None else changed_files(args.base)
         p = plan(files, args.event, cases, labels, file_texts(args.base)) if files or args.event != "pull_request" else {
             "mode": "full", "cases": "all", "db2_cases": "all", "reason": "no changed files found (the diff is unreadable or empty)"}  # fmt: skip
     except RuntimeError as e:  # cannot tell what changed: everything
         p = {"mode": "full", "cases": "all", "db2_cases": "all", "reason": f"cannot diff ({e})"}
-    return emit(p, args.github_output)
+    return emit(p, args.github_output, load_durations(args.durations), args.waiting)
 
 
-def emit(p: dict, github_output: Path | None) -> int:
+def emit(p: dict, github_output: Path | None, durations: dict[str, float] | None = None,
+         waiting: int | None = None) -> int:  # fmt: skip
     p["matrix"] = shards_for(p)
     p["shards"] = len(p["matrix"])
-    p["db2_matrix"] = db2_shards_for(p)  # a full sweep counts the Db2 cases on disk (#5882)
+    p["db2_matrix"] = db2_shards_for(
+        p, durations=durations, waiting=waiting
+    )  # a full sweep counts the Db2 cases on disk
     p["db2_shards"] = len(p["db2_matrix"])
+    p.update(timeouts_for(p, durations))  # #5919: the shard jobs' timeout-minutes, emitted by the plan
     print(json.dumps(p, indent=1))
     if github_output:
         with github_output.open("a", encoding="utf-8") as fh:
@@ -397,6 +472,7 @@ def emit(p: dict, github_output: Path | None) -> int:
             fh.write(f"db2_cases={'all' if p['db2_cases'] == 'all' else ','.join(p['db2_cases'])}\n")
             fh.write(f"db2_matrix={json.dumps(p['db2_matrix'])}\n")
             fh.write(f"db2_shards={p['db2_shards']}\n")
+            fh.write(f"timeout={p['timeout']}\ndb2_timeout={p['db2_timeout']}\n")
     return 0
 
 

@@ -763,3 +763,24 @@ stated `equivalent` / `unreachable` before were all killed by the current cases,
 `det_mutation_survivors/`, which now lists none for either case; the three COTRN01C `harness-gap` survivors are killed too. All three slice-4
 programs (with COTRN00C, #5921) are at L5 (`det_mutation.py table`). The score is a seeded sample (150 of 2,184 / 1,469 in scope), not the
 whole mutant set.
+
+**#5863 L5 sweep, asynccc estate (2026-10-21): all 10 ports reach L5 with no survivor.** The ten `cics-async-api-credit-card-application-example`
+L4 ports had no ledger. Each was run as a full enumeration (`det_mutation.py run ... --sample 0`, seed 0, fast mode, JDK 17), so the
+score is every in-scope mutant, not a sample. Every judged mutant was killed by the existing case: 0 survived, 0 timed out, 0 unaccounted, so
+no `det_mutation_survivors/` file and no new scenario was needed. The stillborn mutants (do not compile) are
+6 per program (18 for CSSTATUS, 50 for SEQPNT and ASYNCPNT).
+
+| program (case) | mutants run / in scope | killed | survived | stillborn | raw score | L5 |
+|---|---|---|---|---|---|---|
+| GETPOL (asynccc-getpol) | 168/168 | 162 | 0 | 6 | 162/162 (100%) | yes |
+| GETSPND (asynccc-getspnd) | 168/168 | 162 | 0 | 6 | 162/162 (100%) | yes |
+| UPDCSDB (asynccc-updcsdb) | 189/189 | 183 | 0 | 6 | 183/183 (100%) | yes |
+| GETNAME (asynccc-getname) | 208/208 | 202 | 0 | 6 | 202/202 (100%) | yes |
+| CRDTCHK (asynccc-crdtchk) | 223/223 | 217 | 0 | 6 | 217/217 (100%) | yes |
+| CSSTATS2 (asynccc-csstats2) | 246/246 | 240 | 0 | 6 | 240/240 (100%) | yes |
+| CSSTATUS (asynccc-csstatus) | 576/576 | 558 | 0 | 18 | 558/558 (100%) | yes |
+| GETADDR (asynccc-getaddr) | 234/234 | 228 | 0 | 6 | 228/228 (100%) | yes |
+| SEQPNT (asynccc-seqpnt) | 1889/1889 | 1839 | 0 | 50 | 1839/1839 (100%) | yes |
+| ASYNCPNT (asynccc-asyncpnt) | 2042/2042 | 1992 | 0 | 50 | 1992/1992 (100%) | yes |
+
+An earlier default-sample run (150 per port) gave the same result, so the full enumeration confirms it.

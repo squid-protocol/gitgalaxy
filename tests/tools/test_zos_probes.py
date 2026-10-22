@@ -22,6 +22,11 @@ def test_committed_corpus_is_valid():
     assert zos_probes.problems(probes, IDS, register.load_zos()) == []
 
 
+def test_every_part_one_entry_has_a_probe():
+    covered = {e for p in zos_probes.load().values() for e in p["entries"]}
+    assert {"C1", "C2", "C3", "C4", "C11", "C13", "C14", "D2"} <= covered
+
+
 def test_every_probe_is_fixed_format_ending_in_stop_run():
     for pid, p in zos_probes.load().items():
         lines = p["source"].splitlines()

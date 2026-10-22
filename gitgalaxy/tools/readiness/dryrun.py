@@ -16,6 +16,10 @@ the class name of a refusal. A hole's text (it can quote the program) is counted
 The stub stands in for the estate's generated project, so this is a LOWER BOUND on what the full translate does: a
 CICS program's COMMAREA contract and a CALL / LINK target's service are not resolved, and a callee's holes are not
 credited to its caller (#4803). It is a translation status, not a proof level.
+
+#5649: given the estate's scan DB, a program is translated on the engine's record layouts, in "check" mode by default
+(the translator's own layout kept beside them: a difference refuses the program as LayoutDisagrees). Without a scan the
+translator lays its own records out.
 """
 
 from __future__ import annotations
@@ -56,10 +60,16 @@ def _with_timeout(fn: Any, seconds: int) -> Any:
 
 
 def translate_program(
-    prog: Path, copy_dirs: list[Path], estate_opt: Any, project: Path, timeout: int = TIMEOUT_S
+    prog: Path,
+    copy_dirs: list[Path],
+    estate_opt: Any,
+    project: Path,
+    timeout: int = TIMEOUT_S,
+    layouts: Any = None,
 ) -> dict[str, Any]:
     """{"translation": whole | holes | refused, "statements", "translated_statements", "holes"} of one program, or
-    {"translation": refused, "refusal": <exception class name>}."""
+    {"translation": refused, "refusal": <exception class name>}. `layouts`: the program's engine record layouts
+    (det.engine_layout.EngineLayouts) or None."""
     from gitgalaxy.core.estate_options import effective_options
     from gitgalaxy.core.source_text import read_source
     from gitgalaxy.tools.cobol_to_java.det import program as P
@@ -70,7 +80,10 @@ def translate_program(
         stub = (CICS_STUB if re.search(r"(?i)\bEXEC\s+CICS\b", text) else BATCH_STUB).format(svc=svc)
         layers = effective_options(case=None, estate=estate_opt, program=prog.stem).layers
         r = _with_timeout(
-            lambda: P.translate(prog, copy_dirs, stub, PKG, None, project, "dispatch", False, False, layers), timeout
+            lambda: P.translate(
+                prog, copy_dirs, stub, PKG, None, project, "dispatch", False, False, layers, layouts=layouts
+            ),
+            timeout,
         )
     except Timeout:
         return {"translation": REFUSED, "refusal": "Timeout"}
@@ -87,14 +100,30 @@ def translate_program(
 
 
 def dry_run(
-    estate: Path, copy_dirs: list[Path], estate_opt: Any, programs: list[Path], timeout: int = TIMEOUT_S
+    estate: Path,
+    copy_dirs: list[Path],
+    estate_opt: Any,
+    programs: list[Path],
+    timeout: int = TIMEOUT_S,
+    scan_db: Path | None = None,
+    layouts: str | None = "check",
 ) -> dict[str, dict[str, Any]]:
-    """{estate-relative program path: outcome} for `programs`; nothing is written into `estate`."""
+    """{estate-relative program path: outcome} for `programs`; nothing is written into `estate`. `scan_db`: the
+    estate's scan (galaxy master DB), whose record layouts (#5649) each program takes in the `layouts` mode ("check",
+    "engine"); no scan or `layouts=None`: the translator's own."""
+    from gitgalaxy.tools.cobol_to_java.det.engine_layout import EngineLayouts
+
+    ir = None
+    if scan_db is not None and layouts:
+        from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+
+        ir = load_galaxy_ir(scan_db)
     out: dict[str, dict[str, Any]] = {}
     with tempfile.TemporaryDirectory(prefix="gitgalaxy-dryrun-") as tmp:
         project = Path(tmp) / "project"
         (project / "src" / "main" / "java").mkdir(parents=True)
         for prog in programs:
             rel = str(prog.relative_to(estate)).replace("\\", "/")
-            out[rel] = translate_program(prog, copy_dirs, estate_opt, project, timeout)
+            lay = EngineLayouts.from_ir(ir, rel, estate, layouts or "check") if ir is not None else None
+            out[rel] = translate_program(prog, copy_dirs, estate_opt, project, timeout, lay)
     return out

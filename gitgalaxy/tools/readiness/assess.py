@@ -89,27 +89,33 @@ def build(
     from gitgalaxy.tools.readiness.inventory import scan_estate
     from gitgalaxy.tools.readiness.schema import project
 
+    scans: list[Path] = []
+
     def scan(target: Path, out_dir: Path) -> Path:
-        return offline.guarded_scan(target, out_dir, verbose=verbose)
+        scans.append(offline.guarded_scan(target, out_dir, verbose=verbose))
+        return scans[-1]
 
     with tempfile.TemporaryDirectory(prefix="gitgalaxy-assess-") as tmp:
         if _inside(Path(tmp), estate):
             raise RuntimeError("the temporary directory is inside the estate: set TMPDIR elsewhere")
         root = estate.resolve()
         inv = scan_estate(root, Path(tmp), scan=scan, estate_opt=options)
-        outcomes = _translate_only(root, Path(tmp), options, inv) if translate else None
+        outcomes = _translate_only(root, Path(tmp), options, inv, scans[-1] if scans else None) if translate else None
     return project(inv, redact_key=redact_key, tool_version=tool_version(), translation=outcomes)
 
 
-def _translate_only(estate: Path, tmp: Path, options: dict[str, Any] | None, inv: dict[str, Any]):
-    """The translate-only dry run (dryrun.py) of every COBOL program the inventory parsed: no Docker, Db2 or JDK."""
+def _translate_only(
+    estate: Path, tmp: Path, options: dict[str, Any] | None, inv: dict[str, Any], scan_db: Path | None = None
+):
+    """The translate-only dry run (dryrun.py) of every COBOL program the inventory parsed: no Docker, Db2 or JDK.
+    #5649: on the engine's record layouts from the inventory's own scan (`scan_db`), the translator's checked against them."""
     from gitgalaxy.tools.cobol_to_java.det import cics as C
     from gitgalaxy.tools.readiness.dryrun import dry_run
     from gitgalaxy.tools.readiness.inventory import copy_dirs
 
     unparsed = {u["program"] for u in inv.get("unparsed_programs", [])}
     programs = [estate / rel for rel in sorted(inv.get("eras", {}).get("programs", {})) if rel not in unparsed]
-    return dry_run(estate, [*copy_dirs(estate), tmp / "bms", C.COPY], options, programs)
+    return dry_run(estate, [*copy_dirs(estate), tmp / "bms", C.COPY], options, programs, scan_db=scan_db)
 
 
 def run(args: argparse.Namespace) -> int:

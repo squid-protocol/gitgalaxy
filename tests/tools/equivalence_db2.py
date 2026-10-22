@@ -351,6 +351,17 @@ def _container_identity() -> str:
     return f"{state[0]} {state[1]} {image}"
 
 
+def run_args(volume: str | None = None) -> list[str]:
+    """The container's options (#5882: one list, so db2_snapshot.py restore makes the same container, `volume` its
+    /database)."""
+    return ["--name", CONTAINER, "--network", NETWORK, "--privileged", "-p", f"127.0.0.1:{PORT}:50000",
+            *(["-v", f"{volume}:/database"] if volume else []),
+            "-e", "LICENSE=accept", "-e", f"DB2INSTANCE={USER}", "-e", f"DB2INST1_PASSWORD={PASSWORD}",
+            "-e", f"DBNAME={DATABASE0}", "-e", "BLU=false", "-e", "ENABLE_ORACLE_COMPATIBILITY=false",
+            "-e", "UPDATEAVAIL=NO", "-e", "TO_CREATE_SAMPLEDB=false", "-e", "REPODB=false",
+            "-e", "IS_OSXFS=false", "-e", "PERSISTENT_HOME=false", "-e", "HADR_ENABLED=false"]  # fmt: skip
+
+
 def _ensure_container() -> None:
     global _CONTAINER_READY
     if _CONTAINER_READY:
@@ -382,11 +393,7 @@ def _ensure_container() -> None:
             _docker("start", CONTAINER)
         elif state != "true":
             pull_image()
-            _docker("run", "-d", "--name", CONTAINER, "--network", NETWORK, "--privileged", "-p", f"127.0.0.1:{PORT}:50000",
-                    "-e", "LICENSE=accept", "-e", f"DB2INSTANCE={USER}", "-e", f"DB2INST1_PASSWORD={PASSWORD}",
-                    "-e", f"DBNAME={DATABASE0}", "-e", "BLU=false", "-e", "ENABLE_ORACLE_COMPATIBILITY=false",
-                    "-e", "UPDATEAVAIL=NO", "-e", "TO_CREATE_SAMPLEDB=false", "-e", "REPODB=false",
-                    "-e", "IS_OSXFS=false", "-e", "PERSISTENT_HOME=false", "-e", "HADR_ENABLED=false", run_ref())  # fmt: skip
+            _docker("run", "-d", *run_args(), run_ref())
     for _ in range(120):  # first start: several minutes. Ready = set up, and GGDB (the pool's reference) exists
         if "Setup has completed" in _docker("logs", CONTAINER, check=False) and "Database code set" in _db_cfg(
             DATABASE0

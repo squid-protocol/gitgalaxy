@@ -1,5 +1,5 @@
 {
- "commit": "bc788fb5f",
+ "commit": "5fe3a135e",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -123,7 +123,7 @@
   },
   "translator": {
    "of": 129,
-   "whole": 119
+   "whole": 123
   }
  },
  "eras": {
@@ -133,18 +133,18 @@
    "programs": 0
   },
   "1": {
-   "l2_plus": 5,
+   "l2_plus": 6,
    "l4_plus": 0,
    "programs": 9
   },
   "2": {
-   "l2_plus": 67,
-   "l4_plus": 23,
+   "l2_plus": 69,
+   "l4_plus": 24,
    "programs": 70
   },
   "3": {
-   "l2_plus": 12,
-   "l4_plus": 0,
+   "l2_plus": 14,
+   "l4_plus": 8,
    "programs": 16
   },
   "4": {
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-22T09:08:31Z",
+  "as_of": "2026-10-22T09:48:56Z",
   "core": {
    "closed": 157,
    "open": 27,
@@ -428,21 +428,21 @@
  "ladder": {
   "estates": {
    "aws-mainframe-modernization-carddemo": {
-    "l2_plus": 34,
-    "l2_plus_pct": 77.3,
-    "l4_plus": 15,
-    "l4_plus_pct": 34.1,
-    "l5": 0,
+    "l2_plus": 39,
+    "l2_plus_pct": 88.6,
+    "l4_plus": 24,
+    "l4_plus_pct": 54.5,
+    "l5": 2,
     "levels": {
-     "L0": 5,
-     "L1": 5,
-     "L2": 5,
-     "L3": 14,
-     "L4": 15,
-     "L5": 0
+     "L0": 2,
+     "L1": 3,
+     "L2": 8,
+     "L3": 7,
+     "L4": 22,
+     "L5": 2
     },
     "programs": 44,
-    "translated_whole": 39
+    "translated_whole": 42
    },
    "cics-async-api-credit-card-application-example": {
     "l2_plus": 10,
@@ -487,8 +487,8 @@
     "levels": {
      "L0": 0,
      "L1": 0,
-     "L2": 7,
-     "L3": 17,
+     "L2": 6,
+     "L3": 18,
      "L4": 7,
      "L5": 0
     },
@@ -519,34 +519,34 @@
     "l4_plus_pct": 14.3,
     "l5": 0,
     "levels": {
-     "L0": 3,
-     "L1": 0,
+     "L0": 2,
+     "L1": 1,
      "L2": 2,
      "L3": 1,
      "L4": 1,
      "L5": 0
     },
     "programs": 7,
-    "translated_whole": 4
+    "translated_whole": 5
    }
   },
   "total": {
-   "l2_plus": 112,
-   "l2_plus_pct": 86.8,
-   "l4_plus": 40,
-   "l4_plus_pct": 31.0,
-   "l5": 0,
+   "l2_plus": 117,
+   "l2_plus_pct": 90.7,
+   "l4_plus": 49,
+   "l4_plus_pct": 38.0,
+   "l5": 2,
    "levels": {
-    "L0": 10,
-    "L1": 7,
-    "L2": 28,
-    "L3": 44,
-    "L4": 40,
-    "L5": 0
+    "L0": 6,
+    "L1": 6,
+    "L2": 30,
+    "L3": 38,
+    "L4": 47,
+    "L5": 2
    },
    "programs": 129,
    "reachable": 123,
-   "translated_whole": 119,
+   "translated_whole": 123,
    "unreachable": {
     "count": 6,
     "kinds": {

@@ -9,39 +9,35 @@ the charter in `definition_of_done.md`. Counts only; a level is an evidence leve
 
 | level | programs at exactly this level |
 |---|---|
-| L0 inventoried | 5 |
-| L1 translated whole | 5 |
-| L2 executed equivalent | 5 |
-| L3 paragraph coverage | 14 |
-| L4 branch coverage | 15 |
-| L5 mutants accounted for | 0 |
+| L0 inventoried | 2 |
+| L1 translated whole | 3 |
+| L2 executed equivalent | 8 |
+| L3 paragraph coverage | 7 |
+| L4 branch coverage | 22 |
+| L5 mutants accounted for | 2 |
 
-- translated whole: 39 / 44 (89%); with holes: 5; refused: 0
+- translated whole: 42 / 44 (95%); with holes: 2; refused: 0
 - whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0
-- executed equivalent (L2 and above): 34 / 44
+- executed equivalent (L2 and above): 39 / 44
 - charter bars for L3 / L4: paragraphs 100.0%, branches 100.0%
 
 Era evidence (programs by latest era a tell reaches):
 
 era 0: 0, era 1: 5, era 2: 22, era 3: 15, era 4: 0, era none: 2
 
-### Rules to land (5 gap classes; top 5, the `cics_census.py blockers` order)
+### Rules to land (1 gap classes; top 1, the `cics_census.py blockers` order)
 
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
 | 1 | <name>: <name> is not defined in a record of file <name> | 2 | 0 | 2 | era 3: 2 |
-| 2 | <name> SET ADDRESS OF | 1 | 0 | 1 | era 3: 1 |
-| 3 | DSNTIAC: Db2's message text is not modelled | 1 | 0 | 1 | era 2: 1 |
-| 4 | <name>: no such item | 0 | 1 | 1 | - |
-| 5 | EXEC DLI outside CICS: a batch program calls CBLTDLI | 0 | 1 | 1 | - |
 
-### Proof blockers (39 programs translated whole, 15 with no proof gap; top 4 of 4 classes, `proof_blockers.py` statistics)
+### Proof blockers (42 programs translated whole, 24 with no proof gap; top 4 of 4 classes, `proof_blockers.py` statistics)
 
 | rank | what stops the proof | alone | one gap away | touched |
 |---|---|---|---|---|
-| 1 | coverage: branch outcomes below the bar | 14 | 0 | 14 |
-| 2 | no case | 5 | 0 | 5 |
-| 3 | coverage: paragraphs below the bar | 4 | 0 | 4 |
+| 1 | coverage: branch outcomes below the bar | 7 | 0 | 7 |
+| 2 | coverage: paragraphs below the bar | 7 | 0 | 7 |
+| 3 | no case | 3 | 0 | 3 |
 | 4 | coverage: not measured | 1 | 0 | 1 |
 
 ### Missing inputs
@@ -186,8 +182,8 @@ era 0: 0, era 1: 0, era 2: 22, era 3: 1, era 4: 6, era none: 2
 |---|---|
 | L0 inventoried | 0 |
 | L1 translated whole | 0 |
-| L2 executed equivalent | 7 |
-| L3 paragraph coverage | 17 |
+| L2 executed equivalent | 6 |
+| L3 paragraph coverage | 18 |
 | L4 branch coverage | 7 |
 | L5 mutants accounted for | 0 |
 
@@ -209,8 +205,8 @@ era 0: 0, era 1: 4, era 2: 24, era 3: 0, era 4: 3, era none: 0
 
 | rank | what stops the proof | alone | one gap away | touched |
 |---|---|---|---|---|
-| 1 | coverage: branch outcomes below the bar | 17 | 0 | 17 |
-| 2 | coverage: paragraphs below the bar | 7 | 0 | 7 |
+| 1 | coverage: branch outcomes below the bar | 18 | 0 | 18 |
+| 2 | coverage: paragraphs below the bar | 6 | 0 | 6 |
 
 ### Missing inputs
 
@@ -311,14 +307,14 @@ era 0: 0, era 1: 0, era 2: 2, era 3: 0, era 4: 1, era none: 3
 
 | level | programs at exactly this level |
 |---|---|
-| L0 inventoried | 3 |
-| L1 translated whole | 0 |
+| L0 inventoried | 2 |
+| L1 translated whole | 1 |
 | L2 executed equivalent | 2 |
 | L3 paragraph coverage | 1 |
 | L4 branch coverage | 1 |
 | L5 mutants accounted for | 0 |
 
-- translated whole: 4 / 7 (57%); with holes: 1; refused: 2
+- translated whole: 5 / 7 (71%); with holes: 0; refused: 2
 - whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0
 - executed equivalent (L2 and above): 4 / 7
 - charter bars for L3 / L4: paragraphs 100.0%, branches 100.0%
@@ -331,19 +327,19 @@ Era evidence (programs by latest era a tell reaches):
 
 era 0: 0, era 1: 0, era 2: 0, era 3: 0, era 4: 4, era none: 3
 
-### Rules to land (2 gap classes; top 2, the `cics_census.py blockers` order)
+### Rules to land (1 gap classes; top 1, the `cics_census.py blockers` order)
 
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
 | 1 | refused: CICS Assembler (refuses the whole program: upper bound) | 2 | 0 | 2 | era none: 2 |
-| 2 | ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the N bytes it returns in | 1 | 0 | 1 | era 4: 1 |
 
-### Proof blockers (4 programs translated whole, 1 with no proof gap; top 2 of 2 classes, `proof_blockers.py` statistics)
+### Proof blockers (5 programs translated whole, 1 with no proof gap; top 3 of 3 classes, `proof_blockers.py` statistics)
 
 | rank | what stops the proof | alone | one gap away | touched |
 |---|---|---|---|---|
 | 1 | coverage: paragraphs below the bar | 2 | 0 | 2 |
 | 2 | coverage: branch outcomes below the bar | 1 | 0 | 1 |
+| 3 | no case | 1 | 0 | 1 |
 
 ### Missing inputs
 

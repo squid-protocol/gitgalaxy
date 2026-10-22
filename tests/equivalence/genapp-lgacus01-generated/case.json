@@ -1,0 +1,196 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGACUS01",
+ "program_source": "base/src/lgacus01.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGAC",
+ "clock": "2026/10/01 10:30:15.00",
+ "programs": [
+  {
+   "program": "LGACDB01",
+   "program_source": "base/src/lgacdb01.cbl"
+  },
+  {
+   "program": "LGACVS01",
+   "program_source": "base/src/lgacvs01.cbl"
+  },
+  {
+   "program": "LGACDB02",
+   "program_source": "base/src/lgacdb02.cbl"
+  },
+  {
+   "program": "LGSTSQ",
+   "program_source": "base/src/lgstsq.cbl"
+  }
+ ],
+ "datasets": {
+  "<USRHLQ>.GENAPP.KSDSCUST": {
+   "input": "@case/ksdscust.txt",
+   "entity": "CaCustomerNum",
+   "copybook": "base/src/lgcmarea.cpy",
+   "record": "CA-CUSTOMER-NUM",
+   "vsam": {
+    "key_offset": 0,
+    "key_length": 10,
+    "reclen": 225,
+    "why": "base/cntl/adef121.jcl DEFINE1: DATA(... KEYS(10 0) RECORDSIZE(225 225)); the engine's facts do not read KEYS / RECORDSIZE inside the DATA component, so the case states them"
+   }
+  }
+ },
+ "db2": {
+  "ddl": [
+   "base/cntl/db2cre.jcl"
+  ],
+  "seed": "@generate",
+  "symbols": {
+   "<DB2DBID>": "GENASA1"
+  },
+  "qualifier": "GENASA1",
+  "compare": [
+   "GENASA1.CUSTOMER",
+   "GENASA1.CUSTOMER_SECURE"
+  ],
+  "generate": {
+   "seed": 4507,
+   "tables": {
+    "GENASA1.CUSTOMER": {
+     "rows": 10,
+     "columns": {
+      "CUSTOMERNUMBER": {
+       "values": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+       ]
+      }
+     }
+    },
+    "GENASA1.CUSTOMER_SECURE": {
+     "rows": 10
+    }
+   }
+  },
+  "compare_sql": true
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgacus01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "region": {
+  "applid": "GENAREGN",
+  "sysid": "CICA"
+ },
+ "scenarios": [
+  {
+   "name": "add-with-counter",
+   "counters": {
+    "GENA/GENACUSTNUM": 1000011
+   },
+   "commarea": {
+    "CA-REQUEST-ID": "01ACUS",
+    "CA-CUSTOMER-NUM": "0",
+    "CA-REQUEST-SPECIFIC": "Ada       Lovelace            1815-12-10Ockham Park         12  KT246HP 00007700900123         01483222111         ada@analytical.example                                                                              "
+   },
+   "why": "LGACDB01's scenario add-with-counter through LGACUS01 (LINKed, COMMAREA passed on): GET COUNTER GENA/GENACUSTNUM: NORMAL, 1000011 (the counter is then 1000012); INSERT CUSTOMER with that number; LINK LGACVS01 writes the VSAM copy; LINK LGACDB02 adds the CUSTOMER_SECURE row; CA-CUSTOMER-NUM 1000011, '00'"
+  },
+  {
+   "name": "add-without-counter",
+   "counters": {},
+   "commarea": {
+    "CA-REQUEST-ID": "01ACUS",
+    "CA-CUSTOMER-NUM": "0",
+    "CA-REQUEST-SPECIFIC": "Charles   Babbage             1791-12-26Dorset Street       1   W1U6QN  000                                        cb@engine.example                                                                                   "
+   },
+   "why": "LGACDB01's scenario add-without-counter through LGACUS01 (LINKed, COMMAREA passed on): no named counter (GET COUNTER is INVREQ RESP2 201, which the program reads as not NORMAL): INSERT with DEFAULT, the identity gives 1000001 (START WITH, restarted each run), SET :H = IDENTITY_VAL_LOCAL() reads it back on the INSERT's own connection"
+  },
+  {
+   "name": "add-blank-optional-fields",
+   "counters": {
+    "GENA/GENACUSTNUM": 1000020
+   },
+   "commarea": {
+    "CA-REQUEST-ID": "01ACUS",
+    "CA-CUSTOMER-NUM": "0",
+    "CA-REQUEST-SPECIFIC": "Grace     Hopper              1906-12-09                                000                                                                                                                                            "
+   },
+   "why": "LGACDB01's scenario add-blank-optional-fields through LGACUS01 (LINKed, COMMAREA passed on): blank house name / number / phones / email stored as blanks (CHAR), not NULL"
+  },
+  {
+   "name": "add-long-email",
+   "counters": {
+    "GENA/GENACUSTNUM": 1000030
+   },
+   "commarea": {
+    "CA-REQUEST-ID": "01ACUS",
+    "CA-CUSTOMER-NUM": "0",
+    "CA-REQUEST-SPECIFIC": "Alan      Turing              1912-06-23Hollymeade          43  SK94AQ  00007000000000         01625000000         aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+   },
+   "why": "LGACDB01's scenario add-long-email through LGACUS01 (LINKed, COMMAREA passed on): a 100-byte email fills EMAILADDRESS CHAR(100)"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "EIBCALEN 0: LGACUS01 moves ' NO COMMAREA RECEIVED' to EM-VARIABLE, WRITE-ERROR-MESSAGE LINKs LGSTSQ with ERROR-MSG (TD CSMT and TS GENAERRS), IF EIBCALEN > 0 is false, then ABEND LGCA"
+  },
+  {
+   "counters": {
+    "GENA/GENACUSTNUM": 1000011
+   },
+   "commarea": {
+    "CA-REQUEST-ID": "01ACUS",
+    "CA-CUSTOMER-NUM": "0",
+    "CA-REQUEST-SPECIFIC": "Ada       Lovelace            1815-12-10Ockham Park         12  KT246HP 00007700900123         01483222111         ada@analytical.example                                                                              "
+   },
+   "name": "short-commarea",
+   "commarea_length": 60,
+   "why": "EIBCALEN 60 < WS-REQUIRED-CA-LEN 90 (18 + WS-CUSTOMER-LEN 72): CA-RETURN-CODE '98', RETURN before the LINK"
+  }
+ ],
+ "notes": "Generated-row sibling (#4507) of genapp-lgacus01: GenApp's add-customer front end (LGACUS01, LINKed with the 32500-byte LGCMAREA COMMAREA) LINKs LGACDB01 in the same task (which LINKs LGACVS01 and LGACDB02, and LGSTSQ on errors) over the ten CUSTOMER and ten CUSTOMER_SECURE rows of genapp-lgacdb01-generated, generated from base/cntl/db2cre.jcl (seed 4507, CUSTOMER_SECURE keyed to CUSTOMER by its foreign key), not GenApp's INSERTs. The 16 generated requests are those of genapp-lgacdb01-generated; stated: the add scenarios (with and without the GENA/GENACUSTNUM counter, blank optional fields, a 100-byte email), no-commarea (EIBCALEN 0: LGSTSQ, ABEND LGCA) and short-commarea (EIBCALEN 60: '98'). Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived.",
+ "counters": {
+  "GENA/GENACUSTNUM": 1000100
+ },
+ "scenario_generate": {
+  "seed": 4507,
+  "count": 16,
+  "prefix": "generated",
+  "commarea": {
+   "CA-REQUEST-ID": {
+    "values": [
+     "01ACUS"
+    ]
+   },
+   "CA-CUSTOMER-NUM": {
+    "values": [
+     "0"
+    ]
+   },
+   "CA-REQUEST-SPECIFIC": {
+    "values": [
+     "Grace     Hopper              1906-12-09                                000                                                                                                                                            ",
+     "Ada       Lovelace            1815-12-10Ockham Park         12  KT246HP 00007700900123         01483222111         ada@analytical.example                                                                              ",
+     "Alan      Turing              1912-06-23Hollymeade          43  SK94AQ  00007000000000         01625000000         aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "Charles   Babbage             1791-12-26Dorset Street       1   W1U6QN  000                                        cb@engine.example                                                                                   ",
+     "Edsger    Dijkstra            1930-05-11                    9999AB1 2CD 000                                                                                                                                            ",
+     "X                             2000-02-29                                000                                                                                                                                            "
+    ]
+   }
+  }
+ }
+}

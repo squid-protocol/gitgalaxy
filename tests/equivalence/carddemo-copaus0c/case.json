@@ -1,0 +1,644 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "COPAUS0C",
+ "program_source": "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+ "copy_dirs": [
+  "app/cpy",
+  "app/app-authorization-ims-db2-mq/cpy",
+  "app/app-authorization-ims-db2-mq/cpy-bms"
+ ],
+ "transid": "CPVS",
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {
+  "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS": {
+   "input": "app/data/ASCII/acctdata.txt",
+   "entity": "AccountRecord",
+   "copybook": "app/cpy/CVACT01Y.cpy",
+   "record": "ACCOUNT-RECORD"
+  },
+  "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS": {
+   "input": "app/data/ASCII/custdata.txt",
+   "entity": "CustomerRecord",
+   "copybook": "app/cpy/CVCUS01Y.cpy",
+   "record": "CUSTOMER-RECORD"
+  },
+  "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS": {
+   "input": "app/data/ASCII/cardxref.txt",
+   "entity": "CardXrefRecord",
+   "copybook": "app/cpy/CVACT03Y.cpy",
+   "record": "CARD-XREF-RECORD"
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+    "record": "CARDDEMO-COMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "COPAU0A": {
+   "copybook": "app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy",
+   "input": "COPAU0AI",
+   "output": "COPAU0AO"
+  }
+ },
+ "ims": {
+  "dbd": [
+   "app/app-authorization-ims-db2-mq/ims/DBPAUTP0.dbd"
+  ],
+  "psb": "app/app-authorization-ims-db2-mq/ims/PSBPAUTB.psb",
+  "seed": {
+   "DBPAUTP0": {
+    "unload": "app/app-authorization-ims-db2-mq/data/EBCDIC/AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0.dat",
+    "skip": [
+     223
+    ]
+   }
+  },
+  "segments": {
+   "PAUTSUM0": {
+    "copybook": "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+    "record": "PENDING-AUTH-SUMMARY"
+   },
+   "PAUTDTL1": {
+    "copybook": "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+    "record": "PENDING-AUTH-DETAILS"
+   }
+  },
+  "compare": [
+   "DBPAUTP0"
+  ]
+ },
+ "notes": "CardDemo's pending-authorization summary screen (transaction CPVS, program COPAUS0C, app-authorization-ims-db2-mq): pseudo-conversational. Given an account it reads the card cross-reference (through the CXACAIX alternate index), the account and the customer, schedules PSB PSBPAUTB (EXEC DLI SCHD), reads the account's PAUTSUM0 summary segment (GU qualified by ACCNTID) and lists its PAUTDTL1 details five to a page (GNP, a sixth probes for a next page); PF8 / PF7 page forward and back by repositioning (GNP WHERE the page's key), an 'S' beside a row XCTLs to COPAUS1C, PF3 XCTLs to the caller. The PSB is released by SYNCPOINT before each SEND. The database is the corpus's own HD unload (22 roots, the last with a blank key left out), the VSAM files are CardDemo's data; the screen, the COMMAREA, every EXEC DLI / CICS event and the final database are compared. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+ "scenarios": [
+  {
+   "name": "first-entry-no-commarea",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "EIBCALEN 0: INITIALIZE the COMMAREA, send the empty screen (no account, no PSB scheduled)"
+  },
+  {
+   "name": "entered-from-menu-no-account",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "why": "CDEMO-PGM-CONTEXT 0 (not re-entered) and CDEMO-ACCT-ID not numeric: ACCTIDO blank, WS-ACCT-ID LOW-VALUES, GATHER-DETAILS does nothing"
+  },
+  {
+   "name": "entered-from-menu-with-account",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 5
+   },
+   "why": "CDEMO-PGM-CONTEXT 0 with a numeric CDEMO-ACCT-ID (5): the account's xref, account and customer are read, the PSB scheduled, the summary read by GU and its one detail listed"
+  },
+  {
+   "name": "enter-no-account",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": ""
+    }
+   },
+   "why": "ENTER with the account field blank: 'Please enter Acct Id...'"
+  },
+  {
+   "name": "enter-account-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "ABC"
+    }
+   },
+   "why": "ENTER with a non-numeric account: 'Acct Id must be Numeric ...'"
+  },
+  {
+   "name": "enter-account-one-page",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000017"
+    }
+   },
+   "why": "account 17: a summary and 2 details; the probe GNP after them ends the account (GE), no next page"
+  },
+  {
+   "name": "enter-account-single-detail",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000005"
+    }
+   },
+   "why": "account 5: one detail"
+  },
+  {
+   "name": "enter-account-two-pages",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000001"
+    }
+   },
+   "why": "account 1: 6 details, a full page of 5 and a probe that finds a sixth: NEXT-PAGE-YES, the page's first key kept"
+  },
+  {
+   "name": "enter-account-without-summary",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000002"
+    }
+   },
+   "why": "account 2 is in the xref, account and customer files but holds no PAUTSUM0: GU answers GE, the counts and balances show zero"
+  },
+  {
+   "name": "enter-account-not-in-xref",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000099"
+    }
+   },
+   "why": "account 99 is in no xref record: NOTFND is reported, the screen sent (the program goes on to read with the stale xref)"
+  },
+  {
+   "name": "enter-account-fifty-details",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000007"
+    }
+   },
+   "why": "account 7: 50 details (the largest chain)"
+  },
+  {
+   "name": "select-row-1",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CPVS-PAGE-NUM": 1,
+    "CDEMO-CPVS-PAUKEY-LAST": "vp\fv\u0090\u0091F\u009c",
+    "CDEMO-CPVS-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CPVS-PAUKEY-PREV-PG": "vi\u009c\u0099\u0087GDL",
+    "CDEMO-CPVS-AUTH-KEYS": "vi\u009c\u0099\u0087GDL",
+    "CDEMO-CPVS-AUTH-KEYS(2)": "vi\u009c\u0099\u0087H8\u008c",
+    "CDEMO-CPVS-AUTH-KEYS(3)": "vp\fv\u0090\u0089\u0011\\",
+    "CDEMO-CPVS-AUTH-KEYS(4)": "vp\fv\u0090\u00904|",
+    "CDEMO-CPVS-AUTH-KEYS(5)": "vp\fv\u0090\u0091F\u009c"
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000001",
+     "SEL0001I": "S"
+    }
+   },
+   "why": "'S' beside row 1: XCTL to COPAUS1C with that row's key"
+  },
+  {
+   "name": "select-row-3",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CPVS-PAGE-NUM": 1,
+    "CDEMO-CPVS-PAUKEY-LAST": "vp\fv\u0090\u0091F\u009c",
+    "CDEMO-CPVS-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CPVS-PAUKEY-PREV-PG": "vi\u009c\u0099\u0087GDL",
+    "CDEMO-CPVS-AUTH-KEYS": "vi\u009c\u0099\u0087GDL",
+    "CDEMO-CPVS-AUTH-KEYS(2)": "vi\u009c\u0099\u0087H8\u008c",
+    "CDEMO-CPVS-AUTH-KEYS(3)": "vp\fv\u0090\u0089\u0011\\",
+    "CDEMO-CPVS-AUTH-KEYS(4)": "vp\fv\u0090\u00904|",
+    "CDEMO-CPVS-AUTH-KEYS(5)": "vp\fv\u0090\u0091F\u009c"
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000001",
+     "SEL0003I": "S"
+    }
+   },
+   "why": "'S' beside row 3: XCTL to COPAUS1C with that row's key"
+  },
+  {
+   "name": "select-row-5",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CPVS-PAGE-NUM": 1,
+    "CDEMO-CPVS-PAUKEY-LAST": "vp\fv\u0090\u0091F\u009c",
+    "CDEMO-CPVS-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CPVS-PAUKEY-PREV-PG": "vi\u009c\u0099\u0087GDL",
+    "CDEMO-CPVS-AUTH-KEYS": "vi\u009c\u0099\u0087GDL",
+    "CDEMO-CPVS-AUTH-KEYS(2)": "vi\u009c\u0099\u0087H8\u008c",
+    "CDEMO-CPVS-AUTH-KEYS(3)": "vp\fv\u0090\u0089\u0011\\",
+    "CDEMO-CPVS-AUTH-KEYS(4)": "vp\fv\u0090\u00904|",
+    "CDEMO-CPVS-AUTH-KEYS(5)": "vp\fv\u0090\u0091F\u009c"
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000001",
+     "SEL0005I": "S"
+    }
+   },
+   "why": "'S' beside row 5: XCTL to COPAUS1C with that row's key"
+  },
+  {
+   "name": "select-lowercase",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CPVS-PAGE-NUM": 1,
+    "CDEMO-CPVS-PAUKEY-LAST": "vp\fv\u0090\u0091F\u009c",
+    "CDEMO-CPVS-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CPVS-PAUKEY-PREV-PG": "vi\u009c\u0099\u0087GDL",
+    "CDEMO-CPVS-AUTH-KEYS": "vi\u009c\u0099\u0087GDL",
+    "CDEMO-CPVS-AUTH-KEYS(2)": "vi\u009c\u0099\u0087H8\u008c",
+    "CDEMO-CPVS-AUTH-KEYS(3)": "vp\fv\u0090\u0089\u0011\\",
+    "CDEMO-CPVS-AUTH-KEYS(4)": "vp\fv\u0090\u00904|",
+    "CDEMO-CPVS-AUTH-KEYS(5)": "vp\fv\u0090\u0091F\u009c"
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000001",
+     "SEL0002I": "s"
+    }
+   },
+   "why": "'s' is a selection too"
+  },
+  {
+   "name": "select-invalid-code",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CPVS-PAGE-NUM": 1,
+    "CDEMO-CPVS-PAUKEY-LAST": "vp\fv\u0090\u0091F\u009c",
+    "CDEMO-CPVS-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CPVS-PAUKEY-PREV-PG": "vi\u009c\u0099\u0087GDL",
+    "CDEMO-CPVS-AUTH-KEYS": "vi\u009c\u0099\u0087GDL",
+    "CDEMO-CPVS-AUTH-KEYS(2)": "vi\u009c\u0099\u0087H8\u008c",
+    "CDEMO-CPVS-AUTH-KEYS(3)": "vp\fv\u0090\u0089\u0011\\",
+    "CDEMO-CPVS-AUTH-KEYS(4)": "vp\fv\u0090\u00904|",
+    "CDEMO-CPVS-AUTH-KEYS(5)": "vp\fv\u0090\u0091F\u009c"
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000001",
+     "SEL0001I": "X"
+    }
+   },
+   "why": "any code but S: 'Invalid selection. Valid value is S'"
+  },
+  {
+   "name": "pf3-to-menu",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-TO-PROGRAM": "COMEN01C"
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000001"
+    }
+   },
+   "why": "PF3 with a caller: XCTL to the program it was entered from"
+  },
+  {
+   "name": "pf3-no-caller",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 1
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000001"
+    }
+   },
+   "why": "PF3 with CDEMO-TO-PROGRAM spaces: XCTL to COSGN00C"
+  },
+  {
+   "name": "pf7-at-top",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CPVS-PAGE-NUM": 1,
+    "CDEMO-CPVS-PAUKEY-LAST": "vp\fv\u0090\u0091F\u009c",
+    "CDEMO-CPVS-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CPVS-PAUKEY-PREV-PG": "vi\u009c\u0099\u0087GDL",
+    "CDEMO-CPVS-AUTH-KEYS": "vi\u009c\u0099\u0087GDL",
+    "CDEMO-CPVS-AUTH-KEYS(2)": "vi\u009c\u0099\u0087H8\u008c",
+    "CDEMO-CPVS-AUTH-KEYS(3)": "vp\fv\u0090\u0089\u0011\\",
+    "CDEMO-CPVS-AUTH-KEYS(4)": "vp\fv\u0090\u00904|",
+    "CDEMO-CPVS-AUTH-KEYS(5)": "vp\fv\u0090\u0091F\u009c"
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000001"
+    }
+   },
+   "why": "PF7 on page 1: 'You are already at the top of the page...'"
+  },
+  {
+   "name": "pf8-to-page-two",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CPVS-PAGE-NUM": 1,
+    "CDEMO-CPVS-PAUKEY-LAST": "vp\fv\u0090\u0091F\u009c",
+    "CDEMO-CPVS-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CPVS-PAUKEY-PREV-PG": "vi\u009c\u0099\u0087GDL",
+    "CDEMO-CPVS-AUTH-KEYS": "vi\u009c\u0099\u0087GDL",
+    "CDEMO-CPVS-AUTH-KEYS(2)": "vi\u009c\u0099\u0087H8\u008c",
+    "CDEMO-CPVS-AUTH-KEYS(3)": "vp\fv\u0090\u0089\u0011\\",
+    "CDEMO-CPVS-AUTH-KEYS(4)": "vp\fv\u0090\u00904|",
+    "CDEMO-CPVS-AUTH-KEYS(5)": "vp\fv\u0090\u0091F\u009c"
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000001"
+    }
+   },
+   "why": "PF8 on page 1 of account 1: GU, GNP WHERE key = the page's last, then the sixth detail"
+  },
+  {
+   "name": "pf8-at-bottom",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 17,
+    "CDEMO-CPVS-PAGE-NUM": 1,
+    "CDEMO-CPVS-PAUKEY-LAST": "vp\f\u0083WI\u0018\u009c",
+    "CDEMO-CPVS-NEXT-PAGE-FLG": "N",
+    "CDEMO-CPVS-PAUKEY-PREV-PG": "vp\f\u0083Q\u00829\\",
+    "CDEMO-CPVS-AUTH-KEYS": "vp\f\u0083Q\u00829\\",
+    "CDEMO-CPVS-AUTH-KEYS(2)": "vp\f\u0083WI\u0018\u009c"
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000017"
+    }
+   },
+   "why": "PF8 on the last page (NEXT-PAGE-NO): 'You are already at the bottom of the page...'"
+  },
+  {
+   "name": "pf8-no-last-key",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CPVS-NEXT-PAGE-FLG": "N"
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000001"
+    }
+   },
+   "why": "PF8 with CDEMO-CPVS-PAUKEY-LAST blank: no GU, the flag decides"
+  },
+  {
+   "name": "pf7-from-page-two",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CPVS-PAGE-NUM": 2,
+    "CDEMO-CPVS-PAUKEY-LAST": "vp\f\u0083s\u0091'\u009c",
+    "CDEMO-CPVS-NEXT-PAGE-FLG": "N",
+    "CDEMO-CPVS-PAUKEY-PREV-PG": "vi\u009c\u0099\u0087GDL",
+    "CDEMO-CPVS-AUTH-KEYS": "vp\f\u0083s\u0091'\u009c"
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000001"
+    }
+   },
+   "why": "PF7 on page 2: back to page 1 from PREV-PG(1): GU, then GNP WHERE key = that key and 4 more"
+  },
+  {
+   "name": "pf5-invalid-key",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CPVS-PAGE-NUM": 1,
+    "CDEMO-CPVS-PAUKEY-LAST": "vp\fv\u0090\u0091F\u009c",
+    "CDEMO-CPVS-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CPVS-PAUKEY-PREV-PG": "vi\u009c\u0099\u0087GDL",
+    "CDEMO-CPVS-AUTH-KEYS": "vi\u009c\u0099\u0087GDL",
+    "CDEMO-CPVS-AUTH-KEYS(2)": "vi\u009c\u0099\u0087H8\u008c",
+    "CDEMO-CPVS-AUTH-KEYS(3)": "vp\fv\u0090\u0089\u0011\\",
+    "CDEMO-CPVS-AUTH-KEYS(4)": "vp\fv\u0090\u00904|",
+    "CDEMO-CPVS-AUTH-KEYS(5)": "vp\fv\u0090\u0091F\u009c"
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000001"
+    }
+   },
+   "why": "any other key: CCDA-MSG-INVALID-KEY"
+  },
+  {
+   "name": "read-xref-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000005"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CXACAIX",
+     "resp": "IOERR",
+     "why": "WHEN OTHER"
+    }
+   ],
+   "why": "WHEN OTHER of GETCARDXREF-BYACCT"
+  },
+  {
+   "name": "read-acct-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000005"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "ACCTDAT",
+     "resp": "IOERR",
+     "why": "WHEN OTHER"
+    }
+   ],
+   "why": "WHEN OTHER of GETACCTDATA-BYACCT"
+  },
+  {
+   "name": "read-cust-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000005"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTDAT",
+     "resp": "IOERR",
+     "why": "WHEN OTHER"
+    }
+   ],
+   "why": "WHEN OTHER of GETCUSTDATA-BYCUST"
+  }
+ ]
+}

@@ -1,0 +1,878 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "cbsa-abndproc",
+ "survivors": [
+  {
+   "id": "df54e9d034",
+   "op": "LIT",
+   "line": 47,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of WS-ABND-AREA (its first byte's VALUE): A010's first statement, MOVE DFHCOMMAREA TO WS-ABND-AREA, overwrites all 681 bytes before anything reads them"
+  },
+  {
+   "id": "3083a28c94",
+   "op": "LIT",
+   "line": 54,
+   "before": "\"MDAwMDAwMDAwMDAw\"));",
+   "after": "\"XDAwMDAwMDAwMDAw\"));",
+   "verdict": "equivalent",
+   "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; WS-EIBTASKN12 (LOCAL-STORAGE) is never read in a task, so its initial VALUE cannot show"
+  },
+  {
+   "id": "4366f5cb58",
+   "op": "LIT",
+   "line": 60,
+   "before": "\"ICAgICAgICAgIA==\"));",
+   "after": "\"XCAgICAgICAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; WS-ORIG-DATE is never read in a task, so its initial bytes cannot show"
+  },
+  {
+   "id": "82333ad388",
+   "op": "LIT",
+   "line": 62,
+   "before": "\"ICAuICAuICAgIA==\"));",
+   "after": "\"XCAuICAuICAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; WS-ORIG-DATE-GRP-X is never read in a task, so its initial VALUE cannot show"
+  },
+  {
+   "id": "426ffcf344",
+   "op": "LIT",
+   "line": 66,
+   "before": "\"ICAgICAg\"));",
+   "after": "\"XCAgICAg\"));",
+   "verdict": "equivalent",
+   "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; WS-SORT-DIV is never read in a task, so its initial bytes cannot show"
+  },
+  {
+   "id": "8cad26849d",
+   "op": "LIT",
+   "line": 72,
+   "before": "\"KzAwMDAwMDAw\"));",
+   "after": "\"XzAwMDAwMDAw\"));",
+   "verdict": "equivalent",
+   "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; SQLCODE-DISPLAY is never read in a task, so its initial bytes cannot show"
+  },
+  {
+   "id": "edf161aca0",
+   "op": "LIT",
+   "line": 77,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of WS-ABND-AREA (its first byte's VALUE): A010's first statement, MOVE DFHCOMMAREA TO WS-ABND-AREA, overwrites all 681 bytes before anything reads them"
+  },
+  {
+   "id": "38d7e55252",
+   "op": "LIT",
+   "line": 79,
+   "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (a later chunk): runTask's in_/raw load writes every one of the 681 bytes from the caller's COMMAREA before the PROCEDURE DIVISION runs; ABNDPROC is only LINKed with an ABNDINFO COMMAREA"
+  },
+  {
+   "id": "497c2a6a45",
+   "op": "LIT",
+   "line": 80,
+   "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (a later chunk): runTask's in_/raw load writes every one of the 681 bytes from the caller's COMMAREA before the PROCEDURE DIVISION runs; ABNDPROC is only LINKed with an ABNDINFO COMMAREA"
+  },
+  {
+   "id": "7666210b72",
+   "op": "LIT",
+   "line": 86,
+   "before": "\"AAA=\"));",
+   "after": "\"XAA=\"));",
+   "verdict": "equivalent",
+   "reason": "GG-RETURN-CODE (RETURN-CODE) is read only by runProgram / runBatch, which a CICS task never calls (out of scope); a task never reads it"
+  },
+  {
+   "id": "e2875b584e",
+   "op": "CON",
+   "line": 112,
+   "before": "private final Field f75_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f75_EIBDATE = Field.packed(s_DFHEIBLK, 4, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; the EIB (no EIB field is referenced) is never read in a task, so its EIBDATE width (8 digits spill into EIBTRNID's first byte, also never read) cannot show"
+  },
+  {
+   "id": "7b20afb81d",
+   "op": "CON",
+   "line": 114,
+   "before": "private final Field f77_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f77_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; the EIB (no EIB field is referenced) is never read in a task, so its EIBTASKN scale cannot show"
+  },
+  {
+   "id": "873caedc50",
+   "op": "CON",
+   "line": 115,
+   "before": "private final Field f78_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+   "after": "private final Field f78_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 17, 4, false);",
+   "verdict": "equivalent",
+   "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; the EIB (no EIB field is referenced) is never read in a task, so its EIBTRMID offset (bytes 17-20, never read) cannot show"
+  },
+  {
+   "id": "f0189e1c74",
+   "op": "CON",
+   "line": 118,
+   "before": "private final Field f103_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+   "after": "private final Field f103_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; the EIB (no EIB field is referenced) is never read in a task, so its EIBRESP2 scale (the WRITE's RESP2 is read through WS-CICS-RESP2, a separate store) cannot show"
+  },
+  {
+   "id": "a4254e1b91",
+   "op": "CON",
+   "line": 119,
+   "before": "private final Field f105_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f105_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "GG-RETURN-CODE (RETURN-CODE) is read only by runProgram / runBatch, which a CICS task never calls; its width cannot show in a task"
+  },
+  {
+   "id": "35148e5c68",
+   "op": "NEG",
+   "line": 139,
+   "before": "if (task.level() > 1) {",
+   "after": "if (!(task.level() > 1)) {",
+   "verdict": "unreachable",
+   "reason": "abended() is called only from condition(); condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() -- and abended(), reached only from it -- never runs"
+  },
+  {
+   "id": "431b8157fd",
+   "op": "LIT",
+   "line": 148,
+   "before": "case \"ABNDFILE\" -> new DetCics.Store<WsAbndArea>(wsAbndAreaRepository::findAll, e -> e.toRecord(CS), b -> WsAbndArea.fromRecord(b, CS), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.save(e)), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.delete(e)), 0, 12, CS).withFindById(rec -> wsAbndAreaRepository.findById(id_WsAbndArea(rec)));",
+   "after": "case \"ABNDFILE\" -> new DetCics.Store<WsAbndArea>(wsAbndAreaRepository::findAll, e -> e.toRecord(CS), b -> WsAbndArea.fromRecord(b, CS), e -> task.write(\"ABNDFILE\", () -> wsAbndAreaRepository.save(e)), e -> task.write(\"XBNDFILE\", () -> wsAbndAreaRepository.delete(e)), 0, 12, CS).withFindById(rec -> wsAbndAreaRepository.findById(id_WsAbndArea(rec)));",
+   "verdict": "unreachable",
+   "reason": "the ABNDFILE store's delete callback is called only by a DELETE command; ABNDPROC issues none (its one command is the WRITE)"
+  },
+  {
+   "id": "1e9c9e3013",
+   "op": "LIT",
+   "line": 149,
+   "before": "default -> throw new Hole(\"CICS file \" + n + \": no store in the generated project\");",
+   "after": "default -> throw new Hole(\"CICS file \" + n + \"X no store in the generated project\");",
+   "verdict": "unreachable",
+   "reason": "store()'s default arm runs for a file name other than ABNDFILE; ABNDPROC's only file command names FILE('ABNDFILE') (a literal)"
+  },
+  {
+   "id": "1aab45b944",
+   "op": "LIT",
+   "line": 154,
+   "before": "java.util.Map.entry(\"GMOOH999\", 5),",
+   "after": "java.util.Map.entry(\"XMOOH999\", 5),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS is read only by paragraph(), a HANDLE label's lookup: condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() and everything reached only from it never runs"
+  },
+  {
+   "id": "4f141785ca",
+   "op": "LIT",
+   "line": 157,
+   "before": "java.util.Map.entry(\"A999\", 2),",
+   "after": "java.util.Map.entry(\"X999\", 2),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS is read only by paragraph(), a HANDLE label's lookup: condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() -- and paragraph(), reached only from it -- never runs"
+  },
+  {
+   "id": "2bd9c25d2a",
+   "op": "LIT",
+   "line": 159,
+   "before": "java.util.Map.entry(\"PREMIERE\", 0)",
+   "after": "java.util.Map.entry(\"XREMIERE\", 0)",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS is read only by paragraph(), a HANDLE label's lookup: condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() and everything reached only from it never runs"
+  },
+  {
+   "id": "69d6fe7d61",
+   "op": "NEG",
+   "line": 164,
+   "before": "if (i == null) {",
+   "after": "if (!(i == null)) {",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() -- and paragraph(), reached only from it -- never runs"
+  },
+  {
+   "id": "1ab726d746",
+   "op": "ROR",
+   "line": 177,
+   "before": "if (h != null) {",
+   "after": "if (h == null) {",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() and everything reached only from it never runs"
+  },
+  {
+   "id": "3c50e81e6e",
+   "op": "NEG",
+   "line": 177,
+   "before": "if (h != null) {",
+   "after": "if (!(h != null)) {",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() -- and this test, reached only from it -- never runs"
+  },
+  {
+   "id": "32db51eac6",
+   "op": "NEG",
+   "line": 184,
+   "before": "if (error != null) {",
+   "after": "if (!(error != null)) {",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() -- and this test, reached only from it -- never runs"
+  },
+  {
+   "id": "cf1586af69",
+   "op": "ROR",
+   "line": 184,
+   "before": "if (error != null) {",
+   "after": "if (error == null) {",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() -- and this test, reached only from it -- never runs"
+  },
+  {
+   "id": "4f54b4400e",
+   "op": "NEG",
+   "line": 188,
+   "before": "if (label == null) {",
+   "after": "if (!(label == null)) {",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; ABNDPROC's one command, the WRITE (ABNDPROC.cbl A010), has RESP(WS-CICS-RESP) RESP2, so condition() -- and this test, reached only from it -- never runs"
+  },
+  {
+   "id": "04e3650d74",
+   "op": "ROR",
+   "line": 199,
+   "before": "if (d == null) {",
+   "after": "if (d != null) {",
+   "verdict": "harness-gap",
+   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+  },
+  {
+   "id": "526286d7be",
+   "op": "NEG",
+   "line": 199,
+   "before": "if (d == null) {",
+   "after": "if (!(d == null)) {",
+   "verdict": "harness-gap",
+   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+  },
+  {
+   "id": "3a7b1233ca",
+   "op": "AOR",
+   "line": 202,
+   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "after": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base - 0, 15, 0, true), CS);",
+   "verdict": "equivalent",
+   "reason": "`base - 0` for `base + 0`: the same offset"
+  },
+  {
+   "id": "73a403878a",
+   "op": "CON",
+   "line": 202,
+   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "after": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 1, 15, 0, true), CS);",
+   "verdict": "harness-gap",
+   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+  },
+  {
+   "id": "75b8892b91",
+   "op": "DEL",
+   "line": 202,
+   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "after": "/* Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS); */",
+   "verdict": "harness-gap",
+   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+  },
+  {
+   "id": "cdea3df381",
+   "op": "ROR",
+   "line": 202,
+   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "after": "Cobol.move(d.getAbndUtimeKey() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "verdict": "harness-gap",
+   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+  },
+  {
+   "id": "c15c6af55c",
+   "op": "DEL",
+   "line": 203,
+   "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+   "after": "/* Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS); */",
+   "verdict": "harness-gap",
+   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+  },
+  {
+   "id": "d5d2e509d5",
+   "op": "ROR",
+   "line": 203,
+   "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAbndTasknoKey() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+  },
+  {
+   "id": "763a818e43",
+   "op": "ROR",
+   "line": 204,
+   "before": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndApplid() != null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+  },
+  {
+   "id": "09ff323296",
+   "op": "ROR",
+   "line": 205,
+   "before": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);",
+   "after": "Cobol.move(d.getAbndTranid() != null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+  },
+  {
+   "id": "45ccd8b5f7",
+   "op": "CON",
+   "line": 205,
+   "before": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);",
+   "after": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 5, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in_: ABND-TRANID moved into 5 bytes (20-24) instead of 4 spills one byte into ABND-DATE (24), which the next statement, the ABND-DATE move into 24-33, overwrites"
+  },
+  {
+   "id": "411faa55d7",
+   "op": "CON",
+   "line": 206,
+   "before": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 10, false), CS);",
+   "after": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 11, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in_: ABND-DATE moved into 11 bytes (24-34) instead of 10 spills one byte into ABND-TIME (34), which the next statement, the ABND-TIME move into 34-41, overwrites"
+  },
+  {
+   "id": "a1e6306e30",
+   "op": "ROR",
+   "line": 207,
+   "before": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndTime() != null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 8, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+  },
+  {
+   "id": "3907d5c333",
+   "op": "ROR",
+   "line": 209,
+   "before": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndProgram() != null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+  },
+  {
+   "id": "f4f08aa986",
+   "op": "CON",
+   "line": 209,
+   "before": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 9, false), CS);",
+   "verdict": "equivalent",
+   "reason": "in_: ABND-PROGRAM moved into 9 bytes (46-54) instead of 8 spills one byte into ABND-RESPCODE (54), which the next statement, the ABND-RESPCODE move into 54-62, overwrites"
+  },
+  {
+   "id": "2b6bd96a40",
+   "op": "CON",
+   "line": 211,
+   "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 9, 0, true, true, true), CS);",
+   "verdict": "harness-gap",
+   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+  },
+  {
+   "id": "9d27dd8661",
+   "op": "ROR",
+   "line": 211,
+   "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndResp2Code() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+   "verdict": "harness-gap",
+   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+  },
+  {
+   "id": "231d1a8349",
+   "op": "CON",
+   "line": 212,
+   "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 73, 8, 0, true, true, true), CS);",
+   "verdict": "harness-gap",
+   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+  },
+  {
+   "id": "a6e401d722",
+   "op": "ROR",
+   "line": 212,
+   "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndSqlcode() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+   "verdict": "harness-gap",
+   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+  },
+  {
+   "id": "e37f22976c",
+   "op": "DEL",
+   "line": 212,
+   "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+   "after": "/* Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS); */",
+   "verdict": "harness-gap",
+   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+  },
+  {
+   "id": "821ade5944",
+   "op": "ROR",
+   "line": 213,
+   "before": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);",
+   "after": "Cobol.move(d.getAbndFreeform() != null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+  },
+  {
+   "id": "b20023c5e0",
+   "op": "CON",
+   "line": 219,
+   "before": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 8, false), CS));",
+   "after": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 9, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "the DTO that fill_ stores back is not what the proof compares for a LINKed ABNDPROC: a 9-byte read of ABND-APPLID gives 'CBSAAPPLO' in the Java COMMAREA event and the proof still reports 2/2 events equal (probe of mutant b20023c5e0); ABNDPROC never writes DFHCOMMAREA, so the correct value is the one it was given"
+  },
+  {
+   "id": "0bae7c34ee",
+   "op": "CON",
+   "line": 223,
+   "before": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 4, false), CS));",
+   "after": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 43, 4, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "the DTO that fill_ stores back is not what the proof compares for a LINKed ABNDPROC: a 9-byte read of ABND-APPLID gives 'CBSAAPPLO' in the Java COMMAREA event and the proof still reports 2/2 events equal (probe of mutant b20023c5e0); ABNDPROC never writes DFHCOMMAREA, so the correct value is the one it was given"
+  },
+  {
+   "id": "e69b8d3266",
+   "op": "CON",
+   "line": 225,
+   "before": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 9, 0, true, true, true), CS).intValue());",
+   "verdict": "harness-gap",
+   "reason": "the DTO that fill_ stores back is not what the proof compares for a LINKed ABNDPROC: a 9-byte read of ABND-APPLID gives 'CBSAAPPLO' in the Java COMMAREA event and the proof still reports 2/2 events equal (probe of mutant b20023c5e0); ABNDPROC never writes DFHCOMMAREA, so the correct value is the one it was given"
+  },
+  {
+   "id": "d65cd6d9db",
+   "op": "CON",
+   "line": 226,
+   "before": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 1, true, true, true), CS).intValue());",
+   "verdict": "harness-gap",
+   "reason": "the DTO that fill_ stores back is not what the proof compares for a LINKed ABNDPROC: a 9-byte read of ABND-APPLID gives 'CBSAAPPLO' in the Java COMMAREA event and the proof still reports 2/2 events equal (probe of mutant b20023c5e0); ABNDPROC never writes DFHCOMMAREA, so the correct value is the one it was given"
+  },
+  {
+   "id": "b1e0d71081",
+   "op": "DEL",
+   "line": 228,
+   "before": "d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 81, 600, false), CS));",
+   "after": "/* d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 81, 600, false), CS)); */",
+   "verdict": "equivalent",
+   "reason": "ABNDPROC never writes DFHCOMMAREA, so on the way back each fill_ setter stores the value in_ took from the same DTO field (ABND-FREEFORM), padded to the field's width; without it the DTO keeps the caller's value -- the same COMMAREA bytes once laid out as the record, which is what a caller receives"
+  },
+  {
+   "id": "4ac8044f45",
+   "op": "DEL",
+   "line": 233,
+   "before": "fill_AbndprocDfhcommarea(d, s, base);",
+   "after": "/* fill_AbndprocDfhcommarea(d, s, base); */",
+   "verdict": "unreachable",
+   "reason": "out_AbndprocDfhcommarea has no caller in the port: ABNDPROC is entered by LINK only (runTask / handleLink write the caller's DTO back through caBack -> fill_, never out_)"
+  },
+  {
+   "id": "13b78b61db",
+   "op": "DEL",
+   "line": 260,
+   "before": "System.arraycopy(IMAGE_s_WS_CICS_WORK_AREA, 0, s_WS_CICS_WORK_AREA.bytes, 0, IMAGE_s_WS_CICS_WORK_AREA.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_CICS_WORK_AREA, 0, s_WS_CICS_WORK_AREA.bytes, 0, IMAGE_s_WS_CICS_WORK_AREA.length); */",
+   "verdict": "equivalent",
+   "reason": "WS-CICS-WORK-AREA's VALUE image: every item ABNDPROC reads from it (WS-CICS-RESP / RESP2) is written by the WRITE's RESP before it is read, so its initial bytes cannot show"
+  },
+  {
+   "id": "5b8a7c4b1d",
+   "op": "DEL",
+   "line": 262,
+   "before": "System.arraycopy(IMAGE_s_DB2_DATE_REFORMAT, 0, s_DB2_DATE_REFORMAT.bytes, 0, IMAGE_s_DB2_DATE_REFORMAT.length);",
+   "after": "/* System.arraycopy(IMAGE_s_DB2_DATE_REFORMAT, 0, s_DB2_DATE_REFORMAT.bytes, 0, IMAGE_s_DB2_DATE_REFORMAT.length); */",
+   "verdict": "equivalent",
+   "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; DB2-DATE-REFORMAT is never read in a task, so its initial bytes cannot show"
+  },
+  {
+   "id": "86a20c123a",
+   "op": "DEL",
+   "line": 265,
+   "before": "System.arraycopy(IMAGE_s_WS_SQLCODE_DISP, 0, s_WS_SQLCODE_DISP.bytes, 0, IMAGE_s_WS_SQLCODE_DISP.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_SQLCODE_DISP, 0, s_WS_SQLCODE_DISP.bytes, 0, IMAGE_s_WS_SQLCODE_DISP.length); */",
+   "verdict": "equivalent",
+   "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; WS-SQLCODE-DISP is never read in a task, so its VALUE 0 cannot show"
+  },
+  {
+   "id": "290f3d76ae",
+   "op": "DEL",
+   "line": 274,
+   "before": "System.arraycopy(IMAGE_s_MY_ABEND_CODE, 0, s_MY_ABEND_CODE.bytes, 0, IMAGE_s_MY_ABEND_CODE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_MY_ABEND_CODE, 0, s_MY_ABEND_CODE.bytes, 0, IMAGE_s_MY_ABEND_CODE.length); */",
+   "verdict": "equivalent",
+   "reason": "MY-ABEND-CODE (ABNDPROC.cbl 01-level) is never referenced in the PROCEDURE DIVISION; its initial bytes cannot show"
+  },
+  {
+   "id": "9a4085c3d1",
+   "op": "DEL",
+   "line": 300,
+   "before": "caBack = () -> { };",
+   "after": "/* caBack = () -> { }; */",
+   "verdict": "harness-gap",
+   "reason": "caBack's empty default is replaced at line 317 (DTO) before use; it would show only for a task with no COMMAREA, which ABNDPROC is never given in the case (it is only LINKed with an ABNDINFO COMMAREA)"
+  },
+  {
+   "id": "37eaf81370",
+   "op": "DEL",
+   "line": 303,
+   "before": "initialState();",
+   "after": "/* initialState(); */",
+   "verdict": "equivalent",
+   "reason": "without initialState() the storage starts as the previous task left it (or zeros); every item ABNDPROC reads is written first in each task -- WS-ABND-AREA by the MOVE, WS-CICS-RESP / RESP2 by the WRITE's RESP, DFHCOMMAREA from the caller -- so no VALUE clause can show"
+  },
+  {
+   "id": "9354680a50",
+   "op": "DEL",
+   "line": 306,
+   "before": "Cobol.store(f77_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
+   "after": "/* Cobol.store(f77_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; the EIB (no EIB field is referenced) is never read in a task, so its EIBTASKN cannot show"
+  },
+  {
+   "id": "3218ea485e",
+   "op": "AOR",
+   "line": 308,
+   "before": "Cobol.store(f75_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f75_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; the EIB (no EIB field is referenced) is never read in a task, so its EIBDATE cannot show"
+  },
+  {
+   "id": "fc63acd274",
+   "op": "AOR",
+   "line": 308,
+   "before": "Cobol.store(f75_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f75_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; the EIB (no EIB field is referenced) is never read in a task, so its EIBDATE cannot show"
+  },
+  {
+   "id": "7c101847e3",
+   "op": "AOR",
+   "line": 309,
+   "before": "Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; the EIB (no EIB field is referenced) is never read in a task, so its EIBTIME cannot show"
+  },
+  {
+   "id": "8706082593",
+   "op": "AOR",
+   "line": 309,
+   "before": "Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "ABNDPROC's PROCEDURE DIVISION reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; no EIB field is referenced, so this store cannot show"
+  },
+  {
+   "id": "a716cee799",
+   "op": "AOR",
+   "line": 309,
+   "before": "Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f74_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "ABNDPROC's PROCEDURE DIVISION (A010, GET-ME-OUT-OF-HERE) reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; the EIB (no EIB field is referenced) is never read in a task, so its EIBTIME cannot show"
+  },
+  {
+   "id": "a0ca4e3909",
+   "op": "DEL",
+   "line": 317,
+   "before": "caBack = () -> fill_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0);",
+   "after": "/* caBack = () -> fill_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0); */",
+   "verdict": "harness-gap",
+   "reason": "the DTO that fill_ stores back is not what the proof compares for a LINKed ABNDPROC: a 9-byte read of ABND-APPLID gives 'CBSAAPPLO' in the Java COMMAREA event and the proof still reports 2/2 events equal (probe of mutant b20023c5e0); ABNDPROC never writes DFHCOMMAREA, so the correct value is the one it was given"
+  },
+  {
+   "id": "0c90ce2329",
+   "op": "NEG",
+   "line": 324,
+   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
+   "verdict": "harness-gap",
+   "reason": "ca is a byte[] only when a raw byte COMMAREA is the task's COMMAREA object; the harness gives ABNDPROC a DTO (the bytes arrive through task.linkArea(), the next block)"
+  },
+  {
+   "id": "ec6d8f020b",
+   "op": "ROR",
+   "line": 324,
+   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "harness-gap",
+   "reason": "ca is a byte[] only when a raw byte COMMAREA is the task's COMMAREA object; the harness gives ABNDPROC a DTO (the bytes arrive through task.linkArea(), the next block)"
+  },
+  {
+   "id": "c544949718",
+   "op": "DEL",
+   "line": 327,
+   "before": "calen = cx(task, cb.length);",
+   "after": "/* calen = cx(task, cb.length); */",
+   "verdict": "harness-gap",
+   "reason": "ca is a byte[] only when a raw byte COMMAREA is the task's COMMAREA object; the harness gives ABNDPROC a DTO (the bytes arrive through task.linkArea(), the next block)"
+  },
+  {
+   "id": "a2702538dd",
+   "op": "ROR",
+   "line": 330,
+   "before": "if (raw != null) {",
+   "after": "if (raw == null) {",
+   "verdict": "harness-gap",
+   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+  },
+  {
+   "id": "dc04666b7f",
+   "op": "NEG",
+   "line": 330,
+   "before": "if (raw != null) {",
+   "after": "if (!(raw != null)) {",
+   "verdict": "harness-gap",
+   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+  },
+  {
+   "id": "5176ad03f8",
+   "op": "ROR",
+   "line": 333,
+   "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+   "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+   "verdict": "harness-gap",
+   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+  },
+  {
+   "id": "83886b4d92",
+   "op": "AOR",
+   "line": 335,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
+   "verdict": "harness-gap",
+   "reason": "runTask loads DFHCOMMAREA twice: from the DTO (in_AbndprocDfhcommarea) and from the LINK area's bytes (task.linkArea()); the harness hands ABNDPROC both, with the same bytes (probe: 16 runs, d != null and raw != null in all), so either load alone fills the 681 bytes and the mutant of one is covered by the other. A task given only a DTO (or only bytes) is not expressible in the case"
+  },
+  {
+   "id": "9abc1166d7",
+   "op": "COR",
+   "line": 338,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "equivalent",
+   "reason": "task.exactCommarea() is false for ABNDPROC's task (the LINK area is its full 681 bytes, calen == 681): this block keeps the full bytes either way (copyOf at the same length), so each form of the test gives the same storage"
+  },
+  {
+   "id": "9fed0a6940",
+   "op": "NEG",
+   "line": 338,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {",
+   "verdict": "equivalent",
+   "reason": "task.exactCommarea() is false for ABNDPROC's task (the LINK area is its full 681 bytes, calen == 681): this block keeps the full bytes either way (copyOf at the same length), so each form of the test gives the same storage"
+  },
+  {
+   "id": "d875d247cb",
+   "op": "ROR",
+   "line": 338,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "equivalent",
+   "reason": "task.exactCommarea() is false for ABNDPROC's task (the LINK area is its full 681 bytes, calen == 681): this block keeps the full bytes either way (copyOf at the same length), so each form of the test gives the same storage"
+  },
+  {
+   "id": "0b81104c29",
+   "op": "DEL",
+   "line": 340,
+   "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
+   "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */",
+   "verdict": "unreachable",
+   "reason": "task.exactCommarea() is false for ABNDPROC's task (the LINK area is its full 681 bytes, calen == 681): this block never runs"
+  },
+  {
+   "id": "ed8f280a0e",
+   "op": "NEG",
+   "line": 353,
+   "before": "if (caWhole == null) {",
+   "after": "if (!(caWhole == null)) {",
+   "verdict": "unreachable",
+   "reason": "the IndexOutOfBoundsException handler runs only for a short exact COMMAREA (task.exactCommarea() with calen < 681); ABNDPROC's is never short"
+  },
+  {
+   "id": "27e1328d44",
+   "op": "DEL",
+   "line": 363,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "equivalent",
+   "reason": "ABNDPROC never writes DFHCOMMAREA: the write-back stores the bytes it loaded, which the caller already holds (see the fill_ and raw copy-back verdicts)"
+  },
+  {
+   "id": "ab70151d60",
+   "op": "LIT",
+   "line": 381,
+   "before": "CicsTask task = region.linked(\"ABNDPROC\", request, area);",
+   "after": "CicsTask task = region.linked(\"XBNDPROC\", request, area);",
+   "verdict": "case-gap",
+   "reason": "the program name labels the linked task for a caller's LINK trace; the case starts ABNDPROC directly, not through a CBSA caller's det port. Killed by a case where a CBSA caller LINKs ABNDPROC (its abend path)"
+  },
+  {
+   "id": "d8251506f1",
+   "op": "LIT",
+   "line": 382,
+   "before": "region.run(task, \"ABNDPROC\", this::runTask);",
+   "after": "region.run(task, \"XBNDPROC\", this::runTask);",
+   "verdict": "case-gap",
+   "reason": "the program name labels the linked task for a caller's LINK trace; the case starts ABNDPROC directly, not through a CBSA caller's det port. Killed by a case where a CBSA caller LINKs ABNDPROC (its abend path)"
+  },
+  {
+   "id": "183a77dcf0",
+   "op": "COR",
+   "line": 384,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "verdict": "case-gap",
+   "reason": "lastLinkBytes is read only by a caller's facade that LINKs ABNDPROC with a byte area; the case calls handleLink itself and does not read it. Killed by a caller case"
+  },
+  {
+   "id": "8eb99939c5",
+   "op": "ROR",
+   "line": 384,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "verdict": "case-gap",
+   "reason": "lastLinkBytes is read only by a caller's facade that LINKs ABNDPROC with a byte area; the case calls handleLink itself and does not read it. Killed by a caller case"
+  },
+  {
+   "id": "f28bd5ad1a",
+   "op": "DEL",
+   "line": 403,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "equivalent",
+   "reason": "Goback's super(null, null, false, false) only turns off the stack trace and message; the exception is caught by type"
+  },
+  {
+   "id": "e1b3ff7c54",
+   "op": "AOR",
+   "line": 454,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "unreachable",
+   "reason": "performThru grows only at a PERFORM nesting depth of 64 (mine == length); ABNDPROC nests at most 2"
+  },
+  {
+   "id": "298a3e2612",
+   "op": "NEG",
+   "line": 463,
+   "before": "if (!jumped) {",
+   "after": "if (!(!jumped)) {",
+   "verdict": "equivalent",
+   "reason": "every path of ABNDPROC ends in EXEC CICS RETURN (A010's error branch or GMOOH010), a Goback, before control reaches GMOOH999, the end of either PERFORM range (0-5 from runTask, 3-5 from A010); there is no GO TO, so the end-of-range checks this test guards never find a range end (`i == thru` or an outer range's last paragraph) to act on"
+  },
+  {
+   "id": "2f6c94b69f",
+   "op": "ROR",
+   "line": 467,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "every path of ABNDPROC ends in EXEC CICS RETURN (A010's error branch or GMOOH010), a Goback, before control reaches GMOOH999, the end of either PERFORM range (0-5 from runTask, 3-5 from A010); there is no GO TO, so the outer range's last paragraph (5) is never the paragraph just run, and skipping depth 0 in the scan changes nothing"
+  },
+  {
+   "id": "12dc7e929c",
+   "op": "NEG",
+   "line": 468,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (!(performThru[d] == i)) {",
+   "verdict": "equivalent",
+   "reason": "negated, the scan throws PerformExit(0) when GET-ME-OUT-OF-HERE (3) returns, ending the outer PERFORM; runTask then ends the task as for a GOBACK (caBack, returnTransid) -- the same COMMAREA write-back and RETURN event GMOOH010's EXEC CICS RETURN gives, with no file or COMMAREA change between"
+  },
+  {
+   "id": "c271956b22",
+   "op": "NEG",
+   "line": 479,
+   "before": "if (e.depth != mine) {",
+   "after": "if (!(e.depth != mine)) {",
+   "verdict": "unreachable",
+   "reason": "every path of ABNDPROC ends in EXEC CICS RETURN (A010's error branch or GMOOH010), a Goback, before control reaches GMOOH999, the end of either PERFORM range (0-5 from runTask, 3-5 from A010); there is no GO TO, so no PerformExit is ever thrown, and this catch never runs"
+  },
+  {
+   "id": "4116ddde48",
+   "op": "DEL",
+   "line": 483,
+   "before": "performDepth = mine;",
+   "after": "/* performDepth = mine; */",
+   "verdict": "equivalent",
+   "reason": "performDepth is reset to 0 at the start of every task (initialState area, line 285); the restore in finally matters only to a later PERFORM in the same task, and every PERFORM here ends in a Goback"
+  },
+  {
+   "id": "163a58ada7",
+   "op": "DEL",
+   "line": 511,
+   "before": "Cobol.store(f102_EIBRESP, BigDecimal.valueOf(resp1), false, CS);",
+   "after": "/* Cobol.store(f102_EIBRESP, BigDecimal.valueOf(resp1), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "ABNDPROC's PROCEDURE DIVISION reads only DFHCOMMAREA, WS-ABND-AREA and WS-CICS-RESP; no EIB field is referenced, so this store cannot show"
+  },
+  {
+   "id": "b5a4a71f23",
+   "op": "DEL",
+   "line": 527,
+   "before": "task.returnTransid(null, null);",
+   "after": "/* task.returnTransid(null, null); */",
+   "verdict": "equivalent",
+   "reason": "the error branch's RETURN without its returnTransid: the Goback that follows ends the program, and runTask ends a task not yet ended exactly as RETURN does (caBack.run(), returnTransid(null, null)); caBack is idempotent (fill_ stores the same values)"
+  },
+  {
+   "id": "a6064c2fee",
+   "op": "DEL",
+   "line": 531,
+   "before": "perform(3, 5);",
+   "after": "/* perform(3, 5); */",
+   "verdict": "equivalent",
+   "reason": "without PERFORM GET-ME-OUT-OF-HERE control falls through A999 (EXIT) into GET-ME-OUT-OF-HERE's GMOOH010 and its EXEC CICS RETURN: the same statements in the same order (the PERFORM never returns)"
+  },
+  {
+   "id": "2c1802128f",
+   "op": "NEG",
+   "line": 552,
+   "before": "if (true) throw new Goback();",
+   "after": "if (!(true)) throw new Goback();",
+   "verdict": "equivalent",
+   "reason": "GMOOH010's EXEC CICS RETURN without its throw: the next statement, GOBACK, throws the same Goback with nothing between"
+  },
+  {
+   "id": "fc0ea4d53c",
+   "op": "NEG",
+   "line": 554,
+   "before": "if (true) throw new Goback();",
+   "after": "if (!(true)) throw new Goback();",
+   "verdict": "equivalent",
+   "reason": "GMOOH010's EXEC CICS RETURN without its throw: the next statement, GOBACK, throws the same Goback with nothing between"
+  }
+ ]
+}

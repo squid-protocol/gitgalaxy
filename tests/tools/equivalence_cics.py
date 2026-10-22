@@ -2444,6 +2444,13 @@ def substitute_install_symbols(name: str, symbols: dict[str, str]) -> str:
     return _INSTALL_SYMBOL.sub(lambda m: symbols.get(m.group(1).upper(), m.group(0)), name.upper())
 
 
+def _cfg_file_name(case: dict[str, Any], f: dict[str, Any]) -> str:
+    """The name the stub's files.cfg gives a CICS file: the CSD's template (`ZC@ID@KEY`) with the case's install symbols
+    resolved (`ZC01KEY`), the name the program's FILE option holds at run time; unchanged without a stated symbol."""
+    symbols = install_symbols(case.get("install_symbols"))
+    return substitute_install_symbols(f["file"], symbols) if symbols else f["file"]
+
+
 def stub_files(
     ir: Any,
     program_file: str,
@@ -3307,7 +3314,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     (src / "PROGRAM.cbl").write_text(text, encoding=staged)
     (src / "EQCICSDR.cbl").write_text(cics_driver(case["program"], has_commarea), encoding="ascii")
     (work / "files.cfg").write_text("".join(
-        f"{f['file']} /work/files/{f['base']} {f['reclen']} {f['key_offset']} {f['key_length']}{_cfg_flags(case, f)}\n"
+        f"{_cfg_file_name(case, f)} /work/files/{f['base']} {f['reclen']} {f['key_offset']} {f['key_length']}{_cfg_flags(case, f)}\n"
         for f in files
     ), encoding="ascii")  # fmt: skip
     (work / "files").mkdir(exist_ok=True)
@@ -3335,7 +3342,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                                     "compiled_name": f"SUB{name}.cbl"})  # fmt: skip
     # (#4950: or the program itself CALLs one -- CBSA CRECUST's CEEDAYS / CEELOCT; #5076: or a program it LINKs in the
     # task does, BNK1CCS -> CRECUST)
-    le_call = re.compile(r"(?i)\bCALL\s+['\"]CEE|\bCOPY\s+CSDB2RPY\b|\bDSNTIAC\b|\bZUIDSTCK\b")  # #5858: DSNTIAC's model too; #5945: ZUIDSTCK's
+    le_call = re.compile(
+        r"(?i)\bCALL\s+['\"]CEE|\bCOPY\s+CSDB2RPY\b|\bDSNTIAC\b|\bZUIDSTCK\b"
+    )  # #5858: DSNTIAC's model too; #5945: ZUIDSTCK's
     calls_le = le_call.search(source) or any(
         le_call.search(common.read_program(case, corpus / extra["program_source"])[0])
         for extra in case.get("programs", [])
@@ -3443,7 +3452,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             if over is not None:
                 (d / "files" / f["base"]).write_bytes(case_file_records(case, corpus, over, f["reclen"], enc))
         (d / "files.cfg").write_text("".join(
-            f"{f['file']} /work/scenarios/{sc['name']}/files/{f['base']} {f['reclen']} {f['key_offset']} "
+            f"{_cfg_file_name(case, f)} /work/scenarios/{sc['name']}/files/{f['base']} {f['reclen']} {f['key_offset']} "
             f"{f['key_length']}{_cfg_flags(case, f)}\n" for f in files
         ), encoding="ascii")  # fmt: skip
         if sc.get("commarea") is not None:
@@ -4604,9 +4613,7 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
 
     pkg = ej.PKG
     # #5945: the scenario's stated TOD for CALL ZUIDSTCK (only a case that states one carries the driver lines)
-    tod_stmt = (
-        '            stateTod(sc.has("tod") ? sc.get("tod").asText() : null);\n' if case_states_tod(case) else ""
-    )
+    tod_stmt = '            stateTod(sc.has("tod") ? sc.get("tod").asText() : null);\n' if case_states_tod(case) else ""
     tod_helper = (
         f"""    /** #5945 (X47): the scenario's TOD, or none, for the port's ZUIDSTCK stand-in (the stub's $GGC_ZUIDSTCK_TOD). */
     static void stateTod(String hex) {{

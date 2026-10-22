@@ -184,5 +184,5 @@ def test_the_harness_states_the_tod_per_scenario_then_per_case():
 def test_the_model_is_linked_for_a_program_that_calls_it():
     # the regex lives in build code: read it from source, not by running a build
     text = (ROOT / "tests/tools/equivalence_cics.py").read_text(encoding="utf-8")
-    assert "ZUIDSTCK" in text.split("le_call = re.compile(", 1)[1].split("\n", 1)[0]
+    assert "ZUIDSTCK" in text.split("le_call = re.compile(", 1)[1].split(")  # #5858", 1)[0]
     assert "ZUIDSTCK" in G.LIBRARY and (RT / "le/Zuidstck.java").is_file()

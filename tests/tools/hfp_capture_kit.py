@@ -12,12 +12,15 @@
 
     python tests/tools/hfp_capture_kit.py emit   OUTDIR
     python tests/tools/hfp_capture_kit.py ingest SYSOUT --job JOB --step STEP --calibrated-under OPTIONS.json [--table T]
+    python tests/tools/hfp_capture_kit.py verify SYSOUT [--table T]
 
 `emit` writes HFPCAP.cbl and HFPCAP.jcl from the `ibm-publication` records of zos_captures/hfp.json: a program that
 runs each record's operation on z/OS and DISPLAYs `id|result`. `ingest` reads the job's output and appends one
 `zos-run` record per captured line, with its evidence (job, step, the output's sha256; never the data) and the runtime
 options it ran under (`runtime_options.calibration_problems`). A record that exists is never rewritten. A model that
 disagrees with a captured result is reported as a finding against the model: the record stays, the model is fixed.
+`verify` is `ingest` as a dry run: it needs no job, step or options, appends nothing, and prints the same report, so
+the findings are seen before a record is committed.
 
 Not every record can be asked of a COBOL program, and the kit says which are skipped and why (`SKIPPED`): COBOL has
 no IEEE converter (from_ieee / to_ieee), and a short multiply or divide is evaluated by IBM in long floating point and
@@ -255,10 +258,12 @@ def captured_record(r: dict, result: str, evidence: dict, under: dict) -> dict:
     }
 
 
-def ingest(text: str, table: Path, job: str, step: str, under: dict) -> dict:
-    """Append the captured records; returns {'added': ids, 'findings': [...], 'missing': ids, 'skipped': ids}."""
+def ingest(text: str, table: Path, job: str, step: str, under: dict, dry_run: bool = False) -> dict:
+    """Append the captured records; returns {'added': ids, 'findings': [...], 'missing': ids, 'skipped': ids}.
+
+    `dry_run` reports the same result (`added` is what would be appended) without the evidence check or a write."""
     problems = calibration_problems(under)
-    if problems or not job or not step:
+    if not dry_run and (problems or not job or not step):
         raise ValueError("; ".join(problems + ([] if job and step else ["job and step are required evidence"])))
     recs = records(table)
     asked = {r["id"]: r for r in askable(recs)}
@@ -277,7 +282,7 @@ def ingest(text: str, table: Path, job: str, step: str, under: dict) -> dict:
         same = Decimal(model) == Decimal(result) if rec["op"] in ("fixed", "store") else model == result
         if not same:
             findings.append(f"{rec['id']}: model {model!r}, z/OS {result!r}: a finding against the model")
-    if new:
+    if new and not dry_run:
         _append(table, new)
     return {
         "added": [r["id"] for r in new],
@@ -307,6 +312,9 @@ def main(argv: list[str] | None = None) -> int:
     i.add_argument("--step", required=True)
     i.add_argument("--calibrated-under", type=Path, required=True)
     i.add_argument("--table", type=Path, default=TABLE)
+    v = sub.add_parser("verify")
+    v.add_argument("sysout", type=Path)
+    v.add_argument("--table", type=Path, default=TABLE)
     a = ap.parse_args(argv)
     if a.cmd == "emit":
         a.outdir.mkdir(parents=True, exist_ok=True)
@@ -316,6 +324,10 @@ def main(argv: list[str] | None = None) -> int:
         skips = skipped(recs)
         print(f"asked {len(askable(recs))} records; SKIPPED {len(skips)}: {sorted(set(skips.values()))}")
         return 0
+    if a.cmd == "verify":
+        res = ingest(a.sysout.read_text(encoding="utf-8"), a.table, "", "", {}, dry_run=True)
+        print(json.dumps(res, indent=1))
+        return 1 if res["findings"] else 0
     under = json.loads(a.calibrated_under.read_text(encoding="utf-8"))
     res = ingest(a.sysout.read_text(encoding="utf-8"), a.table, a.job, a.step, under)
     print(json.dumps(res, indent=1))

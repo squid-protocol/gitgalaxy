@@ -277,6 +277,21 @@ def test_translator_adapter_on_a_toy_program(tmp_path: Path) -> None:
     assert {"WS-REC (record) +14", "WS-REC/WS-A @0+4", "WS-REC/WS-B @4+2", "WS-T/T-TWO @3+2"} <= f["offsets"]
 
 
+def test_keyed_copybook_layouts_state_offsets_at_ibm_pointer_width(tmp_path: Path) -> None:
+    """#5649: the `layouts` channel is the key's (IBM, POINTER 4 bytes), the `offsets` channel the translator's storage
+    (8): a field after a POINTER sits 4 bytes later in `offsets` than in `layouts`, and a field before it does not move."""
+    pytest.importorskip("tree_sitter_language_pack")
+    cpy = tmp_path / "PTRCPY.cpy"
+    cpy.write_text(
+        "       01  PTR-REC.\n           05  P-A                PIC X(3).\n           05  P-PTR              POINTER.\n"
+        "           05  P-B                PIC 9(2).\n",
+        encoding="latin-1",
+    )
+    units, err = TA.copybook_layouts(cpy, [tmp_path])
+    assert err is None
+    assert units == {"PTR-REC/P-A @0+3", "PTR-REC/P-B @7+2"}
+
+
 def test_translator_extent_stops_before_end_program(tmp_path: Path) -> None:
     """#4630: a lone program's last unit ends at its last code line, not at `END PROGRAM 'X'.`"""
     pytest.importorskip("tree_sitter_language_pack")

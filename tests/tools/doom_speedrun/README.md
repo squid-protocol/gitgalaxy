@@ -143,8 +143,7 @@ python tests/tools/doom_speedrun/callgraph_oracle.py --only eternity,odamex,gzdo
 Output: `<work>/results/<sha>/callgraph.{json,md}` (per port and per shape, with up to 3 `path:line caller -> callee`
 examples each). `--write-baseline FILE` writes the numbers-only view; `--baseline FILE --fail-on-regression` exits 1
 when a port's recall or precision drops by more than `--tolerance` (0.001), a baseline port is missing, or the
-consensus engine-miss or false-edge count grows. That is the hook for the DOOM-rosetta nightly (#5619, #5630; the workflow job is not wired yet, it needs an owner-approved
-`doom-rosetta.yml` edit): `fetch` and `scan` the baseline's ports, then the `--only all --baseline` command; regenerate the baseline only with an explained engine change.
+consensus engine-miss or false-edge count grows. That is the hook for the DOOM-rosetta nightly (#5619, #5630): the `callgraph` job of `.github/workflows/doom-rosetta.yml` (schedule and manual dispatch only, never a PR check) runs `fetch` and `scan` on the baseline's ports, then the `--only all --baseline` command, and writes `callgraph.md` to the job summary; regenerate the baseline only with an explained engine change.
 
 Attribution convention (owner ruling nyx-o8, 2026-10-21): a call inside a nested function is credited to the nested
 function, never to the enclosing one, matching the engine (a C++ local class's method and a GNU C nested function are

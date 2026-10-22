@@ -94,6 +94,7 @@ import cics_census as cc  # noqa: E402
 import cics_spec_status as css  # noqa: E402
 import generated_branch as gb  # noqa: E402
 import evidence as ev  # noqa: E402
+import ladder_exclusions as lx  # noqa: E402
 import proof_blockers as pb  # noqa: E402
 from gitgalaxy.core.compiler_options import SEMANTIC_OPTIONS, compiler_options, parse_options  # noqa: E402
 from gitgalaxy.core.estate_options import counts as estate_counts  # noqa: E402
@@ -690,6 +691,15 @@ def estate_options(estate: str, progs: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def name_exclusion(translation: dict[str, Any], estate: str, prog: str) -> dict[str, str] | None:
+    """#5280: the registry entry for a program held for a reason that is not a translator gap. A source defect is also
+    named in `translation.source_defects`, with its reason and issue."""
+    excl = None if translation["whole"] else lx.lookup(estate, prog)
+    if excl and excl["kind"] == "source_defect":
+        translation["source_defects"].append(f"{excl['reason']} ({excl['issue']})")
+    return excl
+
+
 def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[str, Any]:
     r, prog = m["row"], m["program"]
     whole = cc.whole(r)
@@ -704,6 +714,7 @@ def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[s
         "gap_classes": [neutral(g) for g in classes],
         "source_defects": [neutral(g) for g in classes if "source defect" in g.lower()],
     }
+    excl = name_exclusion(translation, estate, prog)
     runs = ctx["eq"].get((estate, pb._norm(prog)), [])
     cases = [
         {
@@ -722,6 +733,8 @@ def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[s
         "translation": translation,
         "oracle_backing": backing(m.get("commands", []), ctx["crucible"], ctx["disagree"]),
     }
+    if excl:  # added only when the program has an entry (an always-present empty key breaks exact-equality tests)
+        p["ladder_exclusion"] = {**excl, "kind_label": lx.KIND_LABEL[excl["kind"]]}
     best: tuple[Any, ...] | None = None
     candidates: list[dict[str, Any] | None] = [*cases] or [None]
     for c in candidates:
@@ -1458,6 +1471,9 @@ def program_section(p: dict[str, Any]) -> list[str]:
         out += [f"  - hole: {h}" for h in t["holes"]]
     if t["source_defects"]:
         out.append("  - named source defects: " + "; ".join(t["source_defects"]))
+    if "ladder_exclusion" in p:
+        x = p["ladder_exclusion"]
+        out.append(f"- **Not a translator gap:** {x['kind_label']} ({x['issue']}): {x['reason']}")
     if "options" in p:
         out += options_lines(p["options"])
     if not eq["cases"]:

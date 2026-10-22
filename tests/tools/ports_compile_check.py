@@ -168,6 +168,8 @@ def check_equivalence(cases: set[str] | None, work: Path, offline: bool) -> tupl
         print(f"     {corpus}: generated and built ({time.monotonic() - t0:.0f}s)", flush=True)
         for case in members:
             files = port_files(case)
+            # #5856: a det port is its services; the runtime they name is this checkout's (as the harness lays it)
+            files.update(ej.det_runtime(list(files), files, classes.parent.parent, work / "equivalence" / "runtime"))
             ok, out = javac(
                 list(files.values()), classes, classpath or "", work / "equivalence" / "ports" / case["_name"]
             )

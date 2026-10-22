@@ -14,7 +14,8 @@ import sqlite3
 import pytest
 
 from gitgalaxy.core.mainframe_boundary import extract_boundary
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+from scan_server import scan_to_db
 
 PROG = """\
        IDENTIFICATION DIVISION.

@@ -24,7 +24,7 @@
   },
   "quorum": 0.75
  },
- "engine_sha": "42488957a",
+ "engine_sha": "4ce0815dc",
  "ports": {
   "chocolate-doom": {
    "agree": 12132,
@@ -86,14 +86,25 @@
    },
    "functions": 16380,
    "misses_by_shape": {
-    "statement": 1,
-    "unparsed": 21
+    "unparsed": 19
    },
-   "oracle_calls": 47954,
+   "oracle_calls": 47951,
    "precision": 0.9772,
-   "recall": 0.9995,
+   "recall": 0.9996,
    "text_fallback_functions": 590,
    "unmatched_functions": 3
+  },
+  "doom3do": {
+   "agree": 884,
+   "engine_calls": 884,
+   "engine_only_by_kind": {},
+   "functions": 511,
+   "misses_by_shape": {},
+   "oracle_calls": 884,
+   "precision": 1.0,
+   "recall": 1.0,
+   "text_fallback_functions": 0,
+   "unmatched_functions": 0
   },
   "doomgeneric": {
    "agree": 2163,
@@ -121,6 +132,34 @@
    "text_fallback_functions": 19,
    "unmatched_functions": 1
   },
+  "doomsday": {
+   "agree": 67775,
+   "engine_calls": 72768,
+   "engine_only_by_kind": {
+    "absent": 3192,
+    "comment/string": 31,
+    "function-pointer": 240,
+    "macro": 7,
+    "type": 1523
+   },
+   "functions": 25604,
+   "misses_by_shape": {
+    "after-cast": 8,
+    "after-operator": 205,
+    "assignment-rhs": 171,
+    "condition/return": 84,
+    "nested-argument": 160,
+    "other": 204,
+    "statement": 315,
+    "subscript": 24,
+    "unparsed": 570
+   },
+   "oracle_calls": 69516,
+   "precision": 0.9314,
+   "recall": 0.975,
+   "text_fallback_functions": 649,
+   "unmatched_functions": 1
+  },
   "dsda-doom": {
    "agree": 10751,
    "engine_calls": 10760,
@@ -142,27 +181,25 @@
    "unmatched_functions": 0
   },
   "edge-classic": {
-   "agree": 10535,
+   "agree": 10529,
    "engine_calls": 10809,
    "engine_only_by_kind": {
-    "absent": 144,
+    "absent": 150,
     "function-pointer": 3,
     "type": 127
    },
    "functions": 4964,
    "misses_by_shape": {
-    "after-cast": 1,
-    "after-operator": 10,
-    "assignment-rhs": 27,
-    "condition/return": 10,
-    "nested-argument": 6,
-    "other": 2,
-    "statement": 48,
-    "unparsed": 63
+    "after-operator": 3,
+    "assignment-rhs": 11,
+    "condition/return": 2,
+    "nested-argument": 1,
+    "statement": 10,
+    "unparsed": 12
    },
-   "oracle_calls": 10702,
-   "precision": 0.9747,
-   "recall": 0.9844,
+   "oracle_calls": 10568,
+   "precision": 0.9741,
+   "recall": 0.9963,
    "text_fallback_functions": 29,
    "unmatched_functions": 0
   },
@@ -213,17 +250,17 @@
    "functions": 18279,
    "misses_by_shape": {
     "after-cast": 1,
-    "after-operator": 12,
-    "assignment-rhs": 84,
-    "condition/return": 39,
-    "nested-argument": 15,
+    "after-operator": 11,
+    "assignment-rhs": 51,
+    "condition/return": 1,
+    "nested-argument": 14,
     "other": 5,
-    "statement": 261,
-    "unparsed": 165
+    "statement": 109,
+    "unparsed": 9
    },
-   "oracle_calls": 43247,
+   "oracle_calls": 42866,
    "precision": 0.9483,
-   "recall": 0.9865,
+   "recall": 0.9953,
    "text_fallback_functions": 579,
    "unmatched_functions": 0
   },
@@ -327,6 +364,27 @@
    "recall": 1.0,
    "text_fallback_functions": 0,
    "unmatched_functions": 0
+  },
+  "srb2": {
+   "agree": 18564,
+   "engine_calls": 19266,
+   "engine_only_by_kind": {
+    "absent": 645,
+    "comment/string": 1,
+    "function-pointer": 17,
+    "macro": 28,
+    "type": 11
+   },
+   "functions": 6735,
+   "misses_by_shape": {
+    "statement": 879,
+    "unparsed": 479
+   },
+   "oracle_calls": 19922,
+   "precision": 0.9636,
+   "recall": 0.9318,
+   "text_fallback_functions": 45,
+   "unmatched_functions": 8
   },
   "woof": {
    "agree": 8148,

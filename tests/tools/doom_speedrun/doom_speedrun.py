@@ -39,8 +39,9 @@ COLUMNS = [
     "excluded_by_design_reasons", "data_files_excluded", "vendor_files_mapped", "wrong_language",
     "gg_functions", "ctags_functions", "func_delta_pct", "functions_agree", "treesitter_functions", "ts_delta_pct", "clang_files", "clang_files_with_errors",
     "clang_compile_commands_files", "clang_functions", "clang_gg_functions", "clang_delta_pct", "files_func_mismatch",
-    "files_ctags_checked", "typosquat", "sarif_total", "sarif_errors", "credential_files", "log_problems", "fails",
-    "verdict",
+    "files_ctags_checked", "typosquat", "sarif_total", "sarif_errors", "credential_files", "log_problems",
+    "callgraph_recall", "callgraph_precision", "callgraph_misses", "callgraph_engine_only", "callgraph_unscored",
+    "fails", "verdict", "verdict6",
 ]  # fmt: skip
 
 
@@ -135,7 +136,9 @@ def write_results(rows, details, dest, sha, oracle, clang=False):
         w.writerows(rows)
     (dest / "details.json").write_text(json.dumps(details, indent=1, sort_keys=True) + "\n")
     perfect = sum(r.get("verdict") == "PERFECT" for r in rows)
-    lines = [f"# DOOM port clean-scan: engine `{sha}`", "", f"**{perfect} PERFECT / {len(rows)} ports**", "",
+    perfect6 = sum(r.get("verdict6") == "PERFECT" for r in rows)
+    lines = [f"# DOOM port clean-scan: engine `{sha}`", "",
+             f"**{perfect} PERFECT / {len(rows)} ports** (seven checks); {perfect6} PERFECT on the first six", "",
              "| port | verdict | fails | gg fn | ctags fn | delta % | ts fn | missed | by design | by-design reason | SARIF err |",
              "|---|---|---|---|---|---|---|---|---|---|---|"]  # fmt: skip
     for r in rows:

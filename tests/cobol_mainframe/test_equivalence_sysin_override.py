@@ -36,8 +36,20 @@ def test_a_sysin_only_run_needs_no_fault_to_fire_but_a_planned_fault_does():
 
 def test_the_cbpaup0c_scenarios_each_state_a_card_that_differs():
     case = json.loads(CBPAUP0C.read_text(encoding="utf-8"))
-    cards = {f["name"]: eq.run_sysin(case, f) for f in case["faults"]}
-    assert set(cards) == {"debug-on", "card-defaults", "nothing-expires", "expiry-abend"}
-    assert len({*cards.values(), case["sysin"]}) == 5
-    assert all(f["plan"] == [] for f in case["faults"])  # control-card runs, no injected file status
+    faults = {f["name"]: f for f in case["faults"]}
+    cards = {n: eq.run_sysin(case, f) for n, f in faults.items() if "sysin" in f}
+    assert set(cards) == {
+        "debug-on",
+        "card-defaults",
+        "nothing-expires",
+        "expiry-abend",
+        "debug-expiry-abend",
+        "checkpoint-display-compare",
+        "expiry-not-numeric",
+    }
+    assert len({*cards.values(), case["sysin"]}) == 8
+    # the control-card runs inject no file status; the rest fail one DL/I call each on the base card
+    assert all(faults[n]["plan"] == [] for n in cards)
+    assert {n for n in faults if n not in cards} == {"gn-error", "gnp-error", "dlet-detail-error", "chkp-error"}
+    assert all(eq.run_sysin(case, faults[n]) == case["sysin"] for n in faults if n not in cards)
     assert cards["debug-on"].endswith(" Y") and cards["expiry-abend"].startswith("05 ")

@@ -1,0 +1,362 @@
+{
+ "by_era_programs": {
+  "0": 0,
+  "1": 9,
+  "2": 70,
+  "3": 16,
+  "4": 21,
+  "none": 13
+ },
+ "coverage_if_closed": [
+  {
+   "share": 0.9612,
+   "top": 1,
+   "upper_bound": false,
+   "whole": 124
+  },
+  {
+   "share": 0.9767,
+   "top": 3,
+   "upper_bound": true,
+   "whole": 126
+  },
+  {
+   "share": 0.9767,
+   "top": 5,
+   "upper_bound": true,
+   "whole": 126
+  },
+  {
+   "share": 0.9845,
+   "top": 10,
+   "upper_bound": true,
+   "whole": 127
+  }
+ ],
+ "estates": [
+  "aws-mainframe-modernization-carddemo",
+  "cics-async-api-credit-card-application-example",
+  "cics-banking-sample-application-cbsa",
+  "cics-genapp",
+  "dbb-mortgage-application",
+  "zecs"
+ ],
+ "format": "gap-prevalence/1",
+ "gaps": [
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 2,
+    "4": 0,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 1,
+    "4": 0,
+    "none": 0
+   },
+   "gap": "<name>: <name> is not defined in a record of file <name>",
+   "owner": "unowned",
+   "programs": 2,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 2
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "gap": "refused: CICS Assembler",
+   "owner": "#5121",
+   "programs": 2,
+   "refuses_program": true,
+   "status": "refused by name"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "<name> ADDRESS OF <name>: not an item of <name> or LINKAGE",
+   "owner": "unowned",
+   "programs": 1,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "CEEHDLR: registering an LE user condition handler is not modelled",
+   "owner": "unowned",
+   "programs": 1,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "CEEHDLU: unregistering an LE user condition handler is not modelled",
+   "owner": "unowned",
+   "programs": 1,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "gap": "COMPUTE FUNCTION ANNUITY (IBM defines arg-N / (\u2026) but not the bits of the power or of the floating-point result; oracle_assumptions.md <name>)",
+   "owner": "unowned",
+   "programs": 1,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "gap": "COMPUTE exponentiation in a floating-point expression",
+   "owner": "unowned",
+   "programs": 1,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (\u2026) is not modelled (\u2026): the translator reads one byte a character",
+   "owner": "unowned",
+   "programs": 1,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "EPSCSMRO: no service of its own, its translation is refused: OS/VS COBOL BLL addressing: SERVICE LABEL (\u2026): not modelled",
+   "owner": "unowned",
+   "programs": 1,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents",
+   "owner": "#4270 (cics-command-slice)",
+   "programs": 1,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "EXEC CICS SOAPFAULT CREATE",
+   "owner": "#4270 (cics-command-slice)",
+   "programs": 1,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "SET TO ENTRY: procedure / function pointers are not modelled",
+   "owner": "unowned",
+   "programs": 1,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the N bytes it returns in <name> are not a stated fact",
+   "owner": "unowned",
+   "programs": 1,
+   "refuses_program": false,
+   "status": "not modelled"
+  }
+ ],
+ "programs": 129,
+ "scope": "burned estates",
+ "whole_now": 122
+}

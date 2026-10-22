@@ -99,7 +99,7 @@ def test_the_baseline_is_one_mergeable_line_per_cell(tmp_path, monkeypatch):
 def test_a_legacy_cjk_estate_is_scanned_with_its_code_page_declared(tmp_path, monkeypatch):
     """#3878: Shift-JIS / GB18030 cannot be told from cp1252 by their bytes, so a real estate
     declares them; the gauntlet scans those estates the same way, and nothing else declared."""
-    import gitgalaxy.tools.cobol_to_cobol.galaxy_ir as gir
+    import scan_server as gir  # #5882: the scan_to_db unicode_gauntlet.scan calls
 
     seen = {}
     monkeypatch.setattr(

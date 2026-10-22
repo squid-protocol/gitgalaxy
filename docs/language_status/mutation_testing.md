@@ -548,6 +548,17 @@ NUMVAL-C into `PIC 99` (00, the date is refused) while IBM rounds a float-mode s
 det sweep of carddemo-report fails on it. The scenario is not committed. The mutant is a real IBM difference, not an equivalent one: the model port's `DOWN` follows the oracle.
 billpay `868815f4c6` and `29f0e18174` (a balance of 1,000,000.00 or more) are a different mechanism and stay open.
 
+**Wide balances on billpay** (#5401, 2026-10-22). Every CardDemo account is below 1,000,000.00, so billpay never showed a wide amount or the tenth integer digit
+that COBIL00C's MOVE of `ACCT-CURR-BAL` (`S9(10)V99`) into `TRAN-AMT` (`S9(9)V99`) drops. The case appends two synthetic accounts and their card xref rows
+(`acctdata-5401.txt`, `cardxref-5401.txt`): `00000099998` at 1,234,567.89 (`pay-balance-over-one-million`) and `00000099997` at 1,234,567,890.12
+(`pay-balance-ten-integer-digits`, TRAN-AMT keeps 234,567,890.12). GnuCOBOL and the port agree on both: billpay is proven on 35 scenarios (46/48 branches).
+The two survivors that named this gap, `868815f4c6` and `29f0e18174`, were judged on the port before #5844 changed `store()` to count integer digits; their ids no longer exist.
+Against the current port the same mutants (`store(.., 9, 3)` at line 542, `store(.., 10, 3)` at 552; ids `84cb7729f6`, `95f2f0cf57`) change only the scale of a
+value that the setter writes at scale 2, so they survive the new scenarios and are equivalent, not case gaps. The digit-count mutants the new account does reach:
+`d5264128d1` (`store(bal, 10, 2)` at 542) is killed by the ten-integer-digit scenario; `2f50a14acd` (`store(.., 11, 2)` at 552) survives and is unreachable
+(balance minus amount is at most 1,000,000,000.00, 10 digits). The scores are not re-run, and `mutation_scores.json` is not edited.
+`test_carddemo_wide_balance_5401.py` pins the accounts, the xref rows and the scenarios.
+
 #4047 then scored six CardDemo batch ports (readxref, readcust, dailyval, intcalc, posttran, trnrpt; seed 0, up to 100
 mutants each, `--jobs 3`, fast mode). These rows are seed 0 and differ from the older seed-1 CBACT04C, CBTRN02C and
 CBTRN03C figures above. The case gaps repeat across the six: `displayIoStatus` takes a numeric test on both status bytes,
@@ -605,6 +616,8 @@ an area of its own and an EIBCALEN of 8, 22 or 80. Three scenarios (`direct-8-by
 the negative balance); the third, `* 10000` for `% 10000` on the destination of `overlayVisits`, is equivalent
 (WS-V2's V2-VISITS is zero after INITIALIZE, so the destination digits are always 0000). CAXB is now 20/3 with 0 case gaps.
 This landed in #5505, so the "needs a cics-crucible CAXA mode" wording in #5490 and #5491 is superseded: no release or pin bump was needed.
+
+Spot-check 2026-10-22 (#4443): 22 of the 45 equivalent verdicts on the 13 re-run ports were re-read against the port source; all hold, no new case. The sample and its caveats: [mutation_equivalent_spot_check.md](mutation_equivalent_spot_check.md).
 
 A score is quoted with its case and seed, never alone. Every survivor is triaged as a case gap, a
 harness gap, an equivalent mutant (with the reason) or dead code.
@@ -812,3 +825,17 @@ stated (register X10), so the `beyond` mutants are `harness-gap`. ACCTCTRL and U
 | UPDACC (cbsa-updacc) | 713/713 | 293 | 395 | 25 | 0 | 395 | 293/688 (43%) | no |
 
 The "unaccounted" column includes the open `case-gap` / `harness-gap` rows, which block L5 until a scenario or the harness covers them.
+
+**#4628 slice 5 (2026-10-22): no user-admin program reaches L5; every open survivor is a `harness-gap`.** First det-port ledgers for the
+three CardDemo user-admin ports (150 mutants each, seed 0, fast mode, JDK 17). New scenarios kill survivors: `header-fields-sent-back`
+(COUSR03C: a received TRNNAME), `pf3-returns-to-menu-caller` and `pf5-updates-short-user-id` (COUSR02C, plus the OPS record in its
+`usrsec.txt`), and the COUSR01C additions. Every survivor has a stated reason in `det_mutation_survivors/carddemo-user*.json`; the
+verdicts are proposals for owner review. The open ones are the byte[] COMMAREA entry (`cb.length > s_DFHCOMMAREA.bytes.length`,
+`cx(task, cb.length)`), which the harness cannot express (2 / 1 / 3 in useradd / userupd / userdel), and COUSR03C's first-entry
+`MOVE LOW-VALUES TO COUSR3AO`, whose spaces-versus-low-values difference the proof strips (#4635).
+
+| program (case) | mutants run / in scope | killed | survived | stillborn | stated equivalent / unreachable | unaccounted | raw score | L5 |
+|---|---|---|---|---|---|---|---|---|
+| COUSR01C (carddemo-useradd) | 150/1214 | 91 | 56 | 3 | 54 | 2 | 91/147 (62%) | no |
+| COUSR02C (carddemo-userupd) | 150/1404 | 96 | 48 | 6 | 47 | 1 | 96/144 (67%) | no |
+| COUSR03C (carddemo-userdel) | 150/1302 | 84 | 58 | 8 | 54 | 4 | 84/142 (59%) | no |

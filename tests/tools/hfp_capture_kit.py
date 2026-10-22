@@ -11,17 +11,27 @@
 """The z/OS capture kit for IBM hexadecimal floating point (#4271, #4050; register C6).
 
     python tests/tools/hfp_capture_kit.py emit   OUTDIR
-    python tests/tools/hfp_capture_kit.py ingest SYSOUT --job JOB --step STEP --calibrated-under OPTIONS.json [--table T]
+    python tests/tools/hfp_capture_kit.py ingest SYSOUT --job JOB --step STEP --calibrated-under OPTIONS.json [--kit asm] [--table T]
+    python tests/tools/hfp_capture_kit.py verify SYSOUT [--kit asm] [--table T]
 
 `emit` writes HFPCAP.cbl and HFPCAP.jcl from the `ibm-publication` records of zos_captures/hfp.json: a program that
 runs each record's operation on z/OS and DISPLAYs `id|result`. `ingest` reads the job's output and appends one
 `zos-run` record per captured line, with its evidence (job, step, the output's sha256; never the data) and the runtime
 options it ran under (`runtime_options.calibration_problems`). A record that exists is never rewritten. A model that
 disagrees with a captured result is reported as a finding against the model: the record stays, the model is fixed.
+`emit` also writes HFPCAPA.asm / HFPCAPA.jcl, the High Level Assembler kit for the records COBOL cannot ask (below);
+`--kit asm` ingests or verifies that job's output instead of HFPCAP's. `verify` is `ingest` as a dry run: it needs no job, step or options, appends nothing, and prints the same report, so
+the findings are seen before a record is committed.
 
 Not every record can be asked of a COBOL program, and the kit says which are skipped and why (`SKIPPED`): COBOL has
 no IEEE converter (from_ieee / to_ieee), and a short multiply or divide is evaluated by IBM in long floating point and
 rounded, which is not the short arithmetic the table's short rows state; the same for a short `**` (`pow`).
+
+The records skipped above are asked by HFPCAPA, a High Level Assembler program (OPTABLE(UNI)): the IEEE conversions with
+the CONVERT HFP/BFP instructions (THDER / THDR, TBEDR / TBDR, round to nearest even) and the short multiply and divide
+with MEER and DER, which are the short arithmetic itself. It prints the same `id|HEX` lines. A short `pow` stays
+unasked. The assembler source cannot be assembled by the tests: they hold its text and the ingest of model-computed
+output, so the first z/OS assembly may need a syntax fix, which changes no record.
 
 `pow` is `COMPUTE LR = LA ** LB` (DBB EPSMPMT's `(1 + C) ** WS-NUMBER-OF-MONTHS`, the one float hole left in
 `mortgage-mpmt`): IBM documents no result for it, so a `pow` record is a `model-assumption` whose `want` is `power()`,
@@ -134,12 +144,25 @@ def skip_reason(r: dict) -> str:
     return ""
 
 
-def askable(recs: list[dict]) -> list[dict]:
+def asm_askable(recs: list[dict]) -> list[dict]:
+    """The records COBOL skips that HFPCAPA asks: the IEEE conversions and the short multiply / divide."""
+    return [r for r in recs if r.get("source") in ASKED_SOURCES and skip_reason(r) and r["op"] != "pow"]
+
+
+def askable(recs: list[dict], kit: str = "cobol") -> list[dict]:
+    if kit == "asm":
+        return asm_askable(recs)
     return [r for r in recs if r.get("source") in ASKED_SOURCES and not skip_reason(r)]
 
 
-def skipped(recs: list[dict]) -> dict[str, str]:
-    return {r["id"]: skip_reason(r) for r in recs if r.get("source") in ASKED_SOURCES and skip_reason(r)}
+def skipped(recs: list[dict], kit: str = "cobol") -> dict[str, str]:
+    """The records a kit cannot ask, with why (for `asm`: those neither kit asks)."""
+    left = {r["id"] for r in asm_askable(recs)} if kit == "asm" else set()
+    return {
+        r["id"]: skip_reason(r)
+        for r in recs
+        if r.get("source") in ASKED_SOURCES and skip_reason(r) and r["id"] not in left
+    }
 
 
 def _line(text: str) -> str:
@@ -222,6 +245,121 @@ def emit_program(recs: list[dict]) -> str:
     return "\n".join(head + body) + "\n"
 
 
+def _asm(label: str, op: str = "", operands: str = "") -> str:
+    """One High Level Assembler statement (label column 1, operation column 10, operands column 16)."""
+    line = f"{label:<9}{op:<6}{operands}".rstrip()
+    if len(line) > 71:
+        raise ValueError(f"statement past column 71: {line}")
+    return line
+
+
+ASM_LOAD = {"short": "LE", "long": "LD"}
+ASM_STORE = {"short": "STE", "long": "STD"}
+
+
+def asm_statements(r: dict, n: int) -> list[str]:
+    """The assembler for one record: load the operand(s), run the instruction, print `id|HEX` through HEXOUT."""
+    size, op = r["size"], r["op"]
+    ld, st = ASM_LOAD[size], ASM_STORE[size]
+    out = [_asm("", "MVC", "LINE,BLANKS"), _asm("", "MVC", f"LINE({len(r['id']) + 1}),=C'{r['id']}|'")]
+    if op == "from_ieee":  # THDER: short BFP to long HFP; THDR: long BFP to long HFP
+        out += [
+            _asm("", ld, f"0,A{n:03d}"),
+            _asm("", "THDER" if size == "short" else "THDR", "2,0"),
+            _asm("", "STD", "2,RES"),
+        ]
+    elif op == "to_ieee":  # TBEDR / TBDR: long HFP to short / long BFP, M3=4 rounds to nearest, ties to even
+        out += [
+            _asm("", ld, f"0,A{n:03d}"),
+            _asm("", "TBEDR" if size == "short" else "TBDR", "2,4,0"),
+            _asm("", st, "2,RES"),
+        ]
+    elif op in ("mul", "div") and size == "short":
+        out += [_asm("", "LE", f"0,A{n:03d}"), _asm("", "LE", f"2,B{n:03d}")]
+        out += [_asm("", "MEER" if op == "mul" else "DER", "0,2"), _asm("", "STE", "0,RES")]
+    else:
+        raise ValueError(f"HFPCAPA cannot ask {r['id']} ({op}, {size})")
+    out += [
+        _asm("", "LA", f"3,LINE+{len(r['id']) + 1}"),
+        _asm("", "LA", "2,RES"),
+        _asm("", "LA", f"4,{1 if size == 'short' else 2}"),
+    ]
+    out += [_asm("", "BAS", "14,HEXOUT"), _asm("", "PUT", "SYSPRINT,LINE")]
+    return out
+
+
+def emit_asm(recs: list[dict]) -> str:
+    asked = asm_askable(recs)
+    head = [
+        "*PROCESS OPTABLE(UNI)",
+        "* Generated by hfp_capture_kit.py from zos_captures/hfp.json.",
+        "* Asks what HFPCAP (COBOL) cannot: IEEE conversions, short MEER / DER.",
+        _asm("HFPCAPA", "CSECT"),
+        _asm("HFPCAPA", "AMODE", "31"),
+        _asm("HFPCAPA", "RMODE", "ANY"),
+        _asm("", "YREGS"),
+        _asm("", "STM", "14,12,12(13)"),
+        _asm("", "LR", "12,15"),
+        _asm("", "LA", "11,4095(,12)"),  # a second base: the program can pass 4096 bytes
+        _asm("", "LA", "11,1(,11)"),
+        _asm("", "USING", "HFPCAPA,12,11"),
+        _asm("", "LA", "2,SAVE"),
+        _asm("", "ST", "13,4(,2)"),
+        _asm("", "ST", "2,8(,13)"),
+        _asm("", "LR", "13,2"),
+        _asm("", "OPEN", "(SYSPRINT,(OUTPUT))"),
+    ]
+    body: list[str] = []
+    data: list[str] = []
+    for n, r in enumerate(asked, 1):
+        body += asm_statements(r, n)
+        data.append(_asm(f"A{n:03d}", "DC", f"XL8'{r['a'].ljust(16, '0')}'"))
+        if r["op"] in ("mul", "div"):
+            data.append(_asm(f"B{n:03d}", "DC", f"XL8'{r['b'].ljust(16, '0')}'"))
+    tail = [
+        _asm("", "CLOSE", "(SYSPRINT)"),
+        _asm("", "L", "13,4(,13)"),
+        _asm("", "LM", "14,12,12(13)"),
+        _asm("", "SLR", "15,15"),
+        _asm("", "BR", "14"),
+        _asm("HEXOUT", "DS", "0H"),
+        _asm("HEXLP", "MVC", "W(4),0(2)"),
+        _asm("", "UNPK", "P(9),W(5)"),
+        _asm("", "TR", "P(8),HEXTAB-240"),
+        _asm("", "MVC", "0(8,3),P"),
+        _asm("", "LA", "2,4(,2)"),
+        _asm("", "LA", "3,8(,3)"),
+        _asm("", "BCT", "4,HEXLP"),
+        _asm("", "BR", "14"),
+        _asm("", "LTORG"),
+        _asm("", "DS", "0D"),
+    ]
+    tail += data
+    tail += [
+        _asm("RES", "DS", "XL8"),
+        _asm("W", "DS", "XL5"),
+        _asm("P", "DS", "CL9"),
+        _asm("LINE", "DS", "CL80"),
+        _asm("BLANKS", "DC", "CL80' '"),
+        _asm("HEXTAB", "DC", "C'0123456789ABCDEF'"),
+        _asm("SAVE", "DS", "18F"),
+        _asm("SYSPRINT", "DCB", "DDNAME=SYSPRINT,DSORG=PS,MACRF=PM,RECFM=FB,LRECL=80"),
+        _asm("", "END"),
+    ]
+    return "\n".join(head + body + tail) + "\n"
+
+
+def emit_asm_jcl() -> str:
+    return (
+        "//HFPCAPA  JOB (ACCT),'HFP CAPTURE ASM',CLASS=A,MSGCLASS=H\n"
+        "//* Assemble, link and run HFPCAPA; keep the G step's SYSPRINT for `hfp_capture_kit.py ingest --kit asm`.\n"
+        "//* Edit the procedure name and data sets to the site's. Records no customer data.\n"
+        "//ASM      EXEC ASMACLG\n"
+        "//C.SYSIN DD DISP=SHR,DSN=&SYSUID..HFPCAPA.ASM\n"
+        "//G.SYSPRINT DD SYSOUT=*\n"
+    )
+
+
 def emit_jcl() -> str:
     return (
         "//HFPCAP   JOB (ACCT),'HFP CAPTURE',CLASS=A,MSGCLASS=H\n"
@@ -255,13 +393,15 @@ def captured_record(r: dict, result: str, evidence: dict, under: dict) -> dict:
     }
 
 
-def ingest(text: str, table: Path, job: str, step: str, under: dict) -> dict:
-    """Append the captured records; returns {'added': ids, 'findings': [...], 'missing': ids, 'skipped': ids}."""
+def ingest(text: str, table: Path, job: str, step: str, under: dict, dry_run: bool = False, kit: str = "cobol") -> dict:
+    """Append the captured records; returns {'added': ids, 'findings': [...], 'missing': ids, 'skipped': ids}.
+
+    `dry_run` reports the same result (`added` is what would be appended) without the evidence check or a write."""
     problems = calibration_problems(under)
-    if problems or not job or not step:
+    if not dry_run and (problems or not job or not step):
         raise ValueError("; ".join(problems + ([] if job and step else ["job and step are required evidence"])))
     recs = records(table)
-    asked = {r["id"]: r for r in askable(recs)}
+    asked = {r["id"]: r for r in askable(recs, kit)}
     have = {r["id"] for r in recs}
     got = parse_output(text, set(asked))
     evidence = {"job": job, "step": step, "output_sha256": hashlib.sha256(text.encode("utf-8")).hexdigest()}
@@ -277,14 +417,14 @@ def ingest(text: str, table: Path, job: str, step: str, under: dict) -> dict:
         same = Decimal(model) == Decimal(result) if rec["op"] in ("fixed", "store") else model == result
         if not same:
             findings.append(f"{rec['id']}: model {model!r}, z/OS {result!r}: a finding against the model")
-    if new:
+    if new and not dry_run:
         _append(table, new)
     return {
         "added": [r["id"] for r in new],
         "findings": findings,
         "kept": kept,
         "missing": sorted(set(asked) - set(got)),
-        "skipped": skipped(recs),
+        "skipped": skipped(recs, kit),
     }
 
 
@@ -307,17 +447,29 @@ def main(argv: list[str] | None = None) -> int:
     i.add_argument("--step", required=True)
     i.add_argument("--calibrated-under", type=Path, required=True)
     i.add_argument("--table", type=Path, default=TABLE)
+    i.add_argument("--kit", choices=("cobol", "asm"), default="cobol")
+    v = sub.add_parser("verify")
+    v.add_argument("sysout", type=Path)
+    v.add_argument("--table", type=Path, default=TABLE)
+    v.add_argument("--kit", choices=("cobol", "asm"), default="cobol")
     a = ap.parse_args(argv)
     if a.cmd == "emit":
         a.outdir.mkdir(parents=True, exist_ok=True)
         recs = records()
         (a.outdir / "HFPCAP.cbl").write_text(emit_program(recs), encoding="utf-8")
         (a.outdir / "HFPCAP.jcl").write_text(emit_jcl(), encoding="utf-8")
-        skips = skipped(recs)
-        print(f"asked {len(askable(recs))} records; SKIPPED {len(skips)}: {sorted(set(skips.values()))}")
+        (a.outdir / "HFPCAPA.asm").write_text(emit_asm(recs), encoding="utf-8")
+        (a.outdir / "HFPCAPA.jcl").write_text(emit_asm_jcl(), encoding="utf-8")
+        print(
+            f"asked {len(askable(recs))} records (HFPCAP) + {len(asm_askable(recs))} (HFPCAPA); SKIPPED {len(skipped(recs, 'asm'))}: {sorted(set(skipped(recs, 'asm').values()))}"
+        )
         return 0
+    if a.cmd == "verify":
+        res = ingest(a.sysout.read_text(encoding="utf-8"), a.table, "", "", {}, dry_run=True, kit=a.kit)
+        print(json.dumps(res, indent=1))
+        return 1 if res["findings"] else 0
     under = json.loads(a.calibrated_under.read_text(encoding="utf-8"))
-    res = ingest(a.sysout.read_text(encoding="utf-8"), a.table, a.job, a.step, under)
+    res = ingest(a.sysout.read_text(encoding="utf-8"), a.table, a.job, a.step, under, kit=a.kit)
     print(json.dumps(res, indent=1))
     return 1 if res["findings"] else 0
 

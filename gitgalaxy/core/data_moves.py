@@ -60,11 +60,15 @@ import bisect
 import re
 from typing import Any
 
+from gitgalaxy.core.cobol_preprocessor import free_code, join_continuation, open_literal
+from gitgalaxy.core.cobol_source_format import FIXED, line_formats
 from gitgalaxy.core.db2_declare_table import _blank_sequence_fields
 from gitgalaxy.core.special_names import special_names
 from gitgalaxy.standards.language_standards.identifiers import NATIONAL, WIDE_DIGITS, WIDE_HYPHENS
 
-_LITERAL = r"[XNGZ]?'[^'\n]{0,320}'?|[XNGZ]?\"[^\"\n]{0,320}\"?"
+# A doubled quote inside a literal is one quote character (`'it''s'`, `"say ""hi"""`), not the end of it.
+_LIT_PREFIX = r"(?:[NGB]X|[XNGZB])?"  # hexadecimal, national, DBCS, boolean and Z prefixes
+_LITERAL = _LIT_PREFIX + r"'(?:[^'\n]|''){0,320}'?|" + _LIT_PREFIX + r"\"(?:[^\"\n]|\"\"){0,320}\"?"
 _NUMBER = r"[+-]?[0-9]*\.[0-9]+|[+-]?[0-9]+"
 # #4353: a COBOL word takes the record reader's national, CJK and full-width characters (#3955 /
 # #3991): `MOVE '000001' TO 社員コード` drew no row and `X項目` was cut to `X`.
@@ -134,11 +138,23 @@ def _procedure_text(code_stream: str) -> str:
     PROCEDURE DIVISION header blanked (offsets and line numbers unchanged)."""
     text = _blank_sequence_fields(code_stream, "cobol")
     lines = text.split("\n")
+    formats = line_formats(code_stream)
+    last = -1  # the line a continuation joins onto: the last one that holds text
+    joined = False  # whether it already took a continuation (its text is then past column 72, kept whole)
     for i, line in enumerate(lines):
         if len(line) > 6 and line[6] in "*/Dd":  # comment, page eject, debugging line
             lines[i] = ""
-        elif "*>" in line:
-            lines[i] = line[: line.index("*>")]
+        elif last >= 0 and formats[i] == FIXED and len(line) > 6 and line[6] == "-":
+            # #5648: a continuation line (`-` in column 7) is the end of the line before: its open literal resumes
+            # after the first quote, any other text follows after a space. The joined text sits on the first
+            # line; this one is left empty so every later line keeps its number.
+            prev = lines[last][7:] if joined else lines[last][7:72]
+            lines[last] = lines[last][:7] + join_continuation(prev, line, open_literal(prev))
+            lines[i], joined = "", True
+        else:
+            lines[i] = free_code(line)  # #5648: a literal that holds `*>` is not a comment
+            if lines[i].strip():
+                last, joined = i, False
     text = "\n".join(lines)
     m = re.search(r"(?<![A-Z0-9-])PROCEDURE[ \t\n]{1,200}DIVISION(?![A-Z0-9-])", text, re.I)
     if m:
@@ -146,9 +162,12 @@ def _procedure_text(code_stream: str) -> str:
     return text
 
 
+_LITERAL_HEAD = re.compile(_LIT_PREFIX + "['\"]", re.I)
+
+
 def _is_literal(raw: str) -> bool:
-    """A quoted literal, or one with an X / N / G / Z prefix (`X'00'`)."""
-    return raw[:1] in "'\"" or (len(raw) > 1 and raw[1] in "'\"" and raw[0].upper() in "XNGZ")
+    """A quoted literal, or one with a hexadecimal / national / DBCS / boolean prefix (`X'00'`, `NX'00'`)."""
+    return _LITERAL_HEAD.match(raw) is not None
 
 
 class _Stream:

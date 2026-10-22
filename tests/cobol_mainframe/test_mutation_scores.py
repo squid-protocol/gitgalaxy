@@ -288,8 +288,8 @@ def test_the_re_run_menu_and_account_view_cases_are_current_and_state_the_scenar
         evidence = json.loads((REPO / "tests/equivalence" / name / "evidence.json").read_text(encoding="utf-8"))
         assert evidence["mutation"]["inputs"]["port"]["sha256"] == evidence["inputs"]["port"]["sha256"]
     assert ports["carddemo-menu"]["total"]["case_gap"] == 0
-    # the account view's parser mutants need card-number records the case does not carry yet: a stated case gap
-    assert ports["carddemo-acctview"]["total"]["case_gap"] > 0
+    # the account view's alnumToUnsigned parser mutants are killed by stated card-number records (xref accounts 52-62)
+    assert ports["carddemo-acctview"]["total"]["case_gap"] == 0
     for name, scenarios in (
         ("carddemo-menu", ("carried-customer-and-card-fields",)),
         ("carddemo-acctview", ("pf15-back-to-menu", "carried-middle-name-and-ids")),
@@ -298,6 +298,15 @@ def test_the_re_run_menu_and_account_view_cases_are_current_and_state_the_scenar
         named = {s["name"]: s for s in case["scenarios"]}
         for scenario in scenarios:
             assert "#4443" in named[scenario]["why"]
+    case = json.loads((REPO / "tests/equivalence/carddemo-acctview/case.json").read_text(encoding="utf-8"))
+    card = [s for s in case["scenarios"] if s["name"].startswith("card-number-")]
+    assert len(card) == 11 and all("#4443" in s["why"] for s in card)
+    xref = (REPO / "tests/equivalence/carddemo-acctview/cardxref-4049.txt").read_text(encoding="utf-8").splitlines()
+    assert len(xref) == 1 + len(card) and all(len(r) == 36 for r in xref)
+    assert len({r[:16] for r in xref}) == len(xref)
+    acct = (REPO / "tests/equivalence/carddemo-acctview/acctdata-4049.txt").read_text(encoding="utf-8").splitlines()
+    assert [r[:11] for r in acct] == [r[25:36] for r in xref]
+    assert {s["receive"]["CACTVWA"]["ACCTSIDI"] for s in card} == {r[25:36] for r in xref[1:]}
 
 
 def test_the_generated_admin_menu_case_is_scored_and_states_the_scenarios_its_survivors_needed():

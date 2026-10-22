@@ -8,8 +8,10 @@ it, because ``smoke-test.yml`` replaces ``addopts`` with its own ``-m`` and woul
 The unmarked tests at the bottom are fast and always run.
 """
 
+import json
 import os
 import shutil
+import sqlite3
 import sys
 from pathlib import Path
 
@@ -68,9 +70,76 @@ def test_callgraph_scores_misses_and_absent_or_comment_edges_only():
     assert (cols["callgraph_misses"], cols["callgraph_engine_only"], cols["callgraph_unscored"]) == (0, 1, 777)
 
 
+def _scan_db(path, rows):
+    """A minimal scan DB: rows are (file_path, language, func_name, start_line, calls_out_to list)."""
+    con = sqlite3.connect(path)
+    con.execute("create table file_data (id integer primary key, file_path text, language text)")
+    con.execute("create table function_data (file_id int, func_name text, start_line int, calls_out_to text)")
+    for i, (rel, lang, name, start, calls) in enumerate(rows):
+        con.execute("insert into file_data values (?, ?, ?)", (i, rel, lang))
+        con.execute("insert into function_data values (?, ?, ?, ?)", (i, name, start, json.dumps(calls)))
+    con.commit()
+    con.close()
+
+
 def test_callgraph_is_na_and_a_shown_pass_without_an_oracle(tmp_path):
-    cols, ok = doom_scorer.callgraph_check("cssdoom", tmp_path, tmp_path / "absent.db")  # not a licensed C/C++ port
+    # a port whose only functions are in a language no oracle covers (kotlin): n/a, not a silent pass
+    _scan_db(tmp_path / "s.db", [("a.kt", "kotlin", "f", 1, ["g"]), ("a.kt", "kotlin", "g", 5, [])])
+    cols, ok = doom_scorer.callgraph_check("kocoa-doom", tmp_path, tmp_path / "s.db")
     assert ok and set(cols.values()) == {"n/a"} and set(cols) == set(doom_scorer.CALLGRAPH_NA)
+
+
+LANG_FIXTURES = {  # language -> (file, source with f calling g, h; g, h and the comment/string/macro cases defined)
+    "go": ("a.go", "package a\nfunc g() {}\nfunc h() {}\nfunc f() {\n\tg()\n\tx.h()\n}\n"),
+    "java": ("A.java", "class A {\n void g() {}\n void h() {}\n void f() {\n  g();\n  this.h();\n }\n}\n"),
+    "csharp": ("A.cs", "class A {\n void g() {}\n void h() {}\n void f() {\n  g();\n  this.h();\n }\n}\n"),
+    "rust": ("a.rs", "fn g() {}\nfn h() {}\nfn f() {\n    g();\n    vec![h(); 2];\n}\n"),
+    "javascript": ("a.js", "function g() {}\nfunction h() {}\nfunction f() {\n  g();\n  o.h();\n}\n"),
+    "python": ("a.py", "def g():\n    pass\ndef h():\n    pass\ndef f():\n    g()\n    o.h()\n"),
+}
+FIXTURE_START = {"go": 4, "java": 4, "csharp": 4, "rust": 3, "javascript": 3, "python": 5}
+
+
+@pytest.mark.parametrize("lang", sorted(LANG_FIXTURES))
+def test_ts_oracle_scores_each_covered_language(lang, tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    import ts_callgraph_oracle as ts
+
+    if not ts.available(lang):
+        pytest.skip(f"tree-sitter language pack has no {lang} grammar")
+    rel, src = LANG_FIXTURES[lang]
+    (tmp_path / rel).write_text(src)
+    starts = {"g": FIXTURE_START[lang] - 2, "h": FIXTURE_START[lang] - 1}
+    if lang == "python":
+        starts = {"g": 1, "h": 3}
+    rows = [(rel, lang, n, s, []) for n, s in starts.items()]
+    # the engine saw only g: one miss (h), no engine-only edge
+    db = tmp_path / "s.db"
+    _scan_db(db, rows + [(rel, lang, "f", FIXTURE_START[lang], ["g"])])
+    cols, ok = doom_scorer.callgraph_check("a-port", tmp_path, db)
+    assert (cols["callgraph_misses"], cols["callgraph_engine_only"], ok) == (1, 0, False), cols
+    # the engine saw both: perfect
+    _scan_db(tmp_path / "t.db", rows + [(rel, lang, "f", FIXTURE_START[lang], ["g", "h"])])
+    cols, ok = doom_scorer.callgraph_check("a-port", tmp_path, tmp_path / "t.db")
+    assert (cols["callgraph_recall"], cols["callgraph_precision"], ok) == (1.0, 1.0, True), cols
+    # an engine edge to a defined function the body never names is scored (kind absent)
+    k = (rel, lang, "k", 1, [])
+    _scan_db(tmp_path / "u.db", rows + [k, (rel, lang, "f", FIXTURE_START[lang], ["g", "h", "k"])])
+    cols, ok = doom_scorer.callgraph_check("a-port", tmp_path, tmp_path / "u.db")
+    assert (cols["callgraph_misses"], cols["callgraph_engine_only"], ok) == (0, 1, False), cols
+
+
+def test_ts_oracle_reads_rust_macro_arguments_and_skips_quote(tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    import ts_callgraph_oracle as ts
+
+    src = "fn g() {}\nfn h() {}\nfn f() {\n    let v = vec![g(); 3];\n    let t = quote! { h() };\n}\n"
+    (tmp_path / "a.rs").write_text(src)
+    rows = [("a.rs", "rust", "g", 1, []), ("a.rs", "rust", "h", 2, []), ("a.rs", "rust", "f", 3, [])]
+    res = ts.body_oracle(tmp_path, rows)
+    assert res["oracle_calls"] == 1 and res["misses_by_shape"] == {
+        "call": 1
+    }  # g() inside vec![] counts, quote! does not
 
 
 def test_seven_check_verdict_counts_out_of_seven():

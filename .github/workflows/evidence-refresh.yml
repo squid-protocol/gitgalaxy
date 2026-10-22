@@ -128,8 +128,6 @@ jobs:
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             tests/tools/det_sweep_plan.py
-            tests/tools/ci_shard_plan.py
-            tests/equivalence/det_sweep_durations.json
             tests/equivalence/*/case.json
 
       - name: Count the Db2 parts (#5882)

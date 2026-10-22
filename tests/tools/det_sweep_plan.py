@@ -35,7 +35,6 @@ from collections.abc import Callable
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import ci_shard_plan as shard_plan  # noqa: E402 -- stdlib only, like this planner
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CASES = REPO_ROOT / "tests" / "equivalence"
@@ -328,6 +327,13 @@ def shards_for(p: dict) -> list[str]:
     return [f"{i}/{n}" for i in range(1, n + 1)]
 
 
+def _shard_plan():
+    """ci_shard_plan, imported when durations size a plan: Evidence Refresh's sparse checkout carries only this file."""
+    import ci_shard_plan  # noqa: PLC0415 -- stdlib only, like this planner
+
+    return ci_shard_plan
+
+
 def load_durations(path: Path = DURATIONS) -> dict[str, float] | None:
     """{case: seconds} of the durations file's "det" section; None when the file is missing or unreadable."""
     try:
@@ -349,6 +355,7 @@ def db2_shards_for(p: dict, n_db2: int | None = None, durations: dict[str, float
     if p["mode"] == "ports" or not p["db2_cases"]:
         return []
     if durations is not None:
+        shard_plan = _shard_plan()
         w, missing = shard_plan.weights(db2_names(p), durations)
         shard_plan.check_measured(missing, len(w), "Db2 case")
         n = shard_plan.shards_for(
@@ -378,6 +385,7 @@ def timeouts_for(p: dict, durations: dict[str, float] | None) -> dict[str, int]:
     for key, matrix, setup, names in sets:
         n = len(p.get(matrix) or [])
         if n and names:
+            shard_plan = _shard_plan()
             w, _ = shard_plan.weights(names, durations)
             out[key] = shard_plan.timeout_minutes(w, n, setup, PROOF_JOBS, TIMEOUT_FLOOR, TIMEOUT_CEILING)
     return out

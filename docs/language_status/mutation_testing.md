@@ -346,7 +346,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COTRN02C (carddemo-tranadd) | equivalence | 100/770 | 61/91 (67%) | 61/73 (84%) | 12 / 0 / 10 / 8 / 0 |
 | COTRN00C (carddemo-tranlist) | equivalence | 100/697 | 66/91 (73%) | 66/79 (84%) | 13 / 0 / 5 / 7 / 0 |
 | COTRN01C (carddemo-tranview) | equivalence | 100/314 | 67/100 (67%) | 67/67 (100%) | 0 / 0 / 25 / 8 / 0 |
-| COTRN01C (carddemo-tranview-generated) | equivalence | 150/314 | 91/150 (61%) | 91/92 (99%) | 0 / 1 / 48 / 10 / 0 |
+| COTRN01C (carddemo-tranview-generated) | equivalence | 150/314 | 92/150 (61%) | 92/92 (100%) | 0 / 0 / 48 / 10 / 0 |
 | CBTRN03C (carddemo-trnrpt) | equivalence | 100/408 | 68/86 (79%) | 68/79 (86%) | 8 / 3 / 7 / 0 / 0 |
 | COUSR01C (carddemo-useradd) | equivalence | 100/272 | 63/98 (64%) | 63/64 (98%) | 0 / 1 / 27 / 7 / 0 |
 | COUSR03C (carddemo-userdel) | equivalence | 100/340 | 67/87 (77%) | 67/67 (100%) | 0 / 0 / 17 / 3 / 0 |
@@ -382,8 +382,8 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 4497 run | **2738/4103 (67%)** | **2738/3234 (85%)** | 310 / 186 / 584 / 285 / 0 |
-| **all estate** | | 5001 run | **3057/4579 (67%)** | **3057/3588 (85%)** | 345 / 186 / 672 / 319 / 0 |
+| **all equivalence** | | 4497 run | **2739/4103 (67%)** | **2739/3234 (85%)** | 310 / 185 / 584 / 285 / 0 |
+| **all estate** | | 5001 run | **3058/4579 (67%)** | **3058/3588 (85%)** | 345 / 185 / 672 / 319 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
@@ -391,7 +391,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | BDM | 25/49 (51%) | 25/28 (89%) |
 | CON | 385/903 (43%) | 385/501 (77%) |
 | COR | 172/298 (58%) | 172/229 (75%) |
-| DEL | 485/737 (66%) | 485/570 (85%) |
+| DEL | 486/737 (66%) | 486/570 (85%) |
 | LIT | 640/873 (73%) | 640/723 (89%) |
 | NEG | 573/654 (88%) | 573/621 (92%) |
 | RET | 56/105 (53%) | 56/93 (60%) |
@@ -422,7 +422,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COTRN02C (carddemo-tranadd) | 7/7 | 3/7 | 1/12 | 5/12 | 8/12 | 11/12 | 11/11 | 4/7 | 11/11 |
 | COTRN00C (carddemo-tranlist) | 6/9 | - | 10/14 | 8/14 | 11/13 | 10/14 | 11/11 | 2/3 | 8/13 |
 | COTRN01C (carddemo-tranview) | 1/1 | - | 2/24 | 2/3 | 21/24 | 19/24 | 17/17 | - | 5/7 |
-| COTRN01C (carddemo-tranview-generated) | 1/1 | - | 3/43 | 2/3 | 33/43 | 30/36 | 17/17 | - | 5/7 |
+| COTRN01C (carddemo-tranview-generated) | 1/1 | - | 3/43 | 2/3 | 34/43 | 30/36 | 17/17 | - | 5/7 |
 | CBTRN03C (carddemo-trnrpt) | 2/2 | 5/7 | 9/14 | 1/7 | 14/14 | 13/14 | 12/14 | - | 12/14 |
 | COUSR01C (carddemo-useradd) | 1/1 | - | 1/21 | 3/6 | 16/20 | 16/20 | 10/10 | - | 16/20 |
 | COUSR03C (carddemo-userdel) | 0/1 | - | 6/17 | 2/4 | 14/17 | 14/16 | 16/16 | - | 15/16 |

@@ -5492,7 +5492,7 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
             if e.get("event") == "RETRIEVE":  # #5089: the data's bytes as text
                 e.update(java_retrieve_as_compared(e))
             if e.get("event") == "COMMAREA" and e.get("area") is not None:  # #4765: the bytes the port left
-                if isinstance(e.get("commarea"), dict):  # #5863: the DTO it gave back too (compare_events `dto`)
+                if sc.get("dto_entry") and isinstance(e.get("commarea"), dict):  # #5863: the DTO too (compare_events)
                     e["dto"] = java_commarea(e["commarea"], shape, ca_fields or [], enc)
                 e["commarea"] = java_area(e.pop("area"), ca_fields or [], enc)
             elif "commarea" in e:

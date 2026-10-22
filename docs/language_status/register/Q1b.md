@@ -13,6 +13,6 @@ reached: "yes (#4658 case)"
   -4220 (conversion error) before Db2 sees them; that code is never a Db2 SQLCODE an embedded-SQL program meets, so
   DetSql maps it to -180 / 22007. Other driver errors pass through unchanged. SQLERRMC/SQLERRD of the mapped error stay
   empty (the DISPLAYed SQLERRD(3) is 0 on both sides).
-- **IBM.** Db2 13 for z/OS Codes, SQLCODE -180, SQLSTATE 22007: "The length or string representation of a DATE, TIME, or
+- **IBM.** Db2 for z/OS Codes (GC27-8847-02, ibm.com/docs/en/SSEPEK_12.0.0/pdf/db2z_12_codesbook.pdf; paraphrased), SQLCODE -180, SQLSTATE 22007: "The length or string representation of a DATE, TIME, or
   TIMESTAMP value does not conform to any valid format." The -4220 mapping is ours (a driver code, not a Db2 SQLCODE).
   SQLERRMC/SQLERRD of the mapped error are not compared with z/OS; not measured there (#4702 Part 2).

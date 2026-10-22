@@ -921,3 +921,25 @@ def test_lgicus01_front_end_holds_on_generated_customer_rows(tmp_path):
     sql = _prove_genapp_front_end(tmp_path, "genapp-lgicus01-generated", {"GENASA1.CUSTOMER": 10})
     assert len(sql) == 20 and sum(1 for q in sql if q["statements"]) == 18
     assert {(x["verb"], x["sqlcode"]) for q in sql for x in q["cobol"]} == {("SELECT", 0), ("SELECT", 100)}
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_lgacus01_front_end_holds_on_generated_customer_rows_with_fk(tmp_path):
+    """GenApp's add-customer front end (LGACUS01, LINKing LGACDB01, LGACVS01 and LGACDB02) on the generated CUSTOMER and
+    CUSTOMER_SECURE rows of genapp-lgacdb01-generated: the adds (counter or identity, blank fields, a full-width email)
+    answered alike, SQLCODE 0 on both sides, and the table state compared after the run."""
+    sql = _prove_genapp_front_end(
+        tmp_path, "genapp-lgacus01-generated", {"GENASA1.CUSTOMER": 10, "GENASA1.CUSTOMER_SECURE": 10}
+    )
+    assert len(sql) == 22 and sum(1 for q in sql if q["statements"]) == 20
+    assert {(x["verb"], x["sqlcode"]) for q in sql for x in q["cobol"]} == {("INSERT", 0), ("VALUES", 0)}
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_lgucus01_front_end_holds_on_generated_customer_rows(tmp_path):
+    """GenApp's update-customer front end (LGUCUS01, LINKing LGUCDB01 and LGUCVS01) on the ten generated CUSTOMER rows
+    of genapp-lgucdb01-generated: found and missing customers (UPDATE SQLCODE 0 and 100), the VSAM-only customer and
+    the requests the front end stops ('99') answered alike on both sides."""
+    sql = _prove_genapp_front_end(tmp_path, "genapp-lgucus01-generated", {"GENASA1.CUSTOMER": 10})
+    assert len(sql) == 20 and sum(1 for q in sql if q["statements"]) == 12
+    assert {(x["verb"], x["sqlcode"]) for q in sql for x in q["cobol"]} == {("UPDATE", 0), ("UPDATE", 100)}

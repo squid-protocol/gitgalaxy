@@ -136,8 +136,8 @@ def test_a_dli_form_the_oracle_does_not_model_is_refused_by_name(stmt, why):
         ec.translate_dli(stmt.removeprefix("EXEC DLI ").removesuffix(" END-EXEC"))
 
 
-@E2E
-def test_a_cics_dli_program_is_compared_against_gnucobol_database_bytes(tmp_path):
+def _prove(tmp_path: Path, name: str, program: str, csd: str, case: dict) -> dict:
+    """Translate `program` with the det translator and prove it against GnuCOBOL + ggdli.c (the report, proven or not)."""
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
     import det_port  # noqa: E402
@@ -145,18 +145,18 @@ def test_a_cics_dli_program_is_compared_against_gnucobol_database_bytes(tmp_path
     estate = tmp_path / "estate"
     for sub in ("cbl", "csd", "ims"):
         (estate / sub).mkdir(parents=True)
-    (estate / "cbl" / "DLICDEM.cbl").write_text(PROGRAM, encoding="ascii")
-    (estate / "csd" / "DLIC.csd").write_text(CSD, encoding="ascii")
-    for name in ("LVLDBD.dbd", "LVLPSB.psb"):
-        shutil.copy(FIXTURE / name, estate / "ims" / name)
+    (estate / "cbl" / f"{name}.cbl").write_text(program, encoding="ascii")
+    (estate / "csd" / "DLIC.csd").write_text(csd, encoding="ascii")
+    for dbd in ("LVLDBD.dbd", "LVLPSB.psb"):
+        shutil.copy(FIXTURE / dbd, estate / "ims" / dbd)
     for argv in (["init", "-q"], ["add", "-A"], ["-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "e"]):
         subprocess.run(["git", "-C", str(estate), *argv], check=True)  # noqa: S603, S607
-    (tmp_path / "case.json").write_text(json.dumps(_case()), encoding="utf-8")
+    (tmp_path / "case.json").write_text(json.dumps(case), encoding="utf-8")
     project = det_port.estate(estate, tmp_path / "translate")
     port = tmp_path / "port"
     (port / "service").mkdir(parents=True)
-    stub = (project / "src/main/java" / det_port.PKG_DIR / "service" / "DlicdemService.java").read_text("utf-8")
-    r = P.translate(estate / "cbl" / "DLICDEM.cbl", [estate / "cbl"], stub, det_port.PKG, P.estate_files(project),
+    stub = (project / "src/main/java" / det_port.PKG_DIR / "service" / f"{name.title()}Service.java").read_text("utf-8")
+    r = P.translate(estate / "cbl" / f"{name}.cbl", [estate / "cbl"], stub, det_port.PKG, P.estate_files(project),
                     project)  # fmt: skip
     assert r.stats["holes"] == [], r.stats["holes"]
     (port / "service" / f"{r.service}.java").write_text(r.java, encoding="utf-8")
@@ -170,6 +170,12 @@ def test_a_cics_dli_program_is_compared_against_gnucobol_database_bytes(tmp_path
     report_file = keep / "report.json"
     report = json.loads(report_file.read_text(encoding="utf-8")) if report_file.is_file() else {}
     assert proc.returncode == 0 and report.get("proven") is True, proc.stdout[-4000:] + proc.stderr[-3000:]
+    return report
+
+
+@E2E
+def test_a_cics_dli_program_is_compared_against_gnucobol_database_bytes(tmp_path):
+    report = _prove(tmp_path, "DLICDEM", PROGRAM, CSD, _case())
     events = report["outputs"]["run"]["cobol"]
     sent = [e["text"].rstrip() for e in events if e.get("event") == "SEND-TEXT"]
     # IBM: SCHD / REPL on the held segment / ISRT / TERM blank; a miss GE; DLET with no get before it DJ
@@ -178,3 +184,128 @@ def test_a_cics_dli_program_is_compared_against_gnucobol_database_bytes(tmp_path
     (dbs,) = [e["dbs"] for e in events if e.get("event") == "DLI-DBS"]
     data = bytes.fromhex(dbs["LVLDBD"])
     assert b"BOBBY" in data and b"ALICE" not in data and b"D400FINANCE" in data
+
+
+# #5233: a program that answers every DIBSTAT, run unfaulted and with one planned status per scenario
+FAULT_PROGRAM = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. DLICFLT.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-DEPT                PIC X(20).
+       01  WS-EMP                 PIC X(20).
+       01  WS-KEY                 PIC X(4) VALUE 'E001'.
+       01  WS-NONE                PIC X(4) VALUE 'E999'.
+       01  WS-D100                PIC X(4) VALUE 'D100'.
+       01  WS-TAG                 PIC X(2).
+       01  WS-OUT                 PIC X(50) VALUE SPACES.
+       LINKAGE SECTION.
+       01  DFHCOMMAREA            PIC X(4).
+       PROCEDURE DIVISION.
+           MOVE 'A1' TO WS-TAG.
+           EXEC DLI SCHD PSB((WS-TAG)) NODHABEND END-EXEC.
+           PERFORM SHOW.
+           IF DIBSTAT NOT = SPACES GO TO DONE.
+           MOVE 'B1' TO WS-TAG.
+           EXEC DLI GU USING PCB(1) SEGMENT(DEPT) WHERE(DEPTNO=WS-D100)
+                INTO(WS-DEPT) END-EXEC.
+           PERFORM SHOW.
+           MOVE 'C1' TO WS-TAG.
+           EXEC DLI GNP USING PCB(1) SEGMENT(EMP) WHERE(EMPNO = WS-KEY)
+                INTO(WS-EMP) END-EXEC.
+           PERFORM SHOW.
+           MOVE 'D1' TO WS-TAG.
+           EXEC DLI GNP USING PCB(1) SEGMENT(EMP) WHERE(EMPNO = WS-NONE)
+                INTO(WS-EMP) END-EXEC.
+           PERFORM SHOW.
+           MOVE 'E1' TO WS-TAG.
+           EXEC DLI GU USING PCB(1) SEGMENT(DEPT) WHERE(DEPTNO=WS-D100)
+                INTO(WS-DEPT) END-EXEC.
+           PERFORM SHOW.
+           MOVE 'F1' TO WS-TAG.
+           EXEC DLI GNP USING PCB(1) SEGMENT(EMP) INTO(WS-EMP) END-EXEC.
+           PERFORM SHOW.
+           MOVE 'BOBBY     ' TO WS-EMP(5:10).
+           MOVE 'G1' TO WS-TAG.
+           EXEC DLI REPL USING PCB(1) SEGMENT(EMP) FROM(WS-EMP)
+                END-EXEC.
+           PERFORM SHOW.
+           MOVE 'H1' TO WS-TAG.
+           EXEC DLI TERM END-EXEC.
+           PERFORM SHOW.
+           GO TO DONE.
+       SHOW.
+           MOVE SPACES TO WS-OUT.
+           STRING WS-TAG DELIMITED BY SIZE ' ' DELIMITED BY SIZE
+                  DIBSTAT DELIMITED BY SIZE ' ' DELIMITED BY SIZE
+                  WS-EMP DELIMITED BY SIZE
+                  INTO WS-OUT.
+           EXEC CICS SEND TEXT FROM(WS-OUT) LENGTH(50) END-EXEC.
+       DONE.
+           EXEC CICS RETURN END-EXEC.
+"""
+FAULT_RUNS = {  # scenario -> its dli_faults
+    "base": [],
+    "schd-tc": [{"op": "SCHD", "status": "TC"}],
+    "gu-ge": [{"op": "GU", "nth": 1, "status": "GE"}],
+    "gnp-am": [{"op": "GNP", "nth": 3, "status": "AM"}],
+    "repl-ac": [{"op": "REPL", "status": "AC"}],
+    "every-gnp-gb": [{"op": "GNP", "nth": "*", "status": "GB"}],
+}
+
+
+def _statuses(report: dict, name: str) -> dict[str, str]:
+    sent = [e["text"].rstrip() for e in report["outputs"][name]["cobol"] if e.get("event") == "SEND-TEXT"]
+    return {ln[:2]: ln[3:5].strip() for ln in sent}
+
+
+@E2E
+def test_planned_dli_statuses_fire_the_same_on_both_runtimes_and_a_qualified_gnp_that_finds_nothing_is_ge(tmp_path):
+    case = {**_case(), "program": "DLICFLT", "program_source": "cbl/DLICFLT.cbl",
+            "scenarios": [{"name": n, "commarea": None, **({"dli_faults": f} if f else {})}
+                          for n, f in FAULT_RUNS.items()]}  # fmt: skip
+    report = _prove(tmp_path, "DLICFLT", FAULT_PROGRAM, CSD.replace("DLICDEM", "DLICFLT"), case)
+    base = _statuses(report, "base")
+    assert base == {"A1": "", "B1": "", "C1": "", "D1": "GE", "E1": "", "F1": "", "G1": "", "H1": ""}, base
+    assert _statuses(report, "schd-tc") == {"A1": "TC"}
+    assert _statuses(report, "gu-ge")["B1"] == "GE" and _statuses(report, "gu-ge")["C1"] == "GP"
+    assert _statuses(report, "gnp-am")["F1"] == "AM"
+    assert _statuses(report, "repl-ac")["G1"] == "AC"
+    assert {k: v for k, v in _statuses(report, "every-gnp-gb").items() if k in ("C1", "D1", "F1")} == {
+        "C1": "GB", "D1": "GB", "F1": "GB"}  # fmt: skip
+    for name, plan in FAULT_RUNS.items():
+        fired = report["outputs"][name].get("fired")
+        assert (fired is not None) == bool(plan)
+        if plan:
+            assert fired["cobol"] and fired["cobol"] == fired["java"], (name, fired)
+    assert report["outputs"]["gu-ge"]["fired"]["cobol"] == ["DLI GU 1 GE"]
+
+
+def test_a_scenarios_dli_faults_become_the_plan_both_stubs_read():
+    case = _case()
+    sc = {"name": "s", "dli_faults": [{"op": "GNP", "nth": 2, "status": "GE"}, {"op": "SCHD", "status": "TC"},
+                                      {"op": "REPL", "nth": "*", "status": "AM"}]}  # fmt: skip
+    assert ec.dli_fault_lines(case, sc) == ["GNP 2 GE", "SCHD 1 TC", "REPL * AM"]
+    assert ec.dli_fault_lines(case, {"name": "s"}) == []
+
+
+@pytest.mark.parametrize(
+    "fault",
+    [
+        {"op": "CHKP", "status": "GE"},  # a BMP call, no CICS command
+        {"op": "TERM", "status": "GE"},
+        {"op": "SCHD", "status": "GE"},  # SCHD answers TC only
+        {"op": "GU", "status": "XX"},
+        {"op": "GU", "nth": 0, "status": "GE"},
+        {"op": "GU", "nth": "2", "status": "GE"},
+    ],
+)  # fmt: skip
+def test_a_dli_fault_the_models_do_not_state_is_refused(fault):
+    with pytest.raises(ec.Unsupported, match="dli_fault"):
+        ec.dli_fault_lines(_case(), {"name": "s", "dli_faults": [fault]})
+
+
+def test_dli_faults_need_an_ims_section():
+    case = {k: v for k, v in _case().items() if k != "ims"}
+    with pytest.raises(ec.Unsupported, match='no "ims" section'):
+        ec.dli_fault_lines(case, {"name": "s", "dli_faults": [{"op": "GU", "status": "GE"}]})

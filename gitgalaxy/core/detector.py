@@ -1385,6 +1385,8 @@ def _drop_nested_declaration_calls(sats: list[Any], candidates: list[tuple[Any, 
             sat["calls_out_qualifiers"] = {c: q for c, q in sat["calls_out_qualifiers"].items() if c not in drop}
 
 
+# #5699: a Go unit whose header names a receiver is a method (`func (s *S) f(`); a generic function is `func f[T]`
+_GO_RECEIVER_HEADER = re.compile(r"\s*func\s*\(")
 _UNIT_NAME_SEPARATORS = re.compile(r"::|\.|->")
 
 # References (Python): a function name used as a value -- `Depends(get_db)`,
@@ -2687,6 +2689,8 @@ class StructuralExtractor:
         self._call_scans: list[tuple[FunctionNode, str, dict[str, Any]]] | None = None
         # #5699: units (name, start line) that call their own bare name; a method of one keeps the call
         self._bare_self_units: set[tuple[str, int]] = set()
+        # #5699: the subset of those whose header names a receiver (Go `func (s *S) f(`): a method with no enclosing class
+        self._receiver_units: set[tuple[str, int]] = set()
 
         # #2728: the names this language's own `func_start` can synthesize from a
         # closed keyword alternation rather than capture from source. Empty for
@@ -3280,15 +3284,15 @@ class StructuralExtractor:
                         innermost_cls is None or cls["_start_line"] > innermost_cls["_start_line"]
                     ):
                         innermost_cls = cls
+                unit_key = (func["name"], func_line)
+                is_method = innermost_cls is not None or unit_key in self._receiver_units
+                if is_method and unit_key in self._bare_self_units and func["name"] not in func["calls_out_to"]:
+                    # #5699: a bare `f(` in a method `f` is not the method here (it needs `self.f`):
+                    # kept for the resolver, which reaches a free `f` or prunes it as recursion
+                    func["calls_out_to"].append(func["name"])
+                    func["calls_out_qualifiers"][func["name"]] = [""]
                 if innermost_cls is not None:
                     func["parent_class_name"] = innermost_cls["name"]
-                    if (func["name"], func.get("start_line", 0)) in self._bare_self_units and func["name"] not in func[
-                        "calls_out_to"
-                    ]:
-                        # #5699: a bare `f(` in a method `f` is not the method here (it needs `self.f`):
-                        # kept for the resolver, which reaches a free `f` or prunes it as recursion
-                        func["calls_out_to"].append(func["name"])
-                        func["calls_out_qualifiers"][func["name"]] = [""]
                     class_methods_by_id[id(innermost_cls)].append(func)
 
             for cls in classes:
@@ -10708,6 +10712,8 @@ class StructuralExtractor:
         # #5699: a bare `f(` after the unit's own header that is not a nested declaration header
         if bare_self_hits and self.primary_lang_id in BARE_CALL_SKIPS_METHODS:
             self._bare_self_units.add((name, start_line))
+            if self.primary_lang_id == "go" and _GO_RECEIVER_HEADER.match(block):
+                self._receiver_units.add((name, start_line))
         return sat, magnitude
 
     def _export_declaration_offsets(self, code_stream: str) -> set[int]:

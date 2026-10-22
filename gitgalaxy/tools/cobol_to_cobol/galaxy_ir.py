@@ -1626,7 +1626,14 @@ class GalaxyIR:
             examples.setdefault(inp, []).append(example)
 
         # Program calls (JCL EXEC PGM included).
-        calls = [(f, c) for f in self.files.values() for c in f.calls if c.verb not in TRANSACTION_ROUTING_VERBS]
+        # #5736: a SQL `CALL` names a database routine, never a program: it is no program-call gap.
+        calls = [
+            (f, c)
+            for f in self.files.values()
+            if f.language != "db2_sql"
+            for c in f.calls
+            if c.verb not in TRANSACTION_ROUTING_VERBS
+        ]
         # A callee in a language calls are not resolved to (not a copybook or JCL
         # of the same name -- CBSA ships NEWACCNO.cpy and NEWACCNO.jcl, not the program).
         any_stem = {Path(p).stem.upper() for p, f in self.files.items() if f.language in _CALLEE_LANGUAGES}

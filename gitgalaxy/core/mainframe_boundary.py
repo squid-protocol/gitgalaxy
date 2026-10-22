@@ -75,6 +75,7 @@
 import bisect
 import json
 import re
+from collections.abc import Callable
 from typing import Any
 
 # #3344: the DB2 DECLARE TABLE / DCLGEN channel lives in its own module (it is
@@ -107,7 +108,6 @@ from gitgalaxy.core.pli_calls import blank_sequence_fields, pli_cics_stream, pli
 from gitgalaxy.core.pli_data_moves import pli_data_moves
 from gitgalaxy.core.pli_on_units import pli_on_units
 from gitgalaxy.core.special_names import special_names
-from gitgalaxy.core.sql_calls import sql_external_calls
 from gitgalaxy.core.uow_handlers import extract_uow_handlers
 from gitgalaxy.core.web_services import jcl_web_services
 from gitgalaxy.standards.language_standards.identifiers import NATIONAL, WIDE_DIGITS, WIDE_HYPHENS
@@ -2547,6 +2547,51 @@ def _cobol_job_cards(code_stream: str) -> list[dict[str, Any]]:
         return _opens_inside_literal(code_stream, line_start, offset)
 
     return cobol_job_cards(code_stream, _shielded)
+
+
+# #5736: SQL routine call sites (`call_site_data`). `calls_out_to` (#5635) is the function-level reading;
+# this is the program-level one, as for COBOL and PL/I: a `CALL name` leaving the file. A CALL of a procedure the
+# same file creates is a function-level edge only; one naming a routine defined elsewhere is a site, resolved by
+# invocation_resolver against the repository's SQL routines. Only the `CALL` verb counts (`PERFORM f()` /
+# `SELECT f()` are expressions). Comments are already gone from the code stream; `shielded` skips quoted text.
+_SQL_ID = r"[\w#$@]"
+_SQL_NAME = r'(?:"[^"\n]{1,128}"|' + _SQL_ID + r"{1,128})"
+_SQL_CALL = re.compile(
+    r"(?<![\w#$@.])CALL[ \t\r\n]+((?:" + _SQL_NAME + r"[ \t]*\.[ \t]*){0,2})(" + _SQL_NAME + r")(?![\w#$@])",
+    re.I,
+)
+_SQL_DEFINED = re.compile(
+    r"(?<![\w#$@.])CREATE[ \t\r\n]+(?:OR[ \t\r\n]+REPLACE[ \t\r\n]+)?(?:PROCEDURE|FUNCTION)[ \t\r\n]+"
+    r"(?:" + _SQL_NAME + r"[ \t]*\.[ \t]*){0,2}(" + _SQL_NAME + r")(?![\w#$@])",
+    re.I,
+)
+
+
+def _sql_bare(name: str) -> str:
+    return name.strip('"').upper()
+
+
+def sql_external_calls(code_stream: str, shielded: Callable[[int], bool] | None = None) -> list[dict[str, Any]]:
+    """`CALL name` sites whose routine is not created in this file (see the header)."""
+    if "CALL" not in code_stream.upper():
+        return []
+    local = {_sql_bare(m.group(1)) for m in _SQL_DEFINED.finditer(code_stream)}
+    newlines = [i for i, ch in enumerate(code_stream) if ch == "\n"]
+    rows = []
+    for m in _SQL_CALL.finditer(code_stream):
+        name = _sql_bare(m.group(2))
+        if name in local or (shielded is not None and shielded(m.start())):
+            continue
+        rows.append(
+            {
+                "verb": "CALL",
+                "form": "literal",
+                "operand": name,
+                "target": name,
+                "line": bisect.bisect_left(newlines, m.start()) + 1,
+            }
+        )
+    return rows
 
 
 def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str, Any]]]:

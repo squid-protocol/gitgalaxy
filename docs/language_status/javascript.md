@@ -145,6 +145,15 @@ Three gaps are deliberately documented rather than fixed (item 4 is a counting-c
    but not `window.teleport`). Neither side is missing anything the other has: the ctags-only set is empty. So the engine
    is right and the delta is a counting convention, not a defect; cssdoom keeps `expected_fails=functions` in
    `tests/doom_rosetta/manifest.csv`. Pinned by `test_javascript_func_start_bound_arrow_is_a_function`.
+   sqlDOOM (PostgreSQL, Python and a small JavaScript web client) is the same class: 419 against 376 (+11.4%, 6 files).
+   The SQL and Python files agree with ctags exactly; all 43 extra functions are in six JavaScript files
+   (`scripts/bots.mjs` 9, `scripts/egress_probe.mjs` 4, `scripts/web_browser_check.mjs` 5, `scripts/web_smoke.mjs` 1,
+   `web/app.js` 17, `web/pgwire.js` 7). 33 are `const f = (...) =>` bindings (top-level helpers such as
+   `const sleep = (ms) => new Promise(...)`, an expression body with no braces, and closures nested in `play`/`setup`),
+   and 10 are handlers assigned on an object (`pg.onclose = (err) => {`, `ws.onmessage = (ev) => {`, `pg.onwire = ...`).
+   Every one was read in the source and is a real function; ctags tags the `const` ones as `constant`, emits null tags
+   for the assigned ones, and has nothing the engine lacks. Same ruling: a counting convention, sqldoom keeps
+   `expected_fails=functions`.
 
 ## 6. Test depth
 

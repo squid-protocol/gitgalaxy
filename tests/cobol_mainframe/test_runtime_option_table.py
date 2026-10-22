@@ -24,10 +24,12 @@ from gitgalaxy.core import estate_options as eo  # noqa: E402
 from gitgalaxy.core.runtime_options import (
     CICS_CONVENTIONS,
     RUNTIME_OPTION_TABLE,
+    RUNTIME_USED_BY,
     calibration_problems,
     conventions_rows,
     runtime_effect,
     runtime_unhonoured,
+    used_by_rows,
 )  # noqa: E402
 
 ESTATES = sorted((ROOT / "tests" / "equivalence" / "estate_options").glob("*.json"))
@@ -266,3 +268,73 @@ def test_a_measurement_may_state_a_no_effect_option_and_must_know_its_keys():
     assert calibration_problems(_stated() | {"db2.bind.ISOLATION": "RR"}) == []
     assert "no row" in calibration_problems(_stated() | {"cics.region.NEW": "x"})[0]
     assert calibration_problems(None) and calibration_problems({})
+
+
+# --- which burned estates exercise each judged option (#4707) ---
+
+SQL_BLOCK = re.compile(r"EXEC\s+SQL(.*?)END-EXEC", re.DOTALL | re.IGNORECASE)
+# option path -> (where, pattern): "text" over the source, "sql" over each EXEC SQL block
+EXERCISE = {
+    "le.runtime_options.TRAP": ("text", re.compile(r"\b(DIVIDE|COMPUTE)\b", re.IGNORECASE)),
+    "le.runtime_options.ABTERMENC": ("text", re.compile(r"EXEC\s+CICS\s+ABEND\b|CEE3ABD", re.IGNORECASE)),
+    "db2.format.DATE": ("text", re.compile(r"\bCURRENT\s+DATE\b|^\s+\w+\s+DATE\s*,?\s*$", re.IGNORECASE | re.MULTILINE)),
+    "db2.format.TIME": ("text", re.compile(r"\bCURRENT\s+TIME\b|^\s+\w+\s+TIME\s*,?\s*$", re.IGNORECASE | re.MULTILINE)),
+    "db2.format.DEC": ("sql", re.compile(r"\bDEC(IMAL)?\s*\(\s*(1[6-9]|2\d|3[01])\b", re.IGNORECASE)),
+    "db2.format.DECPT": ("sql", re.compile(r"(?<![\w.'-])\d+\.\d+")),
+    "db2.ccsid.EBCDIC_CCSID": ("text", re.compile(r"EXEC\s+SQL", re.IGNORECASE)),
+    "db2.ccsid.SQLCCSID": ("text", re.compile(r"EXEC\s+SQL", re.IGNORECASE)),
+    "cics.region.LOCALCCSID": ("text", re.compile(r"EXEC\s+CICS", re.IGNORECASE)),
+}  # fmt: skip
+STATED_BY_REGISTER = {"le.runtime_options.STORAGE"}  # register L3 names the programs; no pattern finds a missing VALUE
+
+
+def _burned_exercisers():
+    """{option: {corpus}} for the burned estates whose COBOL (comment lines dropped) holds each option's construct."""
+    out: dict[str, set[str]] = {path: set() for path in EXERCISE}
+    for path in sorted(ESTATES):
+        corpus = CORPORA / path.stem
+        if not corpus.is_dir():
+            continue
+        for src in corpus.rglob("*"):
+            if src.suffix.lower() not in (".cbl", ".cob", ".cpy") or not src.is_file():
+                continue
+            lines = src.read_text(encoding="latin-1").splitlines()
+            text = "\n".join(line for line in lines if not (len(line) > 6 and line[6] in "*/"))
+            blocks = SQL_BLOCK.findall(text)
+            for option, (where, pattern) in EXERCISE.items():
+                if (where == "text" and pattern.search(text)) or (
+                    where == "sql" and any(pattern.search(b) for b in blocks)
+                ):
+                    out[option].add(path.stem)
+    return out
+
+
+def test_every_judged_option_says_which_burned_estates_exercise_it():
+    judged = {key for key, row in RUNTIME_OPTION_TABLE.items() if row["policy"]}
+    assert set(RUNTIME_USED_BY) == judged
+    assert judged == set(EXERCISE) | STATED_BY_REGISTER
+    burned = {path.stem for path in ESTATES}
+    for key, corpora in RUNTIME_USED_BY.items():
+        assert set(corpora) <= burned, key
+
+
+def test_used_by_is_exactly_the_burned_corpora_that_hold_the_construct():
+    found = _burned_exercisers()
+    if not CORPORA.is_dir() or not any(found.values()):
+        pytest.skip("no burned corpus checked out (GITGALAXY_MAINFRAME_CORPORA)")
+    for option, corpora in found.items():
+        assert sorted(corpora) == sorted(RUNTIME_USED_BY[option]), option
+
+
+def test_storage_used_by_matches_the_programs_register_l3_names():
+    text = (ROOT / "docs" / "language_status" / "register" / "L3.md").read_text(encoding="utf-8")
+    assert "CardDemo" in text and "CBSA" in text
+    assert RUNTIME_USED_BY["le.runtime_options.STORAGE"] == [
+        "aws-mainframe-modernization-carddemo",
+        "cics-banking-sample-application-cbsa",
+    ]
+
+
+def test_the_register_lists_every_used_by_row():
+    text = (ROOT / "docs" / "language_status" / "register" / "C18.md").read_text(encoding="utf-8")
+    assert not [row for row in used_by_rows() if row not in text]

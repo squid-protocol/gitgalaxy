@@ -105,6 +105,28 @@
    "why": "account 1 has a summary segment in DBPAUTP0 and funds left: reply 00 / 0000, the summary REPLaced and a PAUTDTL1 detail inserted under it"
   },
   {
+   "name": "schd-already-held",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "260101,120000,9680294154603697,POS,1226,PURCH,POS,000000,0000000100.00,5411,USA,05,MERCHANT000001,ACME GROCERY,SPRINGFIELD,IL,627010000,TXN000000000001",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.AUTH",
+      "correlid": "REQ-0001"
+     }
+    ]
+   },
+   "why": "DL/I fault: the first SCHD answers TC (the task already holds the PSB): 1200 TERMs and schedules again, and the request is then approved as in approve-summary-found",
+   "dli_faults": [
+    {
+     "op": "SCHD",
+     "nth": 1,
+     "status": "TC"
+    }
+   ]
+  },
+  {
    "name": "decline-insufficient-funds",
    "mq_messages": {
     "CARDDEMO.REQUEST.QUEUE": [

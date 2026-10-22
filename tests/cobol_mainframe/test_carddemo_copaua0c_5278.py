@@ -25,7 +25,7 @@ APP = "app/app-authorization-ims-db2-mq"
 
 # the request outcomes the program decides, the file faults it handles, and the queue set-ups it reports
 SCENARIOS = [
-    "no-request", "approve-summary-found", "decline-insufficient-funds", "approve-no-summary",
+    "no-request", "approve-summary-found", "schd-already-held", "decline-insufficient-funds", "approve-no-summary",
     "decline-no-summary-over-account-limit", "card-not-in-xref", "account-not-in-master", "customer-not-in-master",
     "same-account-twice", "amount-without-decimals", "amount-with-sign", "three-requests-mixed",
     "read-xref-io-error", "read-acct-io-error", "read-cust-io-error", "no-trigger-data", "no-reply-queue",

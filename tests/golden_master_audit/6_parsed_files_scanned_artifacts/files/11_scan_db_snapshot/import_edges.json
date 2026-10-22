@@ -4393,6 +4393,11 @@
         "import:shell/kubernetes/config-default.sh"
       ]
     },
+    "shell/reactos": {
+      "shell/reactos/codespell_check.sh": [
+        "fcall:shell/reactos/codespell_changed_files.sh"
+      ]
+    },
     "solidity/openzeppelin": {
       "solidity/openzeppelin/ReentrancyGuard.sol": [
         "import:solidity/openzeppelin/StorageSlot.sol"

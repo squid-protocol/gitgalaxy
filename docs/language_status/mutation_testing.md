@@ -831,19 +831,20 @@ LENGTH) and `beyond` (X10).
 
 The "unaccounted" column includes the open `case-gap` / `harness-gap` rows, which block L5 until a scenario or the harness covers them.
 
-**#4628 slice 5 (2026-10-22): no user-admin program reaches L5; every open survivor is a `harness-gap`.** First det-port ledgers for the
+**#4628 slice 5 (2026-10-22): COUSR01C and COUSR02C reach L5; COUSR03C has one open `harness-gap`.** First det-port ledgers for the
 three CardDemo user-admin ports (150 mutants each, seed 0, fast mode, JDK 17). New scenarios kill survivors: `header-fields-sent-back`
 (COUSR03C: a received TRNNAME), `pf3-returns-to-menu-caller` and `pf5-updates-short-user-id` (COUSR02C, plus the OPS record in its
 `usrsec.txt`), and the COUSR01C additions. Every survivor has a stated reason in `det_mutation_survivors/carddemo-user*.json`; the
-verdicts are proposals for owner review. The open ones are the byte[] COMMAREA entry (`cb.length > s_DFHCOMMAREA.bytes.length`,
-`cx(task, cb.length)`), which the harness cannot express (2 / 1 / 3 in useradd / userupd / userdel), and COUSR03C's first-entry
+verdicts are proposals for owner review. The byte[] COMMAREA entry (`cb.length > s_DFHCOMMAREA.bytes.length`,
+`cx(task, cb.length)`; 2 / 1 / 3 in useradd / userupd / userdel) is re-stated `unreachable` (follow-up, same reason as COADM01C and COUSR00C: no
+CardDemo program LINKs these XCTL-only programs, so the area is always the typed DTO). The one open survivor is COUSR03C's first-entry
 `MOVE LOW-VALUES TO COUSR3AO`, whose spaces-versus-low-values difference the proof strips (#4635).
 
 | program (case) | mutants run / in scope | killed | survived | stillborn | stated equivalent / unreachable | unaccounted | raw score | L5 |
 |---|---|---|---|---|---|---|---|---|
-| COUSR01C (carddemo-useradd) | 150/1214 | 91 | 56 | 3 | 54 | 2 | 91/147 (62%) | no |
-| COUSR02C (carddemo-userupd) | 150/1404 | 96 | 48 | 6 | 47 | 1 | 96/144 (67%) | no |
-| COUSR03C (carddemo-userdel) | 150/1302 | 84 | 58 | 8 | 54 | 4 | 84/142 (59%) | no |
+| COUSR01C (carddemo-useradd) | 150/1214 | 91 | 56 | 3 | 56 | 0 | 91/147 (62%) | yes |
+| COUSR02C (carddemo-userupd) | 150/1404 | 96 | 48 | 6 | 48 | 0 | 96/144 (67%) | yes |
+| COUSR03C (carddemo-userdel) | 150/1302 | 84 | 58 | 8 | 57 | 1 | 84/142 (59%) | no |
 
 **#4628 slice 6 (2026-10-22): COUSR00C and ABNDPROC measured; neither reaches L5.** First det-port ledgers (150 mutants each, seed 0,
 fast mode, JDK 17). COUSR00C: ten new scenarios (`full-commarea-carried`, the `rows-sent-back-*` family that re-enters with a

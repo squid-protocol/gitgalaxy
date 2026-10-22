@@ -272,6 +272,7 @@ public final class DetDli {
     // ---- #5857: DL/I status faults ----------------------------------------------------------------------------
     private static final List<String[]> FAULTS = new ArrayList<>();
     private static final java.util.Map<String, Integer> CALLS = new java.util.HashMap<>();
+    private static boolean faultsLoaded; // this task's plan is read and its counts started (reset() clears it)
 
     /**
      * The run's DL/I fault plan: the lines `# DLI FUNCTION NTH|* STATUS` of the file the property
@@ -280,6 +281,7 @@ public final class DetDli {
      */
     // [rule RT-DLI-FAULT-INJECTION]
     private static void loadFaults() {
+        faultsLoaded = true;
         FAULTS.clear();
         CALLS.clear();
         String plan = System.getProperty("gitgalaxy.faults.plan", "");
@@ -299,7 +301,7 @@ public final class DetDli {
     }
 
     /**
-     * The planned status of this call of `fn` (GU GN GNP ISRT REPL DLET CHKP; a get-hold counts as its get), or null.
+     * The planned status of this call of `fn` (GU GN GNP ISRT REPL DLET CHKP SCHD; a get-hold counts as its get), or null.
      * Every call counts, whether or not it faults; a fault that fires is appended to gitgalaxy.faults.log. The call is
      * not performed: the PCB answers the status, as it answers any status it cannot do better than name.
      */
@@ -342,13 +344,19 @@ public final class DetDli {
      */
     // [rule RT-DLI-SCHD]
     public static String schedule(String psb, boolean nodhabend) {
+        if (!faultsLoaded) {
+            loadFaults();
+        }
+        String fault = planned("SCHD"); // #5233: not performed, DIBSTAT answers the status (the twin of GGDLISCHD)
+        if (fault != null) {
+            return fault;
+        }
         if (scheduled) {
             if (!nodhabend) {
                 throw refuse("a SCHD of a PSB already scheduled, without NODHABEND (the task would abend)");
             }
             return "TC";
         }
-        loadFaults();
         try {
             if (!loaded) {
                 load();
@@ -376,6 +384,7 @@ public final class DetDli {
     public static void reset() {
         loaded = false;
         scheduled = false;
+        faultsLoaded = false;
         ioPcbs = 0;
         SEGS.clear();
         FLDS.clear();
@@ -941,7 +950,12 @@ public final class DetDli {
                 p.par = PAR_UNKNOWN;
             } else if (gnp) {
                 if (qualified) {
-                    throw refuse("a qualified GNP that finds nothing (where IMS leaves position)");
+                    // #5233 (register I5): GE, the parent's feedback, parentage as it was; where IMS leaves position is
+                    // not stated, so it is unknown and the next GN / GNP stops by name (the twin of ggdli.c)
+                    status(p, "GE");
+                    feedback(p, bound);
+                    p.pos = POS_UNKNOWN;
+                    return;
                 }
                 status(p, "GE");
                 feedback(p, bound);

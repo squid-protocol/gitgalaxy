@@ -16,9 +16,14 @@
  * Inputs ($GGDLI_DIR, written by tests/tools/equivalence_ims.py from the case's DBD / PSB sources and seed):
  *   dbd.cfg    DBD <name> / SEGM <dbd> <name> <parent name or 0> <bytes> /
  *              FIELD <dbd> <segment> <field> <start> <bytes> <type C|X|P> <S sequence field | - search field>
- *   psb.cfg    PCB <dbd> <procopt> <keylen>, one line per DB PCB in PSB order
+ *   psb.cfg    PCB <dbd> <procopt> <keylen>, one line per DB PCB in PSB order; GSAM <dbd> <procopt> <record length>
+ *              for a GSAM PCB (#5233), in the same order (the program's USING lists them as the PSB does)
  *   seed.<dbd> the database in hierarchic sequence: per segment, its 8-byte name and its BYTES of data
- * Output ($GGDLI_OUT/<dbd>.out): each database at the end, in the seed's format.
+ * Output ($GGDLI_OUT/<dbd>.out): each database at the end, in the seed's format; each GSAM database (#5233) the records
+ * inserted through its PCB, one record length each, in order.
+ * A GSAM PCB (register I5, #5233) is a load-mode output file: ISRT with no SSA appends one fixed-length record (the
+ * DBD's RECORD length, taken from the I/O area), status blank. Any other function answers AM (IBM: the call is not
+ * compatible with the PCB's processing option, here load); an ISRT with an SSA stops the run by name.
  *
  * Modelled (IMS Messages and Codes, "DL/I status codes"): GU GHU GN GHN GNP GHNP ISRT REPL DLET through a DB PCB, with
  * unqualified SSAs and SSAs qualified by one field (EQ GT LT GE LE NE and their symbolic forms) on a C / X field (a
@@ -65,6 +70,11 @@ typedef struct {
     int par;          /* parentage: PAR_AT on `parent` */
     Node *parentage;
     Node *hold;       /* the segment a get-hold call returned, until the next call on this PCB */
+    int gsam;         /* #5233: a GSAM PCB (load mode): db is -1, `out` collects the records ISRT appended */
+    int reclen;
+    char dbname[9];
+    unsigned char *out;
+    size_t outlen;
     int prevknown;    /* `at` is the previous segment for GA / GK */
 } Pcb;
 typedef struct {
@@ -217,18 +227,29 @@ typedef unsigned char *P;
 static void read_psb(void) {
     FILE *f = open_in("psb.cfg");
     if (!f) refuse("a run with no psb.cfg");
-    char line[256], a[64], b[64];
+    char line[256], a[64], b[64], kind[8];
     int k;
     npcb = 0;
     while (fgets(line, sizeof line, f)) {
-        if (sscanf(line, "PCB %63s %63s %d", a, b, &k) != 3) continue;
+        if (sscanf(line, "%7s %63s %63s %d", kind, a, b, &k) != 4) continue;
+        int gsam = !strcmp(kind, "GSAM");
+        if (!gsam && strcmp(kind, "PCB")) continue;
         if (npcb == 16) refuse("a PSB of more than 16 DB PCBs");
         Pcb *p = &pcbs[npcb];
         memset(p, 0, sizeof *p);
         p->db = -1;
+        snprintf(p->procopt, 5, "%.4s", b);
+        if (gsam) {
+            for (int i = 0; i < npcb; i++)
+                if (!strcmp(pcbs[i].dbname, a)) refuse("two GSAM PCBs on one database");
+            p->gsam = 1;
+            p->reclen = k;
+            snprintf(p->dbname, 9, "%.8s", a);
+            npcb++;
+            continue;
+        }
         for (int d = 0; d < ndb; d++)
             if (!strcmp(dbs[d].name, a)) p->db = d;
-        snprintf(p->procopt, 5, "%.4s", b);
         p->keylen = k;
         for (int s = 0; s < nseg; s++)
             if (segs[s].db == p->db) p->sensegs++;
@@ -240,8 +261,9 @@ static void read_psb(void) {
 /* The mask of a PCB with no position: DBD name, level 00, status blank, PROCOPT, sensitive segments, empty key feedback */
 static void init_mask(Pcb *p) {
     memset(p->mask, ' ', 36);
-    memcpy(p->mask, dbs[p->db].name, strlen(dbs[p->db].name));
-    memcpy(p->mask + 8, "00", 2);
+    const char *nm = p->gsam ? p->dbname : dbs[p->db].name;
+    memcpy(p->mask, nm, strlen(nm));
+    if (!p->gsam) memcpy(p->mask + 8, "00", 2); /* a GSAM PCB has no segment level: blank (ASSUMED, register I5) */
     memcpy(p->mask + 12, p->procopt, strlen(p->procopt));
     put_fullword(p->mask + 16, 0);
     put_fullword(p->mask + 28, 0);
@@ -301,6 +323,15 @@ static void write_dbs(void) {
         FILE *f = fopen(path, "wb");
         if (!f) refuse("an unwritable GGDLI_OUT");
         dump_node(f, &dbs[d].root);
+        fclose(f);
+    }
+    for (int i = 0; i < npcb; i++) { /* #5233: each GSAM database, the records its PCB took */
+        if (!pcbs[i].gsam) continue;
+        char path[4096];
+        snprintf(path, sizeof path, "%s/%s.out", out, pcbs[i].dbname);
+        FILE *f = fopen(path, "wb");
+        if (!f) refuse("an unwritable GGDLI_OUT");
+        if (pcbs[i].outlen) fwrite(pcbs[i].out, 1, pcbs[i].outlen, f);
         fclose(f);
     }
 }
@@ -732,6 +763,21 @@ static void change(Pcb *p, int dlet, unsigned char *io, Node *held, int k) {
 }
 
 /* One DL/I call: args[0] function, args[1] the PCB mask, args[2] the I/O area, args[3..n-1] the SSAs */
+/* #5233: a GSAM PCB in load mode. ISRT with no SSA appends reclen bytes of the I/O area as one record; every other
+ * function is not compatible with the load processing option (AM); an SSA on a GSAM call stops the run by name. */
+static void gsam_call(Pcb *p, const char *fn, P *args, int n) {
+    if (strcmp(fn, "ISRT")) {
+        status(p, "AM");
+        return;
+    }
+    if (n != 3) refuse("a GSAM ISRT with an SSA, or with no I/O area");
+    p->out = realloc(p->out, p->outlen + p->reclen);
+    if (!p->out) refuse("memory for a GSAM record");
+    memcpy(p->out + p->outlen, args[2], p->reclen);
+    p->outlen += p->reclen;
+    status(p, "  ");
+}
+
 static int do_call(P *args, int n) {
     load();
     if (n < 2) refuse("a call with fewer than a function and a PCB");
@@ -756,6 +802,10 @@ static int do_call(P *args, int n) {
         for (int i = 0; OTHER[i]; i++)
             if (!strcmp(fn, OTHER[i])) refuse("a DL/I call other than GU GHU GN GHN GNP GHNP ISRT REPL DLET");
         status(p, "AD");
+        return 0;
+    }
+    if (p->gsam) {
+        gsam_call(p, fn, args, n);
         return 0;
     }
     if (n < 3) refuse("a database call with no I/O area");

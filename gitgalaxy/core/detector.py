@@ -4606,6 +4606,11 @@ class StructuralExtractor:
             # every real function a SECOND time at the wrong line
             # (`bitwise.lua`: `bit.band` reported at both 118 and 134).
             comment_markers = r"--"
+        elif lang_id == "scheme":
+            # #5640: Scheme's line comment is `;`. `#` opens `#f` / `#t` / `#\x` / `#(..)` / `#x1F`, and `--`
+            # and `//` are ordinary identifier characters. `(m a #f (lambda () (f x)))` was blanked from `#f`
+            # to the end of the line, taking the lambda's calls with it.
+            comment_markers = r";"
         elif lang_id == "jcl":
             # #3292: JCL's ONLY comment is a `//*` card. `//` itself is the
             # prefix of EVERY statement (`//STEP EXEC PGM=X`, `//DD1 DD ...`),

@@ -1800,8 +1800,9 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   default), cobol-stub and the det port both passing the hand-written logs.
 
 ### X16. HANDLE AID, IGNORE CONDITION, PUSH / POP HANDLE, HANDLE CONDITION ERROR — MATCHED, REFUSED where IBM is silent (#4414, #4502)
-- **What IBM documents** (CICS TS, EXEC CICS HANDLE AID, IGNORE CONDITION, HANDLE CONDITION, PUSH HANDLE, POP
-  HANDLE; RESP and RESP2 options). HANDLE AID: a key's label, taken "after the input command is completed; that is,
+- **What IBM documents** (CICS TS 6.x, EXEC CICS HANDLE AID, IGNORE CONDITION, HANDLE CONDITION, PUSH HANDLE, POP
+  HANDLE; RESP and RESP2 options; ibm.com/docs/en/cics-ts/6.x?topic=summary-handle-aid, `...summary-ignore-condition`,
+  `...summary-handle-condition`, `...summary-push-handle`, `...summary-pop-handle`; wording paraphrased). HANDLE AID: a key's label, taken "after the input command is completed; that is,
   after any data received in addition to the AID has been passed to the application program"; ANYKEY is "any PA key,
   any PF key, or the CLEAR key, but not ENTER"; a key named without a label is deactivated; a task an AID started
   gets its input buffer on the first RECEIVE "(even if the length of the data is zero)"; RESP implies NOHANDLE, which
@@ -1813,7 +1814,7 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   current link level. Both sides model it: `ggcics.c` GGCHCND / GGCHAID / GGCAID / GGCPUSH / GGCPOP / GGCCOND (#4003,
   #4007), and the det port's `handlers` (-1: IGNORE), `aids` and `pushed` with `condition()` / `aid()` and
   DetCics.aidLabel / Handlers (#4414; the ERROR step of `condition()`, #4502).
-- **Refused by name** (`CicsError` / `Unsupported` at translation, a DRIVER-ERROR or IllegalStateException at run
+- **Refused by name, mostly where IBM is silent** (`CicsError` / `Unsupported` at translation, a DRIVER-ERROR or IllegalStateException at run
   time): IGNORE CONDITION ERROR (IBM does not say whether ERROR's action can be to ignore); a condition name IBM does
   not document; a HANDLE AID key that is no attention key, or RESP / NOHANDLE on it; at run time, a HANDLE AID label
   that applies to the key of an input command that also raised a condition (IBM does not say which CICS acts on
@@ -2198,12 +2199,12 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   (`test_a_read_gteq_generic_search_is_named_to_the_stub`).
 
 ### X23. A COMMAREA of a stated length — ASSUMED, a reference past EIBCALEN REFUSED (#4270)
-- **What IBM documents** (CICS TS 6.x, LINK: "COMMAREA(data-area) specifies a communication area that is to be made
+- **What IBM documents** (CICS TS 6.x, EXEC CICS LINK, ibm.com/docs/en/cics-ts/6.x?topic=summary-link: "COMMAREA(data-area) specifies a communication area that is to be made
   available to the invoked program ... LENGTH(data-value) specifies the length (halfword binary value) in bytes of the
   COMMAREA"; the invoked program's EIBCALEN is that length). A caller may pass fewer bytes than the invoked program's
   DFHCOMMAREA declares, and GenApp's services test for it: `IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN` -> '98', and
   WRITE-ERROR-MESSAGE's `IF EIBCALEN < 91`. What a program sees past EIBCALEN is the caller's storage after the area
-  (a local LINK passes its address) or nothing CICS defines -- either way not the program's to read.
+  (a local LINK passes its address) or nothing CICS defines -- either way not the program's to read. IBM is silent on what a program reads past EIBCALEN, so the harness refuses it.
 - **The harness's model.** A scenario states `"commarea_length": N` (1 to the record's length; never on a scenario
   with no COMMAREA): the caller passed the record's first N bytes and no more. Both sides give the program exactly N:
   the stub's driver hands the program the area GGCAREA chose -- the N bytes at the end of a page before an
@@ -2234,11 +2235,14 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   `tests/cobol_mainframe/test_det_translate.py` (the det port's cut storage).
 
 ### X24. A task started with a channel; the containers it leaves compared — ASSUMED (#4270)
-- **What IBM documents** (CICS TS 6.x, "Scope of a channel"; RUN TRANSID CHANNEL: "the name of the channel that is
+- **What IBM documents** (CICS TS 6.x, "Scope of a channel"; EXEC CICS RUN TRANSID, ibm.com/docs/en/cics-ts/6.x?topic=summary-run;
+  FETCH, `...summary-fetch`; LINK, `...summary-link`; wording paraphrased. RUN TRANSID CHANNEL: "the name of the channel that is
   to be passed to the child task"; FETCH CHILD CHANNEL: "the channel returned by the child task"; LINK CHANNEL: the
   called program's current channel, "what it puts there, the caller sees"). A service started by RUN TRANSID CHANNEL,
   or LINKed with CHANNEL, finds its input in containers on its current channel and leaves its result there for the
   parent to FETCH, or for the caller.
+- **IBM is silent** on a container's data type when a program reads it back across a channel, so the data type is not
+  compared (below).
 - **The harness's model.** A scenario states `"channel": {"name", "containers": {NAME: {"text" | "hex",
   "datatype"}}}`: the channel the caller passed (text in the case's data page; BIT unless CHAR, as PUT CONTAINER's
   default). Both sides build it before the program runs and make it the first program's current channel, the only

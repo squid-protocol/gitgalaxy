@@ -1730,7 +1730,8 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   field of that COMMAREA, and every field of every other scenario, is compared as usual.
 
 ### X13. An ESDS browsed by relative byte address — ASSUMED, REFUSED where IBM is silent (#4213)
-- **What IBM documents** (CICS TS 6.x, EXEC CICS STARTBR / READNEXT / READPREV, and "Sequential reading (browsing)"):
+- **What IBM documents** (CICS TS 6.x, EXEC CICS STARTBR / READNEXT / READPREV, and "Sequential reading (browsing)";
+  ibm.com/docs/en/cics-ts/6.x?topic=summary-readnext; wording paraphrased):
   with RBA, RIDFLD "contains a relative byte address"; RBA on the STARTBR "applies to every READNEXT or READPREV command
   in the browse, and causes CICS to return the relative byte address of each retrieved record"; EQUAL "is the default
   for a direct ESDS browse" and GTEQ "is not valid for directly browsing an ESDS"; a RIDFLD of X'FF' characters, with
@@ -1752,7 +1753,7 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - **Reached.** Yes: mortgage-mlist (IBM DBB EPSMLIST) browses its ESDS from RBA 0 to ENDFILE.
 
 ### X14. READ ... INTO LENGTH — ASSUMED, REFUSED where IBM is silent (#4436)
-- **What IBM documents** (CICS TS 6.x, EXEC CICS READ): LENGTH "specifies the length, as a halfword binary value, of
+- **What IBM documents** (CICS TS 6.x, EXEC CICS READ, ibm.com/docs/en/cics-ts/6.x?topic=summary-read; wording paraphrased): LENGTH "specifies the length, as a halfword binary value, of
   the data area where the record is to be put. On completion of the READ command, the LENGTH parameter contains the
   actual length of the record"; a record longer than LENGTH is truncated to it, with LENGERR RESP2 11 ("the record is
   truncated, and the data area supplied in the LENGTH option is set to the actual length of the record"). Both sides
@@ -1772,7 +1773,8 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   GenApp goes to LGSTSQ (X6), and both GenApp READs are UPDATE.
 
 ### X15. Terminal RECEIVE and SEND CONTROL — ASSUMED, REFUSED where IBM is silent (#4413)
-- **What IBM documents** (CICS TS, EXEC CICS RECEIVE (3270 logical) and (LUTYPE2/LUTYPE3)): with INTO and no
+- **What IBM documents** (CICS TS, EXEC CICS RECEIVE (3270 logical), ibm.com/docs/en/cics-ts/6.x?topic=summary-receive-3270-logical,
+  and (LUTYPE2/LUTYPE3); wording paraphrased): with INTO and no
   MAXLENGTH, LENGTH is "the maximum length that the program accepts" (below zero, zero); MAXLENGTH overrides it;
   longer data is truncated with LENGERR and LENGTH "set to the original length of data", or, under NOTRUNCATE, "CICS
   retains the remaining data and uses it to satisfy subsequent RECEIVE commands" with LENGTH the length returned.
@@ -4399,7 +4401,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   -4220 (conversion error) before Db2 sees them; that code is never a Db2 SQLCODE an embedded-SQL program meets, so
   DetSql maps it to -180 / 22007. Other driver errors pass through unchanged. SQLERRMC/SQLERRD of the mapped error stay
   empty (the DISPLAYed SQLERRD(3) is 0 on both sides).
-- **IBM.** Db2 13 for z/OS Codes, SQLCODE -180, SQLSTATE 22007: "The length or string representation of a DATE, TIME, or
+- **IBM.** Db2 for z/OS Codes (GC27-8847-02, ibm.com/docs/en/SSEPEK_12.0.0/pdf/db2z_12_codesbook.pdf; paraphrased), SQLCODE -180, SQLSTATE 22007: "The length or string representation of a DATE, TIME, or
   TIMESTAMP value does not conform to any valid format." The -4220 mapping is ours (a driver code, not a Db2 SQLCODE).
   SQLERRMC/SQLERRD of the mapped error are not compared with z/OS; not measured there (#4702 Part 2).
 

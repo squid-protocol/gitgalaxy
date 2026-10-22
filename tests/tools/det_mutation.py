@@ -58,6 +58,7 @@ sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO))
 
 CASES = REPO / "tests" / "equivalence"
+LEDGER_DIRS = {"det_mutation", "det_mutation_survivors"}  # under CASES but not cases
 LEDGER = CASES / "det_mutation"  # one <CASE>.json per case (like det_sweep_coverage/, #4789: PRs do not collide)
 SURVIVORS = CASES / "det_mutation_survivors"  # one <CASE>.json per case
 FORMAT = "det-mutation/1"
@@ -539,7 +540,14 @@ def changed_cases(ref: str) -> set[str] | None:
                           capture_output=True, text=True, check=False)  # fmt: skip
     if diff.returncode:
         return None
-    return {parts[2] for f in diff.stdout.split() if len(parts := f.split("/")) > 3}
+    return {parts[2] for f in diff.stdout.split() if len(parts := f.split("/")) > 3 and parts[2] not in LEDGER_DIRS}
+
+
+def cases_to_rerun(ref: str) -> list[str]:
+    """The cases this PR changes that carry a ledger (what `stale-check --vs REF` would test): cheap, a git diff and a
+    ledger read with no fingerprinting, so pr_gates can hint on every run (#5862)."""
+    changed = changed_cases(ref)
+    return sorted(changed & set(load())) if changed else []
 
 
 def stale_check(ref: str | None = None) -> int:

@@ -1,5 +1,5 @@
 {
- "commit": "15d982d51",
+ "commit": "f898e6819",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,22 +160,22 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-22T15:34:36Z",
+  "as_of": "2026-10-22T15:47:24Z",
   "core": {
-   "closed": 0,
-   "open": 0,
-   "total": 0
+   "closed": 159,
+   "open": 25,
+   "total": 184
   },
   "core_last_window": {
-   "closed": 0,
-   "net_closed": 0,
-   "opened": 0
+   "closed": 55,
+   "net_closed": 14,
+   "opened": 41
   },
   "core_milestone": {
-   "closed": 0,
+   "closed": 87,
    "number": 28,
-   "open": 0,
-   "total": 0
+   "open": 16,
+   "total": 103
   },
   "epics": {
    "4890": "open",
@@ -184,18 +184,18 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "none open",
+  "eta": "12 days",
   "frontier": {
-   "closed": 41,
+   "closed": 105,
    "found_last_window": 24,
-   "open": 59,
-   "total": 100
+   "open": 95,
+   "total": 200
   },
   "frontier_milestone": {
    "closed": 0,
    "number": 30,
-   "open": 36,
-   "total": 36
+   "open": 46,
+   "total": 46
   },
   "infra": {
    "closed": 0,
@@ -409,9 +409,9 @@
    }
   ],
   "sweep": {
-   "closed": 79,
-   "open": 14,
-   "total": 93
+   "closed": 0,
+   "open": 0,
+   "total": 0
   },
   "title_counts": {
    "cics": {

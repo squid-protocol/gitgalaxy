@@ -27,11 +27,6 @@
    "issue": 4273,
    "summary": "A numeric VALUE as written (0225, 00: the engine and the key) vs as a number (225, 0: the translator parses it)."
   },
-  "pointer-width": {
-   "side": "definitional",
-   "issue": 4273,
-   "summary": "POINTER is 4 bytes on z/OS (the engine, the keys) and 8 in the translator's storage, GnuCOBOL on x86-64 (oracle_assumptions.md C9): every field after one moves by 4. Both right for their platform."
-  },
   "translator-copy-program-member": {
    "side": "definitional",
    "issue": 4460,
@@ -88,12 +83,6 @@
   "aws-mainframe-modernization-carddemo :: value | app/cbl/CBSTM03A.CBL | translator | L87 FILLER = ALL '*'": "value-all-literal",
   "aws-mainframe-modernization-carddemo :: value | app/cbl/CBSTM03A.CBL | translator | L88 FILLER = ALL 'START OF STATEMENT'": "value-all-literal",
   "aws-mainframe-modernization-carddemo :: value | app/cbl/CBSTM03A.CBL | translator | L89 FILLER = ALL '*'": "value-all-literal",
-  "cics-banking-sample-application-cbsa :: layouts | src/base/cobol_copy/PROCISRT.cpy | engine | PROCISRT-COMMAREA/PROCISRT-DEBIT-ACCNO @5+8": "pointer-width",
-  "cics-banking-sample-application-cbsa :: layouts | src/base/cobol_copy/PROCISRT.cpy | engine | PROCISRT-COMMAREA/PROCISRT-DEBIT-AMOUNT @19+12": "pointer-width",
-  "cics-banking-sample-application-cbsa :: layouts | src/base/cobol_copy/PROCISRT.cpy | engine | PROCISRT-COMMAREA/PROCISRT-DEBIT-SORTCODE @13+6": "pointer-width",
-  "cics-banking-sample-application-cbsa :: layouts | src/base/cobol_copy/PROCISRT.cpy | translator | PROCISRT-COMMAREA/PROCISRT-DEBIT-ACCNO @9+8": "pointer-width",
-  "cics-banking-sample-application-cbsa :: layouts | src/base/cobol_copy/PROCISRT.cpy | translator | PROCISRT-COMMAREA/PROCISRT-DEBIT-AMOUNT @23+12": "pointer-width",
-  "cics-banking-sample-application-cbsa :: layouts | src/base/cobol_copy/PROCISRT.cpy | translator | PROCISRT-COMMAREA/PROCISRT-DEBIT-SORTCODE @17+6": "pointer-width",
   "cics-banking-sample-application-cbsa :: moves | src/base/cobol_src/BNK1CCS.cbl | engine | L1125 MOVE DFHVALUE -> WS-UCTRANS": "cvda-dfhvalue",
   "cics-banking-sample-application-cbsa :: moves | src/base/cobol_src/BNK1CCS.cbl | engine | L407 MOVE DFHVALUE -> WS-UCTRANS": "cvda-dfhvalue",
   "cics-banking-sample-application-cbsa :: moves | src/base/cobol_src/BNK1CCS.cbl | translator | L1125 MOVE 451 -> WS-UCTRANS": "cvda-dfhvalue",

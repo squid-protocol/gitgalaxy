@@ -190,3 +190,26 @@ def test_a_pow_capture_that_disagrees_with_the_reference_is_a_finding(table):
     out = _sysout(recs, skip={ident}) + f"{ident}|4110D18F228CDE63\n"
     res = K.ingest(out, table, "J1", "GO", _under())
     assert len(res["findings"]) == 1 and f"zos-{ident}" in res["findings"][0]
+
+
+def test_verify_reports_what_ingest_would_and_writes_nothing(table, tmp_path, capsys):
+    recs = K.records(table)
+    before = table.read_text(encoding="utf-8")
+    ok = tmp_path / "ok.txt"
+    ok.write_text(_sysout(recs), encoding="utf-8")
+    assert K.main(["verify", str(ok), "--table", str(table)]) == 0
+    report = json.loads(capsys.readouterr().out)
+    assert report["added"] == ["zos-" + r["id"] for r in K.askable(recs)] and report["findings"] == []
+    bad = tmp_path / "bad.txt"
+    bad.write_text(_sysout(recs, skip={"enc-1", "disp-1.5"}) + "enc-1|41200000\n", encoding="utf-8")
+    assert K.main(["verify", str(bad), "--table", str(table)]) == 1
+    report = json.loads(capsys.readouterr().out)
+    assert "zos-enc-1" in report["findings"][0] and report["missing"] == ["disp-1.5"]
+    assert table.read_text(encoding="utf-8") == before
+
+
+def test_a_dry_run_ingest_needs_no_evidence_and_a_real_one_still_does(table):
+    recs = K.records(table)
+    assert K.ingest(_sysout(recs), table, "", "", {}, dry_run=True)["added"]
+    with pytest.raises(ValueError):
+        K.ingest(_sysout(recs), table, "", "", {})

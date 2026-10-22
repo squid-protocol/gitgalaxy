@@ -103,6 +103,7 @@ def test_the_workflow_matrix_is_the_n_the_job_passes_to_shard():
 @pytest.mark.slow(
     reason="a spawn pool re-imports the engine and rescans both fixture cases, beside the sequential run (#5882)"
 )
+@pytest.mark.slow(reason="#5882: --jobs 2 spawns two processes that each import the runner, then scan a case")
 def test_jobs_measure_the_cases_as_one_at_a_time_does(tmp_path):
     """#5882: --jobs N measures N cases at once, each in its own process; the cells and coverage are the
     sequential run's (engine-facts only: no Docker or Maven needed)."""

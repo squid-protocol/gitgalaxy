@@ -207,3 +207,40 @@ def test_the_shared_helper_finds_the_estate_scan_beside_the_project(tmp_path):
     lay = equivalence_common.engine_layouts(project, corpus, "LAYTOY.cbl")
     assert lay is not None and lay.mode == "check" and lay.pointer_bytes == POINTER_BYTES
     assert equivalence_common.engine_layouts(project, corpus, "NOPE.cbl") is None
+
+
+def test_the_porting_loop_and_crucible_callers_hand_translate_the_engine_layouts(tmp_path, monkeypatch):
+    """#5649: port_runner.det_port takes the layouts from the scan beside its project, as det_port and
+    equivalence_java do; without a scan it passes None and the translator lays out on its own."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java import port_runner
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    corpus = tmp_path / "corpus"
+    corpus.mkdir()
+    (corpus / "LAYTOY.cbl").write_text(PROGRAM, encoding="utf-8")
+    (corpus / "LAYCPY.cpy").write_text(LAYCPY, encoding="utf-8")
+    project = tmp_path / "estate" / "project"
+    svc = project / "src" / "main" / "java" / "pkg" / "service"
+    svc.mkdir(parents=True)
+    (svc / "LaytoyService.java").write_text("package pkg.service;\n", encoding="utf-8")
+    ticket = {"program": {"file": "LAYTOY.cbl"}, "target": {"service": "LaytoyService"}}
+    seen: list = []
+
+    class _Stop(Exception):
+        pass
+
+    def fake_translate(*args, **kw):
+        seen.append(kw.get("layouts"))
+        raise _Stop
+
+    monkeypatch.setattr(P, "translate", fake_translate)
+    for expect_scan in (False, True):
+        if expect_scan:
+            dumps = project.parent / "x_gitgalaxy_clean_1" / "04_ir_state_dumps"
+            dumps.mkdir(parents=True)
+            shutil.copy(scan_to_db(corpus, tmp_path / "scan"), dumps / "x_galaxy_master.db")
+        with pytest.raises(_Stop):
+            port_runner.det_port(project, ticket, corpus, tmp_path / "work", "dispatch", False)
+    assert seen[0] is None
+    assert isinstance(seen[1], EngineLayouts) and seen[1].mode == "check"

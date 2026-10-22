@@ -24,7 +24,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import threading
 import time
 from decimal import Decimal
 from pathlib import Path
@@ -1155,20 +1154,9 @@ def write_phases(work: Path) -> None:
     (work / "phases.json").write_text(json.dumps(data, indent=1) + "\n", encoding="utf-8")
 
 
-_IRS: dict[Path, Any] = {}
-_IRS_LOCK = threading.Lock()
-
-
 def engine_layouts(project: Path, corpus: Path, rel: str, mode: str = "check") -> Any:
-    """#5649: the engine's record layouts for program `rel` (det.engine_layout.EngineLayouts), from the estate's scan
-    (the clean room beside the generated project), at the translator's POINTER width; None without a scan."""
-    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+    """#5649: the engine's record layouts for program `rel` (det.engine_layout.EngineLayouts.for_project), from the
+    estate's scan beside the generated project, at the translator's POINTER width; None without a scan."""
     from gitgalaxy.tools.cobol_to_java.det.engine_layout import EngineLayouts
 
-    db = next(iter(sorted(project.parent.glob("*_gitgalaxy_clean_*/04_ir_state_dumps/*_galaxy_master.db"))), None)
-    if db is None:
-        return None
-    with _IRS_LOCK:
-        if db not in _IRS:
-            _IRS[db] = load_galaxy_ir(db)
-    return EngineLayouts.from_ir(_IRS[db], rel, corpus, mode)
+    return EngineLayouts.for_project(project, corpus, rel, mode)

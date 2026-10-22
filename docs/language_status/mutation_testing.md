@@ -824,10 +824,12 @@ LENGTH) and `beyond` (X10).
 
 | program (case) | mutants run / in scope | killed | survived | stillborn | stated equivalent / unreachable | unaccounted | raw score | L5 |
 |---|---|---|---|---|---|---|---|---|
-| GETCOMPY (cbsa-getcompy) | 220/220 | 55 | 151 | 14 | 119 | 32 | 55/206 (27%) | no |
+| GETCOMPY (cbsa-getcompy) | 220/220 | 60 | 146 | 14 | 127 | 19 | 60/206 (29%) | no |
 | GETSCODE (cbsa-getscode) | 227/227 | 62 | 151 | 14 | 119 | 32 | 62/213 (29%) | no |
 | ACCTCTRL (cbsa-acctctrl) | 517/517 | 184 | 308 | 25 | 228 | 80 | 184/492 (37%) | no |
 | UPDACC (cbsa-updacc) | 713/713 | 304 | 384 | 25 | 256 | 128 | 304/688 (44%) | no |
+
+**#5863 slice 4 (GETCOMPY, typed-DTO entry):** a scenario may state `"dto_entry": true`: the port is given the typed DTO alone, without the link-area bytes that otherwise overwrite every field `in_` maps, and a LINKed port that took the bytes now has the DTO it gave back compared beside them (`commarea.dto.<field>` in `compare_events`). GETCOMPY gained two such scenarios (55 -> 60 killed: the five `fill_` mutants of the DTO write-back). The `in_` mutants still survive and are now stated `equivalent`: the program's one MOVE overwrites the whole field `in_` fills. 19 stay open, all on the `byte[]` COMMAREA entry, `handleLink(request, area)` and `beyond` (X10). GETSCODE, ACCTCTRL and UPDACC take the same scenarios in the next slices.
 
 The "unaccounted" column includes the open `case-gap` / `harness-gap` rows, which block L5 until a scenario or the harness covers them.
 

@@ -319,6 +319,11 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
   survivor read (#4047): most are harness gaps (the error-message text is judged only through the refused WRITEQ,
   X6 #4050, or the statement needs a Db2 fault the harness cannot inject); the case gaps are the absent-policy and
   zero-row motor update scenarios and an LGUPVS01 failure.
+- UPDACC on generated Db2 rows (cbsa-updacc-generated, #4507, all 139 mutants run, seed 0): 103 killed, 36 survived
+  (7 harness gaps, 17 equivalent, 12 unreachable). The seven harness gaps are the `-904` UPDATE-failure arm: a
+  `sql_faults` scenario was tried and the proof refuses it ("no SQL fault hook in UPDACC": the model-written port
+  reaches Db2 through JDBC, not `cobolrt.sql.DetSql`), so the scenario was not kept. A det-translated UPDACC would
+  take the fault.
 
 <!-- mutation-scores -->
 | port | harness | mutants run / all | raw score | without equivalent + unreachable | survivors: case gap / harness gap / equivalent / unreachable / untriaged |
@@ -354,6 +359,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COUSR02C (carddemo-userupd) | equivalence | 100/481 | 57/82 (70%) | 57/59 (97%) | 2 / 0 / 14 / 9 / 0 |
 | INQACC (cbsa-inqacc) | equivalence | 150/470 | 63/131 (48%) | 63/106 (59%) | 43 / 0 / 11 / 14 / 0 |
 | UPDACC (cbsa-updacc) | equivalence | 133/133 | 95/133 (71%) | 95/110 (86%) | 15 / 0 / 17 / 6 / 0 |
+| UPDACC (cbsa-updacc-generated) | equivalence | 139/139 | 103/139 (74%) | 103/110 (94%) | 0 / 7 / 17 / 12 / 0 |
 | LGAPDB01 (genapp-lgapdb01) | equivalence | 150/444 | 58/137 (42%) | 58/129 (45%) | 71 / 0 / 1 / 7 / 0 |
 | LGAPVS01 (genapp-lgapvs01) | equivalence | 150/184 | 72/125 (58%) | 72/113 (64%) | 0 / 41 / 1 / 11 / 0 |
 | LGICDB01 (genapp-lgicdb01) | equivalence | 150/201 | 51/130 (39%) | 51/107 (48%) | 1 / 55 / 8 / 15 / 0 |
@@ -382,20 +388,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 4907 run | **3053/4519 (68%)** | **3053/3512 (87%)** | 272 / 187 / 630 / 377 / 0 |
-| **all estate** | | 5411 run | **3372/4995 (68%)** | **3372/3866 (87%)** | 307 / 187 / 718 / 411 / 0 |
+| **all equivalence** | | 5046 run | **3156/4658 (68%)** | **3156/3622 (87%)** | 272 / 194 / 647 / 389 / 0 |
+| **all estate** | | 5550 run | **3475/5134 (68%)** | **3475/3976 (87%)** | 307 / 194 / 735 / 423 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 222/279 (80%) | 222/246 (90%) |
-| BDM | 25/49 (51%) | 25/28 (89%) |
-| CON | 430/1010 (43%) | 430/541 (79%) |
-| COR | 202/334 (60%) | 202/248 (81%) |
-| DEL | 590/848 (70%) | 590/664 (89%) |
-| LIT | 697/950 (73%) | 697/778 (90%) |
-| NEG | 606/688 (88%) | 606/652 (93%) |
+| AOR | 226/283 (80%) | 226/250 (90%) |
+| BDM | 25/52 (48%) | 25/28 (89%) |
+| CON | 447/1040 (43%) | 447/560 (80%) |
+| COR | 212/345 (61%) | 212/258 (82%) |
+| DEL | 607/876 (69%) | 607/683 (89%) |
+| LIT | 725/984 (74%) | 725/809 (90%) |
+| NEG | 614/696 (88%) | 614/660 (93%) |
 | RET | 56/105 (53%) | 56/93 (60%) |
-| ROR | 544/732 (74%) | 544/616 (88%) |
+| ROR | 563/753 (75%) | 563/635 (89%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|
@@ -430,6 +436,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COUSR02C (carddemo-userupd) | 1/1 | - | 3/16 | 3/5 | 11/16 | 14/16 | 13/13 | - | 12/15 |
 | INQACC (cbsa-inqacc) | 3/3 | 1/2 | 4/21 | 2/5 | 10/21 | 6/21 | 14/21 | 8/16 | 15/21 |
 | UPDACC (cbsa-updacc) | 4/4 | 0/3 | 17/30 | 3/10 | 16/27 | 28/32 | 8/8 | - | 19/19 |
+| UPDACC (cbsa-updacc-generated) | 4/4 | 0/3 | 17/30 | 10/11 | 17/28 | 28/34 | 8/8 | - | 19/21 |
 | LGAPDB01 (genapp-lgapdb01) | 5/13 | - | 8/23 | 0/2 | 7/21 | 12/23 | 13/23 | 2/10 | 11/22 |
 | LGAPVS01 (genapp-lgapvs01) | 14/16 | - | 25/41 | 0/1 | 6/11 | 12/28 | 6/9 | - | 9/19 |
 | LGICDB01 (genapp-lgicdb01) | 2/5 | - | 9/28 | 1/5 | 6/20 | 14/27 | 9/16 | 1/7 | 9/22 |
@@ -513,7 +520,7 @@ PIC 9 is IBM-undefined and the oracle and the port read it differently (pf7/pf8 
 
 #4628 slice 3 (COADM01C, COBIL00C; the det-port ledger re-run on the same seed): new scenarios `pf4-other-key` and `invalid-key-unread-option-field` (adminmenu), `decline-lowercase-n` and `full-commarea-carried` (billpay) kill 4 mutants. COBIL00C reaches 0 open (9 triaged: 7 equivalent, 2 unreachable). COADM01C keeps 7 open: six are the short-COMMAREA conversion (`exactCommarea`, lines 546, 697, 699), which needs a `commarea_length` scenario the model port cannot take (X23: its DTO holds the whole record and cannot see the cut tail, so such a scenario fails the proof); one is the final RETURN's COMMAREA length (harness-gap: the scenario ends at the RETURN, so EIBCALEN of the next task is not observed). COTRN02C (35 open) is the remaining slice.
 
-#4049 slice 2 (COUSR00C, 2026-10-22): the hand port was run as a full enumeration (510 mutants, not the earlier 100-mutant sample), and its 136 first-pass survivors were read one by one. Eight new scenarios (`short-commarea-187`, `enter-lists-with-eleven-left`, `enter-lists-only-the-last-user`, `select-two-rows-first-wins`, `rows-sent-back-pf8-readnext-io-error`, `rows-sent-back-pf7-readprev-io-error`, `pf8-with-low-values-last-id`, `select-row-with-no-id-received`) kill 8 survivors that were true case gaps, and two of them exposed real defects in the hand port, both fixed in this slice: `normalize` kept all of a field the COMMAREA ends inside (COBOL keeps only `EIBCALEN - offset` bytes), and a map field the terminal did not send arrived blank where COBOL has LOW-VALUES. After the final full re-run: 377 killed, 128 survived, 5 stillborn, 0 case gaps; raw 377/505 (75%), adjusted 377/380 (99%). The 128 survivors are 55 equivalent (fixed-width fits, dead stores after the last SEND, bounds a surrounding test already enforces), 71 unreachable (the X23 short-COMMAREA offsets and numeric tests, the ENDBR condition table, facade code no proof runs including the `lastAnswerBytes` assignment, range guards `idx` never leaves) and 2 harness gaps (the `return`s after an XCTL/abend, whose later commands the harness does not observe). Stop rule for the strengthening loop: stop at the target score (owner decision pending) or when a round of proposals kills no survivor. Met for COUSR00C: no case gap is left, and the two open survivors need a harness change, not a scenario. Sibling gaps: the other menu-family cases (see remaining slices on #4049), IOERR has no oracle abend code (`abendOn` defaults to INVREQ), failed-XCTL and blank-id key gaps.
+#4049 slice 2 (COUSR00C, 2026-10-22): the hand port was run as a full enumeration (510 mutants, not the earlier 100-mutant sample), and its 136 first-pass survivors were read one by one. Eight new scenarios (`short-commarea-187`, `enter-lists-with-eleven-left`, `enter-lists-only-the-last-user`, `select-two-rows-first-wins`, `rows-sent-back-pf8-readnext-io-error`, `rows-sent-back-pf7-readprev-io-error`, `pf8-with-low-values-last-id`, `select-row-with-no-id-received`) kill 8 survivors that were true case gaps, and two of them exposed real defects in the hand port, both fixed in this slice: `normalize` kept all of a field the COMMAREA ends inside (COBOL keeps only `EIBCALEN - offset` bytes), and a map field the terminal did not send arrived blank where COBOL has LOW-VALUES. After the final full re-run: 377 killed, 128 survived, 5 stillborn, 0 case gaps; raw 377/505 (75%), adjusted 377/379 (99%). The 128 survivors are 55 equivalent (fixed-width fits, dead stores after the last SEND, bounds a surrounding test already enforces), 71 unreachable (the X23 short-COMMAREA offsets and numeric tests, the ENDBR condition table, facade code no proof runs including the `lastAnswerBytes` assignment, range guards `idx` never leaves) and 2 harness gaps (the `return`s after an XCTL/abend, whose later commands the harness does not observe). Stop rule for the strengthening loop: stop at the target score (owner decision pending) or when a round of proposals kills no survivor. Met for COUSR00C: no case gap is left, and the two open survivors need a harness change, not a scenario. Sibling gaps: the other menu-family cases (see remaining slices on #4049), IOERR has no oracle abend code (`abendOn` defaults to INVREQ), failed-XCTL and blank-id key gaps.
 
 **COMMAREA field survivors** (#5401, 2026-10-20). Three case-gap survivors needed an input COMMAREA field no scenario set, and each is now killed
 (`mutation.py run --only`, no re-sample): cardview `enter-carried-to-tranid` (non-blank `CDEMO-TO-TRANID`, echoed by the RETURN COMMAREA, `6d63a520f9`),
@@ -826,10 +833,14 @@ LENGTH) and `beyond` (X10).
 
 | program (case) | mutants run / in scope | killed | survived | stillborn | stated equivalent / unreachable | unaccounted | raw score | L5 |
 |---|---|---|---|---|---|---|---|---|
-| GETCOMPY (cbsa-getcompy) | 220/220 | 55 | 151 | 14 | 119 | 32 | 55/206 (27%) | no |
-| GETSCODE (cbsa-getscode) | 227/227 | 62 | 151 | 14 | 119 | 32 | 62/213 (29%) | no |
+| GETCOMPY (cbsa-getcompy) | 220/220 | 60 | 146 | 14 | 127 | 19 | 60/206 (29%) | no |
+| GETSCODE (cbsa-getscode) | 227/227 | 67 | 146 | 14 | 127 | 19 | 67/213 (31%) | no |
 | ACCTCTRL (cbsa-acctctrl) | 517/517 | 184 | 308 | 25 | 228 | 80 | 184/492 (37%) | no |
 | UPDACC (cbsa-updacc) | 713/713 | 304 | 384 | 25 | 256 | 128 | 304/688 (44%) | no |
+
+**#5863 slice 4 (GETCOMPY, typed-DTO entry):** a scenario may state `"dto_entry": true`: the port is given the typed DTO alone, without the link-area bytes that otherwise overwrite every field `in_` maps, and a LINKed port that took the bytes now has the DTO it gave back compared beside them (`commarea.dto.<field>` in `compare_events`). GETCOMPY gained two such scenarios (55 -> 60 killed: the five `fill_` mutants of the DTO write-back). The `in_` mutants still survive and are now stated `equivalent`: the program's one MOVE overwrites the whole field `in_` fills. 19 stay open, all on the `byte[]` COMMAREA entry, `handleLink(request, area)` and `beyond` (X10). ACCTCTRL and UPDACC take the same scenarios in the next slices.
+
+**#5863 slice 5 (GETSCODE):** three `dto_entry` scenarios (blank, a caller's digits, letters). 62 -> 67 killed: the `fill_` write-back mutants. The six `in_` mutants are stated `equivalent` (the one MOVE overwrites the whole 6-byte field), `base - 0` is `base + 0`, and the `fill_` in the never-called `out_` helper is `unreachable`. 19 stay open, all on the `byte[]` COMMAREA entry, `handleLink(request, area)` and `beyond` (X10).
 
 The "unaccounted" column includes the open `case-gap` / `harness-gap` rows, which block L5 until a scenario or the harness covers them.
 
@@ -861,5 +872,5 @@ reads ABND-APPLID as 9 bytes, yet the proof reports 2/2 events equal, because th
 
 | program (case) | mutants run / in scope | killed | survived | stillborn | stated equivalent / unreachable | unaccounted | raw score | L5 |
 |---|---|---|---|---|---|---|---|---|
-| COUSR00C (carddemo-userlist) | 150/2828 | 108 | 39 | 3 | 37 | 2 | 108/147 (73%) | no |
+| COUSR00C (carddemo-userlist) | 150/2828 | 136 | 11 | 3 | 10 | 1 | 136/147 (93%) | no |
 | ABNDPROC (cbsa-abndproc) | 150/453 | 45 | 96 | 9 | 62 | 34 | 45/141 (32%) | no |

@@ -3737,7 +3737,7 @@
   {
    "id": "RT-DLI-SCHD",
    "family": "DLI",
-   "title": "EXEC DLI SCHD PSB under CICS: the databases load at the first SCHD, the PSB's PCBs start with no position, DIBSTAT blank; a PSB already scheduled is TC (with NODHABEND), else refused",
+   "title": "EXEC DLI SCHD PSB under CICS: the databases load at the first SCHD, the PSB's PCBs start with no position, DIBSTAT blank; a PSB already scheduled is TC (with NODHABEND), else refused; a planned TC (#5233) schedules the PSB first",
    "methods": [
     "schedule",
     "buildPcbs"

@@ -5,18 +5,18 @@
  "case": "cbsa-getscode",
  "entry": {
   "program": "GETSCODE",
-  "commit": "cb1a0ba1b5eee2adf3667a7b7520a222b91bfc09+uncommitted",
+  "commit": "170a3729393269228f3a002904aa5c1f79efb468+uncommitted",
   "date": "2026-10-22",
   "mode": "fast",
   "seed": 0,
   "mutants": 227,
   "out_of_scope": 24,
   "chosen": 227,
-  "coverage": "proven on 8 scenarios, covering 2/2 paragraphs and 0/0 branches",
+  "coverage": "proven on 11 scenarios, covering 2/2 paragraphs and 0/0 branches",
   "counts": {
-   "killed": 61,
+   "killed": 66,
    "timeout": 1,
-   "survived": 151,
+   "survived": 146,
    "stillborn": 14,
    "error": 0,
    "pending": 0
@@ -41,13 +41,17 @@
    "43263487c5",
    "45435f7340",
    "4d3ee72afc",
+   "5176416394",
    "54bea949f2",
    "5a81d370be",
    "5be2b414f3",
    "5ea022db8e",
    "6358b7f253",
    "6457837001",
+   "6839d9b69a",
+   "694365c686",
    "70405ceba0",
+   "706f80732d",
    "7d6cfde6be",
    "84fee04071",
    "869d85a5b2",
@@ -76,6 +80,7 @@
    "d68197ac49",
    "daf04bbcb8",
    "dbf7e1f1eb",
+   "e323f9f8f1",
    "e6ff0f1d52",
    "e8b6f228a4",
    "edd85f415b",
@@ -599,36 +604,12 @@
     "after": "Cobol.move(d.getSortcode() == null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base + 0, 7, false), CS);"
    },
    {
-    "id": "706f80732d",
-    "op": "DEL",
-    "file": "service/GetscodeService.java",
-    "line": 139,
-    "before": "d.setSortcode(Cobol.text(Field.alphanumeric(s, base + 0, 6, false), CS));",
-    "after": "/* d.setSortcode(Cobol.text(Field.alphanumeric(s, base + 0, 6, false), CS)); */"
-   },
-   {
     "id": "32ac5d5a1b",
     "op": "AOR",
     "file": "service/GetscodeService.java",
     "line": 139,
     "before": "d.setSortcode(Cobol.text(Field.alphanumeric(s, base + 0, 6, false), CS));",
     "after": "d.setSortcode(Cobol.text(Field.alphanumeric(s, base - 0, 6, false), CS));"
-   },
-   {
-    "id": "e323f9f8f1",
-    "op": "CON",
-    "file": "service/GetscodeService.java",
-    "line": 139,
-    "before": "d.setSortcode(Cobol.text(Field.alphanumeric(s, base + 0, 6, false), CS));",
-    "after": "d.setSortcode(Cobol.text(Field.alphanumeric(s, base + 1, 6, false), CS));"
-   },
-   {
-    "id": "6839d9b69a",
-    "op": "CON",
-    "file": "service/GetscodeService.java",
-    "line": 139,
-    "before": "d.setSortcode(Cobol.text(Field.alphanumeric(s, base + 0, 6, false), CS));",
-    "after": "d.setSortcode(Cobol.text(Field.alphanumeric(s, base + 0, 7, false), CS));"
    },
    {
     "id": "e98a480f29",
@@ -813,22 +794,6 @@
     "line": 211,
     "before": "in_GetscodeDfhcommarea(x, s_DFHCOMMAREA, 0);",
     "after": "in_GetscodeDfhcommarea(x, s_DFHCOMMAREA, 1);"
-   },
-   {
-    "id": "694365c686",
-    "op": "DEL",
-    "file": "service/GetscodeService.java",
-    "line": 212,
-    "before": "caBack = () -> fill_GetscodeDfhcommarea(x, s_DFHCOMMAREA, 0);",
-    "after": "/* caBack = () -> fill_GetscodeDfhcommarea(x, s_DFHCOMMAREA, 0); */"
-   },
-   {
-    "id": "5176416394",
-    "op": "CON",
-    "file": "service/GetscodeService.java",
-    "line": 212,
-    "before": "caBack = () -> fill_GetscodeDfhcommarea(x, s_DFHCOMMAREA, 0);",
-    "after": "caBack = () -> fill_GetscodeDfhcommarea(x, s_DFHCOMMAREA, 1);"
    },
    {
     "id": "ca8a5de7cb",
@@ -1312,16 +1277,16 @@
    }
   ],
   "inputs": {
-   "port": "740b286eb6646b9a8cc90f6dcaccc51c67df38d446a28adcbf0688a7d6d3d5c1",
-   "generator": "6fc449c5044ccd60b72e16fe8d2fac83eedbbd0c3b06d3e04594a63b0ad40212",
-   "case": "3f7e54766e65da419b91dd503782bd77fbb4c647ff31c0d8b268346fbb94ac99",
+   "port": "3e2e05a572b01ba41734f6f6d567ae33fd98fe0aa6fc35b4e2a8f1970c795ce1",
+   "generator": "99a366706ad341e0ee9ef5add6430c6645e3095df9317c4bf139319bd25e0cfe",
+   "case": "493711a4510110c6fe663006d27cdbb2ae1cd7c1e9df64b99ae8ee60f5b33fd3",
    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-   "harness": "cfa692619ce6fb10c7dd1076f2b885d8ffa2cf6352ec9b564081e1cce86e4e90",
-   "oracle": "ed495da81e6a1a607ebc1aba3daf85ba474192e76c482e7b124b8c2e49b760e2"
+   "harness": "73c619c40386df4ba2bb71d78ef6898be8f113d7c9478a7d05a7639bedf8a684",
+   "oracle": "a72339d492e955b0b5211d2f06f3af3a5d3abcb9bd7a9de93596fe16c46d34a7"
   },
   "components": {
    "generator": {
-    "generator:core": "a7b1e205ba94cbbb82ef0cd84b755c343c2f7e8afa912e487823daaf34e29af3",
+    "generator:core": "286f1220d709fb1d4689c6d78a413a9440109a0ecca0472d2e3811c8ac0d9f81",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/cics": "2a4fbbd7a9e55ee9dc6b9fa0e2ff2802c57cab2ff0d36459b676c1143707b507",
     "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
@@ -1332,8 +1297,8 @@
     "generator:det/dyncall": "7f776808ec711cab1ada988a7ee2aded100227a543eeea393d17f5d389b3dc0c",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
-    "generator:det/gen": "aa7ce25ed9096b6ba2b8465f2be013cc1cb13f8bbf60c5077fbaa6530239640f",
-    "generator:det/hfp": "cec77a165f9657e15473ce0c2913b1256451731abc473571ed56951d0faba36c",
+    "generator:det/gen": "103a0da4d979c518e60d0dda1fc003e7a3f65ddf56c16280091e8a7942f41f4d",
+    "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
     "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
     "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
@@ -1341,21 +1306,14 @@
     "generator:det/stmt": "014835ecefbec5b761734642ac25fc8270092f80945e8f79bcaaa9d3aee2c9ff"
    },
    "harness": {
-    "harness:cics": "a12b1c4f47a4a2d419f7f443b5563d6a8e7d6adc11997003ef3ef03de8446c1a",
-    "harness:core": "7027a1c80de76c69e876c70e853b627ece976d1de704474c26f7c065cb1f61a9"
+    "harness:cics": "a06f5412ff8f1ed2b268c32b393ff896f2f1abaf9275d0db58b275516d87e519",
+    "harness:core": "6ca15fe077558291d5457261b5b460f3fa6f7b92a7a11455c436cfee97ebaf39"
    },
    "oracle": {
     "oracle:cics-stub": "8d4b95cb03310f91b20292ebc95871479fe57bab9fc6ff33a625667a5860e785",
     "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
-    "oracle:le": "200b234c8ffa2bf4cb1a9c143f22a5a3b696279e000cbf67ff9330fdfb7a9183"
+    "oracle:le": "3e9e45ed737eaee3a156a2e00bfade4c956d69c8bf1c0bbe207a9cf107063c78"
    }
-  },
-  "refreshed": {
-   "from": "2026-10-22",
-   "survivors_rerun": 151,
-   "stale": [
-    "harness"
-   ]
   }
  }
 }

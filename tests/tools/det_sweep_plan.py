@@ -355,11 +355,12 @@ def db2_names(p: dict) -> list[str]:
 
 
 def db2_shards_for(p: dict, n_db2: int | None = None, durations: dict[str, float] | None = None,
-                   waiting: int | None = None) -> list[str]:  # fmt: skip
+                   waiting: int | None = None, setup_s: float | None = None) -> list[str]:  # fmt: skip
     """The Db2 runner labels "I/N". With `durations` (#5919): the fewest runners whose slowest fits DB2_TARGET_S, at most
     DB2_MAX_SHARDS (halved while PR jobs queue); the plan fails (PlanError) when too many cases are unmeasured. Without:
     one per DB2_FULL_PER_SHARD of the `n_db2` Db2 cases (default: the cases on disk) for a full sweep, one per
-    DB2_PER_SHARD cases when narrow, at most DB2_MAX_SHARDS; none for none."""
+    DB2_PER_SHARD cases when narrow, at most DB2_MAX_SHARDS; none for none. `setup_s` (db2_shard_plan.measured_setup_s)
+    replaces DB2_SETUP_S."""
     if p["mode"] == "ports" or not p["db2_cases"]:
         return []
     if durations is not None:
@@ -367,7 +368,11 @@ def db2_shards_for(p: dict, n_db2: int | None = None, durations: dict[str, float
         w, missing = shard_plan.weights(db2_names(p), durations)
         shard_plan.check_measured(missing, len(w), "Db2 case")
         n = shard_plan.shards_for(
-            w, DB2_SETUP_S, PROOF_JOBS, DB2_TARGET_S, shard_plan.pool_cap(DB2_MAX_SHARDS, waiting)
+            w,
+            DB2_SETUP_S if setup_s is None else setup_s,
+            PROOF_JOBS,
+            DB2_TARGET_S,
+            shard_plan.pool_cap(DB2_MAX_SHARDS, waiting),
         )
         return [f"{i}/{n}" for i in range(1, n + 1)]
     if p["db2_cases"] == "all":
@@ -380,7 +385,7 @@ def db2_shards_for(p: dict, n_db2: int | None = None, durations: dict[str, float
     return [f"{i}/{n}" for i in range(1, n + 1)]
 
 
-def timeouts_for(p: dict, durations: dict[str, float] | None) -> dict[str, int]:
+def timeouts_for(p: dict, durations: dict[str, float] | None, db2_setup_s: float | None = None) -> dict[str, int]:
     """#5919: the `timeout` (non-Db2 shard) and `db2_timeout` job minutes, from the slowest planned shard of the plan's
     matrices; DEFAULT_TIMEOUT for a kind with no durations or no shards."""
     out = {"timeout": DEFAULT_TIMEOUT, "db2_timeout": DEFAULT_TIMEOUT}
@@ -389,7 +394,7 @@ def timeouts_for(p: dict, durations: dict[str, float] | None) -> dict[str, int]:
     cases = case_dirs()
     sets = (("timeout", "matrix", SHARD_SETUP_S, [n for n, c in cases.items() if not is_db2(c)]
              if p["cases"] == "all" else list(p["cases"])),
-            ("db2_timeout", "db2_matrix", DB2_SETUP_S, db2_names(p) if p["db2_cases"] else []))  # fmt: skip
+            ("db2_timeout", "db2_matrix", DB2_SETUP_S if db2_setup_s is None else db2_setup_s, db2_names(p) if p["db2_cases"] else []))  # fmt: skip
     for key, matrix, setup, names in sets:
         n = len(p.get(matrix) or [])
         if n and names:
@@ -400,7 +405,10 @@ def timeouts_for(p: dict, durations: dict[str, float] | None) -> dict[str, int]:
 
 
 def evidence_plan(
-    durations: dict[str, float] | None, waiting: int | None = None, cases_dir: Path | None = None
+    durations: dict[str, float] | None,
+    waiting: int | None = None,
+    cases_dir: Path | None = None,
+    db2_setup_s: float | None = None,
 ) -> dict:
     """#5919: Evidence Refresh's matrices and job timeouts, emitted by its `lane` job: `db2_parts` (the Db2 sweep parts plus
     "records"), `sweep_matrix` (the non-Db2 det cases), `records_matrix`, and `db2_timeout` / `sweep_timeout` /
@@ -409,7 +417,7 @@ def evidence_plan(
     cases = case_dirs(cdir)
     n_records = sum(1 for d in cdir.iterdir() if (d / "evidence.json").is_file())
     full = {"mode": "full", "cases": "all", "db2_cases": "all"}
-    db2 = db2_shards_for(full, durations=durations, waiting=waiting)
+    db2 = db2_shards_for(full, durations=durations, waiting=waiting, setup_s=db2_setup_s)
     out = {"db2_parts": [*db2, "records"], "sweep_matrix": [f"{i}/4" for i in range(1, 5)],
            "records_matrix": [f"{i}/6" for i in range(1, 7)], "db2_timeout": 90, "sweep_timeout": 90,
            "records_timeout": 90}  # fmt: skip
@@ -418,7 +426,18 @@ def evidence_plan(
     sp = _shard_plan()
     db2_names_ = sorted(n for n, c in cases.items() if is_db2(c))
     w, _ = sp.weights(db2_names_, durations)
-    db2_min = sp.timeout_minutes(w, len(db2), DB2_SETUP_S, PROOF_JOBS, TIMEOUT_FLOOR, EVIDENCE_CEILING) if db2 else 0
+    db2_min = (
+        sp.timeout_minutes(
+            w,
+            len(db2),
+            DB2_SETUP_S if db2_setup_s is None else db2_setup_s,
+            PROOF_JOBS,
+            TIMEOUT_FLOOR,
+            EVIDENCE_CEILING,
+        )
+        if db2
+        else 0
+    )
     names = sorted(n for n, c in cases.items() if not is_db2(c))
     w, missing = sp.weights(names, durations)
     sp.check_measured(missing, len(w))
@@ -482,9 +501,12 @@ def main() -> int:
                     help="#5882: print only a full sweep's Db2 runner labels as JSON (Evidence Refresh's Db2 parts)")  # fmt: skip
     ap.add_argument("--evidence-plan", action="store_true",
                     help="#5919: Evidence Refresh's matrices and timeouts (JSON on stdout; keys to --github-output)")  # fmt: skip
+    ap.add_argument("--timing", type=Path, nargs="*", default=[],
+                    help="#5919: shard timing artifacts (det_sweep_timing record) whose median setup replaces DB2_SETUP_S")  # fmt: skip
     args = ap.parse_args()
+    setup_s = db2_setup_from(args.timing)
     if args.evidence_plan:
-        ep = evidence_plan(load_durations(args.durations), args.waiting)
+        ep = evidence_plan(load_durations(args.durations), args.waiting, db2_setup_s=setup_s)
         print(json.dumps(ep))
         if args.github_output:
             with args.github_output.open("a", encoding="utf-8") as fh:
@@ -495,7 +517,10 @@ def main() -> int:
         print(
             json.dumps(
                 db2_shards_for(
-                    {"mode": "full", "db2_cases": "all"}, durations=load_durations(args.durations), waiting=args.waiting
+                    {"mode": "full", "db2_cases": "all"},
+                    durations=load_durations(args.durations),
+                    waiting=args.waiting,
+                    setup_s=setup_s,
                 )
             )
         )
@@ -506,25 +531,45 @@ def main() -> int:
     cases = case_dirs()
     if args.ports:
         p = narrow_by_ports(args.ports, [c for c in args.touched.split(",") if c], cases)
-        return emit(p, args.github_output, load_durations(args.durations), args.waiting)
+        return emit(p, args.github_output, load_durations(args.durations), args.waiting, setup_s)
     try:
         files = args.files if args.files is not None else changed_files(args.base)
         p = plan(files, args.event, cases, labels, file_texts(args.base)) if files or args.event != "pull_request" else {
             "mode": "full", "cases": "all", "db2_cases": "all", "reason": "no changed files found (the diff is unreadable or empty)"}  # fmt: skip
     except RuntimeError as e:  # cannot tell what changed: everything
         p = {"mode": "full", "cases": "all", "db2_cases": "all", "reason": f"cannot diff ({e})"}
-    return emit(p, args.github_output, load_durations(args.durations), args.waiting)
+    return emit(p, args.github_output, load_durations(args.durations), args.waiting, setup_s)
+
+
+def db2_setup_from(timing_paths: list[Path]) -> float | None:
+    """The Db2 runners' measured setup seconds from shard timing artifacts (db2_shard_plan.measured_setup_s); None without
+    any, so the plan keeps DB2_SETUP_S. Imported here: Evidence Refresh's sparse checkout does not carry the module."""
+    if not timing_paths:
+        return None
+    import db2_shard_plan  # noqa: PLC0415 -- stdlib only, like this planner
+
+    return db2_shard_plan.measured_setup_s(db2_shard_plan.timing_rows(timing_paths), "db2", DB2_SETUP_S)
 
 
 def emit(p: dict, github_output: Path | None, durations: dict[str, float] | None = None,
-         waiting: int | None = None) -> int:  # fmt: skip
+         waiting: int | None = None, db2_setup_s: float | None = None) -> int:  # fmt: skip
     p["matrix"] = shards_for(p)
     p["shards"] = len(p["matrix"])
     p["db2_matrix"] = db2_shards_for(
-        p, durations=durations, waiting=waiting
+        p, durations=durations, waiting=waiting, setup_s=db2_setup_s
     )  # a full sweep counts the Db2 cases on disk
     p["db2_shards"] = len(p["db2_matrix"])
-    p.update(timeouts_for(p, durations))  # #5919: the shard jobs' timeout-minutes, emitted by the plan
+    p.update(timeouts_for(p, durations, db2_setup_s))  # #5919: the shard jobs' timeout-minutes, emitted by the plan
+    if durations is not None and p["db2_matrix"]:
+        try:
+            import db2_shard_plan  # noqa: PLC0415 -- the predicted slowest/fastest ratio (#5882: within 1.3x)
+        except ImportError:  # a sparse checkout without it plans as before
+            db2_shard_plan = None
+        if db2_shard_plan:
+            check = db2_shard_plan.plan_check(db2_names(p), durations, len(p["db2_matrix"]))
+            p["db2_ratio"] = check["ratio"]
+            if check["warning"]:
+                print(f"::warning::{check['warning']}", file=sys.stderr)
     print(json.dumps(p, indent=1))
     if github_output:
         with github_output.open("a", encoding="utf-8") as fh:

@@ -2,7 +2,6 @@
 ledgers cut to a shard's cases give the same verdict as the whole ledger, a merge refuses an incomplete or overlapping
 set of shards, and the workflow's matrix is the N the job passes to --shard."""
 
-import re
 import sys
 from pathlib import Path
 
@@ -93,13 +92,15 @@ def test_merge_refuses_an_incomplete_or_overlapping_run(parts, needle):
 
 
 def test_the_workflow_matrix_is_the_n_the_job_passes_to_shard():
+    """#5919: N comes from the `plan` job, so the matrix, the --shard total and the job name all read the plan."""
     text = WORKFLOW.read_text(encoding="utf-8")
-    matrix = re.search(r"shard: \[([\d, ]+)\]", text)
-    assert matrix, "no shard matrix"
-    shards = [int(x) for x in matrix.group(1).split(",")]
-    totals = set(re.findall(r"--shard \$\{\{ matrix\.shard \}\}/(\d+)", text))
-    assert shards == list(range(1, len(shards) + 1)) and totals == {str(len(shards))}
-    assert f"shard ${{{{ matrix.shard }}}}/{len(shards)}" in text  # the job name carries the same N
+    assert "shard: [" not in text, "a hand-set shard list"
+    assert "matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}" in text
+    assert "timeout-minutes: ${{ fromJSON(needs.plan.outputs.timeout) }}" in text
+    assert "crucible_shard_plan.py --cics" in text
+    assert "--shard ${{ matrix.shard }}/${{ matrix.total }}" in text
+    assert "shard ${{ matrix.shard }}/${{ matrix.total }})" in text  # the job name carries the same N
+    assert "needs: [plan, measure, runner-tests]" in text
 
 
 def _cases(n):

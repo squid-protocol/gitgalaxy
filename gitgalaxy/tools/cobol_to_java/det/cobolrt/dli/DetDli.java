@@ -348,9 +348,10 @@ public final class DetDli {
             loadFaults();
         }
         String fault = planned("SCHD"); // #5233: not performed, DIBSTAT answers the status (the twin of GGDLISCHD)
-        if (fault != null) {
+        if (fault != null && !(fault.equals("TC") && !scheduled)) {
             return fault;
         }
+        // A planned TC says the task already holds the PSB: it is scheduled (so a TERM after it is valid), DIBSTAT TC.
         if (scheduled) {
             if (!nodhabend) {
                 throw refuse("a SCHD of a PSB already scheduled, without NODHABEND (the task would abend)");
@@ -371,7 +372,7 @@ public final class DetDli {
             initMask(p);
         }
         scheduled = true;
-        return "  ";
+        return fault != null ? fault : "  ";
     }
 
     /** SCHD PSB((area)): the PSB name is the area's bytes (the name the program built there). */

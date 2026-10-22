@@ -79,6 +79,28 @@
    },
    "commarea_length": 6,
    "why": "EIBCALEN equals the record (6 bytes, X23): the COMMAREA is stated exact, so the area is cut to the 6 bytes the caller passed and the MOVE fits exactly"
+  },
+  {
+   "name": "dto-entry-blank-commarea",
+   "commarea": {},
+   "dto_entry": true,
+   "why": "as blank-commarea, but the port gets the typed DTO alone (no link-area bytes): the typed entry (in_) and the DTO it gives back (fill_) are what is compared (#5863)"
+  },
+  {
+   "name": "dto-entry-caller-sortcode",
+   "commarea": {
+    "SORTCODE": "123456"
+   },
+   "dto_entry": true,
+   "why": "as caller-sortcode-replaced, through the typed DTO alone: the caller's 6 digits read by in_ and replaced whole (#5863)"
+  },
+  {
+   "name": "dto-entry-letters",
+   "commarea": {
+    "SORTCODE": "ABCDEF"
+   },
+   "dto_entry": true,
+   "why": "as letters-replaced, through the typed DTO alone: non-digit caller data read by in_ and replaced whole (#5863)"
   }
  ]
 }

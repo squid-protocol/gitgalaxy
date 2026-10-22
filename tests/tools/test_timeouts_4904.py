@@ -212,12 +212,11 @@ def test_workflow_jobs_have_timeout_minutes(rel_path: str):
 
     for job_name, job_spec in jobs.items():
         assert "timeout-minutes" in job_spec, f"job {job_name!r} in {rel_path} lacks timeout-minutes"
-        assert isinstance(job_spec["timeout-minutes"], int), (
-            f"job {job_name!r} in {rel_path} timeout-minutes is not an integer: {job_spec['timeout-minutes']}"
-        )
-        assert job_spec["timeout-minutes"] > 0, (
-            f"job {job_name!r} in {rel_path} timeout-minutes must be positive: {job_spec['timeout-minutes']}"
-        )
+        t = job_spec["timeout-minutes"]
+        if isinstance(t, str) and t.startswith("${{ fromJSON(needs.plan.outputs.timeout)"):
+            continue  # #5919: a shard job's timeout is emitted by the plan job (bounded by the planner's ceiling)
+        assert isinstance(t, int), f"job {job_name!r} in {rel_path} timeout-minutes is not an integer: {t}"
+        assert t > 0, f"job {job_name!r} in {rel_path} timeout-minutes must be positive: {t}"
 
 
 def test_evidence_refresh_refresh_cap():

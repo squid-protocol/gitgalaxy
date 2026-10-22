@@ -64,6 +64,102 @@
     }
    ],
    "why": "the SELECT fails -913: 'N', NUMBER-OF-ACCOUNTS left at the INITIALIZE's zero (FAIL-CODE not set)"
+  },
+  {
+   "name": "select-fails-caller-data",
+   "commarea": {
+    "ACCOUNT-CONTROL-EYE-CATCHER": "XXXX",
+    "ACCOUNT-CONTROL-SORT-CODE": "123456",
+    "ACCOUNT-CONTROL-NUMBER": "12345678",
+    "NUMBER-OF-ACCOUNTS": "99999999",
+    "LAST-ACCOUNT-NUMBER": "87654321",
+    "ACCOUNT-CONTROL-SUCCESS-FLAG": "Y",
+    "ACCOUNT-CONTROL-FAIL-CODE": "9"
+   },
+   "sql_faults": [
+    {
+     "program": "ACCTCTRL",
+     "table": "ACCOUNT",
+     "verb": "SELECT",
+     "sqlcode": -913
+    }
+   ],
+   "why": "the SELECT fails -913 over a COMMAREA full of the caller's values (an 8-digit account number among them): INITIALIZE DFHCOMMAREA zeroes the number, NUMBER-OF-ACCOUNTS and LAST-ACCOUNT-NUMBER, blanks the eye-catcher and fail code, and the failure branch sets only 'N' -- nothing of the caller's survives"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "the caller passes no COMMAREA (EIBCALEN 0, no DFHCOMMAREA): the program still INITIALIZEs and fills DFHCOMMAREA, never testing EIBCALEN"
+  },
+  {
+   "name": "eibcalen-zero",
+   "commarea": {
+    "ACCOUNT-CONTROL-EYE-CATCHER": "XXXX",
+    "ACCOUNT-CONTROL-SORT-CODE": "123456",
+    "ACCOUNT-CONTROL-NUMBER": "12345678",
+    "NUMBER-OF-ACCOUNTS": "99999999",
+    "LAST-ACCOUNT-NUMBER": "87654321",
+    "ACCOUNT-CONTROL-SUCCESS-FLAG": "Y",
+    "ACCOUNT-CONTROL-FAIL-CODE": "9"
+   },
+   "commarea_length": 0,
+   "why": "EIBCALEN 0 with the COMMAREA record present (X23): the INITIALIZE reaches past the bytes the caller passed"
+  },
+  {
+   "name": "eibcalen-short",
+   "commarea": {
+    "ACCOUNT-CONTROL-EYE-CATCHER": "XXXX",
+    "ACCOUNT-CONTROL-SORT-CODE": "123456",
+    "ACCOUNT-CONTROL-NUMBER": "12345678",
+    "NUMBER-OF-ACCOUNTS": "99999999",
+    "LAST-ACCOUNT-NUMBER": "87654321",
+    "ACCOUNT-CONTROL-SUCCESS-FLAG": "Y",
+    "ACCOUNT-CONTROL-FAIL-CODE": "9"
+   },
+   "commarea_length": 20,
+   "why": "the caller passed 20 of the 98 bytes: INITIALIZE writes the number at byte 20, past EIBCALEN"
+  },
+  {
+   "name": "eibcalen-45",
+   "commarea": {
+    "ACCOUNT-CONTROL-EYE-CATCHER": "XXXX",
+    "ACCOUNT-CONTROL-SORT-CODE": "123456",
+    "ACCOUNT-CONTROL-NUMBER": "12345678",
+    "NUMBER-OF-ACCOUNTS": "99999999",
+    "LAST-ACCOUNT-NUMBER": "87654321",
+    "ACCOUNT-CONTROL-SUCCESS-FLAG": "Y",
+    "ACCOUNT-CONTROL-FAIL-CODE": "9"
+   },
+   "commarea_length": 45,
+   "why": "the caller passed 45 bytes: the last item the program writes, ACCOUNT-CONTROL-FAIL-CODE, is byte 46, one past EIBCALEN (X23)"
+  },
+  {
+   "name": "eibcalen-46",
+   "commarea": {
+    "ACCOUNT-CONTROL-EYE-CATCHER": "XXXX",
+    "ACCOUNT-CONTROL-SORT-CODE": "123456",
+    "ACCOUNT-CONTROL-NUMBER": "12345678",
+    "NUMBER-OF-ACCOUNTS": "99999999",
+    "LAST-ACCOUNT-NUMBER": "87654321",
+    "ACCOUNT-CONTROL-SUCCESS-FLAG": "Y",
+    "ACCOUNT-CONTROL-FAIL-CODE": "9"
+   },
+   "commarea_length": 46,
+   "why": "the caller passed exactly the 46 bytes the program addresses (the eye-catcher through FAIL-CODE): the COMMAREA is stated exact, so the area is cut there and every write fits; the 52 bytes past stay the caller's"
+  },
+  {
+   "name": "eibcalen-full",
+   "commarea": {
+    "ACCOUNT-CONTROL-EYE-CATCHER": "XXXX",
+    "ACCOUNT-CONTROL-SORT-CODE": "123456",
+    "ACCOUNT-CONTROL-NUMBER": "12345678",
+    "NUMBER-OF-ACCOUNTS": "99999999",
+    "LAST-ACCOUNT-NUMBER": "87654321",
+    "ACCOUNT-CONTROL-SUCCESS-FLAG": "Y",
+    "ACCOUNT-CONTROL-FAIL-CODE": "9"
+   },
+   "commarea_length": 98,
+   "why": "EIBCALEN equals the record (98 bytes, X23): the COMMAREA is stated exact and the INITIALIZE and the count fit"
   }
  ],
  "notes": "CBSA's account-control service (ACCTCTRL; no program in the corpus LINKs it -- the transaction OCAC is the create-account one, which the program never reads -- so the COMMAREA is its own DFHCOMMAREA, the ACCTCTRL copybook's ACCOUNT-CONTROL-RECORD). It INITIALIZEs the COMMAREA and counts the ACCOUNT rows of the program's own sort code (987654) with SELECT COUNT(*) INTO from Db2 (unqualified: the bind's QUALIFIER, IBMUSER); SQLCODE 0 gives 'Y' and the count in NUMBER-OF-ACCOUNTS, any other 'N'. POPULATE-TIME-DATE is never PERFORMed (dead code). The table is compared after every scenario. Data: seed.sql is cbsa-creacc's (SYNTHETIC; CONTROL rows left out: only ACCOUNT is created). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."

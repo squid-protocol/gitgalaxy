@@ -46,9 +46,9 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 14,
-   "sha256": "c894f4be06c9d7db7602b550c60fd6f5c339c34ba7f53e68c3895a1bd36bbc24",
+   "sha256": "3126b7171f9de7427a9f08910d61ccf18ca026b7543f80e51ca74944f17d124e",
    "components": {
-    "harness:cics": "f2459bf2767d61d0f214ad0bdb30abb25f2875794163a7898e2d95c3fd2fbe6e",
+    "harness:cics": "9398588ce0ab6fae9efbf766bc6cceb5f96a764431e80913ed69dfbcf030169d",
     "harness:core": "6ca15fe077558291d5457261b5b460f3fa6f7b92a7a11455c436cfee97ebaf39"
    }
   },
@@ -179,10 +179,10 @@
     }
    }
   },
-  "digest": "d7849acb16bc38eec27cb0a34b6d37297bc9d8f3d2f77ebc1844be276305b9a9"
+  "digest": "3c3979e6adf79f48b4c691f6cc574c96abd0342b6a254bb09daeb1ec250b31c2"
  },
  "proof": {
-  "at": "2026-10-22T13:11:21Z",
+  "at": "2026-10-22T13:46:34Z",
   "verdict": "proven",
   "runs": 35,
   "fault_runs": 6,
@@ -343,8 +343,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "1a070513398a54d42aaa82c66daa8ac0a01cb1a4+uncommitted",
-  "inputs_digest": "d7849acb16bc38eec27cb0a34b6d37297bc9d8f3d2f77ebc1844be276305b9a9"
+  "harness_commit": "fb2a45c87d106e9ac144267542bbe76df403785c+uncommitted",
+  "inputs_digest": "3c3979e6adf79f48b4c691f6cc574c96abd0342b6a254bb09daeb1ec250b31c2"
  },
  "coverage": {
   "paragraphs": {
@@ -428,7 +428,7 @@
    "total": 1
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "d7849acb16bc38eec27cb0a34b6d37297bc9d8f3d2f77ebc1844be276305b9a9"
+  "inputs_digest": "3c3979e6adf79f48b4c691f6cc574c96abd0342b6a254bb09daeb1ec250b31c2"
  },
  "reach": {
   "entry_points": [
@@ -483,7 +483,7 @@
   "port_sha256": "56019ff5b5aea133a1fbe4e41de1658790550de9eb5bfdf9f554a47031308577"
  },
  "mutation": {
-  "commit": "1a070513398a54d42aaa82c66daa8ac0a01cb1a4",
+  "commit": "fb2a45c87d106e9ac144267542bbe76df403785c",
   "rejudged": null,
   "seed": 0,
   "mode": null,
@@ -507,7 +507,7 @@
     "sha256": "56019ff5b5aea133a1fbe4e41de1658790550de9eb5bfdf9f554a47031308577"
    },
    "case": {
-    "sha256": "600e625bdd5d7113c7f042e7cb4d9c6f124375aac190377203f5ccc6694bb61a"
+    "sha256": "e13f3498edb2a843bdc55b02ae9a254b415b7d2770c06ccca13d7eb42607d1c0"
    },
    "corpus": {
     "sha256": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919"

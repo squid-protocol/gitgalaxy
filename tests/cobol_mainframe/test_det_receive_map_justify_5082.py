@@ -20,6 +20,7 @@ pytest.importorskip("tree_sitter_language_pack")
 from gitgalaxy.tools.cobol_to_java import cobol_to_java_screen_forge as F  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics as C  # noqa: E402
 import sys
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
@@ -208,3 +209,32 @@ def test_forge_oracle_and_crucible_runner_place_alike_5116(attrb, attributes, _w
                               color=None, hilight=None, justify=coded, ic=False)  # fmt: skip
     oracle = ec.justified(text, width, jf) if jf else text.rstrip(" ").ljust(width)[:width]
     assert cics_bms.received_value(field, text.rstrip(" ")) == oracle
+
+
+# #5116 (c:5781930a): JUSTIFY is an input-only DFHMDF operand, so the SEND MAP path must not apply it.
+_IBM_JUSTIFY_SENTENCE = "specifies the field justifications for input operations."
+_X54 = Path(__file__).resolve().parents[2] / "docs/language_status/register/X54.md"
+
+
+def test_det_send_map_never_justifies_5116():
+    import inspect
+
+    src = inspect.getsource(C.Cics.send_map).lower()
+    assert "justify" not in src
+    assert "detjustify" not in src
+
+
+def test_the_oracle_output_side_never_justifies_5116():
+    import inspect
+
+    import equivalence_cics as E
+
+    assert "justify" in inspect.signature(E.map_input).parameters
+    assert "justif" not in inspect.getsource(E.compare_events).lower()
+
+
+def test_x54_records_send_map_justify_not_applicable_5116():
+    text = " ".join(_X54.read_text(encoding="utf-8").split())
+    assert _IBM_JUSTIFY_SENTENCE in text
+    assert "JUSTIFY on SEND MAP: not applicable" in text
+    assert "test_det_send_map_never_justifies_5116" in text

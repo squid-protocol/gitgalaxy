@@ -5323,9 +5323,9 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                 raise Unsupported(f"scenario {sc['name']}: the COMMAREA DTO {ca_cls} has no field for {lost} -- "
                                   f"describe the COMMAREA with the record the DTO is generated from")  # fmt: skip
             ca = to_java(values, shape, alphanumeric(ca_fields))
-            if (
-                case.get("linked") or tabled
-            ) and not sc.get("dto_entry"):  # #4765: the very bytes the COBOL task was LINKed with (CicsTask.withLinkArea)
+            if (case.get("linked") or tabled) and not sc.get(
+                "dto_entry"
+            ):  # #4765: the very bytes the COBOL task was LINKed with (CicsTask.withLinkArea)
                 # #5863: a scenario with "dto_entry" gives the port the DTO alone -- the bytes would overwrite every
                 # field the typed entry (in_) maps, and hide a defect there; the COBOL side still runs the same record
                 area = commarea_record(ca_read, sc["commarea"], enc).hex().upper()

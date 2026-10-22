@@ -125,3 +125,6 @@ cannot agree on it by accident. The scanner reads `>>IF` through `cobol_conditio
 branches not taken blanked, so every fact keeps its line in the file); a COPY member, which has no PROGRAM-ID, and a
 refused form are read whole. Not yet shared: the scanner records COPY statements as facts and does not splice members
 (`galaxy_ir` expands item trees), so `core.cobol_preprocessor.expand` has only the translator as a consumer.
+
+The translator's `>>SOURCE FORMAT` switch is `cobol_source_format.directive_format` too (also `>>FORMAT` and `$SET
+SOURCEFORMAT`); `VARIABLE` is refused by name (`SourceFormatRefused`), not read as fixed.

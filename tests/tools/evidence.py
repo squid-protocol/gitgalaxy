@@ -555,7 +555,21 @@ def options_input(t: Target) -> dict[str, Any]:
     fp = eff.fingerprint()
     legacy = effective_options(case, estate={}, program=t.program)
     return {"sha256": json_sha256(fp), "semantic_sha256": json_sha256(fp["semantic"]),
-            "legacy_semantic_sha256": json_sha256(legacy.semantic()), "estate": fp["estate"], "effective": fp}  # fmt: skip
+            "legacy_semantic_sha256": json_sha256(legacy.semantic()), "estate": fp["estate"], "effective": fp,
+            "runtime_sha256": json_sha256(fp["runtime"])}  # fmt: skip
+
+
+def runtime_line(options: dict[str, Any] | None) -> str | None:
+    """#4707: the LE / Db2 / CICS options a record's proof ran under, as one line: the hash of the runtime section
+    (computed from `effective.runtime`, so a record that stores no `runtime_sha256` shows the same), the option count
+    per section and every `section.NAME=value`. None when the record holds none (proven before #4704 / #4707)."""
+    runtime = ((options or {}).get("effective") or {}).get("runtime") or {}
+    runtime = {sec: items for sec, items in runtime.items() if items}
+    if not runtime:
+        return None
+    counts = ", ".join(f"{sec} {len(items)}" for sec, items in sorted(runtime.items()))
+    values = ", ".join(f"{sec}.{k}={v}" for sec, items in sorted(runtime.items()) for k, v in sorted(items.items()))
+    return f"`{json_sha256(runtime)[:16]}` ({counts}): {values}"
 
 
 def spec_inputs(t: Target, files: Any, read: Any = None, names: Any = None) -> dict[str, Any]:
@@ -1143,6 +1157,8 @@ def render_page(t: Target, rec: dict[str, Any]) -> str:
             continue  # #4704: proven before the options input existed
         what = f"{v['name']} @ `{v['ref']}`" if k == "corpus" else (f"{v.get('files')} files" if "files" in v else "")
         lines.append(f"| {k} | {what} `{(v.get('sha256') or '-')[:16]}` |")
+        if k == "options" and (rl := runtime_line(v)):  # #4707: only when the record holds runtime options
+            lines.append(f"| runtime options | {rl} |")
     o = rec.get("oracle") or {}
     img = o.get("image") or {}
     lines.append(f"| oracle run | {o.get('kind', '-')}: {o.get('compiler') or o.get('source', '-')}"
@@ -1431,6 +1447,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "status":
         rows = [(t, status(load(t), t)) for t in _pick(args.keys, False)]
         if args.json:
+            for t, st in rows:  # #4707: only when the record holds runtime options
+                if rl := runtime_line((((load(t) or {}).get("inputs")) or {}).get("options")):
+                    st["runtime_options"] = rl
             print(json.dumps({t.key: st for t, st in rows}, indent=1))
         else:
             for t, st in rows:

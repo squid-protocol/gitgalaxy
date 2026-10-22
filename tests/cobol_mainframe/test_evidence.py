@@ -504,3 +504,60 @@ def test_a_bad_shard_is_refused(text):
 
     with pytest.raises(argparse.ArgumentTypeError):
         ev._parse_shard(text)
+
+
+# ---- #4707: the runtime option fingerprint on the page ----------------------------------------------------------------
+def _runtime_record(le_storage="NONE,NONE,NONE,0K"):
+    t, rec = _dateutil()
+    rec["inputs"] = ev.compute_inputs(t, rec.get("differences"))
+    eff = rec["inputs"]["options"]["effective"]
+    eff["runtime"] = {"le": {"STORAGE": le_storage, "TRAP": "ON,SPIE"}, "db2": {"ISOLATION": "UR"}, "cics": {}}
+    return t, rec
+
+
+def _runtime_row(page):
+    return [ln for ln in page.splitlines() if ln.startswith("| runtime options |")]
+
+
+def test_the_page_shows_the_runtime_options_a_proof_ran_under():
+    t, rec = _runtime_record()
+    (row,) = _runtime_row(ev.render_page(t, rec))
+    runtime = rec["inputs"]["options"]["effective"]["runtime"]
+    assert ev.json_sha256({s: v for s, v in runtime.items() if v})[:16] in row
+    assert "(db2 1, le 2)" in row and "cics" not in row  # an empty section is not shown
+    assert "le.STORAGE=NONE,NONE,NONE,0K" in row and "db2.ISOLATION=UR" in row
+
+
+@pytest.mark.parametrize("runtime", [None, {}, {"le": {}, "db2": {}, "cics": {}}])
+def test_a_record_with_no_runtime_options_renders_no_row(runtime):
+    t, rec = _runtime_record()
+    rec["inputs"]["options"]["effective"].pop("runtime")
+    if runtime is not None:
+        rec["inputs"]["options"]["effective"]["runtime"] = runtime
+    assert _runtime_row(ev.render_page(t, rec)) == []
+    assert ev.runtime_line(rec["inputs"]["options"]) is None
+    assert ev.runtime_line(None) is None
+
+
+def test_the_live_options_input_carries_the_runtime_hash_but_changed_ignores_it():
+    t, rec = _dateutil()
+    now = ev.compute_inputs(t, rec.get("differences"))
+    opts = now["options"]
+    assert opts["runtime_sha256"] == ev.json_sha256(opts["effective"]["runtime"])
+    stored = {k: copy.deepcopy(v) for k, v in now.items()}
+    stored["options"].pop("runtime_sha256")  # a record written before this key: still current
+    assert "options" not in ev.changed(stored, now)
+
+
+def test_a_changed_runtime_value_changes_the_row_and_a_note_does_not():
+    t, a = _runtime_record()
+    _, b = _runtime_record(le_storage="00,NONE,NONE,0K")
+    assert _runtime_row(ev.render_page(t, a)) != _runtime_row(ev.render_page(t, b))
+    # the fingerprint hashes values, never provenance: a changed note leaves the runtime hash alone
+    from gitgalaxy.core.estate_options import effective_options
+
+    case = ev._case_json(t.case)
+    base = effective_options(case, program=t.program).fingerprint()["runtime"]
+    noted = copy.deepcopy(effective_options(case, program=t.program))
+    noted.runtime_sources = {k: "changed note" for k in noted.runtime_sources}
+    assert noted.fingerprint()["runtime"] == base

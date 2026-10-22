@@ -2526,6 +2526,10 @@ def stub_files(
             raise Unsupported(f"CICS file {e['name']}: {key.name}'s KEYS or {d.name}'s RECORDSIZE is not in the facts")
         out.append({"file": e["name"], "dsname": dsn, "base": base, "key_offset": koff,
                     "key_length": klen, "reclen": reclen, "via": via})  # fmt: skip
+    for f in out:
+        # #5089: a CSD file name written with an install symbol (zECS: ZC@ID@FILE) is the resolved name at run time
+        # (the program opens ZC01FILE), so the stub's files.cfg must carry that name or every READ is FILENOTFOUND
+        f["file"] = substitute_install_symbols(f["file"], symbols)
     out += [r for r in case_runtime_files(datasets) if r["file"] not in {f["file"] for f in out}]
     return sorted(out, key=lambda f: f["file"])
 

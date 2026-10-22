@@ -1,0 +1,72 @@
+{
+  "note": "z/OS calibration probes (#4702 Part 2): our own fixed-format COBOL, runnable on Enterprise COBOL and on cobc -std=ibm. Run each on z/OS, record the result per entry in zos_calibration.json (key: probe id). oracle_expected is GnuCOBOL 3.1.2 -std=ibm output (gitgalaxy-gnucobol:3), measured 2026-10-22, DISPLAY lines in order. Never Hercules; results only after counsel clears licence and publishing (Q16).",
+  "probes": {
+    "c1-trunc-std": {
+      "entries": [
+        "C1"
+      ],
+      "compile_options": "TRUNC(STD) (IBM default)",
+      "question": "MOVE 99999 to S9(4) COMP and ADD 1 to 9999 with ON SIZE ERROR: IBM stores 9999 and raises the size error",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P1.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 B PIC S9(4) COMP.\n       01 N PIC 9(6) VALUE 99999.\n       PROCEDURE DIVISION.\n           MOVE N TO B\n           DISPLAY \"B1=\" B\n           MOVE 9999 TO B\n           ADD 1 TO B\n               ON SIZE ERROR DISPLAY \"SE\"\n           END-ADD\n           DISPLAY \"B2=\" B\n           STOP RUN.\n",
+      "oracle_expected": [
+        "B1=-31073",
+        "B2=+10000"
+      ],
+      "note": "Plain `cobc -std=ibm` behaves as TRUNC(BIN); the register's equivalence harness passes the TRUNC flag, so this row is the unflagged instrument, not the det port's answer."
+    },
+    "c3-literal-truncated-to-zero": {
+      "entries": [
+        "C3"
+      ],
+      "compile_options": "default",
+      "question": "MOVE -1000 TO S9(3) (literal) and MOVE of the same value from a field: does the zero result keep its sign",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P3.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 S PIC S9(3).\n       01 M PIC S9(4) VALUE -1000.\n       PROCEDURE DIVISION.\n           MOVE -1000 TO S\n           DISPLAY \"S1=\" S\n           MOVE M TO S\n           DISPLAY \"S2=\" S\n           STOP RUN.\n",
+      "oracle_expected": [
+        "S1=000+",
+        "S2=000-"
+      ],
+      "note": "The oracle folds the literal MOVE to +0 and keeps the sign for the field MOVE."
+    },
+    "c4-unsigned-binary-below-zero": {
+      "entries": [
+        "C4"
+      ],
+      "compile_options": "TRUNC(STD)",
+      "question": "SUBTRACT past zero from an unsigned binary: IBM keeps the absolute value",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P4.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 U PIC 9(4) COMP VALUE 3.\n       01 Z PIC 9(4) COMP VALUE 0.\n       PROCEDURE DIVISION.\n           SUBTRACT 5 FROM U\n           DISPLAY \"U1=\" U\n           SUBTRACT 1 FROM Z\n           DISPLAY \"Z1=\" Z\n           STOP RUN.\n",
+      "oracle_expected": [
+        "U1=65534",
+        "Z1=65535"
+      ],
+      "note": "The oracle wraps; the det runtime follows IBM (C4, declared difference)."
+    },
+    "c13-edited-and-zoned-compare": {
+      "entries": [
+        "C13"
+      ],
+      "compile_options": "ZWB (default)",
+      "question": "Numeric-edited item against a number is compared as text; signed zoned item against an alphanumeric literal and against a number",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P13.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 E PIC ZZZ,ZZ9.99 VALUE ZERO.\n       01 Z PIC S9(4) VALUE -12.\n       PROCEDURE DIVISION.\n           MOVE 1500 TO E\n           IF E > 1499 DISPLAY \"E1=GT\" ELSE DISPLAY \"E1=NGT\".\n           IF Z = \"0012\" DISPLAY \"Z1=EQ\" ELSE DISPLAY \"Z1=NE\".\n           IF Z = 12 DISPLAY \"Z2=EQ\" ELSE DISPLAY \"Z2=NE\".\n           STOP RUN.\n",
+      "oracle_expected": [
+        "E1=NGT",
+        "Z1=EQ",
+        "Z2=NE"
+      ],
+      "note": "Confirms the Language Reference's comparison-by-operand-class table on z/OS."
+    },
+    "c14-size-error-zero-divisor": {
+      "entries": [
+        "C14"
+      ],
+      "compile_options": "default",
+      "question": "DIVIDE by zero with ON SIZE ERROR and 0 ** -1 with ON SIZE ERROR",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P14.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 A PIC 9(4) VALUE 7.\n       01 Z PIC 9(4) VALUE 0.\n       01 R PIC 9(4) VALUE 55.\n       PROCEDURE DIVISION.\n           DIVIDE A BY Z GIVING R\n               ON SIZE ERROR DISPLAY \"SE1\"\n           END-DIVIDE\n           DISPLAY \"R1=\" R\n           COMPUTE R = Z ** -1\n               ON SIZE ERROR DISPLAY \"SE2\"\n           END-COMPUTE\n           DISPLAY \"R2=\" R\n           STOP RUN.\n",
+      "oracle_expected": [
+        "SE1",
+        "R1=0055",
+        "R2=0000"
+      ],
+      "note": "IBM says 0 ** -1 is a size error (the oracle returns 0 and takes no size error). Run only the ON SIZE ERROR forms: a bare zero divisor can abend S0CB."
+    }
+  }
+}

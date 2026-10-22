@@ -5,7 +5,7 @@
  "case": "carddemo-billpay",
  "entry": {
   "program": "COBIL00C",
-  "commit": "484739c7e0d2242848185b781bbe388bdb11a632",
+  "commit": "e247b21ff65cd8e21d25d4795cc804e8a6387b51",
   "date": "2026-10-22",
   "mode": "fast",
   "seed": 0,
@@ -539,7 +539,7 @@
    "generator": "2c58d7e535f2059b659189cedbe1a55e093294d66d60332a1fc7d237c097c69f",
    "case": "53cbf93442ce78b42ac1db26ca8f9f4de0e46a9662f132c23945e12ed85d5d98",
    "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-   "harness": "3954c17fb008b58d50ebd08223fa404cc89dbbe8aa3e8777be566f4f379ccb28",
+   "harness": "77a01698c167ad5adc81fd4e8af644cf7077b5a590ed8118eb491dea6f027729",
    "oracle": "ed495da81e6a1a607ebc1aba3daf85ba474192e76c482e7b124b8c2e49b760e2"
   },
   "components": {
@@ -565,7 +565,7 @@
     "generator:det/stmt": "014835ecefbec5b761734642ac25fc8270092f80945e8f79bcaaa9d3aee2c9ff"
    },
    "harness": {
-    "harness:cics": "35dc34a614fb199b373165ca78a8cee042c5e3541d4ee931f97b605d7086d4ce",
+    "harness:cics": "b8b83e225441e146ec0485a905d82758d48c19198d0ede5ccc4e6df1dcd6fe4e",
     "harness:core": "7027a1c80de76c69e876c70e853b627ece976d1de704474c26f7c065cb1f61a9"
    },
    "oracle": {
@@ -573,6 +573,13 @@
     "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
     "oracle:le": "200b234c8ffa2bf4cb1a9c143f22a5a3b696279e000cbf67ff9330fdfb7a9183"
    }
+  },
+  "refreshed": {
+   "from": "2026-10-22",
+   "survivors_rerun": 51,
+   "stale": [
+    "harness"
+   ]
   }
  }
 }

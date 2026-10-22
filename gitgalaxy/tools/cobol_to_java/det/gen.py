@@ -763,10 +763,9 @@ class Gen:
             return f"{self.fnum(e.operand)}.negate()"
         if isinstance(e, E.Bin):
             if e.op == "**":
-                raise Untranslatable(
-                    "exponentiation in a floating-point expression (IBM's run-time routine is not documented bit for "
-                    "bit; oracle_assumptions.md C6)"
-                )
+                # ASSUMED (C6): IBM's run-time routine is not documented bit for bit; Hfp.power is the capture kit's
+                # reference (hfp_capture_kit.power), long HFP whatever the statement's size (a `**` forces LONG)
+                return f"Hfp.power({self.fnum(e.left)}, {self.fnum(e.right)})"
             fn = {"+": "add", "-": "subtract", "*": "multiply", "/": "divide"}[e.op]
             literal = isinstance(e.right, E.Lit) and isinstance(e.right.value, Decimal) and e.right.value != 0
             if fn == "divide" and id(e) != self.float_top and not literal:

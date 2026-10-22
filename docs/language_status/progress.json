@@ -1,5 +1,5 @@
 {
- "commit": "8a9636a79",
+ "commit": "2bd2632e4",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-22T01:34:54Z",
+  "as_of": "2026-10-22T01:54:19Z",
   "core": {
    "closed": 155,
    "open": 29,
@@ -198,8 +198,8 @@
    "total": 46
   },
   "infra": {
-   "closed": 188,
-   "open": 56,
+   "closed": 189,
+   "open": 55,
    "total": 244
   },
   "measured": true,
@@ -338,9 +338,9 @@
     "total": 8
    },
    {
-    "closed": 60,
+    "closed": 61,
     "number": 22,
-    "open": 7,
+    "open": 6,
     "title": "Does It Actually Crit? \ud83c\udfb2 \u2014 Metrics That Earn Their Place",
     "total": 67
    },
@@ -545,7 +545,54 @@
     "L5": 0
    },
    "programs": 129,
-   "translated_whole": 119
+   "reachable": 123,
+   "translated_whole": 119,
+   "unreachable": {
+    "count": 6,
+    "kinds": {
+     "not_cobol": {
+      "count": 2,
+      "issues": [
+       "#5859"
+      ],
+      "programs": [
+       "zecs/Source/ZECS002.asm",
+       "zecs/Source/ZECSNC.asm"
+      ],
+      "reasons": [
+       "CICS Assembler member; the translator is a COBOL translator"
+      ]
+     },
+     "owner_held": {
+      "count": 2,
+      "issues": [
+       "#5106",
+       "#5867"
+      ],
+      "programs": [
+       "dbb-mortgage-application/zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+       "dbb-mortgage-application/zBuilder/MortgageApplication/cobol/epsmpmt.cbl"
+      ],
+      "reasons": [
+       "Language Environment condition handlers (CEEHDLR) refused by name, owner ruling 2026-10-21",
+       "floating-point power and FUNCTION ANNUITY need captured z/OS results (oracle_assumptions.md C6)"
+      ]
+     },
+     "source_defect": {
+      "count": 2,
+      "issues": [
+       "#5866"
+      ],
+      "programs": [
+       "aws-mainframe-modernization-carddemo/app/cbl/CBEXPORT.cbl",
+       "aws-mainframe-modernization-carddemo/app/cbl/CBIMPORT.cbl"
+      ],
+      "reasons": [
+       "RECORD KEY names an item defined in WORKING-STORAGE, not in a record of the file; IBM requires it in a record description of that file (Enterprise COBOL Language Reference, RECORD KEY clause)"
+      ]
+     }
+    }
+   }
   }
  },
  "oracle": "GnuCOBOL plus IBM documentation, not z/OS",

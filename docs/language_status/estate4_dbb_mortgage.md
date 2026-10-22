@@ -48,6 +48,11 @@ DATA DIVISION is nine programs'. Before the fixes below, all 6 were refused.
 | `mortgage-mlist` | EPSMLIST, company list | CICS, BMS (generated map), an ESDS browsed by RBA (STARTBR / READNEXT ... RBA, #4213), the dataset stated by the case | **proven**, 9 scenarios (2 with injected STARTBR / READNEXT conditions) | 5/6 paragraphs, 14/15 branches |
 | `mortgage-mpmt` | EPSMPMT, payment calculator | CALL, binary arguments as field values | **not proven on purpose**: the payment is computed through a COMP-1 item, in hexadecimal floating point on z/OS and in truncated decimal on GnuCOBOL. Since #4271 slice 1 the det runtime models HFP and the interest COMPUTE translates, but the payment's `(1 + C) ** N` (N with decimal places) is a floating-point exponentiation IBM does not document bit for bit. Since #5999 it translates through `Hfp.power`, an ASSUMED routine (the capture kit's reference power; C6, pinned by `test_det_hfp.py`; line 125), no longer a hole, but no z/OS capture agrees with it, so the case stays unproven until one does (#4050; the oracle cannot run HFP). Its `CBL NUMPROC(MIG)` compiles as NUMPROC(NOPFD) under the estate's Enterprise COBOL 6.1 (C5, #4271) | — |
 
+**Generated Db2 rows (#4507): nothing to prove.** EPSCMORT is the only source of the estate with an `EXEC SQL`, and its
+only table is Db2's own one-row `SYSIBM.SYSDUMMY1` (A805): there is no DDL or DCLGEN to generate rows from and no seed
+to vary. Its SQLCODE branches are run by the automatic SQL-fault task; +100 cannot come from the real table.
+`test_the_dbb_estate_reads_no_db2_table_but_sysdummy1` fails if that stops being true.
+
 **Not reached, and why:**
 - EPSCMORT's ENTER (indicator '3') and WHEN OTHER paths LINK EPSCSMRT. EPSCSMRT CALLs EPSMPMT through a data
   name the engine does not resolve (`CALL WS-CALLED-PROGRAM`, its value from a REDEFINES table), and EPSMPMT's

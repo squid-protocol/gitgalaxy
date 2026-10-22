@@ -1,13 +1,13 @@
 # DOOM Port Speedrun harness (#5468)
 
-Reproduces the DOOM port study (#5457) from the repo: 44 DOOM ports pinned by SHA in `manifest.csv`, cloned shallow
+Reproduces the DOOM port study (#5457) from the repo: 44 DOOM ports pinned by SHA in `tests/doom_rosetta/manifest.csv`, cloned shallow
 at that SHA into a scratch directory, scanned with the current engine, and scored by seven clean-scan checks. Each run
 is keyed by the engine's git SHA, so before/after for one fix is a diff of two result directories. This corpus is
 becoming DOOM-rosetta, a golden-gated CI test (#5619).
 
 **No third-party code is committed.** The manifest holds names, URLs, SHAs, languages, class, license and lineage
 only; clones are fetched at run time under `--work` (default `/tmp/gitgalaxy-scratch/doom-speedrun`, refused inside
-the repo). It is not part of default CI yet: run it by hand.
+the repo). The zero-drift gate and the nightly runs are in CI (`tests/doom_rosetta/README.md`); this harness is also run by hand.
 
 "DOOM" is used descriptively only. This project is not affiliated with or endorsed by id Software, ZeniMax Media or
 Microsoft. No WADs or other game data are fetched, committed or cached.
@@ -199,7 +199,7 @@ similarity >= 0.9) or **derived** (>= 0.6). Results in `<work>/results/<sha>/lin
 
 | file | what |
 |---|---|
-| `survival.csv`, `lineage.md` | per port: the four survival percentages, LOC-weighted similarity, linuxdoom file stems kept, the stated lineage from `manifest.csv`, its `parent` (the manifest port named by the lineage text's opening words, never itself) and `exact_vs_parent` (exact-body points gained or lost against that parent; linuxdoom counts as 100) |
+| `survival.csv`, `lineage.md` | per port: the four survival percentages, LOC-weighted similarity, linuxdoom file stems kept, the stated lineage from `tests/doom_rosetta/manifest.csv`, its `parent` (the manifest port named by the lineage text's opening words, never itself) and `exact_vs_parent` (exact-body points gained or lost against that parent; linuxdoom counts as 100) |
 | `survival_subsystem.csv` | the same per linuxdoom subsystem (file prefix: `r_` renderer, `p_` playsim, `m_` misc, ...) |
 | `survival_functions.csv` | each linuxdoom function x port: class (exact / near / derived / name-only / gone), best similarity |
 | `filename_survival.csv` | linuxdoom file stems present in the port's tracked sources |

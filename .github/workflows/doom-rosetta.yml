@@ -5,7 +5,8 @@ name: DOOM-rosetta
 # the golden's own per-file LOC) and each shard runs `pytest -m doom_rosetta` with DOOM_ROSETTA_PORTS narrowed to its
 # ports. Clones are fetched at the manifest SHA at run time (never committed) and cached per shard, keyed by the
 # manifest hash. Each shard writes its wall time to the job summary: the PR wall time is the slowest shard.
-# Slice 4 (#5630): the nightly `callgraph` job (schedule / manual only) scans the 20 licensed C/C++ ports and fails on a
+# Slice 4 (#5619): the nightly `oracle` job scans all ports with ctags + tree-sitter, publishes the table and diffs it with
+# the last night's. Slice 4 (#5630): the nightly `callgraph` job (schedule / manual only) scans the 20 licensed C/C++ ports and fails on a
 # call-graph recall/precision drop against tests/tools/doom_speedrun/callgraph_baseline.json.
 
 on:
@@ -199,3 +200,93 @@ jobs:
       - name: Publish the report
         if: always()
         run: cat "$DOOM_SPEEDRUN_WORK"/results/*/callgraph.md >> "$GITHUB_STEP_SUMMARY" || true
+
+  # #5619 slice 4: the full 44-port clean scan with the second oracle (ctags + tree-sitter), nightly and on demand. The
+  # table is published as the `doom-clean-scan` artifact; `diff --fail-on-regression` compares it with the previous
+  # night's artifact (a port that gained a failed check, or vanished, fails the run). The first run has no baseline and
+  # only publishes.
+  oracle:
+    if: ${{ github.event_name != 'pull_request' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      contents: read
+      actions: read
+    env:
+      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+      DOOM_SPEEDRUN_WORK: ${{ github.workspace }}/../doom-work
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: |
+            gitgalaxy/pyproject.toml
+            gitgalaxy/ci/requirements/*.txt
+
+      - name: Install GitGalaxy
+        run: |
+          cd gitgalaxy
+          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
+          pip install --require-hashes -r ci/requirements/yaml.txt
+          pip install --no-build-isolation -e .
+          pip install --require-hashes -r ci/requirements/treesitter.txt
+
+      - name: Install universal-ctags and verify it's the real thing
+        run: |
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- bash -c 'sudo apt-get -o Acquire::Retries=5 update -qq && sudo apt-get -o Acquire::Retries=5 install -y universal-ctags'
+          if ! ctags --version | grep -q "Universal Ctags"; then
+            echo "::error::ctags on PATH is not Universal Ctags -- refusing to run a silently-degraded check."
+            exit 1
+          fi
+          ctags --version | head -1
+
+      - name: Cache the pinned clones
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ github.workspace }}/../doom-work/repos
+          key: doom-oracle-clones-${{ hashFiles('gitgalaxy/tests/doom_rosetta/manifest.csv') }}
+
+      - name: Fetch the previous night's table
+        run: |
+          mkdir -p "$RUNNER_TEMP/previous"
+          id=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow doom-rosetta.yml --branch main --status success \
+            --limit 1 --json databaseId --jq '.[0].databaseId // empty' || true)
+          if [ -n "$id" ] && gh run download "$id" --repo "$GITHUB_REPOSITORY" --name doom-clean-scan --dir "$RUNNER_TEMP/previous"; then
+            echo "BASELINE=$RUNNER_TEMP/previous/clean_check.csv" >> "$GITHUB_ENV"
+          else
+            echo "No previous doom-clean-scan artifact: publishing only."
+          fi
+
+      - name: Scan and score every port with the oracle
+        run: |
+          cd gitgalaxy
+          python tests/tools/doom_speedrun/doom_speedrun.py run --oracle
+          d=$(ls -dt "$DOOM_SPEEDRUN_WORK"/results/*/ | head -1)
+          echo "RESULTS=${d%/}" >> "$GITHUB_ENV"
+
+      - name: Publish the clean-scan table
+        run: cat "$RESULTS/clean_check.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the clean-scan table
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: doom-clean-scan
+          path: |
+            ${{ env.RESULTS }}/clean_check.csv
+            ${{ env.RESULTS }}/clean_check.md
+          retention-days: 30
+
+      - name: Fail on a new failed check
+        if: ${{ env.BASELINE != '' }}
+        run: |
+          cd gitgalaxy
+          python tests/tools/doom_speedrun/doom_speedrun.py diff "$BASELINE" "$RESULTS" --fail-on-regression

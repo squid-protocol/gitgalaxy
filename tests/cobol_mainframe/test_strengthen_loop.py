@@ -297,3 +297,16 @@ def test_the_signon_case_takes_the_eibcalen_zero_survivor_scenario():
     z = _scenarios("carddemo-signon")["eibcalen-zero-with-commarea"]
     assert z["commarea"] is not None and z["commarea_length"] == 0 and z["aid"] == "DFHENTER"
     assert z["why"].startswith("#4049") and "expected" not in z
+
+
+def test_the_signon_case_takes_the_z_credential_survivor_scenarios():
+    # #4049: the end of UPPER-CASE's a-z range, on an id and a password that are on file once folded; inputs only
+    scs = _scenarios("carddemo-signon")
+    on_file = (Path(__file__).resolve().parents[1] / "equivalence" / "carddemo-signon" / "usrsec.txt").read_text()
+    for name, fold in (("lowercase-z-credentials", True), ("uppercase-z-credentials", False)):
+        s = scs[name]
+        got = s["receive"]["COSGN0A"]
+        assert "z" in got["USERIDI"].lower() and "z" in got["PASSWDI"].lower()
+        assert (got["USERIDI"] != got["USERIDI"].upper()) is fold
+        assert got["USERIDI"].upper() + "ZELDA" in on_file and got["PASSWDI"].upper() + "U" in on_file
+        assert s["why"].startswith("#4049") and "expected" not in s

@@ -12317,6 +12317,7 @@
       "cobol/che-che4z_nist_ccvs85/IX1114.2.cbl": [
         "L228 MOVE \"35\" -> CORRECT-A",
         "L229 MOVE IX-NOP-STATUS -> COMPUTED-A",
+        "L230 MOVE \"STATUS FOR OPEN INPUT OF FILE THAT IS NOT      PRESENT INCORRECT\" -> RE-MARK",
         "L232 MOVE \"IX-2, FILE STATUS\" -> ANSI-REFERENCE",
         "L238 MOVE \"PASS \" -> P-OR-F",
         "L239 ADD 1 -> PASS-COUNTER",
@@ -15038,6 +15039,7 @@
         "L457 MOVE SPACES -> IX-FS1-STATUS",
         "L458 MOVE \"READ OPTION. 10 EXP.\" -> FEATURE",
         "L459 MOVE \"REA-TEST-F1-01      \" -> PAR-NAME",
+        "L467 MOVE \"IX-4, 1.3.4, (2) A 2); IX-29 GR (4) B  IX-30 GR (10) A, B\" -> RE-MARK",
         "L470 MOVE IX-FS1-STATUS -> COMPUTED-A",
         "L471 MOVE \"10\" -> CORRECT-X",
         "L483 MOVE \"REA-TEST-GF-02  \" -> PAR-NAME",
@@ -15061,10 +15063,12 @@
         "L552 MOVE SPACES -> IX-FS2-STATUS",
         "L553 MOVE \"REA-TEST-GF-03  \" -> PAR-NAME",
         "L554 MOVE \"RANDOM READ  23 EXP.\" -> FEATURE",
+        "L561 MOVE \"IX-4, 1.3.4,(3) C 2); IX-36 4.7.4,GR (1), (5), (6) AND  (7)\" -> RE-MARK",
         "L564 MOVE IX-FS2-STATUS -> COMPUTED-A",
         "L565 MOVE \"23\" -> CORRECT-X",
         "L577 MOVE \"REA-TEST-GF-04  \" -> PAR-NAME",
         "L578 MOVE \"RANDOM READ (NO USE)\" -> FEATURE",
+        "L583 MOVE \"IX-29 4.5.4, GR (4) B, (17); 1: USE PROCEDURE HAS BEEN EXECUTED\" -> RE-MARK",
         "L586 MOVE EOF-FLAG -> COMPUTED-N",
         "L587 MOVE \"0\" -> CORRECT-X"
       ],
@@ -16216,8 +16220,11 @@
         "L460 MOVE \"001\" -> CORRECT-A",
         "L466 MOVE \"INDEX-TEST-7\" -> PAR-NAME",
         "L472 MOVE SPACES -> PRINT-REC",
+        "L474 MOVE \"NOTE THIS SECTION WRITES A 20X15 TABLE OF THREE-DIGIT  NUMBERS 001 TO 300 --- THERE SHOULD BE TWO\" -> PRINT-REC",
         "L477 MOVE SPACES -> PRINT-REC",
+        "L478 MOVE \"SPACES BETWEEN EACH NUMBER ON A LINE --- THE NUMBERS   001 THRU 020 SHOULD FORM THE FIRST LINE ---\" -> PRINT-REC",
         "L481 MOVE SPACES -> PRINT-REC",
+        "L482 MOVE \"THE VALUES IN THIS TABLE WERE GENERATED IN             SECTION-NAME-1 SECTION.\" -> PRINT-REC",
         "L485 MOVE SPACES -> PRINT-REC",
         "L487 MOVE 01 -> CTR-1",
         "L489 MOVE TABLE-1 -> PRINT-ELE",
@@ -17581,7 +17588,8 @@
         "L455 MOVE \"VI-15 4.5.4 GR4(D)\" -> ANSI-REFERENCE",
         "L456 MOVE \"NINE < THAN QUOTE\" -> FEATURE",
         "L457 MOVE 9 -> NINE-DU-9V0-1",
-        "L467 MOVE \"NINE FOUND >  QUOTE\" -> COMPUTED-A"
+        "L467 MOVE \"NINE FOUND >  QUOTE\" -> COMPUTED-A",
+        "L474 MOVE \" ALPHABET-NAME     *****     CHECK THE ALPHABET-NAME IN THE SPECIAL-NAMES PARAGRAPH\" -> TEST-RESULTS"
       ],
       "cobol/che-che4z_nist_ccvs85/NC2194.2.cbl": [
         "L228 MOVE CCVS-PGM-ID -> TEST-ID",
@@ -20563,7 +20571,8 @@
         "L287 MOVE COMPUTED-A -> XXCOMPUTED",
         "L288 MOVE ANSI-REFERENCE -> INF-ANSI-REFERENCE",
         "L289 MOVE XXINFO -> DUMMY-RECORD",
-        "L290 MOVE SPACES -> INF-ANSI-REFERENCE"
+        "L290 MOVE SPACES -> INF-ANSI-REFERENCE",
+        "L295 MOVE \" IF NO OTHER REPORT LINES APPEAR BELOW, \"\"COPY K7SEA\"\" FAILED.\" -> PRINT-REC"
       ],
       "cobol/che-che4z_nist_ccvs85/ST1084.2.cbl": [
         "L232 MOVE +123456 -> SORTKEY-1",
@@ -27840,9 +27849,11 @@
     },
     "cobol/cobol-check": {
       "cobol/cobol-check/TESTPRG.CBL": [
+        "L129 MOVE \"When message type is greeting it returns 'Hello, World '\" -> UT-TEST-CASE-NAME",
         "L135 ADD 1 -> UT-TEST-CASE-COUNT",
         "L137 MOVE WS-GREETING -> UT-ACTUAL",
         "L138 MOVE \"Hello, World     !\" -> UT-EXPECTED",
+        "L143 MOVE \"When message type is farewell it returns See you later, alligator!\" -> UT-TEST-CASE-NAME",
         "L149 ADD 1 -> UT-TEST-CASE-COUNT",
         "L151 MOVE WS-FAREWELL -> UT-ACTUAL",
         "L152 MOVE \"See you later, alligator!\" -> UT-EXPECTED",

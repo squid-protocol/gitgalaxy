@@ -191,6 +191,9 @@ def test_cics_task_ts_queues_follow_readq_and_writeq(tmp_path):
 
 
 @needs_javac
+@pytest.mark.slow(
+    reason="1.4 s warm; first in its CI split part it paid the cold javac of the shared CicsTask build (26 s, #6018 full-suite part 3/3)"
+)
 def test_cics_task_abend_carries_its_cause_outcome_and_exit(tmp_path):
     """#4003: an exit that takes the abend leaves the task running; the default action terminates it."""
     out = _cics_task(

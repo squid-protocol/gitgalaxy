@@ -60,7 +60,8 @@ import bisect
 import re
 from typing import Any
 
-from gitgalaxy.core.cobol_preprocessor import free_code
+from gitgalaxy.core.cobol_preprocessor import free_code, join_continuation, open_literal
+from gitgalaxy.core.cobol_source_format import FIXED, line_formats
 from gitgalaxy.core.db2_declare_table import _blank_sequence_fields
 from gitgalaxy.core.special_names import special_names
 from gitgalaxy.standards.language_standards.identifiers import NATIONAL, WIDE_DIGITS, WIDE_HYPHENS
@@ -137,11 +138,23 @@ def _procedure_text(code_stream: str) -> str:
     PROCEDURE DIVISION header blanked (offsets and line numbers unchanged)."""
     text = _blank_sequence_fields(code_stream, "cobol")
     lines = text.split("\n")
+    formats = line_formats(code_stream)
+    last = -1  # the line a continuation joins onto: the last one that holds text
+    joined = False  # whether it already took a continuation (its text is then past column 72, kept whole)
     for i, line in enumerate(lines):
         if len(line) > 6 and line[6] in "*/Dd":  # comment, page eject, debugging line
             lines[i] = ""
+        elif last >= 0 and formats[i] == FIXED and len(line) > 6 and line[6] == "-":
+            # #5648: a continuation line (`-` in column 7) is the end of the line before: its open literal resumes
+            # after the first quote, any other text follows after a space. The joined text sits on the first
+            # line; this one is left empty so every later line keeps its number.
+            prev = lines[last][7:] if joined else lines[last][7:72]
+            lines[last] = lines[last][:7] + join_continuation(prev, line, open_literal(prev))
+            lines[i], joined = "", True
         else:
             lines[i] = free_code(line)  # #5648: a literal that holds `*>` is not a comment
+            if lines[i].strip():
+                last, joined = i, False
     text = "\n".join(lines)
     m = re.search(r"(?<![A-Z0-9-])PROCEDURE[ \t\n]{1,200}DIVISION(?![A-Z0-9-])", text, re.I)
     if m:

@@ -5,7 +5,7 @@
  "case": "carddemo-billpay",
  "entry": {
   "program": "COBIL00C",
-  "commit": "428957bdd96958fdac3cf564ca6f00f74295d790",
+  "commit": "484739c7e0d2242848185b781bbe388bdb11a632",
   "date": "2026-10-22",
   "mode": "fast",
   "seed": 0,
@@ -14,9 +14,9 @@
   "chosen": 150,
   "coverage": "proven on 33 scenarios, covering 16/16 paragraphs and 46/48 branches",
   "counts": {
-   "killed": 95,
+   "killed": 96,
    "timeout": 0,
-   "survived": 52,
+   "survived": 51,
    "stillborn": 3,
    "error": 0,
    "pending": 0
@@ -66,6 +66,7 @@
    "6cf9d7bfe0",
    "7276e7735c",
    "728bfe534e",
+   "74b4bb8c3a",
    "79d0496552",
    "7c63846472",
    "7d5ccf70ee",
@@ -469,14 +470,6 @@
     "after": "/* Cobol.store(f390_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
    },
    {
-    "id": "74b4bb8c3a",
-    "op": "LIT",
-    "file": "service/Cobil00cService.java",
-    "line": 1184,
-    "before": "java.util.Optional<Cobil0aScreen> received8 = task.receive(\"COBIL0A\", \"COBIL00\", Cobil0aScreen.class);",
-    "after": "java.util.Optional<Cobil0aScreen> received8 = task.receive(\"COBIL0A\", \"XOBIL00\", Cobil0aScreen.class);"
-   },
-   {
     "id": "7d64efbfdb",
     "op": "DEL",
     "file": "service/Cobil00cService.java",
@@ -542,12 +535,12 @@
    }
   ],
   "inputs": {
-   "port": "d2ba5fac4d772ce8701d832266dd55935e687ff3d0704e4460a906919da7eb6e",
-   "generator": "e3cd26f0bd1240b8fe399b400a7a150388b4e1bf1dd65e58693708555873a21d",
+   "port": "02e26a3aeecef18ac3d0a402069c383d3948338936b8cb8abb4d3e4de5658542",
+   "generator": "2c58d7e535f2059b659189cedbe1a55e093294d66d60332a1fc7d237c097c69f",
    "case": "53cbf93442ce78b42ac1db26ca8f9f4de0e46a9662f132c23945e12ed85d5d98",
    "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-   "harness": "f52c0d770de36086c14d386cd691c57484fe24f59d0b29112cb7d2e56e75d4b6",
-   "oracle": "27cd5d5127a7ff5cf004d7ea63517333edb599feefc1643485560c707d475c0b"
+   "harness": "3954c17fb008b58d50ebd08223fa404cc89dbbe8aa3e8777be566f4f379ccb28",
+   "oracle": "ed495da81e6a1a607ebc1aba3daf85ba474192e76c482e7b124b8c2e49b760e2"
   },
   "components": {
    "generator": {
@@ -572,22 +565,14 @@
     "generator:det/stmt": "014835ecefbec5b761734642ac25fc8270092f80945e8f79bcaaa9d3aee2c9ff"
    },
    "harness": {
-    "harness:cics": "213c9450546bf312b75d1e132d67f07d558860d6645035e28f54d04046f36195",
-    "harness:core": "e995854ba8cad1ec5dabaf5752f5fe625ed3de76b8b92ccdb4129f1250359d5e"
+    "harness:cics": "35dc34a614fb199b373165ca78a8cee042c5e3541d4ee931f97b605d7086d4ce",
+    "harness:core": "7027a1c80de76c69e876c70e853b627ece976d1de704474c26f7c065cb1f61a9"
    },
    "oracle": {
     "oracle:cics-stub": "8d4b95cb03310f91b20292ebc95871479fe57bab9fc6ff33a625667a5860e785",
     "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
     "oracle:le": "200b234c8ffa2bf4cb1a9c143f22a5a3b696279e000cbf67ff9330fdfb7a9183"
    }
-  },
-  "refreshed": {
-   "from": "2026-10-21",
-   "survivors_rerun": 52,
-   "stale": [
-    "generator",
-    "harness"
-   ]
   }
  }
 }

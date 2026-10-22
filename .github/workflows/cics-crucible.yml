@@ -233,7 +233,7 @@ jobs:
           GITGALAXY_ORACLE_STRICT: "1"
         run: |
           cd gitgalaxy
-          python -m pytest -q -p no:cacheprovider tests/cics_crucible
+          python -m pytest -q -p no:cacheprovider tests/cics_crucible -m e2e
 
   # The required check (its name is the job id). Always runs: a shard that failed or never started is a failure here,
   # never a pass by absence.

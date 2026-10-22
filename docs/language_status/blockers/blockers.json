@@ -1,12 +1,12 @@
 {
  "programs": 106,
  "non_burned": 0,
- "whole": 101,
+ "whole": 103,
  "whole_non_burned": 0,
  "refused": 2,
  "histogram": {
-  "0": 101,
-  "1": 4,
+  "0": 103,
+  "1": 2,
   "8": 1
  },
  "gaps": [
@@ -22,32 +22,6 @@
    "touched_burned": 2,
    "touched_non_burned": 0,
    "refuses_program": true
-  },
-  {
-   "gap": "DSNTIAC: Db2's message text is not modelled",
-   "only": 1,
-   "only_burned": 1,
-   "only_non_burned": 0,
-   "one_away": 0,
-   "one_away_burned": 0,
-   "one_away_non_burned": 0,
-   "touched": 1,
-   "touched_burned": 1,
-   "touched_non_burned": 0,
-   "refuses_program": false
-  },
-  {
-   "gap": "ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the N bytes it returns in <name> are not a stated fact",
-   "only": 1,
-   "only_burned": 1,
-   "only_non_burned": 0,
-   "one_away": 0,
-   "one_away_burned": 0,
-   "one_away_non_burned": 0,
-   "touched": 1,
-   "touched_burned": 1,
-   "touched_non_burned": 0,
-   "refuses_program": false
   },
   {
    "gap": "<name> ADDRESS OF <name>: not an item of <name> or LINKAGE",

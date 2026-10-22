@@ -1,11 +1,9 @@
-# blockers in baseline c01d31324758 (burned + local corpora (no census)): programs with an EXEC CICS command
-translated whole: 101 / 106 (non-burned 0 / 0); refused whole (no statements translated): 2
-distinct gap classes per program: 0: 101, 1: 4, 8: 1
+# blockers in baseline 1b9ba2b085d9 (burned + local corpora (no census)): programs with an EXEC CICS command
+translated whole: 103 / 106 (non-burned 0 / 0); refused whole (no statements translated): 2
+distinct gap classes per program: 0: 103, 1: 2, 8: 1
 
  only gap (B/NB)  one away (B/NB)  touched  gap  (* = refuses the whole program: its count is an upper bound; `--unmask GAP` shows what it hides)
      2 ( 2/ 0)      0 ( 0/ 0)        2  *refused: CICS Assembler
-     1 ( 1/ 0)      0 ( 0/ 0)        1   DSNTIAC: Db2's message text is not modelled
-     1 ( 1/ 0)      0 ( 0/ 0)        1   ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the N bytes it returns in
      0 ( 0/ 0)      0 ( 0/ 0)        1   <name> ADDRESS OF <name>: not an item of <name> or LINKAGE
      0 ( 0/ 0)      0 ( 0/ 0)        1   CEEHDLR: registering an LE user condition handler is not modelled
      0 ( 0/ 0)      0 ( 0/ 0)        1   CEEHDLU: unregistering an LE user condition handler is not modelled

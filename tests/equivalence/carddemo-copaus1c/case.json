@@ -1,0 +1,482 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "COPAUS1C",
+ "program_source": "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
+ "copy_dirs": [
+  "app/cpy",
+  "app/app-authorization-ims-db2-mq/cpy",
+  "app/app-authorization-ims-db2-mq/cpy-bms"
+ ],
+ "transid": "CPVD",
+ "clock": "2022/10/07 10:30:15.00",
+ "datasets": {},
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
+    "record": "CARDDEMO-COMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "COPAU1A": {
+   "copybook": "app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy",
+   "input": "COPAU1AI",
+   "output": "COPAU1AO"
+  }
+ },
+ "ims": {
+  "dbd": [
+   "app/app-authorization-ims-db2-mq/ims/DBPAUTP0.dbd"
+  ],
+  "psb": "app/app-authorization-ims-db2-mq/ims/PSBPAUTB.psb",
+  "seed": {
+   "DBPAUTP0": {
+    "segments": [
+     {
+      "segment": "PAUTSUM0",
+      "hex": "00000000001c303030303030303031202020202020202020303000000202200c00000102000c00000000944c00000000000c0006000000000000944c00000000000c2020202020202020202020202020202020202020424f4d4d20202020202020202020"
+     },
+     {
+      "segment": "PAUTDTL1",
+      "hex": "76699c998747444c3233313032373034313235323936383032393431353436303336393730313030313132323132333420203130323033303034313235323030303030303030303030300000000000124c0000000000124c353434325553413030313233353031303030363735343233416d617a6f6e2e636f6d20202020202020202020202057696c6d696e67746f6e20202044453139383031202020203936306239623534383064303435614d2020202020202020202028393038293639332d38363834202030"
+     },
+     {
+      "segment": "PAUTDTL1",
+      "hex": "76699c998748388c3233313032373034313235313936383032393431353436303336393730313030313132323132333420203130323033303034313235313035343130303030303030300000000000124c0000000000124c353434325553413030313233353031303030363735343233416d617a6f6e2e636f6d20202020202020202020202057696c6d696e67746f6e2020204445313938303120202020373335633235386136383064343135442020202020202020202028393038293639332d38363834202030"
+     },
+     {
+      "segment": "PAUTDTL1",
+      "hex": "76700c769089115c3233313032373033303931303936383032393431353436303336393730313030313132333132333420203130323033303033303931303035353130303030303030300000000000199c0000000000199c353434325553413030313233353031303030363735343233416d617a6f6e2e636f6d20202020202020202020202057696c6d696e67746f6e2020204445313938303120202020633535623764613939326365346565444631302f30312f32322028393038293639332d38363834202030"
+     },
+     {
+      "segment": "PAUTDTL1",
+      "hex": "76700c769090347c3233313032373033303930393936383032393431353436303336393730313030313132333132333420203130323033303033303930393035353330303030303030300000000000199c0000000000199c353434325553413030313233353031303030363735343233416d617a6f6e2e636f6d20202020202020202020202057696c6d696e67746f6e2020204445313938303120202020613737376465613331633137346131445231302f30322f32322028393038293639332d38363834202030"
+     },
+     {
+      "segment": "PAUTDTL1",
+      "hex": "76700c769091469c3233313032373033303930383936383032393431353436303336393730313030313132333132333420203130323033303033303930383035313233343030303030300000000000199c0000000000199c353434325553413030313233353031303030363735343233416d617a6f6e2e636f6d20202020202020202020202057696c6d696e67746f6e2020204445313938303120202020613062643765346233343862343639442020202020202020202028393038293639332d38363834202030"
+     },
+     {
+      "segment": "PAUTDTL1",
+      "hex": "76700c837391279c3233313032363230323630333936383032393431353436303336393730313030313132333132333420203130323033303230323630333035393030303030303030300000000000099c0000000000099c353434325553413030313233353031303030363735343233416d617a6f6e2e636f6d20202020202020202020202057696c6d696e67746f6e2020204445313938303120202020316463653539656235653031346164452020202020202020202028393038293639332d38363834202030"
+     },
+     {
+      "segment": "PAUTSUM0",
+      "hex": "00000000005c303030303030303035202020202020202020303000000381900c00000243000c00000000131c00000000000c0001000000000000131c00000000000c2020202020202020202020202020202020202020424f4d4d20202020202020202020"
+     },
+     {
+      "segment": "PAUTDTL1",
+      "hex": "76700c835153123c3233313032363230343834363630303936313931353036373435323630313030313132333132333420203130323033303230343834363030303030303030303030300000000000131c0000000000131c353434325553413030313233353031303030363735343233426573742042757920202020202020202020202020204e657761726b202020202020204445313938383120202020336563313333363736316133343832502020202020202020202028393038293639332d38363834202030"
+     },
+     {
+      "segment": "PAUTSUM0",
+      "hex": "00000000011c303030303030303131202020202020202020303000000381900c00000243000c00000000131c00000000000c0001000000000000131c00000000000c2020202020202020202020202020202020202020424f4d4d20202020202020202020"
+     },
+     {
+      "segment": "PAUTDTL1",
+      "hex": "77720c908457749c3232313030353039313534323431313131313131313131313131313130313030313132333132333420203130323033303230343834363035343230303030303030300000000000131c0000000000131c353434325553413030313233353031303030363735343233426573742042757920202020202020202020202020204e657761726b202020202020204445313938383120202020336563313333363736316133343832442020202020202020202028393038293639332d38363834202030"
+     },
+     {
+      "segment": "PAUTSUM0",
+      "hex": "00000000017c303030303030303137202020202020202020303000000056800c00000051000c00000001220c00000000000c0002000000000001220c00000000000c2020202020202020202020202020202020202020424f4d4d20202020202020202020"
+     },
+     {
+      "segment": "PAUTDTL1",
+      "hex": "76700c835182395c3233313032363230343831373933343931303734373538363932313430313030313132333132333420203130323033303230343831373035343330303030303030300000000000131c0000000000131c353434325553413030313233353031303030363735343233426573742042757920202020202020202020202020204e657761726b202020202020204445313938383120202020386461666462333630303935343033442020202020202020202028393038293639332d38363834202030"
+     },
+     {
+      "segment": "PAUTDTL1",
+      "hex": "76700c835749189c3233313032363230343235303933343931303734373538363932313430313030313132333132333420203130323033303230343235303030303030303030303030300000000001089c0000000001089c3534343255534130303132333530313030303637353432334d63446f6e616c647320202020202020202020202020446f766572202020202020202044453139383831202020206533613834613939316436373463354d2020202020202020202028393038293639332d38363834202030"
+     }
+    ]
+   }
+  },
+  "segments": {
+   "PAUTSUM0": {
+    "copybook": "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+    "record": "PENDING-AUTH-SUMMARY"
+   },
+   "PAUTDTL1": {
+    "copybook": "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+    "record": "PENDING-AUTH-DETAILS"
+   }
+  },
+  "compare": [
+   "DBPAUTP0"
+  ]
+ },
+ "notes": "CardDemo's pending-authorization detail screen (transaction CPVD, program COPAUS1C, app-authorization-ims-db2-mq): pseudo-conversational. It schedules PSB PSBPAUTB (EXEC DLI SCHD), reads the selected authorization (GU the account's PAUTSUM0, GNP its PAUTDTL1 by key) and shows it, looking the decline reason up with SEARCH ALL; PF8 reads the next detail (GNP), PF5 toggles the fraud flag: it LINKs COPAUS2C (the Db2 fraud-report service, run here as the case's second program) and, when that succeeds, REPLaces the segment and takes a SYNCPOINT, else rolls back; PF3 XCTLs to COPAUS0C. The database is a small hand-stated one built from records of the corpus's own HD unload of DBPAUTP0 (accounts 1, 5, 11, 17; account 11 carries the authorization the Db2 seed already holds). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+ "scenarios": [
+  {
+   "name": "first-entry-no-commarea",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "EIBCALEN 0: INITIALIZE the COMMAREA and XCTL to COPAUS0C (the summary screen)"
+  },
+  {
+   "name": "entry-approved",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CUST-ID": 1,
+    "CDEMO-CPVD-PAU-SELECTED": "vi\u009c\u0099\u0087GDL"
+   },
+   "why": "entered from COPAUS0C (context 0), account 1's first detail: GU summary, GNP by key, 'A' green, 0000-APPROVED"
+  },
+  {
+   "name": "entry-insufficient-fund",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CUST-ID": 1,
+    "CDEMO-CPVD-PAU-SELECTED": "vi\u009c\u0099\u0087H8\u008c"
+   },
+   "why": "a declined detail, reason 4100: 'D' red, SEARCH ALL finds INSUFFICNT FUND"
+  },
+  {
+   "name": "entry-fraud-confirmed",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CUST-ID": 1,
+    "CDEMO-CPVD-PAU-SELECTED": "vp\fv\u0090\u0089\u0011\\"
+   },
+   "why": "PA-AUTH-FRAUD 'F': AUTHFRDO shows the flag, '-' and the report date; reason 5100 CARD FRAUD"
+  },
+  {
+   "name": "entry-fraud-removed",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CUST-ID": 1,
+    "CDEMO-CPVD-PAU-SELECTED": "vp\fv\u0090\u00904|"
+   },
+   "why": "PA-AUTH-FRAUD 'R': the same branch with the removed flag; reason 5300 LOST CARD"
+  },
+  {
+   "name": "entry-reason-not-in-table",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CUST-ID": 1,
+    "CDEMO-CPVD-PAU-SELECTED": "vp\fv\u0090\u0091F\u009c"
+   },
+   "why": "reason 1234 is no table entry: SEARCH ALL AT END gives '9999-ERROR'"
+  },
+  {
+   "name": "entry-reason-last-entry",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CUST-ID": 1,
+    "CDEMO-CPVD-PAU-SELECTED": "vp\f\u0083s\u0091'\u009c"
+   },
+   "why": "reason 9000 is the table's last entry (the binary search's end): 9000-UNKNOWN"
+  },
+  {
+   "name": "entry-single-detail",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 5,
+    "CDEMO-CUST-ID": 5,
+    "CDEMO-CPVD-PAU-SELECTED": "vp\f\u0083QS\u0012<"
+   },
+   "why": "account 5 holds one detail: the same screen from the other root"
+  },
+  {
+   "name": "entry-account-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-CPVD-PAU-SELECTED": "vi\u009c\u0099\u0087GDL"
+   },
+   "why": "CDEMO-ACCT-ID not numeric: ERR-FLG-ON, POPULATE-AUTH-DETAILS leaves the screen blank"
+  },
+  {
+   "name": "entry-no-selected-key",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CUST-ID": 1,
+    "CDEMO-CPVD-PAU-SELECTED": "        "
+   },
+   "why": "no selected authorization key (spaces): ERR-FLG-ON"
+  },
+  {
+   "name": "entry-account-without-summary",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 2,
+    "CDEMO-CUST-ID": 2,
+    "CDEMO-CPVD-PAU-SELECTED": "vp\f\u0083QS\u0012<"
+   },
+   "why": "account 2 has no PAUTSUM0: GU answers GE, AUTHS-EOF, the detail is not read"
+  },
+  {
+   "name": "reenter-enter",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CUST-ID": 1,
+    "CDEMO-CPVD-PAU-SELECTED": "vi\u009c\u0099\u0087H8\u008c"
+   },
+   "why": "ENTER on the re-entered screen: RECEIVE, then the same lookup and SEND"
+  },
+  {
+   "name": "pf3-to-summary",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CUST-ID": 1,
+    "CDEMO-CPVD-PAU-SELECTED": "vi\u009c\u0099\u0087H8\u008c"
+   },
+   "why": "PF3: XCTL back to COPAUS0C"
+  },
+  {
+   "name": "pf9-invalid-key",
+   "aid": "DFHPF9",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CUST-ID": 1,
+    "CDEMO-CPVD-PAU-SELECTED": "vi\u009c\u0099\u0087H8\u008c"
+   },
+   "why": "an unassigned key: the lookup, then the invalid-key message"
+  },
+  {
+   "name": "pf8-next-detail",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 17,
+    "CDEMO-CUST-ID": 17,
+    "CDEMO-CPVD-PAU-SELECTED": "vp\f\u0083Q\u00829\\"
+   },
+   "why": "PF8: GU the account, GNP to the next detail, its key kept as the selected one"
+  },
+  {
+   "name": "pf8-at-last-detail",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 17,
+    "CDEMO-CUST-ID": 17,
+    "CDEMO-CPVD-PAU-SELECTED": "vp\f\u0083WI\u0018\u009c"
+   },
+   "why": "PF8 on the account's last detail: GNP answers GE, 'Already at the last Authorization...' without ERASE"
+  },
+  {
+   "name": "pf8-single-detail",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 5,
+    "CDEMO-CUST-ID": 5,
+    "CDEMO-CPVD-PAU-SELECTED": "vp\f\u0083QS\u0012<"
+   },
+   "why": "PF8 on an account with one detail"
+  },
+  {
+   "name": "pf5-report-new-fraud",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 17,
+    "CDEMO-CUST-ID": 17,
+    "CDEMO-CPVD-PAU-SELECTED": "vp\f\u0083Q\u00829\\"
+   },
+   "why": "PF5 on an unreported detail: LINK COPAUS2C INSERTs the row, REPL stores the flag 'F', SYNCPOINT, 'AUTH MARKED FRAUD...'"
+  },
+  {
+   "name": "pf5-report-existing-row",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 11,
+    "CDEMO-CUST-ID": 11,
+    "CDEMO-CPVD-PAU-SELECTED": "wr\f\u0090\u0084Wt\u009c"
+   },
+   "why": "PF5 on the detail whose row is already in AUTHFRDS: -803, UPDATE in COPAUS2C, flag 'F' stored"
+  },
+  {
+   "name": "pf5-remove-fraud",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CUST-ID": 1,
+    "CDEMO-CPVD-PAU-SELECTED": "vp\fv\u0090\u0089\u0011\\"
+   },
+   "why": "PF5 on a confirmed fraud: the flag toggles to 'R', 'AUTH FRAUD REMOVED...'"
+  },
+  {
+   "name": "pf5-confirm-removed-fraud",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CUST-ID": 1,
+    "CDEMO-CPVD-PAU-SELECTED": "vp\fv\u0090\u00904|"
+   },
+   "why": "PF5 on a removed fraud: the flag toggles back to 'F'"
+  },
+  {
+   "name": "pf5-service-insert-fails",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 17,
+    "CDEMO-CUST-ID": 17,
+    "CDEMO-CPVD-PAU-SELECTED": "vp\f\u0083Q\u00829\\"
+   },
+   "sql_faults": [
+    {
+     "program": "COPAUS2C",
+     "table": "AUTHFRDS",
+     "verb": "INSERT",
+     "sqlcode": -913
+    }
+   ],
+   "why": "COPAUS2C's INSERT fails (-913): it answers 'F' with its message, COPAUS1C rolls back and shows it"
+  },
+  {
+   "name": "pf5-link-fails",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 17,
+    "CDEMO-CUST-ID": 17,
+    "CDEMO-CPVD-PAU-SELECTED": "vp\f\u0083Q\u00829\\"
+   },
+   "faults": [
+    {
+     "cmd": "LINK",
+     "program": "COPAUS2C",
+     "resp": "PGMIDERR",
+     "why": "COPAUS2C not defined"
+    }
+   ],
+   "why": "the LINK itself fails (PGMIDERR): EIBRESP not NORMAL, SYNCPOINT ROLLBACK, the detail shown as read"
+  }
+ ],
+ "db2": {
+  "ddl": [
+   "app/app-authorization-ims-db2-mq/ddl/AUTHFRDS.ddl",
+   "app/app-authorization-ims-db2-mq/ddl/XAUTHFRD.ddl"
+  ],
+  "include_dirs": [
+   "app/app-authorization-ims-db2-mq/dcl"
+  ],
+  "seed": "@case/seed.sql",
+  "compare": [
+   "CARDDEMO.AUTHFRDS"
+  ]
+ },
+ "programs": [
+  {
+   "program": "COPAUS2C",
+   "program_source": "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl"
+  }
+ ]
+}

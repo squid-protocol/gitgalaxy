@@ -123,6 +123,10 @@ def test_javascript_func_start_invalid(payload):
         ("        const press = () => { keys[k] = true; };", "press"),  # inside a loop block
         ("    window.listItems = () => {", "listItems"),  # property assignment on a global
         ("window.jump = (height, speed) => {", "jump"),
+        ("const sleep = (ms) => new Promise((r) => setTimeout(r, ms));", "sleep"),  # expression body, no braces
+        ("  const prepare = async (id) => {", "prepare"),  # async arrow
+        ("  conn.onclose = (err) => { if (open) stop(err.message); };", "onclose"),  # handler assigned on any object
+        ("ws.onmessage = (ev) => {", "onmessage"),
     ],
 )
 def test_javascript_func_start_bound_arrow_is_a_function(payload, expected_name):

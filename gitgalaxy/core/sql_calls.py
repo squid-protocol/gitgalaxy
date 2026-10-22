@@ -20,8 +20,8 @@
 # ==============================================================================
 import bisect
 import re
-from typing import Any
 from collections.abc import Callable
+from typing import Any
 
 _ID = r"[\w#$@]"
 _NAME = r'(?:"[^"\n]{1,128}"|' + _ID + r"{1,128})"

@@ -70,6 +70,9 @@ def test_resolves_to_the_sql_file_never_a_cobol_program():
 
 def test_a_cobol_call_still_ignores_sql_routines():
     site = {"verb": "CALL", "form": "literal", "operand": "AUDIT_LOG", "target": "AUDIT_LOG", "line": 3}
-    files = [_file("src/MAIN.cbl", "cobol", classes=["MAIN"], sites=[site]), _file("db/a.sql", "db2_sql", ["AUDIT_LOG"])]
+    files = [
+        _file("src/MAIN.cbl", "cobol", classes=["MAIN"], sites=[site]),
+        _file("db/a.sql", "db2_sql", ["AUDIT_LOG"]),
+    ]
     sites, edges = resolve_invocations(files)
     assert sites[0]["resolved_path"] is None and edges == []

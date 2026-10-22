@@ -230,7 +230,9 @@ def resolve_invocations(
             # never matched against the PROGRAM-ID index here. It still rides in
             # call_site_data as a row, just with no program destination.
             if target and site.get("verb") not in TRANSACTION_ROUTING_VERBS:
-                resolved = _pick_program(site_index.get(nfc(str(target).upper()), []), str(target), src_path, ambiguities)
+                resolved = _pick_program(
+                    site_index.get(nfc(str(target).upper()), []), str(target), src_path, ambiguities
+                )
                 # A program calling itself is recursion, not an edge: the
                 # import graph drops self-edges for the same reason. #4447: but a member
                 # that holds SEVERAL programs (nested / batched, `END PROGRAM`-closed) can

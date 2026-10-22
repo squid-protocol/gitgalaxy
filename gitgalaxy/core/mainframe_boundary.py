@@ -104,10 +104,10 @@ from gitgalaxy.core.job_flow import jcl_job_flow
 from gitgalaxy.core.job_submits import cobol_job_cards, jcl_intrdr_dds
 from gitgalaxy.core.mq_calls import extract_mq_calls
 from gitgalaxy.core.pli_calls import blank_sequence_fields, pli_cics_stream, pli_external_calls
-from gitgalaxy.core.sql_calls import sql_external_calls
 from gitgalaxy.core.pli_data_moves import pli_data_moves
 from gitgalaxy.core.pli_on_units import pli_on_units
 from gitgalaxy.core.special_names import special_names
+from gitgalaxy.core.sql_calls import sql_external_calls
 from gitgalaxy.core.uow_handlers import extract_uow_handlers
 from gitgalaxy.core.web_services import jcl_web_services
 from gitgalaxy.standards.language_standards.identifiers import NATIONAL, WIDE_DIGITS, WIDE_HYPHENS
@@ -2699,7 +2699,12 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
             index = bisect.bisect_left(newlines, offset)
             return _opens_inside_literal(code_stream, newlines[index - 1] + 1 if index else 0, offset)
 
-        return {"calls": sql_external_calls(code_stream, _sql_shielded), "datasets": [], "records": [], "transactions": []}
+        return {
+            "calls": sql_external_calls(code_stream, _sql_shielded),
+            "datasets": [],
+            "records": [],
+            "transactions": [],
+        }
     if dialect == "bms":
         # #3347: BMS map field layouts ride their own key (`screen_fields`), read
         # by the caller with a default -- no other dialect carries it.

@@ -37,7 +37,7 @@ from gitgalaxy.core.generated_fastlane import clean_directive_table_scan
 from gitgalaxy.core.guidestar_lens import GuideStarLens
 from gitgalaxy.core.invocation_resolver import resolve_invocations, resolve_transactions
 from gitgalaxy.core.mainframe_boundary import extract_boundary
-from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS, NetworkRiskSensor
+from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS, STAR_EXPORT_PREFIX, NetworkRiskSensor
 from gitgalaxy.core.prefetch import start_prefetch
 from gitgalaxy.core.prism import Prism
 from gitgalaxy.core.rust_modules import enclosing_modules, inline_module_spans, rescope_to_file
@@ -501,13 +501,18 @@ _NAMESPACE_IMPORT = re.compile(
 )
 
 
+# #4253: `export * from "./x"` re-exports every name of `./x`; `export * as ns from` binds one name, so it is not one.
+_STAR_EXPORT = re.compile(r"""\bexport\s+(?:type\s+)?\*\s*from\s*(['"])([^'"\n]{1,300})\1""")
+
+
 def extract_namespace_imports(code: str, lang_id: str) -> dict[str, str]:
     """#3788: `{alias: module specifier}` for a JS/TS file's namespace imports.
 
     An alias bound twice to different modules is dropped (the call site cannot say which one
-    it means); the same module twice is kept.
+    it means); the same module twice is kept. #4253: each `export * from "spec"` is carried in
+    the same map as `{STAR_EXPORT_PREFIX + spec: spec}` (persisted with the aliases).
     """
-    if lang_id not in _NAMESPACE_IMPORT_LANGS or ("as" not in code and "require" not in code):
+    if lang_id not in _NAMESPACE_IMPORT_LANGS or ("as" not in code and "require" not in code and "export" not in code):
         return {}
     found: dict[str, str] = {}
     clash: set[str] = set()
@@ -516,7 +521,10 @@ def extract_namespace_imports(code: str, lang_id: str) -> dict[str, str]:
         spec = m.group(5)
         if found.setdefault(alias, spec) != spec:
             clash.add(alias)
-    return {a: sp for a, sp in found.items() if a not in clash}
+    out = {a: sp for a, sp in found.items() if a not in clash}
+    for m in _STAR_EXPORT.finditer(code):
+        out[STAR_EXPORT_PREFIX + m.group(2)] = m.group(2)
+    return out
 
 
 # #3595: a brace selector group opens right after an import-path separator
@@ -2662,7 +2670,10 @@ class Orchestrator:
         per-step counts are logged here and kept on `fcall_stats` for #3331.
         """
         self.fcall_sites, self.fcall_stats = resolve_calls(
-            self.parsed_files, self.network_sensor.dependency_edges, self.network_sensor.namespace_aliases
+            self.parsed_files,
+            self.network_sensor.dependency_edges,
+            self.network_sensor.namespace_aliases,
+            self.network_sensor.star_exports,
         )
         by_step = self.fcall_stats.get("by_step", {})
         logger.info(

@@ -893,7 +893,34 @@ _BARREL_BASENAMES = frozenset(
 _BARREL_HOPS = 2
 
 
-def _with_reexports(imports: dict[str, set[str]]) -> dict[str, set[str]]:
+# #4253: `export * from` chains (zod: v4/index -> classic/index -> external -> schemas) are followed
+# through any file, not just a barrel basename, this many hops (cycle-safe) and at most this many files.
+_STAR_HOPS = 8
+_STAR_FILES = 256
+
+
+def _star_closure(start: set[str], star_exports: dict[str, set[str]] | None) -> set[str]:
+    """The files reached from `start` by following `export * from` specifiers (bounded, cycle-safe)."""
+    if not star_exports:
+        return set()
+    seen: set[str] = set()
+    frontier = set(start)
+    for _ in range(_STAR_HOPS):
+        nxt: set[str] = set()
+        for f in sorted(frontier):
+            for d in sorted(star_exports.get(f, ())):
+                if d not in seen and d not in start and len(seen) < _STAR_FILES:
+                    seen.add(d)
+                    nxt.add(d)
+        frontier = nxt
+        if not frontier:
+            break
+    return seen
+
+
+def _with_reexports(
+    imports: dict[str, set[str]], star_exports: dict[str, set[str]] | None = None
+) -> dict[str, set[str]]:
     """#3642 follow-up: each file's imports plus what the barrels among them import.
 
     `from fastapi import Depends` resolves to `fastapi/__init__.py`, which only
@@ -916,6 +943,7 @@ def _with_reexports(imports: dict[str, set[str]]) -> dict[str, set[str]]:
                         if posixpath.basename(d) in _BARREL_BASENAMES:
                             nxt.append(d)
             frontier = nxt
+        seen |= _star_closure(seen, star_exports) - {src}
         out[src] = seen
     return out
 
@@ -972,7 +1000,9 @@ def _nearest_of(defs: list[_Definition], src_parts: tuple[str, ...]) -> _Definit
     return None if second_rank == best_rank else best
 
 
-def _alias_scope(target: str, imports: dict[str, set[str]]) -> set[str]:
+def _alias_scope(
+    target: str, imports: dict[str, set[str]], star_exports: dict[str, set[str]] | None = None
+) -> set[str]:
     """#3788: the files a namespace alias bound to `target` can reach: the module itself, and
     what a barrel module (`index.ts`) re-exports, `_BARREL_HOPS` deep (see `_with_reexports`)."""
     seen = {target}
@@ -986,7 +1016,7 @@ def _alias_scope(target: str, imports: dict[str, set[str]]) -> set[str]:
                     if posixpath.basename(d) in _BARREL_BASENAMES:
                         nxt.append(d)
         frontier = nxt
-    return seen
+    return seen | _star_closure(seen, star_exports)
 
 
 class _File:
@@ -1301,6 +1331,7 @@ def resolve_calls(
     parsed_files: list[dict[str, Any]],
     dependency_edges: list[dict[str, Any]] | None = None,
     namespace_aliases: dict[str, dict[str, str]] | None = None,
+    star_exports: dict[str, set[str]] | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Resolve every (caller function, callee name) pair in the repository.
 
@@ -1326,7 +1357,7 @@ def resolve_calls(
     # proximity depends only on the caller's directory, so the nearest pick for
     # a candidate set is shared by every caller in that directory
     cache: _Cache = {}
-    imports = _with_reexports(_imports_by_file(dependency_edges))
+    imports = _with_reexports(_imports_by_file(dependency_edges), star_exports)
     sites: list[dict[str, Any]] = []
     by_step: Counter[str] = Counter()
     by_lang: dict[str, Counter[str]] = {}
@@ -1342,7 +1373,7 @@ def resolve_calls(
             src_path,
             lang,
             imports.get(src_path, set()),
-            {a: _alias_scope(t, imports) for a, t in (namespace_aliases or {}).get(src_path, {}).items()},
+            {a: _alias_scope(t, imports, star_exports) for a, t in (namespace_aliases or {}).get(src_path, {}).items()},
         )
         lang_counts = by_lang.setdefault(lang, Counter())
         # A module's own receiver types (`app = FastAPI()` at top level) hold in

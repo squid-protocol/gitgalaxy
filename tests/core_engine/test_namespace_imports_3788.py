@@ -77,7 +77,7 @@ def _universe(with_alias=True):
 def _resolve(files):
     sensor = NetworkRiskSensor()
     edges = [{"src": s, "dst": d, "edge_kind": "import"} for s, d in sensor.resolve_import_edges(files)]
-    return resolve_calls(files, edges, sensor.namespace_aliases)[0], sensor
+    return resolve_calls(files, edges, sensor.namespace_aliases, sensor.star_exports)[0], sensor
 
 
 def test_alias_that_is_not_the_file_name_resolves_through_the_import_step():
@@ -133,3 +133,69 @@ def test_namespace_imports_persist_and_rehydrate(tmp_path):
     cache = StateRehydrator(str(db)).load_state("NsRepo")["ram_cache"]
     assert cache[_USER]["namespace_imports"] == {"processors": "./json-schema-processors.js"}
     assert cache[_MOD]["namespace_imports"] == {}
+
+
+# ----------------------------------------------------------------------------- #4253: `export * from` chains
+
+
+def _ts(path, code_imports=(), stars=(), aliases=None, functions=()):
+    ns = dict(aliases or {})
+    ns.update({f"export * from {s}": s for s in stars})
+    return {
+        "path": path,
+        "lang_id": "typescript",
+        "raw_imports": list(code_imports) + list(stars),
+        "namespace_imports": ns,
+        "classes": [],
+        "functions": list(functions),
+    }
+
+
+def _zod(extra=()):
+    """zod's shape: v4/index -> classic/index -> external -> schemas, all `export * from`."""
+    caller_fn = {
+        "name": "run",
+        "start_line": 1,
+        "calls_out_to": ["makeSchema"],
+        "calls_out_qualifiers": {"makeSchema": ["zz"]},
+    }
+    defn = {"name": "makeSchema", "start_line": 3, "calls_out_to": [], "def_shape": "binding"}
+    return [
+        _ts("app.ts", ["./v4/index"], aliases={"zz": "./v4/index"}, functions=[caller_fn]),
+        _ts("v4/index.ts", stars=["./classic/index"]),
+        _ts("classic/index.ts", stars=["./external"]),
+        _ts("classic/external.ts", stars=["./schemas"]),
+        _ts("classic/schemas.ts", functions=[defn]),
+        _ts("decoy/schemas.ts", functions=[dict(defn, start_line=9)]),
+        *extra,
+    ]
+
+
+def test_star_export_specifiers_are_captured():
+    code = 'export * from "./a";\nexport type * from \'./b\';\nexport * as ns from "./c";\nexport { x } from "./d";\n'
+    assert extract_namespace_imports(code, "typescript") == {"export * from ./a": "./a", "export * from ./b": "./b"}
+
+
+def test_ns_call_resolves_through_a_star_export_chain():
+    sites, sensor = _resolve(_zod())
+    assert sensor.star_exports["v4/index.ts"] == {"classic/index.ts"}
+    assert sensor.namespace_aliases == {"app.ts": {"zz": "v4/index.ts"}}
+    (row,) = [s for s in sites if s["callee"] == "makeSchema"]
+    assert (row["step"], row["dst_path"]) == ("import", "classic/schemas.ts")
+
+
+def test_star_export_cycle_terminates():
+    files = _zod([_ts("classic/loop.ts", stars=["./external"])])
+    files[3]["namespace_imports"]["export * from ./loop"] = "./loop"  # external -> loop -> external
+    files[3]["raw_imports"].append("./loop")
+    (row,) = [s for s in _resolve(files)[0] if s["callee"] == "makeSchema"]
+    assert row["dst_path"] == "classic/schemas.ts"
+
+
+def test_star_export_chain_is_bounded():
+    from gitgalaxy.core import call_resolver
+
+    depth = call_resolver._STAR_HOPS + 3
+    stars = {f"m{i}.ts": {f"m{i + 1}.ts"} for i in range(depth)}
+    reached = call_resolver._star_closure({"m0.ts"}, stars)
+    assert reached == {f"m{i}.ts" for i in range(1, call_resolver._STAR_HOPS + 1)}

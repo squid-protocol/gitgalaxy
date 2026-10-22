@@ -31,12 +31,10 @@ _NAME = re.compile(r"[A-Z0-9@#$]{1,8}")
 # statements that write no data item of their own (their nested statements are walked on their own)
 _READ_ONLY = {"DISPLAY", "GOTO", "CONTINUE", "EXIT", "GOBACK", "STOP", "NEXT-SENTENCE", "IF", "EVALUATE"}
 # IBM's Db2 SQLCA formatter: the text is Db2's message catalogue (oracle_assumptions.md Q5); DSNTIAC, its CICS interface,
-# is the stand-in det/cobolrt/le/Dsntiac.java (#5858) and no longer refused
+# is the stand-in det/cobolrt/le/Dsntiac.java (#5858) and no longer refused; ZUIDSTCK (zECS's store-clock wrapper) is
+# the stand-in Zuidstck.java (#5945, X47)
 REFUSED_BY_NAME = {
     "DSNTIAR": "DSNTIAR: Db2's message text is not modelled (oracle_assumptions.md Q5)",
-    # #4771: zECS's store-clock wrapper (ZECS001 4000-GET-COUNTER); the estate holds no source for it (an assembler module)
-    "ZUIDSTCK": "ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the 16 bytes it "
-    "returns in THE-TOD are not a stated fact (oracle_assumptions.md X47)",
     # #5106: IBM LE CEEHDLR / CEEHDLU register and unregister a user condition handler that LE calls, with the
     # condition token, when a condition is raised in the enclosing stack frame (DBB epscsmrd:
     # REGISTER-EXCEPTION-HANDLER). Three things a registration needs are not modelled: the procedure pointer it is

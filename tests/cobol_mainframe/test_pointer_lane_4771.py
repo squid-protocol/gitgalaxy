@@ -16,6 +16,7 @@ from pathlib import Path
 
 import pytest
 import sys
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
@@ -436,7 +437,7 @@ public class Main {
 
 
 def test_every_pointer_hole_left_in_zecs001_is_refused_by_name(tmp_path):
-    """#4771: the estate's own ZECS001 (not a model of it) holds no pointer hole but the named CALL ZUIDSTCK refusal.
+    """#4771: the estate's own ZECS001 (not a model of it) holds no pointer hole; its CALL ZUIDSTCK is the stand-in (#5945).
 
     The stub has a `runTask(CicsTask)`, as the forge's has: without it the CICS lane is off and every pointer statement is
     the generic "SET ADDRESS OF (pointers)" hole, which would hide the reason this test exists to pin."""
@@ -460,14 +461,14 @@ def test_every_pointer_hole_left_in_zecs001_is_refused_by_name(tmp_path):
         if any(k in h.upper() for k in ("POINTER", "ADDRESS", "ZUIDSTCK", "GETMAIN", "FREEMAIN"))
     ]
     assert not any("SET ADDRESS OF (pointers)" in h for h in r.stats["holes"]), "the CICS lane must be on"
-    # (#4771: the pointer arithmetic is modelled -- CACHE-ADDRESS-X / SAVE-ADDRESS-X are pure numeric views -- so the one
-    # pointer-lane hole left is the CALL ZUIDSTCK refusal, whose assembler source the estate does not hold)
-    assert {int(h.split(":")[0].split()[1]) for h in pointer} == {1244}, pointer
-    assert all("CALL ZUIDSTCK:" in h for h in pointer), pointer
-    # (the whole hole set, not only the pointer-looking holes: 559 of 561 statements translate, and the two left are the
-    # named CALL ZUIDSTCK and the COMMAREA DTO the stub does not carry, so a new hole of any kind cannot hide)
-    assert (r.stats["statements"], r.stats["translated"]) == (561, 559), r.stats
-    assert sorted(int(h.split(":")[0].split()[1]) for h in r.stats["holes"]) == [753, 1244], r.stats["holes"]
+    # (#4771: the pointer arithmetic is modelled -- CACHE-ADDRESS-X / SAVE-ADDRESS-X are pure numeric views -- and #5945
+    # models CALL ZUIDSTCK as a stand-in whose 16 bytes the run states, so no pointer-lane hole is left)
+    assert pointer == [], pointer
+    # (the whole hole set, not only the pointer-looking holes: 560 of 561 statements translate, and the one left is the
+    # COMMAREA DTO the stub does not carry, so a new hole of any kind cannot hide)
+    assert (r.stats["statements"], r.stats["translated"]) == (561, 560), r.stats
+    assert sorted(int(h.split(":")[0].split()[1]) for h in r.stats["holes"]) == [753], r.stats["holes"]
+    assert "cobolrt.le.Zuidstck.call(" in r.java  # the CALL (line 1244) is the stand-in, THE-TOD passed by reference
     for line in (1111, 1115, 1147, 1400, 1519):  # the views' ADD / MOVE statements translate
         assert not any(h.startswith(f"line {line}:") for h in r.stats["holes"])
     assert "DetCics.advancePointer(task, " in r.java and "DetCics.copyPointer(" in r.java
@@ -563,3 +564,57 @@ public class Main {
         "SET ADDRESS OF a null or unknown pointer: not modelled",
         "SET ADDRESS OF storage already freed: not modelled",
     ]
+
+
+@pytest.mark.skipif(_javac() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_zuidstck_fills_the_tod_from_the_run_and_refuses_when_it_is_not_stated(tmp_path):
+    """#5945 (X47): CALL ZUIDSTCK's 16 bytes are the run's stated $GGC_ZUIDSTCK_TOD, whatever they are (two different TODs
+    give two different THE-TOD(1:6) key prefixes); an unstated, short, non-hex or wrongly sized TOD is refused by name."""
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA, CICS_TASK_JAVA
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    src = tmp_path / "src"
+    files = {"t/cics/CicsTask.java": CICS_TASK_JAVA.replace("__PACKAGE__", "t").replace("__ZONE__", "UTC"),
+             "t/cics/CicsSpec.java": CICS_SPEC_JAVA.replace("__PACKAGE__", "t"),
+             **{f"t/{k}": v for k, v in P.runtime_files("t", batch=False).items()}}  # fmt: skip
+    assert "t/cobolrt/le/Zuidstck.java" in files
+    files["Main.java"] = """
+import t.cobolrt.Field;
+import t.cobolrt.Storage;
+import t.cobolrt.le.Zuidstck;
+public class Main {
+    public static void main(String[] a) {
+        Field tod = Field.alphanumeric(new Storage(16), 0, 16, false);
+        try {
+            Zuidstck.call(tod);
+            StringBuilder sb = new StringBuilder();
+            for (byte b : tod.storage().bytes) sb.append(String.format("%02X", b));
+            System.out.println(sb);
+            Zuidstck.call(Field.alphanumeric(new Storage(8), 0, 8, false));
+        } catch (UnsupportedOperationException e) { System.out.println(e.getMessage()); }
+    }
+}
+"""
+    for rel, text in files.items():
+        (src / rel).parent.mkdir(parents=True, exist_ok=True)
+        (src / rel).write_text(text, encoding="utf-8")
+    jdk = _javac()
+    built = javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                            *map(str, src.rglob("*.java"))], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
+
+    assert built.returncode == 0, built.stderr
+
+    def run(tod: str | None) -> list[str]:
+        env = {k: v for k, v in os.environ.items() if k != "GGC_ZUIDSTCK_TOD"}
+        if tod is not None:
+            env["GGC_ZUIDSTCK_TOD"] = tod
+        return subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Main"],  # noqa: S603
+                              capture_output=True, text=True, encoding="utf-8", check=True, env=env).stdout.splitlines()  # fmt: skip
+
+    refusal = "ZUIDSTCK: a TOD the run does not state ($GGC_ZUIDSTCK_TOD, 32 hexadecimal digits) is not modelled"
+    wrong_size = "ZUIDSTCK: a 16-byte TOD item expected (got 8)"
+    one, two = "00112233445566778899AABBCCDDEEFF", "D5E3F1F2F3F4F5F6000000000000000A"
+    assert run(one) == [one, wrong_size]
+    assert run(two.lower()) == [two, wrong_size]  # (any 16 bytes: the program never reads them as a time)
+    for bad in (None, "", one[:-2], one + "00", "ZZ" + one[2:]):
+        assert run(bad) == [refusal], bad

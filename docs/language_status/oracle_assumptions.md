@@ -3459,6 +3459,12 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   (`= SPACES OR LOW-VALUES`, e.g. COTRN01C on `TRNIDINI`, FSET, case carddemo-tranview-generated), which both an omitted and an
   empty-transmitted field satisfy. Not modelled: ERASE EOF (assumption 4) and X'00' rather than blank data for a transmitted empty field
   (differs only for a program testing `= LOW-VALUES` alone).
+- **Output map compare (#4506).** `equivalence_cics.compare_events` pairs SEND MAP events in order and compares: `map`, `mapset`, every
+  `<f>O` data field (error-message fields included), per field the attribute byte (`<f>A`), extended colour (`<f>C`) and highlight
+  (`<f>H`), the cursor (`<f>L` = -1 and `CURSOR(n)`) and the options; an event on one side only is a diff. Pinned one element at a time in
+  `tests/cobol_mainframe/test_output_map_compare.py`. Not claimed: a subfield of X'00' (LOW-VALUES, "the map's own") or X'40' (DFHBMUNP, which
+  the port's side cannot tell from a cleared byte; COPAUS0C hits it), and bytes a program never set (GnuCOBOL spaces where IBM leaves them
+  undefined). Sibling, not folded in: #5116 (PICIN/PICOUT, SEND MAP JUSTIFY, NUM default); no burned program was found to need it.
 
 ### X55. Macro-level CICS and CICS Assembler programs: refused by name, not translated (#5121)
 - **IBM.** The macro-level interface is the pre-command-level CICS API (the "era 0" of #5121: DFHxx macro calls, no

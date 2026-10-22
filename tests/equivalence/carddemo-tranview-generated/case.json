@@ -150,6 +150,23 @@
    "why": "#4049 slice 4 (mutation survivors of the generated variant): the received processing date is non-blank, so copying it back to the redisplayed screen shows"
   },
   {
+   "name": "enter-existing-transaction-id",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "COTRN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN1A": {
+     "TRNIDINI": "A1GB0BH0JI5U9KUG"
+    }
+   },
+   "why": "#4506 (mutation survivors of the generated variant): ENTER with a received id the file holds (the generated TRANSACT's first key, seed 4506); the cursor on the found-record screen comes from the ENTER branch (TRNIDINL = -1 after the receive reset it), which only a received id that is found reaches"
+  },
+  {
    "name": "enter-empty-transaction-id-with-process-date",
    "aid": "DFHENTER",
    "commarea": {

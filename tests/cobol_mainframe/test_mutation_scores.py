@@ -248,6 +248,13 @@ def test_the_generated_transaction_view_case_is_scored_and_states_the_mapfail_in
     assert "#4506" in scenario["why"]
     # a MAPFAIL: the screen is never received, so the port's cleared screen is what the oracle compares
     assert "receive" not in scenario
+    # #4506: the cursor of the found-record screen is set on the ENTER branch; only a received id the file holds
+    # reaches it, so the case receives the first key of the generated TRANSACT file (seed 4506)
+    found = named["enter-existing-transaction-id"]
+    assert "#4506" in found["why"]
+    assert found["aid"] == "DFHENTER" and "faults" not in found
+    assert found["receive"]["COTRN1A"]["TRNIDINI"] == "A1GB0BH0JI5U9KUG"
+    assert total["harness_gap"] == 0
 
 
 def test_the_generated_menu_case_is_scored_and_states_the_scenarios_its_survivors_needed():

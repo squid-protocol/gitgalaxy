@@ -1,6 +1,7 @@
 """det_mutation (#4628): the det-port mutation ledger, the reviewed survivors, and the L5 hook. Fingerprints are
 stubbed; no proof, translator or corpus needed (the committed ledgers' own check needs git only)."""
 
+import subprocess
 import sys
 from pathlib import Path
 
@@ -217,3 +218,27 @@ def test_stale_check_flags_a_moved_case_and_scopes_to_the_branch(monkeypatch, ca
     assert dm.stale_check("origin/main") == 1
     monkeypatch.setattr(dm, "fingerprints", lambda c: now)
     assert dm.stale_check("origin/main") == 0
+
+
+def _git(root, *args):
+    subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *args], cwd=root, check=True,
+                   capture_output=True)  # fmt: skip
+
+
+def test_changed_cases_reads_real_git_and_cases_to_rerun_keeps_the_ledgered(monkeypatch, tmp_path):
+    eq = tmp_path / "tests" / "equivalence"
+    for d in ("a", "b", "det_mutation"):
+        (eq / d).mkdir(parents=True)
+        (eq / d / "case.json").write_text("{}", encoding="utf-8")
+    _git(tmp_path, "init", "-q", "-b", "main")
+    _git(tmp_path, "add", ".")
+    _git(tmp_path, "commit", "-q", "-m", "base")
+    _git(tmp_path, "checkout", "-q", "-b", "pr")
+    for d in ("a", "b", "det_mutation"):
+        (eq / d / "case.json").write_text('{"x": 1}', encoding="utf-8")
+    _git(tmp_path, "commit", "-qam", "change")
+    monkeypatch.setattr(dm, "REPO", tmp_path)
+    assert dm.changed_cases("main") == {"a", "b"}  # the ledger directory is not a case
+    monkeypatch.setattr(dm, "load", lambda: {"a": entry()})
+    assert dm.cases_to_rerun("main") == ["a"]
+    assert dm.cases_to_rerun("no-such-ref") == []

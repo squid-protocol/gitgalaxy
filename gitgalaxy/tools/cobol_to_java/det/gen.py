@@ -85,6 +85,8 @@ LIBRARY = {
     "CEEUTCO": ("__PACKAGE__.cobolrt.le.Ceegmto.call", 4),
     # #5858 (register Q5): Db2's SQLCA message formatter as a stand-in, the twin of tests/equivalence/le/dsntiac.c
     "DSNTIAC": ("__PACKAGE__.cobolrt.le.Dsntiac.call", 5),
+    # #5945 (register X47): zECS's store-clock wrapper; its 16 bytes are a stated input of the run ($GGC_ZUIDSTCK_TOD)
+    "ZUIDSTCK": ("__PACKAGE__.cobolrt.le.Zuidstck.call", 1),
 }
 LIBRARY_RC = {"DSNTIAC"}  # the routines whose int result is the CALL's RETURN-CODE
 LIBRARY_CLOCK = {

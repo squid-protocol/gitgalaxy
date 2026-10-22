@@ -179,6 +179,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X66 | CICS | SET TDQUEUE(q) ENABLESTATUS(ENABLED | DISABLED) makes a queue available or unavailable at run time, and INQUIRE TDQUEUE(q) ENABLESTATUS reads it back (ENABLED 23, DISABLED 24). A disabled queue answers DISABLED (84) to READQ TD, WRITEQ TD and DELETEQ TD, whatever its type or open state, and the command does nothing (a WRITEQ records no text). The state is kept across tasks and is not part of a unit of work (a SYNCPOINT ROLLBACK keeps it); a queue is ENABLED until a SET says otherwise. QIDERR RESP2 1 for a queue the CSD does not define, INVREQ RESP2 10 for an invalid CVDA. Refused by name: SET with OPENSTATUS and ENABLESTATUS together, SET ENABLESTATUS of an INDIRECT or REMOTE queue, an invalid CVDA on a queue the CSD does not define. Still refused (unchanged from X61): ATIFACILITY, ATITERMID, the INQUIRE browse, SYSID / REMOTE, IOERR, QBUSY | ASSUMED (REFUSED where IBM is silent) | no corpus program issues these forms; proven on both runtimes with hand-traced operation lists (tests/cics_crucible/test_td_queue_5168.py, the round 5 scenarios), the translators' shapes and refusals (tests/cobol_mainframe/test_td_enablestatus_translate_5168.py) and end to end against GnuCOBOL (tests/cobol_mainframe/test_td_enablestatus_e2e_5168.py) |
 | X67 | CICS | EXEC CICS HANDLE ABEND PROGRAM(name) names a program that gets control when the task abends. The det translator honours LABEL, CANCEL and RESET and refuses PROGRAM by name with this entry; the cobol-stub refuses it too (equivalence_cics.Unsupported), so the two sides agree | REFUSED | no burned estate (CardDemo, CBSA, GenApp, zECS, DBB MortgageApplication, async credit-card) issues HANDLE ABEND PROGRAM: they use LABEL (6), CANCEL (1) and LABEL with NOHANDLE (1); non-burned census programs are counted by tools only |
 | X68 | CICS | EIBTRNID: the transaction id the task runs under is the case's `"transid"`, moved into EIBTRNID (PIC X(4)) on both sides; nothing validates it against a CSD or checks its length | ASSUMED (the value is the case's) / MATCHED (both sides) | yes (every CICS task; GenApp's LG* programs and CBSA's CRDTAGY1 / XFRFUN move it into a transaction-name field, zECS names it) |
+| X69 | LE / CICS | ZUIDSTCK's 16 bytes are opaque; the program depends only on them being stated; their STCK/STCKE layout is not modelled. The port (cobolrt/le/Zuidstck.java) and the oracle (tests/equivalence/le/zuidstck.c) fill THE-TOD from the run's stated $GGC_ZUIDSTCK_TOD (32 hexadecimal digits, the harness's tod case key); an unstated, malformed or wrongly sized TOD is refused by name; the host clock is never read; every call of a run returns the same bytes | ASSUMED | yes (executed-equivalent: zecs-zecs001, 2 stated TODs, 0 diffs on every event and on the key record; the opaque-bytes assumption itself is not provable against z/OS) |
 | L1 | LE | CEEDAYS: numeric date pictures (YYYY MM DD in any order, YYYY DDD) read as their span; date characters past the span ignored (documented), an all-blank picture tail ignored (assumed), a non-blank tail refused; open conditions refused by name | MATCHED / ASSUMED / REFUSED | yes (CardDemo carddemo-dateutil; CBSA cbsa-crecust is refused by name, #4952) |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
@@ -3143,27 +3144,9 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   translator's shape and every refusal are tested in tests/cobol_mainframe/test_det_translate.py and test_equivalence_cics.py, and a whole program
   with the four statements translates with no hole and runs (tests/cobol_mainframe/test_pointer_lane_4771.py). No cics-crucible case or estate
   program exercises it yet, so no port moves and no ZECS program is made whole by this entry.
-- **CALL ZUIDSTCK (#4771, #5945): a stand-in whose 16 bytes the run states, ASSUMED.** ZECS001's 4000-GET-COUNTER calls ZUIDSTCK USING THE-TOD
-  (16 bytes) and keeps only `THE-TOD(1:6)` as ZK-ZF-IDN, the unique-ID prefix of a record key (lines 1304, 1323). The module is the zECS
-  distribution's assembler store-clock wrapper and the estate holds no source for it (only ZECS002 / ZECSNC), so which clock instruction it
-  issues and how it lays out the 16 bytes is not known. *Assumed:* the 16 bytes are opaque; the program depends only on their being stated;
-  their STCK / STCKE layout is not modelled. IBM's STORE CLOCK EXTENDED (z/Architecture Principles of Operation, SA22-7832) describes a
-  16-byte value and is context here, not a claim about what ZUIDSTCK returns. The port's `cobolrt/le/Zuidstck.java` fills THE-TOD from the run's
-  stated `$GGC_ZUIDSTCK_TOD` (32 hexadecimal digits) and never reads the host clock; an unstated, malformed or wrongly sized TOD is refused by
-  name ("a TOD the run does not state ... is not modelled"). *The check:* no zECS source reads ZK-ZF-IDN as a time. It appears only in ZECSZKC.cpy (the layout) and ZECS001's two MOVEs above; ZK-ZF-KEY (the
-  IDN plus the 2-byte NC) is used by ZECS001 only as an opaque key (an equality test against INTERNAL-KEY, MOVEs to ZF-KEY / DELETE-KEY, a file RIDFLD). ZECS000
-  and ZECS003 COPY ZECSZKC but name neither field (they key by ZF-ZK-KEY); ZECSPLT, ZECS002.asm and ZECSNC.asm do not name it or the copybook. A stated TOD therefore changes key bytes only (a different TOD, a different key); the stand-in answers every call of a run with the same bytes, so a
-  second call in one run would repeat the prefix where the real clock advances (ZECS001 has one CALL site, 4000-GET-COUNTER, and keeps the prefix as the key it writes). The same
-  name called with a literal or through an identifier's value (`01 ZUIDSTCK PIC X(8) VALUE 'ZUIDSTCK'`) resolves to the stand-in.
-  **The oracle's twin (#5945, slice 2):** `tests/equivalence/le/zuidstck.c` is a GnuCOBOL module fed the same 32 hexadecimal digits from
-  `$GGC_ZUIDSTCK_TOD` (an unstated or malformed value exits 98 by name). The harness's `tod` case key states them per scenario on both runtimes (the
-  task line on the COBOL side, `Zuidstck.state(hex)` per scenario in the shared-JVM driver). `tests/equivalence/zecs-zecs001` posts to the cache
-  with two stated TODs (`000102030405...` and `D4A3C1B2E5F6...`): both runtimes agree on every event and on the key record, whose 6-byte prefix is the
-  stated TOD's. Evidence level: translated whole bar the COMMAREA DTO hole, executed-equivalent on 2 scenarios (the `application/octet-stream` path
-  only; a `text/*` body hits the stub's second-WEB-RECEIVE refusal), the opaque-bytes assumption unchanged. Two engine defects surfaced and were
-  fixed: `PERFORM ... WITH TEST AFTER VARYING` was emitted test-before, and a short `WRITE ... LENGTH(n)` record was not padded to the record length
-  in the repository entity's `fromRecord` (the stub pads with spaces). System-copybook rule
-  (mainframe-evidence-policy.md 6): nothing of IBM's or zECS's assembler is shipped.
+- **CALL ZUIDSTCK (#4771, #5945): a stand-in whose 16 bytes the run states, ASSUMED: see X69.** ZECS001's 4000-GET-COUNTER keeps only `THE-TOD(1:6)` as a record
+  key prefix; the 16 bytes are opaque and stated on both runtimes, executed-equivalent on zecs-zecs001 (2 stated TODs). The entry, its IBM context and the
+  no-reader check are X69.
 
 - **Pointer arithmetic (#4771, ZECS001): the two address idioms, ASSUMED.** ZECS001 advances CACHE-ADDRESS by the bytes it copied (`ADD ZF-LENGTH TO
   CACHE-ADDRESS-X`), copies the address (`MOVE CACHE-ADDRESS-X TO SAVE-ADDRESS-X`) and sets CACHE-MESSAGE to the advanced address. *The 4- versus
@@ -4083,6 +4066,27 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   it. A case that states anything else is outside the proven set.
 - **Reached.** Every CICS task of every equivalence case. A program that never reads EIBTRNID is unaffected; the row is
   `cics.convention.EIBTRNID` in register C18.
+
+### X69. CALL ZUIDSTCK: the 16 TOD bytes are opaque and stated by the run, never the host clock (#5945, zECS ZECS001)
+- **What the program does with it.** ZECS001's 4000-GET-COUNTER does `CALL ZUIDSTCK USING BY REFERENCE THE-TOD` (16 bytes, `Source/ZECS001.cbl:1244`) and
+  keeps only `THE-TOD(1:6)` as ZK-ZF-IDN, the unique-ID prefix of a record key (lines 1304, 1323). ZUIDSTCK is an assembler store-clock wrapper the zECS
+  estate ships no source for, so which clock instruction it issues and how it lays out the 16 bytes is not known.
+- **Assumed.** ZUIDSTCK's 16 bytes are opaque; the program depends only on them being stated; their STCK/STCKE layout is not modelled.
+- **IBM, as context only.** STORE CLOCK (STCK) stores an 8-byte TOD clock value and STORE CLOCK EXTENDED (STCKE) a 16-byte one (z/Architecture
+  Principles of Operation, SA22-7832, https://www.ibm.com/docs/en/zos/latest?topic=instructions-store-clock-stck). These describe the instructions, not what
+  ZUIDSTCK returns: no field of the 16 bytes is read as a time, an epoch or a clock-steering value.
+- **What the runtimes do.** The port's `cobolrt/le/Zuidstck.java` fills THE-TOD from `$GGC_ZUIDSTCK_TOD` (or the per-task `Zuidstck.state(hex)`, which wins,
+  as all scenarios share one JVM); the oracle's `tests/equivalence/le/zuidstck.c` is fed the same 32 hexadecimal digits (an unstated or malformed value
+  exits 98 by name). The refusal on both: "ZUIDSTCK: a TOD the run does not state ($GGC_ZUIDSTCK_TOD, 32 hexadecimal digits) is not modelled". The same name
+  called with a literal or through an identifier's value resolves to the stand-in.
+- **The check (no reader of the time).** No zECS source reads ZK-ZF-IDN as a time. It appears only in ZECSZKC.cpy (the layout) and ZECS001's two MOVEs;
+  ZK-ZF-KEY (the IDN plus the 2-byte NC) is used only as an opaque key. ZECS000 and ZECS003 COPY ZECSZKC but name neither field; ZECSPLT, ZECS002.asm and
+  ZECSNC.asm do not name it or the copybook. A stated TOD changes key bytes only.
+- **Known limit.** The stand-in answers every call of a run with the same bytes, where the real clock advances. ZECS001 has one CALL site, so the prefix
+  it writes is unaffected; a program that called twice and compared would not be modelled.
+- **Status and evidence.** ASSUMED. ZECS001 translates 560 of 561 statements (the one hole is the COMMAREA DTO the forge's stub does not carry, X47);
+  executed-equivalent on zecs-zecs001 with two stated TODs (the `application/octet-stream` path), 0 diffs. System-copybook rule
+  (mainframe-evidence-policy.md 6): nothing of IBM's or zECS's assembler is shipped. Pointer lane: X47.
 
 ## Language Environment
 

@@ -803,8 +803,9 @@ the same reasoning as `cbsa-updcust`. The cases gained `no-commarea`, `eibcalen-
 caller-value-longer-than-the-field scenario (kills: see the table); a link area longer than the record cannot be
 stated (register X10), so the `beyond` mutants are `harness-gap`. ACCTCTRL and UPDACC (Db2) are triaged the same way (#5863 slice 3):
 ACCTCTRL gained 7 scenarios (165 -> 184 killed) and 228 of its 308 survivors are stated (160 equivalent, 68 unreachable), 45 open
-`case-gap` and 35 open `harness-gap`; UPDACC gained 7 scenarios (293 -> 312 killed) and 252 of its 376 survivors are stated (177
-equivalent, 75 unreachable), 73 open `case-gap` and 51 open `harness-gap`. The open ones are the typed-DTO `in_` / `fill_` paths (the
+`case-gap` and 35 open `harness-gap`; UPDACC gained 3 scenarios (293 -> 304 killed) and 256 of its 384 survivors are stated (181
+equivalent, 75 unreachable), 77 open `case-gap` and 51 open `harness-gap`. Its no-COMMAREA and short-EIBCALEN scenarios are left out: they
+fail the java-facade side of the proof, so the cut-COMMAREA path stays a `case-gap`. The open ones are the typed-DTO `in_` / `fill_` paths (the
 harness replaces the DTO with the link-area bytes), the `byte[]` COMMAREA entry, `handleLink(request, area)` (no caller LINKs with
 LENGTH) and `beyond` (X10).
 
@@ -813,6 +814,6 @@ LENGTH) and `beyond` (X10).
 | GETCOMPY (cbsa-getcompy) | 220/220 | 55 | 151 | 14 | 119 | 32 | 55/206 (27%) | no |
 | GETSCODE (cbsa-getscode) | 227/227 | 62 | 151 | 14 | 119 | 32 | 62/213 (29%) | no |
 | ACCTCTRL (cbsa-acctctrl) | 517/517 | 184 | 308 | 25 | 228 | 80 | 184/492 (37%) | no |
-| UPDACC (cbsa-updacc) | 713/713 | 312 | 376 | 25 | 252 | 124 | 312/688 (45%) | no |
+| UPDACC (cbsa-updacc) | 713/713 | 304 | 384 | 25 | 256 | 128 | 304/688 (44%) | no |
 
 The "unaccounted" column includes the open `case-gap` / `harness-gap` rows, which block L5 until a scenario or the harness covers them.

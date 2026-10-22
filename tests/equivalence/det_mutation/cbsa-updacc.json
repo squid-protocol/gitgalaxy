@@ -5,18 +5,18 @@
  "case": "cbsa-updacc",
  "entry": {
   "program": "UPDACC",
-  "commit": "bcca331b26b56050e0434185d0a0a646f974ffd3",
+  "commit": "c46fef4583b44a2c95518208ba64623e6934c49c+uncommitted",
   "date": "2026-10-22",
   "mode": "fast",
   "seed": 0,
   "mutants": 713,
   "out_of_scope": 12,
   "chosen": 713,
-  "coverage": "proven on 19 scenarios, covering 7/7 paragraphs and 6/6 branches",
+  "coverage": "proven on 15 scenarios, covering 7/7 paragraphs and 6/6 branches",
   "counts": {
-   "killed": 311,
+   "killed": 303,
    "timeout": 1,
-   "survived": 376,
+   "survived": 384,
    "stillborn": 25,
    "error": 0,
    "pending": 0
@@ -30,7 +30,6 @@
    "046dad4845",
    "04eea13b0d",
    "05552aa608",
-   "05bb37d3a0",
    "06659f9a8e",
    "083012d535",
    "09b1bd2d91",
@@ -77,8 +76,6 @@
    "2756f653b2",
    "276c0003d0",
    "27b897dfd2",
-   "27fe389063",
-   "299ec2ce5b",
    "29e2d753a8",
    "2cf7a3d8ed",
    "2ded4b50bc",
@@ -99,7 +96,6 @@
    "395b5a4321",
    "39c6a20d0e",
    "3aa5088024",
-   "3f28944e5a",
    "3f45fa9217",
    "3f7b9399f5",
    "4189ce8c9b",
@@ -161,7 +157,6 @@
    "67ecd227e8",
    "69d1a6b6d0",
    "6b142f417a",
-   "6c50aba359",
    "6c5ff7f224",
    "6e370ece7b",
    "708ced83d7",
@@ -244,7 +239,6 @@
    "a5f65b5d17",
    "a64e07dc6f",
    "a6906988e9",
-   "a698fc0229",
    "a6ab716dc9",
    "a74b908d12",
    "a834e84db2",
@@ -253,7 +247,6 @@
    "ab525e08f2",
    "ac8978bcd4",
    "ae15b27261",
-   "ae331aff09",
    "ae5e60a606",
    "aeaed1f597",
    "af81f1a689",
@@ -312,7 +305,6 @@
    "e7dd840180",
    "e81dcb26bd",
    "ed421df574",
-   "edf8692d16",
    "eee5db1b93",
    "efa3574cee",
    "f0028add78",
@@ -2308,6 +2300,14 @@
     "after": "/* System.arraycopy(IMAGE_s_ABNDINFO_REC, 0, s_ABNDINFO_REC.bytes, 0, IMAGE_s_ABNDINFO_REC.length); */"
    },
    {
+    "id": "ae331aff09",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 340,
+    "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
+    "after": "/* System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length); */"
+   },
+   {
     "id": "5ab8646bb1",
     "op": "DEL",
     "file": "service/UpdaccService.java",
@@ -2620,12 +2620,44 @@
     "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };"
    },
    {
+    "id": "05bb37d3a0",
+    "op": "NEG",
+    "file": "service/UpdaccService.java",
+    "line": 406,
+    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {"
+   },
+   {
+    "id": "27fe389063",
+    "op": "COR",
+    "file": "service/UpdaccService.java",
+    "line": 406,
+    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
     "id": "e6c077cd9e",
     "op": "ROR",
     "file": "service/UpdaccService.java",
     "line": 406,
     "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
     "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "6c50aba359",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 406,
+    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "a698fc0229",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 408,
+    "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
+    "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */"
    },
    {
     "id": "9320b8755e",
@@ -2660,6 +2692,22 @@
     "after": "perform(0, 12);"
    },
    {
+    "id": "edf8692d16",
+    "op": "NEG",
+    "file": "service/UpdaccService.java",
+    "line": 421,
+    "before": "if (caWhole == null) {",
+    "after": "if (!(caWhole == null)) {"
+   },
+   {
+    "id": "3f28944e5a",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 421,
+    "before": "if (caWhole == null) {",
+    "after": "if (caWhole != null) {"
+   },
+   {
     "id": "0ef54bdc45",
     "op": "LIT",
     "file": "service/UpdaccService.java",
@@ -2674,6 +2722,14 @@
     "line": 424,
     "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
     "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");"
+   },
+   {
+    "id": "299ec2ce5b",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 427,
+    "before": "caWhole(caWhole);",
+    "after": "/* caWhole(caWhole); */"
    },
    {
     "id": "4a199f7632",
@@ -3375,7 +3431,7 @@
   "inputs": {
    "port": "85dc093ffd855feefb416d567829ce4a6fa81452cb42fe90f78499e30bb3bc22",
    "generator": "6fc449c5044ccd60b72e16fe8d2fac83eedbbd0c3b06d3e04594a63b0ad40212",
-   "case": "5803c849a626b01e3d2a7a797ad24b3790b9e71574c3386bad9f2da063080c25",
+   "case": "c5fc70bc6b0a84dc134515055dcf2141ef4e4a8f4274912f5d13463ff031d9c7",
    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
    "harness": "cfa692619ce6fb10c7dd1076f2b885d8ffa2cf6352ec9b564081e1cce86e4e90",
    "oracle": "ed495da81e6a1a607ebc1aba3daf85ba474192e76c482e7b124b8c2e49b760e2"

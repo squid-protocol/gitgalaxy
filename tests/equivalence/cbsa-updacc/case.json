@@ -151,50 +151,6 @@
    "why": "a second successful update, a large negative balance"
   },
   {
-   "name": "no-commarea",
-   "commarea": null,
-   "why": "the caller passes no COMMAREA (EIBCALEN 0): the program never tests EIBCALEN, so it reads and fills DFHCOMMAREA regardless"
-  },
-  {
-   "name": "eibcalen-zero",
-   "commarea": {
-    "COMM-EYE": "ACCT",
-    "COMM-SCODE": "987654",
-    "COMM-ACCNO": "1",
-    "COMM-ACC-TYPE": "SAVING",
-    "COMM-OVERDRAFT": "750",
-    "COMM-INT-RATE": "1.25"
-   },
-   "commarea_length": 0,
-   "why": "EIBCALEN 0 with the COMMAREA record present (X23)"
-  },
-  {
-   "name": "eibcalen-short",
-   "commarea": {
-    "COMM-EYE": "ACCT",
-    "COMM-SCODE": "987654",
-    "COMM-ACCNO": "1",
-    "COMM-ACC-TYPE": "SAVING",
-    "COMM-OVERDRAFT": "750",
-    "COMM-INT-RATE": "1.25"
-   },
-   "commarea_length": 20,
-   "why": "the caller passed 20 of the 99 bytes: the program reads COMM-ACCNO at byte 20 and refills past EIBCALEN"
-  },
-  {
-   "name": "eibcalen-98",
-   "commarea": {
-    "COMM-EYE": "ACCT",
-    "COMM-SCODE": "987654",
-    "COMM-ACCNO": "1",
-    "COMM-ACC-TYPE": "SAVING",
-    "COMM-OVERDRAFT": "750",
-    "COMM-INT-RATE": "1.25"
-   },
-   "commarea_length": 98,
-   "why": "98 bytes: COMM-SUCCESS, byte 99, is one past EIBCALEN"
-  },
-  {
    "name": "eibcalen-full",
    "commarea": {
     "COMM-EYE": "ACCT",

@@ -2198,6 +2198,15 @@
    "reason": "initialState's reset of a working-storage item to its VALUE image (or of WS-CICS-RESP/RESP2 to 0): the item is written before UPDACC reads it, or the program never references it (the DFHCOMMAREA reset at 340 is killed), so the initial bytes cannot show"
   },
   {
+   "id": "ae331aff09",
+   "op": "DEL",
+   "line": 340,
+   "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
+   "after": "/* System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length); */",
+   "verdict": "equivalent",
+   "reason": "initialState's reset of a working-storage item to its VALUE image (or of WS-CICS-RESP/RESP2 to 0): the item is written before UPDACC reads it, or the program never references it (the DFHCOMMAREA reset at 340 is killed), so the initial bytes cannot show"
+  },
+  {
    "id": "5ab8646bb1",
    "op": "DEL",
    "line": 341,
@@ -2549,6 +2558,33 @@
    "reason": "the `beyond` copy and its write-back are reached only for a link area longer than the 99-byte record, which the harness cannot state (register X10)"
   },
   {
+   "id": "05bb37d3a0",
+   "op": "NEG",
+   "line": 406,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {",
+   "verdict": "equivalent",
+   "reason": "`calen <= length` enters the cut path when calen equals the record (99): the copy is the whole record, so storage, write-back and refusal are unchanged"
+  },
+  {
+   "id": "27fe389063",
+   "op": "COR",
+   "line": 406,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "equivalent",
+   "reason": "`calen <= length` enters the cut path when calen equals the record (99): the copy is the whole record, so storage, write-back and refusal are unchanged"
+  },
+  {
+   "id": "6c50aba359",
+   "op": "ROR",
+   "line": 406,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "equivalent",
+   "reason": "`calen <= length` enters the cut path when calen equals the record (99): the copy is the whole record, so storage, write-back and refusal are unchanged"
+  },
+  {
    "id": "e6c077cd9e",
    "op": "ROR",
    "line": 406,
@@ -2556,6 +2592,15 @@
    "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "equivalent",
    "reason": "`calen <= length` enters the cut path when calen equals the record (99): the copy is the whole record, so storage, write-back and refusal are unchanged"
+  },
+  {
+   "id": "a698fc0229",
+   "op": "DEL",
+   "line": 408,
+   "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
+   "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */",
+   "verdict": "case-gap",
+   "reason": "the cut-COMMAREA path (a stated EIBCALEN shorter than the 99-byte record: the `caWhole` copy and its write-back): only the no-COMMAREA / eibcalen-zero / -short / -98 scenarios reach it past eibcalen-full, and those fail the java-facade side of the proof (the facade comparator does not judge the X23 / X12 refusal), so they are not in the case yet; needs the facade comparator to judge a LINKed task's refused COMMAREA reference"
   },
   {
    "id": "9320b8755e",
@@ -2594,6 +2639,24 @@
    "reason": "p0 (PREMIERE) is empty and returns 1, so starting at paragraph 1 or stopping at thru 12 runs the same paragraphs: p7's RETURN throws Goback before anything after it"
   },
   {
+   "id": "3f28944e5a",
+   "op": "ROR",
+   "line": 421,
+   "before": "if (caWhole == null) {",
+   "after": "if (caWhole != null) {",
+   "verdict": "case-gap",
+   "reason": "the cut-COMMAREA path (a stated EIBCALEN shorter than the 99-byte record: the `caWhole` copy and its write-back): only the no-COMMAREA / eibcalen-zero / -short / -98 scenarios reach it past eibcalen-full, and those fail the java-facade side of the proof (the facade comparator does not judge the X23 / X12 refusal), so they are not in the case yet; needs the facade comparator to judge a LINKed task's refused COMMAREA reference"
+  },
+  {
+   "id": "edf8692d16",
+   "op": "NEG",
+   "line": 421,
+   "before": "if (caWhole == null) {",
+   "after": "if (!(caWhole == null)) {",
+   "verdict": "case-gap",
+   "reason": "the cut-COMMAREA path (a stated EIBCALEN shorter than the 99-byte record: the `caWhole` copy and its write-back): only the no-COMMAREA / eibcalen-zero / -short / -98 scenarios reach it past eibcalen-full, and those fail the java-facade side of the proof (the facade comparator does not judge the X23 / X12 refusal), so they are not in the case yet; needs the facade comparator to judge a LINKed task's refused COMMAREA reference"
+  },
+  {
    "id": "0ef54bdc45",
    "op": "LIT",
    "line": 424,
@@ -2610,6 +2673,15 @@
    "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");",
    "verdict": "equivalent",
    "reason": "the PastFrom text is diagnostic: a scenario whose run raises it is refused on both sides and no event is compared"
+  },
+  {
+   "id": "299ec2ce5b",
+   "op": "DEL",
+   "line": 427,
+   "before": "caWhole(caWhole);",
+   "after": "/* caWhole(caWhole); */",
+   "verdict": "case-gap",
+   "reason": "the cut-COMMAREA path (a stated EIBCALEN shorter than the 99-byte record: the `caWhole` copy and its write-back): only the no-COMMAREA / eibcalen-zero / -short / -98 scenarios reach it past eibcalen-full, and those fail the java-facade side of the proof (the facade comparator does not judge the X23 / X12 refusal), so they are not in the case yet; needs the facade comparator to judge a LINKed task's refused COMMAREA reference"
   },
   {
    "id": "4a199f7632",

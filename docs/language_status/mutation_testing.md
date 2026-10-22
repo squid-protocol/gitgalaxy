@@ -784,3 +784,11 @@ no `det_mutation_survivors/` file and no new scenario was needed. The stillborn 
 | ASYNCPNT (asynccc-asyncpnt) | 2042/2042 | 1992 | 0 | 50 | 1992/1992 (100%) | yes |
 
 An earlier default-sample run (150 per port) gave the same result, so the full enumeration confirms it.
+
+**#5856 CBSTM03A (2026-10-22): measured, not yet L5.** The CBSTM03A det batch port (`carddemo-cbstm03a`, with its CBSTM03B callee) had no ledger.
+A full enumeration (`det_mutation.py run ... --sample 0`, seed 0, fast mode, JDK 17; 123 min at 3 jobs) judged 3,126 in-scope mutants: 1,039 killed,
+2,078 survived, 9 timed out, 55 stillborn (raw score 1,048/3,126, 34%, with the timeouts counted as kills). The ledger is committed with every survivor unaccounted, so the
+case is **not L5**. The survivors cluster where the case does not look: roughly 545 sit in the service's base64 initial-image constants (lines 100-600 of
+`Cbstm03aService.java`, whose bytes the run overwrites or never reads), and the rest are the paragraphs of a case that covers 23/25 paragraphs and 0/46 branches
+(one job, three TRNX rows). Closing it needs scenarios that reach the branches (empty and multi-card XREF, a missing ACCT/CUST key, a TRNX
+page break) and a reviewed `equivalent` / `unreachable` list for the image constants; both are follow-ups, not part of this slice.

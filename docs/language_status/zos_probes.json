@@ -67,6 +67,44 @@
         "R2=0000"
       ],
       "note": "IBM says 0 ** -1 is a size error (the oracle returns 0 and takes no size error). Run only the ON SIZE ERROR forms: a bare zero divisor can abend S0CB."
+    },
+    "c2-intermediate-truncation": {
+      "entries": [
+        "C2"
+      ],
+      "compile_options": "ARITH(COMPAT) (IBM default)",
+      "question": "COMPUTE R = A / B * C with A = 1, B = 3, C = 300: IBM carries the quotient to dmax decimal places (2), so 0.33 * 300 gives 99, not 100",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P2.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 A PIC 9V99 VALUE 1.\n       01 B PIC 9 VALUE 3.\n       01 C PIC 999 VALUE 300.\n       01 R PIC 9(4)V99.\n       PROCEDURE DIVISION.\n           COMPUTE R = A / B * C\n           DISPLAY \"R1=\" R\n           STOP RUN.\n",
+      "oracle_expected": [
+        "R1=009900"
+      ],
+      "note": "The #4287 shape. Does not probe the 30-digit cap (the register's To-settle bullet is answered on the oracle only)."
+    },
+    "c11-nondigit-moved-to-zoned": {
+      "entries": [
+        "C11"
+      ],
+      "compile_options": "ZONEDATA(PFD) (default)",
+      "question": "MOVE an alphanumeric 1! to PIC 9(2) and test IS NUMERIC: the oracle gives 01 and NUMERIC; IBM documents no result for the non-digit",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P11.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 X PIC X(2) VALUE \"1!\".\n       01 N PIC 9(2).\n       PROCEDURE DIVISION.\n           MOVE X TO N\n           DISPLAY \"N=\" N\n           IF N IS NUMERIC DISPLAY \"NUM\" ELSE DISPLAY \"NOTNUM\".\n           STOP RUN.\n",
+      "oracle_expected": [
+        "N=01",
+        "NUM"
+      ],
+      "note": "IBM side undefined under PFD. Record what z/OS does (observed), do not expect a match."
+    },
+    "d2-hex-literal-charset": {
+      "entries": [
+        "D2"
+      ],
+      "compile_options": "default",
+      "question": "A PIC X item holding X\"40\": is it SPACE (EBCDIC) or @ (ASCII)",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P22.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 H PIC X VALUE X\"40\".\n       PROCEDURE DIVISION.\n           IF H = SPACE DISPLAY \"H=SPACE\" ELSE DISPLAY \"H=OTHER\".\n           IF H = \"@\" DISPLAY \"H=AT\" ELSE DISPLAY \"H=NOTAT\".\n           STOP RUN.\n",
+      "oracle_expected": [
+        "H=OTHER",
+        "H=AT"
+      ],
+      "note": "The oracle is ASCII, so it differs from z/OS by design (D2 declared difference); expected z/OS output is H=SPACE, H=NOTAT."
     }
   }
 }

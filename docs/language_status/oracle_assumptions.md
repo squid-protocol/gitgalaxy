@@ -1462,7 +1462,7 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
 
 ### F1. FILE STATUS from GnuCOBOL's indexed files — ASSUMED
 - **What.** The statuses a run meets naturally (00, 02, 10, 22, 23, 35 …) come from GnuCOBOL's Berkeley DB files.
-- **IBM's table (#4702).** Language Reference, "File status key", Table 34: 00 successful; 02 duplicate alternate key
+- **IBM's table (#4702).** Enterprise COBOL for z/OS 6.4 Language Reference (SC27-8713-03), "File status key", Table 34: 00 successful; 02 duplicate alternate key
   (indexed); 10 at end (sequential READ, nothing next); 22 duplicate prime or alternate key on WRITE / REWRITE without
   DUPLICATES; 23 "randomly access a record that does not exist"; 35 is in the permanent-error row (OPEN INPUT, I-O or
   EXTEND on a nonoptional file that is unavailable). The runtime's meaning for each code is IBM's text.
@@ -1476,7 +1476,9 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
 ### F2. Injected faults — MATCHED
 - Fault runs (`ggfault.c`, CICS `faults.cfg`) give a statement the same status or RESP on both sides, and say which
   faults fired.
-- The values are the ones IBM documents for the condition. What a real device failure would give is not modelled.
+- The values are the ones IBM documents for the condition (CICS TS 6.x, each command's "Conditions", for example
+  https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-xctl and
+  ibm.com/docs/en/cics-ts/6.x?topic=summary-retrieve; the file statuses are F1's Table 34, SC27-8713-03). What a real device failure would give is not modelled.
 - **CICS commands beyond files (#4049).** XCTL, WRITEQ TS, START, RETRIEVE and CANCEL take a plan too (named by the
   program, queue, TRANSID, `-` and REQID), in the equivalence harness and in the CICS crucible's strengthened
   scenarios. A planned command does nothing but return its RESP / RESP2: the XCTL does not transfer, the WRITEQ TS
@@ -1551,7 +1553,8 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
 
 ### X1. Commands from IBM's documentation — ASSUMED
 - **Source.** Each command's RESP/RESP2, length handling and EIB fields follow the IBM CICS TS for z/OS 6.x API
-  reference, cited in the code.
+  reference (ibm.com/docs/en/cics-ts/6.x?topic=summary-read and the sibling command pages; EIB fields:
+  ibm.com/docs/en/cics-ts/6.x?topic=reference-eib-fields), cited in the code.
 - **Checked against.** The cics-crucible (210 doc-cited cells passing, v0.5.0). Not checked against a CICS region.
 
 ### X2. Screens are compared as the symbolic map — ASSUMED
@@ -1675,7 +1678,7 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   compiles without the flags.
 
 ### X9. Named counters — MATCHED
-- GET COUNTER returns the counter's value and then adds one (IBM CICS TS, GET COUNTER); a counter the region does not
+- GET COUNTER returns the counter's value and then adds one (IBM CICS TS, GET COUNTER, ibm.com/docs/en/cics-ts/6.x?topic=summary-get-counter-get-dcounter); a counter the region does not
   have is INVREQ RESP2 201 (X30: it was NOTFND before; IBM lists none). A case (or a scenario) states the region's counters (`"counters": {"POOL/NAME": next}`); both sides
   read the same. Other counter options (INCREMENT, WRAP, MINIMUM / MAXIMUM, RESP2 ...) are refused by name.
 
@@ -4383,9 +4386,9 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   outside its halfword / fullword / doubleword (Db2 types the host variable by its data type: S9(9) COMP is INTEGER), not
   beyond its PICTURE's digits: 2147483647 into `S9(9) COMP` is assigned. That holds under TRUNC(STD) too; STD limits
   COBOL's own MOVE / arithmetic (C1), not the SQL assignment. ggsql.c `num_store` and DetSql (`Cobol.storeHostChecked`) agree.
-- **IBM.** Db2 10 for z/OS Codes, SQLCODE -304 (SQLSTATE 22003): "A VALUE WITH DATA TYPE data-type1 CANNOT BE ASSIGNED TO A
+- **IBM.** Db2 12 for z/OS Codes, GC27-8847-02 (ibm.com/docs/en/SSEPEK_12.0.0/pdf/db2z_12_codesbook.pdf), and Db2 10 for z/OS Codes, SQLCODE -304 (SQLSTATE 22003): "A VALUE WITH DATA TYPE data-type1 CANNOT BE ASSIGNED TO A
   HOST VARIABLE ... the host variable with data type data-type2 was not large enough to hold the retrieved value". The test
-  is the host variable's Db2 data type (halfword, fullword, doubleword), as here. Db2 13 FETCH (SQL Reference): "If an
+  is the host variable's Db2 data type (halfword, fullword, doubleword), as here. Db2 13 FETCH (SQL Reference, ibm.com/docs/en/db2-for-zos/13?topic=statements-fetch): "If an
   assignment error occurs, the value is not assigned to the target and no more values are assigned to targets."
   The statement that STD does not apply is ours: the cited pages do not mention TRUNC. Not measured on z/OS (#4702 Part 2).
 
@@ -4566,8 +4569,8 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 - **What is modelled** (#4893). A batch DL/I program: IMS enters it at ENTRY 'DLITCBL' with the PSB's DB PCBs (CMPAT=NO,
   a DLI region), and it issues `CALL 'CBLTDLI' USING function pcb io-area [ssa ...]`. The COBOL side runs against
   `tests/equivalence/ims/ggdli.c`, the det port against `cobolrt/dli/DetDli.java`: one rule set, one set of refusals.
-  The calls are GU, GHU, GN, GHN, GNP, GHNP, ISRT, REPL and DLET (IBM IMS Application Programming APIs, "DL/I calls
-  for database management").
+  The calls are GU, GHU, GN, GHN, GNP, GHNP, ISRT, REPL and DLET (IBM IMS 15.3 Application Programming APIs, "DL/I calls
+  for database management"; the application side is in IMS 15.3 Application Programming, ibm.com/docs/en/SSEPH2_15.3.0/pdf/IMS_15.3_Application_Programming.pdf).
 - **The database is stated, not connected.** The case names its DBD and PSB sources, which the engine's own macro
   reader parses (`gitgalaxy/core/ims_gen.py`), and a seed: the corpus's own HD unload (I6), or segments the case writes.
   Both sides read the same `dbd.cfg` / `psb.cfg` / `seed.<DBD>`, and each writes the database it ended with. The
@@ -4575,7 +4578,8 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   The database is a hierarchy in hierarchic sequence: each parent's children by segment type in DBD order, and twins in
   sequence-field order (I2). HIDAM, PHIDAM, HISAM and SHISAM are read alike. The HIDAM index is not a database here:
   it only orders the roots by key, which the hierarchy already does.
-- **Status codes** (IMS Messages and Codes, Volume 4, "DL/I status codes"):
+- **Status codes** (IMS 15.3 Messages and Codes, Volume 4: IMS Component Codes, "Database calls for DL/I status
+  codes", ibm.com/docs/en/ims/15.3.0?topic=codes-database-calls-dli-status):
   - blank: success.
   - GA: an unqualified GN / GNP moved up a level. GK: it returned a segment of another type at the same level.
   - GE: segment not found, or ISRT's parent not found. GB: GN reached the end of the database.
@@ -4586,8 +4590,8 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 
   Any other condition is refused (I5).
 - **RETURN-CODE after the call.** Each call returns 0: the C model returns 0 (GnuCOBOL stores it in RETURN-CODE), and
-  the det port stores 0. IBM does not document what the DL/I language interface leaves in register 15 for a COBOL
-  CALL. A program that reads RETURN-CODE after a DL/I call, or ends without setting it, relies on this assumption:
+  the det port stores 0. IBM is silent on what the DL/I language interface leaves in register 15 for a COBOL
+  CALL (the IMS 15.3 Application Programming pages name only the status code in the PCB). A program that reads RETURN-CODE after a DL/I call, or ends without setting it, relies on this assumption:
   PAUDBUNL ends RETURN-CODE 0 after its last GN (GB).
 
 ### I2. Sequence-field order and SSA comparison — the stored bytes, in the data page
@@ -4607,7 +4611,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   agree, and refuses otherwise by name. Any other field type in a qualification (Z, H, F, ...) is refused.
 
 ### I3. Current position and parentage after each call
-- **What is modelled** (IMS Application Programming, "Current position in the database after each call").
+- **What is modelled** (IMS 15.3 Application Programming, Chapter 15 "Current position in the database after each call", p. 241-247, ibm.com/docs/en/SSEPH2_15.3.0/pdf/IMS_15.3_Application_Programming.pdf).
   - A successful GU, GN or GNP sets position on the segment it returned. GU and GN also set parentage there; GNP
     leaves parentage alone. An unqualified GN continues from position in hierarchic sequence, and GNP stays under
     the parent.
@@ -4626,13 +4630,13 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   (it may stop early at a key past the qualification): refused by name.
 
 ### I4. The DB PCB mask — layout from IBM, the initial contents and an unsuccessful call's feedback assumed
-- **Layout** (IMS Application Programming, "Specifying the DB PCB mask"):
+- **Layout** (IMS 15.3 Application Programming, "Specifying the DB PCB mask", Table 35, p. 212, ibm.com/docs/en/SSEPH2_15.3.0/pdf/IMS_15.3_Application_Programming.pdf):
   - DBD name (8 bytes), segment level (2 characters), status code (2), processing options (4), reserved (fullword)
   - segment name (8), key feedback length (fullword), number of sensitive segments (fullword), key feedback area
 - **No IBM copybook ships.** Neither the PCB mask macro nor an IBM copybook does. The program's own mask, CardDemo's
   PAUTBPCB, is the estate's copybook, and the harness builds the area IMS would pass from the PSB (36 bytes and its
   KEYLEN).
-- **Assumed.**
+- **Assumed.** IBM is silent on the mask's contents at entry (beyond the data-availability status code) and on the feedback after GE or II beyond "the last segment it encounters that satisfied your call" (Table 35, note 2); the rest is ours.
   - At entry the mask holds the DBD name, level `00`, status blank, the PCB's PROCOPT, reserved 0, a blank segment
     name, key feedback length 0, the number of sensitive segments, and X'00' through the key feedback area. Every byte
     past it that the program's mask names is X'00' too: z/OS has the PCB control block there, which no program should

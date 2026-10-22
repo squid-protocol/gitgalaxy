@@ -115,8 +115,12 @@ def test_shell_command_word_is_a_call(body, callee):
         ("  FOO=$(inner_a arg) bar_a", "arg"),
         ("  >/dev/null", "dev"),
         ("  trap - EXIT", "EXIT"),
+        ("  trap EXIT", "EXIT"),
         ("  trap '' INT", "INT"),
         ("  echo a | b", "a"),
+        ('  [[ "$l" =~ ^(HOMEBREW_|(all|no)_proxy=) ]] || continue', "HOMEBREW_"),
+        ('  [[ "$l" =~ ^(HOMEBREW_|(all|no)_proxy=) ]] || continue', "all"),
+        ("  [[ $x =~ (alpha|beta) ]]", "alpha"),
     ],
 )
 def test_shell_non_command_words_are_not_calls(body, not_callee):

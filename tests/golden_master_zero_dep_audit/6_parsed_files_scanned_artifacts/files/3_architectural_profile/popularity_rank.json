@@ -3552,7 +3552,7 @@
       "shell/reactos/CreateCabFile.sh": 0,
       "shell/reactos/autogen.sh": 0,
       "shell/reactos/check_code_format.sh": 0,
-      "shell/reactos/codespell_changed_files.sh": 0,
+      "shell/reactos/codespell_changed_files.sh": 1,
       "shell/reactos/codespell_check.sh": 0,
       "shell/reactos/configure.sh": 0,
       "shell/reactos/do_code_format.sh": 0,

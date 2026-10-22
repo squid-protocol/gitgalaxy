@@ -833,3 +833,136 @@ def test_lgucdb01_det_port_holds_on_generated_customer_rows(tmp_path):
     assert len(sql) == 16 and all(q["equal"] == q["statements"] and q["statements"] for q in sql)
     assert {x["verb"] for q in sql for x in q["cobol"]} == {"UPDATE"}
     assert {x["sqlcode"] for q in sql for x in q["cobol"]} == {0, 100}
+
+
+_GENERATED_ALL_TABLES = {
+    "GENASA1.CUSTOMER": 10,
+    "GENASA1.POLICY": 12,
+    "GENASA1.ENDOWMENT": 3,
+    "GENASA1.HOUSE": 4,
+    "GENASA1.MOTOR": 4,
+    "GENASA1.COMMERCIAL": 3,
+}
+
+
+def _prove_genapp_front_end(tmp_path, case, generated=None):
+    """det_port.py run CASE: the report of the generated-row front-end case, proven."""
+    import json
+    import shutil
+    import subprocess
+
+    if not shutil.which("docker"):
+        pytest.skip("no docker")
+    tool = Path(__file__).resolve().parents[1] / "tools" / "det_port.py"
+    proc = subprocess.run([sys.executable, str(tool), "run", case, "--work", str(tmp_path)],  # noqa: S603
+                          capture_output=True, text=True, check=False)  # fmt: skip
+    assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
+    report = json.loads(next(tmp_path.glob(f"{case}/**/report.json")).read_text())
+    assert report["proven"] is True
+    assert report["db2_generated"] == (generated or _GENERATED_ALL_TABLES)
+    sql = [o["sql"] for o in report["outputs"].values() if "sql" in o]
+    assert all(q["equal"] == q["statements"] for q in sql)
+    return sql
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_lgapol01_front_end_holds_on_generated_multi_table_rows_with_fk(tmp_path):
+    """GenApp's add-policy front end (LGAPOL01, LINKing LGAPDB01, LGAPVS01 and LGSTSQ) on the generated CUSTOMER,
+    POLICY and type-table rows of genapp-lgapdb01-generated: 30 requests through the front end, every statement
+    answered alike on both sides, the five compared tables alike after every task."""
+    sql = _prove_genapp_front_end(tmp_path, "genapp-lgapol01-generated")
+    assert len(sql) == 30 and sum(1 for q in sql if q["statements"]) == 21
+    assert {x["verb"] for q in sql for x in q["cobol"]} == {"INSERT", "SELECT", "VALUES"}
+    assert {x["sqlcode"] for q in sql for x in q["cobol"]} == {0}
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_lgupol01_front_end_holds_on_generated_multi_table_rows_with_fk(tmp_path):
+    """GenApp's update-policy front end (LGUPOL01, LINKing LGUPDB01 and LGUPVS01) on the generated rows of
+    genapp-lgupdb01-generated: the optimistic-lock match and miss, wrong customers and unknown policies, every UPDATE
+    and SELECT answered alike (SQLCODE 0 and 100) and the policy and type tables alike after every task."""
+    sql = _prove_genapp_front_end(tmp_path, "genapp-lgupol01-generated")
+    assert len(sql) == 24 and sum(1 for q in sql if q["statements"]) == 20
+    assert {(x["verb"], x["sqlcode"]) for q in sql for x in q["cobol"]} == {
+        ("SELECT", 0),
+        ("SELECT", 100),
+        ("UPDATE", 0),
+        ("UPDATE", 100),
+    }
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_lgdpol01_front_end_holds_on_generated_multi_table_rows_with_fk(tmp_path):
+    """GenApp's delete-policy front end (LGDPOL01, LINKing LGDPDB01 and LGDPVS01) on the generated rows of
+    genapp-lgdpdb01-generated: DELETE FROM POLICY of each type with the ON DELETE CASCADE into the type tables, a wrong
+    customer and an unknown policy (SQLCODE 100) and the injected -904, every statement answered alike and all eight
+    compared tables alike after every task. The short COMMAREA with a fault (the error logger's reference past
+    EIBCALEN, X23) is not carried over."""
+    sql = _prove_genapp_front_end(tmp_path, "genapp-lgdpol01-generated")
+    assert len(sql) == 17 and sum(1 for q in sql if q["statements"]) == 13
+    assert {(x["verb"], x["sqlcode"]) for q in sql for x in q["cobol"]} == {("DELETE", 0), ("DELETE", 100)}
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_lgipol01_front_end_holds_on_generated_policy_rows_with_fk(tmp_path):
+    """GenApp's inquire-policy front end (LGIPOL01, LINKing LGIPDB01) on the generated rows of
+    genapp-lgipdb01-generated: the 32 requests (found, wrong customer, policy of another type, by policy, the customer
+    and postcode cursors) through the front end, every SELECT answered alike (SQLCODE 0 and 100) on both sides."""
+    sql = _prove_genapp_front_end(tmp_path, "genapp-lgipol01-generated")
+    assert len(sql) == 33 and sum(1 for q in sql if q["statements"]) == 30
+    assert {(x["verb"], x["sqlcode"]) for q in sql for x in q["cobol"]} == {("SELECT", 0), ("SELECT", 100)}
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_lgicus01_front_end_holds_on_generated_customer_rows(tmp_path):
+    """GenApp's inquire-customer front end (LGICUS01, LINKing LGICDB01) on the ten generated CUSTOMER rows of
+    genapp-lgicdb01-generated: found and not-found (SQLCODE 0 and 100) customers and the prefilled-COMMAREA paths
+    answered alike on both sides."""
+    sql = _prove_genapp_front_end(tmp_path, "genapp-lgicus01-generated", {"GENASA1.CUSTOMER": 10})
+    assert len(sql) == 20 and sum(1 for q in sql if q["statements"]) == 18
+    assert {(x["verb"], x["sqlcode"]) for q in sql for x in q["cobol"]} == {("SELECT", 0), ("SELECT", 100)}
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_lgacus01_front_end_holds_on_generated_customer_rows_with_fk(tmp_path):
+    """GenApp's add-customer front end (LGACUS01, LINKing LGACDB01, LGACVS01 and LGACDB02) on the generated CUSTOMER and
+    CUSTOMER_SECURE rows of genapp-lgacdb01-generated: the adds (counter or identity, blank fields, a full-width email)
+    answered alike, SQLCODE 0 on both sides, and the table state compared after the run."""
+    sql = _prove_genapp_front_end(
+        tmp_path, "genapp-lgacus01-generated", {"GENASA1.CUSTOMER": 10, "GENASA1.CUSTOMER_SECURE": 10}
+    )
+    assert len(sql) == 22 and sum(1 for q in sql if q["statements"]) == 20
+    assert {(x["verb"], x["sqlcode"]) for q in sql for x in q["cobol"]} == {("INSERT", 0), ("VALUES", 0)}
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_lgucus01_front_end_holds_on_generated_customer_rows(tmp_path):
+    """GenApp's update-customer front end (LGUCUS01, LINKing LGUCDB01 and LGUCVS01) on the ten generated CUSTOMER rows
+    of genapp-lgucdb01-generated: found and missing customers (UPDATE SQLCODE 0 and 100), the VSAM-only customer and
+    the requests the front end stops ('99') answered alike on both sides."""
+    sql = _prove_genapp_front_end(tmp_path, "genapp-lgucus01-generated", {"GENASA1.CUSTOMER": 10})
+    assert len(sql) == 20 and sum(1 for q in sql if q["statements"]) == 12
+    assert {(x["verb"], x["sqlcode"]) for q in sql for x in q["cobol"]} == {("UPDATE", 0), ("UPDATE", 100)}
+
+
+def test_the_dbb_estate_reads_no_db2_table_but_sysdummy1():
+    """#4507: DBB MortgageApplication has no generated-row Db2 case because there is nothing to generate: its one Db2
+    program (EPSCMORT) reads only SYSIBM.SYSDUMMY1, and the case declares no DDL."""
+    import json
+    import re
+
+    from gitgalaxy.core.source_text import read_source
+
+    repo = Path(__file__).resolve().parents[2]
+    corpora = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", repo / ".mainframe_corpora"))
+    cobol = corpora / "dbb-mortgage-application" / "zBuilder" / "MortgageApplication" / "cobol"
+    if not cobol.is_dir():
+        pytest.skip("the dbb-mortgage-application corpus is not available (GITGALAXY_MAINFRAME_CORPORA)")
+    users = {}
+    for src in sorted(cobol.glob("*.cbl")):
+        text = read_source(src).text
+        if re.search(r"EXEC\s+SQL\s+(?!INCLUDE|DECLARE|WHENEVER)\w", text, re.IGNORECASE):
+            users[src.name] = set(re.findall(r"\bFROM\s+([A-Z][\w.]*)", text, re.IGNORECASE))
+    assert users == {"epscmort.cbl": {"SYSIBM.SYSDUMMY1"}}
+    case = json.loads((repo / "tests" / "equivalence" / "mortgage-cmort" / "case.json").read_text("utf-8"))
+    assert case["db2"]["ddl"] == []

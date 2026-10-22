@@ -864,7 +864,7 @@ NULL is distinct.
 - **Refused (register I5).** Other EXEC DLI; BMP / MPP / CICS DL/I programs and the I/O PCB (IMS TM); GSAM; DL/I calls
   other than the nine; command codes and boolean SSAs; AIBTDLI / CEETDLI; HDAM order; secondary indexes; logical
   relationships; load mode. CardDemo's other DL/I programs stop at one of these: PAUDBLOD (CMPAT=YES, an I/O PCB),
-  DBUNLDGS (GSAM PCBs). (COPAUA0C, COPAUS0C, COPAUS1C and CBPAUP0C's EXEC DLI commands translate, above; COPAUS1C has no equivalence case yet.)
+  DBUNLDGS (GSAM PCBs). (COPAUA0C, COPAUS0C, COPAUS1C and CBPAUP0C's EXEC DLI commands translate, above.)
 - **COPAUA0C, the authorization task (`carddemo-copaua0c`, #5278).** Transid CP00: an MQTM trigger, MQGET on the request queue, IMS
   DBPAUTP0 by EXEC DLI, three VSAM reads and MQPUT replies. Proven on 17 scenarios (3 fault runs), through the deployed entry point
   too, covering 41/41 paragraphs and 58/69 branches. The det port is committed (`port/service/`, `port/provenance.json`, as CBPAUP0C's),
@@ -873,11 +873,24 @@ NULL is distinct.
   and used by no burned program: MQINQ / MQSET (frontier #4892).
 - **COPAUS0C, the summary screen (`carddemo-copaus0c`, #5233).** Transid CPVS, map COPAU0A: GU / GNP browse of DBPAUTP0 (SCHD, a
   qualified GNP to reposition a page), three VSAM reads and the PF3 / PF7 / PF8 paging, whose keys live in the COMMAREA's `OCCURS` tables.
-  Translates 370/370 and is proven on 27 scenarios, through the deployed entry point too, covering 20/20 paragraphs and 80/93 branches. The 13 branches left
-  are the DL/I status faults of SCHD / GU / GNP (the harness injects none under CICS yet), SEL0002, a declined detail and two defensive
-  defaults. Harness steps: a DTO `List` property is a `TableField` (carried in the area's bytes, never JSON), a scalar table reads back as
+  Translates 370/370 and is proven on 33 scenarios, through the deployed entry point too, covering 20/20 paragraphs and 84/93 branches. Six
+  scenarios plan DL/I status faults (`dli_faults`: GU `AC`, GNP `AC` on the first read, a mid-page GNP `GB`, PF8's repositioning GNP `AC` and `GE`, the GNP
+  after it `AC`), so the GU / GNP system-error and end-of-database arms are proven against the oracle. The 9 branches left are the SCHD `TC` retry
+  (l.1007, l.1017: the program's TERM after a planned `TC` is refused, no PSB being scheduled in the model) and seven that are not DL/I
+  (SEL0002, a declined detail, defensive defaults). Harness steps: a DTO `List` property is a `TableField` (carried in the area's bytes, never JSON), a scalar table reads back as
   `NAME(n)`, and the facade hands the byte-carrying `handleTransaction` the scenario's own bytes. Not claimed: a map attribute byte of X'40'
-  (DFHBMUNP), which the port's side cannot tell from a cleared byte. The qualified GNP that finds nothing stays refused (IMS leaves position).
+  (DFHBMUNP), which the port's side cannot tell from a cleared byte. The qualified GNP that finds nothing stays refused (IMS leaves position); the
+  `GE` scenario is the harness's planned status, not a real qualified miss.
+- **COPAUS1C, the detail screen (`carddemo-copaus1c`, #5233).** Transid CPVD, map COPAU1A: SCHD PSB, GU the account's PAUTSUM0 and a qualified
+  GNP of the selected PAUTDTL1, the decline reason looked up with SEARCH ALL (found, the table's last entry, and AT END), PF8's unqualified
+  GNP, PF5's LINK to COPAUS2C (Db2 `CARDDEMO.AUTHFRDS`: INSERT, and the -803 UPDATE) followed by an EXEC DLI REPL and SYNCPOINT, PF3's XCTL.
+  Translates 249/249 and is proven on 30 scenarios plus the two SQL fault runs of COPAUS2C's statements, through the deployed entry point
+  too, covering 15/15 paragraphs and 44/48 branches. The database is a four-account one stated in the case (inline segments built from
+  records of the corpus's own unload, since that unload holds only approved, unreported authorizations); the Db2 side is COPAUS2C's own
+  seed. Seven scenarios plan DL/I status faults (GU `AC` / `GB`, the qualified GNP `AC` / `GB`, PF8's GNP `AC` / `GB`, and a REPL `AC` that takes
+  ROLL-BACK and undoes the Db2 INSERT). Left: the 4 uncovered branches, the SCHD `TC` retry and its second failure (TERM after a planned `TC` is
+  refused, no PSB being scheduled in the model) and two guards that are always true here. The qualified GNP that finds nothing is refused by name,
+  so no scenario gives a key the account does not hold.
 - **CBPAUP0C as a BMP (`carddemo-cbpaup0c`, #5857).** The step is entered USING the I/O PCB and the one DB PCB of PSBPAUTB, reads
   its PRM-INFO card from SYSIN, walks the corpus's own DBPAUTP0 unload with GN / GNP, DLETs the expired details and emptied
   summaries and takes CHKP ID checkpoints. Proven on 12 runs (the base card, control-card scenarios and DL/I status faults, #5944), DBPAUTP0 equal on every run, covering 15/16 paragraphs and 37/40 branches. The det port is committed (`port/service/`, `port/provenance.json`, as CBSTM03A's), so `evidence.py prove carddemo-cbpaup0c` records the proof (`evidence.json`: proven, 12 runs, mutation pending); the det-sweep coverage ledger (`tests/equivalence/det_sweep_coverage/carddemo-cbpaup0c.json`) carries the same numbers. Left: 3 uncovered branches, each needing an I5 modelling decision: l.160 true (a mid-loop CHKP loses position, so GN restarts and the step never ends), l.340 true (the summary DLET always answers DJ: no get-hold of the summary precedes it), l.287 false (no declined detail expires before the first summary's abend).

@@ -303,11 +303,23 @@ class Precompiler:
             st = Statement(sid, "EXEC", "VALUES 1")
             self.statements.append(st)
             return st, args
-        ex = re.fullmatch(r"EXECUTE\s+([A-Z0-9_-]+)", text, re.I)
-        if verb == "EXECUTE" and ex:  # #4269: EXECUTE name (no USING) of an earlier PREPARE FROM a literal
+        ex = re.fullmatch(r"EXECUTE\s+([A-Z0-9_-]+)(?:\s+USING\s+(.+))?", text, re.I | re.S)
+        if verb == "EXECUTE" and ex:  # #4269: EXECUTE name [USING :H, ...] of an earlier PREPARE FROM a literal
             if ex.group(1).upper() not in self.prepared:
                 raise Unsupported(f"EXEC SQL EXECUTE {ex.group(1)}: no earlier PREPARE FROM a string literal")
-            st = Statement(sid, "EXEC", _norm(self.prepared[ex.group(1).upper()]))
+            prepared = self.prepared[ex.group(1).upper()]
+            marks = len(re.findall(r"\?", re.sub(r"'(?:[^']|'')*'", "''", prepared)))
+            using = ex.group(2) or ""
+            # (the host variables bind in order, the stub's parameter markers: IBM binds them as Db2 does)
+            if re.sub(r"[\s,]", "", re.sub(r":\s*[A-Z0-9][A-Z0-9-]*(?:\s*(?:INDICATOR\s*)?:\s*[A-Z0-9][A-Z0-9-]*)?", "",
+                                           using, flags=re.I)):  # fmt: skip
+                raise Unsupported(f"EXEC SQL EXECUTE {ex.group(1)} USING {using[:30]}: only host variables")
+            _, refs = self._bind(using, args)
+            n_host = sum(len(elems) for elems, _ in refs)
+            if n_host != marks:
+                raise Unsupported(f"EXEC SQL EXECUTE {ex.group(1)}: {marks} parameter markers, {n_host} host "
+                                  "variables")  # fmt: skip
+            st = Statement(sid, "EXEC", _norm(prepared), "-", self._vars(refs, args))
             self.statements.append(st)
             return st, args
         if verb in ("PREPARE", "EXECUTE", "DESCRIBE", "CONNECT", "SET", "CALL", "ALLOCATE", "ASSOCIATE"):
@@ -362,8 +374,9 @@ class Precompiler:
 
     @staticmethod
     def _dynamic_insert(inner: str, what: str) -> None:
-        if (not re.fullmatch(r"INSERT\s+INTO\s[^?]*\bVALUES\b[^?]*", inner, re.I | re.S)
-                or re.search(r"\bSELECT\b", inner, re.I)):  # fmt: skip
+        marker = re.search(r"\?", re.sub(r"'(?:[^']|'')*'", "''", inner))
+        if (not re.fullmatch(r"INSERT\s+INTO\s.*\bVALUES\b.*", inner, re.I | re.S)
+                or re.search(r"\bSELECT\b", inner, re.I) or (marker and what == "EXECUTE IMMEDIATE")):  # fmt: skip
             raise Unsupported(f"EXEC SQL {what} '{inner[:40]}': only INSERT ... VALUES is modelled")
 
     def whenever_tests(self, period: str) -> list[str]:

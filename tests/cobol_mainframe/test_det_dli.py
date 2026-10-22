@@ -20,6 +20,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tests" / "tools"))
 
 import equivalence_ims as ei  # noqa: E402
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
@@ -590,6 +591,54 @@ def test_detdli_schedule_and_terminate_answer_the_status_ibm_gives(tmp_path):
         "[  ]",
         "CBLTDLI: a TERM with no PSB scheduled is not modelled",
     ]
+
+
+@pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+@pytest.mark.parametrize(
+    ("plan", "expect"),
+    [
+        # TC means the task already holds the PSB: scheduled, so a TERM and a SCHD after it are valid (COPAUA0C's path)
+        ("# DLI SCHD 1 TC", ["[TC]", "[  ]", "[  ]", "[  ]"]),
+        # any other status is not performed: nothing is scheduled, so a TERM is refused
+        ("# DLI SCHD 1 AI", ["[AI]", "CBLTDLI: a TERM with no PSB scheduled is not modelled"]),
+        # a planned TC while the PSB is held: TC, still held, and no NODHABEND needed to answer it
+        ("# DLI SCHD 2 TC", ["[  ]", "[TC]", "[  ]", "[  ]"]),
+    ],
+)
+def test_detdli_a_planned_schd_tc_leaves_the_psb_scheduled(tmp_path, plan, expect):
+    """#5233: a planned SCHD TC is IBM's 'PSB already scheduled', so the PSB is held and TERM after it is valid; a planned
+    SCHD of another status is not performed and leaves nothing scheduled."""
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    _stage(tmp_path / "dli")
+    (tmp_path / "plan.txt").write_text(plan + "\n")
+    src = tmp_path / "src"
+    for rel, text in P.runtime_files("t", batch=False).items():
+        if not rel.startswith(("cobolrt/cics/", "cobolrt/sql/")):
+            (src / "t" / rel).parent.mkdir(parents=True, exist_ok=True)
+            (src / "t" / rel).write_text(text)
+    d = "t.cobolrt.dli.DetDli"
+    if plan.endswith("AI"):
+        body = (f'System.out.println("[" + {d}.schedule("PSBX", true) + "]"); '
+                f'try {{ {d}.terminate(); }} catch (UnsupportedOperationException e) {{ System.out.println(e.getMessage()); }}')  # fmt: skip
+    elif "SCHD 2" in plan:
+        body = (f'System.out.println("[" + {d}.schedule("PSBX", true) + "]"); '
+                f'System.out.println("[" + {d}.schedule("PSBX", false) + "]"); '
+                f'System.out.println("[" + {d}.terminate() + "]"); '
+                f'System.out.println("[" + {d}.schedule("PSBX", false) + "]");')  # fmt: skip
+    else:
+        body = (f'System.out.println("[" + {d}.schedule("PSBX", true) + "]"); '
+                f'System.out.println("[" + {d}.terminate() + "]"); '
+                f'System.out.println("[" + {d}.schedule("PSBX", false) + "]"); '
+                f'System.out.println("[" + {d}.terminate() + "]");')  # fmt: skip
+    (src / "Main.java").write_text(f"public class Main {{ public static void main(String[] a) {{ {body} }} }}\n")
+    jdk = _jdk()
+    javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                    *map(str, src.rglob("*.java"))], check=True)  # fmt: skip
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", f"-Dgitgalaxy.dli.dir={tmp_path / 'dli'}",  # noqa: S603
+                          f"-Dgitgalaxy.faults.plan={tmp_path / 'plan.txt'}", "-cp", str(tmp_path / "classes"),
+                          "Main"], capture_output=True, check=True).stdout.decode("utf-8").splitlines()  # fmt: skip
+    assert out == expect
 
 
 @pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")

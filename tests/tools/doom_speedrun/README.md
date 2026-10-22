@@ -1,13 +1,13 @@
 # DOOM Port Speedrun harness (#5468)
 
-Reproduces the DOOM port study (#5457) from the repo: 44 DOOM ports pinned by SHA in `manifest.csv`, cloned shallow
+Reproduces the DOOM port study (#5457) from the repo: 44 DOOM ports pinned by SHA in `tests/doom_rosetta/manifest.csv`, cloned shallow
 at that SHA into a scratch directory, scanned with the current engine, and scored by seven clean-scan checks. Each run
 is keyed by the engine's git SHA, so before/after for one fix is a diff of two result directories. This corpus is
 becoming DOOM-rosetta, a golden-gated CI test (#5619).
 
 **No third-party code is committed.** The manifest holds names, URLs, SHAs, languages, class, license and lineage
 only; clones are fetched at run time under `--work` (default `/tmp/gitgalaxy-scratch/doom-speedrun`, refused inside
-the repo). It is not part of default CI yet: run it by hand.
+the repo). The zero-drift gate and the nightly runs are in CI (`tests/doom_rosetta/README.md`); this harness is also run by hand.
 
 "DOOM" is used descriptively only. This project is not affiliated with or endorsed by id Software, ZeniMax Media or
 Microsoft. No WADs or other game data are fetched, committed or cached.
@@ -34,6 +34,14 @@ To add a port: read its license from the files, pin a SHA, add a row with `class
 `class`: `engine-port` (derived from or translated from id's released engine source, in any language),
 `reimplementation` (an independent engine that plays DOOM data), `raycaster` (a DOOM-like raycaster, not the DOOM
 engine), `separate-engine` (a later id engine) or `assets` (a content project).
+
+`fidelity`, `fidelity_file`, `fidelity_phrase` (#5620): what the port's own README says about its fidelity to the
+original, read from the pinned clone. `fidelity` is `original` (linuxdoom), `faithful` (aims to reproduce the original,
+bugs included), `compatible` (states demo / data / behaviour compatibility while changing or adding), `enhanced`
+(states added features, no fidelity claim), `divergent` (disclaims being a port of, or exact to, the original) or
+`unstated` (no README, or silent). Anything but `original` / `unstated` names the README and a short quoted phrase.
+It records a claim, not a measurement. `fidelity.py check --work DIR` re-reads every phrase from the clones (a missing
+clone is reported as unchecked; `--strict` makes it an error) and `fidelity.py report` prints the class x fidelity counts.
 
 ```bash
 python tests/tools/doom_speedrun/doom_speedrun.py run --oracle                # all ports: clone, scan, score, report
@@ -199,7 +207,7 @@ similarity >= 0.9) or **derived** (>= 0.6). Results in `<work>/results/<sha>/lin
 
 | file | what |
 |---|---|
-| `survival.csv`, `lineage.md` | per port: the four survival percentages, LOC-weighted similarity, linuxdoom file stems kept, the stated lineage from `manifest.csv`, its `parent` (the manifest port named by the lineage text's opening words, never itself) and `exact_vs_parent` (exact-body points gained or lost against that parent; linuxdoom counts as 100) |
+| `survival.csv`, `lineage.md` | per port: the four survival percentages, LOC-weighted similarity, linuxdoom file stems kept, the stated lineage from `tests/doom_rosetta/manifest.csv`, its `parent` (the manifest port named by the lineage text's opening words, never itself) and `exact_vs_parent` (exact-body points gained or lost against that parent; linuxdoom counts as 100) |
 | `survival_subsystem.csv` | the same per linuxdoom subsystem (file prefix: `r_` renderer, `p_` playsim, `m_` misc, ...) |
 | `survival_functions.csv` | each linuxdoom function x port: class (exact / near / derived / name-only / gone), best similarity |
 | `filename_survival.csv` | linuxdoom file stems present in the port's tracked sources |
@@ -217,3 +225,27 @@ Blind spots:
   survival looks at every function the port has.
 - **`parent` is read from free text**: a lineage naming no manifest port (`WinMBF <- MBF <- Boom`, `PrBoom`) has
   none, and the tool does not walk chains.
+
+## Function-metric distributions (`distribution.py`, #5620)
+
+How each port's per-function metrics are shaped next to linuxdoom's: the round-1 study's distribution script, ported
+(stdlib only). It reads the scans alone (no clone); licensed ports only (`lineage.LICENSED`), `assets` projects and
+ports under `--min-functions` (30) code functions skipped.
+
+```bash
+python tests/tools/doom_speedrun/distribution.py [--only gore,room4doom] [--sha SHA] [--min-functions N]
+```
+
+Per port, over the functions of code languages (`CODE_LANGUAGES`): median and 90th percentile of complexity, LOC,
+call fan-out, token mass and argument count, plus the share of functions with complexity >= 10. `dist` is the mean,
+over those five metrics, of the 1-D Wasserstein distance to linuxdoom (mean gap between 201 matching quantiles)
+divided by linuxdoom's standard deviation for the metric. A second table places linuxdoom's median among the ports'
+medians. Results in `<work>/results/<sha>/distribution/`: `distribution.csv`, `distribution.json`, `distribution.md`.
+On the 0e2bf4ade scans it reproduces the study script's numbers for all 30 shared ports (to 1e-14).
+
+Blind spots:
+- **A distance is a shape comparison, not a correctness claim.** A port in another language moves every metric by how
+  the engine counts that language (what the cross-language slice is for); a large `dist` says "different", not "wrong".
+- **Vendored code is not excluded** (the study script did not either): a port that bundles a library carries its
+  functions in its own distribution. `lineage.py` is the tool that applies the engine's vendor test.
+- **The majority language names the port** (`lang`); a polyglot port's functions of other code languages stay in.

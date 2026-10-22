@@ -5,18 +5,18 @@
  "case": "cbsa-updacc",
  "entry": {
   "program": "UPDACC",
-  "commit": "157ad694e8cea01222f9f9de3cf2892594e1f4b2",
+  "commit": "94dfb63b0de7fdedf8d82b80f3cde3785c388240+uncommitted",
   "date": "2026-10-22",
   "mode": "fast",
   "seed": 0,
   "mutants": 713,
   "out_of_scope": 12,
   "chosen": 713,
-  "coverage": "proven on 12 scenarios, covering 7/7 paragraphs and 6/6 branches",
+  "coverage": "proven on 15 scenarios, covering 7/7 paragraphs and 6/6 branches",
   "counts": {
-   "killed": 292,
+   "killed": 303,
    "timeout": 1,
-   "survived": 395,
+   "survived": 384,
    "stillborn": 25,
    "error": 0,
    "pending": 0
@@ -45,6 +45,7 @@
    "11e281f414",
    "1265c87c3a",
    "126ccc0126",
+   "12be9168c9",
    "131a706f07",
    "13561ceb89",
    "13de705595",
@@ -63,8 +64,10 @@
    "20520de0d3",
    "20e4f1d68b",
    "222f3841a5",
+   "22518b1066",
    "229876411e",
    "23b830acc0",
+   "23e08da50c",
    "24bc1658f4",
    "2543ae3c6a",
    "25e5f585fa",
@@ -132,6 +135,7 @@
    "586275e8a2",
    "590aef2b0e",
    "595805fee8",
+   "599965ef2e",
    "5a3f128587",
    "5b4d62d811",
    "5c5b37f24e",
@@ -149,6 +153,7 @@
    "64c6d7e1ab",
    "65166594e7",
    "66e806a7ab",
+   "677196485a",
    "67ecd227e8",
    "69d1a6b6d0",
    "6b142f417a",
@@ -190,6 +195,7 @@
    "88b7123a25",
    "89a4764dff",
    "8a3764a09a",
+   "8a4fb77096",
    "8ac800cc58",
    "8adc8f493a",
    "8c36d04cbf",
@@ -200,6 +206,7 @@
    "8d29338427",
    "8d75e0f4a5",
    "8da324d05b",
+   "8e8f74c977",
    "8ea57741d2",
    "8f50679705",
    "8f70263242",
@@ -236,6 +243,7 @@
    "a74b908d12",
    "a834e84db2",
    "a8c7e868f6",
+   "a9ba16e63a",
    "ab525e08f2",
    "ac8978bcd4",
    "ae15b27261",
@@ -280,6 +288,8 @@
    "d5ac6e27ac",
    "d920d2c567",
    "da3ece4fdd",
+   "dbec980997",
+   "dc7a96e8cc",
    "def8f816dc",
    "e0161b161d",
    "e035f85c7f",
@@ -288,6 +298,7 @@
    "e176d35ac9",
    "e230500fc0",
    "e2c8590f78",
+   "e2e7152eec",
    "e3650a89b3",
    "e40710e54b",
    "e4a075915a",
@@ -783,14 +794,6 @@
     "line": 157,
     "before": "private final Field f129_COMM_ACC_TYPE = Field.alphanumeric(s_DFHCOMMAREA, 28, 8, false);",
     "after": "private final Field f129_COMM_ACC_TYPE = Field.alphanumeric(s_DFHCOMMAREA, 28, 9, false);"
-   },
-   {
-    "id": "dc7a96e8cc",
-    "op": "CON",
-    "file": "service/UpdaccService.java",
-    "line": 171,
-    "before": "private final Field f149_COMM_SUCCESS = Field.alphanumeric(s_DFHCOMMAREA, 98, 1, false);",
-    "after": "private final Field f149_COMM_SUCCESS = Field.alphanumeric(s_DFHCOMMAREA, 98, 2, false);"
    },
    {
     "id": "689800c6e8",
@@ -2129,54 +2132,6 @@
     "after": "/* fill_UpdaccDfhcommarea(d, s, base); */"
    },
    {
-    "id": "22518b1066",
-    "op": "NEG",
-    "file": "service/UpdaccService.java",
-    "line": 297,
-    "before": "if (s_DFHCOMMAREA.bytes != whole) {",
-    "after": "if (!(s_DFHCOMMAREA.bytes != whole)) {"
-   },
-   {
-    "id": "a9ba16e63a",
-    "op": "ROR",
-    "file": "service/UpdaccService.java",
-    "line": 297,
-    "before": "if (s_DFHCOMMAREA.bytes != whole) {",
-    "after": "if (s_DFHCOMMAREA.bytes == whole) {"
-   },
-   {
-    "id": "8e8f74c977",
-    "op": "DEL",
-    "file": "service/UpdaccService.java",
-    "line": 298,
-    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
-    "after": "/* System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length); */"
-   },
-   {
-    "id": "dbec980997",
-    "op": "CON",
-    "file": "service/UpdaccService.java",
-    "line": 298,
-    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
-    "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 1, whole, 0, s_DFHCOMMAREA.bytes.length);"
-   },
-   {
-    "id": "12be9168c9",
-    "op": "CON",
-    "file": "service/UpdaccService.java",
-    "line": 298,
-    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
-    "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 1, s_DFHCOMMAREA.bytes.length);"
-   },
-   {
-    "id": "677196485a",
-    "op": "DEL",
-    "file": "service/UpdaccService.java",
-    "line": 299,
-    "before": "s_DFHCOMMAREA.bytes = whole;",
-    "after": "/* s_DFHCOMMAREA.bytes = whole; */"
-   },
-   {
     "id": "ed27fac5fe",
     "op": "DEL",
     "file": "service/UpdaccService.java",
@@ -2545,14 +2500,6 @@
     "after": "/* caBack = () -> fill_UpdaccDfhcommarea(x, s_DFHCOMMAREA, 0); */"
    },
    {
-    "id": "8a4fb77096",
-    "op": "DEL",
-    "file": "service/UpdaccService.java",
-    "line": 386,
-    "before": "calen = cx(task, 99);",
-    "after": "/* calen = cx(task, 99); */"
-   },
-   {
     "id": "4afb6ad67f",
     "op": "CON",
     "file": "service/UpdaccService.java",
@@ -2703,14 +2650,6 @@
     "line": 406,
     "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
     "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {"
-   },
-   {
-    "id": "23e08da50c",
-    "op": "DEL",
-    "file": "service/UpdaccService.java",
-    "line": 407,
-    "before": "caWhole = s_DFHCOMMAREA.bytes;",
-    "after": "/* caWhole = s_DFHCOMMAREA.bytes; */"
    },
    {
     "id": "a698fc0229",
@@ -3025,14 +2964,6 @@
     "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
    },
    {
-    "id": "599965ef2e",
-    "op": "DEL",
-    "file": "service/UpdaccService.java",
-    "line": 579,
-    "before": "Cobol.move(f1_SORTCODE, f127_COMM_SCODE, CS);",
-    "after": "/* Cobol.move(f1_SORTCODE, f127_COMM_SCODE, CS); */"
-   },
-   {
     "id": "00256dc423",
     "op": "CON",
     "file": "service/UpdaccService.java",
@@ -3103,14 +3034,6 @@
     "line": 660,
     "before": "if (true) return GOTO | 5;",
     "after": "if (true) return GOTO | 6;"
-   },
-   {
-    "id": "e2e7152eec",
-    "op": "DEL",
-    "file": "service/UpdaccService.java",
-    "line": 663,
-    "before": "Cobol.move(f4_HV_ACCOUNT_EYECATCHER, f125_COMM_EYE, CS);",
-    "after": "/* Cobol.move(f4_HV_ACCOUNT_EYECATCHER, f125_COMM_EYE, CS); */"
    },
    {
     "id": "83a25db4ad",
@@ -3506,17 +3429,17 @@
    }
   ],
   "inputs": {
-   "port": "40a95ea86e9067191fad7030742c54b073a95db6abb1e3b086c39035f050eb0b",
-   "generator": "e3cd26f0bd1240b8fe399b400a7a150388b4e1bf1dd65e58693708555873a21d",
-   "case": "d0e0d5193ee3b4c8761dd37a70edb3fe5e1d78c5a785ea583e685637a21047f3",
+   "port": "cc9387bebe899b5b1fe55a720e8fb0492c7720e34180f5cef5d35706fe349e15",
+   "generator": "efdeb8065b1ecce331c38a4fb9d500e0289fc8608f10c528268cd58dca338720",
+   "case": "c5fc70bc6b0a84dc134515055dcf2141ef4e4a8f4274912f5d13463ff031d9c7",
    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-   "harness": "f52c0d770de36086c14d386cd691c57484fe24f59d0b29112cb7d2e56e75d4b6",
-   "oracle": "27cd5d5127a7ff5cf004d7ea63517333edb599feefc1643485560c707d475c0b"
+   "harness": "f6fc656cfb906c118205c985d0d60e49de564621c2ff04af298b4752a3ede275",
+   "oracle": "c16b52604cd8fd17fb175d78decab45df98fa472134a0d92759e6bdfe631c71a"
   },
   "components": {
    "generator": {
     "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
-    "generator:core": "a7b1e205ba94cbbb82ef0cd84b755c343c2f7e8afa912e487823daaf34e29af3",
+    "generator:core": "286f1220d709fb1d4689c6d78a413a9440109a0ecca0472d2e3811c8ac0d9f81",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/cics": "2a4fbbd7a9e55ee9dc6b9fa0e2ff2802c57cab2ff0d36459b676c1143707b507",
     "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
@@ -3524,11 +3447,11 @@
     "generator:det/cics_taskcontrol": "7d3892cd106fe0ab3a165551af8497cb67ee0337d2cb97f7a72ef8805710bdbf",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
     "generator:det/dli": "59300231ec82938ae8606969155f9d0fef4962ad739e8d6da188a7b6202e9ebd",
-    "generator:det/dyncall": "88c49b4c2e152b1e81d9afb16790c0faac7e6ce25a5f797a5b7c3528f7de92ae",
+    "generator:det/dyncall": "7f776808ec711cab1ada988a7ee2aded100227a543eeea393d17f5d389b3dc0c",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
-    "generator:det/gen": "6df3c4e25730ed5f5d06c4b9891a4a45958c6fa9808761f5f8078be3ef0d99b4",
-    "generator:det/hfp": "cec77a165f9657e15473ce0c2913b1256451731abc473571ed56951d0faba36c",
+    "generator:det/gen": "103a0da4d979c518e60d0dda1fc003e7a3f65ddf56c16280091e8a7942f41f4d",
+    "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
     "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
     "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
@@ -3536,8 +3459,8 @@
     "generator:det/stmt": "014835ecefbec5b761734642ac25fc8270092f80945e8f79bcaaa9d3aee2c9ff"
    },
    "harness": {
-    "harness:cics": "213c9450546bf312b75d1e132d67f07d558860d6645035e28f54d04046f36195",
-    "harness:core": "e995854ba8cad1ec5dabaf5752f5fe625ed3de76b8b92ccdb4129f1250359d5e",
+    "harness:cics": "21520a4c6440f2956fc2f8062360be697aa8cc1205ec66f51b1917d1fd7aa1a6",
+    "harness:core": "6ca15fe077558291d5457261b5b460f3fa6f7b92a7a11455c436cfee97ebaf39",
     "harness:db2": "c134f02c18b533b4b3ef9e3938f8cb2cd937f11a91c8d864226b114117c2176d"
    },
    "oracle": {
@@ -3545,7 +3468,7 @@
     "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
     "oracle:db2": "10a2566bcd61b540984c55220468787a8493cfd4df89980c84693433146502dc",
     "oracle:image-db2": "f138cc0d724e5e2bb4ff947dcd4c1cfed39aa35bfd7dcb27ff18a4e20b2c6198",
-    "oracle:le": "200b234c8ffa2bf4cb1a9c143f22a5a3b696279e000cbf67ff9330fdfb7a9183"
+    "oracle:le": "3e9e45ed737eaee3a156a2e00bfade4c956d69c8bf1c0bbe207a9cf107063c78"
    }
   }
  }

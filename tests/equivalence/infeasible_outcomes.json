@@ -608,6 +608,16 @@
     "reason": "`IF SQLCODE = 0` (the check after the SELECT INTO from ACCOUNT) is reached only with SQLCODE 0: the `IF SQLCODE NOT = 0 AND SQLCODE NOT = +100` above it (line 282) ends in EXEC CICS ABEND HRAC, which does not return, and the `IF SQLCODE = +100` above it (line 350) leaves by GO TO RAD999 (line 356), so no other SQLCODE falls through to line 363 and its false arm has no input."
    }
   ],
+  "genapp-lgacdb01": [
+   {
+    "unit": "WRITE-ERROR-MESSAGE",
+    "line": 314,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "G",
+    "reason": "`IF EIBCALEN < 91` (the inner test of WRITE-ERROR-MESSAGE's COMMAREA copy) is true only for a call whose COMMAREA is 1 to 90 bytes. Reaching it takes a failing INSERT (line 222 or 251) with EIBCALEN between 1 and 90, but the statement's host variables (CA-PHONE-MOBILE, CA-PHONE-HOME, CA-EMAIL-ADDRESS of LGCMAREA) lie past byte 90 (header 18 + the 72 bytes of first name to postcode), so the task would reference storage past EIBCALEN, which IBM leaves undefined and X23 refuses on both sides (the task is judged up to the reference; the det port binds the host variables before the statement runs, the injected SQL fault reads none). `IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN` (line 165, 18 + 72 = 90) already returns '98' for EIBCALEN under 90, leaving exactly 90. The only caller, LGACUS01 (line 134), LINKs with LENGTH(32500), so EIBCALEN is 32500 on every call."
+   }
+  ],
   "genapp-lgacvs01": [
    {
     "unit": "WRITE-ERROR-MESSAGE",
@@ -626,6 +636,16 @@
     "outcome": "false",
     "family": "G",
     "reason": "`IF EIBCALEN > 0` (the outer test of WRITE-ERROR-MESSAGE's COMMAREA copy) is false only for a call with no COMMAREA. Before any error path the program has already used the COMMAREA: lines 77-79 move CA-Request-ID(4:1), CA-Policy-Num and CA-Customer-Num, items of the LINKAGE DFHCOMMAREA, into WF-Policy-Key for the DELETE, so with EIBCALEN 0 they are read from no storage. The only caller, LGDPDB01 (line 168), LINKs with Commarea(DFHCOMMAREA) LENGTH(32500) past its own `IF EIBCALEN IS EQUAL TO ZERO` ABEND LGCA, so EIBCALEN is never 0 on a call (the proof does not reach this line at all: the first LINK of WRITE-ERROR-MESSAGE, with the 102-byte ERROR-MSG, makes LGSTSQ write 107 bytes from a 95-byte WRITE-MSG and the oracle refuses it, X6); a harness cannot state a COMMAREA-less call without a reference to unaddressable LINKAGE storage, which IBM leaves undefined (X23: a reference past EIBCALEN is refused on both sides, the task judged up to it)."
+   }
+  ],
+  "genapp-lgucdb01": [
+   {
+    "unit": "WRITE-ERROR-MESSAGE",
+    "line": 208,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "G",
+    "reason": "`IF EIBCALEN < 91` (the inner test of WRITE-ERROR-MESSAGE's COMMAREA copy) is true only for a call whose COMMAREA is 1 to 90 bytes. Reaching it takes a failing UPDATE (line 155) with EIBCALEN between 1 and 90, but the statement's host variables (CA-PHONE-MOBILE, CA-PHONE-HOME, CA-EMAIL-ADDRESS of LGCMAREA) lie past byte 90 (header 18 + the 72 bytes of first name to postcode), so the task would reference storage past EIBCALEN, which IBM leaves undefined and X23 refuses on both sides (the task is judged up to the reference; the det port binds the host variables before the statement runs, the injected SQL fault reads none). LGUCDB01 has no length guard of its own. The only caller, LGUCUS01 (line 128), LINKs with LENGTH(32500), so EIBCALEN is 32500 on every call."
    }
   ],
   "genapp-lgucvs01": [

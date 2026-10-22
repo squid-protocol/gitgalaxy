@@ -3553,7 +3553,7 @@
       "shell/reactos/autogen.sh": 6.466,
       "shell/reactos/check_code_format.sh": 7.74,
       "shell/reactos/codespell_changed_files.sh": 8.591,
-      "shell/reactos/codespell_check.sh": 6.286,
+      "shell/reactos/codespell_check.sh": 6.279,
       "shell/reactos/configure.sh": 6.512,
       "shell/reactos/do_code_format.sh": 6.906,
       "shell/reactos/dos2unix.sh": 5.611,

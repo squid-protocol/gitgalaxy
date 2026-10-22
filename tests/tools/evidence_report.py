@@ -169,6 +169,20 @@ def register(path: Path | None = None) -> dict[str, dict[str, str]]:
     return out
 
 
+def zos_calibrated() -> set[str]:
+    """Register ids with a measured z/OS result (#4702 Part 2); none until a run is recorded."""
+    import register as oracle_register  # tests/tools/register.py
+
+    return oracle_register.zos_calibrated()
+
+
+def zos_line(rows: list[dict]) -> str:
+    done = sum(bool(r.get("zos_calibrated")) for r in rows)
+    return f"z/OS-calibrated: {done} of {len(rows)} named assumptions" + (
+        " (none measured on z/OS)" if not done else ""
+    )
+
+
 def crucible_disagreements(path: Path = CRUCIBLE_BASELINE) -> dict[str, set[str]]:
     """crucible case -> the sides with a cell that does not pass (the ratchet ledger: every cell not listed passes)."""
     out: dict[str, set[str]] = {}
@@ -798,7 +812,12 @@ def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[s
     )
     p["assumptions"] = {
         "named_by_commands": [
-            {"id": x, **ctx["register"].get(x, {"status": "no register row", "area": "", "entry": ""})} for x in regs
+            {
+                "id": x,
+                **ctx["register"].get(x, {"status": "no register row", "area": "", "entry": ""}),
+                **({"zos_calibrated": True} if x in ctx.get("zos", ()) else {}),
+            }
+            for x in regs
         ],
         "facts_stated": sorted({f for b in p["oracle_backing"] for f in b["facts_stated"]}),
         "facts_unstated": unstated,
@@ -852,6 +871,7 @@ def build(measured: dict[str, Any], estate: str, bars: dict[str, float], *, live
         "crucible": data.get("crucible", {}),
         "disagree": crucible_disagreements(),
         "register": register(),
+        "zos": zos_calibrated(),
         "survey": survey,
         "survey_sha": measured["survey"].get("sha"),
         # a survey measured before it stored its translator fingerprint (the older report format) shows nothing new
@@ -930,7 +950,12 @@ def build(measured: dict[str, Any], estate: str, bars: dict[str, float], *, live
         "programs": progs,
         "options": estate_options(estate, progs),
         "assumptions_named": [
-            {"id": x, **ctx["register"].get(x, {"status": "no register row", "area": "", "entry": ""})} for x in named
+            {
+                "id": x,
+                **ctx["register"].get(x, {"status": "no register row", "area": "", "entry": ""}),
+                **({"zos_calibrated": True} if x in ctx.get("zos", ()) else {}),
+            }
+            for x in named
         ],
         "reproducibility": {
             "translator_commit": measured["survey"].get("sha"),
@@ -1420,6 +1445,7 @@ def render(rep: dict[str, Any]) -> str:
         "|---|---|---|---|",
     ]
     out += [f"| {a['id']} | {a['area']} | {a['status']} | {a['entry']} |" for a in rep["assumptions_named"]]
+    out += ["", f"- {zos_line(rep['assumptions_named'])}"]
     rp = rep["reproducibility"]
     out += [
         "",
@@ -1544,6 +1570,7 @@ def program_section(p: dict[str, Any]) -> list[str]:
         )
     named = ", ".join(f"{x['id']} ({x['status']})" for x in a["named_by_commands"]) or "none"
     out.append(f"- **Assumptions relied on:** named by its commands' spec entries: {named}; reach: {a['reach']}")
+    out.append(f"  - {zos_line(a['named_by_commands'])}")
     if a["facts_stated"]:
         out.append("  - runtime facts the harness states for its commands: " + ", ".join(a["facts_stated"]))
     out += [f"  - runtime fact no harness states: {f}" for f in a["facts_unstated"]]

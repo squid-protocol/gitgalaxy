@@ -1,6 +1,6 @@
 """#5233: the CardDemo COPAUS0C equivalence case (the pending-authorization summary screen, transid CPVS: EXEC DLI GU /
 GNP browse of DBPAUTP0, three VSAM reads, BMS map COPAU0A) and the harness steps it needed. The unit tests need nothing
-but the case; the proof itself (27 scenarios, GnuCOBOL against the det port, the deployed entry point too) is the det
+but the case; the proof itself (33 scenarios, GnuCOBOL against the det port, the deployed entry point too) is the det
 sweep's, `det_port.py run carddemo-copaus0c`."""
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ import equivalence_cics as ec  # noqa: E402
 
 CASE = ROOT / "tests" / "equivalence" / "carddemo-copaus0c"
 
-# the screen's entry, ENTER, selection and PF-key outcomes, and the VSAM file faults it handles
+# the screen's entry, ENTER, selection and PF-key outcomes, the VSAM file faults it handles and its DL/I status faults
 SCENARIOS = [
     "first-entry-no-commarea", "entered-from-menu-no-account", "entered-from-menu-with-account", "enter-no-account",
     "enter-account-not-numeric", "enter-account-one-page", "enter-account-single-detail", "enter-account-two-pages",
@@ -28,6 +28,8 @@ SCENARIOS = [
     "select-row-3", "select-row-5", "select-lowercase", "select-invalid-code", "pf3-to-menu", "pf3-no-caller",
     "pf7-at-top", "pf8-to-page-two", "pf8-at-bottom", "pf8-no-last-key", "pf7-from-page-two", "pf5-invalid-key",
     "read-xref-io-error", "read-acct-io-error", "read-cust-io-error",
+    "enter-gu-system-error", "enter-gnp-system-error", "enter-gnp-end-of-db-mid-page", "pf8-reposition-system-error",
+    "pf8-reposition-gnp-ge", "pf8-page-gnp-system-error",
 ]  # fmt: skip
 
 
@@ -46,6 +48,17 @@ def test_the_case_runs_the_program_under_its_transid_on_the_authorization_databa
     assert (case["program"], case["transid"]) == ("COPAUS0C", "CPVS")
     assert case["ims"]["compare"] == ["DBPAUTP0"]
     assert {s["name"] for s in case["scenarios"] if s.get("commarea") is None} == {"first-entry-no-commarea"}
+
+
+def test_each_dli_fault_is_a_plan_the_stubs_read_and_the_status_arms_are_all_planned():
+    """#5233: GU and GNP (the browse's first read, a mid-page read, PF8's reposition and the read after it) each answer a
+    status the program's EVALUATE handles. SCHD's TC is not planned: the program's TERM after it is refused (no PSB)."""
+    planned = {s["name"]: ec.dli_fault_lines(_case(), s) for s in _case()["scenarios"] if s.get("dli_faults")}
+    assert planned["enter-gu-system-error"] == ["GU 1 AC"]
+    assert planned["enter-gnp-end-of-db-mid-page"] == ["GNP 3 GB"]
+    assert planned["pf8-reposition-gnp-ge"] == ["GNP 1 GE"]
+    assert {op.split()[0] for lines in planned.values() for op in lines} == {"GU", "GNP"}
+    assert len(planned) == 6
 
 
 def test_the_case_notice_names_the_sources_own_license():

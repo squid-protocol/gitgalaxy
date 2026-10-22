@@ -209,3 +209,19 @@ def test_every_le_stand_in_of_the_port_has_an_oracle_twin():
     assert "ZUIDSTCK" in services
     missing = sorted(s for s in services if not re.search(rf"^int {s}\(", oracle, re.M))
     assert not missing, f"port stand-ins with no oracle twin: {missing}"
+
+
+def test_the_register_states_the_zuidstck_assumption_as_its_own_assumed_entry():
+    """#5945: X69 is ASSUMED, says the bytes are opaque and the layout unmodelled, cites STCK / STCKE as context, and X47 points at it."""
+    import register
+
+    meta, body = register.parse_entry(register.REG / "X69.md")
+    assert meta["status"] == "ASSUMED"
+    assert (
+        "ZUIDSTCK's 16 bytes are opaque; the program depends only on them being stated; their STCK/STCKE layout is not modelled"
+        in body
+    )
+    assert "STORE CLOCK (STCK)" in body and "STORE CLOCK EXTENDED (STCKE)" in body
+    assert "https://www.ibm.com/" in body
+    assert "see X69" in (register.REG / "X47.md").read_text(encoding="utf-8")
+    assert not register.check()

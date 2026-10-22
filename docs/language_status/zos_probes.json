@@ -1,0 +1,195 @@
+{
+  "note": "z/OS calibration probes (#4702 Part 2): our own fixed-format COBOL, runnable on Enterprise COBOL and on cobc -std=ibm. Run each on z/OS, record the result per entry in zos_calibration.json (key: probe id). oracle_expected is GnuCOBOL 3.1.2 -std=ibm output (gitgalaxy-gnucobol:3), measured 2026-10-22, DISPLAY lines in order. Never Hercules; results only after counsel clears licence and publishing (Q16).",
+  "probes": {
+    "c1-trunc-std": {
+      "entries": [
+        "C1"
+      ],
+      "compile_options": "TRUNC(STD) (IBM default)",
+      "question": "MOVE 99999 to S9(4) COMP and ADD 1 to 9999 with ON SIZE ERROR: IBM stores 9999 and raises the size error",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P1.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 B PIC S9(4) COMP.\n       01 N PIC 9(6) VALUE 99999.\n       PROCEDURE DIVISION.\n           MOVE N TO B\n           DISPLAY \"B1=\" B\n           MOVE 9999 TO B\n           ADD 1 TO B\n               ON SIZE ERROR DISPLAY \"SE\"\n           END-ADD\n           DISPLAY \"B2=\" B\n           STOP RUN.\n",
+      "oracle_expected": [
+        "B1=-31073",
+        "B2=+10000"
+      ],
+      "note": "Plain `cobc -std=ibm` behaves as TRUNC(BIN); the register's equivalence harness passes the TRUNC flag, so this row is the unflagged instrument, not the det port's answer."
+    },
+    "c3-literal-truncated-to-zero": {
+      "entries": [
+        "C3"
+      ],
+      "compile_options": "default",
+      "question": "MOVE -1000 TO S9(3) (literal) and MOVE of the same value from a field: does the zero result keep its sign",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P3.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 S PIC S9(3).\n       01 M PIC S9(4) VALUE -1000.\n       PROCEDURE DIVISION.\n           MOVE -1000 TO S\n           DISPLAY \"S1=\" S\n           MOVE M TO S\n           DISPLAY \"S2=\" S\n           STOP RUN.\n",
+      "oracle_expected": [
+        "S1=000+",
+        "S2=000-"
+      ],
+      "note": "The oracle folds the literal MOVE to +0 and keeps the sign for the field MOVE."
+    },
+    "c4-unsigned-binary-below-zero": {
+      "entries": [
+        "C4"
+      ],
+      "compile_options": "TRUNC(STD)",
+      "question": "SUBTRACT past zero from an unsigned binary: IBM keeps the absolute value",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P4.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 U PIC 9(4) COMP VALUE 3.\n       01 Z PIC 9(4) COMP VALUE 0.\n       PROCEDURE DIVISION.\n           SUBTRACT 5 FROM U\n           DISPLAY \"U1=\" U\n           SUBTRACT 1 FROM Z\n           DISPLAY \"Z1=\" Z\n           STOP RUN.\n",
+      "oracle_expected": [
+        "U1=65534",
+        "Z1=65535"
+      ],
+      "note": "The oracle wraps; the det runtime follows IBM (C4, declared difference)."
+    },
+    "c13-edited-and-zoned-compare": {
+      "entries": [
+        "C13"
+      ],
+      "compile_options": "ZWB (default)",
+      "question": "Numeric-edited item against a number is compared as text; signed zoned item against an alphanumeric literal and against a number",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P13.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 E PIC ZZZ,ZZ9.99 VALUE ZERO.\n       01 Z PIC S9(4) VALUE -12.\n       PROCEDURE DIVISION.\n           MOVE 1500 TO E\n           IF E > 1499 DISPLAY \"E1=GT\" ELSE DISPLAY \"E1=NGT\".\n           IF Z = \"0012\" DISPLAY \"Z1=EQ\" ELSE DISPLAY \"Z1=NE\".\n           IF Z = 12 DISPLAY \"Z2=EQ\" ELSE DISPLAY \"Z2=NE\".\n           STOP RUN.\n",
+      "oracle_expected": [
+        "E1=NGT",
+        "Z1=EQ",
+        "Z2=NE"
+      ],
+      "note": "Confirms the Language Reference's comparison-by-operand-class table on z/OS."
+    },
+    "c14-size-error-zero-divisor": {
+      "entries": [
+        "C14"
+      ],
+      "compile_options": "default",
+      "question": "DIVIDE by zero with ON SIZE ERROR and 0 ** -1 with ON SIZE ERROR",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P14.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 A PIC 9(4) VALUE 7.\n       01 Z PIC 9(4) VALUE 0.\n       01 R PIC 9(4) VALUE 55.\n       PROCEDURE DIVISION.\n           DIVIDE A BY Z GIVING R\n               ON SIZE ERROR DISPLAY \"SE1\"\n           END-DIVIDE\n           DISPLAY \"R1=\" R\n           COMPUTE R = Z ** -1\n               ON SIZE ERROR DISPLAY \"SE2\"\n           END-COMPUTE\n           DISPLAY \"R2=\" R\n           STOP RUN.\n",
+      "oracle_expected": [
+        "SE1",
+        "R1=0055",
+        "R2=0000"
+      ],
+      "note": "IBM says 0 ** -1 is a size error (the oracle returns 0 and takes no size error). Run only the ON SIZE ERROR forms: a bare zero divisor can abend S0CB."
+    },
+    "c2-intermediate-truncation": {
+      "entries": [
+        "C2"
+      ],
+      "compile_options": "ARITH(COMPAT) (IBM default)",
+      "question": "COMPUTE R = A / B * C with A = 1, B = 3, C = 300: IBM carries the quotient to dmax decimal places (2), so 0.33 * 300 gives 99, not 100",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P2.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 A PIC 9V99 VALUE 1.\n       01 B PIC 9 VALUE 3.\n       01 C PIC 999 VALUE 300.\n       01 R PIC 9(4)V99.\n       PROCEDURE DIVISION.\n           COMPUTE R = A / B * C\n           DISPLAY \"R1=\" R\n           STOP RUN.\n",
+      "oracle_expected": [
+        "R1=009900"
+      ],
+      "note": "The #4287 shape. Does not probe the 30-digit cap (the register's To-settle bullet is answered on the oracle only)."
+    },
+    "c11-nondigit-moved-to-zoned": {
+      "entries": [
+        "C11"
+      ],
+      "compile_options": "ZONEDATA(PFD) (default)",
+      "question": "MOVE an alphanumeric 1! to PIC 9(2) and test IS NUMERIC: the oracle gives 01 and NUMERIC; IBM documents no result for the non-digit",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P11.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 X PIC X(2) VALUE \"1!\".\n       01 N PIC 9(2).\n       PROCEDURE DIVISION.\n           MOVE X TO N\n           DISPLAY \"N=\" N\n           IF N IS NUMERIC DISPLAY \"NUM\" ELSE DISPLAY \"NOTNUM\".\n           STOP RUN.\n",
+      "oracle_expected": [
+        "N=01",
+        "NUM"
+      ],
+      "note": "IBM side undefined under PFD. Record what z/OS does (observed), do not expect a match."
+    },
+    "d2-hex-literal-charset": {
+      "entries": [
+        "D2"
+      ],
+      "compile_options": "default",
+      "question": "A PIC X item holding X\"40\": is it SPACE (EBCDIC) or @ (ASCII)",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P22.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 H PIC X VALUE X\"40\".\n       PROCEDURE DIVISION.\n           IF H = SPACE DISPLAY \"H=SPACE\" ELSE DISPLAY \"H=OTHER\".\n           IF H = \"@\" DISPLAY \"H=AT\" ELSE DISPLAY \"H=NOTAT\".\n           STOP RUN.\n",
+      "oracle_expected": [
+        "H=OTHER",
+        "H=AT"
+      ],
+      "note": "The oracle is ASCII, so it differs from z/OS by design (D2 declared difference); expected z/OS output is H=SPACE, H=NOTAT."
+    },
+    "c5-packed-unsigned-sign-nibble": {
+      "entries": [
+        "C5"
+      ],
+      "compile_options": "NUMPROC(NOPFD) (IBM default); run again with NUMPROC(PFD)",
+      "question": "A COMP-3 value 123 carrying the unsigned sign nibble F: ADD 1 GIVING M, then compare N with 123 and test M's stored sign. NOPFD accepts F and generates the preferred sign C in the receiver; PFD is not required to",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P5.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 RAW PIC X(2) VALUE X\"123F\".\n       01 N REDEFINES RAW PIC S9(3) COMP-3.\n       01 M PIC S9(3) COMP-3.\n       01 MX REDEFINES M PIC X(2).\n       PROCEDURE DIVISION.\n           ADD 1 TO N GIVING M\n           DISPLAY \"M=\" M\n           IF N = 123 DISPLAY \"EQ\" ELSE DISPLAY \"NE\" END-IF\n           IF MX = X\"124C\" DISPLAY \"C\" ELSE DISPLAY \"NOT-C\" END-IF\n           STOP RUN.\n",
+      "oracle_expected": [
+        "M=+124",
+        "EQ",
+        "C"
+      ],
+      "note": "The oracle has no NUMPROC flag in plain -std=ibm; it reads F as positive and stores C, the NOPFD answer. The register's PFD claim (the same with preferred signs only) is not exercised by this probe."
+    },
+    "c12-random-sequence": {
+      "entries": [
+        "C12"
+      ],
+      "compile_options": "default",
+      "question": "FUNCTION RANDOM(7), RANDOM with no argument, RANDOM(7) again, RANDOM(0): does the same seed restart the same sequence (IBM: yes, but the numbers themselves are IBM's own generator)",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P12.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 R1 PIC 9V9(6).\n       01 R2 PIC 9V9(6).\n       01 R3 PIC 9V9(6).\n       01 R4 PIC 9V9(6).\n       PROCEDURE DIVISION.\n           COMPUTE R1 = FUNCTION RANDOM(7)\n           COMPUTE R2 = FUNCTION RANDOM\n           COMPUTE R3 = FUNCTION RANDOM(7)\n           COMPUTE R4 = FUNCTION RANDOM(0)\n           DISPLAY \"R1=\" R1\n           DISPLAY \"R2=\" R2\n           DISPLAY \"R3=\" R3\n           DISPLAY \"R4=\" R4\n           STOP RUN.\n",
+      "oracle_expected": [
+        "R1=0486904",
+        "R2=0867977",
+        "R3=0486904",
+        "R4=0840187"
+      ],
+      "note": "The numbers are glibc's rand() / RAND_MAX; z/OS will differ by design (register C12: the numbers DIFFER). The restart property and the unseeded-start-is-seed-zero rule are what a z/OS run can confirm."
+    },
+    "f1-indexed-file-status": {
+      "entries": [
+        "F1"
+      ],
+      "compile_options": "default (a VSAM KSDS behind the KFILE DD, 4-byte key at offset 0)",
+      "question": "FILE STATUS after OPEN OUTPUT, a WRITE, a WRITE of the same key, a READ of a missing key, a READ of a present key, START GREATER THAN and READ NEXT past the last record: IBM Table 34 gives 00, 22, 23 and 10",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P1F.\n       ENVIRONMENT DIVISION.\n       INPUT-OUTPUT SECTION.\n       FILE-CONTROL.\n           SELECT KF ASSIGN TO KFILE\n               ORGANIZATION IS INDEXED\n               ACCESS MODE IS DYNAMIC\n               RECORD KEY IS KF-KEY\n               FILE STATUS IS FS.\n       DATA DIVISION.\n       FILE SECTION.\n       FD KF.\n       01 KF-REC.\n          05 KF-KEY PIC X(4).\n          05 KF-VAL PIC X(4).\n       WORKING-STORAGE SECTION.\n       01 FS PIC XX.\n       PROCEDURE DIVISION.\n           OPEN OUTPUT KF\n           DISPLAY \"OPEN=\" FS\n           MOVE \"A001DATA\" TO KF-REC\n           WRITE KF-REC\n           DISPLAY \"W1=\" FS\n           WRITE KF-REC\n           DISPLAY \"W2=\" FS\n           MOVE \"B002DATA\" TO KF-REC\n           WRITE KF-REC\n           DISPLAY \"W3=\" FS\n           CLOSE KF\n           OPEN I-O KF\n           MOVE \"Z999\" TO KF-KEY\n           READ KF\n           DISPLAY \"R1=\" FS\n           MOVE \"A001\" TO KF-KEY\n           READ KF\n           DISPLAY \"R2=\" FS\n           MOVE \"A001\" TO KF-KEY\n           START KF KEY IS GREATER THAN KF-KEY\n           DISPLAY \"S1=\" FS\n           READ KF NEXT\n           DISPLAY \"N1=\" FS\n           READ KF NEXT\n           DISPLAY \"N2=\" FS\n           CLOSE KF\n           STOP RUN.\n",
+      "oracle_expected": [
+        "OPEN=00",
+        "W1=00",
+        "W2=22",
+        "W3=00",
+        "R1=23",
+        "R2=00",
+        "S1=00",
+        "N1=00",
+        "N2=10"
+      ],
+      "note": "F1's ASSUMED part is that GnuCOBOL's Berkeley DB file raises each code in the same situation as VSAM. Needs an empty KSDS defined by IDCAMS before the run (the OPEN OUTPUT of a VSAM file needs it empty, or REUSE). The order of two applicable checks (21 vs 22) is not probed."
+    },
+    "f3-variable-record-length": {
+      "entries": [
+        "F3"
+      ],
+      "compile_options": "default (VFILE DD: RECFM=VB, LRECL=24)",
+      "question": "Records of 5, 10 and 7 bytes written to a variable-length sequential file and read back: the length each READ reports in the DEPENDING ON item and the status at end of file",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P3F.\n       ENVIRONMENT DIVISION.\n       INPUT-OUTPUT SECTION.\n       FILE-CONTROL.\n           SELECT VF ASSIGN TO VFILE\n               ORGANIZATION IS SEQUENTIAL\n               FILE STATUS IS FS.\n       DATA DIVISION.\n       FILE SECTION.\n       FD VF\n           RECORD IS VARYING IN SIZE FROM 1 TO 20 CHARACTERS\n               DEPENDING ON LEN.\n       01 VF-REC PIC X(20).\n       WORKING-STORAGE SECTION.\n       01 FS PIC XX.\n       01 LEN PIC 9(4) COMP.\n       PROCEDURE DIVISION.\n           OPEN OUTPUT VF\n           MOVE 5 TO LEN\n           MOVE \"AAAAA\" TO VF-REC\n           WRITE VF-REC\n           MOVE 10 TO LEN\n           MOVE \"BBBBBBBBBB\" TO VF-REC\n           WRITE VF-REC\n           MOVE 7 TO LEN\n           MOVE \"CCCCCCC\" TO VF-REC\n           WRITE VF-REC\n           CLOSE VF\n           OPEN INPUT VF\n           PERFORM 3 TIMES\n               READ VF\n               DISPLAY \"L=\" LEN \" FS=\" FS\n           END-PERFORM\n           READ VF\n           DISPLAY \"END FS=\" FS\n           CLOSE VF\n           STOP RUN.\n",
+      "oracle_expected": [
+        "L=00005",
+        "FS=00",
+        "L=00010",
+        "FS=00",
+        "L=00007",
+        "FS=00",
+        "END",
+        "FS=10"
+      ],
+      "note": "Tests the content and length the program sees, which is what the register compares; the oracle frames records its own way and z/OS adds a 4-byte RDW the program never sees (F3). The DD must be RECFM=VB with LRECL at least 24; the ASSIGN name is VFILE."
+    },
+    "l3-no-value-working-storage": {
+      "entries": [
+        "L3"
+      ],
+      "compile_options": "default; run once with LE STORAGE(NONE,NONE,NONE,0K) (IBM default) and once with STORAGE(00)",
+      "question": "DISPLAY of WORKING-STORAGE items that have no VALUE clause: alphanumeric, unsigned and signed zoned, packed and binary. IBM leaves the contents undefined (LE STORAGE decides)",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P3L.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 A PIC X(4).\n       01 N PIC 9(4).\n       01 S PIC S9(4).\n       01 P PIC S9(5) COMP-3.\n       01 B PIC S9(4) COMP.\n       PROCEDURE DIVISION.\n           DISPLAY \"A=[\" A \"]\"\n           DISPLAY \"N=\" N\n           DISPLAY \"S=\" S\n           DISPLAY \"P=\" P\n           DISPLAY \"B=\" B\n           STOP RUN.\n",
+      "oracle_expected": [
+        "A=[",
+        "]",
+        "N=0000",
+        "S=0000+",
+        "P=+00000",
+        "B=+00000"
+      ],
+      "note": "The oracle gives spaces and zeros; z/OS shows whatever the storage held, so the expected outcome is a recorded difference (verdict differs), not a match. Record the STORAGE option in the options field."
+    }
+  }
+}

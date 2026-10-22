@@ -319,11 +319,16 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
   survivor read (#4047): most are harness gaps (the error-message text is judged only through the refused WRITEQ,
   X6 #4050, or the statement needs a Db2 fault the harness cannot inject); the case gaps are the absent-policy and
   zero-row motor update scenarios and an LGUPVS01 failure.
+- UPDACC on generated Db2 rows (cbsa-updacc-generated, #4507, all 139 mutants run, seed 0): 103 killed, 36 survived
+  (7 harness gaps, 17 equivalent, 12 unreachable). The seven harness gaps are the `-904` UPDATE-failure arm: a
+  `sql_faults` scenario was tried and the proof refuses it ("no SQL fault hook in UPDACC": the model-written port
+  reaches Db2 through JDBC, not `cobolrt.sql.DetSql`), so the scenario was not kept. A det-translated UPDACC would
+  take the fault.
 
 <!-- mutation-scores -->
 | port | harness | mutants run / all | raw score | without equivalent + unreachable | survivors: case gap / harness gap / equivalent / unreachable / untriaged |
 |---|---|---|---|---|---|
-| COACTVWC (carddemo-acctview) | equivalence | 150/328 | 105/129 (81%) | 105/113 (93%) | 8 / 0 / 16 / 0 / 0 |
+| COACTVWC (carddemo-acctview) | equivalence | 150/428 | 110/137 (80%) | 110/110 (100%) | 0 / 0 / 16 / 11 / 0 |
 | COACTVWC (carddemo-acctview-generated) | equivalence | 150/427 | 109/137 (80%) | 109/109 (100%) | 0 / 0 / 16 / 12 / 0 |
 | COADM01C (carddemo-adminmenu) | equivalence | 100/340 | 63/95 (66%) | 63/63 (100%) | 0 / 0 / 29 / 3 / 0 |
 | COADM01C (carddemo-adminmenu-generated) | equivalence | 150/340 | 97/145 (67%) | 97/97 (100%) | 0 / 0 / 43 / 5 / 0 |
@@ -334,7 +339,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CBTRN01C (carddemo-dailyval) | equivalence | 100/241 | 63/96 (66%) | 63/71 (89%) | 8 / 0 / 10 / 15 / 0 |
 | CSUTLDTC (carddemo-dateutil) | equivalence | 211/211 | 145/195 (74%) | 145/145 (100%) | 0 / 0 / 10 / 40 / 0 |
 | CBACT04C (carddemo-intcalc) | equivalence | 100/170 | 70/86 (81%) | 70/77 (91%) | 6 / 1 / 9 / 0 / 0 |
-| COMEN01C (carddemo-menu) | equivalence | 150/331 | 86/136 (63%) | 86/93 (92%) | 7 / 0 / 36 / 7 / 0 |
+| COMEN01C (carddemo-menu) | equivalence | 150/340 | 87/139 (63%) | 87/87 (100%) | 0 / 0 / 35 / 17 / 0 |
 | COMEN01C (carddemo-menu-generated) | equivalence | 150/340 | 87/139 (63%) | 87/88 (99%) | 0 / 1 / 35 / 16 / 0 |
 | CBTRN02C (carddemo-posttran) | equivalence | 100/263 | 76/85 (89%) | 76/80 (95%) | 3 / 1 / 5 / 0 / 0 |
 | CBACT02C (carddemo-readcard) | equivalence | 91/91 | 69/83 (83%) | 69/73 (95%) | 4 / 0 / 10 / 0 / 0 |
@@ -346,7 +351,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COTRN02C (carddemo-tranadd) | equivalence | 100/770 | 61/91 (67%) | 61/73 (84%) | 12 / 0 / 10 / 8 / 0 |
 | COTRN00C (carddemo-tranlist) | equivalence | 100/697 | 66/91 (73%) | 66/79 (84%) | 13 / 0 / 5 / 7 / 0 |
 | COTRN01C (carddemo-tranview) | equivalence | 100/314 | 67/100 (67%) | 67/67 (100%) | 0 / 0 / 25 / 8 / 0 |
-| COTRN01C (carddemo-tranview-generated) | equivalence | 150/314 | 91/150 (61%) | 91/92 (99%) | 0 / 1 / 48 / 10 / 0 |
+| COTRN01C (carddemo-tranview-generated) | equivalence | 150/314 | 92/150 (61%) | 92/92 (100%) | 0 / 0 / 48 / 10 / 0 |
 | CBTRN03C (carddemo-trnrpt) | equivalence | 100/408 | 68/86 (79%) | 68/79 (86%) | 8 / 3 / 7 / 0 / 0 |
 | COUSR01C (carddemo-useradd) | equivalence | 100/272 | 63/98 (64%) | 63/64 (98%) | 0 / 1 / 27 / 7 / 0 |
 | COUSR03C (carddemo-userdel) | equivalence | 100/340 | 67/87 (77%) | 67/67 (100%) | 0 / 0 / 17 / 3 / 0 |
@@ -354,6 +359,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COUSR02C (carddemo-userupd) | equivalence | 100/481 | 57/82 (70%) | 57/59 (97%) | 2 / 0 / 14 / 9 / 0 |
 | INQACC (cbsa-inqacc) | equivalence | 150/470 | 63/131 (48%) | 63/106 (59%) | 43 / 0 / 11 / 14 / 0 |
 | UPDACC (cbsa-updacc) | equivalence | 133/133 | 95/133 (71%) | 95/110 (86%) | 15 / 0 / 17 / 6 / 0 |
+| UPDACC (cbsa-updacc-generated) | equivalence | 139/139 | 103/139 (74%) | 103/110 (94%) | 0 / 7 / 17 / 12 / 0 |
 | LGAPDB01 (genapp-lgapdb01) | equivalence | 150/444 | 58/137 (42%) | 58/129 (45%) | 71 / 0 / 1 / 7 / 0 |
 | LGAPVS01 (genapp-lgapvs01) | equivalence | 150/184 | 72/125 (58%) | 72/113 (64%) | 0 / 41 / 1 / 11 / 0 |
 | LGICDB01 (genapp-lgicdb01) | equivalence | 150/201 | 51/130 (39%) | 51/107 (48%) | 1 / 55 / 8 / 15 / 0 |
@@ -382,24 +388,24 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 4497 run | **2738/4103 (67%)** | **2738/3234 (85%)** | 310 / 186 / 584 / 285 / 0 |
-| **all estate** | | 5001 run | **3057/4579 (67%)** | **3057/3588 (85%)** | 345 / 186 / 672 / 319 / 0 |
+| **all equivalence** | | 4636 run | **2848/4253 (67%)** | **2848/3335 (85%)** | 295 / 192 / 600 / 318 / 0 |
+| **all estate** | | 5140 run | **3167/4729 (67%)** | **3167/3689 (86%)** | 330 / 192 / 688 / 352 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 216/272 (79%) | 216/242 (89%) |
-| BDM | 25/49 (51%) | 25/28 (89%) |
-| CON | 385/903 (43%) | 385/501 (77%) |
-| COR | 172/298 (58%) | 172/229 (75%) |
-| DEL | 485/737 (66%) | 485/570 (85%) |
-| LIT | 640/873 (73%) | 640/723 (89%) |
-| NEG | 573/654 (88%) | 573/621 (92%) |
+| AOR | 223/282 (79%) | 223/249 (90%) |
+| BDM | 25/52 (48%) | 25/28 (89%) |
+| CON | 402/932 (43%) | 402/518 (78%) |
+| COR | 192/322 (60%) | 192/245 (78%) |
+| DEL | 506/765 (66%) | 506/584 (87%) |
+| LIT | 663/905 (73%) | 663/749 (89%) |
+| NEG | 579/660 (88%) | 579/626 (92%) |
 | RET | 56/105 (53%) | 56/93 (60%) |
-| ROR | 505/688 (73%) | 505/581 (87%) |
+| ROR | 521/706 (74%) | 521/597 (87%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|
-| COACTVWC (carddemo-acctview) | 3/3 | 0/1 | 11/24 | 8/9 | 19/23 | 20/23 | 22/23 | - | 22/23 |
+| COACTVWC (carddemo-acctview) | 6/9 | 0/1 | 12/22 | 18/21 | 16/21 | 18/21 | 20/21 | - | 20/21 |
 | COACTVWC (carddemo-acctview-generated) | 6/9 | 0/1 | 14/22 | 17/21 | 16/21 | 16/21 | 20/21 | - | 20/21 |
 | COADM01C (carddemo-adminmenu) | 8/8 | - | 2/14 | 6/8 | 8/16 | 7/15 | 15/15 | 4/4 | 13/15 |
 | COADM01C (carddemo-adminmenu-generated) | 8/8 | - | 4/24 | 6/8 | 14/26 | 14/25 | 25/25 | 4/4 | 22/25 |
@@ -410,7 +416,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CBTRN01C (carddemo-dailyval) | 3/6 | - | 11/16 | 3/12 | 9/15 | 12/16 | 12/16 | - | 13/15 |
 | CSUTLDTC (carddemo-dateutil) | 13/15 | - | 28/51 | 4/8 | 9/10 | 27/35 | 31/32 | - | 33/44 |
 | CBACT04C (carddemo-intcalc) | 3/4 | 4/6 | 13/21 | 1/2 | 13/17 | 20/20 | 10/10 | - | 6/6 |
-| COMEN01C (carddemo-menu) | 13/14 | - | 7/20 | 6/9 | 14/22 | 15/24 | 16/23 | - | 15/24 |
+| COMEN01C (carddemo-menu) | 13/14 | - | 6/21 | 6/10 | 20/24 | 12/24 | 16/23 | - | 14/23 |
 | COMEN01C (carddemo-menu-generated) | 13/14 | - | 6/21 | 6/10 | 20/24 | 12/24 | 16/23 | - | 14/23 |
 | CBTRN02C (carddemo-posttran) | 6/6 | 6/8 | 14/15 | 2/4 | 10/11 | 13/14 | 13/13 | - | 12/14 |
 | CBACT02C (carddemo-readcard) | - | - | 17/23 | 1/3 | 9/11 | 22/25 | 12/12 | - | 8/9 |
@@ -422,7 +428,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COTRN02C (carddemo-tranadd) | 7/7 | 3/7 | 1/12 | 5/12 | 8/12 | 11/12 | 11/11 | 4/7 | 11/11 |
 | COTRN00C (carddemo-tranlist) | 6/9 | - | 10/14 | 8/14 | 11/13 | 10/14 | 11/11 | 2/3 | 8/13 |
 | COTRN01C (carddemo-tranview) | 1/1 | - | 2/24 | 2/3 | 21/24 | 19/24 | 17/17 | - | 5/7 |
-| COTRN01C (carddemo-tranview-generated) | 1/1 | - | 3/43 | 2/3 | 33/43 | 30/36 | 17/17 | - | 5/7 |
+| COTRN01C (carddemo-tranview-generated) | 1/1 | - | 3/43 | 2/3 | 34/43 | 30/36 | 17/17 | - | 5/7 |
 | CBTRN03C (carddemo-trnrpt) | 2/2 | 5/7 | 9/14 | 1/7 | 14/14 | 13/14 | 12/14 | - | 12/14 |
 | COUSR01C (carddemo-useradd) | 1/1 | - | 1/21 | 3/6 | 16/20 | 16/20 | 10/10 | - | 16/20 |
 | COUSR03C (carddemo-userdel) | 0/1 | - | 6/17 | 2/4 | 14/17 | 14/16 | 16/16 | - | 15/16 |
@@ -430,6 +436,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COUSR02C (carddemo-userupd) | 1/1 | - | 3/16 | 3/5 | 11/16 | 14/16 | 13/13 | - | 12/15 |
 | INQACC (cbsa-inqacc) | 3/3 | 1/2 | 4/21 | 2/5 | 10/21 | 6/21 | 14/21 | 8/16 | 15/21 |
 | UPDACC (cbsa-updacc) | 4/4 | 0/3 | 17/30 | 3/10 | 16/27 | 28/32 | 8/8 | - | 19/19 |
+| UPDACC (cbsa-updacc-generated) | 4/4 | 0/3 | 17/30 | 10/11 | 17/28 | 28/34 | 8/8 | - | 19/21 |
 | LGAPDB01 (genapp-lgapdb01) | 5/13 | - | 8/23 | 0/2 | 7/21 | 12/23 | 13/23 | 2/10 | 11/22 |
 | LGAPVS01 (genapp-lgapvs01) | 14/16 | - | 25/41 | 0/1 | 6/11 | 12/28 | 6/9 | - | 9/19 |
 | LGICDB01 (genapp-lgicdb01) | 2/5 | - | 9/28 | 1/5 | 6/20 | 14/27 | 9/16 | 1/7 | 9/22 |
@@ -548,6 +555,17 @@ NUMVAL-C into `PIC 99` (00, the date is refused) while IBM rounds a float-mode s
 det sweep of carddemo-report fails on it. The scenario is not committed. The mutant is a real IBM difference, not an equivalent one: the model port's `DOWN` follows the oracle.
 billpay `868815f4c6` and `29f0e18174` (a balance of 1,000,000.00 or more) are a different mechanism and stay open.
 
+**Wide balances on billpay** (#5401, 2026-10-22). Every CardDemo account is below 1,000,000.00, so billpay never showed a wide amount or the tenth integer digit
+that COBIL00C's MOVE of `ACCT-CURR-BAL` (`S9(10)V99`) into `TRAN-AMT` (`S9(9)V99`) drops. The case appends two synthetic accounts and their card xref rows
+(`acctdata-5401.txt`, `cardxref-5401.txt`): `00000099998` at 1,234,567.89 (`pay-balance-over-one-million`) and `00000099997` at 1,234,567,890.12
+(`pay-balance-ten-integer-digits`, TRAN-AMT keeps 234,567,890.12). GnuCOBOL and the port agree on both: billpay is proven on 35 scenarios (46/48 branches).
+The two survivors that named this gap, `868815f4c6` and `29f0e18174`, were judged on the port before #5844 changed `store()` to count integer digits; their ids no longer exist.
+Against the current port the same mutants (`store(.., 9, 3)` at line 542, `store(.., 10, 3)` at 552; ids `84cb7729f6`, `95f2f0cf57`) change only the scale of a
+value that the setter writes at scale 2, so they survive the new scenarios and are equivalent, not case gaps. The digit-count mutants the new account does reach:
+`d5264128d1` (`store(bal, 10, 2)` at 542) is killed by the ten-integer-digit scenario; `2f50a14acd` (`store(.., 11, 2)` at 552) survives and is unreachable
+(balance minus amount is at most 1,000,000,000.00, 10 digits). The scores are not re-run, and `mutation_scores.json` is not edited.
+`test_carddemo_wide_balance_5401.py` pins the accounts, the xref rows and the scenarios.
+
 #4047 then scored six CardDemo batch ports (readxref, readcust, dailyval, intcalc, posttran, trnrpt; seed 0, up to 100
 mutants each, `--jobs 3`, fast mode). These rows are seed 0 and differ from the older seed-1 CBACT04C, CBTRN02C and
 CBTRN03C figures above. The case gaps repeat across the six: `displayIoStatus` takes a numeric test on both status bytes,
@@ -605,6 +623,8 @@ an area of its own and an EIBCALEN of 8, 22 or 80. Three scenarios (`direct-8-by
 the negative balance); the third, `* 10000` for `% 10000` on the destination of `overlayVisits`, is equivalent
 (WS-V2's V2-VISITS is zero after INITIALIZE, so the destination digits are always 0000). CAXB is now 20/3 with 0 case gaps.
 This landed in #5505, so the "needs a cics-crucible CAXA mode" wording in #5490 and #5491 is superseded: no release or pin bump was needed.
+
+Spot-check 2026-10-22 (#4443): 22 of the 45 equivalent verdicts on the 13 re-run ports were re-read against the port source; all hold, no new case. The sample and its caveats: [mutation_equivalent_spot_check.md](mutation_equivalent_spot_check.md).
 
 A score is quoted with its case and seed, never alone. Every survivor is triaged as a case gap, a
 harness gap, an equivalent mutant (with the reason) or dead code.
@@ -801,14 +821,54 @@ survive. GETCOMPY and GETSCODE are triaged in `tests/equivalence/det_mutation_su
 verdict. 119 each are stated equivalent or unreachable, each with its reason; 32 are open `case-gap` (20) / `harness-gap` (12), by
 the same reasoning as `cbsa-updcust`. The cases gained `no-commarea`, `eibcalen-zero`, `eibcalen-short`, `eibcalen-full` and a
 caller-value-longer-than-the-field scenario (kills: see the table); a link area longer than the record cannot be
-stated (register X10), so the `beyond` mutants are `harness-gap`. ACCTCTRL and UPDACC (Db2) are recorded but not yet triaged: their
-327 and 395 survivors are all unaccounted.
+stated (register X10), so the `beyond` mutants are `harness-gap`. ACCTCTRL and UPDACC (Db2) are triaged the same way (#5863 slice 3):
+ACCTCTRL gained 7 scenarios (165 -> 184 killed) and 228 of its 308 survivors are stated (160 equivalent, 68 unreachable), 45 open
+`case-gap` and 35 open `harness-gap`; UPDACC gained 3 scenarios (293 -> 304 killed) and 256 of its 384 survivors are stated (181
+equivalent, 75 unreachable), 77 open `case-gap` and 51 open `harness-gap`. Its no-COMMAREA and short-EIBCALEN scenarios are left out: they
+fail the java-facade side of the proof, so the cut-COMMAREA path stays a `case-gap`. The open ones are the typed-DTO `in_` / `fill_` paths (the
+harness replaces the DTO with the link-area bytes), the `byte[]` COMMAREA entry, `handleLink(request, area)` (no caller LINKs with
+LENGTH) and `beyond` (X10).
 
 | program (case) | mutants run / in scope | killed | survived | stillborn | stated equivalent / unreachable | unaccounted | raw score | L5 |
 |---|---|---|---|---|---|---|---|---|
-| GETCOMPY (cbsa-getcompy) | 220/220 | 55 | 151 | 14 | 119 | 32 | 55/206 (27%) | no |
-| GETSCODE (cbsa-getscode) | 227/227 | 62 | 151 | 14 | 119 | 32 | 62/213 (29%) | no |
-| ACCTCTRL (cbsa-acctctrl) | 517/517 | 165 | 327 | 25 | 0 | 327 | 165/492 (34%) | no |
-| UPDACC (cbsa-updacc) | 713/713 | 293 | 395 | 25 | 0 | 395 | 293/688 (43%) | no |
+| GETCOMPY (cbsa-getcompy) | 220/220 | 60 | 146 | 14 | 127 | 19 | 60/206 (29%) | no |
+| GETSCODE (cbsa-getscode) | 227/227 | 67 | 146 | 14 | 127 | 19 | 67/213 (31%) | no |
+| ACCTCTRL (cbsa-acctctrl) | 517/517 | 184 | 308 | 25 | 228 | 80 | 184/492 (37%) | no |
+| UPDACC (cbsa-updacc) | 713/713 | 304 | 384 | 25 | 256 | 128 | 304/688 (44%) | no |
+
+**#5863 slice 4 (GETCOMPY, typed-DTO entry):** a scenario may state `"dto_entry": true`: the port is given the typed DTO alone, without the link-area bytes that otherwise overwrite every field `in_` maps, and a LINKed port that took the bytes now has the DTO it gave back compared beside them (`commarea.dto.<field>` in `compare_events`). GETCOMPY gained two such scenarios (55 -> 60 killed: the five `fill_` mutants of the DTO write-back). The `in_` mutants still survive and are now stated `equivalent`: the program's one MOVE overwrites the whole field `in_` fills. 19 stay open, all on the `byte[]` COMMAREA entry, `handleLink(request, area)` and `beyond` (X10). ACCTCTRL and UPDACC take the same scenarios in the next slices.
+
+**#5863 slice 5 (GETSCODE):** three `dto_entry` scenarios (blank, a caller's digits, letters). 62 -> 67 killed: the `fill_` write-back mutants. The six `in_` mutants are stated `equivalent` (the one MOVE overwrites the whole 6-byte field), `base - 0` is `base + 0`, and the `fill_` in the never-called `out_` helper is `unreachable`. 19 stay open, all on the `byte[]` COMMAREA entry, `handleLink(request, area)` and `beyond` (X10).
 
 The "unaccounted" column includes the open `case-gap` / `harness-gap` rows, which block L5 until a scenario or the harness covers them.
+
+**#4628 slice 5 (2026-10-22): COUSR01C and COUSR02C reach L5; COUSR03C has one open `harness-gap`.** First det-port ledgers for the
+three CardDemo user-admin ports (150 mutants each, seed 0, fast mode, JDK 17). New scenarios kill survivors: `header-fields-sent-back`
+(COUSR03C: a received TRNNAME), `pf3-returns-to-menu-caller` and `pf5-updates-short-user-id` (COUSR02C, plus the OPS record in its
+`usrsec.txt`), and the COUSR01C additions. Every survivor has a stated reason in `det_mutation_survivors/carddemo-user*.json`; the
+verdicts are proposals for owner review. The byte[] COMMAREA entry (`cb.length > s_DFHCOMMAREA.bytes.length`,
+`cx(task, cb.length)`; 2 / 1 / 3 in useradd / userupd / userdel) is re-stated `unreachable` (follow-up, same reason as COADM01C and COUSR00C: no
+CardDemo program LINKs these XCTL-only programs, so the area is always the typed DTO). The one open survivor is COUSR03C's first-entry
+`MOVE LOW-VALUES TO COUSR3AO`, whose spaces-versus-low-values difference the proof strips (#4635).
+
+| program (case) | mutants run / in scope | killed | survived | stillborn | stated equivalent / unreachable | unaccounted | raw score | L5 |
+|---|---|---|---|---|---|---|---|---|
+| COUSR01C (carddemo-useradd) | 150/1214 | 91 | 56 | 3 | 56 | 0 | 91/147 (62%) | yes |
+| COUSR02C (carddemo-userupd) | 150/1404 | 96 | 48 | 6 | 48 | 0 | 96/144 (67%) | yes |
+| COUSR03C (carddemo-userdel) | 150/1302 | 84 | 58 | 8 | 57 | 1 | 84/142 (59%) | no |
+
+**#4628 slice 6 (2026-10-22): COUSR00C and ABNDPROC measured; neither reaches L5.** First det-port ledgers (150 mutants each, seed 0,
+fast mode, JDK 17). COUSR00C: ten new scenarios (`full-commarea-carried`, the `rows-sent-back-*` family that re-enters with a
+full page of rows, `select-in-an-empty-row`, `pf7-back-to-the-top-exactly` and others) took the proof to 42 scenarios, 16/16
+paragraphs, 95/100 branches, and the survivors to 39 (37 stated, 2 `case-gap`: the XCTL-failure branch needs a CSD without
+COUSR02C/COUSR03C, and the first-record branch needs a USRSEC key that sorts below X'40'). Every stated survivor has its reason in
+`det_mutation_survivors/carddemo-userlist.json`; the verdicts are proposals for owner review. ABNDPROC is measured, not yet
+strengthened: 96 survivors, 62 stated (45 equivalent, 17 unreachable), 30 `harness-gap` and 4 `case-gap` open. One of the
+`harness-gap` rows is a real comparison gap: the Java COMMAREA event of a LINKed ABNDPROC carries "CBSAAPPLO" under a mutant that
+reads ABND-APPLID as 9 bytes, yet the proof reports 2/2 events equal, because the proof does not compare the DTO copy that
+`fill_` stores.
+
+| program (case) | mutants run / in scope | killed | survived | stillborn | stated equivalent / unreachable | unaccounted | raw score | L5 |
+|---|---|---|---|---|---|---|---|---|
+| COUSR00C (carddemo-userlist) | 150/2828 | 108 | 39 | 3 | 37 | 2 | 108/147 (73%) | no |
+| ABNDPROC (cbsa-abndproc) | 150/453 | 45 | 96 | 9 | 62 | 34 | 45/141 (32%) | no |

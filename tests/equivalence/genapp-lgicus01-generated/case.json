@@ -1,0 +1,168 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGICUS01",
+ "program_source": "base/src/lgicus01.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGIC",
+ "clock": "2026/10/01 10:30:15.00",
+ "programs": [
+  {
+   "program": "LGICDB01",
+   "program_source": "base/src/lgicdb01.cbl"
+  },
+  {
+   "program": "LGSTSQ",
+   "program_source": "base/src/lgstsq.cbl"
+  }
+ ],
+ "db2": {
+  "ddl": [
+   "base/cntl/db2cre.jcl"
+  ],
+  "seed": "@generate",
+  "symbols": {
+   "<DB2DBID>": "GENASA1"
+  },
+  "qualifier": "GENASA1",
+  "compare": [
+   "GENASA1.CUSTOMER"
+  ],
+  "tables": [
+   "GENASA1.CLAIM",
+   "GENASA1.COMMERCIAL",
+   "GENASA1.MOTOR",
+   "GENASA1.HOUSE",
+   "GENASA1.ENDOWMENT",
+   "GENASA1.POLICY",
+   "GENASA1.CUSTOMER_SECURE",
+   "GENASA1.CUSTOMER"
+  ],
+  "compare_sql": true,
+  "generate": {
+   "seed": 4507,
+   "tables": {
+    "GENASA1.CUSTOMER": {
+     "rows": 10,
+     "columns": {
+      "CUSTOMERNUMBER": {
+       "values": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+       ]
+      },
+      "FIRSTNAME": {
+       "null": false
+      },
+      "LASTNAME": {
+       "null": false
+      },
+      "DATEOFBIRTH": {
+       "null": false
+      },
+      "HOUSENAME": {
+       "null": false
+      },
+      "HOUSENUMBER": {
+       "null": false
+      },
+      "POSTCODE": {
+       "null": false
+      },
+      "PHONEMOBILE": {
+       "null": false
+      },
+      "PHONEHOME": {
+       "null": false
+      },
+      "EMAILADDRESS": {
+       "null": false
+      }
+     }
+    }
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgicus01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "region": {
+  "applid": "GENAREGN",
+  "sysid": "CICA"
+ },
+ "scenarios": [
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "EIBCALEN 0: LGICUS01 moves ' NO COMMAREA RECEIVED' to EM-VARIABLE, WRITE-ERROR-MESSAGE LINKs LGSTSQ with ERROR-MSG (TD CSMT and TS GENAERRS), IF EIBCALEN > 0 is false, then ABEND LGCA"
+  },
+  {
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": 1
+   },
+   "name": "short-commarea",
+   "commarea_length": 60,
+   "why": "EIBCALEN 60 < WS-REQUIRED-CA-LEN 90 (WS-CUSTOMER-LEN 72 + 18): CA-RETURN-CODE '98', RETURN before the LINK"
+  },
+  {
+   "name": "prefilled-commarea-overwritten",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": 3,
+    "CA-REQUEST-SPECIFIC": "XXXXXXXXXXYYYYYYYYYYYYYYYYYYYY1999-99-99ZZZZZZZZZZZZZZZZZZZZ9999QQ99QQQ 123MMMMMMMMMMMMMMMMMMMMHHHHHHHHHHHHHHHHHHHHeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeePOLICYDATA"
+   },
+   "why": "CA-CUSTOMER-REQUEST arrives full of junk: the nine SELECTed fields are replaced, CA-NUM-POLICIES ('123') and CA-POLICY-DATA are left as they came"
+  },
+  {
+   "name": "not-found-keeps-prefill",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": 12,
+    "CA-REQUEST-SPECIFIC": "XXXXXXXXXXYYYYYYYYYYYYYYYYYYYY1999-99-99ZZZZZZZZZZZZZZZZZZZZ9999QQ99QQQ 123MMMMMMMMMMMMMMMMMMMMHHHHHHHHHHHHHHHHHHHHeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeePOLICYDATA"
+   },
+   "why": "+100 with a filled COMMAREA: '01' and every customer byte unchanged"
+  }
+ ],
+ "notes": "Generated-row sibling (#4507) of genapp-lgicus01: GenApp's inquire-customer front end (LGICUS01, LINKed with the 32500-byte LGCMAREA COMMAREA) LINKs LGICDB01 in the same task (LGSTSQ too) on the ten CUSTOMER rows (numbers 1..10) of genapp-lgicdb01-generated, generated from base/cntl/db2cre.jcl (CHAR / DATE boundary values, short values, blanks; seed 4507), not GenApp's INSERTs. The nine nullable columns LGICDB01 SELECTs INTO with no indicator are generated NOT NULL (a NULL would answer SQLCODE -305 and take the '90' path), as in genapp-lgicdb01-generated. The 16 generated requests draw CA-CUSTOMER-NUM from the generated numbers, a quarter of the time a number the rows do not hold (+100, '01'), the request id varied (never tested). Stated: no-commarea (EIBCALEN 0: LGSTSQ, ABEND LGCA), short-commarea (EIBCALEN 60: '98'), and the two prefilled-COMMAREA scenarios (the SELECT's replacement of the bytes, and not-found keeping them). The injected -913 / -811 on the SELECT stay genapp-lgicdb01's. See genapp-lgicus01 for the short-commarea note (MOVE '00' to CA-NUM-POLICIES precedes the check) and the dead IF EIBCALEN > 0. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived.",
+ "scenario_generate": {
+  "seed": 4507,
+  "count": 16,
+  "prefix": "generated",
+  "commarea": {
+   "CA-REQUEST-ID": {
+    "values": [
+     "01ICUS",
+     "01ICUS",
+     "01ICUS",
+     "01ICUS",
+     "01ICUS",
+     "",
+     "01icus",
+     "99XXXX"
+    ]
+   },
+   "CA-CUSTOMER-NUM": {
+    "from": "GENASA1.CUSTOMER.CUSTOMERNUMBER",
+    "miss": 0.25
+   }
+  }
+ }
+}

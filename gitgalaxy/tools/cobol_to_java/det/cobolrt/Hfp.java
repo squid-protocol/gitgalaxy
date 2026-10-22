@@ -290,6 +290,110 @@ public final class Hfp {
         return value(h, d);
     }
 
+    /** Decimal digits of exp(b ln a) for a fractional exponent (det/hfp.py POW_PRECISION), and the working precision. */
+    private static final int POW_PRECISION = 60;
+    private static final MathContext POW_MC = new MathContext(POW_PRECISION, RoundingMode.HALF_EVEN);
+    private static final MathContext WORK = new MathContext(130, RoundingMode.HALF_EVEN);
+    /** An integer exponent beyond this is refused by name (det/hfp.py POW_MAX_EXPONENT). */
+    private static final int POW_MAX_EXPONENT = 1000;
+
+    /** ln(x), x > 0, at WORK precision: x = r 2^k with r in [0.75, 1.5), ln r = 2 atanh((r-1)/(r+1)), plus k ln 2. */
+    private static BigDecimal ln(BigDecimal x) {
+        BigDecimal two = BigDecimal.valueOf(2);
+        int k = 0;
+        BigDecimal r = x;
+        while (r.compareTo(new BigDecimal("1.5")) >= 0) {
+            r = r.divide(two, WORK);
+            k++;
+        }
+        while (r.compareTo(new BigDecimal("0.75")) < 0) {
+            r = r.multiply(two, WORK);
+            k--;
+        }
+        BigDecimal result = atanh2(r.subtract(BigDecimal.ONE).divide(r.add(BigDecimal.ONE), WORK));
+        if (k != 0) {
+            BigDecimal ln2 = atanh2(BigDecimal.ONE.divide(BigDecimal.valueOf(3), WORK));
+            result = result.add(ln2.multiply(BigDecimal.valueOf(k), WORK), WORK);
+        }
+        return result;
+    }
+
+    /** 2 atanh(z) = 2 (z + z^3/3 + z^5/5 + ...) for |z| < 1/3. */
+    private static BigDecimal atanh2(BigDecimal z) {
+        BigDecimal z2 = z.multiply(z, WORK);
+        BigDecimal term = z;
+        BigDecimal sum = BigDecimal.ZERO;
+        BigDecimal eps = new BigDecimal(BigInteger.ONE, 140);
+        for (int n = 1; term.abs().compareTo(eps) > 0; n += 2) {
+            sum = sum.add(term.divide(BigDecimal.valueOf(n), WORK), WORK);
+            term = term.multiply(z2, WORK);
+        }
+        return sum.multiply(BigDecimal.valueOf(2), WORK);
+    }
+
+    /** exp(y) at WORK precision: y / 2^j (|.| < 1/100) by Taylor series, squared j times. */
+    private static BigDecimal exp(BigDecimal y) {
+        int j = 0;
+        BigDecimal r = y;
+        BigDecimal limit = new BigDecimal("0.01");
+        while (r.abs().compareTo(limit) >= 0) {
+            r = r.divide(BigDecimal.valueOf(2), WORK);
+            j++;
+        }
+        BigDecimal sum = BigDecimal.ONE;
+        BigDecimal term = BigDecimal.ONE;
+        BigDecimal eps = new BigDecimal(BigInteger.ONE, 140);
+        for (int n = 1; term.abs().compareTo(eps) > 0; n++) {
+            term = term.multiply(r, WORK).divide(BigDecimal.valueOf(n), WORK);
+            sum = sum.add(term, WORK);
+        }
+        for (int i = 0; i < j; i++) sum = sum.multiply(sum, WORK);
+        return sum;
+    }
+
+    /** `a ** b` in long HFP, ASSUMED (register C6; IBM documents no result): the capture kit's reference
+     *  (tests/tools/hfp_capture_kit.power) and det/hfp.py power. The exact power for an integer exponent, exp(b ln a)
+     *  at 60 digits for a fractional one (a must be positive), truncated to long. Not evidence until a z/OS run
+     *  agrees (#4050). A zero base with a non-positive exponent is Cobol.raiseSize's NaN as in divide; an exponent
+     *  beyond +-1000 or a range overflow is refused by name. */
+    // [rule RT-HFP-POWER]
+    public static BigDecimal power(BigDecimal a, BigDecimal b) {
+        exact(a, LONG);
+        exact(b, LONG);
+        if (b.signum() == 0 && a.signum() == 0 || a.signum() == 0 && b.signum() < 0) {
+            throw new ArithmeticException("0 raised to a non-positive power in a floating-point expression (register C6)");
+        }
+        if (a.signum() == 0) return BigDecimal.ZERO;
+        BigDecimal frac = b.remainder(BigDecimal.ONE);
+        if (frac.signum() == 0) {
+            BigInteger n = b.toBigIntegerExact();
+            boolean unit = a.abs().compareTo(BigDecimal.ONE) == 0;
+            if (!unit && n.abs().compareTo(BigInteger.valueOf(POW_MAX_EXPONENT)) > 0) {
+                throw new UnsupportedOperationException("exponentiation by " + n + ": beyond the modelled exponent "
+                        + "magnitude " + POW_MAX_EXPONENT + " (register C6)");
+            }
+            int m = n.abs().intValue();
+            BigInteger[] r = rational(a);
+            BigInteger num = r[0].pow(m);
+            BigInteger den = r[1].pow(m);
+            if (n.signum() < 0) {
+                BigInteger t = num;
+                num = den;
+                den = t;
+            }
+            return value(chop(a.signum() < 0 && (m & 1) == 1, num, den, LONG), LONG);
+        }
+        if (a.signum() < 0) {
+            throw new UnsupportedOperationException("a fractional exponent of a non-positive base (register C6)");
+        }
+        BigDecimal lnA = ln(a).round(POW_MC);
+        BigDecimal y = lnA.multiply(b, POW_MC);
+        // 16**63 = e**174.7 and 16**-65 = e**-180.2: outside, refuse by name before the series
+        if (y.compareTo(BigDecimal.valueOf(200)) > 0) range(64);
+        if (y.compareTo(BigDecimal.valueOf(-200)) < 0) range(-65);
+        return value(chop(exp(y).round(POW_MC), LONG), LONG);
+    }
+
     /** DIVIDE inside a larger floating-point expression: a zero divisor is refused by name. The oracle's NaN meets
      *  cob_decimal_align there (NaN * x is 0, 2 - NaN is 2, NaN + 1 unchanged: measured, #4675) and the HFP model
      *  does not replay that (oracle_assumptions C14). */

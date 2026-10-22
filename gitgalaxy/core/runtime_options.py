@@ -81,6 +81,32 @@ RUNTIME_OPTION_TABLE: dict[str, dict[str, Any]] = {
 }  # fmt: skip
 
 
+# #4707: which burned estates exercise each judged option (policy refuse or declare): the corpora whose source holds the
+# construct the row says the option changes. An empty list says no burned program depends on the assumed value, so a
+# refusal there protects a customer's estate only. The test greps the corpora for each pattern (STORAGE rests on
+# register L3's two named programs instead).
+RUNTIME_USED_BY: dict[str, list[str]] = {
+    "le.runtime_options.STORAGE": ["aws-mainframe-modernization-carddemo", "cics-banking-sample-application-cbsa"],
+    "le.runtime_options.TRAP": ["aws-mainframe-modernization-carddemo", "cics-banking-sample-application-cbsa", "cics-genapp", "dbb-mortgage-application", "zecs"],
+    "le.runtime_options.ABTERMENC": ["aws-mainframe-modernization-carddemo", "cics-banking-sample-application-cbsa", "cics-genapp", "dbb-mortgage-application"],
+    "db2.format.DATE": ["aws-mainframe-modernization-carddemo", "cics-banking-sample-application-cbsa"],
+    "db2.format.TIME": [],
+    "db2.format.DEC": [],
+    "db2.format.DECPT": [],
+    "db2.ccsid.EBCDIC_CCSID": ["aws-mainframe-modernization-carddemo", "cics-banking-sample-application-cbsa", "cics-genapp", "dbb-mortgage-application"],
+    "db2.ccsid.SQLCCSID": ["aws-mainframe-modernization-carddemo", "cics-banking-sample-application-cbsa", "cics-genapp", "dbb-mortgage-application"],
+    "cics.region.LOCALCCSID": ["aws-mainframe-modernization-carddemo", "cics-async-api-credit-card-application-example", "cics-banking-sample-application-cbsa", "cics-genapp", "dbb-mortgage-application", "zecs"],
+}  # fmt: skip
+
+
+def used_by_rows() -> list[str]:
+    """The RUNTIME_USED_BY rows as the markdown table lines register C18 holds (tests pin the page to them)."""
+    return [
+        f"| `{path}` | {', '.join(corpora) or 'none: no burned program depends on it'} |"
+        for path, corpora in RUNTIME_USED_BY.items()
+    ]
+
+
 def _state(value: Any) -> str:
     return str(value if value is not None else "").strip().upper()
 

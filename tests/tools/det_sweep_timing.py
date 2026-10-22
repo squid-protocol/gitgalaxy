@@ -94,6 +94,7 @@ def row(d: Path) -> dict[str, Any]:
         "db2_container_s": round(db2["container"]) if db2.get("container") is not None else None,
         "db2_ready_s": db2_ready,
         "db2_databases": db2.get("databases"),
+        "db2_snapshot": db2.get("snapshot"),  # #5882: True restored from the cache, False tried and fell back, None no try
         "sweep_s": _since(marks, "sweep_start", "sweep_end"),
         "job_s": _since(marks, "job_start", "sweep_end"),
         "slowest": sorted(((round(r.get("seconds") or 0), c) for c, r in sweep.items()), reverse=True)[:3],

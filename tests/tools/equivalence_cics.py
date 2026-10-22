@@ -3266,6 +3266,33 @@ def fault_lines(sc: dict[str, Any]) -> list[str]:
     return out
 
 
+# #5233 (register I5): the DL/I statuses a CICS scenario may plan on an EXEC DLI command -- the batch run's (#5857) on the
+# database calls, and SCHD's TC (IBM: a PSB already scheduled, the one SCHD status the model derives). CHKP is a BMP call.
+DLI_SCHD_STATUSES = ("TC",)
+
+
+def dli_fault_lines(case: dict[str, Any], sc: dict[str, Any]) -> list[str]:
+    """A scenario's `dli_faults` [{"op", "nth", "status"}] as ggdli.c reads them (`FUNCTION NTH STATUS`) and DetDli
+    (`# DLI FUNCTION NTH STATUS`, minus the `# DLI `). A planned call is not performed: DIBSTAT answers the status."""
+    import equivalence  # noqa: PLC0415 -- it imports this module
+
+    plan = sc.get("dli_faults") or []
+    if plan and not case.get("ims"):
+        raise Unsupported(f'scenario {sc.get("name")}: dli_faults in a case with no "ims" section', ["EXEC DLI"])
+    ops = ("SCHD", *(o for o in equivalence.DLI_FAULT_FUNCTIONS if o != "CHKP"))
+    out = []
+    for f in plan:
+        op, status, nth = f.get("op"), str(f.get("status")), f.get("nth", 1)
+        ok = status in (DLI_SCHD_STATUSES if op == "SCHD" else equivalence.DLI_FAULT_STATUSES)
+        if op not in ops or not ok or not (nth == "*" or (isinstance(nth, int) and nth >= 1)):
+            raise Unsupported(
+                f"scenario {sc.get('name')}: dli_fault {f}: op {'/'.join(ops)} (SCHD: {'/'.join(DLI_SCHD_STATUSES)}; "
+                f"else {'/'.join(equivalence.DLI_FAULT_STATUSES)}), nth >= 1 or *"
+            )
+        out.append(f"{op} {nth} {status}")
+    return out
+
+
 def sql_first_id(table: str) -> int:
     """#4270: the first GG-SQL-ID (PIC 9(4)) of the next program's statements in a task's shared table: the next
     hundred after the ids already taken. A range per program by its place in "programs" (1000 x its index) ran past
@@ -3533,6 +3560,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                                           encoding="ascii")  # fmt: skip
         if sc.get("faults"):  # #4023 follow-up: the stub's injected conditions
             (d / "faults.cfg").write_text("".join(x + "\n" for x in fault_lines(sc)), encoding="ascii")
+        if sc.get("dli_faults"):  # #5233: the DL/I stub's planned statuses
+            (d / "dlifaults.cfg").write_text("".join(x + "\n" for x in dli_fault_lines(case, sc)), encoding="ascii")
         if sc.get("sql_plan"):  # #4173: the SQL stub's planned faults (resolved by sql_fault_plan)
             (d / "sqlfaults.cfg").write_text("".join(x + "\n" for x in sc["sql_plan"]), encoding="ascii")
         date, _, time = scenario_clock(case, sc).partition(" ")  # #4622: the scenario's clock, else the case's
@@ -3554,7 +3583,10 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             )
         if db2:  # the tables as the seed has them, for this task
             script.append(f"{sqlenv}./ggsqlrun -f /work/reset.sql")
-        script.append(f"set +e; {cov.trace_env(f'{rel}/{cov.TRACE_NAME}')}GGCICS_DIR={rel} GGCICS_OUT={rel}/out EIBIN={rel}/eib.in "
+        dlienv = (
+            f"GGDLI_FAULTS={rel}/dlifaults.cfg GGDLI_FAULTS_LOG={rel}/out/faults.txt " if sc.get("dli_faults") else ""
+        )
+        script.append(f"set +e; {cov.trace_env(f'{rel}/{cov.TRACE_NAME}')}{dlienv}GGCICS_DIR={rel} GGCICS_OUT={rel}/out EIBIN={rel}/eib.in "
                       f"GGCICS_TASKN={task_number(case, sc)} LD_PRELOAD=/work/ggdisplay.so "
                       + (f"GGCICS_STARTCODE={task_facts(case, sc)[0]} " if task_facts(case, sc)[0] else "")
                       + (f"GGCICS_FACILITY={term['termid']} " if term["termid"] else "")
@@ -4856,8 +4888,22 @@ class EquivalenceRunTest {{
     }}
 
 {tod_helper}    /** #5278: a new task on the stated databases (cobolrt.dli.DetDli, the stub's ggdli.c): nothing scheduled, nothing read yet. */
-    static void dliReset(Path dir) {{
+    static void dliReset(Path dir, JsonNode plan, Path log) {{
         System.setProperty("gitgalaxy.dli.dir", dir.toString());
+        System.clearProperty("gitgalaxy.faults.plan");  // #5233: this task's planned statuses (DetDli reads `# DLI F NTH ST` lines)
+        System.clearProperty("gitgalaxy.faults.log");
+        if (plan != null && plan.size() > 0) {{
+            try {{
+                Path file = log.resolveSibling(log.getFileName() + ".dliplan");
+                List<String> lines = new ArrayList<>();
+                plan.forEach(x -> lines.add("# DLI " + x.asText()));
+                Files.write(file, lines);
+                System.setProperty("gitgalaxy.faults.plan", file.toString());
+                System.setProperty("gitgalaxy.faults.log", log.toString());
+            }} catch (java.io.IOException e) {{
+                throw new java.io.UncheckedIOException(e);
+            }}
+        }}
         try {{
             Class.forName("{pkg}.cobolrt.dli.DetDli").getMethod("reset").invoke(null);
         }} catch (ReflectiveOperationException e) {{
@@ -4953,7 +4999,8 @@ class EquivalenceRunTest {{
                 mqAttach(task, in.resolve(sc.get("mq").asText()));
             }}
             if (sc.hasNonNull("dli")) {{  // #5278 (I5): the databases EXEC DLI reaches, afresh for each task
-                dliReset(in.resolve(sc.get("dli").get("dir").asText()));
+                dliReset(in.resolve(sc.get("dli").get("dir").asText()), sc.path("dli_faults"),
+                        out.resolve(sc.get("name").asText() + ".faults"));
             }}
             if (sc.hasNonNull("urimaps")) {{  // #4270 zECS (X32): INQUIRE URIMAP's installed definitions, as the stub's
                 java.util.List<String[]> defs = new java.util.ArrayList<>();
@@ -5276,9 +5323,11 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                 raise Unsupported(f"scenario {sc['name']}: the COMMAREA DTO {ca_cls} has no field for {lost} -- "
                                   f"describe the COMMAREA with the record the DTO is generated from")  # fmt: skip
             ca = to_java(values, shape, alphanumeric(ca_fields))
-            if (
-                case.get("linked") or tabled
+            if (case.get("linked") or tabled) and not sc.get(
+                "dto_entry"
             ):  # #4765: the very bytes the COBOL task was LINKed with (CicsTask.withLinkArea)
+                # #5863: a scenario with "dto_entry" gives the port the DTO alone -- the bytes would overwrite every
+                # field the typed entry (in_) maps, and hide a defect there; the COBOL side still runs the same record
                 area = commarea_record(ca_read, sc["commarea"], enc).hex().upper()
         # A typed field is named as the symbolic map names its input (ACCTSIDI); a screen view model
         # keys it by the BMS field (ACCTSID), as screenValues() / fromValues() do.
@@ -5287,6 +5336,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
         }
         scenarios.append({"name": sc["name"], "aid": sc.get("aid", "DFHENTER").removeprefix("DFH"),
                           "commarea": ca, "area": area, "receive": receive, "faults": fault_lines(sc), "sql_faults": sc.get("sql_plan", []),
+                          "dli_faults": dli_fault_lines(case, sc),
                           "sql_unjudged": sql_unjudged(sc.get("sql_plan", []), seams),
                           "derived": bool(sc.get("derived")), "commarea_length": commarea_length(sc, ca_read),
                           "channel": _channel_json(case, sc),
@@ -5442,6 +5492,8 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
             if e.get("event") == "RETRIEVE":  # #5089: the data's bytes as text
                 e.update(java_retrieve_as_compared(e))
             if e.get("event") == "COMMAREA" and e.get("area") is not None:  # #4765: the bytes the port left
+                if sc.get("dto_entry") and isinstance(e.get("commarea"), dict):  # #5863: the DTO too (compare_events)
+                    e["dto"] = java_commarea(e["commarea"], shape, ca_fields or [], enc)
                 e["commarea"] = java_area(e.pop("area"), ca_fields or [], enc)
             elif "commarea" in e:
                 if isinstance(e["commarea"], dict):  # #4778: a DTO -- no property holds a FILLER (compare_events)
@@ -5877,6 +5929,9 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
                     continue
                 if not same(cv[name], jv.get(name)):
                     bad.append({"field": f"{part}.{name}", "cobol": cv[name], "java": jv.get(name)})
+        for name, value in (j.get("dto") or {}).items():  # #5863: a LINKed port's DTO too, beside the bytes it left
+            if name in (c.get("commarea") or {}) and not _same_commarea(c["commarea"][name], value):
+                bad.append({"field": f"commarea.dto.{name}", "cobol": c["commarea"][name], "java": value})
         if c["event"] == "SEND-TEXT" and "options" in c:  # #5401: the options the translation forwards, both ways
             java_options = sorted(o for o in j.get("options") or [] if o in TEXT_OPTIONS_FORWARDED)
             if c["options"] != java_options:
@@ -5926,7 +5981,8 @@ def report_markdown(case: dict[str, Any], report: dict[str, Any]) -> str:
         f"Case `{case['name']}`: {case['corpus']} `{case['program_source']}`, transaction {case['transid']}, "
         f"clock `{case['clock']}`. Each scenario is one task; its events (SEND MAP, SEND TEXT, RETURN, "
         "XCTL, ABEND) are paired in order and compared field by field -- screen DATA fields and every "
-        "COMMAREA field (attribute bytes are not compared)."
+        "COMMAREA field; a SEND MAP also its attribute, colour and highlight bytes, cursor and options "
+        "(X'00' and X'40' are not claimed)."
     )
     lines = [f"# {case['program']} -- COBOL vs Java ({report['java']}), CICS", "", about, "",
              "Stub files, from the engine's facts: " + "; ".join(
@@ -5990,7 +6046,9 @@ def feedback_md(case: dict[str, Any], report: dict[str, Any], limit: int = 6) ->
     for sc in case["scenarios"]:
         o = report["outputs"].get(sc["name"])
         fired = (o or {}).get("fired")
-        bad_fired = bool(sc.get("faults")) and (not fired or not fired["cobol"] or fired["cobol"] != fired["java"])
+        bad_fired = bool(sc.get("faults") or sc.get("dli_faults")) and (
+            not fired or not fired["cobol"] or fired["cobol"] != fired["java"]
+        )
         files = {n: f for n, f in (o or {}).get("files", {}).items() if f["equal"] != f["records"]}
         sql = (o or {}).get("sql") or {}
         sql_bad = sql.get("equal") != sql.get("statements")
@@ -6001,7 +6059,8 @@ def feedback_md(case: dict[str, Any], report: dict[str, Any], limit: int = 6) ->
         out += [f"### Scenario {sc['name']}: {o['equal']}/{o['records']} events equal", "",
                 f"Key {sc.get('aid', 'DFHENTER')}; COMMAREA {json.dumps(sc.get('commarea'))}; "
                 f"screen input {json.dumps(sc.get('receive'))}"
-                + (f"; injected {json.dumps(sc['faults'])}" if sc.get("faults") else ""), ""]  # fmt: skip
+                + (f"; injected {json.dumps(sc['faults'])}" if sc.get("faults") else "")
+                + (f"; DL/I {json.dumps(sc['dli_faults'])}" if sc.get("dli_faults") else ""), ""]  # fmt: skip
         if bad_fired:
             out += [f"Injected conditions fired: COBOL {fired and fired['cobol']}, Java {fired and fired['java']}", ""]
         # a file or Db2 table the scenario left different (a LINKed program's writes too), not only its events
@@ -6172,7 +6231,7 @@ def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]
             if area.get("equal") is False:
                 o["link_area"] = area
                 ok = False
-        if sc.get("faults") or sc.get("sql_plan"):
+        if sc.get("faults") or sc.get("sql_plan") or sc.get("dli_faults"):
             fired = {"cobol": _fired(cobol_work / "scenarios" / name / "out" / "faults.txt"),
                      "java": _fired(out / f"{name}.faults")}  # fmt: skip
             o["fired"] = fired
@@ -6313,7 +6372,7 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
                 ok = False
                 print(f"{case['program']} {name}: the COMMAREA LINKed to {sc['prefix_link']} differs: {area}")
         # #4023 follow-up (#4173: SQL faults too): the same injected conditions fired on both sides, and at least one
-        if sc.get("faults") or sc.get("sql_plan"):
+        if sc.get("faults") or sc.get("sql_plan") or sc.get("dli_faults"):
             fired = {"cobol": _fired(work / "cobol" / "scenarios" / name / "out" / "faults.txt"),
                      "java": _fired(work / "java" / "out" / f"{name}.faults")}  # fmt: skip
             report["outputs"][name]["fired"] = fired

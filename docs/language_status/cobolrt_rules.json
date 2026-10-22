@@ -227,7 +227,8 @@
     "le/Cobdatft.java",
     "le/Dsntiac.java",
     "le/LeTime.java",
-    "le/Mvswait.java"
+    "le/Mvswait.java",
+    "le/Zuidstck.java"
    ],
    "done": true,
    "about": "The date / time services, COBDATFT and MVSWAIT, as the harness's C models do them.",
@@ -3273,6 +3274,24 @@
    "options": [],
    "register": [
     "Q5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-LE-ZUIDSTCK",
+   "family": "LE",
+   "title": "ZUIDSTCK: the 16 TOD bytes are a stated input of the run, opaque to the program (a stand-in; never the host clock)",
+   "methods": [
+    "le/Zuidstck.java:call"
+   ],
+   "ibm": {
+    "doc": "zarch-pop",
+    "section": "STORE CLOCK EXTENDED"
+   },
+   "options": [],
+   "register": [
+    "X47"
    ],
    "status": "ASSUMED",
    "calibration": "uncalibrated"

@@ -149,7 +149,10 @@
     "p16",
     "pow16",
     "value",
-    "digits"
+    "digits",
+    "ln",
+    "atanh2",
+    "exp"
    ]
   },
   {
@@ -1802,6 +1805,26 @@
    ],
    "ibm": null,
    "ibm_note": "IBM does not document the generated conversion; truncation is the model's choice",
+   "options": [],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
+   "register": [
+    "C6"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-HFP-POWER",
+   "family": "HFP",
+   "title": "A floating-point exponentiation: the exact power for an integer exponent, exp(b ln a) at 60 digits for a fractional one, truncated to long HFP",
+   "methods": [
+    "power"
+   ],
+   "ibm": null,
+   "ibm_note": "IBM documents no result for a floating-point exponentiation; the capture kit's reference power() is the model until captured z/OS output agrees",
    "options": [],
    "features": [
     "data_types: COMP-1",

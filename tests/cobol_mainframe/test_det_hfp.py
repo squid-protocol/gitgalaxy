@@ -338,10 +338,8 @@ FLOAT_DATA = """       01 S1 COMP-1 VALUE 1.5.
         ("MOVE S1 TO X4", "MOVE S1 COMP-1 to a alphanumeric item"),
         ("MOVE X4 TO S1", "MOVE of a nonnumeric operand to S1 COMP-1"),
         ("MOVE S1(1:2) TO X4", "the bytes of a COMP-1 item"),
-        ("COMPUTE L1 = S1 ** 2", "exponentiation in a floating-point expression"),
         ("COMPUTE L1 = FUNCTION ANNUITY(N N)", "not the bits of the power"),  # a float target
         ("COMPUTE N = FUNCTION ANNUITY(N N)", "not the bits of the power"),  # a fixed-point target
-        ("COMPUTE L1 = S1 ** N", "exponentiation in a floating-point expression"),  # a fractional exponent
         ("COMPUTE L1 = FUNCTION SQRT(N)", "FUNCTION SQRT in a floating-point expression"),
         ("COMPUTE S1 ROUNDED = N / 3", "ROUNDED into S1"),
         ("IF S1 = 'AB' DISPLAY 'Y' END-IF", "compared with a nonnumeric operand"),
@@ -364,9 +362,10 @@ def test_what_the_oracle_cannot_decide_is_a_named_hole(stmt, why, tmp_path):
     assert "oracle_assumptions.md C6" in r.stats["holes"][0] or "C6" in r.java
 
 
-def test_ibm_dbb_epsmpmt_translates_but_its_float_exponentiation(tmp_path):
-    """mortgage-mpmt's program: WS-CALC-INTEREST (COMP-1) is now computed in long HFP, and the payment's
-    `(1 + C) ** N` with N's decimal places is the one hole (KNOWN_UNPROVEN's reason, proof_sweep.py)."""
+def test_ibm_dbb_epsmpmt_translates_its_float_exponentiation_as_an_assumption(tmp_path):
+    """mortgage-mpmt's program: WS-CALC-INTEREST (COMP-1) is computed in long HFP and the payment's
+    `(1 + C) ** N` is Hfp.power, the capture kit's reference (ASSUMED, C6); only the dead FUNCTION ANNUITY stays a hole.
+    The case stays KNOWN_UNPROVEN (proof_sweep.py): no z/OS capture agrees with the assumption yet (#4050)."""
     pytest.importorskip("tree_sitter_language_pack")
     corpora = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", ROOT / ".mainframe_corpora"))
     src = corpora / "dbb-mortgage-application/zBuilder/MortgageApplication/cobol/epsmpmt.cbl"
@@ -378,11 +377,11 @@ def test_ibm_dbb_epsmpmt_translates_but_its_float_exponentiation(tmp_path):
     r = P.translate(src, [src.parent.parent / "copybook"], "public class EpsmpmtService {\n}\n", "p", None,
                     tmp_path / "project")  # fmt: skip
     holes = r.stats["holes"]
-    assert [h for h in holes if "C6" in h] == [h for h in holes if "line 125:" in h or "line 144:" in h], holes
-    assert any("line 125: COMPUTE exponentiation in a floating-point expression" in h for h in holes), holes
+    assert not any("exponentiation" in h for h in holes), holes
     annuity = [h for h in holes if "FUNCTION ANNUITY" in h]  # A300-TRY2, dead code: refused with its reason
     assert len(annuity) == 1 and "not the bits of the power" in annuity[0] and "C6" in annuity[0], holes
     assert "Hfp.divide(Hfp.divide(Hfp.of(" in r.java  # (rate / 100) / 12 into the COMP-1: long HFP
+    assert "Hfp.power(" in r.java
 
 
 # ---- FUNCTION NUMVAL in a floating-point expression (#4270: CBSA BNK1CAC, BNK1TFN, BNK1CRA, BNK1UAC) --------------
@@ -663,17 +662,17 @@ def _translate_expo(stmt, tmp_path):
         "COMPUTE L1 = 2 ** S1",  # a float exponent
         "COMPUTE L1 = (1 + S1) ** N",  # EPSMPMT's shape: a parenthesised base, decimal exponent
         "COMPUTE L1 = 1 + (S1 ** 2) * 3",  # nested in a larger float expression
+        "COMPUTE S1 = S1 ** 2",  # a COMP-1 receiver: long arithmetic, rounded to short
         "COMPUTE R = L1 ** 2",  # a fixed-point receiver with a float operand
         "COMPUTE R = N ** S1",  # a fixed-point base, float exponent
         "IF L1 ** 2 > 3 DISPLAY 'Y' END-IF",  # in a comparison
     ],
 )
-def test_a_floating_point_exponentiation_is_a_named_hole_in_every_shape(stmt, tmp_path):
+def test_a_floating_point_exponentiation_translates_through_hfp_power_in_every_shape(stmt, tmp_path):
     pytest.importorskip("tree_sitter_language_pack")
     r = _translate_expo(stmt, tmp_path)
-    holes = r.stats["holes"]
-    assert len(holes) == 1 and "exponentiation in a floating-point expression" in holes[0], holes
-    assert "C6" in holes[0]
+    assert r.stats["holes"] == [], r.stats["holes"]
+    assert "Hfp.power(" in r.java
 
 
 @pytest.mark.parametrize("stmt", ["COMPUTE R = N ** 2", "COMPUTE R = K ** K", "COMPUTE R = (N + 1) ** 2 + K"])
@@ -681,3 +680,80 @@ def test_a_fixed_point_exponentiation_is_not_refused(stmt, tmp_path):
     pytest.importorskip("tree_sitter_language_pack")
     r = _translate_expo(stmt, tmp_path)
     assert r.stats["holes"] == [], r.stats["holes"]
+
+
+# ---- the exponentiation routine: the runtime is the model, the model is the kit's reference (ASSUMED, C6) -------
+
+POWER_PROBE = """
+import p.cobolrt.*;
+import java.math.BigDecimal;
+public class Probe {
+    static String run(String a, String b) {
+        try {
+            return Hfp.power(Hfp.of(new BigDecimal(a)), Hfp.of(new BigDecimal(b))).stripTrailingZeros().toPlainString();
+        } catch (ArithmeticException | UnsupportedOperationException e) {
+            return "REFUSED";
+        }
+    }
+    public static void main(String[] x) {
+        String[][] cases = {%CASES%};
+        for (String[] k : cases) System.out.println(run(k[0], k[1]));
+    }
+}
+"""
+
+POWER_CASES = [
+    ("1.0041666666666666", "360"), ("1.0041666666666666", "12"), ("1.0041666666666666", "2.5"),
+    ("1.0041666666666666", "-12"), ("1.0054166666666666", "360"), ("2", "10"), ("2", "-3"), ("-2", "3"), ("-2", "4"),
+    ("4", "0.5"), ("0.5", "0.25"), ("10", "-0.5"), ("1.5", "0"), ("0", "3"), ("1", "100000"), ("-1", "100001"),
+    ("0", "0"), ("0", "-1"), ("-4", "0.5"), ("2", "1001"), ("16", "63"), ("16", "-70"), ("2", "300.5"), ("3", "-250.5"),
+]  # fmt: skip
+
+
+def _model_power(a: str, b: str) -> str:
+    try:
+        return _plain(H.power(H.of(F(Decimal(a))), H.of(F(Decimal(b)))))
+    except (H.HfpRange, ValueError, ZeroDivisionError):
+        return "REFUSED"
+
+
+@pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_the_power_routine_is_the_model_bit_for_bit(tmp_path):
+    rt = ROOT / "gitgalaxy/tools/cobol_to_java/det/cobolrt"
+    out = tmp_path / "src/p/cobolrt"
+    out.mkdir(parents=True)
+    for f in rt.glob("*.java"):
+        (out / f.name).write_text(f.read_text(encoding="utf-8").replace("__PACKAGE__", "p"), encoding="utf-8")
+    (tmp_path / "src/Probe.java").write_text(
+        POWER_PROBE.replace("%CASES%", ", ".join(f'{{"{a}", "{b}"}}' for a, b in POWER_CASES))
+    )
+    jdk = _jdk()
+    files = [str(f) for f in (tmp_path / "src").rglob("*.java")]
+    javac_run(
+        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True
+    )  # noqa: S603
+    got = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Probe"], capture_output=True,  # noqa: S603
+                         text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
+    want = [_model_power(a, b) for a, b in POWER_CASES]
+    assert got == want, [(c, g, w) for c, g, w in zip(POWER_CASES, got, want, strict=True) if g != w]
+    refused = {c for c, w in zip(POWER_CASES, want, strict=True) if w == "REFUSED"}
+    assert refused == {("0", "0"), ("0", "-1"), ("-4", "0.5"), ("2", "1001"), ("16", "63"), ("16", "-70"),
+                       ("2", "300.5"), ("3", "-250.5")}, refused  # fmt: skip
+
+
+def test_the_model_power_is_the_capture_kits_reference():
+    """hfp.power and the kit's power() are one routine: every asm-pow-* record's `want` is the model's answer."""
+    import hfp_capture_kit as K
+
+    pows = [r for r in K.records() if r["op"] == "pow"]
+    assert len(pows) >= 5
+    for r in pows:
+        a, b = H.decode(bytes.fromhex(r["a"])), H.decode(bytes.fromhex(r["b"]))
+        assert H.encode(H.power(a, b), False).hex().upper() == r["want"], r["id"]
+        assert H.power(a, b) == K.power(a, b), r["id"]
+    assert H.power(F(2), F(10)) == 1024 and H.power(F(2), F(-3)) == F(1, 8)
+    assert H.power(F(-2), F(3)) == -8 and H.power(F(-2), F(4)) == 16
+    for bad, why in [((F(0), F(0)), ZeroDivisionError), ((F(0), F(-1)), ZeroDivisionError), ((F(-4), F(1, 2)), ValueError),
+                     ((F(2), F(1001)), H.HfpRange), ((F(16), F(-70)), H.HfpRange)]:  # fmt: skip
+        with pytest.raises(why):
+            H.power(*bad)

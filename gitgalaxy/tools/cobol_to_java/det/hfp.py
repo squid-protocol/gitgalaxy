@@ -125,6 +125,29 @@ def div(a: Fraction, b: Fraction, long: bool) -> Fraction:
     return chop(Fraction(a) / Fraction(b), d)
 
 
+POW_PRECISION = 60  # decimal digits of exp(b ln a) for a fractional exponent: far past the 14 hex digits it is cut to
+POW_MAX_EXPONENT = 1000  # an integer exponent beyond this is refused by name (the exact power would be huge)
+
+
+def power(a: Fraction, b: Fraction) -> Fraction:
+    """`a ** b` in long HFP (ASSUMED, register C6): IBM documents no result, so this is the capture kit's reference
+    (tests/tools/hfp_capture_kit.power): the exact power for an integer exponent, exp(b ln a) at POW_PRECISION digits
+    for a fractional one, truncated to long. Not evidence until a z/OS run agrees (#4050)."""
+    a, b = Fraction(a), Fraction(b)
+    _parts(a, LONG), _parts(b, LONG)
+    if b.denominator == 1:
+        n = b.numerator
+        if a == 0 and n <= 0:
+            raise ZeroDivisionError("0 ** a non-positive exponent")
+        if abs(n) > POW_MAX_EXPONENT and abs(a) != 1:
+            raise HfpRange(f"exponentiation by {n}: beyond the modelled exponent magnitude {POW_MAX_EXPONENT}")
+        return chop(a**n, LONG)
+    if a <= 0:
+        raise ValueError("a fractional exponent needs a positive base")
+    ctx = Context(prec=POW_PRECISION)
+    return chop(Fraction(ctx.exp(ctx.multiply(_dec(b), ctx.ln(_dec(a))))), LONG)
+
+
 def _dec(v: Fraction) -> Decimal:
     return _EXACT.divide(Decimal(v.numerator), Decimal(v.denominator))  # exact: the denominator is a power of 2
 

@@ -16,6 +16,8 @@ test fails only over 15 s (FAIL_S); between 10 s and 15 s it is a warning, writt
 fails over 2.5x its recorded seconds. `slow` (with a reason) excuses an unbaselined test of any time. `over` lists every
 test over 10 s that has neither (the nightly's one tracked issue). Suite: total over the budget by more than 10% fails
 when --enforce (nightly main); a PR only reports.
+A test over its limit is re-run once, alone (#5955): it fails only if the re-measure is over the same limit too, so a
+loaded runner's one slow timing no longer costs the PR a CI round. `--no-remeasure` keeps the single-timing verdict.
 Updates only lower: an entry drops to the new seconds, one at or under the threshold is removed, nothing is added or raised.
 """
 
@@ -25,7 +27,9 @@ import argparse
 import ast
 import json
 import os
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
@@ -145,6 +149,51 @@ def check_tests(
     return out
 
 
+def remeasure(nodeid: str, timeout_s: float = 600.0) -> float | None:
+    """Seconds of one more run of just this test (setup + call + teardown), or None when it could not be timed."""
+    with tempfile.TemporaryDirectory() as tmp:
+        out = Path(tmp) / "times.json"
+        env = {**os.environ, "GITGALAXY_TEST_TIMES": str(out)}
+        try:
+            subprocess.run(
+                [sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", nodeid],
+                cwd=REPO,
+                env=env,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=timeout_s,
+                check=False,
+            )
+            return load_times(out)[0].get(nodeid)
+        except (OSError, subprocess.SubprocessError, ValueError, SystemExit):
+            return None
+
+
+def confirm_over_limit(
+    seconds: dict[str, float],
+    baseline: dict[str, float],
+    slow: dict[str, str],
+    measure=None,
+    fail_s: float = FAIL_S,
+) -> tuple[list[str], list[str]]:
+    """(failures, notes): a test over its limit is re-measured once and fails only if the re-measure is over too.
+
+    A test the re-run cannot time (it failed, vanished, timed out) keeps its failure: the ratchet never passes on nothing.
+    """
+    measure = measure or remeasure
+    failures: list[str] = []
+    notes: list[str] = []
+    for nodeid in sorted(n for n in seconds if check_tests({n: seconds[n]}, baseline, slow, fail_s)):
+        again = measure(nodeid)
+        if again is None:
+            failures.extend(check_tests({nodeid: seconds[nodeid]}, baseline, slow, fail_s))
+        elif check_tests({nodeid: again}, baseline, slow, fail_s):
+            failures.extend(check_tests({nodeid: again}, baseline, slow, fail_s))
+        else:
+            notes.append(f"{nodeid}: {seconds[nodeid]:.1f}s over the limit, {again:.1f}s on the re-measure: passes")
+    return failures, notes
+
+
 def tests_over_threshold(
     seconds: dict[str, float], baseline: dict[str, float], slow: dict[str, str] | None = None
 ) -> list[tuple[str, float]]:
@@ -185,7 +234,12 @@ def cmd_check(args: argparse.Namespace) -> int:
     baseline = load_baseline()["tests"]
     if not args.times:  # the committed .test_durations has no slow marks; read them from the sources
         slow = {**slow_marks_from_source([n for n, s in seconds.items() if s > FAIL_S and n not in baseline]), **slow}
-    bad = check_tests(seconds, baseline, slow)
+    if args.no_remeasure:
+        bad, notes = check_tests(seconds, baseline, slow), []
+    else:
+        bad, notes = confirm_over_limit(seconds, baseline, slow)
+    for line in notes:
+        print("NOTE " + line)
     warned = [(n, s) for n, s in tests_over_threshold(seconds, baseline, slow) if s <= FAIL_S]
     for line in bad:
         print("FAIL " + line)
@@ -196,6 +250,8 @@ def cmd_check(args: argparse.Namespace) -> int:
         "### Slow tests (warnings)",
         [f"- `{n}`: {s:.1f}s" for n, s in warned] or ["none between 10 s and 15 s"],
     )
+    if notes:
+        _summary("### Slow tests that passed on a re-measure (#5955)", [f"- {line}" for line in notes])
     return 1 if bad else 0
 
 
@@ -275,6 +331,8 @@ def main(argv: list[str] | None = None) -> int:
         p = sub.add_parser(name)
         p.add_argument("--times", nargs="+", type=Path)
         p.set_defaults(fn=fn)
+        if name == "check":
+            p.add_argument("--no-remeasure", action="store_true")
         if name in ("budget", "over"):
             p.add_argument("--enforce", action="store_true")
         if name == "seed":

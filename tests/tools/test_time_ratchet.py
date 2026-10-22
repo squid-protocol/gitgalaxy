@@ -10,6 +10,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import time_ratchet as tr  # noqa: E402
 
 
+_REAL_REMEASURE = tr.remeasure
+
+
+@pytest.fixture(autouse=True)
+def _no_real_rerun(monkeypatch):
+    """check re-runs an over-limit test (#5955); a fake nodeid must not start pytest."""
+    monkeypatch.setattr(tr, "remeasure", lambda nodeid: None)
+
+
 def test_an_unmarked_test_fails_only_over_fifteen_seconds():
     assert tr.check_tests({"a": 15.0}, {}) == []
     assert len(tr.check_tests({"a": 15.01}, {})) == 1
@@ -148,3 +157,63 @@ def test_slow_marks_are_read_from_the_test_source_for_the_committed_durations(tm
         "t_a.py::test_marked[p1]",
         "t_m.py::test_x",
     ]
+
+
+def _confirm(seconds, again, baseline=None, slow=None):
+    return tr.confirm_over_limit(seconds, baseline or {}, slow or {}, measure=lambda n: again[n])
+
+
+def test_over_then_under_passes_with_a_note():
+    failures, notes = _confirm({"a": 20.0}, {"a": 4.0})
+    assert failures == []
+    assert len(notes) == 1 and "a: 20.0s" in notes[0] and "4.0s" in notes[0]
+
+
+def test_over_then_over_fails_on_the_remeasured_time():
+    failures, notes = _confirm({"a": 20.0}, {"a": 16.0})
+    assert notes == [] and len(failures) == 1 and "16.0s" in failures[0]
+
+
+def test_a_baselined_test_is_remeasured_against_its_two_and_a_half_x_limit():
+    assert _confirm({"a": 120.0}, {"a": 90.0}, {"a": 40.0})[0] == []
+    assert len(_confirm({"a": 120.0}, {"a": 101.0}, {"a": 40.0})[0]) == 1
+
+
+def test_tests_under_the_limit_or_excused_are_never_remeasured():
+    def boom(nodeid):
+        raise AssertionError(f"re-ran {nodeid}")
+
+    seconds = {"fast": 14.9, "marked": 50.0, "baselined": 80.0}
+    assert tr.confirm_over_limit(seconds, {"baselined": 40.0}, {"marked": "why"}, measure=boom) == ([], [])
+
+
+def test_a_test_that_cannot_be_retimed_keeps_its_failure():
+    failures, notes = tr.confirm_over_limit({"a": 20.0}, {}, {}, measure=lambda n: None)
+    assert notes == [] and len(failures) == 1 and "20.0s" in failures[0]
+
+
+def test_each_over_limit_test_is_judged_on_its_own_remeasure():
+    failures, notes = _confirm({"a": 20.0, "b": 30.0, "c": 1.0}, {"a": 2.0, "b": 30.0})
+    assert [f.split(":")[0] for f in failures] == ["b"] and len(notes) == 1
+
+
+def test_check_passes_when_the_remeasure_is_under_and_fails_when_it_is_over(tmp_path, monkeypatch):
+    _baseline(tmp_path, monkeypatch, {}, 100.0)
+    times = _times(tmp_path, {"a": 30.0})
+    monkeypatch.setattr(tr, "remeasure", lambda nodeid: 3.0)
+    assert tr.main(["check", "--times", times]) == 0
+    monkeypatch.setattr(tr, "remeasure", lambda nodeid: 31.0)
+    assert tr.main(["check", "--times", times]) == 1
+
+
+def test_no_remeasure_keeps_the_single_timing_verdict(tmp_path, monkeypatch):
+    _baseline(tmp_path, monkeypatch, {}, 100.0)
+    monkeypatch.setattr(tr, "remeasure", lambda nodeid: 3.0)
+    assert tr.main(["check", "--no-remeasure", "--times", _times(tmp_path, {"a": 30.0})]) == 1
+
+
+def test_remeasure_times_one_real_test():
+    nodeid = "tests/tools/test_time_ratchet.py::test_budget_delta_and_shrink"
+    seconds = _REAL_REMEASURE(nodeid)
+    assert seconds is not None and 0 <= seconds < 30
+    assert _REAL_REMEASURE("tests/tools/test_time_ratchet.py::no_such_test") is None

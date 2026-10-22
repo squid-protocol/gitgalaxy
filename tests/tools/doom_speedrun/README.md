@@ -1,7 +1,7 @@
 # DOOM Port Speedrun harness (#5468)
 
 Reproduces the DOOM port study (#5457) from the repo: 44 DOOM ports pinned by SHA in `manifest.csv`, cloned shallow
-at that SHA into a scratch directory, scanned with the current engine, and scored by six clean-scan checks. Each run
+at that SHA into a scratch directory, scanned with the current engine, and scored by seven clean-scan checks. Each run
 is keyed by the engine's git SHA, so before/after for one fix is a diff of two result directories. This corpus is
 becoming DOOM-rosetta, a golden-gated CI test (#5619).
 
@@ -56,7 +56,7 @@ Steps (`fetch`, `scan`, `score`, `report`) can be run singly and are resumable. 
 `tests/tools/box/heavy-run.sh` when present. Results land in `<work>/results/<engine-sha>/`: `clean_check.csv`,
 `clean_check.md` (table) and `details.json` (the offending files and rules).
 
-## The six checks (first-party code only)
+## The seven checks (first-party code only)
 
 | # | check | passes when |
 |---|---|---|
@@ -66,6 +66,9 @@ Steps (`fetch`, `scan`, `score`, `report`) can be run singly and are resumable. 
 | 4 | typosquat | no `TYPOSQUATTING DETECTED` log lines |
 | 5 | credentials | no `has_credentials` files (SARIF error-level results are listed in `details.json` for review, never scored) |
 | 6 | health | scan rc is 0 and no `[ERROR]` / `CLASSIFICATION REFUTATION` / `Traceback` log lines (engine-wide warnings ignored) |
+| 7 | callgraph | C/C++ call edges match the tree-sitter body oracle (`callgraph_oracle.py`, below): zero misses and zero engine-only edges of kind `absent` or `comment/string`. Columns `callgraph_recall`, `callgraph_precision`, `callgraph_misses`, `callgraph_engine_only` (scored) and `callgraph_unscored` (engine-only `type`, `function-pointer`, `macro`). A port with no oracle (not in `LICENSED`, or no C/C++ function) reports every column as `n/a`: a pass, but shown as unscored |
+
+The report prints two PERFECT counts while check 7 lands: seven checks (`verdict`) and the first six (`verdict6`).
 
 Vendoring is decided by the engine's own `VendorDirectoryDetector`. `--legacy-vendor` adds the round-2 study's
 hand-kept vendor-name list, for comparing against round 2's table.
@@ -111,6 +114,12 @@ Blind spots of this oracle:
 - **Check 1 only sees `SRC_EXT` files**; a first-party file with another extension is invisible to it.
 - **Vendoring is the engine's call**: a vendored tree the detector misses leaks into check 1/2/3 as first-party.
 - **Check 6 reads the log text**, so a new log wording needs `log_problems` updated.
+- **Check 7 does not score the edge convention (open owner question, #5874):** a C++ constructor (`new T(...)`,
+  `T x(...)`, kind `type`) and a bare function-pointer reference are engine-only edges the oracle does not count; so is
+  a callee named only inside a preprocessor line in the body (`macro`). They are in `callgraph_unscored`, so a port can
+  pass with a wrong-by-convention precision (doom3-bfg's gap is mostly `type`). The oracle is one tree-sitter body
+  walk: it shares tree-sitter's blind spots (a macro-generated call, a misparsed region falls back to text), and only
+  the C/C++ ports in `LICENSED` have one; the other languages are `n/a`.
 - **Pinned SHAs are the ports' HEAD at study time** (2026-10-18); a force-pushed upstream makes `fetch` fail loudly.
 - **Round 2's CSV was produced at engine `585c243e9`**; the current engine will differ, which is the point.
 - **`#ifdef`/`#else` alternate definitions are both counted.** A static scan cannot know the build configuration, so both branches are real source (owner ruling nyx-o9, 2026-10-21, #5462).

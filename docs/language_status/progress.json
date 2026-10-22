@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-22T09:56:50Z",
+  "as_of": "2026-10-22T10:09:39Z",
   "core": {
    "closed": 157,
    "open": 27,
@@ -187,9 +187,9 @@
   "eta": "16 days",
   "frontier": {
    "closed": 106,
-   "found_last_window": 22,
-   "open": 96,
-   "total": 202
+   "found_last_window": 24,
+   "open": 98,
+   "total": 204
   },
   "frontier_milestone": {
    "closed": 0,

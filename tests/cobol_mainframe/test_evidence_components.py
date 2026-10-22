@@ -21,7 +21,13 @@ def _find(pred):
     return next(t for t in ev.targets() if pred(t))
 
 
-BATCH = _find(lambda t: t.kind == "batch" and not t.db2 and not t.ims)
+def _names_runtime(t) -> bool:
+    """#5856: a det port (services only, the runtime laid at proof time) names the runtime classes, so it ships them."""
+    return any("cobolrt" in (REPO / p).read_text(encoding="utf-8") for p in ev.port_files(t) if p.endswith(".java"))
+
+
+# a batch case whose own port does not name the runtime (a det batch port does: it is stale on a runtime change)
+BATCH = _find(lambda t: t.kind == "batch" and not t.db2 and not t.ims and not _names_runtime(t))
 # #4893: a batch DL/I case (none has a committed port yet: the batch one, as if it stated databases)
 IMS = next((t for t in ev.targets() if t.ims), None) or ev.Target(**{**BATCH.__dict__, "key": "ims", "ims": True})
 CALL = _find(lambda t: t.kind == "call")
@@ -86,7 +92,9 @@ def test_the_components_partition_each_input():
             for t in reps:
                 before = _STORED.setdefault(t.key, specs(t))[name]
                 if path in ev._match(ev._files_now(), t.specs[name]["paths"], t.specs[name]["exclude"]):
-                    after = specs(t, Tree(path), [name])[name]  # (only the input this path is in: the others hold still)
+                    after = specs(t, Tree(path), [name])[
+                        name
+                    ]  # (only the input this path is in: the others hold still)
                     assert before["sha256"] != after["sha256"]
                     moved |= before["components"] != after["components"]
             assert moved, f"{path} is in no component any kind of target uses"

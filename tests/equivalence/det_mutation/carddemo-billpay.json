@@ -5,8 +5,8 @@
  "case": "carddemo-billpay",
  "entry": {
   "program": "COBIL00C",
-  "commit": "2bc2ecdc03c39ba02716eeedf5518fb61a8884fa",
-  "date": "2026-10-21",
+  "commit": "428957bdd96958fdac3cf564ca6f00f74295d790",
+  "date": "2026-10-22",
   "mode": "fast",
   "seed": 0,
   "mutants": 1656,
@@ -543,10 +543,10 @@
   ],
   "inputs": {
    "port": "d2ba5fac4d772ce8701d832266dd55935e687ff3d0704e4460a906919da7eb6e",
-   "generator": "6681c242d15376704d68ac11d16926ab6d83a1c27b09ae334fdd4cf9300735c2",
+   "generator": "e3cd26f0bd1240b8fe399b400a7a150388b4e1bf1dd65e58693708555873a21d",
    "case": "53cbf93442ce78b42ac1db26ca8f9f4de0e46a9662f132c23945e12ed85d5d98",
    "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-   "harness": "a41f37d0829026486d2db660acd058f66e564afa9d23caf78373083da4410429",
+   "harness": "f52c0d770de36086c14d386cd691c57484fe24f59d0b29112cb7d2e56e75d4b6",
    "oracle": "27cd5d5127a7ff5cf004d7ea63517333edb599feefc1643485560c707d475c0b"
   },
   "components": {
@@ -568,18 +568,26 @@
     "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
     "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
     "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
-    "generator:det/source": "1a59078834bfd89f31c04759c85727e659c8172b12323d97e3711324d1d8f0bf",
+    "generator:det/source": "dd5dec2f1f4f9a6a780228a8216daae573cf51aab899fe35dc71745fec33f2dd",
     "generator:det/stmt": "014835ecefbec5b761734642ac25fc8270092f80945e8f79bcaaa9d3aee2c9ff"
    },
    "harness": {
     "harness:cics": "213c9450546bf312b75d1e132d67f07d558860d6645035e28f54d04046f36195",
-    "harness:core": "9f0f09fceb678c16b02160f338ec4acea0c4a2df71841ee2ee703437041f6cca"
+    "harness:core": "e995854ba8cad1ec5dabaf5752f5fe625ed3de76b8b92ccdb4129f1250359d5e"
    },
    "oracle": {
     "oracle:cics-stub": "8d4b95cb03310f91b20292ebc95871479fe57bab9fc6ff33a625667a5860e785",
     "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
     "oracle:le": "200b234c8ffa2bf4cb1a9c143f22a5a3b696279e000cbf67ff9330fdfb7a9183"
    }
+  },
+  "refreshed": {
+   "from": "2026-10-21",
+   "survivors_rerun": 52,
+   "stale": [
+    "generator",
+    "harness"
+   ]
   }
  }
 }

@@ -82,6 +82,36 @@ def test_a_group_that_is_not_plain_valued_text_names_no_file(tmp_path, monkeypat
     assert ir.cics_file_lineage() == []
 
 
+def test_a_blank_run_time_part_joins_the_one_csd_file_its_fixed_characters_fit(tmp_path, monkeypatch):
+    """#5089: ZECS000's `01 ZF-FCT. 02 ZF-TRANID PIC X(04) VALUE SPACES. 02 FILLER PIC X(04) VALUE 'FILE'.`"""
+    names = ["ZC@ID@FILE", "ZC@ID@KEY", "ZCEXPIRE"]
+    ir, ef, op = _ir(tmp_path, _group(("X(04)", "SPACES"), ("X(04)", "FILE")), names, monkeypatch)
+    assert ir._group_template(ef, "ZF-FCT") is None  # the valued reading still refuses it
+    assert ir._template_names(ef, op, names) == {"ZC@ID@FILE"}
+    (entry,) = ir.cics_file_lineage()
+    assert (entry["program"], entry["name"]) == ("P.cbl", "ZC@ID@FILE")
+    ir, ef, op = _ir(tmp_path, _group(("X(04)", None), ("X(04)", "KEY ")), names, monkeypatch)  # no VALUE at all
+    assert ir._template_names(ef, op, names) == {"ZC@ID@KEY"}
+
+
+@pytest.mark.parametrize(
+    ("leaves", "names"),
+    [
+        ([("X(04)", "SPACES"), ("X(04)", "FILE")], ["ZC@ID@FILE", "ZD@ID@FILE"]),  # two fit: a guess
+        ([("X(04)", "SPACES"), ("X(04)", "FILE")], ["ZC@ID@KEY", "ZCEXPIRE"]),  # none fits
+        ([("X(04)", "SPACES"), ("X(04)", "FILE")], ["ZC@ID@FILES"]),  # the length cannot agree
+        ([("X(06)", "SPACES"), ("X(02)", "FI")], ["ZC@ID@FILE"]),  # fewer than three fixed characters
+        ([("X(04)", "SPACES"), ("9(04)", "1234")], ["ZC@ID@FILE"]),  # not an X item
+        ([("X(04)", "LOW-VALUES"), ("X(04)", "FILE")], ["ZC@ID@FILE"]),  # not blank text
+        ([("X(04)", "SPACES"), ("X(04)", "FILE", {"occurs": 2})], ["ZC@ID@FILE"]),
+    ],
+)
+def test_a_run_time_part_that_does_not_fit_exactly_one_file_names_none(tmp_path, monkeypatch, leaves, names):
+    ir, ef, op = _ir(tmp_path, _group(*leaves), names, monkeypatch)
+    assert ir._template_names(ef, op, names) == set()
+    assert ir.cics_file_lineage() == []
+
+
 def test_an_ambiguous_or_unmatched_template_is_not_a_guess(tmp_path, monkeypatch):
     ir, ef, op = _ir(tmp_path, _group(("X(04)", "ZC##"), ("X(04)", "FILE")), [], monkeypatch)
     assert ir._template_names(ef, op, ["ZC@ID@FILE", "ZC@XX@FILE"]) == set()  # two fit

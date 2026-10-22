@@ -27,6 +27,7 @@ from gitgalaxy.tools.cobol_to_java.java_target import target_from_dict
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from cultural_gauntlet import _maven_jar, entity_ddl, jdk  # noqa: E402
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
@@ -359,6 +360,21 @@ def test_an_entity_writes_back_the_bytes_its_columns_cannot_hold(tmp_path):
         "4b303030303030313030375a5a12345f424f422020",  # the CVV set: zoned digits
         "4b30303030303032303132202000150d4556452020",  # a new entity: FILLER as spaces
     ]
+
+
+@pytest.mark.skipif(jdk() is None or _JAKARTA is None, reason="no JDK or jakarta.persistence-api jar")
+def test_a_record_short_of_its_length_reads_with_the_rest_as_spaces(tmp_path):
+    """#5945: a WRITE ... LENGTH(n) short of the record is stored padded with spaces (the oracle stub's rule), so
+    fromRecord reads the tail as spaces instead of running past the bytes it was given."""
+    forge = _forge(LOSSY, config={"java": {"data_classes": "plain"}})
+    src = {"com/test/entity/vsam/CobolRecords.java": forge.records_source(),
+           "com/test/entity/vsam/CustRec.java": forge.entity_source(forge.stores[0])}  # fmt: skip
+    driver = ("import com.test.entity.vsam.*;\nimport java.nio.charset.StandardCharsets;\npublic class Rt {\n"
+              "    public static void main(String[] a) {\n"
+              "        CustRec r = CustRec.fromRecord(\"K0000001\".getBytes(StandardCharsets.ISO_8859_1),"
+              " StandardCharsets.ISO_8859_1);\n"
+              "        System.out.println(r.getCustKey() + \"|\" + r.getCustName() + \"|\");\n    }\n}\n")  # fmt: skip
+    assert _run(tmp_path, src, "Rt", driver, classpath=_JAKARTA or "") == ["K0000001|     |"]
 
 
 @pytest.mark.skipif(

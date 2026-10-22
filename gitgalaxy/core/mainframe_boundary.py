@@ -104,6 +104,7 @@ from gitgalaxy.core.job_flow import jcl_job_flow
 from gitgalaxy.core.job_submits import cobol_job_cards, jcl_intrdr_dds
 from gitgalaxy.core.mq_calls import extract_mq_calls
 from gitgalaxy.core.pli_calls import blank_sequence_fields, pli_cics_stream, pli_external_calls
+from gitgalaxy.core.sql_calls import sql_external_calls
 from gitgalaxy.core.pli_data_moves import pli_data_moves
 from gitgalaxy.core.pli_on_units import pli_on_units
 from gitgalaxy.core.special_names import special_names
@@ -2690,6 +2691,15 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
             "data_moves": pli_data_moves(code_stream),  # #3491 part 3
             "entry_points": _pli_entry_points(code_stream),  # #3720
         }
+    if dialect == "sql":
+        # #5736: `CALL name` to a routine the file does not create (db2_sql).
+        newlines = [i for i, ch in enumerate(code_stream) if ch == "\n"]
+
+        def _sql_shielded(offset: int) -> bool:
+            index = bisect.bisect_left(newlines, offset)
+            return _opens_inside_literal(code_stream, newlines[index - 1] + 1 if index else 0, offset)
+
+        return {"calls": sql_external_calls(code_stream, _sql_shielded), "datasets": [], "records": [], "transactions": []}
     if dialect == "bms":
         # #3347: BMS map field layouts ride their own key (`screen_fields`), read
         # by the caller with a default -- no other dialect carries it.

@@ -5,7 +5,7 @@
  "case": "carddemo-tranadd",
  "entry": {
   "program": "COTRN02C",
-  "commit": "7224f0a39c1b6831b3d190eefe20a08462e1d4ce+uncommitted",
+  "commit": "f318fb698819f0e159834eefb3e30c99f647dfde+uncommitted",
   "date": "2026-10-22",
   "mode": "fast",
   "seed": 0,
@@ -546,7 +546,7 @@
    "generator": "6fc449c5044ccd60b72e16fe8d2fac83eedbbd0c3b06d3e04594a63b0ad40212",
    "case": "9f7584b8ab39f4a2e47f7a3eb3b4560d6c9510dac34cdf06f2b24a1dde9fdef7",
    "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-   "harness": "77a01698c167ad5adc81fd4e8af644cf7077b5a590ed8118eb491dea6f027729",
+   "harness": "cfa692619ce6fb10c7dd1076f2b885d8ffa2cf6352ec9b564081e1cce86e4e90",
    "oracle": "ed495da81e6a1a607ebc1aba3daf85ba474192e76c482e7b124b8c2e49b760e2"
   },
   "components": {
@@ -572,7 +572,7 @@
     "generator:det/stmt": "014835ecefbec5b761734642ac25fc8270092f80945e8f79bcaaa9d3aee2c9ff"
    },
    "harness": {
-    "harness:cics": "b8b83e225441e146ec0485a905d82758d48c19198d0ede5ccc4e6df1dcd6fe4e",
+    "harness:cics": "a12b1c4f47a4a2d419f7f443b5563d6a8e7d6adc11997003ef3ef03de8446c1a",
     "harness:core": "7027a1c80de76c69e876c70e853b627ece976d1de704474c26f7c065cb1f61a9"
    },
    "oracle": {
@@ -580,6 +580,13 @@
     "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
     "oracle:le": "200b234c8ffa2bf4cb1a9c143f22a5a3b696279e000cbf67ff9330fdfb7a9183"
    }
+  },
+  "refreshed": {
+   "from": "2026-10-22",
+   "survivors_rerun": 52,
+   "stale": [
+    "harness"
+   ]
   }
  }
 }

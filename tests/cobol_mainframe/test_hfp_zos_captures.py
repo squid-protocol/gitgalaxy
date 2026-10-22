@@ -170,3 +170,23 @@ def test_the_bankdata_le_seconds_shape_is_asked():
         enc, fix = by_id[f"asm-enc-{secs}-long"], by_id[f"asm-fixed-{secs}-long-0"]
         assert enc["source"] == fix["source"] == "model-assumption" and enc["size"] == fix["size"] == "long"
         assert fix["a"] == enc["want"] and fix["scale"] == 0 and Decimal(fix["want"]) == Decimal(rounded)
+
+
+def test_the_bnk1uac_rate_and_bankdata_period_shapes_are_asked():
+    """#4271 (BNK1UAC / BNK1CAC `INTRTI-COMP-1`, BANKDATA `period-next-f`).
+
+    A rate NUMVALed into a COMP-1, compared `> 9999.99` (the COMP-1 widened to long against the long literal: the
+    short image is the smaller, so a rate of exactly 9999.99 is accepted) and MOVEd to `9(4)V99`; a 14-digit integer
+    COMPUTEd into a COMP-2 (exact in long HFP).
+    """
+    by_id = {r["id"]: r for r in records()}
+    for v, rounded in (("0.7", "0.70"), ("9999.99", "9999.99")):
+        enc, fix = by_id[f"asm-enc-{v}-short"], by_id[f"asm-fixed-{v}-short-2"]
+        assert enc["source"] == fix["source"] == "model-assumption" and fix["a"] == enc["want"]
+        assert fix["want"] == rounded
+    cmp = by_id["asm-cmp-9999.99-short-long"]
+    assert cmp["source"] == "model-assumption" and cmp["want"] == "<"
+    assert cmp["a"] == by_id["asm-enc-9999.99-short"]["want"] + "0" * 8
+    assert cmp["b"] == by_id["asm-enc-9999.99-long"]["want"]
+    enc, fix = by_id["asm-enc-99999999999999-long"], by_id["asm-fixed-99999999999999-long-0"]
+    assert fix["a"] == enc["want"] and fix["scale"] == 0 and Decimal(fix["want"]) == Decimal("99999999999999")

@@ -366,6 +366,10 @@ def prepare_project(case: dict[str, Any], corpus: Path, work: Path, test_source:
         overlay = overlay + [rel for rel in linked if rel not in sources]
         sources.update(linked)
         (work / LINKED_FILE).write_text(json.dumps(origins, indent=2) + "\n", encoding="utf-8")
+    if port and port_dir.is_dir():  # #5856: a det port ships its service only; the runtime it names is this checkout's
+        runtime = det_runtime(overlay, sources, project, work)
+        overlay = overlay + [rel for rel in runtime if rel not in sources]
+        sources.update(runtime)
     for rel in overlay:
         dest = project / "src/main/java" / PKG_DIR / rel
         dest.parent.mkdir(parents=True, exist_ok=True)
@@ -447,6 +451,24 @@ def linked_programs(case: dict[str, Any], corpus: Path, project: Path, sources: 
             files.setdefault(rt, dest)
         origins[prog] = f"det port (translated from {extra['program_source']})"
     return files, origins
+
+
+def det_runtime(overlay: list[str], sources: dict[str, Path], project: Path, work: Path) -> dict[str, Path]:
+    """#5856: the det runtime (cobolrt/...) of this checkout, for a port whose Java names it and does not carry it
+    (a committed det port is its services; the runtime is the translator's, fingerprinted by the evidence record)."""
+    if any(rel.startswith("cobolrt/") for rel in overlay):
+        return {}
+    if not any(f"{PKG}.cobolrt" in sources[rel].read_text(encoding="utf-8") for rel in overlay):
+        return {}
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    files: dict[str, Path] = {}
+    for rt, text in P.runtime_files(PKG, P.has_batch(project)).items():
+        dest = work / "det_runtime" / rt
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_text(text, encoding="utf-8")
+        files[rt] = dest
+    return files
 
 
 def _reused_project(earlier: Path, work: Path, overlay: list[str]) -> Path:

@@ -66,6 +66,11 @@ def test_a_level_never_outruns_its_numbers(rows):
             assert r["mutation"] and not r["mutation"]["survivors"]["untriaged"], r["key"]
 
 
+# Records whose mutation run has 60 survivors awaiting the owner's review (#5856): a ratchet that only shrinks, the same
+# case as MUTATION_PENDING in tests/cobol_mainframe/test_evidence.py (a ledger is committed with its reviewed survivors).
+MUTATION_UNREVIEWED = {"carddemo-cbstm03a"}
+
+
 def test_every_committed_carddemo_record_has_a_mutation_section():
     """#4048: a burned CardDemo record left at `mutation: null` has no score; this includes a port_from case
     (carddemo-tranview-generated), which has a record but no port/ of its own and is not in targets()."""
@@ -73,6 +78,9 @@ def test_every_committed_carddemo_record_has_a_mutation_section():
     assert records
     for path in records:
         rec = json.loads(path.read_text(encoding="utf-8"))
+        if path.parent.name in MUTATION_UNREVIEWED:
+            assert not rec["mutation"], f"drop {path.parent.name} from MUTATION_UNREVIEWED"
+            continue
         assert rec["mutation"], path.parent.name
         assert not rec["mutation"]["survivors"]["untriaged"], path.parent.name
 

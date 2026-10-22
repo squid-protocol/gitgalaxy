@@ -8,7 +8,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 |---|---|---|---|---|---|---|---|---|---|
 | [COACTVWC](carddemo-acctview.md) | carddemo-acctview | cics | proven, unapproved |  | 24 | 31/32 / 58/69 | 96/137 / 96/109 | 0 | - |
 | [COADM01C](carddemo-adminmenu.md) | carddemo-adminmenu | cics | proven, unapproved |  | 34 | 8/8 / 20/26 | 63/95 / 63/63 | 0 | - |
-| [COBIL00C](carddemo-billpay.md) | carddemo-billpay | cics | proven, unapproved |  | 33 | 16/16 / 46/48 | 66/86 / 66/70 | 0 | - |
+| [COBIL00C](carddemo-billpay.md) | carddemo-billpay | cics | proven, unapproved |  | 35 | 16/16 / 46/48 | 66/86 / 66/70 | 0 | - |
 | [COCRDLIC](carddemo-cardlist.md) | carddemo-cardlist | cics | proven, unapproved |  | 36 | 36/36 / 136/149 | 75/94 / 75/82 | 0 | - |
 | [COCRDSLC](carddemo-cardview.md) | carddemo-cardview | cics | proven, unapproved |  | 25 | 30/30 / 69/75 | 60/91 / 60/65 | 0 | - |
 | [CBPAUP0C](carddemo-cbpaup0c.md) | carddemo-cbpaup0c | batch | proven, unapproved |  | 12 | 15/16 / 37/40 | - | 0 | - |

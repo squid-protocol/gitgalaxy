@@ -132,10 +132,13 @@ def work_key(program: str) -> str:
 
 
 def survey_program(program: Path, corpus: Path, project: Path, dirs: list[Path], work: Path,
-                   unmask: str | None = None) -> dict[str, Any]:  # fmt: skip
+                   unmask: str | None = None, layouts: str | None = "check") -> dict[str, Any]:  # fmt: skip
+    """`layouts` (#5649): the translator's record-layout mode: "check" (engine layouts taken, the translator's own kept
+    beside them: a difference is the row's error, LayoutDisagrees), "engine", or None (the translator's own alone)."""
     import contextlib
 
     import equivalence_java as ej
+    from equivalence_common import engine_layouts  # #5649: the engine's record layouts, shared with det_port
 
     from gitgalaxy.tools.cobol_to_java.det import source as S
 
@@ -153,7 +156,8 @@ def survey_program(program: Path, corpus: Path, project: Path, dirs: list[Path],
     what_if = S.survey_unmask(unmask) if unmask else contextlib.nullcontext()
     try:
         with what_if:
-            r = P.translate(program, own, stub, PKG, P.estate_files(project), project)
+            lay = engine_layouts(project, corpus, row["program"], layouts) if layouts else None
+            r = P.translate(program, own, stub, PKG, P.estate_files(project), project, layouts=lay)
     except Exception as e:  # a program the translator cannot take is a result
         row["error"] = f"{type(e).__name__}: {str(e)[:300]}"
         row["where"] = traceback.extract_tb(e.__traceback__)[-1].name
@@ -165,6 +169,8 @@ def survey_program(program: Path, corpus: Path, project: Path, dirs: list[Path],
                 "holes": list(r.stats["holes"]), "inferred": r.stats.get("inferred", []),
                 "kind": "cics" if "runTask(CicsTask" in stub else "call" if "handleCall(" in stub else
                 "batch" if "runBatch(" in stub else "other"})  # fmt: skip
+    if r.stats.get("engine_layouts"):
+        row["engine_layouts"] = r.stats["engine_layouts"]  # {"engine": records laid by the engine, "own": by the translator}
     return row
 
 
@@ -264,6 +270,9 @@ def main() -> int:
     ap.add_argument("--jobs", type=int, default=4)
     ap.add_argument("--program", action="append", help="only this program (its path in the corpus; repeatable)")
     ap.add_argument("--unmask", help="WHAT-IF: translate with this refusal check off (det.source.UNMASKABLE)")
+    ap.add_argument("--layouts", choices=["check", "engine", "off"], default="check",
+                    help="record layouts (#5649): the engine's with the translator's own checked against them (default), "
+                    "the engine's alone, or the translator's own alone")  # fmt: skip
     ap.add_argument("--estate-from", type=Path, help="reuse DIR/<corpus>/estate of an earlier survey")
     args = ap.parse_args()
     import mainframe_corpus as mc
@@ -311,7 +320,8 @@ def main() -> int:
         if args.program:
             wanted = {Path(p).as_posix() for p in args.program}
             progs = [p for p in progs if p.relative_to(corpus).as_posix() in wanted]
-        rows = [survey_program(p, corpus, project, dirs, work, args.unmask) for p in progs]
+        rows = [survey_program(p, corpus, project, dirs, work, args.unmask,
+                                None if args.layouts == "off" else args.layouts) for p in progs]
         if args.unmask != "cics-macro-level":  # that what-if reads them as COBOL: they are no COBOL
             rows += assembler_rows(corpus, {Path(p).as_posix() for p in args.program} if args.program else None)
         if built and not args.no_compile:

@@ -405,7 +405,9 @@ def actionlint_gate(root: Path = Path(".")) -> int:
         (venv / ".ready").write_text(ACTIONLINT_PIN)
     _announce("actionlint", exe, bin_dir)
     # the files by name: actionlint's own discovery needs a git project root (a bare tree exits 3)
-    return subprocess.run([str(exe), "-shellcheck=", "-pyflakes=", "-oneline", *files], cwd=root, check=False).returncode  # noqa: S603
+    return subprocess.run(
+        [str(exe), "-shellcheck=", "-pyflakes=", "-oneline", *files], cwd=root, check=False
+    ).returncode  # noqa: S603
 
 
 def attribute_failures(
@@ -461,8 +463,14 @@ def gates(args: argparse.Namespace, env: dict[str, str]) -> dict[str, list[list[
         # #5057: the aggregate pages are not committed; they must render, deterministically (generated-docs.yml)
         "gen-docs": [[PY, "tests/tools/generated_docs.py", "check"]],
         # a workflow file GitHub cannot load starts no job at all (#5768); cwd-relative, like every gate here
-        "workflows": [[PY, "-c", "import sys; sys.path.insert(0, 'tests/tools'); from pr_gates import actionlint_gate; "
-                       "sys.exit(actionlint_gate())"]],
+        "workflows": [
+            [
+                PY,
+                "-c",
+                "import sys; sys.path.insert(0, 'tests/tools'); from pr_gates import actionlint_gate; "
+                "sys.exit(actionlint_gate())",
+            ]
+        ],
         "gauntlet": [gauntlet] + ([[*gauntlet[:2], "--update-baseline", *gauntlet[3:]]] if args.lower_baseline else []),
         "golden": [[PY, "tests/tools/crucible_check.py"]],
         "suite": [suite],
@@ -472,6 +480,25 @@ def gates(args: argparse.Namespace, env: dict[str, str]) -> dict[str, list[list[
 def gates_at(root: Path, args: argparse.Namespace, env: dict[str, str]) -> dict[str, list[list[str]]]:
     """The gate plan is cwd-relative, so a plan for another checkout is the same plan run with cwd=root."""
     return gates(args, env)
+
+
+def det_mutation_hint() -> None:
+    """A non-failing hint when this branch changes a case that has a det_mutation ledger: strengthening a case stales
+    its ledger and drops the program from L5, so the PR re-runs it (the `det-mutation` ratchet; #5862)."""
+    try:
+        sys.path.insert(0, str(REPO / "tests" / "tools"))
+        import det_mutation
+
+        cases = det_mutation.cases_to_rerun("origin/main")
+    except Exception:  # a hint must never fail the gates (no origin/main, no git, no ledger)
+        return
+    if cases:
+        print(
+            f"HINT  det-mutation: this branch changes case(s) with a det_mutation ledger ({', '.join(cases)}): "
+            "python tests/tools/pr_gates.py --only-ratchets det-mutation, then "
+            "python tests/tools/det_mutation.py refresh CASE --work DIR and commit the ledger (#5862)",
+            flush=True,
+        )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -491,6 +518,7 @@ def main(argv: list[str] | None = None) -> int:
     env = environment(args.e2e)
     if args.ratchets or args.only_ratchets:
         return run_ratchets(args.only_ratchets, env)
+    det_mutation_hint()
     plan = gates(args, env)
     chosen = args.only or [g for g in plan if not (args.fast and g in ("golden", "suite"))]
     unknown = sorted(set(chosen) - set(plan))

@@ -215,15 +215,33 @@ MODEL_REFUSAL = re.compile(rb"^([A-Z0-9]{1,8}): [^\n]* is not modelled$", re.M)
 FAULT_OPS = ("OPEN", "CLOSE", "READ", "WRITE", "REWRITE", "DELETE", "START")
 
 
+# #5857: a DL/I call a fault run may fail, and the statuses ggdli.c / DetDli model (IBM, IMS Messages and Codes,
+# "DL/I status codes"); a get-hold counts as its get.
+DLI_FAULT_FUNCTIONS = ("GU", "GN", "GNP", "ISRT", "REPL", "DLET", "CHKP")
+DLI_FAULT_STATUSES = ("GA", "GK", "GE", "GB", "GP", "II", "DJ", "DA", "AC", "AJ", "AK", "AD", "AM")
+
+
 def fault_plan(fault: dict[str, Any]) -> str:
-    """A case fault's plan as both sides read it: `DD OP NTH STATUS` per line (see faults/ggfault.c)."""
+    """A case fault's plan as both sides read it: `DD OP NTH STATUS` per line (see faults/ggfault.c). A DL/I status
+    (#5857; `"dd": "DLI"`, op the DL/I function) is the line `# DLI FUNCTION NTH STATUS`: five words, which the file
+    layers (ggfault.c, CobolFiles) skip and DetDli reads; the COBOL side hands ggdli.c its own file (dli_fault_plan)."""
     lines = []
     for f in fault.get("plan", []):
+        if f.get("dd") == "DLI":
+            if f["op"] not in DLI_FAULT_FUNCTIONS or str(f["status"]) not in DLI_FAULT_STATUSES:
+                raise ValueError(f"fault {fault['name']}: bad DL/I function / status {f}")
+            lines.append(f"# DLI {f['op']} {'*' if f.get('nth', 1) == '*' else int(f.get('nth', 1))} {f['status']}")
+            continue
         if f["op"] not in FAULT_OPS or not re.fullmatch(r"[0-9A-Z]{2}", str(f["status"])):
             raise ValueError(f"fault {fault['name']}: bad op / status {f}")
         nth = "*" if f.get("nth", 1) == "*" else int(f.get("nth", 1))
         lines.append(f"{f['dd']} {f['op']} {nth} {f['status']}")
     return "\n".join(lines) + "\n"
+
+
+def dli_fault_plan(plan: str) -> str:
+    """The DL/I lines of a fault_plan as ggdli.c reads them (`FUNCTION NTH STATUS`), and nothing else."""
+    return "".join(x[6:] + "\n" for x in plan.splitlines() if x.startswith("# DLI "))
 
 
 def run_sysin(case: dict[str, Any], fault: dict[str, Any] | None = None) -> str | None:
@@ -341,7 +359,10 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
     script.append("gcc -shared -fPIC -O2 -o /work/ggdisplay.so src/ggdisplay.c -ldl")
     inject = "LD_PRELOAD=/work/ggdisplay.so "
     if fault is not None:
-        (work / "fault.plan").write_text(fault_plan(fault), encoding="ascii")
+        plan = fault_plan(fault)
+        (work / "fault.plan").write_text(
+            "".join(x + "\n" for x in plan.splitlines() if not x.startswith("# ")), encoding="ascii"
+        )
         script.append("gcc -shared -fPIC -O2 -o /work/ggfault.so src/ggfault.c -ldl")
         inject = (
             "GGFAULT_PLAN=/work/fault.plan GGFAULT_LOG=/work/FAULTS LD_PRELOAD='/work/ggfault.so /work/ggdisplay.so' "
@@ -352,6 +373,9 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
     # the step's RETURN-CODE is an output like any other (CBTRN02C sets 4 when it rejects): recorded, not fatal
     sqlenv = equivalence_db2.cobol_env("/work/stmts.txt") if db2 else ""
     sqlenv += "GGDLI_DIR=/work/dli GGDLI_OUT=/work/dliout " if ims else ""
+    if ims and fault is not None and dli_fault_plan(fault_plan(fault)):  # #5857: the DL/I statuses the fault run plans
+        (work / "dli.faults").write_text(dli_fault_plan(fault_plan(fault)), encoding="ascii")
+        sqlenv += "GGDLI_FAULTS=/work/dli.faults GGDLI_FAULTS_LOG=/work/FAULTS "
     sqlenv += f"GGMVS_STEP='{case['mvs_step']}' " if case.get("mvs_step") is not None else ""
     if db2:  # #4173: each statement the step runs traced; a fault run's SQL faults, those that fire logged
         # #4507: and what Db2 answered each one (equivalence_db2.cobol_outcomes)

@@ -19,8 +19,8 @@ Scans run with ``GITGALAXY_DISABLE_GIT_HISTORY=1`` (shallow clones carry no hist
 (coverage language functions typosquat credentials health) a port is known to fail, so the verdicts are gated too. A
 port failing a check not listed, or passing one that is, is drift. doom-ios no longer lists ``language`` (#5876: a
 ``.h`` is objective-c only when it carries ObjC syntax, whatever ``.m`` files sit beside it). cssdoom and sqldoom list ``functions``: their JavaScript files carry more engine-counted functions
-than ctags and tree-sitter (4.7% and 11.4% over ctags); the disagreement is unresolved, so nothing is claimed about
-which count is right, and the entry is removed when the engine and the oracles agree. Needs Universal Ctags on PATH.
+than ctags (4.7% and 11.4% over); every extra is a named arrow function the engine is right to count, ruled a counting
+convention (``docs/language_status/javascript.md`` section 5 item 4, #5876), so the entry stays. Needs Universal Ctags on PATH.
 """
 
 import argparse

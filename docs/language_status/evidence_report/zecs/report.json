@@ -279,7 +279,7 @@
    "carddemo-billpay-generated": [
     16,
     16,
-    41,
+    44,
     48
    ],
    "carddemo-cardlist": [
@@ -305,6 +305,18 @@
     30,
     53,
     75
+   ],
+   "carddemo-cbpaup0c": [
+    15,
+    16,
+    37,
+    40
+   ],
+   "carddemo-cbstm03a": [
+    23,
+    25,
+    0,
+    46
    ],
    "carddemo-cbstm03b": [
     14,
@@ -342,6 +354,18 @@
     4,
     26
    ],
+   "carddemo-copaua0c": [
+    41,
+    41,
+    58,
+    69
+   ],
+   "carddemo-copaus0c": [
+    20,
+    20,
+    80,
+    93
+   ],
    "carddemo-copaus2c": [
     2,
     2,
@@ -355,15 +379,15 @@
     6
    ],
    "carddemo-cotrtlic": [
-    50,
+    53,
     59,
-    145,
+    160,
     230
    ],
    "carddemo-cotrtlic-generated": [
-    50,
+    53,
     59,
-    123,
+    139,
     230
    ],
    "carddemo-cotrtupc": [
@@ -405,7 +429,7 @@
    "carddemo-menu-generated": [
     7,
     7,
-    26,
+    29,
     33
    ],
    "carddemo-paudbunl": [
@@ -429,7 +453,7 @@
    "carddemo-readacct": [
     16,
     16,
-    41,
+    43,
     44
    ],
    "carddemo-readcard": [
@@ -489,7 +513,7 @@
    "carddemo-signon-generated": [
     6,
     6,
-    16,
+    17,
     17
    ],
    "carddemo-tranadd": [
@@ -943,6 +967,12 @@
     4,
     12
    ],
+   "genapp-lgicdb01-generated": [
+    4,
+    4,
+    11,
+    12
+   ],
    "genapp-lgicus01": [
     4,
     4,
@@ -1039,6 +1069,12 @@
     9,
     10
    ],
+   "genapp-lgucdb01-generated": [
+    4,
+    4,
+    9,
+    10
+   ],
    "genapp-lgucus01": [
     4,
     4,
@@ -1109,9 +1145,9 @@
     18
    ],
    "zecs-zecs000": [
-    9,
+    11,
     38,
-    8,
+    10,
     46
    ],
    "zecs-zecs003": [
@@ -1259,12 +1295,10 @@
     },
     "program": "Source/ZECS001.cbl",
     "row": {
-     "holes": [
-      "line 1244: CALL ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the 16 bytes it returns in THE-TOD are not a stated fact (oracle_assumptions.md X47)"
-     ],
+     "holes": [],
      "kind": "cics",
      "statements": 561,
-     "translated": 560
+     "translated": 561
     },
     "source_read": true
    },
@@ -1369,7 +1403,7 @@
   "record_status": {
    "carddemo-acctview": {
     "stale": [],
-    "status": "shown equal, unapproved"
+    "status": "not-shown equal"
    },
    "carddemo-adminmenu": {
     "stale": [],
@@ -1384,6 +1418,18 @@
     "status": "shown equal, unapproved"
    },
    "carddemo-cardview": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-cbpaup0c": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-cbstm03a": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-copaua0c": {
     "stale": [],
     "status": "shown equal, unapproved"
    },
@@ -1495,10 +1541,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "5a2f980da440fded936b567f016701765dff653d",
+   "sha": "1b9ba2b085d92045398f8866cfd6328a2e942195",
    "translator": {
-    "files": 133,
-    "sha256": "bfe79aadd7f35cb2f845f3257a2f9d620b7e0802520aea31798c198b7790492e"
+    "files": 137,
+    "sha256": "6053492d0b0a09400f5b6c3eefc7d0aad945213e4bd044497f03e46f5b2b8bcd"
    }
   },
   "sweeps": {}
@@ -2708,23 +2754,23 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 17.4,
-    "branch_pct": 17.4,
+    "branch_net_pct": 21.7,
+    "branch_pct": 21.7,
     "branches": {
-     "covered": 8,
+     "covered": 10,
      "total": 46
     },
     "branches_net": {
-     "covered": 8,
+     "covered": 10,
      "total": 46
     },
     "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": 23.7,
+    "paragraph_pct": 28.9,
     "paragraphs": {
-     "covered": 9,
+     "covered": 11,
      "live": 38
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
@@ -2737,7 +2783,7 @@
     "cases": [
      {
       "case": "zecs-zecs000",
-      "case_scenarios": 3,
+      "case_scenarios": 5,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -2749,7 +2795,7 @@
     ],
     "chosen": {
      "case": "zecs-zecs000",
-     "case_scenarios": 3,
+     "case_scenarios": 5,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -2768,7 +2814,7 @@
     "score": null
    },
    "next": [
-    "paragraph coverage >= 100.0 (now 23.7)"
+    "paragraph coverage >= 100.0 (now 28.9)"
    ],
    "options": {
     "assumed": 6,
@@ -3274,7 +3320,7 @@
      "X52",
      "X60"
     ],
-    "branch_outcomes_unrun": 38,
+    "branch_outcomes_unrun": 36,
     "commands": 22,
     "commands_backed": 5,
     "commands_not_backed": [
@@ -3298,7 +3344,7 @@
     ],
     "facts_unstated": 1,
     "holes": 0,
-    "paragraphs_unrun": 29,
+    "paragraphs_unrun": 27,
     "refused": null
    },
    "stale_inputs": [],
@@ -3950,7 +3996,7 @@
     "cases": [],
     "chosen": null
    },
-   "level": "L0",
+   "level": "L1",
    "level_current": true,
    "mutation": {
     "current": false,
@@ -3959,7 +4005,7 @@
     "score": null
    },
    "next": [
-    "translated whole (1 holes left)"
+    "an equivalence case that runs it"
    ],
    "options": {
     "assumed": 6,
@@ -4530,7 +4576,7 @@
      "WRITEQ TD"
     ],
     "facts_unstated": 2,
-    "holes": 1,
+    "holes": 0,
     "paragraphs_unrun": null,
     "refused": null
    },
@@ -4538,18 +4584,14 @@
    "stale_since": null,
    "survey_stale": false,
    "translation": {
-    "gap_classes": [
-     "ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the N bytes it returns in <name> are not a stated fact"
-    ],
-    "hole_count": 1,
-    "holes": [
-     "CALL ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the 16 bytes it returns in THE-TOD are not a stated fact (oracle_assumptions.md X47)"
-    ],
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
     "refused": null,
     "source_defects": [],
     "statements": 561,
-    "translated": 560,
-    "whole": false
+    "translated": 561,
+    "whole": true
    }
   },
   {
@@ -4580,6 +4622,12 @@
    "equivalence": {
     "cases": [],
     "chosen": null
+   },
+   "ladder_exclusion": {
+    "issue": "#5859",
+    "kind": "not_cobol",
+    "kind_label": "refused whole: not COBOL",
+    "reason": "CICS Assembler member; the translator is a COBOL translator"
    },
    "level": "L0",
    "level_current": true,
@@ -4756,6 +4804,12 @@
     "cases": [],
     "chosen": null
    },
+   "ladder_exclusion": {
+    "issue": "#5859",
+    "kind": "not_cobol",
+    "kind_label": "refused whole: not COBOL",
+    "reason": "CICS Assembler member; the translator is a COBOL translator"
+   },
    "level": "L0",
    "level_current": true,
    "mutation": {
@@ -4905,8 +4959,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 5a2f980da440fded936b567f016701765dff653d",
-   "python tests/tools/evidence_report.py zecs --baseline --sha 5a2f980da440fded936b567f016701765dff653d",
+   "python tests/tools/cics_census.py survey --baseline --sha 1b9ba2b085d92045398f8866cfd6328a2e942195",
+   "python tests/tools/evidence_report.py zecs --baseline --sha 1b9ba2b085d92045398f8866cfd6328a2e942195",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs003,zecs-zecsplt",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -4927,21 +4981,21 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "5a2f980da440fded936b567f016701765dff653d",
+   "sha": "1b9ba2b085d92045398f8866cfd6328a2e942195",
    "translator": {
-    "files": 133,
-    "sha256": "bfe79aadd7f35cb2f845f3257a2f9d620b7e0802520aea31798c198b7790492e"
+    "files": 137,
+    "sha256": "6053492d0b0a09400f5b6c3eefc7d0aad945213e4bd044497f03e46f5b2b8bcd"
    }
   },
-  "translator_commit": "5a2f980da440fded936b567f016701765dff653d",
+  "translator_commit": "1b9ba2b085d92045398f8866cfd6328a2e942195",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
   "cics_programs": 5,
   "det_equal": 4,
   "histogram": {
-   "L0": 3,
-   "L1": 0,
+   "L0": 2,
+   "L1": 1,
    "L2": 2,
    "L3": 1,
    "L4": 1,
@@ -4963,19 +5017,19 @@
    "L4": 0,
    "L5": 0
   },
-  "holes": 1,
+  "holes": 0,
   "levels_stale": 0,
   "levels_stale_survey": 0,
   "programs": 7,
   "records_current": 0,
   "refused_whole": 2,
   "source_unread": 0,
-  "translated_whole": 4,
+  "translated_whole": 5,
   "with_case": 4,
   "with_record": 0
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "bfe79aadd7f35cb2f845f3257a2f9d620b7e0802520aea31798c198b7790492e"
+  "fingerprint": "6053492d0b0a09400f5b6c3eefc7d0aad945213e4bd044497f03e46f5b2b8bcd"
  }
 }

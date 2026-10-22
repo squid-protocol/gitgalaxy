@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `5a2f980da440fded936b567f016701765dff653d` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `1b9ba2b085d92045398f8866cfd6328a2e942195` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `bfe79aadd7f3`).
+The translation survey matches the translator in the tree (translator fingerprint `6053492d0b0a`).
 
 ## How to read this report
 
@@ -188,6 +188,7 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
   - hole: EXEC EXEC CICS: GETMAIN without INITIMG: IBM gives acquired storage no default contents
   - hole: HOLE SET TO ENTRY: procedure / function pointers are not modelled
   - hole: SET-POINTER ADDRESS OF ERROR-RESPONSE: not an item of WORKING-STORAGE or LINKAGE (not modelled)
+- **Not a translator gap:** held by an owner ruling or z/OS calibration (#5106): Language Environment condition handlers (CEEHDLR) refused by name, owner ruling 2026-10-21
 - **Options in force** (compile options that change results; Enterprise COBOL 6.1; 3 found, 3 assumed): ARITH(EXTEND) [found at zBuilder/MortgageApplication/cobol/epscsmrd.cbl:3131]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [found at zBuilder/MortgageApplication/cobol/epscsmrd.cbl:3130]; NSYMBOL(NATIONAL) [found at zBuilder/MortgageApplication/cobol/epscsmrd.cbl:3130]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (compileParms CICS,SQL) [no effect; found at zBuilder/LanguageConfiguration/application/config/epscmort.cbl.yaml:3]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at zBuilder/LanguageConfiguration/application/config/epscsmrt.cbl.yaml:3]
 - **Executed equivalence:** no equivalence case runs it
@@ -216,6 +217,7 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
 - **Translation:** 25/27 statements, 2 holes; whole: no
   - hole: COMPUTE FUNCTION ANNUITY (IBM defines arg-1 / (1 - (1 + arg-1) ** -arg-2) but not the bits of the power or of the floating-point result; oracle_assumptions.md C6)
   - hole: COMPUTE exponentiation in a floating-point expression (IBM's run-time routine is not documented bit for bit; oracle_assumptions.md C6)
+- **Not a translator gap:** held by an owner ruling or z/OS calibration (#5867): floating-point power and FUNCTION ANNUITY need captured z/OS results (oracle_assumptions.md C6)
 - **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(MIG) [found at zBuilder/MortgageApplication/cobol/epsmpmt.cbl:1]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (compileParms CICS,SQL) [no effect; found at zBuilder/LanguageConfiguration/application/config/epscmort.cbl.yaml:3]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at zBuilder/LanguageConfiguration/application/config/epscsmrt.cbl.yaml:3]
 - **Executed equivalence** (mortgage-mpmt, program, the case this report judges): det port not equal (ledgered as differing in det_sweep_baseline.json (#4271): IBM DBB EPSMPMT computes its payment through a COMP-1 item in hexadecimal floating point on z/OS, truncated decimal on GnuCOBOL. The det runtime models HFP since #4271 slice 1 (its interest COMPUTE translates), but the payment's (1 + C) ** N, N with decimal places, is a floating-point exponentiation IBM does not document bit for bit: a named hole (oracle_assumptions.md C6; its CBL NUMPROC(MIG) is modelled, C5). The dead-code FUNCTION ANNUITY (line 144) is the second: IBM defines the formula, arg-1 / (1 - (1 + arg-1) ** -arg-2), but not the bits of the power or of the result, so it is refused by name with that reason (not modelled). Two holes before and after #4271's last slice; the callers mortgage-csmrt and mortgage-cmort keep theirs)
@@ -243,7 +245,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `5a2f980da440fded936b567f016701765dff653d`
+- translator commit (the survey's): `1b9ba2b085d92045398f8866cfd6328a2e942195`
 - corpus pin: `dbb-mortgage-application` at `ce2c1be58eb049e000c6627bd8273263fef0c606`
 - crucible pins: cics `v0.9.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.9.0 (3ca75ae0)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -253,8 +255,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 5a2f980da440fded936b567f016701765dff653d
-python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 5a2f980da440fded936b567f016701765dff653d
+python tests/tools/cics_census.py survey --baseline --sha 1b9ba2b085d92045398f8866cfd6328a2e942195
+python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 1b9ba2b085d92045398f8866cfd6328a2e942195
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

@@ -177,7 +177,7 @@
    "carddemo-billpay-generated": [
     16,
     16,
-    41,
+    44,
     48
    ],
    "carddemo-cardlist": [
@@ -203,6 +203,18 @@
     30,
     53,
     75
+   ],
+   "carddemo-cbpaup0c": [
+    15,
+    16,
+    37,
+    40
+   ],
+   "carddemo-cbstm03a": [
+    23,
+    25,
+    0,
+    46
    ],
    "carddemo-cbstm03b": [
     14,
@@ -240,6 +252,18 @@
     4,
     26
    ],
+   "carddemo-copaua0c": [
+    41,
+    41,
+    58,
+    69
+   ],
+   "carddemo-copaus0c": [
+    20,
+    20,
+    80,
+    93
+   ],
    "carddemo-copaus2c": [
     2,
     2,
@@ -253,15 +277,15 @@
     6
    ],
    "carddemo-cotrtlic": [
-    50,
+    53,
     59,
-    145,
+    160,
     230
    ],
    "carddemo-cotrtlic-generated": [
-    50,
+    53,
     59,
-    123,
+    139,
     230
    ],
    "carddemo-cotrtupc": [
@@ -303,7 +327,7 @@
    "carddemo-menu-generated": [
     7,
     7,
-    26,
+    29,
     33
    ],
    "carddemo-paudbunl": [
@@ -327,7 +351,7 @@
    "carddemo-readacct": [
     16,
     16,
-    41,
+    43,
     44
    ],
    "carddemo-readcard": [
@@ -387,7 +411,7 @@
    "carddemo-signon-generated": [
     6,
     6,
-    16,
+    17,
     17
    ],
    "carddemo-tranadd": [
@@ -841,6 +865,12 @@
     4,
     12
    ],
+   "genapp-lgicdb01-generated": [
+    4,
+    4,
+    11,
+    12
+   ],
    "genapp-lgicus01": [
     4,
     4,
@@ -937,6 +967,12 @@
     9,
     10
    ],
+   "genapp-lgucdb01-generated": [
+    4,
+    4,
+    9,
+    10
+   ],
    "genapp-lgucus01": [
     4,
     4,
@@ -1007,9 +1043,9 @@
     18
    ],
    "zecs-zecs000": [
-    9,
+    11,
     38,
-    8,
+    10,
     46
    ],
    "zecs-zecs003": [
@@ -1504,7 +1540,7 @@
   "record_status": {
    "carddemo-acctview": {
     "stale": [],
-    "status": "shown equal, unapproved"
+    "status": "not-shown equal"
    },
    "carddemo-adminmenu": {
     "stale": [],
@@ -1519,6 +1555,18 @@
     "status": "shown equal, unapproved"
    },
    "carddemo-cardview": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-cbpaup0c": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-cbstm03a": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-copaua0c": {
     "stale": [],
     "status": "shown equal, unapproved"
    },
@@ -1630,10 +1678,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "5a2f980da440fded936b567f016701765dff653d",
+   "sha": "1b9ba2b085d92045398f8866cfd6328a2e942195",
    "translator": {
-    "files": 133,
-    "sha256": "bfe79aadd7f35cb2f845f3257a2f9d620b7e0802520aea31798c198b7790492e"
+    "files": 137,
+    "sha256": "6053492d0b0a09400f5b6c3eefc7d0aad945213e4bd044497f03e46f5b2b8bcd"
    }
   },
   "sweeps": {}
@@ -1900,13 +1948,21 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
+    "accounted": 0,
     "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
+    "det_port": "stale (generator, harness moved), last measured: raw 100% (1992/1992 caught; 2042 of 2042 mutants, seed 0); every survivor accounted for (0)",
+    "killed": 1992,
+    "l5": true,
+    "score": 1.0,
+    "stale_inputs": [
+     "generator",
+     "harness"
+    ],
+    "survived": 0,
+    "unaccounted": 0
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (generator, harness moved), last measured: raw 100% (1992/1992 caught; 2042 of 2042 mutants, seed 0); every survivor accounted for (0))"
    ],
    "options": {
     "assumed": 4,
@@ -2527,13 +2583,21 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
+    "accounted": 0,
     "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
+    "det_port": "stale (generator, harness moved), last measured: raw 100% (217/217 caught; 223 of 223 mutants, seed 0); every survivor accounted for (0)",
+    "killed": 217,
+    "l5": true,
+    "score": 1.0,
+    "stale_inputs": [
+     "generator",
+     "harness"
+    ],
+    "survived": 0,
+    "unaccounted": 0
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (generator, harness moved), last measured: raw 100% (217/217 caught; 223 of 223 mutants, seed 0); every survivor accounted for (0))"
    ],
    "options": {
     "assumed": 4,
@@ -2941,13 +3005,21 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
+    "accounted": 0,
     "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
+    "det_port": "stale (generator, harness moved), last measured: raw 100% (240/240 caught; 246 of 246 mutants, seed 0); every survivor accounted for (0)",
+    "killed": 240,
+    "l5": true,
+    "score": 1.0,
+    "stale_inputs": [
+     "generator",
+     "harness"
+    ],
+    "survived": 0,
+    "unaccounted": 0
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (generator, harness moved), last measured: raw 100% (240/240 caught; 246 of 246 mutants, seed 0); every survivor accounted for (0))"
    ],
    "options": {
     "assumed": 4,
@@ -3355,13 +3427,21 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
+    "accounted": 0,
     "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
+    "det_port": "stale (generator, harness moved), last measured: raw 100% (558/558 caught; 576 of 576 mutants, seed 0); every survivor accounted for (0)",
+    "killed": 558,
+    "l5": true,
+    "score": 1.0,
+    "stale_inputs": [
+     "generator",
+     "harness"
+    ],
+    "survived": 0,
+    "unaccounted": 0
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (generator, harness moved), last measured: raw 100% (558/558 caught; 576 of 576 mutants, seed 0); every survivor accounted for (0))"
    ],
    "options": {
     "assumed": 4,
@@ -3794,13 +3874,21 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
+    "accounted": 0,
     "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
+    "det_port": "stale (generator, harness moved), last measured: raw 100% (228/228 caught; 234 of 234 mutants, seed 0); every survivor accounted for (0)",
+    "killed": 228,
+    "l5": true,
+    "score": 1.0,
+    "stale_inputs": [
+     "generator",
+     "harness"
+    ],
+    "survived": 0,
+    "unaccounted": 0
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (generator, harness moved), last measured: raw 100% (228/228 caught; 234 of 234 mutants, seed 0); every survivor accounted for (0))"
    ],
    "options": {
     "assumed": 4,
@@ -4213,13 +4301,21 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
+    "accounted": 0,
     "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
+    "det_port": "stale (generator, harness moved), last measured: raw 100% (202/202 caught; 208 of 208 mutants, seed 0); every survivor accounted for (0)",
+    "killed": 202,
+    "l5": true,
+    "score": 1.0,
+    "stale_inputs": [
+     "generator",
+     "harness"
+    ],
+    "survived": 0,
+    "unaccounted": 0
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (generator, harness moved), last measured: raw 100% (202/202 caught; 208 of 208 mutants, seed 0); every survivor accounted for (0))"
    ],
    "options": {
     "assumed": 4,
@@ -4631,13 +4727,21 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
+    "accounted": 0,
     "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
+    "det_port": "stale (generator, harness moved), last measured: raw 100% (162/162 caught; 168 of 168 mutants, seed 0); every survivor accounted for (0)",
+    "killed": 162,
+    "l5": true,
+    "score": 1.0,
+    "stale_inputs": [
+     "generator",
+     "harness"
+    ],
+    "survived": 0,
+    "unaccounted": 0
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (generator, harness moved), last measured: raw 100% (162/162 caught; 168 of 168 mutants, seed 0); every survivor accounted for (0))"
    ],
    "options": {
     "assumed": 4,
@@ -5026,13 +5130,21 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
+    "accounted": 0,
     "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
+    "det_port": "stale (generator, harness moved), last measured: raw 100% (162/162 caught; 168 of 168 mutants, seed 0); every survivor accounted for (0)",
+    "killed": 162,
+    "l5": true,
+    "score": 1.0,
+    "stale_inputs": [
+     "generator",
+     "harness"
+    ],
+    "survived": 0,
+    "unaccounted": 0
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (generator, harness moved), last measured: raw 100% (162/162 caught; 168 of 168 mutants, seed 0); every survivor accounted for (0))"
    ],
    "options": {
     "assumed": 4,
@@ -5413,13 +5525,21 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
+    "accounted": 0,
     "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
+    "det_port": "stale (generator, harness moved), last measured: raw 100% (1839/1839 caught; 1889 of 1889 mutants, seed 0); every survivor accounted for (0)",
+    "killed": 1839,
+    "l5": true,
+    "score": 1.0,
+    "stale_inputs": [
+     "generator",
+     "harness"
+    ],
+    "survived": 0,
+    "unaccounted": 0
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (generator, harness moved), last measured: raw 100% (1839/1839 caught; 1889 of 1889 mutants, seed 0); every survivor accounted for (0))"
    ],
    "options": {
     "assumed": 4,
@@ -6031,13 +6151,21 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
+    "accounted": 0,
     "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
+    "det_port": "stale (generator, harness moved), last measured: raw 100% (183/183 caught; 189 of 189 mutants, seed 0); every survivor accounted for (0)",
+    "killed": 183,
+    "l5": true,
+    "score": 1.0,
+    "stale_inputs": [
+     "generator",
+     "harness"
+    ],
+    "survived": 0,
+    "unaccounted": 0
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (generator, harness moved), last measured: raw 100% (183/183 caught; 189 of 189 mutants, seed 0); every survivor accounted for (0))"
    ],
    "options": {
     "assumed": 4,
@@ -6320,8 +6448,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 5a2f980da440fded936b567f016701765dff653d",
-   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 5a2f980da440fded936b567f016701765dff653d",
+   "python tests/tools/cics_census.py survey --baseline --sha 1b9ba2b085d92045398f8866cfd6328a2e942195",
+   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 1b9ba2b085d92045398f8866cfd6328a2e942195",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases asynccc-asyncpnt,asynccc-crdtchk,asynccc-csstats2,asynccc-csstatus,asynccc-getaddr,asynccc-getname,asynccc-getpol,asynccc-getspnd,asynccc-seqpnt,asynccc-updcsdb",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -6342,13 +6470,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "5a2f980da440fded936b567f016701765dff653d",
+   "sha": "1b9ba2b085d92045398f8866cfd6328a2e942195",
    "translator": {
-    "files": 133,
-    "sha256": "bfe79aadd7f35cb2f845f3257a2f9d620b7e0802520aea31798c198b7790492e"
+    "files": 137,
+    "sha256": "6053492d0b0a09400f5b6c3eefc7d0aad945213e4bd044497f03e46f5b2b8bcd"
    }
   },
-  "translator_commit": "5a2f980da440fded936b567f016701765dff653d",
+  "translator_commit": "1b9ba2b085d92045398f8866cfd6328a2e942195",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -6391,6 +6519,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "bfe79aadd7f35cb2f845f3257a2f9d620b7e0802520aea31798c198b7790492e"
+  "fingerprint": "6053492d0b0a09400f5b6c3eefc7d0aad945213e4bd044497f03e46f5b2b8bcd"
  }
 }

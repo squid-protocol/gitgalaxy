@@ -57,6 +57,14 @@ SHARD_SETUP_S = 300  # a non-Db2 shard: checkout, install, the GnuCOBOL image
 PROOF_JOBS = 4  # proof_sweep.py --jobs: cases proven at once in a shard
 TIMEOUT_FLOOR, TIMEOUT_CEILING = 25, 45  # minutes
 DEFAULT_TIMEOUT = 30  # minutes, when there are no durations to size from
+# #5919: Evidence Refresh's own jobs (--evidence-plan). Its 20-job share: sweep + records + Db2 parts (6) + lane, refresh,
+# det-mutation. Records are re-proved one at a time (evidence.py has no --jobs); the stale list is unknowable in the lane
+# job's sparse checkout, so every evidence.json counts, at RECORD_S each (2002-2579 s for ~40 records, sequential).
+EVIDENCE_SWEEP_MAX_SHARDS = 5
+EVIDENCE_RECORDS_MAX_SHARDS = 5
+EVIDENCE_TARGET_S = 10 * 60  # the sweep and records ran ~11 min a shard on 4 and 6 shards: aim there
+EVIDENCE_CEILING = 60  # minutes
+RECORD_S = 57.0
 DURATIONS = CASES / "det_sweep_durations.json"
 IGNORED = {"tests/equivalence/det_sweep_durations.json"}  # only balances shards, never a verdict
 # #5885: the mutation scores and their survivors (det_mutation.py, evidence_report.py): no det proof reads them
@@ -391,6 +399,43 @@ def timeouts_for(p: dict, durations: dict[str, float] | None) -> dict[str, int]:
     return out
 
 
+def evidence_plan(
+    durations: dict[str, float] | None, waiting: int | None = None, cases_dir: Path | None = None
+) -> dict:
+    """#5919: Evidence Refresh's matrices and job timeouts, emitted by its `lane` job: `db2_parts` (the Db2 sweep parts plus
+    "records"), `sweep_matrix` (the non-Db2 det cases), `records_matrix`, and `db2_timeout` / `sweep_timeout` /
+    `records_timeout` in minutes. Without durations the counts fall back to the old fixed ones and every timeout to 90."""
+    cdir = cases_dir or CASES
+    cases = case_dirs(cdir)
+    n_records = sum(1 for d in cdir.iterdir() if (d / "evidence.json").is_file())
+    full = {"mode": "full", "cases": "all", "db2_cases": "all"}
+    db2 = db2_shards_for(full, durations=durations, waiting=waiting)
+    out = {"db2_parts": [*db2, "records"], "sweep_matrix": [f"{i}/4" for i in range(1, 5)],
+           "records_matrix": [f"{i}/6" for i in range(1, 7)], "db2_timeout": 90, "sweep_timeout": 90,
+           "records_timeout": 90}  # fmt: skip
+    if durations is None:
+        return out
+    sp = _shard_plan()
+    db2_names_ = sorted(n for n, c in cases.items() if is_db2(c))
+    w, _ = sp.weights(db2_names_, durations)
+    db2_min = sp.timeout_minutes(w, len(db2), DB2_SETUP_S, PROOF_JOBS, TIMEOUT_FLOOR, EVIDENCE_CEILING) if db2 else 0
+    names = sorted(n for n, c in cases.items() if not is_db2(c))
+    w, missing = sp.weights(names, durations)
+    sp.check_measured(missing, len(w))
+    k = sp.shards_for(w, SHARD_SETUP_S, PROOF_JOBS, EVIDENCE_TARGET_S, sp.pool_cap(EVIDENCE_SWEEP_MAX_SHARDS, waiting))
+    if k:
+        out["sweep_matrix"] = [f"{i}/{k}" for i in range(1, k + 1)]
+        out["sweep_timeout"] = sp.timeout_minutes(w, k, SHARD_SETUP_S, PROOF_JOBS, TIMEOUT_FLOOR, EVIDENCE_CEILING)
+    rw = {f"r{i:04d}": RECORD_S for i in range(n_records)}
+    r = sp.shards_for(rw, SHARD_SETUP_S, 1, EVIDENCE_TARGET_S, sp.pool_cap(EVIDENCE_RECORDS_MAX_SHARDS, waiting))
+    if r:
+        out["records_matrix"] = [f"{i}/{r}" for i in range(1, r + 1)]
+        out["records_timeout"] = sp.timeout_minutes(rw, r, SHARD_SETUP_S, 1, TIMEOUT_FLOOR, EVIDENCE_CEILING)
+    # the records part rides the Db2 matrix: one runner with Db2 up, re-proving the stale Db2 records
+    out["db2_timeout"] = max(db2_min, out["records_timeout"])
+    return out
+
+
 def file_texts(base: str) -> Callable[[str], tuple[str | None, str | None]]:
     """#5885: path -> (the file at the merge base of `base` and HEAD, at HEAD); None for a side git cannot give."""
 
@@ -435,7 +480,17 @@ def main() -> int:
     ap.add_argument("--waiting", type=int, help="#5919: queued PR jobs (halves the Db2 shard cap past ci_shard_plan.BUSY_ABOVE)")  # fmt: skip
     ap.add_argument("--db2-full-matrix", action="store_true",
                     help="#5882: print only a full sweep's Db2 runner labels as JSON (Evidence Refresh's Db2 parts)")  # fmt: skip
+    ap.add_argument("--evidence-plan", action="store_true",
+                    help="#5919: Evidence Refresh's matrices and timeouts (JSON on stdout; keys to --github-output)")  # fmt: skip
     args = ap.parse_args()
+    if args.evidence_plan:
+        ep = evidence_plan(load_durations(args.durations), args.waiting)
+        print(json.dumps(ep))
+        if args.github_output:
+            with args.github_output.open("a", encoding="utf-8") as fh:
+                for k, v in ep.items():
+                    fh.write(f"{k}={json.dumps(v)}\n")
+        return 0
     if args.db2_full_matrix:
         print(
             json.dumps(

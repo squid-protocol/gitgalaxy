@@ -187,3 +187,92 @@ def test_evidence_refresh_lane_checks_out_what_the_planner_reads(tmp_path):
     ).stdout  # fmt: skip
     parts = json.loads(out)
     assert 1 <= len(parts) <= plan.DB2_MAX_SHARDS
+
+
+def _real_db2_durations() -> dict[str, float]:
+    """db2_shards_for names the Db2 cases of the repo on disk; measure them so only the tmp tree under test is in question."""
+    return {n: 100.0 for n in plan.case_dirs()}
+
+
+def _evidence_cases(tmp_path, n_det, n_db2, n_records):
+    for i in range(n_det + n_db2):
+        d = tmp_path / f"case{i:03d}"
+        d.mkdir()
+        (d / "case.json").write_text('{"db2": true}' if i >= n_det else "{}", encoding="utf-8")
+    for i in range(n_records):
+        (tmp_path / f"rec{i:04d}").mkdir()
+        (tmp_path / f"rec{i:04d}" / "evidence.json").write_text("{}", encoding="utf-8")
+
+
+def test_evidence_plan_without_durations_keeps_the_old_shape(tmp_path):
+    _evidence_cases(tmp_path, 4, 2, 3)
+    ep = plan.evidence_plan(None, cases_dir=tmp_path)
+    assert ep["db2_parts"][-1] == "records" and len(ep["sweep_matrix"]) == 4 and len(ep["records_matrix"]) == 6
+    assert ep["sweep_timeout"] == ep["records_timeout"] == ep["db2_timeout"] == 90
+
+
+@pytest.mark.parametrize("n_records", [0, 1, 10, 40, 80, 400])
+def test_evidence_records_shards_follow_the_count_up_to_the_cap(tmp_path, n_records):
+    _evidence_cases(tmp_path, 2, 0, n_records)
+    durations = {f"case{i:03d}": 100.0 for i in range(2)} | _real_db2_durations()
+    ep = plan.evidence_plan(durations, cases_dir=tmp_path)
+    k = len(ep["records_matrix"])
+    if n_records == 0:
+        assert k == 6 and ep["records_timeout"] == 90  # nothing to size from: the fallback matrix, not an empty one
+        return
+    else:
+        assert 1 <= k <= plan.EVIDENCE_RECORDS_MAX_SHARDS
+    if n_records >= 80:
+        assert k == plan.EVIDENCE_RECORDS_MAX_SHARDS
+    assert 25 <= ep["records_timeout"] <= plan.EVIDENCE_CEILING
+
+
+def test_evidence_plan_sweep_grows_with_the_work_and_busy_pool_halves_the_cap(tmp_path):
+    _evidence_cases(tmp_path, 120, 0, 0)
+    durations = {f"case{i:03d}": 300.0 for i in range(120)} | _real_db2_durations()
+    calm = plan.evidence_plan(durations, cases_dir=tmp_path)
+    busy = plan.evidence_plan(durations, waiting=sp.BUSY_ABOVE + 1, cases_dir=tmp_path)
+    assert len(calm["sweep_matrix"]) == plan.EVIDENCE_SWEEP_MAX_SHARDS
+    assert len(busy["sweep_matrix"]) == max(1, plan.EVIDENCE_SWEEP_MAX_SHARDS // 2)
+
+
+def test_evidence_plan_fails_loudly_on_unmeasured_cases(tmp_path):
+    _evidence_cases(tmp_path, 20, 0, 0)
+    with pytest.raises(sp.PlanError):
+        plan.evidence_plan({"case000": 50.0} | _real_db2_durations(), cases_dir=tmp_path)
+
+
+def test_evidence_refresh_shard_jobs_are_planned_not_typed():
+    jobs = _workflow("evidence-refresh.yml")["jobs"]
+    outs = jobs["lane"]["outputs"]
+    for job, key in (("db2-part", "db2"), ("sweep", "sweep"), ("records", "records")):
+        assert f"needs.lane.outputs.{key}_timeout" in str(jobs[job]["timeout-minutes"])
+        matrix = jobs[job]["strategy"]["matrix"]
+        assert all(isinstance(v, str) and "fromJSON" in v for v in matrix.values())
+        assert f"{key}_timeout" in outs
+    assert {"sweep_matrix", "records_matrix", "db2_parts"} <= set(outs)
+
+
+def test_evidence_plan_runs_from_the_lane_sparse_tree(tmp_path):
+    import json
+    import shutil
+    import subprocess
+
+    steps = _workflow("evidence-refresh.yml")["jobs"]["lane"]["steps"]
+    (co,) = [s for s in steps if "sparse-checkout" in (s.get("with") or {})]
+    for rel in co["with"]["sparse-checkout"].split():
+        for src in ROOT.glob(rel):
+            dst = tmp_path / src.relative_to(ROOT)
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy(src, dst)
+    out = tmp_path / "gh_output"
+    subprocess.run(
+        [sys.executable, "-I", str(tmp_path / "tests" / "tools" / "det_sweep_plan.py"), "--evidence-plan",
+         "--github-output", str(out)],
+        capture_output=True, text=True, check=True, cwd=tmp_path,
+    )  # fmt: skip
+    kv = dict(line.split("=", 1) for line in out.read_text(encoding="utf-8").splitlines())
+    lane_outs = _workflow("evidence-refresh.yml")["jobs"]["lane"]["outputs"]
+    assert set(kv) == {k for k, v in lane_outs.items() if "steps.db2parts" in v}
+    assert json.loads(kv["records_matrix"])[0].startswith("1/")
+    assert 25 <= int(json.loads(kv["sweep_timeout"])) <= plan.EVIDENCE_CEILING

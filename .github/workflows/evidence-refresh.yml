@@ -58,7 +58,7 @@ name: Evidence Refresh
 #     det_coverage_ledger.py update rewrites only the cases a sweep proved (a push run leaves the Db2 entries as main has them).
 # #4744: SPEED. Measured on completed push-lane refreshes (runs 37859714260, 37866635888), one 4-vCPU runner, sequential: det
 # sweep 2111-2753 s, stale-record re-proofs 2002-2579 s, ~1 min checkout + report. Now the proofs run in parallel jobs and a
-# short `refresh` job merges them: `sweep` (4 shards of proof_sweep.py --shard, --no-ratchet), `records` (6 shards of
+# short `refresh` job merges them: `sweep` (planned shards of proof_sweep.py --shard, --no-ratchet), `records` (planned shards of
 # evidence.py refresh --stale --shard) and, on the full lane, `db2`, all of the ONE commit the `lane` job pinned. `refresh`
 # downloads their outputs, puts the records in place, re-renders the pages, applies the det_sweep_baseline ratchet to the
 # MERGED sweep (proof_sweep.py --aggregate: a case with no result, i.e. a shard that died, fails it), rewrites the ledger from
@@ -104,7 +104,12 @@ jobs:
     outputs:
       defer: ${{ steps.push_gate.outputs.defer }}
       sha: ${{ steps.pin.outputs.sha }}  # #4744: the one commit every job of this run works from
-      db2_parts: ${{ steps.db2parts.outputs.parts }}  # #5882: det-sweep's full-sweep Db2 shard count, plus the records part
+      db2_parts: ${{ steps.db2parts.outputs.db2_parts }}  # #5882: det-sweep's full-sweep Db2 shard count, plus the records part
+      db2_timeout: ${{ steps.db2parts.outputs.db2_timeout }}  # #5919: every matrix and timeout below is planned, not typed
+      sweep_matrix: ${{ steps.db2parts.outputs.sweep_matrix }}
+      sweep_timeout: ${{ steps.db2parts.outputs.sweep_timeout }}
+      records_matrix: ${{ steps.db2parts.outputs.records_matrix }}
+      records_timeout: ${{ steps.db2parts.outputs.records_timeout }}
     env:
       REPO: ${{ github.repository }}
       EVENT: ${{ github.event_name }}
@@ -131,13 +136,12 @@ jobs:
             tests/tools/ci_shard_plan.py
             tests/equivalence/det_sweep_durations.json
             tests/equivalence/*/case.json
+            tests/equivalence/*/evidence.json
 
-      - name: Count the Db2 parts (#5882)
+      # #5919: the Db2 parts, the sweep shards and the record shards, and each job's timeout, from the measured durations
+      - name: Plan the shards and timeouts (#5919)
         id: db2parts
-        run: |
-          parts=$(python3 tests/tools/det_sweep_plan.py --db2-full-matrix | python3 -c 'import json,sys; print(json.dumps(json.load(sys.stdin) + ["records"]))')
-          echo "parts=$parts" >> "$GITHUB_OUTPUT"
-          echo "Db2 parts: $parts"
+        run: python3 tests/tools/det_sweep_plan.py --evidence-plan --github-output "$GITHUB_OUTPUT"
 
       - name: Push lane - stand down while a full run is queued or running
         id: push_gate
@@ -179,7 +183,7 @@ jobs:
     needs: lane
     if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.db2)
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: ${{ fromJSON(needs.lane.outputs.db2_timeout || '90') }}  # #5919: planned (tests/tools/ci_shard_plan.py)
     strategy:
       fail-fast: false
       matrix:
@@ -517,11 +521,11 @@ jobs:
     # not when the lane job says a push run stands down for a full run (#4743)
     if: ${{ needs.lane.result == 'success' && needs.lane.outputs.defer != 'true' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: ${{ fromJSON(needs.lane.outputs.sweep_timeout || '90') }}  # #5919: planned
     strategy:
       fail-fast: false
       matrix:
-        shard: ["1/4", "2/4", "3/4", "4/4"]
+        shard: ${{ fromJSON(needs.lane.outputs.sweep_matrix) }}
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       PYTHONUTF8: "1"
@@ -652,11 +656,11 @@ jobs:
     # not when the lane job says a push run stands down for a full run (#4743)
     if: ${{ needs.lane.result == 'success' && needs.lane.outputs.defer != 'true' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: ${{ fromJSON(needs.lane.outputs.records_timeout || '90') }}  # #5919: planned
     strategy:
       fail-fast: false
       matrix:
-        shard: ["1/6", "2/6", "3/6", "4/6", "5/6", "6/6"]
+        shard: ${{ fromJSON(needs.lane.outputs.records_matrix) }}
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       PYTHONUTF8: "1"

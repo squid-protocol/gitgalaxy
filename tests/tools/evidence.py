@@ -810,7 +810,8 @@ def provenance_section(t: Target) -> dict[str, Any]:
                 "note": "a hand port: no porting-loop provenance; author and date from the git history"}  # fmt: skip
     p = json.loads(prov_path.read_text(encoding="utf-8"))
     attempts = p.get("attempts")
-    out = {"written_by": "model" if p.get("model") else "person", "model": p.get("model"),
+    out = {"written_by": "model" if p.get("model") else "det" if p.get("translator") == "det" else "person",
+           "model": p.get("model"),
            "backend": p.get("backend") if p.get("backend") != "command" else p.get("command"),
            "attempt": p.get("attempt"), "attempts": len(attempts) if isinstance(attempts, list) else attempts,
            "ticket_sha256": p.get("ticket_sha256"), "porting_rules_sha256": p.get("porting_rules_sha256"),

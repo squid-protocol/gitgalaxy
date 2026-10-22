@@ -77,3 +77,31 @@ def test_the_port_is_proved_end_to_end(tmp_path):
         capture_output=True, text=True, encoding="utf-8", check=False,
     )  # fmt: skip
     assert "PROVED" in out.stdout, out.stdout[-2000:]
+
+
+def _det_runtime():
+    import equivalence_java
+
+    return equivalence_java.det_runtime
+
+
+def test_a_committed_det_port_is_its_services_and_the_runtime_is_laid_at_proof_time(tmp_path):
+    port = REPO / "tests" / "equivalence" / "carddemo-cbstm03a" / "port"
+    assert sorted(p.name for p in (port / "service").glob("*.java")) == ["Cbstm03aService.java", "Cbstm03bService.java"]
+    assert not (port / "cobolrt").exists()
+    assert json.loads((port / "provenance.json").read_text(encoding="utf-8"))["translator"] == "det"
+
+
+def test_the_runtime_is_laid_only_for_a_port_that_names_it_and_does_not_carry_it(tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    names = tmp_path / "Names.java"
+    names.write_text("import com.gitgalaxy.modernized.cobolrt.Cobol;\n", encoding="utf-8")
+    plain = tmp_path / "Plain.java"
+    plain.write_text("class Plain {}\n", encoding="utf-8")
+    project = tmp_path / "proj"
+    project.mkdir()
+    lay = _det_runtime()
+    laid = lay(["service/N.java"], {"service/N.java": names}, project, tmp_path / "w")
+    assert "cobolrt/Cobol.java" in laid and all(p.is_file() for p in laid.values())
+    assert lay(["service/P.java"], {"service/P.java": plain}, project, tmp_path / "w") == {}
+    assert lay(["service/N.java", "cobolrt/Cobol.java"], {"service/N.java": names}, project, tmp_path / "w") == {}

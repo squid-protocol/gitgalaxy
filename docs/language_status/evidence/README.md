@@ -28,10 +28,10 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [COTRN00C](carddemo-tranlist.md) | carddemo-tranlist | cics | proven, unapproved |  | 36 | 16/16 / 96/101 | 66/91 / 66/79 | 0 | - |
 | [COTRN01C](carddemo-tranview.md) | carddemo-tranview | cics | proven, unapproved |  | 24 | 9/9 / 23/24 | 67/100 / 67/67 | 0 | - |
 | [CBTRN03C](carddemo-trnrpt.md) | carddemo-trnrpt | batch | proven, unapproved |  | 25 | 26/26 / 81/82 | 68/86 / 68/79 | 0 | - |
-| [COUSR01C](carddemo-useradd.md) | carddemo-useradd | cics | proven, unapproved |  | 22 | 9/9 / 20/21 | 63/98 / 63/64 | 0 | - |
-| [COUSR03C](carddemo-userdel.md) | carddemo-userdel | cics | proven, unapproved |  | 28 | 11/11 / 31/32 | 67/87 / 67/67 | 0 | - |
+| [COUSR01C](carddemo-useradd.md) | carddemo-useradd | cics | proven, unapproved |  | 24 | 9/9 / 20/21 | 63/98 / 63/64 | 0 | - |
+| [COUSR03C](carddemo-userdel.md) | carddemo-userdel | cics | proven, unapproved |  | 31 | 11/11 / 31/32 | 67/87 / 67/67 | 0 | - |
 | [COUSR00C](carddemo-userlist.md) | carddemo-userlist | cics | proven, unapproved |  | 32 | 16/16 / 95/100 | 69/100 / 69/92 | 0 | - |
-| [COUSR02C](carddemo-userupd.md) | carddemo-userupd | cics | proven, unapproved |  | 26 | 11/11 / 44/46 | 57/82 / 57/59 | 0 | - |
+| [COUSR02C](carddemo-userupd.md) | carddemo-userupd | cics | proven, unapproved |  | 32 | 11/11 / 44/46 | 57/82 / 57/59 | 0 | - |
 | [INQACC](cbsa-inqacc.md) | cbsa-inqacc | cics | proven, unapproved |  | 14 | 22/25 / 13/25 | 63/131 / 63/106 | 0 | - |
 | [UPDACC](cbsa-updacc.md) | cbsa-updacc | cics | proven, unapproved |  | 10 | 7/7 / 5/6 | 95/133 / 95/110 | 0 | - |
 | [LGAPDB01](genapp-lgapdb01.md) | genapp-lgapdb01 | cics | proven, unapproved |  | 4 | 5/7 / 13/31 | 58/137 / 58/129 | 0 | - |

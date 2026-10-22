@@ -1055,10 +1055,16 @@
     18
    ],
    "zecs-zecs000": [
-    11,
+    30,
     38,
-    10,
+    35,
     46
+   ],
+   "zecs-zecs001": [
+    37,
+    119,
+    38,
+    200
    ],
    "zecs-zecs003": [
     19,
@@ -1405,7 +1411,7 @@
   "record_status": {
    "carddemo-acctview": {
     "stale": [],
-    "status": "not-shown equal"
+    "status": "shown equal, unapproved"
    },
    "carddemo-adminmenu": {
     "stale": [],
@@ -1543,10 +1549,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "1b9ba2b085d92045398f8866cfd6328a2e942195",
+   "sha": "60569a84d4dc95bd66424646bfaae0b73e4212e3",
    "translator": {
-    "files": 137,
-    "sha256": "6053492d0b0a09400f5b6c3eefc7d0aad945213e4bd044497f03e46f5b2b8bcd"
+    "files": 138,
+    "sha256": "fb0f9c57888b0e436abf4dfcd50722c44f155b793e5d75d36cb94bc05afc8d2b"
    }
   },
   "sweeps": {}
@@ -3934,8 +3940,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 1b9ba2b085d92045398f8866cfd6328a2e942195",
-   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 1b9ba2b085d92045398f8866cfd6328a2e942195",
+   "python tests/tools/cics_census.py survey --baseline --sha 60569a84d4dc95bd66424646bfaae0b73e4212e3",
+   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 60569a84d4dc95bd66424646bfaae0b73e4212e3",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -3956,13 +3962,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "1b9ba2b085d92045398f8866cfd6328a2e942195",
+   "sha": "60569a84d4dc95bd66424646bfaae0b73e4212e3",
    "translator": {
-    "files": 137,
-    "sha256": "6053492d0b0a09400f5b6c3eefc7d0aad945213e4bd044497f03e46f5b2b8bcd"
+    "files": 138,
+    "sha256": "fb0f9c57888b0e436abf4dfcd50722c44f155b793e5d75d36cb94bc05afc8d2b"
    }
   },
-  "translator_commit": "1b9ba2b085d92045398f8866cfd6328a2e942195",
+  "translator_commit": "60569a84d4dc95bd66424646bfaae0b73e4212e3",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -4005,6 +4011,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "6053492d0b0a09400f5b6c3eefc7d0aad945213e4bd044497f03e46f5b2b8bcd"
+  "fingerprint": "fb0f9c57888b0e436abf4dfcd50722c44f155b793e5d75d36cb94bc05afc8d2b"
  }
 }

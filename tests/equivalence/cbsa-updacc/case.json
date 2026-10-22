@@ -206,6 +206,30 @@
    },
    "commarea_length": 99,
    "why": "the whole 99-byte COMMAREA passed: EIBCALEN equals the record, nothing past it"
+  },
+  {
+   "name": "foreign-sort-code-blank-type",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "123456",
+    "COMM-ACCNO": "2",
+    "COMM-ACC-TYPE": "",
+    "COMM-OVERDRAFT": "0",
+    "COMM-INT-RATE": "0"
+   },
+   "why": "a failing run ('N', blank type) with a caller sort code other than the program's: MOVE SORTCODE TO COMM-SCODE is the only write, so the returned COMM-SCODE shows it (the success path rewrites it from the host variable)"
+  },
+  {
+   "name": "eyecatcher-refilled-from-db",
+   "commarea": {
+    "COMM-EYE": "ZZZZ",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "1",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "why": "the caller's COMM-EYE differs from the row's ACCOUNT_EYECATCHER: the success path's MOVE HV-ACCOUNT-EYECATCHER TO COMM-EYE is the only thing that makes the returned eyecatcher the row's"
   }
  ],
  "notes": "CBSA's update-account service (UPDACC, LINKed with the UPDACC copybook's COMMAREA): the account is read by the program's own sort code (987654) and COMM-ACCNO with a SELECT INTO from Db2 table ACCOUNT (unqualified: the bind's QUALIFIER, IBMUSER); a failed SELECT (+100, -305 ...) or an account type that is blank or starts with a space gives COMM-SUCCESS 'N' and no UPDATE; otherwise ACCOUNT_TYPE, ACCOUNT_INTEREST_RATE and ACCOUNT_OVERDRAFT_LIMIT are UPDATEd, and the COMMAREA is refilled from the host variables, each date reformatted from Db2's character form (YYYY-MM-DD) to DDMMYYYY. The table is compared after every scenario."

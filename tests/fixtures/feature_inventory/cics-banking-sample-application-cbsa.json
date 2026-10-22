@@ -1,4 +1,30 @@
 {
+  "call_targets": {
+    "CEEDATM": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/BANKDATA.cbl"
+      ]
+    },
+    "CEEDAYS": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    },
+    "CEEGMT": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/BANKDATA.cbl"
+      ]
+    },
+    "CEELOCT": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
+    }
+  },
   "cics_commands": {
     "ABEND": {
       "count": 60,
@@ -2155,6 +2181,611 @@
       "programs": []
     }
   },
+  "eras": {
+    "programs": {
+      "src/base/cobol_src/ABNDPROC.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 2,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      },
+      "src/base/cobol_src/ACCTCTRL.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 2,
+            "era": 2,
+            "first_line": 85,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "src/base/cobol_src/BANKDATA.cbl": {
+        "earliest": 3,
+        "era": 3,
+        "mixed": false,
+        "tells": [
+          {
+            "copybooks": [
+              "src/base/cobol_copy/ACCDB2.cpy",
+              "src/base/cobol_copy/CONTDB2.cpy"
+            ],
+            "count": 12,
+            "era": 2,
+            "first_line": 73,
+            "tell": "exec-sql"
+          },
+          {
+            "count": 2,
+            "era": 3,
+            "first_line": 1442,
+            "tell": "le-callable"
+          }
+        ]
+      },
+      "src/base/cobol_src/BNK1CAC.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 16,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      },
+      "src/base/cobol_src/BNK1CCA.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 16,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      },
+      "src/base/cobol_src/BNK1CCS.cbl": {
+        "earliest": 1,
+        "era": 2,
+        "mixed": true,
+        "tells": [
+          {
+            "count": 2,
+            "era": 1,
+            "first_line": null,
+            "tell": "handle-condition"
+          },
+          {
+            "count": 28,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      },
+      "src/base/cobol_src/BNK1CRA.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 16,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      },
+      "src/base/cobol_src/BNK1DAC.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 18,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      },
+      "src/base/cobol_src/BNK1DCS.cbl": {
+        "earliest": 1,
+        "era": 2,
+        "mixed": true,
+        "tells": [
+          {
+            "count": 2,
+            "era": 1,
+            "first_line": null,
+            "tell": "handle-condition"
+          },
+          {
+            "count": 30,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      },
+      "src/base/cobol_src/BNK1TFN.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 16,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      },
+      "src/base/cobol_src/BNK1UAC.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 18,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      },
+      "src/base/cobol_src/BNKMENU.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 28,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      },
+      "src/base/cobol_src/CRDTAGY1.cbl": {
+        "earliest": 4,
+        "era": 4,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 6,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "count": 4,
+            "era": 4,
+            "first_line": null,
+            "tell": "channel-container"
+          }
+        ]
+      },
+      "src/base/cobol_src/CRDTAGY2.cbl": {
+        "earliest": 4,
+        "era": 4,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 6,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "count": 4,
+            "era": 4,
+            "first_line": null,
+            "tell": "channel-container"
+          }
+        ]
+      },
+      "src/base/cobol_src/CRDTAGY3.cbl": {
+        "earliest": 4,
+        "era": 4,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 6,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "count": 4,
+            "era": 4,
+            "first_line": null,
+            "tell": "channel-container"
+          }
+        ]
+      },
+      "src/base/cobol_src/CRDTAGY4.cbl": {
+        "earliest": 4,
+        "era": 4,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 6,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "count": 4,
+            "era": 4,
+            "first_line": null,
+            "tell": "channel-container"
+          }
+        ]
+      },
+      "src/base/cobol_src/CRDTAGY5.cbl": {
+        "earliest": 4,
+        "era": 4,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 6,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "count": 4,
+            "era": 4,
+            "first_line": null,
+            "tell": "channel-container"
+          }
+        ]
+      },
+      "src/base/cobol_src/CREACC.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 6,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "copybooks": [
+              "src/base/cobol_copy/ACCDB2.cpy",
+              "src/base/cobol_copy/PROCDB2.cpy"
+            ],
+            "count": 9,
+            "era": 2,
+            "first_line": 49,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "src/base/cobol_src/CRECUST.cbl": {
+        "earliest": 4,
+        "era": 4,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 24,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "copybooks": [
+              "src/base/cobol_copy/PROCDB2.cpy"
+            ],
+            "count": 3,
+            "era": 2,
+            "first_line": 62,
+            "tell": "exec-sql"
+          },
+          {
+            "count": 2,
+            "era": 3,
+            "first_line": 1379,
+            "tell": "le-callable"
+          },
+          {
+            "count": 6,
+            "era": 4,
+            "first_line": null,
+            "tell": "channel-container"
+          },
+          {
+            "count": 2,
+            "era": 4,
+            "first_line": null,
+            "tell": "async"
+          }
+        ]
+      },
+      "src/base/cobol_src/CUSTCTRL.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 4,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 84,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "src/base/cobol_src/DBCRFUN.cbl": {
+        "earliest": 1,
+        "era": 2,
+        "mixed": true,
+        "tells": [
+          {
+            "count": 1,
+            "era": 1,
+            "first_line": null,
+            "tell": "handle-condition"
+          },
+          {
+            "count": 4,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "copybooks": [
+              "src/base/cobol_copy/ACCDB2.cpy",
+              "src/base/cobol_copy/PROCDB2.cpy"
+            ],
+            "count": 6,
+            "era": 2,
+            "first_line": 55,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "src/base/cobol_src/DELACC.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "copybooks": [
+              "src/base/cobol_copy/ACCDB2.cpy",
+              "src/base/cobol_copy/PROCDB2.cpy"
+            ],
+            "count": 6,
+            "era": 2,
+            "first_line": 50,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "src/base/cobol_src/DELCUS.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 8,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "copybooks": [
+              "src/base/cobol_copy/PROCDB2.cpy"
+            ],
+            "count": 3,
+            "era": 2,
+            "first_line": 54,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "src/base/cobol_src/GETCOMPY.cbl": {
+        "earliest": null,
+        "era": null,
+        "mixed": false,
+        "tells": []
+      },
+      "src/base/cobol_src/GETSCODE.cbl": {
+        "earliest": null,
+        "era": null,
+        "mixed": false,
+        "tells": []
+      },
+      "src/base/cobol_src/INQACC.cbl": {
+        "earliest": 1,
+        "era": 2,
+        "mixed": true,
+        "tells": [
+          {
+            "count": 1,
+            "era": 1,
+            "first_line": null,
+            "tell": "handle-condition"
+          },
+          {
+            "count": 2,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "copybooks": [
+              "src/base/cobol_copy/ACCDB2.cpy"
+            ],
+            "count": 7,
+            "era": 2,
+            "first_line": 41,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "src/base/cobol_src/INQACCCU.cbl": {
+        "earliest": 1,
+        "era": 2,
+        "mixed": true,
+        "tells": [
+          {
+            "count": 1,
+            "era": 1,
+            "first_line": null,
+            "tell": "handle-condition"
+          },
+          {
+            "count": 8,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "copybooks": [
+              "src/base/cobol_copy/ACCDB2.cpy"
+            ],
+            "count": 6,
+            "era": 2,
+            "first_line": 40,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "src/base/cobol_src/INQCUST.cbl": {
+        "earliest": 1,
+        "era": 2,
+        "mixed": true,
+        "tells": [
+          {
+            "count": 1,
+            "era": 1,
+            "first_line": null,
+            "tell": "handle-condition"
+          },
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 230,
+            "tell": "address-of"
+          },
+          {
+            "count": 18,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      },
+      "src/base/cobol_src/UPDACC.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "copybooks": [
+              "src/base/cobol_copy/ACCDB2.cpy"
+            ],
+            "count": 4,
+            "era": 2,
+            "first_line": 56,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "src/base/cobol_src/UPDCUST.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 3,
+            "era": 2,
+            "first_line": 274,
+            "tell": "address-of"
+          },
+          {
+            "count": 4,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      },
+      "src/base/cobol_src/XFRFUN.cbl": {
+        "earliest": 1,
+        "era": 2,
+        "mixed": true,
+        "tells": [
+          {
+            "count": 1,
+            "era": 1,
+            "first_line": null,
+            "tell": "handle-condition"
+          },
+          {
+            "count": 16,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "copybooks": [
+              "src/base/cobol_copy/ACCDB2.cpy",
+              "src/base/cobol_copy/PROCDB2.cpy"
+            ],
+            "count": 9,
+            "era": 2,
+            "first_line": 60,
+            "tell": "exec-sql"
+          }
+        ]
+      }
+    },
+    "summary": {
+      "by_era": {
+        "0": 0,
+        "1": 0,
+        "2": 22,
+        "3": 1,
+        "4": 6,
+        "none": 2
+      },
+      "mixed": 7,
+      "programs": 31,
+      "tells": {
+        "address-of": 2,
+        "async": 1,
+        "channel-container": 6,
+        "exec-sql": 12,
+        "handle-condition": 7,
+        "le-callable": 2,
+        "resp": 25
+      }
+    }
+  },
   "intrinsic_functions": {
     "CURRENT-DATE": {
       "count": 3,
@@ -2302,6 +2933,14 @@
     "unknown": {
       "count": 0,
       "programs": []
+    }
+  },
+  "stand_in_copybooks": {
+    "CEEIGZCT": {
+      "count": 1,
+      "programs": [
+        "src/base/cobol_src/CRECUST.cbl"
+      ]
     }
   },
   "statements": {

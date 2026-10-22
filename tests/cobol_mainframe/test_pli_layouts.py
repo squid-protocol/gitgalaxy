@@ -25,7 +25,8 @@ import gitgalaxy.cobol_refractor_controller as refractor
 import gitgalaxy.cobol_to_java_controller as java_controller
 from gitgalaxy.core.mainframe_boundary import _pli_entry_points
 from gitgalaxy.tools.cobol_to_cobol import pli_mapping
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+from scan_server import scan_to_db
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import java_type
 
 IBM_EXAMPLE = """\

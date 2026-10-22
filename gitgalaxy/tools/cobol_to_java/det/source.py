@@ -10,8 +10,32 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from gitgalaxy.core.cobol_source_format import ispf_screen
-from gitgalaxy.core.compiler_options import cards
+from gitgalaxy.core.cics_macro_level import ASSEMBLER_SUFFIXES, Hit, assembler_hits, cobol_hits, refusal_text
+from gitgalaxy.core.cobol_conditional import Conditional, options_defines
+from gitgalaxy.core.cobol_preprocessor import (
+    MappedLine,
+    comment_at,
+    copy_statements,
+    drop_comment,
+    free_code,
+    join_continuation,
+    join_copy_alone,
+    open_literal,
+)
+from gitgalaxy.core.cobol_preprocessor import (
+    expand as core_expand,
+)
+from gitgalaxy.core.cobol_source_format import (
+    FIXED_LEAD,
+    FREE,
+    TEXT_WIDTH,
+    VARIABLE,
+    directive_format,
+    ispf_screen,
+    join_wrapped,
+    wrap_fixed,
+)
+from gitgalaxy.core.compiler_options import cards, compiler_options
 from gitgalaxy.core.source_text import read_source
 
 # a copybook's own extensions before a program's: `COPY GETCOMPY` in GETCOMPY.cbl means the member, not the program
@@ -33,10 +57,9 @@ def cobol_parser():
 
 
 @dataclass
-class Line:
-    text: str  # columns 8-72 (area A and B)
-    file: str
-    line: int
+class Line(MappedLine):
+    """`text` is columns 8-72 (area A and B); `file` / `line` are the line map (core.cobol_preprocessor.MappedLine)."""
+
     cut: str = ""  # #4462: the text past column 72 of a line whose columns 8-72 end inside a literal
     lost: str = ""  # #4735: the program text past column 72 of any other fixed-form line (not a sequence / ID tag)
     lost_after: str = ""  # #4735: the last word of columns 8-72 on that line, which `lost` cuts or follows
@@ -56,6 +79,7 @@ UNMASKABLE = {
     "several-programs": "several programs in one source (several_programs): read as one",
     "unmodelled": "national / DBCS text, IDMS, a decimal-point literal under "
     "DECIMAL-POINT IS COMMA, the stand-in control characters (unmodelled): read as the grammar is handed them",
+    "cics-macro-level": "macro-level CICS (DFHxx TYPE= macro calls, CSA / TCA addressing, #5121): read as COBOL with holes",
     "missing-copybook": "a COPY found in no directory: expanded to nothing, so its items are `no such item` holes",
 }
 _unmasked: frozenset[str] = frozenset()
@@ -83,13 +107,28 @@ def unmasked(check: str) -> bool:
 def refusal(lines: list[Line]) -> str | None:
     """#4462: why the program is refused whole before the parser (unmodelled, several_programs, cut_literal), or None.
     A check a survey switched off (survey_unmask) is skipped."""
-    for check, why in (("unmodelled", unmodelled), ("several-programs", several_programs),
+    for check, why in (("unmodelled", unmodelled), ("cics-macro-level", macro_level), ("several-programs", several_programs),
                        ("cut-literal", cut_literal)):  # fmt: skip
         if not unmasked(check):
             msg = why(lines)
             if msg:
                 return msg
     return None
+
+
+class MacroLevelCics(ValueError):
+    """#5121: the source is a macro-level CICS program (DFHxx TYPE= macro calls, CSA / TCA addressing) or a CICS
+    Assembler program: refused by name, in the family gitgalaxy.core.cics_macro_level names. Not translated."""
+
+
+def macro_level(lines: list[Line]) -> str | None:
+    """#5121: why `lines` is a macro-level CICS program (the first piece of evidence, by name), or None. Command-level
+    `EXEC CICS`, DFHRESP and the macro TABLES are no evidence (gitgalaxy/core/cics_macro_level.py)."""
+    hits = cobol_hits([ln.text for ln in lines])
+    if not hits:
+        return None
+    ln = lines[hits[0].line - 1]
+    return refusal_text(Hit(hits[0].family, hits[0].what, ln.line), Path(ln.file).name)
 
 
 class NotCobol(ValueError):
@@ -264,18 +303,18 @@ def _headers(code: str) -> str:
     return _PROGRAM_ID_NO_PERIOD.sub(lambda m: m.group(1) + ".", code, count=1)
 
 
-# `>>SOURCE FORMAT FREE` / `>>SOURCE FORMAT IS FIXED` / `>>SOURCE FREE` (IBM Enterprise COBOL 6.3+, GnuCOBOL)
-_SOURCE_FORMAT = re.compile(r"\s*>>\s*SOURCE(?:\s+FORMAT)?(?:\s+IS)?\s+(FREE|FIXED)\b", re.I)
+class SourceFormatRefused(ValueError):
+    """#5648: a source-format directive this reader does not follow (`>>SOURCE FORMAT IS VARIABLE`)."""
 
 
-def _free_code(line: str) -> str:
-    """A free-format line without its `*>` comment (one outside a literal)."""
-    at = line.find("*>")
-    while at >= 0:
-        if not _open_literal(line[:at]):
-            return line[:at]
-        at = line.find("*>", at + 2)
-    return line
+def _format_switch(line: str, free: bool) -> str | None:
+    """The format (`free` / `fixed`) a source-format directive on `line` switches to, or None: the directive rule is
+    core.cobol_source_format.directive_format's (`>>SOURCE FORMAT [IS] FREE|FIXED`, `>>SOURCE FREE`, GnuCOBOL's
+    `>>FORMAT`, Micro Focus `$SET SOURCEFORMAT`), read from column 7 of a fixed line. VARIABLE is refused by name."""
+    fmt = directive_format(line if free else FIXED_LEAD[:6] + line[6:])
+    if fmt == VARIABLE:
+        raise SourceFormatRefused("source format VARIABLE is not read (fixed areas without the column-72 limit)")
+    return fmt
 
 
 # #4462: IBM's listing-control statements -- EJECT, SKIP1 / SKIP2 / SKIP3, TITLE literal -- each the only statement on
@@ -303,7 +342,7 @@ def _lost_text(line: str) -> str:
     return tail
 
 
-def logical_lines(raw: list[str], file: str) -> list[Line]:
+def logical_lines(raw: list[str], file: str, member: bool = False) -> list[Line]:
     """Columns 8-72 of each code line; comment (* /), debugging (D) and blank lines dropped; a continuation line
     (indicator '-') joined to the line before: a continued literal resumes after the continuation's first quote.
     #4462: after `>>SOURCE FORMAT FREE` (until `>>SOURCE FORMAT FIXED`) a line is code from column 1, of any length,
@@ -313,17 +352,31 @@ def logical_lines(raw: list[str], file: str) -> list[Line]:
     # Compiler-option cards (CBL / PROCESS, before the program or after an END PROGRAM) are not COBOL text. The
     # engine's own reader decides which lines they are: a card may start in any column from 1, so IBM DBB's
     # `   CBL NUMPROC(MIG),...` (CBL in columns 4-6) is one, as GenApp's `       PROCESS SQL` is.
-    card_lines = {n for n, _ in cards("\n".join(raw))}
+    text = "\n".join(raw)
+    card_lines = {n for n, _ in cards(text)}
+    # #5648: >>DEFINE / >>IF / >>ELSE / >>END-IF; a COPY member (`member`) is read alone, without the program's
+    # compilation variables at the COPY, so a directive in it is refused rather than evaluated on none
+    refuse = "conditional compilation in a COPY member is not read (refused by name)" if member else ""
+    cond = Conditional(options_defines(compiler_options(text)), refuse)
     free = False
     for n, line in enumerate(raw, 1):
         if n in card_lines:
             continue
-        fmt = _SOURCE_FORMAT.match(line if free else line[6:])
+        where = f"{Path(file).name}:{n}"
+        if free:
+            if not cond.feed(line, where):
+                continue
+        elif line[6:8] == ">>" or (len(line) >= 7 and line[6] == " "):
+            if not cond.feed(line[6:72], where):
+                continue
+        elif not cond.active:  # a comment, debugging or continuation line inside a branch not taken
+            continue
+        fmt = _format_switch(line, free)
         if fmt:
-            free = fmt.group(1).upper() == "FREE"
+            free = fmt == FREE
             continue
         if free:
-            code = _free_code(line).rstrip()
+            code = free_code(line).rstrip()
             if code.strip() and not code.lstrip().startswith(">>D ") and not _LISTING.fullmatch(code):
                 out.append(Line(_headers(code), file, n))
             continue
@@ -339,18 +392,14 @@ def logical_lines(raw: list[str], file: str) -> list[Line]:
             lost = _lost_text(line)
             if lost and not prev.lost:
                 prev.lost, prev.lost_after, prev.lost_joined = lost, cont.split()[-1] if cont.split() else "", False
-            if cont[:1] in ("'", '"') and _open_literal(prev.text):
-                # the open literal ran to column 72 (its trailing spaces are part of it)
-                prev.text = prev.text.ljust(65) + cont[1:]
-            else:
-                prev.text = prev.text.rstrip() + " " + cont
-            prev.text = _drop_comment(prev.text)
+            prev.text = join_continuation(prev.text, line, open_literal(prev.text))  # #5648: shared with the scanner
+            prev.text = drop_comment(prev.text)
             continue
-        body = _drop_comment(body)
+        body = drop_comment(body)
         if not body.strip() or _LISTING.fullmatch(body):
             continue
         body = _headers(body)
-        is_open = _open_literal(body)
+        is_open = open_literal(body)
         row = Line(body if is_open else body.rstrip(), file, n, line[72:].rstrip() if is_open else "")
         lost = _lost_text(line)
         if lost and not is_open:  # (an open literal is cut_literal's: refused with its own wording)
@@ -358,6 +407,7 @@ def logical_lines(raw: list[str], file: str) -> list[Line]:
             row.lost, row.lost_after = lost, words[-1] if words else ""
             row.lost_joined = len(line) > 72 and line[71] != " " and line[72] != " "
         out.append(row)
+    cond.finish(Path(file).name)
     return out
 
 
@@ -368,7 +418,7 @@ def cut_literal(lines: list[Line]) -> str | None:
     (the PROCEDURE DIVISION had failed to parse, unnamed); a `>>SOURCE FORMAT FREE` program has no column limit and
     is read whole. None: no such line."""
     for ln in lines:
-        if ln.cut.strip() and _open_literal(ln.text):
+        if ln.cut.strip() and open_literal(ln.text):
             return (f"{Path(ln.file).name}:{ln.line}: source defect: source text past column 72 (`{ln.cut.strip()}`) cuts "
                     "a literal open: fixed-form COBOL reads columns 8-72 only")  # fmt: skip
     for ln in lines:
@@ -502,8 +552,8 @@ def unmodelled(lines: list[Line]) -> str | None:
         if wide is not None:
             return (f"{Path(ln.file).name}:{ln.line}: national / DBCS text ({wide!r}, U+{ord(wide):04X}) is not modelled: the "
                     "translator reads a single-byte code page")  # fmt: skip
-        bare = _outside_literals(ln.text[: _comment_at(ln.text)])  # (#4272: a `*>` comment is no name)
-        shift = _SO_SI.search(ln.text[: _comment_at(ln.text)])
+        bare = _outside_literals(ln.text[: comment_at(ln.text)])  # (#4272: a `*>` comment is no name)
+        shift = _SO_SI.search(ln.text[: comment_at(ln.text)])
         if shift is not None:
             return (f"{Path(ln.file).name}:{ln.line}: shift-out / shift-in (U+{ord(shift.group(0)):04X}) delimits DBCS text in "
                     "a name or literal: not modelled (national / DBCS text, #4664)")  # fmt: skip
@@ -532,7 +582,7 @@ def decimal_comma(lines: list[Line]) -> bool:
 def _numeric_text(text: str) -> str:
     """`text` with its literals' content, its `*>` comment and its PICTURE strings blanked (a column for a column):
     where a numeric literal can be."""
-    bare = _outside_literals(text[: _comment_at(text)]).ljust(len(text))
+    bare = _outside_literals(text[: comment_at(text)]).ljust(len(text))
     return _PICTURE.sub(lambda m: " " * len(m.group(0)), bare)
 
 
@@ -554,29 +604,12 @@ def comma_literals(lines: list[Line]) -> list[Line]:
     return out
 
 
-def _drop_comment(text: str) -> str:
-    """#4874: `text` without a floating `*>` comment (one outside a literal; IBM Enterprise COBOL 6 and GnuCOBOL accept
-    it in fixed form too), as free format does; a literal that holds `*>` is kept whole."""
-    at = _comment_at(text)
-    return text[:at].rstrip() if at < len(text) else text
-
-
-def _comment_at(text: str) -> int:
-    """Where `text`'s `*>` comment starts (one outside a literal), or len(text)."""
-    at = text.find("*>")
-    while at >= 0:
-        if not _open_literal(text[:at]):
-            return at
-        at = text.find("*>", at + 2)
-    return len(text)
-
-
 def _wide_chars(text: str, in_proc: bool) -> list[tuple[str, str, int]]:
     """#4272: each character beyond Latin-1 in `text`: (the character, where, its index). Where: "comment" (in a `*>`
     comment), "literal" (inside an alphanumeric literal of the PROCEDURE DIVISION, `in_proc`: no N / G / NX / U /
     X prefix), "refused" (anywhere else: a name, a DATA DIVISION literal, a national / DBCS literal)."""
     out: list[tuple[str, str, int]] = []
-    end = _comment_at(text)
+    end = comment_at(text)
     quote, plain = None, False
     for i, ch in enumerate(text):
         if quote is None and i < end and ch in "'\"":
@@ -598,7 +631,7 @@ def narrowed(lines: list[Line]) -> list[Line]:
     A survey's what-if only (the cut-literal check off by survey_unmask): a literal cut open at column 72 is read
     with its text past column 72, as if the source were fixed, so the survey sees what the program would hit next."""
     if unmasked("cut-literal"):
-        lines = [Line(ln.text + ln.cut.rstrip(), ln.file, ln.line) if ln.cut.strip() and _open_literal(ln.text) else ln
+        lines = [Line(ln.text + ln.cut.rstrip(), ln.file, ln.line) if ln.cut.strip() and open_literal(ln.text) else ln
                  for ln in lines]  # fmt: skip
     out: list[Line] = []
     in_proc = False
@@ -617,85 +650,46 @@ def narrowed(lines: list[Line]) -> list[Line]:
     return out
 
 
-def _open_literal(text: str) -> bool:
-    """Whether `text` ends inside an unterminated literal."""
-    quote = None
-    for ch in text:
-        if quote is None and ch in "'\"":
-            quote = ch
-        elif ch == quote:
-            quote = None
-    return quote is not None
-
-
 # #4459: a COPY anywhere on its line (`01 WS-HEAD.  COPY RPTHDR.`), never inside a literal; its member may be on the
-# next line (`COPY` / `UPDCTL.`, joined by `expand`)
-# #4462: a member's name may hold national letters (estate-crucible NORD `COPY KUNDEÅ.`, read in cp277)
-_WORD = r"(?:[^\W_]|[#@$-])"
-_COPY = re.compile(rf"(?<!{_WORD})COPY\s+(['\"]?)({_WORD}+)\1(?:\s+(?:OF|IN)\s+({_WORD}+))?", re.I)
-_COPY_ALONE = re.compile(rf"(?<!{_WORD})COPY\s*$", re.I)
+# next line (`COPY` / `UPDCTL.`, joined by `expand`). #5648: the statement rule is the scanner's
+# (core.cobol_preprocessor), quoted file literals with an extension included (`COPY "ws-state.cpy".`, #5645)
 _PROGRAM_MARK = re.compile(r"^\s*(?:IDENTIFICATION|ID)\s+DIVISION\b|^\s*PROGRAM-ID\b", re.I)
 
 
 def _copy_match(text: str):
     """The COPY statement in `text` (not inside a literal), or None."""
-    for m in _COPY.finditer(text):
-        if not _open_literal(text[: m.start()]):
-            return m
-    return None
+    return next((c for c in copy_statements(text) if not open_literal(text[: c.start])), None)
 
 
 def copy_names(lines: list[Line]) -> set[str]:
     """The members the COPY statements of `lines` name (each form `expand` reads: after other text, several to a
     line, the member on the next line)."""
     names: set[str] = set()
-    for i, ln in enumerate(lines):
-        text = ln.text
-        if _COPY_ALONE.search(text) and not _open_literal(text) and i + 1 < len(lines):
-            text = text.rstrip() + " " + lines[i + 1].text.lstrip()
-        for m in _COPY.finditer(text):
-            if not _open_literal(text[: m.start()]):
-                names.add(m.group(2).upper())
+    texts = [ln.text for ln in lines]
+    for i, text in enumerate(texts):
+        text = join_copy_alone(texts, i) or text
+        names |= {c.member for c in copy_statements(text) if not open_literal(text[: c.start])}
     return names
-
-
-def _statement_end(stmt: str, start: int) -> int:
-    """Index just past the period that ends the COPY statement beginning at `start` (-1: not ended yet); a period
-    inside ==pseudo-text== or a literal does not end it."""
-    quote, pseudo, k = None, False, start
-    while k < len(stmt):
-        ch = stmt[k]
-        if pseudo:
-            if stmt.startswith("==", k):
-                pseudo, k = False, k + 1
-        elif quote:
-            quote = None if ch == quote else quote
-        elif stmt.startswith("==", k):
-            pseudo, k = True, k + 1
-        elif ch in "'\"":
-            quote = ch
-        elif ch == "." and (k + 1 == len(stmt) or stmt[k + 1].isspace()):
-            return k + 1
-        k += 1
-    return -1
 
 
 _SHIPPED_COPY = (Path(__file__).parent / "copy").resolve()  # DFHEIBLK, DFHAID, DFHBMSCA: a fallback, never a rival
 
 
-def _search_member(name: str, dirs: list[Path], chain: frozenset, where: str) -> Path | None:
+def _search_member(name: str, dirs: list[Path], chain: frozenset, where: str, file_name: str = "") -> Path | None:
     """#4461: the one file `COPY name` names in `dirs` (no engine answer). A copybook extension beats a program
     extension (CBSA keeps a program INQCUST.cbl beside its sources and the copybook INQCUST.cpy elsewhere); the
     translator's shipped system members (DFHAID ...) are consulted only where no other directory holds the member.
-    The same file reached through several directories is one candidate; several distinct files are CopyAmbiguous."""
+    The same file reached through several directories is one candidate; several distinct files are CopyAmbiguous.
+    #5645: `file_name`, a quoted literal's file as written (`COPY "ws-state.cpy".`), is looked for first."""
     for shipped in (False, True):
         for exts in (COPYBOOK_EXTS, PROGRAM_EXTS):
             found: dict[Path, Path] = {}  # resolved -> as found; one per directory (its first name/extension)
             for d in dirs:
                 if (d.resolve() == _SHIPPED_COPY) != shipped:
                     continue
-                hit = next((d / f"{nm}{ext}" for nm in dict.fromkeys((name, name.lower())) for ext in exts
-                            if (d / f"{nm}{ext}").is_file() and (d / f"{nm}{ext}").resolve() not in chain), None)  # fmt: skip
+                files = [file_name] if file_name else []
+                files += [f"{nm}{ext}" for nm in dict.fromkeys((name, name.lower())) for ext in exts]
+                hit = next((d / f for f in files if (d / f).is_file() and (d / f).resolve() not in chain), None)
                 if hit is not None:
                     found.setdefault(hit.resolve(), hit)
             if len(found) > 1:
@@ -710,100 +704,41 @@ def _search_member(name: str, dirs: list[Path], chain: frozenset, where: str) ->
 
 def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset = frozenset(),
            engine: EngineCopies | None = None, expanded_names: set[str] | None = None) -> list[Line]:  # fmt: skip
-    """COPY statements replaced by their members' lines (recursively); REPLACING ==a== BY ==b== and word-for-word
-    `a BY b` applied. A member found nowhere raises CopyNotFound. `engine` (#4468): each COPY in an estate file takes
-    the member the engine resolved (CopyUnresolved where it resolved none or several); without it, and for a member
-    outside the estate, the first of `dirs` holding it. `expanded_names` collects the program's own members."""
-    out: list[Line] = []
+    """COPY statements replaced by their members' lines (recursively; core.cobol_preprocessor.expand); REPLACING
+    ==a== BY ==b== and word-for-word `a BY b` applied. A member found nowhere raises CopyNotFound. `engine` (#4468):
+    each COPY in an estate file takes the member the engine resolved (CopyUnresolved where it resolved none or
+    several); without it, and for a member outside the estate, the first of `dirs` holding it. `expanded_names`
+    collects the program's own members."""
     own = str(engine.program) if engine is not None else None
-    i = 0
-    while i < len(lines):
-        ln = lines[i]
-        if _COPY_ALONE.search(ln.text) and not _open_literal(ln.text) and i + 1 < len(lines):
-            # #4459: the member name on the next line
-            ln = Line(ln.text.rstrip() + " " + lines[i + 1].text.lstrip(), ln.file, ln.line)
-            lines = [*lines[:i], ln, *lines[i + 2 :]]
-        m = _copy_match(ln.text)
-        if not m and re.match(r"\s*EXEC\s+SQL\b", ln.text, re.I):
-            # EXEC SQL INCLUDE member END-EXEC is a COPY of the member (Db2's precompiler includes it the same way)
-            j, block = i, ln.text
-            while not re.search(r"\bEND-EXEC\b", block, re.I) and j + 1 < len(lines):
-                j += 1
-                block += " " + lines[j].text
-            inc = re.match(r"\s*EXEC\s+SQL\s+INCLUDE\s+([A-Z0-9#@$-]+)\s+END-EXEC\s*\.?\s*$", block, re.I)
-            if inc:
-                lines = [*lines[:i], Line(f"COPY {inc.group(1)}.", ln.file, ln.line), *lines[j + 1 :]]
-                ln = lines[i]
-                m = _copy_match(ln.text)
-        if not m:
-            out.append(ln)
-            i += 1
-            continue
-        stmt, j = ln.text, i
-        end = _statement_end(stmt, m.start())
-        while end < 0 and j + 1 < len(lines):
-            j += 1
-            stmt += " " + lines[j].text
-            end = _statement_end(stmt, m.start())
-        tail = stmt[end:] if end > 0 else ""
-        stmt = stmt[m.start() : end] if end > 0 else stmt[m.start() :]
-        name = m.group(2).upper()
-        # never a file being expanded already (the including program or copybook itself)
-        # a copybook's extensions in every directory before a program's: CBSA keeps a program INQCUST.cbl next to
-        # its sources and the copybook INQCUST.cpy elsewhere; never a file being expanded already
-        where = f"{ln.file}:{ln.line}"
-        member = engine.member(ln.file, name, m.group(3) and m.group(3).upper(), where) if engine is not None else None
-        if member is not None and member.resolve() in chain:
+
+    def resolve(ln: Line, m, where: str, seen: frozenset) -> Path | None:
+        name = m.member
+        member = engine.member(ln.file, name, m.library or None, where) if engine is not None else None
+        if member is not None and member.resolve() in seen:
             raise CopyNotFound(f"{where}: COPY {name} resolves to {member}, which is being expanded already")
         if member is None:
-            member = _search_member(name, dirs, chain, where)
+            member = _search_member(name, dirs, seen, where, m.file_name)
             if member is None and not unmasked("missing-copybook"):  # (a survey's what-if only: survey_unmask)
                 raise CopyNotFound(f"{where}: COPY {name} found in none of {[str(d) for d in dirs]}")
             if member is not None and engine is not None and engine.in_estate(Path(ln.file)):
                 engine.unresolved(ln.file, name, member, where)
-        if depth > 8:
-            raise CopyNotFound(f"{where}: COPY {name} nests deeper than 8")
-        if engine is not None and ln.file == own and expanded_names is not None:
+        return member
+
+    def load(member: Path, where: str, m) -> list[Line]:
+        body = logical_lines(_raw_lines(member, engine), str(member), member=True)
+        if any(_PROGRAM_MARK.match(b.text) for b in body):
+            # #4460: a program, not a copybook: splicing it in would give the includer another program's records
+            raise CopyNotFound(f"{where}: COPY {m.member} resolves to {member}, which is a program "
+                               "(IDENTIFICATION DIVISION / PROGRAM-ID), not a copybook")  # fmt: skip
+        return body
+
+    def seen_top(ln: Line, name: str) -> None:
+        if ln.file == own and expanded_names is not None:
             expanded_names.add(name)
-        expanded: list[Line] = []
-        if member is not None:
-            body = logical_lines(_raw_lines(member, engine), str(member))
-            if any(_PROGRAM_MARK.match(b.text) for b in body):
-                # #4460: a program, not a copybook: splicing it in would give the includer another program's records
-                raise CopyNotFound(f"{where}: COPY {name} resolves to {member}, which is a program (IDENTIFICATION "
-                                   "DIVISION / PROGRAM-ID), not a copybook")  # fmt: skip
-            pairs = _replacing(stmt)
-            if pairs:
-                for b in body:
-                    for old, new in pairs:
-                        b.text = _replace(b.text, old, new)
-            expanded = expand(body, dirs, depth + 1, chain | {member.resolve()}, engine)
-        # the text before COPY on its line (rare: `01 X. COPY Y.`) and what follows the COPY's period stay
-        head = ln.text[: m.start()]
-        if head.strip():
-            out.append(Line(head, ln.file, ln.line))
-        out += expanded
-        if tail.strip():  # what follows the COPY's period (`COPY A. COPY B.`) is read on
-            lines = [*lines[: j + 1], Line(tail.lstrip(), ln.file, lines[j].line), *lines[j + 1 :]]
-        i = j + 1
-    return out
 
-
-def _replacing(stmt: str) -> list[tuple[str, str]]:
-    m = re.search(r"\bREPLACING\b(.*)$", stmt, re.I | re.S)
-    if not m:
-        return []
-    body = m.group(1).rstrip().rstrip(".")
-    pairs = re.findall(r"==(.*?)==\s+BY\s+==(.*?)==", body, re.I | re.S)
-    if pairs:
-        return [(a.strip(), b.strip()) for a, b in pairs]
-    return [(a, b) for a, b in re.findall(r"(\S+)\s+BY\s+(\S+)", body, re.I)]
-
-
-def _replace(text: str, old: str, new: str) -> str:
-    if re.fullmatch(r"[A-Z0-9-]+", old, re.I):  # a word: whole words only
-        return re.sub(rf"(?<![A-Z0-9-]){re.escape(old)}(?![A-Z0-9-])", new, text, flags=re.I)
-    return text.replace(old, new)
+    return core_expand(lines, resolve, load, depth=depth, chain=chain, make=Line,
+                       on_copy=seen_top if engine is not None else None, nesting_error=CopyNotFound,
+                       identity=lambda p: p.resolve())  # fmt: skip
 
 
 def program_lines(program: Path, dirs: list[Path], engine: EngineCopies | None = None) -> list[Line]:
@@ -815,11 +750,27 @@ def program_lines(program: Path, dirs: list[Path], engine: EngineCopies | None =
     names: set[str] = set()
     raw = _raw_lines(program, engine)
     check_cobol(raw, str(program))
-    out = expand(logical_lines(raw, str(program)), [program.parent, *dirs],
+    own = logical_lines(raw, str(program))
+    # #5121: named before COPY expansion, so a macro-level program's missing DFHCSADS / DFHTCADS is not `missing copybook`
+    why = None if unmasked("cics-macro-level") else assembler_refusal(raw, str(program)) or macro_level(own)
+    if why:
+        raise MacroLevelCics(why)
+    out = expand(own, [program.parent, *dirs],
                  chain=frozenset({program.resolve()}), engine=engine, expanded_names=names)  # fmt: skip
     if engine is not None:
         engine.check_all_expanded(names)
     return out
+
+
+def assembler_refusal(raw: list[str], file: str) -> str | None:
+    """#5121: why a file that is no COBOL program (no PROGRAM-ID, no DIVISION) but a CICS Assembler program is refused, or None."""
+    if any(re.search(r"\bPROGRAM-ID\b|\bDIVISION\b", t, re.I) for t in raw):  # (a COBOL member: no assembler)
+        return None
+    hits = assembler_hits(raw)
+    # a bare `EXEC CICS` is also what a COBOL member's text looks like: it counts only in an assembler file
+    if Path(file).suffix.lower() not in ASSEMBLER_SUFFIXES:
+        hits = [h for h in hits if h.what != "EXEC CICS"]
+    return refusal_text(hits[0], Path(file).name) if hits else None
 
 
 class UnitRefused(ValueError):
@@ -962,9 +913,6 @@ def engine_copies_from_ticket(project: Path, program: Path, strict: bool = False
     return None
 
 
-WIDTH = 65  # columns 8-72
-
-
 def as_fixed(lines: list[Line]) -> str:
     """The lines as fixed-format source again (for a parser): seven blank columns, then the text."""
     return as_fixed_rows(lines)[0]
@@ -986,8 +934,8 @@ def as_fixed_rows(lines: list[Line]) -> tuple[str, list[int]]:
         bare = _outside_literals(ln.text)
         opens = _EXEC.search(bare)
         # SQL / CICS text keeps its own quote style (the grammar never reads it: blanked, or a placeholder CALL)
-        code = ln.text if in_exec or opens else _grammar_literals(ln.text, apostrophes=len(ln.text) > WIDTH)
-        wrapped = _wrap(code) if len(code) > WIDTH else ["       " + code]
+        code = ln.text if in_exec or opens else _grammar_literals(ln.text, apostrophes=len(ln.text) > TEXT_WIDTH)
+        wrapped = wrap_fixed(code) if len(code) > TEXT_WIDTH else [FIXED_LEAD + code]
         for row in wrapped:
             out.append(row + "\n")
             rows.append(k)
@@ -1047,44 +995,10 @@ def _grammar_literals(text: str, apostrophes: bool) -> str:
     return "".join(out)
 
 
-def _wrap(text: str) -> list[str]:
-    rows: list[str] = []
-    rest, cont = text, False
-    while True:
-        lead = "      -  " if cont else "       "
-        lim = 72 - len(lead)
-        if len(rest) <= lim:
-            return [*rows, lead + rest]
-        quote, last_space, closed = None, -1, -1
-        for i, ch in enumerate(rest[:lim]):
-            if quote:
-                quote, closed = (None, i) if ch == quote else (quote, closed)
-            elif ch in "'\"":
-                quote = ch
-            elif ch == " ":
-                last_space = i
-        if quote is None and closed == lim - 1 and rest[lim : lim + 1] == rest[closed]:
-            # #4523: column 72 holds the first of a doubled quote: the literal is still open; the row ends a column
-            # early so the pair stays together on the next (the grammar's row is short; `unwrap` joins it exactly)
-            rows.append(lead + rest[: lim - 1])
-            rest, cont = rest[closed] + rest[lim - 1 :], True
-            continue
-        if quote is not None:  # the literal runs to column 72 and reopens on the next row
-            rows.append(lead + rest[:lim])
-            rest, cont = quote + rest[lim:], True
-            continue
-        k = last_space if last_space > 0 else lim
-        rows.append(lead + rest[:k])
-        rest, cont = rest[k:].lstrip(" "), False
-
-
-_CONTINUED = re.compile(r"\n {6}-\s*['\"]")
-
-
 def unwrap(text: str) -> str:
     """Parser text with as_fixed_rows' literal continuations joined again (a continued literal's own text), and its
     stand-ins (QQ, HX) back as `""` and `X"`."""
-    return _CONTINUED.sub("", text).replace(QQ, '""').replace('"' + HX, 'X"')
+    return join_wrapped(text).replace(QQ, '""').replace('"' + HX, 'X"')
 
 
 # #4462: the COBOL-74 / OS/VS alphabet clause, `alphabet-name IS {literal ... | STANDARD-1 | NATIVE ...}` with no

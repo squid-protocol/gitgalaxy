@@ -25,7 +25,7 @@ on:
     # the first run of #2703 read zero labels and failed red on a regression
     # the author had already declared -- and no later label change could
     # re-trigger it. `unlabeled` is here for the same reason in reverse.
-    types: [opened, synchronize, reopened, labeled, unlabeled]
+    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
     branches: [main, v6-dev]
     paths:
       - "gitgalaxy/**"
@@ -43,9 +43,11 @@ jobs:
     # `gh pr create --label a,b,c` attaches after the PR exists (measured on #4593's head ab2807081: 4 runs within 3 s,
     # 3 of them cancelled by the concurrency group, one `rosetta-audit` check left cancelled beside the green one).
     # Only the `rosetta:rebless-owed` label changes what the audit does, so any other label event skips the job.
+    # #5104: a draft PR skips this (ready_for_review starts it).
     if: >-
-      (github.event.action != 'labeled' && github.event.action != 'unlabeled')
-      || github.event.label.name == 'rosetta:rebless-owed'
+      (github.event_name != 'pull_request' || github.event.pull_request.draft == false) &&
+      ((github.event.action != 'labeled' && github.event.action != 'unlabeled')
+      || github.event.label.name == 'rosetta:rebless-owed')
     # One run per PR (or per ref outside a PR), at the JOB level: a workflow-level group would let the skipped
     # label-event runs above cancel the real one. cancel-in-progress is scoped to pull_request on purpose (see the
     # other workflows): a re-push still supersedes the run it replaces, and adding or removing the
@@ -96,14 +98,14 @@ jobs:
         run: |
           python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
           pip install --require-hashes -r gitgalaxy/ci/requirements/engines.txt
-          pip install -e ./gitgalaxy
+          pip install --no-build-isolation -e ./gitgalaxy
 
       - name: Install GitGalaxy baseline build (full precision, separate venv)
         run: |
           python -m venv baseline-venv
           baseline-venv/bin/pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
           baseline-venv/bin/pip install --require-hashes -r gitgalaxy/ci/requirements/engines.txt
-          baseline-venv/bin/pip install ./gitgalaxy-baseline
+          baseline-venv/bin/pip install --no-build-isolation ./gitgalaxy-baseline
 
       - name: Run all language gates, classify against the baseline
         env:

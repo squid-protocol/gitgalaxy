@@ -10,15 +10,15 @@ measured. Follow it or you will ship a number that is noise.
 
 ## 0. Setup (do this first, every time)
 - `export GITGALAXY_LICENSE_KEY=COMMUNITY_FREE_TIER` -- without it a ~5s license
-  delay skews every timing (see the `speed-test-license-key` memory).
+  delay skews every timing.
 - Run mega-repo scans with the **Bash sandbox OFF** -- batch scans get reaped on
-  large repos otherwise (`batch-scan-needs-sandbox-off` memory).
+  large repos otherwise.
 - Drive the engine by **importing `gitgalaxy.galaxyscope.main()` over PYTHONPATH**,
   never the installed console script (it runs whatever is on PATH). Print
   `gitgalaxy.__file__` to confirm which engine actually ran.
-- From a worktree, also set `KEYWORD_ROSETTA_PATH` / `LANGUAGE_CRUCIBLE_PATH` and
-  use `v6/.venv` python, or you get phantom census MISMATCHes
-  (`gitgalaxy-worktree-env` memory).
+- From a worktree, also set `KEYWORD_ROSETTA_PATH` / `LANGUAGE_CRUCIBLE_PATH` (beside
+  `$PRIMARY`, see `.claude/agents/gitgalaxy-pr-worker.md` Setup) and use the box's shared
+  venv python (`$GG_PY`), or you get phantom census MISMATCHes.
 
 ## 1. Measure with the harness
 `tests/tools/phase_ab.py` does the whole loop -- alternating rounds, an A-vs-A
@@ -43,7 +43,23 @@ per-phase mean + `Δ vs base`, and the wall.
 - **Never scale a single-segment micro-bench to end-to-end.** Micro-benches on
   amalgamated mega-headers overstate -- galaxyscope SKIPS the amalgamated
   `simdjson.h`/`.cpp` in production. Check what the production path actually scans
-  before believing an estimate (`next-perf-target-brace-slicer` memory).
+  before believing an estimate.
+
+## 2b. Profiling traps and dead ends
+- **cProfile mis-sizes regex-bound code**: C-level regex time lands on the Python caller
+  (`_is_orphan` looked ~50x its real cost). Locate with cProfile, size with `phase_ab.py`.
+- **A parent-process cProfile misses the workers.** Profile in-process per file
+  (`StructuralExtractor.splice(..., profile_regex=True)`) or in a serial loop over
+  `galaxyscope._process_file_worker`.
+- **A change that moves a phase it never touches is box contention**: re-measure on a quiet
+  box (`box-capacity` skill), min-of-N. Parallel (`xargs -P`) runs are for match-set parity,
+  never timing.
+- **Cheap ReDoS screen**: time every rule on `"\n".join(" " * 30 for _ in range(2000))`;
+  `^`-anchored rules under `re.M` go quadratic on blanked runs.
+- **Burned dead ends** (don't retry without new evidence): `func_start` gating (no required
+  literal, #3072 / #3182); largest-first dispatch (wall flat, #3175); mode-B brace scan (not
+  quadratic, #3174); a multi-core post-extraction tail (#3183: GIL-bound, `ResolvedConfig`
+  doesn't unpickle, `audit_recorder` mutates the shared graph).
 
 ## 3. Prove "changes nothing" on the DETERMINISTIC surface
 `master.db` / `graph.sqlite` call lists carry hash-seed-order nondeterminism

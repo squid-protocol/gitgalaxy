@@ -12,9 +12,10 @@ the COBOL run by GnuCOBOL. Read first:
 ## Environment
 
 ```sh
-cd /nvme-data/projects/gitgalaxy-worktrees/<worktree>
+PRIMARY=${GG_PRIMARY:-$(dirname "$(cd "$(git rev-parse --git-common-dir)" && pwd)")}   # gitgalaxy-pr-worker.md Setup 1
+cd $PRIMARY/../gitgalaxy-worktrees/<worktree>
 PY=../porting-loop/.venv/bin/python             # the shared venv: an EDITABLE gitgalaxy install of another checkout
-export GITGALAXY_MAINFRAME_CORPORA=/nvme-data/projects/gitgalaxy/.mainframe_corpora
+export GITGALAXY_MAINFRAME_CORPORA=${GITGALAXY_MAINFRAME_CORPORA:-$PRIMARY/.mainframe_corpora}
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 GITGALAXY_LICENSE_KEY=COMMUNITY_FREE_TIER
 ```
 
@@ -41,8 +42,9 @@ export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 GITGALAXY_LICENSE_KEY=COMMUN
 |---|---|
 | translate + prove cases | `$PY tests/tools/det_port.py run CASE... --work DIR [--style structured] [--typed [--groups]] [--jobs 2]` |
 | translate every case only | `$PY tests/tools/det_port.py run --all-cases --translate-only --work DIR` |
-| **did my change move a port?** | `$PY tests/tools/det_port.py check --work DIR` (base: `origin/main`; `--base-ref REF`, `--base DIR`). A runtime class counts only for the ports that name it |
+| **did my change move a port?** | `$PY tests/tools/det_port.py check --work DIR` (base: `origin/main`; `--base-ref REF`, `--base DIR`). A runtime class counts only for the ports that name it, but a change to the shared `CicsTask.java` marks every port changed in `check`: re-prove the ones that can reach the changed code and name them in the report (#5147); `check` also marks every port changed after any `DetCics.java` edit, so read the per-port diff line (`DetCics.java N lines`) before assuming behaviour moved. `CicsTask.java` is the string `CICS_TASK_JAVA` in `cobol_to_java_transaction_forge.py`: re-prove only the ports whose `*Service.java` moved, plus a sample using the touched verb (#5185, #5187, #5204) |
 | structural parity of one port | printed by `run` and `check` as `parity warning:` lines (`parity_warnings` in summary.json / check.json); `tests/tools/det_parity.py`, fit and bands in `det_port_design.md` |
+| **run a det case** | `det_port.py run`: only it applies the deterministic port. `equivalence.py run` uses the generated skeleton, not the deterministic port (#5147) |
 | prove one port by hand | `$PY tests/tools/equivalence.py run CASE --port DIR/CASE/port --keep DIR/proof --faults all` |
 | all CI gates | `$PY tests/tools/pr_gates.py` (`--fast` skips the golden masters and the suite) |
 | **re-prove everything** (a runtime / harness / oracle change) | `$PY tests/tools/proof_sweep.py --work DIR` -- every det and model port, checked against the cases not proven on purpose; det ~9 min at `--jobs 4`, model ~12 min (2026-10-02) |
@@ -72,7 +74,7 @@ Results:
 | **runtime** | a `cobolrt` call is wrong for a value | DIVIDE's intermediate; TRIM of all spaces |
 | **harness** | the input or the comparison differs between the sides, not the logic | LOW-VALUES dropped on the way to the DTO; PROGRAM-ID read from the sequence columns |
 | **case** | a scenario is not what its name says | — |
-| **oracle** | GnuCOBOL or our model is not IBM | add or update an entry file in `docs/language_status/register/`, then `register.py render` |
+| **oracle** | GnuCOBOL or our model is not IBM | add or update an entry file in `docs/language_status/register/` (the page is rendered, not committed: #5057) |
 
 A translator fix is never a hand edit of a port.
 
@@ -157,3 +159,67 @@ A translator fix is never a hand edit of a port.
   GitGalaxy's aperture admits it past the generated-noise gates (wiki 02-03, "Declared ports"); without that line a
   default scan drops most ports as machine output. Keep that line first, and keep emitted lines under 500
   characters where it is free: storage images go one 400-character piece per line.
+- **Equivalence case traps.** A case's `"commarea"` is `{"segments": [{"copybook", "record"}]}` or null, never a name, and the segment's copybook field names must match the program's DFHCOMMAREA (#5185). A scenario meant to stay on a validation path must be checked in the COBOL trace (`proof/cobol/scenarios/*/trace.txt`): an EPSNBRVL error text does not zero the number it returns (#5188). When a field's justification changes, check what it does to every scenario's meaning (a NUM field with the length-typed assumption turns a short typed value into leading zeros under `<f>I(1:<f>L)`), not only which scenarios fail (#5193). In a proof run the GnuCOBOL oracle side refuses before the Java side runs, so fixing a Java failure can surface a different refusal (#5193).
+- **A pointer tested for NULL needs no runtime change.** `Cobol.compareFigurative(Field, LOW_VALUES, CS)` already tests a pointer for NULL (all-zero handle) (#5203).
+- **A relation involving NULL must skip `cond_relations` / `self.relation()`**, or the OSVS plan list goes out of step (#5203).
+- **`docker save <name>@sha256:...` + `docker load` drops the digest name** (a digest cannot be a local tag): a
+  cache-restored digest-pinned image needs a local alias; check `docker image inspect <digest-ref>` after a load (#5265).
+- **Use a fresh `--work` dir for `det_port.py check`**: a reused scratch dir holds stale output that looks conclusive
+  (#4884). It removes its `base-tree`; to compare against main again, re-run the base from a fresh worktree (#5290).
+- **No equivalence case yet?** `det_survey.py --corpus <name> --program <path> --no-compile --work <scratch>`
+  translates one program in seconds. Design-doc blocker prose can outlive the fix: confirm with a translation run
+  before treating a program as blocked (#4949).
+- **A facade-only runtime helper goes in the generated service, gated on a translator flag, not in `det/cobolrt/**`**:
+  a `DetCics.java` edit moves ~every det port in `det_port.py check` (#5290). `FACADE_JAVA` in
+  `tests/tools/equivalence_cics.py` is a plain string spliced into an f-string: use a `__PKG__` placeholder replaced at
+  the call site, not `{pkg}` or doubled braces (#5290).
+- **`equivalence.py run --record` writes evidence.json even when the proof fails**: check the status line says
+  "proven" before committing (#5322). It prints "0/N events equal" for fault scenarios (java-facade mode, not a
+  failure): `det_port.py run` is the real proof (#5324).
+- **An unnamed option like `!1` aborts the whole CICS case run with an X8 bounds error**: name it in
+  `bounds_refused` or leave the scenario out (#5322).
+- **`proof_sweep.py --record-ledger` needs `--aggregate`**; otherwise `det_coverage_ledger.py update SWEEP_DIR`, rerun
+  after any case.json edit (#5324).
+- **A crucible port's overlay can contain the shared translator runtime**: sample only the port's own files or
+  mutation scores measure nothing (#5326). PROVENANCE `files` counts the crucible sample (4-30 files), not the
+  upstream tree (#5357).
+
+## Lessons (det, Db2 and mutation traps promoted from the inbox)
+
+- **`DetFiles.java` change**: `det_port.py check` lists ~80 ports; compare the DIFFERS to `det_sweep_baseline.json` (#5589).
+- **A runtime class every det lane needs belongs at the cobolrt root**: `runtime_files()` drops `batch/` for standalone
+  projects and `standalone/` for batch ones (#5868). A CALLed program's file handles were only built in `runBatch`: an NPE on
+  `<FD>_FILE` is the symptom (#5589). Any new Lossless private-use mapping is mirrored in both Sysouts (#5737).
+- **`register.py audit --ci` accepts only a citation matching `IBM_CITE`**: "z/OS MVS Data Areas" alone fails; include an
+  `ibm.com/docs` URL (#5868).
+- **`new String(b, cs)` is not injective for the JDK's IBM037 family** (X'15' and X'25' both decode to U+000A): a "lossless"
+  charset view must handle duplicate decodes, not only unmapped bytes (#5513).
+- **`det_port.py` printing DIFFERS can hide an unnamed X8 refusal**: read `DIR/<case>/proof.log` (#5765). Fault logs
+  (`work/FAULTS`, CICS `{name}.faults`) are append-only: clear them before a rerun or `--reuse` step or entries double (#5748).
+- **A Db2 case with no `port/` dir**: prove with `det_port.py run CASE --work DIR`; `equivalence.py run` takes the model-port
+  path and reports every Java event unequal (#5811).
+- **`det_coverage_ledger.py update` needs a `proof_sweep.py --det-only --cases CASE --work DIR --no-ratchet` dir**; a
+  `det_port.py --work` dir has no `sweep.json` (#5811); `--record-ledger` alone does not write `det_sweep_coverage` (#5709).
+- **`db2.generate`**: a program reading nullable columns without indicators needs `"null": false` on each, else a generated
+  NULL gives -305 and an unjudgeable LGSTSQ link (#5880). A `sql_faults` entry whose SQLCODE has no built-in SQLSTATE raises
+  Unsupported ("NOT PROVEN (no coverage line)"): give an explicit `"sqlstate"` (#5880). Scenarios reaching the DSNTIAC hole
+  (-532 FK delete, +100 vanished row) cannot be in a Db2 case until modelled (#5765).
+- **Case-draw traps.** A `commarea_length` scenario's commarea holds only fields wholly inside the cut (past the cut a field is
+  blank in COBOL, set in Java) (#5544). A case-level `"maps"` key makes the COBOL oracle abend ABM0 but the java-facade does
+  not check the mapset, so LIT `sendMap` mutants survive (#5552). Harness ASSIGN codegen space-pads the whole target, so a field
+  wider than the ASSIGN width (SYSIDO 8 vs SYSID 4) differs from IBM (#5669). Typing an amount into a COMP-2 field exposes
+  GnuCOBOL-vs-port MOVE differences: draw amounts a double holds exactly, and read the first DIFFERS before blaming the
+  generator (#5703). Generated alphanumeric KSDS keys sort ASCII in GnuCOBOL vs EBCDIC in Java: use `"digits": true` unless
+  collation is the point (#5658).
+- **A new committed port for program P changes the proof inputs of every committed case listing P in `programs`** (#4188):
+  check `evidence.py status` and re-prove them in the same PR (#5611). A model-written port that clamps WRITEQ LENGTH to FROM
+  is not X6-faithful: the oracle stops at the refusal, Java that runs on fails the comparison (#5611).
+- **A 4th SET TDQUEUE option**: update `at_most_one` in `queues.py`, the `given` lists in `det/cics.py` and
+  `equivalence_cics.py`, and the "without ..." message pinned in `test_td_openstatus_translate_5168.py` (#5727).
+- **Mutation.** A `-generated` case is a separate mutation row for the same port: give it the hand-proposed scenarios its
+  sibling got (#5660). `mutation.py --only` takes another run's DIR (with `mutation.json` `results[].verdict`, else KeyError),
+  not ids; use `--ops` to re-judge (#5669, #5861). Re-judge a few survivors after a full `--record` with a filtered
+  `mutation.json` for `--only`, then `mutation_scores.py build --rejudged ... --keep-others` (#5660). Ledger mutant ids shift
+  when the translator template changes: verdicts carry by (op, before, after) text; after `--record` on regenerated ports carry
+  old triage the same way (#5472, #5528). `mutation.py run --record` and `mutation_scores.py retriage` rewrite
+  `tests/equivalence/carddemo-tranlist/evidence.json`: `git checkout` it before staging (#5861).

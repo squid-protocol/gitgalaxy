@@ -128,3 +128,35 @@ def test_burned_overlap_threshold():
     burned = {"e": ["a", "b", "c"]}
     assert e4.burned_overlap(["a", "x", "y"], burned)[0] == pytest.approx(1 / 3)
     assert e4.burned_overlap([], burned)[0] == 0.0
+
+
+def test_batch_rule4_jcl_evidence_from_file_names():
+    assert e4.jcl_evidence(["jcl/run.txt"]) == 1
+    assert e4.jcl_evidence(["src/A.JCL", "proc/b.proc", "c.prc"]) == 3
+    assert e4.jcl_evidence(["src/a.cbl", "maps/a.bms", "jcl.txt", "x/jclish/a.cbl"]) == 0
+    assert e4.tree_stats(["a.cbl", "j/a.jcl"])["jcl"] == 1
+
+
+def test_cics_tree_is_not_mistaken_for_batch():
+    stats = e4.tree_stats(["a.cbl", "m.bms", "r.csd"])
+    assert stats["bms"] + stats["csd"] == 2
+    assert stats["jcl"] == 0
+
+
+def test_kind_outputs_are_separate_and_cics_is_unchanged():
+    assert e4.kind_paths("cics") == (e4.CANDIDATES_JSON, e4.REQUEST_LOG)
+    assert e4.kind_paths("batch")[0] != e4.CANDIDATES_JSON
+    assert e4.kind_paths("batch")[1] != e4.REQUEST_LOG
+    with pytest.raises(ValueError):
+        e4.kind_paths("ims")
+
+
+def test_batch_allow_list_still_blocks_content_endpoints():
+    assert not e4.is_allowed("GET", e4.API + "/repos/o/r/contents/a.jcl")
+    assert not e4.is_allowed("GET", e4.API + "/search/code?q=jcl")
+
+
+def test_batch_build_refuses_without_owner_approval(capsys):
+    args = e4.argparse.Namespace(kind="batch", approved_by_owner=False, cache="/nonexistent")
+    assert e4.cmd_build(args) == 6
+    assert "refused" in capsys.readouterr().err

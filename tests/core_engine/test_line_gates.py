@@ -114,6 +114,9 @@ def test_shipped_literal_sets_are_pinned():
     assert cpp is not None
     assert {"=", "++", "--", "std::"} <= set(cpp)
     assert "." not in cpp, "selectivity policy regressed to the bare-dot candidate"
+    # #3171
+    assert derive_line_literals(LANGUAGE_DEFINITIONS["ada"]["rules"]["state_mutation"]) == (":=",)
+    assert derive_line_literals(LANGUAGE_DEFINITIONS["yacc"]["rules"]["state_mutation"]) == ("=", "++", "--")
 
 
 def test_selectivity_beats_fewest_alternatives():
@@ -160,6 +163,25 @@ def test_parity_on_representative_c_text():
         "no mutation here\n"
         "++counter;\n",
     )
+
+
+def test_parity_ada_and_yacc_state_mutation():
+    # #3171: the two languages opted in after line_gate_bench.py measured a win.
+    _assert_parity(
+        LANGUAGE_DEFINITIONS["ada"]["rules"]["state_mutation"],
+        "procedure P is\n   X : Integer := 0;\nbegin\n   X := X + 1;\n"
+        "   -- Y := 2 in a comment\n   Counter.Total := 3;\nend P;\nno assignment\n",
+    )
+    _assert_parity(
+        LANGUAGE_DEFINITIONS["yacc"]["rules"]["state_mutation"],
+        "%%\nexpr: expr '+' term { $$ = $1 + $3; n++; }\n     | term\n     ;\n"
+        "term: NUM { count = 0; --depth; }\n%%\nint main(void) { x = 1; return 0; }\n",
+    )
+
+
+def test_line_gates_declared_by_3171_languages():
+    for lang in ("ada", "yacc"):
+        assert "state_mutation" in LANGUAGE_DEFINITIONS[lang]["rules"]["_line_gates"]
 
 
 def test_parity_last_line_without_trailing_newline():
@@ -277,7 +299,7 @@ def test_every_declared_line_gate_builds():
             )
             assert pattern_is_line_local(pattern), f"{lang_id}::{rule_name} is no longer line-local"
             assert build_line_gate(pattern) is not None, f"{lang_id}::{rule_name} no longer builds a line gate"
-    assert declared >= 3, "premise: c/cpp/go state_mutation ship with line gates"
+    assert declared >= 5, "premise: c/cpp/go/ada/yacc state_mutation ship with line gates"
 
 
 def test_detector_cache_carries_line_gates():

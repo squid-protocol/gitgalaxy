@@ -43,7 +43,7 @@ updates:
           - "*"
     ignore:
       # Dependabot compiles flat lockfiles without universal resolver flags (--universal),
-      # which collapses multi-version matrix splits across Python >= 3.10.
+      # which collapses multi-version matrix splits across Python >= 3.11.
       # These packages are managed via tests/tools/pin_requirements.py instead.
       - dependency-name: "numpy"
       - dependency-name: "xgboost"

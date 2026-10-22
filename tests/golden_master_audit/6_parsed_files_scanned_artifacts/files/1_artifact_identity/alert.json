@@ -1,37 +1,5 @@
 {
   "groups": {
-    "ada/alire": {
-      "ada/alire/alire-crate_configuration.adb": "TYPOSQUATTING THREAT: 'Alire/Roots' mimics 'Alire/Root'"
-    },
-    "dockerfile/moby/test_targets": {
-      "dockerfile/moby/test_targets/daemon.Dockerfile": "TYPOSQUATTING THREAT: 'registry' mimics 'registry2'"
-    },
-    "embedded_python/meow_turtle": {
-      "embedded_python/meow_turtle/ota.py": "TYPOSQUATTING THREAT: 'ubinascii' mimics 'binascii'"
-    },
-    "groovy/gradle_buildlogic_groovy": {
-      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_Docbook2Xhtml.groovy": "TYPOSQUATTING THREAT: 'org/gradle/api/tasks/InputFiles' mimics 'org/gradle/api/tasks/InputFile'"
-    },
-    "javascript/threejs": {
-      "javascript/threejs/BufferGeometry.js": "TYPOSQUATTING THREAT: 'math/Vector2.js' mimics 'math/Vector3.js'",
-      "javascript/threejs/WebGLRenderer.js": "TYPOSQUATTING THREAT: 'math/Vector4.js' mimics 'math/Vector3.js'"
-    },
-    "jcl/cics-banking-sample-application-cbsa": {
-      "jcl/cics-banking-sample-application-cbsa/CICSTS56.jcl": "TYPOSQUATTING THREAT: 'DSNC10/SDSNLOD2' mimics 'DSNC10/SDSNLOAD'"
-    },
-    "pli/dsf_cics_admin": {
-      "pli/dsf_cics_admin/R0010301.pli": "TYPOSQUATTING THREAT: 'S001V0' mimics 'S001A0'",
-      "pli/dsf_cics_admin/R0010421.pli": "TYPOSQUATTING THREAT: 'S001A1' mimics 'S001A0'",
-      "pli/dsf_cics_admin/R0010422.pli": "TYPOSQUATTING THREAT: 'S001A2' mimics 'S001A0'",
-      "pli/dsf_cics_admin/R0010423.pli": "TYPOSQUATTING THREAT: 'S001A3' mimics 'S001A0'",
-      "pli/dsf_cics_admin/R0010424.pli": "TYPOSQUATTING THREAT: 'S001A4' mimics 'S001A0'",
-      "pli/dsf_cics_admin/R0010425.pli": "TYPOSQUATTING THREAT: 'S001A5' mimics 'S001A0'",
-      "pli/dsf_cics_admin/R0010426.pli": "TYPOSQUATTING THREAT: 'S001A6' mimics 'S001A0'",
-      "pli/dsf_cics_admin/R0010427.pli": "TYPOSQUATTING THREAT: 'S001A7' mimics 'S001A0'"
-    },
-    "python/numpy": {
-      "python/numpy/core.py": "TYPOSQUATTING THREAT: 'builtins' mimics 'builtin'"
-    },
     "python/tensorflow_model_fixtures": {
       "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": "LOCAL MODEL WEIGHTS DETECTED",
       "python/tensorflow_model_fixtures/python_compiler_mlir_multi_add.tflite": "LOCAL MODEL WEIGHTS DETECTED"

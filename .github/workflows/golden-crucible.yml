@@ -2,10 +2,31 @@ name: Golden Crucible Resilience Test
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]  # #5104: a draft starts only the cheap audits
     branches:
       - main
       - v6-dev
-    paths-ignore: ["docs/**"]
+    # #5132: what the scan and its fixtures read. The COBOL-to-Java translator and its entry point are never read by a
+    # scan (same exclusion as crucible-path-independence.yml), so a translator-only PR starts neither leg.
+    paths:
+      - "gitgalaxy/**"
+      - "tests/golden_master_audit/**"
+      - "tests/golden_master_zero_dep_audit/**"
+      - "tests/test_golden_crucible.py"
+      - "tests/conftest.py"
+      - "tests/golden_diff.py"
+      - "tests/golden_store.py"
+      - "tests/golden_*_snapshot.py"
+      - "tests/golden_timeout_guard.py"
+      - "tests/_crucible_pin.py"
+      - "tests/crucible_pins.toml"
+      - "tests/tools/crucible_pins.py"
+      - "pyproject.toml"
+      - "ci/requirements/**"
+      - ".github/workflows/golden-crucible.yml"
+      - "!gitgalaxy/tools/cobol_to_java/**"
+      - "!gitgalaxy/cobol_to_java_controller.py"
+      - "!**/*.md"
 
 concurrency:
   # One run per workflow per PR (or per ref outside a PR). Without this, a PR
@@ -21,6 +42,7 @@ concurrency:
 
 jobs:
   crucible-audit:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -62,7 +84,7 @@ jobs:
             echo "Deliberately skipping tiktoken/pandas/xgboost -- Zero-Dependency Mode leg."
             pip install --require-hashes -r ci/requirements/yaml.txt
           fi
-          pip install -e .
+          pip install --no-build-isolation -e .
           pip install --require-hashes -r ci/requirements/pytest.txt
 
       - name: Fetch Golden Test Repo (Language Crucible)
@@ -70,7 +92,7 @@ jobs:
           echo "Cloning Language Crucible repository (pinned in tests/crucible_pins.toml)..."
           # The pin is tests/crucible_pins.toml (one source; a fork PR reads it too).
           ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get language)
-          git clone --branch "$ref" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- bash -c 'rm -rf language-crucible && git clone --branch "$1" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible' _ "$ref"
 
       - name: Check the LANGUAGE_CRUCIBLE_REF repository variable against the manifest
         # No workflow reads the variable any more (tests/crucible_pins.toml is the only source); this

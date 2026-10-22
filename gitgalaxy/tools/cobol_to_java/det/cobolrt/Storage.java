@@ -14,12 +14,19 @@ public final class Storage {
      *  with that LENGTH passes them on (DetCics.commareaOut, Cobol.commarea). Null: none. */
     public byte[] beyond;
 
+    /** #4771 (X47): where this area's record starts in `bytes`. 0 for every area but a LINKAGE record set onto a block
+     *  at an offset (SET ADDRESS OF record TO ADDRESS OF a subordinate item): the record's item at offset k is then
+     *  `bytes[base + k]`, so a write through the record or through the item it addresses is seen by both. Every
+     *  byte reader indexes with Field.at() / offset(), never the item's own offset alone. */
+    public int base;
+
     /** All zero bytes; the translator's initial image sets every byte. */
     public Storage(int size) {
         this.bytes = new byte[size];
     }
 
     /** A storage holding a copy of `data` (a record, a key in its record's place). */
+    // [rule RT-DATA-STORAGE-AREA]
     public static Storage of(byte[] data) {
         Storage s = new Storage(data.length);
         System.arraycopy(data, 0, s.bytes, 0, data.length);

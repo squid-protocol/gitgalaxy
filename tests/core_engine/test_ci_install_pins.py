@@ -23,6 +23,7 @@ SURFACES = sorted(
     ]
 )
 INSTALL = re.compile(r"\bpip3?\s+install\b")
+BUILD = re.compile(r"\bpython3?\s+-m\s+build\b")
 PINNED = re.compile(r"^[A-Za-z0-9_.\-]+(\[[^\]]+\])?==[^=<>!~]+$")
 OPTS_WITH_VALUE = {
     "-r",
@@ -93,8 +94,6 @@ def classify(command):
         return f"unpinned: {spec}"
     for rf in reqfiles:
         p = ROOT / rf
-        if rf.endswith("requirements.txt") and not p.is_file():
-            continue  # optional repo-root requirements.txt guarded by `[ -f ... ]`
         if not p.is_file() or not _all_exact(p):
             return f"requirements file not exact-pinned: {rf}"
     if not specs and not reqfiles:
@@ -110,11 +109,42 @@ def _all_exact(path):
     return True
 
 
-def findings(text):
-    """(command, reason) for every unpinned install in a pipeline file's text."""
+def _local_specs(command):
+    """The local-path specs (`.`, `./x`, `.[extra]`) one pip install invocation builds from source."""
+    try:
+        toks = shlex.split(
+            command.split("pip install", 1)[1] if "pip install" in command else command.split("pip3 install", 1)[1]
+        )
+    except (ValueError, IndexError):
+        return []
+    out, i = [], 0
+    while i < len(toks):
+        t = toks[i]
+        if t in OPTS_WITH_VALUE:
+            if t in ("-e", "--editable") and i + 1 < len(toks) and _is_local(toks[i + 1]):
+                out.append(toks[i + 1])
+            i += 2
+            continue
+        if not t.startswith("-") and _is_local(t):
+            out.append(t)
+        i += 1
+    return out
+
+
+def findings(text, isolated_builds=False):
+    """(command, reason) for every unpinned install in a pipeline file's text.
+
+    `isolated_builds=True` skips the build-isolation rule (workflows, pending the owner patch below).
+    """
     has_hashed = "--require-hashes" in text
+    has_bootstrap = "ci/requirements/bootstrap.txt" in text
     bad = []
     for cmd in _logical_lines(text):
+        if BUILD.search(cmd):
+            # `python -m build` isolates by default and fetches an unpinned setuptools / wheel (#4918).
+            if "--no-isolation" not in cmd and not isolated_builds:
+                bad.append((cmd, "build runs in an isolated env that fetches an unpinned backend: add --no-isolation"))
+            continue
         if not INSTALL.search(cmd):
             continue
         reason = classify(cmd)
@@ -125,6 +155,15 @@ def findings(text):
             and not has_hashed
         ):
             reason = "editable install with extras but no hashed install in this file"
+        if reason is None and not isolated_builds and _local_specs(cmd):
+            # Build isolation fetches an unhashed setuptools / setuptools_scm (#4918, #4944): build with the
+            # hash-locked backend from bootstrap.txt instead.
+            if "--no-build-isolation" not in cmd:
+                reason = (
+                    "local install builds in an isolated env that fetches an unpinned backend: add --no-build-isolation"
+                )
+            elif not has_bootstrap:
+                reason = "--no-build-isolation without a hashed install of ci/requirements/bootstrap.txt in this file"
         if reason:
             bad.append((cmd, reason))
     return bad
@@ -132,8 +171,26 @@ def findings(text):
 
 @pytest.mark.parametrize("path", SURFACES, ids=lambda p: str(p.relative_to(ROOT)))
 def test_no_unpinned_pip_install(path):
-    bad = findings(path.read_text())
+    in_workflows = path.parent == ROOT / ".github" / "workflows"
+    bad = findings(path.read_text(), isolated_builds=in_workflows)
     assert not bad, "\n".join(f"{c}  <-- {r}" for c, r in bad)
+
+
+@pytest.mark.parametrize("cmd", ["python -m build", "python3 -m build --wheel"])
+def test_self_test_flags_isolated_build(cmd):
+    assert [r for _, r in findings(cmd)], cmd
+    assert not findings(cmd, isolated_builds=True)
+
+
+def test_self_test_allows_unisolated_build():
+    assert not findings("python -m build --no-isolation")
+
+
+def test_workflows_build_without_isolation():
+    bad = []
+    for path in sorted((ROOT / ".github" / "workflows").glob("*.yml")):
+        bad += [(path.name, c) for c, r in findings(path.read_text()) if "isolat" in r or "bootstrap" in r]
+    assert not bad, bad
 
 
 # -- the gate flags what it claims to flag ---------------------------------------------------------
@@ -147,6 +204,8 @@ def test_no_unpinned_pip_install(path):
         "pip3 install tree-sitter-language-pack",
         'pip install "mkdocs<2.0" mkdocs-material',
         "pip install -r some-unpinned.txt",
+        "pip install -r requirements.txt",
+        "if [ -f requirements.txt ]; then pip install -r requirements.txt; fi",
     ],
 )
 def test_self_test_flags_unpinned(cmd):
@@ -158,20 +217,60 @@ def test_self_test_flags_unpinned(cmd):
     [
         "pip install --require-hashes -r ci/requirements/engines.txt",
         'pip install "ruff==0.16.0"',
-        "pip install -e .",
-        "pip install ./gitgalaxy-baseline",
+        "pip install --no-build-isolation -e .",
+        "pip install --no-build-isolation ./gitgalaxy-baseline",
+        "pip install --no-build-isolation -e ./main",
         'pip install "gitgalaxy[${SET}]==${GALAXY_ACT_VERSION}"',
-        "pip install -r tests/requirements-mypy.txt",
+        "pip install --require-hashes -r ci/requirements/mypy.txt",
     ],
 )
 def test_self_test_allows_pinned(cmd):
-    assert not findings(cmd), cmd
+    assert not findings("pip install --require-hashes -r ci/requirements/bootstrap.txt\n" + cmd), cmd
+
+
+@pytest.mark.parametrize(
+    "cmd",
+    [
+        "pip install -e .",
+        'pip install -e ".[full]"',
+        "pip install -e ./gitgalaxy",
+        'pip install -e "./gitgalaxy[translator]"',
+        "pip install -e ./main",
+        "pip install ./gitgalaxy-baseline",
+        "pip install .",
+        "pip install --require-hashes -r ci/requirements/pytest.txt && pip install -e ./gitgalaxy",
+    ],
+)
+def test_self_test_flags_isolated_local_build(cmd):
+    """Every local-install form is flagged without --no-build-isolation, hashed deps or not."""
+    reasons = [r for _, r in findings("pip install --require-hashes -r ci/requirements/bootstrap.txt\n" + cmd)]
+    assert any("--no-build-isolation" in r for r in reasons), cmd
+
+
+def test_no_build_isolation_needs_the_bootstrap_lockfile():
+    assert findings("pip install --no-build-isolation -e .")
+    assert not findings(
+        "pip install --require-hashes -r ci/requirements/bootstrap.txt\npip install --no-build-isolation -e ."
+    )
+
+
+def test_bootstrap_lockfile_carries_the_build_backend():
+    txt = (ROOT / "ci" / "requirements" / "bootstrap.txt").read_text().lower()
+    for pkg in ("setuptools==", "setuptools-scm=="):
+        assert pkg in txt, pkg
+
+
+def test_mypy_audit_toolchain_is_hash_locked():
+    assert (ROOT / "ci" / "requirements" / "mypy.txt").is_file()
+    # tests/requirements-mypy.txt is still what mypy-audit.yml reads until the owner applies the workflow patch
 
 
 def test_self_test_extras_editable_needs_a_hashed_install():
-    assert findings('pip install -e ".[translator]"')
+    assert findings('pip install --no-build-isolation -e ".[translator]"')
     assert not findings(
-        'pip install --require-hashes -r ci/requirements/treesitter.txt\npip install -e ".[translator]"'
+        "pip install --require-hashes -r ci/requirements/bootstrap.txt\n"
+        "pip install --require-hashes -r ci/requirements/treesitter.txt\n"
+        'pip install --no-build-isolation -e ".[translator]"'
     )
 
 

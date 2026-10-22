@@ -165,26 +165,26 @@
       "assembly/cosmopolitan_syscalls/calls_sys_aio_mlock.S": 3.17
     },
     "assembly/cpm65_6502": {
-      "assembly/cpm65_6502/apps_adm3adrv.S": 138.68,
+      "assembly/cpm65_6502/apps_adm3adrv.S": 330.55,
       "assembly/cpm65_6502/apps_adm3atst.asm": 251.0,
       "assembly/cpm65_6502/apps_bedit.asm": 275.86,
       "assembly/cpm65_6502/apps_capsdrv.asm": 111.22,
       "assembly/cpm65_6502/apps_cls.asm": 362.96,
       "assembly/cpm65_6502/apps_cpuinfo.asm": 140.43,
       "assembly/cpm65_6502/apps_devices.asm": 270.48,
-      "assembly/cpm65_6502/apps_dinfo.asm": 339.11,
+      "assembly/cpm65_6502/apps_dinfo.asm": 147.22,
       "assembly/cpm65_6502/apps_dump.asm": 331.16,
       "assembly/cpm65_6502/apps_kbdtest.asm": 111.13,
       "assembly/cpm65_6502/apps_ls.asm": 269.31,
       "assembly/cpm65_6502/apps_more.asm": 343.49,
       "assembly/cpm65_6502/apps_scrntest.asm": 177.83,
-      "assembly/cpm65_6502/apps_scrvt100.S": 389.93,
+      "assembly/cpm65_6502/apps_scrvt100.S": 220.33,
       "assembly/cpm65_6502/apps_vt52drv.asm": 239.56,
-      "assembly/cpm65_6502/apps_vt52test.asm": 158.2,
+      "assembly/cpm65_6502/apps_vt52test.asm": 355.74,
       "assembly/cpm65_6502/apps_xrecv.asm": 191.55,
       "assembly/cpm65_6502/apps_xsend.asm": 314.49,
       "assembly/cpm65_6502/cpmfs_hello.asm": 391.31,
-      "assembly/cpm65_6502/lib_bdos.S": 234.38
+      "assembly/cpm65_6502/lib_bdos.S": 206.52
     },
     "assembly/freebsd_kernel_arch": {
       "assembly/freebsd_kernel_arch/COPYRIGHT": 137.93,
@@ -327,40 +327,40 @@
     },
     "assembly/rpi_smartstart_baremetal": {
       "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": 248.24,
-      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": 350.78,
-      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": 168.74,
-      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": 159.81,
-      "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": 349.73,
-      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": 223.6,
-      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": 212.89,
-      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": 261.36,
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": 339.24,
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": 302.12,
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": 159.7,
+      "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": 349.89,
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": 223.49,
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": 212.76,
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": 261.38,
       "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": 264.57,
-      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": 269.96
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": 148.15
     },
     "assembly/x86_bare_metal": {
-      "assembly/x86_bare_metal/LICENSE.adoc": 5.0,
-      "assembly/x86_bare_metal/apm_shutdown.S": -216.24,
-      "assembly/x86_bare_metal/apm_shutdown2.S": -17.43,
-      "assembly/x86_bare_metal/bios_background.S": -161.05,
-      "assembly/x86_bare_metal/bios_carriage_return.S": -33.57,
-      "assembly/x86_bare_metal/bios_clear_screen.S": -102.98,
-      "assembly/x86_bare_metal/bios_color.S": -243.31,
-      "assembly/x86_bare_metal/bios_cursor_position.S": -106.14,
+      "assembly/x86_bare_metal/LICENSE.adoc": 5.22,
+      "assembly/x86_bare_metal/apm_shutdown.S": -216.35,
+      "assembly/x86_bare_metal/apm_shutdown2.S": -17.24,
+      "assembly/x86_bare_metal/bios_background.S": -261.17,
+      "assembly/x86_bare_metal/bios_carriage_return.S": -120.8,
+      "assembly/x86_bare_metal/bios_clear_screen.S": -102.77,
+      "assembly/x86_bare_metal/bios_color.S": -243.53,
+      "assembly/x86_bare_metal/bios_cursor_position.S": -105.97,
       "assembly/x86_bare_metal/bios_detect_memory.S": -181.14,
-      "assembly/x86_bare_metal/bios_disk_load.S": -87.09,
-      "assembly/x86_bare_metal/bios_disk_load2.S": -269.95,
-      "assembly/x86_bare_metal/bios_hello_world.S": -181.4,
-      "assembly/x86_bare_metal/bios_initial_state.S": 9.67,
-      "assembly/x86_bare_metal/bios_keyboard.S": -80.86,
-      "assembly/x86_bare_metal/bios_keyboard_loop.S": -84.14,
-      "assembly/x86_bare_metal/bios_newline.S": -231.17,
-      "assembly/x86_bare_metal/bios_pixel.S": -231.59,
-      "assembly/x86_bare_metal/bios_pixel_line.S": -155.77,
-      "assembly/x86_bare_metal/bios_putc.S": -116.22,
-      "assembly/x86_bare_metal/bios_scroll.S": -137.45,
-      "assembly/x86_bare_metal/bios_serial.S": -202.83,
-      "assembly/x86_bare_metal/bios_sleep.S": -250.11,
-      "assembly/x86_bare_metal/c_hello_world_entry.S": -330.79
+      "assembly/x86_bare_metal/bios_disk_load.S": -176.81,
+      "assembly/x86_bare_metal/bios_disk_load2.S": -285.18,
+      "assembly/x86_bare_metal/bios_hello_world.S": -259.4,
+      "assembly/x86_bare_metal/bios_initial_state.S": -180.3,
+      "assembly/x86_bare_metal/bios_keyboard.S": -230.39,
+      "assembly/x86_bare_metal/bios_keyboard_loop.S": -84.03,
+      "assembly/x86_bare_metal/bios_newline.S": -265.45,
+      "assembly/x86_bare_metal/bios_pixel.S": -82.12,
+      "assembly/x86_bare_metal/bios_pixel_line.S": -180.69,
+      "assembly/x86_bare_metal/bios_putc.S": -163.86,
+      "assembly/x86_bare_metal/bios_scroll.S": -137.48,
+      "assembly/x86_bare_metal/bios_serial.S": -79.66,
+      "assembly/x86_bare_metal/bios_sleep.S": 5.44,
+      "assembly/x86_bare_metal/c_hello_world_entry.S": -41.99
     },
     "assembly/xv6_x86_kernel": {
       "assembly/xv6_x86_kernel/bootasm.S": -212.79,
@@ -1352,17 +1352,17 @@
       "fortran/wrf/cleanCMake.sh": 288.64,
       "fortran/wrf/configure_reader.py": 202.4,
       "fortran/wrf/gen_be_wrapper.ksh": 166.5,
-      "fortran/wrf/module_configure.F": 237.93,
+      "fortran/wrf/module_configure.F": 237.94,
       "fortran/wrf/module_domain.F": 137.11,
-      "fortran/wrf/module_initialize_real.F": 288.82,
+      "fortran/wrf/module_initialize_real.F": 276.09,
       "fortran/wrf/module_physics_init.F": 178.32,
-      "fortran/wrf/module_sf_noahdrv.F": 258.18,
+      "fortran/wrf/module_sf_noahdrv.F": 270.92,
       "fortran/wrf/regtest.csh": 187.73,
       "fortran/wrf/regtest_hwrf.csh": 283.4,
       "fortran/wrf/regtest_nmmnest.csh": 171.88,
       "fortran/wrf/run_convert_e2c.ksh": 155.62,
       "fortran/wrf/sourcetree.py": 235.77,
-      "fortran/wrf/wrf_timeseries.F": 316.49
+      "fortran/wrf/wrf_timeseries.F": 316.58
     },
     "go": {
       "go/SOURCES.md": -122.51
@@ -2186,7 +2186,7 @@
       "kotlin/SOURCES.md": -69.95
     },
     "kotlin/okhttp": {
-      "kotlin/okhttp/Call.kt": 94.85,
+      "kotlin/okhttp/Call.kt": 94.84,
       "kotlin/okhttp/Dispatcher.kt": 89.06,
       "kotlin/okhttp/LICENSE.txt": 53.58,
       "kotlin/okhttp/OkHttp.android.kt": 39.4,
@@ -2501,12 +2501,12 @@
       "objective-c/SOURCES.md": -39.53
     },
     "objective-c/worldwideweb": {
-      "objective-c/worldwideweb/Anchor.m": 2.13,
-      "objective-c/worldwideweb/HText.c": -138.08,
-      "objective-c/worldwideweb/HyperManager.m": 28.59,
-      "objective-c/worldwideweb/HyperText.h": -35.9,
+      "objective-c/worldwideweb/Anchor.m": 2.1,
+      "objective-c/worldwideweb/HText.c": -138.11,
+      "objective-c/worldwideweb/HyperManager.m": 28.61,
+      "objective-c/worldwideweb/HyperText.h": -35.91,
       "objective-c/worldwideweb/HyperText.m": -16.03,
-      "objective-c/worldwideweb/TcpAccess.m": 59.92
+      "objective-c/worldwideweb/TcpAccess.m": 59.95
     },
     "perl": {
       "perl/SOURCES.md": 259.15
@@ -3257,18 +3257,19 @@
       "rust/syn/derive.rs": -197.11
     },
     "rust/tokio": {
-      "rust/tokio/addr_of.rs": 122.31,
-      "rust/tokio/block_on.rs": 50.4,
-      "rust/tokio/blocking.rs": 77.53,
-      "rust/tokio/builder.rs": 98.53,
-      "rust/tokio/config.rs": -34.42,
-      "rust/tokio/fuzz.rs": 19.82,
-      "rust/tokio/interval.rs": 51.08,
-      "rust/tokio/lib.rs": -16.68,
-      "rust/tokio/maybe_done.rs": 120.2,
-      "rust/tokio/tests.rs": 62.0,
-      "rust/tokio/tokio_mpsc_bounded.rs": 55.19,
-      "rust/tokio/tokio_named_pipe.rs": 46.76
+      "rust/tokio/addr_of.rs": -3.44,
+      "rust/tokio/block_on.rs": 101.63,
+      "rust/tokio/blocking.rs": 12.13,
+      "rust/tokio/builder.rs": 40.16,
+      "rust/tokio/config.rs": 94.48,
+      "rust/tokio/fuzz.rs": 74.17,
+      "rust/tokio/interval.rs": -58.81,
+      "rust/tokio/lib.rs": 78.54,
+      "rust/tokio/maybe_done.rs": 94.47,
+      "rust/tokio/tests.rs": 130.58,
+      "rust/tokio/tokio_mpsc_bounded.rs": 57.47,
+      "rust/tokio/tokio_named_pipe.rs": 46.76,
+      "rust/tokio/tokio_udp.rs": 80.36
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": 112.13
@@ -3297,10 +3298,10 @@
     },
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": -151.86,
-      "scheme/racket/cpnanopass.ss": -80.06,
-      "scheme/racket/eval.c": -107.55,
+      "scheme/racket/cpnanopass.ss": -87.39,
+      "scheme/racket/eval.c": -99.95,
       "scheme/racket/fun.c": -107.76,
-      "scheme/racket/io.ss": -85.92,
+      "scheme/racket/io.ss": -85.27,
       "scheme/racket/schemify.rkt": -191.54,
       "scheme/racket/thread.rkt": -157.86
     },
@@ -3388,34 +3389,35 @@
       "shell/darwin-xnu/xcrun_cache.sh": 219.68
     },
     "shell/freebsd-src": {
-      "shell/freebsd-src/COPYRIGHT": 288.79,
-      "shell/freebsd-src/chflags_test.sh": -31.96,
-      "shell/freebsd-src/chmod_test.sh": 191.1,
-      "shell/freebsd-src/ckscripts.sh": 69.06,
+      "shell/freebsd-src/COPYRIGHT": -45.29,
+      "shell/freebsd-src/chflags_test.sh": 210.81,
+      "shell/freebsd-src/chmod_test.sh": 92.06,
+      "shell/freebsd-src/ckscripts.sh": 133.03,
       "shell/freebsd-src/cp_test.sh": 101.44,
-      "shell/freebsd-src/ctfconvert_test.sh": 209.29,
-      "shell/freebsd-src/dd2_test.sh": -6.94,
-      "shell/freebsd-src/dtest.sh": 122.66,
-      "shell/freebsd-src/echo_test.sh": 194.87,
-      "shell/freebsd-src/format_string_test.sh": 79.31,
-      "shell/freebsd-src/functional_test.sh": 144.98,
-      "shell/freebsd-src/hostname_test.sh": -76.01,
-      "shell/freebsd-src/legacy_test.sh": 189.41,
-      "shell/freebsd-src/ln_test.sh": 218.66,
+      "shell/freebsd-src/ctfconvert_test.sh": -145.91,
+      "shell/freebsd-src/dd2_test.sh": 37.69,
+      "shell/freebsd-src/dtest.sh": -17.17,
+      "shell/freebsd-src/echo_test.sh": 140.2,
+      "shell/freebsd-src/ed_test.sh": 142.02,
+      "shell/freebsd-src/format_string_test.sh": 212.17,
+      "shell/freebsd-src/functional_test.sh": -118.57,
+      "shell/freebsd-src/hostname_test.sh": 253.92,
+      "shell/freebsd-src/legacy_test.sh": -101.1,
+      "shell/freebsd-src/ln_test.sh": 33.79,
       "shell/freebsd-src/ls_tests.sh": 99.32,
-      "shell/freebsd-src/mkdir_test.sh": 47.07,
-      "shell/freebsd-src/mkerrno.sh": -136.05,
-      "shell/freebsd-src/mv_test.sh": 134.3,
-      "shell/freebsd-src/pgrep-_f_test.sh": -43.4,
-      "shell/freebsd-src/pkg-install.sh": 229.43,
-      "shell/freebsd-src/pkg_config_test.sh": 209.95,
+      "shell/freebsd-src/mkdir_test.sh": 37.98,
+      "shell/freebsd-src/mkerrno.sh": 231.01,
+      "shell/freebsd-src/mv_test.sh": 133.84,
+      "shell/freebsd-src/pgrep-_f_test.sh": 116.17,
+      "shell/freebsd-src/pkg-install.sh": 8.42,
+      "shell/freebsd-src/pkg_config_test.sh": -41.81,
       "shell/freebsd-src/pwait_test.sh": -9.32,
-      "shell/freebsd-src/pwd_test.sh": -74.95,
-      "shell/freebsd-src/rm_test.sh": 140.2,
-      "shell/freebsd-src/rmdir_test.sh": -101.02,
-      "shell/freebsd-src/runulp.sh": -19.9,
-      "shell/freebsd-src/timeout_test.sh": -93.04,
-      "shell/freebsd-src/ztest.sh": 45.37
+      "shell/freebsd-src/pwd_test.sh": 191.15,
+      "shell/freebsd-src/rm_test.sh": -67.82,
+      "shell/freebsd-src/rmdir_test.sh": 180.45,
+      "shell/freebsd-src/runulp.sh": 199.48,
+      "shell/freebsd-src/timeout_test.sh": 148.94,
+      "shell/freebsd-src/ztest.sh": -60.97
     },
     "shell/freebsd_sysbuild": {
       "shell/freebsd_sysbuild/COPYRIGHT": -200.87,
@@ -3423,27 +3425,28 @@
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": -197.73,
-      "shell/haiku/License.md": -187.71,
-      "shell/haiku/ValidatePeopleEmails.sh": -274.45,
-      "shell/haiku/bootstrap.sh": -171.56,
-      "shell/haiku/build-toolchain.sh": -209.24,
-      "shell/haiku/catmerge.sh": -227.3,
-      "shell/haiku/colorgrep.sh": -223.38,
-      "shell/haiku/convert.sh": -310.93,
-      "shell/haiku/create_project_file.sh": -281.16,
-      "shell/haiku/default_deskbar_items.sh": -220.17,
-      "shell/haiku/gen-bepo.sh": -218.15,
-      "shell/haiku/generate_CountryFlags.sh": -217.7,
+      "shell/haiku/License.md": -259.75,
+      "shell/haiku/ValidatePeopleEmails.sh": -233.99,
+      "shell/haiku/bootstrap.sh": -222.95,
+      "shell/haiku/build-toolchain.sh": -245.42,
+      "shell/haiku/catmerge.sh": -184.83,
+      "shell/haiku/colorgrep.sh": -157.51,
+      "shell/haiku/convert.sh": -248.44,
+      "shell/haiku/create_project_file.sh": -242.42,
+      "shell/haiku/default_deskbar_items.sh": -246.04,
+      "shell/haiku/gen-bepo.sh": -283.42,
+      "shell/haiku/generate_CountryFlags.sh": -218.87,
+      "shell/haiku/generate_ids_from_drivers.sh": -273.78,
       "shell/haiku/install-wifi-firmwares.sh": -258.17,
-      "shell/haiku/install.sh": -250.1,
-      "shell/haiku/leak_analyser.sh": -281.14,
-      "shell/haiku/makezip.sh": -233.97,
-      "shell/haiku/mk_floppy_prg_atari.sh": -250.16,
-      "shell/haiku/mksysroot.sh": -215.68,
-      "shell/haiku/mktable.sh": -235.62,
-      "shell/haiku/sysprep-gce.sh": -275.93,
-      "shell/haiku/usb__install.sh": -224.46,
-      "shell/haiku/usb_vision__install.sh": -268.51
+      "shell/haiku/install.sh": -303.97,
+      "shell/haiku/leak_analyser.sh": -268.52,
+      "shell/haiku/makezip.sh": -260.0,
+      "shell/haiku/mk_floppy_prg_atari.sh": -275.74,
+      "shell/haiku/mksysroot.sh": -255.32,
+      "shell/haiku/mktable.sh": -174.05,
+      "shell/haiku/sysprep-gce.sh": -241.16,
+      "shell/haiku/usb__install.sh": -232.23,
+      "shell/haiku/usb_vision__install.sh": -255.71
     },
     "shell/illumos-gate": {
       "shell/illumos-gate/Run.sh": 11.42,
@@ -3626,7 +3629,7 @@
       "sql/mediawiki_mysql/blobs.sql": 43.13
     },
     "sql/mediawiki_postgresql": {
-      "sql/mediawiki_postgresql/COPYING": 200.89,
+      "sql/mediawiki_postgresql/COPYING": 200.95,
       "sql/mediawiki_postgresql/tables.sql": 132.22
     },
     "sql/spamassassin_mysql": {
@@ -3857,11 +3860,12 @@
       "typescript/angular_zonejs_mocha/mocha.ts": 171.27
     },
     "typescript/assemblyscript": {
-      "typescript/assemblyscript/asconfig.json": 236.51,
-      "typescript/assemblyscript/ast.ts": 296.27,
+      "typescript/assemblyscript/asconfig.json": 240.25,
+      "typescript/assemblyscript/ast.ts": 242.48,
+      "typescript/assemblyscript/builtins.ts": 174.33,
       "typescript/assemblyscript/compiler.ts": 202.09,
-      "typescript/assemblyscript/package.json": 228.75,
-      "typescript/assemblyscript/parser.ts": 223.28
+      "typescript/assemblyscript/package.json": 278.92,
+      "typescript/assemblyscript/parser.ts": 293.54
     },
     "typescript/effect_ai_anthropic": {
       "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": -190.9
@@ -3902,9 +3906,13 @@
       "typescript/playwright/protocol.ts": -306.74
     },
     "typescript/typescript_compiler": {
-      "typescript/typescript_compiler/LICENSE.txt": 150.68,
-      "typescript/typescript_compiler/binder.ts": 141.84,
-      "typescript/typescript_compiler/package.json": 95.83
+      "typescript/typescript_compiler/LICENSE.txt": 8.84,
+      "typescript/typescript_compiler/binder.ts": 42.25,
+      "typescript/typescript_compiler/checker.ts": 72.08,
+      "typescript/typescript_compiler/emitter.ts": 194.37,
+      "typescript/typescript_compiler/package.json": 121.28,
+      "typescript/typescript_compiler/parser.ts": 106.13,
+      "typescript/typescript_compiler/types.ts": 192.69
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 105.4,
@@ -4074,11 +4082,12 @@
       "zig/tigerbeetle/state_machine.zig": 130.94
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": -178.07,
-      "zig/zig/InternPool.zig": -101.89,
-      "zig/zig/Type.zig": 21.26,
-      "zig/zig/Zcu.zig": -144.89,
-      "zig/zig/main.zig": -78.94
+      "zig/zig/Compilation.zig": 1.36,
+      "zig/zig/InternPool.zig": -158.66,
+      "zig/zig/Sema.zig": -41.41,
+      "zig/zig/Type.zig": -197.71,
+      "zig/zig/Zcu.zig": -5.89,
+      "zig/zig/main.zig": -87.9
     },
     "zig/zig_std_linux_mips": {
       "zig/zig_std_linux_mips/mips.zig": -145.94
@@ -4090,6 +4099,7 @@
       "zig/zls/analysis.zig": -190.97,
       "zig/zls/ast.zig": -143.47,
       "zig/zls/config_gen.zig": -145.8,
+      "zig/zls/langref.html.in": -201.86,
       "zig/zls/print_ast.zig": -146.97
     }
   },

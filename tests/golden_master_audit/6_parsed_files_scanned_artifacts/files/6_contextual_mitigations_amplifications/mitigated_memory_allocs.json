@@ -140,6 +140,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": "8 instances",
       "zig/zig/InternPool.zig": "1 instances",
+      "zig/zig/Sema.zig": "5 instances",
       "zig/zig/Type.zig": "2 instances",
       "zig/zig/main.zig": "10 instances"
     },

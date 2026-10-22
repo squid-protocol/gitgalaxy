@@ -1,0 +1,108 @@
+{
+  "kind": "cics",
+  "corpus": "cics-async-api-credit-card-application-example",
+  "program": "ASYNCPNT",
+  "program_source": "src/ASYNCPNT.cbl",
+  "copy_dirs": [],
+  "transid": "ASYN",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "linked": false,
+  "screens": {},
+  "programs": [
+    {
+      "program": "CRDTCHK",
+      "program_source": "src/CRDTCHK.cbl"
+    },
+    {
+      "program": "GETNAME",
+      "program_source": "src/GETNAME.cbl"
+    },
+    {
+      "program": "GETADDR",
+      "program_source": "src/GETADDR.cbl"
+    },
+    {
+      "program": "CSSTATS2",
+      "program_source": "src/CSSTATS2.cbl"
+    },
+    {
+      "program": "GETPOL",
+      "program_source": "src/GETPOL.cbl"
+    },
+    {
+      "program": "GETSPND",
+      "program_source": "src/GETSPND.cbl"
+    },
+    {
+      "program": "UPDCSDB",
+      "program_source": "src/UPDCSDB.cbl"
+    }
+  ],
+  "transactions": [
+    "ACCA",
+    "GETA",
+    "GETN",
+    "GETP",
+    "ICCK",
+    "SCCA",
+    "SPND",
+    "STUS",
+    "UPDB"
+  ],
+  "child_programs": {
+    "ICCK": "CRDTCHK",
+    "GETN": "GETNAME",
+    "GETA": "GETADDR",
+    "STUS": "CSSTATS2",
+    "UPDB": "UPDCSDB",
+    "GETP": "GETPOL",
+    "SPND": "GETSPND"
+  },
+  "scenarios": [
+    {
+      "name": "terminal-0001",
+      "commarea": null,
+      "startcode": "TD",
+      "terminal": "SCCA 0001",
+      "why": "from a terminal (STARTCODE 'TD'): RECEIVE ... NOTRUNCATE reads 'ASYN 0001' style input (the terminal's 9 bytes), account 0001; PUT CONTAINER(INPUTCONTAINER) on MYCHANNEL; RUN ICCK, GETA, STUS, GETN CHANNEL(MYCHANNEL); the STUS child RUNs GETP and SPND (a RUN in a child); FETCH ICCK, RUN UPDB, FETCH UPDB / GETN / STUS / GETA, a progress line (SEND TEXT) at each step; PUT CONTAINER('ASYNCPNT') with no channel of its own: INVREQ (caught by RESP); RETURN"
+    },
+    {
+      "name": "terminal-other-account",
+      "commarea": null,
+      "startcode": "TD",
+      "terminal": "SCCA 0002",
+      "why": "account 0002 from a terminal: each child's ELSE branch"
+    },
+    {
+      "name": "web-service-0001",
+      "commarea": null,
+      "startcode": "S",
+      "channel": {
+        "name": "SEQPNTWS",
+        "containers": {
+          "SEQPNT": {
+            "text": "0001"
+          }
+        }
+      },
+      "why": "not from a terminal (the web service's task, STARTCODE 'S'): GET CONTAINER('ASYNCPNT') of the task's channel gives the account; the same RUNs and FETCHes, no SEND TEXT; PUT CONTAINER('ASYNCPNT') FROM(RETURN-DATA) back on that channel (compared at the task's end); RETURN"
+    },
+    {
+      "name": "web-service-other-account",
+      "commarea": null,
+      "startcode": "S",
+      "channel": {
+        "name": "SEQPNTWS",
+        "containers": {
+          "SEQPNT": {
+            "text": "9999"
+          }
+        }
+      },
+      "why": "account 9999 through the web service: the children's ELSE branches, RETURN-DATA put back"
+    }
+  ],
+  "notes": "IBM's CICS asynchronous API credit-card example: ASYNCPNT (transaction ASYN here, also a web service) RUNs ICCK (CRDTCHK), GETA (GETADDR), STUS (CSSTATS2) and GETN (GETNAME) with the channel MYCHANNEL, FETCHes ICCK, then RUNs UPDB (UPDCSDB) and FETCHes it, GETN, STUS, GETA and UPDB in that order, SENDing a progress line as each step ends when it was started from a terminal. #5089: the STUS child (CSSTATS2) RUNs GETP (GETPOL) and SPND (GETSPND) and never FETCHes them, so this is the nested RUN TRANSID the harness refused as 'a grandchild' (X18): the child's own RUN events are compared with its other events as one CHILD event, on the COBOL stub (each child is a process of its own) and on the Java side (CicsTask). A task that never waits ends with the children it RUNs not run, at every level (X18, ASSUMED); IBM's RUN TRANSID and FETCH pages do not restrict a child from issuing RUN, and the Redbook describes a parent that 'initiates further child tasks'. The region's transactions are the bundle's nine (etc/CICS_bundles/cics-async-creditcardapplication-resources/*.transaction); \"child_programs\" states what each runs (a deployment fact the case states, as the CSD's TRANSACTION definitions give it). The five services are proven on their own by the asynccc- cases; here they run as children (the containers each leaves on MYCHANNEL are compared as the caller sees them after FETCH CHILD). Derived from github.com/cicsdev/cics-async-api-credit-card-application-example (Apache-2.0; Copyright IBM Corp. 2016): LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+}

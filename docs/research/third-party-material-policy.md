@@ -47,3 +47,4 @@ GitGalaxy works like an X-ray. It reveals structure a codebase's authors did not
 | Lightyear (howardweale), lasserre-consulting | none | Run or scanned at pinned SHAs; brief quotes only |
 | xavierxmorris Azure slice | Apache-2.0 | Surveyed only |
 | viniman27 API-recovery study | none | Surveyed only |
+| DOOM port corpus (DOOM-rosetta, #5619): the ports in `tests/tools/doom_speedrun/manifest.csv` | per port, read from its files (`license` column; GPL-2.0, GPL-3.0, MIT, Apache-2.0, BSD-3-Clause/CC0) | Scanned at pinned SHAs, fetched at run time; measurements only, no code, WADs or game data committed. Only clearly licensed ports are listed (owner, 2026-10-19) |

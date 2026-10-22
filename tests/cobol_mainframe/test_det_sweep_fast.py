@@ -63,8 +63,77 @@ def test_merge_names_a_case_with_no_result(tmp_path):
     assert sorted(merged["det"]) == ["a", "b", "c"]
     assert ps.missing_cases(merged, ["a", "b", "c"]) == []
     assert ps.missing_cases(merged, ["a", "z"]) == ["det z: no result (its shard did not report)"]
-    with pytest.raises(ValueError, match="in two shards"):
-        ps.merge_sweeps([tmp_path / "0", tmp_path / "0"])
+    assert sorted(ps.merge_sweeps([tmp_path / "0", tmp_path / "0"])["det"]) == [
+        "a",
+        "b",
+    ]  # a repeat is not a conflict (#5107)
+
+
+def _shard_file(tmp_path, name, sweeps):
+    d = tmp_path / name
+    d.mkdir()
+    (d / "sweep.json").write_text(json.dumps(sweeps), encoding="utf-8")
+    return d
+
+
+_ROW = {
+    "proved": True,
+    "coverage": "9/10",
+    "called_holes": 0,
+    "translated": "10/10",
+    "seconds": 1.0,
+    "uncovered": [],
+    "linked": [],
+}
+
+
+def test_a_case_in_two_shards_with_the_same_result_merges_once(tmp_path):
+    """#5107: two shards that split on different durations both prove a case; only the timing differs."""
+    a = _shard_file(tmp_path, "a", {"det": {"x": _ROW}, "model": {"m": _ROW}})
+    b = _shard_file(tmp_path, "b", {"det": {"x": {**_ROW, "seconds": 99.0}}, "model": {"m": _ROW}})
+    merged = ps.merge_sweeps([a, b])
+    assert merged == {"det": {"x": _ROW}, "model": {"m": _ROW}}  # the first copy is kept, in every sweep
+
+
+@pytest.mark.parametrize(
+    ("field", "other"),
+    [
+        ("proved", False),
+        ("coverage", "5/10"),
+        ("called_holes", 2),
+        ("translated", "9/10"),
+        ("uncovered", ["L1"]),
+        ("linked", ["P"]),
+        ("brand_new_field", 1),
+    ],
+)
+def test_a_case_in_two_shards_with_different_results_still_fails(tmp_path, field, other):
+    a = _shard_file(tmp_path, "a", {"det": {"x": _ROW}})
+    b = _shard_file(tmp_path, "b", {"det": {"x": {**_ROW, field: other}}})
+    with pytest.raises(ValueError, match=rf"det x: in two shards with conflicting results.*{field}"):
+        ps.merge_sweeps([a, b])
+
+
+def test_shards_split_on_different_durations_merge_and_a_gap_is_still_named(tmp_path):
+    """The #5107 scenario: shard 3 split on a newer durations file than shards 1 and 2, so it re-proves shard 1's cases
+    and the cases only it should have run are never proven. The merge accepts the repeat; missing_cases names the gap."""
+    cases = [f"c{i}" for i in range(9)]
+    early = {c: float(i + 1) for i, c in enumerate(cases)}
+    late = {c: float(9 - i) for i, c in enumerate(cases)}
+    runs = [
+        ps.shard_cases(cases, (1, 3), early),
+        ps.shard_cases(cases, (2, 3), early),
+        ps.shard_cases(cases, (3, 3), late),
+    ]
+    proved = sorted(set(sum(runs, [])))
+    assert len(sum(runs, [])) > len(proved)  # the premise: two shards proved a case
+    files = [_shard_file(tmp_path, str(i), {"det": {c: _ROW for c in run}}) for i, run in enumerate(runs)]
+    merged = ps.merge_sweeps(files)
+    assert sorted(merged["det"]) == proved
+    assert ps.missing_cases(merged, cases) == [
+        f"det {c}: no result (its shard did not report)" for c in cases if c not in proved
+    ]
+    assert ps.missing_cases(merged, proved) == []
 
 
 # ---- the plan ----------------------------------------------------------------------------------------------
@@ -181,7 +250,7 @@ def test_db2_cases_are_not_planned_and_the_runner_count_follows_the_plan():
     assert p["db2_cases"] == ["dbcase"] and plan.db2_shards_for(p) == ["1/1"]  # #4901: the db2 job proves it
     assert plan.shards_for({"mode": "narrow", "cases": ["a"]}) == ["1/1"]
     assert plan.shards_for({"mode": "narrow", "cases": list("abcdefg")}) == ["1/3", "2/3", "3/3"]
-    assert plan.shards_for({"mode": "full", "cases": "all"}) == [f"{i}/20" for i in range(1, 21)]  # #4814
+    assert plan.shards_for({"mode": "full", "cases": "all"}) == [f"{i}/6" for i in range(1, 7)]  # #4814, #5135
 
 
 def test_the_cli_reads_the_diff_and_falls_back_to_full(tmp_path):
@@ -190,8 +259,9 @@ def test_the_cli_reads_the_diff_and_falls_back_to_full(tmp_path):
     proc = subprocess.run(
         [*run, "--files", "tests/equivalence/carddemo-menu/case.json"], capture_output=True, text=True, check=True
     )  # noqa: S603
-    assert json.loads(proc.stdout)["cases"] == ["carddemo-menu"]
-    assert "cases=carddemo-menu" in out.read_text(encoding="utf-8")
+    # the case and the cases that take its port (`port_from`: carddemo-menu-generated, #4506)
+    assert json.loads(proc.stdout)["cases"] == ["carddemo-menu", "carddemo-menu-generated"]
+    assert "cases=carddemo-menu,carddemo-menu-generated" in out.read_text(encoding="utf-8")
     bad = subprocess.run([*run, "--base", "no-such-ref"], capture_output=True, text=True, check=True)  # noqa: S603
     assert json.loads(bad.stdout)["mode"] == "full"  # cannot diff: everything
 
@@ -252,7 +322,14 @@ def test_db2_runner_count_and_full_sweeps():
     assert plan.db2_shards_for({"mode": "narrow", "db2_cases": names[:7]}) == ["1/2", "2/2"]
     assert len(plan.db2_shards_for({"mode": "narrow", "db2_cases": names})) == 3
     assert len(plan.db2_shards_for({"mode": "narrow", "db2_cases": names * 3})) == plan.DB2_MAX_SHARDS
-    assert plan.db2_shards_for({"mode": "full", "db2_cases": "all"}) == [f"{i}/4" for i in range(1, 5)]
+    # #5882: a full sweep scales with the Db2 cases, one runner per DB2_FULL_PER_SHARD, at most DB2_MAX_SHARDS
+    full = {"mode": "full", "db2_cases": "all"}
+    assert plan.db2_shards_for(full, 1) == ["1/1"]
+    assert plan.db2_shards_for(full, 24) == ["1/2", "2/2"]
+    assert len(plan.db2_shards_for(full, 25)) == 3
+    assert len(plan.db2_shards_for(full, 1000)) == plan.DB2_MAX_SHARDS
+    on_disk = sum(plan.is_db2(c) for c in plan.case_dirs().values())
+    assert plan.db2_shards_for(full) == plan.db2_shards_for(full, on_disk)
     # every full sweep proves the Db2 cases, except the nightly: Evidence Refresh's Db2 job does that
     assert plan.plan([], "workflow_dispatch", CASES)["db2_cases"] == "all"
     assert (
@@ -335,3 +412,135 @@ def test_a_generator_class_a_port_names_moves_that_port(tmp_path):
     # a base translated before the snapshot existed has no generated/: only the port itself is compared
     shutil.rmtree(tmp_path / "base" / "a" / "generated")
     assert det_port.compare(tmp_path / "base", tmp_path / "new")[0]["status"] == "unchanged"
+
+
+def test_the_split_is_a_partition_whatever_the_plan_and_shard_count():
+    """#5135 / #5114: with every case in exactly one shard (the real 110 cases, durations known or not), a smaller
+    shard count cannot leave one unproved (`missing_cases`) or prove one twice."""
+    names = sorted(plan.case_dirs())
+    assert len(names) > plan.MAX_SHARDS * plan.PER_SHARD
+    recorded = ps.load_durations()
+    for durations in (recorded, {}, {n: float(i % 7) for i, n in enumerate(names)}):
+        for p in (
+            {"mode": "full", "cases": "all"},
+            {"mode": "narrow", "cases": names[:5]},
+            {"mode": "narrow", "cases": names},
+        ):
+            matrix = plan.shards_for(p)
+            assert len(matrix) <= plan.MAX_SHARDS
+            want = names if p["cases"] == "all" else p["cases"]
+            got = [c for lab in matrix for c in ps.shard_cases(want, ps.parse_shard(lab), durations)]
+            assert sorted(got) == sorted(want)  # none missing, none twice
+            assert got == [c for lab in matrix for c in ps.shard_cases(want, ps.parse_shard(lab), durations)]  # stable
+
+
+def test_a_full_sweep_plus_db2_fits_the_job_pool():
+    """#5135: a full run is shards + db2 jobs (+ plan + det), which must not exceed the 20-job pool."""
+    full = {"mode": "full", "cases": "all", "db2_cases": "all"}
+    assert len(plan.shards_for(full)) + len(plan.db2_shards_for(full)) + 2 <= 20
+
+
+# ---- #5885: shared files are narrowed to the cases they can move -----------------------------------------------
+
+
+def _texts(**sides):
+    """texts(path) for plan(): {path: (base, head)} as JSON values (None: that side is absent)."""
+    m = {p.replace("__", "/").replace("_DOT_", "."): tuple(None if v is None else json.dumps(v) for v in pair)
+         for p, pair in sides.items()}  # fmt: skip
+    return lambda path: m.get(path, (None, None))
+
+
+BASELINE = "tests/equivalence/det_sweep_baseline.json"
+INFEASIBLE = "tests/equivalence/infeasible_outcomes.json"
+
+
+def _keyed(path, base, head):
+    return lambda p: (json.dumps(base), json.dumps(head)) if p == path else (None, None)
+
+
+@pytest.mark.parametrize("path", ["tests/equivalence/det_mutation/carddemo-cardview.json",
+                                  "tests/equivalence/det_mutation_survivors/carddemo-cardview.json"])  # fmt: skip
+def test_mutation_scores_are_no_det_input(path):
+    """No det proof reads the mutation scores (det_mutation.py and evidence_report.py do): nothing to prove."""
+    assert plan.plan([path], "pull_request", CASES)["mode"] == "none"
+    assert plan.plan([path, "tests/equivalence/delta/case.json"], "pull_request", CASES)["cases"] == ["delta"]
+
+
+def test_a_baseline_change_proves_the_cases_whose_entries_changed():
+    base = {"format": "f/1", "about": "a", "det": {"alpha": "why (#1)", "delta": "why (#2)"}, "model": {}}
+    head = {**base, "about": "reworded", "det": {"alpha": "why (#1)"}}  # delta's entry dropped: delta now proves
+    p = plan.plan([BASELINE], "pull_request", CASES, texts=_keyed(BASELINE, base, head))
+    assert (p["mode"], p["cases"]) == ("narrow", ["delta"])
+
+
+@pytest.mark.parametrize("head", [
+    {"format": "f/2", "about": "a", "det": {}, "model": {}},  # another top-level key changed
+    {"format": "f/1", "about": "a", "det": {"newcase": "why (#3)"}, "model": {}},  # an entry of no case
+])  # fmt: skip
+def test_a_baseline_change_outside_case_entries_is_a_full_sweep(head):
+    base = {"format": "f/1", "about": "a", "det": {}, "model": {}}
+    assert plan.plan([BASELINE], "pull_request", CASES, texts=_keyed(BASELINE, base, head))["mode"] == "full"
+    assert plan.plan([BASELINE], "pull_request", CASES)["mode"] == "full"  # no texts: cannot tell
+    assert plan.plan([BASELINE], "pull_request", CASES, texts=lambda p: ("{", None))["mode"] == "full"
+
+
+def test_an_infeasible_outcome_change_proves_its_cases_and_the_cases_citing_a_changed_family():
+    e = {"line": 1, "outcome": "true"}
+    base = {"format": "i/1", "issue": "#4602", "about": "a", "families": {"G": "x", "C": "y"},
+            "cases": {"alpha": [{**e, "family": "G"}], "delta": [{**e, "family": "C"}]}}  # fmt: skip
+    head = {**base, "cases": {"alpha": [{**e, "family": "G"}], "delta": [{**e, "family": "C"}, {**e, "line": 2}]}}
+    p = plan.plan([INFEASIBLE], "pull_request", CASES, texts=_keyed(INFEASIBLE, base, head))
+    assert (p["mode"], p["cases"]) == ("narrow", ["delta"])
+    head = {**base, "families": {"G": "x, reworded", "C": "y"}}
+    p = plan.plan([INFEASIBLE], "pull_request", CASES, texts=_keyed(INFEASIBLE, base, head))
+    assert p["cases"] == ["alpha", "beta", "gamma"]  # alpha cites G; its port's dependents follow
+
+
+def test_a_corpus_pin_change_proves_the_cases_on_that_corpus():
+    cases = {"a1": {"corpus": "carddemo"}, "a2": {"corpus": "carddemo", "db2": {}}, "b1": {"corpus": "genapp"}}
+    base = {"corpora": [{"name": "carddemo", "ref": "r1"}, {"name": "genapp", "ref": "g1"}]}
+    head = {"corpora": [{"name": "carddemo", "ref": "r2"}, {"name": "genapp", "ref": "g1"}]}
+    p = plan.plan([plan.CORPORA], "pull_request", cases, texts=_keyed(plan.CORPORA, base, head))
+    assert (p["mode"], p["cases"], p["db2_cases"]) == ("narrow", ["a1"], ["a2"])
+    head = {**head, "about": "new top-level key"}
+    assert plan.plan([plan.CORPORA], "pull_request", cases, texts=_keyed(plan.CORPORA, base, head))["mode"] == "full"
+
+
+COMPONENT_CASES = {"batch1": {}, "db2batch": {"db2": {}}, "imsbatch": {"ims": {}}, "online": {"kind": "cics"},
+                   "linker": {"kind": "call"}}  # fmt: skip
+
+
+@pytest.mark.parametrize(("path", "want"), [
+    ("tests/equivalence/db2/ggsql.c", {"db2batch"}),  # oracle:db2
+    ("tests/equivalence/db2/dynsql/cbl/DYNDEMO.cbl", {"db2batch"}),
+    ("tests/tools/equivalence_db2.py", {"db2batch"}),  # harness:db2
+    ("tests/equivalence/ims/ggdli.c", {"imsbatch"}),  # oracle:ims
+    ("tests/tools/equivalence_ims.py", {"imsbatch"}),  # harness:ims
+    ("tests/equivalence/cics/ggcics.c", {"online"}),  # oracle:cics-stub
+    ("tests/tools/equivalence_cics.py", {"db2batch", "online", "linker"}),  # harness:cics (cics_harness)
+    ("tests/tools/equivalence_call.py", {"linker"}),  # harness:call
+])  # fmt: skip
+def test_a_harness_or_oracle_component_proves_the_cases_that_use_it(path, want):
+    """#4731's component map (evidence.COMPONENTS) decides which cases a harness / oracle file can move."""
+    p = plan.plan([path], "pull_request", COMPONENT_CASES)
+    assert p["mode"] == "narrow" and set(p["cases"]) | set(p["db2_cases"]) == want, p
+
+
+@pytest.mark.parametrize("path", [
+    "tests/tools/equivalence.py",  # harness:core: every case
+    "tests/equivalence/le/ceedays.c",  # oracle:le: linked into every program
+    "tests/equivalence/faults/ggabend.c",  # oracle:core
+    "tests/equivalence/gnucobol.Dockerfile",  # oracle:core
+])  # fmt: skip
+def test_a_harness_or_oracle_file_every_case_uses_is_a_full_sweep(path):
+    assert plan.plan([path], "pull_request", COMPONENT_CASES)["mode"] == "full"
+
+
+def test_every_cics_task_module_the_transaction_forge_splices_in_is_a_generator_input():
+    """#5885: #5448 split cics_task_filecontrol.py out of the transaction forge but left it off GENERATOR, so a change to
+    it was a full sweep instead of a port diff. Every cics_task_* module the forge imports is listed."""
+    import re
+
+    forge = (ROOT / FORGE).read_text(encoding="utf-8")
+    split = {f"gitgalaxy/tools/cobol_to_java/{m}.py" for m in re.findall(r"cobol_to_java\.(cics_task_\w+) import", forge)}
+    assert split and split <= set(plan.GENERATOR), split - set(plan.GENERATOR)

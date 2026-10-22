@@ -13,10 +13,23 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import evidence_report as er
 
-REPORTS = sorted(er.OUT.glob("*/report.json"))
-TREE = (next((s["translator"] for f in REPORTS for s in [json.loads(f.read_text("utf-8")).get("measured", {}).get("survey", {})]
-             if s.get("translator")), None)
-        or {"sha256": "tree-fp", "files": 3})  # the translator fingerprint of the tree, as these tests pin it (#4863, #4912)
+REPORTS = sorted(er.FIXTURE.glob("*/report.json"))  # #5206: main commits no report; the tests read a frozen snapshot
+
+
+@pytest.fixture(autouse=True)
+def _snapshot(monkeypatch):
+    monkeypatch.setattr(er, "OUT", er.FIXTURE)
+
+
+TREE = next(
+    (
+        s["translator"]
+        for f in REPORTS
+        for s in [json.loads(f.read_text("utf-8")).get("measured", {}).get("survey", {})]
+        if s.get("translator")
+    ),
+    None,
+) or {"sha256": "tree-fp", "files": 3}  # the translator fingerprint of the tree, as these tests pin it (#4863, #4912)
 
 
 @pytest.fixture(autouse=True)
@@ -26,6 +39,49 @@ def translator_in_the_tree_matches_the_surveys(monkeypatch):
     itself set their own."""
     monkeypatch.setattr(er, "translator_now", lambda: TREE)
     monkeypatch.setattr(er, "translator_at", lambda sha: TREE)
+
+
+@pytest.fixture(autouse=True, scope="module")
+def tree_fingerprints_computed_once():
+    """#5178: every live build fingerprints each case's inputs by hashing the tree (~27 of a build's ~35 s), and no test
+    here edits the tree, so a case's fingerprint is computed once per module, not once per build."""
+    import det_coverage_ledger as dcl
+
+    real, seen = dcl.fingerprints, {}
+
+    def once(case):
+        if case not in seen:
+            seen[case] = real(case)
+        return copy.deepcopy(seen[case])
+
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(dcl, "fingerprints", once)
+        yield
+
+
+@pytest.fixture(autouse=True, scope="module")
+def published_tip_fetched_once():
+    """Every live check fetched the `generated` branch's tip from origin (ls-remote + fetch, ~1.7 s a test): once a
+    module now (a tip does not move between two tests)."""
+    import generated_branch as gb
+
+    real_tip, tips = gb.fetch_tip, {}
+
+    def fetch_tip(*a, **k):
+        key = (a, tuple(sorted(k.items())))
+        if key not in tips:
+            try:
+                tips[key] = (real_tip(*a, **k), None)
+            except RuntimeError as e:  # (no origin: every call raises, as it would have)
+                tips[key] = (None, e)
+        tip, err = tips[key]
+        if err is not None:
+            raise err
+        return tip
+
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(gb, "fetch_tip", fetch_tip)
+        yield
 
 
 # A number as the Markdown prints it: not part of a name (CBACT01C, L5) or a hex digest (8dff2ec2e).
@@ -57,21 +113,12 @@ def test_burned_estate_reports_are_committed_and_only_burned():
         assert cc.is_burned(f.parent.name), f"{f.parent.name}: only burned estates are committed"
 
 
-@pytest.mark.skipif(
-    os.environ.get("EVIDENCE_REPORT_ADVISORY") == "1",
-    reason="#4703: per-PR CI is advisory (smoke-test.yml / full-suite-gate.yml print the level deltas); the evidence-refresh "
-    "bot regenerates the reports on main and the release gate (publish.yml) runs `evidence_report.py --check --live`",
-)
-def test_the_committed_reports_are_current():
-    assert er.main(["--check"]) == 0, "stale: python tests/tools/evidence_report.py --refresh"
-
-
 @pytest.mark.parametrize("path", REPORTS, ids=lambda p: p.parent.name)
-def test_committed_report_validates(path):
+def test_snapshot_report_validates(path):
     assert er.validate(json.loads(path.read_text("utf-8"))) == []
 
 
-@pytest.mark.parametrize("path", [*REPORTS, er.OUT / "README.md"], ids=lambda p: p.parent.name + "/" + p.name)
+@pytest.mark.parametrize("path", [*REPORTS, er.FIXTURE / "README.md"], ids=lambda p: p.parent.name + "/" + p.name)
 def test_no_forbidden_words(path):
     md = path.with_name("report.md") if path.suffix == ".json" else path
     hits = er._FORBIDDEN.findall(md.read_text("utf-8"))
@@ -258,6 +305,7 @@ def test_measure_reads_commands_and_facts(tmp_path):
     assert not er._FORBIDDEN.search(er.render(rep))
 
 
+@pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5178)")
 def test_deltas_are_advisory_and_name_the_level_changes(tmp_path, monkeypatch, capsys):
     estate = REPORTS[0].parent.name
     (tmp_path / estate).mkdir()
@@ -299,6 +347,7 @@ def program_of(tmp_path, estate):
     return rep, next(p for p in rep["programs"] if p["equivalence"]["chosen"]["case"] == CASE)
 
 
+@pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5178)")
 def test_a_harness_only_change_keeps_the_last_level_marked_stale(tmp_path, monkeypatch):
     estate = stale_fixture(tmp_path, monkeypatch, STALE)
     rep, p = program_of(tmp_path, estate)
@@ -314,6 +363,7 @@ def test_a_harness_only_change_keeps_the_last_level_marked_stale(tmp_path, monke
     assert not er._FORBIDDEN.search(md)
 
 
+@pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5176)")
 def test_a_current_measurement_is_a_current_level(tmp_path, monkeypatch):
     estate = stale_fixture(tmp_path, monkeypatch, FULL)
     rep, p = program_of(tmp_path, estate)
@@ -321,6 +371,7 @@ def test_a_current_measurement_is_a_current_level(tmp_path, monkeypatch):
     assert rep["summary"]["levels_stale"] == 0 and er.validate(rep, strict=True) == []
 
 
+@pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5176)")
 def test_a_blocking_change_drops_the_level(tmp_path, monkeypatch):
     estate = stale_fixture(tmp_path, monkeypatch, None)  # det_coverage() maps a case / corpus change to None
     _, p = program_of(tmp_path, estate)
@@ -352,6 +403,50 @@ def test_the_release_gate_fails_while_a_level_is_stale(tmp_path, monkeypatch, ca
     assert "stale level" in capsys.readouterr().err
     stale_fixture(tmp_path, monkeypatch, FULL)
     assert er.main(["--check", "--live"]) == 0
+
+
+@pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5208)")
+def test_the_release_gate_passes_the_published_non_live_report(tmp_path, monkeypatch):
+    """#5208: the refresh publishes a non-live render; the release gate must pass it."""
+    stale_fixture(tmp_path, monkeypatch, FULL)
+    er.write(er.expected(False))  # what the refresh publishes
+    assert er.main(["--check", "--live"]) == 0  # clean right after a refresh
+    assert er.main(["--check"]) == 0
+
+
+@pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5208)")
+def test_the_release_gate_fails_an_edited_rendering_and_edited_data(tmp_path, monkeypatch):
+    """Split from one test (#5610): each test's builds stay under the per-test time limit."""
+    estate = stale_fixture(tmp_path, monkeypatch, FULL)
+    er.write(er.expected(False))
+    md = tmp_path / estate / "report.md"
+    clean_md = md.read_text("utf-8")
+    md.write_text(clean_md.replace("| L0 |", "| L0 (edited) |", 1), "utf-8")
+    assert er.main(["--check", "--live"]) == 1  # edited rendering
+    md.write_text(clean_md, "utf-8")
+    js = tmp_path / estate / "report.json"
+    clean_js = js.read_text("utf-8")
+    js.write_text(clean_js.replace("evidence.py status at build time", "edited", 1), "utf-8")
+    assert er.main(["--check", "--live"]) == 1  # edited data
+
+
+@pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5208)")
+def test_the_release_gate_fails_an_extra_file_until_it_is_removed(tmp_path, monkeypatch):
+    estate = stale_fixture(tmp_path, monkeypatch, FULL)
+    er.write(er.expected(False))
+    (tmp_path / estate / "stray.md").write_text("x", "utf-8")
+    assert er.main(["--check", "--live"]) == 1  # an extra file
+    (tmp_path / estate / "stray.md").unlink()
+    assert er.main(["--check", "--live"]) == 0
+
+
+@pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5208)")
+def test_the_release_gate_still_fails_a_stale_level_in_a_non_live_published_report(tmp_path, monkeypatch, capsys):
+    stale_fixture(tmp_path, monkeypatch, STALE)
+    er.write(er.expected(False))
+    assert er.main(["--check", "--live"]) == 1
+    assert "stale level" in capsys.readouterr().err
+    assert er.main(["--check"]) == 0  # non-live compares content only
 
 
 def test_deltas_report_stale_against_current(tmp_path, monkeypatch, capsys):
@@ -392,11 +487,13 @@ def db2_fixture(tmp_path, monkeypatch, cov, sweep=None, isolate=False):
     return rep, p
 
 
+@pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5178)")
 def test_a_db2_case_with_no_sweep_and_no_ledger_entry_is_not_run(tmp_path, monkeypatch):
     _, p = db2_fixture(tmp_path, monkeypatch, None, isolate=True)
     assert p["level"] == "L1" and p["equivalence"]["chosen"]["det"]["state"] == "not run"
 
 
+@pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5178)")
 def test_a_db2_verdict_from_a_sweep_input(tmp_path, monkeypatch):
     row = {"proved": True, "coverage": "proven on 8 scenarios, covering 3/3 paragraphs and 4/8 branches",
            "translated": "", "first_diff": "", "uncovered": None}  # fmt: skip
@@ -407,6 +504,7 @@ def test_a_db2_verdict_from_a_sweep_input(tmp_path, monkeypatch):
     assert p["coverage"]["source"] == "local sweep coverage line"
 
 
+@pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5178)")
 def test_a_db2_verdict_persists_from_the_ledger_on_a_run_without_db2(tmp_path, monkeypatch):
     """A push refresh skips the db2 job; the ledger entry the last full refresh wrote (proven cases only) carries."""
     _, p = db2_fixture(tmp_path, monkeypatch, DB2_COV)
@@ -416,6 +514,7 @@ def test_a_db2_verdict_persists_from_the_ledger_on_a_run_without_db2(tmp_path, m
     assert p["coverage"]["paragraphs"] == {"covered": 3, "live": 3} and p["coverage"]["branches"]["total"] == 8
 
 
+@pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5178)")
 def test_a_db2_verdict_from_a_stale_ledger_entry_is_marked_stale(tmp_path, monkeypatch):
     stale = {"coverage": DB2_COV, "stale_inputs": ["harness"], "stale_since": "abc1234def5678"}
     rep, p = db2_fixture(tmp_path, monkeypatch, stale)
@@ -441,10 +540,17 @@ def test_the_ledger_never_overrides_a_known_unproven_db2_case(monkeypatch):
     assert er.ledger_verdicts({("x", "y"): [run2]}, {DB2_CASE: DB2_COV}) == {DB2_CASE} and not run2.gaps
 
 
+@pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5178)")
 def test_a_linked_program_never_inherits_the_cases_coverage_and_its_ledger_verdict_is_stale(tmp_path, monkeypatch):
     """LGSTSQ is only LINKed by the GenApp Db2 cases (here only DB2_CASE has a ledger entry): equal by the ledger is L2 (no coverage of its own, #4270),
     stale with the entry it rests on."""
     stale = {"coverage": DB2_COV, "stale_inputs": ["oracle"], "stale_since": "abc1234def5678"}
+    # the VSAM front ends (lgapvs01, lgupvs01) LINK LGSTSQ too, and CI's ratchet proves them current (#5252): keep only
+    # the Db2 case, which is the one this test is about
+    real = er.pb.equivalence_runs
+    monkeypatch.setattr(
+        er.pb, "equivalence_runs", lambda: {k: [r for r in v if r.case == DB2_CASE] for k, v in real().items()}
+    )
     db2_fixture(tmp_path, monkeypatch, stale, isolate=True)
     rep = json.loads((tmp_path / GENAPP / "report.json").read_text("utf-8"))
     p = next(p for p in rep["programs"] if p["program"].endswith("lgstsq.cbl"))
@@ -733,3 +839,20 @@ def test_a_survey_run_stores_the_translator_fingerprint(tmp_path, monkeypatch):
     rep = json.loads((out / "zecs" / "report.json").read_text("utf-8"))
     assert rep["measured"]["survey"]["translator"] == {"sha256": "STORED", "files": 3}
     assert rep["survey_translator"] == {"fingerprint": "STORED", "current": True}
+
+
+def test_options_list_the_runtime_values_with_the_tables_verdict(tmp_path, monkeypatch):
+    demo_estate(
+        tmp_path, monkeypatch
+    )  # its LE STORAGE is "NONE": not the table's full default, so a declared difference
+    o = er.program_options(None, "demo", "P.cbl", [])
+    (row,) = o["runtime"]
+    assert (row["option"], row["value"], row["effect"], row["provenance"]) == (
+        "le.runtime_options.STORAGE",
+        "NONE",
+        "declared",
+        "assumed",
+    )
+    assert "le.runtime_options.STORAGE=NONE [declared; assumed" in "\n".join(er.options_lines(o))
+    # a corpus with no estate file has no runtime values, and the key is absent (older reports stay valid)
+    assert "runtime" not in er.program_options(None, "nofile", "P.cbl", [])

@@ -54,7 +54,7 @@ final class Zoned {
     }
 
     private static int start(Field f) {
-        return f.signSeparate && f.signLeading ? f.off + 1 : f.off;
+        return f.signSeparate && f.signLeading ? f.at() + 1 : f.at();
     }
 
     private static int signAt(Field f) {
@@ -62,7 +62,7 @@ final class Zoned {
     }
 
     private static int sepAt(Field f) {
-        return f.signSeparate ? (f.signLeading ? f.off : f.off + f.digits) : -1;
+        return f.signSeparate ? (f.signLeading ? f.at() : f.at() + f.digits) : -1;
     }
 
     /** libcob's GET_SIGN on one sign byte: {digit char, 1 if negative}. `compare`: the comparison's reading, which
@@ -80,6 +80,7 @@ final class Zoned {
     }
 
     /** The item's digit positions and sign as libcob reads them; nothing in the storage changes. */
+    // [rule RT-NUM-NONDIGIT-GET-SIGN]
     static Raw get(Field f, Charset cs) {
         return get(f, cs, false);
     }
@@ -122,6 +123,7 @@ final class Zoned {
         d[start(f) + at] = Codec.by(out, cs);
     }
 
+    // [rule RT-NUM-NONDIGIT-REFUSED]
     private static UnsupportedOperationException refuse(String what) {
         return new UnsupportedOperationException(what + " a zoned item holding a non-digit is not modelled "
                 + "(IBM documents no result, register C11)");
@@ -147,12 +149,19 @@ final class Zoned {
         return refuse("arithmetic whose receiver is");
     }
 
+    /** The refusal of a non-digit in a POINTER / TALLYING item a STRING, UNSTRING or INSPECT reads before it stores
+     *  (#4692). */
+    static UnsupportedOperationException refuseCounter() {
+        return refuse("a STRING / UNSTRING pointer or tallying counter that is");
+    }
+
     private static BigDecimal scaled(BigInteger v, boolean neg, int scale) {
         return new BigDecimal(neg ? v.negate() : v, scale);
     }
 
     /** The value of a zoned item as an arithmetic operand (COMPUTE, ADD, ...), cob_decimal_set_display; PUT_SIGN
      *  follows. A digit-only item is read as ever. */
+    // [rule RT-NUM-NONDIGIT-ARITHMETIC]
     static BigDecimal operand(Field f, Charset cs) {
         Raw r = get(f, cs);
         if (!r.dirty) {
@@ -163,7 +172,7 @@ final class Zoned {
         refuseP(f);
         if (Codec.numprocPfd && !Codec.preferredSign(f, cs)) throw Codec.nonPreferredSign(f);
         int n = f.digits;
-        int first = f.st.bytes[f.off] & 0xFF;
+        int first = f.st.bytes[f.at()] & 0xFF;
         if (first == 0xFF || first == 0) {  // HIGH-VALUES / LOW-VALUES: 10^size, positive or negative
             return scaled(BigInteger.TEN.pow(n), first == 0, f.scale);
         }
@@ -200,6 +209,7 @@ final class Zoned {
      *  byte that is no overpunch (a space too) 0 and nothing written back. Any other item (a leading or separate
      *  sign) goes through the decimal as an arithmetic operand does (a separate sign is rewritten). A digit-only
      *  item is read as ever. */
+    // [rule RT-NUM-NONDIGIT-COMPARE]
     static BigDecimal compareValue(Field f, Charset cs) {
         boolean numdisp = !f.signSeparate && !(f.signed && f.signLeading) && f.scale == 0;
         Raw r = get(f, cs, numdisp);
@@ -224,6 +234,7 @@ final class Zoned {
 
     /** MOVE of a zoned sender holding a non-digit to a zoned receiver (store_common_region): the digit bytes
      *  copied aligned on the decimal point. */
+    // [rule RT-NUM-NONDIGIT-MOVE]
     static void toZoned(Field from, Raw r, Field to, Charset cs) {
         byte[] d = to.st.bytes;
         int s = start(to);
@@ -267,6 +278,6 @@ final class Zoned {
             v[lead + j] = c < 0 || c == ' ' ? 0 : c - '0';
         }
         v[nibbles - 1] = !to.signed ? 0x0F : r.neg ? 0x0D : 0x0C;
-        for (int i = 0; i < to.len; i++) d[to.off + i] = (byte) ((v[2 * i] * 16 + v[2 * i + 1]) & 0xFF);
+        for (int i = 0; i < to.len; i++) d[to.at() + i] = (byte) ((v[2 * i] * 16 + v[2 * i + 1]) & 0xFF);
     }
 }

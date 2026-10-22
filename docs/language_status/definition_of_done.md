@@ -11,7 +11,7 @@ description: "Charter (#4722): what 'done' means for a COBOL/CICS/Db2 migration 
 **In scope:** COBOL programs, with the CICS commands and Db2 SQL they use, and batch file I/O, on IBM z/OS, under
 the compile and runtime options recorded for each estate (`tests/equivalence/estate_options/<estate>.json`, #4704).
 The COBOL `SORT` / `MERGE` verbs are translated. JCL **utility steps** (SORT, IDCAMS, IEBGENER, DFSORT) are *not* run
-([register](oracle_assumptions.md) F4): the generated job refuses them by name.
+([register](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md) F4): the generated job refuses them by name.
 
 **Out of scope or parked** (state of 2026-10-09; recheck before quoting):
 
@@ -19,7 +19,7 @@ The COBOL `SORT` / `MERGE` verbs are translated. JCL **utility steps** (SORT, ID
 - IDMS DML (refused by name, support is #4532); IMS / DL/I (`EXEC DLI`, `ENTRY 'DLITCBL'`) and MQ ([det_port_design.md](det_port_design.md): "out of scope for this translator").
 - `EXEC CICS WEB` family (#4767) and `DOCUMENT` (#4769): open, not modelled.
 - National / DBCS data (`USAGE NATIONAL`, `PIC N`, DBCS literals): #4272, open. Refused by name.
-- `COMP-1` / `COMP-2` are modelled as IBM hexadecimal floating point (register C6) but what the oracle cannot decide is refused; `INTDATE(LILIAN)` and `ARITH(EXTEND)` are refused (C5).
+- `COMP-1` / `COMP-2` are modelled as IBM hexadecimal floating point (register C6) but what the oracle cannot decide is refused; `INTDATE(LILIAN)` is refused and `ARITH(EXTEND)` stops by name past a 30-digit intermediate (C5).
 - Not measured at all by the evidence report: data migration, JCL streams, interfaces, performance, security, cutover (#4514). "Done" in this charter is about **program behaviour**, not the whole migration.
 
 ## 2. Per program: the acceptable outcomes
@@ -27,7 +27,7 @@ The COBOL `SORT` / `MERGE` verbs are translated. JCL **utility steps** (SORT, ID
 Exactly one of:
 
 1. **Translated and shown equal to a stated level** (below). The level is reported with its numbers, never a bare "OK".
-2. **Refused by name, with a reason the customer agrees to.** The translator stops on the construct and says which; the program is listed, not hidden. Refusal families today: IDMS; national / DBCS text; source defects (for example text past column 72, a missing period); a file that is not COBOL; COPY members not in the estate (vendor copybooks) or a COPY of a program member; CICS and Db2 options IBM leaves undefined (register status REFUSED: X5, X13-X30, Q4, Q5); COBOL features the det port does not model (float edge cases, SORT of a table, `CALL identifier` with names the source does not fix, ALTER, ENTRY). See the "refusals kept deliberately" table in [det_port_design.md](det_port_design.md).
+2. **Refused by name, with a reason the customer agrees to.** The translator stops on the construct and says which; the program is listed, not hidden. Refusal families today: IDMS; national / DBCS text; source defects (for example text past column 72, a missing period); a file that is not COBOL; COPY members not in the estate (vendor copybooks) or a COPY of a program member; CICS and Db2 options IBM leaves undefined (register status REFUSED: X5, X13-X30, Q4, Q5); macro-level CICS programs (DFHxx TYPE= macro calls, CSA / TCA addressing) and CICS Assembler programs ([register X55](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md), #5121); COBOL features the det port does not model (float edge cases, SORT of a table, `CALL identifier` with names the source does not fix, ENTRY). See the "refusals kept deliberately" table in [det_port_design.md](det_port_design.md).
 3. **Never:** a program translated without proof, or with a construct silently guessed. A construct that cannot be translated is a *hole* by name; a hole keeps the program below L1.
    **Owner decision (2026-10-11, #4803):** a program is not proven while any program it LINKs or CALLs (transitively) has a hole, even when no scenario reaches that hole -- "proven" must not depend on which scenarios were written. A case's `programs` (LINK targets) and `subprograms` (CALLed programs) are det-translated with it, and their holes count for the case (`proof_sweep.port_proved`); the case stays in `det_sweep_baseline.json` with the callee named, at L1, until the callee's holes are closed. A program the port CALLs that the case does not list (and the runtime does not model) counts as a called hole too: the Java side would run the generator's empty stub.
 
@@ -51,9 +51,9 @@ A level marked `*` is **stale**: last measured against an earlier harness or ora
 An estate is done when all of the following hold:
 
 1. Every program the customer wants migrated is at its promised level, or on an agreed refusal list (section 2).
-2. **Every oracle caveat the estate relies on is listed; DIFFERS entries it reaches are accepted by the customer, ASSUMED ones disclosed.** The register ([oracle_assumptions.md](oracle_assumptions.md)) has four statuses: MATCHED, REFUSED, DIFFERS, ASSUMED. For each program the report names the ASSUMED / DIFFERS entries its commands reach. Today the report does not measure which register entries a program *actually* reaches; it lists those its commands name. The estate's list is therefore an upper bound, and the charter says so.
+2. **Every oracle caveat the estate relies on is listed; DIFFERS entries it reaches are accepted by the customer, ASSUMED ones disclosed.** The register ([oracle_assumptions.md](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md)) has four statuses: MATCHED, REFUSED, DIFFERS, ASSUMED. For each program the report names the ASSUMED / DIFFERS entries its commands reach. Today the report does not measure which register entries a program *actually* reaches; it lists those its commands name. The estate's list is therefore an upper bound, and the charter says so.
 3. **Options are recorded with provenance, and the customer confirms every assumed one in writing (#4709).** Compiler and runtime options per estate come from the estate's own build files where they exist and are marked `assumed: IBM default` where they do not (`estate_options/*.json`: each value carries `source`, `quote`, `note`). The evidence report shows each program's effective options and provenance (#4708, in review as PR #4775). What to request, and what is assumed when it is missing: [estate_intake.md](estate_intake.md); `tests/tools/estate_intake.py <estate>` writes the customer's confirmation list.
-4. **Evidence is current at release.** The release job runs `evidence_report.py --check --live` (publish.yml); a tag fails while the committed report differs from the repo or any level is stale. The Evidence Refresh bot regenerates reports on main.
+4. **Evidence is current at release.** The release job runs `evidence_report.py --check --live` (publish.yml); a tag fails while the published report (`generated` branch) differs from the repo or any level is stale. The Evidence Refresh workflow regenerates and publishes it.
 5. **Declared differences are listed and approved.** The machinery is #4051 (none exist yet). The owner approves the difference class; each one is listed in the customer's evidence report.
 
 ## 4. Policies that define correctness
@@ -65,7 +65,7 @@ An estate is done when all of the following hold:
 
 ## 5. What "supported" means for a feature (for the readiness scanner, #4723 / #4724)
 
-A COBOL / CICS / SQL feature is **supported** only if all four hold, and the scanner prints which are missing:
+A COBOL / CICS / SQL feature is **supported** only if all four hold, and the scanner prints which are missing (`tests/tools/support_matrix.py`, per burned estate, #4724):
 
 1. **Modelled:** the translator and runtime implement it (not a hole, not refused).
 2. **In the rule catalogue:** it has an entry with an ID, IBM reference, option dependencies and register status (#4711, **planned**; until it exists this condition cannot be checked and the scanner says "not yet catalogued").

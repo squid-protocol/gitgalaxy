@@ -1,0 +1,905 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "COBIL00C",
+ "program_source": "app/cbl/COBIL00C.cbl",
+ "copy_dirs": [
+  "app/cpy",
+  "app/cpy-bms"
+ ],
+ "transid": "CB00",
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {
+  "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS": {
+   "input": "@generate",
+   "entity": "AccountRecord",
+   "copybook": "app/cpy/CVACT01Y.cpy",
+   "record": "ACCOUNT-RECORD",
+   "generate": {
+    "copybook": "app/cpy/CVACT01Y.cpy",
+    "record": "ACCOUNT-RECORD",
+    "records": 30,
+    "seed": 4506,
+    "fields": {
+     "ACCT-ID": {
+      "values": [
+       "00000000001",
+       "00000000002",
+       "00000000003",
+       "00000000004",
+       "00000000005",
+       "00000000006",
+       "00000000007",
+       "00000000008",
+       "00000000009",
+       "00000000010",
+       "00000000011",
+       "00000000012",
+       "00000000013",
+       "00000000014",
+       "00000000015",
+       "00000000016",
+       "00000000017",
+       "00000000018",
+       "00000000019",
+       "00000000020",
+       "00000000021",
+       "00000000022",
+       "00000000023",
+       "00000000024",
+       "00000000025",
+       "00000000026",
+       "00000000027",
+       "00000000028",
+       "00000000029",
+       "00000000030"
+      ]
+     },
+     "ACCT-CURR-BAL": {
+      "values": [
+       "1940.00",
+       "0",
+       "798929100.87",
+       "250.50",
+       "-75.25",
+       "99999999.99",
+       "12.00",
+       "5000.00"
+      ]
+     }
+    }
+   }
+  },
+  "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS": {
+   "input": "@generate",
+   "keys": [
+    {
+     "offset": 0,
+     "length": 16
+    },
+    {
+     "offset": 25,
+     "length": 11,
+     "duplicates": true
+    }
+   ],
+   "entity": "CardXrefRecord",
+   "copybook": "app/cpy/CVACT03Y.cpy",
+   "record": "CARD-XREF-RECORD",
+   "generate": {
+    "copybook": "app/cpy/CVACT03Y.cpy",
+    "record": "CARD-XREF-RECORD",
+    "records": 30,
+    "seed": 4506,
+    "fields": {
+     "XREF-ACCT-ID": {
+      "values": [
+       "00000000001",
+       "00000000002",
+       "00000000003",
+       "00000000004",
+       "00000000005",
+       "00000000006",
+       "00000000007",
+       "00000000008",
+       "00000000009",
+       "00000000010",
+       "00000000011",
+       "00000000012",
+       "00000000013",
+       "00000000014",
+       "00000000015",
+       "00000000016",
+       "00000000017",
+       "00000000018",
+       "00000000019",
+       "00000000020",
+       "00000000021",
+       "00000000022",
+       "00000000023",
+       "00000000024",
+       "00000000025",
+       "00000000026",
+       "00000000027",
+       "00000000028",
+       "00000000029",
+       "00000000030"
+      ]
+     }
+    }
+   }
+  },
+  "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS": {
+   "input": "@generate",
+   "entity": "TranRecord",
+   "copybook": "app/cpy/CVTRA05Y.cpy",
+   "record": "TRAN-RECORD",
+   "generate": {
+    "copybook": "app/cpy/CVTRA05Y.cpy",
+    "record": "TRAN-RECORD",
+    "records": 30,
+    "seed": 4506,
+    "fields": {
+     "TRAN-ID": {
+      "values": [
+       "0000000000001000",
+       "0000000000001037",
+       "0000000000001074",
+       "0000000000001111",
+       "0000000000001148",
+       "0000000000001185",
+       "0000000000001222",
+       "0000000000001259",
+       "0000000000001296",
+       "0000000000001333",
+       "0000000000001370",
+       "0000000000001407",
+       "0000000000001444",
+       "0000000000001481",
+       "0000000000001518",
+       "0000000000001555",
+       "0000000000001592",
+       "0000000000001629",
+       "0000000000001666",
+       "0000000000001703",
+       "0000000000001740",
+       "0000000000001777",
+       "0000000000001814",
+       "0000000000001851",
+       "0000000000001888",
+       "0000000000001925",
+       "0000000000001962",
+       "0000000000001999",
+       "0000000000002036",
+       "0000000000002073"
+      ]
+     }
+    }
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "app/cbl/COBIL00C.cbl",
+    "record": "CARDDEMO-COMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "COBIL0A": {
+   "copybook": "app/cpy-bms/COBIL00.CPY",
+   "input": "COBIL0AI",
+   "output": "COBIL0AO"
+  }
+ },
+ "notes": "CardDemo's bill payment (CB00, COBIL00C) on a GENERATED map input and generated files (#4506): 30 scenarios whose COMMAREA is generated and whose RECEIVE MAP input is typed for COBIL0's two unprotected fields, ACTIDIN (11 bytes, drawn from the generated accounts or missing them) and CONFIRM (Y, y, N, n, or another letter), over generated ACCTDATA, CARDXREF (joined to the accounts) and TRANSACT files; the key pressed turns through ENTER, PF3, PF4 and PF5. Proves the carddemo-billpay port on inputs it was not written against; the hand-written scenarios left are the fault runs and the COMMAREA lengths. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+ "port_from": "carddemo-billpay",
+ "scenario_generate": {
+  "seed": 4506,
+  "count": 30,
+  "prefix": "generated",
+  "aid": [
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHPF3",
+   "DFHPF4",
+   "DFHPF5"
+  ],
+  "commarea": {
+   "CDEMO-FROM-TRANID": "CM00",
+   "CDEMO-FROM-PROGRAM": "COMEN01C",
+   "CDEMO-USER-ID": "USER0001",
+   "CDEMO-USER-TYPE": "U",
+   "CDEMO-PGM-CONTEXT": {
+    "values": [
+     0,
+     1
+    ]
+   }
+  },
+  "receive": {
+   "COBIL0A": {
+    "@bms": {
+     "bad": 0,
+     "empty": 0.1
+    },
+    "ACTIDINI": {
+     "from": "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS.ACCT-ID",
+     "miss": 0.2
+    },
+    "CONFIRMI": {
+     "values": [
+      "Y",
+      "Y",
+      "y",
+      "N",
+      "n",
+      "Q"
+     ]
+    }
+   }
+  }
+ },
+ "scenarios": [
+  {
+   "name": "no-commarea",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "#4506: a hand-written scenario of carddemo-billpay that the generated inputs do not reach"
+  },
+  {
+   "name": "first-entry-with-long-selected-account",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-CB00-TRN-SELECTED": "000000000012"
+   },
+   "why": "#5401: CDEMO-CB00-TRN-SELECTED is 16 wide but the MOVE to ACTIDINI keeps 11, so the 12th character must not reach the account key (kills mutant d3458d6107)."
+  },
+  {
+   "name": "account-read-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "ACCTDAT",
+     "resp": "IOERR",
+     "why": "17 on the account READ UPDATE"
+    }
+   ],
+   "why": "#4506: a hand-written scenario of carddemo-billpay that the generated inputs do not reach"
+  },
+  {
+   "name": "write-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "WRITE",
+     "file": "TRANSACT",
+     "resp": "IOERR",
+     "why": "17 on the payment's WRITE"
+    }
+   ],
+   "why": "#4506: a hand-written scenario of carddemo-billpay that the generated inputs do not reach"
+  },
+  {
+   "name": "rewrite-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "REWRITE",
+     "file": "ACCTDAT",
+     "resp": "IOERR",
+     "why": "17 on the balance REWRITE: the payment is written, the balance not"
+    }
+   ],
+   "why": "#4506: a hand-written scenario of carddemo-billpay that the generated inputs do not reach"
+  },
+  {
+   "name": "pf3-back-to-caller",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001"
+    }
+   },
+   "why": "#4602: PF3 with a CDEMO-FROM-PROGRAM set (line 129 false): XCTL back to COMEN01C"
+  },
+  {
+   "name": "xref-not-found",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CXACAIX",
+     "resp": "NOTFND",
+     "why": "13 on the card xref READ (line 423): 'Account ID NOT found...'"
+    }
+   ],
+   "why": "#4506: a hand-written scenario of carddemo-billpay that the generated inputs do not reach"
+  },
+  {
+   "name": "xref-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CXACAIX",
+     "resp": "IOERR",
+     "why": "17 on the card xref READ (line 420 WHEN OTHER): 'Unable to lookup XREF AIX file...'"
+    }
+   ],
+   "why": "#4506: a hand-written scenario of carddemo-billpay that the generated inputs do not reach"
+  },
+  {
+   "name": "xref-aix-dupkey",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CXACAIX",
+     "resp": "DUPKEY",
+     "why": "15 (RESP2 140) on the card xref READ through the CXACAIX alternate index (line 420 WHEN OTHER): the record is read and another card of the account follows, and the program answers 'Unable to lookup XREF AIX file...' as for any condition but NORMAL / NOTFND"
+    }
+   ],
+   "why": "#4506: a hand-written scenario of carddemo-billpay that the generated inputs do not reach"
+  },
+  {
+   "name": "startbr-not-found",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "STARTBR",
+     "file": "TRANSACT",
+     "resp": "NOTFND",
+     "why": "13 on the STARTBR at HIGH-VALUES (line 454): 'Transaction ID NOT found...'"
+    }
+   ],
+   "why": "#4506: a hand-written scenario of carddemo-billpay that the generated inputs do not reach"
+  },
+  {
+   "name": "startbr-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "STARTBR",
+     "file": "TRANSACT",
+     "resp": "IOERR",
+     "why": "17 on the STARTBR (line 451 WHEN OTHER)"
+    }
+   ],
+   "why": "#4506: a hand-written scenario of carddemo-billpay that the generated inputs do not reach"
+  },
+  {
+   "name": "readprev-endfile",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READPREV",
+     "file": "TRANSACT",
+     "resp": "ENDFILE",
+     "why": "20 on the READPREV (line 487): no transaction yet, TRAN-ID zeros, the payment gets id 1"
+    }
+   ],
+   "why": "#4506: a hand-written scenario of carddemo-billpay that the generated inputs do not reach"
+  },
+  {
+   "name": "readprev-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READPREV",
+     "file": "TRANSACT",
+     "resp": "IOERR",
+     "why": "17 on the READPREV (line 484 WHEN OTHER)"
+    }
+   ],
+   "why": "#4506: a hand-written scenario of carddemo-billpay that the generated inputs do not reach"
+  },
+  {
+   "name": "write-duprec",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "WRITE",
+     "file": "TRANSACT",
+     "resp": "DUPREC",
+     "why": "14 (RESP2 150, IBM's WRITE condition for a key already in the file; DUPKEY is a read condition: see xref-aix-dupkey) on the payment's WRITE (line 533): 'Tran ID already exist...'"
+    }
+   ],
+   "why": "#4506: a hand-written scenario of carddemo-billpay that the generated inputs do not reach"
+  },
+  {
+   "name": "pf3-xctl-fails",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COMEN01C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4648: PGMIDERR RESP2 3, the program could not be loaded (IBM CICS TS, XCTL conditions): the XCTL fails and, with no RESP, CICS abends the task (the model port used to RETURN)"
+  },
+  {
+   "name": "pf3-xctl-not-authorised",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COMEN01C",
+     "nth": 1,
+     "resp": "NOTAUTH",
+     "resp2": 101
+    }
+   ],
+   "why": "#4648: NOTAUTH RESP2 101, the user may not use the program (IBM CICS TS, XCTL conditions): not handled, CICS abends the task (AEY7)"
+  },
+  {
+   "name": "short-commarea-200",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-TO-TRANID": "CT01",
+    "CDEMO-TO-PROGRAM": "COTRN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "FIRSTNAME",
+    "CDEMO-CUST-MNAME": "MIDNAME",
+    "CDEMO-CUST-LNAME": "LASTNAME",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 1234567890123456,
+    "CDEMO-LAST-MAP": "LASTMAP",
+    "CDEMO-LAST-MAPSET": "LASTSET",
+    "CDEMO-CB00-TRNID-FIRST": "0000000000000001",
+    "CDEMO-CB00-TRNID-LAST": "0000000000000009",
+    "CDEMO-CB00-PAGE-NUM": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001"
+    }
+   },
+   "commarea_length": 200,
+   "why": "#5401 (EIBCALEN, mutation survivors): the caller passed 200 of the COMMAREA's 218 bytes, ending after the page-number field so no numeric is blank: only the bytes inside EIBCALEN are moved"
+  },
+  {
+   "name": "short-commarea-201",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-TO-TRANID": "CT01",
+    "CDEMO-TO-PROGRAM": "COTRN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "FIRSTNAME",
+    "CDEMO-CUST-MNAME": "MIDNAME",
+    "CDEMO-CUST-LNAME": "LASTNAME",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 1234567890123456,
+    "CDEMO-LAST-MAP": "LASTMAP",
+    "CDEMO-LAST-MAPSET": "LASTSET",
+    "CDEMO-CB00-TRNID-FIRST": "0000000000000001",
+    "CDEMO-CB00-TRNID-LAST": "0000000000000009",
+    "CDEMO-CB00-PAGE-NUM": 1,
+    "CDEMO-CB00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001"
+    }
+   },
+   "commarea_length": 201,
+   "why": "#5401 (EIBCALEN, mutation survivors): the caller passed 201 of the COMMAREA's 218 bytes, ending after the page-number field so no numeric is blank: only the bytes inside EIBCALEN are moved"
+  },
+  {
+   "name": "decline-lowercase-n",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "n"
+    }
+   },
+   "why": "#4628 (mutation survivors): the lowercase 'n' declines like 'N' (the WHEN 'n' arm; pay-lowercase-y is the 'y' twin)"
+  },
+  {
+   "name": "full-commarea-carried",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-TO-TRANID": "CT01",
+    "CDEMO-TO-PROGRAM": "COTRN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "FIRSTNAME",
+    "CDEMO-CUST-MNAME": "MIDNAME",
+    "CDEMO-CUST-LNAME": "LASTNAME",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 1234567890123456,
+    "CDEMO-LAST-MAP": "LASTMAP",
+    "CDEMO-LAST-MAPSET": "LASTSET",
+    "CDEMO-CB00-TRNID-FIRST": "0000000000000001",
+    "CDEMO-CB00-TRNID-LAST": "0000000000000009",
+    "CDEMO-CB00-PAGE-NUM": 1,
+    "CDEMO-CB00-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CB00-TRN-SEL-FLG": "S"
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001"
+    }
+   },
+   "why": "#4628 (mutation survivors): the whole 218-byte COMMAREA arrives, with CDEMO-CB00-TRN-SEL-FLG non-blank, so the RETURN's commarea must carry that flag"
+  },
+  {
+   "name": "pay-lowercase-y",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000008",
+     "CONFIRMI": "y"
+    }
+   },
+   "why": "#4506 (mutation survivor): a lowercase y confirms the payment like Y (the 'y' literal of the CONFIRM test, line 499); account 8 owes 5000.00"
+  },
+  {
+   "name": "zero-balance-confirm",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000002",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4506 (mutation survivor): account 2 has a balance of exactly 0: not above zero, so 'You have nothing to pay...' (the <= 0 test, line 516)"
+  },
+  {
+   "name": "pay-large-balance",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000003",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4506 (mutation survivor): account 3 owes 798929100.87: the payment amount keeps all nine integer digits of TRAN-AMT (STORE, line 239-240)"
+  },
+  {
+   "name": "pay-near-maximum-balance",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000006",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4506 (mutation survivor): account 6 owes 99999999.99: the largest balance in the file that the payment amount still holds"
+  },
+  {
+   "name": "account-id-one-digit-padded",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "1"
+    }
+   },
+   "why": "#4506 (mutation survivor): ACTIDIN '1' followed by blanks: the blanks are skipped and the id is 1 (digitsKey, line 227), so account 1 is found"
+  },
+  {
+   "name": "account-id-embedded-blank",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "0000000 001",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4506 (mutation survivor): a blank inside the id is skipped, as libcob's MOVE X(11) TO 9(11) skips it (digitsKey, line 227)"
+  },
+  {
+   "name": "account-id-with-letter",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "0000000000X",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#4506 (mutation survivor): a letter in the id makes the move invalid (digitsKey returns null)"
+  },
+  {
+   "name": "endbr-invalid-request",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "ENDBR",
+     "file": "TRANSACT",
+     "resp": "INVREQ",
+     "why": "16 on the ENDBR after the READPREV (line 689): no RESP, so CICS abends the task (AEIP)"
+    }
+   ],
+   "why": "#4506 (mutation survivor): the ENDBR fault run of the pay path (endbrTransactFile)"
+  },
+  {
+   "name": "pf3-blank-from-program",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COBIL0A": {
+     "ACTIDINI": "00000000001"
+    }
+   },
+   "why": "#4506 (mutation survivor): PF3 with a blank CDEMO-FROM-PROGRAM: XCTL goes to the default COMEN01C"
+  }
+ ]
+}

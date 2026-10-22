@@ -27,8 +27,8 @@ tests/tools/test_box_status.py):
 | Verdict | Means | Do |
 |---|---|---|
 | GREEN | headroom | launch; heavy work only into a free slot (`free_slots`) |
-| YELLOW | load >= 70% of cores, CPU pressure >= 15%, disk I/O pressure >= 50%, memory pressure >= 5%, memory available < 20%, or all slots held | light work only: a read-only scout, a narrow `pytest -k`, review; no proof, sweep, gate, full suite, Docker run |
-| RED | load >= cores, CPU pressure >= 40%, memory pressure >= 20%, or memory available < 10% | launch nothing; see 4 |
+| YELLOW | load >= 70% of cores, CPU pressure >= 15%, disk I/O pressure >= 50%, memory pressure >= 5%, memory available < 20%, disk free < min(10%, 100 GB) or inodes free < 10% on /, the temp dir or the repo's disk, or all slots held | light work only: a read-only scout, a narrow `pytest -k`, review; no proof, sweep, gate, full suite, Docker run |
+| RED | load >= cores, CPU pressure >= 40%, memory pressure >= 20%, memory available < 10%, or disk free < min(5%, 25 GB) / inodes free < 5% | launch nothing; see 4 |
 
 Swap merely in use is shown but not judged alone: it can be old pages pushed out by a spike long gone (4 GB of swap with
 22 GB available and 0% memory pressure is GREEN). Paging NOW shows as memory pressure.
@@ -90,8 +90,7 @@ pytest, a `--jobs` sweep) reads `GG_JOB_CORES` the same way, never `os.cpu_count
   agents append to (`tests/cobol_mainframe/test_det_translate.py`, `test_equivalence_cics.py`,
   `tests/cics_crucible/test_cics_runtimes.py`): two PRs appending at the same anchor conflict; the second to merge keeps
   both blocks.
-- **Generated / ratchet files:** never hand-merge `docs/language_status/oracle_assumptions.md` (`register.py render`),
-  golden masters (`golden-lock.sh crucible_check.py --update --yes`), the ruff/mypy baselines (regenerate),
+- **Generated / ratchet files:** golden masters (`golden-lock.sh crucible_check.py --update --yes`), the ruff/mypy baselines (regenerate),
   `tests/equivalence/det_sweep_baseline.json` and the coverage ledger (their tools). Take main's side, regenerate.
 - **Shared runtime changes** (`cobolrt/`, `DetCics`, the forge) move every port: one such PR in flight at a time, and its
   `det_port.py check` list goes in the PR.

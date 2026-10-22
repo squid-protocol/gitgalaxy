@@ -88,6 +88,8 @@ IMPORTERS: set[str] = {
     "tests/tools/equivalence_cics.py",
     "tests/tools/cics_spec_status.py",
     "tests/tools/proof_blockers.py",
+    "tests/tools/blocker_report.py",  # #5054: the blocker signatures' vocabulary is the spec's command and option words
+    "gitgalaxy/tools/readiness/schema.py",  # #4726: the spec's command and option words are assess's CICS vocabulary
 }
 _IMPORTS_SPEC = re.compile(
     r"^\s*(?:from\s+gitgalaxy\.standards(?:\.cics\b|\s+import\s+cics\b)|import\s+gitgalaxy\.standards\.cics\b)", re.M
@@ -156,7 +158,12 @@ def test_every_entry_is_consistent():
 
 
 def test_resp_tables():
-    assert len(DFHRESP) == 106 and DFHRESP["CONTAINERERR"] == 110 and DFHRESP["CHANNELERR"] == 122 and DFHRESP["TOKENERR"] == 112
+    assert (
+        len(DFHRESP) == 106
+        and DFHRESP["CONTAINERERR"] == 110
+        and DFHRESP["CHANNELERR"] == 122
+        and DFHRESP["TOKENERR"] == 112
+    )
     assert RESP_NAME[12] == "FILENOTFOUND"  # (DSIDERR, its older name, is an alias)
     assert set(CONDITION_ABEND) <= set(DFHRESP)
 
@@ -164,11 +171,11 @@ def test_resp_tables():
 # ---- the CLI -------------------------------------------------------------------------------------------------------
 def test_cli_check_and_emit(capsys):
     assert cli.main(["check"]) == 0
-    assert "255 commands, ok" in capsys.readouterr().out
-    assert cli.main(["emit", "--json", "GET CONTAINER"]) == 0
+    assert "257 commands, ok" in capsys.readouterr().out
+    assert cli.main(["emit", "--json", "SEND MAP"]) == 0
     data = json.loads(capsys.readouterr().out)
-    assert list(data["commands"]) == ["GET CONTAINER"]
-    assert data["commands"]["GET CONTAINER"]["refused"]["SET"]["why"].startswith("the address of CICS's copy")
+    assert list(data["commands"]) == ["SEND MAP"]
+    assert data["commands"]["SEND MAP"]["refused"]["SET"]["why"].startswith("the address of CICS's copy")
     assert cli.main(["emit"]) == 0 and "SEND TEXT" in capsys.readouterr().out
     assert cli.main(["emit", "NO SUCH"]) == 2
 
@@ -232,7 +239,7 @@ def test_the_runtimes_keep_no_hand_copy_of_the_generated_tables():
 
 
 def test_python_m_runs_the_cli():
-    assert "cics spec: 255 commands, ok" in _run("import runpy, sys; sys.argv = ['x', 'check']\n"
+    assert "cics spec: 257 commands, ok" in _run("import runpy, sys; sys.argv = ['x', 'check']\n"
                                                "try:\n    runpy.run_module('gitgalaxy.standards.cics', run_name='__main__')\n"
                                                "except SystemExit as e:\n    assert e.code == 0")  # fmt: skip
 
@@ -242,30 +249,66 @@ def test_coverage_45_full_entries_and_the_name_only_api_commands():
     by_status: dict[str, list[str]] = {}
     for c in COMMANDS.values():
         by_status.setdefault(c.status, []).append(c.key)
-    assert len(by_status["modelled"]) == 82 and sorted(by_status["engine-only"]) == ["LOAD", "RELEASE"]
-    # IBM's CICS TS 6.x command summary: 259 API command names, 56 with full entries (+ INQUIRE PROGRAM, SPI; #4767: WEB
-    # OPEN / CONVERSE / CLOSE / PARSE URL / SEND / EXTRACT / RECEIVE / READ + WRITE HTTPHEADER; #4940: READ FORMFIELD / QUERYPARM and the nine WEB browse forms; #4941: RETRIEVE; #4951: MOVE CONTAINER, STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER), 9 forms of a modelled command (api.py's docstring), the other 171 name-only
-    assert len(by_status["refused"]) == 171
+    assert len(by_status["modelled"]) == 100 and sorted(by_status["engine-only"]) == ["LOAD", "RELEASE"]
+    # IBM's CICS TS 6.x command summary: 259 API command names, 57 with full entries (+ INQUIRE PROGRAM, SPI; #4767: WEB
+    # OPEN / CONVERSE / CLOSE / PARSE URL / SEND / EXTRACT / RECEIVE / READ + WRITE HTTPHEADER; #4940: READ FORMFIELD / QUERYPARM and the nine WEB browse forms; #4941: RETRIEVE; #4951: MOVE CONTAINER, STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER; #4950: FREE CHILD; #4972: EXTRACT WEB, EXTRACT TCPIP; #5005: DELETE CHANNEL, QUERY CHANNEL; #4771: GETMAIN / FREEMAIN; #5078: UNLOCK; #5079: READQ TD, DELETEQ TD, ADDRESS, POST, WAIT EVENT, CONVERSE; #5039: REWIND COUNTER, UPDATE COUNTER, no longer name-only), 9 forms of a modelled command (api.py's docstring), the other 155 name-only
+    assert len(by_status["refused"]) == 155
     for key in by_status["refused"]:
         c = COMMANDS[key]
-        assert c.why and not c.options and not c.refused and not c.outcomes, key
+        assert c.why and not c.options and not c.outcomes, key
+        # #5235: a name-only entry may name its refused options (SOAPFAULT CREATE), nothing else may
+        assert not c.refused or key == "SOAPFAULT CREATE", key
 
 
 def test_a_whole_command_refusal_names_its_reason():
     from gitgalaxy.standards.cics.commands import whole_refusal
 
-    getmain = whole_refusal("GETMAIN", "GETMAIN", "SET")
-    assert getmain is not None and getmain.whole_message("GETMAIN") == (
-        "EXEC CICS GETMAIN not modelled (storage CICS acquires for the task, addressed by a pointer, is not modelled)"
+    getmain = whole_refusal("GETMAIN64", "GETMAIN64", "SET")
+    assert getmain is not None and getmain.whole_message("GETMAIN64") == (
+        "EXEC CICS GETMAIN64 not modelled (storage CICS acquires for the task, addressed by a pointer, is not modelled)"
     )
     # a verb and its first option: IBM's WAIT JOURNALNAME, ADDRESS SET (the most specific form wins)
     assert whole_refusal("WAIT", "WAIT", "JOURNALNAME").key == "WAIT JOURNALNAME"  # type: ignore[union-attr]
     assert whole_refusal("ADDRESS", "ADDRESS", "SET").key == "ADDRESS SET"  # type: ignore[union-attr]
-    assert whole_refusal("ADDRESS", "ADDRESS", "EIB").key == "ADDRESS"  # type: ignore[union-attr]
+    assert whole_refusal("ADDRESS", "ADDRESS", "EIB") is None  # #5079 (X59): ADDRESS EIB / COMMAREA are modelled
     assert whole_refusal("LOAD", "LOAD", "PROGRAM").status == "engine-only"  # type: ignore[union-attr]
     # a modelled command, or a name that is no API command (an SPI one): no whole-command entry
     assert whole_refusal("READ", "READ", "FILE") is None
     assert whole_refusal("INQUIRE", "INQUIRE FILE", None) is None
+
+
+def test_inquire_container_is_refused_whole_in_every_form():
+    """#5005 / X44: IBM documents INQUIRE CONTAINER only for a BTS data-container (ACTIVITYID / PROCESS / PROCESSTYPE /
+    DATALENGTH / SET), with no CHANNEL, BROWSETOKEN or START / NEXT / END form, so every option set is refused by name
+    and the reason says why (the channel browse is STARTBROWSE CONTAINER, X42; a length is GET CONTAINER NODATA)."""
+    from gitgalaxy.standards.cics.commands import whole_refusal
+
+    c = COMMANDS["INQUIRE CONTAINER"]
+    assert c.status == "refused" and not c.options and not c.outcomes
+    for first in (
+        None,
+        "CONTAINER",
+        "CHANNEL",
+        "BROWSETOKEN",
+        "START",
+        "NEXT",
+        "END",
+        "DATALENGTH",
+        "SET",
+        "ACTIVITYID",
+        "PROCESS",
+        "PROCESSTYPE",
+        "NODATA",
+        "FLENGTH",
+    ):
+        r = whole_refusal("INQUIRE", "INQUIRE CONTAINER", first)
+        assert r is not None and r.key == "INQUIRE CONTAINER", first
+        msg = r.whole_message("INQUIRE CONTAINER")
+        assert "only for a BTS data-container" in msg and "no channel form" in msg, first
+        assert "STARTBROWSE CONTAINER" in msg and "NODATA FLENGTH" in msg, first
+    # the neighbours are untouched: the browse is modelled, and the other INQUIREs keep their own entries
+    for key in ("STARTBROWSE CONTAINER", "GETNEXT CONTAINER", "ENDBROWSE CONTAINER", "QUERY CHANNEL"):
+        assert COMMANDS[key].status == "modelled", key
 
 
 def test_group_lookup():
@@ -276,10 +319,10 @@ def test_group_lookup():
 
 def test_each_command_keeps_its_own_refusal_reasons():
     """Owner decision (spec PR 2, disagreement 2): no global table -- GET CONTAINER WAIT shows no RETRIEVE reason;
-    a read's SET and a file command's SYSID keep the reason that is true for them."""
+    a SEND MAP's SET and a file command's SYSID keep the reason that is true for them (#5042: a read's SET is modelled)."""
     assert COMMANDS["GET CONTAINER"].refusal_message(["WAIT"]) == "GET CONTAINER WAIT: option not modelled"
-    assert COMMANDS["READ"].refusal_message(["SET"]) == (
-        "READ SET: option not modelled (SET: the address of CICS's copy of the data (a pointer) is not modelled)"
+    assert COMMANDS["SEND MAP"].refusal_message(["SET"]) == (
+        "SEND MAP SET: option not modelled (SET: the address of CICS's copy of the data (a pointer) is not modelled)"
     )
     assert (
         COMMANDS["LINK"].refusal_message(["SYSID"])

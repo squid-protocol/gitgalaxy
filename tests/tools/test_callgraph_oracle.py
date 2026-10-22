@@ -1,0 +1,292 @@
+"""C/C++ call-graph oracle (#5630): call shapes, the misparse fallbacks, recall/precision, family consensus, the gate.
+
+Synthetic sources only (no DOOM code); each fake port is a source tree plus a minimal scan DB. The tool dir goes on
+sys.path and the module is imported as a bare name (tests/ has no __init__.py).
+"""
+
+import json
+import sqlite3
+import sys
+from pathlib import Path
+
+import pytest
+
+pytest.importorskip("tree_sitter_language_pack")
+
+sys.path.insert(0, str(Path(__file__).resolve().parent / "doom_speedrun"))
+
+import callgraph_oracle as co  # noqa: E402
+
+SHA = "abc123def"
+
+
+def body_of(src, lang="c", line=1):
+    data = src.encode()
+    node = co.definition_at(co.function_nodes(co._parser(lang).parse(data)), line)
+    return co.Body(node) if node is not None else co.TextBody(data, line)
+
+
+def test_each_shape_is_named_by_the_calls_parent():
+    body = body_of(
+        """void f(int *x, int a)
+{
+    stmt();
+    use(nested());
+    if (cond()) return;
+    while (loop() > 0) {}
+    a = rhs();
+    int b = init();
+    a = (int)cast();
+    a = 1 + op();
+    a = !neg();
+    x[sub()] = 0;
+    --x[pre()];
+    return ret();
+}
+"""
+    )
+    assert body.calls == {
+        "stmt": "statement", "use": "statement", "nested": "nested-argument", "cond": "condition/return",
+        "loop": "after-operator", "rhs": "assignment-rhs", "init": "assignment-rhs", "cast": "after-cast",
+        "op": "after-operator", "neg": "after-operator", "sub": "subscript", "pre": "subscript",
+        "ret": "condition/return",
+    }  # fmt: skip
+
+
+def test_references_macros_comments_and_absence_are_told_apart():
+    body = body_of(
+        """void f(void)
+{
+    handler = target;
+#define CALL_IT() hidden()
+    /* commented() */
+    puts("quoted()");
+}
+"""
+    )
+    assert body.presence("target") == "function-pointer"
+    assert body.presence("hidden") == "macro"
+    assert body.presence("commented") == "comment/string"
+    assert body.presence("quoted") == "comment/string"
+    assert body.presence("nowhere") is None
+
+
+def test_cpp_callees_templates_members_and_a_declaration_that_is_not_a_call():
+    body = body_of(
+        """void S::run(std::mutex &m)
+{
+    std::unique_lock<std::mutex> lock(m);
+    convert<int>(1);
+    obj.method();
+    ptr->other();
+    ns::free_fn();
+    auto l = [&]() { inner(); };
+}
+""",
+        lang="cpp",
+    )
+    assert set(body.calls) == {"convert", "method", "other", "free_fn", "inner"}
+    assert "lock" not in body.calls and body.presence("unique_lock") == "type"
+
+
+def test_an_ifdef_split_else_if_is_read_by_the_text_fallback():
+    body = body_of(
+        """void f(void)
+{
+    if (a())
+    {
+        b();
+    }
+#ifdef _WIN32
+    else if (win_only("-x"))
+    {
+        c();
+    }
+#endif
+}
+"""
+    )
+    assert body.calls["win_only"] == "unparsed"
+    assert {"a", "b", "c"} <= set(body.calls)
+
+
+def test_a_nested_function_gets_its_own_calls_not_the_outer_function():
+    """Owner ruling nyx-o8 (#5630): the engine credits a nested function's calls to the nested function."""
+    src = "void outer(void)\n{\n    void inner(void)\n    {\n        a();\n    }\n    c();\n}\n"
+    nodes = co.function_nodes(co._parser("c").parse(src.encode()))
+    assert set(co.Body(co.definition_at(nodes, 1)).calls) == {"c"}
+    assert set(co.Body(co.definition_at(nodes, 3)).calls) == {"a"}
+
+
+def test_a_function_swallowed_by_a_macro_table_uses_the_brace_fallback():
+    src = """TABLE_START(x)
+  TABLE_ROW("a", b)
+TABLE_END
+
+static void *Start(int c)
+{
+    // not_this()
+#define LATER() skipped()
+    real(c);
+    return lookup(c) ? 0 : 0;
+}
+"""
+    body = co.TextBody(src.encode(), 5)
+    assert set(body.calls) == {"real", "lookup"}  # directive lines only: code under #if 0 is read, like the engine
+    assert body.calls["real"] == "unparsed"
+    assert body.presence("not_this") == "comment/string"
+    assert body.presence("skipped") == "macro"
+
+
+def make_port(work, name, files, funcs):
+    """files: {rel: source}; funcs: [(rel, name, start_line, [callees])]."""
+    repo = work / "repos" / name
+    for rel, text in files.items():
+        (repo / rel).parent.mkdir(parents=True, exist_ok=True)
+        (repo / rel).write_text(text)
+    scan = work / "scans" / SHA / name
+    scan.mkdir(parents=True)
+    con = sqlite3.connect(scan / f"{name}_master.db")
+    con.execute("create table file_data (id integer primary key, file_path text, language text)")
+    con.execute("create table function_data (file_id integer, func_name text, start_line integer, calls_out_to text)")
+    ids = {}
+    for rel in files:
+        lang = "cpp" if rel.endswith(".cpp") else "c"
+        ids[rel] = con.execute("insert into file_data (file_path, language) values (?, ?)", (rel, lang)).lastrowid
+    for rel, fname, start, calls in funcs:
+        con.execute("insert into function_data values (?, ?, ?, ?)", (ids[rel], fname, start, json.dumps(calls)))
+    con.commit()
+    con.close()
+    return repo, scan
+
+
+SRC = """int helper(int x) { return x; }
+int other(void) { return 0; }
+void cb(void) {}
+void top(void)
+{
+    helper(other());
+    register_cb(cb);
+}
+"""
+
+
+def test_body_oracle_counts_a_miss_by_shape_and_an_engine_only_reference(tmp_path):
+    funcs = [("m.c", "helper", 1, []), ("m.c", "other", 2, []), ("m.c", "cb", 3, []),
+             ("m.c", "top", 4, ["helper", "cb", "printf"])]  # fmt: skip
+    repo, scan = make_port(tmp_path, "linuxdoom", {"m.c": SRC}, funcs)
+    port = co.Port("linuxdoom", repo, co.load_port(repo, co.find_db(scan)))
+    r = co.body_oracle(port)
+    assert (r["oracle_calls"], r["engine_calls"], r["agree"]) == (2, 2, 1)  # printf is not a defined name
+    assert (r["recall"], r["precision"]) == (0.5, 0.5)
+    assert r["misses_by_shape"] == {"nested-argument": 1}
+    assert r["engine_only_by_kind"] == {"function-pointer": 1}
+    assert r["examples"]["miss:nested-argument"] == ["m.c:4 top -> other"]
+
+
+RECURSE_SRC = """int fact(int n) { return n ? n * fact(n - 1) : 1; }
+void a(void) { fact(3); }
+"""
+
+
+def test_a_self_edge_is_ignored_on_both_sides_and_in_the_consensus(tmp_path):
+    """Recursion stays dropped from calls_out_to (#3327): the oracle must not score it as a miss or an extra edge."""
+    ports = []
+    for name, fact_calls in [("p1", []), ("p2", []), ("p3", []), ("p4", []), ("rec", ["fact"])]:
+        repo, scan = make_port(
+            tmp_path, name, {"m.c": RECURSE_SRC}, [("m.c", "fact", 1, fact_calls), ("m.c", "a", 2, ["fact"])]
+        )
+        ports.append(co.Port(name, repo, co.load_port(repo, co.find_db(scan))))
+    for p in ports:  # engine records the recursion (rec) or not (the rest): neither changes the score
+        r = co.body_oracle(p)
+        assert (r["oracle_calls"], r["engine_calls"], r["agree"]) == (1, 1, 1)
+        assert (r["recall"], r["precision"], r["misses_by_shape"], r["engine_only_by_kind"]) == (1.0, 1.0, {}, {})
+        assert p.edges == {("a", "fact")}
+    c = co.consensus(ports)
+    assert (c["holes"], c["false_edge_suspects"]) == (0, 0)
+
+
+VOTE_SRC = """void a(void) { b(); }
+void b(void) {}
+"""
+NO_CALL_SRC = """void a(void) { }
+void b(void) {}
+"""
+
+
+def test_consensus_splits_engine_misses_from_divergences_and_flags_lone_edges(tmp_path):
+    ports = []
+    for name, src, calls in [
+        ("p1", VOTE_SRC, ["b"]), ("p2", VOTE_SRC, ["b"]), ("p3", VOTE_SRC, ["b"]), ("p4", VOTE_SRC, ["b"]),
+        ("miss", VOTE_SRC, []), ("diverge", NO_CALL_SRC, []),
+    ]:  # fmt: skip
+        repo, scan = make_port(tmp_path, name, {"m.c": src}, [("m.c", "a", 1, calls), ("m.c", "b", 2, [])])
+        ports.append(co.Port(name, repo, co.load_port(repo, co.find_db(scan))))
+    c = co.consensus(ports)
+    assert (c["holes"], c["engine_missed"], c["divergent"]) == (2, 1, 1)
+    assert c["missed"] == [{"port": "miss", "edge": "a -> b", "votes": "4/5", "at": "m.c:1", "shape": "statement"}]
+    # a lone a->b edge in the diverging port, with no call in its body, is a suspect
+    lone = ports[-1]
+    lone.edges.add(("b", "a"))
+    assert co.consensus(ports)["suspects"][0]["edge"] == "b -> a"
+
+
+def test_regressions_gate_on_recall_precision_and_consensus_counts():
+    fam = ["p1", "p2"]
+    base = {"ports": {"x": {"recall": 1.0, "precision": 1.0}, "gone": {"recall": 1.0, "precision": 1.0}},
+            "consensus": {"family": fam, "engine_missed": 2, "false_edge_suspects": 0}}  # fmt: skip
+    cur = {"ports": {"x": {"recall": 0.9995, "precision": 0.99}},
+           "consensus": {"family": fam, "engine_missed": 3, "false_edge_suspects": 0}}  # fmt: skip
+    assert co.regressions(cur, base) == [
+        "gone: in the baseline, not in this run",
+        "x: precision 1.0000 -> 0.9900",
+        "consensus: engine_missed 2 -> 3",
+    ]
+    assert co.regressions(base, base) == []
+
+
+def test_unlicensed_ports_are_refused():
+    with pytest.raises(SystemExit, match="licensed"):
+        co.main(["--only", "linuxdoom,not-a-licensed-port"])
+
+
+def test_main_writes_results_and_fails_on_regression(tmp_path, capsys):
+    funcs = [("m.c", "helper", 1, []), ("m.c", "other", 2, []), ("m.c", "cb", 3, []),
+             ("m.c", "top", 4, ["helper", "other"])]  # fmt: skip
+    make_port(tmp_path, "linuxdoom", {"m.c": SRC}, funcs)
+    args = ["--only", "linuxdoom", "--family", "linuxdoom", "--work", str(tmp_path), "--sha", SHA]
+    base = tmp_path / "baseline.json"
+    assert co.main([*args, "--write-baseline", str(base)]) == 0
+    written = json.loads(base.read_text())
+    assert written["ports"]["linuxdoom"]["recall"] == 1.0 and "examples" not in written["ports"]["linuxdoom"]
+    assert (tmp_path / "results" / SHA / "callgraph.md").read_text().startswith("# C/C++ call-graph oracle")
+    written["ports"]["linuxdoom"]["precision"] = 1.0
+    written["ports"]["doomgeneric"] = {"recall": 1.0, "precision": 1.0}
+    base.write_text(json.dumps(written))
+    assert co.main([*args, "--baseline", str(base), "--fail-on-regression"]) == 1
+    assert "REGRESSION doomgeneric: in the baseline, not in this run" in capsys.readouterr().out
+
+
+EARLY_CLOSE_SRC = """int helper(int x) { return x; }
+char *f(void)
+{
+  COUNTER_MACRO
+  if (!base)
+    log_it(base);
+  return helper(1);
+}
+void log_it(char *s) {}
+"""
+
+
+def test_a_body_tree_sitter_closes_early_on_a_parse_error_uses_the_brace_fallback(tmp_path, monkeypatch):
+    # tree-sitter's error recovery around a bare macro statement is too fickle to pin with synthetic text, so stand in
+    # a one-line erroneous definition for what it returned on the real port
+    broken = co.function_nodes(co._parser("c").parse(b"char *f(void) { x = ) ; }"))[0]
+    assert co.Body(broken).broken
+    real = co.definition_at
+    monkeypatch.setattr(co, "definition_at", lambda nodes, line: broken if line == 2 else real(nodes, line))
+    funcs = [("m.c", "helper", 1, []), ("m.c", "f", 2, ["log_it", "helper"]), ("m.c", "log_it", 9, [])]
+    repo, scan = make_port(tmp_path, "linuxdoom", {"m.c": EARLY_CLOSE_SRC}, funcs)
+    r = co.body_oracle(co.Port("linuxdoom", repo, co.load_port(repo, co.find_db(scan))))
+    assert (r["recall"], r["precision"], r["text_fallback_functions"]) == (1.0, 1.0, 1)

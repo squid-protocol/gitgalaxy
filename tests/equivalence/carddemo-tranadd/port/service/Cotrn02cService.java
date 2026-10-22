@@ -111,6 +111,27 @@ public class Cotrn02cService {
         return lastAnswerBytes == null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);
     }
 
+    // @facade-helper: the bytes the last byte-carrying handleLink's program left in the COMMAREA
+    private byte[] lastLinkBytes;
+
+    /** #5053: handleLink with the raw bytes of the LINK's COMMAREA (passed by address: what the program
+     *  leaves there the caller sees); lastLinkBytes() then answers the bytes it left. */
+    public Cotrn02cCarddemoCommarea handleLink(Cotrn02cCarddemoCommarea request, byte[] area) {
+        log.info("Cotrn02c: handleLink (bytes)");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("COTRN02C", request, area);
+        region.run(task, "COTRN02C", this::runTask);
+        byte[] left = task.linkAreaView();
+        lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;
+        return request;
+    }
+
+    /** The bytes the last byte-carrying handleLink's program left in the LINK COMMAREA (a copy; null: it took
+     *  none -- its DTO is the COMMAREA). @facade-helper */
+    public byte[] lastLinkBytes() {
+        return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);
+    }
+
     /** One pseudo-conversational task of this program (#3754): MAIN-PARA and the paragraphs it reaches. */
     public void runTask(CicsTask task) {
         log.info("Cotrn02c: runTask");
@@ -684,9 +705,12 @@ public class Cotrn02cService {
             ca.setCdemoFromTranid(WS_TRANID);
             ca.setCdemoFromProgram(WS_PGMNAME);
             ca.setCdemoPgmContext(0);
-            dispatchCdemoToProgramL508(task, pad(ca.getCdemoToProgram(), 8), ca);   // line 508
+            String resp = dispatchCdemoToProgramL508(task, pad(ca.getCdemoToProgram(), 8), ca);   // line 508
+            if (!"NORMAL".equals(resp)) {
+                task.abendOnCondition(resp);   // RESP is not tested: CICS abends the task (#4648)
+            }
             if (task.ended()) {
-                done = true;   // on PGMIDERR / LENGERR the program goes on (RESP not tested)
+                done = true;
             }
         }
 
@@ -747,9 +771,12 @@ public class Cotrn02cService {
             long key = xref.getXrefAcctId() == null ? 0L : xref.getXrefAcctId();
             CicsTask.FileRead<CardXrefRecord> r =
                     task.read("CXACAIX", () -> readCxacaix(key).stream().findFirst());
-            if (r.resp() == 0) {
+            if (r.resp() == 0 || r.resp() == 15) {  // DUPKEY: IBM retrieves the record, INTO is filled
                 // READ INTO: the program's own copy
                 xref = CardXrefRecord.fromRecord(r.record().toRecord(CobolRecords.charset()), CobolRecords.charset());
+            }
+            if (r.resp() == 0) {
+                return;
             } else if (r.resp() == 13) {
                 fail("Account ID NOT found...", "ACTIDIN");
             } else {
@@ -787,7 +814,7 @@ public class Cotrn02cService {
             if (resp == 13) {
                 fail("Transaction ID NOT found...", "ACTIDIN");
             } else {
-                displayResp(resp, 0);
+                displayResp(resp, task.resp2());
                 fail("Unable to lookup Transaction...", "ACTIDIN");
             }
         }
@@ -804,7 +831,7 @@ public class Cotrn02cService {
             } else if (b.resp() == 20) {
                 tran.setTranId("0".repeat(16));   // MOVE ZEROS TO TRAN-ID
             } else {
-                displayResp(b.resp(), 0);
+                displayResp(b.resp(), b.resp2());
                 fail("Unable to lookup Transaction...", "ACTIDIN");
             }
         }
@@ -831,7 +858,7 @@ public class Cotrn02cService {
             } else if (resp == 14 || resp == 15) {   // DUPREC / DUPKEY
                 fail("Tran ID already exist...", "ACTIDIN");
             } else {
-                displayResp(resp, 0);
+                displayResp(resp, task.resp2());
                 fail("Unable to Add Transaction...", "ACTIDIN");
             }
         }

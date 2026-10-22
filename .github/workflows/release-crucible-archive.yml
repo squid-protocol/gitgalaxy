@@ -61,14 +61,14 @@ jobs:
           cd gitgalaxy
           python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
           pip install --require-hashes -r ci/requirements/engines.txt
-          pip install -e .
+          pip install --no-build-isolation -e .
 
       - name: Fetch Language Crucible corpus (pinned in tests/crucible_pins.toml, same as CI)
         run: |
           # The pin is tests/crucible_pins.toml (one source; a fork PR reads it too).
           ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get language)
           echo "CRUCIBLE_REF=$ref" >> "$GITHUB_ENV"
-          git clone --branch "$ref" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- bash -c 'rm -rf language-crucible && git clone --branch "$1" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible' _ "$ref"
 
       - name: Run GalaxyScope against the crucible corpus
         env:
@@ -80,7 +80,7 @@ jobs:
           timeout 900s galaxyscope ./language-crucible/data --output ./telemetry_out/
 
       - name: Keep the heavy artifacts with this run
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: crucible-output-${{ env.RELEASE_TAG }}
           retention-days: 90

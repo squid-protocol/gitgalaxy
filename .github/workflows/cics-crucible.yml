@@ -15,11 +15,19 @@ name: CICS Crucible
 #
 # The crucible is cloned at PINNED_REF, read straight out of tests/crucible_pins.toml (there is no
 # repository variable for this pin), so a fork's pull_request run clones the same public ref with no
-# credentials. The runner's own tests run first, with EQUIVALENCE_E2E=1: the fixture case goes
+# credentials. The runner's own tests run once, with EQUIVALENCE_E2E=1 (job `runner-tests`): the fixture case goes
 # through every side, proving the drivers before the ratchet is trusted.
+#
+# #5498: the 43 cases ran one after another (20 of the job's 24 min). They are cut into SHARDS balanced by case
+# seconds (cics_crucible.py shard_plan), each its own runner with its own GnuCOBOL container and Maven; a shard holds
+# the two ledgers cut to its cases. The job `crucible` (the required check's name) merges the shards' results.json,
+# fails unless every case ran in exactly one shard, prints the whole 710-cell report and holds the full ratchet.
+# #5882: a shard measures four cases at once (--jobs 4, one per vCPU), so two shards do what four did; each job
+# costs ~40 s of setup and a runner slot of the shared pool.
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]  # #5104: a draft starts only the cheap audits
     branches: [main]
     paths:
       - "gitgalaxy/**"
@@ -41,24 +49,13 @@ on:
       - "tests/crucible_pins.toml"
       - ".github/workflows/cics-crucible.yml"
       - "tests/tools/crucible_pins.py"  # #4825: read by this workflow (workflow_inputs.py)
-  push:
-    branches: [main]
-    paths:
-      - "gitgalaxy/**"
-      - "tests/tools/cics_crucible*.py"
-      - "tests/tools/equivalence_cics.py"
-      - "tests/tools/cobol_coverage.py"
-      - "tests/equivalence/cics/**"
-      - "tests/equivalence/gnucobol.Dockerfile"
-      - "tests/tools/equivalence_oracle.py"
-      - "tests/cics_crucible/**"
-      - "tests/_cics_crucible_pin.py"
-      - "tests/crucible_pins.toml"
-      - ".github/workflows/cics-crucible.yml"
+  # #5131/#5136: no main push trigger. post-merge.yml dispatches this on main (at most once per cadence window, only
+  # when PR runners are idle and main changed a file this workflow reads); the nightly run covers a busy day.
   schedule:
-    # weekly: Maven Central drift, and (#4309) whether the pinned GnuCOBOL package still installs -- Debian drops a
-    # superseded version from deb.debian.org at a point release; the pinned build then fails here, loudly
-    - cron: "41 5 * * 1"
+    # nightly (#5136; weekly before): Maven Central drift, and (#4309) whether the pinned GnuCOBOL package still
+    # installs -- Debian drops a superseded version from deb.debian.org at a point release; the pinned build then
+    # fails here, loudly
+    - cron: "41 5 * * *"
   workflow_dispatch:
 
 permissions:
@@ -69,37 +66,15 @@ concurrency:
   cancel-in-progress: true  # #4825: read-only, so a superseded main run is cancelled too (frees runners for PRs)
 
 jobs:
-  # #4964 (sibling of #4935): a push to main whose tree already passed THIS workflow on its PR head (a squash of an
-  # up-to-date PR) is not run again; any doubt runs it (tests/tools/skip_tested_tree.py has the rule, and tests).
-  # No PR run on the head (the PR's paths filter skipped it) is "not proven", so the push runs. Always concludes success.
-  tested-tree:
+  measure:
+    name: measure (shard ${{ matrix.shard }}/2)
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: read
-      actions: read
-      pull-requests: read
-    outputs:
-      skip: ${{ steps.decide.outputs.skip }}
-    steps:
-      - name: Checkout the gate script
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          sparse-checkout: tests/tools/skip_tested_tree.py
-          sparse-checkout-cone-mode: false
-          persist-credentials: false
-
-      - name: Decide
-        id: decide
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python tests/tools/skip_tested_tree.py cics-crucible.yml
-
-  crucible:
-    needs: tested-tree
-    if: ${{ !cancelled() && needs.tested-tree.outputs.skip != 'true' }}  # #4964: not again for a tree the PR run proved
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false  # every shard reports its own cells
+      matrix:
+        shard: [1, 2]  # the N in --shard i/N below; merge_shards fails if a shard's results are missing
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       PYTHONUTF8: "1"
@@ -136,7 +111,86 @@ jobs:
       - name: Install GitGalaxy
         run: |
           python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
-          pip install --require-hashes -r gitgalaxy/ci/requirements/pytest.txt && pip install -e ./gitgalaxy
+          pip install --require-hashes -r gitgalaxy/ci/requirements/pytest.txt && pip install --no-build-isolation -e ./gitgalaxy
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: cics-crucible-m2-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py') }}
+          restore-keys: |
+            cics-crucible-m2-
+            java-compile-m2-
+
+      # The oracle image is built once per Dockerfile: saved with `docker save` under the Dockerfile's hash, loaded by
+      # every later run and shard. The fingerprint check below is still the pin (#4309): a stale image fails it.
+      - name: Cache the GnuCOBOL oracle image
+        id: image
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/gnucobol-image.tar
+          key: gnucobol-image-${{ hashFiles('gitgalaxy/tests/equivalence/gnucobol.Dockerfile') }}
+
+      - name: Load or build the oracle image, and check it against its pin (#4309)
+        run: |
+          if [ "${{ steps.image.outputs.cache-hit }}" = "true" ]; then
+            docker load -i "$RUNNER_TEMP/gnucobol-image.tar"
+          else
+            docker build -q -t gitgalaxy-gnucobol:3 -f gitgalaxy/tests/equivalence/gnucobol.Dockerfile gitgalaxy/tests/equivalence
+            docker save -o "$RUNNER_TEMP/gnucobol-image.tar" gitgalaxy-gnucobol:3
+          fi
+          python gitgalaxy/tests/tools/equivalence_oracle.py --strict
+          echo "GITGALAXY_ORACLE_PREBUILT=1" >> "$GITHUB_ENV"  # the harness need not rebuild it per proof
+
+      - name: Measure this shard against the ledgers cut to its cases
+        env:
+          GITGALAXY_ORACLE_STRICT: "1"
+        run: |
+          cd gitgalaxy
+          # #5882: four cases at once, one per vCPU (results and log the same as one at a time)
+          python tests/tools/cics_crucible.py --crucible ../cics-crucible --shard ${{ matrix.shard }}/2 --jobs 4 --ci --out "$RUNNER_TEMP/cics_crucible"
+
+      - name: Upload this shard's results
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: cics-crucible-shard-${{ matrix.shard }}
+          path: ${{ runner.temp }}/cics_crucible
+          if-no-files-found: ignore
+
+  runner-tests:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+      PYTHONUTF8: "1"
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: |
+            gitgalaxy/pyproject.toml
+            gitgalaxy/ci/requirements/*.txt
+
+      - name: Install GitGalaxy
+        run: |
+          python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
+          pip install --require-hashes -r gitgalaxy/ci/requirements/pytest.txt && pip install --no-build-isolation -e ./gitgalaxy
 
       - name: Setup JDK 17
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
@@ -181,12 +235,63 @@ jobs:
           cd gitgalaxy
           python -m pytest -q -p no:cacheprovider tests/cics_crucible
 
-      - name: Measure the crucible against the baseline
-        env:
-          GITGALAXY_ORACLE_STRICT: "1"
+  # The required check (its name is the job id). Always runs: a shard that failed or never started is a failure here,
+  # never a pass by absence.
+  crucible:
+    needs: [measure, runner-tests]
+    if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+      PYTHONUTF8: "1"
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          persist-credentials: false
+
+      - name: Clone cics-crucible at the pin
+        run: |
+          # The pin is tests/crucible_pins.toml (one source; a fork PR reads it too).
+          ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get cics)
+          git init -q cics-crucible
+          git -C cics-crucible remote add origin https://github.com/squid-protocol/cics-crucible.git
+          if echo "$ref" | grep -Eq '^[0-9a-f]{40}$'; then
+            git -C cics-crucible fetch -q --depth 1 origin "$ref"
+          else
+            git -C cics-crucible fetch -q --depth 1 origin "+refs/tags/$ref:refs/tags/$ref"
+          fi
+          git -C cics-crucible checkout -q --detach FETCH_HEAD
+          echo "cics-crucible at $ref ($(git -C cics-crucible rev-parse HEAD))"
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: |
+            gitgalaxy/pyproject.toml
+            gitgalaxy/ci/requirements/*.txt
+
+      - name: Install GitGalaxy
+        run: |
+          python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
+          pip install --require-hashes -r gitgalaxy/ci/requirements/pytest.txt && pip install --no-build-isolation -e ./gitgalaxy
+
+      - name: Download every shard's results
+        if: always()
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: cics-crucible-shard-*
+          path: ${{ runner.temp }}/shards
+
+      - name: Merge the shards, check each case ran in exactly one, hold the whole ratchet
+        if: always()
         run: |
           cd gitgalaxy
-          python tests/tools/cics_crucible.py --crucible ../cics-crucible --ci --out "$RUNNER_TEMP/cics_crucible"
+          python tests/tools/cics_crucible.py --crucible ../cics-crucible --ci --merge "$RUNNER_TEMP"/shards/cics-crucible-shard-* --out "$RUNNER_TEMP/cics_crucible"
 
       - name: Publish the report
         if: always()
@@ -195,8 +300,14 @@ jobs:
 
       - name: Upload the results
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: cics-crucible-results
           path: ${{ runner.temp }}/cics_crucible
           if-no-files-found: ignore
+
+      - name: Fail unless every shard and the runner tests passed
+        if: always()
+        run: |
+          echo "measure: ${{ needs.measure.result }}, runner-tests: ${{ needs.runner-tests.result }}"
+          [ "${{ needs.measure.result }}" = "success" ] && [ "${{ needs.runner-tests.result }}" = "success" ]

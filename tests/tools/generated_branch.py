@@ -8,7 +8,7 @@ main never moves for them:
     fetch    PATH...   copy each PATH from generated into the working tree (a CSV the writer appends to starts from
                        the last published batch). A path generated does not have yet is left alone, so the copy
                        committed on main is the seed and the fallback.
-    publish  PATH...   commit those working-tree files to generated, on top of its tip, and push it. Nothing is
+    publish  PATH...   commit those working-tree files (a directory: every file beneath it) to generated, on top of its tip, and push it. Nothing is
                        committed when no file differs from the tip. Writers own disjoint paths, so a push rejected
                        because another writer got in first is retried on the new tip.
     show     PATH      print PATH as published on generated, else the committed copy (what a reader should use).
@@ -24,6 +24,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -46,21 +47,37 @@ def _git(root: Path, *args: str, env: dict[str, str] | None = None, check: bool 
     return p.stdout.strip() if p.returncode == 0 else ""
 
 
+RETRY_DELAYS = (1.0, 3.0)  # #5312: seconds before each retry of a network git call; a test sets it to ()
+
+
+def _git_net(root: Path, *args: str) -> str:
+    """`_git` for a call that crosses the network: one transient failure (a runner's dropped connection) is retried."""
+    for delay in RETRY_DELAYS:
+        try:
+            return _git(root, *args)
+        except RuntimeError:
+            time.sleep(delay)
+    return _git(root, *args)
+
+
 def fetch_tip(root: Path = REPO_ROOT, remote: str = "origin") -> str | None:
     """Fetch generated's tip and return its sha, or None when the branch does not exist (yet)."""
-    if not _git(root, "ls-remote", remote, f"refs/heads/{BRANCH}"):
+    if not _git_net(root, "ls-remote", remote, f"refs/heads/{BRANCH}"):
         return None
-    _git(root, "fetch", "--quiet", "--depth", "1", remote, BRANCH)
+    _git_net(root, "fetch", "--quiet", "--depth", "1", remote, BRANCH)
     return _git(root, "rev-parse", "FETCH_HEAD")
+
+
+def read_at(tip: str, relpath: str, root: Path = REPO_ROOT) -> bytes | None:
+    """The bytes of relpath at the fetched `tip` commit, or None when the file is not there."""
+    p = subprocess.run(["git", "show", f"{tip}:{relpath}"], cwd=root, capture_output=True, check=False)
+    return p.stdout if p.returncode == 0 else None
 
 
 def read_published(relpath: str, root: Path = REPO_ROOT, remote: str = "origin") -> bytes | None:
     """The bytes of relpath on generated's tip, or None when the branch or the file is not there."""
     tip = fetch_tip(root, remote)
-    if tip is None:
-        return None
-    p = subprocess.run(["git", "show", f"{tip}:{relpath}"], cwd=root, capture_output=True, check=False)
-    return p.stdout if p.returncode == 0 else None
+    return None if tip is None else read_at(tip, relpath, root)
 
 
 def fetch(paths: list[str], root: Path = REPO_ROOT, remote: str = "origin") -> list[str]:
@@ -106,6 +123,18 @@ def _build_commit(root: Path, tip: str | None, paths: list[str], message: str, s
         return _git(root, "commit-tree", tree, *parent, "-m", message, env=env)
 
 
+def expand(paths: list[str], root: Path = REPO_ROOT) -> list[str]:
+    """Each directory among `paths` becomes the files beneath it (sorted, repo-relative); a file stays as given."""
+    out: list[str] = []
+    for rel in paths:
+        d = root / rel
+        if d.is_dir():
+            out.extend(sorted(f.relative_to(root).as_posix() for f in d.rglob("*") if f.is_file()))
+        else:
+            out.append(rel)
+    return out
+
+
 def publish(
     paths: list[str],
     message: str,
@@ -115,6 +144,7 @@ def publish(
     retries: int = 5,
 ) -> str | None:
     """Push `paths` to generated. Returns the pushed commit sha, or None when nothing changed."""
+    paths = expand(paths, root)
     missing = [p for p in paths if not (root / p).is_file()]
     if missing:
         raise FileNotFoundError(f"cannot publish, not in the working tree: {', '.join(missing)}")

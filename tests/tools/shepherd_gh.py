@@ -20,14 +20,18 @@ Status (set and cleared by this module only): shepherd:needs-fix, shepherd:waiti
 Rules, all in decide() (pure: a snapshot in, actions out):
   * a request label added by someone without write access is removed, with a comment (their label, not ours);
   * a new head (synchronize) removes shepherd:merge with a comment, so a commit nobody approved never merges by
-    label. The one exception is this module's own `gh pr update-branch` (it leaves a marker comment first). The
+    label. The one exception is a plain merge of main (a worker's, or one the bot made before #5134; the latter leaves
+    a marker pair). The
     drop sets shepherd:reapprove, which outlives the request labels, so a PR that lost its approval is findable
     (`label:shepherd:reapprove`) instead of sitting silently (#4858 waited on a dropped label, 2026-10-10);
   * "Depends on #N" in the body blocks auto-merge until #N is merged;
   * an infra/flake failure is rerun up to INFRA_RERUNS times, RETRY_GAP seconds apart (the count is run_attempt
     of the run, kept by GitHub: no local state);
   * a real failure, a merge conflict or a red matrix gets ONE digest comment per head (marker in the comment);
-  * behind main and green on a labelled PR -> `gh pr update-branch`.
+  * behind main is NOT acted on: the bot never updates a branch to keep it current (#5134, option A). The one exception
+    (#5484, reconcile only): a PR labelled shepherd:waiting-on-main whose failing check is now green on main's newest
+    commit, and whose head lacks that commit, gets main merged in ONCE (a plain merge); the label stays until a run on
+    that head finishes, and a failure that survives it is `real`.
 Nothing here checks out PR code: it reads PR metadata, check runs and job logs through the GitHub API only.
 Reused: pr_check (classify, paged, gh_api, merge conventions), ci_digest (triage and the digest text).
 """
@@ -36,6 +40,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -48,6 +53,7 @@ from urllib.parse import quote
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import ci_digest  # noqa: E402
+import flake_history  # noqa: E402
 import pr_check  # noqa: E402
 
 REPO_SLUG = pr_check.REPO_SLUG
@@ -85,6 +91,8 @@ LABELS: dict[str, tuple[str, str]] = {
     REAPPROVE: ("e99695", f"Bot: new commits dropped shepherd:merge; re-add it to merge this head. Guide: {DOCS}"),
 }
 
+FLAKE_CACHE_ENV = "SHEPHERD_FLAKE_CACHE"  # where the workflow restores flake_history.json (#5398)
+
 Api = Callable[[str], Any]
 Run = Callable[[list[str]], subprocess.CompletedProcess[str]]
 
@@ -93,10 +101,25 @@ def _run(argv: list[str]) -> subprocess.CompletedProcess[str]:
     return subprocess.run(argv, capture_output=True, text=True, check=False)  # noqa: S603
 
 
+def learned_flakes(path: Path | None = None) -> set[str]:
+    """The checks flake_history learned are flaky (#5398), read from its cache and never refreshed here: the workflow
+    refreshes the cache (at most every 6 h) and keeps it across runs. No cache, no flakes: a pass never waits on a scan.
+    The default is resolved here, not at definition time."""
+    if path is None:
+        env = os.environ.get(FLAKE_CACHE_ENV)
+        path = Path(env) if env else flake_history.default_cache()
+    return flake_history.learned(flake_history.load(path))
+
+
 def _to_epoch(stamp: str | None) -> float | None:
     if not stamp:
         return None
     return datetime.fromisoformat(stamp.replace("Z", "+00:00")).timestamp()
+
+
+def _base_name(check: str) -> str:
+    """A check's name without its matrix suffix: "full-suite (ubuntu, 3.11)" -> "full-suite"."""
+    return check.rsplit(" (", 1)[0]
 
 
 def writer(permission: str | None) -> bool:
@@ -179,8 +202,10 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
         acts.append({"op": "approve", "sha": sha, "by": "carried from the bot's update"})
     want = MERGE in labels and not blocked
     if want and s["draft"]:
+        # #5104: a draft head's heavy checks were skipped, and a skip reads as green. Auto-merge waits for the next pass,
+        # after ready_for_review has started the real runs (shepherd-reconcile fires when they finish).
         acts.append({"op": "ready"})
-    if want and not s["auto_merge"]:
+    elif want and not s["auto_merge"]:
         acts.append({"op": "automerge", "on": True, "sha": sha})
     elif not want and s["auto_merge"] and (dropped or s.get("removed") == MERGE or req):
         acts.append({"op": "automerge", "on": False})
@@ -190,13 +215,24 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
     needs: list[dict[str, Any]] = []
     waiting: list[dict[str, Any]] = []
     retrying: list[dict[str, Any]] = []
+    reran_runs: set[int] = set()
+    # #5484: main turned green under a PR that was waiting on it. The same stale failure now triages `real`, but the head
+    # has not been tested with main's fix yet: it keeps waiting (and gets main merged in) until it has.
+    green = {_base_name(x) for x in s.get("main_green") or ()}
+    stale = WAITING in s["labels"] and bool(s.get("main_sha")) and not s.get("contains_main")
+    stale_hit = False
     for f in s["failed"]:
         t = f["triage"]
+        if t == "real" and stale and _base_name(f["check"]) in green:
+            t = "main"
+            stale_hit = True
         if t == "main":
             waiting.append(f)
         elif t in ("infra", "flake") and f.get("run_id") is not None and f.get("attempts", 0) < INFRA_RERUNS:
-            if s["now"] - (f.get("updated_at") or 0) >= RETRY_GAP:
-                acts.append({"op": "rerun", "run_id": f["run_id"], "check": f["check"]})
+            rid = f["run_id"]
+            if rid not in reran_runs and s["now"] - (f.get("updated_at") or 0) >= RETRY_GAP:
+                acts.append({"op": "rerun", "run_id": rid, "check": f["check"]})
+                reran_runs.add(rid)
             retrying.append(f)
         else:  # real, a dirty tree, an infra failure with its reruns used up, or no run to rerun
             needs.append(f)
@@ -205,8 +241,18 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
     if s["matrix"] == "red":
         needs.append({"check": "full-suite matrix", "triage": "real"})
 
-    if req and HOLD not in labels and s["mergeable_state"] == "behind" and not s["failed"] and not s["pending"]:
-        acts.append({"op": "update_branch"})
+    # no update_branch for a PR that is merely behind main (#5134): each push restarts its CI. The one case the bot does
+    # merge main (#5484) is stale_hit above, once per main head; a conflict (dirty) stays the worker's.
+    if (
+        req
+        and stale_hit
+        and not needs
+        and not s["head_fork"]
+        and HOLD not in labels
+        and not s.get("main_merged")
+        and s["mergeable_state"] != "dirty"
+    ):
+        acts.append({"op": "update_main", "sha": sha, "main": s["main_sha"]})
     if req and needs and not s["digest_posted"]:
         acts.append({"op": "comment", "body": f"<!-- shepherd-digest {sha} -->\n" + s["digest_text"]})
 
@@ -218,6 +264,15 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
             desired.add(WAITING)
         if retrying:
             desired.add(RETRYING)
+        # #5484: main's fix is in the head but no run on it has finished: not ready, not needs-fix
+        if (
+            WAITING in s["labels"]
+            and s.get("main_merged")
+            and s.get("contains_main")
+            and not s["failed"]
+            and (s["pending"] or s.get("no_checks"))
+        ):
+            desired.add(WAITING)
     # outlives the request labels on purpose: the drop removed the only one, and the PR must stay findable. It goes
     # when the label comes back, when a maintainer holds the PR, or when someone removes it by hand.
     if dropped or (REAPPROVE in s["labels"] and MERGE not in labels and HOLD not in labels):
@@ -297,10 +352,18 @@ def head_pushed_at(api: Api, sha: str) -> str | None:
 
 
 def gather(
-    n: int, api: Api = pr_check.gh_api, event: dict[str, Any] | None = None, now: float | None = None
+    n: int,
+    api: Api = pr_check.gh_api,
+    event: dict[str, Any] | None = None,
+    now: float | None = None,
+    on_main: set[str] | None = None,
+    flaky: set[str] | None = None,
+    main: tuple[str, set[str]] | None = None,
 ) -> dict[str, Any]:
     """The snapshot decide() reads for PR n. `event`: the facts of the pull_request_target payload that caused the pass
     (action, label, sender), when there was one. Reconcile passes have none.
+    `main`: (main's newest sha, the checks green on it) from ci_digest.main_green -- reconcile passes only (#5484); with
+    it a PR labelled shepherd:waiting-on-main also gets contains_main, main_merged and main_green/main_sha.
 
     Approval (#4853 review): a maintainer's `shepherd:merge` is approved by a marker the bot writes itself, when the
     labeled event arrives from a writer: `<!-- shepherd:approved sha=<head> by=<login> -->`, with the head from the
@@ -332,10 +395,14 @@ def gather(
     checks = pr_check.classify(runs, statuses)
     digest: dict[str, Any] = {"failed": []}
     if checks["failed"]:
-        digest = ci_digest.digest(n, api)
+        digest = ci_digest.digest(n, api, on_main=on_main, flaky=flaky)
+        attempts_by_run: dict[int, tuple[int, float | None]] = {}
         for f in digest["failed"]:
             if f["triage"] in ("infra", "flake") and f.get("run_id") is not None:
-                f["attempts"], f["updated_at"] = _attempts(api, f["run_id"])
+                rid = f["run_id"]
+                if rid not in attempts_by_run:
+                    attempts_by_run[rid] = _attempts(api, rid)
+                f["attempts"], f["updated_at"] = attempts_by_run[rid]
     # who last added each request label (the timeline; no commit ids are used)
     events = pr_check.paged(api, f"repos/{REPO_SLUG}/issues/{n}/events") if labels else []
     actors: dict[str, dict[str, Any] | None] = {}
@@ -414,6 +481,25 @@ def gather(
             "\nThis PR conflicts with main, so no checks ran. Merge origin/main into it and regenerate "
             "generated files with their tools (never hand-merge them), then push."
         )
+    main_facts: dict[str, Any] = {}
+    if main and main[0] and WAITING in labels:
+        try:
+            cmp_status = (api(f"repos/{REPO_SLUG}/compare/{main[0]}...{sha}") or {}).get("status")
+        except SystemExit:
+            cmp_status = None
+        if cmp_status in ("ahead", "identical"):
+            contains = True
+        elif cmp_status in ("behind", "diverged"):
+            contains = False
+        else:
+            contains = True  # unreadable: assume nothing to merge
+        main_facts = {
+            "main_sha": main[0],
+            "main_green": sorted(main[1]),
+            "contains_main": contains,
+            "main_merged": f"<!-- shepherd-main-merge main={main[0]} -->" in trusted,
+            "no_checks": not runs,
+        }
     sender = None
     if event.get("action") == "labeled" and event.get("sender"):
         sender = {"login": event["sender"], "permission": perm(event["sender"])}
@@ -444,6 +530,7 @@ def gather(
         "digest_text": digest_text,
         "digest_posted": f"<!-- shepherd-digest {sha} -->" in marks_text,
         "now": now if now is not None else time.time(),
+        **main_facts,
     }
 
 
@@ -456,7 +543,15 @@ def apply(n: int, s: dict[str, Any], acts: list[dict[str, Any]], run: Run = _run
 
     def gh(argv: list[str], what: str) -> None:
         r = run(argv)
-        detail = "ok" if not r.returncode else "FAILED: " + (r.stderr or r.stdout).strip()[:200]
+        err = (r.stderr or r.stdout or "").strip()
+        if not r.returncode:
+            detail = "ok"
+        elif (what.startswith("rerun") or (len(argv) >= 3 and argv[:3] == ["gh", "run", "rerun"])) and (
+            "already running" in f"{r.stderr or ''} {r.stdout or ''}".lower()
+        ):
+            detail = "skipped (already running)"
+        else:
+            detail = "FAILED: " + err[:200]
         log.append(f"#{n} {what}: {detail}")
 
     for a in acts:
@@ -502,6 +597,37 @@ def apply(n: int, s: dict[str, Any], acts: list[dict[str, Any]], run: Run = _run
             )
         elif op == "automerge":
             gh(["gh", "pr", "merge", str(n), "-R", REPO_SLUG, "--disable-auto"], "auto-merge off")
+        elif op == "update_main":
+            old, main_sha = a["sha"], a["main"]
+            r = run(["gh", "api", f"repos/{REPO_SLUG}/issues/{n}/comments", "-f",
+                     f"body=<!-- shepherd-main-merge main={main_sha} -->\n<!-- shepherd-update from={old} -->"])  # fmt: skip
+            if r.returncode:
+                log.append(f"#{n} merge main: FAILED (claim marker): " + (r.stderr or r.stdout).strip()[:200])
+                continue
+            r = run(
+                [
+                    "gh",
+                    "api",
+                    "-X",
+                    "PUT",
+                    f"repos/{REPO_SLUG}/pulls/{n}/update-branch",
+                    "-f",
+                    f"expected_head_sha={old}",
+                ]
+            )
+            new = old
+            if not r.returncode:
+                g = run(["gh", "api", f"repos/{REPO_SLUG}/pulls/{n}", "-q", ".head.sha"])
+                got = (g.stdout or "").strip()
+                new = got if re.fullmatch(r"[0-9a-f]{40}", got) else old
+            run(["gh", "api", f"repos/{REPO_SLUG}/issues/{n}/comments", "-f",
+                 f"body=<!-- shepherd-update from={old} to={new} -->"])  # fmt: skip
+            if r.returncode:
+                log.append(
+                    f"#{n} merge main {main_sha[:12]} into {old[:12]}: FAILED: " + (r.stderr or r.stdout).strip()[:200]
+                )
+            else:
+                log.append(f"#{n} merged main {main_sha[:12]} into {old[:12]} -> {new[:12]}")
         elif op == "rerun_det":
             r = run(["gh", "run", "list", "-R", REPO_SLUG, "--workflow", DET_WORKFLOW, "--commit", a["sha"],
                      "--event", "pull_request", "--limit", "1", "--json", "databaseId", "-q", ".[0].databaseId"])  # fmt: skip
@@ -520,39 +646,19 @@ def apply(n: int, s: dict[str, Any], acts: list[dict[str, Any]], run: Run = _run
                 ["gh", "run", "rerun", str(a["run_id"]), "--failed", "-R", REPO_SLUG],
                 f"rerun {a['check']} (run {a['run_id']})",
             )
-        elif op == "update_branch":
-            # the marker first: the synchronize this push causes then keeps the labels (see decide)
-            gh(
-                [
-                    "gh",
-                    "api",
-                    f"repos/{REPO_SLUG}/issues/{n}/comments",
-                    "-f",
-                    f"body=<!-- shepherd-update from={s['head_sha']} -->",
-                ],
-                "update marker",
-            )
-            gh(["gh", "pr", "update-branch", str(n), "-R", REPO_SLUG], "update-branch")
-            # the result marker, always (a failed update records to == from): gather carries approval through this pair
-            r = run(["gh", "api", f"repos/{REPO_SLUG}/pulls/{n}", "-q", ".head.sha"])
-            new = r.stdout.strip() if r.returncode == 0 else ""
-            if re.fullmatch(r"[0-9a-f]{40}", new):
-                gh(
-                    [
-                        "gh",
-                        "api",
-                        f"repos/{REPO_SLUG}/issues/{n}/comments",
-                        "-f",
-                        f"body=<!-- shepherd-update from={s['head_sha']} to={new} -->",
-                    ],
-                    "update result marker",
-                )
-            else:
-                log.append(f"#{n} update result marker: FAILED: could not read the new head")
     return log
 
 
-def process(n: int, api: Api, run: Run, event: dict[str, Any] | None = None, dry_run: bool = False) -> list[str]:
+def process(
+    n: int,
+    api: Api,
+    run: Run,
+    event: dict[str, Any] | None = None,
+    dry_run: bool = False,
+    on_main: set[str] | None = None,
+    flaky: set[str] | None = None,
+    main: tuple[str, set[str]] | None = None,
+) -> list[str]:
     event = event or {}
     lines: list[str] = []
     sender, head = event.get("sender"), event.get("head")
@@ -580,7 +686,7 @@ def process(n: int, api: Api, run: Run, event: dict[str, Any] | None = None, dry
             return lines  # no approval, so no auto-merge
         event = {**event, "approved": head}  # gather must not depend on reading back the comment it just posted
     try:
-        s = gather(n, api, event)
+        s = gather(n, api, event, on_main=on_main, flaky=flaky, main=main)
     except SystemExit as e:  # one PR's failed read must not stop the others
         return lines + [f"#{n} skipped: {e}"]
     acts = decide(s)
@@ -650,16 +756,22 @@ def main(argv: list[str] | None = None, api: Api = pr_check.gh_api, run: Run = _
     r.add_argument("--dry-run", action="store_true")
     r.add_argument("--head-sha", help="only the PRs whose head is this commit (a workflow_run's head_sha)")
     sub.add_parser("ensure-labels")
+    for cmd in (e, r):
+        cmd.add_argument("--flake-cache", type=Path, help=f"flake_history.json (default: ${FLAKE_CACHE_ENV})")
     args = ap.parse_args(argv)
     if args.cmd == "ensure-labels":
         lines = ensure_labels(run)
     elif args.cmd == "event":
         number, facts = event_facts(args.event_path)
-        lines = process(number, api, run, facts, args.dry_run)
+        lines = process(number, api, run, facts, args.dry_run, flaky=learned_flakes(args.flake_cache))
     else:
         lines = []
-        for n in prs_for_head(api, args.head_sha) if args.head_sha else open_labelled(api):
-            lines += process(n, api, run, None, args.dry_run)
+        flaky = learned_flakes(args.flake_cache)  # once per pass
+        prs = prs_for_head(api, args.head_sha) if args.head_sha else open_labelled(api)
+        on_main = ci_digest.main_failures(api) if len(prs) > 1 else None
+        main_state = ci_digest.main_green(api)  # #5484: only a reconcile pass may merge main into a waiting PR
+        for n in prs:
+            lines += process(n, api, run, None, args.dry_run, on_main=on_main, flaky=flaky, main=main_state)
     for line in lines:
         print(line)
     return 1 if any("FAILED" in x for x in lines) else 0

@@ -1,4 +1,6 @@
+PyYAML
 pip
 setuptools
 wheel
 build
+setuptools_scm[toml]>=8.0

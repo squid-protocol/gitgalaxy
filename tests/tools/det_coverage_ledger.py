@@ -7,7 +7,8 @@
     python tests/tools/det_coverage_ledger.py split --all | --base REV   # #4789: the retired single file -> per-case files
 
 SWEEP is a `proof_sweep.py --det-only` work directory (or its sweep.json): per case the proof's coverage line,
-"proven on N scenarios, covering P/L paragraphs and B/T branches". The ledger keeps those numbers for each PROVEN
+"proven on N scenarios, covering P/L paragraphs and B/T branches" -- or "N runs" for a batch case and "N calls" for a
+CALL case (#5008: their harnesses count their own proof units; the ledger's `scenarios` is that count). The ledger keeps those numbers for each PROVEN
 case, keyed to the fingerprints of the inputs the COBOL-side coverage depends on (tests/tools/evidence.py's: the case
 directory, the corpus pin, the harness, the oracle -- not the Java generator, which cannot change what the COBOL runs):
 
@@ -34,7 +35,8 @@ The check (run by `proof_sweep.py --aggregate` in CI's det-sweep, after the verd
 in the sweep, the ledger must hold its numbers. It FAILS on a missing entry, on numbers the sweep disagrees with, and on
 a stale case / corpus fingerprint (the change that moved them re-proves the case: refresh); a stale harness / oracle
 fingerprint only warns (a scheduled refresh), as evidence records do. It also fails on an entry for a case that does
-not exist. A case the sweep proved with no coverage line cannot be checked and is reported.
+not exist. A case the sweep proved with no coverage line cannot be checked and is reported; one whose coverage line this
+module cannot read FAILS (#5008: a wording it did not know kept every batch and CALL case out of the ledger, warned only).
 """
 
 from __future__ import annotations
@@ -58,7 +60,8 @@ FORMAT = "det-sweep-coverage/2"
 INPUTS = ("case", "corpus", "harness", "oracle")
 COMPONENT_INPUTS = ("harness", "oracle")  # #4731: also fingerprinted per component (evidence.py COMPONENTS)
 BLOCKING = ("case", "corpus")  # stale here: the change re-proves the case, so the ledger is refreshed in the same PR
-_LINE = re.compile(r"proven on (\d+) scenarios?, covering (\d+)/(\d+) paragraphs and (\d+)/(\d+) branches")
+# #5008: the unit is the harness's (cobol_coverage.claim's `what`): scenario (CICS), run (batch), call (CALL).
+_LINE = re.compile(r"proven on (\d+) (?:scenario|run|call)s?, covering (\d+)/(\d+) paragraphs and (\d+)/(\d+) branches")
 
 
 def parse_line(line: str) -> dict[str, Any] | None:
@@ -68,6 +71,21 @@ def parse_line(line: str) -> dict[str, Any] | None:
         return None
     n, pc, pl, bc, bt = (int(x) for x in m.groups())
     return {"scenarios": n, "paragraphs": {"covered": pc, "live": pl}, "branches": {"covered": bc, "total": bt}}
+
+
+def linked_counts(coverage: Any) -> dict[str, Any]:
+    """#5084: a coverage.json's `linked` section (cobol_coverage.linked_coverage) -> {PROGRAM: {paragraphs, branches}}
+    counts of the programs the case's main program LINKs / CALLs; a program whose measurement failed is left out
+    (unknown, never a clean zero)."""
+    out = {}
+    for name, s in sorted(((coverage or {}).get("linked") or {}).items()):
+        try:
+            p, b = s["paragraphs"], s["branches"]
+            out[name] = {"paragraphs": {"covered": p["covered"], "live": p["live"]},
+                         "branches": {"covered": b["covered"], "total": b["total"]}}  # fmt: skip
+        except (KeyError, TypeError):
+            continue
+    return out
 
 
 def fingerprints(case: str) -> dict[str, Any]:
@@ -144,7 +162,8 @@ def last_coverage(case: str, ledger: dict[str, dict[str, Any]]) -> dict[str, Any
         return None
     p, b = entry["paragraphs"], entry["branches"]
     return {"coverage": (p["covered"], p["live"], b["covered"], b["total"]), "stale_inputs": bad,
-            "blocking": any(n in BLOCKING for n in bad), "measured_at": measured_at(entry)}  # fmt: skip
+            "blocking": any(n in BLOCKING for n in bad), "measured_at": measured_at(entry),
+            **({"linked": entry["linked"]} if entry.get("linked") else {})}  # fmt: skip
 
 
 def sweep_rows(dirs: list[Path]) -> dict[str, dict[str, Any]]:
@@ -168,7 +187,7 @@ def build(det: dict[str, dict[str, Any]], old: dict[str, dict[str, Any]]) -> dic
             continue
         nums = parse_line(row.get("coverage", ""))
         if nums is not None:
-            new = {**nums, "inputs": fingerprints(case)}
+            new = {**nums, **({"linked": row["linked"]} if row.get("linked") else {}), "inputs": fingerprints(case)}
             prev = cases.get(case)
             # Same numbers from the same inputs: the entry is kept as it is, `measured_at` included (still true: those
             # inputs gave those numbers at that commit). Otherwise every refresh restamps every entry, the bot's own merge
@@ -179,8 +198,10 @@ def build(det: dict[str, dict[str, Any]], old: dict[str, dict[str, Any]]) -> dic
     return dict(sorted(cases.items()))
 
 
-def check(det: dict[str, dict[str, Any]], ledger: dict[str, dict[str, Any]]) -> tuple[list[str], list[str]]:
-    """(problems, warnings) of the sweep against the ledger."""
+def check(det: dict[str, dict[str, Any]], ledger: dict[str, dict[str, Any]],
+          recheck: bool = False) -> tuple[list[str], list[str]]:  # fmt: skip
+    """(problems, warnings) of the sweep against the ledger. `recheck` (#5084): the sweep re-checked these cases' counts,
+    so an entry still fingerprinted to an older harness / oracle is a problem too (re-record it), not a warning."""
     problems, warnings = [], []
     if LEGACY.exists():
         problems.append(legacy_problem())
@@ -195,7 +216,12 @@ def check(det: dict[str, dict[str, Any]], ledger: dict[str, dict[str, Any]]) -> 
     for case, row in sorted(det.items()):
         if not row.get("proved"):
             continue
-        nums = parse_line(row.get("coverage", ""))
+        line = row.get("coverage", "")
+        nums = parse_line(line)
+        if nums is None and line:
+            problems.append(f"coverage ledger: {case}: proven, but its coverage line is not understood ({line!r}): "
+                            f"det_coverage_ledger.parse_line must read it, or the case never gets an entry")  # fmt: skip
+            continue
         if nums is None:
             warnings.append(f"coverage ledger: {case}: proven with no coverage line; cannot be checked")
             continue
@@ -207,9 +233,15 @@ def check(det: dict[str, dict[str, Any]], ledger: dict[str, dict[str, Any]]) -> 
         if got != nums:
             problems.append(f"coverage ledger: {case}: the sweep covered {_show(nums)}, the ledger has {_show(got)} "
                             f"-- coverage moved: if intended, {fix}")  # fmt: skip
+        if row.get("linked"):  # #5084: the LINKed / CALLed programs' counts
+            if "linked" not in entry:
+                warnings.append(f"coverage ledger: {case}: no LINKed-program counts yet; {fix}")
+            elif entry["linked"] != row["linked"]:
+                problems.append(f"coverage ledger: {case}: the LINKed programs' coverage moved ({row['linked']} vs the "
+                                f"ledger's {entry['linked']}) -- if intended, {fix}")  # fmt: skip
         now = fingerprints(case)
         bad = stale(entry, now)
-        if [n for n in bad if n in BLOCKING]:
+        if [n for n in bad if n in BLOCKING] or (bad and recheck):
             problems.append(f"coverage ledger: {case}: stale ({', '.join(bad)} changed) -- {fix}")
         elif bad:
             warnings.append(f"coverage ledger: {case}: stale ({', '.join(bad)} changed); refresh when convenient")

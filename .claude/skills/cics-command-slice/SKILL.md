@@ -43,13 +43,16 @@ Traps `--check` exists for:
 - [ ] **Spec entry first** (`gitgalaxy/standards/cics`): promote the command's name-only entry to a full one
       (options, refusals with reasons and register, groups, outcomes with RESP2, facts); `det/cics.py` and the stub
       read it. The runtimes stay hand-written, and no crucible log is derived from the spec. Do not commit
-      `cics_spec_status.md` (#4789: the evidence-refresh bot renders it on main).
+      `cics_spec_status.md` (git-ignored; generated-docs.yml publishes it to `generated`, #5057).
 - [ ] **Before survey** (now, on the unchanged branch): `$PY tests/tools/cics_census.py survey --out $SCRATCH/s
       --label before --verb VERB` (det_survey.py, translation only; ~minutes per estate; background it with
       `tests/tools/box/heavy-run.sh`).
 - [ ] **Translator** (`det/cics.py`): OPTIONS and the refusals come from the spec entry (spec PR 2); every option it
       does not honour refused BY NAME with the entry's reason; conditions through
       `outcome()` / `conditions()` with the RESP2 IBM documents; HANDLE CONDITION / NOHANDLE / RESP all honoured.
+      Read IBM's command page (WebFetch `ibm.com/docs/en/cics-ts/6.x?topic=summary-...`) for a condition's exact
+      semantics before modelling it as REFUSED: LENGERR on GET / QUERY COUNTER is a warning that completes the
+      operation (#5213).
       A failing test first in `tests/cobol_mainframe/test_det_translate.py`.
 - [ ] **BOTH runtimes**, the same semantics: the Java `CicsTask` / `DetCics` (cobolrt) AND the stub
       `tests/equivalence/cics/ggcics.c` (+ `tests/tools/equivalence_cics.py`). A fact the runtime cannot know (a
@@ -75,15 +78,15 @@ Traps `--check` exists for:
   - A divergence is a bug report against the runtime / translator, never a reason to edit the log.
 - [ ] **Refusals registered:** a new X-number: `register.py next X` (take it when the issue is filed), then one file
       `docs/language_status/register/Xnn.md` (front matter incl. the summary-table fields; body: ASSUMED / REFUSED, what
-      IBM says, which case proves it) and `register.py render`. Never edit `oracle_assumptions.md` by hand.
+      IBM says, which case proves it). `oracle_assumptions.md` is rendered, never committed (#5057). `register.py next X` can skip ids held by open PRs (it returned X61 with no X59 on main): use what it says (#5189).
 - [ ] **After survey:** `... survey --out $SCRATCH/s --label after --verb VERB`, then
       `$PY tests/tools/cics_census.py compare $SCRATCH/s --verb VERB`: per program translated / statements before ->
       after, the holes left (deduped, line numbers stripped), "translated whole N -> M (non-burned a -> b)" and the
       holes naming the verb. Quote the summary lines in the PR; name the next blocking holes as follow-ups.
 - [ ] **Ratchets:** `tests/tools/box/heavy-run.sh $PY tests/tools/pr_gates.py --ratchets`, then
       `pr_gates.py --fast` (JDK 17 via equivalence_env). The full suite is CI's job (owner, 2026-10-07): never run it locally, and never two gate
-      runs at once in one worktree; `pr_check.py --merge` merges only on green CI. A skip is not a pass. When the runtime changed: `det_port.py check` first, then sweep only the changed ports (`proof_sweep.py --det-only --skip-db2`); no full re-sweep after a main merge.
-- [ ] **After merge:** `pr_check.py N` before merging (`--merge` squash-merges only when green), then
+      runs at once in one worktree; `pr_check.py --merge` merges only on green CI (a draft is only marked ready; run it again once its CI is green). A skip is not a pass. When the runtime changed: `det_port.py check` first, then sweep only the changed ports (`proof_sweep.py --det-only --skip-db2`); no full re-sweep after a main merge.
+- [ ] **After merge:** `pr_check.py N` before merging (`--merge` squash-merges only when green; on a draft the first call only marks it ready), then
       `cics_census.py history append --pr N` (blocker-slice section 4).
 - [ ] **Two draft PRs:** gitgalaxy ("Part of #4270 (slice N: ...)", labels enhancement / testing /
       legacy-modernization) and the cics-crucible case PR (a "Cross-repo" note: companion PR, merge order, what
@@ -92,9 +95,17 @@ Traps `--check` exists for:
 
 ## 2. Traps (each cost a slice a round trip)
 
+- **The runner stub keeps TD queues as `td-<hex>` beside the TS queue dirs:** anything iterating the TS root must skip them (#5277).
 - **importorskip.** Any test that touches the translator (det, tree-sitter) starts with
   `pytest.importorskip("tree_sitter_language_pack")`: the ground-truth CI job installs no `translator` extra
   (#4560 / #4563 broke on it).
+- **`python -m gitgalaxy.standards.cics regen --check`** (#5103) says quickly whether a spec edit needs the generated
+  runtime tables regenerated (`regen` without `--check` rewrites them).
+- **IBM macro reference** (#5153): FCT/DCT/TST macros are in the CICS TS for OS/390 R3 Resource Definition Guide
+  (publibfp.dhe.ibm.com/epubs/pdf/dfha400.pdf, ch.13 macros, ch.16 macro->RDO table). PCT/PPT macros are in no
+  reachable IBM doc: say so rather than guess.
+  IBM doc URLs guessed from topic names return the docs index, and IBM PDFs come back unreadable through WebFetch:
+  a search result is not an opened page, so never mark a cite verified from one (#5266).
 - **test_tool_regex_redos** (#4477) is flaky under load: rerun once before blaming your regex.
 - **The full-suite OS grid does not run on PRs** (#4518). For a path- or OS-sensitive harness change dispatch it:
   `gh workflow run full-suite-gate.yml --ref <branch>`.
@@ -103,6 +114,18 @@ Traps `--check` exists for:
 - **Known local-only failure:** `test_porting_loop_tooling.py::test_the_loops_committed_ports_are_proven[*]`.
 - A pin-bump PR in flight moves `tests/_cics_crucible_pin.py`, `tests/cics_crucible/{baseline,coverage}.json` and the
   port evidence: never touch those in a slice PR.
+- **`parse_exec` treats `WAIT` as a bare option**, so an EXEC CICS command starting with WAIT reads as no verb: check `words` is non-empty before indexing the verb (#5185).
+- **A new stub event kind needs a branch in `equivalence_cics.cobol_events` too**, or the COBOL side drops it and the case DIFFERS ("COBOL `START`, Java `ENQ`") (#5187).
+- **A stub refusal prints "not modelled" on stdout and exits nonzero**: strip that line when comparing stub output with CicsTask's (#5189).
+- **The harness trims trailing spaces from a SEND TEXT event's text**: a hand-traced expected string with trailing spaces fails even when the case is proven (#5196).
+- **After a cics-crucible pin bump**, run `tests/tools/evidence.py prove` on the stale `crucible:` keys as well as `crucible_port_provenance.py reprove`; reprove leaves `evidence.json` stale (#5192).
+- **The stub receives `LENGTH OF RIDFLD` as keylen when the program codes no KEYLENGTH**: a stub check that needs to know KEYLENGTH was given must get it as a GG-FLAGS word set in `tests/tools/equivalence_cics.py` (#5201).
+- **`equivalence_cics.outputs()` collects a WRITEQ-TD record only when its resp is 0**, else a failed write shifts later records (#5202).
+- **Abend vs SYNCPOINT in unit scenarios**: a test expecting an abend to restore a LOGICAL queue must touch it after the last SYNCPOINT (#5202).
+- **Failed CICS writes (INVREQ, NOTOPEN) belong in the e2e program**, not only the stub unit lists: harness bugs show only end to end (#5202).
+- **An `Outcome` with `resp2=None` (e.g. the shared `_NOTFND`) must be replaced once both runtimes record a RESP2**, or the "spec states each RESP2" tests fail (#5204).
+- **A new ggcics stub event for an INVREQ logs RIDFLD with zero bytes, not KEYLENGTH bytes**: KEYLENGTH may exceed the buffer (#5204).
+- **ASSIGN STARTCODE values are a closed list** in `gitgalaxy/standards/cics/commands/assign.py`: a DPL (LINKed) case needs `D` stated there plus the X19 summary edit (#5251).
 
 ## 3. Release flow (cics-crucible RELEASING.md, done for v0.4.0 and v0.5.0)
 
@@ -114,6 +137,9 @@ Traps `--check` exists for:
 3. **Phase A** (gitgalaxy, ledger only): with the crucible checked out at the UNTAGGED commit and
    `CICS_CRUCIBLE_ALLOW_UNPINNED=1`, run `cics_crucible.py --update-baseline` and review every moved cell (new cells
    only for new cases; a newly failing cell on an unchanged case is a gitgalaxy regression). Do not move the pin.
+   `--update-baseline` refuses `--cases`: it needs the full run (can pass the 10-min foreground limit, so background
+   it) and rewrites `coverage.json` and `docs/language_status/cics_crucible.md` too; commit all three (#5285). On a
+   `cics_crucible.md` merge conflict take main's copy and regenerate it with `cics_crucible.py`, never hand-merge.
 4. **Tag** (crucible): only after the owner approves -- `git tag -a vX.Y.Z <commit>`, push, `gh release create`.
 5. **Phase B** (gitgalaxy, one PR): `PINNED_REF`, baseline / coverage, re-prove the committed ports
    (`crucible_port_provenance.py reprove`), evidence (`evidence.py prove`; no rendered report), then
@@ -140,7 +166,7 @@ are fine). `cics_census.py` warns about a census-root corpus that is not on the 
   `proof.log`; `cics_crucible.py --out O` -> `O/results.json` + `O/report.md`, `--report-dir R` -> `R/report.json`
   (a port proof); `--keep W` keeps `W/<case>/{forge,cobol,java}`.
 - **Re-proving evidence:** `$PY tests/tools/evidence.py status` shows what is stale; re-prove with
-  `evidence.py prove KEY ...` (or `refresh --stale`) (do not commit the rendered report under `docs/language_status/evidence_report/`: the bot regenerates it, #4703). Never hand-edit an evidence record or
+  `evidence.py prove KEY ...` (or `refresh --stale`) (main holds no rendered report: it is published on `generated`, read it via `python tests/tools/generated_branch.py show docs/language_status/evidence_report/<estate>/report.md`, #5206). Never hand-edit an evidence record or
   a `reproven` entry, and never drop or write an approval -- only a person runs `evidence.py approve`.
 - Debugging a differing scenario, Db2 cases and the checklists for a translator / runtime / harness change: the
   `det-port` skill.

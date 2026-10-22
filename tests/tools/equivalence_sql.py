@@ -13,7 +13,7 @@ and text pair --, DECIMAL, SMALLINT / INTEGER / BIGINT), with its indicator vari
 
 EXEC SQL INCLUDE is expanded (SQLCA is IBM's layout, a DCLGEN member is looked up in the copy directories, any
 extension); DECLARE TABLE is dropped; DECLARE CURSOR is remembered, its SELECT run by OPEN. A form not modelled
-(WHENEVER, positioned UPDATE / DELETE, dynamic SQL, a host variable array) raises Unsupported by
+(a WHENEVER not GO TO or CONTINUE, dynamic SQL, a host variable array) raises Unsupported by
 name -- never a guess. The reader of the data items is the harness's own (cobol_answer_key), not the translator's."""
 
 from __future__ import annotations
@@ -210,6 +210,8 @@ class Precompiler:
         self.statements: list[Statement] = []
         self.cursors: dict[str, str] = {}  # name -> its SELECT (host variables still named)
         self.hold: set[str] = set()  # #4269: the cursors declared WITH HOLD
+        self.whenever: dict[str, str] = {}  # #4269: WHENEVER condition -> its GO TO label, in force from here
+        self.prepared: dict[str, str] = {}  # #4269: PREPARE name FROM 'literal' -> the text, from here on
 
     def _bind(self, text: str, args: list[str]) -> tuple[str, list[tuple[list[int], int | None]]]:
         """The SQL with every host variable a `?`, and per marker (the elementary items, the indicator)."""
@@ -269,7 +271,46 @@ class Precompiler:
             st = Statement(sid, "SELECT1", _norm(sql), "-", self._vars(refs, args), outputs)
             self.statements.append(st)
             return st, args
-        if verb in ("WHENEVER", "PREPARE", "EXECUTE", "DESCRIBE", "CONNECT", "SET", "CALL", "ALLOCATE", "ASSOCIATE"):
+        if verb == "WHENEVER":  # #4269: IBM's precompiler tests the SQLCA after every later statement in the text
+            w = re.fullmatch(r"WHENEVER\s+(SQLERROR|NOT\s+FOUND|SQLWARNING)\s+(?:(CONTINUE)|GO\s*TO\s+:?([A-Z0-9_-]+))",
+                             u)  # fmt: skip
+            if not w:
+                raise Unsupported(f"EXEC SQL {u[:60]}")
+            cond = " ".join(w.group(1).split())
+            if w.group(2):
+                self.whenever.pop(cond, None)
+            else:
+                self.whenever[cond] = w.group(3)
+            return None
+        if verb == "EXECUTE" and re.match(r"EXECUTE\s+IMMEDIATE\b", u):
+            # #4269: EXECUTE IMMEDIATE 'INSERT ... VALUES ...' runs as written (the det port's DetSql.savepoint path)
+            lit = re.fullmatch(r"EXECUTE\s+IMMEDIATE\s+'((?:[^']|'')*)'", text, re.I)
+            if not lit:
+                raise Unsupported(f"EXEC SQL {u[:60]}: only a string literal as the statement text is modelled")
+            inner = lit.group(1).replace("''", "'").strip()
+            self._dynamic_insert(inner, "EXECUTE IMMEDIATE")
+            st = Statement(sid, "EXEC", _norm(inner))
+            self.statements.append(st)
+            return st, args
+        prep = re.fullmatch(r"PREPARE\s+([A-Z0-9_-]+)\s+FROM\s+'((?:[^']|'')*)'", text, re.I)
+        if verb == "PREPARE" and prep:  # #4269: the text is kept; the statement runs a no-op (the port's PREPARE_NOOP)
+            inner = prep.group(2).replace("''", "'").strip()
+            self._dynamic_insert(inner, "PREPARE")
+            name = prep.group(1).upper()
+            if self.prepared.get(name, inner) != inner:
+                raise Unsupported(f"EXEC SQL PREPARE {name}: prepared from more than one literal text")
+            self.prepared[name] = inner
+            st = Statement(sid, "EXEC", "VALUES 1")
+            self.statements.append(st)
+            return st, args
+        ex = re.fullmatch(r"EXECUTE\s+([A-Z0-9_-]+)", text, re.I)
+        if verb == "EXECUTE" and ex:  # #4269: EXECUTE name (no USING) of an earlier PREPARE FROM a literal
+            if ex.group(1).upper() not in self.prepared:
+                raise Unsupported(f"EXEC SQL EXECUTE {ex.group(1)}: no earlier PREPARE FROM a string literal")
+            st = Statement(sid, "EXEC", _norm(self.prepared[ex.group(1).upper()]))
+            self.statements.append(st)
+            return st, args
+        if verb in ("PREPARE", "EXECUTE", "DESCRIBE", "CONNECT", "SET", "CALL", "ALLOCATE", "ASSOCIATE"):
             raise Unsupported(f"EXEC SQL {verb}")
         pos = re.search(r"\bWHERE\s+CURRENT\s+OF\s+([A-Z0-9_-]+)", u)
         if pos and (verb not in ("UPDATE", "DELETE") or pos.group(1) not in self.cursors):
@@ -318,6 +359,27 @@ class Precompiler:
             raise Unsupported(f"EXEC SQL with {len(args)} host variables (the stub takes {MAX_ARGS})")
         self.statements.append(st)
         return st, args
+
+    @staticmethod
+    def _dynamic_insert(inner: str, what: str) -> None:
+        if (not re.fullmatch(r"INSERT\s+INTO\s[^?]*\bVALUES\b[^?]*", inner, re.I | re.S)
+                or re.search(r"\bSELECT\b", inner, re.I)):  # fmt: skip
+            raise Unsupported(f"EXEC SQL {what} '{inner[:40]}': only INSERT ... VALUES is modelled")
+
+    def whenever_tests(self, period: str) -> list[str]:
+        """#4269: the SQLCA tests of the WHENEVER actions in force, IBM's order (SQLERROR, NOT FOUND, SQLWARNING)."""
+        tests = [("SQLERROR", "SQLCODE < 0"), ("NOT FOUND", "SQLCODE = 100"),
+                 ("SQLWARNING", "SQLWARN0 = 'W' OR\n               (SQLCODE > 0 AND SQLCODE NOT = 100)")]  # fmt: skip
+        live = [(c, t) for c, t in tests if c in self.whenever]
+        out: list[str] = []
+        for n, (cond, test) in enumerate(live):
+            # (one clause per line: the fixed-format source ends at column 72)
+            out.append(f"           {'ELSE ' if n else ''}IF {test}")
+            out.append(f"               GO TO {self.whenever[cond]}")
+        if live:
+            out += ["           END-IF"] * len(live)
+            out[-1] += period
+        return out
 
     def table(self) -> str:
         """The statement table ggsql.c reads ($GGSQL_STMTS)."""
@@ -414,7 +476,9 @@ def precompile(source: str, dirs: list[Path], path: Path, first_id: int = 1, pro
             out.append(f"           MOVE {st.sid:04d} TO GG-SQL-ID")
             out.append("           MOVE RETURN-CODE TO GG-SQL-RC")
             out += [f"           CALL 'GGSQL' USING GG-SQL-ID SQLCA"] + [f"                {a}" for a in args]
-            out.append("           MOVE GG-SQL-RC TO RETURN-CODE" + period)
+            tests = pre.whenever_tests(period)
+            out.append("           MOVE GG-SQL-RC TO RETURN-CODE" + ("" if tests else period))
+            out += tests
         after = text[m.end() :].strip()
         if after:
             out.append("           " + after)

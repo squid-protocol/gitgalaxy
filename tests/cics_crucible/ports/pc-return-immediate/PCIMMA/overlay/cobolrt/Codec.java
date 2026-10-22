@@ -1,0 +1,261 @@
+package com.gitgalaxy.modernized.cobolrt;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.nio.charset.Charset;
+
+/** Numeric storage codecs: zoned, packed and binary. A signed zoned digit is overpunched `{A-I` / `}J-R`. */
+final class Codec {
+    static final String POSITIVE = "{ABCDEFGHI";
+    static final String NEGATIVE = "}JKLMNOPQR";
+
+    /** TRUNC(STD): a binary item holds at most its PICTURE's digits. GnuCOBOL under `-std=ibm` (the equivalence
+     *  harness) does not: a binary item holds whatever its 2 / 4 / 8 bytes hold (TRUNC(BIN)), so that is the default. */
+    static volatile boolean truncBinary = false;
+
+    /** TRUNC(OPT) (#4706), with truncBinary on: "the compiler assumes that data conforms to PICTURE specifications in
+     *  USAGE BINARY receiving fields in MOVE statements and arithmetic expressions", and truncates a value that does
+     *  not "either ... to the number of digits in the PICTURE clause, or to the size of the binary field in storage
+     *  (halfword, fullword, or doubleword)" -- "unpredictable results could occur ... dependent on the particular code
+     *  sequence generated" (Enterprise COBOL for z/OS 6.x Programming Guide, "TRUNC"). For a conforming value the
+     *  result is TRUNC(STD)'s, so the runtime computes as STD and stops by name where a value would be stored past a
+     *  binary receiver's PICTURE (COMP-5 excepted: no TRUNC truncates it). Default false. */
+    static volatile boolean truncOpt = false;
+
+    /** ARITH(EXTEND) (register C5, #4706): IBM keeps an intermediate result to 30 digits under ARITH(COMPAT) and more
+     *  under EXTEND; GnuCOBOL caps neither, so the runtime computes the intermediate and stops by name where it is
+     *  past 30 digits (the COMPAT cap, the one range both IBM modes document). Default false. */
+    static volatile boolean arithExtend = false;
+
+    /** The stop of an intermediate past 30 digits under ARITH(EXTEND): `digits` is its digit count (a quotient's
+     *  integer digits, its fraction being the 38 places cob_decimal_div keeps). */
+    // [rule RT-NUM-ARITH-EXTEND-STOP]
+    static BigDecimal arithExtendCheck(BigDecimal d, int digits) {
+        if (arithExtend && digits > 30) {
+            throw new UnsupportedOperationException("ARITH(EXTEND): an intermediate result of " + digits
+                    + " digits (past 30) is not modelled");
+        }
+        return d;
+    }
+
+    /** An add / subtract / multiply result under ARITH(EXTEND): past 30 digits it stops by name. */
+    // [rule RT-NUM-ARITH-EXTEND-STOP]
+    static BigDecimal arithExtendWide(BigDecimal r) {
+        return arithExtendCheck(r, r.precision());
+    }
+
+    /** The named stop of a value past a binary receiver's PICTURE under TRUNC(OPT) (register C5, #4706). */
+    static UnsupportedOperationException truncOptUnpredictable(Field f, BigInteger magnitude, boolean neg) {
+        return new UnsupportedOperationException("TRUNC(OPT): value exceeds PICTURE; IBM result unpredictable ("
+                + (neg && f.signed ? "-" : "") + new BigDecimal(magnitude, f.scale).toPlainString() + " into a "
+                + (f.signed ? "signed " : "") + f.digits + "-digit binary item) is not modelled");
+    }
+
+    /** Whether storing `magnitude` (at the field's scale) in `f` meets the TRUNC(OPT) stop: a COMP / COMP-4 / BINARY
+     *  item under TRUNC(OPT), the value past its PICTURE's digits. */
+    static boolean pastPictureUnderOpt(Field f, BigInteger magnitude) {
+        return truncOpt && truncBinary && f.kind == Field.Kind.NUMERIC_BINARY && !f.nativeBin
+                && magnitude.compareTo(BigInteger.TEN.pow(f.digits)) >= 0;
+    }
+
+    /** NUMPROC(PFD) (#4271): the program assumes preferred signs -- X'C' signed positive or zero, X'D' signed negative,
+     *  X'F' unsigned -- and IBM leaves what it does with any other sign to the generated code ("the compiler uses
+     *  whatever sign it is given"; Enterprise COBOL 6.4 Programming Guide, SC27-8714-03, "Sign representation of
+     *  zoned and packed-decimal data"). With preferred signs its results are NUMPROC(NOPFD)'s, so the runtime computes
+     *  as before and refuses, by name, to read a zoned or packed value whose sign is not preferred. Default false:
+     *  IBM's default NUMPROC(NOPFD), which accepts any valid sign. */
+    static volatile boolean numprocPfd = false;
+
+    /** The refusal of a non-preferred sign under NUMPROC(PFD) (register C5). */
+    static UnsupportedOperationException nonPreferredSign(Field f) {
+        return new UnsupportedOperationException("NUMPROC(PFD): a " + (f.signed ? "signed " : "unsigned ")
+                + (f.kind == Field.Kind.NUMERIC_PACKED ? "packed" : "zoned")
+                + " item with a non-preferred sign (IBM: the result depends on the generated code) is not modelled");
+    }
+
+    /** Whether a zoned item's sign byte, or a packed item's sign nibble, holds the preferred sign for the item and its
+     *  value: C / D (a zero C) when signed, F when unsigned. SIGN SEPARATE items carry no sign nibble. */
+    static boolean preferredSign(Field f, Charset cs) {
+        byte[] d = f.st.bytes;
+        if (f.kind == Field.Kind.NUMERIC_PACKED) {
+            int sign = d[f.off + f.len - 1] & 0x0F;
+            if (!f.signed) return sign == 0x0F;
+            if (sign == 0x0C) return true;
+            return sign == 0x0D && readAny(f, cs).mag.signum() != 0;
+        }
+        if (f.kind != Field.Kind.NUMERIC_DISPLAY || f.signSeparate) return true;
+        char c = ch(d[f.signLeading ? f.off : f.off + f.digits - 1], cs);
+        if (!f.signed) return c >= '0' && c <= '9';
+        if (POSITIVE.indexOf(c) >= 0) return true;
+        return NEGATIVE.indexOf(c) >= 0 && readAny(f, cs).mag.signum() != 0;
+    }
+
+    private Codec() {}
+
+    /** A decimal as sign and magnitude, so that a negative zero survives a MOVE. */
+    static final class Num {
+        final BigInteger mag;
+        final int scale;
+        final boolean neg;
+
+        Num(BigInteger mag, int scale, boolean neg) {
+            this.mag = mag;
+            this.scale = scale;
+            this.neg = neg;
+        }
+
+        BigDecimal value() {
+            BigDecimal v = new BigDecimal(mag, scale);
+            return neg ? v.negate() : v;
+        }
+
+        static Num of(BigDecimal v) {
+            return new Num(v.unscaledValue().abs(), v.scale(), v.signum() < 0);
+        }
+    }
+
+    static char ch(byte b, Charset cs) {
+        return new String(new byte[] {b}, cs).charAt(0);
+    }
+
+    static byte by(char c, Charset cs) {
+        return String.valueOf(c).getBytes(cs)[0];
+    }
+
+    static byte space(Charset cs) {
+        return by(' ', cs);
+    }
+
+    /** digit value and sign of a zoned byte: {digit, 1 if overpunched negative, 1 if overpunched positive}. */
+    private static int[] zonedDigit(byte b, Charset cs, boolean overpunch) {
+        char c = ch(b, cs);
+        if (c >= '0' && c <= '9') return new int[] {c - '0', 0, 0};
+        if (overpunch) {
+            int p = POSITIVE.indexOf(c);
+            if (p >= 0) return new int[] {p, 0, 1};
+            int n = NEGATIVE.indexOf(c);
+            if (n >= 0) return new int[] {n, 1, 0};
+        }
+        return new int[] {b & 0x0F, 0, 0};
+    }
+
+    static Num read(Field f, Charset cs) {
+        if (numprocPfd && !preferredSign(f, cs)) throw nonPreferredSign(f);
+        return readAny(f, cs);
+    }
+
+    private static Num readAny(Field f, Charset cs) {
+        byte[] d = f.st.bytes;
+        switch (f.kind) {
+            case NUMERIC_DISPLAY: {
+                boolean neg = false;
+                int start = f.off;
+                int n = f.digits;
+                if (f.signSeparate) {
+                    int sp = f.signLeading ? f.off : f.off + f.digits;
+                    neg = ch(d[sp], cs) == '-';
+                    if (f.signLeading) start = f.off + 1;
+                }
+                BigInteger v = BigInteger.ZERO;
+                for (int i = 0; i < n; i++) {
+                    boolean signPos = f.signed && !f.signSeparate && (f.signLeading ? i == 0 : i == n - 1);
+                    int[] z = zonedDigit(d[start + i], cs, signPos);
+                    if (signPos && z[1] == 1) neg = true;
+                    v = v.multiply(BigInteger.TEN).add(BigInteger.valueOf(z[0]));
+                }
+                return new Num(v, f.scale, neg && f.signed);
+            }
+            case NUMERIC_PACKED: {
+                BigInteger v = BigInteger.ZERO;
+                for (int i = 0; i < f.len; i++) {
+                    int b = d[f.off + i] & 0xFF;
+                    v = v.multiply(BigInteger.TEN).add(BigInteger.valueOf(Math.min(b >> 4, 9)));
+                    if (i < f.len - 1) v = v.multiply(BigInteger.TEN).add(BigInteger.valueOf(Math.min(b & 0x0F, 9)));
+                }
+                int sign = d[f.off + f.len - 1] & 0x0F;
+                return new Num(v, f.scale, f.signed && (sign == 0x0D || sign == 0x0B));
+            }
+            case NUMERIC_FLOAT:
+                return Num.of(Hfp.read(f));
+            case NUMERIC_BINARY: {
+                byte[] b = new byte[f.len];
+                for (int i = 0; i < f.len; i++) {
+                    b[i] = f.nativeBin ? d[f.off + f.len - 1 - i] : d[f.off + i];
+                }
+                BigInteger v = f.signed ? new BigInteger(b) : new BigInteger(1, b);
+                return new Num(v.abs(), f.scale, v.signum() < 0);
+            }
+            default:
+                throw new IllegalArgumentException("not a numeric item: " + f.kind);
+        }
+    }
+
+    /** The unscaled magnitude `m` (already at the field's scale) with sign `neg`, stored truncated to the digits. */
+    static void write(Field f, BigInteger m, boolean neg, Charset cs) {
+        byte[] d = f.st.bytes;
+        BigInteger limit = BigInteger.TEN.pow(f.digits);
+        switch (f.kind) {
+            case NUMERIC_DISPLAY: {
+                String s = m.mod(limit).toString();
+                s = "0".repeat(f.digits - s.length()) + s;
+                boolean negative = neg && f.signed;
+                int start = f.off;
+                if (f.signSeparate) {
+                    int sp = f.signLeading ? f.off : f.off + f.digits;
+                    d[sp] = by(negative ? '-' : '+', cs);
+                    if (f.signLeading) start = f.off + 1;
+                }
+                for (int i = 0; i < f.digits; i++) {
+                    char c = s.charAt(i);
+                    boolean signPos = f.signed && !f.signSeparate && (f.signLeading ? i == 0 : i == f.digits - 1);
+                    if (signPos) c = (negative ? NEGATIVE : POSITIVE).charAt(c - '0');
+                    d[start + i] = by(c, cs);
+                }
+                return;
+            }
+            case NUMERIC_PACKED: {
+                String s = m.mod(limit).toString();
+                int n = f.len * 2 - 1;
+                s = "0".repeat(n - s.length()) + s;
+                int sign = !f.signed ? 0x0F : neg ? 0x0D : 0x0C;
+                for (int i = 0; i < f.len; i++) {
+                    int hi = s.charAt(2 * i) - '0';
+                    int lo = i < f.len - 1 ? s.charAt(2 * i + 1) - '0' : sign;
+                    d[f.off + i] = (byte) ((hi << 4) | lo);
+                }
+                return;
+            }
+            case NUMERIC_FLOAT: // an integer (MOVE ZERO); Cobol.store and Cobol.move hand a float's value to Hfp whole
+                Hfp.store(f, new BigDecimal(neg ? m.negate() : m));
+                return;
+            case NUMERIC_BINARY: {
+                if (pastPictureUnderOpt(f, m)) throw truncOptUnpredictable(f, m, neg);
+                BigInteger v = f.nativeBin || !truncBinary ? m : m.mod(limit);
+                if (neg && f.signed) v = v.negate();
+                byte[] b = v.toByteArray();
+                byte fill = (byte) (v.signum() < 0 ? 0xFF : 0x00);
+                for (int i = 0; i < f.len; i++) {
+                    int from = b.length - f.len + i;
+                    byte x = from >= 0 ? b[from] : fill;
+                    d[f.nativeBin ? f.off + f.len - 1 - i : f.off + i] = x;
+                }
+                return;
+            }
+            default:
+                throw new IllegalArgumentException("not a numeric item: " + f.kind);
+        }
+    }
+
+    /** Whether `magnitude` (at the field's scale) fits the field without losing high-order digits. */
+    static boolean fits(Field f, BigInteger magnitude, boolean neg) {
+        if (f.kind == Field.Kind.NUMERIC_BINARY && (f.nativeBin || !truncBinary)) {
+            int bits = f.len * 8;
+            BigInteger v = neg && f.signed ? magnitude.negate() : magnitude;
+            BigInteger lo = f.signed ? BigInteger.ONE.shiftLeft(bits - 1).negate() : BigInteger.ZERO;
+            BigInteger hi = f.signed ? BigInteger.ONE.shiftLeft(bits - 1).subtract(BigInteger.ONE)
+                    : BigInteger.ONE.shiftLeft(bits).subtract(BigInteger.ONE);
+            return v.compareTo(lo) >= 0 && v.compareTo(hi) <= 0;
+        }
+        return magnitude.compareTo(BigInteger.TEN.pow(f.digits)) < 0;
+    }
+}

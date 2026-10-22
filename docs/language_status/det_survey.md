@@ -5,9 +5,13 @@ description: "`python tests/tools/det_survey.py --work DIR` translates every COB
 
 `python tests/tools/det_survey.py --work DIR` translates every COBOL program of each corpus (not only those with an
 equivalence case) onto the service GitGalaxy generates for it, and compiles each port against the built estate.
-**This measures translation, not correctness**: a port is proven only by its equivalence case
-(`tests/tools/det_port.py`): 48 programs are proven, 27 from CardDemo, 8 from CBSA and 13 from GenApp
-([det_port_design.md](det_port_design.md)).
+**This measures translation, not correctness**: a port is shown equal only by its equivalence case
+(`tests/tools/det_port.py`; see [det_port_design.md](det_port_design.md)).
+
+> **Dated historical snapshot (2026-10-02).** The numbers below were measured once, on the corpora as they were then, and
+> are not updated. For current counts (translated whole, level per program, per estate) read the generated
+> [progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md)
+> (#5280).
 
 ## Result (2026-10-02, after the Db2, counter and CICS work)
 

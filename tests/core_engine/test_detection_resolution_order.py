@@ -46,26 +46,34 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS, LENS_CO
 # Order within each list IS the registry iteration order and is load-bearing
 # wherever two entries both carry "D".
 _EXPECTED_CLAIMANTS: dict[str, list[tuple[str, str]]] = {
-    ".asm": [("assembly", "-"), ("hlasm", "D")],
+    ".a": [("assembly", "D")],
+    ".asm": [("assembly", "D"), ("hlasm", "D")],
     ".c": [("c", "-")],
     ".cmd": [("batch", "D"), ("rexx", "D")],
     ".cshtml": [("csharp", "-"), ("html", "-")],
-    ".ddl": [("sqlite", "-"), ("db2_sql", "D")],
-    ".dml": [("sqlite", "-"), ("db2_sql", "D")],
+    ".ddl": [("sqlite", "-"), ("postgresql", "D"), ("db2_sql", "D")],
+    ".dml": [("sqlite", "-"), ("postgresql", "D"), ("db2_sql", "D")],
+    ".fs": [("fsharp", "D")],
     ".h": [("c", "-"), ("objective-c", "D")],
-    ".inc": [("cpp", "-"), ("c", "-"), ("php", "-"), ("fortran", "-"), ("assembly", "-")],
+    ".i": [("assembly", "D")],
+    ".inc": [("cpp", "-"), ("c", "-"), ("php", "D"), ("fortran", "D"), ("assembly", "D")],
     ".m": [("matlab", "D"), ("objective-c", "D")],
-    ".mac": [("hlasm", "D"), ("easytrieve", "-")],
+    ".mac": [("hlasm", "D"), ("easytrieve", "D")],
     ".map": [("bms", "D")],
     ".py": [("python", "D"), ("embedded_python", "D")],
-    ".sql": [("sqlite", "-"), ("db2_sql", "D")],
+    # #5624: LiveCode owns `.rev` only on content (build counters share it); sole claimant, so not order-critical.
+    ".rev": [("livecode", "D")],
+    ".sql": [("sqlite", "-"), ("postgresql", "D"), ("db2_sql", "D")],
     ".y": [("c", "-"), ("yacc", "D")],
 }
 
 # The extensions where TWO claimants both carry a discriminator, i.e. where
 # registry order decides which content check runs first. Kept as its own pin
 # because this is the set that needs re-adjudicating when a language is added.
-_ORDER_CRITICAL_EXTENSIONS = {".cmd", ".m", ".py"}
+# #5622: postgresql precedes db2_sql on the SQL extensions (db2's `LANGUAGE SQL` also matches a Postgres function).
+# #5624: assembly gained a discriminator (dialect evidence for .a/.i/.s/.inc), so it is consulted before hlasm on
+# `.asm`; it matches no HLASM member shape (pinned in test_assembly_dialects_5624.py).
+_ORDER_CRITICAL_EXTENSIONS = {".asm", ".cmd", ".ddl", ".dml", ".inc", ".m", ".mac", ".py", ".sql"}
 
 
 def _claimants_in_registry_order(ext: str) -> list[tuple[str, str]]:
@@ -143,13 +151,15 @@ _COLLISION_CONTENT: dict[str, str] = {
         "    led.value(1)\n    utime.sleep_ms(500)\n"
     ),
     "yacc": "%token NUM\n%%\nexpr: expr '+' NUM { $$ = $1 + $3; }\n    | NUM\n    ;\n%%\n",
+    "php": "<?php\nfunction helper($a) {\n    return $a + 1;\n}\n",
+    "easytrieve": "FILE INPUT1 FB(80 800)\nJOB INPUT INPUT1\n  PRINT REPORT-1\n",
+    "fortran": "      INTEGER I\n      COMMON /BLK/ I\n",
 }
 
 # (extension, content-language, expected winner). Only the pairs whose correct
-# answer is independently verifiable from the content are asserted; `.inc`
-# (five claimants, no discriminators) and `.cshtml` are deliberately omitted --
-# they resolve through the Tier 3 lexical scan, and pinning a winner there
-# would pin scan tuning rather than a routing decision.
+# answer is independently verifiable from the content are asserted; the remaining
+# non-discriminator `.inc` claimants (cpp/c/assembly) and `.cshtml` are
+# omitted from this table because they resolve through the Tier 3 lexical scan.
 _COLLISION_CASES = [
     (".asm", "hlasm", "hlasm"),
     (".asm", "assembly", "assembly"),
@@ -163,8 +173,12 @@ _COLLISION_CASES = [
     (".dml", "sqlite", "sqlite"),
     (".h", "c", "c"),
     (".h", "objective-c", "objective-c"),
+    (".inc", "php", "php"),
+    (".inc", "fortran", "fortran"),
     (".m", "matlab", "matlab"),
     (".m", "objective-c", "objective-c"),
+    (".mac", "hlasm", "hlasm"),
+    (".mac", "easytrieve", "easytrieve"),
     (".py", "python", "python"),
     (".py", "embedded_python", "embedded_python"),
     (".y", "yacc", "yacc"),

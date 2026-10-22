@@ -2,6 +2,7 @@ name: GitGalaxy Zero-Trust Pipeline
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]  # #5104: a draft starts only the cheap audits
     branches: [main]
     paths-ignore: ["docs/**"]
   # The post-gate (SARIF / SBOM / LLM brief) used to run on every push to main.
@@ -39,46 +40,37 @@ jobs:
   # PRE-GATE — runs on every PR, blocks the merge on failure.
   # Fast; no heavy ML/graph dependencies installed.
   # ============================================================
-  vault-sentinel:
-    if: github.event_name == 'pull_request'
-    name: Vault Sentinel
+  # #5132: the three pre-gates were three runners (0.6-2.4 min each, mostly setup); one job runs them in order. Each
+  # step fails the job on its own (no continue-on-error), and `if: !cancelled()` makes a later step run after an earlier
+  # failure so one push reports every failing gate. None is a required check.
+  pre-gate:
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (github.event_name == 'pull_request') }}  # #5104: draft PRs skip heavy CI
+    name: Pre-gate (Vault Sentinel, X-Ray, Supply Chain)
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: ./
+
+      - name: Vault Sentinel
+        uses: ./
         with:
           tool: vault-sentinel
           target: .
           version: local
 
-  xray-inspector:
-    if: github.event_name == 'pull_request'
-    name: X-Ray Inspector
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: ./
+      - name: X-Ray Inspector
+        if: ${{ !cancelled() }}
+        uses: ./
         with:
           tool: xray-inspector
           target: .
           version: local
 
-  supply-chain-firewall:
-    if: github.event_name == 'pull_request'
-    name: Supply Chain Firewall
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: ./
+      - name: Supply Chain Firewall
+        if: ${{ !cancelled() }}
+        uses: ./
         with:
           tool: supply-chain-firewall
           target: .
@@ -87,13 +79,13 @@ jobs:
   # ============================================================
   # POST-GATE — one galaxyscope pass produces all 6 outputs; we route 3 of
   # them (SARIF -> Security tab, SBOM + self-scan DB -> artifacts, LLM brief
-  # -> committed doc) and let the rest live only in the ephemeral runner.
+  # -> the generated branch) and let the rest live only in the ephemeral runner.
   # --fail-on-malware stays on here too, as a safety net in case branch
   # protection is ever bypassed.
   #
   # Runs on a daily schedule (or manual dispatch), NOT per-push: the LLM brief
   # embeds a Timestamp/Scan Duration/Git Commit (llm_recorder.py) so it always
-  # produces a diff, its PR auto-merges, and that merge is itself a push --
+  # produced a diff, whose PR auto-merged, and that merge was itself a push --
   # a per-push trigger made this a treadmill (~21 brief commits/day; a
   # confirmed 13-commits-in-13-minutes runaway on 2026-07-25) that also
   # exhausted the mirrored Azure/Bitbucket free CI minutes. A daily brief is
@@ -106,8 +98,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     permissions:
-      contents: write
-      pull-requests: write   # NEW — required for create-pull-request to open the PR
+      contents: write  # push to the `generated` branch only
       security-events: write
     steps:
       - name: Checkout Repository          # unchanged
@@ -146,12 +137,12 @@ jobs:
         run: python tests/tools/ci_job_summary.py gitgalaxy-results_audit.json --sbom gitgalaxy-results_sbom.json
 
       - name: Upload SARIF to GitHub Security Tab   # unchanged
-        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4
+        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d # v4
         with:
           sarif_file: gitgalaxy-results_sarif.json
 
       - name: Upload SBOM as Build Artifact   # unchanged
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: gitgalaxy-sbom
           path: gitgalaxy-results_sbom.json
@@ -166,7 +157,7 @@ jobs:
         run: python tests/tools/self_scan.py
 
       - name: Upload Self-Scan DB as Build Artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: gitgalaxy-self-scan-db
           path: docs/self_scan/gitgalaxy_master.db
@@ -177,34 +168,12 @@ jobs:
           mkdir -p docs
           mv *_galaxy_llm.md docs/gitgalaxy_architecture_brief.md
 
-      - name: Open PR with Updated LLM Brief
-        id: llm-brief-pr
-        uses: squid-protocol/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # forked from peter-evans/create-pull-request v8.1.1
-        with:
-          token: ${{ secrets.AUTOMATION_PAT }}
-          commit-message: "docs: auto-update LLM architectural brief"
-          title: "docs: auto-update LLM architectural brief"
-          body: "Automated update from the latest GalaxyScope scan on `main`."
-          branch: auto/llm-architecture-brief
-          delete-branch: true
-          add-paths: docs/gitgalaxy_architecture_brief.md
-
-      # Nothing gates this PR today (branch protection requires 0
-      # reviews/checks), so without this it just sits mergeable-but-unmerged
-      # until a human notices. `gh pr merge --auto` alone is unreliable here:
-      # GitHub's enablePullRequestAutoMerge mutation *rejects* PRs that are
-      # already in "clean" (immediately mergeable) status with "Pull request
-      # is in clean status" -- and given 0 required checks, a fresh PR here
-      # reaches clean almost instantly, so whether --auto lands before or
-      # after that happens is a race (confirmed: PR #409 hit the rejection).
-      # Try a direct merge first (the expected path today); only fall back
-      # to --auto if that's rejected because something is still genuinely
-      # pending -- which is exactly the case --auto is for.
-      - name: Merge the LLM Brief PR
-        if: steps.llm-brief-pr.outputs.pull-request-number
-        env:
-          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+      # #4963: published to the `generated` branch (tests/tools/generated_branch.py), not committed to main through an
+      # auto-merged PR. The brief carries no per-scan field, so a scan of an unchanged architecture commits nothing.
+      # Agents read it with `python tests/tools/generated_branch.py show docs/gitgalaxy_architecture_brief.md`.
+      - name: Publish the LLM Brief to the generated branch
+        if: github.ref == 'refs/heads/main'
         run: |
-          PR="${{ steps.llm-brief-pr.outputs.pull-request-number }}"
-          gh pr merge --squash "$PR" --repo ${{ github.repository }} || \
-            gh pr merge --squash --auto "$PR" --repo ${{ github.repository }}
+          python tests/tools/generated_branch.py publish --stamp architecture-brief \
+            --message "architecture brief as of main $GITHUB_SHA" \
+            docs/gitgalaxy_architecture_brief.md

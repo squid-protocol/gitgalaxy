@@ -31,9 +31,39 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from gitgalaxy.core.aperture import DET_PORT_MARKER
+
 # The methods a proof calls: equivalence_cics.py / cics_crucible.py (runTask), equivalence_call.py (handleCall, and
 # withCallAreas before it on a port that has one: #4778, the USING items' bytes), equivalence_java.py (runBatch).
 PROOF_ROOTS = ("runTask", "handleCall", "withCallAreas", "runBatch")
+
+# #5082: what the deterministic translator (det/) writes into a port besides the program's paragraphs -- the entry
+# points a proof does not drive (runProgram: the program run on its own; handleTransaction / handleLink / handleChannel:
+# the generated facades over runTask), the run-unit plumbing (initialState, perform, runAll, run, paragraph, condition,
+# aid, abended, caWhole, cx, dd, store, lastAnswerBytes, lastLinkBytes) and the contract-DTO codecs (in_X / out_X / fill_X). Their text
+# is the translator's, the same in every port ("translated by rule, statement for statement", DET_PORT_MARKER), so a
+# helper no proof method calls is proven by the cells that reach its class, not a behaviour a porter added. Only a
+# method of a marked file with one of these names is one: any other method of it, and every method of a file without
+# the marker, still counts as ported-unproven. tests/cobol_mainframe/test_proof_reach.py keeps this list equal to what
+# det/ emits.
+DET_HELPERS = frozenset({
+    "runProgram", "handleTransaction", "handleLink", "handleChannel", "lastAnswerBytes", "lastLinkBytes", "initialState", "perform",
+    "runAll", "run", "paragraph", "condition", "aid", "abended", "caWhole", "cx", "dd", "store",
+})  # fmt: skip
+_DET_CODEC = re.compile(r"(?:in|out|fill)_[A-Z]\w*")
+_DET_MARKER = re.compile(r"^[ \t]*" + re.escape(DET_PORT_MARKER), re.M)
+
+
+def is_det_helper_name(name: str) -> bool:
+    return name in DET_HELPERS or _DET_CODEC.fullmatch(name) is not None
+
+
+def is_det_port(raw: str) -> bool:
+    """Whether the Java text is a det port: DET_PORT_MARKER as a comment before any code (a string or a text block
+    that holds the marker further down does not make a file one)."""
+    m = _DET_MARKER.search(raw)
+    return m is not None and strip_java(raw[: m.start()]).strip() == ""
+
 
 # A declaration's header is the code between the `;`, `{` or `}` before a `{` and that `{`; each pattern below is
 # matched against one header, whole (fullmatch), so a scan is linear in the file. `<type> <name>(...)` headers that
@@ -123,10 +153,11 @@ class Method:
     override: bool = False  # @Override: the JDK or a framework calls it (compareTo, run, apply)
     constructor: bool = False  # run whenever its class is made, which this does not follow
     generated: bool = False  # its body is the generated service's, unchanged (set by analyse(generated=...))
+    det_helper: bool = False  # a det translator's helper, in a det port (#5082: DET_HELPERS)
 
     def as_dict(self) -> dict[str, Any]:
         return {"method": self.name, "line": self.line, "end": self.end, "visibility": self.visibility,
-                "stub": self.stub, "generated": self.generated}  # fmt: skip
+                "stub": self.stub, "generated": self.generated, "det_helper": self.det_helper}  # fmt: skip
 
 
 def _norm(body: str) -> str:
@@ -172,6 +203,7 @@ def parse_java(path: Path, text: str | None = None) -> JavaUnit:
     and local classes belong to the method they sit in)."""
     raw = path.read_text(encoding="utf-8") if text is None else text
     src = strip_java(raw)
+    det = is_det_port(raw)
     classes = {c.group("name") for c in _CLASS.finditer(src)}
     top = _CLASS.search(src)
     cls = top.group("name") if top else path.stem
@@ -201,7 +233,8 @@ def parse_java(path: Path, text: str | None = None) -> JavaUnit:
         body = src[src.index("{", start) : end]
         methods.append(Method(cls=cls, name=name, line=src.count("\n", 0, start) + 1,
                               end=src.count("\n", 0, end) + 1, visibility=vis, stub=_is_stub(body), body=body,
-                              override=override, constructor=ctor))  # fmt: skip
+                              override=override, constructor=ctor,
+                              det_helper=det and not ctor and is_det_helper_name(name)))  # fmt: skip
     outside.append(src[inside_until:])
     rest = "".join(outside)
     # A field's declared type (outside every method): what `casubService.handleLink(...)` resolves through.
@@ -260,7 +293,12 @@ def reach(units: list[JavaUnit], roots: Iterable[str] = PROOF_ROOTS) -> dict[str
             "methods": len(ms),
             "unproven": unproven,
             # behaviour the port added (not a stub, not the generator's own body) that no proof runs
-            "ported_unproven": [m["method"] for m in unproven if not m["stub"] and not m["generated"]],
+            "ported_unproven": [
+                m["method"] for m in unproven if not m["stub"] and not m["generated"] and not m["det_helper"]
+            ],
+            "det_helpers": sorted(
+                {m["method"] for m in unproven if m["det_helper"] and not m["stub"] and not m["generated"]}
+            ),
         }
     return out
 
@@ -290,7 +328,8 @@ def summary(report: dict[str, Any]) -> str:
         through = " / ".join(r["roots"])
         ported = r["ported_unproven"]
         stubs = [m["method"] for m in r["unproven"] if m["stub"] or m["generated"]]
-        if not ported and not stubs:
+        helpers = r["det_helpers"]
+        if not ported and not stubs and not helpers:
             lines.append(f"{cls}: proven through {through}; every method is reached")
             continue
         parts = []
@@ -298,6 +337,8 @@ def summary(report: dict[str, Any]) -> str:
             parts.append(f"{len(ported)} ported method(s) the proof never runs: {', '.join(sorted(set(ported)))}")
         if stubs:
             parts.append(f"{len(stubs)} left as generated: {', '.join(sorted(set(stubs)))}")
+        if helpers:
+            parts.append(f"{len(helpers)} det helper(s) proven by the cells that reach the class: {', '.join(helpers)}")
         lines.append(f"{cls}: proven through {through} only; " + "; ".join(parts))
     return "\n".join(lines)
 

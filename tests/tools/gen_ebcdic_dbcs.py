@@ -97,9 +97,10 @@ public class DumpDbcs {
 
 def dump(java_name: str, work: Path) -> dict:
     out = subprocess.run(  # noqa: S603 -- a fixed class on a temp classpath
-        ["java", "-cp", str(work), "DumpDbcs", java_name],  # noqa: S607
+        ["java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(work), "DumpDbcs", java_name],  # noqa: S607
         capture_output=True,
         text=True,
+        encoding="utf-8",
         check=True,
     ).stdout
     sbcs = [-1] * 256
@@ -130,8 +131,13 @@ def main() -> int:
     with tempfile.TemporaryDirectory() as tmp:
         work = Path(tmp)
         (work / "DumpDbcs.java").write_text(_JAVA, encoding="utf-8")
-        subprocess.run(["javac", "-d", str(work), str(work / "DumpDbcs.java")], check=True)  # noqa: S603,S607
-        version = subprocess.run(["java", "-version"], capture_output=True, text=True).stderr  # noqa: S603,S607
+        subprocess.run(["javac", "-encoding", "UTF-8", "-d", str(work), str(work / "DumpDbcs.java")], check=True)  # noqa: S603,S607
+        version = subprocess.run(
+            ["java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-version"],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+        ).stderr  # noqa: S603,S607
         jdk = next((ln for ln in version.splitlines() if "version" in ln), "").strip()
         for page, java_name in PAGES.items():
             t = dump(java_name, work)

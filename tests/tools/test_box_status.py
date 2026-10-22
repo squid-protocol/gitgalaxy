@@ -1,6 +1,8 @@
 """box_status.decide (box-capacity skill): the verdict an orchestrator acts on before launching an agent or heavy run."""
 
+import os
 import sys
+from collections import namedtuple
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / "box"))
@@ -91,3 +93,66 @@ def test_is_stray_scan_covers_the_whole_filesystem_scanners_only():
     assert not bs.is_stray_scan(["find", "/srv/storage_16tb/projects/gitgalaxy-worktrees/x", "-name", "*.py"], 60)
     assert not bs.is_stray_scan(["find", "/tmp", "/var/tmp", "-type", "f"], 400)  # chkrootkit's daily walk: not a root scan
     assert not bs.is_stray_scan(["python", "/", "x"], 60)
+
+
+# --- free disk space and inodes ---------------------------------------------------------------------------------------
+
+def disk(mount="/", size=1900.0, free=500.0, inodes=60.0):
+    return {"mount": mount, "size_gb": size, "free_gb": free, "inodes_free_pct": inodes}
+
+
+def test_a_filling_disk_is_yellow_then_red():
+    # 2026-10-17: / at 89% (205 GB free of 1.9 TB) after one job left 155 GB of scratch; nothing judged it
+    assert bs.decide(snap(disks=[disk(free=205.0)]))["verdict"] == "GREEN"
+    d = bs.decide(snap(disks=[disk(free=80.0)]))
+    assert d["verdict"] == "YELLOW" and any(r.startswith("disk filling, /: 80 GB free") for r in d["reasons"])
+    d = bs.decide(snap(disks=[disk(free=20.0)]))
+    assert d["verdict"] == "RED" and d["free_slots"] == 0 and any("disk almost full" in r for r in d["reasons"])
+
+
+def test_a_big_disk_is_judged_by_gigabytes_and_a_small_one_by_percent():
+    assert bs.decide(snap(disks=[disk("/srv", size=16000.0, free=1200.0)]))["verdict"] == "GREEN"  # 7.5% but 1.2 TB
+    assert bs.decide(snap(disks=[disk("/small", size=200.0, free=15.0)]))["verdict"] == "YELLOW"  # 7.5% of 200 GB
+    assert bs.decide(snap(disks=[disk("/small", size=200.0, free=8.0)]))["verdict"] == "RED"
+
+
+def test_running_out_of_inodes_is_judged():
+    assert bs.decide(snap(disks=[disk(inodes=8.0)]))["verdict"] == "YELLOW"
+    assert bs.decide(snap(disks=[disk(inodes=3.0)]))["verdict"] == "RED"
+    assert bs.decide(snap(disks=[disk(inodes=None)]))["verdict"] == "GREEN"
+
+
+def test_disks_reads_one_row_per_device():
+    rows = bs._disks()
+    assert rows and len({r["mount"] for r in rows}) == len(rows)
+    assert all(r["free_gb"] <= r["size_gb"] for r in rows)
+
+
+_Usage = namedtuple("_Usage", "total used free")
+
+
+def test_disks_without_statvfs_falls_back_to_disk_usage(monkeypatch):
+    # Windows has no os.statvfs; the AttributeError used to escape and fail the Windows legs of the full-suite gate (#5352)
+    monkeypatch.delattr(os, "statvfs", raising=False)
+    # shutil.disk_usage calls os.statvfs on POSIX, so stand in for the Windows implementation too
+    monkeypatch.setattr(bs.shutil, "disk_usage", lambda _p: _Usage(1000, 400, 600))
+    rows = bs._disks()
+    assert rows and all(r["inodes_free_pct"] is None and r["free_gb"] <= r["size_gb"] for r in rows)
+
+
+def test_disk_paths_split_on_the_platform_separator(monkeypatch, tmp_path):
+    monkeypatch.setenv("GG_DISK_PATHS", os.pathsep.join([str(tmp_path), "/nonexistent-gg-path"]))
+    seen = []
+    real = bs._statvfs
+    monkeypatch.setattr(bs, "_statvfs", lambda p: (seen.append(p), real(p))[1])
+    bs._disks()
+    assert str(tmp_path) in seen and "/nonexistent-gg-path" in seen
+
+
+def test_mount_does_not_use_path_is_mount(monkeypatch, tmp_path):
+    # Path.is_mount raises NotImplementedError on Windows before Python 3.12 (#5367)
+    def boom(_self):
+        raise NotImplementedError
+
+    monkeypatch.setattr(bs.Path, "is_mount", boom)
+    assert bs._mount(tmp_path).exists()

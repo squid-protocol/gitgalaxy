@@ -1,0 +1,129 @@
+{
+ "format": "cics-crucible/expected/1",
+ "case": "gt-terminal-coalesce",
+ "scenario": "start-s-second-fails",
+ "derived": {
+  "from": "cobol-stub",
+  "issue": "#4049",
+  "note": "the COBOL program's own run on the stub runtime (tests/equivalence/cics/ggcics.c), written by cics_crucible.py --derive-expected; never edited by hand",
+  "faults_fired": [
+   "START GT12 2 16 0"
+  ]
+ },
+ "tasks": [
+  {
+   "seq": 1,
+   "transid": "GT11",
+   "program": "GTTERM",
+   "termid": "T001",
+   "at": "2026-03-02T10:00:00",
+   "trigger": {
+    "kind": "terminal",
+    "step": 0
+   },
+   "eibaid": "ENTER",
+   "eibcalen": 0,
+   "commarea": null,
+   "events": [
+    {
+     "event": "RECEIVE",
+     "program": "GTTERM",
+     "resp": "NORMAL",
+     "length": 6,
+     "data": {
+      "length": 6,
+      "text": "GT11 S"
+     }
+    },
+    {
+     "event": "START",
+     "program": "GTTERM",
+     "transid": "GT12",
+     "termid": "T001",
+     "interval": "000000",
+     "protect": false,
+     "resp": "NORMAL",
+     "expires": "2026-03-02T10:00:00",
+     "from": {
+      "length": 10,
+      "text": "ALPHA"
+     }
+    },
+    {
+     "event": "START",
+     "program": "GTTERM",
+     "transid": "GT12",
+     "termid": "T001",
+     "interval": "000010",
+     "protect": false,
+     "resp": "INVREQ",
+     "expires": null,
+     "from": {
+      "length": 10,
+      "text": "BRAVO"
+     }
+    },
+    {
+     "event": "ABEND",
+     "program": "GTTERM",
+     "abcode": "AEIP",
+     "cause": "condition",
+     "outcome": "terminated",
+     "condition": "INVREQ"
+    }
+   ],
+   "end": "abend"
+  },
+  {
+   "seq": 2,
+   "transid": "GT12",
+   "program": "GTSHOW",
+   "termid": "T001",
+   "at": "2026-03-02T10:00:00",
+   "trigger": {
+    "kind": "start",
+    "task": 1,
+    "event": 1
+   },
+   "eibaid": null,
+   "eibcalen": 0,
+   "commarea": null,
+   "events": [
+    {
+     "event": "RETRIEVE",
+     "program": "GTSHOW",
+     "resp": "NORMAL",
+     "length": 10,
+     "data": {
+      "length": 10,
+      "text": "ALPHA"
+     }
+    },
+    {
+     "event": "RETRIEVE",
+     "program": "GTSHOW",
+     "resp": "ENDDATA",
+     "length": null,
+     "data": null
+    },
+    {
+     "event": "SEND-TEXT",
+     "program": "GTSHOW",
+     "text": "SHOW:ALPHA",
+     "length": 40,
+     "options": [
+      "ERASE"
+     ]
+    },
+    {
+     "event": "RETURN",
+     "program": "GTSHOW",
+     "level": 1,
+     "transid": null,
+     "commarea": null
+    }
+   ],
+   "end": "normal"
+  }
+ ]
+}

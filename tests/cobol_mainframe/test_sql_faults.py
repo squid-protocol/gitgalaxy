@@ -22,6 +22,8 @@ sys.path.insert(0, str(TOOLS.parent.parent))
 
 import equivalence_cics as ec  # noqa: E402
 import equivalence_sql as es  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 PROGRAM = """       IDENTIFICATION DIVISION.
        PROGRAM-ID. SQLKEY.
@@ -65,6 +67,23 @@ def test_a_fault_names_its_statement_by_line_or_by_table_and_verb(tmp_path):
         ec.sql_fault_plan(case, {"name": "s", "sql_faults": [{"line": 8, "sqlcode": -999}]}, table)
     with pytest.raises(ec.Unsupported):  # a statement nothing in the program has
         ec.sql_fault_plan(case, {"name": "s", "sql_faults": [{"line": 99, "sqlcode": -803}]}, table)
+
+
+def test_a_fault_may_declare_its_message_token_and_reason_code(tmp_path):
+    """#5561: SQLERRMC (one token) and SQLERRD(3) ride on the plan line; undeclared they stay empty (M2)."""
+    table = _table(tmp_path)
+    case = {"program": "SQLKEY"}
+
+    def plan(**more):
+        return ec.sql_fault_plan(case, {"name": "s", "sql_faults": [{"line": 8, "sqlcode": -913, **more}]}, table)
+
+    assert plan() == ["SQLKEY 8 1 -913 57033"]
+    assert plan(sqlerrmc="000C9") == ["SQLKEY 8 1 -913 57033 000C9 0"]
+    assert plan(sqlerrd3=13172878) == ["SQLKEY 8 1 -913 57033 - 13172878"]  # `-`: no token
+    assert plan(sqlerrmc="000C9", sqlerrd3=13172872) == ["SQLKEY 8 1 -913 57033 000C9 13172872"]
+    for bad in ("two words", "x" * 71):
+        with pytest.raises(ec.Unsupported):
+            plan(sqlerrmc=bad)
 
 
 def test_each_kind_of_statement_meets_its_own_usual_failure():
@@ -117,6 +136,12 @@ import java.nio.file.Path;
 import java.util.List;
 
 public class Main {
+    static String tokens(Field ca) {  // #5561: SQLERRML, SQLERRMC(1:SQLERRML) and SQLERRD(3)
+        byte[] b = ca.storage().bytes;
+        int ml = (b[16] & 0xFF) | (b[17] & 0xFF) << 8, d3 = (b[104] & 0xFF) | (b[105] & 0xFF) << 8 | (b[106] & 0xFF) << 16 | b[107] << 24;
+        return ml + " [" + new String(b, 18, ml, StandardCharsets.ISO_8859_1) + "] " + d3;
+    }
+
     static int sqlcode(Field ca) {
         byte[] b = ca.storage().bytes;
         return (b[12] & 0xFF) | (b[13] & 0xFF) << 8 | (b[14] & 0xFF) << 16 | b[15] << 24;
@@ -125,7 +150,7 @@ public class Main {
     public static void main(String[] a) throws Exception {
         Field ca = Field.group(new Storage(136), 0, 136);
         int[] ran = {0};
-        DetSql.withFaults(List.of("PROG 12 2 -803 23505"), Path.of(a[0]));
+        DetSql.withFaults(List.of("PROG 12 2 -803 23505", "PROG 16 1 -913 57033 000C9 13172878", "PROG 17 1 -913 57033 - 7"), Path.of(a[0]));
         for (int i = 1; i <= 3; i++) {
             DetSql.update(ca, "PROG:12", () -> { ran[0]++; return 1; }, false, StandardCharsets.ISO_8859_1);
             System.out.println("run " + i + " sqlcode " + sqlcode(ca) + " ran " + ran[0]);
@@ -139,6 +164,12 @@ public class Main {
         DetSql.update(ca, "PROG:15", () -> { throw new RuntimeException(new java.sql.SQLException("dup", "23505", -803)); },
                       false, StandardCharsets.ISO_8859_1);
         System.out.println("other error sqlcode " + sqlcode(ca));
+        DetSql.update(ca, "PROG:16", () -> 1, false, StandardCharsets.ISO_8859_1);
+        System.out.println("token " + sqlcode(ca) + " " + tokens(ca));
+        DetSql.update(ca, "PROG:17", () -> 1, false, StandardCharsets.ISO_8859_1);
+        System.out.println("errd3 only " + tokens(ca));
+        DetSql.update(ca, "PROG:12", () -> 1, false, StandardCharsets.ISO_8859_1);  // 4th run: reset, no token (SQLERRD(3) is the row count)
+        System.out.println("no token " + tokens(ca));
         // #4181: a 71-byte record LINKed as a 99-byte DTO: its own bytes, LOW-VALUES past it, and back up to its end
         Storage rec = new Storage(71);
         java.util.Arrays.fill(rec.bytes, (byte) 'E');
@@ -166,15 +197,20 @@ def test_detsql_injects_a_planned_fault_and_a_link_window_stops_at_the_record(tm
     (src / "Main.java").write_text(MAIN, encoding="utf-8")
     jdk = _jdk()
     files = [str(p) for p in (tmp_path / "src").rglob("*.java")]
-    javac = subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"), *files],  # noqa: S603
-                           capture_output=True, text=True, check=False)  # fmt: skip
+    javac = javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files],  # noqa: S603
+                           capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert javac.returncode == 0, javac.stderr[:3000]
     log = tmp_path / "fired"
-    out = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "ggtest.Main", str(log)],  # noqa: S603
-                         capture_output=True, text=True, check=True).stdout.splitlines()  # fmt: skip
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "ggtest.Main", str(log)],  # noqa: S603
+                         capture_output=True, text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
     assert out == ["run 1 sqlcode 0 ran 1", "run 2 sqlcode -803 ran 1", "run 3 sqlcode 0 ran 2",
-                   "other sqlcode 0", "jcc sqlcode -180 state 22007", "other error sqlcode -803", "window EE 0 0", "back X 71"]  # fmt: skip
-    assert log.read_text(encoding="ascii").split() == ["SQL", "PROG", "12", "2", "-803"]
+                   "other sqlcode 0", "jcc sqlcode -180 state 22007", "other error sqlcode -803",
+                   "token -913 5 [000C9] 13172878", "errd3 only 0 [] 7", "no token 0 [] 1", "window EE 0 0", "back X 71"]  # fmt: skip
+    assert log.read_text(encoding="ascii").splitlines() == [
+        "SQL PROG 12 2 -803",
+        "SQL PROG 16 1 -913",
+        "SQL PROG 17 1 -913",
+    ]
 
 
 def _service(src, cls, body):
@@ -269,11 +305,11 @@ def _binary_run(tmp_path):
     (src / "Main.java").write_text(BINARY_MAIN, encoding="utf-8")
     jdk = _jdk()
     files = [str(p) for p in (tmp_path / "src").rglob("*.java")]
-    javac = subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"), *files],  # noqa: S603
-                           capture_output=True, text=True, check=False)  # fmt: skip
+    javac = javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files],  # noqa: S603
+                           capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert javac.returncode == 0, javac.stderr[:3000]
-    return subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "ggtest.Main"],  # noqa: S603
-                          capture_output=True, text=True, check=True).stdout.splitlines()  # fmt: skip
+    return subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "ggtest.Main"],  # noqa: S603
+                          capture_output=True, text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
 
 
 @pytest.mark.skipif(_jdk() is None, reason="no JDK (JDK_17 / JAVA_HOME)")

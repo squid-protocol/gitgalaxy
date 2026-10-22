@@ -1,0 +1,82 @@
+name: OS Smoke Grid
+
+# #5130: the 3 OS x 2 Python smoke grid -- cheap, OS/Python-version-sensitive checks only (package installs, CLI entry
+# points, syntax floor). It used to run in smoke-test.yml on every push to main: 6 runners per merge (2 of them macOS,
+# the scarcest pool) competing with PR jobs. Now post-merge.yml dispatches it on main when no PR job is waiting, at most
+# once per cadence window and only when main changed a non-docs file since its last run (#5136), plus nightly and on
+# release tags. PRs never ran it: they get ubuntu/3.12 and the --help entry-point checks through smoke-test.yml's
+# full-suite, and the full suite across the OS x Python matrix is full-suite-gate.yml. Main Watch reports a red grid.
+# Read-only: nothing here writes to the repo.
+
+on:
+  push:
+    tags:
+      - "v*"
+  schedule:
+    - cron: "3 5 * * *"  # nightly
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true  # read-only: a superseded run is safe to cancel (frees runners for PRs)
+
+jobs:
+  smoke-test:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15  # healthy legs take 1-4 min; #5747: a hung macOS leg sat 18 min and ended as a bare cancel
+    env:
+      PYTHONUTF8: "1"
+      GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
+      OMP_NUM_THREADS: "1"
+      OBJC_DISABLE_INITIALIZE_FORK_SAFETY: "YES"
+    strategy:
+      fail-fast: false
+      # #4518/#4520: the full 6-way grid (3.10 dropped, #3322)
+      matrix:
+        include: ${{ fromJSON('[{"os":"ubuntu-latest","python-version":"3.11"},{"os":"ubuntu-latest","python-version":"3.12"},{"os":"windows-latest","python-version":"3.11"},{"os":"windows-latest","python-version":"3.12"},{"os":"macos-latest","python-version":"3.11"},{"os":"macos-latest","python-version":"3.12"}]') }}
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 #
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: |
+            pyproject.toml
+            ci/requirements/*.txt
+
+      - name: Install macOS dependencies (OpenMP for XGBoost)
+        if: runner.os == 'macOS'
+        timeout-minutes: 5
+        run: tests/tools/ci_retry.sh 3 10 -- brew install libomp
+
+      - name: Install dependencies
+        shell: bash
+        timeout-minutes: 10
+        run: |
+          tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
+          tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/test.txt
+          pip install --no-build-isolation -e .
+
+      - name: Smoke Test - Core Engine
+        run: python -m gitgalaxy.galaxyscope --help
+
+      - name: Smoke Test - Legacy Refractor Controller
+        run: python -m gitgalaxy.cobol_refractor_controller --help
+
+      - name: Smoke Test - Java Spring Forge Controller
+        run: python -m gitgalaxy.cobol_to_java_controller --help
+
+      - name: Smoke Test - Supply Chain Firewall
+        run: python -m gitgalaxy.tools.supply_chain_security.supply_chain_firewall --help
+
+      - name: Smoke Test - API Network Map
+        run: python -m gitgalaxy.tools.network_auditing.full_api_network_map --help

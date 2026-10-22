@@ -86,7 +86,6 @@ APERTURE_CONFIG_SPEC: dict[str, str] = {
 GUIDESTAR_CONFIG_SPEC: dict[str, str] = {
     "MANIFEST_MAP": EXTEND,
     "INTENT_BIASED_SECTORS": EXTEND,
-    "EXEC_PREFIX_MAP": EXTEND,
     # IGNORED_DIRECTORIES is a same-object reference to APERTURE_CONFIG's
     # copy (see gitgalaxy_config.py) -- override it via APERTURE_CONFIG so
     # the two can't drift out of sync.

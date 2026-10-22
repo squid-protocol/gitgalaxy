@@ -32,6 +32,8 @@ URIMAP, DOCTOKEN, CONTAINER, SET, NOTRUNCATE, TOCONTAINER, ACTION, CLOSESTATUS, 
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 from gitgalaxy.standards.cics.commands.shared import RESP_OPTIONS, ibm
 from gitgalaxy.standards.cics.model import (
     Arg,
@@ -355,8 +357,11 @@ WEB_SEND = Command(
         "FROM": Arg("area_in"),
         "FROMLENGTH": Arg("value"),
         "DOCTOKEN": Arg("area_in", width=16),
+        "CONTAINER": Arg("name", width=16),  # #5037: the response body is a container's data
+        "CHANNEL": Arg("name", width=16),  # omitted: the current channel
         "MEDIATYPE": Arg("area_in", width=56),
         "ACTION": Arg("cvda"),
+        "DOCSTATUS": Arg("cvda"),
         "STATUSCODE": Arg("value"),
         "STATUSTEXT": Arg("area_in"),
         "STATUSLEN": Arg("value"),
@@ -365,9 +370,11 @@ WEB_SEND = Command(
         **RESP_OPTIONS,
     },
     refused={
-        "CONTAINER": Refusal("a container as the response body is not modelled", "X37"),
-        "CHANNEL": Refusal("a container as the response body is not modelled", "X37"),
-        "CHUNKING": Refusal("a chunked response is not modelled", "X37"),
+        "CHUNKING": Refusal(
+            "a chunked response is not modelled: it is a sequence of sends (CHUNKYES ... CHUNKEND) with IBM's own error "
+            "responses (AWBP abend, RESP2 77 / 89-95) and no stated rule for the body the client sees",
+            "X37",
+        ),
         "CHARACTERSET": Refusal(
             "code-page conversion is not modelled: the response is in the program's characters", "X37"
         ),
@@ -378,41 +385,77 @@ WEB_SEND = Command(
             "code-page conversion is not modelled: the response is in the program's characters", "X37"
         ),
         "CLOSESTATUS": Refusal("closing the connection after the response is not modelled", "X37"),
-        "DOCSTATUS": Refusal(
-            "what becomes of the document after it is sent (DOCDELETE / DOCRETAIN) is not modelled", "X37"
-        ),
         "LENGTH": Refusal("LENGTH is kept for upgrade only (STATUSLEN replaces it): not modelled", "X37"),
     },
     default_refusal=Refusal(
-        "only FROM / FROMLENGTH or DOCTOKEN, MEDIATYPE, ACTION, STATUSCODE, STATUSTEXT / STATUSLEN and SRVCONVERT / "
-        "NOSRVCONVERT are modelled",
+        "only FROM / FROMLENGTH, DOCTOKEN or CONTAINER / CHANNEL, MEDIATYPE, ACTION, DOCSTATUS, STATUSCODE, STATUSTEXT / STATUSLEN and "
+        "SRVCONVERT / NOSRVCONVERT are modelled",
         "X37",
     ),
     groups=(
         one_of(
             "FROM",
             "DOCTOKEN",
-            msg="WEB SEND needs one of FROM and DOCTOKEN: only a response body from the program's area or a document is modelled",
+            "CONTAINER",
+            msg="WEB SEND needs exactly one of FROM, DOCTOKEN and CONTAINER: only a response body from the program's area, "
+            "a document or a container is modelled (IBM does not say what two bodies mean)",
         ),
+        requires(("CHANNEL",), ("CONTAINER",), msg="WEB SEND CHANNEL without CONTAINER"),
         requires(("FROM",), ("FROMLENGTH",), msg="WEB SEND FROM without FROMLENGTH"),
         requires(("FROMLENGTH",), ("FROM",), msg="WEB SEND FROMLENGTH without FROM"),
         requires(("STATUSLEN",), ("STATUSTEXT",), msg="WEB SEND STATUSLEN without STATUSTEXT"),
+        requires(("DOCSTATUS",), ("DOCTOKEN",), msg="WEB SEND DOCSTATUS without DOCTOKEN"),
         at_most_one("SRVCONVERT", "NOSRVCONVERT", msg="WEB SEND with both SRVCONVERT and NOSRVCONVERT"),
     ),
     outcomes=(
         Outcome("NORMAL", 0, ""),
+        Outcome(
+            "NOTFND",
+            1,
+            "The document has not been created, or has been deleted, or the name is incorrectly specified",
+            raised_by=("DOCTOKEN",),
+        ),
+        Outcome(
+            "CONTAINERERR",
+            2,
+            "The container specified by the CONTAINER option could not be found",
+            raised_by=("CONTAINER",),
+        ),
+        Outcome(
+            "CHANNELERR", 2, "The channel specified by the CHANNEL option could not be found", raised_by=("CHANNEL",)
+        ),
+        Outcome("INVREQ", 145, "Channel was not specified, and there is no current channel", raised_by=("CONTAINER",)),
+        Outcome(
+            "INVREQ",
+            150,
+            "Conversion requested, but data to be sent is in a DATATYPE BIT container",
+            raised_by=("CONTAINER",),
+        ),
         Outcome("INVREQ", 11, "Action code invalid", raised_by=("ACTION",)),
+        Outcome("INVREQ", 143, "The DOCSTATUS value specified is invalid", raised_by=("DOCSTATUS",)),
         Outcome("INVREQ", 72, "Status code does not support a message body", raised_by=("STATUSCODE",)),
     ),
     facts=(_REQUEST,),
     runtime_refusals=(
         _NO_REQUEST,
         RuntimeRefusal(
-            "an ACTION other than IMMEDIATE (EVENTUAL, and the default, send at the end of the task and a later send "
-            "replaces them), a second send after IMMEDIATE (IBM gives no RESP2)",
+            "a second send after an IMMEDIATE one (IBM gives no RESP2)",
             "X37",
-            java="WEB SEND ACTION not IMMEDIATE",
-            c="WEB SEND ACTION not IMMEDIATE",
+            java="WEB SEND after a response was sent",
+            c="WEB SEND after a response was sent",
+        ),
+        RuntimeRefusal(
+            "an IMMEDIATE send after an EVENTUAL one (IBM allows one response per task and says only that a second EVENTUAL "
+            "send replaces the first)",
+            "X37",
+            java="WEB SEND ACTION(IMMEDIATE) after an ACTION(EVENTUAL) send",
+            c="WEB SEND ACTION(IMMEDIATE) after an ACTION(EVENTUAL) send",
+        ),
+        RuntimeRefusal(
+            "a task that ended in an abend while an EVENTUAL response was held (IBM does not say whether it is sent)",
+            "X37",
+            java="WEB SEND ACTION(EVENTUAL) response held when the task ended in an abend",
+            c="WEB SEND ACTION(EVENTUAL) response held when the task ended in an abend",
         ),
         RuntimeRefusal(
             "a FROMLENGTH or STATUSLEN not above zero (IBM lists LENGERR 50 and INVREQ 131 for zero), a STATUSCODE outside "
@@ -423,10 +466,16 @@ WEB_SEND = Command(
             c="WEB SEND",
         ),
         RuntimeRefusal(
-            "a DOCTOKEN that names no document the task created",
+            "a container as the response body that is empty (IBM does not say what an empty body is)",
             "X37",
-            java="WEB SEND DOCTOKEN of a document the task did not create",
-            c="WEB SEND DOCTOKEN of a document the task did not create",
+            java="WEB SEND of an empty container",
+            c="WEB SEND of an empty container",
+        ),
+        RuntimeRefusal(
+            "a DATATYPE BIT container sent without conversion (non-text bytes are not compared as text)",
+            "X37",
+            java="WEB SEND of a DATATYPE BIT container",
+            c="WEB SEND of a DATATYPE BIT container",
         ),
         RuntimeRefusal(
             "a length past its area (FROMLENGTH, STATUSLEN): CICS reads the storage that follows it, which GnuCOBOL lays out "
@@ -536,6 +585,130 @@ WEB_EXTRACT = Command(
     ),
 )
 
+# #4972: EXTRACT WEB is IBM's "synonym of WEB EXTRACT" (summary-extract-web: the same options, the same conditions); one
+# table, so one runtime call and one set of refusals. Its messages name the form the program wrote.
+EXTRACT_WEB = replace(
+    WEB_EXTRACT,
+    key="EXTRACT WEB",
+    ibm=ibm("EXEC CICS EXTRACT WEB", "summary-extract-web"),
+    groups=tuple(replace(g, msg=g.msg.replace("WEB EXTRACT", "EXTRACT WEB")) for g in WEB_EXTRACT.groups),
+)
+
+_TCPIP_IPV4 = RuntimeRefusal(
+    "an address that is not IPv4 dotted decimal (IPv6: CLNTADDR6NU / SRVRADDR6NU and the colon form are not modelled), "
+    "CLIENTADDRNU / SERVERADDRNU of an address that does not fit a signed fullword (IBM gives the unsigned value; a COBOL "
+    "fullword holds the signed one)",
+    "X38",
+    java="EXTRACT TCPIP address",
+    c="EXTRACT TCPIP address",
+)
+
+# the stated connection: whoever runs the task STATES it (`tcpip`), as the request is (X37)
+EXTRACT_TCPIP = Command(
+    key="EXTRACT TCPIP",
+    ibm=ibm("EXEC CICS EXTRACT TCPIP", "summary-extract-tcpip"),
+    status="modelled",
+    register="X38",
+    options={
+        "CLIENTADDR": Arg("area_out"),
+        "CADDRLENGTH": Arg("area_inout", binary=True),
+        "CLIENTADDRNU": Arg("area_out", width=4, binary=True),
+        "CLIENTNAME": Arg("area_out"),
+        "CNAMELENGTH": Arg("area_inout", binary=True),
+        "CLNTIPFAMILY": Arg("area_out", width=4, binary=True),
+        "SERVERADDR": Arg("area_out"),
+        "SADDRLENGTH": Arg("area_inout", binary=True),
+        "SERVERADDRNU": Arg("area_out", width=4, binary=True),
+        "SERVERNAME": Arg("area_out"),
+        "SNAMELENGTH": Arg("area_inout", binary=True),
+        "SRVRIPFAMILY": Arg("area_out", width=4, binary=True),
+        "PORTNUMNU": Arg("area_out", width=4, binary=True),
+        "SSLTYPE": Arg("area_out", width=4, binary=True),
+        **RESP_OPTIONS,
+    },
+    refused={
+        "PORTNUMBER": Refusal("the port in character form: IBM does not say how its 5 characters are padded", "X38"),
+        "CLNTADDR6NU": Refusal("an IPv6 address is not modelled", "X38"),
+        "SRVRADDR6NU": Refusal("an IPv6 address is not modelled", "X38"),
+        "AUTHENTICATE": Refusal("the authentication the TCPIPSERVICE asks for is not stated by the connection", "X38"),
+        "TCPIPSERVICE": Refusal("the TCPIPSERVICE definition is not stated by the connection", "X38"),
+        "PRIVACY": Refusal("the TCPIPSERVICE definition is not stated by the connection", "X38"),
+        "MAXDATALEN": Refusal("the TCPIPSERVICE definition is not stated by the connection", "X38"),
+    },
+    default_refusal=Refusal(
+        "only CLIENTADDR / CADDRLENGTH, CLIENTADDRNU, CLIENTNAME / CNAMELENGTH, CLNTIPFAMILY, SERVERADDR / SADDRLENGTH, "
+        "SERVERADDRNU, SERVERNAME / SNAMELENGTH, SRVRIPFAMILY, PORTNUMNU and SSLTYPE are modelled",
+        "X38",
+    ),
+    groups=(
+        requires(("CADDRLENGTH",), ("CLIENTADDR",), msg="EXTRACT TCPIP CADDRLENGTH without CLIENTADDR"),
+        requires(("CNAMELENGTH",), ("CLIENTNAME",), msg="EXTRACT TCPIP CNAMELENGTH without CLIENTNAME"),
+        requires(("SADDRLENGTH",), ("SERVERADDR",), msg="EXTRACT TCPIP SADDRLENGTH without SERVERADDR"),
+        requires(("SNAMELENGTH",), ("SERVERNAME",), msg="EXTRACT TCPIP SNAMELENGTH without SERVERNAME"),
+    ),
+    outcomes=(
+        Outcome(
+            "NORMAL",
+            0,
+            "",
+            writes=(
+                "CLIENTADDR",
+                "CADDRLENGTH",
+                "CLIENTADDRNU",
+                "CLIENTNAME",
+                "CNAMELENGTH",
+                "CLNTIPFAMILY",
+                "SERVERADDR",
+                "SADDRLENGTH",
+                "SERVERADDRNU",
+                "SERVERNAME",
+                "SNAMELENGTH",
+                "SRVRIPFAMILY",
+                "PORTNUMNU",
+                "SSLTYPE",
+            ),
+        ),
+        Outcome(
+            "LENGERR",
+            1,
+            "CLIENTADDR, SERVERADDR, CLIENTNAME or SERVERNAME is given and its length option is missing or not above zero",
+            raised_by=("CADDRLENGTH", "CNAMELENGTH", "SADDRLENGTH", "SNAMELENGTH"),
+        ),
+        Outcome("LENGERR", 3, "CLIENTADDR is too small for the address", raised_by=("CADDRLENGTH",)),
+        Outcome("LENGERR", 4, "SERVERADDR is too small for the address", raised_by=("SADDRLENGTH",)),
+        Outcome("LENGERR", 6, "CLIENTNAME is too small for the name", raised_by=("CNAMELENGTH",)),
+        Outcome("LENGERR", 7, "SERVERNAME is too small for the name", raised_by=("SNAMELENGTH",)),
+    ),
+    facts=(
+        Fact(
+            "tcpip",
+            java="withTcpip",
+            env="GGCICS_TCPIP",
+            region_default=None,
+            options=("CLIENTADDR", "SERVERADDR", "PORTNUMNU", "SSLTYPE"),
+        ),
+    ),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "the TCP/IP connection the task was started on is not stated for the task",
+            "X38",
+            java="the TCP/IP connection is not stated (withTcpip)",
+            c="the TCP/IP connection is not stated for this task",
+        ),
+        _TCPIP_IPV4,
+        RuntimeRefusal(
+            "a name or address longer than its length (LENGERR RESP2 3 / 4 / 6 / 7: IBM does not say what the length "
+            "option or the area then holds), a SERVERNAME the connection does not state, more than one condition at once",
+            "X38",
+            java="EXTRACT TCPIP",
+            c="EXTRACT TCPIP",
+        ),
+        RuntimeRefusal(
+            _NOT_BYTES, "X38", java="EXTRACT TCPIP length beyond its area", c="EXTRACT TCPIP length beyond its area"
+        ),
+    ),
+)
+
 WEB_RECEIVE = Command(
     key="WEB RECEIVE",
     ibm=ibm("EXEC CICS WEB RECEIVE (server)", "summary-web-receive-server"),
@@ -543,6 +716,7 @@ WEB_RECEIVE = Command(
     register="X38",
     options={
         "INTO": Arg("area_out"),
+        "SET": Arg("pointer"),
         "LENGTH": Arg("area_out", width=4, binary=True),
         "MAXLENGTH": Arg("value"),
         "MEDIATYPE": Arg("area_out", width=56),
@@ -551,10 +725,6 @@ WEB_RECEIVE = Command(
         **RESP_OPTIONS,
     },
     refused={
-        "SET": Refusal(
-            "a body in CICS storage (SET) needs the pointer lane (GETMAIN, SET ADDRESS OF), which is not modelled",
-            "X38",
-        ),
         "NOTRUNCATE": Refusal("a body kept for later RECEIVEs (NOTRUNCATE) is not modelled", "X38"),
         "TOCONTAINER": Refusal("a body into a container is not modelled", "X38"),
         "TOCHANNEL": Refusal("a body into a container is not modelled", "X38"),
@@ -566,24 +736,31 @@ WEB_RECEIVE = Command(
         "TYPE": Refusal("TYPE (HTTPYES / HTTPNO) is not modelled: a stated request is always an HTTP request", "X38"),
     },
     default_refusal=Refusal(
-        "only INTO / LENGTH / MAXLENGTH, MEDIATYPE and SRVCONVERT / NOSRVCONVERT are modelled", "X38"
+        "only INTO / SET, LENGTH / MAXLENGTH, MEDIATYPE and SRVCONVERT / NOSRVCONVERT are modelled", "X38"
     ),
     groups=(
-        required("INTO", msg="WEB RECEIVE without INTO: only a body into the program's area is modelled"),
+        one_of(
+            "INTO",
+            "SET",
+            msg="WEB RECEIVE needs one of INTO / SET: the body into the program's area or into CICS storage",
+        ),
         requires(("INTO",), ("MAXLENGTH",), msg="WEB RECEIVE INTO without MAXLENGTH (IBM: INVREQ RESP2 16)"),
+        requires(("SET",), ("LENGTH",), msg="WEB RECEIVE SET without LENGTH (IBM: LENGTH must be specified with SET)"),
         at_most_one("SRVCONVERT", "NOSRVCONVERT", msg="WEB RECEIVE with both SRVCONVERT and NOSRVCONVERT"),
     ),
     outcomes=(
-        Outcome("NORMAL", 0, "", writes=("INTO", "LENGTH", "MEDIATYPE")),
+        Outcome("NORMAL", 0, "", writes=("INTO", "SET", "LENGTH", "MEDIATYPE")),
         Outcome("LENGERR", 16, "MAXLENGTH less than or equal to zero", raised_by=("MAXLENGTH",)),
         Outcome(
             "LENGERR",
             57,
             "The body exceeds the length specified and the remainder was discarded",
-            writes=("INTO", "LENGTH", "MEDIATYPE"),
+            writes=("INTO", "SET", "LENGTH", "MEDIATYPE"),
         ),
     ),
-    facts=(Fact("http_request", java="withHttpRequest", env="GGCICS_WEBREQ", region_default=None, options=("INTO",)),),
+    facts=(
+        Fact("http_request", java="withHttpRequest", env="GGCICS_WEBREQ", region_default=None, options=("INTO", "SET")),
+    ),
     runtime_refusals=(
         _NO_REQUEST_READ,
         RuntimeRefusal(
@@ -594,6 +771,12 @@ WEB_RECEIVE = Command(
         ),
         RuntimeRefusal(
             _NOT_BYTES, "X38", java="WEB RECEIVE length beyond its area", c="WEB RECEIVE length beyond its area"
+        ),
+        RuntimeRefusal(
+            "a body longer than the limit the run states for CICS storage (X47)",
+            "X47",
+            java="WEB RECEIVE SET body beyond the limit",
+            c="WEB RECEIVE SET body beyond the limit",
         ),
     ),
 )
@@ -707,13 +890,13 @@ WEB_RETRIEVE = Command(
     default_refusal=Refusal("DOCTOKEN is the only option IBM lists", "X41"),
     groups=(required("DOCTOKEN", msg="WEB RETRIEVE without DOCTOKEN"),),
     outcomes=(
-        # (IBM's NORMAL, DOCTOKEN written: never produced here, see the second runtime refusal)
+        # (IBM's NORMAL: the last WEB SEND was an ACTION(EVENTUAL) document send that was not DOCDELETE, X37)
         Outcome("NORMAL", 0, "", writes=("DOCTOKEN",)),
         Outcome("INVREQ", 2, "No WEB SEND command has been issued"),
         Outcome(
             "NOTFND",
             1,
-            "The document is not available: the last WEB SEND was not a document send with ACTION(EVENTUAL)",
+            "The document is not available: the last WEB SEND was DOCDELETE, or not a document send with ACTION(EVENTUAL)",
         ),
     ),
     facts=(
@@ -728,8 +911,7 @@ WEB_RETRIEVE = Command(
             c="the HTTP request is not stated for this task",
         ),
         RuntimeRefusal(
-            "a WEB RETRIEVE after a WEB SEND that ended in a condition (IBM does not say whether that send was issued); the "
-            "NORMAL outcome needs an ACTION(EVENTUAL) document send, which WEB SEND refuses",
+            "a WEB RETRIEVE after a WEB SEND that ended in a condition (IBM does not say whether that send was issued)",
             "X41",
             java="WEB RETRIEVE after a WEB SEND that ended in a condition",
             c="WEB RETRIEVE after a WEB SEND that ended in a condition",
@@ -956,6 +1138,8 @@ COMMANDS = (
     WEB_PARSE_URL,
     WEB_SEND,
     WEB_EXTRACT,
+    EXTRACT_WEB,
+    EXTRACT_TCPIP,
     WEB_RECEIVE,
     WEB_READ_HTTPHEADER,
     WEB_WRITE_HTTPHEADER,

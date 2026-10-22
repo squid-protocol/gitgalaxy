@@ -2,6 +2,7 @@
 name: require-plan-approval
 description: Enforces a strategy-first workflow. The agent must document the root cause, fix, and regression test plan in an artifact and receive explicit user approval BEFORE making any code edits or running CI scripts.
 ---
+**Antigravity (agy) sessions only; Claude workers follow `.claude/agents/gitgalaxy-pr-worker.md`.**
 
 # Mandatory Strategy-First Workflow
 

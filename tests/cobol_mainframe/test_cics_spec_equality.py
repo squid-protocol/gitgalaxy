@@ -38,7 +38,8 @@ from gitgalaxy.standards.cics.eib import EIB_FACTS  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cobol_to_java_transaction_forge as forge  # noqa: E402
 
 DETCICS_JAVA = (ROOT / "gitgalaxy/tools/cobol_to_java/det/cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
-GGCICS_C = (ROOT / "tests/equivalence/cics/ggcics.c").read_text(encoding="utf-8")
+# ggcics.c and the command-family files it includes (#5274: ggcics_containers.c)
+GGCICS_C = "".join(p.read_text(encoding="utf-8") for p in sorted((ROOT / "tests/equivalence/cics").glob("ggcics*.c")))
 JAVA = forge.CICS_TASK_JAVA + DETCICS_JAVA
 
 

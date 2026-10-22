@@ -55,7 +55,9 @@ def engine_hash() -> str:
     global _ENGINE_HASH
     if _ENGINE_HASH is None:
         h = hashlib.sha256()
-        for f in sorted(p for p in ENGINE.rglob("*") if p.is_file() and "__pycache__" not in p.parts):
+        files = (p for p in ENGINE.rglob("*") if p.is_file() and "__pycache__" not in p.parts)
+        # (parts, case-sensitive: a bare Path sort is case-insensitive on Windows)
+        for f in sorted(files, key=lambda p: p.relative_to(ENGINE).parts):
             h.update(f.relative_to(ENGINE).as_posix().encode() + b"\0")
             h.update(hashlib.sha256(f.read_bytes()).digest())
         _ENGINE_HASH = h.hexdigest()

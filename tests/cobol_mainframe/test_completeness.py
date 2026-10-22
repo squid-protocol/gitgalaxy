@@ -11,7 +11,8 @@ from pathlib import Path
 import pytest
 
 from gitgalaxy.tools.cobol_to_cobol.completeness_report import render_markdown
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+from scan_server import scan_to_db
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import mainframe_corpus as mc  # noqa: E402
@@ -85,7 +86,7 @@ PINNED = {
         # #3710: + COBTUPDT (IKJEFT01 RUN PROGRAM) and 4 IMS programs (DFSRRC00 PARM), run by jobs now
         # #4278: + the 3 EXEC SQL INCLUDE members inside records (CSDB2RWY ...), all resolved
         "program calls": (70, 87), "copybooks": (176, 176), "transactions": (49, 55), "screens": (47, 47),
-        "data flows": (4945, 5054), "IMS PSBs": (7, 7), "batch entry": (16, 17),
+        "data flows": (4953, 5054), "IMS PSBs": (7, 7), "batch entry": (16, 17),
     },
     "cics-banking-sample-application-cbsa": {
         # #3710: + BANKDATA, which IKJEFT01 RUN PROGRAM runs
@@ -153,6 +154,7 @@ PINNED = {
 }  # fmt: skip
 
 
+@pytest.mark.slow(reason="scans a whole pinned corpus (15.4s on a CI runner); the scan cannot be shared across corpora")
 @pytest.mark.parametrize("corpus", mc.load_manifest(), ids=lambda c: c["name"])
 def test_pinned_corpus_completeness(corpus):
     """Local only: skipped unless the corpus is fetched at its pin."""

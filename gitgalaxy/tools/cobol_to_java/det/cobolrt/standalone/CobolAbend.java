@@ -10,6 +10,7 @@ public class CobolAbend extends RuntimeException {
         this.code = code;
     }
 
+    // [rule RT-SYS-USER-ABEND]
     public static CobolAbend user(int abcode, String why) {
         return new CobolAbend(String.format(java.util.Locale.ROOT, "U%04d", abcode), why);
     }

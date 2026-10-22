@@ -6,20 +6,29 @@ The port runs on its own (runProgram) with the standalone runtime; nothing of a 
 
 from __future__ import annotations
 
+import atexit
+import functools
 import os
 import re
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import pytest
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 IMAGE = "gitgalaxy-gnucobol:3"
 PKG = "p"
+
+pytestmark = pytest.mark.slow(
+    reason="the first java test of a CI split part pays the one-time javac of the cobolrt runtime: 12-17 s on a runner (#5668)"
+)
 
 
 def program(name: str, data: list[str], proc: list[str]) -> str:
@@ -459,6 +468,67 @@ PROGRAMS = {
             "           GO TO A-EXIT.",
             "       B-EXIT.",
             "           EXIT.",
+            "",
+        ]
+    ),  # fmt: skip
+    # ALTER (#5560, IBM Language Reference, ALTER): several ALTERs of one paragraph (the last wins), a multi-pair ALTER,
+    # the altered GO TO reached by GO TO, by PERFORM ... THRU and by falling through from the paragraph before it
+    "ALTER1": "\n".join(
+        [
+            "       IDENTIFICATION DIVISION.",
+            "       PROGRAM-ID. ALTER1.",
+            "       PROCEDURE DIVISION.",
+            "       MAIN-PARA.",
+            "           DISPLAY 'MAIN'",
+            "           ALTER SW TO PROCEED TO T1",
+            "           ALTER SW TO PROCEED TO T2",
+            "           GO TO SW.",
+            "       T1.",
+            "           DISPLAY 'T1 WRONG'",
+            "           GO TO FIN.",
+            "       T2.",
+            "           DISPLAY 'T2 BY GO TO'",
+            "           ALTER SW TO SWX",
+            "           PERFORM SW THRU SWX",
+            "           DISPLAY 'AFTER PERFORM'",
+            "           ALTER SW TO T3 SW2 TO PROCEED TO T4",
+            "           GO TO PRE.",
+            "       PRE.",
+            "           DISPLAY 'PRE'.",
+            "       SW.",
+            "           GO TO T1.",
+            "       SWX.",
+            "           DISPLAY 'IN SWX'.",
+            "       SW2.",
+            "           GO TO T1.",
+            "       T3.",
+            "           DISPLAY 'T3 BY FALL-THROUGH'",
+            "           GO TO SW2.",
+            "       T4.",
+            "           DISPLAY 'T4'.",
+            "       FIN.",
+            "           DISPLAY 'FIN'",
+            "           GOBACK.",
+            "",
+        ]
+    ),  # fmt: skip
+    # an altered GO TO with no operand: its target comes only from the ALTER
+    "ALTER2": "\n".join(
+        [
+            "       IDENTIFICATION DIVISION.",
+            "       PROGRAM-ID. ALTER2.",
+            "       PROCEDURE DIVISION.",
+            "       MAIN-PARA.",
+            "           ALTER BARE TO PROCEED TO DONE",
+            "           PERFORM BARE THRU BARE-END",
+            "           DISPLAY 'NOT REACHED'.",
+            "       BARE.",
+            "           GO TO.",
+            "       BARE-END.",
+            "           EXIT.",
+            "       DONE.",
+            "           DISPLAY 'DONE'",
+            "           GOBACK.",
             "",
         ]
     ),  # fmt: skip
@@ -1049,8 +1119,6 @@ PROGRAMS = {
             "IF 0012 > E2 DISPLAY 'F GT' ELSE DISPLAY 'F LE' END-IF",
             "IF E2 < N4 DISPLAY 'G LT' ELSE DISPLAY 'G GE' END-IF",
             "IF E2 = NS DISPLAY 'H EQ' ELSE DISPLAY 'H NE' END-IF",
-            "IF E2 > NP DISPLAY 'I GT' ELSE DISPLAY 'I LE' END-IF",
-            "IF NB < E2 DISPLAY 'J LT' ELSE DISPLAY 'J GE' END-IF",
             "IF E2 = NV DISPLAY 'K EQ' ELSE DISPLAY 'K NE' END-IF",
             "MOVE 12 TO E3",
             "IF E2 = E3 DISPLAY 'L EQ' ELSE DISPLAY 'L NE' END-IF",
@@ -1073,20 +1141,64 @@ PROGRAMS = {
             "IF EN < 0 DISPLAY 'S LT' ELSE DISPLAY 'S GE' END-IF",
             "MOVE 1234 TO E2 NS NP NB",
             "IF E2 = NS DISPLAY 'T EQ' ELSE DISPLAY 'T NE' END-IF",
-            "IF E2 = NP DISPLAY 'U EQ' ELSE DISPLAY 'U NE' END-IF",
-            "IF E2 = NB DISPLAY 'V EQ' ELSE DISPLAY 'V NE' END-IF",
             "MOVE '149999' TO AX6",
             "IF AX6 = 1499.99 DISPLAY 'W EQ' ELSE DISPLAY 'W NE' END-IF",
             "MOVE '0012' TO AX4",
             "MOVE 12 TO NB",
             "IF AX4 = 0012 DISPLAY 'X EQ' ELSE DISPLAY 'X NE' END-IF",
-            "IF AX4 = NB DISPLAY 'Y EQ' ELSE DISPLAY 'Y NE' END-IF",
             "IF AX4 = 0.012 DISPLAY 'Z EQ' ELSE DISPLAY 'Z NE' END-IF",
             "MOVE 112.5 TO EV",
             "IF EV = 112.5 DISPLAY 'AA EQ' ELSE DISPLAY 'AA NE' END-IF",
             "IF EV > 11.25 DISPLAY 'AB GT' ELSE DISPLAY 'AB LE' END-IF",
             "MOVE '012' TO AX4",
             "IF AX4 = 0.12 DISPLAY 'AC EQ' ELSE DISPLAY 'AC NE' END-IF",
+        ],
+    ),
+    # #4671: a group is an alphanumeric operand: a numeric item or literal compared with it is compared as its digits,
+    # sign dropped (IBM: an unsigned integer; GnuCOBOL likewise, measured) -- a signed zoned item as well as an
+    # unsigned one (a packed or binary one is refused: IBM rejects it, C13), either way round, ordering and equality, EVALUATE; held as digits and as spaces
+    "GRPCMP": program(
+        "GRPCMP",
+        [
+            "01  G.",
+            "    05 GA PIC X(2).",
+            "    05 GB PIC X(2).",
+            "01  N4 PIC 9(4).",
+            "01  N2 PIC 9(2).",
+            "01  NS PIC S9(4).",
+            "01  NP PIC S9(4) COMP-3.",
+            "01  NB PIC S9(4) COMP.",
+            "01  NU PIC 9(4) COMP-3.",
+            "01  NV PIC 9(2)V99.",
+        ],
+        [
+            "MOVE '0012' TO G",
+            "MOVE 12 TO N4 N2 NV NU NB NP",
+            "MOVE -12 TO NS",
+            "IF G = 12 DISPLAY 'A EQ' ELSE DISPLAY 'A NE' END-IF",
+            "IF G = 0012 DISPLAY 'B EQ' ELSE DISPLAY 'B NE' END-IF",
+            "IF G > 12 DISPLAY 'C GT' ELSE DISPLAY 'C LE' END-IF",
+            "IF G < 13 DISPLAY 'D LT' ELSE DISPLAY 'D GE' END-IF",
+            "IF G = 12.0 DISPLAY 'E EQ' ELSE DISPLAY 'E NE' END-IF",
+            "IF G = 0.12 DISPLAY 'F EQ' ELSE DISPLAY 'F NE' END-IF",
+            "IF G = ZERO DISPLAY 'G EQ' ELSE DISPLAY 'G NE' END-IF",
+            "IF G = N4 DISPLAY 'H EQ' ELSE DISPLAY 'H NE' END-IF",
+            "IF G = N2 DISPLAY 'I EQ' ELSE DISPLAY 'I NE' END-IF",
+            "IF N4 = G DISPLAY 'J EQ' ELSE DISPLAY 'J NE' END-IF",
+            "IF G = NS DISPLAY 'K EQ' ELSE DISPLAY 'K NE' END-IF",
+            "IF G = NV DISPLAY 'O EQ' ELSE DISPLAY 'O NE' END-IF",
+            "IF G > NS DISPLAY 'P GT' ELSE DISPLAY 'P LE' END-IF",
+            "EVALUATE G",
+            "  WHEN 12 DISPLAY 'S 12'",
+            "  WHEN N4 DISPLAY 'S N4'",
+            "  WHEN OTHER DISPLAY 'S OTHER'",
+            "END-EVALUATE",
+            "MOVE '  12' TO G",
+            "MOVE -12 TO NP NB",
+            "IF G = 12 DISPLAY 'U EQ' ELSE DISPLAY 'U NE' END-IF",
+            "IF G = N4 DISPLAY 'V EQ' ELSE DISPLAY 'V NE' END-IF",
+            "IF G = NS DISPLAY 'W EQ' ELSE DISPLAY 'W NE' END-IF",
+            "MOVE '0012' TO G",
         ],
     ),
 }
@@ -1229,6 +1341,73 @@ def _all_data(items) -> list[str]:
 
 
 PROGRAMS["CMPALL"] = program("CMPALL", _all_data(ALL_ITEMS), _all_proc(ALL_ITEMS, ALL_LITERALS))
+# #4892 (CardDemo CODATE01): INITIALIZE ... REPLACING -- only the elementary items of each named category are set, as
+# by MOVE of the value (IBM Enterprise COBOL, INITIALIZE statement); the others, FILLER, a REDEFINES and a table's
+# other items are left as they are; an elementary target is set only when it is of a named category
+PROGRAMS["INITREPL"] = program(
+    "INITREPL",
+    [
+        "01 GRP.",
+        "   05 G-NAME PIC X(6) VALUE 'KEEP'.",
+        "   05 G-NUM PIC 9(4) VALUE 1234.",
+        "   05 G-RD REDEFINES G-NUM PIC X(4).",
+        "   05 G-PK PIC S9(5) COMP-3 VALUE -77.",
+        "   05 G-BIN PIC S9(4) COMP VALUE 12.",
+        "   05 G-ED PIC ZZ9.99 VALUE '  5.00'.",
+        "   05 G-AL PIC A(3) VALUE 'ABC'.",
+        "   05 FILLER PIC 9(2) VALUE 42.",
+        "01 TBL.",
+        "   05 G-TAB OCCURS 2.",
+        "      10 G-T PIC 9(2) VALUE 9.",
+        "      10 G-TX PIC X(2) VALUE 'TT'.",
+        "01 NUMS PIC 9(3) VALUE 5.",
+        "01 OUTP PIC -9(5).",
+        "01 OUTB PIC -9(4).",
+    ],
+    [
+        "INITIALIZE GRP REPLACING NUMERIC BY ZEROES",
+        "MOVE G-PK TO OUTP MOVE G-BIN TO OUTB",
+        "DISPLAY '[' G-NAME '] ' G-NUM ' ' OUTP ' ' OUTB",
+        "DISPLAY '[' G-ED '] [' G-AL '] ' GRP(25:2)",
+        "MOVE 'KEEP' TO G-NAME",
+        "INITIALIZE GRP REPLACING ALPHANUMERIC DATA BY 'XY'",
+        "    NUMERIC-EDITED BY 7 ALPHABETIC BY SPACES",
+        "MOVE G-PK TO OUTP MOVE G-BIN TO OUTB",
+        "DISPLAY '[' G-NAME '] ' G-NUM ' ' OUTP ' ' OUTB",
+        "DISPLAY '[' G-ED '] [' G-AL '] ' GRP(25:2)",
+        "INITIALIZE GRP REPLACING NUMERIC BY 42 ALPHANUMERIC BY SPACES",
+        "MOVE G-PK TO OUTP MOVE G-BIN TO OUTB",
+        "DISPLAY '[' G-NAME '] ' G-NUM ' ' OUTP ' ' OUTB ' [' G-ED ']'",
+        "MOVE 31 TO G-T(2) MOVE 'AB' TO G-TX(2)",
+        "INITIALIZE TBL REPLACING NUMERIC BY 5 ALPHANUMERIC BY 'Q'",
+        "DISPLAY G-T(1) G-TX(1) G-T(2) G-TX(2)",
+        "INITIALIZE NUMS REPLACING NUMERIC BY 9",
+        "DISPLAY NUMS",
+        "INITIALIZE NUMS REPLACING ALPHANUMERIC BY 'Q'",
+        "DISPLAY NUMS",
+    ],
+)
+# #5278 (CardDemo COPAUA0C, register C17): a table holding items REPLACING does not name translates with a run-time check
+# that the occurrences agree (then IBM's "left as it is" and GnuCOBOL's copy of the first are the same bytes)
+PROGRAMS["INITRTB"] = program(
+    "INITRTB",
+    [
+        "01 TBL.",
+        "   05 T-ST PIC X(2) OCCURS 3 VALUE 'AB'.",
+        "   05 T-N PIC 9(2) OCCURS 3 VALUE 9.",
+        "01 GRP.",
+        "   05 G-TAB OCCURS 2.",
+        "      10 G-T PIC 9(2) VALUE 9.",
+        "      10 G-TX PIC X(2) VALUE 'TT'.",
+    ],
+    [
+        "INITIALIZE TBL REPLACING NUMERIC DATA BY ZERO",
+        "DISPLAY T-ST(1) T-ST(2) T-ST(3) T-N(1) T-N(2) T-N(3)",
+        "MOVE 31 TO G-T(2)",
+        "INITIALIZE GRP REPLACING NUMERIC BY 5",
+        "DISPLAY G-T(1) G-TX(1) G-T(2) G-TX(2)",
+    ],
+)
 # the same under a PROGRAM COLLATING SEQUENCE (EBCDIC; letters and spaces only, which IBM and GnuCOBOL order alike),
 # and with an ALSO alphabet where an equality consults the sequence too
 _ALL_LETTERS = [i for i in ALL_ITEMS if i[0][0] != "N"]
@@ -1265,7 +1444,7 @@ def _pscale_proc() -> list[str]:
                  f"COMPUTE {x} = {comp}", f"MOVE {x} TO E", f"DISPLAY '{x} C ' E",
                  f"ADD {add} TO {x}", f"MOVE {x} TO E", f"DISPLAY '{x} A ' E",
                  f"COMPUTE {x} ROUNDED = {rnd}", f"MOVE {x} TO E", f"DISPLAY '{x} R ' E",
-                 f"COMPUTE W = {x} * 7", f"MOVE W TO E", f"DISPLAY '{x} O ' E",
+                 f"COMPUTE W = {x} * 7", "MOVE W TO E", f"DISPLAY '{x} O ' E",
                  f"IF {x} = {eq} DISPLAY '{x} EQ' ELSE DISPLAY '{x} NE' END-IF",
                  f"IF {x} > {gt} DISPLAY '{x} GT' ELSE DISPLAY '{x} LE' END-IF",
                  f"IF {x} < W DISPLAY '{x} LTW' ELSE DISPLAY '{x} GEW' END-IF",
@@ -1344,51 +1523,6 @@ def _cobol(src: str, work: Path, raw: bool = False, flags: str = "") -> str:
     return run.stdout
 
 
-def _java_run(
-    name: str,
-    src: str,
-    work: Path,
-    typed: bool = False,
-    groups: bool = False,
-    unit: str | None = None,
-    raw: bool = False,
-    trunc_std: bool = False,
-    trunc_opt: bool = False,
-) -> str:
-    """The det port's output; `trunc_std` runs it under TRUNC(STD) (Cobol.setTruncBinary, #4684), `trunc_opt` under
-    TRUNC(OPT) (STD with Cobol.setTruncOpt's stop, #4706), else TRUNC(BIN) as `cobc -std=ibm` alone."""
-    from gitgalaxy.tools.cobol_to_java.det import program as P
-
-    (work / f"{name}.cbl").write_text(src)
-    project = work / "project"  # no generated project: the standalone runtime
-    project.mkdir()
-    cls = (unit or name).title()
-    r = P.translate(work / f"{name}.cbl", [], f"public class {cls}Service {{\n}}\n", PKG, None, project,
-                    typed=typed, groups=groups, unit=unit)  # fmt: skip
-    assert not r.stats["holes"], r.stats["holes"]
-    srcdir = work / "java"
-    java = r.java.replace("import org.springframework.stereotype.Service;\n", "").replace("@Service\n", "")
-    # the runtime without its CICS boundary (it needs a generated CicsTask)
-    runtime = {k: v for k, v in P.runtime_files(PKG, batch=False).items() if not k.startswith("cobolrt/cics/")}
-    for rel, text in [(f"service/{r.service}.java", java), *runtime.items()]:
-        (srcdir / PKG / rel).parent.mkdir(parents=True, exist_ok=True)
-        (srcdir / PKG / rel).write_text(text)
-    # the generated project's record charset, as the harness runs it: ISO-8859-1
-    rec = srcdir / PKG / "entity/vsam/CobolRecords.java"
-    rec.parent.mkdir(parents=True, exist_ok=True)
-    rec.write_text(f"package {PKG}.entity.vsam;\npublic final class CobolRecords {{\n    public static java.nio.charset."
-                   "Charset charset() {\n        return java.nio.charset.StandardCharsets.ISO_8859_1;\n    }\n}\n")  # fmt: skip
-    trunc = f"{PKG}.cobolrt.Cobol.setTruncBinary(true); " if trunc_std or trunc_opt else ""
-    trunc += f"{PKG}.cobolrt.Cobol.setTruncOpt(true); " if trunc_opt else ""
-    (srcdir / "Main.java").write_text(f"public class Main {{ public static void main(String[] a) {{ {trunc}"
-                                      f"new {PKG}.service.{r.service}().runProgram(); }} }}\n")  # fmt: skip
-    jdk = _java()
-    files = [str(f) for f in srcdir.rglob("*.java")]
-    subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(work / "classes"), *files], check=True)  # noqa: S603
-    return subprocess.run([str(jdk / "java"), "-cp", str(work / "classes"), "Main"], capture_output=True, text=not raw,  # noqa: S603
-                          check=True).stdout  # fmt: skip
-
-
 def _batch_package(srcdir: Path, charset: str = "ISO-8859-1") -> None:
     """The generated project's batch package (CobolFiles, DatasetResolver, Dd, MainframeClock, Sysout, CobolAbend)
     from the batch forge's own templates, without Spring: what a det port with files runs on."""
@@ -1401,6 +1535,96 @@ def _batch_package(srcdir: Path, charset: str = "ISO-8859-1") -> None:
         text = re.sub(r'@Value\("(?:[^"\\]|\\.)*"\)\s*', "", text)
         (srcdir / PKG / "batch" / f"{cls}.java").parent.mkdir(parents=True, exist_ok=True)
         (srcdir / PKG / "batch" / f"{cls}.java").write_text(text)
+
+
+@functools.cache
+def _runtime_classes(batch: bool = False, charset: str = "ISO-8859-1") -> Path:
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    base = Path(tempfile.mkdtemp(prefix="gitgalaxy-det-rt-"))
+    atexit.register(shutil.rmtree, base, True)
+    srcdir = base / "java"
+    runtime = {k: v for k, v in P.runtime_files(PKG, batch=batch).items() if not k.startswith("cobolrt/cics/")}
+    if batch:
+        runtime = {k: v for k, v in runtime.items() if not k.startswith("cobolrt/sql/")}
+        _batch_package(srcdir, charset)
+    for rel, text in runtime.items():
+        (srcdir / PKG / rel).parent.mkdir(parents=True, exist_ok=True)
+        (srcdir / PKG / rel).write_text(text)
+    rec = srcdir / PKG / "entity/vsam/CobolRecords.java"
+    rec.parent.mkdir(parents=True, exist_ok=True)
+    cs_expr = (
+        "java.nio.charset.StandardCharsets.ISO_8859_1"
+        if not batch and charset == "ISO-8859-1"
+        else f'java.nio.charset.Charset.forName("{charset}")'
+    )
+    rec.write_text(
+        f"package {PKG}.entity.vsam;\npublic final class CobolRecords {{\n    public static java.nio.charset."
+        f"Charset charset() {{\n        return {cs_expr};\n    }}\n}}\n"
+    )
+    jdk = _java()
+    classes = base / "classes"
+    files = [str(f) for f in srcdir.rglob("*.java")]
+    javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(classes), *files], check=True)  # noqa: S603
+    return classes
+
+
+def _java_run(
+    name: str,
+    src: str,
+    work: Path,
+    typed: bool = False,
+    groups: bool = False,
+    unit: str | None = None,
+    raw: bool = False,
+    trunc_std: bool = False,
+    trunc_opt: bool = False,
+    arith_extend: bool = False,
+) -> str:
+    """The det port's output; `trunc_std` runs it under TRUNC(STD) (Cobol.setTruncBinary, #4684), `trunc_opt` under
+    TRUNC(OPT) (STD with Cobol.setTruncOpt's stop, #4706), else TRUNC(BIN) as `cobc -std=ibm` alone; `arith_extend`
+    under ARITH(EXTEND) (Cobol.swapArithExtend's stop on a 30-digit intermediate, #4706)."""
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (work / f"{name}.cbl").write_text(src)
+    project = work / "project"  # no generated project: the standalone runtime
+    project.mkdir()
+    cls = (unit or name).title()
+    r = P.translate(work / f"{name}.cbl", [], f"public class {cls}Service {{\n}}\n", PKG, None, project,
+                    typed=typed, groups=groups, unit=unit)  # fmt: skip
+    assert not r.stats["holes"], r.stats["holes"]
+    rt_classes = _runtime_classes(False, "ISO-8859-1")
+    srcdir = work / "java"
+    java = r.java.replace("import org.springframework.stereotype.Service;\n", "").replace("@Service\n", "")
+    svc = srcdir / PKG / f"service/{r.service}.java"
+    svc.parent.mkdir(parents=True, exist_ok=True)
+    svc.write_text(java)
+    trunc = f"{PKG}.cobolrt.Cobol.setTruncBinary(true); " if trunc_std or trunc_opt else ""
+    trunc += f"{PKG}.cobolrt.Cobol.setTruncOpt(true); " if trunc_opt else ""
+    trunc += f"{PKG}.cobolrt.Cobol.swapArithExtend(true); " if arith_extend else ""
+    main_java = srcdir / "Main.java"
+    main_java.write_text(f"public class Main {{ public static void main(String[] a) {{ {trunc}"
+                         f"new {PKG}.service.{r.service}().runProgram(); }} }}\n")  # fmt: skip
+    jdk = _java()
+    classes = work / "classes"
+    javac_run(
+        [
+            str(jdk / "javac"),
+            "-encoding",
+            "UTF-8",
+            "-nowarn",
+            "-cp",
+            str(rt_classes),
+            "-d",
+            str(classes),
+            str(svc),
+            str(main_java),
+        ],
+        check=True,
+    )  # noqa: S603
+    cp = os.pathsep.join([str(classes), str(rt_classes)])
+    return subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", cp, "Main"], capture_output=True, text=not raw,  # noqa: S603
+                          encoding=None if raw else "utf-8", check=True).stdout  # fmt: skip
 
 
 def _java_run_batch(
@@ -1424,31 +1648,41 @@ def _java_run_batch(
     r = P.translate(work / f"{name}.cbl", [], f"public class {name.title()}Service {{\n}}\n", PKG, None, project,
                     typed=typed, groups=groups)  # fmt: skip
     assert not r.stats["holes"], r.stats["holes"]
+    rt_classes = _runtime_classes(True, charset)
     java = r.java.replace("import org.springframework.stereotype.Service;\n", "").replace("@Service\n", "")
-    runtime = {k: v for k, v in P.runtime_files(PKG, batch=True).items() if not k.startswith("cobolrt/cics/")}
-    runtime = {k: v for k, v in runtime.items() if not k.startswith("cobolrt/sql/")}
-    for rel, text in [(f"service/{r.service}.java", java), *runtime.items()]:
-        (srcdir / PKG / rel).parent.mkdir(parents=True, exist_ok=True)
-        (srcdir / PKG / rel).write_text(text)
-    _batch_package(srcdir, charset)
-    rec = srcdir / PKG / "entity/vsam/CobolRecords.java"
-    rec.parent.mkdir(parents=True, exist_ok=True)
-    rec.write_text(f"package {PKG}.entity.vsam;\npublic final class CobolRecords {{\n    public static java.nio.charset."
-                   "Charset charset() {\n        return java.nio.charset.Charset.forName(\"" + charset + "\");\n    }\n}\n")  # fmt: skip
+    svc = srcdir / PKG / f"service/{r.service}.java"
+    svc.parent.mkdir(parents=True, exist_ok=True)
+    svc.write_text(java)
     data = work / "datasets"
     data.mkdir()
     b = f"{PKG}.batch"
     dd_list = ", ".join(f'new {b}.Dd("{d}", "{d}", "NEW", "CATLG", null)' for d in dds)
-    (srcdir / "Main.java").write_text(
+    main_java = srcdir / "Main.java"
+    main_java.write_text(
         f"public class Main {{ public static void main(String[] a) {{ new {PKG}.service.{r.service}("
         f'new {b}.DatasetResolver("{data}"), new {b}.CobolFiles("", ""), new {b}.MainframeClock("", "UTC"))'
         f".runBatch(java.util.List.of({dd_list}), null); }} }}\n"
     )
     jdk = _java()
-    files = [str(f) for f in srcdir.rglob("*.java")]
-    subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(work / "classes"), *files], check=True)  # noqa: S603
-    return subprocess.run([str(jdk / "java"), "-cp", str(work / "classes"), "Main"], capture_output=True, text=not raw,  # noqa: S603
-                          check=True).stdout  # fmt: skip
+    classes = work / "classes"
+    javac_run(
+        [
+            str(jdk / "javac"),
+            "-encoding",
+            "UTF-8",
+            "-nowarn",
+            "-cp",
+            str(rt_classes),
+            "-d",
+            str(classes),
+            str(svc),
+            str(main_java),
+        ],
+        check=True,
+    )  # noqa: S603
+    cp = os.pathsep.join([str(classes), str(rt_classes)])
+    return subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", cp, "Main"], capture_output=True, text=not raw,  # noqa: S603
+                          encoding=None if raw else "utf-8", check=True).stdout  # fmt: skip
 
 
 @pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1" or not shutil.which("docker") or _java() is None,
@@ -1536,6 +1770,108 @@ def test_p_scaled_items_the_oracle_cannot_answer_are_refused_by_name(data, proc,
     pytest.importorskip("tree_sitter_language_pack")
     holes = _pcs_holes(tmp_path, program("PCSX", data, proc))
     assert any(why in h for h in holes), holes
+
+
+@pytest.mark.parametrize(
+    ("proc", "why"),
+    [
+        # IBM, ALTER: the altered paragraph is one GO TO sentence; any other shape is refused by name
+        (["    ALTER P1 TO PROCEED TO P2", "    GOBACK.", "P1.", "    DISPLAY 'X'", "    GO TO P2.", "P2.", "    EXIT."], "lone GO TO"),
+        (["    ALTER P1 TO PROCEED TO P2", "    GOBACK.", "P1.", "    GO TO P2 P3 DEPENDING ON N.", "P2.", "P3.", "    EXIT."], "lone GO TO"),
+        (["    ALTER NOPE TO PROCEED TO P2", "    GOBACK.", "P1.", "    GO TO P2.", "P2.", "    EXIT."], "ALTER NOPE: undeclared paragraph"),
+    ],
+)  # fmt: skip
+def test_alter_of_a_paragraph_that_is_not_a_lone_go_to_is_refused_by_name(proc, why, tmp_path):
+    """#5560: the translated ALTERs are in ALTER1 / ALTER2; the rest is a named hole, never a wrong GO TO."""
+    pytest.importorskip("tree_sitter_language_pack")
+    head = ["IDENTIFICATION DIVISION.", "PROGRAM-ID. ALTX.", "DATA DIVISION.", "WORKING-STORAGE SECTION.",
+            "01 N PIC 9 VALUE 1.", "PROCEDURE DIVISION.", "MAIN-PARA."]  # fmt: skip
+    src = "\n".join("       " + x for x in [*head, *proc]) + "\n"
+    holes = _pcs_holes(tmp_path, src)
+    assert any(why in h for h in holes), holes
+
+
+@pytest.mark.parametrize(
+    ("data", "proc"),
+    [
+        # #4271 (register C7): a COMP-5 item's bytes are the oracle's (little-endian), not z/OS's (big-endian)
+        (["01 G.", "   05 A PIC S9(4) COMP-5 VALUE 1.", "   05 B PIC X(2)."], ["MOVE G TO T"]),
+        (["01 A PIC S9(9) COMP-5 VALUE 1.", "01 X REDEFINES A PIC X(4)."], ["MOVE X TO T"]),
+        (["01 A PIC S9(18) COMP-5 VALUE 1.", "01 X REDEFINES A PIC X(8)."], ["MOVE X TO T"]),
+        (["01 A PIC S9(9) COMP-5 VALUE 1."], ["MOVE A(1:2) TO T"]),
+        (["01 G.", "   05 A PIC S9(4) COMP-5 OCCURS 3.", "01 X REDEFINES G PIC X(6)."], ["MOVE X TO T"]),
+        (["01 A PIC S9(4) COMP-5 VALUE 1.", "01 X REDEFINES A PIC S9(4) COMP."], ["MOVE X TO N"]),
+    ],
+)
+def test_comp5_bytes_are_refused_by_name_where_the_oracle_and_zos_differ(data, proc, tmp_path):
+    """#4271 (C7): a group MOVE, REDEFINES or reference modification that observes a COMP-5 item's bytes is refused."""
+    pytest.importorskip("tree_sitter_language_pack")
+    holes = _pcs_holes(tmp_path, program("COMP5B", [*data, "01 T PIC X(8).", "01 N PIC S9(4)."], proc))
+    assert any("oracle_assumptions.md C7" in h for h in holes), holes
+
+
+@pytest.mark.parametrize(
+    ("data", "proc"),
+    [
+        (["01 A PIC S9(9) COMP-5 VALUE 1.", "01 N PIC S9(9)."], ["MOVE A TO N", "ADD 1 TO A"]),
+        (["01 A PIC S9(4) COMP-5 VALUE 1.", "01 B PIC S9(4) COMP-5.", "01 A1 REDEFINES A PIC S9(4) COMP-5."],
+         ["MOVE A TO B", "MOVE A1 TO B"]),
+        (["01 A PIC S9(4) COMP-5 VALUE 1.", "01 X PIC X(2) VALUE 'AB'."], ["MOVE X TO T", "MOVE 5 TO A"]),
+    ],
+)  # fmt: skip
+def test_comp5_read_as_a_number_is_not_refused(data, proc, tmp_path):
+    """#4271 (C7): numeric uses of COMP-5 stay translated."""
+    pytest.importorskip("tree_sitter_language_pack")
+    holes = _pcs_holes(tmp_path, program("COMP5N", [*data, "01 T PIC X(8)."], proc))
+    assert not any("oracle_assumptions.md C7" in h for h in holes), holes
+
+
+def _record_io_holes(tmp_path, record: list[str], proc: list[str], *, sort: bool = False) -> list[str]:
+    fd = "SD" if sort else "FD"
+    select = "SELECT F ASSIGN TO FFILE."
+    src = fprogram("RECIO", [], [select], [f"{fd} F.", "01 REC.", *record], ["01 N PIC S9(4)."],
+                   ["MAIN.", *[f"    {x}" for x in proc], "    GOBACK."])  # fmt: skip
+    return _pcs_holes(tmp_path, src)
+
+
+@pytest.mark.parametrize(
+    ("record", "proc", "register"),
+    [
+        # #4271 (C6 / C7): a record is named by its FD, so a file READ / WRITE / REWRITE (no INTO / FROM) and a SORT
+        # RETURN never went through field_expr: the oracle's bytes of a COMP-5 / COMP-1 / COMP-2 item reached the file
+        (["05 A PIC S9(9) COMP-5.", "05 B PIC X(4)."], ["OPEN OUTPUT F", "WRITE REC", "CLOSE F"], "C7"),
+        (["05 A PIC S9(4) COMP-5.", "05 B PIC X(4)."], ["OPEN I-O F", "REWRITE REC", "CLOSE F"], "C7"),
+        (["05 A PIC S9(18) COMP-5."], ["OPEN INPUT F", "READ F", "CLOSE F"], "C7"),
+        (["05 G.", "   10 A PIC S9(9) COMP-5 OCCURS 2.", "05 B PIC X(4)."], ["OPEN INPUT F", "READ F", "CLOSE F"], "C7"),
+        (["05 A COMP-1.", "05 B PIC X(4)."], ["OPEN OUTPUT F", "WRITE REC", "CLOSE F"], "C6"),
+        (["05 A COMP-2."], ["OPEN INPUT F", "READ F", "CLOSE F"], "C6"),
+    ],
+)  # fmt: skip
+def test_record_io_refuses_comp5_and_float_bytes_by_name(record, proc, register, tmp_path):
+    """#4271: a file record holding a COMP-5 / COMP-1 / COMP-2 item is refused on READ / WRITE / REWRITE."""
+    pytest.importorskip("tree_sitter_language_pack")
+    holes = _record_io_holes(tmp_path, record, proc)
+    assert any(f"oracle_assumptions.md {register}" in h for h in holes), holes
+
+
+def test_record_io_refuses_comp5_in_a_sort_record_on_return(tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    holes = _record_io_holes(tmp_path, ["05 A PIC S9(9) COMP-5.", "05 B PIC X(4)."], ["RETURN F AT END MOVE 1 TO N"],
+                             sort=True)  # fmt: skip
+    assert any("oracle_assumptions.md C7" in h for h in holes), holes
+
+
+@pytest.mark.parametrize(
+    "record",
+    [
+        ["05 A PIC X(4).", "05 B PIC S9(7) COMP-3.", "05 C PIC S9(9) COMP."],  # no COMP-5 / float
+        ["05 A PIC S9(4) COMP.", "05 B PIC X(4)."],  # COMP is big-endian on both sides
+    ],
+)
+def test_record_io_without_comp5_or_float_bytes_is_not_refused(record, tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    holes = _record_io_holes(tmp_path, record, ["OPEN INPUT F", "READ F", "CLOSE F"])
+    assert not any("oracle_assumptions.md C6" in h or "oracle_assumptions.md C7" in h for h in holes), holes
 
 
 def test_p_scaled_items_store_their_nines_scaled():
@@ -1843,6 +2179,15 @@ def test_pcs_refuses_what_ibm_and_gnucobol_order_differently(tmp_path):
         (["01  E PIC ZZ9."], "E = 12.5", "the numeric literal 12.5 compared for equality with the numeric-edited E"),
         (["01  E PIC Z99V9."], "E NOT = 11.25", "the numeric literal 11.25 compared for equality with the numeric"),
         (["01  E PIC ZZ9.", "    88  E-H VALUE 1.5."], "E-H", "the numeric literal 1.5 compared for equality"),
+        # #4671: the same differences against a group (an alphanumeric operand)
+        (["01  G.", "    05 GA PIC X(4)."], "G = +12", "the signed numeric literal +12 compared with a nonnumeric operand"),
+        (["01  G.", "    05 GA PIC X(4)."], "G < -1", "the signed numeric literal -1 compared with a nonnumeric operand"),
+        (["01  G.", "    05 GA PIC X(4).", "01  N PIC S9(4) SIGN LEADING SEPARATE."], "G = N",
+         "N (SIGN SEPARATE) compared with the nonnumeric G"),
+        (["01  G.", "    05 GA PIC X(4).", "01  N PIC S9(4) SIGN TRAILING SEPARATE."], "N > G",
+         "N (SIGN SEPARATE) compared with the nonnumeric G"),
+        (["01  G.", "    05 GA PIC X(4).", "01  N PIC 99PP."], "G = N", "N (P-scaled) compared with the nonnumeric G"),
+        (["01  G.", "    05 GA PIC X(4)."], "G = 10 + 2", "the nonnumeric G compared with an arithmetic expression"),
     ],
 )  # fmt: skip
 def test_a_numeric_operand_compared_as_text_refuses_by_name_what_ibm_and_gnucobol_differ_on(data, cond, why, tmp_path):
@@ -1854,6 +2199,50 @@ def test_a_numeric_operand_compared_as_text_refuses_by_name_what_ibm_and_gnucobo
     holes = P.translate(tmp_path / "EDREF.cbl", [], "public class EdrefService {\n}\n", PKG, None,
                         tmp_path / "project").stats["holes"]  # fmt: skip
     assert any(why in h and "(C13)" in h for h in holes), holes
+
+
+# IBM's table of numeric / nonnumeric comparisons has no entry for a packed or binary item (a floating-point one is
+# refused earlier, C6), so it rejects the program; GnuCOBOL compares the item's digits (register C13). Refused by name, either way round, against an
+# alphanumeric item, a numeric-edited item and a group (the whole class, #4702).
+@pytest.mark.parametrize(
+    ("decl", "use"),
+    [("S9(4) COMP-3", "PACKED"), ("9(4) COMP-3", "PACKED"), ("S9(4) COMP", "BINARY"), ("9(9) COMP", "BINARY"),
+     ("S9(4) COMP-4", "BINARY"), ("S9(4) COMP-5", "COMP-5")],
+)  # fmt: skip
+@pytest.mark.parametrize(
+    ("other", "cond"),
+    [(["01  O PIC X(4)."], "N = O"), (["01  O PIC X(4)."], "O < N"), (["01  O PIC ZZZ9."], "N = O"),
+     (["01  O PIC -ZZ9."], "O > N"), (["01  O.", "    05 OA PIC X(4)."], "N = O"), (["01  O.", "    05 OA PIC X(4)."], "O = N")],
+)  # fmt: skip
+def test_a_native_numeric_item_compared_with_a_nonnumeric_one_is_refused_by_name_ibm_rejects_it(
+    decl, use, other, cond, tmp_path
+):
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "NATREF.cbl").write_text(program("NATREF", [f"01  N PIC {decl}.", *other],
+                                                 [f"IF {cond} DISPLAY 'Y' END-IF"]))  # fmt: skip
+    (tmp_path / "project").mkdir()
+    holes = P.translate(tmp_path / "NATREF.cbl", [], "public class NatrefService {\n}\n", PKG, None,
+                        tmp_path / "project").stats["holes"]  # fmt: skip
+    assert any(
+        f"N ({use}) compared with the nonnumeric O" in h and "IBM rejects" in h and "(C13)" in h for h in holes
+    ), holes
+
+
+def test_a_native_numeric_item_still_compares_with_a_numeric_operand_and_a_zoned_one_with_text(tmp_path):
+    """The refusal is narrow: native item vs numeric (by value) and zoned item vs nonnumeric (as digits) translate."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    data = ["01  N PIC S9(4) COMP-3.", "01  M PIC S9(4) COMP.", "01  Z PIC 9(4).", "01  E PIC ZZZ9."]
+    (tmp_path / "NATOK.cbl").write_text(
+        program("NATOK", data, ["IF N = M AND Z = E AND N = 12 AND M > Z DISPLAY 'Y' END-IF"])
+    )
+    (tmp_path / "project").mkdir()
+    holes = P.translate(tmp_path / "NATOK.cbl", [], "public class NatokService {\n}\n", PKG, None,
+                        tmp_path / "project").stats["holes"]  # fmt: skip
+    assert not [h for h in holes if "(C13)" in h], holes
 
 
 # ---- #4462: a multi-program source, one program at a time; a reference modification of an intrinsic function -----
@@ -1901,3 +2290,55 @@ MULTI = """\
 def test_each_program_of_a_multi_program_source_translates_and_runs_on_its_own(unit, want, tmp_path):
     pytest.importorskip("tree_sitter_language_pack")
     assert _java_run("MULTI", MULTI, tmp_path, unit=unit) == want
+
+
+def test_a_second_01_of_the_same_name_declares_one_storage_or_is_refused(tmp_path):
+    """#4952: CBSA CRECUST declares `01 HIGHEST-CUST-NUMBER` twice (never named in the PROCEDURE DIVISION: a reference
+    would be ambiguous). The port declared its storage twice (javac: variable already defined); an elementary
+    duplicate is now emitted once, whatever its PICTURE or VALUE, and a duplicate group is refused by name."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    def translate(data: list[str]) -> str:
+        (tmp_path / "DUPX.cbl").write_text(program("DUPX", data, ["DISPLAY X"]))
+        (tmp_path / "project").mkdir(exist_ok=True)
+        return P.translate(tmp_path / "DUPX.cbl", [], "public class DupxService {\n}\n", PKG, None,
+                           tmp_path / "project").java  # fmt: skip
+
+    for dup in ("01 D PIC 9(10) VALUE 0.", "01 D PIC X(3) VALUE 'abc'.", "01 D PIC 9 VALUE 7."):
+        java = translate(["01 X PIC X(3) VALUE 'abc'.", "01 D PIC 9(10) VALUE 0.", dup])
+        assert java.count("IMAGE_s_D =") == 1, java
+        assert java.count("Storage s_D ") == 1, java
+    with pytest.raises(ValueError, match="second 01 group named D"):
+        translate(["01 X PIC X(3) VALUE 'abc'.", "01 D PIC 9.", "01 D.", "   05 D1 PIC 9."])
+
+
+def test_repeated_01_filler_groups_each_get_their_own_storage(tmp_path):
+    """#4767: zECS ZECS001 declares `01 FILLER.` four times, each with named children. Nothing can name a FILLER, so no
+    reference is ambiguous (unlike a repeated real name): each group keeps its own storage and its children bind to it.
+    The first keeps `s_FILLER` (ports of programs with one `01 FILLER` do not move)."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    src = tmp_path / "t"
+    src.mkdir()
+    (src / "FILX.cbl").write_text(
+        program(
+            "FILX",
+            [
+                "01 FILLER.",
+                "   05 A PIC X(3) VALUE 'abc'.",
+                "01 FILLER.",
+                "   05 B PIC X(3) VALUE 'xyz'.",
+                "01 FILLER.",
+                "   05 C PIC 9(2) VALUE 7.",
+            ],
+            ["DISPLAY A B C"],
+        )  # fmt: skip
+    )
+    (src / "project").mkdir()
+    java = P.translate(src / "FILX.cbl", [], "public class FilxService {\n}\n", PKG, None, src / "project").java
+    assert java.count("Storage s_FILLER ") == 1, java
+    assert java.count("Storage s_FILLER_") == 2, java
+    if _java() is not None:  # the port compiles and each group's children read their own bytes
+        assert _java_run("FILX", (src / "FILX.cbl").read_text(), tmp_path) == "abcxyz07\n"

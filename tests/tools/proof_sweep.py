@@ -93,11 +93,9 @@ def split_cases(cases: list[str], n: int, durations: dict[str, float] | None = N
     case with no record counts as the median of the recorded ones); with no records at all, round-robin by name.
     Every case is in exactly one slice, the same ones whoever asks."""
     ordered = sorted(set(cases))
-    known = sorted(d for c in ordered if (d := (durations or {}).get(c)) is not None)
-    if not known:
+    weight = case_weights(ordered, durations)
+    if not weight:
         return [ordered[k::n] for k in range(n)]
-    median = known[len(known) // 2]
-    weight = {c: (durations or {}).get(c, median) for c in ordered}
     slices: list[list[str]] = [[] for _ in range(n)]
     load = [0.0] * n
     for c in sorted(ordered, key=lambda c: (-weight[c], c)):
@@ -105,6 +103,27 @@ def split_cases(cases: list[str], n: int, durations: dict[str, float] | None = N
         slices[k].append(c)
         load[k] += weight[c]
     return [sorted(x) for x in slices]
+
+
+def case_weights(cases: list[str], durations: dict[str, float] | None) -> dict[str, float]:
+    """What split_cases balances `cases` by: each one's recorded seconds, the median of the recorded ones for a case
+    with no record; {} when none is recorded."""
+    known = sorted(d for c in cases if (d := (durations or {}).get(c)) is not None)
+    if not known:
+        return {}
+    median = known[len(known) // 2]
+    return {c: (durations or {}).get(c, median) for c in cases}
+
+
+def shard_plan(cases: list[str], shard: tuple[int, int], durations: dict[str, float] | None) -> dict[str, Any]:
+    """#5882: what a shard was given, written to its work directory as shard.json before it proves anything (so a shard
+    that times out still says what it had): its cases, their planned seconds, and the ones with no recorded duration
+    (each planned at the median: the shards' imbalance comes from these)."""
+    mine = shard_cases(cases, shard, durations)
+    weight = case_weights(sorted(set(cases)), durations)
+    return {"shard": f"{shard[0]}/{shard[1]}", "cases": mine,
+            "planned_seconds": round(sum(weight.get(c, 0) for c in mine)),
+            "unmeasured": [c for c in mine if c not in (durations or {})]}  # fmt: skip
 
 
 def shard_cases(
@@ -126,16 +145,35 @@ def det_cases(skip_db2: bool = False, only_db2: bool = False) -> list[str]:
     )
 
 
+# What a re-proof of the same case may legitimately differ in: how long it took.
+_TIMING_FIELDS = frozenset({"seconds", "phases"})  # #5882: phases are timing too
+
+
 def merge_sweeps(dirs: list[Path]) -> dict[str, dict[str, dict]]:
-    """The union of the `sweep.json` of each directory (a shard's work directory, or an artifact's)."""
+    """The union of the `sweep.json` of each directory (a shard's work directory, or an artifact's).
+
+    A case in two shards is normal when the shards split on different durations files (each restores the newest
+    nightly's cache when it starts, and a queue can put a cache save between two shards, #5107): the copies are
+    accepted when they agree on everything but the timing, and the first is kept. Copies that disagree are a real
+    conflict and raise. A case no shard proved is `missing_cases`' business, not this function's."""
     merged: dict[str, dict[str, dict]] = {}
+    where: dict[tuple[str, str], Path] = {}
     for d in dirs:
         f = d / "sweep.json" if d.is_dir() else d
         for sweep, cases in json.loads(f.read_text(encoding="utf-8")).items():
             for case, r in cases.items():
-                if case in merged.setdefault(sweep, {}):
-                    raise ValueError(f"{sweep} {case}: in two shards ({f})")
-                merged[sweep][case] = r
+                seen = merged.setdefault(sweep, {})
+                if case in seen:
+                    old = seen[case]
+                    diff = sorted(k for k in set(old) | set(r) if k not in _TIMING_FIELDS and old.get(k) != r.get(k))
+                    if diff:
+                        raise ValueError(
+                            f"{sweep} {case}: in two shards with conflicting results "
+                            f"({where[sweep, case]}, {f}): {', '.join(diff)}"
+                        )
+                    continue
+                seen[case] = r
+                where[sweep, case] = f
     return merged
 
 
@@ -169,8 +207,21 @@ def det_sweep(
                             "called_holes": len(row.get("called_holes") or []),
                             "translated": f"{row.get('translated_statements')}/{row.get('statements')}",
                             "seconds": round(row.get("translate_seconds", 0) + row.get("proof_seconds", 0), 1),
-                            "uncovered": _uncovered(work / row["case"] / "proof" / "cobol" / "coverage.json")}  # fmt: skip
+                            "phases": {"translate": {"seconds": row.get("translate_seconds", 0), "count": 1},
+                                       **(row.get("phases") or {})},  # #5882: where the seconds went
+                            "uncovered": _uncovered(work / row["case"] / "proof" / "cobol" / "coverage.json"),
+                            "linked": _linked(work / row["case"] / "proof" / "cobol" / "coverage.json")}  # fmt: skip
     return out
+
+
+def _linked(path: Path) -> dict[str, Any]:
+    """#5084: the coverage counts of the programs the case LINKs / CALLs ({} when none, or none measured)."""
+    import det_coverage_ledger as ledger
+
+    try:
+        return ledger.linked_counts(json.loads(path.read_text(encoding="utf-8")))
+    except (OSError, ValueError):
+        return {}
 
 
 def _uncovered(path: Path) -> list[str] | None:
@@ -260,11 +311,20 @@ def main() -> int:
     ap.add_argument("--skip-ledger-check", action="store_true",
                     help="with --aggregate: leave out the check of the sweep against the committed coverage ledger (#4744: "
                     "Evidence Refresh merges its shards, then rewrites the ledger from them, as its one-runner sweep did)")  # fmt: skip
+    ap.add_argument("--strict-ledger", action="store_true",
+                    help="with --aggregate: an entry of a swept, proven case that is stale on harness / oracle fails (#5084). Off in CI: "
+                    "a PR that changes the harness would strand every det-sweep until its ledger is re-recorded")  # fmt: skip
+    ap.add_argument("--record-ledger", action="store_true",
+                    help="with --aggregate: after the check, rewrite the coverage ledger's entries from this sweep (#5084: the "
+                    "counts were just re-checked, so their fingerprints are re-recorded; det_coverage_ledger.py update does the same)")  # fmt: skip
     ap.add_argument(
         "--update-baseline", action="store_true", help="after the sweep, drop the baseline entries that now prove"
     )
     ap.add_argument("--update-durations", action="store_true",
                     help="after the sweep (or, with --aggregate, after the merge), record each det case's seconds in det_sweep_durations.json (what --shard balances by)")  # fmt: skip
+    ap.add_argument("--durations", type=Path, default=DURATIONS,
+                    help="the durations file --shard balances by and --update-durations writes (#5882: Evidence Refresh's Db2 "
+                    "merge writes the Db2 cases' seconds to a file of their own, for det-sweep's plan to merge in)")  # fmt: skip
     args = ap.parse_args()
     if args.db2_only and args.skip_db2:
         ap.error("--db2-only and --skip-db2 leave out each other's cases")
@@ -280,7 +340,7 @@ def main() -> int:
             else args.expect.split(",")
         )
         if args.update_durations:  # the nightly (#4847): the shards' seconds become the next runs' balance
-            write_durations(results.get("det", {}))
+            write_durations(results.get("det", {}), args.durations)
         return report(results, missing_cases(results, expect), args)
     if args.work is None:
         ap.error("--work is required")
@@ -293,7 +353,12 @@ def main() -> int:
         det_all = [c for c in det_cases(args.skip_db2, args.db2_only) if only is None or c in only]
         model_all = [p.parent.name for p in CASES.glob("*/port") if (only is None or p.parent.name in only)
                      and not (args.skip_db2 and is_db2(p.parent.name))]  # fmt: skip
-        det_only = shard_cases(det_all, args.shard, load_durations())
+        durations = load_durations(args.durations)
+        det_only = shard_cases(det_all, args.shard, durations)
+        if not args.model_only:  # #5882: the shard's planned load, for the det job's timing report
+            (args.work / "shard.json").write_text(
+                json.dumps(shard_plan(det_all, args.shard, durations), indent=1) + "\n", encoding="utf-8"
+            )
         model_only = shard_cases(model_all, args.shard)
     else:
         det_only, model_only = only, only
@@ -307,7 +372,7 @@ def main() -> int:
         results["model"] = model_sweep(args.work / "model", args.faults, args.skip_db2, model_only)
     (args.work / "sweep.json").write_text(json.dumps(results, indent=2) + "\n", encoding="utf-8")
     if args.update_durations:
-        write_durations(results.get("det", {}))
+        write_durations(results.get("det", {}), args.durations)
     return report(results, [], args)
 
 
@@ -340,10 +405,15 @@ def report(results: dict[str, dict[str, dict]], missing: list[str], args: argpar
     ):  # CI: the coverage ledger must hold what the sweep covered
         import det_coverage_ledger as ledger
 
-        ledger_problems, ledger_warnings = ledger.check(results["det"], ledger.load())
+        ledger_problems, ledger_warnings = ledger.check(
+            results["det"], ledger.load(), recheck=bool(getattr(args, "strict_ledger", False))
+        )
         problems += ledger_problems
         for w in ledger_warnings:
             print(f"warning: {w}")
+        if getattr(args, "record_ledger", False) and not ledger_problems:  # #5084: re-record what the sweep re-checked
+            changed = ledger.write(ledger.build(results["det"], ledger.load()))
+            print(f"ledger: {len(changed)} entr{'y' if len(changed) == 1 else 'ies'} re-recorded from this sweep")
     if "det" in results:  # #4602: a stated infeasible outcome the proof reached refutes the statement
         import infeasible_outcomes
 

@@ -47,7 +47,7 @@
       },
       "fortran/wrf/module_initialize_real.F": {
         "Literal Sites": 116,
-        "Wrapped Sites": 120
+        "Wrapped Sites": 123
       },
       "fortran/wrf/module_physics_init.F": {
         "Literal Sites": 0,
@@ -83,7 +83,7 @@
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/Anchor.m": {
         "Literal Sites": 11,
-        "Wrapped Sites": 7
+        "Wrapped Sites": 11
       },
       "objective-c/worldwideweb/HText.c": {
         "Literal Sites": 10,
@@ -95,7 +95,7 @@
       },
       "objective-c/worldwideweb/HyperText.m": {
         "Literal Sites": 51,
-        "Wrapped Sites": 42
+        "Wrapped Sites": 44
       },
       "objective-c/worldwideweb/TcpAccess.m": {
         "Literal Sites": 2,

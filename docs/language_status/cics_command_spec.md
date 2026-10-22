@@ -265,7 +265,7 @@ ASSIGN = Command(
     ),
     facts=(
         Fact("startcode", java="withStartcode", env="GGCICS_STARTCODE", region_default=None,
-             values=("TD", "S", "SD"), options=("STARTCODE",)),
+             values=("TD", "S", "SD", "D"), options=("STARTCODE",)),
         Fact("userid", java="withUserid", env="GGCICS_USERID", region_default="CICSUSER", options=("USERID",)),
         Fact("facility", java="(task terminal)", env="GGCICS_FACILITY", region_default=None,
              options=("FACILITY",)),

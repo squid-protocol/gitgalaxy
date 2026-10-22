@@ -25,7 +25,8 @@ $PY tests/tools/proof_blockers.py SURVEY_DIR --label LABEL [--sweep SWEEP_DIR]
 
 - `blockers --baseline` reads the survey cached for main's SHA (`survey --baseline [--root DIR]` builds it; a
   the nightly Evidence Refresh surveys main and publishes the ranking and a history line to the `generated` branch, #4863: read them with `blockers --generated` / `history show --generated`; no second survey, nothing committed on main). Rank: `only` (the gap is all that is left, burned / non-burned), then `one_away`.
-  Non-burned first: burned estates already have ports.
+  Non-burned first: burned estates already have ports. This is ranking only: case and proof work stays on the burned
+  estates (`.claude/rules/mainframe-evidence-policy.md`).
 - A `*` row refuses the whole program, so its count is an upper bound: run `--unmask GAPKEY` to see the gaps behind
   it before promising anything.
 - **The numbers guide; they do not gate** (owner, 2026-10-07). The rankings say what to do FIRST and the before /
@@ -38,8 +39,11 @@ $PY tests/tools/proof_blockers.py SURVEY_DIR --label LABEL [--sweep SWEEP_DIR]
 - Proof level: `proof_blockers.py` ranks, for the programs already WHOLE, what stops each being PROVEN: `no case`,
   `known unproven: #issue` (det_sweep_baseline.json), `scenario differs: KIND`, `not proven in CI: Db2 case`,
   `coverage: ...`, `fact: EIBTASKN` / `fact: ASSIGN USERID` (a runtime fact no harness states). Without `--sweep`
-  it trusts main's CI det-sweep ratchet for non-Db2 cases; pass a local `proof_sweep.py --det-only --work DIR` for
-  Db2 verdicts and coverage. A new equivalence case is the usual cure for `no case`; a fact gap needs the fact
+  it trusts main's CI det-sweep ratchet for non-Db2 cases, and for a Db2 case the committed det-sweep ledger (#5075:
+  the Db2 lanes -- det-sweep's `db2` job and the nightly Evidence Refresh `db2` job -- keep an entry only for a case
+  their sweep proved). Ledger coverage stale on harness / oracle only counts as the last measurement (the report
+  says how many); a case / corpus change makes it unknown. Pass a local `proof_sweep.py --det-only --work DIR` to
+  replace both with fresh verdicts and coverage. A new equivalence case is the usual cure for `no case`; a fact gap needs the fact
   stated on BOTH sides first (C12 / EIBTASKN).
 
 ## 2. Land it spec-first (CICS commands)
@@ -52,11 +56,17 @@ $PY tests/tools/proof_blockers.py SURVEY_DIR --label LABEL [--sweep SWEEP_DIR]
 - **Crucible logs are never derived from the spec** (nor from a runtime or a port). The gen script is traced by
   hand from IBM's documentation; `crucible_case.py check-hand-derived` fails if it imports anything but the stdlib
   and `crucible_events`.
-- `docs/language_status/cics_spec_status.md` is generated on main by the evidence-refresh bot (#4789): do NOT commit
-  it in a PR (`cics_spec_status.py render` only to look). After a slice, commit `refresh --census --crucible DIR`'s
+- `docs/language_status/cics_spec_status.md` is git-ignored and published to the `generated` branch by generated-docs.yml
+  (#4789 / #5057): never commit it (`cics_spec_status.py render` only to look). After a slice, commit `refresh --census --crucible DIR`'s
   `cics_spec_status.json`. A spec PR adds its row to `SPEC_PRS_DONE` there.
 - The det-sweep coverage ledger is one file per case, `tests/equivalence/det_sweep_coverage/<case>.json` (#4789):
   `det_coverage_ledger.py update <sweep DIR>` rewrites only the files of the cases that sweep ran.
+  (#5084) An entry also holds `linked`: the counts of the programs the case LINKs / CALLs (coverage.json `linked`), which
+  proof_blockers judges per callee, and a caller is not proven while a callee has holes. A swept case whose entry is
+  stale on harness / oracle is only a warning in CI. `proof_sweep.py --aggregate --record-ledger` re-records the entries it
+  re-checked (`--strict-ledger` fails on a stale one, for a local pre-push check), but CI does not pass it yet (wiring it into
+  `det-sweep.yml` is a separate owner-approved follow-up, #5084): until then the nightly Evidence Refresh `update` or a local
+  `det_coverage_ledger.py update <sweep DIR>` re-records entries.
 - Then the `cics-command-slice` checklist: both runtimes, the hand-traced crucible case, proofs, X-register entry.
 
 ## 3. Honest refusals (the patterns that made programs whole without guessing)
@@ -72,40 +82,53 @@ $PY tests/tools/proof_blockers.py SURVEY_DIR --label LABEL [--sweep SWEEP_DIR]
   numbers". The seed (EIBTASKN, 0 on both sides) is a stated fact of the run; a case that varies it states it on
   both sides first. Seeds IBM does not allow are refused at run time by name.
 - Every new assumption or refusal gets its register entry file (`docs/language_status/register/Xnn.md`, ID from
-  `register.py next X`; then `register.py render`) in the same PR.
+  `register.py next X`) in the same PR; the combined page is not committed (#5057).
 
 ## 4. After it lands
 
 - `pr_check.py N` before merging (CI, mergeability, the ratchet files a PR must touch); `pr_check.py N --merge`
-  squash-merges only when green. Drafts first; the merge is the orchestrator's call.
-- The purchaser-facing evidence report (#4601, `docs/language_status/evidence_report/`) reads the det-sweep and
+  squash-merges only when green; a draft is only marked ready by the first call and merged by a second once its CI is green. Drafts first; the merge is the orchestrator's call.
+- The purchaser-facing evidence report (#4601; published on `generated`, read it with `python tests/tools/generated_branch.py show docs/language_status/evidence_report/<estate>/report.md`) reads the det-sweep and
   crucible baselines, `cics_spec_status.json`, the cases, the evidence records and `oracle_assumptions.md`: a PR that
   changes one does NOT commit the rendered report (#4703): the evidence-refresh bot regenerates it on main and PR CI
   shows the level deltas (advisory). After a slice merges, `evidence_report.py --all --baseline` re-measures the translation on the new
-  baseline. Burned estates only; it never writes an evidence record.
+  baseline. Burned estates only; it never writes an evidence record. To see real drift use the non-live
+  `evidence_report.py --check`: `--live` fails against the published copy even when current (#5207).
 - `cics_census.py history append --pr N` after each merged slice (`docs/language_status/blockers_history.jsonl`); (#4863: the nightly line is added by CI on the `generated` branch, not by hand)
   `history show` is the trend. Quote `compare --before-baseline` ("translated whole N -> M (non-burned a -> b)") in
   the PR.
 
 ## 5. Traps
 
+- **`cics_census.py survey --baseline` surveys an OLD commit.** For HEAD use `survey --no-census --out DIR --label head`,
+  then `proof_blockers.py DIR --label head --no-census` (#5279).
 - **Shared cics-crucible checkout off the pin.** Never move it; `equivalence_env.py --provision` gives a private
   clone at `tests/_cics_crucible_pin.py`'s ref (or `git clone <shared> $SCRATCH/crucible && git checkout vX.Y.Z`).
   A case branch runs with `--crucible-dir DIR --unpinned`.
 - **`gh issue view` / `gh pr edit` fail** on this repo (Projects-classic GraphQL): use `gh api` REST
   (`gh api repos/squid-protocol/gitgalaxy/issues/N`, `-X PATCH .../pulls/N -f body=...`).
-- **ruff is pinned at 0.16.0** (CI's): a different local ruff reformats unrelated lines. `ruff format` only the
-  files you changed; never `ruff format tests/tools/estate4_draw.py` (its hand layout is load-bearing for the draw).
+- **ruff is pinned at 0.16.10** (CI's, used by `pr_gates --fast`): a different local ruff reformats unrelated lines.
+  `ruff format` only the files you changed; never `ruff format tests/tools/estate4_draw.py` (its hand layout is load-bearing for the draw).
 - **GnuCOBOL source in tests stays within column 72**: fixed-form COBOL drops columns 73-80, so a long line in a
-  test fixture silently loses its tail (and now trips the #4590 refusal).
+  test fixture silently loses its tail (and now trips the #4590 refusal). A test program built from EXEC CICS
+  command strings must wrap them (`textwrap.wrap`) or the layout reader fails with "source text past column 72
+  truncates ..." before the translator runs (#5216).
 - **A duplicate rosetta-audit run** on a PR gets cancelled by the concurrency group; the other run is the real one.
   A cancelled run is not a failure.
 - `cics_census.py survey` uses `$CICS_CENSUS_CORPORA` even when `--no-census` is given: unset it for a survey of
   one extra root only.
 - Census repos are read only through translator output and counts; nothing from them is committed but counts.
   Never open `docs/language_status/estate4_candidates.json`.
+  Commit aggregate counts only: no program names, per-program tells, lines or source; a census repo gets an opaque
+  hashed label (#5215).
+- `feature_inventory.scan_estate` on an unfamiliar estate can hit a `.cbl` that is not COBOL (an ISPF screen dump,
+  `NotCobol`): list it as unparsed, never let it crash the scan (#5215).
 - JDK 17 (`equivalence_env.py` exports it), `importorskip("tree_sitter_language_pack")` in any translator test, and
   the other traps in `cics-command-slice` section 2.
+
+- **`proof_blockers` ranks only whole programs:** a real EIB read in a program with holes never shows in the gap list
+  (#5294). Before planning a sibling-gap issue, `git log origin/main --grep=<issue>` for "Part of" PRs that may
+  already cover the acceptance (#4949).
 
 ## 6. Brief template (orchestrator -> agent)
 

@@ -1,9 +1,11 @@
 ---
-description: "**Status (2026-10-02): 48 programs are translated with no model and proven.** That is 27 from CardDemo, 8 from"
+description: "Dated snapshot (2026-10-02) of the deterministic translator design and its proof results; current counts are on the generated progress page."
 ---
 # Deterministic port (det-port): design and the runtime contract
 
-**Status (2026-10-02): 48 programs are translated with no model and proven.** That is 27 from CardDemo, 8 from
+> **Dated historical snapshot (2026-10-02).** The counts on this page were measured once and are not updated. For current counts (level per program, per estate) read the generated [progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md) (#5280, #5282).
+
+**Status at the 2026-10-02 snapshot: 48 programs were translated with no model and proven (equality on the case's runs).** That was 27 from CardDemo, 8 from
 CBSA and 13 from GenApp, over 50 equivalence cases; 17 of those cases run embedded SQL on a real Db2. Two cases are
 not proven on purpose, each with its reason (`KNOWN_UNPROVEN` in `tests/tools/proof_sweep.py`): COCRDUPC writes
 blanks into a `PIC 9(3)` field a typed DTO cannot hold (#4085), and `carddemo-intcalc-generated` depends on
@@ -37,7 +39,7 @@ COBOL program ──(1) det_port.py: translate, no model──► Java port, fai
 **What "proven" means here.** The port and the COBOL agree on every scenario the case defines, and on its injected
 faults. It is not a proof for all inputs: coverage is reported per case (COACTUPC: 89 of 95 paragraphs, 310 of 397
 branches, from 256 before generated per-field scenarios; the rest sit mostly behind CEEDAYS, below). The oracle is GnuCOBOL in IBM mode, not an IBM compiler. Where the two are known to differ, the
-difference is declared below; every oracle assumption, with its status, is in [oracle_assumptions.md](oracle_assumptions.md).
+difference is declared below; every oracle assumption, with its status, is in [oracle_assumptions.md](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md).
 
 **Why this order.** When a model writes the whole port, the proof has to catch its mistakes in behaviour as well
 as in style. Here a model never decides behaviour. The translator fixes it, and the model's only freedom is
@@ -280,7 +282,7 @@ Only generator output, never a test case:
   is 65533) while its own COMPUTE and MOVE, IBM's compilers and this runtime store the absolute value (3). No case
   reaches it; test_det_programs.py keeps its unsigned item above zero.
 
-- **FUNCTION RANDOM draws the oracle's numbers, not z/OS's** ([oracle_assumptions.md](oracle_assumptions.md) C12).
+- **FUNCTION RANDOM draws the oracle's numbers, not z/OS's** ([oracle_assumptions.md](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md) C12).
   IBM documents RANDOM's interface (a seed, zero or a positive integer; a run unit's first reference with no seed
   seeds zero; a reference with no seed continues the sequence; the value between 0 and 1) but not its generator, so
   no port can reproduce z/OS's sequence. `Funcs.Random` reproduces GnuCOBOL 3.1.2's (glibc `srand` / `rand`,
@@ -400,8 +402,15 @@ Only generator output, never a test case:
   UCTRANST (BNK1CCS, BNK1DCS). DFHVALUE(name) already translated in expressions (`MOVE DFHVALUE(..)`, comparisons) from
   IBM's CVDA table; it was missing on the stub side (now substituted) and as the operand of SET. DEEDIT edits the field
   in the region's page (`DetCics.deedit`, `GGCDEED`); UCTRANST is a stated fact (`withUctranst`, `$GGCICS_UCTRANST`).
-  Register X26; proven through cics-crucible hc-deedit-uctranst (3) on the cobol-stub side and the det port. Left for
-  slice 2: FORMATTIME YYDDD / DATE / MILLISECONDS, DELETEQ TS, DUMP, QUERY; INQUIRE of other resources stays refused.
+  Register X26; proven through cics-crucible hc-deedit-uctranst (3) on the cobol-stub side and the det port. INQUIRE of
+  other resources stays refused.
+- #4415 slice 2 (#4760): `DELETEQ TS`, `QUERY COUNTER` (QUERY DCOUNTER followed in #4770, QUERY CHANNEL in #5005),
+  INQUIRE ASSOCIATION origin data and RECEIVE MAP TERMINAL. Register X29.
+- #4415 slice 3 (#5040): FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM and the binary forms (DAYCOUNT, DAYOFMONTH,
+  DAYOFWEEK, MONTHOFYEAR, YEAR, MILLISECONDS) run on both runtimes, proved equal on six instants under Java and
+  GnuCOBOL. Refused by name (register X46, IBM leaves them to the region's setup): FORMATTIME DATE / DATEFORM /
+  FULLDATE (the region's DATFORM) and DATESTRING / STRINGFORMAT / STRINGZONE, `DUMP TRANSACTION` (also the bare DUMP)
+  and `QUERY SECURITY` (no security manager in the region). Every #4415 member is now modelled or refused by name.
 - #4270 slice: `EXEC CICS RETURN ... IMMEDIATE` (9 CBSA programs) and `LINK ... SYNCONRETURN` (10). IMMEDIATE attaches
   TRANSID's task at once with the COMMAREA, ahead of the terminal's next input (`CicsTask.returnImmediate`, `GGCRETI`; the
   runner's `immediate` trigger); it can fail (INVREQ RESP2 1 / 2, LENGERR RESP2 11) and the program then goes on.
@@ -451,7 +460,9 @@ Only generator output, never a test case:
   The cross-check reads every unit, each paragraph's extent ending with its program. estate-crucible PAYMAIN, refused
   first by its COPY DATEWS collision until #4486, now translates. *Grammar gaps*: `ENTRY 'DLITCBL' USING pcb ...` (IMS DL/I batch)
   is read as a statement (a placeholder CALL, as SORT); as the program's first statement with no PROCEDURE DIVISION
-  USING it is the program's entry, its USING the program's parameters; elsewhere it translates as a hole. A reference
+  USING it is the program's entry, its USING the program's parameters; elsewhere it translates as a hole. Since #4893
+  `ENTRY 'DLITCBL'` as the first statement is the entry even when PROCEDURE DIVISION has a USING of its own (IMS
+  enters a DL/I program there, with that ENTRY's list): see "IMS DL/I" below. A reference
   modification of an intrinsic function (`FUNCTION CURRENT-DATE (1:4)`, `FUNCTION UPPER-CASE(A) (2:3)`) is handed to
   the grammar as an argument list of the same length; expr reads it as the reference modification, and gen takes the
   substring of an alphanumeric function's text (it had dropped the modification). Newly read: CardDemo DBUNLDGS,
@@ -513,7 +524,7 @@ Only generator output, never a test case:
   | source defects, #4735 (`translator-refuses-source-defect`) | NexusBank NEND-DAY (census, non-burned) | program text past column 72 of a fixed-form line cuts a host variable (`:HV-SO-IM` \| `PORTO,`) or loses a separator comma: `source defect: source text past column 72 (`PORTO,`) truncates `:HV-SO-IM``. Fixed-form COBOL, the Db2 precompiler and the coprocessor read columns 8-72 only, so the statement as compiled is the cut one; the translator never reads the lost text back in. Identification-area tags (`COF00010`, a lone `-`) and `*>` comments past column 72 lose nothing and are not flagged (the cut literal of #4590 is its own wording) |
 | not a COBOL program (`NotCobol`, census: `generation failed: not a COBOL program: ISPF editor screen`) | cobol-db2-cursor, cobol_db2_stringsearch | the one `.cbl` is a saved ISPF edit panel (menu bar, `Command ===>` line, `Top of Data` banners; two markers needed). It had ended as `generation failed: SystemExit: 0`; the refactor controller and the survey now name it |
 | undeclared item / paragraph (a hole, not a refusal of the program) | cobol-db2-refatorado ALTERAR, EXCLUIR (`DB2-CODFUN`, `SQLCA`, `TRATA-SQLCODE`) | no data entry, COPY or INCLUDE declares the name: `X: undeclared item` / `X: undeclared paragraph` (was `no such item`). The CICS / DL/I interface blocks (`DFH*`, `EIB*`, `DIB*`) the translator itself must supply stay `no such item`, a translator gap. The statement stays a hole; nothing is declared on a guess |
-| vendor copybooks not in the estate (`translator-refuses-vendor-copybook`) | CardDemo COPAUA0C, COACCT01, CODATE01 (IBM MQ `CMQ*`); CBSA CRECUST (LE `CEEIGZCT`) | the estate ships no such member; the engine records the COPY unresolved, the translator refuses rather than lay out a guessed record |
+| vendor copybooks not in the estate (was `translator-refuses-vendor-copybook`; none left) | CardDemo COPAUA0C, COACCT01, CODATE01 (IBM MQ `CMQ*`: GitGalaxy-written stand-ins since #4892, register W1, ledger cause `translator-uses-mq-stand-ins`); CBSA CRECUST (LE `CEEIGZCT`: stand-in since #4884, `translator-uses-stand-in-copybook`) | a stand-in ships only with the model behind it (owner policy); a vendor copybook with no model stays refused, the engine records the COPY unresolved |
   | a COPY of a program member (`translator-copy-program-member`) | estate-crucible ORDMAIN (COPY ORDPRICE), SHPINQ / SHPINQO (COPY SHPRATE) | by design (horror H-0053, its key: "no compiler finds it"): no copy library holds the member, only a program source of that name. Engine copy resolution (#4468) reports the gap; the refusal is correct |
 - #4528: a TS item is the bytes the program wrote "in the region's code page" (CicsTask), and the COBOL side's
   region keeps it in CCSID 037 (cics-crucible SPEC 2; the stub transcodes its Latin-1 storage at the boundary). The
@@ -532,6 +543,11 @@ Only generator output, never a test case:
   column `VSAM_RECORD`) beside its typed columns, and `toRecord` re-encodes only a field whose value changed since:
   a non-digit in a zoned field, a non-preferred packed sign and FILLER survive a READ / REWRITE, while a value a
   service sets is still stored as MOVE stores it. A declared difference was rejected: it would loosen the proof.
+- **CardDemo CODATE01, the first MQ program (#4892, register W).** Its proof found two gaps outside MQ. The harness's
+  `DFHRESP(x)` substitution shortened a line whose columns 73-80 hold a sequence number (CardDemo app-vsam-mq numbers
+  every line), pulling the number into the code area: cobc refused `IF ... = 0 01450012`. The substitution now runs on
+  the code area only and pads back to column 72 (`equivalence_cics._numbered`). And `INITIALIZE ... REPLACING NUMERIC
+  BY ZEROES` was a hole: REPLACING now sets only the named categories' items, each as by MOVE, the others unchanged.
 
 ### Keyed reads
 
@@ -737,8 +753,11 @@ NULL is distinct.
   - SQLCODE, SQLSTATE, the warnings and SQLERRD(3) come from Db2 itself;
   - `SET :hv = expr` runs as a one-row `VALUES` into the host variables; a positioned UPDATE / DELETE (`WHERE
     CURRENT OF`) runs as written, ggsql.c naming each cursor at its OPEN;
-  - forms it does not model are refused by name: WHENEVER, dynamic SQL (PREPARE / EXECUTE / DESCRIBE), CONNECT,
-    CALL, ALLOCATE / ASSOCIATE, SCROLL cursors and host-variable arrays.
+  - `WHENEVER {SQLERROR | NOT FOUND | SQLWARNING} {CONTINUE | GO TO label}` (#4269) is scoped by source order: after
+    each executable statement the port tests the SQLCA (`DetSql.sqlcode` / `warned`) and takes the dispatcher's GOTO
+    (a program with a WHENEVER GO TO is not "structured");
+  - forms it does not model are refused by name: dynamic SQL (PREPARE / EXECUTE / DESCRIBE), CONNECT,
+    CALL, ALLOCATE / ASSOCIATE, scroll FETCH (PRIOR / ABSOLUTE / RELATIVE) and host-variable arrays.
 - **Java side (the det port).** Each statement calls the generated Db2 repository's method for it. The generator writes
   one method per statement, with the SQL as written and its Javadoc naming the source line and each parameter's host
   variable, so the boundary is again the generator's. `cobolrt/sql/DetSql` turns host-variable bytes into JDBC values
@@ -813,6 +832,47 @@ NULL is distinct.
     reads to the end of the caller's record only (`Cobol.commarea`, register X10) and a det caller passes the bytes
     themselves (`CicsTask.link(..., area)`).
 
+## IMS DL/I (batch DL/I calls, #4893)
+
+**Slice 1: CALL 'CBLTDLI' through a DB PCB, proven on a stated database.** A batch DL/I program (IMS enters its
+`ENTRY 'DLITCBL' USING pcb ...`; CMPAT=NO, a DLI region) translates whole. Its CALLs run through the det runtime's
+`cobolrt/dli/DetDli` (det/dli.py emits them; RETURN-CODE 0 after each, register I1), and the oracle's through
+`tests/equivalence/ims/ggdli.c`, the same rules and refusals on both sides (register family I, rule family DLI).
+
+- **The database is stated, not connected.** A case's `"ims"` section names its DBD and PSB sources (read by the
+  engine's `core/ims_gen.py`) and a seed: the corpus's own HD unload, or segments the case writes
+  (`tests/tools/equivalence_ims.py`). Both sides start from it, and the database each leaves is compared segment by
+  segment, every field of the segment's layout.
+- **Modelled.** GU, GHU, GN, GHN, GNP, GHNP, ISRT, REPL and DLET; unqualified SSAs and SSAs qualified by one field;
+  the PCB mask's feedback; position and parentage; status blank, GA, GK, GE, GB, GP, II, DJ, DA, AC, AJ, AK, AD and AM.
+- **The level fixture.** `tests/equivalence/ims/fixture` (LVLDBD, LVLPSB, DLILVL, expected.txt) is a three-level
+  database with every modelled call and status. Its expected output was written from IBM's documentation and
+  committed before either runtime ran it (policy: level estates first). On its first run both runtimes printed it line
+  for line (51/51) and left the same database (`tests/cobol_mainframe/test_det_dli.py`, EQUIVALENCE_E2E=1).
+- **Proven.** CardDemo PAUDBUNL (`carddemo-paudbunl`) unloads the corpus's own DBPAUTP0 unload (22 roots, 202
+  children) through GN / GNP into two files. It is proven on 5 runs (the step and four file faults), covering 9/10
+  paragraphs and 20/22 branches. The same work made ACCEPT FROM DATE / DAY / TIME translate (`cobolrt/Accept.java`): the
+  translator had emitted a call to a method the runtime did not have.
+- **EXEC DLI under CICS (#5278, register I5).** SCHD PSB, TERM, GU / GN / GNP, and ISRT / REPL / DLET (`DetDli.execIsrt` / `execChange`,
+  rules `RT-DLI-EXEC-ISRT` / `-CHANGE`) are DetDli calls answering DIBSTAT. ASSUMED: a get is a get-hold where the PCB's PROCOPT allows an
+  update, so a REPL / DLET acts on the segment the previous get held; segments are fixed length, a SEGLENGTH other than the DBD's stops the
+  run by name. Every EXEC DLI command of the burned CICS programs (COPAUA0C, COPAUS0C, COPAUS1C) translates
+  (pinned in `test_det_dli.py`). COPAUA0C has no hole at all: `det_port.py run --all-cases --translate-only` translates 344/344 statements
+  (its INITIALIZE ... REPLACING of a table is C17, #5823; its three READ KEYLENGTH(LENGTH OF ...) take the mapped file's key, #5831). A BMP entered `USING` its I/O PCB and DB PCBs translates GN / GNP / DLET / CHKP ID(area) and answers DIBSTAT (#5857; CBPAUP0C
+  translates 110/110, pinned in `test_det_dli.py`); its oracle side is linked (`ggdli.c`, #5889). Still holes: other EXEC DLI commands
+  and options, and any DIB field but DIBSTAT.
+- **Refused (register I5).** Other EXEC DLI; BMP / MPP / CICS DL/I programs and the I/O PCB (IMS TM); GSAM; DL/I calls
+  other than the nine; command codes and boolean SSAs; AIBTDLI / CEETDLI; HDAM order; secondary indexes; logical
+  relationships; load mode. CardDemo's other DL/I programs stop at one of these: PAUDBLOD (CMPAT=YES, an I/O PCB),
+  DBUNLDGS (GSAM PCBs). (COPAUA0C, COPAUS0C, COPAUS1C and CBPAUP0C's EXEC DLI commands translate, above; no equivalence case for COPAUS0C, COPAUS1C yet.)
+- **CBPAUP0C as a BMP (`carddemo-cbpaup0c`, #5857).** The step is entered USING the I/O PCB and the one DB PCB of PSBPAUTB, reads
+  its PRM-INFO card from SYSIN, walks the corpus's own DBPAUTP0 unload with GN / GNP, DLETs the expired details and emptied
+  summaries and takes CHKP ID checkpoints. Proven on five runs (the base card and four control-card scenarios, each a `faults` entry with its own
+  `sysin` and no plan, #5857: debug Y, a card of only the expiry, an expiry nothing reaches, and 5 expiry days whose first DLET
+  answers DJ and abends, RC 16, on both sides), DBPAUTP0 equal on every run, covering 15/16 paragraphs and 30/40 branches (the harness measured the BMP against the unrewritten text while the trace ran the DIB-and-CALL rewrite, so every line after the first EXEC DLI was lost: 4/40 until #5857's coverage fix reads the staged text). The case has no `port/` directory, so it has no `evidence.json` (`evidence.py` records only
+  committed ports, and a record is not a condition of any level): its level is the det-sweep coverage ledger's
+  (`tests/equivalence/det_sweep_coverage/carddemo-cbpaup0c.json`). Left: the 10 uncovered branches are the DL/I error statuses (EVALUATE OTHER at l.228 / 259, the failed-DLET and failed-CHKP arms) and a few IF outcomes no input reaches yet; `evidence.py prove` records no level for a case without a committed port (owner choice: commit a det-generated port, or read the ledger).
+
 ## In port_runner
 
 The combined method runs in the porting loop like any other backend, and every event lands in
@@ -832,19 +892,36 @@ The combined method runs in the porting loop like any other backend, and every e
 
 - **Screens stay byte storage.** COMMAREAs and records read INTO are typed with `--groups`, but a symbolic map's
   input and output maps overlap (`REDEFINES`), which typing does not do yet.
-- **The oracle is GnuCOBOL.** [oracle_assumptions.md](oracle_assumptions.md) lists every known or suspected difference
+- **The oracle is GnuCOBOL.** [oracle_assumptions.md](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md) lists every known or suspected difference
   from z/OS, with its status; a z/OS session would settle most. Two bound what is proven today: **C9**, a POINTER is
   8 bytes under the harness's 64-bit GnuCOBOL and 4 on z/OS, so a COMMAREA that carries one (CBSA's INQACCCU, DELCUS,
   CREACC) is compared field by field, each side read by its own layout, and the POINTER only as NULL or not; **D1**, proofs compare text in ASCII order, z/OS in EBCDIC: indexed
   keys that mix letters and digits browse differently, and no audit has yet counted the in-program comparisons whose
   result could change.
-- **Breadth outside CardDemo** is 21 programs in two estates (CBSA 8, GenApp 13), 14 of them on Db2. CBSA's other
+- **Breadth outside CardDemo** (2026-10-02) was 21 programs in two estates (CBSA 8, GenApp 13), 14 of them on Db2. CBSA's other
   Db2 programs are blocked by C9 (INQACCCU, DELCUS, CREACC), by its
   output file and CEEGMT / CEEDATM calls (BANKDATA; its FUNCTION RANDOM translates since C12) or by having only a
   Java caller (ACCTCTRL). CRECUST translates whole since #4884 (CEEIGZCT stand-in L4, CEELOCT L5, FETCH / RUN CHANNEL
-  X18) but is not proven: no case.
-- **Out of scope for this translator:** IMS (EXEC DLI), MQ, pointer arithmetic, ALTER, ENTRY, a dynamic CALL whose names the source does not fix (#4736,
+  X18) but is not proven: its case `cbsa-crecust` (Db2 seed, five RUN children, #4952) is refused by name on L1 (a 10-byte CEEDAYS picture over 8 bytes) and its child schedule is X18-assumed.
+- #5053: a COMMAREA no generated DTO types -- a DFHCOMMAREA that is no record (`PIC X(30)`), so the stub says `Object request` --
+  is no DTO class. It read as a missing `dto/contract/Object`, which made PCCONF's two `RETURN TRANSID COMMAREA(WS-STATE)` holes;
+  it is now untyped (`det/cics.py` `_typed`) and the record's own DTO carries it, bytes beside it. A program entered with
+  another program's DTO as its COMMAREA reads it through the DTO's layout (`DetCics.layoutBytes`, #4449) instead of ignoring it.
+  The four pc-return-immediate programs are committed det ports (`tests/cics_crucible/ports/pc-return-immediate`, no model).
+  PCCONF translates whole. Its proof failed on RECEIVE MAP, which did not apply the field's DFHMDF JUSTIFY (AMT is
+  `JUSTIFY=(RIGHT,ZERO)`) and the generated screen model carried none (#5082): `ScreenField.justify` now carries it and
+  `DetCics.typedJustified` places the input (register X54; a field with no JUSTIFY still goes through `DetCics.typed`, so
+  no other port moves; #5116: a NUM field with no JUSTIFY is IBM's RIGHT,ZERO, so `ScreenField.justify` carries that too and a port that RECEIVEs a NUM field goes through `DetJustify.place`). proof_reach counts a det port's own helpers (`runProgram`, the `in_X` / `out_X` codecs,
+  `handleLink` ...: `proof_reach.DET_HELPERS`, only in a file marked as a det port) as `det_helper`, proven by the cells that
+  reach the class, not as `ported_unproven`.
+- **Out of scope for this translator:** IMS (EXEC DLI), MQ beyond the CICS MQOPEN / MQGET / MQPUT / MQPUT1 / MQCLOSE modelled since #4892 (register W), pointer arithmetic, ENTRY, a dynamic CALL whose names the source does not fix (#4736,
   oracle_assumptions.md C15). Such statements stay named holes. A POINTER only stored and passed on (GenApp's prologue) is translated.
+- **ALTER (#5560, modelled).** `ALTER p TO [PROCEED TO] q` (several pairs per statement allowed) writes q into a Java `int`
+  slot (`alt<i>`, initialised to the target p's GO TO names) that p's GO TO reads in the paragraph dispatcher; the last ALTER
+  wins, and GO TO, PERFORM and fall-through reach the altered paragraph as any other. p must hold one GO TO without DEPENDING
+  (IBM Language Reference, ALTER); anything else, and an ALTER of an undeclared paragraph, is a named hole. A bare `GO TO.`
+  with no ALTER before it throws a Hole at run time. Independent segments (reset on entry) are not modelled. Proof: `ALTER1` /
+  `ALTER2` in test_det_programs.py against GnuCOBOL `-std=ibm`; CardDemo CBSTM03A 9 -> 5 holes (the rest: SET ADDRESS OF). Register: C19.
 - **Re-proving everything** after a runtime, harness or oracle change: `tests/tools/proof_sweep.py --work DIR`
   re-proves every det and model port and compares the result with the cases not proven on purpose.
 

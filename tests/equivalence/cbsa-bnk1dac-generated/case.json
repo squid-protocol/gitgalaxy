@@ -1,0 +1,178 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "BNK1DAC",
+ "program_source": "src/base/cobol_src/BNK1DAC.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "ODAC",
+ "termid": "T001",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "taskn": 4242,
+ "programs": [
+  {
+   "program": "INQACC",
+   "program_source": "src/base/cobol_src/INQACC.cbl"
+  },
+  {
+   "program": "DELACC",
+   "program_source": "src/base/cobol_src/DELACC.cbl"
+  },
+  {
+   "program": "ABNDPROC",
+   "program_source": "src/base/cobol_src/ABNDPROC.cbl"
+  }
+ ],
+ "datasets": {
+  "CBSA.CICSBSA.ABNDFILE": {
+   "input": "@case/abndfile.bin",
+   "entity": "WsAbndArea",
+   "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+   "record": "WS-ABND-AREA",
+   "recovery": "NONE",
+   "recovery_why": "etc/install/base/installjcl/BANK.csd: DEFINE FILE(ABNDFILE) ... RECOVERY(NONE) -- the abend log a backout must not undo"
+  }
+ },
+ "db2": {
+  "ddl": [
+   "etc/install/base/db2jcl/CRETB01.jcl",
+   "etc/install/base/db2jcl/CREI101.jcl",
+   "etc/install/base/db2jcl/CRETB02.jcl"
+  ],
+  "seed": "@generate",
+  "compare": [
+   "IBMUSER.ACCOUNT",
+   "IBMUSER.PROCTRAN"
+  ],
+  "qualifier": "IBMUSER",
+  "compare_sql": true,
+  "generate": {
+   "seed": 4507,
+   "tables": {
+    "IBMUSER.ACCOUNT": {
+     "rows": 30,
+     "columns": {
+      "ACCOUNT_SORTCODE": {
+       "values": [
+        "987654",
+        "987654",
+        "987654",
+        "123456"
+       ]
+      },
+      "ACCOUNT_NUMBER": {
+       "digits": true
+      }
+     }
+    }
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/BNK1DAC.cbl",
+    "record": "WS-COMM-AREA"
+   }
+  ]
+ },
+ "screens": {
+  "BNK1DA": {
+   "copybook": "@bms/BNK1DAM.cpy",
+   "input": "BNK1DAI",
+   "output": "BNK1DAO"
+  }
+ },
+ "scenarios": [
+  {
+   "name": "first-entry",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "EIBCALEN 0: WS-COMM-AREA initialised, the map sent ERASE with the cursor on ACCNO; RETURN TRANSID('ODAC') LENGTH(102)"
+  },
+  {
+   "name": "pa1",
+   "aid": "DFHPA1",
+   "commarea": {},
+   "why": "PA1: CONTINUE, nothing sent; RETURN TRANSID with the COMMAREA"
+  },
+  {
+   "name": "pf3",
+   "aid": "DFHPF3",
+   "commarea": {},
+   "why": "PF3: RETURN TRANSID('OMEN') IMMEDIATE: back to the main menu"
+  },
+  {
+   "name": "pf12",
+   "aid": "DFHPF12",
+   "commarea": {},
+   "why": "PF12: SEND-TERMINATION-MSG, RETURN"
+  },
+  {
+   "name": "clear",
+   "aid": "DFHCLEAR",
+   "commarea": {},
+   "why": "CLEAR: SEND CONTROL ERASE FREEKB, RETURN"
+  },
+  {
+   "name": "mapfail",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "why": "ENTER with no field modified: RM010 -- ABNDPROC LINKed (an ABNDFILE record) and ABEND HBNK"
+  },
+  {
+   "name": "other-key",
+   "aid": "DFHPF7",
+   "commarea": {},
+   "why": "PF7: WHEN OTHER -- 'Invalid key pressed.', SEND MAP DATAONLY ALARM (PF5 is this screen's delete key)"
+  }
+ ],
+ "notes": "BNK1DAC on generated Db2 rows (#4507): the display / delete screen of cbsa-bnk1dac, its LINKed INQACC and DELACC and the tables ACCOUNT and PROCTRAN compared after every task, with ACCOUNT rows generated from the DDL (30 rows, boundary values, NULLs) and the typed / carried account numbers drawn from them (the screen's ACCNO2 always one a row holds: a number that is not one makes the Java NUMVAL throw where GnuCOBOL's reads 0, see the PR; ACCNO and the carried COMMAREA number miss 15% of the time). Stated scenarios keep the non-ENTER / non-PF5 keys and MAPFAIL; the inquiries and deletes are generated. Derived from the CICS Bank Sample Application (CBSA), EPL-2.0: LICENSE is the corpus's own.",
+ "port_from": "cbsa-bnk1dac",
+ "scenario_generate": {
+  "seed": 4507,
+  "count": 40,
+  "prefix": "generated",
+  "aid": [
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHENTER",
+   "DFHPF5",
+   "DFHPF5",
+   "DFHPF5",
+   "DFHPF5",
+   "DFHPF5",
+   "DFHPF3",
+   "DFHPA1"
+  ],
+  "commarea": {
+   "WS-COMM-EYE": "ACCT",
+   "WS-COMM-SCODE": "987654",
+   "WS-COMM-ACCNO": {
+    "from": "IBMUSER.ACCOUNT.ACCOUNT_NUMBER",
+    "miss": 0.15
+   },
+   "WS-COMM-CUSTNO": "0000000001"
+  },
+  "receive": {
+   "BNK1DA": {
+    "ACCNOI": {
+     "from": "IBMUSER.ACCOUNT.ACCOUNT_NUMBER",
+     "miss": 0.15,
+     "empty": 0.2
+    },
+    "ACCNO2I": {
+     "from": "IBMUSER.ACCOUNT.ACCOUNT_NUMBER",
+     "miss": 0
+    }
+   }
+  }
+ }
+}

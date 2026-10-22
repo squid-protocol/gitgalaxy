@@ -1,7 +1,7 @@
 name: CI shepherd (reconcile)
 
 # #4847 item 3: the passes that need no label event -- a required check finished on a labelled PR (rerun infra/flake failures,
-# post the one digest per head, update a behind branch, enable auto-merge once the matrix is green), a cron for
+# post the one digest per head, enable auto-merge once the matrix is green), a cron for
 # the reruns' 15-minute gap, and a manual run (`ensure_labels: true` creates or refreshes the label set first).
 # Logic: tests/tools/shepherd_gh.py. Like shepherd-event.yml, it checks out main only and never runs PR code.
 
@@ -45,7 +45,7 @@ jobs:
       github.event_name != 'workflow_run' || github.event.workflow_run.event == 'pull_request'
       || github.event.workflow_run.event == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     permissions:
       contents: read
     steps:
@@ -54,6 +54,19 @@ jobs:
         with:
           ref: main
           persist-credentials: false
+
+      # #5398: the learned-flake list (flake_history.py's 14-day cache), refreshed and saved only by flake-history.yml
+      # (2026-10-20: this pass cannot save it, a workflow_run's cache token is read-only). Never an exact hit: restore-keys
+      # takes the newest saved one.
+      - name: Restore the flake-history cache
+        id: flake
+        continue-on-error: true
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: flake-cache
+          key: flake-history-${{ github.run_id }}
+          restore-keys: |
+            flake-history-
 
       - name: Create or refresh the shepherd:* labels
         if: github.event.inputs.ensure_labels == 'true'
@@ -65,4 +78,4 @@ jobs:
         # #4935: every pass covers all of them (not only the run's head), so a cancelled pending pass loses nothing
         env:
           GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
-        run: python3 tests/tools/shepherd_gh.py reconcile
+        run: python3 tests/tools/shepherd_gh.py reconcile --flake-cache flake-cache/flake_history.json

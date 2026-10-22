@@ -118,6 +118,27 @@ public class Cobil00cService {
         return lastAnswerBytes == null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);
     }
 
+    // @facade-helper: the bytes the last byte-carrying handleLink's program left in the COMMAREA
+    private byte[] lastLinkBytes;
+
+    /** #5053: handleLink with the raw bytes of the LINK's COMMAREA (passed by address: what the program
+     *  leaves there the caller sees); lastLinkBytes() then answers the bytes it left. */
+    public Cobil00cCarddemoCommarea handleLink(Cobil00cCarddemoCommarea request, byte[] area) {
+        log.info("Cobil00c: handleLink (bytes)");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("COBIL00C", request, area);
+        region.run(task, "COBIL00C", this::runTask);
+        byte[] left = task.linkAreaView();
+        lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;
+        return request;
+    }
+
+    /** The bytes the last byte-carrying handleLink's program left in the LINK COMMAREA (a copy; null: it took
+     *  none -- its DTO is the COMMAREA). @facade-helper */
+    public byte[] lastLinkBytes() {
+        return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);
+    }
+
     /** One pseudo-conversational task of this program (#3754): MAIN-PARA and the paragraphs it performs. */
     public void runTask(CicsTask task) {
         new Run(task).main();
@@ -216,7 +237,7 @@ public class Cobil00cService {
     /** Store into PIC S9(digits)V9(scale): truncate decimals, lose high-order digits. */
     private static BigDecimal store(BigDecimal v, int digits, int scale) {
         BigInteger u = v.setScale(scale, RoundingMode.DOWN).unscaledValue();
-        BigInteger m = u.abs().mod(BigInteger.TEN.pow(digits));
+        BigInteger m = u.abs().mod(BigInteger.TEN.pow(digits + scale));
         return new BigDecimal(u.signum() < 0 ? m.negate() : m, scale);
     }
 
@@ -547,9 +568,8 @@ public class Cobil00cService {
             return date + " " + time + "." + "000000";
         }
 
-        // RETURN-TO-PREV-SCREEN: true when the XCTL took (the task has ended)
+        // RETURN-TO-PREV-SCREEN: the XCTL took (the task has ended) or CICS abended the task (#4648)
         boolean returnToPrevScreen() {
-            // Defect kept: never true (the program always moves a target first); fix: drop the test.
             if (spacesOrLow(ca.getCdemoToProgram())) {
                 ca.setCdemoToProgram("COSGN00C");
             }
@@ -557,7 +577,10 @@ public class Cobil00cService {
             ca.setCdemoFromProgram(fit(WS_PGMNAME, 8));
             ca.setCdemoPgmContext(0);
             String r = dispatchCdemoToProgramL281(task, ca.getCdemoToProgram(), copyCommarea(ca));   // line 281
-            return "NORMAL".equals(r);
+            if (!"NORMAL".equals(r)) {
+                task.abendOnCondition(r);   // no RESP, no HANDLE CONDITION: CICS abends the task (#4648)
+            }
+            return true;
         }
 
         // SEND-BILLPAY-SCREEN (with POPULATE-HEADER-INFO)
@@ -614,7 +637,7 @@ public class Cobil00cService {
         void updateAcctdatFile() {
             AccountRecord copy = AccountRecord.fromRecord(acct.toRecord(cs), cs);
             resp = task.rewrite("ACCTDAT", () -> rewriteAcctdat(copy));
-            reas = 0;
+            reas = task.resp2();
             if (resp == 0) {
                 return;
             } else if (resp == 13) {
@@ -630,8 +653,11 @@ public class Cobil00cService {
             CicsTask.FileRead<CardXrefRecord> r = task.read("CXACAIX", () -> lookupXref(acctKey));
             resp = r.resp();
             reas = r.resp2();
-            if (resp == 0) {
+            if (resp == 0 || resp == 15) {  // DUPKEY: IBM retrieves the record, so CARD-XREF-RECORD is filled
                 xref = CardXrefRecord.fromRecord(r.record().toRecord(cs), cs);
+            }
+            if (resp == 0) {
+                return;
             } else if (resp == 13) {
                 fail("Account ID NOT found...", "ACTIDIN");
             } else {
@@ -686,7 +712,7 @@ public class Cobil00cService {
         void writeTransactFile() {
             TranRecord rec = TranRecord.fromRecord(tran.toRecord(cs), cs);
             resp = task.write("TRANSACT", tranRecordRepository.existsById(rec.getTranId()), () -> writeTransact(rec));
-            reas = 0;
+            reas = task.resp2();
             if (resp == 0) {
                 initializeAllFields();
                 message = fit("", 80);

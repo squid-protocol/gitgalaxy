@@ -163,3 +163,64 @@ def test_a_pre_3356_baseline_rehydrates_with_no_resources(tmp_path):
     conn.close()
     cache = StateRehydrator(str(db)).load_state("MainframeRepo")["ram_cache"]
     assert cache["app/csd/CARDDEMO.CSD"]["csd_resources"] == []
+
+
+# ==============================================================================
+# #5120: macro-table rows share the table and carry their provenance
+# ==============================================================================
+MACRO_RESOURCES = [
+    _res(
+        "FILE", "ACCTDAT", 4, dsname="BANK.ACCT.KSDS", key_length=11, group=None, source="MACRO", macro_table="DFHFCT01"
+    ),
+    _res(
+        "TRANSACTION", "BA01", 4, transid="BA01", program="BANKINQ", group=None, source="MACRO", macro_table="DFHPCT01"
+    ),
+]
+MACRO_UNIVERSE = [
+    {"path": "app/csd/CARDDEMO.CSD", "lang_id": "csd", "raw_imports": [], "csd_resources": RESOURCES},
+    {"path": "app/asm/DFHFCT.asm", "lang_id": "hlasm", "raw_imports": [], "csd_resources": MACRO_RESOURCES},
+]
+PROVENANCE = (
+    "SELECT f.file_path, resource_name, source, macro_table, line_number "
+    "FROM csd_resource_data r JOIN file_data f ON r.file_id = f.id ORDER BY 1, line_number, resource_name"
+)
+
+
+def test_a_macro_row_records_its_source_and_table_and_a_csd_row_reads_as_csd(tmp_path):
+    rows = _rows(_record(tmp_path / "m.db", MACRO_UNIVERSE), PROVENANCE)
+    assert ("app/asm/DFHFCT.asm", "ACCTDAT", "MACRO", "DFHFCT01", 4) in rows
+    assert ("app/asm/DFHFCT.asm", "BA01", "MACRO", "DFHPCT01", 4) in rows
+    assert {r[2] for r in rows if r[0] == "app/csd/CARDDEMO.CSD"} == {"CSD"}
+    assert {r[3] for r in rows if r[0] == "app/csd/CARDDEMO.CSD"} == {None}
+
+
+def test_macro_rows_survive_a_delta_scan_with_their_provenance(tmp_path):
+    db = _record(tmp_path / "m.db", MACRO_UNIVERSE)
+    cache = StateRehydrator(str(db)).load_state("MainframeRepo")["ram_cache"]
+    assert cache["app/asm/DFHFCT.asm"]["csd_resources"] == MACRO_RESOURCES
+    assert cache["app/csd/CARDDEMO.CSD"]["csd_resources"] == RESOURCES  # CSD rows gain no keys
+    delta_db = tmp_path / "delta.db"
+    _record(delta_db, [dict(node, path=path) for path, node in cache.items()])
+    assert _rows(delta_db, PROVENANCE) == _rows(db, PROVENANCE)
+
+
+def test_a_pre_5120_baseline_without_provenance_columns_rehydrates_as_csd(tmp_path):
+    db = _record(tmp_path / "m.db")
+    conn = sqlite3.connect(db)
+    conn.execute("ALTER TABLE csd_resource_data DROP COLUMN source")
+    conn.execute("ALTER TABLE csd_resource_data DROP COLUMN macro_table")
+    conn.commit()
+    conn.close()
+    cache = StateRehydrator(str(db)).load_state("MainframeRepo")["ram_cache"]
+    assert cache["app/csd/CARDDEMO.CSD"]["csd_resources"] == RESOURCES
+
+
+def test_recording_into_a_pre_5120_database_heals_the_provenance_columns(tmp_path):
+    db = _record(tmp_path / "m.db")
+    conn = sqlite3.connect(db)
+    conn.execute("ALTER TABLE csd_resource_data DROP COLUMN source")
+    conn.execute("ALTER TABLE csd_resource_data DROP COLUMN macro_table")
+    conn.commit()
+    conn.close()
+    rows = _rows(_record(db, MACRO_UNIVERSE), PROVENANCE)
+    assert ("app/asm/DFHFCT.asm", "ACCTDAT", "MACRO", "DFHFCT01", 4) in rows

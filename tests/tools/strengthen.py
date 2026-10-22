@@ -190,9 +190,12 @@ def ask(prompt_text: str, work: Path, model: str, command: str | None) -> tuple[
     work.mkdir(parents=True, exist_ok=True)
     pf = work / "prompt.md"
     pf.write_text(prompt_text, encoding="utf-8")
-    cmd = (command or pl.CLAUDE.replace("MODEL", model)).format(prompt_file=pf, prompt_dir=work)
+    template = command or pl.CLAUDE.replace("MODEL", model)
+    # #4939: split the template, THEN format each token -- formatting first lets POSIX-mode shlex.split strip the
+    # backslashes out of a Windows path and break a path with a space into two arguments.
+    argv = [a.format(prompt_file=pf, prompt_dir=work) for a in shlex.split(template)]
     start = time.time()
-    proc = subprocess.run(shlex.split(cmd), capture_output=True, text=True, check=False, timeout=1800)  # noqa: S603
+    proc = subprocess.run(argv, capture_output=True, text=True, check=False, timeout=1800)  # noqa: S603
     (work / "response.md").write_text(proc.stdout + ("\n" + proc.stderr if proc.returncode else ""), encoding="utf-8")
     return proc.stdout, time.time() - start
 

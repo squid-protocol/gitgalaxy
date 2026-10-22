@@ -11,6 +11,7 @@ exclusion; an exclusion edited into the ledger afterwards fails validation.
 
 import json
 import os
+import re
 import shlex
 import subprocess
 import sys
@@ -18,6 +19,7 @@ from pathlib import Path
 
 import pytest
 
+from gitgalaxy.core.source_text import read_source
 from gitgalaxy.tools.cobol_to_java import port_runner as pr
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
@@ -157,6 +159,51 @@ def test_start_refuses_a_development_estate_and_a_late_exclusion(started, tmp_pa
     assert any("eligibility changed after start" in e for e in trial.validate(ledger))
 
 
+@pytest.mark.slow(reason="rehearses a whole estate trial (10.5s on a CI runner, limit 15s)")
+def test_preview_rehearses_any_estate_and_writes_no_ledger(started, tmp_path, capsys):
+    ledger_path = started["ledger"]
+    before = ledger_path.read_bytes()
+    out_json = tmp_path / "decl.json"
+    # a burned estate id and an already trialled one are both accepted: a rehearsal is never first-try
+    for estate in ("aws-mainframe-modernization-carddemo", "tiny-estate"):
+        rc = trial.main(["--ledger", str(ledger_path), "preview", estate, "--estate-path", str(started["estate"]),
+                         "--work", str(tmp_path / f"w-{estate}"), "--json", str(out_json)])  # fmt: skip
+        assert rc == 0
+    text = capsys.readouterr().out
+    assert "eligible: 2  out of scope: 1" in text and "online (EXEC CICS)" in text
+    decl = json.loads(out_json.read_text(encoding="utf-8"))
+    assert decl["eligible"] == ["FIXPGM", "GOODPGM"] and list(decl["out_of_scope"]) == ["ONLINE1"]
+    assert ledger_path.read_bytes() == before  # no trial, no status change
+    ledger = trial.load(ledger_path)
+    assert (
+        next(e for e in ledger["estates"] if e["id"] == "aws-mainframe-modernization-carddemo")["status"]
+        == "development"
+    )
+
+
+def test_preview_honours_declared_exclusions(started, tmp_path, capsys, monkeypatch):
+    # Both calls scan the same estate: run the scan once (it is the whole cost; the declaration is what is under test).
+    import java_target_matrix as jtm
+
+    cache: dict[str, object] = {}
+    for name in ("refactor", "generate"):
+        real = getattr(jtm, name)
+
+        def once(*a, _real=real, _name=name, **kw):
+            if _name not in cache:
+                cache[_name] = _real(*a, **kw)
+            return cache[_name]
+
+        monkeypatch.setattr(jtm, name, once)
+    rc = trial.main(["--ledger", str(started["ledger"]), "preview", "x", "--estate-path", str(started["estate"]),
+                     "--work", str(tmp_path / "w"), "--exclude", "FIXPGM=too hard"])  # fmt: skip
+    assert rc == 0
+    assert "declared: too hard" in capsys.readouterr().out
+    with pytest.raises(SystemExit, match="did not find"):
+        trial.main(["--ledger", str(started["ledger"]), "preview", "x", "--estate-path", str(started["estate"]),
+                    "--work", str(tmp_path / "w2"), "--exclude", "NOPE=why"])  # fmt: skip
+
+
 def _backend(tmp_path: Path) -> str:
     """A stand-in model: GOODPGM right at once; FIXPGM right only once the engine repo has a FIXED marker."""
     script = tmp_path / "backend.py"
@@ -239,3 +286,137 @@ def test_a_retry_with_no_fix_is_the_models_and_a_recorded_attempt_is_never_rewri
     t = {"id": "t", "programs": {"P": {"attempts": [{**got[0], "outcome": "no-port"}], "final": "open"}}}
     with pytest.raises(SystemExit, match="never rewritten"):
         trial.sync(t, ev, [])
+
+
+def _proc(body: str, data: str = "") -> str:
+    return (
+        "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P1.\n       DATA DIVISION.\n"
+        f"       WORKING-STORAGE SECTION.\n{data}       PROCEDURE DIVISION.\n{body}"
+    )
+
+
+def test_display_is_an_output_channel_but_only_as_a_statement():
+    """#3806: SYSOUT is compared (#4056), so a program that only DISPLAYs is eligible; a USAGE DISPLAY clause,
+    a DISPLAY-... name, a comment or a data-division mention is not a statement."""
+    sk = {"program": {"language": "cobol"}}
+    shows = _proc("           DISPLAY 'HELLO'\n           GOBACK.\n")
+    assert trial.out_of_scope_reason(sk, shows, False) is None
+    for text in (
+        _proc("           GOBACK.\n", "       01  WS-A PIC 9 USAGE DISPLAY.\n"),
+        _proc("           MOVE 1 TO DISPLAY-COUNT\n           GOBACK.\n"),
+        _proc("      * DISPLAY 'NOT A STATEMENT'\n           GOBACK.\n"),
+        _proc("           MOVE 1 TO X *> DISPLAY 'x'\n           GOBACK.\n"),
+    ):
+        assert "sets no RETURN-CODE" in trial.out_of_scope_reason(sk, text, False)
+    writes = {"sections": {"datasets": {"facts": [{"internal_name": "O", "modes": ["OUTPUT"]}]}}, **sk}
+    assert trial.out_of_scope_reason(writes, _proc("           GOBACK.\n"), False) is None
+
+
+def test_return_code_is_an_output_channel_but_only_when_set():
+    """#3806: the harness compares the step's RETURN-CODE, so a program that sets it is eligible; a read, a
+    comment, a longer name or a data-division mention is not a set."""
+    sk = {"program": {"language": "cobol"}}
+    for body in (
+        "           MOVE 4 TO RETURN-CODE\n           GOBACK.\n",
+        "           ADD 1 TO RETURN-CODE\n           GOBACK.\n",
+        "           COMPUTE RETURN-CODE = WS-A + 1\n           GOBACK.\n",
+        "           ADD 1 TO WS-A GIVING RETURN-CODE\n           GOBACK.\n",
+    ):
+        assert trial.out_of_scope_reason(sk, _proc(body), False) is None, body
+    for text in (
+        _proc("           MOVE RETURN-CODE TO WS-A\n           GOBACK.\n"),
+        _proc("      * MOVE 4 TO RETURN-CODE\n           GOBACK.\n"),
+        _proc("           MOVE 4 TO WS-RETURN-CODE\n           GOBACK.\n"),
+        _proc("           MOVE 4 TO RETURN-CODE-X\n           GOBACK.\n"),
+        _proc("           GOBACK.\n", "       01  WS-A PIC 9.\n           MOVE 4 TO RETURN-CODE.\n"),
+    ):
+        assert "sets no RETURN-CODE" in trial.out_of_scope_reason(sk, text, False), text
+
+
+def test_abend_is_an_output_channel_but_only_as_a_call_to_the_stub():
+    """#3806: the harness records a CEE3ABD abend and a proof needs the same abend on both sides, so a program
+    that calls the stub is eligible; a comment, a data-division mention, a variable target or ILBOABN0 (no stub)
+    is not."""
+    sk = {"program": {"language": "cobol"}}
+    for body in (
+        "           CALL 'CEE3ABD' USING WS-CODE WS-TIMING\n           GOBACK.\n",
+        '           CALL "CEE3ABD" USING WS-CODE WS-TIMING\n           GOBACK.\n',
+    ):
+        assert trial.out_of_scope_reason(sk, _proc(body), False) is None, body
+    for text in (
+        _proc("      * CALL 'CEE3ABD' USING X\n           GOBACK.\n"),
+        _proc("           CALL WS-CEE3ABD USING X\n           GOBACK.\n"),
+        _proc("           CALL 'ILBOABN0' USING X\n           GOBACK.\n"),
+        _proc("           GOBACK.\n", "       01  WS-A PIC X VALUE 'CEE3ABD'.\n           CALL 'CEE3ABD'.\n"),
+    ):
+        assert "does not abend" in trial.out_of_scope_reason(sk, text, False), text
+
+
+def _fd_program(select_fd: str) -> str:
+    return (
+        "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P1.\n       ENVIRONMENT DIVISION.\n"
+        "       INPUT-OUTPUT SECTION.\n       FILE-CONTROL.\n           SELECT IN-FILE ASSIGN TO INFILE.\n"
+        f"       DATA DIVISION.\n       FILE SECTION.\n{select_fd}"
+        "       WORKING-STORAGE SECTION.\n       01  WS-A PIC X.\n       PROCEDURE DIVISION.\n"
+        "           DISPLAY 'X'\n           GOBACK.\n"
+    )
+
+
+def test_an_inline_fd_record_is_a_layout_but_only_with_an_01_and_pictures():
+    """#3806: layout_fields reads an FD record from the program itself, so an inline 01 with PICTURE items is a
+    layout; an FD with no record, no picture or only a comment is not. A COPY in the FD still is."""
+    sk = {
+        "program": {"language": "cobol"},
+        "sections": {
+            "datasets": {"facts": [{"internal_name": "IN-FILE", "modes": ["INPUT"]}]},
+            "file_control": {"facts": [{"select_name": "IN-FILE", "fd_copies": None}]},
+        },
+    }
+    inline = (
+        "       FD  IN-FILE.\n       01  IN-REC.\n           05 IN-ID  PIC 9(5).\n           05 IN-REST PIC X(10).\n"
+    )
+    assert trial.out_of_scope_reason(sk, _fd_program(inline), False) is None
+    indexed = {
+        **sk,
+        "sections": {**sk["sections"], "datasets": {"facts": [{"internal_name": "IN-FILE", "modes": ["I-O"]}]}},
+    }
+    assert trial.out_of_scope_reason(indexed, _fd_program(inline), False) is None
+    for fd in (
+        "       FD  IN-FILE.\n",
+        "       FD  IN-FILE\n           RECORD CONTAINS 80 CHARACTERS.\n       01  IN-REC.\n",
+        "      * FD  IN-FILE.\n      * 01  IN-REC.\n      *     05 IN-ID PIC 9(5).\n",
+        "       FD  OTHER-FILE.\n       01  O-REC.\n           05 O-ID PIC 9(5).\n",
+    ):
+        assert "no record layout" in trial.out_of_scope_reason(sk, _fd_program(fd), False), fd
+    # the next FD's record is not this FD's layout
+    two = "       FD  IN-FILE.\n       FD  OUT-FILE.\n       01  O-REC.\n           05 O-ID PIC 9(5).\n"
+    assert "no record layout" in trial.out_of_scope_reason(sk, _fd_program(two), False)
+    # shipped data needs no layout
+    assert trial.out_of_scope_reason(sk, _fd_program("       FD  IN-FILE.\n"), True) is None
+
+
+_UNLOCKED = ("CBACT01C", "CBACT02C", "CBACT03C", "CBACT04C", "CBCUS01C", "CBIMPORT", "CBTRN01C", "CBTRN02C", "CBTRN03C")
+_FD_RECORD = re.compile(r"^.{6}\s*FD\s+([A-Z0-9-]+)[^\n]*\n(?:[^\n]*\n)*?.{6}\s*01\s+([A-Z0-9-]+)", re.M)
+
+
+def test_every_inline_fd_record_of_the_unlocked_carddemo_programs_lays_out():
+    """#3806: the nine CardDemo programs #5551 made eligible declare their records inline. Eligibility only says
+    a layout exists; the generator must read it. Each FD record lays out through layout_fields, using the estate's
+    copy directories. CBIMPORT's input record is built from COPY members (resolved only through app/cpy) and
+    holds a REDEFINES (CVEXPORT): the generator fills the first alternative only (harness_report's `redefines`
+    blocker), so that program's generated inputs need a hand rule. Burned estate only."""
+    import equivalence_common as common
+
+    base = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", "")) / "aws-mainframe-modernization-carddemo"
+    if not (base / "app" / "cbl").is_dir():
+        pytest.skip("CardDemo corpus not checked out")
+    dirs = [base / "app" / "cpy", base / "app" / "cbl"]
+    for prog in _UNLOCKED:
+        rel = f"app/cbl/{prog}.cbl"
+        found = _FD_RECORD.findall(read_source(base / rel).text)
+        assert found, f"{prog}: no FD record found"
+        for fd, record in found:
+            assert common.layout_fields(base, rel, record, copy_dirs=dirs), f"{prog} {fd}: {record} has no fields"
+    # without the estate's copy directory the COPY members do not resolve: named, not silent
+    with pytest.raises(common.LayoutError):
+        common.layout_fields(base, "app/cbl/CBIMPORT.cbl", "EXPORT-INPUT-RECORD")

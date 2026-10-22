@@ -1,0 +1,295 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGDPDB01",
+ "program_source": "base/src/lgdpdb01.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGDP",
+ "clock": "2026/10/01 10:30:15.00",
+ "db2": {
+  "ddl": [
+   "base/cntl/db2cre.jcl"
+  ],
+  "seed": "@generate",
+  "symbols": {
+   "<DB2DBID>": "GENASA1"
+  },
+  "qualifier": "GENASA1",
+  "compare": [
+   "GENASA1.CUSTOMER",
+   "GENASA1.CUSTOMER_SECURE",
+   "GENASA1.POLICY",
+   "GENASA1.ENDOWMENT",
+   "GENASA1.HOUSE",
+   "GENASA1.MOTOR",
+   "GENASA1.COMMERCIAL",
+   "GENASA1.CLAIM"
+  ],
+  "compare_sql": true,
+  "generate": {
+   "seed": 4507,
+   "tables": {
+    "GENASA1.CUSTOMER": {
+     "rows": 10,
+     "columns": {
+      "CUSTOMERNUMBER": {
+       "values": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+       ]
+      }
+     }
+    },
+    "GENASA1.POLICY": {
+     "rows": 12
+    },
+    "GENASA1.ENDOWMENT": {
+     "rows": 3
+    },
+    "GENASA1.HOUSE": {
+     "rows": 4
+    },
+    "GENASA1.MOTOR": {
+     "rows": 4
+    },
+    "GENASA1.COMMERCIAL": {
+     "rows": 3
+    }
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgdpol01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "region": {
+  "applid": "GENAREGN",
+  "sysid": "CICA"
+ },
+ "scenarios": [
+  {
+   "name": "delete-end-p10",
+   "commarea": {
+    "CA-REQUEST-ID": "01DEND",
+    "CA-RETURN-CODE": "00",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0001000010                                                          "
+   },
+   "why": "generated endowment policy 10 of customer 1: DELETE FROM POLICY +0, the ENDOWMENT row cascades (ON DELETE CASCADE), LINK LGDPVS01 deletes the VSAM record; '00'"
+  },
+  {
+   "name": "delete-end-house-p8",
+   "commarea": {
+    "CA-REQUEST-ID": "01DEND",
+    "CA-RETURN-CODE": "00",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0001000008                                                          "
+   },
+   "why": "policy 8 holds an endowment and a house row: one DELETE cascades into both tables"
+  },
+  {
+   "name": "delete-end-p7",
+   "commarea": {
+    "CA-REQUEST-ID": "01DEND",
+    "CA-RETURN-CODE": "00",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0001000007                                                          "
+   },
+   "why": "a third endowment policy of customer 1"
+  },
+  {
+   "name": "delete-house-p2",
+   "commarea": {
+    "CA-REQUEST-ID": "01DHOU",
+    "CA-RETURN-CODE": "00",
+    "CA-CUSTOMER-NUM": 5,
+    "CA-REQUEST-SPECIFIC": "0001000002                                                          "
+   },
+   "why": "house policy 2 (the lowest LASTCHANGED) of customer 5: the HOUSE row cascades"
+  },
+  {
+   "name": "delete-house-p11",
+   "commarea": {
+    "CA-REQUEST-ID": "01DHOU",
+    "CA-RETURN-CODE": "00",
+    "CA-CUSTOMER-NUM": 6,
+    "CA-REQUEST-SPECIFIC": "0001000011                                                          "
+   },
+   "why": "house policy 11 of customer 6"
+  },
+  {
+   "name": "delete-house-motor-p12",
+   "commarea": {
+    "CA-REQUEST-ID": "01DHOU",
+    "CA-RETURN-CODE": "00",
+    "CA-CUSTOMER-NUM": 9,
+    "CA-REQUEST-SPECIFIC": "0001000012                                                          "
+   },
+   "why": "policy 12 of customer 9 holds house and motor rows: both cascade"
+  },
+  {
+   "name": "delete-motor-p3",
+   "commarea": {
+    "CA-REQUEST-ID": "01DMOT",
+    "CA-RETURN-CODE": "00",
+    "CA-CUSTOMER-NUM": 2,
+    "CA-REQUEST-SPECIFIC": "0001000003                                                          "
+   },
+   "why": "motor policy 3 (the highest LASTCHANGED) of customer 2: the MOTOR row cascades"
+  },
+  {
+   "name": "delete-motor-p9",
+   "commarea": {
+    "CA-REQUEST-ID": "01DMOT",
+    "CA-RETURN-CODE": "00",
+    "CA-CUSTOMER-NUM": 7,
+    "CA-REQUEST-SPECIFIC": "0001000009                                                          "
+   },
+   "why": "motor policy 9 of customer 7 (generated BROKERID NULL: not read by the delete)"
+  },
+  {
+   "name": "delete-no-type-row-p1",
+   "commarea": {
+    "CA-REQUEST-ID": "01DCOM",
+    "CA-RETURN-CODE": "00",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0001000001                                                          "
+   },
+   "why": "01DCOM names no commercial row of policy 1: the DELETE is on POLICY alone, so the policy and whatever it holds go; the request id only selects the branch"
+  },
+  {
+   "name": "delete-wrong-customer",
+   "commarea": {
+    "CA-REQUEST-ID": "01DEND",
+    "CA-RETURN-CODE": "00",
+    "CA-CUSTOMER-NUM": 2,
+    "CA-REQUEST-SPECIFIC": "0001000010                                                          "
+   },
+   "why": "policy 10 belongs to customer 1: DELETE finds no row (+100 -> '90'), WRITE-ERROR-MESSAGE LINKs LGSTSQ"
+  },
+  {
+   "name": "delete-unknown-policy",
+   "commarea": {
+    "CA-REQUEST-ID": "01DMOT",
+    "CA-RETURN-CODE": "00",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0001000999                                                          "
+   },
+   "why": "no policy 999: DELETE +100 -> '90'"
+  },
+  {
+   "name": "delete-twice-p10",
+   "commarea": {
+    "CA-REQUEST-ID": "01DEND",
+    "CA-RETURN-CODE": "00",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0001000010                                                          "
+   },
+   "why": "policy 10 was deleted by the first task: +100 -> '90' (the cascade left no rows behind)"
+  },
+  {
+   "name": "request-add-policy-id",
+   "commarea": {
+    "CA-REQUEST-ID": "01AEND",
+    "CA-RETURN-CODE": "00",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0001000001                                                          "
+   },
+   "why": "'01AEND' is none of 01DEND/01DHOU/01DCOM/01DMOT: '99', nothing deleted"
+  },
+  {
+   "name": "request-inquire-id",
+   "commarea": {
+    "CA-REQUEST-ID": "01IHOU",
+    "CA-RETURN-CODE": "00",
+    "CA-CUSTOMER-NUM": 6,
+    "CA-REQUEST-SPECIFIC": "0001000011                                                          "
+   },
+   "why": "an inquiry id: '99', house policy 11 untouched"
+  },
+  {
+   "name": "request-lowercase",
+   "commarea": {
+    "CA-REQUEST-ID": "01dend",
+    "CA-RETURN-CODE": "00",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0001000007                                                          "
+   },
+   "why": "'01dend' is not '01DEND' (byte comparison): '99'"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "EIBCALEN 0: IF EIBCALEN IS EQUAL TO ZERO -- EM-VARIABLE ' NO COMMAREA RECEIVED', WRITE-ERROR-MESSAGE LINKs LGSTSQ with ERROR-MSG (it writes the message to TD CSMT and TS GENAERRS: #4607), IF EIBCALEN > 0 is false, then ABEND LGCA"
+  },
+  {
+   "name": "short-commarea",
+   "commarea": {
+    "CA-REQUEST-ID": "01DEND",
+    "CA-RETURN-CODE": "00",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0001000007                                                          "
+   },
+   "commarea_length": 20,
+   "why": "#4270 (X23): the caller passed 20 bytes, fewer than WS-CA-HEADER-LEN (28): IF EIBCALEN IS LESS THAN WS-CA-HEADER-LEN (line 143) is true -- '98', RETURN; no DELETE, no LINK. The COMMAREA it leaves is compared over its 20 bytes"
+  },
+  {
+   "name": "short-commarea-delete-fails",
+   "commarea": {
+    "CA-REQUEST-ID": "01DEND",
+    "CA-RETURN-CODE": "00",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0001000007                                                          "
+   },
+   "commarea_length": 40,
+   "sql_faults": [
+    {
+     "line": 189,
+     "sqlcode": -904
+    }
+   ],
+   "why": "#4270 (X23): 40 bytes (the 28-byte header passed): DELETE-POLICY-DB2-INFO's DELETE (line 189) fails -904: '90', WRITE-ERROR-MESSAGE LINKs LGSTSQ with ERROR-MSG, then IF EIBCALEN < 91 is true -- DFHCOMMAREA(1:40) into CA-DATA and the second LINK, whose 104-byte WRITEQ is refused (X6): judged up to it"
+  }
+ ],
+ "notes": "Generated-row sibling (#4507) of genapp-lgdpdb01: CUSTOMER, POLICY and the ENDOWMENT / HOUSE / MOTOR / COMMERCIAL tables are generated from base/cntl/db2cre.jcl (the same generate block as genapp-lgupdb01-generated: identity policy numbers 1000001..1000012 (the requests carry them), FKs POLICY->CUSTOMER and type->POLICY, NULLs and boundary values), not GenApp's INSERTs. The scenarios are written against those seed 4507 rows. Covered: a DELETE FROM POLICY of each type (the cascade into ENDOWMENT / HOUSE / MOTOR, and a policy that holds two type rows), the lowest and highest timestamps, a wrong customer and an unknown policy and a repeated delete (+100 -> '90', LGSTSQ), the non-delete request ids ('99'), no / short COMMAREA. ksdspoly.txt (LGDPVS01's KSDSPOLY) holds a record for each generated policy that is deleted. Every table the cascade reaches, CLAIM included, is compared after each task. A change to the generator's draw moves the rows: the E2E test in tests/cobol_mainframe/test_equivalence_db2_rows.py fails the case then. Program, LINKed LGDPVS01 / LGSTSQ and the LGCMAREA COMMAREA as in genapp-lgdpdb01.",
+ "programs": [
+  {
+   "program": "LGDPVS01",
+   "program_source": "base/src/lgdpvs01.cbl"
+  },
+  {
+   "program": "LGSTSQ",
+   "program_source": "base/src/lgstsq.cbl"
+  }
+ ],
+ "datasets": {
+  "<USRHLQ>.GENAPP.KSDSPOLY": {
+   "input": "@case/ksdspoly.txt",
+   "entity": "WfPolicyInfo",
+   "copybook": "base/src/lgdpvs01.cbl",
+   "record": "WF-POLICY-INFO",
+   "vsam": {
+    "key_offset": 0,
+    "key_length": 21,
+    "reclen": 64,
+    "why": "base/cntl/adef121.jcl DEFINE2: DATA(... KEYS(21 0) RECORDSIZE(64 64)); the engine's facts do not read KEYS / RECORDSIZE inside the DATA component, so the case states them"
+   }
+  }
+ }
+}

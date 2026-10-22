@@ -1,0 +1,28 @@
+{
+ "format": "gitgalaxy/crucible-strengthened/1",
+ "case": "ca-link-lengths",
+ "scenarios": [
+  {
+   "id": "no-commarea-trace-fails",
+   "summary": "LINK CASUB with no COMMAREA: its WRITEQ TS CATRACE fails (INVREQ, no RESP), the default action abends the linked program and the whole task",
+   "faults": [
+    {
+     "task": "CA01",
+     "cmd": "WRITEQ-TS",
+     "queue": "CATRACE",
+     "nth": 1,
+     "resp": "INVREQ"
+    }
+   ],
+   "path": "trap",
+   "until": 60,
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "CA01 Z"
+    }
+   ]
+  }
+ ]
+}

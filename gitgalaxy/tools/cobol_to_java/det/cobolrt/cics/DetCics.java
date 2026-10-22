@@ -23,6 +23,7 @@ public final class DetCics {
 
     /** A POINTER in a COMMAREA DTO into the port's storage: NULL (null / blank / "NULL") is all zero bytes. An address
      *  is not portable -- it names storage the port does not have -- so it stops the run by name. */
+    // [rule RT-CICS-POINTER-IN-COMMAREA]
     public static void pointerIn(String value, __PACKAGE__.cobolrt.Storage s, int at, int len) {
         if (value != null && !value.isBlank() && !"NULL".equals(value.strip())) {
             throw new UnsupportedOperationException("a POINTER that is not NULL in a COMMAREA is not modelled");
@@ -110,6 +111,7 @@ public final class DetCics {
         }
 
         /** The first record (in key order) whose key equals `key` (its first keyLength bytes). */
+        // [rule RT-CICS-FILE-KEY-ORDER]
         public Optional<byte[]> find(byte[] key) {
             if (byId != null) {
                 return findById(key).map(r -> (byte[]) r[1]);
@@ -126,6 +128,7 @@ public final class DetCics {
         /** #4270 READ GTEQ / GENERIC (IBM, EXEC CICS READ; oracle_assumptions.md X22): in key order (the browse's),
          *  the first record whose key's first `length` bytes equal `key`'s -- a generic key when `length` is shorter
          *  than the key -- or, with `gteq`, are greater ("the first record that has a greater key is retrieved"). */
+        // [rule RT-CICS-READ-GTEQ-GENERIC]
         public Optional<byte[]> search(byte[] key, int length, boolean gteq) {
             byte[] k = Arrays.copyOf(key, length);
             Comparator<byte[]> o = order();
@@ -188,6 +191,7 @@ public final class DetCics {
 
     /** `n` bytes of storage from a field's first byte -- a command's FROM(area) LENGTH(n), which may run past the
      *  area into what follows it in its record (as CICS reads it: from the area's address, n bytes). */
+    // [rule RT-CICS-FROM-LENGTH]
     public static byte[] bytes(Field f, int n) {
         return Arrays.copyOfRange(f.storage().bytes, f.offset(), f.offset() + n);
     }
@@ -202,6 +206,7 @@ public final class DetCics {
     }
 
     /** #4607 x X6: a WRITEQ's LENGTH n, refused (PastFrom) when it runs past FROM's own length. */
+    // [rule RT-CICS-WRITEQ-PAST-FROM]
     public static int within(Field f, int n, String what) {
         if (n > f.length()) {
             throw new PastFrom(what + " LENGTH " + n + " > FROM's " + f.length() + " bytes: not modelled");
@@ -211,6 +216,7 @@ public final class DetCics {
 
     /** #4769 (X33): DOCUMENT CREATE TEXT / BINARY LENGTH(n): `n` bytes of the area, null for a negative `n` (the task
      *  answers LENGERR), refused (PastFrom) when `n` runs past the area, as a WRITEQ's LENGTH past FROM is. */
+    // [rule RT-CICS-DOCUMENT]
     public static byte[] documentBytes(Field f, int n) {
         if (n < 0) {
             return null;
@@ -232,6 +238,7 @@ public final class DetCics {
     /** #4270: `n` bytes from a field's first byte within its record -- a SEND TEXT FROM(f) LENGTH(n) past FROM sends
      *  the items that follow it in its record (GenApp LGICVS01). Past the record's end the bytes are those of the
      *  compiler's WORKING-STORAGE layout, unlike IBM's under GnuCOBOL: refused as X6 is (PastFrom). */
+    // [rule RT-CICS-SEND-TEXT-PAST-FROM]
     public static byte[] withinRecord(Field f, int n, String what) {
         if (n < 0 || f.offset() + n > f.storage().bytes.length) {
             throw new PastFrom(what + " LENGTH " + n + " runs past FROM's record: not modelled");
@@ -247,6 +254,7 @@ public final class DetCics {
      *  the DTO keeps the DTO (`dto`). The bytes are the region's EBCDIC (cp037), as every COMMAREA a task carries
      *  is (the harness reads a byte[] so); commareaIn undoes it. Text round-trips; other bytes only where `cs`
      *  maps them to the same cp037 byte back (LOW-VALUES and SPACES do). */
+    // [rule RT-CICS-XCTL-COMMAREA-LENGTH]
     public static Object commareaOut(Object dto, Field f, Integer length, int size, Charset cs) {
         if (length == null || length <= size) {
             return dto;
@@ -258,25 +266,21 @@ public final class DetCics {
         return new String(out, cs).getBytes(EBCDIC);
     }
 
-    /** #4501: EIBRESP2 / RESP2 after a failed XCTL, which CicsTask.xctl gives as its condition only: LENGERR is
-     *  RESP2 11 (LENGTH outside 0-32763), PGMIDERR RESP2 1 (IBM, EXEC CICS XCTL conditions). */
-    public static int xctlResp2(String resp) {
-        return "LENGERR".equals(resp) ? 11 : "PGMIDERR".equals(resp) ? 1 : 0;
-    }
-
-    /** #4679: EIBRESP2 / RESP2 after a failed LINK, which CicsTask.link gives as its condition only. IBM (EXEC CICS
-     *  LINK conditions): LENGERR RESP2 11 -- the COMMAREA length is below 0 or above 32763 -- and PGMIDERR RESP2 1 --
-     *  the program has no installed definition and autoinstall is off -- the only two CicsTask.link raises (and the
-     *  cics stub's GGCLINK, which gives the same RESP2). Its other conditions (PGMIDERR 2/3 disabled / not loadable,
-     *  NOTAUTH 101, INVREQ, ROLLEDBACK, SYSIDERR, TERMERR) are not raised by the region, so not mapped here. */
-    public static int linkResp2(String resp) {
-        return xctlResp2(resp);
-    }
-
     /** #4679: a COMMAREA's bytes (in `cs`, the program's storage page) as one travels when no DTO types it: the
      *  region's EBCDIC, as commareaOut gives them (commareaIn undoes it). */
     public static byte[] commareaBytes(byte[] area, Charset cs) {
         return new String(area, cs).getBytes(EBCDIC);
+    }
+
+    /** #5053: the bytes of a COMMAREA that came as another program's DTO: its layout (toCommarea, #4449), in the record
+     *  charset -- this port's page. A class with no layout is refused, never guessed. */
+    public static byte[] layoutBytes(Object dto) {
+        try {
+            return (byte[]) dto.getClass().getMethod("toCommarea").invoke(dto);
+        } catch (ReflectiveOperationException | ClassCastException e) {
+            throw new IllegalStateException("the COMMAREA is a " + dto.getClass().getName()
+                    + ", which this program does not take and no layout converts (#5053)", e);
+        }
     }
 
     /** #4501: the bytes of a COMMAREA commareaOut passed, in the receiving program's storage charset. */
@@ -288,6 +292,7 @@ public final class DetCics {
     /** #4270: PUT CONTAINER FROM(f) FLENGTH(n): the first n bytes of the area, none below zero (CicsTask answers
      *  LENGERR RESP2 1). FLENGTH past FROM's end reads the bytes that follow the item in storage, which GnuCOBOL
      *  lays out unlike IBM's compiler: refused, as the stub refuses it (oracle_assumptions.md X6). */
+    // [rule RT-CICS-CONTAINER-LENGTH]
     public static byte[] containerData(Field f, int n) {
         if (n > f.length()) {
             throw new UnsupportedOperationException("PUT CONTAINER FLENGTH " + n + " > FROM's " + f.length()
@@ -311,6 +316,7 @@ public final class DetCics {
      *  LENGERR: IBM, "Occurs if LENGTH is not greater than zero"). A LENGTH past FROM's end reads the bytes that
      *  follow the item in storage, which GnuCOBOL lays out unlike IBM's compiler: refused, as the stub refuses it
      *  (oracle_assumptions.md X6). */
+    // [rule RT-CICS-START-LENGTH]
     public static byte[] startData(Field f, int n) {
         if (n > f.length()) {
             throw new UnsupportedOperationException("START LENGTH " + n + " > FROM's " + f.length()
@@ -321,6 +327,7 @@ public final class DetCics {
 
     /** #4270 slice 2: text into a whole field, padded with spaces or truncated -- a COBOL MOVE of the 4- / 8-byte
      *  value RETRIEVE RTRANSID / RTERMID / QUEUE returns into the program's area. */
+    // [rule RT-CICS-RETRIEVE-INTO]
     public static void putPadded(Field f, String text, Charset cs) {
         StringBuilder b = new StringBuilder(text);
         while (b.length() < f.length()) {
@@ -339,6 +346,7 @@ public final class DetCics {
      *  longer than `max`. Refused, as not modelled: a negative LENGTH; a record moved past INTO (CICS writes the
      *  storage that follows it, which GnuCOBOL lays out unlike IBM's compiler: oracle_assumptions.md X6); LENGERR on
      *  READ UPDATE (`update`), since IBM does not say whether the record is then held. */
+    // [rule RT-CICS-READ-INTO-LENGTH]
     public static int readInto(Field into, byte[] record, int max, boolean update) {
         if (max < 0) {
             throw new UnsupportedOperationException("READ LENGTH " + max + " (negative): not modelled");
@@ -356,6 +364,18 @@ public final class DetCics {
         return lengerr ? 22 : 0;
     }
 
+    /** #5079 (X57): READQ TD QUEUE INTO: the record's bytes (already cut to LENGTH) go INTO, the rest of INTO left as it
+     *  was. Refused, as not modelled, a record moved past INTO (CICS writes the storage that follows it, which GnuCOBOL
+     *  lays out unlike IBM's compiler: oracle_assumptions.md X6), as READ INTO's is. */
+    // [rule RT-CICS-READQ-TD-INTO]
+    public static void readTd(Field into, byte[] record) {
+        if (record.length > into.length()) {
+            throw new UnsupportedOperationException("READQ TD INTO LENGTH: " + record.length + " bytes past INTO's "
+                    + into.length() + ": not modelled");
+        }
+        System.arraycopy(record, 0, into.storage().bytes, into.offset(), record.length);
+    }
+
     /** #4415 slice 1: EXEC CICS BIF DEEDIT FIELD(f) LENGTH(n) (IBM CICS TS, "BIF DEEDIT"): the first `n` bytes of the
      *  field, as the region's EBCDIC page (`region`) holds them, edited in place -- the characters other than the
      *  digits X'F0'-X'F9' removed, the digits right-aligned and padded on the left with zeros; a field that ends in a
@@ -363,6 +383,7 @@ public final class DetCics {
      *  X'A'-X'F' is returned unaltered ("This permits the application program to operate on a zoned numeric field");
      *  a 1-byte field is returned unaltered. Refused by name (register X26): characters beyond 7-bit ASCII, a LENGTH
      *  past the field, and a field in which no digit remains (IBM does not say what such a field becomes). */
+    // [rule RT-CICS-BIF-DEEDIT]
     public static void deedit(Field f, int n, Charset cs, Charset region) {
         if (n > f.length()) {
             throw new PastFrom("BIF DEEDIT LENGTH " + n + " > FIELD's " + f.length() + " bytes: not modelled");
@@ -424,6 +445,7 @@ public final class DetCics {
     /** #4528: the region's code page -- the one TS items are in (CicsTask: "the bytes the program wrote, in the
      *  region's code page"). `declared` is the estate's EBCDIC page for the program, else CCSID 037; the system
      *  property gitgalaxy.cics.charset names another. A deployment fact, like CobolRecords.charset(). */
+    // [rule RT-CICS-REGION-CODE-PAGE]
     public static Charset region(String declared) {
         return Charset.forName(System.getProperty("gitgalaxy.cics.charset", declared));
     }
@@ -494,12 +516,14 @@ public final class DetCics {
     }
 
     /** Text into the first bytes of a field, the rest left as it was (ASSIGN SYSID: 4 bytes into an 8-byte area). */
+    // [rule RT-CICS-ASSIGN-TEXT]
     public static void putText(Field f, String text, Charset cs) {
         put(f, text.getBytes(cs));
     }
 
     /** A symbolic map field's subfields as the program set them: the attribute (<f>A / <f>F), colour (<f>C),
      *  highlight (<f>H) bytes -- X'00' and a space are "not set" -- and length -1 (<f>L: the cursor). */
+    // [rule RT-CICS-BMS-SUBFIELDS]
     public static void subfields(CicsTask.MapSubfields sub, String name, Field len, Field attr, Field color,
                                  Field hilight, Charset cs) {
         byte space = " ".getBytes(cs)[0];
@@ -541,12 +565,14 @@ public final class DetCics {
 
     /** FUNCTION CURRENT-DATE from the task's clock: YYYYMMDDHHMMSShh and the UTC offset (the region's zone,
      *  as MainframeClock's default: UTC). */
+    // [rule RT-CICS-CURRENT-DATE]
     public static String currentDate(java.time.LocalDateTime now) {
         return now.format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmmss", java.util.Locale.ROOT))
                 + String.format(java.util.Locale.ROOT, "%02d", now.getNano() / 10_000_000) + "+0000";
     }
 
     /** The condition a RESP value names (IBM CICS TS, RESP values: DFHRESP; the spec's table, CicsSpec). */
+    // [rule RT-CICS-RESP-VALUES]
     public static String condition(int resp) {
         return CicsSpec.condition(resp);
     }
@@ -559,6 +585,7 @@ public final class DetCics {
     /** #4413: a condition whose default action -- with no HANDLE CONDITION label for it -- is to ignore it, the
      *  command going on as if it had completed normally (IBM CICS TS, EXEC CICS RECEIVE (LUTYPE2/LUTYPE3): EOC,
      *  "Default action: ignore the condition"). Every other condition's default is an abend. */
+    // [rule RT-CICS-DEFAULT-ACTION]
     public static boolean ignoredByDefault(String condition) {
         return "EOC".equals(condition);
     }
@@ -569,6 +596,7 @@ public final class DetCics {
      *  following the input command"). A key deactivated by a HANDLE AID without a label is -1 in `aids`: IBM
      *  ("This deactivates the effect of that option") does not say whether ANYKEY's label then takes it, so that
      *  is refused by name. */
+    // [rule RT-CICS-HANDLE-AID]
     public static Integer aidLabel(java.util.Map<String, Integer> aids, String key) {
         if (key == null) {
             return null;
@@ -608,6 +636,7 @@ public final class DetCics {
 
     /** #4413: a terminal RECEIVE INTO: the data received into the first bytes of the area, the rest left as it was
      *  (IBM moves the data it received, no more). */
+    // [rule RT-CICS-TERMINAL-RECEIVE]
     public static void received(Field into, String data, Charset cs) {
         put(into, data.getBytes(cs));
     }
@@ -620,5 +649,171 @@ public final class DetCics {
         byte[] b = data.getBytes(cs);
         Arrays.fill(record.storage().bytes, record.offset(), record.offset() + record.length(), (byte) 0);
         System.arraycopy(b, 0, record.storage().bytes, record.offset(), Math.min(b.length, record.length()));
+    }
+
+    // ---- #4771 (register X47): pointers to task storage. A POINTER item holds the handle of a block the task owns
+    //      (CicsTask.getmain / acquireReceived / addressOf), 8 bytes big-endian, NULL all zero. An address is never an
+    //      int the program can do arithmetic on: the translator refuses a pointer that a REDEFINES overlays. ------------
+
+    /** The handle a POINTER item holds (0: NULL). */
+    public static long pointerValue(Field ptr) {
+        long h = 0;
+        for (int i = 0; i < 8; i++) {
+            h = (h << 8) | (ptr.storage().bytes[ptr.offset() + i] & 0xFF);
+        }
+        return h;
+    }
+
+    /** Store a handle into a POINTER item. */
+    public static void setPointer(Field ptr, long handle) {
+        for (int i = 7; i >= 0; i--) {
+            ptr.storage().bytes[ptr.offset() + i] = (byte) handle;
+            handle >>>= 8;
+        }
+    }
+
+    /** GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(area) (IBM, EXEC CICS GETMAIN; X47): the pointer takes the new block's
+     *  handle; under LENGERR (RESP2 1) it is set to zero. Returns {RESP, RESP2}. INITIMG is one byte. */
+    // [rule RT-CICS-POINTER-LANE]
+    public static int[] getmain(CicsTask task, Field ptr, long length, boolean halfword, Field initimg) {
+        if (initimg.length() != 1) {
+            throw new PastFrom("GETMAIN INITIMG is not one byte: not modelled");
+        }
+        long[] r = task.getmain(length, halfword, initimg.storage().bytes[initimg.offset()] & 0xFF);
+        setPointer(ptr, r[2]);
+        return new int[] {(int) r[0], (int) r[1]};
+    }
+
+    /** WEB RECEIVE SET(ptr) (X47): the body becomes a block of task storage the pointer addresses. */
+    public static void receivedBlock(CicsTask task, Field ptr, String body, Charset cs) {
+        setPointer(ptr, task.acquireReceived(body.getBytes(cs)));
+    }
+
+    /** SET(ptr) of a RECEIVE, RETRIEVE, READQ TS, GET CONTAINER or file read (X58): a new block of task storage holding the
+     *  data, its handle in the pointer. `key` is what ends the pointer's validity (CicsTask.acquireSet). */
+    // [rule RT-CICS-SET-BLOCK]
+    public static void setBlock(CicsTask task, Field ptr, String key, byte[] data) {
+        setPointer(ptr, task.acquireSet(key, data));
+    }
+
+    /** As above; `syncEnds`: a SYNCPOINT also ends the pointer (a READ UPDATE SET, a READNEXT / READPREV SET). */
+    public static void setBlock(CicsTask task, Field ptr, String key, byte[] data, boolean syncEnds) {
+        setPointer(ptr, task.acquireSet(key, data, syncEnds));
+    }
+
+    public static void setBlock(CicsTask task, Field ptr, String key, String data, Charset cs) {
+        setBlock(task, ptr, key, data.getBytes(cs));
+    }
+
+    /** SET ADDRESS OF record TO ptr: the record's bytes are the block's, so a write through either shows in the other. */
+    public static void setAddress(CicsTask task, Field record, Field ptr) {
+        wholeRecord(record, "SET ADDRESS OF");
+        long handle = pointerValue(ptr);
+        record.storage().bytes = task.storageAt(handle, record.length());
+        record.storage().base = task.offsetAt(handle);
+    }
+
+    /** SET ADDRESS OF record TO ADDRESS OF other: both are one storage from here on. */
+    public static void setAddressOfRecord(CicsTask task, Field record, Field other) {
+        wholeRecord(record, "SET ADDRESS OF");
+        wholeRecord(other, "ADDRESS OF");
+        if (other.storage().bytes.length < record.length()) {
+            throw new UnsupportedOperationException("SET ADDRESS OF a record longer than its storage: not modelled");
+        }
+        record.storage().bytes = other.storage().bytes;
+        record.storage().base = other.storage().base;
+    }
+
+    /** SET ADDRESS OF record TO ADDRESS OF item, an item inside a larger storage (ZECS001's ZF-DATA in ZF-RECORD; #4771,
+     *  X47): the record's bytes are the storage's from the item on, through a Storage window, so a write through either
+     *  shows in the other. A record longer than what follows the item is refused (IBM: bytes that are not the program's). */
+    public static void setAddressOfItem(CicsTask task, Field record, Field item) {
+        wholeRecord(record, "SET ADDRESS OF");
+        if (item.storage().bytes.length - item.offset() < record.length()) {
+            throw new UnsupportedOperationException("SET ADDRESS OF a record longer than the storage after the item: not modelled");
+        }
+        record.storage().bytes = item.storage().bytes;
+        record.storage().base = item.offset();
+    }
+
+    /** SET ptr TO ADDRESS OF record: the handle of the record's bytes. */
+    public static void setPointerToRecord(CicsTask task, Field ptr, Field record) {
+        wholeRecord(record, "ADDRESS OF");
+        setPointer(ptr, task.addressOf(record.storage().bytes, record.storage().base));
+    }
+
+    /** SET ptr TO ADDRESS OF item (an item that is not a whole 01 record; #4771): the handle of the item's bytes, the same
+     *  one each time (CicsTask.addressOf with the item's offset). */
+    public static void setPointerToItem(CicsTask task, Field ptr, Field item) {
+        setPointer(ptr, task.addressOf(item.storage().bytes, item.offset()));
+    }
+
+    /** `MOVE view TO view` over two numeric views of pointers (#4771, X47): the address is copied, as the handle is. */
+    public static void copyPointer(Field to, Field from) {
+        setPointer(to, pointerValue(from));
+    }
+
+    /** `ADD n TO view` / `SUBTRACT n FROM view` over a numeric view of a pointer (#4771, X47): the pointer addresses the
+     *  same storage n bytes further on (or back), the handle of that offset (CicsTask.addressOf). Refused: a null or
+     *  freed pointer, and a result outside the storage (IBM: an address that is not the program's). */
+    // [rule RT-CICS-POINTER-LANE]
+    public static void advancePointer(CicsTask task, Field ptr, long n) {
+        long handle = pointerValue(ptr);
+        byte[] bytes = task.storageAt(handle, 0);
+        long at = task.offsetAt(handle) + n;
+        if (at < 0 || at > bytes.length) {
+            throw new UnsupportedOperationException(
+                "pointer arithmetic leaves the storage the pointer addresses (" + at + " of " + bytes.length + " bytes)");
+        }
+        setPointer(ptr, task.addressOf(bytes, (int) at));
+    }
+
+    /** `IF ptr-a = ptr-b` (#5042, X56): the two pointers address the same storage (CicsTask.samePointer). */
+    public static boolean samePointer(CicsTask task, Field a, Field b) {
+        return task.samePointer(pointerValue(a), pointerValue(b));
+    }
+
+    /** ADDRESS COMMAREA(ptr) (X59): the handle of the DFHCOMMAREA record's bytes; a task with no COMMAREA (EIBCALEN 0) is
+     *  refused (IBM sets X'FF000000', not the COBOL NULL a handle can hold). */
+    // [rule RT-CICS-ADDRESS]
+    public static void addressCommarea(CicsTask task, Field ptr, Field record, int eibcalen) {
+        if (eibcalen == 0) {
+            throw new PastFrom("ADDRESS COMMAREA with no COMMAREA: not modelled");
+        }
+        setPointerToRecord(task, ptr, record);
+    }
+
+    /** #5119 (X56): OS/VS COBOL's `MOVE cell TO fullword` (a chained storage area's pointer to the next area): the fullword
+     *  takes the token standing for the cell's address (CicsTask.bllToken), 4 bytes big-endian. */
+    // [rule RT-CICS-BLL-ADDRESS]
+    public static void bllToData(CicsTask task, Field cell, Field data) {
+        int v = task.bllToken(pointerValue(cell));
+        for (int i = 3; i >= 0; i--) {
+            data.storage().bytes[data.offset() + i] = (byte) v;
+            v >>>= 8;
+        }
+    }
+
+    /** #5119 (X56): `MOVE fullword TO cell`: the cell takes the address the fullword's token stands for (0: NULL). */
+    public static void bllFromData(CicsTask task, Field data, Field cell) {
+        int v = 0;
+        for (int i = 0; i < 4; i++) {
+            v = (v << 8) | (data.storage().bytes[data.offset() + i] & 0xFF);
+        }
+        setPointer(cell, task.bllPointer(v));
+    }
+
+    /** #5119 (X56): a paragraph name re-addresses a record through its BLL cell (IBM: "Insertion of a paragraph name causes
+     *  the compiler to generate code to reestablish addressability"); a null cell leaves the record as it is (ASSUMED). */
+    public static void bllReload(CicsTask task, Field record, Field cell) {
+        if (pointerValue(cell) != 0) {
+            setAddress(task, record, cell);
+        }
+    }
+
+    private static void wholeRecord(Field record, String what) {
+        if (record.offset() != record.storage().base) {
+            throw new UnsupportedOperationException(what + " an item that is not a whole 01 record: not modelled");
+        }
     }
 }

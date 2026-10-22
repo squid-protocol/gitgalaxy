@@ -92,7 +92,14 @@ def java_major(home: Path) -> int | None:
     if not java.is_file():
         return None
     try:
-        out = subprocess.run([str(java), "-version"], capture_output=True, text=True, check=False, timeout=30)  # noqa: S603
+        out = subprocess.run(
+            [str(java), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-version"],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            check=False,
+            timeout=30,
+        )  # noqa: S603
     except (OSError, subprocess.TimeoutExpired):
         return None
     m = re.search(r'version "(\d+)(?:\.(\d+))?', out.stderr + out.stdout)

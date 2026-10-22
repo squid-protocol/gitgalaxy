@@ -94,8 +94,8 @@ def test_a_normal_run_compares_the_return_code():
 
 def test_cics_scenarios_inject_named_conditions_as_dfhresp_numbers():
     sc = {"name": "s", "faults": [{"cmd": "READ", "file": "ACCTDAT", "resp": "IOERR"},
-                                  {"file": "CUSTDAT", "nth": "*", "resp": "NOTOPEN", "resp2": 7}]}  # fmt: skip
-    assert ec.fault_lines(sc) == ["READ ACCTDAT 1 17 0", "READ CUSTDAT * 19 7"]
+                                  {"file": "CUSTDAT", "nth": "*", "resp": "NOTOPEN", "resp2": 60}]}  # fmt: skip
+    assert ec.fault_lines(sc) == ["READ ACCTDAT 1 17 120", "READ CUSTDAT * 19 60"]  # IBM's RESP2 (#5044)
     assert ec.CICS_RESP["NOTFND"] == 13 and ec.CICS_RESP["DISABLED"] == 84
     with pytest.raises(ec.Unsupported):
         ec.fault_lines({"name": "s", "faults": [{"file": "X", "resp": "NOSUCHCONDITION"}]})
@@ -113,6 +113,13 @@ def test_program_control_ts_and_interval_commands_can_be_planned_too():
                                   "RETRIEVE - 1 17 0", "CANCEL R1 1 70 0", "LINK COACTVWC 1 70 100"]  # fmt: skip
     with pytest.raises(ec.Unsupported):
         ec.fault_lines({"name": "s", "faults": [{"cmd": "XCTL", "resp": "PGMIDERR"}]})  # names no program
+    # #4986 (X43): LINK's ROLLEDBACK / SYSIDERR / TERMERR are refused by name, whichever RESP2 and NTH the plan gives;
+    # SYSIDERR stays plannable for the commands that have it (START, CANCEL)
+    for cond in ec.LINK_REFUSED_CONDITIONS:
+        for extra in ({}, {"resp2": 1}, {"nth": "*"}):
+            with pytest.raises(ec.Unsupported, match="X43"):
+                ec.fault_lines({"name": "s", "faults": [{"cmd": "LINK", "program": "P", "resp": cond, **extra}]})
+    assert ec.fault_lines({"name": "s", "faults": [{"cmd": "START", "transid": "T", "resp": "SYSIDERR"}]})
     for cmd in (
         '"WRITEQ-TS", queue',
         '"XCTL", program',

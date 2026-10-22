@@ -1,0 +1,48 @@
+{
+ "format": "cics-crucible/expected/1",
+ "case": "gt-terminal-coalesce",
+ "scenario": "receive-longer-than-20",
+ "derived": {
+  "from": "cobol-stub",
+  "issue": "#4049",
+  "note": "the COBOL program's own run on the stub runtime (tests/equivalence/cics/ggcics.c), written by cics_crucible.py --derive-expected; never edited by hand",
+  "faults_fired": []
+ },
+ "tasks": [
+  {
+   "seq": 1,
+   "transid": "GT11",
+   "program": "GTTERM",
+   "termid": "T001",
+   "at": "2026-03-02T10:00:00",
+   "trigger": {
+    "kind": "terminal",
+    "step": 0
+   },
+   "eibaid": "ENTER",
+   "eibcalen": 0,
+   "commarea": null,
+   "events": [
+    {
+     "event": "RECEIVE",
+     "program": "GTTERM",
+     "resp": "LENGERR",
+     "length": 33,
+     "data": {
+      "length": 20,
+      "text": "GT11 3 and more than"
+     }
+    },
+    {
+     "event": "ABEND",
+     "program": "GTTERM",
+     "abcode": "AEIV",
+     "cause": "condition",
+     "outcome": "terminated",
+     "condition": "LENGERR"
+    }
+   ],
+   "end": "abend"
+  }
+ ]
+}

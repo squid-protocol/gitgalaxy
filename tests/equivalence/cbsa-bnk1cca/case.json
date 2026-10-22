@@ -1,0 +1,257 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "BNK1CCA",
+ "program_source": "src/base/cobol_src/BNK1CCA.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "OCCA",
+ "termid": "T001",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "taskn": 4242,
+ "programs": [
+  {
+   "program": "INQACCCU",
+   "program_source": "src/base/cobol_src/INQACCCU.cbl"
+  },
+  {
+   "program": "INQCUST",
+   "program_source": "src/base/cobol_src/INQCUST.cbl"
+  },
+  {
+   "program": "ABNDPROC",
+   "program_source": "src/base/cobol_src/ABNDPROC.cbl"
+  }
+ ],
+ "datasets": {
+  "CBSA.CICSBSA.ABNDFILE": {
+   "input": "@case/abndfile.bin",
+   "entity": "WsAbndArea",
+   "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+   "record": "WS-ABND-AREA",
+   "recovery": "NONE",
+   "recovery_why": "etc/install/base/installjcl/BANK.csd: DEFINE FILE(ABNDFILE) ... RECOVERY(NONE) -- the abend log a backout must not undo"
+  },
+  "CBSA.CICSBSA.CUSTOMER": {
+   "input": "@case/customer.txt",
+   "entity": "OutputData",
+   "copybook": "src/base/cobol_copy/CUSTOMER.cpy",
+   "record": "CUSTOMER-RECORD"
+  }
+ },
+ "db2": {
+  "ddl": [
+   "etc/install/base/db2jcl/CRETB01.jcl",
+   "etc/install/base/db2jcl/CREI101.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "compare": [
+   "IBMUSER.ACCOUNT"
+  ],
+  "qualifier": "IBMUSER"
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/BNK1CCA.cbl",
+    "record": "WS-COMM-AREA"
+   }
+  ]
+ },
+ "screens": {
+  "BNK1ACC": {
+   "copybook": "@bms/BNK1ACC.cpy",
+   "input": "BNK1ACCI",
+   "output": "BNK1ACCO"
+  }
+ },
+ "scenarios": [
+  {
+   "name": "first-entry",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "EIBCALEN 0: BNK1ACCO set to LOW-VALUES, the cursor on CUSTNO, SEND MAP ERASE; RETURN TRANSID('OCCA') with an initialised COMMAREA"
+  },
+  {
+   "name": "pa1",
+   "aid": "DFHPA1",
+   "commarea": {},
+   "why": "PA1: CONTINUE, nothing sent; RETURN TRANSID with the COMMAREA"
+  },
+  {
+   "name": "pf3",
+   "aid": "DFHPF3",
+   "commarea": {},
+   "why": "PF3: RETURN TRANSID('OMEN') IMMEDIATE: back to the main menu"
+  },
+  {
+   "name": "pf12",
+   "aid": "DFHPF12",
+   "commarea": {},
+   "why": "PF12: SEND-TERMINATION-MSG, RETURN"
+  },
+  {
+   "name": "clear",
+   "aid": "DFHCLEAR",
+   "commarea": {},
+   "why": "CLEAR: SEND CONTROL ERASE FREEKB, RETURN"
+  },
+  {
+   "name": "other-key",
+   "aid": "DFHPF5",
+   "commarea": {},
+   "why": "PF5: WHEN OTHER -- 'Invalid key pressed.', SEND MAP DATAONLY ALARM"
+  },
+  {
+   "name": "mapfail",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "why": "ENTER with no field modified: RM010 -- ABNDPROC LINKed (an ABNDFILE record) and ABEND HBNK"
+  },
+  {
+   "name": "three-accounts",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ACC": {
+     "CUSTNOI": "0000000001"
+    }
+   },
+   "why": "customer 1: INQACCCU returns its three accounts of the program's sort code; '3 accounts found', ACCOUNT(1) to ACCOUNT(3) each a formatted line (sort code, number, type, +/- available and actual balance), ACCOUNT(4) to ACCOUNT(10) spaces -- every occurrence is compared (#5076)"
+  },
+  {
+   "name": "negative-loan",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ACC": {
+     "CUSTNOI": "0000000002"
+    }
+   },
+   "why": "customer 2, one LOAN account: both balance signs '-', '1 accounts found'"
+  },
+  {
+   "name": "no-accounts",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ACC": {
+     "CUSTNOI": "0000000003"
+    }
+   },
+   "why": "customer 3 is on file with no account: 'No accounts found for customer', every ACCOUNT occurrence spaces"
+  },
+  {
+   "name": "customer-not-on-file",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ACC": {
+     "CUSTNOI": "0000000005"
+    }
+   },
+   "why": "customer 5 has an account but no CUSTOMER record: CUSTOMER-FOUND 'N', 'Unable to find customer 0000000005', the ten ACCOUNT occurrences emptied"
+  },
+  {
+   "name": "customer-zero",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ACC": {
+     "CUSTNOI": "0000000000"
+    }
+   },
+   "why": "customer 0000000000 is not looked up by INQACCCU: CUSTOMER-FOUND 'N', 'Unable to find customer'"
+  },
+  {
+   "name": "customer-9999999999",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ACC": {
+     "CUSTNOI": "9999999999"
+    }
+   },
+   "why": "customer 9999999999 is not looked up either: 'Unable to find customer'"
+  },
+  {
+   "name": "null-statement-date",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ACC": {
+     "CUSTNOI": "0000000004"
+    }
+   },
+   "why": "customer 4's account has a NULL last-statement date with no indicator: INQACCCU's FETCH fails (-305), COMM-SUCCESS 'N' and the program shows its own error message"
+  },
+  {
+   "name": "ten-accounts",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ACC": {
+     "CUSTNOI": "0000000007"
+    }
+   },
+   "why": "customer 7 has exactly ten accounts: '10 accounts found', all ten ACCOUNT occurrences filled, the table's last (10) included"
+  },
+  {
+   "name": "twelve-accounts",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ACC": {
+     "CUSTNOI": "0000000006"
+    }
+   },
+   "why": "customer 6 has twelve accounts: INQACCCU returns them all (20 asked for), the program shows the first ten (WS-INDEX > 10 ends the loop) and says '12 accounts found'"
+  },
+  {
+   "name": "link-inqacccu-pgmiderr",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ACC": {
+     "CUSTNOI": "0000000001"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "LINK",
+     "program": "INQACCCU",
+     "resp": "PGMIDERR",
+     "nth": 1,
+     "why": "the LINK of INQACCCU raises PGMIDERR"
+    }
+   ],
+   "why": "customer 1, but the LINK INQACCCU fails with PGMIDERR: GCD010 fills ABNDINFO from the clock and EIB, LINKs ABNDPROC (an ABNDFILE record) and abends HBNK; no account line is sent"
+  },
+  {
+   "name": "link-inqacccu-notauth",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ACC": {
+     "CUSTNOI": "0000000001"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "LINK",
+     "program": "INQACCCU",
+     "resp": "NOTAUTH",
+     "nth": 1,
+     "why": "the LINK of INQACCCU raises NOTAUTH"
+    }
+   ],
+   "why": "customer 1, but the LINK INQACCCU fails with NOTAUTH: GCD010 fills ABNDINFO from the clock and EIB, LINKs ABNDPROC (an ABNDFILE record) and abends HBNK; no account line is sent"
+  }
+ ],
+ "notes": "CBSA's customer-account-list screen (BNK1CCA, transaction OCCA, BMS map BNK1ACC of mapset BNK1ACC: the symbolic map is generated from src/base/bms_src/BNK1ACC.bms, @bms/BNK1ACC.cpy). Pseudo-conversational: a first task (EIBCALEN 0) sends the empty map; a returning one acts on the AID -- PA keys nothing, PF3 RETURN TRANSID('OMEN') IMMEDIATE (the task's terminal T001 is stated: oracle_assumptions.md X27), PF12 the termination message, CLEAR, ENTER, any other key 'Invalid key pressed.'. ENTER RECEIVEs the map (MAPFAIL abends HBNK through ABNDPROC), checks the customer number is numeric, LINKs INQACCCU (INQCUST and ABNDPROC run in the task, as in cbsa-inqacccu) and shows one formatted line per account in the map's ACCOUNT field, which BMS repeats ten times (OCCURS=10). The screen is compared at every occurrence by its subscript (ACCOUNT.1 ... ACCOUNT.10, #5076), as a COMMAREA's OCCURS is (#4765): a second or tenth line that differs is a difference, as is a line one side leaves out. No scenario types letters into the NUM field CUSTNO (owner decision on #5116, 2026-10-15), and none types into one occurrence of ACCOUNT (a protected output field; refused by name). The COMMAREA is compared as the program RETURNs it, WS-COMM-AREA (the same 248-byte layout as its DFHCOMMAREA, which it reads back only for EIBCALEN). ACCOUNT, CUSTOMER and ABNDFILE are compared after every scenario. LINK INQACCCU is faulted with PGMIDERR and NOTAUTH. Not reached: the failure branches after SEND MAP / SEND TEXT / SEND CONTROL / RETURN (no fault can be injected on them), and a CUSTNO that is not numeric (a 3270 NUM field cannot key it, owner decision on #5116). Data: seed.sql and customer.txt are SYNTHETIC (cbsa-inqacccu's, with customers 6 and 7 added for the full table). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."
+}

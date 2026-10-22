@@ -15,7 +15,19 @@ A refused option shows no reason but SET's (the reason the old global table gave
 from __future__ import annotations
 
 from gitgalaxy.standards.cics.commands.shared import BOTH_FORMS, RESP_OPTIONS, SET_POINTER, ibm
-from gitgalaxy.standards.cics.model import Abend, Arg, Command, EngineFacts, Outcome, at_most_one, one_of
+from gitgalaxy.standards.cics.model import (
+    Abend,
+    Arg,
+    Command,
+    EngineFacts,
+    Impl,
+    Outcome,
+    Refusal,
+    RuntimeRefusal,
+    at_most_one,
+    one_of,
+    required,
+)
 
 # SEND MAP's device controls and output options passed on as flags (det/cics.py parse_exec: never a verb word)
 MAP_OPTIONS = ("ERASE", "ERASEAUP", "FREEKB", "ALARM", "CURSOR", "FRSET", "MAPONLY", "DATAONLY", "PRINT", "LAST",
@@ -86,7 +98,7 @@ RECEIVE = Command(
     register="X15",
     options={
         "INTO": Arg("area_out"),
-        "SET": Arg("pointer"),  # SET(ADDRESS OF a LINKAGE 01 record) only (Cics.receive)
+        "SET": Arg("pointer"),  # SET(ADDRESS OF a LINKAGE 01 record), or a plain USAGE POINTER item (#5042, X58)
         "LENGTH": Arg("area_inout", width=2, binary=True, inout_unless_literal=True),
         "FLENGTH": Arg("area_inout", width=4, binary=True, inout_unless_literal=True),
         "MAXLENGTH": Arg("value"),
@@ -112,4 +124,63 @@ RECEIVE = Command(
     state=("terminal", "handle_table"),
 )
 
-COMMANDS = (SEND_MAP, RECEIVE_MAP, SEND_CONTROL, RECEIVE)
+# #5079 (X63): CONVERSE (default), the terminal form -- the data written to the terminal (what a plain SEND records), then what a
+# RECEIVE reads. The APPC / MRO conversation forms (CONVID, STATE, ATTACHID, STRFIELD ...) and SET are refused.
+_CONVERSE_APPC = Refusal(
+    "a conversation with a partner transaction (APPC / distributed program link: CONVID, STATE, ATTACHID, STRFIELD ...) is"
+    " not modelled: only the terminal form is",
+    "X63",
+)
+CONVERSE = Command(
+    key="CONVERSE",
+    ibm=ibm("EXEC CICS CONVERSE (default)", "summary-converse-default"),
+    status="modelled",
+    register="X63",
+    options={
+        "FROM": Arg("area_in"),
+        "FROMLENGTH": Arg("value"),
+        "FROMFLENGTH": Arg("value"),
+        "INTO": Arg("area_out"),
+        "TOLENGTH": Arg("area_inout", width=2, binary=True, inout_unless_literal=True),
+        "TOFLENGTH": Arg("area_inout", width=4, binary=True, inout_unless_literal=True),
+        "MAXLENGTH": Arg("value"),
+        "MAXFLENGTH": Arg("value"),
+        "NOTRUNCATE": Arg("flag"),
+        **RESP_OPTIONS,
+    },
+    refused={
+        "SET": Refusal(
+            "the reply in a block the pointer addresses is not modelled for CONVERSE (RECEIVE SET is, X58): use INTO",
+            "X63",
+        ),
+    },
+    default_refusal=_CONVERSE_APPC,
+    groups=(
+        required("FROM", msg="CONVERSE without FROM: the data written to the terminal"),
+        required("INTO", msg="CONVERSE without INTO: the reply read from the terminal"),
+        at_most_one("FROMLENGTH", "FROMFLENGTH", msg=BOTH_FORMS),
+        at_most_one("TOLENGTH", "TOFLENGTH", msg=BOTH_FORMS),
+        at_most_one("MAXLENGTH", "MAXFLENGTH", msg=BOTH_FORMS),
+    ),
+    outcomes=(
+        Outcome("NORMAL", 0, "", writes=("INTO", "TOLENGTH", "TOFLENGTH")),
+        Outcome(
+            "LENGERR",
+            None,
+            "the reply is longer than the most taken (truncated), or a length is out of range",
+            writes=("INTO", "TOLENGTH", "TOFLENGTH"),
+        ),
+    ),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "CONVERSE on an LUTYPE2 terminal: IBM lists no EOC for it, and the reply's last byte ends the chain there",
+            "X63",
+            java="CONVERSE on an LUTYPE2 terminal",
+            c="CONVERSE on an LUTYPE2 terminal",
+        ),
+    ),
+    state=("terminal", "handle_table"),
+    impl=Impl(translator="Cics.converse", java="converse", c="GGCCONV", harness="_converse"),
+)
+
+COMMANDS = (SEND_MAP, RECEIVE_MAP, SEND_CONTROL, RECEIVE, CONVERSE)

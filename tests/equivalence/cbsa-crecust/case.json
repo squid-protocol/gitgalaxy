@@ -1,0 +1,147 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "CRECUST",
+ "program_source": "src/base/cobol_src/CRECUST.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "OCCS",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "taskn": 4242,
+ "programs": [
+  {
+   "program": "CRDTAGY1",
+   "program_source": "src/base/cobol_src/CRDTAGY1.cbl"
+  },
+  {
+   "program": "CRDTAGY2",
+   "program_source": "src/base/cobol_src/CRDTAGY2.cbl"
+  },
+  {
+   "program": "CRDTAGY3",
+   "program_source": "src/base/cobol_src/CRDTAGY3.cbl"
+  },
+  {
+   "program": "CRDTAGY4",
+   "program_source": "src/base/cobol_src/CRDTAGY4.cbl"
+  },
+  {
+   "program": "CRDTAGY5",
+   "program_source": "src/base/cobol_src/CRDTAGY5.cbl"
+  },
+  {
+   "program": "ABNDPROC",
+   "program_source": "src/base/cobol_src/ABNDPROC.cbl"
+  }
+ ],
+ "transactions": [
+  "OCR1",
+  "OCR2",
+  "OCR3",
+  "OCR4",
+  "OCR5"
+ ],
+ "child_programs": {
+  "OCR1": "CRDTAGY1",
+  "OCR2": "CRDTAGY2",
+  "OCR3": "CRDTAGY3",
+  "OCR4": "CRDTAGY4",
+  "OCR5": "CRDTAGY5"
+ },
+ "datasets": {
+  "CBSA.CICSBSA.ABNDFILE": {
+   "input": "@case/abndfile.bin",
+   "entity": "WsAbndArea",
+   "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+   "record": "WS-ABND-AREA",
+   "recovery": "NONE",
+   "recovery_why": "etc/install/base/installjcl/BANK.csd: DEFINE FILE(ABNDFILE) ... RECOVERY(NONE) -- the abend log a backout must not undo"
+  },
+  "CBSA.CICSBSA.CUSTOMER": {
+   "input": "@case/customer.txt",
+   "entity": "OutputData",
+   "copybook": "src/base/cobol_copy/CUSTOMER.cpy",
+   "record": "CUSTOMER-RECORD"
+  }
+ },
+ "db2": {
+  "ddl": [
+   "etc/install/base/db2jcl/CRETB01.jcl",
+   "etc/install/base/db2jcl/CREI101.jcl",
+   "etc/install/base/db2jcl/CRETB02.jcl",
+   "etc/install/base/db2jcl/CRETB03.jcl",
+   "etc/install/base/db2jcl/CREI301.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "compare": [
+   "IBMUSER.PROCTRAN"
+  ],
+  "qualifier": "IBMUSER"
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/BNK1CCS.cbl",
+    "record": "SUBPGM-PARMS"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "create-customer",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "CUST",
+    "SUBPGM-SORTCODE": "987654",
+    "SUBPGM-NUMBER": "0000000000",
+    "SUBPGM-NAME": "Mrs Fiona K Laidlaw",
+    "SUBPGM-ADDRESS": "17 Abbey Road, Winchester, SO23 7AA",
+    "SUBPGM-DATE-OF-BIRTH": "12071985",
+    "SUBPGM-CREDIT-SCORE": "0",
+    "SUBPGM-CS-REVIEW-DATE": "0",
+    "SUBPGM-SUCCESS": " ",
+    "SUBPGM-FAIL-CODE": " "
+   },
+   "why": "the credit check: PUT CONTAINERs CIPA-CIPE on CIPCREDCHANN, RUN TRANSID OCR1-OCR5 CHANNEL (each child a copy of the channel as it is at its RUN), DELAY FOR SECONDS(3) -- the wait at which the five children run, in RUN order, each DELAYing 1 or 2 seconds (FUNCTION RANDOM seeded by its EIBTASKN, 4243-4247) and scoring its own container -- then FETCH ANY NOSUSPEND five times (each child completed before the parent's 3 seconds: first to complete first, RUN order on a tie, X18) and GET CONTAINER of each reply channel, NOTFND RESP2 1 on the sixth, the average score and a review date; then the date of birth passes, ENQ, READ UPDATE / REWRITE of the CUSTOMER control record (customer 42 -> 43), WRITE CUSTOMER 9876540000000043, INSERT PROCTRAN 'OCC', DEQ; 'Y' with the new key"
+  },
+  {
+   "name": "born-before-1601",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "CUST",
+    "SUBPGM-SORTCODE": "987654",
+    "SUBPGM-NUMBER": "0000000000",
+    "SUBPGM-NAME": "Mr Methuselah",
+    "SUBPGM-ADDRESS": "1 Ancient Way",
+    "SUBPGM-DATE-OF-BIRTH": "01011500",
+    "SUBPGM-CREDIT-SCORE": "0",
+    "SUBPGM-CS-REVIEW-DATE": "0",
+    "SUBPGM-SUCCESS": " ",
+    "SUBPGM-FAIL-CODE": " "
+   },
+   "why": "the same credit check (five children, FETCH ANY x6), then DATE-OF-BIRTH-CHECK refuses a year before 1601 ('O') BEFORE its CEEDAYS call: the only path that avoids the L1 hole (a 10-byte picture over 8-byte 'YYYYMMDD': a non-blank tail, refused); no customer written"
+  },
+  {
+   "name": "born-in-the-future",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "CUST",
+    "SUBPGM-SORTCODE": "987654",
+    "SUBPGM-NUMBER": "0000000000",
+    "SUBPGM-NAME": "Mr Tomorrow",
+    "SUBPGM-ADDRESS": "1 Future Lane",
+    "SUBPGM-DATE-OF-BIRTH": "01012099",
+    "SUBPGM-CREDIT-SCORE": "0",
+    "SUBPGM-CS-REVIEW-DATE": "0",
+    "SUBPGM-SUCCESS": " ",
+    "SUBPGM-FAIL-CODE": " "
+   },
+   "why": "the same credit check (another five children), then DATE-OF-BIRTH-CHECK refuses a date of birth after today: 'N' / 'Y', no customer written, no PROCTRAN row"
+  }
+ ],
+ "notes": "CBSA's create-customer service (CRECUST, LINKed by BNK1CCS -- transaction OCCS -- with its SUBPGM-PARMS, the CRECUST copybook's layout). #4950: its credit check is the async API. It PUTs its COMMAREA into containers CIPA-CIPE of channel CIPCREDCHANN, RUNs transactions OCR1-OCR5 (\"child_programs\": CRDTAGY1-5, as the CSD's TRANSACTION definitions name them) with that channel, DELAYs 3 seconds, then FETCH ANY NOSUSPENDs the replies, GETs each child's container back from its reply channel, and averages the scores. The schedule is the harness's (oracle_assumptions.md X18, ASSUMED: a child runs at its parent's wait, in RUN order, and completes at its dispatch plus its own DELAYs; a task takes no processor time, X4); each child's events and the containers it leaves are compared (the CHILD event). FUNCTION RANDOM is the oracle's generator (C12) seeded by EIBTASKN: the parent's stated 4242 (X21), a child's 4242 plus its RUN number. Then the date-of-birth check, ENQ of the customer counter, the CUSTOMER control record READ UPDATE / REWRITE, the new CUSTOMER record, a PROCTRAN 'OCC' row (Db2), DEQ. CUSTOMER, ABNDFILE and PROCTRAN are compared after every scenario. Not reached: a child that does not complete within the 3 seconds (every CRDTAGY delays 1 or 2), a credit agency's failure paths, and the SYSIDERR retries (no fault can be injected on them). Data: seed.sql is cbsa-creacc's, customer.txt cbsa-custctrl's (the control record says 42 customers), both SYNTHETIC. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived. #4952 -- NOT PROVABLE (named holes): (1) L1: DATE-OF-BIRTH-CHECK's CEEDAYS call passes a length-10 picture and date over 8 'YYYYMMDD' bytes; only a BLANK picture tail is assumed ignored (owner decision 2026-10-14), and here the 2 extra bytes are the storage that follows the item, which z/OS would read as picture text, so the oracle refuses create-customer and born-in-the-future (exit 98, 'picture not modelled') and with them the whole case; (2) X18: the child schedule is ASSUMED. L4 is settled: FC is the 12-byte token LE writes (its 8-byte CONDITION-TOKEN-VALUE is the group inside it). born-before-1601 ends before CEEDAYS; run alone it has equal events on both sides, a partial reach, not a proof. Never --record this case while a hole stands; BNK1CCS, which LINKs CRECUST, is not proven by this."
+}

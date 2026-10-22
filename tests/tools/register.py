@@ -8,13 +8,20 @@ Source of truth: ``docs/language_status/register/``
   _parts/*.md    the page's prose, verbatim (intro, pins, status key, section headings, Method tail ...)
   _layout.json   the order of the page: parts, the summary table, and where each family's entries go
 
-Generated: ``docs/language_status/oracle_assumptions.md`` (do not edit by hand).
+Generated: ``docs/language_status/oracle_assumptions.md`` -- git-ignored, never committed (#5057: every PR that added
+an entry re-rendered and committed it, and parallel PRs conflicted on it). generated-docs.yml renders it from main
+after each merge and publishes it to the `generated` branch:
+  https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md
+A PR commits entry files only; its CI renders the page and shows the diff (tests/tools/generated_docs.py).
 
-  register.py render           write the combined page
-  register.py --check          exit 1 if the combined page is stale or the register is inconsistent (CI)
+  register.py render           write the combined page into the working tree (local reading)
+  register.py --check          exit 1 if the register is inconsistent (the page does not render)
   register.py next FAMILY      the next free number in a family (C, D, F, X, L, A, Q, J, M), looking at this
                                tree, origin/main and the remote branches; take it when the issue is filed
   register.py new ID           write a skeleton entry file for an ID
+  register.py audit [--ci]     list entries that claim a match (ASSUMED / MATCHED / no status) with no IBM document
+                               citation and no declared difference (#4702); --ci fails on one not in UNCITED_BASELINE
+                               or on a baselined one that is now cited (the list only shrinks)
 """
 
 from __future__ import annotations
@@ -108,18 +115,44 @@ def render() -> str:
 
 
 def check() -> list[str]:
-    problems: list[str] = []
+    """The register's problems: every entry parses and _layout.json places it (#5057: there is no committed page to
+    compare against any more)."""
     try:
-        want = render()
+        render()
     except (ValueError, OSError) as e:
         return [str(e)]
-    have = PAGE.read_text(encoding="utf-8") if PAGE.exists() else ""
-    if have != want:
-        problems.append(
-            "docs/language_status/oracle_assumptions.md is stale: run `python tests/tools/register.py render` "
-            "and commit it (edit the entry files under docs/language_status/register/, not the page)"
-        )
-    return problems
+    return []
+
+
+# Entries that name no IBM document and declare no difference (#4702, swept 2026-10-21; now empty). A new entry needs
+# the IBM quote (document, section, page) or a declared difference and never joins this list.
+UNCITED_BASELINE: frozenset[str] = frozenset()
+IBM_CITE = re.compile(
+    r"SC\d\d-\d{4}|[SGA][CHA]\d\d-\d{4}|ibm\.com/docs|Language Reference|Programming Guide|Enterprise COBOL"
+    r"|CICS TS|Application Programming|Db2 (for z/OS )?\d|DFSORT|IMS (V|\d)|DFSMS",
+    re.I,
+)
+DECLARED_DIFF = re.compile(r"declared (oracle-vs-IBM )?difference|DIFFERS|Where they differ", re.I)
+
+
+def audit() -> list[tuple[str, str, str]]:
+    """(id, status, reached) of each entry that claims a match with neither an IBM citation nor a declared difference."""
+    out = []
+    for meta, body in load_entries():
+        status = meta["status"]
+        claims = "ASSUMED" in status or "MATCHED" in status or not status
+        if claims and not IBM_CITE.search(body) and not DECLARED_DIFF.search(body):
+            out.append((meta["id"], status, meta["reached"]))
+    return out
+
+
+def audit_problems(found: list[tuple[str, str, str]]) -> list[str]:
+    ids = {i for i, _, _ in found}
+    new = sorted(ids - UNCITED_BASELINE, key=id_key)
+    fixed = sorted(UNCITED_BASELINE - ids, key=id_key)
+    return [f"{i}: no IBM citation or declared difference (quote IBM, or declare the difference)" for i in new] + [
+        f"{i}: now cited; remove it from UNCITED_BASELINE" for i in fixed
+    ]
 
 
 def _git(*args: str) -> str:
@@ -154,13 +187,15 @@ def new_entry(i: str) -> Path:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--check", action="store_true", help="fail if the combined page is stale")
+    ap.add_argument("--check", action="store_true", help="fail if the register is inconsistent")
     sub = ap.add_subparsers(dest="cmd")
     sub.add_parser("render")
     n = sub.add_parser("next")
     n.add_argument("family")
     n.add_argument("--local", action="store_true", help="this tree only (no origin/main, no remote branches)")
     sub.add_parser("new").add_argument("id")
+    au = sub.add_parser("audit")
+    au.add_argument("--ci", action="store_true", help="fail on an uncited entry outside UNCITED_BASELINE")
     a = ap.parse_args(argv)
     if a.check:
         problems = check()
@@ -170,6 +205,15 @@ def main(argv: list[str] | None = None) -> int:
     if a.cmd == "render":
         PAGE.write_text(render(), encoding="utf-8")
         print(f"wrote {PAGE.relative_to(REPO)}")
+    elif a.cmd == "audit":
+        found = audit()
+        for i, status, reached in found:
+            print(f"{i}\t{status or '(none)'}\treached: {reached}")
+        print(f"{len(found)} entries without an IBM citation or declared difference", file=sys.stderr)
+        problems = audit_problems(found) if a.ci else []
+        for p in problems:
+            print(f"register audit: {p}", file=sys.stderr)
+        return 1 if problems else 0
     elif a.cmd == "next":
         print(next_id(a.family, a.local))
     elif a.cmd == "new":

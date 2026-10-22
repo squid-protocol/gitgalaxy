@@ -17,7 +17,7 @@ import json
 import sqlite3
 import sys
 from collections import Counter
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -347,7 +347,13 @@ def process_payload(
             ir["analysis"]["base_intent"]["program_id"] = engine_file.program_ids[0]
         ir["analysis"]["copy_dependencies"] = list(engine_file.copy_deps)
         ir["analysis"]["engine_units"] = [
-            {"name": u.name, "start_line": u.start_line, "loc": u.loc, "usage_status": u.usage_status}
+            {
+                "name": u.name,
+                "start_line": u.start_line,
+                "loc": u.loc,
+                "usage_status": u.usage_status,
+                **({"program": u.program} if u.program else {}),
+            }
             for u in engine_file.units
         ]
 
@@ -441,7 +447,7 @@ def main():
         sys.exit(1)
 
     # Create the Clean-Room parallel directory
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
     clean_dir = target_path.parent / f"{target_path.name}_gitgalaxy_clean_{timestamp}"
 
     # Define the sub-architecture

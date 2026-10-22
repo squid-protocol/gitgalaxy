@@ -2091,3 +2091,24 @@ def test_engine_edges_drop_program_calls_and_keep_phantoms():
         "(procedure division) -> PERFORM A010",
     }
     assert ak.engine_unit_extents(prog, units) == {"A010 L5-9"}
+
+
+def test_dbb_epscsmrd_is_keyed_as_thirteen_censused_programs():
+    """#4244: the 13-program wrapper `epscsmrd.cbl` is in the DBB key (no `excluded_programs`
+    entry left): entry EPSCSMRD plus 12 siblings, the repeated MAINLINE sections do not
+    collide, the six dead verdicts are EPSCSMRI section headers, and it was censused."""
+    key = json.loads((KEY_DIR / "dbb-mortgage-application.json").read_text(encoding="utf-8"))
+    assert "epscsmrd" not in json.dumps(key.get("excluded_programs", {}))
+    prog = key["programs"]["zBuilder/MortgageApplication/cobol/epscsmrd.cbl"]
+    assert prog["program_id"] == "EPSCSMRD"
+    sib = prog["siblings"]
+    assert len(sib) == 12
+    assert sib["XCHRFLTR"]["nested_in"] == "EPSCSMRC" and sib["XWSPFLTR"]["nested_in"] == "EPSCSMRC"
+    assert set(prog["dead"]) == set()
+    assert set(sib["EPSCSMRI"]["dead"]) == {
+        "CONTENT-PROCESSING", "COMPUTE-LOOKUP-SOURCE", "SET-NUMERIC-SOURCE",
+        "MOVE-NUMERIC", "NUMERIC-RESCUE-PROCESSING", "CONDITION-SIGNALER",
+    }  # fmt: skip
+    assert sum(1 for s in sib.values() if s["dead"]) == 1
+    assert sum(1 for s in [prog, *sib.values()] if any(u["name"] == "MAINLINE" for u in s["units"])) >= 11
+    assert prog["verification"]["census"]["by"]

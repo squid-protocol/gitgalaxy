@@ -8,7 +8,8 @@ FROM ${BASE}
 ARG BASE
 ARG GNUCOBOL=3.1.2-5+b1
 ARG COBC="cobc (GnuCOBOL) 3.1.2.0"
-RUN apt-get update && apt-get install -y --no-install-recommends gnucobol3=${GNUCOBOL} libcob4=${GNUCOBOL} gcc libc6-dev \
+# #5048: apt retries a failed fetch itself (a mirror hiccup must not fail an oracle build).
+RUN apt-get -o Acquire::Retries=5 update && apt-get -o Acquire::Retries=5 install -y --no-install-recommends gnucobol3=${GNUCOBOL} libcob4=${GNUCOBOL} gcc libc6-dev \
  && rm -rf /var/lib/apt/lists/* \
  && test "$(cobc --version | head -n 1)" = "${COBC}"
 LABEL org.gitgalaxy.oracle.base="${BASE}" org.gitgalaxy.oracle.gnucobol3="${GNUCOBOL}" org.gitgalaxy.oracle.cobc="${COBC}"

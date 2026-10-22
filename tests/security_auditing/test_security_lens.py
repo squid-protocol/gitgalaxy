@@ -752,7 +752,7 @@ def test_db_hooks_requires_a_receiver_and_cannot_span_a_newline(lens):
 # CANNOT be soundly gated (a zero-width/char-class/operator-only arm): gating
 # them would silently undercount. Everything else must gate.
 UNGATEABLE_SIGNATURES = {
-    "reflection_metaprogramming",  # zero-width unicode char-class branch
+    "reflection_metaprogramming",  # `\w{15,}=` long-base64 assignment branch (the zero-width half moved out, #4987)
     "bitwise_ops",  # XOR/operator chains, no keyword literal
     "unicode_steganography",  # a pure variation-selector char-class run
 }

@@ -11,3 +11,5 @@ To do this, use the `--all` flag:
 `python tests/tools/tri_comparison_chart.py --all --write`
 
 This ensures that the final chart accurately reflects the global state of the engine rather than isolating metrics for a single language.
+
+Every `tri_comparison_chart.py` run, including `--ci`, merges into `docs/self_scan/tri_comparison_ledger.json`. Unless you validated ledger entries on purpose, `git checkout origin/main -- docs/self_scan/tri_comparison_ledger.json` before staging.

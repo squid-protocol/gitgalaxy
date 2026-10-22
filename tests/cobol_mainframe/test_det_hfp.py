@@ -20,6 +20,8 @@ What the oracle cannot decide is refused by name (each a Hole), tested at the en
 from __future__ import annotations
 
 import os
+import random
+import struct
 import subprocess
 import sys
 from decimal import Decimal
@@ -32,6 +34,8 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from gitgalaxy.tools.cobol_to_java.det import hfp as H  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 
 def _short(v) -> str:
@@ -151,6 +155,28 @@ PAIRS = [("1", "3"), ("2", "3"), ("0.1", "0.2"), ("1024", "-0.000123"), ("-118.6
          ("16777217", "1"), ("99999.99", "0.3333333333"), ("1E-20", "6.02E+23"), ("1", "-1"), ("0.1", "-0.1")]  # fmt: skip
 
 
+def _ieee_patterns() -> list[tuple[int, int]]:
+    """IEEE patterns (size, bits): IBM's examples, 0.1, the range edges, NaN / infinity / subnormals, and random ones."""
+
+    def f32(x):
+        return struct.unpack(">I", struct.pack(">f", x))[0]
+
+    def f64(x):
+        return struct.unpack(">Q", struct.pack(">d", x))[0]
+
+    fixed = [(4, f32(x)) for x in (1.0, -118.625, 1.5, 100.5, 0.0, -0.0, 0.1, 3.4e38, 1.2e-38, 16777217.0)]
+    fixed += [(8, f64(x)) for x in (1.0, -118.625, 0.1, 1e75, 1e-78, 1e76, 1e-80, 1e300, 5e-324)]
+    fixed += [(4, 0x7FC00000), (4, 0x7F800000), (4, 1), (8, 0x7FF0000000000000), (8, 1), (8, 0xFFF8000000000000)]
+    rng = random.Random(4271)
+    return fixed + [(4, rng.getrandbits(32)) for _ in range(40)] + [(8, rng.getrandbits(64)) for _ in range(40)]
+
+
+IEEE_PATTERNS = _ieee_patterns()
+HFP_IMAGES = ["41100000", "C276A000", "4019999A", "7FFFFFFF", "00100000", "00000000", "7F100000", "3C100000",
+              "4110000000000000", "4019999999999999", "7FFFFFFFFFFFFFFF", "0010000000000000", "C080000000000001",
+              "7F10000000000000", "4276A00000000001", "42000001", "3FFFFFFF"]  # fmt: skip
+
+
 def _plain(v: F) -> str:
     d = H._EXACT.normalize(H._dec(v))
     return "0" if d == 0 else format(d, "f")
@@ -168,7 +194,23 @@ def _model_lines() -> list[str]:
             x, y = H.for_item(F(Decimal(a)), not long), H.for_item(F(Decimal(b)), not long)
             r = [H.add(x, y, long), H.sub(x, y, long), H.mul(x, y, long), H.div(x, y, long)]
             out.append(f"{a} {b} {long} " + " ".join(_plain(z) for z in r))
+    for size, bits in IEEE_PATTERNS:
+        out.append(f"ieee {size} {bits:x} " + _refused(lambda: _ieee_line(bits, size)))
+    for hx in HFP_IMAGES:
+        out.append(f"hfp {hx} " + _refused(lambda: f"{H.to_ieee(bytes.fromhex(hx)):x}"))
     return out
+
+
+def _ieee_line(bits: int, size: int) -> str:
+    b = H.from_ieee(bits, size)
+    return f"{b.hex()} {H.to_ieee(b):x}"
+
+
+def _refused(fn) -> str:
+    try:
+        return fn()
+    except H.HfpRange:
+        return "refused"
 
 
 PROBE = """
@@ -192,6 +234,11 @@ public class Probe {
         Cobol.move(f, z, CS);
         return Cobol.num(z, CS).toPlainString();
     }
+    static String hexBytes(byte[] d) {
+        StringBuilder b = new StringBuilder();
+        for (byte x : d) b.append(String.format("%02x", x & 0xFF));
+        return b.toString();
+    }
     static String plain(BigDecimal v) {
         return v.signum() == 0 ? "0" : v.stripTrailingZeros().toPlainString();
     }
@@ -211,6 +258,29 @@ public class Probe {
                     + plain(Hfp.multiply(x, y, lng)) + " " + plain(Hfp.divide(x, y, lng)));
             }
         }
+        long[] ieeeBits = {%IEEE_BITS%};
+        int[] ieeeSize = {%IEEE_SIZES%};
+        for (int i = 0; i < ieeeBits.length; i++) {
+            String line = "ieee " + ieeeSize[i] + " " + Long.toHexString(ieeeBits[i]) + " ";
+            try {
+                byte[] b = Hfp.fromIeee(ieeeBits[i], ieeeSize[i]);
+                line += hexBytes(b) + " " + Long.toHexString(Hfp.toIeee(b));
+            } catch (UnsupportedOperationException e) {
+                line += "refused";
+            }
+            System.out.println(line);
+        }
+        for (String hx : new String[] {%HFP_IMAGES%}) {
+            byte[] b = new byte[hx.length() / 2];
+            for (int i = 0; i < b.length; i++) b[i] = (byte) Integer.parseInt(hx.substring(2 * i, 2 * i + 2), 16);
+            String line = "hfp " + hx + " ";
+            try {
+                line += Long.toHexString(Hfp.toIeee(b));
+            } catch (UnsupportedOperationException e) {
+                line += "refused";
+            }
+            System.out.println(line);
+        }
     }
 }
 """
@@ -229,13 +299,18 @@ def test_the_runtime_is_the_model_bit_for_bit(tmp_path):
     for f in rt.glob("*.java"):
         (out / f.name).write_text(f.read_text(encoding="utf-8").replace("__PACKAGE__", "p"), encoding="utf-8")
     probe = PROBE.replace("%VALUES%", ", ".join(f'"{v}"' for v in VALUES))
+    probe = probe.replace("%IEEE_BITS%", ", ".join(f"0x{b:x}L" for _, b in IEEE_PATTERNS))
+    probe = probe.replace("%IEEE_SIZES%", ", ".join(str(z) for z, _ in IEEE_PATTERNS))
+    probe = probe.replace("%HFP_IMAGES%", ", ".join(f'"{h}"' for h in HFP_IMAGES))
     probe = probe.replace("%PAIRS%", ", ".join(f'{{"{a}", "{b}"}}' for a, b in PAIRS))
     (tmp_path / "src/Probe.java").write_text(probe)
     jdk = _jdk()
     files = [str(f) for f in (tmp_path / "src").rglob("*.java")]
-    subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True)  # noqa: S603
-    got = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Probe"], capture_output=True,  # noqa: S603
-                         text=True, check=True).stdout.splitlines()  # fmt: skip
+    javac_run(
+        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True
+    )  # noqa: S603
+    got = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Probe"], capture_output=True,  # noqa: S603
+                         text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
     want = _model_lines()
     assert len(got) == len(want)
     bad = [f"java  {g}\nmodel {w}" for g, w in zip(got, want, strict=False) if g != w]  # reason: length may differ
@@ -264,6 +339,9 @@ FLOAT_DATA = """       01 S1 COMP-1 VALUE 1.5.
         ("MOVE X4 TO S1", "MOVE of a nonnumeric operand to S1 COMP-1"),
         ("MOVE S1(1:2) TO X4", "the bytes of a COMP-1 item"),
         ("COMPUTE L1 = S1 ** 2", "exponentiation in a floating-point expression"),
+        ("COMPUTE L1 = FUNCTION ANNUITY(N N)", "not the bits of the power"),  # a float target
+        ("COMPUTE N = FUNCTION ANNUITY(N N)", "not the bits of the power"),  # a fixed-point target
+        ("COMPUTE L1 = S1 ** N", "exponentiation in a floating-point expression"),  # a fractional exponent
         ("COMPUTE L1 = FUNCTION SQRT(N)", "FUNCTION SQRT in a floating-point expression"),
         ("COMPUTE S1 ROUNDED = N / 3", "ROUNDED into S1"),
         ("IF S1 = 'AB' DISPLAY 'Y' END-IF", "compared with a nonnumeric operand"),
@@ -299,9 +377,11 @@ def test_ibm_dbb_epsmpmt_translates_but_its_float_exponentiation(tmp_path):
     (tmp_path / "project").mkdir()
     r = P.translate(src, [src.parent.parent / "copybook"], "public class EpsmpmtService {\n}\n", "p", None,
                     tmp_path / "project")  # fmt: skip
-    holes = r.stats["holes"]  # (and A300-TRY2's FUNCTION ANNUITY, dead code, as before)
-    assert [h for h in holes if "C6" in h] == [h for h in holes if "line 125:" in h], holes
+    holes = r.stats["holes"]
+    assert [h for h in holes if "C6" in h] == [h for h in holes if "line 125:" in h or "line 144:" in h], holes
     assert any("line 125: COMPUTE exponentiation in a floating-point expression" in h for h in holes), holes
+    annuity = [h for h in holes if "FUNCTION ANNUITY" in h]  # A300-TRY2, dead code: refused with its reason
+    assert len(annuity) == 1 and "not the bits of the power" in annuity[0] and "C6" in annuity[0], holes
     assert "Hfp.divide(Hfp.divide(Hfp.of(" in r.java  # (rate / 100) / 12 into the COMP-1: long HFP
 
 
@@ -345,9 +425,11 @@ def test_numval_is_a_long_hfp_operand_and_refuses_what_ibm_does_not_describe(tmp
     (tmp_path / "src/Probe.java").write_text(probe)
     jdk = _jdk()
     files = [str(f) for f in (tmp_path / "src").rglob("*.java")]
-    subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True)  # noqa: S603
-    got = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Probe"], capture_output=True,  # noqa: S603
-                         text=True, check=True).stdout.splitlines()  # fmt: skip
+    javac_run(
+        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True
+    )  # noqa: S603
+    got = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Probe"], capture_output=True,  # noqa: S603
+                         text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
 
     def model(v: str) -> str:
         x = H.of(F(Decimal(v)))
@@ -423,9 +505,11 @@ def test_numval_in_a_fixed_point_store_rounds_as_ibms_float_to_fixed_move(tmp_pa
     (tmp_path / "src/Probe.java").write_text(probe)
     jdk = _jdk()
     files = [str(f) for f in (tmp_path / "src").rglob("*.java")]
-    subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True)  # noqa: S603
-    got = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Probe"], capture_output=True,  # noqa: S603
-                         text=True, check=True).stdout.splitlines()  # fmt: skip
+    javac_run(
+        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True
+    )  # noqa: S603
+    got = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Probe"], capture_output=True,  # noqa: S603
+                         text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
     assert got[:4] == ["12.500", "-0.375", "42", "1024.50"][:0] + ["12.50", "-0.375", "42", "1024.50"]
     # 0.1 is 0.0999... in long HFP (4019999999999999): truncation would give 0.09, the rounding 0.10
     assert got[4] == "0.10" and got[5] == "0.10" and got[6] == "123.45" and got[7] == "12.34", got
@@ -453,3 +537,147 @@ def test_a_numval_compute_is_a_float_statement_with_checked_stores(tmp_path):
     assert r.stats["holes"] == [], r.stats["holes"]
     assert r.java.count("Hfp.fixedStore(") == 2, r.java
     assert "Hfp.multiply(Hfp.numval(" in r.java
+
+
+# ---- #4688: where GnuCOBOL's decimal evaluation differs from IBM's, the port follows IBM ------------------------
+
+
+@pytest.mark.parametrize(
+    "value, short, scale, want",
+    [
+        ("1.875", True, 2, "1.88"),  # #4688 (1): COMP-1 to -(5)9.99; exact in both formats, IBM rounds (cobc: 1.87)
+        ("-1.875", True, 2, "-1.88"),  # half away from zero
+        ("1.875", False, 2, "1.88"),  # COMP-2
+        ("0.625", False, 2, "0.63"),  # exact binary half
+        ("0.375", True, 2, "0.38"),
+    ],
+)
+def test_a_float_moved_to_an_edited_or_fixed_receiver_rounds_where_the_oracle_truncates(value, short, scale, want):
+    v = H.for_item(F(Decimal(value)), short)
+    assert str(H.to_fixed(v, scale, 9 if short else 18)) == want
+
+
+@pytest.mark.parametrize(
+    "value, want_det, want_oracle",
+    [
+        # CBSA's amounts (BNK1TFN / BNK1CRA: a COMP-2 moved to a 2-decimal field, #5703). The oracle holds the IEEE
+        # double and truncates the exact decimal of it; IBM rounds in the low-order position.
+        ("12.34", "12.34", "12.33"),
+        ("9999999999.99", "9999999999.99", "9999999999.98"),
+        ("0.01", "0.01", "0.01"),
+        ("0.1", "0.10", "0.10"),
+        ("100.50", "100.50", "100.50"),  # a binary fraction: exact in both formats, the oracle agrees
+        ("12.75", "12.75", "12.75"),
+    ],
+)
+def test_a_cbsa_comp2_amount_moved_to_a_two_decimal_field_rounds_where_the_oracle_truncates(
+    value, want_det, want_oracle
+):
+    v = H.for_item(F(Decimal(value)), False)
+    assert str(H.to_fixed(v, 2, 18)) == want_det
+    oracle = Decimal(float(value)).quantize(Decimal("0.01"), rounding="ROUND_DOWN")
+    assert str(oracle) == want_oracle  # the recorded oracle answer is still what an IEEE double truncates to
+    if want_det != want_oracle:
+        assert not H.exact_in_both(F(Decimal(value)), False)  # a difference only where the value is not exact in both
+    if value in ("100.50", "12.75"):
+        assert H.exact_in_both(F(Decimal(value)), False)
+
+
+@pytest.mark.parametrize(
+    "value, want",
+    [
+        ("12.34", "12.34"),
+        ("0.01", "0.01"),
+        ("100.50", "100.50"),
+        ("9999999999.99", "9999998980.00"),  # COMP-1 keeps 9 significant digits of the HFP value, the rest zero
+    ],
+)
+def test_a_comp1_amount_moved_to_a_two_decimal_field_keeps_nine_significant_digits(value, want):
+    v = H.for_item(F(Decimal(value)), True)
+    assert str(H.to_fixed(v, 2, 9)) == want
+
+
+def test_a_compound_float_compute_is_computed_in_long_hfp_where_the_oracle_gives_zero():
+    # #4688 (2): COMPUTE R1 = ((FA / 2) * (0.5 + F4)), FA COMP-1 5, F4 COMP-2 4: 2.5 * 4.5, exact in HFP (cobc: 0.00)
+    fa, f4 = H.for_item(F(5), True), H.for_item(F(4), False)
+    r = H.mul(H.div(fa, F(2), True), H.add(F(1, 2), f4, True), True)
+    assert r == F(45, 4) and str(H.to_fixed(r, 2, 18)) == "11.25"
+
+
+def test_a_packed_value_added_to_a_float_zero_is_converted_to_long_hfp_and_truncated():
+    # #4688 (3): ADD FZ2 TO R4, R4 S9(7)V99 COMP-3 = 0.68, FZ2 COMP-2 zero. IBM runs the statement in long floating
+    # point: 0.68 is 0.67AE147AE147AE x 16**0 (below 0.68), and the store truncates (ASSUMED, register C6): 0.67.
+    # cobc keeps 0.68 (decimal).
+    x = H.add(H.for_item(F(Decimal("0.68")), False), F(0), True)
+    assert H.encode(x, False).hex() == "40ae147ae147ae14" and x < F(68, 100)
+    assert int(x * 100) == 67
+
+
+@pytest.mark.parametrize("stmt", ["ADD FZ2 TO R4", "COMPUTE R1 = ((FA / 2) * (0.5 + F4))", "MOVE G TO E"])
+def test_the_4688_statements_translate_in_float_mode(stmt, tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    body = ("       IDENTIFICATION DIVISION.\n       PROGRAM-ID. F4688.\n       DATA DIVISION.\n"
+            "       WORKING-STORAGE SECTION.\n       01 G COMP-1 VALUE 1.875.\n       01 E PIC -(5)9.99.\n"
+            "       01 FA COMP-1 VALUE 5.\n       01 F4 COMP-2 VALUE 4.\n       01 FZ2 COMP-2 VALUE 0.\n"
+            "       01 R1 PIC S9(7)V99.\n       01 R4 PIC S9(7)V99 COMP-3 VALUE 0.68.\n"
+            f"       PROCEDURE DIVISION.\n           {stmt}\n           GOBACK.\n")  # fmt: skip
+    (tmp_path / "project").mkdir()
+    cbl = tmp_path / "F4688.cbl"
+    cbl.write_text(body, encoding="ascii")
+    r = P.translate(cbl, [], "public class F4688Service {\n}\n", "p", None, tmp_path / "project")
+    assert r.stats["holes"] == [], r.stats["holes"]
+    assert "Hfp." in r.java or stmt.startswith("MOVE"), r.java
+
+
+# ---- floating-point exponentiation: the whole shape class is refused by name (#4271, EPSMPMT) -------------------
+
+EXPO_DATA = """       01 S1 COMP-1 VALUE 1.5.
+       01 L1 COMP-2 VALUE 2.
+       01 N  PIC 9(3)V99 VALUE 2.5.
+       01 R  PIC 9(5)V99.
+       01 K  PIC 9(3) VALUE 3.
+"""
+
+
+def _translate_expo(stmt, tmp_path):
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    cbl = tmp_path / "EXPO.cbl"
+    cbl.write_text("       IDENTIFICATION DIVISION.\n       PROGRAM-ID. EXPO.\n       DATA DIVISION.\n"
+                   "       WORKING-STORAGE SECTION.\n" + EXPO_DATA + "       PROCEDURE DIVISION.\n"
+                   f"           {stmt}\n           GOBACK.\n", encoding="ascii")  # fmt: skip
+    (tmp_path / "project").mkdir()
+    return P.translate(cbl, [], "public class ExpoService {\n}\n", "p", None, tmp_path / "project")
+
+
+@pytest.mark.parametrize(
+    "stmt",
+    [
+        "COMPUTE L1 = S1 ** 2",  # a COMP-1 base, integer literal exponent
+        "COMPUTE L1 = L1 ** 2",  # a COMP-2 base
+        "COMPUTE L1 = L1 ** N",  # an exponent with decimal places
+        "COMPUTE L1 = L1 ** K",  # an integer item as the exponent
+        "COMPUTE L1 = L1 ** -2",  # a negative exponent
+        "COMPUTE L1 = 2 ** S1",  # a float exponent
+        "COMPUTE L1 = (1 + S1) ** N",  # EPSMPMT's shape: a parenthesised base, decimal exponent
+        "COMPUTE L1 = 1 + (S1 ** 2) * 3",  # nested in a larger float expression
+        "COMPUTE R = L1 ** 2",  # a fixed-point receiver with a float operand
+        "COMPUTE R = N ** S1",  # a fixed-point base, float exponent
+        "IF L1 ** 2 > 3 DISPLAY 'Y' END-IF",  # in a comparison
+    ],
+)
+def test_a_floating_point_exponentiation_is_a_named_hole_in_every_shape(stmt, tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    r = _translate_expo(stmt, tmp_path)
+    holes = r.stats["holes"]
+    assert len(holes) == 1 and "exponentiation in a floating-point expression" in holes[0], holes
+    assert "C6" in holes[0]
+
+
+@pytest.mark.parametrize("stmt", ["COMPUTE R = N ** 2", "COMPUTE R = K ** K", "COMPUTE R = (N + 1) ** 2 + K"])
+def test_a_fixed_point_exponentiation_is_not_refused(stmt, tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    r = _translate_expo(stmt, tmp_path)
+    assert r.stats["holes"] == [], r.stats["holes"]

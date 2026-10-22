@@ -1,0 +1,729 @@
+{
+ "format": "det-mutation/1",
+ "issue": "#4628",
+ "about": "#4628: mutation testing of each det port (tests/tools/mutation.py on `det_port.py run --translate-only`'s port, fast mode, seeded sample), written only by tests/tools/det_mutation.py. An entry is trusted only while its fingerprints match the tree; stale or missing is unknown. Survivors are accounted for in det_mutation_survivors/ (reviewed).",
+ "case": "cbsa-updcust",
+ "entry": {
+  "program": "UPDCUST",
+  "commit": "6d63b74ebcc5bd3f33ebea4f34214172090ee812+uncommitted",
+  "date": "2026-10-18",
+  "mode": "fast",
+  "seed": 0,
+  "mutants": 716,
+  "out_of_scope": 12,
+  "chosen": 150,
+  "coverage": "proven on 23 scenarios, covering 7/7 paragraphs and 28/28 branches",
+  "counts": {
+   "killed": 68,
+   "timeout": 0,
+   "survived": 73,
+   "stillborn": 9,
+   "error": 0,
+   "pending": 0
+  },
+  "killed": [
+   "007d2cba04",
+   "0ad408640a",
+   "0f996e3e30",
+   "126eb74fd3",
+   "135e0352df",
+   "1e851319de",
+   "21d0f94f71",
+   "25c8042642",
+   "2930b29c72",
+   "331ad2e020",
+   "337435ceb8",
+   "395d4e9a6f",
+   "3f768378fe",
+   "4502b4ccd9",
+   "4540c948fb",
+   "4b31d098c1",
+   "4b71eece9c",
+   "509568a254",
+   "56f7fc6948",
+   "58d0be3fea",
+   "5f24dd48ac",
+   "611e9dcc65",
+   "71f99e1b0d",
+   "72c326bb66",
+   "7d2648d863",
+   "8387426cdf",
+   "846628343a",
+   "885923372b",
+   "896c855770",
+   "8aca081101",
+   "8b8bc2108e",
+   "8eb978d46a",
+   "92b7bca942",
+   "95e0ff7c39",
+   "98d95c5178",
+   "9a2669b184",
+   "9a4f8cb5c0",
+   "9be866d71d",
+   "9dbb5d1f6a",
+   "a1ba77fb49",
+   "a22a86b81c",
+   "a8d219ac63",
+   "af046b1558",
+   "b6103a4994",
+   "bcd332c1b9",
+   "c1bba6f6c2",
+   "c47debe3af",
+   "c984225846",
+   "ca7d53a494",
+   "cd3a0ce6f7",
+   "d1591729ee",
+   "d5ff770b83",
+   "d62b59d96e",
+   "d913c4bd58",
+   "dac1b0d2c0",
+   "db578f13d2",
+   "dd0a3f0aa4",
+   "decf64e6a8",
+   "e0b20c12db",
+   "e52c4ce793",
+   "e8dba36b53",
+   "e96019d935",
+   "eac2cd9a72",
+   "f227505803",
+   "f2a90f234e",
+   "f3097c21a0",
+   "f3a01cdf07",
+   "f93390920a"
+  ],
+  "stillborn": [
+   "1e283d5365",
+   "243dc2341b",
+   "4c859eeae7",
+   "7dd80e7dfd",
+   "858a6f5866",
+   "ae7efb71fa",
+   "b131c49e11",
+   "bbb69ab426",
+   "f060388140"
+  ],
+  "survived": [
+   {
+    "id": "e41f891b51",
+    "op": "LIT",
+    "file": "service/UpdcustService.java",
+    "line": 47,
+    "before": "\"MDAwMCAwMCAwMA==\"));",
+    "after": "\"XDAwMCAwMCAwMA==\"));"
+   },
+   {
+    "id": "50620eab9b",
+    "op": "LIT",
+    "file": "service/UpdcustService.java",
+    "line": 53,
+    "before": "\"MDAwMDAwMDAw\"));",
+    "after": "\"XDAwMDAwMDAw\"));"
+   },
+   {
+    "id": "c1eed63c89",
+    "op": "LIT",
+    "file": "service/UpdcustService.java",
+    "line": 63,
+    "before": "\"ICAuICAuICAgIA==\"));",
+    "after": "\"XCAuICAuICAgIA==\"));"
+   },
+   {
+    "id": "fca07f1cc1",
+    "op": "LIT",
+    "file": "service/UpdcustService.java",
+    "line": 67,
+    "before": "\"ICAgIDAwMDAwMCAgIA==\"));",
+    "after": "\"XCAgIDAwMDAwMCAgIA==\"));"
+   },
+   {
+    "id": "f486875902",
+    "op": "LIT",
+    "file": "service/UpdcustService.java",
+    "line": 71,
+    "before": "\"MDAwMDAwMDAwMDAwMDA=\"));",
+    "after": "\"XDAwMDAwMDAwMDAwMDA=\"));"
+   },
+   {
+    "id": "83f773e072",
+    "op": "LIT",
+    "file": "service/UpdcustService.java",
+    "line": 77,
+    "before": "\"IA==\"));",
+    "after": "\"XA==\"));"
+   },
+   {
+    "id": "6599ece9f5",
+    "op": "LIT",
+    "file": "service/UpdcustService.java",
+    "line": 81,
+    "before": "\"QUJORFBST0M=\"));",
+    "after": "\"XUJORFBST0M=\"));"
+   },
+   {
+    "id": "10e17faf33",
+    "op": "CON",
+    "file": "service/UpdcustService.java",
+    "line": 141,
+    "before": "private final Field f70_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 0, false, false, false);",
+    "after": "private final Field f70_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 1, 6, 0, false, false, false);"
+   },
+   {
+    "id": "8cd8397c1e",
+    "op": "CON",
+    "file": "service/UpdcustService.java",
+    "line": 141,
+    "before": "private final Field f70_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 0, false, false, false);",
+    "after": "private final Field f70_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 1, false, false, false);"
+   },
+   {
+    "id": "f2c930bae8",
+    "op": "CON",
+    "file": "service/UpdcustService.java",
+    "line": 150,
+    "before": "private final Field f107_COMM_UPD_SUCCESS = Field.alphanumeric(s_DFHCOMMAREA, 259, 1, false);",
+    "after": "private final Field f107_COMM_UPD_SUCCESS = Field.alphanumeric(s_DFHCOMMAREA, 259, 2, false);"
+   },
+   {
+    "id": "e680dc9c76",
+    "op": "CON",
+    "file": "service/UpdcustService.java",
+    "line": 152,
+    "before": "private final Field f110_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f110_EIBTIME = Field.packed(s_DFHEIBLK, 0, 8, 0, true);"
+   },
+   {
+    "id": "2046af6bb9",
+    "op": "NEG",
+    "file": "service/UpdcustService.java",
+    "line": 182,
+    "before": "if (task.level() > 1) {",
+    "after": "if (!(task.level() > 1)) {"
+   },
+   {
+    "id": "dc891a0510",
+    "op": "LIT",
+    "file": "service/UpdcustService.java",
+    "line": 188,
+    "before": "@SuppressWarnings(\"unchecked\")",
+    "after": "@SuppressWarnings(\"Xnchecked\")"
+   },
+   {
+    "id": "de2084bf21",
+    "op": "LIT",
+    "file": "service/UpdcustService.java",
+    "line": 191,
+    "before": "case \"CUSTOMER\" -> new DetCics.Store<OutputData>(outputDataRepository::findAll, e -> e.toRecord(CS), b -> OutputData.fromRecord(b, CS), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.save(e)), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.delete(e)), 4, 16, CS).withFindById(rec -> outputDataRepository.findById(id_OutputData(rec)));",
+    "after": "case \"CUSTOMER\" -> new DetCics.Store<OutputData>(outputDataRepository::findAll, e -> e.toRecord(CS), b -> OutputData.fromRecord(b, CS), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.save(e)), e -> task.write(\"XUSTOMER\", () -> outputDataRepository.delete(e)), 4, 16, CS).withFindById(rec -> outputDataRepository.findById(id_OutputData(rec)));"
+   },
+   {
+    "id": "9e85cafd71",
+    "op": "CON",
+    "file": "service/UpdcustService.java",
+    "line": 200,
+    "before": "java.util.Map.entry(\"GMOOH999\", 8),",
+    "after": "java.util.Map.entry(\"GMOOH999\", 9),"
+   },
+   {
+    "id": "35ebfc2aae",
+    "op": "LIT",
+    "file": "service/UpdcustService.java",
+    "line": 203,
+    "before": "java.util.Map.entry(\"UCV999\", 5),",
+    "after": "java.util.Map.entry(\"XCV999\", 5),"
+   },
+   {
+    "id": "af779aee2d",
+    "op": "NEG",
+    "file": "service/UpdcustService.java",
+    "line": 213,
+    "before": "if (i == null) {",
+    "after": "if (!(i == null)) {"
+   },
+   {
+    "id": "93b459ff75",
+    "op": "LIT",
+    "file": "service/UpdcustService.java",
+    "line": 214,
+    "before": "throw new IllegalStateException(\"no paragraph \" + name);",
+    "after": "throw new IllegalStateException(\"Xo paragraph \" + name);"
+   },
+   {
+    "id": "36eb9f7063",
+    "op": "NEG",
+    "file": "service/UpdcustService.java",
+    "line": 233,
+    "before": "if (error != null) {",
+    "after": "if (!(error != null)) {"
+   },
+   {
+    "id": "3059d87f46",
+    "op": "NEG",
+    "file": "service/UpdcustService.java",
+    "line": 237,
+    "before": "if (label == null) {",
+    "after": "if (!(label == null)) {"
+   },
+   {
+    "id": "82aa0e1955",
+    "op": "ROR",
+    "file": "service/UpdcustService.java",
+    "line": 248,
+    "before": "if (d == null) {",
+    "after": "if (d != null) {"
+   },
+   {
+    "id": "75116a5831",
+    "op": "ROR",
+    "file": "service/UpdcustService.java",
+    "line": 251,
+    "before": "Cobol.move(d.getCommEye() == null ? \"\" : d.getCommEye(), Field.alphanumeric(s, base + 0, 4, false), CS);",
+    "after": "Cobol.move(d.getCommEye() != null ? \"\" : d.getCommEye(), Field.alphanumeric(s, base + 0, 4, false), CS);"
+   },
+   {
+    "id": "0fbbbe8d16",
+    "op": "AOR",
+    "file": "service/UpdcustService.java",
+    "line": 251,
+    "before": "Cobol.move(d.getCommEye() == null ? \"\" : d.getCommEye(), Field.alphanumeric(s, base + 0, 4, false), CS);",
+    "after": "Cobol.move(d.getCommEye() == null ? \"\" : d.getCommEye(), Field.alphanumeric(s, base - 0, 4, false), CS);"
+   },
+   {
+    "id": "7440ad96d4",
+    "op": "CON",
+    "file": "service/UpdcustService.java",
+    "line": 254,
+    "before": "Cobol.move(d.getCommName() == null ? \"\" : d.getCommName(), Field.alphanumeric(s, base + 20, 60, false), CS);",
+    "after": "Cobol.move(d.getCommName() == null ? \"\" : d.getCommName(), Field.alphanumeric(s, base + 20, 61, false), CS);"
+   },
+   {
+    "id": "9f96f423b4",
+    "op": "ROR",
+    "file": "service/UpdcustService.java",
+    "line": 256,
+    "before": "Cobol.move(d.getCommDob() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommDob().toString()), Field.zoned(s, base + 240, 8, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommDob() != null ? BigDecimal.ZERO : new BigDecimal(d.getCommDob().toString()), Field.zoned(s, base + 240, 8, 0, false, false, false), CS);"
+   },
+   {
+    "id": "a926d61392",
+    "op": "CON",
+    "file": "service/UpdcustService.java",
+    "line": 256,
+    "before": "Cobol.move(d.getCommDob() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommDob().toString()), Field.zoned(s, base + 240, 8, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommDob() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommDob().toString()), Field.zoned(s, base + 240, 9, 0, false, false, false), CS);"
+   },
+   {
+    "id": "ca2445b43b",
+    "op": "ROR",
+    "file": "service/UpdcustService.java",
+    "line": 257,
+    "before": "Cobol.move(d.getCommCreditScore() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommCreditScore().toString()), Field.zoned(s, base + 248, 3, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommCreditScore() != null ? BigDecimal.ZERO : new BigDecimal(d.getCommCreditScore().toString()), Field.zoned(s, base + 248, 3, 0, false, false, false), CS);"
+   },
+   {
+    "id": "fcce38905d",
+    "op": "ROR",
+    "file": "service/UpdcustService.java",
+    "line": 259,
+    "before": "Cobol.move(d.getCommUpdSuccess() == null ? \"\" : d.getCommUpdSuccess(), Field.alphanumeric(s, base + 259, 1, false), CS);",
+    "after": "Cobol.move(d.getCommUpdSuccess() != null ? \"\" : d.getCommUpdSuccess(), Field.alphanumeric(s, base + 259, 1, false), CS);"
+   },
+   {
+    "id": "298d1411d6",
+    "op": "CON",
+    "file": "service/UpdcustService.java",
+    "line": 264,
+    "before": "d.setCommEye(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
+    "after": "d.setCommEye(Cobol.text(Field.alphanumeric(s, base + 1, 4, false), CS));"
+   },
+   {
+    "id": "9fd0d9d73d",
+    "op": "DEL",
+    "file": "service/UpdcustService.java",
+    "line": 267,
+    "before": "d.setCommName(Cobol.text(Field.alphanumeric(s, base + 20, 60, false), CS));",
+    "after": "/* d.setCommName(Cobol.text(Field.alphanumeric(s, base + 20, 60, false), CS)); */"
+   },
+   {
+    "id": "2eacbf3627",
+    "op": "DEL",
+    "file": "service/UpdcustService.java",
+    "line": 269,
+    "before": "d.setCommDob(Cobol.num(Field.zoned(s, base + 240, 8, 0, false, false, false), CS).intValue());",
+    "after": "/* d.setCommDob(Cobol.num(Field.zoned(s, base + 240, 8, 0, false, false, false), CS).intValue()); */"
+   },
+   {
+    "id": "e232705a5f",
+    "op": "CON",
+    "file": "service/UpdcustService.java",
+    "line": 269,
+    "before": "d.setCommDob(Cobol.num(Field.zoned(s, base + 240, 8, 0, false, false, false), CS).intValue());",
+    "after": "d.setCommDob(Cobol.num(Field.zoned(s, base + 240, 9, 0, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "84d9da0895",
+    "op": "CON",
+    "file": "service/UpdcustService.java",
+    "line": 270,
+    "before": "d.setCommCreditScore(Cobol.num(Field.zoned(s, base + 248, 3, 0, false, false, false), CS).intValue());",
+    "after": "d.setCommCreditScore(Cobol.num(Field.zoned(s, base + 248, 4, 0, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "233578fc73",
+    "op": "DEL",
+    "file": "service/UpdcustService.java",
+    "line": 271,
+    "before": "d.setCommCsReviewDate(Cobol.num(Field.zoned(s, base + 251, 8, 0, false, false, false), CS).intValue());",
+    "after": "/* d.setCommCsReviewDate(Cobol.num(Field.zoned(s, base + 251, 8, 0, false, false, false), CS).intValue()); */"
+   },
+   {
+    "id": "d2f72df52e",
+    "op": "ROR",
+    "file": "service/UpdcustService.java",
+    "line": 284,
+    "before": "if (s_DFHCOMMAREA.bytes != whole) {",
+    "after": "if (s_DFHCOMMAREA.bytes == whole) {"
+   },
+   {
+    "id": "3e1b8acb0a",
+    "op": "DEL",
+    "file": "service/UpdcustService.java",
+    "line": 308,
+    "before": "System.arraycopy(IMAGE_s_WS_CUST_DATA, 0, s_WS_CUST_DATA.bytes, 0, IMAGE_s_WS_CUST_DATA.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_CUST_DATA, 0, s_WS_CUST_DATA.bytes, 0, IMAGE_s_WS_CUST_DATA.length); */"
+   },
+   {
+    "id": "1d7b98bb95",
+    "op": "DEL",
+    "file": "service/UpdcustService.java",
+    "line": 309,
+    "before": "System.arraycopy(IMAGE_s_WS_EIBTASKN12, 0, s_WS_EIBTASKN12.bytes, 0, IMAGE_s_WS_EIBTASKN12.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_EIBTASKN12, 0, s_WS_EIBTASKN12.bytes, 0, IMAGE_s_WS_EIBTASKN12.length); */"
+   },
+   {
+    "id": "7c97187dd4",
+    "op": "DEL",
+    "file": "service/UpdcustService.java",
+    "line": 314,
+    "before": "System.arraycopy(IMAGE_s_WS_ORIG_DATE, 0, s_WS_ORIG_DATE.bytes, 0, IMAGE_s_WS_ORIG_DATE.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_ORIG_DATE, 0, s_WS_ORIG_DATE.bytes, 0, IMAGE_s_WS_ORIG_DATE.length); */"
+   },
+   {
+    "id": "58f9ea9912",
+    "op": "DEL",
+    "file": "service/UpdcustService.java",
+    "line": 318,
+    "before": "System.arraycopy(IMAGE_s_WS_SORT_DIV, 0, s_WS_SORT_DIV.bytes, 0, IMAGE_s_WS_SORT_DIV.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_SORT_DIV, 0, s_WS_SORT_DIV.bytes, 0, IMAGE_s_WS_SORT_DIV.length); */"
+   },
+   {
+    "id": "37a38dec1b",
+    "op": "DEL",
+    "file": "service/UpdcustService.java",
+    "line": 326,
+    "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
+    "after": "/* System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length); */"
+   },
+   {
+    "id": "2e31e56679",
+    "op": "DEL",
+    "file": "service/UpdcustService.java",
+    "line": 328,
+    "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+    "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */"
+   },
+   {
+    "id": "3deff53692",
+    "op": "DEL",
+    "file": "service/UpdcustService.java",
+    "line": 357,
+    "before": "Cobol.move(task.transid(), f112_EIBTRNID, CS);",
+    "after": "/* Cobol.move(task.transid(), f112_EIBTRNID, CS); */"
+   },
+   {
+    "id": "1ce87bed98",
+    "op": "DEL",
+    "file": "service/UpdcustService.java",
+    "line": 361,
+    "before": "Cobol.store(f111_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "/* Cobol.store(f111_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */"
+   },
+   {
+    "id": "69d3924720",
+    "op": "AOR",
+    "file": "service/UpdcustService.java",
+    "line": 361,
+    "before": "Cobol.store(f111_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f111_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "a64a6cb8df",
+    "op": "AOR",
+    "file": "service/UpdcustService.java",
+    "line": 361,
+    "before": "Cobol.store(f111_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f111_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "09f7022847",
+    "op": "AOR",
+    "file": "service/UpdcustService.java",
+    "line": 362,
+    "before": "Cobol.store(f110_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f110_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "61a2d236b8",
+    "op": "AOR",
+    "file": "service/UpdcustService.java",
+    "line": 362,
+    "before": "Cobol.store(f110_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f110_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "c4a83ddd57",
+    "op": "AOR",
+    "file": "service/UpdcustService.java",
+    "line": 362,
+    "before": "Cobol.store(f110_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f110_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "8faf81c0bf",
+    "op": "DEL",
+    "file": "service/UpdcustService.java",
+    "line": 373,
+    "before": "s_DFHCOMMAREA.beyond = null;",
+    "after": "/* s_DFHCOMMAREA.beyond = null; */"
+   },
+   {
+    "id": "93647ab5cd",
+    "op": "ROR",
+    "file": "service/UpdcustService.java",
+    "line": 377,
+    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "511a2d97ef",
+    "op": "DEL",
+    "file": "service/UpdcustService.java",
+    "line": 384,
+    "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
+    "after": "/* System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); */"
+   },
+   {
+    "id": "bbca8be03d",
+    "op": "AOR",
+    "file": "service/UpdcustService.java",
+    "line": 388,
+    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+    "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };"
+   },
+   {
+    "id": "699531afc0",
+    "op": "COR",
+    "file": "service/UpdcustService.java",
+    "line": 391,
+    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "73f85f9766",
+    "op": "DEL",
+    "file": "service/UpdcustService.java",
+    "line": 396,
+    "before": "caBack = () -> { caWhole(whole); typed.run(); };",
+    "after": "/* caBack = () -> { caWhole(whole); typed.run(); }; */"
+   },
+   {
+    "id": "22774c1dce",
+    "op": "NEG",
+    "file": "service/UpdcustService.java",
+    "line": 406,
+    "before": "if (caWhole == null) {",
+    "after": "if (!(caWhole == null)) {"
+   },
+   {
+    "id": "e9581f8a97",
+    "op": "ROR",
+    "file": "service/UpdcustService.java",
+    "line": 406,
+    "before": "if (caWhole == null) {",
+    "after": "if (caWhole != null) {"
+   },
+   {
+    "id": "a09885bf61",
+    "op": "DEL",
+    "file": "service/UpdcustService.java",
+    "line": 412,
+    "before": "caWhole(caWhole);",
+    "after": "/* caWhole(caWhole); */"
+   },
+   {
+    "id": "a889ef4fb1",
+    "op": "LIT",
+    "file": "service/UpdcustService.java",
+    "line": 434,
+    "before": "CicsTask task = region.linked(\"UPDCUST\", request, area);",
+    "after": "CicsTask task = region.linked(\"XPDCUST\", request, area);"
+   },
+   {
+    "id": "60a595ec33",
+    "op": "COR",
+    "file": "service/UpdcustService.java",
+    "line": 437,
+    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+    "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;"
+   },
+   {
+    "id": "335a5ca7a7",
+    "op": "NEG",
+    "file": "service/UpdcustService.java",
+    "line": 512,
+    "before": "if (!jumped) {",
+    "after": "if (!(!jumped)) {"
+   },
+   {
+    "id": "1ef3c51d93",
+    "op": "ROR",
+    "file": "service/UpdcustService.java",
+    "line": 522,
+    "before": "if (next >= 12) {",
+    "after": "if (next > 12) {"
+   },
+   {
+    "id": "8de891799d",
+    "op": "ROR",
+    "file": "service/UpdcustService.java",
+    "line": 528,
+    "before": "if (e.depth != mine) {",
+    "after": "if (e.depth == mine) {"
+   },
+   {
+    "id": "be34bf5f7b",
+    "op": "DEL",
+    "file": "service/UpdcustService.java",
+    "line": 563,
+    "before": "Cobol.move(f1_SORTCODE, f92_COMM_SCODE, CS);",
+    "after": "/* Cobol.move(f1_SORTCODE, f92_COMM_SCODE, CS); */"
+   },
+   {
+    "id": "7f3a9209ab",
+    "op": "LIT",
+    "file": "service/UpdcustService.java",
+    "line": 604,
+    "before": "Cobol.move(\"Y\", f68_WS_TITLE_VALID, CS);",
+    "after": "Cobol.move(\"X\", f68_WS_TITLE_VALID, CS);"
+   },
+   {
+    "id": "86d2c975af",
+    "op": "CON",
+    "file": "service/UpdcustService.java",
+    "line": 665,
+    "before": "if (true) return GOTO | 5;",
+    "after": "if (true) return GOTO | 6;"
+   },
+   {
+    "id": "0c23142e7f",
+    "op": "COR",
+    "file": "service/UpdcustService.java",
+    "line": 668,
+    "before": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0))) {",
+    "after": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 && Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0))) {"
+   },
+   {
+    "id": "7129146b8c",
+    "op": "COR",
+    "file": "service/UpdcustService.java",
+    "line": 668,
+    "before": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0))) {",
+    "after": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 && Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0))) {"
+   },
+   {
+    "id": "d1242c19ea",
+    "op": "ROR",
+    "file": "service/UpdcustService.java",
+    "line": 677,
+    "before": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
+    "after": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) != 0) || !(Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {"
+   },
+   {
+    "id": "098ac696a1",
+    "op": "COR",
+    "file": "service/UpdcustService.java",
+    "line": 677,
+    "before": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
+    "after": "if (((Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0 || Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0) && !(Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {"
+   },
+   {
+    "id": "c4c25b1b93",
+    "op": "COR",
+    "file": "service/UpdcustService.java",
+    "line": 682,
+    "before": "if (((Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
+    "after": "if (((Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0) && !(Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {"
+   },
+   {
+    "id": "f92bb46a07",
+    "op": "LIT",
+    "file": "service/UpdcustService.java",
+    "line": 682,
+    "before": "if (((Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
+    "after": "if (((Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \"X\", CS) == 0)))) {"
+   },
+   {
+    "id": "f7aede0ce4",
+    "op": "ROR",
+    "file": "service/UpdcustService.java",
+    "line": 682,
+    "before": "if (((Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) == 0)))) {",
+    "after": "if (((Cobol.compareFigurative(f95_COMM_ADDR, Figurative.SPACES, CS) == 0 || Cobol.compare(f95_COMM_ADDR.ref(1, Integer.valueOf(1)), \" \", CS) == 0) && (!(Cobol.compareFigurative(f94_COMM_NAME, Figurative.SPACES, CS) == 0) || !(Cobol.compare(f94_COMM_NAME.ref(1, Integer.valueOf(1)), \" \", CS) != 0)))) {"
+   },
+   {
+    "id": "488afe4b04",
+    "op": "DEL",
+    "file": "service/UpdcustService.java",
+    "line": 716,
+    "before": "Cobol.move(f17_CUSTOMER_NUMBER, f93_COMM_CUSTNO, CS);",
+    "after": "/* Cobol.move(f17_CUSTOMER_NUMBER, f93_COMM_CUSTNO, CS); */"
+   }
+  ],
+  "inputs": {
+   "port": "2ea302673b15027a42c2fbf6115cfa16ea4011da7d324927542a7ee081e038f2",
+   "generator": "3aed55885fb603466720caa623558909667470f5c054f7c0f4caadd8cd2e2cae",
+   "case": "c9c76116b6cbd83fb929db7bd58a606bee9479b3baaeec72d146138e5f1af90b",
+   "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
+   "harness": "bd9b4364d5fdcb68f2512f077586d7f71cb727139ce02c2f9bda98e8cc18372e",
+   "oracle": "78abad3ef2da17f34959fee0e54309421ecc8dce147b4cd13fe6d93f195b358a"
+  },
+  "components": {
+   "generator": {
+    "generator:core": "c66ca7d2dc2303a595ef7f1f3e3b1de62bb8afc47df32a09ff0a41764cda88cd",
+    "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
+    "generator:det/cics": "fc9738b7855db145c05eb06b85c2664e12b03d57e8a9925825b7cf85427005ae",
+    "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
+    "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
+    "generator:det/dli": "9def9f478c846ec80e8aba907919660c5eb32d81c6e5ec5d33030dbcc8d92caa",
+    "generator:det/dyncall": "bd15eb2918020d644135fd7f2565937f836b05a223de5ca05af33f0ec7fb0a4f",
+    "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
+    "generator:det/expr": "fbb3c70683ccd2e64382901efe4846b8d908a8c3c7c9bfa9641c6ff6d48a9c4d",
+    "generator:det/gen": "1373e59a3902aee480a3c620041c53d748b3bcc478d47a6e3e58f1c6405f9c51",
+    "generator:det/hfp": "7371422d1821ad22c526f9ba0e37deaa0ffc38ed190c6ad76e7475d820df95a1",
+    "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
+    "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
+    "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
+    "generator:det/source": "8bd64a1f9b6a3f3ae66fd9f8380a206be5a1601cdb84a24209f659822ce4919f",
+    "generator:det/stmt": "c721d141835a1d80dd7aa3d6218e00a2f8e97d4336d12c1e2c1de32b6523acb5"
+   },
+   "harness": {
+    "harness:cics": "63422ca6e6be35cc6d6127fb1494dfc058f8e243c35303ed0a06f3ac2f1b6fc0",
+    "harness:core": "d4035844247f433baa17fa6d008ee2958c9881019c8081e077a54917d6594a23"
+   },
+   "oracle": {
+    "oracle:cics-stub": "37343070bc79966d4f779738c4de6e2d7ede8df68761c37613c223bddca1c531",
+    "oracle:core": "eea2a006cc58ebd1141804b10def30c657d4d2d2a3d2a19cf5d137d9dea04359",
+    "oracle:le": "a7cfa660f76e6181cb060f9f945c4e298533793957991f29d93312db11e33b3f"
+   }
+  }
+ }
+}

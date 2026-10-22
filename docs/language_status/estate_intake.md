@@ -42,6 +42,7 @@ product and PTF level, and the **IGYCDOPT** listing (the installation-defaults m
 
 - **Why:** a program with no PARM gets the installation defaults. TRUNC, NUMPROC, ARITH, INTDATE, CODEPAGE, ZONEDATA, DISPSIGN, NSYMBOL, SSRANGE
   and OPTIMIZE change arithmetic and data results (register C1-C5, C10, C11); the version bounds which options exist.
+- **Version bounds the options (#4704):** an option the stated version does not have (NUMCHECK before 6.3, INVDATA before 6.4) is reported by `EffectiveOptions.version_conflicts()`, enters the evidence fingerprint, and means the estate's version or its PARM is wrong: ask the customer which. An estate whose version is not stated (the async credit-card corpus) reports nothing, and every option stays an assumption.
 - **If missing:** `assumed: IBM default` - IBM's shipped defaults for the stated version (for example TRUNC(STD), NUMPROC(NOPFD), ARITH(COMPAT), INTDATE(ANSI), CODEPAGE 1140).
 
 ## 3. Language Environment runtime options
@@ -51,6 +52,7 @@ Request: the CEEOPTS (SYSIN / DD) members, CEEUOPT (user-linked options), CEEDOP
 
 - **Why:** STORAGE decides what WORKING-STORAGE without VALUE holds (register L3); TRAP and ABTERMENC decide how an abend ends.
 - **If missing:** `assumed: IBM default`: for example STORAGE(NONE,NONE,NONE,0K), TRAP(ON,SPIE), ABTERMENC(ABEND). No burned corpus supplied a CEEOPTS.
+- **What the harness does with a value:** register C18 (#4707) judges each LE, Db2 and CICS option: refused by name (TRAP(OFF), DATE(USA), DEC(31) ...), a declared difference (STORAGE init, a non-default EBCDIC CCSID), or no effect on a proof.
 
 ## 4. Db2 precompile and bind
 

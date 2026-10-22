@@ -38,66 +38,66 @@
     ],
     "fragile_dependency_chain": [
       {
-        "close": 0.0563,
+        "close": 0.0562,
         "err": 66.2775,
         "path": "python/fastapi/fastapi/applications.py",
-        "score": 3.734
+        "score": 3.723
       },
       {
-        "close": 0.0593,
+        "close": 0.0591,
         "err": 60.143,
         "path": "python/fastapi/fastapi/__init__.py",
-        "score": 3.565
+        "score": 3.555
       },
       {
-        "close": 0.0331,
+        "close": 0.033,
         "err": 91.4708,
         "path": "python/fastapi/fastapi/exceptions.py",
-        "score": 3.03
+        "score": 3.021
       },
       {
-        "close": 0.0312,
+        "close": 0.0311,
         "err": 90.4651,
         "path": "python/fastapi/fastapi/datastructures.py",
-        "score": 2.821
+        "score": 2.813
       },
       {
-        "close": 0.0325,
+        "close": 0.0324,
         "err": 84.3093,
         "path": "python/fastapi/fastapi/routing.py",
-        "score": 2.739
+        "score": 2.731
       }
     ],
     "undocumented_critical_path": [
       {
         "doc": 100.0,
         "path": "jcl/cics-banking-sample-application-cbsa/CRELIBS.jcl",
-        "pr": 13.042,
-        "score": 1304.2
+        "pr": 12.973,
+        "score": 1297.3
       },
       {
         "doc": 96.9697,
         "path": "python/fastapi/fastapi/applications.py",
-        "pr": 10.234,
-        "score": 992.388
-      },
-      {
-        "doc": 100.0,
-        "path": "python/fastapi/fastapi/exceptions.py",
-        "pr": 6.159,
-        "score": 615.9
+        "pr": 10.178,
+        "score": 986.958
       },
       {
         "doc": 100.0,
         "path": "rust/tokio/lib.rs",
-        "pr": 5.99,
-        "score": 599.0
+        "pr": 6.543,
+        "score": 654.3
+      },
+      {
+        "doc": 100.0,
+        "path": "python/fastapi/fastapi/exceptions.py",
+        "pr": 6.125,
+        "score": 612.5
       },
       {
         "doc": 100.0,
         "path": "python/fastapi/fastapi/param_functions.py",
-        "pr": 5.816,
-        "score": 581.6
+        "pr": 5.784,
+        "score": 578.4
       }
     ]
   }

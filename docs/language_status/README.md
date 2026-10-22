@@ -75,12 +75,19 @@ runtime, and the generated Java. It also lists the harness work each unsupported
 
 **Definition of done (#4722): [`definition_of_done.md`](definition_of_done.md).** What "done" means for a COBOL / CICS / Db2 migration: scope, the acceptable outcomes per program (a stated evidence level, or a refusal by name), what an estate needs to be done, and what "supported" means for the readiness scanner.
 
-**COBOL-to-Java proofs: [`oracle_assumptions.md`](oracle_assumptions.md)** (added 2026-10-02). A proof compares the
+**CICS command specification (#4270): [`cics_command_spec.md`](cics_command_spec.md) and [`gitgalaxy/standards/cics/README.md`](../../gitgalaxy/standards/cics/README.md).** One declarative specification for 257 `EXEC CICS` commands (100 full on both runtimes, 2 engine-only, 155 name-only refusals), generating both `CicsSpec.java` and `tests/equivalence/cics/ggcics_spec.h`. The live per-command status table (with census counts and crucible coverage) is published on the `generated` branch at [`cics_spec_status.md`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/cics_spec_status.md).
+
+**Offline readiness scanner & CICS era tagging (#4724, #4725, #4726, #5117): [`feature_inventory.md`](feature_inventory.md) and [`gitgalaxy/tools/readiness/README.md`](../../gitgalaxy/tools/readiness/README.md).** `gitgalaxy assess` inventories a customer estate offline and read-only, tags each program and copybook across `Era 0` (CICS macro level) through `Era 4` (Enterprise COBOL channels, containers, web, and async) from 22 concrete source tells (`era_tags.py`), and projects the output through a closed-vocabulary schema with zero source text leakage. `tests/tools/support_matrix.py` and `tests/tools/era_distribution.py` render the burned-estate support matrices and non-burned era distributions.
+
+**Evidence reports & per-program records (#4048, #4054, #5206): [`evidence_records.md`](evidence_records.md) and [`evidence_report/README.md`](evidence_report/README.md).** `tests/tools/evidence_report.py` measures the `L0–L5` deterministic translation ladder across the 6 burned estates (129 programs), regenerated on every push to `main` onto the `generated` branch. `tests/tools/estate_evidence.py` rolls up the 49 committed `evidence.json` records onto the `E0–E4` ladder (coverage and mutation scores, lines), published nightly on `generated` (`estate_evidence/`).
+
+**COBOL-to-Java proofs: [`oracle_assumptions.md`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md)** (added 2026-10-02). A proof compares the
 Java port with the COBOL program run by GnuCOBOL plus our CICS, Db2 and LE models, not by IBM z/OS. That page lists
 every known or suspected difference between the two, its status (matched, refused, differs, assumed), whether a
 proven program reaches it, and what would settle it. It is generated from one file per entry in
 [`register/`](register/): add or edit an entry there, take a new ID with `python tests/tools/register.py next X`, and run
-`register.py render` (CI fails on a stale page).
+commit the entry file only: the page is not committed (#5057); CI renders it and shows the diff, and it is published
+to the `generated` branch after merge (`register.py render` writes a local copy to read).
 
 **A third-party translation through the same harness: [`ibm_wca4z_lgacdb01.md`](ibm_wca4z_lgacdb01.md)** (added
 2026-10-02). IBM's published watsonx Code Assistant for Z translation of GenApp's LGACDB01 (INSERT-CUSTOMER), run
@@ -93,7 +100,7 @@ paragraphs with the det port's methods (exactly) and the model port's (by eviden
 on both sides. It shows where the det port grows, and ranks candidate rewrite rules for its readability layers.
 Each rule lists the cases it must be proven on.
 
-The other COBOL-to-Java pages here: [`det_port_design.md`](det_port_design.md) (the deterministic translator, its
+The other COBOL-to-Java pages here: [`gitgalaxy/tools/cobol_to_java/README.md`](../../gitgalaxy/tools/cobol_to_java/README.md) (the full CICS-to-Java pipeline, era coverage, and scorecards), [`det_port_design.md`](det_port_design.md) (the deterministic translator, its
 runtime contract and every proven result), [`det_survey.md`](det_survey.md) (how much of six estates it translates),
 [`statement_inventory.md`](statement_inventory.md) (what a deterministic translator could take over, by statement
 kind), [`porting_loop.md`](porting_loop.md) (model-written ports), [`mutation_testing.md`](mutation_testing.md) and
@@ -120,6 +127,7 @@ epic #813), not that no cases exist.
 | **[c](c.md)** | production | standard_block | 50/52 | 42 | 86 | **written** |
 | **[cobol](cobol.md)** | production | positional_anchored | 48/52 | 62 | 82 | **written** |
 | **[cpp](cpp.md)** | production | standard_block | 52/52 | 46 | 76 | **written** |
+| **[crystal](crystal.md)** | production | line_exclusive | 54/54 | | 13 | **written** (#5623) |
 | **[csharp](csharp.md)** | production | standard_block | 51/52 | 61 | 106 | **written** |
 | **[css](css.md)** | production | standard_block | 30/48 | 18 | 74 | **written** |
 | dart | production | standard_block | 51/52 | 91 | 86 | not written |
@@ -128,6 +136,7 @@ epic #813), not that no cases exist.
 | easytrieve | production | line_exclusive | 11/35 | | | not written |
 | embedded_python | production | line_exclusive | 51/52 | 64 | 107 | [embedded_python.md](embedded_python.md) |
 | **[fortran](fortran.md)** | production | positional_anchored | 45/52 | 35 | 101 | **written** |
+| **[fsharp](fsharp.md)** | production | recursive_block | 54/54 | | 16 | **written** (#5623) |
 | go | production | standard_block | 51/52 | 47 | 84 | not written |
 | **[groovy](groovy.md)** | production | standard_block | 44/48 | 53 | 91 | **written** |
 | haskell | production | recursive_block_haskell | 52/52 | 48 | 97 | not written |

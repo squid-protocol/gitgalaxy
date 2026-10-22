@@ -24,6 +24,7 @@ so the Java side can be compared field by field (see equivalence_java).
 
 from __future__ import annotations
 
+import functools
 import json
 import re
 import shutil
@@ -34,8 +35,12 @@ from collections.abc import Iterator
 
 import cobol_coverage as cov  # #4023
 import equivalence_common as common
+import equivalence_cics_containers as cics_containers  # #5274: the channels / containers family
+import equivalence_cics_filecontrol as cics_filecontrol  # #5274: the file control family
 import equivalence_db2
+import equivalence_ims  # #5278
 import equivalence_inputs  # #3804
+import equivalence_mq  # #4892
 import equivalence_oracle
 import equivalence_sql
 
@@ -56,7 +61,8 @@ LE_MODELS = common.CASES / "le"  # Language Environment service models (CEEDAYS)
 # (gitgalaxy/standards/cics, #4270 spec PR 3), the det translator's own table.
 DFHRESP: dict[str, int] = dict(SPEC_DFHRESP)
 
-_EXEC = re.compile(r"\bEXEC\s+CICS\b", re.I)
+_EXEC = re.compile(r"\bEXEC\s+(?:CICS|DLI)\b", re.I)
+_DLI_TAG = "\0DLI "  # (#5278) an EXEC DLI block's body, as _exec_blocks yields it
 _END_EXEC = re.compile(r"\bEND-EXEC\b", re.I)
 _DFHRESP = re.compile(r"\bDFHRESP\s*\(\s*([A-Z0-9]+)\s*\)", re.I)
 _DFHVALUE = re.compile(r"\bDFHVALUE\s*\(\s*([A-Z0-9]+)\s*\)", re.I)  # #4415: a CVDA, the number IBM gives it
@@ -270,7 +276,11 @@ def _handle(pairs: list[tuple[str, str | None]], labels: list[str]) -> list[str]
             lines += ["MOVE SPACES TO GG-NAME2" if n == "ABCODE" else f"MOVE '{n[:8]}' TO GG-NAME2"] + _call(
                 "GGCASGN", []
             )
-            lines.append(f"MOVE GG-NAME1(1:{width}) TO {target}")
+            # IBM writes exactly `width` bytes and leaves the rest of a wider data area as it was (det: DetCics.put); a
+            # plain MOVE would space-pad that tail (#4049), so the target is reference-modified to the width
+            if re.search(r"\(\s*\d*\s*:", target):
+                raise Unsupported(f"ASSIGN {n}: a reference-modified target", [f"ASSIGN {n}"])
+            lines.append(f"MOVE GG-NAME1(1:{width}) TO {target}(1:{width})")
         if not any(n in TERMINAL_OPTIONS for n, _v in asked):
             return lines + _resp(opts, False)
         # INVREQ RESP2 5 for a task with no terminal, and then no data area written (register X19)
@@ -387,6 +397,17 @@ def http_peers(case: dict[str, Any], sc: dict[str, Any]) -> list[dict[str, Any]]
     return peers
 
 
+def mapsets_env(case: dict[str, Any]) -> str:
+    """#4270 (X31) / #5076: the case's "maps" ({MAP: {"mapset": MAPSET}}, as a cics-crucible case states them) as the stub's
+    $GGCICS_MAPSETS (`MAPSET=MAP,MAP;MAPSET=MAP`), so a SEND MAP / RECEIVE MAP for a map its mapset does not hold abends
+    ABM0 on the COBOL side as the det port's translation already does (BNK1CCS's CLEAR: SEND MAP('BNK1CCM'), the
+    mapset's name). Unstated, a mapset is not checked."""
+    held: dict[str, list[str]] = {}
+    for m, spec in sorted(case["maps"].items()):
+        held.setdefault(spec["mapset"], []).append(m)
+    return ";".join(f"{ms}={','.join(maps)}" for ms, maps in sorted(held.items()))
+
+
 def http_peers_cfg(peers: list[dict[str, Any]], enc: str) -> str:
     """#4767 (X35): the stub's $GGCICS_HTTP file (ggcics.c GGCWOPN): `P SCHEME HOSTHEX PORT URIMAP|- PATHHEX|-` per peer,
     then `X METHOD PATHHEX QUERYHEX|- STATUS STATUSTEXTHEX|- MEDIATYPEHEX|- BODYHEX|-` per response, hex in the data's page."""
@@ -419,10 +440,24 @@ def doctemplates(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, str] | N
     return defs
 
 
-def clock_iso(case: dict[str, Any]) -> str:
+_SCENARIO_CLOCK = re.compile(r"\d{4}/\d\d/\d\d \d\d:\d\d:\d\d\.\d\d")
+
+
+def scenario_clock(case: dict[str, Any], sc: dict[str, Any]) -> str:
+    """#4622: the task's clock ("2026/10/01 10:30:15.00", COB_CURRENT_DATE's form) -- the scenario's "clock", else the
+    case's: a program that reads FUNCTION CURRENT-DATE (CORPT00C's month wrap in December) needs a date the case's
+    one never is. Stated on both sides: the COBOL task's COB_CURRENT_DATE / $GGCICS_NOW, the Java task's withClock."""
+    clock = sc.get("clock", case["clock"])
+    if not isinstance(clock, str) or not _SCENARIO_CLOCK.fullmatch(clock):
+        raise Unsupported(f'scenario {sc.get("name")}: "clock" is "YYYY/MM/DD hh:mm:ss.cc" (got {clock!r})')
+    return clock
+
+
+def clock_iso(case: dict[str, Any], sc: dict[str, Any] | None = None) -> str:
     """#4270: the case's clock ("2026/10/01 10:30:15.00") as the stub's $GGCICS_NOW (2026-10-01T10:30:15): the
-    moment a START's expiry and a CANCEL's "not expired" count from, as CicsTask counts them from the same clock."""
-    day, _, time = case["clock"].partition(" ")
+    moment a START's expiry and a CANCEL's "not expired" count from, as CicsTask counts them from the same clock.
+    #4622: the scenario's, when it states one."""
+    day, _, time = (scenario_clock(case, sc) if sc is not None else case["clock"]).partition(" ")
     return day.replace("/", "-") + "T" + time.split(".")[0]
 
 
@@ -445,7 +480,9 @@ def terminal_facts(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any]:
     "termid" (EIBTRMID and the principal facility: $EIBIN, $GGCICS_FACILITY and terminals.cfg / CicsTask.withTermid;
     RETURN IMMEDIATE, register X27), "uctranst" (its TYPETERM's UCTRAN as INQUIRE TERMINAL UCTRANST answers it:
     $GGCICS_UCTRANST / withUctranst, X26) and "origin" (the task's origin data, {applid, userid, facilname,
-    networkid, faciltype}: $GGCICS_ORIGIN / withOrigin, X29). The scenario's, else the case's; unstated, None, and
+    networkid, faciltype}: $GGCICS_ORIGIN / withOrigin, X29), plus "userid" (ASSIGN USERID: $GGCICS_USERID /
+    withUserid) and "screen" ([rows, columns], ASSIGN SCRNHT / SCRNWD: $GGCICS_SCREEN / withScreen; needs a termid;
+    X19), each present only when stated (#5126). The scenario's, else the case's; unstated, None, and
     the commands that read them are refused by both runtimes, as before."""
     out: dict[str, Any] = {k: sc.get(k, case.get(k)) for k in ("termid", "uctranst", "origin")}
     t = out["termid"]
@@ -454,6 +491,18 @@ def terminal_facts(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any]:
     if out["uctranst"] is not None and (t is None or out["uctranst"] not in UCTRANST_NAMES):
         raise Unsupported(f'scenario {sc.get("name")}: "uctranst" is one of {", ".join(UCTRANST_NAMES)}, of a '
                           'stated "termid"')  # fmt: skip
+    for k in ("userid", "screen"):  # #5126: only when stated (an always-present empty key breaks exact-equality tests)
+        if sc.get(k, case.get(k)) is not None:
+            out[k] = sc.get(k, case.get(k))
+    u = out.get("userid")
+    if u is not None and (not isinstance(u, str) or not 1 <= len(u) <= 8 or not u.strip() or "," in u or " " in u):
+        raise Unsupported(f'scenario {sc.get("name")}: "userid" {u!r} is not a user ID (1 to 8 characters)')
+    scr = out.get("screen")
+    if scr is not None and (not isinstance(scr, list) or len(scr) != 2
+                            or not all(type(n) is int and n > 0 for n in scr) or t is None):  # fmt: skip
+        raise Unsupported(
+            f'scenario {sc.get("name")}: "screen" is [rows, columns], positive ints, of a stated "termid"'
+        )
     o = out["origin"]
     if o is not None and (not isinstance(o, dict) or sorted(o) != sorted(ORIGIN_KEYS)
                           or any(not isinstance(o[k], str) or "," in o[k] or not o[k] for k in ORIGIN_KEYS)):  # fmt: skip
@@ -517,8 +566,23 @@ def _ts_command(verb: str, opts: dict[str, str | None], labels: list[str] | None
     _check_spec(feature, opts, (verb,), lambda bad: [f"{feature} {bad[0]}"])
     queue = opts.get("QUEUE") or opts.get("QNAME")
     area = opts.get("INTO") if verb == "READQ" else opts.get("FROM")
+    setp = opts.get("SET") if verb == "READQ" else None
     if not queue:
         raise Unsupported(_rule(feature, "one_of", "QUEUE"), [feature])
+    if setp:  # #5042 (X58): READQ TS SET(pointer) LENGTH(data-area) -> GGCRDQS, the item as a new block
+        if area:
+            raise Unsupported(_rule(feature, "at_most_one", "INTO"), [feature])
+        length = opts.get("LENGTH") or opts.get("FLENGTH")
+        if not length or re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()):
+            raise Unsupported(_rule(feature, "requires", "SET"), [feature])
+        item, num = opts.get("ITEM"), opts.get("NUMITEMS")
+        lines = [f"MOVE {queue} TO GG-QNAME", "MOVE 0 TO GG-LEN",
+                 f"MOVE {item} TO GG-ITEM" if item and "NEXT" not in opts else "MOVE 0 TO GG-ITEM"]  # fmt: skip
+        lines += _call("GGCRDQS", [f"BY REFERENCE {_pointer(feature, setp)}"])
+        lines += ["IF GG-RESP = 0", f"    MOVE GG-LEN TO {length}", "END-IF"]
+        if num:
+            lines += ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {num}", "END-IF"]
+        return lines + _resp(opts, True, labels)
     if not area:
         raise Unsupported(f"{feature} without QUEUE / {'INTO' if verb == 'READQ' else 'FROM'}", [feature])
     length, item, num = opts.get("LENGTH") or opts.get("FLENGTH"), opts.get("ITEM"), opts.get("NUMITEMS")
@@ -544,18 +608,154 @@ def _ts_command(verb: str, opts: dict[str, str | None], labels: list[str] | None
     return lines + after + _resp(opts, True, labels)
 
 
+def _td_command(verb: str, opts: dict[str, str | None], labels: list[str] | None = None) -> list[str]:
+    """#5079 (X57): READQ TD / DELETEQ TD -> GGCRDTD / GGCDLTD (the queue in GG-QNAME). READQ's LENGTH is in-out, as READ's:
+    in, the most INTO takes; out, the record's length, on NORMAL and LENGERR."""
+    feature = f"{verb} TD"
+    _check_spec(feature, opts, (verb, "TD"), lambda bad: [f"{feature} {bad[0]}"])
+    queue = opts.get("QUEUE")
+    if not queue:
+        raise Unsupported(f"{feature} without QUEUE", [feature])
+    lines = [f"MOVE {queue} TO GG-QNAME"]
+    if verb == "DELETEQ":
+        return lines + _call("GGCDLTD", []) + _resp(opts, True, labels)
+    into, length = opts.get("INTO"), opts.get("LENGTH")
+    if opts.get(
+        "SET"
+    ):  # #5168 (X61): SET(pointer) LENGTH(data-area) -> GGCRDTS, the record as a new block (X58's lane)
+        if into:
+            raise Unsupported(_rule(feature, "at_most_one", "INTO"), [feature])
+        if not length or re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()):
+            raise Unsupported(_rule(feature, "requires", "SET"), [feature])
+        return (lines + _call("GGCRDTS", [f"BY REFERENCE {_pointer(feature, opts['SET'])}"])
+                + ["IF GG-RESP = 0", f"    MOVE GG-LEN TO {length}", "END-IF"] + _resp(opts, True, labels))  # fmt: skip
+    if not into:
+        raise Unsupported(f"{feature} without INTO", [feature])
+    settable = bool(length) and re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()) is None
+    after = ["IF GG-RESP = 0 OR GG-RESP = 22", f"    MOVE GG-LEN TO {length}", "END-IF"] if settable else []
+    lines.append(f"MOVE {length or f'LENGTH OF {into}'} TO GG-LEN")
+    return (lines + _call("GGCRDTD", [f"BY REFERENCE {into}", f"BY VALUE LENGTH OF {into}"])
+            + after + _resp(opts, True, labels))  # fmt: skip
+
+
 def _fetch_child(key: str, opts: dict[str, str | None], labels: list[str]) -> list[str]:
-    """#4884: FETCH ANY / FETCH CHILD(token) NOSUSPEND -> GGCFETCH (no child has completed while its parent runs; the
-    runner's scheduler runs a child once the parent has ended). A FETCH that waits (no NOSUSPEND, TIMEOUT) is refused."""
+    """#4884, #4950: FETCH ANY / FETCH CHILD(token) -> GGCFETCH: GG-FLAGS names CHILD (the token in GG-QNAME), NOSUSPEND,
+    TIMEOUT (GG-NUM) and CHANNEL; on NORMAL the stub's answers go to the program's areas -- the token (ANY), the reply
+    channel's name (CHANNEL), the abend code (ABCODE, only for a child that abended) and COMPSTATUS's CVDA."""
     form = key.split()[1]
     _check_spec(key, opts, ("FETCH",))
     if not opts.get(form):
         raise Unsupported(_rule(key, "required", form), [key])
-    if "NOSUSPEND" not in opts:
-        raise Unsupported(_rule(key, "required", "NOSUSPEND"), [key])
-    token = [f"MOVE {opts['CHILD']} TO GG-QNAME", "MOVE 'CHILD' TO GG-FLAGS"] if form == "CHILD" else [
-        "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
-    return token + _call("GGCFETCH", []) + _resp(opts, True, labels)
+    if "NOSUSPEND" in opts and "TIMEOUT" in opts:
+        raise Unsupported(_rule(key, "at_most_one", "NOSUSPEND", "NOSUSPEND", "TIMEOUT"), [key])
+    if any(o in opts and not opts[o] for o in ("TIMEOUT", "CHANNEL", "ABCODE", "COMPSTATUS")):
+        raise Unsupported(NEEDS_ARGUMENT, [key])
+    flags = " ".join(
+        o for o in ("CHILD", "NOSUSPEND", "TIMEOUT", "CHANNEL") if o in opts or (o == "CHILD" and form == "CHILD")
+    )
+    lines = [f"MOVE {opts['CHILD']} TO GG-QNAME" if form == "CHILD" else "MOVE SPACES TO GG-QNAME",
+             f"MOVE '{flags}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS",
+             f"MOVE {opts['TIMEOUT']} TO GG-NUM" if "TIMEOUT" in opts else "MOVE 0 TO GG-NUM"]  # fmt: skip
+    after = [f"    MOVE GG-QNAME TO {opts['ANY']}"] if form == "ANY" else []
+    if "CHANNEL" in opts:
+        after.append(f"    MOVE GG-CHAN TO {opts['CHANNEL']}")
+    if "ABCODE" in opts:
+        after += ["    IF GG-ITEM = 1", f"        MOVE GG-NAME1(1:4) TO {opts['ABCODE']}", "    END-IF"]
+    if "COMPSTATUS" in opts:
+        after.append(f"    MOVE GG-NUM TO {opts['COMPSTATUS']}")
+    after = ["IF GG-RESP = 0", *after, "END-IF"] if after else []
+    return lines + _call("GGCFETCH", []) + after + _resp(opts, True, labels)
+
+
+def _free_child(opts: dict[str, str | None], labels: list[str]) -> list[str]:
+    """#4950: FREE CHILD(token) -> GGCFREE (the token in GG-QNAME)."""
+    _check_spec("FREE CHILD", opts, ("FREE", "CHILD"))
+    if not opts.get("CHILD"):
+        raise Unsupported(_rule("FREE CHILD", "required", "CHILD"), ["FREE CHILD"])
+    return [f"MOVE {opts['CHILD']} TO GG-QNAME"] + _call("GGCFREE", []) + _resp(opts, True, labels)
+
+
+def _delay(opts: dict[str, str | None], labels: list[str]) -> list[str]:
+    """#4950: DELAY -> GGCDLAY: GG-FLAGS INTERVAL (GG-NUM), TIME, or FOR (HOURS / MINUTES / SECONDS / MILLISECS in GG-HOURS
+    / GG-MINS / GG-SECS / GG-LEN, -999999999 when not given); none: INTERVAL(0). The stub dispatches the RUN children
+    at it (a task takes no time, X4: NORMAL at once)."""
+    _check_spec("DELAY", opts, ("DELAY",), lambda bad: [f"DELAY {bad[0]}"])
+    given = [o for o in ("INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS") if o in opts]
+    if any(not opts[o] for o in given):
+        raise Unsupported(NEEDS_ARGUMENT, ["DELAY"])
+    if "TIME" in opts:
+        lines = ["MOVE 'TIME' TO GG-FLAGS"]
+    elif "INTERVAL" in opts:
+        lines = ["MOVE 'INTERVAL' TO GG-FLAGS", f"MOVE {opts['INTERVAL']} TO GG-NUM"]
+    elif given:
+        lines = ["MOVE 'FOR' TO GG-FLAGS"] + [f"MOVE {opts.get(o) or -999999999} TO {f}" for o, f in (
+            ("HOURS", "GG-HOURS"), ("MINUTES", "GG-MINS"), ("SECONDS", "GG-SECS"), ("MILLISECS", "GG-LEN"))]  # fmt: skip
+    else:
+        lines = ["MOVE SPACES TO GG-FLAGS"]
+    return lines + _call("GGCDLAY", []) + _resp(opts, False, labels)
+
+
+def _post(opts: dict[str, str | None], labels: list[str]) -> list[str]:
+    """#5079 (register X63): POST INTERVAL / TIME (GG-NUM) | AFTER / AT HOURS MINUTES SECONDS (GG-HOURS / GG-MINS / GG-SECS,
+    -999999999 when not given; GG-FLAGS says which) [REQID (GG-QNAME)] [SET(ptr)] -> GGCPOST, which sets the pointer to the
+    timer-event control area (no SET: GG-PTR takes it), and returns the REQID it ran under in GG-NAME1: EIBREQID when the
+    program gave none (IBM: CICS "generates one", ASSUMED POSTnnnn). The option rules as the det translator's."""
+    key = "POST"
+    _check_spec(key, opts, ("POST",), lambda bad: [f"{key} {o}" for o in bad])
+    whens = [w for w in ("INTERVAL", "TIME", "AFTER", "AT") if w in opts]
+    if len(whens) > 1:
+        raise Unsupported(_rule(key, "at_most_one", "INTERVAL", " and ".join(whens)), ["POST " + " ".join(whens)])
+    when = whens[0] if whens else "INTERVAL"
+    hms = [o for o in ("HOURS", "MINUTES", "SECONDS") if o in opts]
+    if (when in ("AFTER", "AT")) != bool(hms):
+        raise Unsupported(_rule(key, "requires", "HOURS", when, " ".join(hms)), [f"POST {when}"])
+    if any(not opts.get(o) for o in [*hms, *(o for o in ("INTERVAL", "TIME", "SET", "REQID") if o in opts)]):
+        raise Unsupported(NEEDS_ARGUMENT, [f"POST {when}"])
+    lines = [f"MOVE '{when}' TO GG-FLAGS",
+             f"MOVE {opts['REQID']} TO GG-QNAME" if opts.get("REQID") else "MOVE SPACES TO GG-QNAME",
+             f"MOVE {opts.get(when) or 0} TO GG-NUM" if when in ("INTERVAL", "TIME") else "MOVE 0 TO GG-NUM"]  # fmt: skip
+    lines += [f"MOVE {opts.get(o) or -999999999} TO {f}"
+              for o, f in (("HOURS", "GG-HOURS"), ("MINUTES", "GG-MINS"), ("SECONDS", "GG-SECS")) if hms]  # fmt: skip
+    ptr = _pointer(key, opts["SET"]) if opts.get("SET") else "GG-PTR"
+    lines += _call("GGCPOST", [f"BY REFERENCE {ptr}"])
+    if not opts.get("REQID"):
+        lines += ["IF GG-RESP = 0", "    MOVE GG-NAME1 TO EIBREQID", "END-IF"]
+    return lines + _resp(opts, True, labels)
+
+
+def _wait_event(opts: dict[str, str | None], labels: list[str]) -> list[str]:
+    """#5079 (register X63): WAIT EVENT ECADDR(ptr) [NAME] -> GGCWEVT (the area a POST made is posted at its expiry; INVREQ
+    RESP2 2 for a null pointer; an address that is no POST's area is refused by the stub). The option rules as the translator's."""
+    key = "WAIT EVENT"
+    _check_spec(
+        key, {o: v for o, v in opts.items() if o != "EVENT"}, ("WAIT",), lambda bad: [f"{key} {o}" for o in bad]
+    )
+    if not opts.get("ECADDR"):
+        raise Unsupported(_rule(key, "required", "ECADDR"), [key])
+    return _call("GGCWEVT", [f"BY REFERENCE {_pointer(key, opts['ECADDR'])}"]) + _resp(opts, True, labels)
+
+
+def _converse(opts: dict[str, str | None], labels: list[str]) -> list[str]:
+    """#5079 (register X63): CONVERSE FROM [FROMLENGTH] INTO [TOLENGTH] [MAXLENGTH] [NOTRUNCATE] -> GGCCONV: the FROM data
+    written to the terminal (a plain SEND's event), then the terminal RECEIVE of the reply (GG-LEN the most taken, GG-FLAGS
+    NOTRUNCATE; on return the reply's length, -1 for a negative FROMLENGTH: LENGERR, nothing sent). TOLENGTH is set on NORMAL
+    / LENGERR. The option rules as the det translator's (SET and the conversation options refused by name)."""
+    key = "CONVERSE"
+    _check_spec(key, opts, (key,), lambda bad: [f"{key} {o}" for o in bad])
+    for req in ("FROM", "INTO"):
+        if not opts.get(req):
+            raise Unsupported(_rule(key, "required", req), [key])
+    sent = _one_of(key, opts, "FROMLENGTH", "FROMFLENGTH")
+    length = _one_of(key, opts, "TOLENGTH", "TOFLENGTH")
+    most = _one_of(key, opts, "MAXLENGTH", "MAXFLENGTH")
+    src, into = opts["FROM"], opts["INTO"]
+    lines = ["MOVE 'NOTRUNCATE' TO GG-FLAGS" if "NOTRUNCATE" in opts else "MOVE SPACES TO GG-FLAGS",
+             f"MOVE {most or length or f'LENGTH OF {into}'} TO GG-LEN"]  # fmt: skip
+    lines += _call("GGCCONV", [f"BY REFERENCE {src}", f"BY VALUE {sent or f'LENGTH OF {src}'}", f"BY REFERENCE {into}"])
+    settable = bool(length) and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", length.strip()) is None
+    if settable:
+        lines += ["IF GG-LEN >= 0 AND (GG-RESP = 0 OR GG-RESP = 22)", f"    MOVE GG-LEN TO {length}", "END-IF"]
+    return lines + _resp(opts, True, labels)
 
 
 def _run_transid(opts: dict[str, str | None], labels: list[str]) -> list[str]:
@@ -603,7 +803,15 @@ def _interval_command(verb: str, opts: dict[str, str | None], labels: list[str])
         given_length = _one_of("START", opts, "LENGTH", "FLENGTH")
         if given_length is not None and not area:  # (a deny-list until spec PR 3: the length was moved, no area)
             raise Unsupported(_rule("START", "requires", "LENGTH"), ["START"])
-        flags = " ".join([when] + (["PROTECT"] if "PROTECT" in opts else []) + named)
+        if "CHANNEL" in opts:  # #4950: START CHANNEL's form -- no expiry, no data options, no REQID
+            if not opts["CHANNEL"]:
+                raise Unsupported(NEEDS_ARGUMENT, ["START CHANNEL"])
+            for g in SPEC["START"].groups:
+                if g.kind == "at_most_one" and g.options[0] == "CHANNEL" and all(o in opts for o in g.options):
+                    raise Unsupported(g.msg.format(g.options[1]), ["START CHANNEL"])
+        flags = " ".join(
+            [when] + (["PROTECT"] if "PROTECT" in opts else []) + named + (["CHANNEL"] if "CHANNEL" in opts else [])
+        )
         length = given_length or (f"LENGTH OF {area}" if area else "0")
         lines = [f"MOVE {opts['TRANSID']} TO GG-NAME1",
                  f"MOVE {opts['TERMID']} TO GG-NAME2" if opts.get("TERMID") else "MOVE SPACES TO GG-NAME2",
@@ -615,16 +823,26 @@ def _interval_command(verb: str, opts: dict[str, str | None], labels: list[str])
             lines += [f"MOVE {opts.get(o) or -999999999} TO {f}"
                       for o, f in (("HOURS", "GG-HOURS"), ("MINUTES", "GG-MINS"), ("SECONDS", "GG-SECS"))]  # fmt: skip
         lines += [f"MOVE {opts[o]} TO {data_in[o]}" for o in named]
+        if "CHANNEL" in opts:
+            lines.append(f"MOVE {opts['CHANNEL']} TO GG-CHAN")
         lines += _past_from(opts.get("LENGTH") or opts.get("FLENGTH"), area, "START")
         return lines + _call("GGCSTRT", [f"BY REFERENCE {area or 'GG-FLAGS'}"]) + _resp(opts, True, labels)
     if verb == "RETRIEVE":
-        into = opts.get("INTO")
+        into, setp = opts.get("INTO"), opts.get("SET")
         length = _one_of("RETRIEVE", opts, "LENGTH", "FLENGTH")
-        if not into and (not named or length):
+        if setp:  # #5042 (X58): SET(pointer) LENGTH(data-area) -> GGCRTRS, the data as a new block
+            if into:
+                raise Unsupported(_rule("RETRIEVE", "at_most_one", "INTO"), ["RETRIEVE"])
+            if not length or re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", length.strip()):
+                raise Unsupported(_rule("RETRIEVE", "requires", "SET"), ["RETRIEVE"])
+        elif not into and (not named or length):
             raise Unsupported(_rule("RETRIEVE", "requires", "LENGTH"), ["RETRIEVE"])
-        flags = " ".join((["INTO"] if into else []) + named)
+        flags = " ".join((["INTO"] if into or setp else []) + named)
         lines = [f"MOVE '{flags}' TO GG-FLAGS", f"MOVE {length or (f'LENGTH OF {into}' if into else '0')} TO GG-LEN"]
-        lines += _call("GGCRTRV", [f"BY REFERENCE {into or 'GG-FLAGS'}"])
+        if setp:
+            lines += _call("GGCRTRS", [f"BY REFERENCE {_pointer('RETRIEVE', setp)}"])
+        else:
+            lines += _call("GGCRTRV", [f"BY REFERENCE {into or 'GG-FLAGS'}"])
         if length:
             lines += ["IF GG-RESP = 0 OR GG-RESP = 22", f"    MOVE GG-LEN TO {length}", "END-IF"]
         if named:
@@ -685,6 +903,43 @@ def http_request_cfg(req: dict[str, Any], enc: str) -> str:
     return "".join(f"{ln}\n" for ln in lines)
 
 
+_TCPIP_KEYS = {"client_addr", "client_name", "server_addr", "server_name", "port", "ssl_type"}
+
+
+def tcpip(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any] | None:
+    """#4972 (X38): the TCP/IP connection the task was started on -- the scenario's "tcpip", else the case's: {"client_addr",
+    "server_addr" (IPv4 dotted decimal: any other text is refused by both runtimes), "client_name", "server_name" (null: the
+    DNS knows none), "port", "ssl_type" ("SSL", "NOSSL", "CLIENTAUTH", "ATTLSAWARE")}. Stated on both sides (the stub's
+    $GGCICS_TCPIP, CicsTask.withTcpip); EXTRACT TCPIP needs it. Unstated, None: both runtimes refuse it by name."""
+    conn = sc.get("tcpip", case.get("tcpip"))
+    if conn is None:
+        return None
+
+    def text(v: Any) -> bool:
+        return isinstance(v, str) and bool(v) and not any(c.isspace() for c in v)
+
+    ok = (isinstance(conn, dict) and set(conn) == _TCPIP_KEYS and text(conn["client_addr"]) and text(conn["server_addr"])
+          and (conn["client_name"] is None or text(conn["client_name"]))
+          and (conn["server_name"] is None or text(conn["server_name"]))
+          and isinstance(conn["port"], int) and 0 < conn["port"] <= 65535
+          and conn["ssl_type"] in ("SSL", "NOSSL", "CLIENTAUTH", "ATTLSAWARE"))  # fmt: skip
+    if not ok:
+        raise Unsupported(f'scenario {sc.get("name")}: "tcpip" is {{client_addr, client_name, server_addr, server_name, '
+                          "port, ssl_type}", ["EXTRACT TCPIP"])  # fmt: skip
+    return conn
+
+
+def tcpip_cfg(conn: dict[str, Any], enc: str) -> str:
+    """#4972 (X38): the stub's $GGCICS_TCPIP file (ggcics.c tcpip_load): `T CLIENTADDR CLIENTNAMEHEX|- SERVERADDR
+    SERVERNAMEHEX|- PORT SSLTYPE`, the names in hex in the data's page."""
+
+    def hx(v: str | None) -> str:
+        return v.encode(enc).hex().upper() if v else "-"
+
+    return (f"T {conn['client_addr']} {hx(conn['client_name'])} {conn['server_addr']} {hx(conn['server_name'])} "
+            f"{conn['port']} {conn['ssl_type']}\n")  # fmt: skip
+
+
 def _web_requires(key: str, option: str, needed: str) -> str:
     """#4767: the message of the command's `requires` rule from `option` to `needed`, as the translator words it."""
     return next(
@@ -737,8 +992,10 @@ def _web_send(opts: dict[str, str | None], labels: list[str] | None) -> list[str
     SRVCONVERT / 2 NOSRVCONVERT); GG-FLAGS names MEDIA STEXT given). The option rules as the det translator's."""
     key = "WEB SEND"
     _check_spec(key, opts, ("WEB", "SEND"), lambda bad: [f"{key} {o}" for o in bad])
-    if ("FROM" in opts) == ("DOCTOKEN" in opts):
+    if sum(o in opts for o in ("FROM", "DOCTOKEN", "CONTAINER")) != 1:
         raise Unsupported(_rule(key, "one_of", "FROM"), [key])
+    if "CHANNEL" in opts and "CONTAINER" not in opts:
+        raise Unsupported(_web_requires(key, "CHANNEL", "CONTAINER"), [key])
     if "FROM" in opts and "FROMLENGTH" not in opts:
         raise Unsupported(_web_requires(key, "FROM", "FROMLENGTH"), [key])
     if "FROMLENGTH" in opts and "FROM" not in opts:
@@ -747,33 +1004,56 @@ def _web_send(opts: dict[str, str | None], labels: list[str] | None) -> list[str
         raise Unsupported(_rule(key, "at_most_one", "SRVCONVERT"), [key])
     if "STATUSLEN" in opts and "STATUSTEXT" not in opts:
         raise Unsupported(_web_requires(key, "STATUSLEN", "STATUSTEXT"), [key])
-    for o in ("FROMLENGTH", "DOCTOKEN", "MEDIATYPE", "ACTION", "STATUSCODE", "STATUSTEXT", "STATUSLEN"):
+    if "DOCSTATUS" in opts and "DOCTOKEN" not in opts:
+        raise Unsupported(_web_requires(key, "DOCSTATUS", "DOCTOKEN"), [key])
+    for o in (
+        "FROMLENGTH",
+        "DOCTOKEN",
+        "CONTAINER",
+        "CHANNEL",
+        "MEDIATYPE",
+        "ACTION",
+        "DOCSTATUS",
+        "STATUSCODE",
+        "STATUSTEXT",
+        "STATUSLEN",
+    ):
         if o in opts and not opts[o]:
             raise Unsupported(NEEDS_ARGUMENT, [key])
     for o in ("FROM", "DOCTOKEN", "MEDIATYPE", "STATUSTEXT"):
         if opts.get(o) and _literal(opts[o]):
             raise Unsupported(f"{key} {o} as a literal: a data area is the COBOL form", [key])
     conv = 1 if "SRVCONVERT" in opts else 2 if "NOSRVCONVERT" in opts else 0
-    given = [w for o, w in (("MEDIATYPE", "MEDIA"), ("STATUSTEXT", "STEXT")) if o in opts]
+    given = [w for o, w in (("MEDIATYPE", "MEDIA"), ("STATUSTEXT", "STEXT"), ("CHANNEL", "CHANNEL")) if o in opts]
     lines = [f"MOVE {opts.get('FROMLENGTH') or '0'} TO GG-LEN", f"MOVE {opts.get('ACTION') or '0'} TO GG-ITEM",
              f"MOVE {opts.get('STATUSCODE') or '-1'} TO GG-NUM", f"MOVE {opts.get('STATUSLEN') or '-1'} TO GG-HOURS",
              f"MOVE {conv} TO GG-MINS", f"MOVE '{' '.join(given)}' TO GG-FLAGS" if given else "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
+    if "DOCTOKEN" in opts:  # #4941 (X37): DOCSTATUS's CVDA in GG-SECS (0: none; DOCDELETE 295, NODOCDELETE 296)
+        lines.append(f"MOVE {opts.get('DOCSTATUS') or '0'} TO GG-SECS")
     args = []
     for o in ("DOCTOKEN" if "DOCTOKEN" in opts else "FROM", "MEDIATYPE", "STATUSTEXT"):
         area = opts.get(o) or "GG-QNAME"  # (an option not given: a placeholder the stub does not read)
         args += [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]
+    if "CONTAINER" in opts:  # #5037 (X37): the response is a container's data (GG-QNAME its name, GG-CHAN its channel)
+        lines.append(f"MOVE {opts['CONTAINER']} TO GG-QNAME")
+        if "CHANNEL" in opts:
+            lines.append(f"MOVE {opts['CHANNEL']} TO GG-CHAN")
+        args = []
+        for o in ("MEDIATYPE", "STATUSTEXT"):
+            area = opts.get(o) or "GG-QNAME"
+            args += [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]
+        return lines + _call("GGCWSCT", args) + _resp(opts, True, labels)
     # (#4767 X37: DOCTOKEN -> GGCWSDC, the response being the document the token names)
     return lines + _call("GGCWSDC" if "DOCTOKEN" in opts else "GGCWSND", args) + _resp(opts, True, labels)
 
 
-def _web_extract(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
+def _web_extract(opts: dict[str, str | None], labels: list[str] | None, key: str = "WEB EXTRACT") -> list[str]:
     """#4767 zECS (register X38): WEB EXTRACT (server) -> GGCWEXT (HOSTLENGTH / METHODLENGTH / VERSIONLEN / PATHLENGTH /
     QUERYSTRLEN in GG-LEN / GG-HOURS / GG-MINS / GG-SECS / GG-ITEM, each moved back as the piece's length; GG-FLAGS names HOST
     METHOD VERSION PATH QUERY given; the stub writes the pieces, the port in GG-NUM and the scheme in GG-NAME1), then on NORMAL
     the lengths, PORTNUMBER, SCHEME (a CVDA: 1096 HTTP, 1029 HTTPS) and REQUESTTYPE (1033 HTTPYES) moved to the program's
-    fields. The option rules as the det translator's."""
-    key = "WEB EXTRACT"
-    _check_spec(key, opts, ("WEB", "EXTRACT"), lambda bad: [f"{key} {o}" for o in bad])
+    fields. The option rules as the det translator's. #4972: EXTRACT WEB (`key`) is the same command, IBM's synonym."""
+    _check_spec(key, opts, tuple(key.split()), lambda bad: [f"{key} {o}" for o in bad])
     pieces = (("HOST", "HOSTLENGTH", "GG-LEN"), ("HTTPMETHOD", "METHODLENGTH", "GG-HOURS"),
               ("HTTPVERSION", "VERSIONLEN", "GG-MINS"), ("PATH", "PATHLENGTH", "GG-SECS"),
               ("QUERYSTRING", "QUERYSTRLEN", "GG-ITEM"))  # fmt: skip
@@ -807,16 +1087,64 @@ def _web_extract(opts: dict[str, str | None], labels: list[str] | None) -> list[
     return lines + _call("GGCWEXT", args) + after + _resp(opts, True, labels)
 
 
+def _extract_tcpip(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
+    """#4972 zECS (register X38): EXTRACT TCPIP -> GGCTCPX (CADDRLENGTH / CNAMELENGTH / SADDRLENGTH / SNAMELENGTH in GG-LEN /
+    GG-HOURS / GG-MINS / GG-SECS, 0 for an area asked for whose length option is missing, each moved back as the piece's
+    length; GG-FLAGS names A1 N1 A2 N2 the areas given and U1 U2 F1 F2 the client / server address number and address
+    family asked for), then on NORMAL each number from GGCTCPN (CLIENTADDRNU, SERVERADDRNU, PORTNUMNU, SSLTYPE's CVDA)
+    and the families (IPV4, 300) moved to the program's fields. The option rules as the det translator's."""
+    key = "EXTRACT TCPIP"
+    _check_spec(key, opts, ("EXTRACT", "TCPIP"), lambda bad: [f"{key} {o}" for o in bad])
+    pieces = (("CLIENTADDR", "CADDRLENGTH", "GG-LEN", "A1"), ("CLIENTNAME", "CNAMELENGTH", "GG-HOURS", "N1"),
+              ("SERVERADDR", "SADDRLENGTH", "GG-MINS", "A2"), ("SERVERNAME", "SNAMELENGTH", "GG-SECS", "N2"))  # fmt: skip
+    for a, n, _, _ in pieces:
+        if n in opts and a not in opts:
+            raise Unsupported(_web_requires(key, n, a), [key])
+        if a in opts and (not opts[a] or _literal(opts[a])):
+            raise Unsupported(
+                NEEDS_ARGUMENT if not opts[a] else f"{key} {a} as a literal: a data area is the COBOL form", [key]
+            )
+        if n in opts and not opts[n]:
+            raise Unsupported(NEEDS_ARGUMENT, [key])
+    numbers = (("CLIENTADDRNU", "U1"), ("SERVERADDRNU", "U2"), ("CLNTIPFAMILY", "F1"), ("SRVRIPFAMILY", "F2"))
+    for o in ("CLIENTADDRNU", "SERVERADDRNU", "CLNTIPFAMILY", "SRVRIPFAMILY", "PORTNUMNU", "SSLTYPE"):
+        if o in opts and not opts[o]:
+            raise Unsupported(NEEDS_ARGUMENT, [key])
+    given = [w for a, _, _, w in pieces if a in opts] + [w for o, w in numbers if o in opts]
+    lines = [f"MOVE {(opts.get(n) or '0') if a in opts else '0'} TO {gg}" for a, n, gg, _ in pieces]
+    lines.append(f"MOVE '{' '.join(given)}' TO GG-FLAGS" if given else "MOVE SPACES TO GG-FLAGS")
+    args = []
+    for a, _, _, _ in pieces:
+        area = opts.get(a) or "GG-QNAME"  # (an area not asked for: a placeholder the stub does not read)
+        args += [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]
+    back = [f"    MOVE {gg} TO {opts[n]}" for a, n, gg, _ in pieces if n in opts and a in opts]
+    for o, token in (("CLIENTADDRNU", "CNU"), ("SERVERADDRNU", "SNU"), ("PORTNUMNU", "PORT"), ("SSLTYPE", "SSL")):
+        if opts.get(o):
+            back += [
+                f"    MOVE '{token}' TO GG-FLAGS",
+                "    CALL 'GGCTCPN' USING GG-CICS",
+                f"    MOVE GG-NUM TO {opts[o]}",
+            ]
+    back += [
+        f"    MOVE 300 TO {opts[o]}" for o in ("CLNTIPFAMILY", "SRVRIPFAMILY") if opts.get(o)
+    ]  # (IPV4: IPv6 is refused)
+    after = ["IF GG-RESP = 0", *back, "END-IF"] if back else []
+    return lines + _call("GGCTCPX", args) + after + _resp(opts, True, labels)
+
+
 def _web_receive(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
     """#4767 zECS (register X38): WEB RECEIVE INTO (server) -> GGCWRCV (MAXLENGTH in GG-NUM; GG-FLAGS MEDIA when MEDIATYPE is
     given; the stub writes INTO and MEDIATYPE and sets GG-LEN to the bytes returned), then on NORMAL / LENGERR 57 LENGTH moved
-    from GG-LEN. The option rules as the det translator's."""
+    from GG-LEN. #4771 (X47): SET(pointer) -> GGCWRCS, the body in a new block the pointer addresses (MAXLENGTH optional: all
+    the data). The option rules as the det translator's."""
     key = "WEB RECEIVE"
     _check_spec(key, opts, ("WEB", "RECEIVE"), lambda bad: [f"{key} {o}" for o in bad])
-    if not opts.get("INTO"):
-        raise Unsupported(_rule(key, "required", "INTO"), [key])
-    if not opts.get("MAXLENGTH"):
+    if ("INTO" in opts) == ("SET" in opts) or not (opts.get("INTO") or opts.get("SET")):
+        raise Unsupported(_rule(key, "one_of", "INTO"), [key])
+    if "INTO" in opts and not opts.get("MAXLENGTH"):
         raise Unsupported(_web_requires(key, "INTO", "MAXLENGTH"), [key])
+    if "SET" in opts and not opts.get("LENGTH"):
+        raise Unsupported(_web_requires(key, "SET", "LENGTH"), [key])
     if "SRVCONVERT" in opts and "NOSRVCONVERT" in opts:
         raise Unsupported(_rule(key, "at_most_one", "SRVCONVERT"), [key])
     for o in ("INTO", "MEDIATYPE"):
@@ -827,30 +1155,103 @@ def _web_receive(opts: dict[str, str | None], labels: list[str] | None) -> list[
     if "LENGTH" in opts and not opts["LENGTH"]:
         raise Unsupported(NEEDS_ARGUMENT, [key])
     lines = [
-        f"MOVE {opts['MAXLENGTH']} TO GG-NUM",
+        f"MOVE {opts['MAXLENGTH']} TO GG-NUM" if opts.get("MAXLENGTH") else "MOVE 2147483647 TO GG-NUM",
         "MOVE 'MEDIA' TO GG-FLAGS" if "MEDIATYPE" in opts else "MOVE SPACES TO GG-FLAGS",
     ]
     media = opts.get("MEDIATYPE") or "GG-QNAME"
-    args = [f"BY REFERENCE {opts['INTO']}", f"BY VALUE LENGTH OF {opts['INTO']}", f"BY REFERENCE {media}",
-            f"BY VALUE LENGTH OF {media}"]  # fmt: skip
+    if "SET" in opts:
+        args = [f"BY REFERENCE {_pointer(key, opts['SET'])}", f"BY REFERENCE {media}", f"BY VALUE LENGTH OF {media}"]
+        entry = "GGCWRCS"
+    else:
+        args = [f"BY REFERENCE {opts['INTO']}", f"BY VALUE LENGTH OF {opts['INTO']}", f"BY REFERENCE {media}",
+                f"BY VALUE LENGTH OF {media}"]  # fmt: skip
+        entry = "GGCWRCV"
     after = (
         ["IF GG-RESP = 0 OR GG-RESP2 = 57", f"    MOVE GG-LEN TO {opts['LENGTH']}", "END-IF"]
         if opts.get("LENGTH")
         else []
     )
-    return lines + _call("GGCWRCV", args) + after + _resp(opts, True, labels)
+    return lines + _call(entry, args) + after + _resp(opts, True, labels)
+
+
+def _pointer(key: str, text: str | None) -> str:
+    """#4771 (X47): the USAGE POINTER item an option names: a plain data name (GnuCOBOL's own compile refuses a name that is no
+    pointer; a subscripted or qualified one is refused here, as the translator refuses it)."""
+    if not text or re.fullmatch(r"(?is)\s*[A-Z][A-Z0-9-]*\s*", text) is None:
+        raise Unsupported(f"{key}: a pointer is a plain data name: not modelled", [key])
+    return text.strip()
+
+
+def _getmain(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
+    """#4771 (register X47): GETMAIN SET(ptr) FLENGTH / LENGTH INITIMG(area) -> GGCGETM (length in GG-NUM, GG-FLAGS SHORT for the
+    LENGTH form; the stub sets the pointer, to zero under LENGERR). The option rules as the det translator's."""
+    key = "GETMAIN"
+    _check_spec(key, opts, ("GETMAIN",), lambda bad: [f"{key} {o}" for o in bad])
+    if not opts.get("SET"):
+        raise Unsupported(_rule(key, "required", "SET"), [key])
+    if ("FLENGTH" in opts) == ("LENGTH" in opts):
+        raise Unsupported(_rule(key, "one_of", "FLENGTH"), [key])
+    if not opts.get("INITIMG"):
+        raise Unsupported(_rule(key, "required", "INITIMG"), [key])
+    if "USERDATAKEY" in opts and "CICSDATAKEY" in opts:
+        raise Unsupported(_rule(key, "at_most_one", "USERDATAKEY"), [key])
+    form = "FLENGTH" if "FLENGTH" in opts else "LENGTH"
+    if not opts.get(form):
+        raise Unsupported(NEEDS_ARGUMENT, [key])
+    if _literal(opts["INITIMG"]) is not None or re.fullmatch(r"(?is)\s*[A-Z][A-Z0-9-]*\s*", opts["INITIMG"]) is None:
+        raise Unsupported("GETMAIN INITIMG as a literal: a data area is the COBOL form", [key])
+    img = opts["INITIMG"].strip()
+    lines = [
+        f"MOVE {opts[form]} TO GG-NUM",
+        "MOVE 'SHORT' TO GG-FLAGS" if form == "LENGTH" else "MOVE SPACES TO GG-FLAGS",
+    ]
+    args = [f"BY REFERENCE {_pointer(key, opts['SET'])}", f"BY REFERENCE {img}", f"BY VALUE LENGTH OF {img}"]
+    return lines + _call("GGCGETM", args) + _resp(opts, True, labels)
+
+
+def _address(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
+    """#5079 (register X59): ADDRESS EIB(ptr) / COMMAREA(ptr) -> GGCADDR, which sets the pointer to the address of the EIB /
+    the program's DFHCOMMAREA (NORMAL: the command has no condition). A task with no COMMAREA (EIBCALEN 0) is refused by the
+    stub: IBM's X'FF000000' is no COBOL NULL, and a LINKAGE item that was not passed is no area to name, so the area given
+    then is the pointer itself. The option rules as the det translator's."""
+    key = "ADDRESS"
+    _check_spec(key, opts, ("ADDRESS",), lambda bad: [f"{key} {o}" for o in bad])
+    if not (opts.get("EIB") or opts.get("COMMAREA")):
+        raise Unsupported("ADDRESS without EIB or COMMAREA: the pointer to set", [key])
+    lines: list[str] = []
+    if opts.get("EIB"):
+        lines += ["MOVE SPACES TO GG-FLAGS"]
+        lines += _call("GGCADDR", [f"BY REFERENCE {_pointer(key, opts['EIB'])}", "BY REFERENCE DFHEIBLK"])
+    if opts.get("COMMAREA"):
+        ptr = _pointer(key, opts["COMMAREA"])
+        lines += ["MOVE EIBCALEN TO GG-NUM", "MOVE 'COMMAREA' TO GG-FLAGS", "IF EIBCALEN = 0"]
+        lines += [f"    {ln}" for ln in _call("GGCADDR", [f"BY REFERENCE {ptr}", f"BY REFERENCE {ptr}"])]
+        lines += ["ELSE"]
+        lines += [f"    {ln}" for ln in _call("GGCADDR", [f"BY REFERENCE {ptr}", "BY REFERENCE DFHCOMMAREA"])]
+        lines += ["END-IF"]
+    return lines + _resp(opts, False, labels)
+
+
+def _freemain(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
+    """#4771 (register X47): FREEMAIN DATAPOINTER(ptr) -> GGCFREM (INVREQ RESP2 1 for an address GETMAIN did not return)."""
+    key = "FREEMAIN"
+    _check_spec(key, opts, ("FREEMAIN",), lambda bad: [f"{key} {o}" for o in bad])
+    if not opts.get("DATAPOINTER"):
+        raise Unsupported(_rule(key, "required", "DATAPOINTER"), [key])
+    return _call("GGCFREM", [f"BY REFERENCE {_pointer(key, opts['DATAPOINTER'])}"]) + _resp(opts, True, labels)
 
 
 def _web_retrieve(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
-    """#4941 (register X41): WEB RETRIEVE DOCTOKEN(area) -> GGCWRTV, which writes no DOCTOKEN (the NORMAL outcome needs an
-    ACTION(EVENTUAL) document send, which WEB SEND refuses). The option rules as the det translator's."""
+    """#4941 (register X41): WEB RETRIEVE DOCTOKEN(area) -> GGCWRTV, which writes the DOCTOKEN of the last ACTION(EVENTUAL)
+    document send on NORMAL only. The option rules as the det translator's."""
     key = "WEB RETRIEVE"
     _check_spec(key, opts, ("WEB", "RETRIEVE"), lambda bad: [f"{key} {o}" for o in bad])
     if not opts.get("DOCTOKEN"):
         raise Unsupported(_rule(key, "required", "DOCTOKEN"), [key])
     if _literal(opts["DOCTOKEN"]):
         raise Unsupported(f"{key} DOCTOKEN as a literal: a data area is the COBOL form", [key])
-    return _call("GGCWRTV", []) + _resp(opts, True, labels)
+    area = opts["DOCTOKEN"]
+    return _call("GGCWRTV", [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]) + _resp(opts, True, labels)
 
 
 def _web_header(form: str, opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
@@ -1005,7 +1406,40 @@ def _web(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
     return lines + _call("GGCWCNV", args) + after + _resp(opts, True, labels)
 
 
-def translate_command(body: str, labels: list[str] | None = None, handle_aid: bool = False) -> list[str]:
+# #5126 (X64): the file control commands set EIBDS, "the symbolic identifier of the last data set referred to in a file
+# control request" (IBM, EIB fields); every other EIB resource field stays unmodelled.
+EIBDS_VERBS = frozenset({"READ", "READNEXT", "READPREV", "RESETBR", "STARTBR", "ENDBR", "WRITE", "REWRITE", "DELETE",
+                         "UNLOCK"})  # fmt: skip
+
+
+def translate_command(
+    body: str, labels: list[str] | None = None, handle_aid: bool = False, eibds: bool = False
+) -> list[str]:
+    """One EXEC CICS body -> the COBOL statements that replace it. `eibds`: the program reads EIBDS, so a file control
+    command leads with `MOVE <file> TO EIBDS` (#5126, X64) -- set before the command runs, so a failed request leaves
+    its file named, as the request "referred to" it. See _translate_command for the rest."""
+    lines = _translate_command(body, labels, handle_aid)
+    if not eibds:
+        return lines
+    pairs = _options(body)
+    opts = dict(pairs)
+    file = opts.get("FILE") or opts.get("DATASET")
+    if pairs and pairs[0][0] in EIBDS_VERBS and file:
+        return [f"MOVE {file} TO EIBDS", *lines]
+    return lines
+
+
+_EIBDS_WORD = re.compile(r"(?<![A-Z0-9-])EIBDS(?![A-Z0-9-])")
+
+
+def reads_eibds(lines: list[str]) -> bool:
+    """#5126 (X64): does the source name EIBDS outside a comment line and a literal -- a whole word, not the front of
+    a hyphenated user name (EIBDS-X)? (The det port's scan is `det.cics.reads_eibds`: the same words, over statements.)"""
+    code = (ln[7:72].upper() for ln in lines if len(ln) > 6 and ln[6] not in "*/")
+    return any(_EIBDS_WORD.search(re.sub(r"'[^']*'|\"[^\"]*\"", "''", ln)) for ln in code)
+
+
+def _translate_command(body: str, labels: list[str] | None = None, handle_aid: bool = False) -> list[str]:
     """One EXEC CICS body -> the COBOL statements that replace it. `labels` are the program's HANDLE
     labels (handler_labels), which a condition or abend exit GOes TO (#4003); by default, this
     command's own. `handle_aid`: the program issues HANDLE AID, so its input commands consult it (#4007)."""
@@ -1020,114 +1454,30 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
     def name(operand: str | None, into: str) -> str:
         return f"MOVE {operand} TO {into}" if operand else f"MOVE SPACES TO {into}"
 
-    if verb == "READ":
-        _check_spec("READ", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
-        for bad in ("RBA", "XRBA", "RRN"):
-            if bad in opts:
-                raise _stub_only(f"READ {bad}")
-        file, into, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("INTO"), opts.get("RIDFLD")
-        if not (file and into and ridfld):
-            raise Unsupported("READ without FILE / INTO / RIDFLD")
-        keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
-        # #4270 GTEQ / GENERIC (X22): a search, the generic key KEYLENGTH long; the option rules as the translator's
-        if "GTEQ" in opts and "EQUAL" in opts:
-            raise Unsupported(_rule("READ", "at_most_one", "EQUAL", "EQUAL", "GTEQ"), ["READ GTEQ"])
-        if "GENERIC" in opts and "KEYLENGTH" not in opts:
-            raise Unsupported(_rule("READ", "requires", "GENERIC"), ["READ GENERIC"])
-        words = [w for w in ("UPDATE", "GTEQ", "GENERIC") if w in opts]  # UPDATE holds the record
-        update = f"MOVE '{' '.join(words)}' TO GG-FLAGS" if words else "MOVE SPACES TO GG-FLAGS"
-        # #4436: LENGTH is in-out (IBM, EXEC CICS READ): in, the most INTO takes (a longer record is truncated, with
-        # LENGERR); out, the record's length, on NORMAL and LENGERR. Without it, LENGTH OF INTO (as the translator
-        # supplies it). A literal / LENGTH OF is set in a temporary no one reads.
-        length = opts.get("LENGTH")
-        settable = bool(length) and re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()) is None
-        after = ["IF GG-RESP = 0 OR GG-RESP = 22", f"    MOVE GG-LEN TO {length}", "END-IF"] if settable else []
-        return ([name(file, "GG-NAME1"), update, f"MOVE {length or f'LENGTH OF {into}'} TO GG-LEN"]
-                + _call("GGCREAD", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {into}",
-                                    f"BY VALUE LENGTH OF {into}"])
-                + after + _resp(opts, True, labels))  # fmt: skip
-    if verb == "WRITE" and {"FILE", "DATASET"} & set(opts):
-        _check_spec("WRITE", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
-        for bad in ("RBA", "XRBA", "RRN"):
-            if bad in opts:
-                raise _stub_only(f"WRITE {bad}")
-        file, frm, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("FROM"), opts.get("RIDFLD")
-        if not (file and frm and ridfld):
-            raise Unsupported("WRITE without FILE / FROM / RIDFLD")
-        keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
-        return ([name(file, "GG-NAME1")]
-                + _call("GGCWRIT", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {frm}",
-                                    f"BY VALUE {opts.get('LENGTH') or f'LENGTH OF {frm}'}"])
-                + _resp(opts, True, labels))  # fmt: skip
-    if verb == "REWRITE" and ({"FILE", "DATASET"} & set(opts)):
-        _check_spec("REWRITE", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
-        file, frm = opts.get("FILE") or opts.get("DATASET"), opts.get("FROM")
-        if not (file and frm):
-            raise Unsupported("REWRITE without FILE / FROM")
-        length = opts.get("LENGTH") or f"LENGTH OF {frm}"  # LENGTH bytes from FROM's first, as CICS reads them
-        return ([name(file, "GG-NAME1")] + _call("GGCREWR", [f"BY REFERENCE {frm}", f"BY VALUE {length}"])
-                + _resp(opts, True, labels))  # fmt: skip
-    if verb == "STARTBR":  # browse (CardDemo's lists): one browse per file, full keys -- or an ESDS's RBAs (#4213)
-        rba = "RBA" in opts
-        _check_spec("STARTBR", opts, (verb,), lambda bad: [f"STARTBR {'RBA ' if rba else ''}{bad[0]}"])
-        for bad in ("RRN", "XRBA") + (("GTEQ", "KEYLENGTH") if rba else ()):
-            if bad in opts:
-                raise _stub_only(f"STARTBR {'RBA ' if rba else ''}{bad}")
-        file, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("RIDFLD")
-        if not (file and ridfld):
-            raise Unsupported("STARTBR without FILE / RIDFLD")
-        keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
-        # GTEQ is a keyed browse's default; EQUAL "is the default for a direct ESDS browse" (IBM, STARTBR), and GTEQ
-        # "is not valid for directly browsing an ESDS"
-        mode = ("MOVE 'EQUAL RBA' TO GG-FLAGS" if rba else
-                "MOVE 'EQUAL' TO GG-FLAGS" if "EQUAL" in opts else "MOVE SPACES TO GG-FLAGS")  # fmt: skip
-        return ([name(file, "GG-NAME1"), mode] + _call("GGCSTBR", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}"])
-                + _resp(opts, True, labels))  # fmt: skip
-    if verb in ("READNEXT", "READPREV"):
-        rba = "RBA" in opts  # #4213: every READNEXT / READPREV of an RBA browse says RBA too
-        _check_spec(verb, opts, (verb,), lambda bad: [f"{verb} {'RBA ' if rba else ''}{bad[0]}"])
-        for bad in ("RRN", "XRBA") + (("KEYLENGTH",) if rba else ()):
-            if bad in opts:
-                raise _stub_only(f"{verb} {'RBA ' if rba else ''}{bad}")
-        file, into, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("INTO"), opts.get("RIDFLD")
-        if not (file and into and ridfld):
-            raise Unsupported(f"{verb} without FILE / INTO / RIDFLD")
-        keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
-        stub = "GGCRDNX" if verb == "READNEXT" else "GGCRDPV"
-        return ([name(file, "GG-NAME1"), "MOVE 'RBA' TO GG-FLAGS" if rba else "MOVE SPACES TO GG-FLAGS"]
-                + _call(stub, [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {into}",
-                               f"BY VALUE LENGTH OF {into}"])
-                + _resp(opts, True, labels))  # fmt: skip
-    if verb == "ENDBR":
-        _check_spec("ENDBR", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
-        file = opts.get("FILE") or opts.get("DATASET")
-        if not file:
-            raise Unsupported("ENDBR without FILE")
-        return [name(file, "GG-NAME1")] + _call("GGCENBR", []) + _resp(opts, True, labels)
-    if verb == "DELETE" and ({"FILE", "DATASET"} & set(opts)):
-        _check_spec("DELETE", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
-        for bad in ("RBA", "XRBA", "RRN"):
-            if bad in opts:
-                raise _stub_only(f"DELETE {bad}")
-        file, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("RIDFLD")
-        if "GENERIC" in opts:  # #4771 (X22): every record with the generic key, KEYLENGTH long
-            for o in ("KEYLENGTH", "RIDFLD"):
-                if not opts.get(o):
-                    raise Unsupported(next(g.msg for g in SPEC["DELETE"].groups if o in g.any_of), ["DELETE GENERIC"])
-            args = [f"BY REFERENCE {ridfld}", f"BY VALUE {opts['KEYLENGTH']}"]
-            return ([name(file, "GG-NAME1"), "MOVE 'GENERIC' TO GG-FLAGS"] + _call("GGCDELT", args)
-                    + _resp(opts, True, labels))  # fmt: skip
-        if ridfld:  # the record with that key
-            keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
-            args = [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}"]
-            mode = "MOVE SPACES TO GG-FLAGS"
-        else:  # the record a READ UPDATE holds
-            args, mode = ["BY REFERENCE GG-FLAGS", "BY VALUE 0"], "MOVE 'HELD' TO GG-FLAGS"
-        return [name(file, "GG-NAME1"), mode] + _call("GGCDELT", args) + _resp(opts, True, labels)
-    if verb in ("ENQ", "DEQ", "DELAY"):
-        # one task in the region: nothing else holds the resource (ENQ / DEQ NORMAL), and a task takes no time, a
-        # DELAY included (EIBTIME / ASKTIME stay as dispatched; oracle_assumptions.md X4)
+    if verb in cics_filecontrol.FILE_VERBS:  # #5274: the file control family
+        lines = cics_filecontrol.file_command(verb, opts, labels)
+        if lines is not None:
+            return lines
+    if verb == "DELAY":  # #4950: the wait at which RUN children are dispatched (GGCDLAY)
+        return _delay(opts, labels)
+    if verb == "POST":  # #5079 (X63): a timer-event control area
+        return _post(opts, labels)
+    if verb == "WAIT" and "EVENT" in opts and opts["EVENT"] is None:
+        return _wait_event(opts, labels)
+    if verb == "CONVERSE":
+        return _converse(opts, labels)
+    if verb in ("ENQ", "DEQ"):
+        # one task in the region: nothing else holds the resource (ENQ / DEQ NORMAL), and a task takes no time
+        # (EIBTIME / ASKTIME stay as dispatched; oracle_assumptions.md X4)
         _check_spec(verb, opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
+        if verb == "ENQ":  # #5089: GGCENQ -- NORMAL, or the ENQBUSY a scenario plans (faults, name = the RESOURCE text)
+            key = enq_fault_key(opts.get("RESOURCE"))
+            flag = "MOVE 'NOSUSPEND' TO GG-NAME1" if "NOSUSPEND" in opts else "MOVE SPACES TO GG-NAME1"
+            given = ("L" if opts.get("LENGTH") else "") + ("M" if opts.get("MAXLIFETIME") else "")  # X60: GG-NAME2
+            ops = [f"MOVE {opts['LENGTH']} TO GG-LEN"] if opts.get("LENGTH") else []
+            ops += [f"MOVE {opts['MAXLIFETIME']} TO GG-NUM"] if opts.get("MAXLIFETIME") else []
+            ops.append(f"MOVE '{given}' TO GG-NAME2" if given else "MOVE SPACES TO GG-NAME2")
+            return [f"MOVE '{key}' TO GG-FLAGS", flag, *ops] + _call("GGCENQ", []) + _resp(opts, True, labels)
         return ["MOVE 0 TO GG-RESP", "MOVE 0 TO GG-RESP2"] + _resp(opts, False, labels)
     if verb == "GET" and ("COUNTER" in opts or "DCOUNTER" in opts):  # a named counter (IBM CICS TS, GET COUNTER)
         _check_spec("GET COUNTER", opts, (verb,), lambda bad: ["GET COUNTER"])
@@ -1135,40 +1485,85 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             raise Unsupported(_rule("GET COUNTER", "required", "VALUE"), ["GET COUNTER"])
         if ("COUNTER" in opts) == ("DCOUNTER" in opts):
             raise Unsupported(_rule("GET COUNTER", "one_of", "COUNTER"), ["GET COUNTER"])
-        if "COUNTER" in opts:  # the fullword form: its value, then +1
-            for o in ("INCREMENT", "WRAP"):
-                if o in opts:
-                    raise Unsupported(_rule("GET COUNTER", "requires", o), ["GET COUNTER"])
-            return ([name(opts["COUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
-                    + _call("GGCGCNT", []) + ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['VALUE']}", "END-IF"]
-                    + _resp(opts, True, labels))  # fmt: skip
-        # #4767 (X30): GET DCOUNTER, the doubleword form: the stub writes VALUE (8 bytes) and reads INCREMENT (an area; 1 when
-        # not given, through GG-NAME2's 8 bytes)
-        for o in ("VALUE", "INCREMENT"):
-            if opts.get(o) and _literal(opts[o]):
-                raise Unsupported(f"GET DCOUNTER {o} as a literal: a data area is the COBOL form", ["GET COUNTER"])
+        for o in ("VALUE", "INCREMENT", "COMPAREMIN", "COMPAREMAX"):
+            # (#5039: a bound is read from its bytes, so a number written in place is no area either)
+            if opts.get(o) and (_literal(opts[o]) or (o.startswith("COMPARE") and re.fullmatch(r"[+-]?\d+", opts[o]))):
+                kind = "DCOUNTER" if "DCOUNTER" in opts else "COUNTER"
+                raise Unsupported(f"{kind} {o} as a literal: a data area is the COBOL form", ["GET COUNTER"])
+        full = "COUNTER" in opts  # #5039 (X50): the fullword form
         inc = opts.get("INCREMENT") or "GG-NAME2"
-        return ([name(opts["DCOUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
-                + ([] if opts.get("INCREMENT") else ["MOVE X'0000000000000001' TO GG-NAME2"])
-                + _call("GGCGDCN", [f"BY REFERENCE {opts['VALUE']}", f"BY VALUE LENGTH OF {opts['VALUE']}",
-                                    f"BY REFERENCE {inc}", f"BY VALUE LENGTH OF {inc}"])
-                + _resp(opts, True, labels))  # fmt: skip
-    if verb == "QUERY" and "COUNTER" in opts:  # #4415 slice 2 (X29): a named counter's value, unchanged
+        head = ([name(opts.get("COUNTER") or opts["DCOUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
+                + ([] if opts.get("INCREMENT") else ["MOVE X'0000000000000001' TO GG-NAME2"]))  # fmt: skip
+        areas = [f"BY REFERENCE {opts['VALUE']}", f"BY VALUE LENGTH OF {opts['VALUE']}",
+                 f"BY REFERENCE {inc}", f"BY VALUE LENGTH OF {inc}", f"BY VALUE {1 if 'WRAP' in opts else 0}"]  # fmt: skip
+        if "REDUCE" in opts or opts.get("COMPAREMIN") or opts.get("COMPAREMAX"):
+            # #5039 (X53): REDUCE and the bounds (an area each, length 0: not given)
+            areas.append(f"BY VALUE {1 if 'REDUCE' in opts else 0}")
+            for o in ("COMPAREMIN", "COMPAREMAX"):
+                v = opts.get(o)
+                areas += (
+                    [f"BY REFERENCE {v}", f"BY VALUE LENGTH OF {v}"] if v else ["BY REFERENCE GG-NAME2", "BY VALUE 0"]
+                )
+            return head + _call("GGCGCNX" if full else "GGCGDCX", areas) + _resp(opts, True, labels)
+        # #5039 (X50): GET COUNTER fullword form with INCREMENT and WRAP; #4767 (X30): GET DCOUNTER, the doubleword form: the stub
+        # writes VALUE (8 bytes) and reads INCREMENT (an area; 1 when not given, through GG-NAME2's 8 bytes); #4770 (X45): WRAP
+        # acts at DEFINE DCOUNTER's limits
+        return head + _call("GGCGCNT" if full else "GGCGDCN", areas) + _resp(opts, True, labels)
+    if verb in ("REWIND", "UPDATE") and {"COUNTER", "DCOUNTER"} & set(opts):  # #5039 (X53): REWIND / UPDATE COUNTER
+        _check_spec(f"{verb} COUNTER", opts, (verb,), lambda bad: [f"{verb} COUNTER"])
+        if ("COUNTER" in opts) == ("DCOUNTER" in opts):
+            raise Unsupported(_rule(f"{verb} COUNTER", "one_of", "COUNTER"), [f"{verb} COUNTER"])
+        head = [name(opts.get("COUNTER") or opts["DCOUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
+        full = "COUNTER" in opts
+        o = "INCREMENT" if verb == "REWIND" else "VALUE"
+        v = opts.get(o)
+        if verb == "UPDATE" and not v:
+            raise Unsupported(_rule("UPDATE COUNTER", "required", "VALUE"), ["UPDATE COUNTER"])
+        if v and (_literal(v) or re.fullmatch(r"[+-]?\d+", v)):
+            raise Unsupported(
+                f"{'COUNTER' if full else 'DCOUNTER'} {o} as a literal: a data area is the COBOL form",
+                [f"{verb} COUNTER"],
+            )
+        fn = {"REWIND": ("GGCRCNT", "GGCRDCN"), "UPDATE": ("GGCUCNT", "GGCUDCN")}[verb][0 if full else 1]
+        areas = [f"BY REFERENCE {v}", f"BY VALUE LENGTH OF {v}"] if v else ["BY REFERENCE GG-NAME2", "BY VALUE 0"]
+        return head + _call(fn, areas) + _resp(opts, True, labels)
+    if verb == "QUERY" and (
+        "COUNTER" in opts or "DCOUNTER" in opts
+    ):  # #4415 slice 2 (X29): a named counter's value, unchanged
         _check_spec("QUERY COUNTER", opts, (verb,), lambda bad: ["QUERY COUNTER"])
         if not opts.get("VALUE"):
             raise Unsupported(_rule("QUERY COUNTER", "required", "VALUE"), ["QUERY COUNTER"])
+        if ("COUNTER" in opts) == ("DCOUNTER" in opts):
+            raise Unsupported(_rule("QUERY COUNTER", "one_of", "COUNTER"), ["QUERY COUNTER"])
+        if "DCOUNTER" in opts:  # #4770 (X45): value and limits, unsigned doublewords in 8-byte areas
+            return ([name(opts["DCOUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
+                    + _call("GGCQDCN", _dcounter_areas(opts, ("VALUE", "MINIMUM", "MAXIMUM")))
+                    + _resp(opts, True, labels))  # fmt: skip
         return ([name(opts["COUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
-                + _call("GGCQCNT", []) + ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['VALUE']}", "END-IF"]
+                + _call("GGCQCNT", _counter_areas(opts, ("VALUE", "MINIMUM", "MAXIMUM"))[1])
                 + _resp(opts, True, labels))  # fmt: skip
     if verb in ("DEFINE", "DELETE") and (
         {"COUNTER", "DCOUNTER"} & set(opts)
     ):  # #4270 (X30): DEFINE / DELETE COUNTER -> GGCDCNT / GGCXCNT
         _check_spec(f"{verb} COUNTER", opts, (verb,), lambda bad: [f"{verb} COUNTER"])
-        head = [name(opts["COUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
+        if ("COUNTER" in opts) == ("DCOUNTER" in opts):
+            raise Unsupported(_rule(f"{verb} COUNTER", "one_of", "COUNTER"), [f"{verb} COUNTER"])
+        if verb == "DEFINE" and opts.get("MINIMUM") and not opts.get("VALUE"):
+            why = next(
+                g.msg for g in SPEC["DEFINE COUNTER"].groups if g.kind == "requires" and "VALUE" in (g.any_of or ())
+            )
+            raise Unsupported(why, ["DEFINE COUNTER"])
+        head = [name(opts.get("COUNTER") or opts["DCOUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
         if verb == "DELETE":
             return head + _call("GGCXCNT", []) + _resp(opts, True, labels)
-        return (head + [f"MOVE {opts.get('VALUE') or '0'} TO GG-NUM"] + _call("GGCDCNT", [])
-                + _resp(opts, True, labels))  # fmt: skip
+        if "DCOUNTER" in opts:  # #4770 (X45): VALUE / MINIMUM / MAXIMUM, each an 8-byte area (length 0: omitted)
+            return (
+                head
+                + _call("GGCDDCN", _dcounter_areas(opts, ("VALUE", "MINIMUM", "MAXIMUM")))
+                + _resp(opts, True, labels)
+            )
+        staged, areas = _counter_areas(opts, ("VALUE", "MINIMUM", "MAXIMUM"), ("VALUE", "MINIMUM", "MAXIMUM"))
+        return head + staged + _call("GGCDCNT", areas) + _resp(opts, True, labels)
     if verb == "ASKTIME":  # the task's clock; a task takes no time, so EIBDATE / EIBTIME stay as dispatched
         _check_spec("ASKTIME", opts, (verb,))
         if not opts.get("ABSTIME"):
@@ -1227,8 +1622,18 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return _web_send(opts, labels)
     if verb == "WEB EXTRACT" or (verb == "WEB" and "EXTRACT" in opts):  # #4767 (X38): the server reads its request
         return _web_extract(opts, labels)
+    if verb == "EXTRACT" and "WEB" in opts:  # #4972 (X38): the same, IBM's synonym
+        return _web_extract(opts, labels, "EXTRACT WEB")
+    if verb == "EXTRACT" and "TCPIP" in opts:  # #4972 (X38): the connection the task was started on
+        return _extract_tcpip(opts, labels)
     if verb == "WEB RECEIVE" or (verb == "WEB" and "RECEIVE" in opts):
         return _web_receive(opts, labels)
+    if verb == "GETMAIN":  # #4771 (X47): task storage addressed by a pointer
+        return _getmain(opts, labels)
+    if verb == "FREEMAIN":
+        return _freemain(opts, labels)
+    if verb == "ADDRESS":  # #5079 (X59): a pointer to the EIB / the COMMAREA
+        return _address(opts, labels)
     if verb == "WEB" and "RETRIEVE" in opts:  # #4941 (X41): the document of the last WEB SEND
         return _web_retrieve(opts, labels)
     if verb == "WEB" and "HTTPHEADER" in opts and ({"READ", "WRITE"} & set(opts)):
@@ -1317,6 +1722,36 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             raise Unsupported("WRITE OPERATOR TEXT as a literal: a data area is the COBOL form", ["WRITE OPERATOR"])
         return ([f"MOVE LENGTH OF {text} TO GG-LEN"] + _call("GGCWTO", [f"BY REFERENCE {text}"])
                 + _resp(opts, True, labels))  # fmt: skip
+    if verb in ("INQUIRE", "SET") and "TDQUEUE" in opts:  # #5168 round 3 (X61): an extrapartition queue's open state
+        key = f"{verb} TDQUEUE"
+        _check_spec(key, opts, (verb,), lambda bad: [key])
+        if not opts.get("TDQUEUE"):
+            raise Unsupported(_rule(key, "required", "TDQUEUE"), [key])
+        queue = name(opts["TDQUEUE"], "GG-QNAME")
+        if verb == "SET":
+            given = [o for o in ("OPENSTATUS", "ENABLESTATUS", "TRIGGERLEVEL") if opts.get(o)]
+            if not given:
+                raise Unsupported(_rule(key, "requires", "TDQUEUE"), [key])
+            if len(given) > 1:  # #5168 round 5 (X66): one state per command
+                raise Unsupported(f"SET TDQUEUE with {' and '.join(given)} together", [key])
+            if opts.get("TRIGGERLEVEL"):  # #5168 round 7 (X66): the level in GG-NUM
+                return ([queue, f"MOVE {opts['TRIGGERLEVEL']} TO GG-NUM"] + _call("GGCSTDT", [])
+                        + _resp(opts, True, labels))  # fmt: skip
+            if opts.get("ENABLESTATUS"):
+                return ([queue, f"MOVE {opts['ENABLESTATUS']} TO GG-NUM"] + _call("GGCSTDE", [])
+                        + _resp(opts, True, labels))  # fmt: skip
+            return [queue, f"MOVE {opts['OPENSTATUS']} TO GG-NUM"] + _call("GGCSTDQ", []) + _resp(opts, True, labels)
+        wanted = [
+            o for o in ("OPENSTATUS", "TYPE", "ENABLESTATUS", "TRIGGERLEVEL", "RECOVSTATUS", "TRANSID") if opts.get(o)
+        ]
+        if not wanted:
+            raise Unsupported(_rule(key, "requires", "TDQUEUE"), [key])
+        # #5168 round 6 (X66): TRIGGERLEVEL, RECOVSTATUS and TRANSID come back in the otherwise unused GG-HOURS, GG-MINS, GG-RTRAN
+        field = {"OPENSTATUS": "GG-NUM", "TYPE": "GG-LEN", "ENABLESTATUS": "GG-ITEM", "TRIGGERLEVEL": "GG-HOURS",
+                 "RECOVSTATUS": "GG-MINS", "TRANSID": "GG-RTRAN"}  # fmt: skip
+        return ([queue, f"MOVE '{' '.join(wanted)}' TO GG-FLAGS"] + _call("GGCITDQ", []) + ["IF GG-RESP = 0"]
+                + [f"    MOVE {field[o]} TO {opts[o]}" for o in wanted]
+                + ["END-IF"] + _resp(opts, True, labels))  # fmt: skip
     if verb in ("INQUIRE", "SET") and "TERMINAL" in opts:  # #4415 slice 1 (X26): the terminal's UCTRANST CVDA
         key = f"{verb} TERMINAL"
         _check_spec(key, opts, (verb,), lambda bad: [key])
@@ -1349,8 +1784,11 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         flags = "MOVE 'NOTRUNCATE' TO GG-FLAGS" if "NOTRUNCATE" in opts else "MOVE SPACES TO GG-FLAGS"  # #4413
         if setp:  # #4413: SET(ADDRESS OF record), MAXLENGTH and LENGTH(data-area) required (det/cics.py says why)
             m = re.fullmatch(r"ADDRESS\s+OF\s+([A-Z0-9-]+)", setp, re.I)
-            if into or not m or not most or not length:
-                raise Unsupported("RECEIVE SET other than ADDRESS OF with MAXLENGTH and LENGTH", ["RECEIVE SET"])
+            if into or not most or not length:
+                raise Unsupported("RECEIVE SET without MAXLENGTH and LENGTH", ["RECEIVE SET"])
+            if not m:  # #5042 (X58): SET(pointer) -> GGCRECP, the data in a new block the pointer addresses
+                return ([flags, f"MOVE {most} TO GG-LEN"] + _call("GGCRECP", [f"BY REFERENCE {_pointer('RECEIVE', setp)}"])
+                        + [f"MOVE GG-LEN TO {length}"] + _input_resp(opts, labels, handle_aid))  # fmt: skip
             return ([flags, f"MOVE {most} TO GG-LEN"] + _call("GGCRECS", ["BY REFERENCE GG-PTR"])
                     + [f"SET ADDRESS OF {m.group(1)} TO GG-PTR", f"MOVE GG-LEN TO {length}"]
                     + _input_resp(opts, labels, handle_aid))  # fmt: skip
@@ -1369,6 +1807,8 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return ([name(queue, "GG-QNAME"), f"MOVE {opts.get('LENGTH') or 'LENGTH OF ' + frm} TO GG-LEN"]
                 + _past_from(opts.get("LENGTH"), frm, "WRITEQ TD")
                 + _call("GGCWRTD", [f"BY REFERENCE {frm}"]) + _resp(opts, True, labels))  # fmt: skip
+    if verb in ("READQ", "DELETEQ") and "TD" in opts:  # #5079 (X57): transient data, intrapartition
+        return _td_command(verb, opts, labels)
     if verb == "DELETEQ" and "TD" not in opts:  # #4415 slice 2 (X29): the whole TS queue
         _check_spec("DELETEQ TS", opts, (verb,), lambda bad: [f"DELETEQ TS {bad[0]}"])
         queue = opts.get("QUEUE") or opts.get("QNAME")
@@ -1416,6 +1856,8 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         if verb == "XCTL" and not opts.get("PROGRAM"):
             raise Unsupported("XCTL without PROGRAM")
         _check_spec(verb, opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
+        if verb == "RETURN" and "CHANNEL" in opts:  # #5005: the det port carries it; no stub process outlives its task
+            raise _stub_only("RETURN CHANNEL")
         if verb == "XCTL" and opts.get("CHANNEL"):  # #4270: the target's current channel (GGCXCTL)
             if "COMMAREA" in opts or "LENGTH" in opts:
                 raise Unsupported(_rule("XCTL", "at_most_one", "CHANNEL"), ["XCTL CHANNEL"])
@@ -1442,8 +1884,10 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
                 + ["IF GG-RESP = 0", "    GOBACK", "END-IF"] + _resp(opts, True, labels))  # fmt: skip
     if verb == "RUN":  # #4270 slice 2: RUN TRANSID CHILD (#4884: CHANNEL)
         return _run_transid(opts, labels)
-    if verb == "FETCH" and ("ANY" in opts) != ("CHILD" in opts):  # #4884: NOSUSPEND only
+    if verb == "FETCH" and ("ANY" in opts) != ("CHILD" in opts):  # #4884, #4950
         return _fetch_child("FETCH ANY" if "ANY" in opts else "FETCH CHILD", opts, labels)
+    if verb == "FREE" and "CHILD" in opts:  # #4950
+        return _free_child(opts, labels)
     if verb in ("START", "RETRIEVE", "CANCEL"):  # #4006: interval control
         return _interval_command(verb, opts, labels)
     if verb == "LINK":  # #4004: a new level runs the program on the caller's own COMMAREA storage
@@ -1480,9 +1924,11 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
     ):
         return _handle(pairs, labels)  # fmt: skip
     if verb in ("PUT", "GET", "DELETE") and "CONTAINER" in opts:  # #4270
-        return _container_command(verb, opts, labels)
+        return cics_containers._container_command(verb, opts, labels)
     if verb in ("MOVE", "STARTBROWSE", "GETNEXT", "ENDBROWSE") and "CONTAINER" in opts:  # #4951
-        return _container_browse_command(verb, opts, labels)
+        return cics_containers._container_browse_command(verb, opts, labels)
+    if verb in ("DELETE", "QUERY") and "CHANNEL" in opts and "CONTAINER" not in opts:  # #5005
+        return cics_containers._channel_command(verb, opts, labels)
     raise Unsupported(_whole_message(pairs), [_feature(pairs)])
 
 
@@ -1502,89 +1948,52 @@ def _whole_message(pairs: list[tuple[str, str | None]]) -> str:
     return known.whole_message(verb) if known is not None else f"EXEC CICS {verb} not modelled"
 
 
-def _container_command(verb: str, opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
-    """#4270: PUT / GET / DELETE CONTAINER -> GGCPUTC / GGCGETC / GGCDELC. The container's name in GG-QNAME, the
-    channel's in GG-CHAN (GG-FLAGS 'CHANNEL'; none: the current channel), the data type, APPEND and NODATA in
-    GG-FLAGS, FLENGTH in GG-LEN (PUT: the bytes FROM gives; GET: the most INTO takes, then the container's length,
-    set back on NORMAL / LENGERR). The CCSID options (code-page conversion), SET (a pointer), BYTEOFFSET and PREPEND
-    are refused, as det/cics.py refuses them; so is an FLENGTH past FROM / INTO (storage GnuCOBOL lays out unlike
-    IBM's compiler)."""
-    feature = f"{verb} CONTAINER"
-    _check_spec(feature, opts, (verb,), lambda bad: [f"{feature} {o}" for o in sorted(bad)])
-    if not opts.get("CONTAINER"):
-        raise Unsupported(NEEDS_ARGUMENT, [f"{feature} ?"])
-    flags = ["CHANNEL"] if opts.get("CHANNEL") else []
-    lines = [f"MOVE {opts['CONTAINER']} TO GG-QNAME",
-             f"MOVE {opts['CHANNEL']} TO GG-CHAN" if opts.get("CHANNEL") else "MOVE SPACES TO GG-CHAN"]  # fmt: skip
-    if verb == "DELETE":
-        return (
-            lines
-            + [f"MOVE '{' '.join(flags)}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS"]
-            + _call("GGCDELC", [])
-            + _resp(opts, True, labels)
-        )
-    flength = opts.get("FLENGTH")
-    if verb == "PUT":
-        frm = opts.get("FROM")
-        if not frm:
-            raise Unsupported(NEEDS_ARGUMENT, [feature])
-        types = [t for t in ("BIT", "CHAR") if t in opts]
-        if opts.get("DATATYPE"):
-            m = re.fullmatch(r"\s*DFHVALUE\s*\(\s*(BIT|CHAR)\s*\)\s*", opts["DATATYPE"], re.I)
-            if m is None:
-                raise Unsupported(f"PUT CONTAINER DATATYPE({opts['DATATYPE']}): only DFHVALUE(BIT / CHAR) is modelled",
-                                  [f"{feature} DATATYPE"])  # fmt: skip
-            types.append(m.group(1).upper())
-        if len(types) > 1:
-            raise Unsupported(_rule("PUT CONTAINER", "at_most_one", "BIT", " and ".join(types)), [feature])
-        flags += types + (["APPEND"] if "APPEND" in opts else [])
-        return (lines + [f"MOVE '{' '.join(flags)}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS",
-                         f"MOVE {flength or f'LENGTH OF {frm}'} TO GG-LEN"]
-                + _past_from(flength, frm, "PUT CONTAINER") + _call("GGCPUTC", [f"BY REFERENCE {frm}"])
-                + _resp(opts, True, labels))  # fmt: skip
-    into, nodata = opts.get("INTO"), "NODATA" in opts
-    if bool(into) == nodata:
-        raise Unsupported(_rule("GET CONTAINER", "one_of", "INTO"), [feature])
-    flags += ["NODATA"] if nodata else []
-    settable = bool(flength) and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", flength.strip()) is None
-    lines += [
-        f"MOVE '{' '.join(flags)}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS",
-        "MOVE 0 TO GG-LEN" if nodata else f"MOVE {flength or f'LENGTH OF {into}'} TO GG-LEN",
-    ]
-    if into and flength:
-        lines += _past_from(flength, into, "GET CONTAINER")
-    lines += _call("GGCGETC", [f"BY REFERENCE {into or 'GG-FLAGS'}"])
-    if settable:
-        lines += ["IF GG-RESP = 0 OR GG-RESP = 22", f"    MOVE GG-LEN TO {flength}", "END-IF"]
-    return lines + _resp(opts, True, labels)
+def _dcounter_areas(opts: dict[str, str | None], names: tuple[str, ...]) -> list[str]:
+    """#4770 (X45): the doubleword areas of a DCOUNTER command as (area, length) pairs, `BY VALUE 0` for one the command omits;
+    a literal is refused (the stub reads and writes the area's bytes: a data area is the COBOL form)."""
+    out: list[str] = []
+    for o in names:
+        v = opts.get(o)
+        if v and (_literal(v) or re.fullmatch(r"[+-]?\d+", v)):
+            raise Unsupported(f"DCOUNTER {o} as a literal: a data area is the COBOL form", ["DEFINE COUNTER"])
+        out += [f"BY REFERENCE {v}", f"BY VALUE LENGTH OF {v}"] if v else ["BY REFERENCE GG-NAME2", "BY VALUE 0"]
+    return out
 
 
-def _container_browse_command(verb: str, opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
-    """#4951: MOVE CONTAINER -> GGCMOVC (CONTAINER in GG-QNAME, AS in GG-AS, CHANNEL in GG-CHAN, TOCHANNEL in GG-TOCHAN;
-    GG-FLAGS says which channels are given), STARTBROWSE CONTAINER -> GGCSBRC (the token comes back in GG-NUM), GETNEXT
-    CONTAINER -> GGCGNXC (the token in GG-NUM; the name comes back in GG-QNAME) and ENDBROWSE CONTAINER -> GGCEBRC."""
-    key = f"{verb} CONTAINER"
-    _check_spec(key, opts, (verb, "CONTAINER") if verb in ("STARTBROWSE", "ENDBROWSE") else (verb,))
-    for need in SPEC[key].groups:
-        if need.kind == "required" and not opts.get(need.options[0]):
-            raise Unsupported(need.msg, [key])
-    flags = [f for f, o in (("CHANNEL", "CHANNEL"), ("TOCHAN", "TOCHANNEL")) if opts.get(o)]
-    chans = ([f"MOVE {opts['CHANNEL']} TO GG-CHAN"] if opts.get("CHANNEL") else []) + (
-        [f"MOVE {opts['TOCHANNEL']} TO GG-TOCHAN"] if opts.get("TOCHANNEL") else []
-    )
-    setflags = f"MOVE '{' '.join(flags)}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS"
-    if verb == "MOVE":
-        lines = [f"MOVE {opts['CONTAINER']} TO GG-QNAME", f"MOVE {opts['AS']} TO GG-AS", *chans, setflags]
-        return lines + _call("GGCMOVC", []) + _resp(opts, True, labels)
-    if verb == "STARTBROWSE":
-        token = opts["BROWSETOKEN"]
-        return ([*chans, setflags] + _call("GGCSBRC", []) + ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {token}", "END-IF"]
-                + _resp(opts, True, labels))  # fmt: skip
-    lines = [f"MOVE {opts['BROWSETOKEN']} TO GG-NUM"]
-    if verb == "GETNEXT":
-        return (lines + _call("GGCGNXC", []) + ["IF GG-RESP = 0", f"    MOVE GG-QNAME TO {opts['CONTAINER']}", "END-IF"]
-                + _resp(opts, True, labels))  # fmt: skip
-    return lines + _call("GGCEBRC", []) + _resp(opts, True, labels)
+def _counter_areas(
+    opts: dict[str, str | None], names: tuple[str, ...], literals: tuple[str, ...] = ()
+) -> tuple[list[str], list[str]]:
+    """#5039 (X50): the fullword areas of a COUNTER command as (area, length) pairs, `BY VALUE 0` for one the command omits,
+    with the lines that stage a numeric literal. A command that WRITES an area (QUERY) takes a data area only; DEFINE
+    reads its VALUE / MINIMUM / MAXIMUM (`literals`), so a decimal literal is staged big-endian in GG-FLAGS (the stub reads
+    the bytes as IBM's fullword binary), as before X50 gave it a literal VALUE through GG-NUM."""
+    out: list[str] = []
+    pre: list[str] = []
+    for n, o in enumerate(names):
+        v = opts.get(o)
+        if v and (_literal(v) or re.fullmatch(r"[+-]?\d+", v)):
+            if o not in literals or not re.fullmatch(r"[+-]?\d+", v):
+                raise Unsupported(f"COUNTER {o} as a literal: a data area is the COBOL form", ["DEFINE COUNTER"])
+            slot = f"GG-FLAGS({4 * n + 1}:4)"
+            pre.append(f"MOVE X'{int(v) & 0xFFFFFFFF:08X}' TO {slot}")
+            v = slot
+        out += [f"BY REFERENCE {v}", f"BY VALUE LENGTH OF {v}"] if v else ["BY REFERENCE GG-NAME2", "BY VALUE 0"]
+    return pre, out
+
+
+# the det translator's system members (register L4: CEEIGZCT, a GitGalaxy-written stand-in)
+DET_COPY = Path(__file__).resolve().parents[2] / "gitgalaxy" / "tools" / "cobol_to_java" / "det" / "copy"
+
+
+def _in_literal(code: str, pos: int) -> bool:
+    """Whether `pos` of a source line's code area falls inside a quoted literal (' or ", doubled to escape)."""
+    quote = None
+    for ch in code[:pos]:
+        if quote is None and ch in "'\"":
+            quote = ch
+        elif ch == quote:
+            quote = None  # (a doubled quote closes and reopens: the same state at the next character)
+    return quote is not None
 
 
 def _exec_blocks(lines: list[str]) -> Iterator[tuple[int, int, str, str, str]]:
@@ -1594,17 +2003,22 @@ def _exec_blocks(lines: list[str]) -> Iterator[tuple[int, int, str, str, str]]:
     while i < len(lines):
         line = lines[i]
         code = line[7:72] if len(line) > 7 else ""
-        start = _EXEC.search(code)
-        if (len(line) > 6 and line[6] in "*/") or not start:
+        # (#4950: not inside a literal -- CBSA CRECUST DISPLAYs 'EXEC CICS FETCH ANY failed. RESP=')
+        start = next((m for m in _EXEC.finditer(code) if not _in_literal(code, m.start())), None)
+        if (
+            len(line) > 6 and line[6] in "*/dD"
+        ) or not start:  # (#4950: a debugging line is a comment, as cobc reads it)
             i += 1
             continue
         prefix, body, j = code[: start.start()], code[start.end() :], i
+        if start.group(0).split()[1].upper() == "DLI":
+            body = _DLI_TAG + body
         while not _END_EXEC.search(body):
             j += 1
             if j >= len(lines):
                 raise Unsupported(f"EXEC CICS at line {i + 1} has no END-EXEC")
             nxt = lines[j]
-            if len(nxt) > 6 and nxt[6] in "*/":
+            if len(nxt) > 6 and nxt[6] in "*/dD":
                 continue
             if len(nxt) > 6 and nxt[6] == "-":
                 raise Unsupported(f"continuation line inside EXEC CICS at line {j + 1}")
@@ -1615,13 +2029,136 @@ def _exec_blocks(lines: list[str]) -> Iterator[tuple[int, int, str, str, str]]:
         i = j + 1
 
 
-def translate(source: str) -> tuple[str, bool]:
+def _numbered(ln: str) -> str:
+    """DFHRESP(x) / DFHVALUE(x) replaced by their numbers in the line's code area only, padded back to column 72 when
+    columns 73-80 hold a sequence number (#4892: CardDemo app-vsam-mq numbers its lines there), so it stays there."""
+    head, tail = ln[:72], ln[72:]
+    new = _DFHVALUE.sub(
+        lambda m: str(CVDA[m.group(1).upper()]), _DFHRESP.sub(lambda m: str(DFHRESP[m.group(1).upper()]), head)
+    )
+    return (new.ljust(72) if tail and new != head else new) + tail
+
+
+_DIB = "       01  DIB.\n           05 FILLER   PIC XX.\n           05 DIBSTAT  PIC XX.\n"
+
+
+DLI_CALL = re.compile(r"\bEXEC\s+DLI\b", re.I)
+
+
+def dli_stage(case: dict[str, Any], corpus: Path, dest: Path) -> list[str]:
+    """#5278: the stated databases of a case whose program issues EXEC DLI -- dbd.cfg, psb.cfg and each seed, into
+    `dest` (the stub reads them from the scenario's directory, the port from gitgalaxy.dli.dir). The DBDs' names."""
+    try:
+        dbds, pcbs = equivalence_ims.definitions(case, corpus, cics=True)
+        dest.mkdir(parents=True, exist_ok=True)
+        dbd_cfg, psb_cfg = equivalence_ims.config(dbds, pcbs)
+        (dest / "dbd.cfg").write_text(dbd_cfg, encoding="ascii")
+        (dest / "psb.cfg").write_text(psb_cfg, encoding="ascii")
+        for name, db in dbds.items():
+            (dest / f"seed.{name}").write_bytes(equivalence_ims.seed(case, corpus, name, db))
+    except equivalence_ims.Unsupported as e:
+        raise Unsupported(f"EXEC DLI: {e}", ["EXEC DLI"]) from e
+    return list(dbds)
+
+
+def _dli_operand(text: str, what: str) -> str:
+    """An integer operand of an EXEC DLI command, `BY VALUE`: a literal or a data name."""
+    t = text.strip()
+    if re.fullmatch(r"[0-9]+", t) or re.fullmatch(r"[A-Za-z0-9-]+", t):
+        return f"BY VALUE {t}"
+    if re.fullmatch(r"LENGTH\s+OF\s+[A-Za-z0-9-]+", t, re.I):
+        return f"BY VALUE {' '.join(t.split()).upper()}"
+    raise Unsupported(f"EXEC DLI {what}({text}): a literal or a data name expected", ["EXEC DLI"])
+
+
+def translate_dli(body: str) -> list[str]:
+    """One EXEC DLI command (#5278, register I5) -> the CALLs of ggdli.c's EXEC entry points (GGDLISCHD, GGDLITERM,
+    GGDLIX), DIBSTAT answered. The forms are the ones DetDli models; any other is refused by name."""
+    from gitgalaxy.tools.cobol_to_java.det import dli
+    from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
+
+    text = body.strip()
+    verb = (text.split() or [""])[0].upper()
+    try:
+        if verb == "SCHD":
+            m = dli._SCHD.fullmatch(text)
+            if m is None:
+                raise Unsupported(
+                    "EXEC DLI SCHD: only PSB(name), PSB('name') or PSB((area)) with NODHABEND", ["EXEC DLI"]
+                )
+            return [f"CALL 'GGDLISCHD' USING BY REFERENCE DIBSTAT BY VALUE {1 if m.group('nodh') else 0}"]
+        if verb == "TERM":
+            if text.split()[1:]:
+                raise Unsupported("EXEC DLI TERM: no option is modelled", ["EXEC DLI"])
+            return ["CALL 'GGDLITERM' USING BY REFERENCE DIBSTAT"]
+        if verb not in (*dli._GETS, *dli._PUTS):
+            raise Unsupported(f"EXEC DLI {verb}: not modelled (register I5)", ["EXEC DLI"])
+        cl = dli._clauses(re.sub(r"(?is)^\s*USING\b", "", text[len(verb) :]))
+    except Untranslatable as e:
+        raise Unsupported(str(e), ["EXEC DLI"]) from None
+    names = [k for k, _ in cl]
+    get = verb in dli._GETS
+    allowed = {"PCB", "SEGMENT", "WHERE", "INTO"} if get else {"PCB", "SEGMENT", "FROM"}
+    if verb == "ISRT":
+        allowed |= {"WHERE", "SEGLENGTH"}
+    area = "INTO" if get else "FROM"
+    if (bad := [k for k in names if k not in allowed]) or names[:1] != ["PCB"] or names.count(area) != 1:
+        raise Unsupported(f"EXEC DLI {verb} {bad[0] if bad else ''}: PCB(n) first and one {area}(area); only "
+                          f"{', '.join(sorted(allowed))} are modelled", ["EXEC DLI"])  # fmt: skip
+    ssas: list[tuple[str, str, str, str]] = []  # (segment, field, operator, value text)
+    for k, v in cl:
+        if k == "SEGMENT":
+            if not re.fullmatch(dli._ID + r"{1,8}", v, re.I):
+                raise Unsupported(f"EXEC DLI {verb}: SEGMENT({v}) is not a segment name", ["EXEC DLI"])
+            ssas.append((v.upper(), "", "", ""))
+        elif k == "WHERE":
+            w = dli._WHERE.fullmatch(v)
+            if not ssas or ssas[-1][1] or w is None or w.group("op").upper() not in dli._OPS:
+                raise Unsupported(f"EXEC DLI {verb}: WHERE({v}): one `field op value` after its SEGMENT", ["EXEC DLI"])
+            ssas[-1] = (ssas[-1][0], w.group("f").upper(), dli._OPS[w.group("op").upper()], w.group("v"))
+    if not get and (not ssas or (verb != "ISRT" and len(ssas) != 1)):
+        raise Unsupported(f"EXEC DLI {verb}: SEGMENT(s) expected, once for REPL and DLET", ["EXEC DLI"])
+    if len(ssas) > 3:
+        raise Unsupported(f"EXEC DLI {verb}: more than 3 SEGMENTs", ["EXEC DLI"])
+    clause = dict(cl)
+    seglen = _dli_operand(clause["SEGLENGTH"], "SEGLENGTH") if "SEGLENGTH" in clause else "BY VALUE -1"
+    io = clause[area].strip()
+    if not re.fullmatch(r"[A-Za-z0-9-]*[A-Za-z][A-Za-z0-9-]*(?:\s*\([^()]*\))?", io):
+        raise Unsupported(f"EXEC DLI {verb}: {area}({io}): a data name expected", ["EXEC DLI"])
+    out = ["CALL 'GGDLIX' USING BY REFERENCE DIBSTAT", f"    BY CONTENT '{verb:<4}'",
+           f"    {_dli_operand(clause['PCB'], 'PCB')}", f"    BY REFERENCE {io}", f"    {seglen}"]  # fmt: skip
+    for seg, fld, op, val in ssas:
+        out.append(f"    BY CONTENT '{seg:<8}{fld:<8}{op:<2}'")
+        if not fld:
+            out += ["    BY REFERENCE DIBSTAT", "    BY VALUE 0"]
+        elif re.fullmatch(r"[A-Za-z0-9-]*[A-Za-z][A-Za-z0-9-]*", val):
+            out += [f"    BY REFERENCE {val}", f"    BY VALUE LENGTH OF {val}"]
+        else:
+            raise Unsupported(f"EXEC DLI {verb}: WHERE value {val}: a data name expected (as the port)", ["EXEC DLI"])
+    return out
+
+
+def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bool]:
     """A fixed-format CICS program -> (the program the stub runtime runs, whether it takes a
-    COMMAREA through LINKAGE). Raises Unsupported naming each command it cannot model."""
+    COMMAREA through LINKAGE). Raises Unsupported naming each command it cannot model. #5119 (X56): an OS/VS COBOL
+    program's BLL cells and SERVICE RELOAD are lowered first, as the det translator lowers them (det/bll.py; its
+    COPY members found in `copy_dirs`), so GnuCOBOL runs the program the port was translated from."""
+    from gitgalaxy.tools.cobol_to_java.det import bll
+
+    try:
+        source = bll.lower_text(source, copy_dirs or [])
+    except bll.Refused as e:
+        raise Unsupported(str(e), ["BLL cells"]) from None
     lines = source.splitlines()
+    if any(
+        len(ln) > 6 and ln[6] not in "*/" and re.search(r"(?i)\bWITH\s+DEBUGGING\s+MODE\b", ln[7:72]) for ln in lines
+    ):
+        raise Unsupported("WITH DEBUGGING MODE: debugging lines compiled as code (not modelled)", ["DEBUGGING MODE"])
     blocks = list(_exec_blocks(lines))
-    labels = handler_labels([b[3] for b in blocks])  # #4003: what GG-GOTO indexes, program-wide
-    handle_aid = any(re.match(r"\s*HANDLE\s+AID\b", b[3], re.I) for b in blocks)  # #4007
+    cics_bodies = [b[3] for b in blocks if not b[3].startswith(_DLI_TAG)]
+    labels = handler_labels(cics_bodies)  # #4003: what GG-GOTO indexes, program-wide
+    handle_aid = any(re.match(r"\s*HANDLE\s+AID\b", b_, re.I) for b_ in cics_bodies)  # #4007
+    eibds = reads_eibds(lines)  # #5126 (X64)
     out: list[str] = []
     problems: list[str] = []
     features: list[str] = []
@@ -1633,10 +2170,13 @@ def translate(source: str) -> tuple[str, bool]:
         if prefix.strip():
             out.append(line[:7] + prefix.rstrip())
         try:
-            stmts = translate_command(body, labels, handle_aid)
+            if body.startswith(_DLI_TAG):
+                stmts = translate_dli(body[len(_DLI_TAG) :])
+            else:
+                stmts = translate_command(body, labels, handle_aid, eibds)
         except Unsupported as e:
             msg = str(e)  # (a whole command's refusal names it already: "EXEC CICS GETMAIN not modelled (...)")
-            problems.append(f"line {i + 1}: {msg if msg.startswith('EXEC CICS ') else f'EXEC CICS {msg}'}")
+            problems.append(f"line {i + 1}: {msg if msg.startswith('EXEC ') else f'EXEC CICS {msg}'}")
             features += [f for f in e.features if f not in features]
             stmts = []
         for s in stmts:
@@ -1655,25 +2195,21 @@ def translate(source: str) -> tuple[str, bool]:
         features.append(f"DFHVALUE({name})")
     if problems:
         raise Unsupported("; ".join(problems), features)
-    text = (
-        "\n".join(
-            _DFHVALUE.sub(
-                lambda m: str(CVDA[m.group(1).upper()]), _DFHRESP.sub(lambda m: str(DFHRESP[m.group(1).upper()]), ln)
-            )
-            for ln in out
-        )
-        + "\n"
-    )
+    text = "\n".join(_numbered(ln) for ln in out) + "\n"
     # the COMMAREA: an 01 DFHCOMMAREA, or a copybook's record renamed to it (CBSA's COPY INQACC REPLACING
     # INQACC-COMMAREA BY DFHCOMMAREA)
     has_commarea = bool(
         re.search(r"^.{6} +01\s+DFHCOMMAREA\b", text, re.M | re.I)
         or re.search(r"^.{6} +COPY\s+\S+\s+REPLACING\b[^.]*\bBY\s+DFHCOMMAREA\b", text, re.M | re.I)
     )
-    text = re.sub(r"^(.{6} +WORKING-STORAGE\s+SECTION\.[^\n]*\n)", r"\1       COPY DFHEIBLK.\n", text,
+    dib = _DIB if any(b[3].startswith(_DLI_TAG) for b in blocks) else ""  # (#5278: IBM's DIB, only DIBSTAT supplied)
+    text = re.sub(r"^(.{6} +WORKING-STORAGE\s+SECTION\.[^\n]*\n)", r"\1       COPY DFHEIBLK.\n" + dib, text,
                   count=1, flags=re.M | re.I)  # fmt: skip
     if "COPY DFHEIBLK" not in text:
         raise Unsupported("no WORKING-STORAGE SECTION to hold the EIB")
+    if not has_commarea and "BY REFERENCE DFHCOMMAREA" in text:  # #5079 (X59): ADDRESS COMMAREA needs the record
+        raise Unsupported("ADDRESS COMMAREA in a program with no LINKAGE 01 DFHCOMMAREA: no record to address",
+                          ["ADDRESS COMMAREA"])  # fmt: skip
     already = re.search(r"^.{6} +PROCEDURE\s+DIVISION\s+USING\s+DFHCOMMAREA\s*\.", text, re.M | re.I)
     if has_commarea and not already:  # (CBSA's ABNDPROC codes USING DFHCOMMAREA itself, as CICS allows)
         text, n = re.subn(r"^(.{6} +PROCEDURE\s+DIVISION)\s*\.", r"\1 USING DFHCOMMAREA.", text, count=1,
@@ -1694,10 +2230,11 @@ def translate(source: str) -> tuple[str, bool]:
     return text, has_commarea
 
 
-def cics_driver(program: str, has_commarea: bool) -> str:
+def cics_driver(program: str, has_commarea: bool, children: bool = False) -> str:
     """Runs one task: the EIB from $EIBIN (TRANSID, AID name, date, time) and EIBTASKN from the stub
     ($GGCICS_TASKN, #4270), the COMMAREA
-    from the stub (its length is EIBCALEN), then the program, then GGCEND."""
+    from the stub (its length is EIBCALEN), then the program, then GGCEND. #4950 `children`: the case runs RUN
+    TRANSID children, each this task re-run by the stub (GGCCHLD names the child's program, which GGCRUN runs)."""
     aid_names = [ln.split()[1] for ln in (STUB / "DFHAID.cpy").read_text().splitlines() if " PIC " in ln]
     lines = ["IDENTIFICATION DIVISION.", "PROGRAM-ID. EQCICSDR.", "ENVIRONMENT DIVISION.",
              "INPUT-OUTPUT SECTION.", "FILE-CONTROL.",
@@ -1723,13 +2260,20 @@ def cics_driver(program: str, has_commarea: bool) -> str:
     lines += ["    END-EVALUATE", "    MOVE LOW-VALUES TO WS-CA",
               "    CALL 'GGCLOAD' USING WS-CA BY VALUE LENGTH OF WS-CA", "        RETURNING WS-LEN",
               "    MOVE WS-LEN TO EIBCALEN",
-              "    CALL 'GGCCHIN' USING GG-CICS",
-              "    SET WS-PTR TO ADDRESS OF WS-CA",
-              "    CALL 'GGCAREA' USING WS-PTR BY VALUE WS-LEN",
-              "    SET ADDRESS OF LK-CA TO WS-PTR",
-              f"    CALL '{program}'" + (" USING LK-CA" if has_commarea else ""),
-              "    CALL 'GGCAOUT' USING LK-CA BY VALUE WS-LEN",
-              "    CALL 'GGCEND' USING GG-CICS", "    STOP RUN."]  # fmt: skip
+              ]  # fmt: skip
+    task = ["    CALL 'GGCCHIN' USING GG-CICS", "    SET WS-PTR TO ADDRESS OF WS-CA",
+            "    CALL 'GGCAREA' USING WS-PTR BY VALUE WS-LEN",
+            "    SET ADDRESS OF LK-CA TO WS-PTR",
+            f"    CALL '{program}'" + (" USING LK-CA" if has_commarea else ""),
+            "    CALL 'GGCAOUT' USING LK-CA BY VALUE WS-LEN"]  # fmt: skip
+    if children:  # #4950: a RUN TRANSID child runs its own program, through the dispatcher
+        lines += ["    CALL 'GGCCHLD' USING GG-CICS", "    IF GG-ITEM = 1", "        MOVE 0 TO GG-LEN",
+                  "        CALL 'GGCTASK' USING GG-CICS", "        CALL 'GGCCHIN' USING GG-CICS",
+                  "        CALL 'GGCRUN' USING WS-CA", "    ELSE",
+                  *("    " + ln for ln in task), "    END-IF"]  # fmt: skip
+    else:
+        lines += task
+    lines += ["    CALL 'GGCEND' USING GG-CICS", "    STOP RUN."]
     assert all(len(ln) <= 65 for ln in lines), [ln for ln in lines if len(ln) > 65]
     return "".join("       " + ln + "\n" for ln in lines)
 
@@ -1820,18 +2364,91 @@ def _case_csd(file: str, datasets: dict[str, Any] | None) -> dict[str, Any] | No
             "reclen": spec["reclen"], "via": ["the case's csd"], "organization": "ESDS"}  # fmt: skip
 
 
-def stub_files(ir: Any, program_file: str, datasets: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+def case_runtime_files(datasets: dict[str, Any] | None) -> list[dict[str, Any]]:
+    """#4771: a CICS file the program names at run time (zECS: `ZC` + EIBTRNID(3:2) + `FILE` / `KEY`), so no CSD DEFINE
+    FILE of the engine's facts carries its name. The case's dataset of that file name states it with its `why`:
+    `"runtime_file": {"key_offset", "key_length", "reclen", "why"}` -- the IDCAMS job's KEYS and RECORDSIZE, as `vsam` is
+    for a named dataset. Only the COBOL leg binds it: the generated project stores no file the program does not name."""
+    out = []
+    for name, spec in sorted((datasets or {}).items()):
+        rf = (spec or {}).get("runtime_file")
+        if rf is None:
+            continue
+        if (
+            not re.fullmatch(r"[A-Z0-9]{1,8}", name)
+            or not all(isinstance(rf.get(k), int) for k in ("key_offset", "key_length", "reclen"))
+            or not rf.get("why")
+            or set(rf) - {"key_offset", "key_length", "reclen", "why"}
+        ):
+            raise Unsupported(
+                f"dataset {name}: a case's runtime_file states key_offset, key_length, reclen and why (a CICS file name "
+                f"of at most 8 upper-case characters): {rf}"
+            )
+        out.append({"file": name, "dsname": name, "base": name, "key_offset": rf["key_offset"],
+                    "key_length": rf["key_length"], "reclen": rf["reclen"],
+                    "via": ["the case's runtime_file"], "runtime": True})  # fmt: skip
+    return out
+
+
+_INSTALL_SYMBOL = re.compile(r"@([A-Za-z0-9_#$-]+)@")
+
+
+def install_symbols(spec: Any) -> dict[str, str]:
+    """#5089: the install symbols a case states (`"install_symbols": {"values": {"ECS_HLQ": "ZECS", ...}, "why": ...}`),
+    as upper-case name -> value. zECS-style estates ship dataset names with placeholders (`@ecs_hlq@.ZCEXPIRE.
+    @environment@`) that an install job fills in; the harness never guesses them -- the case states each one, with
+    the reason (a deployment fact, as `csd` and `recovery` are). Absent: none. Anything else is refused by name."""
+    if spec is None:
+        return {}
+    values = spec.get("values") if isinstance(spec, dict) else None
+    if (
+        not isinstance(values, dict)
+        or not values
+        or not spec.get("why")
+        or set(spec) - {"values", "why"}
+        or not all(
+            isinstance(k, str) and re.fullmatch(r"[A-Za-z0-9_#$-]+", k)
+            and isinstance(v, str) and re.fullmatch(r"[A-Z0-9#$-]{1,8}(\.[A-Z0-9#$-]{1,8})*", v)
+            for k, v in values.items()
+        )
+    ):  # fmt: skip
+        raise Unsupported(
+            '"install_symbols": {"values": {SYMBOL: VALUE (a dataset qualifier, upper case)}, "why": ...}'
+        )
+    out = {k.upper(): v for k, v in values.items()}
+    if len(out) != len(values):
+        raise Unsupported(f'"install_symbols" states a symbol twice (names are not case-sensitive): {sorted(values)}')
+    return out
+
+
+def substitute_install_symbols(name: str, symbols: dict[str, str]) -> str:
+    """#5089: `name` (upper-cased) with each `@SYMBOL@` the case states replaced; a symbol it does not state stays in
+    the name and is refused by the caller (never guessed)."""
+    return _INSTALL_SYMBOL.sub(lambda m: symbols.get(m.group(1).upper(), m.group(0)), name.upper())
+
+
+def stub_files(
+    ir: Any,
+    program_file: str,
+    datasets: dict[str, Any] | None = None,
+    symbols: dict[str, str] | None = None,
+) -> list[dict[str, Any]]:
     """Each CICS file the program uses: {file, dsname, base (the cluster whose records it
     reads), key_offset, key_length, reclen, via}, from the engine's facts -- the CSD
     DEFINE FILE's DSNAME, then the IDCAMS DEFINE that keys it: a CLUSTER's KEYS, or a
     PATH -> its AIX's KEYS over the AIX's base cluster. Where the facts lack the KEYS or the
     RECORDSIZE (GenApp's adef121.jcl gives both inside the DATA(...) component), the case's
-    dataset may state them ("vsam": {"key_offset", "key_length", "reclen"}); the facts win."""
+    dataset may state them ("vsam": {"key_offset", "key_length", "reclen"}); the facts win.
+    #5089: `symbols` (install_symbols(case["install_symbols"])) resolve the `@NAME@` placeholders of a dataset name,
+    on the CSD and the IDCAMS side alike; a placeholder the case does not state is refused, never guessed. An IDCAMS
+    job the engine does not read as a define (zECS ships `ZCEXPIRE.idcams`, not JCL) is stated by the case's dataset
+    of the resolved name (`vsam`, with its KEYS and RECORDSIZE)."""
+    symbols = symbols or {}
     defines: dict[str, Any] = {}
     for f in ir.files.values():
         for d in f.vsam_defines:
             if d.name:
-                defines.setdefault(d.name.upper(), d)
+                defines.setdefault(substitute_install_symbols(d.name, symbols), d)
     out = []
     for e in ir.cics_file_lineage():
         if e["program"] != program_file:
@@ -1844,10 +2461,38 @@ def stub_files(ir: Any, program_file: str, datasets: dict[str, Any] | None = Non
             out.append(stated)
             continue
         dsn = defs[0]["dsname"].upper()
+        if symbols:
+            dsn = substitute_install_symbols(dsn, symbols)
+            if _INSTALL_SYMBOL.search(dsn):
+                raise Unsupported(
+                    f"CICS file {e['name']}: the dataset name {dsn} holds an install symbol the case does not state"
+                )
         d, via = defines.get(dsn), []
         if d is not None and d.kind == "PATH":
             via.append(f"PATH {d.name}")
             d = defines.get((d.related or "").upper())
+        stated_vsam = ((datasets or {}).get(dsn) or {}).get("vsam")
+        # #5089: a name resolved through the install symbols takes the case's stated vsam, also when the engine now
+        # reads the IDCAMS job as a define (its name keeps the placeholders, so its base would not be the dataset's)
+        if (d is None or stated_vsam) and symbols and dsn != defs[0]["dsname"].upper():
+            vsam = stated_vsam or {}
+            if not all(isinstance(vsam.get(k), int) for k in ("key_offset", "key_length", "reclen")) or not vsam.get(
+                "why"
+            ):
+                raise Unsupported(
+                    f"CICS file {e['name']}: no IDCAMS DEFINE for {dsn}; the case's dataset {dsn} states "
+                    "vsam {key_offset, key_length, reclen, why} (the IDCAMS job's KEYS and RECORDSIZE)"
+                )
+            if (defs[0].get("record_format") or "").upper() == "V" and vsam.get("variable") is not True:
+                raise Unsupported(  # the stub keeps fixed-length records: a V file is stood in for only when stated
+                    f"CICS file {e['name']}: {dsn} is a variable-length file (RECORDFORMAT(V)); the stub keeps fixed-"
+                    'length records, so the case\'s vsam must say "variable": true -- every record of the file is the '
+                    "one length the program writes and reads, stated as reclen (IBM returns each record at its own length)"
+                )
+            out.append({"file": e["name"], "dsname": dsn, "base": dsn, "key_offset": vsam["key_offset"],
+                        "key_length": vsam["key_length"], "reclen": vsam["reclen"],
+                        "via": ["the case's install_symbols", "the case's vsam"]})  # fmt: skip
+            continue
         if d is None:  # #3656: the engine's candidate join of an IDCAMS name written with installation symbols
             st = next((x for x in ir.vsam_stores() if (x.get("dataset") or "").upper() == dsn and x.get("defined")
                        and (x.get("defined_by") or {}).get("match") == "symbolic"), None)  # fmt: skip
@@ -1863,21 +2508,25 @@ def stub_files(ir: Any, program_file: str, datasets: dict[str, Any] | None = Non
             d = defines.get((d.related or "").upper())
             if d is None:
                 raise Unsupported(f"CICS file {e['name']}: AIX {key.name} has no base cluster define")
-        stated = ((datasets or {}).get(d.name.upper()) or {}).get("vsam") or {}
+        base = substitute_install_symbols(d.name, symbols)  # #5089: the define's name with the case's install symbols
+        stated = ((datasets or {}).get(base) or {}).get("vsam") or {}
         if key is d and (d.organization or "").upper() == "NONINDEXED":  # #4213: an ESDS: no key, browsed by RBA
             reclen = d.record_max if d.record_max is not None else stated.get("reclen")
             if reclen is None or (d.record_avg is not None and d.record_avg != reclen):
                 raise Unsupported(f"CICS file {e['name']}: ESDS {d.name} without fixed-length records (RECORDSIZE)")
-            out.append({"file": e["name"], "dsname": dsn, "base": d.name.upper(), "key_offset": 0, "key_length": 0,
+            out.append({"file": e["name"], "dsname": dsn, "base": base, "key_offset": 0, "key_length": 0,
                         "reclen": reclen, "via": via, "organization": "ESDS"})  # fmt: skip
             continue
         koff = key.key_offset if key.key_offset is not None else stated.get("key_offset")
         klen = key.key_length if key.key_length is not None else stated.get("key_length")
         reclen = d.record_max if d.record_max is not None else stated.get("reclen")
+        if (defs[0].get("record_format") or "").upper() == "V" and stated.get("variable") is True:
+            reclen = stated.get("reclen", reclen)  # #5089: a V file's records are all the one length the case states
         if koff is None or klen is None or reclen is None:
             raise Unsupported(f"CICS file {e['name']}: {key.name}'s KEYS or {d.name}'s RECORDSIZE is not in the facts")
-        out.append({"file": e["name"], "dsname": dsn, "base": d.name.upper(), "key_offset": koff,
+        out.append({"file": e["name"], "dsname": dsn, "base": base, "key_offset": koff,
                     "key_length": klen, "reclen": reclen, "via": via})  # fmt: skip
+    out += [r for r in case_runtime_files(datasets) if r["file"] not in {f["file"] for f in out}]
     return sorted(out, key=lambda f: f["file"])
 
 
@@ -1996,12 +2645,52 @@ def decode_record(data: bytes, fields: list[dict[str, Any]], enc: str = common.D
     return out
 
 
-def map_input(fields: list[dict[str, Any]], values: dict[str, str], enc: str = common.DEFAULT_DATA_ENCODING) -> bytes:
+def justified(text: str, width: int, justify: str) -> str:
+    """#5082 (X54): what BMS leaves in an input field whose DFHMDF says JUSTIFY=(LEFT|RIGHT[,BLANK|ZERO]) (IBM CICS TS,
+    DFHMDF): the text typed, without its trailing blanks, at the left or right end of the field, the rest filled with
+    blanks or zeros. The DFHMDF's JUSTIFY only: a field with none is the text as typed, as before."""
+    typed = text.rstrip(" ")
+    fill = "0" if "ZERO" in justify else " "
+    if "RIGHT" in justify:
+        return typed[-width:].rjust(width, fill)
+    return typed[:width].ljust(width, fill)
+
+
+@functools.lru_cache(maxsize=256)
+def bms_justify(corpus: Path, map_name: str) -> dict[str, str]:
+    """{symbolic input field (<name>I): its DFHMDF JUSTIFY, "RIGHT,ZERO"} of a map, from the corpus's BMS sources (the
+    engine's own reading of them, gitgalaxy.core.bms_screen_fields); a map with no JUSTIFY field gives {}."""
+    from gitgalaxy.core.bms_screen_fields import bms_screen_fields
+    from gitgalaxy.core.source_text import read_source
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_screen_forge import _justify
+
+    out: dict[str, str] = {}
+    for p in sorted(corpus.rglob("*.bms")):
+        if ".git" in p.parts:
+            continue
+        rows = bms_screen_fields(read_source(p).text)
+        maps = {r["ordinal"] for r in rows if r["kind"] == "map" and (r["name"] or "").upper() == map_name.upper()}
+        for r in rows:
+            if r["kind"] == "field" and r["parent_ordinal"] in maps and r["name"] and _justify(r):
+                out[r["name"].upper() + "I"] = _justify(r)
+    return out
+
+
+def map_input(fields: list[dict[str, Any]], values: dict[str, str], enc: str = common.DEFAULT_DATA_ENCODING,
+              justify: dict[str, str] | None = None) -> bytes:  # fmt: skip
     """A RECEIVE MAP input area: nulls everywhere, and for each field the user typed in
-    ({"ACCTSIDI": "00000000011"}) its data and its length (<name>L)."""
+    ({"ACCTSIDI": "00000000011"}) its data and its length (<name>L). `justify` (#5082): the fields whose DFHMDF
+    says JUSTIFY, by symbolic name: their data is as BMS justifies it; the length is that of the text typed."""
     typed: dict[str, Any] = {}
+    width = {f["name"]: f["bytes"] for f in fields}
     for field, text in values.items():
-        typed[field] = text.encode(enc)  # what was typed, whatever the field's PICIN
+        if "(" in field:  # #5076: the Java side's typed values are keyed by the BMS name, not by a subscript
+            raise Unsupported(f"RECEIVE MAP: {field} -- typing into one occurrence of a repeated field is not "
+                              "modelled", ["BMS OCCURS input"])  # fmt: skip
+        placed = (
+            justified(text, width[field], justify[field]) if justify and field in justify and field in width else text
+        )
+        typed[field] = placed.encode(enc)  # what was typed, whatever the field's PICIN
         typed[field[:-1] + "L"] = len(text.rstrip())
     return encode_record(fields, typed, b"\x00", enc)
 
@@ -2009,7 +2698,13 @@ def map_input(fields: list[dict[str, Any]], values: dict[str, str], enc: str = c
 # FORMATTIME's date forms (IBM CICS TS, EXEC CICS FORMATTIME): the parts in order, and the separator's default
 _DATE_FORMS = {"YYYYMMDD": ("GG-Y", "GG-M", "GG-D"), "MMDDYYYY": ("GG-M", "GG-D", "GG-Y"),
                "DDMMYYYY": ("GG-D", "GG-M", "GG-Y"), "YYMMDD": ("GG-Y(3:2)", "GG-M", "GG-D"),
-               "MMDDYY": ("GG-M", "GG-D", "GG-Y(3:2)"), "DDMMYY": ("GG-D", "GG-M", "GG-Y(3:2)")}  # fmt: skip
+               "MMDDYY": ("GG-M", "GG-D", "GG-Y(3:2)"), "DDMMYY": ("GG-D", "GG-M", "GG-Y(3:2)"),
+               "YYDDD": ("GG-Y(3:2)", "GG-DOY"), "YYYYDDD": ("GG-Y", "GG-DOY"),
+               "YYDDMM": ("GG-Y(3:2)", "GG-D", "GG-M"), "YYYYDDMM": ("GG-Y", "GG-D", "GG-M")}  # fmt: skip
+# #4415 slice 3 (X46): the binary forms, each the COBOL expression of IBM's value (DAYCOUNT: 1 January 1900 is day 1;
+# DAYOFWEEK: Sunday=0; GG-DAYS 0 is a Monday)
+_NUMBER_FORMS = {"DAYCOUNT": "GG-DAYS + 1", "DAYOFMONTH": "GG-D", "DAYOFWEEK": "FUNCTION MOD(GG-DAYS + 1, 7)",
+                 "MONTHOFYEAR": "GG-M", "YEAR": "GG-Y", "MILLISECONDS": "FUNCTION MOD({t}, 1000)"}  # fmt: skip
 
 
 def _formattime(opts: dict[str, str]) -> list[str]:
@@ -2022,6 +2717,8 @@ def _formattime(opts: dict[str, str]) -> list[str]:
     lines = [f"COMPUTE GG-DAYS = {t} / 86400000", f"COMPUTE GG-REM = {t} - GG-DAYS * 86400000",
              "COMPUTE GG-DATE8 = FUNCTION DATE-OF-INTEGER(GG-DAYS",
              "    + FUNCTION INTEGER-OF-DATE(19000101))",
+             "COMPUTE GG-DOY = FUNCTION INTEGER-OF-DATE(GG-DATE8)",
+             "    - FUNCTION INTEGER-OF-DATE(GG-Y * 10000 + 101) + 1",
              "COMPUTE GG-HH = GG-REM / 3600000", "COMPUTE GG-MI = (GG-REM - GG-HH * 3600000) / 60000",
              "COMPUTE GG-SS = (GG-REM - GG-HH * 3600000", "    - GG-MI * 60000) / 1000"]  # fmt: skip
 
@@ -2036,7 +2733,7 @@ def _formattime(opts: dict[str, str]) -> list[str]:
             if i and separator:
                 pieces.append(separator)
             pieces.append(p)
-        width = sum(4 if p == "GG-Y" else 2 for p in parts) + (len(parts) - 1 if separator else 0)
+        width = sum({"GG-Y": 4, "GG-DOY": 3}.get(p, 2) for p in parts) + (len(parts) - 1 if separator else 0)
         return (["MOVE SPACES TO GG-OUT", "STRING " + " ".join(pieces), "    DELIMITED BY SIZE INTO GG-OUT"]
                 + [f"MOVE GG-OUT(1:{width}) TO {target}(1:{width})"])  # fmt: skip
 
@@ -2044,6 +2741,9 @@ def _formattime(opts: dict[str, str]) -> list[str]:
     for form, parts in _DATE_FORMS.items():
         if opts.get(form):
             body += build(parts, sep("DATESEP", "/"), opts[form])
+    for form, expr in _NUMBER_FORMS.items():
+        if opts.get(form):
+            body += [f"COMPUTE {opts[form]} = {expr.format(t=t)}"]
     if opts.get("TIME"):
         body += build(("GG-HH", "GG-MI", "GG-SS"), sep("TIMESEP", ":"), opts["TIME"])
     # #4737 (X28): IBM, INVREQ RESP2 1 "The ABSTIME value is less than zero or not in packed-decimal format": with RESP /
@@ -2069,10 +2769,60 @@ def csd_programs(corpus: Path, case: dict[str, Any]) -> list[str] | None:
 
 def csd_tdqueues(corpus: Path, case: dict[str, Any]) -> list[str] | None:
     """The transient-data queues the case's CSD defines (DEFINE TDQUEUE), or None: every queue is defined."""
+    types = csd_tdqueue_types(corpus, case)
+    return None if types is None else sorted(types)
+
+
+def csd_tdqueue_types(corpus: Path, case: dict[str, Any]) -> dict[str, str] | None:
+    """#5079 (X57): each queue the CSD defines and its TYPE (INTRA, EXTRA, INDIRECT, REMOTE; "" when the definition
+    states none), or None: every queue is defined. A queue defined twice keeps its last TYPE."""
     if not case.get("csd"):
         return None
     text = (corpus / case["csd"]).read_text(encoding="latin-1")
-    return sorted(set(re.findall(r"DEFINE\s+TDQUEUE\(([A-Z0-9@#$]{1,4})\)", text)))
+    out: dict[str, str] = {}
+    for m in re.finditer(r"DEFINE\s+TDQUEUE\(([A-Z0-9@#$]{1,4})\)(.*?)(?=\bDEFINE\b|\Z)", text, re.S):
+        kind = re.search(r"\bTYPE\(\s*([A-Z]+)\s*\)", m.group(2))
+        out[m.group(1)] = kind.group(1) if kind else ""
+    return out
+
+
+_TD_ATTRS = ("RECOVSTATUS", "TYPEFILE", "OPENTIME", "INDIRECTNAME", "TRIGGERLEVEL", "TRANSID")
+
+
+def csd_tdqueue_attrs(corpus: Path, case: dict[str, Any]) -> dict[str, dict[str, str]]:
+    """#5168 (X61): the attributes of each DEFINE TDQUEUE beyond its TYPE that decide what a transient-data command does
+    (RECOVSTATUS, TYPEFILE, OPENTIME, INDIRECTNAME, TRIGGERLEVEL, TRANSID), only those the definition states; a queue defined
+    twice keeps its last. Empty when the case has no CSD."""
+    if not case.get("csd"):
+        return {}
+    text = (corpus / case["csd"]).read_text(encoding="latin-1")
+    out: dict[str, dict[str, str]] = {}
+    for m in re.finditer(r"DEFINE\s+TDQUEUE\(([A-Z0-9@#$]{1,4})\)(.*?)(?=\bDEFINE\b|\Z)", text, re.S):
+        found = {k: v.upper() for k in _TD_ATTRS if (a := re.search(rf"\b{k}\(\s*([A-Z0-9@#$]+)\s*\)", m.group(2)))
+                 for v in [a.group(1)]}  # fmt: skip
+        out[m.group(1)] = found
+    return {q: a for q, a in out.items() if a}
+
+
+def td_seed(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, list[str]]:
+    """#5168 (X61): the transient-data queues' records when the task starts ({"QUEUE": [record text, ...]}), the scenario's "td",
+    else the case's: an intrapartition queue's, or an open extrapartition input queue's data set. Text the data's encoding holds
+    whole (the stub gets its bytes in that encoding, CicsTask the text); a character the page lacks is refused."""
+    seed = sc.get("td", case.get("td")) or {}
+    enc = common.data_encoding(case)
+    for q, items in seed.items():
+        if not (0 < len(q) <= 4 and q.isascii() and isinstance(items, list) and all(isinstance(i, str) for i in items)):
+            raise Unsupported(
+                f'scenario {sc.get("name")}: "td" maps a queue name (1-4, ASCII) to a list of record texts'
+            )
+        for i in items:
+            try:
+                whole = i.encode(enc).decode(enc) == i
+            except UnicodeError:
+                whole = False
+            if not whole:
+                raise Unsupported(f'scenario {sc.get("name")}: "td" record {i!r} does not round-trip through {enc}')
+    return seed
 
 
 def commarea_fields(corpus: Path, case: dict[str, Any], occurrences: bool = False) -> list[dict[str, Any]]:
@@ -2103,20 +2853,38 @@ def commarea_length(sc: dict[str, Any], ca_fields: list[dict[str, Any]]) -> int 
     """#4270 (oracle_assumptions.md X23): a scenario's stated EIBCALEN, `"commarea_length": N` -- the caller passed
     the first N bytes of the COMMAREA record and no more (GenApp's `IF EIBCALEN < 91`, its '98' "COMMAREA too short"
     returns). Both sides give the program exactly N bytes: the stub's guard page (GGCAREA) and the det port's
-    DFHCOMMAREA (CicsTask.withExactCommarea) stop a reference past them, judged up to it. None when not stated."""
+    DFHCOMMAREA (CicsTask.withExactCommarea) stop a reference past them, judged up to it. None when not stated.
+    #4049: 0 is EIBCALEN 0 with the COMMAREA record present (a program that tests EIBCALEN first, COSGN00C, takes its
+    first-entry branch; one that touches DFHCOMMAREA is stopped at the reference, as for any shorter length)."""
     n = sc.get("commarea_length")
     if n is None:
         return None
     whole = max((f["offset"] + f["bytes"] for f in ca_fields), default=0)
     if sc.get("commarea") is None or not ca_fields:
         raise Unsupported(f"scenario {sc['name']}: a commarea_length with no COMMAREA", ["COMMAREA"])
-    if isinstance(n, bool) or not isinstance(n, int) or not 1 <= n <= whole:
+    if isinstance(n, bool) or not isinstance(n, int) or not 0 <= n <= whole:
         raise Unsupported(f"scenario {sc['name']}: commarea_length {n!r} is not a length of the {whole}-byte COMMAREA "
-                          "(1 to its length)", ["COMMAREA"])  # fmt: skip
+                          "(0 to its length)", ["COMMAREA"])  # fmt: skip
     return n
 
 
-_CICS_NAME = re.compile(r"[^ ]{1,16}")
+# #4950 (X18): the characters IBM's PUT CONTAINER page allows in a channel / container name ("A-Z a-z 0-9 $ @ # / % ?
+# ! : | " = , ; > . - and _"). RUN TRANSID's page also lists & < and the not sign, PUT CONTAINER's does not: the pages
+# disagree, so the harness refuses them, as both runtimes do (ggcics.c, the forge's NAME_CHARS)
+_CICS_NAME_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "abcdefghijklmnopqrstuvwxyz" + "0123456789" + '$@#/%?!:|"=,;>.-_'
+
+
+def _cics_name_problem(name: Any) -> str | None:
+    """Why `name` is not a channel / container name the harness hands both runtimes, or None when it is."""
+    if not isinstance(name, str) or not 1 <= len(name) <= 16:
+        return "a name of 1 to 16 characters"
+    for ch in name:
+        if ch in "&<\u00ac":
+            return (f"character {ch!r}: IBM's RUN TRANSID page allows it, its PUT CONTAINER page does not "
+                    "(the pages disagree, so it is refused)")  # fmt: skip
+        if ch not in _CICS_NAME_CHARS:
+            return f"character {ch!r}, outside IBM's set (A-Z a-z 0-9 $ @ # / % ? ! : | \" = , ; > . - _; no blank)"
+    return None
 
 
 def scenario_channel(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any] | None:
@@ -2129,13 +2897,18 @@ def scenario_channel(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any]
     if ch is None:
         return None
     where = f"scenario {sc['name']}: channel"
-    if not isinstance(ch, dict) or not _CICS_NAME.fullmatch(str(ch.get("name", ""))):
-        raise Unsupported(f"{where}: a name of 1 to 16 characters with no blank", ["CHANNEL"])
+    if not isinstance(ch, dict):
+        raise Unsupported(f"{where}: an object with a name", ["CHANNEL"])
+    problem = _cics_name_problem(ch.get("name", ""))
+    if problem:
+        raise Unsupported(f"{where} name {ch.get('name')!r}: {problem}", ["CHANNEL"])
     out = []
     for name, spec in (ch.get("containers") or {}).items():
-        if not _CICS_NAME.fullmatch(name) or not isinstance(spec, dict) or ("text" in spec) == ("hex" in spec):
-            raise Unsupported(f"{where} container {name!r}: a name of 1 to 16 characters and one of text / hex",
-                              ["CHANNEL"])  # fmt: skip
+        problem = _cics_name_problem(name)
+        if problem:
+            raise Unsupported(f"{where} container {name!r}: {problem}", ["CHANNEL"])
+        if not isinstance(spec, dict) or ("text" in spec) == ("hex" in spec):
+            raise Unsupported(f"{where} container {name!r}: one of text / hex", ["CHANNEL"])
         if spec.get("datatype", "BIT") not in ("BIT", "CHAR"):
             raise Unsupported(f"{where} container {name}: datatype BIT or CHAR", ["CHANNEL"])
         data = spec["text"].encode(common.data_encoding(case)) if "text" in spec else bytes.fromhex(spec["hex"])
@@ -2150,6 +2923,56 @@ def _channel_json(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any] | 
         return None
     return {"name": chan["name"], "containers": [{"name": k["name"], "hex": k["data"].hex().upper(), "bit": k["bit"]}
                                                  for k in chan["containers"]]}  # fmt: skip
+
+
+def case_child_programs(case: dict[str, Any]) -> dict[str, str]:
+    """#4950: the program each transaction a RUN TRANSID child may run runs (`"child_programs": {TRANSID: PROGRAM}`, a
+    deployment fact the case states, as the CSD's TRANSACTION definitions give it); each program one of the case's
+    "programs". Absent, none: a child the parent's wait would dispatch is refused (both runtimes)."""
+    kids = case.get("child_programs")
+    if kids is None:
+        return {}
+    programs = {x["program"].upper() for x in case.get("programs", [])}
+    if not isinstance(kids, dict) or not all(
+        isinstance(t, str) and re.fullmatch(r"[A-Z0-9@#$]{1,4}", t) and isinstance(p, str) and p.upper() in programs
+        for t, p in kids.items()
+    ):
+        raise Unsupported('"child_programs": {TRANSID: PROGRAM}, each program one of the case\'s "programs"',
+                          ["RUN TRANSID"])  # fmt: skip
+    return {t: p.upper() for t, p in kids.items()}
+
+
+# #4950 (X18, R1): what a RUN TRANSID child may not do -- a region resource the stub keeps no event of; the rest
+# (files, queues, START, a terminal) both runtimes refuse at the command
+_CHILD_STATIC = re.compile(
+    r"(?is)\bEXEC\s+(?:SQL\b|CICS\s+(?:ENQ|DEQ|(?:GET|UPDATE|DELETE|DEFINE|QUERY|REWIND)\s+D?COUNTER)\b)"
+)
+
+
+_CHILD_ENQ = re.compile(r"(?is)\bEXEC\s+CICS\s+(ENQ|DEQ)\b(.*?)\bEND-EXEC")
+
+
+def _task_private_enq(source: str, body: str) -> bool:
+    """#5089: an ENQ / DEQ that no other task can contend for -- RESOURCE names a data area (no LENGTH: IBM then serialises on
+    the area's ADDRESS, "it is the location (address) of the data area in storage that matters, not its contents") that the
+    program declares in its own WORKING-STORAGE, which every task has its own copy of. Such a resource is held by this task
+    alone whatever else runs, so the command is unobservable: no event, no order against a parent or a sibling."""
+    m = re.search(r"(?is)\bRESOURCE\s*\(\s*([A-Z0-9][A-Z0-9-]*)\s*\)", body)
+    if not m or re.search(r"(?i)\bLENGTH\s*\(", body):
+        return False
+    ws = re.split(r"(?im)^.{6} +LINKAGE\s+SECTION\.", source, maxsplit=1)[0]
+    ws = re.split(r"(?im)^.{6} +WORKING-STORAGE\s+SECTION\.", ws, maxsplit=1)
+    return len(ws) == 2 and bool(re.search(rf"(?im)^.{{6}} +\d{{1,2}}\s+{re.escape(m.group(1))}(?=[\s.])", ws[1]))
+
+
+def child_region_resource(source: str) -> str | None:
+    """#4950 (X18, R1) / #5089: the first statement of a RUN TRANSID child's program that holds a region resource with no
+    event of its own (SQL, a counter, an ENQ / DEQ another task could contend for), as its text; None when there is none."""
+    private = {m.start(): _task_private_enq(source, m.group(2)) for m in _CHILD_ENQ.finditer(source)}
+    for m in _CHILD_STATIC.finditer(source):
+        if not private.get(m.start()):
+            return m.group(0)
+    return None
 
 
 def case_transactions(case: dict[str, Any]) -> list[str]:
@@ -2180,22 +3003,39 @@ def screen_fields(corpus: Path, case: dict[str, Any], map_name: str, side: str) 
 
 
 def screen_layout(corpus: Path, copybook: str, record: str) -> list[dict[str, Any]]:
-    """A symbolic map's layout (one side's record), as a screen is compared: each field once. #4778: a map whose
-    fields repeat (BMS OCCURS=, an OCCURS in its symbolic map) is refused by name -- a screen's fields are compared
-    by their single-occurrence layout, which would read only the first of them -- until the screen compare names
-    every occurrence, as a COMMAREA's (#4765) does. No case's map has one yet; test_call_compare_4778 keeps it so."""
-    fields = common.layout_fields(corpus, copybook, record)
-    if any(f.get("subscripts") for f in common.layout_fields(corpus, copybook, record, occurrences=True)):
-        raise Unsupported(f"{record} ({copybook}): a symbolic map with OCCURS -- its repeated fields would be compared "
-                          "at their first occurrence only", ["BMS OCCURS"])  # fmt: skip
+    """A symbolic map's layout (one side's record), as a screen is compared: every occurrence of a repeated field
+    (BMS OCCURS=, an OCCURS in its symbolic map) is a field of its own, named by its subscript (ACCOUNTO(3)), as a
+    COMMAREA's (#4765) is -- a compare that read only the first would call a differing second occurrence equal
+    (#4778, #5076). `screen_key` gives each its screen name. An OCCURS DEPENDING ON in a map is refused by name: a
+    generated symbolic map has none, and which occurrences a screen holds would be a guess."""
+    fields = common.layout_fields(corpus, copybook, record, occurrences=True)
+    if any(f.get("odo") for f in fields):
+        raise Unsupported(f"{record} ({copybook}): a symbolic map with OCCURS DEPENDING ON -- which occurrences the "
+                          "screen holds is not stated", ["BMS OCCURS DEPENDING ON"])  # fmt: skip
     return fields
 
 
+def screen_key(f: dict[str, Any]) -> tuple[str, str]:
+    """(screen name, kind letter) of a symbolic-map field: ACCOUNTO(3) -> ("ACCOUNT.3", "O"), COMPANYO -> ("COMPANY",
+    "O"). The name is the BMS field's, the occurrence after a dot, as the generated screen's screenValues() keys it."""
+    base = f.get("base") or f["name"]
+    return base[:-1] + "".join(f".{k}" for k in f.get("subscripts") or []), base[-1:]
+
+
 # #4023 follow-up: the conditions a scenario may inject, by name -> their DFHRESP numbers (the spec's, #4270 spec PR 3)
-CICS_RESP = {c: DFHRESP[c] for c in ("NORMAL", "FILENOTFOUND", "NOTFND", "DUPREC", "INVREQ", "IOERR", "NOSPACE",
+CICS_RESP = {c: DFHRESP[c] for c in ("NORMAL", "FILENOTFOUND", "NOTFND", "DUPREC", "DUPKEY", "INVREQ", "IOERR", "NOSPACE",
                                      "NOTOPEN", "ILLOGIC", "LENGERR", "PGMIDERR", "NOTAUTH", "DISABLED", "LOADING",
                                      "ENDFILE", "TERMIDERR", "ITEMERR", "TRANSIDERR", "QIDERR", "SYSIDERR",
-                                     "ISCINVREQ", "LOCKED")}  # fmt: skip
+                                     "ISCINVREQ", "LOCKED", "ENQBUSY")}  # fmt: skip
+
+
+def enq_fault_key(resource: str | None) -> str:
+    """#5089: the name an ENQ fault gives its resource -- the RESOURCE operand as written (upper case, no blanks), which
+    both translators read from the same source text. At most 16 characters: the stub's fault counters key on that."""
+    key = re.sub(r"\s+", "", (resource or "").upper())
+    if not key or len(key) > 16 or "'" in key:
+        raise Unsupported(f"ENQ RESOURCE({resource}): a data-name of 1 to 16 characters is the name a fault gives it")
+    return key
 
 
 FAULT_COMMANDS = (
@@ -2222,9 +3062,71 @@ FAULT_COMMANDS = (
     "START",
     "RETRIEVE",
     "CANCEL",
+    "ENQ",  # #5089: its `resource` (the RESOURCE operand as written); ENQBUSY only, see ENQ_FAULTS
 )  # a file command (FILE), an INQUIRE PROGRAM (the program's name in `file`)
 
-_FAULT_NAME = ("file", "program", "queue", "transid", "reqid")  # #4049: the resource a fault names, by key
+# #4986 (register X43): IBM's LINK conditions the region does not raise and that have no sourced abend code
+LINK_REFUSED_CONDITIONS = ("ROLLEDBACK", "SYSIDERR", "TERMERR")
+
+_FAULT_NAME = ("file", "program", "queue", "transid", "reqid", "resource")  # #4049: the resource a fault names, by key
+
+# #5044 (register X49, extends #4623's X48): the conditions a file command may be planned with, per command, and the RESP2
+# IBM gives each (CICS TS 6.x, each command's "Conditions"; the syntax line's list and the RESP2 values checked against
+# the raw pages of READ, READNEXT, READPREV, WRITE, REWRITE, DELETE, STARTBR, ENDBR). A condition is planned only on a
+# command IBM lists it for, with a RESP2 IBM gives it there and a local VSAM file can reach (the RLS, BDAM, data-table and
+# coupling-facility values are refused). One value: the default; several (INVREQ, LENGERR): the scenario names one.
+_BROWSE = ("READNEXT", "READPREV")
+_FILE_CMDS = ("READ", "READNEXT", "READPREV", "STARTBR", "ENDBR", "WRITE", "REWRITE", "DELETE")
+_READS = ("READ", *_BROWSE)
+FILE_FAULT_CONDITIONS: dict[str, dict[str, tuple[int, ...]]] = {
+    "FILENOTFOUND": dict.fromkeys(_FILE_CMDS, (1,)),
+    "NOTAUTH": dict.fromkeys(_FILE_CMDS, (101,)),
+    # READNEXT / READPREV / REWRITE: IBM adds "the browse in progress is terminated", which neither runtime models (below)
+    "ILLOGIC": dict.fromkeys(("READ", "STARTBR", "ENDBR", "WRITE", "DELETE"), (110,)),
+    "IOERR": dict.fromkeys(_FILE_CMDS, (120,)),
+    # remote files: planned like IOERR, an injection (the case states what the program sees, the region needs no remote
+    # system). SYSIDERR 130 "SYSID is neither the local system nor a known remote system, or the link is closed" (131 / 132
+    # are coupling-facility data tables); ISCINVREQ 70 "the remote system reported a failure that is no known condition"
+    "SYSIDERR": dict.fromkeys(_FILE_CMDS, (130,)),
+    "ISCINVREQ": dict.fromkeys(_FILE_CMDS, (70,)),
+    # NOTFND 80 (READ/READNEXT/READPREV/STARTBR: no record matches the search argument); REWRITE's 80 is the data-table
+    # case only, WRITE / ENDBR do not list it
+    "NOTFND": dict.fromkeys((*_READS, "STARTBR", "DELETE"), (80,)),
+    "ENDFILE": dict.fromkeys(_BROWSE, (90,)),
+    "DISABLED": dict.fromkeys(("READ", "WRITE", "DELETE", "STARTBR"), (50,)),
+    "NOTOPEN": dict.fromkeys(
+        ("READ", "WRITE", "DELETE", "STARTBR"), (60,)
+    ),  # not REWRITE / READNEXT / READPREV / ENDBR
+    "NOSPACE": dict.fromkeys(("WRITE", "REWRITE"), (100,)),  # READ's 100 is an RLS-only case
+    "LOCKED": dict.fromkeys((*_READS, "WRITE", "REWRITE", "DELETE"), (106,)),
+    "DUPKEY": dict.fromkeys(_READS, (140,)),  # #4623
+    "DUPREC": dict.fromkeys(("WRITE", "REWRITE"), (150,)),  # #4623
+    "LENGERR": {
+        **dict.fromkeys(_READS, (10, 11, 13)),
+        **dict.fromkeys(("WRITE", "REWRITE"), (10, 12, 14)),
+    },
+    "INVREQ": {
+        "READ": (20, 25, 26, 28, 42),
+        "READNEXT": (20, 25, 26, 34, 37, 42),
+        "READPREV": (20, 24, 26, 37, 41),
+        "STARTBR": (20, 25, 26, 33, 42),
+        "ENDBR": (35,),
+        "WRITE": (20, 23, 26),
+        "REWRITE": (30, 47),
+        "DELETE": (20, 21, 22, 25, 26, 31, 42, 47),
+    },
+}
+# IBM lists these for file commands but they belong to data tables (LOADING, CHANGED, SUPPRESSED) and RLS (RECORDBUSY,
+# NOSUSPEND), which no case defines: refused by name (X49)
+FILE_FAULT_REFUSED = ("LOADING", "RECORDBUSY", "CHANGED", "SUPPRESSED")
+# IBM lists DUPKEY (RESP2 140) for DELETE too but does not say whether the record is deleted: refused by name (X48).
+DUP_KEY_REFUSED = {("DELETE", "DUPKEY"): "register X48"}
+FILE_FAULT_UNMODELLED = {
+    ("READNEXT", "ILLOGIC"),
+    ("READPREV", "ILLOGIC"),
+    ("REWRITE", "ILLOGIC"),
+}  # X49: ends the browse
+FILE_FAULT_COMMANDS = _FILE_CMDS
 
 
 def case_file_records(case: dict[str, Any], corpus: Path, spec: dict[str, Any], reclen: int, enc: str) -> bytes:
@@ -2236,21 +3138,103 @@ def case_file_records(case: dict[str, Any], corpus: Path, spec: dict[str, Any], 
     return data
 
 
+def scenario_datasets(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    """#4622: the datasets this scenario's task starts with that differ from the case's -- the scenario's "datasets",
+    {DD: {"input": path, "append": path}} (a path as in the case's own dataset, `@case/...` included), each DD's spec
+    the case's with those keys replaced. A file the corpus has one card per account of cannot show a page that ends
+    on the file's last record; the scenario then states a file that does. Unstated, {} (the case's files)."""
+    out: dict[str, dict[str, Any]] = {}
+    for dd, over in (sc.get("datasets") or {}).items():
+        base = (case.get("datasets") or {}).get(dd)
+        if base is None or not isinstance(over, dict) or not set(over) <= {"input", "append"}:
+            raise Unsupported(f'scenario {sc.get("name")}: "datasets" overrides a dataset of the case ({dd!r}) with '
+                              '{"input": path, "append": path}')  # fmt: skip
+        if base.get("input") == "@generate":
+            raise Unsupported(
+                f"scenario {sc.get('name')}: {dd} is generated (`@generate`), so no scenario file replaces it"
+            )
+        out[dd] = {**{k: v for k, v in base.items() if k != "append"}, **over}
+    return out
+
+
+def _file_fault_resp2(sc: dict[str, Any], f: dict[str, Any], cmd: str, resp2: int) -> int:
+    """#4623 / #5044: a file command's planned condition against IBM's list for the command; the RESP2 it carries."""
+    resp = f["resp"]
+    where = f"scenario {sc.get('name')}: fault {f}"
+    if (cmd, resp) in DUP_KEY_REFUSED:
+        raise Unsupported(
+            f"{where}: IBM lists {resp} for {cmd} but not whether the record is deleted ({DUP_KEY_REFUSED[(cmd, resp)]}, refused)"
+        )
+    if resp in FILE_FAULT_REFUSED:
+        raise Unsupported(
+            f"{where}: {resp} is IBM-documented for {cmd} but it is a data-table or RLS condition and no case defines either "
+            "(register X49, refused)"
+        )
+    if (cmd, resp) in FILE_FAULT_UNMODELLED:
+        raise Unsupported(
+            f"{where}: IBM's {resp} on {cmd} also terminates the browse in progress, which the runtimes do not model "
+            "(register X49, refused)"
+        )
+    cmds = FILE_FAULT_CONDITIONS.get(resp, {})
+    if cmd not in cmds:
+        listed = "/".join(cmds)
+        raise Unsupported(
+            f"{where}: IBM documents {resp} for {listed}, not {cmd}"
+            if listed
+            else f"{where}: {resp} is not a condition IBM lists for {cmd} (register X49, refused)"
+        )
+    ibm = cmds[cmd]
+    if resp2 == 0:  # not given
+        if len(ibm) > 1:
+            raise Unsupported(f"{where}: IBM gives {resp} on {cmd} RESP2 {'/'.join(map(str, ibm))}: name one")
+        return ibm[0]
+    if resp2 not in ibm:
+        raise Unsupported(f"{where}: IBM's {resp} on {cmd} has RESP2 {'/'.join(map(str, ibm))}, not {resp2}")
+    return resp2
+
+
 def fault_lines(sc: dict[str, Any]) -> list[str]:
     """A scenario's `faults` as both sides read them: `CMD NAME NTH RESP RESP2` (faults.cfg, CicsTask.withFaults) --
     NAME the file a READ names, or the program an INQUIRE PROGRAM names."""
     out = []
     for f in sc.get("faults") or []:
         cmd = f.get("cmd", "READ")
-        if cmd not in FAULT_COMMANDS or f.get("resp") not in CICS_RESP:
+        if cmd == "LINK" and f.get("resp") in LINK_REFUSED_CONDITIONS:  # #4986 (register X43)
+            raise Unsupported(
+                f"scenario {sc['name']}: fault {f}: LINK {f['resp']} is IBM-documented but the region never raises it "
+                "and no abend code is sourced for it (register X43, refused)"
+            )
+        refused_file = (
+            cmd in FILE_FAULT_COMMANDS and f.get("resp") in FILE_FAULT_REFUSED
+        )  # named in X49, not just unknown
+        if cmd not in FAULT_COMMANDS or (f.get("resp") not in CICS_RESP and not refused_file):
             raise Unsupported(
                 f"scenario {sc['name']}: fault {f} ({'/'.join(FAULT_COMMANDS)} with a CICS_RESP condition)"
             )
+        resp2 = int(f.get("resp2", 0))
+        if cmd in FILE_FAULT_COMMANDS:
+            resp2 = _file_fault_resp2(sc, f, cmd, resp2)
+        elif f["resp"] in ("DUPKEY", "DUPREC"):  # #4623: the duplicate-key pair is a file condition only
+            listed = "/".join(FILE_FAULT_CONDITIONS[f["resp"]])
+            raise Unsupported(f"scenario {sc['name']}: fault {f}: IBM documents {f['resp']} for {listed}, not {cmd}")
+        if (cmd == "ENQ") != (
+            f["resp"] == "ENQBUSY"
+        ):  # #5089 (register X60): IBM lists ENQBUSY for ENQ only, and ENQ's others
+            raise Unsupported(  # (INVREQ, LENGERR) the program's own operands raise, not a plan
+                f"scenario {sc['name']}: fault {f}: ENQ is planned with ENQBUSY only (IBM lists no other condition a region "
+                "raises for it), and ENQBUSY is no other command's (register X60, refused)"
+            )
+        if cmd == "ENQ":
+            if resp2:
+                raise Unsupported(
+                    f"scenario {sc['name']}: fault {f}: IBM states no RESP2 for ENQBUSY (register X60): name none"
+                )
+            f = {**f, "resource": enq_fault_key(f.get("resource"))}
         nth = "*" if f.get("nth", 1) == "*" else int(f.get("nth", 1))
         name = "-" if cmd == "RETRIEVE" else next((f[k] for k in _FAULT_NAME if f.get(k)), None)
         if not name:
             raise Unsupported(f"scenario {sc['name']}: fault {f} names no {'/'.join(_FAULT_NAME)}")
-        out.append(f"{cmd} {name} {nth} {CICS_RESP[f['resp']]} {int(f.get('resp2', 0))}")
+        out.append(f"{cmd} {name} {nth} {CICS_RESP[f['resp']]} {resp2}")
     return out
 
 
@@ -2265,7 +3249,8 @@ def sql_first_id(table: str) -> int:
 RECOVER: dict[str, Any] = {}  # #4173: a COBOL work area -> its coverage recomputed for the tasks judged
 
 
-def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[dict[str, Any]]) -> dict[str, Any]:
+def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[dict[str, Any]],
+                   keep: frozenset[str] = frozenset()) -> dict[str, Any]:  # fmt: skip
     """Translate, compile and run each scenario; {scenario: its outputs} (see `outputs`)."""
     work.mkdir(parents=True, exist_ok=True)
     src = work / "src"
@@ -2273,6 +3258,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     common.stage_copybooks(case, corpus, src)
     for p in STUB.iterdir():
         shutil.copy(p, src / p.name)
+    if not (src / "CEEIGZCT.cpy").exists():  # #4950: the det translator's LE stand-in, where the estate has none (L4)
+        shutil.copy(DET_COPY / "CEEIGZCT.cpy", src / "CEEIGZCT.cpy")
     shutil.copy(common.CASES / "faults" / "ggdisplay.c", src / "ggdisplay.c")  # #4635: DISPLAY as IBM writes it
     # #3828: the program's CBL / PROCESS cards and the case's `compiler_options` become cobc flags
     common.require_ascii_runtime(case)  # #3815: an EBCDIC data page cannot run under GnuCOBOL
@@ -2290,7 +3277,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             )
         except equivalence_sql.Unsupported as e:
             raise Unsupported(f"EXEC SQL: {e}", ["EXEC SQL"]) from e
-        equivalence_db2.create(case, corpus)
+        if not keep:  # #5882: a second pass keeps the first's tables (each task resets them first, identities too):
+            equivalence_db2.create(case, corpus)  # what its tasks find is what they found after the first pass's
         (work / "stmts.txt").write_text(table, encoding="latin-1")
         (work / "reset.sql").write_text(equivalence_db2.reset_script(case, corpus), encoding="latin-1")
         shutil.copy(equivalence_db2.STUB, src / "ggsql.c")
@@ -2298,7 +3286,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         for t in db2.get("compare", []):
             names = equivalence_db2.columns(t)
             dumps.append((t, equivalence_db2.dump_query(t, names), names))
-    text, has_commarea = translate(source)
+    text, has_commarea = translate(source, [src])
     (src / "PROGRAM.cbl").write_text(text, encoding=staged)
     (src / "EQCICSDR.cbl").write_text(cics_driver(case["program"], has_commarea), encoding="ascii")
     (work / "files.cfg").write_text("".join(
@@ -2319,14 +3307,36 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     # The COBOL programs the program CALLs (COTRN02C -> CSUTLDTC), as they are, and the LE service models
     # (tests/equivalence/le: CEEDAYS) they may call in turn.
     subs = []
+    linked_programs_cov: list[dict[str, Any]] = []  # #5084: each program the task CALLs / LINKs, for its coverage
     for rel in case.get("subprograms", []):
         sub_text, _ = common.read_program(case, corpus / rel)
         name = Path(rel).stem.upper()
         (src / f"SUB{name}.cbl").write_text(common.compile_options(case, sub_text)[0], encoding=staged)
         subs.append(f"src/SUB{name}.cbl")
-    for model in sorted(LE_MODELS.glob("*.c")) if subs else []:
+        linked_programs_cov.append({"name": name, "source": corpus / rel, "original": sub_text,
+                                    "compiled": common.compile_options(case, sub_text)[0],
+                                    "compiled_name": f"SUB{name}.cbl"})  # fmt: skip
+    # (#4950: or the program itself CALLs one -- CBSA CRECUST's CEEDAYS / CEELOCT; #5076: or a program it LINKs in the
+    # task does, BNK1CCS -> CRECUST)
+    le_call = re.compile(r"(?i)\bCALL\s+['\"]CEE|\bCOPY\s+CSDB2RPY\b|\bDSNTIAC\b")  # #5858: DSNTIAC's model too
+    calls_le = le_call.search(source) or any(
+        le_call.search(common.read_program(case, corpus / extra["program_source"])[0])
+        for extra in case.get("programs", [])
+    )
+    for model in sorted(LE_MODELS.glob("*.c")) if subs or calls_le else []:
         shutil.copy(model, src / model.name)
         subs.append(f"src/{model.name}")
+    if DLI_CALL.search(source):  # #5278 (register I5): the DL/I model, its databases stated in the case's "ims"
+        if not case.get("ims"):
+            raise Unsupported('EXEC DLI in a case with no "ims" section', ["EXEC DLI"])
+        shutil.copy(equivalence_ims.STUB, src / "ggdli.c")
+        subs.append("src/ggdli.c")
+    if equivalence_mq.MQ_CALL.search(source):  # #4892 (register W): the MQ model, and the stand-ins the estate lacks
+        shutil.copy(equivalence_mq.MODEL, src / equivalence_mq.MODEL.name)
+        subs.append(f"src/{equivalence_mq.MODEL.name}")
+        for name in equivalence_mq.STAND_INS:
+            if not (src / f"{name}.cpy").exists():
+                shutil.copy(DET_COPY / f"{name}.cpy", src / f"{name}.cpy")
     # the programs the task may LINK to (a case's "programs": GenApp's LGUPDB01 -> LGUPVS01, LGSTSQ), translated as
     # the program is; a LINK to any other is refused after the run (NOPROGRAM, below)
     linked: dict[str, bool] = {}
@@ -2352,11 +3362,19 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             if ours & theirs:
                 raise Unsupported(f"{extra['program']}: cursor {sorted(ours & theirs)[0]} declared by two programs")
             stmts_file.write_text(have + x_table, encoding="latin-1")
-        x_translated, x_ca = translate(x_source)
+        if extra["program"].upper() in case_child_programs(case).values() and child_region_resource(x_source):
+            what = " ".join(child_region_resource(x_source).split()[1:]).upper()
+            raise Unsupported(f"{extra['program']}: a RUN TRANSID child's {what} (a region resource): its order "
+                              "against its parent's and its siblings' commands is not modelled", ["RUN TRANSID"])  # fmt: skip
+        x_translated, x_ca = translate(x_source, [src])
         name = extra["program"].upper()
         (src / f"{name}.cbl").write_text(x_translated, encoding=staged)
         subs.append(f"src/{name}.cbl")
         linked[name] = x_ca
+        linked_programs_cov.append({"name": name, "source": corpus / extra["program_source"], "original": x_text,
+                                    "compiled": x_translated, "compiled_name": f"{name}.cbl"})  # fmt: skip
+    if case_child_programs(case):  # #4950: a RUN TRANSID child runs its program through the dispatcher
+        (src / "EQCICSDR.cbl").write_text(cics_driver(case["program"], has_commarea, True), encoding="ascii")
     if "CALL 'GGCRUN'" in text or linked:  # a LINK: the level's dispatcher, running the case's other programs
         (src / "GGCRUN.cbl").write_text(task_dispatcher(linked), encoding="ascii")
         subs.append("src/GGCRUN.cbl")
@@ -2375,9 +3393,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     ]  # #4635 (as batch, #4056)
     if db2:
         script.append(f"gcc -O2 -o ggsqlrun src/ggsqlrun.c {equivalence_db2.COBOL_LINK}")
-    date, _, time = case["clock"].partition(" ")
     programs = csd_programs(corpus, case)
-    tdqueues = csd_tdqueues(corpus, case)
+    tdqueues = csd_tdqueue_types(corpus, case)
     if "'APPLID' TO GG-NAME2" in text or "'SYSID' TO GG-NAME2" in text:
         if not (case.get("region") or {}).get("applid") or not case["region"].get("sysid"):
             raise Unsupported('ASSIGN APPLID / SYSID: the case states no region ("region": {"applid", "sysid"})')
@@ -2386,12 +3403,28 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         if sc.get("sql_faults") and not db2:
             raise Unsupported(f'scenario {sc["name"]}: SQL faults in a case with no "db2" section')
         sc["sql_plan"] = sql_fault_plan(case, sc, sql_table) if sc.get("sql_faults") else []
-    shutil.rmtree(work / "scenarios", ignore_errors=True)  # a second pass (#4173) starts afresh: the logs append
+    # #5882: `keep` names the tasks a first pass (#4173) already ran in this `work`: their directories (outputs, traces,
+    # logs) are kept and they are not run again -- each task runs alone (its own files, the tables reset first, its own
+    # clock and task number), so a second run of it is the first one again. Only the new tasks (the derived SQL-fault
+    # ones) are staged and run; the binary is compiled and the tables created as before. Every other directory starts
+    # afresh (the logs append).
+    if keep:
+        for d in (work / "scenarios").glob("*"):
+            if d.name not in keep:
+                shutil.rmtree(d, ignore_errors=True)
+    else:
+        shutil.rmtree(work / "scenarios", ignore_errors=True)
     for sc in case["scenarios"]:
+        if sc["name"] in keep:
+            continue
         d = work / "scenarios" / sc["name"]
         (d / "out").mkdir(parents=True, exist_ok=True)
         # each task its own copy of the files: what it writes is its own, and is compared (file updates)
         shutil.copytree(work / "files", d / "files", dirs_exist_ok=True)
+        for f in files:  # #4622: a file this scenario states its own records for
+            over = scenario_datasets(case, sc).get(f["base"])
+            if over is not None:
+                (d / "files" / f["base"]).write_bytes(case_file_records(case, corpus, over, f["reclen"], enc))
         (d / "files.cfg").write_text("".join(
             f"{f['file']} /work/scenarios/{sc['name']}/files/{f['base']} {f['reclen']} {f['key_offset']} "
             f"{f['key_length']}{_cfg_flags(case, f)}\n" for f in files
@@ -2413,6 +3446,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                 for k in chan["containers"]), encoding="ascii")  # fmt: skip
         if case.get("transactions") is not None:  # #4270: the CSD's transactions (RUN TRANSID / START's TRANSIDERR)
             (d / "transactions.cfg").write_text("".join(f"{t}\n" for t in case_transactions(case)), encoding="ascii")
+        if case_child_programs(case):  # #4950: the program a RUN TRANSID child runs
+            (d / "childprogs.cfg").write_text("".join(f"{t} {p}\n" for t, p in case_child_programs(case).items()),
+                                              encoding="ascii")  # fmt: skip
         if urimaps(case, sc) is not None:  # #4270 zECS (X32): INQUIRE URIMAP's installed definitions
             (d / "urimaps.cfg").write_text("".join(f"{n} {tr or '-'} {pa}\n" for n, tr, pa in urimaps(case, sc)),
                                            encoding="ascii")  # fmt: skip
@@ -2420,9 +3456,17 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             (d / "http.cfg").write_text(http_peers_cfg(http_peers(case, sc), enc), encoding="ascii")
         if http_request(case, sc) is not None:  # #4767 zECS (X37): the request the task serves
             (d / "webreq.cfg").write_text(http_request_cfg(http_request(case, sc), enc), encoding="ascii")
+        if tcpip(case, sc) is not None:  # #4972 (X38): the connection the task was started on
+            (d / "tcpip.cfg").write_text(tcpip_cfg(tcpip(case, sc), enc), encoding="ascii")
         if doctemplates(case, sc) is not None:  # #4769 zECS (X33): DOCUMENT CREATE TEMPLATE's installed definitions
             (d / "doctemplates.cfg").write_text("".join(f"{n} {t.encode(enc).hex().upper() or '-'}\n"
                                                         for n, t in doctemplates(case, sc).items()), encoding="ascii")  # fmt: skip
+        for i, data in enumerate(equivalence_mq.start_data(case, sc, enc), 1):  # #4892: the data it was started with
+            (d / f"retrieve_{i:03d}.bin").write_bytes(data)
+        if DLI_CALL.search(source):  # #5278: the databases (the stub's $GGCICS_DIR)
+            dli_stage(case, corpus, d)
+        if equivalence_mq.state(case, sc) is not None:  # #4892 (W): the queue manager its MQI calls reach
+            (d / "mq.cfg").write_text(equivalence_mq.cfg(equivalence_mq.state(case, sc), enc), encoding="ascii")
         if task_facts(case, sc)[1] is not None:  # #4270: what the operator typed (an unformatted RECEIVE)
             (d / "terminal.in").write_bytes(task_facts(case, sc)[1].encode(enc))
         for q, items in ts_seed(case, sc).items():  # #4270: the TS queues the task starts with
@@ -2431,11 +3475,24 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             for i, item in enumerate(items, 1):
                 (qdir / f"{i:06d}.bin").write_bytes(item.encode(enc))
         for m, typed in (sc.get("receive") or {}).items():
-            (d / f"receive_{m}.bin").write_bytes(map_input(screen_fields(corpus, case, m, "input"), typed, enc))
+            (d / f"receive_{m}.bin").write_bytes(
+                map_input(screen_fields(corpus, case, m, "input"), typed, enc, bms_justify(corpus, m))
+            )
         if programs is not None:  # the CSD's programs; absent, every program is defined
             (d / "programs.cfg").write_text("".join(f"{p}\n" for p in programs), encoding="ascii")
         if tdqueues is not None:  # the CSD's transient-data queues; absent, every queue is defined
-            (d / "tdqueues.cfg").write_text("".join(f"{q}\n" for q in tdqueues), encoding="ascii")
+            # (#5079, X57: `NAME TYPE`; the stub reads INTRA, EXTRA, and any other TYPE as a queue it does not model)
+            tdattrs = csd_tdqueue_attrs(
+                corpus, case
+            )  # #5168 (X61): and its other attributes, KEY=VALUE words after the TYPE
+            (d / "tdqueues.cfg").write_text(
+                "".join(f"{q} {tdqueues[q] or '-'}" + "".join(f" {k}={v}" for k, v in tdattrs.get(q, {}).items()) + "\n"
+                        for q in sorted(tdqueues)), encoding="ascii")  # fmt: skip
+        for q, recs in td_seed(case, sc).items():  # #5168 (X61): the TD queues the task starts with
+            qdir = d / "ts" / ("td-" + q.encode("ascii").hex().upper())
+            qdir.mkdir(parents=True, exist_ok=True)
+            for i, rec in enumerate(recs, 1):
+                (qdir / f"{i:06d}.bin").write_bytes(rec.encode(enc))
         if _counters(
             case, sc
         ):  # named counters the region has (POOL/NAME: value); absent ones are INVREQ RESP2 201 (X30)
@@ -2448,6 +3505,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             (d / "faults.cfg").write_text("".join(x + "\n" for x in fault_lines(sc)), encoding="ascii")
         if sc.get("sql_plan"):  # #4173: the SQL stub's planned faults (resolved by sql_fault_plan)
             (d / "sqlfaults.cfg").write_text("".join(x + "\n" for x in sc["sql_plan"]), encoding="ascii")
+        date, _, time = scenario_clock(case, sc).partition(" ")  # #4622: the scenario's clock, else the case's
         y, mo, dd = date.split("/")
         eib_date = f"{int(y) - 1900:03d}{_day_of_year(int(y), int(mo), int(dd)):03d}"[-7:].rjust(7, "0")
         eib_time = "0" + time.replace(":", "")[:6]
@@ -2471,12 +3529,16 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                       + (f"GGCICS_STARTCODE={task_facts(case, sc)[0]} " if task_facts(case, sc)[0] else "")
                       + (f"GGCICS_FACILITY={term['termid']} " if term["termid"] else "")
                       + (f"GGCICS_UCTRANST={term['uctranst']} " if term["uctranst"] else "")
+                      + (f"GGCICS_USERID={term['userid']} " if term.get("userid") else "")  # #5126
+                      + (f"GGCICS_SCREEN='{term['screen'][0]} {term['screen'][1]}' " if term.get("screen") else "")
                       + (f"GGCICS_ORIGIN={','.join(term['origin'][k] for k in ORIGIN_KEYS)} " if term["origin"] else "")
                       + (f"GGCICS_URIMAPS={rel}/urimaps.cfg " if urimaps(case, sc) is not None else "")
+                      + (f"GGCICS_MAPSETS='{mapsets_env(case)}' " if case.get("maps") else "")
                       + (f"GGCICS_DOCTEMPLATES={rel}/doctemplates.cfg " if doctemplates(case, sc) is not None else "")
                       + (f"GGCICS_HTTP={rel}/http.cfg " if http_peers(case, sc) is not None else "")
                       + (f"GGCICS_WEBREQ={rel}/webreq.cfg " if http_request(case, sc) is not None else "")
-                      + f"{sqlenv}COB_CURRENT_DATE='{case['clock']}' GGCICS_NOW={clock_iso(case)} ./task > {rel}/stdout.txt 2>&1; "
+                      + (f"GGCICS_TCPIP={rel}/tcpip.cfg " if tcpip(case, sc) is not None else "")
+                      + f"{sqlenv}COB_CURRENT_DATE='{scenario_clock(case, sc)}' GGCICS_NOW={clock_iso(case, sc)} ./task > {rel}/stdout.txt 2>&1; "
                       f"echo $? > {rel}/rc; set -e")  # fmt: skip
         if db2:  # what the task left in each compared table
             script.append(f"mkdir -p {rel}/db2")
@@ -2487,6 +3549,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             if db2 else common.run_cobol_step(work))  # fmt: skip
     if proc.returncode != 0:
         raise RuntimeError(f"COBOL side failed:\n{proc.stdout}\n{proc.stderr}")
+    overruns: list[str] = []  # #4449 (X8)
     refused: dict[str, str] = {}  # #4173: a derived SQL-fault task that reaches what is not modelled: that task only
     for sc in case["scenarios"]:  # a LINK reached: the program it names is not run here (no port of it)
         log = work / "scenarios" / sc["name"] / "out" / "events.txt"
@@ -2501,6 +3564,15 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         # scenario reaches behaviour the oracle cannot judge -- refused by name, never reported as a difference
         rc = work / "scenarios" / sc["name"] / "rc"
         said = work / "scenarios" / sc["name"] / "stdout.txt"
+        if said.is_file() and (overrun := common.bound_violation(said.read_bytes())):  # #4449 (X8)
+            why = f"drives an item past its bounds ({overrun}); register X8"
+            if sc.get("derived") or sc["name"] in case.get("bounds_refused", {}):
+                # a case names each scenario it knowingly leaves unjudged here, with the reason (X8): refused by
+                # name, reported as refused, never proven
+                refused[sc["name"]] = why
+                continue
+            overruns.append(f"scenario {sc['name']}: {why}")
+            continue
         if rc.is_file() and rc.read_text().strip() == "98" and said.is_file():
             x6 = judged_refusal(said.read_text(encoding="latin-1"))
             if x6:  # owner decision on #4607 (X6): judged up to the refused WRITEQ, derived or not -- what ran before
@@ -2512,14 +3584,18 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                 continue
             if why:
                 raise Unsupported(f"scenario {sc['name']}: {why.strip()}", ["MODEL"])
+    if overruns:  # every one at once, so a case is fixed in one pass
+        raise Unsupported("; ".join(overruns) + '; if the program does it on purpose, name each scenario in the '
+                          'case\'s "bounds_refused" with the reason', ["BOUNDS"])  # fmt: skip
     (work / "refused.json").write_text(json.dumps(refused, indent=1) + "\n", encoding="utf-8")
     kept = [sc for sc in case["scenarios"] if sc["name"] not in refused]
 
     # #4023: how much of the program the scenarios execute, together (work/coverage.json)
     def coverage(names: list[str]) -> None:  # (again after the Java side, without tasks it could not judge: #4173)
-        cov.write_run_coverage(work / "coverage.json", source=corpus / case["program_source"], original=program,
-                               compiled=text, traces=[work / "scenarios" / n / cov.TRACE_NAME for n in names],
-                               compiled_name="PROGRAM.cbl", copybooks=corpus, encoding=staged)  # fmt: skip
+        cov.write_run_coverage(work / "coverage.json", extras=linked_programs_cov, source=corpus / case["program_source"],
+                               original=program, compiled=text, copybooks=corpus, encoding=staged,
+                               traces=[work / "scenarios" / n / cov.TRACE_NAME for n in names],
+                               compiled_name="PROGRAM.cbl")  # fmt: skip
 
     coverage([sc["name"] for sc in kept])
     RECOVER[str(work)] = coverage
@@ -2547,9 +3623,11 @@ def sql_statements(table: str) -> list[dict[str, Any]]:
 
 
 def sql_fault_plan(case: dict[str, Any], sc: dict[str, Any], table: str) -> list[str]:
-    """A scenario's `sql_faults` as both sides read them: `PROGRAM LINE NTH SQLCODE SQLSTATE` (ggsql.c's
-    $GGSQL_FAULTS, DetSql.withFaults). A fault names its statement by `line` (and `program`, the case's own by
-    default), or by `table` and `verb` (every statement of that kind on that table)."""
+    """A scenario's `sql_faults` as both sides read them: `PROGRAM LINE NTH SQLCODE SQLSTATE [TOKEN [SQLERRD3]]`
+    (ggsql.c's $GGSQL_FAULTS, DetSql.withFaults). A fault names its statement by `line` (and `program`, the case's own by
+    default), or by `table` and `verb` (every statement of that kind on that table). A fault may declare `sqlerrmc`
+    (one token, no blanks, up to 70 characters) and `sqlerrd3` (#5561): what the SQLCA carries for a program that
+    reads them (BANKDATA's `SQLERRMC(1:SQLERRML)`, its SQLERRD(3) reason-code arms); undeclared, both are empty."""
     stmts = sql_statements(table)
     out = []
     for f in sc.get("sql_faults") or []:
@@ -2567,7 +3645,13 @@ def sql_fault_plan(case: dict[str, Any], sc: dict[str, Any], table: str) -> list
                     and re.search(rf"\b{re.escape(table_name)}\b", x["sql"].upper())]  # fmt: skip
         if not hits:
             raise Unsupported(f"scenario {sc['name']}: SQL fault {f} names no statement of {program}")
-        out += [f"{x['program']} {x['line']} {nth} {code} {state}" for x in hits]
+        extra = ""
+        if f.get("sqlerrmc") or f.get("sqlerrd3"):
+            token = str(f.get("sqlerrmc") or "-")
+            if not re.fullmatch(r"\S{1,70}", token):
+                raise Unsupported(f"scenario {sc['name']}: SQL fault {f}: sqlerrmc is one token of 1-70 characters")
+            extra = f" {token} {int(f.get('sqlerrd3', 0))}"
+        out += [f"{x['program']} {x['line']} {nth} {code} {state}{extra}" for x in hits]
     return out
 
 
@@ -2645,7 +3729,7 @@ def _cobol_start(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
                            "expires": kv.get("expires") or None}  # fmt: skip
     if kv.get("reqid"):
         out["reqid"] = kv["reqid"]
-    if resp == "INVREQ":
+    if resp in ("INVREQ", "CHANNELERR"):  # (#4950: CHANNELERR RESP2 1, an incorrect CHANNEL name)
         out["resp2"] = int(kv.get("resp2", "0"))
     for key in ("rtransid", "rtermid", "queue"):  # the data options the program named (hex of the trimmed name)
         if key in kv:
@@ -2656,6 +3740,42 @@ def _cobol_start(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
     else:
         out["from"] = None
     return out
+
+
+def _cobol_retrieve(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
+    """#5089: a RETRIEVE the stub logged (GGCRTRV: `resp` by number, `len` the stored length -1 for none, `into` 1 with
+    INTO, the bytes copied in the event's blob, `rtransid` / `rtermid` / `queue` as hex of the name) as
+    CicsTask.retrieve records it: {resp, length, data, rtransid?, rtermid?, queue?}; the data compared as text in the
+    data's page, as START's FROM is (java_retrieve_as_compared)."""
+    resp = RESP_NAMES.get(int(kv.get("resp", "0")), kv.get("resp", ""))
+    length = int(kv.get("len", "-1"))
+    out: dict[str, Any] = {"resp": resp, "length": None if length < 0 or kv.get("into") != "1" else length}
+    if kv.get("into") == "1" and length >= 0:
+        text = common._decode_text(data, enc)
+        out["data"] = f"<undecodable {data!r} in {enc}>" if text is None else text
+    else:
+        out["data"] = None
+    for key in ("rtransid", "rtermid", "queue"):
+        if key in kv:
+            out[key] = bytes.fromhex(kv[key]).decode("latin-1")
+    return out
+
+
+def java_retrieve_as_compared(e: dict[str, Any]) -> dict[str, Any]:
+    """#5089: CicsTask's RETRIEVE event as the comparison reads it: its data (bytes, base64 in the JSON) in the region's
+    page, as text (java_start_as_compared)."""
+    import base64
+
+    from gitgalaxy.tools.cobol_to_java.det.cics import REGION_PAGE
+
+    data = e.get("data")
+    if not isinstance(data, str):
+        return {**e, "data": None}
+    raw = base64.b64decode(data)
+    try:
+        return {**e, "data": raw.decode(REGION_PAGE)}
+    except UnicodeDecodeError:
+        return {**e, "data": f"<undecodable {raw!r} in {REGION_PAGE}>"}
 
 
 def java_start_as_compared(e: dict[str, Any]) -> dict[str, Any]:
@@ -2726,6 +3846,11 @@ def _cobol_read(verb: str, kv: dict[str, str], data: bytes, enc: str) -> dict[st
     if verb == "RECEIVE":
         return {"event": verb, "resp": resp, "data": text}
     name = bytes.fromhex(kv.get("queue", ""))
+    if (
+        verb == "READQ-TD"
+    ):  # #5079 (X57): CicsTask.readqTd records {queue, resp, data}: a transient-data queue has no items
+        return {"event": verb, "queue": (common._decode_text(name, enc) or name.hex()).rstrip(" \x00"),
+                "resp": resp, "data": text}  # fmt: skip
     item = kv.get("item", "")
     return {"event": verb, "queue": (common._decode_text(name, enc) or name.hex()).rstrip(" \x00"),
             "item": int(item) if item.isdigit() else item, "resp": resp, "data": text}  # fmt: skip
@@ -2746,6 +3871,24 @@ def java_read_as_compared(e: dict[str, Any]) -> dict[str, Any]:
         return {**e, "data": raw.decode(REGION_PAGE)}
     except UnicodeDecodeError:
         return {**e, "data": f"<undecodable {raw!r} in {REGION_PAGE}>"}
+
+
+def channel_copy(path: Path) -> dict[str, Any]:
+    """#4950: a channel the stub saved in channel.cfg's format (save_channel) as CicsTask records a copy: {name,
+    containers: {NAME: HEX}}."""
+    lines = path.read_text(encoding="ascii").splitlines()
+    return {"name": lines[0].strip(),
+            "containers": {w[0]: "" if w[2] == "-" else w[2].upper() for w in (ln.split() for ln in lines[1:])}}  # fmt: skip
+
+
+# the SEND TEXT options the COBOL translation passes to the stub (GG-FLAGS holds 40 characters); the Java side records
+# every TEXT_OPTIONS flag, so it is compared on these only (PRINT, INVITE, DEFRESP, STRFIELD are not forwarded)
+TEXT_OPTIONS_FORWARDED = ("ERASE", "FREEKB", "ALARM", "WAIT", "LAST")
+
+
+def _text_options(args: str) -> list[str]:
+    """#5401: a SEND-TEXT line's options, sorted, without the stub's TEXT / DATA kind marker."""
+    return sorted(o for o in args.partition("opts=")[2].split() if o not in ("TEXT", "DATA"))
 
 
 def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[str, Any]]) -> dict[str, Any]:
@@ -2776,13 +3919,16 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
         if verb == "SEND-MAP":
             fields = screen_fields(corpus, case, kv["map"], "output")
             vals = decode_record(data, fields, enc)
-            res["screens"].append({"map": kv["map"], "fields": {k[:-1]: v for k, v in vals.items() if k.endswith("O")},
+            keys = {f["name"]: screen_key(f) for f in fields}  # #5076: an OCCURS field's every occurrence, ACCOUNT.3
+            res["screens"].append({"map": kv["map"],
+                                   "fields": {keys[k][0]: v for k, v in vals.items() if keys[k][1] == "O"},
                                    "subfields": map_subfields(corpus, case, kv["map"], data, enc),
                                    "options": sorted(args.partition("opts=")[2].split()),
                                    "cursor": None if kv.get("cursor", "-1") == "-1" else int(kv["cursor"])})  # fmt: skip
         elif verb == "SEND-TEXT":
             text = common._decode_text(data, enc)  # #3815: not text in the page -> the bytes shown, never dropped
             res["text"].append(f"<undecodable {data!r} in {enc}>" if text is None else text.rstrip(" \x00"))
+            res.setdefault("text_options", []).append(_text_options(args))
         # the task's own (a LINK level's: no); a RETURN IMMEDIATE that failed (it has a resp, #4270) went on in the program
         elif verb in ("RETURN", "XCTL") and int(kv.get("level", "1")) <= 1 and not (verb == "RETURN" and "resp" in kv):
             key = "transid" if verb == "RETURN" else "program"
@@ -2793,9 +3939,10 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             res[verb.lower()] = {key: kv.get(key, ""), "commarea": ca}
         elif verb == "ABEND":
             res["abend"] = args
-        elif verb == "WRITEQ-TD":  # a transient-data record, as text in the data's page
-            text = common._decode_text(data, enc)
-            res.setdefault("td", []).append(f"<undecodable {data!r} in {enc}>" if text is None else text)
+        elif verb == "WRITEQ-TD":  # a record as text in the data page
+            if kv.get("resp", "0") == "0":
+                text = common._decode_text(data, enc)
+                res.setdefault("td", []).append(f"<undecodable {data!r} in {enc}>" if text is None else text)
         elif verb == "WRITE-OPERATOR":  # #4270 zECS (X32): the console message, as text in the data's page
             text = common._decode_text(data, enc)
             res.setdefault("operator", []).append(f"<undecodable {data!r} in {enc}>" if text is None else text)
@@ -2805,13 +3952,27 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             res.setdefault("websend", []).append(_cobol_web_send(kv, data, enc))
         elif verb == "WEB-HEADER":  # #4767 (X38): a response header the program wrote
             res.setdefault("webheader", []).append(_cobol_web_header(kv, enc))
+        elif verb == "WEB-RECEIVE":  # #4767 (X38): the request body the program read, as CicsTask records it
+            res.setdefault("webreceive", []).append(_cobol_web_receive(kv, data, enc))
         elif verb == "WRITEQ-TS":  # #4607: as CicsTask records it (queue, data, resp, item)
             res.setdefault("ts", []).append(_cobol_ts(kv, data, enc))
-        elif verb in ("READQ-TS", "RECEIVE"):  # #4270 (GenApp LGICVS01): as CicsTask records them
+        elif verb in ("READQ-TS", "READQ-TD", "RECEIVE"):  # #4270 (GenApp LGICVS01): as CicsTask records them
             res.setdefault("reads", []).append(_cobol_read(verb, kv, data, enc))
         elif verb == "START":  # #4270 (GenApp LGWEBST5): as CicsTask records it
             res.setdefault("starts", []).append(_cobol_start(kv, data, enc))
+            if "channel" in kv:  # #4950: START CHANNEL -- the copy the started task gets (NNN.channel)
+                res["starts"][-1]["channel"] = channel_copy(out / f"{seq}.channel")
+        elif verb == "RETRIEVE":  # #5089: as CicsTask.retrieve records it
+            res.setdefault("retrieves", []).append(_cobol_retrieve(kv, data, enc))
+        elif verb in equivalence_mq.EVENTS:  # #4892: an MQI call, as QueueManager records it
+            res.setdefault("mq", []).append(equivalence_mq.cobol_event(verb, kv, data))
+        elif verb == "CHILD":  # #4950: a RUN TRANSID child the task's wait dispatched -- what it did, in its directory
+            res.setdefault("children", []).append(outputs(out / kv["dir"] / "out", case, corpus, []))
     res["containers"] = task_containers(out / "containers.out")  # #4270 (X24): the current channel's, at task end
+    res["mq_queues"] = equivalence_mq.queues_left(out / "mq.out")  # #4892: the queues the task left
+    dli = {p.stem: p.read_bytes() for p in sorted(out.glob("*.out")) if (out.parent / f"seed.{p.stem}").is_file()}
+    if dli or any(out.parent.glob("seed.*")):  # #5278: the databases the task left (the stub's exit dump), by DBD;
+        res["dli"] = dli  # none when it never scheduled the PSB: the port's DetDli.leave dumps nothing then either
     left = out / "commarea.out"  # a LINKed program's result: the COMMAREA it left (ggcics GGCAOUT)
     res["linked_commarea"] = (
         decode_record(left.read_bytes(), ca_fields, enc, exact=True, unnamed=True)
@@ -2840,10 +4001,10 @@ def map_subfields(
     scr = case["screens"][map_name]
     layouts = [screen_layout(corpus, str(common.case_path(corpus, scr["copybook"])), scr[side])
                for side in ("input", "output")]  # fmt: skip
-    data_names = {f["name"][:-1] for f in layouts[1] if f["name"].endswith("O")}
+    data_names = {screen_key(f)[0] for f in layouts[1] if screen_key(f)[1] == "O"}
     space = " ".encode(enc)
     for f in (x for layout in layouts for x in layout):
-        name, kind = f["name"][:-1], f["name"][-1:]
+        name, kind = screen_key(f)  # #5076: ACCOUNT.3 for ACCOUNTA(3)
         if name not in data_names or f["offset"] + f["bytes"] > len(data):
             continue
         raw = data[f["offset"] : f["offset"] + f["bytes"]]
@@ -3083,6 +4244,7 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
         CicsTask top;  // the scenario's task, until handleTransaction asks the region for it
         CicsTask linked;  // the level a LINK runs, until handleLink asks for it
         String linkedProgram;
+        Object linkedArea;  // #4803: the LINK's COMMAREA read through the linked program's own DTO, when that is another class
         boolean started;  // the scenario's first program began ...
         boolean ended;  // ... and returned normally
         String refused;
@@ -3108,7 +4270,7 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
         @Override
         public CicsTask linked(String p, Object ca) {
             CicsTask t = linked;
-            if (t == null || !p.equals(linkedProgram) || area(t) != ca) {
+            if (t == null || !p.equals(linkedProgram) || (area(t) != ca && linkedArea != ca)) {
                 throw new FacadeRefused("a facade asked the region for a level of " + p
                         + " that is not the LINK the scenario made");
             }
@@ -3169,21 +4331,37 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
                 }
                 return;
             }
-            Method one = method(service, "handleTransaction", 1);
-            Method two = method(service, "handleTransaction", 2);
-            if (one == null && two == null) {
+            Method one = facade(service, "handleTransaction", 1, false);
+            Method two = facade(service, "handleTransaction", 2, false);
+            Method oneB = facade(service, "handleTransaction", 2, true);
+            Method twoB = facade(service, "handleTransaction", 3, true);
+            if (one == null && two == null && oneB == null && twoB == null) {
                 runTask(service);
                 return;
             }
             top = scenario;
-            entry(program, "handleTransaction");
             Method used;
             Object got;
-            if (commarea == null && one != null) {
+            boolean carriesBytes = false;
+            // #4965: the byte-carrying overload when the service has one (no bytes of a previous task in: the
+            // scenario's COMMAREA is the DTO), else the DTO one
+            if (commarea == null && oneB != null) {
+                used = oneB;
+                carriesBytes = true;
+                entry(program, "handleTransaction");
+                got = call(oneB, service, scenario.transid(), null);
+            } else if (twoB != null && (commarea == null || twoB.getParameterTypes()[1].isInstance(commarea))) {
+                used = twoB;
+                carriesBytes = true;
+                entry(program, "handleTransaction");
+                got = call(twoB, service, scenario.transid(), commarea, null);
+            } else if (commarea == null && one != null) {
                 used = one;
+                entry(program, "handleTransaction");
                 got = call(one, service, scenario.transid());
             } else if (two != null && (commarea == null || two.getParameterTypes()[1].isInstance(commarea))) {
                 used = two;
+                entry(program, "handleTransaction");
                 got = call(two, service, scenario.transid(), commarea);
             } else {
                 throw new FacadeRefused("handleTransaction of " + program + " cannot take the COMMAREA ("
@@ -3192,9 +4370,25 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
             if (top != null) {
                 throw new FacadeRefused("handleTransaction of " + program + " did not run its task in the region");
             }
-            if (used.getReturnType() != void.class && !answered(got, scenario, used.getReturnType())) {
+            if (used.getReturnType() != void.class && !answered(got, scenario, used.getReturnType(), service)) {
                 throw new FacadeRefused("handleTransaction of " + program
                         + " answered a COMMAREA other than the one its RETURN passes on");
+            }
+            if (carriesBytes) {
+                Method accessor = null;
+                for (Method m : service.getClass().getMethods()) {
+                    if (m.getName().equals("lastAnswerBytes") && m.getParameterCount() == 0) {
+                        accessor = m;
+                    }
+                }
+                if (accessor == null) {
+                    throw new FacadeRefused("handleTransaction (bytes) of " + program + " has no lastAnswerBytes()");
+                }
+                // #4965: the bytes the byte-carrying overload answers are the ones its task's RETURN passed on
+                if (!java.util.Arrays.equals((byte[]) call(accessor, service), scenario.returnedBytes())) {
+                    throw new FacadeRefused("lastAnswerBytes() of " + program
+                            + " is not the bytes its RETURN passes on");
+                }
             }
         }
 
@@ -3224,17 +4418,23 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
                 call(method(service, "runTask", 1), service, task);
                 return;
             }
+            Object passed = ca;
             if (ca != null && !m.getParameterTypes()[0].isInstance(ca)) {
-                throw new FacadeRefused("handleLink of " + p + " takes a " + m.getParameterTypes()[0].getName()
-                        + ", the LINK passed a " + ca.getClass().getName());
+                // #4803: LINK passes bytes. A caller's COMMAREA of another DTO class (EPSCMORT's EPSMTCOM, EPSCSMRT's own
+                // DFHCOMMAREA) is read through the linked program's DTO by layout, as CicsTask.returned does for a RETURN;
+                // the program still runs on the task's own area, so what it changes the caller sees. No layout, or fewer
+                // bytes than the target's record: refused, never guessed.
+                passed = convertLayout(p, ca, m.getParameterTypes()[0]);
             }
+            Object outerArea = linkedArea;
             CicsTask outer = linked;
             String outerProgram = linkedProgram;
             linked = task;
             linkedProgram = p;
+            linkedArea = passed;
             entry(p, "handleLink");
             try {
-                call(m, service, ca);
+                call(m, service, passed);
             } catch (RuntimeException e) {
                 if (linked == task && !(e instanceof FacadeRefused)) {  // it never asked the region for its level
                     throw new FacadeRefused("handleLink of " + p + " threw before it ran its level: " + e);
@@ -3246,6 +4446,27 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
             }
             linked = outer;
             linkedProgram = outerProgram;
+            linkedArea = outerArea;
+        }
+
+        /** #4803: `ca` read through `type` by layout (toCommarea -> fromCommarea), or a refusal by name. */
+        Object convertLayout(String p, Object ca, Class<?> type) {
+            String why = "handleLink of " + p + " takes a " + type.getName() + ", the LINK passed a "
+                    + ca.getClass().getName();
+            try {
+                Method to = ca.getClass().getMethod("toCommarea");
+                Method from = type.getMethod("fromCommarea", byte[].class);
+                if (to.getReturnType() != byte[].class || !java.lang.reflect.Modifier.isStatic(from.getModifiers())) {
+                    throw new FacadeRefused(why + " (no layout converts one into the other)");
+                }
+                return from.invoke(null, (Object) to.invoke(ca));
+            } catch (NoSuchMethodException e) {
+                throw new FacadeRefused(why + " (no layout converts one into the other)");
+            } catch (java.lang.reflect.InvocationTargetException e) {
+                throw new FacadeRefused(why + ": " + e.getCause());
+            } catch (IllegalAccessException e) {
+                throw new FacadeRefused(why + ": " + e);
+            }
         }
 
         void entry(String p, String method) {
@@ -3279,10 +4500,34 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
     /** Whether a facade answered the COMMAREA its task's RETURN passed on: that very object -- or, where the facade
      *  answers its own DTO and the task RETURNed another record (#4449), those bytes read through it (task.returned):
      *  a fresh object of the facade's type, laid out as the same bytes. */
-    static boolean answered(Object got, CicsTask task, Class<?> type) {
+    static boolean answered(Object got, CicsTask task, Class<?> type, Object service) {
         Object raw = task.returned(Object.class);
         if (got == raw) {
             return true;
+        }
+        if (raw instanceof byte[] wide && got != null && service != null && !(got instanceof byte[])
+                && java.util.Arrays.stream(got.getClass().getMethods()).noneMatch(m -> m.getName().equals("fromCommarea"))) {
+            // #5089: a DTO with no layout (a POINTER, a LENGTH that differs from the record) is read through the
+            // program's own codec; written back, it must give the bytes the RETURN passed, over the span both define
+            try {
+                return (Boolean) service.getClass().getMethod("wideSame", byte[].class, Object.class).invoke(service, wide, got);
+            } catch (ReflectiveOperationException | RuntimeException e) {
+                return false;
+            }
+        }
+        if (raw instanceof byte[] wide && got != null && got.getClass() == type) {
+            // #4695: a RETURN with a LENGTH past the DTO passes the COMMAREA as bytes (the region's EBCDIC); the facade
+            // answers its own DTO, those bytes read through its layout in the port's page -- never a different record
+            try {
+                java.nio.charset.Charset page = (java.nio.charset.Charset) Class.forName("__PKG__.entity.vsam.CobolRecords")
+                        .getMethod("charset").invoke(null);
+                byte[] text = new String(wide, java.nio.charset.Charset.forName("IBM037")).getBytes(page);
+                Method bytes = type.getMethod("toCommarea");
+                Object expected = type.getMethod("fromCommarea", byte[].class).invoke(null, (Object) text);
+                return java.util.Arrays.equals((byte[]) bytes.invoke(got), (byte[]) bytes.invoke(expected));
+            } catch (ReflectiveOperationException | RuntimeException e) {
+                return false;
+            }
         }
         if (raw == null || got == null || type.isInstance(raw) || got.getClass() != type) {
             return false;
@@ -3297,6 +4542,18 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
 
     static Object area(CicsTask task) {
         return task.hasCommarea() ? task.commarea(Object.class) : null;
+    }
+
+    /** #4965: the overload of `name` with `params` parameters that does (bytes) or does not end in the raw
+     *  COMMAREA bytes (byte[]): `handleTransaction(String, byte[])` is not the DTO-less `(String, T)`. */
+    static Method facade(Object service, String name, int params, boolean bytes) {
+        for (Method m : service.getClass().getMethods()) {
+            if (m.getName().equals(name) && m.getParameterCount() == params
+                    && (m.getParameterTypes()[params - 1] == byte[].class) == bytes) {
+                return m;
+            }
+        }
+        return null;
     }
 
     /** The service's public method `name` taking `params` parameters (the deployed bean: a proxy's too), or null. */
@@ -3320,7 +4577,8 @@ def _svc_var(program: str) -> str:
 
 
 def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str, Any]],
-                          programs: list[str] | None = None, tdqueues: list[str] | None = None) -> str:  # fmt: skip
+                          programs: list[str] | None = None, tdqueues: dict[str, str] | None = None,
+                          tdattrs: dict[str, dict[str, str]] | None = None) -> str:  # fmt: skip
     """EquivalenceRunTest for a CICS case: the files loaded through their entities' codecs, then
     each scenario (in/scenarios.json) run as a CicsTask through the service's runTask, its events
     written to out/<scenario>.json -- a screen as its screenValues(), a COMMAREA as its DTO."""
@@ -3348,8 +4606,14 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
     region_java = f'"{region["applid"]}", "{region["sysid"]}"' if region.get("applid") else "null, null"
     csd_java = ""
     if tdqueues is not None:  # the CSD's transient-data queues: a WRITEQ TD to any other is QIDERR
-        names = ", ".join(f'"{q}"' for q in tdqueues)
+        names = ", ".join(f'"{q}"' for q in sorted(tdqueues))
         csd_java += f"            task.withTdQueues(java.util.Set.of({names}));\n"
+        kinds = ", ".join(f'"{q}", "{tdqueues[q]}"' for q in sorted(tdqueues) if tdqueues[q])
+        # #5079 (X57): each queue's TYPE (none stated: ""), which decides what READQ TD / DELETEQ TD do
+        csd_java += f"            task.withTdQueueTypes(java.util.Map.of({kinds}));\n"
+        if tdattrs:  # #5168 (X61): the other attributes that decide what READQ / WRITEQ / DELETEQ TD do
+            flat = ", ".join(f'"{q}", "{k}", "{v}"' for q in sorted(tdattrs) for k, v in tdattrs[q].items())
+            csd_java += f"            task.withTdQueueAttributes({flat});\n"
     extras = [x["program"].upper() for x in case.get("programs", [])]
     runs = "".join(
         f'                    if ("{p}".equals(program)) {{ if (facades) {{ region.enter("{p}", t, {_svc_var(p)}); }} '
@@ -3364,6 +4628,10 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
         tx_java = ("" if transactions is None else "                public boolean transaction(String transid) { "
                    f"return java.util.Set.of({', '.join(f'{chr(34)}{t}{chr(34)}' for t in transactions)})"
                    ".contains(transid); }\n")  # fmt: skip
+        kids = case_child_programs(case)  # #4950: the program a RUN TRANSID child runs
+        tx_java += ("" if not kids else "                public String program(String transid) { return "
+                    f"java.util.Map.ofEntries({', '.join(f'java.util.Map.entry({chr(34)}{t}{chr(34)}, {chr(34)}{p}{chr(34)})' for t, p in kids.items())})"
+                    ".get(transid); }\n")  # fmt: skip
         csd_java += (f"            task.withPrograms(new CicsTask.Programs() {{\n"
                      f"                public boolean defined(String program) {{ return {defined}; }}\n"
                      f"{tx_java}"
@@ -3374,9 +4642,13 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
                      f"            }});")  # fmt: skip
     fields, loads, dumps = [], [], []
     for dsn, spec in case.get("datasets", {}).items():
+        if by_base[dsn].get("runtime"):  # #4771: stated for the COBOL leg; the project stores no file named at run time
+            continue
         if by_base[dsn].get("organization") == "ESDS":  # #4213: the region's ESDS, on the task (CicsTask.withEsds)
             f = by_base[dsn]
-            csd_java += f'            task.withEsds("{f["file"]}", {f["reclen"]}, records("{dsn}", {f["reclen"]}));\n'
+            csd_java += (
+                f'            task.withEsds("{f["file"]}", {f["reclen"]}, records(sc, "{dsn}", {f["reclen"]}));\n'
+            )
             dumps.append(f'            dump(sc.get("name").asText() + ".{dsn}.out", task.esdsRecords("{f["file"]}"));')
             continue
         ent = spec["entity"]
@@ -3384,7 +4656,7 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
         fields.append(f"    @Autowired {pkg}.repository.vsam.{ent}Repository {repo};")
         loads.append(
             f"            {repo}.deleteAll();\n"
-            f'            load("{dsn}", {by_base[dsn]["reclen"]}, {pkg}.entity.vsam.{ent}::fromRecord, {repo});'
+            f'            load(sc, "{dsn}", {by_base[dsn]["reclen"]}, {pkg}.entity.vsam.{ent}::fromRecord, {repo});'
         )
         dumps.append(f'            dump(sc.get("name").asText() + ".{dsn}.out", {repo}.findAll().stream()'
                      f'.map(row -> row.toRecord(TEXT)).toList());')  # fmt: skip
@@ -3417,6 +4689,7 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
     recv = [f'            if (r.has("{m}")) received.put("{m}", {pkg}.dto.screen.{cls}.fromValues('
             f'json.convertValue(r.get("{m}"), new TypeReference<Map<String, String>>() {{ }})));'
             for m, cls in screens.items()]  # fmt: skip
+    facade_java = FACADE_JAVA.replace("__PKG__", pkg)  # #4695: the page a facade's bytes answer is read in
     return f"""package {pkg};
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -3439,10 +4712,12 @@ import java.lang.reflect.Method;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /** #3754: the CICS equivalence run of {case["program"]} ({case["name"]}) -- generated by tests/tools/equivalence_cics.py. */
 @SpringBootTest(properties = {{"spring.jpa.show-sql=false", "gitgalaxy.clock={ej._clock(case)}"}})
+@DirtiesContext  // --one-jvm: the facade run is this class again in the session JVM, on a context of its own
 class EquivalenceRunTest {{
 
     static final Charset TEXT = {common.java_charset(common.data_encoding(case))};
@@ -3458,6 +4733,53 @@ class EquivalenceRunTest {{
 
     @Autowired org.springframework.transaction.PlatformTransactionManager transactions;
 
+    /** #5089 (register Q3): the task's file unit of work. IBM: SYNCPOINT ROLLBACK ends it and the task's next
+     *  recoverable change starts a new one, committed when the task ends -- restart() backs the file changes out
+     *  and begins that next one. An abend or a refusal marks the CURRENT one rollback-only. */
+    static final class Uow {{
+        private final org.springframework.transaction.PlatformTransactionManager tm;
+        private org.springframework.transaction.TransactionStatus st;
+
+        Uow(org.springframework.transaction.PlatformTransactionManager tm) {{
+            this.tm = tm;
+            this.st = tm.getTransaction(new org.springframework.transaction.support.DefaultTransactionDefinition());
+        }}
+
+        void setRollbackOnly() {{
+            st.setRollbackOnly();
+        }}
+
+        void restart() {{
+            tm.rollback(st);
+            st = tm.getTransaction(new org.springframework.transaction.support.DefaultTransactionDefinition());
+        }}
+
+        void end() {{
+            if (st.isRollbackOnly()) {{
+                tm.rollback(st);
+            }} else {{
+                tm.commit(st);
+            }}
+        }}
+
+        void abort() {{
+            if (!st.isCompleted()) {{
+                tm.rollback(st);
+            }}
+        }}
+    }}
+
+    private void fileUnit(java.util.function.Consumer<Uow> body) {{
+        Uow unit = new Uow(transactions);
+        try {{
+            body.accept(unit);
+        }} catch (RuntimeException | Error e) {{
+            unit.abort();
+            throw e;
+        }}
+        unit.end();
+    }}
+
     /** #4173: a LINK to a program the case does not run ends the task there, as the COBOL side's stub does
      *  (NOPROGRAM) -- only a derived SQL-fault task reaches one; it is judged up to that LINK. */
     static final class NotRun extends RuntimeException {{
@@ -3468,6 +4790,55 @@ class EquivalenceRunTest {{
 
     /** #4173: the task's SQL fault plan, through the det runtime's DetSql (its statements' executions counted
      *  afresh): false when a fault is planned and the port has no DetSql to take it (the task is then not run). */
+    /** #4892: the task's queue manager (cobolrt.cics.DetMq, the stub's ggmq.c), from the scenario's mq.cfg. */
+    static void mqAttach(CicsTask task, Path cfg) {{
+        try {{
+            Class.forName("{pkg}.cobolrt.cics.DetMq").getMethod("attach", CicsTask.class, Path.class).invoke(null, task, cfg);
+        }} catch (ReflectiveOperationException e) {{
+            throw new IllegalStateException("a queue manager for a port with no cobolrt.mq", e);
+        }}
+    }}
+
+    /** #5278: a new task on the stated databases (cobolrt.dli.DetDli, the stub's ggdli.c): nothing scheduled, nothing read yet. */
+    static void dliReset(Path dir) {{
+        System.setProperty("gitgalaxy.dli.dir", dir.toString());
+        try {{
+            Class.forName("{pkg}.cobolrt.dli.DetDli").getMethod("reset").invoke(null);
+        }} catch (ReflectiveOperationException e) {{
+            throw new IllegalStateException("a DL/I runtime for a port with no cobolrt.dli", e);
+        }}
+    }}
+
+    /** #5278: each database as the port leaves it (DetDli.leave), by DBD name, in hex -- the stub's exit dump. */
+    static Map<String, String> dliLeft(Path to, JsonNode dbs) {{
+        Map<String, String> left = new LinkedHashMap<>();
+        try {{
+            Files.createDirectories(to);
+            System.setProperty("gitgalaxy.dli.out", to.toString());
+            Class.forName("{pkg}.cobolrt.dli.DetDli").getMethod("leave").invoke(null);
+            for (JsonNode n : dbs) {{
+                Path f = to.resolve(n.asText() + ".out");
+                if (Files.exists(f)) {{
+                    left.put(n.asText(), java.util.HexFormat.of().withUpperCase().formatHex(Files.readAllBytes(f)));
+                }}
+            }}
+        }} catch (ReflectiveOperationException | java.io.IOException e) {{
+            throw new IllegalStateException(e);
+        }}
+        return left;
+    }}
+
+    /** #4892: the queues the task left (null: it had no queue manager), its normal end committing it. */
+    static Object mqEnd(CicsTask task) {{
+        try {{
+            return Class.forName("{pkg}.cobolrt.cics.DetMq").getMethod("end", CicsTask.class).invoke(null, task);
+        }} catch (ClassNotFoundException e) {{
+            return null;
+        }} catch (ReflectiveOperationException e) {{
+            throw new IllegalStateException(e);
+        }}
+    }}
+
     static boolean sqlFaultPlan(List<String> plan, Path log) {{
         try {{
             Class.forName("{pkg}.cobolrt.sql.DetSql").getMethod("withFaults", List.class, Path.class)
@@ -3497,7 +4868,7 @@ class EquivalenceRunTest {{
             Files.deleteIfExists(sysout);
             System.setProperty("gitgalaxy.sysout", sysout.toString());
             CicsTask task = new CicsTask("{case["transid"]}", sc.get("aid").asText(), commarea, calen, received)
-                    .withClock(java.time.LocalDateTime.parse("{ej._clock(case)}"))  // EIBTIME / ASKTIME: the case's clock
+                    .withClock(java.time.LocalDateTime.parse(sc.path("clock").asText("{ej._clock(case)}")))  // EIBTIME / ASKTIME: the scenario's clock, else the case's
                     .withRegion({region_java})  // ASSIGN APPLID / SYSID
                     .withProgram("{case["program"]}")  // the task's first program (a LINK's INVOKINGPROG)
                     .withCounters(counters(sc))  // GET COUNTER: the region's named counters
@@ -3506,7 +4877,7 @@ class EquivalenceRunTest {{
                     .withStartcode(sc.get("startcode").isNull() ? null : sc.get("startcode").asText())
                     .withTerminalInput(sc.get("terminal").isNull() ? null : sc.get("terminal").asText())
                     // #4270: the task's terminal and origin data, as the stub's ($GGCICS_FACILITY, _UCTRANST, _ORIGIN)
-                    .withTermid(sc.get("termid").isNull() ? null : sc.get("termid").asText())
+                    .withTermidIfStated(sc.get("termid").isNull() ? null : sc.get("termid").asText())  // #5126: unstated is refused, as the stub
                     .withUctranst(sc.get("uctranst").isNull() ? null : sc.get("uctranst").asText())
                     .withTempStorage(tempStorage(sc))  // #4270: the TS queues the task starts with, as the stub's
                     // RECOVERY(NONE) files: their changes made outside the unit of work, so they survive a backout
@@ -3517,6 +4888,17 @@ class EquivalenceRunTest {{
                                 t.setPropagationBehavior(org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
                                 t.executeWithoutResult(s -> change.run());
                             }});
+            if (sc.hasNonNull("start_data")) {{  // #4892: the data the task was started with, as the stub's retrieve_NNN.bin
+                List<byte[]> started = new ArrayList<>();
+                sc.get("start_data").forEach(x -> started.add(java.util.HexFormat.of().parseHex(x.asText())));
+                task.withRetrieveData(started);
+            }}
+            if (sc.hasNonNull("mq")) {{  // #4892 (W): the queue manager its MQI calls reach, as the stub's mq.cfg
+                mqAttach(task, in.resolve(sc.get("mq").asText()));
+            }}
+            if (sc.hasNonNull("dli")) {{  // #5278 (I5): the databases EXEC DLI reaches, afresh for each task
+                dliReset(in.resolve(sc.get("dli").get("dir").asText()));
+            }}
             if (sc.hasNonNull("urimaps")) {{  // #4270 zECS (X32): INQUIRE URIMAP's installed definitions, as the stub's
                 java.util.List<String[]> defs = new java.util.ArrayList<>();
                 sc.get("urimaps").forEach(u -> defs.add(new String[] {{u.get(0).asText(), u.get(1).asText(),
@@ -3540,6 +4922,13 @@ class EquivalenceRunTest {{
                         q.hasNonNull("mediatype") ? q.get("mediatype").asText() : null,
                         q.hasNonNull("body") ? q.get("body").asText() : null));
             }}
+            if (sc.hasNonNull("tcpip")) {{  // #4972 (X38): the connection the task was started on
+                JsonNode q = sc.get("tcpip");
+                task.withTcpip(new CicsTask.Tcpip(q.get("client_addr").asText(),
+                        q.hasNonNull("client_name") ? q.get("client_name").asText() : null, q.get("server_addr").asText(),
+                        q.hasNonNull("server_name") ? q.get("server_name").asText() : null, q.get("port").asInt(),
+                        q.get("ssl_type").asText()));
+            }}
             if (sc.hasNonNull("http_peers")) {{  // #4767 zECS (X35): the HTTP servers the task can reach
                 java.util.List<CicsTask.HttpPeer> peers = new java.util.ArrayList<>();
                 for (JsonNode p : sc.get("http_peers")) {{
@@ -3558,6 +4947,8 @@ class EquivalenceRunTest {{
             if (calen != null) {{
                 task.withExactCommarea();
             }}
+            if (sc.hasNonNull("userid")) task.withUserid(sc.get("userid").asText());  // #5126 (X19): ASSIGN USERID
+            if (sc.hasNonNull("screen")) task.withScreen(sc.get("screen").get(0).asInt(), sc.get("screen").get(1).asInt());
             if (sc.hasNonNull("origin")) {{  // #4270 (X29): INQUIRE ASSOCIATION -- the origin data the case states
                 JsonNode o = sc.get("origin");
                 task.withOrigin(o.get("applid").asText(), o.get("userid").asText(), o.get("facilname").asText(),
@@ -3596,8 +4987,8 @@ class EquivalenceRunTest {{
                 continue;  // not judged: recorded, never run unfaulted
             }}
             // one unit of work: a SYNCPOINT ROLLBACK, or an abend that ends the task, backs its changes out
-            {db2_begin}new org.springframework.transaction.support.TransactionTemplate(transactions).executeWithoutResult(status -> {{
-                task.onRollback(() -> {{ status.setRollbackOnly(); {db2_rollback_now}}});
+            {db2_begin}fileUnit(status -> {{
+                task.onRollback(() -> {{ status.restart(); {db2_rollback_now}}});
                 try {{
                     if (facades) {{
                         try (CicsTask.Joined joined = CicsTask.join(region)) {{
@@ -3647,6 +5038,19 @@ class EquivalenceRunTest {{
                 left.put("containers", data);
                 events.add(left);
             }}
+            Object mqLeft = sc.hasNonNull("mq") ? mqEnd(task) : null;
+            if (mqLeft != null) {{  // #4892: the queues the task left, as the stub's mq.out
+                Map<String, Object> left = new LinkedHashMap<>();
+                left.put("event", "MQ-QUEUES");
+                left.put("queues", mqLeft);
+                events.add(left);
+            }}
+            if (sc.hasNonNull("dli")) {{  // #5278: the databases the task left, by DBD, as the stub's exit dump
+                Map<String, Object> left = new LinkedHashMap<>();
+                left.put("event", "DLI-DBS");
+                left.put("dbs", dliLeft(out.resolve(sc.get("name").asText() + ".dli"), sc.get("dli").get("dbs")));
+                events.add(left);
+            }}
             if (commarea != null) {{  // a LINKed program's result: the COMMAREA it leaves (equivalence_cics.linked_result)
                 Map<String, Object> left = new LinkedHashMap<>();
                 left.put("event", "COMMAREA");
@@ -3667,7 +5071,7 @@ class EquivalenceRunTest {{
     }}
 
 {db2_methods}
-{FACADE_JAVA}
+{facade_java}
     /** #4270: the scenario's TS queues, each item's text in the region's code page (DetCics.region). */
     static CicsTask.TempStorage tempStorage(JsonNode sc) {{
         CicsTask.TempStorage ts = new CicsTask.TempStorage();
@@ -3676,6 +5080,11 @@ class EquivalenceRunTest {{
             List<byte[]> items = new ArrayList<>();
             q.getValue().forEach(i -> items.add(i.asText().getBytes(region)));
             ts.seed(q.getKey(), items);
+        }});
+        sc.path("td").fields().forEachRemaining(q -> {{  // #5168 (X61): the TD queues' records
+            List<String> records = new ArrayList<>();
+            q.getValue().forEach(i -> records.add(i.asText()));
+            ts.seedTd(q.getKey(), records);
         }});
         return ts;
     }}
@@ -3695,8 +5104,8 @@ class EquivalenceRunTest {{
     }}
 
     /** #4213: a dataset's records, as loaded, each `reclen` bytes (an ESDS: in arrival order). */
-    List<byte[]> records(String dd, int reclen) throws IOException {{
-        byte[] data = Files.readAllBytes(in.resolve(dd + ".in"));
+    List<byte[]> records(JsonNode sc, String dd, int reclen) throws IOException {{
+        byte[] data = Files.readAllBytes(input(sc, dd));
         List<byte[]> rows = new ArrayList<>();
         for (int i = 0; i + reclen <= data.length; i += reclen) {{
             rows.add(java.util.Arrays.copyOfRange(data, i, i + reclen));
@@ -3704,9 +5113,15 @@ class EquivalenceRunTest {{
         return rows;
     }}
 
-    <E> void load(String dd, int reclen, BiFunction<byte[], Charset, E> fromRecord, JpaRepository<E, ?> repo)
+    /** #4622: the dataset as the scenario starts with it: its own file (`DD.scenario.in`) when it states one. */
+    Path input(JsonNode sc, String dd) {{
+        Path own = in.resolve(dd + "." + sc.get("name").asText() + ".in");
+        return Files.exists(own) ? own : in.resolve(dd + ".in");
+    }}
+
+    <E> void load(JsonNode sc, String dd, int reclen, BiFunction<byte[], Charset, E> fromRecord, JpaRepository<E, ?> repo)
             throws IOException {{
-        byte[] data = Files.readAllBytes(in.resolve(dd + ".in"));
+        byte[] data = Files.readAllBytes(input(sc, dd));
         List<E> rows = new ArrayList<>();
         for (int i = 0; i + reclen <= data.length; i += reclen) {{
             rows.add(fromRecord.apply(java.util.Arrays.copyOfRange(data, i, i + reclen), TEXT));
@@ -3744,7 +5159,8 @@ def sql_unjudged(plan: list[str], seams: set[str]) -> str:
 
 def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Path, files: list[dict[str, Any]],
                   port: bool = True, port_dir: Path | None = None,
-                  facade: dict[str, Any] | None = None) -> dict[str, list[dict[str, Any]]]:  # fmt: skip
+                  facade: dict[str, Any] | None = None,
+                  one_jvm: bool = False) -> dict[str, list[dict[str, Any]]]:  # fmt: skip
     """The generated project runs every scenario as a CicsTask; {scenario: its events}, each
     COMMAREA mapped back to COBOL field names through the DTO's own comments.
 
@@ -3752,7 +5168,8 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     task entered through the program's deployed entry point (handleTransaction, or handleLink for a LINKed program;
     a LINK target the case runs through its handleLink) with the scenario's region joined. `facade` gets `events`
     ({scenario: events}, as above), `entries` ({scenario: [{program, method}]}), `refused` ({scenario: why}) and
-    `out` (the run's output directory); or `error` when that run itself fails."""
+    `out` (the run's output directory); or `error` when that run itself fails.
+    #4047: `one_jvm` runs the tasks and the facade run in one session JVM (a Db2 case keeps a JVM each)."""
     import json
 
     import equivalence_java as ej
@@ -3768,13 +5185,23 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     seams = sql_seam_programs(case, src)  # #4173 x #4188: whose Java can take an injected SQL fault
     test = project / "src/test/java" / ej.PKG_DIR / "EquivalenceRunTest.java"
     test.write_text(
-        cics_equivalence_test(case, src, files, csd_programs(corpus, case), csd_tdqueues(corpus, case)),
+        cics_equivalence_test(
+            case,
+            src,
+            files,
+            csd_programs(corpus, case),
+            csd_tdqueue_types(corpus, case),
+            csd_tdqueue_attrs(corpus, case),
+        ),
         encoding="utf-8",
     )
     inputs = work / "in"
     inputs.mkdir(parents=True, exist_ok=True)
     for f in files:
         shutil.copy(cobol_work / "files" / f["base"], inputs / f"{f['base']}.in")
+    for sc in case["scenarios"]:  # #4622: a file a scenario states its own records for
+        for base in scenario_datasets(case, sc):
+            shutil.copy(cobol_work / "scenarios" / sc["name"] / "files" / base, inputs / f"{base}.{sc['name']}.in")
     ca_fields = commarea_fields(corpus, case)  # as the DTO lists them: an OCCURS group's fields once
     ca_read = commarea_fields(corpus, case, occurrences=True)  # #4765: the whole record, every occurrence
     scenarios = []
@@ -3805,9 +5232,12 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                           "counters": _counters(case, sc), "taskn": task_number(case, sc),
                           "startcode": task_facts(case, sc)[0], "terminal": task_facts(case, sc)[1],
                           **terminal_facts(case, sc),
+                          **({"clock": ej._clock({**case, "clock": scenario_clock(case, sc)})} if "clock" in sc else {}),
                           "ts": ts_seed(case, sc), "urimaps": urimaps(case, sc),
+                          **({"td": td_seed(case, sc)} if td_seed(case, sc) else {}),
                           "doctemplates": doctemplates(case, sc), "http_peers": http_peers(case, sc),
-                          "http_request": http_request(case, sc)})  # fmt: skip
+                          "http_request": http_request(case, sc), "tcpip": tcpip(case, sc),
+                          **_java_mq(case, sc, inputs, len(scenarios)), **_java_dli(case, corpus, inputs)})  # fmt: skip
     (inputs / "scenarios.json").write_text(json.dumps(scenarios, indent=1), encoding="utf-8")
     props = ej.data_charset_arg(case)
     if case.get("db2"):  # the seed and the dump queries, and the harness's Db2
@@ -3816,23 +5246,60 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
             f"{t}\t{'|'.join(n)}\t{equivalence_db2.dump_query(t, n)}\n"
             for t, n in ((t, equivalence_db2.columns(t)) for t in case["db2"].get("compare", []))), encoding="latin-1")  # fmt: skip
         props = f"{props} {equivalence_db2.java_props(case)}"
-    out = ej.run_maven(project, work, inputs, props=props)
-    result = _java_events(case, out, shape, ca_read)
-    if facade is not None:  # #4449: the java-facade side, the same project and inputs
-        try:
-            fout = ej.run_maven(project, work / "facade", inputs, props=f"{props} -Dequivalence.facades=true")
-        except RuntimeError as e:
-            facade["error"] = str(e)
-            return result
-        facade["out"] = fout
-        facade["events"] = _java_events(case, fout, shape, ca_read)
-        facade["entries"], facade["refused"] = {}, {}
-        for sc in case["scenarios"]:
-            ent, why = fout / f"{sc['name']}.entries.json", fout / f"{sc['name']}.refused"
-            facade["entries"][sc["name"]] = json.loads(ent.read_text(encoding="utf-8")) if ent.is_file() else []
-            if why.is_file():
-                facade["refused"][sc["name"]] = why.read_text(encoding="utf-8")
-    return result
+    import equivalence_call
+
+    sessions = equivalence_call.sessions_for(case, project, one_jvm)
+    try:
+        out = ej.run_maven(project, work, inputs, props=props, session=sessions.get() if sessions else None)
+        result = _java_events(case, out, shape, ca_read)
+        if facade is not None:  # #4449: the java-facade side, the same project and inputs
+            _run_facade(ej, project, work, inputs, props, sessions, case, shape, ca_read, facade)
+        return result
+    finally:
+        if sessions:
+            sessions.close()
+
+
+def _run_facade(ej: Any, project: Path, work: Path, inputs: Path, props: str, sessions: Any, case: dict[str, Any],
+                shape: Any, ca_read: Any, facade: dict[str, Any]) -> None:  # fmt: skip
+    """#4449: the facade run into `facade` (`error` when the run itself fails)."""
+    try:
+        fout = ej.run_maven(project, work / "facade", inputs, props=f"{props} -Dequivalence.facades=true",
+                            session=sessions.get() if sessions else None)  # fmt: skip
+    except RuntimeError as e:
+        facade["error"] = str(e)
+        return
+    facade["out"] = fout
+    facade["events"] = _java_events(case, fout, shape, ca_read)
+    facade["entries"], facade["refused"] = {}, {}
+    for sc in case["scenarios"]:
+        ent, why = fout / f"{sc['name']}.entries.json", fout / f"{sc['name']}.refused"
+        facade["entries"][sc["name"]] = json.loads(ent.read_text(encoding="utf-8")) if ent.is_file() else []
+        if why.is_file():
+            facade["refused"][sc["name"]] = why.read_text(encoding="utf-8")
+
+
+def _java_dli(case: dict[str, Any], corpus: Path, inputs: Path) -> dict[str, Any]:
+    """#5278: a case whose program issues EXEC DLI: the databases' directory (the very files the stub reads) and their names."""
+    if not case.get("ims") or not DLI_CALL.search(common.read_program(case, corpus / case["program_source"])[0]):
+        return {}
+    return {"dli": {"dir": "dli", "dbs": dli_stage(case, corpus, inputs / "dli")}}
+
+
+def _java_mq(case: dict[str, Any], sc: dict[str, Any], inputs: Path, n: int) -> dict[str, Any]:
+    """#4892: the scenario's start data (hex, in the region's page: CicsTask.withRetrieveData, as the stub's
+    retrieve_NNN.bin) and its queue manager's mq.cfg (the stub's very file, under the runner's inputs); none: no key."""
+    from gitgalaxy.tools.cobol_to_java.det.cics import REGION_PAGE
+
+    enc, out = common.data_encoding(case), {}
+    data = equivalence_mq.start_data(case, sc, enc)
+    if data:
+        out["start_data"] = [d.decode(enc).encode(REGION_PAGE).hex().upper() for d in data]
+    st = equivalence_mq.state(case, sc)
+    if st is not None:
+        (inputs / f"mq_{n}.cfg").write_text(equivalence_mq.cfg(st, enc), encoding="ascii")
+        out["mq"] = f"mq_{n}.cfg"
+    return out
 
 
 def java_commarea(value: Any, shape: dict[str, Any], ca_fields: list[dict[str, Any]], enc: str) -> dict[str, Any]:
@@ -3881,11 +5348,20 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
 
     enc = common.data_encoding(case)
 
+    def child(e: dict[str, Any]) -> None:  # #4950: a RUN TRANSID child's events, as a task's (no COMMAREA)
+        for x in e.get("events") or []:
+            if x.get("event") == "CHILD":
+                child(x)
+            elif "commarea" in x:
+                x["commarea"] = None
+
     result = {}
     for sc in case["scenarios"]:
         f = out / f"{sc['name']}.json"
         events = json.loads(f.read_text(encoding="utf-8")) if f.is_file() else []
         for e in events:
+            if e.get("event") == "CHILD":
+                child(e)
             if e.get("event") == "LINK":  # #4173: the target's DTO as issued, before it is mapped to this program's
                 e["link_area"] = e.get("commarea")
             if e.get("event") == "WRITEQ-TS":  # #4607: the item's bytes as text
@@ -3894,6 +5370,8 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
                 e.update(java_read_as_compared(e))
             if e.get("event") == "START":  # #4270: the FROM data's bytes as text
                 e.update(java_start_as_compared(e))
+            if e.get("event") == "RETRIEVE":  # #5089: the data's bytes as text
+                e.update(java_retrieve_as_compared(e))
             if e.get("event") == "COMMAREA" and e.get("area") is not None:  # #4765: the bytes the port left
                 e["commarea"] = java_area(e.pop("area"), ca_fields or [], enc)
             elif "commarea" in e:
@@ -4092,25 +5570,38 @@ def _cobol_web_header(kv: dict[str, str], enc: str) -> dict[str, Any]:
             "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
 
 
+def _cobol_web_receive(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
+    """#4767 (X38): a WEB-RECEIVE line of the stub's events (the media type in hex, the bytes returned as the data) as CicsTask
+    records it; LENGERR 16 returned nothing (no body)."""
+    none = kv["resp2"] == "16"
+    return {"mediatype": None if kv["media"] == "-" else bytes.fromhex(kv["media"]).decode(enc),
+            "body": None if none else data.decode(enc), "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
+
+
 def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     """The COBOL task's outputs as the event list CicsTask records."""
     out: list[dict[str, Any]] = []
     screens, texts, records = iter(res["screens"]), iter(res["text"]), iter(res.get("td", []))
+    text_options = iter(res.get("text_options", []))
     queued = iter(res.get("ts", []))
     operator = iter(res.get("operator", []))
     reads = iter(res.get("reads", []))  # #4270: READQ TS / terminal RECEIVE
     starts = iter(res.get("starts", []))  # #4270: START
+    retrieves = iter(res.get("retrieves", []))  # #5089: RETRIEVE
+    mq_calls = iter(res.get("mq", []))  # #4892: MQI calls
     webs = iter(res.get("web", []))  # #4767 (X35): WEB CONVERSE
     websends = iter(res.get("websend", []))  # #4767 (X37): WEB SEND
     webheaders = iter(res.get("webheader", []))  # #4767 (X38): WEB WRITE HTTPHEADER
+    webreceives = iter(res.get("webreceive", []))  # #4767 (X38): WEB RECEIVE
+    children = iter(res.get("children", []))  # #4950: RUN TRANSID children
     for line in res["events"]:
         verb, _, args = line.partition(" ")
         if verb == "SEND-MAP":
             s = next(screens)
             out.append({"event": "SEND-MAP", "map": s["map"], "screen": s["fields"], "subfields": s["subfields"],
                         "options": s["options"], "cursor": s["cursor"]})  # fmt: skip
-        elif verb == "SEND-TEXT":
-            out.append({"event": "SEND-TEXT", "text": next(texts)})
+        elif verb == "SEND-TEXT":  # #5401: its options too, as CicsTask.sendText records them
+            out.append({"event": "SEND-TEXT", "text": next(texts), "options": next(text_options, [])})
         elif verb == "SEND-CONTROL":  # #4270: CicsTask.sendControl records it -- its options and CURSOR's offset
             cur = int((re.search(r"\bcursor=(-?\d+)", args) or [None, "-1"])[1])
             out.append({"event": "SEND-CONTROL", "options": args.partition("opts=")[2].split(),
@@ -4129,12 +5620,18 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             out.append({"event": "WEB-SEND", **next(websends)})
         elif verb == "WEB-HEADER":  # #4767 (X38): CicsTask.webWriteHeader records the header written
             out.append({"event": "WEB-HEADER", **next(webheaders)})
+        elif verb == "WEB-RECEIVE":  # #4767 (X38): CicsTask.webReceive records the body read
+            out.append({"event": "WEB-RECEIVE", **next(webreceives)})
         elif verb == "WRITEQ-TS":  # #4607: CicsTask.writeqTs records it (queue, data, resp, item)
             out.append({"event": "WRITEQ-TS", **next(queued)})
-        elif verb in ("READQ-TS", "RECEIVE"):  # #4270: CicsTask records them (queue, item, resp, data)
+        elif verb in ("READQ-TS", "READQ-TD", "RECEIVE"):  # #4270: CicsTask records them (queue, item, resp, data)
             out.append(next(reads))
         elif verb == "START":  # #4270 (GenApp LGWEBST5): CicsTask.start records it
             out.append({"event": "START", **next(starts)})
+        elif verb == "RETRIEVE":  # #5089: CicsTask.retrieve records it
+            out.append({"event": "RETRIEVE", **next(retrieves)})
+        elif verb in equivalence_mq.EVENTS:  # #4892
+            out.append(next(mq_calls))
         elif verb == "RECEIVE-MAP":  # #4009: CicsTask.receive records it too
             out.append({"event": "RECEIVE-MAP", "map": re.search(r"\bmap=(\S*)", args).group(1)})
         elif verb == "RETURN":
@@ -4164,17 +5661,44 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
         elif verb == "ABEND":
             m = re.search(r"\babcode=(\S*)", args)
             out.append({"event": "ABEND", "abcode": m.group(1) if m else ""})
+        elif (
+            verb == "ENQ"
+        ):  # #5089 (X60): an ENQ the scenario planned busy: CicsTask.enq records it (the others record none)
+            kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
+            e = {"event": "ENQ", "resource": kv["resource"], "resp": RESP_NAMES.get(int(kv["resp"]), kv["resp"])}
+            if "resp2" in kv:  # X60: LENGERR 1 / INVREQ 2 from the operands (a planned ENQBUSY states none)
+                e["resp2"] = int(kv["resp2"])
+            out.append(e)
+        elif verb == "CANCEL":  # #5079 (X63): as CicsTask.cancel records it -- the REQID and the condition
+            kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
+            out.append({"event": "CANCEL", "reqid": kv.get("reqid", ""),
+                        "resp": RESP_NAMES.get(int(kv.get("resp", "0")), kv.get("resp", ""))})  # fmt: skip
         elif verb == "RUN":  # #4270: RUN TRANSID CHILD, as CicsTask.runTransid records it (the child is not run here)
             kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
             resp = RESP_NAMES.get(int(kv.get("resp", "0")), kv.get("resp", ""))
             out.append({"event": "RUN", "transid": kv.get("transid", ""), "resp": resp})
-        elif verb == "FETCH":  # #4884: as CicsTask.fetch records it
+        elif verb == "FETCH":  # #4884, #4950: as CicsTask.fetch records it (on NORMAL: the child and what it left)
             kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
-            out.append(
-                {"event": "FETCH", "resp": RESP_NAMES.get(int(kv["resp"]), kv["resp"]), "resp2": int(kv["resp2"])}
-            )
+            e = {"event": "FETCH", "resp": RESP_NAMES.get(int(kv["resp"]), kv["resp"]), "resp2": int(kv["resp2"])}
+            if "child" in kv:
+                e.update({"child": kv["child"], "compstatus": kv["compstatus"],
+                          "abcode": None if kv["abcode"] == "-" else kv["abcode"],
+                          "channel": None if kv["channel"] == "-" else kv["channel"]})  # fmt: skip
+            out.append(e)
+        elif verb == "FREE-CHILD":  # #4950: as CicsTask.freeChild records it
+            kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
+            out.append({"event": "FREE-CHILD", "resp": RESP_NAMES.get(int(kv["resp"]), kv["resp"]),
+                        "resp2": int(kv["resp2"])})  # fmt: skip
+        elif verb == "CHILD":  # #4950: a RUN TRANSID child the task's wait dispatched, its events as a whole
+            kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
+            out.append({"event": "CHILD", "child": kv["child"], "transid": kv["transid"],
+                        "events": cobol_events(next(children))})  # fmt: skip
     if res.get("containers") is not None:  # #4270 (X24): the containers the task leaves on its current channel
         out.append({"event": "CONTAINERS", **res["containers"]})
+    if res.get("mq_queues") is not None:  # #4892: the queues the task leaves (its normal end commits it)
+        out.append({"event": "MQ-QUEUES", "queues": res["mq_queues"]})
+    if res.get("dli") is not None:  # #5278: the databases the task leaves, each in hierarchic sequence
+        out.append({"event": "DLI-DBS", "dbs": {k: v.hex().upper() for k, v in res["dli"].items()}})
     if res.get("linked_commarea") is not None:
         out.append({"event": "COMMAREA", "commarea": res["linked_commarea"]})
     return out
@@ -4238,12 +5762,12 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
             diffs.append({"event": n + 1, "cobol": c and c["event"], "java": j and j["event"]})
             continue
         bad = []
-        for key in ("map", "transid", "program", "text", "abcode", "queue", "data", "resp", "item"):
+        for key in ("map", "transid", "program", "text", "abcode", "queue", "data", "resp", "item", "resource"):
             if key in c and not _same(c[key], j.get(key)):
                 bad.append({"field": key, "cobol": c[key], "java": j.get(key)})
         if c["event"] == "START":  # #4270: what CicsTask.start records besides the transid and RESP, both ways
             for key in ("termid", "interval", "time", "reqid", "protect", "resp2", "expires", "from",
-                        "rtransid", "rtermid", "queue"):  # fmt: skip
+                        "rtransid", "rtermid", "queue", "channel"):  # fmt: skip
                 if (key in c or key in j) and not _same(c.get(key), j.get(key)):
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
         if c["event"] == "WEB-CONVERSE":  # #4767 (X35): the request each side sent, both ways
@@ -4254,10 +5778,16 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
             for key in ("name", "value", "resp2"):
                 if (key in c or key in j) and c.get(key) != j.get(key):
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
+        if c["event"] == "WEB-RECEIVE":  # #4767 (X38): the body each side read and its media type, both ways
+            for key in ("mediatype", "body", "resp", "resp2"):
+                if (key in c or key in j) and c.get(key) != j.get(key):
+                    bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
         if c["event"] == "WEB-SEND":  # #4767 (X37): the response each side sent, both ways
             for key in ("status", "statustext", "mediatype", "body", "action", "resp2"):  # (exactly: blanks are sent)
                 if (key in c or key in j) and c.get(key) != j.get(key):
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
+        if c["event"] in (*equivalence_mq.EVENTS, "MQ-QUEUES"):  # #4892: the MQI call's outcome, the queues left
+            bad += equivalence_mq.compare(c, j)
         if c["event"] == "CONTAINERS":  # #4270 (X24): the channel's name and every container's bytes, both ways
             if c.get("channel") != j.get("channel"):
                 bad.append({"field": "channel", "cobol": c.get("channel"), "java": j.get("channel")})
@@ -4274,6 +5804,10 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
                     continue
                 if not same(cv[name], jv.get(name)):
                     bad.append({"field": f"{part}.{name}", "cobol": cv[name], "java": jv.get(name)})
+        if c["event"] == "SEND-TEXT" and "options" in c:  # #5401: the options the translation forwards, both ways
+            java_options = sorted(o for o in j.get("options") or [] if o in TEXT_OPTIONS_FORWARDED)
+            if c["options"] != java_options:
+                bad.append({"field": "options", "cobol": c["options"], "java": java_options})
         if c["event"] == "SEND-CONTROL":  # #4270: ERASE / FREEKB / ALARM ... and the cursor, as the crucible compares
             if sorted(c.get("options") or []) != sorted(j.get("options") or []):
                 bad.append({"field": "options", "cobol": c.get("options"), "java": j.get("options")})
@@ -4288,8 +5822,17 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
                 bad.append({"field": "options", "cobol": c.get("options"), "java": j.get("options")})
             if c.get("cursor") != j.get("cursor"):
                 bad.append({"field": "cursor", "cobol": c.get("cursor"), "java": j.get("cursor")})
-        if c["event"] == "FETCH":  # #4884 (X18, DIFFERS): both sides answer NOTFINISHED, IBM's child may have finished
-            bad.append({"field": "FETCH", "cobol": FETCH_DIFFERS, "java": FETCH_DIFFERS})  # never counted equal
+        if c["event"] in ("FETCH", "FREE-CHILD"):  # #4950: the child fetched and what it left, both ways
+            for key in ("resp2", "child", "compstatus", "abcode", "channel"):
+                if (key in c or key in j) and c.get(key) != j.get(key):
+                    bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
+        if c["event"] == "CHILD":  # #4950: a RUN TRANSID child's own events, compared as a task's
+            for key in ("child", "transid"):
+                if c.get(key) != j.get(key):
+                    bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
+            sub = compare_events(c.get("events") or [], j.get("events") or [])
+            if sub["diffs"]:
+                bad.append({"field": "events", "cobol": sub["diffs"], "java": None})
         if bad:
             diffs.append({"event": n + 1, "kind": c["event"], "fields": bad})
         else:
@@ -4300,9 +5843,6 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
     return out
 
 
-FETCH_DIFFERS = ("FETCH ANY / CHILD NOSUSPEND: both runtimes answer NOTFINISHED because a child runs only after its "
-                 "parent ends; on IBM a child can finish during the parent's DELAY, so a program that executes a FETCH "
-                 "is not proven (oracle_assumptions.md X18, DIFFERS)")  # fmt: skip
 UNNAMED_IN_A_DTO = ("a FILLER: the Java side gave back the COMMAREA as a DTO, which has no property for it (a port "
                     "that gives back the bytes -- a det port LINKed with them, or a COMMAREA past its DTO -- has it "
                     "compared)")  # fmt: skip
@@ -4588,7 +6128,8 @@ def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]
 
 
 def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, port_dir: Path | None = None,
-             cobol_only: bool = False, sql_faults: str = "auto", facades: bool = False) -> int:  # fmt: skip
+             cobol_only: bool = False, sql_faults: str = "auto", facades: bool = False,
+             one_jvm: bool = False) -> int:  # fmt: skip
     """A CICS case end to end: facts -> stub files, the COBOL tasks, the Java tasks, the report.
 
     #4449: `facades` (with a port) runs the java-facade side too -- every scenario again, entered through the
@@ -4596,24 +6137,29 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
     import json
 
     import equivalence_cache
+
     from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
 
     ir = load_galaxy_ir(equivalence_cache.scan_db(corpus, work / "scan"))  # (once per corpus and engine)
-    files = stub_files(ir, case["program_source"], case.get("datasets"))
+    symbols = install_symbols(case.get("install_symbols"))  # #5089: stated, never guessed
+    files = stub_files(ir, case["program_source"], case.get("datasets"), symbols)
     for extra in case.get("programs", []):  # the programs the task LINKs to use files of their own
-        files += [f for f in stub_files(ir, extra["program_source"], case.get("datasets"))
+        files += [f for f in stub_files(ir, extra["program_source"], case.get("datasets"), symbols)
                   if f["file"] not in {x["file"] for x in files}]  # fmt: skip
     case = equivalence_inputs.prepare_cics_case(case, corpus, files)  # #3804: generated files and scenarios
     # #4173: SQL faults -- `auto` adds a task per SQL statement the tasks executed (enumerated_sql_faults), each run
     # on both sides; `declared` runs only the scenarios' own sql_faults; `none` drops those too
     if sql_faults == "none":
         case = {**case, "scenarios": [{**sc, "sql_faults": []} for sc in case["scenarios"]]}
-    cobol = run_cobol_cics(case, corpus, work / "cobol", files)
+    with common.phase("cobol_cics"):  # #5882
+        cobol = run_cobol_cics(case, corpus, work / "cobol", files)
     if case.get("db2") and sql_faults == "auto":
         derived = enumerated_sql_faults(case, work / "cobol")
         if derived:
+            ran = frozenset(sc["name"] for sc in case["scenarios"])  # #5882: run once, in the first pass
             case = {**case, "scenarios": [*case["scenarios"], *derived]}
-            cobol = run_cobol_cics(case, corpus, work / "cobol", files)
+            with common.phase("cobol_cics_sql_faults"):  # only the derived fault tasks
+                cobol = run_cobol_cics(case, corpus, work / "cobol", files, keep=ran)
     refused = json.loads((work / "cobol" / "refused.json").read_text(encoding="utf-8"))
     for name, why in refused.items():
         print(f"{case['program']} {name}: not run -- {why}")
@@ -4624,7 +6170,8 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         return 0
     try:
         facade: dict[str, Any] | None = {} if facades and port else None
-        java = run_java_cics(case, corpus, work / "java", work / "cobol", files, port, port_dir, facade)
+        with common.phase("java_cics"):  # #5882: holds java_generate and java_maven
+            java = run_java_cics(case, corpus, work / "java", work / "cobol", files, port, port_dir, facade, one_jvm)
     except RuntimeError as e:  # the port does not compile, or its run fails: the loop's feedback, not a crash
         failed = common.java_failure_report(case, work, str(e))
         (work / "report.json").write_text(json.dumps(failed, indent=2) + "\n", encoding="utf-8")

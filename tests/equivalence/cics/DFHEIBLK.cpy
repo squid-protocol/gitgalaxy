@@ -81,6 +81,7 @@
               10 GG-M   PIC 9(2).
               10 GG-D   PIC 9(2).
            05 GG-DATE8 REDEFINES GG-YMD PIC 9(8).
+           05 GG-DOY    PIC 9(3).
            05 GG-HMSC.
               10 GG-HH  PIC 9(2).
               10 GG-MI  PIC 9(2).

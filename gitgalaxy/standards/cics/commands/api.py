@@ -15,7 +15,7 @@ variants -- SEND (3270 logical), RECEIVE (LUTYPE6.1), PUT CONTAINER (BTS) ... --
 entries (with INQUIRE PROGRAM, an SPI command, the 45 of OPTIONS + LOAD / RELEASE); 9 are forms of a modelled
 command that the translator reads as that command (RUN TRANSID; START ATTACH / BREXIT / CHANNEL; SEND TEXT MAPPED /
 NOEDIT; the device SENDs; SEND MAP / RECEIVE MAP MAPPINGDEV), refused there by option. The other 176 are here (#4767: WEB OPEN / CONVERSE / CLOSE,
-WEB PARSE URL, WEB SEND, WEB EXTRACT / RECEIVE, WEB READ / WRITE HTTPHEADER / FORMFIELD / QUERYPARM and the WEB browse forms moved to web.py).
+WEB PARSE URL, WEB SEND, WEB EXTRACT / RECEIVE, EXTRACT WEB / TCPIP, WEB READ / WRITE HTTPHEADER / FORMFIELD / QUERYPARM and the WEB browse forms moved to web.py).
 
 A name-only entry becomes a full one only when the blocker ranking (cics_census.py blockers, #4587) calls for it.
 The reasons the translator gave before PR 2 are kept word for word (container MOVE / browse, a parent waiting for its
@@ -24,10 +24,7 @@ child task); the named-counter commands are refused by det/cics.py with its own 
 from __future__ import annotations
 
 from gitgalaxy.standards.cics.commands.shared import ibm
-from gitgalaxy.standards.cics.model import Command
-
-# the whole-command reasons det/cics.py gave before PR 2, word for word
-CHILD_LATER = "#4270: a parent waiting for its child task, a later slice"
+from gitgalaxy.standards.cics.model import Command, Refusal
 
 _BTS = "business transaction services (BTS processes, activities, events, timers) are not modelled"
 _DTP = "distributed transaction processing (APPC / LUTYPE6.1 / MRO conversations) is not modelled"
@@ -43,21 +40,26 @@ _WEB = "CICS web support (HTTP server / client) is not modelled"
 _WEB_SERVICE = "web services (SOAP / WS-Addressing) are not modelled"
 _TRANSFORM = "XML / JSON transformation (TRANSFORM) is not modelled"
 _SPOOL = "the JES spool interface is not modelled"
-_EVENT_WAIT = "event control blocks and waiting on them are not modelled (one task runs at a time)"
+_EVENT_WAIT = (
+    "waiting on an event control block other than a POST's timer-event control area (WAIT EVENT, X63) is not modelled"
+    " (one task runs at a time)"
+)
 _LOGICAL_MESSAGE = "a BMS logical message (ACCUM / PAGING, completed by SEND PAGE) is not modelled"
 _PARTITION = "partitions / logical device codes: the region's terminal is one unpartitioned display"
 _OTEL = "OpenTelemetry spans are not modelled"
 _TRACE = "user trace and monitoring points are not modelled"
 
+_INQUIRE_CONTAINER = (
+    "IBM documents INQUIRE CONTAINER only for a BTS data-container (ACTIVITYID / PROCESS / PROCESSTYPE); BTS is not "
+    "modelled and there is no channel form (a channel's container names come from STARTBROWSE CONTAINER, its length "
+    "from GET CONTAINER NODATA FLENGTH)"
+)
+
 # (name, IBM topic after "summary-" -- None: the name's own -- reason)
 _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     # channels and containers beyond the container commands (#4270 slice 1, #4951)
-    ("DELETE CHANNEL", None, "deleting a channel is not modelled"),
-    ("QUERY CHANNEL", None, "QUERY CHANNEL (a channel's container count) is not modelled"),
     ("GET64 CONTAINER", None, "64-bit storage is not modelled"),
     ("PUT64 CONTAINER", None, "64-bit storage is not modelled"),
-    # child tasks (#4270 slice 2: RUN TRANSID; FETCH ANY / FETCH CHILD are in interval.py, #4884)
-    ("FREE CHILD", None, CHILD_LATER),
     # BTS
     ("ACQUIRE", None, _BTS),
     ("ADD SUBEVENT", None, _BTS),
@@ -82,7 +84,9 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("GETNEXT PROCESS", None, _BTS),
     ("GETNEXT TIMER", None, _BTS),
     ("INQUIRE ACTIVITYID", None, _BTS),
-    ("INQUIRE CONTAINER", None, _BTS),
+    # IBM documents INQUIRE CONTAINER only in its BTS form (ACTIVITYID / PROCESS / PROCESSTYPE / DATALENGTH / SET): no
+    # channel or browse form (the channel browse is STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER, X42) (#5005, X44)
+    ("INQUIRE CONTAINER", None, _INQUIRE_CONTAINER),
     ("INQUIRE EVENT", None, _BTS),
     ("INQUIRE PROCESS", None, _BTS),
     ("INQUIRE TIMER", None, _BTS),
@@ -105,7 +109,6 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("ALLOCATE", "allocate-appc", _DTP),
     ("BUILD ATTACH", "build-attach-mro", _DTP),
     ("CONNECT PROCESS", None, _DTP),
-    ("CONVERSE", "converse-default", "CONVERSE (send, then receive, on a terminal or a conversation) is not modelled"),
     ("EXTRACT ATTACH", "extract-attach-mro", _DTP),
     ("EXTRACT ATTRIBUTES", "extract-attributes-appc", _DTP),
     ("EXTRACT PROCESS", None, _DTP),
@@ -163,21 +166,11 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("SEND PARTNSET", None, _PARTITION),
     ("RECEIVE PARTN", None, _PARTITION),
     # storage and addresses
-    ("GETMAIN", None, _STORAGE),
     ("GETMAIN64", None, _STORAGE),
-    ("FREEMAIN", None, _STORAGE),
     ("FREEMAIN64", None, _STORAGE),
-    (
-        "ADDRESS",
-        None,
-        "the addresses of CICS areas (EIB, COMMAREA, CWA, TWA, TCTUA) set into pointers are not modelled",
-    ),
     ("ADDRESS SET", None, "setting a pointer from a data area's address (or the reverse) is not modelled"),
     # queues and files beyond the modelled ones
-    ("READQ TD", None, "reading a transient-data queue is not modelled (only WRITEQ TD)"),
-    ("DELETEQ TD", None, "deleting a transient-data queue is not modelled"),
     ("RESETBR", None, "repositioning a browse (RESETBR) is not modelled"),
-    ("UNLOCK", None, "releasing a record's update lock (UNLOCK) is not modelled"),
     # journals
     ("JOURNAL", None, _JOURNAL),
     ("WRITE JOURNALNAME", None, _JOURNAL),
@@ -197,21 +190,15 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("VERIFY PASSWORD", None, _SECURITY),
     ("VERIFY PHRASE", None, _SECURITY),
     ("VERIFY TOKEN", None, _SECURITY),
-    # named counters other than GET / QUERY / DEFINE / DELETE COUNTER
-    ("REWIND COUNTER", "rewind-counter-rewind-dcounter", COUNTER),
-    ("UPDATE COUNTER", "update-counter-update-dcounter", COUNTER),
     # documents
     ("DOCUMENT DELETE", None, _DOCUMENT),
     ("DOCUMENT INSERT", None, _DOCUMENT),
     ("DOCUMENT SET", None, _DOCUMENT),
     # web, web services, transformation
-    ("EXTRACT WEB", None, _WEB),
-    ("EXTRACT TCPIP", None, _WEB),
     ("INVOKE APPLICATION", None, "invoking an application by its operation (INVOKE APPLICATION) is not modelled"),
     ("INVOKE SERVICE", None, _WEB_SERVICE),
     ("INVOKE WEBSERVICE", None, _WEB_SERVICE),
     ("SOAPFAULT ADD", None, _WEB_SERVICE),
-    ("SOAPFAULT CREATE", None, _WEB_SERVICE),
     ("SOAPFAULT DELETE", None, _WEB_SERVICE),
     ("WSACONTEXT BUILD", None, _WEB_SERVICE),
     ("WSACONTEXT DELETE", None, _WEB_SERVICE),
@@ -228,13 +215,17 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("SPOOLREAD", None, _SPOOL),
     ("SPOOLWRITE", None, _SPOOL),
     # event control, trace, monitoring, the rest
-    ("POST", None, _EVENT_WAIT),
-    ("WAIT EVENT", None, _EVENT_WAIT),
     ("WAIT EXTERNAL", None, _EVENT_WAIT),
     ("WAITCICS", None, _EVENT_WAIT),
     ("ENTER TRACENUM", None, _TRACE),
     ("MONITOR", None, _TRACE),
-    ("DUMP TRANSACTION", None, "a transaction dump is not modelled"),
+    # #4415 slice 3 (X46): the dump's outcome (SUPPRESSED by the dump table or a user exit, IOERR, NOTOPEN, a DUMPID's run
+    # number) is the region's dump setup, which the run does not state; the page does not say the task continues after one
+    (
+        "DUMP TRANSACTION",
+        None,
+        "a transaction dump is not modelled: its outcome is the region's dump setup, not stated (X46)",
+    ),
     ("OTEL ENDSPAN", None, _OTEL),
     ("OTEL EXTRACT", None, _OTEL),
     ("OTEL STARTSPAN", None, _OTEL),
@@ -243,12 +234,56 @@ _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
     ("CONVERTTIME", None, "converting a date and time string to ABSTIME (CONVERTTIME) is not modelled"),
 )
 
-COMMANDS = tuple(
-    Command(
-        key=name,
-        ibm=ibm(f"EXEC CICS {name}", "summary-" + (topic or name.lower().replace(" ", "-"))),
-        status="refused",
-        why=why,
-    )
-    for name, topic, why in _NAME_ONLY
+# #4270 (X65): every other name-only command is refused with its class reason, listed in X65. #5079 (X59, X63): the
+# old-style commands refused by name with a register entry citing IBM's page for each
+_REGISTER = {
+    "SEND PAGE": "X59",
+    "PURGE MESSAGE": "X59",
+    "DUMP TRANSACTION": "X46",
+    "WAIT EXTERNAL": "X63",
+    "WAITCICS": "X63",
+}
+
+# #5235: IBM's SOAPFAULT CREATE options (EXEC CICS SOAPFAULT CREATE), named so the spec knows every word of the command
+# DBB epscsmrd issues (CLIENT, FAULTSTRING, FAULTSTRLEN); the whole command stays refused (web services, X65)
+_SOAPFAULT_CREATE_OPTIONS = (
+    "CLIENT",
+    "SERVER",
+    "SENDER",
+    "RECEIVER",
+    "FAULTCODE",
+    "FAULTCODESTR",
+    "FAULTCODELEN",
+    "FAULTSTRING",
+    "FAULTSTRLEN",
+    "NATLANG",
+    "ROLE",
+    "ROLELENGTH",
+    "FAULTACTOR",
+    "FAULTACTLEN",
+    "DETAIL",
+    "DETAILLENGTH",
+    "FROMCCSID",
+)
+_SOAPFAULT_CREATE = Command(
+    key="SOAPFAULT CREATE",
+    ibm=ibm("EXEC CICS SOAPFAULT CREATE", "summary-soapfault-create"),
+    status="refused",
+    why=_WEB_SERVICE,
+    register="X65",
+    refused={o: Refusal(_WEB_SERVICE, "X65", whole=True) for o in _SOAPFAULT_CREATE_OPTIONS},
+)
+
+COMMANDS = (
+    _SOAPFAULT_CREATE,
+    *(
+        Command(
+            key=name,
+            ibm=ibm(f"EXEC CICS {name}", "summary-" + (topic or name.lower().replace(" ", "-"))),
+            status="refused",
+            why=why,
+            register=_REGISTER.get(name, "X65"),
+        )
+        for name, topic, why in _NAME_ONLY
+    ),
 )

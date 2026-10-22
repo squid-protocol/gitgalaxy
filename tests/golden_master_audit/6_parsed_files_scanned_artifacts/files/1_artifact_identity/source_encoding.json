@@ -3268,7 +3268,8 @@
       "rust/tokio/maybe_done.rs": "utf-8",
       "rust/tokio/tests.rs": "utf-8",
       "rust/tokio/tokio_mpsc_bounded.rs": "utf-8",
-      "rust/tokio/tokio_named_pipe.rs": "utf-8"
+      "rust/tokio/tokio_named_pipe.rs": "utf-8",
+      "rust/tokio/tokio_udp.rs": "utf-8"
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": "utf-8"
@@ -3397,6 +3398,7 @@
       "shell/freebsd-src/dd2_test.sh": "utf-8",
       "shell/freebsd-src/dtest.sh": "utf-8",
       "shell/freebsd-src/echo_test.sh": "utf-8",
+      "shell/freebsd-src/ed_test.sh": "utf-8",
       "shell/freebsd-src/format_string_test.sh": "utf-8",
       "shell/freebsd-src/functional_test.sh": "utf-8",
       "shell/freebsd-src/hostname_test.sh": "utf-8",
@@ -3434,6 +3436,7 @@
       "shell/haiku/default_deskbar_items.sh": "utf-8",
       "shell/haiku/gen-bepo.sh": "utf-8",
       "shell/haiku/generate_CountryFlags.sh": "utf-8",
+      "shell/haiku/generate_ids_from_drivers.sh": "utf-8",
       "shell/haiku/install-wifi-firmwares.sh": "utf-8",
       "shell/haiku/install.sh": "utf-8",
       "shell/haiku/leak_analyser.sh": "utf-8",
@@ -3859,6 +3862,7 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": "utf-8",
       "typescript/assemblyscript/ast.ts": "utf-8",
+      "typescript/assemblyscript/builtins.ts": "utf-8",
       "typescript/assemblyscript/compiler.ts": "utf-8",
       "typescript/assemblyscript/package.json": "utf-8",
       "typescript/assemblyscript/parser.ts": "utf-8"
@@ -3904,7 +3908,11 @@
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": "utf-8",
       "typescript/typescript_compiler/binder.ts": "utf-8",
-      "typescript/typescript_compiler/package.json": "utf-8"
+      "typescript/typescript_compiler/checker.ts": "utf-8",
+      "typescript/typescript_compiler/emitter.ts": "utf-8",
+      "typescript/typescript_compiler/package.json": "utf-8",
+      "typescript/typescript_compiler/parser.ts": "utf-8",
+      "typescript/typescript_compiler/types.ts": "utf-8"
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": "utf-8",
@@ -4076,6 +4084,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": "utf-8",
       "zig/zig/InternPool.zig": "utf-8",
+      "zig/zig/Sema.zig": "utf-8",
       "zig/zig/Type.zig": "utf-8",
       "zig/zig/Zcu.zig": "utf-8",
       "zig/zig/main.zig": "utf-8"
@@ -4090,6 +4099,7 @@
       "zig/zls/analysis.zig": "utf-8",
       "zig/zls/ast.zig": "utf-8",
       "zig/zls/config_gen.zig": "utf-8",
+      "zig/zls/langref.html.in": "utf-8",
       "zig/zls/print_ast.zig": "utf-8"
     }
   },

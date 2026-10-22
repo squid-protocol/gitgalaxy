@@ -81,6 +81,7 @@ public class CocrdlicService {
 
     /** The program's working storage for one task (WS-MISC-STORAGE, CC-WORK-AREA, WS-THIS-PROGCOMMAREA, CARD-RECORD). */
     private static final class Ws {
+        int resp2;
         CarddemoCommarea cc = blankCommarea();
 
         // WS-THIS-PROGCOMMAREA
@@ -202,6 +203,27 @@ public class CocrdlicService {
      *  @facade-helper */
     public byte[] lastAnswerBytes() {
         return lastAnswerBytes == null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);
+    }
+
+    // @facade-helper: the bytes the last byte-carrying handleLink's program left in the COMMAREA
+    private byte[] lastLinkBytes;
+
+    /** #5053: handleLink with the raw bytes of the LINK's COMMAREA (passed by address: what the program
+     *  leaves there the caller sees); lastLinkBytes() then answers the bytes it left. */
+    public CocrdlicCommarea handleLink(CocrdlicCommarea request, byte[] area) {
+        log.info("Cocrdlic: handleLink (bytes)");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("COCRDLIC", request, area);
+        region.run(task, "COCRDLIC", this::runTask);
+        byte[] left = task.linkAreaView();
+        lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;
+        return request;
+    }
+
+    /** The bytes the last byte-carrying handleLink's program left in the LINK COMMAREA (a copy; null: it took
+     *  none -- its DTO is the COMMAREA). @facade-helper */
+    public byte[] lastLinkBytes() {
+        return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);
     }
 
     /** One pseudo-conversational task of this program (#3754): paragraph 0000-MAIN through COMMON-RETURN. */
@@ -848,6 +870,7 @@ public class CocrdlicService {
             w.ridCardNum = x(b.key(), 16);
             cardRecordRepository.findById(b.key()).ifPresent(r -> takeCard(w, r));
         }
+        w.resp2 = b.resp2();  // EIBRESP2 of the browse command, shown by fileError
         return b.resp();
     }
 
@@ -858,6 +881,7 @@ public class CocrdlicService {
             w.ridCardNum = x(b.key(), 16);
             cardRecordRepository.findById(b.key()).ifPresent(r -> takeCard(w, r));
         }
+        w.resp2 = b.resp2();  // EIBRESP2 of the browse command, shown by fileError
         return b.resp();
     }
 
@@ -883,10 +907,10 @@ public class CocrdlicService {
     }
 
     /** The WHEN OTHER file-error text: WS-FILE-ERROR-MESSAGE moved to WS-ERROR-MSG (X(75), so the last 5 bytes are cut).
-     *  RESP2 is not available from the task's browse calls: 0 is shown. */
-    private static void fileError(Ws w, int resp) {
+     *  RESP2 is the browse command's (Ws.resp2). */
+    private static void fileError(Ws w, int resp) {  // RESP2 from w
         String msg = "File Error: " + x("READ", 8) + " on " + x("CARDDAT ", 9) + " returned RESP "
-                + x(digits(resp, 9), 10) + ",RESP2 " + x(digits(0, 9), 10) + x("", 5);
+                + x(digits(resp, 9), 10) + ",RESP2 " + x(digits(w.resp2, 9), 10) + x("", 5);
         w.errorMsg = x(msg, 75);
     }
 

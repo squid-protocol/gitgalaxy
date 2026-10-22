@@ -1,0 +1,9 @@
+CICS General Insurance Application (GenApp)
+https://github.com/cicsdev/cics-genapp
+(C) Copyright IBM Corp. 2011, 2020
+
+Licensed under the Eclipse Public License - v 2.0 (see LICENSE, the corpus's
+own licence file). The program under test, base/src/lgstsq.cbl, is GenApp's,
+used unmodified from the corpus. The scenarios' message texts are written for
+this case in the form GenApp's callers send (a 'Q=' queue-extension prefix, the
+ERROR-MSG layout of the callers' WRITE-ERROR-MESSAGE paragraphs).

@@ -27,6 +27,8 @@ from gitgalaxy.tools.cobol_to_java.java_target import target_from_dict
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from cultural_gauntlet import _maven_jar, entity_ddl, jdk  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 PKG = "com.test"
 
@@ -200,10 +202,10 @@ def _run(root: Path, sources: dict, main: str, driver: str, classpath: str = "")
         (root / "src" / rel).parent.mkdir(parents=True, exist_ok=True)
         (root / "src" / rel).write_text(text, encoding="utf-8")
     cp = os.pathsep.join([str(root / "classes")] + ([classpath] if classpath else []))
-    built = subprocess.run([javac, "-encoding", "UTF-8", "-cp", cp, "-d", str(root / "classes"),  # noqa: S603
-                            *(str(root / "src" / f) for f in files)], capture_output=True, text=True, check=False)  # fmt: skip
+    built = javac_run([javac, "-encoding", "UTF-8", "-cp", cp, "-d", str(root / "classes"),  # noqa: S603
+                            *(str(root / "src" / f) for f in files)], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert built.returncode == 0, built.stderr
-    ran = subprocess.run([java, "-Dfile.encoding=UTF-8", "-cp", cp, main],  # noqa: S603
+    ran = subprocess.run([java, "-Dstdout.encoding=UTF-8", "-Dfile.encoding=UTF-8", "-cp", cp, main],  # noqa: S603
                          capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert ran.returncode == 0, ran.stderr
     return ran.stdout.splitlines()

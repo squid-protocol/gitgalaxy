@@ -1,9 +1,10 @@
 name: GitGalaxy Smoke Tests
 
 on:
-  pull_request:  # #4825: full-suite / smoke-test are required checks -- they run on every PR
+  pull_request:  # #4825: full-suite is a required check -- it runs on every PR
+    types: [opened, synchronize, reopened, ready_for_review]  # #5104: a draft starts only the cheap audits
     branches: [main]
-  # #4518: the full 3 OS x 3 Python smoke grid runs here; PRs get a lean set.
+  # the full suite on main; the OS grid runs in os-smoke-grid.yml (#5130)
   push:
     branches: [main]
     paths-ignore: ["docs/**"]
@@ -25,19 +26,16 @@ concurrency:
   cancel-in-progress: true  # #4825: read-only, so a superseded main run is cancelled too (frees runners for PRs)
 
 jobs:
-  # TRUE smoke test: cheap, OS/Python-version-sensitive checks only (package
-  # installs, CLI entry points, syntax floor) across the full matrix. Does
-  # NOT run the full pytest suite -- see full-suite (single env, below) for
-  # every-push regression coverage, and full-suite-gate.yml for the full
-  # matrix x full-suite backup run (fires on main, nightly, release tags and manual runs).
-  # This split exists because most of tests/ (extraction/core_engine regex
-  # rules) has zero OS-dependency: running it 12x per push added CI cost
-  # that scaled with every language added to the extraction-hardening epic
-  # (#813) without adding real signal over running it once.
+  # #5130: the 3 OS x 3 Python smoke grid (package installs, CLI entry points) moved to os-smoke-grid.yml, dispatched
+  # on main by post-merge.yml (cadence-capped) plus nightly and on release tags. This workflow keeps the full suite on
+  # ONE environment (ubuntu/3.12), every PR and every main push; full-suite-gate.yml runs it across the OS x Python matrix.
   # The required check (#4825 ruleset): one name, whatever the number of parts.
   full-suite:
     needs: [tested-tree, full-suite-part]
-    if: always()
+    # #5104: draft PRs skip heavy CI. A main push superseded by the next push (cancel-in-progress) skips this summary
+    # instead of failing it (40 false-red `full-suite` jobs on main 2026-10-20); on a PR a cancel still fails it, so a
+    # cancelled head can never pass the required check by being skipped.
+    if: ${{ always() && !(github.event_name != 'pull_request' && cancelled()) && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -52,7 +50,10 @@ jobs:
 
   # #4935: a push to main whose tree already passed THIS workflow on its PR head (a squash of an up-to-date PR) is not
   # run again; any doubt runs it (tests/tools/skip_tested_tree.py has the rule, and tests). Always concludes success.
+  # #5129: only a main push run can be skipped, so the gate runs on push only: a PR run (and a schedule / dispatch run,
+  # which never skips) starts its heavy jobs without waiting on it. A skipped gate leaves `skip` empty: they run.
   tested-tree:
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -75,66 +76,33 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: python tests/tools/skip_tested_tree.py smoke-test.yml
 
-  smoke-test:
-    # #4520: PRs get ubuntu/3.12 via the full-suite job below (which also runs
-    # the --help entry-point checks); this grid runs on main, nightly and manual runs.
-    if: github.event_name != 'pull_request'
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
-    env:
-      PYTHONUTF8: "1"
-      GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
-      OMP_NUM_THREADS: "1"
-      OBJC_DISABLE_INITIALIZE_FORK_SAFETY: "YES"
-    strategy:
-      fail-fast: false
-      # #4518/#4520: full 9-way grid; this job is skipped on PRs.
-      matrix:
-        include: ${{ fromJSON('[{"os":"ubuntu-latest","python-version":"3.10"},{"os":"ubuntu-latest","python-version":"3.11"},{"os":"ubuntu-latest","python-version":"3.12"},{"os":"windows-latest","python-version":"3.10"},{"os":"windows-latest","python-version":"3.11"},{"os":"windows-latest","python-version":"3.12"},{"os":"macos-latest","python-version":"3.10"},{"os":"macos-latest","python-version":"3.11"},{"os":"macos-latest","python-version":"3.12"}]') }}
-
+  # #5114: the newest measured durations, chosen ONCE for all three parts. A part that restored `test-durations-` itself
+  # could land on a different cache than its neighbours (the nightly saves one between their starts) and pytest-split
+  # then cuts different slices. lookup-only downloads nothing; the parts restore this exact key. An empty key (no
+  # cache yet, or this job failed) means every part uses the committed .test_durations: the same file, so still one split.
+  durations:
+    name: durations key
+    needs: tested-tree
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      key: ${{ steps.durations.outputs.cache-matched-key }}
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Find the newest measured durations (#4847)
+        id: durations
+        continue-on-error: true
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          persist-credentials: false
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 #
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: pip
-          cache-dependency-path: pyproject.toml
-
-      - name: Install macOS dependencies (OpenMP for XGBoost)
-        if: runner.os == 'macOS'
-        run: brew install libomp
-
-      - name: Install dependencies
-        shell: bash
-        run: |
-          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install --require-hashes -r ci/requirements/test.txt
-          pip install --no-build-isolation -e .
-
-      - name: Smoke Test - Core Engine
-        run: python -m gitgalaxy.galaxyscope --help
-
-      - name: Smoke Test - Legacy Refractor Controller
-        run: python -m gitgalaxy.cobol_refractor_controller --help
-
-      - name: Smoke Test - Java Spring Forge Controller
-        run: python -m gitgalaxy.cobol_to_java_controller --help
-
-      - name: Smoke Test - Supply Chain Firewall
-        run: python -m gitgalaxy.tools.supply_chain_security.supply_chain_firewall --help
-
-      - name: Smoke Test - API Network Map
-        run: python -m gitgalaxy.tools.network_auditing.full_api_network_map --help
+          path: durations-cache
+          key: test-durations-${{ github.run_id }}  # never an exact hit: restore-keys takes the newest saved one
+          restore-keys: |
+            test-durations-
+          lookup-only: true
 
   # Full pytest suite, ONE representative environment (ubuntu/3.12), on
   # every push. This is the fast-feedback regression net that used to run
-  # 12x inside the smoke-test matrix above; running it once here keeps that
+  # 12x inside the old smoke-test matrix (now os-smoke-grid.yml); running it once here keeps that
   # signal on every push without the 12x cost. The full OS x Python-version
   # matrix still gets exercised, just not on every push -- see
   # full-suite-gate.yml.
@@ -146,8 +114,8 @@ jobs:
   # back to the committed .test_durations on a miss; the nightly parts store their seconds and that job merges them.
   full-suite-part:
     name: full-suite part ${{ matrix.group }}/3
-    needs: tested-tree
-    if: ${{ !cancelled() && needs.tested-tree.outputs.skip != 'true' }}  # #4935: not again for a tree the PR run proved
+    needs: [tested-tree, durations]
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -158,12 +126,13 @@ jobs:
       PYTHONUTF8: "1"
       GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
       OMP_NUM_THREADS: "1"
-      # #4703: the rendered evidence report is refreshed by the bot on main, not committed in PRs
-      EVIDENCE_REPORT_ADVISORY: "1"
     steps:
       - name: Check out repository code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          # #5882: one commit. The sweep plan reads the PR's file list from the API, not a git diff. (The old
+          # `event == 'pull_request' && 0 || 1` was always 1, as 0 is falsy: the plan could not diff and ran the sweeps.)
+          fetch-depth: 1
           persist-credentials: false
 
       - name: Set up Python 3.12
@@ -176,7 +145,6 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           pip install --require-hashes -r ci/requirements/test.txt
           # the COBOL translator's parser: without it every det-translator test importorskips and the
           # suite passes without running them (a stale emitter expectation reached main that way)
@@ -191,14 +159,15 @@ jobs:
           restore-keys: |
             tree-sitter-${{ runner.os }}-
 
-      - name: Restore the newest measured durations (#4847)
+      # #5114: the exact key the `durations` job resolved ONCE; a part never picks "the newest" on its own (a nightly
+      # save between two parts' starts gave them different slices: a test dropped or run twice).
+      - name: Restore the durations the plan chose (#4847, #5114)
         id: durations
+        if: needs.durations.outputs.key != ''
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: durations-cache
-          key: test-durations-${{ github.run_id }}  # never an exact hit: restore-keys takes the newest saved one
-          restore-keys: |
-            test-durations-
+          key: ${{ needs.durations.outputs.key }}
 
       - name: Balance by the restored durations (else the committed .test_durations)
         if: steps.durations.outputs.cache-matched-key != ''
@@ -224,16 +193,70 @@ jobs:
         if: matrix.group == 1
         run: python -m gitgalaxy.tools.network_auditing.full_api_network_map --help
 
+      # #5166 part A: a PR that changes no sweep input (tests/tools/sweep_plan.py) deselects the extraction ReDoS sweeps
+      # (marker `redos_sweep`, ~18 min of the suite); push, nightly, manual, `shepherd:full`, an unreadable diff: all of them.
+      - name: Plan the ReDoS sweeps (#5166)
+        id: sweeps
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          labels="" count=""
+          files="$RUNNER_TEMP/pr-files.jsonl"
+          : > "$files"
+          if [ -n "$PR" ]; then
+            labels=$(gh api "repos/$REPO/issues/$PR/labels" --jq '[.[].name] | join(",")' || true)
+            # #5882: the PR's changed files, whole or not at all (sweep_plan.py checks the count): no git history needed
+            gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | {filename, previous_filename}' > "$files" || : > "$files"
+            count=$(gh api "repos/$REPO/pulls/$PR" --jq .changed_files || true)
+          fi
+          python3 tests/tools/sweep_plan.py --event "$GITHUB_EVENT_NAME" --pr-files "$files" --pr-file-count "$count" \
+            --labels "$labels" --github-output "$GITHUB_OUTPUT" | tee sweep-plan.json
+          {
+            echo "## ReDoS sweep plan"
+            echo '```json'
+            cat sweep-plan.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          # #5166: on a PR, mainframe-ground-truth.yml runs all of tests/cobol_mainframe/ whenever a ground-truth input
+          # changed, and nothing it reads changed otherwise; main, nightly and manual runs keep them here. Through
+          # PYTEST_ADDOPTS so the pytest command line below stays as it is.
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then echo "PYTEST_ADDOPTS=--ignore=tests/cobol_mainframe" >> "$GITHUB_ENV"; fi
+
       - name: Golden Record Integration Test (Pytest), part ${{ matrix.group }}/3
         env:
           GROUP: ${{ matrix.group }}
           EVENT: ${{ github.event_name }}
+          SWEEPS: ${{ steps.sweeps.outputs.mode }}
+          GITGALAXY_TEST_TIMES: ${{ runner.temp }}/times-part-${{ matrix.group }}.json  # #5166: tests/conftest.py writes each test's seconds
         run: |
           # the nightly stores this part's seconds (--clean-durations: only the tests it ran) for full-suite-durations
           store=()
           if [ "$EVENT" = "schedule" ]; then store=(--store-durations --clean-durations); fi
           # --timeout: a hung test fails by name, not as a job timeout (see full-suite-gate.yml, #4840)
-          pytest tests/ -n auto -q -ra --durations=25 --timeout=600 --splits 3 --group "$GROUP" "${store[@]}"
+          # #5162: test_evidence_components.py (~226 s) is run by mainframe-ground-truth.yml (all of tests/cobol_mainframe/)
+          # a bare -m replaces addopts' `not golden_crucible`, so it is repeated; no plan output (a failed step) = the full sweep
+          marks=()
+          if [ "$SWEEPS" = "none" ]; then marks=(-m "not golden_crucible and not redos_sweep"); fi
+          # #5133: least_duration, not pytest-split's default duration_based_chunks (contiguous slices: all of tests/cobol_mainframe
+          # landed in part 1, 11.9 min against 4.8 and 3.5)
+          pytest tests/ -n auto -q -ra --durations=25 --timeout=600 --ignore=tests/cobol_mainframe/test_evidence_components.py --splits 3 --splitting-algorithm least_duration --group "$GROUP" "${store[@]}" "${marks[@]}"
+
+      # #5166 part B: the per-test time gate (a test over 10 s needs a slow marker or a baseline entry; a baselined one
+      # fails over 2x). Part of this required job, so it always reports; the suite total is the suite-time job's.
+      - name: Per-test time ratchet (#5166)
+        run: python tests/tools/time_ratchet.py check --times "$RUNNER_TEMP/times-part-${{ matrix.group }}.json"
+
+      - name: Upload this part's test times (#5166)
+        # hashFiles() only sees the workspace, and runner.temp is outside it: it was always '' and the upload never ran (#5178)
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-times-part-${{ matrix.group }}
+          path: ${{ runner.temp }}/times-part-${{ matrix.group }}.json
+          retention-days: 7
+          if-no-files-found: ignore
 
       - name: Keep this part's durations (nightly, #4847)
         if: github.event_name == 'schedule' && success()
@@ -241,27 +264,49 @@ jobs:
 
       - name: Upload this part's durations (nightly, #4847)
         if: github.event_name == 'schedule' && success()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: test-durations-part-${{ matrix.group }}
           path: ${{ runner.temp }}/durations-part-${{ matrix.group }}.json
           retention-days: 7
 
-      - name: Evidence report level deltas (advisory, #4703)
-        if: always() && matrix.group == 3  # part 1 runs the entry-point checks (#4829 balance)
-        continue-on-error: true
-        run: python tests/tools/evidence_report.py --deltas --live >> "$GITHUB_STEP_SUMMARY"
+  # #5133: the evidence level deltas (advisory, #4703) used to be the last step of part 3, which made it the slowest part
+  # (it waits for the report on top of its share of the suite). Its own job: it starts with the parts, is never in
+  # `full-suite`'s needs (so it cannot hold the required check back), and continue-on-error keeps a failure from
+  # turning the run red. The output is the job summary.
+  evidence-deltas:
+    name: evidence report level deltas (advisory)
+    needs: tested-tree
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    continue-on-error: true
+    env:
+      PYTHONUTF8: "1"
+      GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - name: CICS spec status page (advisory, #4789)
-        if: always() && matrix.group == 3  # part 1 runs the entry-point checks (#4829 balance)
-        continue-on-error: true
+      - name: Set up Python 3.12
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 #
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install dependencies
         run: |
-          {
-            echo "## CICS spec status page (advisory)"
-            if python tests/tools/cics_spec_status.py render --check 2>&1; then :; else
-              echo "The evidence-refresh bot re-renders docs/language_status/cics_spec_status.md on main after merge; do not commit it here."
-            fi
-          } >> "$GITHUB_STEP_SUMMARY"
+          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
+          pip install --require-hashes -r ci/requirements/test.txt
+          pip install --require-hashes -r ci/requirements/treesitter.txt
+          pip install --no-build-isolation -e .
+
+      - name: Evidence report level deltas (advisory, #4703)
+        run: python tests/tools/evidence_report.py --deltas --live >> "$GITHUB_STEP_SUMMARY"
 
   # #4847: the nightly's three parts' durations, merged (pytest-split's {nodeid: seconds} files, disjoint) and saved
   # under `test-durations-<run id>`; the next run of every part restores the newest one. Not a required check.
@@ -278,7 +323,7 @@ jobs:
           persist-credentials: false
 
       - name: Download the parts' durations
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: test-durations-part-*
           path: parts
@@ -295,3 +340,54 @@ jobs:
         with:
           path: durations-cache
           key: test-durations-${{ github.run_id }}
+
+  # #5166 part B: the suite's total serial test seconds against tests/test_time_baseline.json's budget. A PR (and main
+  # push) prints the total and the delta in the job summary and never fails; the nightly fails over +10% and files or
+  # refreshes ONE issue (it also lists the tests over 10 s there). Not a required check, not in `full-suite`'s needs.
+  # The total is the sum of the parts' own measured seconds, not the contended durations cache (#5162).
+  suite-time:
+    name: suite time budget (#5166)
+    needs: full-suite-part
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.full-suite-part.result == 'success') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Download the parts' test times
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: test-times-part-*
+          path: times
+
+      - name: Total against the budget
+        env:
+          EVENT: ${{ github.event_name }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          parts=$(find times -name 'times-part-*.json' | sort)
+          test "$(printf '%s\n' "$parts" | grep -c .)" = 3 || { echo "expected 3 parts' test times:"; echo "$parts"; exit 1; }
+          enforce=()
+          if [ "$EVENT" = "schedule" ]; then enforce=(--enforce); fi
+          status=0
+          python3 tests/tools/time_ratchet.py budget --times $parts "${enforce[@]}" | tee report.txt || status=$?
+          { echo "### Suite time budget"; echo; cat report.txt; } >> "$GITHUB_STEP_SUMMARY"
+          # #5166: the nightly also lists every test over 10 s with no slow marker or baseline entry, in the same one issue
+          over=0
+          if [ "$EVENT" = "schedule" ]; then
+            python3 tests/tools/time_ratchet.py over --times $parts --enforce | tee over.txt || over=1
+            { echo "### Tests over 10 s"; echo; echo '```'; cat over.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if { [ "$status" = 1 ] || [ "$over" = 1 ]; } && [ "$EVENT" = "schedule" ]; then
+            body="The nightly full suite is over its time budget or has tests over 10 s (tests/test_time_baseline.json): $(tail -n 2 report.txt | head -n 1)"$'\n\n'"$(cat over.txt)"$'\n\n'"Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            n=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search 'in:title "Suite time over budget"' --json number -q '.[0].number')
+            if [ -n "$n" ]; then gh issue comment "$n" --repo "$GITHUB_REPOSITORY" --body "$body"
+            else gh issue create --repo "$GITHUB_REPOSITORY" --title "Suite time over budget (nightly)" --body "$body"; fi
+          fi
+          exit $status

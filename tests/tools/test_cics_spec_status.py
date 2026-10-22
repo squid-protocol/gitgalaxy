@@ -1,8 +1,8 @@
-"""cics_spec_status: the generated CICS spec status page is current, and its parts -- the translator's keying of a
+"""cics_spec_status: the generated CICS spec status page renders, and its parts -- the translator's keying of a
 command, census counts (counts only), the stub probe, the spec PR table -- do what the page says."""
 
 import json
-import os
+import re
 import sys
 from pathlib import Path
 
@@ -19,22 +19,10 @@ def fixed(*code: str) -> str:
 
 
 def test_the_page_renders():
-    """#4789: what the evidence-refresh bot commits on main renders from the tree (every PR's CI checks this much)."""
+    """#4789 / #5057: the page is not committed; generated-docs.yml renders it from main and publishes it."""
     text = st.render()
     assert text.startswith("# CICS command spec: status\n") and "## Full and engine-only entries" in text
-    assert st.PAGE.is_file()
-
-
-@pytest.mark.skipif(
-    os.environ.get("EVIDENCE_REPORT_ADVISORY") == "1",
-    reason="#4789: the page is generated on main by the evidence-refresh bot, as the evidence report is (#4703); per-PR CI "
-    "only prints whether it would change (smoke-test.yml, advisory), so parallel PRs never conflict on it",
-)
-def test_the_committed_page_is_current():
-    assert st.PAGE.read_text(encoding="utf-8") == st.render(), (
-        "stale (advisory: the evidence-refresh bot re-renders it on main; do not commit it in a PR): "
-        "python tests/tools/cics_spec_status.py render"
-    )
+    assert st.render() == text  # deterministic: the published copy is a fresh render of main
 
 
 @pytest.mark.parametrize(
@@ -84,14 +72,34 @@ def test_registers_have_rows_in_oracle_assumptions():
     assert not missing
 
 
-def test_check_fails_on_a_stale_page(tmp_path, monkeypatch):
+def test_check_only_renders_and_writes_nothing(tmp_path, monkeypatch):
+    """#5057: there is no committed page to be stale; `render --check` renders, `render` writes the git-ignored page."""
     page = tmp_path / "page.md"
-    page.write_text("old\n")
     monkeypatch.setattr(st, "PAGE", page)
     monkeypatch.setattr(st, "REPO", tmp_path)
-    assert st.main(["render", "--check"]) == 1
-    assert st.main(["render"]) == 0
     assert st.main(["render", "--check"]) == 0
+    assert not page.exists()
+    assert st.main(["render"]) == 0
+    assert page.read_text(encoding="utf-8") == st.render()
+
+
+def test_check_fails_when_the_page_does_not_render(monkeypatch):
+    def broken():
+        raise ValueError("entries in a family _layout.json does not place: ['X999']")
+
+    monkeypatch.setattr(st, "render", broken)
+    with pytest.raises(ValueError):
+        st.main(["render", "--check"])
+
+
+def test_register_rows_are_the_summarised_x_entries():
+    import register
+
+    rows = st.register_rows()
+    entries = {m["id"]: m for m, _ in register.load_entries()}
+    assert rows and all(entries[r]["summary"] and r.startswith("X") for r in rows)
+    table = set(re.findall(r"^\| (X\d+) \|", register.render(), re.M))
+    assert rows == table
 
 
 def test_the_data_file_holds_counts_and_case_ids_only():

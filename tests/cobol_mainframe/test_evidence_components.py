@@ -21,7 +21,15 @@ def _find(pred):
     return next(t for t in ev.targets() if pred(t))
 
 
-BATCH = _find(lambda t: t.kind == "batch" and not t.db2)
+def _names_runtime(t) -> bool:
+    """#5856: a det port (services only, the runtime laid at proof time) names the runtime classes, so it ships them."""
+    return any("cobolrt" in (REPO / p).read_text(encoding="utf-8") for p in ev.port_files(t) if p.endswith(".java"))
+
+
+# a batch case whose own port does not name the runtime (a det batch port does: it is stale on a runtime change)
+BATCH = _find(lambda t: t.kind == "batch" and not t.db2 and not t.ims and not _names_runtime(t))
+# #4893: a batch DL/I case (none has a committed port yet: the batch one, as if it stated databases)
+IMS = next((t for t in ev.targets() if t.ims), None) or ev.Target(**{**BATCH.__dict__, "key": "ims", "ims": True})
 CALL = _find(lambda t: t.kind == "call")
 ONLINE = _find(lambda t: t.kind == "cics" and not t.db2 and not t.programs)
 DB2_ONLINE = _find(lambda t: t.kind == "cics" and t.db2)
@@ -31,21 +39,30 @@ EQUIVALENCE = [t for t in ev.targets() if t.kind != "crucible"]
 ALL = ev.targets()
 
 
+_BYTES: dict[str, bytes] = {}  # the repo's files, read once (nothing writes them while the tests run)
+
+
+def _read(p: str) -> bytes:
+    if p not in _BYTES:
+        _BYTES[p] = (REPO / p).read_bytes()
+    return _BYTES[p]
+
+
 class Tree:
     """The repo's files with some bytes appended: what compute_inputs sees after an edit to them."""
 
     def __init__(self, *paths: str, replace: dict[str, bytes] | None = None):
-        self.edits = {**(replace or {}), **{p: (REPO / p).read_bytes() + b"\n// edited\n" for p in paths}}
+        self.edits = {**(replace or {}), **{p: _read(p) + b"\n// edited\n" for p in paths}}
 
     def read(self, p: str) -> bytes:
-        return self.edits[p] if p in self.edits else (REPO / p).read_bytes()
+        return self.edits[p] if p in self.edits else _read(p)
 
 
 _STORED: dict[str, dict] = {}
 
 
-def specs(t, tree: Tree | None = None) -> dict:
-    return ev.spec_inputs(t, ev._files_now(), tree.read if tree else None)
+def specs(t, tree: Tree | None = None, names=None) -> dict:
+    return ev.spec_inputs(t, ev._files_now(), tree.read if tree else _read, names)
 
 
 def stale_after(t, *paths: str) -> list[str]:
@@ -67,7 +84,7 @@ def test_the_components_partition_each_input():
     """No file escapes: every file the whole-input fingerprint covers is in some component, so a change to it moves the
     component fingerprints of the targets that use that component (representatives of each kind, a crucible port among
     them, which uses everything it has)."""
-    reps = (CRUCIBLE, LINKING, DB2_ONLINE, ONLINE, BATCH, CALL)
+    reps = (CRUCIBLE, LINKING, DB2_ONLINE, ONLINE, BATCH, CALL, IMS)
     for name in ev.COMPONENT_INPUTS:
         every = {p for t in reps for p in ev._match(ev._files_now(), t.specs[name]["paths"], t.specs[name]["exclude"])}
         for path in sorted(every):
@@ -75,7 +92,9 @@ def test_the_components_partition_each_input():
             for t in reps:
                 before = _STORED.setdefault(t.key, specs(t))[name]
                 if path in ev._match(ev._files_now(), t.specs[name]["paths"], t.specs[name]["exclude"]):
-                    after = specs(t, Tree(path))[name]
+                    after = specs(t, Tree(path), [name])[
+                        name
+                    ]  # (only the input this path is in: the others hold still)
                     assert before["sha256"] != after["sha256"]
                     moved |= before["components"] != after["components"]
             assert moved, f"{path} is in no component any kind of target uses"
@@ -105,6 +124,22 @@ def test_a_cics_stub_change_stales_no_batch_case():
     # imports it for SQL faults; no plain batch case
     stale = stale_set("tests/tools/equivalence_cics.py")
     assert BATCH.key not in stale and ONLINE.key in stale and CRUCIBLE.key in stale
+
+
+def test_a_cics_family_module_stales_what_its_host_file_does():
+    """#5274: a command family split out of a CICS hot file is part of the same component as its host, so an edit to
+    either stales the same inputs of a target of each kind (the family modules are not imported or linked on their own)."""
+    for host, family in (
+        ("tests/equivalence/cics/ggcics.c", "tests/equivalence/cics/ggcics_containers.c"),
+        ("tests/tools/equivalence_cics.py", "tests/tools/equivalence_cics_containers.py"),
+        ("gitgalaxy/tools/cobol_to_java/det/cics.py", "gitgalaxy/tools/cobol_to_java/det/cics_containers.py"),
+        ("gitgalaxy/tools/cobol_to_java/det/cics.py", "gitgalaxy/tools/cobol_to_java/det/cics_filecontrol.py"),
+        ("gitgalaxy/tools/cobol_to_java/det/cics.py", "gitgalaxy/tools/cobol_to_java/det/cics_taskcontrol.py"),
+        ("gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py",
+         "gitgalaxy/tools/cobol_to_java/cics_task_containers.py"),
+    ):  # fmt: skip
+        for t in (CRUCIBLE, LINKING, DB2_ONLINE, ONLINE, BATCH, CALL, IMS):
+            assert stale_after(t, family) == stale_after(t, host), (t.key, family)
 
 
 def test_a_detsql_change_stales_only_db2_cases_that_use_it():

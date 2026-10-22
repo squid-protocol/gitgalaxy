@@ -43,6 +43,7 @@ import signal
 import subprocess
 import sys
 import time
+from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
@@ -51,7 +52,8 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 TOOLS = Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO_ROOT))
-from maven_exe import mvn_executable  # noqa: E402
+from equivalence_java import JAVAC_JVM_OPTIONS  # noqa: E402
+from maven_exe import maven_utf8_env, mvn_executable, run_decoded  # noqa: E402
 
 EQUIVALENCE = TOOLS / "equivalence.py"
 CASES = REPO_ROOT / "tests" / "equivalence"
@@ -246,9 +248,11 @@ def port_dir(case: str) -> Path:
     return CASES / source / "port"
 
 
-def all_mutants(port: Path, ops: set[str]) -> list[Mutant]:
+def all_mutants(port: Path, ops: set[str], files: str = "**/*.java") -> list[Mutant]:
+    """Every mutant of the port's .java files (`files`: a glob under the port, e.g. `service/*.java` for a det
+    port's translated program without its cobolrt runtime)."""
     out: list[Mutant] = []
-    for f in sorted(port.rglob("*.java")):
+    for f in sorted(port.glob(files)):
         out += mutants_of(f.relative_to(port).as_posix(), f.read_text(encoding="utf-8"), ops)
     return out
 
@@ -302,9 +306,8 @@ def baseline_classpath(baseline: Path, work: Path) -> str:
         shutil.rmtree(scratch)
     shutil.copytree(project, scratch, ignore=shutil.ignore_patterns("target"))
     try:
-        proc = subprocess.run([mvn_executable(), "-o", "-X", "-B", "compile"], cwd=scratch, env=_java_env(),  # noqa: S607
-                              capture_output=True, text=True, check=False,
-                              timeout=MVN_CLASSPATH_TIMEOUT)  # fmt: skip
+        proc = run_decoded([mvn_executable(), "-o", "-X", "-B", "compile"], cwd=scratch, env=maven_utf8_env(_java_env()),
+                           check=False, timeout=MVN_CLASSPATH_TIMEOUT)  # fmt: skip
     except subprocess.TimeoutExpired as exc:
         raise SystemExit(
             f"could not read the baseline's classpath (mvn compile timed out after {MVN_CLASSPATH_TIMEOUT}s)"
@@ -319,8 +322,8 @@ def compiles(mutant_port: Path, classpath: str, out: Path) -> tuple[bool, str]:
     out.mkdir(parents=True, exist_ok=True)
     sources = [str(p) for p in sorted(mutant_port.rglob("*.java"))]
     try:
-        proc = subprocess.run(["javac", "-nowarn", "-d", str(out), "-cp", classpath, *sources],  # noqa: S603, S607
-                              env=_java_env(), capture_output=True, text=True, check=False,
+        proc = subprocess.run(["javac", *JAVAC_JVM_OPTIONS, "-encoding", "UTF-8", "-nowarn", "-d", str(out), "-cp", classpath, *sources],  # noqa: S603, S607
+                              env=_java_env(), capture_output=True, text=True, encoding="utf-8", check=False,
                               timeout=JAVAC_MUTANT_TIMEOUT)  # fmt: skip
     except subprocess.TimeoutExpired:
         return False, f"javac timed out after {JAVAC_MUTANT_TIMEOUT}s"
@@ -379,22 +382,33 @@ def killers(report: dict[str, Any]) -> list[str]:
 
 # ---- the run -----------------------------------------------------------------------------------------------------
 def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str], timeout: float | None,
-        keep: bool, full: bool = False, only: Path | None = None,
-        case_file: Path | None = None) -> dict[str, Any]:  # fmt: skip
+        keep: bool, full: bool = False, only: Path | None = None, case_file: Path | None = None,
+        port: Path | None = None, files: str = "**/*.java",
+        select: Callable[[list[Mutant]], list[Mutant]] | None = None, one_jvm: bool = False) -> dict[str, Any]:  # fmt: skip
+    """`port`: a port outside the case (#4628: the det port, `det_port.py run --translate-only`) instead of the
+    committed one -- the baseline proves it too; `files`: the port's files to mutate; `select`: drops the mutants
+    out of scope (det_mutation.py: entry points the case's kind never calls) before sampling."""
     work.mkdir(parents=True, exist_ok=True)
-    port = port_dir(case)
+    given = port is not None
+    port = port if port is not None else port_dir(case)
     started = time.time()
-    print(f"{case}: proving the port as committed (baseline)", flush=True)
+    print(f"{case}: proving the port as {'given' if given else 'committed'} (baseline)", flush=True)
     case_arg = ("--case-file", str(case_file)) if case_file else ()  # #4049: a candidate case
-    base = prove(case, None, work / "baseline", timeout=3600, extra=case_arg)
+    base = prove(case, port if given else None, work / "baseline", timeout=3600, extra=case_arg)
     if base["verdict"] != "proven":  # the committed port must be proven
         raise SystemExit(f"{case}: the committed port is not proven ({base['verdict']}); nothing to measure")
     limit = timeout or max(300.0, 3 * base["seconds"])
     classpath = baseline_classpath(work / "baseline", work)
     # fast (the default): each mutant reuses the baseline's COBOL side and generated project, compiles only the
     # port, and stops at the first run that differs -- the same verdict as --full, which re-proves from scratch
-    fast = case_arg + (() if full else ("--reuse", str(work / "baseline"), "--first-difference"))
-    every = all_mutants(port, ops)
+    # (--one-jvm: and all the runs of a proof in one JVM, each on a fresh Spring context; judged against --full by
+    # `compare` before it is trusted, hence its own mode name)
+    fast = case_arg + (() if full else ("--reuse", str(work / "baseline"), "--first-difference")
+                       + (("--one-jvm",) if one_jvm else ()))  # fmt: skip
+    mode = "full" if full else "fast+one-jvm" if one_jvm else "fast"
+    every = all_mutants(port, ops, files)
+    if select is not None:
+        every = select(every)
     chosen = sample(every, n, seed)
     if only is not None:  # the mutants another run judged (e.g. a --full reference), to compare against it
         judged = {r["id"] for r in json.loads((only / "mutation.json").read_text(encoding="utf-8"))["results"]
@@ -403,14 +417,18 @@ def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str
     print(f"{case}: {len(every)} mutants, {len(chosen)} chosen; baseline {base['seconds']} s, limit {limit:.0f} s",
           flush=True)  # fmt: skip
     results: dict[str, dict[str, Any]] = {}
-    live: list[Mutant] = []
-    for m in chosen:
+
+    def javac(m: Mutant) -> tuple[bool, str]:
         mdir = write_mutant(port, m, work / "mutants" / m.id / "port")
-        ok, why = compiles(mdir, classpath, work / "mutants" / m.id / "classes")
-        if ok:
-            live.append(m)
-        else:
-            results[m.id] = {"verdict": "stillborn", "why": why}
+        return compiles(mdir, classpath, work / "mutants" / m.id / "classes")
+
+    live: list[Mutant] = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:  # (javac, --jobs at a time)
+        for m, (ok, why) in zip(chosen, pool.map(javac, chosen), strict=True):
+            if ok:
+                live.append(m)
+            else:
+                results[m.id] = {"verdict": "stillborn", "why": why}
     print(f"{case}: {len(chosen) - len(live)} stillborn (javac), {len(live)} to prove, {jobs} at a time", flush=True)
 
     def one(m: Mutant) -> tuple[Mutant, dict[str, Any]]:
@@ -429,8 +447,8 @@ def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str
             done += 1
             print(f"  [{done}/{len(live)}] {m.op} {m.file}:{m.line} {res['verdict']} "
                   f"{','.join(res.get('killed_by', []))[:60]}", flush=True)  # fmt: skip
-            _save(work, case, base, every, chosen, results, started, seed, "full" if full else "fast")
-    return _save(work, case, base, every, chosen, results, started, seed, "full" if full else "fast")
+            _save(work, case, base, every, chosen, results, started, seed, mode)
+    return _save(work, case, base, every, chosen, results, started, seed, mode)
 
 
 def _save(work: Path, case: str, base: dict[str, Any], every: list[Mutant], chosen: list[Mutant],
@@ -505,8 +523,23 @@ def compare(a: dict[str, Any], b: dict[str, Any]) -> dict[str, Any]:
                b.get("mode", "b"): rb[i]["verdict"]} for i in both
               if caught(ra[i]["verdict"]) != caught(rb[i]["verdict"])]  # fmt: skip
     secs = {m: sum(r.get("seconds", 0) for r in x["results"] if r["id"] in both) for m, x in (("a", a), ("b", b))}
+    survivors = [i for i in both if "survived" in (caught(ra[i]["verdict"]), caught(rb[i]["verdict"]))]
+    surv_secs = {m: sum(x[i].get("seconds", 0) for i in survivors) for m, x in (("a", ra), ("b", rb))}
+    by_op: dict[str, dict[str, int]] = {}  # per operator: judged by both / judged differently
+    for i in both:
+        o = by_op.setdefault(ra[i]["op"], {"judged": 0, "differ": 0})
+        o["judged"] += 1
+        o["differ"] += caught(ra[i]["verdict"]) != caught(rb[i]["verdict"])
+    ma, mb = a.get("mode", "a"), b.get("mode", "b")
     return {"judged_by_both": len(both), "agree": len(both) - len(differ), "differ": differ,
-            "proof_seconds": {a.get("mode", "a"): secs["a"], b.get("mode", "b"): secs["b"]}}  # fmt: skip
+            "proof_seconds": {ma: secs["a"], mb: secs["b"]},
+            "survivor_proof_seconds": {ma: surv_secs["a"], mb: surv_secs["b"]},
+            "by_operator": by_op}  # fmt: skip
+
+
+def agreement_gate(result: dict[str, Any], minimum: int | None) -> bool:
+    """`compare --require-agree N`: no gate without N; otherwise N or more judged by both, and none differ."""
+    return minimum is None or (result["judged_by_both"] >= minimum and not result["differ"])
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -525,8 +558,18 @@ def main(argv: list[str] | None = None) -> int:
                    "case's own (a candidate the test-strengthening loop wrote)")  # fmt: skip
     r.add_argument("--only", type=Path, help="run exactly the mutants another run's DIR judged (its "
                    "mutation.json), e.g. to check the fast mode against a --full reference")  # fmt: skip
+    r.add_argument("--port", type=Path, help="#4628: mutate this port (e.g. a det port, DIR/CASE/port of "
+                   "`det_port.py run --translate-only`) instead of the case's committed one")  # fmt: skip
+    r.add_argument("--files", default="**/*.java", help="the port's files to mutate, a glob under it (a det port: "
+                   "service/*.java, the translated program without the cobolrt runtime)")  # fmt: skip
     r.add_argument("--full", action="store_true", help="prove each mutant from scratch (the COBOL side, the whole "
                    "estate regenerated, every run): slow, the reference the default fast mode must agree with")  # fmt: skip
+    r.add_argument("--one-jvm", action=argparse.BooleanOptionalAction, default=None, help="all the runs of one proof in "
+                   "one JVM (equivalence.py --one-jvm); the default in fast mode (agrees with --full: docs/language_status/"
+                   "mutation_testing.md), --no-one-jvm for a JVM per run; Db2 / IMS cases always use one per run")  # fmt: skip
+    r.add_argument("--record", action="store_true", help="#4048: the run becomes the port's committed score "
+                   "(mutation_scores.json, its survivors' triage kept) and its evidence record's `mutation`")  # fmt: skip
+    r.add_argument("--triage", type=Path, nargs="*", default=[], help="with --record: triage files for new survivors")
     ls = sub.add_parser("list")
     ls.add_argument("case")
     ls.add_argument("--ops", default=",".join(OPERATORS))
@@ -535,11 +578,14 @@ def main(argv: list[str] | None = None) -> int:
     cp = sub.add_parser("compare", help="two runs of one case (fast and --full): do their verdicts agree?")
     cp.add_argument("a", type=Path)
     cp.add_argument("b", type=Path)
+    cp.add_argument("--require-agree", type=int, metavar="N", help="a gate: exit 1 unless both runs judged at least N "
+                    "mutants and none of them differ")  # fmt: skip
     args = ap.parse_args(argv)
     if args.cmd == "compare":
         loaded = [json.loads((w / "mutation.json").read_text(encoding="utf-8")) for w in (args.a, args.b)]
-        print(json.dumps(compare(*loaded), indent=2))
-        return 0
+        result = compare(*loaded)
+        print(json.dumps(result, indent=2))
+        return 0 if agreement_gate(result, args.require_agree) else 1
     if args.cmd == "report":
         s = json.loads((args.work / "mutation.json").read_text(encoding="utf-8"))
         (args.work / "mutation.md").write_text(mutation_md(s), encoding="utf-8")
@@ -557,6 +603,13 @@ def main(argv: list[str] | None = None) -> int:
             counts[m.op] = counts.get(m.op, 0) + 1
         print(f"{len(ms)} mutants: " + ", ".join(f"{k} {v}" for k, v in sorted(counts.items())))
         return 0
+    if args.one_jvm and args.full:
+        raise SystemExit("--one-jvm is a fast-mode option: drop --full")
+    if args.one_jvm is None:  # #4047: the session JVM is the fast-mode default
+        args.one_jvm = not args.full
+    if args.record and (args.case_file or args.only or args.port or args.files != "**/*.java"):
+        raise SystemExit("--record scores the committed port on the committed case: drop --case-file / --only / "
+                         "--port / --files")  # fmt: skip
     s = run(
         args.case,
         args.work,
@@ -569,8 +622,15 @@ def main(argv: list[str] | None = None) -> int:
         args.full,
         args.only,
         args.case_file,
+        args.port,
+        args.files,
+        one_jvm=args.one_jvm,
     )
     print(mutation_md(s))
+    if args.record:
+        import mutation_scores
+
+        mutation_scores.record_run(args.work, args.triage)
     return 0
 
 

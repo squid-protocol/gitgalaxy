@@ -4,7 +4,7 @@ import shutil
 from pathlib import Path
 from unittest.mock import patch
 
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import scan_to_db
+from scan_server import scan_to_db
 import gitgalaxy.cobol_refractor_controller as refractor
 import gitgalaxy.cobol_to_java_controller as c2j
 

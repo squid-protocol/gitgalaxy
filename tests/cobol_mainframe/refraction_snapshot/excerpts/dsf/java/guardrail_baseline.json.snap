@@ -62,7 +62,22 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "4632d82161dfc8de2602aa1512375b46e077ba26fce43632b5a6d9c67812dc77"
+      "sha256": "4632d82161dfc8de2602aa1512375b46e077ba26fce43632b5a6d9c67812dc77",
+      "string_fields": [
+        "aarstall",
+        "blk",
+        "gate1",
+        "gate2",
+        "innAar",
+        "innaar",
+        "navn",
+        "navn1",
+        "navn2",
+        "navn22",
+        "navn3",
+        "poststed",
+        "utposten"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/service/FrmerkService.java": {
       "calls": [],

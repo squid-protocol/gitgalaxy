@@ -12,14 +12,8 @@ name: Tree-sitter Accuracy Audit
 # e.g. gitgalaxy/recorders/.
 
 on:
-  # #4599 (OWNER DECISION, proposed): also run on every push to main, deliberately WITHOUT the
-  # path filter below. The filter is what hid a red main -- #4569 changed which files the aperture
-  # admits (gitgalaxy/core/aperture.py, not in the list) and moved every baseline, but no run was
-  # triggered until an unrelated PR touched this workflow. Cost is ~1 minute per merge.
-  push:
-    branches:
-      - main
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]  # #5104: a draft starts only the cheap audits
     branches:
       - main
     paths:
@@ -31,6 +25,13 @@ on:
       - ".github/workflows/tree-sitter-accuracy-audit.yml"
       - "tests/crucible_pins.toml"  # #4825: read by this workflow (workflow_inputs.py)
       - "tests/tools/crucible_pins.py"  # #4825: read by this workflow (workflow_inputs.py)
+  # #5131/#5136: no main push trigger. post-merge.yml dispatches this on main (at most once per cadence window, only
+  # when PR runners are idle and main changed); the nightly run covers a busy day.
+  # #4599's point (an engine change outside the PR filter, e.g. aperture.py, moving every baseline) still holds:
+  # the dispatch's relevance filter for this workflow is every file, not the PR filter.
+  schedule:
+    - cron: "47 6 * * *"  # nightly (#5136)
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -46,35 +47,8 @@ concurrency:
   cancel-in-progress: true  # #4825: read-only, so a superseded main run is cancelled too (frees runners for PRs)
 
 jobs:
-  # #4964 (sibling of #4935): a push to main whose tree already passed THIS workflow on its PR head (a squash of an
-  # up-to-date PR) is not run again; any doubt runs it (tests/tools/skip_tested_tree.py has the rule, and tests).
-  # No PR run on the head (the PR's paths filter skipped it) is "not proven", so the push runs. Always concludes success.
-  tested-tree:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: read
-      actions: read
-      pull-requests: read
-    outputs:
-      skip: ${{ steps.decide.outputs.skip }}
-    steps:
-      - name: Checkout the gate script
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          sparse-checkout: tests/tools/skip_tested_tree.py
-          sparse-checkout-cone-mode: false
-          persist-credentials: false
-
-      - name: Decide
-        id: decide
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python tests/tools/skip_tested_tree.py tree-sitter-accuracy-audit.yml
-
   tree-sitter-accuracy-audit:
-    needs: tested-tree
-    if: ${{ !cancelled() && needs.tested-tree.outputs.skip != 'true' }}  # #4964: not again for a tree the PR run proved
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -97,7 +71,7 @@ jobs:
         run: |
           cd gitgalaxy
           python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
-          pip install -e .
+          pip install --no-build-isolation -e .
           pip install --require-hashes -r ci/requirements/treesitter.txt
 
       # Same pin golden-crucible.yml uses -- this tool reuses that corpus rather than
@@ -106,7 +80,7 @@ jobs:
         run: |
           # The pin is tests/crucible_pins.toml (one source; a fork PR reads it too).
           ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get language)
-          git clone --branch "$ref" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- bash -c 'rm -rf language-crucible && git clone --branch "$1" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible' _ "$ref"
 
       - name: Run baseline-gated regression check across every baselined language
         run: |

@@ -14,6 +14,23 @@ from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: comp
 
 from .._shared_patterns import CALLS_OUT_CALL_VERB, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
+# #5638: intrinsics and statement words that read `NAME(` but are no user routine, lowercase
+_CALLS_OUT_IGNORE_WORDS = (
+    "abs aimag aint anint acos asin atan atan2 cos cosh sin sinh tan tanh exp log log10 sqrt mod modulo "
+    "max min amax1 amin1 max0 min0 dmax1 dmin1 sign dim int nint ifix idint float real dble cmplx conjg "
+    "char ichar iachar achar len len_trim index scan verify trim adjustl adjustr repeat transfer "
+    "size shape lbound ubound allocated associated present sum product maxval minval maxloc minloc "
+    "count any all dot_product matmul transpose reshape spread pack unpack merge cshift eoshift "
+    "floor ceiling fraction exponent nearest rrspacing spacing huge tiny epsilon digits radix "
+    "range precision selected_int_kind selected_real_kind kind ishft ishftc iand ior ieor not btest "
+    "ibset ibclr ibits mvbits random_number random_seed system_clock date_and_time cpu_time "
+    "get_command_argument command_argument_count get_environment_variable null "
+    "dabs dsqrt dexp dlog dsin dcos dtan datan dsign dmod iabs isign idim amod "
+    "if elseif while do select case where forall read write print open close inquire rewind "
+    "backspace endfile return stop pause allocate deallocate nullify goto assign associate "
+    "block format wait flush type class"
+)
+
 DEFINITION: dict[str, Any] = {
     "_meta": {
         "target_version": "Fortran 2018 (Backwards compatible with Legacy Fortran 77)",
@@ -48,6 +65,35 @@ DEFINITION: dict[str, Any] = {
     ],
     # EXECUTION SIGNATURES: Interpreters found on Line 1 for modern Fortran "scripting" wrappers.
     "shebangs": ["fortran", "f90", "f77", "gfortran"],
+    # #4974: internal discriminator for shared extensions (.inc).
+    # Fortran include files (.inc) frequently define common blocks, specification
+    # statements, or procedures. A .inc file is Fortran on this positive evidence
+    # across fixed-form and free-form Fortran constructs.
+    "internal_discriminator": re.compile(
+        r"(?mi)(?:^[ \t]*(?:COMMON\s*(?:/[^/\n]*/|[A-Za-z_]\w*[ \t]*[,(])|"
+        r"EQUIVALENCE\s*\([^)\n]+,[^)\n]+\)|"
+        r"PARAMETER\s*\([^)\n]*=[^)\n]*\)|"
+        r"IMPLICIT[ \t]+(?:NONE\b|(?:INTEGER|REAL|CHARACTER|DOUBLE|COMPLEX|LOGICAL|BYTE)\b)|"
+        r"DOUBLE[ \t]+(?:PRECISION|COMPLEX)\b|"
+        r"(?:INTEGER|REAL|COMPLEX|LOGICAL|CHARACTER|TYPE|CLASS)\b[^;\n]*::|"
+        r"(?:INTEGER|REAL|COMPLEX|LOGICAL|CHARACTER|BYTE)\s*\*\s*(?:\d+|\([^)\n]+\))|"
+        r"(?:INTEGER|REAL|LOGICAL|COMPLEX|BYTE)[ \t]+[A-Za-z_]\w*(?:\s*\([^)\n]+\))?(?:[ \t]*,[ \t]*[A-Za-z_]\w*(?:\s*\([^)\n]+\))?){0,50}[ \t]*(?:!.*)?$|"
+        r"CHARACTER\s*(?:\*\s*(?:\d+|\([^)\n]+\))|\([^)\n]+\))?[ \t]+[A-Za-z_]\w*|"
+        r"(?:(?:PURE|ELEMENTAL|RECURSIVE|IMPURE|MODULE)[ \t]+){0,3}SUBROUTINE\s+[A-Za-z_]\w*|"
+        r"(?:(?:PURE|ELEMENTAL|RECURSIVE|IMPURE|MODULE)[ \t]+|(?:INTEGER|REAL|COMPLEX|LOGICAL|CHARACTER|DOUBLE[ \t]+PRECISION)(?:\*\d+|\([^)\n]+\))?[ \t]+)FUNCTION\s+[A-Za-z_]\w*|"
+        r"(?:PROGRAM|MODULE\s+(?!PROCEDURE\b)|SUBMODULE|BLOCK\s+DATA)\s+[A-Za-z_]\w*|"
+        r"END\s+(?:SUBROUTINE|FUNCTION|MODULE|PROGRAM|BLOCK\s+DATA|TYPE|INTERFACE)\b|"
+        r"DIMENSION[ \t]+[A-Za-z_]\w*\s*\([^)\n]+\)|"
+        r"DATA[ \t]+[A-Za-z_]\w*[ \t]*/[^/\n]*/|"
+        r"(?:\d+[ \t]+)?FORMAT\s*\([^)\n]*\)|PRINT\s*\*\s*,|WRITE\s*\(\s*\*\s*,\s*\*|"
+        r"CONTAINS[ \t]*$|INTERFACE(?:\s+[A-Za-z_]\w*|\s*$))|"
+        r"\.(?:TRUE|FALSE|AND|OR|NOT|EQ|NE|LT|LE|GT|GE|EQV|NEQV)\.)",
+    ),
+    # #4974: the shared .inc extension. Fortran is Tier-2 proven by the
+    # `internal_discriminator` above or it is not a candidate for these extensions in
+    # the Tier-3 lexical scan: a neighbourhood vote cannot confer Fortran with no
+    # Fortran marker, and its broad rules do not outscore rival claimants (C/C++/Assembly/PHP).
+    "extensions_needing_discriminator": [".inc"],
     # UPGRADED: Maps to Family 7 (The Positional Ancients)
     # Rationale: Fixed-format requires Column 1 monitoring ('C' or '*'); Free-format uses '!'.
     "lexical_family": "positional_anchored",
@@ -66,9 +112,14 @@ DEFINITION: dict[str, Any] = {
     # language or uppercase legacy style (`USE A`) never resolves to
     # `a.f90` and the whole import chain goes invisible.
     "case_insensitive_imports": True,
+    # #5638: `x = F(a)` is a call to the function F unless the unit declares F an array
+    # (core/fortran_calls.py). TOP LEVEL, never inside `rules` (#2806).
+    "calls_out_function_refs": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_CALL_VERB,
+        # #5638: intrinsics and statement words that read `NAME(` but are not a user routine, lowercase
+        "_calls_out_ignore": frozenset(_CALLS_OUT_IGNORE_WORDS.split()),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # Control flow that forces the CPU to make a decision or jump. High density creates jagged shapes.

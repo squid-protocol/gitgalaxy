@@ -17,7 +17,7 @@ import pytest
 
 import gitgalaxy.cobol_refractor_controller as refractor
 import gitgalaxy.cobol_to_java_controller as java_controller
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import scan_to_db
+from scan_server import scan_to_db
 from gitgalaxy.tools.cobol_to_java.java_target import ConfigError, target_from_dict
 
 BMS = (
@@ -31,6 +31,8 @@ BMS = (
             "AMOUNT   DFHMDF POS=(20,43),LENGTH=5,ATTRB=(NUM,UNPROT)",
             "PASSWD   DFHMDF POS=(21,43),LENGTH=8,ATTRB=(DRK,FSET,UNPROT)",
             "ITEMS    DFHMDF POS=(22,1),LENGTH=3,OCCURS=2",
+            "QTY      DFHMDF POS=(23,1),LENGTH=6,ATTRB=(NUM,UNPROT),".ljust(71) + "X",  # col 72
+            "               JUSTIFY=(RIGHT,ZERO)",
             "         DFHMSD TYPE=FINAL",
             "         END",
         ]
@@ -93,10 +95,17 @@ def test_the_view_model_and_the_handlers(scanned, tmp_path):
     java = _generate(scanned, tmp_path)
     vm = (java / SRC / "dto/screen/Sgn0aScreen.java").read_text(encoding="utf-8")
     assert "BMS map SGN0A of mapset SGN00 (bms/SGN00.bms)" in vm
-    assert 'new ScreenField(null, 1, 1, 6, false, false, false, false, false, "Tran :", "BLUE", 1)' in vm  # label
-    assert 'new ScreenField("USERID", 19, 43, 8, true, false, false, false, true, null, null, 1)' in vm  # IC input
-    assert 'new ScreenField("AMOUNT", 20, 43, 5, true, true, false, false, false, null, null, 1)' in vm  # NUM
-    assert 'new ScreenField("PASSWD", 21, 43, 8, true, false, false, true, false, null, null, 1)' in vm  # DRK
+    assert 'new ScreenField(null, 1, 1, 6, false, false, false, false, false, "Tran :", "BLUE", 1, null)' in vm  # label
+    assert (
+        'new ScreenField("USERID", 19, 43, 8, true, false, false, false, true, null, null, 1, null)' in vm
+    )  # IC input
+    assert (
+        'new ScreenField("AMOUNT", 20, 43, 5, true, true, false, false, false, null, null, 1, "RIGHT,ZERO")' in vm
+    )  # NUM, no JUSTIFY: IBM default RIGHT,ZERO (#5116, X54)
+    assert 'new ScreenField("PASSWD", 21, 43, 8, true, false, false, true, false, null, null, 1, null)' in vm  # DRK
+    assert (
+        'new ScreenField("QTY", 23, 1, 6, true, true, false, false, false, null, null, 1, "RIGHT,ZERO")' in vm
+    )  # #5082
     assert "private List<String> items;" in vm and "private String userid;" in vm  # OCCURS=2 -> a list
     assert "Symbolic map USERIDI, USERIDO." in vm
     assert "@Size" not in vm  # ui.flavour none: no validator on the classpath, no annotations
@@ -112,7 +121,7 @@ def test_the_view_model_and_the_handlers(scanned, tmp_path):
         "in the repository); mapset SGN00 defines SGN0A" in svc
     )
     assert not (java / SRC / "controller/screen").exists() and not (java / "src/main/resources/templates").exists()
-    assert "  • BMS screens (#3619)      : 1 view models (4 fields) for 1 programs" in (
+    assert "  • BMS screens (#3619)      : 1 view models (5 fields) for 1 programs" in (
         java / "java_migration_audit.txt").read_text(encoding="utf-8")  # fmt: skip
 
     manifest = json.loads((java / "traceability.json").read_text(encoding="utf-8"))

@@ -212,7 +212,7 @@ def legality(language: str) -> dict[str, Any]:
 
 # ---- scanning and facts -----------------------------------------------------------------
 def scan(estate: Path, out: Path) -> Path:
-    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import scan_to_db
+    from scan_server import scan_to_db  # #5882: galaxy_ir.scan_to_db, the engine imported once a process
 
     # set for the scan only: a process-wide GITGALAXY_DISABLE_GIT_HISTORY outlives it and silently
     # turns git off for every later test in a pytest session (it once broke test_chronometer)

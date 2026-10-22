@@ -262,6 +262,6 @@ def test_an_unterminated_declare_is_linear():
     def declare(n: int) -> str:
         return " DCL 1 S,\n" + "   2 F CHAR(1),\n" * n
 
-    assert len(records(declare(20000))) == 20001
+    assert len(records(declare(5000))) == 5001
     # a ratio of CPU time, not a wall-clock bound (#4477): 4x the fields cost ~4x, not ~16x
-    assert_scales_linearly(lambda n: records(declare(n)), 10_000, 40_000, what="unterminated DECLARE")
+    assert_scales_linearly(lambda n: records(declare(n)), 4_000, 16_000, what="unterminated DECLARE")

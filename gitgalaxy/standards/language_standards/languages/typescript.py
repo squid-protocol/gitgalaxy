@@ -22,7 +22,6 @@ from .._shared_patterns import (
     JS_LLM_API,
     JS_LLM_ORCHESTRATOR,
     JS_LLM_VECTOR_STORE,
-    JS_ML_TRADITIONAL,
 )
 
 DEFINITION: dict[str, Any] = {
@@ -267,11 +266,19 @@ DEFINITION: dict[str, Any] = {
             # second anchor. Match-set identical on the JS/TS corpus except a
             # start that sat on a blank line after `<>(,` + trailing blanked
             # text: it now starts on the declaration's own line.
-            r"(?:(?<=[^<>(,\s])|^(?:(?=[ \t]*[^ \t\n])|(?![ \t]*[^ \t\n])(?:(?<=[^ \t\n]\n)|\A)))[ \t\n]*(?<!\.\.\.)\b(?<!type )"
+            r"(?:(?<=[^<>(,\s])|^(?:(?=[ \t]*[^ \t\n])|(?![ \t]*[^ \t\n])(?:(?<=[^ \t\n]\n)|\A)))"
+            # #5503: `name = arrow` on the line after one ending in `,` is a default-valued
+            # parameter (or destructuring default), not an assignment statement.
+            r"(?!(?:(?<=,\n)|(?<=,\r\n))[ \t]*[\w$]+[ \t]*=[^=>])"
+            r"[ \t\n]*(?<!\.\.\.)\b(?<!type )"
             r"(?<!,\spublic\s)(?<!,\sprivate\s)(?<!,\sprotected\s)(?<!,\sreadonly\s)"
             r"(?<!,\spublic\sreadonly\s)(?<!,\sprivate\sreadonly\s)(?<!,\sprotected\sreadonly\s)"
             r"(?<!\(public\s)(?<!\(private\s)(?<!\(protected\s)(?<!\(readonly\s)"
             r"(?<!\(public\sreadonly\s)(?<!\(private\sreadonly\s)(?<!\(protected\sreadonly\s)"
+            # #5503: a `name: Type,` line (no `=`, parens or braces) is a parameter of a multi-line
+            # list, not a definition; its annotation run would otherwise swallow the following params
+            # up to a later default-value arrow and read the whole list as one function value.
+            r"(?![\w$]+\??[ \t]*:[^\n=(){}]*,[ \t]*\r?\n)"
             r"(\[[^\]]+\]|["
             + ID_START
             + r"$]["
@@ -354,7 +361,7 @@ DEFINITION: dict[str, Any] = {
             + ID_START
             + r"$]["
             + ID_CONTINUE
-            + r"$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)|["
+            + r"$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null|readonly|keyof|unique)\b)[a-z_][\w$]*)|["
             + ID_START
             + r"$]["
             + ID_CONTINUE
@@ -362,7 +369,7 @@ DEFINITION: dict[str, Any] = {
             + ID_START
             + r"$]["
             + ID_CONTINUE
-            + r"$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)))|"
+            + r"$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null|readonly|keyof|unique)\b)[a-z_][\w$]*)))|"
             # #1221: the trailing lookahead used to be just
             # `(?=[ \t\n]{0,50}(?:<...>)?[ \t\n]{0,50}\()` -- proof a
             # `(` follows, nothing more -- so any bare call statement
@@ -556,7 +563,14 @@ DEFINITION: dict[str, Any] = {
             # `:Type;` / `{` terminator below keeps a bare generic call
             # statement (`useCallback<() => void>(cb);`) from matching.
             # #2539: same conditional `with` exclusion as Branch A -- see its comment.
-            r"(?:^[ \t]*|(?<=[,{])[ \t\n]*)(?!(?:class|interface|enum|if|for|while|switch|new|typeof|jQuery|function|yield|await|void|constructor)\b|type\b(?![ \t\n]*\()|\$|(?:catch|return|throw|with)\b[ \t\n]+(?:\(|<))(\[[^\]]+\]|[#]?["
+            # #5503: a line right after one ending in `?` or `:` is a ternary branch
+            # (`cond ?\n  f(a)\n  : g(b);`), not a definition: the `:Type;` terminator
+            # below would read the alternate as a return type. Fixed-width lookbehinds.
+            # A comment line between the `?` and the call is blanked to spaces, so a
+            # blank line indented by 4..40 columns is skipped too (still fixed-width).
+            r"(?:^(?<![?:]\n)(?<![?:]\r\n)"
+            + "".join(rf"(?<![?:]\n[ ]{{{n}}}\n)" for n in range(4, 41, 4))
+            + r"[ \t]*|(?<=[,{])[ \t\n]*)(?!(?:class|interface|enum|if|for|while|switch|new|typeof|jQuery|function|yield|await|void|constructor)\b|type\b(?![ \t\n]*\()|\$|(?:catch|return|throw|with)\b[ \t\n]+(?:\(|<))(\[[^\]]+\]|[#]?["
             + ID_START
             + r"$]["
             + ID_CONTINUE
@@ -764,7 +778,7 @@ DEFINITION: dict[str, Any] = {
         "llm_api": JS_LLM_API,
         "llm_orchestrator": JS_LLM_ORCHESTRATOR,
         "llm_vector_store": JS_LLM_VECTOR_STORE,
-        "ml_traditional": JS_ML_TRADITIONAL,
+        "ml_traditional": None,  # stated absence: no js/ts scikit-learn (#4251)
         "dl_frameworks": JS_DL_FRAMEWORKS,
         # 24. import (Dependency Inclusions)
         "import": re.compile(

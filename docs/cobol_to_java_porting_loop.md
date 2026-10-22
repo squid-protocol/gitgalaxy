@@ -33,7 +33,7 @@ Both paths use the steps below.
 
 **What a proof rests on.** The oracle is GnuCOBOL with models of CICS and Language Environment, and a real Db2 for
 Linux, not z/OS. Every known or suspected difference, and whether a proven program reaches it, is in the
-[oracle-assumptions register](language_status/oracle_assumptions.md). After a change to the runtime, the harness or
+[oracle-assumptions register](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md). After a change to the runtime, the harness or
 an oracle model, `tests/tools/proof_sweep.py --work DIR` re-proves every det and model port.
 
 For the combined method, the propose step is `port_runner run --backend det --source-root ESTATE [--typed]`, and

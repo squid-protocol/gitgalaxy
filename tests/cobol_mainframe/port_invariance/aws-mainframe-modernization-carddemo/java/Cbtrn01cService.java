@@ -43,7 +43,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class Cbtrn01cService {
 
-    private static final Charset CS = CobolRecords.charset();
+    private static final Charset CS = Cobol.recordCharset(CobolRecords.charset());
     private static final int GOTO = 1 << 20;
     private static final BigDecimal D0 = new BigDecimal("0");
     private static final BigDecimal D4 = new BigDecimal("4");

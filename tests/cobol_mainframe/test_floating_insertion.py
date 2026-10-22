@@ -12,6 +12,8 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_repository_forge import cobol_e
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from cultural_gauntlet import jdk  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 # (PICTURE, value, currency, COBOL's edited result). The `$` / `+` / `-` rows are GnuCOBOL 3 (-std=ibm) output,
 # MOVE of an S9(9)V99 to the edited item; the `$(3)` and the one-character sign rows follow them by the same
@@ -83,7 +85,7 @@ def test_cobol_edit_floats_the_insertion_string_as_cobol(tmp_path):
         "    }\n    public static void main(String[] a) {\n" + checks + "\n        System.exit(bad);\n    }\n}\n",
         encoding="utf-8",
     )
-    subprocess.run([javac, "-encoding", "UTF-8", "-d", str(tmp_path), *map(str, tmp_path.glob("*.java"))],
+    javac_run([javac, "-encoding", "UTF-8", "-d", str(tmp_path), *map(str, tmp_path.glob("*.java"))],
                    check=True)  # fmt: skip
     run = subprocess.run([java, "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path),
                           "com.test.entity.vsam.Runner"], capture_output=True, text=True, encoding="utf-8")  # fmt: skip
@@ -103,8 +105,9 @@ def test_decimal_comma_floats_across_the_period(tmp_path):
         "    }\n}\n",
         encoding="utf-8",
     )
-    subprocess.run([javac, "-encoding", "UTF-8", "-d", str(tmp_path), *map(str, tmp_path.glob("*.java"))],
+    javac_run([javac, "-encoding", "UTF-8", "-d", str(tmp_path), *map(str, tmp_path.glob("*.java"))],
                    check=True)  # fmt: skip
-    run = subprocess.run([java, "-cp", str(tmp_path), "com.test.entity.vsam.Runner"], capture_output=True,
-                         text=True, check=True)  # fmt: skip
-    assert run.stdout.splitlines() == ["[ $1.234,50]", "[    $34,50]"]
+    # (bytes, decoded here: text=True reads the Windows locale charset, and a not sign in the output left stdout None)
+    run = subprocess.run([java, "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path),
+                          "com.test.entity.vsam.Runner"], capture_output=True, check=True)  # fmt: skip
+    assert run.stdout.decode("utf-8").splitlines() == ["[ $1.234,50]", "[    $34,50]"]

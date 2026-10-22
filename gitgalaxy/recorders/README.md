@@ -141,8 +141,9 @@ One row per CSD `DEFINE <type>(<name>)` record of **any** resource type — FILE
 | `db2_entry` | DB2TRAN `ENTRY` — the DB2ENTRY carrying the plan |
 | `transid` / `program` | a TRANSACTION's own id or a `TRANSID(...)`/`TRANSACTION(...)` operand; a PROGRAM's own name or a `PROGRAM(...)` operand |
 | `attributes` | the record's full operand text, whitespace-folded |
+| `source` / `macro_table` | #5120: `CSD` (a deck), or `MACRO` with the assembled table (`DFHFCT01`) the DFHFCT / DFHPCT / DFHPPT / DFHDCT / DFHTST statement came from; `line_number` is then the macro statement's line. A pre-#5120 row reads as `CSD`. |
 
-Per-file, cascade-deleted with `file_data`, restored on delta scans; nothing is resolved. `galaxy_ir` joins it: `cics_file_datasets` (CICS file → dataset → the JCL bindings and batch programs of `dataset_data`, on the #3345 resolved name), `tdqueue_datasets` (extrapartition queue → dataset) and `transaction_db2_plans` (transaction → DB2TRAN/DB2ENTRY → plan).
+Per-file, cascade-deleted with `file_data`, restored on delta scans; nothing is resolved. `galaxy_ir` joins it: `cics_file_datasets` (CICS file → dataset → the JCL bindings and batch programs of `dataset_data`, on the #3345 resolved name), `tdqueue_datasets` (extrapartition queue → dataset) and `transaction_db2_plans` (transaction → DB2TRAN/DB2ENTRY → plan). `resource_map` / `resource_conflicts` (#5120) merge the CSD and macro-table definitions of one resource and name where they disagree.
 
 ### `call_site_data` — one row per invocation site
 

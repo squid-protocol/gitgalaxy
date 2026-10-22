@@ -56,6 +56,15 @@ DEFINITION: dict[str, Any] = {
     ],
     # EXECUTION SIGNATURES: Interpreters found on Line 1.
     "shebangs": ["php", "php-cli", "php-cgi", "hhvm"],
+    # #4973: internal discriminator for shared extensions (.inc).
+    # PHP code fundamentally operates within an HTML context, requiring execution
+    # boundaries (<?php or <?=). A .inc file is PHP only on this positive evidence.
+    "internal_discriminator": re.compile(r"<\?(?:php\b|=)", re.I),
+    # #4973: the shared .inc extension. PHP is Tier-2 proven by the
+    # `internal_discriminator` above or it is not a candidate for these extensions in
+    # the Tier-3 lexical scan: a neighbourhood vote cannot confer PHP with no PHP
+    # marker, and its broad rules do not outscore rival claimants (C/C++/Fortran/Assembly).
+    "extensions_needing_discriminator": [".inc"],
     # UPGRADED: Maps to Family 6 (Polyglot)
     # Rationale: PHP fundamentally operates within an HTML context, requiring the parser
     # to explicitly hunt for <?php execution boundaries. It also supports multiple

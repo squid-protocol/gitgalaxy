@@ -166,6 +166,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
+from gitgalaxy.core.cobol_preprocessor import replace_text as _replace_text  # #5648: shared with det/
 from gitgalaxy.core.compiler_options import effective as effective_options
 from gitgalaxy.core.jcl_runners import systsin_programs
 from gitgalaxy.core.source_text import read_source
@@ -198,6 +199,9 @@ class EngineUnit:
     start_line: int
     loc: int
     usage_status: int
+    # #4404: the owning program of a unit in a multi-program source (_attribute_programs); None
+    # in a one-program source.
+    program: str | None = None
 
 
 @dataclass
@@ -523,6 +527,10 @@ class EngineCsdResource:
     program: str | None
     attributes: str | None
     line: int
+    # #5120: where the definition came from -- "CSD" (a deck) or "MACRO" (an assembled
+    # DFHFCT / DFHPCT / DFHPPT / DFHDCT / DFHTST table, `macro_table` naming it).
+    source: str = "CSD"
+    macro_table: str | None = None
 
 
 @dataclass
@@ -918,6 +926,9 @@ class EngineFile:
     # #3490: symbolic maps generated from BMS source for COPY members no real
     # copybook answers (EngineFile, file_path `<bms>#<MAPSET>`); never in `files`.
     symbolic_copies: list = field(default_factory=list)
+    # #5649: GitGalaxy's stand-in copybooks (core/copy_libraries) for registered system members the
+    # repository does not ship (file_path `stand-in#<MEMBER>`); read only by _copybook_file.
+    stand_in_copies: list = field(default_factory=list)
 
     @property
     def is_program(self) -> bool:
@@ -1020,12 +1031,52 @@ class GalaxyIR:
                 if ds.is_binding:
                     bindings.setdefault((f.file_path, ds.step_name, ds.dd_name), []).append(ds)
 
-        # program path -> the (job, step) pairs that EXEC PGM= it.
+        # #5072: the step an EXEC PGM= sits in. The call row has no step name, but its line is the STEP row's line.
+        # Only a top-level step counts: a PROC step (`in_proc`) keeps the whole job (step None).
+        step_at: dict[tuple[str, int], str] = {}
+        job_steps: dict[str, set] = {}
+        for f in self.files.values():
+            for r in f.job_flow:
+                if r.kind == "STEP" and not r.in_proc and r.step_name:
+                    step_at[(f.file_path, r.line)] = r.step_name
+                    job_steps.setdefault(f.file_path, set()).add(r.step_name)
+
+        # program path -> the (job, step) pairs that EXEC PGM= it (step None: not known, so the whole job).
         runners: dict[str, list] = {}
         for f in self.files.values():
             for call in f.calls:
                 if call.verb == "EXEC PGM" and call.resolves_to:
-                    runners.setdefault(call.resolves_to, []).append((f.file_path, None))
+                    runners.setdefault(call.resolves_to, []).append(
+                        (f.file_path, step_at.get((f.file_path, call.line)))
+                    )
+        # #5034: a statically CALLed subprogram runs in its caller's step, under that step's DDs (CardDemo CBSTM03B,
+        # called by CBSTM03A): every job that runs a program also runs what it CALLs, however deep. A CALL through a
+        # data item is followed only on one provable value (below).
+        callees: dict[str, set] = {}
+        for f in self.files.values():
+            for call in f.calls:
+                # a CALL through a data item the resolver bound through its VALUE is judged below (#5072): a MOVE of
+                # another value into it makes the target a run-time choice
+                if call.verb == "CALL" and call.resolves_to and call.form != "identifier":
+                    callees.setdefault(f.file_path, set()).add(call.resolves_to)
+        # #5072: a CALL through a data item is followed only where the item has ONE provable value: a single
+        # candidate (VALUE, one MOVE literal) and no MOVE from an item whose content is unknown. Several values, a
+        # table or an unknown source stay unfollowed (the target is chosen at run time). Costly (data_flows over the
+        # whole IR), so only when some job runs a program at all.
+        if runners:
+            for d in self.dynamic_call_targets():
+                cands = d["candidates"]
+                if d["verb"] == "CALL" and len(cands) == 1 and not d["other_sources"] and cands[0]["resolves_to"]:
+                    callees.setdefault(d["file"], set()).add(cands[0]["resolves_to"])
+        for prog, runs in list(runners.items()):
+            seen, todo = {prog}, [prog]
+            while todo:
+                for callee in sorted(callees.get(todo.pop(), ())):
+                    if callee not in seen:
+                        seen.add(callee)
+                        todo.append(callee)
+                        known = runners.setdefault(callee, [])
+                        known.extend(r for r in runs if r not in known)
 
         out = []
         for f in sorted(self.files.values(), key=lambda x: x.file_path):
@@ -1035,9 +1086,13 @@ class GalaxyIR:
                 if ds.is_binding:
                     continue
                 matched = False
-                for job_path, _ in runners.get(f.file_path, []):
+                for job_path, run_step in runners.get(f.file_path, []):
                     for (bj, bstep, bdd), bound in bindings.items():
                         if bj != job_path or bdd != ds.dd_name:
+                            continue
+                        # #5072: IBM gives a step only its own DDs; a binding of another top-level step of the job
+                        # is not this run unit's. A binding in a PROC step or override is kept (not scoped here).
+                        if run_step and bstep != run_step and bstep in job_steps.get(bj, ()):
                             continue
                         for b in bound:
                             matched = True
@@ -1216,6 +1271,107 @@ class GalaxyIR:
             for r in f.csd_resources
             if want is None or r.resource_type == want
         ]
+
+    # #5120: the lifted fields two definitions of one resource can disagree on.
+    _RESOURCE_COMPARED = (
+        "dsname",
+        "ddname",
+        "record_format",
+        "key_length",
+        "record_size",
+        "queue_type",
+        "plan",
+        "db2_entry",
+        "program",
+        "transid",
+    )
+
+    def resource_map(self) -> list:
+        """One entry per (resource_type, name) merging every CSD deck and macro table (#5120).
+
+        `definitions` lists each defining statement with its provenance (`source`
+        "CSD" | "MACRO", `macro_table`, `defined_in`, `line`); `sources` is the sorted
+        set of sources. `merged` holds each lifted field's value when every
+        definition that states it agrees -- and None where they disagree: no source
+        silently wins, the disagreement is in `resource_conflicts`. A field a
+        definition does not state (a macro table with no RECSIZE) never conflicts.
+        """
+        grouped: dict[tuple[str, str], list] = {}
+        for r in self.csd_resources():
+            grouped.setdefault((r["resource_type"], r["name"]), []).append(r)
+        out = []
+        for (rtype, name), defs in sorted(grouped.items()):
+            merged: dict[str, Any] = {}
+            for fld in self._RESOURCE_COMPARED:
+                values = {d[fld] for d in defs if d.get(fld) is not None}
+                merged[fld] = next(iter(values)) if len(values) == 1 else None
+            out.append(
+                {
+                    "resource_type": rtype,
+                    "name": name,
+                    "sources": sorted({d.get("source") or "CSD" for d in defs}),
+                    "merged": merged,
+                    "definitions": [
+                        {
+                            "source": d.get("source") or "CSD",
+                            "macro_table": d.get("macro_table"),
+                            "defined_in": d["defined_in"],
+                            "line": d["line"],
+                            **{fld: d.get(fld) for fld in self._RESOURCE_COMPARED},
+                            "group": d.get("group"),
+                        }
+                        for d in defs
+                    ],
+                }
+            )
+        return out
+
+    def resource_conflicts(self) -> list:
+        """Where the definitions of one resource disagree, named (#5120).
+
+        `kind` "attribute": two definitions state different values for `field`
+        (`values`: each distinct value with the definitions that state it). `kind`
+        "only_in": the repository defines resources through both a CSD and macro
+        tables, and this resource appears in just one of them (`only_in` names it).
+        Nothing is resolved: CICS installs whichever is loaded last, which the
+        source tree cannot say.
+        """
+        entries = self.resource_map()
+        out: list = []
+        for e in entries:
+            for fld in self._RESOURCE_COMPARED:
+                by_value: dict[Any, list] = {}
+                for d in e["definitions"]:
+                    if d[fld] is not None:
+                        by_value.setdefault(d[fld], []).append(
+                            {k: d[k] for k in ("source", "macro_table", "defined_in", "line")}
+                        )
+                if len(by_value) > 1:
+                    out.append(
+                        {
+                            "kind": "attribute",
+                            "resource_type": e["resource_type"],
+                            "name": e["name"],
+                            "field": fld,
+                            "values": [{"value": v, "defined": by_value[v]} for v in sorted(by_value, key=str)],
+                        }
+                    )
+        seen = {s for e in entries for s in e["sources"]}
+        if {"CSD", "MACRO"} <= seen:
+            out.extend(
+                {
+                    "kind": "only_in",
+                    "resource_type": e["resource_type"],
+                    "name": e["name"],
+                    "only_in": e["sources"][0],
+                    "defined": [
+                        {k: d[k] for k in ("source", "macro_table", "defined_in", "line")} for d in e["definitions"]
+                    ],
+                }
+                for e in entries
+                if len(e["sources"]) == 1
+            )
+        return out
 
     def _bindings_by_dataset(self) -> dict[str, list]:
         """Joinable dataset name (member/generation suffix dropped) -> its JCL DD bindings."""
@@ -1414,6 +1570,10 @@ class GalaxyIR:
                 return self.files[hits[0]]
         for ctx in contexts:  # #3490: a symbolic map generated from BMS source
             for sym in ctx.symbolic_copies:
+                if sym.file_path.rsplit("#", 1)[-1] == member:
+                    return sym
+        for ctx in contexts:  # #5649: a stand-in, only where the repository has no such member
+            for sym in ctx.stand_in_copies:
                 if sym.file_path.rsplit("#", 1)[-1] == member:
                     return sym
         return None
@@ -1880,6 +2040,8 @@ class GalaxyIR:
         done: set = set()
         groups: list = []  # (statement line, the replaced entries, root first)
         for st in sorted(ef.copy_statements, key=lambda c: c.line):
+            if not st.replacing or st.section == "PROCEDURE":
+                continue  # #5618: a plain or procedure-division COPY row records the statement; it expands no data here
             cb, roots = self._copy_roots(st.member, ef, ef, 0, st.library)
             roots = roots or (cb.template_records if cb is not None else [])
             if cb is None or not roots:
@@ -2171,7 +2333,9 @@ class GalaxyIR:
         return {"bytes": None if total is None else (total + 7) // 8, "variable": variable, "fields": fields,
                 "unexpanded": list(unexpanded), "copybooks": spliced, "dialect": "pli"}  # fmt: skip
 
-    def record_layout(self, ef: EngineFile, item: EngineDataItem, extension: list | None = None) -> dict:
+    def record_layout(
+        self, ef: EngineFile, item: EngineDataItem, extension: list | None = None, pointer_bytes: int | None = None
+    ) -> dict:
         """One record's storage layout, COPY-expanded, from the DB alone (#3355).
 
         Returns `bytes` (None when any width is unknown), `variable` (an OCCURS
@@ -2184,6 +2348,10 @@ class GalaxyIR:
         OCCURS group are listed once; the group's width carries the repetition.
         `extension` is (file, item) entries appended to the record's own children
         (a copied record continued in the program -- `_copy_extension`).
+
+        #5649: `pointer_bytes` is a POINTER's width (and SYNC boundary): z/OS's 4 by default, the
+        translator's target width when its storage is what is being compared. `stand_ins` lists the
+        GitGalaxy-written stand-in copybooks (core/copy_libraries) the layout read, only when it read one.
         """
         if ef.language == "pli" and not extension:
             return self._pli_record_layout(ef, item)  # #3720: PL/I structure mapping
@@ -2239,7 +2407,7 @@ class GalaxyIR:
                                 size += wide - region[1]
                                 region[1] = wide
                         continue
-                    size += _slack(kid, usage, offset + size)  # #4266: SYNCHRONIZED
+                    size += _slack(kid, usage, offset + size, pointer_bytes)  # #4266: SYNCHRONIZED
                     kid_width = _walk(kid_file, kid, offset + size, kid_depth, sink, usage)
                     region = [offset + size, kid_width, kid.name.upper()]
                     size += kid_width
@@ -2247,8 +2415,8 @@ class GalaxyIR:
                     size += -size % state["align"]  # #4266: slack ends each occurrence of a table group
                 state["align"] = max(outer_align, state["align"])
                 return size * times
-            state["align"] = max(state["align"], _sync_boundary(it, usage))
-            width = _elementary_bytes(it, usage)
+            state["align"] = max(state["align"], _sync_boundary(it, usage, pointer_bytes))
+            width = _elementary_bytes(it, usage, pointer_bytes)
             if width is None:
                 state["unknown"] = True
                 width = 0
@@ -2270,12 +2438,14 @@ class GalaxyIR:
             return width * times
 
         total = _walk(ef, item, 0, 0)
+        stand_ins = [p for p in copybooks if p.startswith(STAND_IN_PREFIX)]
         return {
             "bytes": None if state["unknown"] else total,
             "variable": state["variable"],
             "fields": fields,
             "unexpanded": unexpanded,
             "copybooks": copybooks,
+            **({"stand_ins": stand_ins} if stand_ins else {}),
         }
 
     def _program_at(self, ef: EngineFile, line: int | None) -> str | None:
@@ -3073,6 +3243,55 @@ class GalaxyIR:
             )
         return flows
 
+    _TEMPLATE_WILD = re.compile(r"@[^@.\s]+@|#+")
+    _TEMPLATE_FIGURATIVE = frozenset({"SPACE", "SPACES", "ZERO", "ZEROS", "ZEROES", "LOW-VALUE", "LOW-VALUES", "HIGH-VALUE",
+                                      "HIGH-VALUES", "QUOTE", "QUOTES", "NULL", "NULLS"})  # fmt: skip
+
+    def _group_template(self, ef: EngineFile, operand: str | None) -> str | None:
+        """#4771: the name a group operand spells, from its elementary items' VALUEs in order (zECS's
+        `01 ZF-FCT. 02 ZF-TRANID PIC X(04) VALUE 'ZC##'. 02 FILLER PIC X(04) VALUE 'FILE'.` -> `ZC##FILE`, the `##`
+        the install's table suffix). None unless the item is a group of plain, valued, single-occurrence X items."""
+        item, qual = _operand_name(operand)
+        found = self._find_item(ef, item, qual) if item else []
+        if not found or not found[0][1].children:
+            return None
+        parts: list[str] = []
+
+        def leaves(it: EngineDataItem) -> bool:
+            for c in it.children:
+                if c.level == 88:
+                    continue
+                if c.redefines or c.occurs_max:
+                    return False
+                if c.children:
+                    if not leaves(c):
+                        return False
+                    continue
+                size = re.fullmatch(r"X\((\d+)\)|(X+)", (c.pic or "").upper().replace(" ", ""))
+                value = c.value
+                if size is None or value is None or value.upper() in self._TEMPLATE_FIGURATIVE:
+                    return False
+                width = int(size.group(1)) if size.group(1) else len(size.group(2))
+                parts.append(value[:width].ljust(width))
+            return True
+
+        if not leaves(found[0][1]):
+            return None
+        return "".join(parts).rstrip().upper() or None
+
+    def _template_names(self, ef: EngineFile, op: EngineCicsResource, defined: Sequence[str]) -> set[str]:
+        """#4771: the CSD file name(s) a FILE operand with no resolved name stands for -- its group's template
+        (`_group_template`) read against the defined names with every `#` run and `@SYMBOL@` one wildcard
+        (`ZC##FILE` ~ `ZC@ID@FILE`). Exactly one definition or none: two would be a guess."""
+        if op.name or op.candidates or op.resolution not in ("unresolved", None):
+            return set()
+        template = self._group_template(ef, op.operand)
+        if not template:
+            return set()
+        shape = self._TEMPLATE_WILD.sub("*", template)
+        hits = {d.upper() for d in defined if self._TEMPLATE_WILD.sub("*", d.upper()) == shape}
+        return hits if len(hits) == 1 else set()
+
     def _cics_ops_lineage(self, kind: str, csd_join: str, key: str) -> list:
         """Program -> CICS resource of `kind` -> the CSD join `csd_join` (#3356).
 
@@ -3090,7 +3309,8 @@ class GalaxyIR:
             for op in f.cics_resources:
                 if op.kind != kind or (kind == "QUEUE" and op.qualifier != "TD"):
                     continue
-                for name in sorted(op.names):
+                names = op.names or (self._template_names(f, op, list(by_name)) if kind == "FILE" else set())
+                for name in sorted(names):
                     entry = grouped.setdefault(
                         (f.file_path, name),
                         {"program": f.file_path, "name": name, "accesses": set(), "verbs": set(), "lines": []},
@@ -3891,9 +4111,15 @@ class GalaxyIR:
         for f in sorted(self.files.values(), key=lambda x: x.file_path):
             per: dict[str, dict] = {}
             for op in f.cics_resources:
-                if op.kind != "FILE" or not op.name:
+                if op.kind != "FILE":
                     continue
-                fname = op.name.upper()
+                if op.name:
+                    fname = op.name.upper()
+                else:  # #4771: a group operand spelling a template (ZC##FILE) is the CSD file it matches (ZC@ID@FILE)
+                    template_hit = self._template_names(f, op, list(csd_files))
+                    if not template_hit:
+                        continue
+                    (fname,) = template_hit
                 u = per.setdefault(fname, {"verbs": set(), "lines": [], "records": {}, "ridflds": {}})
                 u["verbs"].add(op.verb)
                 u["lines"].append(op.line)
@@ -4030,6 +4256,10 @@ class GalaxyIR:
                 cand["defined"] = True
 
                 cand["defined_by"] = {"match": "symbolic", "pattern": sym["dataset"], "evidence": evidence}
+                # #4949: the programs the JCL binds to the symbolic dataset (a batch step's DD) are users of the merged
+                # store; dropping them left the batch SELECT with no repository in the generated project
+                cand["users"].extend(sym["users"])
+                cand["cics_files"].extend(c for c in sym["cics_files"] if c not in cand["cics_files"])
                 to_drop.add(sym_key)
 
         return [stores[k] for k in sorted(stores) if k not in to_drop]
@@ -4353,6 +4583,69 @@ class GalaxyIR:
                                 for r in theirs.get(id(ps), [])]  # fmt: skip
                     continue
                 out += [row(f, job.name, st.step_name, None, st.step_ordinal, r) for r in mine.get(id(st), [])]
+        return out
+
+    # #5154: the programs a JCL assembler step runs (core/mainframe_boundary._JCL_ASSEMBLER's PGM= set).
+    _ASSEMBLER_PROGRAMS = frozenset({"ASMA90", "IEV90", "IEUASM", "ASMAHL", "ASMBLR"})
+    # #5154: a proc that wraps the assembler; its SYSIN is a job-level `//STEP.SYSIN` override DD.
+    _ASSEMBLER_PROCS = frozenset({"DFHAUPLE"})
+
+    def job_macro_tables(self) -> list:
+        """The CICS macro tables an assembler step reads from a separate SYSIN member (#5154).
+
+        One entry per `SYSIN DD DSN=lib(MEMBER)` of a job step that runs an assembler, or calls
+        a known assembler proc (`_ASSEMBLER_PROCS`: DFHAUPLE; its SYSIN is a `//PROCSTEP.SYSIN`
+        override DD, reported under the EXEC step). Unnamed DDs after the SYSIN (a concatenation) are each their own entry.
+        `file` / `job` / `step` / `line` (the DD), `member`, `member_file` and `resources`, the
+        macro-table rows (`source` "MACRO") of the one hlasm file whose name is the member, each
+        row as `csd_resources` gives it plus `defined_in`. `status`, always present: `joined`
+        (one file, with tables), `no_tables` (one file, no macro-table row: found, nothing to
+        join; `member_file` is set), `not_found` (no file) or `ambiguous` (several files;
+        `member_file` None, `resources` empty). A finding, not a guess. In-stream SYSIN is the
+        job's own `csd_resources`; any other wrapper proc is not read (REFUSED by name).
+        """
+        members: dict[str, list] = {}
+        for f in self.files.values():
+            if f.language == "hlasm" or any(r.source == "MACRO" for r in f.csd_resources):
+                members.setdefault(nfc(Path(f.file_path).stem.upper()), []).append(f)
+        out = []
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            job = next((r for r in f.job_flow if r.kind == "JOB"), None)
+            if job is None:
+                continue
+            assemblers: set[str | None] = set()
+            wrapper: tuple[str | None] | None = None  # the DFHAUPLE-style step in force: (its name,)
+            for r in f.job_flow:
+                if r.in_proc:
+                    continue
+                if r.kind == "STEP":
+                    prog, proc = (r.program or "").upper(), (r.proc or "").upper()
+                    wrapper = (r.step_name,) if not prog and proc in self._ASSEMBLER_PROCS else None
+                    if prog in self._ASSEMBLER_PROGRAMS:
+                        assemblers.add(r.step_name)
+                elif r.kind == "DD" and (r.dd_name or "").upper() == "SYSIN" and (wrapper or r.step_name in assemblers):
+                    m = re.fullmatch(r"[^()]+\(([^()]+)\)", (r.dsn or "").strip())
+                    if not m:
+                        continue
+                    member = m.group(1).upper()
+                    hits = members.get(nfc(member), [])
+                    mf = hits[0] if len(hits) == 1 else None
+                    rows = [x for x in (mf.csd_resources if mf else []) if x.source == "MACRO"]
+                    status = (
+                        "ambiguous" if len(hits) > 1 else "not_found" if not hits else "joined" if rows else "no_tables"
+                    )
+                    out.append(
+                        {
+                            "file": f.file_path,
+                            "job": job.name,
+                            "step": wrapper[0] if wrapper else r.step_name,
+                            "line": r.line,
+                            "member": member,
+                            "member_file": mf.file_path if mf else None,
+                            "status": status,
+                            "resources": [{**x.__dict__, "defined_in": mf.file_path if mf else None} for x in rows],
+                        }
+                    )
         return out
 
     def job_dataset_flow(self) -> list:
@@ -5590,7 +5883,10 @@ def _attach_currency(files: list) -> None:
 # The USAGEs that make an item elementary with no PIC. Any other PIC-less item is
 # a group, even with a USAGE of its own (`01 X USAGE DISPLAY.` applies to its
 # children) -- and even when the engine read a stray USAGE into it.
-_PICLESS_USAGES = ("COMP-1", "COMPUTATIONAL-1", "COMP-2", "COMPUTATIONAL-2", "POINTER", "INDEX")
+_PICLESS_USAGES = (
+    "COMP-1", "COMPUTATIONAL-1", "COMP-2", "COMPUTATIONAL-2", "POINTER", "INDEX", "PROCEDURE-POINTER",
+    "FUNCTION-POINTER",
+)  # fmt: skip
 
 
 # Files whose class_data names are NOT programs: a CSD deck's DEFINE PROGRAM(...) entries, a
@@ -5695,7 +5991,7 @@ def _item_class(item: EngineDataItem, inherited: str | None = None) -> str:
         return "B"
     if usage in ("COMP-1", "COMPUTATIONAL-1", "COMP-2", "COMPUTATIONAL-2"):
         return "F"
-    if usage in ("POINTER", "INDEX"):
+    if usage in ("POINTER", "INDEX", "PROCEDURE-POINTER", "FUNCTION-POINTER"):
         return "A"
     pic = (item.pic or "").upper()
     if not pic:
@@ -5707,18 +6003,31 @@ def _item_class(item: EngineDataItem, inherited: str | None = None) -> str:
     return "9"
 
 
-def _sync_boundary(item: EngineDataItem, usage: str | None) -> int:
+# #5649: the width of USAGE POINTER under z/OS LP(32) -- the default every layout reads. A caller that lays
+# storage out for another target (the det translator's GnuCOBOL x86-64: 8, oracle register C9) passes its own.
+ZOS_POINTER_BYTES = 4
+# #5694: under z/OS a PROCEDURE-POINTER is 8 bytes and a FUNCTION-POINTER 4 (oracle register C9). A caller that lays
+# storage out for another target (`pointer_bytes`) gets both at its POINTER width, as the det translator reads them.
+_CODE_POINTER_BYTES = {"PROCEDURE-POINTER": 8, "FUNCTION-POINTER": ZOS_POINTER_BYTES}
+
+
+def _sync_boundary(item: EngineDataItem, usage: str | None, pointer_bytes: int | None = None) -> int:
     """#4266: the boundary a SYNCHRONIZED elementary item starts on, in bytes from the start of its record
     (which is doubleword-aligned), per IBM Enterprise COBOL's SYNCHRONIZED clause: a binary item of up to 4
     digits a halfword, of more a fullword (an 8-byte S9(10)-S9(18) one too); COMP-1, INDEX and the
     pointers a fullword (LP(32)); COMP-2 a doubleword. 1 -- no slack -- for any other item (DISPLAY,
-    packed, national: SYNC is documentation there), a group, PL/I, or no SYNC at all."""
+    packed, national: SYNC is documentation there), a group, PL/I, or no SYNC at all. A POINTER's boundary
+    is its width, `pointer_bytes` (#5649)."""
     if not item.sync or item.attributes is not None or not _is_elementary(item, usage):
         return 1
     u = (usage or "DISPLAY").upper()
     if u in ("COMP-2", "COMPUTATIONAL-2"):
         return 8
-    if u in ("COMP-1", "COMPUTATIONAL-1", "INDEX", "POINTER", "PROCEDURE-POINTER", "FUNCTION-POINTER"):
+    if u == "POINTER":
+        return pointer_bytes or ZOS_POINTER_BYTES
+    if u in _CODE_POINTER_BYTES:
+        return pointer_bytes or _CODE_POINTER_BYTES[u]
+    if u in ("COMP-1", "COMPUTATIONAL-1", "INDEX"):
         return 4
     if item.pic and _item_class(item, usage) == "B":
         width = _elementary_bytes(item, usage)
@@ -5726,22 +6035,29 @@ def _sync_boundary(item: EngineDataItem, usage: str | None) -> int:
     return 1
 
 
-def _slack(item: EngineDataItem, inherited: str | None, at: int) -> int:
+def _slack(item: EngineDataItem, inherited: str | None, at: int, pointer_bytes: int | None = None) -> int:
     """#4266: the slack bytes the compiler puts before `item` when it would start at record offset
     `at` (0 unless it is SYNCHRONIZED and `at` is off its boundary). `inherited` is the enclosing
     group's USAGE (#4525). Slack between the occurrences of a table is added by the callers, as IBM's
     "Slack bytes within records" rule: a table group is padded to the largest boundary under it."""
-    return -at % _sync_boundary(item, _usage_under(item, inherited))
+    return -at % _sync_boundary(item, _usage_under(item, inherited), pointer_bytes)
 
 
-def _elementary_bytes(item: EngineDataItem, inherited: str | None = None) -> int | None:
+def _elementary_bytes(
+    item: EngineDataItem, inherited: str | None = None, pointer_bytes: int | None = None
+) -> int | None:
     """One occurrence's storage width of an elementary item, or None when unknown.
-    `inherited` is the enclosing group's USAGE (#4525), used when the item has none."""
+    `inherited` is the enclosing group's USAGE (#4525), used when the item has none. A POINTER is
+    `pointer_bytes` wide, z/OS's 4 (ZOS_POINTER_BYTES) unless the caller lays out for another target (#5649)."""
     if item.attributes is not None:  # #3720: a PL/I item (attributes is None for COBOL)
         el = pli_mapping.element(item.usage, item.pic, item.attributes, False)
         return None if el is None else (el[0] + 7) // 8
     usage = (item.usage or inherited or "DISPLAY").upper()
-    if usage in ("COMP-1", "COMPUTATIONAL-1", "POINTER", "INDEX"):
+    if usage == "POINTER":
+        return pointer_bytes or ZOS_POINTER_BYTES
+    if usage in _CODE_POINTER_BYTES:
+        return pointer_bytes or _CODE_POINTER_BYTES[usage]
+    if usage in ("COMP-1", "COMPUTATIONAL-1", "INDEX"):
         return 4
     if usage in ("COMP-2", "COMPUTATIONAL-2"):
         return 8
@@ -6310,8 +6626,9 @@ def load_galaxy_ir(db_path: Path, repo_name: str | None = None) -> GalaxyIR:
         if _has_table(cur, "csd_resource_data"):
             for row in cur.execute(
                 "SELECT file_id, resource_type, resource_name, group_name, dsname, ddname, record_format, "
-                "key_length, record_size, queue_type, plan, db2_entry, transid, program, attributes, line_number "
-                "FROM csd_resource_data WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
+                "key_length, record_size, queue_type, plan, db2_entry, transid, program, attributes, line_number, "
+                + ("source, macro_table " if _has_column(cur, "csd_resource_data", "source") else "NULL, NULL ")
+                + "FROM csd_resource_data WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
                 (repo_name, commit_hash),
             ):
                 if row[0] not in by_id:
@@ -6333,6 +6650,8 @@ def load_galaxy_ir(db_path: Path, repo_name: str | None = None) -> GalaxyIR:
                         program=row[13],
                         attributes=row[14],
                         line=int(row[15] or 0),
+                        source=row[16] or "CSD",
+                        macro_table=row[17],
                     )
                 )
         # #3351-#3354: CICS resource operations. A pre-channel database has no such
@@ -6688,6 +7007,7 @@ def load_galaxy_ir(db_path: Path, repo_name: str | None = None) -> GalaxyIR:
         conn.close()
 
     _attach_symbolic_maps(files)
+    _attach_stand_ins(files)
     _name_pli_programs(files)
     _attribute_programs(files)
     ir = GalaxyIR(db_path, repo_name, commit_hash, files, source_pages=source_pages)
@@ -6709,35 +7029,6 @@ def _copy_replacings(item: EngineDataItem) -> list:
         found = []
     members = (item.copy_members or "").split(",")
     return [found[i] if i < len(found) else None for i in range(len(members))]
-
-
-def _replace_text(text: str | None, pairs: list) -> str | None:
-    """#4265: `text` after a COPY's REPLACING. A pseudo-text operand delimited by `:` or `( )` (a
-    tag: `:TAG:-ID`) replaces partial words; LEADING / TRAILING replace a word's start / end; any
-    other operand replaces whole words only. One left-to-right pass, as the compiler does: at each
-    position the first pair that matches is applied, and replaced text is never matched again."""
-    if not text:
-        return text
-    patterns: list[str] = []
-    targets: list[str] = []
-    for pair in pairs:
-        src, dst = pair[0], pair[1]
-        mode = pair[2] if len(pair) > 2 else None
-        if not src:
-            continue
-        if mode == "LEADING":
-            patterns.append(rf"(?<![\w-]){re.escape(src)}")
-        elif mode == "TRAILING":
-            patterns.append(rf"{re.escape(src)}(?![\w-])")
-        elif src[:1] in ":(" and src[-1:] in ":)":
-            patterns.append(re.escape(src))
-        else:
-            patterns.append(rf"(?<![\w-]){re.escape(src)}(?![\w-])")
-        targets.append(dst)
-    if not patterns:
-        return text
-    combined = re.compile("|".join(f"(?P<p{i}>{p})" for i, p in enumerate(patterns)), re.I)
-    return combined.sub(lambda m: targets[int((m.lastgroup or "p0")[1:])], text)
 
 
 def _replaced(item: EngineDataItem, pairs: list) -> EngineDataItem:
@@ -6784,12 +7075,15 @@ def _program_named(ef: EngineFile, name: str | None) -> str | None:
 
 
 def _attribute_programs(files: dict[str, EngineFile]) -> None:
-    """#4245: name the owning program of every data item of a multi-program source."""
+    """#4245: name the owning program of every data item, and (#4404) of every unit, of a
+    multi-program source. A unit belongs to the last program whose PROCEDURE DIVISION precedes it."""
     for ef in files.values():
         bounds = _program_bounds(ef)
         if bounds:
             for it in ef.data_items:
                 it.program = ef.program_ids[min(bisect.bisect_left(bounds, it.line), len(bounds) - 1)]
+            for unit in ef.units:
+                unit.program = ef.program_ids[max(bisect.bisect_right(bounds, unit.start_line) - 1, 0)]
 
 
 def _name_pli_programs(files: dict[str, EngineFile]) -> None:
@@ -6816,6 +7110,54 @@ def _attach_symbolic_maps(files: dict[str, EngineFile]) -> None:
         for member in sorted(members):
             if member not in stems and member in maps:  # no real copybook answers the COPY
                 f.symbolic_copies.append(maps[member])
+
+
+# #5649: the file_path prefix of a stand-in copybook's synthetic EngineFile.
+STAND_IN_PREFIX = "stand-in#"
+
+
+def _attach_stand_ins(files: dict[str, EngineFile]) -> None:
+    """#5649: a COBOL program's `COPY <member>` that no copybook in the repository answers, where the
+    member is one GitGalaxy writes a stand-in for (CMQ*: register W1, CEEIGZCT: L4), gets that stand-in
+    parsed by the engine's record parser -- the same text the translator falls back on, so engine and
+    translator lay the record out from the same bytes. The layout flags it (`stand_ins`)."""
+    from gitgalaxy.core.copy_libraries import stand_in_text
+
+    stems = {Path(p).stem.upper() for p, f in files.items() if f.language == "cobol"}  # real copybooks
+    made: dict[str, EngineFile | None] = {}
+    for f in files.values():
+        if f.language != "cobol" or not f.data_items:
+            continue
+        members = {m for it in f.data_items for m in (it.copy_members or "").split(",") if m}
+        for member in sorted(members - stems):
+            if member not in made:
+                text = stand_in_text(member)
+                made[member] = None if text is None else _record_file(f"{STAND_IN_PREFIX}{member}", text)
+            if made[member] is not None:
+                f.stand_in_copies.append(made[member])
+
+
+def _record_file(file_path: str, text: str) -> EngineFile:
+    """A synthetic copybook EngineFile holding the records the engine's record parser reads from `text`."""
+    from gitgalaxy.core.mainframe_boundary import _cobol_records
+
+    made = EngineFile(file_path=file_path, language="cobol", total_loc=0)
+    for r in _cobol_records(text):
+        made.data_items.append(
+            EngineDataItem(
+                ordinal=r["ordinal"], parent_ordinal=r["parent_ordinal"], level=r["level"],
+                name=r["name"], section=None, fd_name=None, pic=r["pic"], usage=r["usage"],
+                occurs_min=r["occurs_min"], occurs_max=r["occurs_max"], occurs_depending_on=None,
+                redefines=r["redefines"], value=None, line=r["line"],
+                sync=r.get("sync"), sign_separate=bool(r.get("sign_separate")),
+                sign_leading=r.get("sign_separate") == 2,
+            )
+        )  # fmt: skip
+    by_ordinal = {it.ordinal: it for it in made.data_items}
+    for it in made.data_items:
+        parent = by_ordinal.get(it.parent_ordinal) if it.parent_ordinal is not None else None
+        (parent.children if parent is not None else made.records).append(it)
+    return made
 
 
 def _symbolic_map_files(files: dict[str, EngineFile]) -> dict[str, EngineFile]:

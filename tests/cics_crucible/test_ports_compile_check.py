@@ -24,3 +24,21 @@ def test_every_committed_equivalence_port_is_checked_with_the_ports_it_uses():
 
 def test_crucible_ports_are_the_overlays_under_the_ledger():
     assert pcc.cx.case_overlays(pcc.cx.PORTS_DIR / "pc-wizard").keys() == {"PCCONF", "PCWIZ"}
+
+
+def test_pc_return_immediate_has_a_det_port_of_each_program():
+    """#5053: the case's four programs are committed det ports (no model), so its java-ported cells have a port."""
+    ports = pcc.cx.case_overlays(pcc.cx.PORTS_DIR / "pc-return-immediate")
+    assert ports.keys() == {"PCIMMA", "PCIMMB", "PCIMML", "PCIMMS"}
+
+
+def test_pcconf_is_a_det_port_that_applies_the_justify_of_its_map():
+    """#5082: PCCONF's RECEIVE MAP puts AMT (JUSTIFY=(RIGHT,ZERO)) through DetJustify; the det port carries the runtime."""
+    import json
+
+    ports = pcc.cx.PORTS_DIR / "pc-wizard"
+    prov = json.loads((ports / "PCCONF" / "provenance.json").read_text(encoding="utf-8"))
+    assert prov["backend"] == "det" and prov["model"] is None
+    service = (ports / "PCCONF" / "overlay" / "service" / "PcconfService.java").read_text(encoding="utf-8")
+    assert "DetJustify.place(" in service and '"RIGHT,ZERO"' in service
+    assert (ports / "PCCONF" / "overlay" / "cobolrt" / "cics" / "DetJustify.java").is_file()

@@ -27,11 +27,10 @@ Two gotchas cost real time; bake them in:
 
 - **Engine tools** (`rule_probe`, `rosetta_audit`, `crucible_check`, `bless_scope`,
   `audit_score_inputs`, the audits) run from the engine worktree with
-  `PYTHONPATH=$PWD GITGALAXY_PATH=$PWD`. The interpreter is the PRIMARY checkout's venv --
-  `~/nyx_projects/gitgalaxy/.venv/bin/python` on the primary box (full precision:
-  `.crucible_venvs/full_precision`); wherever the checkout lives, it is
-  `<primary>/.venv/bin/python` (call it `$PY`; `worktree_env.sh` prints the matching
-  `GALAXYSCOPE_BIN`). The baseline-gated audits (`tests/ruff_audit.py`, `tests/mypy_audit.py`,
+  `PYTHONPATH=$PWD GITGALAXY_PATH=$PWD`. The interpreter is `$GG_PY` if set, else the PRIMARY
+  checkout's venv `<primary>/.venv/bin/python` (full precision: `.crucible_venvs/full_precision`;
+  `PRIMARY` derived as in `gitgalaxy-pr-worker.md` Setup 1; call it `$PY`; `worktree_env.sh` prints
+  the matching `GALAXYSCOPE_BIN`). The baseline-gated audits (`tests/ruff_audit.py`, `tests/mypy_audit.py`,
   `tests/tools/audit_check.py`) shell out to bare `ruff`/`mypy` -- **prefix
   `PATH=<primary>/.venv/bin:$PATH`** or they die `FileNotFoundError`.
 - **Corpus tools** (`bias_report.py`, `na_check`, `decoy_check`, `ledger_orphan_check`,
@@ -43,7 +42,8 @@ Two gotchas cost real time; bake them in:
 
 The caller hands you the two worktree paths and the signal name. Long legs (probe ~2min,
 rosetta_audit ~3min, bless ~2-4min, bias_report ~5min) should run in the background; report when
-they land.
+they land. For bless / regen legs (5-10 min) wait inside ONE Bash call (`tests/tools/box/wait-pids.sh
+<pid>` or a bounded poll); never end your turn while a job is still running.
 
 ## Job 0 -- the Phase-0 digest (one message, replaces ~30 orchestrator reads)
 

@@ -49,6 +49,24 @@
     "handleTransaction(String,Cousr02cCarddemoCommarea,byte[])",
     "lastAnswerBytes()"
    ]
+  },
+  {
+   "at": "2026-10-13T21:40:00+00:00",
+   "event": "edited",
+   "by": "churn worker for #5044 (Claude Opus 5.5)",
+   "what": "WS-REAS-CD after the REWRITE is CicsTask.resp2() (it was taken as 0: the runtime now sets the planned fault's RESP2 on WRITE / REWRITE / DELETE, and IBM's IOERR is RESP2 120); found by the rewrite-io-error scenario"
+  },
+  {
+   "at": "2026-10-17T19:05:41+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "b3b16bb72",
+   "generated_from": "service/Cousr02cService.java",
+   "added": [
+    "lastLinkBytes (field)",
+    "handleLink(Cousr02cCarddemoCommarea,byte[])",
+    "lastLinkBytes()"
+   ]
   }
  ]
 }

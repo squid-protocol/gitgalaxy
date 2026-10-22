@@ -56,6 +56,13 @@ import posixpath
 from collections import Counter
 from typing import Any
 
+# #5699: languages where a bare `f(` inside a method `f` is never the method (it needs `self.f` /
+# `this.f` / `$this->f`), so it may reach a free `f`. The detector keeps such a call for a unit
+# inside a class and this resolver prunes it when only the unit itself resolves. Not here:
+# Kotlin, Swift, Java, Ruby, C# (a member shadows the free function, so it is recursion) and
+# Go (a method has no enclosing class in the scan, so the detector cannot tell it from a function).
+BARE_CALL_SKIPS_METHODS = frozenset({"rust", "php", "typescript", "javascript", "python"})
+
 # Languages whose identifiers are case-insensitive, so `CALL Foo` reaches a
 # `FOO` definition. The detector's calls_out ignore uses the same list for its
 # keywords (detector.py, `_CALLS_OUT_GLOBAL_IGNORE`'s comment).
@@ -333,9 +340,127 @@ _BUILTIN_INSTANCE_METHODS_JS = frozenset(
         "call",
     }
 )
+# #4991: methods of the java.lang / java.util built-ins (Object, String/CharSequence,
+# the Collection / List / Set / Map / Queue / Deque / Iterator families, Optional,
+# StringBuilder, Stream, boxed numbers, Class). `list.add(x)` / `map.get(k)` /
+# `s.equals(o)` on a receiver the scan cannot type is the JDK method far more often
+# than a repo class's method of the same name (scip-java resolves them to the JDK only).
+_BUILTIN_INSTANCE_METHODS_JAVA = frozenset(
+    {
+        # Object / Class / Comparable / boxed numbers
+        "equals",
+        "hashCode",
+        "toString",
+        "getClass",
+        "compareTo",
+        "compare",
+        "getName",
+        "getSimpleName",
+        "isInstance",
+        "cast",
+        "intValue",
+        "longValue",
+        "doubleValue",
+        "floatValue",
+        "shortValue",
+        "byteValue",
+        "booleanValue",
+        # String / CharSequence / StringBuilder
+        "length",
+        "isEmpty",
+        "charAt",
+        "substring",
+        "indexOf",
+        "lastIndexOf",
+        "contains",
+        "startsWith",
+        "endsWith",
+        "equalsIgnoreCase",
+        "toLowerCase",
+        "toUpperCase",
+        "trim",
+        "strip",
+        "split",
+        "replace",
+        "replaceAll",
+        "matches",
+        "concat",
+        "append",
+        "insert",
+        "reverse",
+        "toCharArray",
+        "getBytes",
+        "isBlank",
+        "format",
+        # Collection / List / Set / Queue / Deque
+        "add",
+        "addAll",
+        "remove",
+        "removeAll",
+        "removeIf",
+        "retainAll",
+        "containsAll",
+        "clear",
+        "size",
+        "get",
+        "set",
+        "iterator",
+        "listIterator",
+        "stream",
+        "forEach",
+        "toArray",
+        "subList",
+        "sort",
+        "offer",
+        "poll",
+        "peek",
+        "push",
+        "pop",
+        "addFirst",
+        "addLast",
+        "removeFirst",
+        "removeLast",
+        "getFirst",
+        "getLast",
+        # Map
+        "put",
+        "putAll",
+        "putIfAbsent",
+        "containsKey",
+        "containsValue",
+        "keySet",
+        "values",
+        "entrySet",
+        "getOrDefault",
+        "computeIfAbsent",
+        "computeIfPresent",
+        "compute",
+        "merge",
+        "getKey",
+        "getValue",
+        # Iterator / Optional / Stream
+        "hasNext",
+        "next",
+        "isPresent",
+        "ifPresent",
+        "orElse",
+        "orElseGet",
+        "orElseThrow",
+        "map",
+        "flatMap",
+        "filter",
+        "collect",
+        "anyMatch",
+        "allMatch",
+        "noneMatch",
+        "findFirst",
+        "findAny",
+    }
+)
 _BUILTIN_INSTANCE_METHODS: dict[str, frozenset[str]] = {
     "typescript": _BUILTIN_INSTANCE_METHODS_JS,
     "javascript": _BUILTIN_INSTANCE_METHODS_JS,
+    "java": _BUILTIN_INSTANCE_METHODS_JAVA,
 }
 
 # #3756: JS/TS global namespaces whose static members (`Number.isFinite`,
@@ -374,6 +499,34 @@ _BUILTIN_NAMESPACES: dict[str, frozenset[str]] = {
     )
     for lang in ("typescript", "javascript")
 }
+_BUILTIN_NAMESPACES["java"] = frozenset(
+    {
+        # #4991: java.lang / java.util classes whose static members (`Arrays.asList`,
+        # `Math.max`, `Objects.equals`) are the JDK's unless the repo defines a class of that name.
+        "Arrays",
+        "Collections",
+        "Objects",
+        "Math",
+        "String",
+        "Integer",
+        "Long",
+        "Double",
+        "Float",
+        "Boolean",
+        "Character",
+        "Byte",
+        "Short",
+        "System",
+        "Optional",
+        "List",
+        "Set",
+        "Map",
+        "Collectors",
+        "Thread",
+        "Files",
+        "Paths",
+    }
+)
 
 # Languages where a directory is a namespace: a class in a sibling file is
 # visible without an import (a Java/Kotlin/Scala/Groovy package, a Go package,
@@ -986,6 +1139,14 @@ def _resolve_one(
 
     ownerless = caller.lang in _OWNERLESS_METHOD_LANGS
 
+    if caller.lang == "objective-c":
+        # #5639: a send's receiver is recorded as its qualifier, but objc methods carry no owner here, so
+        # the receiver (`self`, an ivar) cannot narrow a lookup; resolved by selector name, as before.
+        qualifier = None
+
+    if qualifier is not None and qualifier.startswith("!"):
+        return "none", None  # #5634: a macro invocation `name!(..)` is never a call of a function `name`
+
     if qualifier == "" and bucket.defs and _leaf(bucket.defs[0].name)[0] in _BARE_BUILTINS.get(caller.lang, ()):
         return "none", None  # the built-in (#3401), external like any library call
     if qualifier is None or qualifier == "":
@@ -1036,7 +1197,18 @@ def _resolve_one(
         via = [d for p, d in bucket.all.by_path.items() if p in caller.aliases[qualifier] and d.owner_key is None]
         if via:
             return "import", (_nearest_of(via, caller.parts) or min(via, key=lambda d: d.path))
-    if head in caller.imported_stems or last in caller.imported_stems or last in caller.imported_dirs:
+    # #4991: `util.propertyKeyTypes.has(k)`: the receiver is a PROPERTY of the imported module (a
+    # Set), not the module, so a built-in method name is the built-in, not `util.has`.
+    member_builtin = (
+        head != last
+        and last not in caller.imported_stems
+        and last not in caller.imported_dirs
+        and bool(bucket.defs)
+        and _leaf(bucket.defs[0].name)[0] in _BUILTIN_INSTANCE_METHODS.get(caller.lang, ())
+    )
+    if not member_builtin and (
+        head in caller.imported_stems or last in caller.imported_stems or last in caller.imported_dirs
+    ):
         via = [
             d
             for p, d in bucket.all.by_path.items()
@@ -1210,6 +1382,7 @@ def resolve_calls(
                 for q, c in receiver_types.items()
                 if c and _is_class(index, group, str(c), lang)
             }
+            recursive: list[str] = []
             for callee, kind in callees:
                 bucket = index.get((group, _key(str(callee), lang)))
                 quals = {"call": qualifier_map, "decorator": decorator_map, "reference": reference_map}.get(kind, {})
@@ -1251,6 +1424,22 @@ def resolve_calls(
                     and not (caller_line < dst.line <= caller_end)
                 ):
                     dst = _in_scope_same_file(bucket, src_path, caller_line) or dst
+                if (
+                    kind == "call"
+                    and not used
+                    and bucket is not None
+                    and dst is not None
+                    and dst.path == src_path
+                    and dst.line == caller_line
+                    and dst.name == caller_name
+                    and bucket.free.defs
+                ):
+                    # #5628: a bare `f(` in `Scope::f` found the unit itself on the class rung; the
+                    # detector keeps it because a free `f` (this file or another) may be the callee.
+                    # If one resolves, that is the edge; if none does it stays recursion.
+                    free_step, free_dst = _ladder(bucket.free, caller, False, cache)
+                    if free_dst is not None:
+                        step, dst = free_step, free_dst
                 cls = None
                 if dst is not None and dst.kind == "class":
                     # A constructor call reaches the class's constructor method.
@@ -1278,7 +1467,17 @@ def resolve_calls(
                             targets.append(("overload", dst if dst not in picked else overloads[0]))
                 for step, dst in targets:
                     if dst is not None and dst.path == src_path and dst.line == caller_line and dst.name == caller_name:
-                        continue  # recursion through a qualified name (`Foo::bar` calling `bar`)
+                        # recursion through a qualified name (`Foo::bar` calling `bar`); a bare call
+                        # that reaches only the unit itself is not a call (#3327, #5628); only where the
+                        # detector recorded the bare qualifier (a shell `md5` is a binary, not recursion)
+                        if (
+                            kind == "call"
+                            and (callee != caller_name or lang in BARE_CALL_SKIPS_METHODS)
+                            and len(targets) == 1
+                            and quals.get(callee) == [""]
+                        ):
+                            recursive.append(callee)
+                        continue
                     resolution = RESOLUTION_OF_STEP[step]
                     if kind == "call":
                         by_step[step] += 1
@@ -1310,6 +1509,11 @@ def resolve_calls(
                             "dst_class_name": cls.name if cls else None,
                         }
                     )
+            if recursive:
+                func["calls_out_to"] = [c for c in func["calls_out_to"] if c not in recursive]
+                for gone in recursive:
+                    qualifier_map.pop(gone, None)
+                    (func.get("calls_out_arities") or {}).pop(gone, None)
 
     by_resolution: Counter[str] = Counter()
     for step, n in by_step.items():

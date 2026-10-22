@@ -1,4 +1,120 @@
 {
+  "call_targets": {
+    "(dynamic)": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrt.cbl"
+      ]
+    },
+    "CEE3SRP": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "CEECMI": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "CEEHDLR": {
+      "count": 3,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "CEEHDLU": {
+      "count": 3,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "CEEMGET": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "CEEMRCE": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "CEENCOD": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "CEESGL": {
+      "count": 2,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "EPSCSMRC": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "EPSCSMRI": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "EPSCSMRJ": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "EPSCSMRK": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "EPSCSMRL": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "EPSCSMRO": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "EPSCSMRX": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "EPSNBRVL": {
+      "count": 3,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl"
+      ]
+    },
+    "XCHRFLTR": {
+      "count": 1,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
+    "XWSPFLTR": {
+      "count": 3,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    }
+  },
   "cics_commands": {
     "ABEND": {
       "count": 1,
@@ -521,6 +637,132 @@
       "programs": []
     }
   },
+  "eras": {
+    "programs": {
+      "zBuilder/MortgageApplication/cobol/epscmort.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 3,
+            "era": 2,
+            "first_line": 46,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "zBuilder/MortgageApplication/cobol/epscsmrd.cbl": {
+        "earliest": 4,
+        "era": 4,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 198,
+            "era": 2,
+            "first_line": 215,
+            "tell": "address-of"
+          },
+          {
+            "count": 85,
+            "era": 2,
+            "first_line": 215,
+            "tell": "set-address"
+          },
+          {
+            "count": 2,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "count": 18,
+            "era": 3,
+            "first_line": 306,
+            "tell": "le-callable"
+          },
+          {
+            "count": 6,
+            "era": 4,
+            "first_line": null,
+            "tell": "channel-container"
+          },
+          {
+            "count": 1,
+            "era": 4,
+            "first_line": null,
+            "tell": "web-soap"
+          },
+          {
+            "count": 1,
+            "era": 4,
+            "first_line": 1404,
+            "tell": "json-xml"
+          },
+          {
+            "count": 4,
+            "era": 4,
+            "first_line": null,
+            "tell": "arith-extend"
+          }
+        ]
+      },
+      "zBuilder/MortgageApplication/cobol/epscsmrt.cbl": {
+        "earliest": null,
+        "era": null,
+        "mixed": false,
+        "tells": []
+      },
+      "zBuilder/MortgageApplication/cobol/epsmlist.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 2,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      },
+      "zBuilder/MortgageApplication/cobol/epsmpmt.cbl": {
+        "earliest": null,
+        "era": null,
+        "mixed": false,
+        "tells": []
+      },
+      "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl": {
+        "earliest": null,
+        "era": null,
+        "mixed": false,
+        "tells": []
+      }
+    },
+    "summary": {
+      "by_era": {
+        "0": 0,
+        "1": 0,
+        "2": 2,
+        "3": 0,
+        "4": 1,
+        "none": 3
+      },
+      "mixed": 0,
+      "programs": 6,
+      "tells": {
+        "address-of": 1,
+        "arith-extend": 1,
+        "channel-container": 1,
+        "exec-sql": 1,
+        "json-xml": 1,
+        "le-callable": 1,
+        "resp": 2,
+        "set-address": 1,
+        "web-soap": 1
+      }
+    }
+  },
   "intrinsic_functions": {
     "ANNUITY": {
       "count": 1,
@@ -681,6 +923,12 @@
         "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
       ]
     },
+    "SET-ADDRESS": {
+      "count": 76,
+      "programs": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ]
+    },
     "SET-BY": {
       "count": 7,
       "programs": [
@@ -713,7 +961,7 @@
       ]
     },
     "unknown": {
-      "count": 100,
+      "count": 24,
       "programs": [
         "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
       ]

@@ -62,6 +62,12 @@ class FocusingError(Exception):
 # (`-S`, `-u`) nor a `VAR=value` assignment.
 _SHEBANG_ENV_SKIP = re.compile(r"^(?:-|[A-Za-z_]\w*=)")
 
+# #5876: syntax only Objective-C carries, line-leading so a comment or string cannot supply it. A `.h` is
+# objective-c only when its own text has one of these; a `.m` neighbour or a same-stem `.m` never decides it.
+_OBJC_SYNTAX = re.compile(
+    r"^[ \t]*(?:@(?:interface|implementation|protocol|class|end)\b|#[ \t]*import\b)", re.MULTILINE
+)
+
 
 def _shebang_interpreter(first_line: str) -> str:
     """The interpreter token of a shebang line, lowercased, or "" if absent."""
@@ -221,7 +227,7 @@ class LanguageDetector:
         # tier 2 and never calls gravity), so the neighbourhood's verdict is
         # independent of which sibling triggered it -- one census per directory,
         # deterministic, and O(files) instead of O(files^2) over a folder.
-        self._sibling_vote_cache: dict[tuple[str, str], tuple[str | None, float]] = {}
+        self._sibling_vote_cache: dict[tuple[str, str, tuple[str, ...], int], tuple[str | None, float]] = {}
         # Bytes read per sibling for that vote. Internal discriminators anchor on
         # imports/headers near the top of a file, so a bounded sniff is enough
         # and keeps the extra reads cheap on mega-repos.
@@ -304,6 +310,27 @@ class LanguageDetector:
         for anchor in self.PROSE_ANCHORS:
             if anchor not in self.anchor_map:
                 self.anchor_map[anchor] = "markdown" if anchor == "README" else "plaintext"
+
+    _PROSE_NOTE_STEMS = frozenset({"README", "READ.ME", "NOTES", "CHANGES", "TODO", "INSTALL", "CHANGELOG", "HISTORY"})
+    _PROSE_NOTE_LINES = 6
+    _PROSE_CHARS_PER_SPACE = 12
+
+    def _is_prose_note(self, upper_stem: str, content_sample: str) -> bool:
+        """#5466: a conventional doc-file stem (README, NOTES, ...) with a code extension whose opening lines read as prose."""
+        if upper_stem not in self._PROSE_NOTE_STEMS:
+            return False
+        if upper_stem not in self.PROSE_ANCHORS and upper_stem != "READ.ME":
+            return False
+        opening = [ln for ln in content_sample[:4096].splitlines() if ln.strip()][: self._PROSE_NOTE_LINES]
+        if len(opening) < 3 or opening[0].startswith("#!"):
+            return False
+        for ln in opening:
+            # Code lines are indented, directive/comment-led, or dense in punctuation; prose starts at the margin with words.
+            if ln[0] in " \t.#;/*@%<{}" or not ln[0].isalnum():
+                return False
+            if ln.count(" ") * self._PROSE_CHARS_PER_SPACE < len(ln):
+                return False
+        return True
 
     def focus(self, file_path: str | Path, content_sample: str = "", **kwargs) -> tuple[str, float, str | None]:
         """Legacy Support Gateway for systems expecting the older Tuple return format."""
@@ -442,6 +469,17 @@ class LanguageDetector:
         }
 
         is_prose = False
+        if is_known_code_ext and self._is_prose_note(upper_stem, content_sample):
+            # #5466: `README.asm` is a prose note that quotes code; the shield above is for a
+            # README that IS code, so only an opening that reads as prose lifts it.
+            return self._forge_result(
+                "markdown" if "README" in upper_stem or upper_stem == "READ.ME" else "plaintext",
+                self.thresholds.get("PROSE_CONFIDENCE", 0.95),
+                1,
+                f"Prose Note ({name})",
+                result,
+                content_sample,
+            )
         if not is_known_code_ext:
             is_prose = upper_stem in self.PROSE_ANCHORS
 
@@ -497,7 +535,7 @@ class LanguageDetector:
                     return self._forge_result("c", 0.99, 0, "Sibling Anchor (.c)", result, content_sample)
                 elif f"{base_stem}.cpp" in ext_tally or f"{base_stem}.cc" in ext_tally:
                     return self._forge_result("cpp", 0.99, 0, "Sibling Anchor (C++)", result, content_sample)
-                elif f"{base_stem}.m" in ext_tally:
+                elif f"{base_stem}.m" in ext_tally and _OBJC_SYNTAX.search(content_sample):
                     return self._forge_result(
                         "objective-c",
                         0.99,
@@ -675,6 +713,15 @@ class LanguageDetector:
             # was locked to it with no ObjC marker), and cannot hide C++ evidence.
             if gravity_lang and ext in self.languages.get(gravity_lang, {}).get("extensions_needing_discriminator", ()):
                 gravity_lang = None
+            # #5622: a file with no evidence of its own joins the language its same-folder siblings PROVED
+            # (a Postgres function library's plain DDL); the proof-only filter keeps that language out of gravity,
+            # so the vote overrides whatever the extension-count physics picked.
+            if sib := self._proof_only_sibling_vote(file_path, ext):
+                gravity_lang, dominance = sib
+            # #5876: the sibling vote cannot confer Objective-C on a `.h` with no ObjC syntax of its own
+            # (its `.m` neighbours are not evidence).
+            if gravity_lang == "objective-c" and ext == ".h" and not _OBJC_SYNTAX.search(content_sample):
+                gravity_lang = None
             if gravity_lang and (evidenced := self._shared_extension_evidence(content_sample, ext)):
                 gravity_lang = evidenced
 
@@ -788,6 +835,15 @@ class LanguageDetector:
         """
         # 1. GATHER CANDIDATES
         candidates = [lid for lid, data in self.languages.items() if ext in data.get("extensions", [])]
+
+        # #5622: a language that owns the extension only on proof (its internal_discriminator, tried in
+        # Tier 2) is no neighbourhood candidate: as a third `.sql` claimant it dilutes the dominance of
+        # the language the folder really is. Mirrors the Tier 3 filter (#4546).
+        proven_only = [
+            lid for lid in candidates if ext in self.languages[lid].get("extensions_needing_discriminator", ())
+        ]
+        if proven_only and len(proven_only) < len(candidates):
+            candidates = [lid for lid in candidates if lid not in proven_only]
 
         if ext == ".h" and "cpp" not in candidates and "cpp" in self.languages:
             candidates.append("cpp")
@@ -952,7 +1008,7 @@ class LanguageDetector:
         return True
 
     def _resolve_by_sibling_content(
-        self, file_path: str | Path, ext: str, candidates: list[str]
+        self, file_path: str | Path, ext: str, candidates: list[str], min_votes: int = 1
     ) -> tuple[str | None, float]:
         """#3137: weigh a same-extension neighbourhood by what its siblings
         actually RESOLVED to via their own content (shebang / internal
@@ -974,7 +1030,7 @@ class LanguageDetector:
         except Exception:
             return None, 0.0
 
-        cache_key = (str(parent_dir), ext)
+        cache_key = (str(parent_dir), ext, tuple(sorted(candidates)), min_votes)
         cached = self._sibling_vote_cache.get(cache_key)
         if cached is not None:
             return cached
@@ -1011,7 +1067,7 @@ class LanguageDetector:
             runner_up = ranked[1][1] if len(ranked) > 1 else 0
             dominance = top_count / total
             threshold = self.thresholds.get("ECOSYSTEM_DOMINANCE_MIN", 0.70)
-            if top_count > runner_up and dominance >= threshold:
+            if top_count >= min_votes and top_count > runner_up and dominance >= threshold:
                 self.logger.debug(
                     f"[{parent_dir.name}] Sibling-content consensus for '{ext}': "
                     f"{top_lang} ({dominance * 100:.0f}% of {total} resolved siblings, votes={votes})"
@@ -1020,6 +1076,20 @@ class LanguageDetector:
 
         self._sibling_vote_cache[cache_key] = result
         return result
+
+    def _proof_only_sibling_vote(self, file_path: str | Path, ext: str) -> tuple[str, float] | None:
+        """#5622: the proof-only language (``extensions_needing_discriminator``) that a strict content
+        majority of the file's same-extension siblings resolved to, else None. Every claimant votes, so a
+        folder of proven sqlite scripts is not captured by one Postgres file; a sibling with no evidence casts
+        no vote. Needs two proving siblings: one stray Postgres idiom does not relabel a folder."""
+        claimants = [lid for lid, data in self.languages.items() if ext in data.get("extensions", [])]
+        proof_only = {
+            lid for lid in claimants if ext in self.languages[lid].get("extensions_needing_discriminator", ())
+        }
+        if not proof_only:
+            return None
+        lang, dominance = self._resolve_by_sibling_content(file_path, ext, claimants, min_votes=2)
+        return (lang, dominance) if lang in proof_only else None
 
     def _is_pli_include(self, file_path: str | Path, content: str) -> bool:
         """#3867: True for a `.inc` whose folder holds a PL/I program and whose
@@ -1090,6 +1160,10 @@ class LanguageDetector:
         if ext:
             for lang_id, data in self.languages.items():
                 if ext in data.get("extensions", []):
+                    # #5624: a discriminator scoped to some extensions (LiveCode's `.rev`) is not tried on the rest.
+                    scope = data.get("internal_discriminator_extensions")
+                    if scope and ext not in scope:
+                        continue
                     internal_disc = data.get("internal_discriminator")
                     if internal_disc and internal_disc.search(content):
                         self.logger.debug(
@@ -1131,7 +1205,9 @@ class LanguageDetector:
             proven_only = [
                 l for l in candidates if ext in self.languages[l].get("extensions_needing_discriminator", ())
             ]
-            if proven_only and len(proven_only) < len(candidates):
+            # #5623: with NO other claimant (F# on `.fs`) the proof-only language still drops out, so a
+            # GLSL / Forth `.fs` that failed Tier 2 is "undeterminable" rather than won by default.
+            if proven_only:
                 candidates = [l for l in candidates if l not in proven_only]
 
             # #4546: C++ owns a shared extension (`.h`) only on content evidence.

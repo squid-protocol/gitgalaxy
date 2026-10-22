@@ -50,7 +50,7 @@ def compile_driver(cp: str) -> Path:
     cls = out / "CobrixFacts.class"
     if not cls.is_file() or cls.stat().st_mtime < DRIVER.stat().st_mtime:
         out.mkdir(parents=True, exist_ok=True)
-        subprocess.run(["javac", "-d", str(out), "-cp", cp, str(DRIVER)], check=True)
+        subprocess.run(["javac", "-encoding", "UTF-8", "-d", str(out), "-cp", cp, str(DRIVER)], check=True)
     return out
 
 
@@ -86,10 +86,18 @@ def layout_units(fields: list[dict[str, Any]]) -> set[str]:
 def run(paths: list[Path], cp: str) -> list[dict[str, Any]]:
     driver = compile_driver(cp)
     proc = subprocess.run(
-        ["java", "-cp", cp + os.pathsep + str(driver), "CobrixFacts"],
+        [
+            "java",
+            "-Dfile.encoding=UTF-8",
+            "-Dstdout.encoding=UTF-8",
+            "-cp",
+            cp + os.pathsep + str(driver),
+            "CobrixFacts",
+        ],
         input="\n".join(str(p) for p in paths) + "\n",
         capture_output=True,
         text=True,
+        encoding="utf-8",
         check=True,
     )
     return [json.loads(line) for line in proc.stdout.splitlines() if line.startswith("{")]

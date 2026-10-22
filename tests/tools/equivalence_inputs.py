@@ -9,6 +9,10 @@ with each field's values chosen for its storage:
 * text: letters and digits at full width, a short value, and blanks; #3821: with
   `"alphabet": "mixed"`, also lower case, national letters and punctuation -- the keys and
   values whose order and comparisons differ between collations and locales;
+* #4035: with `"collation": true` in a dataset's `generate`, a text field the program compares as alphanumeric (an
+  alphanumeric relation condition from relation_facts, or a level-88 THRU range over it; collation_operands) takes
+  values on the EBCDIC / ASCII disagreement (boundary_values): digit against letter, lower against upper case, trailing
+  blanks, LOW- / HIGH-VALUES and the literals it is compared with, so a `String.compareTo` port fails the diff;
 * numeric DISPLAY / COMP-3 / COMP: zero, one, the PICTURE's maximum and its negative
   where signed, the smallest fraction at its scale, exact halves (2.5, 0.5, 0.05 ...: the ties
   where ROUNDED modes differ, #3825), and values in between;
@@ -39,6 +43,7 @@ same layouts -- a typed account id that is on file, is not, or is not a number a
 
 from __future__ import annotations
 
+import functools
 import random
 import re
 from decimal import Decimal
@@ -168,6 +173,103 @@ def ibm_key_order(key: bytes, data_encoding: str) -> tuple[bytes, bytes]:
     return b"".join(_cp037(ch) for ch in text), key
 
 
+# ---- #4035: collation boundary values ---------------------------------------------------------------------------
+# COBOL compares alphanumerics by the collating sequence (EBCDIC: lower case < upper < digits, LOW-VALUES lowest,
+# HIGH-VALUES highest) after padding the shorter operand with spaces; String.compareTo orders them by UTF-16 units. A
+# generated value rarely lands where the two disagree, so a field the program compares gets values on that boundary.
+_COPY_NAME = re.compile(r"(?<![A-Z0-9-])COPY\s+([A-Z0-9#@$-]{1,64})", re.I)
+_QUOTED = re.compile(r"""^[XxZz]?(['"])(.*)\1$""")
+
+
+def _members(case: dict[str, Any], corpus: Path) -> dict[str, Path]:
+    """{MEMBER: file} of the case's copy_dirs, the member name upper-case and without its suffix."""
+    found: dict[str, Path] = {}
+    for d in case.get("copy_dirs", []):
+        for p in sorted((corpus / d).iterdir()):
+            if p.is_file() and p.suffix.lower() != ".bms":
+                found.setdefault(p.stem.upper(), p)
+    return found
+
+
+def collation_operands(case: dict[str, Any], corpus: Path) -> dict[str, list[str]]:
+    """{FIELD: the literals it is compared with} for every field the program compares as alphanumeric: an
+    alphanumeric relation condition (relation_facts) naming it, and the level-88 THRU range endpoints over it.
+    The program's COPY members (and theirs) give the operands their classes."""
+    from gitgalaxy.core.relation_facts import condition_ranges, relation_facts
+
+    text = common.read_program(case, corpus / case["program_source"])[0]
+    members, books, seen, todo = _members(case, corpus), [], set(), [text]
+    while todo and len(seen) < 500:
+        for name in {m.group(1).upper() for m in _COPY_NAME.finditer(todo.pop())} - seen:
+            seen.add(name)
+            if name in members:
+                books.append(common.read_program(case, members[name])[0])
+                todo.append(books[-1])
+    out: dict[str, list[str]] = {}
+
+    def add(field: str, literal: str | None) -> None:
+        lits = out.setdefault(field.upper(), [])
+        if literal is not None and literal not in lits:
+            lits.append(literal)
+
+    def literal(operand: str) -> str | None:
+        m = _QUOTED.match(operand.strip())
+        return m.group(2) if m else None
+
+    for r in relation_facts(text, books):
+        if r["kind"] != "alphanumeric":
+            continue
+        for me, other in (("left", "right"), ("right", "left")):
+            word = re.match(r"[A-Za-z0-9#@$-]+", r[me])
+            if word and literal(r[me]) is None and r[me + "_class"] == "alphanumeric":
+                add(word.group(0), literal(r[other]))
+    for c in condition_ranges(text, books):
+        for rng in c["ranges"]:
+            for end in (rng["lo"], rng["hi"]):
+                add(c["parent"], literal(end or ""))
+    return out
+
+
+def _edge_char(enc: str, byte: int) -> str | None:
+    """The character `enc` stores as the single byte `byte` (HIGH-VALUES x'FF', LOW-VALUES x'00'), or None."""
+    for code in (byte, 0x9F if byte == 0xFF else byte):
+        ch = chr(code)
+        try:
+            if ch.encode(enc) == bytes([byte]):
+                return ch
+        except UnicodeEncodeError:
+            continue
+    return None
+
+
+def boundary_values(nbytes: int, literals: list[str], enc: str = common.DEFAULT_DATA_ENCODING) -> list[str]:
+    """Values for a text field of `nbytes` on the EBCDIC / ASCII disagreement: a digit and a letter in the same
+    place, lower and upper case, a short value (the trailing blanks it is padded with), a blank field, LOW- and
+    HIGH-VALUES, and for each literal compared with it the literal itself, its case swaps, a trailing blank, the
+    next shorter prefix and its last character made a digit / a letter / a lower-case letter."""
+    cands = ["A", "a", "Z", "z", "0", "1", "9", "A1", "1A", "Aa", "aA", "A" * nbytes, "a" * nbytes, "0" * nbytes,
+             "9" * nbytes, "Z" * nbytes, "9" + "Z" * nbytes, "Z" + "9" * nbytes, ""]  # fmt: skip
+    for byte in (0x00, 0xFF):
+        edge = _edge_char(enc, byte)
+        if edge:
+            cands += [edge * nbytes, "A" + edge * nbytes]
+    for lit in literals:
+        cands += [lit, lit.lower(), lit.upper(), lit + " ", lit[:-1]]
+        for tail in ("0", "9", "A", "Z", "a"):
+            cands.append(lit[:-1] + tail)
+            cands.append(lit + tail)
+    out: list[str] = []
+    for c in cands:
+        try:
+            padded = common.text_bytes(c, nbytes, enc)
+        except UnicodeEncodeError:
+            continue
+        v = padded.decode(enc)  # one value per stored bytes (a cut-off or padded duplicate drops)
+        if v not in out:
+            out.append(v)
+    return out
+
+
 def generate_dataset(
     name: str,
     spec: dict[str, Any],
@@ -175,14 +277,24 @@ def generate_dataset(
     pools: dict[str, list[Any]],
     code_page: str = "cp037",
     data_encoding: str = common.DEFAULT_DATA_ENCODING,
+    collation: dict[str, list[str]] | None = None,
 ) -> tuple[bytes, dict[str, list[Any]]]:
-    """(the dataset's fixed-length records, {DD.FIELD: the values it holds} for later joins)."""
+    """(the dataset's fixed-length records, {DD.FIELD: the values it holds} for later joins). #4035 `collation`
+    ({FIELD: literals} from collation_operands; only with the dataset's `"collation": true`): a text field in it,
+    not a key part and with no rule of the case's, takes boundary_values by row."""
     gen = spec["generate"]
     rng = random.Random(f"{gen.get('seed', 0)}:{name}")
     rules = gen.get("fields", {})
     alphabet = {"upper": _TEXT, "mixed": _MIXED}[gen.get("alphabet", "upper")]  # #3821
     reclen = spec["reclen"]
     key = (spec.get("keys") or [None])[0]
+    boundary = {
+        f["name"]: boundary_values(f["bytes"], collation[f["name"].upper()], data_encoding)
+        for f in fields
+        if gen.get("collation") and collation and f["name"].upper() in collation and f["name"] != "FILLER"
+        and (not f.get("pic") or common._pic_numeric(f["pic"]) is None)
+        and not _date_shape(f["name"], f["bytes"])  # a date keeps its valid shape (the `date` rule's job)
+    }  # fmt: skip
     rows: list[bytes] = []
     seen: set[bytes] = set()
     values: dict[str, list[Any]] = {f"{name}.{f['name']}": [] for f in fields}
@@ -221,6 +333,8 @@ def generate_dataset(
                 v = field_value(rng, f, 7 + row + attempts, alphabet)  # a key part: never blank, never an edge repeat
                 if isinstance(v, str):
                     v = "".join(rng.choice(alphabet) for _ in range(f["bytes"]))
+            elif f["name"] in boundary:  # #4035: the values the collating sequence orders differently
+                v = boundary[f["name"]][(attempts - 1 + 3 * len(chosen)) % len(boundary[f["name"]])]
             else:
                 v = field_value(rng, f, row if attempts == row + 1 else row + attempts, alphabet)
             chosen[f["name"]] = v
@@ -247,6 +361,7 @@ def _order(datasets: dict[str, dict[str, Any]]) -> list[str]:
     """Generated datasets, each after the ones its `from` rules draw on."""
     deps = {
         dd: {r["from"].rsplit(".", 1)[0] for r in spec["generate"].get("fields", {}).values() if "from" in r}
+        & set(datasets)  # (#4507: a `from` naming a generated Db2 column is no dataset to wait for)
         for dd, spec in datasets.items()
     }
     out: list[str] = []
@@ -266,7 +381,12 @@ def generate_inputs(case: dict[str, Any], corpus: Path) -> dict[str, bytes]:
 def generate_all(case: dict[str, Any], corpus: Path) -> tuple[dict[str, bytes], dict[str, list[Any]]]:
     """(generate_inputs, {DD.FIELD: the values it holds}) -- the values a scenario's keys are drawn from."""
     todo = {dd: spec for dd, spec in case["datasets"].items() if spec.get("input") == "@generate"}
-    pools: dict[str, list[Any]] = {}
+    import equivalence_db2
+
+    # #4507: a dataset's `from` may name a generated Db2 column (SCHEMA.TABLE.COLUMN): a batch input that keys the table
+    pools: dict[str, list[Any]] = dict(equivalence_db2.generated_pools(case, corpus)) if todo else {}
+    # #4035: the fields the program compares as alphanumeric, read only when a dataset asks for their boundary values
+    collation = collation_operands(case, corpus) if any(x["generate"].get("collation") for x in todo.values()) else None
     out: dict[str, bytes] = {}
     for dd in _order(todo):
         spec = todo[dd]
@@ -275,7 +395,7 @@ def generate_all(case: dict[str, Any], corpus: Path) -> tuple[dict[str, bytes], 
         if width > spec["reclen"]:
             raise ValueError(f"{dd}: the layout is {width} bytes, wider than reclen {spec['reclen']}")
         out[dd], values = generate_dataset(
-            dd, spec, fields, pools, case.get("code_page", "cp037"), common.data_encoding(case)
+            dd, spec, fields, pools, case.get("code_page", "cp037"), common.data_encoding(case), collation
         )
         pools.update(values)
     return out, pools
@@ -306,6 +426,104 @@ def _typed(rng: random.Random, rule: dict[str, Any], width: int, pool: list[Any]
     return f"{int(v):0{width}d}" if isinstance(v, Decimal) else str(v)
 
 
+_PICTURE_RUN = re.compile(r"([9X])(?:\((\d+)\))?")
+
+
+def _picture(picin: str | None) -> tuple[int, bool] | None:
+    """(width, digits only) of a DFHMDF PICIN such as `9(5)`, `999` or `X(10)`; None for no PICIN or one this does not
+    read (V, S, Z, ... a picture the symbolic map's field then takes as plain text)."""
+    text = (picin or "").strip().strip("'").upper()
+    runs = list(_PICTURE_RUN.finditer(text))
+    if not runs or "".join(r.group(0) for r in runs) != text:
+        return None
+    width = sum(int(r.group(2) or 1) for r in runs)
+    return width, all(r.group(1) == "9" for r in runs)
+
+
+@functools.lru_cache(maxsize=64)
+def bms_input_fields(corpus: Path, map_name: str) -> dict[str, dict[str, Any]]:
+    """#4506: {symbolic input field (<name>I): {"length", "numeric", "picture", "mdt"}} of the fields a user can type into on a
+    BMS map, read from the corpus's BMS source (the engine's own reading, gitgalaxy.core.bms_screen_fields). Typable:
+    named, not protected, and not repeated. A field with no ATTRB is ASKIP (the forge's `_attrs`, IBM DFHMDF), so is
+    never typed; `mdt` is FSET (the map sends the field with its modified-data tag on, so a terminal always transmits it); ASKIP and PROT fields cannot be keyed into; an OCCURS field is not typed (`map_input` refuses it by
+    name, "BMS OCCURS input"). A NUM field takes digits, and so does a PICIN of 9s (`_picture`), its length the
+    narrower of the two."""
+    from gitgalaxy.core.bms_screen_fields import bms_screen_fields
+    from gitgalaxy.core.source_text import read_source
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_screen_forge import _attrs
+
+    out: dict[str, dict[str, Any]] = {}
+    for p in sorted(corpus.rglob("*.bms")):
+        if ".git" in p.parts:
+            continue
+        rows = bms_screen_fields(read_source(p).text)
+        maps = {r["ordinal"] for r in rows if r["kind"] == "map" and (r["name"] or "").upper() == map_name.upper()}
+        for r in rows:
+            if r["kind"] != "field" or r["parent_ordinal"] not in maps or not r["name"]:
+                continue
+            attrs = _attrs(r)
+            if attrs & {"ASKIP", "PROT"} or (r.get("occurs") or 1) > 1 or not r.get("length"):
+                continue
+            pic = _picture(r.get("picin"))
+            length = min(r["length"], pic[0]) if pic else r["length"]
+            out[r["name"].upper() + "I"] = {"length": length, "numeric": "NUM" in attrs or bool(pic and pic[1]),
+                                            "picture": r.get("picin"), "mdt": "FSET" in attrs}  # fmt: skip
+    if not out:
+        raise ValueError(f"{map_name}: no typable field in the BMS sources under {corpus}")
+    return out
+
+
+def _bms_value(rng: random.Random, f: dict[str, Any], i: int, bad: float) -> str:
+    """One typed value for a BMS field (`bms_input_fields`): full width, short, or a random length in turn; digits for a
+    NUM / 9-picture field, letters and digits otherwise; with share `bad`, text that is not a number."""
+    width = f["length"]
+    if rng.random() < bad:
+        return _BAD_TEXT[(i + int(rng.random() * 1000)) % len(_BAD_TEXT)][:width]
+    n = (width, max(1, width // 2), rng.randint(1, width))[i % 3]
+    return "".join(rng.choice("0123456789" if f["numeric"] else _TEXT) for _ in range(n))
+
+
+def _left_alone(rng: random.Random, rule: dict[str, Any], bms: dict[str, dict], fname: str) -> bool:
+    """#4506: a field rule's `empty` share: the user left the field alone (an FSET field is then sent with length 0, any other
+    omitted: X'00', length 0). The random draw is made only when the rule asks, so a rule without `empty` keeps its input."""
+    return bool(rule.get("empty")) and bool(bms) and fname in bms and rng.random() < rule["empty"]
+
+
+def _bms_receive(rng: random.Random, name: str, spec: Any, layout: dict[str, dict[str, Any]], bms: dict[str, dict],
+                 pools: dict[str, list[Any]], i: int) -> dict[str, str]:  # fmt: skip
+    """#4506: the map input of `"MAP": "@bms"` / `"MAP": {"@bms": {"bad": .., "empty": ..}, "FIELDI": rule}`: every typable
+    BMS field gets a value, except an `empty` share of the scenarios (the user left it alone: no data, length 0; an unmodified
+    field is not transmitted, so RECEIVE MAP leaves it X'00' with length 0 and flag X'00', but an FSET field's MDT is on, so
+    it is transmitted with length 0: ASSUMED, X54);
+    a field rule beside `@bms` (or None, never typed) replaces the generated one, as any `receive` rule does."""
+    opts = (spec.get("@bms") or {}) if isinstance(spec, dict) else {}
+    explicit = {k: v for k, v in spec.items() if k != "@bms"} if isinstance(spec, dict) else {}
+    out: dict[str, str] = {}
+    for fname, f in bms.items():
+        if fname not in layout:  # the generated symbolic map does not hold it
+            continue
+        f = {**f, "length": min(f["length"], layout[fname]["bytes"])}
+        if fname in explicit:
+            continue
+        value = _bms_value(rng, f, i, opts.get("bad", 0))
+        if rng.random() >= opts.get("empty", 0):
+            out[fname] = value
+        elif f.get("mdt"):
+            out[fname] = ""  # MDT on (FSET): transmitted though left alone, with no data (length 0)
+    for fname, rule in explicit.items():
+        if fname not in layout:
+            raise ValueError(f"{name}: map has no input field {fname}")
+        if rule is None:
+            continue
+        rule = rule if isinstance(rule, dict) else {"values": [rule]}
+        if _left_alone(rng, rule, bms, fname):
+            if bms.get(fname, {}).get("mdt"):
+                out[fname] = ""
+            continue
+        out[fname] = _typed(rng, rule, layout[fname]["bytes"], pools.get(rule.get("from", ""), []), i)
+    return out
+
+
 def _missing(rng: random.Random, pool: list[Any], field: dict[str, Any] | None) -> Any:
     """#4507: a value like the pool's (digits when they are all digits; the field's width) that it does not hold."""
     held = {str(v).strip() for v in pool}
@@ -329,6 +547,9 @@ def prepare_cics_case(case: dict[str, Any], corpus: Path, files: list[dict[str, 
             "commarea": {"CDEMO-FROM-TRANID": "CAVW", "CDEMO-PGM-CONTEXT": 1},
             "receive": {"CACTVWA": {"ACCTSIDI": {"from": "AWS.ACCTDATA.ACCT-ID", "miss": 0.2, "bad": 0.25}}}}
 
+    `"aid"` may be a list of keys, used in turn (#4506: PF3 / PF4 / an unassigned key reach the program's other branches).
+    `"receive": {"MAP": "@bms"}` (#4506) types into every unprotected field the map's BMS source defines, by its length, NUM
+    and PICIN (`{"@bms": {"bad": 0.2, "empty": 0.3}, "FIELDI": rule}` steers it; a rule beside it wins).
     A map field's rule gives what the user typed: a value `from` the generated file's field, one it does not hold
     (`miss`), or not a number (`bad`: letters, blanks, signs, a decimal point ...) -- as a share of the scenarios;
     or `values`, in turn. A COMMAREA field's rule is `values` / `edge` (the PICTURE's edge values, in turn) / `from` (it is a typed record: the port's DTO
@@ -361,7 +582,12 @@ def prepare_cics_case(case: dict[str, Any], corpus: Path, files: list[dict[str, 
     for i in range(gen.get("count", 12)):
         name = f"{gen.get('prefix', 'generated')}-{i + 1:02d}"
         rng = random.Random(f"{gen.get('seed', 0)}:{name}")
-        sc: dict[str, Any] = {"name": name, "aid": gen.get("aid", "DFHENTER"), "generated": True}
+        aid = gen.get("aid", "DFHENTER")
+        sc: dict[str, Any] = {
+            "name": name,
+            "aid": aid[i % len(aid)] if isinstance(aid, list) else aid,
+            "generated": True,
+        }
         if gen.get("commarea") is not None:
             commarea: dict[str, Any] = {}
             for fname, v in gen["commarea"].items():
@@ -391,11 +617,19 @@ def prepare_cics_case(case: dict[str, Any], corpus: Path, files: list[dict[str, 
         receive: dict[str, dict[str, str]] = {}
         for m, typed in (gen.get("receive") or {}).items():
             layout = {f["name"]: f for f in cx.screen_fields(corpus, case, m, "input")}
+            if typed == "@bms" or (isinstance(typed, dict) and "@bms" in typed):  # #4506: from the BMS source
+                receive[m] = _bms_receive(rng, f"{name} map {m}", typed, layout, bms_input_fields(corpus, m), pools, i)
+                continue
             receive[m] = {}
             for fname, rule in typed.items():
                 if fname not in layout:
                     raise ValueError(f"{name}: map {m} has no input field {fname}")
                 rule = rule if isinstance(rule, dict) else {"values": [rule]}
+                bms = bms_input_fields(corpus, m) if rule.get("empty") else {}
+                if _left_alone(rng, rule, bms, fname):  # #4506: the user left the field alone
+                    if bms[fname]["mdt"]:
+                        receive[m][fname] = ""
+                    continue
                 receive[m][fname] = _typed(rng, rule, layout[fname]["bytes"], pools.get(rule.get("from", ""), []), i)
         if receive:
             sc["receive"] = receive

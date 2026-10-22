@@ -11,7 +11,9 @@ The follow-ups of #4765 (which made COMMAREA and file-record compares cover ever
 - a det DTO whose record ends in a FILLER no property names (CBSA's CUSTCTRL DFHCOMMAREA, GenApp LGICVS01's) spans
   its declared record (Dto.size), as a table's (#4765) does; a COMMAREA's FILLER is compared as bytes when both
   sides are bytes, and declared not compared when the Java side is a DTO.
-- a symbolic map with OCCURS is refused by name (screen_layout): screens are compared at a single-occurrence layout.
+- a symbolic map with OCCURS is compared at every occurrence by subscript (screen_layout, screen_key: ACCOUNT.3, the
+  key the generated screen's screenValues() writes), as a COMMAREA is (#5076); one with OCCURS DEPENDING ON, and a
+  RECEIVE typed into one occurrence, are refused by name.
 """
 
 from __future__ import annotations
@@ -173,30 +175,106 @@ def test_a_det_call_entry_takes_the_items_bytes(tmp_path):
     assert "byte[][] areas = callAreas;" in body and body.count("System.arraycopy(") == 2
 
 
-# ---- screens: a symbolic map with OCCURS is refused by name -------------------------------------------------------
+# ---- screens: a symbolic map with OCCURS is compared at every occurrence -----------------------------------------
 MAP = """\
        01 MAPI.
           02 FILLER                  PIC X(12).
           02 ROWL                    COMP PIC S9(4).
           02 ROWF                    PIC X.
           02 ROWI                    PIC X(5).
+       01 MAPO REDEFINES MAPI.
+          02 FILLER                  PIC X(12).
+          02 FILLER                  PIC X(3).
+          02 ROWC                    PIC X.
+          02 ROWO                    PIC X(5).
 """
 MAP_OCCURS = """\
        01 MAPI.
           02 FILLER                  PIC X(12).
-          02 LINES OCCURS 3.
+          02 LINESD OCCURS 3.
              03 ROWL                 COMP PIC S9(4).
              03 ROWF                 PIC X.
              03 ROWI                 PIC X(5).
+       01 MAPO REDEFINES MAPI.
+          02 FILLER                  PIC X(12).
+          02 LINESD OCCURS 3.
+             03 FILLER               PIC X(3).
+             03 ROWC                 PIC X.
+             03 ROWO                 PIC X(5).
+"""
+MAP_ODO = """\
+       01 MAPI.
+          02 N                       PIC 9.
+          02 ROWI                    PIC X(5) OCCURS 1 TO 3 DEPENDING ON N.
 """
 
 
-def test_a_symbolic_map_with_occurs_is_refused(tmp_path):
+def _names(layout):
+    return [f["name"] for f in layout]
+
+
+def test_a_symbolic_map_with_occurs_lists_every_occurrence(tmp_path):
     (tmp_path / "map.cpy").write_text(MAP, encoding="utf-8")
     (tmp_path / "occ.cpy").write_text(MAP_OCCURS, encoding="utf-8")
-    assert [f["name"] for f in ec.screen_layout(tmp_path, "map.cpy", "MAPI")] == ["FILLER", "ROWL", "ROWF", "ROWI"]
-    with pytest.raises(ec.Unsupported, match="symbolic map with OCCURS"):
-        ec.screen_layout(tmp_path, "occ.cpy", "MAPI")
+    assert _names(ec.screen_layout(tmp_path, "map.cpy", "MAPI")) == ["FILLER", "ROWL", "ROWF", "ROWI"]
+    out = ec.screen_layout(tmp_path, "occ.cpy", "MAPO")
+    assert [n for n in _names(out) if n.startswith("ROWO")] == ["ROWO(1)", "ROWO(2)", "ROWO(3)"]
+    assert [f["offset"] for f in out if f["name"].startswith("ROWO")] == [16, 25, 34]  # one 9-byte row each
+
+
+def test_screen_key_names_an_occurrence_as_the_generated_screen_does(tmp_path):
+    (tmp_path / "occ.cpy").write_text(MAP_OCCURS, encoding="utf-8")
+    (tmp_path / "map.cpy").write_text(MAP, encoding="utf-8")
+    keys = [ec.screen_key(f) for f in ec.screen_layout(tmp_path, "occ.cpy", "MAPO")]
+    assert ("ROW.2", "O") in keys and ("ROW.3", "C") in keys
+    assert ec.screen_key(ec.screen_layout(tmp_path, "map.cpy", "MAPO")[-1]) == ("ROW", "O")
+
+
+def test_a_second_occurrence_that_differs_is_a_difference(tmp_path):
+    """The old single-occurrence layout read ROW.1 only: a second line one side left out compared equal."""
+    (tmp_path / "occ.cpy").write_text(MAP_OCCURS, encoding="utf-8")
+    layout = ec.screen_layout(tmp_path, "occ.cpy", "MAPO")
+    keys = {f["name"]: ec.screen_key(f) for f in layout}
+
+    def screen(rows):
+        data = bytearray(b" " * 40)
+        for i, text in enumerate(rows):
+            at = 16 + 9 * i
+            data[at : at + 5] = text.encode()
+        vals = ec.decode_record(bytes(data), layout, "latin-1")
+        return {keys[k][0]: v for k, v in vals.items() if keys[k][1] == "O"}
+
+    a, b = screen(["AAAAA", "BBBBB", "CCCCC"]), screen(["AAAAA", "BBBBB", "CCCCX"])
+    assert sorted(a) == ["ROW.1", "ROW.2", "ROW.3"]
+    cob = [{"event": "SEND-MAP", "map": "M", "screen": a, "subfields": {}, "options": [], "cursor": None}]
+    jav = [{"event": "SEND-MAP", "map": "M", "screen": b, "subfields": {}, "options": [], "cursor": None}]
+    diffs = ec.compare_events(cob, jav)["diffs"]
+    assert [(f["field"], f["cobol"], f["java"]) for d in diffs for f in d["fields"]] == [
+        ("screen.ROW.3", "CCCCC", "CCCCX")
+    ]
+
+
+def test_an_occurrences_attribute_is_a_subfield_of_its_own(tmp_path):
+    (tmp_path / "occ.cpy").write_text(MAP_OCCURS, encoding="utf-8")
+    case = {"screens": {"M": {"copybook": "occ.cpy", "input": "MAPI", "output": "MAPO"}}}
+    data = bytearray(b"\x00" * 40)
+    data[15 + 9] = 0xF1  # ROWC(2): the colour byte of the second line
+    sub = ec.map_subfields(tmp_path, case, "M", bytes(data), "latin-1")
+    assert sub == {"ROW.2": {"color": 0xF1}}
+
+
+def test_a_symbolic_map_with_occurs_depending_on_is_refused(tmp_path):
+    (tmp_path / "odo.cpy").write_text(MAP_ODO, encoding="utf-8")
+    with pytest.raises(ec.Unsupported, match="OCCURS DEPENDING ON"):
+        ec.screen_layout(tmp_path, "odo.cpy", "MAPI")
+
+
+def test_a_receive_typed_into_one_occurrence_is_refused(tmp_path):
+    (tmp_path / "occ.cpy").write_text(MAP_OCCURS, encoding="utf-8")
+    layout = ec.screen_layout(tmp_path, "occ.cpy", "MAPI")
+    assert len(ec.map_input(layout, {}, "latin-1")) == 12 + 3 * 8
+    with pytest.raises(ec.Unsupported, match="one occurrence"):
+        ec.map_input(layout, {"ROWI(2)": "TYPED"}, "latin-1")
 
 
 def _corpora() -> Path | None:
@@ -206,15 +284,15 @@ def _corpora() -> Path | None:
     return p if p.is_dir() else None
 
 
-def test_no_case_map_has_occurs_today():
-    """The screens' single-occurrence compare holds for every case's map; the first map with OCCURS fails here (and
-    is refused by its proof) until the screen compare names every occurrence."""
+def test_every_case_map_resolves_and_bnk1cca_has_occurs():
+    """Every case's map lays out (a map with OCCURS DEPENDING ON would be refused here), and CBSA's BNK1ACC is read at
+    each of its ten ACCOUNT occurrences (#5076)."""
     root = _corpora()
     if root is None:
         pytest.skip("no mainframe corpora")
     import equivalence as eq
 
-    seen = 0
+    seen = occurs = 0
     for path in sorted(eq.CASES.glob("*/case.json")):
         case = json.loads(path.read_text(encoding="utf-8"))
         corpus = root / case.get("corpus", "")
@@ -222,7 +300,16 @@ def test_no_case_map_has_occurs_today():
             continue
         for name in case["screens"]:
             for side in ("input", "output"):
-                ec.screen_fields(corpus, case, name, side)  # raises Unsupported on an OCCURS
+                layout = ec.screen_fields(corpus, case, name, side)  # raises Unsupported on an ODO
                 seen += 1
+                if path.parent.name == "cbsa-bnk1cca" and side == "output":
+                    keys = {ec.screen_key(f) for f in layout}
+                    assert {(f"ACCOUNT.{i}", "O") for i in range(1, 11)} <= keys
+                    occurs += 1
     if not seen:
         pytest.skip("no case's corpus is checked out")
+    assert (
+        occurs
+        or not (eq.CASES / "cbsa-bnk1cca").is_dir()
+        or not (root / "cics-banking-sample-application-cbsa").is_dir()
+    )

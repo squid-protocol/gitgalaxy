@@ -82,7 +82,7 @@ def test_each_gap_class_from_its_source(tmp_path):
         pb.LINKED_NOT_MEASURED
     ]  # run by the case, but its own coverage is not measured (#4270)
     assert gaps_of(res, "NOCASE") == ["no case"]
-    assert gaps_of(res, "DB2") == ["not proven in CI: Db2 case (det-sweep runs --skip-db2)"]
+    assert gaps_of(res, "DB2") == ["not proven in CI: Db2 case (no sweep row, no readable det-sweep ledger entry)"]
     assert gaps_of(res, "KNOWN") == ["known unproven: #1"]
     assert gaps_of(res, "COV") == ["coverage: live paragraphs no scenario runs"]
     assert gaps_of(res, "TASKN") == ["fact: EIBRCODE (no harness states it)"]  # EIBTASKN: the case states it
@@ -164,11 +164,153 @@ def test_eibtaskn_is_stated_by_an_equivalence_case_not_yet_by_the_crucible():
     CicsTask.withTaskNumber): the equivalence harness states it for every task, so neither a case nor a program with
     no case yet has the gap; the crucible runner does not state it, so a crucible case's program keeps it."""
     assert "EIBTASKN" in pb.CASE_STATED_EIB and "EIBRCODE" not in pb.CASE_STATED_EIB
+    # #5126 (X64): an equivalence case states EIBDS, a crucible cell does not
+    assert "EIBDS" in pb.CASE_STATED_EIB and "EIBDS" not in pb.STATED_EIB
+    # the other EIB resource fields stay open, refused by name (X64)
+    assert not {"EIBFN", "EIBRCODE", "EIBCPOSN", "EIBREQID", "EIBRSRCE", "EIBERR", "EIBERRCD"} & pb.CASE_STATED_EIB
     facts = {"eib": {"EIBTASKN"}}
     assert pb.fact_gaps(facts, pb.Run("equivalence", "c")) == set()
     assert pb.fact_gaps(facts, None) == set()
     assert pb.fact_gaps(facts, pb.Run("crucible", "k")) == {"fact: EIBTASKN (no harness states it)"}
     assert pb.fact_gaps({"eib": {"EIBRCODE"}}, pb.Run("equivalence", "c")) == {"fact: EIBRCODE (no harness states it)"}
+
+
+def test_eib_names_match_whole_words_outside_literals_and_comments():
+    """#5077: the whole input class of a name that is not a read -- a literal's text, a hyphenated or underscored
+    user name that starts with an EIB field, a comment line, a VALUE clause -- against the real reads."""
+    for src in (
+        fixed("    01  MSG PIC X(8) VALUE 'EIBFN: '.", '    DISPLAY "EIBRCODE=".'),
+        fixed("    01  EIBRCODE-NICE PIC X.", "    MOVE 1 TO EIBFN-X", "    MOVE 1 TO WS-EIBFN"),
+        fixed("    01  EIBFN_COPY PIC X."),
+        "000100*    MOVE EIBFN TO X\n000200/   MOVE EIBRCODE TO X\n",
+    ):
+        assert pb.facts_needed(src)["eib"] == set(), src
+    real = fixed("    MOVE EIBFN TO A", "    MOVE EIBRCODE TO B", "    IF EIBERR = 1 DISPLAY 'EIBDS'.",
+                 "    MOVE EIBRCODE(1:1) TO C", "    MOVE 'EIBAID' TO D")  # fmt: skip
+    assert pb.facts_needed(real)["eib"] == {"EIBFN", "EIBRCODE", "EIBERR"}
+    assert pb.facts_needed(fixed("    MOVE 'A' TO X EIBDS."))["eib"] == {"EIBDS"}
+
+
+def test_assign_options_inside_a_literal_or_comment_are_no_fact_read():
+    """#5089: the fact scan skips string literals for every keyword, not just EIB fields: an ASSIGN written inside a
+    literal (a message, a generated-command template) or a comment line is no read of USERID / STARTCODE / APPLID."""
+    for src in (
+        fixed("    MOVE 'EXEC CICS ASSIGN APPLID(A) USERID(U) END-EXEC' TO X"),
+        fixed('    DISPLAY "EXEC CICS ASSIGN STARTCODE(S) END-EXEC"'),
+        "000100*    EXEC CICS ASSIGN APPLID(A) USERID(U) END-EXEC\n",
+    ):
+        assert pb.facts_needed(src) == {"eib": set(), "assign_task": set(), "assign_region": set()}, src
+    real = fixed("    MOVE 'EXEC CICS ASSIGN APPLID(A) END-EXEC' TO X", "    EXEC CICS ASSIGN USERID(U) END-EXEC.")
+    assert pb.facts_needed(real)["assign_task"] == {"USERID"} and not pb.facts_needed(real)["assign_region"]
+
+
+def test_a_case_that_states_startcode_drops_the_gap(tmp_path):
+    """#5077: STARTCODE is stated by a case's (or every scenario's) "startcode"; a case that leaves one scenario
+    without it, or states none, keeps the gap. USERID stays a gap either way."""
+    cases = tmp_path / "cases"
+    sc = {"name": "a"}, {"name": "b"}
+    case(cases, "top", "k", "src/t.cbl", startcode="TD", scenarios=list(sc))
+    case(cases, "each", "k", "src/e.cbl", scenarios=[{**x, "startcode": "S"} for x in sc])
+    case(cases, "part", "k", "src/p.cbl", scenarios=[{"name": "a", "startcode": "TD"}, {"name": "b"}])
+    case(cases, "none", "k", "src/n.cbl", scenarios=list(sc))
+    case(cases, "noscen", "k", "src/s.cbl", startcode="TD")
+    runs = pb.equivalence_runs(cases)
+    stated = {c: runs[("k", f"src/{f}.cbl")][0].startcode for c, f in
+              (("top", "t"), ("each", "e"), ("part", "p"), ("none", "n"), ("noscen", "s"))}  # fmt: skip
+    assert stated == {"top": True, "each": True, "part": False, "none": False, "noscen": False}
+    facts = {"eib": set(), "assign_task": {"STARTCODE", "USERID"}, "assign_region": set()}
+    assert pb.fact_gaps(facts, pb.Run("equivalence", "c", startcode=True)) == {
+        "fact: ASSIGN USERID (no equivalence case states it)"
+    }
+    assert pb.fact_gaps(facts, pb.Run("equivalence", "c")) == {
+        "fact: ASSIGN USERID (no equivalence case states it)",
+        "fact: ASSIGN STARTCODE (no equivalence case states it)",
+    }
+    assert pb.fact_gaps(facts, pb.Run("crucible", "k", startcode=True)) == set()  # the runner states both
+
+
+def test_a_case_that_states_a_terminal_drops_the_facility_gap(tmp_path):
+    """#5126: ASSIGN FACILITY / TERMCHK are stated by a case's (or every scenario's) "termid" (GGCICS_FACILITY on the
+    stub, CicsTask.withTermid on the port); one scenario without it, an empty one, or none keeps the gap. USERID and
+    SCRNHT / SCRNWD stay gaps: the harness states neither."""
+    cases = tmp_path / "cases"
+    sc = {"name": "a"}, {"name": "b"}
+    case(cases, "top", "k", "src/t.cbl", termid="T001", scenarios=list(sc))
+    case(cases, "each", "k", "src/e.cbl", scenarios=[{**x, "termid": "T002"} for x in sc])
+    case(cases, "part", "k", "src/p.cbl", scenarios=[{"name": "a", "termid": "T001"}, {"name": "b"}])
+    case(cases, "empty", "k", "src/m.cbl", scenarios=[{"name": "a", "termid": ""}])
+    case(cases, "none", "k", "src/n.cbl", scenarios=list(sc))
+    case(cases, "noscen", "k", "src/s.cbl", termid="T001")
+    runs = pb.equivalence_runs(cases)
+    stated = {c: runs[("k", f"src/{f}.cbl")][0].termid for c, f in
+              (("top", "t"), ("each", "e"), ("part", "p"), ("empty", "m"), ("none", "n"), ("noscen", "s"))}  # fmt: skip
+    assert stated == {"top": True, "each": True, "part": False, "empty": False, "none": False, "noscen": False}
+    facts = {"eib": set(), "assign_task": {"FACILITY", "USERID", "SCRNHT/SCRNWD"}, "assign_region": set()}
+    userid, screen = ("fact: ASSIGN USERID (no equivalence case states it)",
+                      "fact: ASSIGN SCRNHT/SCRNWD (no equivalence case states it)")  # fmt: skip
+    assert pb.fact_gaps(facts, pb.Run("equivalence", "c", termid=True)) == {userid, screen}
+    assert pb.fact_gaps(facts, pb.Run("equivalence", "c")) == {
+        userid,
+        screen,
+        "fact: ASSIGN FACILITY (no equivalence case states it)",
+    }
+    assert (
+        pb.fact_gaps(
+            {"eib": set(), "assign_task": {"FACILITY"}, "assign_region": set()}, pb.Run("equivalence", "c", termid=True)
+        )
+        == set()
+    )
+    assert pb.fact_gaps(facts, pb.Run("crucible", "k")) == set()  # the runner states all of them
+
+
+def test_a_case_that_states_userid_or_screen_drops_that_gap(tmp_path):
+    """#5126: ASSIGN USERID is stated by a "userid" (GGCICS_USERID / withUserid), SCRNHT / SCRNWD by a "screen" of a
+    stated "termid" (GGCICS_SCREEN / withScreen); one scenario short, an empty value, or a screen with no termid
+    keeps the gap."""
+    cases = tmp_path / "cases"
+    sc = {"name": "a"}, {"name": "b"}
+    case(cases, "top", "k", "src/t.cbl", termid="T1", userid="U", screen=[24, 80], scenarios=list(sc))
+    case(
+        cases,
+        "each",
+        "k",
+        "src/e.cbl",
+        scenarios=[{**x, "termid": "T1", "userid": "U", "screen": [24, 80]} for x in sc],
+    )
+    case(
+        cases,
+        "part",
+        "k",
+        "src/p.cbl",
+        termid="T1",
+        scenarios=[{"name": "a", "userid": "U", "screen": [1, 2]}, {"name": "b"}],
+    )
+    case(cases, "noterm", "k", "src/n.cbl", userid="U", screen=[24, 80], scenarios=list(sc))
+    case(cases, "empty", "k", "src/m.cbl", termid="T1", userid="", scenarios=list(sc))
+    runs = pb.equivalence_runs(cases)
+    got = {c: (runs[("k", f"src/{f}.cbl")][0].userid, runs[("k", f"src/{f}.cbl")][0].screen) for c, f in
+           (("top", "t"), ("each", "e"), ("part", "p"), ("noterm", "n"), ("empty", "m"))}  # fmt: skip
+    assert got == {"top": (True, True), "each": (True, True), "part": (False, False), "noterm": (True, False),
+                   "empty": (False, False)}  # fmt: skip
+    facts = {"eib": set(), "assign_task": {"USERID", "SCRNHT/SCRNWD"}, "assign_region": set()}
+    userid, screen = ("fact: ASSIGN USERID (no equivalence case states it)",
+                      "fact: ASSIGN SCRNHT/SCRNWD (no equivalence case states it)")  # fmt: skip
+    assert pb.fact_gaps(facts, pb.Run("equivalence", "c", userid=True)) == {screen}
+    assert pb.fact_gaps(facts, pb.Run("equivalence", "c", screen=True)) == {userid}
+    assert pb.fact_gaps(facts, pb.Run("equivalence", "c", userid=True, screen=True)) == set()
+    assert pb.fact_gaps(facts, pb.Run("equivalence", "c")) == {userid, screen}
+
+
+def test_the_facts_of_a_program_with_holes_are_read_but_never_ranked(tmp_path):
+    """#5126 (zECS ZECS001's MOVE EIBRCODE): the ranking is over the programs a survey translates WHOLE, so a program
+    with holes shows no fact gap there -- though its facts are read (the evidence report prints them)."""
+    src = fixed("PROCEDURE DIVISION.", "    MOVE EIBRCODE TO WS-R", "    EXEC CICS RETURN END-EXEC.")
+    assert pb.facts_needed(src)["eib"] == {"EIBRCODE"}
+    corpora = tmp_path / "corpora"
+    write(corpora / "estate" / "a/HOLES.cbl", src)
+    rows = {("estate", "a/HOLES.cbl"): {"program": "a/HOLES.cbl", "statements": 5, "translated": 4, "holes": ["x"]}}
+    res = pb.proof_blockers(rows, [corpora], cases_dir=tmp_path / "c", crucible_dir=tmp_path / "k", det_baseline={})
+    assert res["programs"] == [] and res["whole"] == 0
 
 
 def test_facts_are_names_only():
@@ -258,3 +400,246 @@ def test_a_linked_program_does_not_inherit_the_case_s_coverage():
     other = pb.Run("equivalence", "c2", role="linked")
     pb.judge_equivalence(other, {}, {}, True)
     assert other.gaps == {pb.LINKED_NOT_MEASURED}
+
+
+# ---- #5075: the det-sweep ledger is the Db2 lanes' verdict, and its harness / oracle-stale coverage is the last count --
+STALE = {"coverage": [3, 3, 1, 1], "stale_inputs": ["harness", "oracle"], "stale_since": "abc123"}
+
+
+def subject(res, stem):
+    return next(p for p in res["programs"] if Path(p["program"]).stem == stem)
+
+
+def test_a_db2_case_takes_its_verdict_from_a_readable_ledger_entry(tmp_path):
+    """Current or stale on a scheduled input only: proven, with the ledger as its source; the coverage is read too."""
+    for reading in ([3, 3, 1, 1], STALE):
+        res = run(tmp_path, ledger={"c-db2": reading})
+        assert gaps_of(res, "DB2") == []
+        assert subject(res, "DB2")["verdict"] == "ledger"
+        assert res["sources"]["ledger_verdicts"] == ["c-db2"]
+        assert res["sources"]["stale_ledger_coverage"] == (["c-db2"] if reading is STALE else [])
+    assert (res["whole"], res["proven"]) == (9, 2)
+
+
+def test_a_db2_ledger_entry_with_uncovered_paragraphs_is_a_coverage_gap(tmp_path):
+    res = run(tmp_path, ledger={"c-db2": [2, 3, 1, 1]})
+    assert gaps_of(res, "DB2") == ["coverage: live paragraphs no scenario runs"]
+
+
+def test_no_entry_or_a_blocking_change_leaves_the_db2_case_unproven(tmp_path):
+    """None is what ledger_readings gives a missing entry AND one whose case / corpus changed."""
+    for ledger in ({}, {"c-db2": None}):
+        res = run(tmp_path, ledger=ledger)
+        assert gaps_of(res, "DB2") == ["not proven in CI: Db2 case (no sweep row, no readable det-sweep ledger entry)"]
+        assert subject(res, "DB2")["verdict"] == ""
+
+
+def test_the_ledger_never_overrides_a_baseline_or_a_sweep(tmp_path):
+    cases, corpora, cru, det_baseline, rows = setup(tmp_path)
+    det_baseline["c-db2"] = {"issue": "#2", "why": "differs"}
+    res = pb.proof_blockers(rows, [corpora], cases_dir=cases, crucible_dir=cru, det_baseline=det_baseline,
+                            ledger={"c-db2": [3, 3, 1, 1]})  # fmt: skip
+    assert gaps_of(res, "DB2") == ["known unproven: #2"] and subject(res, "DB2")["verdict"] == ""
+    sweep = tmp_path / "sweep"
+    write(sweep / "sweep.json", {"det": {"c-db2": {"proved": False, "coverage": ""}}})
+    res = run(tmp_path, ledger={"c-db2": [3, 3, 1, 1]}, sweeps=pb.load_sweeps([sweep]))
+    assert gaps_of(res, "DB2") == ["scenario differs: not proven (no report kept)"]
+
+
+def test_a_non_db2_case_reads_scheduled_stale_coverage_not_blocking(tmp_path):
+    """c-diff has no evidence record: its coverage is the ledger's or unknown."""
+    res = run(tmp_path, ledger={"c-diff": STALE})
+    assert gaps_of(res, "DIFF") == [] and subject(res, "DIFF")["stale_coverage"] == ["harness", "oracle"]
+    assert subject(res, "DIFF")["verdict"] == ""  # its verdict is CI's ratchet, not the ledger
+    res = run(tmp_path, ledger={"c-diff": None})
+    assert gaps_of(res, "DIFF") == ["coverage: unknown (no sweep, no evidence record)"]
+    res = run(tmp_path, ledger={"c-diff": {**STALE, "coverage": [1, 3, 1, 1]}})
+    assert gaps_of(res, "DIFF") == ["coverage: live paragraphs no scenario runs"]
+
+
+def test_a_linked_program_never_takes_the_ledger_s_coverage(tmp_path):
+    res = run(tmp_path, ledger={"c-proven": [3, 3, 1, 1]})
+    assert gaps_of(res, "LINKED") == [pb.LINKED_NOT_MEASURED]
+
+
+def test_ledger_readings_maps_last_coverage(monkeypatch):
+    import det_coverage_ledger as dcl
+
+    base = {"coverage": (4, 4, 2, 2), "measured_at": "deadbeef"}
+    lasts = {"cur": {**base, "stale_inputs": [], "blocking": False},
+             "sched": {**base, "stale_inputs": ["oracle"], "blocking": False},
+             "block": {**base, "stale_inputs": ["corpus"], "blocking": True}, "none": None}  # fmt: skip
+    monkeypatch.setattr(dcl, "load", lambda: dict.fromkeys(lasts, {}))
+    monkeypatch.setattr(dcl, "last_coverage", lambda case, ledger: lasts[case])
+    got = pb.ledger_readings()
+    assert got == {"block": None, "cur": [4, 4, 2, 2], "none": None,
+                   "sched": {"coverage": [4, 4, 2, 2], "stale_inputs": ["oracle"], "stale_since": "deadbeef"}}  # fmt: skip
+    assert (
+        pb.ledger_readings(cases_dir=Path("/elsewhere")) == {}
+    )  # a fixture tree: the repo's fingerprints do not apply
+
+
+# ---- #5084: the LINKed programs' coverage ----------------------------------------------------------------------
+def _counts(pc, pl):
+    return {"paragraphs": {"covered": pc, "live": pl}, "branches": {"covered": 0, "total": 0}}
+
+
+def _sweep_row(linked):
+    return {"c": {"proved": True, "translated": "2/2", "uncovered": [], "linked": linked,
+                  "coverage": "proven on 3 scenarios, covering 5/5 paragraphs and 9/9 branches"}}  # fmt: skip
+
+
+def test_a_linked_program_is_judged_from_its_own_counts():
+    sweeps = _sweep_row({"SUBP": _counts(2, 2), "HOLEY": _counts(1, 3)})
+    whole = pb.Run("equivalence", "c", role="linked", program="SUBP")
+    holey = pb.Run("equivalence", "c", role="linked", program="HOLEY")
+    unmeasured = pb.Run("equivalence", "c", role="linked", program="OTHER")
+    for run in (whole, holey, unmeasured):
+        pb.judge_equivalence(run, {}, sweeps, True)
+    assert whole.gaps == set()
+    assert holey.gaps == {"coverage: live paragraphs no scenario runs"}
+    assert unmeasured.gaps == {pb.LINKED_NOT_MEASURED}
+
+
+def test_a_caller_is_not_proven_while_a_callee_has_holes():
+    main = pb.Run("equivalence", "c")
+    pb.judge_equivalence(main, {}, _sweep_row({"SUBP": _counts(2, 2), "HOLEY": _counts(1, 3)}), True)
+    assert main.gaps == {"coverage: LINKed program HOLEY has live paragraphs no scenario runs"}
+    assert main.detail[next(iter(main.gaps))] == "1/3 paragraphs"
+    clean = pb.Run("equivalence", "c")
+    pb.judge_equivalence(clean, {}, _sweep_row({"SUBP": _counts(2, 2)}), True)
+    assert clean.gaps == set()
+
+
+def test_the_ledger_reading_carries_the_linked_counts():
+    reading, linked = [5, 5, 9, 9], {"c": {"HOLEY": _counts(1, 3)}}
+    main = pb.Run("equivalence", "c")
+    pb.judge_equivalence(main, {}, {}, True, ledger={"c": reading}, linked_ledger=linked)
+    assert main.gaps == {"coverage: LINKed program HOLEY has live paragraphs no scenario runs"}
+    callee = pb.Run("equivalence", "c", role="linked", program="HOLEY")
+    pb.judge_equivalence(callee, {}, {}, True, ledger={"c": reading}, linked_ledger=linked)
+    assert callee.gaps == {"coverage: live paragraphs no scenario runs"}
+
+
+def test_a_callee_with_only_branch_holes_is_a_branch_gap_with_branches_on():
+    row = _sweep_row({"SUBP": {"paragraphs": {"covered": 2, "live": 2}, "branches": {"covered": 1, "total": 2}}})
+    on, off = pb.Run("equivalence", "c"), pb.Run("equivalence", "c")
+    pb.judge_equivalence(on, {}, row, True)
+    pb.judge_equivalence(off, {}, row, False)
+    assert on.gaps == {"coverage: LINKed program SUBP has branch outcomes no scenario runs"}
+    assert off.gaps == set()
+
+
+def test_a_fresh_entry_with_linked_counts_is_still_a_current_reading(monkeypatch):
+    """#5084: the LINKed counts travel apart from the reading, so a current entry stays a list (no stale_since)."""
+    import det_coverage_ledger as dcl
+
+    entry = {"scenarios": 3, "paragraphs": {"covered": 5, "live": 5}, "branches": {"covered": 9, "total": 9},
+             "inputs": {}, "measured_at": "abc", "linked": {"HOLEY": _counts(1, 3)}}  # fmt: skip
+    monkeypatch.setattr(dcl, "load", lambda directory=None: {"c": entry})
+    monkeypatch.setattr(dcl, "last_coverage", lambda case, led: {"coverage": (5, 5, 9, 9), "stale_inputs": [],
+                        "blocking": False, "measured_at": "abc", "linked": entry["linked"]})  # fmt: skip
+    assert pb.ledger_readings(["c"]) == {"c": [5, 5, 9, 9]}
+    assert pb.ledger_linked(["c"]) == {"c": {"HOLEY": _counts(1, 3)}}
+    monkeypatch.setattr(dcl, "last_coverage", lambda case, led: {"coverage": (5, 5, 9, 9), "stale_inputs": ["harness"],
+                        "blocking": True, "measured_at": "abc", "linked": entry["linked"]})  # fmt: skip
+    assert pb.ledger_linked(["c"]) == {}
+
+
+def test_fact_keywords_in_a_continued_literal_or_inline_comment_are_no_read():
+    """#5089: the whole class of text that names a fact without reading it, for every fact keyword -- a literal
+    continued onto the next line (column-7 hyphen) and a `*>` floating comment tail -- against the real reads."""
+    cont = "      -    'END-EXEC' TO X."
+    for src in (
+        fixed("    MOVE 'EXEC CICS ASSIGN USERID(U) APPLID(A)", cont),
+        fixed('    MOVE "EIBFN EIBRCODE EIBERR', '      -    "TAIL" TO X.'),
+        fixed("    MOVE 1 TO X *> EXEC CICS ASSIGN STARTCODE(S) END-EXEC", "    MOVE 2 TO Y *> uses EIBFN"),
+    ):
+        assert pb.facts_needed(src) == {"eib": set(), "assign_task": set(), "assign_region": set()}, src
+    # a `*>` inside a literal is text, and code after a closed continued literal is still read
+    real = fixed(
+        "    MOVE 'A *> B' TO X EIBFN.",
+        "    MOVE 'EXEC CICS ASSIGN APPLID(A)",
+        cont,
+        "    EXEC CICS ASSIGN USERID(U) END-EXEC.",
+    )
+    got = pb.facts_needed(real)
+    assert got["eib"] == {"EIBFN"} and got["assign_task"] == {"USERID"} and not got["assign_region"]
+    # length-preserving: the line structure the command scan relies on is unchanged
+    assert [len(x) for x in pb.code_only(real).splitlines()] == [len(x) for x in real.splitlines()]
+
+
+def col7(*lines: str) -> str:
+    """Lines whose first character is the indicator area (column 7)."""
+    return "\n".join(f"{i * 100:06d}{ln}" for i, ln in enumerate(lines, 1)) + "\n"
+
+
+def test_debugging_lines_are_no_read_unless_debugging_mode_is_active():
+    """#5089: a column-7 `D` line is a comment unless WITH DEBUGGING MODE is active (a commented one does not count)."""
+    empty = {"eib": set(), "assign_task": set(), "assign_region": set()}
+    dbg = (
+        "D    MOVE EIBFN TO X.",
+        "D    EXEC CICS ASSIGN USERID(U) APPLID(A) STARTCODE(S) END-EXEC.",
+        "D    MOVE 'EXEC CICS ASSIGN USERID(U)",
+        "-    'END-EXEC' TO X.",
+    )
+    assert pb.facts_needed(col7(" MOVE 1 TO Y.", *dbg)) == empty
+    mode = "     SOURCE-COMPUTER. IBM-370 WITH DEBUGGING MODE."
+    got = pb.facts_needed(col7(mode, *dbg))
+    assert got["eib"] == {"EIBFN"} and got["assign_task"] == {"USERID", "STARTCODE"}  # active: they are code
+    assert pb.facts_needed(col7("*" + mode[1:], *dbg)) == empty  # a commented mode does not activate them
+    real = col7(dbg[0], "     MOVE EIBRCODE TO Y.")
+    assert pb.facts_needed(real)["eib"] == {"EIBRCODE"}
+    assert [len(x) for x in pb.code_only(real).splitlines()] == [len(x) for x in real.splitlines()]
+
+
+def free(*lines: str) -> str:
+    """Free-format source: program text from column 1, no sequence area or indicator."""
+    return "\n".join(lines) + "\n"
+
+
+FREE_FACTS = (
+    "IDENTIFICATION DIVISION.",
+    "PROGRAM-ID. FREEFMT.",
+    "PROCEDURE DIVISION.",
+    "MOVE EIBFN TO WS-F. *> a floating comment tail with EIBRCODE",
+    "EXEC CICS ASSIGN USERID(U) APPLID(A) END-EXEC.",
+)
+
+
+def test_free_format_source_is_read_whole_and_variable_past_column_72():
+    """#5089: a free-format program keeps its first six columns and everything past column 72 (the fixed-format cut
+    lost both), for every fact keyword; a `>>SOURCE FORMAT` switch is followed line by line."""
+    got = pb.facts_needed(free(*FREE_FACTS))
+    assert got["eib"] == {"EIBFN"} and got["assign_task"] == {"USERID"} and got["assign_region"] == {"APPLID"}
+    far = free(
+        "IDENTIFICATION DIVISION.",
+        "PROCEDURE DIVISION.",
+        "MOVE 1 TO " + "X" * 70 + " EXEC CICS ASSIGN SYSID(S) END-EXEC.",
+    )
+    assert pb.facts_needed(far)["assign_region"] == {"SYSID"}
+    assert pb.cc.commands(far) == [["ASSIGN", "SYSID"]]
+    # variable format: fixed areas, no column-72 limit
+    var = ">>SOURCE FORMAT IS VARIABLE\n" + col7(" MOVE 1 TO " + "X" * 70 + " EXEC CICS ASSIGN STARTCODE(S) END-EXEC.")
+    assert pb.facts_needed(var)["assign_task"] == {"STARTCODE"}
+    # a directive switches mid-file: the fixed part keeps its column cut, the free part has none
+    mixed = fixed("PROCEDURE DIVISION.", "    MOVE EIBTASKN TO X.") + ">>SOURCE FORMAT FREE\nMOVE EIBRCODE TO Y.\n"
+    assert pb.facts_needed(mixed)["eib"] == {"EIBTASKN", "EIBRCODE"}
+
+
+def test_free_format_literals_comments_and_debug_lines_are_no_read():
+    """#5089: the text-that-names-a-fact class in free format: a literal (also continued onto a line opening with
+    the quote), `*>` lines and tails, and `>>D` lines (code only under WITH DEBUGGING MODE)."""
+    empty = {"eib": set(), "assign_task": set(), "assign_region": set()}
+    for src in (
+        free("IDENTIFICATION DIVISION.", "MOVE 'EXEC CICS ASSIGN USERID(U) EIBFN", "'END-EXEC' TO X."),
+        free("IDENTIFICATION DIVISION.", 'MOVE "EIBRCODE" TO X.', "*> EXEC CICS ASSIGN APPLID(A) END-EXEC"),
+        free("IDENTIFICATION DIVISION.", "MOVE 1 TO X. *> EIBFN", "   *> EIBERR"),
+        free("IDENTIFICATION DIVISION.", ">>D MOVE EIBFN TO X.", ">>D EXEC CICS ASSIGN USERID(U) END-EXEC."),
+    ):
+        assert pb.facts_needed(src) == empty, src
+    dbg = free("IDENTIFICATION DIVISION.", "SOURCE-COMPUTER. IBM-370 WITH DEBUGGING MODE.", ">>D MOVE EIBFN TO X.")
+    assert pb.facts_needed(dbg)["eib"] == {"EIBFN"}
+    real = free("IDENTIFICATION DIVISION.", "MOVE 'A *> B' TO X EIBFN.", "'") + "MOVE EIBERR TO Y.\n"
+    assert pb.facts_needed(real)["eib"] == {"EIBFN", "EIBERR"}
+    assert [len(x) for x in pb.code_only(real).splitlines()] == [len(x) for x in real.splitlines()]

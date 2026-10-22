@@ -5,7 +5,7 @@
    was `no such item`. `is_cics_program` now also takes a LINKAGE DFHCOMMAREA (the COMMAREA name the CICS translator
    uses) or an EXEC CICS handler / ABEND the engine extracted as CICS evidence.
 2. `SET pointer TO NULL` (CBSA CREACC) was refused with every other use of NULL. A data pointer set to NULL holds
-   binary zeros (oracle_assumptions.md C9), as INITIALIZE already leaves one; any other use of NULL stays refused.
+   binary zeros (oracle_assumptions.md C9), as INITIALIZE already leaves one (`IF p = NULL` is #5197's); any other use of NULL stays refused.
    A POINTER now has a Field over its bytes, so `SET p TO q` (CBSA DELCUS) -- translated before, as a byte move,
    onto Fields that were never declared -- compiles.
 """
@@ -82,7 +82,7 @@ def test_set_pointer_to_null_translates(tmp_path):
     "data, stmt, why",
     [
         (["01 X PIC X(8)."], "SET X TO NULL", "SET X TO NULL: not a pointer"),
-        (["01 P POINTER.", "01 Q POINTER."], "IF P = NULL DISPLAY 'N' END-IF", "NULL: pointers are not modelled"),
+        (["01 P POINTER.", "01 Q POINTER."], "IF P > NULL DISPLAY 'N' END-IF", "only = and NOT ="),
     ],
 )
 def test_other_uses_of_null_stay_refused(tmp_path, data, stmt, why):

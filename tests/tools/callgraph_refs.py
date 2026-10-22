@@ -44,6 +44,7 @@ from collections.abc import Callable
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import scip_callgraph  # noqa: E402
+from launcher_exe import npm_executable  # noqa: E402
 
 from gitgalaxy.core.source_text import read_source
 
@@ -138,7 +139,7 @@ def node_env() -> dict[str, str]:
     if not env.get("NODE_PATH"):
         try:
             root = subprocess.run(
-                ["npm", "root", "-g"],  # noqa: S607
+                [npm_executable(), "root", "-g"],  # noqa: S603
                 capture_output=True,
                 text=True,
                 check=True,

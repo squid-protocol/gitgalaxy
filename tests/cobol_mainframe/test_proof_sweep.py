@@ -72,13 +72,33 @@ def test_skip_ledger_check_leaves_the_ledger_out_of_the_aggregate_ratchet(monkey
     import det_coverage_ledger as ledger
 
     calls = []
-    monkeypatch.setattr(ledger, "check", lambda det, led: calls.append(1) or (["ledger problem"], []))
+    monkeypatch.setattr(ledger, "check", lambda det, led, **kw: calls.append(1) or (["ledger problem"], []))
     monkeypatch.setattr(ps, "verdict", lambda results, base: [])
     results = {"det": {}}
     ns = dict(aggregate=[Path(".")], no_ratchet=False, update_baseline=False)
     assert ps.report(results, [], argparse.Namespace(**ns, skip_ledger_check=False)) == 1 and calls
     calls.clear()
     assert ps.report(results, [], argparse.Namespace(**ns, skip_ledger_check=True)) == 0 and not calls
+
+
+def test_the_ledger_is_re_recorded_not_failed_on_stale_fingerprints(monkeypatch, capsys):
+    """#5084: a harness PR leaves every entry stale on harness / oracle. the sweep must not fail on that by default; it re-records
+    the entries it re-checked when asked (--record-ledger), and fails on stale ones only when asked (--strict-ledger)."""
+    import argparse
+
+    import det_coverage_ledger as ledger
+
+    seen, written = [], []
+    monkeypatch.setattr(ledger, "load", lambda: {})
+    monkeypatch.setattr(ledger, "check", lambda det, led, recheck=False: seen.append(recheck) or ([], []))
+    monkeypatch.setattr(ledger, "build", lambda det, led: {"c": {}})
+    monkeypatch.setattr(ledger, "write", lambda cases: written.append(cases) or ["c"])
+    monkeypatch.setattr(ps, "verdict", lambda results, base: [])
+    ns = dict(aggregate=[Path(".")], no_ratchet=False, update_baseline=False, skip_ledger_check=False)
+    assert ps.report({"det": {}}, [], argparse.Namespace(**ns)) == 0 and seen == [False] and not written
+    args = argparse.Namespace(**ns, strict_ledger=True, record_ledger=True)
+    assert ps.report({"det": {}}, [], args) == 0 and seen == [False, True] and written == [{"c": {}}]
+    assert "1 entry re-recorded" in capsys.readouterr().out
 
 
 def test_durations_are_recorded_from_the_proven_seconds(tmp_path):

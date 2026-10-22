@@ -26,6 +26,8 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "tests" / "tools"))
 
 import equivalence_common as common  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 PLAIN = "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P.\n"
 V6 = {"product": "Enterprise COBOL", "version": "6.1", "evidence": "IGY.V6R1M0.SIGYCOMP"}
@@ -37,7 +39,10 @@ V6 = {"product": "Enterprise COBOL", "version": "6.1", "evidence": "IGY.V6R1M0.S
 def test_numproc_mig_compiles_as_the_default_under_enterprise_cobol_5_and_later():
     src = "   CBL NUMPROC(MIG),FLAG(I,W),RENT\n" + PLAIN  # IBM DBB EPSMPMT's card, from column 4
     text, flags = common.compile_options({"compiler": V6}, src)
-    assert text == "\n" + PLAIN and flags == ["-fbinary-truncate"]  # NOPFD: GnuCOBOL's own sign processing
+    assert text == "\n" + PLAIN and flags == [
+        "-fbinary-truncate",
+        *common.BOUND_FLAGS,
+    ]  # NOPFD: GnuCOBOL's own sign processing
     assert common.numproc({"compiler": V6}, src) == "NOPFD"
     assert common.numproc({"compiler": {**V6, "version": "5.2"}}, src) == "NOPFD"
 
@@ -55,7 +60,7 @@ def test_numproc_mig_is_refused_without_a_later_compiler(compiler):
 
 def test_numproc_pfd_compiles_and_needs_a_det_port(tmp_path):
     src = "       PROCESS NUMPROC(PFD)\n" + PLAIN
-    assert common.compile_options({}, src) == ("\n" + PLAIN, ["-fbinary-truncate"])
+    assert common.compile_options({}, src) == ("\n" + PLAIN, ["-fbinary-truncate", *common.BOUND_FLAGS])
     model = tmp_path / "model" / "service"
     model.mkdir(parents=True)
     (model / "PService.java").write_text("package x;\npublic class PService {}\n", encoding="utf-8")
@@ -171,9 +176,11 @@ def test_the_runtime_reads_preferred_signs_and_refuses_the_rest_under_pfd(tmp_pa
     (tmp_path / "src/Probe.java").write_text(RUNTIME_PROBE)
     jdk = _jdk()
     files = [str(f) for f in (tmp_path / "src").rglob("*.java")]
-    subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True)  # noqa: S603
-    lines = subprocess.run([str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Probe"], capture_output=True,  # noqa: S603
-                           text=True, check=True).stdout.split("\n")  # fmt: skip
+    javac_run(
+        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True
+    )  # noqa: S603
+    lines = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Probe"], capture_output=True,  # noqa: S603
+                           text=True, encoding="utf-8", check=True).stdout.split("\n")  # fmt: skip
     nopfd = lines[0].split()[1:]
     pfd = lines[1].split()[1:]
     # NOPFD (IBM's default): every sign is read, as GnuCOBOL reads it. An overpunch letter in an UNSIGNED item is a

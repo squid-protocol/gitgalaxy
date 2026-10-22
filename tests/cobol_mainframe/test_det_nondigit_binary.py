@@ -12,6 +12,7 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -19,6 +20,10 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 IMAGE = "gitgalaxy-gnucobol:3"
 PKG = "p"
+
+pytestmark = pytest.mark.slow(
+    reason="the first java test of a CI split part pays the one-time javac of the cobolrt runtime: 12-17 s on a runner (#5668)"
+)
 
 DATA = ["01 G1.", "   05 A10 PIC 9(10).", "   05 A6 PIC 9(6).", "   05 S4 PIC S9(4).", "   05 V2 PIC 9(4)V99.",
         "01 X4 PIC X(4).", "01 S5 REDEFINES X4 PIC S9(4).", "01 X5 PIC X(5).",
@@ -109,33 +114,56 @@ def _java() -> Path | None:
     return Path(home) / "bin" if home and (Path(home) / "bin/javac").is_file() else None
 
 
+def _runtime_classes() -> Path:
+    """The ISO-8859-1 non-batch runtime test_det_programs already builds: one javac per process, not two."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from test_det_programs import _runtime_classes as shared  # noqa: E402
+
+    return shared(False, "ISO-8859-1")
+
+
 def _det(src: str, work: Path, trunc: str) -> subprocess.CompletedProcess:
     from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    sys.path.insert(0, str(ROOT / "tests" / "tools"))
+    from javac_server import javac
 
     (work / "NDB.cbl").write_text(src)
     project = work / "project"
     project.mkdir()
     r = P.translate(work / "NDB.cbl", [], "public class NdbService {\n}\n", PKG, None, project)
     assert not r.stats["holes"], r.stats["holes"]
+    rt_classes = _runtime_classes()
     srcdir = work / "java"
     java = r.java.replace("import org.springframework.stereotype.Service;\n", "").replace("@Service\n", "")
-    runtime = {k: v for k, v in P.runtime_files(PKG, batch=False).items() if not k.startswith("cobolrt/cics/")}
-    for rel, text in [(f"service/{r.service}.java", java), *runtime.items()]:
-        (srcdir / PKG / rel).parent.mkdir(parents=True, exist_ok=True)
-        (srcdir / PKG / rel).write_text(text)
-    rec = srcdir / PKG / "entity/vsam/CobolRecords.java"
-    rec.parent.mkdir(parents=True, exist_ok=True)
-    rec.write_text(f"package {PKG}.entity.vsam;\npublic final class CobolRecords {{\n    public static java.nio.charset."
-                   "Charset charset() {\n        return java.nio.charset.StandardCharsets.ISO_8859_1;\n    }\n}\n")  # fmt: skip
+    svc = srcdir / PKG / f"service/{r.service}.java"
+    svc.parent.mkdir(parents=True, exist_ok=True)
+    svc.write_text(java)
     # runProgram (the standalone entry) runs under the runtime's TRUNC as set: the oracle's flag, stated
     std = "true" if trunc == "STD" else "false"
-    (srcdir / "Main.java").write_text(f"public class Main {{ public static void main(String[] a) {{ "
-                                      f"{PKG}.cobolrt.Cobol.swapTruncBinary({std}); "
-                                      f"new {PKG}.service.{r.service}().runProgram(); }} }}\n")  # fmt: skip
+    main_java = srcdir / "Main.java"
+    main_java.write_text(f"public class Main {{ public static void main(String[] a) {{ "
+                         f"{PKG}.cobolrt.Cobol.swapTruncBinary({std}); "
+                         f"new {PKG}.service.{r.service}().runProgram(); }} }}\n")  # fmt: skip
     jdk = _java()
-    files = [str(f) for f in srcdir.rglob("*.java")]
-    subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(work / "classes"), *files], check=True)  # noqa: S603
-    return subprocess.run([str(jdk / "java"), "-cp", str(work / "classes"), "Main"], capture_output=True, text=True,  # noqa: S603
+    classes = work / "classes"
+    javac(  # a javac that stays up (tests/tools/javac_server.py): ~0.05 s a program here, not a JVM start
+        [
+            str(jdk / "javac"),
+            "-encoding",
+            "UTF-8",
+            "-nowarn",
+            "-cp",
+            str(rt_classes),
+            "-d",
+            str(classes),
+            str(svc),
+            str(main_java),
+        ],
+        check=True,
+    )  # noqa: S603
+    cp = os.pathsep.join([str(classes), str(rt_classes)])
+    return subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", cp, "Main"], capture_output=True, text=True, encoding="utf-8",  # noqa: S603
                           check=False)  # fmt: skip
 
 

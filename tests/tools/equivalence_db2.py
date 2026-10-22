@@ -58,9 +58,18 @@ NETWORK = "gitgalaxy-db2"
 # image is pinned" in docs/language_status/oracle_assumptions.md. tests/cobol_mainframe/test_db2_image_pin.py enforces it.
 IMAGE = "icr.io/db2_community/db2@sha256:2de8151713c261843868c5c3411b57be6ae79d99d70a5b3022337836776bfda6"
 COBOL_IMAGE = "gitgalaxy-gnucobol-db2:3"
+# #5262: CI restores the pinned image from actions/cache (`docker load`), which drops the digest name (a digest cannot be a
+# local tag). tests/tools/db2_image_cache.py tags the loaded image with this alias after checking its image id against the
+# id recorded when the pinned digest was pulled; the harness then runs from the alias. Same bytes, no registry request.
+IMAGE_ALIAS = "gitgalaxy-db2-pinned:" + IMAGE.rsplit(":", 1)[1][:12]
 DATABASE0 = "GGDB"  # the container's own database: the pool's first
 DATABASE = DATABASE0  # this process's database (hold_lock picks it from the pool)
 POOL_ENV = "GITGALAXY_DB2_POOL"
+# #5882: CI's background start creates the pool's databases one at a time and marks each <name>.ready in this directory
+# once it is created and active; with it set, a case takes only a marked database, so the sweep starts as soon as GGDB is
+# up instead of waiting for the whole pool (a database still being created gave "no table" before, #4901). Unset
+# (a local run): every pool database, created on first use as before.
+READY_ENV = "GITGALAXY_DB2_READY_DIR"
 USER, PASSWORD = "db2inst1", "ggdb2pass"  # a local, throwaway test database
 PORT = 50000
 DOCKERFILE = common.CASES / "gnucobol-db2.Dockerfile"
@@ -75,6 +84,12 @@ def pool() -> list[str]:
     """The databases Db2 cases run on, one case at a time each."""
     n = max(1, int(os.environ.get(POOL_ENV) or 4))
     return [DATABASE0, *(f"{DATABASE0}{i}" for i in range(1, n))]
+
+
+def _ready(database: str) -> bool:
+    """A database a case may take: any, unless READY_ENV names a directory, then only one marked ready there."""
+    d = os.environ.get(READY_ENV)
+    return not d or (Path(d) / f"{database}.ready").is_file()
 
 
 def _lock_path(database: str) -> Path:
@@ -114,6 +129,8 @@ def hold_lock(timeout: float = DB2_POOL_DEADLINE) -> None:
     deadline = time.monotonic() + timeout
     while True:
         for database in pool():
+            if not _ready(database):  # #5882: still being created by CI's background start
+                continue
             path = _lock_path(database)
             path.parent.mkdir(parents=True, exist_ok=True)
             fh = path.open("w")
@@ -142,9 +159,10 @@ _ACTIVE: set[str] = set()
 
 def ensure() -> None:
     """The Db2 container running, this process's database created and active, the COBOL side's image built."""
-    _ensure_container()
-    _ensure_database(DATABASE)
-    activate(DATABASE)
+    with common.phase("db2_ensure"):  # #5882: the start lock and the readiness checks, every create()
+        _ensure_container()
+        _ensure_database(DATABASE)
+        activate(DATABASE)
 
 
 def activate(database: str) -> None:
@@ -196,9 +214,158 @@ def _ensure_database(database: str) -> None:
             raise RuntimeError(f"Db2: CREATE DATABASE {database} failed: {out.strip()[-400:]}")
 
 
+ODBC_PIN = common.CASES / "odbc_cli.pin"
+ODBC_TARBALL = common.CASES / "linuxx64_odbc_cli.tar.gz"  # in the Docker build context; git-ignored
+
+
+class OdbcDownloadError(RuntimeError):
+    """#4980: IBM's ODBC CLI driver could not be fetched or did not match its pin -- infrastructure, not our code."""
+
+
+def _odbc_fail(why: str, url: str) -> OdbcDownloadError:
+    return OdbcDownloadError(f"INFRASTRUCTURE (not a code defect): could not get IBM's Db2 ODBC CLI driver from {url}: "
+                             f"{why}. Re-run; if IBM replaced the file, bump url/sha256 together in {ODBC_PIN.name}.")  # fmt: skip
+
+
+def odbc_pin(path: Path | None = None) -> dict[str, str]:
+    """{"url", "sha256"} from odbc_cli.pin (key=value lines, # comments)."""
+    pin: dict[str, str] = {}
+    for line in (path or ODBC_PIN).read_text(encoding="utf-8").splitlines():
+        if line.strip() and not line.lstrip().startswith("#") and "=" in line:
+            key, _, value = line.partition("=")
+            pin[key.strip()] = value.strip()
+    return pin
+
+
+def _sha256(path: Path) -> str:
+    import hashlib
+
+    digest = hashlib.sha256()
+    with path.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _setup_lock(name: str):
+    """An exclusive flock held for the `with` block: the processes of a --jobs sweep start together on a fresh runner
+    (CI) and must not fetch the driver or build the image over each other (#5094)."""
+    import contextlib
+
+    try:
+        import fcntl
+    except ImportError:  # Windows: the Db2 sweep (Docker + Db2 container) only runs on Linux, so no lock is needed
+        return contextlib.nullcontext()
+
+    @contextlib.contextmanager
+    def held():
+        path = Path.home() / ".cache" / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("w") as fh:
+            fcntl.flock(fh, fcntl.LOCK_EX)
+            yield
+
+    return held()
+
+
+def fetch_odbc_cli(dest: Path | None = None, pin: dict[str, str] | None = None) -> Path:
+    """#4980: the driver tarball at `dest`, sha256-checked against the pin. A file already there that matches is kept
+    (the CI cache restores it); otherwise curl fetches it with retries. Any failure raises OdbcDownloadError.
+    #5094: one process fetches at a time (the others wait, then find the file) -- four sweep jobs sharing one `.part`
+    deleted each other's download and failed as "sha256 no file"."""
+    dest = dest or ODBC_TARBALL
+    pin = pin or odbc_pin()
+    url, want = pin["url"], pin["sha256"]
+    with _setup_lock("gitgalaxy-odbc-fetch.lock"):
+        if dest.is_file() and _sha256(dest) == want:
+            return dest
+        dest.unlink(missing_ok=True)
+        part = dest.with_name(dest.name + ".part")
+        part.unlink(missing_ok=True)
+        cmd = ["curl", "--fail", "--silent", "--show-error", "--location", "--retry", "5", "--retry-all-errors",
+               "--retry-delay", "5", "--connect-timeout", "30", "--max-time", "900", "--output", str(part), url]  # fmt: skip
+        try:
+            proc = subprocess.run(cmd, capture_output=True, text=True, check=False, timeout=1000)  # noqa: S603
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            part.unlink(missing_ok=True)
+            raise _odbc_fail(f"curl did not run to completion ({exc})", url) from exc
+        if proc.returncode != 0:
+            part.unlink(missing_ok=True)
+            raise _odbc_fail(f"curl exited {proc.returncode} after retries: {proc.stderr.strip()[-300:]}", url)
+        got = _sha256(part) if part.is_file() else "no file"
+        if got != want:
+            part.unlink(missing_ok=True)
+            raise _odbc_fail(f"sha256 {got} is not the pinned {want}", url)
+        part.replace(dest)
+        return dest
+
+
+PULL_ATTEMPTS = 4
+PULL_BACKOFF = 15  # seconds; doubles each attempt
+
+
+class Db2ImagePullError(RuntimeError):
+    """#5048: the digest-pinned Db2 image could not be pulled -- infrastructure (registry or network), not our code."""
+
+
+def pull_image(image: str = IMAGE, attempts: int = PULL_ATTEMPTS, backoff: float = PULL_BACKOFF) -> None:
+    """#5048: `docker pull` of the pinned image, retried (the registry and the network hiccup). The digest stays the
+    pin: only the same bytes can come back. Nothing happens when the image is already on this host."""
+    if run_ref(image) != image or _docker("image", "inspect", "-f", "{{.Id}}", image, check=False).strip():
+        return
+    last = ""
+    for attempt in range(1, attempts + 1):
+        try:
+            _docker("pull", "-q", image, timeout=1800)
+            return
+        except (RuntimeError, OSError, subprocess.TimeoutExpired) as exc:
+            last = str(exc).strip()[-300:] or type(exc).__name__
+            if attempt < attempts:
+                time.sleep(backoff * 2 ** (attempt - 1))
+    raise Db2ImagePullError(f"INFRASTRUCTURE (not a code defect): could not pull the pinned Db2 image {image} after "
+                            f"{attempts} attempts: {last}. Re-run; the digest pin is deliberate, do not replace it "
+                            "with a tag.")  # fmt: skip
+
+
+def run_ref(image: str = IMAGE) -> str:
+    """#5262: the name to run the pinned image by: the digest when it is on this host, else the cache-loaded alias."""
+    if image != IMAGE or _docker("image", "inspect", "-f", "{{.Id}}", image, check=False).strip():
+        return image
+    return IMAGE_ALIAS if _docker("image", "inspect", "-f", "{{.Id}}", IMAGE_ALIAS, check=False).strip() else image
+
+
+_CONTAINER_READY = False  # #5882: checked once a process (a case's create() runs once a COBOL pass)
+# #5882: and once a container start: every case is a process of its own, and each re-read the whole `docker logs`, the
+# database configuration, the images and the network (~3 s a case). The full check, once passed, records the
+# container's id and start time with the COBOL image's id; a process that finds the same three (one inspect each)
+# skips it. A restarted or replaced container, or a rebuilt image, never matches: the full check runs.
+READY_MARK = Path.home() / ".cache" / "gitgalaxy-db2-ready"
+
+
+def _container_identity() -> str:
+    """The running container's id and start time, and the COBOL image's id; "" when either is missing."""
+    state = _docker("inspect", "-f", "{{.Id}} {{.State.StartedAt}} {{.State.Running}}", CONTAINER, check=False).split()
+    image = _docker("images", "-q", COBOL_IMAGE, check=False).strip()
+    if len(state) != 3 or state[2] != "true" or not image:
+        return ""
+    return f"{state[0]} {state[1]} {image}"
+
+
 def _ensure_container() -> None:
+    global _CONTAINER_READY
+    if _CONTAINER_READY:
+        return
+    try:
+        if READY_MARK.read_text(encoding="utf-8").strip() == _container_identity() != "":
+            _CONTAINER_READY = True  # (the mark: this container passed the full check below)
+            return
+    except OSError:
+        pass
     if not _docker("images", "-q", COBOL_IMAGE).strip():
-        _docker("build", "-q", "-t", COBOL_IMAGE, "-f", str(DOCKERFILE), str(common.CASES), timeout=1800)
+        with _setup_lock("gitgalaxy-db2-image.lock"):  # #5094: one build; the others find the image
+            if not _docker("images", "-q", COBOL_IMAGE).strip():
+                fetch_odbc_cli()
+                common.docker_build("-q", "-t", COBOL_IMAGE, "-f", str(DOCKERFILE), str(common.CASES))  # #5048: retried
     import fcntl
 
     # #4733: several processes start together on a fresh container (CI): one starts it, the others wait for it
@@ -214,15 +381,22 @@ def _ensure_container() -> None:
         if state == "false":
             _docker("start", CONTAINER)
         elif state != "true":
+            pull_image()
             _docker("run", "-d", "--name", CONTAINER, "--network", NETWORK, "--privileged", "-p", f"127.0.0.1:{PORT}:50000",
                     "-e", "LICENSE=accept", "-e", f"DB2INSTANCE={USER}", "-e", f"DB2INST1_PASSWORD={PASSWORD}",
                     "-e", f"DBNAME={DATABASE0}", "-e", "BLU=false", "-e", "ENABLE_ORACLE_COMPATIBILITY=false",
                     "-e", "UPDATEAVAIL=NO", "-e", "TO_CREATE_SAMPLEDB=false", "-e", "REPODB=false",
-                    "-e", "IS_OSXFS=false", "-e", "PERSISTENT_HOME=false", "-e", "HADR_ENABLED=false", IMAGE)  # fmt: skip
+                    "-e", "IS_OSXFS=false", "-e", "PERSISTENT_HOME=false", "-e", "HADR_ENABLED=false", run_ref())  # fmt: skip
     for _ in range(120):  # first start: several minutes. Ready = set up, and GGDB (the pool's reference) exists
         if "Setup has completed" in _docker("logs", CONTAINER, check=False) and "Database code set" in _db_cfg(
             DATABASE0
         ):
+            _CONTAINER_READY = True
+            if ident := _container_identity():
+                READY_MARK.parent.mkdir(parents=True, exist_ok=True)
+                tmp = READY_MARK.with_name(f"{READY_MARK.name}.{os.getpid()}")
+                tmp.write_text(ident + "\n", encoding="utf-8")
+                tmp.replace(READY_MARK)
             return
         time.sleep(10)
     raise RuntimeError("Db2 did not come up")
@@ -236,7 +410,7 @@ def pinned_by_digest(image: str = IMAGE) -> bool:
 def _check_container_image() -> None:
     """An existing container must have been made from the pinned image: one left from `:latest` of another day would
     prove against a Db2 the pin does not name. Compared by image id, when the pinned image is on this host."""
-    want = _docker("image", "inspect", "-f", "{{.Id}}", IMAGE, check=False).strip()
+    want = _docker("image", "inspect", "-f", "{{.Id}}", run_ref(), check=False).strip()
     have = _docker("inspect", "-f", "{{.Image}}", CONTAINER, check=False).strip()
     if want.startswith("sha256:") and have.startswith("sha256:") and want != have:
         raise RuntimeError(f"Db2: container {CONTAINER} was made from another image ({have[:19]}) than the pin "
@@ -245,7 +419,8 @@ def _check_container_image() -> None:
 
 def _clp(script: str, check: bool = True) -> tuple[int, str]:
     """Run SQL (`;`-terminated statements) with Db2's command line processor, connected to the case database."""
-    proc = subprocess.run(["docker", "exec", "-i", CONTAINER, "su", "-", USER, "-c",  # noqa: S603, S607
+    with common.phase("db2_clp"):  # #5882: each call is a docker exec and a fresh connect
+        proc = subprocess.run(["docker", "exec", "-i", CONTAINER, "su", "-", USER, "-c",  # noqa: S603, S607
                            f'db2 connect to {DATABASE} >/tmp/.clp_connect_$$ 2>&1; rc=$?; '  # (no $(...): the CLP session is the shell's)
                            f'if [ "$rc" -ge 4 ]; then cat /tmp/.clp_connect_$$; rm -f /tmp/.clp_connect_$$; exit {_CONNECT_FAILED_RC}; fi; rm -f /tmp/.clp_connect_$$; db2 -x -t -v +p'],
                           input=script if script.rstrip().endswith(";") else script + ";",
@@ -754,7 +929,7 @@ def _spread(rng: random.Random, col: dict[str, Any], digits: bool = False) -> An
         v = Decimal(whole) + (Decimal(rng.randint(0, 10**s - 1)).scaleb(-s) if s else Decimal(0))
         return -v if rng.random() < 0.3 else v
     if t in _INT_RANGE:
-        return rng.randint(-1000, 100000)
+        return min(rng.randint(-1000, 100000), _INT_RANGE[t] - 1)  # a SMALLINT holds at most 32767 (SQL0413N)
     y, mo, d = rng.randint(1990, 2030), rng.randint(1, 12), rng.randint(1, 28)
     if t == "DATE":
         return f"{y:04d}-{mo:02d}-{d:02d}"
@@ -1191,7 +1366,22 @@ public class EquivalenceDb2Config {
                         return rows((java.sql.ResultSet) call(st, m, a), last[0]);
                     }
                     if (!n.startsWith("execute")) {
-                        return call(st, m, a);
+                        try {
+                            return call(st, m, a);
+                        } catch (java.sql.SQLException e) {
+                            if (n.startsWith("set") && sql != null && e.getErrorCode() == -4220) {
+                                // #4658: the driver refused a host variable's bytes (an unset date) on the client; the
+                                // embedded-SQL program's statement reached Db2, which answered -180 / 22007: log that
+                                String v = sql.strip().toUpperCase(Locale.ROOT);
+                                Outcome o = start(sql, v.startsWith("SELECT") || v.startsWith("(") ? 'Q' : 'U');
+                                if (o != null) {
+                                    o.code = -180;
+                                    o.state = "22007";
+                                    flush();
+                                }
+                            }
+                            throw e;
+                        }
                     }
                     String text = sql != null ? sql : (a != null && a.length > 0 && a[0] instanceof String s ? s : "");
                     Outcome o = start(text, n.equals("executeQuery") ? 'Q' : 'U');

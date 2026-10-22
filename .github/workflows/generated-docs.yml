@@ -1,0 +1,173 @@
+name: Generated Docs
+
+# #5057 (the pattern of evidence-pages.yml #4825 and #4963): the aggregate pages rendered from committed sources --
+# docs/language_status/oracle_assumptions.md (register entries, tests/tools/register.py) and
+# docs/language_status/cics_spec_status.md (the CICS spec, translator, stub and cics_spec_status.json) and
+# docs/language_status/cobolrt_rules.md (the cobolrt rule catalogue, tests/tools/cobolrt_rules.py, #4711) and
+# docs/language_status/progress.md / progress.json / progress.svg (the burned-estate ladder and burn-down, tests/tools/progress_report.py, #5280; the status slide, tests/tools/progress_slide.py, #5286) -- are no longer
+# committed. Every PR re-rendered and committed them, and parallel PRs conflicted on them for hours. The list of pages
+# lives in tests/tools/generated_docs.py (PAGES).
+#
+# On a PR (render job, read-only, no write token): the pages must render, twice identically, from the PR's tree; the
+# diff against a render of the PR's base goes to the job summary and the `generated-docs-diff` artifact, so a reviewer
+# still sees the effect. On a push to main (every push, so the published pages always match main): the same render,
+# then the publish job pushes them to the `generated` branch with tests/tools/generated_branch.py (a no-op when no page
+# changed). Nothing here writes to main. Read the pages at:
+#   https://github.com/squid-protocol/gitgalaxy/tree/generated/docs/language_status
+# Locally, `python tests/tools/generated_docs.py render` writes the same (git-ignored) pages into the checkout.
+# First run: the push that merges this workflow publishes the first copies; workflow_dispatch from main re-publishes.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]  # #5104: a draft starts only the cheap audits
+    paths:
+      - "docs/language_status/register/**"
+      - "docs/language_status/cics_spec_status.json"
+      - "docs/language_status/cics_command_spec.md"
+      - "docs/language_status/cobolrt_rules.json"
+      - "gitgalaxy/standards/cics/**"
+      - "gitgalaxy/tools/cobol_to_java/det/**"
+      - "tests/tools/equivalence_*.py"
+      - "tests/tools/register.py"
+      - "tests/tools/cics_spec_status.py"
+      - "tests/tools/cobolrt_rules.py"
+      - "tests/tools/readiness_report.py"
+      - "tests/tools/progress_report.py"
+      - "tests/tools/progress_slide.py"
+      - "gitgalaxy/tools/readiness/era_tags.py"
+      - "docs/language_status/mutation_scores.json"
+      - "tests/cics_crucible/coverage.json"
+      - "tests/estate_crucible/baseline.json"
+      - "tests/tools/det_port.py"
+      - "tests/tools/generated_docs.py"
+      - "tests/tools/generated_branch.py"
+      - ".github/workflows/generated-docs.yml"
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 5 * * *"  # #5286: nightly, so the GitHub-fed numbers of the status slide (milestones, issue counts) stay fresh
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  # A PR's newer push cancels its older run; runs on main queue in order (never cancelled mid-publish), so an older
+  # render can never publish over a newer one.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  render:
+    permissions:
+      contents: read
+      issues: read  # #5280: progress_report.py counts scope:* issues (main runs only; a PR render stays hermetic)
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: |
+            gitgalaxy/pyproject.toml
+            gitgalaxy/ci/requirements/*.txt
+
+      - name: Install GitGalaxy (+ the translator's parser, read by cics_spec_status)
+        run: |
+          python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
+          pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
+          pip install --no-build-isolation -e ./gitgalaxy
+
+      - name: Render the pages (must succeed and be deterministic)
+        env:
+          GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+          # the issue counts of progress.md; PR code never sees the token, a PR page says "not measured"
+          GITHUB_TOKEN: ${{ github.event_name != 'pull_request' && secrets.GITHUB_TOKEN || '' }}
+        run: |
+          cd gitgalaxy
+          PYTHONPATH="$PWD" python tests/tools/generated_docs.py check --out "$RUNNER_TEMP/pages"
+
+      - name: Checkout the PR's base
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: base
+          ref: ${{ github.event.pull_request.base.sha }}
+          persist-credentials: false
+
+      - name: Diff against the base's pages (job summary)
+        if: github.event_name == 'pull_request'
+        env:
+          GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+        run: |
+          mkdir -p "$RUNNER_TEMP/base-pages"
+          if [ -f base/tests/tools/generated_docs.py ]; then
+            # the base's own renderers (they put their checkout first on sys.path)
+            (cd base && PYTHONPATH="$PWD" python tests/tools/generated_docs.py check --out "$RUNNER_TEMP/base-pages") \
+              || echo "::warning title=Generated docs::the base does not render; the diff is against nothing"
+          else  # a base from before #5057 still committed the pages
+            (cd base && for f in docs/language_status/oracle_assumptions.md docs/language_status/cics_spec_status.md; do
+               [ -f "$f" ] && mkdir -p "$RUNNER_TEMP/base-pages/$(dirname "$f")" && cp "$f" "$RUNNER_TEMP/base-pages/$f"; done) || true
+          fi
+          python gitgalaxy/tests/tools/generated_docs.py diff "$RUNNER_TEMP/base-pages" "$RUNNER_TEMP/pages" > "$RUNNER_TEMP/pages/DIFF.md"
+          cat "$RUNNER_TEMP/pages/DIFF.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep the diff and the rendered pages (PR)
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: generated-docs-diff
+          path: ${{ runner.temp }}/pages
+          retention-days: 7
+
+      - name: Keep the rendered pages for the publish job (main)
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: generated-docs
+          path: ${{ runner.temp }}/pages
+          retention-days: 1
+
+  # A separate job so the job that runs PR code never holds a write token (#4963). Main's code only.
+  publish:
+    needs: [render]
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write  # push to the `generated` branch only
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: main
+          persist-credentials: true  # the publish step pushes to `generated` with this token; no PR code runs here
+
+      - name: Download the rendered pages
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: generated-docs
+          path: main
+
+      - name: Publish the pages to the generated branch
+        run: |
+          cd main
+          python tests/tools/generated_branch.py publish --stamp generated-docs \
+            --message "generated docs as of main $GITHUB_SHA" \
+            docs/language_status/oracle_assumptions.md \
+            docs/language_status/cics_spec_status.md \
+            docs/language_status/cobolrt_rules.md \
+            docs/language_status/readiness_report.md \
+            docs/language_status/progress.md \
+            docs/language_status/progress.json \
+            docs/language_status/progress.svg
+          echo "published the generated pages from main $GITHUB_SHA: https://github.com/${GITHUB_REPOSITORY}/tree/generated/docs/language_status" >> "$GITHUB_STEP_SUMMARY"

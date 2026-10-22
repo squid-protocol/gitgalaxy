@@ -12,17 +12,41 @@ from typing import Any
 
 from gitgalaxy.standards.language_standards import _lazy_re as re
 
+# #4975: Common HLASM opcodes that could follow an HLASM label named FILE, JOB,
+# PRINT, REPORT, PROC, or SORT in column 1. Guarding these ensures an HLASM
+# statement like `FILE DC CL80' '` or `JOB CSECT` is never mistaken for Easytrieve.
+_HLASM_OPS = (
+    r"DC|DS|EQU|USING|DROP|CSECT|DSECT|ORG|LTORG|AMODE|RMODE|MVC|CLC|MVI|CLI|"
+    r"ST|LA|LR|AR|SR|BR|BAL|BALR|BC|BCR|J|NOP"
+)
+_HLASM_PRINT_OPS = r"NOGEN|GEN|ON|OFF|DATA|NODATA|MCALL|NOMCALL|MSUMMARY|NOMSUMMARY|UHEAD|NOUHEAD|" + _HLASM_OPS
+
 DEFINITION: dict[str, Any] = {
     "_meta": {
         "target_version": "Easytrieve Plus / FOCUS",
-        "last_updated": "2026-09-28",
+        "last_updated": "2026-10-13",
         "blueprint_version": "v6.3",
         "status": "production",
     },
     "extensions": [".ezt", ".mac", ".ezp"],
     "exact_matches": [],
-    "discriminators": [],
+    "discriminators": [".ezt", ".mac", ".ezp"],
     "shebangs": [],
+    # #4975: Collision resolution for `.mac` (claimed by both hlasm and easytrieve).
+    # Easytrieve claims `.mac` on Easytrieve evidence -- FILE, JOB, PRINT, REPORT,
+    # PROC, SORT, macro definitions/calls, and hyphenated control boundaries.
+    "internal_discriminator": re.compile(
+        r"^[ \t]*(?:"
+        rf"FILE[ \t]+(?!(?:{_HLASM_OPS})\b)[A-Za-z0-9&_-]+|"
+        rf"JOB[ \t]+(?:INPUT\b|(?!(?:{_HLASM_OPS})\b)[A-Za-z0-9_-]+)|"
+        rf"PRINT(?:[ \t]*$|[ \t]+(?!(?:{_HLASM_PRINT_OPS})\b)[A-Za-z0-9_-]+)|"
+        rf"(?:REPORT|PROC|SORT)[ \t]+(?!(?:{_HLASM_OPS})\b)[A-Za-z0-9_-]+|"
+        r"MACRO[ \t]+(?:&|[0-9]+\b|[A-Za-z0-9_-]+)|"
+        r"(?:END-PROC|END-MACRO|END-JOB|END-REPORT|END-IF|END-DO|END-CASE)\b|"
+        r"%[A-Za-z0-9_-]+"
+        r")",
+        re.M | re.I,
+    ),
     "lexical_family": "line_exclusive",
     "identifier_case": "insensitive",
     "identifier_extra_chars": "-",

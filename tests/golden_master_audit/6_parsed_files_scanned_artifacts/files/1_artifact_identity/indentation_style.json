@@ -3268,7 +3268,8 @@
       "rust/tokio/maybe_done.rs": "Spaces",
       "rust/tokio/tests.rs": "Spaces",
       "rust/tokio/tokio_mpsc_bounded.rs": "Spaces",
-      "rust/tokio/tokio_named_pipe.rs": "Spaces"
+      "rust/tokio/tokio_named_pipe.rs": "Spaces",
+      "rust/tokio/tokio_udp.rs": "Spaces"
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": "Spaces"
@@ -3397,6 +3398,7 @@
       "shell/freebsd-src/dd2_test.sh": "Tabs",
       "shell/freebsd-src/dtest.sh": "Spaces",
       "shell/freebsd-src/echo_test.sh": "Tabs",
+      "shell/freebsd-src/ed_test.sh": "Tabs",
       "shell/freebsd-src/format_string_test.sh": "Tabs",
       "shell/freebsd-src/functional_test.sh": "Tabs",
       "shell/freebsd-src/hostname_test.sh": "Spaces",
@@ -3434,6 +3436,7 @@
       "shell/haiku/default_deskbar_items.sh": "Spaces",
       "shell/haiku/gen-bepo.sh": "Neutral / No Indentation",
       "shell/haiku/generate_CountryFlags.sh": "Tabs",
+      "shell/haiku/generate_ids_from_drivers.sh": "Neutral / No Indentation",
       "shell/haiku/install-wifi-firmwares.sh": "Tabs",
       "shell/haiku/install.sh": "Tabs",
       "shell/haiku/leak_analyser.sh": "Tabs",
@@ -3859,6 +3862,7 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": "Spaces",
       "typescript/assemblyscript/ast.ts": "Spaces",
+      "typescript/assemblyscript/builtins.ts": "Spaces",
       "typescript/assemblyscript/compiler.ts": "Spaces",
       "typescript/assemblyscript/package.json": "Neutral / No Indentation",
       "typescript/assemblyscript/parser.ts": "Spaces"
@@ -3904,7 +3908,11 @@
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": "Neutral / No Indentation",
       "typescript/typescript_compiler/binder.ts": "Spaces",
-      "typescript/typescript_compiler/package.json": "Neutral / No Indentation"
+      "typescript/typescript_compiler/checker.ts": "Spaces",
+      "typescript/typescript_compiler/emitter.ts": "Spaces",
+      "typescript/typescript_compiler/package.json": "Neutral / No Indentation",
+      "typescript/typescript_compiler/parser.ts": "Spaces",
+      "typescript/typescript_compiler/types.ts": "Spaces"
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": "Neutral / No Indentation",
@@ -4076,6 +4084,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": "Spaces",
       "zig/zig/InternPool.zig": "Spaces",
+      "zig/zig/Sema.zig": "Spaces",
       "zig/zig/Type.zig": "Spaces",
       "zig/zig/Zcu.zig": "Spaces",
       "zig/zig/main.zig": "Spaces"
@@ -4090,6 +4099,7 @@
       "zig/zls/analysis.zig": "Spaces",
       "zig/zls/ast.zig": "Spaces",
       "zig/zls/config_gen.zig": "Spaces",
+      "zig/zls/langref.html.in": "Mixed (99.8% Spaces / 0.2% Tabs)",
       "zig/zls/print_ast.zig": "Spaces"
     }
   },

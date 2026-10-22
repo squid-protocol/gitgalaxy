@@ -23,12 +23,13 @@ name: Generated Java Compiles
 # porting tickets, worklists or audits needs no compile. Any build-input difference,
 # or a side that fails to generate, builds -- from the projects the check already
 # generated, so the corpus is not refactored (or scanned) a third time. The four
-# generations run side by side, and the base's are cached per base commit, so a
+# generations run side by side, and the base's are cached per content hash of the generation inputs, so a
 # second push to the same PR generates only the head. Pushes, the weekly run and
 # manual runs always build from scratch.
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]  # #5104: a draft starts only the cheap audits
     branches: [main]
     paths:
       - "gitgalaxy/cobol_to_java_controller.py"
@@ -68,7 +69,10 @@ jobs:
   # #4964 (sibling of #4935): a push to main whose tree already passed THIS workflow on its PR head (a squash of an
   # up-to-date PR) is not run again; any doubt runs it (tests/tools/skip_tested_tree.py has the rule, and tests).
   # No PR run on the head (the PR's paths filter skipped it) is "not proven", so the push runs. Always concludes success.
+  # #5129: only a main push run can be skipped, so the gate runs on push only: a PR run (and a schedule / dispatch run,
+  # which never skips) starts its heavy jobs without waiting on it. A skipped gate leaves `skip` empty: they run.
   tested-tree:
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -93,7 +97,7 @@ jobs:
 
   compile:
     needs: tested-tree
-    if: ${{ !cancelled() && needs.tested-tree.outputs.skip != 'true' }}  # #4964: not again for a tree the PR run proved
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true') }}
     name: compile (${{ matrix.corpus }})
     runs-on: ubuntu-latest
     timeout-minutes: 40
@@ -137,10 +141,11 @@ jobs:
         run: |
           cd gitgalaxy
           python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
-          pip install -e .
+          pip install --no-build-isolation -e .
 
       - name: Cache the pinned corpora
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: corpora
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .mainframe_corpora
           key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
@@ -151,6 +156,16 @@ jobs:
           rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
           PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
 
+      # #5024: restore-only on pull requests. A PR's cache scope is its own ref, so a PR that saved here left
+      # a copy per PR (a PR that edits corpora.json) that nothing else could read. Main saves it, once per key.
+      - name: Save the pinned corpora (main)
+        if: github.event_name != 'pull_request' && steps.corpora.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a miss only costs the next run a clone
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
+
       - name: Checkout the base branch (pull requests)
         if: github.event_name == 'pull_request'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -159,12 +174,17 @@ jobs:
           path: base
           persist-credentials: false
 
-      - name: Cache the base branch's generation (pull requests)
-        if: github.event_name == 'pull_request'
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      # #4968: restore-only on every ref. A PR's cache scope is its own ref, so a PR that saved here left one copy per PR
+      # (13-14 per corpus) that nothing else could read. java-base-generation.yml saves it (#5142), keyed on the content a PR's base has.
+      - name: Restore the base branch's generation
+        id: base-gen
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/java_base_cache
-          key: java-same-base-${{ matrix.corpus }}-${{ github.event.pull_request.base.sha }}-${{ hashFiles('gitgalaxy/tests/tools/java_target_matrix.py', 'gitgalaxy/tests/cobol_mainframe/corpora.json', 'gitgalaxy/.github/workflows/java-compile.yml') }}
+          # #5142: seeded by java-base-generation.yml (a push run here is cancelled or tested-tree-skipped before it could save). Keyed on the CONTENT of the files that decide the generation (the paths: list above), of the base checkout on a PR
+          # and of main's own checkout on a push. The old key was the base COMMIT, which has an entry only for the ~43 pct of
+          # main commits that touch those paths (the push run is path-filtered), so most PRs missed and regenerated both sides.
+          key: java-same-base-${{ matrix.corpus }}-${{ github.event_name == 'pull_request' && hashFiles('base/gitgalaxy/cobol_to_java_controller.py', 'base/gitgalaxy/cobol_refractor_controller.py', 'base/gitgalaxy/tools/cobol_to_java/**', 'base/gitgalaxy/tools/cobol_to_cobol/**', 'base/gitgalaxy/standards/yaml_reader.py', 'base/gitgalaxy/standards/fact_channel_confidence.json', 'base/tests/tools/java_target_matrix.py', 'base/tests/cobol_mainframe/corpora.json', 'base/tests/tools/mainframe_corpus.py') || hashFiles('gitgalaxy/gitgalaxy/cobol_to_java_controller.py', 'gitgalaxy/gitgalaxy/cobol_refractor_controller.py', 'gitgalaxy/gitgalaxy/tools/cobol_to_java/**', 'gitgalaxy/gitgalaxy/tools/cobol_to_cobol/**', 'gitgalaxy/gitgalaxy/standards/yaml_reader.py', 'gitgalaxy/gitgalaxy/standards/fact_channel_confidence.json', 'gitgalaxy/tests/tools/java_target_matrix.py', 'gitgalaxy/tests/cobol_mainframe/corpora.json', 'gitgalaxy/tests/tools/mainframe_corpus.py') }}
 
       - name: Is the generated Java unchanged? (pull requests)
         id: same
@@ -199,14 +219,21 @@ jobs:
         uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
         with:
           gradle-version: "8.10.2"
+          cache-disabled: true  # #4968: its own key ends in the run's sha (64 gradle-home-v2 entries); keyed on hashes below
 
-      - name: Cache Maven dependencies
+      # #4968: the dependency caches are keyed on the files that decide what the builds download, and restore-only on a
+      # PR ref (one copy per PR otherwise); main saves them.
+      - name: Restore the Gradle and Maven dependency caches
+        id: deps
         if: steps.same.outputs.identical != 'true'
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: ~/.m2/repository
-          key: java-compile-m2-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py', 'gitgalaxy/tests/tools/java_target_matrix.py') }}
-          restore-keys: java-compile-m2-
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.m2/repository
+          key: java-compile-deps-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py', 'gitgalaxy/tests/tools/java_target_matrix.py') }}
+          restore-keys: java-compile-deps-
 
       - name: Generate and compile
         if: steps.same.outputs.identical != 'true'
@@ -249,3 +276,13 @@ jobs:
             --m2 "$HOME/.m2/repository" \
             --summary "$GITHUB_STEP_SUMMARY" \
             "${ONLY[@]}"
+
+      - name: Save the Gradle and Maven dependency caches (not on a pull request)
+        if: ${{ !cancelled() && github.event_name != 'pull_request' && steps.same.outputs.identical != 'true' && steps.deps.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.m2/repository
+          key: java-compile-deps-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py', 'gitgalaxy/tests/tools/java_target_matrix.py') }}

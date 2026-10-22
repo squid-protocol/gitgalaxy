@@ -29,7 +29,10 @@
 # The resolver applies `applied_value`, and lists the difference in `deviations` wherever it still shows in the
 # program's final options, so no proof silently claims the estate's option.
 #
-# Slice 1 of #4704 (NUMPROC / TRUNC / ARITH / INTDATE, the options equivalence_common already honours).
+# #4707: `unhonoured_runtime()` does the same for the le / db2 / cics sections (runtime_options.RUNTIME_OPTION_TABLE).
+#
+# Slice 1 of #4704 (NUMPROC / TRUNC / ARITH / INTDATE, the options equivalence_common already honours); #4706 adds
+# `unhonoured()`: the other result-changing options (compiler_options.OPTION_TABLE) refused by name or declared.
 # ==============================================================================
 import json
 import re
@@ -43,8 +46,11 @@ from gitgalaxy.core.compiler_options import (
     compiler_options,
     effective,
     effective_with_defaults,
+    not_in_version,
     rows_of,
+    unhonoured,
 )
+from gitgalaxy.core.runtime_options import RUNTIME_OPTION_TABLE, runtime_unhonoured
 from gitgalaxy.core.source_text import read_source
 
 FORMAT = "gitgalaxy-estate-options/1"
@@ -114,6 +120,7 @@ class EffectiveOptions:
     declared: list[str] = field(default_factory=list)  # the same with the estate's own values
     sources: dict[str, str] = field(default_factory=dict)  # option -> where its value came from
     runtime: dict[str, dict[str, str | None]] = field(default_factory=dict)  # le / db2 / cics -> {name: value}
+    runtime_sources: dict[str, str] = field(default_factory=dict)  # "le.runtime_options.STORAGE" -> where it came from
 
     def values(self, source_text: str = "") -> dict[str, str | None]:
         """{option: value} in force for the program: IBM's defaults under the layers under the program's cards."""
@@ -131,6 +138,25 @@ class EffectiveOptions:
             if o in SEMANTIC_OPTIONS and str(want[o]).upper() != str(applied.get(o)).upper()
         ]
 
+    def unhonoured(self, source_text: str = "", code_page: str | None = None) -> list[dict[str, str | None]]:
+        """The result-changing options outside SEMANTIC_OPTIONS (ZONEDATA, CODEPAGE, SSRANGE ... #4706) whose final value
+        the harness cannot honour: each is {option, declared, policy, applied, note, source}, `policy` "refuse" (the
+        proof stops by name) or "declare" (proven under `applied`, a declared difference). `code_page`: the CCSID of the
+        case's data, which is what CODEPAGE(n) is honoured against."""
+        return [{**u, "source": self.sources.get(u["option"])} for u in unhonoured(self.values(source_text), code_page)]
+
+    def unhonoured_runtime(self, code_page: str | None = None) -> list[dict[str, str | None]]:
+        """#4707: the LE / Db2 / CICS options (runtime_options.RUNTIME_OPTION_TABLE) the harness cannot honour, in the
+        shape of `unhonoured`: `policy` "refuse" stops the proof by name, "declare" is a declared difference. An option
+        the table has no row for is refused. `code_page`: the CCSID of the case's data (a CCSID option is honoured
+        against it)."""
+        return runtime_unhonoured(self.runtime, self.runtime_sources, code_page)
+
+    def version_conflicts(self, source_text: str = "") -> list[dict[str, Any]]:
+        """#4704: the options in force that the estate's stated compiler version does not have (NUMCHECK before 6.3,
+        INVDATA before 6.4): each is {option, since, version}. Empty when the version is not stated."""
+        return not_in_version(self.values(source_text), self.compiler.get("version"))
+
     def semantic(self, source_text: str = "") -> dict[str, str]:
         v = self.values(source_text)
         return {o: str(v.get(o) or "").upper() for o in SEMANTIC_OPTIONS if o in v}
@@ -138,7 +164,7 @@ class EffectiveOptions:
     def fingerprint(self) -> dict[str, Any]:
         """The program's options as the evidence fingerprint hashes them: every value, no provenance (a changed note
         or source line is not a changed option), and not the program's own cards -- the corpus pin fixes those."""
-        return {
+        out: dict[str, Any] = {
             "estate": self.estate,
             "compiler": self.compiler,
             "parm": self.layers,
@@ -146,6 +172,9 @@ class EffectiveOptions:
             "semantic": self.semantic(),
             "runtime": self.runtime,
         }
+        if conflicts := self.version_conflicts():  # only when non-empty: a record from before stays current
+            out["version_conflicts"] = conflicts
+        return out
 
 
 def _value(entry: Any) -> Any:
@@ -195,6 +224,9 @@ def effective_options(
         for group, items in sorted((est.get(section) or {}).items()):
             for key, entry in sorted((items or {}).items()):
                 flat[f"{group}.{key}"] = _value(entry)
+                out.runtime_sources[f"{section}.{group}.{key}"] = (
+                    str(entry.get("source")) if isinstance(entry, dict) else ""
+                )
         out.runtime[section] = flat
     return out
 
@@ -238,6 +270,8 @@ def validate(data: dict[str, Any]) -> list[str]:
         for group, items in (data.get(section) or {}).items():
             for key, entry in (items or {}).items():
                 check(entry, f"{section}.{group}.{key}")
+                if f"{section}.{group}.{key}" not in RUNTIME_OPTION_TABLE:
+                    errs.append(f"{section}.{group}.{key}: no row in runtime_options.RUNTIME_OPTION_TABLE (#4707)")
     return errs
 
 

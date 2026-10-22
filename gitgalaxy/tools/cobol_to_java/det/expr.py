@@ -101,6 +101,13 @@ class Rel:
 
 
 @dataclass
+class AddrOf:
+    """#5106: `ADDRESS OF item` as the subject of a relation with NULL (the test for an OMITTED USING item)."""
+
+    ref: Ref
+
+
+@dataclass
 class ClassCond:
     operand: object
     kind: str  # NUMERIC ALPHABETIC ALPHABETIC-UPPER ALPHABETIC-LOWER POSITIVE NEGATIVE ZERO
@@ -137,6 +144,7 @@ FIGURATIVES = {
     "LOW-VALUE": "LOW", "LOW-VALUES": "LOW", "HIGH-VALUE": "HIGH", "HIGH-VALUES": "HIGH", "QUOTE": "QUOTES",
     "QUOTES": "QUOTES",
 }  # fmt: skip
+NULL_POINTER = "NULLPTR"  # Fig.kind of NULL in a relation (#5197)
 REL_WORDS = {"=": "=", ">": ">", "<": "<", ">=": ">=", "<=": "<=", "<>": "<>"}
 ARITH_OPS = {"+", "-", "*", "/", "**", "("}
 CLASS_WORDS = {"NUMERIC", "ALPHABETIC", "ALPHABETIC-UPPER", "ALPHABETIC-LOWER", "POSITIVE", "NEGATIVE", "ZERO"}
@@ -205,7 +213,7 @@ class Parser:
             self.i += 1
             return Fig(FIGURATIVES[u])
         if u in ("NULL", "NULLS"):  # the pointer figurative: pointers are not modelled
-            raise ExprError("NULL: pointers are not modelled")
+            raise ExprError("NULL: only a pointer compared (= / NOT =) with NULL is modelled")
         if _is_number(tok):
             self.i += 1
             return Lit(NumLit(tok, tok.replace(",", ".") if tok.count(",") == 1 and "." not in tok else tok))
@@ -369,6 +377,32 @@ class Parser:
             return Not(self._not(previous))
         return self._simple(previous)
 
+    def _null_operand(self) -> Fig | None:
+        """#5197 (X56): NULL as one side of a relation -- the only place it is read (a pointer's test for no address)."""
+        if self.up() in ("NULL", "NULLS"):
+            self.i += 1
+            return Fig(NULL_POINTER)
+        return None
+
+    def _address_null(self) -> object | None:
+        """#5106: `ADDRESS OF item [IS] [NOT] = NULL`, the only relation an ADDRESS OF is read in (a sibling's test for an
+        OMITTED item). Anything else leaves the position untouched, for the ADDRESS OF refusal."""
+        if not (self.up() == "ADDRESS" and self.up(1) == "OF"):
+            return None
+        start = self.i
+        self.i += 2
+        ref = self.ref()
+        if self.up() == "IS":
+            self.i += 1
+        if self._rel_start():
+            op, neg = self._rel_op()
+            if self.up() in ("NULL", "NULLS"):
+                self.i += 1
+                r = Rel(op, AddrOf(ref), Fig(NULL_POINTER))
+                return Not(r) if neg else r
+        self.i = start
+        return None
+
     def _rel_op_ahead(self, k: int) -> bool:
         u = self.up(k)
         return u in REL_WORDS or u in ("EQUAL", "EQUALS", "GREATER", "LESS")
@@ -386,14 +420,17 @@ class Parser:
             if last is not None:
                 if self._rel_start():
                     op, neg = self._rel_op()
-                    obj = self.arith()
+                    obj = self._null_operand() or self.arith()  # (#5042: `PTR = A OR NOT = NULL`)
                     r = Rel(op, last.left, obj)
                     return Not(r) if neg else r
                 # the object only: the subject and the relation (its NOT included) of the last one
-                obj = self.arith()
+                obj = self._null_operand() or self.arith()  # (#5042: `PTR = A OR NULL`)
                 r = Rel(last.op, last.left, obj)
                 return Not(r) if negated else r
-        left = self.arith()
+        addr = self._address_null()
+        if addr is not None:
+            return addr
+        left = self._null_operand() or self.arith()
         if self.up() == "IS":
             self.i += 1
         neg = False
@@ -405,9 +442,11 @@ class Parser:
             return ClassCond(left, kind, neg)
         if self._rel_start():
             op, n2 = self._rel_op()
-            right = self.arith()
+            right = self._null_operand() or self.arith()
             r = Rel(op, left, right)
             return Not(r) if (n2 ^ neg) else r
+        if isinstance(left, Fig) and left.kind == NULL_POINTER:
+            raise ExprError("NULL: only compared (= / NOT =) with a pointer")
         if isinstance(left, Ref):
             cn = CondName(left)
             last, negated = _last_rel(previous) if previous is not None else (None, False)
@@ -445,7 +484,12 @@ class Parser:
             j += 1
         # a bare data name could be a condition-name: only an operand that is a literal / figurative is an object
         first = self.t[self.i]
-        return first[:1] in "'\"" or _is_number(first) or first.upper() in FIGURATIVES or first.upper() == "ALL"
+        return (
+            first[:1] in "'\""
+            or _is_number(first)
+            or first.upper() in FIGURATIVES
+            or first.upper() in ("ALL", "NULL", "NULLS")
+        )
 
     def _rel_start(self) -> bool:
         u = self.up()

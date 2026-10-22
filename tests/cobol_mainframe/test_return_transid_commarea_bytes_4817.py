@@ -11,6 +11,9 @@ from pathlib import Path
 
 import pytest
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_TASK_JAVA, CICS_SPEC_JAVA
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 
 def _jdk() -> Path | None:
@@ -78,13 +81,29 @@ def test_return_transid_passes_the_commarea_bytes_to_the_next_task(tmp_path):
     )
     (src / "Main.java").write_text(TASK_MAIN)
 
-    subprocess.run(
-        [str(jdk / "bin" / "javac"), "-d", str(tmp_path / "classes"), *map(str, src.glob("*.java"))], check=True
+    javac_run(
+        [
+            str(jdk / "bin" / "javac"),
+            "-encoding",
+            "UTF-8",
+            "-d",
+            str(tmp_path / "classes"),
+            *map(str, src.glob("*.java")),
+        ],
+        check=True,
     )  # noqa: S603
     res = subprocess.run(
-        [str(jdk / "bin" / "java"), "-cp", str(tmp_path / "classes"), "com.squid.gitgalaxy.cics.Main"],
+        [
+            str(jdk / "bin" / "java"),
+            "-Dfile.encoding=UTF-8",
+            "-Dstdout.encoding=UTF-8",
+            "-cp",
+            str(tmp_path / "classes"),
+            "com.squid.gitgalaxy.cics.Main",
+        ],
         capture_output=True,
         text=True,
+        encoding="utf-8",
         check=True,
     )
 

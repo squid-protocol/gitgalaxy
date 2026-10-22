@@ -1,0 +1,209 @@
+{
+  "about": "Counts only (#5117). Estates here are not burned: no per-program data is committed, so their first-contact numbers stay first-contact. `census-*` labels are opaque.",
+  "estates": {
+    "census-032982": {
+      "by_era": {
+        "0": 0,
+        "1": 0,
+        "2": 1,
+        "3": 0,
+        "4": 0,
+        "none": 0
+      },
+      "kind": "census",
+      "mixed": 0,
+      "programs": 1,
+      "tells": {
+        "exec-sql": 1
+      }
+    },
+    "census-37151f": {
+      "by_era": {
+        "0": 0,
+        "1": 0,
+        "2": 1,
+        "3": 0,
+        "4": 0,
+        "none": 0
+      },
+      "kind": "census",
+      "mixed": 0,
+      "programs": 1,
+      "tells": {
+        "exec-sql": 1
+      }
+    },
+    "census-4ae3ed": {
+      "by_era": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 2,
+        "none": 0
+      },
+      "kind": "census",
+      "mixed": 0,
+      "programs": 2,
+      "tells": {
+        "channel-container": 2,
+        "json-xml": 2,
+        "resp": 2,
+        "web-soap": 2
+      }
+    },
+    "census-50d903": {
+      "by_era": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 5,
+        "none": 0
+      },
+      "kind": "census",
+      "mixed": 0,
+      "programs": 5,
+      "tells": {
+        "async": 1,
+        "channel-container": 5,
+        "resp": 5
+      }
+    },
+    "census-8b1e76": {
+      "by_era": {
+        "0": 0,
+        "1": 0,
+        "2": 1,
+        "3": 0,
+        "4": 1,
+        "none": 0
+      },
+      "kind": "census",
+      "mixed": 1,
+      "programs": 2,
+      "tells": {
+        "address-of": 2,
+        "channel-container": 1,
+        "dli": 1,
+        "resp": 1
+      }
+    },
+    "census-beeb9c": {
+      "by_era": {
+        "0": 0,
+        "1": 0,
+        "2": 13,
+        "3": 0,
+        "4": 0,
+        "none": 0
+      },
+      "kind": "census",
+      "mixed": 0,
+      "programs": 13,
+      "tells": {
+        "exec-sql": 13,
+        "resp": 9
+      }
+    },
+    "census-d7f710": {
+      "by_era": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "none": 2
+      },
+      "kind": "census",
+      "mixed": 0,
+      "programs": 2,
+      "tells": {}
+    },
+    "census-dbb62f": {
+      "by_era": {
+        "0": 0,
+        "1": 1,
+        "2": 0,
+        "3": 0,
+        "4": 1,
+        "none": 0
+      },
+      "kind": "census",
+      "mixed": 0,
+      "programs": 2,
+      "tells": {
+        "channel-container": 1,
+        "handle-condition": 1,
+        "resp": 1
+      }
+    },
+    "census-debd0e": {
+      "by_era": {
+        "0": 0,
+        "1": 0,
+        "2": 8,
+        "3": 0,
+        "4": 0,
+        "none": 4
+      },
+      "kind": "census",
+      "mixed": 0,
+      "programs": 12,
+      "tells": {
+        "exec-sql": 8
+      }
+    },
+    "cics-crucible": {
+      "by_era": {
+        "0": 0,
+        "1": 5,
+        "2": 26,
+        "3": 0,
+        "4": 6,
+        "none": 9
+      },
+      "kind": "pinned",
+      "mixed": 6,
+      "programs": 46,
+      "tells": {
+        "address-of": 1,
+        "async": 1,
+        "channel-container": 4,
+        "handle-condition": 11,
+        "named-counter": 1,
+        "resp": 31
+      }
+    },
+    "dsf": {
+      "by_era": {
+        "0": 0,
+        "1": 1,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "none": 6
+      },
+      "kind": "pinned",
+      "mixed": 0,
+      "programs": 7,
+      "tells": {
+        "dli": 1
+      }
+    },
+    "zopeneditor-sample": {
+      "by_era": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "none": 5
+      },
+      "kind": "pinned",
+      "mixed": 0,
+      "programs": 5,
+      "tells": {}
+    }
+  }
+}

@@ -1,8 +1,8 @@
 """
 The equivalence harness for a CALLed subprogram (#4023 follow-up): a case with `"kind": "call"`.
 
-A subprogram has no datasets of its own to compare: what it does is what it leaves in its caller's storage -- its
-BY REFERENCE USING items -- and its RETURN-CODE. So a case lists CALLs, each with the value of every USING item
+A subprogram's outputs are what it leaves in its caller's storage -- its BY REFERENCE USING items -- and its
+RETURN-CODE. So a case lists CALLs, each with the value of every USING item
 before the call:
 
     "kind": "call", "program": "CSUTLDTC", "program_source": "app/cbl/CSUTLDTC.cbl",
@@ -26,6 +26,13 @@ and the argument is still the item's text before the call. The Java side receive
 by field (decoded with the layout, mapped to the DTO's properties by their offset comments) and writes the DTO it
 gets back; the COBOL side's bytes are decoded with the same layout and every field compared by value, as a LINKed
 program's COMMAREA is (equivalence_cics._same). A DTO property that nests another DTO is Unsupported.
+
+#5561: a subprogram that owns files (CardDemo CBSTM03B: four indexed files driven through its request block) names
+them as a batch case does -- `"datasets": {"TRNXFILE": {"input": ..., "organization": "indexed", "reclen": 80,
+"keys": [...], "entity": "..."}}`. The COBOL side loads each input (the batch loader) and binds the DD in the run's
+environment; the Java side loads the entity's repository (or copies a sequential input into the datasets area) before
+the calls (a group request block, CBSTM03B's, is the DTO path: the same hooks). The files are inputs: a `compare`
+dataset is Unsupported.
 
 #4778: the item is compared whole, as #4765 compares a COMMAREA: every field of its layout and every occurrence of a
 table, by name and subscript (EPS-X(3)), each side's OCCURS DEPENDING ON tables by its own count. A port that takes
@@ -171,6 +178,104 @@ def cobol_driver(case: dict[str, Any], corpus: Path | None = None) -> str:
     return "".join(f"       {x}\n" for x in lines)
 
 
+def datasets_check(case: dict[str, Any]) -> dict[str, Any]:
+    """#5561: the case's datasets, refusing by name what the call harness does not yet do."""
+    datasets = case.get("datasets") or {}
+    for dd, spec in datasets.items():
+        if spec.get("compare"):
+            raise Unsupported(
+                f"{dd}: a call case's datasets are inputs; comparing one after the calls is not supported"
+            )
+    return datasets
+
+
+def stage_inputs(case: dict[str, Any], corpus: Path, dest: Path) -> None:
+    """Each dataset's input as fixed-length records in `dest/<DD>.in` (as a batch case stages them)."""
+    import equivalence_inputs  # `@generate` inputs, from their record layouts
+
+    if not datasets_check(case):
+        return
+    enc = common.data_encoding(case)
+    generated = equivalence_inputs.generate_inputs(case, corpus)
+    for dd, spec in datasets_check(case).items():
+        if dd in generated:
+            (dest / f"{dd}.in").write_bytes(generated[dd])
+        elif "input" in spec:
+            (dest / f"{dd}.in").write_bytes(common._fixed(common._input_path(case, corpus, spec["input"]),
+                                                          spec["reclen"], enc))  # fmt: skip
+
+
+def cobol_datasets(case: dict[str, Any], src: Path, flags: str) -> tuple[list[str], str]:
+    """(script lines that build and run the loaders, the run's DD environment) for the case's datasets."""
+    import equivalence  # lazy: equivalence dispatches to this module
+
+    lines, env = [], ""
+    for dd, spec in datasets_check(case).items():
+        env += f"{dd}=/work/{dd}.idx "
+        if spec.get("organization") == "indexed":
+            (src / f"LD{dd}.cbl").write_text(
+                equivalence.cobol_loader(dd, spec["reclen"], spec["keys"]), encoding="ascii"
+            )
+            lines.append(f"cobc -x {flags} -o ld{dd} src/LD{dd}.cbl")
+            if "input" in spec:
+                lines.append(f"INFILE=/work/{dd}.in {dd}=/work/{dd}.idx ./ld{dd}")
+        elif "input" in spec:
+            lines.append(f"cp /work/{dd}.in /work/{dd}.idx")
+    return lines, env
+
+
+def java_datasets(case: dict[str, Any], text: bool = True) -> dict[str, str]:
+    """The Java test's dataset pieces (all empty without datasets, so a no-datasets test is unchanged): the
+    context property, the imports, the repository fields, the loads, and the load helper. `text` False: the DTO
+    test, which declares TEXT and imports what the helper uses itself."""
+    if not datasets_check(case):
+        return {"prop": "", "imports": "", "text": "", "fields": "", "loads": "", "members": ""}
+    import equivalence_java as ej
+
+    fields, loads, imports, decl = [], [], "", ""
+    if not text:
+        imports = (
+            "import java.nio.charset.Charset;\nimport java.nio.charset.StandardCharsets;\nimport java.nio.file.Files;\n"
+        )
+        decl = f"    static final Charset TEXT = {common.java_charset(common.data_encoding(case))};\n\n"
+    for dd, spec in datasets_check(case).items():
+        ent = spec.get("entity")
+        if not ent:
+            continue
+        repo = f"{ent[0].lower()}{ent[1:]}Repository"
+        imports += f"import {ej.PKG}.entity.vsam.{ent};\n"
+        fields.append(f"    @Autowired {ej.PKG}.repository.vsam.{ent}Repository {repo};")
+        if "input" in spec:
+            loads.append(f'        load("{dd}", {spec["reclen"]}, {ent}::fromRecord, {repo});')
+    members = """
+    <E> void load(String dd, int reclen, BiFunction<byte[], Charset, E> fromRecord, JpaRepository<E, ?> repo)
+            throws IOException {
+        byte[] data = Files.readAllBytes(in.resolve(dd + ".in"));
+        List<E> rows = new ArrayList<>();
+        for (int i = 0; i + reclen <= data.length; i += reclen) {
+            rows.add(fromRecord.apply(java.util.Arrays.copyOfRange(data, i, i + reclen), TEXT));
+        }
+        repo.saveAll(rows);
+    }
+"""
+    return {"prop": ', "gitgalaxy.datasets.directory=${equivalence.datasets}"', "text": decl,
+            "imports": imports + "import java.util.ArrayList;\nimport java.util.List;\n"
+                       "import java.util.function.BiFunction;\n"
+                       "import org.springframework.data.jpa.repository.JpaRepository;\n",
+            "fields": "\n".join(fields) + ("\n" if fields else ""),
+            "loads": "\n".join(loads) + ("\n" if loads else ""), "members": members}  # fmt: skip
+
+
+def stage_java_datasets(case: dict[str, Any], corpus: Path, work: Path, inputs: Path) -> None:
+    """#5561: an entity's input is loaded by the test (`inputs/<DD>.in`), a sequential one is a file the program opens."""
+    stage_inputs(case, corpus, inputs)
+    datasets = work / "datasets"
+    datasets.mkdir(parents=True, exist_ok=True)
+    for dd, spec in datasets_check(case).items():
+        if "input" in spec and not spec.get("entity"):
+            shutil.copy(inputs / f"{dd}.in", datasets / dd)
+
+
 def run_cobol(case: dict[str, Any], corpus: Path, work: Path) -> bytes:
     work.mkdir(parents=True, exist_ok=True)
     src = work / "src"
@@ -185,14 +290,20 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path) -> bytes:
     for p in stubs:
         shutil.copy(p, src / p.name)
     flags = " ".join(["-std=ibm -fsign=EBCDIC", *option_flags, cov.TRACE_FLAG, "-I /work/src"])
+    stage_inputs(case, corpus, work)
+    loaders, dd_env = cobol_datasets(case, src, flags)  # #5561: the subprogram's own files
     script = ["set -e", "cd /work",
               f"cobc -x {flags} -o call src/EQCALLDR.cbl src/PROGRAM.cbl {' '.join('src/' + p.name for p in stubs)}",
-              f"{cov.trace_env('/work/' + cov.TRACE_NAME)}GG_ABEND=/work/ABEND OUTFILE=/work/CALLS.out ./call "
-              "> /work/stdout.txt 2>&1"]  # fmt: skip
+              *loaders,
+              (f"{cov.trace_env('/work/' + cov.TRACE_NAME)}GG_ABEND=/work/ABEND OUTFILE=/work/CALLS.out {dd_env}./call "
+               "> /work/stdout.txt 2>&1")]  # fmt: skip
     (work / "run.sh").write_text("\n".join(script) + "\n", encoding="ascii")
     proc = common.run_cobol_step(work)
     if proc.returncode != 0:
         out = decode_bytes((work / "stdout.txt").read_bytes()) if (work / "stdout.txt").is_file() else ""
+        stopped = common.bound_violation(out)
+        if stopped:  # #4449 (X8): a call that drives a subscript / reference modification past its item has no oracle
+            raise RuntimeError(f"the run drives an item past its bounds ({stopped}) -- not runnable faithfully (X8)")
         raise RuntimeError(f"COBOL side failed:\n{proc.stdout}\n{proc.stderr}\n{out}")
     return (work / "CALLS.out").read_bytes()
 
@@ -207,10 +318,11 @@ def java_test(case: dict[str, Any]) -> str:
     sets = "\n".join(f"            CobolRef<String> a{i} = CobolRef.of(pad(c.get({i}).asText(), {u['size']}));"
                      for i, u in enumerate(case["using"]))  # fmt: skip
     rec = " + ".join(f"pad(a{i}.get(), {u['size']})" for i, u in enumerate(case["using"]))
+    ds = java_datasets(case)
     return f"""package {ej.PKG};
 
 import {ej.PKG}.call.CobolRef;
-import com.fasterxml.jackson.databind.JsonNode;
+{ds["imports"]}import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -222,9 +334,11 @@ import java.util.Locale;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 
 /** #4023 follow-up: the CALLs of {case["program"]} ({case["name"]}) -- generated by tests/tools/equivalence_call.py. */
-@SpringBootTest(properties = {{"spring.jpa.show-sql=false", "gitgalaxy.clock={ej._clock(case)}"}})
+@SpringBootTest(properties = {{"spring.jpa.show-sql=false", "gitgalaxy.clock={ej._clock(case)}"{ds["prop"]}}})
+@DirtiesContext  // --one-jvm: a session JVM runs this class again, each on a context of its own
 class EquivalenceRunTest {{
 
     static final Charset TEXT = {common.java_charset(common.data_encoding(case))};
@@ -232,10 +346,10 @@ class EquivalenceRunTest {{
     final Path out = Path.of(System.getProperty("equivalence.out"));
 
     @Autowired {ej.PKG}.service.{svc} {var};
-
+{ds["fields"]}
     @Test
     void run() throws IOException {{
-        try (OutputStream o = Files.newOutputStream(out.resolve("CALLS.out"))) {{
+{ds["loads"]}        try (OutputStream o = Files.newOutputStream(out.resolve("CALLS.out"))) {{
             for (JsonNode c : new ObjectMapper().readTree(in.resolve("calls.json").toFile())) {{
 {sets}
                 int rc = {var}.handleCall({refs});
@@ -249,15 +363,16 @@ class EquivalenceRunTest {{
         String s = v == null ? "" : v.toString();
         return s.length() >= n ? s.substring(0, n) : s + " ".repeat(n - s.length());
     }}
-}}
+{ds["members"]}}}
 """
 
 
-def run_java(case: dict[str, Any], corpus: Path, work: Path, port: bool, port_dir: Path | None) -> bytes:
+def run_java(case: dict[str, Any], corpus: Path, work: Path, port: bool, port_dir: Path | None,
+             one_jvm: bool = False) -> bytes:  # fmt: skip
     import equivalence_java as ej
 
     if dto_items(case):
-        return run_java_dto(case, corpus, work, port, port_dir)
+        return run_java_dto(case, corpus, work, port, port_dir, one_jvm)
     project = ej.prepare_project(case, corpus, work, java_test(case), port, port_dir)
     svc = next((project / "src/main/java").rglob(f"{ej._service_class(case['program'])}.java"), None)
     if svc is None or "handleCall(CobolRef<String>" not in svc.read_text(encoding="utf-8"):
@@ -265,8 +380,30 @@ def run_java(case: dict[str, Any], corpus: Path, work: Path, port: bool, port_di
     inputs = work / "in"
     inputs.mkdir(parents=True, exist_ok=True)
     (inputs / "calls.json").write_text(json.dumps([c["args"] for c in case["calls"]]), encoding="utf-8")
-    out = ej.run_maven(project, work, inputs, props=ej.data_charset_arg(case))
+    stage_java_datasets(case, corpus, work, inputs)
+    out = _run_calls(ej, case, project, work, inputs, one_jvm)
     return (out / "CALLS.out").read_bytes() if (out / "CALLS.out").is_file() else b""
+
+
+def sessions_for(case: dict[str, Any], project: Path, one_jvm: bool) -> Any:
+    """#4047: the proof's session-JVM holder (equivalence_java._Sessions) when `one_jvm` asks for it and the case can
+    have one (a Db2 / IMS case keeps a JVM per run); else None. The CICS runner uses it too."""
+    import equivalence_java as ej
+
+    if not one_jvm or case.get("db2") or case.get("ims"):
+        return None
+    return ej._Sessions(project, ej.environment("default"))
+
+
+def _run_calls(ej: Any, case: dict[str, Any], project: Path, work: Path, inputs: Path, one_jvm: bool) -> Path:
+    """The one run of the calls (#4047: in a session JVM under --one-jvm, when the project can run directly)."""
+    sessions = sessions_for(case, project, one_jvm)
+    try:
+        return ej.run_maven(project, work, inputs, props=ej.data_charset_arg(case),
+                            session=sessions.get() if sessions else None)  # fmt: skip
+    finally:
+        if sessions:
+            sessions.close()
 
 
 def handle_call_types(svc_text: str) -> list[str]:
@@ -297,7 +434,8 @@ def dto_args(case: dict[str, Any], corpus: Path, java_root: Path, types: list[st
     return calls
 
 
-def run_java_dto(case: dict[str, Any], corpus: Path, work: Path, port: bool, port_dir: Path | None) -> bytes:
+def run_java_dto(case: dict[str, Any], corpus: Path, work: Path, port: bool, port_dir: Path | None,
+                 one_jvm: bool = False) -> bytes:  # fmt: skip
     """A case with a group USING item: the Java side's CALLS.json (each call's items and RETURN-CODE)."""
     import equivalence_java as ej
 
@@ -322,9 +460,10 @@ def run_java_dto(case: dict[str, Any], corpus: Path, work: Path, port: bool, por
         (inputs / "areas.json").write_text(json.dumps([[arg_bytes(case, corpus, u, a).hex().upper()
                                                          for u, a in zip(case["using"], call["args"], strict=False)]  # reason: length may differ
                                                         for call in case["calls"]]), encoding="utf-8")  # fmt: skip
+    stage_java_datasets(case, corpus, work, inputs)
     (work / "java_root.txt").write_text(str(java_root), encoding="utf-8")
     (work / "handle_call_types.json").write_text(json.dumps(types), encoding="utf-8")
-    out = ej.run_maven(project, work, inputs, props=ej.data_charset_arg(case))
+    out = _run_calls(ej, case, project, work, inputs, one_jvm)
     return (out / "CALLS.json").read_bytes() if (out / "CALLS.json").is_file() else b""
 
 
@@ -380,11 +519,12 @@ def java_test_dto(case: dict[str, Any], types: list[str], areas: bool = False) -
     read_areas = '        JsonNode ab = mapper.readTree(in.resolve("areas.json").toFile());\n' if areas else ""
     put_areas = '            rec.put("areas", left);\n' if areas else ""
     cobolref = f"import {ej.PKG}.call.CobolRef;\n" if "CobolRef<String>" in types else ""
+    ds = java_datasets(case, text=False)
     return (
         f"""package {ej.PKG};
 
 {cobolref}import {ej.PKG}.dto.contract.*;
-import com.fasterxml.jackson.databind.JsonNode;
+{ds["imports"]}import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -393,20 +533,22 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 
 /** The CALLs of {case["program"]} ({case["name"]}), group USING items as DTOs -- generated by tests/tools/equivalence_call.py. */
-@SpringBootTest(properties = {{"spring.jpa.show-sql=false", "gitgalaxy.clock={ej._clock(case)}"}})
+@SpringBootTest(properties = {{"spring.jpa.show-sql=false", "gitgalaxy.clock={ej._clock(case)}"{ds["prop"]}}})
+@DirtiesContext  // --one-jvm: a session JVM runs this class again, each on a context of its own
 class EquivalenceRunTest {{
 
-    final Path in = Path.of(System.getProperty("equivalence.in"));
+{ds["text"]}    final Path in = Path.of(System.getProperty("equivalence.in"));
     final Path out = Path.of(System.getProperty("equivalence.out"));
     final ObjectMapper mapper = new ObjectMapper();
 
     @Autowired {ej.PKG}.service.{svc} {var};
-
+{ds["fields"]}
     @Test
     void run() throws IOException {{
-        java.util.List<Map<String, Object>> records = new java.util.ArrayList<>();
+{ds["loads"]}        java.util.List<Map<String, Object>> records = new java.util.ArrayList<>();
 {read_areas}        int n = -1;
         for (JsonNode c : mapper.readTree(in.resolve("calls.json").toFile())) {{
             n++;
@@ -418,7 +560,7 @@ class EquivalenceRunTest {{
         }}
         mapper.writeValue(out.resolve("CALLS.json").toFile(), records);
     }}
-}}
+{ds["members"]}}}
 """
         if types
         else f"""package {ej.PKG};
@@ -538,7 +680,7 @@ def feedback_md(case: dict[str, Any], diff: dict[str, Any]) -> str:
 
 
 def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, port_dir: Path | None = None,
-             cobol_only: bool = False) -> int:  # fmt: skip
+             cobol_only: bool = False, one_jvm: bool = False) -> int:  # fmt: skip
     cobol = run_cobol(case, corpus, work / "cobol")
     n = reclen(case)
     if cobol_only:
@@ -546,7 +688,7 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
             print(f"{call['name']}: {cobol[i * n : (i + 1) * n].decode('latin-1')!r}")
         return 0
     try:
-        java = run_java(case, corpus, work / "java", port, port_dir)
+        java = run_java(case, corpus, work / "java", port, port_dir, one_jvm)
     except RuntimeError as e:
         failed = common.java_failure_report(case, work, str(e))
         (work / "report.json").write_text(json.dumps(failed, indent=2) + "\n", encoding="utf-8")

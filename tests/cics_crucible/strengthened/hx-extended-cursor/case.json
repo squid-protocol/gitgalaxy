@@ -1,0 +1,116 @@
+{
+ "format": "gitgalaxy/crucible-strengthened/1",
+ "case": "hx-extended-cursor",
+ "scenarios": [
+  {
+   "id": "short-numeric-account",
+   "summary": "a 4-digit numeric account is the wrong length: the cursor message",
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "HX02"
+    },
+    {
+     "at": 20,
+     "aid": "ENTER",
+     "map": "HXM2",
+     "fields": {
+      "ACCT": "1234",
+      "AMOUNT": "125"
+     }
+    }
+   ],
+   "path": "trap",
+   "until": 60
+  },
+  {
+   "id": "six-non-numeric-account",
+   "summary": "a 6-character non-numeric account has the right length but is not numeric",
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "HX02"
+    },
+    {
+     "at": 20,
+     "aid": "ENTER",
+     "map": "HXM2",
+     "fields": {
+      "ACCT": "ABCDEF",
+      "AMOUNT": "125"
+     }
+    }
+   ],
+   "path": "trap",
+   "until": 60
+  },
+  {
+   "id": "non-digit-first",
+   "summary": "a non-digit in the first position of a 6-character account",
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "HX02"
+    },
+    {
+     "at": 20,
+     "aid": "ENTER",
+     "map": "HXM2",
+     "fields": {
+      "ACCT": "A12345",
+      "AMOUNT": "125"
+     }
+    }
+   ],
+   "path": "trap",
+   "until": 60
+  },
+  {
+   "id": "non-digit-last",
+   "summary": "a non-digit in the last position of a 6-character account",
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "HX02"
+    },
+    {
+     "at": 20,
+     "aid": "ENTER",
+     "map": "HXM2",
+     "fields": {
+      "ACCT": "12345B",
+      "AMOUNT": "125"
+     }
+    }
+   ],
+   "path": "trap",
+   "until": 60
+  },
+  {
+   "id": "non-numeric-amount",
+   "summary": "a good account with a non-numeric amount is accepted (only the account is checked)",
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "HX02"
+    },
+    {
+     "at": 20,
+     "aid": "ENTER",
+     "map": "HXM2",
+     "fields": {
+      "ACCT": "123456",
+      "AMOUNT": "12A"
+     }
+    }
+   ],
+   "path": "trap",
+   "until": 60
+  }
+ ]
+}

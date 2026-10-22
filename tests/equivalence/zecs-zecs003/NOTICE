@@ -1,0 +1,12 @@
+zECS (z/OS Enterprise Caching Service)
+https://github.com/walmartlabs/zECS
+Authors: Randy Frerking and Rich Jackson (Walmart Technology)
+
+Licensed under the Apache License, Version 2.0 (see LICENSE, the corpus's own
+licence file). The program under test, Source/ZECS003.cbl, and its copybooks
+(Source/ZECSZFC.cpy, ZECSZKC.cpy) are zECS's, used unmodified from the corpus.
+
+The document template, URIMAP definition, HTTP peer and request the scenarios
+state follow zECS's own templates (Source/ZC##DC.txt, CSDZC##.rdo) with their
+placeholders filled in for this case. The scenarios in case.json are written for
+this case.

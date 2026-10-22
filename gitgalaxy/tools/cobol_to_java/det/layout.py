@@ -62,6 +62,7 @@ class Item:
     conditions: list = field(default_factory=list)  # its 88s
     parent: Item | None = None
     line: int = 0
+    storage_alias: str | None = None  # #4767: the storage name of a repeated 01 FILLER (nothing can name it)
     # computed
     offset: int = 0  # within its 01 record
     size: int = 0  # one occurrence

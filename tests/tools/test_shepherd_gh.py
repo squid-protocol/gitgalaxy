@@ -45,7 +45,11 @@ def test_merge_label_by_writer_marks_ready_and_enables_auto_merge():
     acts = sg.decide(
         snap(draft=True, action="labeled", event_label=sg.MERGE, sender={"login": "joe", "permission": "admin"})
     )
-    assert kinds(acts) == ["ready", "automerge"]
+    # #5104: a draft is only marked ready; auto-merge waits until the ready_for_review runs exist
+    assert kinds(acts) == ["ready"]
+    acts = sg.decide(
+        snap(draft=False, action="labeled", event_label=sg.MERGE, sender={"login": "joe", "permission": "admin"})
+    )
     assert by_op(acts, "automerge")[0] == {"op": "automerge", "on": True, "sha": SHA}
 
 
@@ -220,14 +224,12 @@ def test_status_labels_clear_when_no_request_label_is_left():
     assert by_op(acts, "labels") == [{"op": "labels", "add": [], "remove": [sg.NEEDS]}]
 
 
-def test_behind_and_green_updates_the_branch_but_not_when_failing_or_held():
-    assert "update_branch" in kinds(sg.decide(snap(mergeable_state="behind")))  # labelled, behind, green
-    acts = sg.decide(snap(mergeable_state="behind", labels=[sg.MERGE, sg.HOLD]))
-    assert "update_branch" not in kinds(acts)
-    acts = sg.decide(snap(mergeable_state="behind", failed=[failure("real")]))
-    assert "update_branch" not in kinds(acts)
-    acts = sg.decide(snap(mergeable_state="behind", auto_merge=True))
-    assert "update_branch" in kinds(acts)
+def test_behind_main_is_never_acted_on_whatever_the_state():
+    """#5134 (option A): a push restarts CI, so the bot never updates a branch just because it is behind."""
+    for extra in ({}, {"labels": [sg.MERGE, sg.HOLD]}, {"failed": [failure("real")]}, {"auto_merge": True},
+                  {"labels": []}):  # fmt: skip
+        acts = sg.decide(snap(mergeable_state="behind", **extra))
+        assert "update_branch" not in kinds(acts), extra
 
 
 def test_dirty_pr_gets_the_merge_note_once():
@@ -258,7 +260,7 @@ class Gh:
             "number": 7,
             "state": "open",
             "merged": False,
-            "draft": True,
+            "draft": False,
             "auto_merge": None,
             "head": {"sha": SHA, "ref": "fix/x", "repo": {"full_name": "squid-protocol/gitgalaxy"}},
             "labels": [{"name": sg.MERGE}],
@@ -435,6 +437,88 @@ def test_reconcile_drops_a_label_added_by_a_non_writer_in_the_timeline():
     assert any("unlabel" in x for x in lines) and not merged_by(gh)
 
 
+# --- the learned-flake set (#5398) ----------------------------------------------------------------------------------
+
+
+def _cache(tmp_path, rescues=3, failed=0):
+    path = tmp_path / "flake_history.json"
+    path.write_text(json.dumps({"repo": sg.REPO_SLUG, "days": {"2026-10-17": {"det-db2 (1)": [rescues, failed, {}]}}}))
+    return path
+
+
+def test_learned_flakes_reads_the_cache_and_never_scans(tmp_path):
+    assert sg.learned_flakes(_cache(tmp_path)) == {"det-db2 (1)"}
+    assert sg.learned_flakes(_cache(tmp_path, rescues=1)) == set()  # too few rescues to learn
+    assert sg.learned_flakes(tmp_path / "missing.json") == set()  # no cache, no flakes
+    (tmp_path / "bad.json").write_text("{not json")
+    assert sg.learned_flakes(tmp_path / "bad.json") == set()
+
+
+def test_learned_flakes_default_comes_from_the_environment(tmp_path, monkeypatch):
+    monkeypatch.setenv(sg.FLAKE_CACHE_ENV, str(_cache(tmp_path)))
+    assert sg.learned_flakes() == {"det-db2 (1)"}
+
+
+def _failing_api(gh, attempt):
+    """gh's API with one failed, github-actions check `det-db2 (1)` (run 500, job 600) on run attempt `attempt`."""
+    url = f"https://github.com/{sg.REPO_SLUG}/actions/runs/500/job/600"
+    run = {"id": 1, "name": "det-db2 (1)", "status": "completed", "conclusion": "failure", "html_url": url,
+           "details_url": url, "app": {"slug": "github-actions"}}  # fmt: skip
+
+    def api(path):
+        if "/check-runs" in path:
+            return {"check_runs": [run]}
+        if bare_is(path, "/actions/jobs/600"):
+            return {"run_attempt": attempt}
+        if bare_is(path, "/actions/runs/500"):
+            return {"run_attempt": attempt, "updated_at": "2026-10-10T19:00:00Z"}
+        return gh.api(path)
+
+    return api
+
+
+def bare_is(path, tail):
+    return path.split("?")[0].endswith(tail)
+
+
+@pytest.mark.parametrize(
+    ("attempt", "flaky", "triage"),
+    [
+        (1, {"det-db2 (1)"}, "flake"),  # a learned flake's first failure gets its rerun
+        (2, {"det-db2 (1)"}, "real"),  # failed again on the rerun: a fixer's
+        (1, {"other"}, "real"),  # not learned
+        (1, None, "real"),  # no cache
+    ],
+)
+def test_a_learned_flaky_checks_first_failure_is_triaged_flake_in_the_reconcile_path(
+    monkeypatch, attempt, flaky, triage
+):
+    real = sg.ci_digest.digest  # the real triage, with the log fetch and main's failures stubbed out
+    monkeypatch.setattr(
+        sg.ci_digest, "digest",
+        lambda n, api, on_main=None, flaky=None: real(n, api, logs=lambda _id: "Error: boom\n", on_main=set(), flaky=flaky),
+    )  # fmt: skip
+    gh = Gh()
+    gh.dep_state = "closed"
+    s = sg.gather(7, _failing_api(gh, attempt), None, now=NOW, flaky=flaky)
+    assert [f["triage"] for f in s["failed"]] == [triage]
+
+
+def test_main_computes_the_learned_set_once_per_pass(monkeypatch, tmp_path):
+    gh = Gh()
+    got = []
+    monkeypatch.setattr(sg, "open_labelled", lambda api: [7, 8])
+    monkeypatch.setattr(sg.ci_digest, "main_failures", lambda api: set())
+    monkeypatch.setattr(sg.ci_digest, "main_green", lambda api: ("", set()))
+    monkeypatch.setattr(
+        sg, "process", lambda n, api, run, event, dry, on_main=None, flaky=None, main=None: got.append(flaky) or []
+    )
+    calls = []
+    monkeypatch.setattr(sg, "learned_flakes", lambda path=None: calls.append(path) or {"x"})
+    sg.main(["reconcile", "--flake-cache", str(tmp_path / "c.json")], api=gh.api, run=gh.run)
+    assert calls == [tmp_path / "c.json"] and got == [{"x"}, {"x"}]
+
+
 def test_prs_for_head_selects_the_open_labelled_pr_of_that_commit():
     gh = Gh()
     assert sg.prs_for_head(gh.api, "e" * 40) == [7]
@@ -443,11 +527,18 @@ def test_prs_for_head_selects_the_open_labelled_pr_of_that_commit():
 
 
 def test_gather_and_process_for_a_labelled_event_marks_ready_and_enables_auto_merge():
+    # #5104: a draft's heavy checks are skipped (green); the first pass only marks it ready, the next enables auto-merge
     gh = Gh()
+    gh.pr["draft"] = True
     gh.dep_state = "closed"  # #6 merged: no block
     lines = sg.process(7, gh.api, gh.run, {"action": "labeled", "label": sg.MERGE, "sender": "joe"})
-    assert lines == ["#7 ready for review: ok", "#7 auto-merge on: ok"]
-    assert any(c[:3] == ["gh", "pr", "ready"] for c in gh.cmds)
+    assert lines == ["#7 ready for review: ok"]
+    assert not any(c[:3] == ["gh", "pr", "merge"] for c in gh.cmds)
+    gh.pr["draft"] = False  # what `gh pr ready` did
+    gh.cmds.clear()
+    lines = sg.process(7, gh.api, gh.run, None)
+    assert lines == ["#7 auto-merge on: ok"]
+    assert not any(c[:3] == ["gh", "pr", "ready"] for c in gh.cmds)
     merge = next(c for c in gh.cmds if c[:3] == ["gh", "pr", "merge"])
     assert "--auto" in merge and "--match-head-commit" in merge and merge[merge.index("--match-head-commit") + 1] == SHA
     assert f"repos/squid-protocol/gitgalaxy/collaborators/joe/permission" in gh.calls
@@ -480,19 +571,15 @@ def test_gather_reads_the_matrix_on_the_head_and_dispatches_only_when_none_ran()
     assert any(c[:3] == ["gh", "pr", "merge"] and "--auto" in c for c in gh.cmds)
 
 
-def test_update_branch_writes_the_marker_pair_around_the_push():
-    s = snap(mergeable_state="behind", head_sha="b" * 40)
-    log_cmds = []
+def test_apply_has_no_update_branch_op_any_more():
+    cmds = []
 
     def run(argv):
-        log_cmds.append(argv)
-        return subprocess.CompletedProcess(argv, 0, "d" * 40 if "-q" in argv else "", "")
+        cmds.append(argv)
+        return subprocess.CompletedProcess(argv, 0, "", "")
 
-    lines = sg.apply(7, s, [{"op": "update_branch"}], run=run)
-    assert "shepherd-update from=" + "b" * 40 in " ".join(log_cmds[0])
-    assert log_cmds[1][:4] == ["gh", "pr", "update-branch", "7"]
-    assert "shepherd-update from=" + "b" * 40 + " to=" + "d" * 40 in " ".join(log_cmds[3])
-    assert all(line.endswith("ok") for line in lines)
+    sg.apply(7, snap(mergeable_state="behind", head_sha="b" * 40), [{"op": "update_branch"}], run=run)
+    assert cmds == []
 
 
 def test_event_facts_read_the_payload_as_data(tmp_path):
@@ -520,6 +607,80 @@ def test_failed_gh_call_is_reported_not_raised():
     s = snap()
     lines = sg.apply(7, s, [{"op": "ready"}], run=lambda argv: subprocess.CompletedProcess(argv, 1, "", "boom"))
     assert lines == ["#7 ready for review: FAILED: boom"]
+
+
+def test_rerun_refused_already_running_is_logged_as_skipped():
+    s = snap()
+
+    def run_already_running(argv):
+        return subprocess.CompletedProcess(argv, 1, "", "The workflow run is already running.")
+
+    lines = sg.apply(7, s, [{"op": "rerun", "run_id": 55, "check": "muninn"}], run=run_already_running)
+    assert lines == ["#7 rerun muninn (run 55): skipped (already running)"]
+
+
+def test_rerun_refused_already_running_in_stdout_is_logged_as_skipped():
+    s = snap()
+
+    def run_already_running(argv):
+        return subprocess.CompletedProcess(argv, 1, "HTTP 409: already running\n", "")
+
+    lines = sg.apply(7, s, [{"op": "rerun", "run_id": 55, "check": "muninn"}], run=run_already_running)
+    assert lines == ["#7 rerun muninn (run 55): skipped (already running)"]
+
+
+def test_rerun_failure_other_error_is_logged_as_failed():
+    s = snap()
+
+    def run_failed(argv):
+        return subprocess.CompletedProcess(argv, 1, "", "HTTP 500: Internal Server Error")
+
+    lines = sg.apply(7, s, [{"op": "rerun", "run_id": 55, "check": "muninn"}], run=run_failed)
+    assert lines == ["#7 rerun muninn (run 55): FAILED: HTTP 500: Internal Server Error"]
+
+
+def test_rerun_det_refused_already_running_is_logged_as_skipped():
+    s = snap()
+
+    def run_dispatch(argv):
+        if argv[:3] == ["gh", "run", "list"]:
+            return subprocess.CompletedProcess(argv, 0, "42\n", "")
+        if argv[:3] == ["gh", "run", "rerun"]:
+            return subprocess.CompletedProcess(argv, 1, "", "workflow run is already running")
+        return subprocess.CompletedProcess(argv, 0, "", "")
+
+    lines = sg.apply(7, s, [{"op": "rerun_det", "sha": SHA}], run=run_dispatch)
+    assert lines == [f"#7 rerun {sg.DET_WORKFLOW} (run 42) for {sg.FULL}: skipped (already running)"]
+
+
+def test_rerun_det_failure_other_error_is_logged_as_failed():
+    s = snap()
+
+    def run_dispatch(argv):
+        if argv[:3] == ["gh", "run", "list"]:
+            return subprocess.CompletedProcess(argv, 0, "42\n", "")
+        if argv[:3] == ["gh", "run", "rerun"]:
+            return subprocess.CompletedProcess(argv, 1, "", "HTTP 404: Not Found")
+        return subprocess.CompletedProcess(argv, 0, "", "")
+
+    lines = sg.apply(7, s, [{"op": "rerun_det", "sha": SHA}], run=run_dispatch)
+    assert lines == [f"#7 rerun {sg.DET_WORKFLOW} (run 42) for {sg.FULL}: FAILED: HTTP 404: Not Found"]
+
+
+def test_reconcile_exit_code_zero_when_rerun_skipped_already_running(monkeypatch):
+    monkeypatch.setattr(sg, "open_labelled", lambda api: [7])
+    monkeypatch.setattr(
+        sg, "process", lambda n, api, run, ev, dry_run, **kw: ["#7 rerun muninn (run 55): skipped (already running)"]
+    )
+    assert sg.main(["reconcile"]) == 0
+
+
+def test_reconcile_exit_code_one_when_action_failed(monkeypatch):
+    monkeypatch.setattr(sg, "open_labelled", lambda api: [7])
+    monkeypatch.setattr(
+        sg, "process", lambda n, api, run, ev, dry_run, **kw: ["#7 rerun muninn (run 55): FAILED: server error"]
+    )
+    assert sg.main(["reconcile"]) == 1
 
 
 # --- labels and the det planner -------------------------------------------------------------------------------------
@@ -756,3 +917,216 @@ def test_an_ordinary_new_commit_goes_to_reapproval():
     lines = sg.process(7, gh.api, gh.run, None)
     assert any("unlabel" in x for x in lines) and not merged_by(gh)
     assert any(sg.REAPPROVE in " ".join(c) for c in gh.cmds)
+
+
+def test_failed_matrix_legs_of_one_run_get_one_rerun():
+    legs = [failure("infra", check="muninn (1/2)"), failure("infra", check="muninn (2/2)")]
+    acts = sg.decide(snap(failed=legs, pending=0))
+    assert by_op(acts, "rerun") == [{"op": "rerun", "run_id": 55, "check": "muninn (1/2)"}]
+
+
+# --- #5398: the learned-flake cache in the workflows ------------------------------------------------------------------
+
+CACHE_FILE = "flake-cache/flake_history.json"
+
+
+def _workflow(name):
+    yaml = pytest.importorskip("yaml")
+    doc = yaml.safe_load((REPO / ".github" / "workflows" / name).read_text(encoding="utf-8"))
+    return doc, list(_steps(doc))
+
+
+@pytest.mark.parametrize("name", ["shepherd-event.yml", "shepherd-reconcile.yml"])
+def test_the_shepherd_workflows_restore_the_flake_cache_and_pass_it(name):
+    doc, steps = _workflow(name)
+    restore = [s for s in steps if s.get("uses", "").startswith("actions/cache/restore@")]
+    assert len(restore) == 1
+    w = restore[0]["with"]
+    assert w["key"] == "flake-history-${{ github.run_id }}" and w["restore-keys"].strip() == "flake-history-"
+    assert w["path"] == "flake-cache"
+    shepherd = [s for s in steps if "shepherd_gh.py" in s.get("run", "") and "ensure-labels" not in s["run"]]
+    assert len(shepherd) == 1 and f"--flake-cache {CACHE_FILE}" in shepherd[0]["run"]
+    assert steps.index(restore[0]) < steps.index(shepherd[0])
+
+
+def test_only_the_flake_history_workflow_refreshes_and_saves_the_cache():
+    """2026-10-20: a workflow_run reconcile pass gets a read-only cache token, so a refresh there was never saved and
+    every pass refetched for 12 min. The scheduled flake-history.yml (own group) is the one writer."""
+    _, steps = _workflow("shepherd-reconcile.yml")
+    assert not [s for s in steps if "cache/save" in s.get("uses", "") or "--refresh-only" in s.get("run", "")]
+    doc, steps = _workflow("flake-history.yml")
+    assert doc["concurrency"]["group"] == "flake-history" and doc["concurrency"]["cancel-in-progress"] is False
+    assert "schedule" in doc[True] and "workflow_dispatch" in doc[True]  # yaml reads `on:` as True
+    restore = [s for s in steps if s.get("uses", "").startswith("actions/cache/restore@")]
+    refresh = [s for s in steps if "--refresh-only" in s.get("run", "")]
+    save = [s for s in steps if s.get("uses", "").startswith("actions/cache/save@")]
+    assert len(restore) == len(refresh) == len(save) == 1
+    assert steps.index(restore[0]) < steps.index(refresh[0]) < steps.index(save[0])
+    r = refresh[0]
+    assert f"--cache {CACHE_FILE}" in r["run"]
+    budget = int(r["run"].split("--budget-s ")[1].split()[0])
+    assert budget + 4 * 60 <= r["timeout-minutes"] * 60  # the day in flight (~2 min) ends before the step's timeout
+    job = next(iter(doc["jobs"].values()))
+    assert job["timeout-minutes"] > r["timeout-minutes"]
+    assert save[0]["with"]["key"] == "flake-history-${{ github.run_id }}" and save[0]["with"]["path"] == "flake-cache"
+    assert save[0]["if"].startswith("always()")
+
+
+def test_the_event_workflow_only_restores_the_flake_cache():
+    # short job, no concurrency group: overlapping saves/refreshes would collide, flake-history.yml owns the cache
+    _, steps = _workflow("shepherd-event.yml")
+    assert not [s for s in steps if "cache/save" in s.get("uses", "") or "--refresh-only" in s.get("run", "")]
+
+
+# --- #5484: main turned green under a PR that was waiting on it ------------------------------------------------------
+
+MAIN = "9" * 40
+
+
+def waiting(**kw):
+    """A PR waiting on main whose `det` failure now triages real, main being green on det and the head lacking main."""
+    base = {"labels": [sg.MERGE, sg.WAITING], "failed": [{"check": "det", "triage": "real"}], "main_sha": MAIN,
+            "main_green": ["det", "full-suite"], "contains_main": False, "main_merged": False}  # fmt: skip
+    base.update(kw)
+    return snap(**base)
+
+
+def test_main_still_red_waits_without_an_update():  # (a)
+    acts = sg.decide(waiting(failed=[{"check": "det", "triage": "main"}], main_green=[]))
+    assert "update_main" not in kinds(acts) and "comment" not in kinds(acts)
+    assert "labels" not in kinds(acts)  # waiting-on-main already there
+
+
+def test_main_green_and_head_predates_the_fix_merges_main_and_keeps_waiting():  # (b)
+    acts = sg.decide(waiting())
+    assert by_op(acts, "update_main") == [{"op": "update_main", "sha": SHA, "main": MAIN}]
+    assert "comment" not in kinds(acts) and "labels" not in kinds(acts)
+
+
+def test_matrix_suffix_of_a_check_name_still_matches_main_green():
+    acts = sg.decide(waiting(failed=[{"check": "full-suite (ubuntu, 3.11)", "triage": "real"}]))
+    assert by_op(acts, "update_main")
+
+
+def test_after_the_update_the_same_check_failing_is_needs_fix():  # (c)
+    acts = sg.decide(waiting(contains_main=True, main_merged=True, digest_text="det failed"))
+    assert "update_main" not in kinds(acts)
+    assert by_op(acts, "labels")[0] == {"op": "labels", "add": [sg.NEEDS], "remove": [sg.WAITING]}
+    assert len(by_op(acts, "comment")) == 1
+
+
+def test_a_conflicting_waiting_pr_gets_no_update_and_needs_fix():  # (d)
+    acts = sg.decide(waiting(mergeable_state="dirty"))
+    assert "update_main" not in kinds(acts)
+    assert sg.NEEDS in by_op(acts, "labels")[0]["add"]
+
+
+def test_a_pr_only_behind_main_with_no_main_failure_is_not_updated():  # (e)
+    for extra in ({}, {"labels": [sg.MERGE, sg.WAITING]}, {"failed": [failure("real")]}):
+        acts = sg.decide(
+            snap(mergeable_state="behind", main_sha=MAIN, main_green=["det"], contains_main=False, **extra)
+        )
+        assert "update_main" not in kinds(acts), extra
+
+
+def test_a_real_failure_on_a_pr_that_was_not_waiting_is_not_reinterpreted():
+    acts = sg.decide(waiting(labels=[sg.MERGE]))
+    assert "update_main" not in kinds(acts)
+    assert sg.NEEDS in by_op(acts, "labels")[0]["add"]
+
+
+def test_a_check_not_green_on_main_stays_real():
+    acts = sg.decide(waiting(main_green=["full-suite"]))
+    assert "update_main" not in kinds(acts)
+    assert sg.NEEDS in by_op(acts, "labels")[0]["add"]
+
+
+def test_no_update_for_hold_fork_or_a_main_already_merged_once():
+    for extra in ({"labels": [sg.MERGE, sg.WAITING, sg.HOLD]}, {"head_fork": True}, {"main_merged": True}):
+        assert "update_main" not in kinds(sg.decide(waiting(**extra))), extra
+
+
+def test_a_pass_without_a_main_snapshot_never_updates():
+    s = waiting()
+    for k in ("main_sha", "main_green", "contains_main", "main_merged"):
+        del s[k]
+    assert "update_main" not in kinds(sg.decide(s))
+
+
+def test_waiting_is_kept_while_the_head_with_the_fix_is_still_being_tested():
+    for extra in ({"pending": 3}, {"no_checks": True}):
+        acts = sg.decide(waiting(failed=[], contains_main=True, main_merged=True, **extra))
+        assert "labels" not in kinds(acts), extra
+    acts = sg.decide(waiting(failed=[], contains_main=True, main_merged=True))  # its run finished green
+    assert by_op(acts, "labels")[0] == {"op": "labels", "add": [], "remove": [sg.WAITING]}
+
+
+def test_apply_merges_main_with_a_marker_pair_and_one_log_line():
+    gh = Gh()
+    log = sg.apply(7, snap(), [{"op": "update_main", "sha": SHA, "main": MAIN}], run=gh.run)
+    assert [c for c in gh.cmds if "PUT" in c][0][-2:] == ["-f", f"expected_head_sha={SHA}"]
+    bodies = [c[-1] for c in gh.cmds if c[-1].startswith("body=")]
+    assert f"<!-- shepherd-main-merge main={MAIN} -->" in bodies[0] and f"from={SHA} -->" in bodies[0]
+    assert bodies[1] == f"body=<!-- shepherd-update from={SHA} to={'d' * 40} -->"
+    assert log == [f"#7 merged main {MAIN[:12]} into {SHA[:12]} -> {'d' * 12}"]
+
+
+def test_apply_failed_update_closes_the_marker_pair_and_reports():
+    gh = Gh()
+    run = lambda argv: (  # noqa: E731
+        subprocess.CompletedProcess(argv, 1, "", "conflict") if "PUT" in argv else gh.run(argv)
+    )
+    log = sg.apply(7, snap(), [{"op": "update_main", "sha": SHA, "main": MAIN}], run=run)
+    assert "FAILED" in log[0] and "conflict" in log[0]
+    assert gh.cmds[-1][-1] == f"body=<!-- shepherd-update from={SHA} to={SHA} -->"
+
+
+def _waiting_gh(gh, compare_status):
+    gh.pr["labels"] = [{"name": sg.MERGE}, {"name": sg.WAITING}]
+    gh.compare[(MAIN, SHA)] = {"status": compare_status}
+
+
+def test_gather_reads_whether_the_head_has_main_and_whether_it_was_merged_once():
+    gh = Gh()
+    _waiting_gh(gh, "diverged")
+    s = sg.gather(7, gh.api, main=(MAIN, {"det"}))
+    assert (s["main_sha"], s["main_green"], s["contains_main"], s["main_merged"]) == (MAIN, ["det"], False, False)
+    gh.comments.append(bot_comment(f"<!-- shepherd-main-merge main={MAIN} -->"))
+    assert sg.gather(7, gh.api, main=(MAIN, {"det"}))["main_merged"] is True
+    gh.compare[(MAIN, SHA)] = {"status": "ahead"}
+    assert sg.gather(7, gh.api, main=(MAIN, {"det"}))["contains_main"] is True
+    assert "main_sha" not in sg.gather(7, gh.api)  # an event pass has no main snapshot
+
+
+def test_the_bot_main_merge_keeps_the_merge_label_approval():
+    gh = Gh()
+    _waiting_gh(gh, "behind")
+    new = "d" * 40
+    gh.parents[new] = [SHA, MAIN]
+    gh.pr["head"]["sha"] = new
+    gh.comments.append(bot_comment(f"<!-- shepherd-update from={SHA} to={new} -->"))
+    s = sg.gather(7, gh.api, main=(MAIN, {"det"}))
+    assert s["carried"] and s["approved"]
+    assert not any(a["op"] == "unlabel" and a["label"] == sg.MERGE for a in sg.decide(s))
+
+
+def test_main_green_lists_the_checks_green_on_main_s_tip(monkeypatch):
+    import ci_digest
+
+    def check(name, conclusion):
+        return {
+            "id": 1,
+            "name": name,
+            "status": "completed",
+            "conclusion": conclusion,
+            "app": {"slug": "github-actions"},
+        }
+
+    def api(path):
+        if path.endswith("/commits/main"):
+            return {"sha": MAIN}
+        return {"check_runs": [check("det", "success"), check("ruff-audit", "failure"), check("mypy-audit", None)]}
+
+    sha, green = ci_digest.main_green(api)
+    assert sha == MAIN and "det" in green and "ruff-audit" not in green
+    assert ci_digest.main_green(lambda p: (_ for _ in ()).throw(SystemExit("x"))) == ("", set())

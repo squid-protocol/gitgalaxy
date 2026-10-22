@@ -52,7 +52,12 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "934d12575e111722724199f76e34a95778c297588175e7b28e3d0a0e63bd8809"
+      "sha256": "934d12575e111722724199f76e34a95778c297588175e7b28e3d0a0e63bd8809",
+      "string_fields": [
+        "wsCustomerRangeBottom",
+        "wsCustomerRangeMiddle",
+        "wsCustomerRangeTop"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/dto/AcctctrlDfhcommareaDto.java": {
       "calls": [],
@@ -78,7 +83,14 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "4398cb4a559d6030b9ccebc6a9b8978f72f645befdba918a387339873c8a6708"
+      "sha256": "4398cb4a559d6030b9ccebc6a9b8978f72f645befdba918a387339873c8a6708",
+      "string_fields": [
+        "hvAccountSortcode",
+        "wsAccountRangeBottom",
+        "wsAccountRangeMiddle",
+        "wsAccountRangeTop",
+        "wsOrigDate"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/dto/Bnk1cacDfhcommareaDto.java": {
       "calls": [],
@@ -137,7 +149,21 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "0c68dfae1500e5dd908b38a4099c2f02aa7b9ca63f0d07344c378098e5a39820"
+      "sha256": "0c68dfae1500e5dd908b38a4099c2f02aa7b9ca63f0d07344c378098e5a39820",
+      "string_fields": [
+        "commAcctype",
+        "endOfSessionMessage",
+        "subpgmAccType",
+        "subpgmEyecatcher",
+        "subpgmFailCode",
+        "subpgmSuccess",
+        "validDataSw",
+        "wsAbendPgm",
+        "wsCicsFailMsg",
+        "wsCommAcctype",
+        "wsOrigDate",
+        "wsReverse"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/dto/Bnk1ccaDfhcommareaDto.java": {
       "calls": [],
@@ -178,7 +204,24 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "9a841cd5b4b404bcd8b4f4e80a935312af996c2c58b4e5c5aa90be6a2570d3a3"
+      "sha256": "9a841cd5b4b404bcd8b4f4e80a935312af996c2c58b4e5c5aa90be6a2570d3a3",
+      "string_fields": [
+        "accnoChar",
+        "commScode",
+        "endOfSessionMessage",
+        "inqacccuProgram",
+        "scodeChar",
+        "validDataSw",
+        "wsAbendPgm",
+        "wsActBalSign",
+        "wsActBalXPnce",
+        "wsActBalXPnd",
+        "wsAvailBalSign",
+        "wsAvailBalXPnce",
+        "wsAvailBalXPnd",
+        "wsCicsFailMsg",
+        "wsOrigDate"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/dto/Bnk1ccsDfhcommareaDto.java": {
       "calls": [],
@@ -229,7 +272,25 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "930e4358ac7bf052bc8eebc1adad0bd5f6c63f891c1f6207dbfc5d1e5b2844ee"
+      "sha256": "930e4358ac7bf052bc8eebc1adad0bd5f6c63f891c1f6207dbfc5d1e5b2844ee",
+      "string_fields": [
+        "dobddiChar",
+        "dobmmiChar",
+        "endOfSessionMessage",
+        "subpgmAddress",
+        "subpgmEyecatcher",
+        "subpgmFailCode",
+        "subpgmName",
+        "subpgmSuccess",
+        "validDataSw",
+        "wsAbcode",
+        "wsAbendPgm",
+        "wsAddrSplit1",
+        "wsAddrSplit2",
+        "wsAddrSplit3",
+        "wsCicsFailMsg",
+        "wsOrigDate"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/dto/Bnk1craDfhcommareaDto.java": {
       "calls": [],
@@ -288,7 +349,31 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "d30e45453673e0b4ee582aace6d77b57d6b160e14320f8a451129a54b228875e"
+      "sha256": "d30e45453673e0b4ee582aace6d77b57d6b160e14320f8a451129a54b228875e",
+      "string_fields": [
+        "commAccno",
+        "commSign",
+        "endOfSessionMessage",
+        "subpgmAccno",
+        "subpgmApplid",
+        "subpgmFacilityName",
+        "subpgmFailCode",
+        "subpgmNetwrkId",
+        "subpgmSuccess",
+        "subpgmUserid",
+        "validDataSw",
+        "wsAbendPgm",
+        "wsAmountUnstr",
+        "wsAmountUnstrReverse",
+        "wsCicsFailMsg",
+        "wsCommAccno",
+        "wsCommSign",
+        "wsConvertPic11St",
+        "wsConvertPic12Nd",
+        "wsConvertPic1Point",
+        "wsConvertPoint",
+        "wsOrigDate"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/dto/Bnk1dacDfhcommareaDto.java": {
       "calls": [],
@@ -356,7 +441,27 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "00e5d86abd1333d0b8979f95d5e718c70e8f5a16576ce69f750ff399a7186f4a"
+      "sha256": "00e5d86abd1333d0b8979f95d5e718c70e8f5a16576ce69f750ff399a7186f4a",
+      "string_fields": [
+        "commAccType",
+        "commCustno",
+        "commEye",
+        "commScode",
+        "commSuccess",
+        "endOfSessionMessage",
+        "parmsSubpgmDelFailCd",
+        "parmsSubpgmDelSuccess",
+        "parmsSubpgmScode",
+        "validDataSw",
+        "wsAbendPgm",
+        "wsCicsFailMsg",
+        "wsCommAccType",
+        "wsCommCustno",
+        "wsCommEye",
+        "wsCommScode",
+        "wsCommSuccess",
+        "wsOrigDate"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/dto/Bnk1dcsDfhcommareaDto.java": {
       "calls": [],
@@ -433,7 +538,44 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "41cb62c84602ea9d15d916a3e1d01ac9a5088a338c436150bb3a466d097dcdb1"
+      "sha256": "41cb62c84602ea9d15d916a3e1d01ac9a5088a338c436150bb3a466d097dcdb1",
+      "string_fields": [
+        "commAddr",
+        "commAddrSplit1",
+        "commAddrSplit2",
+        "commAddrSplit3",
+        "commAddrUpd1",
+        "commAddrUpd2",
+        "commAddrUpd3",
+        "commCsReviewxDd",
+        "commCsReviewxMm",
+        "commCsReviewxYyyy",
+        "commCustno",
+        "commDelFailCd",
+        "commDelSuccess",
+        "commDobxDd",
+        "commDobxMm",
+        "commDobxYyyy",
+        "commEye",
+        "commName",
+        "commScode",
+        "commUpd",
+        "creditScoreX",
+        "endOfSessionMessage",
+        "validDataSw",
+        "wsAbendPgm",
+        "wsCicsFailMsg",
+        "wsCommAddr",
+        "wsCommCustno",
+        "wsCommEye",
+        "wsCommName",
+        "wsCommScode",
+        "wsCommUpdate",
+        "wsOrigDate",
+        "wsTitleValid",
+        "wsUnstrTitle",
+        "wsValidateName"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/dto/Bnk1tfnDfhcommareaDto.java": {
       "calls": [],
@@ -488,7 +630,22 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "9e8c2ea594d91a223f8073b8bd93f1741abade8bad50d4cb040ebe971d38af61"
+      "sha256": "9e8c2ea594d91a223f8073b8bd93f1741abade8bad50d4cb040ebe971d38af61",
+      "string_fields": [
+        "endOfSessionMessage",
+        "subpgmFailCode",
+        "subpgmSuccess",
+        "validDataSw",
+        "wsAbendPgm",
+        "wsAmountUnstr",
+        "wsAmountUnstrReverse",
+        "wsCicsFailMsg",
+        "wsConvertPic11St",
+        "wsConvertPic12Nd",
+        "wsConvertPic1Point",
+        "wsConvertPoint",
+        "wsOrigDate"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/dto/Bnk1uacDfhcommareaDto.java": {
       "calls": [],
@@ -565,7 +722,26 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "22a79f61943fe8ad66e069f784fb0da0b1cb1c754a288e4a6f6ee424e763d591"
+      "sha256": "22a79f61943fe8ad66e069f784fb0da0b1cb1c754a288e4a6f6ee424e763d591",
+      "string_fields": [
+        "commAccType",
+        "commCustno",
+        "commEye",
+        "commScode",
+        "commSuccess",
+        "endOfSessionMessage",
+        "validDataSw",
+        "wsAbendPgm",
+        "wsCicsFailMsg",
+        "wsCommAccType",
+        "wsCommCustno",
+        "wsCommEye",
+        "wsCommScode",
+        "wsConvertPicx",
+        "wsConvertPoint",
+        "wsConvertSign",
+        "wsOrigDate"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/dto/CreaccDfhcommareaDto.java": {
       "calls": [],
@@ -657,7 +833,57 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "0578aae874ca6c4520395e3b4c3de971cc7b555b672690395f89d16f37fdc209"
+      "sha256": "0578aae874ca6c4520395e3b4c3de971cc7b555b672690395f89d16f37fdc209",
+      "string_fields": [
+        "hvAccountAccNo",
+        "hvAccountAccType",
+        "hvAccountCustNo",
+        "hvAccountEyecatcher",
+        "hvAccountLastStmt",
+        "hvAccountLastStmtDay",
+        "hvAccountLastStmtDelim1",
+        "hvAccountLastStmtDelim2",
+        "hvAccountLastStmtMonth",
+        "hvAccountLastStmtYear",
+        "hvAccountNextStmt",
+        "hvAccountNextStmtDay",
+        "hvAccountNextStmtDelim1",
+        "hvAccountNextStmtDelim2",
+        "hvAccountNextStmtMonth",
+        "hvAccountNextStmtYear",
+        "hvAccountOpened",
+        "hvAccountOpenedDay",
+        "hvAccountOpenedDelim1",
+        "hvAccountOpenedDelim2",
+        "hvAccountOpenedMonth",
+        "hvAccountOpenedYear",
+        "hvAccountSortcode",
+        "hvControlName",
+        "hvControlValueStr",
+        "hvProctranAccNumber",
+        "hvProctranDate",
+        "hvProctranDesc",
+        "hvProctranEyecatcher",
+        "hvProctranRef",
+        "hvProctranSortCode",
+        "hvProctranTime",
+        "hvProctranType",
+        "ncsAccNoActName",
+        "ncsAccNoFill",
+        "ncsAccNoTestSort",
+        "storedAccno",
+        "storedAcctype",
+        "storedCustno",
+        "storedLstStmt",
+        "storedNxtStmt",
+        "storedSortcode",
+        "wsAbendPgm",
+        "wsFutXDd",
+        "wsFutXMm",
+        "wsFutXYy",
+        "wsOrigDate",
+        "wsStdtX"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/dto/CrecustDfhcommareaDto.java": {
       "calls": [],
@@ -765,7 +991,44 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "02b1483cb59d576f5ca16c63800ad0e6234f8114b1d2983905831619d43c0b41"
+      "sha256": "02b1483cb59d576f5ca16c63800ad0e6234f8114b1d2983905831619d43c0b41",
+      "string_fields": [
+        "caseSevCtl",
+        "facilityId",
+        "hvProctranAccNumber",
+        "hvProctranDate",
+        "hvProctranDesc",
+        "hvProctranEyecatcher",
+        "hvProctranRef",
+        "hvProctranSortCode",
+        "hvProctranTime",
+        "hvProctranType",
+        "ncsCustNoActName",
+        "ncsCustNoFill",
+        "ncsCustNoTestSort",
+        "ncsUpdated",
+        "storedCustno",
+        "storedDob",
+        "storedName",
+        "storedSortcode",
+        "vstringChar",
+        "wsAbendPgm",
+        "wsAnyChildFetchAbcode",
+        "wsAnyChildFetchChan",
+        "wsAnyChildFetchTkn",
+        "wsAnyChildTkn",
+        "wsChannelName",
+        "wsChildChan",
+        "wsChildTkn",
+        "wsContainerName",
+        "wsCreditCheckError",
+        "wsDateOfBirthError",
+        "wsFinishedFetching",
+        "wsOrigDate",
+        "wsPutContName",
+        "wsReceiveChildChan",
+        "wsRunTransid"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/dto/CustctrlDfhcommareaDto.java": {
       "calls": [],
@@ -791,7 +1054,13 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "b95ded8a51107800d3b1a49999dbf21057ce970dafcdace59d5bfb18f84e005e"
+      "sha256": "b95ded8a51107800d3b1a49999dbf21057ce970dafcdace59d5bfb18f84e005e",
+      "string_fields": [
+        "wsCustomerRangeBottom",
+        "wsCustomerRangeMiddle",
+        "wsCustomerRangeTop",
+        "wsOrigDate"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/dto/DbcrfunDfhcommareaDto.java": {
       "calls": [],
@@ -845,7 +1114,33 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "ec34930adfa1eacc9cf21b04349d955a952009794d31b1748bf86239bd441d01"
+      "sha256": "ec34930adfa1eacc9cf21b04349d955a952009794d31b1748bf86239bd441d01",
+      "string_fields": [
+        "hvAccountAccNo",
+        "hvAccountAccType",
+        "hvAccountCustNo",
+        "hvAccountEyecatcher",
+        "hvAccountLastStmt",
+        "hvAccountNextStmt",
+        "hvAccountOpened",
+        "hvAccountSortcode",
+        "hvProctranAccNumber",
+        "hvProctranDate",
+        "hvProctranDesc",
+        "hvProctranEyecatcher",
+        "hvProctranRef",
+        "hvProctranSortCode",
+        "hvProctranTime",
+        "hvProctranType",
+        "myAbendCode",
+        "stormDrainCondition",
+        "wsAbendPgm",
+        "wsCustomerRangeBottom",
+        "wsCustomerRangeMiddle",
+        "wsCustomerRangeTop",
+        "wsOrigDate",
+        "wsStormDrain"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/dto/DelcusDfhcommareaDto.java": {
       "calls": [],
@@ -899,7 +1194,28 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "fe1aa8ad38ca39afd35ebc96cd92764a0834be08e624d4be233c6524e8ec544e"
+      "sha256": "fe1aa8ad38ca39afd35ebc96cd92764a0834be08e624d4be233c6524e8ec544e",
+      "string_fields": [
+        "delaccCommApplid",
+        "hvProctranAccNumber",
+        "hvProctranDate",
+        "hvProctranDesc",
+        "hvProctranEyecatcher",
+        "hvProctranRef",
+        "hvProctranSortCode",
+        "hvProctranTime",
+        "hvProctranType",
+        "inqcustProgram",
+        "remixScodeChar",
+        "wsAbendPgm",
+        "wsApplid",
+        "wsOrigDate",
+        "wsStoredcAddress",
+        "wsStoredcCsReviewDate",
+        "wsStoredcDateOfBirth",
+        "wsStoredcEyecatcher",
+        "wsStoredcName"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/dto/InqacccuDfhcommareaDto.java": {
       "calls": [],
@@ -943,7 +1259,22 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "4d01d6ccb495f434d00000739be42bae1cb840032e7cfa6d22b9fe94bf269e93"
+      "sha256": "4d01d6ccb495f434d00000739be42bae1cb840032e7cfa6d22b9fe94bf269e93",
+      "string_fields": [
+        "hvAccountAccNo",
+        "hvAccountAccType",
+        "hvAccountCustNo",
+        "hvAccountEyecatcher",
+        "hvAccountLastStmt",
+        "hvAccountNextStmt",
+        "hvAccountOpened",
+        "hvAccountSortcode",
+        "myAbendCode",
+        "stormDrainCondition",
+        "wsAbendPgm",
+        "wsOrigDate",
+        "wsStormDrain"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/dto/InqcustDfhcommareaDto.java": {
       "calls": [],
@@ -986,7 +1317,23 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "42e1747fd3a5f4f3d33703b6cba2c587c121cec45b68e3712c7f06b2f03e8a21"
+      "sha256": "42e1747fd3a5f4f3d33703b6cba2c587c121cec45b68e3712c7f06b2f03e8a21",
+      "string_fields": [
+        "exitDb2Read",
+        "exitVsamRead",
+        "myAbendCode",
+        "ncsCustNoActName",
+        "ncsCustNoFill",
+        "ncsCustNoTestSort",
+        "wsAbendPgm",
+        "wsCustomerRangeBottom",
+        "wsCustomerRangeMiddle",
+        "wsCustomerRangeTop",
+        "wsDRetried",
+        "wsOrigDate",
+        "wsStormDrain",
+        "wsVRetried"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/dto/UpdaccDfhcommareaDto.java": {
       "calls": [],
@@ -1023,7 +1370,18 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "a1531ed2b88fc0f3d30db5bc047972721f29fe98ce8cc0223d0b1a51a5e38a12"
+      "sha256": "a1531ed2b88fc0f3d30db5bc047972721f29fe98ce8cc0223d0b1a51a5e38a12",
+      "string_fields": [
+        "hvAccountAccNo",
+        "hvAccountAccType",
+        "hvAccountCustNo",
+        "hvAccountEyecatcher",
+        "hvAccountLastStmt",
+        "hvAccountNextStmt",
+        "hvAccountOpened",
+        "hvAccountSortcode",
+        "wsOrigDate"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/dto/UpdcustDfhcommareaDto.java": {
       "calls": [],
@@ -1052,7 +1410,15 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "cdc1c807a2e72becea067cc67dc5823c0d4415f32069f2f2b912aae4916c8501"
+      "sha256": "cdc1c807a2e72becea067cc67dc5823c0d4415f32069f2f2b912aae4916c8501",
+      "string_fields": [
+        "wsCustomerRangeBottom",
+        "wsCustomerRangeMiddle",
+        "wsCustomerRangeTop",
+        "wsOrigDate",
+        "wsTitleValid",
+        "wsUnstrTitle"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/dto/XfrfunDfhcommareaDto.java": {
       "calls": [],
@@ -1107,7 +1473,33 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "e31c236f28946b920454034208ca1307c0a2f8f7de56731479dd4659d43395d5"
+      "sha256": "e31c236f28946b920454034208ca1307c0a2f8f7de56731479dd4659d43395d5",
+      "string_fields": [
+        "hvAccountAccNo",
+        "hvAccountAccType",
+        "hvAccountCustNo",
+        "hvAccountEyecatcher",
+        "hvAccountLastStmt",
+        "hvAccountNextStmt",
+        "hvAccountOpened",
+        "hvAccountSortcode",
+        "hvProctranAccNumber",
+        "hvProctranDate",
+        "hvProctranDesc",
+        "hvProctranEyecatcher",
+        "hvProctranRef",
+        "hvProctranSortCode",
+        "hvProctranTime",
+        "hvProctranType",
+        "myAbendCode",
+        "stormDrainCondition",
+        "wsAbendPgm",
+        "wsCustomerRangeBottom",
+        "wsCustomerRangeMiddle",
+        "wsCustomerRangeTop",
+        "wsOrigDate",
+        "wsStormDrain"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/entity/BankdataParmBuffer.java": {
       "calls": [],
@@ -1228,7 +1620,55 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "a7eaf9384463ff9568253f71df977adee3310a7c29c47f22b022d889a8fc0bcf"
+      "sha256": "a7eaf9384463ff9568253f71df977adee3310a7c29c47f22b022d889a8fc0bcf",
+      "string_fields": [
+        "datmConv",
+        "datmFormat",
+        "dispReasonCode",
+        "dispSign",
+        "fc",
+        "forename",
+        "hvAccountCustNo",
+        "hvAccountEyecatcher",
+        "hvAccountLastStmtDate",
+        "hvAccountLastStmtDay",
+        "hvAccountLastStmtDelim1",
+        "hvAccountLastStmtDelim2",
+        "hvAccountLastStmtMonth",
+        "hvAccountLastStmtYear",
+        "hvAccountNextStmtDate",
+        "hvAccountNextStmtDay",
+        "hvAccountNextStmtDelim1",
+        "hvAccountNextStmtDelim2",
+        "hvAccountNextStmtMonth",
+        "hvAccountNextStmtYear",
+        "hvAccountNumber",
+        "hvAccountOpened",
+        "hvAccountOpenedDay",
+        "hvAccountOpenedDelim1",
+        "hvAccountOpenedDelim2",
+        "hvAccountOpenedMonth",
+        "hvAccountOpenedYear",
+        "hvAccountSortCode",
+        "hvAccountType",
+        "hvControlName",
+        "hvControlValueStr",
+        "initialCharacter",
+        "openedDateValid",
+        "parm",
+        "randomSeed",
+        "rdate",
+        "streetNameRoad",
+        "streetNameTree",
+        "surname",
+        "timestampFunction",
+        "titleWord",
+        "town",
+        "wsAccountType",
+        "wsDayToday",
+        "wsWeekday",
+        "wsWeekdays"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/entity/BnkmenuAbndinfoRec.java": {
       "calls": [],
@@ -1257,7 +1697,15 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "722e647e9ee6bbd3e139a3c17377ba0dbe0751ba5207a61918df26053c0797c2"
+      "sha256": "722e647e9ee6bbd3e139a3c17377ba0dbe0751ba5207a61918df26053c0797c2",
+      "string_fields": [
+        "communicationArea",
+        "endOfSessionMessage",
+        "validDataSw",
+        "wsAbendPgm",
+        "wsCicsFailMsg",
+        "wsOrigDate"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Crdtagy1AbndinfoRec.java": {
       "calls": [],
@@ -1292,7 +1740,13 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "75d905e51e50354db3081199e510f3dd9b310fdc694b90fa44995e23eed771f1"
+      "sha256": "75d905e51e50354db3081199e510f3dd9b310fdc694b90fa44995e23eed771f1",
+      "string_fields": [
+        "wsAbendPgm",
+        "wsChannelName",
+        "wsContainerName",
+        "wsOrigDate"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Crdtagy2AbndinfoRec.java": {
       "calls": [],
@@ -1327,7 +1781,13 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "fad4464f7c6fdc6f645f0f57bbd8579279daae7c3fff6b9f9e3dd0563b90da8b"
+      "sha256": "fad4464f7c6fdc6f645f0f57bbd8579279daae7c3fff6b9f9e3dd0563b90da8b",
+      "string_fields": [
+        "wsAbendPgm",
+        "wsChannelName",
+        "wsContainerName",
+        "wsOrigDate"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Crdtagy3AbndinfoRec.java": {
       "calls": [],
@@ -1362,7 +1822,13 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "11d4798a82171b0436a190c69370abad0a75c15283066c8f7894ef13ed612721"
+      "sha256": "11d4798a82171b0436a190c69370abad0a75c15283066c8f7894ef13ed612721",
+      "string_fields": [
+        "wsAbendPgm",
+        "wsChannelName",
+        "wsContainerName",
+        "wsOrigDate"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Crdtagy4AbndinfoRec.java": {
       "calls": [],
@@ -1397,7 +1863,13 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "f1b1f989744f8a635ddfb0a83b9233b8208b6e148a43ef1a18f6258bb85c191f"
+      "sha256": "f1b1f989744f8a635ddfb0a83b9233b8208b6e148a43ef1a18f6258bb85c191f",
+      "string_fields": [
+        "wsAbendPgm",
+        "wsChannelName",
+        "wsContainerName",
+        "wsOrigDate"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Crdtagy5AbndinfoRec.java": {
       "calls": [],
@@ -1432,7 +1904,13 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "2355e197c61ec8ffd4093c55036e5aaee39df9473e848b1432c27caca2b5782e"
+      "sha256": "2355e197c61ec8ffd4093c55036e5aaee39df9473e848b1432c27caca2b5782e",
+      "string_fields": [
+        "wsAbendPgm",
+        "wsChannelName",
+        "wsContainerName",
+        "wsOrigDate"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/entity/DelaccAbndinfoRec.java": {
       "calls": [],
@@ -1483,7 +1961,27 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "57d0f62c14de899d7ce06cb16f45d06324f20b43a0fd6898a15d69799a638861"
+      "sha256": "57d0f62c14de899d7ce06cb16f45d06324f20b43a0fd6898a15d69799a638861",
+      "string_fields": [
+        "hvAccountAccNo",
+        "hvAccountAccType",
+        "hvAccountCustNo",
+        "hvAccountEyecatcher",
+        "hvAccountLastStmt",
+        "hvAccountNextStmt",
+        "hvAccountOpened",
+        "hvAccountSortcode",
+        "hvProctranAccNumber",
+        "hvProctranDate",
+        "hvProctranDesc",
+        "hvProctranEyecatcher",
+        "hvProctranRef",
+        "hvProctranSortCode",
+        "hvProctranTime",
+        "hvProctranType",
+        "wsAbendPgm",
+        "wsOrigDate"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/entity/InqaccAbndinfoRec.java": {
       "calls": [],
@@ -1533,7 +2031,25 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "04bb52c9bcad771a29b5a5ff00addb17354014d11e0fb54163750b4b576abf09"
+      "sha256": "04bb52c9bcad771a29b5a5ff00addb17354014d11e0fb54163750b4b576abf09",
+      "string_fields": [
+        "hvAccountAccNo",
+        "hvAccountAccType",
+        "hvAccountCustNo",
+        "hvAccountEyecatcher",
+        "hvAccountLastStmt",
+        "hvAccountNextStmt",
+        "hvAccountOpened",
+        "hvAccountSortcode",
+        "myAbendCode",
+        "ncsAccNoActName",
+        "ncsAccNoFill",
+        "ncsAccNoTestSort",
+        "stormDrainCondition",
+        "wsAbendPgm",
+        "wsOrigDate",
+        "wsStormDrain"
+      ]
     },
     "src/main/java/com/gitgalaxy/modernized/service/AbndprocService.java": {
       "calls": [],

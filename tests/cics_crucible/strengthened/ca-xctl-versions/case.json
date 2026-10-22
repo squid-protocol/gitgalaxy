@@ -1,0 +1,162 @@
+{
+ "format": "gitgalaxy/crucible-strengthened/1",
+ "case": "ca-xctl-versions",
+ "scenarios": [
+  {
+   "id": "receive-longer-than-20",
+   "summary": "RECEIVE INTO(20) of a 36-byte input: LENGERR, no RESP: the task abends AEIV and CAXA never XCTLs",
+   "path": "trap",
+   "until": 60,
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "CA02 S plus more than twenty bytes here"
+    }
+   ]
+  },
+  {
+   "id": "xctl-notauth",
+   "summary": "XCTL to CAXB fails NOTAUTH: CAXA keeps control and reports the response",
+   "faults": [
+    {
+     "task": "CA02",
+     "cmd": "XCTL",
+     "program": "CAXB",
+     "nth": 1,
+     "resp": "NOTAUTH"
+    }
+   ],
+   "path": "trap",
+   "until": 60,
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "CA02 S"
+    }
+   ]
+  },
+  {
+   "id": "input-shorter-than-6",
+   "summary": "the operator types only the transid: the mode byte is a blank, so the OTHER branch runs",
+   "path": "trap",
+   "until": 60,
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "CA02"
+    }
+   ]
+  },
+  {
+   "id": "visits-past-nine",
+   "summary": "the 80-byte area travels through ten CA03 turns until V2-VISITS reads 0010: a multi-digit counter in the caller's COMMAREA (the digit-by-digit accumulation of overlayVisits)",
+   "path": "trap",
+   "until": 300,
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "CA02 S"
+    },
+    {
+     "at": 20,
+     "aid": "ENTER"
+    },
+    {
+     "at": 40,
+     "aid": "ENTER"
+    },
+    {
+     "at": 60,
+     "aid": "ENTER"
+    },
+    {
+     "at": 80,
+     "aid": "ENTER"
+    },
+    {
+     "at": 100,
+     "aid": "ENTER"
+    },
+    {
+     "at": 120,
+     "aid": "ENTER"
+    },
+    {
+     "at": 140,
+     "aid": "ENTER"
+    },
+    {
+     "at": 160,
+     "aid": "ENTER"
+    },
+    {
+     "at": 180,
+     "aid": "ENTER"
+    },
+    {
+     "at": 200,
+     "aid": "ENTER"
+    },
+    {
+     "at": 220,
+     "aid": "PF3"
+    }
+   ]
+  },
+  {
+   "id": "direct-8-byte-area",
+   "summary": "CA03 entered with an 8-byte COMMAREA that ends inside V2-VISITS: only the first two digits of 0123 arrive, the rest of the counter stays zero, then one is added",
+   "path": "trap",
+   "until": 60,
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "CA03",
+     "commarea": {
+      "hex": "32433030303130313233474F4C44202020202020001234567C64697265637420656E74727920202020202020202020202020202020202020202020202020202020202020202020202020202020202020",
+      "length": 8
+     }
+    }
+   ]
+  },
+  {
+   "id": "direct-22-byte-area",
+   "summary": "CA03 entered with a 22-byte COMMAREA that ends inside the packed V2-BALANCE: two of its five bytes arrive",
+   "path": "trap",
+   "until": 60,
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "CA03",
+     "commarea": {
+      "hex": "32433030303130303037474F4C44202020202020001234567C64697265637420656E74727920202020202020202020202020202020202020202020202020202020202020202020202020202020202020",
+      "length": 22
+     }
+    }
+   ]
+  },
+  {
+   "id": "direct-negative-balance",
+   "summary": "CA03 entered with a full 80-byte COMMAREA whose packed V2-BALANCE is negative: the sign of the edited balance in the report",
+   "path": "trap",
+   "until": 60,
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "CA03",
+     "commarea": {
+      "hex": "32433030303130303037474F4C44202020202020001234567D64697265637420656E74727920202020202020202020202020202020202020202020202020202020202020202020202020202020202020",
+      "length": 80
+     }
+    }
+   ]
+  }
+ ]
+}

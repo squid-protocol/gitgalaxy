@@ -12,7 +12,9 @@
 #                  -> an SLF4J logger; an extrapartition destination the CSD binds to
 #                  a DD / dataset (tdqueue_datasets) -> a file sink, flagged when it is
 #                  the internal reader (the records are JCL: a job submission, #3622);
-#                  any other (intrapartition) -> the message port;
+#                  any other (intrapartition) -> the message port; the CSD's TYPEFILE /
+#                  OPENTIME / INDIRECTNAME decide how each answers (#5168, X61: NOTOPEN,
+#                  INVREQ, an input data set read first in first out, INDIRECT chains);
 #   MQ             the MessageQueue port: MQPUT / MQPUT1 send, MQGET receives. A
 #                  program whose MQGET reads the queue its TRIGGER message names is a
 #                  triggered service: it gets `handleMqMessage(request, replyTo)` and,
@@ -44,6 +46,8 @@ SYSTEM_LOG_QUEUES = frozenset({
     "CESE", "CESO", "CCPI", "CDBC", "CPLI", "CPLD", "CMIG", "CRPO", "CADL", "CAIL", "CRDI", "CSPK", "CEJL",
 })  # fmt: skip
 _INTERNAL_READERS = ("INREADER", "INTRDR")
+_TD_ATTR = re.compile(r"\b(TYPEFILE|OPENTIME|INDIRECTNAME|SYSID|REMOTENAME)\(\s*([^)\s]*)\s*\)", re.IGNORECASE)
+_INDIRECT_HOPS = 8  # a longer INDIRECTNAME chain is taken as a loop, as the CicsTask runtime does
 _SYMBOL = re.compile(r"^@\w*@$|^&\w+")  # an installation-time symbol, not a queue's name
 
 
@@ -70,6 +74,10 @@ class TdRoute:
     queue: str
     kind: str  # log | dataset | reader | queue | symbol
     detail: str = ""
+    target: str = ""  # the queue that holds the records: the INDIRECTNAME chain's end (#5168, X61)
+    mode: str = ""  # an extrapartition queue's TYPEFILE: INPUT | OUTPUT | "" (none stated, or RDBACK)
+    closed: bool = False  # OPENTIME(DEFERRED): the data set stays closed
+    refusal: str = ""  # why the forge refuses to model this queue, by name
 
 
 @dataclass
@@ -124,8 +132,43 @@ class MessagingForge:
                 self.plan.triggered[key]["reply_to"] = any(
                     s.key == key and s.resolution == "reply_to" for s in self.plan.mq
                 )
-        self.routes = {q: self._route(q, datasets.get(q.upper())) for q in sorted({s.queue for s in self.plan.td
-                                                                                     if s.queue})}  # fmt: skip
+        # #5168 (X61): each TDQUEUE's TYPE and the attributes that decide how READQ / WRITEQ / DELETEQ TD answer
+        self.defs: dict[str, dict[str, str]] = {}
+        for r in (sections.get("csd_resources") or {}).get("facts", []):
+            if (r.get("resource_type") or "").upper() == "TDQUEUE" and r.get("name"):
+                attrs = {k.upper(): v.upper() for k, v in _TD_ATTR.findall(r.get("attributes") or "")}
+                self.defs.setdefault(r["name"].upper(), {"TYPE": (r.get("queue_type") or "").upper(), **attrs})
+        self.routes = {q: self._resolved_route(q, datasets) for q in sorted({s.queue for s in self.plan.td if s.queue})}
+
+    def _resolved_route(self, queue: str, datasets: dict[str, dict]) -> TdRoute:
+        """The route of `queue` after its INDIRECTNAME chain (X61): the target's route, keyed by the name the COBOL uses.
+
+        Refused by name (the route carries the reason; the generated port throws it): an INDIRECT queue with no
+        INDIRECTNAME, a target the CSD does not define, a chain that loops, a REMOTE queue or one with a SYSID.
+        A queue the CSD does not define keeps its old route (an intrapartition queue, or a log).
+        """
+        at, refusal = queue, ""
+        for hops in range(_INDIRECT_HOPS + 1):
+            d = self.defs.get(at.upper())
+            if d is None or d["TYPE"] != "INDIRECT":
+                break
+            nxt = d.get("INDIRECTNAME")
+            if not nxt:
+                refusal = "an INDIRECT TD queue without INDIRECTNAME"
+            elif hops == _INDIRECT_HOPS:
+                refusal = "a chain of INDIRECT TD queues that loops"
+            elif nxt not in self.defs:
+                refusal = "an INDIRECT TD queue whose target the CSD does not define"
+            if refusal:
+                break
+            at = str(nxt)
+        d = self.defs.get(at.upper()) or {}
+        if not refusal and (d.get("TYPE") == "REMOTE" or d.get("SYSID")):
+            refusal = "a REMOTE TD queue (SYSID / TYPE REMOTE)"
+        r = self._route(at, datasets.get(at.upper()))
+        mode = d.get("TYPEFILE", "") if d.get("TYPEFILE") in ("INPUT", "OUTPUT") else ""
+        return TdRoute(queue, r.kind, r.detail, target=at, mode=mode if r.kind in ("dataset", "reader") else "",
+                       closed=d.get("OPENTIME") == "DEFERRED" and r.kind in ("dataset", "reader"), refusal=refusal)  # fmt: skip
 
     @staticmethod
     def _route(queue: str, dataset: dict | None) -> TdRoute:
@@ -185,6 +228,14 @@ class MessagingForge:
         rows = []
         for q, r in self.routes.items():
             rows.append(f'        ROUTES.put({_q(q)}, "{r.kind}");  // {r.detail or r.kind}')
+            if r.target and r.target != q:
+                rows.append(f"        TARGETS.put({_q(q)}, {_q(r.target)});  // INDIRECTNAME chain (X61)")
+            if r.mode:
+                rows.append(f'        MODES.put({_q(q)}, "{r.mode}");  // TYPEFILE')
+            if r.closed:
+                rows.append(f"        CLOSED.add({_q(q)});  // OPENTIME(DEFERRED): the data set stays closed")
+            if r.refusal:
+                rows.append(f"        REFUSED.put({_q(q)}, {_q(r.refusal)});")
         mq = self.needs_mq
         ctor_args = "MessageQueue messages" if mq else ""
         return f"""package {pkg};
@@ -196,9 +247,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -209,12 +262,31 @@ import org.springframework.stereotype.Component;
  * (CSSL, CSMT, ...) goes to the log `cics.td.<queue>`; an extrapartition destination the CSD binds
  * to a DD / dataset appends to `<gitgalaxy.td.directory>/<queue>.txt` (the internal reader's JCL
  * too, flagged: submitting it is #3622); an intrapartition queue{" is the message port" if mq else ""}.
- * A destination missing below is treated as intrapartition.
+ * A destination missing below is treated as intrapartition. The CSD's TYPEFILE / OPENTIME / INDIRECTNAME decide
+ * how it answers, as the CICS runtimes do (#5168, X61): an INDIRECT queue is its INDIRECTNAME's; an extrapartition
+ * queue that is closed (OPENTIME DEFERRED) answers NOTOPEN, an input one is read first in first out (nothing left:
+ * empty, QZERO) and written INVREQ, an output one is read INVREQ; DELETEQ TD of an extrapartition queue is INVREQ.
+ * A REMOTE queue, a broken INDIRECT chain and an extrapartition queue with no TYPEFILE read are refused by name.
  */
 @Component
 public class RoutingTransientData implements TransientData {{
 
     static final Map<String, String> ROUTES = new HashMap<>();
+    static final Map<String, String> TARGETS = new HashMap<>();
+    static final Map<String, String> MODES = new HashMap<>();
+    static final Map<String, String> REFUSED = new HashMap<>();
+    static final Set<String> CLOSED = new HashSet<>();
+    private final Map<String, Integer> cursor = new HashMap<>();
+
+    /** A CICS condition the command would raise (NOTOPEN, INVREQ): RESP has no place in a port, so it is thrown. */
+    public static class TdCondition extends RuntimeException {{
+        public final String condition;
+
+        public TdCondition(String condition, String message) {{
+            super(message);
+            this.condition = condition;
+        }}
+    }}
 
     static {{
 {chr(10).join(rows)}
@@ -225,27 +297,80 @@ public class RoutingTransientData implements TransientData {{
 {"        this.messages = messages;" + chr(10) if mq else ""}        this.directory = Path.of(directory);
     }}
 
+    /** The queue that holds `queue`'s records, after the checks the CICS runtimes make for `verb` (X61). */
+    private static String resolve(String queue, String verb) {{
+        String refused = REFUSED.get(queue);
+        if (refused != null) {{
+            throw new UnsupportedOperationException(refused + ": not modelled");
+        }}
+        String route = ROUTES.getOrDefault(queue, "queue");
+        if (route.equals("dataset") || route.equals("reader")) {{
+            if (verb.equals("DELETEQ")) {{
+                throw new TdCondition("INVREQ", "DELETEQ TD " + queue + ": an extrapartition queue");
+            }}
+            if (CLOSED.contains(queue)) {{
+                throw new TdCondition("NOTOPEN", verb + " TD " + queue + ": the data set is closed");
+            }}
+            String mode = MODES.get(queue);
+            if (verb.equals("WRITEQ") && "INPUT".equals(mode)) {{
+                throw new TdCondition("INVREQ", "WRITEQ TD " + queue + ": open for input");
+            }}
+            if (verb.equals("READQ") && mode == null) {{
+                throw new UnsupportedOperationException("READQ TD " + queue + " with no TYPEFILE INPUT / OUTPUT: not modelled");
+            }}
+            if (verb.equals("READQ") && mode.equals("OUTPUT")) {{
+                throw new TdCondition("INVREQ", "READQ TD " + queue + ": open for output");
+            }}
+        }}
+        return TARGETS.getOrDefault(queue, queue);
+    }}
+
     @Override
     public void write(String queue, String record) {{
+        String target = resolve(queue, "WRITEQ");
         switch (ROUTES.getOrDefault(queue, "queue")) {{
-            case "log" -> LoggerFactory.getLogger("cics.td." + queue).info(record);
-            case "dataset", "reader" -> append(queue, record);
-            default -> {self._intra("send(queue, record)", mq)}
+            case "log" -> LoggerFactory.getLogger("cics.td." + target).info(record);
+            case "dataset", "reader" -> append(target, record);
+            default -> {self._intra("send(target, record)", mq)}
         }}
     }}
 
     @Override
-    public Optional<String> read(String queue) {{
+    public synchronized Optional<String> read(String queue) {{
+        String target = resolve(queue, "READQ");
         String route = ROUTES.getOrDefault(queue, "queue");
         if (route.equals("queue") || route.equals("symbol")) {{
-            {"return messages.receive(queue);" if mq else "return Optional.empty();"}
+            {"return messages.receive(target);" if mq else "return Optional.empty();"}
+        }}
+        if (MODES.containsKey(queue)) {{
+            return nextRecord(target);
         }}
         throw new UnsupportedOperationException("TD " + queue + " is a " + route + " destination: it is written, not read");
     }}
 
     @Override
     public void delete(String queue) {{
-        {"messages.purge(queue);" if mq else "// no intrapartition queue in this application"}
+        String target = resolve(queue, "DELETEQ");
+        {"messages.purge(target);" if mq else "// no intrapartition queue in this application"}
+    }}
+
+    /** READQ TD of an input data set: its records first in first out; none left (or no data set) is QZERO. */
+    private Optional<String> nextRecord(String queue) {{
+        try {{
+            Path file = directory.resolve(queue + ".txt");
+            if (!Files.exists(file)) {{
+                return Optional.empty();
+            }}
+            List<String> lines = Files.readAllLines(file, StandardCharsets.UTF_8);
+            int at = cursor.getOrDefault(queue, 0);
+            if (at >= lines.size()) {{
+                return Optional.empty();
+            }}
+            cursor.put(queue, at + 1);
+            return Optional.of(lines.get(at));
+        }} catch (IOException e) {{
+            throw new UncheckedIOException(e);
+        }}
     }}
 
     private void append(String queue, String record) {{

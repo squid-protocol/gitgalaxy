@@ -106,3 +106,18 @@ def test_receive_map_justifies_what_the_terminal_sent():
     assert bms.received_value(name, "ADA") == "ADA   "
     assert bms.received_value(amt, "12") == "00012"  # NUM: right-justified, zero-filled
     assert bms.received_value(note, "LONGER THAN EIGHT") == "LONGER T"
+
+
+def test_receive_map_default_only_when_justify_is_omitted_5116():
+    """IBM DFHMDF: NUM with no JUSTIFY is RIGHT,ZERO; a coded JUSTIFY is as coded (LEFT, BLANK for what it omits)."""
+
+    def field(justify, attrb=("UNPROT", "NUM")):
+        return bms.BmsField(name="F", length=5, attrb=list(attrb), initial=None, color=None, hilight=None,
+                            justify=justify, ic=False)  # fmt: skip
+
+    assert bms.received_value(field([]), "12") == "00012"
+    assert bms.received_value(field(["LEFT"]), "12") == "12   "
+    assert bms.received_value(field(["BLANK"]), "12") == "12   "
+    assert bms.received_value(field(["RIGHT"]), "12") == "   12"  # BLANK is the fill default, not ZERO
+    assert bms.received_value(field(["RIGHT"], ("UNPROT",)), "123456") == "23456"  # RIGHT keeps the last bytes
+    assert bms.received_value(field([], ("UNPROT",)), "12") == "12   "

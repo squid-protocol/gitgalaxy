@@ -236,7 +236,7 @@
       "tested_on_public": 2
     },
     "call targets": {
-      "clean_fresh_facts": 9,
+      "clean_fresh_facts": 26,
       "clean_fresh_rounds": 2,
       "engine_defects": 1,
       "fresh_rounds": 5,
@@ -281,7 +281,7 @@
       "tested_on_public": 6
     },
     "dead": {
-      "clean_fresh_facts": 35,
+      "clean_fresh_facts": 41,
       "clean_fresh_rounds": 3,
       "engine_defects": 0,
       "fresh_rounds": 3,
@@ -290,7 +290,7 @@
       "tested_on_public": 5
     },
     "dead (non-trivial)": {
-      "clean_fresh_facts": 10,
+      "clean_fresh_facts": 16,
       "clean_fresh_rounds": 3,
       "engine_defects": 0,
       "fresh_rounds": 3,
@@ -355,11 +355,11 @@
     "intra-program edges": {
       "clean_fresh_facts": 6,
       "clean_fresh_rounds": 1,
-      "engine_defects": 0,
+      "engine_defects": 1,
       "fresh_rounds": 1,
       "status": "open",
       "tested_on_private": 0,
-      "tested_on_public": 8
+      "tested_on_public": 7
     },
     "job submissions": {
       "clean_fresh_facts": 0,
@@ -422,7 +422,7 @@
       "fresh_rounds": 1,
       "status": "open",
       "tested_on_private": 0,
-      "tested_on_public": 8
+      "tested_on_public": 7
     },
     "units": {
       "clean_fresh_facts": 14,

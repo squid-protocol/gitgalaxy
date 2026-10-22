@@ -1,0 +1,247 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "COTRN01C",
+ "program_source": "app/cbl/COTRN01C.cbl",
+ "copy_dirs": [
+  "app/cpy",
+  "app/cpy-bms"
+ ],
+ "transid": "CT01",
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {
+  "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS": {
+   "input": "@generate",
+   "entity": "TranRecord",
+   "copybook": "app/cpy/CVTRA05Y.cpy",
+   "record": "TRAN-RECORD",
+   "generate": {
+    "copybook": "app/cpy/CVTRA05Y.cpy",
+    "record": "TRAN-RECORD",
+    "records": 30,
+    "seed": 4506
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "app/cbl/COTRN01C.cbl",
+    "record": "CARDDEMO-COMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "COTRN1A": {
+   "copybook": "app/cpy-bms/COTRN01.CPY",
+   "input": "COTRN1AI",
+   "output": "COTRN1AO"
+  }
+ },
+ "notes": "CardDemo's view-transaction screen (CT01, COTRN01C) on GENERATED data and a GENERATED map input (#4506): 30 TRANSACT records built from CVTRA05Y's layout, and 28 scenarios whose COMMAREA holds a selected transaction (a fifth of the time one the file does not hold) and whose RECEIVE MAP input is typed from COTRN01's BMS source (the transaction-id field: its length, full width / short / random, a tenth not a number, three in ten left empty); the key pressed turns through ENTER, PF3, PF4, PF5 and one the screen does not assign, and one run has no COMMAREA. Proves the carddemo-tranview port on inputs it was not written against. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+ "port_from": "carddemo-tranview",
+ "scenarios": [
+  {
+   "name": "no-commarea",
+   "aid": "DFHENTER",
+   "commarea": null
+  },
+  {
+   "name": "lookup-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "COTRN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN1A": {
+     "TRNIDINI": "0000000328781772"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "TRANSACT",
+     "resp": "IOERR",
+     "why": "17 on the READ -> WHEN OTHER: 'Unable to lookup Transaction...'"
+    }
+   ],
+   "why": "#4049 slice 4 (mutation survivors of the generated variant): the same input as carddemo-tranview's lookup-io-error"
+  },
+  {
+   "name": "pf3-blank-from-program",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN1A": {
+     "TRNIDINI": "0000000328781772"
+    }
+   },
+   "why": "#4049 slice 4 (mutation survivors of the generated variant): PF3 with a blank caller program: the COMEN01C default"
+  },
+  {
+   "name": "pf3-low-values-from-program",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN1A": {
+     "TRNIDINI": "0000000328781772"
+    }
+   },
+   "why": "#4049 slice 4 (mutation survivors of the generated variant): PF3 with a LOW-VALUES caller program: the COMEN01C default"
+  },
+  {
+   "name": "pf3-xctl-fails",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "COTRN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN1A": {
+     "TRNIDINI": "0000000328781772"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COTRN00C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4049 slice 4 (mutation survivors of the generated variant): PGMIDERR on the PF3 XCTL: no HANDLE CONDITION, so the task ends"
+  },
+  {
+   "name": "enter-with-process-date-on-screen",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "COTRN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN1A": {
+     "TRNIDINI": "0000000328781772",
+     "TPROCDTI": "2022-06-10"
+    }
+   },
+   "why": "#4049 slice 4 (mutation survivors of the generated variant): the received processing date is non-blank, so copying it back to the redisplayed screen shows"
+  },
+  {
+   "name": "enter-empty-transaction-id-with-process-date",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "COTRN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN1A": {
+     "TPROCDTI": "2022-06-10"
+    }
+   },
+   "why": "#4049 slice 4 (mutation survivors of the generated variant): the error screen for an empty transaction id redisplays the received processing date (a found record would overwrite it)"
+  },
+  {
+   "name": "first-entry",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "COTRN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "why": "#4049 slice 4 (mutation survivors of the generated variant): the same input as carddemo-tranview's first-entry"
+  },
+  {
+   "name": "enter-empty-transaction-id",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "COTRN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COTRN1A": {}
+   },
+   "why": "#4049 slice 4 (mutation survivors of the generated variant): the same input as carddemo-tranview's enter-empty-transaction-id"
+  },
+  {
+   "name": "enter-no-map-received",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CT00",
+    "CDEMO-FROM-PROGRAM": "COTRN00C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "why": "#4506 (mutation survivors of the generated variant): ENTER on a re-entry with no map received (MAPFAIL): the program never tests RESP, so the screen is the working storage it began with (spaces), not the received input"
+  }
+ ],
+ "scenario_generate": {
+  "seed": 4506,
+  "count": 28,
+  "prefix": "generated",
+  "aid": [
+   "DFHENTER",
+   "DFHENTER",
+   "DFHPF3",
+   "DFHENTER",
+   "DFHPF4",
+   "DFHPF5",
+   "DFHPF9"
+  ],
+  "commarea": {
+   "CDEMO-FROM-TRANID": "CT00",
+   "CDEMO-FROM-PROGRAM": "COTRN00C",
+   "CDEMO-USER-ID": "USER0001",
+   "CDEMO-USER-TYPE": "U",
+   "CDEMO-PGM-CONTEXT": {
+    "values": [
+     0,
+     1
+    ]
+   },
+   "CDEMO-CT01-TRN-SELECTED": {
+    "from": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS.TRAN-ID",
+    "miss": 0.2
+   }
+  },
+  "receive": {
+   "COTRN1A": {
+    "@bms": {
+     "bad": 0.1,
+     "empty": 0.3
+    }
+   }
+  }
+ }
+}

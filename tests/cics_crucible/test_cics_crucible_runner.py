@@ -135,6 +135,65 @@ def test_a_disabled_program_definition_refuses_the_case_by_name(tmp_path):
     assert all(c["status"] == "unsupported" and "STATUS(DISABLED)" in c["reason"] for c in cells.values())
 
 
+def _prog(*cmds: str) -> str:
+    body = "".join(f"           EXEC CICS {c}\n           END-EXEC.\n" for c in cmds)
+    return "       PROCEDURE DIVISION.\n" + body + "           EXEC CICS RETURN END-EXEC.\n"
+
+
+@pytest.mark.parametrize(
+    ("cmds", "named"),
+    [
+        (["START TRANSID('ABCD') CHANNEL(CH)"], "START CHANNEL"),
+        (["RUN TRANSID('ABCD') CHANNEL(CH) CHILD(TK)"], "RUN CHANNEL"),
+        (["FETCH CHILD(TK)"], "a waiting FETCH"),
+        (["FETCH ANY(TK) TIMEOUT(5)"], "a waiting FETCH"),
+        (["FETCH CHILD(TK) NOSUSPEND"], "FETCH NOSUSPEND"),
+        (["FREE CHILD(TK)"], "FREE CHILD"),
+        (["RUN TRANSID('ABCD') CHILD(TK)", "DELAY FOR SECONDS(3)"], "a parent that waits"),
+    ],
+)
+def test_each_async_member_the_runner_cannot_schedule_is_named(cmds, named):
+    """#4950 (register X18): the runner has no child schedule and no channel event, so each member is refused by name."""
+    assert any(named in f and "X18" in f for f in runner.async_refusals(_prog(*cmds)))
+
+
+def test_a_parent_that_never_waits_still_runs_its_children_after_it_ends():
+    """The positive control: SPEC section 4's schedule is the runner's, so a RUN child with no wait, a channel on a
+    PUT CONTAINER or a RETURN, and a commented-out FETCH are not refused."""
+    src = _prog(
+        "RUN TRANSID('ABCD') CHILD(TK)", "PUT CONTAINER('C') CHANNEL(CH) FROM(X)", "RETURN TRANSID('ABCD') CHANNEL(CH)"
+    )
+    src += "      *    EXEC CICS FETCH CHILD(TK) END-EXEC.\n"
+    assert runner.async_refusals(src) == []
+
+
+def test_no_pinned_crucible_case_needs_the_child_schedule():
+    """#4950 (register X18): the runner's missing child schedule has no consumer. Not one case of the pinned crucible
+    is refused by `case_async_refusals`; the day one is, the SPEC 6.2 CHILD event and the runner wiring become work."""
+    env = os.environ.get(runner.PATH_ENV)
+    if not env or not Path(env, "cases").is_dir():
+        pytest.skip(f"no cics-crucible checkout ({runner.PATH_ENV})")
+    needing = {d.name: f for d in cc.discover(Path(env)) if (f := runner.case_async_refusals(cc.load_case(d)))}
+    assert needing == {}
+
+
+def test_a_case_with_an_async_member_is_refused_by_name_on_every_run_side(tmp_path):
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "P.cbl").write_text(_prog("FREE CHILD(TK)"), encoding="utf-8")
+    data = {
+        "id": "c1",
+        "trap": "t",
+        "scenarios": [{"id": "s1"}],
+        "sources": {"cobol": ["src/P.cbl"], "copy": []},
+        "layouts": {},
+        "maps": {},
+    }
+    case = cc.Case(dir=tmp_path, data=data, expected={}, csd=cc.parse_csd("DEFINE PROGRAM(P) GROUP(G)\n"))
+    cells = runner.measure_case(case, {"cobol-stub", "java", "java-ported"}, tmp_path / "w", offline=True)
+    assert sorted(c["side"] for c in cells.values()) == ["cobol-stub", "java", "java-ported"]
+    assert all(c["status"] == "unsupported" and "FREE CHILD" in c["reason"] for c in cells.values())
+
+
 def test_a_cases_stated_origin_is_the_stubs_origin_env():
     """#4415 slice 2 (register X29): the case's `origin` -- applid, userid, facilname, networkid, faciltype, as the case
     states them -- is $GGCICS_ORIGIN in that order; a case that states none gives none (INQUIRE ASSOCIATION is refused)."""
@@ -541,6 +600,8 @@ def test_ts_queues_are_seeded_in_the_stubs_page_and_read_back_as_ebcdic(tmp_path
     assert (tmp_path / "ts" / "48435131" / "000002.bin").read_bytes() == b"AB"  # X'C1C2' is EBCDIC AB
     assert runner.read_ts(tmp_path / "ts") == {"HCQ1": [b"\xc1\xc2", b"\xc1\xc2"], "Q 2": []}
     assert runner.read_ts(tmp_path / "nothing") == {}
+    (tmp_path / "ts" / "td-48435131").mkdir()  # a TD queue the stub keeps beside the TS queues (hc-readq-td)
+    assert set(runner.read_ts(tmp_path / "ts")) == {"HCQ1", "Q 2"}
 
 
 def test_the_java_output_becomes_an_actual_log(tmp_path):
@@ -1111,3 +1172,106 @@ def test_the_java_test_enters_tasks_through_the_facades_only_when_asked():
     assert '"handleTransaction"' in src and '"handleLink"' in src
     assert "did not run its task in the region" in src and "that is not the one the scenario starts" in src
     assert "java-facade" in cc.SIDES
+
+
+# ---- #4965: the byte-carrying handleTransaction overload ---------------------------------------
+
+
+def test_the_java_test_drives_the_byte_overload_and_reads_lastAnswerBytes():
+    """#4965: where a service has handleTransaction(String, [T,] byte[]) the scenario's first task enters through it
+    -- the previous RETURN's bytes in -- and lastAnswerBytes() is read back; overloads are told apart by their last
+    parameter (a DTO-less (String, byte[]) is not the (String, T) of the same arity)."""
+    src = runner._JAVA_TEST
+    assert "static Method facade(Object service, String name, int params, boolean bytes)" in src
+    assert '"handleTransaction", 2, true' in src and '"handleTransaction", 3, true' in src
+    # both overloads are entered: the scenario runs once by the DTO one, then again by the byte one (#4965)
+    assert "new Scenario(plan, sc, false)" in src and "new Scenario(plan, sc, true)" in src and '".bytes.json"' in src
+    assert 'm.getName().equals("lastAnswerBytes")' in src and "answered = (byte[]) invoke(a0, service)" in src
+    assert 'copy.put("answer_bytes"' in src and "pendingBytes = abended || transid == null ? null : answered;" in src
+    assert (
+        'facade(service, "handleTransaction", 1, false)' in src
+        and 'facade(service, "handleTransaction", 2, false)' in src
+    )
+    assert "(m.getParameterTypes()[params - 1] == byte[].class) == bytes" in src
+
+
+def test_the_answered_bytes_are_the_bytes_the_tasks_return_passed_on():
+    """#4965: as equivalence_cics.py checks it. Without it a facade that stopped assigning lastAnswerBytes (answers null,
+    or the previous task's) fell back to the DTO's bytes and passed. A port that RETURNs through the DTO-only
+    returnTransid (the model-written crucible ports, CALINK ... PCWIZ) has no raw bytes either way: null equals null."""
+    src = runner._JAVA_TEST
+    assert "answeredByBytes = true;" in src and "answeredByBytes = false;" in src
+    assert "!java.util.Arrays.equals(answered, t.returnedBytes())" in src
+    assert "is not the bytes its RETURN passes on" in src
+
+
+def test_the_equivalence_harness_drives_the_byte_overload_too():
+    src = ec.FACADE_JAVA
+    assert (
+        'facade(service, "handleTransaction", 3, true)' in src
+        and 'facade(service, "handleTransaction", 2, true)' in src
+    )
+    assert "is not the bytes its RETURN passes on" in src and "scenario.returnedBytes()" in src
+
+
+def test_the_answered_bytes_are_what_the_returns_commarea_is_compared_by():
+    """The DTO cannot hold a numeric DISPLAY field of spaces (reads it as 0); the bytes lastAnswerBytes() answers can,
+    and they -- not the bytes encoded from the DTO -- decide against the instrument's hex."""
+    import base64
+
+    dto = cc.FieldArea({"WS-N": Decimal(0)}, cc.FULL, bytes.fromhex("F0F0"), 2)
+    spaces = base64.b64encode(b"  ").decode()  # the runtime page's blanks (#5053: not EBCDIC)
+    w = cc._Walk(ALL, cc.Context(layouts={}))
+    exp = {"length": 2, "hex": "4040"}
+    with pytest.raises(cc._Decided, match="commarea byte 0"):
+        w.area("here", "commarea", exp, dto)  # the DTO's own bytes: zeros, not the instrument's spaces
+    w.area("here", "commarea", exp, runner._with_answered_bytes(dto, spaces))  # no exception: the answered bytes
+    wrong = base64.b64encode(b" A").decode()
+    with pytest.raises(cc._Decided, match="commarea byte 1"):
+        w.area("here", "commarea", exp, runner._with_answered_bytes(dto, wrong))
+    # nothing answered (a port that passes no bytes), or no DTO area (no COMMAREA): untouched
+    assert runner._with_answered_bytes(dto, None) is dto
+    assert runner._with_answered_bytes(None, spaces) is None
+    raw = cc.RawArea(b"\x40", E)
+    assert runner._with_answered_bytes(raw, spaces) is raw
+
+
+def _answered(area, data: bytes, **kw):
+    import base64
+
+    return runner._with_answered_bytes(area, base64.b64encode(data).decode(), **kw)
+
+
+def test_the_answered_bytes_are_converted_from_the_runtime_page():
+    """#5053: a det port's bytes are in the runtime page (ASCII-family), the log's in CCSID 037 -- PC-STEP X'31' against
+    X'F1'. DISPLAY bytes go through the page, the binary ones (the layout) are kept as they are."""
+    dto = cc.FieldArea({"PC-STEP": Decimal(1)}, cc.FULL, bytes.fromhex("F1"), 1)
+    w = cc._Walk(ALL, cc.Context(layouts={}))
+    exp = {"length": 1, "hex": "F1"}
+    w.area("here", "commarea", exp, _answered(dto, b"1"))  # the runtime's '1' is the log's X'F1'
+    with pytest.raises(cc._Decided, match="commarea byte 0"):
+        w.area("here", "commarea", exp, _answered(dto, b"2"))
+    with pytest.raises(cc._Decided, match="commarea byte 0"):  # the page is never assumed to be EBCDIC
+        w.area("here", "commarea", exp, _answered(dto, b"\xf1", page="latin-1"))
+    # blanks, mixed text, the same bytes in the EBCDIC page itself
+    assert _answered(dto, b"A 1").data == "A 1".encode("cp037")
+    assert _answered(dto, bytes.fromhex("F1C140"), page="cp037").data == bytes.fromhex("F1C140")
+    assert _answered(dto, b"").data == b""
+    # a binary (COMP-3 / COMP) field is not text: its bytes stay, the DISPLAY ones around it convert
+    layout = [{"name": "N", "pic": "9(2)", "usage": "DISPLAY", "offset": 0, "bytes": 2},
+              {"name": "P", "pic": "S9(3)", "usage": "COMP-3", "offset": 2, "bytes": 2},
+              {"name": "H", "pic": "S9(4)", "usage": "COMP", "offset": 4, "bytes": 2}]  # fmt: skip
+    got = _answered(dto, b"12" + b"\x12\x3c" + b"\x00\x31", layout=layout)
+    assert got.data == bytes.fromhex("F1F2") + b"\x12\x3c" + b"\x00\x31"
+    assert got.known == 6
+    # nothing answered / no DTO area: untouched
+    assert runner._with_answered_bytes(dto, None) is dto
+    assert runner._with_answered_bytes(None, "MQ==") is None
+
+
+def test_the_java_run_declares_the_page_of_the_answered_bytes():
+    """#5053: the harness names the record charset the Java run writes (RUNTIME_PAGE), not the forge's default."""
+    src = Path(runner.__file__).read_text(encoding="utf-8")
+    assert 'props += f" -Dgitgalaxy.data.charset={java_charset_name(RUNTIME_PAGE)}"' in src
+    assert '_answered_layout(e.get("commarea"), shapes)' in src
+    assert runner.RUNTIME_PAGE == "latin-1"

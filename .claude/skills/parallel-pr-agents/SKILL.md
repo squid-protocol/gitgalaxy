@@ -1,6 +1,6 @@
 ---
 name: parallel-pr-agents
-description: Run several subagents in parallel, each landing its own PR against main, without them colliding on worktrees, shared files, or golden masters. Use when the user says "spin up agents for these issues", "work these in parallel", "fan out this roadmap/epic across agents", or is orchestrating several fact-channel/rule-fix/rebase PRs at once (the #3249/#3387 pattern). Covers both what each subagent must do (worktree, commit/PR conventions, additive-only edits, own-drift re-blessing, scratch files, CI watch, report format) and what the orchestrator must do (model tiering, concurrency cap, merge-train order, rebase-after-merge, a background PR-queue monitor, verifying claims) and fleet operations (box-capacity admission via `box_status.py`, lock tiers, freshness, shared-venv hygiene, stop-cleanup, PID watchers, WIP checkpoints, golden merge trains, load-aware bless, the `gitgalaxy-pr-worker` agent and `tests/tools/box/` tools). NOT for a single agent working one issue alone (no orchestration concerns), and not a substitute for `add-fact-channel`'s own per-channel spine/checklist.
+description: Run several subagents in parallel, each landing its own PR against main, without them colliding on worktrees, shared files, or golden masters. Use when the user says "spin up agents for these issues", "work these in parallel", "fan out this roadmap/epic across agents", or is orchestrating several fact-channel/rule-fix/rebase PRs at once (the #3249/#3387 pattern). Covers both what each subagent must do (worktree, commit/PR conventions, additive-only edits, own-drift re-blessing, scratch files, CI watch, report format) and what the orchestrator must do (model tiering, concurrency cap, merge-train order, merge-main-after-merge, a background PR-queue monitor, verifying claims) and fleet operations (box-capacity admission via `box_status.py`, lock tiers, freshness, shared-venv hygiene, stop-cleanup, PID watchers, WIP checkpoints, golden merge trains, load-aware bless, the `gitgalaxy-pr-worker` agent and `tests/tools/box/` tools). NOT for a single agent working one issue alone (no orchestration concerns), and not a substitute for `add-fact-channel`'s own per-channel spine/checklist.
 ---
 
 Lessons from the #3249 round (PRs #3349, #3350, #3357, #3368, #3369, #3375) and the #3383-#3387
@@ -34,7 +34,7 @@ each one recurring, not a general parallel-agent tutorial.
 - **Re-bless only your own drift.** After regenerating golden masters or the ruff baseline, diff
   against main and confirm every changed entry is yours (plus the expected topological X/Y/Z
   ripple). Re-blessing a sibling's already-merged drift silently reverts their work — see
-  `add-fact-channel`'s rebase/re-bless section for the full procedure `tests/tools/
+  `add-fact-channel`'s merge/re-bless section for the full procedure `tests/tools/
   rebase_rebless.py` (#3385, in progress) will eventually automate.
 - **Scratch files go in `/tmp/gitgalaxy-scratch/claude/`** (or the harness-provided per-session
   scratchpad directory), never the repo tree, not even temporarily — see CLAUDE.md's "Scratch files
@@ -63,18 +63,25 @@ each one recurring, not a general parallel-agent tutorial.
   freeing up rather than launching it alongside three others.
 - **State the merge-train order up front**, before any agent starts, not after PRs are ready — pick
   it from dependency direction (a channel that another PR's join builds on merges first) and tell
-  every agent its position, so a later agent in the chain knows to expect a rebase rather than being
-  surprised by one.
-- **Rebase after each merge in the train** (via `rebase_rebless.py` once #3385 lands; by hand
-  per `add-fact-channel`'s procedure until then) — don't batch rebases and don't let an agent
+  every agent its position, so a later agent in the chain knows to expect a merge of main rather than
+  being surprised by one.
+- **Merge origin/main into the next branch after each merge in the train** (never rebase; by hand
+  per `add-fact-channel`'s procedure) — don't batch these and don't let an agent
   discover mid-review that three siblings merged underneath it.
 - **Run a background monitor on the PR queue** instead of relying on the user to relay "PR X merged,
-  go rebase" — poll `gh pr list`/`gh pr view` state changes and trigger the next agent's rebase
+  go merge main" — poll `gh pr list`/`gh pr view` state changes and trigger the next agent's merge of main
   automatically. This is what turns a stated merge-train order into something that actually executes
   in order without a human in the loop for every hop.
 - **Verify agents' claims before reporting them onward.** An agent's final report describes what it
   intended and believes happened, not a guarantee. Before relaying "PR #NNNN is green and ready,"
   run `gh pr view <n>` and `gh pr checks <n>` yourself and report what CI actually shows.
+- **Scope-check agent output before trusting a green self-report:**
+  - `git diff --stat origin/main...HEAD`: no repo-wide reformat, no non-`.py` file through ruff, no scrap files.
+  - `pytest --collect-only -q <touched tests> | tail -1` on the branch vs main: a drop means gutted tests.
+  - Look for skips hiding gaps, test-only branches in production code, lazy imports in hot loops, and stale
+    contract tables (`_EXPECTED_NONE_KEYS`, schema allowlists). Prove on a whole real program or scan.
+  - Before merge, check CodeQL alerts (`gh api 'repos/squid-protocol/gitgalaxy/code-scanning/alerts?ref=refs/pull/<n>/merge'`).
+    Never merge a PR carrying an open owner decision.
 
 ## Fleet operations
 
@@ -95,8 +102,8 @@ Evidence is the 2026-10-03 multi-agent day; each rule below prevents one thing t
 - [ ] Admission and collisions: before every launch (and every heavy run of your own) follow the `box-capacity` skill: `tests/tools/box/box_status.py` verdict (heavy agents only into free slots, nothing on RED), file overlap with in-flight branches, shared singletons (Db2 container, golden lock, crucible pins).
 - [ ] Lock tiers decided and stated in every brief: heavy work -> `heavy-run.sh`, golden -> `golden-lock.sh`, slot count fixed. NEVER change lock policy mid-run: one exclusive lock serialized 10+ jobs behind a 40-min proof sweep while 11/12 cores idled, and an agent that changed the policy mid-run was blocked by the auto-mode classifier ("Interfere With Workloads").
 - [ ] Brief = issue(s) + acceptance criteria + model + coordination notes only; the setup/run/never boilerplate lives in `.claude/agents/gitgalaxy-pr-worker.md` (launch with `subagent_type: gitgalaxy-pr-worker`). Example:
-  `Land #4301 (acceptance: X passes, no golden drift outside rust). Model: sonnet. Merge-train: you are 2nd; #4299 merges first, expect a rebase.`
-- [ ] Merge train for golden-touching PRs: order stated up front, golden/pin-bump PRs LAST, each rebased and re-blessed (own drift only) after the one before it merges.
+  `Land #4301 (acceptance: X passes, no golden drift outside rust). Model: sonnet. Merge-train: you are 2nd; #4299 merges first, expect to merge main.`
+- [ ] Merge train for golden-touching PRs: order stated up front, golden/pin-bump PRs LAST, each merged up to main and re-blessed (own drift only) after the one before it merges.
 - [ ] Cap concurrent agents so a usage-limit cutoff cannot take the fleet at once (it killed 4 agents together; only the one that had pushed WIP lost nothing).
 
 **During the run**
@@ -107,7 +114,7 @@ Evidence is the 2026-10-03 multi-agent day; each rule below prevents one thing t
 - [ ] Checkpoint: push the branch and open a placeholder PR (title `WIP: ...`) early; unpushed work dies with the agent.
 - [ ] Load-aware bless: a bless/check run under load can time out regexes, which fakes diffs (2,911 golden diffs, #4247). Run it under `golden-lock.sh`, and REFUSE to bless if any file was excluded by a timeout in the run output.
 - [ ] Bless ONLY with `golden-lock.sh python tests/tools/crucible_check.py --update --yes` (builds CI-matched venvs per leg). Never run `update_golden_master` from `~/venvs/galaxy_venv` (Python 3.12 vs CI's pin): that produced ~2.9k phantom full-leg diffs on #4258.
-- [ ] After any sibling merge that touches golden masters (e.g. #4240 added snapshot section 12), merge origin/main and re-bless; that is what broke #4258's zero-dep leg.
+- [ ] After a sibling merge that touches golden masters (e.g. #4240 added snapshot section 12), merge origin/main and re-bless; merge main for no other reason than that, a conflict, or a main-caused required-check failure (#5134: each extra push costs a full CI run); that is what broke #4258's zero-dep leg.
 - [ ] After ANY sibling merge, re-validate every claim in the PR body (counts, "no drift", "rebased on") and edit it via `gh api -X PATCH repos/squid-protocol/gitgalaxy/pulls/<n> -f body=...` (`gh pr edit` fails on gh 2.45).
 
 **Stopping an agent**

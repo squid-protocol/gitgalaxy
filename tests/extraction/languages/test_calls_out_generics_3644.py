@@ -122,8 +122,8 @@ def test_generic_calls_out_redos_immunity(payload):
 
 
 def test_same_named_call_on_another_receiver_stays():
-    # Only the unit itself (unqualified, `this->`, its own class) is recursion; `child->m(` is
-    # a call to another object's method, which tree-sitter's side counts too.
+    # `this->` and its own class are recursion; `child->m(` is a call to another object's method,
+    # which tree-sitter's side counts too. The bare `getText(` is kept for the call resolver (#5628).
     code = (
         "int Node::getText(int a) {\n    child->getText(a);\n    this->getText(a - 1);\n"
         "    Node::getText(0);\n    return getText(a - 2);\n}\n"
@@ -131,7 +131,7 @@ def test_same_named_call_on_another_receiver_stays():
     funcs = _functions("cpp", code)
     (name,) = funcs
     assert funcs[name]["calls_out_to"] == ["getText"]
-    assert funcs[name]["calls_out_qualifiers"]["getText"] == ["child"]
+    assert funcs[name]["calls_out_qualifiers"]["getText"] == ["child", ""]
 
 
 def test_out_of_class_header_is_not_a_call_to_itself():

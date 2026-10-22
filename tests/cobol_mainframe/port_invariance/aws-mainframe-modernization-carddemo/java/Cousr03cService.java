@@ -36,7 +36,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class Cousr03cService {
 
-    private static final Charset CS = CobolRecords.charset();
+    private static final Charset CS = Cobol.recordCharset(CobolRecords.charset());
     private static final int GOTO = 1 << 20;
     private static final BigDecimal D0 = new BigDecimal("0");
     private static final BigDecimal D1 = new BigDecimal("1");
@@ -679,11 +679,28 @@ public class Cousr03cService {
         return task.returned(Object.class);
     }
 
+    public Object handleTransaction(String transid, Cousr03cCarddemoCommarea request, byte[] area) {
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.transaction(transid, request, area);
+        region.run(task, "COUSR03C", this::runTask);
+        lastAnswerBytes = task.returnedBytes();
+        return task.returned(Object.class);
+    }
+
     public Cousr03cCarddemoCommarea handleLink(Cousr03cCarddemoCommarea request) {
         CicsTask.Region region = CicsTask.region();
         CicsTask task = region.linked("COUSR03C", request);
         region.run(task, "COUSR03C", this::runTask);
         return request;
+    }
+
+    // @facade-helper: the bytes the last byte-carrying handleTransaction answered
+    private byte[] lastAnswerBytes;
+
+    /** The bytes the last byte-carrying handleTransaction's RETURN passed on (a copy; null: none).
+     *  @facade-helper */
+    public byte[] lastAnswerBytes() {
+        return lastAnswerBytes == null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);
     }
 
 
@@ -865,7 +882,7 @@ public class Cousr03cService {
         }
         // EXEC CICS RETURN TRANSID (WS-TRANID) COMMAREA (CARDDEMO-COMMAREA) END-EXEC
         caBack.run();
-        task.returnTransid(f3_WS_TRANID.strip(), out_Cousr03cCarddemoCommarea(f10_CARDDEMO_COMMAREA.storage(), f10_CARDDEMO_COMMAREA.offset()), null);
+        task.returnTransid(f3_WS_TRANID.strip(), out_Cousr03cCarddemoCommarea(f10_CARDDEMO_COMMAREA.storage(), f10_CARDDEMO_COMMAREA.offset()), (Integer) null, Cobol.commarea(f10_CARDDEMO_COMMAREA, 194).bytes);
         if (true) throw new Goback();
         return 1;
     }
@@ -955,10 +972,10 @@ public class Cousr03cService {
         // MOVE ZEROS TO CDEMO-PGM-CONTEXT
         Cobol.moveFigurative(Figurative.ZEROS, f18_CDEMO_PGM_CONTEXT, CS);
         // EXEC CICS XCTL PROGRAM(CDEMO-TO-PROGRAM) COMMAREA(CARDDEMO-COMMAREA) END-EXEC
-        String xr1 = task.xctl(Cobol.text(f15_CDEMO_TO_PROGRAM, CS).strip(), out_Cousr03cCarddemoCommarea(f10_CARDDEMO_COMMAREA.storage(), f10_CARDDEMO_COMMAREA.offset()));
+        String xr1 = task.xctl(Cobol.text(f15_CDEMO_TO_PROGRAM, CS).strip(), out_Cousr03cCarddemoCommarea(f10_CARDDEMO_COMMAREA.storage(), f10_CARDDEMO_COMMAREA.offset()), (Integer) null, Cobol.commarea(f10_CARDDEMO_COMMAREA, 194).bytes);
         if ("NORMAL".equals(xr1)) throw new Goback();
         Cobol.store(f364_EIBRESP, BigDecimal.valueOf(DetCics.resp(xr1)), false, CS);
-        Cobol.store(f365_EIBRESP2, BigDecimal.valueOf(DetCics.xctlResp2(xr1)), false, CS);
+        Cobol.store(f365_EIBRESP2, BigDecimal.valueOf(task.transferResp2()), false, CS);
         if (DetCics.resp(xr1) != 0) {
             int to = condition(DetCics.condition(DetCics.resp(xr1)));
             if (to >= 0) return GOTO | to;
@@ -1140,9 +1157,9 @@ public class Cousr03cService {
         byte[] held11 = heldKey.get(f5_WS_USRSEC_FILE.strip());
         int resp10 = task.deleteHeld(f5_WS_USRSEC_FILE.strip(), () -> store(f5_WS_USRSEC_FILE.strip()).remove(held11));
         Cobol.store(f364_EIBRESP, BigDecimal.valueOf(resp10), false, CS);
-        Cobol.store(f365_EIBRESP2, BigDecimal.valueOf(0), false, CS);
+        Cobol.store(f365_EIBRESP2, BigDecimal.valueOf(task.resp2()), false, CS);
         Cobol.store(f7_WS_RESP_CD, BigDecimal.valueOf(resp10), false, CS);
-        Cobol.store(f8_WS_REAS_CD, BigDecimal.valueOf(0), false, CS);
+        Cobol.store(f8_WS_REAS_CD, BigDecimal.valueOf(task.resp2()), false, CS);
         // EVALUATE WS-RESP-CD
         if ((Cobol.num(f7_WS_RESP_CD, CS).compareTo(D0) == 0)) {
             // PERFORM INITIALIZE-ALL-FIELDS

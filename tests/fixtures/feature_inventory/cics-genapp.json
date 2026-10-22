@@ -1556,6 +1556,517 @@
       "programs": []
     }
   },
+  "eras": {
+    "programs": {
+      "base/src/lgacdb01.cbl": {
+        "earliest": 4,
+        "era": 4,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 158,
+            "tell": "address-of"
+          },
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "count": 5,
+            "era": 2,
+            "first_line": 108,
+            "tell": "exec-sql"
+          },
+          {
+            "count": 1,
+            "era": 4,
+            "first_line": null,
+            "tell": "named-counter"
+          }
+        ]
+      },
+      "base/src/lgacdb02.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 140,
+            "tell": "address-of"
+          },
+          {
+            "count": 2,
+            "era": 2,
+            "first_line": 86,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "base/src/lgacus01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 105,
+            "tell": "address-of"
+          }
+        ]
+      },
+      "base/src/lgacvs01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      },
+      "base/src/lgapdb01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 173,
+            "tell": "address-of"
+          },
+          {
+            "count": 11,
+            "era": 2,
+            "first_line": 75,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "base/src/lgapol01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 106,
+            "tell": "address-of"
+          }
+        ]
+      },
+      "base/src/lgapvs01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      },
+      "base/src/lgastat1.cbl": {
+        "earliest": 4,
+        "era": 4,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 5,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "count": 2,
+            "era": 4,
+            "first_line": null,
+            "tell": "channel-container"
+          },
+          {
+            "count": 1,
+            "era": 4,
+            "first_line": null,
+            "tell": "named-counter"
+          }
+        ]
+      },
+      "base/src/lgdpdb01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 140,
+            "tell": "address-of"
+          },
+          {
+            "count": 3,
+            "era": 2,
+            "first_line": 90,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "base/src/lgdpol01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 104,
+            "tell": "address-of"
+          }
+        ]
+      },
+      "base/src/lgdpvs01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      },
+      "base/src/lgicdb01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 128,
+            "tell": "address-of"
+          },
+          {
+            "count": 3,
+            "era": 2,
+            "first_line": 81,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "base/src/lgicus01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 96,
+            "tell": "address-of"
+          }
+        ]
+      },
+      "base/src/lgicvs01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 10,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      },
+      "base/src/lgipdb01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 260,
+            "tell": "address-of"
+          },
+          {
+            "count": 16,
+            "era": 2,
+            "first_line": 89,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "base/src/lgipol01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 88,
+            "tell": "address-of"
+          }
+        ]
+      },
+      "base/src/lgipvs01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 5,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      },
+      "base/src/lgsetup.cbl": {
+        "earliest": 4,
+        "era": 4,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 82,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "count": 74,
+            "era": 4,
+            "first_line": null,
+            "tell": "named-counter"
+          }
+        ]
+      },
+      "base/src/lgstsq.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 5,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      },
+      "base/src/lgtestc1.cbl": {
+        "earliest": 1,
+        "era": 2,
+        "mixed": true,
+        "tells": [
+          {
+            "count": 2,
+            "era": 1,
+            "first_line": null,
+            "tell": "handle-condition"
+          },
+          {
+            "count": 6,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      },
+      "base/src/lgtestp1.cbl": {
+        "earliest": 1,
+        "era": 1,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 2,
+            "era": 1,
+            "first_line": null,
+            "tell": "handle-condition"
+          }
+        ]
+      },
+      "base/src/lgtestp2.cbl": {
+        "earliest": 1,
+        "era": 1,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 2,
+            "era": 1,
+            "first_line": null,
+            "tell": "handle-condition"
+          }
+        ]
+      },
+      "base/src/lgtestp3.cbl": {
+        "earliest": 1,
+        "era": 1,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 2,
+            "era": 1,
+            "first_line": null,
+            "tell": "handle-condition"
+          }
+        ]
+      },
+      "base/src/lgtestp4.cbl": {
+        "earliest": 1,
+        "era": 1,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 2,
+            "era": 1,
+            "first_line": null,
+            "tell": "handle-condition"
+          }
+        ]
+      },
+      "base/src/lgucdb01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 126,
+            "tell": "address-of"
+          },
+          {
+            "count": 4,
+            "era": 2,
+            "first_line": 76,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "base/src/lgucus01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 108,
+            "tell": "address-of"
+          }
+        ]
+      },
+      "base/src/lgucvs01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 2,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      },
+      "base/src/lgupdb01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 192,
+            "tell": "address-of"
+          },
+          {
+            "count": 12,
+            "era": 2,
+            "first_line": 102,
+            "tell": "exec-sql"
+          }
+        ]
+      },
+      "base/src/lgupol01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": 107,
+            "tell": "address-of"
+          }
+        ]
+      },
+      "base/src/lgupvs01.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 2,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      },
+      "base/src/lgwebst5.cbl": {
+        "earliest": 2,
+        "era": 2,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 46,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          }
+        ]
+      }
+    },
+    "summary": {
+      "by_era": {
+        "0": 0,
+        "1": 4,
+        "2": 24,
+        "3": 0,
+        "4": 3,
+        "none": 0
+      },
+      "mixed": 1,
+      "programs": 31,
+      "tells": {
+        "address-of": 15,
+        "channel-container": 1,
+        "exec-sql": 8,
+        "handle-condition": 5,
+        "named-counter": 3,
+        "resp": 13
+      }
+    }
+  },
   "intrinsic_functions": {
     "INTEGER": {
       "count": 1,

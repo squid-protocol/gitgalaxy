@@ -1,0 +1,79 @@
+{
+ "format": "cics-crucible-port/1",
+ "case": "pc-return-immediate",
+ "program": "PCIMMS",
+ "attempt": 1,
+ "backend": "det",
+ "model": null,
+ "command": "python tests/tools/cics_case_ports.py <crucible>/cases/pseudo-conversational/pc-return-immediate --work W --forge --ports OUT (the deterministic translator, gitgalaxy/tools/cobol_to_java/det; no model)",
+ "proposed_at": "2026-10-14T01:13:43+00:00",
+ "notes": "#5053: the det translator's port, 5/5 statements, 0 holes; nothing edited by hand. The cobolrt runtime every det port needs is committed once, in PCIMMA's overlay (the overlays of a case are laid together).",
+ "approved": false,
+ "history": [
+  {
+   "at": "2026-10-14T01:13:43+00:00",
+   "event": "proposed",
+   "attempt": 1
+  }
+ ],
+ "proof": {
+  "reproven": [
+   {
+    "at": "2026-10-14T01:30:07+00:00",
+    "crucible_ref": "v0.7.0 (aaf84bcd)",
+    "summary": {
+     "no-terminal": "1/1"
+    },
+    "port_sha256": "c9b58b67f28e14d00dd822d1c8f339905ae318f62166047322ac5c36fd4bed52",
+    "harness_commit": "5be634bb79dda7c04ec709da69b9c6d16ce022ac",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program PCIMMS --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
+   },
+   {
+    "at": "2026-10-15T13:28:50+00:00",
+    "crucible_ref": "v0.8.0 (afc1db0f)",
+    "summary": {
+     "no-terminal": "1/1"
+    },
+    "port_sha256": "c9b58b67f28e14d00dd822d1c8f339905ae318f62166047322ac5c36fd4bed52",
+    "harness_commit": "d38dc2b72cc89b1b3ea3ba2bb0a662078575dc94",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program PCIMMS --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
+   },
+   {
+    "at": "2026-10-16T18:26:07+00:00",
+    "crucible_ref": "v0.9.0 (3ca75ae0)",
+    "summary": {
+     "no-terminal": "1/1"
+    },
+    "port_sha256": "c9b58b67f28e14d00dd822d1c8f339905ae318f62166047322ac5c36fd4bed52",
+    "harness_commit": "f47c7b187d4d7e72fcb0993486b256d60827f223",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program PCIMMS --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
+   },
+   {
+    "at": "2026-10-17T13:42:46+00:00",
+    "crucible_ref": "v0.9.0 (3ca75ae0)",
+    "summary": {
+     "no-terminal": "1/1"
+    },
+    "port_sha256": "c9b58b67f28e14d00dd822d1c8f339905ae318f62166047322ac5c36fd4bed52",
+    "harness_commit": "d8f2750e099b36bc779967e2f7f376ccda2a310d",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program PCIMMS --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
+   }
+  ]
+ }
+}

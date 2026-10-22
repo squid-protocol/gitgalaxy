@@ -13,18 +13,19 @@ their own drifting copy.
 
 ## The repos
 
-Canonical local layout on the dev machine (moved to NVMe 2026-09-23) — the working repos are siblings
-under `/nvme-data/projects/`; the corpus pool is `/nvme-data/gitgalaxy-data/`; the 16TB HDD
-(`/srv/storage_16tb/projects/`) holds only archives (old checkouts, `museum*`, `gitgalaxy-raw-output`,
-`gitgalaxy-population-analyses`, `squid-telemetry`). Set `KEYWORD_ROSETTA_PATH` / `LANGUAGE_CRUCIBLE_PATH` /
-`CICS_CRUCIBLE_PATH` when working from a worktree.
+Local layout: the working repos are siblings of the primary engine checkout. Derive it, never hardcode a box
+path: `PRIMARY=${GG_PRIMARY:-$(dirname "$(cd "$(git rev-parse --git-common-dir)" && pwd)")}`
+(`.claude/agents/gitgalaxy-pr-worker.md`, Setup 1). Engine worktrees live in `$PRIMARY/../gitgalaxy-worktrees/`,
+the corpora beside `$PRIMARY` (the `default_dir` entries of `tests/crucible_pins.toml`), and the mainframe corpora
+cache in `$GITGALAXY_MAINFRAME_CORPORA` (default `$PRIMARY/.mainframe_corpora`). Set `KEYWORD_ROSETTA_PATH` /
+`LANGUAGE_CRUCIBLE_PATH` / `CICS_CRUCIBLE_PATH` when working from a worktree.
 
 | Repo (GitHub, org `squid-protocol`) | Local checkout | What it is |
 |---|---|---|
-| **gitgalaxy** | `/nvme-data/projects/gitgalaxy` (worktrees in `gitgalaxy-worktrees/`) | **The engine** (this repo). AST-free, LLM-free static analysis: bounded-regex structural signatures → knowledge graph → risk scoring / SBOM / 3D map. Everything else in this table exists to feed, verify, or showcase it. |
-| **language-crucible** | `/nvme-data/projects/language-crucible` | Zero-execution structural-parser **benchmark corpus** (`data/<language>/<repo-folder>/`, per-category `SOURCES.md`, machine-readable `PROVENANCE.json`). gitgalaxy CI pins it to a release tag (`LANGUAGE_CRUCIBLE_REF` GH Actions var + `tests/_crucible_pin.py`) and diffs golden masters against it. Releases per its `RELEASING.md`. |
-| **cics-crucible** | `/nvme-data/projects/cics-crucible` | **Adversarial CICS benchmark** for the `cobol_to_java` CICS pipeline (epic #3989): small original CICS COBOL applications (programs, BMS, CSD, copybooks) in five traps -- HANDLE CONDITION / ABEND, raw 3270 attribute bytes, COMMAREA length mismatch, START / RETRIEVE ghost tasks, pseudo-conversational chains -- each scenario with a **hand-written expected event log** derived from IBM's documentation (format `cics-crucible/1`, its `SPEC.md`). The log is the oracle: gitgalaxy's stub CICS runtime and the generated Java are both measured against it, never the other way round. gitgalaxy pins it to a release tag in `tests/_cics_crucible_pin.py` (`PINNED_REF`; deliberately no repository variable -- `cics-crucible.yml` reads the file, which works on fork PRs too). `tests/tools/cics_crucible.py` runs it; its ratchet ledgers are `tests/cics_crucible/baseline.json` (the cells) and `tests/cics_crucible/coverage.json` (#4023: the COBOL each passing scenario executes, traced with `tests/tools/cobol_coverage.py`), its report `docs/language_status/cics_crucible.md`. Dev data forever: never an estate for field testing (#3803). Releases per its `RELEASING.md`. |
-| **keyword-rosetta** | `/nvme-data/projects/keyword-rosetta` | **Control corpus**: one identical 12-probe program shell in all 46 signature-bearing languages, exact planted keyword counts — measures whether the engine treats identical intent identically across languages (cross-language bias). Gates via `tools/verify_language.py`; deviations live in `deviation_ledger.json` per its `docs/GATING.md`. Its CI checks out gitgalaxy **main**, and gitgalaxy's `rosetta-audit` checks out its **main** — no pins in either direction (#2682). Its `bias-history.yml` regenerates the bias chart after every corpus push and daily. |
+| **gitgalaxy** | `$PRIMARY` (worktrees in `$PRIMARY/../gitgalaxy-worktrees/`) | **The engine** (this repo). AST-free, LLM-free static analysis: bounded-regex structural signatures → knowledge graph → risk scoring / SBOM / 3D map. Everything else in this table exists to feed, verify, or showcase it. |
+| **language-crucible** | `$PRIMARY/../language-crucible` | Zero-execution structural-parser **benchmark corpus** (`data/<language>/<repo-folder>/`, per-category `SOURCES.md`, machine-readable `PROVENANCE.json`). gitgalaxy CI pins it to a release tag (`LANGUAGE_CRUCIBLE_REF` GH Actions var + `tests/_crucible_pin.py`) and diffs golden masters against it. Releases per its `RELEASING.md`. |
+| **cics-crucible** | `$PRIMARY/../cics-crucible` | **Adversarial CICS benchmark** for the `cobol_to_java` CICS pipeline (epic #3989): small original CICS COBOL applications (programs, BMS, CSD, copybooks) in five traps -- HANDLE CONDITION / ABEND, raw 3270 attribute bytes, COMMAREA length mismatch, START / RETRIEVE ghost tasks, pseudo-conversational chains -- each scenario with a **hand-written expected event log** derived from IBM's documentation (format `cics-crucible/1`, its `SPEC.md`). The log is the oracle: gitgalaxy's stub CICS runtime and the generated Java are both measured against it, never the other way round. gitgalaxy pins it to a release tag in `tests/_cics_crucible_pin.py` (`PINNED_REF`; deliberately no repository variable -- `cics-crucible.yml` reads the file, which works on fork PRs too). `tests/tools/cics_crucible.py` runs it; its ratchet ledgers are `tests/cics_crucible/baseline.json` (the cells) and `tests/cics_crucible/coverage.json` (#4023: the COBOL each passing scenario executes, traced with `tests/tools/cobol_coverage.py`), its report `docs/language_status/cics_crucible.md`. Dev data forever: never an estate for field testing (#3803). Releases per its `RELEASING.md`. |
+| **keyword-rosetta** | `$PRIMARY/../keyword-rosetta` | **Control corpus**: one identical 12-probe program shell in all 46 signature-bearing languages, exact planted keyword counts — measures whether the engine treats identical intent identically across languages (cross-language bias). Gates via `tools/verify_language.py`; deviations live in `deviation_ledger.json` per its `docs/GATING.md`. Its CI checks out gitgalaxy **main**, and gitgalaxy's `rosetta-audit` checks out its **main** — no pins in either direction (#2682). Its `bias-history.yml` regenerates the bias chart after every corpus push and daily. |
 | **gitgalaxy-raw-output** | `gitgalaxy-raw-output` | Real, unedited **scan outputs** on independently-chosen production repos (`v<engine-version>/<repo>/<repo>_galaxy_llm.md` + gzipped audit/SBOM) plus speed charts. Evidence source for README claims and `docs/language_status/` §8 sections. |
 | **squid-telemetry** | `squid-telemetry` | **Distribution/adoption analytics** (the engine itself is air-gapped and phones nothing home; this pipeline scrapes public GitHub/GitLab/PyPI fetch metrics daily via Actions and commits regenerated chart PNGs). |
 | **gitgalaxy-population-analyses** | `gitgalaxy-population-analyses` | Offline **statistical analyses** over scan populations (risk-distribution ridgeplots, archetype clustering, threat-prediction distribution studies). Reads raw inputs from gitgalaxy-raw-output; never on any CI path. |
@@ -33,14 +34,13 @@ under `/nvme-data/projects/`; the corpus pool is `/nvme-data/gitgalaxy-data/`; t
 
 **Local-only directories that are NOT repos** (but matter):
 
-- `/nvme-data/gitgalaxy-data/` (also reachable as `/srv/.../gitgalaxy/data`) — the full-repo **source pool** (~113 clones, `corpus_<domain>/` collections,
+- The data pool (`data/` beside `$PRIMARY`) — the full-repo **source pool** (~113 clones, `corpus_<domain>/` collections,
   npm/pypi mirrors). Feeds the crucible; not pinned, not a git repo itself. Its `README.md`
   documents the layout. `gitgalaxy/data/gitgalaxy/` is a clone of the engine kept in the pool so
   the engine can scan itself — **never edit engine code there**, and never put repos or worktrees inside
   the pool (a pool-wide scan would sample them).
 - `gitgalaxy/v1` … `v5`, `museum*`, `temp/`, `threat_hunter/` — historical/scratch copies.
-  (all on the HDD). **Only `/nvme-data/projects/gitgalaxy` is the live engine checkout** — the HDD `v6`
-  is retired. A repo-wide grep from `/srv/.../projects` or `/srv/.../gitgalaxy` will hit stale copies of files like `language_standards.py` in
+  **Only `$PRIMARY` and its worktrees are live engine checkouts.** A grep above `$PRIMARY` will hit stale copies of files like `language_standards.py` in
   `temp/`, `threat_hunter/`, and the pool's self-scan clone — check the path before trusting or
   editing a hit.
 

@@ -21,7 +21,7 @@ import pytest
 
 import gitgalaxy.cobol_refractor_controller as refractor
 import gitgalaxy.cobol_to_java_controller as java_controller
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import scan_to_db
+from scan_server import scan_to_db
 from gitgalaxy.tools.cobol_to_java.java_target import ConfigError, target_from_dict
 
 
@@ -148,6 +148,9 @@ def test_each_site_gets_its_helper_and_route(scanned, tmp_path):
     assert "TODO: @tdq@ is an installation symbol: set the real queue name." in w
     route = _read(java, "messaging/RoutingTransientData.java")
     assert 'ROUTES.put("CSSL", "log");' in route and 'ROUTES.put("JOBS", "reader");' in route
+    assert (
+        'MODES.put("JOBS", "OUTPUT");' in route and "CLOSED.add" not in route
+    )  # #5168: TYPEFILE(OUTPUT), OPENTIME(INITIAL)
     assert "Shared through TS STATE: written by cbl/STATEW.cbl." in _read(java, "service/StaterService.java")
 
     mq = _read(java, "service/MqsvcService.java")

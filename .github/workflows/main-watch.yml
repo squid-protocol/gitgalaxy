@@ -31,6 +31,7 @@ on:
       - "GitGalaxy Smoke Tests"
       - "Mainframe Ground Truth"
       - "Muninn Security Scan"
+      - "OS Smoke Grid"
       - "Ports Compile"
       - "Tree-sitter Accuracy Audit"
       - "unicode-gauntlet"

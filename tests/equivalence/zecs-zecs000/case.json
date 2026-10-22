@@ -1,0 +1,83 @@
+{
+  "kind": "cics",
+  "corpus": "zecs",
+  "program": "ZECS000",
+  "program_source": "Source/ZECS000.cbl",
+  "copy_dirs": [
+    "Source"
+  ],
+  "transid": "ZX01",
+  "clock": "2026/10/01 10:30:15.00",
+  "install_symbols": {
+    "values": {
+      "ECS_HLQ": "ZECS",
+      "ENVIRONMENT": "TEST"
+    },
+    "why": "zECS's install jobs (JCL/CONFIG.jcl, DEFEXPR.jcl) replace @ecs_hlq@ and @environment@ in ZCEXPIRE.idcams and the CSD's DEFINE FILE(ZCEXPIRE) DSNAME; this case installs one environment, high-level qualifier ZECS and environment TEST"
+  },
+  "datasets": {
+    "ZECS.ZCEXPIRE.TEST": {
+      "vsam": {
+        "key_offset": 0,
+        "key_length": 4,
+        "reclen": 70,
+        "variable": true,
+        "why": "Source/ZCEXPIRE.idcams: INDEXED KEYS(4 0) RECORDSIZE(80 2048), RECORDFORMAT(V) in the CSD. Every record the program writes and reads is its ZX-RECORD, 70 bytes (LENGTH OF ZX-RECORD), whose first 4 bytes are the key"
+      },
+      "input": "@case/zcexpire.bin",
+      "entity": "ZxRecord",
+      "copybook": "Source/ZECS000.cbl",
+      "record": "ZX-RECORD"
+    }
+  },
+  "commarea": null,
+  "linked": false,
+  "screens": {},
+  "scenarios": [
+    {
+      "name": "interval-not-elapsed",
+      "commarea": null,
+      "startcode": "S",
+      "why": "the control record ZX01 on file was written 600 s before the task (its interval is 1800 s): 1400-UPDATE finds RELATIVE-TIME below the TTL, so 8000-RESTART (START TRANSID(EIBTRNID) INTERVAL(1500) with the 20-byte ZC-PARM) and 9000-RETURN end the task before the expiration browse of the instance's file"
+    },
+    {
+      "name": "control-record-duprec",
+      "commarea": null,
+      "startcode": "S",
+      "faults": [
+        {
+          "cmd": "READ",
+          "file": "ZCEXPIRE",
+          "resp": "NOTFND",
+          "why": "the control record is not on file: 1300-WRITE"
+        },
+        {
+          "cmd": "WRITE",
+          "file": "ZCEXPIRE",
+          "resp": "DUPREC",
+          "why": "another expiration task wrote it first"
+        }
+      ],
+      "why": "READ UPDATE of the control record NOTFND, so 1300-WRITE writes it, and the WRITE answers DUPREC (a task of the same instance wrote it first): 8000-RESTART and 9000-RETURN end the task before the browse"
+    },
+    {
+      "name": "enq-busy",
+      "commarea": null,
+      "startcode": "S",
+      "faults": [
+        {
+          "cmd": "ENQ",
+          "resource": "ZC-EXPIRE-ENQ",
+          "resp": "ENQBUSY",
+          "why": "another expiration task of the instance holds the ENQ (NOSUSPEND: the task is not suspended, ENQBUSY is raised)"
+        }
+      ],
+      "why": "1200-ENQ ENQ RESOURCE(ZC-EXPIRE-ENQ) NOSUSPEND answers ENQBUSY (IBM raises it for an unavailable resource with NOSUSPEND; register X60): 8000-RESTART and 9000-RETURN end the task before the control record is read"
+    }
+  ],
+  "notes": "zECS's expiration task for one instance (ZECS000, started by the ZX## transaction, here ZX01: EIBTRNID names the instance's files ZC01FILE and ZC01KEY, and the control file ZCEXPIRE). #5089: the CICS file ZCEXPIRE is defined with install symbols (CSD DEFINE FILE DSNAME @ecs_hlq@.ZCEXPIRE.@environment@) and zECS's IDCAMS job is Source/ZCEXPIRE.idcams, which the engine does not read as a define. The case states the substitution (\"install_symbols\": ECS_HLQ ZECS, ENVIRONMENT TEST -- never guessed) and the file's KEYS(4 0) from that job (\"vsam\" under the resolved name). RECORDSIZE(80 2048) and RECORDFORMAT(V) make ZCEXPIRE a variable-length KSDS; the stub keeps fixed-length records, so the case states reclen 70 -- every record the program writes and reads is its ZX-RECORD (LENGTH OF ZX-RECORD) -- and \"variable\": true says so; a record of another length would be a different case. The control record in zcexpire.bin is the one written 600 s before the task. The task is started with no start data (RETRIEVE answers ENDDATA: ZC-KEY stays LOW-VALUES) at the harness's STARTCODE 'S'. HOLES, named: ZC##FILE and ZC##KEY are named at run time from the RETRIEVEd transaction id (#4771) and defined by zECS's own IDCAMS jobs with install placeholders, so the Java side refuses the READ of the instance's file by name (Hole 'CICS file FILE: no store in the generated project') where GnuCOBOL answers FILENOTFOUND; every path that goes on to the expiration browse (2000-READ-FILE and everything after: the DOCUMENT / WEB replication, 3100-3220 deletes, 8100-RESTART) is therefore not in the case, and its paragraphs are uncovered and unproven (coverage 9/38 paragraphs). The two scenarios end before it: the control record is too young (1400-UPDATE restarts and returns) and a WRITE of the control record that answers DUPREC (1300-WRITE). ENQ BUSY, the control file's other conditions and the HANDLE ABEND label are not reached (the harness plans no fault for ENQ). Derived from zECS (github.com/walmartlabs/zECS, Apache-2.0): LICENSE here is the corpus's own, NOTICE names the source and what was derived.",
+  "region": {
+    "applid": "ZECSAPPL",
+    "sysid": "ZECS"
+  }
+}

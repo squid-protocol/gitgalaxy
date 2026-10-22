@@ -84,8 +84,12 @@ from gitgalaxy.core.bms_screen_fields import bms_screen_fields
 # #3351-#3354: CICS resource operations (FILE/MAP/QUEUE/CONTAINER/CHANNEL) live in
 # their own module and ride out of extract_boundary as `cics_resources`.
 from gitgalaxy.core.call_using import blank_stream, call_using_args, entry_points
+from gitgalaxy.core.cics_macro_tables import cics_macro_table_resources
 from gitgalaxy.core.cics_resources import cobol_move_literals, extract_cics_resources
 from gitgalaxy.core.cics_tasks import extract_cics_tasks
+from gitgalaxy.core.cobol_conditional import active_source
+from gitgalaxy.core.cobol_preprocessor import COPY_LIBRARY, COPY_OR_INCLUDE_HEAD, continued_literal
+from gitgalaxy.core.cobol_preprocessor import copy_replacing as _copy_replacing  # #5648: shared with det/
 from gitgalaxy.core.compiler_options import compiler_options, effective
 from gitgalaxy.core.data_moves import data_moves
 from gitgalaxy.core.db2_declare_table import _blank_sequence_fields, extract_sql_tables
@@ -464,7 +468,7 @@ _USAGE_CLAUSE = re.compile(
     + NATIONAL
     + WIDE_DIGITS
     + WIDE_HYPHENS
-    + r"0-9-])(COMPUTATIONAL(?:-[1-6])?|COMP(?:-[1-6])?|BINARY|PACKED-DECIMAL|DISPLAY(?:-1)?|INDEX|POINTER)"
+    + r"0-9-])(COMPUTATIONAL(?:-[1-6])?|COMP(?:-[1-6])?|BINARY|PACKED-DECIMAL|DISPLAY(?:-1)?|INDEX|PROCEDURE-POINTER|FUNCTION-POINTER|POINTER)"
     r"(?![A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"0-9-])",
     re.I,
 )
@@ -548,40 +552,7 @@ _VALUE_CLAUSE = re.compile(
 _COMMA_FRACTION = re.compile(r",[0-9]{1,31}")
 
 
-def _continued_literal(code_stream: str, open_at: int) -> str | None:
-    """#4391: the value of the nonnumeric literal whose opening quote is at `open_at` when it is
-    continued (Enterprise COBOL LR, "Continuation lines"): its first line's characters after the
-    quote through column 72, then each continuation line's (`-` in column 7) characters after its
-    first quote -- through column 72 again, until a line closes the literal. None when the source is
-    not that shape (a free-format literal, a missing indicator): the raw text is then kept."""
-    quote = code_stream[open_at]
-    line_start = code_stream.rfind("\n", 0, open_at) + 1
-    col = open_at - line_start
-    if col >= 72:
-        return None
-    line_end = code_stream.find("\n", open_at)
-    line = code_stream[line_start : line_end if line_end != -1 else len(code_stream)]
-    parts = [line[col + 1 : 72].ljust(72 - col - 1)]
-    pos = line_end
-    for _ in range(50):  # a literal is at most 160 characters; bounded either way
-        if pos == -1:
-            return None
-        nxt_end = code_stream.find("\n", pos + 1)
-        nxt = code_stream[pos + 1 : nxt_end if nxt_end != -1 else len(code_stream)]
-        if len(nxt) < 8 or nxt[6] != "-":
-            return None
-        resume = nxt.find(quote, 7)
-        if resume == -1 or resume >= 72:
-            return None
-        close = nxt.find(quote, resume + 1)
-        while close != -1 and close + 1 < len(nxt) and nxt[close + 1] == quote:  # a doubled quote
-            close = nxt.find(quote, close + 2)
-        if close != -1 and close < 72:
-            parts.append(nxt[resume + 1 : close])
-            return "".join(parts)
-        parts.append(nxt[resume + 1 : 72].ljust(72 - resume - 1))
-        pos = nxt_end
-    return None
+_continued_literal = continued_literal  # #5648: the one rule, shared with det/ (tests import this name)
 
 
 _NUMERIC_BAREWORD = re.compile(r"[+-]?[0-9]{0,31}")
@@ -594,69 +565,11 @@ _NUMERIC_BAREWORD = re.compile(r"[+-]?[0-9]{0,31}")
 # COPY does (carddemo COTRTLIC.cbl:304 `EXEC SQL INCLUDE CSDB2RWY END-EXEC`, GenApp
 # `01 DFHCOMMAREA.` + `EXEC SQL INCLUDE LGCMAREA END-EXEC.`), so it is recorded the
 # same way.
-_COPY_IN_ENTRY = re.compile(
-    r"(?<![A-Z"
-    + NATIONAL
-    + WIDE_DIGITS
-    + WIDE_HYPHENS
-    + r"0-9-])(?:COPY|EXEC[ \t\n\u3000]+SQL[ \t\n\u3000]+INCLUDE)[ \t\n\u3000]+['\"]?([A-Z"
-    + NATIONAL
-    + WIDE_DIGITS
-    + r"0-9@#$][A-Z"
-    + NATIONAL
-    + WIDE_DIGITS
-    + WIDE_HYPHENS
-    + r"0-9@#$-]*)",
-    re.I,
-)
-# #4265: the `IN|OF library-name` after a COPY's text-name (closing quote allowed).
-_COPY_LIBRARY = re.compile(
-    r"['\"]?[ \t\n\u3000]+(?:IN|OF)[ \t\n\u3000]+['\"]?([A-Z"
-    + NATIONAL
-    + WIDE_DIGITS
-    + r"0-9@#$][A-Z"
-    + NATIONAL
-    + WIDE_DIGITS
-    + WIDE_HYPHENS
-    + r"0-9@#$-]*)",
-    re.I,
-)
-# #4265: `REPLACING operand BY operand ...` after a COPY's text-name (and library): each operand is
-# ==pseudo-text== or a single word / literal. Read up to the statement's separator period.
-_COPY_REPLACING_HEAD = re.compile(
-    r"['\"]?(?:[ \t\n\u3000]+(?:IN|OF)[ \t\n\u3000]+['\"]?[^\s.'\"]+['\"]?)?[ \t\n\u3000]+REPLACING(?![\w-])", re.I
-)
-_REPLACING_OPERAND = r"==(.*?)==|('[^'\n]*'|\"[^\"\n]*\"|[^\s.=]+(?:\.[^\s.=]+)*)"
-_REPLACING_PAIR = re.compile(
-    r"[ \t\n\u3000]+(?:(LEADING|TRAILING)[ \t\n\u3000]+)?(?:"
-    + _REPLACING_OPERAND
-    + r")[ \t\n\u3000]+BY[ \t\n\u3000]+(?:"
-    + _REPLACING_OPERAND
-    + r")",
-    re.I | re.S,
-)
-
-
-def _copy_replacing(window: str, at: int) -> list[list[str]] | None:
-    """#4265: the [from, to] pairs of the REPLACING phrase of the COPY whose text-name ends at `at` -- a
-    third element LEADING / TRAILING when the phrase says so (partial-word replacement)."""
-    head = _COPY_REPLACING_HEAD.match(window, at)
-    if not head:
-        return None
-    pairs: list[list[str]] = []
-    pos = head.end()
-    while len(pairs) < 50:
-        m = _REPLACING_PAIR.match(window, pos)
-        if not m:
-            break
-        mode, src = m.group(1), (m.group(2) if m.group(2) is not None else m.group(3))
-        dst = m.group(4) if m.group(4) is not None else (m.group(5) or "")
-        pair = [" ".join(src.split()), " ".join(dst.split())]
-        pairs.append([*pair, mode.upper()] if mode else pair)
-        pos = m.end()
-    return pairs or None
-
-
+# #5618: a quoted GnuCOBOL file literal may carry the copybook's extension (`COPY "ws-state.cpy".`): the
+# `.ext` is swallowed only when a closing quote follows it, so the member stays the stem and the
+# `IN|OF` / `REPLACING` phrase after the quote still parses.
+_COPY_IN_ENTRY = COPY_OR_INCLUDE_HEAD  # #5648: the one rule, in core.cobol_preprocessor
+_COPY_LIBRARY = COPY_LIBRARY
 # The special levels: 88 condition-names and 66 RENAMES describe the item above
 # them rather than nesting by level number, so they attach to the last real
 # item and are never pushed as a potential parent themselves.
@@ -666,6 +579,12 @@ _CONDITION_LEVELS = (66, 88)
 # A DFHCSDUP/CEDA deck runs DFHCSDUP; a JCL that does not is not a CSD deck and
 # the inline pass is skipped entirely.
 _DFHCSDUP = re.compile(r"\bPGM=DFHCSDUP\b", re.I)
+# #5154: a job that assembles CICS macro tables -- an assembler step (HLASM ASMA90, its
+# IEV90 alias, the older assemblers) or CICS's DFHAUPLE assemble-and-link procedure.
+_JCL_ASSEMBLER = re.compile(
+    r"^//(?!\*)[^\n]*?(?:\bPGM=(?:ASMA90|IEV90|IEUASM|ASMAHL|ASMBLR)\b|\bEXEC\s+(?:PROC=)?DFHAUPLE\b|\bPROC\s+DFHAUPLE\b)",
+    re.I | re.M,
+)
 # A CSD command opens a line (tolerating a leading blank column or JCL-inline
 # indentation): DEFINE a resource, or a structural command (DELETE/ADD/LIST/...).
 # Only DEFINE carries a resource we capture; the rest merely terminate the record
@@ -1359,9 +1278,9 @@ def _cobol_records(
             for m in _COPY_IN_ENTRY.finditer(code_stream, w_start, w_end):
                 if m.start() in captured:
                     continue
+                # #5618: a plain COPY no entry carries is recorded too, `replacing` empty (the reader applies
+                # only a REPLACING); it was dropped, so a copybook named before the first entry had no row.
                 replacing = _copy_replacing(code_stream, m.end())
-                if not replacing:
-                    continue
                 lib = _COPY_LIBRARY.match(code_stream, m.end())
                 section, fd_name = _context(m.start())
                 above = bisect.bisect_left(offsets, m.start()) - 1
@@ -1369,7 +1288,7 @@ def _cobol_records(
                     {
                         "member": m.group(1).upper(),
                         "library": lib.group(1).upper() if lib else "",
-                        "replacing": json.dumps(replacing),
+                        "replacing": json.dumps(replacing) if replacing else "",
                         "line": _line_of(m.start()),
                         "section": section,
                         "fd_name": fd_name,
@@ -1378,6 +1297,25 @@ def _cobol_records(
                         else None,
                     }
                 )
+        # #5618: a COPY in a PROCEDURE DIVISION (paragraph text, `COPY "pd-level.cpy".`) is outside every
+        # data window; recorded with section PROCEDURE so the statement and its copybook edge are not lost.
+        proc_starts = [pm.start() for pm in _PROCEDURE_DIVISION.finditer(code_stream)]
+        for m in _COPY_IN_ENTRY.finditer(code_stream):
+            if _window_end(m.start()) is not None or not bisect.bisect_right(proc_starts, m.start()):
+                continue
+            replacing = _copy_replacing(code_stream, m.end())
+            lib = _COPY_LIBRARY.match(code_stream, m.end())
+            section_copies.append(
+                {
+                    "member": m.group(1).upper(),
+                    "library": lib.group(1).upper() if lib else "",
+                    "replacing": json.dumps(replacing) if replacing else "",
+                    "line": _line_of(m.start()),
+                    "section": "PROCEDURE",
+                    "fd_name": None,
+                    "after_ordinal": None,
+                }
+            )
     return records
 
 
@@ -2410,6 +2348,16 @@ def _jcl_csd_resources(code_stream: str) -> list[dict[str, Any]]:
     return _csd_resources(code_stream)
 
 
+def _jcl_macro_table_resources(code_stream: str) -> list[dict[str, Any]]:
+    """The CICS macro tables (DFHFCT ... DFHMCT) in the inline SYSIN of a JCL assembler step (#5154), or [].
+
+    Gated on an assembler step so a DFHxxx word elsewhere in a job reads nothing; a step
+    whose SYSIN is a separate member yields nothing here (that member is read as assembler)."""
+    if not _JCL_ASSEMBLER.search(code_stream):
+        return []
+    return cics_macro_table_resources(code_stream)
+
+
 def _pli_value_map(records: list[dict[str, Any]]) -> dict[str, str]:
     """PL/I name -> its `INIT`/`VALUE` string (first declaration wins), the PL/I
     analog of `_cobol_value_map` for CICS operand resolution (#3351-#3354).
@@ -2645,12 +2593,16 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
     #3497: java carries JCICS `calls` (Program.link) and `cics_resources`.
     #3477: hlasm carries `ims_gen` (IMS PSB / DBD macros) and jcl adds the IMS
     region steps (DFSRRC00 PARM) to it.
+    #5120: hlasm also carries `csd_resources` from the DFHFCT / DFHPCT / DFHPPT /
+    DFHDCT / DFHTST macro tables, with `source` / `macro_table` provenance.
     #3451: jcl also carries `job_flow` -- job / step order, COND / IF conditions,
     PROC calls, and each DSN DD's disposition and GDG generation (job_flow).
     """
     if not code_stream:
         return {"calls": [], "datasets": [], "records": [], "transactions": []}
     if dialect == "cobol":
+        options = compiler_options(code_stream)  # read before >>IF drops anything
+        code_stream = active_source(code_stream)  # #5648: a branch `>>IF` does not take is not source
         values = _cobol_value_map(code_stream)
         specials = special_names(code_stream)
         section_copies: list[dict[str, Any]] = []
@@ -2673,13 +2625,15 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
             "file_control": cobol_file_control(code_stream),  # #3455
             "data_moves": data_moves(code_stream),  # #3452
             "special_names": specials,  # #3820
-            "compiler_options": compiler_options(code_stream),  # #3828
+            "compiler_options": options,  # #3828
         }
     if dialect == "jcl":
         boundary = _jcl_boundary(code_stream)
         boundary["records"] = []
         boundary["transactions"] = _jcl_csd_transactions(code_stream)
-        boundary["csd_resources"] = _jcl_csd_resources(code_stream)  # #3356
+        boundary["csd_resources"] = _jcl_csd_resources(code_stream) + _jcl_macro_table_resources(
+            code_stream
+        )  # #3356, #5154
         boundary["job_submits"] = jcl_intrdr_dds(_jcl_statements(code_stream))  # #3448
         boundary["vsam_defines"] = jcl_vsam_defines(code_stream)  # #3455
         boundary["job_flow"] = jcl_job_flow(code_stream)  # #3451
@@ -2704,6 +2658,8 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
             "records": [],
             "transactions": [],
             "ims_gen": ims_gen_macros(code_stream),
+            # #5120: DFHFCT / DFHPCT / DFHPPT / DFHDCT / DFHTST macro tables, as CSD-shaped rows.
+            "csd_resources": cics_macro_table_resources(code_stream),
             "cics_resources": _cics_resources(stream, dc, "hlasm"),
             "cics_tasks": _cics_tasks(stream, dc, [], "hlasm"),
             "uow_handlers": _uow_handlers(stream, dc),

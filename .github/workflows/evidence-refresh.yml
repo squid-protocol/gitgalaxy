@@ -18,10 +18,13 @@ name: Evidence Refresh
 # files stay content-deterministic (so --check compares content), so the commit it was refreshed at ("as of commit
 # <sha>") is stamped on the bot's commit and PR, not inside the files.
 #
+# #4963: the rendered report is no longer in that PR: it is published to the `generated` branch (publish-report job).
+#
 # Earlier bot PRs failed twice: #4640 was opened against a feature branch (the base is now pinned to main) and #4649
 # went dirty while parallel PRs kept conflicting on the report (those PRs no longer commit it).
 #
-# #4789: the same for the CICS spec status page (docs/language_status/cics_spec_status.md): rendered here, never in a PR.
+# #4789: the same for the CICS spec status page (docs/language_status/cics_spec_status.md), never in a PR; since #5057
+# generated-docs.yml renders and publishes it after every merge (this job no longer touches it).
 # The det-sweep coverage ledger is one file per case (tests/equivalence/det_sweep_coverage/<CASE>.json), so a case PR and
 # this bot (or two case PRs) touch only the files of the cases they swept.
 #
@@ -101,6 +104,7 @@ jobs:
     outputs:
       defer: ${{ steps.push_gate.outputs.defer }}
       sha: ${{ steps.pin.outputs.sha }}  # #4744: the one commit every job of this run works from
+      db2_parts: ${{ steps.db2parts.outputs.parts }}  # #5882: det-sweep's full-sweep Db2 shard count, plus the records part
     env:
       REPO: ${{ github.repository }}
       EVENT: ${{ github.event_name }}
@@ -113,6 +117,25 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: echo "sha=$(gh api "repos/$REPO/commits/main" --jq .sha)" >> "$GITHUB_OUTPUT"
+
+      # #5882: the Db2 parts scale with the Db2 cases as det-sweep's full sweep does (det_sweep_plan.py db2_shards_for):
+      # only the plan tool and the case.json files, at the pinned commit
+      - name: Checkout the plan tool and the cases (#5882)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ steps.pin.outputs.sha }}
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            tests/tools/det_sweep_plan.py
+            tests/equivalence/*/case.json
+
+      - name: Count the Db2 parts (#5882)
+        id: db2parts
+        run: |
+          parts=$(python3 tests/tools/det_sweep_plan.py --db2-full-matrix | python3 -c 'import json,sys; print(json.dumps(json.load(sys.stdin) + ["records"]))')
+          echo "parts=$parts" >> "$GITHUB_OUTPUT"
+          echo "Db2 parts: $parts"
 
       - name: Push lane - stand down while a full run is queued or running
         id: push_gate
@@ -143,9 +166,12 @@ jobs:
   # #4733: the Db2 half of the sweep and the Db2 records. Its own runners: IBM's Db2 Community container needs --privileged
   # and a few GB of memory (a GitHub-hosted ubuntu-latest runner has both: 4 vCPU, 16 GB, root docker).
   # #4863 step 6: one runner took ~34 min (38 cases, 673 scenarios at ~9 s a scenario per slot, then the stale records
-  # re-proved after the sweep), the refresh's critical path. Now 5 runners, each with its own Db2: the sweep in 4 shards
-  # (proof_sweep.py --shard I/4 --no-ratchet, balanced by det_sweep_durations.json) and the records beside them; the
+  # re-proved after the sweep), the refresh's critical path. Now one runner per part, each with its own Db2: the sweep in
+  # det-sweep's full-sweep Db2 shard count (#5882: one per ~12 Db2 cases, at most 6) plus the records (proof_sweep.py --shard I/N --no-ratchet, balanced by det_sweep_durations.json) and the records beside them; the
   # `db2` job below merges the shards and applies the ratchet, as the `refresh` job does for the non-Db2 shards.
+  # #5114: the split is pinned, not restored: no job here reads the durations cache (det-sweep.yml's `plan` chooses its
+  # durations once and shares them); every shard balances by the committed det_sweep_durations.json of the ONE commit
+  # the `lane` job pinned, so all shards cut the same slices. tests/tools/test_shard_split_pinned.py holds that.
   db2-part:
     name: db2 ${{ matrix.part }}
     needs: lane
@@ -155,7 +181,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        part: ["1/4", "2/4", "3/4", "4/4", "records"]
+        part: ${{ fromJSON(needs.lane.outputs.db2_parts) }}  # #5882: one sweep part per ~12 Db2 cases (at most 6), + records
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       PYTHONUTF8: "1"
@@ -195,7 +221,7 @@ jobs:
         run: |
           python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
           pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
-          pip install -e "./gitgalaxy[translator]"
+          pip install --no-build-isolation -e "./gitgalaxy[translator]"
 
       - name: Setup JDK 17
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
@@ -225,19 +251,53 @@ jobs:
           rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
           PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
 
+      # #4980: IBM's ODBC driver (the Db2 image's one download) cached on its pin; on a miss the harness fetches it with
+      # curl --retry and checks the sha256, and a failure there says it is infrastructure.
+      - name: Cache the Db2 ODBC CLI driver (#4980)
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: gitgalaxy/tests/equivalence/linuxx64_odbc_cli.tar.gz
+          key: db2-odbc-cli-${{ hashFiles('gitgalaxy/tests/equivalence/odbc_cli.pin') }}
+
       - name: Build the oracle image and check it against its pin (#4309)
         run: |
           docker build -q -t gitgalaxy-gnucobol:3 -f gitgalaxy/tests/equivalence/gnucobol.Dockerfile gitgalaxy/tests/equivalence
           python gitgalaxy/tests/tools/equivalence_oracle.py --strict
 
-      # The image is the one tests/tools/equivalence_db2.py pins by digest (#4733): pulled here by that name, so the
-      # harness starts the container from it (a tag, or a different digest, is refused by test_db2_image_pin.py).
-      - name: Pull the pinned Db2 image (#4733)
+      # #5262: the pinned image is restored from actions/cache (key = its digest) so no part asks icr.io; this job runs
+      # on main's schedule, so it is the cache writer (part 1/N, on a miss) that warms det-sweep's pull requests.
+      - name: Name the Db2 image cache entry (#5262)
+        id: db2key
+        run: echo "key=$(python3 gitgalaxy/tests/tools/db2_image_cache.py key)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore the pinned Db2 image from the cache (#5262)
+        id: db2image
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/db2-image-cache
+          key: ${{ steps.db2key.outputs.key }}
+
+      # The image is the one tests/tools/equivalence_db2.py pins by digest (#4733): loaded or pulled here by that name, so
+      # the harness starts the container from it (a tag, or a different digest, is refused by test_db2_image_pin.py).
+      - name: Load or pull the pinned Db2 image (#4733, #5262)
         run: |
           image=$(cd gitgalaxy/tests/tools && python -c "import equivalence_db2; print(equivalence_db2.IMAGE)")
-          echo "Db2 image: $image"
-          docker pull -q "$image"
-          echo "DB2 image: \`$image\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "Db2 image: $image (cache: ${{ steps.db2image.outputs.cache-hit == 'true' && 'hit' || 'miss' }})"
+          # #5048: bounded retry (the registry hiccups); the digest stays the pin. A cache miss or mismatch pulls.
+          python3 gitgalaxy/tests/tools/db2_image_cache.py load "$RUNNER_TEMP/db2-image-cache" \
+            || gitgalaxy/tests/tools/ci_retry.sh 4 15 -- docker pull -q "$image"
+          echo "DB2 image: \`$image\` (cache: ${{ steps.db2image.outputs.cache-hit == 'true' && 'hit' || 'miss' }})" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Save the pinned Db2 image to the cache (main only, #5262)
+        if: steps.db2image.outputs.cache-hit != 'true' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && startsWith(matrix.part, '1/')
+        run: python3 gitgalaxy/tests/tools/db2_image_cache.py save "$RUNNER_TEMP/db2-image-cache"
+
+      - name: Store the Db2 image cache entry (main only, #5262)
+        if: steps.db2image.outputs.cache-hit != 'true' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && startsWith(matrix.part, '1/')
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/db2-image-cache
+          key: ${{ steps.db2key.outputs.key }}
 
       - name: Re-sweep this shard's Db2 det ports for the coverage ledger (#4733)
         id: db2_sweep
@@ -307,7 +367,7 @@ jobs:
 
       - name: Keep this part's results for the db2 job
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: db2-part-${{ strategy.job-index }}
           path: ${{ runner.temp }}/db2-out
@@ -316,7 +376,7 @@ jobs:
 
       - name: Keep the Db2 proofs' logs
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: db2-sweep-logs-${{ strategy.job-index }}
           path: |
@@ -365,14 +425,24 @@ jobs:
       - name: Install GitGalaxy
         run: |
           python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
-          pip install -e "./gitgalaxy"
+          pip install --no-build-isolation -e "./gitgalaxy"
 
       - name: Take the parts' results
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: db2-part-*
           path: ${{ runner.temp }}/db2-in
         continue-on-error: true
+
+      # #5882: the Db2 cases' measured seconds, for det-sweep's plan to balance its db2 shards by (det-sweep's nightly
+      # proves no Db2 case, so nothing else measures them). Extends the newest saved file, then saves it below.
+      - name: Restore the newest measured Db2 durations (#5882)
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: durations-db2
+          key: det-db2-durations-${{ github.run_id }}  # never an exact hit: restore-keys takes the newest saved one
+          restore-keys: |
+            det-db2-durations-
 
       - name: Merge the Db2 shards and apply the ratchet
         id: db2_sweep
@@ -383,8 +453,18 @@ jobs:
           shopt -s nullglob
           found=("$RUNNER_TEMP"/db2-in/*/sweep/sweep.json)
           echo "shards found: ${#found[@]}"
+          mkdir -p ../durations-db2
           python tests/tools/proof_sweep.py --aggregate "${found[@]}" --expect db2 --skip-ledger-check \
-            | tee "$RUNNER_TEMP/db2-sweep.txt"
+            --update-durations --durations ../durations-db2/det_sweep_durations.json | tee "$RUNNER_TEMP/db2-sweep.txt"
+
+      # Saved whatever the ratchet said: a duration only balances shards, never changes a verdict (#4847)
+      - name: Cache the Db2 durations (#5882)
+        if: always() && hashFiles('durations-db2/det_sweep_durations.json') != ''
+        continue-on-error: true  # best effort: a miss only leaves the next plan on the older numbers
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: durations-db2
+          key: det-db2-durations-${{ github.run_id }}
 
       - name: Stage what the refresh job takes
         if: always()
@@ -412,7 +492,7 @@ jobs:
 
       - name: Keep the Db2 results for the refresh job
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: db2-results
           path: ${{ runner.temp }}/db2-out
@@ -467,7 +547,7 @@ jobs:
           # [translator]: tree-sitter-language-pack, which the det translator parses COBOL with. Without it every det
           # proof fails to translate and the sweep proves 0/40 (#4270), as run 37661913700 did.
           pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
-          pip install -e "./gitgalaxy[translator]"
+          pip install --no-build-isolation -e "./gitgalaxy[translator]"
 
       - name: Setup JDK 17
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
@@ -542,7 +622,7 @@ jobs:
 
       - name: Keep this shard's results
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: refresh-sweep-shard-${{ strategy.job-index }}
           path: ${{ runner.temp }}/sweep/sweep.json
@@ -551,7 +631,7 @@ jobs:
 
       - name: Keep the proofs' logs
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: refresh-sweep-logs-${{ strategy.job-index }}
           path: |
@@ -617,7 +697,7 @@ jobs:
           # [translator]: tree-sitter-language-pack, which the det translator parses COBOL with. Without it every det
           # proof fails to translate and the sweep proves 0/40 (#4270), as run 37661913700 did.
           pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
-          pip install -e "./gitgalaxy[translator]"
+          pip install --no-build-isolation -e "./gitgalaxy[translator]"
 
       - name: Setup JDK 17
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
@@ -711,7 +791,7 @@ jobs:
 
       - name: Keep this shard's records
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: refresh-records-${{ strategy.job-index }}
           path: ${{ runner.temp }}/records-out
@@ -724,8 +804,167 @@ jobs:
           echo "::error title=Evidence refresh::a record's proof failed or could not run -- see the summary"
           exit 1
 
+  # #5862: the stale det_mutation ledgers (tests/equivalence/det_mutation/), renewed on the nightly so `current` holds without a
+  # PR per port. `det_mutation.py refresh` translates the stale cases again; where the det port's bytes are unchanged it
+  # re-runs ONLY the recorded survivors (same seed, fast mode) and carries every other verdict. Exit 2 = a port moved (a person
+  # runs `det_mutation.py run`): a warning, it must not hold back the other records. Exit 1 = a stated claim the re-run killed,
+  # or an error result: the job fails, the bot PR is opened and not auto-merged. L5 stays strict: no stale carry (owner, 2026-10-21).
+  det-mutation:
+    needs: lane
+    # not when the lane job says a push run stands down for a full run (#4743)
+    if: ${{ needs.lane.result == 'success' && needs.lane.outputs.defer != 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+      PYTHONUTF8: "1"
+      GITGALAXY_ORACLE_STRICT: "1"
+      GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          ref: ${{ needs.lane.outputs.sha }}  # the run's pinned commit of main (#4640, #4744)
+          fetch-depth: 0  # a record's mutation section is judged against its commit's inputs (git history)
+          persist-credentials: false
+
+      - name: Clone cics-crucible at the pin
+        run: |
+          # The pin is tests/crucible_pins.toml (one source; a fork PR reads it too).
+          ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get cics)
+          git init -q cics-crucible
+          git -C cics-crucible remote add origin https://github.com/squid-protocol/cics-crucible.git
+          if echo "$ref" | grep -Eq '^[0-9a-f]{40}$'; then
+            git -C cics-crucible fetch -q --depth 1 origin "$ref"
+          else
+            git -C cics-crucible fetch -q --depth 1 origin "+refs/tags/$ref:refs/tags/$ref"
+          fi
+          git -C cics-crucible checkout -q --detach FETCH_HEAD
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: |
+            gitgalaxy/pyproject.toml
+            gitgalaxy/ci/requirements/*.txt
+
+      - name: Install GitGalaxy
+        run: |
+          python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
+          # [translator]: tree-sitter-language-pack, which the det translator parses COBOL with. Without it every det
+          # proof fails to translate and the sweep proves 0/40 (#4270), as run 37661913700 did.
+          pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
+          pip install --no-build-isolation -e "./gitgalaxy[translator]"
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: evidence-m2-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py') }}
+          restore-keys: |
+            evidence-m2-
+            det-sweep-m2-
+            cics-crucible-m2-
+            java-compile-m2-
+
+      - name: Cache the pinned corpora
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
+
+      - name: Fetch the pinned corpora
+        run: |
+          cd gitgalaxy
+          rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
+          PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
+
+      # The oracle image is built once per Dockerfile and kept (docker save, under the Dockerfile's hash; det-sweep.yml's
+      # cache): every shard loads it instead of building it. The fingerprint check is still the pin (#4309): a stale image
+      # fails it.
+      - name: Cache the GnuCOBOL oracle image
+        id: image
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/gnucobol-image.tar
+          key: gnucobol-image-${{ hashFiles('gitgalaxy/tests/equivalence/gnucobol.Dockerfile') }}
+
+      - name: Load or build the oracle image, and check it against its pin (#4309)
+        env:
+          IMAGE_CACHE_HIT: ${{ steps.image.outputs.cache-hit }}
+        run: |
+          if [ "$IMAGE_CACHE_HIT" = "true" ]; then
+            docker load -i "$RUNNER_TEMP/gnucobol-image.tar"
+          else
+            docker build -q -t gitgalaxy-gnucobol:3 -f gitgalaxy/tests/equivalence/gnucobol.Dockerfile gitgalaxy/tests/equivalence
+            docker save -o "$RUNNER_TEMP/gnucobol-image.tar" gitgalaxy-gnucobol:3
+          fi
+          python gitgalaxy/tests/tools/equivalence_oracle.py --strict
+          echo "GITGALAXY_ORACLE_PREBUILT=1" >> "$GITHUB_ENV"  # the harness need not rebuild it per proof
+
+      - name: Renew the stale det mutation ledgers (#5862)
+        id: detmut
+        continue-on-error: true
+        shell: bash  # -eo pipefail: the refresh's exit status, not tee's
+        run: |
+          cd gitgalaxy
+          set +e
+          python tests/tools/det_mutation.py refresh --work "$RUNNER_TEMP/detmut" | tee "$RUNNER_TEMP/detmut.txt"
+          rc=${PIPESTATUS[0]}
+          if [ "$rc" -eq 2 ]; then
+            echo "::warning title=det mutation::a det port moved since its ledger was cut: run det_mutation.py run for it (see the summary)"
+            rc=0
+          fi
+          exit "$rc"
+
+      - name: Stage the ledgers this job wrote
+        if: always()
+        shell: bash
+        run: |
+          out="$RUNNER_TEMP/detmut-out"
+          mkdir -p "$out/records"
+          cd gitgalaxy
+          git ls-files -z --modified --others --exclude-standard -- 'tests/equivalence/det_mutation/*.json' \
+            | while IFS= read -r -d '' f; do mkdir -p "$out/records/$(dirname "$f")"; cp "$f" "$out/records/$f"; done
+          find "$out" -type f | sort
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Stale det mutation ledgers (#5862)"
+            echo '```'
+            cat "$RUNNER_TEMP/detmut.txt" 2>/dev/null || echo "(no output)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep the renewed ledgers
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: refresh-detmut
+          path: ${{ runner.temp }}/detmut-out
+          if-no-files-found: ignore
+          retention-days: 3
+
+      - name: Fail when a det mutation claim or result is wrong
+        if: steps.detmut.outcome == 'failure'
+        run: |
+          echo "::error title=det mutation::a stated survivor was killed by the re-run, or a result errored -- see the summary"
+          exit 1
+
+
   refresh:
-    needs: [lane, db2, sweep, records]
+    needs: [lane, db2, sweep, records, det-mutation]
     # runs whether the Db2 job ran (nightly, dispatch), was skipped (push) or failed: the non-Db2 refresh never waits on Db2's luck.
     # Not when the lane job says a push run stands down for a full run (#4743), and not when the lane job itself failed.
     if: ${{ !cancelled() && needs.lane.result == 'success' && needs.lane.outputs.defer != 'true' }}
@@ -737,6 +976,7 @@ jobs:
     outputs:
       surveyed: ${{ steps.survey.outcome == 'success' }}  # the publish-blockers job runs only on a survey that ran (#4863)
       sha: ${{ steps.asof.outputs.sha }}
+      report: ${{ steps.report.outcome == 'success' }}  # the publish-report job runs only on a report that was rebuilt (#4963)
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       PYTHONUTF8: "1"
@@ -786,7 +1026,7 @@ jobs:
           # [translator]: tree-sitter-language-pack, which the det translator parses COBOL with. Without it every det
           # proof fails to translate and the sweep proves 0/40 (#4270), as run 37661913700 did.
           pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
-          pip install -e "./gitgalaxy[translator]"
+          pip install --no-build-isolation -e "./gitgalaxy[translator]"
 
       - name: Cache the pinned corpora
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -835,7 +1075,7 @@ jobs:
 
       - name: Keep the survey for the blockers publisher (#4863)
         if: steps.survey.outcome == 'success'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: blockers-survey
           path: ${{ runner.temp }}/blockers-cache/
@@ -849,7 +1089,7 @@ jobs:
       - name: Take the Db2 job's results (#4733)
         id: db2_in
         if: needs.db2.result == 'success' || needs.db2.result == 'failure'
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: db2-results
           path: ${{ runner.temp }}/db2-in
@@ -869,7 +1109,7 @@ jobs:
       - name: Take the record shards' results (#4744)
         id: records_in
         if: needs.records.result == 'success' || needs.records.result == 'failure'
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: refresh-records-*
           merge-multiple: true  # the shards' record sets are disjoint
@@ -889,10 +1129,31 @@ jobs:
           fi
           # (#4825: the pages are no longer committed here; evidence-pages.yml renders them from main after merge)
 
+      - name: Take the det mutation ledgers (#5862)
+        id: detmut_in
+        if: needs.det-mutation.result == 'success' || needs.det-mutation.result == 'failure'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: refresh-detmut
+          path: ${{ runner.temp }}/detmut-in
+        continue-on-error: true
+
+      - name: Put the renewed det mutation ledgers in place (#5862)
+        if: steps.detmut_in.outcome == 'success'
+        shell: bash
+        run: |
+          in="$RUNNER_TEMP/detmut-in/records/tests/equivalence/det_mutation"
+          if [ -d "$in" ]; then
+            # only ledger JSON, as regular files: nothing else from an artifact reaches the tree
+            bad=$(find "$RUNNER_TEMP/detmut-in" -type f ! -name '*.json' -o -type l)
+            if [ -n "$bad" ]; then echo "::error title=det mutation::unexpected files in the artifact: $bad"; exit 1; fi
+            cp -r "$in"/. gitgalaxy/tests/equivalence/det_mutation/
+          fi
+
       - name: Take the det sweep shards' results (#4744)
         id: sweep_in
         if: needs.sweep.result == 'success' || needs.sweep.result == 'failure'
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: refresh-sweep-shard-*
           path: ${{ runner.temp }}/sweep-in
@@ -930,11 +1191,13 @@ jobs:
           python tests/tools/det_coverage_ledger.py update "${sweeps[@]}"
 
       - name: Rebuild the purchaser-facing evidence reports (#4601)
+        id: report
         if: always()
         env:
           GG_SCRATCH: ${{ runner.temp }}/scratch
           SHA: ${{ steps.asof.outputs.sha }}
           SURVEYED: ${{ steps.survey.outcome == 'success' }}
+          EVIDENCE_REPORT_WRITE_INDEX: "1"  # #5206: the index README is written here (published), never over main's stub
         run: |
           cd gitgalaxy
           # #4863: built from this run's translation survey (above), so the translation column is of this commit; the
@@ -949,14 +1212,32 @@ jobs:
             python tests/tools/evidence_report.py --refresh --live
           fi
 
-      - name: Re-render the CICS spec status page (#4789)
-        # Derived output like the report above: PRs no longer commit docs/language_status/cics_spec_status.md (parallel
-        # slices conflicted on it); it is rendered here from main's spec, translator, stub and cics_spec_status.json.
-        if: always()
-        continue-on-error: true  # a page that fails to render stays as main has it; it never holds back the records
+      # #4963: the rendered report is published to the `generated` branch by the publish-report job, not committed on main.
+      - name: Keep the rendered evidence reports for the publish job
+        if: always() && steps.report.outcome == 'success'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: evidence-report
+          path: gitgalaxy/docs/language_status/evidence_report
+          retention-days: 1
+
+      # #4054: the estate roll-up (E0-E4 from the evidence records, lines from the corpora checked out above). It is written
+      # outside the repository and published on its own path: evidence_report.py treats any extra file under evidence_report/
+      # as stray. A failure here never blocks the L0-L5 report above.
+      - name: Roll up the estate evidence (#4054)
+        id: estate
+        continue-on-error: true
         run: |
           cd gitgalaxy
-          python tests/tools/cics_spec_status.py render
+          PYTHONPATH="$PWD" python tests/tools/estate_evidence.py --out "$RUNNER_TEMP/estate-evidence"
+
+      - name: Keep the estate roll-up for the publish job
+        if: always() && steps.estate.outcome == 'success'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: estate-evidence
+          path: ${{ runner.temp }}/estate-evidence
+          retention-days: 1
 
       - name: Summary
         if: always()
@@ -1005,22 +1286,21 @@ jobs:
             Automated re-proof of the evidence records (#4048) that a harness, oracle or generator change made stale.
             Each record's proof was run again on the committed port and case; the records and
             the records are rewritten from those runs (their pages are published from main to the `generated` branch by evidence-pages.yml, #4825). A proof that now fails is recorded as
-            not proven. The evidence reports (docs/language_status/evidence_report/) are re-rendered from them (#4703),
+            not proven. The evidence reports (docs/language_status/evidence_report/) are re-rendered from them (#4703) and published to the `generated` branch, not committed (#4963),
             the det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/, one file per case: #4789) from the
-            sweep, and the CICS spec status page (docs/language_status/cics_spec_status.md, #4789) from main.
+            sweep. The CICS spec status page is published to the `generated` branch by generated-docs.yml (#5057).
             Approvals are never written by this job. Auto-merge (squash) is enabled when every proof succeeded.
           branch: auto/evidence-refresh${{ github.event_name != 'push' && '-full' || '' }}  # a lane's own branch (#4743)
           delete-branch: true
           add-paths: |
             tests/equivalence/det_sweep_coverage/*.json
-            docs/language_status/cics_spec_status.md
+            tests/equivalence/det_mutation/*.json
             tests/equivalence/*/evidence.json
             tests/cics_crucible/ports/*/*/evidence.json
-            docs/language_status/evidence_report/**
 
       - name: Enable squash auto-merge on the bot PR
         # Only after a clean run: a proof that failed is recorded as not proven and needs a person (#4048).
-        if: steps.cpr.outputs.pull-request-number != '' && steps.cpr.outputs.pull-request-operation != 'closed' && needs.records.result == 'success' && needs.sweep.result == 'success' && steps.ledger_sweep.outcome == 'success' && (needs.db2.result == 'success' || needs.db2.result == 'skipped')
+        if: steps.cpr.outputs.pull-request-number != '' && steps.cpr.outputs.pull-request-operation != 'closed' && needs.records.result == 'success' && needs.det-mutation.result == 'success' && needs.sweep.result == 'success' && steps.ledger_sweep.outcome == 'success' && (needs.db2.result == 'success' || needs.db2.result == 'skipped')
         env:
           GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
           PR: ${{ steps.cpr.outputs.pull-request-number }}
@@ -1037,7 +1317,7 @@ jobs:
           echo "::warning title=Evidence refresh::auto-merge could not be enabled (checks never registered); PR #$PR left open"
 
       - name: Fail when a re-proof failed
-        if: needs.records.result != 'success' || needs.sweep.result != 'success' || steps.ledger_sweep.outcome == 'failure' || needs.db2.result == 'failure'
+        if: needs.records.result != 'success' || needs.det-mutation.result != 'success' || needs.sweep.result != 'success' || steps.ledger_sweep.outcome == 'failure' || needs.db2.result == 'failure'
         run: |
           echo "::error title=Evidence refresh::a record's proof, the det sweep or the Db2 job failed or could not run -- see the summary"
           exit 1
@@ -1047,6 +1327,60 @@ jobs:
   # blockers_history.jsonl -- to the `generated` branch under docs/language_status/blockers/, like evidence-pages.yml does
   # for the pages (never a commit on main; blocker-baseline.yml, which surveyed the same corpora a second time and kept an
   # artifact nobody read, no longer runs on a schedule). Burned / pinned corpora only: the census counts stay a local run.
+  # #4963: the rendered evidence report (derived output) goes to the `generated` branch with the other bot output, not into the
+  # bot PR: main then moves only for the records and the ledger, which are inputs of human approval. Main's code only.
+  publish-report:
+    needs: [refresh]
+    if: ${{ !cancelled() && needs.refresh.outputs.report == 'true' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write  # push to the `generated` branch only
+    concurrency:
+      group: evidence-pages  # the one writer of the branch, as publish-blockers below and evidence-pages.yml
+      cancel-in-progress: false
+    steps:
+      - name: Checkout the refreshed commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: main
+          ref: ${{ needs.refresh.outputs.sha }}
+          persist-credentials: true  # the publish step pushes to `generated` with this token; no PR code runs here
+
+      - name: Download the rendered reports
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: evidence-report
+          path: main/docs/language_status/evidence_report
+
+      - name: Publish the evidence reports to the generated branch
+        env:
+          SHA: ${{ needs.refresh.outputs.sha }}
+        run: |
+          cd main
+          python tests/tools/generated_branch.py publish --stamp evidence-report \
+            --message "evidence report as of main $SHA" \
+            docs/language_status/evidence_report
+
+      # #4054: the estate roll-up, when the refresh job built one (a missing artifact skips, never fails, the report above).
+      - name: Download the estate roll-up
+        id: estate
+        continue-on-error: true
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: estate-evidence
+          path: main/docs/language_status/estate_evidence
+
+      - name: Publish the estate roll-up to the generated branch
+        if: steps.estate.outcome == 'success'
+        env:
+          SHA: ${{ needs.refresh.outputs.sha }}
+        run: |
+          cd main
+          python tests/tools/generated_branch.py publish --stamp estate-evidence \
+            --message "estate evidence roll-up as of main $SHA" \
+            docs/language_status/estate_evidence
+
   publish-blockers:
     needs: [refresh]
     if: ${{ !cancelled() && needs.refresh.outputs.surveyed == 'true' }}
@@ -1077,10 +1411,10 @@ jobs:
       - name: Install GitGalaxy
         run: |
           python -m pip install --require-hashes -r main/ci/requirements/bootstrap.txt
-          pip install -e ./main
+          pip install --no-build-isolation -e ./main
 
       - name: Take the refresh job's survey
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: blockers-survey
           path: ${{ runner.temp }}/blockers-survey
@@ -1106,7 +1440,7 @@ jobs:
 
       - name: Keep the preview
         if: github.ref != 'refs/heads/main'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: blockers-generated-preview
           path: ${{ runner.temp }}/generated-preview/

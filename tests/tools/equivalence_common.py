@@ -15,13 +15,16 @@ undeclared run is byte-identical). Every bytes <-> text step of the harness goes
 from __future__ import annotations
 
 import codecs
+import contextlib
 import functools
+import json
 import os
 import re
 import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 from decimal import Decimal
 from pathlib import Path
@@ -47,6 +50,51 @@ DOCKER_STEP_TIMEOUT = (
     1200  # seconds: hang guard, well above the slowest honest run (normal GnuCOBOL compile + run step time (~15-30s))
 )
 DOCKER_CLEANUP_TIMEOUT = 30  # seconds: ~10x normal docker rm -f (<2s)
+
+# #5048: `docker build` fetches the digest-pinned base and runs apt, so a registry or mirror hiccup fails it
+BUILD_ATTEMPTS = 4
+BUILD_BACKOFF = 15  # seconds; doubles each attempt
+BUILD_TIMEOUT = 1800
+_TRANSIENT = re.compile(
+    r"TLS handshake timeout|connection (reset|refused|timed out)|i/o timeout|no such host|"
+    r"temporary failure|could not resolve|failed to fetch|unexpected eof|\bEOF\b|"
+    r"\b50[0-4]\b|too many requests|toomanyrequests|net/http|failed to do request|"
+    r"unable to connect|network is unreachable",
+    re.IGNORECASE,
+)  # fmt: skip
+
+
+class DockerBuildInfraError(RuntimeError):
+    """#5048: `docker build` kept failing on the network (registry, mirror) -- infrastructure, not our code."""
+
+
+def docker_build(
+    *args: str, attempts: int = BUILD_ATTEMPTS, backoff: float = BUILD_BACKOFF, timeout: int = BUILD_TIMEOUT
+) -> None:
+    """`docker build <args>`, retried when it fails on the network. Any other failure (a Dockerfile defect, the cobc
+    version check) raises at once with docker's output, unretried and not called infrastructure. The pins are the
+    Dockerfile's: a retry can only fetch the same bytes."""
+    last = ""
+    for attempt in range(1, attempts + 1):
+        try:
+            proc = subprocess.run(["docker", "build", *args], capture_output=True, text=True, check=False,  # noqa: S603, S607
+                                  timeout=timeout)  # fmt: skip
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            last = str(exc).strip()[-300:] or type(exc).__name__
+        else:
+            if proc.returncode == 0:
+                return
+            last = (proc.stderr.strip() or proc.stdout.strip())[-600:]
+            if not _TRANSIENT.search(last):
+                raise RuntimeError(f"docker build failed: {last}")
+        if attempt < attempts:
+            time.sleep(backoff * 2 ** (attempt - 1))
+    raise DockerBuildInfraError(
+        f"INFRASTRUCTURE (not a code defect): docker build failed on the network after {attempts} attempts: "
+        f"{last[-300:]}. Re-run; the base image digest and package pins are deliberate."
+    )
+
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 _register_ebcdic()  # #3816: cp277 / cp278 / ... resolve in every decode and encode below
 
@@ -164,7 +212,7 @@ def _input_path(case: dict[str, Any], corpus: Path, rel: str) -> Path:
 # #3828: the compiler options that change results, as GnuCOBOL 3.1 flags under `-std=ibm` ("" = its own
 # behaviour already). #4102: `-std=ibm` alone keeps a binary item's bytes (TRUNC(BIN)); -fbinary-truncate gives IBM's
 # default TRUNC(STD) -- MOVE 99999 to S9(4) COMP stores 9999, ADD past 9999 is a size error (measured 2026-10-02). GnuCOBOL has no INTDATE (INTEGER-OF-DATE is always ANSI), no ARITH(EXTEND)
-# and no TRUNC(OPT) (#4706: OPT is TRUNC(STD) wherever every binary value fits its PICTURE, and the det runtime stops
+# (see its row below) and no TRUNC(OPT) (#4706: OPT is TRUNC(STD) wherever every binary value fits its PICTURE, and the det runtime stops
 # by name where one would not -- so the oracle runs -fbinary-truncate; see option_differences): a case needing one it
 # cannot honour cannot be proven here, and says so rather than run unfaithfully. NUMPROC: see numproc_mig and
 # numproc_guard (#4271).
@@ -176,6 +224,11 @@ COBC_OPTIONS = {
     # stored (Codec.truncOpt), so a scenario that reaches one is never judged; a port without that stop is proven as
     # TRUNC(STD), a declared difference (option_differences).
     ("TRUNC", "OPT"): "-fbinary-truncate",
+    # #4706: ARITH(EXTEND) differs from COMPAT only for an intermediate past 30 digits and for floating point (register
+    # C5); cobc caps neither, so the oracle computes both alike. The det runtime stops by name on an intermediate past 30
+    # digits (Codec.arithExtend) and the translator refuses a float expression; a port without that stop is proven as
+    # ARITH(COMPAT), a declared difference (option_differences).
+    ("ARITH", "EXTEND"): "",
     ("NUMPROC", "NOPFD"): "",
     # #4271: with preferred signs NUMPROC(PFD) computes as NOPFD (Programming Guide SC27-8714-03, "Sign representation
     # of zoned and packed-decimal data"); what it does with any other sign IBM leaves to the generated code, and the
@@ -183,6 +236,20 @@ COBC_OPTIONS = {
     # (numproc_guard): GnuCOBOL accepts every sign.
     ("NUMPROC", "PFD"): "",
 }  # fmt: skip
+
+
+# #4449 (X8): the COBOL side runs with GnuCOBOL's subscript and reference-modification checks, so a scenario that
+# drives one past its item stops by name ("libcob: ... subscript of 'E' out of bounds") and is refused, instead of
+# reading or overwriting whatever GnuCOBOL's layout (not IBM's) puts next to the item. IBM's default has no SSRANGE.
+BOUND_FLAGS = ["-fec=EC-BOUND-SUBSCRIPT", "-fec=EC-BOUND-REF-MOD"]
+_BOUND_VIOLATION = re.compile(rb"libcob: [^\n]*?(subscript|offset|length) of '([^']+)' out of bounds[^\n]*")
+
+
+def bound_violation(said: bytes | str) -> str | None:
+    """#4449: the libcob line of a subscript / reference modification past its item in a run's output, else None."""
+    data = said.encode("utf-8", "replace") if isinstance(said, str) else said
+    hit = _BOUND_VIOLATION.search(data)
+    return hit.group(0).decode("latin-1").strip() if hit else None
 
 
 def bms_dir(corpus: Path) -> Path:
@@ -215,6 +282,23 @@ def case_path(corpus: Path, rel: str) -> Path:
     return bms_dir(corpus) / rel[len("@bms/") :] if rel.startswith("@bms/") else corpus / rel
 
 
+def _past_72(data: bytes) -> bool:
+    return any(len(ln.rstrip()) > 72 and ln[6:7] not in (b"*", b"/") for ln in data.split(b"\n"))
+
+
+def _tab_stops(data: bytes, name: str) -> bytes:
+    """A member with tab characters (CardDemo CUSTREC.cpy: `<TAB><TAB>     05  CUST-FIRST-NAME   PIC X(25).`)
+    whose lines GnuCOBOL's tab stops of 8 push past column 72, where they are cut (#5856): staged at stops of 4, the
+    width its author laid it out for. Only columns move (a level, a name and a PICTURE are the same tokens wherever
+    they sit); a member that fits at 8 is staged untouched, and one still past column 72 is refused by name."""
+    if b"\t" not in data or not _past_72(data.expandtabs(8)):
+        return data
+    out = data.expandtabs(4)
+    if _past_72(out):
+        raise RuntimeError(f"not runnable faithfully: {name}: a tab-indented line past column 72")
+    return out
+
+
 def stage_copybooks(case: dict[str, Any], corpus: Path, src: Path) -> None:
     """The case's copy_dirs into the GnuCOBOL source directory. A z/OS library member's name is upper-case and COPY
     names are not case-sensitive, so each file is also staged under its upper-case name: COPY COACTVW finds
@@ -225,8 +309,9 @@ def stage_copybooks(case: dict[str, Any], corpus: Path, src: Path) -> None:
     for cpy in case.get("copy_dirs", []):
         for p in (corpus / cpy).iterdir():
             if p.is_file() and p.suffix.lower() != ".bms":
-                shutil.copy(p, src / p.name)
-                shutil.copy(p, src / (p.stem.upper() + ".cpy"))
+                data = _tab_stops(p.read_bytes(), p.name)
+                (src / p.name).write_bytes(data)
+                (src / (p.stem.upper() + ".cpy")).write_bytes(data)
     if any(str(s.get("copybook", "")).startswith("@bms/") for s in (case.get("screens") or {}).values()):
         for p in bms_dir(corpus).iterdir():
             if p.is_file() and not (src / p.name).exists():
@@ -360,24 +445,55 @@ def comp5_layout_guard(src: Path) -> None:
                 )
 
 
+ARITH_EXTEND_STOP = "Cobol.swapArithExtend(true)"  # det/program.with_trunc: a det port run under ARITH(EXTEND)'s stop
 TRUNC_OPT_STOP = "Cobol.swapTruncOpt(true)"  # det/program.with_trunc: a det port run under TRUNC(OPT)'s stop
+
+
+def data_ccsid(case: dict[str, Any]) -> str | None:
+    """#4706: the CCSID of the case's record bytes (`data_encoding` cp037 -> "37", cp1140 -> "1140"), or None when the
+    code page is not an IBM CCSID page (the default, Latin-1): what CODEPAGE(n) is honoured against."""
+    m = re.fullmatch(r"(?:cp|ibm)0*(\d+)", codecs.lookup(data_encoding(case)).name)
+    return m.group(1) if m else None
 
 
 def option_differences(case: dict[str, Any], source: str, port_dir: Path | None) -> list[dict[str, Any]]:
     """#4706: the options the proof of `port_dir` (None: the generated service) cannot claim, as declared differences
     for its evidence record. TRUNC(OPT) is claimed only by a det port built with the runtime's stop on a value past a
     binary receiver's PICTURE (TRUNC_OPT_STOP); any other port is proven as TRUNC(STD) -- what IBM computes under OPT
-    for conforming values, but nothing guarantees a scenario stays conforming."""
-    trunc = str(effective_with_defaults(effective_options(case).layers, source).get("TRUNC") or "").upper()
-    if trunc != "OPT":
-        return []
+    for conforming values, but nothing guarantees a scenario stays conforming. The OPTION_TABLE options a proof can only run
+    as their default (SSRANGE, NUMCHECK, a CODEPAGE the data is not in) are declared the same way; the refused ones
+    never reach here (compile_options raises)."""
+    opts = effective_options(case)
+    out = [
+        {"kind": "option", "option": u["option"], "declared": u["declared"], "applied": u["applied"], "note": u["note"]}
+        for u in [*opts.unhonoured(source, data_ccsid(case)), *opts.unhonoured_runtime(data_ccsid(case))]  # #4707
+        if u["policy"] == "declare"
+    ]
+    trunc = str(effective_with_defaults(opts.layers, source).get("TRUNC") or "").upper()
     services = sorted(port_dir.rglob("*Service.java")) if port_dir and port_dir.is_dir() else []
-    if any(TRUNC_OPT_STOP in read_source(p).text for p in services):
-        return []
-    return [{"kind": "option", "option": "TRUNC", "declared": "OPT", "applied": "STD",
-             "note": "TRUNC(OPT): this port has no stop on a value past a binary item's PICTURE (only a det port's "
-                     "runtime has one, oracle_assumptions.md C5), so it is proven as TRUNC(STD) -- IBM's OPT result "
-                     "only while every binary value fits its PICTURE (#4706)"}]  # fmt: skip
+    if trunc == "OPT" and not any(TRUNC_OPT_STOP in read_source(p).text for p in services):
+        out.insert(0, {"kind": "option", "option": "TRUNC", "declared": "OPT", "applied": "STD",
+                       "note": "TRUNC(OPT): this port has no stop on a value past a binary item's PICTURE (only a det "
+                               "port's runtime has one, oracle_assumptions.md C5), so it is proven as TRUNC(STD) -- "
+                               "IBM's OPT result only while every binary value fits its PICTURE (#4706)"})  # fmt: skip
+    arith = str(effective_with_defaults(opts.layers, source).get("ARITH") or "").upper()
+    if arith == "EXTEND" and not any(ARITH_EXTEND_STOP in read_source(p).text for p in services):
+        out.insert(0, {"kind": "option", "option": "ARITH", "declared": "EXTEND", "applied": "COMPAT",
+                       "note": "ARITH(EXTEND): this port has no stop on an intermediate result past 30 digits (only a "
+                               "det port's runtime has one, oracle_assumptions.md C5), so it is proven as ARITH(COMPAT) "
+                               "-- IBM's EXTEND result only while every intermediate fits 30 digits and no "
+                               "floating-point expression is computed (#4706)"})  # fmt: skip
+    return out
+
+
+# #5561: words GnuCOBOL's IBM dialect reserves that Enterprise COBOL does not (CBSA's BANKDATA performs a paragraph
+# named TIMESTAMP): a program that uses one as its own name is compiled with the word un-reserved
+GNUCOBOL_ONLY_RESERVED = ("TIMESTAMP",)
+
+
+def not_reserved_flags(source: str) -> list[str]:
+    words = [w for w in GNUCOBOL_ONLY_RESERVED if re.search(rf"(?<![A-Za-z0-9-]){w}(?![A-Za-z0-9-])", source, re.I)]
+    return [f"-fnot-reserved={','.join(words)}"] if words else []
 
 
 def compile_options(case: dict[str, Any], source: str) -> tuple[str, list[str]]:
@@ -401,6 +517,13 @@ def compile_options(case: dict[str, Any], source: str) -> tuple[str, list[str]]:
             raise UnsupportedOption(f"{option}({value}): GnuCOBOL 3.1 has no equivalent, so the case cannot be proven")
         if flag:
             flags.append(flag)
+    opts = effective_options(case)
+    # #4706: the other result-changing compiler options; #4707: the LE / Db2 / CICS options
+    for u in [*opts.unhonoured(source, data_ccsid(case)), *opts.unhonoured_runtime(data_ccsid(case))]:
+        if u["policy"] == "refuse":
+            raise UnsupportedOption(f"{u['note']}, so the case cannot be proven")
+    flags.extend(BOUND_FLAGS)
+    flags.extend(not_reserved_flags(source))
     blank = {n for n, _ in cards(source)}
     lines = ibm_assumed_periods(source).split("\n")
     return "\n".join("" if n in blank else ln for n, ln in enumerate(lines, 1)), flags
@@ -1005,3 +1128,47 @@ def compare_sysout(cobol: bytes, java: bytes, enc: str) -> dict[str, Any]:
              for i in range(max(len(c), len(j))) if (c[i] if i < len(c) else None) != (j[i] if i < len(j) else None)]  # fmt: skip
     return {"compared": True, "lines": len(c), "equal": max(len(c), len(j)) - len(diffs), "diffs": diffs[:20],
             "differing": len(diffs)}  # fmt: skip
+
+
+# #5882: where a proof's time goes. Each phase's seconds and count, summed over the process (one case: equivalence.py
+# run); _recorded writes them to phases.json beside report.json (never into the report: evidence records stay as they
+# were), det_port carries them into the sweep, det_sweep_timing.py sums them per shard. Phases may nest (java_cics
+# holds java_generate and java_maven); the totals are read side by side, not added up.
+PHASES: dict[str, list[float]] = {}
+
+
+@contextlib.contextmanager
+def phase(name: str):
+    t0 = time.monotonic()
+    try:
+        yield
+    finally:
+        entry = PHASES.setdefault(name, [0.0, 0])
+        entry[0] += time.monotonic() - t0
+        entry[1] += 1
+
+
+def write_phases(work: Path) -> None:
+    """phases.json in `work`: {phase: {"seconds": s, "count": n}} ({} when none was timed)."""
+    work.mkdir(parents=True, exist_ok=True)
+    data = {k: {"seconds": round(v[0], 1), "count": v[1]} for k, v in sorted(PHASES.items())}
+    (work / "phases.json").write_text(json.dumps(data, indent=1) + "\n", encoding="utf-8")
+
+
+_IRS: dict[Path, Any] = {}
+_IRS_LOCK = threading.Lock()
+
+
+def engine_layouts(project: Path, corpus: Path, rel: str, mode: str = "check") -> Any:
+    """#5649: the engine's record layouts for program `rel` (det.engine_layout.EngineLayouts), from the estate's scan
+    (the clean room beside the generated project), at the translator's POINTER width; None without a scan."""
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+    from gitgalaxy.tools.cobol_to_java.det.engine_layout import EngineLayouts
+
+    db = next(iter(sorted(project.parent.glob("*_gitgalaxy_clean_*/04_ir_state_dumps/*_galaxy_master.db"))), None)
+    if db is None:
+        return None
+    with _IRS_LOCK:
+        if db not in _IRS:
+            _IRS[db] = load_galaxy_ir(db)
+    return EngineLayouts.from_ir(_IRS[db], rel, corpus, mode)

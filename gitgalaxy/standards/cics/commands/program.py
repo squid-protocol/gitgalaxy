@@ -10,7 +10,7 @@
 """#4270 spec PR 2: program control -- LINK / XCTL / RETURN (#4270 channels: LINK / XCTL CHANNEL), ABEND and HANDLE
 ABEND, and LOAD / RELEASE (engine-only: the translator refuses them whole; cics_command_spec.md section 5).
 
-A refused option shows no reason but LINK's SYSID (the reason the old global table gave it) and RETURN CHANNEL."""
+A refused option shows no reason but LINK's SYSID (the reason the old global table gave it)."""
 
 from __future__ import annotations
 
@@ -68,17 +68,26 @@ RETURN = Command(
         "COMMAREA": Arg("area_in"),
         "LENGTH": Arg("value"),
         "IMMEDIATE": Arg("flag"),
+        # #5005 (X17): the channel made available to the next task's program; below the highest logical level the
+        # command fails (INVREQ RESP2 2). IBM names COMMAREA as its alternative; IMMEDIATE with it is not documented
+        "CHANNEL": Arg("name", width=16),
         **RESP_OPTIONS,
     },
-    refused={
-        "CHANNEL": Refusal(
-            "RETURN CHANNEL: the next task's channel is not modelled (no corpus program uses it)", whole=True
+    groups=(
+        at_most_one(
+            "CHANNEL",
+            "COMMAREA",
+            "LENGTH",
+            "IMMEDIATE",
+            msg="RETURN CHANNEL with COMMAREA / LENGTH / IMMEDIATE: CHANNEL alone (IBM names COMMAREA its alternative)",
         ),
-    },
+    ),
     outcomes=(
         Outcome("NORMAL", 0, "control returns to CICS or the linking program"),
         Outcome("INVREQ", 1, "the task is not associated with a terminal", raised_by=("IMMEDIATE",)),
-        Outcome("INVREQ", 2, "IMMEDIATE below the highest logical level", raised_by=("IMMEDIATE",)),
+        Outcome(
+            "INVREQ", 2, "IMMEDIATE or CHANNEL below the highest logical level", raised_by=("IMMEDIATE", "CHANNEL")
+        ),
         Outcome("LENGERR", 11, "the COMMAREA length is below 0 or past 32763", raised_by=("IMMEDIATE",)),
     ),
     state=("channel_scope",),
@@ -98,14 +107,19 @@ HANDLE_ABEND = Command(
     key="HANDLE ABEND",
     ibm=ibm("EXEC CICS HANDLE ABEND", "summary-handle-abend"),
     status="modelled",
-    # PROGRAM is accepted here and refused by Cics.command ("HANDLE ABEND PROGRAM"); NOHANDLE where the translation
-    # raises no condition anyway (no RESP: its area would not be written)
+    register="X67",
+    # NOHANDLE where the translation raises no condition anyway (no RESP: its area would not be written)
     options={
         "LABEL": Arg("label"),
         "CANCEL": Arg("flag"),
         "RESET": Arg("flag"),
-        "PROGRAM": _PROGRAM,
         "NOHANDLE": Arg("flag"),
+    },
+    refused={
+        "PROGRAM": Refusal(
+            "an abend exit program (control passes to it as to an XCTL, no corpus program names one) is not modelled",
+            "X67",
+        ),
     },
     outcomes=(Outcome("NORMAL", 0, ""),),
 )
@@ -117,6 +131,7 @@ LOAD = Command(
     key="LOAD",
     ibm=ibm("EXEC CICS LOAD", "summary-load"),
     status="engine-only",
+    register="X65",
     why=_LOAD_WHY,
     options={
         "PROGRAM": _PROGRAM,
@@ -138,6 +153,7 @@ RELEASE = Command(
     key="RELEASE",
     ibm=ibm("EXEC CICS RELEASE", "summary-release"),
     status="engine-only",
+    register="X65",
     why="releasing a LOADed program or table: " + _LOAD_WHY,
     options={"PROGRAM": _PROGRAM, **RESP_OPTIONS},
     outcomes=(

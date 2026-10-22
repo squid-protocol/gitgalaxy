@@ -130,7 +130,7 @@
     "BNK1CA": {
      "CUSTNOI": "0000000001",
      "ACCTYPI": "CURRENT",
-     "INTRTI": "1.5",
+     "INTRTI": "00001.5",
      "OVERDRI": "00000500"
     }
    },
@@ -144,7 +144,7 @@
     "BNK1CA": {
      "CUSTNOI": "0000000003",
      "ACCTYPI": "isa",
-     "INTRTI": "3.25",
+     "INTRTI": "0003.25",
      "OVERDRI": "00000000"
     }
    },
@@ -158,7 +158,7 @@
     "BNK1CA": {
      "CUSTNOI": "0000000001",
      "ACCTYPI": "MORTGAGE",
-     "INTRTI": "4",
+     "INTRTI": "0000004",
      "OVERDRI": "00000000"
     }
    },
@@ -172,7 +172,7 @@
     "BNK1CA": {
      "CUSTNOI": "0000000003",
      "ACCTYPI": "loan",
-     "INTRTI": "17.75",
+     "INTRTI": "0017.75",
      "OVERDRI": "00001000"
     }
    },
@@ -186,7 +186,7 @@
     "BNK1CA": {
      "CUSTNOI": "0000000003",
      "ACCTYPI": "SAVING",
-     "INTRTI": "0",
+     "INTRTI": "0000000",
      "OVERDRI": "00000000"
     }
    },
@@ -200,7 +200,7 @@
     "BNK1CA": {
      "CUSTNOI": "1-2",
      "ACCTYPI": "CURRENT",
-     "INTRTI": "1",
+     "INTRTI": "0000001",
      "OVERDRI": "00000000"
     }
    },
@@ -213,7 +213,7 @@
    "receive": {
     "BNK1CA": {
      "CUSTNOI": "0000000001",
-     "INTRTI": "1"
+     "INTRTI": "0000001"
     }
    },
    "why": "no account type: 'Account Type should be ISA,CURRENT,LOAN,SAVING or MORTGAGE'"
@@ -226,7 +226,7 @@
     "BNK1CA": {
      "CUSTNOI": "0000000001",
      "ACCTYPI": "CHEQUE",
-     "INTRTI": "1"
+     "INTRTI": "0000001"
     }
    },
    "why": "'CHEQUE': WHEN OTHER, the account-type message"
@@ -244,19 +244,6 @@
    "why": "no interest rate (INTRTL zero): 'Please supply a numeric interest rate'"
   },
   {
-   "name": "rate-letters",
-   "aid": "DFHENTER",
-   "commarea": {},
-   "receive": {
-    "BNK1CA": {
-     "CUSTNOI": "0000000001",
-     "ACCTYPI": "CURRENT",
-     "INTRTI": "abc"
-    }
-   },
-   "why": "rate 'abc': fewer digit / point / sign characters than its length -- the numeric-rate message"
-  },
-  {
    "name": "rate-two-points",
    "aid": "DFHENTER",
    "commarea": {},
@@ -264,7 +251,7 @@
     "BNK1CA": {
      "CUSTNOI": "0000000001",
      "ACCTYPI": "CURRENT",
-     "INTRTI": "1.2.3"
+     "INTRTI": "001.2.3"
     }
    },
    "why": "rate '1.2.3': 'Use one decimal point for interest rate only'"
@@ -277,7 +264,7 @@
     "BNK1CA": {
      "CUSTNOI": "0000000001",
      "ACCTYPI": "CURRENT",
-     "INTRTI": "1.234"
+     "INTRTI": "001.234"
     }
    },
    "why": "rate '1.234': three digits after the point -- 'Only up to two decimal places are supported'"
@@ -290,7 +277,7 @@
     "BNK1CA": {
      "CUSTNOI": "0000000001",
      "ACCTYPI": "CURRENT",
-     "INTRTI": "-1"
+     "INTRTI": "-000001"
     }
    },
    "why": "rate '-1': NUMVAL below zero -- 'Please supply a zero or positive interest rate'"
@@ -303,24 +290,10 @@
     "BNK1CA": {
      "CUSTNOI": "0000000001",
      "ACCTYPI": "CURRENT",
-     "INTRTI": "10000"
+     "INTRTI": "0010000"
     }
    },
    "why": "rate '10000': above 9999.99 -- 'Please supply an interest rate less than 9999.99%'"
-  },
-  {
-   "name": "overdraft-letters",
-   "aid": "DFHENTER",
-   "commarea": {},
-   "receive": {
-    "BNK1CA": {
-     "CUSTNOI": "0000000001",
-     "ACCTYPI": "CURRENT",
-     "INTRTI": "1",
-     "OVERDRI": "000000ab"
-    }
-   },
-   "why": "overdraft '000000ab': 'Overdraft Limit must be numeric positive int'"
   },
   {
    "name": "customer-not-found",
@@ -330,7 +303,7 @@
     "BNK1CA": {
      "CUSTNOI": "0000000005",
      "ACCTYPI": "CURRENT",
-     "INTRTI": "1",
+     "INTRTI": "0000001",
      "OVERDRI": "00000000"
     }
    },
@@ -344,7 +317,7 @@
     "BNK1CA": {
      "CUSTNOI": "0000000002",
      "ACCTYPI": "CURRENT",
-     "INTRTI": "1",
+     "INTRTI": "0000001",
      "OVERDRI": "00000000"
     }
    },
@@ -358,12 +331,15 @@
     "BNK1CA": {
      "CUSTNOI": "9999999999",
      "ACCTYPI": "SAVING",
-     "INTRTI": "1",
+     "INTRTI": "0000001",
      "OVERDRI": "00000000"
     }
    },
    "why": "customer 9999999999: INQACCCU does not look that number up, CREACC 'N' / '9' -- 'unable to count accounts'"
   }
  ],
- "notes": "CBSA's create-account screen (BNK1CAC, transaction OCAC, BMS map BNK1CA of mapset BNK1CAM: the symbolic map is generated from src/base/bms_src/BNK1CAM.bms, @bms/BNK1CAM.cpy). Pseudo-conversational: a first task (EIBCALEN 0) sends the empty map; a returning one acts on the AID -- PA keys nothing, PF3 RETURN TRANSID('OMEN') IMMEDIATE (the task's terminal T001 is stated: oracle_assumptions.md X27), PF12 the termination message, CLEAR, ENTER, any other key 'Invalid key pressed.'. ENTER RECEIVEs the map (MAPFAIL abends HBNK through ABNDPROC), BIF DEEDITs the customer number and overdraft, validates the customer number, the account type (upper or lower case), the interest rate (digits, one point, two places, NUMVAL as COMP-1 between 0 and 9999.99) and the overdraft, then LINKs CREACC with SUBPGM-PARMS -- CREACC, INQCUST, INQACCCU and ABNDPROC run in the task, as in cbsa-creacc -- and shows the new account or CREACC's failure. ACCOUNT, PROCTRAN, CONTROL, CUSTOMER and ABNDFILE are compared after every scenario. Every rate typed is exact in both IEEE and HFP (a binary fraction: 1.5, 3.25, 17.75 ...): FUNCTION NUMVAL into the COMP-1 INTRTI-COMP-1 is IBM's long HFP rounded to short in the det port and GnuCOBOL's IEEE float truncated on the MOVE to SUBPGM-INT-RT, which agree only on such values (oracle_assumptions.md C6). The COMMAREA is compared as the program RETURNs it, WS-COMM-AREA (the same 32-byte layout as its DFHCOMMAREA, which it reads back only for EIBCALEN). The overdraft is typed as all eight characters, as over the map's initial underscores: EDIT-DATA trims trailing spaces from its length with FUNCTION REVERSE / INSPECT LEADING, and a shorter typed value makes OVERDRL negative and the next INSPECT's reference modification (1:OVERDRL) undefined. Not reached: a customer number or overdraft with no digit at all (BIF DEEDIT of such a field is not modelled: refused), the failure branches after SEND MAP / SEND TEXT / SEND CONTROL / RETURN / LINK (no fault can be injected on them) and CREACC's fail codes 2-7 that only a Db2 or ENQ failure gives (cbsa-creacc covers them). Data: seed.sql and customer.txt are SYNTHETIC (cbsa-creacc's). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."
+ "notes": "CBSA's create-account screen (BNK1CAC, transaction OCAC, BMS map BNK1CA of mapset BNK1CAM: the symbolic map is generated from src/base/bms_src/BNK1CAM.bms, @bms/BNK1CAM.cpy). Pseudo-conversational: a first task (EIBCALEN 0) sends the empty map; a returning one acts on the AID -- PA keys nothing, PF3 RETURN TRANSID('OMEN') IMMEDIATE (the task's terminal T001 is stated: oracle_assumptions.md X27), PF12 the termination message, CLEAR, ENTER, any other key 'Invalid key pressed.'. ENTER RECEIVEs the map (MAPFAIL abends HBNK through ABNDPROC), BIF DEEDITs the customer number and overdraft, validates the customer number, the account type (upper or lower case), the interest rate (digits, one point, two places, NUMVAL as COMP-1 between 0 and 9999.99) and the overdraft, then LINKs CREACC with SUBPGM-PARMS -- CREACC, INQCUST, INQACCCU and ABNDPROC run in the task, as in cbsa-creacc -- and shows the new account or CREACC's failure. ACCOUNT, PROCTRAN, CONTROL, CUSTOMER and ABNDFILE are compared after every scenario. Every rate typed is exact in both IEEE and HFP (a binary fraction: 1.5, 3.25, 17.75 ...): FUNCTION NUMVAL into the COMP-1 INTRTI-COMP-1 is IBM's long HFP rounded to short in the det port and GnuCOBOL's IEEE float truncated on the MOVE to SUBPGM-INT-RT, which agree only on such values (oracle_assumptions.md C6). INTRT is a NUM field with no JUSTIFY, so a short rate is RIGHT,ZERO justified (leading zeros, #5116) and no scenario types letters into it or into the NUM CUSTNO / OVERDR: a 3270 numeric field cannot key them (owner decision on #5116, 2026-10-15: rate-letters and overdraft-letters dropped). Every rate is typed as all seven characters: IBM does not say what INTRTL holds after BMS justifies the input (X54 assumption 3: the length typed), and INTRTI(1:INTRTL) of a shorter text would be its leading zeros. The COMMAREA is compared as the program RETURNs it, WS-COMM-AREA (the same 32-byte layout as its DFHCOMMAREA, which it reads back only for EIBCALEN). The overdraft is typed as all eight characters, as over the map's initial underscores: EDIT-DATA trims trailing spaces from its length with FUNCTION REVERSE / INSPECT LEADING, and a shorter typed value makes OVERDRL negative and the next INSPECT's reference modification (1:OVERDRL) undefined. Not reached: a customer number or overdraft with no digit at all (BIF DEEDIT of such a field is not modelled: refused), the failure branches after SEND MAP / SEND TEXT / SEND CONTROL / RETURN / LINK (no fault can be injected on them) and CREACC's fail codes 2-7 that only a Db2 or ENQ failure gives (cbsa-creacc covers them). Data: seed.sql and customer.txt are SYNTHETIC (cbsa-creacc's). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived.",
+ "bounds_refused": {
+  "rate-three-places": "BNK1CAC reference-modifies INTRTI past its 7 bytes (length 7 starting at 5); IBM (no SSRANGE) reads the bytes after the field, which are layout luck"
+ }
 }

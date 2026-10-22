@@ -117,6 +117,9 @@ XRAY_BYPASS_PATHS = [
     "gitgalaxy/tools/network_auditing/full_api_network_map.py",
     "gitgalaxy/tools/cobol_to_cobol/cobol_schema_forge.py",
     "gitgalaxy/tools/cobol_to_cobol/cobol_compiler_forge.py",
+    # #5274: CicsTask's containers family, split out of the transaction forge: IBM's channel-name character set
+    # (NAME_CHARS) is a dense Java literal that now falls in the first 8 KB X-Ray reads; the emitted Java is fixed
+    "gitgalaxy/tools/cobol_to_java/cics_task_containers.py",
     "gitgalaxy/tools/terabyte_log_scanning/pii_leak_hunter.py",
     "gitgalaxy/tools/supply_chain_security/binary_anomaly_detector.py",
     "gitgalaxy/tools/supply_chain_security/supply_chain_firewall.py",
@@ -386,6 +389,9 @@ APERTURE_CONFIG = {
     # shields) decide whether a file over this size is real signal or noise.
     # An Intent-Locked file (GuideStar-recognized as important) bypasses it.
     "MAX_FILE_SIZE_MB": 50,
+    # Aperture Gate 3.2 line-count backstop (#5459): a larger file is an amalgamation. The per-file
+    # ReDoS fuse, not this number, bounds extraction time (doom.go, 43,874 lines, extracts in ~6 s).
+    "MAX_FILE_LOC": 150000,
     # Absolute ceiling: an unconditional, Intent-blind memory-safety backstop
     # checked before the file is ever opened for reading (see Aperture Gate
     # 1.0 in evaluate_path_integrity). Nothing bypasses this one.
@@ -479,16 +485,6 @@ GUIDESTAR_CONFIG: dict[str, Any] = {
         "src",
         "libexec",
         "hooks",
-    },
-    "EXEC_PREFIX_MAP": {
-        "python3": "python",
-        "python": "python",
-        "node": "javascript",
-        "npm": "javascript",
-        "sh": "shell",
-        "bash": "shell",
-        "cargo": "rust",
-        "go": "go",
     },
 }
 

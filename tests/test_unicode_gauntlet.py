@@ -7,6 +7,7 @@ on the mainframe seed checks that the oracle is sound: every ASCII cell -- the s
 re-encoded or given Windows line endings -- must pass, or the gauntlet is measuring itself.
 """
 
+import os
 import sys
 import unicodedata
 from pathlib import Path
@@ -60,7 +61,9 @@ def test_the_oracle_is_sound_on_the_mainframe_seed(tmp_path, monkeypatch):
     runs every page."""
     monkeypatch.setattr(ug, "EBCDIC", ["cp037", "cp273", "cp277", "cp930"])
     monkeypatch.setattr(ug, "EBCDIC_SCRIPTS", {"nordic": ["cp277"], "german": ["cp273"]})
-    results = ug.run(tmp_path / "no-corpus", {"mainframe"}, False, tmp_path / "work", jobs=2)
+    results = ug.run(
+        tmp_path / "no-corpus", {"mainframe"}, False, tmp_path / "work", jobs=min(6, os.cpu_count() or 2)
+    )  # #5166: was 2
     ascii_cells = {cid: r["diffs"] for cid, r in results.items() if r["script"] == "ascii"
                    and r["encoding"] in ("utf-8", "utf-8-sig", "crlf")}  # fmt: skip
     assert set(ascii_cells) == {"mainframe|ascii|utf-8", "mainframe|ascii|utf-8-sig", "mainframe|ascii|crlf"}
@@ -96,7 +99,7 @@ def test_the_baseline_is_one_mergeable_line_per_cell(tmp_path, monkeypatch):
 def test_a_legacy_cjk_estate_is_scanned_with_its_code_page_declared(tmp_path, monkeypatch):
     """#3878: Shift-JIS / GB18030 cannot be told from cp1252 by their bytes, so a real estate
     declares them; the gauntlet scans those estates the same way, and nothing else declared."""
-    import gitgalaxy.tools.cobol_to_cobol.galaxy_ir as gir
+    import scan_server as gir  # #5882: the scan_to_db unicode_gauntlet.scan calls
 
     seen = {}
     monkeypatch.setattr(

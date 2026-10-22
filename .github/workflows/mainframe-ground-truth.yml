@@ -9,19 +9,20 @@ name: Mainframe Ground Truth
 # listed one stops reproducing (an improvement -- ratchet it in with
 # `python tests/tools/ground_truth_ledger.py update`, then commit the ledger).
 #
-# Runs on every code PR (docs/markdown-only changes are skipped): the scores depend on the whole engine
+# Runs on every PR that changes a ground-truth input (#5164: the plan job skips the rest, still reporting `ground-truth`): the scores depend on the whole engine
 # (detection, the COBOL/JCL/BMS/CSD registries, the resolver, the DB writer),
-# and the full fetch + scan + score of all three corpora takes well under a
-# minute. The same job also runs tests/cobol_mainframe/ with the corpora
+# and the fetch + scan + score of all three corpora takes 2-4 min on a cold scan (#5142: the "Gate against" step, measured 2026-10-15). The same job also runs tests/cobol_mainframe/ with the corpora
 # fetched, so the full-corpus refraction differential and the excerpt
 # byte-identity checks -- skipped in every other workflow -- run here too.
 #
 # On push to main (and nightly: #4935 skips a push whose tree the PR run already proved) it appends the scoreboard to docs/self_scan/
-# ground_truth_history.jsonl (only when a number moved) through the same
-# bot-PR mechanism as call-resolution-history.yml.
+# ground_truth_history.jsonl (only when a number moved) and publishes it to the `generated` branch
+# (tests/tools/generated_branch.py, #4963), not to main through an auto-merged PR: the series starts from what generated last
+# published (the copy on main is the seed). The publish is its own main-only job, so the job that runs PR code holds no write token.
 
 on:
   pull_request:  # #4825: a required check -- runs on every PR
+    types: [opened, synchronize, reopened, ready_for_review]  # #5104: a draft starts only the cheap audits
     branches: [main]
   push:
     branches: [main]
@@ -40,7 +41,10 @@ concurrency:
 jobs:
   # #4935: a push to main whose tree already passed THIS workflow on its PR head (a squash of an up-to-date PR) is not
   # run again; any doubt runs it (tests/tools/skip_tested_tree.py has the rule, and tests). Always concludes success.
+  # #5129: only a main push run can be skipped, so the gate runs on push only: a PR run (and a schedule / dispatch run,
+  # which never skips) starts its heavy jobs without waiting on it. A skipped gate leaves `skip` empty: they run.
   tested-tree:
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -63,18 +67,123 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: python tests/tools/skip_tested_tree.py mainframe-ground-truth.yml
 
+  # #5133: the job was one serial ~16 min runner (ledger gate ~3 min, then ~11-15 min of pytest). It runs as parts on
+  # runners (#5543: 4 when CI is calm, 2 when it is busy), and pytest-split cuts tests/cobol_mainframe/ between them (--splits N, least_duration, over the committed
+  # .test_durations: one file, so every part cuts the same split). The first cut was two hand-listed files (the ~1480 s
+  # test_det_nondigit_zoned.py and test_evidence_components.py) against everything else; a list goes stale as tests move,
+  # and a new file always landed in part 1. The ledger gate (and the history it appends) runs once: in the warm job, or in
+  # part 1 when there is none (#5543: tests/tools/ci_layout.py, which `plan` runs, picks the layout: calm = a warm job + 4 parts, skipped
+  # when main saved the scans for this corpora.json + engine state; busy = 2 self-warming parts); the recorded seconds leave the parts level (test_ci_critical_path_split replays the split). `ground-truth`
+  # below stays the required check (the ruleset names it), exactly as `full-suite` aggregates the suite's parts.
+  # #5164: `ground-truth` is required, so it cannot take a path filter (a filtered-out required check never reports).
+  # Like det-sweep's plan job (#4825), `plan` reads the diff: a pull request that changes no ground-truth input (docs,
+  # .claude/, churn tooling, workflows and tests the job does not read: tests/tools/ground_truth_plan.py) proves nothing
+  # (mode none: the parts are skipped and `ground-truth` passes in about a minute). Any input, and every push / nightly /
+  # manual run, is the full check; a failed plan leaves `mode` empty, which also runs it in full.
+  plan:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read  # #5543: the queue depth (queued PR runs and jobs) that picks the layout
+    outputs:
+      mode: ${{ steps.plan.outputs.mode }}
+      layout: ${{ steps.layout.outputs.layout }}
+      warm: ${{ steps.layout.outputs.warm }}
+      parts: ${{ steps.layout.outputs.parts }}
+      matrix: ${{ steps.layout.outputs.matrix }}
+      cache_hit: ${{ steps.layout.outputs.cache_hit }}
+      engine_key: ${{ steps.key.outputs.engine }}
+      scans_key: ${{ steps.key.outputs.scans }}
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0  # git diff origin/main...HEAD needs the merge base
+          filter: blob:none  # #5882: history without file contents (~1 s, not ~45-75 s); a file git reads is fetched then
+          persist-credentials: false
+
+      - name: Plan the check
+        id: plan
+        run: |
+          git fetch --no-tags origin main:refs/remotes/origin/main 2>/dev/null || true
+          python3 tests/tools/ground_truth_plan.py --event "$GITHUB_EVENT_NAME" --base origin/main \
+            --github-output "$GITHUB_OUTPUT" | tee plan.json
+          {
+            echo "## Ground-truth plan"
+            echo '```json'
+            cat plan.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # #5543: what a scan reads: the engine, the corpus pins, the scan driver and what pip installs. A content hash (not
+      # the commit), so a commit that changes none of them finds the scans an earlier one saved. Every job of the run
+      # takes the same key from here (MAINFRAME_ENGINE_KEY names the scan directory).
+      - name: Key the scans by engine state
+        id: key
+        env:
+          ENGINE: ${{ hashFiles('gitgalaxy/**', 'tests/tools/mainframe_corpus.py', 'pyproject.toml', 'ci/requirements/*.txt') }}
+        run: |
+          {
+            echo "engine=$ENGINE"
+            echo "scans=mainframe-gt-scans-${{ hashFiles('tests/cobol_mainframe/corpora.json') }}-$ENGINE"
+          } >> "$GITHUB_OUTPUT"
+
+      # lookup-only: nothing is downloaded here; on a hit the warm job is skipped and the jobs that need the scans restore them
+      - name: Look up the cached scans
+        id: scans
+        if: steps.plan.outputs.mode != 'none'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora/_scans
+          key: ${{ steps.key.outputs.scans }}
+          lookup-only: true
+
+      # calm: warm job + 4 parts (the warm job is skipped on a cache hit); busy: 2 self-warming parts, no warm job. The
+      # choice and why are in the summary. A failed step leaves the outputs empty: warm job + 4 parts, as before.
+      - name: Choose the layout
+        id: layout
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 tests/tools/ci_layout.py --event "$GITHUB_EVENT_NAME" --mode "${{ steps.plan.outputs.mode }}" \
+            --cache-hit "${{ steps.scans.outputs.cache-hit }}" --github-output "$GITHUB_OUTPUT" --summary "$GITHUB_STEP_SUMMARY"
+
   ground-truth:
-    needs: tested-tree
-    # Loop guard: the history bot commit must not re-trigger the push run.
-    if: |
-      !cancelled() && needs.tested-tree.outputs.skip != 'true' && (
-      github.event_name != 'push' ||
-      !startsWith(github.event.head_commit.message, 'docs: auto-update mainframe ground-truth history'))
+    needs: [tested-tree, plan, ground-truth-warm, ground-truth-part]
+    if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #5104: draft PRs skip heavy CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Every part passed
+        env:
+          WARM: ${{ needs.ground-truth-warm.result }}
+          PARTS: ${{ needs.ground-truth-part.result }}
+          SKIP: ${{ needs.tested-tree.outputs.skip }}
+          MODE: ${{ needs.plan.outputs.mode }}
+          PLANNED_WARM: ${{ needs.plan.outputs.warm }}
+          LAYOUT: ${{ needs.plan.outputs.layout }}
+        run: |
+          echo "ground-truth warm: $WARM, parts: $PARTS (tested-tree skip: $SKIP, plan mode: $MODE, layout: $LAYOUT, warm planned: $PLANNED_WARM)"
+          # #4935: "skipped" is a pass only when the gate proved this tree green on the PR; otherwise it is a failure
+          # #5164: ... or when the plan found no ground-truth input in the PR (mode none). An empty mode is not none.
+          ok() { test "$1" = "success" || { test "$1" = "skipped" && { test "$SKIP" = "true" || test "$MODE" = "none"; }; }; }
+          # #5543: ... or when the layout needs no warm job (a cache hit on the scans, or the busy layout): the parts then warm for themselves
+          { ok "$WARM" || { test "$WARM" = "skipped" && test "$PLANNED_WARM" = "false"; }; } && ok "$PARTS"
+
+  # #5543: the warm-up (fetch, a parallel scan of every pinned corpus, the ledger gate) is paid once here, not once per part.
+  # The parts download the scans (the cache dir's `_scans`, keyed by this commit's engine state, which every job of the
+  # run computes alike) and run pytest against them. This job owns the gate's summary and the history append.
+  ground-truth-warm:
+    needs: [tested-tree, plan]
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true' && needs.plan.outputs.mode != 'none' && needs.plan.outputs.warm != 'false') }}  # #5104: draft PRs skip heavy CI; #5543: no warm job on a scans cache hit or in the busy layout
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
+      MAINFRAME_ENGINE_KEY: ${{ needs.plan.outputs.engine_key }}  # #5543: the scans' directory name, alike in every job of the run
       PYTHONUTF8: "1"
     steps:
       - name: Checkout GitGalaxy
@@ -93,17 +202,18 @@ jobs:
       - name: Install GitGalaxy
         run: |
           cd gitgalaxy
-          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
+          tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
           # #4911: the full extra too -- test_feature_inventory_cli_check (feature_inventory.py --all-burned --check) exits 1 in
           # Zero-Dependency Mode and tells the user to install gitgalaxy[full]
-          pip install --require-hashes -r ci/requirements/test.txt
-          pip install -e ".[full]"
+          tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/test.txt
+          pip install --no-build-isolation -e ".[full]"
           # #4834: the det translator's parser, so the det tests that need the corpora run here (they are skipped
           # in full-suite, which has no corpora); same pin as smoke-test.yml
-          pip install --require-hashes -r ci/requirements/treesitter.txt
+          tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/treesitter.txt
 
       - name: Cache the pinned corpora
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: corpora
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .mainframe_corpora
           # Clones only; scans are keyed by engine state inside the cache dir and
@@ -116,6 +226,31 @@ jobs:
           rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
           PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
 
+      # #5024: restore-only on pull requests. A PR's cache scope is its own ref, so a PR that saved here left
+      # a copy per PR (a PR that edits corpora.json) that nothing else could read. Main saves it, once per key.
+      - name: Save the pinned corpora (main)
+        if: github.event_name != 'pull_request' && steps.corpora.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a miss only costs the next run a clone
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
+
+      # #4963: the history is appended to, so it starts from the published series (a push / nightly run only, which is
+      # also the only run that appends: the `--history` flag below).
+      - name: Restore the published history from the generated branch
+        if: github.event_name == 'push' || github.event_name == 'schedule'
+        run: |
+          cd gitgalaxy
+          python tests/tools/generated_branch.py fetch docs/self_scan/ground_truth_history.jsonl
+
+      # #5543: every corpus at once (dsf alone is about half of the serial scan time); the gate below finds them cached.
+      - name: Scan the pinned corpora in parallel
+        run: |
+          cd gitgalaxy
+          PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py list | cut -d' ' -f1 \
+            | PYTHONPATH="$PWD" xargs -P 8 -I{} python tests/tools/mainframe_corpus.py scan {}
+
       - name: Gate against the ground-truth ledger
         run: |
           cd gitgalaxy
@@ -123,40 +258,217 @@ jobs:
             --summary "$GITHUB_STEP_SUMMARY" \
             ${{ (github.event_name == 'push' || github.event_name == 'schedule') && '--history' || '' }}
 
+      # #5543: main saves the scans once per key (a PR's cache scope is its own ref, #5024); the warm job runs only on a miss
+      - name: Save the scans (main)
+        if: github.event_name != 'pull_request'
+        continue-on-error: true  # best effort: a miss only costs the next run a warm job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora/_scans
+          key: ${{ needs.plan.outputs.scans_key }}
+
+      # tar first: upload-artifact skips hidden paths, and the cache dir is `.mainframe_corpora`
+      - name: Pack the scans for the parts
+        run: tar -I 'gzip -1' -C "$GITGALAXY_MAINFRAME_CORPORA" -cf "$RUNNER_TEMP/corpus-scans.tgz" _scans
+
+      - name: Upload the scans for the parts
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ground-truth-scans
+          path: ${{ runner.temp }}/corpus-scans.tgz
+          retention-days: 1
+          compression-level: 0
+
+      - name: Keep the history for the publish job
+        if: github.event_name == 'push' || github.event_name == 'schedule'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ground-truth-history
+          path: gitgalaxy/docs/self_scan/ground_truth_history.jsonl
+          retention-days: 1
+
+  # #5543: the layout is the plan job's: 4 parts after a warm job (or after a scans cache hit) when CI is calm, 2 self-warming parts
+  # when it is busy. `shard` ("1/4") names the check, `group` and `parts` feed pytest-split. A failed plan leaves `matrix` empty: 4 parts.
+  ground-truth-part:
+    name: ground-truth part ${{ matrix.shard }}
+    needs: [tested-tree, plan, ground-truth-warm]
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true' && needs.plan.outputs.mode != 'none' && (needs.ground-truth-warm.result == 'success' || needs.plan.outputs.warm == 'false')) }}  # #5104: draft PRs skip heavy CI; the download needs an uploader that ran
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix || '{"include":[{"group":1,"parts":4,"shard":"1/4"},{"group":2,"parts":4,"shard":"2/4"},{"group":3,"parts":4,"shard":"3/4"},{"group":4,"parts":4,"shard":"4/4"}]}') }}
+    timeout-minutes: 35  # #5137: 5 of 5 sampled re-runs were the 20 min cap hit at 99% of pytest on a slow runner (passing runs take 11-15 min, slow ones 20+)
+    env:
+      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+      GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
+      MAINFRAME_ENGINE_KEY: ${{ needs.plan.outputs.engine_key }}  # #5543: the scans' directory name, alike in every job of the run
+      PYTHONUTF8: "1"
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: gitgalaxy/pyproject.toml
+
+      - name: Install GitGalaxy
+        run: |
+          cd gitgalaxy
+          tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
+          # #4911: the full extra too -- test_feature_inventory_cli_check (feature_inventory.py --all-burned --check) exits 1 in
+          # Zero-Dependency Mode and tells the user to install gitgalaxy[full]
+          tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/test.txt
+          pip install --no-build-isolation -e ".[full]"
+          # #4834: the det translator's parser, so the det tests that need the corpora run here (they are skipped
+          # in full-suite, which has no corpora); same pin as smoke-test.yml
+          tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/treesitter.txt
+
+      - name: Cache the pinned corpora
+        id: corpora
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          # Clones only; scans are keyed by engine state inside the cache dir and
+          # are pruned below so a stale DB never rides along.
+          key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
+
+      - name: Fetch the pinned corpora
+        run: |
+          cd gitgalaxy
+          rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
+          PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
+
+      # #5024: restore-only on pull requests. A PR's cache scope is its own ref, so a PR that saved here left
+      # a copy per PR (a PR that edits corpora.json) that nothing else could read. Main saves it, once per key (the parts too: test_cache_keys pairs every restore with a save; the loser of the race is best effort).
+      - name: Save the pinned corpora (main)
+        if: github.event_name != 'pull_request' && steps.corpora.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a miss only costs the next run a clone
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
+
+      # #5543: the scans, from one of three places (after the fetch above, which prunes `_scans`; the engine key matches):
+      # the warm job's artifact, the main-saved cache (a hit the plan job saw: no warm job), or this part's own scan (busy, or a lost cache)
+      - name: Restore the cached scans
+        id: scans
+        if: needs.plan.outputs.warm == 'false' && needs.plan.outputs.cache_hit == 'true'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora/_scans
+          key: ${{ needs.plan.outputs.scans_key }}
+
+      - name: Download the scans
+        if: needs.plan.outputs.warm != 'false'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: ground-truth-scans
+          path: ${{ runner.temp }}/scans
+
+      - name: Unpack the scans
+        if: needs.plan.outputs.warm != 'false'
+        run: tar -C "$GITGALAXY_MAINFRAME_CORPORA" -xzf "$RUNNER_TEMP/scans/corpus-scans.tgz"
+
+      # no warm job and no usable cache: this part scans every corpus itself (the pre-#5559 layout; the busy layout, or a cache evicted since the plan)
+      - name: Scan the pinned corpora in parallel
+        if: needs.plan.outputs.warm == 'false' && steps.scans.outputs.cache-hit != 'true'
+        run: |
+          cd gitgalaxy
+          PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py list | cut -d' ' -f1 \
+            | PYTHONPATH="$PWD" xargs -P 8 -I{} python tests/tools/mainframe_corpus.py scan {}
+
+      # the ledger gate runs once per run: in the warm job, or here in part 1 when there is none. History on push / nightly
+      # (always calm, so a cache hit lands here): published by publish-history from the artifact this part uploads.
+      - name: Restore the published history from the generated branch
+        if: needs.plan.outputs.warm == 'false' && matrix.group == 1 && (github.event_name == 'push' || github.event_name == 'schedule')
+        run: |
+          cd gitgalaxy
+          python tests/tools/generated_branch.py fetch docs/self_scan/ground_truth_history.jsonl
+
+      - name: Gate against the ground-truth ledger
+        if: needs.plan.outputs.warm == 'false' && matrix.group == 1
+        run: |
+          cd gitgalaxy
+          PYTHONPATH="$PWD" python tests/tools/ground_truth_ledger.py check \
+            --summary "$GITHUB_STEP_SUMMARY" \
+            ${{ (github.event_name == 'push' || github.event_name == 'schedule') && '--history' || '' }}
+
+      - name: Keep the history for the publish job
+        if: needs.plan.outputs.warm == 'false' && matrix.group == 1 && (github.event_name == 'push' || github.event_name == 'schedule')
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ground-truth-history
+          path: gitgalaxy/docs/self_scan/ground_truth_history.jsonl
+          retention-days: 1
+
+      - name: Record the layout (#5543)
+        run: |
+          echo "ground-truth part ${{ matrix.shard }}: layout ${{ needs.plan.outputs.layout || 'calm' }}, warm job planned: ${{ needs.plan.outputs.warm || 'true' }}, scans cached: ${{ needs.plan.outputs.cache_hit || 'false' }}" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Full-corpus differential and answer-key tests
         env:
           # #4834: the all-estates feature-inventory --check is nightly / manual only, not per PR
           GITGALAXY_NIGHTLY: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && '1' || '' }}
           OMP_NUM_THREADS: 1  # #4902: -n auto already uses every core; no BLAS threads on top
+          GITGALAXY_TEST_TIMES: ${{ runner.temp }}/times-ground-truth-part-${{ matrix.group }}.json  # #5166: tests/conftest.py writes each test's seconds
         run: |
           cd gitgalaxy
-          # #4825: in parallel (~9 -> ~3 min); scans are warm from the ledger step and mainframe_corpus.scan locks
-          PYTHONPATH="$PWD" python -m pytest -q -n auto tests/cobol_mainframe/
+          # #4825: in parallel (~9 -> ~3 min); mainframe_corpus.scan locks
+          # #5133: this part's share of tests/cobol_mainframe/ (the four groups together are the whole directory); #5543: the
+          # scans are unpacked from the warm job, so no test pays a cold scan
+          PYTHONPATH="$PWD" python -m pytest -q -n auto --durations=25 tests/cobol_mainframe/ \
+            --splits ${{ matrix.parts }} --splitting-algorithm least_duration --group ${{ matrix.group }}
 
-      - name: Open PR with updated history
-        if: github.event_name == 'push' || github.event_name == 'schedule'
-        id: history-pr
-        uses: squid-protocol/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # forked from peter-evans/create-pull-request v8.1.1
-        with:
-          token: ${{ secrets.AUTOMATION_PAT }}
-          path: gitgalaxy
-          commit-message: "docs: auto-update mainframe ground-truth history"
-          title: "docs: auto-update mainframe ground-truth history"
-          body: |
-            Automated update from the mainframe ground-truth measurement on `main`.
-
-            Appends the per-corpus, per-field P/R scoreboard to
-            `docs/self_scan/ground_truth_history.jsonl` (written only when a number moved).
-          branch: auto/mainframe-ground-truth-history
-          delete-branch: true
-          add-paths: |
-            docs/self_scan/ground_truth_history.jsonl
-
-      - name: Merge the history PR
-        if: steps.history-pr.outputs.pull-request-number
-        env:
-          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+      # #5166 part B: the per-test time gate, as in smoke-test.yml (a test over 15 s needs a slow marker or a baseline entry;
+      # a baselined one fails over its recorded time x 2.5). smoke-test ignores tests/cobol_mainframe on a PR, so this is the
+      # only PR run that times them (#5240, #5248 were found on main). Part of the required `ground-truth` job.
+      - name: Per-test time ratchet (#5166)
         run: |
-          PR="${{ steps.history-pr.outputs.pull-request-number }}"
-          gh pr merge --squash "$PR" --repo ${{ github.repository }} || \
-            gh pr merge --squash --auto "$PR" --repo ${{ github.repository }}
+          cd gitgalaxy
+          python tests/tools/time_ratchet.py check --times "$RUNNER_TEMP/times-ground-truth-part-${{ matrix.group }}.json"
+
+      - name: Upload this part's test times (#5166)
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-times-ground-truth-part-${{ matrix.group }}
+          path: ${{ runner.temp }}/times-ground-truth-part-${{ matrix.group }}.json
+          retention-days: 7
+          if-no-files-found: ignore
+
+  # #4963: output goes to the `generated` branch, never to main (no PR, no auto-merge). Main's code only: a push or the
+  # nightly run on main, never a pull_request, which is why it is a job of its own with the write token.
+  # #5176: only when the ledger part ran and uploaded the history; a tested-tree skip leaves the parts skipped and no artifact.
+  publish-history:
+    needs: [ground-truth, ground-truth-warm, ground-truth-part]
+    if: ${{ !cancelled() && needs.ground-truth.result == 'success' && needs.ground-truth-part.result == 'success' && (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          persist-credentials: true  # the publish step pushes to `generated` with this token
+
+      - name: Download the history
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: ground-truth-history
+          path: ${{ runner.temp }}/history
+
+      - name: Publish to the generated branch
+        run: |
+          cd gitgalaxy
+          cp "$RUNNER_TEMP/history/ground_truth_history.jsonl" docs/self_scan/ground_truth_history.jsonl
+          python tests/tools/generated_branch.py publish --stamp mainframe-ground-truth-history \
+            --message "mainframe ground-truth history as of main $GITHUB_SHA" \
+            docs/self_scan/ground_truth_history.jsonl

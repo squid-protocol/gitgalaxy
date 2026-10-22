@@ -165,7 +165,7 @@
       "assembly/cosmopolitan_syscalls/calls_sys_aio_mlock.S": 10.52
     },
     "assembly/cpm65_6502": {
-      "assembly/cpm65_6502/apps_adm3adrv.S": 34.16,
+      "assembly/cpm65_6502/apps_adm3adrv.S": 35.66,
       "assembly/cpm65_6502/apps_adm3atst.asm": 1.82,
       "assembly/cpm65_6502/apps_bedit.asm": 73.88,
       "assembly/cpm65_6502/apps_capsdrv.asm": 2.78,
@@ -178,7 +178,7 @@
       "assembly/cpm65_6502/apps_ls.asm": 90.38,
       "assembly/cpm65_6502/apps_more.asm": 26.98,
       "assembly/cpm65_6502/apps_scrntest.asm": 41.22,
-      "assembly/cpm65_6502/apps_scrvt100.S": 14.52,
+      "assembly/cpm65_6502/apps_scrvt100.S": 16.02,
       "assembly/cpm65_6502/apps_vt52drv.asm": 36.96,
       "assembly/cpm65_6502/apps_vt52test.asm": 15.44,
       "assembly/cpm65_6502/apps_xrecv.asm": 60.42,
@@ -326,40 +326,40 @@
       "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": 12.08
     },
     "assembly/rpi_smartstart_baremetal": {
-      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": 237.24,
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": 258.54,
       "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": 185.42,
-      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": 172.22,
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": 192.32,
       "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": 133.98,
       "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": 137.48,
-      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": 199.3,
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": 219.4,
       "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": 145.28,
       "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": 163.5,
       "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": 114.02,
-      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": 170.7
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": 192.3
     },
     "assembly/x86_bare_metal": {
       "assembly/x86_bare_metal/LICENSE.adoc": 1.0,
       "assembly/x86_bare_metal/apm_shutdown.S": 15.24,
       "assembly/x86_bare_metal/apm_shutdown2.S": 8.3,
       "assembly/x86_bare_metal/bios_background.S": 13.12,
-      "assembly/x86_bare_metal/bios_carriage_return.S": 12.6,
+      "assembly/x86_bare_metal/bios_carriage_return.S": 1.3,
       "assembly/x86_bare_metal/bios_clear_screen.S": 15.38,
       "assembly/x86_bare_metal/bios_color.S": 14.68,
       "assembly/x86_bare_metal/bios_cursor_position.S": 15.2,
-      "assembly/x86_bare_metal/bios_detect_memory.S": 25.14,
-      "assembly/x86_bare_metal/bios_disk_load.S": 1.4,
-      "assembly/x86_bare_metal/bios_disk_load2.S": 1.28,
-      "assembly/x86_bare_metal/bios_hello_world.S": 7.46,
-      "assembly/x86_bare_metal/bios_initial_state.S": 4.24,
+      "assembly/x86_bare_metal/bios_detect_memory.S": 28.24,
+      "assembly/x86_bare_metal/bios_disk_load.S": 5.9,
+      "assembly/x86_bare_metal/bios_disk_load2.S": 3.58,
+      "assembly/x86_bare_metal/bios_hello_world.S": 9.36,
+      "assembly/x86_bare_metal/bios_initial_state.S": 6.34,
       "assembly/x86_bare_metal/bios_keyboard.S": 14.12,
       "assembly/x86_bare_metal/bios_keyboard_loop.S": 1.82,
-      "assembly/x86_bare_metal/bios_newline.S": 12.6,
-      "assembly/x86_bare_metal/bios_pixel.S": 12.92,
-      "assembly/x86_bare_metal/bios_pixel_line.S": 12.32,
+      "assembly/x86_bare_metal/bios_newline.S": 1.3,
+      "assembly/x86_bare_metal/bios_pixel.S": 14.52,
+      "assembly/x86_bare_metal/bios_pixel_line.S": 14.52,
       "assembly/x86_bare_metal/bios_putc.S": 12.08,
       "assembly/x86_bare_metal/bios_scroll.S": 15.24,
-      "assembly/x86_bare_metal/bios_serial.S": 7.64,
-      "assembly/x86_bare_metal/bios_sleep.S": 11.72,
+      "assembly/x86_bare_metal/bios_serial.S": 10.14,
+      "assembly/x86_bare_metal/bios_sleep.S": 13.42,
       "assembly/x86_bare_metal/c_hello_world_entry.S": 4.16
     },
     "assembly/xv6_x86_kernel": {
@@ -1352,9 +1352,9 @@
       "fortran/wrf/cleanCMake.sh": 63.32,
       "fortran/wrf/configure_reader.py": 599.3,
       "fortran/wrf/gen_be_wrapper.ksh": 68.96,
-      "fortran/wrf/module_configure.F": 532.08,
-      "fortran/wrf/module_domain.F": 2839.8,
-      "fortran/wrf/module_initialize_real.F": 11507.38,
+      "fortran/wrf/module_configure.F": 539.48,
+      "fortran/wrf/module_domain.F": 2843.1,
+      "fortran/wrf/module_initialize_real.F": 12881.98,
       "fortran/wrf/module_physics_init.F": 13658.6,
       "fortran/wrf/module_sf_noahdrv.F": 12731.28,
       "fortran/wrf/regtest.csh": 2122.82,
@@ -1362,7 +1362,7 @@
       "fortran/wrf/regtest_nmmnest.csh": 2212.5,
       "fortran/wrf/run_convert_e2c.ksh": 32.26,
       "fortran/wrf/sourcetree.py": 356.12,
-      "fortran/wrf/wrf_timeseries.F": 981.18
+      "fortran/wrf/wrf_timeseries.F": 1064.28
     },
     "go": {
       "go/SOURCES.md": 1.0
@@ -2186,7 +2186,7 @@
       "kotlin/SOURCES.md": 1.0
     },
     "kotlin/okhttp": {
-      "kotlin/okhttp/Call.kt": 20.68,
+      "kotlin/okhttp/Call.kt": 20.58,
       "kotlin/okhttp/Dispatcher.kt": 119.44,
       "kotlin/okhttp/LICENSE.txt": 4.06,
       "kotlin/okhttp/OkHttp.android.kt": 6.36,
@@ -2501,11 +2501,11 @@
       "objective-c/SOURCES.md": 1.0
     },
     "objective-c/worldwideweb": {
-      "objective-c/worldwideweb/Anchor.m": 149.8,
+      "objective-c/worldwideweb/Anchor.m": 166.3,
       "objective-c/worldwideweb/HText.c": 747.44,
       "objective-c/worldwideweb/HyperManager.m": 244.68,
       "objective-c/worldwideweb/HyperText.h": 93.44,
-      "objective-c/worldwideweb/HyperText.m": 1262.78,
+      "objective-c/worldwideweb/HyperText.m": 1274.78,
       "objective-c/worldwideweb/TcpAccess.m": 36.76
     },
     "perl": {
@@ -3268,7 +3268,8 @@
       "rust/tokio/maybe_done.rs": 39.1,
       "rust/tokio/tests.rs": 172.8,
       "rust/tokio/tokio_mpsc_bounded.rs": 232.64,
-      "rust/tokio/tokio_named_pipe.rs": 363.94
+      "rust/tokio/tokio_named_pipe.rs": 363.94,
+      "rust/tokio/tokio_udp.rs": 353.12
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": 28.76
@@ -3297,10 +3298,10 @@
     },
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 3.86,
-      "scheme/racket/cpnanopass.ss": 3067.88,
+      "scheme/racket/cpnanopass.ss": 5164.98,
       "scheme/racket/eval.c": 4181.18,
       "scheme/racket/fun.c": 11949.16,
-      "scheme/racket/io.ss": 537.08,
+      "scheme/racket/io.ss": 1040.08,
       "scheme/racket/schemify.rkt": 1051.08,
       "scheme/racket/thread.rkt": 497.58
     },
@@ -3397,6 +3398,7 @@
       "shell/freebsd-src/dd2_test.sh": 65.58,
       "shell/freebsd-src/dtest.sh": 124.56,
       "shell/freebsd-src/echo_test.sh": 8.04,
+      "shell/freebsd-src/ed_test.sh": 135.22,
       "shell/freebsd-src/format_string_test.sh": 42.94,
       "shell/freebsd-src/functional_test.sh": 22.42,
       "shell/freebsd-src/hostname_test.sh": 19.74,
@@ -3434,6 +3436,7 @@
       "shell/haiku/default_deskbar_items.sh": 3.66,
       "shell/haiku/gen-bepo.sh": 4.64,
       "shell/haiku/generate_CountryFlags.sh": 20.28,
+      "shell/haiku/generate_ids_from_drivers.sh": 86.18,
       "shell/haiku/install-wifi-firmwares.sh": 99.0,
       "shell/haiku/install.sh": 21.88,
       "shell/haiku/leak_analyser.sh": 77.84,
@@ -3627,7 +3630,7 @@
     },
     "sql/mediawiki_postgresql": {
       "sql/mediawiki_postgresql/COPYING": 7.58,
-      "sql/mediawiki_postgresql/tables.sql": 26.64
+      "sql/mediawiki_postgresql/tables.sql": 28.24
     },
     "sql/spamassassin_mysql": {
       "sql/spamassassin_mysql/NOTICE": 1.0,
@@ -3640,7 +3643,7 @@
       "sql/sqlite/dotcmd01.sql": 26.96
     },
     "sql/sqlmap_postgresql": {
-      "sql/sqlmap_postgresql/dns_request.sql": 4.08
+      "sql/sqlmap_postgresql/dns_request.sql": 6.08
     },
     "sqlite": {
       "sqlite/SOURCES.md": 1.0
@@ -3859,7 +3862,8 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 15.94,
       "typescript/assemblyscript/ast.ts": 1030.82,
-      "typescript/assemblyscript/compiler.ts": 8183.14,
+      "typescript/assemblyscript/builtins.ts": 6975.3,
+      "typescript/assemblyscript/compiler.ts": 8186.14,
       "typescript/assemblyscript/package.json": 2.3,
       "typescript/assemblyscript/parser.ts": 3317.08
     },
@@ -3904,7 +3908,11 @@
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 1.12,
       "typescript/typescript_compiler/binder.ts": 2955.32,
-      "typescript/typescript_compiler/package.json": 2.36
+      "typescript/typescript_compiler/checker.ts": 55293.14,
+      "typescript/typescript_compiler/emitter.ts": 5162.68,
+      "typescript/typescript_compiler/package.json": 2.36,
+      "typescript/typescript_compiler/parser.ts": 7687.74,
+      "typescript/typescript_compiler/types.ts": 220.82
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 1.0,
@@ -4076,6 +4084,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": 2973.98,
       "zig/zig/InternPool.zig": 4635.44,
+      "zig/zig/Sema.zig": 18798.88,
       "zig/zig/Type.zig": 2114.3,
       "zig/zig/Zcu.zig": 1591.28,
       "zig/zig/main.zig": 4990.48
@@ -4090,6 +4099,7 @@
       "zig/zls/analysis.zig": 2970.68,
       "zig/zls/ast.zig": 856.42,
       "zig/zls/config_gen.zig": 531.28,
+      "zig/zls/langref.html.in": 194.78,
       "zig/zls/print_ast.zig": 215.04
     }
   },

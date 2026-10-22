@@ -171,3 +171,27 @@ def test_drift_ignores_small_sample():
     for _ in range(5):  # below _DRIFT_MIN_SAMPLES
         ac._record_drift(drift, "x", 99.0, ref)
     assert ac.quantile_drift_diagnostics(drift) == []
+
+
+def test_file_inference_model_vectors_agree_and_dna_resolves():
+    """GENERAL_FILE_INFERENCE_MODEL: every vector is as wide as FEATURE_NAMES, and every density has a source (#4111)."""
+    m = analysis_lens.GENERAL_FILE_INFERENCE_MODEL
+    n = len(m["FEATURE_NAMES"])
+    for key in ("FEATURE_WEIGHTS", "SCALER_MEDIANS", "SCALER_IQRS"):
+        assert len(m[key]) == n, key
+    for name, centroid in m["ARCHETYPES_K18"].items():
+        assert len(centroid) == n, name
+    for name in m["FEATURE_NAMES"]:
+        if name.startswith("log_density_"):
+            assert name in m["DNA_SOURCES"], name
+    for source in m["DNA_SOURCES"].values():
+        assert source in analysis_lens.RECORDING_SCHEMAS["SIGNAL_SCHEMA"], source
+
+
+def test_feature_flags_signal_is_retired():
+    """feature_flags had no detector anywhere; it is gone from the schema, the debt family and the file model (#4111)."""
+    m = analysis_lens.GENERAL_FILE_INFERENCE_MODEL
+    assert "feature_flags" not in analysis_lens.RECORDING_SCHEMAS["SIGNAL_SCHEMA"]
+    assert "feature_flags" not in analysis_lens.SURFACE_FAMILIES["debt"]
+    assert "log_density_arch_feature_flags" not in m["FEATURE_NAMES"]
+    assert "feature_flags" not in m["DNA_SOURCES"].values()

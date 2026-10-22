@@ -298,9 +298,13 @@ def send_map(m: BmsMap, program: dict[str, ProgramField] | None, options: list[s
 
 # ---- RECEIVE MAP --------------------------------------------------------------------------------
 def received_value(f: BmsField, typed: str) -> str:
-    """A transmitted field as RECEIVE MAP puts it in `<f>I` (DFHMDF JUSTIFY): left-justified and
-    blank-padded, or -- JUSTIFY=RIGHT, or a NUM field -- right-justified and zero-filled."""
-    text = typed[: f.length]
-    right = "RIGHT" in f.justify or (f.numeric and "LEFT" not in f.justify)
-    pad = "0" if ("ZERO" in f.justify or (right and "BLANK" not in f.justify)) else " "
-    return text.rjust(f.length, pad) if right else text.ljust(f.length, pad)
+    """A transmitted field as RECEIVE MAP puts it in `<f>I` (DFHMDF JUSTIFY, IBM CICS TS): as the operand says
+    (RIGHT or LEFT, ZERO or BLANK fill; LEFT and BLANK where it leaves one out); with no JUSTIFY coded, a NUM field is
+    right-justified and zero-filled and any other left-justified and blank-padded (#5116, X54). Text longer than the
+    field is cut from the end the justification starts from (X54 assumption 2)."""
+    default = not f.justify and f.numeric
+    right = "RIGHT" in f.justify or default
+    pad = "0" if "ZERO" in f.justify or default else " "
+    if right:
+        return typed[-f.length :].rjust(f.length, pad) if f.length else ""
+    return typed[: f.length].ljust(f.length, pad)

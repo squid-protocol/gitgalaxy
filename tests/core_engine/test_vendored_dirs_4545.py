@@ -111,7 +111,7 @@ def test_one_vendored_lib_does_not_take_a_mostly_first_party_container(repo):
 
 
 def test_container_without_subprojects_stays_scanned(repo):
-    # doom64ex extern/: build glue and one patched header, no subproject
+    # an extern/ of build glue and one patched header, no subproject
     _write(repo / "extern/CMakeLists.txt", "add_library(x)\n")
     assert _admitted(repo, "extern/patched-config_win32.h")
 
@@ -122,3 +122,143 @@ def test_scan_root_is_never_a_candidate(tmp_path):
     _write(root / "third/LICENSE", MIT)
     assert _admitted(root, "src/SDL.c")
     assert not VendorDirectoryDetector(root).is_vendored("")
+
+
+# --- #5464: vendored trees under any name --------------------------------------
+@pytest.mark.parametrize(
+    "name", ["third_party_libs", "third-party-libs", "thirdparty_src", "3rdparty-code", "3rd_party_lib"]
+)
+def test_third_party_prefix_spellings_are_excluded_without_a_license(repo, name):
+    # a third_party_libs/libsdl/sdl2 tree (367k lines)
+    assert not _admitted(repo, f"{name}/libsdl/sdl2/src/SDL.c")
+
+
+def test_third_party_lookalikes_stay_scanned(repo):
+    for rel in ("src/third_person/cam.c", "src/thirdparty.c", "src/party_hall/a.c", "src/third_partyish/a.c"):
+        assert _admitted(repo, rel), rel
+
+
+def test_libs_suffix_container_follows_the_container_rule(repo):
+    _write(repo / "ext_libs/png/LICENSE", ZLIB)
+    _write(repo / "ext_libs/zlib/zlib.c")
+    assert not _admitted(repo, "ext_libs/png/png.c")
+    assert not _admitted(repo, "ext_libs/zlib/zlib.c")
+    # no license evidence: a first-party `*_libs` stays scanned
+    _write(repo / "game_libs/net/net.c")
+    assert _admitted(repo, "game_libs/net/net.c")
+
+
+@pytest.mark.parametrize(
+    "rel", ["libpng/png.c", "src/yyjson/yyjson.c", "game-music-emu/gme.cpp", "src/deep/miniz/miniz.c"]
+)
+def test_any_directory_with_a_foreign_license_is_excluded(repo, rel):
+    top = rel.rsplit("/", 1)[0]
+    _write(repo / top / "LICENSE", MIT)
+    assert not _admitted(repo, rel)
+
+
+def test_directory_with_the_roots_license_or_none_stays_scanned(repo):
+    # srb2 `src/sdl/`, odamex `client/sdl/`: first-party backends
+    _write(repo / "src/sdl/i_video.c")
+    _write(repo / "client/sdl/mixer.cpp")
+    _write(repo / "src/own/LICENSE", GPL)
+    assert _admitted(repo, "src/sdl/i_video.c")
+    assert _admitted(repo, "client/sdl/mixer.cpp")
+    assert _admitted(repo, "src/own/a.c")
+
+
+def test_foreign_license_is_no_evidence_without_a_root_license(tmp_path):
+    _write(tmp_path / "somelib/LICENSE", ZLIB)
+    assert _admitted(tmp_path, "somelib/a.c")
+
+
+def test_detector_flags_the_directory_not_its_siblings(repo):
+    _write(repo / "lzma/LICENSE", MIT)
+    assert VendorDirectoryDetector(repo).is_vendored("lzma")
+    assert not VendorDirectoryDetector(repo).is_vendored("src")
+
+
+def test_same_license_with_another_copyright_or_address_is_not_foreign(repo):
+    # fastdoom: FASTDOOM/LICENSE is the root's GPL-2 with a different FSF address and copyright line
+    _write(repo / "game/LICENSE", GPL + "Copyright (C) 1989 Someone\n675 Mass Ave, Cambridge, MA 02139, USA\n")
+    assert _admitted(repo, "game/main.c")
+
+
+# --- #5464 (c): well-known library names with no license file ---------------------
+@pytest.mark.parametrize(
+    "rel",
+    ["zlib/inflate.c", "neo/renderer/jpeg-6/jdapimin.c", "lzma/LzmaDec.c", "gdtoa/dtoa.c", "source/nlohmann/json.hpp"],
+)
+def test_known_library_names_are_excluded_without_a_license(repo, rel):
+    assert not _admitted(repo, rel)
+
+
+def test_known_library_name_needs_the_exact_name(repo):
+    for rel in ("src/zlib_wrapper/a.c", "src/jpeg_export/a.c", "src/lzmaish/a.c", "src/zlibs/a.c"):
+        assert _admitted(repo, rel), rel
+
+
+def test_known_library_name_with_the_roots_own_license_stays_scanned(repo):
+    _write(repo / "zlib/LICENSE", GPL)
+    assert _admitted(repo, "zlib/own.c")
+
+
+def test_versioned_known_library_name_is_excluded(repo):
+    assert not _admitted(repo, "zlib-1.2.11/adler32.c")
+
+
+# --- #5525: a title line above the same license text is not a different license ---
+APACHE = "Apache License\nVersion 2.0, January 2004\nhttp://www.apache.org/licenses/\n\nTERMS AND CONDITIONS\n"
+TITLES = ["Google Gson\n\n", "My Module\n=========\n\n", "Project Foo\nSub-module bar\n\n", "# Core\n"]
+
+
+@pytest.mark.parametrize("title", TITLES)
+@pytest.mark.parametrize("base", [APACHE, GPL, MIT])
+def test_titled_module_license_is_not_foreign(tmp_path, base, title):
+    _write(tmp_path / "LICENSE", base)
+    _write(tmp_path / "gson/LICENSE", title + base)
+    _write(tmp_path / "gson/a.c")
+    assert not VendorDirectoryDetector(tmp_path).is_vendored("gson")
+    assert _admitted(tmp_path, "gson/a.c")
+
+
+@pytest.mark.parametrize("title", TITLES)
+def test_titled_root_license_with_bare_module_copy_is_not_foreign(tmp_path, title):
+    _write(tmp_path / "LICENSE", title + APACHE)
+    _write(tmp_path / "mod/LICENSE", APACHE)
+    assert not VendorDirectoryDetector(tmp_path).is_vendored("mod")
+
+
+def test_titled_copy_with_copyright_and_address_changes_is_not_foreign(tmp_path):
+    _write(tmp_path / "LICENSE", GPL)
+    _write(tmp_path / "m/LICENSE", "Game Title\nCopyright (C) 1989 Someone\n" + GPL + "675 Mass Ave\n")
+    assert not VendorDirectoryDetector(tmp_path).is_vendored("m")
+
+
+def test_titled_different_license_is_still_foreign(tmp_path):
+    _write(tmp_path / "LICENSE", APACHE)
+    _write(tmp_path / "libfoo/LICENSE", "libfoo\n\n" + MIT)
+    assert VendorDirectoryDetector(tmp_path).is_vendored("libfoo")
+
+
+def test_licenses_dir_and_empty_license_are_still_foreign(tmp_path):
+    _write(tmp_path / "LICENSE", APACHE)
+    _write(tmp_path / "a/licenses/x.txt", MIT)
+    _write(tmp_path / "b/LICENSE", "")
+    detector = VendorDirectoryDetector(tmp_path)
+    assert detector.is_vendored("a")
+    assert detector.is_vendored("b")
+
+
+def test_container_of_titled_root_license_modules_stays_scanned(tmp_path):
+    _write(tmp_path / "LICENSE", APACHE)
+    for m in ("one", "two"):
+        _write(tmp_path / "libs" / m / "LICENSE", f"Module {m}\n\n" + APACHE)
+        _write(tmp_path / "libs" / m / "a.c")
+    assert not VendorDirectoryDetector(tmp_path).is_vendored("libs")
+
+
+def test_known_library_name_with_titled_root_license_stays_scanned(tmp_path):
+    _write(tmp_path / "LICENSE", APACHE)
+    _write(tmp_path / "zlib/LICENSE", "Zlib wrapper\n" + APACHE)
+    assert not VendorDirectoryDetector(tmp_path).is_vendored("zlib")

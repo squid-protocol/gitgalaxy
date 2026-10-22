@@ -85,6 +85,9 @@ REPO = TOOLS.parents[1]
 sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO))
 
+import generated_branch  # noqa: E402
+from gitgalaxy.core.cobol_source_format import line_formats  # noqa: E402
+
 CENSUS_ENV = "CICS_CENSUS_CORPORA"
 PROGRAM_EXTS = {".cbl", ".cob", ".cobol"}  # det_survey.EXTS
 PLI_EXTS = {".pli", ".pl1"}  # counted and flagged: the det translator takes COBOL only
@@ -111,13 +114,27 @@ def is_burned(corpus: str, burned: set[str] | None = None) -> bool:
 
 
 # ---- reading EXEC CICS commands (names only) --------------------------------------------------------------------
+def source_lines(text: str) -> list[tuple[str, str]]:
+    """(format, line) per line: each line's reference format (fixed / free / variable, `>>SOURCE FORMAT` switches
+    followed, #4264) beside the line itself. #5089: the one place a fact scan learns the columns."""
+    lines = text.replace("\r", "").split("\n")
+    if lines and lines[-1] == "":  # the newline ending the file starts no line
+        lines.pop()
+    return list(zip(line_formats("\n".join(lines)), lines))
+
+
 def fixed_format_text(text: str) -> str:
-    """The program's code area (columns 8-72 joined; comment lines dropped), upper-cased."""
+    """The program's code area, upper-cased and joined: columns 8-72 of a fixed line (to the end of a variable one),
+    the whole of a free line; comment lines (column-7 `*` or `/`, free `*>`) dropped. #5089: format-aware."""
     out = []
-    for ln in text.splitlines():
+    for fmt, ln in source_lines(text):
+        if fmt == "free":
+            if not ln.lstrip().startswith("*>"):
+                out.append(ln)
+            continue
         if len(ln) > 6 and ln[6] in "*/":
             continue
-        out.append(ln[6:72] if len(ln) > 6 else "")
+        out.append(ln[6:] if fmt == "variable" else ln[6:72] if len(ln) > 6 else "")
     return " ".join(out).upper()
 
 
@@ -464,12 +481,18 @@ def error_key(error: str) -> str:
         return f"missing copybook {m.group(1).upper()}" + (" (ambiguous)" if error.startswith("CopyAmbiguous") else "")
     etype, _, msg = error.partition(": ")
     msg = re.sub(r"^\S+\.\w+:\d+:\s*", "", msg)  # the member and line it stopped at
+    fam = re.match(r"(macro-level CICS|CICS Assembler) not supported", msg)  # #5121: one gap per family, not per macro
+    if fam:
+        return f"refused: {fam.group(1)}"
     msg = re.sub(r"\s*\[[^\]]*\]", "", _AT_LINE.sub("", _PATH.sub("<path>", msg)))
     return f"refused: {etype}: {_generic(msg)}"[:120]
 
 
 def gap_classes(r: dict[str, Any]) -> set[str]:
-    """The distinct gap classes keeping one survey row from translating whole (empty: whole)."""
+    """The distinct gap classes keeping one survey row from translating whole (empty: whole). A row that already
+    carries `gap_classes` (an evidence report's `translation`, #4725) is read as it stands."""
+    if "gap_classes" in r:
+        return set(r["gap_classes"])
     if "error" in r:
         return {error_key(r["error"])}
     if "statements" not in r:
@@ -478,7 +501,10 @@ def gap_classes(r: dict[str, Any]) -> set[str]:
 
 
 def cics_programs(roots: list[Path]) -> set[tuple[str, str]]:
-    """(corpus, program) of every COBOL program with an EXEC CICS command (names only, as `usage` reads them)."""
+    """(corpus, program) of every COBOL program with an EXEC CICS command (names only, as `usage` reads them), and of
+    every CICS Assembler / macro-level assembler member (#5158: det_survey.assembler_rows, refused by name)."""
+    from det_survey import assembler_rows
+
     from gitgalaxy.core.source_text import read_source
 
     out = set()
@@ -490,6 +516,7 @@ def cics_programs(roots: list[Path]) -> set[tuple[str, str]]:
                         out.add((name, prog.relative_to(corpus).as_posix()))
                 except OSError:
                     continue
+        out.update((name, r["program"]) for r in assembler_rows(corpus))
     return out
 
 
@@ -551,7 +578,6 @@ def format_blockers(res: dict[str, Any], where: str, top: int = 0) -> str:
 
 def cmd_blockers(args: argparse.Namespace) -> int:
     if args.generated:  # the nightly ranking published on the generated branch (#4863)
-        _git("fetch", "-q", "origin", "generated")
         res = json.loads(read_generated(f"{GENERATED_DIR}/blockers.json"))
         meta = json.loads(read_generated(f"{GENERATED_DIR}/meta.json"))
         where = f"nightly {meta['sha'][:12]} ({meta['scope']}, surveyed {meta['surveyed_utc']})"
@@ -596,7 +622,6 @@ SNAPSHOT_PATHS = ("gitgalaxy", "tests/tools", "pyproject.toml")  # what det_surv
 HISTORY = REPO / "docs" / "language_status" / "blockers_history.jsonl"
 # #4863: the nightly baseline (blockers.txt / .json / meta.json) and its history are published to the `generated` branch by
 # evidence-refresh.yml (one survey a night), not committed on main. The per-slice HISTORY above stays on main as the seed.
-GENERATED_REF = "origin/generated"
 GENERATED_DIR = "docs/language_status/blockers"
 GENERATED_FILES = ("blockers.txt", "blockers.json", "meta.json")
 GENERATED_HISTORY = f"{GENERATED_DIR}/blockers_history.jsonl"
@@ -941,7 +966,6 @@ def cmd_history(args: argparse.Namespace) -> int:
     path = args.file or HISTORY
     if args.action == "show":
         if args.generated:  # the nightly series published by evidence-refresh.yml (#4863)
-            _git("fetch", "-q", "origin", "generated")
             rows = [json.loads(ln) for ln in read_generated(GENERATED_HISTORY).splitlines() if ln.strip()]
         else:
             rows = read_history(path)
@@ -1007,8 +1031,15 @@ def cmd_publish(args: argparse.Namespace) -> int:
 
 
 def read_generated(path: str) -> str:
-    """A file of the published `generated` branch (after `git fetch origin generated`)."""
-    return _git("show", f"{GENERATED_REF}:{path}")
+    """A file of the published `generated` branch, through the shared reader (#4963; it fetches the tip itself). These
+    files have no committed copy on main, so a branch or file that is not published yet is an error, not a fallback."""
+    try:
+        data = generated_branch.read_published(path, REPO)
+    except RuntimeError as e:
+        raise SystemExit(f"cannot read the generated branch: {e}") from e
+    if data is None:
+        raise SystemExit(f"{path} is not published on the generated branch (evidence-refresh.yml writes it nightly)")
+    return data.decode("utf-8")
 
 
 def main(argv: list[str] | None = None) -> int:

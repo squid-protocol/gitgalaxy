@@ -18,7 +18,7 @@ import pytest
 
 import gitgalaxy.cobol_refractor_controller as refractor
 import gitgalaxy.cobol_to_java_controller as java_controller
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import scan_to_db
+from scan_server import scan_to_db
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_port_tickets import _public_methods
 
 POSTIT = """\
@@ -76,14 +76,22 @@ def generated(tmp_path_factory):
     for rel, text in {"cbl/POSTIT.cbl": POSTIT, "cpy/TRANREC.cpy": TRANREC, "jcl/NIGHTLY.jcl": JOB}.items():
         (repo / rel).parent.mkdir(parents=True, exist_ok=True)
         (repo / rel).write_text(text, encoding="utf-8")
-    runs = []
-    for n in (1, 2):
-        out = base / f"run{n}"
-        out.mkdir()
-        runs.append(_pipeline(repo, out))
-    return runs
+    out = base / "run1"
+    out.mkdir()
+    return [_pipeline(repo, out)]
 
 
+@pytest.fixture(scope="module")
+def generated_twice(generated):
+    """The second run of the same estate, for the determinism check only: the first consumer of `generated` pays one
+    pipeline run, not two, so it stays under the per-test time limit wherever CI splits it (#5334)."""
+    base = generated[0].parent.parent
+    out = base / "run2"
+    out.mkdir()
+    return [*generated, _pipeline(base / "src_estate", out)]
+
+
+@pytest.mark.slow(reason="renders a ticket for every program of the pinned corpora (#5178)")
 def test_every_program_with_business_logic_gets_a_ticket(generated):
     java = generated[0]
     t = json.loads((java / "ai_agent_jobs/POSTIT_port_ticket.json").read_text())
@@ -113,7 +121,9 @@ def test_a_ticket_carries_the_source_the_facts_and_the_generated_api(generated):
     assert "- `cbl/POSTIT.cbl`: [sources/cbl/POSTIT.cbl.lst](sources/cbl/POSTIT.cbl.lst)" in md
 
 
-def test_the_worklist_links_the_ticket_and_tickets_are_deterministic(generated):
+@pytest.mark.slow(reason="runs the ticket pipeline a second time for the determinism check (#5334)")
+def test_the_worklist_links_the_ticket_and_tickets_are_deterministic(generated_twice):
+    generated = generated_twice
     wl = json.loads((generated[0] / "migration_worklist.json").read_text())
     linked = [i for i in wl["items"] if i["program"] == "cbl/POSTIT.cbl"]
     assert linked and all(i.get("ticket") == "ai_agent_jobs/POSTIT_port_ticket.md" for i in linked)

@@ -126,6 +126,24 @@ def test_the_facade_keeps_its_signature_and_adds_the_bytes_overload_4870():
     assert "public PcconfWsState handleTransaction(String transid, Object request, byte[] area) {" in svc["PCCONF"]
 
 
+def test_the_contract_regex_reads_the_dto_overload_never_the_bytes_one_4965():
+    """#4965: det/cics.py target_contract (and Generated.__init__) read the DTO overload only, so the byte-carrying
+    handleTransaction beside it -- with a DTO, or a DTO-less (String, byte[]) -- must never match."""
+    import re as _re
+
+    pat = r"handleTransaction\(String transid, (\w+) request\)"
+    dto = "public X handleTransaction(String transid, X request) {}\npublic X handleTransaction(String transid, X request, byte[] area) {}"
+    assert _re.findall(pat, dto) == ["X"]
+    assert (
+        _re.findall(
+            pat,
+            "public void handleTransaction(String transid) {}\n"
+            "public void handleTransaction(String transid, byte[] area) {}",
+        )
+        == []
+    )
+
+
 def test_det_facades_rebuild_both_overloads_and_the_tagged_helpers_4870():
     _, svc = _wizard()
     from gitgalaxy.tools.cobol_to_java.det.program import facades
@@ -232,11 +250,19 @@ def test_returned_converts_by_layout_and_refuses_what_it_cannot(tmp_path, style)
         (root / rel).parent.mkdir(parents=True, exist_ok=True)
         (root / rel).write_text(text or "", encoding="utf-8")
     classes = tmp_path / "classes"
-    built = subprocess.run(["javac", "-d", str(classes), *map(str, root.rglob("*.java"))],  # noqa: S603, S607
-                           capture_output=True, text=True, check=False)  # fmt: skip
+    built = subprocess.run(["javac", "-encoding", "UTF-8", "-d", str(classes), *map(str, root.rglob("*.java"))],  # noqa: S603, S607
+                           capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert built.returncode == 0, built.stderr
-    out = subprocess.run(["java", "-cp", str(classes), "com.acme.cics.Main"], capture_output=True, text=True,  # noqa: S603, S607
-                         check=True).stdout.splitlines()  # fmt: skip
+    # (bytes, decoded here: text=True reads the Windows locale charset, and a not sign in the output left stdout None)
+    out = (
+        subprocess.run(
+            ["java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(classes), "com.acme.cics.Main"],  # noqa: S603, S607
+            capture_output=True,
+            check=True,
+        )
+        .stdout.decode("utf-8")
+        .splitlines()
+    )
     assert out == [
         "2|ADA            |-123.45|null|Y|       |",  # PC-ERRORS unset stays unset; text is its 15 / 7 bytes
         "true",
@@ -253,3 +279,48 @@ def forge_skeletons():
         "PCWIZ": _program("PCWIZ.cbl", "PC02", returns=[(65, "PC02", "PCWIZ.cbl"), (78, "PC03", "PCCONF.cbl")]),
         "PCCONF": _program("PCCONF.cbl", "PC03", returns=[(84, "PC03", "PCCONF.cbl")], xctls=[(50, "PCWIZ.cbl")]),
     }
+
+
+def _link_pair(**callee):
+    """#4803: PCWIZ LINKs PCCONF with its COMMAREA, the PROGRAM a variable (a navigation candidate row, no resolved
+    commarea contract: EPSCMORT's `LINK PROGRAM(W-CALL-PROGRAM)` to EPSCSMRT)."""
+    wiz = _program("PCWIZ.cbl", "PC02")
+    conf = _program("PCCONF.cbl", "PC03", **callee)
+    conf["sections"]["entry_transactions"]["facts"] = []  # reached by LINK only
+    conf["sections"]["navigation"]["facts"] = [
+        {"from": "PCWIZ.cbl", "line": 221, "verb": "LINK", "to": "PCCONF.cbl", "via": "data-driven"}
+    ]
+    forge = CicsForge({"PCWIZ": wiz, "PCCONF": conf}, "com.acme", target_from_dict({}))
+    return forge, forge.dto_sources()
+
+
+def test_a_link_between_records_cut_the_same_way_writes_the_codecs_both_ways_4803():
+    forge, dtos = _link_pair()
+    assert forge.programs["PCCONF"].links[0]["verb"] == "LINK"
+    for name in ("PcwizWsState", "PcconfWsState"):  # the harness reads the caller's bytes through the callee's DTO
+        assert "public byte[] toCommarea() {" in dtos[name]
+        assert f"public static {name} fromCommarea(byte[] rec) {{" in dtos[name]
+
+
+@pytest.mark.parametrize(
+    "callee",
+    [
+        {"items": [*PCSTATE[:-1], ("PC-SPARE", "X(9)", "X", None, 23, 9, None)], "width": 32},
+        {"items": PCSTATE[:-1], "width": 23},
+        {"items": [*PCSTATE[:-1], ("PC-SPARE", "9(7)", "9", None, 23, 7, None)]},
+    ],
+    ids=["wider", "narrower", "cut otherwise"],
+)
+def test_a_link_between_records_cut_otherwise_writes_no_codec_4803(callee):
+    _, dtos = _link_pair(**callee)
+    assert "toCommarea" not in dtos["PcwizWsState"] and "toCommarea" not in dtos["PcconfWsState"]
+
+
+def test_an_xctl_or_a_return_alone_writes_no_link_codec_4803():
+    """Only a LINK's area is read through the callee's DTO here: with no LINK or RETURN crossing, no codec."""
+    wiz = _program("PCWIZ.cbl", "PC02")
+    conf = _program("PCCONF.cbl", "PC03")
+    conf["sections"]["entry_transactions"]["facts"] = []
+    conf["sections"]["navigation"]["facts"] = [{"from": "PCWIZ.cbl", "line": 9, "verb": "XCTL", "to": "PCCONF.cbl"}]
+    dtos = CicsForge({"PCWIZ": wiz, "PCCONF": conf}, "com.acme", target_from_dict({})).dto_sources()
+    assert "toCommarea" not in dtos["PcwizWsState"]

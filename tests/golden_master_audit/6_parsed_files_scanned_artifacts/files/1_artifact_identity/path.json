@@ -3268,7 +3268,8 @@
       "rust/tokio/maybe_done.rs": "rust/tokio/maybe_done.rs",
       "rust/tokio/tests.rs": "rust/tokio/tests.rs",
       "rust/tokio/tokio_mpsc_bounded.rs": "rust/tokio/tokio_mpsc_bounded.rs",
-      "rust/tokio/tokio_named_pipe.rs": "rust/tokio/tokio_named_pipe.rs"
+      "rust/tokio/tokio_named_pipe.rs": "rust/tokio/tokio_named_pipe.rs",
+      "rust/tokio/tokio_udp.rs": "rust/tokio/tokio_udp.rs"
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": "rust/tokio_util_rand/rand.rs"
@@ -3397,6 +3398,7 @@
       "shell/freebsd-src/dd2_test.sh": "shell/freebsd-src/dd2_test.sh",
       "shell/freebsd-src/dtest.sh": "shell/freebsd-src/dtest.sh",
       "shell/freebsd-src/echo_test.sh": "shell/freebsd-src/echo_test.sh",
+      "shell/freebsd-src/ed_test.sh": "shell/freebsd-src/ed_test.sh",
       "shell/freebsd-src/format_string_test.sh": "shell/freebsd-src/format_string_test.sh",
       "shell/freebsd-src/functional_test.sh": "shell/freebsd-src/functional_test.sh",
       "shell/freebsd-src/hostname_test.sh": "shell/freebsd-src/hostname_test.sh",
@@ -3434,6 +3436,7 @@
       "shell/haiku/default_deskbar_items.sh": "shell/haiku/default_deskbar_items.sh",
       "shell/haiku/gen-bepo.sh": "shell/haiku/gen-bepo.sh",
       "shell/haiku/generate_CountryFlags.sh": "shell/haiku/generate_CountryFlags.sh",
+      "shell/haiku/generate_ids_from_drivers.sh": "shell/haiku/generate_ids_from_drivers.sh",
       "shell/haiku/install-wifi-firmwares.sh": "shell/haiku/install-wifi-firmwares.sh",
       "shell/haiku/install.sh": "shell/haiku/install.sh",
       "shell/haiku/leak_analyser.sh": "shell/haiku/leak_analyser.sh",
@@ -3859,6 +3862,7 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": "typescript/assemblyscript/asconfig.json",
       "typescript/assemblyscript/ast.ts": "typescript/assemblyscript/ast.ts",
+      "typescript/assemblyscript/builtins.ts": "typescript/assemblyscript/builtins.ts",
       "typescript/assemblyscript/compiler.ts": "typescript/assemblyscript/compiler.ts",
       "typescript/assemblyscript/package.json": "typescript/assemblyscript/package.json",
       "typescript/assemblyscript/parser.ts": "typescript/assemblyscript/parser.ts"
@@ -3904,7 +3908,11 @@
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": "typescript/typescript_compiler/LICENSE.txt",
       "typescript/typescript_compiler/binder.ts": "typescript/typescript_compiler/binder.ts",
-      "typescript/typescript_compiler/package.json": "typescript/typescript_compiler/package.json"
+      "typescript/typescript_compiler/checker.ts": "typescript/typescript_compiler/checker.ts",
+      "typescript/typescript_compiler/emitter.ts": "typescript/typescript_compiler/emitter.ts",
+      "typescript/typescript_compiler/package.json": "typescript/typescript_compiler/package.json",
+      "typescript/typescript_compiler/parser.ts": "typescript/typescript_compiler/parser.ts",
+      "typescript/typescript_compiler/types.ts": "typescript/typescript_compiler/types.ts"
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": "typescript/vscode/LICENSE.txt",
@@ -4076,6 +4084,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": "zig/zig/Compilation.zig",
       "zig/zig/InternPool.zig": "zig/zig/InternPool.zig",
+      "zig/zig/Sema.zig": "zig/zig/Sema.zig",
       "zig/zig/Type.zig": "zig/zig/Type.zig",
       "zig/zig/Zcu.zig": "zig/zig/Zcu.zig",
       "zig/zig/main.zig": "zig/zig/main.zig"
@@ -4090,6 +4099,7 @@
       "zig/zls/analysis.zig": "zig/zls/analysis.zig",
       "zig/zls/ast.zig": "zig/zls/ast.zig",
       "zig/zls/config_gen.zig": "zig/zls/config_gen.zig",
+      "zig/zls/langref.html.in": "zig/zls/langref.html.in",
       "zig/zls/print_ast.zig": "zig/zls/print_ast.zig"
     }
   },

@@ -47,28 +47,32 @@ discipline: only commit files relevant to the change at hand (never a broad `git
 `main..HEAD` doesn't carry unrelated in-progress work before committing, and run the relevant
 baseline-gated audits / `crucible_check.py` before pushing anything that touches parsing logic.
 
+- `.gitignore` ignores `*.json` repo-wide: a new committed JSON (data, a baseline, generated package
+  data) needs a `!path` whitelist line like the existing ones, or `git add -f`. Confirm with
+  `git ls-files <path>` before pushing.
+- A PR merged into a stacked base branch (not main) never fires its `Closes #N`: close those issues
+  when the stack lands, or say so. Stacked PRs run few CI checks until retargeted to main.
+- Text with backticks (PR bodies, commit messages, rulings) goes through a quoted heredoc
+  (`<<'EOF'`) or a file, never an unquoted heredoc or a double-quoted `-c` string.
+- Third-party code, papers or tools: follow `docs/research/third-party-material-policy.md` (ideas
+  only, never their code; stop and ask the owner on anything legally questionable).
+- Agent knowledge (lessons, traps, owner policy) lives in the repo, not personal memory:
+  `.claude/rules/agent-memory.md`.
+
 ## Scratch files & working directory
 
-Throwaway scripts, reproduction cases, one-off debug output, and generated test artifacts that
-aren't meant to become part of the repo do **not** belong in the repo tree, not even temporarily
-— that's how `scratch3.py`, `fix_java_strict.py`, `pr_949_body.md`, and ~130 similar files ended
-up committed and had to be purged twice (see #1091). Use `/tmp/gitgalaxy-scratch/claude/` (create
-it if missing) instead, or the harness-provided per-session Scratchpad Directory named in your own
-system prompt if one is present — either is fine, both are outside the repo and never risk a
-`git add`. Antigravity (agy) has the same convention under its own `/tmp/gitgalaxy-scratch/antigravity/`
-— see `ANTIGRAVITY.md` — so the two models don't collide in a shared directory.
-
-If a throwaway file genuinely must live inside the repo temporarily (e.g. something that only
-works via relative pytest discovery), prefix its name `scratch_` at minimum so `.gitignore`'s
-backstop patterns catch it, and delete it before ending the task rather than leaving it for a
-future cleanup pass.
+Throwaway scripts, repro cases, debug output and generated artifacts do **not** belong in the repo tree, not even
+temporarily (that is how ~130 `scratch*.py`/`pr_*_body.md` files got committed and purged twice, #1091). Use
+`/tmp/gitgalaxy-scratch/claude/` (create if missing) or your harness Scratchpad Directory (agy uses
+`/tmp/gitgalaxy-scratch/antigravity/`, see `ANTIGRAVITY.md`). If a file must live in-repo temporarily (relative pytest
+discovery), prefix it `scratch_` so `.gitignore` catches it, and delete it before ending the task.
 
 ## Architecture
 
 Data flows through `gitgalaxy/core/` in a fixed pipeline, each stage handing off to the next
 (see `gitgalaxy/core/README.md` for the full writeup):
 
-1. **`aperture.py`** — zero-trust ingestion filter (rejects binaries/huge files before any I/O).
+1. **`aperture.py`** — zero-trust ingestion filter (rejects binaries/huge files pre-I/O).
 2. **`guidestar_lens.py`** — parses manifests (`package.json`, `Cargo.toml`, etc.) for an
    "Intent Lock" baseline, avoiding expensive heuristic guessing downstream.
 3. **`prism.py`** — splits raw source into the executable payload vs. the comment/doc surface,
@@ -87,128 +91,18 @@ Downstream of core: `gitgalaxy/metrics/` (risk scoring math, false-positive supp
 detection), `gitgalaxy/recorders/` (output formatting: SARIF, SBOM, LLM-optimized summaries,
 SQLite), `gitgalaxy/standards/` (the per-language rule registry + `gitgalaxy_config.py` global
 config), `gitgalaxy/tools/` (standalone DevSecOps/legacy-migration CLIs built on top of core).
-Each of those directories has its own `README.md` — read the relevant one before working deep
-inside it rather than re-deriving the architecture from source.
+Each has its own `README.md`: read it before working deep inside rather than re-deriving the architecture.
 
-## Using GitGalaxy's self-scan output for orientation (token efficiency)
+The archetype brains (`analysis_lens.GENERAL_FUNCTION_INFERENCE_MODEL`, the file model and
+`gitgalaxy/standards/archetype_brains/*.json`) are not golden-neutral at any level: the golden
+audit records the function-archetype distribution and the repo composition archetype. Swapping a
+brain, or changing `SIGNAL_SCHEMA`, means a golden re-bless with the drift attributed to it.
 
-GitGalaxy scans its own repo and produces two artifacts specifically to make an LLM coding
-session cheaper and safer to run — reach for these *before* an Explore subagent, a broad `grep`,
-or reading a large file cold, when the question is really "how big/risky/depended-on is this
-thing" rather than "what does this specific code do."
+## Orientation, debugging, signatures (pointers; details are on demand)
 
-This still applies even when a task already points at exact file/line locations — e.g. a GitHub
-issue that quotes the specific lines to change. Knowing *where* to edit isn't the same as knowing
-the file's risk standing: check the brief's blast-radius/risk lists (Sections 7, 8, 11) or query
-the DB for that file's complexity/fan-in anyway before editing, so "how conservative should this
-diff be" is answered from data instead of a guess informed only by the issue text.
-
-- **`docs/gitgalaxy_architecture_brief.md`** — auto-committed on every merge to main (a byproduct
-  of the CI scan that also produces SARIF/SBOM), so it's always close to current HEAD. This scan
-  always installs `tiktoken`/`xgboost`/`pandas`/`numpy` first (`gitgalaxy.yml`'s
-  "Install GitGalaxy & Full Precision Engines" step) — confirm by checking the brief's own
-  Section 0 traceability table, which reports `Zero-Dependency Mode: Inactive (Full Precision)`.
-  Use it for *repo-wide* framing before a large refactor: Section 7 has the actual blast-radius
-  ranking ("Top 5 Structural Pillars" by import fan-in, "Top 5 Orchestrators" by fan-out),
-  Section 8 has the heaviest functions repo-wide, Section 11 has the top 10 files by cumulative
-  risk. If a file you're about to touch shows up in one of these lists, that's a real signal to
-  be more conservative (smaller diffs, more explicit tests) — not a vague guess.
-- **`docs/self_scan/gitgalaxy_master.db`** (SQLite, via `tests/tools/self_scan.py`) — targeted,
-  near-zero-token ad hoc queries about one specific file/function instead of reading the whole
-  file just to count its functions or gauge its complexity. **It's gitignored and NOT committed
-  on purpose** (a full rescan is ~6-8s, cheaper than storing history) — it may be missing or
-  stale in your checkout. Regenerate with `python tests/tools/self_scan.py` (needs `galaxyscope`
-  on PATH, i.e. an activated venv with `pip install -e .`), or pull the latest
-  `gitgalaxy-self-scan-db` artifact from the most recent push-triggered "Full Report" run of
-  `gitgalaxy.yml` on main if you'd rather not run a local scan.
-  - Always confirm column names with `.schema <table>` first rather than trusting any list here
-    — the recorder schema evolves. Two concrete, verified examples as of this writing:
-    ```bash
-    # Heaviest/most complex functions in a file before editing it -- avoids reading the
-    # whole file just to find what's risky inside it.
-    sqlite3 docs/self_scan/gitgalaxy_master.db \
-      "SELECT f.func_name, f.complexity, f.loc, f.calls_out_to
-       FROM function_data f JOIN file_data fd ON f.file_id = fd.id
-       WHERE fd.file_path LIKE '%detector.py%' ORDER BY f.complexity DESC LIMIT 5;"
-
-    # Which directory groups are heaviest, before deciding where new code belongs
-    sqlite3 docs/self_scan/gitgalaxy_master.db \
-      "SELECT directory_group, COUNT(*) files, SUM(total_loc) loc, SUM(function_count) funcs
-       FROM file_data GROUP BY directory_group ORDER BY loc DESC LIMIT 8;"
-    ```
-  - **Full-precision dependencies required:** every graph column is native and needs
-    no optional package (networkx left the runtime in #3041); token mass and the ML columns need
-    `tiktoken`, `numpy`, `pandas`, `xgboost`, and `pyyaml` importable in whatever environment runs
-    the scan — without all of them, galaxyscope drops into Zero-Dependency Mode and those columns
-    come back NULL (`pagerank_score`/`normalized_blast_radius` are computed natively in both modes
-    since #3027; `docs/zero_dependency_mode.md` has the per-column list) (this
-    is *not* caused by `--db-only` itself, which only selects which recorder writes output; a
-    local dev venv missing one of these packages was the actual cause the one time this bit us).
-    `self_scan.py` now checks for all five before scanning and aborts loudly if any are missing,
-    rather than silently producing a degraded DB — if you hit that, `pip install` whatever it
-    lists. CI's copy (the `gitgalaxy-self-scan-db` artifact) always has these installed first, so
-    it's always full-precision; only a local run can be affected.
-  - It also doesn't parse inside large dict/list literals (e.g. it can't tell you where the
-    `"scala"` key starts inside `language_standards.py`'s `LANGUAGE_DEFINITIONS`) — it's for
-    orientation and prioritization, not symbol lookup. Read the actual file for that.
-
-## Debugging what detector.py actually extracted from a specific file
-
-Before tracing `_slice_by_keywords`/`_slice_by_terminator`/etc. by hand to understand why a
-signal looks wrong for some target file or corpus, check what the engine actually did first —
-much cheaper than re-deriving it from the regex/slicing logic cold (#2547: confirmed the exact
-root cause — a slicer-synthesized non-function bucket name being miscounted as an orphan — in a
-few minutes this way, instead of hours of pure static reading):
-
-- `galaxyscope <path> --db-only --debug --output <scratch-dir>` and grep the resulting log for
-  `[WORKER-TRACE] extracted functions for` — one line per file, listing the exact satellite/
-  function names `_function_slice` produced for it (`detector.py`'s own debug trace, gated
-  behind `logger.isEnabledFor(logging.DEBUG)`). This is the fastest way to see whether a
-  suspiciously-named entry (a synthetic bucket, a reused generic keyword, a truncated remnant)
-  is in play, before assuming the signal count itself is what's wrong.
-- Cross-reference the aggregated per-file numbers in the recorder DB this same run produces
-  (`<scratch-dir>/<repo>_galaxy_master.db`, `file_data` table) — column names are the
-  `record_keeper.py`-renamed form of the raw equation keys (e.g. `unreferenced_by_name` →
-  `state_unreferenced`, `api` → `arch_api`; confirm via `.schema file_data` since this evolves).
-- **A unit test does not exercise the config pipeline, and for a REGISTRY DECLARATION that
-  difference is the whole bug.** Tests and the probe scripts build `StructuralExtractor` from
-  `LANGUAGE_DEFINITIONS` directly; a real scan first goes through `language_lens.py`, whose
-  `_calibrate_lookup_maps` compiles every **string** value inside a language's `rules` into a
-  regex (a guard for definitions loaded from external JSON), and then through galaxyscope's
-  `copy.deepcopy` + `PROJECT_OVERRIDES` merge. A non-pattern helper key therefore belongs at the
-  TOP LEVEL of the definition, beside `lexical_family` -- put one in `rules` and it silently
-  becomes `re.compile("...")` with every test still green (#2806, which also blessed a wrong
-  golden master before a one-file scan caught it).
-- For a control/golden corpus already checked out locally (e.g. `keyword-rosetta`,
-  `language-crucible`), point `galaxyscope` straight at it this way instead of writing a
-  standalone repro script — the census requires git-tracked files (see `census-requires-git-
-  tracked` in a corpus's own deviation ledger if one exists), so scan the real corpus checkout,
-  not an ad hoc copy.
-
-## Adding or hardening a language's structural signatures
-
-Full protocol (LLM generation prompt, the 12 numbered engine rules for ReDoS/boundary
-correctness, strict-testing prompt) lives in
-`gitgalaxy/standards/how_to_add_a_language.md` — read that file directly rather than expecting
-a summary here; it's long because the rules matter and drift if paraphrased. Tests for this
-live in `tests/extraction/languages/test_<lang>_strict.py`, one file per language, colocated
-alongside that directory's own extraction-gauntlet `test_<lang>.py` files (the `_strict` suffix
-avoids a basename collision between the two, since this repo has no `tests/__init__.py`
-anywhere). They share a `_strict_harness.py` ReDoS-testing helper module the same way the
-extraction gauntlets share `_extraction_harness.py` — two independent per-concern harnesses, not
-one shared module. `tests/core_engine/test_language_standards_strict.py` now holds only the
-handful of genuinely cross-language/global tests (registry-wide sanity checks, the harness's own
-self-tests).
-
-**Hardening the four extraction gauntlets** (func_start/args/class_start/_dependency_capture
-test depth per language) is a related but distinct exercise, driven by
-`tests/extraction/how_to_harden_extraction.md` — the companion doc epic #813 (closed) used to
-take all 44 in-scope languages through a documented valid/invalid/pathological methodology, a
-43-entry (and growing) recurring-bug-class list, and a strict verification chain
-(`tests/extraction/tools/verify_candidates.py` → `audit_check.py` → `crucible_check.py`). Per-
-language cases now live in `tests/extraction/languages/test_<lang>.py`, not the four old
-monolithic dict files. Use the `harden-language-extraction` skill to pick this up for a new
-language or a follow-on bug sweep rather than re-deriving the process from scratch.
+- **Before editing a file, even when the task names exact lines**, check its risk standing (brief Sections 7, 8, 11: `python tests/tools/generated_branch.py show docs/gitgalaxy_architecture_brief.md`, published daily to the `generated` branch and not in the checkout, or the self-scan DB) rather than guess how conservative to be. Query recipes, DB regen, and dependency caveats: `docs/agents/self-scan-orientation.md`.
+- Signal looks wrong for a file: check the engine's actual extraction first (`galaxyscope <path> --db-only --debug --output <scratch>`, grep `[WORKER-TRACE]`). Details, including the registry-declaration trap (a string value inside a language's `rules` is compiled to a regex; helper keys go at the TOP LEVEL of the definition) and scan non-determinism (`GALAXYSCOPE_MAX_WORKERS=1`): `docs/agents/detector-debugging.md`.
+- Adding or hardening a language: read `gitgalaxy/standards/how_to_add_a_language.md` directly (never paraphrase it); use the `harden-language-extraction` skill. Layout of strict/gauntlet tests: `docs/agents/language-signatures.md`.
 
 ## Baseline-gated audits (ruff / mypy / dead-key)
 
@@ -217,71 +111,29 @@ These are regression gates, not zero-tolerance floors: each has a committed base
 This lets CI enforce "no new problems" without demanding the pre-existing backlog be fixed
 first. If you fix backlog findings, regenerate the baseline with `--write-baseline`
 (`python tests/ruff_audit.py --write-baseline`, same for `mypy_audit.py`). `ruff format
---check` is the one zero-tolerance exception (whole repo was reformatted once at adoption, so there's no backlog to carry).
+--check` is the one zero-tolerance exception (no backlog to carry).
 
-Use `python tests/tools/audit_check.py` (add `--regenerate`) instead of running the three
-`--ci` scripts separately and manually diffing each baseline by eye — it bundles all three plus
-the format check. Since #3384 the ruff and mypy baseline keys are content-based --
-`{file}: {code} @{hash of the whitespace-stripped flagged line}#{occurrence}` (`tests/lint_baseline.py`)
--- not line numbers, so an unrelated line shift elsewhere in a file changes nothing and can't
-conflict on rebase. `--regenerate` only auto-accepts an *edited* baselined line (a new key that
-pairs one-for-one with a now-stale entry of the same file/code/message); a new finding, or a new
-duplicate of a baselined line (next `#occurrence`), still fails. Human-readable output still
-prints each finding's current line number.
+Use `python tests/tools/audit_check.py` (add `--regenerate`) instead of running the three `--ci`
+scripts separately: it bundles all three plus the format check. Baseline keys are content-based
+(not line numbers); a new finding or new duplicate of a baselined line still fails. Details:
+`docs/agents/baseline-audits.md`.
 
-### Mainframe ground-truth ledger
+Don't write module-level optional-import fallbacks (`try: import yaml` / `except ImportError: yaml
+= None`): a local mypy with `types-PyYAML` passes, but CI's mypy env (`tests/requirements-mypy.txt`)
+has no stubs and fails. Import lazily inside the function.
 
-`tests/cobol_mainframe/ground_truth_ledger.json` lists every place the engine master DB or the
-refraction forge disagrees with the hand-verified COBOL answer keys
-(`tests/cobol_mainframe/answer_key/`) on the pinned real corpora. Each mismatch maps to a cause,
-and each cause has a `kind` (`defect` to fix, `deliberate` by design) and an owning issue.
-`mainframe-ground-truth.yml` runs `tests/tools/ground_truth_ledger.py check` on **every** PR.
-It fails on an unlisted mismatch (a regression) *and* on a listed one that no longer reproduces
-(an improvement, which has to be ratcheted in). After a change that moves a score:
-`mainframe_corpus.py fetch`, then `ground_truth_ledger.py update`. New entries come in
-`UNTRIAGED` and fail until you `assign` them a cause with an issue; explain the moves in the PR.
-Each field is labelled with the weakest verification tier behind it (`llm_verified` <
-`cross_verified` < `human_signed`, `cobol_answer_key.TIERS`), or `draft` when its key section is
-unsigned. Every tier gates, but only the label says how strongly a number may be quoted.
-A key reaches `cross_verified` through `tests/tools/cross_verify.py`: `brief --stage` builds a blind
-packet for a fresh-context reviewer model, `grade` lists disagreements, and `sign` refuses until
-each one is ruled on against the source. The runbook is in `tests/cobol_mainframe/answer_key/README.md`.
-The `mainframe-ground-truth` skill covers the day-to-day work: triaging a ledger failure, merging generated
-files after a squash merge, blessing snapshots, running a blind census, and the COBOL reader traps.
-`answer-key-guard.yml` posts a semantic diff of key and ledger changes on PRs (`tests/tools/ground_truth_diff.py`).
-The runtime-interaction channels still to build (SQL, MQ, IMS, async CICS, JCL flow, lineage) are epic #3445.
+## Mainframe / COBOL
 
-### Mainframe field testing (the defect log)
-
-**Every engine or forge defect found on a mainframe estate is logged in
-`tests/cobol_mainframe/field_testing.json`, in the same PR that finds or fixes it.** Estates include
-pinned corpora, censuses, the ledger, the refraction differential and customer scans. That file is
-the estate registry (public keyed corpora, and anonymised private estates) and the defect log.
-`tests/tools/field_testing.py report --write` renders
-`docs/language_status/cics_field_testing.md`: per ledger field, how many public and private estates
-tested it, and whether it is `field-tested`. That takes 2 fresh rounds after its last engine defect,
-carrying 300 facts. A round the channel was developed against is not fresh. CI fails when the record
-is invalid or the report is stale. A new corpus is a new round; a new channel needs a `fields` entry
-with its honest `development_rounds`; key errors are counted automatically. Quote coverage only
-from that report. The full protocol is in the `mainframe-ground-truth` skill ("Field testing").
-
-### The porting loop (automated COBOL -> Java)
-
-`tests/tools/porting_loop.py` runs port_runner end to end on one equivalence case. A model ports the program from
-its ticket, the harness proves it (outputs, CICS events or CALLs, and every fault run), and a failed proof's
-feedback drives the next attempt. Use the `porting-loop` skill: it covers running it (JDK 17, the corpora cache, the
-no-tools model), deciding whose a failure is (model, ticket, generator, harness, case), building cases with fault
-runs and coverage, and committing a proven port with provenance. CardDemo / CBSA / crucible results are development
-numbers, never first-try rates. Results and lessons so far: `docs/language_status/porting_loop.md`.
-
-### The deterministic port (det-port)
-
-`gitgalaxy/tools/cobol_to_java/det` translates a COBOL program to Java with no model, and `tests/tools/det_port.py`
-proves the result (batch, CICS and Db2 cases). Use the `det-port` skill: it covers the environment (Docker images,
-the Db2 container), debugging a differing scenario, and the checklists for a translator, runtime, harness or oracle
-change. After a translator change, `det_port.py check --work DIR` lists the ports it moved against `origin/main`;
-re-prove exactly those. Every known or suspected difference between our oracle (GnuCOBOL plus our CICS, Db2 and LE
-models) and IBM z/OS is in `docs/language_status/oracle_assumptions.md`; a new model or refusal adds an entry file under `docs/language_status/register/` (ID from `python tests/tools/register.py next X`), then `register.py render` regenerates that page (never hand-edit it; CI checks it).
+- Ground-truth ledger (`tests/cobol_mainframe/ground_truth_ledger.json`): `mainframe-ground-truth.yml` runs
+  `ground_truth_ledger.py check` on **every** PR and fails on an unlisted mismatch *and* on a listed one that no
+  longer reproduces. After a change that moves a score: `mainframe_corpus.py fetch`, then `ground_truth_ledger.py update`;
+  new entries are `UNTRIAGED` until you `assign` a cause with an issue; explain the moves in the PR.
+- **Every engine or forge defect found on a mainframe estate is logged in
+  `tests/cobol_mainframe/field_testing.json`, in the same PR that finds or fixes it** (CI fails on an invalid record or
+  stale report; regenerate with `tests/tools/field_testing.py report --write`). Quote coverage only from that report.
+- Porting loop (`porting-loop` skill) and deterministic port (`det-port` skill; after a translator change run
+  `det_port.py check --work DIR` and re-prove exactly the ports it lists).
+- Full text (tiers, cross-verify, oracle register, #5057 render rule, epic #3445): `docs/agents/mainframe.md`.
 
 ## Testing conventions
 
@@ -297,204 +149,55 @@ this kind of import, verify it by running plain `pytest <file>` (not `python -m 
 unrelated working directory — that reproduces CI's actual invocation style locally instead of on
 a wasted CI round-trip.
 
+- Never `os.environ.setdefault` / assign scan env vars (e.g. `GITGALAXY_DISABLE_GIT_HISTORY`) at
+  import time or process-wide in a module tests import: it leaks across the pytest session (it
+  broke `test_chronometer`). Use a save/restore context manager.
+- A `tests/tools` script inserts REPO_ROOT on `sys.path` BEFORE any `from gitgalaxy` import
+  (`# noqa: E402`); otherwise a shared venv's editable install of another checkout runs silently.
+- Python 3.11 is the floor (`requires-python = ">=3.11"`, ruff `target-version = "py311"`, the CI
+  matrix). A local 3.12 hides newer syntax (an f-string reusing its quote inside `{}`):
+  `ruff check <changed files>` before pushing.
+- Evidence-report tests assert only the case under test, never counts from committed reports. Use
+  `db2_fixture(..., isolate=True)` (`tests/tools/test_evidence_report.py`) for single-route Db2 tests.
+
 ## The Differential Scan (PR protocol for engine/regex changes)
 
 Any PR touching parsing logic (`detector.py`, `language_standards.py`, `prism.py`, etc.) is
-expected to be verified against `tests/golden_master_audit/` /
-`tests/golden_master_zero_dep_audit/` — snapshots diffed by the `crucible-audit` CI check
-against a ~80-repo corpus plus the PR's target repo. A failing diff means output changed: either
-a bug, or an intentional improvement that needs the baseline re-blessed. **Never hand-edit these
-fixtures.** Regenerate with `python tests/tools/crucible_check.py --update --yes` (default
-`--mode both`) — explain *why* the output changed in the PR description, CI flags any PR touching
-these files. This handles BOTH fixtures (full-precision and zero-dependency each need their own
-venv/interpreter) in one command with no manual `PATH`/`pip install -e .` bookkeeping — see the
-"Verifying locally before pushing" paragraph just below for exactly what it automates and why
-that matters. `python tests/tools/update_golden_master.py` (`--yes` to skip its own confirmation
-prompt) is the underlying single-mode script `--update` shells out to per venv; call it directly
-only if you're already inside one specific mode's venv and deliberately want just that fixture —
-reaching for it from your default shell silently updates whichever ONE fixture matches whatever
-happens to be importable there (#2547: this cost a full investigation cycle before landing on
-`crucible_check.py --update` instead).
+verified against `tests/golden_master_audit/` / `tests/golden_master_zero_dep_audit/` by the
+`crucible-audit` CI check. A failing diff is either a bug or an intentional improvement needing a re-bless.
+**Never hand-edit these fixtures** (they are directories of per-section JSON parts, #3384). Regenerate with
+`python tests/tools/crucible_check.py --update --yes` (both fixtures, own venvs, re-runs `pip install -e . --no-deps`);
+explain *why* output changed in the PR description. Call `update_golden_master.py` directly only from inside one
+mode's venv: from your default shell it silently updates just one fixture (#2547).
 
-**The fixtures are directories, not files (#3384).** Each is ~200 per-section JSON parts written
-by `tests/golden_store.py` — one file per top-level section key, and inside "6. Parsed Files" one
-file per (per-file section, sub-key) holding that value for every corpus file — so two PRs that
-each add a new fact channel, signal, or report section create *different new files* and merge
-without conflicts. Every reader goes through `golden_store.load()` (and so
-`golden_diff.load_and_sanitize()`), which reassembles the exact dict the old monolith held and
-fails loudly on a stray, misplaced, or orphaned part; `tests/test_golden_store.py` also asserts
-both committed fixtures are byte-canonical. For a single-file copy (e.g. a pre-bless snapshot),
-use `python tests/golden_store.py export --rev HEAD tests/golden_master_audit /tmp/old.json`, not
-`git show`. On a conflict inside a fixture, take main's side and re-run
-`crucible_check.py --update --yes` (or `rebase_rebless.py`, which does exactly that).
+- **Never reuse a shared/personal venv across worktrees** (its editable install points at one checkout: false "zero
+  diff" locally, real drift in CI, #579/#723). Use `crucible_check.py`.
+- `crucible_check.py` output is capped (~28 of N differences shown): scoping a bless needs your own regenerate and
+  diff, with `GITGALAXY_DISABLE_GIT_HISTORY=1` (NOT optional, #2985). Recipe: `docs/agents/differential-scan.md`.
+- Rebasing a parser/channel PR after a sibling merges: `python tests/tools/rebase_rebless.py` (dry run by default;
+  `--execute`, then `--push` = `--force-with-lease`).
+- Also run on those paths: `tri-comparison-audit.yml` and `tree-sitter-accuracy-audit.yml` (blocking, baseline-gated).
+  Their local runners need the main `.venv` on PATH and refuse to pass on zero languages checked.
+- Full protocol, conflict handling (`golden_store.py export`), runner commands: `docs/agents/differential-scan.md`.
 
-**Rebasing a parser/channel PR after a sibling merges:** `python tests/tools/rebase_rebless.py`
-(#3385) automates the manual procedure PRs #3369/#3375 each did by hand — rebase onto
-`origin/main`, take main's side for golden masters/ruff/mypy/dead-key baselines on conflict (a
-code-file conflict instead stops the run with a clear list rather than being auto-resolved),
-re-bless with `crucible_check.py --update`, then **verify** the resulting golden-master diff
-against main is limited to this branch's own new keys (auto-detected from the pre-rebase
-branch-vs-merge-base diff, or passed via `--expect-keys`) — failing loudly on any other
-("foreign") drift, the same scoped-review discipline "Scoping a bless" below describes. It then
-runs `audit_check.py --regenerate` scoped to touched files (with #3384's content-keyed ruff/mypy
-baselines, moved lines no longer need refreshing; this only re-accepts edited baselined lines) and
-runs ruff check/format plus
-a fast, touched-file-scoped test selection. The default is a dry run (a read-only `git
-merge-tree` preview, no branch mutation); `--execute` performs it for real, and `--push` (only
-valid with `--execute`) does `git push --force-with-lease` — never plain force.
+## Re-running the OS x Python matrix
 
-The same PR paths also run `tri-comparison-audit.yml`, a baseline-gated regression check on
-GitGalaxy's own **validated** precision against tree-sitter+ctags (see `docs/self_scan/
-tri_comparison_README.md`'s "CI enforcement" section) — a distinct, blocking check from the
-golden-master diff above, alongside `tree-sitter-accuracy-audit.yml`'s 2-tool equivalent. None of
-the three requires you to regenerate and commit chart/history artifacts yourself; that's handled
-by separate push-to-main companion workflows after merge.
+`full-suite-gate.yml` runs on the `labeled` event only, so commits pushed after labelling never go through the
+matrix. After pushing to a labelled PR: `gh workflow run "Full Suite Gate (All OS x Python)" --ref <branch>`
+(`-f full_matrix=true` for 12-way). Don't use `synchronize` (#3209). Details: `docs/agents/full-suite-matrix.md`.
 
-**Verifying locally before pushing:** use `python tests/tools/crucible_check.py` (add `--update`
-to regenerate) instead of hand-building venvs. It builds/reuses two venvs at
-`.crucible_venvs/{full_precision,zero_dependency}` *inside the current checkout* and — critically
-— re-runs a fast `pip install -e . --no-deps` before every check. Skipping that step is a real
-footgun: a venv's editable install is a pointer to whatever path was passed to `pip install -e .`
-at creation time, and `galaxyscope` is invoked as a subprocess, so reusing a venv across worktrees
-(e.g. a long-lived personal dev venv) makes it silently scan a *different* checkout's code — this
-produced a false "zero diff" pass locally while CI correctly failed on real output drift (PR
-#579/#723, 2026-07-28). Never point `LANGUAGE_CRUCIBLE_PATH`/a shared venv at this without
-confirming which checkout its editable install actually resolves to
-(`python -c "import gitgalaxy; print(gitgalaxy.__file__)"` from inside that venv).
+## Comparative claims and AST comparison
 
-**Scoping a bless: `crucible_check.py` shows you only a fraction of the diff.** Its output is
-capped twice -- `tests/golden_diff.py` prints 50 differences, and `crucible_check.py`'s wrapper
-keeps a 4000-char window of that -- so a run reporting "581 differences" surfaces about 28.
-GATING-style scoped-diff review ("every unrelated mover is attributed to a named PR, or the
-bless waits") is therefore **impossible from its output alone**: on 2026-09-02 all 28 surfaced
-diffs were groovy and said nothing about the other 18 languages that had moved. Regenerate the
-audit and diff it yourself:
-
-```sh
-# GITGALAXY_DISABLE_GIT_HISTORY=1 is NOT optional (#2985): test_golden_crucible.py sets it
-# (and so does update_golden_master.py), so the committed fixtures have every git-derived
-# field ablated. Omit it here and you get ~8,500 phantom differences on top of the real
-# ones -- Architect ("Unknown Architect" -> your git identity), Raw Churn Frequency,
-# Authorship Centralization, Instability/Volatility Exposure -- and a wasted rescan cycle
-# before you work out none of them are yours.
-GITGALAXY_DISABLE_GIT_HISTORY=1 \
-.crucible_venvs/zero_dependency/bin/galaxyscope <language-crucible>/data \
-    --output /tmp/gm/ --file-speed --splicing-speed          # same flags as tests/test_golden_crucible.py
-python -c "
-import sys; sys.path.insert(0,'tests'); import golden_diff as gd
-g=gd.load_and_sanitize('tests/golden_master_zero_dep_audit')   # split dir, #3384
-a=gd.load_and_sanitize('/tmp/gm/data_galaxy_audit.json')
-for d in gd.deep_compare(g,a): print(d)"
-```
-
-Expect most of the volume to be topological `X`/`Y`/`Z` coordinates: the 3D layout re-solves
-corpus-wide whenever any node's mass changes, so a single-language fix ripples coordinates
-across every language in the corpus. Those are attributable as a class; filter them out and
-scope the remainder, which is what actually needs a per-language explanation.
-
-**The corpus-backed audit runners need the main `.venv`, and they refuse to pass on nothing.**
-`tests/tools/tree_sitter_accuracy_audit.py`, `tests/tools/tri_comparison_chart.py` and
-`tests/tools/rosetta_audit.py` all need `galaxyscope` on `PATH` (the main `.venv` has it plus
-`tree_sitter_language_pack`; neither crucible venv has both). Since #2682 a run that checked zero
-languages, or a baselined language whose scan could not run, is a hard failure — previously
-`tri_comparison_chart.py --ci` skipped every language and printed `all OK` with exit 0 when
-`galaxyscope` was missing. Run them as:
-
-```sh
-PATH="$PWD/.venv/bin:$PATH" .venv/bin/python tests/tools/tree_sitter_accuracy_audit.py --ci --all
-PATH="$PWD/.venv/bin:$PATH" .venv/bin/python tests/tools/tri_comparison_chart.py --all --ci
-PATH="$PWD/.venv/bin:$PATH" .venv/bin/python tests/tools/rosetta_audit.py      # needs ../keyword-rosetta
-```
-
-and still glance at the summary line's language count (30, 3 and 46 respectively as of 2026-09-03).
-
-## Re-running the OS x Python matrix on a PR's current head
-
-`full-suite-gate.yml` (the "Full Suite Gate (All OS x Python)" check) triggers on
-`pull_request: types: [labeled]`, not on `synchronize`. That was deliberate — per-label runs had
-put 48 jobs on one SHA and pushed the queue to 23-65 minutes — but it means **the matrix runs
-once, against the SHA that carried the label, and a commit pushed afterwards never goes through
-it.** #3207 merged a Windows-only fix that way: it was correct and test-covered, but the matrix
-never saw it.
-
-So after pushing to a PR that has already been labelled, re-run it deliberately:
-
-```bash
-gh workflow run "Full Suite Gate (All OS x Python)" --ref <branch>       # trimmed PR grid
-gh workflow run "Full Suite Gate (All OS x Python)" --ref <branch> -f full_matrix=true   # 12-way
-gh run list --workflow full-suite-gate.yml --branch <branch> --limit 3   # find the run
-```
-
-The trimmed grid is what a label gives you (all four Pythons on ubuntu, floor+ceiling on Windows
-and macOS); `full_matrix=true` is the untrimmed 12-way grid a `v*` tag gets. Removing and
-re-adding a label still works and is equivalent to the first form. Don't reach for `synchronize`
-as a fix — that hands back the queue cost the label-only rule bought (#3209).
-
-## Logging cases where GitGalaxy beats tree-sitter/AST ground truth
-
-The general rule, stated plainly in `README.md`'s "One Graph, Not Five Separate Tools" section, is
-that tree-sitter/AST parsing is *more precise per file* than GitGalaxy's regex-based structural
-signatures — that's the trade GitGalaxy makes for one comparable signal set across every language
-without a per-language toolchain. It doesn't hold universally, though: any time work in this repo
-turns up a specific, evidenced case where GitGalaxy's output is *more* accurate than tree-sitter's
-own parse (not just "different" — genuinely more correct, with a concrete before/after), log it as
-its own dated Claim N in `docs/why_gitgalaxy_beats_ast_here.md` rather than leaving it as a PR
-description or code comment only. Two examples already there: `args` counting in languages with no
-formal parameter-list syntax at all (bash/traditional Perl, #1518/#1519), and function recall
-inside dialect/extension syntax a base grammar has no concept of (Cython's `cdef class` inside
-plain tree-sitter-python, #1526). Keep each claim narrow and evidence-backed (a measured
-before/after, not "heuristics are sometimes better") — this doc's whole value is that it doesn't
-overstate the exception into "GitGalaxy is more accurate than tree-sitter" in general, which isn't
-true.
-
-## Comparative-correctness claims require verification, not just the higher number
-
-This generalizes a rule first proven necessary on the tri-comparison chart (`tests/tools/
-tri_comparison_chart.py`, `tri_comparison_ledger.py`) but applicable anywhere in this repo a claim
-gets made that one measurement is "more correct" than another — a badge, a README claim, a PR
-description, a chart, a doc. **Never treat a raw number comparison alone as settling who's right.**
-A strictly-highest-percentage rule doesn't know or care about sample size or whether anyone has
-actually checked the disagreement against real source: a 2-sample cell at 100% (2/2) can outrank an
-80-sample cell at 98.75% (79/80) with equal visual confidence, which is an artifact of an unverified
-comparison, not evidence either side is more correct. The fix isn't "always trust the bigger sample"
-either — it's requiring that a claim of correctness be backed by someone (human or a dispatched
-agent standing in for one) actually reading the real disputed source and recording *why*, before it
-drives a badge, a chart, or a claim in prose.
-
-**The concrete mechanism this models on:** `tri_comparison_ledger.py`'s `has_open_question()` — a
-cell only earns a badge/claim once every ledger entry touching it is `status == "validated"` (a
-human or agent read real source and recorded a verdict), regardless of how lopsided the raw numbers
-look before that. See the tri-comparison-ledger-sweep skill for the full investigate-and-verify
-workflow this drives.
-
-**Regenerating the chart/ledger itself is a separate, operational concern from the verification
-rule above — read `docs/self_scan/tri_comparison_README.md` before running
-`tri_comparison_chart.py` or hand-editing `tri_comparison_ledger.json`.** It's the canonical
-regen doc both agents point to (this file for Claude, `ANTIGRAVITY.md` for Gemini/Antigravity), not
-something to re-derive or duplicate. A real incident (PR #2111, 2026-08-22) shows why it matters:
-that regen ran with no genuine `universal-ctags` binary on PATH — Ubuntu's `arduino-ctags` package
-shadows the `ctags` binary name and silently degrades every language to a 2-tool comparison instead
-of erroring — which reverted cobol's already-validated full-precision badge, degraded fortran's,
-and dropped ctags data repo-wide, all without a single error message. Before trusting any regen's
-output: confirm `ctags --version` in your own terminal prints "Universal Ctags", not an Arduino
-banner or a not-found error; always regenerate with `--all --write`, never a partial `--languages`
-list with `--write` (it overwrites the whole file with only those languages); and never hand-set
-`status`/`verdict`/`still_reproduces` on a ledger entry — those come from a live gather or a human
-(or agent-standing-in-for-one) reading real source, never a guess about whether a shape "should"
-still reproduce.
-
-**Once verified, a rate-only TIE needs its own tie-break — don't leave it badge-less by default
-either.** Found via a real case: GitGalaxy, tree-sitter, and ctags can each land on 100% precision
-for the same language/metric (each is simply never wrong about what it itself claims, at very
-different claim counts) once GitGalaxy's extra claims are ledger-validated — a rate-only comparison
-ties 3 ways and awards nobody, even though GitGalaxy demonstrably found more of the validated-real
-total (`_winner_or_tie()` in `tri_comparison_chart.py`: a rate tie is broken by each tied party's
-*absolute count of validated-correct occurrences*, not the raw claim count). This is the same
-"more evidence should count for something" principle as the sample-size fix above, pointing the
-opposite direction — a smaller sample's identical rate shouldn't get an unearned edge, but neither
-should a much larger *validated* sample lose one just for tying instead of leading outright. Only
-apply a count-based tie-break to values that already cleared the verification bar above; breaking
-a tie with unverified counts is exactly the anti-pattern this rule exists to prevent.
+- **Never treat a raw number comparison as settling which measurement is more correct.** A claim of correctness (badge,
+  chart, README, PR text) needs someone reading the real disputed source and recording why; a cell earns a badge only
+  when every ledger entry touching it is `status == "validated"` (`tri_comparison_ledger.py`).
+- Before running `tri_comparison_chart.py` or editing `tri_comparison_ledger.json` read
+  `docs/self_scan/tri_comparison_README.md`; confirm `ctags --version` says "Universal Ctags" (Arduino ctags silently
+  degrades to 2-tool, PR #2111); regenerate only with `--all --write`; never hand-set `status`/`verdict`/`still_reproduces`.
+- A rate-only tie is broken by absolute count of *validated-correct* occurrences, never unverified counts.
+- A specific evidenced case where GitGalaxy beats tree-sitter goes in `docs/why_gitgalaxy_beats_ast_here.md` as a dated
+  Claim N (narrow, measured before/after).
+- Full text: `docs/agents/claims-and-ast-comparison.md`.
 
 ## Issue generation and pipeline/CI triage
 
@@ -504,28 +207,10 @@ from findings) and `.claude/agents/pipeline-manager.md` (CI status / Dependabot 
 recommendations, never merges/closes/pushes on its own authority). Invoke via the
 `issue-generation` and `pipeline-check` skills, or the Agent tool directly.
 
-## Model tiering (token budget)
+## Model tiering
 
-This repo pins models per-role instead of running everything on one tier, so the expensive
-model is only spent where the extra judgment actually pays for itself.
-
-**Main session (manual `/model` switch)**
-- **Sonnet (default)**: everyday coding, debugging, code review, regex/rule work.
-- **Opus**: switch in manually for architecture-level planning, high-ambiguity design
-  decisions, or multi-system tradeoffs (e.g. redesigning the core pipeline stage boundaries,
-  not writing one more detector rule) — the extra compute is worth it there.
-
-**Subagents (pinned in each agent's frontmatter)**
-- **Haiku**: mechanical, read-heavy, well-defined output shape, no judgment calls beyond
-  "escalate if ambiguous" — `issue-triage`, `pipeline-manager`. Both are written to hand
-  anything ambiguous (duplicate calls, label taxonomy, destructive actions) back to the main
-  conversation rather than guess, which is what makes Haiku safe here.
-- **Sonnet**: anything requiring nuanced judgment, synthesis across multiple sources, or
-  writing/reviewing code on the subagent's own authority.
-
-When adding a new subagent, default it to Haiku unless the task demonstrably needs more
-judgment than "read input, produce well-formed output, escalate ambiguity" — don't pin Sonnet
-out of caution alone.
+Sonnet by default; Opus manually for architecture planning. Subagents pin models in frontmatter (new ones default to
+Haiku). Details: `docs/agents/model-tiering.md`.
 
 ## Licensing
 

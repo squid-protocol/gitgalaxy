@@ -39,6 +39,27 @@ public class Lgicdb01Service {
     private final ObjectProvider<LgstsqService> lgstsqService;
     private final CustomerRepository customerRepository;
 
+    // @facade-helper: the bytes the last byte-carrying handleLink's program left in the COMMAREA
+    private byte[] lastLinkBytes;
+
+    /** #5053: handleLink with the raw bytes of the LINK's COMMAREA (passed by address: what the program
+     *  leaves there the caller sees); lastLinkBytes() then answers the bytes it left. */
+    public Lgicdb01Dfhcommarea handleLink(Lgicdb01Dfhcommarea request, byte[] area) {
+        log.info("Lgicdb01: handleLink (bytes)");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("LGICDB01", request, area);
+        region.run(task, "LGICDB01", this::runTask);
+        byte[] left = task.linkAreaView();
+        lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;
+        return request;
+    }
+
+    /** The bytes the last byte-carrying handleLink's program left in the LINK COMMAREA (a copy; null: it took
+     *  none -- its DTO is the COMMAREA). @facade-helper */
+    public byte[] lastLinkBytes() {
+        return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);
+    }
+
     /** One task of LGICDB01: MAINLINE SECTION, GET-CUSTOMER-INFO, WRITE-ERROR-MESSAGE. */
     public void runTask(CicsTask task) {
         log.info("Lgicdb01: runTask");

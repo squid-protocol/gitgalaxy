@@ -334,3 +334,30 @@ def test_a_condition_rewritten_in_place_stays_exact_in_an_equal_size_block() -> 
     compiled = _cbl("A.", "    IF WS-RESP NOT= 0 OR WS-OTHER-FLAG = 0", "       GOBACK", "    END-IF.")
     lines = cov.LineMap(original, compiled)
     assert lines.get(2) == (2, True) and 2 in lines.exact
+
+
+# ---- #5084: the programs a case LINKs / CALLs ---------------------------------------------------------------------
+def test_write_run_coverage_measures_the_linked_programs_over_the_same_trace(tmp_path: Path) -> None:
+    main = _cbl("PROGRAM-ID. MAINP.", "PROCEDURE DIVISION.", "A.", "    GOBACK.")
+    callee = _cbl(
+        "PROGRAM-ID. SUBP.", "PROCEDURE DIVISION.", "B.", "    PERFORM C", "    GOBACK.", "C.", "    CONTINUE."
+    )
+    trace = (
+        b"Program-Id:  MAINP   Entry: MAINP   Line: 2\nProgram-Id:  MAINP   Paragraph: A   Line: 3\n"
+        b"Program-Id:  SUBP   Entry: SUBP   Line: 2\nProgram-Id:  SUBP   Paragraph: B   Line: 3\n"
+    )
+    t = tmp_path / "trace.txt"
+    t.write_bytes(trace)
+    extras = [{"name": "SUBP", "source": tmp_path / "SUBP.cbl", "original": callee, "compiled": callee,
+               "compiled_name": "SUBP.cbl"},
+              {"name": "BAD", "source": tmp_path / "BAD.cbl", "original": None, "compiled": None,
+               "compiled_name": "BAD.cbl"}]  # fmt: skip
+    out = tmp_path / "coverage.json"
+    s = cov.write_run_coverage(out, extras=extras, source=tmp_path / "MAINP.cbl", original=main, compiled=None,
+                               traces=[t], compiled_name="MAINP.cbl")  # fmt: skip
+    assert s["paragraphs"]["covered"] == s["paragraphs"]["live"] == 1  # the main program's numbers are its own
+    sub = s["linked"]["SUBP"]
+    assert (sub["paragraphs"]["covered"], sub["paragraphs"]["live"]) == (1, 2)  # C never ran: a hole
+    assert "error" in s["linked"]["BAD"]  # unmeasurable: recorded as unknown, the run goes on
+    assert "linked" not in cov.write_run_coverage(out, source=tmp_path / "MAINP.cbl", original=main, compiled=None,
+                                                  traces=[t], compiled_name="MAINP.cbl")  # fmt: skip

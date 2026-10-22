@@ -20,7 +20,7 @@
     "ada/alire": {
       "ada/alire/LICENSE.txt": 0,
       "ada/alire/alire-conditional_trees.adb": 0,
-      "ada/alire/alire-crate_configuration.adb": 1,
+      "ada/alire/alire-crate_configuration.adb": 0,
       "ada/alire/alire-dependencies-states.ads": 0,
       "ada/alire/alire-directories.adb": 0,
       "ada/alire/alire-index_on_disk-loading.adb": 0,
@@ -1320,7 +1320,7 @@
       "dockerfile/moby/builder/remotecontext/urlutil/urlutil_test.go": 0
     },
     "dockerfile/moby/test_targets": {
-      "dockerfile/moby/test_targets/daemon.Dockerfile": 1,
+      "dockerfile/moby/test_targets/daemon.Dockerfile": 0,
       "dockerfile/moby/test_targets/generate-files.Dockerfile": 0,
       "dockerfile/moby/test_targets/syscall.Dockerfile": 0,
       "dockerfile/moby/test_targets/windows.Dockerfile": 0
@@ -1337,7 +1337,7 @@
       "embedded_python/meow_turtle/logging.py": 0,
       "embedded_python/meow_turtle/meowprotocol.py": 0,
       "embedded_python/meow_turtle/mpu6050.py": 0,
-      "embedded_python/meow_turtle/ota.py": 1,
+      "embedded_python/meow_turtle/ota.py": 0,
       "embedded_python/meow_turtle/pio_programs.py": 0,
       "embedded_python/meow_turtle/sensors.py": 0,
       "embedded_python/meow_turtle/tester.py": 0,
@@ -1472,7 +1472,7 @@
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_FindGradleClasspath.groovy": 0,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_FindGradleJars.groovy": 0,
       "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_BuildableDOMCategory.groovy": 0,
-      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_Docbook2Xhtml.groovy": 1,
+      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_Docbook2Xhtml.groovy": 0,
       "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": 0
     },
     "groovy/gradle_dsl_snippets": {
@@ -1962,13 +1962,13 @@
       "javascript/react_error_codes/extract-errors.js": 0
     },
     "javascript/threejs": {
-      "javascript/threejs/BufferGeometry.js": 1,
+      "javascript/threejs/BufferGeometry.js": 0,
       "javascript/threejs/Editor.js": 0,
       "javascript/threejs/GLTFLoader.js": 0,
       "javascript/threejs/Matrix4.js": 0,
       "javascript/threejs/Nodes.js": 0,
       "javascript/threejs/WebGLProgram.js": 0,
-      "javascript/threejs/WebGLRenderer.js": 1
+      "javascript/threejs/WebGLRenderer.js": 0
     },
     "jcl": {
       "jcl/SOURCES.md": 0
@@ -2005,7 +2005,7 @@
       "jcl/cics-banking-sample-application-cbsa/BTCHSQL.jcl": 0,
       "jcl/cics-banking-sample-application-cbsa/CBSACSD.jcl": 0,
       "jcl/cics-banking-sample-application-cbsa/CICS.jcl": 0,
-      "jcl/cics-banking-sample-application-cbsa/CICSTS56.jcl": 1,
+      "jcl/cics-banking-sample-application-cbsa/CICSTS56.jcl": 0,
       "jcl/cics-banking-sample-application-cbsa/COMPALL.jcl": 0,
       "jcl/cics-banking-sample-application-cbsa/CRDTAGY1.jcl": 0,
       "jcl/cics-banking-sample-application-cbsa/CRDTAGY2.jcl": 0,
@@ -2630,15 +2630,15 @@
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/LICENSE.md": 0,
       "pli/dsf_cics_admin/PROVENANCE.md": 0,
-      "pli/dsf_cics_admin/R0010301.pli": 2,
+      "pli/dsf_cics_admin/R0010301.pli": 0,
       "pli/dsf_cics_admin/R0010420.pli": 0,
-      "pli/dsf_cics_admin/R0010421.pli": 1,
-      "pli/dsf_cics_admin/R0010422.pli": 1,
-      "pli/dsf_cics_admin/R0010423.pli": 1,
-      "pli/dsf_cics_admin/R0010424.pli": 1,
-      "pli/dsf_cics_admin/R0010425.pli": 1,
-      "pli/dsf_cics_admin/R0010426.pli": 1,
-      "pli/dsf_cics_admin/R0010427.pli": 1,
+      "pli/dsf_cics_admin/R0010421.pli": 0,
+      "pli/dsf_cics_admin/R0010422.pli": 0,
+      "pli/dsf_cics_admin/R0010423.pli": 0,
+      "pli/dsf_cics_admin/R0010424.pli": 0,
+      "pli/dsf_cics_admin/R0010425.pli": 0,
+      "pli/dsf_cics_admin/R0010426.pli": 0,
+      "pli/dsf_cics_admin/R0010427.pli": 0,
       "pli/dsf_cics_admin/R001TK62.pli": 0
     },
     "pli/zopeneditor_sample": {
@@ -3096,7 +3096,7 @@
       "python/numpy/__init__.py": 0,
       "python/numpy/_linalg.py": 0,
       "python/numpy/cfuncs.py": 0,
-      "python/numpy/core.py": 1,
+      "python/numpy/core.py": 0,
       "python/numpy/crackfortran.py": 0,
       "python/numpy/cversions.txt": 0,
       "python/numpy/func2subr.py": 0,
@@ -3268,7 +3268,8 @@
       "rust/tokio/maybe_done.rs": 0,
       "rust/tokio/tests.rs": 0,
       "rust/tokio/tokio_mpsc_bounded.rs": 0,
-      "rust/tokio/tokio_named_pipe.rs": 0
+      "rust/tokio/tokio_named_pipe.rs": 0,
+      "rust/tokio/tokio_udp.rs": 0
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": 0
@@ -3397,6 +3398,7 @@
       "shell/freebsd-src/dd2_test.sh": 0,
       "shell/freebsd-src/dtest.sh": 0,
       "shell/freebsd-src/echo_test.sh": 0,
+      "shell/freebsd-src/ed_test.sh": 0,
       "shell/freebsd-src/format_string_test.sh": 0,
       "shell/freebsd-src/functional_test.sh": 0,
       "shell/freebsd-src/hostname_test.sh": 0,
@@ -3434,6 +3436,7 @@
       "shell/haiku/default_deskbar_items.sh": 0,
       "shell/haiku/gen-bepo.sh": 0,
       "shell/haiku/generate_CountryFlags.sh": 0,
+      "shell/haiku/generate_ids_from_drivers.sh": 0,
       "shell/haiku/install-wifi-firmwares.sh": 0,
       "shell/haiku/install.sh": 0,
       "shell/haiku/leak_analyser.sh": 0,
@@ -3859,6 +3862,7 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 0,
       "typescript/assemblyscript/ast.ts": 0,
+      "typescript/assemblyscript/builtins.ts": 0,
       "typescript/assemblyscript/compiler.ts": 0,
       "typescript/assemblyscript/package.json": 0,
       "typescript/assemblyscript/parser.ts": 0
@@ -3904,7 +3908,11 @@
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 0,
       "typescript/typescript_compiler/binder.ts": 0,
-      "typescript/typescript_compiler/package.json": 0
+      "typescript/typescript_compiler/checker.ts": 0,
+      "typescript/typescript_compiler/emitter.ts": 0,
+      "typescript/typescript_compiler/package.json": 0,
+      "typescript/typescript_compiler/parser.ts": 0,
+      "typescript/typescript_compiler/types.ts": 0
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0,
@@ -4076,6 +4084,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": 0,
       "zig/zig/InternPool.zig": 0,
+      "zig/zig/Sema.zig": 0,
       "zig/zig/Type.zig": 0,
       "zig/zig/Zcu.zig": 0,
       "zig/zig/main.zig": 0
@@ -4090,6 +4099,7 @@
       "zig/zls/analysis.zig": 0,
       "zig/zls/ast.zig": 0,
       "zig/zls/config_gen.zig": 0,
+      "zig/zls/langref.html.in": 0,
       "zig/zls/print_ast.zig": 0
     }
   },

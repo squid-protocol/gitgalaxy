@@ -19,6 +19,7 @@ name: Tri-Comparison Audit
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]  # #5104: a draft starts only the cheap audits
     branches:
       - main
     paths:
@@ -51,6 +52,7 @@ concurrency:
 
 jobs:
   tri-comparison-audit:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -73,7 +75,7 @@ jobs:
         run: |
           cd gitgalaxy
           python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
-          pip install -e .
+          pip install --no-build-isolation -e .
           pip install --require-hashes -r ci/requirements/treesitter.txt
 
       # Hard preflight, not optional: PR #2111 (2026-08-22, see
@@ -84,8 +86,8 @@ jobs:
       # would report false confidence instead of an honest failure.
       - name: Install universal-ctags and verify it's the real thing
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y universal-ctags
+          # #5048: a mirror hiccup is infrastructure, not a code defect: bounded retry, then an INFRASTRUCTURE marker.
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- bash -c 'sudo apt-get -o Acquire::Retries=5 update -qq && sudo apt-get -o Acquire::Retries=5 install -y universal-ctags'
           if ! ctags --version | grep -q "Universal Ctags"; then
             echo "::error::ctags on PATH is not Universal Ctags -- refusing to run a silently-degraded audit."
             ctags --version || true
@@ -98,7 +100,7 @@ jobs:
         run: |
           # The pin is tests/crucible_pins.toml (one source; a fork PR reads it too).
           ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get language)
-          git clone --branch "$ref" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- bash -c 'rm -rf language-crucible && git clone --branch "$1" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible' _ "$ref"
 
       - name: Run baseline-gated precision regression check across every baselined language
         run: |

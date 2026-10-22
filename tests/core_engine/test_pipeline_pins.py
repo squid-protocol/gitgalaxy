@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -245,11 +246,7 @@ def test_gitlab_services_without_digest_is_flagged():
     assert [(n, k) for n, k, _ in find_unpinned_gitlab("job:\n  services:\n    - name: redis:7\n")] == [
         (3, "gitlab-service")
     ]
-    mixed = (
-        "services:\n"
-        "  - postgres:16@sha256:" + "a" * 64 + "\n"
-        "  - redis:7\n"
-    )
+    mixed = "services:\n  - postgres:16@sha256:" + "a" * 64 + "\n  - redis:7\n"
     assert [(n, k) for n, k, _ in find_unpinned_gitlab(mixed)] == [(3, "gitlab-service")]
 
 
@@ -309,7 +306,11 @@ def test_gitlab_and_github_checks_scoped_by_file_path():
     text = "services:\n  db:\n    image: postgres:16\n"
     assert _surface_kinds(text, "yaml", gitlab=False) == []
     assert _surface_kinds(text, "yaml", gitlab=True) == ["gitlab-image"]
-    assert is_gitlab_ci(".gitlab-ci.yml") and is_gitlab_ci("ci/.gitlab-ci.yaml") and is_gitlab_ci("templates/gitlab/scan.yml")
+    assert (
+        is_gitlab_ci(".gitlab-ci.yml")
+        and is_gitlab_ci("ci/.gitlab-ci.yaml")
+        and is_gitlab_ci("templates/gitlab/scan.yml")
+    )
     assert is_github_workflow(".github/workflows/ci.yml") and is_github_workflow("action.yml")
     assert not is_gitlab_ci("docker-compose.yml") and not is_github_workflow("docker-compose.yml")
     assert scan_pipeline(text, "yaml", ".gitlab-ci.yml")["counts"] == {"unpinned_install": 1}
@@ -362,15 +363,16 @@ def test_our_own_pipelines_are_clean(path):
     `.github/workflows`, which is the CI half of #4944; each entry is exact (file, line, kind), so any other
     finding, or a moved one, fails, and fixing one forces its entry out of this table.
     """
-    rel = str(path.relative_to(ROOT))
+    rel = path.relative_to(ROOT).as_posix()  # the table's keys are POSIX; str() gives backslashes on Windows
     got = {(n, k) for n, k, _ in find_unpinned(path.read_text())}
     assert got == OPEN_SYSTEM_PACKAGE_INSTALLS.get(rel, set()), got
 
 
 OPEN_SYSTEM_PACKAGE_INSTALLS = {
-    ".github/workflows/full-suite-gate.yml": {(161, "brew")},
-    ".github/workflows/smoke-test.yml": {(110, "brew")},
-    ".github/workflows/tri-comparison-audit.yml": {(88, "apt")},
+    ".github/workflows/doom-rosetta.yml": {(118, "apt")},
+    ".github/workflows/full-suite-gate.yml": {(169, "brew")},
+    ".github/workflows/os-smoke-grid.yml": {(59, "brew")},
+    ".github/workflows/tri-comparison-audit.yml": {(90, "apt")},
     ".github/workflows/tri-comparison-history.yml": {(96, "apt")},
 }
 
@@ -413,3 +415,54 @@ def test_reaches_sarif_end_to_end(tmp_path):
     )
     assert where == [(".gitlab-ci.yml", 2), ("Dockerfile", 2), ("ci.sh", 3), ("ci.yml", 7), ("ci.yml", 8)], hits
     assert {r["id"] for r in sarif["runs"][0]["tool"]["driver"]["rules"]} >= {"GG-SAST-UNPINNED_INSTALL"}
+
+
+def test_no_workflow_pins_a_python_below_requires_python():
+    """#3322: a workflow leg on a Python under `requires-python` cannot install the package."""
+    floor_text = re.search(r'^requires-python\s*=\s*">=(\d+\.\d+)"', (ROOT / "pyproject.toml").read_text(), re.M)
+    assert floor_text, "pyproject.toml has no requires-python >=X.Y"
+    floor = tuple(int(p) for p in floor_text.group(1).split("."))
+    offenders = []
+    for path in sorted((ROOT / ".github" / "workflows").glob("*.yml")):
+        for m in re.finditer(r"python-version\"?\s*[:=]\s*\"?'?(\d+\.\d+)", path.read_text()):
+            if tuple(int(p) for p in m.group(1).split(".")) < floor:
+                offenders.append(f"{path.name}: {m.group(0)}")
+    assert not offenders, offenders
+
+
+def test_os_smoke_grid_setup_steps_have_their_own_timeout():
+    """#5747: a hung macOS setup step must fail as that step, not as a bare job cancellation."""
+    text = (ROOT / ".github" / "workflows" / "os-smoke-grid.yml").read_text()
+    for step in ("Install macOS dependencies", "Install dependencies"):
+        block = text.split(f"- name: {step}", 1)[1].split("\n      - name:", 1)[0]
+        assert "timeout-minutes:" in block, step
+
+
+def test_every_workflow_brew_step_has_a_timeout():
+    """#5747: a hung `brew install` must fail as its own step, not as a bare job cancellation."""
+    offenders = []
+    for path in sorted((ROOT / ".github" / "workflows").glob("*.yml")):
+        text = path.read_text()
+        for step in re.split(r"\n\s*- (?=name:|uses:|run:)", text)[1:]:
+            if "brew install" in step and "timeout-minutes:" not in step:
+                offenders.append(f"{path.name}: {step.splitlines()[0]}")
+    assert not offenders, offenders
+
+
+def test_ci_retry_wraps_the_hashed_installs_of_the_two_os_grids():
+    """#5747: the smoke grid and the full-suite gate install through ci_retry.sh, so a network flake is marked INFRASTRUCTURE."""
+    for name in ("os-smoke-grid.yml", "full-suite-gate.yml"):
+        lines = (ROOT / ".github" / "workflows" / name).read_text().splitlines()
+        bare = [ln.strip() for ln in lines if "pip install --require-hashes" in ln and "ci_retry.sh" not in ln]
+        assert not bare, (name, bare)
+
+
+def test_every_workflow_brew_install_goes_through_ci_retry():
+    """#5747: a flaky `brew install` is retried and marked INFRASTRUCTURE, not left to fail the leg."""
+    lines = [
+        f"{path.name}: {ln.strip()}"
+        for path in sorted((ROOT / ".github" / "workflows").glob("*.yml"))
+        for ln in path.read_text().splitlines()
+        if "brew install" in ln and "ci_retry.sh" not in ln and not ln.lstrip().startswith("#")
+    ]
+    assert not lines, lines

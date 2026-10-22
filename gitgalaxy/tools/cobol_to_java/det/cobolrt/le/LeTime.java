@@ -26,6 +26,7 @@ final class LeTime {
         return new UnsupportedOperationException(service + ": " + what + " is not modelled");
     }
 
+    // [rule RT-LE-LILIAN]
     static boolean leap(long y) {
         return (y % 4 == 0 && y % 100 != 0) || y % 400 == 0;
     }
@@ -75,6 +76,7 @@ final class LeTime {
     }
 
     /** The 12-byte feedback token: all zero for success, else severity 3, message number, case/severity/control, 'CEE'. */
+    // [rule RT-LE-FEEDBACK-CODE]
     static void putFc(Field fc, int msgno) {
         byte[] b = fc.storage().bytes;
         int o = fc.offset();
@@ -98,6 +100,7 @@ final class LeTime {
     record Tok(String tag, char lit) {
     }
 
+    // [rule RT-LE-PICTURE-STRING]
     static java.util.List<Tok> picture(String service, Field pic) {
         byte[] pb = pic.storage().bytes;
         int p0 = pic.offset();
@@ -161,6 +164,7 @@ final class LeTime {
     }
 
     /** A VSTRING result: halfword length, the text, nothing past it (register L6: the rest of the item is untouched). */
+    // [rule RT-LE-VSTRING]
     static void putVstring(String service, Field out, String text, Charset cs) {
         byte[] t = text.getBytes(cs);
         if (out.length() < 2 + t.length) {
@@ -181,6 +185,7 @@ final class LeTime {
     // ----------------------------------------------------------------------------------------- services
 
     /** CEEGMT / CEEUTC: the run's clock is GMT (the det runtime's CURRENT-DATE carries offset +0000). */
+    // [rule RT-LE-CEEGMT]
     static void gmt(String now, Field lilian, Field seconds, Field fc, Charset cs) {
         long days = civil(Integer.parseInt(now.substring(0, 4)), Integer.parseInt(now.substring(4, 6)),
                 Integer.parseInt(now.substring(6, 8))) - EPOCH;
@@ -192,11 +197,13 @@ final class LeTime {
         putFc(fc, 0);
     }
 
+    // [rule RT-LE-CEEQCEN]
     static void qcen(Field century, Field fc) {
         putInt(century, 80);
         putFc(fc, 0);
     }
 
+    // [rule RT-LE-CEEDATE]
     static void date(Field lilian, Field pic, Field out, Field fc, Charset cs) {
         java.util.List<Tok> p = picture("CEEDATE", pic);
         int n = getInt(lilian);
@@ -209,6 +216,7 @@ final class LeTime {
         putFc(fc, 0);
     }
 
+    // [rule RT-LE-CEEDATM]
     static void datm(Field seconds, Field pic, Field out, Field fc, Charset cs) {
         java.util.List<Tok> p = picture("CEEDATM", pic);
         BigDecimal v = Cobol.num(seconds, cs);
@@ -225,6 +233,7 @@ final class LeTime {
         putFc(fc, 0);
     }
 
+    // [rule RT-LE-CEESECS]
     static void secs(Field ts, Field pic, Field seconds, Field fc, Charset cs) {
         java.util.List<Tok> p = picture("CEESECS", pic);
         byte[] db = ts.storage().bytes;
@@ -287,6 +296,7 @@ final class LeTime {
     }
 
     /** The shared check and conversion of CEESECS and CEEISEC; the day / year codes differ between them. */
+    // [rule RT-LE-CEEISEC]
     private static void isec(long[] v, Field seconds, Field fc, Charset cs, int dayCode, int yearCode) {
         int bad = 0;
         int code = 0;

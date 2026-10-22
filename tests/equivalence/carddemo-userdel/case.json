@@ -309,6 +309,191 @@
      "USRIDINI": "USER0004"
     }
    }
+  },
+  {
+   "name": "pf3-xctl-fails",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "USER0004"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COADM01C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4648: PGMIDERR RESP2 3, the program could not be loaded (IBM CICS TS, XCTL conditions): the XCTL fails and, with no RESP, CICS abends the task (the model port used to RETURN)"
+  },
+  {
+   "name": "pf3-xctl-not-authorised",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "USER0004"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COADM01C",
+     "nth": 1,
+     "resp": "NOTAUTH",
+     "resp2": 101
+    }
+   ],
+   "why": "#4648: NOTAUTH RESP2 101, the user may not use the program (IBM CICS TS, XCTL conditions): not handled, CICS abends the task (AEY7)"
+  },
+  {
+   "name": "no-commarea-enter",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "#4049 (proposed for the mutation survivors): the transaction started with no commarea: the initial program context"
+  },
+  {
+   "name": "low-values-selected-user",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-CU03-USR-SELECTED": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"
+   },
+   "why": "#4049 (proposed for the mutation survivors): a LOW-VALUES selected user id on first entry"
+  },
+  {
+   "name": "selected-user-first-entry",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-CU03-USR-SELECTED": "USER0004"
+   },
+   "why": "#4049 (proposed for the mutation survivors): a selected user id on first entry: copied to the screen"
+  },
+  {
+   "name": "input-lname-echoed",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "USER0004",
+     "LNAMEI": "Kessler"
+    }
+   },
+   "why": "#4049 (proposed for the mutation survivors): the input screen carries a last name"
+  },
+  {
+   "name": "pf3-blank-to-program",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-PROGRAM": ""
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "USER0004"
+    }
+   },
+   "why": "#4049 (proposed for the mutation survivors): PF3 with a blank to-program"
+  },
+  {
+   "name": "pf5-delete-not-found",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "USER0004"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "DELETE",
+     "file": "USRSEC",
+     "resp": "NOTFND",
+     "why": "13 on the DELETE (the record vanished after the READ UPDATE): 'User ID NOT found...', error flag set"
+    }
+   ],
+   "why": "#4049 slice 2 (mutation survivors): the DELETE answers NOTFND, the branch no ordinary run reaches"
+  },
+  {
+   "name": "carried-status-selection-and-name",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CU03-USR-SELECTED": "USER0004",
+    "CDEMO-CU03-USR-SEL-FLG": "D"
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "USER0004",
+     "FNAMEI": "Grace",
+     "LNAMEI": "Hopper"
+    }
+   },
+   "why": "#4049 slice 2 (mutation survivors): account status, selection flag and the received first and last name all non-blank"
+  },
+  {
+   "name": "invalid-key-after-lookup",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "USER0004",
+     "FNAMEI": "Grace"
+    }
+   },
+   "why": "#4049 slice 2 (mutation survivors): an invalid key with a first name on the screen: the error flag and message read back"
   }
  ],
  "notes": "CardDemo's delete-user screen (transaction CU03, program COUSR03C): entered from the user list with a selected user it reads the user FOR UPDATE and shows it; ENTER looks a user up, PF5 reads it FOR UPDATE and DELETEs it -- even when the read found nothing, so the DELETE then has no record held (INVREQ, 'Unable to Update User...'); PF3 / PF12 return, PF4 clears. Each scenario's USRSEC file is compared after the task. usrsec.txt is CardDemo's own DUSRSECJ in-stream data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

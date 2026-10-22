@@ -18,3 +18,7 @@ fingerprint, so moving the pin makes every evidence record stale (re-proved by t
 Moving it is a deliberate change: resolve the new digest (`curl -sI -H 'Accept: application/vnd.oci.image.index.v1+json'
 https://icr.io/v2/db2_community/db2/manifests/latest`, header `docker-content-digest`), set `IMAGE`, update this table,
 and re-sweep the Db2 cases.
+
+The COBOL side's driver tarball is pinned too (#4980): `tests/equivalence/odbc_cli.pin` holds IBM's URL and its sha256.
+`equivalence_db2.fetch_odbc_cli()` downloads it with `curl --retry`, CI caches it on the pin, and the Dockerfile COPYs it
+and checks the sha256 again; a failed download or a mismatch is reported as infrastructure, never as a case failure.

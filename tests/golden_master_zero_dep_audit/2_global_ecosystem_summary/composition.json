@@ -26,7 +26,7 @@
     },
     "assembly": {
       "files": 227,
-      "impact": 8682.539999999994,
+      "impact": 8767.939999999993,
       "loc": 40373
     },
     "batch": {
@@ -106,7 +106,7 @@
     },
     "fortran": {
       "files": 6,
-      "impact": 42250.32,
+      "impact": 43718.72,
       "loc": 18871
     },
     "go": {
@@ -135,9 +135,9 @@
       "loc": 48
     },
     "html": {
-      "files": 54,
-      "impact": 3.169999999999999,
-      "loc": 4919
+      "files": 55,
+      "impact": 197.95,
+      "loc": 12708
     },
     "java": {
       "files": 17,
@@ -161,7 +161,7 @@
     },
     "kotlin": {
       "files": 6,
-      "impact": 239.00000000000003,
+      "impact": 238.9,
       "loc": 500
     },
     "livecode": {
@@ -206,7 +206,7 @@
     },
     "objective-c": {
       "files": 5,
-      "impact": 1787.46,
+      "impact": 1815.96,
       "loc": 1623
     },
     "perl": {
@@ -228,6 +228,11 @@
       "files": 13,
       "impact": 1256.1,
       "loc": 2320
+    },
+    "postgresql": {
+      "files": 2,
+      "impact": 34.32,
+      "loc": 46
     },
     "powershell": {
       "files": 126,
@@ -255,9 +260,9 @@
       "loc": 3206
     },
     "rust": {
-      "files": 48,
-      "impact": 12277.76,
-      "loc": 27093
+      "files": 49,
+      "impact": 12630.880000000003,
+      "loc": 27704
     },
     "scala": {
       "files": 7,
@@ -266,13 +271,13 @@
     },
     "scheme": {
       "files": 4,
-      "impact": 5153.62,
+      "impact": 7753.719999999999,
       "loc": 17551
     },
     "shell": {
-      "files": 259,
-      "impact": 21537.559999999987,
-      "loc": 30688
+      "files": 261,
+      "impact": 21758.959999999985,
+      "loc": 32713
     },
     "solidity": {
       "files": 7,
@@ -280,9 +285,9 @@
       "loc": 881
     },
     "sqlite": {
-      "files": 80,
-      "impact": 1237.0099999999993,
-      "loc": 3242
+      "files": 78,
+      "impact": 1206.2899999999993,
+      "loc": 3196
     },
     "swift": {
       "files": 6,
@@ -300,9 +305,9 @@
       "loc": 1341
     },
     "typescript": {
-      "files": 32,
-      "impact": 28891.619999999995,
-      "loc": 36949
+      "files": 37,
+      "impact": 104234.30000000002,
+      "loc": 112151
     },
     "xml": {
       "files": 14,
@@ -320,9 +325,9 @@
       "loc": 4167
     },
     "zig": {
-      "files": 36,
-      "impact": 32936.57999999999,
-      "loc": 65704
+      "files": 37,
+      "impact": 51735.46,
+      "loc": 97693
     }
   }
 }

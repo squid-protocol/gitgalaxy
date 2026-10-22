@@ -76,6 +76,7 @@ public final class Hfp {
     }
 
     /** The exponent range: a characteristic of 0..127. */
+    // [rule RT-HFP-EXPONENT-RANGE]
     private static void range(int e) {
         if (e > 63) {
             throw new UnsupportedOperationException("HFP exponent overflow (the result exceeds 16**63): what z/OS "
@@ -130,6 +131,7 @@ public final class Hfp {
     // ------------------------------------------------------------------------------------------ conversions
 
     /** A fixed-point value converted to long HFP: the exact value truncated to 14 hexadecimal digits. */
+    // [rule RT-HFP-FIXED-TO-FLOAT]
     public static BigDecimal of(BigDecimal v) {
         H h = chop(v, LONG);
         return h == null ? BigDecimal.ZERO : value(h, LONG);
@@ -144,6 +146,7 @@ public final class Hfp {
      *  most 15 decimal digits can be converted accurately to long-precision floating point [...] Otherwise, the
      *  result may lose precision in an unexpected manner" (Programming Guide, same section): more than 15 digits
      *  from the first nonzero one (trailing zeros written included) are not modelled. */
+    // [rule RT-HFP-NUMVAL-FLOAT]
     public static BigDecimal numval(String s, boolean currency) {
         int digits = 0;
         for (int i = 0; i < s.length(); i++) {
@@ -169,11 +172,13 @@ public final class Hfp {
      *  arithmetic statement's store. The model ASSUMES the same rule (pending z/OS calibration, #4702; register C6):
      *  the value is rounded half away from zero to the receiver's scale, so NUMVAL('0.10') (0.0999... in long HFP)
      *  stores 0.10 even without ROUNDED. */
+    // [rule RT-HFP-FLOAT-STATEMENT-STORE]
     public static BigDecimal fixedStore(BigDecimal v, int scale, boolean rounded) {
         return v.setScale(scale, RoundingMode.HALF_UP);
     }
 
     /** A long value rounded to short (LOAD ROUNDED): a one added at the first discarded bit, carry propagated. */
+    // [rule RT-HFP-LONG-TO-SHORT]
     public static BigDecimal toShort(BigDecimal v) {
         H h = chop(v, LONG);
         if (h == null) return BigDecimal.ZERO;
@@ -194,6 +199,7 @@ public final class Hfp {
 
     /** A float's value moved to a fixed-point item of `scale`: rounded half away from zero in the low-order
      *  position, at most `significant` digits (9 for COMP-1, 18 for COMP-2) and the rest zero. */
+    // [rule RT-HFP-FLOAT-TO-FIXED]
     public static BigDecimal toFixed(BigDecimal v, int scale, int significant) {
         BigDecimal r = v.setScale(scale, RoundingMode.HALF_UP);
         if (r.unscaledValue().abs().toString().length() > significant && r.signum() != 0) {
@@ -210,6 +216,7 @@ public final class Hfp {
 
     /** ADD NORMALIZED: the operand with the smaller exponent shifted right keeping one guard digit, the sum
      *  normalized (the guard digit shifted in), then truncated. */
+    // [rule RT-HFP-ADD-NORMALIZED]
     public static BigDecimal add(BigDecimal a, BigDecimal b, boolean longP) {
         int d = digits(longP);
         H x = exact(a, d);
@@ -246,6 +253,7 @@ public final class Hfp {
     }
 
     /** MULTIPLY: the exact product truncated. */
+    // [rule RT-HFP-MULTIPLY]
     public static BigDecimal multiply(BigDecimal a, BigDecimal b, boolean longP) {
         int d = digits(longP);
         exact(a, d);
@@ -258,6 +266,7 @@ public final class Hfp {
      *  Cobol.divide (#4675, oracle_assumptions C14): the oracle converts a float to a decimal and divides it, so a
      *  receiver is left unchanged; z/OS leaves the result undefined. Only a division that is a statement's whole
      *  value (COMPUTE x = a / b, DIVIDE): inside a larger expression divideNested refuses. */
+    // [rule RT-HFP-DIVIDE]
     public static BigDecimal divide(BigDecimal a, BigDecimal b, boolean longP) {
         if (b.signum() == 0) {
             Cobol.raiseSize();
@@ -284,6 +293,7 @@ public final class Hfp {
     /** DIVIDE inside a larger floating-point expression: a zero divisor is refused by name. The oracle's NaN meets
      *  cob_decimal_align there (NaN * x is 0, 2 - NaN is 2, NaN + 1 unchanged: measured, #4675) and the HFP model
      *  does not replay that (oracle_assumptions C14). */
+    // [rule RT-HFP-ZERO-DIVISOR]
     public static BigDecimal divideNested(BigDecimal a, BigDecimal b, boolean longP) {
         if (b.signum() == 0) {
             throw new ArithmeticException("division by zero inside a floating-point expression (oracle_assumptions C14)");
@@ -296,13 +306,14 @@ public final class Hfp {
     // ------------------------------------------------------------------------------------------- storage
 
     /** The item's bytes as an exact value. An unnormalized fraction reads as its value too. */
+    // [rule RT-HFP-FORMAT]
     static BigDecimal read(Field f) {
         byte[] d = f.st.bytes;
         int digits = f.len == 4 ? SHORT : LONG;
-        boolean neg = (d[f.off] & 0x80) != 0;
-        int e = (d[f.off] & 0x7F) - 64;
+        boolean neg = (d[f.at()] & 0x80) != 0;
+        int e = (d[f.at()] & 0x7F) - 64;
         BigInteger frac = BigInteger.ZERO;
-        for (int i = 1; i < f.len; i++) frac = frac.shiftLeft(8).or(BigInteger.valueOf(d[f.off + i] & 0xFF));
+        for (int i = 1; i < f.len; i++) frac = frac.shiftLeft(8).or(BigInteger.valueOf(d[f.at() + i] & 0xFF));
         if (frac.signum() == 0) return BigDecimal.ZERO;
         return value(neg, frac, e - digits);
     }
@@ -311,23 +322,100 @@ public final class Hfp {
      *  for a COMP-1; a long value into a COMP-1: rounded). */
     static void store(Field f, BigDecimal v) {
         boolean shortItem = f.len == 4;
-        BigDecimal x = forItem(v, shortItem);
-        byte[] d = f.st.bytes;
-        java.util.Arrays.fill(d, f.off, f.off + f.len, (byte) 0);
+        byte[] img = image(forItem(v, shortItem), shortItem);
+        System.arraycopy(img, 0, f.st.bytes, f.at(), f.len);
+    }
+
+    /** The bytes (4 short / 8 long) of `x`, a value already of the item's precision: true zero is all zero bytes. */
+    private static byte[] image(BigDecimal x, boolean shortItem) {
+        int len = shortItem ? 4 : 8;
+        byte[] d = new byte[len];
         H h = chop(x, shortItem ? SHORT : LONG);
-        if (h == null) return; // true zero: all zero bytes
-        d[f.off] = (byte) ((h.neg ? 0x80 : 0) | (h.e + 64));
+        if (h == null) return d;
+        d[0] = (byte) ((h.neg ? 0x80 : 0) | (h.e + 64));
         byte[] fr = h.f.toByteArray();
-        for (int i = 0; i < f.len - 1; i++) {
-            int from = fr.length - (f.len - 1) + i;
-            d[f.off + 1 + i] = from >= 0 ? fr[from] : 0;
+        for (int i = 0; i < len - 1; i++) {
+            int from = fr.length - (len - 1) + i;
+            d[1 + i] = from >= 0 ? fr[from] : 0;
         }
+        return d;
+    }
+
+    // ------------------------------------------------------------------------------------- IEEE conversion
+
+    /** IEEE exponent and fraction bits by item bytes: binary32 (8, 23), binary64 (11, 52). */
+    private static int ebits(int size) {
+        return size == 4 ? 8 : 11;
+    }
+
+    private static int fbits(int size) {
+        return size == 4 ? 23 : 52;
+    }
+
+    /** The exact value of an IEEE binary32 (size 4) / binary64 (size 8) pattern. NaN, infinity and subnormals have no
+     *  HFP value and are refused by name. */
+    // [rule RT-HFP-IEEE-CONVERSION]
+    public static BigDecimal ieeeValue(long bits, int size) {
+        int eb = ebits(size), fb = fbits(size);
+        int e = (int) ((bits >>> fb) & ((1L << eb) - 1));
+        long f = bits & ((1L << fb) - 1);
+        if (e == (1 << eb) - 1) throw new UnsupportedOperationException("IEEE NaN or infinity has no HFP value");
+        if (e == 0 && f != 0) throw new UnsupportedOperationException("IEEE subnormal has no modelled HFP value");
+        if (e == 0) return BigDecimal.ZERO;
+        BigInteger mant = BigInteger.valueOf((1L << fb) | f);
+        int k = e - ((1 << (eb - 1)) - 1) - fb; // value = mant x 2^k
+        BigDecimal v = k >= 0 ? new BigDecimal(mant.shiftLeft(k))
+                : new BigDecimal(mant.multiply(BigInteger.valueOf(5).pow(-k)), -k);
+        v = v.stripTrailingZeros();
+        if (v.scale() < 0) v = v.setScale(0);
+        return (bits >>> (eb + fb)) != 0 ? v.negate() : v;
+    }
+
+    /** The HFP bytes for an IEEE pattern of the same width: a binary64 fits long HFP exactly; a binary32 takes the
+     *  fixed-point-to-float rule (ASSUMED: IBM documents no IEEE converter). */
+    public static byte[] fromIeee(long bits, int size) {
+        return image(forItem(ieeeValue(bits, size), size == 4), size == 4);
+    }
+
+    /** The IEEE pattern (binary32 for 4 bytes, binary64 for 8) nearest an HFP image, ties to even. A value outside the
+     *  IEEE format's normal range is refused by name. */
+    public static long toIeee(byte[] hfp) {
+        int size = hfp.length, eb = ebits(size), fb = fbits(size);
+        boolean neg = (hfp[0] & 0x80) != 0;
+        BigInteger frac = BigInteger.ZERO;
+        for (int i = 1; i < size; i++) frac = frac.shiftLeft(8).or(BigInteger.valueOf(hfp[i] & 0xFF));
+        if (frac.signum() == 0) return 0;
+        BigInteger[] r = rational(value(neg, frac, (hfp[0] & 0x7F) - 64 - (size == 4 ? SHORT : LONG)).abs());
+        BigInteger num = r[0], den = r[1];
+        int e = num.bitLength() - den.bitLength();
+        if (cmp2(num, den, e) < 0) e--; // num/den < 2^e
+        int k = fb - e; // m = num/den x 2^k, 2^fb <= m < 2^(fb+1)
+        BigInteger mn = k >= 0 ? num.shiftLeft(k) : num, md = k >= 0 ? den : den.shiftLeft(-k);
+        BigInteger[] qr = mn.divideAndRemainder(md);
+        BigInteger q = qr[0];
+        int twice = qr[1].shiftLeft(1).compareTo(md);
+        if (twice > 0 || (twice == 0 && q.testBit(0))) q = q.add(BigInteger.ONE);
+        if (q.bitLength() > fb + 1) {
+            q = q.shiftRight(1);
+            e++;
+        }
+        int bias = (1 << (eb - 1)) - 1;
+        if (e + bias >= (1 << eb) - 1) throw new UnsupportedOperationException("HFP value too large for the IEEE format");
+        if (e + bias < 1) throw new UnsupportedOperationException("HFP value too small for a normal IEEE number");
+        long bits = ((long) (e + bias) << fb) | (q.longValue() & ((1L << fb) - 1));
+        return neg ? bits | (1L << (eb + fb)) : bits;
+    }
+
+    /** num/den against 2^e. */
+    private static int cmp2(BigInteger num, BigInteger den, int e) {
+        return e >= 0 ? num.compareTo(den.shiftLeft(e)) : num.shiftLeft(-e).compareTo(den);
     }
 
     // ------------------------------------------------------------------------------------------- DISPLAY
 
     /** -.9(8)E-99 (COMP-1) or -.9(17)E-99 (COMP-2): a space or '-', the point, the mantissa's digits rounded half
      *  away from zero (ASSUMED), 'E', a space or '-', two exponent digits. Zero: " .000...E 00". */
+    // [rule RT-HFP-DISPLAY]
     static String display(BigDecimal v, boolean longP) {
         int n = longP ? 17 : 8;
         if (v.signum() == 0) return " ." + "0".repeat(n) + "E 00";

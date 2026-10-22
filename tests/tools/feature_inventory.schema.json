@@ -10,6 +10,10 @@
     "intrinsic_functions": { "$ref": "#/$defs/category" },
     "compile_options": { "$ref": "#/$defs/category" },
     "copybook_resolution_gaps": { "$ref": "#/$defs/category" },
+    "refusal_families": { "$ref": "#/$defs/family_category" },
+    "stand_in_copybooks": { "$ref": "#/$defs/family_category" },
+    "call_targets": { "$ref": "#/$defs/family_category" },
+    "eras": { "$ref": "#/$defs/eras" },
     "unparsed_programs": {
       "type": "array",
       "items": {
@@ -31,10 +35,63 @@
     "intrinsic_functions",
     "compile_options",
     "copybook_resolution_gaps",
+    "eras",
     "unparsed_programs"
   ],
   "additionalProperties": false,
   "$defs": {
+    "eras": {
+      "type": "object",
+      "properties": {
+        "programs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "era": { "type": ["integer", "null"], "minimum": 0 },
+              "earliest": { "type": ["integer", "null"], "minimum": 0 },
+              "mixed": { "type": "boolean" },
+              "program_era": { "type": ["integer", "null"], "minimum": 0 },
+              "copybook_skipped": { "type": "string", "minLength": 1 },
+              "tells": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "tell": { "type": "string" },
+                    "era": { "type": "integer", "minimum": 0 },
+                    "count": { "type": "integer", "minimum": 1 },
+                    "first_line": { "type": ["integer", "null"], "minimum": 1 },
+                    "via_copybook": { "type": "boolean" },
+                    "copybooks": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+                  },
+                  "required": ["tell", "era", "count", "first_line"],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": ["era", "earliest", "mixed", "tells"],
+            "additionalProperties": false
+          }
+        },
+        "assembler": { "$ref": "#/$defs/eras/properties/programs" },
+        "summary": {
+          "type": "object",
+          "properties": {
+            "programs": { "type": "integer", "minimum": 0 },
+            "by_era": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } },
+            "mixed": { "type": "integer", "minimum": 0 },
+            "raised_by_copybook": { "type": "integer", "minimum": 1 },
+            "copybook_skipped": { "type": "integer", "minimum": 1 },
+            "tells": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } }
+          },
+          "required": ["programs", "by_era", "mixed", "tells"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["programs", "summary"],
+      "additionalProperties": false
+    },
     "category": {
       "type": "object",
       "additionalProperties": {
@@ -50,6 +107,18 @@
         "additionalProperties": false
       },
       "required": ["unknown"]
+    },
+    "family_category": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "count": { "type": "integer", "minimum": 0 },
+          "programs": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["count", "programs"],
+        "additionalProperties": false
+      }
     }
   }
 }

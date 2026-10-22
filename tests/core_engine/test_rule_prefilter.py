@@ -16,6 +16,7 @@ Every test here is written against that asymmetry -- the adversarial cases all
 attack the "never falsely reject" direction.
 """
 
+import functools
 import re
 
 import pytest
@@ -299,12 +300,21 @@ def _every_compiled_rule():
             yield lang_id, rule_name, pattern
 
 
+@functools.cache
+def _every_live_gate():
+    """(lang, rule, pattern, gate) for every live rule, derived once per process (#5314)."""
+    return tuple(
+        (lang_id, rule_name, pattern, derive_literal_gate(pattern))
+        for lang_id, rule_name, pattern in _every_compiled_rule()
+    )
+
+
+@pytest.mark.slow(reason="derives a gate for, and probes, every live rule: 12-16 s on a CI runner (#5267)")
 def test_extractor_never_raises_and_gates_are_one_sided_on_live_ruleset():
     seen = 0
     gated = 0
-    for lang_id, rule_name, pattern in _every_compiled_rule():
+    for lang_id, rule_name, pattern, gate in _every_live_gate():  # derivation must not raise, whatever the rule
         seen += 1
-        gate = derive_literal_gate(pattern)  # must not raise, whatever the rule
         if gate is None:
             continue
         gated += 1
@@ -321,14 +331,16 @@ def test_extractor_never_raises_and_gates_are_one_sided_on_live_ruleset():
     assert gated / seen > 0.5, f"only {gated}/{seen} rules gateable"
 
 
+@pytest.mark.slow(
+    reason="derives a gate for every live rule when run first in its split part: 16 s on a CI runner (#5314)"
+)
 def test_live_gates_accept_every_rules_own_matches():
     # Self-consistency: synthesize a haystack from each rule's own gate
     # literals; the gate must accept it (trivially true by construction) and,
     # stronger, any real match the rule finds in crucible-ish text containing
     # its literals must never be gated away. Here we assert the constructive
     # direction: for every gated rule, a text containing a literal passes.
-    for lang_id, rule_name, pattern in _every_compiled_rule():
-        gate = derive_literal_gate(pattern)
+    for lang_id, rule_name, _pattern, gate in _every_live_gate():
         if gate is None:
             continue
         literals, _needs_casefold = gate
@@ -391,7 +403,7 @@ _PARITY_SAMPLES = {
         "    n := 0\n"
         "    n++\n"
         "    m := map[string]int{}\n"
-        "    delete(m, \"k\")\n"
+        '    delete(m, "k")\n'
         "}\n"
     ),
 }
@@ -416,7 +428,9 @@ def test_coding_analysis_output_identical_with_and_without_gates(lang_id):
     # (name, pat, key, None, None): no segment gate, no line gate (#3072) --
     # i.e. pre-#3069 behavior.
     ungated._active_rules_cache = {
-        lang_id: [(name, pat, key, None, None) for name, pat, key, _gate, _line_gate in gated._active_coding_rules(lang_id)]
+        lang_id: [
+            (name, pat, key, None, None) for name, pat, key, _gate, _line_gate in gated._active_coding_rules(lang_id)
+        ]
     }
 
     gated_telemetry: dict = {}

@@ -4,7 +4,7 @@
     "unparsable_files"
   ],
   "value": {
-    "ambig_file_count": 383,
+    "ambig_file_count": 373,
     "binary": 0,
     "composition_by_extension_and_reason": {
       ".ads": {
@@ -48,10 +48,7 @@
         "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 1
       },
       ".i": {
-        "Blocked (Unsupported Extension: '.i')": 1
-      },
-      ".in": {
-        "Blocked (Saturation: Line 9 exceeds 500 chars)": 1
+        "Unsupported Format (.undeterminable)": 1
       },
       ".jcl": {
         "Zero-Density Threshold (LOC: 57, Signals: 0)": 1
@@ -89,9 +86,6 @@
       ".python": {
         "Blocked (Unsupported Extension: '.python')": 1
       },
-      ".rs": {
-        "Blocked (Lexical Monotony: High structural repetition detected in 2342 LOC)": 1
-      },
       ".rst": {
         "Blocked (Unsupported Extension: '.rst')": 1
       },
@@ -99,10 +93,8 @@
         "Blocked (Lexical Monotony: High structural repetition detected in 2099 LOC)": 1
       },
       ".sh": {
-        "Blocked (Lexical Monotony: High structural repetition detected in 2116 LOC)": 1,
         "Blocked (Machine-Generated Source Code Signature: 18 LOC)": 1,
         "Blocked (Machine-Generated Source Code Signature: 74 LOC)": 1,
-        "Blocked (Saturation: Line 37 exceeds 500 chars)": 1,
         "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 1
       },
       ".sh_2": {
@@ -127,13 +119,6 @@
       ".toml": {
         "Blocked (Unsupported Extension: '.toml')": 3
       },
-      ".ts": {
-        "Blocked (Lexical Monotony: High structural repetition detected in 10671 LOC)": 1,
-        "Blocked (Lexical Monotony: High structural repetition detected in 10824 LOC)": 1,
-        "Blocked (Lexical Monotony: High structural repetition detected in 11395 LOC)": 1,
-        "Blocked (Lexical Monotony: High structural repetition detected in 6379 LOC)": 1,
-        "Blocked (Monolithic Amalgamation: 54435 LOC exceeds safe regex boundaries)": 1
-      },
       ".tsv": {
         "Blocked (Saturation: Line 1 exceeds 500 chars)": 1
       },
@@ -153,11 +138,10 @@
         "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 5
       },
       ".zig": {
-        "Blocked (Machine-Generated Source Code Signature: 8582 LOC)": 1,
-        "Blocked (Monolithic Amalgamation: 37746 LOC exceeds safe regex boundaries)": 1
+        "Blocked (Machine-Generated Source Code Signature: 8582 LOC)": 1
       },
       "no_extension": {
-        "Blocked (Monolithic Amalgamation: 36288 LOC exceeds safe regex boundaries)": 1,
+        "Blocked (Machine-Generated Source Code Signature: 36288 LOC)": 1,
         "Blocked (Saturation: Line 1 exceeds 500 chars)": 3,
         "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 163,
         "Unsupported Format (.undeterminable)": 3

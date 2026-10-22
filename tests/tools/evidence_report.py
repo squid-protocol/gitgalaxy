@@ -28,8 +28,10 @@ caveats of docs/language_status/oracle_assumptions.md. Each program gets the hig
   L4 + branch coverage         ... and >= the branch bar (default 100) of the branch outcomes NET of the case's
                                reviewed infeasible outcomes (tests/equivalence/infeasible_outcomes.json, #4602), listed
                                per program as stated assumptions; raw and net numbers both printed
-  L5 + mutants accounted for   every surviving mutant of the det port accounted for (#4628: not built yet, so no
-                               program is placed at L5; the report says "not yet measured")
+  L5 + mutants accounted for   every surviving mutant of the det port's seeded mutation sample accounted for: the
+                               case's fresh tests/equivalence/det_mutation/<case>.json entry (det_mutation.py, #4628),
+                               each survivor stated equivalent / unreachable in det_mutation_survivors/<case>.json
+                               (owner-reviewed), none refuted; the raw score is a column whatever the level
 
 Oracle backing is a separate per-program column, not a rung: per CICS command, spec entry full / name-only, a
 hand-traced cics-crucible case both runtimes agree with; DIFFERS assumptions reached: not measured.
@@ -76,6 +78,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 from collections import Counter
@@ -89,15 +92,21 @@ sys.path.insert(0, str(REPO))
 
 import cics_census as cc  # noqa: E402
 import cics_spec_status as css  # noqa: E402
+import generated_branch as gb  # noqa: E402
 import evidence as ev  # noqa: E402
+import ladder_exclusions as lx  # noqa: E402
 import proof_blockers as pb  # noqa: E402
 from gitgalaxy.core.compiler_options import SEMANTIC_OPTIONS, compiler_options, parse_options  # noqa: E402
 from gitgalaxy.core.estate_options import counts as estate_counts  # noqa: E402
 from gitgalaxy.core.estate_options import effective_options, load_estate  # noqa: E402
+from gitgalaxy.core.runtime_options import runtime_effect  # noqa: E402
 
 FORMAT = "gitgalaxy-evidence-report/1"
-OUT = REPO / "docs" / "language_status" / "evidence_report"
-REGISTER = REPO / "docs" / "language_status" / "oracle_assumptions.md"
+DOCS_OUT = REPO / "docs" / "language_status" / "evidence_report"
+OUT = DOCS_OUT  # git-ignored but for the stub README: `materialize` fills it (#5206)
+FIXTURE = REPO / "tests" / "fixtures" / "evidence_report"  # a frozen snapshot for the tests, never current levels
+STUB = "README.md"  # the one committed file in OUT; the published index of the same name is not copied over it
+INDEX_ENV = "EVIDENCE_REPORT_WRITE_INDEX"  # the refresh workflow sets it: only there is the index README written
 CRUCIBLE_BASELINE = REPO / "tests" / "cics_crucible" / "baseline.json"
 CRUCIBLE_PIN = REPO / "tests" / "_cics_crucible_pin.py"
 PIN_MANIFEST = REPO / "tests" / "crucible_pins.toml"  # #4597
@@ -105,7 +114,7 @@ DOCKERFILE = REPO / "tests" / "equivalence" / "gnucobol.Dockerfile"
 CORPORA = REPO / "tests" / "cobol_mainframe" / "corpora.json"
 DEFAULT_BARS = {"paragraphs": 100.0, "branches": 100.0}  # owner decision on #4601: strict
 # #4602: an owner-reviewed per-case list of infeasible branch outcomes, which the bars will be taken net of once it lands
-MUTATION = "not yet measured (#4628)"  # det-port mutation: the L5 hook
+MUTATION = "det_mutation.py (#4628): a fresh entry, every survivor of the seeded sample accounted for"  # the L5 hook
 LEVELS = ["L0", "L1", "L2", "L3", "L4", "L5"]
 
 # #4514 (the whole-migration epic): each part adds a section here when it is built; until then, not measured.
@@ -144,10 +153,14 @@ def pct(n: int | None, d: int | None) -> float | None:
 
 
 # ---- repo-derived inputs -----------------------------------------------------------------------------------------
-def register(path: Path = REGISTER) -> dict[str, dict[str, str]]:
-    """oracle_assumptions.md's summary table: id -> {area, entry, status} (the register's own words)."""
+def register(path: Path | None = None) -> dict[str, dict[str, str]]:
+    """oracle_assumptions.md's summary table: id -> {area, entry, status} (the register's own words). #5057: the page
+    is not committed, so it is rendered from the register's entry files unless a rendered `path` is given."""
+    import register as oracle_register  # tests/tools/register.py
+
+    text = path.read_text("utf-8") if path else oracle_register.render()
     out = {}
-    for m in re.finditer(r"^\| ([A-Z]\d+) \| ([^|]*) \| (.*) \| ([^|]*) \| ([^|]*) \|$", path.read_text("utf-8"), re.M):
+    for m in re.finditer(r"^\| ([A-Z]\d+) \| ([^|]*) \| (.*) \| ([^|]*) \| ([^|]*) \|$", text, re.M):
         out[m.group(1)] = {
             "area": m.group(2).strip(),
             "entry": neutral(m.group(3).strip()),
@@ -190,14 +203,18 @@ def corpus_ref(estate: str) -> str:
 # ---- #4863 step 2: the translator the survey ran, fingerprinted ----------------------------------------------------
 # What `cics_census.py survey` (tests/tools/det_survey.py) reads to translate a program: the cobol_to_java package (the
 # det translator with its runtime sources and copy members, and the forge modules it imports), the CICS command spec it is generated from (standards/cics), and the core modules the
-# translator imports (source format, compiler options, BMS maps, EBCDIC, the class-name rule). test_evidence_report pins
+# translator imports (CICS macro-level refusal, source format, compiler options, BMS maps, EBCDIC, the class-name rule). test_evidence_report pins
 # this list against the translator's own imports, so a new import cannot silently leave the fingerprint.
 TRANSLATOR_INPUTS = (
     "gitgalaxy/tools/cobol_to_java/*",  # det/ (with cobolrt, copy) and the forge modules det imports (sql: db2 forge)
     "gitgalaxy/standards/cics/*",
+    "gitgalaxy/standards/mq.py",
     "gitgalaxy/core/aperture.py",
     "gitgalaxy/core/bms_screen_fields.py",
     "gitgalaxy/core/bms_symbolic.py",
+    "gitgalaxy/core/cics_macro_level.py",
+    "gitgalaxy/core/cobol_preprocessor.py",
+    "gitgalaxy/core/cobol_conditional.py",
     "gitgalaxy/core/cobol_source_format.py",
     "gitgalaxy/core/compiler_options.py",
     "gitgalaxy/core/ebcdic_codecs.py",
@@ -304,24 +321,12 @@ def det_coverage() -> dict[str, Any]:
     [paragraphs covered, live, branches covered, total] while the entry is current;
     {"coverage": [...], "stale_inputs": [...], "stale_since": sha|None} while it is stale on SCHEDULED inputs only
     (harness / oracle: the last measurement, not re-checked); None (no entry, or a BLOCKING input -- case / corpus --
-    changed, so it describes another program)."""
-    import det_coverage_ledger as dcl
-
-    ledger = dcl.load()
+    changed, so it describes another program). #5075: the reading is proof_blockers.ledger_readings', one rule."""
     used = sorted({r.case for runs in pb.equivalence_runs().values() for r in runs})
-    out: dict[str, Any] = {}
-    for case in used:
-        last = dcl.last_coverage(case, ledger)
-        if last is None or last["blocking"]:
-            out[case] = None
-        elif not last["stale_inputs"]:
-            out[case] = list(last["coverage"])
-        else:
-            out[case] = {
-                "coverage": list(last["coverage"]),
-                "stale_inputs": list(last["stale_inputs"]),
-                "stale_since": last["measured_at"] or record_commit(case),
-            }
+    out = pb.ledger_readings(used)
+    for case, reading in out.items():
+        if isinstance(reading, dict) and not reading["stale_since"]:
+            reading["stale_since"] = record_commit(case)
     return out
 
 
@@ -530,6 +535,11 @@ def backing(commands: list[str], crucible: dict[str, list[str]], disagree: dict[
     return out
 
 
+def _pct(score: float | None, current: bool | None) -> str:
+    """A 0-1 score as a percent ('—' unmeasured; '(stale)' when its entry's inputs moved)."""
+    return "—" if score is None else f"{100 * score:.0f}%" + ("" if current else " (stale)")
+
+
 def level_of(p: dict[str, Any], bars: dict[str, float]) -> tuple[str, list[str]]:
     """(the highest level whose conditions hold, what the next level needs)."""
     t, eq, cov = p["translation"], p["equivalence"], p["coverage"]
@@ -554,7 +564,30 @@ def level_of(p: dict[str, Any], bars: dict[str, float]) -> tuple[str, list[str]]
     if cov["branch_net_pct"] is None or cov["branch_net_pct"] < bars["branches"]:
         why = f"now {cov['branch_pct']} raw, {cov['branch_net_pct']} net of the reviewed infeasible outcomes"
         return "L3", [f"branch coverage >= {bars['branches']} net ({why})"]
-    return "L4", [f"every surviving mutant of the det port accounted for: {MUTATION}"]
+    mut = p.get("mutation") or {}
+    if mut.get("current") and mut.get("l5"):
+        return "L5", []
+    why = mut.get("det_port") or "not measured"
+    return "L4", [f"every surviving mutant of the det port accounted for (#4628, det_mutation.py: {why})"]
+
+
+def mutation_of(case: dict[str, Any] | None, program: str, cache: dict[str, Any]) -> dict[str, Any]:
+    """#4628: the det-port mutation result of the case for the program (det_mutation.measured, stale included),
+    as the report shows it: the one-line `det_port`, the raw `score` and the L5 inputs."""
+    import det_mutation as dm  # (git-backed fingerprints: only for a case with a ledger entry)
+
+    name = case["case"] if case else None
+    key = f"{name}\0{program}"
+    if key not in cache:
+        s = dm.measured(name, Path(program).stem) if name else None
+        cache[key] = {
+            "det_port": dm.describe(s),
+            "score": s["score"] if s else None,
+            "current": bool(s and s["current"]),
+            "l5": bool(s and s["l5"]),
+            **({k: s[k] for k in ("killed", "survived", "accounted", "unaccounted", "stale_inputs")} if s else {}),
+        }
+    return cache[key]
 
 
 # ---- options (#4708) ---------------------------------------------------------------------------------------------
@@ -597,10 +630,18 @@ def program_options(case: dict[str, Any] | None, estate: str, program: str, card
             origin, source = "IBM default", "assumed: IBM default"
         rows.append({"option": option, "value": values.get(option), "origin": origin, "source": source,
                      "provenance": _provenance(source)})  # fmt: skip
+    # #4707: the LE / Db2 / CICS values and how the runtime option table judges each (only when the estate has a file)
+    runtime = [
+        {"option": f"{section}.{key}", "value": value, "effect": runtime_effect(f"{section}.{key}", value),
+         "source": eff.runtime_sources.get(f"{section}.{key}"),
+         "provenance": _provenance(eff.runtime_sources.get(f"{section}.{key}"))}
+        for section, items in eff.runtime.items() for key, value in items.items()
+    ]  # fmt: skip
     return {
         "estate_file": eff.estate is not None,
         "compiler": {k: v for k, v in eff.compiler.items()},
         "values": rows,
+        **({"runtime": runtime} if runtime else {}),
         "found": sum(r["provenance"] == "found" for r in rows),
         "assumed": sum(r["provenance"] == "assumed" for r in rows),
         "deviations": [
@@ -650,6 +691,15 @@ def estate_options(estate: str, progs: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def name_exclusion(translation: dict[str, Any], estate: str, prog: str) -> dict[str, str] | None:
+    """#5280: the registry entry for a program held for a reason that is not a translator gap. A source defect is also
+    named in `translation.source_defects`, with its reason and issue."""
+    excl = None if translation["whole"] else lx.lookup(estate, prog)
+    if excl and excl["kind"] == "source_defect":
+        translation["source_defects"].append(f"{excl['reason']} ({excl['issue']})")
+    return excl
+
+
 def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[str, Any]:
     r, prog = m["row"], m["program"]
     whole = cc.whole(r)
@@ -664,6 +714,7 @@ def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[s
         "gap_classes": [neutral(g) for g in classes],
         "source_defects": [neutral(g) for g in classes if "source defect" in g.lower()],
     }
+    excl = name_exclusion(translation, estate, prog)
     runs = ctx["eq"].get((estate, pb._norm(prog)), [])
     cases = [
         {
@@ -682,11 +733,14 @@ def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[s
         "translation": translation,
         "oracle_backing": backing(m.get("commands", []), ctx["crucible"], ctx["disagree"]),
     }
+    if excl:  # added only when the program has an entry (an always-present empty key breaks exact-equality tests)
+        p["ladder_exclusion"] = {**excl, "kind_label": lx.KIND_LABEL[excl["kind"]]}
     best: tuple[Any, ...] | None = None
     candidates: list[dict[str, Any] | None] = [*cases] or [None]
     for c in candidates:
         p["equivalence"] = {"cases": cases, "chosen": c}
         p["coverage"] = coverage_of(c, ctx["swept"], ctx["ledger"])
+        p["mutation"] = mutation_of(c, prog, ctx.setdefault("mutation", {}))
         lvl, nxt = level_of(p, ctx["bars"])
         key = (
             LEVELS.index(lvl),
@@ -696,12 +750,13 @@ def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[s
             -len(nxt),
         )
         if best is None or key > best[0]:
-            best = (key, c, lvl, nxt, p["coverage"])
+            best = (key, c, lvl, nxt, p["coverage"], p["mutation"])
     if best is None:  # pragma: no cover -- the loop runs at least once
         raise RuntimeError("no candidate")
-    _, chosen, lvl, nxt, cov = best
+    _, chosen, lvl, nxt, cov, mut = best
     p["equivalence"] = {"cases": cases, "chosen": chosen}
     p["coverage"] = cov
+    p["mutation"] = mut
     p["level"], p["next"] = lvl, nxt
     # #4730: a level that rests on the ledger's last measurement (stale on a scheduled input) is shown, marked stale;
     # L0 / L1 do not read coverage, so they are always current. #4758: a Db2 case's det verdict read from the ledger
@@ -724,9 +779,8 @@ def build_program(m: dict[str, Any], estate: str, ctx: dict[str, Any]) -> dict[s
     p["level_current"] = not stale_in
     p["stale_inputs"] = stale_in
     p["stale_since"] = stale_at
-    # #4628: the det port's mutation score is the L5 hook. docs/language_status/mutation_scores.json covers the
-    # model / hand ports only, so it is deliberately left out here (it says nothing about the det port).
-    p["mutation"] = {"det_port": MUTATION}
+    # #4628: p["mutation"] (set above) is the det port's; docs/language_status/mutation_scores.json covers the model /
+    # hand ports only, so it is deliberately left out here (it says nothing about the det port).
     regs = sorted({x for b in p["oracle_backing"] for x in b["registers"]}, key=lambda x: int(x[1:]))
     region = bool(chosen and ev._case_json(chosen["case"]).get("region", {}).get("applid"))
     unstated = [f"EIB field {e} (both runtimes read zero; z/OS does not)" for e in facts.get("eib", [])]
@@ -781,9 +835,10 @@ def build(measured: dict[str, Any], estate: str, bars: dict[str, float], *, live
     eq = pb.equivalence_runs()
     sweeps = {c: {**s, "report": None} for c, s in swept.items()}
     det_base = pb.load_det_baseline()
+    linked = pb.ledger_linked(sorted({r.case for runs in eq.values() for r in runs}))  # #5084: callees' counts
     for runs in eq.values():
         for run in runs:
-            pb.judge_equivalence(run, det_base, sweeps, True)
+            pb.judge_equivalence(run, det_base, sweeps, True, linked_ledger=linked)
     ledgered = ledger_verdicts(eq, ledger)
     data = css.load_data()
     ctx = {
@@ -934,7 +989,8 @@ def level_table(bars: dict[str, float]) -> list[dict[str, str]]:
         {
             "level": "L5",
             "name": "mutants accounted for",
-            "condition": f"L4, and every surviving mutant of the det port accounted for: {MUTATION}",
+            "condition": "L4, and every surviving mutant of the det port's seeded mutation sample accounted for "
+            "(stated equivalent / unreachable, owner-reviewed; a fresh det_mutation/ entry, #4628)",
         },
     ]
 
@@ -1120,6 +1176,11 @@ def options_lines(o: dict[str, Any]) -> list[str]:
         + f"; {o['found']} found, {o['assumed']} assumed): "
         + ("; ".join(f"{option_text(r)} [{option_marker(r)}]" for r in o["values"]) or "none")
     ]
+    if o.get("runtime"):
+        out.append(
+            "  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** "
+            + "; ".join(f"{r['option']}={r['value']} [{r['effect']}; {option_marker(r)}]" for r in o["runtime"])
+        )
     for d in o["deviations"]:
         out.append(
             f"  - **Declared option difference:** {d['option']} is {d['declared']} in the estate, applied as "
@@ -1321,9 +1382,10 @@ def render(rep: dict[str, Any]) -> str:
         "",
         (
             "| program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | "
-            "branches (raw) | branches (net of infeasible) | det-port mutation | CICS commands oracle-backed |"
+            "branches (raw) | branches (net of infeasible) | det-port mutation (raw) | det-port mutation | "
+            "CICS commands oracle-backed |"
         ),
-        "|---|---|---|---|---|---|---|---|---|---|---|---|---|",
+        "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for p in rep["programs"]:
         t, c, cov = p["translation"], p["equivalence"]["chosen"], p["coverage"]
@@ -1338,7 +1400,7 @@ def render(rep: dict[str, Any]) -> str:
             f"{_frac(cov['paragraphs'], 'covered', 'live', cov['paragraph_pct'])} | "
             f"{_frac(cov['branches'], 'covered', 'total', cov['branch_pct'])} | "
             f"{_frac(cov['branches_net'], 'covered', 'total', cov['branch_net_pct'])} | "
-            f"{p['mutation']['det_port']} | "
+            f"{_pct(p['mutation'].get('score'), p['mutation'].get('current'))} | {p['mutation']['det_port']} | "
             + (f"{rs['commands_backed']}/{rs['commands']}" if rs["commands"] else "—")
             + " |"
         )
@@ -1409,6 +1471,9 @@ def program_section(p: dict[str, Any]) -> list[str]:
         out += [f"  - hole: {h}" for h in t["holes"]]
     if t["source_defects"]:
         out.append("  - named source defects: " + "; ".join(t["source_defects"]))
+    if "ladder_exclusion" in p:
+        x = p["ladder_exclusion"]
+        out.append(f"- **Not a translator gap:** {x['kind_label']} ({x['issue']}): {x['reason']}")
     if "options" in p:
         out += options_lines(p["options"])
     if not eq["cases"]:
@@ -1518,14 +1583,15 @@ def render_index(reports: list[dict[str, Any]]) -> str:
         "",
         (
             'Per estate, a level per program (see any report\'s "How to read this report"). Only burned estates are '
-            "committed here; a non-burned estate's report is written outside the repository."
+            "published here; a non-burned estate's report is written outside the repository."
         ),
         "",
         "## How this stays current",
         "",
-        "These files are derived output. A feature PR does not commit them: the Evidence Refresh workflow "
-        "(`.github/workflows/evidence-refresh.yml`) regenerates them on every push to main (and nightly) through an "
-        "auto-merged bot PR from `auto/evidence-refresh`, and skips the PR when nothing changed. Per-PR CI only prints "
+        "These files are derived output, published on the `generated` branch and not committed on main (#5206). A feature PR "
+        "does not commit them: the Evidence Refresh workflow "
+        "(`.github/workflows/evidence-refresh.yml`) regenerates them on every push to main (and nightly) and publishes "
+        "them here. Per-PR CI only prints "
         "the level changes a PR would cause in its job summary (`evidence_report.py --deltas --live`; advisory, never a "
         "failure). A release tag is gated on `evidence_report.py --check --live` being clean AND on every level being "
         "current: a `(k stale)` cell is a level last measured against an earlier harness or oracle (marked `*` in the "
@@ -1569,7 +1635,7 @@ def committed() -> dict[str, dict[str, Any]]:
 
 
 def expected(live: bool = False, built: Any = None) -> dict[Path, str]:
-    """Every committed file as the repo makes it now, from the committed measured blocks."""
+    """Every report file as the repo makes it now, from the measured blocks of the published (materialized) reports."""
     reps = []
     out: dict[Path, str] = {}
     for estate, _old, rep in built if built is not None else rebuilt(live):
@@ -1674,10 +1740,55 @@ def deltas_markdown(live: bool = False) -> str:
     return "\n".join(lines) + "\n"
 
 
+def materialize(root: Path = REPO) -> int:
+    """#5206: main carries no rendered report, so copy the one published on `generated` into OUT (git-ignored) for the
+    modes that read it as a seed or compare against it. The stub README is left alone. Returns the files copied; raises
+    when the branch cannot be read and OUT has no report either (the release gate must not pass on nothing)."""
+    if OUT.resolve() != DOCS_OUT.resolve():  # a test's or an --out directory: nothing to fetch into
+        return 0
+    try:
+        tip = gb.fetch_tip(root)
+        names = gb._git(root, "ls-tree", "-r", "--name-only", tip, "--", _rel(OUT)).splitlines() if tip else []
+    except RuntimeError:
+        tip, names = None, []
+    copied = 0
+    for rel in names:
+        dest = root / rel
+        if dest == DOCS_OUT / STUB or dest.suffix not in (".json", ".md"):
+            continue
+        data = gb.read_at(tip, rel, root)
+        if data is not None:
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_bytes(data)
+            copied += 1
+    if not any(OUT.glob("*/report.json")):
+        raise SystemExit(
+            f"no evidence report: the `{gb.BRANCH}` branch has none under {_rel(OUT)} and none is on disk "
+            "(fetch origin, or run the Evidence Refresh workflow)"
+        )
+    return copied
+
+
 def write(files: dict[Path, str]) -> None:
     for p, text in files.items():
+        if p == DOCS_OUT / STUB and not os.environ.get(INDEX_ENV):
+            continue  # the committed stub; the index is published, not committed
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(text, encoding="utf-8")
+
+
+def current_texts(paths: list[Path]) -> dict[Path, str | None]:
+    """The report files as they stand: published on the `generated` branch (#4963, where the evidence-refresh bot writes
+    them), else the committed copy (the seed and the fallback when the branch is unreachable or lacks the file)."""
+    try:
+        tip = gb.fetch_tip(REPO)
+    except RuntimeError:  # no `origin` here (an export, a sandbox): the committed copy is all there is
+        tip = None
+    out: dict[Path, str | None] = {}
+    for p in paths:
+        data = gb.read_at(tip, _rel(p), REPO) if tip else None
+        out[p] = data.decode("utf-8") if data is not None else (p.read_text("utf-8") if p.is_file() else None)
+    return out
 
 
 def _rel(p: Path) -> str:
@@ -1712,17 +1823,28 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument(
         "--deltas", action="store_true", help="print the level changes a refresh would make; exit 0 (#4703)"
     )
-    ap.add_argument("--live", action="store_true", help="--check / --refresh: recompute the records' status now")
+    ap.add_argument(
+        "--live",
+        action="store_true",
+        help="--refresh: recompute the records' status now; --check: also fail a stale level or survey (#5208)",
+    )
     args = ap.parse_args(argv)
 
+    if args.deltas or args.check or args.refresh:
+        materialize()  # #5206: the published report is the seed and the thing compared against
     if args.deltas:
         print(deltas_markdown(args.live), end="")
         return 0
     if args.check:
         stale_failed = False
-        built = rebuilt(args.live)
-        want = expected(args.live, built)
-        bad = [p for p, text in want.items() if not p.is_file() or p.read_text("utf-8") != text]
+        # #5208: the published copy is built non-live (provenance "at build time"), so its content is compared with a
+        # non-live render; --live adds the currency checks below, from the live build. The refresh fallback
+        # (`--refresh --live`) publishes a live render, so a file equal to either render is current.
+        want = expected(False)
+        built = rebuilt(True) if args.live else None
+        alt = expected(True, built) if built is not None else {}
+        have = current_texts(list(want))
+        bad = [p for p, text in want.items() if have[p] != text and have[p] != alt.get(p)]
         extra = [p for p in OUT.glob("*/*") if p.is_file() and p not in want]
         if args.live:  # #4730: the release gate never quotes a stale level as current
             for e, prog, lv, sha, ins in stale_levels(True, built):

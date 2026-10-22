@@ -436,13 +436,39 @@ def test_php_api_contract_2730():
     api = PHP_RULES["api"]
 
     # Declarations that publish a name -- must match.
-    assert api.search('public function __construct('), 'public method'
-    assert api.search('public readonly int $x;'), 'typed readonly property'
-    assert api.search('public const FOO = 1;'), 'public constant'
+    assert api.search("public function __construct("), "public method"
+    assert api.search("public readonly int $x;"), "typed readonly property"
+    assert api.search("public const FOO = 1;"), "public constant"
 
     # Not declarations -- must not match.
-    assert not api.search("$public = (bool) get_option('blog_public');"), 'variable named $public'
-    assert not api.search("$this->instance('path.public', $path);"), 'keyword inside a string key'
+    assert not api.search("$public = (bool) get_option('blog_public');"), "variable named $public"
+    assert not api.search("$this->instance('path.public', $path);"), "keyword inside a string key"
 
     # ReDoS detonation on a modifier run that never reaches a declaration.
     assert_redos_immune(api, "public " + "static " * 20000 + "@", timeout_sec=3.0)
+
+
+def test_php_internal_discriminator():
+    """#4973: PHP internal discriminator for shared .inc files."""
+    php_def = LANGUAGE_DEFINITIONS["php"]
+    assert php_def.get("internal_discriminator") is not None
+    assert php_def.get("extensions_needing_discriminator") == [".inc"]
+    disc = php_def["internal_discriminator"]
+
+    # Positive matches
+    assert disc.search("<?php\nfunction helper() {}")
+    assert disc.search("<?PHP\n$x = 1;")
+    assert disc.search("<?= $greeting ?>")
+    assert disc.search("<html><body><?php echo 1; ?></body></html>")
+    assert disc.search("   <?php\n$foo = 'bar';")
+
+    # Negative matches (non-PHP files sharing .inc)
+    assert not disc.search('<?xml version="1.0" encoding="UTF-8"?>')
+    assert not disc.search("#ifndef FOO_H\n#define FOO_H\nint foo();\n#endif")
+    assert not disc.search("#include <vector>\nnamespace a { class B {}; }")
+    assert not disc.search("      INTEGER, PARAMETER :: MAX_N = 100\n      COMMON /MYBLOCK/ A, B")
+    assert not disc.search("%define BUFFER_SIZE 1024\nsection .data\nmsg: db 'hi', 0")
+
+    # ReDoS immunity
+    assert_redos_immune(disc, "<?" + "p" * 50000, timeout_sec=2.0)
+    assert_redos_immune(disc, "<?" + " " * 50000, timeout_sec=2.0)

@@ -4,6 +4,8 @@ lint rule, a secret-scanner hit or a golden-master drift from CI, one push at a 
 
     python tests/tools/pr_gates.py                  # all gates (~15 min)
     python tests/tools/pr_gates.py --fast           # skip the golden masters and the full suite
+                                                    # (gen-docs: the uncommitted aggregate pages render, #5057;
+                                                    # workflows: actionlint over .github/workflows)
     python tests/tools/pr_gates.py --only lint audits gauntlet
     python tests/tools/pr_gates.py --lower-baseline # also rewrite the gauntlet baseline when cells now pass
     python tests/tools/pr_gates.py --e2e            # add the equivalence proofs (Docker GnuCOBOL + JDK 17)
@@ -39,6 +41,10 @@ REPO = Path(__file__).resolve().parents[2]
 PY = sys.executable
 MYPY_REQUIREMENTS = "tests/requirements-mypy.txt"
 MYPY_CACHE = Path(os.environ.get("GITGALAXY_MYPY_CACHE", Path.home() / ".cache" / "gitgalaxy"))
+# actionlint (MIT, rhysd/actionlint) via its PyPI wrapper, which fetches the release binary at install. 2026-10-20: #5766
+# merged `${{ (matrix.timeout || 30) - 3 }}` (expressions have no arithmetic), main started no Full Suite Gate job until
+# #5768; actionlint names that line. shellcheck / pyflakes integrations off: the gate checks the workflow files only.
+ACTIONLINT_PIN = "1.7.12.25"
 
 
 def _main_checkout() -> Path:
@@ -232,6 +238,18 @@ def ratchets() -> list[Ratchet]:
             "python tests/tools/ground_truth_ledger.py update   (then `assign` a cause to each UNTRIAGED entry)",
             _need_corpora,
         ),  # fmt: skip
+        Ratchet(
+            "det-mutation",
+            [PY, t + "det_mutation.py", "stale-check", "--vs", "origin/main"],
+            "python tests/tools/det_mutation.py refresh CASE --work DIR   (commit tests/equivalence/det_mutation/CASE.json; a moved det port needs `run`; #5862)",
+            _need_corpora,
+        ),  # fmt: skip
+        Ratchet(
+            "time",
+            [PY, t + "time_ratchet.py", "check"],
+            "make the test faster (over 15 s), or mark it @pytest.mark.slow(reason=...); shrink the baseline: python tests/tools/time_ratchet.py update --times .test_durations (never raises; #5166)",
+            lambda env: None,
+        ),  # fmt: skip
     ]
 
 
@@ -303,6 +321,14 @@ def _announce(tool: str, exe: Path, bin_dir: Path) -> None:
     print(f"NOTE  {tool} used: {ver} ({found})", flush=True)
 
 
+def _tool_bin_dir(tool: str, env: dict[str, str]) -> Path:
+    """Where the caller's `tool` lives (the one local_versions just matched against CI's pin), so the `env -i` PATH
+    reaches it. Not always the interpreter's bin dir: churn's precheck runs pr_gates under /usr/bin/python3 with ruff
+    on ~/.local/bin, and `PATH=/usr/bin:...` then found no ruff and failed lint in 0 s."""
+    found = shutil.which(tool, path=env.get("PATH", os.environ.get("PATH")))
+    return Path(found).resolve().parent if found else Path(PY).parent
+
+
 def pinned_mypy_audit(root: Path, env: dict[str, str]) -> list[list[str]]:
     """The mypy gate command, run with exactly CI's mypy (#4537) and ALWAYS in a clean environment (#4551).
 
@@ -313,7 +339,7 @@ def pinned_mypy_audit(root: Path, env: dict[str, str]) -> list[list[str]]:
     """
     want = ci_pins(root).get("mypy")
     if not want or local_versions(env).get("mypy") == want:
-        bin_dir = Path(PY).parent
+        bin_dir = _tool_bin_dir("mypy", env)
         _announce("mypy", Path("mypy"), bin_dir)
         return [[*clean_prefix(bin_dir, root), PY, "tests/mypy_audit.py", "--ci"]]
     venv = MYPY_CACHE / f"mypy-{want}"
@@ -335,7 +361,7 @@ def pinned_ruff_lint(env: dict[str, str]) -> tuple[list[list[str]], dict[str, st
     """The lint gate command + env, ALWAYS under `env -i` (#4551); ruff at CI's pin (private venv if local differs)."""
     want = ci_pins().get("ruff")
     if not want or local_versions(env).get("ruff") == want:
-        bin_dir = Path(PY).parent
+        bin_dir = _tool_bin_dir("ruff", env)
         _announce("ruff", Path("ruff"), bin_dir)
         return [[*clean_prefix(bin_dir, REPO), PY, "tests/ruff_audit.py", "--ci"]], env
     venv = MYPY_CACHE / f"ruff-{want}"
@@ -348,6 +374,38 @@ def pinned_ruff_lint(env: dict[str, str]) -> tuple[list[list[str]], dict[str, st
     _announce("ruff", venv / "bin" / "ruff", venv / "bin")
     # the audit imports gitgalaxy (lint_baseline), so it runs under this interpreter with the pinned ruff first on PATH
     return [[*clean_prefix(venv / "bin", REPO), PY, "tests/ruff_audit.py", "--ci"]], env
+
+
+def actionlint_gate(root: Path = Path(".")) -> int:
+    """actionlint at ACTIONLINT_PIN over root/.github/workflows (private venv, built once). Exit 0 when clean.
+
+    A venv that cannot be built (offline, PyPI down) prints a NOTE and passes: churn's precheck runs --fast, and a
+    network blip must not send a worker back. A real finding fails, one line per finding."""
+    files = sorted(str(f) for f in (root / ".github" / "workflows").glob("*.y*ml"))
+    if not files:
+        return 0
+    venv = MYPY_CACHE / f"actionlint-{ACTIONLINT_PIN}"
+    bin_dir, ext = (venv / "Scripts", ".exe") if os.name == "nt" else (venv / "bin", "")
+    exe = bin_dir / f"actionlint{ext}"
+    if not (venv / ".ready").exists():
+        shutil.rmtree(venv, ignore_errors=True)
+        venv.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            built = subprocess.run([PY, "-m", "venv", str(venv)], capture_output=True, check=False).returncode == 0  # noqa: S603
+            built = built and subprocess.run(  # noqa: S603
+                [str(bin_dir / f"python{ext}"), "-m", "pip", "install", "-q", f"actionlint-py=={ACTIONLINT_PIN}"],
+                capture_output=True, check=False,
+            ).returncode == 0  # fmt: skip
+        except OSError:
+            built = False
+        if not (built and exe.exists()):
+            shutil.rmtree(venv, ignore_errors=True)
+            print(f"NOTE  actionlint-py=={ACTIONLINT_PIN} could not be installed: workflows not linted", flush=True)
+            return 0
+        (venv / ".ready").write_text(ACTIONLINT_PIN)
+    _announce("actionlint", exe, bin_dir)
+    # the files by name: actionlint's own discovery needs a git project root (a bare tree exits 3)
+    return subprocess.run([str(exe), "-shellcheck=", "-pyflakes=", "-oneline", *files], cwd=root, check=False).returncode  # noqa: S603
 
 
 def attribute_failures(
@@ -400,6 +458,11 @@ def gates(args: argparse.Namespace, env: dict[str, str]) -> dict[str, list[list[
         "audits": [[PY, "tests/mypy_audit.py", "--ci"]],
         "secrets": [_tool("gitgalaxy.tools.supply_chain_security.vault_sentinel")],
         "xray": [_tool("gitgalaxy.tools.supply_chain_security.binary_anomaly_detector")],
+        # #5057: the aggregate pages are not committed; they must render, deterministically (generated-docs.yml)
+        "gen-docs": [[PY, "tests/tools/generated_docs.py", "check"]],
+        # a workflow file GitHub cannot load starts no job at all (#5768); cwd-relative, like every gate here
+        "workflows": [[PY, "-c", "import sys; sys.path.insert(0, 'tests/tools'); from pr_gates import actionlint_gate; "
+                       "sys.exit(actionlint_gate())"]],
         "gauntlet": [gauntlet] + ([[*gauntlet[:2], "--update-baseline", *gauntlet[3:]]] if args.lower_baseline else []),
         "golden": [[PY, "tests/tools/crucible_check.py"]],
         "suite": [suite],

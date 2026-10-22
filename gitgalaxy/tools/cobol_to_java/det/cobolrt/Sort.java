@@ -96,6 +96,7 @@ public final class Sort {
         }
 
         /** ALPHABET name IS EBCDIC, over data in `cs`. */
+        // [rule RT-SORT-ALPHABET]
         public static Collating ebcdic(String name, Charset cs) {
             int[] ibm = new int[256];
             int[] oracle = new int[256];
@@ -206,6 +207,7 @@ public final class Sort {
          * GnuCOBOL's order differently, or one holding a byte with no EBCDIC character, stop the run by name
          * (register D1).
          */
+        // [rule RT-SORT-COLLATING-RELATION]
         public int relation(byte[] a, byte[] b, Charset cs) {
             int n = Math.max(a.length, b.length);
             byte[] x = Arrays.copyOf(a, n);
@@ -226,6 +228,7 @@ public final class Sort {
 
         /** Two keys' bytes (one item: the same length) in this sequence; a comparison IBM's sequence and GnuCOBOL's
          *  decide differently, or one over a byte with no EBCDIC character, stops the run by name. */
+        // [rule RT-SORT-COLLATING-DISAGREE-REFUSED]
         int compare(byte[] a, byte[] b, String sort) {
             int i = compare(a, b, ibm);
             int o = compare(a, b, oracle);
@@ -291,6 +294,7 @@ public final class Sort {
     }
 
     /** RELEASE: a copy of the SD record area's bytes (`record` is the SD record), into the sort. */
+    // [rule RT-SORT-PROCEDURES]
     public void release(Field record) {
         if (sorted != null) {
             throw new IllegalStateException("RELEASE " + name + " after its input phase");
@@ -313,6 +317,7 @@ public final class Sort {
         inputs.add(new ArrayList<>());
     }
 
+    // [rule RT-SORT-KEYS]
     private int compare(byte[] a, byte[] b) {
         System.arraycopy(a, 0, left.bytes, 0, length);
         System.arraycopy(b, 0, right.bytes, 0, length);
@@ -328,6 +333,7 @@ public final class Sort {
     }
 
     /** The end of the input phase of a SORT: the records in key order (a stable sort). */
+    // [rule RT-SORT-STABLE-ORDER]
     public void sort() {
         List<byte[]> all = new ArrayList<>();
         inputs.forEach(all::addAll);

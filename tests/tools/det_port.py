@@ -27,6 +27,7 @@ import re
 import shutil
 import subprocess
 import sys
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -37,6 +38,7 @@ REPO_ROOT = TOOLS.parent.parent
 sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO_ROOT))
 
+from equivalence_common import engine_layouts  # noqa: E402 -- #5649: the engine's layouts, shared with equivalence_java
 from gitgalaxy.core.estate_options import effective_options  # noqa: E402 -- #4704: the one options resolver
 
 PKG = "com.gitgalaxy.modernized"
@@ -86,20 +88,29 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
     try:
         # case.json `strict_copy` (#4486): refuse a SYSLIB collision instead of taking the first library's member
         r = P.translate(corpus / case["program_source"], dirs, stub, PKG, P.estate_files(project), project, style, typed,
-                        groups, effective_options(case).layers, strict_copy=bool(case.get("strict_copy")))  # fmt: skip
+                        groups, effective_options(case).layers, strict_copy=bool(case.get("strict_copy")),
+                        layouts=engine_layouts(project, corpus, case["program_source"]))  # fmt: skip
     except Exception as e:
         out.update({"translated": False, "error": f"{type(e).__name__}: {e}"})
         return out
     translated.append(r)
     (port / "service").mkdir(parents=True, exist_ok=True)
     (port / "service" / f"{r.service}.java").write_text(r.java, encoding="utf-8")
+    for x in r.extra:  # #5106: the sibling programs of the same source the program CALLs, each its own service
+        (port / "service" / f"{x.service}.java").write_text(x.java, encoding="utf-8")
+        r.stats["statements"] += x.stats["statements"]
+        r.stats["translated"] += x.stats["translated"]
+        r.stats["holes"] = [*r.stats["holes"], *x.stats["holes"]]
+        called_holes += [f"{x.stats['program']}: {h}" for h in x.stats["holes"]]  # (#4803: counted for the caller)
+        translated.append(x)
     for extra in _extra_programs(case):  # the programs the task LINKs to, and those it CALLs: translated the same way
         x_svc = ej._service_class(extra["program"])
         x_stub = (project / "src/main/java" / PKG_DIR / "service" / f"{x_svc}.java").read_text(encoding="utf-8")
         try:
             x = P.translate(corpus / extra["program_source"], dirs, x_stub, PKG, P.estate_files(project), project,
                             style, typed, groups, effective_options(case, program=extra["program"]).layers,
-                            strict_copy=bool(case.get("strict_copy")))  # fmt: skip
+                            strict_copy=bool(case.get("strict_copy")),
+                            layouts=engine_layouts(project, corpus, extra["program_source"]))  # fmt: skip
         except Exception as e:
             out.update({"translated": False, "error": f"{extra['program']}: {type(e).__name__}: {e}"})
             return out
@@ -216,8 +227,10 @@ def _prove(name: str, work: Path, faults: str) -> dict[str, Any]:
             return {"proof_rc": None, "proved": False, "java_failed": True, "timed_out": True, "log": str(log)}
     report = keep / "report.json"
     rep = json.loads(report.read_text(encoding="utf-8")) if report.is_file() else {}
+    phases = keep / "phases.json"  # #5882: where the proof's time went (equivalence_common.phase)
     return {"proof_rc": rc, "proved": rc == 0 and bool(rep) and not rep.get("java_failed"),
-            "java_failed": bool(rep.get("java_failed")), "log": str(log)}  # fmt: skip
+            "java_failed": bool(rep.get("java_failed")), "log": str(log),
+            "phases": json.loads(phases.read_text(encoding="utf-8")) if phases.is_file() else {}}  # fmt: skip
 
 
 def all_cases() -> list[str]:
@@ -239,10 +252,67 @@ def _ports(work: Path) -> dict[str, dict[str, str]]:
     return out
 
 
+def java_segments(text: str) -> list[tuple[str, str]]:
+    """Java source as [(kind, text)], kind "code", "comment" or "literal" (a string, text block or char literal, quotes
+    included), in order; joined they are the text. ValueError on an unterminated comment or literal."""
+    out: list[tuple[str, str]] = []
+    i, start, n = 0, 0, len(text)
+    while i < n:
+        c, two = text[i], text[i : i + 2]
+        if two in ("//", "/*") or c in "\"'":
+            if start < i:
+                out.append(("code", text[start:i]))
+            if two == "//":
+                j = text.find("\n", i)
+                j = n if j < 0 else j
+                kind = "comment"
+            elif two == "/*":
+                j = text.find("*/", i + 2)
+                if j < 0:
+                    raise ValueError("unterminated comment")
+                j += 2
+                kind = "comment"
+            else:
+                quote = '"""' if text.startswith('"""', i) else c
+                j = i + len(quote)
+                while not text.startswith(quote, j):
+                    if j >= n or (len(quote) == 1 and text[j] == "\n"):
+                        raise ValueError("unterminated literal")
+                    j += 2 if text[j] == "\\" else 1
+                j += len(quote)
+                kind = "literal"
+            out.append((kind, text[i:j]))
+            i = start = j
+        else:
+            i += 1
+    if start < n:
+        out.append(("code", text[start:]))
+    return out
+
+
+def java_code(text: str) -> str:
+    """Java source without its comments and with each run of whitespace outside a literal one space (#4711): what
+    javac compiles, so a comment-only edit -- a rule ID cited at its code site -- leaves it unchanged. The text itself
+    when it does not lex (an unterminated comment or literal), so such a change still counts."""
+    try:
+        segs = java_segments(text)
+    except ValueError:
+        return text
+    out, gap = [], []  # gap: the code and comments since the last literal, collapsed as one run
+    for k, t in segs + [("literal", "")]:
+        if k == "literal":
+            out += [re.sub(r"\s+", " ", "".join(gap)), t]
+            gap = []
+        else:
+            gap.append(" " if k == "comment" else t)
+    return "".join(out).strip()
+
+
 def compare(base: Path, new: Path) -> list[dict[str, Any]]:
     """Each case's port in `new` against `base`: unchanged, changed (the files and changed lines), new or gone.
     A runtime class (cobolrt/...) every port carries counts against a port only when its own code names that class
-    (a DetSql change moves the Db2 ports, not every port): the files list says which runtime class moved it."""
+    (a DetSql change moves the Db2 ports, not every port): the files list says which runtime class moved it. A runtime
+    class is compared as java_code (#4711): a change to its comments or layout alone moves no port."""
     import difflib
 
     a, b = _ports(base), _ports(new)
@@ -259,7 +329,7 @@ def compare(base: Path, new: Path) -> list[dict[str, Any]]:
             if rel.startswith("generated/") and not both:
                 continue
             x, y = a[case].get(rel, ""), b[case].get(rel, "")
-            if x == y:
+            if x == y or (rel.startswith("cobolrt/") and java_code(x) == java_code(y)):
                 continue
             if rel.startswith("cobolrt/") and not re.search(rf"\b{re.escape(Path(rel).stem)}\b", own):
                 continue  # a runtime class this port never names

@@ -63,7 +63,7 @@ jobs:
       - name: Install GitGalaxy (for ast-accuracy-audit)
         run: |
           python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
-          pip install -e .
+          pip install --no-build-isolation -e .
 
       - name: dead-key-audit -- baseline-gated regression check (#325)
         if: always()

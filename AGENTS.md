@@ -29,7 +29,7 @@ Whenever you file issues or create pull requests, you **MUST** adhere to the fol
 `CLAUDE.md` is the primary, continuously updated source of truth for the repository's architecture, CI procedures, and testing philosophy. Read `CLAUDE.md` first for deep project context before relying on other summary files.
 
 **2. Git Worktrees**
-This repository heavily utilizes `git worktree` for active feature development (e.g., `/nvme-data/projects/gitgalaxy-worktrees/`). If a branch fails to checkout with a `fatal: already used by worktree` error, or if files seem "missing" from `main`, always check `git worktree list` first.
+This repository heavily utilizes `git worktree` for active feature development (`gitgalaxy-worktrees/` beside the primary checkout). If a branch fails to checkout with a `fatal: already used by worktree` error, or if files seem "missing" from `main`, always check `git worktree list` first.
 
 **3. CI/CD Triage (Pipeline Manager)**
 For CI/CD triage and Dependabot management, do not attempt to guess pipeline failures manually. Invoke the `pipeline-manager` subagent located at `.claude/agents/pipeline-manager.md`. Use this exact subagent when investigating failing GitHub Actions runs.

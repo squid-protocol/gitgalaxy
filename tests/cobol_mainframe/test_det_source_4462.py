@@ -530,8 +530,9 @@ def test_entry_dlitcbl_is_read_and_is_the_programs_entry(using):
     assert [s.kind for s in body] == ["ENTRY", "DISPLAY", "ENTRY", "GOBACK"]
     assert [s.line for s in body] == [11, 13, 14, 15]
     assert body[0].data["name"] == "DLITCBL" and [r.name for r in body[0].data["using"]] == ["PCB1", "PCB2"]
-    assert proc.using == (["PCB1", "PCB2"] if not using else ["PCB1"])
-    assert body[0].data.get("first") is (True if not using else None) and not body[2].data.get("first")
+    # #4893: IMS enters a DL/I program at DLITCBL with that ENTRY's list, whatever PROCEDURE DIVISION USING says
+    assert proc.using == ["PCB1", "PCB2"]
+    assert body[0].data.get("first") is True and not body[2].data.get("first")
 
 
 @pytest.mark.parametrize(

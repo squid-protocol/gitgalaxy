@@ -1,0 +1,164 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "DELCUS",
+ "program_source": "src/base/cobol_src/DELCUS.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "ODCS",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "taskn": 4242,
+ "programs": [
+  {
+   "program": "INQCUST",
+   "program_source": "src/base/cobol_src/INQCUST.cbl"
+  },
+  {
+   "program": "INQACCCU",
+   "program_source": "src/base/cobol_src/INQACCCU.cbl"
+  },
+  {
+   "program": "DELACC",
+   "program_source": "src/base/cobol_src/DELACC.cbl"
+  },
+  {
+   "program": "ABNDPROC",
+   "program_source": "src/base/cobol_src/ABNDPROC.cbl"
+  }
+ ],
+ "datasets": {
+  "CBSA.CICSBSA.ABNDFILE": {
+   "input": "@case/abndfile.bin",
+   "entity": "WsAbndArea",
+   "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+   "record": "WS-ABND-AREA",
+   "recovery": "NONE",
+   "recovery_why": "etc/install/base/installjcl/BANK.csd: DEFINE FILE(ABNDFILE) ... RECOVERY(NONE) -- the abend log a backout must not undo"
+  },
+  "CBSA.CICSBSA.CUSTOMER": {
+   "input": "@case/customer.txt",
+   "entity": "OutputData",
+   "copybook": "src/base/cobol_copy/CUSTOMER.cpy",
+   "record": "CUSTOMER-RECORD"
+  }
+ },
+ "db2": {
+  "ddl": [
+   "etc/install/base/db2jcl/CRETB01.jcl",
+   "etc/install/base/db2jcl/CREI101.jcl",
+   "etc/install/base/db2jcl/CRETB02.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "compare": [
+   "IBMUSER.ACCOUNT",
+   "IBMUSER.PROCTRAN"
+  ],
+  "qualifier": "IBMUSER"
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/DELCUS.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "three-accounts",
+   "commarea": {
+    "COMM-CUSTNO": "0000000001"
+   },
+   "why": "customer 1 is on file with three accounts of the program's sort code: INQCUST finds it, INQACCCU lists them, DELACC deletes each (ACCOUNT rows gone, a PROCTRAN 'ODA' row each), the CUSTOMER record is read for update and deleted, COMM-DEL-SUCCESS 'Y'"
+  },
+  {
+   "name": "one-loan",
+   "commarea": {
+    "COMM-CUSTNO": "0000000002"
+   },
+   "why": "customer 2, one LOAN account with a negative balance: one DELACC, then the customer is deleted"
+  },
+  {
+   "name": "no-accounts",
+   "commarea": {
+    "COMM-CUSTNO": "0000000007"
+   },
+   "why": "customer 7 is on file with no account: NUMBER-OF-ACCOUNTS 0, DELETE-ACCOUNTS is not performed, the customer is deleted"
+  },
+  {
+   "name": "null-statement-date",
+   "commarea": {
+    "COMM-CUSTNO": "0000000003"
+   },
+   "why": "customer 3's account has a NULL last-statement date with no indicator: INQACCCU's FETCH fails (-305) and returns no account, so DELCUS deletes the customer alone"
+  },
+  {
+   "name": "max-values",
+   "commarea": {
+    "COMM-CUSTNO": "0000000006"
+   },
+   "why": "customer 6's account holds the extreme picture values (9999.99 rate, 99999999 overdraft, +/-9999999999.99): DELACC's PROCTRAN row and the deletion at the top of every range"
+  },
+  {
+   "name": "last-customer",
+   "commarea": {
+    "COMM-CUSTNO": "9999999999"
+   },
+   "why": "customer 9999999999: INQCUST resolves it to the last customer on file; DELCUS reads and deletes the record keyed 9999999999 (the last one) and its account 99999999"
+  },
+  {
+   "name": "not-on-file",
+   "commarea": {
+    "COMM-CUSTNO": "0000000005"
+   },
+   "why": "customer 5 has an account but no CUSTOMER record: INQCUST fails, COMM-DEL-SUCCESS 'N' with INQCUST's fail code, RETURN; nothing deleted"
+  },
+  {
+   "name": "customer-zero",
+   "commarea": {
+    "COMM-CUSTNO": "0000000000"
+   },
+   "why": "customer 0000000000: INQCUST resolves it to the last customer, the READ of key 0000000000 is NOTFND: the program's own failure path"
+  },
+  {
+   "name": "read-sysiderr-retried",
+   "commarea": {
+    "COMM-CUSTNO": "0000000002"
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "SYSIDERR",
+     "nth": 3,
+     "why": "53 on DELCUS's READ UPDATE (the 3rd READ of CUSTOMER in the task: INQCUST, INQACCCU's INQCUST, DELCUS)"
+    }
+   ],
+   "why": "DELCUS's READ FOR UPDATE gets SYSIDERR once: DELAY 3 seconds (a task takes no time, X4), READ again, then the deletion goes on"
+  },
+  {
+   "name": "delete-ioerr",
+   "commarea": {
+    "COMM-CUSTNO": "0000000002"
+   },
+   "faults": [
+    {
+     "cmd": "DELETE",
+     "file": "CUSTOMER",
+     "resp": "IOERR",
+     "nth": 1,
+     "why": "17 on the DELETE"
+    }
+   ],
+   "why": "the DELETE of the CUSTOMER record fails with IOERR: the program's failure path"
+  }
+ ],
+ "notes": "CBSA's delete-customer service (DELCUS, LINKed by BNK1DCS with the DELCUS copybook's COMMAREA). It LINKs INQCUST (the customer must exist: 'N' and INQCUST's fail code otherwise), lists the customer's accounts through INQACCCU (SYNCONRETURN), LINKs DELACC for each (ACCOUNT row deleted, PROCTRAN 'ODA' row written, as in cbsa-delacc), then READs the CUSTOMER record FOR UPDATE and DELETEs it, retrying on SYSIDERR (DELAY FOR SECONDS(3), no time passes in a task, oracle_assumptions.md X4). ACCOUNT, PROCTRAN, CUSTOMER and ABNDFILE are compared after every scenario. Data: seed.sql is cbsa-delacc's and customer.txt is cbsa-bnk1cca's (SYNTHETIC). Not reached: failure branches no fault can be injected on (ASKTIME / FORMATTIME / ASSIGN, the Db2 INSERT of the PROCTRAN row, LINK DELACC). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."
+}

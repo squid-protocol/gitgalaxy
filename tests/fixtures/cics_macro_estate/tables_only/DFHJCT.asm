@@ -1,0 +1,7 @@
+* DFHJCT: hand-written fixture (#5154). Operands ASSUMED: no IBM syntax page for the JCT macro was retrievable.
+DFHJCT   CSECT
+         DFHJCT TYPE=INITIAL,SUFFIX=01
+         DFHJCT TYPE=ENTRY,JFILEID=SYSTEM,JTYPE=DISK2,BUFSIZE=6000
+         DFHJCT TYPE=ENTRY,JFILEID=03,JTYPE=TAPE,BUFSIZE=4096
+         DFHJCT TYPE=FINAL
+         END

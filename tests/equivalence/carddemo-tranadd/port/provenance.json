@@ -49,6 +49,36 @@
     "handleTransaction(String,Cotrn02cCarddemoCommarea,byte[])",
     "lastAnswerBytes()"
    ]
+  },
+  {
+   "at": "2026-10-13T18:30:00+00:00",
+   "event": "edited",
+   "by": "churn worker for #4623 (Claude Opus 5.5)",
+   "what": "the CXACAIX READ also moves the record INTO on DUPKEY (RESP 15): IBM retrieves it, the COBOL program's CARD-XREF-RECORD is filled; found by the new xref-aix-dupkey scenario"
+  },
+  {
+   "at": "2026-10-13T22:30:00+00:00",
+   "event": "edited",
+   "by": "churn worker for #5044 (Claude Opus 5.5)",
+   "what": "the DISPLAY of RESP2 after STARTBR / READPREV / WRITE is CicsTask's EIBRESP2 (resp2()) instead of 0: IBM's RESP2 is now planned on file faults, so the io-error / not-open scenarios show it"
+  },
+  {
+   "at": "2026-10-16T23:00:00+00:00",
+   "event": "edited",
+   "by": "churn worker for #4648 (Claude Opus 5.5)",
+   "what": "returnToPrevScreen abends the task on a failed XCTL (RESP not tested, no HANDLE CONDITION) as the COBOL does, where the port went on to RETURN"
+  },
+  {
+   "at": "2026-10-17T19:05:39+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "b3b16bb72",
+   "generated_from": "service/Cotrn02cService.java",
+   "added": [
+    "lastLinkBytes (field)",
+    "handleLink(Cotrn02cCarddemoCommarea,byte[])",
+    "lastLinkBytes()"
+   ]
   }
  ]
 }

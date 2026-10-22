@@ -32,6 +32,8 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from gitgalaxy.tools.cobol_to_java.det import gen as G  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 LE_C = ROOT / "tests/equivalence/le/le_time.c"
 RT = ROOT / "gitgalaxy/tools/cobol_to_java/det/cobolrt"
@@ -54,6 +56,9 @@ VECTORS: list[tuple[str, list[str], str | None]] = [
         f"{(__import__('datetime').date(2026, 10, 1) - __import__('datetime').date(1582, 10, 14)).days * 86400 + 37815}.250",
     ),
     ("CEEUTC", [CLOCK_C], None),
+    # CEEGMTO / CEEUTCO (#5003): the offset from GMT; the clock is GMT, so hours, minutes and seconds are zero
+    ("CEEGMTO", [], "0|0,0,0.000"),
+    ("CEEUTCO", [], "0|0,0,0.000"),
     ("CEEGMT", ["1582/10/15 00:00:00.00"], "0|1,86400.000"),
     ("CEEGMT", ["9999/12/31 23:59:59.99"], "0|3074324,265621679999.990"),
     # CEEDATE (IBM's sample output table)
@@ -225,9 +230,14 @@ C_DRIVER = r"""
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _WIN32
+#define setenv(k, v, o) _putenv_s((k), (v)) /* MinGW has no setenv */
+#endif
 int CEEGMT(unsigned char*, unsigned char*, unsigned char*);
 int CEEUTC(unsigned char*, unsigned char*, unsigned char*);
 int CEEQCEN(unsigned char*, unsigned char*);
+int CEEGMTO(unsigned char*, unsigned char*, unsigned char*, unsigned char*);
+int CEEUTCO(unsigned char*, unsigned char*, unsigned char*, unsigned char*);
 int CEEDATE(unsigned char*, unsigned char*, unsigned char*, unsigned char*);
 int CEEDATM(unsigned char*, unsigned char*, unsigned char*, unsigned char*);
 int CEESECS(unsigned char*, unsigned char*, unsigned char*, unsigned char*);
@@ -242,6 +252,11 @@ int main(int argc, char **argv) {
     double d;
     memset(fc, 0xEE, 12); memset(out, ' ', sizeof out); memset(sec, 0, 8); memset(l, 0, 4);
     if (!strcmp(svc, "CEEQCEN")) { CEEQCEN(l, fc); hexfc(fc); printf("|%ld\n", (long)((l[0] << 24) | (l[1] << 16) | (l[2] << 8) | l[3])); return 0; }
+    if (!strcmp(svc, "CEEGMTO") || !strcmp(svc, "CEEUTCO")) {
+        unsigned char h[4], m[4]; memset(h, 0x55, 4); memset(m, 0x55, 4); memset(sec, 0x55, 8);
+        (!strcmp(svc, "CEEGMTO") ? CEEGMTO : CEEUTCO)(h, m, sec, fc); memcpy(&d, sec, 8); hexfc(fc);
+        printf("|%ld,%ld,%.3f\n", (long)((h[0] << 24) | (h[1] << 16) | (h[2] << 8) | h[3]),
+               (long)((m[0] << 24) | (m[1] << 16) | (m[2] << 8) | m[3]), d); return 0; }
     if (!strcmp(svc, "CEEGMT") || !strcmp(svc, "CEEUTC")) {
         setenv("COB_CURRENT_DATE", argv[2], 1);
         (!strcmp(svc, "CEEGMT") ? CEEGMT : CEEUTC)(l, sec, fc); memcpy(&d, sec, 8);
@@ -315,6 +330,12 @@ public class Probe {
             try {
                 switch (t[0]) {
                     case "CEEQCEN" -> { Field c = raw(4); Ceeqcen.call(c, fc, CS); System.out.println(hex(fc) + "|" + lil(c)); }
+                    case "CEEGMTO", "CEEUTCO" -> {
+                        Field h = raw(4), m = raw(4), s = flt();
+                        java.util.Arrays.fill(h.storage().bytes, (byte) 0x55); java.util.Arrays.fill(m.storage().bytes, (byte) 0x55);
+                        Ceegmto.call(h, m, s, fc, CS);
+                        System.out.println(hex(fc) + "|" + lil(h) + "," + lil(m) + "," + secs(s));
+                    }
                     case "CEEGMT", "CEEUTC" -> {
                         Field l = raw(4), s = flt();
                         if (t[0].equals("CEEGMT")) Ceegmt.call(t[1], l, s, fc, CS); else Ceeutc.call(t[1], l, s, fc, CS);
@@ -349,7 +370,7 @@ def c_driver(tmp_path_factory):
     if not shutil.which("gcc"):
         pytest.skip("needs a C compiler")
     d = tmp_path_factory.mktemp("le_c")
-    (d / "driver.c").write_text(C_DRIVER)
+    (d / "driver.c").write_text(C_DRIVER, newline="\n")
     run = subprocess.run(  # noqa: S603
         ["gcc", "-O0", "-o", str(d / "t"), str(d / "driver.c"), str(LE_C), "-lm"],
         capture_output=True,
@@ -360,8 +381,13 @@ def c_driver(tmp_path_factory):
     return d / "t"
 
 
+def _bare_env() -> dict[str, str]:
+    """An environment with no clock pinned. Windows will not start a process from an empty one, so it keeps SYSTEMROOT."""
+    return {k: os.environ[k] for k in ("SYSTEMROOT",) if k in os.environ} if os.name == "nt" else {}
+
+
 def _run_c(exe: Path, svc: str, args: list[str]) -> str:
-    run = subprocess.run([str(exe), svc, *args], capture_output=True, text=True, check=False, env={})  # noqa: S603
+    run = subprocess.run([str(exe), svc, *args], capture_output=True, text=True, check=False, env=_bare_env())  # noqa: S603
     if run.returncode == 98:
         assert run.stderr.rstrip().endswith("is not modelled"), run.stderr
         return REFUSED
@@ -392,13 +418,23 @@ def test_the_runtime_is_the_oracle_model_byte_for_byte(c_driver, tmp_path):
     (tmp_path / "src/Probe.java").write_text(JAVA_PROBE)
     jdk = _jdk()
     files = [str(f) for f in (tmp_path / "src").rglob("*.java")]
-    subprocess.run([str(jdk / "javac"), "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True)  # noqa: S603
+    javac_run(
+        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True
+    )  # noqa: S603
     feed = "\n".join(_java_line(s, a) for s, a, _ in VECTORS) + "\n"
     got = subprocess.run(  # noqa: S603
-        [str(jdk / "java"), "-cp", str(tmp_path / "classes"), "Probe"],
+        [
+            str(jdk / "java"),
+            "-Dfile.encoding=UTF-8",
+            "-Dstdout.encoding=UTF-8",
+            "-cp",
+            str(tmp_path / "classes"),
+            "Probe",
+        ],
         input=feed,
         capture_output=True,
         text=True,
+        encoding="utf-8",
         check=True,
     ).stdout.splitlines()
     assert len(got) == len(VECTORS)
@@ -417,8 +453,26 @@ def _norm_row(row: str) -> str:
     return f"{fc}|{_norm(value)}" if value and value[0] in "0123456789-" and ("." in value or "," in value) else row
 
 
+def test_the_offset_services_take_no_clock():
+    """The offset is a constant of the model (GMT, +0000), so neither name reads the run's clock (#5003)."""
+    assert not {"CEEGMTO", "CEEUTCO"} & G.LIBRARY_CLOCK
+    assert G.LIBRARY["CEEGMTO"][0] == G.LIBRARY["CEEUTCO"][0]
+
+
+def test_the_zero_offset_is_the_clocks_offset():
+    """The time-zone decision (#5003, register L6 assumption 6): CEEGMTO answers zero because the det runtime's clock is
+    GMT (FUNCTION CURRENT-DATE ends in +0000). Both are read from source, so a zoned clock cannot land without the
+    offset service being revisited; the vectors above prove the zero on both sides."""
+    funcs = (RT / "Funcs.java").read_text(encoding="utf-8")
+    body = funcs.split("public static String currentDate", 1)[1].split("}", 1)[0]
+    assert re.findall(r'"([+-]\d{4})"', body) == ["+0000"]
+    ceegmto = (RT / "le" / "Ceegmto.java").read_text(encoding="utf-8")
+    assert "putInt(hours, 0)" in ceegmto and "putInt(minutes, 0)" in ceegmto and "BigDecimal.ZERO" in ceegmto
+    assert [v[2] for v in VECTORS if v[0] in ("CEEGMTO", "CEEUTCO")] == ["0|0,0,0.000"] * 2
+
+
 def test_the_clock_services_refuse_without_a_pinned_clock(c_driver):
-    run = subprocess.run([str(c_driver), "CEEGMT", ""], capture_output=True, text=True, check=False, env={})  # noqa: S603
+    run = subprocess.run([str(c_driver), "CEEGMT", ""], capture_output=True, text=True, check=False, env=_bare_env())  # noqa: S603
     assert run.returncode == 98 and run.stderr.rstrip().endswith("is not modelled")
 
 
@@ -427,25 +481,39 @@ def test_the_clock_services_refuse_without_a_pinned_clock(c_driver):
 
 @pytest.mark.parametrize(
     "prog, args",
-    [("CEEGMT", 3), ("CEEUTC", 3), ("CEEDATM", 4), ("CEESECS", 4), ("CEEDATE", 4), ("CEEISEC", 9), ("CEEQCEN", 2)],
+    [
+        ("CEEGMT", 3),
+        ("CEEUTC", 3),
+        ("CEEDATM", 4),
+        ("CEESECS", 4),
+        ("CEEDATE", 4),
+        ("CEEISEC", 9),
+        ("CEEQCEN", 2),
+        ("CEEGMTO", 4),
+        ("CEEUTCO", 4),
+    ],
 )
 def test_every_service_is_a_library_routine_with_its_arity(prog, args):
+    cls = "Ceegmto" if prog == "CEEUTCO" else prog.title()  # CEEUTCO is CEEGMTO's service, as CEEUTC is CEEGMT's
     assert G.LIBRARY[prog][1] == args
-    assert G.LIBRARY[prog][0].endswith(f".{prog.title()}.call")
-    assert (RT / "le" / f"{prog.title()}.java").is_file()
+    assert G.LIBRARY[prog][0].endswith(f".{cls}.call")
+    assert (RT / "le" / f"{cls}.java").is_file()
     assert prog in G.LIBRARY_CHARSET
 
 
 def test_the_comp2_arguments_are_by_value_and_the_clock_services_take_the_clock():
     assert G.LIBRARY_FLOATS == {
         "CEELOCT": {1}, "CEEGMT": {1}, "CEEUTC": {1}, "CEEDATM": {0}, "CEESECS": {2}, "CEEISEC": {7},
+        "CEEGMTO": {2}, "CEEUTCO": {2},
     }  # fmt: skip
     assert G.LIBRARY_CLOCK == {"CEELOCT", "CEEGMT", "CEEUTC"}
 
 
 def test_every_vector_service_is_covered_and_every_service_has_vectors():
-    assert {v[0] for v in VECTORS} == {"CEEGMT", "CEEUTC", "CEEQCEN", "CEEDATE", "CEEDATM", "CEESECS", "CEEISEC"}
-    for svc in {v[0] for v in VECTORS} - {"CEEUTC", "CEEQCEN", "CEEGMT"}:
+    assert {v[0] for v in VECTORS} == {
+        "CEEGMT", "CEEUTC", "CEEQCEN", "CEEDATE", "CEEDATM", "CEESECS", "CEEISEC", "CEEGMTO", "CEEUTCO",
+    }  # fmt: skip
+    for svc in {v[0] for v in VECTORS} - {"CEEUTC", "CEEQCEN", "CEEGMT", "CEEGMTO", "CEEUTCO"}:
         mine = [v for v in VECTORS if v[0] == svc]
         assert any(v[2] and v[2].startswith("0|") for v in mine), svc  # a valid call
         assert any(v[2] == REFUSED for v in mine), svc  # a refusal by name

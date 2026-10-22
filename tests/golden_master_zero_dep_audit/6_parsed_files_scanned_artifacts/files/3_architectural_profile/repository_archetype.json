@@ -2501,7 +2501,7 @@
       "objective-c/SOURCES.md": "Static: Literature & Documentation"
     },
     "objective-c/worldwideweb": {
-      "objective-c/worldwideweb/Anchor.m": "file_cluster_11",
+      "objective-c/worldwideweb/Anchor.m": "file_cluster_15",
       "objective-c/worldwideweb/HText.c": "file_cluster_4",
       "objective-c/worldwideweb/HyperManager.m": "file_cluster_12",
       "objective-c/worldwideweb/HyperText.h": "file_cluster_17",
@@ -3268,7 +3268,8 @@
       "rust/tokio/maybe_done.rs": "file_cluster_0",
       "rust/tokio/tests.rs": "file_cluster_13",
       "rust/tokio/tokio_mpsc_bounded.rs": "file_cluster_0",
-      "rust/tokio/tokio_named_pipe.rs": "file_cluster_0"
+      "rust/tokio/tokio_named_pipe.rs": "file_cluster_0",
+      "rust/tokio/tokio_udp.rs": "file_cluster_0"
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": "file_cluster_16"
@@ -3297,10 +3298,10 @@
     },
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": "Static: Literature & Documentation",
-      "scheme/racket/cpnanopass.ss": "file_cluster_3",
+      "scheme/racket/cpnanopass.ss": "file_cluster_6",
       "scheme/racket/eval.c": "file_cluster_4",
       "scheme/racket/fun.c": "file_cluster_6",
-      "scheme/racket/io.ss": "file_cluster_15",
+      "scheme/racket/io.ss": "file_cluster_10",
       "scheme/racket/schemify.rkt": "file_cluster_6",
       "scheme/racket/thread.rkt": "file_cluster_6"
     },
@@ -3397,6 +3398,7 @@
       "shell/freebsd-src/dd2_test.sh": "file_cluster_7",
       "shell/freebsd-src/dtest.sh": "file_cluster_14",
       "shell/freebsd-src/echo_test.sh": "file_cluster_2",
+      "shell/freebsd-src/ed_test.sh": "file_cluster_2",
       "shell/freebsd-src/format_string_test.sh": "file_cluster_12",
       "shell/freebsd-src/functional_test.sh": "file_cluster_12",
       "shell/freebsd-src/hostname_test.sh": "file_cluster_2",
@@ -3434,6 +3436,7 @@
       "shell/haiku/default_deskbar_items.sh": "file_cluster_2",
       "shell/haiku/gen-bepo.sh": "file_cluster_7",
       "shell/haiku/generate_CountryFlags.sh": "file_cluster_14",
+      "shell/haiku/generate_ids_from_drivers.sh": "file_cluster_14",
       "shell/haiku/install-wifi-firmwares.sh": "file_cluster_14",
       "shell/haiku/install.sh": "file_cluster_14",
       "shell/haiku/leak_analyser.sh": "file_cluster_12",
@@ -3627,7 +3630,7 @@
     },
     "sql/mediawiki_postgresql": {
       "sql/mediawiki_postgresql/COPYING": "Static: Literature & Documentation",
-      "sql/mediawiki_postgresql/tables.sql": "file_cluster_2"
+      "sql/mediawiki_postgresql/tables.sql": "file_cluster_11"
     },
     "sql/spamassassin_mysql": {
       "sql/spamassassin_mysql/NOTICE": "Static: Literature & Documentation",
@@ -3859,6 +3862,7 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": "file_cluster_2",
       "typescript/assemblyscript/ast.ts": "file_cluster_15",
+      "typescript/assemblyscript/builtins.ts": "file_cluster_4",
       "typescript/assemblyscript/compiler.ts": "file_cluster_8",
       "typescript/assemblyscript/package.json": "Static: Literature & Documentation",
       "typescript/assemblyscript/parser.ts": "file_cluster_8"
@@ -3904,7 +3908,11 @@
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": "Static: Literature & Documentation",
       "typescript/typescript_compiler/binder.ts": "file_cluster_4",
-      "typescript/typescript_compiler/package.json": "Static: Literature & Documentation"
+      "typescript/typescript_compiler/checker.ts": "file_cluster_6",
+      "typescript/typescript_compiler/emitter.ts": "file_cluster_4",
+      "typescript/typescript_compiler/package.json": "Static: Literature & Documentation",
+      "typescript/typescript_compiler/parser.ts": "file_cluster_4",
+      "typescript/typescript_compiler/types.ts": "file_cluster_0"
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": "Static: Literature & Documentation",
@@ -4076,6 +4084,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": "file_cluster_4",
       "zig/zig/InternPool.zig": "file_cluster_12",
+      "zig/zig/Sema.zig": "file_cluster_4",
       "zig/zig/Type.zig": "file_cluster_12",
       "zig/zig/Zcu.zig": "file_cluster_12",
       "zig/zig/main.zig": "file_cluster_6"
@@ -4090,6 +4099,7 @@
       "zig/zls/analysis.zig": "file_cluster_4",
       "zig/zls/ast.zig": "file_cluster_4",
       "zig/zls/config_gen.zig": "file_cluster_6",
+      "zig/zls/langref.html.in": "file_cluster_2",
       "zig/zls/print_ast.zig": "file_cluster_12"
     }
   },

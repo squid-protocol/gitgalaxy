@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any, TypedDict
 
 from gitgalaxy.core.model_magic import MODEL_EXTENSIONS, sniff_model_format
-from gitgalaxy.core.source_text import open_source
+from gitgalaxy.core.source_text import decode_bytes, open_source
 from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
 
 # ==============================================================================
@@ -86,11 +86,77 @@ def looks_like_virtualenv(directory: Path) -> bool:
 #   - a versioned directory (`SDL2-2.32.10/`, `SDL2_mixer-2.8.2/`) carrying one itself. id's own
 #     `linuxdoom-1.10/` is versioned too but has no license of its own: it stays scanned.
 # The scan root itself is never a candidate: only the directories under it are tested.
+# #5464: the name is no longer a precondition. Two more shapes:
+#   - a `third_party_*` / `3rdparty-*` prefix is excluded by name, like `third_party/` itself
+#     (a `third_party_libs/` holding 367k lines of SDL2);
+#   - a container spelled `*_libs` / `*-libraries` / `*_deps` follows the container rule above;
+#   - ANY other directory carrying a license of its own that differs from the root's is a separate
+#     project (eternity's `libpng/`, doomretro's `src/yyjson/`).
+# A first-party backend directory (srb2 `src/sdl/`) has no license of its own and stays scanned.
+# #5525: "differs" ignores a title line above the same text (gson's `gson/LICENSE` = `Google Gson` + the root's Apache-2.0).
 VENDOR_CONTAINER_NAMES = frozenset({"libraries", "libs", "deps", "extern", "external", "externals"})
-_VERSIONED_DIR = re.compile(r"^[A-Za-z][\w+.-]*?-v?\d+(?:\.\d+)+[a-z]?$")
+_THIRD_PARTY_PREFIX = re.compile(r"^(?:third|3rd)[_-]?party[_-]", re.I)
+_CONTAINER_SUFFIX = re.compile(r"[_-](?:libs|libraries|deps|extern|external|externals)$", re.I)
+# (c) a directory named after a well-known third-party library, with no license file of its own (eternity's
+# `zlib/`, doom3-bfg's `jpeg-6/`, a bundled `lzma/` or `gdtoa/`, eternity's `nlohmann/`): the name list is the
+# decision (a header fingerprint needs a per-library corpus; the list is reviewable and cheap). A trailing version
+# (`jpeg-6`, `zlib-1.2.11`) is dropped before the lookup. A directory that carries the ROOT's own license is the
+# project's own copy of it and stays scanned.
+KNOWN_LIBRARY_NAMES = frozenset(
+    {
+        "zlib",
+        "minizip",
+        "libpng",
+        "lpng",
+        "jpeg",
+        "libjpeg",
+        "lzma",
+        "gdtoa",
+        "nlohmann",
+        "miniz",
+        "yyjson",
+        "bzip2",
+        "libbz2",
+        "freetype",
+        "sqlite3",
+        "cjson",
+        "rapidjson",
+        "tinyxml",
+        "tinyxml2",
+        "jsoncpp",
+        "expat",
+        "lz4",
+        "zstd",
+    }
+)
+_VERSION_SUFFIX = re.compile(r"[-_ ]v?\d[\w.]*$", re.I)
 _LICENSE_FILE = re.compile(r"^(?:licen[cs]e|copying|unlicense)(?:[-_.][\w.-]*)?$", re.I)
 _LICENSE_DIRS = frozenset({"licenses", "licences"})
 _LICENSE_READ_BYTES = 262144
+_LICENSE_FAMILY_CHARS = 40
+_LICENSE_WINDOW_CHARS = 240
+
+
+def _license_family(text: str) -> str:
+    """#5464: a license's identity -- the head of its text with copyright lines dropped.
+
+    The same license differs byte for byte by copyright holder and by the FSF's address revision (fastdoom's
+    `FASTDOOM/LICENSE` is the root's GPL-2 with another address), which is no evidence of a separate project.
+    """
+    body = "\n".join(ln for ln in text.splitlines() if not ln.lstrip(" *#/;-").lower().startswith("copyright"))
+    return " ".join(body.split()).lower()[:_LICENSE_WINDOW_CHARS]
+
+
+def _same_license(a: str, b: str) -> bool:
+    """#5525: two family windows name one license when the head of one sits anywhere in the other.
+
+    A module copy often carries a title line (`Google Gson`) above the root's text, or the root does; a fixed-width
+    prefix compare then calls the first-party module foreign. An empty family (empty file, `licenses/` marker) only
+    matches another empty one.
+    """
+    if not a or not b:
+        return a == b
+    return a[:_LICENSE_FAMILY_CHARS] in b or b[:_LICENSE_FAMILY_CHARS] in a
 
 
 class VendorDirectoryDetector:
@@ -102,10 +168,9 @@ class VendorDirectoryDetector:
         self._root_licenses: frozenset[str] | None = None
 
     @staticmethod
-    def is_candidate_name(name: str) -> bool:
-        """Cheap name test; only candidate names are probed on disk."""
+    def is_container_name(name: str) -> bool:
         low = name.lower()
-        return low.endswith(".framework") or low in VENDOR_CONTAINER_NAMES or bool(_VERSIONED_DIR.match(name))
+        return low in VENDOR_CONTAINER_NAMES or bool(_CONTAINER_SUFFIX.search(low))
 
     def is_vendored(self, rel_dir: str) -> bool:
         """`rel_dir` is a POSIX path relative to the root (never empty: the root is not a candidate)."""
@@ -116,8 +181,10 @@ class VendorDirectoryDetector:
 
     def _probe(self, rel_dir: str) -> bool:
         name = rel_dir.rsplit("/", 1)[-1]
-        if not rel_dir or not self.is_candidate_name(name):
+        if not rel_dir or name.startswith("."):
             return False
+        if _THIRD_PARTY_PREFIX.match(name):
+            return True
         directory = self.root.joinpath(*rel_dir.split("/"))
         try:
             if not directory.is_dir():
@@ -125,13 +192,15 @@ class VendorDirectoryDetector:
             low = name.lower()
             if low.endswith(".framework"):
                 return True
-            if low in VENDOR_CONTAINER_NAMES:
+            if self.is_container_name(name):
                 children = [
                     c for c in directory.iterdir() if c.is_dir() and not c.name.startswith(".") and any(c.iterdir())
                 ]
                 foreign = sum(1 for c in children if self._has_foreign_license(c))
                 return foreign > 0 and 2 * foreign >= len(children)
-            return self._has_foreign_license(directory)
+            if self._has_foreign_license(directory):
+                return True
+            return _VERSION_SUFFIX.sub("", low) in KNOWN_LIBRARY_NAMES and not self._has_root_license(directory)
         except OSError:
             return False
 
@@ -149,10 +218,10 @@ class VendorDirectoryDetector:
                         raw = fh.read(_LICENSE_READ_BYTES)
                 except OSError:
                     continue
-                texts.add(" ".join(raw.decode("utf-8", "ignore").split()).lower())
+                texts.add(_license_family(raw.decode("utf-8", "ignore")))
         return texts, has_dir
 
-    def _has_foreign_license(self, directory: Path) -> bool:
+    def _root_license_set(self) -> frozenset[str]:
         if self._root_licenses is None:
             try:
                 root_texts, root_dir = self._license_texts(self.root)
@@ -160,10 +229,19 @@ class VendorDirectoryDetector:
                 root_texts, root_dir = set(), False
             # a root with only a licenses/ directory still declares a license of its own
             self._root_licenses = frozenset(root_texts | ({""} if root_dir else set()))
-        if not self._root_licenses:
+        return self._root_licenses
+
+    def _has_root_license(self, directory: Path) -> bool:
+        texts, _ = self._license_texts(directory)
+        roots = self._root_license_set()
+        return any(_same_license(t, r) for t in texts for r in roots)
+
+    def _has_foreign_license(self, directory: Path) -> bool:
+        root_licenses = self._root_license_set()
+        if not root_licenses:
             return False
         texts, has_dir = self._license_texts(directory)
-        return has_dir or any(t not in self._root_licenses for t in texts)
+        return has_dir or any(not any(_same_license(t, r) for r in root_licenses) for t in texts)
 
 
 # --- COMMENT LINES IN THE SATURATION GATE (#4543) ---
@@ -206,15 +284,83 @@ _PUBLIC_ARMOR = re.compile(
 )
 
 
-def _is_public_key_material(path_obj: Path) -> bool:
-    """True when a key/cert-named file holds only public material (one bounded read, 64 KB cap; a larger
-    file stays a candidate, since a private block could sit past the read)."""
+# #4987: scan cap for a key/cert-named file, and the extensions whose binary (DER) form can be a public
+# certificate. `.p12` / `.pfx` (PKCS#12) always bundle a private key, so they never qualify.
+_PUBLIC_SCAN_CAP = 8 * 1024 * 1024
+_PUBLIC_SCAN_CHUNK = 1024 * 1024
+_PUBLIC_SCAN_OVERLAP = 64
+_DER_CERT_EXTENSIONS = frozenset({".cer", ".crt", ".der", ".p7b"})
+_PKCS7_SIGNED_DATA_OID = bytes.fromhex("06092a864886f70d010702")
+_PKCS12_OID = bytes.fromhex("2a864886f70d010c")  # 1.2.840.113549.1.12 (PKCS#12 and its bag types)
+
+
+def _der_seq_body(buf: bytes, pos: int) -> int | None:
+    """Offset just past the header of a DER SEQUENCE at `pos`, or None when it is not one."""
+    if pos + 2 > len(buf) or buf[pos] != 0x30:
+        return None
+    first = buf[pos + 1]
+    if first < 0x80:
+        return pos + 2
+    n = first & 0x7F
+    return pos + 2 + n if 1 <= n <= 4 and pos + 2 + n <= len(buf) else None
+
+
+def _is_der_public_certificate(head: bytes) -> bool:
+    """A binary X.509 certificate (SEQUENCE { SEQUENCE tbsCertificate ... }) or a PKCS#7 signedData bundle.
+    A PKCS#8 key opens SEQUENCE { INTEGER 0 ... } (encrypted: SEQUENCE { SEQUENCE { OID ... } ... }); a PKCS#12 carries OID 1.2.840.113549.1.12. Neither qualifies."""
+    if _PKCS12_OID in head:
+        return False
+    body = _der_seq_body(head, 0)
+    if body is None:
+        return False
+    if head.startswith(_PKCS7_SIGNED_DATA_OID, body):
+        return True
+    # tbsCertificate opens with the v3 `[0]` version (0xA0) or, for a v1 cert, the serial INTEGER (0x02). An
+    # encrypted PKCS#8 key is SEQUENCE { SEQUENCE { AlgorithmIdentifier OID ... } OCTET STRING }: its inner
+    # SEQUENCE opens with an OID (0x06), so it is not cleared.
+    inner = _der_seq_body(head, body)
+    return inner is not None and inner < len(head) and head[inner] in (0xA0, 0x02)
+
+
+_AR_MAGIC = b"!<arch>\n"
+
+
+def _is_ar_archive(path_obj: Path) -> bool:
+    """True for a `.a` file that opens with the `ar` magic (#5624). One 8-byte read, `.a` only."""
+    if path_obj.suffix != ".a":
+        return False
     try:
         with open(path_obj, "rb") as fh:
-            head = fh.read(65537)
+            return fh.read(len(_AR_MAGIC)) == _AR_MAGIC
     except OSError:
         return False
-    return len(head) <= 65536 and bool(_PUBLIC_ARMOR.search(head)) and b"PRIVATE" not in head.upper()
+
+
+def _is_public_key_material(path_obj: Path) -> bool:
+    """True when a key/cert-named file holds only public material. The file is read in bounded chunks (8 MB
+    cap, overlapped so a marker cannot straddle a boundary): armor text counts only with no PRIVATE marker
+    anywhere. A cert-named binary DER file counts when it parses as a certificate. A file past the cap, or a
+    shape not recognised, stays a leak candidate (#4987)."""
+    try:
+        with open(path_obj, "rb") as fh:
+            head = window = fh.read(_PUBLIC_SCAN_CHUNK)
+            total, armor = len(head), False
+            while True:
+                if b"PRIVATE" in window.upper():
+                    return False
+                armor = armor or bool(_PUBLIC_ARMOR.search(window))
+                chunk = fh.read(_PUBLIC_SCAN_CHUNK)
+                if not chunk:
+                    break
+                total += len(chunk)
+                if total > _PUBLIC_SCAN_CAP:
+                    return False
+                window = window[-_PUBLIC_SCAN_OVERLAP:] + chunk
+    except OSError:
+        return False
+    if armor:
+        return True
+    return path_obj.suffix.lower() in _DER_CERT_EXTENSIONS and _is_der_public_certificate(head)
 
 
 class ApertureReason(str):
@@ -351,7 +497,8 @@ class ApertureFilter:
 
         # --- STATE CACHE & DYNAMIC STATE ---
         self._intent_cache: set[str] = set()
-        self.dynamic_ignore_dirs: set[str] = set()
+        self._generated_docs_dir_cache: dict[str, bool] = {}
+        self._source_dir_cache: dict[str, bool] = {}
 
         self.logger.debug(f"Initializing Aperture Filter for project: '{self.root.name}'...")
 
@@ -435,7 +582,11 @@ class ApertureFilter:
             return False, size_bytes, reason
 
         # --- Gate 1.3: Explicit Extension Firewall ---
-        if ext.lower() in self.ignored_extensions and ext.lower() not in self.whitelisted_extensions:
+        # #5624: `.a` is also assembly source (a language now claims it, which lifts the denial), so a
+        # static-library archive is recognised by its `ar` magic rather than by the extension alone.
+        if (
+            ext.lower() in self.ignored_extensions and ext.lower() not in self.whitelisted_extensions
+        ) or _is_ar_archive(path_obj):
             reason = ApertureReason(f"Blocked (Explicitly Denied Extension: '{ext}')", DENIED_EXTENSION)
             return False, size_bytes, reason
 
@@ -618,14 +769,17 @@ class ApertureFilter:
             return report
 
         # --- Gate 3.2: Monolith Amalgamation Shield ---
-        # DEFENSIVE DESIGN: 30,000+ lines in a single file is usually an amalgamation (e.g. sqlite3.c).
-        # Standard Structural Signature extractors suffer from Catastrophic Backtracking on files of this magnitude.
-        if loc > 30000:
+        # DEFENSIVE DESIGN: a file past MAX_FILE_LOC is an amalgamation (sqlite3.c is ~250k lines).
+        # #5459: the cut was 30,000, which dropped whole single-file engines (gore doom.go, 43,874 lines;
+        # PureDOOM.h, 48,604). Both extract in under 10 s; the regex backtracking risk is bounded by the
+        # per-file ReDoS fuse (galaxyscope SIGALRM), not by a line count, so the cut is only a backstop.
+        max_loc = self.config.get("MAX_FILE_LOC", 150000)
+        if loc > max_loc:
             report.update(
                 {
                     "valid": False,
                     "classification": "oversized_minified",
-                    "reason": f"Blocked (Monolithic Amalgamation: {loc} LOC exceeds safe regex boundaries)",
+                    "reason": f"Blocked (Monolithic Amalgamation: {loc} LOC exceeds the {max_loc} LOC backstop)",
                 }
             )
             return report
@@ -648,7 +802,7 @@ class ApertureFilter:
                     }
                 )
                 return report
-            elif not has_intent and loc > 1000:
+            elif not has_intent and loc > 1000 and not (low_path.endswith(".sql") and self._has_sql_structure(content)):
                 report.update(
                     {
                         "valid": False,
@@ -661,8 +815,13 @@ class ApertureFilter:
         # --- Gate 3.4: Embedded Matrix Shield ---
         # DEFENSIVE DESIGN: Massive comma-separated arrays or hex blobs (like embedded images
         # inside C++ headers) contain 0 executable payload, but will completely stall a structural parser.
+        # #5460: ... unless the file also holds function definitions (`tables.c`, `aes_prng.c`:
+        # hand-written code beside a constant table); a pure table has none and is still blocked.
         if loc > 500:
             hex_count = content.count("0x") + content.count("0X")
+            comma_count = content.count(",")
+            if (hex_count > loc or comma_count > (loc * 3)) and self._has_definitions(content.splitlines()):
+                hex_count = comma_count = 0
             if hex_count > loc:
                 report.update(
                     {
@@ -673,7 +832,6 @@ class ApertureFilter:
                 )
                 return report
 
-            comma_count = content.count(",")
             if comma_count > (loc * 3):
                 report.update(
                     {
@@ -713,6 +871,9 @@ class ApertureFilter:
                     for i in long_lines
                     if not (i in comment and len(head[i]) <= max_comment and self._reads_as_prose(head[i]))
                 ]
+        # #5460: a long line beside real definitions is a data row (`sound.h`), not minifier output.
+        if long_lines and self._has_definitions(lines_list):
+            long_lines = []
         if long_lines:
             report.update(
                 {
@@ -726,12 +887,9 @@ class ApertureFilter:
         head_sample = "\n".join(lines_list[:100])
 
         # --- Gate 4.2: Auto-Generated Documentation Shield ---
+        # #5458: this blocks the one file only. Whether its directory is generated output is a
+        # separate, order-independent verdict from the directory's own listing (_is_generated_docs_dir).
         if low_path.endswith((".html", ".htm", ".xml")) and self.doc_generator_pattern.search(head_sample):
-            parent_dir = str(Path(rel_path).parent)
-            if parent_dir != ".":
-                self.dynamic_ignore_dirs.add(parent_dir)
-                self.logger.debug(f"Dynamic Ignore: Directory '{parent_dir}' flagged as Auto-Generated Docs.")
-
             report.update(
                 {
                     "valid": False,
@@ -794,7 +952,9 @@ class ApertureFilter:
                     indent_counts[indent] = indent_counts.get(indent, 0) + 1
 
                 max_indent_freq = max(indent_counts.values())
-                if (max_indent_freq / len(meaningful_lines)) > 0.85:
+                # #5460 (owner ruling 2026-10-19): a file with at least one named function definition
+                # is source, not generated noise (tables.c).
+                if (max_indent_freq / len(meaningful_lines)) > 0.85 and not self._has_definitions(lines_list):
                     report.update(
                         {
                             "valid": False,
@@ -805,6 +965,65 @@ class ApertureFilter:
                     return report
 
         return report
+
+    # #5460: a definition is a body-opening `{` (`...) {` or a lone `{`) whose argument list closes
+    # just before it and whose head -- `[type] name(` within _DEF_SPAN lines above -- reads as a
+    # declaration. Every quantifier is bounded and a line over _DEF_LINE_MAX is skipped, so the
+    # check is linear and cannot backtrack on minified or packed input.
+    _DEF_LINE_MAX = 200
+    _DEF_SPAN = 8
+    _DEF_HEAD = re.compile(r"^[ \t]{0,8}([A-Za-z_~][\w:<>~*&]{0,60})(?:[ \t*&]+[\w:<>~*&]{1,60}){0,5}[ \t]{0,4}\(")
+    _DEF_NAME_ONLY = re.compile(r"^[A-Za-z_][\w:~]{0,60}[ \t]{0,4}$")
+    _DEF_NOT = frozenset({"if", "for", "while", "switch", "return", "else", "do", "sizeof", "typedef", "case", "goto"})
+
+    @classmethod
+    def _has_definitions(cls, lines: list[str], need: int = 1) -> bool:
+        """#5460: True when the file carries `need` function definitions outside any data table.
+
+        The payload guards (3.4 hex and array, 4.1 saturation, 5.1 monotony) read counts that a
+        hand-written file with a large constant table next to its functions also trips; a file
+        with a definition is source and is scanned, a pure table has none and is still excluded.
+        """
+        n = len(lines)
+        found = 0
+        prev = -1  # index of the last non-blank line before i
+        for i, raw in enumerate(lines):
+            if len(raw) > cls._DEF_LINE_MAX:
+                prev = i
+                continue
+            text = raw.strip()
+            if not text:
+                continue
+            # GNU / id style: the name alone at column 0, its argument list on the next line.
+            if (
+                i + 1 < n
+                and cls._DEF_NAME_ONLY.match(raw)
+                and lines[i + 1].lstrip().startswith("(")
+                and text not in cls._DEF_NOT
+            ):
+                found += 1
+                if found >= need:
+                    return True
+            close = -1
+            if text == "{" and prev >= 0 and lines[prev].rstrip().endswith(")"):
+                close = prev
+            elif text.endswith("{") and ")" in text:
+                close = i
+            prev = i
+            if close < 0:
+                continue
+            for j in range(close, max(close - cls._DEF_SPAN, 0) - 1, -1):
+                line = lines[j]
+                if len(line) > cls._DEF_LINE_MAX or ";" in line or "=" in line.split("(", 1)[0]:
+                    break
+                m = cls._DEF_HEAD.match(line)
+                if m:
+                    if m.group(1) not in cls._DEF_NOT:
+                        found += 1
+                        if found >= need:
+                            return True
+                    break
+        return False
 
     # #4351: the most NULs (and, separately, other C0 control characters) a member may carry and
     # still be text damaged in transfer rather than a binary.
@@ -867,6 +1086,26 @@ class ApertureFilter:
             return True
         # Content check: YAML with many run:/steps:/jobs: keys is workflow code
         return len(cls._PIPELINE_KEY_PATTERN.findall(content, 0, 200_000)) >= 3
+
+    # #5636: query structure -- a clause opening a line, or a CTE definition `name AS (`.
+    _SQL_STRUCTURE_LINE = re.compile(
+        r"^[ \t]*(?:select|from|(?:left |right |inner |outer |cross |full )?join|where|group by|order by|case"
+        r"|,?[ \t]*\w+[ \t]+as[ \t]*\()\b",
+        re.IGNORECASE | re.MULTILINE,
+    )
+    _SQL_DATA_LINE = re.compile(r"^[ \t]*(?:insert|values|\()", re.IGNORECASE | re.MULTILINE)
+
+    @classmethod
+    def _has_sql_structure(cls, content: str) -> bool:
+        """#5636: a SQL file is query source, not a data dump, when query-structure lines are a tenth of its lines
+        and outnumber its row lines (`INSERT` / `VALUES` / `(...)`). A CTE-fragment file has no leading statement, so
+        its first statement cannot be the test; a dump of rows has few structure lines, whatever its header."""
+        window = content[:400_000]
+        lines = window.count("\n") + 1
+        structure = sum(1 for _ in cls._SQL_STRUCTURE_LINE.finditer(window))
+        if structure * 10 < lines:
+            return False
+        return structure > sum(1 for _ in cls._SQL_DATA_LINE.finditer(window))
 
     # Characters that open a comment in some language (`//`, `///`, `/*`, ` *`, `#`, `--`, `;`, `%`,
     # `'`, `<!--`, `"""`) plus whitespace; stripped from the front of a line to reach its text.
@@ -952,6 +1191,61 @@ class ApertureFilter:
             return False
         return line.count(" ") * _PROSE_CHARS_PER_SPACE >= len(line)
 
+    # #5458: assets a Doxygen/Sphinx/JSDoc output directory holds besides its HTML.
+    _DOC_ASSET_EXTENSIONS = frozenset(
+        {".html", ".htm", ".xml", ".css", ".js", ".json", ".md", ".txt", ".map", ".php", ".hhc", ".hhk", ".hhp"}
+    )
+    _DOC_PROBE_BYTES = 8192
+    _DOC_PROBE_MAX_FILES = 64
+
+    def _list_dir_files(self, rel_dir: str) -> list[str]:
+        """Sorted file names directly inside rel_dir ([] when unreadable)."""
+        try:
+            with os.scandir(self.root.joinpath(*rel_dir.split("/"))) as it:
+                return sorted(e.name for e in it if e.is_file())
+        except OSError:
+            return []
+
+    def _holds_source_files(self, rel_dir: str) -> bool:
+        """True when rel_dir directly holds source or build files (not doc assets)."""
+        cached = self._source_dir_cache.get(rel_dir)
+        if cached is None:
+            cached = False
+            for name in self._list_dir_files(rel_dir):
+                ext = os.path.splitext(name)[1].lower()
+                if name in self.exact_match_files or (
+                    ext in self.whitelisted_extensions and ext not in self._DOC_ASSET_EXTENSIONS
+                ):
+                    cached = True
+                    break
+            self._source_dir_cache[rel_dir] = cached
+        return cached
+
+    def _is_generated_docs_dir(self, rel_dir: str) -> bool:
+        """Order-independent verdict: most of the directory's own markup files carry a doc-generator
+        signature and the directory holds no source/build files (#5458)."""
+        cached = self._generated_docs_dir_cache.get(rel_dir)
+        if cached is not None:
+            return cached
+        verdict = False
+        markup = [n for n in self._list_dir_files(rel_dir) if n.lower().endswith((".html", ".htm", ".xml"))]
+        if markup and not self._holds_source_files(rel_dir):
+            sample = markup[: self._DOC_PROBE_MAX_FILES]
+            hits = 0
+            for name in sample:
+                try:
+                    with open(self.root.joinpath(*rel_dir.split("/"), name), "rb") as fh:
+                        head = decode_bytes(fh.read(self._DOC_PROBE_BYTES))
+                except OSError:
+                    continue
+                if self.doc_generator_pattern.search("\n".join(head.splitlines()[:100])):
+                    hits += 1
+            verdict = hits * 2 > len(sample)
+        if verdict:
+            self.logger.debug(f"Directory '{rel_dir}' flagged as Auto-Generated Docs.")
+        self._generated_docs_dir_cache[rel_dir] = verdict
+        return verdict
+
     def _check_ignore_rules(self, rel_path: str, has_intent: bool = False) -> bool:
         """
         Determines if the path is in a blocked, ignored, or dynamically
@@ -968,9 +1262,8 @@ class ApertureFilter:
                 return False
             if low_part in VIRTUALENV_CANDIDATE_NAMES and self._is_virtualenv("/".join(parts[: i + 1])):
                 return False
-            if VendorDirectoryDetector.is_candidate_name(part) and self._vendor_dirs.is_vendored(
-                "/".join(parts[: i + 1])
-            ):
+            # the last part is the file itself: only directories are probed (no stat per file)
+            if i < len(parts) - 1 and self._vendor_dirs.is_vendored("/".join(parts[: i + 1])):
                 return False
 
             if (
@@ -984,10 +1277,16 @@ class ApertureFilter:
 
         # 2. Dynamic Documentation Debris Shield
         path_obj = Path(rel_path)
+        # #5458: a directory is generated docs on evidence about the directory, never one file.
+        # A flagged ancestor covers descendants only while they hold no source/build files.
+        flagged_ancestor = False
         for parent in path_obj.parents:
-            if str(parent) in self.dynamic_ignore_dirs:
-                self.logger.debug(f"Dynamic Deflection: Asset '{rel_path}' blocked in auto-generated directory.")
-                return False
+            if str(parent) != "." and self._is_generated_docs_dir(str(parent)):
+                flagged_ancestor = True
+                break
+        if flagged_ancestor and not self._holds_source_files(str(path_obj.parent)):
+            self.logger.debug(f"Dynamic Deflection: Asset '{rel_path}' blocked in auto-generated directory.")
+            return False
 
         # 3. (removed, #3278) The "Semantic Infrastructure & Test Target Shield" dropped
         # any path containing a word like lib/spec/test/build/out/docs/scripts. Since

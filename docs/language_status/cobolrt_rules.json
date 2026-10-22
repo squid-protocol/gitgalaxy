@@ -1,0 +1,4232 @@
+{
+ "about": [
+  "Every semantic rule of the det-port Java runtime (gitgalaxy/tools/cobol_to_java/det/cobolrt, #4711): a stable ID, the IBM reference it implements, the options it depends on (#4704), its oracle-assumptions register entries (docs/language_status/register/) and its calibration (#4702). Each rule's code site carries `[rule ID]`; tests/cobol_mainframe/test_cobolrt_rules.py checks both directions.",
+  "",
+  "Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the runtime implements IBM's documented rule; DIFFERS -- it follows the oracle where z/OS differs or where IBM documents no result and the oracle's answer is modelled (declared in the register); ASSUMED -- IBM leaves it open or the runtime's reading of IBM is not yet confirmed, the choice named; REFUSED -- the runtime stops by name. Calibration: uncalibrated until a z/OS measurement backs the rule (#4702)."
+ ],
+ "documents": {
+  "cobol-lr": {
+   "title": "IBM Enterprise COBOL for z/OS 6.4 Language Reference",
+   "number": "SC27-8713-03"
+  },
+  "cobol-pg": {
+   "title": "IBM Enterprise COBOL for z/OS 6.4 Programming Guide",
+   "number": "SC27-8714-03"
+  },
+  "zarch-pop": {
+   "title": "IBM z/Architecture Principles of Operation",
+   "number": "SA22-7832"
+  },
+  "cics-apr": {
+   "title": "IBM CICS Transaction Server for z/OS, Application Programming Reference (CICS command summary)"
+  },
+  "db2-sql": {
+   "title": "IBM Db2 for z/OS SQL Reference"
+  },
+  "db2-codes": {
+   "title": "IBM Db2 for z/OS Codes"
+  },
+  "db2-app": {
+   "title": "IBM Db2 for z/OS Application Programming and SQL Guide"
+  },
+  "le-pr": {
+   "title": "IBM z/OS Language Environment Programming Reference"
+  },
+  "carddemo-mvswait": {
+   "title": "CardDemo app/asm/MVSWAIT.asm -- the estate's own assembler routine (no IBM manual applies; the source is the reference)"
+  },
+  "carddemo-cobdatft": {
+   "title": "CardDemo app/asm/COBDATFT.asm -- the estate's own assembler routine (no IBM manual applies; the source is the reference)"
+  },
+  "ims-apis": {
+   "title": "IBM IMS Application Programming APIs (DL/I calls, SSAs, relational operators)"
+  },
+  "ims-ap": {
+   "title": "IBM IMS Application Programming (DB PCB masks, current position in the database)"
+  },
+  "ims-codes": {
+   "title": "IBM IMS Messages and Codes, Volume 4: IMS Component Codes (DL/I status codes)"
+  },
+  "mvs-da": {
+   "title": "IBM z/OS MVS Data Areas (PSA, TCB, TIOT)"
+  }
+ },
+ "options": {
+  "TRUNC": {
+   "kind": "compile",
+   "about": "TRUNC(STD | OPT | BIN): binary items and the PICTURE"
+  },
+  "NUMPROC": {
+   "kind": "compile",
+   "about": "NUMPROC(NOPFD | PFD): preferred signs"
+  },
+  "ARITH": {
+   "kind": "compile",
+   "about": "ARITH(COMPAT | EXTEND): intermediate precision, NUMVAL's float"
+  },
+  "INTDATE": {
+   "kind": "compile",
+   "about": "INTDATE(ANSI | LILIAN): day 1 of the integer-date functions"
+  },
+  "ZONEDATA": {
+   "kind": "compile",
+   "about": "ZONEDATA(PFD | MIG | NOPFD): zone bits of zoned data"
+  },
+  "QUOTE": {
+   "kind": "compile",
+   "about": "QUOTE | APOST: the figurative constant QUOTE"
+  },
+  "ARITHMETIC-OSVS": {
+   "kind": "dialect",
+   "about": "OS/VS COBOL arithmetic, decided by the translator (det/osvs.py; cobc arithmetic-osvs)"
+  },
+  "DECIMAL-POINT-COMMA": {
+   "kind": "source",
+   "about": "SPECIAL-NAMES DECIMAL-POINT IS COMMA"
+  },
+  "CURRENCY-SIGN": {
+   "kind": "source",
+   "about": "SPECIAL-NAMES CURRENCY SIGN and PICTURE SYMBOL"
+  },
+  "PROGRAM-COLLATING-SEQUENCE": {
+   "kind": "source",
+   "about": "OBJECT-COMPUTER PROGRAM COLLATING SEQUENCE, a SORT / MERGE COLLATING SEQUENCE"
+  },
+  "REGION-CODE-PAGE": {
+   "kind": "deployment",
+   "about": "the CICS region's code page (the estate's EBCDIC page, else CCSID 037)"
+  }
+ },
+ "families": [
+  {
+   "id": "CBL",
+   "prefix": "CBL",
+   "title": "statements and data movement",
+   "files": [
+    "Cobol.java"
+   ],
+   "done": true,
+   "about": "MOVE, arithmetic stores and intermediates, comparisons, class tests, DISPLAY, STRING / UNSTRING / INSPECT, the LINK COMMAREA.",
+   "plumbing": [
+    "cat",
+    "temp",
+    "literalField"
+   ]
+  },
+  {
+   "id": "NUM",
+   "prefix": "NUM",
+   "title": "numeric storage codecs",
+   "files": [
+    "Codec.java",
+    "Zoned.java"
+   ],
+   "done": true,
+   "about": "Zoned, packed and binary encodings, TRUNC and NUMPROC at the byte level, and the oracle's reading of non-digit zoned data.",
+   "plumbing": [
+    "value",
+    "of",
+    "ch",
+    "by",
+    "space",
+    "start",
+    "signAt",
+    "sepAt",
+    "scaled",
+    "aligned"
+   ]
+  },
+  {
+   "id": "HFP",
+   "prefix": "HFP",
+   "title": "COMP-1 / COMP-2 as hexadecimal floating point",
+   "files": [
+    "Hfp.java"
+   ],
+   "done": true,
+   "about": "IBM HFP arithmetic, conversions and DISPLAY.",
+   "plumbing": [
+    "p16",
+    "pow16",
+    "value",
+    "digits"
+   ]
+  },
+  {
+   "id": "EDIT",
+   "prefix": "EDIT",
+   "title": "numeric editing",
+   "files": [
+    "Editing.java"
+   ],
+   "done": true,
+   "about": "Numeric-edited PICTUREs.",
+   "plumbing": [
+    "expandPic",
+    "expand"
+   ]
+  },
+  {
+   "id": "FUNC",
+   "prefix": "FUNC",
+   "title": "intrinsic functions",
+   "files": [
+    "Funcs.java",
+    "Accept.java"
+   ],
+   "done": true,
+   "about": "The intrinsic functions the translator calls.",
+   "plumbing": []
+  },
+  {
+   "id": "CICS",
+   "prefix": "CICS",
+   "title": "EXEC CICS data movement",
+   "files": [
+    "cics/DetCics.java",
+    "cics/DetJustify.java"
+   ],
+   "done": true,
+   "about": "What a det port does around a CICS command: the bytes it passes and receives. The command semantics (conditions, RESP2) are the CICS stub's (CicsTask), outside the runtime.",
+   "plumbing": [
+    "withFindById",
+    "findById",
+    "key",
+    "rows",
+    "store",
+    "remove",
+    "keyLength"
+   ]
+  },
+  {
+   "id": "SQL",
+   "prefix": "SQL",
+   "title": "embedded SQL",
+   "files": [
+    "sql/DetSql.java"
+   ],
+   "done": true,
+   "about": "Host variables, the SQLCA, cursors and the unit of work around each EXEC SQL statement.",
+   "plumbing": []
+  },
+  {
+   "id": "LE",
+   "prefix": "LE",
+   "title": "Language Environment callable services",
+   "files": [
+    "le/Ceedate.java",
+    "le/Ceedatm.java",
+    "le/Ceedays.java",
+    "le/Ceegmt.java",
+    "le/Ceegmto.java",
+    "le/Ceeisec.java",
+    "le/Ceeloct.java",
+    "le/Ceeqcen.java",
+    "le/Ceesecs.java",
+    "le/Ceeutc.java",
+    "le/Cobdatft.java",
+    "le/Dsntiac.java",
+    "le/LeTime.java",
+    "le/Mvswait.java"
+   ],
+   "done": true,
+   "about": "The date / time services, COBDATFT and MVSWAIT, as the harness's C models do them.",
+   "plumbing": []
+  },
+  {
+   "id": "DLI",
+   "prefix": "DLI",
+   "title": "IMS DL/I database calls",
+   "files": [
+    "dli/DetDli.java"
+   ],
+   "done": true,
+   "about": "A batch DL/I program's CALL 'CBLTDLI' through a DB PCB on a stated database: the twin of the harness's ggdli.c (register family I).",
+   "plumbing": [
+    "reset",
+    "refuse",
+    "dir",
+    "name8",
+    "findSeg",
+    "findFld",
+    "keyCmp",
+    "keyAt",
+    "fullword",
+    "text",
+    "dbFirst",
+    "descends",
+    "descendsType",
+    "lastInSubtree",
+    "ancestorOfType",
+    "initMask",
+    "area",
+    "ssa",
+    "execPcb",
+    "execCall",
+    "enterBmp",
+    "bind",
+    "checkpoint"
+   ]
+  },
+  {
+   "id": "MQ",
+   "prefix": "MQ",
+   "title": "IBM MQ (MQI from CICS)",
+   "files": [
+    "mq/QueueManager.java",
+    "cics/DetMq.java"
+   ],
+   "done": true,
+   "about": "The queue manager a CICS task's MQOPEN / MQGET / MQPUT / MQPUT1 / MQCLOSE reach, and the glue that joins it to the task (#4892).",
+   "plumbing": [
+    "be32",
+    "put32",
+    "bytesAre",
+    "zero",
+    "fill",
+    "pad",
+    "name48",
+    "mdInt",
+    "comp",
+    "done",
+    "r",
+    "event"
+   ]
+  },
+  {
+   "id": "DATA",
+   "prefix": "DATA",
+   "title": "items and storage",
+   "files": [
+    "Field.java",
+    "Storage.java",
+    "Lossless.java",
+    "Figurative.java",
+    "Hole.java"
+   ],
+   "done": true,
+   "about": "The item and storage model the other families work on.",
+   "plumbing": [
+    "decimalComma",
+    "group",
+    "alphanumeric",
+    "alphabetic",
+    "zoned",
+    "packed",
+    "binary",
+    "hfp",
+    "numericEdited",
+    "alphanumericEdited",
+    "storage",
+    "offset",
+    "length",
+    "kind",
+    "digits",
+    "scale",
+    "isSigned",
+    "isNumeric",
+    "raw",
+    "putRaw"
+   ]
+  },
+  {
+   "id": "SORT",
+   "prefix": "SORT",
+   "title": "SORT / MERGE and collating sequences",
+   "files": [
+    "Sort.java"
+   ],
+   "done": true,
+   "about": "One SORT or MERGE over its SD file, and the PROGRAM COLLATING SEQUENCE.",
+   "plumbing": []
+  },
+  {
+   "id": "FILE",
+   "prefix": "FILE",
+   "title": "batch files",
+   "files": [
+    "batch/DetFiles.java"
+   ],
+   "done": true,
+   "about": "Each SELECT over its FD record, through CobolFiles.",
+   "plumbing": []
+  },
+  {
+   "id": "SYS",
+   "prefix": "SYS",
+   "title": "standalone SYSOUT and abends",
+   "files": [
+    "standalone/CobolAbend.java",
+    "standalone/Sysout.java"
+   ],
+   "done": true,
+   "about": "DISPLAY and abends of a standalone (batch) port.",
+   "plumbing": []
+  },
+  {
+   "id": "MVS",
+   "prefix": "MVS",
+   "title": "z/OS control blocks a batch program reads",
+   "files": [
+    "DetMvs.java"
+   ],
+   "done": true,
+   "about": "The PSA -> TCB -> TIOT a batch program walks through pointers to read its own job, step and DD names, laid from the job step the run states (#5856).",
+   "plumbing": [
+    "block",
+    "blocks",
+    "name",
+    "put",
+    "pointerValue",
+    "setPointer"
+   ]
+  }
+ ],
+ "rules": [
+  {
+   "id": "RT-CBL-TRUNC-PER-PROGRAM",
+   "family": "CBL",
+   "title": "TRUNC(STD / BIN / OPT) set for one program's run and restored after it (a program LINKed or CALLed keeps its own)",
+   "methods": [
+    "setTruncBinary",
+    "swapTruncBinary",
+    "swapTruncOpt",
+    "setTruncOpt"
+   ],
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "Compiler options: TRUNC"
+   },
+   "options": [
+    "TRUNC"
+   ],
+   "register": [
+    "C1",
+    "C5"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-ARITH-PER-PROGRAM",
+   "family": "CBL",
+   "title": "ARITH(EXTEND) set for one program's run and restored after it",
+   "methods": [
+    "swapArithExtend"
+   ],
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "Compiler options: ARITH"
+   },
+   "options": [
+    "ARITH"
+   ],
+   "register": [
+    "C5"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-NUMPROC-PER-PROGRAM",
+   "family": "CBL",
+   "title": "NUMPROC(PFD / NOPFD) set for one program's run and restored after it (NUMPROC(MIG) compiles as NOPFD)",
+   "methods": [
+    "swapNumprocPfd"
+   ],
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "Compiler options: NUMPROC"
+   },
+   "options": [
+    "NUMPROC"
+   ],
+   "register": [
+    "C5"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-ZERO-DIVISOR-NAN",
+   "family": "CBL",
+   "title": "A zero divisor raises the size error and makes the intermediate libcob's NaN: NaN in, NaN out through + - * and unary minus, and a store of NaN leaves the receiver unchanged",
+   "methods": [
+    "isNan",
+    "nan",
+    "sizeClear",
+    "sizeRaised",
+    "raiseSize",
+    "add",
+    "subtract",
+    "multiply",
+    "negate"
+   ],
+   "site": "add@1",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "SIZE ERROR phrases"
+   },
+   "options": [],
+   "register": [
+    "C14"
+   ],
+   "status": "DIFFERS",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-DIVIDE-INTERMEDIATE",
+   "family": "CBL",
+   "title": "An intermediate quotient as cob_decimal_div forms it: scale a.scale - b.scale, the dividend shifted 38 digits more, truncated (38 + max(scale, 0) decimal places)",
+   "methods": [
+    "divide"
+   ],
+   "site": "divide@1",
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "Intermediate results and arithmetic precision"
+   },
+   "options": [
+    "ARITH"
+   ],
+   "register": [
+    "C2"
+   ],
+   "status": "DIFFERS",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-DIVIDE-REMAINDER",
+   "family": "CBL",
+   "title": "DIVIDE ... REMAINDER: dividend less divisor times the quotient truncated to the first GIVING receiver's scale (not to its high-order digits); a NaN quotient leaves the remainder receiver unchanged",
+   "methods": [
+    "remainder"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "DIVIDE statement (REMAINDER phrase)"
+   },
+   "options": [],
+   "register": [
+    "C14"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-DIVIDE-IN-FUNCTION-ARGUMENT",
+   "family": "CBL",
+   "title": "A division inside an intrinsic function's argument (cob_intr_binop): a zero divisor gives 0 with the size error raised, never NaN",
+   "methods": [
+    "divideIntr"
+   ],
+   "ibm": null,
+   "ibm_note": "z/OS leaves a zero divisor's result undefined; the oracle's value is modelled",
+   "options": [],
+   "register": [
+    "C14"
+   ],
+   "status": "DIFFERS",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-OSVS-INTERMEDIATE-ALIGN",
+   "family": "CBL",
+   "title": "ARITHMETIC-OSVS: an intermediate truncated to the statement's decimal places as cob_decimal_align does it (fewer places than the scale lose as many low-order digits: 579 aligned to 2 places is 500)",
+   "methods": [
+    "align"
+   ],
+   "ibm": null,
+   "ibm_note": "OS/VS COBOL arithmetic is outside the Enterprise COBOL manuals; cobc's arithmetic-osvs (the oracle) is modelled",
+   "options": [
+    "ARITHMETIC-OSVS"
+   ],
+   "register": [
+    "C2"
+   ],
+   "status": "DIFFERS",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-DECIMAL-CONSTANT-SCALE",
+   "family": "CBL",
+   "title": "A numeric literal in a decimal expression is libcob's decimal constant: an ADD / SUBTRACT raises its scale and an exponent trims it in place, and later uses of the same literal see the change; a program restart resets it",
+   "methods": [
+    "reset",
+    "add",
+    "subtract",
+    "multiply",
+    "divide",
+    "power",
+    "trim"
+   ],
+   "site": "reset",
+   "ibm": null,
+   "ibm_note": "IBM documents literal operands as constants; the in-place scale change is the oracle's (cob_decimal_* on dc_N)",
+   "options": [
+    "ARITHMETIC-OSVS"
+   ],
+   "register": [
+    "C2"
+   ],
+   "status": "DIFFERS",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-EXPONENTIATION",
+   "family": "CBL",
+   "title": "a ** b as cob_decimal_pow: a whole exponent exactly, else through double; 0 ** 0 is 1 with the size error raised, a non-finite result NaN with the size error raised",
+   "methods": [
+    "power"
+   ],
+   "site": "power@2",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "SIZE ERROR phrases (Table 32: exponentiation size errors)"
+   },
+   "options": [],
+   "register": [
+    "C14"
+   ],
+   "status": "DIFFERS",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-MOVE-SAME-ZONED-SHAPE",
+   "family": "CBL",
+   "title": "A MOVE between zoned items of one shape (digits, scale, sign, sign position, size) copies the bytes: a non-digit travels as it is, no sign rewrite",
+   "methods": [
+    "move",
+    "sameZonedShape"
+   ],
+   "site": "move@1",
+   "ibm": null,
+   "ibm_note": "IBM documents no result for non-digit data in a numeric item; the oracle's (GnuCOBOL 3.1.2) rule is modelled (cobc compiles the MOVE as a memcpy)",
+   "options": [],
+   "features": [
+    "statements: MOVE"
+   ],
+   "register": [
+    "C11"
+   ],
+   "status": "DIFFERS",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-MOVE-ELEMENTARY",
+   "family": "CBL",
+   "title": "MOVE by receiver category: alphanumeric padded / truncated (JUSTIFIED on the right), alphanumeric-edited through its insertion characters, numeric aligned on the decimal point with extra decimals and high-order digits dropped, numeric-edited through its PICTURE (BLANK WHEN ZERO), a group as bytes",
+   "methods": [
+    "moveBytes",
+    "store",
+    "edit",
+    "padCopy",
+    "insertEdit",
+    "fill",
+    "move"
+   ],
+   "site": "moveBytes",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "MOVE statement: elementary moves"
+   },
+   "options": [
+    "DECIMAL-POINT-COMMA"
+   ],
+   "features": [
+    "statements: MOVE"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-MOVE-NONDIGIT-TO-BINARY",
+   "family": "CBL",
+   "title": "A zoned sender holding a non-digit MOVEd to a binary item: each byte counts as its character minus '0', accumulated in an unsigned 64-bit integer (wrapping), the receiver's digits kept under TRUNC(STD)",
+   "methods": [
+    "nonDigitToBinary"
+   ],
+   "ibm": null,
+   "ibm_note": "IBM documents no result for non-digit data in a numeric item; the oracle's (GnuCOBOL 3.1.2) rule is modelled (cob_move_display_to_binary)",
+   "options": [
+    "TRUNC"
+   ],
+   "register": [
+    "C11"
+   ],
+   "status": "DIFFERS",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-MOVE-NONDIGIT-SIGN-REFUSED",
+   "family": "CBL",
+   "title": "A signed zoned sender whose sign byte is neither a digit, an overpunch, a sign nor a space, MOVEd to a binary item (a separate sign) or to an alphanumeric item: refused by name",
+   "methods": [
+    "nonDigitSign",
+    "refuseUndefinedSign"
+   ],
+   "ibm": null,
+   "ibm_note": "IBM documents no result for such data",
+   "options": [],
+   "register": [
+    "C11"
+   ],
+   "status": "REFUSED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-MOVE-NONDIGIT",
+   "family": "CBL",
+   "title": "A zoned sender holding a non-digit MOVEd to a zoned, packed or numeric-edited receiver: the oracle's byte rules (Zoned)",
+   "methods": [
+    "moveNonDigit"
+   ],
+   "ibm": null,
+   "ibm_note": "IBM documents no result for non-digit data in a numeric item; the oracle's (GnuCOBOL 3.1.2) rule is modelled",
+   "options": [],
+   "register": [
+    "C11"
+   ],
+   "status": "DIFFERS",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-MOVE-FLOAT",
+   "family": "CBL",
+   "title": "A MOVE with a COMP-1 / COMP-2 sender or receiver: a number into a float converted to its precision, a float into a fixed-point or edited item rounded in the low-order position (9 / 18 significant digits); a float's bytes moved otherwise refused",
+   "methods": [
+    "moveFloat"
+   ],
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "Conversions and precision"
+   },
+   "options": [],
+   "features": [
+    "statements: MOVE"
+   ],
+   "register": [
+    "C6"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-HEX-LITERAL-BYTES",
+   "family": "CBL",
+   "title": "X'hh..' is exactly those bytes, with no code-page translation; the record charset keeps every byte value",
+   "methods": [
+    "hex",
+    "recordCharset"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Alphanumeric literals: hexadecimal notation"
+   },
+   "options": [],
+   "register": [
+    "D2"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-MOVE-FIGURATIVE",
+   "family": "CBL",
+   "title": "MOVE of a figurative constant: ZERO stored as the value zero (numeric, edited), SPACE / LOW-VALUE / HIGH-VALUE / QUOTE as their byte repeated; a figurative other than ZERO into a COMP-1 / COMP-2 item refused",
+   "methods": [
+    "moveFigurative",
+    "figByte"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Figurative constants"
+   },
+   "options": [
+    "QUOTE"
+   ],
+   "features": [
+    "statements: MOVE"
+   ],
+   "register": [
+    "C6"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-MOVE-ALL-LITERAL",
+   "family": "CBL",
+   "title": "MOVE ALL literal: the literal repeated to the receiver's size",
+   "methods": [
+    "moveAll"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Figurative constants: ALL literal"
+   },
+   "options": [],
+   "features": [
+    "statements: MOVE"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-MOVE-NUMERIC-TO-ALPHANUMERIC",
+   "family": "CBL",
+   "title": "A numeric sender MOVEd to an alphanumeric receiver as its unsigned digits (the overpunched sign removed); a right-P item's P positions as zeros",
+   "methods": [
+    "sourceText",
+    "pZeros",
+    "unpunch"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "MOVE statement: elementary moves"
+   },
+   "options": [],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-MOVE-DEEDIT",
+   "family": "CBL",
+   "title": "A numeric-edited sender MOVEd to a numeric receiver is de-edited: its digits, negative when it shows -, CR or DB",
+   "methods": [
+    "source",
+    "deedit"
+   ],
+   "site": "source@1",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "MOVE statement: de-editing"
+   },
+   "options": [
+    "DECIMAL-POINT-COMMA"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-MOVE-ALPHANUMERIC-TO-NUMERIC",
+   "family": "CBL",
+   "title": "An alphanumeric sender MOVEd to a numeric receiver read as libcob does: into a zoned item byte for byte (leading spaces and one sign skipped, a stray character makes it zero), into a packed or binary item the whole text",
+   "methods": [
+    "alnumToDisplay",
+    "parseAlnum"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "MOVE statement: elementary moves"
+   },
+   "options": [
+    "DECIMAL-POINT-COMMA"
+   ],
+   "register": [],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-OPERAND-VALUE",
+   "family": "CBL",
+   "title": "A numeric item's value as an operand (numeric-edited: de-edited; a zoned item through Zoned's reading)",
+   "methods": [
+    "num"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Arithmetic expressions"
+   },
+   "options": [],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-ADD-INT-OPERAND",
+   "family": "CBL",
+   "title": "The operand of ADD / SUBTRACT that cobc compiles as cob_add_int(y, cob_get_int(x)): a zoned x of at most 9 digits read as an int, a non-digit as its byte minus '0'",
+   "methods": [
+    "intOperand"
+   ],
+   "ibm": null,
+   "ibm_note": "IBM documents no result for non-digit data in a numeric item; the oracle's (GnuCOBOL 3.1.2) rule is modelled",
+   "options": [
+    "TRUNC"
+   ],
+   "register": [
+    "C11"
+   ],
+   "status": "DIFFERS",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-RECEIVER-NONDIGIT-REFUSED",
+   "family": "CBL",
+   "title": "The receiver of ADD / SUBTRACT / MULTIPLY / DIVIDE, the PERFORM VARYING variable and the SET UP / DOWN BY target are read before it stores: a zoned receiver holding a non-digit is refused by name",
+   "methods": [
+    "receiverNum"
+   ],
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "ZONEDATA (replaced by INVDATA in 6.4)"
+   },
+   "ibm_note": "IBM documents no result (ZONEDATA(PFD) assumes valid zone bits; ZONEDATA(NOPFD|MIG) corrects them on an addition)",
+   "options": [
+    "ZONEDATA"
+   ],
+   "features": [
+    "statements: PERFORM",
+    "statements: SET-BY",
+    "statements: SET-TO",
+    "statements: SET-TRUE"
+   ],
+   "register": [
+    "C11"
+   ],
+   "status": "REFUSED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-COUNTER-NONDIGIT-REFUSED",
+   "family": "CBL",
+   "title": "A STRING / UNSTRING POINTER, an UNSTRING TALLYING IN item and an INSPECT TALLYING counter are read before they store: a zoned one holding a non-digit is refused by name",
+   "methods": [
+    "counterNum"
+   ],
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "ZONEDATA (replaced by INVDATA in 6.4)"
+   },
+   "ibm_note": "IBM documents no result (ZONEDATA(PFD) assumes valid zone bits); the same ground as the receiver of ADD",
+   "options": [
+    "ZONEDATA"
+   ],
+   "features": [
+    "statements: INSPECT",
+    "statements: STRING",
+    "statements: UNSTRING"
+   ],
+   "register": [
+    "C11"
+   ],
+   "status": "REFUSED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-COMPARE-NONDIGIT",
+   "family": "CBL",
+   "title": "A numeric item's value in a comparison: a zoned item holding a non-digit as the oracle compares it (Zoned.compareValue)",
+   "methods": [
+    "cmpNum"
+   ],
+   "ibm": null,
+   "ibm_note": "IBM documents no result for non-digit data in a numeric item; the oracle's (GnuCOBOL 3.1.2) rule is modelled",
+   "options": [],
+   "register": [
+    "C11"
+   ],
+   "status": "DIFFERS",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-ALPHANUMERIC-TEXT",
+   "family": "CBL",
+   "title": "An alphanumeric item's text: its bytes; a value moved into it truncated on the right or padded with spaces",
+   "methods": [
+    "text",
+    "putText",
+    "fit",
+    "moveText"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "MOVE statement: elementary moves"
+   },
+   "options": [],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-STORE-RESULT",
+   "family": "CBL",
+   "title": "An arithmetic result stored: low-order digits past the scale dropped or ROUNDED (half away from zero), high-order digits past the PICTURE (or the bytes, TRUNC(BIN) / COMP-5) lost; the typed-layer readers return exactly what the store leaves",
+   "methods": [
+    "store",
+    "binary",
+    "putBinary",
+    "zoned",
+    "packed"
+   ],
+   "site": "store@2",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "ROUNDED phrase"
+   },
+   "options": [
+    "TRUNC"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-UNSIGNED-BINARY-ABSOLUTE",
+   "family": "CBL",
+   "title": "ADD / SUBTRACT into an unsigned binary item where cobc compiles native arithmetic: the receiver takes the absolute value (1 - 3 is 2), as IBM; the oracle wraps (declared)",
+   "methods": [
+    "storeNative",
+    "binaryNative"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "MOVE statement: elementary moves; SIZE ERROR phrases"
+   },
+   "options": [
+    "TRUNC"
+   ],
+   "register": [
+    "C4"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-SIZE-ERROR",
+   "family": "CBL",
+   "title": "ON SIZE ERROR: the receiver unchanged, and the condition true, when the value does not fit or is NaN",
+   "methods": [
+    "storeChecked"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "SIZE ERROR phrases"
+   },
+   "options": [
+    "TRUNC"
+   ],
+   "register": [
+    "C14"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-HOST-VARIABLE-BINARY",
+   "family": "CBL",
+   "title": "A Db2 value into a binary host variable takes any value its 2 / 4 / 8 bytes hold whatever TRUNC says (SMALLINT / INTEGER / BIGINT); -304 only outside that type",
+   "methods": [
+    "storeHostChecked"
+   ],
+   "ibm": {
+    "doc": "db2-app",
+    "section": "Equivalent SQL and COBOL data types"
+   },
+   "options": [
+    "TRUNC"
+   ],
+   "register": [
+    "Q1a"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-COMPARE-NONNUMERIC",
+   "family": "CBL",
+   "title": "Nonnumeric operands compared byte by byte, the shorter padded with spaces, in the data's byte order or under the PROGRAM COLLATING SEQUENCE's alphabet (ASCII data on the oracle, EBCDIC on z/OS)",
+   "methods": [
+    "cmpBytes",
+    "compare",
+    "compareText"
+   ],
+   "site": "cmpBytes@1",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Comparison of alphanumeric operands"
+   },
+   "options": [
+    "PROGRAM-COLLATING-SEQUENCE"
+   ],
+   "register": [
+    "D1"
+   ],
+   "status": "DIFFERS",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-COMPARE-NUMERIC-WITH-NONNUMERIC",
+   "family": "CBL",
+   "title": "A numeric item against a nonnumeric one is its digits as characters (as if moved to an alphanumeric item of as many characters), the sign dropped",
+   "methods": [
+    "operand",
+    "digitsText"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "General relation conditions: Alphanumeric comparisons"
+   },
+   "options": [],
+   "register": [
+    "C13"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-COMPARE-NUMERIC",
+   "family": "CBL",
+   "title": "Numeric operands compared by value, whatever their usage and the collating sequence",
+   "methods": [
+    "compare"
+   ],
+   "site": "compare@5",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Comparison of numeric operands"
+   },
+   "options": [],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-COMPARE-FLOAT",
+   "family": "CBL",
+   "title": "A comparison with a floating-point comparand is made in floating point: a fixed-point item converted to long HFP",
+   "methods": [
+    "floatOperand"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Comparison of numeric operands"
+   },
+   "options": [],
+   "register": [
+    "C6"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-COMPARE-ALL-LITERAL",
+   "family": "CBL",
+   "title": "An item against an ALL literal: the literal repeated or cut to the item's length, then compared byte by byte",
+   "methods": [
+    "compareAll",
+    "repeat"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Figurative constants: ALL literal"
+   },
+   "options": [
+    "PROGRAM-COLLATING-SEQUENCE"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-COMPARE-FIGURATIVE",
+   "family": "CBL",
+   "title": "An item against a figurative constant: the constant's character repeated to the item's length (ZERO against a numeric item: by value)",
+   "methods": [
+    "compareFigurative"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Figurative constants"
+   },
+   "options": [
+    "PROGRAM-COLLATING-SEQUENCE"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-CLASS-NUMERIC",
+   "family": "CBL",
+   "title": "IS NUMERIC: zoned digits with a valid overpunch at the sign position, packed digit nibbles with a valid sign nibble, alphanumeric all digits; under NUMPROC(PFD) a signed item with an F sign is refused",
+   "methods": [
+    "isNumeric",
+    "isNumericSignF"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Class condition"
+   },
+   "options": [
+    "NUMPROC"
+   ],
+   "register": [
+    "C5"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-CLASS-ALPHABETIC",
+   "family": "CBL",
+   "title": "IS ALPHABETIC / ALPHABETIC-UPPER / ALPHABETIC-LOWER: letters and spaces only",
+   "methods": [
+    "letters",
+    "isAlphabetic",
+    "isAlphabeticUpper",
+    "isAlphabeticLower"
+   ],
+   "site": "isAlphabetic",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Class condition"
+   },
+   "options": [],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-DISPLAY-OPERAND",
+   "family": "CBL",
+   "title": "DISPLAY of an operand: a signed zoned item as its bytes, a binary or packed item as zoned digits of its PICTURE (signed: the last digit overpunched), any other item as its bytes",
+   "methods": [
+    "displayText"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "DISPLAY statement"
+   },
+   "options": [],
+   "register": [
+    "C8"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-STRING",
+   "family": "CBL",
+   "title": "STRING ... DELIMITED BY ... INTO ... [WITH POINTER]: bytes transferred in order, the receiver not padded; OVERFLOW when the pointer is outside the receiver or the data does not fit",
+   "methods": [
+    "size",
+    "delimited",
+    "indexOf",
+    "matches",
+    "string"
+   ],
+   "site": "string",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "STRING statement"
+   },
+   "options": [],
+   "features": [
+    "statements: STRING"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-UNSTRING",
+   "family": "CBL",
+   "title": "UNSTRING ... DELIMITED BY ... INTO ... [DELIMITER IN] [COUNT IN] [WITH POINTER] [TALLYING]: the rest to the first INTO with no delimiter; OVERFLOW when the pointer is outside the source or characters remain",
+   "methods": [
+    "of",
+    "delimiterIn",
+    "countIn",
+    "unstring"
+   ],
+   "site": "unstring",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "UNSTRING statement"
+   },
+   "options": [],
+   "features": [
+    "statements: UNSTRING"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-INSPECT",
+   "family": "CBL",
+   "title": "INSPECT TALLYING / REPLACING / CONVERTING with BEFORE / AFTER: the phrases act on the original text, the earlier clause takes the characters, TALLYING and REPLACING are separate passes",
+   "methods": [
+    "tally",
+    "replace",
+    "converting",
+    "before",
+    "after",
+    "inspect"
+   ],
+   "site": "inspect",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "INSPECT statement"
+   },
+   "options": [],
+   "features": [
+    "statements: INSPECT"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-LINK-COMMAREA",
+   "family": "CBL",
+   "title": "A LINK's COMMAREA is the caller's storage from the area's first byte, up to the end of the caller's record; bytes past it are LOW-VALUES here (z/OS shows whatever storage follows)",
+   "methods": [
+    "commarea",
+    "beyond",
+    "commareaBack"
+   ],
+   "site": "commarea",
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "LINK"
+   },
+   "options": [],
+   "register": [
+    "X10"
+   ],
+   "status": "DIFFERS",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-INITIALIZE-REPLACING-TABLE",
+   "family": "CBL",
+   "title": "INITIALIZE REPLACING of a table leaves the categories it does not name as they are (IBM); the port stops by name when the occurrences differ, because the oracle copies the first over the others",
+   "methods": [
+    "sameBytes"
+   ],
+   "site": "sameBytes",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "INITIALIZE statement"
+   },
+   "options": [],
+   "register": [
+    "C17"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-NUM-TRUNC-BINARY",
+   "family": "NUM",
+   "title": "A COMP / COMP-4 / BINARY item under TRUNC(STD) holds at most its PICTURE's digits (high-order ones lost); under TRUNC(BIN), and a COMP-5 item always, whatever its 2 / 4 / 8 bytes hold",
+   "methods": [
+    "write",
+    "fits"
+   ],
+   "site": "write",
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "Compiler options: TRUNC"
+   },
+   "options": [
+    "TRUNC"
+   ],
+   "features": [
+    "data_types: BINARY",
+    "data_types: COMP-5"
+   ],
+   "register": [
+    "C1"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-NUM-TRUNC-OPT-STOP",
+   "family": "NUM",
+   "title": "TRUNC(OPT): results as TRUNC(STD), and a value stored past a binary receiver's PICTURE stops by name (IBM: the result is unpredictable)",
+   "methods": [
+    "truncOptUnpredictable",
+    "pastPictureUnderOpt"
+   ],
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "Compiler options: TRUNC"
+   },
+   "options": [
+    "TRUNC"
+   ],
+   "register": [
+    "C5"
+   ],
+   "status": "REFUSED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-NUM-ARITH-EXTEND-STOP",
+   "family": "NUM",
+   "title": "ARITH(EXTEND): an intermediate result past 30 digits stops by name (GnuCOBOL caps none; IBM's EXTEND range is not modelled)",
+   "methods": [
+    "arithExtendCheck",
+    "arithExtendWide"
+   ],
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "Intermediate results and arithmetic precision"
+   },
+   "options": [
+    "ARITH"
+   ],
+   "register": [
+    "C5"
+   ],
+   "status": "REFUSED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-NUM-NUMPROC-PFD-SIGN",
+   "family": "NUM",
+   "title": "NUMPROC(PFD): a zoned or packed value read with a sign that is not preferred (C / D signed, F unsigned) is refused by name",
+   "methods": [
+    "nonPreferredSign",
+    "preferredSign",
+    "read"
+   ],
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "Sign representation of zoned and packed-decimal data"
+   },
+   "options": [
+    "NUMPROC"
+   ],
+   "features": [
+    "data_types: PACKED"
+   ],
+   "register": [
+    "C5"
+   ],
+   "status": "REFUSED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-NUM-ZONED-OVERPUNCH",
+   "family": "NUM",
+   "title": "A zoned item's sign overpunched on its last (or first) digit: + as { A-I, - as } J-R (the ASCII form of the C / D zones); written with the preferred sign; SIGN SEPARATE as + / -",
+   "methods": [
+    "zonedDigit",
+    "readAny",
+    "write"
+   ],
+   "site": "zonedDigit",
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "Sign representation of zoned and packed-decimal data"
+   },
+   "options": [],
+   "register": [
+    "D3",
+    "C10"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-NUM-PACKED-SIGN",
+   "family": "NUM",
+   "title": "A packed item: two digits a byte, the last nibble the sign (D and B negative), written C / D signed and F unsigned",
+   "methods": [
+    "readAny",
+    "write"
+   ],
+   "site": "readAny",
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "Sign representation of zoned and packed-decimal data"
+   },
+   "options": [],
+   "features": [
+    "data_types: PACKED"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-NUM-BINARY-BYTE-ORDER",
+   "family": "NUM",
+   "title": "A COMP / COMP-4 / BINARY item is big-endian two's complement; a COMP-5 item is in the oracle's native (little-endian) order, z/OS's being big-endian",
+   "methods": [
+    "readAny",
+    "write"
+   ],
+   "site": "readAny",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "USAGE clause: COMPUTATIONAL-5"
+   },
+   "options": [],
+   "features": [
+    "data_types: BINARY",
+    "data_types: COMP-5"
+   ],
+   "register": [
+    "C7"
+   ],
+   "status": "DIFFERS",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-NUM-FITS",
+   "family": "NUM",
+   "title": "Whether a value fits its receiver without losing high-order digits: the PICTURE's digits, or the bytes' range for a binary item under TRUNC(BIN) and COMP-5 (the size error test)",
+   "methods": [
+    "fits"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "SIZE ERROR phrases"
+   },
+   "options": [
+    "TRUNC"
+   ],
+   "features": [
+    "data_types: COMP-5"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-NUM-NONDIGIT-GET-SIGN",
+   "family": "NUM",
+   "title": "libcob's GET_SIGN / PUT_SIGN on a signed zoned item: the sign byte read as a digit and a sign, and written back as an overpunch after a MOVE from it or an arithmetic read",
+   "methods": [
+    "unpunch",
+    "get",
+    "putSign"
+   ],
+   "site": "get@1",
+   "ibm": null,
+   "ibm_note": "IBM documents no result for non-digit data in a numeric item; the oracle's (GnuCOBOL 3.1.2) rule is modelled",
+   "options": [],
+   "register": [
+    "C11"
+   ],
+   "status": "DIFFERS",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-NUM-NONDIGIT-ARITHMETIC",
+   "family": "NUM",
+   "title": "A zoned operand holding a non-digit (cob_decimal_set_display, cob_get_int): HIGH- / LOW-VALUES first byte as +/-10^size, leading zero-nibble bytes skipped, the rest accumulated as byte - '0' in a wrapping unsigned 64-bit (or 32-bit) integer",
+   "methods": [
+    "operand",
+    "intOperand"
+   ],
+   "site": "operand",
+   "ibm": null,
+   "ibm_note": "IBM documents no result for non-digit data in a numeric item; the oracle's (GnuCOBOL 3.1.2) rule is modelled",
+   "options": [
+    "NUMPROC"
+   ],
+   "register": [
+    "C11"
+   ],
+   "status": "DIFFERS",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-NUM-NONDIGIT-COMPARE",
+   "family": "NUM",
+   "title": "A zoned comparand holding a non-digit (cob_cmp_numdisp): every digit position counts in a signed 64-bit integer, a sign byte that is no overpunch 0, nothing written back",
+   "methods": [
+    "compareValue"
+   ],
+   "ibm": null,
+   "ibm_note": "IBM documents no result for non-digit data in a numeric item; the oracle's (GnuCOBOL 3.1.2) rule is modelled",
+   "options": [
+    "NUMPROC"
+   ],
+   "register": [
+    "C11"
+   ],
+   "status": "DIFFERS",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-NUM-NONDIGIT-MOVE",
+   "family": "NUM",
+   "title": "A zoned sender holding a non-digit MOVEd to a zoned (bytes aligned, space or X'00' as '0'), numeric-edited (bytes as the PICTURE's digits) or packed item ((hi * 16 + lo) mod 256)",
+   "methods": [
+    "toZoned",
+    "toEdited",
+    "toPacked"
+   ],
+   "site": "toZoned",
+   "ibm": null,
+   "ibm_note": "IBM documents no result for non-digit data in a numeric item; the oracle's (GnuCOBOL 3.1.2) rule is modelled",
+   "options": [],
+   "features": [
+    "data_types: PACKED"
+   ],
+   "register": [
+    "C11"
+   ],
+   "status": "DIFFERS",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-NUM-NONDIGIT-REFUSED",
+   "family": "NUM",
+   "title": "Refused by name: a non-digit in a P-scaled item read as an operand or comparand, in an arithmetic receiver, or across 19 or more digits",
+   "methods": [
+    "refuse",
+    "pScaled",
+    "refuseP",
+    "refuseReceiver",
+    "refuseCounter"
+   ],
+   "site": "refuse",
+   "ibm": null,
+   "ibm_note": "IBM documents no result for non-digit data, and the oracle's results there follow no rule",
+   "options": [],
+   "register": [
+    "C11"
+   ],
+   "status": "REFUSED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-HFP-FORMAT",
+   "family": "HFP",
+   "title": "COMP-1 / COMP-2 are HFP: sign bit, excess-64 characteristic (a power of 16), 6 / 14 hexadecimal fraction digits, big-endian; true zero all zero bytes; an unnormalized fraction reads as its value",
+   "methods": [
+    "read",
+    "store",
+    "image"
+   ],
+   "site": "read",
+   "ibm": {
+    "doc": "zarch-pop",
+    "section": "Hexadecimal-Floating-Point Number Representation"
+   },
+   "options": [],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
+   "register": [
+    "C6"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-HFP-EXPONENT-RANGE",
+   "family": "HFP",
+   "title": "An exponent overflow (past 16**63) or underflow (below 16**-65) is refused by name: z/OS's answer depends on the program mask and Language Environment",
+   "methods": [
+    "range"
+   ],
+   "ibm": {
+    "doc": "zarch-pop",
+    "section": "Hexadecimal-Floating-Point Instructions"
+   },
+   "options": [],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
+   "register": [
+    "C6"
+   ],
+   "status": "REFUSED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-HFP-ADD-NORMALIZED",
+   "family": "HFP",
+   "title": "ADD / SUBTRACT: the operands aligned with one hexadecimal guard digit, the sum normalized and truncated",
+   "methods": [
+    "add",
+    "subtract"
+   ],
+   "site": "add",
+   "ibm": {
+    "doc": "zarch-pop",
+    "section": "Hexadecimal-Floating-Point Instructions: ADD NORMALIZED"
+   },
+   "options": [],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
+   "register": [
+    "C6"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-HFP-MULTIPLY",
+   "family": "HFP",
+   "title": "MULTIPLY: the exact product truncated to the precision",
+   "methods": [
+    "multiply"
+   ],
+   "ibm": {
+    "doc": "zarch-pop",
+    "section": "Hexadecimal-Floating-Point Instructions: MULTIPLY"
+   },
+   "options": [],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
+   "register": [
+    "C6"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-HFP-DIVIDE",
+   "family": "HFP",
+   "title": "DIVIDE: the exact quotient truncated to the precision",
+   "methods": [
+    "divide"
+   ],
+   "ibm": {
+    "doc": "zarch-pop",
+    "section": "Hexadecimal-Floating-Point Instructions: DIVIDE"
+   },
+   "options": [],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
+   "register": [
+    "C6"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-HFP-ZERO-DIVISOR",
+   "family": "HFP",
+   "title": "A zero divisor: as a statement's whole value, libcob's NaN with the size error raised (the receiver unchanged); inside a larger expression refused by name",
+   "methods": [
+    "divide",
+    "divideNested"
+   ],
+   "site": "divideNested",
+   "ibm": null,
+   "ibm_note": "z/OS leaves a zero divisor's result undefined; the oracle's NaN is modelled",
+   "options": [],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
+   "register": [
+    "C14"
+   ],
+   "status": "DIFFERS",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-HFP-LONG-TO-SHORT",
+   "family": "HFP",
+   "title": "A long value into a COMP-1 is rounded (LOAD ROUNDED: a one added at the first discarded bit)",
+   "methods": [
+    "toShort",
+    "forItem"
+   ],
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "Conversions and precision"
+   },
+   "options": [],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
+   "register": [
+    "C6"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-HFP-IEEE-CONVERSION",
+   "family": "HFP",
+   "title": "An IEEE binary32 / binary64 pattern to and from COMP-1 / COMP-2: binary64 exact in long HFP, binary32 truncated to long then rounded to short, HFP to IEEE nearest ties to even",
+   "methods": [
+    "ieeeValue",
+    "fromIeee",
+    "toIeee",
+    "ebits",
+    "fbits",
+    "cmp2"
+   ],
+   "ibm": null,
+   "ibm_note": "IBM documents no IEEE converter for COMP-1 / COMP-2; the model's choice (det/hfp.py from_ieee / to_ieee)",
+   "options": [],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
+   "register": [
+    "C6"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-HFP-FIXED-TO-FLOAT",
+   "family": "HFP",
+   "title": "A fixed-point value converted to long HFP: the exact value truncated to 14 hexadecimal digits (then rounded to short for a COMP-1)",
+   "methods": [
+    "of",
+    "chop",
+    "rational",
+    "exact",
+    "cmpScaled"
+   ],
+   "ibm": null,
+   "ibm_note": "IBM does not document the generated conversion; truncation is the model's choice",
+   "options": [],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
+   "register": [
+    "C6"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-HFP-FLOAT-TO-FIXED",
+   "family": "HFP",
+   "title": "A float moved to a fixed-point item: rounded in the receiver's low-order position, at most 9 (COMP-1) / 18 (COMP-2) significant digits",
+   "methods": [
+    "toFixed"
+   ],
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "Conversions and precision"
+   },
+   "options": [],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
+   "register": [
+    "C6"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-HFP-NUMVAL-FLOAT",
+   "family": "HFP",
+   "title": "FUNCTION NUMVAL / NUMVAL-C in a floating-point expression: long HFP of the value under ARITH(COMPAT); more than 18 digits, or more than 15 significant ones, refused by name",
+   "methods": [
+    "numval"
+   ],
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "Converting to numbers"
+   },
+   "options": [
+    "ARITH"
+   ],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
+   "register": [
+    "C6"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-HFP-FLOAT-STATEMENT-STORE",
+   "family": "HFP",
+   "title": "A statement that is floating point only through NUMVAL stores its result into a fixed-point receiver rounded half away from zero, as a float MOVE is",
+   "methods": [
+    "fixedStore"
+   ],
+   "ibm": {
+    "doc": "cobol-pg",
+    "section": "Conversions and precision"
+   },
+   "options": [],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
+   "register": [
+    "C6"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-HFP-DISPLAY",
+   "family": "HFP",
+   "title": "DISPLAY of a COMP-1 / COMP-2 item as -.9(8)E-99 / -.9(17)E-99, the mantissa rounded half away from zero",
+   "methods": [
+    "display"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "DISPLAY statement"
+   },
+   "options": [],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
+   "register": [
+    "C6"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-EDIT-NUMERIC-EDITING",
+   "family": "EDIT",
+   "title": "A number through a numeric-edited PICTURE: 9, Z / * zero suppression, the . and , insertion characters, fixed + / -, CR / DB, B 0 /, and a zero value of an all-suppression PICTURE",
+   "methods": [
+    "format"
+   ],
+   "site": "format@2",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "PICTURE clause: editing rules"
+   },
+   "options": [
+    "DECIMAL-POINT-COMMA"
+   ],
+   "features": [
+    "data_types: EDITED"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-EDIT-FLOATING-INSERTION",
+   "family": "EDIT",
+   "title": "A floating insertion string ($$$,$$9.99, +++9, ---9) floats the sign or currency string to just left of the first significant digit; every digit position in the string and a zero value: all spaces",
+   "methods": [
+    "format"
+   ],
+   "site": "format@2",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "PICTURE clause: floating insertion editing"
+   },
+   "options": [],
+   "features": [
+    "data_types: EDITED"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-EDIT-CURRENCY-SIGN",
+   "family": "EDIT",
+   "title": "The currency symbol ($ or the declared PICTURE SYMBOL) stands for the program's CURRENCY SIGN string",
+   "methods": [
+    "format"
+   ],
+   "site": "format@2",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "SPECIAL-NAMES paragraph: CURRENCY SIGN clause"
+   },
+   "options": [
+    "CURRENCY-SIGN"
+   ],
+   "features": [
+    "data_types: EDITED"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-EDIT-NONDIGIT-SENDER",
+   "family": "EDIT",
+   "title": "A zoned sender holding non-digits: its bytes are the PICTURE's digits as they are, only a '0' suppressed",
+   "methods": [
+    "format"
+   ],
+   "site": "format@2",
+   "ibm": null,
+   "ibm_note": "IBM documents no result for non-digit data in a numeric item; the oracle's (GnuCOBOL 3.1.2) rule is modelled (cob_move_display_to_edited)",
+   "options": [],
+   "features": [
+    "data_types: EDITED"
+   ],
+   "register": [
+    "C11"
+   ],
+   "status": "DIFFERS",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-EDIT-PICTURE-SHAPE",
+   "family": "EDIT",
+   "title": "An edit PICTURE's integer and decimal digit positions (floating insertion included); under DECIMAL-POINT IS COMMA the , is its decimal point",
+   "methods": [
+    "shape"
+   ],
+   "site": "shape@1",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "PICTURE clause"
+   },
+   "options": [
+    "DECIMAL-POINT-COMMA"
+   ],
+   "features": [
+    "data_types: EDITED"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-FUNC-CASE",
+   "family": "FUNC",
+   "title": "FUNCTION UPPER-CASE / LOWER-CASE of single-byte letters",
+   "methods": [
+    "upperCase",
+    "lowerCase"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Intrinsic functions: UPPER-CASE, LOWER-CASE"
+   },
+   "options": [],
+   "features": [
+    "intrinsic_functions: LOWER-CASE",
+    "intrinsic_functions: UPPER-CASE"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-FUNC-REVERSE",
+   "family": "FUNC",
+   "title": "FUNCTION REVERSE",
+   "methods": [
+    "reverse"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Intrinsic functions: REVERSE"
+   },
+   "options": [],
+   "features": [
+    "intrinsic_functions: REVERSE"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-FUNC-TRIM",
+   "family": "FUNC",
+   "title": "FUNCTION TRIM [LEADING / TRAILING]: spaces only removed (low-values stay); an all-space argument gives a zero-length result, as the oracle",
+   "methods": [
+    "trim",
+    "trimLeading",
+    "trimTrailing"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Intrinsic functions: TRIM"
+   },
+   "options": [],
+   "features": [
+    "intrinsic_functions: TRIM"
+   ],
+   "register": [],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-FUNC-MOD-REM",
+   "family": "FUNC",
+   "title": "FUNCTION MOD (a - b * FLOOR(a / b)) and REM (a - b * INTEGER-PART(a / b)); a zero b gives 0 with no size error, as the oracle",
+   "methods": [
+    "mod",
+    "rem"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Intrinsic functions: MOD, REM"
+   },
+   "options": [],
+   "features": [
+    "intrinsic_functions: MOD"
+   ],
+   "register": [
+    "C14"
+   ],
+   "status": "DIFFERS",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-FUNC-INTEGER-ABS-MIN-MAX",
+   "family": "FUNC",
+   "title": "FUNCTION INTEGER (floor), INTEGER-PART (toward zero), ABS, MIN, MAX",
+   "methods": [
+    "integer",
+    "integerPart",
+    "abs",
+    "min",
+    "max"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Intrinsic functions: INTEGER, INTEGER-PART, ABS, MIN, MAX"
+   },
+   "options": [],
+   "features": [
+    "intrinsic_functions: INTEGER"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-FUNC-NUMVAL",
+   "family": "FUNC",
+   "title": "FUNCTION NUMVAL / NUMVAL-C: the number in a text (spaces, one sign + - CR DB, a decimal point; NUMVAL-C a currency sign and commas)",
+   "methods": [
+    "numval",
+    "numvalC"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Intrinsic functions: NUMVAL, NUMVAL-C"
+   },
+   "options": [
+    "ARITH"
+   ],
+   "features": [
+    "intrinsic_functions: NUMVAL",
+    "intrinsic_functions: NUMVAL-C"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-FUNC-TEST-NUMVAL",
+   "family": "FUNC",
+   "title": "FUNCTION TEST-NUMVAL / TEST-NUMVAL-C: 0 when valid, else the position of the first character that makes it invalid (the length + 1 when it ends early), as the oracle",
+   "methods": [
+    "testNumval",
+    "testNumvalC"
+   ],
+   "site": "testNumval@1",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Intrinsic functions: TEST-NUMVAL, TEST-NUMVAL-C"
+   },
+   "options": [],
+   "features": [
+    "intrinsic_functions: TEST-NUMVAL",
+    "intrinsic_functions: TEST-NUMVAL-C"
+   ],
+   "register": [],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-FUNC-CURRENT-DATE",
+   "family": "FUNC",
+   "title": "FUNCTION CURRENT-DATE where the project has no clock bean: YYYYMMDDHHMMSShh and the UTC offset of the run's clock",
+   "methods": [
+    "currentDate"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Intrinsic functions: CURRENT-DATE"
+   },
+   "options": [],
+   "features": [
+    "intrinsic_functions: CURRENT-DATE"
+   ],
+   "register": [
+    "X4"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-FUNC-RANDOM",
+   "family": "FUNC",
+   "title": "FUNCTION RANDOM: one run unit's sequence (glibc random_r TYPE_3, as the oracle); the numbers differ from z/OS's, the interface as IBM documents it",
+   "methods": [
+    "reset",
+    "next",
+    "seed"
+   ],
+   "site": "next@1",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Intrinsic functions: RANDOM"
+   },
+   "options": [],
+   "features": [
+    "intrinsic_functions: RANDOM"
+   ],
+   "register": [
+    "C12"
+   ],
+   "status": "DIFFERS",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-FUNC-DATE-INTEGER",
+   "family": "FUNC",
+   "title": "FUNCTION INTEGER-OF-DATE / DATE-OF-INTEGER: day 1 is 1 January 1601 (INTDATE(ANSI)) or 15 October 1582 (INTDATE(LILIAN))",
+   "methods": [
+    "integerOfDate",
+    "dateOfInteger",
+    "integerOfDateLilian",
+    "dateOfIntegerLilian"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Intrinsic functions: INTEGER-OF-DATE, DATE-OF-INTEGER"
+   },
+   "options": [
+    "INTDATE"
+   ],
+   "features": [
+    "intrinsic_functions: DATE-OF-INTEGER",
+    "intrinsic_functions: INTEGER-OF-DATE"
+   ],
+   "register": [
+    "C5"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-FUNC-ACCEPT-DATE",
+   "family": "FUNC",
+   "title": "ACCEPT FROM DATE / DATE YYYYMMDD / DAY / DAY YYYYDDD / TIME: the run's clock as the unsigned integer item IBM describes, moved as that item",
+   "methods": [
+    "from"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "ACCEPT statement: Format 2 (system date and time)"
+   },
+   "options": [],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-FUNC-ACCEPT-SYSIN",
+   "family": "FUNC",
+   "title": "ACCEPT identifier FROM SYSIN: the next line of standard input moved to the target as an alphanumeric MOVE; no record left stops the run by name",
+   "methods": [
+    "sysin"
+   ],
+   "ibm": null,
+   "ibm_note": "IBM leaves the target undefined when the input stream is exhausted; the port refuses by name instead of blanking it",
+   "options": [],
+   "register": [],
+   "status": "REFUSED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-POINTER-IN-COMMAREA",
+   "family": "CICS",
+   "title": "A POINTER in a COMMAREA DTO: NULL as all zero bytes; an address, which names storage the port does not have, stops the run by name",
+   "methods": [
+    "pointerIn",
+    "pointerOut"
+   ],
+   "ibm": null,
+   "ibm_note": "an address is not portable between the two sides",
+   "options": [],
+   "register": [
+    "C9"
+   ],
+   "status": "REFUSED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-FILE-KEY-ORDER",
+   "family": "CICS",
+   "title": "A keyed file's records in key order: READ by full key the first record whose key equals it; the keys ordered as the file is",
+   "methods": [
+    "find",
+    "keys",
+    "order",
+    "keyOf",
+    "exists"
+   ],
+   "site": "find",
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "READ"
+   },
+   "options": [],
+   "features": [
+    "cics_commands: READ"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-READ-GTEQ-GENERIC",
+   "family": "CICS",
+   "title": "READ GTEQ / GENERIC: in key order, the first record whose key's first LENGTH bytes equal the given ones, or with GTEQ are greater",
+   "methods": [
+    "search"
+   ],
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "READ"
+   },
+   "options": [],
+   "features": [
+    "cics_commands: READ",
+    "cics_options: READ: GENERIC",
+    "cics_options: READ: GTEQ",
+    "cics_options: READ: LENGTH"
+   ],
+   "register": [
+    "X22"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-FROM-LENGTH",
+   "family": "CICS",
+   "title": "A command's FROM(area) LENGTH(n): n bytes from the area's first byte, which may run past the area into what follows it in its record",
+   "methods": [
+    "bytes"
+   ],
+   "site": "bytes@2",
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "WRITEQ TS: FROM, LENGTH"
+   },
+   "options": [],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-WRITEQ-PAST-FROM",
+   "family": "CICS",
+   "title": "A WRITEQ TS / TD whose LENGTH runs past its FROM item is refused by name, the task judged up to it",
+   "methods": [
+    "within"
+   ],
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "WRITEQ TS: FROM, LENGTH"
+   },
+   "options": [],
+   "features": [
+    "cics_commands: WRITEQ TS",
+    "cics_options: WRITEQ TS: FROM",
+    "cics_options: WRITEQ TS: LENGTH"
+   ],
+   "register": [
+    "X6"
+   ],
+   "status": "REFUSED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-DOCUMENT",
+   "family": "CICS",
+   "title": "DOCUMENT CREATE TEXT / BINARY LENGTH(n): n bytes of the area (negative: LENGERR); DOCUMENT RETRIEVE INTO: at most MAXLENGTH bytes, the rest of INTO as it was; past the area refused",
+   "methods": [
+    "documentBytes",
+    "putDocument"
+   ],
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "DOCUMENT CREATE, DOCUMENT RETRIEVE"
+   },
+   "options": [],
+   "features": [
+    "cics_commands: DOCUMENT CREATE",
+    "cics_commands: DOCUMENT RETRIEVE",
+    "cics_commands: RETRIEVE",
+    "cics_options: DOCUMENT RETRIEVE: INTO",
+    "cics_options: DOCUMENT RETRIEVE: LENGTH",
+    "cics_options: DOCUMENT RETRIEVE: MAXLENGTH",
+    "cics_options: RETRIEVE: INTO",
+    "cics_options: RETRIEVE: LENGTH"
+   ],
+   "register": [
+    "X33",
+    "X6"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-SEND-TEXT-PAST-FROM",
+   "family": "CICS",
+   "title": "SEND TEXT FROM(f) LENGTH(n) past FROM sends the items that follow it in its record; past the record's end refused",
+   "methods": [
+    "withinRecord"
+   ],
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "SEND TEXT"
+   },
+   "options": [],
+   "features": [
+    "cics_commands: SEND",
+    "cics_commands: SEND TEXT",
+    "cics_options: SEND TEXT: FROM",
+    "cics_options: SEND TEXT: LENGTH",
+    "cics_options: SEND: FROM",
+    "cics_options: SEND: LENGTH"
+   ],
+   "register": [
+    "X20",
+    "X6"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-XCTL-COMMAREA-LENGTH",
+   "family": "CICS",
+   "title": "XCTL COMMAREA(area) LENGTH(n) past the target's DFHCOMMAREA: n bytes travel (EIBCALEN = n), the ones the DTO cannot carry as the region's EBCDIC bytes; another program's DTO as its layout's bytes, a class with no layout refused",
+   "methods": [
+    "commareaOut",
+    "commareaBytes",
+    "commareaIn",
+    "layoutBytes"
+   ],
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "XCTL"
+   },
+   "options": [],
+   "features": [
+    "cics_commands: XCTL",
+    "cics_options: XCTL: COMMAREA"
+   ],
+   "register": [
+    "X23",
+    "X10"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-CONTAINER-LENGTH",
+   "family": "CICS",
+   "title": "PUT CONTAINER FROM FLENGTH(n): the first n bytes (negative: LENGERR RESP2 1); GET CONTAINER INTO FLENGTH: the most the area takes; a FLENGTH past the area refused",
+   "methods": [
+    "containerData",
+    "containerLimit"
+   ],
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "PUT CONTAINER (CHANNEL), GET CONTAINER (CHANNEL)"
+   },
+   "options": [],
+   "features": [
+    "cics_commands: GET",
+    "cics_commands: PUT",
+    "cics_options: GET: CONTAINER",
+    "cics_options: GET: FLENGTH",
+    "cics_options: GET: INTO",
+    "cics_options: GET: RESP2",
+    "cics_options: PUT: CONTAINER",
+    "cics_options: PUT: FLENGTH",
+    "cics_options: PUT: FROM",
+    "cics_options: PUT: RESP2"
+   ],
+   "register": [
+    "X17",
+    "X6"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-START-LENGTH",
+   "family": "CICS",
+   "title": "START FROM(f) LENGTH(n): the first n bytes, LENGERR when LENGTH is not greater than zero; past FROM refused",
+   "methods": [
+    "startData"
+   ],
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "START"
+   },
+   "options": [],
+   "features": [
+    "cics_commands: START",
+    "cics_options: START: FROM",
+    "cics_options: START: LENGTH"
+   ],
+   "register": [
+    "X18",
+    "X6"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-RETRIEVE-INTO",
+   "family": "CICS",
+   "title": "RETRIEVE RTRANSID / RTERMID / QUEUE: the value MOVEd into the program's area, padded with spaces or truncated; RETRIEVE INTO the bytes",
+   "methods": [
+    "putPadded",
+    "put"
+   ],
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "RETRIEVE"
+   },
+   "options": [],
+   "features": [
+    "cics_commands: RETRIEVE",
+    "cics_options: RETRIEVE: INTO"
+   ],
+   "register": [
+    "X18"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-READ-INTO-LENGTH",
+   "family": "CICS",
+   "title": "READ INTO LENGTH(max): the record truncated to max, LENGERR (RESP2 11) when longer, the rest of INTO as it was; a negative LENGTH or a record past INTO refused",
+   "methods": [
+    "readInto"
+   ],
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "READ: INTO, LENGTH"
+   },
+   "options": [],
+   "features": [
+    "cics_commands: READ",
+    "cics_options: READ: INTO",
+    "cics_options: READ: LENGTH",
+    "cics_options: READ: RESP2"
+   ],
+   "register": [
+    "X14"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-READQ-TD-INTO",
+   "family": "CICS",
+   "title": "READQ TD INTO: the record (cut to LENGTH) goes INTO, the rest of INTO as it was; a record moved past INTO refused",
+   "methods": [
+    "readTd"
+   ],
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "READQ TD: INTO, LENGTH"
+   },
+   "options": [],
+   "register": [
+    "X6",
+    "X57"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-BIF-DEEDIT",
+   "family": "CICS",
+   "title": "BIF DEEDIT: the characters other than the digits removed, the digits right-aligned and zero-padded, a trailing sign kept as the last digit's zone",
+   "methods": [
+    "deedit",
+    "deeditEbcdic"
+   ],
+   "site": "deedit",
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "BIF DEEDIT"
+   },
+   "options": [],
+   "features": [
+    "cics_commands: BIF DEEDIT"
+   ],
+   "register": [
+    "X26"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-REGION-CODE-PAGE",
+   "family": "CICS",
+   "title": "TS items are in the region's code page (the estate's EBCDIC page, else CCSID 037): the program's bytes moved byte for byte, a byte with no character in both pages stops the run by name",
+   "methods": [
+    "region",
+    "toRegion",
+    "fromRegion",
+    "transcode",
+    "usesLfForNl",
+    "character"
+   ],
+   "ibm": null,
+   "ibm_note": "the region's code page is a deployment fact IBM leaves to the installation",
+   "options": [
+    "REGION-CODE-PAGE"
+   ],
+   "register": [],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-ASSIGN-TEXT",
+   "family": "CICS",
+   "title": "ASSIGN of a short value (SYSID: 4 bytes) into a longer area: the first bytes, the rest as it was",
+   "methods": [
+    "putText"
+   ],
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "ASSIGN"
+   },
+   "options": [],
+   "features": [
+    "cics_commands: ASSIGN",
+    "cics_options: ASSIGN: SYSID"
+   ],
+   "register": [
+    "X19"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-BMS-SUBFIELDS",
+   "family": "CICS",
+   "title": "A symbolic map field's subfields: attribute, colour and highlight bytes (X'00' and a space not set), length -1 the cursor; RECEIVE MAP's input text padded and its length without trailing blanks",
+   "methods": [
+    "subfields",
+    "typed"
+   ],
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "SEND MAP, RECEIVE MAP"
+   },
+   "options": [],
+   "features": [
+    "cics_commands: RECEIVE",
+    "cics_options: RECEIVE: MAP"
+   ],
+   "register": [
+    "X2"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-BMS-JUSTIFY",
+   "family": "CICS",
+   "title": "RECEIVE MAP into a DFHMDF JUSTIFY=(LEFT|RIGHT[,BLANK|ZERO]) field: the typed text placed at the justified end, the rest filled with blanks or zeros; <f>L the length typed",
+   "methods": [
+    "place"
+   ],
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "RECEIVE MAP, DFHMDF JUSTIFY"
+   },
+   "options": [],
+   "features": [
+    "cics_commands: RECEIVE",
+    "cics_options: RECEIVE: MAP"
+   ],
+   "register": [
+    "X54"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-CURRENT-DATE",
+   "family": "CICS",
+   "title": "FUNCTION CURRENT-DATE in a CICS task: the task's clock, the region's zone (UTC)",
+   "methods": [
+    "currentDate"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Intrinsic functions: CURRENT-DATE"
+   },
+   "options": [],
+   "register": [
+    "X4"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-RESP-VALUES",
+   "family": "CICS",
+   "title": "The RESP value of each condition, and the condition of each value (DFHRESP)",
+   "methods": [
+    "condition",
+    "resp"
+   ],
+   "site": "condition",
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "RESP and RESP2 options"
+   },
+   "options": [],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-DEFAULT-ACTION",
+   "family": "CICS",
+   "title": "A condition with no HANDLE CONDITION label abends, except those IBM's default action ignores (EOC)",
+   "methods": [
+    "ignoredByDefault"
+   ],
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "RECEIVE (LUTYPE2/LUTYPE3): EOC default action"
+   },
+   "options": [],
+   "features": [
+    "cics_commands: HANDLE CONDITION"
+   ],
+   "register": [
+    "X15"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-HANDLE-AID",
+   "family": "CICS",
+   "title": "HANDLE AID: the label of the key pressed, else ANYKEY's (not ENTER); none: the next statement; PUSH / POP HANDLE save and restore the state",
+   "methods": [
+    "aidLabel",
+    "restore"
+   ],
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "HANDLE AID, POP HANDLE"
+   },
+   "options": [],
+   "features": [
+    "cics_commands: HANDLE AID"
+   ],
+   "register": [
+    "X16"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-TERMINAL-RECEIVE",
+   "family": "CICS",
+   "title": "RECEIVE INTO: the data into the first bytes of the area, the rest as it was; RECEIVE SET: the data copied into the record, a byte past it X'00'",
+   "methods": [
+    "received",
+    "receivedSet"
+   ],
+   "site": "received",
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "RECEIVE"
+   },
+   "options": [],
+   "features": [
+    "cics_commands: RECEIVE",
+    "cics_commands: SET",
+    "cics_options: RECEIVE: INTO"
+   ],
+   "register": [
+    "X15"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-POINTER-LANE",
+   "family": "CICS",
+   "title": "GETMAIN SET (INITIMG, LENGERR RESP2 1 sets the pointer to zero), WEB RECEIVE SET, SET ADDRESS OF / SET pointer TO ADDRESS OF: handles to blocks of task storage, a record and its block one storage",
+   "methods": [
+    "pointerValue",
+    "setPointer",
+    "getmain",
+    "receivedBlock",
+    "setAddress",
+    "setAddressOfRecord",
+    "setAddressOfItem",
+    "setPointerToRecord",
+    "setPointerToItem",
+    "copyPointer",
+    "advancePointer",
+    "samePointer",
+    "wholeRecord"
+   ],
+   "site": "getmain",
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "GETMAIN"
+   },
+   "options": [],
+   "features": [
+    "cics_commands: GETMAIN",
+    "cics_commands: RECEIVE",
+    "cics_commands: SET",
+    "cics_commands: WEB RECEIVE",
+    "cics_options: GETMAIN: INITIMG",
+    "cics_options: GETMAIN: SET",
+    "cics_options: RECEIVE: RESP2",
+    "cics_options: SET: RESP2",
+    "cics_options: WEB RECEIVE: SET"
+   ],
+   "register": [
+    "X47"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-ADDRESS",
+   "family": "CICS",
+   "title": "ADDRESS COMMAREA(ptr): the handle of the DFHCOMMAREA record's bytes; a task with no COMMAREA is refused (IBM's X'FF000000' is no COBOL NULL)",
+   "methods": [
+    "addressCommarea"
+   ],
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "ADDRESS"
+   },
+   "options": [],
+   "register": [
+    "X59"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-SET-BLOCK",
+   "family": "CICS",
+   "title": "SET(ptr) of RECEIVE, RETRIEVE, READQ TS, GET CONTAINER, READ, READNEXT and READPREV: a new block of task storage holding the data, its handle in the pointer, valid until the command IBM names ends it",
+   "methods": [
+    "setBlock"
+   ],
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "READ"
+   },
+   "options": [],
+   "features": [
+    "cics_commands: GET",
+    "cics_commands: READ",
+    "cics_commands: READNEXT",
+    "cics_commands: READPREV",
+    "cics_commands: READQ TS",
+    "cics_commands: RECEIVE",
+    "cics_commands: RETRIEVE",
+    "cics_commands: SET",
+    "cics_options: GET: CONTAINER",
+    "cics_options: GET: SET"
+   ],
+   "register": [
+    "X58"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CICS-BLL-ADDRESS",
+   "family": "CICS",
+   "title": "OS/VS COBOL chained storage areas: an address moved between a BLL cell and a fullword of data is a token both runtimes number alike (0 NULL, the n-th address n * 65536; a value no cell gave is refused), and a record is addressed again through its cell at a paragraph name (a null cell leaves it as it is)",
+   "methods": [
+    "bllToData",
+    "bllFromData",
+    "bllReload"
+   ],
+   "ibm": null,
+   "ibm_note": "CICS/MVS 2.1.2 Application Programmer's Reference SC33-0512-1, 'BLL and chained storage areas' (p. 22): not an online IBM doc; the token is assumed (a real address does not fit a fullword in the instrument)",
+   "options": [],
+   "register": [
+    "X56"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-SQL-FAULT-INJECTION",
+   "family": "SQL",
+   "title": "A planned SQL fault (PROGRAM LINE NTH SQLCODE SQLSTATE) replaces the statement's execution, the SQLCA set as Db2 would set it",
+   "methods": [
+    "withFaults",
+    "injected"
+   ],
+   "ibm": null,
+   "ibm_note": "the faults are the harness's; the SQLCA a fault leaves is assumed",
+   "options": [],
+   "features": [
+    "sql_forms: STATIC"
+   ],
+   "register": [
+    "M2"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-SQL-SQLCA",
+   "family": "SQL",
+   "title": "The SQLCA a statement leaves: SQLCODE 0 and no warning before its outcome, then Db2's SQLCODE, SQLSTATE, SQLERRM tokens, SQLERRP, SQLERRD and warnings (IBM's driver's own SQLCA where it has one)",
+   "methods": [
+    "reset",
+    "code",
+    "warn",
+    "put",
+    "putInt",
+    "failed",
+    "db2Sqlca",
+    "named"
+   ],
+   "site": "reset",
+   "ibm": {
+    "doc": "db2-sql",
+    "section": "SQL communication area (SQLCA)"
+   },
+   "options": [],
+   "features": [
+    "sql_forms: STATIC"
+   ],
+   "register": [
+    "Q1",
+    "C7"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-SQL-HOST-VARIABLE-IN",
+   "family": "SQL",
+   "title": "Host variables in: PIC X(n) as CHAR(n) (trailing blanks kept), a 49-level pair as VARCHAR, a numeric item as DECIMAL / SMALLINT / INTEGER / BIGINT, NULL when the indicator is negative",
+   "methods": [
+    "charIn",
+    "varcharIn",
+    "numIn",
+    "orNull"
+   ],
+   "ibm": {
+    "doc": "db2-app",
+    "section": "Equivalent SQL and COBOL data types"
+   },
+   "options": [],
+   "features": [
+    "sql_forms: STATIC"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-SQL-SEARCHED-NOT-FOUND",
+   "family": "SQL",
+   "title": "A searched UPDATE / DELETE (or INSERT ... SELECT) that changes no row is SQLCODE +100",
+   "methods": [
+    "update"
+   ],
+   "site": "update@1",
+   "ibm": {
+    "doc": "db2-codes",
+    "section": "SQLCODE +100"
+   },
+   "options": [],
+   "features": [
+    "sql_forms: DELETE",
+    "sql_forms: INSERT",
+    "sql_forms: SELECT",
+    "sql_forms: STATIC",
+    "sql_forms: UPDATE"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-SQL-SELECT-INTO",
+   "family": "SQL",
+   "title": "SELECT INTO: the one row; no row +100, more than one -811",
+   "methods": [
+    "selectOne"
+   ],
+   "site": "selectOne@1",
+   "ibm": {
+    "doc": "db2-sql",
+    "section": "SELECT INTO"
+   },
+   "options": [],
+   "features": [
+    "sql_forms: SELECT",
+    "sql_forms: STATIC"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-SQL-HOST-VARIABLE-OUT",
+   "family": "SQL",
+   "title": "A row into host variables: a string padded or truncated (SQLWARN0 / SQLWARN1 'W', the indicator the original length), a number whose integer part does not fit -304 and nothing assigned, NULL without an indicator -305",
+   "methods": [
+    "into",
+    "text"
+   ],
+   "ibm": {
+    "doc": "db2-codes",
+    "section": "SQLCODE -304, -305"
+   },
+   "options": [],
+   "features": [
+    "sql_forms: STATIC"
+   ],
+   "register": [
+    "Q1a",
+    "Q1b"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-SQL-UNIT-OF-WORK",
+   "family": "SQL",
+   "title": "COMMIT: the unit of work committed, cursors not WITH HOLD closed; ROLLBACK: backed out, every cursor closed; refused with no unit of work",
+   "methods": [
+    "commit",
+    "rollback",
+    "execute",
+    "unitOfWork"
+   ],
+   "site": "commit@2",
+   "ibm": {
+    "doc": "db2-sql",
+    "section": "COMMIT, ROLLBACK"
+   },
+   "options": [],
+   "features": [
+    "sql_forms: COMMIT",
+    "sql_forms: STATIC"
+   ],
+   "register": [
+    "Q3"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-SQL-SAVEPOINT",
+   "family": "SQL",
+   "title": "SAVEPOINT / ROLLBACK TO / RELEASE SAVEPOINT as written, on the unit's connection (-880: no such savepoint), set ON ROLLBACK RETAIN CURSORS",
+   "methods": [
+    "savepoint"
+   ],
+   "ibm": {
+    "doc": "db2-sql",
+    "section": "SAVEPOINT"
+   },
+   "options": [],
+   "features": [
+    "sql_forms: STATIC"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-SQL-CURSOR",
+   "family": "SQL",
+   "title": "OPEN (-502 when open; WITH HOLD survives COMMIT), FETCH (+100 at the end, -501 when not open), CLOSE (-501 when not open); a task's or step's end closes its cursors",
+   "methods": [
+    "open",
+    "fetch",
+    "close",
+    "closeAll"
+   ],
+   "site": "open@1",
+   "ibm": {
+    "doc": "db2-codes",
+    "section": "SQLCODE +100, -501, -502"
+   },
+   "options": [],
+   "features": [
+    "sql_forms: CLOSE",
+    "sql_forms: COMMIT",
+    "sql_forms: FETCH",
+    "sql_forms: OPEN",
+    "sql_forms: STATIC"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-SQL-POSITIONED-UPDATE",
+   "family": "SQL",
+   "title": "UPDATE / DELETE WHERE CURRENT OF: the current row (-501 not open, -508 no current row)",
+   "methods": [
+    "updateCurrent"
+   ],
+   "site": "updateCurrent@1",
+   "ibm": {
+    "doc": "db2-codes",
+    "section": "SQLCODE -508"
+   },
+   "options": [],
+   "features": [
+    "sql_forms: DELETE",
+    "sql_forms: STATIC",
+    "sql_forms: UPDATE"
+   ],
+   "register": [
+    "Q8"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-LE-FEEDBACK-CODE",
+   "family": "LE",
+   "title": "The 12-byte feedback code: all zero for success, else severity 3, the message number, case / severity / control and 'CEE'; what the model does not model refused by name",
+   "methods": [
+    "putFc",
+    "refuse"
+   ],
+   "site": "le/LeTime.java:putFc",
+   "ibm": {
+    "doc": "le-pr",
+    "section": "Feedback codes and conditions"
+   },
+   "options": [],
+   "register": [
+    "L6"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-LE-LILIAN",
+   "family": "LE",
+   "title": "Lilian day 1 is 15 October 1582 (Gregorian leap years); Lilian second 86400 is 00:00:00 on that day; a seconds item travels by value in its own usage (COMP-2: HFP on z/OS)",
+   "methods": [
+    "leap",
+    "monthDays",
+    "civil",
+    "ymd",
+    "putInt",
+    "getInt",
+    "le/Ceedays.java:putLilian"
+   ],
+   "site": "le/LeTime.java:leap",
+   "ibm": {
+    "doc": "le-pr",
+    "section": "CEEDAYS: Lilian date"
+   },
+   "options": [],
+   "register": [
+    "L6",
+    "C6"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-LE-PICTURE-STRING",
+   "family": "LE",
+   "title": "Picture strings: the date / time terms LE documents, formatted and parsed; any other term refused by name",
+   "methods": [
+    "picture",
+    "format"
+   ],
+   "site": "le/LeTime.java:picture",
+   "ibm": {
+    "doc": "le-pr",
+    "section": "Picture character terms and picture strings"
+   },
+   "options": [],
+   "register": [
+    "L6"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-LE-VSTRING",
+   "family": "LE",
+   "title": "A VSTRING result: halfword length then the text, the rest of the item untouched",
+   "methods": [
+    "putVstring",
+    "clearVstring"
+   ],
+   "site": "le/LeTime.java:putVstring",
+   "ibm": {
+    "doc": "le-pr",
+    "section": "Data type definitions: VSTRING"
+   },
+   "options": [],
+   "register": [
+    "L6"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-LE-CEEGMT",
+   "family": "LE",
+   "title": "CEEGMT / CEEUTC: the run's clock is GMT; Lilian day and seconds",
+   "methods": [
+    "gmt",
+    "le/Ceegmt.java:call",
+    "le/Ceeutc.java:call"
+   ],
+   "site": "le/LeTime.java:gmt",
+   "ibm": {
+    "doc": "le-pr",
+    "section": "CEEGMT: get current Greenwich Mean Time"
+   },
+   "options": [],
+   "register": [
+    "L6",
+    "X4"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-LE-CEEGMTO",
+   "family": "LE",
+   "title": "CEEGMTO / CEEUTCO: the offset from GMT is zero on the GMT clock",
+   "methods": [
+    "le/Ceegmto.java:call"
+   ],
+   "ibm": {
+    "doc": "le-pr",
+    "section": "CEEGMTO: get offset from Greenwich Mean Time to local time"
+   },
+   "options": [],
+   "register": [
+    "L6"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-LE-DSNTIAC",
+   "family": "LE",
+   "title": "DSNTIAC: formats an SQLCA into message lines (a stand-in; the text is unproven)",
+   "methods": [
+    "le/Dsntiac.java:call",
+    "le/Dsntiac.java:wrap",
+    "le/Dsntiac.java:s16",
+    "le/Dsntiac.java:s32"
+   ],
+   "ibm": {
+    "doc": "db2-app",
+    "section": "DSNTIAC: the CICS interface to DSNTIAR"
+   },
+   "options": [],
+   "register": [
+    "Q5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-LE-CEEQCEN",
+   "family": "LE",
+   "title": "CEEQCEN: the century window's start (80: the run's default)",
+   "methods": [
+    "qcen",
+    "le/Ceeqcen.java:call"
+   ],
+   "site": "le/LeTime.java:qcen",
+   "ibm": {
+    "doc": "le-pr",
+    "section": "CEEQCEN: query the century window"
+   },
+   "options": [],
+   "register": [
+    "L6"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-LE-CEEDATE",
+   "family": "LE",
+   "title": "CEEDATE: a Lilian day as a character date by a picture string",
+   "methods": [
+    "date",
+    "le/Ceedate.java:call"
+   ],
+   "site": "le/LeTime.java:date",
+   "ibm": {
+    "doc": "le-pr",
+    "section": "CEEDATE: convert Lilian date to character format"
+   },
+   "options": [],
+   "register": [
+    "L6"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-LE-CEEDATM",
+   "family": "LE",
+   "title": "CEEDATM: Lilian seconds as a character timestamp by a picture string",
+   "methods": [
+    "datm",
+    "le/Ceedatm.java:call"
+   ],
+   "site": "le/LeTime.java:datm",
+   "ibm": {
+    "doc": "le-pr",
+    "section": "CEEDATM: convert seconds to character timestamp"
+   },
+   "options": [],
+   "register": [
+    "L6"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-LE-CEESECS",
+   "family": "LE",
+   "title": "CEESECS: a character timestamp to Lilian seconds, its range checked (31 December 9999 23:59:59.999 the last)",
+   "methods": [
+    "secs",
+    "zero",
+    "le/Ceesecs.java:call"
+   ],
+   "site": "le/LeTime.java:secs",
+   "ibm": {
+    "doc": "le-pr",
+    "section": "CEESECS: convert timestamp to seconds"
+   },
+   "options": [],
+   "register": [
+    "L6"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-LE-CEEISEC",
+   "family": "LE",
+   "title": "CEEISEC: year, month, day, hours, minutes, seconds, milliseconds to Lilian seconds, each checked",
+   "methods": [
+    "isec",
+    "le/Ceeisec.java:call"
+   ],
+   "site": "le/LeTime.java:isec@1",
+   "ibm": {
+    "doc": "le-pr",
+    "section": "CEEISEC: convert integers to seconds"
+   },
+   "options": [],
+   "register": [
+    "L6"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-LE-CEEDAYS",
+   "family": "LE",
+   "title": "CEEDAYS: a character date by a picture string to a Lilian day, the documented conditions; the rest refused",
+   "methods": [
+    "le/Ceedays.java:call",
+    "is",
+    "digits",
+    "le/Ceedays.java:leap",
+    "le/Ceedays.java:civil",
+    "le/Ceedays.java:putFc"
+   ],
+   "site": "le/Ceedays.java:call",
+   "ibm": {
+    "doc": "le-pr",
+    "section": "CEEDAYS: convert date to Lilian format"
+   },
+   "options": [],
+   "register": [
+    "L1"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-LE-CEELOCT",
+   "family": "LE",
+   "title": "CEELOCT: the run's pinned clock as local time: Lilian day, Lilian seconds and the 17-character Gregorian form",
+   "methods": [
+    "le/Ceeloct.java:call",
+    "le/Ceeloct.java:civil"
+   ],
+   "site": "le/Ceeloct.java:call",
+   "ibm": {
+    "doc": "le-pr",
+    "section": "CEELOCT: get current local date or time"
+   },
+   "options": [],
+   "register": [
+    "L5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-LE-COBDATFT",
+   "family": "LE",
+   "title": "COBDATFT (CardDemo's assembler date routine): input type '2' to output type '2' modelled byte for byte; type '1' and the error path depend on the load module's literal pool: refused",
+   "methods": [
+    "le/Cobdatft.java:call"
+   ],
+   "site": "le/Cobdatft.java:call",
+   "ibm": {
+    "doc": "carddemo-cobdatft",
+    "section": "COBDATFT.asm"
+   },
+   "options": [],
+   "register": [
+    "A1"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-LE-MVSWAIT",
+   "family": "LE",
+   "title": "MVSWAIT (CardDemo's assembler wait routine): returns at once with RETURN-CODE 0, caller storage untouched (the timer wait is not observable); an argument shorter than the fullword it loads: refused",
+   "methods": [
+    "le/Mvswait.java:call"
+   ],
+   "site": "le/Mvswait.java:call",
+   "ibm": {
+    "doc": "carddemo-mvswait",
+    "section": "MVSWAIT.asm"
+   },
+   "options": [],
+   "register": [
+    "A1"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-ENTRY",
+   "family": "DLI",
+   "title": "ENTRY 'DLITCBL': each DB PCB of the PSB bound to the area IMS passes, its mask filled (DBD name, level 00, blank status, PROCOPT, sensitive segments, key feedback zero)",
+   "methods": [
+    "enter"
+   ],
+   "ibm": {
+    "doc": "ims-ap",
+    "section": "Specifying the DB PCB mask"
+   },
+   "options": [],
+   "register": [
+    "I4"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-STATE",
+   "family": "DLI",
+   "title": "The stated database: DBD / PSB configuration and seed loaded in hierarchic sequence (refused when out of order), new twins placed by segment type and sequence field, each database written at the step's end",
+   "methods": [
+    "load",
+    "loadDb",
+    "linkChild",
+    "leave",
+    "dump"
+   ],
+   "ibm": {
+    "doc": "ims-ap",
+    "section": "Hierarchic sequence"
+   },
+   "options": [],
+   "register": [
+    "I1",
+    "I2",
+    "I6"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-SSA",
+   "family": "DLI",
+   "title": "SSAs: segment name, unqualified (blank) or qualified (field, relational operator, value, ')'); AC / AJ / AK as IBM answers them; command codes, boolean qualification and missing levels refused",
+   "methods": [
+    "parseSsas",
+    "chain"
+   ],
+   "ibm": {
+    "doc": "ims-apis",
+    "section": "Segment search arguments (SSAs)"
+   },
+   "options": [],
+   "register": [
+    "I1",
+    "I5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-QUALIFY",
+   "family": "DLI",
+   "title": "A qualification compares the field's stored bytes (C / X); a P field only where packed and logical comparison agree (both valid, one positive sign)",
+   "methods": [
+    "qualifies",
+    "packedSign",
+    "satisfies"
+   ],
+   "ibm": {
+    "doc": "ims-apis",
+    "section": "SSA relational operators"
+   },
+   "options": [],
+   "register": [
+    "I2"
+   ],
+   "status": "DIFFERS",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-FEEDBACK",
+   "family": "DLI",
+   "title": "The PCB mask after a call: status code, segment level, segment name, concatenated key and its length",
+   "methods": [
+    "feedback",
+    "status"
+   ],
+   "ibm": {
+    "doc": "ims-ap",
+    "section": "Specifying the DB PCB mask"
+   },
+   "options": [],
+   "register": [
+    "I4"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-GET",
+   "family": "DLI",
+   "title": "GU / GN / GNP and their holds: the first segment in hierarchic sequence satisfying the SSAs, from the database's start, from position, or under parentage; GE / GB / GP / GA / GK; position and parentage after the call",
+   "methods": [
+    "get",
+    "firstSatisfying",
+    "deepest",
+    "nextInSeq"
+   ],
+   "ibm": {
+    "doc": "ims-apis",
+    "section": "GU / GHU, GN / GHN, GNP / GHNP calls"
+   },
+   "options": [],
+   "register": [
+    "I1",
+    "I3"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-EXEC-GET",
+   "family": "DLI",
+   "title": "EXEC DLI GU / GN / GNP USING PCB(n) [SEGMENT WHERE] INTO under CICS: the CBLTDLI get of the same SSAs against PCB n of the scheduled PSB, a hold where PROCOPT allows an update; DIBSTAT the PCB's status",
+   "methods": [
+    "get"
+   ],
+   "site": "get@1",
+   "ibm": null,
+   "ibm_note": "EXEC DLI has no HOLD option; the hold on an updating PROCOPT is assumed (register I5)",
+   "options": [],
+   "register": [
+    "I5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-EXEC-ISRT",
+   "family": "DLI",
+   "title": "EXEC DLI ISRT USING PCB(n) SEGMENT(s) [WHERE ...] ... SEGMENT(t) FROM(area) [SEGLENGTH(n)] under CICS: the CBLTDLI ISRT of the same SSAs against PCB n of the scheduled PSB; segments are fixed length, so a SEGLENGTH that differs from the DBD's stops the run; DIBSTAT the PCB's status",
+   "methods": [
+    "execIsrt"
+   ],
+   "ibm": null,
+   "ibm_note": "Segments are fixed length (the DBD's); a variable-length SEGLENGTH is refused by name (register I5)",
+   "options": [],
+   "register": [
+    "I5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-EXEC-CHANGE",
+   "family": "DLI",
+   "title": "EXEC DLI REPL / DLET USING PCB(n) SEGMENT(s) FROM(area) under CICS: the CBLTDLI REPL / DLET of the segment the previous get on this PCB held (DJ with none, DA for a changed key); SEGMENT must name the held segment's type; DIBSTAT the PCB's status",
+   "methods": [
+    "execChange"
+   ],
+   "ibm": null,
+   "ibm_note": "The command form has no SSA, so SEGMENT is checked against the held segment's type; the hold comes from the get-hold on an updating PROCOPT (register I5)",
+   "options": [],
+   "register": [
+    "I5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-ISRT",
+   "family": "DLI",
+   "title": "ISRT: the segment under the parent its SSAs (or current position) locate, among its twins by sequence field; II for a key its twins hold, GE for a parent not found",
+   "methods": [
+    "isrt"
+   ],
+   "ibm": {
+    "doc": "ims-apis",
+    "section": "ISRT call"
+   },
+   "options": [],
+   "register": [
+    "I1",
+    "I3"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-CHANGE",
+   "family": "DLI",
+   "title": "REPL / DLET on the segment the previous get-hold call returned; DJ without one, DA when the I/O area changed the sequence field; DLET removes the segment's dependents",
+   "methods": [
+    "change"
+   ],
+   "ibm": {
+    "doc": "ims-apis",
+    "section": "REPL call; DLET call"
+   },
+   "options": [],
+   "register": [
+    "I1",
+    "I3"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-CALL",
+   "family": "DLI",
+   "title": "CALL 'CBLTDLI' USING function pcb io-area [ssa ...]: the PCB the program was passed, the function's dispatch (AD for an unknown function, AM for one PROCOPT does not allow), any other DL/I call refused",
+   "methods": [
+    "call",
+    "findPcb",
+    "allows"
+   ],
+   "ibm": {
+    "doc": "ims-codes",
+    "section": "DL/I status codes"
+   },
+   "options": [],
+   "register": [
+    "I1",
+    "I5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-SCHD",
+   "family": "DLI",
+   "title": "EXEC DLI SCHD PSB under CICS: the databases load at the first SCHD, the PSB's PCBs start with no position, DIBSTAT blank; a PSB already scheduled is TC (with NODHABEND), else refused",
+   "methods": [
+    "schedule",
+    "buildPcbs"
+   ],
+   "ibm": {
+    "doc": "ims-apis",
+    "section": "EXEC DLI SCHD / TERM"
+   },
+   "options": [],
+   "register": [
+    "I5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-TERM",
+   "family": "DLI",
+   "title": "EXEC DLI TERM: the scheduled PSB is released (the databases keep what was written), DIBSTAT blank; a TERM with no PSB scheduled is refused",
+   "methods": [
+    "terminate"
+   ],
+   "ibm": {
+    "doc": "ims-apis",
+    "section": "EXEC DLI SCHD / TERM"
+   },
+   "options": [],
+   "register": [
+    "I5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DATA-BINARY-SIZE",
+   "family": "DATA",
+   "title": "A COMP / COMP-4 / BINARY / COMP-5 item of 1-4 digits is a halfword, 5-9 a fullword, 10-18 a doubleword",
+   "methods": [
+    "binaryLength"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "USAGE clause: BINARY"
+   },
+   "options": [],
+   "register": [
+    "C16"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DATA-SUBSCRIPT",
+   "family": "DATA",
+   "title": "A subscript is 1-based: offset + (index - 1) * the entry's length",
+   "methods": [
+    "at"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Subscripting"
+   },
+   "options": [],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DATA-REFERENCE-MODIFICATION",
+   "family": "DATA",
+   "title": "Reference modification (start 1-based, no length: to the end) is an alphanumeric view of the item's bytes",
+   "methods": [
+    "ref"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Reference modification"
+   },
+   "options": [],
+   "register": [
+    "X8"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DATA-STORAGE-AREA",
+   "family": "DATA",
+   "title": "A storage area (WORKING-STORAGE, LINKAGE, an FD record, a map) is its bytes; a DFHCOMMAREA of a stated EIBCALEN holds only those bytes, so a reference past them fails",
+   "methods": [
+    "of",
+    "image"
+   ],
+   "site": "Storage.java:of",
+   "ibm": {
+    "doc": "cics-apr",
+    "section": "EIB fields: EIBCALEN"
+   },
+   "options": [],
+   "register": [
+    "X23"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DATA-BYTE-TRANSPARENT",
+   "family": "DATA",
+   "title": "Every byte value survives the record charset (a single-byte charset made lossless); X'hh..' is exactly its bytes",
+   "methods": [
+    "of",
+    "contains",
+    "newDecoder",
+    "decodeLoop",
+    "newEncoder",
+    "encodeLoop",
+    "hex"
+   ],
+   "site": "Lossless.java:of",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "Alphanumeric literals: hexadecimal notation"
+   },
+   "options": [],
+   "register": [
+    "D2"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-SORT-ALPHABET",
+   "family": "SORT",
+   "title": "An ALPHABET (EBCDIC, or literals with ALSO and THRU): each data byte's position, the bytes no entry names after them in native order",
+   "methods": [
+    "ebcdic",
+    "alphabet",
+    "positions",
+    "place",
+    "code",
+    "ebcdicCode"
+   ],
+   "site": "ebcdic",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "SPECIAL-NAMES paragraph: ALPHABET clause"
+   },
+   "options": [
+    "PROGRAM-COLLATING-SEQUENCE"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-SORT-COLLATING-RELATION",
+   "family": "SORT",
+   "title": "A relation condition's nonnumeric operands under PROGRAM COLLATING SEQUENCE: the shorter padded with spaces, then position by position in the alphabet",
+   "methods": [
+    "relation",
+    "compare"
+   ],
+   "site": "relation",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "OBJECT-COMPUTER paragraph: PROGRAM COLLATING SEQUENCE"
+   },
+   "options": [
+    "PROGRAM-COLLATING-SEQUENCE"
+   ],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-SORT-COLLATING-DISAGREE-REFUSED",
+   "family": "SORT",
+   "title": "A key comparison IBM's EBCDIC sequence and the oracle's byte order decide differently, or one over a byte with no EBCDIC character, stops the run by name",
+   "methods": [
+    "compare"
+   ],
+   "site": "compare@2",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "SORT statement: COLLATING SEQUENCE phrase"
+   },
+   "options": [
+    "PROGRAM-COLLATING-SEQUENCE"
+   ],
+   "register": [
+    "D1"
+   ],
+   "status": "REFUSED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-SORT-KEYS",
+   "family": "SORT",
+   "title": "SORT / MERGE keys compare as their items do in a relation condition (numeric by value, others byte by byte), the first the major key, ASCENDING / DESCENDING each",
+   "methods": [
+    "at",
+    "compare"
+   ],
+   "site": "compare@3",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "SORT statement: KEY phrase"
+   },
+   "options": [],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-SORT-STABLE-ORDER",
+   "family": "SORT",
+   "title": "Equal keys come out in the order they went in (WITH DUPLICATES IN ORDER; the model keeps it always); MERGE: equal keys in the order the files are named",
+   "methods": [
+    "sort",
+    "merge"
+   ],
+   "site": "sort",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "SORT statement: DUPLICATES phrase"
+   },
+   "options": [],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-SORT-PROCEDURES",
+   "family": "SORT",
+   "title": "RELEASE / RETURN only inside the input / output procedure, USING files' records as they are, GIVING files each receiving every record; an implicit OPEN / READ / CLOSE that fails stops by name",
+   "methods": [
+    "release",
+    "add",
+    "nextInput",
+    "returnInto",
+    "next",
+    "rewind",
+    "active",
+    "expect"
+   ],
+   "site": "release",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "RELEASE statement, RETURN statement"
+   },
+   "options": [],
+   "register": [],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-FILE-FILE-STATUS",
+   "family": "FILE",
+   "title": "OPEN / CLOSE / READ / WRITE / REWRITE through CobolFiles, returning the FILE STATUS (the harness's planned statuses apply)",
+   "methods": [
+    "open",
+    "close",
+    "readNext",
+    "write",
+    "rewrite"
+   ],
+   "site": "open@1",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "File status key"
+   },
+   "options": [],
+   "features": [
+    "statements: CLOSE",
+    "statements: OPEN",
+    "statements: READ",
+    "statements: REWRITE",
+    "statements: WRITE"
+   ],
+   "register": [
+    "F1",
+    "F2"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-FILE-KEYED-READ",
+   "family": "FILE",
+   "title": "A keyed READ / WRITE / REWRITE: the record whose key bytes equal the record area's, found by the repository and verified against the key bytes",
+   "methods": [
+    "readKey",
+    "withFindById",
+    "records",
+    "find",
+    "area"
+   ],
+   "site": "readKey@1",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "READ statement: KEY phrase"
+   },
+   "options": [],
+   "features": [
+    "statements: READ",
+    "statements: REWRITE",
+    "statements: WRITE"
+   ],
+   "register": [
+    "F1",
+    "F5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-FILE-UNBOUND-FILE",
+   "family": "FILE",
+   "title": "A keyed file with no store bound: OPEN and CLOSE (their statuses) only; a record operation is a hole",
+   "methods": [
+    "hole"
+   ],
+   "ibm": null,
+   "ibm_note": "a record operation the translator could not bind is not modelled",
+   "options": [],
+   "features": [
+    "statements: CLOSE",
+    "statements: OPEN"
+   ],
+   "register": [],
+   "status": "REFUSED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-SYS-DISPLAY-SYSOUT",
+   "family": "SYS",
+   "title": "DISPLAY [WITH NO ADVANCING] to SYSOUT: the operands joined, in the record charset (a byte the charset leaves unmapped as its latin-1 byte), a record per DISPLAY",
+   "methods": [
+    "display",
+    "displayNoAdvancing",
+    "join",
+    "charset",
+    "encode",
+    "write"
+   ],
+   "site": "display",
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "DISPLAY statement"
+   },
+   "options": [],
+   "features": [
+    "statements: DISPLAY"
+   ],
+   "register": [
+    "C8",
+    "D2"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-SYS-USER-ABEND",
+   "family": "SYS",
+   "title": "A user abend (CEE3ABD) carries its code, U followed by four digits",
+   "methods": [
+    "user",
+    "code"
+   ],
+   "site": "user",
+   "ibm": {
+    "doc": "le-pr",
+    "section": "CEE3ABD: terminate enclave with an abend"
+   },
+   "options": [],
+   "register": [
+    "L2"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-MQ-QUEUE-MANAGER",
+   "family": "MQ",
+   "title": "The task's queue manager: local queues, CCSID and messages from the case's mq.cfg; a name it does not hold is MQRC_UNKNOWN_OBJECT_NAME",
+   "methods": [
+    "attach",
+    "qm",
+    "qname"
+   ],
+   "ibm": null,
+   "ibm_note": "the queues are the case's facts, not a z/OS queue manager's",
+   "options": [],
+   "register": [
+    "W1",
+    "W3"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-MQ-CONNECTION",
+   "family": "MQ",
+   "title": "Only a CICS MQI call with Hconn MQHC_DEF_HCONN (0) is modelled; any other Hconn or MQI verb is refused by name",
+   "methods": [
+    "hconnOk",
+    "refused"
+   ],
+   "ibm": null,
+   "ibm_note": "the runtime stops by name outside the modelled calls",
+   "options": [],
+   "register": [
+    "W6"
+   ],
+   "status": "REFUSED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-MQ-OPEN",
+   "family": "MQ",
+   "title": "MQOPEN: resolves the object descriptor, makes the object handle (1, 2, 3 ... in the order opened)",
+   "methods": [
+    "mqopen",
+    "resolveOd",
+    "handle"
+   ],
+   "ibm": null,
+   "ibm_note": "the handle value is opaque in IBM's; the runtime's numbering is the oracle's",
+   "options": [],
+   "register": [
+    "W3",
+    "W4"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-MQ-CLOSE",
+   "family": "MQ",
+   "title": "MQCLOSE: the handle becomes MQHO_UNUSABLE_HOBJ (-1)",
+   "methods": [
+    "mqclose"
+   ],
+   "ibm": null,
+   "ibm_note": "IBM documents the handle's reset; the options handled are those the model gives meaning to",
+   "options": [],
+   "register": [
+    "W4"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-MQ-GET",
+   "family": "MQ",
+   "title": "MQGET (destructive): highest priority first, first in first out within it; WAIT on an empty queue ends at once with 2033, MQWI_UNLIMITED refused; MQGMO_CONVERT a no-op where the message is as asked, refused otherwise",
+   "methods": [
+    "mqget",
+    "before",
+    "add"
+   ],
+   "ibm": null,
+   "ibm_note": "no concurrent producer is assumed; conversion beyond the identity is refused",
+   "options": [],
+   "register": [
+    "W2",
+    "W3",
+    "W5",
+    "W7"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-MQ-PUT",
+   "family": "MQ",
+   "title": "MQPUT / MQPUT1: MsgId GGMQ + a counter, the put context (PutApplType, PutDate / PutTime from the pinned clock, identity placeholders), the message queued under the unit of work",
+   "methods": [
+    "mqput",
+    "mqput1",
+    "put",
+    "putEvent"
+   ],
+   "ibm": null,
+   "ibm_note": "the MsgId form and identity-context placeholders are the oracle's",
+   "options": [],
+   "register": [
+    "W3",
+    "W4",
+    "W8"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-MQ-UNIT-OF-WORK",
+   "family": "MQ",
+   "title": "The MQ unit of work is the CICS task's: SYNCPOINT commits, SYNCPOINT ROLLBACK and an abend back out (BackoutCount raised), the task's end commits",
+   "methods": [
+    "uowEnd",
+    "end"
+   ],
+   "ibm": null,
+   "ibm_note": "IBM's rule is modelled; the oracle's joint syncpoint with ggcics.c is assumed",
+   "options": [],
+   "register": [
+    "W5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-MVS-CONTROL-BLOCKS",
+   "family": "MVS",
+   "title": "SET ADDRESS OF a record TO a pointer into the PSA (a NULL pointer is address 0), the TCB (PSATNEW) or the TIOT (TCBTIO), and the pointer moved along its block through a numeric item it REDEFINES: the blocks laid from the stated job step at IBM's offsets; a record or an advance past what is laid is refused",
+   "methods": [
+    "setAddress",
+    "advancePointer",
+    "copyPointer",
+    "build"
+   ],
+   "ibm": {
+    "doc": "mvs-da",
+    "section": "PSA, TCB, TIOT"
+   },
+   "options": [],
+   "register": [
+    "A2",
+    "C9"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  }
+ ]
+}

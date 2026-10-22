@@ -38,3 +38,20 @@ def test_main_refuses_a_file_that_is_not_a_durations_object(tmp_path):
     with pytest.raises(SystemExit):
         mtd.main([str(out), str(bad)])
     assert not out.exists()
+
+
+def test_main_reads_the_times_file_a_ci_part_uploads(tmp_path):
+    p1, p2, out = tmp_path / "p1.json", tmp_path / "p2.json", tmp_path / "out.json"
+    p1.write_text(json.dumps({"seconds": {"x::one": 0.5}, "slow": {"x::one": "why"}}), encoding="utf-8")
+    p2.write_text(json.dumps({"x::two": 4.0}), encoding="utf-8")
+    assert mtd.main([str(out), str(p1), str(p2)]) == 0
+    assert json.loads(out.read_text(encoding="utf-8")) == {"x::one": 0.5, "x::two": 4.0}
+
+
+@pytest.mark.parametrize("kind", ["PUBLIC KEY", "RSA PRIVATE KEY", "PGP PUBLIC KEY BLOCK", "CERTIFICATE"])
+@pytest.mark.parametrize("edge", ["BEGIN", "END"])
+def test_an_id_carrying_pem_armor_is_dropped(kind, edge):
+    armor = "-" * 5 + f"{edge} {kind}" + "-" * 5  # built, so this file is not itself armor text
+    nodeid = f"t.py::test_key[a.pem-{armor}]"
+    assert mtd.merge([{nodeid: 1.0, "t.py::test_ok[BEGIN-ATOMIC]": 2.0}]) == {"t.py::test_ok[BEGIN-ATOMIC]": 2.0}
+    assert mtd.merge([{nodeid: 1.0}, {nodeid: 3.0}]) == {}  # dropped before the agreement check

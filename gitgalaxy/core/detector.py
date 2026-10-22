@@ -22,7 +22,9 @@ import re
 import time
 from typing import Any, ClassVar, TypedDict, cast
 
+from gitgalaxy.core.call_resolver import BARE_CALL_SKIPS_METHODS
 from gitgalaxy.core.cobol_source_format import FIXED, line_formats
+from gitgalaxy.core.fortran_calls import fortran_call_names
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS
 from gitgalaxy.core.prism import CPP_CHAR_LITERAL_PATTERN, CPP_DIGIT_SEPARATED_NUMBER_PATTERN, CPP_LANG_IDS
 from gitgalaxy.core.rule_prefilter import (
@@ -48,6 +50,7 @@ from gitgalaxy.standards.language_standards import (
     _lazy_re,
 )
 from gitgalaxy.standards.language_standards._shared_patterns import (
+    C_MACRO_FUNC_START_GUARD,
     QUALIFIED_CALLS_OUT_PATTERNS,
 )
 from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START, WIDE_HYPHENS
@@ -84,6 +87,13 @@ def get_token_mass(text: str) -> int | None:
 
 # The language-agnostic indentation signatures coding_analysis tallies per
 # segment (#3069: compiled once instead of a re-cache lookup per segment).
+# #5640: a shell function defined and closed on one line (`name() { cmd; }`, `function name { cmd; }`).
+_SHELL_ONELINE_FUNCTION = re.compile(
+    r"[ \t]*(?:function[ \t]+[A-Za-z_][\w.:-]*[ \t]*(?:\(\)[ \t]*)?"
+    r"|(?!(?:if|then|elif|else|fi|case|esac|while|until|for|in|do|done|function|select|time|coproc)\b)"
+    r"[A-Za-z_][\w.:-]*[ \t]*\(\)[ \t]*)"
+    r"\{[^\n]*\}[ \t]*(?:;[ \t]*)?\r?\n?$"
+)
 _INDENT_TABS_PATTERN = re.compile(r"^\t+(?=\S)", flags=re.MULTILINE)
 _INDENT_SPACES_PATTERN = re.compile(r"^[ ]{2,}(?=\S)", flags=re.MULTILINE)
 
@@ -275,6 +285,7 @@ class ScopeParsingRegistry:
         "psql": "sql",
         "sqlite": "sql",
         "db2_sql": "sql",
+        "postgresql": "sql",
         "visualbasic": "vb",
         "vba": "vb",
     }
@@ -328,6 +339,35 @@ class ScopeParsingRegistry:
             # reused by index since the two lists could diverge later.
             "function_opener": r"(?<![:.])\bdef\b(?!:)",
             "class_opener": r"(?<![:.])\b(?:class|module)\b(?!:)",
+        },
+        # #5623: Crystal is ruby's `end`-delimited shape plus `struct` / `enum` / `lib` / `annotation` / `macro`
+        # scopes and `{% for %}` / `{% if %}` macro blocks (closed by `{% end %}`). An `abstract def` has no body
+        # and no `end`, so it opens nothing.
+        "crystal": {
+            "mode": "mode_d",
+            "openers": [
+                r"(?<![:.@$])(?<!abstract )\bdef\b(?!:)",
+                r"(?<![:.@$])\bmacro\b(?!:)",
+                r"(?<![:.@$])\bclass\b(?!:)",
+                r"(?<![:.@$])\bmodule\b(?!:)",
+                r"(?<![:.@$])\bstruct\b(?!:)",
+                r"(?<![:.@$])\benum\b(?!:)",
+                r"(?<![:.@$])\blib\b(?!:)",
+                r"(?<![:.@$])\bannotation\b(?!:)",
+                r"(?<![:.@$])\bif\b(?!:)",
+                r"(?<![:.@$])\bunless\b(?!:)",
+                r"(?<![:.@$])\bwhile\b(?!:)",
+                r"(?<![:.@$])\buntil\b(?!:)",
+                r"(?<![:.@$])\bfor\b(?!:)",
+                r"(?<![:.@$])\bcase\b(?!:)",
+                r"(?<![:.@$])\bdo\b(?!:)",
+                r"(?<![:.@$])\bbegin\b(?!:)",
+                r"(?<![:.@$])\bselect\b(?=[ \t]*$)",
+                r"(?m:^fun\b(?!:))",  # column-0 only: an indented `fun` in a `lib` has no body or `end`
+            ],
+            "closers": [r"(?<![:.@$])\bend\b(?!:)"],
+            "function_opener": r"(?<![:.])(?<!abstract )\b(?:def|macro)\b(?!:)|(?m:^fun\b(?!:))",
+            "class_opener": r"(?<![:.])\b(?:class|module|struct|enum|lib|annotation)\b(?!:)",
         },
         "lua": {
             "mode": "mode_d",
@@ -619,6 +659,9 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         # match CREATE TABLE, so the named class list would stay permanently
         # empty despite db2_sql's own regex working.
         "db2_sql",
+        # #5622: postgresql's class_start extracts CREATE TABLE / VIEW / TYPE / DOMAIN
+        # names, same shape and same tree-sitter-blind verification as db2_sql.
+        "postgresql",
         # #3211-followup: csd's class_start extracts the CICS PROGRAM a transaction
         # routes to (`DEFINE PROGRAM(BNK1CRA)` -> "BNK1CRA") and its func_start the
         # transaction (`DEFINE TRANSACTION(OCRA)` -> "OCRA") -- the deployable-module
@@ -892,7 +935,8 @@ _BRACE_LITERAL_SHIELD_LANGS = frozenset(
 )  # fmt: skip
 
 _NON_TERMINATING_KEYWORDS_BY_LANG: dict[str, frozenset[str]] = {
-    "fortran": frozenset({"EXIT"}),
+    # #5638: a Fortran `RETURN` is an early exit (inside `IF ... ENDIF`), the unit runs to its `END`
+    "fortran": frozenset({"EXIT", "RETURN"}),
     "abap": frozenset({"RETURN", "EXIT"}),
 }
 
@@ -991,6 +1035,29 @@ _QUALIFIER_MAX_IDENT = 64
 # #3913: the family is recognised by the pattern's TEXT, not by object identity. A rule reaches a
 # scan worker pickled whenever the pool spawns (Windows, macOS): the string or compiled pattern it
 # holds is then a new object, `is` never matched, and qualifier capture was silently off there.
+# #5633: `//`-comment languages with a `--` operator. The literal shield must not read `--` as a comment.
+_DECREMENT_OPERATOR_LANGS = frozenset(
+    {
+        "c",
+        "cpp",
+        "objective-c",
+        "glsl",
+        "java",
+        "groovy",
+        "kotlin",
+        "csharp",
+        "javascript",
+        "typescript",
+        "php",
+        "go",
+        "swift",
+        "dart",
+        "apex",
+        "solidity",
+        "zscript",
+    }
+)
+
 _QUALIFIED_CALLS_OUT_SOURCES = frozenset(getattr(p, "pattern", p) for p in QUALIFIED_CALLS_OUT_PATTERNS)
 
 
@@ -1035,6 +1102,12 @@ def _call_qualifier(text: str, pos: int, separators: tuple[str, ...] = _QUALIFIE
         segments.append(ident)
         i = start
     return ".".join(reversed(segments))
+
+
+def _message_receiver(chain: str | None) -> str:
+    """#5639: an Objective-C send's receiver as a qualifier: `self`, `super`, `Foo`, `obj.view` (`->`
+    reads as `.`). A receiver that is itself a send or a call (no name chain) is `<expr>`."""
+    return re.sub(r"\s*(?:\.|->)\s*", ".", chain) if chain else "<expr>"
 
 
 def _qualifier_separators(lang_id: str) -> tuple[str, ...]:
@@ -1102,6 +1175,140 @@ def _call_arity(text: str, pos: int) -> int | None:
             empty = False
         j += 1
     return None
+
+
+_C_DEFINE_WITH_PARAMS: Any = None  # compiled on first use (#5461)
+_C_MACRO_BRANCH: Any = None
+_C_STATEMENT_WORDS = frozenset(
+    [
+        "do",
+        "if",
+        "for",
+        "while",
+        "switch",
+        "else",
+        "case",
+        "default",
+        "return",
+        "goto",
+        "break",
+        "continue",
+        "sizeof",
+        "typeof",
+    ]
+)
+
+
+def _c_function_like_defines(code: str) -> dict[str, list[bool]]:
+    """#5461: each `#define NAME(params) body` in `code` -> whether the body expands to a function signature.
+
+    A signature body reads `<type words> <name-ish>(`: the text before its first `(` holds two or more words,
+    does not open with a statement word (`do`, `while`, `case`, `return`...), and names a macro parameter or
+    pastes one (`##`). `do { } while (0)`, `case m:`, `while (x)` and `((a) > (b))` are statements/expressions.
+    A name defined more than once (an `#if` ladder) lists every variant.
+    """
+    global _C_DEFINE_WITH_PARAMS
+    if _C_DEFINE_WITH_PARAMS is None:
+        ident = "[" + ID_START + "][" + ID_CONTINUE + "]*"
+        _C_DEFINE_WITH_PARAMS = re.compile(
+            r"^[ \t]*#[ \t]*define[ \t]+(" + ident + r")\(([^()\n]*)\)((?:[^\n\\]|\\\r?\n|\\(?!\r?\n)){0,2000})",
+            re.M,
+        )
+    out: dict[str, list[bool]] = {}
+    for m in _C_DEFINE_WITH_PARAMS.finditer(code):
+        params = {p.strip() for p in m.group(2).split(",") if p.strip() and p.strip() != "..."}
+        body = re.sub(r"\\\r?\n", " ", m.group(3)).strip()
+        head = body.split("(", 1)[0] if "(" in body else ""
+        words = re.findall(r"[A-Za-z_][A-Za-z0-9_]*", head)
+        is_signature = (
+            len(words) >= 2
+            and words[0] not in _C_STATEMENT_WORDS
+            and not any(c in head for c in "{};")
+            and ("##" in head or any(w in params for w in words))
+        )
+        out.setdefault(m.group(1), []).append(is_signature)
+    return out
+
+
+_C_PASTE_CHAIN = re.compile(r"((?:[A-Za-z_][A-Za-z0-9_]*[ \t]*##[ \t]*)*[A-Za-z_][A-Za-z0-9_]*)[ \t]*$")
+# #5563: the repo-wide table (`c_macro_name_args` over the scan's C/C++ headers), set per scan by the worker init.
+_C_REPO_MACRO_ARGS: dict[str, tuple[int, tuple[int, ...]] | None] = {}
+
+
+def c_macro_name_args(code: str) -> dict[str, tuple[int, tuple[int, ...]] | None]:
+    """#5563: each signature-expanding `#define` in `code` -> (index of the argument naming the function, indices of
+    its qualifier arguments).
+
+    The expansion's LAST statement (after its final `;`) is the definition head the invocation's `{` completes
+    (`static void Handler_ ## name(void)`, `static int AF_##cls##_##name(VM_ARGS)`); its declarator is the
+    identifier or `##` chain before the first `(`. The last parameter in that chain names the function and the
+    earlier ones qualify it (`AF_##cls##_##name` -> `name`, qualifier `cls`). A head that is not a signature, or a
+    chain that pastes no parameter, records nothing. Variants that disagree (an `#if` ladder) record None.
+    """
+    global _C_DEFINE_WITH_PARAMS
+    if _C_DEFINE_WITH_PARAMS is None:
+        _c_function_like_defines("")
+    out: dict[str, tuple[int, tuple[int, ...]] | None] = {}
+    for m in _C_DEFINE_WITH_PARAMS.finditer(code):
+        params = [p.strip() for p in m.group(2).split(",")]
+        tail = re.sub(r"\\\r?\n", " ", m.group(3)).rsplit(";", 1)[-1].strip()
+        head = tail.split("(", 1)[0] if "(" in tail else ""
+        words = re.findall(r"[A-Za-z_][A-Za-z0-9_]*", head)
+        chain = _C_PASTE_CHAIN.search(head)
+        if len(words) < 2 or words[0] in _C_STATEMENT_WORDS or any(c in head for c in "{}") or chain is None:
+            continue
+        pasted = [params.index(p) for p in re.split(r"[ \t]*##[ \t]*", chain.group(1)) if p in params]
+        if not pasted:
+            continue
+        entry = (pasted[-1], tuple(pasted[:-1]))
+        name = m.group(1)
+        out[name] = entry if out.get(name, entry) == entry else None
+    return out
+
+
+def c_repo_macro_name_args(texts: Any) -> dict[str, tuple[int, tuple[int, ...]] | None]:
+    """#5563: `c_macro_name_args` over many header texts; a macro two headers define differently records None."""
+    table: dict[str, tuple[int, tuple[int, ...]] | None] = {}
+    for text in texts:
+        if "#" not in text or "define" not in text:
+            continue
+        for name, entry in c_macro_name_args(text).items():
+            table[name] = entry if table.get(name, entry) == entry else None
+    return table
+
+
+def set_c_repo_macro_args(table: dict[str, tuple[int, tuple[int, ...]] | None]) -> None:
+    """#5563: install the scan's repo-wide macro table in this (worker) process."""
+    global _C_REPO_MACRO_ARGS
+    _C_REPO_MACRO_ARGS = dict(table)
+
+
+def _c_macro_definition_name(invocation: str, entry: tuple[int, tuple[int, ...]]) -> str | None:
+    """#5563: the name `entry` reads from `MACRO(a, b, ...) {`: the naming argument, prefixed `Q::` by each
+    qualifier argument. None when an argument it needs is missing or not a plain identifier."""
+    open_i = invocation.find("(")
+    close_i = invocation.rfind(")")
+    if open_i < 0 or close_i < open_i:
+        return None
+    args = [a.strip() for a in invocation[open_i + 1 : close_i].split(",")]
+    parts = []
+    for i in (*entry[1], entry[0]):
+        if i >= len(args) or not re.fullmatch(r"[" + ID_START + r"][" + ID_CONTINUE + r"]*", args[i]):
+            return None
+        parts.append(args[i])
+    return "::".join(parts)
+
+
+def _c_macro_branch_match(safe_code: str, match: Any) -> str | None:
+    """#5461: the macro's name when `match` came from the C/C++ function-macro branch of `func_start`, else None."""
+    global _C_MACRO_BRANCH
+    if _C_MACRO_BRANCH is None:
+        _C_MACRO_BRANCH = re.compile(C_MACRO_FUNC_START_GUARD, re.M)
+    guard = _C_MACRO_BRANCH.match(safe_code, match.start())
+    if guard is None or guard.end() != match.end():
+        return None
+    name = re.match(r"[A-Z][A-Z0-9_]*", match.group(0))
+    return name.group(0) if name else None
 
 
 def _declaration_headers(func_start: Any, text: str) -> tuple[dict[int, str], dict[int, int]]:
@@ -1535,6 +1742,32 @@ def _skip_blanks_back(text: str, i: int) -> int:
     return i
 
 
+_HEADER_MACRO_NAME = re.compile(r"[A-Z][A-Z0-9_]*\Z")
+_HEADER_SCAN_MAX = 4000
+
+
+def _header_macro_span(text: str) -> int:
+    """#5629: end of a C/C++ unit's header text where an ALL-CAPS `NAME(` is a macro use, never a call.
+
+    The header is everything before the body's first `{`: the defining macro of a macro-defined
+    unit (`CCMD(map) {`) and macros in the parameter list (`int n TXT_UNCAST_ARG(n)`). A C++
+    constructor's initializer list (a lone `:` after the parameter list's `)`) is real code and
+    stays out of the span. Returns 0 (nothing dropped) when no `{` opens within the bound.
+    """
+    depth, closed = 0, False
+    for i, ch in enumerate(text[:_HEADER_SCAN_MAX]):
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth = max(depth - 1, 0)
+            closed = closed or depth == 0
+        elif depth == 0 and (
+            ch == "{" or (ch == ":" and closed and text[i - 1 : i] != ":" and text[i + 1 : i + 2] != ":")
+        ):
+            return i
+    return 0
+
+
 def _declarator_type_callee(text: str, pos: int) -> tuple[str, int] | None:
     """#3644 (contract C3): is the `name(` at `pos` a C++ `Type var(args)` declaration?
 
@@ -1649,6 +1882,31 @@ def _blank_nested_units(
 
 
 _NON_NEWLINE = re.compile(r"[^\n]")
+
+
+# #5634: words in the global set above that are keywords in SOME languages but ordinary names in
+# others -- a rust `fn def(..)` or go `func Class(..)` called by its name was dropped. Per language,
+# the words that are NOT keywords there.
+_CALLS_OUT_GLOBAL_IGNORE_NOT_KEYWORDS: dict[str, frozenset[str]] = {
+    "rust": frozenset(
+        {"def", "function", "class", "using", "catch", "sizeof", "alignof", "decltype", "include", "require"}
+        | {"require_once", "include_once", "except", "finally", "switch"}
+    ),
+    "go": frozenset(
+        {"def", "function", "class", "using", "catch", "sizeof", "alignof", "decltype", "include", "require"}
+        | {"require_once", "include_once", "except", "finally", "typeof"}
+    ),
+}
+
+# #5634: a rust macro invocation `name!(..)` is not a call of a function `name`. Its qualifier carries
+# this prefix (`!`, or `!std` for `std::println!`) so the resolver never links it to a fn of that name.
+_MACRO_QUALIFIER_PREFIX = "!"
+
+
+def _mark_macro_qualifier(lang_id: str, text: str, callee_end: int, qualifier: str) -> str:
+    if lang_id == "rust" and text.startswith("!", callee_end):
+        return _MACRO_QUALIFIER_PREFIX + qualifier
+    return qualifier
 
 
 _CALLS_OUT_GLOBAL_IGNORE = frozenset(
@@ -1860,13 +2118,14 @@ _MODE_E_SYNTHETIC_NAME = re.compile(r"Declarative_Block|[A-Z0-9]+_Statement")
 # statement terminators would otherwise cut it after its first statement). Every
 # other statement stays a synthetic bucket. sqlite is deliberately absent: its
 # only routine form is CREATE TRIGGER, which nothing invokes by name.
-_MODE_E_NAMED_ROUTINE_LANGS = frozenset({"db2_sql"})
+_MODE_E_NAMED_ROUTINE_LANGS = frozenset({"db2_sql", "postgresql"})
 # SQL PL block depth inside a named routine. BEGIN and CASE open (a CASE
 # statement closes with `END CASE`, a CASE expression with a bare `END`); a bare
 # `END` / `END label` or `END CASE` closes; `END IF/WHILE/LOOP/REPEAT/FOR` close
 # statements that only ever appear inside a BEGIN block, so they don't move depth.
 _SQL_ROUTINE_DEPTH_TOKEN = re.compile(
-    r"\bEND[ \t]+(IF|WHILE|LOOP|REPEAT|FOR|CASE)\b|\b(END|BEGIN|CASE)\b", re.IGNORECASE
+    r"\bEND[ \t]+(IF|WHILE|LOOP|REPEAT|FOR|CASE)\b|\b(END|BEGIN|CASE)\b|(\$(?:[^\W\d]\w{0,30})?\$)",
+    re.IGNORECASE,
 )
 
 # #2806: the two invocation models a registry may declare through the
@@ -2426,6 +2685,8 @@ class StructuralExtractor:
         # #3642 (C8): (unit, its block, its rules) for each unit one segment's
         # slicing scanned for calls; _function_slice resolves them.
         self._call_scans: list[tuple[FunctionNode, str, dict[str, Any]]] | None = None
+        # #5699: units (name, start line) that call their own bare name; a method of one keeps the call
+        self._bare_self_units: set[tuple[str, int]] = set()
 
         # #2728: the names this language's own `func_start` can synthesize from a
         # closed keyword alternation rather than capture from source. Empty for
@@ -2861,6 +3122,7 @@ class StructuralExtractor:
                 "embedded_python",
                 "yaml",
                 "ruby",
+                "crystal",
             ) or lang_family in (
                 "single_line_only",
                 "multi_style_dash",
@@ -2911,7 +3173,7 @@ class StructuralExtractor:
                 # db2_sql (#2511) reuses the same convention with its one
                 # delimited-identifier style (double quotes only).
                 if (
-                    self.primary_lang_id in ("sqlite", "db2_sql")
+                    self.primary_lang_id in ("sqlite", "db2_sql", "postgresql")
                     and name
                     and len(name) >= 2
                     and (name[0], name[-1]) in (('"', '"'), ("`", "`"), ("[", "]"))
@@ -3020,6 +3282,13 @@ class StructuralExtractor:
                         innermost_cls = cls
                 if innermost_cls is not None:
                     func["parent_class_name"] = innermost_cls["name"]
+                    if (func["name"], func.get("start_line", 0)) in self._bare_self_units and func["name"] not in func[
+                        "calls_out_to"
+                    ]:
+                        # #5699: a bare `f(` in a method `f` is not the method here (it needs `self.f`):
+                        # kept for the resolver, which reaches a free `f` or prunes it as recursion
+                        func["calls_out_to"].append(func["name"])
+                        func["calls_out_qualifiers"][func["name"]] = [""]
                     class_methods_by_id[id(innermost_cls)].append(func)
 
             for cls in classes:
@@ -3892,6 +4161,9 @@ class StructuralExtractor:
             if rule_name.startswith("_") or rule_name == "calls_out" or not pattern:
                 continue
             mapped_key = self.CORE_MAPPING.get(rule_name, rule_name)
+            if mapped_key == "hardcoded_secrets":
+                # #5467: not a base-schema signal; the security lens owns it (sec_hardcoded_secrets).
+                continue
             if mapped_key not in valid_keys:
                 self.logger.warning(
                     f"[DIAGNOSTIC] Unregistered rule '{mapped_key}' found in '{seg_lang}'. Ignoring to preserve schema."
@@ -4301,6 +4573,11 @@ class StructuralExtractor:
         comment_markers = r"#|--|//"
         if lang_id == "matlab":
             comment_markers = r"%|#|--|//"
+        elif lang_id in _DECREMENT_OPERATOR_LANGS:
+            # #5633: `--` is the decrement operator here, never a comment. A line starting
+            # `--vars[ReadVar()];` (or `for (;; --i, x.f())`) was blanked to its end,
+            # taking every call after the `--` with it.
+            comment_markers = r"#|//"
         elif lang_id in ("shell", "bash"):
             # Shell's ONLY line-comment marker is `#`. `--` is the end-of-options
             # delimiter (`alert --stop ...`, `git checkout -- file`) and `//` has
@@ -4386,6 +4663,7 @@ class StructuralExtractor:
         elif lang_id not in (
             "python",
             "ruby",
+            "crystal",
             "shell",
             "bash",
             "perl",
@@ -4467,7 +4745,7 @@ class StructuralExtractor:
         t_pct = t_quotes
 
         # 2. Isolate Heredoc Logic to supported scripting languages
-        if lang_id in ["ruby", "perl", "elixir", "shell", "bash"]:
+        if lang_id in ["ruby", "crystal", "perl", "elixir", "shell", "bash"]:
             # State-Machine for Heredocs
             lines = text.split("\n")
             shielded_lines = []
@@ -4475,6 +4753,9 @@ class StructuralExtractor:
 
             # In detector.py -> _apply_literal_shield
             heredoc_opener_pattern = re.compile(r'<<[-~]?\s*[\'"]?\\?([a-zA-Z_][a-zA-Z0-9_]*)[\'"]?')
+            if lang_id == "crystal":
+                # #5623: Crystal heredocs are `<<-ID` / `<<-'ID'` only; `x << FRACBITS` is a shift/append.
+                heredoc_opener_pattern = re.compile(r'<<-[\'"]?([a-zA-Z_][a-zA-Z0-9_]*)[\'"]?')
 
             for line in lines:
                 if active_heredoc_delimiter:
@@ -4548,6 +4829,16 @@ class StructuralExtractor:
                 r"\b(?:def|class|module|defmacro|defmodule|defp)\s+"
                 r"(?:(?:[^\W\d][" + ID_CONTINUE + r"]*(?:::[^\W\d][" + ID_CONTINUE + r"]*)*\.|self\.)[ \t\n]*)?"
                 r"([^\W\d][" + ID_CONTINUE + r"]*(?:::[^\W\d][" + ID_CONTINUE + r"]*)*[?!=]?)",
+                line,
+            )
+            if m:
+                return m.group(1)
+        elif lang_key == "crystal":
+            m = re.search(
+                r"(?:\b(?:def|macro|class|struct|module|enum|lib|annotation)|^fun)[ \t]+"
+                r"(?:(?:[^\W\d][" + ID_CONTINUE + r"]*(?:::[^\W\d][" + ID_CONTINUE + r"]*)*\.|self\.)[ \t]*)?"
+                r"([^\W\d][" + ID_CONTINUE + r"]*(?:::[^\W\d][" + ID_CONTINUE + r"]*)*[?!=]?"
+                r"|\[\]=?\??|<=>|===?|!=|=~|!~|<<|>>|<=?|>=?|\*\*|[+\-*/%&|^~!])",
                 line,
             )
             if m:
@@ -4838,6 +5129,9 @@ class StructuralExtractor:
                         # right heuristic for Haskell's layout rule even though
                         # it wasn't designed with Haskell in mind.
                         "haskell",
+                        # #5623: F# is offside-rule too; a record `{ ... }` body would send Mode B
+                        # slicing the wrong span.
+                        "fsharp",
                     ):
                         mode_name = "Mode_C_Indentation"
                         sats, impact = self._slice_by_indentation(code, rules, offset, spatial_map, lang_id)
@@ -5873,7 +6167,12 @@ class StructuralExtractor:
         # stray braces inside a macro body that would otherwise corrupt the brace-depth
         # counter downstream), so `safe_code` has nothing left here to match against.
         known_macro_positions: dict[str, int] = {}
+        macro_expansions: dict[str, list[bool]] = {}
+        macro_name_args: dict[str, tuple[int, tuple[int, ...]] | None] = {}
         if lang_id in ("c", "cpp"):
+            macro_expansions = _c_function_like_defines(code)
+            # #5563: this file's defines win over the repo-wide (header) table.
+            macro_name_args = {**_C_REPO_MACRO_ARGS, **c_macro_name_args(code)} if "#" in code else _C_REPO_MACRO_ARGS
             for m in re.finditer(
                 r"^[ \t]*#[ \t]*define[ \t]+([" + ID_START + r"][" + ID_CONTINUE + r"]*)\(", code, re.M
             ):
@@ -6284,11 +6583,36 @@ class StructuralExtractor:
                             ):
                                 term_idx, term_kind = pos, "eq"
                                 break
+                            elif ch == closer:
+                                term_idx, term_kind = pos, "none"  # #5632: enclosing body closes
+                                break
+                            elif ch == "\n":
+                                # #5632: a bodyless declaration (`fun interface` member,
+                                # interface / `abstract` / `expect` fun) ends with its
+                                # signature; the walk used to run on to a LATER unit's `{`
+                                # and borrow that body. A signature ends at a line end unless
+                                # the next token continues it (`{`, `=`, `:` return type,
+                                # `where`) or this line ended on `:` / `=` / `,`.
+                                nxt = pos + 1
+                                while nxt < search_limit and safe_code[nxt] in " \t\n":
+                                    nxt += 1
+                                prev = pos
+                                while prev - 1 > params_end_idx and safe_code[prev - 1] in " \t":
+                                    prev -= 1
+                                if nxt >= search_limit or (
+                                    safe_code[nxt] not in "{=:"
+                                    and not safe_code.startswith("where", nxt)
+                                    and safe_code[prev - 1] not in ":=,"
+                                ):
+                                    term_idx, term_kind = prev, "none"
+                                    break
                         pos += 1
                     if term_kind == "brace":
                         end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
                     elif term_kind == "eq":
                         end_idx = next_match_start
+                    elif term_kind == "none":
+                        end_idx = term_idx
                     else:
                         end_idx = (
                             params_end_idx  # neither a body nor a bodyless `;` terminator ever showed up in the window
@@ -6316,6 +6640,14 @@ class StructuralExtractor:
                         term_idx, term_kind = pos, ("brace" if ch == opener else "semi")
                         break
                     pos += 1
+                if term_kind == "semi":
+                    # #5639: `- (void)m;` then a `{` body (a stray `;` after the header, doom-ios `setOn:`,
+                    # prboom-plus `removeAllPathsFromQueue`) is a definition: a declaration is never followed by `{`.
+                    nxt = term_idx + 1
+                    while nxt < search_limit and safe_code[nxt].isspace():
+                        nxt += 1
+                    if nxt < search_limit and safe_code[nxt] == opener:
+                        term_idx, term_kind = nxt, "brace"
                 if term_kind == "brace":
                     end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
                 elif term_kind == "semi":
@@ -7149,6 +7481,18 @@ class StructuralExtractor:
             if name in known_macro_positions and known_macro_positions[name] < start_idx:
                 continue
 
+            # #5461 (owner ruling 2026-10-18): `MACRO(args) {` whose `#define` is in this file is a function only
+            # when some variant of the define expands to a signature (odamex FUNC); a statement/expression define
+            # (`do { } while (0)`) is not. No define in the file: the invocation form alone decides.
+            if (macro_expansions or macro_name_args) and match.group(0)[:1].isupper():
+                macro_name = _c_macro_branch_match(safe_code, match)
+                if macro_name is not None and macro_name in macro_expansions and not any(macro_expansions[macro_name]):
+                    continue
+                # #5563: the `#define` (this file's, else a header's) says which argument names the function.
+                entry = macro_name_args.get(macro_name) if macro_name is not None else None
+                if entry is not None:
+                    name = _c_macro_definition_name(match.group(0), entry) or name
+
             block_nl = block.count("\n")  # #3174: scan the (often large) body once, not twice
             sat, mag = self._calculate_block_metrics(
                 name,
@@ -7838,7 +8182,7 @@ class StructuralExtractor:
                     opens -= non_cmd
 
             # The Ruby/Elixir Inline Modifier Guard
-            if lang_key in ["ruby", "elixir"] and opens > 0:
+            if lang_key in ["ruby", "crystal", "elixir"] and opens > 0:
                 # Find all valid condition keywords on the line
                 inline_mods = len(re.findall(r"(?<![:.])\b(if|unless|while|until)\b(?!:)", safe_line))
 
@@ -7922,6 +8266,23 @@ class StructuralExtractor:
                     # what `spatial_correlation` scopes on; the char pair stays
                     # the block's own coordinates.
                     sat_start_char = current_char_offset
+                elif lang_key == "shell" and _SHELL_ONELINE_FUNCTION.match(safe_line):
+                    # #5640: `name() { cmd; }` opens and closes on one line (net 0), so it never
+                    # became a unit and its calls were read as top-level code.
+                    block = orig_line.strip()
+                    sat, mag = self._calculate_block_metrics(
+                        self._extract_semantic_name(safe_line, lang_key),
+                        block,
+                        1,
+                        current_line_offset + 1,
+                        current_line_offset + 1,
+                        rules,
+                        current_char_offset,
+                        current_char_offset + len(orig_line),
+                        spatial_map,
+                    )
+                    satellites.append(sat)
+                    sum_fxn_impact += mag
                 else:
                     global_dust.append(orig_line)
                     stack_depth = max(0, stack_depth + net_change)
@@ -7999,7 +8360,7 @@ class StructuralExtractor:
                 # idiom (#1266), not a desync, and vb/livecode don't hit this.
                 recovered: list[FunctionNode] = []
                 rec_mag = 0.0
-                if lang_key in ("shell", "ruby", "lua", "elixir"):
+                if lang_key in ("shell", "ruby", "crystal", "lua", "elixir"):
                     recovered, rec_mag = self._slice_by_labels(block, rules, sat_start_line - 1, spatial_map)
 
                 if len(recovered) > 1:
@@ -8146,6 +8507,7 @@ class StructuralExtractor:
         routine_start = rules.get("func_start") if lang_id in _MODE_E_NAMED_ROUTINE_LANGS else None
         in_routine = False
         routine_depth = 0
+        dollar_tag: str | None = None
 
         is_orbiting = False
         sat_start_line = offset + 1
@@ -8168,15 +8530,25 @@ class StructuralExtractor:
         # independently reconsidered as a string delimiter. Same fix as
         # `_build_indentation_safe_stream` / `_apply_literal_shield`.
         def preserve_newlines(m):
-            if m.groupdict().get("comment") is not None:
+            if m.lastgroup == "line_comment":
                 return ""
+            if m.lastgroup == "block_comment":
+                return "\n" * m.group(0).count("\n")
             return '""' + "\n" * m.group(0).count("\n")
 
+        # #5736: SQL's `/* ... */` is one comment, so a `;` or `CREATE` inside a license header
+        # neither ends nor ignites a statement. Scoped to SQL: erlang's `/` and prolog's own
+        # comment handling are unchanged. A comment is matched before a quote inside it.
+        sql_block_comment = (
+            r"(?P<block_comment>/\*.*?\*/)|"
+            if "sql" in ScopeParsingRegistry._ALIASES.get(lang_id.lower(), lang_id.lower())
+            else ""
+        )
         safe_code = re.sub(
-            r'"(?:\\.|[^"\\])*"|'
+            sql_block_comment + r'"(?:\\.|[^"\\])*"|'
             r"'(?:\\.|[^'\\])*'|"
             r"`(?:\\.|[^`\\])*`|"
-            r"(?P<comment>--|%)[^\n]*",
+            r"(?P<line_comment>--|%)[^\n]*",
             preserve_newlines,
             code,
             flags=re.DOTALL,
@@ -8217,6 +8589,7 @@ class StructuralExtractor:
                         satellite_name = routine_name
                         in_routine = True
                         routine_depth = 0
+                        dollar_tag = None
 
             # Build the block using the unaltered original line
             current_satellite.append(orig_line)
@@ -8226,14 +8599,19 @@ class StructuralExtractor:
             # closes the outermost block (`END;`, `END P1;`) is at depth 0.
             terminates = bool(terminator_pattern.search(safe_line))
             if in_routine:
+                # #5622: a PostgreSQL `$$` / `$tag$` body is one quoted string, so its
+                # inner `;` and BEGIN/END never move the routine depth; the routine
+                # can end only once the opening tag has been closed again.
                 for tok in _SQL_ROUTINE_DEPTH_TOKEN.finditer(safe_line):
-                    closer = (tok.group(1) or "").upper()
-                    word = (tok.group(2) or "").upper()
-                    if closer == "CASE" or word == "END":
+                    if tok.group(3):
+                        dollar_tag = None if dollar_tag == tok.group(3) else (dollar_tag or tok.group(3))
+                    elif dollar_tag:
+                        continue
+                    elif (tok.group(1) or "").upper() == "CASE" or (tok.group(2) or "").upper() == "END":
                         routine_depth = max(0, routine_depth - 1)
-                    elif word in ("BEGIN", "CASE"):
+                    elif (tok.group(2) or "").upper() in ("BEGIN", "CASE"):
                         routine_depth += 1
-                terminates = terminates and routine_depth == 0
+                terminates = terminates and routine_depth == 0 and dollar_tag is None
 
             # The Guillotine Drop (Evaluate the safe_line for the terminator)
             if terminates:
@@ -9726,6 +10104,7 @@ class StructuralExtractor:
             for m in pattern.finditer(safe):
                 seen = kept.setdefault(m.group(1), [])
                 qualifier = _call_qualifier(safe, m.start(1), _qualifier_separators(self.primary_lang_id))
+                qualifier = _mark_macro_qualifier(self.primary_lang_id, safe, m.end(1), qualifier)
                 if qualifier not in seen:
                     seen.append(qualifier)
             sat["calls_out_to"] = [c for c in sat["calls_out_to"] if c in kept]
@@ -10118,10 +10497,15 @@ class StructuralExtractor:
         raw_calls: list[str] = []
         header_only: set[str] = set()
         invoked: set[str] = set()
+        own_leaf: str | None = None
+        own_qualifiers: set[str] = set()
+        bare_self_hits = 0
+        own_header_seen = False
         if invocation_pattern:
             # Apply literal shield to avoid capturing words inside strings
             safe_block = self._apply_literal_shield(block, self.primary_lang_id)
-            if _is_qualified_calls_out(invocation_pattern):
+            message_receivers = bool(self.languages.get(self.primary_lang_id, {}).get("calls_out_message_receivers"))
+            if message_receivers or _is_qualified_calls_out(invocation_pattern):
                 receiver_text = safe_block
                 # #3360 (C5): note which callees were captured only on a nested
                 # func_start header (`def inner(`). _function_slice drops them
@@ -10144,19 +10528,46 @@ class StructuralExtractor:
                 unit_parts = _UNIT_NAME_SEPARATORS.split(name)
                 own_leaf = unit_parts[-1] if len(unit_parts) > 1 else None
                 own_qualifiers = {"", "this", "self", ".".join(unit_parts[:-1]), unit_parts[-2]} if own_leaf else set()
+                header_end = (
+                    _header_macro_span(safe_block)
+                    if self.languages.get(self.primary_lang_id, {}).get("calls_out_header_macros_are_not_calls")
+                    else 0
+                )
                 for m in invocation_pattern.finditer(safe_block):
-                    callee = m.group(1)
-                    callee_pos = m.start(1)
+                    # #5639: a message send's groups are (receiver, selector); a C call's is group 1
+                    # group 4 is a keyword send to a call receiver (`[f(x) a:1]`)
+                    send_group = next((g for g in (3, 4) if g <= m.re.groups and m.group(g) is not None), None)
+                    is_send = message_receivers and send_group is not None
+                    callee = m.group(send_group) if is_send else m.group(1)
+                    callee_pos = m.start(send_group) if is_send else m.start(1)
+                    # #5629: a macro in the unit's header (its defining macro, a parameter-list macro).
+                    if callee_pos < header_end and _HEADER_MACRO_NAME.match(callee):
+                        continue
                     if 0 <= body_start < callee_pos:
                         declared = _declarator_type_callee(safe_block, callee_pos)
                         if declared is not None:
                             if not declared[0]:
                                 continue
                             callee, callee_pos = declared
-                    qualifier = _call_qualifier(safe_block, callee_pos, _qualifier_separators(self.primary_lang_id))
-                    if callee == own_leaf and qualifier in own_qualifiers:
+                    if is_send:
+                        qualifier = _message_receiver(m.group(2))
+                    else:
+                        qualifier = _call_qualifier(safe_block, callee_pos, _qualifier_separators(self.primary_lang_id))
+                    qualifier = _mark_macro_qualifier(
+                        self.primary_lang_id, safe_block, callee_pos + len(callee), qualifier
+                    )
+                    # #5628: a bare `leaf(` may reach a different unit of that name, in this file
+                    # or another: kept, and the call resolver drops it when it only resolves to
+                    # the unit itself. Anything written with a receiver or scope is the unit itself.
+                    if callee == own_leaf and qualifier in own_qualifiers and qualifier:
                         continue
-                    if callee_pos == m.start(1) and _is_declaration_header(decl_headers, m):
+                    is_decl = callee_pos == m.start(1) and _is_declaration_header(decl_headers, m)
+                    if callee == name and not qualifier:
+                        # the first bare match of the unit's own name is its own header
+                        if own_header_seen and not is_decl:
+                            bare_self_hits += 1
+                        own_header_seen = True
+                    if is_decl:
                         header_only.add(callee)
                     else:
                         invoked.add(callee)
@@ -10183,6 +10594,14 @@ class StructuralExtractor:
                 if isinstance(masked, re.Pattern):
                     safe_block = masked.sub(lambda m: re.sub(r"[^\n]", " ", m.group(0)), safe_block)
                 raw_calls = invocation_pattern.findall(safe_block)
+                if invocation_pattern.groups > 1:
+                    # #5639: one group per alternative (Objective-C: C call, message selector)
+                    raw_calls = [next((g for g in m if g), "") for m in raw_calls]
+                # #5638: a Fortran function reference `x = F(a)` has no verb; the statement scan
+                # also keeps `CALL F` in source order, and the verb regex's finds stay as a floor.
+                if self.languages.get(self.primary_lang_id, {}).get("calls_out_function_refs"):
+                    scanned = fortran_call_names(safe_block, rules.get("_calls_out_ignore") or frozenset())
+                    raw_calls = scanned + [c for c in raw_calls if c not in scanned]
 
         # Per-language additions to the global ignore set (Epic #3264 Phase 3).
         # Authored lowercase in the profile. A case-insensitive language
@@ -10192,6 +10611,7 @@ class StructuralExtractor:
         # `func` keyword vs a `Func()` method, rust's `let` vs an `Expr::Let(`
         # variant, C#'s `this(` chaining vs a `factory.This()` call).
         lang_ignore = rules.get("_calls_out_ignore") or frozenset()
+        global_exempt = _CALLS_OUT_GLOBAL_IGNORE_NOT_KEYWORDS.get(self.primary_lang_id, frozenset())
         _fold_ignore = (
             self.languages.get(self.primary_lang_id, {}).get("identifier_case") == IDENTIFIER_CASE_INSENSITIVE
         )
@@ -10211,7 +10631,7 @@ class StructuralExtractor:
                 for c in raw_calls
                 # #4305: a pattern alternative that only consumes text (COBOL `EXIT PERFORM`) captures ""
                 if c
-                and c not in _CALLS_OUT_GLOBAL_IGNORE
+                and (c not in _CALLS_OUT_GLOBAL_IGNORE or c in global_exempt)
                 and (c.casefold() if _fold_ignore else c) not in lang_ignore
                 and c != self_name
             )
@@ -10285,6 +10705,9 @@ class StructuralExtractor:
         decl_only = header_only - invoked
         if decl_only and self._nested_decl_candidates is not None:
             self._nested_decl_candidates.append((sat, decl_only))
+        # #5699: a bare `f(` after the unit's own header that is not a nested declaration header
+        if bare_self_hits and self.primary_lang_id in BARE_CALL_SKIPS_METHODS:
+            self._bare_self_units.add((name, start_line))
         return sat, magnitude
 
     def _export_declaration_offsets(self, code_stream: str) -> set[int]:

@@ -16,13 +16,13 @@ a named, ranked fix.
 <td align="center" width="190"><h2>51 s</h2></td>
 <td align="center" width="190"><h2>53</h2></td>
 <td align="center" width="190"><h2>100%</h2></td>
-<td align="center" width="190"><h2>96 / 127</h2></td>
+<td align="center" width="190"><h2>L0 to L5</h2></td>
 </tr>
 <tr>
 <td align="center" valign="top"><sub><strong>to scan Kubernetes</strong><br />1.39M lines, 5 languages<br /><em><a href="#every-size-in-seconds">speed model</a> · 636 repos charted</em></sub></td>
 <td align="center" valign="top"><sub><strong>languages, down to the function</strong><br />66 recognized · no build, no per-language toolchain<br /><em><a href="#languages">the full list</a></em></sub></td>
 <td align="center" valign="top"><sub><strong>validated function precision</strong><br />vs tree-sitter, 31 languages<br /><em><a href="#structural-validation-gitgalaxy-vs-tree-sitter-vs-ctags">pinned corpus</a> · not every repo</em></sub></td>
-<td align="center" valign="top"><sub><strong>CICS and batch programs proven equal</strong><br />no model; 6 public estates<br /><em><a href="#every-port-ships-with-its-evidence">oracle is GnuCOBOL</a>, not z/OS</em></sub></td>
+<td align="center" valign="top"><sub><strong>CICS and batch programs, by evidence level</strong><br />no model; <a href="https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md">live counts</a><br /><em><a href="#every-port-ships-with-its-evidence">oracle is GnuCOBOL</a>, not z/OS</em></sub></td>
 </tr>
 </table>
 
@@ -131,9 +131,9 @@ have to guess what the numbers mean. Other modes: `--sarif-only`, `--sbom-only`,
 
 | You ask | GitGalaxy gives you |
 |---|---|
-| *What is this repository made of?* | Language composition and the macro state of the repo, in the first page of the [architecture brief](docs/gitgalaxy_architecture_brief.md). |
+| *What is this repository made of?* | Language composition and the macro state of the repo, in the first page of the [architecture brief](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/gitgalaxy_architecture_brief.md). |
 | *What is load-bearing? What breaks if I change this?* | An import graph and a function call graph with PageRank blast radius, articulation points, choke points and cycles. [Call graph](docs/function_call_graph.md) · [graph accuracy](docs/graph_accuracy.md) |
-| *Where should I read first?* | The heaviest functions and files, and ranked hitlists, with the formula printed in the report. [Architecture brief](docs/gitgalaxy_architecture_brief.md) |
+| *Where should I read first?* | The heaviest functions and files, and ranked hitlists, with the formula printed in the report. [Architecture brief](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/gitgalaxy_architecture_brief.md) |
 | *Where are secrets, unsafe calls, dynamic execution, I/O, concurrency?* | The Structural Surface Profile: 13 per-file vectors showing where each pattern concentrates. [Vectors](docs/vectors.md) |
 | *What dependencies are actually on disk?* | A CycloneDX SBOM from the scan itself, plus supply-chain audits. [SBOM](docs/wiki/04-02-sbom-generator.md) |
 | *Which code is complex, high-churn, or owned by one person?* | Refactoring targets ranked by volatility and authorship concentration, and bus-factor exposure. |
@@ -187,7 +187,7 @@ zero-connection files, and the report says to check the connection counts before
 Hundreds of unedited briefs for independently selected repositories are committed at
 [gitgalaxy-raw-output](https://github.com/squid-protocol/gitgalaxy-raw-output). This repo's
 own always-current self-scan brief is at
-[`docs/gitgalaxy_architecture_brief.md`](docs/gitgalaxy_architecture_brief.md).
+[`docs/gitgalaxy_architecture_brief.md`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/gitgalaxy_architecture_brief.md).
 
 ---
 
@@ -195,13 +195,15 @@ own always-current self-scan brief is at
 
 ## CICS to Java: ported, then proven
 
+[![CICS to Java: where we stand](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/language_status/progress.svg)](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md)
+
 For mainframe estates the structural graph is the start of a migration. `cobol-to-java`
 turns a CICS estate (its online transactions, plus the batch COBOL and JCL around them) into
 a compiling Spring Boot project, and an equivalence harness proves each ported program
 against the original COBOL: same inputs, byte-identical outputs. A port that is not proven
 is not done, and a person approves every port.
 
-**Iterably solvable.** On six public estates, the engine and its proof harness have turned
+**Iterably solvable.** On the public burned estates, the engine and its proof harness have turned
 CICS-to-Java translation into an *iterably solvable* problem. Every gap surfaces as a named,
 ranked fix: a construct the translator refuses by name, a failed proof, a fuzz difference, a
 coverage hole, or a written-down assumption. One fix to the shared runtime repairs every
@@ -250,7 +252,7 @@ unit a customer receives next to the Java:
 - **The options it holds under**: TRUNC, NUMPROC, ARITH and the rest, each marked
   `found at <file>:<line>` or `assumed`.
 - **The assumptions it rests on**: the entries in the
-  [oracle-assumptions register](docs/language_status/oracle_assumptions.md) its CICS commands
+  [oracle-assumptions register](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md) its CICS commands
   name, each tagged MATCHED, REFUSED, DIFFERS or ASSUMED.
 
 Change any input and the record goes stale; the release gate fails until it is re-proven.
@@ -274,12 +276,13 @@ are always shown
 | L4 | branch coverage | L3, and every branch outcome, net of reviewed infeasible ones |
 | L5 | mutants accounted for | L4, and every surviving mutant of the port accounted for (not yet measured, [#4628](https://github.com/squid-protocol/gitgalaxy/issues/4628)) |
 
-**Where it stands** (2026-10-12): across **6 public estates and 127 programs, 96 are at L2
-or better and 34 at L4**, all det-ported with no model. The
-[per-estate evidence report](docs/language_status/evidence_report/README.md) is regenerated on
-every push to main, so read the current numbers there. The det ports include COACTUPC
+**Where it stands**: the public estates are det-ported with no model, and the current level counts, the CICS
+commands modelled, the mutation kill rate and the crucibles are on the generated
+[progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md), each number with its source and the commit it was rendered at (this README
+holds none, so it cannot drift). The [per-estate evidence report](docs/language_status/evidence_report/README.md) is
+published on the `generated` branch, regenerated on every push to main and nightly. The det ports include COACTUPC
 (account update, 4,236 lines), which no model ported in one answer; CICS programs that LINK
-to others in the same task (proven together); and named counters, SYNCPOINT ROLLBACK and
+to others in the same task (checked together); and named counters, SYNCPOINT ROLLBACK and
 abend backout across files and Db2. The design and runtime contract are in
 [det_port_design.md](docs/language_status/det_port_design.md).
 
@@ -315,8 +318,8 @@ abend backout across files and Db2. The design and runtime contract are in
 </details>
 
 On the [CICS crucible](docs/language_status/cics_crucible.md), a corpus of small CICS
-applications built around known migration traps, all 17 programs are proven on 44 scenarios.
-The scenarios cover every live paragraph and branch. The ports were written by Claude Opus
+applications built around known migration traps, the programs and scenarios are counted on the
+[progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md). The scenarios cover every live paragraph and branch. The ports were written by Claude Opus
 5.5: 9 on the first attempt, 7 on the second, 1 on the third.
 
 What these levels do not show:
@@ -324,11 +327,11 @@ What these levels do not show:
 - **The oracle is not a mainframe.** It is GnuCOBOL, a model of CICS, Db2 for Linux, and IBM
   services modelled only where IBM documents them. Anything else is refused, never guessed. Every
   known or suspected difference from z/OS, and whether a proven program reaches it, is in the
-  [oracle-assumptions register](docs/language_status/oracle_assumptions.md): for example a POINTER
+  [oracle-assumptions register](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md): for example a POINTER
   is 8 bytes here and 4 on z/OS (C9, which blocks three CBSA programs), and text compares in
   ASCII order, not EBCDIC (D1). Proving against captured z/OS output is
   [#4050](https://github.com/squid-protocol/gitgalaxy/issues/4050).
-- **These are burned estates.** The six estates and the crucible are public, and the
+- **These are burned estates.** The burned estates and the crucible are public, and the
   translator and porting rules were built on them, so their levels are not first-try results.
   The real test is a blind estate seen for the first time; no such trial has run yet
   ([trial protocol](docs/language_status/fresh_estate_trials.md)).

@@ -4,6 +4,7 @@ DFHRESP(NOTFINISHED), and RUN TRANSID CHANNEL."""
 from __future__ import annotations
 
 import datetime
+import os
 import shutil
 import subprocess
 import sys
@@ -35,31 +36,38 @@ def test_notfinished_is_resp_113():
     assert E.parse_condition("R = DFHRESP(NOTFINISHED)") == E.Rel("=", E.Ref("R"), E.Lit(Decimal(113)))
 
 
-def test_fetch_any_nosuspend_takes_its_outcome_and_writes_no_area():
+def test_fetch_any_nosuspend_writes_what_the_child_left_on_normal():
+    """#4950: on NORMAL the token (ANY), the reply channel (CHANNEL), the abend code (ABCODE, only for an abended child)
+    and COMPSTATUS's CVDA are written; on any other condition, nothing."""
     out = T._ChanCics().command("FETCH ANY(TKN) CHANNEL(CH) NOSUSPEND COMPSTATUS(ST) ABCODE(AB) RESP(R) RESP2(R2)", "")
-    assert out == [
-        "CicsTask.FetchResult fetch1 = task.fetch(null);",
-        "OUTCOME(DetCics.resp(fetch1.resp()), fetch1.resp2());",
-    ]
+    assert out[0] == 'CicsTask.FetchResult fetch1 = task.fetch(null, "NOSUSPEND", 0, true);'
+    assert (
+        out[1] == "if (fetch1.child() != null) {" and out[-1] == "OUTCOME(DetCics.resp(fetch1.resp()), fetch1.resp2());"
+    )
+    assert any("fetch1.channel()" in ln for ln in out) and any("fetch1.abcode() != null" in ln for ln in out)
 
 
 def test_fetch_child_names_its_token():
     out = T._ChanCics().command("FETCH CHILD(TKN) NOSUSPEND RESP(R) RESP2(R2)", "")
-    assert out[0] == "CicsTask.FetchResult fetch1 = task.fetch(TKN.strip());"
+    assert out[0] == 'CicsTask.FetchResult fetch1 = task.fetch(TKN.strip(), "NOSUSPEND", 0, false);'
 
 
 @pytest.mark.parametrize(
-    "text, why",
+    "text, mode",
     [
-        ("FETCH ANY(TKN) RESP(R)", "NOSUSPEND"),  # it would wait: a child runs only once its parent has ended
-        ("FETCH CHILD(TKN) RESP(R)", "NOSUSPEND"),
-        ("FETCH ANY(TKN) NOSUSPEND TIMEOUT(5)", "TIMEOUT"),
-        ("FETCH CHILD(TKN) NOSUSPEND TIMEOUT(5)", "TIMEOUT"),
+        ("FETCH ANY(TKN) RESP(R)", '"WAIT", 0'),  # #4950: it waits -- the children not yet run are dispatched
+        ("FETCH CHILD(TKN) RESP(R)", '"WAIT", 0'),
+        ("FETCH ANY(TKN) TIMEOUT(5) RESP(R)", '"TIMEOUT", 5'),
+        ("FETCH CHILD(TKN) TIMEOUT(5)", '"TIMEOUT", 5'),
     ],
 )
-def test_a_fetch_that_waits_is_refused(text, why):
-    with pytest.raises(C.CicsError, match=why):
-        T._ChanCics().command(text, "")
+def test_a_fetch_that_waits_or_times_out_is_modelled(text, mode):
+    assert f"{mode}, false);" in T._ChanCics().command(text, "")[0]
+
+
+def test_nosuspend_and_timeout_together_are_refused():
+    with pytest.raises(C.CicsError, match="FETCH NOSUSPEND and TIMEOUT together"):
+        T._ChanCics().command("FETCH ANY(TKN) NOSUSPEND TIMEOUT(5)", "")
 
 
 def test_run_channel_is_the_childs_copy_by_name():
@@ -67,9 +75,11 @@ def test_run_channel_is_the_childs_copy_by_name():
     assert out[0] == "CicsTask.RunResult run1 = task.runTransid('GT24'.strip(), CH.strip());"
 
 
-def test_free_child_stays_refused():
-    with pytest.raises(C.CicsError, match="FREE"):
-        T._ChanCics().command("FREE CHILD(TKN)", "")
+def test_free_child_is_modelled():
+    """#4950: FREE CHILD(token) on CicsTask.freeChild (it was refused under the name FREE)."""
+    out = T._ChanCics().command("FREE CHILD(TKN) RESP(R)", "")
+    assert out == ["CicsTask.FetchResult freed1 = task.freeChild(TKN.strip());",
+                   "OUTCOME(DetCics.resp(freed1.resp()), freed1.resp2());"]  # fmt: skip
 
 
 def test_ceeloct_reads_the_runs_clock_and_stores_its_seconds_by_value():
@@ -101,16 +111,20 @@ def test_the_ceeloct_model_against_the_calendar(tmp_path):
     days = (datetime.date(2026, 10, 1) - datetime.date(1582, 10, 14)).days
     secs = days * 86400 + 10 * 3600 + 30 * 60 + 15
     assert ok.stdout.split() == [str(days), f"{secs}.25", "20261001103015250", "0"], ok
-    refused = subprocess.run([str(tmp_path / "t")], env={}, capture_output=True, text=True)  # noqa: S603
+    bare = {k: os.environ[k] for k in ("SYSTEMROOT",) if k in os.environ} if os.name == "nt" else {}  # no clock pinned
+    refused = subprocess.run([str(tmp_path / "t")], env=bare, capture_output=True, text=True)  # noqa: S603
     assert refused.returncode == 98 and "not modelled" in refused.stderr
 
 
-def test_a_program_that_executes_fetch_is_never_proven():
-    """X18 DIFFERS: both runtimes answer NOTFINISHED, which IBM need not; the harness never counts the event equal."""
+def test_a_fetch_is_compared_by_what_it_answered():
+    """#4950 (X18 ASSUMED, no longer DIFFERS): the children run at their parent's waits on both runtimes, so a FETCH is
+    compared like any event -- equal when both answered the same, a difference when the child fetched differs."""
     import equivalence_cics as ec
 
-    ev = [{"event": "FETCH", "resp": "NOTFINISHED", "resp2": 52}]
-    d = ec.compare_events(ev, [dict(ev[0])])
-    assert d["equal"] == 0 and d["diffs"][0]["kind"] == "FETCH" and "X18" in d["diffs"][0]["fields"][0]["cobol"]
-    other = [{"event": "RUN", "transid": "T", "resp": "NORMAL"}]
-    assert ec.compare_events(other, [dict(other[0])])["equal"] == 1
+    ev = [{"event": "FETCH", "resp": "NORMAL", "resp2": 0, "child": "GGCHILD000000002", "compstatus": "NORMAL",
+           "abcode": None, "channel": "GGREPLY000000001"}]  # fmt: skip
+    assert ec.compare_events(ev, [dict(ev[0])])["equal"] == 1
+    d = ec.compare_events(ev, [dict(ev[0], child="GGCHILD000000001")])
+    assert d["equal"] == 0 and d["diffs"][0]["fields"] == [
+        {"field": "child", "cobol": "GGCHILD000000002", "java": "GGCHILD000000001"}
+    ]

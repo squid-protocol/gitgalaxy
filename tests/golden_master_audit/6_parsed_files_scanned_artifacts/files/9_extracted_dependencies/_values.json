@@ -14613,6 +14613,38 @@
         "windows_sys::Win32::Storage::FileSystem::*",
         "windows_sys::Win32::System::Pipes::*",
         "windows_sys::Win32::System::SystemServices::*"
+      ],
+      "rust/tokio/tokio_udp.rs": [
+        "bytes::BufMut",
+        "crate::io::Interest",
+        "crate::io::PollEvented",
+        "crate::io::ReadBuf",
+        "crate::io::Ready",
+        "crate::net::ToSocketAddrs",
+        "crate::net::to_socket_addrs",
+        "crate::os::windows::io::AsRawSocket",
+        "crate::os::windows::io::AsSocket",
+        "crate::os::windows::io::BorrowedSocket",
+        "crate::os::windows::io::RawSocket",
+        "crate::util::check_socket_for_blocking",
+        "self::UdpSocket",
+        "std::fmt",
+        "std::io",
+        "std::net",
+        "std::net::Ipv4Addr",
+        "std::net::Ipv6Addr",
+        "std::net::SocketAddr",
+        "std::os::fd::AsFd",
+        "std::os::fd::AsRawFd",
+        "std::os::fd::BorrowedFd",
+        "std::os::fd::FromRawFd",
+        "std::os::fd::IntoRawFd",
+        "std::os::fd::RawFd",
+        "std::os::windows::io::FromRawSocket",
+        "std::os::windows::io::IntoRawSocket",
+        "std::task::Context",
+        "std::task::Poll",
+        "std::task::ready"
       ]
     },
     "rust/tokio_util_rand": {
@@ -15513,6 +15545,7 @@
       "shell/freebsd-src/dd2_test.sh": [],
       "shell/freebsd-src/dtest.sh": [],
       "shell/freebsd-src/echo_test.sh": [],
+      "shell/freebsd-src/ed_test.sh": [],
       "shell/freebsd-src/format_string_test.sh": [],
       "shell/freebsd-src/functional_test.sh": [],
       "shell/freebsd-src/hostname_test.sh": [],
@@ -15552,6 +15585,7 @@
       "shell/haiku/default_deskbar_items.sh": [],
       "shell/haiku/gen-bepo.sh": [],
       "shell/haiku/generate_CountryFlags.sh": [],
+      "shell/haiku/generate_ids_from_drivers.sh": [],
       "shell/haiku/install-wifi-firmwares.sh": [],
       "shell/haiku/install.sh": [],
       "shell/haiku/leak_analyser.sh": [],
@@ -16176,6 +16210,18 @@
         "./types",
         "./util"
       ],
+      "typescript/assemblyscript/builtins.ts": [
+        "./ast",
+        "./common",
+        "./compiler",
+        "./diagnostics",
+        "./flow",
+        "./module",
+        "./program",
+        "./resolver",
+        "./types",
+        "./util"
+      ],
       "typescript/assemblyscript/compiler.ts": [
         "./ast",
         "./bindings/js",
@@ -16492,7 +16538,42 @@
         "./_namespaces/ts.js",
         "./_namespaces/ts.performance.js"
       ],
-      "typescript/typescript_compiler/package.json": []
+      "typescript/typescript_compiler/checker.ts": [
+        "$moduleSpecifier",
+        ")",
+        ");\n                    \n                \n                if (!specifier) \n                    specifier = getSpecifierForModuleSymbol(chain[0]",
+        "./_namespaces/ts.js",
+        "./_namespaces/ts.moduleSpecifiers.js",
+        "./_namespaces/ts.performance.js",
+        ":",
+        "])",
+        "context);\n                \n                if (!(context.flags & NodeBuilderFlags.AllowNodeModulesRelativePaths) && getEmitModuleResolutionKind(compilerOptions) !== ModuleResolutionKind.Classic && specifier.includes("
+      ],
+      "typescript/typescript_compiler/emitter.ts": [
+        ");\n        writePunctuation(",
+        "./_namespaces/ts.js",
+        "./_namespaces/ts.performance.js",
+        ":"
+      ],
+      "typescript/typescript_compiler/package.json": [],
+      "typescript/typescript_compiler/parser.ts": [
+        ") \n        return ModuleKind.ESNext;\n    \n    if (mode ===",
+        "./_namespaces/ts.js",
+        "./_namespaces/ts.performance.js",
+        ":\n                        tag = parseImportTag(start",
+        "end: number",
+        "indentText);\n                        break;\n                \n                return tag;\n            \n\n            function parseTrailingTagComments(pos: number",
+        "indentText);\n                        break;\n                    default:\n                        tag = parseUnknownTag(start",
+        "indentText.slice(margin));\n            \n\n            function parseTagComments(indent: number",
+        "indentText: string) \n                \n                if (!indentText) \n                    margin += end - pos;\n                \n                return parseTagComments(margin",
+        "initialMargin?: string): string | NodeArray<JSDocComment> | undefined \n                const commentsPos = getNodePos();\n                let comments: string[] = [];\n                const parts: JSDocComment[] = [];\n                let linkEnd;\n                let state = JSDocState.BeginningOfLine;\n                let margin: number | undefined;\n                function pushComment(text: string) \n                    if (!margin) \n                        margin = indent;\n                    \n                    comments.push(text);\n                    indent += text.length;\n                \n                if (initialMargin !== undefined) \n                    \n                    if (initialMargin !==",
+        "margin",
+        "margin: number",
+        "tagName"
+      ],
+      "typescript/typescript_compiler/types.ts": [
+        "./_namespaces/ts.js"
+      ]
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": [],
@@ -17255,6 +17336,27 @@
         "builtin",
         "std"
       ],
+      "zig/zig/Sema.zig": [
+        "Air.zig",
+        "Compilation.zig",
+        "InternPool.zig",
+        "Package.zig",
+        "RangeSet.zig",
+        "Sema/LowerZon.zig",
+        "Sema/arith.zig",
+        "Sema/bitcast.zig",
+        "Sema/comptime_ptr_access.zig",
+        "Type.zig",
+        "Value.zig",
+        "Zcu.zig",
+        "build_options",
+        "crash_report.zig",
+        "mutable_value.zig",
+        "print_value.zig",
+        "std",
+        "target.zig",
+        "tracy.zig"
+      ],
       "zig/zig/Type.zig": [
         "InternPool.zig",
         "Sema.zig",
@@ -17391,6 +17493,12 @@
       ],
       "zig/zls/config_gen.zig": [
         "std"
+      ],
+      "zig/zls/langref.html.in": [
+        "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNTMgMTQwIj48ZyBmaWxsPSIjRjdBNDFEIj48Zz48cG9seWdvbiBwb2ludHM9IjQ2LDIyIDI4LDQ0IDE5LDMwIi8+PHBvbHlnb24gcG9pbnRzPSI0NiwyMiAzMywzMyAyOCw0NCAyMiw0NCAyMiw5NSAzMSw5NSAyMCwxMDAgMTIsMTE3IDAsMTE3IDAsMjIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMzEsOTUgMTIsMTE3IDQsMTA2Ii8+PC9nPjxnPjxwb2x5Z29uIHBvaW50cz0iNTYsMjIgNjIsMzYgMzcsNDQiLz48cG9seWdvbiBwb2ludHM9IjU2LDIyIDExMSwyMiAxMTEsNDQgMzcsNDQgNTYsMzIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTE2LDk1IDk3LDExNyA5MCwxMDQiLz48cG9seWdvbiBwb2ludHM9IjExNiw5NSAxMDAsMTA0IDk3LDExNyA0MiwxMTcgNDIsOTUiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTUwLDAgNTIsMTE3IDMsMTQwIDEwMSwyMiIvPjwvZz48Zz48cG9seWdvbiBwb2ludHM9IjE0MSwyMiAxNDAsNDAgMTIyLDQ1Ii8+PHBvbHlnb24gcG9pbnRzPSIxNTMsMjIgMTUzLDExNyAxMDYsMTE3IDEyMCwxMDUgMTI1LDk1IDEzMSw5NSAxMzEsNDUgMTIyLDQ1IDEzMiwzNiAxNDEsMjIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyIvPjxwb2x5Z29uIHBvaW50cz0iMTI1LDk1IDEzMCwxMTAgMTA2LDExNyIvPjwvZz48L2c+PC9zdmc+",
+        "data:image/png;base64",
+        "data:image/svg+xml;base64",
+        "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAgklEQVR4AWMYWuD7EllJIM4G4g4g5oIJ/odhOJ8wToOxSTXgNxDHoeiBMfA4+wGShjyYOCkG/IGqWQziEzYAoUAeiF9D5U+DxEg14DRU7jWIT5IBIOdCxf+A+CQZAAoopEB7QJwBCBwHiip8UYmRdrAlDpIMgApwQZNnNii5Dq0MBgCxxycBnwEd+wAAAABJRU5ErkJggg=="
       ],
       "zig/zls/print_ast.zig": [
         "std",

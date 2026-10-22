@@ -1,0 +1,140 @@
+name: Generated Java Base Generation
+
+# Seeds the cache that java-compile.yml's pull-request run restores (#5142): the base branch's generated Java, per corpus,
+# keyed on the CONTENT of the files that decide the generation. Without an entry a PR regenerates the base's two paths
+# itself (dsf: 420-520 s in the "unchanged?" step instead of about half).
+#
+# It is its own workflow because it cannot live in java-compile.yml's push run: that run is cancelled by the next push
+# to main (#4825; 5 of 8 consecutive runs were) and skipped by tested-tree for a squash of an up-to-date PR, and a
+# cancelled or skipped run saves nothing. Here every push has its own concurrency group, there is no tested-tree gate,
+# and a lookup-only restore makes a push whose content key already exists cost seconds.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "gitgalaxy/cobol_to_java_controller.py"
+      - "gitgalaxy/cobol_refractor_controller.py"
+      - "gitgalaxy/tools/cobol_to_java/**"
+      - "gitgalaxy/tools/cobol_to_cobol/**"
+      - "gitgalaxy/standards/yaml_reader.py"
+      - "gitgalaxy/standards/fact_channel_confidence.json"
+      - "tests/tools/java_target_matrix.py"
+      - "tests/cobol_mainframe/corpora.json"
+      - "tests/tools/mainframe_corpus.py"
+      - ".github/workflows/java-base-generation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  keep:
+    name: keep (${{ matrix.corpus }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - corpus: aws-mainframe-modernization-carddemo
+            configs: ""  # every config in java_target_matrix.MATRIX
+          - corpus: cics-banking-sample-application-cbsa
+            configs: "default plain-records gradle"
+          - corpus: cics-genapp
+            configs: "default plain-records gradle"
+          - corpus: zopeneditor-sample
+            configs: "default plain-records gradle"
+          - corpus: zecs
+            configs: "default plain-records gradle"
+          - corpus: dsf
+            configs: "default plain-records gradle"
+    env:
+      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+      GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
+      PYTHONUTF8: "1"
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          persist-credentials: false
+
+      # the same key as java-compile.yml's "Restore the base branch's generation" step hashes on a pull request (its base
+      # checkout is main's tree), and tests/tools/test_cache_keys.py pins that the two lists are equal
+      - name: Is this content already kept?
+        id: kept
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/java_base_cache
+          lookup-only: true
+          key: java-same-base-${{ matrix.corpus }}-${{ hashFiles('gitgalaxy/gitgalaxy/cobol_to_java_controller.py', 'gitgalaxy/gitgalaxy/cobol_refractor_controller.py', 'gitgalaxy/gitgalaxy/tools/cobol_to_java/**', 'gitgalaxy/gitgalaxy/tools/cobol_to_cobol/**', 'gitgalaxy/gitgalaxy/standards/yaml_reader.py', 'gitgalaxy/gitgalaxy/standards/fact_channel_confidence.json', 'gitgalaxy/tests/tools/java_target_matrix.py', 'gitgalaxy/tests/cobol_mainframe/corpora.json', 'gitgalaxy/tests/tools/mainframe_corpus.py') }}
+
+      - name: Setup Python
+        if: steps.kept.outputs.cache-hit != 'true'
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: |
+            gitgalaxy/pyproject.toml
+            gitgalaxy/ci/requirements/*.txt
+
+      - name: Install GitGalaxy
+        if: steps.kept.outputs.cache-hit != 'true'
+        run: |
+          cd gitgalaxy
+          tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
+          pip install --no-build-isolation -e .
+
+      - name: Cache the pinned corpora
+        id: corpora
+        if: steps.kept.outputs.cache-hit != 'true'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
+
+      - name: Fetch the pinned corpora
+        if: steps.kept.outputs.cache-hit != 'true'
+        run: |
+          cd gitgalaxy
+          rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
+          PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
+
+      - name: Save the pinned corpora (main)
+        if: steps.kept.outputs.cache-hit != 'true' && steps.corpora.outputs.cache-hit != 'true' && github.event_name != 'pull_request'
+        continue-on-error: true  # best effort: a miss only costs the next run a clone
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
+
+      - name: Generate this commit's Java (both paths)
+        id: keep-gen
+        if: steps.kept.outputs.cache-hit != 'true'
+        env:
+          CORPUS: ${{ matrix.corpus }}
+          CONFIGS: ${{ matrix.configs }}
+        run: |
+          cd gitgalaxy
+          ONLY=()
+          if [ -n "$CONFIGS" ]; then ONLY=(--only $CONFIGS); fi
+          # this checkout is its own base: the run keeps the base side's projects in the cache directory
+          PYTHONPATH="$PWD" python tests/tools/java_target_matrix.py \
+            "$GITGALAXY_MAINFRAME_CORPORA/$CORPUS" \
+            --same-as "$GITHUB_WORKSPACE/gitgalaxy" \
+            --base-cache "$RUNNER_TEMP/java_base_cache" \
+            --work "$RUNNER_TEMP/java_keep" \
+            "${ONLY[@]}"
+
+      - name: Save the generation under this content (main)
+        if: steps.kept.outputs.cache-hit != 'true' && steps.keep-gen.outcome == 'success'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/java_base_cache
+          key: java-same-base-${{ matrix.corpus }}-${{ hashFiles('gitgalaxy/gitgalaxy/cobol_to_java_controller.py', 'gitgalaxy/gitgalaxy/cobol_refractor_controller.py', 'gitgalaxy/gitgalaxy/tools/cobol_to_java/**', 'gitgalaxy/gitgalaxy/tools/cobol_to_cobol/**', 'gitgalaxy/gitgalaxy/standards/yaml_reader.py', 'gitgalaxy/gitgalaxy/standards/fact_channel_confidence.json', 'gitgalaxy/tests/tools/java_target_matrix.py', 'gitgalaxy/tests/cobol_mainframe/corpora.json', 'gitgalaxy/tests/tools/mainframe_corpus.py') }}

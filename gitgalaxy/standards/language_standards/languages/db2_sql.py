@@ -12,7 +12,7 @@ from typing import Any
 
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 
-from .._shared_patterns import CALLS_OUT_CALL_VERB, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 # Db2 ordinary identifiers allow the national characters `#`, `$` and `@` alongside
 # letters, digits and `_` (IBM Db2 13 for z/OS SQL Reference, "Identifiers") -- the
@@ -30,6 +30,68 @@ _QUAL = r"(?:" + _NAME + r"[ \t]*\.[ \t]*){0,2}"
 # `END WHILE`, `END REPEAT`) -- continuation/closing words are excluded from branch
 # (#2822 C2). One fixed-width lookbehind per spacing character.
 _NOT_END = r"(?<!END )(?<!END\t)"
+
+# #5635: a routine body invokes another routine as `CALL p(...)` (Db2, PL/pgSQL), `PERFORM f(...)`,
+# `SELECT f(...)`, `x := f(...)`, `FROM f(...)` -- all but the CALL verb are plain `name(` function-call syntax.
+# Group 1 is the callee's bare name (a schema qualifier is consumed, not captured). The first alternative
+# consumes, WITHOUT a group, a declaration or DDL head (`FUNCTION f(`, `INTO t (`, `TABLE t (`, `REFERENCES
+# t (`; but not `EXECUTE FUNCTION f()`, a trigger's call), so findall yields "" for it and detector.py drops it. Built-ins, type constructors (`numeric(10,2)`)
+# and clause words (`VALUES (`, `IN (`, `OVER (`) are excluded by the lookahead below (_SQL_BUILTINS).
+_SQL_NOT_A_CALL = (
+    r"\b(?<!EXECUTE )(?<!EXECUTE\t)(?:FUNCTION|PROCEDURE|TRIGGER|TABLE|VIEW|INTO|TYPE|DOMAIN|INDEX|SCHEMA|SEQUENCE|REFERENCES|KEY|USING|CONSTRAINT|WITH|RECURSIVE)"
+    # #5736: the shield blanks a block comment to `""`, so MySQL's `TABLE /*prefix*/blobs (` is `TABLE ""blobs (`
+    r"[ \t\r\n]+(?:\"\"[ \t\r\n]*)?" + _QUAL + _NAME + r"[ \t]*\("
+    # `COMMENT ON [COLUMN] t (`, `CREATE INDEX i ON t (`: an `ON` that is not a join condition
+    r"|\bCOMMENT[ \t]+ON[ \t\r\n]+(?:[A-Z]+[ \t\r\n]+)?" + _QUAL + _NAME + r"[ \t]*\("
+    r"|\bINDEX[ \t\r\n]+" + _QUAL + _NAME + r"[ \t\r\n]+ON[ \t\r\n]+" + _QUAL + _NAME + r"[ \t]*\("
+)
+_SQL_CALLEE = r"[^\W\d]" + _ID + r"{0,127}"
+_SQL_BUILTINS = (
+    # control / clause words that sit before a parenthesis
+    "FROM|JOIN|CROSS|INNER|OUTER|NATURAL|FULL|IF|ELSIF|ELSEIF|WHILE|CASE|WHEN|THEN|ELSE|UNTIL|LOOP|FOR|IN|NOT|AND|OR|IS|ON|USING|AS|BY|AT|ALL|ANY|SOME"
+    "|EXISTS|VALUES|SELECT|WHERE|HAVING|OVER|PARTITION|WITHIN|FILTER|RETURNS|RETURN|RETURNING|SET|WITH|UNION"
+    "|INTERSECT|EXCEPT|LIMIT|OFFSET|FETCH|DECLARE|BEGIN|END|CHECK|CONSTRAINT|PRIMARY|FOREIGN|UNIQUE|REFERENCES"
+    "|KEY|DEFAULT|CONFLICT|CURSOR|HANDLER|LATERAL|ROWS|ROW|RANGE|GROUPS|COLUMNS|WINDOW|DISTINCT|GENERATED|STORED"
+    "|EXECUTE|OPEN|CLOSE|LOCK|DO|ESCAPE|LIKE|ILIKE|SIMILAR|BETWEEN|ARRAY|CAST|TREAT|INTERVAL|MODIFIES|READS"
+    # aggregate, window, conditional, scalar and string / numeric / date built-ins (Db2, PostgreSQL, SQLite)
+    "|GET_BYTE|SET_BYTE|ARG_MAX|ARG_MIN|COALESCE|NULLIF|GREATEST|LEAST|IFNULL|NVL|NVL2|DECODE|IIF|SUM|COUNT|AVG|MIN|MAX|TOTAL|GROUP_CONCAT|STRING_AGG"
+    "|ARRAY_AGG|JSON_AGG|JSONB_AGG|BOOL_AND|BOOL_OR|EVERY|STDDEV|VARIANCE|MEDIAN|ROW_NUMBER|RANK|DENSE_RANK|NTILE"
+    "|LAG|LEAD|FIRST_VALUE|LAST_VALUE|NTH_VALUE|ABS|ROUND|TRUNC|TRUNCATE|CEIL|CEILING|FLOOR|MOD|POWER|POW|SQRT|EXP"
+    "|LN|LOG|LOG10|SIGN|RANDOM|RAND|SIN|COS|TAN|ASIN|ACOS|ATAN|ATAN2|DEGREES|RADIANS|PI|DIV|LENGTH|CHAR_LENGTH"
+    "|CHARACTER_LENGTH|OCTET_LENGTH|BIT_LENGTH|UPPER|LOWER|UCASE|LCASE|INITCAP|TRIM|LTRIM|RTRIM|BTRIM|LPAD|RPAD"
+    "|LEFT|RIGHT|SUBSTR|SUBSTRING|REPLACE|TRANSLATE|OVERLAY|POSITION|STRPOS|INSTR|LOCATE|CONCAT|CONCAT_WS|REPEAT"
+    "|REVERSE|SPLIT_PART|REGEXP_REPLACE|REGEXP_MATCHES|REGEXP_SPLIT_TO_TABLE|REGEXP_LIKE|FORMAT|QUOTE_IDENT"
+    "|QUOTE_LITERAL|QUOTE_NULLABLE|TO_CHAR|TO_NUMBER|TO_DATE|TO_TIMESTAMP|TO_HEX|MD5|ENCODE|CHR|ASCII|HEX|UNHEX"
+    "|NOW|CURRENT_DATE|CURRENT_TIME|CURRENT_TIMESTAMP|LOCALTIME|LOCALTIMESTAMP|DATE_TRUNC|DATE_PART|EXTRACT|AGE"
+    "|DATE|TIME|DATETIME|STRFTIME|JULIANDAY|UNIXEPOCH|YEAR|MONTH|DAY|HOUR|MINUTE|SECOND|DAYS|TIMESTAMPDIFF"
+    "|MAKE_DATE|MAKE_TIMESTAMP|GENERATE_SERIES|GENERATE_SUBSCRIPTS|UNNEST|ARRAY_LENGTH|ARRAY_APPEND|ARRAY_CAT"
+    "|ARRAY_POSITION|ARRAY_REMOVE|CARDINALITY|ARRAY_TO_STRING|STRING_TO_ARRAY|JSON_BUILD_OBJECT|JSONB_BUILD_OBJECT"
+    "|JSON_BUILD_ARRAY|JSONB_BUILD_ARRAY|JSON_EXTRACT|JSON_OBJECT|JSON_ARRAY|JSONB_SET|JSONB_ARRAY_ELEMENTS"
+    "|JSON_ARRAY_ELEMENTS|JSONB_EACH|TO_JSON|TO_JSONB|ROW_TO_JSON|ROW_NUMBER|TYPEOF|CHANGES|LAST_INSERT_ROWID"
+    "|ROWID|NEXTVAL|CURRVAL|SETVAL|PG_SLEEP|PG_TYPEOF|SET_CONFIG|CURRENT_SETTING|TIMEOFDAY|IDENTITY_VAL_LOCAL"
+    # PostgreSQL families named by prefix: text search, catalog / settings, conversions
+    "|(?:PG|TO|TS|PLAINTO|PHRASETO|WEBSEARCH_TO)_[A-Z0-9_]{1,60}|SETWEIGHT|STRIP|TSVECTOR|TSQUERY|NUMNODE"
+    "|POSSTR|VARCHAR_FORMAT|TIMESTAMP_FORMAT|DAYOFWEEK|DAYOFYEAR|MICROSECOND|RAISE_ERROR|LISTAGG|DECFLOAT|VALUE|DIGITS|CHAR|VARCHAR|NUMERIC|DECIMAL|DEC|INT|INTEGER|SMALLINT|BIGINT|FLOAT|REAL|DOUBLE|TEXT|BOOLEAN"
+    "|TIMESTAMP|TIMESTAMPTZ|BIT|VARBIT|CHARACTER|NCHAR|NVARCHAR|GRAPHIC|VARGRAPHIC|BINARY|VARBINARY|BLOB|CLOB"
+    "|DBCLOB|BYTEA|UUID|JSON|JSONB|XML|SERIAL|BIGSERIAL|TABLE|TRIGGER|FUNCTION|PROCEDURE|RAISE|NOTICE"
+)
+# A derived-table alias with a column list (`AS g(k)`, `generate_series(...) r(i)`) is not a call either.
+_NOT_ALIAS = r"(?<!\bAS )(?<!\bAS\t)(?<!\bAS\n)(?<!\) )(?<!\)\t)"
+_SQL_CALLS_OUT = re.compile(
+    r"(?i)(?:" + _SQL_NOT_A_CALL + r")"
+    r"|(?:\bCALL[ \t\r\n]+"
+    + _QUAL
+    + r"|(?<![\w#$@.])"
+    + _NOT_ALIAS
+    + _QUAL
+    + r"(?=(?!(?:"
+    + _SQL_BUILTINS
+    + r")\b)"
+    + _SQL_CALLEE
+    + r"[ \t]*\((?!(?:[^()]|\([^()]{0,100}\)){0,200}\)[ \t\r\n]*AS[ \t\r\n]*\()))("
+    + _SQL_CALLEE
+    + r")"
+)
 
 
 DEFINITION: dict[str, Any] = {
@@ -98,7 +160,7 @@ DEFINITION: dict[str, Any] = {
     "invocation_model": "positional",
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_CALL_VERB,
+        "calls_out": _SQL_CALLS_OUT,
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch (#2822): SQL PL's control statements (IF / ELSEIF / ELSE, CASE and
         # its WHEN arms, WHILE, REPEAT ... UNTIL, the cursor FOR-loop) plus SQL's

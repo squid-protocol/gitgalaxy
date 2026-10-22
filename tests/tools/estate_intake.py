@@ -15,6 +15,9 @@ import sys
 from pathlib import Path
 from typing import Any
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import generated_branch  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[2]
 OPTIONS_DIR = ROOT / "tests" / "equivalence" / "estate_options"
 REPORT_DIR = ROOT / "docs" / "language_status" / "evidence_report"
@@ -106,7 +109,7 @@ def render(corpus: str, estate: dict[str, Any], report: dict[str, Any] | None) -
     lines += ["", "## Missing inputs", ""]
     missing = missing_copybooks(report) if report else {}
     if report is None:
-        lines.append("No committed evidence report for this estate: copybooks not checked.")
+        lines.append("No published evidence report for this estate: copybooks not checked.")
     elif missing:
         lines += ["| copybook | needed by | checklist |", "|---|---|---|"]
         for name, programs in missing.items():
@@ -120,7 +123,7 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("corpus")
     ap.add_argument("--options-dir", type=Path, default=OPTIONS_DIR)
-    ap.add_argument("--report", type=Path, help="evidence report.json (default: the committed one for the corpus)")
+    ap.add_argument("--report", type=Path, help="evidence report.json (default: the one published on `generated`)")
     args = ap.parse_args(argv)
     path = args.options_dir / f"{args.corpus}.json"
     if not path.is_file():
@@ -128,9 +131,21 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     estate = json.loads(path.read_text(encoding="utf-8"))
     report_path = args.report or REPORT_DIR / args.corpus / "report.json"
-    report = json.loads(report_path.read_text(encoding="utf-8")) if report_path.is_file() else None
+    report = _read_report(report_path) if args.report else _read_report(report_path, published=True)
     sys.stdout.write(render(args.corpus, estate, report))
     return 0
+
+
+def _read_report(path: Path, published: bool = False) -> Any:
+    """The report as published on the `generated` branch (#4963), else the committed copy, else None."""
+    if published:
+        try:
+            data = generated_branch.read_published(path.relative_to(ROOT).as_posix(), ROOT)
+        except (RuntimeError, ValueError):  # no origin / a path outside the repo: the committed copy
+            data = None
+        if data is not None:
+            return json.loads(data.decode("utf-8"))
+    return json.loads(path.read_text(encoding="utf-8")) if path.is_file() else None
 
 
 if __name__ == "__main__":

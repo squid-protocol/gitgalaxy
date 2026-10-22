@@ -1,0 +1,13 @@
+CICS General Insurance Application (GenApp)
+https://github.com/cicsdev/cics-genapp
+(C) Copyright IBM Corp. 2011, 2020
+
+Licensed under the Eclipse Public License - v 2.0 (see LICENSE, the corpus's
+own licence file). The program under test, base/src/lgicvs01.cbl, is GenApp's,
+used unmodified from the corpus.
+
+ksdscust.txt in this directory is derived from GenApp's sample data
+(base/cntl/db2cre.jcl, the customer / policy INSERT rows), rearranged into the
+fixed-length VSAM record layout the GenApp VSAM programs read and write.
+Two customers (0001000005, 0001000009) are SYNTHETIC, added for this case; their
+details are copied from customer 1.

@@ -53,6 +53,24 @@
     "handleTransaction(String,CarddemoCommarea,byte[])",
     "lastAnswerBytes()"
    ]
+  },
+  {
+   "at": "2026-10-16T23:00:00+00:00",
+   "event": "edited",
+   "by": "churn worker for #4648 (Claude Opus 5.5)",
+   "what": "a failed XCTL other than PGMIDERR (the only HANDLE CONDITION) abends the task (NOTAUTH: AEY7) at both XCTL sites, where the port showed the menu"
+  },
+  {
+   "at": "2026-10-17T19:05:36+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "b3b16bb72",
+   "generated_from": "service/Coadm01cService.java",
+   "added": [
+    "lastLinkBytes (field)",
+    "handleLink(CarddemoCommarea,byte[])",
+    "lastLinkBytes()"
+   ]
   }
  ]
 }

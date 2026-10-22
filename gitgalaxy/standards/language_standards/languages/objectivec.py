@@ -69,14 +69,37 @@ DEFINITION: dict[str, Any] = {
     # (`<chrono>`, `<ostream>`, `<QString>`) is a file with no extension, never a
     # same-stem `chrono.h` (fmt's own header), so the resolver matches it exactly.
     "include_names_file_literally": True,
+    # #5639: `calls_out` groups are (C callee, receiver chain, selector); the detector keeps the receiver as the
+    # send's qualifier (`self`, `super`, `obj.view`; a nested or call receiver is `<expr>`).
+    "calls_out_message_receivers": True,
     "rules": {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
         # decision. See branch_rule_contract.md, "Literals".
         "_scope_filters": {"branch": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
+        # #5639: three capture groups. Group 1 is a C call
+        # `name(`; `@selector(` / `@synchronized(` are directives, not calls (`@` lookbehind).
+        # Group 3 is a message send's selector (group 2 its receiver), by its FIRST keyword (`[obj set:a withB:b]` ->
+        # `set`; later keywords are arguments, not calls): the word after the receiver and
+        # before `]` or `:`. The receiver is a name chain (`self`, `obj.view`, `p->q`), with an
+        # optional cast before it, or a closed nested send or call (`] sel`, `) sel]`).
+        # `@selector(name:)` is a reference to a selector, not a send, so it records nothing.
         "calls_out": re.compile(
-            r"\b(?<![" + ID_CONTINUE + r"])([" + ID_START + r"][" + ID_CONTINUE + r"]*)(?=\s*\(|:)"
+            r"(?<![" + ID_CONTINUE + r"@])\b([" + ID_START + r"][" + ID_CONTINUE + r"]*)(?=\s*\()"
+            r"|(?:\[\s*(?:\([^()\[\]]{0,80}\)\s*)?"
+            r"([" + ID_START + r"][" + ID_CONTINUE + r"]*"
+            r"(?:\s*(?:\.|->)\s*[" + ID_START + r"][" + ID_CONTINUE + r"]*){0,8})"
+            r"\s+|\]\s+|\)\s+(?=[" + ID_START + r"][" + ID_CONTINUE + r"]*\s*\]))"
+            r"([" + ID_START + r"][" + ID_CONTINUE + r"]*)(?=\s*[\]:])"
+            # Group 4: a keyword send to a call receiver (`[f(x) a:1]`). It consumes only the `[` (the lookahead
+            # reads the call's balanced one-level argument list), so `f(` is still recorded as a C call.
+            r"|\[(?=\s*["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*\s*\((?:[^()\[\]]|\((?:[^()\[\]]|\([^()\[\]]*\))*\)){0,120}\)"
+            r"\s+([" + ID_START + r"][" + ID_CONTINUE + r"]*)\s*:)"
         ),
         "_calls_out_ignore": frozenset({"self", "throw"}),  # #3645: `throw` is a keyword here
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
@@ -304,7 +327,7 @@ DEFINITION: dict[str, Any] = {
             + r"]*)(?=[ \t\n]*(?:__attribute__\s*\([^()]*(?:\([^()]*\)[^()]*)*\)|\([^)]*\)|[A-Z_0-9])*[ \t\n]*[:\{;]|$)|"
             r"^[ \t]*(?:(?:static|inline|extern|__attribute__\s*\([^()]*(?:\([^()]*\)[^()]*)*\)|template\s*<[^>]*>)[ \t\n]+)*"
             r"(?!(?:if|for|while|switch|return|else|case|default|do|break|continue|goto|sizeof|catch)\b)"
-            r"(?:(?:\b(?<!["
+            r"(?:(?:(?:\b(?<!["
             + ID_CONTINUE
             + r"])["
             + ID_START
@@ -312,7 +335,20 @@ DEFINITION: dict[str, Any] = {
             + ID_CONTINUE
             + r"]*(?!["
             + ID_CONTINUE
-            + r"])|extern\s+\"C\")[ \t\n]*(?:\*[ \t\n]*)*)+(["
+            + r"])|extern\s+\"C\")[ \t\n]*(?:\*[ \t\n]*)*)+|(?=(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*[ \t]*::[ \t]*)+~?["
+            + ID_START
+            + r"]))"
+            # #5639: an ObjC++ out-of-line member (`bool Cls::Method()`, `Cls::Cls()`, `Cls::~Cls()`) names its
+            # last component; a qualifier needs no return type before it (constructor / destructor).
+            r"(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*[ \t]*::[ \t]*)*(~?["
             + ID_START
             + r"]["
             + ID_CONTINUE

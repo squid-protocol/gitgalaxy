@@ -1,0 +1,238 @@
+{
+ "format": "gitgalaxy/crucible-strengthened/1",
+ "case": "gt-start-retrieve",
+ "scenarios": [
+  {
+   "id": "start-a-fails-1",
+   "summary": "mode A: START number 1 fails (INVREQ, no RESP): the task abends there and issues no later command",
+   "faults": [
+    {
+     "task": "GT01",
+     "cmd": "START",
+     "transid": "GT02",
+     "nth": 1,
+     "resp": "INVREQ"
+    }
+   ],
+   "path": "trap",
+   "until": 60,
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "GT01 A"
+    }
+   ]
+  },
+  {
+   "id": "start-n-fails-1",
+   "summary": "mode N: START number 1 fails (INVREQ, no RESP): the task abends there and issues no later command",
+   "faults": [
+    {
+     "task": "GT01",
+     "cmd": "START",
+     "transid": "GT02",
+     "nth": 1,
+     "resp": "INVREQ"
+    }
+   ],
+   "path": "trap",
+   "until": 60,
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "GT01 N"
+    }
+   ]
+  },
+  {
+   "id": "start-t-fails-1",
+   "summary": "mode T: START number 1 fails (INVREQ, no RESP): the task abends there and issues no later command",
+   "faults": [
+    {
+     "task": "GT01",
+     "cmd": "START",
+     "transid": "GT02",
+     "nth": 1,
+     "resp": "INVREQ"
+    }
+   ],
+   "path": "trap",
+   "until": 60,
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "GT01 T"
+    }
+   ]
+  },
+  {
+   "id": "start-t-fails-2",
+   "summary": "mode T: START number 2 fails (INVREQ, no RESP): the task abends there and issues no later command",
+   "faults": [
+    {
+     "task": "GT01",
+     "cmd": "START",
+     "transid": "GT02",
+     "nth": 2,
+     "resp": "INVREQ"
+    }
+   ],
+   "path": "trap",
+   "until": 60,
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "GT01 T"
+    }
+   ]
+  },
+  {
+   "id": "start-l-fails-1",
+   "summary": "mode L: START number 1 fails (INVREQ, no RESP): the task abends there and issues no later command",
+   "faults": [
+    {
+     "task": "GT01",
+     "cmd": "START",
+     "transid": "GT02",
+     "nth": 1,
+     "resp": "INVREQ"
+    }
+   ],
+   "path": "trap",
+   "until": 60,
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "GT01 L"
+    }
+   ]
+  },
+  {
+   "id": "start-x-fails-1",
+   "summary": "mode X: START number 1 fails (INVREQ, no RESP): the task abends there and issues no later command",
+   "faults": [
+    {
+     "task": "GT01",
+     "cmd": "START",
+     "transid": "GT02",
+     "nth": 1,
+     "resp": "INVREQ"
+    }
+   ],
+   "path": "trap",
+   "until": 60,
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "GT01 X"
+    }
+   ]
+  },
+  {
+   "id": "start-x-fails-2",
+   "summary": "mode X: START number 2 fails (INVREQ, no RESP): the task abends there and issues no later command",
+   "faults": [
+    {
+     "task": "GT01",
+     "cmd": "START",
+     "transid": "GT02",
+     "nth": 2,
+     "resp": "INVREQ"
+    }
+   ],
+   "path": "trap",
+   "until": 60,
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "GT01 X"
+    }
+   ]
+  },
+  {
+   "id": "log-write-fails-first",
+   "summary": "GTWORK's first WRITEQ TS GTLOG fails (INVREQ, no RESP): the task abends after one RETRIEVE",
+   "faults": [
+    {
+     "task": "GT02",
+     "cmd": "WRITEQ-TS",
+     "queue": "GTLOG",
+     "nth": 1,
+     "resp": "INVREQ"
+    }
+   ],
+   "path": "trap",
+   "until": 60,
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "GT01 A"
+    }
+   ]
+  },
+  {
+   "id": "log-write-fails-second",
+   "summary": "GTWORK's second WRITEQ TS GTLOG (after the ENDDATA RETRIEVE) fails (INVREQ)",
+   "faults": [
+    {
+     "task": "GT02",
+     "cmd": "WRITEQ-TS",
+     "queue": "GTLOG",
+     "nth": 2,
+     "resp": "INVREQ"
+    }
+   ],
+   "path": "trap",
+   "until": 60,
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "GT01 A"
+    }
+   ]
+  },
+  {
+   "id": "retrieve-invreq",
+   "summary": "RETRIEVE answers INVREQ: the loop logs it and stops",
+   "faults": [
+    {
+     "task": "GT02",
+     "cmd": "RETRIEVE",
+     "nth": 1,
+     "resp": "INVREQ"
+    }
+   ],
+   "path": "trap",
+   "until": 60,
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "GT01 A"
+    }
+   ]
+  },
+  {
+   "id": "receive-longer-than-20",
+   "summary": "RECEIVE INTO(20) of a 36-byte input: LENGERR, no RESP: the task abends AEIV before any START",
+   "path": "trap",
+   "until": 60,
+   "steps": [
+    {
+     "at": 0,
+     "aid": "ENTER",
+     "text": "GT01 A plus more than twenty bytes here"
+    }
+   ]
+  }
+ ]
+}

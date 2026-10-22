@@ -178,7 +178,9 @@ def test_generated_readers_use_the_published_files(stubbed, capsys, monkeypatch,
     cc.main(["survey", "--baseline", "--no-fetch", *_base(stubbed)])
     gen = tmp_path / "g"
     cc.main(["publish", "--into", str(gen), "--root", str(stubbed["root"])])
-    monkeypatch.setattr(cc, "_git", lambda *a: "" if a[0] == "fetch" else (gen / a[1].split(":", 1)[1]).read_text())
+    monkeypatch.setattr(
+        cc.generated_branch, "read_published", lambda rel, root=None, remote="origin": (gen / rel).read_bytes()
+    )
     capsys.readouterr()
     assert cc.main(["blockers", "--generated"]) == 0
     assert "translated whole: 2 / 5" in capsys.readouterr().out

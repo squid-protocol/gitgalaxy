@@ -9,7 +9,8 @@ import sqlite3
 import pytest
 
 from gitgalaxy.core.state_rehydrator import StateRehydrator
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+from scan_server import scan_to_db
 
 MAIN = """\
        IDENTIFICATION DIVISION.

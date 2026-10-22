@@ -331,7 +331,8 @@ def test_an_unterminated_exec_is_capped_and_linear():
         extract_boundary("cobol", "           EXEC CICS\n" * (n // 4))
 
     # CPU-time ratio, not a wall-clock bound (#4477): 4x the input must cost ~4x, not ~16x
-    assert_scales_linearly(run, 15_000, 60_000, what="unterminated EXEC")
+    # repeats=3: five repeats of the 60k input cost 15.6 s on a CI runner, over the per-test limit (#5406)
+    assert_scales_linearly(run, 10_000, 40_000, repeats=3, what="unterminated EXEC")
 
 
 def _move_statements(statements: int) -> str:
@@ -342,7 +343,11 @@ def test_many_move_statements_stay_linear():
     """Linearity as a CPU-time ratio, not an absolute wall-clock bound (#4477: `< 2.0` s failed on every shared
     runner, whatever the code did). 4x the statements must cost about 4x (linear), nowhere near 16x (quadratic)."""
     assert_scales_linearly(
-        lambda n: extract_boundary("cobol", _move_statements(n)), 10_000, 40_000, what="MOVE statements"
+        lambda n: extract_boundary("cobol", _move_statements(n)),
+        10_000,
+        40_000,
+        repeats=3,
+        what="MOVE statements",
     )
 
 

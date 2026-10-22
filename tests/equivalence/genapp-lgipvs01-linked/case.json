@@ -1,0 +1,72 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGIPVS01",
+ "program_source": "base/src/lgipvs01.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGPF",
+ "clock": "2026/10/01 10:30:15.00",
+ "datasets": {
+  "<USRHLQ>.GENAPP.KSDSPOLY": {
+   "input": "@case/ksdspoly.txt",
+   "entity": "WfPolicyInfo",
+   "copybook": "base/src/lgupvs01.cbl",
+   "record": "WF-POLICY-INFO",
+   "vsam": {
+    "key_offset": 0,
+    "key_length": 21,
+    "reclen": 64,
+    "why": "base/cntl/adef121.jcl DEFINE2: DATA(... KEYS(21 0) RECORDSIZE(64 64)); the engine's facts do not read KEYS / RECORDSIZE inside the DATA component, so the case states them"
+   }
+  }
+ },
+ "linked": true,
+ "screens": {},
+ "startcode": "D",
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgipvs01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "region": {
+  "applid": "GENAPP",
+  "sysid": "CICA",
+  "why": "a deployment fact: LGIPVS01 ASSIGNs SYSID (unused afterwards); GenApp names no region in the corpus"
+ },
+ "scenarios": [
+  {
+   "name": "link-key-on-file",
+   "commarea": {
+    "COMMA-DATA-TEXT": "M0000000002"
+   },
+   "why": "COMMA-DATA-TEXT 'M0000000002': READ GENERIC GTEQ reads motor policy 1 of customer 2 (NORMAL, type M): COMMA-DATA gets 'Policy Key=' and M00000000020000000001"
+  },
+  {
+   "name": "link-next-key",
+   "commarea": {
+    "COMMA-DATA-TEXT": "M0000000003"
+   },
+   "why": "no motor policy of customer 3: GTEQ reads M0000000005/0000000003 (NORMAL, still type M): its key goes back"
+  },
+  {
+   "name": "link-other-type",
+   "commarea": {
+    "COMMA-DATA-TEXT": "E0000000009"
+   },
+   "why": "no endowment policy at or after customer 9: GTEQ reads a house policy, a type other than E: 'Policy Bad=' and 13 / 13"
+  },
+  {
+   "name": "link-past-the-end",
+   "commarea": {
+    "COMMA-DATA-TEXT": "M0000000011"
+   },
+   "why": "no key at or after M0000000011: NOTFND: 'Policy Bad=' and 13 / 13"
+  }
+ ],
+ "notes": "GenApp's VSAM policy key inquiry LGIPVS01 as a distributed program link (the COMMAREA sibling of genapp-lgipvs01, which covers the terminal path). No GenApp program LINKs LGIPVS01, so the program's own test for a called run -- IF WS-STARTCODE(1:1) = 'D' or WS-Invokeprog Not = Spaces -- is reached by STARTCODE 'D' (IBM: a task started for a distributed program link; X19), the one fact a harness can state without a calling program in the corpus. The key then comes from COMMA-DATA (policy type + 10 customer digits in COMMA-DATA-TEXT), WS-RECV-LEN = 10, no RECEIVE; the same READ FILE('KSDSPOLY') GENERIC GTEQ; the answer goes back into COMMA-DATA (text 'Policy Key=' / 'Policy Bad=' and the 21-byte key) and the task RETURNs with no SEND TEXT. Not exercised: the non-blank INVOKINGPROG arm of that test (it needs a calling program, and no corpus program LINKs LGIPVS01; the STARTCODE arm takes the same statements). Data: ksdspoly.txt is the genapp-lgupdb01 case's ten GenApp sample policies. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+}

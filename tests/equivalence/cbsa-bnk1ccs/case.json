@@ -1,0 +1,1802 @@
+{
+  "kind": "cics",
+  "corpus": "cics-banking-sample-application-cbsa",
+  "program": "BNK1CCS",
+  "program_source": "src/base/cobol_src/BNK1CCS.cbl",
+  "copy_dirs": [
+    "src/base/cobol_copy"
+  ],
+  "transid": "OCCS",
+  "termid": "T001",
+  "clock": "2026/10/01 10:30:15.00",
+  "region": {
+    "applid": "CBSAREGN",
+    "sysid": "CICA"
+  },
+  "taskn": 4242,
+  "programs": [
+    {
+      "program": "CRECUST",
+      "program_source": "src/base/cobol_src/CRECUST.cbl"
+    },
+    {
+      "program": "CRDTAGY1",
+      "program_source": "src/base/cobol_src/CRDTAGY1.cbl"
+    },
+    {
+      "program": "CRDTAGY2",
+      "program_source": "src/base/cobol_src/CRDTAGY2.cbl"
+    },
+    {
+      "program": "CRDTAGY3",
+      "program_source": "src/base/cobol_src/CRDTAGY3.cbl"
+    },
+    {
+      "program": "CRDTAGY4",
+      "program_source": "src/base/cobol_src/CRDTAGY4.cbl"
+    },
+    {
+      "program": "CRDTAGY5",
+      "program_source": "src/base/cobol_src/CRDTAGY5.cbl"
+    },
+    {
+      "program": "ABNDPROC",
+      "program_source": "src/base/cobol_src/ABNDPROC.cbl"
+    }
+  ],
+  "datasets": {
+    "CBSA.CICSBSA.ABNDFILE": {
+      "input": "@case/abndfile.bin",
+      "entity": "WsAbndArea",
+      "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+      "record": "WS-ABND-AREA",
+      "recovery": "NONE",
+      "recovery_why": "etc/install/base/installjcl/BANK.csd: DEFINE FILE(ABNDFILE) ... RECOVERY(NONE) -- the abend log a backout must not undo"
+    },
+    "CBSA.CICSBSA.CUSTOMER": {
+      "input": "@case/customer.txt",
+      "entity": "OutputData",
+      "copybook": "src/base/cobol_copy/CUSTOMER.cpy",
+      "record": "CUSTOMER-RECORD"
+    }
+  },
+  "db2": {
+    "ddl": [
+      "etc/install/base/db2jcl/CRETB01.jcl",
+      "etc/install/base/db2jcl/CREI101.jcl",
+      "etc/install/base/db2jcl/CRETB02.jcl",
+      "etc/install/base/db2jcl/CRETB03.jcl",
+      "etc/install/base/db2jcl/CREI301.jcl"
+    ],
+    "seed": "@case/seed.sql",
+    "compare": [
+      "IBMUSER.PROCTRAN"
+    ],
+    "qualifier": "IBMUSER"
+  },
+  "commarea": {
+    "segments": [
+      {
+        "copybook": "src/base/cobol_src/BNK1CCS.cbl",
+        "record": "WS-COMM-AREA"
+      }
+    ]
+  },
+  "screens": {
+    "BNK1CC": {
+      "copybook": "@bms/BNK1CCM.cpy",
+      "input": "BNK1CCI",
+      "output": "BNK1CCO"
+    }
+  },
+  "transactions": [
+    "OCR1",
+    "OCR2",
+    "OCR3",
+    "OCR4",
+    "OCR5"
+  ],
+  "child_programs": {
+    "OCR1": "CRDTAGY1",
+    "OCR2": "CRDTAGY2",
+    "OCR3": "CRDTAGY3",
+    "OCR4": "CRDTAGY4",
+    "OCR5": "CRDTAGY5"
+  },
+  "maps": {
+    "BNK1CC": {
+      "mapset": "BNK1CCM"
+    }
+  },
+  "uctranst": "NOUCTRAN",
+  "scenarios": [
+    {
+      "name": "first-entry",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "EIBCALEN 0: WS-COMM-AREA initialised, the map sent ERASE"
+    },
+    {
+      "name": "first-entry-uctran",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "uctranst": "UCTRAN",
+      "why": "EIBCALEN 0 with the terminal translating to upper case (UCTRAN): the setting is stored and SET to NOUCTRAN"
+    },
+    {
+      "name": "first-entry-tranidonly",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "uctranst": "TRANIDONLY",
+      "why": "the terminal's UCTRANST TRANIDONLY: also SET to NOUCTRAN"
+    },
+    {
+      "name": "pa1",
+      "aid": "DFHPA1",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "PA1: CONTINUE, nothing sent; RETURN TRANSID with the COMMAREA"
+    },
+    {
+      "name": "pf3",
+      "aid": "DFHPF3",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "PF3: RETURN TRANSID('OMEN') IMMEDIATE: back to the main menu"
+    },
+    {
+      "name": "pf12",
+      "aid": "DFHPF12",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "PF12: SEND-TERMINATION-MSG, RETURN"
+    },
+    {
+      "name": "clear",
+      "aid": "DFHCLEAR",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "CLEAR: SEND CONTROL ERASE FREEKB, RETURN"
+    },
+    {
+      "name": "other-key",
+      "aid": "DFHPF7",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "PF7: WHEN OTHER -- 'Invalid key pressed.', SEND MAP DATAONLY ALARM"
+    },
+    {
+      "name": "mapfail",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "ENTER with no field modified: RECEIVE MAP MAPFAIL -- ABNDPROC LINKed (an ABNDFILE record) and ABEND HBNK"
+    },
+    {
+      "name": "born-before-1601",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "every field valid, born 01/01/1500: LINK CRECUST, whose date-of-birth check refuses the date before CEEDAYS ('O'): 'Sorry, customer is too old'",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-01-DR",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'DR        ' (padded with spaces): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "DR        ",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-02-DRS",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'DRS       ' (padded with spaces): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "DRS       ",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-03-DRS",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'DRS_______' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "DRS_______",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-04-DR",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'DR________' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "DR________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-05-Dr",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'Dr        ' (padded with spaces): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Dr        ",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-06-Dr",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'Dr________' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Dr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-07-Drs",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'Drs       ' (padded with spaces): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Drs       ",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-08-Drs",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'Drs_______' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Drs_______",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-09-LADY",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'LADY      ' (padded with spaces): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "LADY      ",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-10-LADY",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'LADY______' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "LADY______",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-11-LORD",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'LORD      ' (padded with spaces): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "LORD      ",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-12-LORD",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'LORD______' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "LORD______",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-13-Lady",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'Lady      ' (padded with spaces): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Lady      ",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-14-Lady",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'Lady______' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Lady______",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-15-Lord",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'Lord      ' (padded with spaces): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Lord      ",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-16-Lord",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'Lord______' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Lord______",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-17-MISS",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'MISS      ' (padded with spaces): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "MISS      ",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-18-MISS",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'MISS______' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "MISS______",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-19-MR",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'MR        ' (padded with spaces): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "MR        ",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-20-MRS",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'MRS       ' (padded with spaces): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "MRS       ",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-21-MRS",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'MRS_______' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "MRS_______",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-22-MR",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'MR________' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "MR________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-23-MS",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'MS        ' (padded with spaces): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "MS        ",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-24-MS",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'MS________' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "MS________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-25-Miss",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'Miss      ' (padded with spaces): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Miss      ",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-26-Miss",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'Miss______' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Miss______",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-27-Mr",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'Mr________' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-28-Mrs",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'Mrs       ' (padded with spaces): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mrs       ",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-29-Mrs",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'Mrs_______' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mrs_______",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-30-Ms",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'Ms        ' (padded with spaces): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Ms        ",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-31-Ms",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'Ms________' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Ms________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-32-PROFESSOR",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'PROFESSOR ' (padded with spaces): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "PROFESSOR ",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-33-PROFESSOR",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'PROFESSOR_' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "PROFESSOR_",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-34-Professor",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'Professor ' (padded with spaces): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Professor ",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-35-Professor",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'Professor_' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Professor_",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-36-SIR",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'SIR       ' (padded with spaces): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "SIR       ",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-37-SIR",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'SIR_______' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "SIR_______",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-38-Sir",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'Sir       ' (padded with spaces): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Sir       ",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-39-Sir",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'Sir_______' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Sir_______",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-40-dr",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'dr        ' (padded with spaces): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "dr        ",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-41-dr",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'dr________' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "dr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-42-drs",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'drs       ' (padded with spaces): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "drs       ",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-43-drs",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'drs_______' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "drs_______",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-44-lady",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'lady      ' (padded with spaces): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "lady      ",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-45-lady",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'lady______' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "lady______",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-46-lord",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'lord      ' (padded with spaces): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "lord      ",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-47-lord",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'lord______' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "lord______",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-48-miss",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'miss______' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "miss______",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-49-mr",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'mr________' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-50-mrs",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'mrs_______' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "mrs_______",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-51-ms",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'ms        ' (padded with spaces): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "ms        ",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-52-ms",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'ms________' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "ms________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-53-sir",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'sir       ' (padded with spaces): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "sir       ",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-54-sir",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'sir_______' (padded with underscores): the EVALUATE maps it to its canonical form; the rest valid, born 1500 (CRECUST refuses before CEEDAYS)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "sir_______",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-invalid",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'Madam': 'Valid titles are ...'",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Madam_____",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "title-missing",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title not typed (CUSTTITL 0): 'Valid titles are ...'",
+      "receive": {
+        "BNK1CC": {
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "customer-number-typed",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "CUSTNO2 typed (CUSTNO2L > 0): 'Please clear screen before creating new user'",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500",
+          "CUSTNO2I": "0000000001"
+        }
+      }
+    },
+    {
+      "name": "first-name-missing",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "no first name: 'Please supply a valid First Name'",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "first-name-underscores",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "first name all underscores",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "____________________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "surname-missing",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "no surname: 'Please supply a valid Surname'",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "surname-underscores",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "surname all underscores",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "____________________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "address-missing",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "no address line 1",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "address-underscore",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "address line 1 starts with an underscore",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "__________________________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "dd-missing",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "no day of birth",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "mm-missing",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "no month of birth",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "yyyy-missing",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "no year of birth",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01"
+        }
+      }
+    },
+    {
+      "name": "yyyy-short",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "year '15' (DOBYYL < 4)",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "15"
+        }
+      }
+    },
+    {
+      "name": "dd-zero",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "day 00: 'valid Date of Birth (DD)'",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "00",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "dd-32",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "day 32",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "32",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "mm-zero",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "month 00: 'valid Date of Birth (MM)'",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "00",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "mm-13",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "month 13",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "13",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "no-middle-initials",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "no middle initials: the name is built from the first and last",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    },
+    {
+      "name": "no-address-lines-2-3",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "only address line 1",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      }
+    }
+  ],
+  "notes": "CBSA's create-customer screen (BNK1CCS, transaction OCCS, BMS map BNK1CC of mapset BNK1CCM: the symbolic map is generated from src/base/bms_src/BNK1CCM.bms). Pseudo-conversational: Its terminal is a stated fact of the run: T001 (EIBTRMID), UCTRANST NOUCTRAN unless a scenario says UCTRAN or TRANIDONLY (INQUIRE / SET TERMINAL UCTRANST, oracle_assumptions.md X26), the stored setting in WS-COMM-TERM (451 in every returning scenario). A first task stores the terminal's UCTRAN setting (INQUIRE / SET TERMINAL UCTRANST) and sends the empty map; a returning one acts on the AID -- PA keys nothing, PF3 and PF12 restore the setting (PF3 RETURN TRANSID('OMEN') IMMEDIATE), CLEAR, ENTER (EDIT-DATA of title, names, address and date of birth, then LINK CRECUST with SUBPGM-PARMS), any other key 'Invalid key pressed.'. Every title spelling EDIT-DATA's EVALUATE lists is a scenario. CRECUST, its five credit-agency children and ABNDPROC run in the task, as in cbsa-crecust (header, data and notes: the async credit check is X18, ASSUMED). #4952 -- NOT PROVABLE (named hole): a customer that passes the date-of-birth check reaches CRECUST's CEEDAYS call, which the oracle refuses by name (oracle_assumptions.md L1: 'CEEDAYS: picture not modelled'), and with it the whole case; so no scenario creates a customer, and the successful create is NOT covered. Every scenario that reaches CRECUST is born in 1500, which CRECUST refuses before CEEDAYS ('O'). Also open: L4 (FC is 8 bytes, LE's token 12) and X18. Data: seed.sql and customer.txt are cbsa-crecust's, SYNTHETIC. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."
+}

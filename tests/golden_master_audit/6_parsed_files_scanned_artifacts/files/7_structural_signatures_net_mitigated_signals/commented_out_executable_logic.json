@@ -1105,7 +1105,7 @@
       "cpp/godot/AUTHORS.md": 0,
       "cpp/godot/DONORS.md": 0,
       "cpp/godot/LICENSE.txt": 0,
-      "cpp/godot/editor_node.cpp": 2,
+      "cpp/godot/editor_node.cpp": 0,
       "cpp/godot/editor_node.h": 0,
       "cpp/godot/gdscript_vm.cpp": 0,
       "cpp/godot/main.cpp": 0,
@@ -1320,7 +1320,7 @@
       "dockerfile/moby/builder/remotecontext/urlutil/urlutil_test.go": 0
     },
     "dockerfile/moby/test_targets": {
-      "dockerfile/moby/test_targets/daemon.Dockerfile": 2,
+      "dockerfile/moby/test_targets/daemon.Dockerfile": 0,
       "dockerfile/moby/test_targets/generate-files.Dockerfile": 0,
       "dockerfile/moby/test_targets/syscall.Dockerfile": 0,
       "dockerfile/moby/test_targets/windows.Dockerfile": 0
@@ -1954,7 +1954,7 @@
       "javascript/react/BabelPlugin.ts": 0,
       "javascript/react/ReactFiberBeginWork.js": 0,
       "javascript/react/ReactFiberWorkLoop.js": 0,
-      "javascript/react/ReactFlightServer.js": 1,
+      "javascript/react/ReactFlightServer.js": 0,
       "javascript/react/ReactSymbols.js": 0,
       "javascript/react/build.js": 0
     },
@@ -1964,7 +1964,7 @@
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": 0,
       "javascript/threejs/Editor.js": 0,
-      "javascript/threejs/GLTFLoader.js": 4,
+      "javascript/threejs/GLTFLoader.js": 2,
       "javascript/threejs/Matrix4.js": 0,
       "javascript/threejs/Nodes.js": 0,
       "javascript/threejs/WebGLProgram.js": 0,
@@ -2286,7 +2286,7 @@
       "livecode/livecode/revdeploylibraryios.livecodescript": 0,
       "livecode/livecode/revdocsparser.livecodescript": 0,
       "livecode/livecode/revhtml5urllibrary.livecodescript": 0,
-      "livecode/livecode/revliburl.livecodescript": 1,
+      "livecode/livecode/revliburl.livecodescript": 0,
       "livecode/livecode/revsaveasandroidstandalone.livecodescript": 0,
       "livecode/livecode/revsaveasemscriptenstandalone.livecodescript": 0,
       "livecode/livecode/stdlib__arithmetic.lcb": 0,
@@ -2399,7 +2399,7 @@
       "lua/pandoc/pandoc-list.lua": 0,
       "lua/pandoc/pandoc-log.lua": 0,
       "lua/pandoc/pandoc-mediabag.lua": 0,
-      "lua/pandoc/sample.lua": 1,
+      "lua/pandoc/sample.lua": 0,
       "lua/pandoc/writer-template.lua": 0
     },
     "lua/redis": {
@@ -2431,12 +2431,12 @@
     },
     "m4/curl": {
       "m4/curl/COPYING": 0,
-      "m4/curl/configure.ac": 7
+      "m4/curl/configure.ac": 0
     },
     "m4/curl/m4": {
-      "m4/curl/m4/curl-confopts.m4": 2,
-      "m4/curl/m4/curl-mbedtls.m4": 2,
-      "m4/curl/m4/curl-sysconfig.m4": 2,
+      "m4/curl/m4/curl-confopts.m4": 0,
+      "m4/curl/m4/curl-mbedtls.m4": 0,
+      "m4/curl/m4/curl-sysconfig.m4": 0,
       "m4/curl/m4/xc-am-iface.m4": 0,
       "m4/curl/m4/zz40-xc-ovr.m4": 0
     },
@@ -2488,7 +2488,7 @@
     },
     "nix/bun": {
       "nix/bun/LICENSE.md": 0,
-      "nix/bun/flake.nix": 1,
+      "nix/bun/flake.nix": 0,
       "nix/bun/shell.nix": 0
     },
     "nix/ghostty": {
@@ -2517,47 +2517,47 @@
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": 0,
-      "perl/bugzilla/Bug.pm": 2,
+      "perl/bugzilla/Bug.pm": 0,
       "perl/bugzilla/CGI.pm": 0,
       "perl/bugzilla/DB.pm": 0,
       "perl/bugzilla/Requirements.pm": 1
     },
     "perl/exiftool": {
-      "perl/exiftool/ExifTool.pm": 14,
+      "perl/exiftool/ExifTool.pm": 0,
       "perl/exiftool/META.json": 0,
       "perl/exiftool/Makefile.PL": 0,
       "perl/exiftool/README": 0,
       "perl/exiftool/RandomAccess.pm": 0,
-      "perl/exiftool/exiftool": 7
+      "perl/exiftool/exiftool": 2
     },
     "perl/mojo": {
       "perl/mojo/IOLoop.pm": 0,
-      "perl/mojo/Makefile.PL": 1,
+      "perl/mojo/Makefile.PL": 0,
       "perl/mojo/Promise.pm": 0,
       "perl/mojo/Template.pm": 0,
       "perl/mojo/WebSocket.pm": 0
     },
     "perl/spamassassin": {
-      "perl/spamassassin/AsyncLoop.pm": 1,
+      "perl/spamassassin/AsyncLoop.pm": 0,
       "perl/spamassassin/Bayes.pm": 0,
-      "perl/spamassassin/HTML.pm": 1,
+      "perl/spamassassin/HTML.pm": 0,
       "perl/spamassassin/Makefile.PL": 0,
-      "perl/spamassassin/Message.pm": 2,
-      "perl/spamassassin/Parser.pm": 6,
-      "perl/spamassassin/PerMsgStatus.pm": 3,
+      "perl/spamassassin/Message.pm": 0,
+      "perl/spamassassin/Parser.pm": 0,
+      "perl/spamassassin/PerMsgStatus.pm": 1,
       "perl/spamassassin/SpamAssassin.pm": 1
     },
     "php": {
       "php/SOURCES.md": 0
     },
     "php/guzzle": {
-      "php/guzzle/Client.php": 1,
-      "php/guzzle/CurlFactory.php": 11,
+      "php/guzzle/Client.php": 0,
+      "php/guzzle/CurlFactory.php": 0,
       "php/guzzle/CurlMultiHandler.php": 0,
       "php/guzzle/Middleware.php": 0,
       "php/guzzle/Pool.php": 0,
       "php/guzzle/RequestException.php": 0,
-      "php/guzzle/StreamHandler.php": 3
+      "php/guzzle/StreamHandler.php": 0
     },
     "php/laravel_core": {
       "php/laravel_core/Application.php": 0,
@@ -2598,8 +2598,8 @@
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 0,
       "php/wordpress/class-wp-query.php": 0,
-      "php/wordpress/formatting.php": 6,
-      "php/wordpress/functions.php": 2,
+      "php/wordpress/formatting.php": 1,
+      "php/wordpress/functions.php": 0,
       "php/wordpress/license.txt": 0,
       "php/wordpress/plugin.php": 0,
       "php/wordpress/wp-login.php": 1,
@@ -2694,21 +2694,21 @@
       "powershell/core/Microsoft.WSMan.Management.psd1": 0,
       "powershell/core/PSDiagnostics.psd1": 0,
       "powershell/core/Parse-MarkdownLink.ps1": 0,
-      "powershell/core/PowerShell__build.psm1": 2,
+      "powershell/core/PowerShell__build.psm1": 1,
       "powershell/core/RegisterManifest.ps1": 0,
       "powershell/core/RegisterMicrosoftUpdate.ps1": 0,
       "powershell/core/Run-AttackSurfaceAnalyzer.ps1": 0,
       "powershell/core/Run.ps1": 0,
       "powershell/core/SSHRemoting.Basic.Tests.ps1": 0,
       "powershell/core/analyze-pr-test-failures.ps1": 0,
-      "powershell/core/build.psm1": 2,
+      "powershell/core/build.psm1": 1,
       "powershell/core/ci.psm1": 0,
       "powershell/core/ciModule.Tests.ps1": 0,
       "powershell/core/install-powershell.ps1": 0,
       "powershell/core/nanoserver.tests.ps1": 0,
       "powershell/core/package-validation.tests.ps1": 0,
       "powershell/core/packaging.psd1": 0,
-      "powershell/core/packaging.psm1": 2,
+      "powershell/core/packaging.psm1": 0,
       "powershell/core/packaging.tests.ps1": 0,
       "powershell/core/powershell-native__Install-PowerShellRemoting.ps1": 0,
       "powershell/core/process-pester-results.ps1": 0,
@@ -2808,7 +2808,7 @@
     "python/airflow": {
       "python/airflow/NOTICE": 0,
       "python/airflow/dag.py": 0,
-      "python/airflow/s3.py": 2,
+      "python/airflow/s3.py": 0,
       "python/airflow/scheduler_job_runner.py": 0
     },
     "python/airflow_ai_providers": {
@@ -3097,7 +3097,7 @@
       "python/numpy/_linalg.py": 0,
       "python/numpy/cfuncs.py": 0,
       "python/numpy/core.py": 0,
-      "python/numpy/crackfortran.py": 1,
+      "python/numpy/crackfortran.py": 0,
       "python/numpy/cversions.txt": 0,
       "python/numpy/func2subr.py": 0,
       "python/numpy/genapi.py": 0,
@@ -3141,7 +3141,7 @@
       "python/twisted/defer.py": 0,
       "python/twisted/http.py": 0,
       "python/twisted/reflect.py": 0,
-      "python/twisted/transport.py": 1
+      "python/twisted/transport.py": 0
     },
     "python/wtfpython": {
       "python/wtfpython/2_tricky_strings.py": 0,
@@ -3200,7 +3200,7 @@
       "ruby/rails/generator.rb": 0,
       "ruby/rails/inbound_emails_controller.rb": 0,
       "ruby/rails/metal.rb": 2,
-      "ruby/rails/routing.rb": 2
+      "ruby/rails/routing.rb": 0
     },
     "ruby/rails_http_token_auth": {
       "ruby/rails_http_token_auth/MIT-LICENSE": 0,
@@ -3264,11 +3264,12 @@
       "rust/tokio/config.rs": 0,
       "rust/tokio/fuzz.rs": 0,
       "rust/tokio/interval.rs": 0,
-      "rust/tokio/lib.rs": 1,
+      "rust/tokio/lib.rs": 0,
       "rust/tokio/maybe_done.rs": 0,
       "rust/tokio/tests.rs": 0,
       "rust/tokio/tokio_mpsc_bounded.rs": 0,
-      "rust/tokio/tokio_named_pipe.rs": 0
+      "rust/tokio/tokio_named_pipe.rs": 0,
+      "rust/tokio/tokio_udp.rs": 1
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": 0
@@ -3298,8 +3299,8 @@
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 0,
       "scheme/racket/cpnanopass.ss": 0,
-      "scheme/racket/eval.c": 4,
-      "scheme/racket/fun.c": 3,
+      "scheme/racket/eval.c": 0,
+      "scheme/racket/fun.c": 0,
       "scheme/racket/io.ss": 0,
       "scheme/racket/schemify.rkt": 0,
       "scheme/racket/thread.rkt": 0
@@ -3333,53 +3334,53 @@
     "shell/brew": {
       "shell/brew/Dockerfile": 1,
       "shell/brew/LICENSE.txt": 0,
-      "shell/brew/brew": 3,
+      "shell/brew/brew": 1,
       "shell/brew/brew.rb": 0,
       "shell/brew/cask.rb": 0,
-      "shell/brew/download_strategy.rb": 6,
+      "shell/brew/download_strategy.rb": 2,
       "shell/brew/formula.rb": 0,
       "shell/brew/formula_installer.rb": 0,
       "shell/brew/sandbox.rb": 0
     },
     "shell/curl": {
       "shell/curl/COPYING": 0,
-      "shell/curl/appveyor.sh": 4,
-      "shell/curl/cmakelint.sh": 3,
-      "shell/curl/cmp-pkg-config.sh": 5,
-      "shell/curl/codespell.sh": 1,
-      "shell/curl/contributors.sh": 4,
-      "shell/curl/contrithanks.sh": 4,
-      "shell/curl/coverage.sh": 3,
-      "shell/curl/distfiles.sh": 1,
-      "shell/curl/ech_tests.sh": 7,
-      "shell/curl/firefox-db2pem.sh": 2,
-      "shell/curl/gnv_curl_configure.sh": 2,
-      "shell/curl/initscript.sh": 2,
-      "shell/curl/make-docs.sh": 2,
-      "shell/curl/make-include.sh": 3,
-      "shell/curl/make-lib.sh": 2,
-      "shell/curl/make-src.sh": 2,
-      "shell/curl/make-tests.sh": 2,
-      "shell/curl/make_gnv_curl_install.sh": 2,
-      "shell/curl/shellcheck-ci.sh": 1,
-      "shell/curl/shellcheck.sh": 1,
-      "shell/curl/test.sh": 2,
-      "shell/curl/typos.sh": 1
+      "shell/curl/appveyor.sh": 0,
+      "shell/curl/cmakelint.sh": 0,
+      "shell/curl/cmp-pkg-config.sh": 0,
+      "shell/curl/codespell.sh": 0,
+      "shell/curl/contributors.sh": 0,
+      "shell/curl/contrithanks.sh": 0,
+      "shell/curl/coverage.sh": 0,
+      "shell/curl/distfiles.sh": 0,
+      "shell/curl/ech_tests.sh": 0,
+      "shell/curl/firefox-db2pem.sh": 0,
+      "shell/curl/gnv_curl_configure.sh": 0,
+      "shell/curl/initscript.sh": 0,
+      "shell/curl/make-docs.sh": 0,
+      "shell/curl/make-include.sh": 0,
+      "shell/curl/make-lib.sh": 0,
+      "shell/curl/make-src.sh": 0,
+      "shell/curl/make-tests.sh": 0,
+      "shell/curl/make_gnv_curl_install.sh": 0,
+      "shell/curl/shellcheck-ci.sh": 0,
+      "shell/curl/shellcheck.sh": 0,
+      "shell/curl/test.sh": 0,
+      "shell/curl/typos.sh": 0
     },
     "shell/darwin-xnu": {
       "shell/darwin-xnu/MPMMtest_run.sh": 0,
-      "shell/darwin-xnu/generate_combined_symbolsets_plist.sh": 1,
+      "shell/darwin-xnu/generate_combined_symbolsets_plist.sh": 0,
       "shell/darwin-xnu/generate_linker_aliases.sh": 0,
       "shell/darwin-xnu/generate_linker_exports.sh": 0,
-      "shell/darwin-xnu/generate_symbolset_plist.sh": 1,
+      "shell/darwin-xnu/generate_symbolset_plist.sh": 0,
       "shell/darwin-xnu/ios_trace_ipc.sh": 0,
-      "shell/darwin-xnu/iosspeedtracer.sh": 1,
+      "shell/darwin-xnu/iosspeedtracer.sh": 0,
       "shell/darwin-xnu/list_supported.sh": 0,
       "shell/darwin-xnu/mach_install_mig.sh": 0,
       "shell/darwin-xnu/make_posix_availability.sh": 0,
       "shell/darwin-xnu/make_symbol_aliasing.sh": 0,
       "shell/darwin-xnu/makesyscalls.sh": 0,
-      "shell/darwin-xnu/persona_test_run_src.sh": 1,
+      "shell/darwin-xnu/persona_test_run_src.sh": 0,
       "shell/darwin-xnu/remote_build.sh": 0,
       "shell/darwin-xnu/setup.sh": 0,
       "shell/darwin-xnu/test.sh": 0,
@@ -3397,6 +3398,7 @@
       "shell/freebsd-src/dd2_test.sh": 0,
       "shell/freebsd-src/dtest.sh": 0,
       "shell/freebsd-src/echo_test.sh": 0,
+      "shell/freebsd-src/ed_test.sh": 0,
       "shell/freebsd-src/format_string_test.sh": 0,
       "shell/freebsd-src/functional_test.sh": 0,
       "shell/freebsd-src/hostname_test.sh": 0,
@@ -3434,6 +3436,7 @@
       "shell/haiku/default_deskbar_items.sh": 0,
       "shell/haiku/gen-bepo.sh": 1,
       "shell/haiku/generate_CountryFlags.sh": 0,
+      "shell/haiku/generate_ids_from_drivers.sh": 0,
       "shell/haiku/install-wifi-firmwares.sh": 0,
       "shell/haiku/install.sh": 0,
       "shell/haiku/leak_analyser.sh": 0,
@@ -3477,11 +3480,11 @@
       "shell/kubernetes/benchmark-dockerized.sh": 0,
       "shell/kubernetes/build-image.sh": 0,
       "shell/kubernetes/build.sh": 0,
-      "shell/kubernetes/cluster__common.sh": 2,
+      "shell/kubernetes/cluster__common.sh": 0,
       "shell/kubernetes/common.sh": 0,
       "shell/kubernetes/config-common.sh": 0,
       "shell/kubernetes/config-default.sh": 0,
-      "shell/kubernetes/configure-helper.sh": 5,
+      "shell/kubernetes/configure-helper.sh": 1,
       "shell/kubernetes/e2e-cluster-size.sh": 0,
       "shell/kubernetes/etcd.sh": 0,
       "shell/kubernetes/gen-swagger-docs.sh": 0,
@@ -3489,7 +3492,7 @@
       "shell/kubernetes/generate.sh": 0,
       "shell/kubernetes/iks__config-default.sh": 0,
       "shell/kubernetes/kube-addons-main.sh": 0,
-      "shell/kubernetes/log-dump.sh": 2,
+      "shell/kubernetes/log-dump.sh": 1,
       "shell/kubernetes/node-helper.sh": 0,
       "shell/kubernetes/pre-existing__config-default.sh": 0,
       "shell/kubernetes/pre-existing__util.sh": 0,
@@ -3533,7 +3536,7 @@
       "shell/moby/dockerd-rootless-setuptool.sh": 0,
       "shell/moby/dockerd-rootless.sh": 0,
       "shell/moby/dockerize-disk.sh": 0,
-      "shell/moby/download-frozen-image-v2.sh": 4,
+      "shell/moby/download-frozen-image-v2.sh": 0,
       "shell/moby/e2e-run.sh": 0,
       "shell/moby/generate-swagger-api.sh": 0,
       "shell/moby/generate-test-certs.sh": 0,
@@ -3750,7 +3753,7 @@
       "swift/alamofire/Alamofire.podspec": 0,
       "swift/alamofire/Package.swift": 1,
       "swift/alamofire/ParameterEncoder.swift": 1,
-      "swift/alamofire/Request.swift": 8,
+      "swift/alamofire/Request.swift": 1,
       "swift/alamofire/Response.swift": 1,
       "swift/alamofire/Session.swift": 2
     },
@@ -3789,7 +3792,7 @@
       "tcl/macports_port_api/portdistcheck.tcl": 0,
       "tcl/macports_port_api/portdistfiles.tcl": 0,
       "tcl/macports_port_api/portextract.tcl": 0,
-      "tcl/macports_port_api/portfetch.tcl": 1,
+      "tcl/macports_port_api/portfetch.tcl": 0,
       "tcl/macports_port_api/portinstall.tcl": 0,
       "tcl/macports_port_api/portlint.tcl": 0,
       "tcl/macports_port_api/portlivecheck.tcl": 0,
@@ -3810,7 +3813,7 @@
     "tcl/sqlite": {
       "tcl/sqlite/LICENSE.md": 0,
       "tcl/sqlite/README.md": 0,
-      "tcl/sqlite/malloc_common.tcl": 1,
+      "tcl/sqlite/malloc_common.tcl": 0,
       "tcl/sqlite/speedtest.tcl": 0,
       "tcl/sqlite/tester.tcl": 0,
       "tcl/sqlite/testrunner.tcl": 0
@@ -3859,6 +3862,7 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 0,
       "typescript/assemblyscript/ast.ts": 0,
+      "typescript/assemblyscript/builtins.ts": 0,
       "typescript/assemblyscript/compiler.ts": 0,
       "typescript/assemblyscript/package.json": 0,
       "typescript/assemblyscript/parser.ts": 0
@@ -3903,8 +3907,12 @@
     },
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 0,
-      "typescript/typescript_compiler/binder.ts": 5,
-      "typescript/typescript_compiler/package.json": 0
+      "typescript/typescript_compiler/binder.ts": 0,
+      "typescript/typescript_compiler/checker.ts": 2,
+      "typescript/typescript_compiler/emitter.ts": 0,
+      "typescript/typescript_compiler/package.json": 0,
+      "typescript/typescript_compiler/parser.ts": 1,
+      "typescript/typescript_compiler/types.ts": 0
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0,
@@ -4030,7 +4038,7 @@
       "yaml/vscode_workflows/monaco-editor.yml": 0,
       "yaml/vscode_workflows/no-engineering-system-changes.yml": 0,
       "yaml/vscode_workflows/pr-darwin-test.yml": 0,
-      "yaml/vscode_workflows/pr-linux-cli-test.yml": 0,
+      "yaml/vscode_workflows/pr-linux-cli-test.yml": 1,
       "yaml/vscode_workflows/pr-linux-test.yml": 0,
       "yaml/vscode_workflows/pr-node-modules.yml": 0,
       "yaml/vscode_workflows/pr-win32-test.yml": 0,
@@ -4069,13 +4077,14 @@
       "zig/tigerbeetle/copyhound.zig": 0,
       "zig/tigerbeetle/counting_allocator.zig": 0,
       "zig/tigerbeetle/direction.zig": 0,
-      "zig/tigerbeetle/download.sh": 2,
+      "zig/tigerbeetle/download.sh": 0,
       "zig/tigerbeetle/download.win.ps1": 0,
       "zig/tigerbeetle/state_machine.zig": 0
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": 1,
+      "zig/zig/Compilation.zig": 0,
       "zig/zig/InternPool.zig": 0,
+      "zig/zig/Sema.zig": 1,
       "zig/zig/Type.zig": 0,
       "zig/zig/Zcu.zig": 0,
       "zig/zig/main.zig": 0
@@ -4090,6 +4099,7 @@
       "zig/zls/analysis.zig": 0,
       "zig/zls/ast.zig": 0,
       "zig/zls/config_gen.zig": 1,
+      "zig/zls/langref.html.in": 1,
       "zig/zls/print_ast.zig": 0
     }
   },

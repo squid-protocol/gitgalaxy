@@ -251,10 +251,7 @@ class Chronometer:
                 if not d.startswith(".")
                 and d not in ignored_dirs
                 and not (d.lower() in VIRTUALENV_CANDIDATE_NAMES and looks_like_virtualenv(Path(root) / d))
-                and not (
-                    VendorDirectoryDetector.is_candidate_name(d)
-                    and vendor_dirs.is_vendored((Path(root) / d).relative_to(self.root).as_posix())
-                )
+                and not vendor_dirs.is_vendored((Path(root) / d).relative_to(self.root).as_posix())
             ]
             for f in files:
                 try:
@@ -502,7 +499,7 @@ class Chronometer:
                     full_path = Path(root) / name
                     rel_path = nfc(full_path.relative_to(self.root).as_posix())  # #3815: stored form
                     self.mtime_map[rel_path] = os.path.getmtime(full_path)
-                except (OSError, ValueError):  # noqa: PERF203 -- per-iteration isolation: skip an unreadable file, continue the os.walk scan
+                except (OSError, ValueError):
                     continue
 
     def get_file_history_metrics(self, rel_path: str) -> dict[str, Any]:

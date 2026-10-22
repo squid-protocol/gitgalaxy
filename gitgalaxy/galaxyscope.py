@@ -24,7 +24,7 @@ import tempfile
 import time
 import zipfile
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, cast
 
@@ -33,10 +33,12 @@ from gitgalaxy.core.call_resolver import confident_file_pairs, resolve_calls
 from gitgalaxy.core.copy_libraries import load_copy_libraries
 from gitgalaxy.core.detector import HAS_TIKTOKEN, _compiled_rules
 from gitgalaxy.core.function_graph import attach_function_metrics, function_metrics
+from gitgalaxy.core.generated_fastlane import clean_directive_table_scan
 from gitgalaxy.core.guidestar_lens import GuideStarLens
 from gitgalaxy.core.invocation_resolver import resolve_invocations, resolve_transactions
 from gitgalaxy.core.mainframe_boundary import extract_boundary
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS, NetworkRiskSensor
+from gitgalaxy.core.prefetch import start_prefetch
 from gitgalaxy.core.prism import Prism
 from gitgalaxy.core.rust_modules import enclosing_modules, inline_module_spans, rescope_to_file
 from gitgalaxy.core.source_text import parse_source_encoding, read_source, resolve_declared_encoding
@@ -74,6 +76,7 @@ from gitgalaxy.standards.language_standards import (
     PROJECT_OVERRIDES,
 )
 from gitgalaxy.standards.language_standards.identifiers import NATIONAL
+from gitgalaxy.standards.stdlib_modules import is_no_registry_language, is_stdlib_module, same_jvm_package
 from gitgalaxy.standards.system_headers import HEADER_EXTENSIONS, is_system_header
 from gitgalaxy.tools.network_auditing.full_api_network_map import run_api_audit
 from gitgalaxy.tools.supply_chain_security.binary_anomaly_detector import run_xray_audit
@@ -151,6 +154,13 @@ _EXTENSION_LANGUAGES: dict[str, frozenset[str]] = _build_extension_languages()
 _INTERCHANGEABLE_LANGUAGES: frozenset[frozenset[str]] = frozenset({frozenset({"javascript", "typescript"})})
 
 
+# #4982: Ada source extensions, the roots the language itself supplies, and the stage declaration shape
+# the radar falls back on when a config carries no dockerfile `class_start`.
+ADA_EXTENSIONS = (".ads", ".adb", ".ada")
+ADA_STANDARD_ROOTS = frozenset({"ada", "system", "interfaces", "gnat"})
+_DOCKERFILE_STAGE_RE = re.compile(r"^[ \t]*FROM\b[^\n]*?\bAS[ \t]+([\w.-]+)", re.I | re.M)
+
+
 def _extensions_can_name_the_same_file(token_ext: str, candidate_ext: str) -> bool:
     """
     #2684: may an import token ending in `token_ext` refer to a file whose own
@@ -215,6 +225,8 @@ def _init_worker(
     log_level: int,
     git_tracked: set[str],
     census: set[str],
+    offline: bool = False,
+    c_macro_args: dict[str, Any] | None = None,
 ):
     """
     Initializes the CPU-bound optical modules within the worker process's isolated memory.
@@ -227,7 +239,14 @@ def _init_worker(
     compiled regex objects across the IPC (Inter-Process Communication) boundary.
     """
     from gitgalaxy.core.detector import StructuralExtractor as OpticalDetector
+    from gitgalaxy.core.detector import set_c_repo_macro_args
 
+    set_c_repo_macro_args(c_macro_args or {})  # #5563: always reset, so an in-process scan never inherits the last one
+
+    if offline:  # #5235: a spawn-start worker is a fresh interpreter; the assess guard does not reach it by inheritance
+        from gitgalaxy.tools.readiness.offline import install as install_offline_guard
+
+        install_offline_guard()
     logging.getLogger().setLevel(log_level)
     worker_logger = logging.getLogger("GalaxyScope.Worker")
 
@@ -785,6 +804,15 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             if re.search(r"\.min\.[a-z]+$", rel_path, re.I) or any(v in safe_path for v in vendor_paths):
                 is_minified = True
 
+            # #3188: a large, repetitive preprocessor table skips only the Security Lens (the gate runs that lens
+            # over one line per distinct shape first); the detector still runs, so its signals are unchanged.
+            fast_scan = (
+                None
+                if is_minified
+                else clean_directive_table_scan(cast(str, content_buffer), lang_id, size_bytes, security)
+            )
+            fast_lane = fast_scan is not None
+
             # #3313 step 3: the file's idiom-wrapper facts; stays None for a
             # minified/vendor file, which skips the detector entirely.
             wrapper_facts = None
@@ -887,10 +915,15 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                 # #4548: the behaviour signals read the comment-blanked code stream, and are
                 # skipped on prose files (no executable surface); the raw text still feeds the
                 # comment-aware ones (dead_code, secrets, hidden unicode, entropy).
-                sec_results = security.scan_content(
-                    content_buffer,
-                    code_stream=refraction.get("code_stream"),
-                    prose=lang_id in ("plaintext", "markdown", "csv"),
+                sec_results = (
+                    fast_scan
+                    if fast_scan is not None
+                    else security.scan_content(
+                        content_buffer,
+                        code_stream=refraction.get("code_stream"),
+                        prose=lang_id in ("plaintext", "markdown", "csv"),
+                        language=lang_id,
+                    )
                 )
 
                 # Additive, not an overwrite (#344): detector.py's own coding_analysis()
@@ -1209,6 +1242,7 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             "stem": Path(rel_path).stem.lower(),
             "lang_id": lang_id,
             "is_minified": is_minified,
+            **({"fast_lane": "directive_table"} if fast_lane else {}),
             "lock_tier": detection_result.get("lock_tier", 4),
             "intensity": detection_result.get("intensity", 0.0),
             "source_proof": detection_result.get("source_proof", "Discovery"),
@@ -1981,7 +2015,7 @@ class Orchestrator:
             session_meta = {
                 "engine": f"GitGalaxy Scope v{self.version} (Delta Mode)",
                 "target": self.root.name,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "duration_seconds": round(time.time() - start_time, 2),
                 "target_directory": str(self.root.resolve()),
                 "git_audit": self._get_git_audit(),
@@ -2388,6 +2422,26 @@ class Orchestrator:
             return False
         return bool(detect_disguised_executable(head, Path(full_path).suffix.lower()))
 
+    # #5563: C/C++ header extensions whose function-defining `#define`s name macro definitions in other files.
+    _C_HEADER_EXTS = frozenset({".h", ".hh", ".hpp", ".hxx", ".h++", ".inl", ".ipp"})
+
+    def _c_repo_macro_args(self) -> dict[str, Any]:
+        """#5563: the repo-wide `#define` table (`detector.c_repo_macro_name_args`) over every C/C++ header of the
+        scan, the delta scan's cached files included. A file's own defines still win inside that file."""
+        from gitgalaxy.core.detector import c_repo_macro_name_args
+
+        rels = {*self.stem_map.values(), *self.ram_cache.keys()}
+        headers = sorted(r for r in rels if Path(r).suffix.lower() in self._C_HEADER_EXTS)
+
+        def texts():
+            for rel in headers:
+                try:
+                    yield read_source(self.root / self.disk_paths.get(rel, rel), limit=2_000_000).text
+                except OSError:
+                    continue
+
+        return c_repo_macro_name_args(texts())
+
     def _extract_features_parallel(self):
         """
         Phase 1: Parallel Extraction & Asset Filtering via Multi-Core Map-Reduce.
@@ -2418,6 +2472,8 @@ class Orchestrator:
             worker_log_level,
             self.git_tracked_files,
             self.census,
+            os.environ.get("GITGALAXY_ASSESS_OFFLINE") == "1",
+            self._c_repo_macro_args(),
         )
         # #3913: never more workers than files, and none at all for a small scan (or a pinned
         # single worker) -- the files are extracted in this process, by the same worker code.
@@ -2432,7 +2488,17 @@ class Orchestrator:
                 max_workers=max_workers, initializer=_init_worker, initargs=initargs
             )
         )
-        with pool as executor:
+        # #3189: warm the page cache in path order ahead of the (largest-first) pool; cold HDD scans
+        # otherwise pay one seek per file. Cache-only: no byte it reads reaches the scan.
+        prefetcher = start_prefetch(
+            str(self.root),
+            (
+                (str(self.root / self.disk_paths.get(rel, rel)), self.file_size_map.get(rel, 0))
+                for rel in self.stem_map.values()
+                if not inline
+            ),
+        )
+        with pool as executor, prefetcher:
             # Map futures to their file paths in a tracking dictionary.
             # #3175: submit LARGEST-FIRST (LPT scheduling). A single mega-file can be
             # 10-40% of a mega-repo's extraction wall; if it is dequeued late the pool
@@ -2463,6 +2529,7 @@ class Orchestrator:
                 for future in concurrent.futures.as_completed(active_futures):
                     rel_path = active_futures.pop(future)
                     completed_count += 1
+                    prefetcher.note_done(self.file_size_map.get(rel_path, 0))
 
                     if completed_count % 50 == 0:
                         logger.debug(f"PROGRESS: Surveyed {completed_count}/{total_files} coordinates.")
@@ -2609,6 +2676,28 @@ class Orchestrator:
         t_graph = time.time()
         attach_function_metrics(self.parsed_files, function_metrics(self.parsed_files, self.fcall_sites))
         logger.debug(f"⏱️ EXECUTION_TIME [Function Graph Metrics]: {time.time() - t_graph:.2f}s")
+
+    def _dockerfile_stage_names(self) -> set[str]:
+        """Lowercased `FROM <image> AS <stage>` names across every Dockerfile in the scan (#4982).
+
+        Read from disk on demand (only when a Dockerfile token reaches the radar), so the answer is the same
+        for a fresh and an incrementally rehydrated scan and no per-file field has to be persisted.
+        """
+        stage_re = self.config.get("LANGUAGE_DEFINITIONS", {}).get("dockerfile", {}).get("rules", {}).get("class_start")
+        if not hasattr(stage_re, "finditer"):
+            stage_re = _DOCKERFILE_STAGE_RE
+        names: set[str] = set()
+        for path, meta in self.ram_cache.items():
+            if str(meta.get("lang_id", "")).lower() != "dockerfile":
+                continue
+            try:
+                text = read_source(self.root / path).text
+            except OSError:
+                continue
+            for m in stage_re.finditer(text):
+                if m.lastindex and m.group(1):
+                    names.add(m.group(1).lower())
+        return names
 
     def _declared_dependency_names(self) -> set[str]:
         """Lower-cased dependency names declared by the scan's manifests (#4547).
@@ -2780,6 +2869,27 @@ class Orchestrator:
 
         declared_deps = self._declared_dependency_names()
 
+        # #4982: the project's own namespaces, built lazily. Ada child units hang off a root unit the
+        # project's own files define (`alire-roots.ads` -> `alire`); a Dockerfile `--from=` token naming
+        # an `AS` stage of any Dockerfile in the project is a stage, not an image.
+        project_units: dict[str, Any] = {}
+
+        def _names_project_unit(token: str, ext: str, path: str) -> bool:
+            ext = ext.lower()
+            if ext in ADA_EXTENSIONS:
+                if "ada_roots" not in project_units:
+                    project_units["ada_roots"] = ADA_STANDARD_ROOTS | {
+                        Path(p).stem.lower().split("-", 1)[0]
+                        for p in self.ram_cache
+                        if Path(p).suffix.lower() in ADA_EXTENSIONS
+                    }
+                return token.replace(".", "/").split("/", 1)[0].lower() in project_units["ada_roots"]
+            if str(self.ram_cache[path].get("lang_id", "")).lower() == "dockerfile":
+                if "stages" not in project_units:
+                    project_units["stages"] = self._dockerfile_stage_names()
+                return token.lower() in project_units["stages"] or token.isdigit()
+            return False
+
         for rel_path, meta in self.ram_cache.items():
             raw_imports = sorted(meta.get("raw_imports", set()))
             # #2988: the importing file's own extension, used to reject
@@ -2801,6 +2911,9 @@ class Orchestrator:
                     if ext_guess not in self.ext_tally:
                         clean_path = clean_path.replace(".", "/")
 
+                # #4982: a `./x` / `../x` token is a filesystem path inside the project, whatever
+                # the prefix-stripped remainder looks like (`math/Vector2.js`): never a package.
+                is_relative_path = clean_path.startswith(("./", "../"))
                 clean_path = clean_path.lstrip("./")
                 if not clean_path:
                     continue
@@ -2905,6 +3018,12 @@ class Orchestrator:
                         radar_name = radar_name[0] + radar_name[1:].split("@", 1)[0]
                     if radar_name.lower().endswith(HEADER_EXTENSIONS) or is_system_header(radar_name, importer_ext):
                         continue
+                    # #4982: tokens that resolve to the project itself, not to a registry package.
+                    if is_relative_path or _names_project_unit(radar_name, importer_ext, rel_path):
+                        continue
+                    # #4982: a dataset / include / copybook member of a platform with no package registry.
+                    if is_no_registry_language(meta.get("lang_id", "")):
+                        continue
                     if radar_name not in external_imports_tally:
                         external_imports_tally[radar_name] = []
                     external_imports_tally[radar_name].append(rel_path)
@@ -2964,6 +3083,11 @@ class Orchestrator:
             if orphan_imp in whitelist or len(orphan_imp) < 5:
                 continue
 
+            # #4982: a stdlib module is supplied by the interpreter, so as the SUSPECT it is no squat
+            # (`builtins`~`builtin`, MicroPython `ubinascii`~`binascii`). As an anchor it still counts.
+            if is_stdlib_module(orphan_imp, Path(rel_path).suffix):
+                continue
+
             # 2. O(1) Candidate Lookup (Only test strings in the exact same neighborhood)
             candidates = set()
             for variant in _get_deletes(orphan_imp):
@@ -2977,6 +3101,10 @@ class Orchestrator:
             for anchor_imp in sorted(candidates):
                 # 3. The Casing Shield (Developer typos, not malware)
                 if orphan_imp.lower() == anchor_imp.lower():
+                    continue
+
+                # #4982: two classes of one package (`...tasks/InputFiles` / `.../InputFile`) are not two packages.
+                if same_jvm_package(orphan_imp, anchor_imp, Path(rel_path).suffix):
                     continue
 
                 # #4547: `build-options` and `build_options` are one package under -/_
@@ -3848,7 +3976,7 @@ class Orchestrator:
             session_meta = {
                 "engine": f"GitGalaxy Scope v{self.version} (Delta Mode)",
                 "target": self.root.name,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "duration_seconds": round(time.time() - start_time, 2),
                 "target_directory": str(self.root.resolve()),
                 "git_audit": self._get_git_audit(),  # Gets the NEW commit hash

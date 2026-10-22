@@ -1,0 +1,1529 @@
+{
+  "kind": "cics",
+  "corpus": "cics-banking-sample-application-cbsa",
+  "program": "BNK1UAC",
+  "program_source": "src/base/cobol_src/BNK1UAC.cbl",
+  "copy_dirs": [
+    "src/base/cobol_copy"
+  ],
+  "transid": "OUAC",
+  "termid": "T001",
+  "clock": "2026/10/01 10:30:15.00",
+  "region": {
+    "applid": "CBSAREGN",
+    "sysid": "CICA"
+  },
+  "taskn": 4242,
+  "programs": [
+    {
+      "program": "INQACC",
+      "program_source": "src/base/cobol_src/INQACC.cbl"
+    },
+    {
+      "program": "UPDACC",
+      "program_source": "src/base/cobol_src/UPDACC.cbl"
+    },
+    {
+      "program": "ABNDPROC",
+      "program_source": "src/base/cobol_src/ABNDPROC.cbl"
+    }
+  ],
+  "datasets": {
+    "CBSA.CICSBSA.ABNDFILE": {
+      "input": "@case/abndfile.bin",
+      "entity": "WsAbndArea",
+      "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+      "record": "WS-ABND-AREA",
+      "recovery": "NONE",
+      "recovery_why": "etc/install/base/installjcl/BANK.csd: DEFINE FILE(ABNDFILE) ... RECOVERY(NONE) -- the abend log a backout must not undo"
+    }
+  },
+  "db2": {
+    "ddl": [
+      "etc/install/base/db2jcl/CRETB01.jcl",
+      "etc/install/base/db2jcl/CREI101.jcl",
+      "etc/install/base/db2jcl/CRETB02.jcl"
+    ],
+    "seed": "@case/seed.sql",
+    "compare": [
+      "IBMUSER.ACCOUNT",
+      "IBMUSER.PROCTRAN"
+    ],
+    "qualifier": "IBMUSER"
+  },
+  "commarea": {
+    "segments": [
+      {
+        "copybook": "src/base/cobol_src/BNK1UAC.cbl",
+        "record": "WS-COMM-AREA"
+      }
+    ]
+  },
+  "screens": {
+    "BNK1UA": {
+      "copybook": "@bms/BNK1UAM.cpy",
+      "input": "BNK1UAI",
+      "output": "BNK1UAO"
+    }
+  },
+  "scenarios": [
+    {
+      "name": "first-entry",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "EIBCALEN 0: WS-COMM-AREA initialised, the map sent ERASE"
+    },
+    {
+      "name": "pa1",
+      "aid": "DFHPA1",
+      "commarea": {},
+      "why": "PA1: CONTINUE, nothing sent; RETURN TRANSID with the COMMAREA"
+    },
+    {
+      "name": "pf3",
+      "aid": "DFHPF3",
+      "commarea": {},
+      "why": "PF3: RETURN TRANSID('OMEN') IMMEDIATE: back to the main menu"
+    },
+    {
+      "name": "pf12",
+      "aid": "DFHPF12",
+      "commarea": {},
+      "why": "PF12: SEND-TERMINATION-MSG, RETURN"
+    },
+    {
+      "name": "clear",
+      "aid": "DFHCLEAR",
+      "commarea": {},
+      "why": "CLEAR: SEND CONTROL ERASE FREEKB, RETURN"
+    },
+    {
+      "name": "other-key",
+      "aid": "DFHPF7",
+      "commarea": {},
+      "why": "PF7: WHEN OTHER -- 'Invalid key pressed.', SEND MAP DATAONLY ALARM"
+    },
+    {
+      "name": "mapfail",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "ENTER with no field modified: RECEIVE MAP MAPFAIL -- ABNDPROC LINKed (an ABNDFILE record) and ABEND HBNK"
+    },
+    {
+      "name": "inquire",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "ENTER with account 2: EDIT-DATA passes, LINK INQACC (run in the task), the account shown and 'Please amend fields...'",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002"
+        }
+      }
+    },
+    {
+      "name": "inquire-current",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "account 1, a CURRENT with an overdraft limit",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000001"
+        }
+      }
+    },
+    {
+      "name": "inquire-loan",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "account 3, a LOAN with a negative balance",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000003"
+        }
+      }
+    },
+    {
+      "name": "inquire-isa-null-statement",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "account 4, whose last-statement date is NULL in Db2",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000004"
+        }
+      }
+    },
+    {
+      "name": "inquire-mortgage",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "account 5, a MORTGAGE",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000005"
+        }
+      }
+    },
+    {
+      "name": "inquire-limits",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "account 6: the interest rate 9999.99, overdraft 99999999 and balances at their picture limits",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000006"
+        }
+      }
+    },
+    {
+      "name": "inquire-not-found",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "account 50: INQACC finds nothing -- 'This account number could not be found'",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000050"
+        }
+      }
+    },
+    {
+      "name": "inquire-no-account",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "ENTER with only another field modified (ACCNOL 0, ACCNOI blank): 'Please enter an account number.'",
+      "receive": {
+        "BNK1UA": {
+          "COMPANYI": "CBSA"
+        }
+      }
+    },
+    {
+      "name": "update",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "PF5 on account 2: VALIDATE-DATA passes, UPD-ACC-DATA converts the screen fields, LINK UPDACC (type, rate and overdraft UPDATEd)",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "update-loan",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "account 3 to a LOAN at 17.5",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000003",
+          "ACTYPEI": "LOAN    ",
+          "INTRTI": "17.5",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "-0000004500.00",
+          "ACTBALI": "-0000004500.00"
+        }
+      }
+    },
+    {
+      "name": "update-current-zero-rate",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "a CURRENT at rate 0000.00 is accepted (only LOAN / MORTGAGE refuse a zero rate)",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000001",
+          "ACTYPEI": "CURRENT ",
+          "INTRTI": "0000.00",
+          "OVERDRI": "500",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "update-isa",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "account 4 as ISA (its last-statement date is NULL: UPDACC's SELECT fails)",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000004",
+          "ACTYPEI": "ISA     ",
+          "INTRTI": "3.5",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "update-mortgage",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "account 5 as MORTGAGE at 4.25",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000005",
+          "ACTYPEI": "MORTGAGE",
+          "INTRTI": "4.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "-0000150000.00",
+          "ACTBALI": "-0000150000.00"
+        }
+      }
+    },
+    {
+      "name": "update-not-found",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "PF5 for account 50: UPDACC finds no account (COMM-SUCCESS 'N')",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000050",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "update-accno2",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "ACCNO 99999999: the account is taken from ACCNO2",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "99999999",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43",
+          "ACCNO2I": "00000002"
+        }
+      }
+    },
+    {
+      "name": "update-negative-balances",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "negative signs on both balances, a two-digit fraction",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "-0000000012.34",
+          "ACTBALI": "-0000000056.78"
+        }
+      }
+    },
+    {
+      "name": "update-whole-rate",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "rate '5' (a whole number: NUMERIC at once)",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "5",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "update-rate-two-places-padded",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "rate '12.50' with a trailing zero place",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "12.50",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "update-rate-max",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "rate 9999.75: under the limit; NUMVAL as COMP-1 compared with 9999.99",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "9999.75",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "bad-type",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "account type 'CHECKING': 'Account Type must be CURRENT, SAVING, LOAN, MORTGAGE or ISA'",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "CHECKING",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "type-current",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "account type CURRENT passes the type check",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "CURRENT ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "type-loan",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "account type LOAN passes the type check",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "LOAN    ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "type-mortgage",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "account type MORTGAGE passes the type check",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "MORTGAGE",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "type-isa",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "account type ISA passes the type check",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "ISA     ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "rate-missing",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "no interest rate (INTRTL 0)",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "rate-letters",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "rate 'abc': 'Please supply a numeric interest rate'",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "abc",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "rate-letters-mixed",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "rate '1a': some, not all, characters numeric",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "1a",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "rate-two-points",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "rate '1.2.3': one decimal point only",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "1.2.3",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "rate-three-places",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "rate '1.234': up to two decimal places",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "1.234",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "rate-four-places",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "rate '1.2345'",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "1.2345",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "rate-signed-plus",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "rate '+3.5': not NUMERIC as a class, counted by the INSPECT, NUMVAL gives 3.5",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "+3.5",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "rate-negative",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "rate '-1.5': 'Please supply a zero or positive interest rate'",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "-1.5",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "rate-too-high",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "rate '10000': 'less than 9999.99%'",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "10000",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "rate-too-high-decimals",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "rate 9999.5 just under the limit",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "9999.5",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "loan-zero-rate",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "LOAN with rate 0000.00: 'Interest rate cannot be 0'",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "LOAN    ",
+          "INTRTI": "0000.00",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "mortgage-zero-rate",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "MORTGAGE with rate 0000.00",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "MORTGAGE",
+          "INTRTI": "0000.00",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "overdraft-missing",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "no overdraft (OVERDRL 0): 'Overdraft must be numeric'",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "overdraft-letters",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "overdraft '12ab'",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "12ab",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "overdraft-large",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "overdraft '99999999'",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "99999999",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "last-stmt-letters",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "last statement day 'ab': 'Last statement date must be numeric'",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "ab",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "last-stmt-month-letters",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "last statement month 'x1'",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "x1",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "last-stmt-year-letters",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "last statement year '20x6'",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "20x6",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "next-stmt-letters",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "next statement day 'ab': 'Next statement date must be numeric'",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "ab",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "next-stmt-year-letters",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "next statement year '2o26'",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2o26",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "last-day-zero",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "last statement day 00: 'Incorrect date for LAST STATEMENT.'",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "00",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "last-day-32",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "last statement day 32",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "32",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "last-month-13",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "last statement month 13",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "13",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "last-month-zero",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "last statement month 00",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "00",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "last-31-month-09",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "31 09: a 30-day month",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "31",
+          "LSTMTMMI": "09",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "last-31-month-04",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "31 04: a 30-day month",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "31",
+          "LSTMTMMI": "04",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "last-31-month-06",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "31 06: a 30-day month",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "31",
+          "LSTMTMMI": "06",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "last-31-month-11",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "31 11: a 30-day month",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "31",
+          "LSTMTMMI": "11",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "last-30-february",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "30 February",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "30",
+          "LSTMTMMI": "02",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "last-29-february",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "29 February passes this program's check (leap years are not checked)",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "29",
+          "LSTMTMMI": "02",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "next-31-month-09",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "next 31 09",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "31",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "next-31-month-04",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "next 31 04",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "31",
+          "NSTMTMMI": "04",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "next-31-month-06",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "next 31 06",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "31",
+          "NSTMTMMI": "06",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "next-31-month-11",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "next 31 11",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "31",
+          "NSTMTMMI": "11",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "next-30-february",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "next 30 February",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "30",
+          "NSTMTMMI": "02",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "next-day-zero-passes",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "next day 00 is not range-checked by this program",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "00",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "several-errors",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "bad type AND bad dates: every check runs, the last message stays",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "XXXXXXXX",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "32",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "31",
+          "NSTMTMMI": "04",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    }
+  ],
+  "notes": "CBSA's update-account screen (BNK1UAC, transaction OUAC, BMS map BNK1UA of mapset BNK1UAM: the symbolic map is generated from src/base/bms_src/BNK1UAM.bms). Pseudo-conversational: a first task sends the empty map; a returning one acts on the AID -- PA keys nothing, PF3 RETURN TRANSID('OMEN') IMMEDIATE, PF12 the termination message, CLEAR, ENTER (inquiry: EDIT-DATA, LINK INQACC) -- ACCNO is the map's only NUM field, so no scenario types letters into it: a 3270 numeric field cannot key them (owner decision on #5116, 2026-10-15: inquire-non-numeric dropped; INTRT and OVERDR are not NUM, so their letter scenarios stay), PF5 (update: VALIDATE-DATA of the type, interest rate, overdraft and both statement dates, then LINK UPDACC), any other key 'Invalid key pressed.'. INQACC, UPDACC and ABNDPROC run in the task, as in cbsa-inqacc and cbsa-updacc. ACCOUNT and PROCTRAN are compared after every scenario. Rates typed are exact in IEEE and HFP (oracle_assumptions.md C6), and none makes the second INSPECT's reference modification run past INTRTI. Not reached: the failure branches after SEND MAP / SEND TEXT / SEND CONTROL / RETURN / LINK (no fault can be injected on them). Data: seed.sql is cbsa-bnk1dac's SYNTHETIC seed. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived.",
+  "bounds_refused": {
+    "rate-four-places": "BNK1UAC reference-modifies INTRTI past its 7 bytes (length 6 starting at 3); IBM (no SSRANGE) reads the bytes after the field, which are layout luck"
+  }
+}

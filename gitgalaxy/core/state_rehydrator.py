@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any
 
 from gitgalaxy.core.call_resolver import decode_qualifiers
+from gitgalaxy.core.fact_channels import CHANNELS
 from gitgalaxy.core.unicode_paths import nfc
 
 
@@ -504,126 +505,20 @@ class StateRehydrator:
                         },
                     },
                 )
-                # #3345: the resolved-DSN pair is per-file (one JCL file determines
-                # it), so it is restored like the raw DSN. A baseline written
-                # before #3345 lacks the columns; its rows come back without the
-                # keys, exactly the shape the extractor gives a COBOL row.
-                resolved_cols = (
-                    "ds.dsn_resolved, ds.dsn_resolution"
-                    if _has_table(cursor, "dataset_data") and _has_column(cursor, "dataset_data", "dsn_resolution")
-                    else "NULL AS dsn_resolved, NULL AS dsn_resolution"
-                )
-                # #3348: a COBOL row's OPEN sites; absent on a baseline written before them.
-                if _has_table(cursor, "dataset_data") and _has_column(cursor, "dataset_data", "open_sites"):
-                    resolved_cols += ", ds.open_sites"
-                else:
-                    resolved_cols += ", NULL AS open_sites"
-                datasets_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "dataset_data",
-                    "SELECT fd.file_path AS _fp, ds.step_name, ds.internal_name, ds.assign_name, "  # noqa: S608 -- resolved_cols is one of two literals; values are bound
-                    "ds.dd_name, ds.access_modes AS modes, ds.dsn, ds.line_number AS line, "
-                    f"{resolved_cols} "
-                    "FROM dataset_data ds JOIN file_data fd ON ds.file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ds.id",
-                    lambda r: {
-                        "step_name": r["step_name"],
-                        "internal_name": r["internal_name"],
-                        "assign_name": r["assign_name"],
-                        "dd_name": r["dd_name"],
-                        "modes": (r["modes"] or "").split(",") if r["modes"] else [],
-                        "dsn": r["dsn"],
-                        "line": int(r["line"] or 0),
-                        **(
-                            {"dsn_resolved": r["dsn_resolved"], "dsn_resolution": r["dsn_resolution"]}
-                            if r["dsn_resolution"]
-                            else {}
-                        ),
-                        **({"open_sites": json.loads(r["open_sites"])} if r["open_sites"] is not None else {}),
-                    },
-                )
-                # Aliased to the extractor's own payload key names (level_number ->
-                # level, item_name -> name, value_literal -> value). `attributes`
-                # (#3250, PL/I) is NULL on a baseline written before it existed.
-                attributes_col = (
-                    "rd.attributes"
-                    if _has_table(cursor, "record_data") and _has_column(cursor, "record_data", "attributes")
-                    else "NULL"
-                )
-                # #3355: `copy_members` is per-file (the entry's own window); NULL on
-                # a baseline written before it existed, and then left off the payload
-                # exactly as the extractor leaves it off an entry no COPY follows.
-                copy_col = (
-                    "rd.copy_members"
-                    if _has_table(cursor, "record_data") and _has_column(cursor, "record_data", "copy_members")
-                    else "NULL"
-                )
-                # #3694: `sign_separate` likewise -- NULL before the column existed, and
-                # left off the payload exactly as the extractor leaves it off.
-                sign_col = (
-                    "rd.sign_separate"
-                    if _has_table(cursor, "record_data") and _has_column(cursor, "record_data", "sign_separate")
-                    else "NULL"
-                )
-                # #4265: `copy_libraries` likewise.
-                lib_col = (
-                    "rd.copy_libraries"
-                    if _has_table(cursor, "record_data") and _has_column(cursor, "record_data", "copy_libraries")
-                    else "NULL"
-                )
-                repl_col = (
-                    "rd.copy_replacing"
-                    if _has_table(cursor, "record_data") and _has_column(cursor, "record_data", "copy_replacing")
-                    else "NULL"
-                )
-                # #4266: SYNC / JUSTIFIED / BLANK WHEN ZERO / RENAMES likewise.
-                layout_cols = ", ".join(
-                    f"rd.{c} AS {c}"
-                    if _has_table(cursor, "record_data") and _has_column(cursor, "record_data", c)
-                    else f"NULL AS {c}"
-                    for c in ("sync", "justified", "blank_when_zero", "renames")
-                )
-                records_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "record_data",
-                    "SELECT fd.file_path AS _fp, rd.section, rd.fd_name, rd.ordinal, rd.parent_ordinal, "  # noqa: S608 -- attributes_col is one of two literals; values are bound
-                    "rd.level_number AS level, rd.item_name AS name, rd.pic, rd.usage, rd.occurs_min, "
-                    "rd.occurs_max, rd.occurs_depending_on, rd.redefines, rd.value_literal AS value, "
-                    f"rd.line_number AS line, {attributes_col} AS attributes, {copy_col} AS copy_members, "
-                    f"{sign_col} AS sign_separate, {lib_col} AS copy_libraries, {repl_col} AS copy_replacing, "
-                    f"{layout_cols} "
-                    "FROM record_data rd JOIN file_data fd ON rd.file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY rd.file_id, rd.ordinal",
-                    lambda r: {
-                        "section": r["section"],
-                        "fd_name": r["fd_name"],
-                        "ordinal": int(r["ordinal"] or 0),
-                        "parent_ordinal": r["parent_ordinal"],
-                        "level": int(r["level"] or 0),
-                        "name": r["name"],
-                        "pic": r["pic"],
-                        "usage": r["usage"],
-                        "occurs_min": r["occurs_min"],
-                        "occurs_max": r["occurs_max"],
-                        "occurs_depending_on": r["occurs_depending_on"],
-                        "redefines": r["redefines"],
-                        "value": r["value"],
-                        "line": int(r["line"] or 0),
-                        "attributes": r["attributes"],
-                        **({"copy_members": r["copy_members"]} if r["copy_members"] else {}),
-                        **({"sign_separate": int(r["sign_separate"])} if r["sign_separate"] else {}),
-                        **({"copy_libraries": r["copy_libraries"]} if r["copy_libraries"] else {}),
-                        **({"copy_replacing": r["copy_replacing"]} if r["copy_replacing"] else {}),
-                        **({"sync": r["sync"]} if r["sync"] else {}),
-                        **({"justified": True} if r["justified"] else {}),
-                        **({"blank_when_zero": True} if r["blank_when_zero"] else {}),
-                        **({"renames": r["renames"]} if r["renames"] else {}),
-                    },
-                )
+                # #3383: the registered per-file fact channels (dataset, record, sql_table, csd_resource,
+                # screen_field, cics_resource) -- declared in gitgalaxy/core/fact_channels.py.
+                channel_rows = {
+                    channel.name: _restore_child_table(
+                        cursor,
+                        repo_name,
+                        baseline_hash,
+                        channel.table,
+                        channel.select_sql(cursor, _has_table, _has_column),
+                        channel.to_payload,
+                    )
+                    for channel in CHANNELS
+                }
+
                 # #3211-followup: the CSD transaction definitions, restored per
                 # deck so an unchanged .csd/JCL keeps its transactions through a
                 # delta scan. `group_name` is aliased to the extractor's `group`
@@ -642,32 +537,6 @@ class StateRehydrator:
                         "program": r["program"],
                         "group": r["_group"],
                         "profile": r["profile"],
-                        "line": int(r["line"] or 0),
-                    },
-                )
-
-                # #3344: DB2 DECLARE TABLE / DCLGEN columns, aliased back to the
-                # extractor's payload keys (table_name -> table, column_name ->
-                # name). A pre-#3344 baseline has no table and restores nothing.
-                sql_tables_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "sql_table_data",
-                    'SELECT fd.file_path AS _fp, st.table_name AS "table", st.table_line, st.colno, st.column_name AS name, '
-                    "st.sql_type, st.length, st.scale, st.nullable, st.attributes, st.line_number AS line "
-                    "FROM sql_table_data st JOIN file_data fd ON st.file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY st.id",
-                    lambda r: {
-                        "table": r["table"],
-                        "table_line": int(r["table_line"] or 0),
-                        "colno": int(r["colno"] or 0),
-                        "name": r["name"],
-                        "sql_type": r["sql_type"],
-                        "length": r["length"],
-                        "scale": r["scale"],
-                        "nullable": bool(r["nullable"]),
-                        "attributes": r["attributes"],
                         "line": int(r["line"] or 0),
                     },
                 )
@@ -699,99 +568,6 @@ class StateRehydrator:
                         "host_variables": r["host_variables"],
                         "line": int(r["line"] or 0),
                         "statement": r["statement"],
-                    },
-                )
-
-                # #3347: BMS screen-field layouts, aliased to the extractor's payload
-                # keys (field_name -> name, initial_value -> initial).
-                screen_fields_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "screen_field_data",
-                    "SELECT fd.file_path AS _fp, sf.kind, sf.ordinal, sf.parent_ordinal, "
-                    "sf.field_name AS name, sf.pos_line, sf.pos_column, sf.length, sf.attrb, sf.picin, "
-                    "sf.picout, sf.initial_value AS initial, sf.occurs, sf.attributes, sf.line_number AS line "
-                    "FROM screen_field_data sf JOIN file_data fd ON sf.file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY sf.file_id, sf.ordinal",
-                    lambda r: {
-                        "kind": r["kind"],
-                        "ordinal": int(r["ordinal"] or 0),
-                        "parent_ordinal": r["parent_ordinal"],
-                        "name": r["name"],
-                        "pos_line": r["pos_line"],
-                        "pos_column": r["pos_column"],
-                        "length": r["length"],
-                        "attrb": r["attrb"],
-                        "picin": r["picin"],
-                        "picout": r["picout"],
-                        "initial": r["initial"],
-                        "occurs": r["occurs"],
-                        "attributes": r["attributes"],
-                        "line": int(r["line"] or 0),
-                    },
-                )
-
-                # #3356: CSD resource definitions, aliased back to the extractor's
-                # payload keys (resource_name -> name, group_name -> group). A
-                # pre-#3356 baseline has no table and restores nothing.
-                csd_resources_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "csd_resource_data",
-                    "SELECT fd.file_path AS _fp, cr.resource_type, cr.resource_name AS name, "
-                    'cr.group_name AS "group", cr.dsname, cr.ddname, cr.record_format, cr.key_length, '
-                    "cr.record_size, cr.queue_type, cr.plan, cr.db2_entry, cr.transid, cr.program, "
-                    "cr.attributes, cr.line_number AS line "
-                    "FROM csd_resource_data cr JOIN file_data fd ON cr.file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY cr.id",
-                    lambda r: {
-                        "resource_type": r["resource_type"],
-                        "name": r["name"],
-                        "group": r["group"],
-                        "dsname": r["dsname"],
-                        "ddname": r["ddname"],
-                        "record_format": r["record_format"],
-                        "key_length": r["key_length"],
-                        "record_size": r["record_size"],
-                        "queue_type": r["queue_type"],
-                        "plan": r["plan"],
-                        "db2_entry": r["db2_entry"],
-                        "transid": r["transid"],
-                        "program": r["program"],
-                        "attributes": r["attributes"],
-                        "line": int(r["line"] or 0),
-                    },
-                )
-
-                # #3351-#3354: CICS resource operations, aliased back to the
-                # extractor's payload keys. A pre-channel baseline restores nothing.
-                cics_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "cics_resource_data",
-                    "SELECT fd.file_path AS _fp, cr.verb, cr.resource_kind AS kind, cr.access, "
-                    "cr.name_operand AS operand, cr.resource_name AS name, cr.name_resolution AS resolution, "
-                    "cr.name_candidates AS candidates, cr.qualifier_operand, cr.qualifier, cr.record_clause, "
-                    "cr.record_name AS record, cr.attributes, cr.line_number AS line "
-                    "FROM cics_resource_data cr JOIN file_data fd ON cr.file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY cr.id",
-                    lambda r: {
-                        "verb": r["verb"],
-                        "kind": r["kind"],
-                        "access": r["access"],
-                        "operand": r["operand"],
-                        "name": r["name"],
-                        "resolution": r["resolution"],
-                        "candidates": r["candidates"],
-                        "qualifier_operand": r["qualifier_operand"],
-                        "qualifier": r["qualifier"],
-                        "record_clause": r["record_clause"],
-                        "record": r["record"],
-                        "attributes": r["attributes"],
-                        "line": int(r["line"] or 0),
                     },
                 )
 
@@ -1181,14 +957,10 @@ class StateRehydrator:
                     node["functions"] = funcs_by_file.get(rel_path, []) + synthetic_by_file.get(rel_path, [])
                     node["classes"] = classes_by_file.get(rel_path, [])
                     node["call_sites"] = calls_by_file.get(rel_path, [])
-                    node["dataset_bindings"] = datasets_by_file.get(rel_path, [])
-                    node["record_layouts"] = records_by_file.get(rel_path, [])
+                    for channel in CHANNELS:
+                        node[channel.payload_key] = channel_rows[channel.name].get(rel_path, [])
                     node["transaction_defs"] = transactions_by_file.get(rel_path, [])
-                    node["sql_tables"] = sql_tables_by_file.get(rel_path, [])
                     node["sql_statements"] = sql_statements_by_file.get(rel_path, [])
-                    node["screen_fields"] = screen_fields_by_file.get(rel_path, [])
-                    node["csd_resources"] = csd_resources_by_file.get(rel_path, [])
-                    node["cics_resources"] = cics_by_file.get(rel_path, [])
                     node["cics_tasks"] = cics_tasks_by_file.get(rel_path, [])
                     node["job_submits"] = job_submits_by_file.get(rel_path, [])
                     node["mq_calls"] = mq_calls_by_file.get(rel_path, [])

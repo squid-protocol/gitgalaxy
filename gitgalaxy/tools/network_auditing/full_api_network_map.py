@@ -334,7 +334,7 @@ def main():
                 try:
                     routes = parse_official_swagger(c)
                     preview_stats.append((c, len(routes), c in test_cands))
-                except Exception:  # noqa: PERF203 -- per-iteration isolation: skip a corrupt/unparsable spec, keep processing the others
+                except Exception:
                     preview_stats.append((c, 0, c in test_cands))
 
             preview_stats.sort(key=lambda x: x[1], reverse=True)
@@ -352,7 +352,7 @@ def main():
             for c in candidates:
                 try:
                     approved_apis.update(parse_official_swagger(c))
-                except RuntimeError as e:  # noqa: PERF203 -- per-iteration isolation: skip a corrupt/unparsable spec, keep processing the others
+                except RuntimeError as e:
                     print(f" ⚠️  [SKIP] Failed to parse discovered specification '{c.relative_to(source_path)}': {e}")
         else:
             swagger_path = candidates[0]

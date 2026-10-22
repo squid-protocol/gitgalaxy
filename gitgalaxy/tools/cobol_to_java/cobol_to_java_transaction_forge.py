@@ -27,6 +27,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from gitgalaxy.tools.cobol_to_java.cics_task_containers import CONTAINERS_JAVA
+from gitgalaxy.tools.cobol_to_java.cics_task_filecontrol import FILECONTROL_JAVA
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import (
     ClassNames,
     TraceLog,
@@ -280,7 +282,14 @@ public class CicsTask {
     private int retrieved;
     private boolean retrieveRefused;                        // #4270: a RETRIEVE raised ENVDEFERR (the root's)
     private boolean runChild;                               // #4270: a RUN TRANSID child task (the root's)
+    private final Map<String, Object> resources = new HashMap<>();  // #4892: resource managers joined (the root's)
+    private final List<Consumer<Boolean>> uowParticipants = new ArrayList<>();  // #4892: told as its unit of work ends
     private int children;                                   // #4270: the RUN TRANSID children it attached
+    private final List<Child> kids = new ArrayList<>();     // #4950: those children, in RUN order (the root's)
+    private long waited;                                    // #4950 (X18): the scheduler's clock, ms of waits (root's)
+    private boolean dispatched;                             // #4950: a child its parent's wait dispatched (root's)
+    private int depth;                                      // #5089: 0 for a task, its parent's + 1 for a RUN child (root's)
+    private int replies;                                    // #4950: the reply channels FETCH CHANNEL named (root's)
     private final java.util.Set<String> ownWithData = new java.util.HashSet<>();  // #4270: own REQIDs with FROM
     private Map<String, LocalDateTime> unexpired = Map.of();
     private final Map<String, LocalDateTime> ownRequests = new HashMap<>();
@@ -291,6 +300,7 @@ public class CicsTask {
     private TempStorage tempStorage = new TempStorage();
     private String abcode = "    ";
     private String termid;                                  // #3989: EIBTRMID (the task's root); null without one
+    private boolean termidStated;                           // #5126: withTermid was called (null = stated: no terminal)
     private long taskNumber;                                 // #4270: EIBTASKN (the task's root), a stated fact
     private boolean exactCommarea;                          // #4270 (X23): the COMMAREA is EIBCALEN bytes, no more
     private String exitLabel;                               // #3989: this level's HANDLE ABEND LABEL
@@ -300,11 +310,14 @@ public class CicsTask {
     private List<String[]> faultPlan = List.of();           // #4023 follow-up: injected conditions (the task's root)
     private java.nio.file.Path faultLog;
     private final java.util.Set<String> held = new java.util.HashSet<>();  // files a readForUpdate holds (the root's)
+    private final Map<Integer, Object[]> updateTokens = new HashMap<>();  // #5078 (X52): token -> {file, key} (the root's)
+    private int nextToken = 1;
     private boolean syncpointed;                                            // a SYNCPOINT committed (the root's)
     private boolean dplServer;                          // #4437: LINKed from outside the region (the root's)
     private Runnable rollbackHook;                                          // how a rollback undoes (the root's)
     private final Map<String, Integer> faultSeen = new HashMap<>();
     private Object returnedArea;                                             // #4343: the level-1 RETURN's COMMAREA
+    private boolean bytesTaken;                                              // #4817: returnedBytes() was read
     private byte[] returnedBytes;                                            // #4817: its raw bytes
     private Integer returnedLength;                                          // #4449: its LENGTH (null: the whole record)
 
@@ -362,6 +375,12 @@ public class CicsTask {
         default boolean terminal(String termid) {
             return true;
         }
+
+        /** #4950: the program a transaction runs -- a RUN TRANSID child's -- or null when the case does not run it
+         *  (the child is then refused when its parent's wait would dispatch it). */
+        default String program(String transid) {
+            return null;
+        }
     }
 
     /** How LINK / XCTL reach other programs (#4004). */
@@ -386,6 +405,14 @@ public class CicsTask {
     /** The logical level this program runs at: 1 for the task's first program, +1 per LINK (#4004). */
     public int level() {
         return level;
+    }
+
+    private int transferResp2;  // #4986: the RESP2 of this program's last LINK / XCTL, as its event carries it
+
+    /** #4986: EIBRESP2 / RESP2 after this program's last LINK or XCTL: the event's, so a planned fault's (PGMIDERR
+     *  RESP2 3, NOTAUTH 101 ...) as well as the natural LENGERR 11 / PGMIDERR 1. */
+    public int transferResp2() {
+        return transferResp2;
     }
 
     /** LINK PROGRAM(program) COMMAREA(commarea) LENGTH(length) (#4004, IBM EXEC CICS LINK): LENGERR (RESP2
@@ -421,6 +448,7 @@ public class CicsTask {
                 resp2 = planned[1];
             }
         }
+        transferResp2 = resp2 == null ? 0 : resp2;  // #4986: EIBRESP2 is the event's, a planned fault's too
         event("LINK", "target", program, "length", len, "commarea", snapshot.apply(commarea), "resp", resp,
                 "resp2", resp2);
         if (area != null) {
@@ -435,6 +463,7 @@ public class CicsTask {
         callee.linkLength = len;
         callee.linkArea = area;
         callee.callerArea = area != null;  // #4816: that area is the caller's own storage, not a copy
+        callee.linkedDto = commarea != null;  // #4956: its DTO is the caller's own object, not a copy
         callee.passChannel(linkChannel, java.util.Set.of());  // #4270: LINK CHANNEL (none: the callee has no channel)
         CicsTask linked = callee;
         for (int hop = 0; callee != null && hop < 32; hop++) {
@@ -501,6 +530,10 @@ public class CicsTask {
     private String applid;
     private String sysid;
     private java.util.Set<String> tdQueues;
+    private java.util.Map<String, String> tdTypes;
+    private java.util.Map<String, java.util.Map<String, String>> tdAttrs;  // #5168: each queue's other CSD attributes
+    private final java.util.Map<String, java.util.ArrayDeque<String>> tdUow = new java.util.LinkedHashMap<>();  // #5168
+    private final java.util.Set<String> tdPhysical = new java.util.LinkedHashSet<>();
 
     /** The region's identity (ASSIGN APPLID / SYSID): a deployment fact, set by whoever runs the task. */
     public CicsTask withRegion(String applid, String sysid) {
@@ -576,11 +609,24 @@ public class CicsTask {
     /** ASSIGN FACILITY / SCRNHT / SCRNWD's condition: INVREQ (16) for a task with no terminal (RESP2 5, "The task is
      *  not associated with a terminal; or the task has no principal facility"), else 0. */
     public int assignTerminalResp() {
+        statedTerminal();
         return termid() == null ? 16 : 0;
+    }
+
+    /** #5126: whether the task has a terminal is a fact whoever runs the task states (withTermid; null states "none",
+     *  as the stub's empty $GGCICS_FACILITY); unstated it is refused, as the stub refuses, never guessed. */
+    private void statedTerminal() {
+        if (!root().termidStated) {
+            throw new IllegalStateException("ASSIGN FACILITY / TERMCHK: the task's terminal is not stated (withTermid)");
+        }
     }
 
     /** ASSIGN FACILITY: the principal facility, the task's terminal, 4 characters. */
     public String assignFacility() {
+        statedTerminal();
+        if (termid() == null) {
+            throw new IllegalStateException("ASSIGN FACILITY: the task has no terminal (assignTerminalResp is INVREQ)");
+        }
         return String.format(java.util.Locale.ROOT, "%-4.4s", termid());
     }
 
@@ -956,8 +1002,12 @@ public class CicsTask {
     }
 
     private HttpRequest httpRequest;
-    private boolean webSent;
-    private boolean webSendFailed;  // #4941: a WEB SEND ended in a condition (IBM: whether it was issued is not stated)
+    private boolean webSent;  // an ACTION(IMMEDIATE) response was sent
+    private boolean webSendFailed;  // #4941: the last WEB SEND ended in a condition (IBM: whether it was issued is not stated)
+    private boolean webIssued;  // a WEB SEND was accepted (IMMEDIATE or EVENTUAL)
+    private Object[] webHeld;  // #4941 (X37): the ACTION(EVENTUAL) response held for the end of the task (WEB-SEND's fields)
+    private byte[] webHeldDoc;  // the document an EVENTUAL DOCTOKEN send (not DOCDELETE) sent, as it was sent
+    private String webHeldToken;  // the DOCTOKEN WEB RETRIEVE gave for webHeldDoc (null: not retrieved yet)
     private boolean webReceived;
 
     /** The HTTP request this task serves (a web-attached task). Not stated (never called), WEB SEND is refused. */
@@ -1156,7 +1206,51 @@ public class CicsTask {
         if (fromLength > from.length() || (statusText != null && statusLength > statusText.length())) {
             throw refused("WEB SEND length beyond its area");
         }
-        return webSendBody(from.substring(0, fromLength), mediaType, action, status, statusText, statusLength, conv);
+        return webSendBody(from.substring(0, fromLength), mediaType, action, status, statusText, statusLength, conv, false,
+                null, 0, null);
+    }
+
+    /** WEB SEND CONTAINER(container) [CHANNEL(channel)] [MEDIATYPE(area)] ACTION(cvda) [STATUSCODE(n)] [STATUSTEXT(area)
+     *  [STATUSLEN(n)]] [SRVCONVERT | NOSRVCONVERT] (IBM CICS TS, EXEC CICS WEB SEND, server; register X37): the response body
+     *  is the container's data as it is now, recorded as WEB-SEND. IBM: "If the CONTAINER option is specified, CHANNEL is
+     *  optional" (omitted: the current channel); CONTAINERERR RESP2 2 (container not found), CHANNELERR RESP2 2 (channel not
+     *  found), INVREQ RESP2 145 (no CHANNEL and no current channel), INVREQ RESP2 150 (conversion requested of a DATATYPE BIT
+     *  container). Refused: an empty container, and a BIT container sent as it is (IBM does not say what an empty body
+     *  is, and a body of bytes is not compared as text); `cs` is the program's character set. */
+    public int[] webSendContainer(String channel, String container, String mediaType, int action, int status,
+                                  String statusText, int statusLength, int conv, java.nio.charset.Charset cs) {
+        CicsTask r = root();
+        if (r.httpRequest == null) {
+            throw refused("the HTTP request is not stated (withHttpRequest)");
+        }
+        if (r.webSent) {
+            throw refused("WEB SEND after a response was sent");
+        }
+        if ((statusText != null && statusLength == 0) || statusLength < -1) {
+            throw refused("WEB SEND FROMLENGTH or STATUSLEN not above zero");
+        }
+        if (statusText != null && statusLength > statusText.length()) {
+            throw refused("WEB SEND length beyond its area");
+        }
+        Channel ch = channel == null ? currentChannel : scopeChannel(channel, false);
+        String name = channelName(container, "container");
+        int[] pre = null;
+        Container k = null;
+        if (ch == null) {
+            pre = channel == null ? new int[] {16, 145} : new int[] {122, 2};
+        } else if ((k = ch.containers.get(name)) == null) {
+            pre = new int[] {110, 2};
+        } else if (conv != 0 && k.bit) {
+            pre = new int[] {16, 150};
+        } else if (k.data.length == 0) {
+            throw refused("WEB SEND of an empty container");
+        } else if (k.bit) {
+            throw refused("WEB SEND of a DATATYPE BIT container");
+        } else if (k.ccsid != REGION_CCSID) {
+            throw refused("WEB SEND of a container in a CCSID other than the region's");
+        }
+        return webSendBody(pre != null ? "" : new String(k.data, cs), mediaType, action, status, statusText, statusLength,
+                conv, false, null, 0, pre);
     }
 
     /** WEB SEND DOCTOKEN(token) [MEDIATYPE(area)] ACTION(cvda) [STATUSCODE(n)] [STATUSTEXT(area) [STATUSLEN(n)]] [SRVCONVERT |
@@ -1165,7 +1259,7 @@ public class CicsTask {
      *  document is no message body (ASSUMED: IBM does not say, and lists INVREQ RESP2 72 for 204 / 205 / 304 "with a body"), so
      *  a 204 may send one; `cs` is the program's character set. Refused as webSend does, and a token that names no document of the task. */
     public int[] webSendDocument(String doctoken, String mediaType, int action, int status, String statusText,
-                                 int statusLength, int conv, java.nio.charset.Charset cs) {
+                                 int statusLength, int conv, int docStatus, java.nio.charset.Charset cs) {
         CicsTask r = root();
         if (r.httpRequest == null) {
             throw refused("the HTTP request is not stated (withHttpRequest)");
@@ -1174,21 +1268,21 @@ public class CicsTask {
             throw refused("WEB SEND after a response was sent");
         }
         byte[] doc = r.documents.get(doctoken.stripTrailing());
-        if (doc == null) {
-            throw refused("WEB SEND DOCTOKEN of a document the task did not create");
-        }
         if ((statusText != null && statusLength == 0) || statusLength < -1) {
             throw refused("WEB SEND FROMLENGTH or STATUSLEN not above zero");
         }
         if (statusText != null && statusLength > statusText.length()) {
             throw refused("WEB SEND length beyond its area");
         }
-        return webSendBody(new String(doc, cs), mediaType, action, status,
-                statusText, statusLength, conv);
+        r.webDocToken = doctoken.stripTrailing();
+        return webSendBody(doc == null ? "" : new String(doc, cs), mediaType, action, status,
+                statusText, statusLength, conv, true, doc, docStatus, null);
     }
 
+    private String webDocToken;  // (the token webSendDocument is sending: webSendBody deletes its document on DOCDELETE)
+
     private int[] webSendBody(String body, String mediaType, int action, int status, String statusText,
-                              int statusLength, int conv) {
+                              int statusLength, int conv, boolean ofDocument, byte[] doc, int docStatus, int[] pre) {
         CicsTask r = root();
         if (status != -1 && (status < 100 || status > 599)) {
             throw refused("WEB SEND STATUSCODE outside 100-599");
@@ -1205,8 +1299,17 @@ public class CicsTask {
             throw refused("WEB SEND SRVCONVERT on a media type that is not text/*");
         }
         java.util.List<int[]> c = new java.util.ArrayList<>();
+        if (pre != null) {
+            c.add(pre);  // a container send's own conditions (CONTAINERERR / CHANNELERR / INVREQ 145 / 150)
+        }
+        if (ofDocument && doc == null) {
+            c.add(new int[] {13, 1});  // the document has not been created, or has been deleted, or the name is wrong
+        }
         if (action != 0 && action != 2 && action != 3) {
             c.add(new int[] {16, 11});
+        }
+        if (ofDocument && docStatus != 0 && docStatus != 295 && docStatus != 296) {
+            c.add(new int[] {16, 143});
         }
         if ((status == 204 || status == 205 || status == 304) && !body.isEmpty()) {
             c.add(new int[] {16, 72});
@@ -1218,13 +1321,27 @@ public class CicsTask {
             r.webSendFailed = true;
             return c.get(0);
         }
-        if (action != 2) {
-            throw refused("WEB SEND ACTION not IMMEDIATE");
+        boolean eventual = action != 2;  // (an omitted ACTION is EVENTUAL for a send that is not chunked: IBM)
+        if (!eventual && r.webHeld != null) {
+            throw refused("WEB SEND ACTION(IMMEDIATE) after an ACTION(EVENTUAL) send");
         }
         String st = statusText == null ? null : statusText.substring(0, statusLength < 0 ? statusText.length() : statusLength);
+        Object[] fields = {"status", status == -1 ? 200 : status, "statustext", st, "mediatype", mt, "body", body,
+                "action", eventual ? "EVENTUAL" : "IMMEDIATE", "resp", 0, "resp2", 0};
+        r.webSendFailed = false;
+        r.webIssued = true;
+        if (ofDocument && docStatus == 295) {
+            r.documents.remove(r.webDocToken);  // DOCDELETE: deleted once its contents are saved for sending
+        }
+        if (eventual) {
+            r.webHeld = fields;  // sent at the end of the task; a second send replaces it
+            r.webHeldDoc = ofDocument && docStatus != 295 ? doc.clone() : null;
+            r.webHeldToken = null;
+            return new int[] {0, 0};
+        }
         r.webSent = true;
-        event("WEB-SEND", "status", status == -1 ? 200 : status, "statustext", st, "mediatype", mt,
-                "body", body, "action", "IMMEDIATE", "resp", 0, "resp2", 0);
+        r.webHeldDoc = null;
+        event("WEB-SEND", fields);
         return new int[] {0, 0};
     }
 
@@ -1288,6 +1405,107 @@ public class CicsTask {
                 q.version(), q.path(), q.query());
     }
 
+    // #4972 (register X38): EXTRACT TCPIP, the connection the task was started on, which whoever runs the task STATES.
+    /** The TCP/IP connection the task serves: the client's and the server's IPv4 address (dotted decimal), the client's and
+     *  the server's name as the DNS knows it (null: the DNS knows none), the port that received the request and the SSL
+     *  type (SSL, NOSSL, CLIENTAUTH or ATTLSAWARE). EXTRACT TCPIP needs it stated (X38). */
+    public record Tcpip(String clientAddr, String clientName, String serverAddr, String serverName, int port,
+                        String sslType) {
+    }
+
+    private Tcpip tcpip;
+
+    /** The TCP/IP connection this task serves. Not stated (never called), EXTRACT TCPIP is refused. */
+    public CicsTask withTcpip(Tcpip connection) {
+        this.tcpip = connection;
+        return this;
+    }
+
+    /** EXTRACT TCPIP's outcome: RESP, RESP2 and, on NORMAL, what the stated connection holds (names null when the DNS
+     *  knows none); the address numbers are the IPv4 address as a signed fullword. */
+    public record TcpipExtracted(int resp, int resp2, String clientAddr, String clientName, String serverAddr,
+                                 String serverName, int clientNu, int serverNu, int port, int ssl) {
+    }
+
+    /** An IPv4 address in dotted decimal as a number (-1: it is not one; four decimal parts 0-255 without a leading zero). */
+    private static long ipv4Value(String addr) {
+        String[] part = addr == null ? new String[0] : addr.split("[.]", -1);
+        long value = 0;
+        if (part.length != 4) {
+            return -1;
+        }
+        for (String p : part) {
+            if (p.isEmpty() || p.length() > 3 || (p.length() > 1 && p.charAt(0) == '0')) {
+                return -1;
+            }
+            int n = 0;
+            for (int i = 0; i < p.length(); i++) {
+                int d = p.charAt(i) - '0';
+                if (d < 0 || d > 9) {
+                    return -1;
+                }
+                n = n * 10 + d;
+            }
+            if (n > 255) {
+                return -1;
+            }
+            value = value * 256 + n;
+        }
+        return value;
+    }
+
+    /** EXTRACT TCPIP (IBM CICS TS, EXEC CICS EXTRACT TCPIP; register X38) over the stated connection. Each *Length is the
+     *  option's value (null: the area is not asked for; 0 for an area asked for whose length option is missing) and each cap
+     *  its area's size. LENGERR RESP2 1 when an area asked for has a length not above zero. The client name: the DNS knows
+     *  none, length 0 and the area left alone (IBM: "zero if the DNS does not know the client"). Refused: no connection
+     *  stated, an address that is not IPv4 dotted decimal, an address number past a signed fullword, a server name the
+     *  connection does not state, a name or address longer than its length (LENGERR RESP2 3 / 4 / 6 / 7: IBM does not say what
+     *  the length or the area then holds), a length past its area, two conditions at once. */
+    public TcpipExtracted extractTcpip(Integer cAddrLength, int cAddrCap, Integer cNameLength, int cNameCap,
+                                       Integer sAddrLength, int sAddrCap, Integer sNameLength, int sNameCap,
+                                       boolean clientNu, boolean serverNu, boolean clientFamily, boolean serverFamily) {
+        CicsTask r = root();
+        if (r.tcpip == null) {
+            throw refused("the TCP/IP connection is not stated (withTcpip)");
+        }
+        Tcpip t = r.tcpip;
+        if ((cAddrLength != null && cAddrLength > cAddrCap) || (cNameLength != null && cNameLength > cNameCap)
+                || (sAddrLength != null && sAddrLength > sAddrCap) || (sNameLength != null && sNameLength > sNameCap)) {
+            throw refused("EXTRACT TCPIP length beyond its area");
+        }
+        long cNum = ipv4Value(t.clientAddr());
+        long sNum = ipv4Value(t.serverAddr());
+        if (((cAddrLength != null || clientNu || clientFamily) && cNum < 0)
+                || ((sAddrLength != null || serverNu || serverFamily) && sNum < 0)
+                || (clientNu && cNum > Integer.MAX_VALUE) || (serverNu && sNum > Integer.MAX_VALUE)) {
+            throw refused("EXTRACT TCPIP address");
+        }
+        if (sNameLength != null && t.serverName() == null) {
+            throw refused("EXTRACT TCPIP");
+        }
+        boolean badLength = (cAddrLength != null && cAddrLength <= 0) || (cNameLength != null && cNameLength <= 0)
+                || (sAddrLength != null && sAddrLength <= 0) || (sNameLength != null && sNameLength <= 0);
+        String clientName = t.clientName() == null ? "" : t.clientName();
+        String serverName = t.serverName() == null ? "" : t.serverName();
+        boolean tooSmall = (cAddrLength != null && cAddrLength > 0 && t.clientAddr().length() > cAddrLength)
+                || (cNameLength != null && cNameLength > 0 && clientName.length() > cNameLength)
+                || (sAddrLength != null && sAddrLength > 0 && t.serverAddr().length() > sAddrLength)
+                || (sNameLength != null && sNameLength > 0 && serverName.length() > sNameLength);
+        if (badLength && tooSmall) {
+            throw refused("EXTRACT TCPIP with more than one condition at once");
+        }
+        if (badLength) {
+            return new TcpipExtracted(22, 1, null, null, null, null, 0, 0, 0, 0);
+        }
+        if (tooSmall) {
+            throw refused("EXTRACT TCPIP");
+        }
+        int ssl = "SSL".equals(t.sslType()) ? 1030 : "NOSSL".equals(t.sslType()) ? 1031
+                : "CLIENTAUTH".equals(t.sslType()) ? 1032 : 1205;  // (ATTLSAWARE)
+        return new TcpipExtracted(0, 0, t.clientAddr(), clientName, t.serverAddr(), serverName, (int) cNum, (int) sNum,
+                t.port(), ssl);
+    }
+
     /** WEB RECEIVE's outcome: RESP, RESP2 and, on NORMAL / LENGERR 57, the body returned (at most MAXLENGTH) and its media
      *  type, else null. */
     public record WebReceived(int resp, int resp2, String body, String mediaType) {
@@ -1297,7 +1515,8 @@ public class CicsTask {
      *  CICS TS, EXEC CICS WEB RECEIVE; register X38). LENGERR 16 for a MAXLENGTH not above zero; a body longer than
      *  MAXLENGTH is cut there with LENGERR 57 (without NOTRUNCATE "the remainder was discarded"; LENGTH then holds the
      *  bytes returned). The body is in the program's characters whatever the conversion option (ASSUMED, as X37).
-     *  Refused: no request stated, a request with no body, a second receive, a MAXLENGTH past INTO. */
+     *  Recorded as WEB-RECEIVE (the request's media type and the body returned, null on LENGERR 16; RESP, RESP2) --
+     *  the crucible SPEC's event, so a runner can tell what the program read. Refused: no request stated, a request with no body, a second receive, a MAXLENGTH past INTO. */
     public WebReceived webReceive(int maxLength, int intoCap) {
         CicsTask r = statedRequest();
         HttpRequest q = r.httpRequest;
@@ -1311,11 +1530,235 @@ public class CicsTask {
             throw refused("WEB RECEIVE length beyond its area");
         }
         if (maxLength <= 0) {
+            event("WEB-RECEIVE", "mediatype", null, "body", null, "resp", 22, "resp2", 16);
             return new WebReceived(22, 16, null, null);
         }
         r.webReceived = true;
         boolean cut = q.body().length() > maxLength;
-        return new WebReceived(cut ? 22 : 0, cut ? 57 : 0, cut ? q.body().substring(0, maxLength) : q.body(), q.mediaType());
+        WebReceived got = new WebReceived(cut ? 22 : 0, cut ? 57 : 0, cut ? q.body().substring(0, maxLength) : q.body(), q.mediaType());
+        event("WEB-RECEIVE", "mediatype", got.mediaType(), "body", got.body(), "resp", got.resp(), "resp2", got.resp2());
+        return got;
+    }
+
+    // ---- #4771 (register X47): storage CICS acquires for the task, addressed by a pointer ----------------------------
+    /** One block of task storage: GETMAIN (kind 0), a WEB RECEIVE SET body (1), the bytes of a LINKAGE record whose
+     *  ADDRESS OF a pointer was set to (2), or a block FREEMAIN released (3). */
+    private static final class Block {
+        byte[] bytes;
+        int off;  // #4771: where the block starts in `bytes` (an item inside a larger storage)
+        int kind;
+        boolean bound;
+        String key;  // #5042: what a later command of the same kind ends (null: valid to the task's end)
+        boolean syncEnds;  // #5042: a SYNCPOINT ends it too
+        Block(byte[] bytes, int kind) {
+            this.bytes = bytes;
+            this.kind = kind;
+        }
+    }
+
+    private final java.util.Map<Long, Block> blocks = new java.util.HashMap<>();
+    private final java.util.IdentityHashMap<byte[], Long> addressed = new java.util.IdentityHashMap<>();
+    private final java.util.IdentityHashMap<byte[], java.util.Map<Integer, Long>> addressedAt = new java.util.IdentityHashMap<>();
+    private long nextBlock = 1;
+
+    private long newBlock(byte[] bytes, int kind) {
+        long h = root().nextBlock++;
+        root().blocks.put(h, new Block(bytes, kind));
+        return h;
+    }
+
+    /** GETMAIN SET(ptr) FLENGTH(n) | LENGTH(n) INITIMG(byte) (IBM CICS TS, EXEC CICS GETMAIN; register X47): {resp, resp2,
+     *  handle}. LENGERR 1 for FLENGTH below 1 or a LENGTH of zero (the handle is then 0, "ptr-ref is set to zero"). Refused:
+     *  a length above the limit (IBM's NOSTG), a LENGTH above 65520. `halfword`: the LENGTH form. */
+    public long[] getmain(long length, boolean halfword, int initimg) {
+        if (length < 1) {
+            return new long[] {22, 1, 0};
+        }
+        if (length > 268435456L || (halfword && length > 65520)) {
+            throw refused("GETMAIN length beyond the limit");
+        }
+        byte[] b = new byte[(int) length];
+        java.util.Arrays.fill(b, (byte) initimg);
+        return new long[] {0, 0, newBlock(b, 0)};
+    }
+
+    /** FREEMAIN DATAPOINTER(ptr) (IBM, EXEC CICS FREEMAIN; X47): INVREQ 1 for storage GETMAIN did not return (a null or
+     *  unknown pointer, a record's address). Refused: storage already freed, a WEB RECEIVE SET body. */
+    public int[] freemain(long handle) {
+        Block b = root().blocks.get(handle);
+        if (b == null || b.kind == 2) {
+            return new int[] {16, 1};
+        }
+        if (b.kind != 0) {
+            throw refused("FREEMAIN of storage already freed or received");
+        }
+        b.kind = 3;
+        return new int[] {0, 0};
+    }
+
+    /** The body WEB RECEIVE SET hands the program (X47): a new block, whose handle goes into the pointer. */
+    public long acquireReceived(byte[] body) {
+        if (body.length > 268435456L) {
+            throw refused("WEB RECEIVE SET body beyond the limit");
+        }
+        return newBlock(body.clone(), 1);
+    }
+
+    /** #5042 (X58): a SET(ptr) of a RECEIVE, RETRIEVE, READQ TS, GET CONTAINER or file read: a new block holding `data`.
+     *  `key` names what IBM says ends the pointer's validity ("valid until the next receive command", "until the next
+     *  READ command for the same file"): the next acquireSet of that key, or invalidateSet(key). A null key: valid to
+     *  the task's end. Refused: a block above 256 MiB. FREEMAIN of the block is refused like a WEB RECEIVE SET body. */
+    public long acquireSet(String key, byte[] data) {
+        return acquireSet(key, data, false);
+    }
+
+    /** As acquireSet; `syncEnds`: a SYNCPOINT ends the pointer too (IBM: a READ UPDATE SET's, a browse SET's). */
+    public long acquireSet(String key, byte[] data, boolean syncEnds) {
+        if (data.length > 268435456L) {
+            throw refused("SET(ptr) data beyond the limit");
+        }
+        invalidateSet(key);
+        long h = newBlock(data.clone(), 1);
+        root().blocks.get(h).key = key;
+        root().blocks.get(h).syncEnds = syncEnds;
+        return h;
+    }
+
+    /** #5042: ends the validity of the SET(ptr) blocks of `key`. IBM says only that the pointer is then "no longer valid", not
+     *  what the storage holds; here it reads as zeros through any record already addressing it, as in the stub (ASSUMED, X58:
+     *  a program must not read through a pointer past its validity). */
+    public void invalidateSet(String key) {
+        if (key == null) {
+            return;
+        }
+        for (Block b : root().blocks.values()) {
+            if (b.kind == 1 && key.equals(b.key)) {
+                java.util.Arrays.fill(b.bytes, (byte) 0);
+                b.key = null;
+            }
+        }
+    }
+
+    /** #5042: a SYNCPOINT ends the SET(ptr) blocks that IBM says it does (READ UPDATE SET, READNEXT / READPREV SET). */
+    public void invalidateSyncSet() {
+        for (Block b : root().blocks.values()) {
+            if (b.kind == 1 && b.key != null && b.syncEnds) {
+                java.util.Arrays.fill(b.bytes, (byte) 0);
+                b.key = null;
+            }
+        }
+    }
+
+    /** #5042: ends every SET(ptr) block whose key starts with `prefix` (DELETE CHANNEL: its containers' pointers). */
+    public void invalidateSetPrefix(String prefix) {
+        for (Block b : root().blocks.values()) {
+            if (b.kind == 1 && b.key != null && b.key.startsWith(prefix)) {
+                java.util.Arrays.fill(b.bytes, (byte) 0);
+                b.key = null;
+            }
+        }
+    }
+
+    /** #5042: whether a SET(ptr) block of `key` is still valid (a pointer the program may hold). */
+    public boolean heldSet(String key) {
+        for (Block b : root().blocks.values()) {
+            if (b.kind == 1 && key.equals(b.key)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** SET ptr TO ADDRESS OF record: the handle of the record's bytes (the same one each time). */
+    public long addressOf(byte[] record) {
+        return root().addressed.computeIfAbsent(record, r -> newBlock(r, 2));
+    }
+
+    /** SET ptr TO ADDRESS OF item (#4771): the handle of the bytes from `off` on (the same one each time); 0 is the record. */
+    public long addressOf(byte[] storage, int off) {
+        if (off == 0) {
+            return addressOf(storage);
+        }
+        return root().addressedAt.computeIfAbsent(storage, r -> new java.util.HashMap<>()).computeIfAbsent(off, o -> {
+            long h = newBlock(storage, 2);
+            root().blocks.get(h).off = o;
+            return h;
+        });
+    }
+
+    /** Where the block `handle` starts in its bytes (0 unless it is an item inside a larger storage). */
+    public int offsetAt(long handle) {
+        Block b = root().blocks.get(handle);
+        return b == null ? 0 : b.off;
+    }
+
+    /** `ptr-a = ptr-b` (#5042, X56): two pointers are equal when they address the same storage. One block can have two
+     *  handles (a record's ADDRESS OF beside the pointer it was set to), so the handles are equal, or both name blocks
+     *  of one byte array. NULL (0) equals only NULL. */
+    public boolean samePointer(long a, long b) {
+        if (a == b) {
+            return true;
+        }
+        Block x = root().blocks.get(a);
+        Block y = root().blocks.get(b);
+        return x != null && y != null && x.bytes == y.bytes && x.off == y.off;
+    }
+
+    /** SET ADDRESS OF record TO ptr: the bytes the pointer addresses, for a record of `need` bytes. A record longer than
+     *  its storage reads zero bytes past it (ASSUMED, X47: IBM's are bytes that are not the program's), the storage
+     *  growing once, before a second record is set to it. Refused: a null or unknown pointer, freed storage, a record's own
+     *  address that is shorter than the record, storage already addressed by a record that would need to grow. */
+    public byte[] storageAt(long handle, int need) {
+        Block b = root().blocks.get(handle);
+        if (b == null) {
+            throw refused("SET ADDRESS OF a null or unknown pointer");
+        }
+        if (b.kind == 3) {
+            throw refused("SET ADDRESS OF storage already freed");
+        }
+        if (b.bytes.length - b.off < need) {
+            if (b.kind == 2 || b.bound) {
+                throw refused("SET ADDRESS OF a record longer than its storage");
+            }
+            b.bytes = java.util.Arrays.copyOf(b.bytes, need);
+        }
+        b.bound = true;
+        return b.bytes;
+    }
+
+    // ---- #5119 (register X56): an OS/VS COBOL address held in data (a chained storage area's fullword) -------------------
+    private final java.util.List<Long> bllTokens = new java.util.ArrayList<>();
+
+    /** MOVE cell TO fullword: the token standing for the pointer's address (ASSUMED, X56: IBM's is the address itself). 0 for
+     *  NULL; the n-th distinct address moved into data is n * 65536 (ADD 4096 to one never makes another; at most 1525, so a
+     *  token keeps 8 digits). The stub's GGCBLLP numbers them alike. Refused: more addresses than that. */
+    public int bllToken(long handle) {
+        if (handle == 0) {
+            return 0;
+        }
+        java.util.List<Long> t = root().bllTokens;
+        int i = t.indexOf(handle);
+        if (i < 0) {
+            if (t.size() >= 1525) {
+                throw refused("more than 1525 BLL addresses held in data");
+            }
+            t.add(handle);
+            i = t.size() - 1;
+        }
+        return (i + 1) * 65536;
+    }
+
+    /** MOVE fullword TO cell: the handle a token stands for (0: NULL). Refused: a value no MOVE cell TO data gave (an
+     *  address computed in data). */
+    public long bllPointer(long token) {
+        java.util.List<Long> t = root().bllTokens;
+        if (token == 0) {
+            return 0;
+        }
+        if (token < 0 || token % 65536 != 0 || token / 65536 > t.size()) {
+            throw refused("an address in data that no BLL cell gave");
+        }
+        return t.get((int) (token / 65536) - 1);
     }
 
     /** WEB READ HTTPHEADER's outcome: RESP, RESP2 and, on NORMAL, the header's value, else null. */
@@ -1373,7 +1816,7 @@ public class CicsTask {
      *  conditions at once. */
     public int[] webWriteHeader(String name, int nameLength, String value, int valueLength) {
         CicsTask r = statedRequest();
-        if (r.webSent) {
+        if (r.webSent || r.webHeld != null) {
             throw refused("WEB WRITE HTTPHEADER after the response was sent");
         }
         java.util.List<int[]> c = new java.util.ArrayList<>();
@@ -1400,21 +1843,28 @@ public class CicsTask {
         return new int[] {0, 0};
     }
 
-    /** WEB RETRIEVE DOCTOKEN(area) (IBM CICS TS, EXEC CICS WEB RETRIEVE; register X41): the document of the last WEB SEND,
-     *  available only for a document sent with ACTION(EVENTUAL). INVREQ RESP2 2: no WEB SEND has been issued; NOTFND RESP2 1:
-     *  the last WEB SEND was not an EVENTUAL document send (every send this runtime accepts is IMMEDIATE, so a send that
-     *  happened is always NOTFND 1). DOCTOKEN is never written: the NORMAL outcome needs an EVENTUAL send, which WEB SEND
-     *  refuses. Refused: no request stated (IBM's INVREQ RESP2 1, a non-web task, cannot be told from it), a retrieve
-     *  after a WEB SEND that ended in a condition (IBM does not say whether it was issued). */
-    public int[] webRetrieve() {
+    /** WEB RETRIEVE DOCTOKEN(area) (IBM CICS TS, EXEC CICS WEB RETRIEVE; register X41): the document of the last WEB SEND.
+     *  NORMAL (resp 0, the DOCTOKEN): the last WEB SEND was a document send with ACTION(EVENTUAL) and no DOCDELETE; the token
+     *  names a copy of the document as it was sent (IBM: later changes are not in it; ASSUMED: a new document of the task,
+     *  the same token for every retrieve of that send). INVREQ RESP2 2: no WEB SEND has been issued; NOTFND RESP2 1: the last
+     *  WEB SEND was DOCDELETE or not an EVENTUAL document send. Refused: no request stated (IBM's INVREQ RESP2 1, a non-web
+     *  task, cannot be told from it), a retrieve after a WEB SEND that ended in a condition (IBM does not say whether it was
+     *  issued). The outcome is a DocumentCreated (resp, resp2, the token: null unless NORMAL). */
+    public DocumentCreated webRetrieve() {
         CicsTask r = statedRequest();
-        if (r.webSent) {
-            return new int[] {13, 1};
-        }
         if (r.webSendFailed) {
             throw refused("WEB RETRIEVE after a WEB SEND that ended in a condition");
         }
-        return new int[] {16, 2};
+        if (!r.webIssued) {
+            return new DocumentCreated(16, 2, null);
+        }
+        if (r.webHeldDoc == null) {
+            return new DocumentCreated(13, 1, null);
+        }
+        if (r.webHeldToken == null) {
+            r.webHeldToken = newDocument(r.webHeldDoc).doctoken();
+        }
+        return new DocumentCreated(0, 0, r.webHeldToken);
     }
 
     // #4940 (register X38): WEB READ FORMFIELD / QUERYPARM and the WEB browse forms (STARTBROWSE / READNEXT / ENDBROWSE of
@@ -1760,16 +2210,425 @@ public class CicsTask {
         return this;
     }
 
+    /** Each transient-data queue's TYPE ("" when the CSD states none): INTRA, EXTRA, INDIRECT or REMOTE (#5079, X57).
+     *  Without it, a queue is intrapartition. */
+    public CicsTask withTdQueueTypes(java.util.Map<String, String> types) {
+        this.tdTypes = types;
+        return this;
+    }
+
+    /** Each queue's CSD attributes beyond its TYPE (#5168, X61), as queue, key, value triples: RECOVSTATUS, TYPEFILE, OPENTIME,
+     *  INDIRECTNAME, TRIGGERLEVEL, TRANSID. A queue the case's definition does not state one for has none. */
+    public CicsTask withTdQueueAttributes(String... triples) {
+        java.util.Map<String, java.util.Map<String, String>> out = new java.util.HashMap<>();
+        for (int i = 0; i + 2 < triples.length; i += 3) {
+            out.computeIfAbsent(triples[i], k -> new java.util.HashMap<>()).put(triples[i + 1], triples[i + 2]);
+        }
+        this.tdAttrs = out;
+        return this;
+    }
+
+    private String tdAttr(String q, String key) {
+        CicsTask root = root();
+        return root.tdAttrs == null || !root.tdAttrs.containsKey(q) ? null : root.tdAttrs.get(q).get(key);
+    }
+
+    /** The queue's kind: 0 the CSD does not define it, 1 intrapartition (TYPE INTRA, or no types given), 2 extrapartition,
+     *  3 any other TYPE or none stated -- a queue READQ TD / DELETEQ TD do not model. */
+    private int tdKind(String q) {
+        CicsTask root = root();
+        if (root.tdQueues != null && !root.tdQueues.contains(q)) {
+            return 0;
+        }
+        if (root.tdTypes == null) {
+            return 1;
+        }
+        String type = root.tdTypes.getOrDefault(q, "");
+        return type.equals("INTRA") ? 1 : type.equals("EXTRA") ? 2 : 3;
+    }
+
+    /** #5168 (X61): an INDIRECT queue routes to the queue its INDIRECTNAME names (which may itself be indirect); the queue
+     *  that holds the records. Refused by name: no INDIRECTNAME, a target the CSD does not define, a chain that loops. */
+    private String tdResolve(String q) {
+        CicsTask root = root();
+        String at = q;
+        for (int hops = 0; root.tdTypes != null && "INDIRECT".equals(root.tdTypes.get(at)); hops++) {
+            String next = tdAttr(at, "INDIRECTNAME");
+            if (next == null) {
+                throw new UnsupportedOperationException("an INDIRECT TD queue without INDIRECTNAME: not modelled");
+            }
+            if (hops >= 8) {
+                throw new UnsupportedOperationException("a chain of INDIRECT TD queues that loops: not modelled");
+            }
+            if (!root.tdTypes.containsKey(next)) {
+                throw new UnsupportedOperationException("an INDIRECT TD queue whose target the CSD does not define: not modelled");
+            }
+            at = next;
+        }
+        return at;
+    }
+
+    /** #5168 (X61): an extrapartition queue's state: 0 open for input, 1 open for output, 2 closed (OPENTIME DEFERRED: "the data
+     *  set remains closed until you indicate that you want to open it"; INITIAL, or none stated: ASSUMED, open). Refused: a
+     *  TYPEFILE other than INPUT / OUTPUT. */
+    private int tdExtraState(String q) {
+        String file = tdAttr(q, "TYPEFILE");
+        if (!"INPUT".equals(file) && !"OUTPUT".equals(file)) {
+            throw new UnsupportedOperationException("READQ TD of an extrapartition queue with no TYPEFILE INPUT / OUTPUT: not modelled");
+        }
+        return tdExtraClosed(q) ? 2 : file.equals("INPUT") ? 0 : 1;
+    }
+
+    /** #5168 round 3 (X61): true when an extrapartition queue's data set is closed: the state a SET TDQUEUE OPENSTATUS left, else
+     *  OPENTIME DEFERRED; INITIAL, or none stated (ASSUMED), is open. */
+    private boolean tdExtraClosed(String q) {
+        Boolean set = root().tempStorage.tdOpen.get(q);
+        return set != null ? !set : "DEFERRED".equals(tdAttr(q, "OPENTIME"));
+    }
+
+    /** #5168 (X61): RECOVSTATUS. LOGICAL: the queue as it was at the end of the last unit of work comes back on a rollback (the
+     *  first read, write or delete since the last SYNCPOINT saves it). NO, or none stated (ASSUMED): committed at once, as X57.
+     *  PHYSICAL: a rollback after touching one is refused by name. */
+    private void tdTouch(String q) {
+        CicsTask root = root();
+        String recov = tdAttr(q, "RECOVSTATUS");
+        if ("LOGICAL".equals(recov)) {
+            java.util.ArrayDeque<String> now = tempStorage.td.get(q);
+            root.tdUow.computeIfAbsent(q, k -> now == null ? new java.util.ArrayDeque<>() : new java.util.ArrayDeque<>(now));
+        } else if ("PHYSICAL".equals(recov)) {
+            root.tdPhysical.add(q);
+        }
+    }
+
+    /** #4892 (register W5): a resource manager the runner joins to the task -- cobolrt.mq's queue manager ("mq") --
+     *  found again by resource(name), and told as the task's unit of work ends: SYNCPOINT (false); SYNCPOINT ROLLBACK
+     *  and the backout of an abend that ends the task (true), as the stub's uow_end tells tests/equivalence/mq/ggmq.c. */
+    public CicsTask withResource(String name, Object manager, Consumer<Boolean> uowEnd) {
+        root().resources.put(name, manager);
+        if (uowEnd != null) {
+            root().uowParticipants.add(uowEnd);
+        }
+        return this;
+    }
+
+    /** #4892: the resource manager joined under `name`, or null. */
+    public Object resource(String name) {
+        return root().resources.get(name);
+    }
+
+    /** #4892: an event a resource manager records in the task's stream (an MQI call, as ggmq.c's ggcics_event). */
+    public void resourceEvent(String kind, Object... kv) {
+        event(kind, kv);
+    }
+
+    private void resourceUowEnd(boolean rollback) {
+        for (Consumer<Boolean> p : root().uowParticipants) {
+            p.accept(rollback);
+        }
+    }
+
+    /** The unit of work ends (#5168): committed, or backed out. */
+    private void tdUowEnd(boolean rollback) {
+        CicsTask root = root();
+        if (rollback && !root.tdPhysical.isEmpty()) {
+            throw new UnsupportedOperationException("SYNCPOINT ROLLBACK after a READQ / WRITEQ / DELETEQ TD of a PHYSICALLY "
+                    + "recoverable queue: not modelled");
+        }
+        if (rollback) {
+            root.tdUow.forEach((q, saved) -> {
+                if (saved.isEmpty()) {
+                    tempStorage.td.remove(q);
+                } else {
+                    tempStorage.td.put(q, new java.util.ArrayDeque<>(saved));
+                }
+            });
+        }
+        root.tdUow.clear();
+        root.tdPhysical.clear();
+    }
+
+    /** #5168 (X61): WRITEQ TD to an extrapartition queue: NOTOPEN (19) when closed (OPENTIME DEFERRED), INVREQ (16) when open for
+     *  input; a queue with no TYPEFILE (or RDBACK) is taken as open for output (ASSUMED), as before. */
+    private int tdExtraWriteResp(String q) {
+        if (tdExtraClosed(q)) {
+            return 19;
+        }
+        return "INPUT".equals(tdAttr(q, "TYPEFILE")) ? 16 : 0;
+    }
+
+    /** #5168 round 5 (X66): true when SET TDQUEUE ENABLESTATUS(DISABLED) left the queue disabled ("The queue cannot be accessed by
+     *  applications"): READQ, WRITEQ and DELETEQ TD then answer DISABLED (84). A queue is ENABLED until a SET says otherwise
+     *  (ASSUMED: IBM states no default); the state outlives the task. */
+    private boolean tdDisabled(String q) {
+        return root().tempStorage.tdDisabled.contains(q);
+    }
+
+    /** The queue's TYPE CVDA for INQUIRE TDQUEUE: INTRA 222, EXTRA 221, INDIRECT 122, REMOTE 4; a queue with no TYPE stated is refused. */
+    private int tdTypeCvda(String q, int kind) {
+        if (kind == 1) {
+            return 222;
+        }
+        if (kind == 2) {
+            return 221;
+        }
+        String type = root().tdTypes == null ? "" : root().tdTypes.getOrDefault(q, "");
+        if (type.equals("INDIRECT")) {
+            return 122;
+        }
+        if (type.equals("REMOTE")) {
+            return 4;
+        }
+        throw new UnsupportedOperationException("INQUIRE TDQUEUE of a queue with no TYPE stated: not modelled");
+    }
+
+    /** SET TDQUEUE(q) OPENSTATUS(cvda) (#5168 round 3, X61; IBM CICS TS 6.x SET TDQUEUE): an extrapartition queue's data set "is to
+     *  be opened" (OPEN 18) or "closed" (CLOSED 19); the state replaces OPENTIME and outlives the task. Returns {RESP, RESP2}:
+     *  QIDERR (44) RESP2 1, INVREQ (16) RESP2 9 for an intrapartition queue, RESP2 8 for an invalid CVDA. Setting the state a queue is
+     *  in is NORMAL (ASSUMED). Refused: an INDIRECT / REMOTE queue, an invalid CVDA on a queue that is not extrapartition (IBM does
+     *  not order the conditions), OPEN with no TYPEFILE INPUT / OUTPUT, OPEN of an input queue already read, RESP2 16 (the DDNAME
+     *  is taken as found). */
+    public int[] setTdQueueOpenStatus(String queue, long cvda) {
+        String q = queue.strip();
+        int kind = tdKind(q);
+        boolean valid = cvda == 18 || cvda == 19;
+        if (!valid && kind != 2) {
+            throw new UnsupportedOperationException("SET TDQUEUE OPENSTATUS with an invalid CVDA on a queue that is not extrapartition: "
+                    + "IBM does not say which condition comes first: not modelled");
+        }
+        if (kind == 0) {
+            return new int[] {44, 1};
+        }
+        if (kind == 1) {
+            return new int[] {16, 9};
+        }
+        if (kind == 3) {
+            throw new UnsupportedOperationException("SET TDQUEUE OPENSTATUS of an INDIRECT or REMOTE queue: not modelled");
+        }
+        if (!valid) {
+            return new int[] {16, 8};
+        }
+        if (cvda == 18) {
+            String file = tdAttr(q, "TYPEFILE");
+            if (!"INPUT".equals(file) && !"OUTPUT".equals(file)) {
+                throw new UnsupportedOperationException("SET TDQUEUE OPENSTATUS(OPEN) of an extrapartition queue with no TYPEFILE "
+                        + "INPUT / OUTPUT: not modelled");
+            }
+            if ("INPUT".equals(file) && root().tempStorage.tdRead.contains(q)) {
+                throw new UnsupportedOperationException("SET TDQUEUE OPENSTATUS(OPEN) of an input queue that has been read: reopening "
+                        + "restarts the data set: not modelled");
+            }
+        }
+        root().tempStorage.tdOpen.put(q, cvda == 18);
+        return new int[] {0, 0};
+    }
+
+    /** INQUIRE TDQUEUE(q) OPENSTATUS(area) TYPE(area) (#5168 round 3, X61): {RESP, RESP2, OPENSTATUS CVDA, TYPE CVDA}. QIDERR (44)
+     *  RESP2 1 "the named queue cannot be found". OPENSTATUS is OPEN 18 / CLOSED 19 for an extrapartition queue, NOTAPPLIC 1
+     *  ("the queue is not extrapartition") for the others; a queue with no TYPE stated is refused for either option. */
+    public int[] inquireTdQueue(String queue, boolean openStatus, boolean type) {
+        return inquireTdQueue(queue, openStatus, type, false);
+    }
+
+    /** INQUIRE TDQUEUE ... ENABLESTATUS (#5168 round 5, X66): {RESP, RESP2, OPENSTATUS CVDA, TYPE CVDA, ENABLESTATUS CVDA}; ENABLED 23
+     *  or DISABLED 24, the state SET TDQUEUE ENABLESTATUS left (ENABLED before any). An INDIRECT queue answers about itself. */
+    public int[] inquireTdQueue(String queue, boolean openStatus, boolean type, boolean enableStatus) {
+        return inquireTdQueue(queue, openStatus, type, enableStatus, false, false, false);
+    }
+
+    /** INQUIRE TDQUEUE ... TRIGGERLEVEL / RECOVSTATUS / TRANSID (#5168 round 6, X66): {RESP, RESP2, OPENSTATUS, TYPE, ENABLESTATUS,
+     *  TRIGGERLEVEL, RECOVSTATUS}; the TRANSID text is tdTransid(queue). The queue's definition: RECOVSTATUS is LOGICAL 216,
+     *  PHYSICAL 215 or NOTRECOVABLE 30 for an intrapartition queue (NOTRECOVABLE when none stated: X61 assumption 2), NOTAPPLIC 1
+     *  "the queue is not intrapartition" for the others; TRIGGERLEVEL (1 when none stated: IBM's default) and TRANSID (blanks when
+     *  none stated: ASSUMED) are those of an intrapartition queue, and are refused for any other (IBM names no value). */
+    public int[] inquireTdQueue(String queue, boolean openStatus, boolean type, boolean enableStatus, boolean trigger,
+            boolean recov, boolean transid) {
+        String q = queue.strip();
+        int kind = tdKind(q);
+        if (kind == 0) {
+            return new int[] {44, 1, 0, 0, 0, 0, 0};
+        }
+        if ((trigger || transid) && kind != 1) {
+            tdTypeCvda(q, kind);
+            throw new UnsupportedOperationException("INQUIRE TDQUEUE TRIGGERLEVEL / TRANSID of a queue that is not intrapartition: not modelled");
+        }
+        int level = 0;
+        if (trigger) {
+            level = tdTriggerLevel(q);
+        }
+        int recovCvda = 0;
+        if (recov) {
+            String stated = kind == 1 ? tdAttr(q, "RECOVSTATUS") : null;
+            if (kind != 1) {
+                tdTypeCvda(q, kind);
+            }
+            recovCvda = kind != 1 ? 1 : "LOGICAL".equals(stated) ? 216 : "PHYSICAL".equals(stated) ? 215 : 30;
+        }
+        int typeCvda = type ? tdTypeCvda(q, kind) : 0;
+        int status = 0;
+        if (openStatus) {
+            if (kind == 2) {
+                status = tdExtraClosed(q) ? 19 : 18;
+            } else {
+                tdTypeCvda(q, kind);
+                status = 1;
+            }
+        }
+        return new int[] {0, 0, status, typeCvda, enableStatus ? (tdDisabled(q) ? 24 : 23) : 0, level, recovCvda};
+    }
+
+    /** A queue's TRIGGERLEVEL: what SET TDQUEUE TRIGGERLEVEL left, else the definition's, else 1 (IBM's default). #5168 round 7, X66. */
+    private int tdTriggerLevel(String q) {
+        Integer set = root().tempStorage.tdTrigger.get(q);
+        if (set != null) {
+            return set;
+        }
+        String stated = tdAttr(q, "TRIGGERLEVEL");
+        return stated == null ? 1 : Integer.parseInt(stated.strip());
+    }
+
+    /** SET TDQUEUE(q) TRIGGERLEVEL(n) (#5168 round 7, X66; IBM CICS TS 6.x SET TDQUEUE, intrapartition queues only): the number of
+     *  records that starts the queue's ATI transaction; 0 turns automatic task initiation off. Returns {RESP, RESP2}: QIDERR (44)
+     *  RESP2 1. Not a unit-of-work resource (a rollback or an abend keeps it). Refused: a queue that is not intrapartition (IBM names
+     *  no condition) and a level below zero. */
+    public int[] setTdQueueTriggerLevel(String queue, long level) {
+        String q = queue.strip();
+        int kind = tdKind(q);
+        if (kind == 0) {
+            return new int[] {44, 1};
+        }
+        if (kind != 1 || level < 0 || level > Integer.MAX_VALUE) {
+            throw new UnsupportedOperationException("SET TDQUEUE TRIGGERLEVEL of a queue that is not intrapartition, or below zero: not modelled");
+        }
+        root().tempStorage.tdTrigger.put(q, (int) level);
+        return new int[] {0, 0};
+    }
+
+    /** The TRANSID a queue's definition states (blanks when none): the text INQUIRE TDQUEUE TRANSID stores (#5168 round 6, X66). */
+    public String tdTransid(String queue) {
+        String stated = tdAttr(queue.strip(), "TRANSID");
+        return stated == null ? "" : stated;
+    }
+
+    /** SET TDQUEUE(q) ENABLESTATUS(cvda) (#5168 round 5, X66; IBM CICS TS 6.x SET TDQUEUE): ENABLED (23) lets applications access
+     *  the queue, DISABLED (24) does not (READQ / WRITEQ / DELETEQ TD then answer DISABLED). For an extrapartition queue only its
+     *  availability changes, the data set is not opened or closed. Returns {RESP, RESP2}: QIDERR (44) RESP2 1, INVREQ (16) RESP2 10
+     *  for an invalid CVDA. Setting the state a queue is in is NORMAL (ASSUMED). Refused: an invalid CVDA on a queue the CSD does
+     *  not define (IBM does not order the two), an INDIRECT / REMOTE queue (its target is what a command reaches). RESP2 30 / 31 / 35
+     *  / 40 (disable pending, in doubt, CXRF) do not arise: one task, no recovery. */
+    public int[] setTdQueueEnableStatus(String queue, long cvda) {
+        String q = queue.strip();
+        int kind = tdKind(q);
+        boolean valid = cvda == 23 || cvda == 24;
+        if (kind == 0) {
+            if (!valid) {
+                throw new UnsupportedOperationException("SET TDQUEUE ENABLESTATUS with an invalid CVDA on a queue the CSD does not define: "
+                        + "IBM does not say which condition comes first: not modelled");
+            }
+            return new int[] {44, 1};
+        }
+        if (kind == 3) {
+            throw new UnsupportedOperationException("SET TDQUEUE ENABLESTATUS of an INDIRECT or REMOTE queue: not modelled");
+        }
+        if (!valid) {
+            return new int[] {16, 10};
+        }
+        if (cvda == 24) {
+            root().tempStorage.tdDisabled.add(q);
+        } else {
+            root().tempStorage.tdDisabled.remove(q);
+        }
+        return new int[] {0, 0};
+    }
+
     /** WRITEQ TD QUEUE(queue) FROM(record) (IBM CICS TS): one record on a transient-data queue -- recorded, with the
-     *  record's text, and compared (CardDemo's CORPT00C submits JCL through JOBS). QIDERR (44) for a queue the
-     *  CSD does not define, or the condition the harness planned; then nothing is written. */
+     *  record's text, and compared (CardDemo's CORPT00C submits JCL through JOBS) -- and appended to an intrapartition
+     *  queue for a READQ TD to read (#5079). QIDERR (44) for a queue the CSD does not define, or the condition the
+     *  harness planned; then nothing is written. #5168: an INDIRECT queue holds its records on its target; a write that
+     *  brings a queue with a TRANSID to its TRIGGERLEVEL (default 1; 0: ATI off) is refused (ATI is not modelled). */
     public int writeqTd(String queue, String record) {
         String q = queue.strip();
+        String t = tdResolve(q);
+        int kind = tdKind(t);
         int[] planned = root().injected("WRITEQ-TD", q);
-        int resp = planned != null ? planned[0]
-                : root().tdQueues != null && !root().tdQueues.contains(q) ? 44 : 0;
+        int resp = planned != null ? planned[0] : kind == 0 ? 44 : tdDisabled(t) ? 84 : kind == 2 ? tdExtraWriteResp(t) : 0;
         event("WRITEQ-TD", "queue", q, "text", resp == 0 ? record : null, "resp", resp);
+        if (resp == 0 && kind == 1) {
+            tdTouch(t);
+            if (tdAttr(t, "TRANSID") != null) {
+                int level = tdTriggerLevel(t);
+                java.util.ArrayDeque<String> held = tempStorage.td.get(t);
+                int after = (held == null ? 0 : held.size()) + 1;
+                if (level > 0 && after >= level) {
+                    throw new UnsupportedOperationException("WRITEQ TD to a queue that reaches its TRIGGERLEVEL: automatic task "
+                            + "initiation is not modelled");
+                }
+            }
+            tempStorage.td.computeIfAbsent(t, k -> new java.util.ArrayDeque<>()).addLast(record);
+        }
         return resp;
+    }
+
+    /** READQ TD QUEUE(queue) INTO LENGTH(maxLength) (#5079, IBM EXEC CICS READQ TD, X57): a destructive read, first in
+     *  first out. QIDERR when the CSD does not define the queue; QZERO when it holds no record; LENGERR for a negative
+     *  maxLength (nothing is read) or a record longer than maxLength (the record is read, so lost, and the result holds
+     *  its first maxLength characters); the result's length is the record's own. #5168 (X61): an extrapartition queue is
+     *  NOTOPEN when closed and INVREQ when open for output; an input one reads like an intrapartition queue. */
+    public TdResult readqTd(String queue, int maxLength) {
+        String q = queue.strip();
+        String t = tdResolve(q);
+        int kind = tdKind(t);
+        if (kind == 3) {
+            throw new UnsupportedOperationException("READQ TD of a queue whose TYPE is not INTRA or EXTRA: not modelled");
+        }
+        int state = kind == 2 ? tdExtraState(t) : 0;
+        java.util.ArrayDeque<String> records = tempStorage.td.get(t);
+        String resp = kind == 0 ? "QIDERR" : tdDisabled(t) ? "DISABLED" : state == 2 ? "NOTOPEN" : state == 1 ? "INVREQ" : maxLength < 0 ? "LENGERR"
+                : records == null || records.isEmpty() ? "QZERO" : "NORMAL";
+        String data = null;
+        int length = -1;
+        boolean readable = kind != 0 && state == 0 && maxLength >= 0 && !resp.equals("DISABLED");
+        if (readable) {
+            tdTouch(t);
+        }
+        if (readable && records != null && !records.isEmpty()) {
+            String record = records.removeFirst();
+            data = record.length() > maxLength ? record.substring(0, maxLength) : record;
+            length = record.length();
+            if (kind == 2) {
+                tempStorage.tdRead.add(t);
+            }
+            resp = record.length() > maxLength ? "LENGERR" : "NORMAL";
+        } else if (resp.equals("LENGERR")) {
+            data = "";
+        }
+        event("READQ-TD", "queue", q, "resp", resp, "data", data);
+        return new TdResult(CicsSpec.resp(resp), length, data);
+    }
+
+    /** DELETEQ TD QUEUE(queue) (#5079, IBM EXEC CICS DELETEQ TD, X57): every record of an intrapartition queue. QIDERR
+     *  (44) when the CSD does not define it, INVREQ (16) for an extrapartition queue. Returns RESP (RESP2 is 0). */
+    public int deleteqTd(String queue) {
+        String t = tdResolve(queue.strip());
+        int kind = tdKind(t);
+        if (kind == 3) {
+            throw new UnsupportedOperationException("DELETEQ TD of a queue whose TYPE is not INTRA or EXTRA: not modelled");
+        }
+        if (kind == 0) {
+            return 44;
+        }
+        if (tdDisabled(t)) {
+            return 84;
+        }
+        if (kind != 1) {
+            return 16;
+        }
+        tdTouch(t);
+        tempStorage.td.remove(t);
+        return 0;
+    }
+
+    /** A READQ TD's outcome: RESP, the record's own length (-1 when none was read) and the text moved INTO (null when none). */
+    public record TdResult(int resp, int length, String data) {
     }
 
     /** EXEC CICS FORMATTIME's condition (IBM): INVREQ (16) RESP2 1 when the ABSTIME value is less than zero ("or not in
@@ -1799,6 +2658,7 @@ public class CicsTask {
         LocalDateTime t = ABSTIME_EPOCH.plus(java.time.Duration.ofMillis(abstime));
         String y4 = String.format(java.util.Locale.ROOT, "%04d", t.getYear()), y2 = y4.substring(2);
         String m = String.format(java.util.Locale.ROOT, "%02d", t.getMonthValue()), d = String.format(java.util.Locale.ROOT, "%02d", t.getDayOfMonth());
+        String doy = String.format(java.util.Locale.ROOT, "%03d", t.getDayOfYear());
         List<String> parts = switch (form) {
             case "YYYYMMDD" -> List.of(y4, m, d);
             case "MMDDYYYY" -> List.of(m, d, y4);
@@ -1806,9 +2666,30 @@ public class CicsTask {
             case "YYMMDD" -> List.of(y2, m, d);
             case "MMDDYY" -> List.of(m, d, y2);
             case "DDMMYY" -> List.of(d, m, y2);
+            case "YYDDD" -> List.of(y2, doy);
+            case "YYYYDDD" -> List.of(y4, doy);
+            case "YYDDMM" -> List.of(y2, d, m);
+            case "YYYYDDMM" -> List.of(y4, d, m);
             default -> throw new IllegalArgumentException("FORMATTIME " + form + " is not modelled");
         };
         return String.join(datesep, parts);
+    }
+
+    /** FORMATTIME ABSTIME(t) DAYCOUNT / DAYOFMONTH / DAYOFWEEK / MONTHOFYEAR / YEAR / MILLISECONDS: the binary integer IBM
+     *  describes. DAYCOUNT "the number of days since 1 January 1900 (day 1)": 1 January 1900 is day 1. DAYOFWEEK: Sunday=0,
+     *  Saturday=6. MILLISECONDS: the milliseconds in the current second, 0 - 999. */
+    public static long formatNumber(long abstime, String form) {
+        refuseNegativeAbstime(abstime);
+        LocalDateTime t = ABSTIME_EPOCH.plus(java.time.Duration.ofMillis(abstime));
+        return switch (form) {
+            case "DAYCOUNT" -> abstime / 86_400_000L + 1;
+            case "DAYOFMONTH" -> t.getDayOfMonth();
+            case "DAYOFWEEK" -> t.getDayOfWeek().getValue() % 7;
+            case "MONTHOFYEAR" -> t.getMonthValue();
+            case "YEAR" -> t.getYear();
+            case "MILLISECONDS" -> abstime % 1000;
+            default -> throw new IllegalArgumentException("FORMATTIME " + form + " is not modelled");
+        };
     }
 
     /** FORMATTIME ABSTIME(t) TIME: hhmmss of t, joined by `timesep` ("" for no TIMESEP; TIMESEP alone is ":"). */
@@ -1822,7 +2703,13 @@ public class CicsTask {
     /** The terminal the task is attached to (#3989): EIBTRMID, or null for a task no terminal started. */
     public CicsTask withTermid(String termid) {
         this.termid = termid;
+        this.termidStated = true;
         return this;
+    }
+
+    /** #5126: withTermid for a harness that may not state a terminal (a case giving none or ""): leaves it unstated. */
+    public CicsTask withTermidIfStated(String termid) {
+        return termid == null || termid.isEmpty() ? this : withTermid(termid);
     }
 
     /** EIBTRMID (#3989): the task's terminal, the same at every LINK / XCTL level; null for a non-terminal task. */
@@ -1924,6 +2811,7 @@ public class CicsTask {
         private Integer hours;
         private Integer minutes;
         private Integer seconds;
+        private String channel;
 
         private StartRequest(CicsTask task, String transid) {
             this.task = task;
@@ -2007,6 +2895,13 @@ public class CicsTask {
             return this;
         }
 
+        /** #4950: CHANNEL(name): the started task gets a copy of the channel's containers as they are at the START,
+         *  as its current channel (IBM, EXEC CICS START CHANNEL). */
+        public StartRequest channel(String channel) {
+            this.channel = channel;
+            return this;
+        }
+
         public StartResult issue() {
             return task.issueStart(this);
         }
@@ -2062,7 +2957,24 @@ public class CicsTask {
             }
         }
         int range = resp2;
-        if (range != 0) {
+        String chan = q.channel == null ? null : handedChannel(q.channel);  // #4950: START CHANNEL
+        Channel copy = null;
+        if (q.channel != null && chan == null && programs != null && !programs.transaction(q.transid)) {
+            throw new UnsupportedOperationException("START TRANSID(" + q.transid + ") of a transaction not defined, "
+                    + "with an incorrect CHANNEL name: which condition IBM raises is not documented, not modelled");
+        }
+        if (chan != null) {
+            Channel ch = scopeHanded(chan, false);
+            if (ch == null) {
+                throw new UnsupportedOperationException("START CHANNEL(" + chan + ") of a channel not in the "
+                        + "program's scope: not modelled");
+            }
+            copy = copyOf(ch, chan);
+        }
+        if (q.channel != null && chan == null) {
+            resp = "CHANNELERR";
+            resp2 = 1;
+        } else if (range != 0) {
             resp = "INVREQ";
         } else if (q.from != null && q.from.length < 1) {  // IBM: LENGERR "if LENGTH is not greater than zero"
             resp = "LENGERR";
@@ -2111,12 +3023,25 @@ public class CicsTask {
         if (q.queue != null) {
             e.put("queue", q.queue);
         }
+        if (copy != null && "NORMAL".equals(resp)) {  // #4950: the copy the started task gets, its containers' bytes
+            Map<String, String> data = new LinkedHashMap<>();
+            copy.containers().forEach((n, v) -> data.put(n, java.util.HexFormat.of().withUpperCase().formatHex(v)));
+            Map<String, Object> handed = new LinkedHashMap<>();
+            handed.put("name", chan);
+            handed.put("containers", data);
+            e.put("channel", handed);
+        }
         e.put("protect", q.protect);
         e.put("resp", resp);
         if (range != 0) {
             e.put("resp2", range);  // (SPEC 6.2: where IBM documents it -- INVREQ RESP2 4 / 5 / 6)
+        } else if ("CHANNELERR".equals(resp)) {
+            e.put("resp2", 1);
         }
         e.put("expires", at == null ? null : at.format(ISO));
+        if ("NORMAL".equals(resp)) {
+            task.releasePost();  // #5079 (X63): IBM, POST: a local START ends the POST's timer-event control area
+        }
         add(e);
         return new StartResult(resp, at, resp2);
     }
@@ -2138,31 +3063,42 @@ public class CicsTask {
     /** #4270 slice 2: RUN TRANSID(transid) CHILD (IBM CICS TS, EXEC CICS RUN TRANSID): it "starts a task on the
      *  local system ... The started task (child task) runs asynchronously with the starting task", and CICS places
      *  "the child token that represents the child task" in CHILD's 16-character area. TRANSIDERR RESP2 1 for a
-     *  transaction not defined. The harness's scheduler runs the child as a non-terminal task once this task has
-     *  ended: a parent that never FETCHes it cannot tell when it ran (SPEC section 4, no ties). The token's bytes are
-     *  the harness's own (IBM does not document them), the same on both sides. */
+     *  transaction not defined. #4950 (X18): the child runs at this task's next wait (delay, fetch); a task that
+     *  never waits ends with it not run. The token's bytes are the harness's own (IBM does not document them), the
+     *  same on both sides. */
     public RunResult runTransid(String transid) {
         return runTransid(transid, null);
     }
 
-    /** #4884: RUN TRANSID CHANNEL(channel) (IBM: "if the channel does not exist, it is created"; the child "receives a
-     *  copy of the channel's containers" when RUN is issued). The child runs only after this task has ended, so the
-     *  copy is never read here and the parent's channels do not change. A name of anything but letters and digits
-     *  (IBM lists the allowed symbols without saying which are valid in this release) is refused, never guessed. */
+    /** #4884, #4950: RUN TRANSID CHANNEL(channel) (IBM: "if the channel does not exist, it is created"; the child
+     *  "receives a copy of the channel's containers" when RUN is issued, and that copy is its current channel). A name
+     *  with a character IBM does not list is CHANNELERR RESP2 1 (handedChannel). */
     public RunResult runTransid(String transid, String channel) {
         CicsTask task = root();
-        if (channel != null && !channel.matches("[A-Za-z0-9]{1,16}")) {
-            throw new UnsupportedOperationException("RUN CHANNEL(" + channel + ") with a name of anything but letters "
-                + "and digits is not modelled: IBM does not say which symbols a channel name allows");
+        if (task.depth >= MAX_RUN_DEPTH) {  // #5089 (X18): a child may RUN children of its own, to a stated depth
+            throw new UnsupportedOperationException("RUN TRANSID in a RUN TRANSID child task " + MAX_RUN_DEPTH
+                    + " levels below a task (a great-great-grandchild): the depth the harness models ends here");
+        }
+        String name = channel == null ? null : handedChannel(channel);
+        boolean badName = channel != null && name == null;
+        boolean undefined = programs != null && !programs.transaction(transid);
+        if (badName && undefined) {
+            throw new UnsupportedOperationException("RUN TRANSID(" + transid + ") of a transaction not defined, with "
+                    + "an incorrect CHANNEL name: which condition IBM raises is not documented, not modelled");
         }
         String resp = "NORMAL";
         int resp2 = 0;
         String child = null;
-        if (programs != null && !programs.transaction(transid)) {
+        if (badName) {
+            resp = "CHANNELERR";
+            resp2 = 1;
+        } else if (undefined) {
             resp = "TRANSIDERR";
             resp2 = 1;
         } else {
             child = String.format(java.util.Locale.ROOT, "GGCHILD%09d", ++task.children);
+            task.kids.add(new Child(child, transid, name == null ? null : copyOf(scopeHanded(name, true), name),
+                    task.children));
         }
         Map<String, Object> e = new LinkedHashMap<>();
         e.put("event", "RUN");
@@ -2175,34 +3111,317 @@ public class CicsTask {
         return new RunResult(resp, resp2, child);
     }
 
-    /** #4884: FETCH ANY / FETCH CHILD(token) NOSUSPEND (IBM CICS TS, EXEC CICS FETCH): a child runs only once its parent
-     *  has ended (the harness's scheduler, as runTransid), so no child has completed while this task runs:
-     *  NOTFINISHED RESP2 52. FETCH ANY with no children: INVREQ 52 ("the parent has no children"); FETCH CHILD of a
-     *  token this task was not given: INVREQ 50. A FETCH that waits (no NOSUSPEND, TIMEOUT) is refused by the
-     *  translator. `child` null: FETCH ANY. */
-    public FetchResult fetch(String child) {
-        CicsTask task = root();
-        String resp = "NOTFINISHED";
-        int resp2 = 52;
-        if (child == null) {
-            if (task.children == 0) {
-                resp = "INVREQ";
-            }
-        } else if (!child.matches("GGCHILD[0-9]{9}") || Integer.parseInt(child.substring(7)) < 1
-                || Integer.parseInt(child.substring(7)) > task.children) {
-            resp = "INVREQ";
-            resp2 = 50;
+    // #4950: the characters IBM allows in the name of a channel RUN TRANSID / START hands on (EXEC CICS RUN TRANSID,
+    // CHANNEL: "The acceptable characters are A-Z a-z 0-9 $ @ # . / - _ % & ? ! : | " = \\u00ac , ; < >. Leading and
+    // embedded blank characters are not permitted"); the spec's CHANNEL_NAME_CHARS, as ggcics.c's channel_chars
+    private static final String CHANNEL_CHARS =
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789$@#./-_%&?!:|\\"=\\u00ac,;<>";
+
+    /** #4950: the channel name RUN / START CHANNEL gives, without its trailing blanks; null when it holds a character
+     *  IBM does not allow (a blank before its end included: CHANNELERR RESP2 1). An all-blank name is refused, as a
+     *  name starting DFH (CICS's own channels, DFHTRANSACTION, are not modelled). */
+    private static String handedChannel(String channel) {
+        String n = channel;
+        int end = n.length();
+        while (end > 0 && (n.charAt(end - 1) == ' ' || n.charAt(end - 1) == 0)) {
+            end--;
         }
+        n = n.substring(0, end);
+        if (n.isEmpty()) {
+            throw new UnsupportedOperationException("a CHANNEL() with a blank name: not modelled");
+        }
+        if (n.startsWith("DFH")) {
+            throw new UnsupportedOperationException("CHANNEL(" + n + "), a channel whose name starts DFH: not modelled");
+        }
+        for (int i = 0; i < n.length(); i++) {
+            if (CHANNEL_CHARS.indexOf(n.charAt(i)) < 0) {
+                return null;
+            }
+        }
+        return n.length() > 16 ? null : n;
+    }
+
+    /** #4950: a copy of a channel's containers, under `name`. */
+    private static Channel copyOf(Channel from, String name) {
+        Channel ch = new Channel(name);
+        from.containers.forEach((k, v) -> ch.containers.put(k, new Container(v.data.clone(), v.bit, v.ccsid)));
+        return ch;
+    }
+
+    /** #4950: a RUN TRANSID child: its token, transaction, copy of the RUN's channel, number (RUN order), and what
+     *  the scheduler made of it. */
+    private static final class Child {
+        private final String token;
+        private final String transid;
+        private final Channel channel;
+        private final int number;
+        private boolean dispatched;
+        private boolean fetched;
+        private boolean freed;
+        private long completes;
+        private String abcode;
+        private Channel reply;
+
+        private Child(String token, String transid, Channel channel, int number) {
+            this.token = token;
+            this.transid = transid;
+            this.channel = channel;
+            this.number = number;
+        }
+    }
+
+    private Child kid(String token) {
+        for (Child k : root().kids) {
+            if (k.token.equals(token)) {
+                return k;
+            }
+        }
+        return null;
+    }
+
+    // #4950: the events a dispatched child may record -- any other is a region resource or a terminal's (R1). #5089:
+    // its own RUN / FETCH / FREE CHILD and the CHILD events of its own children concern only the tasks it started
+    private static final java.util.Set<Object> CHILD_EVENTS =
+            java.util.Set.of("RETURN", "ABEND", "LINK", "XCTL", "RUN", "FETCH", "FREE-CHILD", "CHILD");
+    /** #5089: how many generations below a task RUN children go: a child (1), its children (2), theirs (3); a RUN
+     *  one level further is refused. A bound the harness states (IBM states none), the same in the C stub. */
+    static final int MAX_RUN_DEPTH = 3;
+
+    /** #4950 (X18, ASSUMED): this task waits (a DELAY, or a FETCH that waits): the RUN children not yet dispatched
+     *  run now, in RUN order, each to its end before this task resumes (one quasi-reentrant TCB: a task keeps control
+     *  until it waits; a task takes no processor time, X4). A child completes at its dispatch plus its own DELAYs. It
+     *  is a non-terminal task: EIBTASKN this task's plus its RUN number (a stated fact, as the stub's), no COMMAREA, its
+     *  current channel the copy RUN made. What it does is recorded as one CHILD event, compared as a whole. */
+    private void dispatchChildren() {
+        CicsTask task = root();
+        for (Child k : task.kids) {
+            if (k.dispatched || k.freed) {
+                continue;
+            }
+            k.dispatched = true;
+            String program = task.programs == null ? null : task.programs.program(k.transid);
+            if (program == null) {
+                throw new UnsupportedOperationException("child transaction " + k.transid + ": its program is not one "
+                        + "the case runs, not modelled");
+            }
+            CicsTask c = new CicsTask(k.transid, "DFHNULL", null, null, Map.of())
+                    .withClock(task.now)
+                    .withPrograms(task.programs)
+                    .withSnapshot(task.snapshot)
+                    .withTaskNumber(task.taskNumber + k.number)
+                    .withRunChild(true);
+            c.applid = task.applid;
+            c.sysid = task.sysid;
+            c.dispatched = true;
+            c.depth = task.depth + 1;
+            if (k.channel != null) {
+                c.withChannel(copyOf(k.channel, k.channel.name));
+            }
+            c.run(program);
+            Map<String, Object> last = null;
+            for (Map<String, Object> e : c.events) {
+                if ("ABEND".equals(e.get("event"))) {
+                    last = e;
+                }
+            }
+            if (last != null && "terminated".equals(last.get("outcome"))) {
+                k.abcode = (String) last.get("abcode");
+            } else if (!c.abcode.isBlank()) {
+                throw new UnsupportedOperationException("a RUN TRANSID child that went on after an abend (HANDLE "
+                        + "ABEND): its completion status is not documented, not modelled");
+            }
+            k.completes = task.waited + c.waited;
+            k.reply = c.currentChannel;
+            List<Map<String, Object>> did = new ArrayList<>();
+            for (Map<String, Object> e : c.events) {
+                did.add(new LinkedHashMap<>(e));
+            }
+            if (c.currentChannel != null) {  // the containers it leaves, as the harness records a task's (X24)
+                Map<String, Object> left = new LinkedHashMap<>();
+                left.put("event", "CONTAINERS");
+                left.put("channel", c.currentChannel.name);
+                Map<String, String> data = new LinkedHashMap<>();
+                c.currentChannel.containers().forEach((n, v) -> data.put(n,
+                        java.util.HexFormat.of().withUpperCase().formatHex(v)));
+                left.put("containers", data);
+                did.add(left);
+            }
+            event("CHILD", "child", k.token, "transid", k.transid, "events", did);
+        }
+    }
+
+    /** #4950: DELAY (IBM CICS TS, EXEC CICS DELAY) for `millis` milliseconds (delayMillis), -1 for a DELAY TIME or a
+     *  value out of range. A task takes no time (X4): the delay ends at once, after the RUN children it dispatches;
+     *  the scheduler's clock moves by it. In a task with RUN children, or in a child, a DELAY that is not a length
+     *  of time is refused (what it means for the children's order is not modelled). */
+    public void delay(long millis, String what) {
+        CicsTask task = root();
+        task.releasePost();  // #5079 (X63): IBM, POST: a subsequent DELAY ends the POST's timer-event control area
+        if (millis < 0) {
+            if (!task.kids.isEmpty() || task.dispatched) {
+                throw new UnsupportedOperationException("DELAY in a task with RUN TRANSID children (or in a child): "
+                        + what + ", not modelled");
+            }
+            return;
+        }
+        task.dispatchChildren();
+        task.waited += millis;
+    }
+
+    /** #4950: a DELAY's length in milliseconds, -1 out of IBM's ranges (EXEC CICS DELAY): INTERVAL(hhmmss) with mm
+     *  and ss 0 - 59; FOR HOURS(0 - 99) MINUTES(0 - 59) SECONDS(0 - 59) MILLISECS(0 - 999), or one of them alone:
+     *  MINUTES(0 - 5999), SECONDS(0 - 359999), MILLISECS(0 - 359999999). `interval` null: the FOR form (each
+     *  null: not given). */
+    public static long delayMillis(Long interval, Long hours, Long minutes, Long seconds, Long millisecs) {
+        if (interval != null) {
+            long v = interval;
+            if (v < 0 || v / 10000 > 99 || v / 100 % 100 > 59 || v % 100 > 59) {
+                return -1;
+            }
+            return (v / 10000 * 3600 + v / 100 % 100 * 60 + v % 100) * 1000;
+        }
+        int given = (hours != null ? 1 : 0) + (minutes != null ? 1 : 0) + (seconds != null ? 1 : 0)
+                + (millisecs != null ? 1 : 0);
+        boolean one = given == 1;
+        if (hours != null && (hours < 0 || hours > 99)
+                || minutes != null && (minutes < 0 || minutes > (one ? 5999 : 59))
+                || seconds != null && (seconds < 0 || seconds > (one ? 359999 : 59))
+                || millisecs != null && (millisecs < 0 || millisecs > (one ? 359999999 : 999))) {
+            return -1;
+        }
+        return ((hours == null ? 0 : hours) * 3600 + (minutes == null ? 0 : minutes) * 60
+                + (seconds == null ? 0 : seconds)) * 1000 + (millisecs == null ? 0 : millisecs);
+    }
+
+    /** #4884: FETCH CHILD(token) / FETCH ANY NOSUSPEND, as fetch(child, "NOSUSPEND", 0, false). */
+    public FetchResult fetch(String child) {
+        return fetch(child, "NOSUSPEND", 0, false);
+    }
+
+    /** #4884, #4950: FETCH ANY / FETCH CHILD(token) (IBM CICS TS, EXEC CICS FETCH); `child` null: FETCH ANY. `mode`
+     *  NOSUSPEND, WAIT (neither NOSUSPEND nor TIMEOUT) or TIMEOUT (`timeout` milliseconds). INVREQ 52 for FETCH ANY in
+     *  a task with no children, INVREQ 50 for a token that is not a child's or was freed. A FETCH that waits dispatches
+     *  the children not yet run (dispatchChildren). At the scheduler's time T a child that completed before T is
+     *  fetched -- FETCH ANY the first to complete, RUN order on a tie (ASSUMED) -- else NOSUSPEND is NOTFINISHED 52,
+     *  WAIT resumes when it completes, TIMEOUT is NOTFINISHED 53 when none completes before T + timeout. A completion
+     *  at the very instant the answer turns on is a tie IBM does not order: refused. On NORMAL: the token (ANY), the
+     *  completion status (NORMAL / ABEND, with the abend code), and with `wantChannel` the child's channel as it left
+     *  it, under a name of the harness's own in this program's scope (IBM generates it). */
+    public FetchResult fetch(String child, String mode, long timeout, boolean wantChannel) {
+        CicsTask task = root();
+        if ("TIMEOUT".equals(mode) && (timeout < 0 || timeout > 4080000)) {
+            throw new UnsupportedOperationException("FETCH TIMEOUT(" + timeout + "): outside 0 to 4080000 "
+                    + "milliseconds (IBM's FETCH ANY and FETCH CHILD pages give different maximums), not modelled");
+        }
+        Child one = null;
+        if (child != null) {
+            one = kid(child);
+            if (one == null || one.freed) {
+                return fetched("INVREQ", 50, null, null);
+            }
+            if (one.fetched) {
+                throw new UnsupportedOperationException("FETCH CHILD of a child already fetched (INVREQ 51 is for its "
+                        + "channel, fetched again): what IBM answers is not documented, not modelled");
+            }
+        } else if (task.children == 0) {
+            return fetched("INVREQ", 52, null, null);
+        }
+        if (!"NOSUSPEND".equals(mode)) {
+            task.dispatchChildren();
+        }
+        Child first = null;
+        boolean any = false;
+        for (Child k : task.kids) {
+            if (one != null ? k != one : k.fetched || k.freed) {
+                continue;
+            }
+            any = true;
+            if (k.dispatched && (first == null || k.completes < first.completes)) {
+                first = k;
+            }
+        }
+        if (!any) {
+            return fetched("NOTFND", 1, null, null);
+        }
+        long now = task.waited;
+        if ("NOSUSPEND".equals(mode)) {
+            if (first == null || first.completes > now) {
+                return fetched("NOTFINISHED", 52, null, null);
+            }
+            if (first.completes == now) {
+                throw tie();
+            }
+        } else if ("TIMEOUT".equals(mode)) {
+            if (first.completes == now + timeout) {
+                throw tie();
+            }
+            if (first.completes > now + timeout) {
+                task.waited = now + timeout;
+                return fetched("NOTFINISHED", 53, null, null);
+            }
+            task.waited = Math.max(now, first.completes);
+        } else {
+            task.waited = Math.max(now, first.completes);
+        }
+        first.fetched = true;
+        String reply = null;
+        if (wantChannel) {
+            if (first.reply == null) {
+                throw new UnsupportedOperationException("FETCH CHANNEL of a child that left no current channel: not "
+                        + "modelled");
+            }
+            reply = String.format(java.util.Locale.ROOT, "GGREPLY%09d", ++task.replies);
+            channels.put(reply, copyOf(first.reply, reply));
+        }
+        return fetched("NORMAL", 0, first, reply);
+    }
+
+    private static UnsupportedOperationException tie() {
+        return new UnsupportedOperationException("a FETCH whose answer turns on a child completing at the instant its "
+                + "parent resumed from a wait (a tie IBM does not order): not modelled");
+    }
+
+    private FetchResult fetched(String resp, int resp2, Child k, String reply) {
         Map<String, Object> e = new LinkedHashMap<>();
         e.put("event", "FETCH");
         e.put("resp", resp);
         e.put("resp2", resp2);
+        if (k != null) {
+            e.put("child", k.token);
+            e.put("compstatus", k.abcode == null ? "NORMAL" : "ABEND");
+            e.put("abcode", k.abcode);
+            e.put("channel", reply);
+        }
         add(e);
-        return new FetchResult(resp, resp2);
+        return k == null ? new FetchResult(resp, resp2)
+                : new FetchResult(resp, resp2, k.token, reply, k.abcode, k.abcode == null ? 1016 : 900);
     }
 
-    /** #4884: a FETCH's condition and RESP2. */
-    public record FetchResult(String resp, int resp2) {
+    /** #4884, #4950: a FETCH's condition and RESP2; on NORMAL the child's token, the reply channel's name (null when
+     *  not asked), its abend code (null: it completed normally) and COMPSTATUS's CVDA (NORMAL 1016, ABEND 900). */
+    public record FetchResult(String resp, int resp2, String child, String channel, String abcode, int compstatus) {
+        public FetchResult(String resp, int resp2) {
+            this(resp, resp2, null, null, null, 0);
+        }
+    }
+
+    /** #4950: FREE CHILD(token) (IBM CICS TS, EXEC CICS FREE CHILD): the token is freed -- a later FETCH CHILD of it
+     *  is INVREQ 50 and FETCH ANY passes it by. INVREQ 50 for a token that is not a child's or was freed; freeing a
+     *  child already fetched is refused (IBM does not say). */
+    public FetchResult freeChild(String child) {
+        Child k = kid(child);
+        String resp = "NORMAL";
+        int resp2 = 0;
+        if (k == null || k.freed) {
+            resp = "INVREQ";
+            resp2 = 50;
+        } else if (k.fetched) {
+            throw new UnsupportedOperationException("FREE CHILD of a child already fetched: not modelled");
+        } else {
+            k.freed = true;
+        }
+        event("FREE-CHILD", "resp", resp, "resp2", resp2);
+        return new FetchResult(resp, resp2);
     }
 
     /** #4270: a RUN TRANSID's outcome: its condition, RESP2 and the child token (null unless NORMAL). */
@@ -2299,9 +3518,152 @@ public class CicsTask {
         String resp = at != null && at.isAfter(now()) ? "NORMAL" : "NOTFND";
         if ("NORMAL".equals(resp)) {
             task.ownRequests.remove(reqid);
+            if (reqid.equals(task.postReqid)) {
+                task.postCancelled();  // #5079 (X63): IBM, POST: a CANCEL of the POST posts its area
+            }
         }
         event("CANCEL", "reqid", reqid, "resp", resp);
         return resp;
+    }
+
+    // ---- #5079 (register X63): POST and WAIT EVENT -- a timer-event control area, on the stated clock -------------------
+    private long postBlock;  // the live POST's area (a block of task storage), 0 when none
+    private LocalDateTime postAt;  // when it expires
+    private String postReqid;  // its REQID
+    private int postSeq;  // the REQIDs CICS generated (POST with no REQID)
+    private final java.util.Set<Long> postAreas = new java.util.HashSet<>();  // every area a POST made
+    private final java.util.Set<Long> postReleased = new java.util.HashSet<>();  // those a later command ended
+
+    /** A POST's outcome: its condition, RESP2, the handle of the new area (0: none) and the REQID it runs under. */
+    public record PostResult(String resp, int resp2, long handle, String reqid) {
+    }
+
+    /** POST INTERVAL(hhmmss) | TIME(hhmmss) | AFTER / AT HOURS MINUTES SECONDS [SET(ptr)] [REQID] (IBM CICS TS, EXEC CICS
+     *  POST): "This 4-byte control area is initialized to binary zeros" and posted ("its first byte is set to X'40' and
+     *  its third byte to X'80'") when the time expires or the POST is CANCELled. `how` INTERVAL, TIME, AFTER or AT
+     *  (the hours, minutes, seconds null when not given). INVREQ RESP2 4 / 5 / 6 for hours, minutes, seconds out of
+     *  range; EXPIRED for a TIME already past (nothing is made). A task takes no time (X4), so the area is posted only
+     *  by a WAIT EVENT, which runs the clock to the expiry, or by a CANCEL. A POST with no REQID runs under POSTnnnn
+     *  (ASSUMED: IBM "generates one"). A task has one live POST: a later POST, a local START or a DELAY ends it. */
+    public PostResult post(String how, int hhmmss, Integer hours, Integer minutes, Integer seconds, String reqid) {
+        CicsTask task = root();
+        int resp2 = 0;
+        if ("AFTER".equals(how) || "AT".equals(how)) {
+            hhmmss = hhmmss(hours, minutes, seconds);
+            if (hhmmss < 0) {
+                resp2 = -hhmmss;
+            }
+        } else if (hhmmss < 0 || hhmmss / 10000 > 99) {
+            resp2 = 4;
+        } else if (hhmmss / 100 % 100 > 59) {
+            resp2 = 5;
+        } else if (hhmmss % 100 > 59) {
+            resp2 = 6;
+        }
+        if (resp2 != 0) {
+            return new PostResult("INVREQ", resp2, 0, reqid);
+        }
+        LocalDateTime clock = now();
+        int hh = hhmmss / 10000, mm = hhmmss / 100 % 100, ss = hhmmss % 100;
+        LocalDateTime at;
+        if ("TIME".equals(how) || "AT".equals(how)) {
+            at = clock.toLocalDate().atStartOfDay().plusHours(hh).plusMinutes(mm).plusSeconds(ss);
+            if (hh <= 23 && at.isBefore(clock)) {
+                return new PostResult("EXPIRED", 0, 0, reqid);
+            }
+        } else {
+            at = clock.plusSeconds(hh * 3600L + mm * 60L + ss);
+        }
+        String id = reqid == null ? String.format(java.util.Locale.ROOT, "POST%04d", ++task.postSeq) : reqid;
+        task.releasePost();
+        task.postBlock = acquireSet(null, new byte[4]);
+        task.postAt = at;
+        task.postReqid = id;
+        task.postAreas.add(task.postBlock);
+        task.ownRequests.put(id, at);
+        return new PostResult("NORMAL", 0, task.postBlock, id);
+    }
+
+    private void releasePost() {
+        if (postBlock != 0) {
+            postReleased.add(postBlock);
+            ownRequests.remove(postReqid);
+            postBlock = 0;
+            postReqid = null;
+        }
+    }
+
+    private void postArea(long handle) {
+        byte[] b = blocks.get(handle).bytes;
+        b[0] = 0x40;
+        b[2] = (byte) 0x80;
+    }
+
+    private void postCancelled() {
+        postArea(postBlock);
+        releasePost();
+    }
+
+    /** WAIT EVENT ECADDR(ptr) (IBM CICS TS, EXEC CICS WAIT EVENT): {RESP, RESP2}. INVREQ RESP2 2 for a null pointer. An
+     *  area not yet posted is posted at its expiry: the RUN children not yet run are dispatched and the scheduler's
+     *  clock runs to the expiry (a task takes no time, X4). An area already posted returns at once (ASSUMED: IBM does
+     *  not say). Refused: an address that is no POST's area, an area a later POST, CANCEL, local START or DELAY ended
+     *  (IBM: "unpredictable"). */
+    public int[] waitEvent(long handle) {
+        CicsTask task = root();
+        if (handle == 0) {
+            return new int[] {16, 2};
+        }
+        if (!task.postAreas.contains(handle)) {
+            throw refused("WAIT EVENT on an address that is no POST's timer-event control area");
+        }
+        if (task.postReleased.contains(handle)) {
+            throw refused("WAIT EVENT on a timer-event control area a later POST, CANCEL, START or DELAY ended");
+        }
+        if (task.blocks.get(handle).bytes[0] != 0x40) {
+            task.dispatchChildren();
+            task.waited += Math.max(0L, java.time.Duration.between(now(), task.postAt).toMillis());
+            task.postArea(handle);
+            task.ownRequests.remove(task.postReqid);
+        }
+        return new int[] {0, 0};
+    }
+
+    /** ENQ RESOURCE(resource) (#5089, IBM EXEC CICS ENQ): one task in the region, so the resource is free (NORMAL) --
+     *  or ENQBUSY when the harness planned it. IBM raises ENQBUSY only "when an ENQ command specifies a resource that
+     *  is unavailable and the NOSUSPEND option is specified" (or a HANDLE CONDITION ENQBUSY is active); without
+     *  NOSUSPEND the task would be suspended, which is not modelled. IBM states no RESP2 for ENQBUSY: 0. */
+    public String enq(String resource, boolean nosuspend) {
+        int[] planned = root().injected("ENQ", resource);
+        if (planned == null) {
+            return "NORMAL";
+        }
+        if (!nosuspend) {
+            throw new UnsupportedOperationException("ENQ on a planned-busy resource without NOSUSPEND: " + resource
+                    + " (the task would be suspended), not modelled");
+        }
+        event("ENQ", "resource", resource, "resp", respName(planned[0]));
+        return respName(planned[0]);
+    }
+
+    /** ENQ's own operands (#5089, register X60): LENGTH outside 1 through 255 is LENGERR RESP2 1 and a MAXLIFETIME that
+     *  is no CVDA of ENQ (UOW 246, TASK 233) is INVREQ RESP2 2 (IBM EXEC CICS ENQ "Conditions"); otherwise enq(). A null
+     *  length / maxlife is an option the program did not write. Two bad operands at once: IBM names no order, so refused.
+     *  Returns {RESP, RESP2}; the failed ENQ records the event with its RESP2. */
+    public int[] enqChecked(String resource, boolean nosuspend, Integer length, Integer maxlife) {
+        boolean badLength = length != null && (length < 1 || length > 255);
+        boolean badLife = maxlife != null && maxlife != 246 && maxlife != 233;
+        if (badLength && badLife) {
+            throw new UnsupportedOperationException("ENQ with LENGTH outside 1-255 and an invalid MAXLIFETIME: which "
+                    + "condition IBM raises first is not stated, not modelled");
+        }
+        if (badLength || badLife) {
+            int resp = badLength ? 22 : 16;
+            int resp2 = badLength ? 1 : 2;
+            event("ENQ", "resource", resource, "resp", respName(resp), "resp2", resp2);
+            return new int[] {resp, resp2};
+        }
+        return new int[] {CicsSpec.resp(enq(resource, nosuspend)), 0};
     }
 
     /** LINK PROGRAM(program) with no COMMAREA: the callee's EIBCALEN is 0. */
@@ -2309,338 +3671,10 @@ public class CicsTask {
         return link(program, null, 0);
     }
 
-    // ---- #4270: channels and containers (IBM CICS TS: PUT / GET / DELETE CONTAINER (CHANNEL), LINK / XCTL CHANNEL,
-    // ASSIGN CHANNEL, "Scope of a channel"). A container holds bytes, exactly as the program put them: a BIT container
-    // is never converted, and a CHAR one put and got with no FROMCCSID / INTOCCSID is in the region's CCSID both ways
-    // (GET CONTAINER: "If INTOCCSID and INTOCODEPAGE are not specified, the value for conversion defaults to the CCSID
-    // of the region"), so it is not converted either. The CCSID options are refused by the translator.
-
-    /** A channel: its name and its containers, in creation order. */
-    public static final class Channel {
-        private final String name;
-        private final Map<String, Container> containers = new LinkedHashMap<>();
-        private int shape;  // #4951: counts the containers added and removed, so a browse can tell the channel changed
-
-        public Channel(String name) {
-            this.name = name;
-        }
-
-        public String name() {
-            return name;
-        }
-
-        /** #4270 (X24): a container this channel holds before any program runs -- what the parent of a RUN TRANSID
-         *  CHANNEL, or a LINK CHANNEL caller outside the region, put there (BIT or CHAR, as its PUT gave it). */
-        public Channel with(String container, byte[] data, boolean bit) {
-            containers.put(channelName(container, "container"), new Container(data.clone(), bit));
-            shape++;
-            return this;
-        }
-
-        /** The containers, by name (a copy). */
-        public Map<String, byte[]> containers() {
-            Map<String, byte[]> out = new LinkedHashMap<>();
-            containers.forEach((k, v) -> out.put(k, v.data.clone()));
-            return out;
-        }
-    }
-
-    private static final class Container {
-        private byte[] data;
-        private final boolean bit;
-
-        private Container(byte[] data, boolean bit) {
-            this.data = data;
-            this.bit = bit;
-        }
-    }
-
-    /** A container command's outcome: its condition and RESP2, the container's length (GET: FLENGTH's value on
-     *  NORMAL / LENGERR, else -1) and the bytes it moves INTO (GET, else null). #4951: STARTBROWSE's token comes
-     *  back as the length, GETNEXT's container name as `name`. */
-    public record ContainerResult(String resp, int resp2, int length, byte[] data, String name) {
-        public ContainerResult(String resp, int resp2, int length, byte[] data) {
-            this(resp, resp2, length, data, null);
-        }
-
-        public boolean normal() {
-            return "NORMAL".equals(resp);
-        }
-    }
-
-    /** A channel or container name as CICS compares it: the 16-character value without its trailing blanks. One
-     *  with nothing else, or with an embedded blank, is refused (CHANNELERR / CONTAINERERR "illegal character"
-     *  is IBM's, but which characters its names allow is not modelled). */
-    private static String channelName(String name, String what) {
-        String n = name == null ? "" : name;
-        int end = n.length();
-        while (end > 0 && (n.charAt(end - 1) == ' ' || n.charAt(end - 1) == 0)) {
-            end--;
-        }
-        n = n.substring(0, end);
-        if (n.isEmpty() || n.contains(" ") || n.length() > 16) {
-            throw new UnsupportedOperationException(what + " name '" + name + "': not modelled");
-        }
-        return n;
-    }
-
-    private java.util.Set<String> inScope() {
-        java.util.Set<String> all = new java.util.HashSet<>(channels.keySet());
-        all.addAll(droppedChannels);
-        return all;
-    }
-
-    /** This program's channel: `passed` (LINK / XCTL CHANNEL), the only one in its scope; `before` the names in
-     *  the XCTLing program's scope, which an XCTL leaves behind. IBM shows a channel passed on XCTL in the scope of
-     *  both programs ("Scope of a channel") but says nothing of the others: naming one is refused, never guessed. */
-    private void passChannel(Channel passed, java.util.Set<String> before) {
-        currentChannel = passed;
-        channels = new HashMap<>();
-        if (passed != null) {
-            channels.put(passed.name, passed);
-        }
-        java.util.Set<String> dropped = new java.util.HashSet<>(before);
-        if (passed != null) {
-            dropped.remove(passed.name);
-        }
-        droppedChannels = dropped;
-    }
-
-    /** The channel `name` names in this program's scope; `create`: a new, empty one when there is none (PUT
-     *  CONTAINER: "If the channel does not exist, it is created"; LINK / XCTL CHANNEL: "a new empty channel is
-     *  created"); else null. */
-    private Channel scopeChannel(String name, boolean create) {
-        String n = channelName(name, "channel");
-        if (droppedChannels.contains(n)) {
-            throw new UnsupportedOperationException("channel " + n + " after an XCTL that did not pass it: its scope "
-                    + "is not documented, not modelled");
-        }
-        Channel ch = channels.get(n);
-        if (ch == null && create) {
-            ch = new Channel(n);
-            channels.put(n, ch);
-        }
-        return ch;
-    }
-
-    /** PUT CONTAINER(container) [CHANNEL(channel)] FROM FLENGTH [BIT | CHAR | no data type] [APPEND] (IBM, EXEC
-     *  CICS PUT CONTAINER (CHANNEL)). `channel` null: the current channel, INVREQ RESP2 4 without one (1 when a data
-     *  type was named). FLENGTH below zero: LENGERR RESP2 1. A new container takes the data type given, else BIT
-     *  ("the default value, unless FROMCCSID or FROMCODEPAGE option is specified"); an existing one keeps its own.
-     *  Naming the other type for an existing container is refused: IBM says both that DATATYPE "applies only to new
-     *  containers" and that "an attempt ... to change the data-type of an existing container" is INVREQ RESP2 33.
-     *  The data replaces the container's, or with APPEND follows it. */
-    public ContainerResult putContainer(String channel, String container, byte[] data, int flength, String type,
-                                        boolean append) {
-        Channel ch = channel == null ? currentChannel : scopeChannel(channel, true);
-        String name = channelName(container, "container");
-        if (ch == null) {
-            return new ContainerResult("INVREQ", type == null ? 4 : 1, -1, null);
-        }
-        if (flength < 0) {
-            return new ContainerResult("LENGERR", 1, -1, null);
-        }
-        Container c = ch.containers.get(name);
-        if (c != null && type != null && c.bit != "BIT".equals(type)) {
-            throw new UnsupportedOperationException("PUT CONTAINER " + type + " on an existing container of the other "
-                    + "data type: ignored or INVREQ RESP2 33 is not settled by IBM's documentation, not modelled");
-        }
-        if (c == null) {
-            ch.containers.put(name, new Container(data.clone(), !"CHAR".equals(type)));
-            ch.shape++;
-        } else if (append) {
-            byte[] joined = Arrays.copyOf(c.data, c.data.length + data.length);
-            System.arraycopy(data, 0, joined, c.data.length, data.length);
-            c.data = joined;
-        } else {
-            c.data = data.clone();
-        }
-        return new ContainerResult("NORMAL", 0, -1, null);
-    }
-
-    /** GET CONTAINER(container) [CHANNEL(channel)] INTO FLENGTH | NODATA FLENGTH (IBM, EXEC CICS GET CONTAINER
-     *  (CHANNEL)). `maxLength` is the most INTO takes -- FLENGTH's value, else INTO's length -- or -1 for NODATA.
-     *  CHANNELERR RESP2 2 for a channel not in scope, INVREQ RESP2 4 with no CHANNEL and no current channel,
-     *  CONTAINERERR RESP2 10 for a container the channel does not have. Longer data is truncated to INTO with
-     *  LENGERR RESP2 11; FLENGTH "returns the length of the data in the container" (NORMAL, LENGERR). */
-    public ContainerResult getContainer(String channel, String container, int maxLength) {
-        Channel ch = channel == null ? currentChannel : scopeChannel(channel, false);
-        String name = channelName(container, "container");
-        if (ch == null) {
-            return channel == null ? new ContainerResult("INVREQ", 4, -1, null)
-                    : new ContainerResult("CHANNELERR", 2, -1, null);
-        }
-        Container c = ch.containers.get(name);
-        if (c == null) {
-            return new ContainerResult("CONTAINERERR", 10, -1, null);
-        }
-        if (maxLength < 0) {
-            return new ContainerResult("NORMAL", 0, c.data.length, null);
-        }
-        if (c.data.length > maxLength) {
-            return new ContainerResult("LENGERR", 11, c.data.length, Arrays.copyOf(c.data, maxLength));
-        }
-        return new ContainerResult("NORMAL", 0, c.data.length, c.data.clone());
-    }
-
-    /** DELETE CONTAINER(container) [CHANNEL(channel)] (IBM, EXEC CICS DELETE CONTAINER (CHANNEL)): CHANNELERR
-     *  RESP2 2, INVREQ RESP2 4 ("issued outside the scope of a currently-active channel"), CONTAINERERR RESP2 10. */
-    public ContainerResult deleteContainer(String channel, String container) {
-        Channel ch = channel == null ? currentChannel : scopeChannel(channel, false);
-        String name = channelName(container, "container");
-        if (ch == null) {
-            return channel == null ? new ContainerResult("INVREQ", 4, -1, null)
-                    : new ContainerResult("CHANNELERR", 2, -1, null);
-        }
-        if (ch.containers.remove(name) == null) {
-            return new ContainerResult("CONTAINERERR", 10, -1, null);
-        }
-        ch.shape++;
-        return new ContainerResult("NORMAL", 0, -1, null);
-    }
-
-    /** MOVE CONTAINER(container) AS(as) [CHANNEL(channel)] [TOCHANNEL(toChannel)] (IBM, EXEC CICS MOVE CONTAINER
-     *  (CHANNEL)): the container leaves its channel and is `as` in the target channel; "If it already exists, its
-     *  contents are overwritten"; the target channel, when absent, "CICS creates". No CHANNEL / TOCHANNEL: the
-     *  current channel. Conditions, in this order (IBM gives none): INVREQ RESP2 4 (CHANNEL or TOCHANNEL omitted and
-     *  no current channel), CHANNELERR RESP2 2 (CHANNEL not in scope), CONTAINERERR RESP2 10 (no such container). A
-     *  move that raises a condition changes nothing, and creates no channel (ASSUMED). The container keeps its data
-     *  type; one moved onto an existing container of the other type, or onto itself, is refused. */
-    public ContainerResult moveContainer(String channel, String container, String as, String toChannel) {
-        String name = channelName(container, "container");
-        String target = channelName(as, "container");
-        Channel from = channel == null ? currentChannel : scopeChannel(channel, false);
-        Channel to = toChannel == null ? currentChannel : scopeChannel(toChannel, false);
-        if ((channel == null || toChannel == null) && currentChannel == null) {
-            return new ContainerResult("INVREQ", 4, -1, null);
-        }
-        if (from == null) {
-            return new ContainerResult("CHANNELERR", 2, -1, null);
-        }
-        Container src = from.containers.get(name);
-        if (src == null) {
-            return new ContainerResult("CONTAINERERR", 10, -1, null);
-        }
-        Container dst = to == null ? null : to.containers.get(target);
-        if (to == from && name.equals(target)) {
-            throw refused("MOVE CONTAINER onto itself");
-        }
-        if (dst != null && dst.bit != src.bit) {
-            throw refused("MOVE CONTAINER onto a container of the other data type");
-        }
-        if (to == null) {
-            to = scopeChannel(toChannel, true);
-        }
-        if (dst == null) {
-            to.containers.put(target, src);
-            to.shape++;
-        } else {
-            dst.data = src.data;
-        }
-        from.containers.remove(name);
-        from.shape++;
-        return new ContainerResult("NORMAL", 0, -1, null);
-    }
-
-    /** STARTBROWSE CONTAINER [CHANNEL(channel)] BROWSETOKEN (IBM, EXEC CICS STARTBROWSE CONTAINER (CHANNEL)): the
-     *  token comes back as the result's length. CHANNELERR RESP2 2 for a channel not in scope. IBM: "The order of
-     *  returned containers is undefined": they come in the order they were created (ASSUMED). With no CHANNEL and no
-     *  current channel IBM treats it as the BTS form: refused. Tokens are 1, 2, 3 ... per task (ASSUMED: IBM calls
-     *  the value a token), valid for this program until its ENDBROWSE or the task's next SYNCPOINT. */
-    public ContainerResult startBrowseContainer(String channel) {
-        Channel ch = channel == null ? currentChannel : scopeChannel(channel, false);
-        if (ch == null) {
-            if (channel == null) {
-                throw refused("STARTBROWSE CONTAINER with no channel (IBM treats it as the BTS form)");
-            }
-            return new ContainerResult("CHANNELERR", 2, -1, null);
-        }
-        CicsTask r = root();
-        int token = ++r.browseTokens;
-        r.containerBrowses.put(token, new ContainerBrowse(this, ch));
-        return new ContainerResult("NORMAL", 0, token, null);
-    }
-
-    /** GETNEXT CONTAINER(name) BROWSETOKEN(token): the next container's name, as the 16-character area IBM
-     *  describes. END RESP2 2 past the last (and again on a later GETNEXT: the token stays valid until ENDBROWSE);
-     *  TOKENERR RESP2 3 for a token that is not a current one of this program's (never started, ended, or taken by
-     *  a SYNCPOINT). A container added to or removed from the browsed channel since the start is refused: IBM does
-     *  not say what the browse then returns. */
-    public ContainerResult getNextContainer(int token) {
-        ContainerBrowse b = root().containerBrowses.get(token);
-        if (b == null || b.owner != this) {
-            return new ContainerResult("TOKENERR", 3, -1, null);
-        }
-        if (b.channel.shape != b.shape) {
-            throw refused("GETNEXT CONTAINER: the browsed channel changed during the browse");
-        }
-        if (b.next >= b.names.size()) {
-            return new ContainerResult("END", 2, -1, null);
-        }
-        String n = b.names.get(b.next++);
-        return new ContainerResult("NORMAL", 0, -1, null, String.format(java.util.Locale.ROOT, "%-16s", n));
-    }
-
-    /** ENDBROWSE CONTAINER BROWSETOKEN(token): TOKENERR RESP2 3 for a token that is not a current one of this
-     *  program's. */
-    public ContainerResult endBrowseContainer(int token) {
-        ContainerBrowse b = root().containerBrowses.get(token);
-        if (b == null || b.owner != this) {
-            return new ContainerResult("TOKENERR", 3, -1, null);
-        }
-        root().containerBrowses.remove(token);
-        return new ContainerResult("NORMAL", 0, -1, null);
-    }
-
-    /** One container browse: who started it, the channel, the names then (in creation order) and how far it is. */
-    private static final class ContainerBrowse {
-        private final CicsTask owner;
-        private final Channel channel;
-        private final int shape;
-        private final List<String> names;
-        private int next;
-
-        private ContainerBrowse(CicsTask owner, Channel channel) {
-            this.owner = owner;
-            this.channel = channel;
-            this.shape = channel.shape;
-            this.names = new ArrayList<>(channel.containers.keySet());
-        }
-    }
-
-    private final Map<Integer, ContainerBrowse> containerBrowses = new HashMap<>();  // #4951 (the root's)
-    private int browseTokens;
-
-    /** ASSIGN CHANNEL: "the 16-character name of the current channel of the program, if one exists; otherwise,
-     *  blanks". */
-    public String assignChannel() {
-        return String.format(java.util.Locale.ROOT, "%-16s", currentChannel == null ? "" : currentChannel.name);
-    }
-
-    /** The current channel (null: none), for a caller that drives the task (#4270). */
-    public Channel currentChannel() {
-        return currentChannel;
-    }
-
-    /** Starts this level with `channel` as its current channel: what a program LINKed with a channel from outside
-     *  the region, or started with one, receives (#4270). */
-    public CicsTask withChannel(Channel channel) {
-        passChannel(channel, java.util.Set.of());
-        return this;
-    }
-
-    /** LINK PROGRAM(program) CHANNEL(channel) (IBM, EXEC CICS LINK: "the name ... of a channel that is to be made
-     *  available to the called program"; one that does not exist is created empty): the callee's current channel,
-     *  and the only one in its scope; what it puts there, the caller sees. EIBCALEN 0. */
-    public String linkChannel(String program, String channel) {
-        return link(program, null, 0, null, scopeChannel(channel, true));
-    }
-
-    /** XCTL PROGRAM(program) CHANNEL(channel): as LINK CHANNEL, at the same level. */
-    public String xctlChannel(String program, String channel) {
-        return xctl(program, null, null, scopeChannel(channel, true));
-    }
-
+"""
+# #5274: the channels / containers family's methods live in their own module (cics_task_containers.py).
+CICS_TASK_JAVA += CONTAINERS_JAVA
+CICS_TASK_JAVA += """\
     /** The bytes of the COMMAREA this program was LINKed with, when its caller passed them (by reference: what it
      *  writes there its caller sees); null otherwise. */
     public byte[] linkArea() {
@@ -2663,7 +3697,22 @@ public class CicsTask {
         return linkAreaTaken;
     }
 
+    /** #5053: the LINK COMMAREA's bytes as they are now, without counting as the program taking them (linkArea does):
+     *  what a harness hands a byte-carrying handleLink, and reads back after it. Null: the caller passed none. */
+    public byte[] linkAreaView() {
+        return linkArea;
+    }
+
+    /** #5053: whether linkArea is the LINK caller's own storage (the first program a LINK ran: by address), not a copy
+     *  (an XCTL target's: IBM gives it a copy of LENGTH bytes). */
+    public boolean linkAreaOfCaller() {
+        return callerArea;
+    }
+
     private java.util.Map<String, Long> counters = new java.util.HashMap<>();  // the region's named counters (root's)
+    /** #4770 (X45): the {minimum, maximum} (unsigned doublewords) of a counter DEFINE DCOUNTER made; a counter with no entry
+     *  (DEFINE COUNTER's, or one a scenario states) has limits the run does not state. */
+    private java.util.Map<String, long[]> counterLimits = new java.util.HashMap<>();
 
     /** The region's named counters, "POOL/NAME" -> the value the next GET COUNTER returns. */
     public CicsTask withCounters(java.util.Map<String, Long> counters) {
@@ -2713,30 +3762,216 @@ public class CicsTask {
      *  counter that would pass 4294967295 -- the smallest maximum IBM's page leaves open -- is refused, as is an INCREMENT
      *  not above zero (IBM gives it no meaning). */
     public long[] getCounter(String pool, String name, long increment) {
+        return getCounter(pool, name, increment, false);
+    }
+
+    /** GET DCOUNTER ... INCREMENT(n) [WRAP] (X30; #4770, X45): {RESP, RESP2, value}, the INCREMENT an unsigned doubleword.
+     *  A counter DEFINE DCOUNTER made has the limits it was given (unsigned): at its limit (the value past MAXIMUM, which a
+     *  GET leaves it at when it reaches it) WRAP "resets the current value ... equal to the minimum value" and the GET
+     *  returns that, and without WRAP the GET is SUPPRESSED (72) RESP2 101 and "the current number is not changed". An
+     *  INCREMENT beyond MAXIMUM - MINIMUM, or one that carries the counter past MAXIMUM + 1 (IBM's REDUCE / 406 boundaries
+     *  are not stated), is refused; so is a counter that would pass a doubleword. A counter with no limits entry is as
+     *  before: WRAP changes nothing and one that would pass 4294967295 is refused. */
+    public long[] getCounter(String pool, String name, long increment, boolean wrap) {
+        return getCounter(pool, name, increment, wrap, false, null, null, false);
+    }
+
+    /** GET COUNTER / DCOUNTER ... [REDUCE] [COMPAREMIN(n)] [COMPAREMAX(m)] (#5039, X53): as above, with IBM's REDUCE ("the
+     *  server may reduce the increment, and the request succeeds with the current value set to the maximum plus 1": an
+     *  INCREMENT that would carry the counter past MAXIMUM + 1 leaves it at MAXIMUM + 1) and the value handed out compared with
+     *  the bounds: both given and COMPAREMAX below COMPAREMIN, in range when it meets either; out of range is SUPPRESSED (72)
+     *  RESP2 103 and the counter is unchanged (ASSUMED: IBM does not say). `fullword`: a COUNTER, whose compare values are
+     *  signed fullwords (a negative one is refused). Refused: REDUCE with WRAP, REDUCE or a compare at a counter already at its
+     *  limit (101 or 103 first, REDUCE with nothing left to reduce: not stated). */
+    public long[] getCounter(String pool, String name, long increment, boolean wrap, boolean reduce, Long cmpMin, Long cmpMax,
+            boolean fullword) {
         int bad = counterNameResp2(pool, name);
         if (bad != 0) {
             return new long[] {16, bad, 0};
         }
-        if (increment <= 0) {
+        if (increment == 0) {
             throw refused("GET COUNTER with an INCREMENT not above zero");
         }
-        java.util.Map<String, Long> all = root().counters;
+        CicsTask r = root();
         String key = counterKey(pool, name);
-        Long v = all.get(key);
+        Long v = r.counters.get(key);
         if (v == null) {
             return new long[] {16, 201, 0};
         }
-        if (v + increment > 4294967295L) {
-            throw refused("GET COUNTER past 4294967295: the counter's maximum is not stated");
+        long[] lim = r.counterLimits.get(key);
+        if (reduce && wrap) {
+            throw refused("GET COUNTER with both REDUCE and WRAP");
         }
-        all.put(key, v + increment);
+        if ((cmpMin != null && cmpMin < 0 && fullword) || (cmpMax != null && cmpMax < 0 && fullword)) {
+            throw refused("GET COUNTER COMPAREMIN / COMPAREMAX below zero");
+        }
+        if (lim == null) {
+            if (!counterInRange(v, cmpMin, cmpMax)) {
+                return new long[] {72, 103, 0};
+            }
+            if (increment < 0 || v + increment > 4294967295L) {
+                throw refused(increment < 0 ? "GET COUNTER past a doubleword" : "GET COUNTER past 4294967295: the counter's maximum is not stated");
+            }
+            r.counters.put(key, v + increment);
+            return new long[] {0, 0, v};
+        }
+        long min = lim[0], max = lim[1];
+        if (Long.compareUnsigned(increment, max - min) > 0) {
+            throw refused("GET COUNTER with an INCREMENT beyond the counter's range");
+        }
+        if (max != -1L && Long.compareUnsigned(v, max) > 0) {  // at its limit: the counter is MAXIMUM + 1
+            if (reduce) {
+                throw refused("GET COUNTER REDUCE at a counter already at its limit");
+            }
+            if (cmpMin != null || cmpMax != null) {
+                throw refused("GET COUNTER COMPAREMIN / COMPAREMAX at a counter already at its limit");
+            }
+            if (!wrap) {
+                return new long[] {72, 101, 0};
+            }
+            r.counters.put(key, min + increment);
+            return new long[] {0, 0, min};
+        }
+        if (!counterInRange(v, cmpMin, cmpMax)) {
+            return new long[] {72, 103, 0};
+        }
+        long next = v + increment;
+        if (Long.compareUnsigned(next, v) < 0) {
+            throw refused("GET COUNTER past a doubleword");
+        }
+        if (Long.compareUnsigned(next, max) > 0 && Long.compareUnsigned(next - max, 1) > 0) {
+            if (!reduce) {
+                throw refused("GET COUNTER with an INCREMENT past MAXIMUM + 1");
+            }
+            next = max + 1;
+        }
+        r.counters.put(key, next);
         return new long[] {0, 0, v};
     }
 
-    /** DEFINE COUNTER (IBM CICS TS, DEFINE COUNTER; X30): {RESP, RESP2} -- the counter created with VALUE (the caller
-     *  passes zero when it is omitted: IBM's initial value); INVREQ 202 when one of that name exists, 403 / 404 for a name
-     *  outside IBM's rules. A VALUE below zero is refused (IBM does not state how the default minimum reads signed). */
-    public int[] defineCounter(String pool, String name, int value) {
+    /** Whether the value a GET hands out meets COMPAREMIN / COMPAREMAX (null: not given): at or above the one, at or below the
+     *  other; with COMPAREMAX below COMPAREMIN, either (IBM). */
+    private static boolean counterInRange(long v, Long cmpMin, Long cmpMax) {
+        boolean geMin = cmpMin == null || Long.compareUnsigned(v, cmpMin) >= 0;
+        boolean leMax = cmpMax == null || Long.compareUnsigned(v, cmpMax) <= 0;
+        return cmpMin != null && cmpMax != null && Long.compareUnsigned(cmpMax, cmpMin) < 0 ? geMin || leMax : geMin && leMax;
+    }
+
+    /** REWIND COUNTER / DCOUNTER [INCREMENT(n)] (IBM CICS TS, REWIND COUNTER and REWIND DCOUNTER; #5039, X53): {RESP, RESP2}.
+     *  "Resets a named counter that has reached its limit" to its minimum; SUPPRESSED (72) RESP2 102 for one that has not.
+     *  A counter has reached its limit at MAXIMUM + 1 (where a GET leaves it). INVREQ 406 for an INCREMENT beyond (maximum -
+     *  minimum) + 1 (stated), 201 / 403 / 404 as GET. Refused: an INCREMENT of zero or above 1 within the range (how the limit
+     *  test applies it is not stated), a counter with no limits entry. */
+    public int[] rewindCounter(String pool, String name, long increment) {
+        int bad = counterNameResp2(pool, name);
+        if (bad != 0) {
+            return new int[] {16, bad};
+        }
+        if (increment == 0) {
+            throw refused("REWIND COUNTER with an INCREMENT not above zero");
+        }
+        CicsTask r = root();
+        String key = counterKey(pool, name);
+        Long v = r.counters.get(key);
+        if (v == null) {
+            return new int[] {16, 201};
+        }
+        long[] lim = r.counterLimits.get(key);
+        if (lim == null) {
+            throw refused("REWIND COUNTER of a counter whose limits the run does not state");
+        }
+        long min = lim[0], max = lim[1], range = max - min + 1;  // (0: a full doubleword, which no INCREMENT exceeds)
+        if (range != 0 && Long.compareUnsigned(increment, range) > 0) {
+            return new int[] {16, 406};
+        }
+        if (increment != 1) {
+            throw refused("REWIND COUNTER with an INCREMENT above 1");
+        }
+        if (max == -1L || Long.compareUnsigned(v, max) <= 0) {
+            return new int[] {72, 102};
+        }
+        r.counters.put(key, min);
+        return new int[] {0, 0};
+    }
+
+    /** UPDATE COUNTER / DCOUNTER VALUE(n) (IBM CICS TS, UPDATE COUNTER and UPDATE DCOUNTER; #5039, X53): {RESP, RESP2} -- the
+     *  new current value. INVREQ 406 for a VALUE below MINIMUM or above MAXIMUM + 1, 201 / 403 / 404 as GET. `fullword` (a
+     *  COUNTER): a VALUE below zero is refused, as DEFINE's; a counter with no limits entry is refused. */
+    public int[] updateCounter(String pool, String name, long value, boolean fullword) {
+        int bad = counterNameResp2(pool, name);
+        if (bad != 0) {
+            return new int[] {16, bad};
+        }
+        if (fullword && value < 0) {
+            throw refused("UPDATE COUNTER with a VALUE below zero");
+        }
+        CicsTask r = root();
+        String key = counterKey(pool, name);
+        if (r.counters.get(key) == null) {
+            return new int[] {16, 201};
+        }
+        long[] lim = r.counterLimits.get(key);
+        if (lim == null) {
+            throw refused("UPDATE COUNTER of a counter whose limits the run does not state");
+        }
+        if (Long.compareUnsigned(value, lim[0]) < 0 || (lim[1] != -1L && Long.compareUnsigned(value, lim[1] + 1) > 0)) {
+            return new int[] {16, 406};
+        }
+        r.counters.put(key, value);
+        return new int[] {0, 0};
+    }
+
+    /** DEFINE DCOUNTER (IBM CICS TS, DEFINE COUNTER and DEFINE DCOUNTER; #4770, X45): {RESP, RESP2} -- unsigned doublewords:
+     *  the caller passes MINIMUM 0, MAXIMUM -1 (a doubleword of X'FF', IBM's defaults) and VALUE 0 for what the command
+     *  omits. INVREQ 407 when MAXIMUM is below MINIMUM, 406 when VALUE is below MINIMUM or above MAXIMUM + 1, 202 for a
+     *  duplicate, 403 / 404 for a name outside IBM's rules (407 / 406 are checked first: the page gives no order). */
+    public int[] defineDcounter(String pool, String name, long value, long min, long max) {
+        int bad = counterNameResp2(pool, name);
+        if (bad != 0) {
+            return new int[] {16, bad};
+        }
+        if (Long.compareUnsigned(max, min) < 0) {
+            return new int[] {16, 407};
+        }
+        if (Long.compareUnsigned(value, min) < 0 || (max != -1L && Long.compareUnsigned(value, max + 1) > 0)) {
+            return new int[] {16, 406};
+        }
+        CicsTask r = root();
+        String key = counterKey(pool, name);
+        if (r.counters.containsKey(key)) {
+            return new int[] {16, 202};
+        }
+        r.counters.put(key, value);
+        r.counterLimits.put(key, new long[] {min, max});
+        return new int[] {0, 0};
+    }
+
+    /** QUERY DCOUNTER (#4770, X45): {RESP, RESP2, value, minimum, maximum} -- the counter's value, which stays, and its
+     *  limits (unsigned doublewords). `limits`: the command asks for MINIMUM or MAXIMUM, which a counter with no limits entry
+     *  (DEFINE COUNTER's, or a scenario's) has none the run states for: refused. */
+    public long[] queryDcounter(String pool, String name, boolean limits) {
+        int bad = counterNameResp2(pool, name);
+        if (bad != 0) {
+            return new long[] {16, bad, 0, 0, 0};
+        }
+        CicsTask r = root();
+        String key = counterKey(pool, name);
+        Long v = r.counters.get(key);
+        if (v == null) {
+            return new long[] {16, 201, 0, 0, 0};
+        }
+        long[] lim = r.counterLimits.get(key);
+        if (lim == null && limits) {
+            throw refused("QUERY DCOUNTER MINIMUM / MAXIMUM of a counter whose limits the run does not state");
+        }
+        return new long[] {0, 0, v, lim == null ? 0 : lim[0], lim == null ? 0 : lim[1]};
+    }
+
+    /** DEFINE COUNTER (IBM CICS TS, DEFINE COUNTER; X30, #5039, X50): {RESP, RESP2} -- fullwords: the caller passes
+     *  MINIMUM 0, MAXIMUM 2147483647 (X'7FFFFFFF', IBM's defaults) and VALUE 0 for what the command omits. INVREQ 407
+     *  when MAXIMUM is below MINIMUM or beyond X'7FFFFFFF', 406 when VALUE is below MINIMUM or above MAXIMUM + 1,
+     *  202 for a duplicate, 403 / 404 for a name outside IBM's rules. A VALUE or MINIMUM below zero is refused. */
+    public int[] defineCounter(String pool, String name, long value, long min, long max) {
         int bad = counterNameResp2(pool, name);
         if (bad != 0) {
             return new int[] {16, bad};
@@ -2744,13 +3979,27 @@ public class CicsTask {
         if (value < 0) {
             throw refused("DEFINE COUNTER with a VALUE below zero");
         }
-        java.util.Map<String, Long> all = root().counters;
+        if (min < 0) {
+            throw refused("DEFINE COUNTER with a MINIMUM below zero");
+        }
+        if (max < min || max > 2147483647L) {
+            return new int[] {16, 407};
+        }
+        if (value < min || value > max + 1) {
+            return new int[] {16, 406};
+        }
+        CicsTask r = root();
         String key = counterKey(pool, name);
-        if (all.containsKey(key)) {
+        if (r.counters.containsKey(key)) {
             return new int[] {16, 202};
         }
-        all.put(key, (long) value);
+        r.counters.put(key, value);
+        r.counterLimits.put(key, new long[] {min, max});
         return new int[] {0, 0};
+    }
+
+    public int[] defineCounter(String pool, String name, int value) {
+        return defineCounter(pool, name, (long) value, 0L, 2147483647L);
     }
 
     /** DELETE COUNTER (IBM CICS TS, DELETE COUNTER; X30): {RESP, RESP2} -- INVREQ 201 "Named counter not found"
@@ -2760,27 +4009,67 @@ public class CicsTask {
         if (bad == 403) {
             return new int[] {16, bad};
         }
+        root().counterLimits.remove(counterKey(pool, name));
         java.util.Map<String, Long> all = root().counters;
         return all.remove(counterKey(pool, name)) == null ? new int[] {16, 201} : new int[] {0, 0};
     }
 
-    /** QUERY COUNTER (IBM CICS TS, QUERY COUNTER): {RESP, RESP2, value} -- the named counter's current value, which stays;
-     *  INVREQ (16) RESP2 201 "Named counter not found", 403 / 404 for a name outside IBM's rules. The region's counters
-     *  are fullwords: one beyond it (IBM's LENGERR) is refused. */
-    public int[] queryCounter(String pool, String name) {
+    /** QUERY COUNTER (IBM CICS TS, QUERY COUNTER; #4415 slice 2, X29; #5039, X50): {RESP, RESP2, value, minimum, maximum} --
+     *  the counter's value, which stays, and its limits (fullwords). `limits`: the command asks for MINIMUM or MAXIMUM, which a
+     *  counter with no limits entry has none the run states for: refused. */
+    public int[] queryCounter(String pool, String name, boolean limits) {
         int bad = counterNameResp2(pool, name);
         if (bad != 0) {
-            return new int[] {16, bad, 0};
+            return new int[] {16, bad, 0, 0, 0};
         }
-        java.util.Map<String, Long> all = root().counters;
-        Long v = all.get(counterKey(pool, name));
+        CicsTask r = root();
+        String key = counterKey(pool, name);
+        Long v = r.counters.get(key);
         if (v == null) {
-            return new int[] {16, 201, 0};
+            return new int[] {16, 201, 0, 0, 0};
         }
-        if (v < Integer.MIN_VALUE || v > Integer.MAX_VALUE) {
-            throw refused("QUERY COUNTER of a value beyond a fullword (IBM's LENGERR)");
+        long[] lim = r.counterLimits.get(key);
+        if (lim == null && limits) {
+            throw refused("QUERY COUNTER MINIMUM / MAXIMUM of a counter whose limits the run does not state");
         }
-        return new int[] {0, 0, v.intValue()};
+        if (lim != null && limits && (lim[0] < 0 || lim[0] > 2147483647L || lim[1] < 0 || lim[1] > 2147483647L)) {
+            throw refused("QUERY COUNTER MINIMUM / MAXIMUM of a counter whose limits are beyond a fullword");
+        }
+        int le = fullwordLengerr(lim, v);
+        return new int[] {le == 0 ? 0 : 22, le, v.intValue(), lim == null ? 0 : (int) lim[0], lim == null ? 0 : (int) lim[1]};
+    }
+
+    /** LENGERR RESP2 of a fullword (COUNTER) command whose counter holds `v`, an unsigned doubleword (IBM CICS TS, GET COUNTER and
+     *  QUERY COUNTER; #4770, X30): 0 when v fits a signed fullword, or when the counter is at its limit (MAXIMUM + 1: "LENGERR can't
+     *  occur at counter-at-limit", the value is the maximum plus one in 32 bits). Else LENGERR for a counter DCOUNTER made too
+     *  large: RESP2 1 the value overflowed into the sign bit (no bit above the low word), 2 "too large ... by only 1 bit; the
+     *  overflow value is exactly 1" (the high word is 1), 3 greater than 1 (ASSUMED: IBM does not say how a value that is both
+     *  is numbered; the high word decides). The operation completes: VALUE is the low-order 32 bits. */
+    private static int fullwordLengerr(long[] lim, long v) {
+        if (v >= 0 && v <= 2147483647L) {
+            return 0;
+        }
+        if (lim != null && lim[1] != -1L && Long.compareUnsigned(v, lim[1]) > 0) {
+            return 0;
+        }
+        long high = v >>> 32;
+        return high == 0 ? 1 : high == 1 ? 2 : 3;
+    }
+
+    /** The result {RESP, RESP2, value} of a GET COUNTER (fullword form) as IBM's LENGERR warning has it (#4770, X30): RESP 22 with
+     *  RESP2 1 / 2 / 3 and VALUE the low-order 32 bits (a signed number) for a counter that holds more than a fullword; any other
+     *  result as it is. The counter has been advanced: "the named counter server completes the operation". */
+    public long[] fullwordGet(String pool, String name, long[] r) {
+        if (r[0] != 0) {
+            return r;
+        }
+        int le = fullwordLengerr(root().counterLimits.get(counterKey(pool, name)), r[2]);
+        return le == 0 ? r : new long[] {22, le, (int) r[2]};
+    }
+
+    public int[] queryCounter(String pool, String name) {
+        int[] r = queryCounter(pool, name, false);
+        return new int[] {r[0], r[1], r[2]};
     }
 
     /** ASSIGN INVOKINGPROG: the program that LINKed or XCTLed to this one (IBM CICS TS, ASSIGN), 8 characters;
@@ -2898,6 +4187,22 @@ public class CicsTask {
         return new Received(resp, length, data);
     }
 
+    /** #5079 (X63): CONVERSE FROM FROMLENGTH INTO ... (IBM, EXEC CICS CONVERSE (default)): the data written to the terminal,
+     *  recorded as a plain SEND records it (`text`, `length` as the program gave them), then the terminal RECEIVE of the
+     *  reply (`maxLength`, `notruncate` as receive). A negative FROMLENGTH is LENGERR with nothing sent and nothing read
+     *  (ASSUMED: IBM calls the value out of range; the length it returns is -1: no TOLENGTH is set). Refused: an LUTYPE2
+     *  terminal (its reply's last byte raises EOC, which IBM does not list for CONVERSE). */
+    public Received converse(String text, int length, int maxLength, boolean notruncate) {
+        if (root().endOfChain) {
+            throw refused("CONVERSE on an LUTYPE2 terminal (the reply would raise EOC, which IBM does not list for CONVERSE)");
+        }
+        if (length < 0) {
+            return new Received("LENGERR", -1, null);
+        }
+        sendText(text, length);
+        return receive(maxLength, notruncate);
+    }
+
     /** #4413: SEND CONTROL with its options (ERASE, ERASEAUP, FREEKB, ALARM, FRSET; CURSOR with `cursor`, its
      *  offset, else null). It sends device controls only; none of its conditions (IBM, EXEC CICS SEND CONTROL:
      *  INVREQ for a BMS logical message, partitions, LDCs, SET / PAGING) can arise for a task's plain terminal. */
@@ -2927,403 +4232,10 @@ public class CicsTask {
         return this;
     }
 
-    /** READ FILE(file) (#4023 follow-up): `lookup` is the service's generated read method. RESP NORMAL (0) and the
-     *  record, or NOTFND (13) without one -- or the condition the harness planned, and then nothing is read. */
-    public <T> FileRead<T> read(String file, java.util.function.Supplier<Optional<T>> lookup) {
-        int[] planned = root().injected("READ", file);
-        if (planned != null) {
-            return new FileRead<>(planned[0], planned[1], null);
-        }
-        T record = lookup.get().orElse(null);
-        return new FileRead<>(record != null ? 0 : 13, 0, record);
-    }
-
-    /** READ FILE(file) UPDATE: as read, and the file's record is held for a REWRITE. */
-    public <T> FileRead<T> readForUpdate(String file, java.util.function.Supplier<Optional<T>> lookup) {
-        FileRead<T> r = read(file, lookup);
-        if (r.normal()) {
-            root().held.add(file);
-        }
-        return r;
-    }
-
-    /** #4270 READ FILE(file) GTEQ / GENERIC [UPDATE] (oracle_assumptions.md X22): `lookup` searches the file (the
-     *  det port's DetCics.Store.search). RESP NORMAL and the record found, or NOTFND (13) with IBM's RESP2 80 ("An
-     *  attempt to retrieve a record based on the search argument provided is unsuccessful") -- or the condition the
-     *  harness planned, and then nothing is read. With `update` the file's record is held for a REWRITE. */
-    public <T> FileRead<T> readSearch(String file, boolean update, java.util.function.Supplier<Optional<T>> lookup) {
-        int[] planned = root().injected("READ", file);
-        if (planned != null) {
-            return new FileRead<>(planned[0], planned[1], null);
-        }
-        T record = lookup.get().orElse(null);
-        if (record == null) {
-            return new FileRead<>(13, 80, null);
-        }
-        if (update) {
-            root().held.add(file);
-        }
-        return new FileRead<>(0, 0, record);
-    }
-
-    /** WRITE FILE(file) RIDFLD FROM: `exists` says whether the key is there already (DUPREC, 14, as CICS answers);
-     *  else `store` saves the record (the service's generated repository save) and RESP is NORMAL -- or the
-     *  condition the harness planned, and nothing is written. */
-    public int write(String file, boolean exists, Runnable store) {
-        int[] planned = root().injected("WRITE", file);
-        if (planned != null) {
-            return planned[0];
-        }
-        if (exists) {
-            return 14;
-        }
-        store.run();
-        return 0;
-    }
-
-    /** REWRITE FILE(file) FROM: replaces the record a readForUpdate holds (INVREQ, 16, when none is held). */
-    public int rewrite(String file, Runnable store) {
-        int[] planned = root().injected("REWRITE", file);
-        if (planned != null) {
-            return planned[0];
-        }
-        if (!root().held.remove(file)) {
-            return 16;
-        }
-        store.run();
-        return 0;
-    }
-
-    /** DELETE FILE(file) RIDFLD: `exists` says whether the key is there (NOTFND, 13, when not); else `remove`
-     *  deletes it (the service's generated repository delete) -- or the condition the harness planned. */
-    public int delete(String file, boolean exists, Runnable remove) {
-        int[] planned = root().injected("DELETE", file);
-        if (planned != null) {
-            return done(planned[0], planned[1]);
-        }
-        if (!exists) {
-            return done(13, 80);
-        }
-        remove.run();
-        return done(0, 0);
-    }
-
-    /** DELETE FILE(file) without RIDFLD: the record a readForUpdate holds (INVREQ, 16, when none is held). */
-    public int deleteHeld(String file, Runnable remove) {
-        int[] planned = root().injected("DELETE", file);
-        if (planned != null) {
-            return planned[0];
-        }
-        if (!root().held.remove(file)) {
-            return 16;
-        }
-        remove.run();
-        return 0;
-    }
-
-    /** One file's browse: its keys (asked again on every command, so a record written meanwhile is seen), how it
-     *  started, and the last key read and in which direction (0: none yet). An RBA browse (#4213) keeps RBAs. */
-    private static final class Browse {
-        java.util.function.Supplier<java.util.NavigableSet<String>> keys;
-        boolean equal;
-        String start;
-        String last;
-        int dir;
-        boolean rba;
-        long rbaStart;
-        long rbaLast = -1;
-    }
-
-    private final Map<String, Browse> browses = new java.util.HashMap<>();
-
-    /** What a READNEXT / READPREV found: its RESP and the key read (null when none; then look nothing up). */
-    public record Browsed(int resp, int resp2, String key) {
-        public boolean normal() {
-            return resp == 0;
-        }
-    }
-
-    private static boolean highValues(String key) {
-        return !key.isEmpty() && key.chars().allMatch(ch -> ch == '\\u00ff');  // ASCII escape: javac reads source as cp1252 on Windows
-    }
-
-    private int lastResp2;
-
-    /** The RESP2 of the last STARTBR / ENDBR / DELETE by key (those that return only their RESP, an int): IBM's
-     *  documented value where the command states one (#4657) -- STARTBR INVREQ 33 (a browse is active) and NOTFND 80,
-     *  ENDBR INVREQ 35 (no browse), DELETE NOTFND 80 -- else 0, or the planned fault's. */
-    public int resp2() {
-        return root().lastResp2;
-    }
-
-    private int done(int resp, int resp2) {
-        root().lastResp2 = resp2;
-        return resp;
-    }
-
-    /** STARTBR FILE(file) RIDFLD(key) [GTEQ | EQUAL] (IBM CICS TS): positions a browse on the first key >= `key`
-     *  (GTEQ, the default) or on `key` itself (EQUAL); NOTFND (13) when there is none. A key of all X'FF'
-     *  (HIGH-VALUES) positions at the end, for READPREV. A second STARTBR on the file: INVREQ (16). `keys`: the
-     *  file's keys, in key order (e.g. the repository's ids as a TreeSet). */
-    public int startbr(String file, String key, boolean equal,
-                       java.util.function.Supplier<java.util.NavigableSet<String>> keys) {
-        int[] planned = root().injected("STARTBR", file);
-        if (planned != null) {
-            return done(planned[0], planned[1]);
-        }
-        if (root().esds.containsKey(file)) {
-            throw refused("STARTBR by key on " + file + ", an ESDS");
-        }
-        Map<String, Browse> all = root().browses;
-        if (all.containsKey(file)) {
-            return done(16, 33);
-        }
-        java.util.NavigableSet<String> k = keys.get();
-        if (!highValues(key) && (equal ? !k.contains(key) : k.ceiling(key) == null)) {
-            return done(13, 80);
-        }
-        Browse b = new Browse();
-        b.keys = keys;
-        b.equal = equal;
-        b.start = key;
-        all.put(file, b);
-        return done(0, 0);
-    }
-
-    /** READNEXT FILE(file) RIDFLD(ridfld): the key of the next record -- the one STARTBR positioned on first; set
-     *  RIDFLD to it and look the record up by it. A RIDFLD the program changed, or a READNEXT after a READPREV,
-     *  repositions at the first key >= RIDFLD. ENDFILE (20) past the last; INVREQ (16) with no browse. */
-    public Browsed readnext(String file, String ridfld) {
-        int[] planned = root().injected("READNEXT", file);
-        if (planned != null) {
-            return new Browsed(planned[0], planned.length > 1 ? planned[1] : 0, null);
-        }
-        Browse b = root().browses.get(file);
-        if (b == null) {
-            return new Browsed(16, 34, null);
-        }
-        if (b.rba) {
-            throw refused("READNEXT by key in an RBA browse of " + file);
-        }
-        java.util.NavigableSet<String> k = b.keys.get();
-        boolean changed = !ridfld.equals(b.last != null ? b.last : b.start);
-        String at;
-        if (b.dir == 1 && !changed) {
-            at = k.higher(ridfld);
-        } else if (highValues(ridfld)) {
-            at = null;
-        } else {
-            at = b.equal ? (k.contains(ridfld) ? ridfld : null) : k.ceiling(ridfld);
-        }
-        if (at == null) {
-            return new Browsed(20, 90, null);
-        }
-        b.last = at;
-        b.dir = 1;
-        return new Browsed(0, 0, at);
-    }
-
-    /** READPREV FILE(file) RIDFLD(ridfld): the key of the previous record. Right after STARTBR the STARTBR key must
-     *  exist (else NOTFND, 13); after a READNEXT, or with RIDFLD changed, it repositions to RIDFLD and reads that
-     *  record -- so it reads again the record READNEXT just read; after a HIGH-VALUES STARTBR, the last record.
-     *  ENDFILE (20) before the first; INVREQ (16) with no browse. */
-    public Browsed readprev(String file, String ridfld) {
-        int[] planned = root().injected("READPREV", file);
-        if (planned != null) {
-            return new Browsed(planned[0], planned.length > 1 ? planned[1] : 0, null);
-        }
-        Browse b = root().browses.get(file);
-        if (b == null) {
-            return new Browsed(16, 34, null);
-        }
-        if (b.rba) {
-            throw refused("READPREV by key in an RBA browse of " + file);
-        }
-        java.util.NavigableSet<String> k = b.keys.get();
-        boolean changed = !ridfld.equals(b.last != null ? b.last : b.start);
-        String at;
-        int none;
-        if (highValues(ridfld) && (b.dir == 0 || changed)) {
-            at = k.isEmpty() ? null : k.last();
-            none = 20;
-        } else if (b.dir == -1 && !changed) {
-            at = k.lower(ridfld);
-            none = 20;
-        } else {
-            at = k.contains(ridfld) ? ridfld : null;
-            none = 13;
-        }
-        if (at == null) {
-            return new Browsed(none, none == 20 ? 90 : 80, null);
-        }
-        b.last = at;
-        b.dir = -1;
-        return new Browsed(0, 0, at);
-    }
-
-    // ---- #4213: an ESDS browsed by relative byte address (STARTBR / READNEXT / READPREV ... RBA) ----------------
-    // IBM CICS TS, EXEC CICS STARTBR / READNEXT / READPREV, option RBA: RIDFLD "contains a relative byte address",
-    // and READNEXT / READPREV "return the relative byte address of each retrieved record". EQUAL is "the default for a
-    // direct ESDS browse"; a RIDFLD of X'FF's positions at the end, for READPREV. The records are fixed-length, in
-    // arrival order, and a record's RBA is its byte offset (oracle_assumptions.md X13); the browse moves as the keyed
-    // one does, in RBA order. Refused (UnsupportedOperationException, "... not modelled"), as the COBOL side's stub
-    // refuses them: an RBA that addresses no record, RBA on a file that is not an ESDS, a browse mixing RBA and keys.
-
-    /** An ESDS of the region: its records in arrival order, each `reclen` bytes. */
-    private record Esds(int reclen, List<byte[]> records) {
-    }
-
-    private final Map<String, Esds> esds = new java.util.HashMap<>();
-
-    /** The region's ESDS `file` (a case's dataset): its records in arrival order, each `reclen` bytes. */
-    public CicsTask withEsds(String file, int reclen, List<byte[]> records) {
-        root().esds.put(file, new Esds(reclen, new ArrayList<>(records)));
-        return this;
-    }
-
-    /** The ESDS `file`'s records, as the task leaves them. */
-    public List<byte[]> esdsRecords(String file) {
-        return root().esds.get(file).records();
-    }
-
-    /** A fullword RIDFLD's RBA: its first four bytes, big-endian, unsigned. */
-    public static long rba(byte[] ridfld) {
-        long v = 0;
-        for (int i = 0; i < 4; i++) {
-            v = (v << 8) | (ridfld[i] & 0xFF);
-        }
-        return v;
-    }
-
-    /** An RBA as the fullword CICS returns in RIDFLD. */
-    public static byte[] rbaBytes(long rba) {
-        return new byte[] {(byte) (rba >>> 24), (byte) (rba >>> 16), (byte) (rba >>> 8), (byte) rba};
-    }
-
-    private static final long RBA_END = 0xFFFFFFFFL;
-
-    private static UnsupportedOperationException refused(String what) {
-        return new UnsupportedOperationException(what + ": not modelled");
-    }
-
-    private Esds esdsOf(String file) {
-        Esds e = root().esds.get(file);
-        if (e == null) {
-            throw refused("STARTBR RBA on " + file + ", not an ESDS");
-        }
-        return e;
-    }
-
-    /** The record (0-based) at `rba`; refused when no record starts there. */
-    private static int rbaRecord(String verb, String file, Esds e, long rba) {
-        if (rba % e.reclen() == 0 && rba / e.reclen() < e.records().size()) {
-            return (int) (rba / e.reclen());
-        }
-        throw refused(verb + " RBA " + rba + " on " + file + ": no record starts there");
-    }
-
-    /** What a READNEXT / READPREV ... RBA found: its RESP and RESP2, and the record and its RBA (null: none). A record
-     *  longer than INTO is LENGERR (22) with the record still returned (CICS copies what INTO takes). */
-    public record BrowsedRba(int resp, int resp2, long rba, byte[] record) {
-        public boolean normal() {
-            return resp == 0;
-        }
-    }
-
-    /** STARTBR FILE(file) RIDFLD(rba) RBA [EQUAL]: positions on the record at `rba`, or at the end for X'FFFFFFFF'.
-     *  INVREQ (16) when a browse of the file is active. */
-    public int startbrRba(String file, long rba) {
-        int[] planned = root().injected("STARTBR", file);
-        if (planned != null) {
-            return done(planned[0], planned[1]);
-        }
-        Esds e = esdsOf(file);
-        Map<String, Browse> all = root().browses;
-        if (all.containsKey(file)) {
-            return done(16, 33);
-        }
-        if (rba != RBA_END) {
-            rbaRecord("STARTBR", file, e, rba);
-        }
-        Browse b = new Browse();
-        b.rba = true;
-        b.equal = true;
-        b.rbaStart = rba;
-        all.put(file, b);
-        return done(0, 0);
-    }
-
-    /** READNEXT FILE(file) RIDFLD(ridfld) RBA: the record STARTBR positioned on, then each next; a RIDFLD the program
-     *  changed, or a READNEXT after a READPREV, repositions at that RBA. ENDFILE (20) past the last; INVREQ (16) with
-     *  no browse. `intoLength`: INTO's length (LENGERR past it). */
-    public BrowsedRba readnextRba(String file, long ridfld, int intoLength) {
-        return rbaRead("READNEXT", 1, file, ridfld, intoLength);
-    }
-
-    /** READPREV FILE(file) RIDFLD(ridfld) RBA: right after STARTBR the STARTBR's record (or, after X'FFFFFFFF', the
-     *  last); after a READNEXT, or with RIDFLD changed, the record at RIDFLD -- the one READNEXT just read, again;
-     *  then each previous. ENDFILE (20) before the first; INVREQ (16) with no browse. */
-    public BrowsedRba readprevRba(String file, long ridfld, int intoLength) {
-        return rbaRead("READPREV", -1, file, ridfld, intoLength);
-    }
-
-    private BrowsedRba rbaRead(String verb, int dir, String file, long ridfld, int intoLength) {
-        int[] planned = root().injected(verb, file);
-        if (planned != null) {
-            return new BrowsedRba(planned[0], planned.length > 1 ? planned[1] : 0, ridfld, null);
-        }
-        Browse b = root().browses.get(file);
-        if (b == null) {
-            return new BrowsedRba(16, 34, ridfld, null);
-        }
-        if (!b.rba) {
-            throw refused(verb + " by RBA in a keyed browse of " + file);
-        }
-        Esds e = root().esds.get(file);
-        int n = e.records().size();
-        boolean changed = ridfld != (b.rbaLast >= 0 ? b.rbaLast : b.rbaStart);
-        long at;
-        if (dir > 0) {
-            if (b.dir == 0 && b.rbaStart != RBA_END && !changed) {
-                at = rbaRecord(verb, file, e, ridfld);
-            } else if (b.dir == 1 && !changed) {
-                at = ridfld / e.reclen() + 1;
-            } else if (ridfld == RBA_END) {
-                at = -1;
-            } else {
-                at = rbaRecord(verb, file, e, ridfld);
-            }
-            if (at >= n) {
-                at = -1;
-            }
-        } else {
-            if (ridfld == RBA_END && (b.dir == 0 || changed)) {
-                at = n - 1;
-            } else if (b.dir == -1 && !changed) {
-                at = ridfld / e.reclen() - 1;
-            } else {
-                at = rbaRecord(verb, file, e, ridfld);
-            }
-        }
-        if (at < 0) {
-            return new BrowsedRba(20, 90, ridfld, null);
-        }
-        byte[] rec = e.records().get((int) at);
-        long rba = at * e.reclen();
-        b.rbaLast = rba;
-        b.dir = dir;
-        return rec.length > intoLength ? new BrowsedRba(22, 11, rba, rec) : new BrowsedRba(0, 0, rba, rec);
-    }
-
-    /** ENDBR FILE(file): the browse ends; INVREQ (16) when none is active. */
-    public int endbr(String file) {
-        int[] planned = root().injected("ENDBR", file);
-        if (planned != null) {
-            return done(planned[0], planned[1]);
-        }
-        return root().browses.remove(file) != null ? done(0, 0) : done(16, 35);
-    }
-
+"""
+# #5274: the file-control family's methods live in their own module (cics_task_filecontrol.py).
+CICS_TASK_JAVA += FILECONTROL_JAVA
+CICS_TASK_JAVA += """\
     /** #4437: the task runs a program LINKed from outside the region -- a distributed program link's server. */
     public CicsTask asDplServer() {
         this.dplServer = true;
@@ -3344,8 +4256,12 @@ public class CicsTask {
     public void syncpoint() {
         refuseInDplServer("SYNCPOINT");
         root().held.clear();
+        root().updateTokens.clear();  // a sync point / rollback ends every hold
+        invalidateSyncSet();  // #5042: and a READ UPDATE SET's, a browse SET's pointer
         root().containerBrowses.clear();  // #4951: a browse token does not survive a sync point
         root().syncpointed = true;
+        tdUowEnd(false);  // #5168
+        resourceUowEnd(false);  // #4892
         event("SYNCPOINT");
     }
 
@@ -3358,7 +4274,11 @@ public class CicsTask {
             throw new UnsupportedOperationException("SYNCPOINT ROLLBACK after a SYNCPOINT is not modelled");
         }
         root().held.clear();
+        root().updateTokens.clear();  // a sync point / rollback ends every hold
+        invalidateSyncSet();  // #5042: and a READ UPDATE SET's, a browse SET's pointer
         root().containerBrowses.clear();
+        tdUowEnd(true);  // #5168
+        resourceUowEnd(true);  // #4892
         if (root().rollbackHook != null) {
             root().rollbackHook.run();
         }
@@ -3413,7 +4333,35 @@ public class CicsTask {
     /** A file command's outcome: RESP and RESP2 (DFHRESP numbers) and the record read, when there is one. */
     public record FileRead<T>(int resp, int resp2, T record) {
         public boolean normal() {
-            return resp == 0;
+            return resp == 0 || resp == 15;  // #4623: DUPKEY (15) delivers the record too
+        }
+    }
+
+    /** #4623: a planned DUPKEY (15) is not a failure of the read: IBM retrieves the record through the non-unique
+     *  alternate index and answers DUPKEY (RESP2 140) because another with the same key follows. So `injected`
+     *  holds it back (the read runs), and a read that did find a record asks here for its outcome. */
+    private int[] deferredDupkey;  // {n, resp, resp2} of the plan line, and its command and file
+    private String deferredWhat;
+
+    private int[] dupkeyOr() {
+        if (deferredDupkey == null) {
+            return new int[] {0, 0};
+        }
+        int[] d = deferredDupkey;
+        deferredDupkey = null;
+        logFault(deferredWhat, d[0], d[1], d[2]);
+        return new int[] {d[1], d[2]};
+    }
+
+    private void logFault(String what, int n, int resp, int resp2) {
+        if (faultLog != null) {
+            try {
+                java.nio.file.Files.writeString(faultLog, what + " " + n + " " + resp + " " + resp2
+                        + System.lineSeparator(), java.nio.file.StandardOpenOption.CREATE,
+                        java.nio.file.StandardOpenOption.APPEND);
+            } catch (java.io.IOException e) {
+                throw new java.io.UncheckedIOException(e);
+            }
         }
     }
 
@@ -3422,19 +4370,17 @@ public class CicsTask {
             return null;
         }
         int n = faultSeen.merge(cmd + " " + file, 1, Integer::sum);
+        deferredDupkey = null;
         for (String[] f : faultPlan) {
             if (f[0].equals(cmd) && f[1].equals(file) && ("*".equals(f[2]) || Integer.parseInt(f[2]) == n)) {
                 int resp = Integer.parseInt(f[3]);
                 int resp2 = f.length > 4 ? Integer.parseInt(f[4]) : 0;
-                if (faultLog != null) {
-                    try {
-                        java.nio.file.Files.writeString(faultLog, cmd + " " + file + " " + n + " " + resp + " " + resp2
-                                + System.lineSeparator(), java.nio.file.StandardOpenOption.CREATE,
-                                java.nio.file.StandardOpenOption.APPEND);
-                    } catch (java.io.IOException e) {
-                        throw new java.io.UncheckedIOException(e);
-                    }
+                if (resp == 15) {  // DUPKEY: the read goes on, see dupkeyOr
+                    deferredDupkey = new int[] {n, resp, resp2};
+                    deferredWhat = cmd + " " + file;
+                    return null;
                 }
+                logFault(cmd + " " + file, n, resp, resp2);
                 return new int[] {resp, resp2};
             }
         }
@@ -3489,6 +4435,22 @@ public class CicsTask {
     public static final class TempStorage {
         private final Map<String, List<byte[]>> queues = new LinkedHashMap<>();
         private final Map<String, Integer> next = new HashMap<>();
+        /** The intrapartition transient-data queues' records (#5079): first in first out. */
+        final Map<String, java.util.ArrayDeque<String>> td = new HashMap<>();
+        /** The run-time open state SET TDQUEUE OPENSTATUS left on an extrapartition queue (#5168, X61): true open, false closed. */
+        final Map<String, Boolean> tdOpen = new HashMap<>();
+        /** The queues SET TDQUEUE ENABLESTATUS(DISABLED) left disabled (#5168 round 5, X66). */
+        final java.util.Set<String> tdDisabled = new java.util.HashSet<>();
+        /** The levels SET TDQUEUE TRIGGERLEVEL left (#5168 round 7, X66). */
+        final java.util.Map<String, Integer> tdTrigger = new java.util.HashMap<>();
+        /** The extrapartition queues a READQ TD has taken a record from (reopening an input queue would restart it). */
+        final java.util.Set<String> tdRead = new java.util.HashSet<>();
+
+        /** A transient-data queue's records as they are before the conversation starts (#5168). */
+        public TempStorage seedTd(String queue, List<String> records) {
+            td.put(queue, new java.util.ArrayDeque<>(records));
+            return this;
+        }
 
         /** A queue as it is before the conversation starts. */
         public TempStorage seed(String queue, List<byte[]> items) {
@@ -3660,8 +4622,19 @@ public class CicsTask {
     public void returnTransid(String transid, Object commarea, Integer length, byte[] area) {
         returnTransid(transid, commarea, length);
         if (level == 1) {
-            root().returnedBytes = area;
+            root().returnedBytes = areaOf(area, length);
         }
+    }
+
+    /** #4817: the bytes a RETURN / XCTL COMMAREA passes on: a copy of the first LENGTH of `area` (null LENGTH: all of
+     *  it). IBM passes LENGTH bytes -- the next task's EIBCALEN -- so a record longer than its LENGTH does not carry
+     *  its tail across; the DTO's reading (`returned`) is cut at LENGTH the same way. A LINK is not cut: its area is
+     *  passed by address, so the callee's storage is the caller's, tail included. */
+    private static byte[] areaOf(byte[] area, Integer length) {
+        if (area == null) {
+            return null;
+        }
+        return java.util.Arrays.copyOf(area, length == null ? area.length : Math.max(0, Math.min(length, area.length)));
     }
 
     /** RETURN TRANSID(transid) [COMMAREA(commarea) LENGTH(length)] IMMEDIATE (#4270, register X27; IBM, EXEC CICS
@@ -3707,14 +4680,50 @@ public class CicsTask {
     public int[] returnImmediate(String transid, Object commarea, Integer length, byte[] area) {
         int[] resps = returnImmediate(transid, commarea, length);
         if (resps[0] == 0 && level == 1) {
-            root().returnedBytes = area;
+            root().returnedBytes = areaOf(area, length);
         }
         return resps;
     }
 
-    /** #4817: the RETURN TRANSID COMMAREA bytes, a copy */
+    /** #4817: the RETURN TRANSID COMMAREA bytes, a copy: the first LENGTH of the bytes the program passed beside its
+     *  DTO, in its storage page's charset (what the next task takes through linkArea). Null when a RETURN passed none
+     *  beside its COMMAREA -- a LENGTH past the DTO passes the COMMAREA itself as a byte[] in the region's EBCDIC
+     *  (#4695: `returned(Object.class)`, so a facade's handleTransaction answers that byte[] by design: the Object
+     *  answer is the COMMAREA as the next task is given it, and `returned(Dto.class)` refuses it by name). */
     public byte[] returnedBytes() {
+        root().bytesTaken = true;
         return returnedBytes == null ? null : java.util.Arrays.copyOf(returnedBytes, returnedBytes.length);
+    }
+
+    /** #4817: a DTO-only answer must not change what the RETURN passed. IBM hands the next task the COMMAREA's bytes
+     *  as they were; the DTO holds a number it decoded (a numeric DISPLAY field of spaces and digits, invalid content),
+     *  and answering it would put digits where the task left something else. When the task's bytes were not taken
+     *  (returnedBytes(): the byte-carrying handleTransaction does), the DTO's layout bytes (toCommarea) must hold
+     *  every byte the RETURN passed: a byte toCommarea writes that is not a space (FILLER and an unset field are
+     *  spaces, in either page) and differs from the passed one is refused by name. A DTO with no layout, or a RETURN
+     *  that passed no bytes beside it, is as it was. */
+    private void lossless(Object area) {
+        byte[] passed = root().returnedBytes;
+        if (passed == null) {
+            return;
+        }
+        byte[] laid;
+        try {
+            java.lang.reflect.Method to = area.getClass().getMethod("toCommarea");
+            if (to.getReturnType() != byte[].class) {
+                return;
+            }
+            laid = (byte[]) to.invoke(area);
+        } catch (NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException e) {
+            return;
+        }
+        for (int i = 0; i < Math.min(laid.length, passed.length); i++) {
+            if (laid[i] != passed[i] && laid[i] != 0x20 && laid[i] != 0x40) {
+                throw new IllegalStateException("the task RETURNed a COMMAREA whose byte " + i + " the " + area.getClass().getName()
+                        + " DTO cannot hold as it was (a number it decoded): answer it through the byte-carrying"
+                        + " handleTransaction(.., byte[]) and lastAnswerBytes() (#4817)");
+            }
+        }
     }
 
     /** The COMMAREA the task's level-1 RETURN passed on (#4343: what handleTransaction answers), as `type`; null when
@@ -3725,10 +4734,14 @@ public class CicsTask {
      *  fewer bytes than `type`'s record (never passed). */
     public <T> T returned(Class<T> type) {
         Object area = root().returnedArea;
+        if (area != null && !root().bytesTaken) {
+            lossless(area);
+        }
         if (area == null || type.isInstance(area)) {
             return type.cast(area);
         }
-        String refused = "the task RETURNed a " + area.getClass().getName() + ", not a " + type.getName();
+        String refused = "the task RETURNed a " + area.getClass().getName() + ", not a " + type.getName()
+                + (area instanceof byte[] ? " (a LENGTH past its DTO passes the COMMAREA's bytes: answer it as Object)" : "");
         java.lang.reflect.Method to;
         java.lang.reflect.Method from;
         try {
@@ -3775,6 +4788,11 @@ public class CicsTask {
         /** The program level `program` runs at when another program LINKs (or XCTLs) to it with `commarea` (null:
          *  none) -- the whole record, passed by reference: what the program changes in it, the caller sees. */
         CicsTask linked(String program, Object commarea);
+        /** #5053: same, with the raw bytes of the LINK's COMMAREA: its program's DFHCOMMAREA, passed by address (what it
+         *  leaves there the caller sees), every byte -- the ones the contract DTO does not name too. */
+        default CicsTask linked(String program, Object commarea, byte[] bytes) {
+            return linked(program, commarea).withLinkArea(bytes);
+        }
 
         /** Runs `program` on `task`: `self` is the program's own runTask; a LINK / XCTL reaches the region's others. */
         void run(CicsTask task, String program, Consumer<CicsTask> self);
@@ -3883,14 +4901,100 @@ public class CicsTask {
      *  numeric field holding spaces too, which the DTO reads as a number -- as a LINK's (linkArea). */
     public String xctl(String program, Object commarea, Integer length, byte[] area) {
         String resp = xctl(program, commarea, length, (Channel) null);
+        if (area != null) {  // #5053: the event carries the bytes the caller sent (base64), as a LINK's does
+            events.get(events.size() - 1).put("area", java.util.Base64.getEncoder().encodeToString(areaOf(area, length)));
+        }
         if ("NORMAL".equals(resp)) {
-            xctlArea = area;
+            xctlArea = areaOf(area, length);
         }
         return resp;
     }
 
     private boolean callerArea;      // #4816: linkArea is the LINK caller's storage (not a copy, not a task's own area)
     private boolean xctlOfLinkage;   // #4816: the next XCTL's COMMAREA is inside this program's DFHCOMMAREA
+    private boolean linkedDto;       // #4956: the DTO this program was LINKed with is its LINK caller's own object
+
+    /** #4956: whether `o` can be an alias of another object: a value (String, number, enum) is passed as it is. */
+    private static boolean aliasable(Object o) {
+        return o != null && !(o instanceof Enum || o instanceof String || o instanceof Boolean
+                || o instanceof Character || o instanceof java.math.BigDecimal || o instanceof java.math.BigInteger
+                || o instanceof Integer || o instanceof Long || o instanceof Short || o instanceof Byte
+                || o instanceof Double || o instanceof Float);
+    }
+
+    /** #5060: two values are the same when equal, numbers by numeric value whatever their width or scale (an int
+     *  field passed as a long, 1.0 and 1.00): refuse, never guess. */
+    private static boolean sameValue(Object a, Object b) {
+        if (a.equals(b)) {
+            return true;
+        }
+        if (a instanceof Number && b instanceof Number) {
+            try {
+                return new java.math.BigDecimal(a.toString()).compareTo(new java.math.BigDecimal(b.toString())) == 0;
+            } catch (NumberFormatException e) {
+                return false;  // NaN, infinity: equals above decided
+            }
+        }
+        return false;
+    }
+
+    /** #5060: a String or number `part` cannot be traced by reference, so it counts when it equals a value `whole`
+     *  holds (an equal-valued copy is refused too: refuse, never guess).
+     *  #4956: whether `part` is `whole` or an object `whole` holds (a nested group, a table, an element, a byte
+     *  area), by reference -- what an XCTL of a LINKed program's DTO, or of a part of it, passes. */
+    private static boolean within(Object whole, Object part, java.util.IdentityHashMap<Object, Boolean> seen) {
+        if (whole == part) {
+            return true;
+        }
+        boolean byValue = part != null && !aliasable(part);  // #5060: a value is traced by equality, not identity
+        if (!aliasable(whole)) {
+            return byValue && sameValue(part, whole);
+        }
+        if (seen.put(whole, Boolean.TRUE) != null) {
+            return false;
+        }
+        Class<?> type = whole.getClass();
+        java.util.List<Object> held = new ArrayList<>();
+        if (type.isArray()) {
+            if (type.getComponentType().isPrimitive()) {
+                if (byValue) {  // #5060: a numeric table's element is a value of the DTO too
+                    for (int i = 0; i < java.lang.reflect.Array.getLength(whole); i++) {
+                        if (sameValue(part, java.lang.reflect.Array.get(whole, i))) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+            held.addAll(Arrays.asList((Object[]) whole));
+        } else if (whole instanceof Iterable) {
+            for (Object e : (Iterable<?>) whole) {
+                held.add(e);
+            }
+        } else if (whole instanceof Map) {
+            held.addAll(((Map<?, ?>) whole).values());
+        } else if (!type.getName().startsWith("java.")) {
+            for (Class<?> k = type; k != null && k != Object.class; k = k.getSuperclass()) {
+                for (java.lang.reflect.Field f : k.getDeclaredFields()) {
+                    if (java.lang.reflect.Modifier.isStatic(f.getModifiers()) || (f.getType().isPrimitive() && !byValue)) {
+                        continue;
+                    }
+                    try {
+                        f.setAccessible(true);
+                        held.add(f.get(whole));
+                    } catch (RuntimeException | IllegalAccessException e) {
+                        // an unreadable field is not an alias this walk can see
+                    }
+                }
+            }
+        }
+        for (Object h : held) {
+            if (within(h, part, seen)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /** #4816: the XCTL about to be issued passes (part of) this program's own DFHCOMMAREA. A LINKed program's is its
      *  caller's storage; IBM (EXEC CICS XCTL, COMMAREA: "the contents of the data-area are passed") does not say whether
@@ -3916,11 +5020,13 @@ public class CicsTask {
                 resp2 = planned[1];
             }
         }
+        transferResp2 = resp2 == null ? 0 : resp2;  // #4986: as LINK's
         event("XCTL", "program", program, "length", commarea == null ? Integer.valueOf(0) : length, "commarea",
                 snapshot.apply(commarea), "resp", resp, "resp2", resp2);
         boolean ofLinkage = xctlOfLinkage;
         xctlOfLinkage = false;
-        if ("NORMAL".equals(resp) && ofLinkage && callerArea) {
+        boolean ofDto = linkedDto && commarea != null && within(this.commarea, commarea, new java.util.IdentityHashMap<>());
+        if ("NORMAL".equals(resp) && (ofLinkage && callerArea || ofDto)) {
             throw new UnsupportedOperationException("XCTL passing the COMMAREA its LINK caller passed: IBM does not say "
                     + "whether the target addresses the caller's storage or a copy, not modelled");
         }
@@ -4034,6 +5140,8 @@ public class CicsTask {
             if (!root().syncpointed && root().rollbackHook != null) {
                 root().rollbackHook.run();
             }
+            tdUowEnd(true);  // #5168: a LOGICAL TD queue goes back to the last SYNCPOINT, as the stub's uow_end(1)
+            resourceUowEnd(true);  // #4892: and an MQ unit of work (W5)
             return null;
         }
         at.exitActive = false;  // "the exit is deactivated when it gets control"
@@ -4095,7 +5203,20 @@ public class CicsTask {
         return ended;
     }
 
+    /** The events so far. An ACTION(EVENTUAL) WEB SEND (X37) is sent at the end of the task: its WEB-SEND event is recorded
+     *  here, once, after the task's other events (read the events when the task has ended); a task that ended in an abend
+     *  with one held is refused (IBM does not say whether the response is sent). */
     public List<Map<String, Object>> events() {
+        if (webHeld != null) {
+            for (Map<String, Object> e : events) {
+                if ("ABEND".equals(e.get("event")) && "terminated".equals(e.get("outcome"))) {
+                    throw refused("WEB SEND ACTION(EVENTUAL) response held when the task ended in an abend");
+                }
+            }
+            Object[] fields = webHeld;
+            webHeld = null;
+            event("WEB-SEND", fields);
+        }
         return Collections.unmodifiableList(events);
     }
 
@@ -4109,6 +5230,10 @@ public class CicsTask {
     }
 
     private void add(Map<String, Object> e) {
+        if (root().dispatched && !CHILD_EVENTS.contains(e.get("event"))) {  // #4950 (X18, R1)
+            throw new UnsupportedOperationException("a RUN TRANSID child's " + e.get("event") + " (a region resource or "
+                    + "a terminal): its order against its parent's and its siblings' commands is not modelled");
+        }
         if (program != null) {
             e.put("issuer", program);  // #4004: the program issuing the command, at whichever level
         }
@@ -4611,6 +5736,19 @@ class CicsForge:
             if prog.txn_converts and prog.txn_response:
                 for name in (prog.txn_response, *prog.txn_converts):
                     self.dtos[name].methods = self._codecs[name]
+        # #4803: a LINK passes bytes, so the DTO of the program that LINKs (its own COMMAREA, the area its task holds)
+        # and the DTO of the program LINKed to read through each other by layout when both are laid out as bytes and
+        # cut the same way (_reads_through): EPSCMORT's EPSMTCOM and EPSCSMRT's own DFHCOMMAREA, a LINK whose PROGRAM is
+        # a variable (a candidate row, not a resolved contract). The harness converts the LINK's area with these codecs.
+        for prog in self.programs.values():
+            callee = prog.commarea_dto
+            for r in prog.links:
+                sender = by_file.get(r.get("caller", ""))
+                own = sender.commarea_dto if sender is not None else None
+                if (r.get("verb") == "LINK" and callee in self._codecs and own in self._codecs and own != callee
+                        and self._reads_through(callee, {own})):  # fmt: skip
+                    for name in (callee, own):
+                        self.dtos[name].methods = self._codecs[name]
 
     def _reads_through(self, own: str, others: set[str | None]) -> bool:
         """#4449: whether every record in `others` reads through `own` with no byte lost: both laid out exactly as
@@ -4895,6 +6033,30 @@ class CicsForge:
             "}", "",
         ])  # fmt: skip
 
+    @staticmethod
+    def link_bytes_overload(prog: CicsProgram, name: str, req: str, resp: str | None) -> list[str]:
+        """#5053: handleLink with the raw bytes of the LINK's COMMAREA, and the lastLinkBytes() accessor beside it."""
+        return [
+            "    /** #5053: handleLink with the raw bytes of the LINK's COMMAREA (passed by address: what the program",
+            "     *  leaves there the caller sees); lastLinkBytes() then answers the bytes it left. */",
+            f"    public {req if resp == req else 'void'} handleLink({req} request, byte[] area) {{",
+            f'        log.info("{prog.cls}: handleLink (bytes)");',
+            "        CicsTask.Region region = CicsTask.region();",
+            f"        CicsTask task = region.linked({name}, request, area);",
+            f"        region.run(task, {name}, this::runTask);",
+            "        byte[] left = task.linkAreaView();",
+            "        lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+            *(["        return request;"] if resp == req else []),
+            "    }\n",
+            "    // @facade-helper: the bytes the last byte-carrying handleLink's program left in the COMMAREA",
+            "    private byte[] lastLinkBytes;\n",
+            "    /** The bytes the last byte-carrying handleLink's program left in the LINK COMMAREA (a copy; null: it took",
+            "     *  none -- its DTO is the COMMAREA). @facade-helper */",
+            "    public byte[] lastLinkBytes() {",
+            "        return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
+            "    }\n",
+        ]  # fmt: skip
+
     def service_extras(self, prog: CicsProgram) -> dict:
         """The imports and methods the program's @Service gains: the handlers its endpoints call."""
         req, resp = self.link_types(prog)
@@ -5000,6 +6162,10 @@ class CicsForge:
                 f"        region.run(task, {name}, this::runTask);",
                 *(["        return request;"] if resp == req and req else []),
                 "    }\n",
+                # #5053: the same entry with the bytes of the LINK's COMMAREA (a LINK with none has no bytes to carry:
+                # `handleLink(byte[])` would only collide with the DTO form's arity), and the bytes the program left
+                # there (lastLinkBytes()): the signature above is unchanged (the equivalence harness reads it).
+                *(self.link_bytes_overload(prog, name, req, resp) if req else []),
             ]  # fmt: skip
         elif self.has_link_handler(prog):
             handler("handleLink", None, req, resp, "Another program LINKed / XCTLed to this one.")

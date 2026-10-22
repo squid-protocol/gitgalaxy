@@ -16,7 +16,7 @@ import pytest
 
 import gitgalaxy.cobol_refractor_controller as refractor
 import gitgalaxy.cobol_to_java_controller as java_controller
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import scan_to_db
+from scan_server import scan_to_db
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_port_tickets import _carrying_class, count_tokens
 
 PROGRAM = """\
@@ -174,6 +174,7 @@ def test_the_commarea_is_a_reference_to_the_class_that_carries_it(generated):
     assert ref["bytes_after"] < ref["bytes_before"] / 5
 
 
+@pytest.mark.slow(reason="pays for the module-scoped refract + java estate fixture: 15 s on a CI runner (#5267)")
 def test_what_no_generated_class_carries_stays_inline(generated):
     """The CICS file lineage's CSD facts -- key length, group, the line of each READ -- are in no generated class."""
     _, ticket, skeleton = generated

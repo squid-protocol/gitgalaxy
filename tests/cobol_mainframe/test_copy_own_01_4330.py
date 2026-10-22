@@ -6,7 +6,8 @@ any later member of a run that does not resolve -- to `EngineFile.section_copies
 
 import pytest
 
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+from scan_server import scan_to_db
 
 CPYFOLD = """\
        IDENTIFICATION DIVISION.

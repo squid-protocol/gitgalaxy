@@ -49,6 +49,24 @@
     "handleTransaction(String,Cousr00cCarddemoCommarea,byte[])",
     "lastAnswerBytes()"
    ]
+  },
+  {
+   "at": "2026-10-13T22:30:00+00:00",
+   "event": "edited",
+   "by": "churn worker for #5044 (Claude Opus 5.5)",
+   "what": "WS-REAS-CD after STARTBR / READNEXT / READPREV is CicsTask's EIBRESP2 (resp2()) instead of 0: IBM's RESP2 is now planned on file faults, so the io-error / not-open scenarios show it"
+  },
+  {
+   "at": "2026-10-17T19:05:41+00:00",
+   "event": "resurfaced",
+   "by": "tests/tools/port_surface.py",
+   "generator_commit": "b3b16bb72",
+   "generated_from": "service/Cousr00cService.java",
+   "added": [
+    "lastLinkBytes (field)",
+    "handleLink(Cousr00cCarddemoCommarea,byte[])",
+    "lastLinkBytes()"
+   ]
   }
  ]
 }

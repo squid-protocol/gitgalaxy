@@ -21,6 +21,7 @@ public final class Ceeloct {
     private Ceeloct() {
     }
 
+    // [rule RT-LE-CEELOCT]
     public static void call(String now, Field lilian, Field seconds, Field gregorian, Field fc, Charset cs) {
         int y = Integer.parseInt(now.substring(0, 4));
         int mo = Integer.parseInt(now.substring(4, 6));

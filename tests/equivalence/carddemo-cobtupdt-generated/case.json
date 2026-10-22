@@ -1,0 +1,29 @@
+{
+  "corpus": "aws-mainframe-modernization-carddemo",
+  "program": "COBTUPDT",
+  "program_source": "app/app-transaction-type-db2/cbl/COBTUPDT.cbl",
+  "copy_dirs": [],
+  "port_from": "carddemo-cobtupdt",
+  "job": "MNTTRDB2",
+  "step": "STEP1",
+  "parm": null,
+  "clock": "2022/07/18 10:30:15.00",
+  "datasets": {
+    "INPFILE": {
+      "input": "@generate", "organization": "sequential", "reclen": 53,
+      "generate": {"copybook": "app/app-transaction-type-db2/cbl/COBTUPDT.cbl", "record": "WS-INPUT-VARS",
+                   "records": 40, "seed": 4507,
+                   "fields": {"INPUT-TYPE": {"values": ["A", "U", "D", "A", "U", "D", "*", "X"]},
+                              "INPUT-TR-NUMBER": {"from": "CARDDEMO.TRANSACTION_TYPE.TR_TYPE", "miss": 0.35}}}
+    }
+  },
+  "db2": {
+    "ddl": ["app/app-transaction-type-db2/ddl/TRNTYPE.ddl"],
+    "include_dirs": ["app/app-transaction-type-db2/dcl"],
+    "seed": "@generate",
+    "compare": ["CARDDEMO.TRANSACTION_TYPE"],
+    "compare_sql": true,
+    "generate": {"seed": 4507, "tables": {"CARDDEMO.TRANSACTION_TYPE": {"rows": 14}}}
+  },
+  "notes": "CardDemo's Db2 transaction-type maintenance (COBTUPDT, MNTTRDB2 under DSN) on GENERATED rows and input (#4507), proving the carddemo-cobtupdt port on data it was not written against: 14 CARDDEMO.TRANSACTION_TYPE rows built from TRNTYPE.ddl (CHAR(2) key at full length, blank and in between; VARCHAR(50) description empty, at its maximum, with trailing blanks), and 40 INPFILE records laid out by the program's own FD: the type cycling add / update / delete / comment / invalid, the number drawn from the generated keys (an add of one the table holds: SQLCODE -803; an update or delete of one it does not: +100) with a share (35%) it does not hold. Every statement's SQLCODE, SQLSTATE and row count is compared with what Db2 answered (compare_sql), and the table after the step, column by column. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+}

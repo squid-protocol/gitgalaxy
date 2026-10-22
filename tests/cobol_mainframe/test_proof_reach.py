@@ -236,7 +236,10 @@ def _flagged_survivors() -> list[tuple[str, dict]]:
     for p in json.loads(SCORES.read_text(encoding="utf-8"))["ports"]:
         if not _mutated_port_is_current(p["case"], p["program"]):
             continue
-        report = R.analyse([_port_dir(p["case"], p["program"])])
+        port = _port_dir(p["case"], p["program"])
+        if not port.is_dir():  # a generated port (port_from) is written at proof time, none is committed
+            continue
+        report = R.analyse([port])
         spans = [(Path(r["files"][0]).name, m) for r in report.values() for m in r["unproven"]]
         for s in p["survivors"]:
             file, line = s["at"].rsplit(":", 1)
@@ -258,8 +261,8 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     # (tests/tools/port_surface.py) and now proves through the java-facade side. Every crucible port then changed, and
     # its recorded mutation run judged other code: all 17 were stale until re-run.
     #
-    # The re-run (13 of the 17: every crucible port but the four PC* ones, which #4427 is changing and which are
-    # re-run after it merges; seed 0, 24 mutants each, cics-crucible v0.2.0, mutants proven on the java-ported AND
+    # The re-run (13 of the 17: every crucible port but the four PC* ones, which #4427 changed and #4443 re-ran
+    # afterwards, below; seed 0, 24 mutants each, cics-crucible v0.2.0, mutants proven on the java-ported AND
     # java-facade sides) leaves 3 flagged survivors, all unreachable: dead helpers no code calls (CASUB
     # writeqTsCatraceL22, HCQREAD writeqTsHcworkL37 and readqTsHcworkL57), the kind #4255 counted. No case_gap and no
     # harness_gap: a mutant inside a facade body survived on the java-ported side alone (4 of them), and the java-facade
@@ -267,14 +270,56 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     crucible = {(p["case"], p["program"]) for p in json.loads(SCORES.read_text(encoding="utf-8"))["ports"]
                 if p["case"].startswith("crucible:")}  # fmt: skip
     stale = {prog for c, prog in crucible if not _mutated_port_is_current(c, prog)}
-    # only the ports not yet re-run are stale: their survivors are skipped until the next run judges them again
-    assert crucible and stale == {"PCCONF", "PCWIZ", "PCMENU", "PCDETL"}
+    # only the ports not yet re-run are stale (the four PCIMM*; the PC* four were re-run in #4443): their survivors are skipped until the next run judges them again
+    assert crucible and stale == {"PCIMMA", "PCIMMB", "PCIMML", "PCIMMS"}
     # #4870 re-ran the same 13 after the byte-carrying handleTransaction overload joined every region facade (seed 0, 24
     # mutants each; the added code moved the sample): 7 flagged survivors, all unreachable -- 4 in that overload
-    # (CALINK, CAXA x2, GTSTART: the crucible enters by handleTransaction(String, T) only, so no scenario calls it; its
-    # bytes are covered by the runtime and facade tests) plus HCQREAD's overload name literal, and the dead helpers
-    # CASUB writeqTsXatrace and HCQREAD readqTsHcwork.
-    assert len(flagged) == 7 and verdicts.count("unreachable") == 7
+    # (CALINK, CAXA x2, GTSTART: the crucible entered by handleTransaction(String, T) only), HCQREAD's overload name
+    # literal, and the dead helpers CASUB writeqTsXatrace and HCQREAD readqTsHcwork.
+    # #4965 made the crucible's java-facade side run every scenario through that overload too (the previous RETURN's
+    # bytes in, lastAnswerBytes() out, compared with the instrument's bytes), and re-ran those 4 ports: the overload
+    # literal (HCQREAD) and CAXA's accessor mutant died, 5 flagged survivors remain. The dead helpers stay unreachable;
+    # the 3 `lastAnswerBytes = task.returnedBytes()` deletions (CALINK, CAXA, GTSTART) are re-triaged equivalent, not
+    # unreachable: their programs RETURN TRANSID with no COMMAREA, so the bytes they answer are null either way.
+    # #4048 judged the PCIMM* crucible ports (on their own service code, not the shared cobolrt runtime), CBSA INQACC /
+    # UPDACC and GenApp LGAPVS01 / LGICDB01 / LGUPDB01: 9 more flagged survivors, all unreachable. PCIMMA / PCIMML /
+    # PCIMMS mutated runProgram and the byte-carrying handleTransaction overloads (the crucible does not enter by
+    # them), LGAPVS01 the writeKsdspoly guard; LGICDB01 / LGUPDB01 sit in methods proof_reach lists as unproven.
+    # #4047 scored six CardDemo CICS ports (signon, tranview, userlist, useradd, userdel, adminmenu): 8 more flagged
+    # survivors, all unreachable: the program name literal in the facade's region.run / region.linked, which the proof
+    # does not call (the proof drives runTask), as in COMEN01C's.
+    # The PCIMM* ports changed with the ARITH(EXTEND) stop (#4706) and were re-proved, so their recorded mutation run
+    # judges older code and their 3 flagged survivors are skipped until the next run: 19 flagged, 16 unreachable.
+    # #5053 resurfaced the 14 CardDemo / CBSA / GenApp ports with the handleLink byte overload and lastLinkBytes()
+    # (a new facade body their recorded mutation run never judged), so their 14 flagged survivors are skipped too until
+    # the next run: the 5 left are the crucible ports' (3 equivalent, 2 unreachable dead helpers).
+    # #4443 re-ran PCCONF, PCWIZ, PCMENU and PCDETL (seed 0, 24 mutants each) with their new strengthened scenarios:
+    # one more flagged survivor, none a case gap: PCCONF's `d.getPcBack()` null-arm literal, in code the proof does not
+    # run (unreachable).
+    # #4047 then scored seven more CardDemo CICS ports (billpay, cardlist, cardview, report, tranadd, tranlist, userupd):
+    # 12 more flagged survivors, all unreachable: the facade's byte-carrying handleLink overload, lastLinkBytes() and the
+    # program-name literal in region.run / region.linked, which no proof calls.
+    # #4049 re-recorded the four menu-family ports (adminmenu, useradd, userdel, tranview; seed 0, 100 mutants each) after
+    # #5387's scenarios and the port regeneration (mutants moved, so their stale-record skip ended): 19 more flagged
+    # survivors, all unreachable: the facade's lastLinkBytes() and the program-name literal in region.run / region.linked.
+    # #4047 re-ran the three GenApp ports (LGAPVS01, LGICDB01, LGUPDB01; seed 0, 150 mutants each), ending their #5053
+    # stale-record skip: 21 more flagged survivors, all unreachable: the facade entry (region.linked / run /
+    # lastLinkBytes), LGAPVS01's writeKsdspoly helper and the EIBCALEN = 0 branch (the case always links a COMMAREA).
+    # #4054 then adopted LGSTSQ's port (it refuses a WRITEQ LENGTH past WRITE-MSG, X6) and re-proved LGAPVS01 against it:
+    # LGAPVS01's committed mutation score is now stale on its port, so its 8 flagged survivors are skipped again
+    # (#5053) until it is re-run (seed 0, 150): 58 -> 50. LGSTSQ's own first mutation run adds 8 (the facade entry
+    # handleLink / lastLinkBytes and the two dead EXEC CICS helpers), all unreachable: 50 -> 58.
+    # #4054 then adopted LGAPDB01's port (model-written, proven on attempt 1) and scored it (seed 0, 150 mutants): 5 more
+    # flagged survivors, all unreachable: the facade's byte-carrying handleLink / lastLinkBytes() and the dead EXEC CICS
+    # ABEND helpers no code calls. 58 -> 63.
+    # #4054 then adopted LGUPVS01's port (proven on attempt 1), scored it (seed 0, 150) and re-ran LGAPVS01 on the LGSTSQ
+    # port (ending its stale-record skip again): 13 more flagged survivors, all unreachable: the facade entry
+    # (handleLink / lastLinkBytes), the EIBCALEN = 0 branch and the dead ABEND helpers. 63 -> 76.
+    # #4047 then re-recorded the five LINKed-program ports in one JVM per proof: 15 more flagged survivors (INQACC's 8
+    # among them, its stale-record skip ended), all in code no proof runs, so all unreachable. 76 -> 91.
+    # #4506 then fixed CARDDEMO BILLPAY's store() modulus (digits + scale, found by the typed-BMS generated case): its
+    # recorded mutation run judges the old port, so its 2 flagged survivors are skipped until it is re-run. 91 -> 89.
+    assert len(flagged) == 89 and verdicts.count("unreachable") == 86 and verdicts.count("equivalent") == 3
     assert not {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C", "CSUTLDTC"}
 
 
@@ -283,27 +328,42 @@ def test_the_re_run_crucible_ports_keep_their_measured_floor():
     a port's mutants shows up as a stale record here, not as a silent change. Killed / survived per port, and the
     harness gaps (none: the facade bodies are proven on the java-facade side too)."""
     expected = {
-        "CALINK": (14, 8),
-        "CASUB": (15, 9),
-        "CAXA": (13, 8),
-        "CAXB": (17, 6),
-        "GTSTART": (15, 7),
-        "GTWORK": (17, 4),
+        "CALINK": (15, 7),
+        "CASUB": (16, 8),
+        "CAXA": (16, 5),
+        "CAXB": (20, 3),
+        "GTSTART": (19, 3),
+        "GTWORK": (20, 1),
         "GTSHOW": (17, 6),
-        "GTTERM": (10, 11),
-        "HCMAIN": (12, 11),
+        "GTTERM": (17, 4),
+        "HCMAIN": (14, 9),
         "HCSUB": (18, 6),
-        "HCQREAD": (13, 8),
+        "HCQREAD": (14, 7),
         "HXATTR": (17, 5),
-        "HXEXT": (16, 7),
-    }  # fmt: skip  (#4870: re-run after the byte-carrying facade overload; the floor is the measured one)
+        "HXEXT": (20, 3),
+    }  # fmt: skip  (#4870 re-ran after the byte-carrying facade overload, #4965 re-ran CALINK, CAXA, GTSTART, HCQREAD, #4443 re-ran all 13 with the strengthened scenarios, then CAXB's `visits-past-nine` and the three direct-entry scenarios: measured)
     ports = {p["program"]: p for p in json.loads(SCORES.read_text(encoding="utf-8"))["ports"]}
     for prog, (killed, survived) in expected.items():
         t = ports[prog]["total"]
         assert (t["killed"], t["survived"]) == (killed, survived), prog
         assert t["untriaged"] == 0 and _mutated_port_is_current(ports[prog]["case"], prog), prog
     assert sum(ports[p]["total"]["harness_gap"] for p in expected) == 0
-    assert sum(k for k, _ in expected.values()) == 194 and sum(s for _, s in expected.values()) == 96
+    assert sum(k for k, _ in expected.values()) == 223 and sum(s for _, s in expected.values()) == 67
+
+
+def test_the_pc_ports_re_run_in_4443_keep_their_measured_floor():
+    """#4443 item 2: PCDETL, PCMENU (pc-aid-menu) and PCCONF, PCWIZ (pc-wizard), seed 0, 24 mutants each, against the
+    strengthened scenarios (three new for pc-wizard, one for pc-aid-menu, expected logs derived from the COBOL). Killed /
+    survived per port; every survivor is equivalent or unreachable (no case gap, no harness gap), so the adjusted score
+    is 100%. PCCONF and PCWIZ each had one stillborn mutant (javac refused it)."""
+    expected = {"PCDETL": (15, 9), "PCMENU": (16, 8), "PCCONF": (15, 8), "PCWIZ": (16, 7)}
+    ports = {p["program"]: p for p in json.loads(SCORES.read_text(encoding="utf-8"))["ports"]}
+    for prog, (killed, survived) in expected.items():
+        t = ports[prog]["total"]
+        assert (t["killed"], t["survived"]) == (killed, survived), prog
+        assert t["case_gap"] == t["harness_gap"] == t["untriaged"] == 0, prog
+        assert t["equivalent"] + t["unreachable"] == survived, prog
+        assert _mutated_port_is_current(ports[prog]["case"], prog), prog
 
 
 @pytest.mark.parametrize("case,program", sorted(FACADES))

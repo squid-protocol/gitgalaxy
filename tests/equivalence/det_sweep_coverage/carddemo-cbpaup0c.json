@@ -1,0 +1,31 @@
+{
+ "format": "det-sweep-coverage/2",
+ "scenarios": 5,
+ "paragraphs": {
+  "covered": 15,
+  "live": 16
+ },
+ "branches": {
+  "covered": 30,
+  "total": 40
+ },
+ "inputs": {
+  "case": "50859955b890d80476480876f3b7e2a340d8cd972b85141f3fb7fda627c1a512",
+  "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
+  "harness": "c1d5c8f9987c1bb5132a61b33360be90cb76a7963e961d34c145bde157acd6fa",
+  "oracle": "27cd5d5127a7ff5cf004d7ea63517333edb599feefc1643485560c707d475c0b",
+  "components": {
+   "harness": {
+    "harness:core": "b2d6e8fe04e757c55d825e8bcb827dc972ea78571dd29487b79f74afeebbf81f",
+    "harness:ims": "5254ac0cfbb51526951fd101391790f6f8a7b5d45dc3da93592a49f484d739ae"
+   },
+   "oracle": {
+    "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
+    "oracle:file-io": "e74b2733865b6c48f5ccf8d292c81c28e4827e0229e7383baeb7a3a26327f501",
+    "oracle:ims": "0147f1e68fff4ba13bb35d43776da609f7ee816c23f25f33e9e4c6377b779b40",
+    "oracle:le": "200b234c8ffa2bf4cb1a9c143f22a5a3b696279e000cbf67ff9330fdfb7a9183"
+   }
+  }
+ },
+ "measured_at": "4ce0815dcdf42e076af5130165d593909165b4a8"
+}

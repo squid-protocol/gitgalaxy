@@ -105,15 +105,18 @@ Attribute every difference to one of the differential doc's four causes: old-par
   - Sort by `p.parts` or `p.name`, never bare `Path`, because WindowsPath sorts case-insensitively (#3223 went red on Windows over exactly this).
   - Check a new output with two `PYTHONHASHSEED` values.
 - **Repo `.gitignore` has a global `*.json`.** A new committed JSON needs a `!` whitelist line, or the PR ships without its data.
-- **Python 3.9 is in the matrix.** No `write_text(newline=)`, no `match`, no `X | Y` at runtime.
+- **Python 3.10 is the floor** (CI matrix, `requires-python`). No `except*`, no `tomllib`, no f-string reusing its quote inside `{}`.
 - **The Full Suite Gate matrix runs on a `labeled` event, never on a push.** A commit pushed after the
   label never runs it. Re-run it on the branch's current head with
   `gh workflow run "Full Suite Gate (All OS x Python)" --ref <branch>` (#3209).
 - **X-Ray fails on a dense string literal** over 64 chars. Build long regexes from short named fragments.
 - **Mainframe fixtures obey column 72.** COBOL fixed format and IDCAMS SYSIN both ignore columns 73-80, and the engine does too, correctly. A fixture line that runs past column 72 loses its tail. `RECORDSIZE(38 38))` read as 3 in a #3617 test, which looked like an engine defect but was not. Continue long IDCAMS commands with `-`.
 - **Run both audits locally, not just ruff.** `ruff_audit.py --ci` and `mypy_audit.py --ci`, plus the dead-key audit when you add dict-keyed reads. #3640 reached CI with 5 mypy findings; the usual cause is an Optional that is never narrowed. Or run everything, X-Ray included: `python tests/tools/preflight.py`.
-- **A PR stacked on a squash-merged PR.** When the base PR merges, its branch is deleted and the stacked branch still carries the base's pre-squash commits. Replay only your commits with `git rebase --onto origin/main <old base tip>`, force-push with lease, then open or retarget the PR against `main`. `gh pr create --base <deleted branch>` fails with "Base ref must be a branch".
+- **A PR stacked on a squash-merged PR.** When the base PR merges, its branch is deleted and the stacked branch still carries the base's pre-squash commits. Never rebase or force-push: merge `origin/main` into the stacked branch (the base's squashed changes resolve as already-present), check `git diff --stat origin/main...HEAD` shows only your files, push, then open or retarget the PR against `main`. `gh pr create --base <deleted branch>` fails with "Base ref must be a branch".
 - **Generators read the skeleton, never the DB.** The Java side must build from `06_skeleton/*` only, so the facts it used are the facts it cites. When a generator needs more (a layout, a key position), add it to an IR join and export it, as `program_interfaces` and `vsam_stores` do.
+- **A CICS LINK whose PROGRAM is a variable has no resolved callee in `commarea_contracts`**: only the `links` rows built from `navigation` name it. Key LINK-driven generator logic on those (#5188).
+- **`Line.file` on a COPY-expanded program lists the copybook member files**: read those directly instead of re-expanding (#5194).
+- **era_tags: `program_era: None` is present (not absent)** when a copybook alone gives a program its first tell (#5194).
 
 ## Who owns what
 

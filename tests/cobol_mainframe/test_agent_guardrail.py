@@ -14,7 +14,7 @@ from unittest.mock import patch
 
 import gitgalaxy.cobol_refractor_controller as refractor
 import gitgalaxy.cobol_to_java_controller as java_controller
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import scan_to_db
+from scan_server import scan_to_db
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_guardrail import build_baseline, check, main, read_java
 
 PKG = "src/main/java/p"
@@ -204,3 +204,52 @@ def test_a_real_run_writes_the_baseline_and_rejects_an_invented_call(tmp_path):
     audit = (java / "java_migration_audit.txt").read_text(encoding="utf-8")
     assert "  • Checked  : 1 changed files: 1 violations, 0 notices -> agent_guardrail.md" in audit
     assert audit.count("[4] AI AGENT GUARDRAIL") == 1  # the section is replaced, not appended
+
+
+# ---- #4035 layer 2: alphanumeric comparisons go through CobolCompare ----------
+def _collation(tmp_path, body: str, baseline_edit=None) -> list[tuple[str, str]]:
+    _project(tmp_path, BASE)
+    baseline = build_baseline(tmp_path)
+    if baseline_edit:
+        baseline_edit(baseline)
+    current = dict(BASE)
+    current[f"{PKG}/service/MenuService.java"] = SERVICE.replace('String note = "FakeService in a string";', body)
+    report = check(baseline, current)
+    return [(v["rule"], v["detail"].split(" ")[0]) for v in report["violations"]]
+
+
+def test_the_reader_records_string_fields_only():
+    assert read_java(DTO)["string_fields"] == ["wsId"]  # wsAmount is a BigDecimal
+    assert read_java(RECORD)["string_fields"] == ["acctId"]  # a record's String component, not the Map
+
+
+def test_a_string_comparison_of_a_string_field_is_a_collation_violation(tmp_path):
+    forms = {
+        "compareTo": "int c = req.getWsId().compareTo(other);",
+        "equals": "boolean b = req.getWsId().equals(other);",
+        "equalsIgnoreCase": "boolean b = wsId.equalsIgnoreCase(other);",
+        "compareToIgnoreCase": "int c = other.compareToIgnoreCase(req.getWsId());",  # field as the argument
+        "equals ": "boolean b = Objects.equals(other, wsId);",
+        "equals  ": "boolean b = req.getWsId().trim().equals(other);",  # a pass-through keeps the class
+    }
+    for method, body in forms.items():
+        got = _collation(tmp_path / method.replace(" ", "_"), body)
+        assert got == [("collation", method.strip())], (method, got)
+
+
+def test_what_is_not_an_alphanumeric_comparison_passes(tmp_path):
+    for body in (
+        "int c = req.getWsAmount().compareTo(other);",  # BigDecimal
+        "boolean b = CobolCompare.eq(req.getWsId(), other, codePage);",  # the sanctioned port
+        "boolean b = a.equals(b);",  # no String field of the layout
+        '// wsId.compareTo(other)\n        String s = "wsId.equals(x)";',  # comment and literal
+    ):
+        assert _collation(tmp_path / str(abs(hash(body))), body) == [], body
+
+
+def test_a_baseline_without_string_fields_leaves_the_rule_inert(tmp_path):
+    def old(baseline):
+        for f in baseline["files"].values():
+            f.pop("string_fields", None)
+
+    assert _collation(tmp_path, "int c = req.getWsId().compareTo(other);", old) == []

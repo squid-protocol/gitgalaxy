@@ -210,8 +210,9 @@ python tests/tools/ground_truth_ledger.py assign CAUSE 'cics-banking-sample-appl
     --kind defect --issue N --summary "..."
 ```
 
-On push to main, the scoreboard is appended to `docs/self_scan/ground_truth_history.jsonl`, but
-only when a number moved.
+On push to main (and nightly), the scoreboard is appended to `docs/self_scan/ground_truth_history.jsonl`, but
+only when a number moved; the series is published to the `generated` branch (`tests/tools/generated_branch.py`),
+not committed to main, and the copy on main is its seed.
 
 The first triage had 546 mismatches in three causes:
 
@@ -359,7 +360,9 @@ A source can hold several programs: batch-compiled siblings, each `IDENTIFICATIO
 - **Score and census.** A sibling's unit is named `PROG:NAME` (a colon never occurs in a COBOL name), so the repeated `MAINLINE`s are separate pairs. The engine's units are placed in a program by their start line, the innermost program winning. The census asks about `PROG:NAME` units and tells the reviewer what they mean. The forge reads such a source per program too (#4243: `cobol_graveyard_finder.split_programs`), naming a later program's units `PROG:NAME`, so its units and dead verdicts score pair for pair; the refraction differential places the engine's units the same way.
 - **Reader fixes found on the same file.** A run of GO TO target names also spans the statements after it, so a consuming match swallowed every later `GO TO` in that run. EPSCSMRI's `GO TO X000000CC ... X000000D8 DEPENDING ON ELE-CON-LEN` targets all read as dead. And `GO TO a b DEPENDING ON x GO TO y .` ends its unit: the DEPENDING exclusion now applies only when the final transfer is the DEPENDING one. `XML PARSE ... PROCESSING PROCEDURE A THRU B` now reaches A..B like a PERFORM, and END-XML / END-JSON / END-INVOKE close an ON EXCEPTION phrase. Before, EPSCSMRI's MAINLINE (`... END-XML GOBACK.`) read as falling through, and its XML handler was live only through that phantom fall-through. No program in the other six corpora drafts differently.
 
-`epscsmrd.cbl` itself is still in `excluded_programs`. Its draft has six dead verdicts, all EPSCSMRI section headers whose paragraphs are entered only by `GO TO` or `PERFORM` of the paragraph, and each one was checked against the source. On units and dead code the engine agrees with the draft exactly: its `usage_status` marks the same six headers. Since #4242 it records all thirteen PROGRAM-IDs, which are quoted (`PROGRAM-ID. 'EPSCSMRD'.`) and start in column 9. The forge used to read the file as one program: about 1,000 forge mismatches against the draft (bare sibling names, reachability across programs, and the same GO TO, DEPENDING ON and XML PARSE reader gaps the draft had). Since #4243 it reads each program on its own and matches the draft exactly on units (269 / 269) and dead code (6 / 6). What remains before the program lands is its census.
+`epscsmrd.cbl` lands in the key (#4244) with `excluded_programs` dropped. Its draft has six dead verdicts, all EPSCSMRI section headers, each checked against the source: a header is named by nothing, the unit before it ends in `GO TO` (or the `PERFORM ... THRU GENERAL-LOGIC-EXIT` range ends before CONDITION-SIGNALER), and only its paragraphs are entered. The engine's `usage_status` marks the same six, and since #4243 the forge matches the draft on units (269 / 269) and dead code (6 / 6). Since #4242 the engine records all thirteen PROGRAM-IDs, quoted (`PROGRAM-ID. 'EPSCSMRD'.`) and starting in column 9.
+
+**Census (2026-10-17).** One fresh-context reviewer read the file blind: reachability 269 / 269, PROGRAM-ID 1 / 1, calls 17 / 17, no disagreements. A first reviewer answered "everything reachable" with generic evidence (it said so itself); that run was discarded, not signed. The second cited a line per unit. Its caveat: a section counts as reached only if something names it or falls into it, which is the key's rule too. The reviewer is the same model family as the author (`cross_by` says so); a Gemini census would add cross-family evidence. `extents_validated` and `commareas_validated` are still false for this program.
 
 ## Unit extents and edges (#4318), 2026-10-04
 

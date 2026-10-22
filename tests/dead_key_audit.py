@@ -83,6 +83,11 @@ ALLOWLIST = {
     "build": "Cargo.toml [package] `build` script path, read from the scanned repo's manifest (#4544)",
     "workspace": "Cargo.toml dependency `workspace = true`, read from the scanned repo's manifest (#4544)",
     "inheritance_parents": "class_data DB column, copied into the restored class dict by the rehydrator's generic column loop, then folded into `inheritance` (#3786)",
+    # cobol_to_java_messaging_forge.py (#5168, X61) keys a TDQUEUE's attributes by the option words `_TD_ATTR.findall`
+    # captures from the CSD operand text, so these are written by the CSD deck, never by a literal in this repo.
+    "TYPEFILE": "CSD DEFINE TDQUEUE option parsed from the deck's operand text (messaging forge _TD_ATTR, #5168)",
+    "INDIRECTNAME": "CSD DEFINE TDQUEUE option parsed from the deck's operand text (messaging forge _TD_ATTR, #5168)",
+    "OPENTIME": "CSD DEFINE TDQUEUE option parsed from the deck's operand text (messaging forge _TD_ATTR, #5168)",
     "COUNTER": "EXEC CICS option keyword parsed from source (det/cics.py parse_exec: GET COUNTER)",
     # --- Parsed source keywords (not a producer/consumer dict contract) ---
     # cics_tasks.py (#3449) keys `opts` by the option words of the EXEC CICS
@@ -210,6 +215,7 @@ ALLOWLIST = {
     "galaxyscope": "top-level section name in a user's .galaxyscope.yml project config file",
     "GITGALAXY_LICENSE_KEY": "environment variable (os.environ.get), not a repo-produced dict",
     "GITGALAXY_DISABLE_GIT_HISTORY": "environment variable (os.environ.get), not a repo-produced dict (#2976)",
+    "GITGALAXY_ASSESS_OFFLINE": "environment variable (os.environ.get) set by the assess subprocess env in tools/readiness/offline.py, not a repo-produced dict (#5235)",
     "GALAXYSCOPE_MAX_WORKERS": "environment variable (os.environ.get), not a repo-produced dict (#2988)",
     "vulnerability_density_min": "optional risk_tuning YAML key (signal_processor.py risk-equation-style tuning)",
     "asymptotic_dampener": "optional risk_tuning YAML key (signal_processor.py)",
@@ -308,6 +314,30 @@ ALLOWLIST = {
             "RECORDSIZE",
             "TRANSACTION",
             "TYPE",
+        )
+    },
+    # #5120: cics_macro_tables reads the operand keywords of an assembler macro statement
+    # through ims_gen._operands, which keys its dict by the keyword it parsed from the source
+    # text (`keyed[k.strip().upper()] = v`) -- a dynamic write, never a literal the walker traces.
+    **{
+        k: "CICS macro operand keyword, written via ims_gen._operands' dynamic keying (cics_macro_tables.py, #5120)"
+        for k in (
+            "ABCODE",
+            "ID",
+            "RECOVER",
+            "DATAID",
+            "DESTID",
+            "DSCNAME",
+            "JFILEID",
+            "KEYLEN",
+            "LRECL",
+            "RECFORM",
+            "RECSIZE",
+            "RMTNAME",
+            "SUFFIX",
+            "SYSIDNT",
+            "TRIGLEV",
+            "TRMIDNT",
         )
     },
     # --- Generated code-page tables (#3816 part 3a) ---

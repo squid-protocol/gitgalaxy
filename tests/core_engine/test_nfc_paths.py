@@ -99,6 +99,7 @@ def nfd_scan(tmp_path_factory):
     return estate, scan_to_db(estate, base / "scan")
 
 
+@pytest.mark.slow(reason="builds an NFD git checkout and scans it to a db (#5176)")
 def test_an_nfd_checkout_stores_nfc_paths(nfd_scan):
     files, _ = _rows(nfd_scan[1])
     paths = {p for p, _ in files.values()}
@@ -116,6 +117,9 @@ def test_an_include_written_nfd_resolves_an_nfc_stored_header(nfd_scan):
     assert ("main.c", "naïve.h") in edges
 
 
+@pytest.mark.slow(
+    reason="scans an NFC checkout to a db and, in a split part, absorbs the shared NFD fixture build (#5269)"
+)
 def test_nfc_and_nfd_checkouts_record_the_same_paths_and_edges(nfd_scan, tmp_path):
     nfc_db = scan_to_db(_estate(tmp_path / "estate", nfc), tmp_path / "scan")
     nfd_files, nfd_edges = _rows(nfd_scan[1])

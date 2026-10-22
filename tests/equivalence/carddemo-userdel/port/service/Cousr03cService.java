@@ -103,6 +103,27 @@ public class Cousr03cService {
         return lastAnswerBytes == null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);
     }
 
+    // @facade-helper: the bytes the last byte-carrying handleLink's program left in the COMMAREA
+    private byte[] lastLinkBytes;
+
+    /** #5053: handleLink with the raw bytes of the LINK's COMMAREA (passed by address: what the program
+     *  leaves there the caller sees); lastLinkBytes() then answers the bytes it left. */
+    public Cousr03cCarddemoCommarea handleLink(Cousr03cCarddemoCommarea request, byte[] area) {
+        log.info("Cousr03c: handleLink (bytes)");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("COUSR03C", request, area);
+        region.run(task, "COUSR03C", this::runTask);
+        byte[] left = task.linkAreaView();
+        lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;
+        return request;
+    }
+
+    /** The bytes the last byte-carrying handleLink's program left in the LINK COMMAREA (a copy; null: it took
+     *  none -- its DTO is the COMMAREA). @facade-helper */
+    public byte[] lastLinkBytes() {
+        return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);
+    }
+
     /** One pseudo-conversational task of this program (#3754): MAIN-PARA and the paragraphs it performs. */
     public void runTask(CicsTask task) {
         log.info("Cousr03c: runTask");
@@ -341,7 +362,10 @@ public class Cousr03cService {
             cc.setCdemoFromTranid(fit(WS_TRANID, 4));
             cc.setCdemoFromProgram(fit(WS_PGMNAME, 8));
             cc.setCdemoPgmContext(0);
-            dispatchCdemoToProgramL205(task, cc.getCdemoToProgram(), cc);   // XCTL PROGRAM(CDEMO-TO-PROGRAM) COMMAREA, line 205
+            String resp = dispatchCdemoToProgramL205(task, cc.getCdemoToProgram(), cc);   // XCTL PROGRAM(CDEMO-TO-PROGRAM) COMMAREA, line 205
+            if (!"NORMAL".equals(resp)) {
+                task.abendOnCondition(resp);      // no RESP, no HANDLE CONDITION: CICS abends the task (#4648)
+            }
         }
 
         // SEND-USRDEL-SCREEN
@@ -426,9 +450,9 @@ public class Cousr03cService {
 
         // DELETE-USER-SEC-FILE
         private void deleteUserSecFile() {
-            // DELETE without RIDFLD: the record the READ UPDATE holds. CicsTask gives no RESP2 for it: 0 is shown.
+            // DELETE without RIDFLD: the record the READ UPDATE holds.
             resp = task.deleteHeld(WS_USRSEC_FILE, () -> deleteUsrsec(secUser.getSecUsrId()));
-            reas = 0;
+            reas = task.resp2();
             switch (resp) {
                 case 0:   // DFHRESP(NORMAL)
                     initializeAllFields();

@@ -219,6 +219,25 @@ def carries_homoglyph(line: str) -> bool:
     return any(is_confusable_token(t) for t in _WORD.findall(line) if not t.isascii())
 
 
+# #4987: commented-out COMMAND shapes for the dead_code signature. Each alternative needs the syntax
+# that makes the word a command or call (a flag/URL/quote after curl, a pipe into a shell, `eval(`),
+# never the bare English word. A URL counts as a call argument only right after `(`, `=`, `,` or `[`;
+# a quoted URL after prose (`// Ken's web site: "http://...`) is a citation (#4548, a `basicinlines.h` header).
+_DEAD_CODE_COMMAND = (
+    r"(?:\b(?:curl|wget)\b[ \t]+(?:-|[\"']?https?://|[\"'$])"
+    r"|\|[ \t]*(?:sudo[ \t]+)?(?:ba|z)?sh\b"
+    r"|\bbash\b[ \t]+(?:-|<\()"
+    r"|\beval\b[ \t]*(?:\(|[\"'$`])"
+    r"|\bbase64\b[ \t]+-|\|[ \t]*base64\b|\bbase64\b[ \t]*\("
+    r"|\bnc\s+-e|/dev/tcp|\([ \t]*[\"']?https?://|[=,\[][ \t]*[\"']https?://)"
+)
+
+
+# #4987: whitespace inside a COBOL data item: blanks, or up to 3 line breaks (each optionally followed by a
+# 6-digit sequence area). Every newline alternative requires the newline itself, so nothing here backtracks.
+_COBOL_SEP = r"(?:[ \t]+|[ \t]*(?:\r?\n(?:\d{6})?[ \t]*){1,3})"
+
+
 class SecurityLens:
     """
     Static Application Security Testing (SAST) Engine.
@@ -270,13 +289,17 @@ class SecurityLens:
         # ------------------------------------------------------------------
         self.THREAT_SIGNATURES = {
             # 1. Obfuscation & Encoding Signatures
+            # #4987: this half reads the comment-blanked code stream (a commented-out `atob(` or `\x41`
+            # is not an obfuscated payload; dead_code reports commented-out logic). The invisible-
+            # Unicode half is HIDDEN_TEXT_SIGNATURES and reads the RAW text on purpose.
+            # #4548: a RUN of escapes (adjacent, or split across string pieces / array elements) is ONE
+            # hit, and a run needs 4+ escapes (`"\x65\x76\x61\x6c"` is the shortest encoded word): a lone
+            # `\xB0` / `\x1b[0m` / `\u00e9` is a character literal. Counting each `\x5B` scored an embedded
+            # glyph table as 32,987 hits (doomretro v_data.c) and every degree sign as one (c_cmds.c).
             "reflection_metaprogramming": re.compile(
                 r"\b(?:atob|btoa|base64_decode|base64_encode|gzuncompress|str_rot13)\b|"
-                r"\\x[0-9a-fA-F]{2}|\\u[0-9a-fA-F]{4}|"
-                r'(?:\w{15,}[ \t]*=[ \t]*["\'][A-Za-z0-9+/]{40,}={0,2}["\'])|'
-                # Invisible Unicode. #3814: a ZWNJ / ZWJ right after a virama is Indic spelling
-                # (`क्‍ष`, allowed in names by UAX #31 A1/A2), not hidden text -- only that is exempt.
-                r"[\u200B\uFEFF\u200E\u200F\u202A-\u202E]|(?<![" + VIRAMA + r"])[\u200C\u200D]",
+                r"(?:\\x[0-9a-fA-F]{2}|\\u[0-9a-fA-F]{4})(?:[ \t\r\n\"',]{0,8}(?:\\x[0-9a-fA-F]{2}|\\u[0-9a-fA-F]{4})){3,}|"
+                r'(?:\w{15,}[ \t]*=[ \t]*["\'][A-Za-z0-9+/]{40,}={0,2}["\'])',
                 re.I,
             ),
             # 2. Security Control & Safety Bypasses (e.g., Disabling SSL Verification)
@@ -344,8 +367,11 @@ class SecurityLens:
                 # `<http://www.gnu.org/licenses/>`), not commented-out logic. A commented-out network
                 # CALL carries the URL as a quoted/parenthesised argument, so `http` only counts right
                 # after an opening quote or paren.
-                r"(?://|#(?!!)|--|\*>|^.{6}\*)[^\n]*?(?:\b(?:bash|curl|wget|eval|base64|nc\s+-e|/dev/tcp|BPXBATCH)\b|[\"'(]https?://)|"
-                r"/\*(?:(?!\*/).){0,500}?(?:\b(?:bash|curl|wget|eval|base64|nc\s+-e|/dev/tcp)\b|[\"'(]https?://)",
+                # #4987: the same holds for the words bash, curl, wget, eval and base64: in prose
+                # ("the bash shell", "eval is slow") they are English. They count only in the shape of
+                # a command or call (_DEAD_CODE_COMMAND).
+                r"(?://|#(?!!)|--|\*>|^.{6}\*)[^\n]*?(?:" + _DEAD_CODE_COMMAND + r"|\bBPXBATCH\b)|"
+                r"/\*(?:(?!\*/).){0,500}?" + _DEAD_CODE_COMMAND,
                 re.I,
             ),
             # 7. Low-Level Cryptographic & Bitwise Operations
@@ -365,8 +391,7 @@ class SecurityLens:
                 r"\b(?:import|from|require|include|require_once|fetch|XMLHttpRequest)\b"
                 r"[^\n]*?(?:[\u0400-\u04FF]|"
                 r"[\u0370-\u03FF]|"
-                r"[\U0001D400-\U0001D7FF]|"
-                r"\u3164)",
+                r"[\U0001D400-\U0001D7FF])",
                 re.I,
             ),
             # 10. Hardcoded Secrets & Credentials
@@ -377,9 +402,22 @@ class SecurityLens:
                 r"\b(" + CODE_CREDENTIAL_ALTERNATION + r")\b[ \t]*(?:[:=]|=>)[ \t]*[\"'][A-Za-z0-9\-_+/=]{16,}[\"']|"
                 # #4548: a COBOL data item opens with a level number, 1-2 digits (`05 WS-PASSWORD ...`, `1 WS-PASSWORD ...`); without it
                 # the stem `KEY` matched English prose ("keyword value 'acs'" in a changelog).
-                r"\b\d{1,2}[ \t]+(?:[A-Za-z0-9]{1,16}-){0,4}("
+                # #4987: the name, PIC and VALUE may sit on different lines (a continuation line carries no level
+                # number), optionally behind a 6-digit sequence area. The level stays on the name's line; a level-88
+                # condition name is no credential, and a literal with a blank is a message (`INVALID-KEY VALUE 'Invalid key pressed'`).
+                r"\b(?!88\b)\d{1,2}[ \t]+(?:[A-Za-z0-9]{1,16}-){0,4}("
                 + COBOL_CREDENTIAL_ALTERNATION
-                + r")[A-Za-z0-9_-]*\b[ \t]+(?:IS[ \t]+)?(?:PIC[ \t]+[A-Za-z0-9\-\(\)]+[ \t]+)?VALUE[ \t]+['\"][^'\"]+['\"]|"
+                + r")[A-Za-z0-9_-]*\b"
+                + _COBOL_SEP
+                + r"(?:IS"
+                + _COBOL_SEP
+                + r")?(?:PIC"
+                + _COBOL_SEP
+                + r"[A-Za-z0-9\-\(\)]+"
+                + _COBOL_SEP
+                + r")?VALUE"
+                + _COBOL_SEP
+                + r"['\"][^'\"\s]+['\"]|"
                 r"-----BEGIN (?:RSA |DSA |EC |OPENSSH |PGP )?(?:PRIVATE KEY|MESSAGE|CERTIFICATE)-----|"
                 r"\b(?:sk_live|rk_live)_[0-9a-zA-Z]{24,99}\b|"
                 r"\bghp_[0-9a-zA-Z]{36}\b|"
@@ -514,6 +552,25 @@ class SecurityLens:
             ),
         }
 
+        # #4987: HIDDEN-TEXT halves of signatures, scanned on the RAW text (comments included) and added to
+        # the same count: a comment is where a Trojan-Source / zero-width payload hides, and it renders
+        # as nothing, so it is never "just a comment".
+        self.HIDDEN_TEXT_SIGNATURES = {
+            # Invisible Unicode. #3814: a ZWNJ / ZWJ right after a virama is Indic spelling
+            # (`क्‍ष`, allowed in names by UAX #31 A1/A2), not hidden text -- only that is exempt.
+            "reflection_metaprogramming": re.compile(
+                r"[\u200B\uFEFF\u200E\u200F\u202A-\u202E]|(?<![" + VIRAMA + r"])[\u200C\u200D]"
+            ),
+            # The Hangul filler renders as blank, so it spoofs a name wherever it sits.
+            "homoglyphs": re.compile(
+                r"\b(?:import|from|require|include|require_once|fetch|XMLHttpRequest)\b[^\n]*?\u3164", re.I
+            ),
+        }
+        # (key, regex, raw_only): the scan order -- each main signature, then the hidden-text halves.
+        self._scan_plan: list[tuple[str, re.Pattern[str], bool]] = [
+            (key, regex, False) for key, regex in self.THREAT_SIGNATURES.items()
+        ] + [(key, regex, True) for key, regex in self.HIDDEN_TEXT_SIGNATURES.items()]
+
         # ---> LITERAL PREFILTER GATES (#3173) <---
         # Each THREAT_SIGNATURE is a keyword alternation; derive a one-of required-
         # literal gate once (the AST walk costs ~100x a small-file finditer, so it is
@@ -528,6 +585,9 @@ class SecurityLens:
         # case-insensitive, so every derived gate folds; we fold the haystack once.
         self._signature_gates: dict[str, Any] = {
             key: derive_literal_gate(regex, prefer_selective=True) for key, regex in self.THREAT_SIGNATURES.items()
+        }
+        self._hidden_gates: dict[str, Any] = {
+            key: derive_literal_gate(regex, prefer_selective=True) for key, regex in self.HIDDEN_TEXT_SIGNATURES.items()
         }
 
     def _calculate_shannon_entropy(self, data: str) -> float:
@@ -561,7 +621,73 @@ class SecurityLens:
             "self_propagation",
         }
     )
-    PROSE_SKIPPED_SIGNALS = CODE_STREAM_SIGNALS | {"dead_code", "safety_bypasses"}
+    # #4987: a commented-out `verify=False` is not a bypass, `atob(` in a comment is not obfuscation, and an
+    # import line in a comment imports nothing: these read the code stream too (hidden text is the
+    # exception, see HIDDEN_TEXT_SIGNATURES). Prose files still scan them -- no code stream there.
+    CODE_STREAM_SIGNALS = CODE_STREAM_SIGNALS | {"safety_bypasses", "reflection_metaprogramming", "homoglyphs"}
+    PROSE_SKIPPED_SIGNALS = (CODE_STREAM_SIGNALS - {"reflection_metaprogramming", "homoglyphs"}) | {"dead_code"}
+
+    # #5463: each high_risk_execution alternative is only an execution vector in the languages that have
+    # the construct. `require( expr )` is a C++ contract macro, `asio::require(e, ...)` a customization
+    # point and Lua's loader; `system(` is not a function in Go. The first rule whose pattern matches the
+    # START of the hit decides; a hit whose rule does not list the file's language is dropped. An unknown
+    # language (None) or a hit no rule claims keeps the old behaviour.
+    _JS_FAMILY = frozenset({"javascript", "typescript", "html"})
+    _DYNAMIC_EVAL = _JS_FAMILY | {
+        "php",
+        "python",
+        "embedded_python",
+        "ruby",
+        "perl",
+        "lua",
+        "powershell",
+        "shell",
+        "tcl",
+        "scheme",
+        "matlab",
+        "groovy",
+        "rexx",
+        "livecode",
+        "nix",
+        "apex",
+        "yaml",
+    }
+    _MAINFRAME = frozenset({"cobol", "jcl", "rexx", "pli", "hlasm", "bms", "easytrieve", "db2_sql", "csd"})
+    HIGH_RISK_EXECUTION_SCOPE: tuple[tuple[re.Pattern[str], frozenset[str]], ...] = tuple(
+        (re.compile(pat, re.I), langs)
+        for pat, langs in (
+            (r"(?:BPXBATCH|IKJEFT01|IRXJCL)\b", _MAINFRAME | {"shell", "yaml", "assembly"}),
+            (r"EXEC\s+CICS\b", _MAINFRAME | {"c", "cpp", "assembly"}),
+            (r"eval\b", _DYNAMIC_EVAL),
+            (r"(?:Function|setTimeout|setInterval|document\.write|location\.replace)\b", _JS_FAMILY),
+            (r"(?:create_function|passthru|shell_exec)\b", frozenset({"php"})),
+            (
+                r"system\b",
+                frozenset(
+                    {"c", "cpp", "objectivec", "php", "perl", "ruby", "python", "embedded_python", "matlab", "tcl"}
+                    | {"lua", "fortran", "shell"}
+                ),
+            ),
+            (r"assert\b", frozenset({"php"})),
+            (r"child_process\b", _JS_FAMILY),
+            (r"(?:window|global|this|globalThis)\[", _JS_FAMILY),
+            (r"\$\{\{", frozenset({"yaml", "markdown"})),
+            (r"\$", frozenset({"php"})),
+            (r"(?:getattr|importlib|__builtins__)\b", frozenset({"python", "embedded_python"})),
+            (r"require\b", _JS_FAMILY | {"php", "ruby", "perl"}),
+            (r"Assembly\.Load\b", frozenset({"csharp", "powershell"})),
+        )
+    )
+
+    @classmethod
+    def _high_risk_applies(cls, hit: str, language: str | None) -> bool:
+        """Whether a high_risk_execution hit `hit` is a vector in `language` (#5463)."""
+        if language is None:
+            return True
+        for pattern, langs in cls.HIGH_RISK_EXECUTION_SCOPE:
+            if pattern.match(hit):
+                return language in langs
+        return True
 
     @staticmethod
     def _armor(text: str) -> tuple[str, list[int]]:
@@ -572,13 +698,16 @@ class SecurityLens:
         indents = [len(line) - len(line.lstrip()) if len(line) < 250 else 0 for line in lines]
         return "\n".join(line.strip() if len(line) < 250 else "" for line in lines), indents
 
-    def scan_content(self, content: str, code_stream: str | None = None, prose: bool = False) -> dict:
+    def scan_content(
+        self, content: str, code_stream: str | None = None, prose: bool = False, language: str | None = None
+    ) -> dict:
         """
         Executes primary regex scanning, entropy calculation, and multi-line data flow taint tracking.
 
         `code_stream` is the comment-blanked, line-preserving payload from prism (CODE_STREAM_SIGNALS
         read it; omitted -> they read `content`). `prose=True` marks a file with no executable
-        surface (plaintext / markdown / csv): the code-behaviour signals are skipped.
+        surface (plaintext / markdown / csv): the code-behaviour signals are skipped. `language` is the file's
+        language id: high_risk_execution alternatives that do not apply to it are dropped (#5463).
         """
         counts: dict[str, int] = {}
         snippets: dict[str, list[str]] = {}
@@ -602,6 +731,8 @@ class SecurityLens:
                 for lit in literals:
                     # Use a fast word-boundary regex to prevent substring hallucination
                     # e.g., prevents "fetch(" from matching inside "prefetch("
+                    if key == "high_risk_execution" and not self._high_risk_applies(lit, language):
+                        continue
                     if re.search(rf"\b{re.escape(lit)}", content):
                         counts[key] = counts.get(key, 0) + 1
                         snippets.setdefault(key, []).append(f"[Minified Literal Hit]: {lit}")
@@ -625,7 +756,8 @@ class SecurityLens:
         # first folding gate so gate-free / auto-gen files never pay for it.
         folded_safe: str | None = None
 
-        for key, regex in self.THREAT_SIGNATURES.items():
+        dead_code_lines: set[int] = set()
+        for key, regex, raw_only in self._scan_plan:
             if is_auto_gen and key == "homoglyphs":
                 counts.setdefault(key, 0)
                 snippets.setdefault(key, [])
@@ -641,7 +773,7 @@ class SecurityLens:
                 continue
 
             hay, hay_indents, hay_starts = safe_content, indents, line_starts
-            if key in self.CODE_STREAM_SIGNALS and code_stream is not None:
+            if key in self.CODE_STREAM_SIGNALS and not raw_only and code_stream is not None:
                 if code_hay is None:
                     code_safe, code_indents = self._armor(code_stream)
                     code_hay = (code_safe, code_indents, _line_starts(code_safe))
@@ -653,7 +785,7 @@ class SecurityLens:
             # one-sided (a rejection == zero matches), so the recorded counts/snippets/
             # positions are identical to running the full sweep -- we only bypass work.
             # counts.setdefault preserves any minified fast-screen hits seeded above.
-            gate = self._signature_gates.get(key)
+            gate = (self._hidden_gates if raw_only else self._signature_gates).get(key)
             if gate is not None:
                 gate_literals, gate_needs_fold = gate
                 if gate_needs_fold:
@@ -684,22 +816,25 @@ class SecurityLens:
                     line_end = hay.find("\n", match.end())
                     if not carries_homoglyph(hay[line_start : line_end if line_end >= 0 else None]):
                         continue
+                if key == "high_risk_execution" and not self._high_risk_applies(match.group(0), language):
+                    continue
+                line_idx = bisect.bisect_right(hay_starts, match.start()) - 1
+                if key == "dead_code":
+                    # #4987: one commented-out line is one finding; the `//` inside `http://` would
+                    # otherwise open a second match on the same line.
+                    if line_idx in dead_code_lines:
+                        continue
+                    dead_code_lines.add(line_idx)
                 new_hits += 1
                 snip = match.group(0).strip()
-                line_idx = bisect.bisect_right(hay_starts, match.start()) - 1
                 if len(snippets[key]) < 3 and snip not in snippets[key]:
                     snippets[key].append(snip)
                     # The match starts inside the stripped line; add the indent back for the column.
                     col = match.start() - hay_starts[line_idx] + hay_indents[line_idx] + 1
                     sites[key].append(None if is_auto_gen else [line_idx + 1, col])
 
-                # Map the exact line indexes of critical threats for the persisted ledger (#348)
-                if not is_auto_gen and key in {
-                    "io",
-                    "high_risk_execution",
-                    "db_hooks",
-                    "hardcoded_secrets",
-                }:
+                # Map the exact line indexes of every threat for the persisted ledger (#348, #4987)
+                if not is_auto_gen:
                     positions[key].append(line_idx + 1)  # 1-indexed, matching detector.py's convention
 
             counts[key] = counts.get(key, 0) + new_hits
@@ -719,6 +854,7 @@ class SecurityLens:
                     entropy = self._calculate_shannon_entropy(extracted_string)
                     if entropy > 4.8:
                         entropy_hits += 1
+                        positions["entropy"].append(bisect.bisect_right(line_starts, match.start()))
                         if len(entropy_snippets) < 3:
                             entropy_snippets.append(extracted_string[:60] + "...")
 

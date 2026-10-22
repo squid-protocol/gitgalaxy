@@ -16,11 +16,13 @@ import pytest
 import gitgalaxy.cobol_refractor_controller as refractor
 import gitgalaxy.cobol_to_java_controller as java_controller
 from gitgalaxy.tools.cobol_to_cobol.cobol_schema_forge import forge_schemas, parse_cobol_picture
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import scan_to_db
+from scan_server import scan_to_db
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_port_tickets import PORTING_RULES, decimal_point_rules
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_repository_forge import _pic_numeric, cobol_edit_source
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_spring_forge import generate_java_entity, parse_pic_clause
 from gitgalaxy.tools.cobol_to_java.java_target import Culture, JavaTarget
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 _JDK = Path("/usr/lib/jvm/java-17-openjdk-amd64/bin")
 
@@ -83,9 +85,11 @@ def test_cobol_edit_formats_as_cobol(tmp_path):
         '        if (!want.equals(got)) throw new AssertionError("got [" + got + "] want [" + want + "]");\n'
         "    }\n    public static void main(String[] a) {\n" + checks + "\n    }\n}\n"
     )
-    subprocess.run([str(_JDK / "javac"), "-d", str(tmp_path), *map(str, tmp_path.glob("*.java"))], check=True)
-    run = subprocess.run([str(_JDK / "java"), "-cp", str(tmp_path), "com.test.entity.vsam.Runner"],
-                         capture_output=True, text=True)  # fmt: skip
+    javac_run(
+        [str(_JDK / "javac"), "-encoding", "UTF-8", "-d", str(tmp_path), *map(str, tmp_path.glob("*.java"))], check=True
+    )
+    run = subprocess.run([str(_JDK / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path), "com.test.entity.vsam.Runner"],
+                         capture_output=True, text=True, encoding="utf-8")  # fmt: skip
     assert run.returncode == 0, run.stderr
 
 

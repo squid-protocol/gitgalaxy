@@ -21,7 +21,8 @@ from unittest.mock import patch
 import pytest
 
 import gitgalaxy.cobol_refractor_controller as refractor
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+from scan_server import scan_to_db
 
 ACCTREC = """\
        01  ACCT-REC.
@@ -293,7 +294,8 @@ def test_symbolic_pattern():
 
 
 def test_symbolic_merge(tmp_path):
-    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+    from scan_server import scan_to_db
 
     repo = tmp_path / "repo"
     repo.mkdir()
@@ -339,7 +341,8 @@ def test_symbolic_merge(tmp_path):
 
 
 def test_symbolic_conflict_rejected(tmp_path):
-    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+    from scan_server import scan_to_db
 
     repo = tmp_path / "repo"
     repo.mkdir()
@@ -385,7 +388,8 @@ def test_symbolic_conflict_rejected(tmp_path):
 
 
 def _symbolic_estate(tmp_path, keys: str, recsize: str, ridfld: bool):
-    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+    from scan_server import scan_to_db
 
     repo = tmp_path / "repo"
     for d in ("jcl", "cbl", "csd"):
@@ -428,7 +432,8 @@ def test_a_write_from_a_field_with_a_length_is_the_window_it_writes(tmp_path):
     """GenApp LGACVS01: `WRITE FILE('KSDSCUST') FROM(CA-CUSTOMER-NUM) LENGTH(CUSTOMER-RECORD-SIZE)` writes the
     225 bytes AT the 10-byte field; the window's end falls inside CA-REQUEST-SPECIFIC, which the first
     REDEFINES ending exactly there (CA-CUSTOMER-REQUEST) lays out. KEYS / RECORDSIZE sit on DATA(...)."""
-    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+    from scan_server import scan_to_db
 
     repo = tmp_path / "repo"
     for d in ("jcl", "cbl", "csd"):
@@ -500,3 +505,325 @@ def test_a_cics_write_is_duprec_on_a_key_already_on_file(scanned, tmp_path):
     assert "throw new org.springframework.dao.DuplicateKeyException(" in cics
     bat = (src / "service/TcatbatService.java").read_text(encoding="utf-8")
     assert "DuplicateKeyException" not in bat  # a REWRITE replaces the record it read
+
+
+# ---- #4949: the symbolic merge keeps the batch programs that open the symbolic dataset ----------------------------
+_SYM_BATCH = """\
+       ID DIVISION.
+       PROGRAM-ID. BATPROG.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT ACCT-FILE ASSIGN TO VSAM
+                  ORGANIZATION IS INDEXED ACCESS MODE IS RANDOM
+                  RECORD KEY IS ACCT-ID FILE STATUS IS ACCT-STATUS.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  ACCT-FILE.
+       01  ACCT-REC.
+           05 ACCT-ID PIC X(8).
+           05 FILLER PIC X(30).
+       WORKING-STORAGE SECTION.
+       01  ACCT-STATUS PIC XX.
+       PROCEDURE DIVISION.
+           OPEN OUTPUT ACCT-FILE.
+           WRITE ACCT-REC.
+           CLOSE ACCT-FILE.
+           GOBACK.
+"""
+
+
+def _symbolic_batch_estate(tmp_path, keys="8 0"):
+    repo = tmp_path / "repo"
+    for d in ("jcl", "cbl", "csd"):
+        (repo / d).mkdir(parents=True)
+    (repo / "jcl" / "DEF.jcl").write_text(
+        "//DEF JOB\n//STEP1 EXEC PGM=IDCAMS\n//SYSIN DD *\n"
+        f"  DEFINE CLUSTER(NAME(@PFX@.ACCT.KSDS) -\n         KEYS({keys}) RECORDSIZE(38 38) INDEXED)\n/*\n"
+        "//RUN EXEC PGM=IKJEFT01\n//VSAM DD DISP=SHR,DSN=@PFX@.ACCT.KSDS\n//SYSTSIN DD *\n"
+        " DSN SYSTEM(DB2)\n RUN PROGRAM(BATPROG) PLAN(P)\n END\n/*\n"
+    )
+    (repo / "csd" / "APP.csd").write_text("  DEFINE FILE(ACCTF) GROUP(APP)\n         DSNAME(PROD.APP.ACCT.KSDS)\n")
+    (repo / "cbl" / "BATPROG.cbl").write_text(_SYM_BATCH)
+    (repo / "cbl" / "CICSPROG.cbl").write_text(
+        "       ID DIVISION.\n       PROGRAM-ID. CICSPROG.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n"
+        "       01 ACCT-REC.\n          05 ACCT-ID PIC X(8).\n          05 FILLER PIC X(30).\n"
+        "       PROCEDURE DIVISION.\n"
+        "           EXEC CICS READ FILE('ACCTF') INTO(ACCT-REC)\n                     RIDFLD(ACCT-ID) END-EXEC.\n"
+    )
+    return load_galaxy_ir(scan_to_db(repo, tmp_path / "scan")).vsam_stores()
+
+
+def test_a_merged_symbolic_store_keeps_its_batch_users(tmp_path):
+    (store,) = _symbolic_batch_estate(tmp_path)
+    assert store["dataset"] == "PROD.APP.ACCT.KSDS" and store["defined_by"]["match"] == "symbolic"
+    users = {(u["kind"], u["program"].rsplit("/", 1)[-1]): u for u in store["users"]}
+    assert set(users) == {("cics", "CICSPROG.cbl"), ("batch", "BATPROG.cbl")}
+    batch = users[("batch", "BATPROG.cbl")]
+    assert (batch["name"], batch["dd"], batch["modes"]) == ("ACCT-FILE", "VSAM", ["OUTPUT"])
+    assert batch["records"][0]["record"] == "ACCT-REC"
+
+
+def test_a_refused_symbolic_merge_keeps_the_batch_user_on_its_own_store(tmp_path):
+    stores = _symbolic_batch_estate(tmp_path, keys="4 12")  # the RIDFLD disagrees: no merge
+    by = {s["dataset"]: s for s in stores}
+    assert "symbolic_candidate_rejected" in by["PROD.APP.ACCT.KSDS"]
+    assert [u["kind"] for u in by["@PFX@.ACCT.KSDS"]["users"]] == ["batch"]
+    assert [u["kind"] for u in by["PROD.APP.ACCT.KSDS"]["users"]] == ["cics"]
+
+
+# ---- #5034: a CALLed subprogram runs under its caller's step DDs (CardDemo CBSTM03B, called by CBSTM03A) ----------
+def _prog(name, body, select=None):
+    files = ""
+    if select:
+        files = (
+            "       ENVIRONMENT DIVISION.\n       INPUT-OUTPUT SECTION.\n       FILE-CONTROL.\n"
+            f"           SELECT {select}-FILE ASSIGN TO {select}DD\n"
+            f"                  ORGANIZATION IS INDEXED ACCESS MODE IS RANDOM RECORD KEY IS {select}-ID.\n"
+            f"       DATA DIVISION.\n       FILE SECTION.\n       FD  {select}-FILE.\n"
+            f"       01  {select}-REC.\n           05 {select}-ID PIC X(8).\n           05 FILLER PIC X(30).\n"
+        )
+    return (
+        f"       IDENTIFICATION DIVISION.\n       PROGRAM-ID. {name}.\n{files}"
+        f"       WORKING-STORAGE SECTION.\n       01  WS-TARGET PIC X(8).\n"
+        f"       PROCEDURE DIVISION.\n{body}           GOBACK.\n"
+    )
+
+
+def _call_estate(tmp_path, jcl, programs):
+    repo = tmp_path / "repo"
+    for d in ("jcl", "cbl"):
+        (repo / d).mkdir(parents=True)
+    for name, text in jcl.items():
+        (repo / "jcl" / f"{name}.jcl").write_text(text)
+    for name, text in programs.items():
+        (repo / "cbl" / f"{name}.cbl").write_text(text)
+    return load_galaxy_ir(scan_to_db(repo, tmp_path / "scan"))
+
+
+_DEFINE = (
+    "//DEF JOB\n//S1 EXEC PGM=IDCAMS\n//SYSIN DD *\n"
+    "  DEFINE CLUSTER(NAME(APP.LEAF.KSDS) KEYS(8 0) RECORDSIZE(38 38) INDEXED)\n"
+    "  DEFINE CLUSTER(NAME(APP.OTHER.KSDS) KEYS(8 0) RECORDSIZE(38 38) INDEXED)\n/*\n"
+)
+_LEAF = _prog("LEAF", "           OPEN INPUT LEAF-FILE.\n           CLOSE LEAF-FILE.\n", "LEAF")
+
+
+def _lineage(ir, program):
+    return sorted(
+        (e["job"].rsplit("/", 1)[-1] if e["job"] else None, e["dd_name"], e["dataset"])
+        for e in ir.dataset_lineage()
+        if e["program"].endswith(f"/{program}.cbl")
+    )
+
+
+def test_a_called_program_takes_its_callers_step_dds(tmp_path):
+    ir = _call_estate(
+        tmp_path,
+        {"DEF": _DEFINE, "RUN": "//RUN JOB\n//ST EXEC PGM=TOP\n//LEAFDD DD DSN=APP.LEAF.KSDS,DISP=SHR\n"},
+        {
+            "TOP": _prog("TOP", "           CALL 'MID'.\n"),
+            "MID": _prog("MID", "           CALL 'LEAF'.\n"),
+            "LEAF": _LEAF,
+        },
+    )
+    assert _lineage(ir, "LEAF") == [("RUN.jcl", "LEAFDD", "APP.LEAF.KSDS")]  # two CALLs down
+    (store,) = [s for s in ir.vsam_stores() if s["dataset"] == "APP.LEAF.KSDS"]
+    assert [(u["kind"], u["program"].rsplit("/", 1)[-1], u["dd"]) for u in store["users"]] == [
+        ("batch", "LEAF.cbl", "LEAFDD")
+    ]
+
+
+def test_a_call_cycle_terminates_and_binds_each_program_once(tmp_path):
+    ir = _call_estate(
+        tmp_path,
+        {"RUN": "//RUN JOB\n//ST EXEC PGM=TOP\n//LEAFDD DD DSN=APP.LEAF.KSDS,DISP=SHR\n"},
+        {
+            "TOP": _prog("TOP", "           CALL 'LEAF'.\n"),
+            "LEAF": _prog("LEAF", "           OPEN INPUT LEAF-FILE.\n           CALL 'TOP'.\n", "LEAF"),
+        },
+    )
+    assert _lineage(ir, "LEAF") == [("RUN.jcl", "LEAFDD", "APP.LEAF.KSDS")]
+
+
+def test_a_dynamic_call_binds_nothing(tmp_path):
+    ir = _call_estate(
+        tmp_path,
+        {"RUN": "//RUN JOB\n//ST EXEC PGM=TOP\n//LEAFDD DD DSN=APP.LEAF.KSDS,DISP=SHR\n"},
+        {"TOP": _prog("TOP", "           CALL WS-TARGET.\n"), "LEAF": _LEAF},
+    )
+    assert _lineage(ir, "LEAF") == [(None, "LEAFDD", None)]  # the target is data: not followed
+
+
+def test_a_callee_run_by_two_jobs_keeps_both_bindings(tmp_path):
+    ir = _call_estate(
+        tmp_path,
+        {
+            "DEF": _DEFINE,
+            "RUN1": "//RUN1 JOB\n//ST EXEC PGM=TOP\n//LEAFDD DD DSN=APP.LEAF.KSDS,DISP=SHR\n",
+            "RUN2": "//RUN2 JOB\n//ST EXEC PGM=LEAF\n//LEAFDD DD DSN=APP.OTHER.KSDS,DISP=SHR\n",
+        },
+        {"TOP": _prog("TOP", "           CALL 'LEAF'.\n"), "LEAF": _LEAF},
+    )
+    assert _lineage(ir, "LEAF") == [
+        ("RUN1.jcl", "LEAFDD", "APP.LEAF.KSDS"),
+        ("RUN2.jcl", "LEAFDD", "APP.OTHER.KSDS"),
+    ]
+    # one DD on two datasets: the repository stays refused by design
+    (v,) = [x for x in ir.vsam_files() if x["program"].endswith("/LEAF.cbl")]
+    assert v["datasets"] == ["APP.LEAF.KSDS", "APP.OTHER.KSDS"]
+
+
+# ---- #5072: a DD binding belongs to its own step, not the whole job ------------------------------------------------
+_TWO_STEPS = (
+    "//RUN JOB\n//S1 EXEC PGM={a}\n//LEAFDD DD DSN=APP.LEAF.KSDS,DISP=SHR\n"
+    "//S2 EXEC PGM={b}\n//LEAFDD DD DSN=APP.OTHER.KSDS,DISP=SHR\n"
+)
+_FILE_PROG = _prog("OTH", "           OPEN INPUT LEAF-FILE.\n           CLOSE LEAF-FILE.\n", "LEAF")
+
+
+def test_each_step_binds_only_its_own_dd(tmp_path):
+    ir = _call_estate(
+        tmp_path,
+        {"DEF": _DEFINE, "RUN": _TWO_STEPS.format(a="LEAF", b="OTH")},
+        {"LEAF": _LEAF, "OTH": _FILE_PROG},
+    )
+    assert _lineage(ir, "LEAF") == [("RUN.jcl", "LEAFDD", "APP.LEAF.KSDS")]
+    assert _lineage(ir, "OTH") == [("RUN.jcl", "LEAFDD", "APP.OTHER.KSDS")]
+    (v,) = [x for x in ir.vsam_files() if x["program"].endswith("/LEAF.cbl")]
+    assert v["datasets"] == ["APP.LEAF.KSDS"]  # one DSN: no longer refused
+
+
+def test_a_callee_takes_only_its_callers_step(tmp_path):
+    ir = _call_estate(
+        tmp_path,
+        {"DEF": _DEFINE, "RUN": _TWO_STEPS.format(a="TOP", b="OTH")},
+        {
+            "TOP": _prog("TOP", "           CALL 'MID'.\n"),
+            "MID": _prog("MID", "           CALL 'LEAF'.\n"),
+            "LEAF": _LEAF,
+            "OTH": _FILE_PROG,
+        },
+    )
+    assert _lineage(ir, "LEAF") == [("RUN.jcl", "LEAFDD", "APP.LEAF.KSDS")]  # two CALLs down, step S1 only
+
+
+def test_a_callee_reached_from_two_steps_takes_both(tmp_path):
+    ir = _call_estate(
+        tmp_path,
+        {"DEF": _DEFINE, "RUN": _TWO_STEPS.format(a="TOPA", b="TOPB")},
+        {
+            "TOPA": _prog("TOPA", "           CALL 'LEAF'.\n"),
+            "TOPB": _prog("TOPB", "           CALL 'LEAF'.\n"),
+            "LEAF": _LEAF,
+        },
+    )
+    assert _lineage(ir, "LEAF") == [("RUN.jcl", "LEAFDD", "APP.LEAF.KSDS"), ("RUN.jcl", "LEAFDD", "APP.OTHER.KSDS")]
+
+
+def test_one_program_run_by_two_steps_keeps_both_bindings(tmp_path):
+    ir = _call_estate(
+        tmp_path,
+        {"DEF": _DEFINE, "RUN": _TWO_STEPS.format(a="LEAF", b="LEAF")},
+        {"LEAF": _LEAF},
+    )
+    assert _lineage(ir, "LEAF") == [("RUN.jcl", "LEAFDD", "APP.LEAF.KSDS"), ("RUN.jcl", "LEAFDD", "APP.OTHER.KSDS")]
+
+
+def test_a_call_cycle_across_steps_scopes_each_step(tmp_path):
+    ir = _call_estate(
+        tmp_path,
+        {"DEF": _DEFINE, "RUN": _TWO_STEPS.format(a="TOP", b="OTH")},
+        {
+            "TOP": _prog("TOP", "           CALL 'LEAF'.\n"),
+            "LEAF": _prog("LEAF", "           OPEN INPUT LEAF-FILE.\n           CALL 'TOP'.\n", "LEAF"),
+            "OTH": _FILE_PROG,
+        },
+    )
+    assert _lineage(ir, "LEAF") == [("RUN.jcl", "LEAFDD", "APP.LEAF.KSDS")]
+
+
+def test_a_step_that_is_not_found_keeps_the_whole_job(tmp_path):
+    # a DD bound outside any named step of the job (a PROC step) is not scoped away
+    jcl = "//RUN JOB\n//S1 EXEC PGM=LEAF\n//LEAFDD DD DSN=APP.LEAF.KSDS,DISP=SHR\n"
+    ir = _call_estate(tmp_path, {"DEF": _DEFINE, "RUN": jcl}, {"LEAF": _LEAF})
+    assert _lineage(ir, "LEAF") == [("RUN.jcl", "LEAFDD", "APP.LEAF.KSDS")]
+
+
+# ---- #5072: a CALL through a data item is followed only where the item has one provable value ----------------------
+_RUN = "//RUN JOB\n//ST EXEC PGM=TOP\n//LEAFDD DD DSN=APP.LEAF.KSDS,DISP=SHR\n"
+_BOUND = [("RUN.jcl", "LEAFDD", "APP.LEAF.KSDS")]
+_UNBOUND = [(None, "LEAFDD", None)]
+
+
+def _dyn_top(ws, body):
+    return _prog("TOP", body).replace("       01  WS-TARGET PIC X(8).\n", ws)
+
+
+@pytest.mark.parametrize(
+    "ws, body, expected",
+    [
+        pytest.param(
+            "       01  WS-TARGET PIC X(8).\n", "           MOVE 'LEAF' TO WS-TARGET.\n", _BOUND, id="one-move"
+        ),
+        pytest.param("       01  WS-TARGET PIC X(8) VALUE 'LEAF'.\n", "", _BOUND, id="value"),
+        pytest.param(
+            "       01  WS-TARGET PIC X(8) VALUE 'LEAF'.\n", "           MOVE 'LEAF' TO WS-TARGET.\n", _BOUND, id="same"
+        ),
+        pytest.param(
+            "       01  WS-TARGET PIC X(8) VALUE 'LEAF'.\n",
+            "           MOVE 'OTHER' TO WS-TARGET.\n",
+            _UNBOUND,
+            id="two",
+        ),
+        pytest.param(
+            "       01  WS-TARGET PIC X(8).\n       01  WS-IN PIC X(8).\n",
+            "           MOVE 'LEAF' TO WS-TARGET.\n           MOVE WS-IN TO WS-TARGET.\n",
+            _UNBOUND,
+            id="unknown-source",
+        ),
+        pytest.param(
+            "       01  WS-TARGET PIC X(8).\n",
+            "           MOVE 'LEAF' TO WS-TARGET.\n           MOVE 'LEAF2' TO WS-TARGET.\n",
+            _UNBOUND,
+            id="two-moves",
+        ),
+        pytest.param(
+            "       01  WS-TARGET PIC X(8).\n",
+            "           MOVE 'NOSUCH' TO WS-TARGET.\n",
+            _UNBOUND,
+            id="not-in-repo",
+        ),
+    ],
+)
+def test_a_dynamic_call_is_followed_only_for_one_provable_value(tmp_path, ws, body, expected):
+    ir = _call_estate(
+        tmp_path,
+        {"DEF": _DEFINE, "RUN": _RUN},
+        {"TOP": _dyn_top(ws, body + "           CALL WS-TARGET.\n"), "LEAF": _LEAF},
+    )
+    assert _lineage(ir, "LEAF") == expected
+
+
+def test_a_dynamic_call_takes_only_its_callers_step(tmp_path):
+    ir = _call_estate(
+        tmp_path,
+        {"DEF": _DEFINE, "RUN": _TWO_STEPS.format(a="TOP", b="OTH")},
+        {
+            "TOP": _dyn_top(
+                "       01  WS-TARGET PIC X(8).\n", "           MOVE 'LEAF' TO WS-TARGET.\n           CALL WS-TARGET.\n"
+            ),
+            "LEAF": _LEAF,
+            "OTH": _FILE_PROG,
+        },
+    )
+    assert _lineage(ir, "LEAF") == _BOUND  # step S1 only
+
+
+def test_a_dynamic_call_cycle_terminates(tmp_path):
+    top = _dyn_top(
+        "       01  WS-TARGET PIC X(8).\n", "           MOVE 'LEAF' TO WS-TARGET.\n           CALL WS-TARGET.\n"
+    )
+    leaf = _prog("LEAF", "           OPEN INPUT LEAF-FILE.\n           CALL 'TOP'.\n", "LEAF")
+    ir = _call_estate(tmp_path, {"DEF": _DEFINE, "RUN": _RUN}, {"TOP": top, "LEAF": leaf})
+    assert _lineage(ir, "LEAF") == _BOUND

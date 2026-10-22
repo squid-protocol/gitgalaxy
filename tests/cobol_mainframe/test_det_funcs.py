@@ -9,6 +9,9 @@ import subprocess
 from pathlib import Path
 
 import pytest
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 ROOT = Path(__file__).resolve().parents[2]
 FUNCS = ROOT / "gitgalaxy/tools/cobol_to_java/det/cobolrt/Funcs.java"
@@ -51,8 +54,12 @@ def test_test_numval_is_gnucobols(tmp_path):
         "        p.cobolrt.Funcs.testNumvalC(s).intValue()); } } }\n"
     )
     java = _java()
-    subprocess.run([str(java / "javac"), "-d", "out", "p/cobolrt/Funcs.java", "TN.java"], cwd=tmp_path, check=True)
-    got = subprocess.run([str(java / "java"), "-cp", "out", "TN"], cwd=tmp_path, capture_output=True, text=True,
+    javac_run(
+        [str(java / "javac"), "-encoding", "UTF-8", "-d", "out", "p/cobolrt/Funcs.java", "TN.java"],
+        cwd=tmp_path,
+        check=True,
+    )
+    got = subprocess.run([str(java / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", "out", "TN"], cwd=tmp_path, capture_output=True, text=True, encoding="utf-8",
                          check=True).stdout.splitlines()  # fmt: skip
     diffs = [(c, w, g) for c, w, g in zip(NUMVAL_CASES, want, got, strict=False) if w != g]  # reason: length may differ
     assert len(want) == len(NUMVAL_CASES) and not diffs, diffs
@@ -85,8 +92,12 @@ def test_random_is_the_oracles_sequence_and_refuses_what_ibm_does_not_allow(tmp_
         '    catch (IllegalArgumentException e) { System.out.println("refused " + bad); } } } }\n'
     )
     java = _java()
-    subprocess.run([str(java / "javac"), "-d", "out", "p/cobolrt/Funcs.java", "RN.java"], cwd=tmp_path, check=True)
-    got = subprocess.run([str(java / "java"), "-cp", "out", "RN"], cwd=tmp_path, capture_output=True, text=True,
+    javac_run(
+        [str(java / "javac"), "-encoding", "UTF-8", "-d", "out", "p/cobolrt/Funcs.java", "RN.java"],
+        cwd=tmp_path,
+        check=True,
+    )
+    got = subprocess.run([str(java / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", "out", "RN"], cwd=tmp_path, capture_output=True, text=True, encoding="utf-8",
                          check=True).stdout.splitlines()  # fmt: skip
 
     def exact(n: int) -> str:

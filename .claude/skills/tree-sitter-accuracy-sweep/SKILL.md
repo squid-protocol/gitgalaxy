@@ -24,7 +24,7 @@ Gemini/agy subagent.
 - `git worktree list`, then for any worktree whose branch already has a MERGED PR
   (`gh pr list --head <branch> --state all --json number,state`), `git worktree remove --force`
   and `git branch -D` it. Stale worktrees from a prior batch otherwise just accumulate.
-- Confirm `LANGUAGE_CRUCIBLE_PATH` resolves: `ls /home/joe/nyx_projects/language-crucible`. Every
+- Confirm `LANGUAGE_CRUCIBLE_PATH` resolves: `ls $PRIMARY/../language-crucible` (`$PRIMARY`: `gitgalaxy-pr-worker.md` Setup 1). Every
   script invoked from inside a worktree needs this env var passed explicitly -- worktrees are
   NOT siblings of the main repo, so the tool's default `../language-crucible` sibling-resolution
   does not find it from there.
@@ -33,7 +33,7 @@ Gemini/agy subagent.
 
 ```bash
 source venv/bin/activate  # main checkout's own venv, already has all deps
-export LANGUAGE_CRUCIBLE_PATH=/home/joe/nyx_projects/language-crucible
+export LANGUAGE_CRUCIBLE_PATH=$PRIMARY/../language-crucible
 python tests/tools/tree_sitter_accuracy_audit.py --history   # refresh the CSV with live numbers
 ```
 Then read the CSV's latest `timestamp_utc` batch (or just re-read the regenerated summary table
@@ -111,8 +111,8 @@ it once here rather than discovering it's missing after a full sweep of dispatch
 
 `~/.gemini/antigravity-cli/settings.json` needs, per worktree:
 ```json
-"read_file(/home/joe/nyx_projects/gitgalaxy-worktrees/fix-<lang>-<issue#>)",
-"write_file(/home/joe/nyx_projects/gitgalaxy-worktrees/fix-<lang>-<issue#>)",
+"read_file(<absolute $PRIMARY/../gitgalaxy-worktrees>/fix-<lang>-<issue#>)",
+"write_file(<absolute $PRIMARY/../gitgalaxy-worktrees>/fix-<lang>-<issue#>)",
 ```
 in `permissions.allow`, plus the same path added to `trustedWorkspaces`. Claude Code's own
 permission classifier blocks the assistant from editing this file autonomously (one AI expanding
@@ -134,7 +134,7 @@ every time, not just when convenient:
 - **"A venv is already built at `venv/` with everything needed. Do not `pip install` or attempt
   any network access -- agy's sandbox has no outbound network, every install attempt fails on DNS
   resolution. Use `venv/bin/python`/`venv/bin/pytest` directly."**
-- **`LANGUAGE_CRUCIBLE_PATH=/home/joe/nyx_projects/language-crucible` must be passed explicitly**
+- **`LANGUAGE_CRUCIBLE_PATH=$PRIMARY/../language-crucible` must be passed explicitly**
   to any script that needs the corpus (not a worktree sibling).
 - What to verify before returning: the relevant `pytest` files, the live (no-flag)
   `tree_sitter_accuracy_audit.py --lang <lang>` before/after numbers.
@@ -203,7 +203,7 @@ failures on a merged PR before:
 
 ```bash
 export PATH="$PWD/venv/bin:$PATH"
-export LANGUAGE_CRUCIBLE_PATH=/home/joe/nyx_projects/language-crucible
+export LANGUAGE_CRUCIBLE_PATH=$PRIMARY/../language-crucible
 python tests/tools/tree_sitter_accuracy_audit.py --lang <lang> --regenerate  # bless the baseline + summary table together
 python tests/tools/tree_sitter_accuracy_audit.py --all --ci                # see below -- not optional
 python tests/tools/tri_comparison_chart.py --all --ci                      # validated-precision gate -- also not optional, same reason

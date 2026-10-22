@@ -306,7 +306,7 @@
         "verification": 6.21
       },
       "file_count": 20,
-      "total_mass": 529.24
+      "total_mass": 532.24
     },
     "assembly/freebsd_kernel_arch": {
       "avg_exposures": {
@@ -454,11 +454,11 @@
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 0.0,
-        "tech_debt": 55.45,
+        "tech_debt": 74.55,
         "verification": 80.0
       },
       "file_count": 10,
-      "total_mass": 1659.14
+      "total_mass": 1742.24
     },
     "assembly/x86_bare_metal": {
       "avg_exposures": {
@@ -467,17 +467,17 @@
         "cognitive_load": 2.5,
         "concurrency": 0.0,
         "dead_code": 4.26,
-        "documentation": 52.17,
+        "documentation": 60.87,
         "safety_score": 66.3,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 47.83,
         "state_flux": 10.88,
-        "tech_debt": 37.4,
-        "verification": 2.25
+        "tech_debt": 59.59,
+        "verification": 2.27
       },
       "file_count": 23,
-      "total_mass": 239.66
+      "total_mass": 238.96
     },
     "assembly/xv6_x86_kernel": {
       "avg_exposures": {
@@ -987,7 +987,7 @@
         "stability": 50.0,
         "state_flux": 87.77,
         "tech_debt": 52.61,
-        "verification": 2.36
+        "verification": 2.37
       },
       "file_count": 2,
       "total_mass": 50.68
@@ -1709,7 +1709,7 @@
         "stability": 45.0,
         "state_flux": 72.61,
         "tech_debt": 56.37,
-        "verification": 8.96
+        "verification": 8.97
       },
       "file_count": 10,
       "total_mass": 728.54
@@ -1813,7 +1813,7 @@
       "avg_exposures": {
         "api_exposure": 13.62,
         "churn": 0.0,
-        "cognitive_load": 44.35,
+        "cognitive_load": 44.34,
         "concurrency": 3.06,
         "dead_code": 9.26,
         "documentation": 76.91,
@@ -1822,11 +1822,11 @@
         "spec_match": 0.0,
         "stability": 46.67,
         "state_flux": 66.43,
-        "tech_debt": 6.02,
+        "tech_debt": 6.09,
         "verification": 59.16
       },
       "file_count": 15,
-      "total_mass": 50042.42
+      "total_mass": 51510.82
     },
     "go": {
       "avg_exposures": {
@@ -1956,7 +1956,7 @@
         "stability": 44.44,
         "state_flux": 59.08,
         "tech_debt": 62.91,
-        "verification": 2.15
+        "verification": 2.16
       },
       "file_count": 9,
       "total_mass": 254.94
@@ -2032,7 +2032,7 @@
         "stability": 50.0,
         "state_flux": 31.83,
         "tech_debt": 66.33,
-        "verification": 5.63
+        "verification": 5.64
       },
       "file_count": 24,
       "total_mass": 397.36
@@ -2165,7 +2165,7 @@
         "stability": 50.0,
         "state_flux": 74.9,
         "tech_debt": 58.11,
-        "verification": 60.6
+        "verification": 60.61
       },
       "file_count": 4,
       "total_mass": 767.32
@@ -2773,7 +2773,7 @@
         "stability": 25.0,
         "state_flux": 40.32,
         "tech_debt": 49.96,
-        "verification": 1.18
+        "verification": 1.19
       },
       "file_count": 2,
       "total_mass": 61.74
@@ -2906,7 +2906,7 @@
         "stability": 50.0,
         "state_flux": 68.54,
         "tech_debt": 38.96,
-        "verification": 54.16
+        "verification": 54.17
       },
       "file_count": 6,
       "total_mass": 10499.54
@@ -3175,7 +3175,7 @@
         "verification": 13.1
       },
       "file_count": 7,
-      "total_mass": 243.06
+      "total_mass": 242.96
     },
     "livecode": {
       "avg_exposures": {
@@ -3210,7 +3210,7 @@
         "stability": 50.0,
         "state_flux": 56.53,
         "tech_debt": 70.08,
-        "verification": 16.66
+        "verification": 16.67
       },
       "file_count": 98,
       "total_mass": 19874.54
@@ -3248,7 +3248,7 @@
         "stability": 50.0,
         "state_flux": 77.41,
         "tech_debt": 19.66,
-        "verification": 45.72
+        "verification": 45.73
       },
       "file_count": 43,
       "total_mass": 11375.7
@@ -3673,9 +3673,9 @@
     },
     "objective-c/worldwideweb": {
       "avg_exposures": {
-        "api_exposure": 54.49,
+        "api_exposure": 54.78,
         "churn": 0.0,
-        "cognitive_load": 59.46,
+        "cognitive_load": 59.09,
         "concurrency": 0.0,
         "dead_code": 3.45,
         "documentation": 100.0,
@@ -3684,11 +3684,11 @@
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 83.3,
-        "tech_debt": 18.73,
+        "tech_debt": 18.97,
         "verification": 67.1
       },
       "file_count": 6,
-      "total_mass": 2534.9
+      "total_mass": 2563.4
     },
     "perl": {
       "avg_exposures": {
@@ -3837,7 +3837,7 @@
         "stability": 50.0,
         "state_flux": 99.97,
         "tech_debt": 71.48,
-        "verification": 35.36
+        "verification": 35.37
       },
       "file_count": 7,
       "total_mass": 1915.32
@@ -4103,7 +4103,7 @@
         "stability": 41.67,
         "state_flux": 79.75,
         "tech_debt": 22.06,
-        "verification": 14.95
+        "verification": 14.96
       },
       "file_count": 12,
       "total_mass": 980.02
@@ -4984,22 +4984,22 @@
     },
     "rust/tokio": {
       "avg_exposures": {
-        "api_exposure": 12.4,
+        "api_exposure": 12.26,
         "churn": 0.0,
-        "cognitive_load": 14.13,
-        "concurrency": 50.45,
-        "dead_code": 31.58,
-        "documentation": 40.78,
-        "safety_score": 21.89,
+        "cognitive_load": 13.53,
+        "concurrency": 53.46,
+        "dead_code": 36.65,
+        "documentation": 38.26,
+        "safety_score": 20.54,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 15.64,
-        "tech_debt": 44.52,
-        "verification": 21.57
+        "state_flux": 15.16,
+        "tech_debt": 48.74,
+        "verification": 26.06
       },
-      "file_count": 12,
-      "total_mass": 1341.4
+      "file_count": 13,
+      "total_mass": 1694.52
     },
     "rust/tokio_util_rand": {
       "avg_exposures": {
@@ -5100,20 +5100,20 @@
       "avg_exposures": {
         "api_exposure": 1.52,
         "churn": 0.0,
-        "cognitive_load": 36.58,
+        "cognitive_load": 38.42,
         "concurrency": 1.95,
         "dead_code": 2.84,
         "documentation": 85.71,
-        "safety_score": 60.08,
+        "safety_score": 60.06,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 42.86,
-        "state_flux": 51.66,
-        "tech_debt": 13.1,
+        "state_flux": 51.6,
+        "tech_debt": 13.47,
         "verification": 68.57
       },
       "file_count": 7,
-      "total_mass": 21287.82
+      "total_mass": 23887.92
     },
     "shell": {
       "avg_exposures": {
@@ -5212,22 +5212,22 @@
     },
     "shell/freebsd-src": {
       "avg_exposures": {
-        "api_exposure": 0.8,
+        "api_exposure": 1.02,
         "churn": 0.0,
-        "cognitive_load": 23.44,
-        "concurrency": 14.21,
-        "dead_code": 0.56,
-        "documentation": 82.14,
-        "safety_score": 68.79,
+        "cognitive_load": 22.8,
+        "concurrency": 13.72,
+        "dead_code": 0.54,
+        "documentation": 82.76,
+        "safety_score": 68.28,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 48.21,
-        "state_flux": 53.05,
-        "tech_debt": 69.23,
-        "verification": 3.39
+        "stability": 48.28,
+        "state_flux": 51.22,
+        "tech_debt": 68.05,
+        "verification": 3.27
       },
-      "file_count": 28,
-      "total_mass": 1566.3
+      "file_count": 29,
+      "total_mass": 1701.52
     },
     "shell/freebsd_sysbuild": {
       "avg_exposures": {
@@ -5252,20 +5252,20 @@
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 30.47,
-        "concurrency": 7.97,
-        "dead_code": 2.73,
-        "documentation": 13.21,
-        "safety_score": 80.14,
+        "cognitive_load": 29.15,
+        "concurrency": 7.62,
+        "dead_code": 2.61,
+        "documentation": 15.79,
+        "safety_score": 81.0,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 47.73,
-        "state_flux": 74.05,
-        "tech_debt": 7.26,
-        "verification": 9.35
+        "stability": 47.83,
+        "state_flux": 75.18,
+        "tech_debt": 6.94,
+        "verification": 9.05
       },
-      "file_count": 22,
-      "total_mass": 643.54
+      "file_count": 23,
+      "total_mass": 729.72
     },
     "shell/illumos-gate": {
       "avg_exposures": {
@@ -5499,20 +5499,20 @@
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 0.0,
+        "cognitive_load": 14.25,
         "concurrency": 0.0,
         "dead_code": 0.0,
-        "documentation": 0.0,
-        "safety_score": 31.29,
+        "documentation": 50.0,
+        "safety_score": 33.25,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 25.0,
         "state_flux": 0.0,
-        "tech_debt": 18.88,
-        "verification": 1.29
+        "tech_debt": 13.45,
+        "verification": 1.27
       },
       "file_count": 2,
-      "total_mass": 34.22
+      "total_mass": 35.82
     },
     "sql/spamassassin_mysql": {
       "avg_exposures": {
@@ -5547,7 +5547,7 @@
         "stability": 37.5,
         "state_flux": 0.0,
         "tech_debt": 0.0,
-        "verification": 1.84
+        "verification": 1.85
       },
       "file_count": 4,
       "total_mass": 53.78
@@ -5556,20 +5556,20 @@
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 0.0,
+        "cognitive_load": 5.52,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 0.0,
-        "safety_score": 70.21,
+        "safety_score": 75.29,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 0.0,
         "tech_debt": 0.0,
-        "verification": 2.34
+        "verification": 2.37
       },
       "file_count": 1,
-      "total_mass": 4.08
+      "total_mass": 6.08
     },
     "sqlite": {
       "avg_exposures": {
@@ -5718,7 +5718,7 @@
         "stability": 40.0,
         "state_flux": 0.0,
         "tech_debt": 0.0,
-        "verification": 1.88
+        "verification": 1.89
       },
       "file_count": 5,
       "total_mass": 61.62
@@ -5965,7 +5965,7 @@
         "stability": 33.33,
         "state_flux": 66.67,
         "tech_debt": 27.79,
-        "verification": 27.51
+        "verification": 27.52
       },
       "file_count": 6,
       "total_mass": 5353.16
@@ -6219,22 +6219,22 @@
     },
     "typescript/assemblyscript": {
       "avg_exposures": {
-        "api_exposure": 18.33,
+        "api_exposure": 30.21,
         "churn": 0.0,
-        "cognitive_load": 22.06,
+        "cognitive_load": 30.11,
         "concurrency": 0.0,
-        "dead_code": 2.31,
-        "documentation": 35.12,
-        "safety_score": 44.11,
+        "dead_code": 2.72,
+        "documentation": 44.87,
+        "safety_score": 50.84,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 40.0,
-        "state_flux": 48.37,
-        "tech_debt": 11.43,
-        "verification": 48.46
+        "stability": 41.67,
+        "state_flux": 56.98,
+        "tech_debt": 10.32,
+        "verification": 53.72
       },
-      "file_count": 5,
-      "total_mass": 12549.28
+      "file_count": 6,
+      "total_mass": 19527.58
     },
     "typescript/effect_ai_anthropic": {
       "avg_exposures": {
@@ -6250,7 +6250,7 @@
         "stability": 50.0,
         "state_flux": 0.0,
         "tech_debt": 88.08,
-        "verification": 2.42
+        "verification": 2.43
       },
       "file_count": 1,
       "total_mass": 19.72
@@ -6371,22 +6371,22 @@
     },
     "typescript/typescript_compiler": {
       "avg_exposures": {
-        "api_exposure": 1.93,
+        "api_exposure": 18.11,
         "churn": 0.0,
-        "cognitive_load": 17.41,
-        "concurrency": 0.0,
-        "dead_code": 2.1,
-        "documentation": 30.22,
-        "safety_score": 27.99,
+        "cognitive_load": 25.88,
+        "concurrency": 5.24,
+        "dead_code": 4.26,
+        "documentation": 60.24,
+        "safety_score": 48.98,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 16.67,
-        "state_flux": 33.3,
-        "tech_debt": 2.78,
-        "verification": 26.67
+        "stability": 35.71,
+        "state_flux": 54.2,
+        "tech_debt": 25.75,
+        "verification": 57.14
       },
-      "file_count": 3,
-      "total_mass": 2958.8
+      "file_count": 7,
+      "total_mass": 71323.18
     },
     "typescript/vscode": {
       "avg_exposures": {
@@ -6782,7 +6782,7 @@
         "stability": 50.0,
         "state_flux": 13.23,
         "tech_debt": 13.58,
-        "verification": 2.33
+        "verification": 2.34
       },
       "file_count": 1,
       "total_mass": 8.44
@@ -6960,22 +6960,22 @@
     },
     "zig/zig": {
       "avg_exposures": {
-        "api_exposure": 74.16,
+        "api_exposure": 73.39,
         "churn": 0.0,
-        "cognitive_load": 23.43,
-        "concurrency": 7.57,
-        "dead_code": 5.11,
-        "documentation": 70.9,
-        "safety_score": 42.0,
+        "cognitive_load": 22.42,
+        "concurrency": 8.31,
+        "dead_code": 5.09,
+        "documentation": 73.04,
+        "safety_score": 37.9,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 54.96,
-        "tech_debt": 12.38,
-        "verification": 2.54
+        "state_flux": 55.5,
+        "tech_debt": 11.85,
+        "verification": 2.57
       },
-      "file_count": 5,
-      "total_mass": 16305.48
+      "file_count": 6,
+      "total_mass": 35104.36
     },
     "zig/zig_std_linux_mips": {
       "avg_exposures": {
@@ -6991,29 +6991,29 @@
         "stability": 50.0,
         "state_flux": 0.0,
         "tech_debt": 94.61,
-        "verification": 2.37
+        "verification": 2.38
       },
       "file_count": 1,
       "total_mass": 65.44
     },
     "zig/zls": {
       "avg_exposures": {
-        "api_exposure": 39.85,
+        "api_exposure": 35.55,
         "churn": 0.0,
-        "cognitive_load": 17.28,
-        "concurrency": 10.15,
-        "dead_code": 3.07,
-        "documentation": 80.23,
-        "safety_score": 24.19,
+        "cognitive_load": 15.73,
+        "concurrency": 10.69,
+        "dead_code": 2.69,
+        "documentation": 82.7,
+        "safety_score": 27.38,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 61.08,
-        "tech_debt": 12.74,
-        "verification": 24.58
+        "state_flux": 53.44,
+        "tech_debt": 12.19,
+        "verification": 21.8
       },
-      "file_count": 7,
-      "total_mass": 6252.2
+      "file_count": 8,
+      "total_mass": 6446.98
     }
   }
 }

@@ -9,6 +9,7 @@ engine actually writes rather than a hand-built imitation of it.
 import os
 import shutil
 import sqlite3
+import sys
 from pathlib import Path
 from unittest.mock import patch
 
@@ -20,8 +21,10 @@ from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import (
     EngineFile,
     GalaxyIR,
     load_galaxy_ir,
-    scan_to_db,
 )
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from scan_server import scan_to_db  # noqa: E402 -- galaxy_ir.scan_to_db, the engine imported once a process
 
 PAYROLL = """\
        IDENTIFICATION DIVISION.

@@ -13,7 +13,7 @@ name: Det Sweep
 #
 # Fast (#4463 follow-up): three jobs. `plan` reads the diff: a pull request that touches only tests/equivalence/<case>/
 # proves just those cases (and the cases that take their ports); anything else, and every nightly, proves all
-# of them (tests/tools/det_sweep_plan.py: when in doubt, full). `shard` proves the plan on up to 20 runners (#4814: one per ~3 cases; a translator change is narrowed by its port diff)
+# of them (tests/tools/det_sweep_plan.py: when in doubt, full). `shard` proves the plan on up to 6 runners (#4814: one per ~3 cases, #5135: at most 6 so a run fits the 20-job pool; a translator change is narrowed by its port diff)
 # (proof_sweep.py --shard I/N, balanced by tests/equivalence/det_sweep_durations.json), each with the GnuCOBOL image
 # restored from cache. (A cache of the COBOL-side step outputs was tried and dropped: it saved no measurable time --
 # the Java build and the fault runs dominate a proof, not the COBOL step.)
@@ -22,11 +22,16 @@ name: Det Sweep
 # splits `db2_cases` off): Db2 started in the background first so it overlaps the setup, then `proof_sweep.py
 # --det-only --db2-only --cases ...`. Its results join `det`'s ratchet, so a moved Db2 case that stops proving is red,
 # as a non-Db2 one; when none moved the job is skipped (no cost). A pull request or a manual run that plans a FULL sweep
-# proves all the Db2 cases (4 runners); the nightly leaves them to Evidence Refresh's Db2 job, which runs just after it
+# proves all the Db2 cases (one runner per ~12, at most 6: #5882); the nightly leaves them to Evidence Refresh's Db2 job, which runs just after it
 # and re-proves every Db2 case anyway (a second Db2 pass here would double its cost for nothing).
 # Balancing (#4847): the shards are balanced by the durations file, which every run restores from the newest
 # nightly's cache (`durations-cache/`, saved by the nightly `det` job from the shards' measured seconds) and
-# falls back to the committed tests/equivalence/det_sweep_durations.json on a miss.
+# falls back to the committed tests/equivalence/det_sweep_durations.json on a miss. The Db2 cases' seconds come from
+# Evidence Refresh's nightly Db2 merge (cache `det-db2-durations-`, merged in by the plan; #5882: the nightly here
+# proves no Db2 case, so they were never measured).
+# Timing (#5882): every shard writes shard.json (its cases, planned seconds, unmeasured cases) and timing.json (the
+# epoch of each phase: job start, image / Db2 ready, sweep start / end); `det` renders them planned-vs-measured
+# (tests/tools/det_sweep_timing.py report), warns past the budget, and keeps det-sweep-timing for a week's read-back.
 #
 # Pull requests run it only when what a det proof reads changes: the translator and the generator it builds on,
 # the harness and oracle, the cases, the corpus pin.
@@ -34,7 +39,7 @@ name: Det Sweep
 on:
   pull_request:  # #4825: no path filter -- `det` is a required check; det_sweep_plan.py proves nothing (mode none)
     branches: [main]  # when no changed file is a det input (DET_INPUTS), so a docs-only PR passes `det` in about a minute
-    types: [opened, synchronize, reopened]  # no label events: any label change (the shepherd's status labels too) had
+    types: [opened, synchronize, reopened, ready_for_review]  # #5104: not on a draft; no label events: any label change (the shepherd's status labels too) had
     # cancelled the running sweep and failed the required `det` check (#4854). shepherd:full is read live by the plan
     # step, and the shepherd reruns the latest sweep when a maintainer adds it (tests/tools/shepherd_gh.py)
   schedule:
@@ -50,6 +55,7 @@ concurrency:
 
 jobs:
   plan:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
     name: plan
     runs-on: ubuntu-latest
     permissions:
@@ -73,6 +79,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0  # git diff origin/main...HEAD needs the merge base
+          filter: blob:none  # #5882: history without file contents (~1 s, not ~45-75 s); a file git reads is fetched then
           persist-credentials: false
 
       - name: Plan the sweep
@@ -111,13 +118,14 @@ jobs:
       - name: Install GitGalaxy with the translator (port diff)
         if: steps.plan.outputs.mode == 'ports'
         run: |
-          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
-          pip install --require-hashes -r ci/requirements/treesitter.txt
-          pip install -e ".[translator]"
+          tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
+          tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/treesitter.txt
+          pip install --no-build-isolation -e ".[translator]"
 
       - name: Cache the pinned corpora (port diff)
+        id: corpora
         if: steps.plan.outputs.mode == 'ports'
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .mainframe_corpora
           key: mainframe-corpora-${{ hashFiles('tests/cobol_mainframe/corpora.json') }}
@@ -130,6 +138,16 @@ jobs:
           # exit 1 means "some port changed"; a crash leaves no check.json and the next step plans a full sweep
           PYTHONPATH="$PWD" python tests/tools/det_port.py check --work "$RUNNER_TEMP/portcheck" --base-ref origin/main \
             | tail -40 || true
+
+      # #5024: restore-only on pull requests. A PR's cache scope is its own ref, so a PR that saved here left
+      # a copy per PR (a PR that edits corpora.json) that nothing else could read. Main saves it, once per key.
+      - name: Save the pinned corpora (main)
+        if: steps.plan.outputs.mode == 'ports' && github.event_name != 'pull_request' && steps.corpora.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a miss only costs the next run a clone
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('tests/cobol_mainframe/corpora.json') }}
 
       - name: Plan from the port diff
         id: final
@@ -146,13 +164,55 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
+      # #5048: the durations every shard and Db2 shard balances by, chosen ONCE here (the newest measured ones, else the
+      # committed file) and handed on as an artifact: shards that restored different files cut different slices.
+      - name: Restore the newest measured durations (#4847)
+        id: durations
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: durations-cache
+          key: det-durations-${{ github.run_id }}  # never an exact hit: restore-keys takes the newest saved one
+          restore-keys: |
+            det-durations-
+
+      # #5882: merged over the committed file, not copied over it: a case the cache has no seconds for (a Db2 case: the
+      # nightly here proves none) keeps its committed ones (a copy left every Db2 case unmeasured: shards 2.0x apart)
+      - name: Choose the durations for every shard
+        run: |
+          if [ -n "${{ steps.durations.outputs.cache-matched-key }}" ]; then
+            python3 tests/tools/det_sweep_timing.py merge-durations durations-cache/det_sweep_durations.json tests/equivalence/det_sweep_durations.json
+          fi
+
+      # #5882: the Db2 cases' measured seconds (Evidence Refresh's nightly Db2 merge saves them; the nightly here proves
+      # no Db2 case). A prefix of its own: `det-durations-` would match `det-durations-db2-...` too.
+      - name: Restore the newest measured Db2 durations (#5882)
+        id: db2durations
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: durations-db2
+          key: det-db2-durations-${{ github.run_id }}  # never an exact hit: restore-keys takes the newest saved one
+          restore-keys: |
+            det-db2-durations-
+
+      - name: Merge the Db2 durations in (#5882)
+        if: steps.db2durations.outputs.cache-matched-key != ''
+        run: python3 tests/tools/det_sweep_timing.py merge-durations durations-db2/det_sweep_durations.json tests/equivalence/det_sweep_durations.json
+
+      - name: Hand the durations to the shards (#5048)
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: det-durations
+          path: tests/equivalence/det_sweep_durations.json
+          if-no-files-found: error
+          retention-days: 1
+
   # #4901: the Db2 cases the plan moves, on runners of their own, in parallel with the shards.
   db2:
     name: db2 ${{ matrix.shard }}
     needs: plan
-    if: needs.plan.outputs.db2_shards != '0' && needs.plan.outputs.db2_shards != ''
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (needs.plan.outputs.db2_shards != '0' && needs.plan.outputs.db2_shards != '') }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
-    timeout-minutes: 18  # measured: a 9-10 case shard took 8.5-11.7 min from job start (full run, #4901)
+    timeout-minutes: 30  # 70 Db2 cases on 4 shards took 14-21 min (2026-10-21; 18 timed shards out and failed `det`); #5882: ~12 per shard now, the det job's timing report warns past 15
     strategy:
       fail-fast: false
       matrix:
@@ -163,21 +223,36 @@ jobs:
       GITGALAXY_ORACLE_STRICT: "1"
       GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
     steps:
+      - name: Mark the job's start (#5882)
+        run: date +%s > "$RUNNER_TEMP/t0"
+
       - name: Checkout GitGalaxy
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: gitgalaxy
           persist-credentials: false
 
-      # The registry pull overlaps everything below; the image is the one tests/tools/equivalence_db2.py pins by digest
-      # (#4733), pulled by that name so the harness starts the container from it.
-      - name: Pull the pinned Db2 image in the background (#4733, #4901)
+      # #5262: the pinned image comes from actions/cache (key = its digest) so no shard asks icr.io; only main saves
+      # (below), a pull request restores main's entry and never writes its own multi-GB copy. A miss pulls as before.
+      - name: Name the Db2 image cache entry (#5262)
+        id: db2key
+        run: echo "key=$(python3 gitgalaxy/tests/tools/db2_image_cache.py key)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore the pinned Db2 image from the cache (#5262)
+        id: db2image
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/db2-image-cache
+          key: ${{ steps.db2key.outputs.key }}
+
+      # #5048: the pull is retried (bounded); a final failure is only logged here, the harness pulls again (pull_image).
+      # The pull overlaps everything below; the image is the one tests/tools/equivalence_db2.py pins by digest (#4733).
+      - name: Load or pull the pinned Db2 image in the background (#4733, #4901, #5262)
         run: |
           image=$(grep -oE 'icr\.io/db2_community/db2@sha256:[0-9a-f]{64}' gitgalaxy/tests/tools/equivalence_db2.py | head -1)
-          echo "Db2 image: $image"
-          echo "DB2 image: \`$image\`" >> "$GITHUB_STEP_SUMMARY"
-          date +%s > "$RUNNER_TEMP/t0"
-          setsid nohup bash -c "docker pull -q '$image' && date +%s > '$RUNNER_TEMP/pull-done'" > "$RUNNER_TEMP/pull.log" 2>&1 &
+          echo "Db2 image: $image (cache: ${{ steps.db2image.outputs.cache-hit == 'true' && 'hit' || 'miss' }})"
+          echo "DB2 image: \`$image\` (cache: ${{ steps.db2image.outputs.cache-hit == 'true' && 'hit' || 'miss' }})" >> "$GITHUB_STEP_SUMMARY"
+          setsid nohup bash -c "python3 gitgalaxy/tests/tools/db2_image_cache.py load '$RUNNER_TEMP/db2-image-cache' || gitgalaxy/tests/tools/ci_retry.sh 4 15 -- docker pull -q '$image'; date +%s > '$RUNNER_TEMP/pull-done'" > "$RUNNER_TEMP/pull.log" 2>&1 &
 
       - name: Setup Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
@@ -190,9 +265,9 @@ jobs:
 
       - name: Install GitGalaxy with the translator
         run: |
-          python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
-          pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
-          pip install -e "./gitgalaxy[translator]"
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
+          pip install --no-build-isolation -e "./gitgalaxy[translator]"
 
       - name: Cache the GnuCOBOL oracle image
         id: image
@@ -212,6 +287,14 @@ jobs:
           python gitgalaxy/tests/tools/equivalence_oracle.py --strict
           echo "GITGALAXY_ORACLE_PREBUILT=1" >> "$GITHUB_ENV"
 
+      # #4980: IBM's ODBC driver (the Db2 image's one download) cached on its pin; on a miss the harness fetches it with
+      # curl --retry and checks the sha256, and a failure there says it is infrastructure.
+      - name: Cache the Db2 ODBC CLI driver (#4980)
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: gitgalaxy/tests/equivalence/linuxx64_odbc_cli.tar.gz
+          key: db2-odbc-cli-${{ hashFiles('gitgalaxy/tests/equivalence/odbc_cli.pin') }}
+
       # Db2 takes minutes to start and its databases to create (#4733): start them now, in the background, so they come
       # up while the JDK, Maven cache and corpora are set up. The harness's own ensure() then finds them running (the
       # start lock makes it wait for this one when it is not done yet).
@@ -228,22 +311,34 @@ jobs:
           echo "DB2_JOBS=$n" >> "$GITHUB_ENV"
           echo "GITGALAXY_DB2_POOL=$n" >> "$GITHUB_ENV"
           export GITGALAXY_DB2_POOL=$n
+          mkdir -p "$RUNNER_TEMP/db2-ready.d"  # #5882: a case takes only a database marked ready here
+          echo "GITGALAXY_DB2_READY_DIR=$RUNNER_TEMP/db2-ready.d" >> "$GITHUB_ENV"
           cat > "$RUNNER_TEMP/db2_prewarm.py" <<'PY'
+          import json
           import sys
           import time
+          from pathlib import Path
 
           t = time.time()
+          marks = {"start": int(t), "container": None, "databases": {}}  # #5882: seconds from start, for timing.json
+          out = Path(sys.argv[1])
+          ready = Path(sys.argv[2])
           sys.path.insert(0, "gitgalaxy/tests/tools")
           import equivalence_db2 as d
 
           d._ensure_container()
+          marks["container"] = round(time.time() - t, 1)
+          out.write_text(json.dumps(marks))
           print(f"db2 container ready after {time.time() - t:.0f}s", flush=True)
           for db in d.pool():
               d._ensure_database(db)
               d.activate(db)
+              marks["databases"][db] = round(time.time() - t, 1)
+              out.write_text(json.dumps(marks))
+              (ready / f"{db}.ready").touch()  # #5882: the sweep may take it now
               print(f"db2 {db} ready after {time.time() - t:.0f}s", flush=True)
           PY
-          setsid nohup bash -c "python '$RUNNER_TEMP/db2_prewarm.py'; echo \$? > '$RUNNER_TEMP/db2-prewarm.done'" \
+          setsid nohup bash -c "python '$RUNNER_TEMP/db2_prewarm.py' '$RUNNER_TEMP/db2-prewarm.json' '$RUNNER_TEMP/db2-ready.d'; echo \$? > '$RUNNER_TEMP/db2-prewarm.done'" \
             > "$RUNNER_TEMP/db2-prewarm.log" 2>&1 &
           echo "started the background Db2 start"
 
@@ -264,7 +359,8 @@ jobs:
             java-compile-m2-
 
       - name: Cache the pinned corpora
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: corpora
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .mainframe_corpora
           key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
@@ -275,31 +371,55 @@ jobs:
           rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
           PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
 
-      - name: Restore the newest measured durations (#4847)
-        id: durations
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      # #5024: restore-only on pull requests. A PR's cache scope is its own ref, so a PR that saved here left
+      # a copy per PR (a PR that edits corpora.json) that nothing else could read. Main saves it, once per key.
+      - name: Save the pinned corpora (main)
+        if: github.event_name != 'pull_request' && steps.corpora.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a miss only costs the next run a clone
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: durations-cache
-          key: det-durations-${{ github.run_id }}  # never an exact hit: restore-keys takes the newest saved one
-          restore-keys: |
-            det-durations-
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
 
-      - name: Balance by the restored durations (else the committed file)
-        if: steps.durations.outputs.cache-matched-key != ''
-        run: cp durations-cache/det_sweep_durations.json gitgalaxy/tests/equivalence/det_sweep_durations.json
+      # #5048: every shard balances by the file the plan job chose, never by its own cache restore (one shard's cache
+      # miss made its slices differ from its neighbours' and a case was proven in two shards).
+      - name: Download the plan's durations (#5048)
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: det-durations
+          path: durations-plan
 
-      # The databases are only used once the start is done: a case that picked a database the background start was still
-      # creating got no connection (first CI run: "Db2: no table IBMUSER.ACCOUNT" on cbsa-updacc-generated). Lazy creation
-      # in the harness paid the same serial CREATE DATABASE time, so this wait costs nothing.
-      - name: Wait for the background Db2 start
+      - name: Balance by the plan's durations
+        run: cp durations-plan/det_sweep_durations.json gitgalaxy/tests/equivalence/det_sweep_durations.json
+
+      # A database is only used once the start has created and activated it: a case that picked a database the background
+      # start was still creating got no connection (first CI run: "Db2: no table IBMUSER.ACCOUNT" on cbsa-updacc-generated).
+      # #5882: the start marks each one ready (GITGALAXY_DB2_READY_DIR) and a case takes only a marked one, so the sweep
+      # starts once GGDB is up (~1.5-3 min of the shard's idle wait for GGDB1..3 saved) and the rest join as they come.
+      - name: Wait for the first Db2 database
         shell: bash
         run: |
           for _ in $(seq 1 120); do
-            if [ -f "$RUNNER_TEMP/db2-prewarm.done" ]; then break; fi
+            if [ -f "$RUNNER_TEMP/db2-ready.d/GGDB.ready" ] || [ -f "$RUNNER_TEMP/db2-prewarm.done" ]; then break; fi
             sleep 5
           done
           cat "$RUNNER_TEMP/db2-prewarm.log" | grep -v 'WARNING\|INFO' || true
-          [ "$(cat "$RUNNER_TEMP/db2-prewarm.done" 2>/dev/null)" = "0" ] || { echo "::error title=Db2::the background Db2 start did not finish"; exit 1; }
+          ls "$RUNNER_TEMP/db2-ready.d"
+          [ -f "$RUNNER_TEMP/db2-ready.d/GGDB.ready" ] || { echo "::error title=Db2::the background Db2 start did not bring up GGDB"; exit 1; }
+          date +%s > "$RUNNER_TEMP/db2-ready"
+
+      # #5262: the cache writer is main's runs (schedule / dispatch on main), one shard, and only on a miss. Docker save
+      # runs here, after the wait: the background pull is finished by then (Db2 started from the image).
+      - name: Save the pinned Db2 image to the cache (main only, #5262)
+        if: steps.db2image.outputs.cache-hit != 'true' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && startsWith(matrix.shard, '1/')
+        run: python3 gitgalaxy/tests/tools/db2_image_cache.py save "$RUNNER_TEMP/db2-image-cache"
+
+      - name: Store the Db2 image cache entry (main only, #5262)
+        if: steps.db2image.outputs.cache-hit != 'true' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && startsWith(matrix.shard, '1/')
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/db2-image-cache
+          key: ${{ steps.db2key.outputs.key }}
 
       - name: Re-prove this shard's Db2 det ports
         id: sweep
@@ -311,17 +431,35 @@ jobs:
           only=()
           if [ "$CASES" != "all" ]; then only=(--cases "$CASES"); fi
           start=$(date +%s)
+          echo "$start" > "$RUNNER_TEMP/sweep-start"
+          trap 'date +%s > "$RUNNER_TEMP/sweep-end"' EXIT  # #5882: the sweep's end, even when it fails
           python tests/tools/proof_sweep.py --det-only --db2-only --jobs "$DB2_JOBS" --shard "${{ matrix.shard }}" "${only[@]}" \
             --no-ratchet --work "$RUNNER_TEMP/sweep" | tee "$RUNNER_TEMP/sweep.txt"
           echo "sweep_seconds=$(( $(date +%s) - start ))" >> "$GITHUB_OUTPUT"
+
+      # #5882: the phases' epochs beside shard.json and sweep.json, for the det job's timing report (a killed sweep has
+      # no sweep_end: the report says so)
+      - name: Record this shard's timing (#5882)
+        if: always()
+        run: |
+          python3 gitgalaxy/tests/tools/det_sweep_timing.py record --out "$RUNNER_TEMP/sweep/timing.json" --kind db2 \
+            --shard "${{ matrix.shard }}" --mark job_start="$RUNNER_TEMP/t0" --mark image_ready="$RUNNER_TEMP/pull-done" \
+            --mark db2_ready="$RUNNER_TEMP/db2-ready" --mark sweep_start="$RUNNER_TEMP/sweep-start" \
+            --mark sweep_end="$RUNNER_TEMP/sweep-end" --prewarm "$RUNNER_TEMP/db2-prewarm.json"
 
       - name: Summary (with the step timings, #4901)
         if: always()
         shell: bash
         run: |
+          if [ "$(cat "$RUNNER_TEMP/db2-prewarm.done" 2>/dev/null)" != "0" ]; then  # #5882: the sweep no longer waits for it
+            echo "::warning title=Db2::the background Db2 start did not finish every pool database (ready: $(ls "$RUNNER_TEMP/db2-ready.d" 2>/dev/null | tr '\n' ' ')); the sweep ran on fewer"
+          fi
           {
             echo "## Db2 det sweep, shard ${{ matrix.shard }}"
             echo "image pull finished at +$(( $(cat "$RUNNER_TEMP/pull-done" 2>/dev/null || echo 0) - $(cat "$RUNNER_TEMP/t0" 2>/dev/null || echo 0) )) s from the job's start"
+            if [ "$(cat "$RUNNER_TEMP/db2-prewarm.done" 2>/dev/null)" != "0" ]; then  # #5882: the sweep no longer waits for it
+              echo "**the background Db2 start did not finish every pool database** (ready: $(ls "$RUNNER_TEMP/db2-ready.d" 2>/dev/null | tr '\n' ' '))"
+            fi
             echo '```'
             cat "$RUNNER_TEMP/db2-prewarm.log" 2>/dev/null | grep -v 'WARNING\|INFO' || echo "(no prewarm log)"
             echo '```'
@@ -332,16 +470,19 @@ jobs:
 
       - name: Keep this shard's results
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: det-sweep-db2-${{ strategy.job-index }}
-          path: ${{ runner.temp }}/sweep/sweep.json
+          path: |
+            ${{ runner.temp }}/sweep/sweep.json
+            ${{ runner.temp }}/sweep/shard.json
+            ${{ runner.temp }}/sweep/timing.json
           if-no-files-found: ignore
           retention-days: 7
 
       - name: Keep the proofs' logs
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: det-sweep-db2-logs-${{ strategy.job-index }}
           path: |
@@ -355,9 +496,9 @@ jobs:
   shard:
     name: shard ${{ matrix.shard }}
     needs: plan
-    if: needs.plan.outputs.shards != '0'
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (needs.plan.outputs.shards != '0') }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
-    timeout-minutes: 30  # a shard is ~4 cases (#4814: up to 20 shards); a hang should fail, not hold a runner for 6 h
+    timeout-minutes: 30  # a full-sweep shard is ~18 cases, ~10-12 min (#5135: up to 6 shards); a hang should fail, not hold a runner for 6 h
     strategy:
       fail-fast: false
       matrix:
@@ -368,6 +509,9 @@ jobs:
       GITGALAXY_ORACLE_STRICT: "1"
       GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
     steps:
+      - name: Mark the job's start (#5882)
+        run: date +%s > "$RUNNER_TEMP/t0"
+
       - name: Checkout GitGalaxy
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -385,9 +529,9 @@ jobs:
 
       - name: Install GitGalaxy with the translator
         run: |
-          python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
-          pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
-          pip install -e "./gitgalaxy[translator]"
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r gitgalaxy/ci/requirements/treesitter.txt
+          pip install --no-build-isolation -e "./gitgalaxy[translator]"
 
       - name: Setup JDK 17
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
@@ -406,7 +550,8 @@ jobs:
             java-compile-m2-
 
       - name: Cache the pinned corpora
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: corpora
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .mainframe_corpora
           key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
@@ -416,6 +561,16 @@ jobs:
           cd gitgalaxy
           rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
           PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
+
+      # #5024: restore-only on pull requests. A PR's cache scope is its own ref, so a PR that saved here left
+      # a copy per PR (a PR that edits corpora.json) that nothing else could read. Main saves it, once per key.
+      - name: Save the pinned corpora (main)
+        if: github.event_name != 'pull_request' && steps.corpora.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a miss only costs the next run a clone
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
 
       # The oracle image is built once per Dockerfile: saved with `docker save` under the Dockerfile's hash, loaded by
       # every later run and shard. The fingerprint check below is still the pin (#4309): a stale image fails it.
@@ -437,18 +592,16 @@ jobs:
           python gitgalaxy/tests/tools/equivalence_oracle.py --strict
           echo "GITGALAXY_ORACLE_PREBUILT=1" >> "$GITHUB_ENV"  # the harness need not rebuild it per proof
 
-      - name: Restore the newest measured durations (#4847)
-        id: durations
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      # #5048: every shard balances by the file the plan job chose, never by its own cache restore (one shard's cache
+      # miss made its slices differ from its neighbours' and a case was proven in two shards).
+      - name: Download the plan's durations (#5048)
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          path: durations-cache
-          key: det-durations-${{ github.run_id }}  # never an exact hit: restore-keys takes the newest saved one
-          restore-keys: |
-            det-durations-
+          name: det-durations
+          path: durations-plan
 
-      - name: Balance by the restored durations (else the committed file)
-        if: steps.durations.outputs.cache-matched-key != ''
-        run: cp durations-cache/det_sweep_durations.json gitgalaxy/tests/equivalence/det_sweep_durations.json
+      - name: Balance by the plan's durations
+        run: cp durations-plan/det_sweep_durations.json gitgalaxy/tests/equivalence/det_sweep_durations.json
 
       - name: Re-prove this shard's det ports (no Db2)
         shell: bash  # -eo pipefail: the sweep's exit status, not tee's
@@ -458,8 +611,17 @@ jobs:
           cd gitgalaxy
           only=()
           if [ "$CASES" != "all" ]; then only=(--cases "$CASES"); fi
+          date +%s > "$RUNNER_TEMP/sweep-start"
+          trap 'date +%s > "$RUNNER_TEMP/sweep-end"' EXIT  # #5882
           python tests/tools/proof_sweep.py --det-only --skip-db2 --jobs 4 --shard "${{ matrix.shard }}" "${only[@]}" \
             --no-ratchet --work "$RUNNER_TEMP/sweep" | tee "$RUNNER_TEMP/sweep.txt"
+
+      - name: Record this shard's timing (#5882)
+        if: always()
+        run: |
+          python3 gitgalaxy/tests/tools/det_sweep_timing.py record --out "$RUNNER_TEMP/sweep/timing.json" --kind det \
+            --shard "${{ matrix.shard }}" --mark job_start="$RUNNER_TEMP/t0" --mark sweep_start="$RUNNER_TEMP/sweep-start" \
+            --mark sweep_end="$RUNNER_TEMP/sweep-end"
 
       - name: Summary
         if: always()
@@ -473,16 +635,19 @@ jobs:
 
       - name: Keep this shard's results
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: det-sweep-shard-${{ strategy.job-index }}
-          path: ${{ runner.temp }}/sweep/sweep.json
+          path: |
+            ${{ runner.temp }}/sweep/sweep.json
+            ${{ runner.temp }}/sweep/shard.json
+            ${{ runner.temp }}/sweep/timing.json
           if-no-files-found: ignore
           retention-days: 7
 
       - name: Keep the proofs' logs
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: det-sweep-logs-${{ strategy.job-index }}
           path: |
@@ -497,7 +662,7 @@ jobs:
   # that now proves fails -- and a case with no result (a shard that died before reporting) fails.
   det:
     needs: [plan, shard, db2]
-    if: always()
+    if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -523,11 +688,11 @@ jobs:
 
       - name: Merge into the restored durations (nightly)
         if: github.event_name == 'schedule' && steps.durations.outputs.cache-matched-key != ''
-        run: cp durations-cache/det_sweep_durations.json tests/equivalence/det_sweep_durations.json
+        run: python3 tests/tools/det_sweep_timing.py merge-durations durations-cache/det_sweep_durations.json tests/equivalence/det_sweep_durations.json  # #5882: the committed entries the cache lacks are kept
 
       - name: Download the shards' results
         if: needs.plan.outputs.shards != '0'
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: det-sweep-shard-*
           path: shards
@@ -535,7 +700,7 @@ jobs:
 
       - name: Download the Db2 shards' results (#4901)
         if: needs.plan.outputs.db2_shards != '0' && needs.plan.outputs.db2_shards != ''
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: det-sweep-db2-[0-9]*
           path: db2-shards
@@ -561,11 +726,13 @@ jobs:
           if [ "$SHARDS" != "0" ]; then
             expect=all
             if [ "$MODE" != "full" ]; then expect="$CASES"; fi
-            found=$(ls shards/*/sweep.json 2>/dev/null || true)
+            # #5008: download-artifact extracts a LONE matching artifact straight into path/ (no <name>/ subdirectory),
+            # so a 1-shard run has shards/sweep.json: take both layouts.
+            found=$(ls shards/*/sweep.json shards/sweep.json 2>/dev/null || true)
             if [ -z "$found" ]; then echo "no shard reported a sweep.json"; rc=1; else
               extra=()  # the nightly writes the merged seconds to tests/equivalence/det_sweep_durations.json (#4847)
               if [ "$EVENT" = "schedule" ]; then extra=(--update-durations); fi
-              PYTHONPATH="$PWD" python tests/tools/proof_sweep.py --aggregate $found --expect "$expect" "${extra[@]}" | tee agg.txt || rc=1
+              PYTHONPATH="$PWD" python tests/tools/proof_sweep.py --aggregate $found --expect "$expect" --record-ledger "${extra[@]}" | tee agg.txt || rc=1
               {
                 echo "## Det sweep (merged)"
                 echo '```'
@@ -578,9 +745,9 @@ jobs:
           if [ -n "$DB2_SHARDS" ] && [ "$DB2_SHARDS" != "0" ]; then
             expect=db2
             if [ "$DB2_CASES" != "all" ]; then expect="$DB2_CASES"; fi
-            found=$(ls db2-shards/*/sweep.json 2>/dev/null || true)
+            found=$(ls db2-shards/*/sweep.json db2-shards/sweep.json 2>/dev/null || true)  # one shard: no subdirectory (#5008)
             if [ -z "$found" ]; then echo "no Db2 shard reported a sweep.json"; rc=1; else
-              PYTHONPATH="$PWD" python tests/tools/proof_sweep.py --aggregate $found --expect "$expect" | tee agg-db2.txt || rc=1
+              PYTHONPATH="$PWD" python tests/tools/proof_sweep.py --aggregate $found --expect "$expect" --record-ledger | tee agg-db2.txt || rc=1
               {
                 echo "## Det sweep, Db2 cases (merged)"
                 echo '```'
@@ -590,6 +757,34 @@ jobs:
             fi
           fi
           exit $rc
+
+      # #5882: planned vs measured per shard (setup, Db2 ready, sweep, job), with a warning past the budget or the 1.3x
+      # imbalance; the rows are kept a month so a week of runs can be read back (gh run download -n det-sweep-timing).
+      - name: Shard timings (#5882)
+        if: always()
+        run: |
+          python3 tests/tools/det_sweep_timing.py report shards db2-shards --json det-sweep-timing.json \
+            --github-summary "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Keep the shard timings (#5882)
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: det-sweep-timing
+          path: det-sweep-timing.json
+          if-no-files-found: ignore
+          retention-days: 30
+
+      # #5084: the aggregate re-recorded the ledger entries it re-checked (fingerprints included); the runner's copy is
+      # thrown away, so hand the rewritten files on for whoever commits them.
+      - name: Keep the re-recorded coverage ledger (#5084)
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: det-sweep-ledger
+          path: tests/equivalence/det_sweep_coverage/
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Stage the merged durations for the cache (nightly, #4847)
         if: github.event_name == 'schedule' && steps.aggregate.outcome == 'success'

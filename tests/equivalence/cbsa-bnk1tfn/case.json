@@ -1,0 +1,538 @@
+{
+  "kind": "cics",
+  "corpus": "cics-banking-sample-application-cbsa",
+  "program": "BNK1TFN",
+  "program_source": "src/base/cobol_src/BNK1TFN.cbl",
+  "copy_dirs": [
+    "src/base/cobol_copy"
+  ],
+  "transid": "OTFN",
+  "termid": "T001",
+  "clock": "2026/10/01 10:30:15.00",
+  "region": {
+    "applid": "CBSAREGN",
+    "sysid": "CICA"
+  },
+  "taskn": 4242,
+  "programs": [
+    {
+      "program": "XFRFUN",
+      "program_source": "src/base/cobol_src/XFRFUN.cbl"
+    },
+    {
+      "program": "ABNDPROC",
+      "program_source": "src/base/cobol_src/ABNDPROC.cbl"
+    }
+  ],
+  "datasets": {
+    "CBSA.CICSBSA.ABNDFILE": {
+      "input": "@case/abndfile.bin",
+      "entity": "WsAbndArea",
+      "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+      "record": "WS-ABND-AREA",
+      "recovery": "NONE",
+      "recovery_why": "etc/install/base/installjcl/BANK.csd: DEFINE FILE(ABNDFILE) ... RECOVERY(NONE) -- the abend log a backout must not undo"
+    }
+  },
+  "db2": {
+    "ddl": [
+      "etc/install/base/db2jcl/CRETB01.jcl",
+      "etc/install/base/db2jcl/CREI101.jcl",
+      "etc/install/base/db2jcl/CRETB02.jcl"
+    ],
+    "seed": "@case/seed.sql",
+    "compare": [
+      "IBMUSER.ACCOUNT",
+      "IBMUSER.PROCTRAN"
+    ],
+    "qualifier": "IBMUSER"
+  },
+  "commarea": {
+    "segments": [
+      {
+        "copybook": "src/base/cobol_src/BNK1TFN.cbl",
+        "record": "WS-COMMAREA"
+      }
+    ]
+  },
+  "screens": {
+    "BNK1TF": {
+      "copybook": "@bms/BNK1TFM.cpy",
+      "input": "BNK1TFI",
+      "output": "BNK1TFO"
+    }
+  },
+  "scenarios": [
+    {
+      "name": "first-entry",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "EIBCALEN 0: WS-COMM-AREA initialised, the map sent ERASE"
+    },
+    {
+      "name": "pa1",
+      "aid": "DFHPA1",
+      "commarea": {},
+      "why": "PA1: CONTINUE, nothing sent; RETURN TRANSID with the COMMAREA"
+    },
+    {
+      "name": "pf3",
+      "aid": "DFHPF3",
+      "commarea": {},
+      "why": "PF3: RETURN TRANSID('OMEN') IMMEDIATE: back to the main menu"
+    },
+    {
+      "name": "pf12",
+      "aid": "DFHPF12",
+      "commarea": {},
+      "why": "PF12: SEND-TERMINATION-MSG, RETURN"
+    },
+    {
+      "name": "clear",
+      "aid": "DFHCLEAR",
+      "commarea": {},
+      "why": "CLEAR: SEND CONTROL ERASE FREEKB, RETURN"
+    },
+    {
+      "name": "other-key",
+      "aid": "DFHPF7",
+      "commarea": {},
+      "why": "PF7: WHEN OTHER -- 'Invalid key pressed.', SEND MAP DATAONLY ALARM"
+    },
+    {
+      "name": "mapfail",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "ENTER with no field modified: RECEIVE MAP MAPFAIL -- ABNDPROC LINKed (an ABNDFILE record) and ABEND HBNK"
+    },
+    {
+      "name": "transfer-low-to-high",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "ENTER 1 -> 2, 100.50: BIF DEEDIT of both accounts, VALIDATE-AMOUNT, LINK XFRFUN (run in the task): both accounts' balances and two PROCTRAN rows -- 'Transfer successfully applied.'",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "00000002",
+          "AMTI": "100.50"
+        }
+      }
+    },
+    {
+      "name": "transfer-high-to-low",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "2 -> 1, 50.25",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000002",
+          "TACCNOI": "00000001",
+          "AMTI": "50.25"
+        }
+      }
+    },
+    {
+      "name": "transfer-whole-amount",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "a whole amount: NUMERIC at once",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "00000002",
+          "AMTI": "12"
+        }
+      }
+    },
+    {
+      "name": "transfer-leading-spaces",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "'   12.75': UNSTRING from the first non-space",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "00000002",
+          "AMTI": "   12.75"
+        }
+      }
+    },
+    {
+      "name": "transfer-plus-sign",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "'+3.5': not NUMERIC as a class, counted by INSPECT, NUMVAL gives 3.5",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "00000002",
+          "AMTI": "+3.5"
+        }
+      }
+    },
+    {
+      "name": "transfer-one-place",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "one decimal place",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "00000002",
+          "AMTI": "7.5"
+        }
+      }
+    },
+    {
+      "name": "transfer-deedited",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "BIF DEEDIT removes the hyphens: accounts 1 and 2",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "0000-001",
+          "TACCNOI": "0000-002",
+          "AMTI": "5"
+        }
+      }
+    },
+    {
+      "name": "overdraw",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "account 8 (available 100, actual 150) over its overdraft: XFRFUN makes no funds check",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000008",
+          "TACCNOI": "00000001",
+          "AMTI": "500.50"
+        }
+      }
+    },
+    {
+      "name": "beyond-overdraft-limit",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "1 -> 3, 2000",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "00000003",
+          "AMTI": "2000"
+        }
+      }
+    },
+    {
+      "name": "loan-to-mortgage",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "a LOAN to a MORTGAGE",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000003",
+          "TACCNOI": "00000004",
+          "AMTI": "0.5"
+        }
+      }
+    },
+    {
+      "name": "to-balance-overflow",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "the to-account's balance at its picture limit",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "00000006",
+          "AMTI": "1.5"
+        }
+      }
+    },
+    {
+      "name": "from-balance-overflow",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "the from-account's balance at its negative picture limit",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000007",
+          "TACCNOI": "00000008",
+          "AMTI": "1.5"
+        }
+      }
+    },
+    {
+      "name": "large-amount",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "a large amount exact in a double (2**33 + 0.5)",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000002",
+          "TACCNOI": "00000009",
+          "AMTI": "8589934592.5"
+        }
+      }
+    },
+    {
+      "name": "plus-whole",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "'+5': no decimal point, not NUMERIC as a class",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "00000002",
+          "AMTI": "+5"
+        }
+      }
+    },
+    {
+      "name": "from-not-found",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "from account 11 (not in the table): XFRFUN '1' -- 'FROM ACCOUNT no was not found'",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000011",
+          "TACCNOI": "00000099",
+          "AMTI": "10"
+        }
+      }
+    },
+    {
+      "name": "from-not-found-second",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "from account 99999998 not found",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "99999998",
+          "TACCNOI": "00000001",
+          "AMTI": "10"
+        }
+      }
+    },
+    {
+      "name": "to-not-found",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "to account not found: XFRFUN '2'",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "99999998",
+          "AMTI": "10"
+        }
+      }
+    },
+    {
+      "name": "to-not-found-low",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "account 10 is at another sort code: 'TO ACCOUNT no was not found'",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000002",
+          "TACCNOI": "00000010",
+          "AMTI": "10"
+        }
+      }
+    },
+    {
+      "name": "highest-account",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "from the highest account",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "99999999",
+          "TACCNOI": "00000002",
+          "AMTI": "21.25"
+        }
+      }
+    },
+    {
+      "name": "from-null-date",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "from account 5, whose last-statement date is NULL: XFRFUN '3' unexpected error",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000005",
+          "TACCNOI": "00000009",
+          "AMTI": "1"
+        }
+      }
+    },
+    {
+      "name": "to-null-date",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "to account 5: the NULL date",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "00000005",
+          "AMTI": "1"
+        }
+      }
+    },
+    {
+      "name": "same-accounts",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "FROM and TO the same: 'should be different'",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "00000001",
+          "AMTI": "10"
+        }
+      }
+    },
+    {
+      "name": "same-after-deedit",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "different as typed, the same after DEEDIT: the check is on the DEEDITed fields",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "0000-0001",
+          "AMTI": "10"
+        }
+      }
+    },
+    {
+      "name": "zero-from",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "'Account no 00000000 is not valid'",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000000",
+          "TACCNOI": "00000002",
+          "AMTI": "10"
+        }
+      }
+    },
+    {
+      "name": "zero-to",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "TO account 00000000",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "00000000",
+          "AMTI": "10"
+        }
+      }
+    },
+    {
+      "name": "amount-zero",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "amount 0: 'Please supply a non-zero amount.'",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "00000002",
+          "AMTI": "0"
+        }
+      }
+    },
+    {
+      "name": "amount-zero-decimals",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "amount 0.00",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "00000002",
+          "AMTI": "0.00"
+        }
+      }
+    },
+    {
+      "name": "amount-negative",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "'Please supply a positive amount.'",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "00000002",
+          "AMTI": "-10"
+        }
+      }
+    },
+    {
+      "name": "amount-space",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "embedded space",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "00000002",
+          "AMTI": "1 0"
+        }
+      }
+    },
+    {
+      "name": "amount-letters",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "'Please supply a numeric amount.'",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "00000002",
+          "AMTI": "12a"
+        }
+      }
+    },
+    {
+      "name": "amount-two-points",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "one decimal point only",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "00000002",
+          "AMTI": "1.2.5"
+        }
+      }
+    },
+    {
+      "name": "amount-three-places",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "up to two decimal places",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "00000002",
+          "AMTI": "1.125"
+        }
+      }
+    },
+    {
+      "name": "amount-missing",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "no amount (AMTL 0)",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "00000002"
+        }
+      }
+    }
+  ],
+  "notes": "CBSA's transfer-funds screen (BNK1TFN, transaction OTFN, BMS map BNK1TF of mapset BNK1TFM: the symbolic map is generated from src/base/bms_src/BNK1TFM.bms). Pseudo-conversational: a first task sends the empty map; a returning one acts on the AID -- PA keys nothing, PF3 RETURN TRANSID('OMEN') IMMEDIATE, PF12 the termination message, CLEAR, ENTER (BIF DEEDIT of both account numbers, the same-account and zero-account checks, VALIDATE-AMOUNT, then LINK XFRFUN with SUBPGM-PARMS), any other key 'Invalid key pressed.'. XFRFUN and ABNDPROC run in the task, as in cbsa-xfrfun. ACCOUNT and PROCTRAN are compared after every scenario. Every amount typed is exact in a binary double (a COMP-2 holding 9999999999.99 is not: truncated on COBOL, rounded on Java: oracle_assumptions.md C6). The COMMAREA is compared as the program RETURNs it, WS-COMMAREA. Not reached: an amount longer than WS-AMOUNT-UNSTR's 13 characters (the program then reference-modifies 14 characters of a 13-character item: where that reads depends on storage layout, so the Java side refuses it and no scenario is written), an account number with no digit at all (BIF DEEDIT of such a field is not modelled: refused), XFRFUN's code 4 (an amount not above zero: VALIDATE-AMOUNT refuses zero and negatives first) and the failure branches after SEND MAP / SEND TEXT / SEND CONTROL / RETURN / LINK (no fault can be injected on them). Data: seed.sql is cbsa-xfrfun's SYNTHETIC seed. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."
+}

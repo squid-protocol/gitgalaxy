@@ -1,0 +1,158 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "XFRFUN",
+ "program_source": "src/base/cobol_src/XFRFUN.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "OTFN",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "programs": [
+  {
+   "program": "ABNDPROC",
+   "program_source": "src/base/cobol_src/ABNDPROC.cbl"
+  }
+ ],
+ "datasets": {
+  "CBSA.CICSBSA.ABNDFILE": {
+   "input": "@case/abndfile.bin",
+   "entity": "WsAbndArea",
+   "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+   "record": "WS-ABND-AREA",
+   "recovery": "NONE",
+   "recovery_why": "etc/install/base/installjcl/BANK.csd: DEFINE FILE(ABNDFILE) ... RECOVERY(NONE) -- the abend log a backout must not undo"
+  }
+ },
+ "db2": {
+  "ddl": [
+   "etc/install/base/db2jcl/CRETB01.jcl",
+   "etc/install/base/db2jcl/CREI101.jcl",
+   "etc/install/base/db2jcl/CRETB02.jcl"
+  ],
+  "seed": "@generate",
+  "compare": [
+   "IBMUSER.ACCOUNT",
+   "IBMUSER.PROCTRAN"
+  ],
+  "qualifier": "IBMUSER",
+  "compare_sql": true,
+  "generate": {
+   "seed": 4507,
+   "tables": {
+    "IBMUSER.ACCOUNT": {
+     "rows": 30,
+     "columns": {
+      "ACCOUNT_SORTCODE": {
+       "values": [
+        "987654",
+        "987654",
+        "987654",
+        "123456"
+       ]
+      },
+      "ACCOUNT_NUMBER": {
+       "digits": true
+      }
+     }
+    }
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/BNK1TFN.cbl",
+    "record": "SUBPGM-PARMS"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "amount-zero",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000001",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000002",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "0",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "why": "boundary: COMM-AMT <= 0 -> 'N' '4' and RETURN before any SQL; sort codes still overwritten with 987654"
+  },
+  {
+   "name": "amount-negative",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000002",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000001",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "-10.00",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "why": "a negative amount: 'N' '4', nothing read or written"
+  },
+  {
+   "name": "same-account",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000001",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000001",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "10.00",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "why": "FACCNO = TACCNO (sort codes both 987654): ABNDINFO from the clock and EIB, LINK ABNDPROC (an ABNDFILE record, RECOVERY(NONE)), ABEND SAME CANCEL; no SQL"
+  },
+  {
+   "name": "same-account-other-sortcodes",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000002",
+    "SUBPGM-FSCODE": "111111",
+    "SUBPGM-TACCNO": "00000002",
+    "SUBPGM-TSCODE": "222222",
+    "SUBPGM-AMT": "1.00",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "why": "the caller's sort codes 111111 / 222222 are overwritten by the program's 987654 before the compare, so still 'SAME'"
+  }
+ ],
+ "notes": "CBSA's transfer service (XFRFUN) on GENERATED Db2 rows (#4507): 30 IBMUSER.ACCOUNT rows built from CRETB01's CREATE TABLE and CREI101's unique index (every column at its boundaries, a NULL in every nullable column, then values between; a quarter under another sort code); PROCTRAN starts empty and is compared with ACCOUNT after every task (no foreign key joins them in CRETB02). 40 generated LINKs with BNK1TFN's SUBPGM-PARMS: the FROM account each row's in turn, the TO account any row's, one in ten an account the table does not hold (SELECT +100, rollback), amounts from the smallest to the S9(10)V99 maximum, zero and negative; a generated NULL date reaches SELECT -305 and the abend. The hand scenarios of cbsa-xfrfun that need no particular row (amount <= 0, FROM = TO) stay. Every task's statements are compared with what Db2 answered (compare_sql). Burned estate (CBSA). A generated NULL date read into the TO account's host variables (no indicator) leaves them unset, so the UPDATE that follows is rejected by Db2 with -180 (SQLSTATE 22007); the JDBC driver refuses those bytes on the client, so the Java outcome log records the statement with Db2's answer (EquivalenceDb2Config, #4658).",
+ "port_from": "cbsa-xfrfun",
+ "scenario_generate": {
+  "seed": 4507,
+  "count": 40,
+  "prefix": "generated",
+  "commarea": {
+   "SUBPGM-FACCNO": {
+    "from": "IBMUSER.ACCOUNT.ACCOUNT_NUMBER",
+    "miss": 0.1,
+    "turn": true
+   },
+   "SUBPGM-FSCODE": "987654",
+   "SUBPGM-TACCNO": {
+    "from": "IBMUSER.ACCOUNT.ACCOUNT_NUMBER",
+    "miss": 0.1
+   },
+   "SUBPGM-TSCODE": "987654",
+   "SUBPGM-AMT": {
+    "values": [
+     "100.00",
+     "0.01",
+     "2500.50",
+     "-5.00",
+     "9999999999.99",
+     "12.34",
+     "0"
+    ]
+   },
+   "SUBPGM-SUCCESS": "N"
+  }
+ }
+}

@@ -122,6 +122,27 @@ public class Cotrn00cService {
         return lastAnswerBytes == null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);
     }
 
+    // @facade-helper: the bytes the last byte-carrying handleLink's program left in the COMMAREA
+    private byte[] lastLinkBytes;
+
+    /** #5053: handleLink with the raw bytes of the LINK's COMMAREA (passed by address: what the program
+     *  leaves there the caller sees); lastLinkBytes() then answers the bytes it left. */
+    public Cotrn00cCarddemoCommarea handleLink(Cotrn00cCarddemoCommarea request, byte[] area) {
+        log.info("Cotrn00c: handleLink (bytes)");
+        CicsTask.Region region = CicsTask.region();
+        CicsTask task = region.linked("COTRN00C", request, area);
+        region.run(task, "COTRN00C", this::runTask);
+        byte[] left = task.linkAreaView();
+        lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;
+        return request;
+    }
+
+    /** The bytes the last byte-carrying handleLink's program left in the LINK COMMAREA (a copy; null: it took
+     *  none -- its DTO is the COMMAREA). @facade-helper */
+    public byte[] lastLinkBytes() {
+        return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);
+    }
+
     /** One pseudo-conversational task of this program (#3754): MAIN-PARA and the paragraphs it performs. */
     public void runTask(CicsTask task) {
         log.info("Cotrn00c: runTask");
@@ -551,7 +572,7 @@ public class Cotrn00cService {
         // ---------------------------------------------------------------- STARTBR-TRANSACT-FILE
         void startbrTransact() {
             resp = task.startbr(FILE, rec.getTranId(), false, this::tranKeys);
-            reas = 0;   // RESP2 is not given by the task
+            reas = task.resp2();
             if (resp == 0) {
                 // CONTINUE
             } else if (resp == 13) {
@@ -568,7 +589,7 @@ public class Cotrn00cService {
         void readnextTransact() {
             CicsTask.Browsed b = task.readnext(FILE, rec.getTranId());
             resp = b.resp();
-            reas = 0;
+            reas = b.resp2();
             if (resp == 0) {
                 loadRecord(b.key());
             } else if (resp == 20) {
@@ -585,7 +606,7 @@ public class Cotrn00cService {
         void readprevTransact() {
             CicsTask.Browsed b = task.readprev(FILE, rec.getTranId());
             resp = b.resp();
-            reas = 0;
+            reas = b.resp2();
             if (resp == 0) {
                 loadRecord(b.key());
             } else if (resp == 20) {

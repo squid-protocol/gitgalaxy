@@ -36,7 +36,7 @@
    "output": "CCRDLIAO"
   }
  },
- "notes": "CardDemo's credit card list (transaction CCLI, program COCRDLIC): seven cards a page browsed from CARDDAT (STARTBR GTEQ / READNEXT, ENDBR), filtered by an optional 11-digit account and 16-digit card number typed on the screen; an eighth READNEXT probes for a next page; PF8 / PF7 page forward from the probed card and back (READPREV) from the page's first; an 'S' or 'U' beside a row XCTLs to the card view (COCRDSLC) or update (COCRDUPC) with that row's account and card; PF3 (or PF15) XCTLs to the main menu; any other key acts as ENTER. The page state and the rows shown travel in the COMMAREA after CARDDEMO-COMMAREA (WS-THIS-PROGCOMMAREA, its rows as WS-ALL-ROWS); the scenarios that start mid-conversation set it as the program itself leaves it. Every file is the corpus's own data (50 cards, one per account: seven full pages and an eighth of one card). Defects of the original the scenarios show: a filtered browse starts at the current page's first card, not the file's start, so a card earlier in the file is never found (account-filter-from-page-3-misses-earlier-cards), and once a card filter has been used, clearing it lists from that card (enter-after-clearing-the-card-filter); a selection error browses from a key nothing set (spaces), so page 1's rows come back under the current page number (select-invalid-code-on-page-2); PF7 reports 'NO PREVIOUS PAGES TO DISPLAY' on arriving at page 1, and a filtered PF7 that runs off the start of the file shows an empty page 1 though a matching card exists; the STARTBR's RESP is never tested, so a file that is not open ends in the ENDBR (no RESP) abending with INVREQ; the PF3 / re-entry restart INITIALIZEs CARDDEMO-COMMAREA, user id included. Latent, not reachable with this data: WS-CA-SCREEN-NUM is PIC 9(1), so a tenth page would number 0. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+ "notes": "CardDemo's credit card list (transaction CCLI, program COCRDLIC): seven cards a page browsed from CARDDAT (STARTBR GTEQ / READNEXT, ENDBR), filtered by an optional 11-digit account and 16-digit card number typed on the screen; an eighth READNEXT probes for a next page; PF8 / PF7 page forward from the probed card and back (READPREV) from the page's first; an 'S' or 'U' beside a row XCTLs to the card view (COCRDSLC) or update (COCRDUPC) with that row's account and card; PF3 (or PF15) XCTLs to the main menu; any other key acts as ENTER. The page state and the rows shown travel in the COMMAREA after CARDDEMO-COMMAREA (WS-THIS-PROGCOMMAREA, its rows as WS-ALL-ROWS); the scenarios that start mid-conversation set it as the program itself leaves it. Every file is the corpus's own data, but for `select-invalid-code-on-a-page-ending-at-the-last-card`'s own seed/carddata-7.txt (its first seven cards), so a page can end on the file's last record (50 cards, one per account: seven full pages and an eighth of one card). Defects of the original the scenarios show: a filtered browse starts at the current page's first card, not the file's start, so a card earlier in the file is never found (account-filter-from-page-3-misses-earlier-cards), and once a card filter has been used, clearing it lists from that card (enter-after-clearing-the-card-filter); a selection error browses from a key nothing set (spaces), so page 1's rows come back under the current page number (select-invalid-code-on-page-2); PF7 reports 'NO PREVIOUS PAGES TO DISPLAY' on arriving at page 1, and a filtered PF7 that runs off the start of the file shows an empty page 1 though a matching card exists; the STARTBR's RESP is never tested, so a file that is not open ends in the ENDBR (no RESP) abending with INVREQ; the PF3 / re-entry restart INITIALIZEs CARDDEMO-COMMAREA, user id included. Latent, not reachable with this data: WS-CA-SCREEN-NUM is PIC 9(1), so a tenth page would number 0. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
  "scenarios": [
   {
    "name": "first-entry-from-menu",
@@ -79,6 +79,40 @@
    "receive": {
     "CCRDLIA": {}
    }
+  },
+  {
+   "name": "select-invalid-code-on-a-page-ending-at-the-last-card",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 0,
+    "CDEMO-CARD-NUM": 0,
+    "CDEMO-LAST-MAP": "CCRDLIA",
+    "CDEMO-LAST-MAPSET": "COCRDLI",
+    "WS-CA-LAST-CARD-NUM": "1561409106491600",
+    "WS-CA-LAST-CARD-ACCT-ID": 35,
+    "WS-CA-FIRST-CARD-NUM": "0500024453765740",
+    "WS-CA-FIRST-CARD-ACCT-ID": 50,
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-ALL-ROWS": "000000000500500024453765740Y000000000270683586198171516Y000000000020923877193247330Y000000000200927987108636232Y000000000120982496213629795Y000000000441014086565224350Y000000000371142167692878931Y"
+   },
+   "receive": {
+    "CCRDLIA": {
+     "CRDSEL4I": "X"
+    }
+   },
+   "datasets": {
+    "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS": {
+     "input": "@case/seed/carddata-7.txt"
+    }
+   },
+   "why": "a selection error (code 'X') with valid filters, on a file of exactly seven cards (seed/carddata-7.txt): the look-ahead READNEXT after the seventh card ends the file while the error message is already on, so the end-of-file arm has no message to set"
   },
   {
    "name": "enter-on-page-3-relists-page-3",
@@ -902,6 +936,42 @@
    }
   },
   {
+   "name": "pf3-xctl-fails",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 0,
+    "CDEMO-CARD-NUM": 0,
+    "CDEMO-LAST-MAP": "CCRDLIA",
+    "CDEMO-LAST-MAPSET": "COCRDLI",
+    "WS-CA-LAST-CARD-NUM": "1561409106491600",
+    "WS-CA-LAST-CARD-ACCT-ID": 35,
+    "WS-CA-FIRST-CARD-NUM": "0500024453765740",
+    "WS-CA-FIRST-CARD-ACCT-ID": 50,
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-ALL-ROWS": "000000000500500024453765740Y000000000270683586198171516Y000000000020923877193247330Y000000000200927987108636232Y000000000120982496213629795Y000000000441014086565224350Y000000000371142167692878931Y"
+   },
+   "receive": {
+    "CCRDLIA": {}
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COMEN01C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#5401: XCTL COMEN01C answers PGMIDERR RESP2 3 (the program could not be loaded, IBM CICS TS XCTL conditions); the source has no RESP, so CICS abends the task and no screen or COMMAREA is returned"
+  },
+  {
    "name": "pf15-acts-as-pf3",
    "aid": "DFHPF15",
    "commarea": {
@@ -1252,6 +1322,191 @@
     "CCRDLIA": {}
    },
    "why": "#4602: WS-CA-LAST-PAGE-DISPLAYED 5, neither CA-LAST-PAGE-SHOWN (0) nor CA-LAST-PAGE-NOT-SHOWN (9): PF8 with no next page relists the last page and 1400-SETUP-MESSAGE takes the PF8 / no-next-page arm with IF CA-LAST-PAGE-NOT-SHOWN (line 913) false"
+  },
+  {
+   "name": "pf8-next-page-carries-return-flag",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 0,
+    "CDEMO-CARD-NUM": 0,
+    "CDEMO-LAST-MAP": "CCRDLIA",
+    "CDEMO-LAST-MAPSET": "COCRDLI",
+    "WS-CA-LAST-CARD-NUM": "1561409106491600",
+    "WS-CA-LAST-CARD-ACCT-ID": 35,
+    "WS-CA-FIRST-CARD-NUM": "0500024453765740",
+    "WS-CA-FIRST-CARD-ACCT-ID": 50,
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-ALL-ROWS": "000000000500500024453765740Y000000000270683586198171516Y000000000020923877193247330Y000000000200927987108636232Y000000000120982496213629795Y000000000441014086565224350Y000000000371142167692878931Y",
+    "WS-RETURN-FLAG": "1"
+   },
+   "receive": {
+    "CCRDLIA": {}
+   },
+   "why": "#5401 (mutation survivor 62c41cc4a8): a non-blank WS-RETURN-FLAG in the caller's COMMAREA is carried to the output COMMAREA; no other scenario sets it"
+  },
+  {
+   "name": "pf3-from-menu-stale-first-card-faulting-carddat",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 0,
+    "CDEMO-CARD-NUM": 0,
+    "CDEMO-LAST-MAP": "CCRDLIA",
+    "CDEMO-LAST-MAPSET": "COCRDLI",
+    "WS-CA-LAST-CARD-NUM": "5407099850479866",
+    "WS-CA-LAST-CARD-ACCT-ID": 21,
+    "WS-CA-FIRST-CARD-NUM": "3766281984155154",
+    "WS-CA-FIRST-CARD-ACCT-ID": 41,
+    "WS-CA-SCREEN-NUM": 3,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-ALL-ROWS": "000000000413766281984155154Y000000000193940246016141489Y000000000033999169246375885Y000000000134011500891777367Y000000000344385271476627819Y000000000364534784102713951Y000000000074859452612877065Y"
+   },
+   "receive": {
+    "CCRDLIA": {}
+   },
+   "faults": [
+    {
+     "cmd": "READNEXT",
+     "file": "CARDDAT",
+     "resp": "IOERR",
+     "why": "17 on the first READNEXT: no row is read, so CA-FIRST-CARD-ACCT-ID stays as INITIALIZE left it"
+    }
+   ],
+   "why": "#5401 (mutation survivor 6fef123a15): entered from the menu, the program INITIALIZEs its COMMAREA, so the stale first-card account id (41) must come back 0 when the browse reads no row"
+  },
+  {
+   "name": "full-commarea-length",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 0,
+    "CDEMO-CARD-NUM": 0,
+    "CDEMO-LAST-MAP": "CCRDLIA",
+    "CDEMO-LAST-MAPSET": "COCRDLI",
+    "WS-CA-LAST-CARD-NUM": "1561409106491600",
+    "WS-CA-LAST-CARD-ACCT-ID": 35,
+    "WS-CA-FIRST-CARD-NUM": "0500024453765740",
+    "WS-CA-FIRST-CARD-ACCT-ID": 50,
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-ALL-ROWS": "000000000500500024453765740Y000000000270683586198171516Y000000000020923877193247330Y000000000200927987108636232Y000000000120982496213629795Y000000000441014086565224350Y000000000371142167692878931Y"
+   },
+   "receive": {
+    "CCRDLIA": {}
+   },
+   "commarea_length": 414,
+   "why": "#5401 (EIBCALEN, mutation survivors): the caller states EIBCALEN as the whole COMMAREA. No shorter length can be stated: the program moves DFHCOMMAREA past 160 bytes unconditionally, a reference past EIBCALEN the oracle refuses (X23)"
+  },
+  {
+   "name": "select-view-xctl-fails",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 0,
+    "CDEMO-CARD-NUM": 0,
+    "CDEMO-LAST-MAP": "CCRDLIA",
+    "CDEMO-LAST-MAPSET": "COCRDLI",
+    "WS-CA-LAST-CARD-NUM": "1561409106491600",
+    "WS-CA-LAST-CARD-ACCT-ID": 35,
+    "WS-CA-FIRST-CARD-NUM": "0500024453765740",
+    "WS-CA-FIRST-CARD-ACCT-ID": 50,
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-ALL-ROWS": "000000000500500024453765740Y000000000270683586198171516Y000000000020923877193247330Y000000000200927987108636232Y000000000120982496213629795Y000000000441014086565224350Y000000000371142167692878931Y"
+   },
+   "receive": {
+    "CCRDLIA": {
+     "CRDSEL3I": "S"
+    }
+   },
+   "why": "#5401: XCTL COCRDSLC answers PGMIDERR RESP2 3 (the program could not be loaded, IBM CICS TS XCTL conditions); the source has no RESP, so CICS abends the task and no screen or COMMAREA is returned",
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COCRDSLC",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ]
+  },
+  {
+   "name": "select-update-xctl-fails",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 0,
+    "CDEMO-CARD-NUM": 0,
+    "CDEMO-LAST-MAP": "CCRDLIA",
+    "CDEMO-LAST-MAPSET": "COCRDLI",
+    "WS-CA-LAST-CARD-NUM": "3766281984155154",
+    "WS-CA-LAST-CARD-ACCT-ID": 41,
+    "WS-CA-FIRST-CARD-NUM": "1561409106491600",
+    "WS-CA-FIRST-CARD-ACCT-ID": 35,
+    "WS-CA-SCREEN-NUM": 2,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-ALL-ROWS": "000000000351561409106491600Y000000000392745303720002090Y000000000242760836797107565Y000000000062871968252812490Y000000000222940139362300449Y000000000042988091353094312Y000000000103260763612337560Y"
+   },
+   "receive": {
+    "CCRDLIA": {
+     "CRDSEL5I": "U"
+    }
+   },
+   "why": "#5401: XCTL COCRDUPC answers PGMIDERR RESP2 3 (the program could not be loaded, IBM CICS TS XCTL conditions); the source has no RESP, so CICS abends the task and no screen or COMMAREA is returned",
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COCRDUPC",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ]
   }
- ]
+ ],
+ "bounds_refused": {
+  "first-entry-from-menu": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "no-commarea": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "enter-no-filters": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "enter-on-page-3-relists-page-3": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "account-filter": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "account-filter-matches-no-card": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "account-filter-from-page-3-misses-earlier-cards": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "card-filter": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "enter-after-clearing-the-card-filter": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "both-filters": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "both-filters-disagree": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "back-from-card-view": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "pf5-acts-as-enter": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "startbr-not-open": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "readnext-io-error-mid-page": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it",
+  "enter-with-page-number-zero": "COCRDLIC line 518 evaluates VIEW-REQUESTED-ON(I-SELECTED) with I-SELECTED = 0 before any row is selected: the subscript is one before the table, which IBM (no SSRANGE) reads from whatever storage precedes it"
+ }
 }

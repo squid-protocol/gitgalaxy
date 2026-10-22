@@ -12,6 +12,7 @@ name: Ports Compile
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]  # #5104: a draft starts only the cheap audits
     branches: [main]
     paths:
       - "gitgalaxy/**"
@@ -31,16 +32,10 @@ on:
       - "tests/tools/mainframe_corpus.py"
       - ".github/workflows/ports-compile.yml"
       - "tests/tools/crucible_pins.py"  # #4825: read by this workflow (workflow_inputs.py)
-  push:
-    branches: [main]
-    paths:
-      - "gitgalaxy/**"
-      - "tests/cics_crucible/ports/**"
-      - "tests/equivalence/*/port/**"
-      - "tests/equivalence/*/case.json"
-      - "tests/tools/ports_compile_check.py"
-      - "tests/tools/port_surface.py"
-      - ".github/workflows/ports-compile.yml"
+  # #5131/#5136: no main push trigger. post-merge.yml dispatches this on main (at most once per cadence window, only
+  # when PR runners are idle and main changed a file this workflow reads); the nightly run covers a busy day.
+  schedule:
+    - cron: "29 6 * * *"  # nightly (#5136)
   workflow_dispatch:
 
 permissions:
@@ -51,35 +46,8 @@ concurrency:
   cancel-in-progress: true  # #4825: read-only, so a superseded main run is cancelled too (frees runners for PRs)
 
 jobs:
-  # #4964 (sibling of #4935): a push to main whose tree already passed THIS workflow on its PR head (a squash of an
-  # up-to-date PR) is not run again; any doubt runs it (tests/tools/skip_tested_tree.py has the rule, and tests).
-  # No PR run on the head (the PR's paths filter skipped it) is "not proven", so the push runs. Always concludes success.
-  tested-tree:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: read
-      actions: read
-      pull-requests: read
-    outputs:
-      skip: ${{ steps.decide.outputs.skip }}
-    steps:
-      - name: Checkout the gate script
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          sparse-checkout: tests/tools/skip_tested_tree.py
-          sparse-checkout-cone-mode: false
-          persist-credentials: false
-
-      - name: Decide
-        id: decide
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python tests/tools/skip_tested_tree.py ports-compile.yml
-
   ports-compile:
-    needs: tested-tree
-    if: ${{ !cancelled() && needs.tested-tree.outputs.skip != 'true' }}  # #4964: not again for a tree the PR run proved
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
     name: committed ports compile
     runs-on: ubuntu-latest
     timeout-minutes: 40
@@ -119,7 +87,7 @@ jobs:
       - name: Install GitGalaxy
         run: |
           python -m pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
-          pip install -e ./gitgalaxy
+          pip install --no-build-isolation -e ./gitgalaxy
 
       - name: Setup JDK 17
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
@@ -138,7 +106,8 @@ jobs:
             java-compile-m2-
 
       - name: Cache the pinned corpora
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: corpora
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .mainframe_corpora
           key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
@@ -148,6 +117,16 @@ jobs:
           cd gitgalaxy
           rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
           PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
+
+      # #5024: restore-only on pull requests. A PR's cache scope is its own ref, so a PR that saved here left
+      # a copy per PR (a PR that edits corpora.json) that nothing else could read. Main saves it, once per key.
+      - name: Save the pinned corpora (main)
+        if: github.event_name != 'pull_request' && steps.corpora.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a miss only costs the next run a clone
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
 
       - name: Compile every committed port
         run: |

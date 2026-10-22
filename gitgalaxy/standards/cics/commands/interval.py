@@ -14,7 +14,7 @@ runtimes, and the crucible proves it (cics_command_spec.md section 2.3)."""
 
 from __future__ import annotations
 
-from gitgalaxy.standards.cics.commands.shared import BOTH_FORMS, POINTER, REMOTE, RESP_OPTIONS, ibm
+from gitgalaxy.standards.cics.commands.shared import BOTH_FORMS, REMOTE, RESP_OPTIONS, ibm
 from gitgalaxy.standards.cics.model import (
     Arg,
     Command,
@@ -29,6 +29,29 @@ from gitgalaxy.standards.cics.model import (
 )
 
 _TRANSID = Arg("name", width=4)
+
+# #4950: the characters IBM allows in the name of a channel RUN TRANSID / START hands on (EXEC CICS RUN TRANSID,
+# CHANNEL: "The acceptable characters are A-Z a-z 0-9 $ @ # . / - _ % & ? ! : | " = \xac , ; < >. Leading and embedded
+# blank characters are not permitted"), as both runtimes check them: any other is CHANNELERR RESP2 1
+CHANNEL_NAME_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789" + '$@#./-_%&?!:|"=\xac,;<>'
+_CHANNEL_ERR = Outcome(
+    "CHANNELERR", 1, "the channel name contains an incorrect character or combination", raised_by=("CHANNEL",)
+)
+_BOTH_BAD = RuntimeRefusal(
+    "a transaction not defined together with an incorrect CHANNEL name: which condition IBM raises first is not documented",
+    "X18",
+    java="of a transaction not defined, with ",
+    c="of a transaction not defined, with an incorrect CHANNEL name",
+)
+_DFH_CHANNEL = RuntimeRefusal(
+    "a channel whose name starts DFH: CICS's own (DFHTRANSACTION, the transaction channel) is not modelled",
+    "X18",
+    java="whose name starts DFH",
+    c="a channel named DFH",
+)
+# START CHANNEL's form (IBM, EXEC CICS START CHANNEL): no expiry, no data options, no REQID
+_NOT_WITH_CHANNEL = ("FROM", "LENGTH", "FLENGTH", "INTERVAL", "TIME", "AFTER", "AT", "HOURS", "MINUTES", "SECONDS",
+                     "REQID", *("RTRANSID", "RTERMID", "QUEUE"))  # fmt: skip
 _DATA_OPTIONS = ("RTRANSID", "RTERMID", "QUEUE")  # the values a started task RETRIEVEs
 
 START = Command(
@@ -55,12 +78,10 @@ START = Command(
         "RTRANSID": Arg("name", width=4),
         "RTERMID": Arg("name", width=4),
         "QUEUE": Arg("name", width=8),
+        "CHANNEL": Arg("name", width=16),  # #4950: START CHANNEL, the started task's copy of a channel
         **RESP_OPTIONS,
     },
     refused={
-        "CHANNEL": Refusal(
-            "START CHANNEL: a started task's channel is not modelled (no corpus program uses it)", "X18", whole=True
-        ),
         "SYSID": Refusal(REMOTE, "X18"),
         "NOCHECK": Refusal(
             "less error checking for a START on a remote system is not modelled (no corpus program uses it)", "X18"
@@ -81,6 +102,7 @@ START = Command(
         ),
         at_most_one("LENGTH", "FLENGTH", msg=BOTH_FORMS),
         requires(("LENGTH", "FLENGTH"), any_of=("FROM",), msg="START LENGTH without FROM"),
+        *(at_most_one("CHANNEL", o, msg="START CHANNEL with {}: not START CHANNEL's form") for o in _NOT_WITH_CHANNEL),
     ),
     outcomes=(
         Outcome("NORMAL", 0, ""),
@@ -96,8 +118,17 @@ START = Command(
             "A START operation uses a REQID name that exists. This condition occurs only when the FROM option is also"
             " used",
         ),
+        _CHANNEL_ERR,
     ),
     runtime_refusals=(
+        _DFH_CHANNEL,
+        _BOTH_BAD,
+        RuntimeRefusal(
+            "START CHANNEL naming a channel not in the program's scope (IBM does not say it is created)",
+            "X18",
+            java=") of a channel not in the ",
+            c="START CHANNEL of a channel not in the program's scope",
+        ),
         RuntimeRefusal(
             "a REQID that exists, reused other than as this task's own with FROM",
             "X18",
@@ -119,6 +150,9 @@ RETRIEVE = Command(
     event="RETRIEVE",
     options={
         "INTO": Arg("area_out"),
+        # #5042 (X58): "the pointer reference to be set to the address of the retrieved data"; "If you use SET you must also
+        # include LENGTH", a data area ("the data area is set to the length of the data")
+        "SET": Arg("pointer"),
         # "On completion of the retrieval operation, the data area is set to the original length of the data"
         "LENGTH": Arg("area_inout", width=2, binary=True, inout_unless_literal=True),
         "FLENGTH": Arg("area_inout", width=4, binary=True, inout_unless_literal=True),
@@ -128,7 +162,6 @@ RETRIEVE = Command(
         **RESP_OPTIONS,
     },
     refused={
-        "SET": Refusal(POINTER, "X18"),
         "WAIT": Refusal(
             "a RETRIEVE waiting for START data still to expire is not modelled (one task runs at a time)", "X18"
         ),
@@ -136,10 +169,16 @@ RETRIEVE = Command(
     groups=(
         at_most_one("LENGTH", "FLENGTH", msg=BOTH_FORMS),
         # INTO, unless the command asks only for RTRANSID / RTERMID / QUEUE (and then no LENGTH)
-        requires(("LENGTH", "FLENGTH"), any_of=("INTO",), msg="RETRIEVE without INTO"),
+        requires(("LENGTH", "FLENGTH"), any_of=("INTO", "SET"), msg="RETRIEVE without INTO"),
+        at_most_one("INTO", "SET", msg="RETRIEVE: INTO and SET are alternatives"),
+        requires(
+            ("SET",),
+            any_of=("LENGTH", "FLENGTH"),
+            msg='RETRIEVE SET without LENGTH (IBM: "If you use SET you must also include LENGTH")',
+        ),
     ),
     outcomes=(
-        Outcome("NORMAL", 0, "", writes=("INTO", "LENGTH", "FLENGTH", *_DATA_OPTIONS)),
+        Outcome("NORMAL", 0, "", writes=("INTO", "SET", "LENGTH", "FLENGTH", *_DATA_OPTIONS)),
         Outcome(
             "LENGERR",
             None,
@@ -198,6 +237,37 @@ CANCEL = Command(
     impl=Impl(translator="Cics.cancel", java="cancel", c="GGCCNCL", harness="_interval_command"),
 )
 
+# #4950 (X18, ASSUMED): the region's scheduler. A RUN child is dispatched at its parent's next wait -- a DELAY, or a FETCH
+# that waits -- in RUN order, and runs until it ends or waits before its parent resumes (one quasi-reentrant TCB: a
+# task keeps control until it waits). A task takes no processor time (X4): a child completes at its dispatch plus its
+# own DELAYs; the parent's clock moves by its DELAYs and its waits. #5089: the rule holds at every level -- a child
+# that RUNs children of its own dispatches them at its own waits, on its own clock (a grandchild completes at its
+# parent's dispatch time plus its own DELAYs, and the child at its parent's plus its own waits). A completion at the very instant the parent resumes
+# from a wait of its own is a tie IBM does not order: a FETCH whose answer turns on it is refused.
+_CHILD_RUNS = RuntimeRefusal(
+    "a RUN TRANSID child's transaction whose program the case does not run", "X18", java="child transaction ",
+    c="child transaction %s: its program is not one the case runs",
+)  # fmt: skip
+_CHILD_RESOURCE = RuntimeRefusal(
+    "a dispatched child task's command on a region resource or a terminal (a file, a queue, a START, a counter, SQL ...):"
+    " its order against its parent's and its siblings' is not modelled (the harness refuses the ones with no event)",
+    "X18",
+    java="a RUN TRANSID child's ",
+    c="a RUN TRANSID child's %.*s",
+)
+_CHILD_RECOVERED = RuntimeRefusal(
+    "a child that went on after an abend (HANDLE ABEND): its completion status is not documented",
+    "X18",
+    java="a RUN TRANSID child that went on after an abend",
+    c="a RUN TRANSID child that went on after an abend",
+)
+_CHILD_TIE = RuntimeRefusal(
+    "a FETCH whose answer turns on a child completing at the instant its parent resumed from a wait (a tie)",
+    "X18",
+    java="completing at the instant its parent resumed",
+    c="completing at the instant its parent resumed",
+)
+
 RUN = Command(
     key="RUN",
     ibm=ibm("EXEC CICS RUN TRANSID", "summary-run-transid"),
@@ -207,7 +277,7 @@ RUN = Command(
     options={
         "TRANSID": _TRANSID,
         "CHILD": Arg("area_out", width=16),
-        "CHANNEL": Arg("name", width=16),  # #4884: the child's copy is never read here: it runs after this task ends
+        "CHANNEL": Arg("name", width=16),  # the child's copy of the channel, made when RUN is issued
         **RESP_OPTIONS,
     },
     refused={},
@@ -218,17 +288,20 @@ RUN = Command(
     outcomes=(
         Outcome("NORMAL", 0, "", writes=("CHILD",)),
         Outcome("TRANSIDERR", 1, "the transaction is not defined"),
-        Outcome(
-            "CHANNELERR", 1, "the channel name contains an invalid character or combination", raised_by=("CHANNEL",)
-        ),
+        _CHANNEL_ERR,
     ),
     runtime_refusals=(
+        _DFH_CHANNEL,
         RuntimeRefusal(
-            "RUN CHANNEL with a name of anything but letters and digits: IBM does not list the symbols it allows here",
+            "a RUN TRANSID in a task 3 generations below the issuing task (a great-great-grandchild): a child may RUN "
+            "children of its own, to the depth the harness states (IBM states none)",
             "X18",
-            java="RUN CHANNEL(",
-            c="RUN CHANNEL(",
+            java="RUN TRANSID in a RUN TRANSID child task",
+            c="RUN TRANSID in a RUN TRANSID child task",
         ),
+        _BOTH_BAD,
+        _CHILD_RUNS,
+        _CHILD_RESOURCE,
     ),
     state=("child_tasks", "handle_table", "channel_scope"),
     engine=EngineFacts(task_verb="RUN", target_option="TRANSID", handle_option="CHILD", channel_option="TRANSID"),
@@ -240,16 +313,20 @@ _FETCH_OPTIONS = {
     "ABCODE": Arg("area_out", width=4),
     "COMPSTATUS": Arg("cvda"),
     "NOSUSPEND": Arg("flag"),
+    "TIMEOUT": Arg("value"),
 }
-# a FETCH that waits needs a child that completes while this task runs; the child runs once this task has ended (X18)
-_FETCH_WAITS = Refusal(
-    "FETCH without NOSUSPEND, or with TIMEOUT: it waits for a child, and a child runs only once its parent has ended",
+_FETCH_WRITES = ("CHANNEL", "ABCODE", "COMPSTATUS")
+_FETCH_TIMEOUT = RuntimeRefusal(
+    "a TIMEOUT below 0 or past 4080000 milliseconds (IBM's FETCH ANY and FETCH CHILD pages give different maximums)",
     "X18",
-    whole=True,
+    java="FETCH TIMEOUT(",
+    c="FETCH TIMEOUT(%d)",
 )
-_FETCH_NOT_FINISHED = (
-    "NOSUSPEND was specified, but no child had completed when the command was run (the region runs a child only "
-    "after its parent has ended)"
+_NO_REPLY = RuntimeRefusal(
+    "FETCH CHANNEL of a child that left no current channel (IBM does not say what CHANNEL gets)",
+    "X18",
+    java="FETCH CHANNEL of a child that left no current channel",
+    c="FETCH CHANNEL of a child that left no current channel",
 )
 FETCH_ANY = Command(
     key="FETCH ANY",
@@ -258,20 +335,25 @@ FETCH_ANY = Command(
     register="X18",
     event="FETCH",
     options={"ANY": Arg("area_out", width=16), **_FETCH_OPTIONS, **RESP_OPTIONS},
-    refused={"TIMEOUT": _FETCH_WAITS},
-    default_refusal=_FETCH_WAITS,
+    refused={},
     groups=(
         required("ANY", msg="FETCH ANY without ANY"),
-        required(
-            "NOSUSPEND", msg="FETCH without NOSUSPEND, or with TIMEOUT: a child runs only once its parent has ended"
-        ),
+        at_most_one("NOSUSPEND", "TIMEOUT", msg="FETCH {} and {} together"),
     ),
     outcomes=(
-        Outcome("NORMAL", 0, "a child has completed: never reached here, a child runs only once its parent has ended"),
-        Outcome("NOTFINISHED", 52, _FETCH_NOT_FINISHED),
+        Outcome(
+            "NORMAL",
+            0,
+            "an unfetched child has completed (the first to complete; RUN order on a tie)",
+            writes=("ANY", *_FETCH_WRITES),
+        ),
+        Outcome("NOTFINISHED", 52, "NOSUSPEND was specified, but there were no completed children to fetch"),
+        Outcome("NOTFINISHED", 53, "No children have completed within the interval specified by the TIMEOUT option"),
+        Outcome("NOTFND", 1, "No unfetched children were found"),
         Outcome("INVREQ", 52, "the parent has no children"),
     ),
-    state=("child_tasks", "handle_table"),
+    runtime_refusals=(_FETCH_TIMEOUT, _CHILD_TIE, _CHILD_RUNS, _CHILD_RECOVERED, _NO_REPLY),
+    state=("child_tasks", "handle_table", "channel_scope"),
     impl=Impl(translator="Cics.fetch", java="fetch", c="GGCFETCH", harness="_fetch_child"),
 )
 
@@ -282,21 +364,127 @@ FETCH_CHILD = Command(
     register="X18",
     event="FETCH",
     options={"CHILD": Arg("area_in", width=16), **_FETCH_OPTIONS, **RESP_OPTIONS},
-    refused={"TIMEOUT": _FETCH_WAITS},
-    default_refusal=_FETCH_WAITS,
+    refused={},
     groups=(
         required("CHILD", msg="FETCH CHILD without CHILD"),
-        required(
-            "NOSUSPEND", msg="FETCH without NOSUSPEND, or with TIMEOUT: a child runs only once its parent has ended"
-        ),
+        at_most_one("NOSUSPEND", "TIMEOUT", msg="FETCH {} and {} together"),
     ),
     outcomes=(
-        Outcome("NORMAL", 0, "a child has completed: never reached here, a child runs only once its parent has ended"),
-        Outcome("NOTFINISHED", 52, _FETCH_NOT_FINISHED),
-        Outcome("INVREQ", 50, "CHILD is not a child token of this task"),
+        Outcome("NORMAL", 0, "the child has completed", writes=_FETCH_WRITES),
+        Outcome("NOTFINISHED", 52, "NOSUSPEND was specified, but the child is not yet complete"),
+        Outcome("NOTFINISHED", 53, "The child has not completed within the interval specified by the TIMEOUT option"),
+        Outcome("INVREQ", 50, "CHILD is not a valid child token, or the child task has already been freed"),
+        Outcome("INVREQ", 51, "The channel of the child has already been fetched"),
     ),
-    state=("child_tasks", "handle_table"),
+    runtime_refusals=(
+        _FETCH_TIMEOUT,
+        _CHILD_TIE,
+        _CHILD_RUNS,
+        _CHILD_RECOVERED,
+        _NO_REPLY,
+        RuntimeRefusal(
+            "a second FETCH of a child, but for its channel fetched again (INVREQ 51): IBM does not say what it answers",
+            "X18",
+            java="FETCH CHILD of a child already fetched",
+            c="FETCH CHILD of a child already fetched",
+        ),
+    ),
+    state=("child_tasks", "handle_table", "channel_scope"),
     impl=Impl(translator="Cics.fetch", java="fetch", c="GGCFETCH", harness="_fetch_child"),
 )
 
-COMMANDS = (START, RETRIEVE, CANCEL, RUN, FETCH_ANY, FETCH_CHILD)
+FREE_CHILD = Command(
+    key="FREE CHILD",
+    ibm=ibm("EXEC CICS FREE CHILD", "summary-free-child"),
+    status="modelled",
+    register="X18",
+    event="FREE-CHILD",
+    options={"CHILD": Arg("area_in", width=16), **RESP_OPTIONS},
+    refused={},
+    groups=(required("CHILD", msg="FREE CHILD without CHILD"),),
+    runtime_refusals=(
+        RuntimeRefusal(
+            "FREE CHILD of a child already fetched (IBM does not say)",
+            "X18",
+            java="FREE CHILD of a child already fetched",
+            c="FREE CHILD of a child already fetched",
+        ),
+    ),
+    outcomes=(
+        Outcome("NORMAL", 0, "the token is freed: a later FETCH CHILD of it is INVREQ, FETCH ANY skips it"),
+        Outcome("INVREQ", 50, "CHILD is not a valid child token, or the child task has already been freed"),
+    ),
+    state=("child_tasks", "handle_table"),
+    impl=Impl(translator="Cics.free_child", java="freeChild", c="GGCFREE", harness="_free_child"),
+)
+
+# #5079 (X63): POST and WAIT EVENT -- a timer-event control area on the stated clock. A task takes no time (X4), so the area is
+# posted only by a WAIT EVENT, which runs the clock to the expiry, or by a CANCEL of the POST.
+_POST_ENDED = RuntimeRefusal(
+    "a WAIT EVENT on an area a later POST, CANCEL, local START or DELAY of the task ended (IBM: its result is unpredictable)",
+    "X63",
+    java="a later POST, CANCEL, START or DELAY ended",
+    c="a later POST, CANCEL, START or DELAY ended",
+)
+_NOT_A_POST = RuntimeRefusal(
+    "a WAIT EVENT on an address that is no POST's timer-event control area (an ECB of another kind is not modelled)",
+    "X63",
+    java="no POST's timer-event control area",
+    c="no POST's timer-event control area",
+)
+
+POST = Command(
+    key="POST",
+    ibm=ibm("EXEC CICS POST", "summary-post"),
+    status="modelled",
+    register="X63",
+    options={
+        "INTERVAL": Arg("hhmmss"),  # none of INTERVAL / TIME / AFTER / AT: INTERVAL(0)
+        "TIME": Arg("hhmmss"),
+        "AFTER": Arg("flag"),
+        "AT": Arg("flag"),
+        "HOURS": Arg("value"),
+        "MINUTES": Arg("value"),
+        "SECONDS": Arg("value"),
+        "SET": Arg("pointer"),
+        "REQID": Arg("name", width=8),
+        **RESP_OPTIONS,
+    },
+    groups=(
+        at_most_one("INTERVAL", "TIME", "AFTER", "AT", msg="POST {}: one expiry option"),
+        requires(
+            ("HOURS", "MINUTES", "SECONDS"),
+            any_of=("AFTER", "AT"),
+            both_ways=True,
+            msg="POST {} {}: HOURS / MINUTES / SECONDS go with AFTER / AT",
+        ),
+    ),
+    outcomes=(
+        Outcome("NORMAL", 0, ""),
+        Outcome("INVREQ", 4, "hours out of range (HOURS, or INTERVAL / TIME's hh)"),
+        Outcome("INVREQ", 5, "minutes out of range (MINUTES, or mm)"),
+        Outcome("INVREQ", 6, "seconds out of range (SECONDS, or ss)"),
+        Outcome("EXPIRED", None, "the specified time has already passed when the command is issued"),
+    ),
+    state=("interval_requests", "virtual_clock", "handle_table"),
+    impl=Impl(translator="Cics.post", java="post", c="GGCPOST", harness="_post"),
+)
+
+WAIT_EVENT = Command(
+    key="WAIT EVENT",
+    ibm=ibm("EXEC CICS WAIT EVENT", "summary-wait-event"),
+    status="modelled",
+    register="X63",
+    # NAME only labels the suspended task (SUSPENDVALUE / HVALUE of INQUIRE TASK): it changes nothing here
+    options={"ECADDR": Arg("pointer"), "NAME": Arg("name", width=8), **RESP_OPTIONS},
+    groups=(required("ECADDR", msg="WAIT EVENT without ECADDR"),),
+    outcomes=(
+        Outcome("NORMAL", 0, ""),
+        Outcome("INVREQ", 2, "the ECB address is a null pointer"),
+    ),
+    runtime_refusals=(_NOT_A_POST, _POST_ENDED),
+    state=("interval_requests", "virtual_clock", "handle_table"),
+    impl=Impl(translator="Cics.wait_event", java="waitEvent", c="GGCWEVT", harness="_wait_event"),
+)
+
+COMMANDS = (START, RETRIEVE, CANCEL, RUN, FETCH_ANY, FETCH_CHILD, FREE_CHILD, POST, WAIT_EVENT)

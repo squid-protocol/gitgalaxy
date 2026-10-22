@@ -22,7 +22,8 @@ import pytest
 
 from gitgalaxy.core.compiler_options import cards, compiler_options, effective, intdate, parse_options
 from gitgalaxy.core.mainframe_boundary import extract_boundary
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+from scan_server import scan_to_db
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_db2_forge import db2_dates_source
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_port_tickets import (
     PORTING_RULES,
@@ -33,6 +34,8 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_port_tickets import (
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import equivalence_common as common  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 _JDK = Path("/usr/lib/jvm/java-17-openjdk-amd64/bin")
 
@@ -235,9 +238,9 @@ def test_db2_dates_formats_and_parses_as_db2(tmp_path, fmt, date, time):
     (pkg / "Db2Dates.java").write_text(db2_dates_source("t", fmt), encoding="utf-8")
     (tmp_path / "t" / "Runner.java").write_text(_RUNNER, encoding="utf-8")
     sources = [str(p) for p in tmp_path.rglob("*.java")]
-    subprocess.run([str(_JDK / "javac"), "-d", str(tmp_path / "out"), *sources], check=True)  # noqa: S603
-    out = subprocess.run([str(_JDK / "java"), "-cp", str(tmp_path / "out"), "t.Runner"],  # noqa: S603
-                         capture_output=True, text=True, check=False)  # fmt: skip
+    javac_run([str(_JDK / "javac"), "-encoding", "UTF-8", "-d", str(tmp_path / "out"), *sources], check=True)  # noqa: S603
+    out = subprocess.run([str(_JDK / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "out"), "t.Runner"],  # noqa: S603
+                         capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
     assert out.returncode == 0, out.stderr
     lines = out.stdout.splitlines()
     if fmt == "local":  # no exit patterns set yet: formatting refuses rather than guess
@@ -260,19 +263,19 @@ PLAIN = "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P.\n"
 def test_the_harness_default_is_ibms():
     """#4102: no option named is IBM's defaults -- TRUNC(STD) is GnuCOBOL's -fbinary-truncate (`-std=ibm` alone keeps a
     binary item's bytes, TRUNC(BIN)); the other defaults are GnuCOBOL's own behaviour."""
-    assert common.compile_options({}, PLAIN) == (PLAIN, ["-fbinary-truncate"])
+    assert common.compile_options({}, PLAIN) == (PLAIN, ["-fbinary-truncate", *common.BOUND_FLAGS])
 
 
 def test_the_harness_maps_what_gnucobol_can_honour():
     text, flags = common.compile_options({"compiler_options": ["TRUNC(BIN)"]}, PLAIN)
-    assert text == PLAIN and flags == ["-fnotrunc"]
+    assert text == PLAIN and flags == ["-fnotrunc", *common.BOUND_FLAGS]
     # the program's own cards are blanked (GnuCOBOL rejects CBL) and override the case's PARM
     src = "       CBL TRUNC(STD),APOST,CICS('SP,EDF')\n" + PLAIN
     text, flags = common.compile_options({"compiler_options": ["TRUNC(BIN)"]}, src)
-    assert text == "\n" + PLAIN and flags == ["-fbinary-truncate"]
+    assert text == "\n" + PLAIN and flags == ["-fbinary-truncate", *common.BOUND_FLAGS]
 
 
-@pytest.mark.parametrize("option", ["INTDATE(LILIAN)", "ARITH(EXTEND)"])  # TRUNC(OPT): test_trunc_opt.py (#4706)
+@pytest.mark.parametrize("option", ["INTDATE(LILIAN)"])  # TRUNC(OPT), ARITH(EXTEND): test_trunc_opt.py, test_arith_extend.py (#4706)
 def test_the_harness_refuses_what_gnucobol_cannot_honour(option):
     with pytest.raises(common.UnsupportedOption, match="GnuCOBOL 3.1 has no equivalent"):
         common.compile_options({"compiler_options": [option]}, PLAIN)
@@ -301,7 +304,7 @@ PROBE = """       CBL TRUNC(BIN)
 def test_gnucobol_runs_the_cards_as_flags(tmp_path):
     """GnuCOBOL's INTEGER-OF-DATE is ANSI (the rule's count), and TRUNC(BIN) reaches it as -fnotrunc."""
     text, flags = common.compile_options({}, PROBE)
-    assert flags == ["-fnotrunc"]
+    assert flags == ["-fnotrunc", *common.BOUND_FLAGS]
     (tmp_path / "PROBE.cbl").write_text(text, encoding="ascii")
     out = subprocess.run(["docker", "run", "--rm", "-v", f"{tmp_path}:/w", "-w", "/w", common.IMAGE,  # noqa: S603, S607
                           "sh", "-c", f"cobc -x -std=ibm {' '.join(flags)} -o probe PROBE.cbl && ./probe"],

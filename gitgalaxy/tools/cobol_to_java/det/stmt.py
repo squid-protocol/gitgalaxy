@@ -54,6 +54,7 @@ class Procedure:
     paragraphs: list
     execs: dict  # placeholder number -> EXEC text
     using: list  # PROCEDURE DIVISION USING items
+    returning: str | None = None  # #5106: PROCEDURE DIVISION ... RETURNING item
 
 
 PHRASES = {"at_end": "AT-END", "not_at_end": "NOT-AT-END", "invalid_key": "INVALID-KEY",
@@ -86,10 +87,17 @@ def parse(lines: list[Line]) -> Procedure:
         raise E.ExprError("no PROCEDURE DIVISION")
     header = m.group(0)
     using = []
+    returning = None
     u = re.search(r"\bUSING\b(.*)\.", header, re.I | re.S)
     if u:
-        using = [w.upper() for w in u.group(1).replace(",", " ").split()
-                 if w.upper() not in ("BY", "REFERENCE", "VALUE", "CONTENT")]  # fmt: skip
+        words = [w.upper() for w in u.group(1).replace(",", " ").split()]
+        if "RETURNING" in words:  # #5106: the item the program returns, not a USING item
+            at = words.index("RETURNING")
+            returning = words[at + 1] if at + 1 < len(words) else None
+            words = words[:at]
+        using = [w for w in words if w not in ("BY", "REFERENCE", "VALUE", "CONTENT")]
+    elif r := re.search(r"\bRETURNING\s+([\w-]+)", header, re.I):
+        returning = r.group(1).upper()
     execs: dict[int, str] = {}
 
     def ph(mm):
@@ -363,12 +371,13 @@ def parse(lines: list[Line]) -> Procedure:
     if not paragraphs[0].body:
         paragraphs.pop(0)
     first = next((p.body[0] for p in paragraphs if p.body), None)
-    if first is not None and first.kind == "ENTRY" and not using:
+    if first is not None and first.kind == "ENTRY" and (not using or first.data["name"].upper() == "DLITCBL"):
         # #4462: the program's first statement (DL/I's ENTRY 'DLITCBL' USING pcb ...): where the caller enters it,
-        # with those parameters, as PROCEDURE DIVISION USING would; reached in sequence, ENTRY does nothing
+        # with those parameters, as PROCEDURE DIVISION USING would; reached in sequence, ENTRY does nothing.
+        # #4893: IMS enters a DL/I program at DLITCBL even when PROCEDURE DIVISION has a USING of its own
         first.data["first"] = True
         using = [r.name for r in first.data["using"]]
-    return Procedure(paragraphs, execs, using)
+    return Procedure(paragraphs, execs, using, returning)
 
 
 # pd children that open a frame (closed by their END_x / ELSE / WHEN, or by the period)
@@ -794,19 +803,48 @@ def _divide(p: E.Parser, text: str, line: int) -> Stmt:
     raise E.ExprError("DIVIDE without INTO / BY")
 
 
+# #4892: the categories INITIALIZE ... REPLACING names (IBM Enterprise COBOL, INITIALIZE statement; NATIONAL / DBCS and
+# their edited forms are not modelled)
+INITIALIZE_CATEGORIES = ("ALPHABETIC", "ALPHANUMERIC", "NUMERIC", "ALPHANUMERIC-EDITED", "NUMERIC-EDITED")
+
+
 def _initialize(p: E.Parser, text: str, line: int) -> Stmt:
     refs = []
     while not p.done() and p.up() not in ("REPLACING", "WITH", "ALL", "TO"):
         refs.append(p.ref())
+    replacing: dict[str, object] = {}
+    # #4892: REPLACING category [DATA] BY value ... -- only the elementary items of a named category are set, each as
+    # by MOVE value (IBM: "The REPLACING phrase ... only for items of the category specified")
+    if p.accept("REPLACING"):
+        while not p.done() and (cat := p.up()) is not None and cat in INITIALIZE_CATEGORIES:
+            p.accept(cat)
+            p.accept("DATA")
+            if not p.accept("BY") or cat in replacing:
+                return Stmt("HOLE", line, text, {"why": "INITIALIZE REPLACING / WITH FILLER"})
+            value = p.operand()
+            if not isinstance(value, (E.Lit, E.Fig)) or (isinstance(value, E.Fig) and value.all_literal is not None):
+                return Stmt("HOLE", line, text, {"why": "INITIALIZE REPLACING with an item or ALL literal"})
+            replacing[cat] = value
+        if not replacing:
+            return Stmt("HOLE", line, text, {"why": "INITIALIZE REPLACING / WITH FILLER"})
     if not p.done():
         return Stmt("HOLE", line, text, {"why": "INITIALIZE REPLACING / WITH FILLER"})
-    return Stmt("INITIALIZE", line, text, {"refs": refs})
+    return Stmt("INITIALIZE", line, text, {"refs": refs, **({"replacing": replacing} if replacing else {})})
 
 
 def _set(p: E.Parser, text: str, line: int) -> Stmt:
     m = re.fullmatch(r"(?is)\s*SET\s+([A-Z0-9][A-Z0-9-]*)\s+TO\s+ADDRESS\s+OF\s+([A-Z0-9][A-Z0-9-]*)\s*\.?\s*", text)
     if m:  # a pointer set to an item's address: translated only where the pointer is never read (write_only_pointers)
         return Stmt("SET-POINTER", line, text, {"target": m.group(1).upper(), "of": m.group(2).upper()})
+    m = re.fullmatch(
+        r"(?is)\s*SET\s+ADDRESS\s+OF\s+([A-Z0-9][A-Z0-9-]*)\s+TO\s+(ADDRESS\s+OF\s+)?([A-Z0-9][A-Z0-9-]*)\s*\.?\s*",
+        text,
+    )
+    if m and (
+        m.group(2) or m.group(3).upper() != "NULL"
+    ):  # #4771 (X47): a record set onto a pointer's / a record's storage
+        return Stmt("SET-ADDRESS", line, text, {"record": m.group(1).upper(), "of": m.group(3).upper() if m.group(2) else None,
+                                                "pointer": None if m.group(2) else m.group(3).upper()})  # fmt: skip
     if p.up() == "ADDRESS" or "ADDRESS" in [x.upper() for x in p.t]:
         return Stmt("HOLE", line, text, {"why": "SET ADDRESS OF (pointers)"})
     targets = []
@@ -870,6 +908,21 @@ def _goto(p: E.Parser, text: str, line: int) -> Stmt:
         p.accept("ON")
         dep = p.ref()
     return Stmt("GOTO", line, text, {"targets": targets, "depending": dep})
+
+
+def _alter(p: E.Parser, text: str, line: int) -> Stmt:
+    """ALTER p TO [PROCEED TO] q [p TO [PROCEED TO] q]... (#5560, IBM Enterprise COBOL Language Reference, ALTER)."""
+    pairs = []
+    while not p.done():
+        para = p.take().upper()
+        if not p.accept("TO"):
+            raise E.ExprError("ALTER without TO")
+        if p.accept("PROCEED") and not p.accept("TO"):
+            raise E.ExprError("ALTER PROCEED without TO")
+        pairs.append((para, p.take().upper()))
+    if not pairs:
+        raise E.ExprError("ALTER without a paragraph")
+    return Stmt("ALTER", line, text, {"pairs": pairs})
 
 
 def _call(p: E.Parser, text: str, line: int) -> Stmt:
@@ -1443,7 +1496,7 @@ _PARSERS = {
     "RELEASE": _release, "RETURN": _return,
     "MOVE": _move, "DISPLAY": _display, "COMPUTE": _compute, "ADD": _add, "SUBTRACT": _subtract,
     "MULTIPLY": _multiply, "DIVIDE": _divide, "INITIALIZE": _initialize, "SET": _set, "PERFORM": _perform,
-    "GO": _goto, "CALL": _call, "EXIT": _simple("EXIT"), "GOBACK": _simple("GOBACK"), "STOP": _simple("STOP"),
+    "GO": _goto, "ALTER": _alter, "CALL": _call, "EXIT": _simple("EXIT"), "GOBACK": _simple("GOBACK"), "STOP": _simple("STOP"),
     "CONTINUE": _simple("CONTINUE"), "NEXT": _simple("NEXT-SENTENCE"), "OPEN": _open, "CLOSE": _close,
     "READ": _read, "WRITE": _write, "REWRITE": _rewrite, "START": _start, "ACCEPT": _accept, "STRING": _string, "UNSTRING": _unstring,
     "INSPECT": _inspect,

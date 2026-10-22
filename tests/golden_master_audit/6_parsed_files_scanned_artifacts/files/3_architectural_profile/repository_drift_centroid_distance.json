@@ -165,7 +165,7 @@
       "assembly/cosmopolitan_syscalls/calls_sys_aio_mlock.S": 2.597
     },
     "assembly/cpm65_6502": {
-      "assembly/cpm65_6502/apps_adm3adrv.S": 5.522,
+      "assembly/cpm65_6502/apps_adm3adrv.S": 5.554,
       "assembly/cpm65_6502/apps_adm3atst.asm": 4.458,
       "assembly/cpm65_6502/apps_bedit.asm": 5.547,
       "assembly/cpm65_6502/apps_capsdrv.asm": 4.198,
@@ -178,7 +178,7 @@
       "assembly/cpm65_6502/apps_ls.asm": 5.404,
       "assembly/cpm65_6502/apps_more.asm": 5.189,
       "assembly/cpm65_6502/apps_scrntest.asm": 5.463,
-      "assembly/cpm65_6502/apps_scrvt100.S": 5.315,
+      "assembly/cpm65_6502/apps_scrvt100.S": 5.259,
       "assembly/cpm65_6502/apps_vt52drv.asm": 5.39,
       "assembly/cpm65_6502/apps_vt52test.asm": 4.942,
       "assembly/cpm65_6502/apps_xrecv.asm": 5.654,
@@ -326,40 +326,40 @@
       "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": 3.684
     },
     "assembly/rpi_smartstart_baremetal": {
-      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": 5.432,
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": 5.852,
       "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": 5.702,
-      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": 5.412,
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": 5.839,
       "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": 5.87,
       "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": 5.777,
-      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": 5.369,
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": 5.628,
       "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": 5.918,
       "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": 5.461,
       "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": 5.98,
-      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": 5.364
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": 5.866
     },
     "assembly/x86_bare_metal": {
       "assembly/x86_bare_metal/LICENSE.adoc": 0.0,
       "assembly/x86_bare_metal/apm_shutdown.S": 4.349,
       "assembly/x86_bare_metal/apm_shutdown2.S": 6.559,
       "assembly/x86_bare_metal/bios_background.S": 6.098,
-      "assembly/x86_bare_metal/bios_carriage_return.S": 6.407,
+      "assembly/x86_bare_metal/bios_carriage_return.S": 7.868,
       "assembly/x86_bare_metal/bios_clear_screen.S": 4.703,
       "assembly/x86_bare_metal/bios_color.S": 5.595,
       "assembly/x86_bare_metal/bios_cursor_position.S": 5.811,
-      "assembly/x86_bare_metal/bios_detect_memory.S": 5.518,
-      "assembly/x86_bare_metal/bios_disk_load.S": 6.99,
-      "assembly/x86_bare_metal/bios_disk_load2.S": 5.589,
-      "assembly/x86_bare_metal/bios_hello_world.S": 7.353,
-      "assembly/x86_bare_metal/bios_initial_state.S": 7.423,
+      "assembly/x86_bare_metal/bios_detect_memory.S": 5.48,
+      "assembly/x86_bare_metal/bios_disk_load.S": 7.935,
+      "assembly/x86_bare_metal/bios_disk_load2.S": 6.337,
+      "assembly/x86_bare_metal/bios_hello_world.S": 6.597,
+      "assembly/x86_bare_metal/bios_initial_state.S": 7.403,
       "assembly/x86_bare_metal/bios_keyboard.S": 6.122,
       "assembly/x86_bare_metal/bios_keyboard_loop.S": 5.077,
-      "assembly/x86_bare_metal/bios_newline.S": 6.407,
-      "assembly/x86_bare_metal/bios_pixel.S": 6.288,
-      "assembly/x86_bare_metal/bios_pixel_line.S": 6.292,
+      "assembly/x86_bare_metal/bios_newline.S": 7.868,
+      "assembly/x86_bare_metal/bios_pixel.S": 6.244,
+      "assembly/x86_bare_metal/bios_pixel_line.S": 6.254,
       "assembly/x86_bare_metal/bios_putc.S": 6.419,
       "assembly/x86_bare_metal/bios_scroll.S": 6.316,
-      "assembly/x86_bare_metal/bios_serial.S": 7.075,
-      "assembly/x86_bare_metal/bios_sleep.S": 4.59,
+      "assembly/x86_bare_metal/bios_serial.S": 6.259,
+      "assembly/x86_bare_metal/bios_sleep.S": 4.699,
       "assembly/x86_bare_metal/c_hello_world_entry.S": 5.665
     },
     "assembly/xv6_x86_kernel": {
@@ -1352,24 +1352,24 @@
       "fortran/wrf/cleanCMake.sh": 8.123,
       "fortran/wrf/configure_reader.py": 8.487,
       "fortran/wrf/gen_be_wrapper.ksh": 5.132,
-      "fortran/wrf/module_configure.F": 8.073,
-      "fortran/wrf/module_domain.F": 7.72,
-      "fortran/wrf/module_initialize_real.F": 6.707,
+      "fortran/wrf/module_configure.F": 8.074,
+      "fortran/wrf/module_domain.F": 7.774,
+      "fortran/wrf/module_initialize_real.F": 6.72,
       "fortran/wrf/module_physics_init.F": 12.554,
       "fortran/wrf/module_sf_noahdrv.F": 7.072,
-      "fortran/wrf/regtest.csh": 17.98,
-      "fortran/wrf/regtest_hwrf.csh": 19.181,
-      "fortran/wrf/regtest_nmmnest.csh": 19.008,
+      "fortran/wrf/regtest.csh": 17.979,
+      "fortran/wrf/regtest_hwrf.csh": 19.18,
+      "fortran/wrf/regtest_nmmnest.csh": 19.007,
       "fortran/wrf/run_convert_e2c.ksh": 4.946,
       "fortran/wrf/sourcetree.py": 8.029,
-      "fortran/wrf/wrf_timeseries.F": 6.114
+      "fortran/wrf/wrf_timeseries.F": 23.266
     },
     "go": {
       "go/SOURCES.md": 0.0
     },
     "go/core": {
       "go/core/PATENTS": 0.0,
-      "go/core/main.go": 8.488,
+      "go/core/main.go": 8.474,
       "go/core/mgc.go": 6.31,
       "go/core/mutex.go": 6.451,
       "go/core/proc.go": 7.133,
@@ -1381,12 +1381,12 @@
       "go/go_runtime_rand/rand.go": 4.935
     },
     "go/kubernetes": {
-      "go/kubernetes/csi_plugin.go": 6.612,
+      "go/kubernetes/csi_plugin.go": 6.618,
       "go/kubernetes/generic.go": 7.114,
-      "go/kubernetes/kubelet.go": 6.574,
+      "go/kubernetes/kubelet.go": 6.582,
       "go/kubernetes/options.go": 5.644,
-      "go/kubernetes/proxier.go": 7.213,
-      "go/kubernetes/replica_set.go": 6.834,
+      "go/kubernetes/proxier.go": 7.215,
+      "go/kubernetes/replica_set.go": 6.837,
       "go/kubernetes/scheduler.go": 7.238
     },
     "go/kubernetes_kubectl_tls": {
@@ -1913,12 +1913,12 @@
     },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": 5.993,
-      "java/springboot/Binder.java": 7.549,
+      "java/springboot/Binder.java": 7.575,
       "java/springboot/JarLauncher.java": 5.506,
       "java/springboot/LICENSE.txt": 0.0,
-      "java/springboot/OnClassCondition.java": 6.314,
+      "java/springboot/OnClassCondition.java": 6.374,
       "java/springboot/ServletWebServerApplicationContext.java": 7.241,
-      "java/springboot/SpringApplication.java": 5.956,
+      "java/springboot/SpringApplication.java": 5.97,
       "java/springboot/WebMvcAutoConfiguration.java": 6.586
     },
     "javascript": {
@@ -2186,7 +2186,7 @@
       "kotlin/SOURCES.md": 0.0
     },
     "kotlin/okhttp": {
-      "kotlin/okhttp/Call.kt": 6.337,
+      "kotlin/okhttp/Call.kt": 6.339,
       "kotlin/okhttp/Dispatcher.kt": 8.416,
       "kotlin/okhttp/LICENSE.txt": 0.0,
       "kotlin/okhttp/OkHttp.android.kt": 6.406,
@@ -2501,12 +2501,12 @@
       "objective-c/SOURCES.md": 0.0
     },
     "objective-c/worldwideweb": {
-      "objective-c/worldwideweb/Anchor.m": 6.829,
+      "objective-c/worldwideweb/Anchor.m": 6.882,
       "objective-c/worldwideweb/HText.c": 7.586,
       "objective-c/worldwideweb/HyperManager.m": 6.723,
       "objective-c/worldwideweb/HyperText.h": 8.12,
-      "objective-c/worldwideweb/HyperText.m": 8.115,
-      "objective-c/worldwideweb/TcpAccess.m": 7.303
+      "objective-c/worldwideweb/HyperText.m": 8.217,
+      "objective-c/worldwideweb/TcpAccess.m": 7.474
     },
     "perl": {
       "perl/SOURCES.md": 0.0
@@ -3268,7 +3268,8 @@
       "rust/tokio/maybe_done.rs": 6.218,
       "rust/tokio/tests.rs": 5.94,
       "rust/tokio/tokio_mpsc_bounded.rs": 7.54,
-      "rust/tokio/tokio_named_pipe.rs": 7.478
+      "rust/tokio/tokio_named_pipe.rs": 7.478,
+      "rust/tokio/tokio_udp.rs": 6.673
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": 7.622
@@ -3297,12 +3298,12 @@
     },
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 0.0,
-      "scheme/racket/cpnanopass.ss": 18.346,
+      "scheme/racket/cpnanopass.ss": 7.985,
       "scheme/racket/eval.c": 8.81,
       "scheme/racket/fun.c": 8.046,
-      "scheme/racket/io.ss": 7.882,
+      "scheme/racket/io.ss": 8.985,
       "scheme/racket/schemify.rkt": 6.85,
-      "scheme/racket/thread.rkt": 7.77
+      "scheme/racket/thread.rkt": 7.771
     },
     "shell": {
       "shell/SOURCES.md": 0.0
@@ -3397,6 +3398,7 @@
       "shell/freebsd-src/dd2_test.sh": 7.516,
       "shell/freebsd-src/dtest.sh": 6.811,
       "shell/freebsd-src/echo_test.sh": 5.802,
+      "shell/freebsd-src/ed_test.sh": 7.267,
       "shell/freebsd-src/format_string_test.sh": 7.108,
       "shell/freebsd-src/functional_test.sh": 6.478,
       "shell/freebsd-src/hostname_test.sh": 5.377,
@@ -3434,6 +3436,7 @@
       "shell/haiku/default_deskbar_items.sh": 5.147,
       "shell/haiku/gen-bepo.sh": 6.115,
       "shell/haiku/generate_CountryFlags.sh": 6.165,
+      "shell/haiku/generate_ids_from_drivers.sh": 10.464,
       "shell/haiku/install-wifi-firmwares.sh": 6.546,
       "shell/haiku/install.sh": 5.099,
       "shell/haiku/leak_analyser.sh": 7.56,
@@ -3478,18 +3481,18 @@
       "shell/kubernetes/build-image.sh": 6.215,
       "shell/kubernetes/build.sh": 4.922,
       "shell/kubernetes/cluster__common.sh": 11.087,
-      "shell/kubernetes/common.sh": 11.093,
+      "shell/kubernetes/common.sh": 11.087,
       "shell/kubernetes/config-common.sh": 7.313,
       "shell/kubernetes/config-default.sh": 5.118,
       "shell/kubernetes/configure-helper.sh": 8.196,
-      "shell/kubernetes/e2e-cluster-size.sh": 5.75,
+      "shell/kubernetes/e2e-cluster-size.sh": 5.779,
       "shell/kubernetes/etcd.sh": 9.589,
       "shell/kubernetes/gen-swagger-docs.sh": 7.344,
       "shell/kubernetes/gencerts.sh": 4.593,
       "shell/kubernetes/generate.sh": 5.342,
       "shell/kubernetes/iks__config-default.sh": 7.141,
       "shell/kubernetes/kube-addons-main.sh": 6.607,
-      "shell/kubernetes/log-dump.sh": 12.105,
+      "shell/kubernetes/log-dump.sh": 12.1,
       "shell/kubernetes/node-helper.sh": 6.567,
       "shell/kubernetes/pre-existing__config-default.sh": 4.834,
       "shell/kubernetes/pre-existing__util.sh": 7.973,
@@ -3627,7 +3630,7 @@
     },
     "sql/mediawiki_postgresql": {
       "sql/mediawiki_postgresql/COPYING": 0.0,
-      "sql/mediawiki_postgresql/tables.sql": 4.568
+      "sql/mediawiki_postgresql/tables.sql": 7.035
     },
     "sql/spamassassin_mysql": {
       "sql/spamassassin_mysql/NOTICE": 0.0,
@@ -3640,7 +3643,7 @@
       "sql/sqlite/dotcmd01.sql": 5.258
     },
     "sql/sqlmap_postgresql": {
-      "sql/sqlmap_postgresql/dns_request.sql": 5.091
+      "sql/sqlmap_postgresql/dns_request.sql": 4.583
     },
     "sqlite": {
       "sqlite/SOURCES.md": 0.0
@@ -3858,8 +3861,9 @@
     },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 1.993,
-      "typescript/assemblyscript/ast.ts": 8.856,
-      "typescript/assemblyscript/compiler.ts": 6.33,
+      "typescript/assemblyscript/ast.ts": 8.859,
+      "typescript/assemblyscript/builtins.ts": 7.942,
+      "typescript/assemblyscript/compiler.ts": 6.331,
       "typescript/assemblyscript/package.json": 0.0,
       "typescript/assemblyscript/parser.ts": 5.641
     },
@@ -3872,7 +3876,7 @@
       "typescript/excalibur_math/math_ray.ts": 4.869
     },
     "typescript/excalidraw_text_wrapping": {
-      "typescript/excalidraw_text_wrapping/textWrapping.ts": 6.888
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": 6.896
     },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": 8.475,
@@ -3893,18 +3897,22 @@
       "typescript/playwright/README.md": 0.0,
       "typescript/playwright/SECURITY.md": 0.0,
       "typescript/playwright/SUPPORT.md": 0.0,
-      "typescript/playwright/api.ts": 6.988,
-      "typescript/playwright/bidiConnection.ts": 9.014,
-      "typescript/playwright/connection.ts": 9.349,
-      "typescript/playwright/crConnection.ts": 6.857,
+      "typescript/playwright/api.ts": 6.388,
+      "typescript/playwright/bidiConnection.ts": 9.054,
+      "typescript/playwright/connection.ts": 9.347,
+      "typescript/playwright/crConnection.ts": 6.904,
       "typescript/playwright/dispatcher.ts": 7.962,
-      "typescript/playwright/frames.ts": 8.235,
+      "typescript/playwright/frames.ts": 8.239,
       "typescript/playwright/protocol.ts": 3.375
     },
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 0.0,
       "typescript/typescript_compiler/binder.ts": 7.372,
-      "typescript/typescript_compiler/package.json": 0.0
+      "typescript/typescript_compiler/checker.ts": 10.775,
+      "typescript/typescript_compiler/emitter.ts": 9.455,
+      "typescript/typescript_compiler/package.json": 0.0,
+      "typescript/typescript_compiler/parser.ts": 13.179,
+      "typescript/typescript_compiler/types.ts": 8.624
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0.0,
@@ -3913,8 +3921,8 @@
       "typescript/vscode/eslint.config.js": 6.106,
       "typescript/vscode/extHost.api.impl.ts": 11.375,
       "typescript/vscode/gulpfile.vscode.ts": 7.756,
-      "typescript/vscode/instantiationService.ts": 7.512,
-      "typescript/vscode/ipc.ts": 6.483,
+      "typescript/vscode/instantiationService.ts": 7.483,
+      "typescript/vscode/ipc.ts": 6.469,
       "typescript/vscode/lifecycle.ts": 7.831,
       "typescript/vscode/package.json": 0.0,
       "typescript/vscode/vscode.d.ts": 9.248
@@ -4074,10 +4082,11 @@
       "zig/tigerbeetle/state_machine.zig": 7.1
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": 9.015,
+      "zig/zig/Compilation.zig": 9.014,
       "zig/zig/InternPool.zig": 10.738,
-      "zig/zig/Type.zig": 8.194,
-      "zig/zig/Zcu.zig": 8.575,
+      "zig/zig/Sema.zig": 10.408,
+      "zig/zig/Type.zig": 8.192,
+      "zig/zig/Zcu.zig": 8.574,
       "zig/zig/main.zig": 7.304
     },
     "zig/zig_std_linux_mips": {
@@ -4090,6 +4099,7 @@
       "zig/zls/analysis.zig": 8.959,
       "zig/zls/ast.zig": 7.293,
       "zig/zls/config_gen.zig": 7.513,
+      "zig/zls/langref.html.in": 5.513,
       "zig/zls/print_ast.zig": 5.946
     }
   },

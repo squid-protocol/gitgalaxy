@@ -156,7 +156,7 @@ join another *channel* depends on. Say this plainly in the PR body ("consumed by
 answer key, audit/LLM recorders; NOT yet the refactor pipeline, tracked in #3348") rather than
 implying the new fact is live in the forge output — it isn't, until #3348 lands.
 
-## Rebase / re-bless after a sibling merges
+## Merge / re-bless after a sibling merges
 
 Every #3249-round channel PR touched the same shared seams (`galaxy_ir.py` SCOPE + accessors,
 `refraction_differential.py`, `cobol_answer_key.py`, `record_keeper.py`, `state_rehydrator.py`,
@@ -165,15 +165,14 @@ every sibling on exactly those seams (#3383, #3384) — 8 rebase cycles of 15–
 round, one answer-key merge redone by hand. Until the channel registry (#3383) removes the shared
 seams:
 
-1. `git fetch origin` and rebase your branch onto `origin/main`.
+1. `git fetch origin` and `git merge origin/main` into your branch (never rebase).
 2. On a golden-master or ruff-baseline conflict, take **main's side wholesale** — do not hand-merge
    JSON/baseline entries — then regenerate (`crucible_check.py --update --yes`, `audit_check.py
    --regenerate`).
 3. Diff the regenerated golden masters against main and confirm the drift is **only your own fact
    keys** (plus the usual topological X/Y/Z ripple) — re-bless someone else's drift and you've
    silently reverted their channel.
-4. Push with `git push --force-with-lease` only — never plain `--force` — since a sibling agent may
-   have pushed to the same branch name space independently.
+4. Push normally; never force-push (the merge keeps history linear for reviewers and siblings).
 
 `tests/tools/rebase_rebless.py` (#3385, in progress) will automate steps 1–3 and verify the
 own-drift constraint automatically; until it lands, do this by hand and don't skip step 3.
@@ -187,7 +186,7 @@ own-drift constraint automatically; until it lands, do this by hand and don't sk
   and confirm the diff is only your fact keys (plus the topological X/Y/Z ripple).
 - **Match CI's pinned tool versions before regenerating any baseline** — ruff is pinned in
   `.github/workflows/ruff-audit.yml` (a newer local ruff drops findings CI still emits, so a local
-  regen silently breaks CI). `pip install "ruff==<pinned>"` first.
+  regen silently breaks CI). Install `ruff==<pinned>` into a private venv first (never the shared one).
 - **FK cascade + delta-scan restore** both required; prove byte-identical full-vs-incremental
   (excluding the autoincrement `id`, which drifts on delete+reinsert).
 - **Hyphen boundary**: `\bBINARY\b` matches inside `TWO-BYTES-BINARY`; use
@@ -196,6 +195,11 @@ own-drift constraint automatically; until it lands, do this by hand and don't sk
   fields without regenerating (regen wipes `validated`); commit `draft`.
 - **The key stays an oracle** only if its reader imports neither the engine nor the forge, and a
   drafted field never adjudicates.
+- **A new registry helper key needs a `signal_contracts.HELPER_KEYS` entry** (`tests/signal_contract_audit.py`
+  fails otherwise).
+- **Build long regexes from named pieces**: X-Ray flags long literals. Parsed CICS option words go on
+  `tests/dead_key_audit.py`'s `ALLOWLIST`.
+- **`CREATE TABLE IF NOT EXISTS` keeps a stale scratch DB's old columns**: rescan into a fresh DB.
 
 ## Environment & verify
 

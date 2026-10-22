@@ -23,11 +23,12 @@ program opens I-O) is unloaded to fixed-length records. Compiled `-std=ibm
 -fsign=EBCDIC`: the corpus data is EBCDIC-style zoned (`{` = +0) in ASCII text.
 #3828: the program's CBL / PROCESS cards, and a case's `"compiler_options": ["TRUNC(BIN)"]`
 (the compile step's PARM; the cards override it), become cobc flags where GnuCOBOL has one
-(TRUNC(BIN) -> -fnotrunc); one it cannot honour -- INTDATE(LILIAN), ARITH(EXTEND),
+(TRUNC(BIN) -> -fnotrunc); one it cannot honour -- INTDATE(LILIAN),
 NUMPROC(MIG) under a compiler before Enterprise COBOL 5 -- stops the run
 (equivalence_common.compile_options); NUMPROC(PFD) runs only with a det port (#4271); TRUNC(OPT)
 runs the oracle as STD, and a port without the det runtime's stop on a value past its PICTURE is
-proven as STD, a declared difference in its evidence record (#4706, option_differences). A case's
+proven as STD, a declared difference in its evidence record (#4706, option_differences); ARITH(EXTEND)
+likewise runs the oracle as COMPAT, stopped by name past a 30-digit intermediate in a det port. A case's
 `"culture"` (e.g. {"db2_date_format": "eur"}) is the Java side's target config.
 
 Java side -- the generated project (the refractor + cobol-to-java pipeline, target
@@ -98,20 +99,26 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import cobol_coverage as cov  # noqa: E402 -- #4023
 
 # The primitives every harness module shares live in a leaf module (no cycle); re-exported here.
+import equivalence_common
 import equivalence_db2
+import equivalence_ims
+import equivalence_mvs
 import equivalence_oracle
 import equivalence_sql
 from equivalence_common import (
+    BOUND_FLAGS,  # noqa: F401 -- kept (#4449)
     CASES,
     IMAGE,
     _fixed,
     _input_path,
+    bound_violation,
     compare_sysout,
     comp5_layout_guard,
     compile_options,
     data_encoding,
     diff_records,
     diff_varseq,
+    docker_build,
     java_failure_report,
     layout_fields,
     numproc_guard,
@@ -219,6 +226,32 @@ def fault_plan(fault: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def run_sysin(case: dict[str, Any], fault: dict[str, Any] | None = None) -> str | None:
+    """#5857: the SYSIN a run reads: the fault run's own `sysin` (a batch step's control card, so an expiry or a
+    checkpoint frequency is a run of its own), else the case's."""
+    if fault is not None and fault.get("sysin") is not None:
+        return str(fault["sysin"])
+    return case.get("sysin")
+
+
+def run_parm(case: dict[str, Any], fault: dict[str, Any] | None = None) -> str | None:
+    """#5561: the PARM a run gets: the fault run's own `parm` (a batch step's input, so END < START, step 0 or a
+    seed are runs of their own), else the case's."""
+    if fault is not None and fault.get("parm") is not None:
+        if case.get("entries"):
+            raise SystemExit(f"{case['name']}: a run's own parm cannot go with `entries` (they pass no PARM)")
+        return str(fault["parm"])
+    return case.get("parm")
+
+
+def fresh_fault_log(work: Path, fault: dict[str, Any] | None) -> None:
+    """ggfault.c / ggsql APPEND to work/FAULTS: a second pass over the same work dir (a kept baseline run again) would
+    log every fault twice, and a --reuse of it would copy the doubled log into each mutant's COBOL side (mutation
+    testing's false kills: "faults fired differ: COBOL [x2], Java [x1]"). A step that is reused keeps its earlier log."""
+    if fault is not None and not step_reused(work):
+        (work / "FAULTS").unlink(missing_ok=True)
+
+
 def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, Any] | None = None) -> dict[str, bytes]:
     """Stage, compile and run the case's program under GnuCOBOL; {dd: output bytes}, plus RETURN-CODE -- or,
     when the step abended, ABEND (Unnnn, the CEE3ABD stub's) -- and, for a `fault` run, FAULTS: the planned
@@ -243,7 +276,16 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
             raise RuntimeError(f"not runnable faithfully: {e}") from e
         (work / "stmts.txt").write_text(table, encoding="latin-1")
         shutil.copy(equivalence_db2.STUB, src / "ggsql.c")
+    try:  # #5856 (A2): a PSA -> TCB -> TIOT walk runs on ggtiot.c's blocks, laid from the case's stated step
+        program = equivalence_mvs.lower(program, case.get("mvs_step"))
+    except equivalence_mvs.Unsupported as e:
+        raise RuntimeError(f"not runnable faithfully: {e}") from e
     (src / "PROGRAM.cbl").write_text(program, encoding=staged)
+    subs = ""  # #5856: the COBOL programs the program CALLs (CBSTM03A -> CBSTM03B), as they are
+    for rel in case.get("subprograms", []):
+        sub_text, _ = read_program(case, corpus / rel)
+        (src / f"SUB{Path(rel).stem.upper()}.cbl").write_text(compile_options(case, sub_text)[0], encoding=staged)
+        subs += f" src/SUB{Path(rel).stem.upper()}.cbl"
     stage_copybooks(case, corpus, src)
     comp5_layout_guard(src)  # #4751: a 1- or 2-digit COMP-5 is one byte in GnuCOBOL, a halfword on z/OS (C16)
     script = ["set -e", "cd /work"]
@@ -264,7 +306,25 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
                 script.append(f"INFILE=/work/{dd}.in {dd}=/work/{dd}.idx ./ld{dd}")
         elif "input" in spec:
             script.append(f"cp /work/{dd}.in /work/{dd}.idx")
-    (src / "EQDRIVER.cbl").write_text(cobol_driver(case["program"], case.get("parm")), encoding="ascii")
+    sysin = run_sysin(case, fault)
+    if sysin is not None:  # #5106: the step's SYSIN stream (ACCEPT FROM SYSIN), one record per line
+        (work / "SYSIN.in").write_bytes((sysin if sysin.endswith("\n") else sysin + "\n").encode(enc))
+    ims = case.get("ims")
+    if ims:  # #4893: a DL/I program -- IMS enters it at DLITCBL with its PCBs -- on the stated databases (ggdli.c)
+        try:
+            pcbs = equivalence_ims.stage(case, corpus, source, work / "dli")
+            bmp = equivalence_ims.bmp_using(source) is not None  # #5857: entered USING its I/O PCB, EXEC DLI
+            if bmp:
+                (src / "PROGRAM.cbl").write_text(equivalence_ims.rewrite_bmp(program), encoding=staged)
+        except equivalence_ims.Unsupported as e:
+            raise RuntimeError(f"not runnable faithfully: {e}") from e
+        driver = equivalence_ims.cobol_driver(case["program"] if bmp else "DLITCBL", pcbs, io=bmp)
+        (src / "EQDRIVER.cbl").write_text(_cbl(driver), encoding="ascii")
+        shutil.copy(equivalence_ims.STUB, src / "ggdli.c")
+        shutil.rmtree(work / "dliout", ignore_errors=True)
+        (work / "dliout").mkdir()
+    else:
+        (src / "EQDRIVER.cbl").write_text(cobol_driver(case["program"], run_parm(case, fault)), encoding="ascii")
     for stub in ("ggabend.c", "ggfault.c", "ggdisplay.c"):
         shutil.copy(FAULTS_DIR / stub, src / stub)
     models = sorted(LE_MODELS.glob("*.c"))
@@ -272,9 +332,10 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
         shutil.copy(m, src / m.name)
     # #4023: traced; CEE3ABD is the abend stub, which records the abend instead of failing the CALL
     sql = f" src/ggsql.c {equivalence_db2.COBOL_LINK}" if db2 else ""
+    sql += " src/ggdli.c" if ims else ""
     le = "".join(f" src/{m.name}" for m in models)
     script.append(
-        f"cobc -x {flags} {cov.TRACE_FLAG} -o program src/EQDRIVER.cbl src/PROGRAM.cbl src/ggabend.c{le}{sql}"
+        f"cobc -x {flags} {cov.TRACE_FLAG} -o program src/EQDRIVER.cbl src/PROGRAM.cbl{subs} src/ggabend.c{le}{sql}"
     )
     # #4056: DISPLAY as IBM writes it (faults/ggdisplay.c), so SYSOUT is compared against IBM's text
     script.append("gcc -shared -fPIC -O2 -o /work/ggdisplay.so src/ggdisplay.c -ldl")
@@ -290,6 +351,8 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
     tz = f"TZ='{case['zone']}' " if case.get("zone") else ""
     # the step's RETURN-CODE is an output like any other (CBTRN02C sets 4 when it rejects): recorded, not fatal
     sqlenv = equivalence_db2.cobol_env("/work/stmts.txt") if db2 else ""
+    sqlenv += "GGDLI_DIR=/work/dli GGDLI_OUT=/work/dliout " if ims else ""
+    sqlenv += f"GGMVS_STEP='{case['mvs_step']}' " if case.get("mvs_step") is not None else ""
     if db2:  # #4173: each statement the step runs traced; a fault run's SQL faults, those that fire logged
         # #4507: and what Db2 answered each one (equivalence_db2.cobol_outcomes)
         sqlenv += "GGSQL_TRACE=/work/sqltrace.txt GGSQL_OUTCOMES=/work/sqlout.txt GGSQL_FAULTS_LOG=/work/FAULTS "
@@ -300,7 +363,7 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
             (work / "sqlfaults.cfg").write_text("".join(x + "\n" for x in fault["sql_plan"]), encoding="ascii")
             sqlenv += "GGSQL_FAULTS=/work/sqlfaults.cfg "
     script.append(f"set +e; {cov.trace_env('/work/' + cov.TRACE_NAME)}GG_ABEND=/work/ABEND COB_VARSEQ_FORMAT=0 {inject}{tz}{clock}{env} "
-                  f"{sqlenv}./program > /work/stdout.txt 2>&1; echo $? > /work/RETURN-CODE; set -e")  # fmt: skip
+                  f"{sqlenv}./program {'< /work/SYSIN.in ' if sysin is not None else ''}> /work/stdout.txt 2>&1; echo $? > /work/RETURN-CODE; set -e")  # fmt: skip
     # after an abend (or an OPEN a fault refused) an output may not exist: unloaded if it does
     for dd, spec in case["datasets"].items():
         if spec.get("compare") and spec.get("organization") == "indexed":
@@ -308,6 +371,7 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
         elif spec.get("compare"):
             script.append(f"[ ! -e /work/{dd}.idx ] || cp /work/{dd}.idx /work/{dd}.out")
     (work / "run.sh").write_text("\n".join(script) + "\n", encoding="ascii")
+    fresh_fault_log(work, fault)
     if db2 and not step_reused(work):
         equivalence_db2.reset(case, corpus)
     proc = (run_cobol_step(work, equivalence_db2.COBOL_IMAGE, tuple(equivalence_db2.cobol_docker_args(case))) if db2
@@ -325,6 +389,9 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
         for t in db2.get("compare", []):
             f = saved / f"DB2_{t}"
             outs[f"DB2 {t}"] = f.read_bytes() if f.is_file() else b""
+    for name in (ims or {}).get("compare", []):  # #4893: each database as the step left it (ggdli.c GGDLIEND)
+        f = work / "dliout" / f"{name}.out"
+        outs[f"IMS {name}"] = f.read_bytes() if f.is_file() else b""
     outs["SYSOUT"] = (work / "stdout.txt").read_bytes() if (work / "stdout.txt").is_file() else b""  # #4056
     if db2 and db2.get("compare_sql"):  # #4507: what Db2 answered the step's statements
         outs["SQL"] = (work / "sqlout.txt").read_bytes() if (work / "sqlout.txt").is_file() else b""
@@ -339,6 +406,10 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
     if missing:
         raise RuntimeError(f"the program CALLs {missing.group(1).decode()!r}, which no model provides "
                            "(GnuCOBOL: module not found) -- not runnable faithfully")  # fmt: skip
+    overrun = bound_violation(outs["SYSOUT"])  # #4449 (X8): a subscript / ref-mod past its item stops the oracle
+    if overrun:
+        raise RuntimeError(f"the run drives an item past its bounds ({overrun}) -- not runnable faithfully "
+                           "(register X8: IBM's default has no SSRANGE, so the overlay is storage-layout luck)")  # fmt: skip
     abend = work / "ABEND"
     if abend.is_file():
         outs["ABEND"] = abend.read_bytes().strip()
@@ -355,7 +426,10 @@ def cobol_coverage(case: dict[str, Any], corpus: Path, traces: list[Path], out: 
     source, staged = read_program(case, corpus / case["program_source"])
     program, _flags = compile_options(case, source)
     staged_file = traces[0].parent / "src" / "PROGRAM.cbl" if traces else None
-    if case.get("db2") and staged_file is not None and staged_file.is_file():  # what ran: the precompiled text
+    rewritten = bool(case.get("db2")) or (bool(case.get("ims")) and equivalence_ims.bmp_using(source) is not None)
+    if (
+        rewritten and staged_file is not None and staged_file.is_file()
+    ):  # what ran: the precompiled / BMP-rewritten text
         program = staged_file.read_text(encoding=staged)
     return cov.write_run_coverage(out, source=corpus / case["program_source"], original=source, compiled=program,
                                   traces=[t for t in traces if t.is_file()], compiled_name="PROGRAM.cbl",
@@ -372,10 +446,7 @@ def build_image() -> None:
         ["docker", "image", "inspect", IMAGE], capture_output=True, check=False  # noqa: S603, S607
     ).returncode == 0:  # fmt: skip
         return
-    subprocess.run(
-        ["docker", "build", "-q", "-t", IMAGE, "-f", str(CASES / "gnucobol.Dockerfile"), str(CASES)],
-        check=True, capture_output=True,
-    )  # fmt: skip
+    docker_build("-q", "-t", IMAGE, "-f", str(CASES / "gnucobol.Dockerfile"), str(CASES))  # #5048: retried
 
 
 def report_markdown(case: dict[str, Any], report: dict[str, Any]) -> str:
@@ -575,7 +646,9 @@ def compare_run(case: dict[str, Any], corpus: Path, cobol: dict[str, bytes], jav
                  (("cobol", cobol), ("java", java))}  # fmt: skip
         fired = {side: [x for x in lines if x.strip()] for side, lines in fired.items()}
         run["fired"] = fired
-        if not fired["cobol"]:
+        if not fired["cobol"] and fault.get(
+            "plan"
+        ):  # #5561: a run with only its own parm (or #5857 sysin) plans no fault
             why.append("the planned fault never fired on the COBOL side: the run does not reach it")
         if fired["cobol"] != fired["java"]:
             why.append(f"faults fired differ: COBOL {fired['cobol']}, Java {fired['java']}")
@@ -616,6 +689,11 @@ def compare_run(case: dict[str, Any], corpus: Path, cobol: dict[str, bytes], jav
             if d["equal"] != d["records"] or d["diffs"]:
                 why.append(f"{dd}: {d['equal']}/{d['records']} records equal")
         _compare_tables(case, cobol, java, run, why)
+        for name in (case.get("ims") or {}).get("compare", []):  # #4893: each database, segment by segment
+            d = equivalence_ims.diff_db(case, corpus, name, cobol.get(f"IMS {name}", b""), java.get(f"IMS {name}", b""))
+            run["outputs"][f"IMS {name}"] = d
+            if d["diffs"]:
+                why.append(f"IMS {name}: {d['equal']}/{d['records']} segments equal")
         # #4507: what Db2 answered each side's statements (not a run with planned SQL faults: those are compared as
         # fired faults)
         if (case.get("db2") or {}).get("compare_sql") and not (fault or {}).get("sql_plan"):
@@ -691,6 +769,10 @@ def main() -> int:
                    "(mutation testing: many ports of one case)")  # fmt: skip
     r.add_argument("--first-difference", action="store_true", help="stop at the first run that differs: the "
                    "verdict is the same, the report names only that run (mutation testing)")  # fmt: skip
+    r.add_argument("--one-jvm", action="store_true", help="a batch proof's runs in the first environment (it, the "
+                   "faults, the entries), or a call / CICS proof's runs (task, facade), in one JVM, each on a fresh "
+                   "Spring context, instead of a JVM each; Db2 / IMS "
+                   "cases and a project that cannot run without Maven keep a JVM per run (mutation testing)")  # fmt: skip
     r.add_argument("--generated-only", action="store_true",
                    help="run the generated service as generated (no port): the generator's own baseline")  # fmt: skip
     r.add_argument("--no-facades", action="store_true", help="#4449: a CICS case's port is proven through runTask "
@@ -710,13 +792,13 @@ def main() -> int:
         return 0
     import mainframe_corpus as mc
 
-    if args.record and (args.port or args.case_file or args.reuse or args.first_difference or args.generated_only
+    if args.record and (args.port or args.case_file or args.reuse or args.first_difference or args.one_jvm or args.generated_only
                         or args.cobol_only or args.faults not in (None, "all") or args.environments
                         or args.sql_faults != "auto" or args.source_encoding or args.data_encoding
                         or args.no_facades or args.corpus_dir):  # fmt: skip
         raise SystemExit(
             "--record proves the committed port on the committed case as it is: drop --port / "
-            "--case-file / --reuse / --first-difference / --generated-only / --cobol-only / --no-facades / --corpus-dir "
+            "--case-file / --reuse / --first-difference / --one-jvm / --generated-only / --cobol-only / --no-facades / --corpus-dir "
             "and the overrides"
         )
     case = load_case(args.case, args.case_file)
@@ -738,7 +820,8 @@ def main() -> int:
         for d in args.option_differences:
             print(f"{case['name']}: declared difference -- {d['note']}")
     if case.get("db2"):  # a database of the pool to this case alone (parallel runs take the others, or wait)
-        equivalence_db2.hold_lock()
+        with equivalence_common.phase("db2_lock_wait"):  # #5882
+            equivalence_db2.hold_lock()
     work = args.keep or Path(tempfile.mkdtemp(prefix=f"equiv_{args.case}_"))
     if args.reuse:
         reuse(work, args.reuse)
@@ -749,18 +832,22 @@ def main() -> int:
         import equivalence_call as ecall
 
         return _recorded(args, work, ecall.run_case(case, corpus, work, port=not args.generated_only,
-                                                    port_dir=args.port, cobol_only=args.cobol_only))  # fmt: skip
+                                                    port_dir=args.port, cobol_only=args.cobol_only,
+                                                    one_jvm=args.one_jvm))  # fmt: skip
     if case.get("kind") == "cics":  # #3754: an online program, run as tasks under the stub CICS runtime
         import equivalence_cics as ec
 
         return _recorded(args, work, ec.run_case(case, corpus, work, port=not args.generated_only,
                                                  port_dir=args.port, cobol_only=args.cobol_only,
                                                  sql_faults=args.sql_faults,
-                                                 facades=not args.no_facades))  # fmt: skip
+                                                 facades=not args.no_facades,
+                                                 one_jvm=args.one_jvm))  # fmt: skip
     faults = selected_faults(case, args.faults)
     if case.get("db2"):  # the case's tables, created from its DDL on the harness's Db2 (equivalence_db2.py)
-        equivalence_db2.create(case, corpus)
-    cobol = run_cobol(case, corpus, work / "cobol")
+        with equivalence_common.phase("db2_create"):  # #5882
+            equivalence_db2.create(case, corpus)
+    with equivalence_common.phase("cobol_run"):
+        cobol = run_cobol(case, corpus, work / "cobol")
     if case.get("db2") and args.sql_faults != "none":  # #4173: the case's SQL faults, resolved to their statements
         import equivalence_cics as ec
 
@@ -770,7 +857,19 @@ def main() -> int:
                 f["sql_plan"] = ec.sql_fault_plan(case, {"name": f["name"], **f}, table)
         if args.sql_faults == "auto" and args.faults != "none":
             faults = [*faults, *enumerated_batch_sql_faults(work / "cobol", table)]
-    cobol_faults = {f["name"]: run_cobol(case, corpus, work / "faults" / f["name"] / "cobol", f) for f in faults}
+    cobol_faults, unrunnable = {}, {}
+    for f in faults:
+        try:
+            with equivalence_common.phase("cobol_fault_runs"):  # #5882
+                cobol_faults[f["name"]] = run_cobol(case, corpus, work / "faults" / f["name"] / "cobol", f)
+        except RuntimeError as e:
+            # #5561: a derived SQL fault whose oracle run is "not runnable faithfully" (BANKDATA's failed DELETE
+            # shows SQLERRMC(1:SQLERRML), length 0 under an injected fault: X8) has no oracle: named in the report,
+            # never proven or guessed. A declared fault, or any other failure, still stops the proof.
+            if not f.get("derived") or "not runnable faithfully" not in str(e):
+                raise
+            unrunnable[f["name"]] = str(e).strip().splitlines()[0]
+    faults = [f for f in faults if f["name"] in cobol_faults]
     if args.cobol_only:
         for name, res in [("", cobol), *cobol_faults.items()]:
             for dd, data in res.items():
@@ -794,12 +893,13 @@ def main() -> int:
         return not compare_run(case, corpus, cobol_faults[f["name"]] if f else cobol, java, fault=f)["ok"]
 
     try:
-        runs = ej.run_java_environments(case, corpus, work / "java", work / "cobol", envs,
-                                        port=not args.generated_only, port_dir=args.port,
-                                        faults=tuple((f["name"], fault_plan(f), "\n".join(f.get("sql_plan", [])))
-                                                     for f in faults),
-                                        stop=differs if args.first_difference else None,
-                                        entries=tuple(entries))  # fmt: skip
+        with equivalence_common.phase("java_runs"):  # #5882: the build, then every run (environments, faults, entries)
+            runs = ej.run_java_environments(case, corpus, work / "java", work / "cobol", envs,
+                                            port=not args.generated_only, port_dir=args.port,
+                                            faults=tuple((f["name"], fault_plan(f), "\n".join(f.get("sql_plan", [])), run_parm(case, f) if f.get("parm") is not None else "", f["sysin"] if f.get("sysin") is not None else "")
+                                                         for f in faults),
+                                            stop=differs if args.first_difference else None,
+                                            entries=tuple(entries), one_jvm=args.one_jvm)  # fmt: skip
     except RuntimeError as e:  # the port does not compile, or its run fails: the loop's feedback, not a crash
         failed = java_failure_report(case, work, str(e))
         (work / "report.json").write_text(json.dumps(failed, indent=2) + "\n", encoding="utf-8")
@@ -828,7 +928,9 @@ def main() -> int:
     for f in faults_made:  # #4023 follow-up: each fault run, proven like the normal one
         run = compare_run(case, corpus, cobol_faults[f["name"]], runs[f"fault:{f['name']}"], fault=f)
         report.setdefault("faults", []).append({"name": f["name"], "why": f.get("why", ""), "plan": fault_plan(f)
-                                                .strip().splitlines(), **run})  # fmt: skip
+                                                .strip().splitlines() + ([f"PARM {f['parm']}"] if f.get("parm") is not None else [])
+                                                + ([f"SYSIN {f['sysin']}"] if f.get("sysin") is not None else []),
+                                                **run})  # fmt: skip
         ok &= run["ok"]
     whys = {e["method"]: e.get("why", "") for e in case.get("entries", [])}
     for e in entries_made:  # #4048 follow-up: each entry run, against the same COBOL run as the normal one
@@ -840,7 +942,10 @@ def main() -> int:
     traces = [work / "cobol" / cov.TRACE_NAME] + [
         work / "faults" / f["name"] / "cobol" / cov.TRACE_NAME for f in faults
     ]
-    report["coverage"] = cobol_coverage(case, corpus, traces, work / "coverage.json")  # #4023, every run together
+    with equivalence_common.phase("coverage"):
+        report["coverage"] = cobol_coverage(case, corpus, traces, work / "coverage.json")  # #4023, every run together
+    if unrunnable:  # only when non-empty (python-test-traps.md): a case with none keeps its report as it was
+        report["unrunnable_faults"] = unrunnable
     report["runs"] = 1 + len(faults)
     report["oracle"] = equivalence_oracle.for_case(case)  # #4309: which GnuCOBOL produced the expected outputs
     report["feedback"] = feedback_md(report) if not ok else ""
@@ -879,6 +984,7 @@ def main() -> int:
 def _recorded(args: argparse.Namespace, work: Path, rc: int) -> int:
     """#4048 `--record`: the evidence record of the run just made (report.json in `work`), proven or not."""
     report_file = work / "report.json"
+    equivalence_common.write_phases(work)  # #5882: where this proof's time went (phases.json, not the report)
     if getattr(args, "option_differences", None) and report_file.is_file():  # #4706: what the proof cannot claim
         report = json.loads(report_file.read_text(encoding="utf-8"))
         report["option_differences"] = args.option_differences

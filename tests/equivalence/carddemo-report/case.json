@@ -68,6 +68,25 @@
    "why": "the month of the task's clock (July 2022): JCL lines on JOBS"
   },
   {
+   "name": "monthly-in-december",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "MONTHLYI": "X",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "the clock's month is December: the month-end arithmetic (the first of the next month, less a day) wraps to January of the next year, so the JCL lines on JOBS run 2022-12-01 to 2022-12-31",
+   "clock": "2022/12/18 10:30:15.00"
+  },
+  {
    "name": "monthly-not-confirmed",
    "aid": "DFHENTER",
    "commarea": {
@@ -277,6 +296,30 @@
    "receive": {
     "CORPT0A": {}
    }
+  },
+  {
+   "name": "pf3-xctl-fails",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {}
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COMEN01C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#5401: XCTL COMEN01C answers PGMIDERR RESP2 3 (the program could not be loaded, IBM CICS TS XCTL conditions); the source has no RESP, so CICS abends the task and no screen or COMMAREA is returned"
   },
   {
    "name": "invalid-key",
@@ -531,7 +574,85 @@
     }
    },
    "why": "1500-01-01 .. 1500-12-31: CEEDAYS answers 2513 (outside its supported range) for both dates, which lines 399 / 419 let through, so the job is submitted"
+  },
+  {
+   "name": "short-commarea-146",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-TO-TRANID": "CT01",
+    "CDEMO-TO-PROGRAM": "COTRN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "FIRSTNAME",
+    "CDEMO-CUST-MNAME": "MIDNAME",
+    "CDEMO-CUST-LNAME": "LASTNAME",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 1234567890123456,
+    "CDEMO-LAST-MAP": "LASTMAP",
+    "CDEMO-LAST-MAPSET": "LASTSET"
+   },
+   "receive": {
+    "CORPT0A": {}
+   },
+   "commarea_length": 146,
+   "why": "#5401 (EIBCALEN, mutation survivors): the caller passed 146 of the COMMAREA's 160 bytes, every field non-blank: only the bytes inside EIBCALEN are moved"
+  },
+  {
+   "name": "short-commarea-153",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-TO-TRANID": "CT01",
+    "CDEMO-TO-PROGRAM": "COTRN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "FIRSTNAME",
+    "CDEMO-CUST-MNAME": "MIDNAME",
+    "CDEMO-CUST-LNAME": "LASTNAME",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 1234567890123456,
+    "CDEMO-LAST-MAP": "LASTMAP",
+    "CDEMO-LAST-MAPSET": "LASTSET"
+   },
+   "receive": {
+    "CORPT0A": {}
+   },
+   "commarea_length": 153,
+   "why": "#5401 (EIBCALEN, mutation survivors): the caller passed 153 of the COMMAREA's 160 bytes, every field non-blank: only the bytes inside EIBCALEN are moved"
+  },
+  {
+   "name": "custom-end-month-single-digit",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CUSTOMI": "X",
+     "SDTMMI": "01",
+     "SDTDDI": "01",
+     "SDTYYYYI": "2022",
+     "EDTMMI": "6",
+     "EDTDDI": "30",
+     "EDTYYYYI": "2022",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "#5401: EDTMMI '6', one digit: NUMVAL-C rebuilds it as '06' (line 317) before the IS NOT NUMERIC test and the JCL date"
   }
  ],
- "notes": "CardDemo's report request (transaction CR00, program CORPT00C): a monthly (the clock's month), yearly or custom date range is validated -- the custom dates through CALL 'CSUTLDTC' (CEEDAYS; the COBOL side links CardDemo's CSUTLDTC and tests/equivalence/le/ceedays.c, the Java side its proven port from carddemo-dateutil) -- and, once confirmed, the program submits its in-line JCL with the dates filled in, one WRITEQ TD to the JOBS queue per line, each line compared. A month above 12 is flagged by the program but still passed to CSUTLDTC, where the CEEDAYS model refuses it (IBM leaves open which condition a month outside 1-12 raises), so no scenario uses one -- nor a non-numeric month, which NUMVAL-C turns into 00. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+ "notes": "CardDemo's report request (transaction CR00, program CORPT00C): a monthly (the clock's month; the scenario that states its own clock, `monthly-in-december`, runs the December wrap), yearly or custom date range is validated -- the custom dates through CALL 'CSUTLDTC' (CEEDAYS; the COBOL side links CardDemo's CSUTLDTC and tests/equivalence/le/ceedays.c, the Java side its proven port from carddemo-dateutil) -- and, once confirmed, the program submits its in-line JCL with the dates filled in, one WRITEQ TD to the JOBS queue per line, each line compared. A month above 12 is flagged by the program but still passed to CSUTLDTC, where the CEEDAYS model refuses it (IBM leaves open which condition a month outside 1-12 raises), so no scenario uses one -- nor a non-numeric month, which NUMVAL-C turns into 00. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
 }

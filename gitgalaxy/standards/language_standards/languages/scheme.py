@@ -47,7 +47,14 @@ DEFINITION: dict[str, Any] = {
     "lexical_family": "recursive_block_lisp",
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_LISP_FAMILY,
+        # #5640: the family pattern, minus the formals list of a `(lambda (y) ...)` / `(named-lambda (f y) ...)`,
+        # which is a parameter list and not a call (`(y` read as one).
+        # The first binding name of a `let` form is not a call either (`(let ((a (g x)) ...)`): fixed-width
+        # lookbehinds, so a named let (`(let loop ((i 0))`) and later bindings are a known gap.
+        "calls_out": re.compile(
+            r"(?<!\(lambda\s)(?<!\(named-lambda\s)(?<!\(let\s\()(?<!\(let\*\s\()(?<!\(letrec\s\()(?<!\(letrec\*\s\()"
+            + CALLS_OUT_LISP_FAMILY.pattern
+        ),
         "_calls_out_ignore": frozenset(
             {
                 "define",
@@ -159,7 +166,11 @@ DEFINITION: dict[str, Any] = {
             # the S-expression structure to ensure the parser can track the
             # identifier no matter how deeply it is vertically nested.
             # =====================================================================
-            r"^[ \t\n]*\([ \t\n]*define[ \t\n]+\([ \t\n]*([" + ID_CONTINUE + r"!?*+/<>=.~$%^&:-]+)(?![^ \t\n)\]\r])",
+            # #5640: `(define name (lambda ...))` (also case-lambda / named-lambda) is a procedure definition
+            # too. The second alternative is a lookahead only, so the single name group is shared.
+            r"^[ \t\n]*\([ \t\n]*define[ \t\n]+(?:\([ \t\n]*|(?=[" + ID_CONTINUE + r"!?*+/<>=.~$%^&:-]+[ \t\n]+"
+            r"\([ \t\n]*(?:lambda|case-lambda|named-lambda)[ \t\n)]))"
+            r"([" + ID_CONTINUE + r"!?*+/<>=.~$%^&:-]+)(?![^ \t\n)\]\r])",
             re.M,
         ),
         # 5. class_start (Object / Entity Declarations)

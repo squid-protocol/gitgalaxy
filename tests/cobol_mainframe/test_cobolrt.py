@@ -22,6 +22,8 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import equivalence as eq
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 REPO = Path(__file__).resolve().parents[2]
 RT = REPO / "gitgalaxy" / "tools" / "cobol_to_java" / "det" / "cobolrt"
@@ -1028,16 +1030,25 @@ def runs(tmp_path_factory):
     classes = work / "classes"
     classes.mkdir()
     files = [str(p) for p in src.rglob("*.java")]
-    javac = subprocess.run(  # noqa: S603
+    javac = javac_run(  # noqa: S603
         [str(JAVA_BIN / "javac"), "-encoding", "UTF-8", "-d", str(classes), *files],
         capture_output=True,
         text=True,
+        encoding="utf-8",
         check=False,
     )
     assert javac.returncode == 0, javac.stderr[:4000]
     (work / "init.txt").write_text("\n".join(f"{k} {v}" for k, v in init.items()) + "\n", encoding="latin-1")
     java = subprocess.run(  # noqa: S603
-        [str(JAVA_BIN / "java"), "-cp", str(classes), f"{PKG}.Main", str(work / "init.txt")],
+        [
+            str(JAVA_BIN / "java"),
+            "-Dfile.encoding=UTF-8",
+            "-Dstdout.encoding=UTF-8",
+            "-cp",
+            str(classes),
+            f"{PKG}.Main",
+            str(work / "init.txt"),
+        ],
         capture_output=True,
         check=False,
     )

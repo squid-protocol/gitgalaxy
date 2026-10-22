@@ -14,6 +14,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from gitgalaxy.tools.cobol_to_java.det import dli
 from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import layout as L
 from gitgalaxy.tools.cobol_to_java.det import osvs as O
@@ -69,6 +70,7 @@ class LiftViolation(Exception):
 LIBRARY = {
     "CEEDAYS": ("__PACKAGE__.cobolrt.le.Ceedays.call", 4),
     "COBDATFT": ("__PACKAGE__.cobolrt.le.Cobdatft.call", 1),
+    "MVSWAIT": ("__PACKAGE__.cobolrt.le.Mvswait.call", 1),  # #5106: CardDemo's assembler wait (COBSWAIT)
     "CEELOCT": ("__PACKAGE__.cobolrt.le.Ceeloct.call", 4),  # #4884: also takes the clock first and the charset last
     # #4949: the LE date/time services (register L6); each is the twin of tests/equivalence/le/le_time.c
     "CEEGMT": ("__PACKAGE__.cobolrt.le.Ceegmt.call", 3),
@@ -78,7 +80,13 @@ LIBRARY = {
     "CEEDATE": ("__PACKAGE__.cobolrt.le.Ceedate.call", 4),
     "CEEISEC": ("__PACKAGE__.cobolrt.le.Ceeisec.call", 9),
     "CEEQCEN": ("__PACKAGE__.cobolrt.le.Ceeqcen.call", 2),
+    # #5003: the offset from GMT (zero: the run's clock is GMT); CEEUTCO is the same service as CEEGMTO
+    "CEEGMTO": ("__PACKAGE__.cobolrt.le.Ceegmto.call", 4),
+    "CEEUTCO": ("__PACKAGE__.cobolrt.le.Ceegmto.call", 4),
+    # #5858 (register Q5): Db2's SQLCA message formatter as a stand-in, the twin of tests/equivalence/le/dsntiac.c
+    "DSNTIAC": ("__PACKAGE__.cobolrt.le.Dsntiac.call", 5),
 }
+LIBRARY_RC = {"DSNTIAC"}  # the routines whose int result is the CALL's RETURN-CODE
 LIBRARY_CLOCK = {
     "CEELOCT",
     "CEEGMT",
@@ -86,8 +94,20 @@ LIBRARY_CLOCK = {
 }  # the routines that read the run's clock (the harness pins it, like CURRENT-DATE)
 # The COMP-2 arguments (by position) a routine reads or stores by value (Cobol.num / Cobol.store), never by bytes: HFP on
 # z/OS, IEEE on the oracle (register C6). Every routine with one, and every clock routine, also takes the charset last.
-LIBRARY_FLOATS = {"CEELOCT": {1}, "CEEGMT": {1}, "CEEUTC": {1}, "CEEDATM": {0}, "CEESECS": {2}, "CEEISEC": {7}}
-LIBRARY_CHARSET = {*LIBRARY_CLOCK, *LIBRARY_FLOATS, "CEEDATE", "CEEQCEN"}
+# #5119 (X56): the CALLs det/bll.py lowers OS/VS COBOL's chained storage areas to (`MOVE cell TO fullword`, `MOVE fullword TO
+# cell`, a record re-addressed at a paragraph name); the oracle's stub (ggcics.c) has the first two, and sees SET ADDRESS OF
+BLL_CALLS = ("GGCBLLP", "GGCBLLG", "GGCBLLR")
+LIBRARY_FLOATS = {
+    "CEELOCT": {1},
+    "CEEGMT": {1},
+    "CEEUTC": {1},
+    "CEEDATM": {0},
+    "CEESECS": {2},
+    "CEEISEC": {7},
+    "CEEGMTO": {2},
+    "CEEUTCO": {2},
+}
+LIBRARY_CHARSET = {*LIBRARY_CLOCK, *LIBRARY_FLOATS, *LIBRARY_RC, "CEEDATE", "CEEQCEN"}
 
 
 def jstr(s: str) -> str:
@@ -157,6 +177,9 @@ def _missing_item(name: str) -> str:
 class Gen:
     def __init__(self, prog: Program, structured: bool = False):
         self.write_only_pointers: set[str] = set()  # program.write_only_pointers
+        self.overlaid_pointers: set[str] = set()  # program.overlaid_pointers (#4771)
+        self.pointer_views: set[str] = set()  # program.pointer_views (#4771)
+        self.pointer_view_of: dict[str, str] = {}  # program.pointer_view_of (#4771): pure numeric view -> its pointer
         self.p = prog
         # structured: a program with no GO TO / HANDLE -- paragraphs are void methods called in order, no dispatcher
         self.structured = structured
@@ -206,6 +229,7 @@ class Gen:
         # ARITH(EXTEND) in effect (program.arith_extend): extended-precision floating point, not modelled
         self.arith_extend = False
         self.float_extents: dict[int, list] = {}  # storage root id -> [(item, first extent, full extent, tables)]
+        self.comp5_extents: dict[int, list] = {}  # the same for COMP-5 items of 2+ bytes (#4271, register C7)
         self.root_of: dict[int, int] = {}  # id(record) -> id(its storage root)
         # condition-name methods: id(88 item) -> (Java method name, the test's body); in order of first use
         self.cond_methods: dict[int, tuple[str, str, L.Item]] = {}
@@ -215,6 +239,19 @@ class Gen:
                 for c in it.conditions:
                     self.conds.setdefault(c.name, []).append(c)
         self.para_index = {p.name: i for i, p in enumerate(prog.proc.paragraphs)}
+        # #5560 ALTER: paragraph index -> its GO TO's target slot (a Java int field), for each paragraph an ALTER names
+        # whose only statement is a GO TO without DEPENDING (IBM, ALTER: a paragraph of one sentence, one GO TO)
+        self.alter_slots: dict[int, str] = {}
+        self.alter_fields: list[str] = []
+        for para in prog.proc.paragraphs:
+            for st in S.walk(para.body):
+                for name, _ in st.data.get("pairs", []) if st.kind == "ALTER" else []:
+                    i = self.para_index.get(name)
+                    if i is not None and i not in self.alter_slots and self._alterable(prog.proc.paragraphs[i]):
+                        self.alter_slots[i] = f"alt{i}"
+                        t = prog.proc.paragraphs[i].body[0].data["targets"]
+                        first = self.para_index.get(t[0], -1) if t else -1
+                        self.alter_fields.append(f"    private int alt{i} = {first};")
         self.consts: dict[str, str] = {}
         self.dcs: dict[
             tuple, tuple
@@ -235,11 +272,20 @@ class Gen:
         self.java_root: Path | None = None  # the generated project's src/main/java
         self.id_methods: dict = {}  # entity -> its id_<entity> method lines (det.entity)  # where the program's copybooks are (a DTO field's declaration is read there)  # det.cics.Cics for a CICS program
         self.sql: Any = None  # det.sql.Sql for a program with EXEC SQL
+        self.dli_pcbs: list[str] | None = None  # #4893: the PCBs IMS passes at ENTRY 'DLITCBL' (det/dli.py)
         self.clock = "clock.currentDate()"  # FUNCTION CURRENT-DATE outside CICS
+        self.uses_mvs = False  # #5856: a batch pointer addresses a z/OS control block (DetMvs, register A2)
         self.uses_random = False  # FUNCTION RANDOM: the program keeps a run unit's sequence (Funcs.Random)
         self.callees: dict[str, str] = {}  # CALLed program -> the ObjectProvider field of its service
+        self.entry_tested = False  # #5106: a condition read the `present` flags
+        self.entry_items: dict[str, int] = {}  # #5106: a sibling's USING item -> its position (ADDRESS OF = NULL)
+        self.sibling_why: dict[str, str] = {}  # #5106: a sibling whose own translation is refused -> why
+        self.siblings: set[str] = set()  # #5106: the other programs of this program's source (no service of their own)
         # CALLed program -> its handleCall parameter types (CobolRef<String>, or a contract DTO for a group item)
         self.callee_types: dict[str, list[str]] = {}
+        self.callee_returns: dict[
+            str, bool
+        ] = {}  # #5106: a sibling whose entry returns its RETURNING item (not RETURN-CODE)
         # the COMMAREA codec (det.cics.Cics) a DTO crosses storage with: the CICS one, or made on first use for a batch
         # program
         self.dto_codecs: Cics | None = None
@@ -287,15 +333,123 @@ class Gen:
                 q in _ancestors(c.parent) for q in ref.qualifiers))]  # fmt: skip
         return cands[0] if len(cands) == 1 else None
 
+    def pointer_item(self, name: str) -> str:
+        """#4771 (X47): the Field of a plain USAGE POINTER item the pointer lane works on. A pointer a REDEFINES overlays
+        (ZECS001's CACHE-ADDRESS-X: ADD n TO the address) is refused: a handle is no number to do arithmetic on."""
+        it = self.resolve(E.Ref(name.upper()))
+        if it.usage != "POINTER" or it.occurs > 1:
+            raise Untranslatable(f"{name}: not a plain USAGE POINTER item")
+        if name.upper() in self.overlaid_pointers:
+            raise Untranslatable(f"{name}: a pointer a REDEFINES overlays (pointer arithmetic is not modelled)")
+        return self.field_expr(E.Ref(name.upper()))
+
+    def view_pointer(self, e) -> str | None:
+        """#4771 (X47): the pointer a plain reference to a pure numeric view of one (program.pointer_view_of) names."""
+        if isinstance(e, E.Ref) and not e.subscripts and e.refmod is None and not e.qualifiers:
+            return self.pointer_view_of.get(e.name.upper())
+        return None
+
+    def pointer_lane(self) -> tuple[str, str]:
+        """The runtime a pointer's handle lives in, and its task argument: a CICS task's storage (X47), or in batch the
+        z/OS control blocks the run's stated job step lays (#5856, register A2: DetMvs)."""
+        if self.cics is not None:
+            return "DetCics", "task, "
+        self.uses_mvs = True
+        return "DetMvs", ""
+
+    def pointer_view_statement(self, s: S.Stmt, ind: str) -> list[str] | None:
+        """#4771 (X47): the idioms a numeric view of a POINTER is modelled for -- `ADD|SUBTRACT n TO|FROM view` and
+        `COMPUTE view = view + n` / `view - n` (#5856: CBSTM03A's `COMPUTE BUMP-TIOT = BUMP-TIOT + LENGTH OF TIOT-SEG`)
+        move the pointer along its block by n bytes (ZECS001's `ADD ZF-LENGTH TO CACHE-ADDRESS-X`) and `MOVE view TO
+        view` copies the address (`MOVE CACHE-ADDRESS-X TO SAVE-ADDRESS-X`). The view's bytes are never read as a number
+        (a handle is no number): any other use still falls to field_expr's refusal. None: not one of these."""
+        d = s.data
+        if s.kind == "MOVE":
+            src = self.view_pointer(d["from"])
+            dst = [self.view_pointer(t) for t in d["to"]]
+            if src is None or not dst or None in dst:
+                return None
+            lane, _ = self.pointer_lane()
+            return [f"{ind}{lane}.copyPointer({self.pointer_item(p)}, {self.pointer_item(src)});" for p in dst if p]
+        if s.kind == "COMPUTE" and not s.phrases:
+            targets = d["targets"]
+            e = d["expr"]
+            if len(targets) != 1 or targets[0][1] or not isinstance(e, E.Bin) or e.op not in ("+", "-"):
+                return None
+            ptr = self.view_pointer(targets[0][0])
+            left = e.left
+            if ptr is None or not isinstance(left, E.Ref) or self.view_pointer(left) != ptr:
+                return None
+            if targets[0][0].name.upper() != left.name.upper():
+                return None
+            op, operand = ("+=" if e.op == "+" else "-="), e.right
+        elif s.kind == "ARITH" and d["op"] in ("+=", "-=") and not s.phrases:
+            targets = d.get("targets") or []
+            if len(targets) != 1 or len(d["operands"]) != 1 or targets[0][1]:
+                return None
+            ptr = self.view_pointer(targets[0][0])
+            if ptr is None:
+                return None
+            op, operand = d["op"], d["operands"][0]
+        else:
+            return None
+        lane, task = self.pointer_lane()
+        n = self.num(operand)
+        sign = "" if op == "+=" else "-"
+        cs = "" if lane == "DetCics" else ", CS"
+        return [f"{ind}{lane}.advancePointer({task}{self.pointer_item(ptr)}, {sign}({n}).longValueExact(){cs});"]
+
+    def address_record(self, name: str) -> str:
+        """#4771 (X47): the Field of a LINKAGE 01 record whose storage a pointer can address (it has storage of its own)."""
+        it = self.resolve(E.Ref(name.upper()))
+        if getattr(it, "level", None) not in (None, 1):
+            raise Untranslatable(
+                f"ADDRESS OF {name}: a subordinate item is an offset into its record, not a LINKAGE 01 record "
+                "(address it with SET ADDRESS OF / SET pointer TO ADDRESS OF)"
+            )
+        if getattr(it, "section", None) != "LINKAGE" or getattr(it, "level", None) != 1:
+            raise Untranslatable(f"ADDRESS OF {name}: not a LINKAGE 01 record (not modelled)")
+        return self.field_expr(E.Ref(name.upper()))
+
+    def address_item(self, name: str) -> tuple[str, bool]:
+        """#4771 (X47): `ADDRESS OF name` as a source of SET: (the Field, whether it is a windowed item). A LINKAGE 01
+        record is its own storage (address_record); any other single item of WORKING-STORAGE or LINKAGE (ZECS001's
+        ZF-DATA, or a WORKING-STORAGE record) is an offset into its section's or record's storage, which a record set
+        onto it views through a Storage window (Storage.base). Refused: a table element, another section's item."""
+        it = self.resolve(E.Ref(name.upper()))
+        if getattr(it, "section", None) == "LINKAGE" and getattr(it, "level", None) == 1:
+            return self.address_record(name), False
+        if getattr(it, "section", None) not in ("WORKING-STORAGE", "LINKAGE"):
+            raise Untranslatable(f"ADDRESS OF {name}: not an item of WORKING-STORAGE or LINKAGE (not modelled)")
+        in_table = it.occurs > 1
+        walker = it.parent
+        while walker is not None and not in_table:
+            in_table = walker.occurs > 1
+            walker = walker.parent
+        if in_table:
+            raise Untranslatable(f"ADDRESS OF {name}: a table element (not modelled)")
+        return self.field_expr(E.Ref(name.upper())), True
+
     def field_expr(self, ref: E.Ref) -> str:
         it = self.resolve(ref)
         if it.category == "FLOAT":  # #4271: a float's value only (value_field), never its bytes (register C6)
             if not self._value_use or ref.refmod is not None:
                 raise Untranslatable(f"{ref.name}: the bytes of a {it.usage} item ({FLOAT_BYTES})")
         elif not self._init_bytes:
+            if it.name.upper() in self.pointer_views:
+                raise Untranslatable(
+                    f"{ref.name}: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)"
+                )
             over = self.overlaps_float(it)
             if over is not None:
                 raise Untranslatable(f"{ref.name}: its bytes hold {over.name} {over.usage} ({FLOAT_BYTES})")
+            if it.usage == "COMP-5":  # #4271 (C7): a reference modification names the bytes of a number
+                if ref.refmod is not None:
+                    raise Untranslatable(f"{ref.name}: the bytes of a COMP-5 item ({COMP5_BYTES})")
+            else:
+                over = self.overlaps_float(it, self.comp5_extents)
+                if over is not None:
+                    raise Untranslatable(f"{ref.name}: its bytes hold {over.name} COMP-5 ({COMP5_BYTES})")
         packed = self.check_lift(it)
         base = self.ids.get(id(it))
         if base is None:
@@ -323,12 +477,26 @@ class Gen:
         finally:
             self._value_use -= 1
 
-    def overlaps_float(self, it: L.Item) -> L.Item | None:
+    def check_record_bytes(self, record: L.Item | None, what: str) -> None:
+        """A file or sort record read or written as bytes (#4271, C6 / C7): a COMP-1 / COMP-2 or COMP-5 item in it has
+        the oracle's bytes in the file, not z/OS's. Never reached through field_expr (the record is named by its FD)."""
+        if record is None:
+            return
+        over = self.overlaps_float(record)
+        if over is not None:
+            raise Untranslatable(f"{what}: the record holds {over.name} {over.usage} ({FLOAT_BYTES})")
+        over = self.overlaps_float(record, self.comp5_extents)
+        if over is not None:
+            raise Untranslatable(f"{what}: the record holds {over.name} COMP-5 ({COMP5_BYTES})")
+
+    def overlaps_float(self, it: L.Item, extents: dict[int, list] | None = None) -> L.Item | None:
         """The float item whose bytes `it` (not a float) covers -- as a group holding it, or a REDEFINES over it -- or
-        None. Items in the same table compare one occurrence; otherwise whole tables."""
-        if not self.float_extents or it.record is None:
+        None. Items in the same table compare one occurrence; otherwise whole tables. `extents` names another set of
+        items (the COMP-5 ones, #4271 C7)."""
+        extents = self.float_extents if extents is None else extents
+        if not extents or it.record is None:
             return None
-        floats = self.float_extents.get(self.root_of.get(id(it.record), id(it.record)), [])
+        floats = extents.get(self.root_of.get(id(it.record), id(it.record)), [])
         if not floats:
             return None
         first, full, tables = _extents(it)
@@ -422,7 +590,8 @@ class Gen:
 
     def osvs_length(self, e: E.LengthOf) -> int:
         it = self.resolve(e.ref)
-        return it.size * it.occurs
+        # #5076: TERM-LINES(1) is one element, not the table
+        return it.size if e.ref.subscripts else it.size * it.occurs
 
     @contextlib.contextmanager
     def osvs_plan(self, plan: dict):
@@ -457,11 +626,13 @@ class Gen:
             self.cond_relations(c.cond, out)
         elif isinstance(c, E.CondName):
             if c.abbrev is not None and self.resolve_cond(c.ref) is None:
-                out.append(self._relation(c.abbrev[1], c.ref, c.abbrev[0] == "="))
+                rel = E.Rel(c.abbrev[0], c.abbrev[1], c.ref)
+                if not (self.null_relation(rel) or self.pointer_relation(rel)):
+                    out.append(self._relation(c.abbrev[1], c.ref, c.abbrev[0] == "="))
         elif isinstance(c, E.ClassCond):
             if c.kind in ("POSITIVE", "NEGATIVE", "ZERO"):
                 out.append(self._relation(c.operand, E.Fig("ZEROS")))  # cobc: x > ZERO, a constant
-        elif isinstance(c, E.Rel):
+        elif isinstance(c, E.Rel) and not self.null_relation(c) and not self.pointer_relation(c):
             out.append(self._relation(c.left, c.right, c.op == "="))
 
     @staticmethod
@@ -619,6 +790,8 @@ class Gen:
                 finally:
                     self.intr -= 1
             return f"Hfp.numval({arg}, {_b(e.name == 'NUMVAL-C')})"
+        if isinstance(e, E.Func) and e.name == "ANNUITY":
+            self._func(e)  # raises its named refusal (the formula and why no result is modelled)
         if isinstance(e, E.Func):
             raise Untranslatable(f"FUNCTION {e.name} in a floating-point expression (oracle_assumptions.md C6)")
         raise Untranslatable(f"floating-point expression {type(e).__name__}")
@@ -675,6 +848,31 @@ class Gen:
         if self.id_methods[entity] is None:
             return ""
         return f".withFindById(rec -> {repo}.findById(id_{entity}(rec)))"
+
+    @staticmethod
+    def _alterable(p: S.Paragraph) -> bool:
+        """IBM (ALTER): the altered paragraph holds one sentence, a GO TO without DEPENDING."""
+        return (
+            p.section != p.name
+            and len(p.body) == 1
+            and p.body[0].kind == "GOTO"
+            and p.body[0].data["depending"] is None
+            and len(p.body[0].data["targets"]) <= 1
+        )
+
+    def alter(self, s: S.Stmt, ind: str) -> list[str]:
+        """ALTER p TO [PROCEED TO] q: write q into p's GO TO slot (the last ALTER of p wins)."""
+        out = []
+        for name, target in s.data["pairs"]:
+            if name not in self.para_index:
+                raise Untranslatable(f"ALTER {name}: undeclared paragraph")
+            if target not in self.para_index:
+                raise Untranslatable(f"ALTER {name} TO {target}: undeclared paragraph")
+            slot = self.alter_slots.get(self.para_index[name])
+            if slot is None:
+                raise Untranslatable(f"ALTER {name}: the paragraph is not a lone GO TO without DEPENDING (IBM, ALTER)")
+            out.append(f"{ind}{slot} = {self.para_index[target]};")
+        return out
 
     def method(self, i: int) -> str:
         """The Java method of paragraph i: p{i} (dispatcher), else the paragraph's name in camelCase."""
@@ -1017,7 +1215,7 @@ class Gen:
             return f"Cobol.align({v}, {p[1]})" if p is not None else v
         if isinstance(e, E.LengthOf):
             it = self.resolve(e.ref)
-            return f"BigDecimal.valueOf({it.size * it.occurs})"
+            return f"BigDecimal.valueOf({it.size if e.ref.subscripts else it.size * it.occurs})"  # #5076: an element
         if isinstance(e, E.Func):
             return self.func(e)
         raise Untranslatable(f"expression {type(e).__name__}")
@@ -1045,6 +1243,10 @@ class Gen:
             return O.Num.of(Decimal(self.osvs_length(e)))
         return None
 
+    def wide_op(self, fn: str, a: str, b: str) -> str:
+        """`a fn b` on BigDecimals; under ARITH(EXTEND) through Cobol, whose result past 30 digits stops by name (#4706)."""
+        return f"Cobol.{fn}({a}, {b})" if self.arith_extend else f"{a}.{fn}({b})"
+
     def num_op(self, e) -> str:
         # an operand that may be libcob's NaN (a zero divisor, #4655): the operation through Cobol, NaN in, NaN out
         nan = not self.intr and self.fmode is None
@@ -1060,7 +1262,8 @@ class Gen:
             if nan:
                 return f"Cobol.negate({self.num(e.operand)})"
             return f"{self.num(e.operand)}.negate()"
-        nan = nan and (_may_nan(e.left) or _may_nan(e.right))
+        # ARITH(EXTEND): every + - * through Cobol, whose result stops by name past 30 digits (#4706)
+        nan = nan and (_may_nan(e.left) or _may_nan(e.right) or self.arith_extend)
         lit = self.dc_literal(e.right)
         if lit is not None:
             a = self.num(e.left)
@@ -1129,6 +1332,14 @@ class Gen:
             # the run unit's sequence (Funcs.Random): the oracle's generator, not z/OS's (oracle_assumptions C12)
             self.uses_random = True
             return f"funcRandom.next({self.num(args[0])})" if args else "funcRandom.next()"
+        if name == "ANNUITY":
+            # IBM (6.4 Language Reference, ANNUITY): arg-1 / (1 - (1 + arg-1) ** -arg-2), or 1 / arg-2 when arg-1 is 0,
+            # a floating-point approximation; the power with a variable exponent is the run-time routine whose bits
+            # IBM does not document, so no result is modelled (the same hole as `**`, oracle_assumptions.md C6)
+            raise Untranslatable(
+                "FUNCTION ANNUITY (IBM defines arg-1 / (1 - (1 + arg-1) ** -arg-2) but not the bits of the power "
+                "or of the floating-point result; oracle_assumptions.md C6)"
+            )
         raise Untranslatable(f"FUNCTION {name}")
 
     def numval_arg(self, a) -> str:
@@ -1197,8 +1408,7 @@ class Gen:
             cn = self.resolve_cond(c.ref)
             if cn is None and c.abbrev is not None:
                 op, subject, negated = c.abbrev  # an abbreviated relation's object
-                with self.relation():
-                    t = self.rel(op, subject, c.ref)
+                t = self.cond(E.Rel(op, subject, c.ref))  # (#5042: a pointer subject takes the pointer tests)
                 return f"!({t})" if negated else t
             if cn is None:
                 raise Untranslatable(f"condition-name {c.ref.name}")
@@ -1216,9 +1426,65 @@ class Gen:
                 t = f"Cobol.{fn}({self.field_expr(c.operand)}, CS)"
             return f"!({t})" if c.negated else t
         if isinstance(c, E.Rel):
+            if isinstance(c.left, E.AddrOf):
+                return self.rel_address_null(c, c.left)
+            if self.null_relation(c):
+                return self.rel_null(c)
+            if self.pointer_operand(c.left) and self.pointer_operand(c.right):
+                return self.rel_pointers(c)
             with self.relation():
                 return self.rel(c.op, c.left, c.right)
         raise Untranslatable(f"condition {type(c).__name__}")
+
+    def rel_address_null(self, c: E.Rel, addr: E.AddrOf) -> str:
+        """#5106: `ADDRESS OF item = NULL` / `NOT =`, on a USING item of a sibling's CALL entry: IBM sets the address of an
+        OMITTED item to NULL, so the test is whether the caller passed a reference (`present`, set at the entry).
+        Any other ADDRESS OF relation stays refused by name."""
+        r = addr.ref
+        k = self.entry_items.get(r.name.upper())
+        if c.op not in ("=", "<>") or k is None or r.subscripts or r.qualifiers or r.refmod:
+            raise Untranslatable("condition: ADDRESS OF")
+        self.entry_tested = True
+        return f"present[{k}]" if c.op == "<>" else f"!present[{k}]"
+
+    @staticmethod
+    def null_relation(c: E.Rel) -> bool:
+        """#5197 (X56): whether a relation has NULL for an operand (no arithmetic plan: it compares no number)."""
+        return any(isinstance(x, E.Fig) and x.kind == E.NULL_POINTER for x in (c.left, c.right))
+
+    def rel_null(self, c: E.Rel) -> str:
+        """#5197 (X56): `pointer = NULL` / `NULL = pointer` (and NOT =, which the parser wraps in Not). IBM allows only = and
+        NOT = between a pointer and NULL (or another pointer); a pointer holds a handle whose zero is NULL (X47), so the
+        test is all-zero bytes, the figurative's own comparison. Everything else is refused by name."""
+        if c.op != "=":
+            raise Untranslatable(
+                f"pointer {c.op} NULL: only = and NOT = compare a pointer (IBM Enterprise COBOL relation conditions, X56)"
+            )
+        sides = [x for x in (c.left, c.right) if not (isinstance(x, E.Fig) and x.kind == E.NULL_POINTER)]
+        if len(sides) != 1:
+            raise Untranslatable("NULL compared with NULL (not a pointer comparison, X56)")
+        if not isinstance(sides[0], E.Ref) or sides[0].subscripts or sides[0].qualifiers or sides[0].refmod:
+            raise Untranslatable("NULL compared with something that is not a plain pointer item (X56)")
+        return f"Cobol.compareFigurative({self.pointer_item(sides[0].name)}, Figurative.LOW_VALUES, CS) == 0"
+
+    def rel_pointers(self, c: E.Rel) -> str:
+        """#5042 (X56): `pointer = pointer` (and NOT =, which the parser wraps in Not). IBM allows only = and NOT = between
+        two pointers; they are equal when they address the same storage, which is the runtime's handle equality (two
+        handles for one block, as a record's ADDRESS OF beside the pointer it was set to, are equal). Anything else is
+        refused by name."""
+        if c.op != "=":
+            raise Untranslatable(
+                f"pointer {c.op} pointer: only = and NOT = compare a pointer (IBM Enterprise COBOL relation conditions, X56)"
+            )
+        if self.cics is None:
+            raise Untranslatable("a pointer compared with a pointer (CICS pointers)")
+        left, right = c.left, c.right
+        if not (isinstance(left, E.Ref) and isinstance(right, E.Ref)):
+            raise Untranslatable("a pointer compared with a pointer that is not a plain pointer item (X56)")
+        if any(x.subscripts or x.qualifiers or x.refmod for x in (left, right)):
+            raise Untranslatable("a pointer compared with a pointer that is not a plain pointer item (X56)")
+        a, b = self.pointer_item(left.name), self.pointer_item(right.name)
+        return f"DetCics.samePointer(task, {a}, {b})"
 
     def cmp_num(self, e) -> str:
         """A comparison operand's value: a plain numeric zoned item is read as libcob compares it (Cobol.cmpNum,
@@ -1229,7 +1495,24 @@ class Gen:
                 return f"Cobol.cmpNum({self.field_expr(e)}, CS)"
         return self.num(e)
 
+    def pointer_relation(self, c) -> bool:
+        """A relation of two pointer items: no arithmetic plan (rel_pointers), like a NULL one."""
+        return self.pointer_operand(c.left) and self.pointer_operand(c.right)
+
+    def pointer_operand(self, e) -> bool:
+        try:
+            return isinstance(e, E.Ref) and self.resolve(e).usage == "POINTER"
+        except Untranslatable:
+            return False
+
     def rel(self, op: str, a, b) -> str:
+        # #5197 (X56): a pointer is compared only with NULL (rel_null) or another pointer (rel_pointers); against a
+        # number or with an ordering operator it is refused by name
+        if self.pointer_operand(a) or self.pointer_operand(b):
+            other = "another pointer" if self.pointer_operand(a) and self.pointer_operand(b) else "a non-pointer"
+            raise Untranslatable(
+                f"a pointer compared with {other if op == '=' else op}: only = / NOT = with NULL is modelled (X56)"
+            )
         jop = {"=": "==", ">": ">", "<": "<", ">=": ">=", "<=": "<="}[op]
         if self.has_float(a) or self.has_float(b):
             return self.rel_float(jop, a, b)
@@ -1369,18 +1652,23 @@ class Gen:
         return spelling.replace(".", "").replace(",", "")
 
     def digits_as_text(self, a: E.Ref, b: E.Ref) -> None:
-        """Refuse a numeric item compared as its characters with an elementary nonnumeric one (`a` against `b`, either
+        """Refuse a numeric item compared as its characters with a nonnumeric one, a group too (#4671; `a` against `b`, either
         way round) where the oracle's characters are not IBM's (C13): a SIGN SEPARATE item (GnuCOBOL compares its
-        sign character) and a P-scaled one (GnuCOBOL its stored digits)."""
+        sign character), a P-scaled one (GnuCOBOL its stored digits) and a packed or binary one (IBM
+        rejects the program)."""
         for num, other in ((a, b), (b, a)):
             try:
                 it, ot = self.resolve(num), self.resolve(other)
             except Untranslatable:
                 continue
             text = other.refmod is not None or ot.category in ("ALPHANUMERIC", "ALPHABETIC", "NUMERIC-EDITED",
-                                                               "ALPHANUMERIC-EDITED")  # fmt: skip
+                                                               "ALPHANUMERIC-EDITED", "GROUP")  # fmt: skip
             if num.refmod is not None or it.category != "NUMERIC" or not text:
                 continue
+            if it.usage != "DISPLAY":  # IBM's table has no entry for a native numeric item against a nonnumeric one
+                raise Untranslatable(f"{num.name} ({it.usage}) compared with the nonnumeric {other.name}: IBM rejects "
+                                     f"a packed or binary operand there, GnuCOBOL compares its "
+                                     f"digits (C13)")  # fmt: skip
             if it.sign_separate and it.signed:
                 raise Untranslatable(f"{num.name} (SIGN SEPARATE) compared with the nonnumeric {other.name}: GnuCOBOL "
                                      f"compares its sign character, IBM no sign (C13)")  # fmt: skip
@@ -1443,6 +1731,8 @@ class Gen:
         self.check_lift(parent)  # an 88 on a group holding a lifted item
         if parent.category != "FLOAT" and self.overlaps_float(parent):
             raise Untranslatable(f"88 {cn.name}: its item's bytes hold a COMP-1 / COMP-2 item ({FLOAT_BYTES})")
+        if parent.usage != "COMP-5" and self.overlaps_float(parent, self.comp5_extents):
+            raise Untranslatable(f"88 {cn.name}: its item's bytes hold a COMP-5 item ({COMP5_BYTES})")
         f = self.ids.get(id(parent))
         if f is None:
             raise Untranslatable(f"88 {cn.name}: no item")
@@ -1593,8 +1883,27 @@ class Gen:
         with self.reading():
             return self._move_from(src, ft, target)
 
+    def noninteger_to_text(self, src: E.Ref, target: E.Ref) -> None:
+        """Refuse a MOVE of a noninteger numeric item to an alphanumeric one (#4996): Enterprise COBOL 6.4 Language
+        Reference, MOVE, "Valid and invalid elementary moves" (Table 47), numeric noninteger sending item to an
+        alphabetic / alphanumeric / alphanumeric-edited receiver: NO, a compile error on z/OS (an integer one,
+        a right-P item too, is valid: each P counts as a zero). GnuCOBOL accepts it with a warning (register C11)."""
+        if src.refmod is not None:
+            return
+        try:
+            it, tt = self.resolve(src), self.resolve(target)
+        except Untranslatable:
+            return
+        if it.category == "NUMERIC" and it.scale > 0 and tt.category in ("ALPHABETIC", "ALPHANUMERIC",
+                                                                         "ALPHANUMERIC-EDITED"):  # fmt: skip
+            raise Untranslatable(
+                f"MOVE {src.name} (PIC {it.pic}, a noninteger numeric item) to the {tt.category.lower()} "
+                f"{target.name}: an invalid MOVE in Enterprise COBOL (Language Reference, Table 47; C11)"
+            )
+
     def _move_from(self, src, ft: str, target: E.Ref) -> str:
         if isinstance(src, E.Ref):
+            self.noninteger_to_text(src, target)
             return f"Cobol.move({self.field_expr(src)}, {ft}, CS);"
         if isinstance(src, E.Lit):
             if isinstance(src.value, Decimal):
@@ -1612,9 +1921,13 @@ class Gen:
             return f"Cobol.move({self.num(src)}, {ft}, CS);"
         raise Untranslatable(f"MOVE from {type(src).__name__}")
 
-    def initialize(self, ref: E.Ref) -> list[str]:
-        """INITIALIZE: every elementary item of the group (not FILLER, not under a REDEFINES) to spaces or zero."""
+    def initialize(self, ref: E.Ref, replacing: dict | None = None) -> list[str]:
+        """INITIALIZE: every elementary item of the group (not FILLER, not under a REDEFINES) to spaces or zero; with
+        REPLACING (#4892), only the items of a named category, each to its value as by MOVE, the others unchanged."""
         lo = self.lift(ref)
+        if lo and replacing is not None:
+            value = replacing.get(_replacing_category(self.resolve(ref)))
+            return [] if value is None else [self.move(value, ref)]
         if lo:
             return [self.move(E.Fig("SPACES" if lo[0] == "X" else "ZEROS"), ref)]
         it = self.resolve(ref)
@@ -1647,25 +1960,60 @@ class Gen:
                     out.append(f"Cobol.moveFigurative(Figurative.LOW_VALUES, Field.group({base}.storage(), "
                                f"{base}.offset() + {rel}, {x.size}), CS);")  # fmt: skip
                 return
-            out.append(self._init_one(x, base, it))
+            out.append(self._init_one(x, base, it, replacing=replacing))
 
         def walk_occ(c: L.Item, k: int) -> None:
             # a table element: its own offset plus k strides, relative to the INITIALIZE target
+            if replacing is not None and k == 0:
+                # #4892 (register C17): GnuCOBOL sets a table's first occurrence and copies it over the others, so
+                # an item REPLACING does not name would take the first occurrence's value -- IBM leaves it as it is
+                unnamed = [x for x in c.walk() if not x.children and x.name != "FILLER" and not x.redefines
+                           and _replacing_category(x) not in replacing]  # fmt: skip
+                if unnamed:
+                    if any(x.occurs > 1 for x in c.walk() if x is not c):
+                        raise Untranslatable(
+                            f"INITIALIZE REPLACING of the table {c.name}, which holds a nested table and items "
+                            "REPLACING does not name (the oracle copies its first occurrence: register C17)"
+                        )
+                    # IBM leaves those items as they are; the oracle gives each the first occurrence's value. Where
+                    # the occurrences already agree the two are the same, so the port checks that at run time and
+                    # stops by name when they differ, never answering for a case the oracle would get wrong
+                    for leaf in unnamed:
+                        first = self.factory(leaf, f"{base}.storage()", f"{base}.offset() + {leaf.offset - it.offset}")
+                        for j in range(1, c.occurs):
+                            other = self.factory(
+                                leaf, f"{base}.storage()", f"{base}.offset() + {leaf.offset - it.offset + j * c.size}"
+                            )
+                            msg = (f"INITIALIZE REPLACING of the table {c.name}: occurrence {j + 1} of {leaf.name} "
+                                   "differs from the first, which the oracle would copy (register C17)")  # fmt: skip
+                            out.append(f"if (!Cobol.sameBytes({first}, {other})) throw new Hole({jstr(msg)});")
             for leaf in c.walk():
                 if leaf.children or leaf.name == "FILLER" or leaf.redefines:
                     continue
-                out.append(self._init_one(leaf, base, it, extra=k * c.size))
+                out.append(self._init_one(leaf, base, it, extra=k * c.size, replacing=replacing))
 
         walk(it, False, "")
-        return out
+        return [x for x in out if x]
 
-    def _init_one(self, x: L.Item, base: str, top: L.Item, extra: int = 0) -> str:
+    def _init_one(self, x: L.Item, base: str, top: L.Item, extra: int = 0, replacing: dict | None = None) -> str:
+        if replacing is not None and _replacing_category(x) not in replacing:
+            return ""  # REPLACING names another category: the item is left as it is
         why = p_unmodelled(x)
         if why:
             raise Untranslatable(f"INITIALIZE {why}")
-        fig = "ZEROS" if x.category in ("NUMERIC", "NUMERIC-EDITED", "FLOAT") else "SPACES"
         rel = x.offset - top.offset + extra
-        return f"Cobol.moveFigurative(Figurative.{_fig(fig)}, {self.factory(x, f'{base}.storage()', f'{base}.offset() + {rel}')}, CS);"
+        field = self.factory(x, f"{base}.storage()", f"{base}.offset() + {rel}")
+        if replacing is not None:
+            value = replacing[_replacing_category(x)]
+            if isinstance(value, E.Fig):
+                return f"Cobol.moveFigurative(Figurative.{self.fig(value.kind)}, {field}, CS);"
+            if isinstance(value.value, str):
+                return f"Cobol.move({jstr(value.value)}, {field}, CS);"
+            if isinstance(value.value, Decimal):
+                return f"Cobol.move({self.const(value.value)}, {field}, CS);"
+            raise Untranslatable("INITIALIZE REPLACING BY a hexadecimal literal")
+        fig = "ZEROS" if x.category in ("NUMERIC", "NUMERIC-EDITED", "FLOAT") else "SPACES"
+        return f"Cobol.moveFigurative(Figurative.{_fig(fig)}, {field}, CS);"
 
     # ---- fields -------------------------------------------------------------------------------------------------
     def factory(self, it: L.Item, storage: str, offset: str) -> str:
@@ -1760,6 +2108,9 @@ class Gen:
         if k in ("RELEASE", "RETURN"):
             return [c, *self.release_return(s, ind)]
         if k == "MOVE":
+            view = self.pointer_view_statement(s, ind)
+            if view is not None:
+                return [c, *view]
             return [c] + [ind + self.move(s.data["from"], t) for t in s.data["to"]]
         if k == "IF":
             out = [c, f"{ind}if ({self.cond_top(s.data['cond'])}) {{", *self.block(s.body, ind + "    ")]
@@ -1770,8 +2121,17 @@ class Gen:
             return [c, *self.evaluate(s, ind)]
         if k == "PERFORM":
             return [c, *self.perform(s, ind)]
+        if k == "ALTER":
+            return [c, *self.alter(s, ind)]
         if k == "GOTO":
             t = s.data["targets"]
+            slot = self.alter_slots.get(self.cur)
+            if slot is not None and s.data["depending"] is None:  # the altered GO TO reads its slot (#5560)
+                return [
+                    c,
+                    f'{ind}if ({slot} < 0) throw new Hole("GO TO with no operand reached before any ALTER");',
+                    f"{ind}if (true) return GOTO | {slot};",
+                ]
             if s.data["depending"] is None:
                 if len(t) != 1 or t[0] not in self.para_index:
                     raise Untranslatable(f"GO TO {t}")
@@ -1820,6 +2180,9 @@ class Gen:
                     raise Untranslatable(f"EXHIBIT NAMED of {written}: only plain names and nonnumeric literals")
             return [c, f"{ind}Sysout.display({', '.join(parts)});"]
         if k == "COMPUTE":
+            view = self.pointer_view_statement(s, ind)
+            if view is not None:
+                return [c, *view]
             mode = self.float_mode([s.data["expr"]], [t for t, _ in s.data["targets"]])
             try:
                 if mode is not None:
@@ -1836,6 +2199,9 @@ class Gen:
                 self.numval_store = False  # (set by float_mode for this statement's stores only)
         if k == "ARITH":
             d = s.data
+            view = self.pointer_view_statement(s, ind)
+            if view is not None:
+                return [c, *view]
             receivers = [t for t, _ in d.get("targets") or []] + [t for t, _ in d.get("giving") or []]
             receivers += [d["remainder"]] if d.get("remainder") is not None else []
             mode = self.float_mode(d["operands"], receivers, d["op"] in ("*", "*="))
@@ -1861,13 +2227,28 @@ class Gen:
                 out.append(f"{ind}Cobol.moveFigurative(Figurative.LOW_VALUES, {self.field_expr(r)}, CS);")
             return out
         if k == "SET-POINTER":
-            if s.data["target"] not in self.write_only_pointers:
+            if s.data["target"] in self.write_only_pointers:
+                return [c, f"{ind}// the pointer is never read (write_only_pointers): no effect any output can show"]
+            if self.cics is None:
                 raise Untranslatable("SET ADDRESS OF (pointers)")
-            return [c, f"{ind}// the pointer is never read (write_only_pointers): no effect any output can show"]
+            ptr = self.pointer_item(s.data["target"])
+            of, windowed = self.address_item(s.data["of"])
+            return [c, f"{ind}DetCics.{'setPointerToItem' if windowed else 'setPointerToRecord'}(task, {ptr}, {of});"]
+        if k == "SET-ADDRESS":  # #4771 (X47): the record's storage becomes the pointer's / another record's
+            if self.cics is None and not s.data["pointer"]:
+                raise Untranslatable("SET ADDRESS OF (pointers)")
+            rec = self.address_record(s.data["record"])
+            if self.cics is None:  # #5856 (A2): the z/OS control block the pointer addresses (PSA / TCB / TIOT)
+                self.uses_mvs = True
+                return [c, f"{ind}DetMvs.setAddress({rec}, {self.pointer_item(s.data['pointer'])}, CS);"]
+            if s.data["pointer"]:
+                return [c, f"{ind}DetCics.setAddress(task, {rec}, {self.pointer_item(s.data['pointer'])});"]
+            of, windowed = self.address_item(s.data["of"])
+            return [c, f"{ind}DetCics.{'setAddressOfItem' if windowed else 'setAddressOfRecord'}(task, {rec}, {of});"]
         if k == "INITIALIZE":
             out = [c]
             for r in s.data["refs"]:
-                out += [ind + x for x in self.initialize(r)]
+                out += [ind + x for x in self.initialize(r, s.data.get("replacing"))]
             return out
         if k == "SET-TRUE":
             out = [c]
@@ -1891,17 +2272,20 @@ class Gen:
             for t in s.data["targets"]:
                 f = self.field_expr(t)
                 op = "add" if s.data["up"] else "subtract"
-                out.append(f"{ind}Cobol.store({f}, Cobol.num({f}, CS).{op}({self.num(s.data['by'])}), false, CS);")
+                out.append(
+                    f"{ind}Cobol.store({f}, Cobol.receiverNum({f}, CS).{op}({self.num(s.data['by'])}), false, CS);"
+                )  # #4692
             return out
         if k == "CALL":
             return [c, *self.call(s, ind)]
         if k == "ACCEPT":
             frm = s.data["from"]
-            src = {"DATE": "Funcs.acceptDate(clock())", "DATE YYYYMMDD": "Funcs.acceptDate8(clock())",
-                   "TIME": "Funcs.acceptTime(clock())", "DAY": "Funcs.acceptDay(clock())",
-                   "DAY YYYYDDD": "Funcs.acceptDay7(clock())"}.get(frm)  # fmt: skip
-            if src is None:
+            if frm == "SYSIN":  # #5106: the batch input stream, one record per ACCEPT
+                return [c, f"{ind}Accept.sysin({self.field_expr(s.data['target'])}, CS);"]
+            # #4893: the run's clock (FUNCTION CURRENT-DATE's) as the unsigned integer item IBM names (Accept.from)
+            if frm not in ("DATE", "DATE YYYYMMDD", "TIME", "DAY", "DAY YYYYDDD"):
                 raise Untranslatable(f"ACCEPT FROM {frm}")
+            src = f"Accept.from({self.current_date_expr()}, {jstr(frm)})"
             return [c, f"{ind}Cobol.move({src}, {self.field_expr(s.data['target'])}, CS);"]
         if k == "STRING":
             return [c, *self.string(s, ind)]
@@ -1918,6 +2302,11 @@ class Gen:
                     return [c, *self.sql.command(s.text, s.line, ind)]
                 except (self.sql.Error, E.ExprError, KeyError) as e:
                     raise Untranslatable(f"EXEC SQL: {e}") from e
+            if len(words) > 1 and words[1].upper() == "DLI":  # #5278: SCHD / TERM under CICS (det/dli.py)
+                try:
+                    return [c, *dli.command(self, s.text, ind)]
+                except (E.ExprError, KeyError) as e:
+                    raise Untranslatable(f"EXEC DLI: {e}") from e
             if self.cics is None or len(words) < 2 or words[1].upper() != "CICS":
                 raise Untranslatable("EXEC " + (words[1] if len(words) > 1 else ""))
             from gitgalaxy.tools.cobol_to_java.det.cics import CicsError
@@ -2274,14 +2663,14 @@ class Gen:
                     out.append(f"{ind}BigDecimal {qv} = Cobol.divide({cur}, {tsum});")
                     out.append(f"{ind}if (!Cobol.isNan({qv})) {self.store_into(tgt, qv, rounded)}")
                     continue
-                val = {"+=": f"{cur}.add({tsum})", "-=": f"{cur}.subtract({tsum})",
-                       "*=": f"{tsum}.multiply({cur})"}[op]  # fmt: skip
+                val = {"+=": self.wide_op("add", cur, tsum), "-=": self.wide_op("subtract", cur, tsum),
+                       "*=": self.wide_op("multiply", tsum, cur)}[op]  # fmt: skip
                 out.append(ind + self.store_into(tgt, val, rounded))
                 continue
             f = self.field_expr(tgt)
             cur = f"Cobol.receiverNum({f}, CS)"  # #4692: a receiver holding a non-digit is refused (register C11)
-            val = {"+=": f"{cur}.add({tsum})", "-=": f"{cur}.subtract({tsum})", "*=": f"{tsum}.multiply({cur})",
-                   "/=": f"Cobol.divide({cur}, {tsum})"}[op]  # fmt: skip
+            val = {"+=": self.wide_op("add", cur, tsum), "-=": self.wide_op("subtract", cur, tsum),
+                   "*=": self.wide_op("multiply", tsum, cur), "/=": f"Cobol.divide({cur}, {tsum})"}[op]  # fmt: skip
             if checked:
                 out.append(f"{ind}{err} |= Cobol.storeChecked({f}, {val}, {_b(rounded)}, CS);")
             else:
@@ -2486,7 +2875,7 @@ class Gen:
                 if not isinstance(frm, (E.Bin, E.Neg))
                 else f"Cobol.store({f}, {self.num(frm)}, false, CS);"
             )
-            step = f"Cobol.store({f}, Cobol.num({f}, CS).add({self.num(by)}), false, CS);"
+            step = f"Cobol.store({f}, Cobol.receiverNum({f}, CS).add({self.num(by)}), false, CS);"  # #4692: read before stored
             self.leak = leak_before
             until_code = self.cond_top(until)
             self.leak = leak_after
@@ -2540,17 +2929,49 @@ class Gen:
             if code is None:
                 return [f'{ind}if (true) throw CobolAbend.user(0, "CEE3ABD");']
             return [f'{ind}if (true) throw CobolAbend.user({self.int_expr(code)}, "CEE3ABD");']
+        if prog in BLL_CALLS:  # #5119 (X56): det/bll.py's lowering of an address held in data / a paragraph reload
+            if (
+                self.cics is None
+                or len(args) != 2
+                or any(m != "REFERENCE" or not isinstance(a, E.Ref) for m, a in args)
+            ):
+                raise Untranslatable(f"CALL {prog}: the BLL lowering's two items expected")
+            a, b = (x for _, x in args)
+            if prog == "GGCBLLP":
+                return [f"{ind}DetCics.bllToData(task, {self.pointer_item(a.name)}, {self.field_expr(b)});"]
+            if prog == "GGCBLLG":
+                return [f"{ind}DetCics.bllFromData(task, {self.field_expr(a)}, {self.pointer_item(b.name)});"]
+            return [f"{ind}DetCics.bllReload(task, {self.address_record(a.name)}, {self.pointer_item(b.name)});"]
         callee = self.callees.get(prog)
         if callee is not None:
-            if any(m != "REFERENCE" or not isinstance(a, E.Ref) for m, a in args):
+            sib = prog in self.callee_returns  # #5106: a sibling of this source (BY CONTENT hands it a copy)
+            modes = ("REFERENCE", "CONTENT") if sib else ("REFERENCE",)
+            if any(m not in modes or not (isinstance(a, E.Ref) or (a is None and sib)) for m, a in args):
                 raise Untranslatable(f"CALL {prog}: items BY REFERENCE expected")
+            ret = s.data.get("returning")
+            if prog in self.callee_returns and (ret is not None) != self.callee_returns[prog]:
+                raise Untranslatable(f"CALL {prog}: RETURNING does not match the sibling program's")
             refs, out, back = [], [], []
             types = self.callee_types.get(prog, [])
-            for k, (_, a) in enumerate(args):
+            for k, (mode, a) in enumerate(args):
                 v = self.tmpname("arg")
                 refs.append(v)
-                f = self.field_expr(a)
                 typ = types[k] if k < len(types) else "CobolRef<String>"
+                if a is None:  # OMITTED: no storage behind the parameter (the sibling never names it, program._fits)
+                    out.append(f"{ind}{typ} {v} = null;")
+                    continue
+                f = self.field_expr(a)
+                if typ == "CobolRef<byte[]>":  # #5106: a sibling's item: its bytes in and, BY REFERENCE, out again
+                    out.append(
+                        f"{ind}CobolRef<byte[]> {v} = CobolRef.of(java.util.Arrays.copyOfRange({f}.storage().bytes, "
+                        f"{f}.offset(), {f}.offset() + {f}.length()));"
+                    )
+                    if mode == "REFERENCE":  # BY CONTENT: the sibling changes its copy, never the caller's item
+                        back.append(
+                            f"{ind}System.arraycopy({v}.get(), 0, {f}.storage().bytes, {f}.offset(), "
+                            f"Math.min({v}.get().length, {f}.length()));"
+                        )
+                    continue
                 if typ == "CobolRef<String>":
                     out.append(f"{ind}CobolRef<String> {v} = CobolRef.of(Cobol.text({f}, CS));")
                     back.append(f"{ind}Cobol.move({v}.get(), {f}, CS);")
@@ -2563,10 +2984,14 @@ class Gen:
             rc = self.tmpname("rc")
             out.append(f"{ind}int {rc} = {callee}.getObject().handleCall({', '.join(refs)});")
             out += back
-            out.append(
-                f"{ind}Cobol.store({self.field_expr(E.Ref('RETURN-CODE'))}, BigDecimal.valueOf({rc}), false, CS);"
-            )
+            ret_ref = ret if (self.callee_returns.get(prog) and ret is not None) else E.Ref("RETURN-CODE")
+            target = self.field_expr(ret_ref)
+            out.append(f"{ind}Cobol.store({target}, BigDecimal.valueOf({rc}), false, CS);")
             return out
+        if prog in ("CBLTDLI", *dli.REFUSED_BY_NAME):  # #4893: IMS DL/I (det/dli.py, register family I)
+            if prog != "CBLTDLI":
+                raise Untranslatable(dli.REFUSED_BY_NAME[prog])
+            return dli.call(self, s, ind)
         lib = LIBRARY.get(prog)
         if lib is not None:
             if len(args) != lib[1] or any(m != "REFERENCE" or not isinstance(a, E.Ref) for m, a in args):
@@ -2580,17 +3005,32 @@ class Gen:
                 refs = [self.current_date_expr(), *refs]
             if prog in LIBRARY_CHARSET:
                 refs.append("CS")
+            if prog in LIBRARY_RC:
+                rc = self.tmpname("rc")
+                target = self.field_expr(E.Ref("RETURN-CODE"))
+                return [f"{ind}int {rc} = {lib[0]}({', '.join(refs)});",
+                        f"{ind}Cobol.store({target}, BigDecimal.valueOf({rc}), false, CS);"]  # fmt: skip
             return [f"{ind}{lib[0]}({', '.join(refs)});"]
+        from gitgalaxy.tools.cobol_to_java.det import mq
+
+        if mq.handles(prog):  # #4892: an MQI call, on the task's queue manager (det/mq.py, register W)
+            return mq.call(self, prog, args, ind)
         from gitgalaxy.tools.cobol_to_java.det.dyncall import REFUSED_BY_NAME
 
         if prog in REFUSED_BY_NAME:
             raise Untranslatable(REFUSED_BY_NAME[prog])
+        if prog in self.siblings:
+            from gitgalaxy.tools.cobol_to_java.det.dyncall import sibling_refusal
+
+            raise Untranslatable(sibling_refusal(prog, self.sibling_why.get(prog)))
         raise Untranslatable(f"CALL {prog}")
 
     def string(self, s: S.Stmt, ind: str) -> list[str]:
         d = s.data
         parts = []
         for sources, delim in d["parts"]:
+            for src in (*sources, *([delim] if delim is not None else [])):
+                self.string_sender(src)
             for src in sources:
                 a = self.str_arg(src)
                 a_field = isinstance(src, E.Ref)  # a data item is a Field; a literal / function, its text
@@ -2618,6 +3058,7 @@ class Gen:
 
     def unstring(self, s: S.Stmt, ind: str) -> list[str]:
         d = s.data
+        self.unstring_operands(d)
         delims = []
         for operand, every in d["delims"]:
             a = self.str_arg(operand)
@@ -2636,6 +3077,70 @@ class Gen:
         call = (f"Cobol.unstring({self.field_expr(d['src'])}, {ptr}, {tal}, java.util.List.of({', '.join(delims)}), "
                 f"CS, {', '.join(intos)})")  # fmt: skip
         return self.overflow(s, call, ind)
+
+    def unstring_operands(self, d: dict) -> None:
+        """Refuse the numeric UNSTRING operands the port does not model (#5032, sibling of string_sender), each by name.
+        What Enterprise COBOL 6.4 (Language Reference SC27-8713-03, UNSTRING, pp. 465-466) rejects: a numeric sending
+        item or DELIMITED BY / DELIMITER IN item (identifier-1, -2, -3, -5 are never category numeric), a numeric INTO
+        item with the symbol 'P', and a COUNT IN / POINTER / TALLYING IN item that is not an integer without a P.
+        The port's own CONSERVATIVE choice, not an IBM compile error (REFUSED, register C11): a decimal (no P) INTO
+        item, which IBM allows and moves as an unsigned integer. Reference-modified items are alphanumeric."""
+        roles = [("sending item", d["src"], "not_numeric")]
+        roles += [("DELIMITED BY item", op, "not_numeric") for op, _every in d["delims"]]
+        for tgt, dl, cnt in d["intos"]:
+            roles += [
+                ("INTO item", tgt, "into"),
+                ("DELIMITER IN item", dl, "not_numeric"),
+                ("COUNT IN item", cnt, "int"),
+            ]
+        roles += [("POINTER item", d.get("pointer"), "int"), ("TALLYING item", d.get("tallying"), "int")]
+        for role, e, rule in roles:
+            if not isinstance(e, E.Ref) or e.refmod is not None:
+                continue
+            try:
+                it = self.resolve(e)
+            except Untranslatable:
+                continue
+            if it.category != "NUMERIC":
+                continue
+            what = f"UNSTRING {role} {e.name}, PIC {it.pic}: "
+            if rule == "int" and (it.p_scaled or it.scale > 0):
+                raise Untranslatable(
+                    what + "must be an integer without a P: a compile error in Enterprise COBOL (Language Reference, "
+                    "UNSTRING; C11)"
+                )
+            if rule == "into" and it.p_scaled:
+                raise Untranslatable(
+                    what + "a numeric INTO item may not have a P: a compile error in Enterprise COBOL (Language "
+                    "Reference, UNSTRING; C11)"
+                )
+            if rule == "into" and it.scale > 0:
+                raise Untranslatable(
+                    what + "a decimal numeric INTO item is not modelled (the port's conservative choice, not an IBM "
+                    "compile error; C11)"
+                )
+            if rule == "not_numeric":
+                raise Untranslatable(
+                    what + "a numeric item here is a compile error in Enterprise COBOL (Language Reference, UNSTRING: "
+                    "the sending, DELIMITED BY and DELIMITER IN items are never category numeric; C11)"
+                )
+
+    def string_sender(self, e) -> None:
+        """Refuse a numeric STRING sender that is not an integer without a P (#4996): Enterprise COBOL 6.4 Language
+        Reference, STRING: "If identifier-1 or identifier-2 references a data item of category numeric, each numeric
+        item must be described as an integer without the symbol 'P' in its PICTURE character-string" -- a compile
+        error on z/OS. GnuCOBOL sends the stored bytes (register C11). A reference-modified item is alphanumeric."""
+        if not isinstance(e, E.Ref) or e.refmod is not None:
+            return
+        try:
+            it = self.resolve(e)
+        except Untranslatable:
+            return
+        if it.category == "NUMERIC" and (it.p_scaled or it.scale > 0):
+            raise Untranslatable(
+                f"STRING sender {e.name}, PIC {it.pic}: a numeric item with a P or a decimal place is "
+                f"a compile error in Enterprise COBOL (Language Reference, STRING; C11)"
+            )
 
     def str_arg(self, e) -> str:
         """A STRING / INSPECT operand: a Field (an expression starting `f`) or a Java String."""
@@ -2705,6 +3210,7 @@ class Gen:
             fd = self.p.files.get(s.data["file"])
             if fd is None:
                 raise Untranslatable(f"READ {s.data['file']}: no SELECT")
+            self.check_record_bytes(fd.record, f"READ {fd.select}")
             if fd.handle is None:
                 raise Untranslatable(f"{fd.select}: {fd.why}")
             if fd.varying is not None:
@@ -2732,6 +3238,7 @@ class Gen:
             fd = next((f for f in self.p.files.values() if f.record is not None and rec_item.fd == f.fd), None)
             if fd is None:
                 raise Untranslatable(f"{k} {s.data['record'].name}: no file")
+            self.check_record_bytes(rec_item, f"{k} {fd.select}")
             if fd.handle is None:
                 raise Untranslatable(f"{fd.select}: {fd.why}")
             v = jname(fd.select)
@@ -2891,6 +3398,7 @@ class Gen:
             raise Untranslatable(f"{name}: {fd.why}")
         if fd.varying is not None or fd.record is None or fd.record.size != sd.sort_length:
             raise Untranslatable(f"{verb} USING / GIVING {name}: records not the sort file's length: not modelled")
+        self.check_record_bytes(fd.record, f"{verb} USING / GIVING {name}")
         return fd, fd.record
 
     def using_file(self, verb: str, var: str, sd: FileDef, name: str, ind: str) -> list[str]:
@@ -2933,6 +3441,7 @@ class Gen:
             what = jstr(f"RELEASE {it.name} outside an input procedure")
             return [*out, f"{ind}Sort.active({var}, {what}).release({self.field_expr(s.data['record'])});"]
         sd = self.sort_file(s.data["file"])
+        self.check_record_bytes(sd.record, f"RETURN {sd.select}")
         var, rec, st = f"sort_{jname(sd.select)}", self.ids[id(sd.record)], self.tmpname("st")
         what = jstr(f"RETURN {s.data['file']} outside an output procedure")
         out = [f'{ind}String {st} = Sort.active({var}, {what}).returnInto({rec}) ? "00" : "10";']
@@ -2989,11 +3498,12 @@ JAVA_RESERVED = {"abstract", "assert", "boolean", "break", "byte", "case", "catc
                  "switch", "synchronized", "this", "throw", "throws", "transient", "try", "void", "volatile", "while",
                  "true", "false", "null", "var", "record", "yield"}  # fmt: skip
 # the service's own members a paragraph method must not shadow
-METHODS_TAKEN = {"initialState", "perform", "run", "runTask", "runBatch", "runProgram", "handleCall", "handleTransaction", "handleLink",
+METHODS_TAKEN = {"initialState", "perform", "run", "runTask", "runBatch", "runProgram", "handleCall", "handleTransaction", "handleLink", "lastLinkBytes",
                  "store", "condition", "paragraph", "dd", "cx", "task", "files", "datasets", "clock", "handlers",
                  "stores", "heldKey", "caBack", "fields0", "fields1", "fields2", "fields3"}  # fmt: skip
 
 
+COMP5_BYTES = "COMP-5 is little-endian on the oracle, big-endian on z/OS: oracle_assumptions.md C7"
 FLOAT_BYTES = "IBM hexadecimal floating point on z/OS, IEEE on the oracle: oracle_assumptions.md C6"
 
 
@@ -3017,6 +3527,11 @@ def camel(cobol: str) -> str:
     if not parts:
         return "x"
     return parts[0].lower() + "".join(p[:1].upper() + p[1:].lower() for p in parts[1:])
+
+
+def _replacing_category(it: L.Item) -> str:
+    """#4892: the INITIALIZE REPLACING category of an elementary item (an internal float is of the numeric category)."""
+    return "NUMERIC" if it.category == "FLOAT" else it.category
 
 
 def _fig(kind: str) -> str:

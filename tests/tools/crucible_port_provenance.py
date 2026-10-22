@@ -79,9 +79,11 @@ def problems(ports: Path = PORTS, pinned: str = PINNED_REF) -> list[str]:
 
 
 def tree_sha256(root: Path) -> str:
-    """sha256 over the sorted root-relative paths, each fed as `path \\0 bytes \\0` (the port's overlay tree)."""
+    """sha256 over the sorted root-relative paths, each fed as `path \\0 bytes \\0` (the port's overlay tree).
+    Sorted by the case-sensitive path parts: a bare `sorted(Path)` is case-insensitive on Windows, so the same tree
+    hashed differently there than where its record was written."""
     h = hashlib.sha256()
-    for f in sorted(p for p in root.rglob("*") if p.is_file()):
+    for f in sorted((p for p in root.rglob("*") if p.is_file()), key=lambda p: p.relative_to(root).parts):
         h.update(f.relative_to(root).as_posix().encode() + b"\0" + f.read_bytes() + b"\0")
     return h.hexdigest()
 

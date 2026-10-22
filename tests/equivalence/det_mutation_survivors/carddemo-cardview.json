@@ -1,0 +1,13 @@
+{
+  "format": "det-mutation-survivors/1",
+  "issue": "#4628",
+  "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+  "verdicts": {
+    "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+    "unreachable": "no input of the program reaches the changed code",
+    "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+    "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+  },
+  "case": "carddemo-cardview",
+  "survivors": []
+}

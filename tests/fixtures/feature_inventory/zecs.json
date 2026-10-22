@@ -1,4 +1,12 @@
 {
+  "call_targets": {
+    "(dynamic)": {
+      "count": 1,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    }
+  },
   "cics_commands": {
     "ASKTIME": {
       "count": 6,
@@ -1587,6 +1595,124 @@
       "programs": []
     }
   },
+  "eras": {
+    "programs": {
+      "Source/ECS001.cbl": {
+        "earliest": 4,
+        "era": 4,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 4,
+            "era": 4,
+            "first_line": null,
+            "tell": "web-soap"
+          }
+        ]
+      },
+      "Source/ZECS000.cbl": {
+        "earliest": 1,
+        "era": 4,
+        "mixed": true,
+        "tells": [
+          {
+            "count": 1,
+            "era": 1,
+            "first_line": null,
+            "tell": "handle-condition"
+          },
+          {
+            "count": 1,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "count": 5,
+            "era": 4,
+            "first_line": null,
+            "tell": "web-soap"
+          }
+        ]
+      },
+      "Source/ZECS001.cbl": {
+        "earliest": 4,
+        "era": 4,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 9,
+            "era": 2,
+            "first_line": 1098,
+            "tell": "address-of"
+          },
+          {
+            "count": 7,
+            "era": 2,
+            "first_line": 1098,
+            "tell": "set-address"
+          },
+          {
+            "count": 7,
+            "era": 2,
+            "first_line": null,
+            "tell": "resp"
+          },
+          {
+            "count": 21,
+            "era": 4,
+            "first_line": null,
+            "tell": "web-soap"
+          },
+          {
+            "count": 1,
+            "era": 4,
+            "first_line": null,
+            "tell": "named-counter"
+          }
+        ]
+      },
+      "Source/ZECS003.cbl": {
+        "earliest": 4,
+        "era": 4,
+        "mixed": false,
+        "tells": [
+          {
+            "count": 5,
+            "era": 4,
+            "first_line": null,
+            "tell": "web-soap"
+          }
+        ]
+      },
+      "Source/ZECSPLT.cbl": {
+        "earliest": null,
+        "era": null,
+        "mixed": false,
+        "tells": []
+      }
+    },
+    "summary": {
+      "by_era": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 4,
+        "none": 1
+      },
+      "mixed": 1,
+      "programs": 5,
+      "tells": {
+        "address-of": 1,
+        "handle-condition": 1,
+        "named-counter": 1,
+        "resp": 2,
+        "set-address": 1,
+        "web-soap": 4
+      }
+    }
+  },
   "intrinsic_functions": {
     "UPPER-CASE": {
       "count": 1,
@@ -1597,6 +1723,15 @@
     "unknown": {
       "count": 0,
       "programs": []
+    }
+  },
+  "refusal_families": {
+    "CICS Assembler": {
+      "count": 2,
+      "programs": [
+        "Source/ZECS002.asm",
+        "Source/ZECSNC.asm"
+      ]
     }
   },
   "sql_forms": {
@@ -1688,6 +1823,12 @@
         "Source/ZECSPLT.cbl"
       ]
     },
+    "SET-ADDRESS": {
+      "count": 7,
+      "programs": [
+        "Source/ZECS001.cbl"
+      ]
+    },
     "SET-BY": {
       "count": 1,
       "programs": [
@@ -1716,10 +1857,8 @@
       ]
     },
     "unknown": {
-      "count": 7,
-      "programs": [
-        "Source/ZECS001.cbl"
-      ]
+      "count": 0,
+      "programs": []
     }
   },
   "unparsed_programs": []

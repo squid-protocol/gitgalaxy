@@ -1,0 +1,3552 @@
+{
+ "format": "det-mutation/1",
+ "issue": "#4628",
+ "about": "#4628: mutation testing of each det port (tests/tools/mutation.py on `det_port.py run --translate-only`'s port, fast mode, seeded sample), written only by tests/tools/det_mutation.py. An entry is trusted only while its fingerprints match the tree; stale or missing is unknown. Survivors are accounted for in det_mutation_survivors/ (reviewed).",
+ "case": "cbsa-updacc",
+ "entry": {
+  "program": "UPDACC",
+  "commit": "157ad694e8cea01222f9f9de3cf2892594e1f4b2",
+  "date": "2026-10-22",
+  "mode": "fast",
+  "seed": 0,
+  "mutants": 713,
+  "out_of_scope": 12,
+  "chosen": 713,
+  "coverage": "proven on 12 scenarios, covering 7/7 paragraphs and 6/6 branches",
+  "counts": {
+   "killed": 292,
+   "timeout": 1,
+   "survived": 395,
+   "stillborn": 25,
+   "error": 0,
+   "pending": 0
+  },
+  "killed": [
+   "0052051bcc",
+   "005bfa9810",
+   "01374f44ea",
+   "01d9568e60",
+   "0271d0c515",
+   "046dad4845",
+   "04eea13b0d",
+   "05552aa608",
+   "06659f9a8e",
+   "083012d535",
+   "09b1bd2d91",
+   "0a7e66c8ea",
+   "0a8bcf1a08",
+   "0a93e87c1d",
+   "0cb5b09e7d",
+   "0f26aa0548",
+   "0f8de3c30a",
+   "0fa5b29d4e",
+   "0fc3a5831a",
+   "10261fd79d",
+   "11e281f414",
+   "1265c87c3a",
+   "126ccc0126",
+   "131a706f07",
+   "13561ceb89",
+   "13de705595",
+   "153cf80ecf",
+   "15fdc67e24",
+   "1682774ae5",
+   "16c1446770",
+   "1a798005c4",
+   "1adc94a0af",
+   "1b62701d09",
+   "1cab5992ad",
+   "1cab9879dd",
+   "1d49543dff",
+   "1d50271ca6",
+   "204b5a3759",
+   "20520de0d3",
+   "20e4f1d68b",
+   "222f3841a5",
+   "229876411e",
+   "23b830acc0",
+   "24bc1658f4",
+   "2543ae3c6a",
+   "25e5f585fa",
+   "2637ef9b08",
+   "272385cc45",
+   "2756f653b2",
+   "276c0003d0",
+   "27b897dfd2",
+   "29e2d753a8",
+   "2cf7a3d8ed",
+   "2ded4b50bc",
+   "2f4bfb46c6",
+   "3079e99c3f",
+   "31477cd501",
+   "329de2abec",
+   "32f72fe6cc",
+   "3340068fe2",
+   "334f43d1ee",
+   "343d67b7aa",
+   "34806ca9f8",
+   "35c279d904",
+   "35fba169d4",
+   "36a572191f",
+   "38078993bf",
+   "3929d917d5",
+   "395b5a4321",
+   "39c6a20d0e",
+   "3aa5088024",
+   "3f45fa9217",
+   "3f7b9399f5",
+   "4189ce8c9b",
+   "419f6c86f7",
+   "41d417a977",
+   "4403bea9bf",
+   "444cd5cb4f",
+   "4476e7cecf",
+   "44d1c2b0bb",
+   "4549389512",
+   "47258c7840",
+   "4766c4119f",
+   "47f806e878",
+   "482e235079",
+   "4953a14e85",
+   "49c4c1debf",
+   "4a24e0c879",
+   "4ab79cc8ae",
+   "4b31c3db6f",
+   "4c39796fc0",
+   "4cdfdf5cb4",
+   "4d6aed837e",
+   "4e531bbcff",
+   "4e58f1128d",
+   "4f4af11ce1",
+   "4f72ec20e1",
+   "516338093d",
+   "51ae54855f",
+   "531451e29d",
+   "54e33962e4",
+   "54fa424824",
+   "5506d91c0b",
+   "55ca8a30f2",
+   "55d4a92f60",
+   "5704d46c93",
+   "57386ff173",
+   "586275e8a2",
+   "590aef2b0e",
+   "595805fee8",
+   "5a3f128587",
+   "5b4d62d811",
+   "5c5b37f24e",
+   "5d1461ac2d",
+   "5daf9165a6",
+   "5e7119e093",
+   "5f01e2c2f2",
+   "600a36a0db",
+   "610343ebf8",
+   "612b1549ee",
+   "62212c6f45",
+   "624ecf2123",
+   "6311a67efe",
+   "6485ea9d35",
+   "64c6d7e1ab",
+   "65166594e7",
+   "66e806a7ab",
+   "67ecd227e8",
+   "69d1a6b6d0",
+   "6b142f417a",
+   "6c5ff7f224",
+   "6e370ece7b",
+   "708ced83d7",
+   "7110f9419b",
+   "715b407087",
+   "71730c93f8",
+   "71817c2c36",
+   "71a62be1ac",
+   "71a8a1914c",
+   "730a9f6564",
+   "742e3522cc",
+   "749c79559b",
+   "7710964973",
+   "775af39070",
+   "77aaa5d636",
+   "78e639735b",
+   "7a1e539acd",
+   "7a5006c542",
+   "7a7569c906",
+   "7ce7db93c1",
+   "7eb4690465",
+   "7f40af3993",
+   "7f69f58b80",
+   "7f830f6d6c",
+   "8096ff1796",
+   "817322a2a7",
+   "82441d0cf4",
+   "82c43909a6",
+   "849d0f244e",
+   "84b7577805",
+   "8506157239",
+   "864a5e3fdd",
+   "8663cf9ad9",
+   "871fdaf6e7",
+   "877ac45f0b",
+   "88b7123a25",
+   "89a4764dff",
+   "8a3764a09a",
+   "8ac800cc58",
+   "8adc8f493a",
+   "8c36d04cbf",
+   "8c66bf01b0",
+   "8c83b001d1",
+   "8c92f451e5",
+   "8d1a7efd46",
+   "8d29338427",
+   "8d75e0f4a5",
+   "8da324d05b",
+   "8ea57741d2",
+   "8f50679705",
+   "8f70263242",
+   "8fb8b9c8c4",
+   "904492bbbf",
+   "9066e5a117",
+   "9153b68681",
+   "9181aa5f74",
+   "91d08c3888",
+   "93853ae1e7",
+   "9778bafbd7",
+   "97b7c4be7a",
+   "97c8466d35",
+   "97e2a3e977",
+   "9870ddf4e8",
+   "98d47351c4",
+   "99f099cca9",
+   "9c09da77ab",
+   "9db188f9e3",
+   "9dbdfee661",
+   "9dc0e4a084",
+   "9de1da41bf",
+   "9df943d55c",
+   "9ef8bbc7b0",
+   "9ff59e9da0",
+   "a275ccb25a",
+   "a4b317fc3e",
+   "a5054cbb9b",
+   "a543e9cb90",
+   "a5f65b5d17",
+   "a64e07dc6f",
+   "a6906988e9",
+   "a6ab716dc9",
+   "a74b908d12",
+   "a834e84db2",
+   "a8c7e868f6",
+   "ab525e08f2",
+   "ac8978bcd4",
+   "ae15b27261",
+   "ae5e60a606",
+   "aeaed1f597",
+   "af81f1a689",
+   "b14c3fe573",
+   "b26cbb4b7b",
+   "b2c2483a76",
+   "b4065e4a9d",
+   "b4aa37af82",
+   "b4c5b87a2a",
+   "b7ca797d5a",
+   "b8ca110198",
+   "b98d5a9230",
+   "b9b8c638c9",
+   "bcd0fcc3a6",
+   "bce69aa151",
+   "bce9dc2e30",
+   "bd11d88db8",
+   "bd3f90ecb7",
+   "bd771d9c59",
+   "be6840eb22",
+   "bf0bc70d73",
+   "c005952775",
+   "c124165184",
+   "c21cd1d56d",
+   "c228dd47c8",
+   "c2a627f27e",
+   "c5a2cdacf5",
+   "c6630063c2",
+   "c884346234",
+   "c9d6364e9f",
+   "c9f5011b99",
+   "cd756c9802",
+   "cee3147b12",
+   "d327a50368",
+   "d41d0352dd",
+   "d4fe6ae8e7",
+   "d59abe401f",
+   "d5a27f6f88",
+   "d5ac6e27ac",
+   "d920d2c567",
+   "da3ece4fdd",
+   "def8f816dc",
+   "e0161b161d",
+   "e035f85c7f",
+   "e0dd2be19e",
+   "e12a4c1f64",
+   "e176d35ac9",
+   "e230500fc0",
+   "e2c8590f78",
+   "e3650a89b3",
+   "e40710e54b",
+   "e4a075915a",
+   "e7dd840180",
+   "e81dcb26bd",
+   "ed421df574",
+   "eee5db1b93",
+   "efa3574cee",
+   "f0028add78",
+   "f168201650",
+   "f232030665",
+   "f38856bf73",
+   "f47dfdab54",
+   "f4ceb0870b",
+   "f57a8dfcbc",
+   "f5fec1b41f",
+   "f62a83306c",
+   "f69daf3fd0",
+   "f7482f48ac",
+   "fa421a88a7",
+   "fa77823d8c",
+   "fb2ac7b1e0",
+   "fc2079afcf",
+   "fda245d17b",
+   "fdf4fdb1a4",
+   "fe6d03ce8d",
+   "ffab8e49f9"
+  ],
+  "stillborn": [
+   "06778ba5a2",
+   "107e22b033",
+   "17bf9fafee",
+   "1fbe79d9b6",
+   "20bcf29e6c",
+   "2386dec4f3",
+   "24220d5f70",
+   "36306568b4",
+   "46a7c6f543",
+   "4e67496b20",
+   "582d251bf5",
+   "6a788c2db0",
+   "77242168a6",
+   "8220fea465",
+   "978a048c6a",
+   "b23f745ebc",
+   "c9f4849407",
+   "cbeabaef0c",
+   "dd2690d843",
+   "e91408fa28",
+   "ece92d4491",
+   "f21ff68d0c",
+   "f29f7f0d88",
+   "f52e0ca208",
+   "f59b83908e"
+  ],
+  "survived": [
+   {
+    "id": "918849a438",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 41,
+    "before": "private static final int GOTO = 1 << 20;",
+    "after": "private static final int GOTO = 2 << 20;"
+   },
+   {
+    "id": "c12e16c660",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 41,
+    "before": "private static final int GOTO = 1 << 20;",
+    "after": "private static final int GOTO = 1 << 21;"
+   },
+   {
+    "id": "d1bd052aea",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 47,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgAAAADCAgICAgICAgICAAAAAAICAgICAgICAgICAgICAgICAgICAAAAAAAAAMAAAAAAAADA==\"));",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgAAAADCAgICAgICAgICAAAAAAICAgICAgICAgICAgICAgICAgICAAAAAAAAAMAAAAAAAADA==\"));"
+   },
+   {
+    "id": "e4f024f55e",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 49,
+    "before": "\"ICAgICAgICAAAAAAAAAAAAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICAgICAgICAgICAgICAgIA==\"));",
+    "after": "\"XCAgICAgICAAAAAAAAAAAAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICAgICAgICAgICAgICAgIA==\"));"
+   },
+   {
+    "id": "0508c99a2d",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 51,
+    "before": "\"KzAwMDAwMDAw\"));",
+    "after": "\"XzAwMDAwMDAw\"));"
+   },
+   {
+    "id": "db83f24ade",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 53,
+    "before": "\"AAAAAAAAAAA=\"));",
+    "after": "\"XAAAAAAAAAA=\"));"
+   },
+   {
+    "id": "d2a862afc0",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 55,
+    "before": "\"MDAwMCAwMCAwMA==\"));",
+    "after": "\"XDAwMCAwMCAwMA==\"));"
+   },
+   {
+    "id": "9eb35b0bc7",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 57,
+    "before": "\"ICAgIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCAgICAgICAgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA=\"));",
+    "after": "\"XCAgIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCAgICAgICAgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA=\"));"
+   },
+   {
+    "id": "a8989f769e",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 59,
+    "before": "\"MDAwMDAwMDAwMDAw\"));",
+    "after": "\"XDAwMDAwMDAwMDAw\"));"
+   },
+   {
+    "id": "0c5ea54b86",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 61,
+    "before": "\"MDAwMDAwMDAw\"));",
+    "after": "\"XDAwMDAwMDAw\"));"
+   },
+   {
+    "id": "e1d5462caa",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 63,
+    "before": "\"MDAwMDAwMDAwMDAwMDA=\"));",
+    "after": "\"XDAwMDAwMDAwMDAwMDA=\"));"
+   },
+   {
+    "id": "2938dd6d9a",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 65,
+    "before": "\"MDAwMDAwMDAwMDB7\"));",
+    "after": "\"XDAwMDAwMDAwMDB7\"));"
+   },
+   {
+    "id": "516db8cb2c",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 67,
+    "before": "\"MDAwMDAwMDAwMDB7\"));",
+    "after": "\"XDAwMDAwMDAwMDB7\"));"
+   },
+   {
+    "id": "2e8c91c548",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 69,
+    "before": "\"AAA=\"));",
+    "after": "\"XAA=\"));"
+   },
+   {
+    "id": "c9eb7e7049",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 71,
+    "before": "\"AAAAAAAAAAw=\"));",
+    "after": "\"XAAAAAAAAAw=\"));"
+   },
+   {
+    "id": "c592b5f6e5",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 73,
+    "before": "\"ICAgICAgICAgIA==\"));",
+    "after": "\"XCAgICAgICAgIA==\"));"
+   },
+   {
+    "id": "498c18d41d",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 75,
+    "before": "\"ICAuICAuICAgIA==\"));",
+    "after": "\"XCAuICAuICAgIA==\"));"
+   },
+   {
+    "id": "247cd340c5",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 77,
+    "before": "\"ICA=\"));",
+    "after": "\"XCA=\"));"
+   },
+   {
+    "id": "25e3fe0770",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 79,
+    "before": "\"MDAwMDAwMDAwMDAwMDA=\"));",
+    "after": "\"XDAwMDAwMDAwMDAwMDA=\"));"
+   },
+   {
+    "id": "a5ab3420c1",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 81,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICA=\"));",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICA=\"));"
+   },
+   {
+    "id": "775a243918",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 83,
+    "before": "\"MDAwMDAw\"));",
+    "after": "\"XDAwMDAw\"));"
+   },
+   {
+    "id": "761f8e5fb1",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 85,
+    "before": "\"QUJORFBST0M=\"));",
+    "after": "\"XUJORFBST0M=\"));"
+   },
+   {
+    "id": "f2a8b7163d",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 87,
+    "before": "\"AAAAAAAAAAwwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKzAwMDAwMDAwKzAwMDAwMDAwKzAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XAAAAAAAAAwwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKzAwMDAwMDAwKzAwMDAwMDAwKzAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+   },
+   {
+    "id": "33c25aaab5",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 88,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+   },
+   {
+    "id": "0a9879a3e6",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 89,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));"
+   },
+   {
+    "id": "f279594438",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 91,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAwMDAwMDAwMCAgICAgICAgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAwMDAwMDAwMCAgICAgICAgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\","
+   },
+   {
+    "id": "ceae6f9902",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 92,
+    "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+    "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\","
+   },
+   {
+    "id": "1b2f1fee8f",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 93,
+    "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+    "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\","
+   },
+   {
+    "id": "3bca63fa50",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 94,
+    "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+    "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\","
+   },
+   {
+    "id": "a7a85af8d0",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 95,
+    "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+    "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\","
+   },
+   {
+    "id": "b057eda3e1",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 96,
+    "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+    "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\","
+   },
+   {
+    "id": "d95fd45496",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 97,
+    "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"));",
+    "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"));"
+   },
+   {
+    "id": "112e60fc7b",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 99,
+    "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+    "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));"
+   },
+   {
+    "id": "7601e148e2",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 101,
+    "before": "\"AAA=\"));",
+    "after": "\"XAA=\"));"
+   },
+   {
+    "id": "caaa0193fb",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 129,
+    "before": "private final Field f4_HV_ACCOUNT_EYECATCHER = Field.alphanumeric(s_HOST_ACCOUNT_ROW, 0, 4, false);",
+    "after": "private final Field f4_HV_ACCOUNT_EYECATCHER = Field.alphanumeric(s_HOST_ACCOUNT_ROW, 0, 5, false);"
+   },
+   {
+    "id": "7111f44e0d",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 130,
+    "before": "private final Field f5_HV_ACCOUNT_CUST_NO = Field.alphanumeric(s_HOST_ACCOUNT_ROW, 4, 10, false);",
+    "after": "private final Field f5_HV_ACCOUNT_CUST_NO = Field.alphanumeric(s_HOST_ACCOUNT_ROW, 4, 11, false);"
+   },
+   {
+    "id": "66f706dd9e",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 134,
+    "before": "private final Field f10_HV_ACCOUNT_INT_RATE = Field.packed(s_HOST_ACCOUNT_ROW, 36, 6, 2, true);",
+    "after": "private final Field f10_HV_ACCOUNT_INT_RATE = Field.packed(s_HOST_ACCOUNT_ROW, 36, 7, 2, true);"
+   },
+   {
+    "id": "855816e8ae",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 135,
+    "before": "private final Field f11_HV_ACCOUNT_OPENED = Field.alphanumeric(s_HOST_ACCOUNT_ROW, 40, 10, false);",
+    "after": "private final Field f11_HV_ACCOUNT_OPENED = Field.alphanumeric(s_HOST_ACCOUNT_ROW, 40, 11, false);"
+   },
+   {
+    "id": "9072ee8f4d",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 136,
+    "before": "private final Field f12_HV_ACCOUNT_OVERDRAFT_LIM = Field.binary(s_HOST_ACCOUNT_ROW, 50, 9, 0, true, false);",
+    "after": "private final Field f12_HV_ACCOUNT_OVERDRAFT_LIM = Field.binary(s_HOST_ACCOUNT_ROW, 50, 9, 1, true, false);"
+   },
+   {
+    "id": "9c1495b21b",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 137,
+    "before": "private final Field f13_HV_ACCOUNT_LAST_STMT = Field.alphanumeric(s_HOST_ACCOUNT_ROW, 54, 10, false);",
+    "after": "private final Field f13_HV_ACCOUNT_LAST_STMT = Field.alphanumeric(s_HOST_ACCOUNT_ROW, 54, 11, false);"
+   },
+   {
+    "id": "a7f8a6cb7b",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 138,
+    "before": "private final Field f14_HV_ACCOUNT_NEXT_STMT = Field.alphanumeric(s_HOST_ACCOUNT_ROW, 64, 10, false);",
+    "after": "private final Field f14_HV_ACCOUNT_NEXT_STMT = Field.alphanumeric(s_HOST_ACCOUNT_ROW, 64, 11, false);"
+   },
+   {
+    "id": "7c899207a7",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 139,
+    "before": "private final Field f15_HV_ACCOUNT_AVAIL_BAL = Field.packed(s_HOST_ACCOUNT_ROW, 74, 12, 2, true);",
+    "after": "private final Field f15_HV_ACCOUNT_AVAIL_BAL = Field.packed(s_HOST_ACCOUNT_ROW, 74, 13, 2, true);"
+   },
+   {
+    "id": "2149ea320e",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 140,
+    "before": "private final Field f16_HV_ACCOUNT_ACTUAL_BAL = Field.packed(s_HOST_ACCOUNT_ROW, 81, 12, 2, true);",
+    "after": "private final Field f16_HV_ACCOUNT_ACTUAL_BAL = Field.packed(s_HOST_ACCOUNT_ROW, 81, 13, 2, true);"
+   },
+   {
+    "id": "1936005b28",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 141,
+    "before": "private final Field f17_SQLCA = Field.group(s_SQLCA, 0, 136);",
+    "after": "private final Field f17_SQLCA = Field.group(s_SQLCA, 0, 137);"
+   },
+   {
+    "id": "b67cf7ed5e",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 150,
+    "before": "private final Field f84_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 0, true);",
+    "after": "private final Field f84_WS_U_TIME = Field.packed(s_WS_U_TIME, 1, 15, 0, true);"
+   },
+   {
+    "id": "203a643442",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 150,
+    "before": "private final Field f84_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 0, true);",
+    "after": "private final Field f84_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 16, 0, true);"
+   },
+   {
+    "id": "73ecf9c532",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 150,
+    "before": "private final Field f84_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 0, true);",
+    "after": "private final Field f84_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 1, true);"
+   },
+   {
+    "id": "59e0a8144a",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 151,
+    "before": "private final Field f85_WS_ORIG_DATE = Field.alphanumeric(s_WS_ORIG_DATE, 0, 10, false);",
+    "after": "private final Field f85_WS_ORIG_DATE = Field.alphanumeric(s_WS_ORIG_DATE, 1, 10, false);"
+   },
+   {
+    "id": "e2aafd040d",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 151,
+    "before": "private final Field f85_WS_ORIG_DATE = Field.alphanumeric(s_WS_ORIG_DATE, 0, 10, false);",
+    "after": "private final Field f85_WS_ORIG_DATE = Field.alphanumeric(s_WS_ORIG_DATE, 0, 11, false);"
+   },
+   {
+    "id": "4bd00fb699",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 152,
+    "before": "private final Field f104_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 0, false, false, false);",
+    "after": "private final Field f104_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 1, 6, 0, false, false, false);"
+   },
+   {
+    "id": "b36879fc39",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 152,
+    "before": "private final Field f104_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 0, false, false, false);",
+    "after": "private final Field f104_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 7, 0, false, false, false);"
+   },
+   {
+    "id": "6348f435b9",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 152,
+    "before": "private final Field f104_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 0, false, false, false);",
+    "after": "private final Field f104_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 1, false, false, false);"
+   },
+   {
+    "id": "f03ec437bb",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 153,
+    "before": "private final Field f125_COMM_EYE = Field.alphanumeric(s_DFHCOMMAREA, 0, 4, false);",
+    "after": "private final Field f125_COMM_EYE = Field.alphanumeric(s_DFHCOMMAREA, 0, 5, false);"
+   },
+   {
+    "id": "484a0a049c",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 154,
+    "before": "private final Field f126_COMM_CUSTNO = Field.alphanumeric(s_DFHCOMMAREA, 4, 10, false);",
+    "after": "private final Field f126_COMM_CUSTNO = Field.alphanumeric(s_DFHCOMMAREA, 4, 11, false);"
+   },
+   {
+    "id": "8e03754e98",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 157,
+    "before": "private final Field f129_COMM_ACC_TYPE = Field.alphanumeric(s_DFHCOMMAREA, 28, 8, false);",
+    "after": "private final Field f129_COMM_ACC_TYPE = Field.alphanumeric(s_DFHCOMMAREA, 28, 9, false);"
+   },
+   {
+    "id": "dc7a96e8cc",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 171,
+    "before": "private final Field f149_COMM_SUCCESS = Field.alphanumeric(s_DFHCOMMAREA, 98, 1, false);",
+    "after": "private final Field f149_COMM_SUCCESS = Field.alphanumeric(s_DFHCOMMAREA, 98, 2, false);"
+   },
+   {
+    "id": "689800c6e8",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 172,
+    "before": "private final Field f151_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f151_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);"
+   },
+   {
+    "id": "6127a65e7a",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 172,
+    "before": "private final Field f151_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f151_EIBTIME = Field.packed(s_DFHEIBLK, 0, 8, 0, true);"
+   },
+   {
+    "id": "2fc495c33b",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 172,
+    "before": "private final Field f151_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f151_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);"
+   },
+   {
+    "id": "d7db77b793",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 173,
+    "before": "private final Field f152_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+    "after": "private final Field f152_EIBDATE = Field.packed(s_DFHEIBLK, 5, 7, 0, true);"
+   },
+   {
+    "id": "b46e7b1cf2",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 173,
+    "before": "private final Field f152_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+    "after": "private final Field f152_EIBDATE = Field.packed(s_DFHEIBLK, 4, 8, 0, true);"
+   },
+   {
+    "id": "411dac18fa",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 173,
+    "before": "private final Field f152_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+    "after": "private final Field f152_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 1, true);"
+   },
+   {
+    "id": "b996fec84b",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 174,
+    "before": "private final Field f153_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+    "after": "private final Field f153_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 9, 4, false);"
+   },
+   {
+    "id": "fa400c40d7",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 174,
+    "before": "private final Field f153_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+    "after": "private final Field f153_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 5, false);"
+   },
+   {
+    "id": "3a135f0fd9",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 175,
+    "before": "private final Field f154_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+    "after": "private final Field f154_EIBTASKN = Field.packed(s_DFHEIBLK, 13, 7, 0, true);"
+   },
+   {
+    "id": "332b14ffd6",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 175,
+    "before": "private final Field f154_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+    "after": "private final Field f154_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);"
+   },
+   {
+    "id": "1a35676135",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 175,
+    "before": "private final Field f154_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+    "after": "private final Field f154_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);"
+   },
+   {
+    "id": "5596874a17",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 176,
+    "before": "private final Field f155_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+    "after": "private final Field f155_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 17, 4, false);"
+   },
+   {
+    "id": "6a8c721398",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 176,
+    "before": "private final Field f155_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+    "after": "private final Field f155_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 5, false);"
+   },
+   {
+    "id": "b6d14a059f",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 177,
+    "before": "private final Field f158_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+    "after": "private final Field f158_EIBCALEN = Field.binary(s_DFHEIBLK, 25, 4, 0, true, false);"
+   },
+   {
+    "id": "734941f8fe",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 177,
+    "before": "private final Field f158_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+    "after": "private final Field f158_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 5, 0, true, false);"
+   },
+   {
+    "id": "f74148bcc7",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 177,
+    "before": "private final Field f158_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+    "after": "private final Field f158_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);"
+   },
+   {
+    "id": "23735007a5",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 178,
+    "before": "private final Field f182_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f182_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);"
+   },
+   {
+    "id": "b35b6f4e1c",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 178,
+    "before": "private final Field f182_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f182_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);"
+   },
+   {
+    "id": "fc4bb0183f",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 178,
+    "before": "private final Field f182_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f182_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);"
+   },
+   {
+    "id": "f7fa30ac49",
+    "op": "NEG",
+    "file": "service/UpdaccService.java",
+    "line": 192,
+    "before": "if (task.level() > 1) {",
+    "after": "if (!(task.level() > 1)) {"
+   },
+   {
+    "id": "4788933dea",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 192,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() <= 1) {"
+   },
+   {
+    "id": "2f7dfdcb69",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 192,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() >= 1) {"
+   },
+   {
+    "id": "fb40a4aa3e",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 192,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() > 2) {"
+   },
+   {
+    "id": "513b1d6003",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 193,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "f25e678efd",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 198,
+    "before": "@SuppressWarnings(\"unchecked\")",
+    "after": "@SuppressWarnings(\"Xnchecked\")"
+   },
+   {
+    "id": "426a8fcc9f",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 200,
+    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+    "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");"
+   },
+   {
+    "id": "82201fce79",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 200,
+    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+    "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");"
+   },
+   {
+    "id": "2a295e224f",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 204,
+    "before": "java.util.Map.entry(\"PTD999\", 11),",
+    "after": "java.util.Map.entry(\"XTD999\", 11),"
+   },
+   {
+    "id": "544ceaa483",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 204,
+    "before": "java.util.Map.entry(\"PTD999\", 11),",
+    "after": "java.util.Map.entry(\"PTD999\", 12),"
+   },
+   {
+    "id": "923d1106f6",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 205,
+    "before": "java.util.Map.entry(\"PTD010\", 10),",
+    "after": "java.util.Map.entry(\"XTD010\", 10),"
+   },
+   {
+    "id": "19862c65fb",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 205,
+    "before": "java.util.Map.entry(\"PTD010\", 10),",
+    "after": "java.util.Map.entry(\"PTD010\", 11),"
+   },
+   {
+    "id": "7ffa4877bf",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 206,
+    "before": "java.util.Map.entry(\"POPULATE-TIME-DATE\", 9),",
+    "after": "java.util.Map.entry(\"XOPULATE-TIME-DATE\", 9),"
+   },
+   {
+    "id": "c42b6c179c",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 206,
+    "before": "java.util.Map.entry(\"POPULATE-TIME-DATE\", 9),",
+    "after": "java.util.Map.entry(\"POPULATE-TIME-DATE\", 10),"
+   },
+   {
+    "id": "962b8ddffd",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 207,
+    "before": "java.util.Map.entry(\"GMOOH999\", 8),",
+    "after": "java.util.Map.entry(\"XMOOH999\", 8),"
+   },
+   {
+    "id": "f72b619ec5",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 207,
+    "before": "java.util.Map.entry(\"GMOOH999\", 8),",
+    "after": "java.util.Map.entry(\"GMOOH999\", 9),"
+   },
+   {
+    "id": "cfa74a28e6",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 208,
+    "before": "java.util.Map.entry(\"GMOOH010\", 7),",
+    "after": "java.util.Map.entry(\"XMOOH010\", 7),"
+   },
+   {
+    "id": "f7349b180a",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 208,
+    "before": "java.util.Map.entry(\"GMOOH010\", 7),",
+    "after": "java.util.Map.entry(\"GMOOH010\", 8),"
+   },
+   {
+    "id": "bac0ae75b6",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 209,
+    "before": "java.util.Map.entry(\"GET-ME-OUT-OF-HERE\", 6),",
+    "after": "java.util.Map.entry(\"XET-ME-OUT-OF-HERE\", 6),"
+   },
+   {
+    "id": "6d41faf4f3",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 209,
+    "before": "java.util.Map.entry(\"GET-ME-OUT-OF-HERE\", 6),",
+    "after": "java.util.Map.entry(\"GET-ME-OUT-OF-HERE\", 7),"
+   },
+   {
+    "id": "7cf37d0a7c",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 210,
+    "before": "java.util.Map.entry(\"UAD999\", 5),",
+    "after": "java.util.Map.entry(\"XAD999\", 5),"
+   },
+   {
+    "id": "86fc33699a",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 210,
+    "before": "java.util.Map.entry(\"UAD999\", 5),",
+    "after": "java.util.Map.entry(\"UAD999\", 6),"
+   },
+   {
+    "id": "92ec357bcc",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 211,
+    "before": "java.util.Map.entry(\"UAD010\", 4),",
+    "after": "java.util.Map.entry(\"XAD010\", 4),"
+   },
+   {
+    "id": "2fba705391",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 211,
+    "before": "java.util.Map.entry(\"UAD010\", 4),",
+    "after": "java.util.Map.entry(\"UAD010\", 5),"
+   },
+   {
+    "id": "19e4461400",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 212,
+    "before": "java.util.Map.entry(\"UPDATE-ACCOUNT-DB2\", 3),",
+    "after": "java.util.Map.entry(\"XPDATE-ACCOUNT-DB2\", 3),"
+   },
+   {
+    "id": "e6289e59c8",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 212,
+    "before": "java.util.Map.entry(\"UPDATE-ACCOUNT-DB2\", 3),",
+    "after": "java.util.Map.entry(\"UPDATE-ACCOUNT-DB2\", 4),"
+   },
+   {
+    "id": "6106d3abd1",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 213,
+    "before": "java.util.Map.entry(\"A999\", 2),",
+    "after": "java.util.Map.entry(\"X999\", 2),"
+   },
+   {
+    "id": "66417799cb",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 213,
+    "before": "java.util.Map.entry(\"A999\", 2),",
+    "after": "java.util.Map.entry(\"A999\", 3),"
+   },
+   {
+    "id": "68a79f90bf",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 214,
+    "before": "java.util.Map.entry(\"A010\", 1),",
+    "after": "java.util.Map.entry(\"X010\", 1),"
+   },
+   {
+    "id": "6dcc473f77",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 214,
+    "before": "java.util.Map.entry(\"A010\", 1),",
+    "after": "java.util.Map.entry(\"A010\", 2),"
+   },
+   {
+    "id": "33a1f06b12",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 215,
+    "before": "java.util.Map.entry(\"PREMIERE\", 0)",
+    "after": "java.util.Map.entry(\"XREMIERE\", 0)"
+   },
+   {
+    "id": "fa6cd1c539",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 215,
+    "before": "java.util.Map.entry(\"PREMIERE\", 0)",
+    "after": "java.util.Map.entry(\"PREMIERE\", 1)"
+   },
+   {
+    "id": "7830bed0ee",
+    "op": "NEG",
+    "file": "service/UpdaccService.java",
+    "line": 220,
+    "before": "if (i == null) {",
+    "after": "if (!(i == null)) {"
+   },
+   {
+    "id": "1c53a910e7",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 220,
+    "before": "if (i == null) {",
+    "after": "if (i != null) {"
+   },
+   {
+    "id": "64072c4382",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 221,
+    "before": "throw new IllegalStateException(\"no paragraph \" + name);",
+    "after": "throw new IllegalStateException(\"Xo paragraph \" + name);"
+   },
+   {
+    "id": "67a02e63b9",
+    "op": "NEG",
+    "file": "service/UpdaccService.java",
+    "line": 233,
+    "before": "if (h != null) {",
+    "after": "if (!(h != null)) {"
+   },
+   {
+    "id": "21c15f42b2",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 233,
+    "before": "if (h != null) {",
+    "after": "if (h == null) {"
+   },
+   {
+    "id": "398dd0a34a",
+    "op": "NEG",
+    "file": "service/UpdaccService.java",
+    "line": 236,
+    "before": "if (DetCics.ignoredByDefault(cond)) {",
+    "after": "if (!(DetCics.ignoredByDefault(cond))) {"
+   },
+   {
+    "id": "f8d76dfc17",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 237,
+    "before": "return -1;",
+    "after": "return -2;"
+   },
+   {
+    "id": "c4d221aaff",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 239,
+    "before": "Integer error = handlers.get(\"ERROR\");",
+    "after": "Integer error = handlers.get(\"XRROR\");"
+   },
+   {
+    "id": "c9ad65caf3",
+    "op": "NEG",
+    "file": "service/UpdaccService.java",
+    "line": 240,
+    "before": "if (error != null) {",
+    "after": "if (!(error != null)) {"
+   },
+   {
+    "id": "41e6c54180",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 240,
+    "before": "if (error != null) {",
+    "after": "if (error == null) {"
+   },
+   {
+    "id": "72260d6ce4",
+    "op": "NEG",
+    "file": "service/UpdaccService.java",
+    "line": 244,
+    "before": "if (label == null) {",
+    "after": "if (!(label == null)) {"
+   },
+   {
+    "id": "bb4f766ab1",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 244,
+    "before": "if (label == null) {",
+    "after": "if (label != null) {"
+   },
+   {
+    "id": "2ad46547f3",
+    "op": "NEG",
+    "file": "service/UpdaccService.java",
+    "line": 255,
+    "before": "if (d == null) {",
+    "after": "if (!(d == null)) {"
+   },
+   {
+    "id": "9dd6c18714",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 255,
+    "before": "if (d == null) {",
+    "after": "if (d != null) {"
+   },
+   {
+    "id": "35ebe9adf7",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 256,
+    "before": "return;",
+    "after": "/* return; */"
+   },
+   {
+    "id": "593937d8e8",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 258,
+    "before": "Cobol.move(d.getCommEye() == null ? \"\" : d.getCommEye(), Field.alphanumeric(s, base + 0, 4, false), CS);",
+    "after": "Cobol.move(d.getCommEye() != null ? \"\" : d.getCommEye(), Field.alphanumeric(s, base + 0, 4, false), CS);"
+   },
+   {
+    "id": "a12d169d4b",
+    "op": "AOR",
+    "file": "service/UpdaccService.java",
+    "line": 258,
+    "before": "Cobol.move(d.getCommEye() == null ? \"\" : d.getCommEye(), Field.alphanumeric(s, base + 0, 4, false), CS);",
+    "after": "Cobol.move(d.getCommEye() == null ? \"\" : d.getCommEye(), Field.alphanumeric(s, base - 0, 4, false), CS);"
+   },
+   {
+    "id": "494d78213f",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 258,
+    "before": "Cobol.move(d.getCommEye() == null ? \"\" : d.getCommEye(), Field.alphanumeric(s, base + 0, 4, false), CS);",
+    "after": "Cobol.move(d.getCommEye() == null ? \"\" : d.getCommEye(), Field.alphanumeric(s, base + 1, 4, false), CS);"
+   },
+   {
+    "id": "beedfc8e12",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 258,
+    "before": "Cobol.move(d.getCommEye() == null ? \"\" : d.getCommEye(), Field.alphanumeric(s, base + 0, 4, false), CS);",
+    "after": "Cobol.move(d.getCommEye() == null ? \"\" : d.getCommEye(), Field.alphanumeric(s, base + 0, 5, false), CS);"
+   },
+   {
+    "id": "ea1bd1537b",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 259,
+    "before": "Cobol.move(d.getCommCustno() == null ? \"\" : d.getCommCustno(), Field.alphanumeric(s, base + 4, 10, false), CS);",
+    "after": "Cobol.move(d.getCommCustno() != null ? \"\" : d.getCommCustno(), Field.alphanumeric(s, base + 4, 10, false), CS);"
+   },
+   {
+    "id": "6aea5a4e43",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 259,
+    "before": "Cobol.move(d.getCommCustno() == null ? \"\" : d.getCommCustno(), Field.alphanumeric(s, base + 4, 10, false), CS);",
+    "after": "Cobol.move(d.getCommCustno() == null ? \"\" : d.getCommCustno(), Field.alphanumeric(s, base + 5, 10, false), CS);"
+   },
+   {
+    "id": "12c9fe5a4e",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 259,
+    "before": "Cobol.move(d.getCommCustno() == null ? \"\" : d.getCommCustno(), Field.alphanumeric(s, base + 4, 10, false), CS);",
+    "after": "Cobol.move(d.getCommCustno() == null ? \"\" : d.getCommCustno(), Field.alphanumeric(s, base + 4, 11, false), CS);"
+   },
+   {
+    "id": "73c3875c5c",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 260,
+    "before": "Cobol.move(d.getCommScode() == null ? \"\" : d.getCommScode(), Field.alphanumeric(s, base + 14, 6, false), CS);",
+    "after": "Cobol.move(d.getCommScode() != null ? \"\" : d.getCommScode(), Field.alphanumeric(s, base + 14, 6, false), CS);"
+   },
+   {
+    "id": "989cdb3364",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 260,
+    "before": "Cobol.move(d.getCommScode() == null ? \"\" : d.getCommScode(), Field.alphanumeric(s, base + 14, 6, false), CS);",
+    "after": "Cobol.move(d.getCommScode() == null ? \"\" : d.getCommScode(), Field.alphanumeric(s, base + 15, 6, false), CS);"
+   },
+   {
+    "id": "cfce0389f5",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 260,
+    "before": "Cobol.move(d.getCommScode() == null ? \"\" : d.getCommScode(), Field.alphanumeric(s, base + 14, 6, false), CS);",
+    "after": "Cobol.move(d.getCommScode() == null ? \"\" : d.getCommScode(), Field.alphanumeric(s, base + 14, 7, false), CS);"
+   },
+   {
+    "id": "4f6fffafe9",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 261,
+    "before": "Cobol.move(d.getCommAccno() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAccno().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);",
+    "after": "/* Cobol.move(d.getCommAccno() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAccno().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "dac866915b",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 261,
+    "before": "Cobol.move(d.getCommAccno() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAccno().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommAccno() != null ? BigDecimal.ZERO : new BigDecimal(d.getCommAccno().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);"
+   },
+   {
+    "id": "4dcbbe4579",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 261,
+    "before": "Cobol.move(d.getCommAccno() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAccno().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommAccno() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAccno().toString()), Field.zoned(s, base + 21, 8, 0, false, false, false), CS);"
+   },
+   {
+    "id": "8c045636ac",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 261,
+    "before": "Cobol.move(d.getCommAccno() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAccno().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommAccno() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAccno().toString()), Field.zoned(s, base + 20, 9, 0, false, false, false), CS);"
+   },
+   {
+    "id": "875d39444c",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 261,
+    "before": "Cobol.move(d.getCommAccno() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAccno().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommAccno() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAccno().toString()), Field.zoned(s, base + 20, 8, 1, false, false, false), CS);"
+   },
+   {
+    "id": "d56a30758b",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 262,
+    "before": "Cobol.move(d.getCommAccType() == null ? \"\" : d.getCommAccType(), Field.alphanumeric(s, base + 28, 8, false), CS);",
+    "after": "Cobol.move(d.getCommAccType() != null ? \"\" : d.getCommAccType(), Field.alphanumeric(s, base + 28, 8, false), CS);"
+   },
+   {
+    "id": "11bca5d7bb",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 262,
+    "before": "Cobol.move(d.getCommAccType() == null ? \"\" : d.getCommAccType(), Field.alphanumeric(s, base + 28, 8, false), CS);",
+    "after": "Cobol.move(d.getCommAccType() == null ? \"\" : d.getCommAccType(), Field.alphanumeric(s, base + 29, 8, false), CS);"
+   },
+   {
+    "id": "54614576f0",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 262,
+    "before": "Cobol.move(d.getCommAccType() == null ? \"\" : d.getCommAccType(), Field.alphanumeric(s, base + 28, 8, false), CS);",
+    "after": "Cobol.move(d.getCommAccType() == null ? \"\" : d.getCommAccType(), Field.alphanumeric(s, base + 28, 9, false), CS);"
+   },
+   {
+    "id": "d82148b9f5",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 263,
+    "before": "Cobol.move(d.getCommIntRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommIntRate().toString()), Field.zoned(s, base + 36, 6, 2, false, false, false), CS);",
+    "after": "/* Cobol.move(d.getCommIntRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommIntRate().toString()), Field.zoned(s, base + 36, 6, 2, false, false, false), CS); */"
+   },
+   {
+    "id": "0fdf160de7",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 263,
+    "before": "Cobol.move(d.getCommIntRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommIntRate().toString()), Field.zoned(s, base + 36, 6, 2, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommIntRate() != null ? BigDecimal.ZERO : new BigDecimal(d.getCommIntRate().toString()), Field.zoned(s, base + 36, 6, 2, false, false, false), CS);"
+   },
+   {
+    "id": "5ed9a7fadd",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 263,
+    "before": "Cobol.move(d.getCommIntRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommIntRate().toString()), Field.zoned(s, base + 36, 6, 2, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommIntRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommIntRate().toString()), Field.zoned(s, base + 37, 6, 2, false, false, false), CS);"
+   },
+   {
+    "id": "c7bc646d4c",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 263,
+    "before": "Cobol.move(d.getCommIntRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommIntRate().toString()), Field.zoned(s, base + 36, 6, 2, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommIntRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommIntRate().toString()), Field.zoned(s, base + 36, 7, 2, false, false, false), CS);"
+   },
+   {
+    "id": "5dae043453",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 263,
+    "before": "Cobol.move(d.getCommIntRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommIntRate().toString()), Field.zoned(s, base + 36, 6, 2, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommIntRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommIntRate().toString()), Field.zoned(s, base + 36, 6, 3, false, false, false), CS);"
+   },
+   {
+    "id": "671167ec32",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 264,
+    "before": "Cobol.move(d.getCommOpened() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOpened().toString()), Field.zoned(s, base + 42, 8, 0, false, false, false), CS);",
+    "after": "/* Cobol.move(d.getCommOpened() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOpened().toString()), Field.zoned(s, base + 42, 8, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "ec5773cc57",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 264,
+    "before": "Cobol.move(d.getCommOpened() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOpened().toString()), Field.zoned(s, base + 42, 8, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommOpened() != null ? BigDecimal.ZERO : new BigDecimal(d.getCommOpened().toString()), Field.zoned(s, base + 42, 8, 0, false, false, false), CS);"
+   },
+   {
+    "id": "b7c673a5f8",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 264,
+    "before": "Cobol.move(d.getCommOpened() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOpened().toString()), Field.zoned(s, base + 42, 8, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommOpened() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOpened().toString()), Field.zoned(s, base + 43, 8, 0, false, false, false), CS);"
+   },
+   {
+    "id": "9fda523ebc",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 264,
+    "before": "Cobol.move(d.getCommOpened() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOpened().toString()), Field.zoned(s, base + 42, 8, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommOpened() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOpened().toString()), Field.zoned(s, base + 42, 9, 0, false, false, false), CS);"
+   },
+   {
+    "id": "50eb4d9a97",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 264,
+    "before": "Cobol.move(d.getCommOpened() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOpened().toString()), Field.zoned(s, base + 42, 8, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommOpened() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOpened().toString()), Field.zoned(s, base + 42, 8, 1, false, false, false), CS);"
+   },
+   {
+    "id": "733be44308",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 265,
+    "before": "Cobol.move(d.getCommOverdraft() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOverdraft().toString()), Field.zoned(s, base + 50, 8, 0, false, false, false), CS);",
+    "after": "/* Cobol.move(d.getCommOverdraft() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOverdraft().toString()), Field.zoned(s, base + 50, 8, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "5603ddb300",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 265,
+    "before": "Cobol.move(d.getCommOverdraft() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOverdraft().toString()), Field.zoned(s, base + 50, 8, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommOverdraft() != null ? BigDecimal.ZERO : new BigDecimal(d.getCommOverdraft().toString()), Field.zoned(s, base + 50, 8, 0, false, false, false), CS);"
+   },
+   {
+    "id": "6c1d8cf71c",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 265,
+    "before": "Cobol.move(d.getCommOverdraft() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOverdraft().toString()), Field.zoned(s, base + 50, 8, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommOverdraft() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOverdraft().toString()), Field.zoned(s, base + 51, 8, 0, false, false, false), CS);"
+   },
+   {
+    "id": "7649ebc020",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 265,
+    "before": "Cobol.move(d.getCommOverdraft() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOverdraft().toString()), Field.zoned(s, base + 50, 8, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommOverdraft() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOverdraft().toString()), Field.zoned(s, base + 50, 9, 0, false, false, false), CS);"
+   },
+   {
+    "id": "409250bf45",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 265,
+    "before": "Cobol.move(d.getCommOverdraft() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOverdraft().toString()), Field.zoned(s, base + 50, 8, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommOverdraft() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOverdraft().toString()), Field.zoned(s, base + 50, 8, 1, false, false, false), CS);"
+   },
+   {
+    "id": "2ea9afa891",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 266,
+    "before": "Cobol.move(d.getCommLastStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommLastStmtDt().toString()), Field.zoned(s, base + 58, 8, 0, false, false, false), CS);",
+    "after": "/* Cobol.move(d.getCommLastStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommLastStmtDt().toString()), Field.zoned(s, base + 58, 8, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "12163cfbcc",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 266,
+    "before": "Cobol.move(d.getCommLastStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommLastStmtDt().toString()), Field.zoned(s, base + 58, 8, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommLastStmtDt() != null ? BigDecimal.ZERO : new BigDecimal(d.getCommLastStmtDt().toString()), Field.zoned(s, base + 58, 8, 0, false, false, false), CS);"
+   },
+   {
+    "id": "9ea0bc0232",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 266,
+    "before": "Cobol.move(d.getCommLastStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommLastStmtDt().toString()), Field.zoned(s, base + 58, 8, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommLastStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommLastStmtDt().toString()), Field.zoned(s, base + 59, 8, 0, false, false, false), CS);"
+   },
+   {
+    "id": "6edcffbd06",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 266,
+    "before": "Cobol.move(d.getCommLastStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommLastStmtDt().toString()), Field.zoned(s, base + 58, 8, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommLastStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommLastStmtDt().toString()), Field.zoned(s, base + 58, 9, 0, false, false, false), CS);"
+   },
+   {
+    "id": "2a1e7d39f3",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 266,
+    "before": "Cobol.move(d.getCommLastStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommLastStmtDt().toString()), Field.zoned(s, base + 58, 8, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommLastStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommLastStmtDt().toString()), Field.zoned(s, base + 58, 8, 1, false, false, false), CS);"
+   },
+   {
+    "id": "8b58848e75",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 267,
+    "before": "Cobol.move(d.getCommNextStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommNextStmtDt().toString()), Field.zoned(s, base + 66, 8, 0, false, false, false), CS);",
+    "after": "/* Cobol.move(d.getCommNextStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommNextStmtDt().toString()), Field.zoned(s, base + 66, 8, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "e15514d785",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 267,
+    "before": "Cobol.move(d.getCommNextStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommNextStmtDt().toString()), Field.zoned(s, base + 66, 8, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommNextStmtDt() != null ? BigDecimal.ZERO : new BigDecimal(d.getCommNextStmtDt().toString()), Field.zoned(s, base + 66, 8, 0, false, false, false), CS);"
+   },
+   {
+    "id": "6715626453",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 267,
+    "before": "Cobol.move(d.getCommNextStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommNextStmtDt().toString()), Field.zoned(s, base + 66, 8, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommNextStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommNextStmtDt().toString()), Field.zoned(s, base + 67, 8, 0, false, false, false), CS);"
+   },
+   {
+    "id": "fad6c8d820",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 267,
+    "before": "Cobol.move(d.getCommNextStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommNextStmtDt().toString()), Field.zoned(s, base + 66, 8, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommNextStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommNextStmtDt().toString()), Field.zoned(s, base + 66, 9, 0, false, false, false), CS);"
+   },
+   {
+    "id": "ac4866551c",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 267,
+    "before": "Cobol.move(d.getCommNextStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommNextStmtDt().toString()), Field.zoned(s, base + 66, 8, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCommNextStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommNextStmtDt().toString()), Field.zoned(s, base + 66, 8, 1, false, false, false), CS);"
+   },
+   {
+    "id": "d16ef0ee44",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 268,
+    "before": "Cobol.move(d.getCommAvailBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAvailBal().toString()), Field.zoned(s, base + 74, 12, 2, true, false, false), CS);",
+    "after": "/* Cobol.move(d.getCommAvailBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAvailBal().toString()), Field.zoned(s, base + 74, 12, 2, true, false, false), CS); */"
+   },
+   {
+    "id": "45904ace9e",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 268,
+    "before": "Cobol.move(d.getCommAvailBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAvailBal().toString()), Field.zoned(s, base + 74, 12, 2, true, false, false), CS);",
+    "after": "Cobol.move(d.getCommAvailBal() != null ? BigDecimal.ZERO : new BigDecimal(d.getCommAvailBal().toString()), Field.zoned(s, base + 74, 12, 2, true, false, false), CS);"
+   },
+   {
+    "id": "795c973d62",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 268,
+    "before": "Cobol.move(d.getCommAvailBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAvailBal().toString()), Field.zoned(s, base + 74, 12, 2, true, false, false), CS);",
+    "after": "Cobol.move(d.getCommAvailBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAvailBal().toString()), Field.zoned(s, base + 75, 12, 2, true, false, false), CS);"
+   },
+   {
+    "id": "162485ca9b",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 268,
+    "before": "Cobol.move(d.getCommAvailBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAvailBal().toString()), Field.zoned(s, base + 74, 12, 2, true, false, false), CS);",
+    "after": "Cobol.move(d.getCommAvailBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAvailBal().toString()), Field.zoned(s, base + 74, 13, 2, true, false, false), CS);"
+   },
+   {
+    "id": "1517f9b78e",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 268,
+    "before": "Cobol.move(d.getCommAvailBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAvailBal().toString()), Field.zoned(s, base + 74, 12, 2, true, false, false), CS);",
+    "after": "Cobol.move(d.getCommAvailBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAvailBal().toString()), Field.zoned(s, base + 74, 12, 3, true, false, false), CS);"
+   },
+   {
+    "id": "afd9ac6a2c",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 269,
+    "before": "Cobol.move(d.getCommActualBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommActualBal().toString()), Field.zoned(s, base + 86, 12, 2, true, false, false), CS);",
+    "after": "/* Cobol.move(d.getCommActualBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommActualBal().toString()), Field.zoned(s, base + 86, 12, 2, true, false, false), CS); */"
+   },
+   {
+    "id": "27dbb34bc3",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 269,
+    "before": "Cobol.move(d.getCommActualBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommActualBal().toString()), Field.zoned(s, base + 86, 12, 2, true, false, false), CS);",
+    "after": "Cobol.move(d.getCommActualBal() != null ? BigDecimal.ZERO : new BigDecimal(d.getCommActualBal().toString()), Field.zoned(s, base + 86, 12, 2, true, false, false), CS);"
+   },
+   {
+    "id": "d8b4aa5b96",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 269,
+    "before": "Cobol.move(d.getCommActualBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommActualBal().toString()), Field.zoned(s, base + 86, 12, 2, true, false, false), CS);",
+    "after": "Cobol.move(d.getCommActualBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommActualBal().toString()), Field.zoned(s, base + 87, 12, 2, true, false, false), CS);"
+   },
+   {
+    "id": "d20eedb7ed",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 269,
+    "before": "Cobol.move(d.getCommActualBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommActualBal().toString()), Field.zoned(s, base + 86, 12, 2, true, false, false), CS);",
+    "after": "Cobol.move(d.getCommActualBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommActualBal().toString()), Field.zoned(s, base + 86, 13, 2, true, false, false), CS);"
+   },
+   {
+    "id": "1a516d745b",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 269,
+    "before": "Cobol.move(d.getCommActualBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommActualBal().toString()), Field.zoned(s, base + 86, 12, 2, true, false, false), CS);",
+    "after": "Cobol.move(d.getCommActualBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommActualBal().toString()), Field.zoned(s, base + 86, 12, 3, true, false, false), CS);"
+   },
+   {
+    "id": "89dfabba26",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 270,
+    "before": "Cobol.move(d.getCommSuccess() == null ? \"\" : d.getCommSuccess(), Field.alphanumeric(s, base + 98, 1, false), CS);",
+    "after": "Cobol.move(d.getCommSuccess() != null ? \"\" : d.getCommSuccess(), Field.alphanumeric(s, base + 98, 1, false), CS);"
+   },
+   {
+    "id": "adb6e36a50",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 270,
+    "before": "Cobol.move(d.getCommSuccess() == null ? \"\" : d.getCommSuccess(), Field.alphanumeric(s, base + 98, 1, false), CS);",
+    "after": "Cobol.move(d.getCommSuccess() == null ? \"\" : d.getCommSuccess(), Field.alphanumeric(s, base + 99, 1, false), CS);"
+   },
+   {
+    "id": "08db58c657",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 270,
+    "before": "Cobol.move(d.getCommSuccess() == null ? \"\" : d.getCommSuccess(), Field.alphanumeric(s, base + 98, 1, false), CS);",
+    "after": "Cobol.move(d.getCommSuccess() == null ? \"\" : d.getCommSuccess(), Field.alphanumeric(s, base + 98, 2, false), CS);"
+   },
+   {
+    "id": "688b643b14",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 274,
+    "before": "d.setCommEye(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
+    "after": "/* d.setCommEye(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS)); */"
+   },
+   {
+    "id": "52567399a1",
+    "op": "AOR",
+    "file": "service/UpdaccService.java",
+    "line": 274,
+    "before": "d.setCommEye(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
+    "after": "d.setCommEye(Cobol.text(Field.alphanumeric(s, base - 0, 4, false), CS));"
+   },
+   {
+    "id": "6807dc9c6b",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 274,
+    "before": "d.setCommEye(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
+    "after": "d.setCommEye(Cobol.text(Field.alphanumeric(s, base + 1, 4, false), CS));"
+   },
+   {
+    "id": "40f70d4c5b",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 274,
+    "before": "d.setCommEye(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
+    "after": "d.setCommEye(Cobol.text(Field.alphanumeric(s, base + 0, 5, false), CS));"
+   },
+   {
+    "id": "f8f4e78391",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 275,
+    "before": "d.setCommCustno(Cobol.text(Field.alphanumeric(s, base + 4, 10, false), CS));",
+    "after": "/* d.setCommCustno(Cobol.text(Field.alphanumeric(s, base + 4, 10, false), CS)); */"
+   },
+   {
+    "id": "4d76300592",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 275,
+    "before": "d.setCommCustno(Cobol.text(Field.alphanumeric(s, base + 4, 10, false), CS));",
+    "after": "d.setCommCustno(Cobol.text(Field.alphanumeric(s, base + 5, 10, false), CS));"
+   },
+   {
+    "id": "b193120df5",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 275,
+    "before": "d.setCommCustno(Cobol.text(Field.alphanumeric(s, base + 4, 10, false), CS));",
+    "after": "d.setCommCustno(Cobol.text(Field.alphanumeric(s, base + 4, 11, false), CS));"
+   },
+   {
+    "id": "3893c7f8cd",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 276,
+    "before": "d.setCommScode(Cobol.text(Field.alphanumeric(s, base + 14, 6, false), CS));",
+    "after": "/* d.setCommScode(Cobol.text(Field.alphanumeric(s, base + 14, 6, false), CS)); */"
+   },
+   {
+    "id": "7196bb58bd",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 276,
+    "before": "d.setCommScode(Cobol.text(Field.alphanumeric(s, base + 14, 6, false), CS));",
+    "after": "d.setCommScode(Cobol.text(Field.alphanumeric(s, base + 15, 6, false), CS));"
+   },
+   {
+    "id": "5487a1bc01",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 276,
+    "before": "d.setCommScode(Cobol.text(Field.alphanumeric(s, base + 14, 6, false), CS));",
+    "after": "d.setCommScode(Cobol.text(Field.alphanumeric(s, base + 14, 7, false), CS));"
+   },
+   {
+    "id": "9c7be3d8f9",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 277,
+    "before": "d.setCommAccno(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue());",
+    "after": "/* d.setCommAccno(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue()); */"
+   },
+   {
+    "id": "5557f7e5fc",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 277,
+    "before": "d.setCommAccno(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue());",
+    "after": "d.setCommAccno(Cobol.num(Field.zoned(s, base + 21, 8, 0, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "7ab7251d55",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 277,
+    "before": "d.setCommAccno(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue());",
+    "after": "d.setCommAccno(Cobol.num(Field.zoned(s, base + 20, 9, 0, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "6941f69542",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 277,
+    "before": "d.setCommAccno(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue());",
+    "after": "d.setCommAccno(Cobol.num(Field.zoned(s, base + 20, 8, 1, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "6a911f34f3",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 278,
+    "before": "d.setCommAccType(Cobol.text(Field.alphanumeric(s, base + 28, 8, false), CS));",
+    "after": "/* d.setCommAccType(Cobol.text(Field.alphanumeric(s, base + 28, 8, false), CS)); */"
+   },
+   {
+    "id": "4e6445ca27",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 278,
+    "before": "d.setCommAccType(Cobol.text(Field.alphanumeric(s, base + 28, 8, false), CS));",
+    "after": "d.setCommAccType(Cobol.text(Field.alphanumeric(s, base + 29, 8, false), CS));"
+   },
+   {
+    "id": "fb6039a6a1",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 278,
+    "before": "d.setCommAccType(Cobol.text(Field.alphanumeric(s, base + 28, 8, false), CS));",
+    "after": "d.setCommAccType(Cobol.text(Field.alphanumeric(s, base + 28, 9, false), CS));"
+   },
+   {
+    "id": "22b7feb365",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 279,
+    "before": "d.setCommIntRate(Cobol.num(Field.zoned(s, base + 36, 6, 2, false, false, false), CS));",
+    "after": "/* d.setCommIntRate(Cobol.num(Field.zoned(s, base + 36, 6, 2, false, false, false), CS)); */"
+   },
+   {
+    "id": "f4c484c066",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 279,
+    "before": "d.setCommIntRate(Cobol.num(Field.zoned(s, base + 36, 6, 2, false, false, false), CS));",
+    "after": "d.setCommIntRate(Cobol.num(Field.zoned(s, base + 37, 6, 2, false, false, false), CS));"
+   },
+   {
+    "id": "e129b16d56",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 279,
+    "before": "d.setCommIntRate(Cobol.num(Field.zoned(s, base + 36, 6, 2, false, false, false), CS));",
+    "after": "d.setCommIntRate(Cobol.num(Field.zoned(s, base + 36, 7, 2, false, false, false), CS));"
+   },
+   {
+    "id": "909797e7a6",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 279,
+    "before": "d.setCommIntRate(Cobol.num(Field.zoned(s, base + 36, 6, 2, false, false, false), CS));",
+    "after": "d.setCommIntRate(Cobol.num(Field.zoned(s, base + 36, 6, 3, false, false, false), CS));"
+   },
+   {
+    "id": "afc49cc026",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 280,
+    "before": "d.setCommOpened(Cobol.num(Field.zoned(s, base + 42, 8, 0, false, false, false), CS).intValue());",
+    "after": "/* d.setCommOpened(Cobol.num(Field.zoned(s, base + 42, 8, 0, false, false, false), CS).intValue()); */"
+   },
+   {
+    "id": "e882573264",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 280,
+    "before": "d.setCommOpened(Cobol.num(Field.zoned(s, base + 42, 8, 0, false, false, false), CS).intValue());",
+    "after": "d.setCommOpened(Cobol.num(Field.zoned(s, base + 43, 8, 0, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "e494af6c72",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 280,
+    "before": "d.setCommOpened(Cobol.num(Field.zoned(s, base + 42, 8, 0, false, false, false), CS).intValue());",
+    "after": "d.setCommOpened(Cobol.num(Field.zoned(s, base + 42, 9, 0, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "460436f4bc",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 280,
+    "before": "d.setCommOpened(Cobol.num(Field.zoned(s, base + 42, 8, 0, false, false, false), CS).intValue());",
+    "after": "d.setCommOpened(Cobol.num(Field.zoned(s, base + 42, 8, 1, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "b1d3905e58",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 281,
+    "before": "d.setCommOverdraft(Cobol.num(Field.zoned(s, base + 50, 8, 0, false, false, false), CS).intValue());",
+    "after": "/* d.setCommOverdraft(Cobol.num(Field.zoned(s, base + 50, 8, 0, false, false, false), CS).intValue()); */"
+   },
+   {
+    "id": "787b68de25",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 281,
+    "before": "d.setCommOverdraft(Cobol.num(Field.zoned(s, base + 50, 8, 0, false, false, false), CS).intValue());",
+    "after": "d.setCommOverdraft(Cobol.num(Field.zoned(s, base + 51, 8, 0, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "2f4b6b8c82",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 281,
+    "before": "d.setCommOverdraft(Cobol.num(Field.zoned(s, base + 50, 8, 0, false, false, false), CS).intValue());",
+    "after": "d.setCommOverdraft(Cobol.num(Field.zoned(s, base + 50, 9, 0, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "e49e90822f",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 281,
+    "before": "d.setCommOverdraft(Cobol.num(Field.zoned(s, base + 50, 8, 0, false, false, false), CS).intValue());",
+    "after": "d.setCommOverdraft(Cobol.num(Field.zoned(s, base + 50, 8, 1, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "735172404f",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 282,
+    "before": "d.setCommLastStmtDt(Cobol.num(Field.zoned(s, base + 58, 8, 0, false, false, false), CS).intValue());",
+    "after": "/* d.setCommLastStmtDt(Cobol.num(Field.zoned(s, base + 58, 8, 0, false, false, false), CS).intValue()); */"
+   },
+   {
+    "id": "3ca02797c7",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 282,
+    "before": "d.setCommLastStmtDt(Cobol.num(Field.zoned(s, base + 58, 8, 0, false, false, false), CS).intValue());",
+    "after": "d.setCommLastStmtDt(Cobol.num(Field.zoned(s, base + 59, 8, 0, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "15a84e77c0",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 282,
+    "before": "d.setCommLastStmtDt(Cobol.num(Field.zoned(s, base + 58, 8, 0, false, false, false), CS).intValue());",
+    "after": "d.setCommLastStmtDt(Cobol.num(Field.zoned(s, base + 58, 9, 0, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "3d33078c03",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 282,
+    "before": "d.setCommLastStmtDt(Cobol.num(Field.zoned(s, base + 58, 8, 0, false, false, false), CS).intValue());",
+    "after": "d.setCommLastStmtDt(Cobol.num(Field.zoned(s, base + 58, 8, 1, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "c28bddca9e",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 283,
+    "before": "d.setCommNextStmtDt(Cobol.num(Field.zoned(s, base + 66, 8, 0, false, false, false), CS).intValue());",
+    "after": "/* d.setCommNextStmtDt(Cobol.num(Field.zoned(s, base + 66, 8, 0, false, false, false), CS).intValue()); */"
+   },
+   {
+    "id": "14136e087f",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 283,
+    "before": "d.setCommNextStmtDt(Cobol.num(Field.zoned(s, base + 66, 8, 0, false, false, false), CS).intValue());",
+    "after": "d.setCommNextStmtDt(Cobol.num(Field.zoned(s, base + 67, 8, 0, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "73823e1e6d",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 283,
+    "before": "d.setCommNextStmtDt(Cobol.num(Field.zoned(s, base + 66, 8, 0, false, false, false), CS).intValue());",
+    "after": "d.setCommNextStmtDt(Cobol.num(Field.zoned(s, base + 66, 9, 0, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "6627fb456e",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 283,
+    "before": "d.setCommNextStmtDt(Cobol.num(Field.zoned(s, base + 66, 8, 0, false, false, false), CS).intValue());",
+    "after": "d.setCommNextStmtDt(Cobol.num(Field.zoned(s, base + 66, 8, 1, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "a4834b238a",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 284,
+    "before": "d.setCommAvailBal(Cobol.num(Field.zoned(s, base + 74, 12, 2, true, false, false), CS));",
+    "after": "/* d.setCommAvailBal(Cobol.num(Field.zoned(s, base + 74, 12, 2, true, false, false), CS)); */"
+   },
+   {
+    "id": "89ab499b97",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 284,
+    "before": "d.setCommAvailBal(Cobol.num(Field.zoned(s, base + 74, 12, 2, true, false, false), CS));",
+    "after": "d.setCommAvailBal(Cobol.num(Field.zoned(s, base + 74, 12, 3, true, false, false), CS));"
+   },
+   {
+    "id": "a0e0fb58a8",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 285,
+    "before": "d.setCommActualBal(Cobol.num(Field.zoned(s, base + 86, 12, 2, true, false, false), CS));",
+    "after": "/* d.setCommActualBal(Cobol.num(Field.zoned(s, base + 86, 12, 2, true, false, false), CS)); */"
+   },
+   {
+    "id": "f981669ba7",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 285,
+    "before": "d.setCommActualBal(Cobol.num(Field.zoned(s, base + 86, 12, 2, true, false, false), CS));",
+    "after": "d.setCommActualBal(Cobol.num(Field.zoned(s, base + 86, 12, 3, true, false, false), CS));"
+   },
+   {
+    "id": "329d11361c",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 286,
+    "before": "d.setCommSuccess(Cobol.text(Field.alphanumeric(s, base + 98, 1, false), CS));",
+    "after": "/* d.setCommSuccess(Cobol.text(Field.alphanumeric(s, base + 98, 1, false), CS)); */"
+   },
+   {
+    "id": "28d1459833",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 286,
+    "before": "d.setCommSuccess(Cobol.text(Field.alphanumeric(s, base + 98, 1, false), CS));",
+    "after": "d.setCommSuccess(Cobol.text(Field.alphanumeric(s, base + 99, 1, false), CS));"
+   },
+   {
+    "id": "d7b18ea979",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 286,
+    "before": "d.setCommSuccess(Cobol.text(Field.alphanumeric(s, base + 98, 1, false), CS));",
+    "after": "d.setCommSuccess(Cobol.text(Field.alphanumeric(s, base + 98, 2, false), CS));"
+   },
+   {
+    "id": "017e0933e8",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 291,
+    "before": "fill_UpdaccDfhcommarea(d, s, base);",
+    "after": "/* fill_UpdaccDfhcommarea(d, s, base); */"
+   },
+   {
+    "id": "22518b1066",
+    "op": "NEG",
+    "file": "service/UpdaccService.java",
+    "line": 297,
+    "before": "if (s_DFHCOMMAREA.bytes != whole) {",
+    "after": "if (!(s_DFHCOMMAREA.bytes != whole)) {"
+   },
+   {
+    "id": "a9ba16e63a",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 297,
+    "before": "if (s_DFHCOMMAREA.bytes != whole) {",
+    "after": "if (s_DFHCOMMAREA.bytes == whole) {"
+   },
+   {
+    "id": "8e8f74c977",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 298,
+    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
+    "after": "/* System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length); */"
+   },
+   {
+    "id": "dbec980997",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 298,
+    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
+    "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 1, whole, 0, s_DFHCOMMAREA.bytes.length);"
+   },
+   {
+    "id": "12be9168c9",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 298,
+    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
+    "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 1, s_DFHCOMMAREA.bytes.length);"
+   },
+   {
+    "id": "677196485a",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 299,
+    "before": "s_DFHCOMMAREA.bytes = whole;",
+    "after": "/* s_DFHCOMMAREA.bytes = whole; */"
+   },
+   {
+    "id": "ed27fac5fe",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 319,
+    "before": "System.arraycopy(IMAGE_s_HOST_ACCOUNT_ROW, 0, s_HOST_ACCOUNT_ROW.bytes, 0, IMAGE_s_HOST_ACCOUNT_ROW.length);",
+    "after": "/* System.arraycopy(IMAGE_s_HOST_ACCOUNT_ROW, 0, s_HOST_ACCOUNT_ROW.bytes, 0, IMAGE_s_HOST_ACCOUNT_ROW.length); */"
+   },
+   {
+    "id": "11dd84c485",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 320,
+    "before": "System.arraycopy(IMAGE_s_SQLCA, 0, s_SQLCA.bytes, 0, IMAGE_s_SQLCA.length);",
+    "after": "/* System.arraycopy(IMAGE_s_SQLCA, 0, s_SQLCA.bytes, 0, IMAGE_s_SQLCA.length); */"
+   },
+   {
+    "id": "2adb2fafb1",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 321,
+    "before": "System.arraycopy(IMAGE_s_SQLCODE_DISPLAY, 0, s_SQLCODE_DISPLAY.bytes, 0, IMAGE_s_SQLCODE_DISPLAY.length);",
+    "after": "/* System.arraycopy(IMAGE_s_SQLCODE_DISPLAY, 0, s_SQLCODE_DISPLAY.bytes, 0, IMAGE_s_SQLCODE_DISPLAY.length); */"
+   },
+   {
+    "id": "9b5c18e9da",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 322,
+    "before": "System.arraycopy(IMAGE_s_WS_CICS_WORK_AREA, 0, s_WS_CICS_WORK_AREA.bytes, 0, IMAGE_s_WS_CICS_WORK_AREA.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_CICS_WORK_AREA, 0, s_WS_CICS_WORK_AREA.bytes, 0, IMAGE_s_WS_CICS_WORK_AREA.length); */"
+   },
+   {
+    "id": "b21147a710",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 323,
+    "before": "System.arraycopy(IMAGE_s_DB2_DATE_REFORMAT, 0, s_DB2_DATE_REFORMAT.bytes, 0, IMAGE_s_DB2_DATE_REFORMAT.length);",
+    "after": "/* System.arraycopy(IMAGE_s_DB2_DATE_REFORMAT, 0, s_DB2_DATE_REFORMAT.bytes, 0, IMAGE_s_DB2_DATE_REFORMAT.length); */"
+   },
+   {
+    "id": "93086168a4",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 324,
+    "before": "System.arraycopy(IMAGE_s_WS_ACC_DATA, 0, s_WS_ACC_DATA.bytes, 0, IMAGE_s_WS_ACC_DATA.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_ACC_DATA, 0, s_WS_ACC_DATA.bytes, 0, IMAGE_s_WS_ACC_DATA.length); */"
+   },
+   {
+    "id": "a9835b95be",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 325,
+    "before": "System.arraycopy(IMAGE_s_WS_EIBTASKN12, 0, s_WS_EIBTASKN12.bytes, 0, IMAGE_s_WS_EIBTASKN12.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_EIBTASKN12, 0, s_WS_EIBTASKN12.bytes, 0, IMAGE_s_WS_EIBTASKN12.length); */"
+   },
+   {
+    "id": "f59f6ef62e",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 326,
+    "before": "System.arraycopy(IMAGE_s_WS_SQLCODE_DISP, 0, s_WS_SQLCODE_DISP.bytes, 0, IMAGE_s_WS_SQLCODE_DISP.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_SQLCODE_DISP, 0, s_WS_SQLCODE_DISP.bytes, 0, IMAGE_s_WS_SQLCODE_DISP.length); */"
+   },
+   {
+    "id": "601a5d5de4",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 327,
+    "before": "System.arraycopy(IMAGE_s_DESIRED_ACC_KEY, 0, s_DESIRED_ACC_KEY.bytes, 0, IMAGE_s_DESIRED_ACC_KEY.length);",
+    "after": "/* System.arraycopy(IMAGE_s_DESIRED_ACC_KEY, 0, s_DESIRED_ACC_KEY.bytes, 0, IMAGE_s_DESIRED_ACC_KEY.length); */"
+   },
+   {
+    "id": "8acec3b3b9",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 328,
+    "before": "System.arraycopy(IMAGE_s_NEW_ACCOUNT_AVAILABLE_BALANCE, 0, s_NEW_ACCOUNT_AVAILABLE_BALANCE.bytes, 0, IMAGE_s_NEW_ACCOUNT_AVAILABLE_BALANCE.length);",
+    "after": "/* System.arraycopy(IMAGE_s_NEW_ACCOUNT_AVAILABLE_BALANCE, 0, s_NEW_ACCOUNT_AVAILABLE_BALANCE.bytes, 0, IMAGE_s_NEW_ACCOUNT_AVAILABLE_BALANCE.length); */"
+   },
+   {
+    "id": "213bdbf744",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 329,
+    "before": "System.arraycopy(IMAGE_s_NEW_ACCOUNT_ACTUAL_BALANCE, 0, s_NEW_ACCOUNT_ACTUAL_BALANCE.bytes, 0, IMAGE_s_NEW_ACCOUNT_ACTUAL_BALANCE.length);",
+    "after": "/* System.arraycopy(IMAGE_s_NEW_ACCOUNT_ACTUAL_BALANCE, 0, s_NEW_ACCOUNT_ACTUAL_BALANCE.bytes, 0, IMAGE_s_NEW_ACCOUNT_ACTUAL_BALANCE.length); */"
+   },
+   {
+    "id": "7af39cb0e3",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 330,
+    "before": "System.arraycopy(IMAGE_s_WS_ACC_REC_LEN, 0, s_WS_ACC_REC_LEN.bytes, 0, IMAGE_s_WS_ACC_REC_LEN.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_ACC_REC_LEN, 0, s_WS_ACC_REC_LEN.bytes, 0, IMAGE_s_WS_ACC_REC_LEN.length); */"
+   },
+   {
+    "id": "c9f72b4cc9",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 331,
+    "before": "System.arraycopy(IMAGE_s_WS_U_TIME, 0, s_WS_U_TIME.bytes, 0, IMAGE_s_WS_U_TIME.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_U_TIME, 0, s_WS_U_TIME.bytes, 0, IMAGE_s_WS_U_TIME.length); */"
+   },
+   {
+    "id": "ce325e205b",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 332,
+    "before": "System.arraycopy(IMAGE_s_WS_ORIG_DATE, 0, s_WS_ORIG_DATE.bytes, 0, IMAGE_s_WS_ORIG_DATE.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_ORIG_DATE, 0, s_WS_ORIG_DATE.bytes, 0, IMAGE_s_WS_ORIG_DATE.length); */"
+   },
+   {
+    "id": "3f2953335c",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 333,
+    "before": "System.arraycopy(IMAGE_s_WS_ORIG_DATE_GRP_X, 0, s_WS_ORIG_DATE_GRP_X.bytes, 0, IMAGE_s_WS_ORIG_DATE_GRP_X.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_ORIG_DATE_GRP_X, 0, s_WS_ORIG_DATE_GRP_X.bytes, 0, IMAGE_s_WS_ORIG_DATE_GRP_X.length); */"
+   },
+   {
+    "id": "51acc88ab6",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 334,
+    "before": "System.arraycopy(IMAGE_s_REJ_REASON, 0, s_REJ_REASON.bytes, 0, IMAGE_s_REJ_REASON.length);",
+    "after": "/* System.arraycopy(IMAGE_s_REJ_REASON, 0, s_REJ_REASON.bytes, 0, IMAGE_s_REJ_REASON.length); */"
+   },
+   {
+    "id": "36ab9e1621",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 335,
+    "before": "System.arraycopy(IMAGE_s_CUSTOMER_KY, 0, s_CUSTOMER_KY.bytes, 0, IMAGE_s_CUSTOMER_KY.length);",
+    "after": "/* System.arraycopy(IMAGE_s_CUSTOMER_KY, 0, s_CUSTOMER_KY.bytes, 0, IMAGE_s_CUSTOMER_KY.length); */"
+   },
+   {
+    "id": "4036984fc7",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 336,
+    "before": "System.arraycopy(IMAGE_s_STORM_DRAIN_CONDITION, 0, s_STORM_DRAIN_CONDITION.bytes, 0, IMAGE_s_STORM_DRAIN_CONDITION.length);",
+    "after": "/* System.arraycopy(IMAGE_s_STORM_DRAIN_CONDITION, 0, s_STORM_DRAIN_CONDITION.bytes, 0, IMAGE_s_STORM_DRAIN_CONDITION.length); */"
+   },
+   {
+    "id": "bb9e6fed48",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 337,
+    "before": "System.arraycopy(IMAGE_s_WS_TIME_DATA, 0, s_WS_TIME_DATA.bytes, 0, IMAGE_s_WS_TIME_DATA.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_TIME_DATA, 0, s_WS_TIME_DATA.bytes, 0, IMAGE_s_WS_TIME_DATA.length); */"
+   },
+   {
+    "id": "343b0062a2",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 338,
+    "before": "System.arraycopy(IMAGE_s_WS_ABEND_PGM, 0, s_WS_ABEND_PGM.bytes, 0, IMAGE_s_WS_ABEND_PGM.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_ABEND_PGM, 0, s_WS_ABEND_PGM.bytes, 0, IMAGE_s_WS_ABEND_PGM.length); */"
+   },
+   {
+    "id": "eb40ffd689",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 339,
+    "before": "System.arraycopy(IMAGE_s_ABNDINFO_REC, 0, s_ABNDINFO_REC.bytes, 0, IMAGE_s_ABNDINFO_REC.length);",
+    "after": "/* System.arraycopy(IMAGE_s_ABNDINFO_REC, 0, s_ABNDINFO_REC.bytes, 0, IMAGE_s_ABNDINFO_REC.length); */"
+   },
+   {
+    "id": "ae331aff09",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 340,
+    "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
+    "after": "/* System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length); */"
+   },
+   {
+    "id": "5ab8646bb1",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 341,
+    "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
+    "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */"
+   },
+   {
+    "id": "098613a570",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 342,
+    "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+    "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */"
+   },
+   {
+    "id": "501a8cb895",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 344,
+    "before": "f41_WS_CICS_RESP = 0L;",
+    "after": "/* f41_WS_CICS_RESP = 0L; */"
+   },
+   {
+    "id": "7e2c49734a",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 345,
+    "before": "f42_WS_CICS_RESP2 = 0L;",
+    "after": "/* f42_WS_CICS_RESP2 = 0L; */"
+   },
+   {
+    "id": "afa8fc1d4f",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 368,
+    "before": "caBack = () -> { };",
+    "after": "/* caBack = () -> { }; */"
+   },
+   {
+    "id": "b4f361e5a4",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 369,
+    "before": "handlers.clear();",
+    "after": "/* handlers.clear(); */"
+   },
+   {
+    "id": "ab9eaa170f",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 370,
+    "before": "heldKey.clear();",
+    "after": "/* heldKey.clear(); */"
+   },
+   {
+    "id": "50ffc356c5",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 372,
+    "before": "Cobol.move(task.transid(), f153_EIBTRNID, CS);",
+    "after": "/* Cobol.move(task.transid(), f153_EIBTRNID, CS); */"
+   },
+   {
+    "id": "719785f409",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 374,
+    "before": "Cobol.store(f154_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
+    "after": "/* Cobol.store(f154_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS); */"
+   },
+   {
+    "id": "87fbb39b78",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 376,
+    "before": "Cobol.store(f152_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "/* Cobol.store(f152_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */"
+   },
+   {
+    "id": "b650c40a46",
+    "op": "AOR",
+    "file": "service/UpdaccService.java",
+    "line": 376,
+    "before": "Cobol.store(f152_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f152_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "17db07a8b0",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 376,
+    "before": "Cobol.store(f152_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f152_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "3a82c5fa19",
+    "op": "AOR",
+    "file": "service/UpdaccService.java",
+    "line": 376,
+    "before": "Cobol.store(f152_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f152_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "4766d49031",
+    "op": "AOR",
+    "file": "service/UpdaccService.java",
+    "line": 376,
+    "before": "Cobol.store(f152_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f152_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "134438b098",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 377,
+    "before": "Cobol.store(f151_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "/* Cobol.store(f151_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */"
+   },
+   {
+    "id": "b4dae444db",
+    "op": "AOR",
+    "file": "service/UpdaccService.java",
+    "line": 377,
+    "before": "Cobol.store(f151_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f151_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "979cc8f678",
+    "op": "AOR",
+    "file": "service/UpdaccService.java",
+    "line": 377,
+    "before": "Cobol.store(f151_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f151_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "e9f85a58c1",
+    "op": "AOR",
+    "file": "service/UpdaccService.java",
+    "line": 377,
+    "before": "Cobol.store(f151_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f151_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "cb4166c050",
+    "op": "AOR",
+    "file": "service/UpdaccService.java",
+    "line": 377,
+    "before": "Cobol.store(f151_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f151_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);"
+   },
+   {
+    "id": "ac4582cad0",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 378,
+    "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
+    "after": "switch (task.aid() != null ? \"\" : task.aid()) {"
+   },
+   {
+    "id": "76fa630622",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 382,
+    "before": "int calen = 0;",
+    "after": "int calen = 1;"
+   },
+   {
+    "id": "fd6af67419",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 384,
+    "before": "in_UpdaccDfhcommarea(x, s_DFHCOMMAREA, 0);",
+    "after": "/* in_UpdaccDfhcommarea(x, s_DFHCOMMAREA, 0); */"
+   },
+   {
+    "id": "54b627cfeb",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 384,
+    "before": "in_UpdaccDfhcommarea(x, s_DFHCOMMAREA, 0);",
+    "after": "in_UpdaccDfhcommarea(x, s_DFHCOMMAREA, 1);"
+   },
+   {
+    "id": "f1751a4001",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 385,
+    "before": "caBack = () -> fill_UpdaccDfhcommarea(x, s_DFHCOMMAREA, 0);",
+    "after": "/* caBack = () -> fill_UpdaccDfhcommarea(x, s_DFHCOMMAREA, 0); */"
+   },
+   {
+    "id": "8a4fb77096",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 386,
+    "before": "calen = cx(task, 99);",
+    "after": "/* calen = cx(task, 99); */"
+   },
+   {
+    "id": "4afb6ad67f",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 386,
+    "before": "calen = cx(task, 99);",
+    "after": "calen = cx(task, 100);"
+   },
+   {
+    "id": "caa0c9e0ff",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 388,
+    "before": "s_DFHCOMMAREA.beyond = null;",
+    "after": "/* s_DFHCOMMAREA.beyond = null; */"
+   },
+   {
+    "id": "696c0a9b4a",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 391,
+    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+    "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */"
+   },
+   {
+    "id": "f4300f7a05",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 391,
+    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+    "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));"
+   },
+   {
+    "id": "c8946fed55",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 391,
+    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+    "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));"
+   },
+   {
+    "id": "b601144cf6",
+    "op": "NEG",
+    "file": "service/UpdaccService.java",
+    "line": 392,
+    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {"
+   },
+   {
+    "id": "8a1b3af6f8",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 392,
+    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "ccb3150631",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 392,
+    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "24742d2ca0",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 393,
+    "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
+    "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */"
+   },
+   {
+    "id": "d043e0911b",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 395,
+    "before": "calen = cx(task, cb.length);",
+    "after": "/* calen = cx(task, cb.length); */"
+   },
+   {
+    "id": "2889b7ffd8",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 399,
+    "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
+    "after": "/* System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); */"
+   },
+   {
+    "id": "984119fce0",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 401,
+    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+    "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */"
+   },
+   {
+    "id": "5c36770f8f",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 401,
+    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+    "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;"
+   },
+   {
+    "id": "4fb8ad58c9",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 403,
+    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+    "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } };"
+   },
+   {
+    "id": "b80524e585",
+    "op": "AOR",
+    "file": "service/UpdaccService.java",
+    "line": 403,
+    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+    "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };"
+   },
+   {
+    "id": "05bb37d3a0",
+    "op": "NEG",
+    "file": "service/UpdaccService.java",
+    "line": 406,
+    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {"
+   },
+   {
+    "id": "27fe389063",
+    "op": "COR",
+    "file": "service/UpdaccService.java",
+    "line": 406,
+    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "e6c077cd9e",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 406,
+    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "6c50aba359",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 406,
+    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "23e08da50c",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 407,
+    "before": "caWhole = s_DFHCOMMAREA.bytes;",
+    "after": "/* caWhole = s_DFHCOMMAREA.bytes; */"
+   },
+   {
+    "id": "a698fc0229",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 408,
+    "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
+    "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */"
+   },
+   {
+    "id": "9320b8755e",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 411,
+    "before": "caBack = () -> { caWhole(whole); typed.run(); };",
+    "after": "/* caBack = () -> { caWhole(whole); typed.run(); }; */"
+   },
+   {
+    "id": "36cabd0684",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 413,
+    "before": "Cobol.store(f158_EIBCALEN, BigDecimal.valueOf(calen), false, CS);",
+    "after": "/* Cobol.store(f158_EIBCALEN, BigDecimal.valueOf(calen), false, CS); */"
+   },
+   {
+    "id": "1deb99e281",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 416,
+    "before": "perform(0, 11);",
+    "after": "perform(1, 11);"
+   },
+   {
+    "id": "2bbc3d4721",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 416,
+    "before": "perform(0, 11);",
+    "after": "perform(0, 12);"
+   },
+   {
+    "id": "edf8692d16",
+    "op": "NEG",
+    "file": "service/UpdaccService.java",
+    "line": 421,
+    "before": "if (caWhole == null) {",
+    "after": "if (!(caWhole == null)) {"
+   },
+   {
+    "id": "3f28944e5a",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 421,
+    "before": "if (caWhole == null) {",
+    "after": "if (caWhole != null) {"
+   },
+   {
+    "id": "0ef54bdc45",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 424,
+    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+    "after": "throw new DetCics.PastFrom(\"XOMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");"
+   },
+   {
+    "id": "ad06bd0f88",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 424,
+    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+    "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");"
+   },
+   {
+    "id": "299ec2ce5b",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 427,
+    "before": "caWhole(caWhole);",
+    "after": "/* caWhole(caWhole); */"
+   },
+   {
+    "id": "4a199f7632",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 431,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "e4f773c19a",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 435,
+    "before": "Cobol.swapTruncBinary(truncBefore);",
+    "after": "/* Cobol.swapTruncBinary(truncBefore); */"
+   },
+   {
+    "id": "643c122f07",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 436,
+    "before": "Cobol.swapNumprocPfd(pfdBefore);",
+    "after": "/* Cobol.swapNumprocPfd(pfdBefore); */"
+   },
+   {
+    "id": "6fc889fe42",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 449,
+    "before": "CicsTask task = region.linked(\"UPDACC\", request, area);",
+    "after": "CicsTask task = region.linked(\"XPDACC\", request, area);"
+   },
+   {
+    "id": "c94f1900db",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 450,
+    "before": "region.run(task, \"UPDACC\", this::runTask);",
+    "after": "region.run(task, \"XPDACC\", this::runTask);"
+   },
+   {
+    "id": "ba9505f7e8",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 452,
+    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+    "after": "/* lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null; */"
+   },
+   {
+    "id": "5f8dfc2adf",
+    "op": "COR",
+    "file": "service/UpdaccService.java",
+    "line": 452,
+    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+    "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;"
+   },
+   {
+    "id": "4000bbd5f1",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 452,
+    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+    "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;"
+   },
+   {
+    "id": "8c4a586d4a",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 462,
+    "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
+    "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);"
+   },
+   {
+    "id": "7babefe6f3",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 471,
+    "before": "super(null, null, false, false);",
+    "after": "/* super(null, null, false, false); */"
+   },
+   {
+    "id": "7eb7710ae9",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 499,
+    "before": "private int[] performThru = new int[64];",
+    "after": "private int[] performThru = new int[65];"
+   },
+   {
+    "id": "f514e108ec",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 508,
+    "before": "super(null, null, false, false);",
+    "after": "/* super(null, null, false, false); */"
+   },
+   {
+    "id": "1bb94ad332",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 519,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */"
+   },
+   {
+    "id": "0acd3c563e",
+    "op": "AOR",
+    "file": "service/UpdaccService.java",
+    "line": 519,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
+   },
+   {
+    "id": "ebb97b509d",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 519,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);"
+   },
+   {
+    "id": "21dc97a80d",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 526,
+    "before": "boolean jumped = (next & GOTO) != 0;",
+    "after": "boolean jumped = (next & GOTO) == 0;"
+   },
+   {
+    "id": "ac0b797695",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 526,
+    "before": "boolean jumped = (next & GOTO) != 0;",
+    "after": "boolean jumped = (next & GOTO) != 1;"
+   },
+   {
+    "id": "9c6edf7955",
+    "op": "NEG",
+    "file": "service/UpdaccService.java",
+    "line": 528,
+    "before": "if (!jumped) {",
+    "after": "if (!(!jumped)) {"
+   },
+   {
+    "id": "cbd96371fb",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 530,
+    "before": "return;",
+    "after": "/* return; */"
+   },
+   {
+    "id": "b8d8c25185",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 532,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 2; d >= 0; d--) {"
+   },
+   {
+    "id": "e4141f36b5",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 532,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d > 0; d--) {"
+   },
+   {
+    "id": "b172e0c5bb",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 532,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d >= 1; d--) {"
+   },
+   {
+    "id": "a301de2705",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 538,
+    "before": "if (next >= 12) {",
+    "after": "if (next > 12) {"
+   },
+   {
+    "id": "d7670470bf",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 538,
+    "before": "if (next >= 12) {",
+    "after": "if (next >= 13) {"
+   },
+   {
+    "id": "e769616216",
+    "op": "NEG",
+    "file": "service/UpdaccService.java",
+    "line": 544,
+    "before": "if (e.depth != mine) {",
+    "after": "if (!(e.depth != mine)) {"
+   },
+   {
+    "id": "1093c896bd",
+    "op": "ROR",
+    "file": "service/UpdaccService.java",
+    "line": 544,
+    "before": "if (e.depth != mine) {",
+    "after": "if (e.depth == mine) {"
+   },
+   {
+    "id": "92b8bc3a86",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 548,
+    "before": "performDepth = mine;",
+    "after": "/* performDepth = mine; */"
+   },
+   {
+    "id": "6d7bdf9b73",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 565,
+    "before": "case 11: return p11();",
+    "after": "case 12: return p11();"
+   },
+   {
+    "id": "1d2b5f92c6",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 566,
+    "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+    "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
+   },
+   {
+    "id": "599965ef2e",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 579,
+    "before": "Cobol.move(f1_SORTCODE, f127_COMM_SCODE, CS);",
+    "after": "/* Cobol.move(f1_SORTCODE, f127_COMM_SCODE, CS); */"
+   },
+   {
+    "id": "00256dc423",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 583,
+    "before": "perform(3, 5);",
+    "after": "perform(4, 5);"
+   },
+   {
+    "id": "a8c11d0962",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 583,
+    "before": "perform(3, 5);",
+    "after": "perform(3, 6);"
+   },
+   {
+    "id": "6d88ef39e7",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 585,
+    "before": "perform(6, 8);",
+    "after": "perform(7, 8);"
+   },
+   {
+    "id": "dba6b1e4df",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 585,
+    "before": "perform(6, 8);",
+    "after": "perform(6, 9);"
+   },
+   {
+    "id": "477eaccf6e",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 586,
+    "before": "return 2;",
+    "after": "return 3;"
+   },
+   {
+    "id": "bffb227cbb",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 592,
+    "before": "return 3;",
+    "after": "return 4;"
+   },
+   {
+    "id": "d0aeec0465",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 626,
+    "before": "if (true) return GOTO | 5;",
+    "after": "if (true) return GOTO | 6;"
+   },
+   {
+    "id": "d73987f427",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 635,
+    "before": "if (true) return GOTO | 5;",
+    "after": "if (true) return GOTO | 6;"
+   },
+   {
+    "id": "2a2039d68b",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 660,
+    "before": "if (true) return GOTO | 5;",
+    "after": "if (true) return GOTO | 6;"
+   },
+   {
+    "id": "e2e7152eec",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 663,
+    "before": "Cobol.move(f4_HV_ACCOUNT_EYECATCHER, f125_COMM_EYE, CS);",
+    "after": "/* Cobol.move(f4_HV_ACCOUNT_EYECATCHER, f125_COMM_EYE, CS); */"
+   },
+   {
+    "id": "83a25db4ad",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 667,
+    "before": "Cobol.move(f7_HV_ACCOUNT_SORTCODE, f127_COMM_SCODE, CS);",
+    "after": "/* Cobol.move(f7_HV_ACCOUNT_SORTCODE, f127_COMM_SCODE, CS); */"
+   },
+   {
+    "id": "b4abf427aa",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 669,
+    "before": "Cobol.move(f8_HV_ACCOUNT_ACC_NO, f128_COMM_ACCNO, CS);",
+    "after": "/* Cobol.move(f8_HV_ACCOUNT_ACC_NO, f128_COMM_ACCNO, CS); */"
+   },
+   {
+    "id": "93f79dca4d",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 671,
+    "before": "Cobol.move(f9_HV_ACCOUNT_ACC_TYPE, f129_COMM_ACC_TYPE, CS);",
+    "after": "/* Cobol.move(f9_HV_ACCOUNT_ACC_TYPE, f129_COMM_ACC_TYPE, CS); */"
+   },
+   {
+    "id": "814329e2aa",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 673,
+    "before": "Cobol.move(f10_HV_ACCOUNT_INT_RATE, f130_COMM_INT_RATE, CS);",
+    "after": "/* Cobol.move(f10_HV_ACCOUNT_INT_RATE, f130_COMM_INT_RATE, CS); */"
+   },
+   {
+    "id": "c27cbacf57",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 675,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "50722427e3",
+    "op": "AOR",
+    "file": "service/UpdaccService.java",
+    "line": 675,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() - 0, 4, 0, false, false, false), CS);"
+   },
+   {
+    "id": "230761e1b1",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 675,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 1, 4, 0, false, false, false), CS);"
+   },
+   {
+    "id": "7228c22128",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 675,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 5, 0, false, false, false), CS);"
+   },
+   {
+    "id": "c63fc6b61d",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 675,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 1, false, false, false), CS);"
+   },
+   {
+    "id": "a7922b7580",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 676,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 0, false, false, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "14b5d2ad5a",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 676,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 6, 2, 0, false, false, false), CS);"
+   },
+   {
+    "id": "9c3f253ec5",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 676,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 3, 0, false, false, false), CS);"
+   },
+   {
+    "id": "70a01e0db1",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 676,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 1, false, false, false), CS);"
+   },
+   {
+    "id": "56222506e4",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 677,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 8, 2, 0, false, false, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 8, 2, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "641fc411b4",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 677,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 8, 2, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 8, 2, 1, false, false, false), CS);"
+   },
+   {
+    "id": "92e0bd4977",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 687,
+    "before": "Cobol.move(f12_HV_ACCOUNT_OVERDRAFT_LIM, f136_COMM_OVERDRAFT, CS);",
+    "after": "/* Cobol.move(f12_HV_ACCOUNT_OVERDRAFT_LIM, f136_COMM_OVERDRAFT, CS); */"
+   },
+   {
+    "id": "ec5d80888d",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 689,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "ec76391015",
+    "op": "AOR",
+    "file": "service/UpdaccService.java",
+    "line": 689,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() - 0, 4, 0, false, false, false), CS);"
+   },
+   {
+    "id": "4da318b1b7",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 689,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 1, 4, 0, false, false, false), CS);"
+   },
+   {
+    "id": "3555481625",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 689,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 5, 0, false, false, false), CS);"
+   },
+   {
+    "id": "62645e6e98",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 689,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 1, false, false, false), CS);"
+   },
+   {
+    "id": "6f795ab766",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 690,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 0, false, false, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "a8d904725d",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 690,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 6, 2, 0, false, false, false), CS);"
+   },
+   {
+    "id": "dcb598c3e0",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 690,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 3, 0, false, false, false), CS);"
+   },
+   {
+    "id": "8c590519af",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 690,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 1, false, false, false), CS);"
+   },
+   {
+    "id": "3ab9569cf9",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 691,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 8, 2, 0, false, false, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 8, 2, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "f3cadfaa89",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 691,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 8, 2, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 8, 2, 1, false, false, false), CS);"
+   },
+   {
+    "id": "226ac32018",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 701,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "45af3013ca",
+    "op": "AOR",
+    "file": "service/UpdaccService.java",
+    "line": 701,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() - 0, 4, 0, false, false, false), CS);"
+   },
+   {
+    "id": "4c62fd5aa9",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 701,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 1, 4, 0, false, false, false), CS);"
+   },
+   {
+    "id": "79a36465c8",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 701,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 5, 0, false, false, false), CS);"
+   },
+   {
+    "id": "5e5e73a787",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 701,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 0, 4, 1, false, false, false), CS);"
+   },
+   {
+    "id": "f5350c7a65",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 702,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 0, false, false, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "d23b3de0be",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 702,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 6, 2, 0, false, false, false), CS);"
+   },
+   {
+    "id": "4b5529ac80",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 702,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 3, 0, false, false, false), CS);"
+   },
+   {
+    "id": "541001c333",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 702,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 5, 2, 1, false, false, false), CS);"
+   },
+   {
+    "id": "4a7ed850eb",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 703,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 8, 2, 0, false, false, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 8, 2, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "42443ddc03",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 703,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 8, 2, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f43_DB2_DATE_REFORMAT.storage(), f43_DB2_DATE_REFORMAT.offset() + 8, 2, 1, false, false, false), CS);"
+   },
+   {
+    "id": "7792978e21",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 718,
+    "before": "return 5;",
+    "after": "return 6;"
+   },
+   {
+    "id": "1a7dd5c707",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 724,
+    "before": "return 6;",
+    "after": "return 7;"
+   },
+   {
+    "id": "c7ad31efa8",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 737,
+    "before": "task.returnTransid(null, null);",
+    "after": "/* task.returnTransid(null, null); */"
+   },
+   {
+    "id": "d4e19501ba",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 739,
+    "before": "return 8;",
+    "after": "return 9;"
+   },
+   {
+    "id": "fba8bd79cd",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 745,
+    "before": "return 9;",
+    "after": "return 10;"
+   },
+   {
+    "id": "d5812d79cd",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 751,
+    "before": "return 10;",
+    "after": "return 11;"
+   },
+   {
+    "id": "cbbf26f4c4",
+    "op": "DEL",
+    "file": "service/UpdaccService.java",
+    "line": 757,
+    "before": "Cobol.store(f84_WS_U_TIME, BigDecimal.valueOf(task.asktime()), false, CS);",
+    "after": "/* Cobol.store(f84_WS_U_TIME, BigDecimal.valueOf(task.asktime()), false, CS); */"
+   },
+   {
+    "id": "8b42453d46",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 759,
+    "before": "Cobol.move(CicsTask.formatDate(Cobol.num(f84_WS_U_TIME, CS).longValue(), \"DDMMYYYY\", \"/\"), f85_WS_ORIG_DATE, CS);",
+    "after": "Cobol.move(CicsTask.formatDate(Cobol.num(f84_WS_U_TIME, CS).longValue(), \"XDMMYYYY\", \"/\"), f85_WS_ORIG_DATE, CS);"
+   },
+   {
+    "id": "d034bf2b43",
+    "op": "LIT",
+    "file": "service/UpdaccService.java",
+    "line": 759,
+    "before": "Cobol.move(CicsTask.formatDate(Cobol.num(f84_WS_U_TIME, CS).longValue(), \"DDMMYYYY\", \"/\"), f85_WS_ORIG_DATE, CS);",
+    "after": "Cobol.move(CicsTask.formatDate(Cobol.num(f84_WS_U_TIME, CS).longValue(), \"DDMMYYYY\", \"X\"), f85_WS_ORIG_DATE, CS);"
+   },
+   {
+    "id": "4e3564e2f6",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 761,
+    "before": "return 11;",
+    "after": "return 12;"
+   },
+   {
+    "id": "8bba0b3e16",
+    "op": "CON",
+    "file": "service/UpdaccService.java",
+    "line": 767,
+    "before": "return 12;",
+    "after": "return 13;"
+   }
+  ],
+  "inputs": {
+   "port": "40a95ea86e9067191fad7030742c54b073a95db6abb1e3b086c39035f050eb0b",
+   "generator": "e3cd26f0bd1240b8fe399b400a7a150388b4e1bf1dd65e58693708555873a21d",
+   "case": "d0e0d5193ee3b4c8761dd37a70edb3fe5e1d78c5a785ea583e685637a21047f3",
+   "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
+   "harness": "f52c0d770de36086c14d386cd691c57484fe24f59d0b29112cb7d2e56e75d4b6",
+   "oracle": "27cd5d5127a7ff5cf004d7ea63517333edb599feefc1643485560c707d475c0b"
+  },
+  "components": {
+   "generator": {
+    "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
+    "generator:core": "a7b1e205ba94cbbb82ef0cd84b755c343c2f7e8afa912e487823daaf34e29af3",
+    "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
+    "generator:det/cics": "2a4fbbd7a9e55ee9dc6b9fa0e2ff2802c57cab2ff0d36459b676c1143707b507",
+    "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
+    "generator:det/cics_filecontrol": "3d10979d783b0f39b3184d3111b9e543cd87941cbe7814f0edc65454e6f1f2b7",
+    "generator:det/cics_taskcontrol": "7d3892cd106fe0ab3a165551af8497cb67ee0337d2cb97f7a72ef8805710bdbf",
+    "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
+    "generator:det/dli": "59300231ec82938ae8606969155f9d0fef4962ad739e8d6da188a7b6202e9ebd",
+    "generator:det/dyncall": "88c49b4c2e152b1e81d9afb16790c0faac7e6ce25a5f797a5b7c3528f7de92ae",
+    "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
+    "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
+    "generator:det/gen": "6df3c4e25730ed5f5d06c4b9891a4a45958c6fa9808761f5f8078be3ef0d99b4",
+    "generator:det/hfp": "cec77a165f9657e15473ce0c2913b1256451731abc473571ed56951d0faba36c",
+    "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
+    "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
+    "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
+    "generator:det/source": "dd5dec2f1f4f9a6a780228a8216daae573cf51aab899fe35dc71745fec33f2dd",
+    "generator:det/stmt": "014835ecefbec5b761734642ac25fc8270092f80945e8f79bcaaa9d3aee2c9ff"
+   },
+   "harness": {
+    "harness:cics": "213c9450546bf312b75d1e132d67f07d558860d6645035e28f54d04046f36195",
+    "harness:core": "e995854ba8cad1ec5dabaf5752f5fe625ed3de76b8b92ccdb4129f1250359d5e",
+    "harness:db2": "c134f02c18b533b4b3ef9e3938f8cb2cd937f11a91c8d864226b114117c2176d"
+   },
+   "oracle": {
+    "oracle:cics-stub": "8d4b95cb03310f91b20292ebc95871479fe57bab9fc6ff33a625667a5860e785",
+    "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
+    "oracle:db2": "10a2566bcd61b540984c55220468787a8493cfd4df89980c84693433146502dc",
+    "oracle:image-db2": "f138cc0d724e5e2bb4ff947dcd4c1cfed39aa35bfd7dcb27ff18a4e20b2c6198",
+    "oracle:le": "200b234c8ffa2bf4cb1a9c143f22a5a3b696279e000cbf67ff9330fdfb7a9183"
+   }
+  }
+ }
+}

@@ -256,16 +256,21 @@ def callgraph_columns(oracle):
 
 
 def callgraph_check(name, repo, dbp):
-    """Check 7 for one scanned port: ``n/a`` columns for a port outside the licensed C/C++ set or with no C/C++
-    function; else the body oracle's numbers. Returns (columns, passed)."""
+    """Check 7 for one scanned port: the C/C++ body oracle for a licensed C/C++ port, else the tree-sitter oracle
+    over the port's go/java/csharp/rust/javascript/python functions (ts_callgraph_oracle); ``n/a`` columns when the
+    port has no function an oracle covers. Returns (columns, passed)."""
     import callgraph_oracle
+    import ts_callgraph_oracle
 
-    if name not in callgraph_oracle.LICENSED:
+    if name in callgraph_oracle.LICENSED:
+        rows = callgraph_oracle.load_port(repo, dbp)
+        oracle = callgraph_oracle.body_oracle(callgraph_oracle.Port(name, repo, rows)) if rows else None
+    else:
+        rows = ts_callgraph_oracle.load_port(repo, dbp)
+        oracle = ts_callgraph_oracle.body_oracle(repo, rows) if rows else None
+    if oracle is None:
         return dict(CALLGRAPH_NA), True
-    rows = callgraph_oracle.load_port(repo, dbp)
-    if not rows:
-        return dict(CALLGRAPH_NA), True
-    cols = callgraph_columns(callgraph_oracle.body_oracle(callgraph_oracle.Port(name, repo, rows)))
+    cols = callgraph_columns(oracle)
     return cols, cols["callgraph_misses"] == 0 and cols["callgraph_engine_only"] == 0
 
 

@@ -24,6 +24,11 @@ METHOD_CALLS_FREE = {
     ),
     "javascript": ("a.js", "function f(a) {\n    return a\n}\nclass S {\n    f(a) {\n        return f(a)\n    }\n}\n"),
     "python": ("a.py", "def f(a):\n    return a\n\nclass S:\n    def f(self, a):\n        return f(a)\n"),
+    # Go: no enclosing class in the scan; the receiver in the header makes it a method
+    "go": (
+        "a.go",
+        "package p\n\nfunc f(a int) int {\n\treturn a\n}\n\ntype S struct{}\n\nfunc (s *S) f(a int) int {\n\treturn f(a)\n}\n",
+    ),
 }
 
 RECURSION = {
@@ -32,6 +37,7 @@ RECURSION = {
     "typescript": ("a.ts", "function f(a: number): number {\n    return f(a - 1)\n}\n"),
     "javascript": ("a.js", "function f(a) {\n    return f(a - 1)\n}\n"),
     "python": ("a.py", "def f(a):\n    return f(a - 1)\n"),
+    "go": ("a.go", "package p\n\nfunc f(a int) int {\n\treturn f(a - 1)\n}\n"),
 }
 
 # a member shadows the free function: a bare `f(` in the member is the member
@@ -81,6 +87,11 @@ def test_member_shadowing_languages_keep_dropping_it(lang):
     "lang,path,code",
     [
         ("python", "a.py", "def f(a):\n    return a\n\nclass S:\n    def f(self, a):\n        return self.f(a)\n"),
+        (
+            "go",
+            "a.go",
+            "package p\n\nfunc f() {}\n\ntype S struct{}\n\nfunc (s *S) f() {\n\ts.f()\n}\n",
+        ),
         ("typescript", "a.ts", "function f() {}\nclass S {\n    f() {\n        return this.f()\n    }\n}\n"),
         (
             "php",
@@ -112,3 +123,20 @@ def test_explicit_receiver_self_call_stays_recursion(lang, path, code):
 def test_nested_declaration_of_the_same_name_is_not_a_call(lang, path, code):
     _, edges = _scan(lang, path, code)
     assert edges == []
+
+
+@pytest.mark.parametrize(
+    "code",
+    [
+        # a method `f` with no free `f`: the bare call is recursion through the name, dropped
+        "package p\n\ntype S struct{}\n\nfunc (s *S) f(a int) int {\n\treturn f(a)\n}\n",
+        # a generic free function has no receiver: its own bare call is recursion
+        "package p\n\nfunc f[T any](a T) T {\n\treturn f(a)\n}\n",
+        # a function literal in a body is not a method header
+        "package p\n\nfunc f() {\n\tg := func(a int) { f() }\n\t_ = g\n}\n",
+    ],
+)
+def test_go_without_a_receiver_or_free_target_stays_recursion(code):
+    file, edges = _scan("go", "a.go", code)
+    assert edges == []
+    assert all(not fn["calls_out_to"] for fn in file["functions"])

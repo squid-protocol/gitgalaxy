@@ -59,9 +59,10 @@ from typing import Any
 # #5699: languages where a bare `f(` inside a method `f` is never the method (it needs `self.f` /
 # `this.f` / `$this->f`), so it may reach a free `f`. The detector keeps such a call for a unit
 # inside a class and this resolver prunes it when only the unit itself resolves. Not here:
-# Kotlin, Swift, Java, Ruby, C# (a member shadows the free function, so it is recursion) and
-# Go (a method has no enclosing class in the scan, so the detector cannot tell it from a function).
-BARE_CALL_SKIPS_METHODS = frozenset({"rust", "php", "typescript", "javascript", "python"})
+# Kotlin, Swift, Java, Ruby and C# (a member shadows the free function, so it is recursion).
+# Go qualifies by its receiver (`func (s *S) f(`) rather than an enclosing class: the detector
+# keeps the call only for a unit whose header names one.
+BARE_CALL_SKIPS_METHODS = frozenset({"rust", "php", "typescript", "javascript", "python", "go"})
 
 # Languages whose identifiers are case-insensitive, so `CALL Foo` reaches a
 # `FOO` definition. The detector's calls_out ignore uses the same list for its

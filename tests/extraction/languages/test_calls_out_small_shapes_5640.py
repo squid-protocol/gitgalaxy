@@ -3,6 +3,8 @@
 
 * shell: a command word is a call (it was declared blind); the resolver keeps the ones naming a script's functions.
 * scheme: `(define name (lambda ...))` is a procedure definition, so its calls have an owner.
+* shell: a subshell, process substitution, `VAR=1 cmd`, redirect prefix, `trap handler` and a pipeline stage in `$(...)`
+  open a command, and a call reaches a function of a sourced file.
 * shell: a function defined and closed on one line (`name() { cmd; }`) is a unit that owns its calls.
 * tcl: a one-line brace body (`catch {qux}`, `if {$a} {foo}`, `after 10 {zed}`) is command position.
 * scheme: the formals list of a `lambda` is not a call.
@@ -16,6 +18,7 @@ from pathlib import Path
 
 import pytest
 
+from gitgalaxy.core.call_resolver import resolve_calls
 from gitgalaxy.core.detector import StructuralExtractor
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
@@ -66,6 +69,22 @@ def _shell(body: str) -> list[str]:
         ("  x=$(time foo)", "foo"),
         ("  if time foo; then :; fi", "foo"),
         ("  cmd && exec bar", "bar"),
+        ("  ( sub_a )", "sub_a"),
+        ("  (sub_b; other)", "sub_b"),
+        ("  (cd dir && sub_c)", "sub_c"),
+        ("  diff <(feed_a) <(feed_b)", "feed_b"),
+        ("  while read l; do :; done < <(feed_c)", "feed_c"),
+        ("  x=$(a | piped_a)", "piped_a"),
+        ("  x=$(a && listed_a)", "listed_a"),
+        ("  x=$(a || listed_b)", "listed_b"),
+        ("  FOO=1 envcmd_a", "envcmd_a"),
+        ("  FOO=1 BAR=$x envcmd_b arg", "envcmd_b"),
+        ("  cmd | FOO=1 envcmd_c", "envcmd_c"),
+        ("  x=$(FOO=1 envcmd_d)", "envcmd_d"),
+        ("  >/dev/null redir_a", "redir_a"),
+        ("  2>&1 redir_b", "redir_b"),
+        ("  trap cleanup_a EXIT", "cleanup_a"),
+        ("  trap cleanup_b INT TERM", "cleanup_b"),
     ],
 )
 def test_shell_command_word_is_a_call(body, callee):
@@ -86,6 +105,18 @@ def test_shell_command_word_is_a_call(body, callee):
         ("  time", "time"),
         ("  echo time foo", "foo"),
         ("  if true; then :; fi", "then"),
+        ("  arr=(one two)", "one"),
+        ("  arr+=(one two)", "two"),
+        ("  n=$(( count + 1 ))", "count"),
+        ("  (( count++ ))", "count"),
+        ("  (( count = other + 1 ))", "other"),
+        ("  x=$(a | b)", "x"),
+        ("  FOO=1 BAR=2", "BAR"),
+        ("  FOO=$(inner_a arg) bar_a", "arg"),
+        ("  >/dev/null", "dev"),
+        ("  trap - EXIT", "EXIT"),
+        ("  trap '' INT", "INT"),
+        ("  echo a | b", "a"),
     ],
 )
 def test_shell_non_command_words_are_not_calls(body, not_callee):
@@ -103,9 +134,33 @@ def test_shell_script_function_calls_another():
     assert "log_info" not in _calls("shell", code, "log_info")
 
 
+def test_shell_calls_resolve_across_sourced_files():
+    """The command words of one script reach the functions of the files it sources (and `. file`)."""
+    lib = 'log_info() {\n  echo "$1"\n}\nstop_one() {\n  log_info stopping\n}\n'
+    run = 'source "$DIR/lib.sh"\nstart() {\n  log_info up\n  id=$(stop_one x | cat)\n  ( other_one )\n}\n'
+    dot = ". ./lib.sh\ngo() {\n  FOO=1 stop_one\n}\n"
+    files = []
+    for path, code in (("s/lib.sh", lib), ("s/run.sh", run), ("s/dot.sh", dot)):
+        parsed = StructuralExtractor("shell", LANGUAGE_DEFINITIONS).splice(code, "")
+        files.append({"path": path, "lang_id": "shell", "functions": parsed["functions"], "classes": []})
+    edges = [{"src": "s/run.sh", "dst": "s/lib.sh"}, {"src": "s/dot.sh", "dst": "s/lib.sh"}]
+    sites, _ = resolve_calls(files, edges)
+    resolved = {(x["src_name"], x["dst_name"], x["dst_path"]) for x in sites if x["dst_name"]}
+    assert resolved == {
+        ("stop_one", "log_info", "s/lib.sh"),
+        ("start", "log_info", "s/lib.sh"),
+        ("start", "stop_one", "s/lib.sh"),
+        ("go", "stop_one", "s/lib.sh"),
+    }
+
+
 def test_shell_pattern_is_redos_immune():
     pattern = LANGUAGE_DEFINITIONS["shell"]["rules"]["calls_out"]
     assert pattern.groups == 1
+    assert_redos_immune(pattern, "a=b " * 20000 + "=")
+    assert_redos_immune(pattern, "(" * 20000)
+    assert_redos_immune(pattern, "$(a " + "| " * 20000 + "x")
+    assert_redos_immune(pattern, ">a " * 20000 + "=")
     assert_redos_immune(pattern, "a" * 50000 + "=")
     assert_redos_immune(pattern, "$(" * 20000)
     assert_redos_immune(pattern, "; " * 20000 + "x:")

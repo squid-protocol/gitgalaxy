@@ -17,7 +17,10 @@ from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 # #5640: a prefix word that runs the command after it (`time foo`, `exec foo`, `nohup foo`), with up to
 # four option words (`time -p foo`). Consumed, so the capture is the command it runs; a bare `exec >log`
 # or `time` alone does not match it and stays an ignored word.
-_WRAPPER = r"(?:(?:time|exec|nohup|nice|sudo)[ \t]+(?:-[^\s]*[ \t]+){0,4})?"
+# `FOO=1 BAR=2 cmd` and `>out 2>&1 cmd` put words before the command that are no command (a value holding `(`
+# or a backtick is a substitution, not a word of its own). `trap handler SIG` runs the handler by name.
+_PREFIX = r"(?:(?:[A-Za-z_][A-Za-z0-9_]*\+?=[^\s;&|()`]*|[0-9]*[<>]{1,2}&?[^\s;&|()`]*)[ \t]+)*"
+_WRAPPER = _PREFIX + r"(?:(?:time|exec|nohup|nice|sudo)[ \t]+(?:-[^\s]*[ \t]+){0,4}|trap[ \t]+)?"
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -87,6 +90,14 @@ DEFINITION: dict[str, Any] = {
             r"|\b(?:then|do|else|elif|if|while|until)\b[ \t]*"
             + _WRAPPER
             + r"(?=[A-Za-z_][A-Za-z0-9_.:-]*(?:[ \t;&|}`\r]|$))"
+            # a subshell `( cmd )` / process substitution `<(cmd)`; not `$(` (below), `((`, or an array `=(a b)`
+            r"|(?<![=($(])\([ \t]*"
+            + _WRAPPER
+            + r"(?=[A-Za-z_][A-Za-z0-9_.:-]*(?:[ \t;&|)}`\r]|$))"
+            # the next stage of a pipeline or list inside `$( ... )`, which ends at a `)`
+            r"|(?<=[ \t&|])[;&|][ \t]+"
+            + _WRAPPER
+            + r"(?=[A-Za-z_][A-Za-z0-9_.:-]*[ \t]*\))"
             r"|(?:\$\((?!\()|`)[ \t]*" + _WRAPPER + r"(?=[A-Za-z_][A-Za-z0-9_.:-]*(?:[ \t;&|)}`\r]|$)))"
             r"([A-Za-z_][A-Za-z0-9_.:-]*)"
         ),

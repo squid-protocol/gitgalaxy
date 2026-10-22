@@ -17,9 +17,8 @@ Scans run with ``GITGALAXY_DISABLE_GIT_HISTORY=1`` (shallow clones carry no hist
 
 ``tests/doom_rosetta/manifest.csv`` has an ``expected_fails`` column: the space-separated six-check names
 (coverage language functions typosquat credentials health) a port is known to fail, so the verdicts are gated too. A
-port failing a check not listed, or passing one that is, is drift. doom-ios and doomsday list ``language``: their
-``.h`` files sit beside ``.m`` files and read as C, which the language check (``.h`` as objective-c needs ObjC
-syntax) rejects. cssdoom and sqldoom list ``functions``: their JavaScript files carry more engine-counted functions
+port failing a check not listed, or passing one that is, is drift. doom-ios no longer lists ``language`` (#5876: a
+``.h`` is objective-c only when it carries ObjC syntax, whatever ``.m`` files sit beside it). cssdoom and sqldoom list ``functions``: their JavaScript files carry more engine-counted functions
 than ctags and tree-sitter (4.7% and 11.4% over ctags); the disagreement is unresolved, so nothing is claimed about
 which count is right, and the entry is removed when the engine and the oracles agree. Needs Universal Ctags on PATH.
 """

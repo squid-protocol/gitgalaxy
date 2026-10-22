@@ -792,3 +792,20 @@ case is **not L5**. The survivors cluster where the case does not look: roughly 
 `Cbstm03aService.java`, whose bytes the run overwrites or never reads), and the rest are the paragraphs of a case that covers 23/25 paragraphs and 0/46 branches
 (one job, three TRNX rows). Closing it needs scenarios that reach the branches (empty and multi-card XREF, a missing ACCT/CUST key, a TRNX
 page break) and a reviewed `equivalent` / `unreachable` list for the image constants; both are follow-ups, not part of this slice.
+
+**#5863 L5 sweep, CBSA estate (2026-10-22): no program reaches L5 yet.** The four `cics-banking-sample-application-cbsa` ports
+(GETCOMPY, GETSCODE, ACCTCTRL, UPDACC; ABNDPROC is #4628 slice 6) were run as full enumerations (`det_mutation.py run ... --sample 0`,
+seed 0, fast mode, JDK 17), so each score is every in-scope mutant. Unlike asynccc these programs carry a COMMAREA, so the generated
+COMMAREA scaffolding (typed DTO in/out, link-area bytes, `exactCommarea`, `commarea_length`) is mutated too, and many of its mutants
+survive. GETCOMPY and GETSCODE are triaged in `tests/equivalence/det_mutation_survivors/`: 98 each are stated equivalent or
+unreachable, each with its reason; 13 are stated `case-gap` / `harness-gap` (open, by the same reasoning as `cbsa-updcust`); 56 are
+not yet judged. ACCTCTRL and UPDACC (Db2) are recorded but not yet triaged: their 327 and 395 survivors are all unaccounted.
+
+| program (case) | mutants run / in scope | killed | survived | stillborn | stated equivalent / unreachable | unaccounted | raw score | L5 |
+|---|---|---|---|---|---|---|---|---|
+| GETCOMPY (cbsa-getcompy) | 220/220 | 39 | 167 | 14 | 98 | 69 | 39/206 (19%) | no |
+| GETSCODE (cbsa-getscode) | 227/227 | 46 | 167 | 14 | 98 | 69 | 46/213 (22%) | no |
+| ACCTCTRL (cbsa-acctctrl) | 517/517 | 165 | 327 | 25 | 0 | 327 | 165/492 (34%) | no |
+| UPDACC (cbsa-updacc) | 713/713 | 293 | 395 | 25 | 0 | 395 | 293/688 (43%) | no |
+
+The "unaccounted" column includes the open `case-gap` / `harness-gap` rows, which block L5 until a scenario or the harness covers them.

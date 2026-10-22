@@ -278,6 +278,7 @@ public final class DetDli {
      * gitgalaxy.faults.plan names (the file-fault plan the COBOL file layer also reads, which ignores them), counted
      * afresh for each run. The twin of ggdli.c's GGDLI_FAULTS.
      */
+    // [rule RT-DLI-FAULT-INJECTION]
     private static void loadFaults() {
         FAULTS.clear();
         CALLS.clear();

@@ -3729,6 +3729,23 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-DLI-FAULT-INJECTION",
+   "family": "DLI",
+   "title": "A planned DL/I fault (# DLI FUNCTION NTH|* STATUS; a get-hold counts as its get) replaces that call's execution, the PCB answering the status as for any status it names",
+   "methods": [
+    "loadFaults",
+    "planned"
+   ],
+   "ibm": null,
+   "ibm_note": "the faults are the harness's; the PCB feedback a fault leaves is assumed",
+   "options": [],
+   "register": [
+    "I3"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-DATA-BINARY-SIZE",
    "family": "DATA",
    "title": "A COMP / COMP-4 / BINARY / COMP-5 item of 1-4 digits is a halfword, 5-9 a fullword, 10-18 a doubleword",

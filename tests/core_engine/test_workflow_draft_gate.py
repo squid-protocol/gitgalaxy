@@ -23,6 +23,7 @@ NOT_ON_PR = {  # jobs that cannot start on a pull_request event (their own `if` 
     ("smoke-test.yml", "tested-tree"),
     ("mainframe-ground-truth.yml", "tested-tree"),
     ("java-compile.yml", "tested-tree"),
+    ("doom-rosetta.yml", "callgraph"),  # #5630: nightly / manual only
 }
 MARK = "github.event.pull_request.draft"
 NON_PR = "github.event_name != 'pull_request'"

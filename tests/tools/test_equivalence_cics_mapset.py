@@ -1,5 +1,6 @@
 """#5862: a map's MAPSET name is compared, both ways, on RECEIVE MAP and SEND MAP (mutant 74b4bb8c3a of billpay)."""
 
+import re
 import sys
 from pathlib import Path
 
@@ -43,3 +44,16 @@ def test_a_different_mapset_is_a_difference_and_the_same_one_is_not():
         assert "mapset" not in str(
             ec.compare_events([{"event": event, "map": "M"}], [{"event": event, "map": "M", "mapset": "X"}])
         )
+
+
+def test_no_committed_port_receives_a_map_without_its_mapset():
+    """#5991: CicsTask.receive(map, Class) records mapset=null, where COBOL states the MAPSET."""
+    root = Path(__file__).resolve().parents[1]
+    receive = re.compile(r"\.receive\(\s*[^,()]+,\s*[A-Za-z_][\w.]*\.class\b")
+    bad = [
+        f"{p.relative_to(root)}: {m.group(0)}"
+        for base in ("equivalence", "cics_crucible")
+        for p in sorted((root / base).rglob("*.java"))
+        for m in receive.finditer(p.read_text(encoding="utf-8"))
+    ]
+    assert bad == []

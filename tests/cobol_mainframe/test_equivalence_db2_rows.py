@@ -835,7 +835,17 @@ def test_lgucdb01_det_port_holds_on_generated_customer_rows(tmp_path):
     assert {x["sqlcode"] for q in sql for x in q["cobol"]} == {0, 100}
 
 
-def _prove_genapp_front_end(tmp_path, case):
+_GENERATED_ALL_TABLES = {
+    "GENASA1.CUSTOMER": 10,
+    "GENASA1.POLICY": 12,
+    "GENASA1.ENDOWMENT": 3,
+    "GENASA1.HOUSE": 4,
+    "GENASA1.MOTOR": 4,
+    "GENASA1.COMMERCIAL": 3,
+}
+
+
+def _prove_genapp_front_end(tmp_path, case, generated=None):
     """det_port.py run CASE: the report of the generated-row front-end case, proven."""
     import json
     import shutil
@@ -849,14 +859,7 @@ def _prove_genapp_front_end(tmp_path, case):
     assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
     report = json.loads(next(tmp_path.glob(f"{case}/**/report.json")).read_text())
     assert report["proven"] is True
-    assert report["db2_generated"] == {
-        "GENASA1.CUSTOMER": 10,
-        "GENASA1.POLICY": 12,
-        "GENASA1.ENDOWMENT": 3,
-        "GENASA1.HOUSE": 4,
-        "GENASA1.MOTOR": 4,
-        "GENASA1.COMMERCIAL": 3,
-    }
+    assert report["db2_generated"] == (generated or _GENERATED_ALL_TABLES)
     sql = [o["sql"] for o in report["outputs"].values() if "sql" in o]
     assert all(q["equal"] == q["statements"] for q in sql)
     return sql
@@ -898,3 +901,23 @@ def test_lgdpol01_front_end_holds_on_generated_multi_table_rows_with_fk(tmp_path
     sql = _prove_genapp_front_end(tmp_path, "genapp-lgdpol01-generated")
     assert len(sql) == 17 and sum(1 for q in sql if q["statements"]) == 13
     assert {(x["verb"], x["sqlcode"]) for q in sql for x in q["cobol"]} == {("DELETE", 0), ("DELETE", 100)}
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_lgipol01_front_end_holds_on_generated_policy_rows_with_fk(tmp_path):
+    """GenApp's inquire-policy front end (LGIPOL01, LINKing LGIPDB01) on the generated rows of
+    genapp-lgipdb01-generated: the 32 requests (found, wrong customer, policy of another type, by policy, the customer
+    and postcode cursors) through the front end, every SELECT answered alike (SQLCODE 0 and 100) on both sides."""
+    sql = _prove_genapp_front_end(tmp_path, "genapp-lgipol01-generated")
+    assert len(sql) == 33 and sum(1 for q in sql if q["statements"]) == 30
+    assert {(x["verb"], x["sqlcode"]) for q in sql for x in q["cobol"]} == {("SELECT", 0), ("SELECT", 100)}
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL, Db2) and a JDK + Maven")
+def test_lgicus01_front_end_holds_on_generated_customer_rows(tmp_path):
+    """GenApp's inquire-customer front end (LGICUS01, LINKing LGICDB01) on the ten generated CUSTOMER rows of
+    genapp-lgicdb01-generated: found and not-found (SQLCODE 0 and 100) customers and the prefilled-COMMAREA paths
+    answered alike on both sides."""
+    sql = _prove_genapp_front_end(tmp_path, "genapp-lgicus01-generated", {"GENASA1.CUSTOMER": 10})
+    assert len(sql) == 20 and sum(1 for q in sql if q["statements"]) == 18
+    assert {(x["verb"], x["sqlcode"]) for q in sql for x in q["cobol"]} == {("SELECT", 0), ("SELECT", 100)}

@@ -313,8 +313,8 @@
    "line": 617,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "harness-gap",
-   "reason": "the byte[] COMMAREA entry (`ca instanceof byte[]`) is never taken: the equivalence harness passes a typed COMMAREA object. A caller passing raw bytes (a LINK with a COMMAREA length) would reach it; the harness cannot yet express it"
+   "verdict": "unreachable",
+   "reason": "the byte[] COMMAREA entry (`ca instanceof byte[]`) runs only for a LINK from a Java caller handing raw bytes; no CardDemo program LINKs this program (no EXEC CICS LINK exists in the app; it is a terminal program reached by XCTL), so the area is always the typed DTO"
   },
   {
    "id": "86eb860cf0",
@@ -322,8 +322,8 @@
    "line": 617,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "harness-gap",
-   "reason": "the byte[] COMMAREA entry (`ca instanceof byte[]`) is never taken: the equivalence harness passes a typed COMMAREA object. A caller passing raw bytes (a LINK with a COMMAREA length) would reach it; the harness cannot yet express it"
+   "verdict": "unreachable",
+   "reason": "the byte[] COMMAREA entry (`ca instanceof byte[]`) runs only for a LINK from a Java caller handing raw bytes; no CardDemo program LINKs this program (no EXEC CICS LINK exists in the app; it is a terminal program reached by XCTL), so the area is always the typed DTO"
   },
   {
    "id": "3be100f599",

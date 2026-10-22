@@ -142,7 +142,7 @@ IBM_SILENT = re.compile(
     r"|undefined (on|in|by) IBM|not documented",
     re.I,
 )
-STRICT_BASELINE: frozenset[str] = frozenset({"Q1b", "X13", "X14", "X15", "X16", "X23", "X24"})
+STRICT_BASELINE: frozenset[str] = frozenset()
 
 
 def audit() -> list[tuple[str, str, str]]:

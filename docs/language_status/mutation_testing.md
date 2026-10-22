@@ -812,3 +812,16 @@ stated (register X10), so the `beyond` mutants are `harness-gap`. ACCTCTRL and U
 | UPDACC (cbsa-updacc) | 713/713 | 293 | 395 | 25 | 0 | 395 | 293/688 (43%) | no |
 
 The "unaccounted" column includes the open `case-gap` / `harness-gap` rows, which block L5 until a scenario or the harness covers them.
+
+**#4628 slice 5 (2026-10-22): COUSR02C and COUSR03C reach L5, COUSR01C keeps two `harness-gap` survivors.** First det-port ledgers for the
+three CardDemo user-admin ports (150 mutants each, seed 0, fast mode, JDK 17). New scenarios kill survivors: `header-fields-sent-back`
+(COUSR03C: a received TRNNAME), `pf3-returns-to-menu-caller` and `pf5-updates-short-user-id` (COUSR02C, plus the OPS record in its
+`usrsec.txt`), and the COUSR01C additions. Every remaining COUSR01C survivor has a stated reason in
+`det_mutation_survivors/carddemo-useradd.json` (41 equivalent, 13 unreachable); the two open ones are the byte[] COMMAREA entry
+(`cb.length > s_DFHCOMMAREA.bytes.length`), which the harness cannot express. The verdicts are proposals for owner review.
+
+| program (case) | mutants run / in scope | killed | survived | stillborn | stated equivalent / unreachable | unaccounted | raw score | L5 |
+|---|---|---|---|---|---|---|---|---|
+| COUSR01C (carddemo-useradd) | 150/1214 | 91 | 56 | 3 | 54 | 2 | 91/147 (62%) | no |
+| COUSR02C (carddemo-userupd) | 150/1404 | 144 | 0 | 6 | 0 | 0 | 144/144 (100%) | yes |
+| COUSR03C (carddemo-userdel) | 150/1302 | 142 | 0 | 8 | 0 | 0 | 142/142 (100%) | yes |

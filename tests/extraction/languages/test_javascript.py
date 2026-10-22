@@ -112,6 +112,27 @@ def test_javascript_func_start_invalid(payload):
     assert_invalid_no_match(JS_RULES["func_start"], payload, "javascript.func_start")
 
 
+# #5876: a named arrow function is a function definition wherever it is bound. Universal Ctags tags a nested
+# `const f = () =>` as a constant and misses some `window.f = () =>` assignments, so the engine's count runs above
+# ctags on such code; the count is correct (docs/language_status/javascript.md, section 5, item 4).
+@pytest.mark.parametrize(
+    "payload,expected_name",
+    [
+        ("    const unlock = () => {", "unlock"),  # nested in a function body
+        ("    const releaseLook = e => {", "releaseLook"),  # single parameter, no parentheses
+        ("        const press = () => { keys[k] = true; };", "press"),  # inside a loop block
+        ("    window.listItems = () => {", "listItems"),  # property assignment on a global
+        ("window.jump = (height, speed) => {", "jump"),
+        ("const sleep = (ms) => new Promise((r) => setTimeout(r, ms));", "sleep"),  # expression body, no braces
+        ("  const prepare = async (id) => {", "prepare"),  # async arrow
+        ("  conn.onclose = (err) => { if (open) stop(err.message); };", "onclose"),  # handler assigned on any object
+        ("ws.onmessage = (ev) => {", "onmessage"),
+    ],
+)
+def test_javascript_func_start_bound_arrow_is_a_function(payload, expected_name):
+    assert_valid_match(JS_RULES["func_start"], payload, expected_name, "javascript.func_start")
+
+
 @pytest.mark.parametrize("payload,expected_name", FUNCTION_CASES["pathological"])
 def test_javascript_func_start_pathological(payload, expected_name):
     assert_pathological_match(JS_RULES["func_start"], payload, expected_name, "javascript.func_start")

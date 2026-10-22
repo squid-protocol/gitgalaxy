@@ -10,7 +10,6 @@
 import logging
 import math
 import re
-import time
 from pathlib import Path
 from typing import Any, TypedDict
 
@@ -1405,13 +1404,10 @@ class LanguageDetector:
         # PHASE 3: Structural Density Scan
         # =========================================================================
         density_scores = {}
-        friction_scores = {}
 
         for lid in surviving_candidates:
             regex_hits: float = 0  # float: the abap handicap below multiplies by 0.7
             rules = self.languages.get(lid, {}).get("rules", {})
-            t_start = time.time()
-
             for rule_name, regex in rules.items():
                 # #1209: same underscore-prefixed-metadata skip as the
                 # scoring loop above -- see its comment.
@@ -1463,9 +1459,6 @@ class LanguageDetector:
             # =====================================================================
             density_scores[lid] = regex_hits / loc
 
-            # Record execution time to penalize extremely slow, backtracking regex evaluations
-            friction_scores[lid] = time.time() - t_start
-
         if not density_scores:
             self.logger.debug("Tier 4 [Phase 3]: No structural signals detected for any candidate.")
             return "undeterminable", 0.0
@@ -1488,30 +1481,19 @@ class LanguageDetector:
 
             density_margin = top_density / max(runner_up_density, 0.0001)
 
-            top_friction = friction_scores[top_id]
-            runner_up_friction = friction_scores[runner_up_id]
-            friction_ratio = top_friction / max(runner_up_friction, 0.000001)
-
-            # --- DYNAMIC THRESHOLD ALIGNMENT ---
+            # #5876: no wall-clock friction term. A timing ratio on a sub-millisecond scan flipped
+            # the verdict run to run (doom-fx convert/ConvSound1), so the margin alone decides.
 
             # 1. Strong Structural Lead (Must be 1.5x denser than runner-up)
             if density_margin >= 1.5:
-                # If it's vastly slower, the regex engine is likely thrashing on false positives
-                if friction_ratio > 5.0:
-                    self.logger.warning(f"Tier 4 [Reconciliation]: TEMPORAL FRICTION ANOMALY on {top_id}...")
-                    return "undeterminable", 0.0
-
                 return top_id, min(top_density, 1.0)
 
-            # 2. Friction Tie-Breaker (If margin is tight, penalize slow regex execution)
+            # 2. A margin short of the lead is a collision, not a win
             elif density_margin >= self.thresholds.get("TIER_4_OUTLIER_MARGIN", 1.10):
-                if friction_ratio > 0.5:
-                    self.logger.debug(
-                        f"Tier 4 [Reconciliation]: Collision. {top_id} density margin ({density_margin:.2f}x) was too weak, and friction ratio ({friction_ratio:.2f}x) failed to break the tie."
-                    )
-                    return "undeterminable", 0.0
-                self.logger.debug(f"Tier 4 [Reconciliation]: Friction Tie-Breaker utilized for {top_id}.")
-                return top_id, min(top_density, 1.0)
+                self.logger.debug(
+                    f"Tier 4 [Reconciliation]: Collision. {top_id} density margin ({density_margin:.2f}x) was too weak."
+                )
+                return "undeterminable", 0.0
 
             # 3. Absolute Ambiguity Resolution
             else:

@@ -244,11 +244,21 @@ def elementary(rec: Any) -> list[Any]:
     return out
 
 
-def layout_units(rec: Any, base: int = 0, root_name: str | None = None) -> set[str]:
-    """`ROOT/NAME @offset+bytes` per elementary PIC item (FILLER aside), as the key's `layouts`."""
+def layout_units(rec: Any, base: int = 0, root_name: str | None = None, ibm: bool = False) -> set[str]:
+    """`ROOT/NAME @offset+bytes` per elementary PIC item (FILLER aside), as the key's `layouts`. `ibm`: offsets at
+    IBM's POINTER width (the key's, the engine's default) rather than the translator's storage width (C9, #5649)."""
     name = root_name or rec.name
-    return {f"{name}/{it.name} @{it.offset - base}+{it.size * it.occurs}"
-            for it in elementary(rec) if it.pic and it.name != "FILLER"}  # fmt: skip
+    leaves = elementary(rec)
+
+    def at(it: Any) -> int:
+        wide = 0
+        if ibm:  # each POINTER of this record before the item is wider in storage than in IBM's layout
+            ibm_ptr = det()[0].IBM_POINTER_BYTES
+            wide = sum((x.size - ibm_ptr) * x.occurs for x in leaves if x.usage == "POINTER" and x.offset < it.offset)
+        return it.offset - base - wide
+
+    return {f"{name}/{it.name} @{at(it)}+{it.size * it.occurs}"
+            for it in leaves if it.pic and it.name != "FILLER"}  # fmt: skip
 
 
 def record_bytes(rec: Any) -> str:
@@ -279,7 +289,7 @@ def copybook_layouts(path: Path, dirs: list[Path], engine: Any = None) -> tuple[
     for r in roots:
         if r.level in (66, 88) or r.redefines:
             continue
-        out |= layout_units(r, base=r.offset)
+        out |= layout_units(r, base=r.offset, ibm=True)
     return out, None
 
 

@@ -3247,10 +3247,14 @@ class GalaxyIR:
     _TEMPLATE_FIGURATIVE = frozenset({"SPACE", "SPACES", "ZERO", "ZEROS", "ZEROES", "LOW-VALUE", "LOW-VALUES", "HIGH-VALUE",
                                       "HIGH-VALUES", "QUOTE", "QUOTES", "NULL", "NULLS"})  # fmt: skip
 
-    def _group_template(self, ef: EngineFile, operand: str | None) -> str | None:
+    _RUNTIME_CHAR = "\x00"  # one character a task fills in at run time (a blank X leaf of a file-name group)
+
+    def _group_template(self, ef: EngineFile, operand: str | None, runtime: bool = False) -> str | None:
         """#4771: the name a group operand spells, from its elementary items' VALUEs in order (zECS's
         `01 ZF-FCT. 02 ZF-TRANID PIC X(04) VALUE 'ZC##'. 02 FILLER PIC X(04) VALUE 'FILE'.` -> `ZC##FILE`, the `##`
-        the install's table suffix). None unless the item is a group of plain, valued, single-occurrence X items."""
+        the install's table suffix). None unless the item is a group of plain, valued, single-occurrence X items.
+        #5089: with `runtime`, an X item with no VALUE (or VALUE SPACES) is a run-time part of the name, one
+        `_RUNTIME_CHAR` per character (ZECS000's `ZF-TRANID PIC X(04)` MOVEd from the RETRIEVEd transaction id)."""
         item, qual = _operand_name(operand)
         found = self._find_item(ef, item, qual) if item else []
         if not found or not found[0][1].children:
@@ -3269,9 +3273,14 @@ class GalaxyIR:
                     continue
                 size = re.fullmatch(r"X\((\d+)\)|(X+)", (c.pic or "").upper().replace(" ", ""))
                 value = c.value
-                if size is None or value is None or value.upper() in self._TEMPLATE_FIGURATIVE:
+                if size is None:
                     return False
                 width = int(size.group(1)) if size.group(1) else len(size.group(2))
+                if runtime and (value is None or value.upper() in ("SPACE", "SPACES")):
+                    parts.append(self._RUNTIME_CHAR * width)
+                    continue
+                if value is None or value.upper() in self._TEMPLATE_FIGURATIVE:
+                    return False
                 parts.append(value[:width].ljust(width))
             return True
 
@@ -3287,10 +3296,47 @@ class GalaxyIR:
             return set()
         template = self._group_template(ef, op.operand)
         if not template:
-            return set()
+            return self._runtime_names(ef, op, defined)
         shape = self._TEMPLATE_WILD.sub("*", template)
         hits = {d.upper() for d in defined if self._TEMPLATE_WILD.sub("*", d.upper()) == shape}
         return hits if len(hits) == 1 else set()
+
+    def _runtime_names(self, ef: EngineFile, op: EngineCicsResource, defined: Sequence[str]) -> set[str]:
+        """#5089 (#4771): a group with run-time parts (`_group_template(runtime=True)`: ZECS000's `ZF-FCT` = the
+        transaction id MOVEd into a blank X(04) + 'FILE') read against the defined names: the one whose fixed
+        characters agree at every position, a `#` run or an `@SYMBOL@` standing for characters the install chooses.
+        At least three fixed characters, and exactly one definition: a pattern that fits several names, or that
+        says too little, names no file."""
+        pattern = self._group_template(ef, op.operand, runtime=True)
+        if not pattern or pattern.count(self._RUNTIME_CHAR) == 0:
+            return set()
+        if sum(c not in (self._RUNTIME_CHAR, "#") for c in pattern) < 3:
+            return set()
+        hits = {d.upper() for d in defined if self._fits(pattern, d.upper())}
+        return hits if len(hits) == 1 else set()
+
+    def _fits(self, pattern: str, name: str) -> bool:
+        """`name` (with `#` runs and `@SYMBOL@` wildcards) can spell `pattern` (run-time characters, `#` any)."""
+        toks: list[tuple[str, int]] = []
+        pos = 0
+        for m in self._TEMPLATE_WILD.finditer(name):
+            toks += [(ch, 0) for ch in name[pos : m.start()]]
+            toks.append(("#", len(m.group()) if m.group().startswith("#") else -1))
+            pos = m.end()
+        toks += [(ch, 0) for ch in name[pos:]]
+        any_char = (self._RUNTIME_CHAR, "#")
+
+        def go(t: int, p: int) -> bool:
+            if t == len(toks):
+                return p == len(pattern)
+            ch, width = toks[t]
+            if width == 0:  # a literal character
+                return p < len(pattern) and pattern[p] in (ch, *any_char) and go(t + 1, p + 1)
+            if width > 0:  # a `#` run: that many characters the install chooses
+                return p + width <= len(pattern) and go(t + 1, p + width)
+            return any(go(t + 1, p + k) for k in range(1, len(pattern) - p + 1))  # @SYMBOL@: one or more
+
+        return go(0, 0)
 
     def _cics_ops_lineage(self, kind: str, csd_join: str, key: str) -> list:
         """Program -> CICS resource of `kind` -> the CSD join `csd_join` (#3356).

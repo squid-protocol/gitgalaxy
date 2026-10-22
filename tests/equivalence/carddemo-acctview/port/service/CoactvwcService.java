@@ -213,7 +213,7 @@ public class CoactvwcService {
 
     // 2000-PROCESS-INPUTS: 2100-RECEIVE-MAP, 2200-EDIT-MAP-INPUTS (and 2210-EDIT-ACCOUNT).
     private void processInputs(CicsTask task, CarddemoCommarea ca, Work w) {
-        String typed = task.receive("CACTVWA", CactvwaScreen.class).map(CactvwaScreen::getAcctsid).orElse("");
+        String typed = task.receive("CACTVWA", "COACTVW", CactvwaScreen.class).map(CactvwaScreen::getAcctsid).orElse("");
         typed = typed == null ? "" : typed;
         w.inputError = false;
         w.acctFilter = '1';

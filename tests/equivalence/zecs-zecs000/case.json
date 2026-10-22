@@ -10,10 +10,11 @@
   "clock": "2026/10/01 10:30:15.00",
   "install_symbols": {
     "values": {
+      "ID": "01",
       "ECS_HLQ": "ZECS",
       "ENVIRONMENT": "TEST"
     },
-    "why": "zECS's install jobs (JCL/CONFIG.jcl, DEFEXPR.jcl) replace @ecs_hlq@ and @environment@ in ZCEXPIRE.idcams and the CSD's DEFINE FILE(ZCEXPIRE) DSNAME; this case installs one environment, high-level qualifier ZECS and environment TEST"
+    "why": "zECS's install jobs (JCL/CONFIG.jcl, DEFEXPR.jcl) replace @ecs_hlq@ and @environment@ in ZCEXPIRE.idcams and the CSD's DEFINE FILE(ZCEXPIRE) DSNAME; this case installs one environment, high-level qualifier ZECS and environment TEST; #5089: the instance (ID 01) the resume scenarios name through their start data, so the CSD's ZC@ID@FILE and ZC@ID@KEY are ZC01FILE and ZC01KEY (EIBTRNID / ZC-TRANID 'ZC01')"
   },
   "datasets": {
     "ZECS.ZCEXPIRE.TEST": {
@@ -28,6 +29,32 @@
       "entity": "ZxRecord",
       "copybook": "Source/ZECS000.cbl",
       "record": "ZX-RECORD"
+    },
+    "ZECS.ZC01FILE.TEST": {
+      "input": "@case/zcempty.bin",
+      "entity": "ZfRecord",
+      "copybook": "Source/ZECSZFC.cpy",
+      "record": "ZF-RECORD",
+      "vsam": {
+        "key_offset": 0,
+        "key_length": 16,
+        "reclen": 32700,
+        "why": "Source/ZECSFILE.idcams: INDEXED KEYS(16 0) RECORDSIZE(100 32700); the CSD's DEFINE FILE(ZC@ID@FILE) DSNAME is @ECS_HLQ@.ZC@ID@FILE.@ENVIRONMENT@ and the engine does not read the IDCAMS job as a define. The CSD defines it RECORDFORMAT(V); every record the case seeds is the one length reclen (a seed line is a ZF record, ZF-KEY-16 .. ZF-DATA as written, which the harness blank-pads to the program's ZF-RECORD of 32700 bytes), so the stub's fixed-length records stand in",
+        "variable": true
+      }
+    },
+    "ZECS.ZC01KEY.TEST": {
+      "input": "@case/zcempty.bin",
+      "entity": "ZkRecord",
+      "copybook": "Source/ZECSZKC.cpy",
+      "record": "ZK-RECORD",
+      "vsam": {
+        "key_offset": 0,
+        "key_length": 255,
+        "reclen": 512,
+        "why": "Source/ZECSKEY.idcams: INDEXED KEYS(255 0) RECORDSIZE(512 512); the CSD's DEFINE FILE(ZC@ID@KEY) DSNAME is @ECS_HLQ@.ZC@ID@KEY.@ENVIRONMENT@, not read as a define (RECORDFORMAT(V) there, fixed 512-byte records in the stub)",
+        "variable": true
+      }
     }
   },
   "commarea": null,
@@ -73,11 +100,173 @@
         }
       ],
       "why": "1200-ENQ ENQ RESOURCE(ZC-EXPIRE-ENQ) NOSUSPEND answers ENQBUSY (IBM raises it for an unavailable resource with NOSUSPEND; register X60): 8000-RESTART and 9000-RETURN end the task before the control record is read"
+    },
+    {
+      "name": "resume-empty-file",
+      "commarea": null,
+      "startcode": "S",
+      "start_data": [
+        {
+          "text": "ZC01AAAAAAAA\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"
+        }
+      ],
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcempty.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zcempty.bin"
+        }
+      },
+      "why": "the task is started with start data (RETRIEVE INTO ZC-PARM: ZC-TRANID ZC01, ZC-KEY not LOW-VALUES), so 1100-CONTROL is skipped and the instance's file names resolve at run time (#4771, #5089): ZF-FCT = ZC01FILE, ZK-FCT = ZC01KEY, both the one ZC##FILE / ZC##KEY store stated by this case's datasets. ZC01FILE is empty: 2000-READ-FILE's READ GTEQ answers NOTFND, so EOF is set and 8000-RESTART and 9000-RETURN end the task"
+    },
+    {
+      "name": "resume-fresh-record",
+      "commarea": null,
+      "startcode": "S",
+      "start_data": [
+        {
+          "text": "ZC01AAAAAAAA\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"
+        }
+      ],
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-fresh.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey.bin"
+        }
+      },
+      "why": "the task is started with start data (RETRIEVE INTO ZC-PARM: ZC-TRANID ZC01, ZC-KEY not LOW-VALUES), so 1100-CONTROL is skipped and the instance's file names resolve at run time (#4771, #5089): ZF-FCT = ZC01FILE, ZK-FCT = ZC01KEY, both the one ZC##FILE / ZC##KEY store stated by this case's datasets. the READ GTEQ finds FRESH1 (ZF-ABS an hour ahead of the clock): it has not expired, so 3000-DEPLICATE (DOCUMENT / WEB) is not run and the record is kept; the next READ GTEQ is NOTFND and the task restarts and returns"
+    },
+    {
+      "name": "resume-expired-peer-201",
+      "commarea": null,
+      "startcode": "S",
+      "start_data": [
+        {
+          "text": "ZC01AAAAAAAA\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"
+        }
+      ],
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-expired.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey.bin"
+        }
+      },
+      "doctemplates": {
+        "ZC01DC": "type: AS\r%http://zecs-b.example.com:8080\r%"
+      },
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs-b.example.com",
+          "port": 8080,
+          "urimap": null,
+          "path": null,
+          "exchanges": [
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            }
+          ]
+        }
+      ],
+      "why": "#5089: the task is started with start data (RETRIEVE INTO ZC-PARM), so 1100-CONTROL is skipped and ZF-FCT / ZK-FCT resolve to ZC01FILE / ZC01KEY (#4771, #5089). The first record, EXPRD1 (two segments), has ZF-ABS an hour and a minute before the clock and a ZF-TTL of 3600 s, so RELATIVE-TIME exceeds TTL-MILLISECONDS and 3000-DEPLICATE runs: the active-standby partner answers 201 with its own ABSTIME in the status text (numeric), so 3100-UPDATE-ABS READs the record for update and 3110-REWRITE stores the partner's ABSTIME in ZF-ABS and SYNCPOINTs: the record is kept, not deleted. FRESH1 is kept and the next READ GTEQ is NOTFND"
+    },
+    {
+      "name": "resume-expired-peer-404",
+      "commarea": null,
+      "startcode": "S",
+      "start_data": [
+        {
+          "text": "ZC01AAAAAAAA\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"
+        }
+      ],
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-expired.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey.bin"
+        }
+      },
+      "doctemplates": {
+        "ZC01DC": "type: AS\r%http://zecs-b.example.com:8080\r%"
+      },
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs-b.example.com",
+          "port": 8080,
+          "urimap": null,
+          "path": null,
+          "exchanges": [
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 404,
+              "statustext": "Not-Found",
+              "mediatype": "text/plain",
+              "body": ""
+            }
+          ]
+        }
+      ],
+      "why": "#5089: the task is started with start data (RETRIEVE INTO ZC-PARM), so 1100-CONTROL is skipped and ZF-FCT / ZK-FCT resolve to ZC01FILE / ZC01KEY (#4771, #5089). The first record, EXPRD1 (two segments), has ZF-ABS an hour and a minute before the clock and a ZF-TTL of 3600 s, so RELATIVE-TIME exceeds TTL-MILLISECONDS and 3000-DEPLICATE runs: the partner answers 404 (status text not numeric), so 3200-DELETE runs: 3210-DELETE issues DELETE FILE(ZF-FCT) once per segment (ZF-SEGMENT 1 to ZF-SEGMENTS) and DELETE FILE(ZK-FCT) removes the key record; both files are the run-time ZC01FILE / ZC01KEY stores"
+    },
+    {
+      "name": "resume-expired-single",
+      "commarea": null,
+      "startcode": "S",
+      "start_data": [
+        {
+          "text": "ZC01AAAAAAAA\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"
+        }
+      ],
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-expired.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey.bin"
+        }
+      },
+      "doctemplates": {},
+      "why": "#5089: the task is started with start data (RETRIEVE INTO ZC-PARM), so 1100-CONTROL is skipped and ZF-FCT / ZK-FCT resolve to ZC01FILE / ZC01KEY (#4771, #5089). The first record, EXPRD1 (two segments), has ZF-ABS an hour and a minute before the clock and a ZF-TTL of 3600 s, so RELATIVE-TIME exceeds TTL-MILLISECONDS and 3000-DEPLICATE runs: the document template ZC01DC is not defined, so DOCUMENT CREATE is not NORMAL, 7000-GET-URL sets DC-TYPE to A1 (single data center) and no WEB OPEN / CONVERSE / CLOSE is issued; with EIBRESP not NORMAL and not LENGERR the record is neither rewritten nor deleted and the browse goes on"
     }
   ],
-  "notes": "zECS's expiration task for one instance (ZECS000, started by the ZX## transaction, here ZX01: EIBTRNID names the instance's files ZC01FILE and ZC01KEY, and the control file ZCEXPIRE). #5089: the CICS file ZCEXPIRE is defined with install symbols (CSD DEFINE FILE DSNAME @ecs_hlq@.ZCEXPIRE.@environment@) and zECS's IDCAMS job is Source/ZCEXPIRE.idcams, which the engine does not read as a define. The case states the substitution (\"install_symbols\": ECS_HLQ ZECS, ENVIRONMENT TEST -- never guessed) and the file's KEYS(4 0) from that job (\"vsam\" under the resolved name). RECORDSIZE(80 2048) and RECORDFORMAT(V) make ZCEXPIRE a variable-length KSDS; the stub keeps fixed-length records, so the case states reclen 70 -- every record the program writes and reads is its ZX-RECORD (LENGTH OF ZX-RECORD) -- and \"variable\": true says so; a record of another length would be a different case. The control record in zcexpire.bin is the one written 600 s before the task. The task is started with no start data (RETRIEVE answers ENDDATA: ZC-KEY stays LOW-VALUES) at the harness's STARTCODE 'S'. HOLES, named: ZC##FILE and ZC##KEY are named at run time from the RETRIEVEd transaction id (#4771) and defined by zECS's own IDCAMS jobs with install placeholders, so the Java side refuses the READ of the instance's file by name (Hole 'CICS file FILE: no store in the generated project') where GnuCOBOL answers FILENOTFOUND; every path that goes on to the expiration browse (2000-READ-FILE and everything after: the DOCUMENT / WEB replication, 3100-3220 deletes, 8100-RESTART) is therefore not in the case, and its paragraphs are uncovered and unproven (coverage 9/38 paragraphs). The two scenarios end before it: the control record is too young (1400-UPDATE restarts and returns) and a WRITE of the control record that answers DUPREC (1300-WRITE). ENQ BUSY, the control file's other conditions and the HANDLE ABEND label are not reached (the harness plans no fault for ENQ). Derived from zECS (github.com/walmartlabs/zECS, Apache-2.0): LICENSE here is the corpus's own, NOTICE names the source and what was derived.",
+  "notes": "zECS's expiration task for one instance (ZECS000, started by the ZX## transaction, here ZX01: EIBTRNID names the instance's files ZC01FILE and ZC01KEY, and the control file ZCEXPIRE). #5089: the CICS file ZCEXPIRE is defined with install symbols (CSD DEFINE FILE DSNAME @ecs_hlq@.ZCEXPIRE.@environment@) and zECS's IDCAMS job is Source/ZCEXPIRE.idcams, which the engine does not read as a define. The case states the substitution (\"install_symbols\": ECS_HLQ ZECS, ENVIRONMENT TEST -- never guessed) and the file's KEYS(4 0) from that job (\"vsam\" under the resolved name). RECORDSIZE(80 2048) and RECORDFORMAT(V) make ZCEXPIRE a variable-length KSDS; the stub keeps fixed-length records, so the case states reclen 70 -- every record the program writes and reads is its ZX-RECORD (LENGTH OF ZX-RECORD) -- and \"variable\": true says so; a record of another length would be a different case. The control record in zcexpire.bin is the one written 600 s before the task. The task is started with no start data (RETRIEVE answers ENDDATA: ZC-KEY stays LOW-VALUES) at the harness's STARTCODE 'S'. HOLES, named: ZC##FILE and ZC##KEY are named at run time from the RETRIEVEd transaction id (#4771) and defined by zECS's own IDCAMS jobs with install placeholders, so the Java side refuses the READ of the instance's file by name (Hole 'CICS file FILE: no store in the generated project') where GnuCOBOL answers FILENOTFOUND; every path that goes on to the expiration browse (2000-READ-FILE and everything after: the DOCUMENT / WEB replication, 3100-3220 deletes, 8100-RESTART) is therefore not in the case, and its paragraphs are uncovered and unproven (coverage 9/38 paragraphs). The two scenarios end before it: the control record is too young (1400-UPDATE restarts and returns) and a WRITE of the control record that answers DUPREC (1300-WRITE). ENQ BUSY, the control file's other conditions and the HANDLE ABEND label are not reached (the harness plans no fault for ENQ). Derived from zECS (github.com/walmartlabs/zECS, Apache-2.0): LICENSE here is the corpus's own, NOTICE names the source and what was derived. #5089 (#4771): two scenarios start the task with start data naming the instance (ZC01), so ZC##FILE / ZC##KEY resolve to the stated datasets ZECS.ZC01FILE.TEST / ZECS.ZC01KEY.TEST (the same stores and seeds as zecs-zecs003) and 2000-READ-FILE runs. The expired-record path (3000-DEPLICATE: DOCUMENT / WEB replication, the 3100-3220 deletes) is still not in the case.",
   "region": {
     "applid": "ZECSAPPL",
     "sysid": "ZECS"
-  }
+  },
+  "urimaps": [
+    [
+      "ZC01D",
+      "ZR01",
+      "/replicate/ecs/walmart/cache*"
+    ]
+  ],
+  "compiler_options": [
+    "TRUNC(BIN)"
+  ],
+  "compiler_options_why": "#5089: the program MOVEs LENGTH OF ZF-RECORD (32700) to ZF-LENGTH, a PIC S9(04) COMP, then READs LENGTH(ZF-LENGTH): TRUNC(STD) stores 2700 there and every full-size record would be LENGERR (a record over 2700 bytes could never be read), so the program only works as shipped under TRUNC(BIN); ASMZECS.jcl's DFHYITVL step states no TRUNC option (assumption, register it)"
 }

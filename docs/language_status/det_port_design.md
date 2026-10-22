@@ -864,14 +864,23 @@ NULL is distinct.
 - **Refused (register I5).** Other EXEC DLI; BMP / MPP / CICS DL/I programs and the I/O PCB (IMS TM); GSAM; DL/I calls
   other than the nine; command codes and boolean SSAs; AIBTDLI / CEETDLI; HDAM order; secondary indexes; logical
   relationships; load mode. CardDemo's other DL/I programs stop at one of these: PAUDBLOD (CMPAT=YES, an I/O PCB),
-  DBUNLDGS (GSAM PCBs). (COPAUA0C, COPAUS0C, COPAUS1C and CBPAUP0C's EXEC DLI commands translate, above; no equivalence case for COPAUS0C, COPAUS1C yet.)
+  DBUNLDGS (GSAM PCBs). (COPAUA0C, COPAUS0C, COPAUS1C and CBPAUP0C's EXEC DLI commands translate, above; COPAUS1C has no equivalence case yet.)
+- **COPAUA0C, the authorization task (`carddemo-copaua0c`, #5278).** Transid CP00: an MQTM trigger, MQGET on the request queue, IMS
+  DBPAUTP0 by EXEC DLI, three VSAM reads and MQPUT replies. Proven on 17 scenarios (3 fault runs), through the deployed entry point
+  too, covering 41/41 paragraphs and 58/69 branches. The det port is committed (`port/service/`, `port/provenance.json`, as CBPAUP0C's),
+  so `evidence.py prove carddemo-copaua0c` records it (`evidence.json`: proven, mutation pending). Left: the 11 uncovered branches (PSB
+  scheduling failure l.308, the DL/I error status of l.627, the five MAKE-DECISION arms l.700, l.339, l.416, l.837, l.963). Not modelled
+  and used by no burned program: MQINQ / MQSET (frontier #4892).
+- **COPAUS0C, the summary screen (`carddemo-copaus0c`, #5233).** Transid CPVS, map COPAU0A: GU / GNP browse of DBPAUTP0 (SCHD, a
+  qualified GNP to reposition a page), three VSAM reads and the PF3 / PF7 / PF8 paging, whose keys live in the COMMAREA's `OCCURS` tables.
+  Translates 370/370 and is proven on 27 scenarios, through the deployed entry point too, covering 20/20 paragraphs and 80/93 branches. The 13 branches left
+  are the DL/I status faults of SCHD / GU / GNP (the harness injects none under CICS yet), SEL0002, a declined detail and two defensive
+  defaults. Harness steps: a DTO `List` property is a `TableField` (carried in the area's bytes, never JSON), a scalar table reads back as
+  `NAME(n)`, and the facade hands the byte-carrying `handleTransaction` the scenario's own bytes. Not claimed: a map attribute byte of X'40'
+  (DFHBMUNP), which the port's side cannot tell from a cleared byte. The qualified GNP that finds nothing stays refused (IMS leaves position).
 - **CBPAUP0C as a BMP (`carddemo-cbpaup0c`, #5857).** The step is entered USING the I/O PCB and the one DB PCB of PSBPAUTB, reads
   its PRM-INFO card from SYSIN, walks the corpus's own DBPAUTP0 unload with GN / GNP, DLETs the expired details and emptied
-  summaries and takes CHKP ID checkpoints. Proven on five runs (the base card and four control-card scenarios, each a `faults` entry with its own
-  `sysin` and no plan, #5857: debug Y, a card of only the expiry, an expiry nothing reaches, and 5 expiry days whose first DLET
-  answers DJ and abends, RC 16, on both sides), DBPAUTP0 equal on every run, covering 15/16 paragraphs and 30/40 branches (the harness measured the BMP against the unrewritten text while the trace ran the DIB-and-CALL rewrite, so every line after the first EXEC DLI was lost: 4/40 until #5857's coverage fix reads the staged text). The case has no `port/` directory, so it has no `evidence.json` (`evidence.py` records only
-  committed ports, and a record is not a condition of any level): its level is the det-sweep coverage ledger's
-  (`tests/equivalence/det_sweep_coverage/carddemo-cbpaup0c.json`). Left: the 10 uncovered branches are the DL/I error statuses (EVALUATE OTHER at l.228 / 259, the failed-DLET and failed-CHKP arms) and a few IF outcomes no input reaches yet; `evidence.py prove` records no level for a case without a committed port (owner choice: commit a det-generated port, or read the ledger).
+  summaries and takes CHKP ID checkpoints. Proven on 12 runs (the base card, control-card scenarios and DL/I status faults, #5944), DBPAUTP0 equal on every run, covering 15/16 paragraphs and 37/40 branches. The det port is committed (`port/service/`, `port/provenance.json`, as CBSTM03A's), so `evidence.py prove carddemo-cbpaup0c` records the proof (`evidence.json`: proven, 12 runs, mutation pending); the det-sweep coverage ledger (`tests/equivalence/det_sweep_coverage/carddemo-cbpaup0c.json`) carries the same numbers. Left: 3 uncovered branches, each needing an I5 modelling decision: l.160 true (a mid-loop CHKP loses position, so GN restarts and the step never ends), l.340 true (the summary DLET always answers DJ: no get-hold of the summary precedes it), l.287 false (no declined detail expires before the first summary's abend).
 
 ## In port_runner
 

@@ -114,7 +114,7 @@ rules: explicitly `None`, never a forced-fit regex, when a dimension doesn't exi
 
 ## 5. Known limitations (accepted, not fixed)
 
-Three gaps are deliberately documented rather than fixed, via `known_limitation`-named tests in
+Three gaps are deliberately documented rather than fixed (item 4 is a counting-convention ruling), via `known_limitation`-named tests in
 `test_javascript.py`:
 
 1. **No whitespace tolerance between a generator method's `*` and its name.** `*foo()` matches;
@@ -135,6 +135,25 @@ Three gaps are deliberately documented rather than fixed, via `known_limitation`
    `detector.py`'s `_slice_by_braces` working against shielded code — gated for javascript/typescript
    specifically (most other Mode B languages aren't yet) and verified at the pipeline level in
    `test_detector.py`, not in this file.
+4. **A named arrow function is counted wherever it is bound, which runs above Universal Ctags (ruling, #5876).**
+   cssDOOM (DOOM-rosetta) reads 225 functions against ctags' 215 (+4.7%, over the 3% bar) in 5 files. All 10
+   differing definitions were read in the source and are real named functions that ctags leaves out: a `const f = () =>`
+   nested in a function body (`audio.js` `unlock`), a single-parameter `const f = e => {` (`touch.js`
+   `releaseJoystick`, `releaseLook`, `releaseFire`), a `const f = () =>` inside a `for` block (`spectator.js` `press`,
+   `release`), and `window.f = () =>` assignments (`lifts.js` `listTriggers`, `triggerLinedef`, `listLifts`; `debug.js`
+   `teleport`). ctags tags the nested ones as `constant` and is inconsistent on `window.f =` (it counts `window.teleportTo`
+   but not `window.teleport`). Neither side is missing anything the other has: the ctags-only set is empty. So the engine
+   is right and the delta is a counting convention, not a defect; cssdoom keeps `expected_fails=functions` in
+   `tests/doom_rosetta/manifest.csv`. Pinned by `test_javascript_func_start_bound_arrow_is_a_function`.
+   sqlDOOM (PostgreSQL, Python and a small JavaScript web client) is the same class: 419 against 376 (+11.4%, 6 files).
+   The SQL and Python files agree with ctags exactly; all 43 extra functions are in six JavaScript files
+   (`scripts/bots.mjs` 9, `scripts/egress_probe.mjs` 4, `scripts/web_browser_check.mjs` 5, `scripts/web_smoke.mjs` 1,
+   `web/app.js` 17, `web/pgwire.js` 7). 33 are `const f = (...) =>` bindings (top-level helpers such as
+   `const sleep = (ms) => new Promise(...)`, an expression body with no braces, and closures nested in `play`/`setup`),
+   and 10 are handlers assigned on an object (`pg.onclose = (err) => {`, `ws.onmessage = (ev) => {`, `pg.onwire = ...`).
+   Every one was read in the source and is a real function; ctags tags the `const` ones as `constant`, emits null tags
+   for the assigned ones, and has nothing the engine lacks. Same ruling: a counting convention, sqldoom keeps
+   `expected_fails=functions`.
 
 ## 6. Test depth
 

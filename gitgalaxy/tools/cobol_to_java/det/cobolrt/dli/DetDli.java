@@ -269,6 +269,67 @@ public final class DetDli {
         }
     }
 
+    // ---- #5857: DL/I status faults ----------------------------------------------------------------------------
+    private static final List<String[]> FAULTS = new ArrayList<>();
+    private static final java.util.Map<String, Integer> CALLS = new java.util.HashMap<>();
+
+    /**
+     * The run's DL/I fault plan: the lines `# DLI FUNCTION NTH|* STATUS` of the file the property
+     * gitgalaxy.faults.plan names (the file-fault plan the COBOL file layer also reads, which ignores them), counted
+     * afresh for each run. The twin of ggdli.c's GGDLI_FAULTS.
+     */
+    // [rule RT-DLI-FAULT-INJECTION]
+    private static void loadFaults() {
+        FAULTS.clear();
+        CALLS.clear();
+        String plan = System.getProperty("gitgalaxy.faults.plan", "");
+        if (plan.isEmpty()) {
+            return;
+        }
+        try {
+            for (String line : Files.readAllLines(Path.of(plan), StandardCharsets.US_ASCII)) {
+                String[] w = line.trim().split("\\s+");
+                if (w.length == 5 && w[0].equals("#") && w[1].equals("DLI")) {
+                    FAULTS.add(w);
+                }
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    /**
+     * The planned status of this call of `fn` (GU GN GNP ISRT REPL DLET CHKP; a get-hold counts as its get), or null.
+     * Every call counts, whether or not it faults; a fault that fires is appended to gitgalaxy.faults.log. The call is
+     * not performed: the PCB answers the status, as it answers any status it cannot do better than name.
+     */
+    private static String planned(String fn) {
+        if (FAULTS.isEmpty()) {
+            return null;
+        }
+        String key = fn.trim();
+        if (key.startsWith("GH")) {
+            key = "G" + key.substring(2);
+        }
+        int n = CALLS.merge(key, 1, Integer::sum);
+        for (String[] f : FAULTS) {
+            if (f[2].equals(key) && (f[3].equals("*") || Integer.parseInt(f[3]) == n)) {
+                String log = System.getProperty("gitgalaxy.faults.log", "");
+                if (!log.isEmpty()) {
+                    try {
+                        Files.writeString(Path.of(log), "DLI " + key + " " + n + " " + f[4] + System.lineSeparator(),
+                            StandardCharsets.US_ASCII, java.nio.file.StandardOpenOption.CREATE,
+                            java.nio.file.StandardOpenOption.APPEND);
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                }
+                return f[4];
+            }
+        }
+        return null;
+    }
+
     private static boolean loaded;
     private static boolean scheduled;
     private static int ioPcbs; // 1 in a BMP entered by USING its I/O PCB first (enterBmp): PCB(n) counts it
@@ -287,6 +348,7 @@ public final class DetDli {
             }
             return "TC";
         }
+        loadFaults();
         try {
             if (!loaded) {
                 load();
@@ -344,6 +406,7 @@ public final class DetDli {
     }
 
     private static void bind(boolean bmp, Field... areas) {
+        loadFaults();
         try {
             load();
             loaded = true;
@@ -392,6 +455,10 @@ public final class DetDli {
         }
         if (id.length() != 8) {
             throw refuse("a CHKP ID that is not 8 bytes");
+        }
+        String fault = planned("CHKP");
+        if (fault != null) {
+            return fault;
         }
         for (Pcb p : PCBS) {
             p.pos = POS_START;
@@ -1049,6 +1116,11 @@ public final class DetDli {
         String fn = new String(function.storage().bytes, function.offset(), 4, StandardCharsets.ISO_8859_1);
         Node held = p.hold;
         p.hold = null;
+        String fault = KNOWN.contains(fn) ? planned(fn) : null;
+        if (fault != null) {
+            status(p, fault);
+            return;
+        }
         if (!KNOWN.contains(fn)) {
             if (OTHER.contains(fn)) {
                 throw refuse("a DL/I call other than GU GHU GN GHN GNP GHNP ISRT REPL DLET");

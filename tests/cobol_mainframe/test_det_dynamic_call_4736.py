@@ -19,6 +19,7 @@ import pytest
 pytest.importorskip("tree_sitter_language_pack")
 from test_det_programs import IMAGE, PKG, _java, program
 import sys
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
@@ -138,12 +139,6 @@ REFUSED = {
         "DSNTIAR: Db2's message text is not modelled",
     ),
     "dsntiar-literal": (["01 X PIC X.", *ARG], ["CALL 'DSNTIAR' USING ARG"], "DSNTIAR: Db2's message text"),
-    "zuidstck": (
-        ["01 PGM PIC X(8) VALUE 'ZUIDSTCK'.", *ARG],
-        ["CALL PGM USING ARG"],
-        "ZUIDSTCK: an assembler store-clock wrapper",
-    ),
-    "zuidstck-literal": (["01 X PIC X.", *ARG], ["CALL 'ZUIDSTCK' USING ARG"], "ZUIDSTCK: an assembler store-clock"),
     "not-in-the-estate": (
         ["01 PGM PIC X(8) VALUE 'NOPROG'.", *ARG],
         ["CALL PGM USING ARG"],

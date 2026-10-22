@@ -28,6 +28,8 @@ MISSING: dict[str, str] = {}
 # Records whose `mutation` section is still null, each with the reason (#4048). A ratchet: it only shrinks.
 MUTATION_PENDING: dict[str, str] = {
     "carddemo-cbstm03a": "#5856: a det batch port; its L5 mutation run (det_mutation.py run) and survivor review are a follow-up",
+    "carddemo-cbpaup0c": "#5857: a det BMP port; its L5 mutation run (det_mutation.py run) and survivor review are a follow-up",
+    "carddemo-copaua0c": "#5278: a det CICS port; its L5 mutation run (det_mutation.py run) and survivor review are a follow-up",
 }
 
 

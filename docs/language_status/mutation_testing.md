@@ -784,3 +784,31 @@ no `det_mutation_survivors/` file and no new scenario was needed. The stillborn 
 | ASYNCPNT (asynccc-asyncpnt) | 2042/2042 | 1992 | 0 | 50 | 1992/1992 (100%) | yes |
 
 An earlier default-sample run (150 per port) gave the same result, so the full enumeration confirms it.
+
+**#5856 CBSTM03A (2026-10-22): measured, not yet L5.** The CBSTM03A det batch port (`carddemo-cbstm03a`, with its CBSTM03B callee) had no ledger.
+A full enumeration (`det_mutation.py run ... --sample 0`, seed 0, fast mode, JDK 17; 123 min at 3 jobs) judged 3,126 in-scope mutants: 1,039 killed,
+2,078 survived, 9 timed out, 55 stillborn (raw score 1,048/3,126, 34%, with the timeouts counted as kills). The ledger is committed with every survivor unaccounted, so the
+case is **not L5**. The survivors cluster where the case does not look: roughly 545 sit in the service's base64 initial-image constants (lines 100-600 of
+`Cbstm03aService.java`, whose bytes the run overwrites or never reads), and the rest are the paragraphs of a case that covers 23/25 paragraphs and 0/46 branches
+(one job, three TRNX rows). Closing it needs scenarios that reach the branches (empty and multi-card XREF, a missing ACCT/CUST key, a TRNX
+page break) and a reviewed `equivalent` / `unreachable` list for the image constants; both are follow-ups, not part of this slice.
+
+**#5863 L5 sweep, CBSA estate (2026-10-22): no program reaches L5 yet.** The four `cics-banking-sample-application-cbsa` ports
+(GETCOMPY, GETSCODE, ACCTCTRL, UPDACC; ABNDPROC is #4628 slice 6) were run as full enumerations (`det_mutation.py run ... --sample 0`,
+seed 0, fast mode, JDK 17), so each score is every in-scope mutant. Unlike asynccc these programs carry a COMMAREA, so the generated
+COMMAREA scaffolding (typed DTO in/out, link-area bytes, `exactCommarea`, `commarea_length`) is mutated too, and many of its mutants
+survive. GETCOMPY and GETSCODE are triaged in `tests/equivalence/det_mutation_survivors/` (#5863 slice 2): every survivor has a
+verdict. 119 each are stated equivalent or unreachable, each with its reason; 32 are open `case-gap` (20) / `harness-gap` (12), by
+the same reasoning as `cbsa-updcust`. The cases gained `no-commarea`, `eibcalen-zero`, `eibcalen-short`, `eibcalen-full` and a
+caller-value-longer-than-the-field scenario (kills: see the table); a link area longer than the record cannot be
+stated (register X10), so the `beyond` mutants are `harness-gap`. ACCTCTRL and UPDACC (Db2) are recorded but not yet triaged: their
+327 and 395 survivors are all unaccounted.
+
+| program (case) | mutants run / in scope | killed | survived | stillborn | stated equivalent / unreachable | unaccounted | raw score | L5 |
+|---|---|---|---|---|---|---|---|---|
+| GETCOMPY (cbsa-getcompy) | 220/220 | 55 | 151 | 14 | 119 | 32 | 55/206 (27%) | no |
+| GETSCODE (cbsa-getscode) | 227/227 | 62 | 151 | 14 | 119 | 32 | 62/213 (29%) | no |
+| ACCTCTRL (cbsa-acctctrl) | 517/517 | 165 | 327 | 25 | 0 | 327 | 165/492 (34%) | no |
+| UPDACC (cbsa-updacc) | 713/713 | 293 | 395 | 25 | 0 | 395 | 293/688 (43%) | no |
+
+The "unaccounted" column includes the open `case-gap` / `harness-gap` rows, which block L5 until a scenario or the harness covers them.

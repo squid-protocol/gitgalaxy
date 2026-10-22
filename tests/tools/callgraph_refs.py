@@ -209,13 +209,13 @@ REFERENCES: dict[str, Reference] = {
     "python": Reference(
         "python",
         "pyan3",
-        "2.8.1",
+        "2.9.0",
         "crucible",
         pyan_contract,
         _pyan_version,
         (Path(__file__),),
         False,
-        'pip install "pyan3==2.8.1"',
+        'pip install "pyan3==2.9.0"',
     ),
     "typescript": Reference(
         "typescript",

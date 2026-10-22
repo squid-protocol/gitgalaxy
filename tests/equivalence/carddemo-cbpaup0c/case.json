@@ -60,6 +60,72 @@
    "sysin": "05 00002 00005 N",
    "plan": [],
    "why": "#5857: with 5 expiry days the first summary's DLET answers DJ and the step abends (RC 16) on both sides"
+  },
+  {
+   "name": "gn-error",
+   "plan": [
+    {
+     "dd": "DLI",
+     "op": "GN",
+     "nth": 2,
+     "status": "AM"
+    }
+   ],
+   "why": "#5857: the summary GN answers AM: AUTH SUMMARY READ FAILED and the step abends"
+  },
+  {
+   "name": "gnp-error",
+   "plan": [
+    {
+     "dd": "DLI",
+     "op": "GNP",
+     "nth": 3,
+     "status": "AM"
+    }
+   ],
+   "why": "#5857: the detail GNP answers AM: AUTH DETAIL READ FAILED and the step abends"
+  },
+  {
+   "name": "dlet-detail-error",
+   "plan": [
+    {
+     "dd": "DLI",
+     "op": "DLET",
+     "nth": 1,
+     "status": "AM"
+    }
+   ],
+   "why": "#5857: the first detail DLET answers AM: AUTH DETAIL DELETE FAILED and the step abends"
+  },
+  {
+   "name": "chkp-error",
+   "plan": [
+    {
+     "dd": "DLI",
+     "op": "CHKP",
+     "nth": 1,
+     "status": "AM"
+    }
+   ],
+   "why": "#5857: the first CHKP answers AM: CHKP FAILED and the step abends"
+  },
+  {
+   "name": "debug-expiry-abend",
+   "sysin": "05 00002 00005 Y",
+   "plan": [],
+   "why": "#5857: with the debug flag the summary DLET DISPLAYs first, then answers DJ and the step abends"
+  },
+  {
+   "name": "checkpoint-display-compare",
+   "sysin": "13 00002 0000  N",
+   "plan": [],
+   "why": "#5857: a display frequency of 0000 and a blank: the count (8 digits) sorts above that alphanumeric field, so the final CHKP DISPLAYs its count (the WS-NO-CHKP >= branch)"
+  },
+  {
+   "name": "expiry-not-numeric",
+   "sysin": "XX 00002 00005 N",
+   "plan": [],
+   "why": "#5857: a non-numeric expiry falls back to 5 days (the IS NUMERIC false branch)"
   }
  ]
 }

@@ -453,6 +453,23 @@ def scenario_clock(case: dict[str, Any], sc: dict[str, Any]) -> str:
     return clock
 
 
+_TOD = re.compile(r"[0-9A-Fa-f]{32}")
+
+
+def scenario_tod(case: dict[str, Any], sc: dict[str, Any]) -> str | None:
+    """#5945 (register X47): the 16 bytes CALL ZUIDSTCK returns, 32 hex digits -- the scenario's "tod", else the case's, else
+    unstated (None: both runtimes then refuse the CALL). A fact the run states on both sides ($GGC_ZUIDSTCK_TOD for the
+    stub task, Zuidstck.state for the port), never the clock."""
+    tod = sc.get("tod", case.get("tod"))
+    if tod is not None and not (isinstance(tod, str) and _TOD.fullmatch(tod)):
+        raise Unsupported(f'scenario {sc.get("name")}: "tod" is 32 hexadecimal digits (got {tod!r})')
+    return tod
+
+
+def case_states_tod(case: dict[str, Any]) -> bool:
+    return "tod" in case or any("tod" in sc for sc in case["scenarios"])
+
+
 def clock_iso(case: dict[str, Any], sc: dict[str, Any] | None = None) -> str:
     """#4270: the case's clock ("2026/10/01 10:30:15.00") as the stub's $GGCICS_NOW (2026-10-01T10:30:15): the
     moment a START's expiry and a CANCEL's "not expired" count from, as CicsTask counts them from the same clock.
@@ -2427,6 +2444,13 @@ def substitute_install_symbols(name: str, symbols: dict[str, str]) -> str:
     return _INSTALL_SYMBOL.sub(lambda m: symbols.get(m.group(1).upper(), m.group(0)), name.upper())
 
 
+def _cfg_file_name(case: dict[str, Any], f: dict[str, Any]) -> str:
+    """The name the stub's files.cfg gives a CICS file: the CSD's template (`ZC@ID@KEY`) with the case's install symbols
+    resolved (`ZC01KEY`), the name the program's FILE option holds at run time; unchanged without a stated symbol."""
+    symbols = install_symbols(case.get("install_symbols"))
+    return substitute_install_symbols(f["file"], symbols) if symbols else f["file"]
+
+
 def stub_files(
     ir: Any,
     program_file: str,
@@ -2526,6 +2550,10 @@ def stub_files(
             raise Unsupported(f"CICS file {e['name']}: {key.name}'s KEYS or {d.name}'s RECORDSIZE is not in the facts")
         out.append({"file": e["name"], "dsname": dsn, "base": base, "key_offset": koff,
                     "key_length": klen, "reclen": reclen, "via": via})  # fmt: skip
+    for f in out:
+        # #5089: a CSD file name written with an install symbol (zECS: ZC@ID@FILE) is the resolved name at run time
+        # (the program opens ZC01FILE), so the stub's files.cfg must carry that name or every READ is FILENOTFOUND
+        f["file"] = substitute_install_symbols(f["file"], symbols)
     out += [r for r in case_runtime_files(datasets) if r["file"] not in {f["file"] for f in out}]
     return sorted(out, key=lambda f: f["file"])
 
@@ -3290,7 +3318,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     (src / "PROGRAM.cbl").write_text(text, encoding=staged)
     (src / "EQCICSDR.cbl").write_text(cics_driver(case["program"], has_commarea), encoding="ascii")
     (work / "files.cfg").write_text("".join(
-        f"{f['file']} /work/files/{f['base']} {f['reclen']} {f['key_offset']} {f['key_length']}{_cfg_flags(case, f)}\n"
+        f"{_cfg_file_name(case, f)} /work/files/{f['base']} {f['reclen']} {f['key_offset']} {f['key_length']}{_cfg_flags(case, f)}\n"
         for f in files
     ), encoding="ascii")  # fmt: skip
     (work / "files").mkdir(exist_ok=True)
@@ -3318,7 +3346,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                                     "compiled_name": f"SUB{name}.cbl"})  # fmt: skip
     # (#4950: or the program itself CALLs one -- CBSA CRECUST's CEEDAYS / CEELOCT; #5076: or a program it LINKs in the
     # task does, BNK1CCS -> CRECUST)
-    le_call = re.compile(r"(?i)\bCALL\s+['\"]CEE|\bCOPY\s+CSDB2RPY\b|\bDSNTIAC\b")  # #5858: DSNTIAC's model too
+    le_call = re.compile(
+        r"(?i)\bCALL\s+['\"]CEE|\bCOPY\s+CSDB2RPY\b|\bDSNTIAC\b|\bZUIDSTCK\b"
+    )  # #5858: DSNTIAC's model too; #5945: ZUIDSTCK's
     calls_le = le_call.search(source) or any(
         le_call.search(common.read_program(case, corpus / extra["program_source"])[0])
         for extra in case.get("programs", [])
@@ -3426,7 +3456,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             if over is not None:
                 (d / "files" / f["base"]).write_bytes(case_file_records(case, corpus, over, f["reclen"], enc))
         (d / "files.cfg").write_text("".join(
-            f"{f['file']} /work/scenarios/{sc['name']}/files/{f['base']} {f['reclen']} {f['key_offset']} "
+            f"{_cfg_file_name(case, f)} /work/scenarios/{sc['name']}/files/{f['base']} {f['reclen']} {f['key_offset']} "
             f"{f['key_length']}{_cfg_flags(case, f)}\n" for f in files
         ), encoding="ascii")  # fmt: skip
         if sc.get("commarea") is not None:
@@ -3538,6 +3568,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                       + (f"GGCICS_HTTP={rel}/http.cfg " if http_peers(case, sc) is not None else "")
                       + (f"GGCICS_WEBREQ={rel}/webreq.cfg " if http_request(case, sc) is not None else "")
                       + (f"GGCICS_TCPIP={rel}/tcpip.cfg " if tcpip(case, sc) is not None else "")
+                      + (f"GGC_ZUIDSTCK_TOD={scenario_tod(case, sc)} " if scenario_tod(case, sc) else "")
                       + f"{sqlenv}COB_CURRENT_DATE='{scenario_clock(case, sc)}' GGCICS_NOW={clock_iso(case, sc)} ./task > {rel}/stdout.txt 2>&1; "
                       f"echo $? > {rel}/rc; set -e")  # fmt: skip
         if db2:  # what the task left in each compared table
@@ -3920,7 +3951,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             fields = screen_fields(corpus, case, kv["map"], "output")
             vals = decode_record(data, fields, enc)
             keys = {f["name"]: screen_key(f) for f in fields}  # #5076: an OCCURS field's every occurrence, ACCOUNT.3
-            res["screens"].append({"map": kv["map"],
+            res["screens"].append({"map": kv["map"], **({"mapset": kv["mapset"]} if "mapset" in kv else {}),
                                    "fields": {keys[k][0]: v for k, v in vals.items() if keys[k][1] == "O"},
                                    "subfields": map_subfields(corpus, case, kv["map"], data, enc),
                                    "options": sorted(args.partition("opts=")[2].split()),
@@ -3996,7 +4027,8 @@ def map_subfields(
     themselves (DFHRED is X'F2'), so the byte is the value. Not set, and not compared: X'00' -- the LOW-VALUES a
     program clears its map with, which BMS reads as "the map's own" -- and a space, which is never a BMS value
     here but WORKING-STORAGE GnuCOBOL initialised to spaces where IBM leaves it undefined (a map the program never
-    cleared: the mainframe's bytes are not known, so nothing is claimed about them)."""
+    cleared: the mainframe's bytes are not known, so nothing is claimed about them). #5233: X'40' too -- DFHBMUNP, the
+    EBCDIC space, which the port's side (java_subfields) cannot tell from a cleared byte, so neither side claims it."""
     out: dict[str, dict[str, int]] = {}
     scr = case["screens"][map_name]
     layouts = [screen_layout(corpus, str(common.case_path(corpus, scr["copybook"])), scr[side])
@@ -4010,7 +4042,7 @@ def map_subfields(
         raw = data[f["offset"] : f["offset"] + f["bytes"]]
         if kind == "L" and f["bytes"] == 2 and int.from_bytes(raw, "big", signed=True) == -1:
             out.setdefault(name, {})["length"] = -1
-        elif kind in _SUBFIELDS and f["bytes"] == 1 and raw not in (b"\x00", space):
+        elif kind in _SUBFIELDS and f["bytes"] == 1 and raw not in (b"\x00", space, b"\x40"):
             out.setdefault(name, {})[_SUBFIELDS[kind]] = raw[0]
     return out
 
@@ -4028,7 +4060,8 @@ def java_subfields(sub: Any) -> dict[str, dict[str, int]]:
 
 
 # ---- the Java side --------------------------------------------------------------------
-_DTO_FIELD = re.compile(r"^\s*//\s*(.+?)\n\s*private\s+([\w.<>]+)\s+(\w+);", re.M)
+# a table field has a second comment line ("// OCCURS 20 TIMES") between its PICTURE comment and the property (#5233)
+_DTO_FIELD = re.compile(r"^\s*//\s*(.+?)\n(?:\s*//[^\n]*\n)?\s*private\s+([\w.<>]+)\s+(\w+);", re.M)
 
 
 def java_class_file(src: Path, name: str, context: Path | None = None) -> Path | None:
@@ -4071,6 +4104,11 @@ def dto_shape(src: Path, cls: str, context: Path | None = None) -> dict[str, Any
     return _dto_file_shape(src, path)
 
 
+class TableField(str):
+    """#5233: the COBOL name of a DTO property that is a List (an OCCURS table of scalars). The port's input carries it
+    in the area's bytes (`tabled`), never as JSON: a scalar there is not a list."""
+
+
 def _dto_file_shape(src: Path, path: Path) -> dict[str, Any]:
     shape: dict[str, Any] = {}
     for comment, jtype, var in _DTO_FIELD.findall(path.read_text(encoding="utf-8")):
@@ -4078,7 +4116,8 @@ def _dto_file_shape(src: Path, path: Path) -> dict[str, Any]:
         if part is not None:
             shape[var] = (part.stem, _dto_file_shape(src, part))
         elif ":" in comment:
-            shape[var] = comment.split(":", 1)[0].strip()
+            name = comment.split(":", 1)[0].strip()
+            shape[var] = TableField(name) if jtype.startswith("List<") else name
     return shape
 
 
@@ -4090,7 +4129,7 @@ def to_java(values: dict[str, Any], shape: dict[str, Any], text: frozenset[str] 
     for var, spec in shape.items():
         if isinstance(spec, tuple):
             out[var] = to_java(values, spec[1], text)
-        elif spec in values:
+        elif spec in values and not isinstance(spec, TableField):
             v = values[spec]
             if spec in text:
                 out[var] = v
@@ -4354,7 +4393,8 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
                 used = twoB;
                 carriesBytes = true;
                 entry(program, "handleTransaction");
-                got = call(twoB, service, scenario.transid(), commarea, null);
+                // #5233: the bytes the scenario's task starts with (a table's later occurrences are only there), not none
+                got = call(twoB, service, scenario.transid(), commarea, scenario.linkAreaView());
             } else if (commarea == null && one != null) {
                 used = one;
                 entry(program, "handleTransaction");
@@ -4585,6 +4625,22 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
     import equivalence_java as ej
 
     pkg = ej.PKG
+    # #5945: the scenario's stated TOD for CALL ZUIDSTCK (only a case that states one carries the driver lines)
+    tod_stmt = '            stateTod(sc.has("tod") ? sc.get("tod").asText() : null);\n' if case_states_tod(case) else ""
+    tod_helper = (
+        f"""    /** #5945 (X47): the scenario's TOD, or none, for the port's ZUIDSTCK stand-in (the stub's $GGC_ZUIDSTCK_TOD). */
+    static void stateTod(String hex) {{
+        try {{
+            Class.forName("{pkg}.cobolrt.le.Zuidstck").getMethod("state", String.class).invoke(null, hex);
+        }} catch (ReflectiveOperationException e) {{
+            throw new IllegalStateException("a stated TOD for a port with no cobolrt.le.Zuidstck", e);
+        }}
+    }}
+
+"""
+        if case_states_tod(case)
+        else ""
+    )
     svc = ej._service_class(case["program"])
     var = svc[0].lower() + svc[1:]
     ca = commarea_class(case, src, next(src.rglob(f"{svc}.java")))
@@ -4799,7 +4855,7 @@ class EquivalenceRunTest {{
         }}
     }}
 
-    /** #5278: a new task on the stated databases (cobolrt.dli.DetDli, the stub's ggdli.c): nothing scheduled, nothing read yet. */
+{tod_helper}    /** #5278: a new task on the stated databases (cobolrt.dli.DetDli, the stub's ggdli.c): nothing scheduled, nothing read yet. */
     static void dliReset(Path dir) {{
         System.setProperty("gitgalaxy.dli.dir", dir.toString());
         try {{
@@ -4867,7 +4923,7 @@ class EquivalenceRunTest {{
             Path sysout = out.resolve(sc.get("name").asText() + ".sysout");
             Files.deleteIfExists(sysout);
             System.setProperty("gitgalaxy.sysout", sysout.toString());
-            CicsTask task = new CicsTask("{case["transid"]}", sc.get("aid").asText(), commarea, calen, received)
+{tod_stmt}            CicsTask task = new CicsTask("{case["transid"]}", sc.get("aid").asText(), commarea, calen, received)
                     .withClock(java.time.LocalDateTime.parse(sc.path("clock").asText("{ej._clock(case)}")))  // EIBTIME / ASKTIME: the scenario's clock, else the case's
                     .withRegion({region_java})  // ASSIGN APPLID / SYSID
                     .withProgram("{case["program"]}")  // the task's first program (a LINK's INVOKINGPROG)
@@ -5212,12 +5268,17 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
             values = decode_record(commarea_record(ca_read, sc["commarea"], enc), ca_fields, enc, keep_nulls=True)
             # a value the DTO has no field for would reach the port as nothing at all: the case must name the
             # COMMAREA as the contract DTO's record does
-            lost = sorted(set(sc["commarea"]) - shape_names(shape))
+            # #5233: a table's later occurrence (CDEMO-CPVS-AUTH-KEYS(3)) is the DTO's list property, set by the bytes
+            tables = {n for n in _leaves(shape).values() if isinstance(n, TableField)}
+            tabled = {k for k in sc["commarea"] if re.sub(r"\(\d+\)$", "", k) in tables}
+            lost = sorted({k for k in sc["commarea"] if re.sub(r"\(\d+\)$", "", k) not in shape_names(shape)})
             if lost:
                 raise Unsupported(f"scenario {sc['name']}: the COMMAREA DTO {ca_cls} has no field for {lost} -- "
                                   f"describe the COMMAREA with the record the DTO is generated from")  # fmt: skip
             ca = to_java(values, shape, alphanumeric(ca_fields))
-            if case.get("linked"):  # #4765: the very bytes the COBOL task was LINKed with (CicsTask.withLinkArea)
+            if (
+                case.get("linked") or tabled
+            ):  # #4765: the very bytes the COBOL task was LINKed with (CicsTask.withLinkArea)
                 area = commarea_record(ca_read, sc["commarea"], enc).hex().upper()
         # A typed field is named as the symbolic map names its input (ACCTSIDI); a screen view model
         # keys it by the BMS field (ACCTSID), as screenValues() / fromValues() do.
@@ -5233,6 +5294,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                           "startcode": task_facts(case, sc)[0], "terminal": task_facts(case, sc)[1],
                           **terminal_facts(case, sc),
                           **({"clock": ej._clock({**case, "clock": scenario_clock(case, sc)})} if "clock" in sc else {}),
+                          **({"tod": scenario_tod(case, sc)} if scenario_tod(case, sc) else {}),
                           "ts": ts_seed(case, sc), "urimaps": urimaps(case, sc),
                           **({"td": td_seed(case, sc)} if td_seed(case, sc) else {}),
                           "doctemplates": doctemplates(case, sc), "http_peers": http_peers(case, sc),
@@ -5327,7 +5389,14 @@ def first_occurrences(values: dict[str, Any], fields: list[dict[str, Any]]) -> d
     inside an OCCURS group appear once"), at the first occurrence: COMM-ACC-TYPE is COMM-ACC-TYPE(1) of a layout with
     every occurrence. The others it does not carry, so they are absent -- compared, never assumed equal."""
     first = {f["base"]: f["name"] for f in fields if f.get("subscripts") and all(k == 1 for k in f["subscripts"])}
-    return {first.get(k, k): v for k, v in values.items()}
+    out: dict[str, Any] = {}
+    for k, v in values.items():
+        name = first.get(k, k)
+        if isinstance(v, list) and all(not isinstance(x, (dict, list)) for x in v):  # #5233: a table of scalars
+            out.update({re.sub(r"\(1\)$", f"({i})", name): x for i, x in enumerate(v, 1)})
+        else:
+            out[name] = v
+    return out
 
 
 def java_area(area: str, ca_fields: list[dict[str, Any]], enc: str) -> dict[str, Any]:
@@ -5598,7 +5667,7 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
         verb, _, args = line.partition(" ")
         if verb == "SEND-MAP":
             s = next(screens)
-            out.append({"event": "SEND-MAP", "map": s["map"], "screen": s["fields"], "subfields": s["subfields"],
+            out.append({"event": "SEND-MAP", "map": s["map"], **({"mapset": s["mapset"]} if "mapset" in s else {}), "screen": s["fields"], "subfields": s["subfields"],
                         "options": s["options"], "cursor": s["cursor"]})  # fmt: skip
         elif verb == "SEND-TEXT":  # #5401: its options too, as CicsTask.sendText records them
             out.append({"event": "SEND-TEXT", "text": next(texts), "options": next(text_options, [])})
@@ -5633,7 +5702,9 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
         elif verb in equivalence_mq.EVENTS:  # #4892
             out.append(next(mq_calls))
         elif verb == "RECEIVE-MAP":  # #4009: CicsTask.receive records it too
-            out.append({"event": "RECEIVE-MAP", "map": re.search(r"\bmap=(\S*)", args).group(1)})
+            mapset = re.search(r"\bmapset=(\S*)", args)  # #5862: the mapset too, as CicsTask.receive records it
+            out.append({"event": "RECEIVE-MAP", "map": re.search(r"\bmap=(\S*)", args).group(1),
+                        **({"mapset": mapset.group(1)} if mapset else {})})  # fmt: skip
         elif verb == "RETURN":
             lvl = re.search(r"\blevel=(\d+)", args)
             if "resp=" in args:  # #4270: a RETURN IMMEDIATE that failed (INVREQ / LENGERR): CicsTask.returnImmediate
@@ -5765,6 +5836,8 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
         for key in ("map", "transid", "program", "text", "abcode", "queue", "data", "resp", "item", "resource"):
             if key in c and not _same(c[key], j.get(key)):
                 bad.append({"field": key, "cobol": c[key], "java": j.get(key)})
+        if "mapset" in c and c["mapset"] != j.get("mapset"):  # #5862: the MAPSET of a SEND / RECEIVE MAP
+            bad.append({"field": "mapset", "cobol": c["mapset"], "java": j.get("mapset")})
         if c["event"] == "START":  # #4270: what CicsTask.start records besides the transid and RESP, both ways
             for key in ("termid", "interval", "time", "reqid", "protect", "resp2", "expires", "from",
                         "rtransid", "rtermid", "queue", "channel"):  # fmt: skip

@@ -368,13 +368,8 @@ def test_hybrid_string_ignorance(isolated_detector):
 # ==============================================================================
 # TEST 14: Tier 4 Macro Blindspot Fix & ABAP Handicap
 # ==============================================================================
-@patch("gitgalaxy.standards.language_lens.time.time")
-def test_tier_4_macro_and_handicaps(mock_time, isolated_detector):
+def test_tier_4_macro_and_handicaps(isolated_detector):
     """Proves C-family macros provide a density boost, and ABAP gets handicapped."""
-
-    # Make time.time() step by exactly 1.0s every call.
-    # This guarantees the 'friction_ratio' tie-breaker is always perfectly 1.0 (Safe)
-    mock_time.side_effect = [float(i) for i in range(50)]
 
     # Inject ABAP into the isolated detector
     isolated_detector.languages["abap"] = {
@@ -391,7 +386,7 @@ def test_tier_4_macro_and_handicaps(mock_time, isolated_detector):
     abap_payload = "// ABAP file\n" * 15 + "REPORT ZTEST.\n" * 5
     res_abap = isolated_detector.inspect("no_extension_file2", abap_payload)
 
-    assert res_c["lang_id"] == "c", "Failed to apply macro density boost and tie-breaker!"
+    assert res_c["lang_id"] == "c", "Failed to apply macro density boost!"
     assert res_abap["lang_id"] == "abap", "Failed to identify ABAP despite handicap!"
 
 
@@ -457,8 +452,7 @@ def test_corrupted_intent_vector_survival(isolated_detector):
 # ==============================================================================
 # TEST 18: TIER 4 DENSITY CONFIDENCE CLAMP (ISSUE #257)
 # ==============================================================================
-@patch("gitgalaxy.standards.language_lens.time.time")
-def test_tier_4_density_confidence_is_clamped(mock_time, isolated_detector):
+def test_tier_4_density_confidence_is_clamped(isolated_detector):
     """
     Proves Tier 4's `regex_hits / loc` density score is clamped to 1.0 before
     being returned as a confidence value.
@@ -469,8 +463,6 @@ def test_tier_4_density_confidence_is_clamped(mock_time, isolated_detector):
     regularly exceeds 1.0 -- this payload deliberately hits "int main" three
     times per line to drive raw density to ~2x, well past 1.0.
     """
-    mock_time.side_effect = [float(i) for i in range(50)]
-
     # 5 comment lines (to establish the standard_block lexical family) + 20
     # lines with 3 "int main" hits each -> 60 hits over ~26 physical lines,
     # a raw density of ~2.3 -- unclamped, this would flow straight into
